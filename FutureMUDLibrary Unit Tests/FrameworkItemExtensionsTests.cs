@@ -9,21 +9,21 @@ public class FrameworkItemExtensionsTests
     [TestMethod]
     public void FrameworkItemEquals_TrueWhenItemIdAndTypeMatch()
     {
-        var item = new FrameworkItemStub { Id = 1 };
+        FrameworkItemStub item = new() { Id = 1 };
         Assert.IsTrue(item.FrameworkItemEquals(1, "Stub"));
     }
 
     [TestMethod]
     public void FrameworkItemEquals_FalseWhenIdDiffers()
     {
-        var item = new FrameworkItemStub { Id = 1 };
+        FrameworkItemStub item = new() { Id = 1 };
         Assert.IsFalse(item.FrameworkItemEquals(2, "Stub"));
     }
 
     [TestMethod]
     public void FrameworkItemEquals_FalseWhenTypeDiffers()
     {
-        var item = new FrameworkItemStub { Id = 1 };
+        FrameworkItemStub item = new() { Id = 1 };
         Assert.IsFalse(item.FrameworkItemEquals(1, "Other"));
     }
 

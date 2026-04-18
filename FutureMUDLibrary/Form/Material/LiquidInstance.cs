@@ -7,8 +7,10 @@ namespace MudSharp.Form.Material
 {
     public class LiquidInstance
     {
-        public static LiquidInstance LoadInstance(XElement root, IFuturemud gameworld) {
-            switch (root.Attribute("instancetype")?.Value ?? "none") {
+        public static LiquidInstance LoadInstance(XElement root, IFuturemud gameworld)
+        {
+            switch (root.Attribute("instancetype")?.Value ?? "none")
+            {
                 case "blood":
                     return new BloodLiquidInstance(root, gameworld);
                 case "colour":
@@ -34,7 +36,7 @@ namespace MudSharp.Form.Material
             Amount += other.Amount;
         }
 
-        public virtual LiquidInstance SplitVolume (double volume)
+        public virtual LiquidInstance SplitVolume(double volume)
         {
             Amount -= volume;
             return new LiquidInstance

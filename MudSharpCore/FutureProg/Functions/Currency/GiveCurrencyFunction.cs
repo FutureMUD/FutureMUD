@@ -1,243 +1,243 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.FutureProg.Functions.Currency;
 
 internal class GiveCurrencyFunction : BuiltInFunction
 {
-	public static bool GiveCurrency(ICurrency currency, decimal amount, object target, bool respectGetRules)
-	{
-		var gameworld = currency.Gameworld;
-		ICurrencyPile targetPile = null;
-		if (target is IGameItem gameitem)
-		{
-			targetPile = gameitem.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
-			if (targetPile == null)
-			{
-				var newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
-					currency, Enumerable.Empty<Tuple<ICoin, int>>());
-				gameworld.Add(newItem);
+    public static bool GiveCurrency(ICurrency currency, decimal amount, object target, bool respectGetRules)
+    {
+        IFuturemud gameworld = currency.Gameworld;
+        ICurrencyPile targetPile = null;
+        if (target is IGameItem gameitem)
+        {
+            targetPile = gameitem.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
+            if (targetPile == null)
+            {
+                IGameItem newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
+                    currency, Enumerable.Empty<Tuple<ICoin, int>>());
+                gameworld.Add(newItem);
 
-				var container = gameitem.GetItemType<IContainer>();
-				if (container == null)
-				{
-					return false;
-				}
+                IContainer container = gameitem.GetItemType<IContainer>();
+                if (container == null)
+                {
+                    return false;
+                }
 
-				container.Put(null, newItem, false);
-			}
-		}
+                container.Put(null, newItem, false);
+            }
+        }
 
-		if (target is ICell location)
-		{
-			targetPile = location.GameItems.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
-			if (targetPile == null)
-			{
-				var newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
-					currency, Enumerable.Empty<Tuple<ICoin, int>>());
-				gameworld.Add(newItem);
-				location.Insert(newItem, true);
-			}
-		}
+        if (target is ICell location)
+        {
+            targetPile = location.GameItems.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
+            if (targetPile == null)
+            {
+                IGameItem newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
+                    currency, Enumerable.Empty<Tuple<ICoin, int>>());
+                gameworld.Add(newItem);
+                location.Insert(newItem, true);
+            }
+        }
 
-		if (target is ICharacter character)
-		{
-			targetPile = character.Body.AllItems.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
-			if (targetPile == null)
-			{
-				var newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
-					currency, Enumerable.Empty<Tuple<ICoin, int>>());
-				gameworld.Add(newItem);
+        if (target is ICharacter character)
+        {
+            targetPile = character.Body.AllItems.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
+            if (targetPile == null)
+            {
+                IGameItem newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
+                    currency, Enumerable.Empty<Tuple<ICoin, int>>());
+                gameworld.Add(newItem);
 
-				if (character.Body.CanGet(newItem, 0))
-				{
-					character.Body.Get(newItem, silent: true);
-				}
-				else
-				{
-					var targetContainer =
-						character.Body.AllItems.RecursiveGetItems<IContainer>(respectGetRules)
-						         .FirstOrDefault(
-							         x =>
-								         !respectGetRules ||
-								         (x.Parent.IsItemType<IOpenable>() &&
-								          x.Parent.GetItemType<IOpenable>().IsOpen &&
-								          x.CanPut(newItem)));
-					if (targetContainer == null)
-					{
-						newItem.RoomLayer = character.RoomLayer;
-						character.Location.Insert(newItem, true);
-					}
-					else
-					{
-						targetContainer.Put(null, newItem, false);
-					}
-				}
-			}
-		}
+                if (character.Body.CanGet(newItem, 0))
+                {
+                    character.Body.Get(newItem, silent: true);
+                }
+                else
+                {
+                    IContainer targetContainer =
+                        character.Body.AllItems.RecursiveGetItems<IContainer>(respectGetRules)
+                                 .FirstOrDefault(
+                                     x =>
+                                         !respectGetRules ||
+                                         (x.Parent.IsItemType<IOpenable>() &&
+                                          x.Parent.GetItemType<IOpenable>().IsOpen &&
+                                          x.CanPut(newItem)));
+                    if (targetContainer == null)
+                    {
+                        newItem.RoomLayer = character.RoomLayer;
+                        character.Location.Insert(newItem, true);
+                    }
+                    else
+                    {
+                        targetContainer.Put(null, newItem, false);
+                    }
+                }
+            }
+        }
 
-		if (targetPile == null)
-		{
-			return false;
-		}
+        if (targetPile == null)
+        {
+            return false;
+        }
 
-		bool exact;
-		targetPile.AddCoins(currency.FindCoinsForAmount(amount, out exact).Select(x => Tuple.Create(x.Key, x.Value)));
+        bool exact;
+        targetPile.AddCoins(currency.FindCoinsForAmount(amount, out exact).Select(x => Tuple.Create(x.Key, x.Value)));
 
-		return true;
-	}
+        return true;
+    }
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Boolean;
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Boolean;
+        protected set { }
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		var currency = (ICurrency)ParameterFunctions[0].Result;
-		if (currency == null)
-		{
-			ErrorMessage = "Null currency in GiveCurrency function.";
-			return StatementResult.Error;
-		}
+        ICurrency currency = (ICurrency)ParameterFunctions[0].Result;
+        if (currency == null)
+        {
+            ErrorMessage = "Null currency in GiveCurrency function.";
+            return StatementResult.Error;
+        }
 
-		var respectGetRules = (bool?)ParameterFunctions[3].Result.GetObject ?? false;
+        bool respectGetRules = (bool?)ParameterFunctions[3].Result.GetObject ?? false;
 
-		var success = true;
-		var amount = ParameterFunctions[1].ReturnType == ProgVariableTypes.Number
-			? (decimal)ParameterFunctions[1].Result.GetObject
-			: currency.GetBaseCurrency((string)ParameterFunctions[1].Result.GetObject, out success);
+        bool success = true;
+        decimal amount = ParameterFunctions[1].ReturnType == ProgVariableTypes.Number
+            ? (decimal)ParameterFunctions[1].Result.GetObject
+            : currency.GetBaseCurrency((string)ParameterFunctions[1].Result.GetObject, out success);
 
-		if (!success)
-		{
-			ErrorMessage = "Incorrect currency amount for currency " + currency.Name + ": " +
-			               (string)ParameterFunctions[1].Result.GetObject;
-			return StatementResult.Error;
-		}
+        if (!success)
+        {
+            ErrorMessage = "Incorrect currency amount for currency " + currency.Name + ": " +
+                           (string)ParameterFunctions[1].Result.GetObject;
+            return StatementResult.Error;
+        }
 
-		var parameter1 = ParameterFunctions[2].Result;
-		if (parameter1 == null)
-		{
-			ErrorMessage = "Null Character, Location or Item given to GiveCurrency function.";
-			return StatementResult.Error;
-		}
+        IProgVariable parameter1 = ParameterFunctions[2].Result;
+        if (parameter1 == null)
+        {
+            ErrorMessage = "Null Character, Location or Item given to GiveCurrency function.";
+            return StatementResult.Error;
+        }
 
-		ICurrencyPile targetPile = null;
-		if (parameter1 is IGameItem gameitem)
-		{
-			targetPile = gameitem.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
-			if (targetPile == null)
-			{
-				var newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
-					currency, Enumerable.Empty<Tuple<ICoin, int>>());
-				_gameworld.Add(newItem);
+        ICurrencyPile targetPile = null;
+        if (parameter1 is IGameItem gameitem)
+        {
+            targetPile = gameitem.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
+            if (targetPile == null)
+            {
+                IGameItem newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
+                    currency, Enumerable.Empty<Tuple<ICoin, int>>());
+                _gameworld.Add(newItem);
 
-				var container = gameitem.GetItemType<IContainer>();
-				if (container == null)
-				{
-					Result = new BooleanVariable(false);
-					return StatementResult.Normal;
-				}
+                IContainer container = gameitem.GetItemType<IContainer>();
+                if (container == null)
+                {
+                    Result = new BooleanVariable(false);
+                    return StatementResult.Normal;
+                }
 
-				container.Put(null, newItem, false);
-			}
-		}
+                container.Put(null, newItem, false);
+            }
+        }
 
-		if (parameter1 is ICell location)
-		{
-			targetPile = location.GameItems.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
-			if (targetPile == null)
-			{
-				var newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
-					currency, Enumerable.Empty<Tuple<ICoin, int>>());
-				_gameworld.Add(newItem);
-				location.Insert(newItem, true);
-			}
-		}
+        if (parameter1 is ICell location)
+        {
+            targetPile = location.GameItems.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
+            if (targetPile == null)
+            {
+                IGameItem newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
+                    currency, Enumerable.Empty<Tuple<ICoin, int>>());
+                _gameworld.Add(newItem);
+                location.Insert(newItem, true);
+            }
+        }
 
-		if (parameter1 is ICharacter character)
-		{
-			targetPile = character.Body.AllItems.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
-			if (targetPile == null)
-			{
-				var newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
-					currency, Enumerable.Empty<Tuple<ICoin, int>>());
-				_gameworld.Add(newItem);
+        if (parameter1 is ICharacter character)
+        {
+            targetPile = character.Body.AllItems.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
+            if (targetPile == null)
+            {
+                IGameItem newItem = GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(
+                    currency, Enumerable.Empty<Tuple<ICoin, int>>());
+                _gameworld.Add(newItem);
 
-				if (character.Body.CanGet(newItem, 0))
-				{
-					character.Body.Get(newItem, silent: true);
-				}
-				else
-				{
-					var targetContainer =
-						character.Body.AllItems.RecursiveGetItems<IContainer>(respectGetRules)
-						         .FirstOrDefault(
-							         x =>
-								         !respectGetRules ||
-								         (x.Parent.IsItemType<IOpenable>() &&
-								          x.Parent.GetItemType<IOpenable>().IsOpen &&
-								          x.CanPut(newItem)));
-					if (targetContainer == null)
-					{
-						character.Location.Insert(newItem, true);
-					}
-					else
-					{
-						targetContainer.Put(null, newItem, false);
-					}
-				}
-			}
-		}
+                if (character.Body.CanGet(newItem, 0))
+                {
+                    character.Body.Get(newItem, silent: true);
+                }
+                else
+                {
+                    IContainer targetContainer =
+                        character.Body.AllItems.RecursiveGetItems<IContainer>(respectGetRules)
+                                 .FirstOrDefault(
+                                     x =>
+                                         !respectGetRules ||
+                                         (x.Parent.IsItemType<IOpenable>() &&
+                                          x.Parent.GetItemType<IOpenable>().IsOpen &&
+                                          x.CanPut(newItem)));
+                    if (targetContainer == null)
+                    {
+                        character.Location.Insert(newItem, true);
+                    }
+                    else
+                    {
+                        targetContainer.Put(null, newItem, false);
+                    }
+                }
+            }
+        }
 
-		if (targetPile == null)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        if (targetPile == null)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		bool exact;
-		targetPile.AddCoins(currency.FindCoinsForAmount(amount, out exact).Select(x => Tuple.Create(x.Key, x.Value)));
+        bool exact;
+        targetPile.AddCoins(currency.FindCoinsForAmount(amount, out exact).Select(x => Tuple.Create(x.Key, x.Value)));
 
-		Result = new BooleanVariable(true);
-		return StatementResult.Normal;
-	}
+        Result = new BooleanVariable(true);
+        return StatementResult.Normal;
+    }
 
-	private readonly IFuturemud _gameworld;
+    private readonly IFuturemud _gameworld;
 
-	public GiveCurrencyFunction(IList<IFunction> parameters, IFuturemud gameworld)
-		: base(parameters)
-	{
-		_gameworld = gameworld;
-	}
+    public GiveCurrencyFunction(IList<IFunction> parameters, IFuturemud gameworld)
+        : base(parameters)
+    {
+        _gameworld = gameworld;
+    }
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"givecurrency",
-			new ProgVariableTypes[]
-			{
-				ProgVariableTypes.Currency, ProgVariableTypes.Number | ProgVariableTypes.Text,
-				ProgVariableTypes.Location | ProgVariableTypes.Character | ProgVariableTypes.Item,
-				ProgVariableTypes.Boolean
-			},
-			(IList<IFunction> pars, IFuturemud gameworld) => new GiveCurrencyFunction(pars, gameworld)
-		));
-	}
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "givecurrency",
+            new ProgVariableTypes[]
+            {
+                ProgVariableTypes.Currency, ProgVariableTypes.Number | ProgVariableTypes.Text,
+                ProgVariableTypes.Location | ProgVariableTypes.Character | ProgVariableTypes.Item,
+                ProgVariableTypes.Boolean
+            },
+            (IList<IFunction> pars, IFuturemud gameworld) => new GiveCurrencyFunction(pars, gameworld)
+        ));
+    }
 }

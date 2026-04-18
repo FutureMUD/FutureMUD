@@ -1,73 +1,74 @@
-﻿using System;
+﻿using MudSharp.Economy.Currency;
+using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using MudSharp.Economy.Currency;
-using MudSharp.Framework;
-using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.FutureProg.Functions.Currency;
 
 internal class LoadCurrencyFunction : BuiltInFunction
 {
-	private readonly IFuturemud _gameworld;
+    private readonly IFuturemud _gameworld;
 
-	public LoadCurrencyFunction(IList<IFunction> parameters, IFuturemud gameworld)
-		: base(parameters)
-	{
-		_gameworld = gameworld;
-	}
+    public LoadCurrencyFunction(IList<IFunction> parameters, IFuturemud gameworld)
+        : base(parameters)
+    {
+        _gameworld = gameworld;
+    }
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Item;
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Item;
+        protected set { }
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		var currency = (ICurrency)ParameterFunctions[0].Result;
-		if (currency == null)
-		{
-			ErrorMessage = "Null currency in LoadCurrency function.";
-			return StatementResult.Error;
-		}
+        ICurrency currency = (ICurrency)ParameterFunctions[0].Result;
+        if (currency == null)
+        {
+            ErrorMessage = "Null currency in LoadCurrency function.";
+            return StatementResult.Error;
+        }
 
-		var success = true;
-		var amount = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number)
-			? (decimal)ParameterFunctions[1].Result.GetObject
-			: currency.GetBaseCurrency((string)ParameterFunctions[1].Result.GetObject, out success);
+        bool success = true;
+        decimal amount = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number)
+            ? (decimal)ParameterFunctions[1].Result.GetObject
+            : currency.GetBaseCurrency((string)ParameterFunctions[1].Result.GetObject, out success);
 
-		if (!success)
-		{
-			ErrorMessage = "Incorrect currency amount for currency " + currency.Name + ": " +
-			               (string)ParameterFunctions[1].Result.GetObject;
-			return StatementResult.Error;
-		}
+        if (!success)
+        {
+            ErrorMessage = "Incorrect currency amount for currency " + currency.Name + ": " +
+                           (string)ParameterFunctions[1].Result.GetObject;
+            return StatementResult.Error;
+        }
 
-		var newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-			currency.FindCoinsForAmount(amount, out success).Select(x => Tuple.Create(x.Key, x.Value)));
-		_gameworld.Add(newItem);
-		Result = newItem;
-		return StatementResult.Normal;
-	}
+        IGameItem newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
+            currency.FindCoinsForAmount(amount, out success).Select(x => Tuple.Create(x.Key, x.Value)));
+        _gameworld.Add(newItem);
+        Result = newItem;
+        return StatementResult.Normal;
+    }
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"loadcurrency",
-			new[] { ProgVariableTypes.Currency, ProgVariableTypes.Number },
-			(pars, gameworld) => new LoadCurrencyFunction(pars, gameworld)
-		));
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "loadcurrency",
+            new[] { ProgVariableTypes.Currency, ProgVariableTypes.Number },
+            (pars, gameworld) => new LoadCurrencyFunction(pars, gameworld)
+        ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"loadcurrency",
-			new[] { ProgVariableTypes.Currency, ProgVariableTypes.Text },
-			(pars, gameworld) => new LoadCurrencyFunction(pars, gameworld)
-		));
-	}
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "loadcurrency",
+            new[] { ProgVariableTypes.Currency, ProgVariableTypes.Text },
+            (pars, gameworld) => new LoadCurrencyFunction(pars, gameworld)
+        ));
+    }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
 using MudSharp.Body.Traits;
@@ -21,241 +19,247 @@ using MudSharp.Health.Breathing;
 using MudSharp.NPC.Templates;
 using MudSharp.Strategies.BodyStratagies;
 using MudSharp.Work.Butchering;
+using System;
+using System.Collections.Generic;
 
-namespace MudSharp.Character.Heritage {
-	public interface IRace : IEditableItem, IProgVariable, IHaveContextualSizeCategory, IHavePositionalSizes {
-		string Description { get; }
+namespace MudSharp.Character.Heritage
+{
+    public interface IRace : IEditableItem, IProgVariable, IHaveContextualSizeCategory, IHavePositionalSizes
+    {
+        string Description { get; }
 
-		/// <summary>
-		///     Additional Bodyparts to be connected to the IBody when this IRace is used
-		/// </summary>
-		IEnumerable<IBodypart> BodypartAdditions { get; }
+        /// <summary>
+        ///     Additional Bodyparts to be connected to the IBody when this IRace is used
+        /// </summary>
+        IEnumerable<IBodypart> BodypartAdditions { get; }
 
-		/// <summary>
-		/// Bodyparts to be removed if present from the base model
-		/// </summary>
-		IEnumerable<IBodypart> BodypartRemovals { get; }
-			/// <summary>
-		///     Additional Bodyparts to be connected to the IBody when this IRace is used only for females
-		/// </summary>
-		IEnumerable<IBodypart> FemaleOnlyAdditions { get; }
+        /// <summary>
+        /// Bodyparts to be removed if present from the base model
+        /// </summary>
+        IEnumerable<IBodypart> BodypartRemovals { get; }
+        /// <summary>
+        ///     Additional Bodyparts to be connected to the IBody when this IRace is used only for females
+        /// </summary>
+        IEnumerable<IBodypart> FemaleOnlyAdditions { get; }
 
-		/// <summary>
-		///     Additional Bodyparts to be connected to the IBody when this IRace is used only for males
-		/// </summary>
-		IEnumerable<IBodypart> MaleOnlyAdditions { get; }
+        /// <summary>
+        ///     Additional Bodyparts to be connected to the IBody when this IRace is used only for males
+        /// </summary>
+        IEnumerable<IBodypart> MaleOnlyAdditions { get; }
 
-		/// <summary>
-		///     The body upon which this race is based
-		/// </summary>
-		IBodyPrototype BaseBody { get; }
+        /// <summary>
+        ///     The body upon which this race is based
+        /// </summary>
+        IBodyPrototype BaseBody { get; }
 
-		IEnumerable<Gender> AllowedGenders { get; }
+        IEnumerable<Gender> AllowedGenders { get; }
 
-		IEnumerable<IAttributeDefinition> Attributes { get; }
-		void AddAttributeFromPromotion(IAttributeDefinition definition);
-		void AddAttributeFromDemotion(IAttributeDefinition definition);
-		void RemoveAttribute(IAttributeDefinition definition);
+        IEnumerable<IAttributeDefinition> Attributes { get; }
+        void AddAttributeFromPromotion(IAttributeDefinition definition);
+        void AddAttributeFromDemotion(IAttributeDefinition definition);
+        void RemoveAttribute(IAttributeDefinition definition);
 
-		IFutureProg AttributeBonusProg { get; }
+        IFutureProg AttributeBonusProg { get; }
 
-		string DiceExpression { get; }
+        string DiceExpression { get; }
 
-		int AttributeTotalCap { get; }
+        int AttributeTotalCap { get; }
 
-		int IndividualAttributeCap { get; }
+        int IndividualAttributeCap { get; }
 
-		/// <summary>
-		///     The multiplier (base = 1.0) relative to human perception of the light perceiving abilities of this race
-		/// </summary>
-		double IlluminationPerceptionMultiplier { get; }
+        /// <summary>
+        ///     The multiplier (base = 1.0) relative to human perception of the light perceiving abilities of this race
+        /// </summary>
+        double IlluminationPerceptionMultiplier { get; }
 
-		PerceptionTypes NaturalPerceptionTypes { get; }
+        PerceptionTypes NaturalPerceptionTypes { get; }
 
-		ICorpseModel CorpseModel { get; }
+        ICorpseModel CorpseModel { get; }
 
-		IHealthStrategy DefaultHealthStrategy { get; }
+        IHealthStrategy DefaultHealthStrategy { get; }
 
-		RacialCombatSettings CombatSettings { get; }
+        RacialCombatSettings CombatSettings { get; }
 
-		IEnumerable<INaturalAttack> NaturalWeaponAttacks { get; }
+        IEnumerable<INaturalAttack> NaturalWeaponAttacks { get; }
 
-		void AddNaturalAttack(INaturalAttack attack);
-		void RemoveNaturalAttack(INaturalAttack attack);
-		void RemoveNaturalAttacksAssociatedWith(IWeaponAttack attack);
-		
-		IEnumerable<INaturalAttack> UsableNaturalWeaponAttacks(ICharacter character, IPerceiver target,
-			bool ignorePosition,
-			params BuiltInCombatMoveType[] type);
+        void AddNaturalAttack(INaturalAttack attack);
+        void RemoveNaturalAttack(INaturalAttack attack);
+        void RemoveNaturalAttacksAssociatedWith(IWeaponAttack attack);
 
-		IEnumerable<IAuxiliaryCombatAction> UsableAuxiliaryMoves(ICharacter character, IPerceiver target,
-			bool ignorePosition);
-		IEnumerable<IAuxiliaryCombatAction> AuxiliaryActions { get; }
-		bool AddAuxiliaryAction(IAuxiliaryCombatAction action);
-		bool RemoveAuxiliaryAction(IAuxiliaryCombatAction action);
+        IEnumerable<INaturalAttack> UsableNaturalWeaponAttacks(ICharacter character, IPerceiver target,
+            bool ignorePosition,
+            params BuiltInCombatMoveType[] type);
 
-		IArmourType NaturalArmourType { get; }
+        IEnumerable<IAuxiliaryCombatAction> UsableAuxiliaryMoves(ICharacter character, IPerceiver target,
+            bool ignorePosition);
+        IEnumerable<IAuxiliaryCombatAction> AuxiliaryActions { get; }
+        bool AddAuxiliaryAction(IAuxiliaryCombatAction action);
+        bool RemoveAuxiliaryAction(IAuxiliaryCombatAction action);
 
-		ItemQuality NaturalArmourQuality { get; }
+        IArmourType NaturalArmourType { get; }
 
-		IMaterial NaturalArmourMaterial { get; }
+        ItemQuality NaturalArmourQuality { get; }
 
-		ILiquid BloodLiquid { get; }
+        IMaterial NaturalArmourMaterial { get; }
 
-		ILiquid SweatLiquid { get; }
+        ILiquid BloodLiquid { get; }
 
-		double SweatRateInLitresPerMinute { get; }
+        ILiquid SweatLiquid { get; }
 
-		IEnumerable<ITraitDefinition> HealthTraits { get; }
+        double SweatRateInLitresPerMinute { get; }
 
-		IEnumerable<IFluid> BreathableFluids { get; }
+        IEnumerable<ITraitDefinition> HealthTraits { get; }
 
-		(bool Truth, double RateMultiplier) CanBreatheFluid(IFluid fluid);
+        IEnumerable<IFluid> BreathableFluids { get; }
 
-		bool NeedsToBreathe { get; }
+        (bool Truth, double RateMultiplier) CanBreatheFluid(IFluid fluid);
 
-		double BreathingRate(IBody character, IFluid fluid);
-		TimeSpan HoldBreathLength(IBody character);
-		IBreathingStrategy BreathingStrategy { get; }
-		IRace ParentRace { get; }
+        bool NeedsToBreathe { get; }
 
-		/// <summary>
-		///     Checks if the two races are equivalent
-		/// </summary>
-		/// <param name="race"></param>
-		/// <returns></returns>
-		bool SameRace(IRace race);
+        double BreathingRate(IBody character, IFluid fluid);
+        TimeSpan HoldBreathLength(IBody character);
+        IBreathingStrategy BreathingStrategy { get; }
+        IRace ParentRace { get; }
 
-		IEnumerable<ICharacteristicDefinition> Characteristics(Gender gender);
-		IEnumerable<(Gender Gender, ICharacteristicDefinition Definition)> GenderedCharacteristics { get; }
-		void PromoteCharacteristicFromChildren(ICharacteristicDefinition definition, Gender gender);
-		void DemoteCharacteristicFromParent(ICharacteristicDefinition definition, Gender gender);
-		void RemoveCharacteristicDueToPromotion(ICharacteristicDefinition definition);
+        /// <summary>
+        ///     Checks if the two races are equivalent
+        /// </summary>
+        /// <param name="race"></param>
+        /// <returns></returns>
+        bool SameRace(IRace race);
 
-		int ResourceCost(IChargenResource resource);
-		int ResourceRequirement(IChargenResource resource);
+        IEnumerable<ICharacteristicDefinition> Characteristics(Gender gender);
+        IEnumerable<(Gender Gender, ICharacteristicDefinition Definition)> GenderedCharacteristics { get; }
+        void PromoteCharacteristicFromChildren(ICharacteristicDefinition definition, Gender gender);
+        void DemoteCharacteristicFromParent(ICharacteristicDefinition definition, Gender gender);
+        void RemoveCharacteristicDueToPromotion(ICharacteristicDefinition definition);
 
-		bool ChargenAvailable(ICharacterTemplate template);
+        int ResourceCost(IChargenResource resource);
+        int ResourceRequirement(IChargenResource resource);
 
-		IBodyCommunicationStrategy CommunicationStrategy { get; }
-		
-		Alignment DefaultHandedness { get; }
-		IEnumerable<Alignment> HandednessOptions { get; }
+        bool ChargenAvailable(ICharacterTemplate template);
 
-		double GetMaximumDragWeight(ICharacter actor);
+        IBodyCommunicationStrategy CommunicationStrategy { get; }
 
-		double GetMaximumLiftWeight(ICharacter actor);
+        Alignment DefaultHandedness { get; }
+        IEnumerable<Alignment> HandednessOptions { get; }
 
-		IRaceButcheryProfile ButcheryProfile { get; }
+        double GetMaximumDragWeight(ICharacter actor);
 
-		SizeCategory ModifiedSize(IBodypart part);
-		double ModifiedHitpoints(IBodypart part);
-		double ModifiedSeverthreshold(IBodypart part);
+        double GetMaximumLiftWeight(ICharacter actor);
 
-		double DamageToleranceModifier { get; }
-		double PainToleranceModifier { get; }
-		double StunToleranceModifier { get; }
+        IRaceButcheryProfile ButcheryProfile { get; }
 
-		IBloodModel BloodModel { get; }
+        SizeCategory ModifiedSize(IBodypart part);
+        double ModifiedHitpoints(IBodypart part);
+        double ModifiedSeverthreshold(IBodypart part);
 
-		IEnumerable<IChargenAdvice> ChargenAdvices { get; }
-		bool ToggleAdvice(IChargenAdvice advice);
-		bool RaceUsesStamina { get; }
+        double DamageToleranceModifier { get; }
+        double PainToleranceModifier { get; }
+        double StunToleranceModifier { get; }
 
-		/// <summary>
-		/// Whether or not this race can eat corpses or bodyparts directly
-		/// </summary>
-		bool CanEatCorpses { get; }
+        IBloodModel BloodModel { get; }
 
-		/// <summary>
-		/// Whether or not food of a specified material can be eaten by this race
-		/// </summary>
-		/// <param name="material">The material of the food item</param>
-		/// <returns>True if it can be eaten</returns>
-		bool CanEatFoodMaterial(IMaterial material);
+        IEnumerable<IChargenAdvice> ChargenAdvices { get; }
+        bool ToggleAdvice(IChargenAdvice advice);
+        bool RaceUsesStamina { get; }
 
-		bool CanEatCorpseMaterial(IMaterial material);
+        /// <summary>
+        /// Whether or not this race can eat corpses or bodyparts directly
+        /// </summary>
+        bool CanEatCorpses { get; }
 
-		/// <summary>
-		/// Whether or not a particular foragable yield of the location can be consumed directly
-		/// </summary>
-		/// <param name="yieldType">The yield type being queried</param>
-		/// <returns>True if it can be eaten</returns>
-		bool CanEatForagableYield(string yieldType);
+        /// <summary>
+        /// Whether or not food of a specified material can be eaten by this race
+        /// </summary>
+        /// <param name="material">The material of the food item</param>
+        /// <returns>True if it can be eaten</returns>
+        bool CanEatFoodMaterial(IMaterial material);
 
-		IEnumerable<EdibleForagableYield> EdibleForagableYields { get; }
-		IEnumerable<EdibleMaterial> EdibleMaterials { get; }
+        bool CanEatCorpseMaterial(IMaterial material);
 
-		/// <summary>
-		/// The weight of material eaten per bite of a corpse or bodypart
-		/// </summary>
-		double BiteWeight { get; }
-		double BiteYield(string yieldType);
-		string EatCorpseEmoteText { get; }
+        /// <summary>
+        /// Whether or not a particular foragable yield of the location can be consumed directly
+        /// </summary>
+        /// <param name="yieldType">The yield type being queried</param>
+        /// <returns>True if it can be eaten</returns>
+        bool CanEatForagableYield(string yieldType);
 
-		(string Emote, INeedFulfiller Fulfiller, double YieldBite) EatYield(string yieldType, double bites);
-		INeedFulfiller GetCorpseNeedFulfill(IMaterial material, double bites);
+        IEnumerable<EdibleForagableYield> EdibleForagableYields { get; }
+        IEnumerable<EdibleMaterial> EdibleMaterials { get; }
 
-		double TemperatureRangeFloor { get; }
-		double TemperatureRangeCeiling { get; }
+        /// <summary>
+        /// The weight of material eaten per bite of a corpse or bodypart
+        /// </summary>
+        double BiteWeight { get; }
+        double BiteYield(string yieldType);
+        string EatCorpseEmoteText { get; }
 
-		IPositionState MinimumSleepingPosition { get; }
-		bool CanClimb { get; }
-		bool CanSwim { get; }
-		AgeCategory AgeCategory(int ageInYears);
-		AgeCategory AgeCategory(ICharacter character);
-		AgeCategory AgeCategory(ICharacterTemplate template);
-		int MinimumAgeForCategory(AgeCategory category);
-		string ConsiderString { get; }
-		IHeightWeightModel DefaultHeightWeightModel(Gender gender);
-		ITraitExpression BreathingVolumeExpression { get; }
-		ITraitExpression HoldBreathLengthExpression { get; }
-		ITraitExpression MaximumDragWeightExpression { get; }
-		ITraitExpression MaximumLiftWeightExpression { get; }
-		int BodypartSizeModifier { get; }
-		double BodypartDamageMultiplier { get; }
-		bool OptInMaterialEdibility { get; }
-		IRace Clone(string newName);
-		double HungerRate { get; }
-		double ThirstRate { get; }
-		double TrackIntensityVisual { get; }
-		double TrackIntensityOlfactory { get; }
-		double TrackingAbilityVisual { get; }
-		double TrackingAbilityOlfactory { get; }
-	}
+        (string Emote, INeedFulfiller Fulfiller, double YieldBite) EatYield(string yieldType, double bites);
+        INeedFulfiller GetCorpseNeedFulfill(IMaterial material, double bites);
 
-	public enum SizeContext {
-		None,
-		CellExit,
-		RangedTarget,
-		ExplosiveDamage,
-		Scan,
-		GrappleAttack,
-		GrappleDefense,
-		RainfallExposure,
-		RidingMount,
-		BeingRiddenAsMount
-	}
+        double TemperatureRangeFloor { get; }
+        double TemperatureRangeCeiling { get; }
 
-	public enum AgeCategory
-	{
-		Baby,
-		Child,
-		Youth,
-		YoungAdult,
-		Adult,
-		Elder,
-		Venerable
-	}
+        IPositionState MinimumSleepingPosition { get; }
+        bool CanClimb { get; }
+        bool CanSwim { get; }
+        AgeCategory AgeCategory(int ageInYears);
+        AgeCategory AgeCategory(ICharacter character);
+        AgeCategory AgeCategory(ICharacterTemplate template);
+        int MinimumAgeForCategory(AgeCategory category);
+        string ConsiderString { get; }
+        IHeightWeightModel DefaultHeightWeightModel(Gender gender);
+        ITraitExpression BreathingVolumeExpression { get; }
+        ITraitExpression HoldBreathLengthExpression { get; }
+        ITraitExpression MaximumDragWeightExpression { get; }
+        ITraitExpression MaximumLiftWeightExpression { get; }
+        int BodypartSizeModifier { get; }
+        double BodypartDamageMultiplier { get; }
+        bool OptInMaterialEdibility { get; }
+        IRace Clone(string newName);
+        double HungerRate { get; }
+        double ThirstRate { get; }
+        double TrackIntensityVisual { get; }
+        double TrackIntensityOlfactory { get; }
+        double TrackingAbilityVisual { get; }
+        double TrackingAbilityOlfactory { get; }
+    }
 
-	public interface IHavePositionalSizes
-	{
-		SizeCategory SizeStanding { get; }
-		SizeCategory SizeProne { get; }
-		SizeCategory SizeSitting { get; }
-	}
+    public enum SizeContext
+    {
+        None,
+        CellExit,
+        RangedTarget,
+        ExplosiveDamage,
+        Scan,
+        GrappleAttack,
+        GrappleDefense,
+        RainfallExposure,
+        RidingMount,
+        BeingRiddenAsMount
+    }
 
-	public interface IHaveContextualSizeCategory {
-		SizeCategory CurrentContextualSize(SizeContext context);
-	}
+    public enum AgeCategory
+    {
+        Baby,
+        Child,
+        Youth,
+        YoungAdult,
+        Adult,
+        Elder,
+        Venerable
+    }
+
+    public interface IHavePositionalSizes
+    {
+        SizeCategory SizeStanding { get; }
+        SizeCategory SizeProne { get; }
+        SizeCategory SizeSitting { get; }
+    }
+
+    public interface IHaveContextualSizeCategory
+    {
+        SizeCategory CurrentContextualSize(SizeContext context);
+    }
 }

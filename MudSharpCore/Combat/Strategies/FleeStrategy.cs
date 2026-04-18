@@ -1,73 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Combat.Moves;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Movement;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.Combat.Strategies;
 
 public class FleeStrategy : StandardMeleeStrategy
 {
-	protected FleeStrategy()
-	{
-	}
+    protected FleeStrategy()
+    {
+    }
 
-	public new static FleeStrategy Instance { get; } = new();
+    public new static FleeStrategy Instance { get; } = new();
 
-	protected override ICombatMove HandleCombatMovement(IPerceiver combatant)
-	{
-		ICombatMove move;
-		if ((move = base.HandleCombatMovement(combatant)) != null)
-		{
-			return move;
-		}
+    protected override ICombatMove HandleCombatMovement(IPerceiver combatant)
+    {
+        ICombatMove move;
+        if ((move = base.HandleCombatMovement(combatant)) != null)
+        {
+            return move;
+        }
 
-		if (combatant is not ICharacter ch || combatant.EffectsOfType<IRageEffect>().Any())
-		{
-			return null;
-		}
+        if (combatant is not ICharacter ch || combatant.EffectsOfType<IRageEffect>().Any())
+        {
+            return null;
+        }
 
-		if (ch.CombinedEffectsOfType<IBeingGrappled>().Any() ||
-		    ch.CombinedEffectsOfType<Dragging.DragTarget>().Any())
-		{
-			return null;
-		}
+        if (ch.CombinedEffectsOfType<IBeingGrappled>().Any() ||
+            ch.CombinedEffectsOfType<Dragging.DragTarget>().Any())
+        {
+            return null;
+        }
 
-		if (ch.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers))
-		{
-			return new FleeMove { Assailant = ch };
-		}
+        if (ch.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers))
+        {
+            return new FleeMove { Assailant = ch };
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	protected override ICombatMove ResponseToChargeToMelee(ChargeToMeleeMove move, ICharacter defender,
-		IPerceiver assailant)
-	{
-		if (defender.CanSpendStamina(SkirmishResponseMove.MoveStaminaCost(defender)) && !defender.MeleeRange &&
-		    defender.EffectsOfType<IRageEffect>().All(x => !x.IsSuperRaging))
-		{
-			return new SkirmishResponseMove { Assailant = defender };
-		}
+    protected override ICombatMove ResponseToChargeToMelee(ChargeToMeleeMove move, ICharacter defender,
+        IPerceiver assailant)
+    {
+        if (defender.CanSpendStamina(SkirmishResponseMove.MoveStaminaCost(defender)) && !defender.MeleeRange &&
+            defender.EffectsOfType<IRageEffect>().All(x => !x.IsSuperRaging))
+        {
+            return new SkirmishResponseMove { Assailant = defender };
+        }
 
-		return base.ResponseToChargeToMelee(move, defender, assailant);
-	}
+        return base.ResponseToChargeToMelee(move, defender, assailant);
+    }
 
-	protected override ICombatMove ResponseToMoveToMelee(MoveToMeleeMove move, ICharacter defender,
-		IPerceiver assailant)
-	{
-		if (defender.CanSpendStamina(SkirmishResponseMove.MoveStaminaCost(defender)) && !defender.MeleeRange &&
-		    defender.EffectsOfType<IRageEffect>().All(x => !x.IsSuperRaging))
-		{
-			return new SkirmishResponseMove { Assailant = defender };
-		}
+    protected override ICombatMove ResponseToMoveToMelee(MoveToMeleeMove move, ICharacter defender,
+        IPerceiver assailant)
+    {
+        if (defender.CanSpendStamina(SkirmishResponseMove.MoveStaminaCost(defender)) && !defender.MeleeRange &&
+            defender.EffectsOfType<IRageEffect>().All(x => !x.IsSuperRaging))
+        {
+            return new SkirmishResponseMove { Assailant = defender };
+        }
 
-		return base.ResponseToMoveToMelee(move, defender, assailant);
-	}
+        return base.ResponseToMoveToMelee(move, defender, assailant);
+    }
 }

@@ -1,213 +1,207 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using MudSharp.Construction.Grids;
+﻿using MudSharp.Construction.Grids;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
 public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower, IConsumePower,
-	ICanConnectToElectricalGrid
+    ICanConnectToElectricalGrid
 {
-	protected GridPowerSupplyGameItemComponentProto _prototype;
-	public override IGameItemComponentProto Prototype => _prototype;
+    protected GridPowerSupplyGameItemComponentProto _prototype;
+    public override IGameItemComponentProto Prototype => _prototype;
 
-	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
-	{
-		_prototype = (GridPowerSupplyGameItemComponentProto)newProto;
-	}
+    protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
+    {
+        _prototype = (GridPowerSupplyGameItemComponentProto)newProto;
+    }
 
-	private IElectricalGrid _grid;
+    private IElectricalGrid _grid;
 
-	public IElectricalGrid ElectricalGrid
-	{
-		get => _grid;
-		set
-		{
-			if (_grid != null)
-			{
-				_grid.LeaveGrid((IConsumePower)this);
-			}
+    public IElectricalGrid ElectricalGrid
+    {
+        get => _grid;
+        set
+        {
+            _grid?.LeaveGrid((IConsumePower)this);
 
-			_grid = value;
-			if (_grid != null)
-			{
-				_grid.JoinGrid((IConsumePower)this);
-			}
+            _grid = value;
+            _grid?.JoinGrid((IConsumePower)this);
 
-			Changed = true;
-		}
-	}
+            Changed = true;
+        }
+    }
 
-	#region Overrides of GameItemComponent
+    #region Overrides of GameItemComponent
 
-	public override void Login()
-	{
-		base.Login();
-		ElectricalGrid?.RecalculateGrid();
-	}
+    public override void Login()
+    {
+        base.Login();
+        ElectricalGrid?.RecalculateGrid();
+    }
 
-	#endregion
+    #endregion
 
-	#region Constructors
+    #region Constructors
 
-	public GridPowerSupplyGameItemComponent(GridPowerSupplyGameItemComponentProto proto, IGameItem parent,
-		bool temporary = false) : base(parent, proto, temporary)
-	{
-		_prototype = proto;
-	}
+    public GridPowerSupplyGameItemComponent(GridPowerSupplyGameItemComponentProto proto, IGameItem parent,
+        bool temporary = false) : base(parent, proto, temporary)
+    {
+        _prototype = proto;
+    }
 
-	public GridPowerSupplyGameItemComponent(MudSharp.Models.GameItemComponent component,
-		GridPowerSupplyGameItemComponentProto proto, IGameItem parent) : base(component, parent)
-	{
-		_prototype = proto;
-		_noSave = true;
-		LoadFromXml(XElement.Parse(component.Definition));
-		_noSave = false;
-	}
+    public GridPowerSupplyGameItemComponent(MudSharp.Models.GameItemComponent component,
+        GridPowerSupplyGameItemComponentProto proto, IGameItem parent) : base(component, parent)
+    {
+        _prototype = proto;
+        _noSave = true;
+        LoadFromXml(XElement.Parse(component.Definition));
+        _noSave = false;
+    }
 
-	public GridPowerSupplyGameItemComponent(GridPowerSupplyGameItemComponent rhs, IGameItem newParent,
-		bool temporary = false) : base(rhs, newParent, temporary)
-	{
-		_prototype = rhs._prototype;
-	}
+    public GridPowerSupplyGameItemComponent(GridPowerSupplyGameItemComponent rhs, IGameItem newParent,
+        bool temporary = false) : base(rhs, newParent, temporary)
+    {
+        _prototype = rhs._prototype;
+    }
 
-	protected void LoadFromXml(XElement root)
-	{
-		var element = root.Element("Grid");
-		if (element != null)
-		{
-			ElectricalGrid = Gameworld.Grids.Get(long.Parse(element.Value)) as IElectricalGrid;
-		}
-	}
+    protected void LoadFromXml(XElement root)
+    {
+        XElement element = root.Element("Grid");
+        if (element != null)
+        {
+            ElectricalGrid = Gameworld.Grids.Get(long.Parse(element.Value)) as IElectricalGrid;
+        }
+    }
 
-	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
-	{
-		return new GridPowerSupplyGameItemComponent(this, newParent, temporary);
-	}
+    public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
+    {
+        return new GridPowerSupplyGameItemComponent(this, newParent, temporary);
+    }
 
-	#endregion
+    #endregion
 
-	#region Saving
+    #region Saving
 
-	protected override string SaveToXml()
-	{
-		return new XElement("Definition", new XElement("Grid", ElectricalGrid?.Id ?? 0)).ToString();
-	}
+    protected override string SaveToXml()
+    {
+        return new XElement("Definition", new XElement("Grid", ElectricalGrid?.Id ?? 0)).ToString();
+    }
 
-	#endregion
+    #endregion
 
-	#region Implementation of IProducePower
+    #region Implementation of IProducePower
 
-	public bool PrimaryLoadTimePowerProducer => true;
-	public bool PrimaryExternalConnectionPowerProducer => false;
-	public double FuelLevel => 1.0;
-	private readonly List<IConsumePower> _connectedConsumers = new();
-	private readonly List<IConsumePower> _powerUsers = new();
-	private bool _powered;
+    public bool PrimaryLoadTimePowerProducer => true;
+    public bool PrimaryExternalConnectionPowerProducer => false;
+    public double FuelLevel => 1.0;
+    private readonly List<IConsumePower> _connectedConsumers = new();
+    private readonly List<IConsumePower> _powerUsers = new();
+    private bool _powered;
 
-	public void BeginDrawdown(IConsumePower item)
-	{
-		if (!_connectedConsumers.Contains(item))
-		{
-			_connectedConsumers.Add(item);
-		}
+    public void BeginDrawdown(IConsumePower item)
+    {
+        if (!_connectedConsumers.Contains(item))
+        {
+            _connectedConsumers.Add(item);
+        }
 
-		if (ProducingPower && !_powerUsers.Contains(item))
-		{
-			_powerUsers.Add(item);
-			item.OnPowerCutIn();
-		}
+        if (ProducingPower && !_powerUsers.Contains(item))
+        {
+            _powerUsers.Add(item);
+            item.OnPowerCutIn();
+        }
 
-		ElectricalGrid?.RecalculateGrid();
-	}
+        ElectricalGrid?.RecalculateGrid();
+    }
 
-	public void EndDrawdown(IConsumePower item)
-	{
-		_connectedConsumers.Remove(item);
-		if (_powerUsers.Contains(item))
-		{
-			item.OnPowerCutOut();
-		}
+    public void EndDrawdown(IConsumePower item)
+    {
+        _connectedConsumers.Remove(item);
+        if (_powerUsers.Contains(item))
+        {
+            item.OnPowerCutOut();
+        }
 
-		_powerUsers.Remove(item);
-		ElectricalGrid?.RecalculateGrid();
-	}
+        _powerUsers.Remove(item);
+        ElectricalGrid?.RecalculateGrid();
+    }
 
-	public bool CanBeginDrawDown(double wattage)
-	{
-		return RegisteredDrawdown + wattage <= _prototype.Wattage;
-	}
+    public bool CanBeginDrawDown(double wattage)
+    {
+        return RegisteredDrawdown + wattage <= _prototype.Wattage;
+    }
 
-	public bool CanDrawdownSpike(double wattage)
-	{
-		return ProducingPower && CurrentDrawdown + wattage <= _prototype.Wattage;
-	}
+    public bool CanDrawdownSpike(double wattage)
+    {
+        return ProducingPower && CurrentDrawdown + wattage <= _prototype.Wattage;
+    }
 
-	public bool DrawdownSpike(double wattage)
-	{
-		return ProducingPower &&
-		       CurrentDrawdown + wattage <= _prototype.Wattage &&
-		       (ElectricalGrid?.DrawdownSpike(wattage) ?? false);
-	}
+    public bool DrawdownSpike(double wattage)
+    {
+        return ProducingPower &&
+               CurrentDrawdown + wattage <= _prototype.Wattage &&
+               (ElectricalGrid?.DrawdownSpike(wattage) ?? false);
+    }
 
-	public double MaximumPowerInWatts => _prototype.Wattage;
+    public double MaximumPowerInWatts => _prototype.Wattage;
 
-	public bool ProducingPower => ElectricalGrid != null && _powered;
+    public bool ProducingPower => ElectricalGrid != null && _powered;
 
-	private double CurrentDrawdown => _powerUsers.Sum(x => x.PowerConsumptionInWatts);
-	private double RegisteredDrawdown => _connectedConsumers.Sum(x => x.PowerConsumptionInWatts);
+    private double CurrentDrawdown => _powerUsers.Sum(x => x.PowerConsumptionInWatts);
+    private double RegisteredDrawdown => _connectedConsumers.Sum(x => x.PowerConsumptionInWatts);
 
-	#endregion
+    #endregion
 
-	#region IConsumePower Implementation
+    #region IConsumePower Implementation
 
-	public double PowerConsumptionInWatts => CurrentDrawdown;
+    public double PowerConsumptionInWatts => CurrentDrawdown;
 
-	public void OnPowerCutIn()
-	{
-		_powered = true;
-		foreach (var item in _connectedConsumers.Where(x => !_powerUsers.Contains(x)).ToList())
-		{
-			_powerUsers.Add(item);
-		}
+    public void OnPowerCutIn()
+    {
+        _powered = true;
+        foreach (IConsumePower item in _connectedConsumers.Where(x => !_powerUsers.Contains(x)).ToList())
+        {
+            _powerUsers.Add(item);
+        }
 
-		foreach (var item in _powerUsers)
-		{
-			item.OnPowerCutIn();
-		}
-	}
+        foreach (IConsumePower item in _powerUsers)
+        {
+            item.OnPowerCutIn();
+        }
+    }
 
-	public void OnPowerCutOut()
-	{
-		_powered = false;
-		foreach (var item in _powerUsers)
-		{
-			item.OnPowerCutOut();
-		}
+    public void OnPowerCutOut()
+    {
+        _powered = false;
+        foreach (IConsumePower item in _powerUsers)
+        {
+            item.OnPowerCutOut();
+        }
 
-		_powerUsers.Clear();
-	}
+        _powerUsers.Clear();
+    }
 
-	#endregion
+    #endregion
 
-	#region ICanConnectToGrid Implementation
+    #region ICanConnectToGrid Implementation
 
-	string ICanConnectToGrid.GridType => "Electrical";
+    string ICanConnectToGrid.GridType => "Electrical";
 
-	IGrid ICanConnectToGrid.Grid
-	{
-		get => ElectricalGrid;
-		set => ElectricalGrid = value as IElectricalGrid;
-	}
+    IGrid ICanConnectToGrid.Grid
+    {
+        get => ElectricalGrid;
+        set => ElectricalGrid = value as IElectricalGrid;
+    }
 
-	#endregion
+    #endregion
 }

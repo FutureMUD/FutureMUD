@@ -4,7 +4,7 @@ Status: Draft for implementation handoff
 Audience: Specialized implementers (engine, DB, finance, combat, perception, commands, QA, docs)  
 Source Design: `Design Documents/Combat_Arenas_Design.md`
 
-Current Runtime Snapshot (2026-02-25)
+Current Runtime Snapshot (2026-04-10)
 - Elimination terms are now explicit via `ArenaEliminationMode` (`NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`).
 - Event types now include `AllowSurrender`, and surrender is exposed as `arena surrender [<event>]`.
 - Live events now poll for elimination conditions during combat and transition to resolving without waiting only for timeout.
@@ -28,6 +28,12 @@ Current Runtime Snapshot (2026-02-25)
 - Arenas now optionally store an arena-level phase transition prog (`OnArenaEventPhaseProgId`) and fire it on phase changes with `(arenaId, eventId, eventName, phaseName)`.
 - Arena manager command surface now includes cash reserve operations (`deposit`, `withdraw`), stable roster visibility, and arena rating lookup/list commands.
 - Arena show/manager show now include unclaimed money computed from unblocked+uncollected bet/appearance liabilities.
+- The rerunnable `ArenaSeeder` stock package now seeds seven editable arena formats: `Duel`, `Team Skirmish`, `Squad Skirmish`, `Boxing Match`, `Wrestling Match`, `Champion Challenge`, and `Animal Bohort`.
+- Stock arena combatant classes now include `Gladiator`, `Boxer`, `Wrestler`, and `Arena Animal`.
+- `Champion Challenge` now uses a closed, auto-filled champion side that prefers arena stable NPCs and enforces a minimum Gladiator rating of 1800.
+- `Animal Bohort` now uses the shared `isanimal(character)` helper plus a blank stock NPC loader prog returning `emptycharacters()`, giving builders a safe override point.
+- Arena scoring progs now receive append-only live combat telemetry collections (attackers, defenders, side indices, landed flags, undefended flags, normalized impact locations, impact bodypart descriptions) so body-location-aware formats such as boxing can score from live strikes without schema changes.
+- The stock boxing scoring prog now counts one point per landed undefended head or torso strike, while wrestling remains a knockout-driven 1v1 format with no inventory loadout.
 
 ---
 
@@ -50,6 +56,7 @@ Non‑Goals
 
 Success Criteria
 - A manager launches a scheduled or manual event; players/NPCs compete; observers watch; payouts and ratings settle; crash during live triggers safe cancel/refund.
+- Builders can rerun the stock seeder package and reliably upsert the shipped arena templates, combatant classes, helper progs, and side definitions without duplicating content.
 
 ---
 

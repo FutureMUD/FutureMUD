@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Interfaces;
@@ -18,185 +13,190 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.Effects.Concrete;
 
 public class BeingBound : Effect, IAffectProximity
 {
-	public IBodypart Bodypart { get; set; }
-	public ICharacter Binder { get; init; }
+    public IBodypart Bodypart { get; set; }
+    public ICharacter Binder { get; init; }
 
-	public BeingBound(IPerceivable owner, IFutureProg applicabilityProg = null) : base(owner, applicabilityProg)
-	{
-	}
+    public BeingBound(IPerceivable owner, IFutureProg applicabilityProg = null) : base(owner, applicabilityProg)
+    {
+    }
 
-	#region Overrides of Effect
+    #region Overrides of Effect
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return "Being Bound";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return "Being Bound";
+    }
 
-	protected override string SpecificEffectType => "BeingBound";
+    protected override string SpecificEffectType => "BeingBound";
 
-	#endregion
+    #endregion
 
-	public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
-	{
-		if (Binder == thing)
-		{
-			return (true, Proximity.Immediate);
-		}
+    public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
+    {
+        if (Binder == thing)
+        {
+            return (true, Proximity.Immediate);
+        }
 
-		return (false, Proximity.Unapproximable);
-	}
+        return (false, Proximity.Unapproximable);
+    }
 }
 
 public class Binding : CharacterActionWithTarget, IAffectProximity
 {
-	private static string _effectDurationDiceExpression;
+    private static string _effectDurationDiceExpression;
 
-	private static string EffectDurationDiceExpression
-	{
-		get
-		{
-			if (_effectDurationDiceExpression == null)
-			{
-				_effectDurationDiceExpression = Futuremud.Games.First()
-				                                         .GetStaticConfiguration("BindingEffectDurationDiceExpression");
-			}
+    private static string EffectDurationDiceExpression
+    {
+        get
+        {
+            if (_effectDurationDiceExpression == null)
+            {
+                _effectDurationDiceExpression = Futuremud.Games.First()
+                                                         .GetStaticConfiguration("BindingEffectDurationDiceExpression");
+            }
 
-			return _effectDurationDiceExpression;
-		}
-	}
+            return _effectDurationDiceExpression;
+        }
+    }
 
-	public static TimeSpan EffectDuration => TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression));
+    public static TimeSpan EffectDuration => TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression));
 
-	public BeingBound TargetEffect { get; set; }
+    public BeingBound TargetEffect { get; set; }
 
-	public IInventoryPlan OriginalInventoryPlan { get; set; }
+    public IInventoryPlan OriginalInventoryPlan { get; set; }
 
-	public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
-	{
-		if (TargetCharacter == thing)
-		{
-			return (true, Proximity.Immediate);
-		}
+    public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
+    {
+        if (TargetCharacter == thing)
+        {
+            return (true, Proximity.Immediate);
+        }
 
-		return (false, Proximity.Unapproximable);
-	}
+        return (false, Proximity.Unapproximable);
+    }
 
-	#region Overrides of Effect
+    #region Overrides of Effect
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"Binding the wounds of {TargetCharacter.HowSeen(voyeur)}.";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"Binding the wounds of {TargetCharacter.HowSeen(voyeur)}.";
+    }
 
-	protected override string SpecificEffectType => "Binding";
+    protected override string SpecificEffectType => "Binding";
 
-	#endregion
+    #endregion
 
-	public Binding(ICharacter owner, ICharacter target) : base(owner, target)
-	{
-		WhyCannotMoveEmoteString = "@ cannot move because $0 $0|are|is binding $1's wounds.";
-		CancelEmoteString = "@ $0|stop|stops binding $1's wounds.";
-		LDescAddendum = "binding $1's wounds";
-		TargetEffect = new BeingBound(target) { Binder = owner };
-		ActionDescription = "binding $1's wounds";
-		_blocks.Add("general");
-		_blocks.Add("movement");
-		target.AddEffect(TargetEffect);
-		var wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
-		                            .Where(x => x.BleedStatus == BleedStatus.Bleeding)
-		                            .ToList();
-		if (wounds.Any())
-		{
-			var worstWound =
-				wounds.Where(x => x.CanBeTreated(TreatmentType.Trauma) != Difficulty.Impossible)
-				      .FirstMax(x => x.Severity);
-			TargetEffect.Bodypart = worstWound.Bodypart;
-		}
-	}
+    public Binding(ICharacter owner, ICharacter target) : base(owner, target)
+    {
+        WhyCannotMoveEmoteString = "@ cannot move because $0 $0|are|is binding $1's wounds.";
+        CancelEmoteString = "@ $0|stop|stops binding $1's wounds.";
+        LDescAddendum = "binding $1's wounds";
+        TargetEffect = new BeingBound(target) { Binder = owner };
+        ActionDescription = "binding $1's wounds";
+        _blocks.Add("general");
+        _blocks.Add("movement");
+        target.AddEffect(TargetEffect);
+        List<IWound> wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
+                                    .Where(x => x.BleedStatus == BleedStatus.Bleeding)
+                                    .ToList();
+        if (wounds.Any())
+        {
+            IWound worstWound =
+                wounds.Where(x => x.CanBeTreated(TreatmentType.Trauma) != Difficulty.Impossible)
+                      .FirstMax(x => x.Severity);
+            TargetEffect.Bodypart = worstWound.Bodypart;
+        }
+    }
 
-	#region Overrides of TargetedBlockingDelayedAction
+    #region Overrides of TargetedBlockingDelayedAction
 
-	/// <summary>
-	///     Fires when an effect is removed, including a matured scheduled effect
-	/// </summary>
-	public override void RemovalEffect()
-	{
-		OriginalInventoryPlan?.FinalisePlan();
-		ReleaseEventHandlers();
-		Target.RemoveEffect(TargetEffect);
-	}
+    /// <summary>
+    ///     Fires when an effect is removed, including a matured scheduled effect
+    /// </summary>
+    public override void RemovalEffect()
+    {
+        OriginalInventoryPlan?.FinalisePlan();
+        ReleaseEventHandlers();
+        Target.RemoveEffect(TargetEffect);
+    }
 
-	#endregion
+    #endregion
 
-	public override void ExpireEffect()
-	{
-		var wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
-		                            .Where(x => x.BleedStatus == BleedStatus.Bleeding)
-		                            .ToList();
-		if (!wounds.Any())
-		{
-			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-				"@ have|has finished binding all of $1's visible bleeding wounds.", CharacterOwner, CharacterOwner,
-				TargetCharacter)));
-			Owner.RemoveEffect(this, true);
-			return;
-		}
+    public override void ExpireEffect()
+    {
+        List<IWound> wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
+                                    .Where(x => x.BleedStatus == BleedStatus.Bleeding)
+                                    .ToList();
+        if (!wounds.Any())
+        {
+            CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+                "@ have|has finished binding all of $1's visible bleeding wounds.", CharacterOwner, CharacterOwner,
+                TargetCharacter)));
+            Owner.RemoveEffect(this, true);
+            return;
+        }
 
-		var inventoryPlan = Gameworld.BindInventoryPlanTemplate.CreatePlan(CharacterOwner);
-		if (OriginalInventoryPlan == null)
-		{
-			OriginalInventoryPlan = inventoryPlan;
-		}
+        IInventoryPlan inventoryPlan = Gameworld.BindInventoryPlanTemplate.CreatePlan(CharacterOwner);
+        if (OriginalInventoryPlan == null)
+        {
+            OriginalInventoryPlan = inventoryPlan;
+        }
 
-		if (inventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
-		{
-			inventoryPlan.ExecuteWholePlan();
-		}
+        if (inventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        {
+            inventoryPlan.ExecuteWholePlan();
+        }
 
-		if (inventoryPlan != OriginalInventoryPlan)
-		{
-			inventoryPlan.FinalisePlanNoRestore();
-		}
+        if (inventoryPlan != OriginalInventoryPlan)
+        {
+            inventoryPlan.FinalisePlanNoRestore();
+        }
 
-		var maxDifficulty = wounds.Select(x => x.CanBeTreated(TreatmentType.Trauma))
-		                          .Where(x => x != Difficulty.Impossible)
-		                          .DefaultIfEmpty()
-		                          .Max();
-		var treatmentItem =
-			CharacterOwner.Body.HeldItems.SelectNotNull(x => x.GetItemType<ITreatment>())
-			              .Where(x => x.IsTreatmentType(TreatmentType.Trauma))
-			              .FirstMin(x => x.GetTreatmentDifficulty(maxDifficulty));
+        Difficulty maxDifficulty = wounds.Select(x => x.CanBeTreated(TreatmentType.Trauma))
+                                  .Where(x => x != Difficulty.Impossible)
+                                  .DefaultIfEmpty()
+                                  .Max();
+        ITreatment treatmentItem =
+            CharacterOwner.Body.HeldItems.SelectNotNull(x => x.GetItemType<ITreatment>())
+                          .Where(x => x.IsTreatmentType(TreatmentType.Trauma))
+                          .FirstMin(x => x.GetTreatmentDifficulty(maxDifficulty));
 
-		var bindCheck = Gameworld.GetCheck(CheckType.BindWoundCheck);
-		var worstWound =
-			wounds.Where(x => x.CanBeTreated(TreatmentType.Trauma) != Difficulty.Impossible)
-			      .FirstMax(x => x.Severity);
+        ICheck bindCheck = Gameworld.GetCheck(CheckType.BindWoundCheck);
+        IWound worstWound =
+            wounds.Where(x => x.CanBeTreated(TreatmentType.Trauma) != Difficulty.Impossible)
+                  .FirstMax(x => x.Severity);
 
-		worstWound.Treat(CharacterOwner, TreatmentType.Trauma, treatmentItem,
-			bindCheck.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Trauma)), false);
+        worstWound.Treat(CharacterOwner, TreatmentType.Trauma, treatmentItem,
+            bindCheck.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Trauma)), false);
 
-		wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
-		                        .Where(x => x.BleedStatus == BleedStatus.Bleeding)
-		                        .ToList();
-		if (wounds.Any())
-		{
-			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-				"@ continue|continues &0's medical efforts, as $1 $1|are|is still bleeding.", CharacterOwner,
-				CharacterOwner, TargetCharacter)));
-			CharacterOwner.Reschedule(this, TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression)));
-			TargetEffect.Bodypart = wounds.Where(x => x.CanBeTreated(TreatmentType.Trauma) != Difficulty.Impossible)
-			                              .FirstMax(x => x.Severity).Bodypart;
-			return;
-		}
+        wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
+                                .Where(x => x.BleedStatus == BleedStatus.Bleeding)
+                                .ToList();
+        if (wounds.Any())
+        {
+            CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+                "@ continue|continues &0's medical efforts, as $1 $1|are|is still bleeding.", CharacterOwner,
+                CharacterOwner, TargetCharacter)));
+            CharacterOwner.Reschedule(this, TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression)));
+            TargetEffect.Bodypart = wounds.Where(x => x.CanBeTreated(TreatmentType.Trauma) != Difficulty.Impossible)
+                                          .FirstMax(x => x.Severity).Bodypart;
+            return;
+        }
 
-		CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-			"@ have|has finished binding all of $1's visible bleeding wounds.", CharacterOwner, CharacterOwner,
-			TargetCharacter)));
-		Owner.RemoveEffect(this, true);
-	}
+        CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+            "@ have|has finished binding all of $1's visible bleeding wounds.", CharacterOwner, CharacterOwner,
+            TargetCharacter)));
+        Owner.RemoveEffect(this, true);
+    }
 }

@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace MudSharp.Health {
+namespace MudSharp.Health
+{
     public delegate void WoundEvent(IMortalPerceiver wounded, IWound wound);
 
-    public interface IHaveWounds : IPerceivable, IMortal {
+    public interface IHaveWounds : IPerceivable, IMortal
+    {
         IHealthStrategy HealthStrategy { get; }
         IEnumerable<IWound> Wounds { get; }
         IEnumerable<IWound> VisibleWounds(IPerceiver voyeur, WoundExaminationType examinationType);
@@ -34,7 +36,8 @@ namespace MudSharp.Health {
         void AddWounds(IEnumerable<IWound> wounds);
     }
 
-    public interface IMortalPerceiver : IPerceiver, IHaveWounds {
+    public interface IMortalPerceiver : IPerceiver, IHaveWounds
+    {
         event WoundEvent OnWounded;
         event WoundEvent OnHeal;
         event WoundEvent OnRemoveWound;

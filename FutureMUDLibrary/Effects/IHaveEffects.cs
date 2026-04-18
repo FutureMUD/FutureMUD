@@ -1,9 +1,11 @@
-﻿using System;
+﻿using MudSharp.Framework;
+using System;
 using System.Collections.Generic;
-using MudSharp.Framework;
 
-namespace MudSharp.Effects {
-    public interface IHaveEffects {
+namespace MudSharp.Effects
+{
+    public interface IHaveEffects
+    {
         IEnumerable<IEffect> Effects { get; }
         IEnumerable<T> EffectsOfType<T>(Predicate<T> predicate = null) where T : class, IEffect;
         bool AffectedBy<T>() where T : class, IEffect;

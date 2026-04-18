@@ -3,8 +3,10 @@ using MudSharp.Form.Audio;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Save;
 
-namespace MudSharp.Construction {
-    public interface IEditableCellOverlay : ICellOverlay, ISaveable {
+namespace MudSharp.Construction
+{
+    public interface IEditableCellOverlay : ICellOverlay, ISaveable
+    {
         new string CellName { get; set; }
         new string CellDescription { get; set; }
         new ITerrain Terrain { get; set; }

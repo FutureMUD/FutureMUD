@@ -6,47 +6,47 @@ namespace MudSharp.PerceptionEngine.Handlers;
 
 public class IgnorantItemOutputHandler : IOutputHandler
 {
-	private readonly IGameItem _item;
+    private readonly IGameItem _item;
 
-	public IgnorantItemOutputHandler(IGameItem item)
-	{
-		_item = item;
-	}
+    public IgnorantItemOutputHandler(IGameItem item)
+    {
+        _item = item;
+    }
 
-	public IPerceiver Perceiver => _item;
+    public IPerceiver Perceiver => _item;
 
-	public bool HasBufferedOutput => false;
+    public bool HasBufferedOutput => false;
 
-	public string BufferedOutput => null;
+    public string BufferedOutput => null;
 
-	public bool Send(string text, bool newline = true, bool nopage = false)
-	{
-		return false;
-	}
+    public bool Send(string text, bool newline = true, bool nopage = false)
+    {
+        return false;
+    }
 
-	public bool Send(IOutput output, bool newline = true, bool nopage = false)
-	{
-		return false;
-	}
+    public bool Send(IOutput output, bool newline = true, bool nopage = false)
+    {
+        return false;
+    }
 
-	public bool SendPrompt()
-	{
-		return false;
-	}
+    public bool SendPrompt()
+    {
+        return false;
+    }
 
-	public void Flush()
-	{
-	}
+    public void Flush()
+    {
+    }
 
-	public bool Register(IPerceiver perceiver)
-	{
-		return false;
-	}
+    public bool Register(IPerceiver perceiver)
+    {
+        return false;
+    }
 
-	public bool QuietMode { get; set; }
+    public bool QuietMode { get; set; }
 
-	public void More()
-	{
-		// Do nothing
-	}
+    public void More()
+    {
+        // Do nothing
+    }
 }

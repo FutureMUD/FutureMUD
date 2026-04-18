@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
 using MudSharp.Commands.Socials;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace MudSharp.Commands {
-    public interface IExecutable : IReportCommands {
+namespace MudSharp.Commands
+{
+    public interface IExecutable : IReportCommands
+    {
         delegate void CommandMethodDelegate(string playerInput);
 
         string Name { get; }
@@ -26,7 +28,8 @@ namespace MudSharp.Commands {
             IOutputHandler outputHandler = null);
     }
 
-    public interface IExecutable<in T> : IReportCommands {
+    public interface IExecutable<in T> : IReportCommands
+    {
         delegate void CommandGenericMethodDelegate(T argument, string playerInput);
         string Name { get; }
 
@@ -50,13 +53,13 @@ namespace MudSharp.Commands {
         bool NoCombatCommand { get; }
 
         bool NoMovementCommand { get; }
-        
+
         bool NoMeleeCombatCommand { get; }
 
         bool MustBeAnEnforcer { get; }
 
         ICommandHelpInfo HelpInfo { get; }
-        Func<object,string,bool> AppearInCommandsListCondition { get; }
+        Func<object, string, bool> AppearInCommandsListCondition { get; }
 
         string ModuleName { get; }
 
@@ -64,9 +67,10 @@ namespace MudSharp.Commands {
             PermissionLevel permissionLevel = PermissionLevel.Any, IOutputHandler outputHandler = null);
     }
 
-    public interface ICommandManager : IExecutable {
+    public interface ICommandManager : IExecutable
+    {
         PermissionLevel HasPermissionUpTo { get; }
-        IReadOnlyDictionary<string, IExecutable> Commands {get;}
+        IReadOnlyDictionary<string, IExecutable> Commands { get; }
         void Add(string entry, CommandMethodDelegate method, CharacterState state = CharacterState.Any,
             PermissionLevel permissionRequired = PermissionLevel.Any);
 
@@ -82,9 +86,10 @@ namespace MudSharp.Commands {
         bool Remove(IEnumerable<string> entries, IExecutable command);
     }
 
-    public interface ICommandManager<T> : IExecutable<T> {
+    public interface ICommandManager<T> : IExecutable<T>
+    {
         PermissionLevel HasPermissionUpTo { get; }
-        IReadOnlyDictionary<string, IExecutable<T>> TCommands {get;}
+        IReadOnlyDictionary<string, IExecutable<T>> TCommands { get; }
         void Add(string entry, CommandGenericMethodDelegate method, CharacterState state = CharacterState.Any,
             PermissionLevel permissionRequired = PermissionLevel.Any);
 
@@ -101,7 +106,7 @@ namespace MudSharp.Commands {
         IExecutable<T> LocateCommand(T reference, ref string input);
     }
 
-    
+
 
     public interface ICharacterCommandManager : ICommandManager<ICharacter>
     {

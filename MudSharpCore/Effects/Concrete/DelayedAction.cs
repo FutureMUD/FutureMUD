@@ -1,39 +1,39 @@
-﻿using System;
-using MudSharp.Effects.Interfaces;
+﻿using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using System;
 
 namespace MudSharp.Effects.Concrete;
 
 public class DelayedAction : Effect, IActionEffect
 {
-	public DelayedAction(IPerceivable owner, Action<IPerceivable> action, string actionDescription)
-		: base(owner)
-	{
-		Action = action;
-		ActionDescription = actionDescription;
-	}
+    public DelayedAction(IPerceivable owner, Action<IPerceivable> action, string actionDescription)
+        : base(owner)
+    {
+        Action = action;
+        ActionDescription = actionDescription;
+    }
 
-	protected override string SpecificEffectType => "DelayedAction";
+    protected override string SpecificEffectType => "DelayedAction";
 
-	public string ActionDescription { get; set; }
-	public Action<IPerceivable> Action { get; set; }
+    public string ActionDescription { get; set; }
+    public Action<IPerceivable> Action { get; set; }
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"Delayed Action - {ActionDescription}";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"Delayed Action - {ActionDescription}";
+    }
 
-	public override void ExpireEffect()
-	{
-		Owner.RemoveEffect(this);
-		if (ApplicabilityProg?.ExecuteBool(Owner, null, null) ?? true)
-		{
-			Action(Owner);
-		}
-	}
+    public override void ExpireEffect()
+    {
+        Owner.RemoveEffect(this);
+        if (ApplicabilityProg?.ExecuteBool(Owner, null, null) ?? true)
+        {
+            Action(Owner);
+        }
+    }
 
-	public override string ToString()
-	{
-		return $"DelayedAction Effect ({ActionDescription})";
-	}
+    public override string ToString()
+    {
+        return $"DelayedAction Effect ({ActionDescription})";
+    }
 }

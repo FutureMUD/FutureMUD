@@ -1,307 +1,307 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using Parlot.Fluent;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.Form.Material;
 
 public abstract class Material : SaveableItem, IMaterial
 {
-	protected Material(MudSharp.Models.Material material, IFuturemud gameworld)
-	{
-		Gameworld = gameworld;
-		_id = material.Id;
-		_name = material.Name;
-		MaterialDescription = material.MaterialDescription;
-		Density = material.Density;
-		Organic = material.Organic;
-		BehaviourType = (MaterialBehaviourType)(material.BehaviourType ?? 0);
-		ThermalConductivity = material.ThermalConductivity;
-		ElectricalConductivity = material.ElectricalConductivity;
-		SpecificHeatCapacity = material.SpecificHeatCapacity;
+    protected Material(MudSharp.Models.Material material, IFuturemud gameworld)
+    {
+        Gameworld = gameworld;
+        _id = material.Id;
+        _name = material.Name;
+        MaterialDescription = material.MaterialDescription;
+        Density = material.Density;
+        Organic = material.Organic;
+        BehaviourType = (MaterialBehaviourType)(material.BehaviourType ?? 0);
+        ThermalConductivity = material.ThermalConductivity;
+        ElectricalConductivity = material.ElectricalConductivity;
+        SpecificHeatCapacity = material.SpecificHeatCapacity;
 
-		foreach (var tag in material.MaterialsTags)
-		{
-			_tags.Add(Gameworld.Tags.Get(tag.TagId));
-		}
-	}
+        foreach (Models.MaterialsTags tag in material.MaterialsTags)
+        {
+            _tags.Add(Gameworld.Tags.Get(tag.TagId));
+        }
+    }
 
-	protected Material(MudSharp.Models.Liquid material, IFuturemud gameworld)
-	{
-		Gameworld = gameworld;
-		_id = material.Id;
-		_name = material.Name;
-		MaterialDescription = material.Description;
-		Density = material.Density;
-		Organic = material.Organic;
-		BehaviourType = MaterialBehaviourType.Liquid;
-		ThermalConductivity = material.ThermalConductivity;
-		ElectricalConductivity = material.ElectricalConductivity;
-		SpecificHeatCapacity = material.SpecificHeatCapacity;
+    protected Material(MudSharp.Models.Liquid material, IFuturemud gameworld)
+    {
+        Gameworld = gameworld;
+        _id = material.Id;
+        _name = material.Name;
+        MaterialDescription = material.Description;
+        Density = material.Density;
+        Organic = material.Organic;
+        BehaviourType = MaterialBehaviourType.Liquid;
+        ThermalConductivity = material.ThermalConductivity;
+        ElectricalConductivity = material.ElectricalConductivity;
+        SpecificHeatCapacity = material.SpecificHeatCapacity;
 
-		foreach (var tag in material.LiquidsTags)
-		{
-			_tags.Add(Gameworld.Tags.Get(tag.TagId));
-		}
-	}
+        foreach (Models.LiquidsTags tag in material.LiquidsTags)
+        {
+            _tags.Add(Gameworld.Tags.Get(tag.TagId));
+        }
+    }
 
-	protected Material(MudSharp.Models.Gas material, IFuturemud gameworld)
-	{
-		Gameworld = gameworld;
-		_id = material.Id;
-		_name = material.Name;
-		MaterialDescription = material.Description;
-		Density = material.Density;
-		Organic = material.Organic;
-		BehaviourType = MaterialBehaviourType.Gas;
-		ThermalConductivity = material.ThermalConductivity;
-		ElectricalConductivity = material.ElectricalConductivity;
-		SpecificHeatCapacity = material.SpecificHeatCapacity;
+    protected Material(MudSharp.Models.Gas material, IFuturemud gameworld)
+    {
+        Gameworld = gameworld;
+        _id = material.Id;
+        _name = material.Name;
+        MaterialDescription = material.Description;
+        Density = material.Density;
+        Organic = material.Organic;
+        BehaviourType = MaterialBehaviourType.Gas;
+        ThermalConductivity = material.ThermalConductivity;
+        ElectricalConductivity = material.ElectricalConductivity;
+        SpecificHeatCapacity = material.SpecificHeatCapacity;
 
-		foreach (var tag in material.GasesTags)
-		{
-			_tags.Add(Gameworld.Tags.Get(tag.TagId));
-		}
-	}
+        foreach (Models.GasesTags tag in material.GasesTags)
+        {
+            _tags.Add(Gameworld.Tags.Get(tag.TagId));
+        }
+    }
 
-	protected Material(Material rhs, string newName, MaterialBehaviourType behaviourType)
-	{
-		_name = newName;
-		BehaviourType = behaviourType;
-		Gameworld = rhs.Gameworld;
-		MaterialDescription = rhs.MaterialDescription;
-		ElectricalConductivity = rhs.ElectricalConductivity;
-		ThermalConductivity = rhs.ThermalConductivity;
-		Organic = rhs.Organic;
-		Density = rhs.Density;
-		SpecificHeatCapacity = rhs.SpecificHeatCapacity;
-		_tags.AddRange(rhs._tags);
-	}
+    protected Material(Material rhs, string newName, MaterialBehaviourType behaviourType)
+    {
+        _name = newName;
+        BehaviourType = behaviourType;
+        Gameworld = rhs.Gameworld;
+        MaterialDescription = rhs.MaterialDescription;
+        ElectricalConductivity = rhs.ElectricalConductivity;
+        ThermalConductivity = rhs.ThermalConductivity;
+        Organic = rhs.Organic;
+        Density = rhs.Density;
+        SpecificHeatCapacity = rhs.SpecificHeatCapacity;
+        _tags.AddRange(rhs._tags);
+    }
 
-	protected Material(string name, MaterialBehaviourType behaviour, IFuturemud gameworld)
-	{
-		_name = name;
-		BehaviourType = behaviour;
-		Gameworld = gameworld;
-		MaterialDescription = name;
-		ElectricalConductivity = 0.0001;
-		ThermalConductivity = 0.14;
-		Organic = false;
-		Density = 500;
-		SpecificHeatCapacity = 420;
-		switch (behaviour)
-		{
-			case MaterialBehaviourType.Metal:
-				ElectricalConductivity = 15000000;
-				ThermalConductivity = 19;
-				Density = 8000;
-				break;
-			case MaterialBehaviourType.Stone:
-				Density = 3600;
-				break;
-			case MaterialBehaviourType.Ore:
-				Density = 4000;
-				break;
-			case MaterialBehaviourType.Wood:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Leather:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Liquid:
-				Density = 1000;
-				break;
-			case MaterialBehaviourType.Gas:
-				Density = 1;
-				break;
-			case MaterialBehaviourType.Flesh:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Muscle:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Bone:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Shell:
-			case MaterialBehaviourType.Horn:
-			case MaterialBehaviourType.Claw:
-			case MaterialBehaviourType.Scale:
-			case MaterialBehaviourType.Beak:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Mana:
-				break;
-			case MaterialBehaviourType.Spirit:
-				break;
-			case MaterialBehaviourType.Energy:
-				break;
-			case MaterialBehaviourType.Fabric:
-				break;
-			case MaterialBehaviourType.Hair:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Ceramic:
-				Density = 2000;
-				break;
-			case MaterialBehaviourType.Food:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Plant:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Plastic:
-				break;
-			case MaterialBehaviourType.Blood:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Feces:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Feather:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Meat:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Remains:
-				Organic = true;
-				break;
-			case MaterialBehaviourType.Soap:
-				break;
-			case MaterialBehaviourType.Wax:
-				break;
-			case MaterialBehaviourType.Powder:
-				Density = 2000;
-				break;
-			case MaterialBehaviourType.Soil:
-				Density = 2000;
-				break;
+    protected Material(string name, MaterialBehaviourType behaviour, IFuturemud gameworld)
+    {
+        _name = name;
+        BehaviourType = behaviour;
+        Gameworld = gameworld;
+        MaterialDescription = name;
+        ElectricalConductivity = 0.0001;
+        ThermalConductivity = 0.14;
+        Organic = false;
+        Density = 500;
+        SpecificHeatCapacity = 420;
+        switch (behaviour)
+        {
+            case MaterialBehaviourType.Metal:
+                ElectricalConductivity = 15000000;
+                ThermalConductivity = 19;
+                Density = 8000;
+                break;
+            case MaterialBehaviourType.Stone:
+                Density = 3600;
+                break;
+            case MaterialBehaviourType.Ore:
+                Density = 4000;
+                break;
+            case MaterialBehaviourType.Wood:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Leather:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Liquid:
+                Density = 1000;
+                break;
+            case MaterialBehaviourType.Gas:
+                Density = 1;
+                break;
+            case MaterialBehaviourType.Flesh:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Muscle:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Bone:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Shell:
+            case MaterialBehaviourType.Horn:
+            case MaterialBehaviourType.Claw:
+            case MaterialBehaviourType.Scale:
+            case MaterialBehaviourType.Beak:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Mana:
+                break;
+            case MaterialBehaviourType.Spirit:
+                break;
+            case MaterialBehaviourType.Energy:
+                break;
+            case MaterialBehaviourType.Fabric:
+                break;
+            case MaterialBehaviourType.Hair:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Ceramic:
+                Density = 2000;
+                break;
+            case MaterialBehaviourType.Food:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Plant:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Plastic:
+                break;
+            case MaterialBehaviourType.Blood:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Feces:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Feather:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Meat:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Remains:
+                Organic = true;
+                break;
+            case MaterialBehaviourType.Soap:
+                break;
+            case MaterialBehaviourType.Wax:
+                break;
+            case MaterialBehaviourType.Powder:
+                Density = 2000;
+                break;
+            case MaterialBehaviourType.Soil:
+                Density = 2000;
+                break;
 
-		}
-	}
+        }
+    }
 
-	protected abstract string MaterialNoun { get; }
+    protected abstract string MaterialNoun { get; }
 
-	#region IMaterial Members
+    #region IMaterial Members
 
-	public virtual void FinaliseLoad(MudSharp.Models.Material material)
-	{
-		// Do nothing
-	}
+    public virtual void FinaliseLoad(MudSharp.Models.Material material)
+    {
+        // Do nothing
+    }
 
-	public double Density { get; private set; }
+    public double Density { get; private set; }
 
-	public bool Organic { get; private set; }
+    public bool Organic { get; private set; }
 
-	public abstract MaterialType MaterialType { get; }
+    public abstract MaterialType MaterialType { get; }
 
-	public MaterialBehaviourType BehaviourType { get; init; }
+    public MaterialBehaviourType BehaviourType { get; init; }
 
-	public double ThermalConductivity { get; private set; }
+    public double ThermalConductivity { get; private set; }
 
-	public double ElectricalConductivity { get; private set; }
+    public double ElectricalConductivity { get; private set; }
 
-	public double SpecificHeatCapacity { get; private set; }
+    public double SpecificHeatCapacity { get; private set; }
 
-	public string MaterialDescription { get; private set; }
+    public string MaterialDescription { get; private set; }
 
-	#endregion
+    #endregion
 
-	#region IHaveTags
+    #region IHaveTags
 
-	private readonly List<ITag> _tags = new();
-	public IEnumerable<ITag> Tags => _tags;
+    private readonly List<ITag> _tags = new();
+    public IEnumerable<ITag> Tags => _tags;
 
-	public bool AddTag(ITag tag)
-	{
-		_tags.Add(tag);
-		Changed = true;
-		return true;
-	}
+    public bool AddTag(ITag tag)
+    {
+        _tags.Add(tag);
+        Changed = true;
+        return true;
+    }
 
-	public bool RemoveTag(ITag tag)
-	{
-		_tags.Remove(tag);
-		Changed = true;
-		return true;
-	}
+    public bool RemoveTag(ITag tag)
+    {
+        _tags.Remove(tag);
+        Changed = true;
+        return true;
+    }
 
-	public bool IsA(ITag tag)
-	{
-		return tag == null || Tags.Any(x => x.IsA(tag));
-	}
+    public bool IsA(ITag tag)
+    {
+        return tag == null || Tags.Any(x => x.IsA(tag));
+    }
 
-	#endregion
+    #endregion
 
-	#region IFutureProgVariable Members
+    #region IFutureProgVariable Members
 
-	public abstract ProgVariableTypes Type { get; }
-	public object GetObject => this;
+    public abstract ProgVariableTypes Type { get; }
+    public object GetObject => this;
 
-	public virtual IProgVariable GetProperty(string property)
-	{
-		switch (property.ToLowerInvariant())
-		{
-			case "name":
-				return new TextVariable(Name);
-			case "id":
-				return new NumberVariable(Id);
-			case "density":
-				return new NumberVariable(Density);
-			case "organic":
-				return new BooleanVariable(Organic);
-			case "tags":
-				return new CollectionVariable(Tags.Select(x => x.Name).ToList(), ProgVariableTypes.Text);
-			case "description":
-				return new TextVariable(MaterialDescription);
-		}
+    public virtual IProgVariable GetProperty(string property)
+    {
+        switch (property.ToLowerInvariant())
+        {
+            case "name":
+                return new TextVariable(Name);
+            case "id":
+                return new NumberVariable(Id);
+            case "density":
+                return new NumberVariable(Density);
+            case "organic":
+                return new BooleanVariable(Organic);
+            case "tags":
+                return new CollectionVariable(Tags.Select(x => x.Name).ToList(), ProgVariableTypes.Text);
+            case "description":
+                return new TextVariable(MaterialDescription);
+        }
 
-		throw new ApplicationException("Invalid property requested in Material.GetProperty");
-	}
+        throw new ApplicationException("Invalid property requested in Material.GetProperty");
+    }
 
-	protected static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
-	{
-		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
-		{
-			{ "name", ProgVariableTypes.Text },
-			{ "id", ProgVariableTypes.Number },
-			{ "density", ProgVariableTypes.Number },
-			{ "organic", ProgVariableTypes.Boolean },
-			{ "tags", ProgVariableTypes.Collection | ProgVariableTypes.Text },
-			{ "description", ProgVariableTypes.Text }
-		};
-	}
+    protected static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
+    {
+        return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            { "name", ProgVariableTypes.Text },
+            { "id", ProgVariableTypes.Number },
+            { "density", ProgVariableTypes.Number },
+            { "organic", ProgVariableTypes.Boolean },
+            { "tags", ProgVariableTypes.Collection | ProgVariableTypes.Text },
+            { "description", ProgVariableTypes.Text }
+        };
+    }
 
-	protected static IReadOnlyDictionary<string, string> DotReferenceHelp()
-	{
-		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
-		{
-			{ "name", "The name of the material" },
-			{ "id", "The Id of the material" },
-			{ "density", "The density of the material in kg/m3" },
-			{ "organic", "Whether this is an organic material" },
-			{ "tags", "A collection of tags for this material" },
-			{ "description", "The material description for this material" }
-		};
-	}
+    protected static IReadOnlyDictionary<string, string> DotReferenceHelp()
+    {
+        return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            { "name", "The name of the material" },
+            { "id", "The Id of the material" },
+            { "density", "The density of the material in kg/m3" },
+            { "organic", "Whether this is an organic material" },
+            { "tags", "A collection of tags for this material" },
+            { "description", "The material description for this material" }
+        };
+    }
 
-	public static void RegisterFutureProgCompiler()
-	{
-		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Material, DotReferenceHandler(),
-			DotReferenceHelp());
-	}
+    public static void RegisterFutureProgCompiler()
+    {
+        ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Material, DotReferenceHandler(),
+            DotReferenceHelp());
+    }
 
-	#endregion
+    #endregion
 
-	#region Implementation of IEditableItem
+    #region Implementation of IEditableItem
 
-	protected virtual string HelpText => $@"You can use the following options with this {MaterialNoun}:
+    protected virtual string HelpText => $@"You can use the following options with this {MaterialNoun}:
 
 	#3name <name>#0 - renames this material
 	#3organic#0 - toggles counting as organic
@@ -312,209 +312,209 @@ public abstract class Material : SaveableItem, IMaterial
 	#3specificheat <value>#0 - sets the specific heat capacity in J/Kg.Kelvin
 	#3tag <value>#0 - toggles a tag being on this material";
 
-	/// <inheritdoc />
-	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
-	{
-		switch (command.PopForSwitch())
-		{
-			case "name":
-				return BuildingCommandName(actor, command);
-			case "organic":
-				return BuildingCommandOrganic(actor);
-			case "density":
-				return BuildingCommandDensity(actor, command);
-			case "electricalconductivity":
-			case "electrical":
-				return BuildingCommandElectricalConductivity(actor, command);
-			case "thermal":
-			case "thermalconductivity":
-				return BuildingCommandThermalConductivity(actor, command);
-			case "desc":
-			case "description":
-				return BuildingCommandDescription(actor, command);
-			case "specific":
-			case "heat":
-			case "specificheat":
-			case "specificheatcapacity":
-			case "shc":
-				return BuildingCommandSpecificHeatCapacity(actor, command);
-			case "tag":
-				return BuildingCommandTag(actor, command);
-			default:
-				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
-				return false;
-		}
-	}
+    /// <inheritdoc />
+    public virtual bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "name":
+                return BuildingCommandName(actor, command);
+            case "organic":
+                return BuildingCommandOrganic(actor);
+            case "density":
+                return BuildingCommandDensity(actor, command);
+            case "electricalconductivity":
+            case "electrical":
+                return BuildingCommandElectricalConductivity(actor, command);
+            case "thermal":
+            case "thermalconductivity":
+                return BuildingCommandThermalConductivity(actor, command);
+            case "desc":
+            case "description":
+                return BuildingCommandDescription(actor, command);
+            case "specific":
+            case "heat":
+            case "specificheat":
+            case "specificheatcapacity":
+            case "shc":
+                return BuildingCommandSpecificHeatCapacity(actor, command);
+            case "tag":
+                return BuildingCommandTag(actor, command);
+            default:
+                actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+                return false;
+        }
+    }
 
-	private bool BuildingCommandName(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("You must supply a new name.");
-			return false;
-		}
+    private bool BuildingCommandName(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("You must supply a new name.");
+            return false;
+        }
 
-		var name = command.SafeRemainingArgument;
-		var oldName = _name;
-		if (!TryRename(name, out var errorMessage))
-		{
-			actor.OutputHandler.Send(errorMessage);
-			return false;
-		}
+        string name = command.SafeRemainingArgument;
+        string oldName = _name;
+        if (!TryRename(name, out string errorMessage))
+        {
+            actor.OutputHandler.Send(errorMessage);
+            return false;
+        }
 
-		actor.OutputHandler.Send(
-			$"You rename this {MaterialNoun} from {oldName.ColourName()} to {name.ToLowerInvariant().ColourName()}.");
-		return true;
-	}
+        actor.OutputHandler.Send(
+            $"You rename this {MaterialNoun} from {oldName.ColourName()} to {name.ToLowerInvariant().ColourName()}.");
+        return true;
+    }
 
-	internal bool TryRename(string name, out string errorMessage)
-	{
-		var candidateName = name.ToLowerInvariant();
-		switch (this)
-		{
-			case ISolid solid:
-				if (Gameworld.Materials.Any(x => !ReferenceEquals(x, solid) && x.Names.Any(y => y.EqualTo(candidateName))))
-				{
-					errorMessage =
-						$"There is already a solid or solid alias called {candidateName.ColourName()}. Names and aliases must be unique.";
-					return false;
-				}
-				break;
-			case Liquid _:
-				if (Gameworld.Liquids.Any(x => x.Name.EqualTo(candidateName)))
-				{
-					errorMessage = $"There is already a liquid called {candidateName.ColourName()}. Names must be unique.";
-					return false;
-				}
-				break;
-			case Gas _:
-				if (Gameworld.Gases.Any(x => x.Name.EqualTo(candidateName)))
-				{
-					errorMessage = $"There is already a gas called {candidateName.ColourName()}. Names must be unique.";
-					return false;
-				}
-				break;
-		}
+    internal bool TryRename(string name, out string errorMessage)
+    {
+        string candidateName = name.ToLowerInvariant();
+        switch (this)
+        {
+            case ISolid solid:
+                if (Gameworld.Materials.Any(x => !ReferenceEquals(x, solid) && x.Names.Any(y => y.EqualTo(candidateName))))
+                {
+                    errorMessage =
+                        $"There is already a solid or solid alias called {candidateName.ColourName()}. Names and aliases must be unique.";
+                    return false;
+                }
+                break;
+            case Liquid _:
+                if (Gameworld.Liquids.Any(x => x.Name.EqualTo(candidateName)))
+                {
+                    errorMessage = $"There is already a liquid called {candidateName.ColourName()}. Names must be unique.";
+                    return false;
+                }
+                break;
+            case Gas _:
+                if (Gameworld.Gases.Any(x => x.Name.EqualTo(candidateName)))
+                {
+                    errorMessage = $"There is already a gas called {candidateName.ColourName()}. Names must be unique.";
+                    return false;
+                }
+                break;
+        }
 
-		_name = candidateName;
-		Changed = true;
-		errorMessage = string.Empty;
-		return true;
-	}
+        _name = candidateName;
+        Changed = true;
+        errorMessage = string.Empty;
+        return true;
+    }
 
-	private bool BuildingCommandTag(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send($"Which tag do you want to toggle for this {MaterialNoun}?");
-			return false;
-		}
+    private bool BuildingCommandTag(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"Which tag do you want to toggle for this {MaterialNoun}?");
+            return false;
+        }
 
-		var tag = Gameworld.Tags.GetByIdOrName(command.SafeRemainingArgument);
-		if (tag is null)
-		{
-			actor.OutputHandler.Send($"There is no tag identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
-			return false;
-		}
+        ITag tag = Gameworld.Tags.GetByIdOrName(command.SafeRemainingArgument);
+        if (tag is null)
+        {
+            actor.OutputHandler.Send($"There is no tag identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
+            return false;
+        }
 
-		Changed = true;
+        Changed = true;
 
-		if (_tags.Remove(tag))
-		{
-			actor.OutputHandler.Send($"This {MaterialNoun} is no longer tagged with {tag.FullName.ColourName()}.");
-			return true;
-		}
+        if (_tags.Remove(tag))
+        {
+            actor.OutputHandler.Send($"This {MaterialNoun} is no longer tagged with {tag.FullName.ColourName()}.");
+            return true;
+        }
 
-		_tags.Add(tag);
-		actor.OutputHandler.Send($"This {MaterialNoun} is now tagged with {tag.FullName.ColourName()}.");
-		return true;
-	}
+        _tags.Add(tag);
+        actor.OutputHandler.Send($"This {MaterialNoun} is now tagged with {tag.FullName.ColourName()}.");
+        return true;
+    }
 
-	private bool BuildingCommandSpecificHeatCapacity(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
-		{
-			actor.OutputHandler.Send("You must enter a valid positive number.");
-			return false;
-		}
+    private bool BuildingCommandSpecificHeatCapacity(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value) || value < 0.0)
+        {
+            actor.OutputHandler.Send("You must enter a valid positive number.");
+            return false;
+        }
 
-		SpecificHeatCapacity = value;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This {MaterialNoun} now has a specific heat capacity of {value.ToString("N3", actor).ColourValue()} Joules per Kg Kelvin.");
-		return true;
-	}
+        SpecificHeatCapacity = value;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This {MaterialNoun} now has a specific heat capacity of {value.ToString("N3", actor).ColourValue()} Joules per Kg Kelvin.");
+        return true;
+    }
 
-	private bool BuildingCommandDescription(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("What do you want to set the description to?");
-			return false;
-		}
+    private bool BuildingCommandDescription(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What do you want to set the description to?");
+            return false;
+        }
 
-		MaterialDescription = command.SafeRemainingArgument.ToLowerInvariant();
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"You change the description of this {MaterialNoun} to {MaterialDescription.ColourCommand()}.");
-		return true;
-	}
+        MaterialDescription = command.SafeRemainingArgument.ToLowerInvariant();
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"You change the description of this {MaterialNoun} to {MaterialDescription.ColourCommand()}.");
+        return true;
+    }
 
-	private bool BuildingCommandThermalConductivity(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
-		{
-			actor.OutputHandler.Send("You must enter a valid positive number.");
-			return false;
-		}
+    private bool BuildingCommandThermalConductivity(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value) || value < 0.0)
+        {
+            actor.OutputHandler.Send("You must enter a valid positive number.");
+            return false;
+        }
 
-		ThermalConductivity = value;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This {MaterialNoun} now has a thermal conductivity of {value.ToString("N3", actor).ColourValue()} Watts per Kelvin.");
-		return true;
-	}
+        ThermalConductivity = value;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This {MaterialNoun} now has a thermal conductivity of {value.ToString("N3", actor).ColourValue()} Watts per Kelvin.");
+        return true;
+    }
 
-	private bool BuildingCommandDensity(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
-		{
-			actor.OutputHandler.Send("You must enter a valid positive number.");
-			return false;
-		}
+    private bool BuildingCommandDensity(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value) || value < 0.0)
+        {
+            actor.OutputHandler.Send("You must enter a valid positive number.");
+            return false;
+        }
 
-		Density = value;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This {MaterialNoun} now has a density of {value.ToString("N3", actor).ColourValue()} Kg per Cubic Metre.");
-		return true;
-	}
+        Density = value;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This {MaterialNoun} now has a density of {value.ToString("N3", actor).ColourValue()} Kg per Cubic Metre.");
+        return true;
+    }
 
-	private bool BuildingCommandElectricalConductivity(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
-		{
-			actor.OutputHandler.Send("You must enter a valid positive number.");
-			return false;
-		}
+    private bool BuildingCommandElectricalConductivity(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value) || value < 0.0)
+        {
+            actor.OutputHandler.Send("You must enter a valid positive number.");
+            return false;
+        }
 
-		ElectricalConductivity = value;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This {MaterialNoun} now has an electrical conductivity of {value.ToString("N3", actor).ColourValue()} Siemens.");
-		return true;
-	}
+        ElectricalConductivity = value;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This {MaterialNoun} now has an electrical conductivity of {value.ToString("N3", actor).ColourValue()} Siemens.");
+        return true;
+    }
 
-	private bool BuildingCommandOrganic(ICharacter actor)
-	{
-		Organic = !Organic;
-		Changed = true;
-		actor.OutputHandler.Send($"This {MaterialNoun} is {(Organic ? "now" : "no longer")} considered organic.");
-		return true;
-	}
+    private bool BuildingCommandOrganic(ICharacter actor)
+    {
+        Organic = !Organic;
+        Changed = true;
+        actor.OutputHandler.Send($"This {MaterialNoun} is {(Organic ? "now" : "no longer")} considered organic.");
+        return true;
+    }
 
-	/// <inheritdoc />
-	public abstract string Show(ICharacter actor);
+    /// <inheritdoc />
+    public abstract string Show(ICharacter actor);
 
-	#endregion
+    #endregion
 }

@@ -1,60 +1,60 @@
-﻿using System.Xml.Linq;
-using MudSharp.GameItems.Interfaces;
+﻿using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
 public class GagGameItemComponent : GameItemComponent, IGag
 {
-	protected GagGameItemComponentProto _prototype;
-	public override IGameItemComponentProto Prototype => _prototype;
+    protected GagGameItemComponentProto _prototype;
+    public override IGameItemComponentProto Prototype => _prototype;
 
-	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
-	{
-		_prototype = (GagGameItemComponentProto)newProto;
-	}
+    protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
+    {
+        _prototype = (GagGameItemComponentProto)newProto;
+    }
 
-	#region Constructors
+    #region Constructors
 
-	public GagGameItemComponent(GagGameItemComponentProto proto, IGameItem parent, bool temporary = false) : base(
-		parent, proto, temporary)
-	{
-		_prototype = proto;
-	}
+    public GagGameItemComponent(GagGameItemComponentProto proto, IGameItem parent, bool temporary = false) : base(
+        parent, proto, temporary)
+    {
+        _prototype = proto;
+    }
 
-	public GagGameItemComponent(MudSharp.Models.GameItemComponent component, GagGameItemComponentProto proto,
-		IGameItem parent) : base(component, parent)
-	{
-		_prototype = proto;
-		_noSave = true;
-		LoadFromXml(XElement.Parse(component.Definition));
-		_noSave = false;
-	}
+    public GagGameItemComponent(MudSharp.Models.GameItemComponent component, GagGameItemComponentProto proto,
+        IGameItem parent) : base(component, parent)
+    {
+        _prototype = proto;
+        _noSave = true;
+        LoadFromXml(XElement.Parse(component.Definition));
+        _noSave = false;
+    }
 
-	public GagGameItemComponent(GagGameItemComponent rhs, IGameItem newParent, bool temporary = false) : base(rhs,
-		newParent, temporary)
-	{
-		_prototype = rhs._prototype;
-	}
+    public GagGameItemComponent(GagGameItemComponent rhs, IGameItem newParent, bool temporary = false) : base(rhs,
+        newParent, temporary)
+    {
+        _prototype = rhs._prototype;
+    }
 
-	protected void LoadFromXml(XElement root)
-	{
-		// TODO
-	}
+    protected void LoadFromXml(XElement root)
+    {
+        // TODO
+    }
 
-	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
-	{
-		return new GagGameItemComponent(this, newParent, temporary);
-	}
+    public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
+    {
+        return new GagGameItemComponent(this, newParent, temporary);
+    }
 
-	#endregion
+    #endregion
 
-	#region Saving
+    #region Saving
 
-	protected override string SaveToXml()
-	{
-		return new XElement("Definition").ToString();
-	}
+    protected override string SaveToXml()
+    {
+        return new XElement("Definition").ToString();
+    }
 
-	#endregion
+    #endregion
 }

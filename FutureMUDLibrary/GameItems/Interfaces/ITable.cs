@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
+using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Interfaces {
-    public interface ITable : IGameItemComponent {
+namespace MudSharp.GameItems.Interfaces
+{
+    public interface ITable : IGameItemComponent
+    {
         IEnumerable<IChair> Chairs { get; }
         int MaximumChairSlots { get; }
         void AddChair(ICharacter character, IChair chair);

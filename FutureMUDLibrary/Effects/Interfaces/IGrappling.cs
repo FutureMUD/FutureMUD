@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.RPG.Checks;
+using System;
+using System.Collections.Generic;
 
 namespace MudSharp.Effects.Interfaces
 {

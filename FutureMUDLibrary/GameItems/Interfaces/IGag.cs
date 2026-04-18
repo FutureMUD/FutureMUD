@@ -1,4 +1,6 @@
-﻿namespace MudSharp.GameItems.Interfaces {
-    public interface IGag : IGameItemComponent {
+﻿namespace MudSharp.GameItems.Interfaces
+{
+    public interface IGag : IGameItemComponent
+    {
     }
 }

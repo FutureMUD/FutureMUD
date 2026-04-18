@@ -1,9 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using MoreLinq.Extensions;
 using MudSharp.Character;
 using MudSharp.Database;
@@ -14,9 +8,15 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
+using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using NCalc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
 using Expression = ExpressionEngine.Expression;
 
 namespace MudSharp.Economy.Markets;
@@ -34,14 +34,14 @@ internal class Market : SaveableItem, IMarket
 		Description = dbitem.Description;
 		EconomicZone = Gameworld.EconomicZones.Get(dbitem.EconomicZoneId);
 		MarketPriceFormula = new Expression(dbitem.MarketPriceFormula);
-		foreach (var item in dbitem.MarketCategories)
+		foreach (Models.MarketCategory item in dbitem.MarketCategories)
 		{
 			_marketCategories.AddNotNull(Gameworld.MarketCategories.Get(item.Id));
 		}
 
-		foreach (var influence in dbitem.Influences)
+		foreach (Models.MarketInfluence influence in dbitem.Influences)
 		{
-			var inf = new MarketInfluence(this, influence);
+			MarketInfluence inf = new(this, influence);
 			_marketInfluences.Add(inf);
 			Gameworld.Add(inf);
 		}
@@ -62,17 +62,20 @@ internal class Market : SaveableItem, IMarket
 		_marketCategories.AddRange(rhs.MarketCategories);
 		using (new FMDB())
 		{
-			var dbitem = new Models.Market
+			Models.Market dbitem = new()
 			{
 				Name = Name,
 				Description = Description,
 				EconomicZoneId = EconomicZone.Id,
 				MarketPriceFormula = MarketPriceFormula.OriginalExpression
 			};
-			dbitem.MarketCategories = new HashSet<Models.MarketCategory>(rhs.MarketCategories.Select(x => FMDB.Context.MarketCategories.Find(x.Id)));
-			foreach (var influence in rhs.MarketInfluences)
+			dbitem.MarketCategories = new HashSet<Models.MarketCategory>(
+				rhs.MarketCategories
+				   .Select(x => FMDB.Context.MarketCategories.Find(x.Id))
+				   .Where(x => x is not null)!);
+			foreach (IMarketInfluence influence in rhs.MarketInfluences)
 			{
-				var dbinfluence = new Models.MarketInfluence
+				Models.MarketInfluence dbinfluence = new()
 				{
 					Name = influence.Name,
 					Description = influence.Description,
@@ -81,18 +84,19 @@ internal class Market : SaveableItem, IMarket
 					CharacterKnowsAboutInfluenceProgId = influence.CharacterKnowsAboutInfluenceProg.Id,
 					MarketInfluenceTemplateId = influence.MarketInfluenceTemplate?.Id,
 					Market = dbitem,
-					Impacts = influence.SaveImpacts().ToString()
-
+					Impacts = influence.SaveImpacts().ToString(),
+					PopulationImpacts = SavePopulationImpacts(influence.PopulationIncomeImpacts).ToString()
 				};
 				dbitem.Influences.Add(dbinfluence);
 			}
+
 			FMDB.Context.Markets.Add(dbitem);
 			FMDB.Context.SaveChanges();
 			_id = dbitem.Id;
 
-			foreach (var influence in dbitem.Influences)
+			foreach (Models.MarketInfluence influence in dbitem.Influences)
 			{
-				var inf = new MarketInfluence(this, influence);
+				MarketInfluence inf = new(this, influence);
 				_marketInfluences.Add(inf);
 				Gameworld.Add(inf);
 			}
@@ -105,10 +109,11 @@ internal class Market : SaveableItem, IMarket
 		_name = name;
 		EconomicZone = zone;
 		Description = "An undescribed market.";
-		MarketPriceFormula = new Expression("if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))");
+		MarketPriceFormula =
+			new Expression("if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))");
 		using (new FMDB())
 		{
-			var dbitem = new Models.Market
+			Models.Market dbitem = new()
 			{
 				Name = name,
 				EconomicZoneId = zone.Id,
@@ -124,16 +129,17 @@ internal class Market : SaveableItem, IMarket
 	/// <inheritdoc />
 	public override void Save()
 	{
-		var dbitem = FMDB.Context.Markets.Find(Id);
+		Models.Market dbitem = FMDB.Context.Markets.Find(Id);
 		dbitem.Name = Name;
 		dbitem.EconomicZoneId = EconomicZone.Id;
 		dbitem.Description = Description;
 		dbitem.MarketPriceFormula = MarketPriceFormula.OriginalExpression;
 		dbitem.MarketCategories.Clear();
-		foreach (var item in MarketCategories)
+		foreach (IMarketCategory item in MarketCategories)
 		{
 			dbitem.MarketCategories.Add(FMDB.Context.MarketCategories.Find(item.Id));
 		}
+
 		Changed = false;
 	}
 
@@ -169,7 +175,6 @@ In the market price formula, you can use the following variables:
 			case "description":
 			case "desc":
 				return BuildingCommandDescription(actor);
-
 		}
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
@@ -186,6 +191,7 @@ In the market price formula, you can use the following variables:
 	{
 		Description = text;
 		Changed = true;
+		InvalidatePricingCache();
 		handler.Send($"You set the description for this market to:\n\n{Description.Wrap((int)args[0], "\t")}");
 	}
 
@@ -202,7 +208,7 @@ In the market price formula, you can use the following variables:
 			return false;
 		}
 
-		var category = Gameworld.MarketCategories.GetByIdOrName(command.SafeRemainingArgument);
+		IMarketCategory category = Gameworld.MarketCategories.GetByIdOrName(command.SafeRemainingArgument);
 		if (category is null)
 		{
 			actor.OutputHandler.Send("There is no such market category.");
@@ -210,10 +216,12 @@ In the market price formula, you can use the following variables:
 		}
 
 		Changed = true;
+		InvalidatePricingCache();
 		if (_marketCategories.Contains(category))
 		{
 			_marketCategories.Remove(category);
-			actor.OutputHandler.Send($"This market will no longer contain the {category.Name.ColourValue()} market category.");
+			actor.OutputHandler.Send(
+				$"This market will no longer contain the {category.Name.ColourValue()} market category.");
 			return true;
 		}
 
@@ -230,7 +238,7 @@ In the market price formula, you can use the following variables:
 			return false;
 		}
 
-		var formula = new Expression(command.SafeRemainingArgument);
+		Expression formula = new(command.SafeRemainingArgument);
 		if (formula.HasErrors())
 		{
 			actor.OutputHandler.Send(formula.Error);
@@ -239,7 +247,9 @@ In the market price formula, you can use the following variables:
 
 		MarketPriceFormula = formula;
 		Changed = true;
-		actor.OutputHandler.Send($"The formula for this market's prices is now {formula.OriginalExpression.ColourCommand()}.");
+		InvalidatePricingCache();
+		actor.OutputHandler.Send(
+			$"The formula for this market's prices is now {formula.OriginalExpression.ColourCommand()}.");
 		return true;
 	}
 
@@ -251,15 +261,14 @@ In the market price formula, you can use the following variables:
 			return false;
 		}
 
-		var name = command.SafeRemainingArgument.TitleCase();
+		string name = command.SafeRemainingArgument.TitleCase();
 		if (Gameworld.Markets.Any(x => x.Name.EqualTo(name)))
 		{
 			actor.OutputHandler.Send($"There is already a market called {name.ColourName()}. Names must be unique.");
 			return false;
 		}
 
-		actor.OutputHandler.Send(
-			$"You rename this market from {Name.ColourName()} to {name.ColourName()}.");
+		actor.OutputHandler.Send($"You rename this market from {Name.ColourName()} to {name.ColourName()}.");
 		_name = name;
 		Changed = true;
 		return true;
@@ -273,7 +282,7 @@ In the market price formula, you can use the following variables:
 			return false;
 		}
 
-		var ez = Gameworld.EconomicZones.GetByIdOrName(command.SafeRemainingArgument);
+		IEconomicZone ez = Gameworld.EconomicZones.GetByIdOrName(command.SafeRemainingArgument);
 		if (ez is null)
 		{
 			actor.OutputHandler.Send("There is no such economic zones.");
@@ -282,6 +291,7 @@ In the market price formula, you can use the following variables:
 
 		EconomicZone = ez;
 		Changed = true;
+		InvalidatePricingCache();
 		actor.OutputHandler.Send($"This market now belongs to the {ez.Name.ColourName()} economic zones.");
 		return true;
 	}
@@ -289,8 +299,9 @@ In the market price formula, you can use the following variables:
 	/// <inheritdoc />
 	public string Show(ICharacter actor)
 	{
-		var sb = new StringBuilder();
-		sb.AppendLine($"Market #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
+		StringBuilder sb = new();
+		sb.AppendLine(
+			$"Market #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
 		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Description:");
@@ -307,21 +318,26 @@ In the market price formula, you can use the following variables:
 			{
 				item.Id.ToString("N0", actor),
 				item.Name,
+				item.CategoryType.DescribeEnum(),
 				item.ElasticityFactorBelow.ToString("N3", actor),
 				item.ElasticityFactorAbove.ToString("N3", actor),
 				NetSupply(item).ToString("P2", actor),
 				NetDemand(item).ToString("P2", actor),
+				FlatPriceAdjustmentForCategory(item).ToString("P2", actor),
 				PriceMultiplierForCategory(item).ToString("P3", actor),
-				Gameworld.ItemProtos.GetAllApprovedOrMostRecent().Count(x => item.BelongsToCategory(x)).ToString("N0", actor)
+				Gameworld.ItemProtos.GetAllApprovedOrMostRecent().Count(x => item.BelongsToCategory(x))
+				         .ToString("N0", actor)
 			},
 			new List<string>
 			{
 				"Id",
 				"Name",
+				"Type",
 				"E(Under)",
 				"E(Over)",
 				"Supply",
 				"Demand",
+				"Flat Price",
 				"Current Price %",
 				"# Items"
 			},
@@ -352,7 +368,7 @@ In the market price formula, you can use the following variables:
 			actor,
 			Telnet.BoldYellow
 		));
-		foreach (var influence in _marketInfluences)
+		foreach (IMarketInfluence influence in _marketInfluences)
 		{
 			sb.AppendLine(influence.TextForMarketShow(actor));
 		}
@@ -366,68 +382,347 @@ In the market price formula, you can use the following variables:
 	/// <inheritdoc />
 	public string Description { get; set; }
 
-	private readonly List<IMarketInfluence> _marketInfluences = new();
+	private readonly List<IMarketInfluence> _marketInfluences = [];
 
 	/// <inheritdoc />
 	public IEnumerable<IMarketInfluence> MarketInfluences => _marketInfluences;
 
-	private readonly List<IMarketCategory> _marketCategories = new();
+	private readonly List<IMarketCategory> _marketCategories = [];
+
 	public IEnumerable<IMarketCategory> MarketCategories => _marketCategories;
 
 	public Expression MarketPriceFormula { get; private set; }
 
-	public IReadOnlyCollection<MarketImpact> ApplicableMarketImpacts(IMarketCategory category)
+	private readonly Dictionary<long, CategoryPricingSnapshot> _categoryPricingCache = [];
+	private Dictionary<long, IReadOnlyCollection<ExpandedMarketImpact>> _expandedImpactLookup = [];
+	private bool _pricingCacheDirty = true;
+	private DateTime? _pricingCacheLastUpdatedUtc;
+	private bool _rebuildingPricingCache;
+	private static readonly TimeSpan PricingCacheRefreshInterval = TimeSpan.FromMinutes(60);
+	private static readonly CategoryPricingSnapshot DefaultPricingSnapshot = new(1.0, 1.0, 0.0m, 1.0m);
+
+	public void InvalidatePricingCache()
 	{
-		var now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		_pricingCacheDirty = true;
+	}
+
+	public void RefreshPricingCache()
+	{
+		EnsurePricingCache(force: true);
+	}
+
+	private void EnsurePricingCache(bool force = false)
+	{
+		if (_rebuildingPricingCache)
+		{
+			return;
+		}
+
+		var now = DateTime.UtcNow;
+		if (!force &&
+		    !_pricingCacheDirty &&
+		    _pricingCacheLastUpdatedUtc.HasValue &&
+		    now - _pricingCacheLastUpdatedUtc.Value < PricingCacheRefreshInterval)
+		{
+			return;
+		}
+
+		RebuildPricingCache();
+	}
+
+	private void RebuildPricingCache()
+	{
+		_rebuildingPricingCache = true;
+		try
+		{
+			_categoryPricingCache.Clear();
+			_expandedImpactLookup = BuildExpandedImpactLookup();
+			foreach (var category in _marketCategories)
+			{
+				GetCategoryPricingSnapshot(category, []);
+			}
+
+			_pricingCacheDirty = false;
+			_pricingCacheLastUpdatedUtc = DateTime.UtcNow;
+		}
+		finally
+		{
+			_rebuildingPricingCache = false;
+		}
+	}
+
+	private Dictionary<long, IReadOnlyCollection<ExpandedMarketImpact>> BuildExpandedImpactLookup()
+	{
+		Dictionary<long, List<ExpandedMarketImpact>> lookup = [];
+		MudDateTime now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		foreach (var impact in _marketInfluences
+			             .Where(x => x.Applies(null, now))
+			             .SelectMany(x => x.MarketImpacts))
+		{
+			foreach (var expanded in ExpandImpactToLeafCategories(impact))
+			{
+				if (!lookup.TryGetValue(expanded.MarketCategory.Id, out var list))
+				{
+					list = [];
+					lookup[expanded.MarketCategory.Id] = list;
+				}
+
+				list.Add(expanded);
+			}
+		}
+
+		return lookup.ToDictionary(x => x.Key, x => (IReadOnlyCollection<ExpandedMarketImpact>)x.Value);
+	}
+
+	private IEnumerable<ExpandedMarketImpact> ExpandImpactToLeafCategories(MarketImpact impact)
+	{
+		foreach (var component in ExpandCategoryToLeafWeights(impact.MarketCategory))
+		{
+			yield return new ExpandedMarketImpact(
+				component.MarketCategory,
+				impact.SupplyImpact * (double)component.Weight,
+				impact.DemandImpact * (double)component.Weight,
+				impact.FlatPriceImpact * (double)component.Weight);
+		}
+	}
+
+	private IReadOnlyCollection<MarketCategoryComponent> ExpandCategoryToLeafWeights(IMarketCategory category)
+	{
+		Dictionary<long, MarketCategoryComponent> results = [];
+		ExpandCategoryToLeafWeights(category, 1.0m, [], results);
+		return results.Values.ToList();
+	}
+
+	private void ExpandCategoryToLeafWeights(IMarketCategory category, decimal weight, HashSet<long> visiting,
+		Dictionary<long, MarketCategoryComponent> results)
+	{
+		if (weight <= 0.0m)
+		{
+			return;
+		}
+
+		if (!visiting.Add(category.Id))
+		{
+			return;
+		}
+
+		try
+		{
+			var normalizedComponents = GetNormalizedComponents(category);
+			if (category.CategoryType != MarketCategoryType.Combination || normalizedComponents.Count == 0)
+			{
+				if (results.TryGetValue(category.Id, out var existing))
+				{
+					results[category.Id] = existing with { Weight = existing.Weight + weight };
+				}
+				else
+				{
+					results[category.Id] = new MarketCategoryComponent
+					{
+						MarketCategory = category,
+						Weight = weight
+					};
+				}
+
+				return;
+			}
+
+			foreach (var component in normalizedComponents)
+			{
+				ExpandCategoryToLeafWeights(component.MarketCategory, weight * component.Weight, visiting, results);
+			}
+		}
+		finally
+		{
+			visiting.Remove(category.Id);
+		}
+	}
+
+	private static IReadOnlyCollection<MarketCategoryComponent> GetNormalizedComponents(IMarketCategory category)
+	{
+		if (category.CategoryType != MarketCategoryType.Combination)
+		{
+			return [];
+		}
+
+		var validComponents = category.CombinationComponents
+		                              .Where(x => x.Weight > 0.0m && x.MarketCategory is not null &&
+		                                          x.MarketCategory.Id != category.Id)
+		                              .ToList();
+		if (!validComponents.Any())
+		{
+			return [];
+		}
+
+		var totalWeight = validComponents.Sum(x => x.Weight);
+		if (totalWeight <= 0.0m)
+		{
+			return [];
+		}
+
+		return validComponents
+		      .Select(x => x with { Weight = x.Weight / totalWeight })
+		      .ToList();
+	}
+
+	private CategoryPricingSnapshot GetCategoryPricingSnapshot(IMarketCategory category, HashSet<long> visiting)
+	{
+		if (category is null)
+		{
+			return DefaultPricingSnapshot;
+		}
+
+		EnsurePricingCache();
+		if (_categoryPricingCache.TryGetValue(category.Id, out var snapshot))
+		{
+			return snapshot;
+		}
+
+		if (!visiting.Add(category.Id))
+		{
+			return DefaultPricingSnapshot;
+		}
+
+		try
+		{
+			snapshot = category.CategoryType == MarketCategoryType.Combination
+				? BuildCombinationPricingSnapshot(category, visiting)
+				: BuildStandalonePricingSnapshot(category);
+			_categoryPricingCache[category.Id] = snapshot;
+			return snapshot;
+		}
+		finally
+		{
+			visiting.Remove(category.Id);
+		}
+	}
+
+	private CategoryPricingSnapshot BuildCombinationPricingSnapshot(IMarketCategory category, HashSet<long> visiting)
+	{
+		var components = GetNormalizedComponents(category);
+		if (!components.Any())
+		{
+			return DefaultPricingSnapshot;
+		}
+
+		double supply = 0.0;
+		double demand = 0.0;
+		decimal flatPrice = 0.0m;
+		decimal multiplier = 0.0m;
+		foreach (var component in components)
+		{
+			var snapshot = GetCategoryPricingSnapshot(component.MarketCategory, visiting);
+			supply += snapshot.Supply * (double)component.Weight;
+			demand += snapshot.Demand * (double)component.Weight;
+			flatPrice += snapshot.FlatPriceAdjustment * component.Weight;
+			multiplier += snapshot.PriceMultiplier * component.Weight;
+		}
+
+		return new CategoryPricingSnapshot(supply, demand, flatPrice, multiplier);
+	}
+
+	private CategoryPricingSnapshot BuildStandalonePricingSnapshot(IMarketCategory category)
+	{
+		var impacts = _expandedImpactLookup.TryGetValue(category.Id, out var impactList)
+			? impactList
+			: Array.Empty<ExpandedMarketImpact>();
+		double supply = impacts.Sum(x => x.SupplyImpact) + 1.0;
+		double demand = impacts.Sum(x => x.DemandImpact) + 1.0;
+		double elasticity = supply > demand ? category.ElasticityFactorBelow : category.ElasticityFactorAbove;
+		decimal formulaMultiplier = MarketPriceFormula.EvaluateDecimalWith(
+			("supply", supply),
+			("demand", demand),
+			("elasticity", elasticity)
+		);
+		decimal flatPrice = (decimal)impacts.Sum(x => x.FlatPriceImpact);
+		return new CategoryPricingSnapshot(
+			supply,
+			demand,
+			flatPrice,
+			decimal.Max(0.0m, formulaMultiplier + flatPrice));
+	}
+
+	private IReadOnlyCollection<MarketPopulationIncomeImpact> ApplicablePopulationIncomeImpacts(IMarketPopulation population)
+	{
+		MudDateTime now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
 		return _marketInfluences
-		       .Where(x => x.Applies(category, now))
-		       .SelectMany(x => x.MarketImpacts)
-		       .Where(x => x.MarketCategory == category)
+		       .Where(x => x.Applies(null, now))
+		       .SelectMany(x => x.PopulationIncomeImpacts)
+		       .Where(x => x.MarketPopulation == population)
 		       .ToList();
 	}
 
 	public double NetDemand(IMarketCategory category)
 	{
-		return ApplicableMarketImpacts(category).Sum(x => x.DemandImpact) + 1;
+		return GetCategoryPricingSnapshot(category, []).Demand;
 	}
 
 	public double NetSupply(IMarketCategory category)
 	{
-		return ApplicableMarketImpacts(category).Sum(x => x.SupplyImpact) + 1;
+		return GetCategoryPricingSnapshot(category, []).Supply;
 	}
 
 	/// <inheritdoc />
-	public decimal PriceMultiplierForCategory(IMarketCategory category)
+	public decimal FlatPriceAdjustmentForCategory(IMarketCategory? category)
+	{
+		if (category is null)
+		{
+			return 0.0M;
+		}
+
+		return GetCategoryPricingSnapshot(category, []).FlatPriceAdjustment;
+	}
+
+	/// <inheritdoc />
+	public decimal PriceMultiplierForCategory(IMarketCategory? category)
 	{
 		if (category is null)
 		{
 			return 1.0M;
 		}
 
-		var impacts = ApplicableMarketImpacts(category);
-		var supply = impacts.Sum(x => x.SupplyImpact) + 1;
-		var demand = impacts.Sum(x => x.DemandImpact) + 1;
-		var elasticity = supply > demand ? category.ElasticityFactorBelow : category.ElasticityFactorAbove;
+		return GetCategoryPricingSnapshot(category, []).PriceMultiplier;
+	}
 
-		return MarketPriceFormula.EvaluateDecimalWith(
-			("supply", supply),
-			("demand", demand),
-			("elasticity", elasticity)
-		);
+	public decimal EffectiveIncomeFactorForPopulation(IMarketPopulation population)
+	{
+		IReadOnlyCollection<MarketPopulationIncomeImpact> impacts = ApplicablePopulationIncomeImpacts(population);
+		decimal additiveImpact = impacts.Sum(x => x.AdditiveIncomeImpact);
+		decimal multiplicativeImpact =
+			impacts.Aggregate(1.0M, (current, impact) => current * impact.MultiplicativeIncomeImpact);
+		return decimal.Max(0.0M, (population.IncomeFactor + additiveImpact) * multiplicativeImpact);
+	}
+
+	/// <inheritdoc />
+	public decimal FlatPriceAdjustmentForItem(IGameItem item)
+	{
+		return MarketCategories.Where(x => x.BelongsToCategory(item))
+		                       .Select(FlatPriceAdjustmentForCategory)
+		                       .DefaultIfEmpty(0.0M)
+		                       .Max();
 	}
 
 	public decimal PriceMultiplierForItem(IGameItem item)
 	{
 		return MarketCategories.Where(x => x.BelongsToCategory(item))
-		                       .Select(x => PriceMultiplierForCategory(x))
+		                       .Select(PriceMultiplierForCategory)
 		                       .DefaultIfEmpty(1.0M)
+		                       .Max();
+	}
+
+	/// <inheritdoc />
+	public decimal FlatPriceAdjustmentForItem(IGameItemProto item)
+	{
+		return MarketCategories.Where(x => x.BelongsToCategory(item))
+		                       .Select(FlatPriceAdjustmentForCategory)
+		                       .DefaultIfEmpty(0.0M)
 		                       .Max();
 	}
 
 	public decimal PriceMultiplierForItem(IGameItemProto item)
 	{
 		return MarketCategories.Where(x => x.BelongsToCategory(item))
-		                       .Select(x => PriceMultiplierForCategory(x))
+		                       .Select(PriceMultiplierForCategory)
 		                       .DefaultIfEmpty(1.0M)
 		                       .Max();
 	}
@@ -436,12 +731,26 @@ In the market price formula, you can use the following variables:
 	public void ApplyMarketInfluence(IMarketInfluence influence)
 	{
 		_marketInfluences.Add(influence);
+		InvalidatePricingCache();
 	}
 
 	/// <inheritdoc />
 	public void RemoveMarketInfluence(IMarketInfluence influence)
 	{
 		_marketInfluences.Remove(influence);
+		InvalidatePricingCache();
+	}
+
+	private static XElement SavePopulationImpacts(IEnumerable<MarketPopulationIncomeImpact> impacts)
+	{
+		return new XElement("PopulationImpacts",
+			from impact in impacts
+			select new XElement("PopulationImpact",
+				new XAttribute("population", impact.MarketPopulation.Id),
+				new XAttribute("additive", impact.AdditiveIncomeImpact),
+				new XAttribute("multiplier", impact.MultiplicativeIncomeImpact)
+			)
+		);
 	}
 
 	#region FutureProgs
@@ -464,7 +773,9 @@ In the market price formula, you can use the following variables:
 			case "categories":
 				return new CollectionVariable(_marketCategories.ToList(), ProgVariableTypes.MarketCategory);
 			case "influences":
-				return new DictionaryVariable(_marketInfluences.ToDictionary<IMarketInfluence, string, IProgVariable>(x => x.Name, x => new NumberVariable(x.Id)), ProgVariableTypes.Number);
+				return new DictionaryVariable(
+					_marketInfluences.ToDictionary<IMarketInfluence, string, IProgVariable>(x => x.Name,
+						x => new NumberVariable(x.Id)), ProgVariableTypes.Number);
 		}
 
 		throw new ArgumentOutOfRangeException(nameof(property));
@@ -488,7 +799,7 @@ In the market price formula, you can use the following variables:
 			{ "name", "The name of the market" },
 			{ "id", "The Id of the market" },
 			{ "categories", "The market categories that apply in this market" },
-			{ "influences", "A dictionary with the names and IDs of influences effecting this market"}
+			{ "influences", "A dictionary with the names and IDs of influences effecting this market" }
 		};
 	}
 
@@ -497,5 +808,12 @@ In the market price formula, you can use the following variables:
 		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Market, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
+
 	#endregion
+
+	private sealed record ExpandedMarketImpact(IMarketCategory MarketCategory, double SupplyImpact, double DemandImpact,
+		double FlatPriceImpact);
+
+	private sealed record CategoryPricingSnapshot(double Supply, double Demand, decimal FlatPriceAdjustment,
+		decimal PriceMultiplier);
 }

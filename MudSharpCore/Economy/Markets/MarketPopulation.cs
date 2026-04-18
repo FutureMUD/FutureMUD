@@ -1,9 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using JetBrains.Annotations;
 using MudSharp.Character;
 using MudSharp.Database;
@@ -14,12 +8,20 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
 
 #nullable enable
 namespace MudSharp.Economy.Markets;
 
 internal class MarketPopulation : SaveableItem, IMarketPopulation
 {
+	private const decimal DefaultStressFlickerThreshold = 0.01m;
+
 	/// <inheritdoc />
 	public sealed override string FrameworkItemType => "MarketPopulation";
 
@@ -31,9 +33,16 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 		Market = Gameworld.Markets.Get(population.MarketId)!;
 		Description = population.Description;
 		PopulationScale = population.PopulationScale;
+		IncomeFactor = population.IncomeFactor;
+		Savings = population.Savings;
+		SavingsCap = population.SavingsCap;
+		StressFlickerThreshold = population.StressFlickerThreshold > 0.0m
+			? population.StressFlickerThreshold
+			: DefaultStressFlickerThreshold;
 		LoadNeeds(XElement.Parse(population.MarketPopulationNeeds));
 		LoadStresses(XElement.Parse(population.MarketStressPoints));
 		RecalculateStress();
+		InitialiseCurrentStressPoint();
 	}
 
 	private MarketPopulation(MarketPopulation rhs, string name)
@@ -43,16 +52,25 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 		_name = name;
 		Description = rhs.Description;
 		PopulationScale = rhs.PopulationScale;
+		IncomeFactor = rhs.IncomeFactor;
+		Savings = rhs.Savings;
+		SavingsCap = rhs.SavingsCap;
+		StressFlickerThreshold = rhs.StressFlickerThreshold;
 		LoadNeeds(rhs.SaveNeeds());
 		LoadStresses(rhs.SaveStresses());
 		RecalculateStress();
+		InitialiseCurrentStressPoint();
 		using (new FMDB())
 		{
-			var dbitem = new Models.MarketPopulation
+			Models.MarketPopulation dbitem = new()
 			{
 				Name = Name,
 				Description = Description,
 				PopulationScale = PopulationScale,
+				IncomeFactor = IncomeFactor,
+				Savings = Savings,
+				SavingsCap = SavingsCap,
+				StressFlickerThreshold = StressFlickerThreshold,
 				MarketPopulationNeeds = SaveNeeds().ToString(),
 				MarketStressPoints = SaveStresses().ToString(),
 				MarketId = Market.Id
@@ -70,13 +88,21 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 		_name = name;
 		Description = "An undescribed market population";
 		PopulationScale = 10000;
+		IncomeFactor = 1.0M;
+		Savings = 0.0M;
+		SavingsCap = 0.0M;
+		StressFlickerThreshold = DefaultStressFlickerThreshold;
 		using (new FMDB())
 		{
-			var dbitem = new Models.MarketPopulation
+			Models.MarketPopulation dbitem = new()
 			{
 				Name = Name,
 				Description = Description,
 				PopulationScale = PopulationScale,
+				IncomeFactor = IncomeFactor,
+				Savings = Savings,
+				SavingsCap = SavingsCap,
+				StressFlickerThreshold = StressFlickerThreshold,
 				MarketPopulationNeeds = SaveNeeds().ToString(),
 				MarketStressPoints = SaveStresses().ToString(),
 				MarketId = Market.Id
@@ -94,7 +120,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 	private void LoadNeeds(XElement root)
 	{
-		foreach (var item in root.Elements("Need"))
+		foreach (XElement item in root.Elements("Need"))
 		{
 			_marketPopulationNeeds.Add(new MarketPopulationNeed
 			{
@@ -106,7 +132,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 	private void LoadStresses(XElement root)
 	{
-		foreach (var item in root.Elements("Stress"))
+		foreach (XElement item in root.Elements("Stress"))
 		{
 			_marketStressPoints.Add(new MarketStressPoint
 			{
@@ -122,10 +148,14 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 	/// <inheritdoc />
 	public override void Save()
 	{
-		var dbitem = FMDB.Context.MarketPopulations.Find(Id);
+		Models.MarketPopulation? dbitem = FMDB.Context.MarketPopulations.Find(Id);
 		dbitem!.Name = Name;
 		dbitem.Description = Description;
 		dbitem.PopulationScale = PopulationScale;
+		dbitem.IncomeFactor = IncomeFactor;
+		dbitem.Savings = Savings;
+		dbitem.SavingsCap = SavingsCap;
+		dbitem.StressFlickerThreshold = StressFlickerThreshold;
 		dbitem.MarketStressPoints = SaveStresses().ToString();
 		dbitem.MarketPopulationNeeds = SaveNeeds().ToString();
 		Changed = false;
@@ -161,6 +191,10 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 	#3name <name>#0 - renames this market population
 	#3desc#0 - drops you into an editor to edit the description
 	#3scale <number>#0 - sets the number of people represented by this pop
+	#3income <factor>#0 - sets the base income factor for this population
+	#3savings <cycles>#0 - sets the current savings reserve in budget-cycle multiples
+	#3savingscap <cycles>#0 - sets the largest savings reserve in budget-cycle multiples
+	#3flicker <%>#0 - sets the stress hysteresis threshold for this population
 	#3need <category> <money>#0 - sets or removes (with 0) the need to spend on a category
 	#3stress add <threshold> <name> <onstart>|none <onend>|none#0 - creates a new population stress threshold
 	#3stress <threshold> remove#0 - permanently removes a stress threshold
@@ -185,6 +219,17 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			case "pop":
 			case "populationscale":
 				return BuildingCommandPopulationScale(actor, command);
+			case "income":
+			case "incomefactor":
+				return BuildingCommandIncomeFactor(actor, command);
+			case "savings":
+				return BuildingCommandSavings(actor, command);
+			case "savingscap":
+			case "cap":
+				return BuildingCommandSavingsCap(actor, command);
+			case "flicker":
+			case "hysteresis":
+				return BuildingCommandFlickerThreshold(actor, command);
 			case "need":
 				return BuildingCommandNeed(actor, command);
 			case "stress":
@@ -210,7 +255,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return BuildingCommandStressThresholdAdd(actor, command);
 		}
 
-		if (!decimal.TryParse(command.PopSpeech(), out var value))
+		if (!decimal.TryParse(command.PopSpeech(), out decimal value))
 		{
 			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number.");
 			return false;
@@ -236,7 +281,9 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			case "onend":
 				return BuildingCommandStressThresholdOnEnd(actor, value, command);
 			default:
-				actor.OutputHandler.Send("You must specify either #3remove#0, #3name#0, #3desc#0, #3onstart#0 or #3onend#0.".SubstituteANSIColour());
+				actor.OutputHandler.Send(
+					"You must specify either #3remove#0, #3name#0, #3desc#0, #3onstart#0 or #3onend#0."
+						.SubstituteANSIColour());
 				return false;
 		}
 	}
@@ -249,7 +296,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return false;
 		}
 
-		var stress = _marketStressPoints.First(x => x.StressThreshold == result);
+		MarketStressPoint stress = _marketStressPoints.First(x => x.StressThreshold == result);
 
 		if (command.SafeRemainingArgument.EqualToAny("none", "remove", "delete"))
 		{
@@ -259,13 +306,14 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return true;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Void, 
+		IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Void,
 			[
 				[ProgVariableTypes.Number],
 				[ProgVariableTypes.Number, ProgVariableTypes.Boolean],
 				[ProgVariableTypes.Number, ProgVariableTypes.Boolean, ProgVariableTypes.Market]
 			]
-			).LookupProg();
+		).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -273,7 +321,8 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 		_marketStressPoints[_marketStressPoints.IndexOf(stress)] = stress with { ExecuteOnEnd = prog };
 		Changed = true;
-		actor.OutputHandler.Send($"This stress threshold will now execute the {prog.MXPClickableFunctionName()} prog when it ends.");
+		actor.OutputHandler.Send(
+			$"This stress threshold will now execute the {prog.MXPClickableFunctionName()} prog when it ends.");
 		return true;
 	}
 
@@ -285,7 +334,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return false;
 		}
 
-		var stress = _marketStressPoints.First(x => x.StressThreshold == result);
+		MarketStressPoint stress = _marketStressPoints.First(x => x.StressThreshold == result);
 
 		if (command.SafeRemainingArgument.EqualToAny("none", "remove", "delete"))
 		{
@@ -295,7 +344,8 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return true;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Void,
+		IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Void,
 			[
 				[ProgVariableTypes.Number],
 				[ProgVariableTypes.Number, ProgVariableTypes.Boolean],
@@ -309,14 +359,15 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 		_marketStressPoints[_marketStressPoints.IndexOf(stress)] = stress with { ExecuteOnStart = prog };
 		Changed = true;
-		actor.OutputHandler.Send($"This stress threshold will now execute the {prog.MXPClickableFunctionName()} prog when it starts.");
+		actor.OutputHandler.Send(
+			$"This stress threshold will now execute the {prog.MXPClickableFunctionName()} prog when it starts.");
 		return true;
 	}
 
 	private bool BuildingCommandStressThresholdDescription(ICharacter actor, decimal result)
 	{
-		var stress = _marketStressPoints.First(x => x.StressThreshold == result);
-		var sb = new StringBuilder();
+		MarketStressPoint stress = _marketStressPoints.First(x => x.StressThreshold == result);
+		StringBuilder sb = new();
 		if (!string.IsNullOrEmpty(Description))
 		{
 			sb.AppendLine("Replacing:\n");
@@ -333,10 +384,11 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 	private void StressDescriptionPost(string text, IOutputHandler handler, object[] args)
 	{
-		var actor = (ICharacter)args[0];
-		var stress = (MarketStressPoint)args[1];
+		ICharacter actor = (ICharacter)args[0];
+		MarketStressPoint stress = (MarketStressPoint)args[1];
 		_marketStressPoints[_marketStressPoints.IndexOf(stress)] = stress with { Description = text };
-		handler.Send($"You set the description of the {stress.Name.ColourName()} stress point to:\n\n{text.Wrap(actor.InnerLineFormatLength, "\t")}");
+		handler.Send(
+			$"You set the description of the {stress.Name.ColourName()} stress point to:\n\n{text.Wrap(actor.InnerLineFormatLength, "\t")}");
 		Changed = true;
 	}
 
@@ -353,14 +405,15 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return false;
 		}
 
-		var name = command.SafeRemainingArgument.TitleCase();
+		string name = command.SafeRemainingArgument.TitleCase();
 		if (_marketStressPoints.Any(x => x.Name.EqualTo(name)))
 		{
-			actor.OutputHandler.Send($"This market population already has a stress point named {name.ColourName()}. Names must be unique.");
+			actor.OutputHandler.Send(
+				$"This market population already has a stress point named {name.ColourName()}. Names must be unique.");
 			return false;
 		}
 
-		var stress = _marketStressPoints.First(x => x.StressThreshold == result);
+		MarketStressPoint stress = _marketStressPoints.First(x => x.StressThreshold == result);
 		Changed = true;
 		actor.OutputHandler.Send($"You rename the {Name.ColourName()} stress threshold to {name.ColourName()}.");
 		_marketStressPoints[_marketStressPoints.IndexOf(stress)] = stress with { Name = name };
@@ -369,8 +422,9 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 	private bool BuildingCommandStressThresholdRemove(ICharacter actor, decimal result)
 	{
-		var stress = _marketStressPoints.First(x => x.StressThreshold == result);
-		actor.OutputHandler.Send($"Are you sure you want to remove the {stress.Name.ColourName()} stress threshold?\n{Accept.StandardAcceptPhrasing}");
+		MarketStressPoint stress = _marketStressPoints.First(x => x.StressThreshold == result);
+		actor.OutputHandler.Send(
+			$"Are you sure you want to remove the {stress.Name.ColourName()} stress threshold?\n{Accept.StandardAcceptPhrasing}");
 		actor.AddEffect(new Accept(actor, new GenericProposal
 		{
 			DescriptionString = "Removing a stress threshold",
@@ -378,6 +432,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			{
 				_marketStressPoints.Remove(stress);
 				Changed = true;
+				InitialiseCurrentStressPoint();
 				actor.OutputHandler.Send($"You remove the {stress.Name.ColourName()} stress threshold.");
 			},
 			RejectAction = text =>
@@ -401,7 +456,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return false;
 		}
 
-		if (!command.PopSpeech().TryParsePercentageDecimal(actor.Account.Culture, out var value))
+		if (!command.PopSpeech().TryParsePercentageDecimal(actor.Account.Culture, out decimal value))
 		{
 			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
 			return false;
@@ -409,7 +464,8 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 		if (_marketStressPoints.Any(x => x.StressThreshold == value))
 		{
-			actor.OutputHandler.Send($"There is already a stress threshold at {value.ToString("P2", actor).ColourValue()}.");
+			actor.OutputHandler.Send(
+				$"There is already a stress threshold at {value.ToString("P2", actor).ColourValue()}.");
 			return false;
 		}
 
@@ -419,26 +475,27 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return false;
 		}
 
-		var name = command.PopSpeech().TitleCase();
+		string name = command.PopSpeech().TitleCase();
 		if (_marketStressPoints.Any(x => x.Name.EqualTo(name)))
 		{
-			actor.OutputHandler.Send($"This population already has a market stress threshold called {name.ColourName()}. Names must be unique.");
+			actor.OutputHandler.Send(
+				$"This population already has a market stress threshold called {name.ColourName()}. Names must be unique.");
 			return false;
 		}
 
-		var onstart = default(IFutureProg);
-		var onend = default(IFutureProg);
+		IFutureProg? onstart = default;
+		IFutureProg? onend = default;
 		if (!command.IsFinished)
 		{
-			var text = command.PopSpeech();
+			string text = command.PopSpeech();
 			if (!text.EqualTo("none"))
 			{
-				var prog = new ProgLookupFromBuilderInput(Gameworld, actor, text, ProgVariableTypes.Void,
-				[
-					[ProgVariableTypes.Number],
-					[ProgVariableTypes.Number, ProgVariableTypes.Boolean],
-					[ProgVariableTypes.Number, ProgVariableTypes.Boolean, ProgVariableTypes.Market]
-				]).LookupProg();
+				IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, text, ProgVariableTypes.Void,
+					[
+						[ProgVariableTypes.Number],
+						[ProgVariableTypes.Number, ProgVariableTypes.Boolean],
+						[ProgVariableTypes.Number, ProgVariableTypes.Boolean, ProgVariableTypes.Market]
+					]).LookupProg();
 				if (prog is null)
 				{
 					return false;
@@ -452,12 +509,13 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 				text = command.SafeRemainingArgument;
 				if (!text.EqualTo("none"))
 				{
-					var prog = new ProgLookupFromBuilderInput(Gameworld, actor, text, ProgVariableTypes.Void,
-					[
-						[ProgVariableTypes.Number],
-						[ProgVariableTypes.Number, ProgVariableTypes.Boolean],
-						[ProgVariableTypes.Number, ProgVariableTypes.Boolean, ProgVariableTypes.Market]
-					]).LookupProg();
+					IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, text,
+						ProgVariableTypes.Void,
+						[
+							[ProgVariableTypes.Number],
+							[ProgVariableTypes.Number, ProgVariableTypes.Boolean],
+							[ProgVariableTypes.Number, ProgVariableTypes.Boolean, ProgVariableTypes.Market]
+						]).LookupProg();
 					if (prog is null)
 					{
 						return false;
@@ -469,19 +527,20 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 		}
 
 		actor.OutputHandler.Send("Please enter a description for your new stress threshold in the editor below:\n");
-		actor.EditorMode(NewStressThresholdPost, NewStressThresholdCancel, options: EditorOptions.PermitEmpty, suppliedArguments: [actor, value, name, onstart, onend]);
+		actor.EditorMode(NewStressThresholdPost, NewStressThresholdCancel, options: EditorOptions.PermitEmpty,
+			suppliedArguments: [actor, value, name, onstart, onend]);
 		return true;
 	}
 
 	private void NewStressThresholdPost(string text, IOutputHandler handler, object[] args)
 	{
-		var actor = (ICharacter)args[0];
-		var value = (decimal)args[1];
-		var name = (string)args[2];
-		var onstart = (IFutureProg?)args[3];
-		var onend = (IFutureProg?)args[4];
+		ICharacter actor = (ICharacter)args[0];
+		decimal value = (decimal)args[1];
+		string name = (string)args[2];
+		IFutureProg? onstart = (IFutureProg?)args[3];
+		IFutureProg? onend = (IFutureProg?)args[4];
 
-		var stress = new MarketStressPoint
+		MarketStressPoint stress = new()
 		{
 			Name = name,
 			Description = text,
@@ -492,7 +551,9 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 		_marketStressPoints.Add(stress);
 		_marketStressPoints.Sort((x, y) => x.StressThreshold.CompareTo(y.StressThreshold));
 		Changed = true;
-		handler.Send($"You create a new market stress point at {value.ToString("P2", actor).ColourValue()} called {name.ColourName()}, which executes {onstart?.MXPClickableFunctionName() ?? "nothing".ColourError()} on start and {onend?.MXPClickableFunctionName() ?? "nothing".ColourError()} on end.\n\nIt has the following description:\n\n{Description.Wrap(actor.InnerLineFormatLength, "\t").ColourCommand()}");
+		InitialiseCurrentStressPoint();
+		handler.Send(
+			$"You create a new market stress point at {value.ToString("P2", actor).ColourValue()} called {name.ColourName()}, which executes {onstart?.MXPClickableFunctionName() ?? "nothing".ColourError()} on start and {onend?.MXPClickableFunctionName() ?? "nothing".ColourError()} on end.\n\nIt has the following description:\n\n{text.Wrap(actor.InnerLineFormatLength, "\t").ColourCommand()}");
 	}
 
 	private void NewStressThresholdCancel(IOutputHandler handler, object[] args)
@@ -508,7 +569,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return false;
 		}
 
-		var category = Gameworld.MarketCategories.GetByIdOrName(command.PopSpeech());
+		IMarketCategory? category = Gameworld.MarketCategories.GetByIdOrName(command.PopSpeech());
 		if (category is null)
 		{
 			actor.OutputHandler.Send("There is no such market category.");
@@ -517,13 +578,15 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send($"How much money (in {Market.EconomicZone.Currency.Name.ColourValue()}) should this population spend on this need?");
+			actor.OutputHandler.Send(
+				$"How much money (in {Market.EconomicZone.Currency.Name.ColourValue()}) should this population spend on this need?");
 			return false;
 		}
 
-		if (!Market.EconomicZone.Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var value))
+		if (!Market.EconomicZone.Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out decimal value))
 		{
-			actor.OutputHandler.Send($"That is not a valid amount of currency in {Market.EconomicZone.Currency.Name.ColourValue()}.");
+			actor.OutputHandler.Send(
+				$"That is not a valid amount of currency in {Market.EconomicZone.Currency.Name.ColourValue()}.");
 			return false;
 		}
 
@@ -531,6 +594,8 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 		Changed = true;
 		if (value <= 0.0M)
 		{
+			RecalculateStress();
+			InitialiseCurrentStressPoint();
 			actor.OutputHandler.Send($"This population will no longer need any {category.Name.ColourName()}.");
 			return true;
 		}
@@ -540,8 +605,107 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			MarketCategory = category,
 			BaseExpenditure = value
 		});
-		
-		actor.OutputHandler.Send($"This population will now prefer to spend {Market.EconomicZone.Currency.Describe(value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} on {category.Name.ColourName()}.");
+		RecalculateStress();
+		InitialiseCurrentStressPoint();
+
+		actor.OutputHandler.Send(
+			$"This population will now prefer to spend {Market.EconomicZone.Currency.Describe(value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} on {category.Name.ColourName()}.");
+		return true;
+	}
+
+	private bool BuildingCommandIncomeFactor(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What income factor should this population use?");
+			return false;
+		}
+
+		if (!TryParseDecimalOrPercentage(actor, command.SafeRemainingArgument, out decimal value) || value < 0.0M)
+		{
+			actor.OutputHandler.Send("You must enter a non-negative decimal value or percentage.");
+			return false;
+		}
+
+		IncomeFactor = value;
+		Changed = true;
+		RecalculateStress();
+		InitialiseCurrentStressPoint();
+		actor.OutputHandler.Send(
+			$"This market population now has a base income factor of {IncomeFactor.ToString("N3", actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandSavings(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many budget cycles of savings should this population currently hold?");
+			return false;
+		}
+
+		if (!decimal.TryParse(command.SafeRemainingArgument, NumberStyles.Number, actor.Account.Culture,
+			    out decimal value) || value < 0.0M)
+		{
+			actor.OutputHandler.Send("You must enter a non-negative decimal number.");
+			return false;
+		}
+
+		Savings = decimal.Min(value, SavingsCap);
+		Changed = true;
+		RecalculateStress();
+		InitialiseCurrentStressPoint();
+		actor.OutputHandler.Send(
+			$"This market population now has {Savings.ToString("N3", actor).ColourValue()} budget cycles of savings.");
+		return true;
+	}
+
+	private bool BuildingCommandSavingsCap(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should the maximum savings reserve be, in budget-cycle multiples?");
+			return false;
+		}
+
+		if (!decimal.TryParse(command.SafeRemainingArgument, NumberStyles.Number, actor.Account.Culture,
+			    out decimal value) || value < 0.0M)
+		{
+			actor.OutputHandler.Send("You must enter a non-negative decimal number.");
+			return false;
+		}
+
+		SavingsCap = value;
+		Savings = decimal.Min(Savings, SavingsCap);
+		Changed = true;
+		RecalculateStress();
+		InitialiseCurrentStressPoint();
+		actor.OutputHandler.Send(
+			$"This market population can now save up to {SavingsCap.ToString("N3", actor).ColourValue()} budget cycles.");
+		return true;
+	}
+
+	private bool BuildingCommandFlickerThreshold(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				"What hysteresis threshold should this population use before stress thresholds switch off again?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentageDecimal(actor.Account.Culture, out decimal value) ||
+		    value < 0.0m)
+		{
+			actor.OutputHandler.Send("You must enter a non-negative percentage.");
+			return false;
+		}
+
+		StressFlickerThreshold = value;
+		Changed = true;
+		InitialiseCurrentStressPoint();
+		actor.OutputHandler.Send(
+			$"This market population will now use a flicker threshold of {StressFlickerThreshold.ToString("P2", actor).ColourValue()}.");
 		return true;
 	}
 
@@ -553,7 +717,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return false;
 		}
 
-		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value <= 0)
+		if (!int.TryParse(command.SafeRemainingArgument, out int value) || value <= 0)
 		{
 			actor.OutputHandler.Send("You must enter a valid whole number greater than zero.");
 			return false;
@@ -561,7 +725,8 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 		PopulationScale = value;
 		Changed = true;
-		actor.OutputHandler.Send($"This market population now consists of {value.ToString("N0", actor).ColourValue()} {"individual".Pluralise(value != 1)}.");
+		actor.OutputHandler.Send(
+			$"This market population now consists of {value.ToString("N0", actor).ColourValue()} {"individual".Pluralise(value != 1)}.");
 		return true;
 	}
 
@@ -575,7 +740,8 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 	{
 		Description = text;
 		Changed = true;
-		handler.Send($"You set the description for this market population to:\n\n{Description.Wrap((int)args[0], "\t")}");
+		handler.Send(
+			$"You set the description for this market population to:\n\n{Description.Wrap((int)args[0], "\t")}");
 	}
 
 	private void DescriptionCancel(IOutputHandler handler, object[] args)
@@ -591,10 +757,11 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return false;
 		}
 
-		var name = command.SafeRemainingArgument.TitleCase();
+		string name = command.SafeRemainingArgument.TitleCase();
 		if (Gameworld.MarketPopulations.Any(x => x.Name.EqualTo(name)))
 		{
-			actor.OutputHandler.Send($"There is already a market population called {name.ColourName()}. Names must be unique.");
+			actor.OutputHandler.Send(
+				$"There is already a market population called {name.ColourName()}. Names must be unique.");
 			return false;
 		}
 
@@ -608,35 +775,52 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 	/// <inheritdoc />
 	public string Show(ICharacter actor)
 	{
-		var sb = new StringBuilder();
-		sb.AppendLine($"Market Population #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
+		StringBuilder sb = new();
+		sb.AppendLine(
+			$"Market Population #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Yellow,
+				Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLine($"Market: {Market.Name.ColourValue()}");
 		sb.AppendLine($"Population Scale: {PopulationScale.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Income Factor: {IncomeFactor.ToString("N3", actor).ColourValue()}");
+		sb.AppendLine(
+			$"Effective Income Factor: {Market.EffectiveIncomeFactorForPopulation(this).ToString("N3", actor).ColourValue()}");
+		sb.AppendLine($"Savings: {Savings.ToString("N3", actor).ColourValue()}");
+		sb.AppendLine($"Savings Cap: {SavingsCap.ToString("N3", actor).ColourValue()}");
+		sb.AppendLine(
+			$"Stress Flicker Threshold: {StressFlickerThreshold.ToString("P2", actor).ColourValue()}");
+		sb.AppendLine($"Current Stress: {CurrentStress.ToStringP2Colour(actor)}");
+		sb.AppendLine($"Current Stress Point: {CurrentStressPoint?.Name.ColourValue() ?? "Not Stressed".ColourValue()}");
 		sb.AppendLine("Description:");
 		sb.AppendLine();
 		sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t"));
 		sb.AppendLine();
 		sb.AppendLine("Needs:");
 		sb.AppendLine();
-		foreach (var need in MarketPopulationNeeds.OrderBy(x=> x.MarketCategory.Name))
+		foreach (MarketPopulationNeed? need in MarketPopulationNeeds.OrderBy(x => x.MarketCategory.Name))
 		{
-			sb.AppendLine($"\t{need.MarketCategory.Name.ColourName()}: {Market.EconomicZone.Currency.Describe(need.BaseExpenditure, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			sb.AppendLine(
+				$"\t{need.MarketCategory.Name.ColourName()}: {Market.EconomicZone.Currency.Describe(need.BaseExpenditure, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		}
+
 		sb.AppendLine();
 		sb.AppendLine("Stress Points:");
-		sb.AppendLine();
-		var active = CurrentStressPoint;
-		foreach (var stress in MarketStressPoints.OrderBy(x => x.StressThreshold))
+		MarketStressPoint? active = CurrentStressPoint;
+		foreach (MarketStressPoint? stress in MarketStressPoints.OrderBy(x => x.StressThreshold))
 		{
-			sb.AppendLine($">={stress.StressThreshold.ToString("N3", actor)}".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+			sb.AppendLine();
+			sb.AppendLine($"{stress.Name}".GetLineWithTitleInner(actor, Telnet.Red, Telnet.BoldWhite));
 			if (stress == active)
 			{
-				sb.AppendLine($">={stress.StressThreshold.ToString("N3", actor)} (Active)".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+				sb.AppendLine(
+					$">={stress.StressThreshold.ToString("N3", actor)} (Active)".GetLineWithTitleInner(actor, Telnet.Red,
+						Telnet.BoldWhite));
 			}
 			else
 			{
-				sb.AppendLine($">={stress.StressThreshold.ToString("N3", actor)}".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+				sb.AppendLine(
+					$">={stress.StressThreshold.ToString("N3", actor)}".GetLineWithTitleInner(actor, Telnet.Red,
+						Telnet.BoldWhite));
 			}
 
 			sb.AppendLine();
@@ -645,11 +829,24 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			sb.AppendLine($"On Start Prog: {stress.ExecuteOnStart?.MXPClickableFunctionName() ?? "None".ColourError()}");
 			sb.AppendLine($"On End Prog: {stress.ExecuteOnEnd?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		}
+
 		return sb.ToString();
 	}
 
 	/// <inheritdoc />
 	public int PopulationScale { get; set; }
+
+	/// <inheritdoc />
+	public decimal IncomeFactor { get; set; }
+
+	/// <inheritdoc />
+	public decimal Savings { get; private set; }
+
+	/// <inheritdoc />
+	public decimal SavingsCap { get; set; }
+
+	/// <inheritdoc />
+	public decimal StressFlickerThreshold { get; set; }
 
 	public string Description { get; set; }
 
@@ -657,58 +854,109 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 	public IMarket Market { get; set; }
 
 	/// <inheritdoc />
-	public decimal CurrentStress
-	{
-		get;
-		private set;
-	}
+	public decimal CurrentStress { get; private set; }
 
-	private readonly List<MarketPopulationNeed> _marketPopulationNeeds = new();
+	private readonly List<MarketPopulationNeed> _marketPopulationNeeds = [];
 
 	/// <inheritdoc />
 	public IEnumerable<MarketPopulationNeed> MarketPopulationNeeds => _marketPopulationNeeds;
 
-	private readonly List<MarketStressPoint> _marketStressPoints = new();
+	private readonly List<MarketStressPoint> _marketStressPoints = [];
 
 	/// <inheritdoc />
 	public IEnumerable<MarketStressPoint> MarketStressPoints => _marketStressPoints;
 
+	private MarketStressPoint? _currentStressPoint;
+
+	/// <inheritdoc />
+	public MarketStressPoint? CurrentStressPoint => _currentStressPoint;
+
 	private void RecalculateStress()
 	{
-		if (_marketPopulationNeeds.Count == 0)
+		decimal expectedSpend = MarketPopulationNeeds.Sum(x => x.BaseExpenditure);
+		if (expectedSpend <= 0.0M)
 		{
 			CurrentStress = 0.0M;
 			return;
 		}
 
-		var expectedSpend = MarketPopulationNeeds.Sum(x => x.BaseExpenditure);
-		if (expectedSpend == 0.0M)
+		decimal incomeBudget = expectedSpend * Market.EffectiveIncomeFactorForPopulation(this);
+		decimal actualSpend =
+			MarketPopulationNeeds.Sum(x => Market.PriceMultiplierForCategory(x.MarketCategory) * x.BaseExpenditure);
+
+		if (incomeBudget >= actualSpend)
 		{
 			CurrentStress = 0.0M;
+			decimal newSavings = decimal.Min(SavingsCap, Savings + ((incomeBudget - actualSpend) / expectedSpend));
+			if (newSavings != Savings)
+			{
+				Savings = newSavings;
+				Changed = true;
+			}
+
 			return;
 		}
 
-		var actualSpend = MarketPopulationNeeds.Sum(x => Market.PriceMultiplierForCategory(x.MarketCategory) * x.BaseExpenditure);
-		CurrentStress = (actualSpend / expectedSpend) - 1.0M;
+		decimal shortfall = (actualSpend - incomeBudget) / expectedSpend;
+		decimal consumedSavings = decimal.Min(Savings, shortfall);
+		if (consumedSavings > 0.0M)
+		{
+			Savings -= consumedSavings;
+			Changed = true;
+		}
+
+		CurrentStress = decimal.Max(0.0M, shortfall - consumedSavings);
 	}
 
-	public MarketStressPoint? CurrentStressPoint => _marketStressPoints
-	                                                 .Where(x => x.StressThreshold <= CurrentStress)
-	                                                 .FirstMax(x => x.StressThreshold);
+	private void InitialiseCurrentStressPoint()
+	{
+		_currentStressPoint = HighestStressPointAtOrBelow(CurrentStress);
+	}
+
+	private MarketStressPoint? HighestStressPointAtOrBelow(decimal value)
+	{
+		return _marketStressPoints
+		      .Where(x => x.StressThreshold <= value)
+		      .FirstMax(x => x.StressThreshold);
+	}
+
+	private MarketStressPoint? HighestStressPointWithinFlickerBand(decimal value)
+	{
+		return _marketStressPoints
+		      .Where(x => value >= decimal.Max(0.0m, x.StressThreshold - StressFlickerThreshold))
+		      .FirstMax(x => x.StressThreshold);
+	}
 
 	/// <inheritdoc />
 	public void MarketPopulationHeartbeat()
 	{
-		var previous = CurrentStress;
-		var old = CurrentStressPoint;
+		decimal previous = CurrentStress;
+		MarketStressPoint? old = _currentStressPoint;
 		RecalculateStress();
-		var stress = CurrentStressPoint;
+		bool rising = CurrentStress > previous;
+		bool falling = CurrentStress < previous;
+		MarketStressPoint? stress = rising
+			? HighestStressPointAtOrBelow(CurrentStress)
+			: falling
+				? HighestStressPointWithinFlickerBand(CurrentStress)
+				: old;
+		_currentStressPoint = stress;
 		if (old == stress)
 		{
 			return;
 		}
 
-		old?.ExecuteOnEnd?.Execute(Id, CurrentStress > previous, Market);
-		stress?.ExecuteOnStart?.Execute(Id, CurrentStress > previous, Market);
+		old?.ExecuteOnEnd?.Execute(Id, rising, Market);
+		stress?.ExecuteOnStart?.Execute(Id, rising, Market);
+	}
+
+	private bool TryParseDecimalOrPercentage(ICharacter actor, string text, out decimal value)
+	{
+		if (decimal.TryParse(text, NumberStyles.Number, actor.Account.Culture, out value))
+		{
+			return true;
+		}
+
+		return text.TryParsePercentageDecimal(actor.Account.Culture, out value);
 	}
 }

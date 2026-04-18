@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MudSharp.CharacterCreation;
+﻿using MudSharp.CharacterCreation;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.RPG.Checks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.Communication.Language
 {
@@ -37,7 +37,7 @@ namespace MudSharp.Communication.Language
         /// </summary>
         Difficulty Difficulty { get; }
 
-        IFutureProg ChargenAvailabilityProg { get;  }
+        IFutureProg ChargenAvailabilityProg { get; }
         bool IsAvailableInChargen(ICharacterTemplate template);
     }
 }

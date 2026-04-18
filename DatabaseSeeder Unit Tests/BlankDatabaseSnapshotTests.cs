@@ -1,119 +1,121 @@
+using DatabaseSeeder;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DatabaseSeeder;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class BlankDatabaseSnapshotTests
 {
-	[TestMethod]
-	public void CommittedBlankSnapshotManifest_TracksLatestMigration()
-	{
-		var assetDirectory = GetDatabaseSeederProjectDirectory();
-		var manifest = BlankDatabaseSnapshotManifest.Load(assetDirectory);
+	private const string LatestMigrationId = "20260415122407_MarketPopulationIncomeAndPricePressure";
 
-		Assert.IsNotNull(manifest);
-		Assert.IsTrue(File.Exists(BlankDatabaseSnapshotManifest.GetSnapshotPath(assetDirectory)));
+    [TestMethod]
+    public void CommittedBlankSnapshotManifest_TracksLatestMigration()
+    {
+        string assetDirectory = GetDatabaseSeederProjectDirectory();
+        BlankDatabaseSnapshotManifest manifest = BlankDatabaseSnapshotManifest.Load(assetDirectory);
 
-		var latestMigrationId = GetLatestMigrationIdFromSource();
-		Assert.AreEqual(latestMigrationId, manifest.LatestMigrationId);
-	}
+        Assert.IsNotNull(manifest);
+        Assert.IsTrue(File.Exists(BlankDatabaseSnapshotManifest.GetSnapshotPath(assetDirectory)));
 
-	[TestMethod]
-	public void Assess_WhenManifestIsCurrent_BlankDatabaseUsesSnapshotImport()
-	{
-		using var harness = new TemporaryDirectoryHarness();
-		WriteSnapshotFiles(harness.DirectoryPath, "20260402053811_RemoveOldSunCelestialDefault");
+        string latestMigrationId = GetLatestMigrationIdFromSource();
+        Assert.AreEqual(latestMigrationId, manifest.LatestMigrationId);
+    }
 
-		var assessment = BlankDatabaseSnapshotManager.Assess(
-			harness.DirectoryPath,
-			"20260402053811_RemoveOldSunCelestialDefault");
-		var mode = BlankDatabaseSnapshotManager.SelectBootstrapMode(databaseLooksBlank: true, assessment);
+    [TestMethod]
+    public void Assess_WhenManifestIsCurrent_BlankDatabaseUsesSnapshotImport()
+    {
+        using TemporaryDirectoryHarness harness = new();
+        WriteSnapshotFiles(harness.DirectoryPath, LatestMigrationId);
 
-		Assert.IsTrue(assessment.CanUseSnapshot);
-		Assert.AreEqual(DatabaseBootstrapMode.SnapshotImport, mode);
-	}
+        BlankDatabaseSnapshotAssessment assessment = BlankDatabaseSnapshotManager.Assess(
+            harness.DirectoryPath,
+            LatestMigrationId);
+        DatabaseBootstrapMode mode = BlankDatabaseSnapshotManager.SelectBootstrapMode(databaseLooksBlank: true, assessment);
 
-	[TestMethod]
-	public void Assess_WhenManifestIsStale_BlankDatabaseFallsBackToFreshMigrations()
-	{
-		using var harness = new TemporaryDirectoryHarness();
-		WriteSnapshotFiles(harness.DirectoryPath, "20260401010101_PreviousMigration");
+        Assert.IsTrue(assessment.CanUseSnapshot);
+        Assert.AreEqual(DatabaseBootstrapMode.SnapshotImport, mode);
+    }
 
-		var assessment = BlankDatabaseSnapshotManager.Assess(
-			harness.DirectoryPath,
-			"20260402053811_RemoveOldSunCelestialDefault");
-		var mode = BlankDatabaseSnapshotManager.SelectBootstrapMode(databaseLooksBlank: true, assessment);
+    [TestMethod]
+    public void Assess_WhenManifestIsStale_BlankDatabaseFallsBackToFreshMigrations()
+    {
+        using TemporaryDirectoryHarness harness = new();
+        WriteSnapshotFiles(harness.DirectoryPath, "20260401010101_PreviousMigration");
 
-		Assert.IsFalse(assessment.CanUseSnapshot);
-		StringAssert.Contains(assessment.Reason, "stale");
-		Assert.AreEqual(DatabaseBootstrapMode.FreshMigration, mode);
-	}
+        BlankDatabaseSnapshotAssessment assessment = BlankDatabaseSnapshotManager.Assess(
+            harness.DirectoryPath,
+            LatestMigrationId);
+        DatabaseBootstrapMode mode = BlankDatabaseSnapshotManager.SelectBootstrapMode(databaseLooksBlank: true, assessment);
 
-	private static string GetDatabaseSeederProjectDirectory()
-	{
-		return Path.GetFullPath(Path.Combine(
-			AppContext.BaseDirectory,
-			"..",
-			"..",
-			"..",
-			"..",
-			"DatabaseSeeder"));
-	}
+        Assert.IsFalse(assessment.CanUseSnapshot);
+        StringAssert.Contains(assessment.Reason, "stale");
+        Assert.AreEqual(DatabaseBootstrapMode.FreshMigration, mode);
+    }
 
-	private static string GetLatestMigrationIdFromSource()
-	{
-		var migrationsDirectory = Path.GetFullPath(Path.Combine(
-			AppContext.BaseDirectory,
-			"..",
-			"..",
-			"..",
-			"..",
-			"MudsharpDatabaseLibrary",
-			"Migrations"));
-		return Directory
-			.GetFiles(migrationsDirectory, "*.cs")
-			.Select(Path.GetFileNameWithoutExtension)
-			.Where(x => !string.IsNullOrWhiteSpace(x))
-			.Where(x => x != "FutureMUDContextModelSnapshot")
-			.Where(x => !x!.EndsWith(".Designer", StringComparison.Ordinal))
-			.OrderBy(x => x, StringComparer.Ordinal)
-			.Last()!;
-	}
+    private static string GetDatabaseSeederProjectDirectory()
+    {
+        return Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "..",
+            "..",
+            "..",
+            "DatabaseSeeder"));
+    }
 
-	private static void WriteSnapshotFiles(string directoryPath, string latestMigrationId)
-	{
-		File.WriteAllText(
-			BlankDatabaseSnapshotManifest.GetSnapshotPath(directoryPath),
-			"CREATE TABLE `__EFMigrationsHistory` (`MigrationId` varchar(150) NOT NULL);");
-		File.WriteAllText(
-			BlankDatabaseSnapshotManifest.GetManifestPath(directoryPath),
-			$@"{{
+    private static string GetLatestMigrationIdFromSource()
+    {
+        string migrationsDirectory = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "..",
+            "..",
+            "..",
+            "MudsharpDatabaseLibrary",
+            "Migrations"));
+        return Directory
+            .GetFiles(migrationsDirectory, "*.cs")
+            .Select(Path.GetFileNameWithoutExtension)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Where(x => x != "FutureMUDContextModelSnapshot")
+            .Where(x => !x!.EndsWith(".Designer", StringComparison.Ordinal))
+            .OrderBy(x => x, StringComparer.Ordinal)
+            .Last()!;
+    }
+
+    private static void WriteSnapshotFiles(string directoryPath, string latestMigrationId)
+    {
+        File.WriteAllText(
+            BlankDatabaseSnapshotManifest.GetSnapshotPath(directoryPath),
+            "CREATE TABLE `__EFMigrationsHistory` (`MigrationId` varchar(150) NOT NULL);");
+        File.WriteAllText(
+            BlankDatabaseSnapshotManifest.GetManifestPath(directoryPath),
+            $@"{{
   ""ProductVersion"": ""2.3.0.0"",
   ""LatestMigrationId"": ""{latestMigrationId}"",
   ""GeneratedUtc"": ""2026-04-03T00:00:00Z""
 }}");
-	}
+    }
 
-	private sealed class TemporaryDirectoryHarness : IDisposable
-	{
-		public TemporaryDirectoryHarness()
-		{
-			DirectoryPath = Path.Combine(Path.GetTempPath(), "FutureMUD-Codex", Guid.NewGuid().ToString("N"));
-			Directory.CreateDirectory(DirectoryPath);
-		}
+    private sealed class TemporaryDirectoryHarness : IDisposable
+    {
+        public TemporaryDirectoryHarness()
+        {
+            DirectoryPath = Path.Combine(Path.GetTempPath(), "FutureMUD-Codex", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(DirectoryPath);
+        }
 
-		public string DirectoryPath { get; }
+        public string DirectoryPath { get; }
 
-		public void Dispose()
-		{
-			if (Directory.Exists(DirectoryPath))
-			{
-				Directory.Delete(DirectoryPath, recursive: true);
-			}
-		}
-	}
+        public void Dispose()
+        {
+            if (Directory.Exists(DirectoryPath))
+            {
+                Directory.Delete(DirectoryPath, recursive: true);
+            }
+        }
+    }
 }

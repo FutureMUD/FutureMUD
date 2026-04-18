@@ -1,99 +1,99 @@
-﻿using System;
+﻿using MudSharp.Character;
+using MudSharp.Framework;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using MudSharp.Character;
-using MudSharp.FutureProg.Variables;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.FutureProg.Functions.Dictionaries;
 
 internal class Set : BuiltInFunction
 {
-	public IFuturemud Gameworld { get; set; }
+    public IFuturemud Gameworld { get; set; }
 
-	#region Static Initialisation
+    #region Static Initialisation
 
-	public static void RegisterFunctionCompiler()
-	{
-		foreach (var type in ProgVariableTypes.CollectionItem.GetSingleFlags())
-		{
-			FutureProg.RegisterBuiltInFunctionCompiler(
-				new FunctionCompilerInformation(
-					"set",
-					[
-						ProgVariableTypes.Dictionary, ProgVariableTypes.Text, type
-					],
-					(pars, gameworld) => new Set(pars, gameworld),
-					new List<string> { "dictionary", "key", "item" },
-					new List<string>
-					{
-						"The dictionary you want to set the item in",
-						"The text key at which you want to store that item",
-						"The item that you want to add to the dictionary"
-					},
-					"Sets the specified text key in the dictionary to be the item specified. Returns true if the set succeeded (the types were compatible), and false if not.",
-					"Dictionaries",
-					ProgVariableTypes.Boolean
-				)
-			);
-		}
-		
-	}
+    public static void RegisterFunctionCompiler()
+    {
+        foreach (ProgVariableTypes type in ProgVariableTypes.CollectionItem.GetSingleFlags())
+        {
+            FutureProg.RegisterBuiltInFunctionCompiler(
+                new FunctionCompilerInformation(
+                    "set",
+                    [
+                        ProgVariableTypes.Dictionary, ProgVariableTypes.Text, type
+                    ],
+                    (pars, gameworld) => new Set(pars, gameworld),
+                    new List<string> { "dictionary", "key", "item" },
+                    new List<string>
+                    {
+                        "The dictionary you want to set the item in",
+                        "The text key at which you want to store that item",
+                        "The item that you want to add to the dictionary"
+                    },
+                    "Sets the specified text key in the dictionary to be the item specified. Returns true if the set succeeded (the types were compatible), and false if not.",
+                    "Dictionaries",
+                    ProgVariableTypes.Boolean
+                )
+            );
+        }
 
-	#endregion
+    }
 
-	#region Constructors
+    #endregion
 
-	protected Set(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
-	{
-		Gameworld = gameworld;
-	}
+    #region Constructors
 
-	#endregion
+    protected Set(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+    {
+        Gameworld = gameworld;
+    }
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Boolean;
-		protected set { }
-	}
+    #endregion
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Boolean;
+        protected set { }
+    }
 
-		var dictionaryVariable = (IDictionaryVariable)ParameterFunctions[0].Result;
-		if (!ParameterFunctions[2].Result.Type.CompatibleWith(dictionaryVariable.UnderlyingType))
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		var dictionary = (Dictionary<string, IProgVariable>)ParameterFunctions[0].Result?.GetObject;
-		if (dictionary == null)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        IDictionaryVariable dictionaryVariable = (IDictionaryVariable)ParameterFunctions[0].Result;
+        if (!ParameterFunctions[2].Result.Type.CompatibleWith(dictionaryVariable.UnderlyingType))
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		var key = ParameterFunctions[1].Result?.GetObject?.ToString();
-		if (key == null)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        Dictionary<string, IProgVariable> dictionary = (Dictionary<string, IProgVariable>)ParameterFunctions[0].Result?.GetObject;
+        if (dictionary == null)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		var item = ParameterFunctions[2].Result;
-		Result = new BooleanVariable(dictionaryVariable.Add(key, item));
-		return StatementResult.Normal;
-	}
+        string key = ParameterFunctions[1].Result?.GetObject?.ToString();
+        if (key == null)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
+
+        IProgVariable item = ParameterFunctions[2].Result;
+        Result = new BooleanVariable(dictionaryVariable.Add(key, item));
+        return StatementResult.Normal;
+    }
 }

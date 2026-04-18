@@ -1,8 +1,10 @@
-﻿namespace MudSharp.Body.Needs {
+﻿namespace MudSharp.Body.Needs
+{
     /// <summary>
     ///     A simple public class to use with IFulfilNeeds. Usually consumed by edible items or spells
     /// </summary>
-    public class NeedFulfiller : INeedFulfiller {
+    public class NeedFulfiller : INeedFulfiller
+    {
         #region IFulfilNeeds Members
 
         public double SatiationPoints { get; init; }

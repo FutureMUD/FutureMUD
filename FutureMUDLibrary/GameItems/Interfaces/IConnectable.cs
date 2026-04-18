@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Form.Shape;
+using System;
+using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Interfaces {
+namespace MudSharp.GameItems.Interfaces
+{
     public delegate void ConnectedEvent(IConnectable other, ConnectorType type);
 
-    public interface IConnectable : IGameItemComponent {
+    public interface IConnectable : IGameItemComponent
+    {
         IEnumerable<ConnectorType> Connections { get; }
         IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems { get; }
         IEnumerable<ConnectorType> FreeConnections { get; }
@@ -53,22 +55,27 @@ namespace MudSharp.GameItems.Interfaces {
         string WhyCannotDisconnect(ICharacter actor, IConnectable other);
     }
 
-    public class ConnectorType {
-        public ConnectorType(Gender gender, string connectionType, bool powered = true) {
+    public class ConnectorType
+    {
+        public ConnectorType(Gender gender, string connectionType, bool powered = true)
+        {
             Gender = gender;
             ConnectionType = connectionType;
             Powered = powered;
         }
 
-        public ConnectorType(string toString) {
-            if (toString.IndexOf('-') == -1) {
+        public ConnectorType(string toString)
+        {
+            if (toString.IndexOf('-') == -1)
+            {
                 Gender = Gender.Indeterminate;
                 ConnectionType = "Unknown";
                 Powered = true;
             }
-            else {
-                var split = toString.Split('-');
-                Gender = (Gender) short.Parse(split[0]);
+            else
+            {
+                string[] split = toString.Split('-');
+                Gender = (Gender)short.Parse(split[0]);
                 ConnectionType = split[1];
                 Powered = (split.Length != 3) || bool.Parse(split[2]);
             }
@@ -78,12 +85,15 @@ namespace MudSharp.GameItems.Interfaces {
         public string ConnectionType { get; }
         public bool Powered { get; }
 
-        public bool CompatibleWith(ConnectorType type) {
-            if (type?.ConnectionType.Equals(ConnectionType, StringComparison.InvariantCultureIgnoreCase) != true) {
+        public bool CompatibleWith(ConnectorType type)
+        {
+            if (type?.ConnectionType.Equals(ConnectionType, StringComparison.InvariantCultureIgnoreCase) != true)
+            {
                 return false;
             }
 
-            switch (Gender) {
+            switch (Gender)
+            {
                 case Gender.Male:
                     return type.Gender == Gender.Female;
                 case Gender.Female:
@@ -105,8 +115,9 @@ namespace MudSharp.GameItems.Interfaces {
         /// <returns>
         ///     A string that represents the current object.
         /// </returns>
-        public override string ToString() {
-            return $"{(short) Gender:N0}-{ConnectionType}-{Powered}";
+        public override string ToString()
+        {
+            return $"{(short)Gender:N0}-{ConnectionType}-{Powered}";
         }
 
         /// <summary>
@@ -116,8 +127,9 @@ namespace MudSharp.GameItems.Interfaces {
         ///     true if the specified object  is equal to the current object; otherwise, false.
         /// </returns>
         /// <param name="obj">The object to compare with the current object. </param>
-        public override bool Equals(object obj) {
-            var objAsConnectorType = obj as ConnectorType;
+        public override bool Equals(object obj)
+        {
+            ConnectorType objAsConnectorType = obj as ConnectorType;
             return (objAsConnectorType?.ConnectionType?.Equals(ConnectionType) ?? false) &&
                    (objAsConnectorType.Gender == Gender) &&
                    (objAsConnectorType.Powered == Powered);
@@ -129,7 +141,8 @@ namespace MudSharp.GameItems.Interfaces {
         /// <returns>
         ///     A hash code for the current object.
         /// </returns>
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return Gender.GetHashCode() + ConnectionType.GetHashCode() + Powered.GetHashCode();
         }
 

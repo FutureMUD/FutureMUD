@@ -4,7 +4,8 @@ using System.Linq;
 
 namespace MudSharp.GameItems
 {
-    public enum ItemQuality {
+    public enum ItemQuality
+    {
         Terrible = 0,
         ExtremelyBad = 1,
         Bad = 2,
@@ -28,9 +29,12 @@ namespace MudSharp.GameItems
         Saturated
     }
 
-    public static class GameItemEnumExtensions {
-        public static string Describe(this ItemQuality quality) {
-            switch (quality) {
+    public static class GameItemEnumExtensions
+    {
+        public static string Describe(this ItemQuality quality)
+        {
+            switch (quality)
+            {
                 case ItemQuality.Terrible:
                     return "Terrible";
                 case ItemQuality.ExtremelyBad:
@@ -60,13 +64,16 @@ namespace MudSharp.GameItems
             }
         }
 
-        public static bool TryParseQuality(string text, out ItemQuality quality) {
-            if (Enum.TryParse(text, true, out quality)) {
+        public static bool TryParseQuality(string text, out ItemQuality quality)
+        {
+            if (Enum.TryParse(text, true, out quality))
+            {
                 return true;
             }
 
-            var values = Enum.GetValues(typeof(ItemQuality)).OfType<ItemQuality>().ToList();
-            if (values.Any(x => x.Describe().StartsWith(text, StringComparison.InvariantCultureIgnoreCase))) {
+            List<ItemQuality> values = Enum.GetValues(typeof(ItemQuality)).OfType<ItemQuality>().ToList();
+            if (values.Any(x => x.Describe().StartsWith(text, StringComparison.InvariantCultureIgnoreCase)))
+            {
                 quality =
                     values.FirstOrDefault(
                         x => x.Describe().StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
@@ -83,7 +90,7 @@ namespace MudSharp.GameItems
                 return true;
             }
 
-            var values = Enum.GetValues(typeof(SizeCategory)).OfType<SizeCategory>().ToList();
+            List<SizeCategory> values = Enum.GetValues(typeof(SizeCategory)).OfType<SizeCategory>().ToList();
             if (values.Any(x => x.Describe().StartsWith(text, StringComparison.InvariantCultureIgnoreCase)))
             {
                 size =
@@ -95,32 +102,40 @@ namespace MudSharp.GameItems
             return false;
         }
 
-        public static ItemQuality StageUp(this ItemQuality quality, int stages) {
-            var newQuality = (int) quality + stages;
-            if (newQuality > (int) ItemQuality.Legendary) {
+        public static ItemQuality StageUp(this ItemQuality quality, int stages)
+        {
+            int newQuality = (int)quality + stages;
+            if (newQuality > (int)ItemQuality.Legendary)
+            {
                 return ItemQuality.Legendary;
             }
-            if (newQuality < 0) {
+            if (newQuality < 0)
+            {
                 return ItemQuality.Terrible;
             }
 
-            return (ItemQuality) newQuality;
+            return (ItemQuality)newQuality;
         }
 
-        public static SizeCategory ChangeSize(this SizeCategory size, int steps) {
-            var newSize = (int) size + steps;
-            if (newSize > (int) SizeCategory.Titanic) {
+        public static SizeCategory ChangeSize(this SizeCategory size, int steps)
+        {
+            int newSize = (int)size + steps;
+            if (newSize > (int)SizeCategory.Titanic)
+            {
                 return SizeCategory.Titanic;
             }
-            if (newSize < 0) {
+            if (newSize < 0)
+            {
                 return SizeCategory.Nanoscopic;
             }
 
-            return (SizeCategory) newSize;
+            return (SizeCategory)newSize;
         }
 
-        public static string Describe(this SizeCategory category) {
-            switch (category) {
+        public static string Describe(this SizeCategory category)
+        {
+            switch (category)
+            {
                 case SizeCategory.Enormous:
                     return "Enormous";
                 case SizeCategory.Gigantic:
@@ -153,24 +168,28 @@ namespace MudSharp.GameItems
         }
 
         public static ItemQuality GetNetQuality(
-            this IEnumerable<(ItemQuality Quality, double Weight)> qualitiesAndWeights) {
-            var qawList = qualitiesAndWeights.ToList();
-            if (qawList.Count == 0) {
+            this IEnumerable<(ItemQuality Quality, double Weight)> qualitiesAndWeights)
+        {
+            List<(ItemQuality Quality, double Weight)> qawList = qualitiesAndWeights.ToList();
+            if (qawList.Count == 0)
+            {
                 return ItemQuality.Standard;
             }
-            var result = qawList.Sum(x => (int)x.Quality * x.Weight) /
+            double result = qawList.Sum(x => (int)x.Quality * x.Weight) /
                          (qawList.Sum(x => x.Weight));
 
-            var intResult = (int) result;
-            if (intResult < (int)ItemQuality.Terrible) {
-                intResult = (int) ItemQuality.Terrible;
+            int intResult = (int)result;
+            if (intResult < (int)ItemQuality.Terrible)
+            {
+                intResult = (int)ItemQuality.Terrible;
             }
 
-            if (intResult > (int) ItemQuality.Legendary) {
-                intResult = (int) ItemQuality.Legendary;
+            if (intResult > (int)ItemQuality.Legendary)
+            {
+                intResult = (int)ItemQuality.Legendary;
             }
 
-            return (ItemQuality) intResult;
+            return (ItemQuality)intResult;
         }
     }
 }

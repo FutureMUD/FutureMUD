@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Interfaces {
-    public enum IBeltCanAttachBeltableResult {
+namespace MudSharp.GameItems.Interfaces
+{
+    public enum IBeltCanAttachBeltableResult
+    {
         Success,
         FailureTooLarge,
         FailureExceedMaximumNumber,
         NotValidType
     }
 
-    public interface IBelt : IGameItemComponent {
+    public interface IBelt : IGameItemComponent
+    {
         SizeCategory MaximumSize { get; }
         int MaximumNumberOfBeltedItems { get; }
         IEnumerable<IBeltable> ConnectedItems { get; }

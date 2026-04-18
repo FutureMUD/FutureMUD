@@ -1,11 +1,13 @@
-﻿using System;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.RPG.Checks;
+using System;
 
-namespace MudSharp.Health {
-    public enum InfectionType {
+namespace MudSharp.Health
+{
+    public enum InfectionType
+    {
         Simple,
         Necrotic,
         Infectious,
@@ -19,7 +21,7 @@ namespace MudSharp.Health {
     public enum InfectionStage
     {
         StageZero,      // Healed
-        StageOne,       
+        StageOne,
         StageTwo,
         StageThree,
         StageFour,      // Spreading
@@ -27,7 +29,8 @@ namespace MudSharp.Health {
         StageSix        // Damaging
     }
 
-    public interface IInfection : IFrameworkItem, ISaveable {
+    public interface IInfection : IFrameworkItem, ISaveable
+    {
         InfectionType InfectionType { get; }
         double Intensity { get; set; }
         Difficulty VirulenceDifficulty { get; }
@@ -47,13 +50,16 @@ namespace MudSharp.Health {
         IDamage GetInfectionDamage();
     }
 
-    public static class InfectionExtensions {
-        public static string Describe(this InfectionType infection) {
-            switch (infection) {
+    public static class InfectionExtensions
+    {
+        public static string Describe(this InfectionType infection)
+        {
+            switch (infection)
+            {
                 case InfectionType.Simple:
-	                return "a simple infection";
+                    return "a simple infection";
                 case InfectionType.Infectious:
-	                return "a contagious infection";
+                    return "a contagious infection";
                 case InfectionType.Necrotic:
                     return "a necrotic infection";
                 case InfectionType.Gangrene:

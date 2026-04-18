@@ -12,84 +12,84 @@ namespace MudSharp.RPG.Law.PunishmentStrategies;
 
 public class PunishmentStrategyGoodBehaviourBond : PunishmentStrategyBase
 {
-	public PunishmentStrategyGoodBehaviourBond(IFuturemud gameworld) : base(gameworld)
-	{
-		GoodBehaviourBondLength = MudTimeSpan.FromDays(30);
-	}
+    public PunishmentStrategyGoodBehaviourBond(IFuturemud gameworld) : base(gameworld)
+    {
+        GoodBehaviourBondLength = MudTimeSpan.FromDays(30);
+    }
 
-	public PunishmentStrategyGoodBehaviourBond(IFuturemud gameworld, XElement root) : base(gameworld, root)
-	{
-		GoodBehaviourBondLength = MudTimeSpan.Parse(root.Element("Length").Value);
-	}
+    public PunishmentStrategyGoodBehaviourBond(IFuturemud gameworld, XElement root) : base(gameworld, root)
+    {
+        GoodBehaviourBondLength = MudTimeSpan.Parse(root.Element("Length").Value);
+    }
 
-	public MudTimeSpan GoodBehaviourBondLength { get; set; }
+    public MudTimeSpan GoodBehaviourBondLength { get; set; }
 
-	public override string TypeSpecificHelpText => @"
+    public override string TypeSpecificHelpText => @"
 	length <time span> - the length of the good behaviour bond";
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"a {GoodBehaviourBondLength.Describe(voyeur)} good behaviour bond";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"a {GoodBehaviourBondLength.Describe(voyeur)} good behaviour bond";
+    }
 
-	public override bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
-	{
-		switch (command.PopForSwitch())
-		{
-			case "length":
-				return BuildingCommandLength(actor, command);
-			default:
-				return base.BuildingCommand(actor, authority, command.GetUndo());
-		}
-	}
+    public override bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "length":
+                return BuildingCommandLength(actor, command);
+            default:
+                return base.BuildingCommand(actor, authority, command.GetUndo());
+        }
+    }
 
-	private bool BuildingCommandLength(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("How long should the good behaviour bond for this punishment be?");
-			return false;
-		}
+    private bool BuildingCommandLength(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("How long should the good behaviour bond for this punishment be?");
+            return false;
+        }
 
-		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, out var mts))
-		{
-			actor.OutputHandler.Send(
-				$"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid time span.");
-			return false;
-		}
+        if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, out MudTimeSpan mts))
+        {
+            actor.OutputHandler.Send(
+                $"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid time span.");
+            return false;
+        }
 
-		GoodBehaviourBondLength = mts;
-		actor.OutputHandler.Send(
-			$"This punishment will now impose a {mts.Describe(actor).ColourValue()} good behaviour bond.");
-		return true;
-	}
+        GoodBehaviourBondLength = mts;
+        actor.OutputHandler.Send(
+            $"This punishment will now impose a {mts.Describe(actor).ColourValue()} good behaviour bond.");
+        return true;
+    }
 
-	public override string Show(ICharacter actor)
-	{
-		var sb = new StringBuilder();
-		sb.AppendLine($"Good Behaviour Bond".ColourName());
-		sb.AppendLine($"Length: {GoodBehaviourBondLength.Describe(actor).ColourValue()}");
-		BaseShowText(actor, sb);
-		return sb.ToString();
-	}
+    public override string Show(ICharacter actor)
+    {
+        StringBuilder sb = new();
+        sb.AppendLine($"Good Behaviour Bond".ColourName());
+        sb.AppendLine($"Length: {GoodBehaviourBondLength.Describe(actor).ColourValue()}");
+        BaseShowText(actor, sb);
+        return sb.ToString();
+    }
 
-	public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
-	{
-		return new PunishmentResult { GoodBehaviourBondLength = GoodBehaviourBondLength };
-	}
+    public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
+    {
+        return new PunishmentResult { GoodBehaviourBondLength = GoodBehaviourBondLength };
+    }
 
-	/// <inheritdoc />
-	public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
-	{
-		return new PunishmentOptions
-		{
-			GoodBehaviourBondLength = GoodBehaviourBondLength
-		};
-	}
+    /// <inheritdoc />
+    public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+    {
+        return new PunishmentOptions
+        {
+            GoodBehaviourBondLength = GoodBehaviourBondLength
+        };
+    }
 
-	protected override void SaveSpecificType(XElement root)
-	{
-		root.Add(new XAttribute("type", "bond"));
-		root.Add(new XElement("Length", GoodBehaviourBondLength.GetRoundTripParseText));
-	}
+    protected override void SaveSpecificType(XElement root)
+    {
+        root.Add(new XAttribute("type", "bond"));
+        root.Add(new XElement("Length", GoodBehaviourBondLength.GetRoundTripParseText));
+    }
 }

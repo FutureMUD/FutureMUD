@@ -2,7 +2,8 @@
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
-namespace MudSharp.Form.Material {
+namespace MudSharp.Form.Material
+{
     public interface IMaterial : IHaveTags, IProgVariable, IEditableItem
     {
         /// <summary>
@@ -30,7 +31,7 @@ namespace MudSharp.Form.Material {
         ///     The Heat Capacity of the material expressed per unit mass, in units Joules per Kilogram Kelvin
         /// </summary>
         double SpecificHeatCapacity { get; }
-        
+
         string MaterialDescription { get; }
     }
 }

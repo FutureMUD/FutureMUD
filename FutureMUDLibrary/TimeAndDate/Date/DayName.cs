@@ -1,8 +1,11 @@
-﻿namespace MudSharp.TimeAndDate.Date {
-    public class DayName {
+﻿namespace MudSharp.TimeAndDate.Date
+{
+    public class DayName
+    {
         #region Constructor
 
-        public DayName(string shortname, string longname) {
+        public DayName(string shortname, string longname)
+        {
             _shortName = shortname;
             _fullName = longname;
         }

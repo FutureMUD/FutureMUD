@@ -2,21 +2,21 @@
 
 internal class FunctionStatement : Statement
 {
-	public FunctionStatement(IFunction function)
-	{
-		Function = function;
-	}
+    public FunctionStatement(IFunction function)
+    {
+        Function = function;
+    }
 
-	public IFunction Function { get; set; }
+    public IFunction Function { get; set; }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (Function.Execute(variables) == StatementResult.Error)
-		{
-			ErrorMessage = Function.ErrorMessage;
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (Function.Execute(variables) == StatementResult.Error)
+        {
+            ErrorMessage = Function.ErrorMessage;
+            return StatementResult.Error;
+        }
 
-		return StatementResult.Normal;
-	}
+        return StatementResult.Normal;
+    }
 }

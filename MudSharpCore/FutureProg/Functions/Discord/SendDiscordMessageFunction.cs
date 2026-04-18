@@ -10,67 +10,67 @@ namespace MudSharp.FutureProg.Functions.Discord;
 
 internal class SendDiscordMessageFunction : BuiltInFunction
 {
-	public IFuturemud Gameworld { get; set; }
+    public IFuturemud Gameworld { get; set; }
 
-	protected SendDiscordMessageFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(
-		parameterFunctions)
-	{
-		Gameworld = gameworld;
-	}
+    protected SendDiscordMessageFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(
+        parameterFunctions)
+    {
+        Gameworld = gameworld;
+    }
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Boolean;
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Boolean;
+        protected set { }
+    }
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"senddiscord",
-				new[] { ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Text },
-				(pars, gameworld) => new SendDiscordMessageFunction(pars, gameworld)
-			)
-		);
-	}
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "senddiscord",
+                new[] { ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Text },
+                (pars, gameworld) => new SendDiscordMessageFunction(pars, gameworld)
+            )
+        );
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		var channelResult = ParameterFunctions[0].Result;
-		if (channelResult?.GetObject == null)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        IProgVariable channelResult = ParameterFunctions[0].Result;
+        if (channelResult?.GetObject == null)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		var channelId = (ulong)(double)channelResult.GetObject;
+        ulong channelId = (ulong)(double)channelResult.GetObject;
 
-		var titleResult = ParameterFunctions[1].Result;
-		if (titleResult?.GetObject == null)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        IProgVariable titleResult = ParameterFunctions[1].Result;
+        if (titleResult?.GetObject == null)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		var title = titleResult.GetObject.ToString();
+        string title = titleResult.GetObject.ToString();
 
-		var textResult = ParameterFunctions[2].Result;
-		if (textResult?.GetObject == null)
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        IProgVariable textResult = ParameterFunctions[2].Result;
+        if (textResult?.GetObject == null)
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		var text = textResult.GetObject.ToString();
+        string text = textResult.GetObject.ToString();
 
-		Gameworld.DiscordConnection?.SendMessageFromProg(channelId, title, text);
-		Result = new BooleanVariable(true);
-		return StatementResult.Normal;
-	}
+        Gameworld.DiscordConnection?.SendMessageFromProg(channelId, title, text);
+        Result = new BooleanVariable(true);
+        return StatementResult.Normal;
+    }
 }

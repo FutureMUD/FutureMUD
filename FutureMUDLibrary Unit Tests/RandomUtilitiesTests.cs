@@ -1,9 +1,9 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MudSharp.Framework;
 
 namespace MudSharp_Unit_Tests;
 
@@ -11,13 +11,16 @@ namespace MudSharp_Unit_Tests;
 public class RandomUtilitiesTests
 {
     [TestInitialize]
-    public void Init() => SeedRandom(1);
+    public void Init()
+    {
+        SeedRandom(1);
+    }
 
     private static void SeedRandom(int seed)
     {
-        var newRandom = new Random(seed);
-        var fields = typeof(Random).GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
-        foreach (var field in fields)
+        Random newRandom = new(seed);
+        FieldInfo[] fields = typeof(Random).GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+        foreach (FieldInfo field in fields)
         {
             field.SetValue(Constants.Random, field.GetValue(newRandom));
         }
@@ -25,11 +28,11 @@ public class RandomUtilitiesTests
 
     private static List<T> ShuffleExpected<T>(IEnumerable<T> source, int seed)
     {
-        var array = source.ToArray();
-        var rnd = new Random(seed);
-        for (var i = array.Length; i > 1; i--)
+        T[] array = source.ToArray();
+        Random rnd = new(seed);
+        for (int i = array.Length; i > 1; i--)
         {
-            var j = rnd.Next(i);
+            int j = rnd.Next(i);
             (array[j], array[i - 1]) = (array[i - 1], array[j]);
         }
         return array.ToList();
@@ -37,8 +40,8 @@ public class RandomUtilitiesTests
 
     private static List<T> PickRandomExpected<T>(IList<T> source, int picks, int seed)
     {
-        var rnd = new Random(seed);
-        var items = new HashSet<T>();
+        Random rnd = new(seed);
+        HashSet<T> items = new();
         while (picks > 0)
         {
             if (items.Add(source[rnd.Next(source.Count)]))
@@ -65,20 +68,20 @@ public class RandomUtilitiesTests
             return new List<T>();
         }
 
-        var rnd = new Random(seed);
-        var choices = source.Select(x => (Value: x, Weight: weightSelector(x))).ToList();
+        Random rnd = new(seed);
+        List<(T Value, double Weight)> choices = source.Select(x => (Value: x, Weight: weightSelector(x))).ToList();
         if (choices.Count <= picks)
         {
             return choices.Select(x => x.Value).ToList();
         }
 
-        var sum = choices.Sum(x => x.Weight);
-        var len = choices.Count;
-        var results = new List<T>(picks);
+        double sum = choices.Sum(x => x.Weight);
+        int len = choices.Count;
+        List<T> results = new(picks);
         while (picks > 0)
         {
-            var roll = rnd.NextDouble() * sum;
-            for (var i = 0; i < len; i++)
+            double roll = rnd.NextDouble() * sum;
+            for (int i = 0; i < len; i++)
             {
                 if (choices[i].Weight <= 0)
                 {
@@ -87,7 +90,7 @@ public class RandomUtilitiesTests
 
                 if ((roll -= choices[i].Weight) <= 0.0)
                 {
-                    var (value, weight) = choices[i];
+                    (T value, double weight) = choices[i];
                     results.Add(value);
                     choices.RemoveAt(i);
                     len--;
@@ -104,20 +107,20 @@ public class RandomUtilitiesTests
     [TestMethod]
     public void Shuffle_RearrangesElementsButPreservesContents()
     {
-        var data = Enumerable.Range(1, 5).ToList();
-        var shuffled = data.Shuffle().ToList();
+        List<int> data = Enumerable.Range(1, 5).ToList();
+        List<int> shuffled = data.Shuffle().ToList();
         CollectionAssert.AreEquivalent(data, shuffled);
     }
 
     [TestMethod]
     public void PickRandom_SelectsUniqueItemsAndValidatesCounts()
     {
-        var data = Enumerable.Range(1, 5).ToList();
-        var result = data.PickRandom(3).ToList();
+        List<int> data = Enumerable.Range(1, 5).ToList();
+        List<int> result = data.PickRandom(3).ToList();
         Assert.AreEqual(3, result.Count);
         Assert.AreEqual(3, result.Distinct().Count());
-        var expected = PickRandomExpected(data, 3, 1).OrderBy(x => x).ToList();
-        var actual = result.OrderBy(x => x).ToList();
+        List<int> expected = PickRandomExpected(data, 3, 1).OrderBy(x => x).ToList();
+        List<int> actual = result.OrderBy(x => x).ToList();
         CollectionAssert.AreEqual(expected, actual);
 
         Assert.ThrowsException<ArgumentException>(() => data.PickRandom(6));
@@ -127,12 +130,12 @@ public class RandomUtilitiesTests
     [TestMethod]
     public void PickUpToRandom_SelectsUpToCountAndValidates()
     {
-        var data = Enumerable.Range(1, 5).ToList();
-        var result = data.PickUpToRandom(3).ToList();
+        List<int> data = Enumerable.Range(1, 5).ToList();
+        List<int> result = data.PickUpToRandom(3).ToList();
         Assert.AreEqual(3, result.Count);
         Assert.AreEqual(3, result.Distinct().Count());
 
-        var all = data.PickUpToRandom(10).ToList();
+        List<int> all = data.PickUpToRandom(10).ToList();
         CollectionAssert.AreEquivalent(data, all);
 
         Assert.ThrowsException<ArgumentException>(() => data.PickUpToRandom(0));
@@ -141,25 +144,26 @@ public class RandomUtilitiesTests
     [TestMethod]
     public void TakeRandom_HonoursWeightsAndPickCounts()
     {
-        var data = new[] { ("A", 1.0), ("B", 2.0), ("C", 3.0) };
-        var result = data.TakeRandom(2, x => x.Item2).ToList();
+        (string, double)[] data = new[] { ("A", 1.0), ("B", 2.0), ("C", 3.0) };
+        List<(string, double)> result = data.TakeRandom(2, x => x.Item2).ToList();
         Assert.AreEqual(2, result.Count);
         Assert.AreEqual(2, result.Distinct().Count());
-        var expected = TakeRandomExpected(data, 2, x => x.Item2, 1);
+        List<(string, double)> expected = TakeRandomExpected(data, 2, x => x.Item2, 1);
         CollectionAssert.AreEqual(expected, result);
 
-        var empty = data.TakeRandom(0, x => x.Item2);
+        IEnumerable<(string, double)> empty = data.TakeRandom(0, x => x.Item2);
         Assert.IsFalse(empty.Any());
     }
 
     [TestMethod]
     public void GetWeightedRandom_TupleInt_BiasesSelection()
     {
-        var options = new[] { ("A", 1), ("B", 2), ("C", 3) };
-        var counts = new Dictionary<string, int> { { "A", 0 }, { "B", 0 }, { "C", 0 } };
-        for (var i = 0; i < 6000; i++)
+        (string, int)[] options = new[] { ("A", 1), ("B", 2), ("C", 3) };
+        Dictionary<string, int> counts = new()
+        { { "A", 0 }, { "B", 0 }, { "C", 0 } };
+        for (int i = 0; i < 6000; i++)
         {
-            var pick = options.GetWeightedRandom();
+            string pick = options.GetWeightedRandom();
             counts[pick]++;
         }
         Assert.IsTrue(counts["C"] > counts["B"]);
@@ -169,11 +173,12 @@ public class RandomUtilitiesTests
     [TestMethod]
     public void GetWeightedRandom_TupleDouble_BiasesSelection()
     {
-        var options = new[] { ("A", 1.0), ("B", 2.0), ("C", 3.0) };
-        var counts = new Dictionary<string, int> { { "A", 0 }, { "B", 0 }, { "C", 0 } };
-        for (var i = 0; i < 6000; i++)
+        (string, double)[] options = new[] { ("A", 1.0), ("B", 2.0), ("C", 3.0) };
+        Dictionary<string, int> counts = new()
+        { { "A", 0 }, { "B", 0 }, { "C", 0 } };
+        for (int i = 0; i < 6000; i++)
         {
-            var pick = options.GetWeightedRandom();
+            string pick = options.GetWeightedRandom();
             counts[pick]++;
         }
         Assert.IsTrue(counts["C"] > counts["B"]);
@@ -183,11 +188,12 @@ public class RandomUtilitiesTests
     [TestMethod]
     public void GetWeightedRandom_EvaluatorDouble_BiasesSelection()
     {
-        var options = new[] { 1.0, 2.0, 3.0 };
-        var counts = new Dictionary<double, int> { { 1.0, 0 }, { 2.0, 0 }, { 3.0, 0 } };
-        for (var i = 0; i < 6000; i++)
+        double[] options = new[] { 1.0, 2.0, 3.0 };
+        Dictionary<double, int> counts = new()
+        { { 1.0, 0 }, { 2.0, 0 }, { 3.0, 0 } };
+        for (int i = 0; i < 6000; i++)
         {
-            var pick = options.GetWeightedRandom(x => x);
+            double pick = options.GetWeightedRandom(x => x);
             counts[pick]++;
         }
         Assert.IsTrue(counts[3.0] > counts[2.0]);
@@ -197,11 +203,12 @@ public class RandomUtilitiesTests
     [TestMethod]
     public void GetWeightedRandom_EvaluatorInt_BiasesSelection()
     {
-        var options = new[] { 1, 3, 5 };
-        var counts = new Dictionary<int, int> { { 1, 0 }, { 3, 0 }, { 5, 0 } };
-        for (var i = 0; i < 6000; i++)
+        int[] options = new[] { 1, 3, 5 };
+        Dictionary<int, int> counts = new()
+        { { 1, 0 }, { 3, 0 }, { 5, 0 } };
+        for (int i = 0; i < 6000; i++)
         {
-            var pick = options.GetWeightedRandom(x => x);
+            int pick = options.GetWeightedRandom(x => x);
             counts[pick]++;
         }
         Assert.IsTrue(counts[5] > counts[3]);
@@ -211,8 +218,9 @@ public class RandomUtilitiesTests
     [TestMethod]
     public void GetRandomElement_ReturnsItemFromSource()
     {
-        var data = new List<int> { 1, 2, 3 };
-        var value = data.GetRandomElement();
+        List<int> data = new()
+        { 1, 2, 3 };
+        int value = data.GetRandomElement();
         Assert.IsTrue(data.Contains(value));
     }
 
@@ -221,7 +229,7 @@ public class RandomUtilitiesTests
     {
         const double mean = 10.0;
         const double stdev = 2.0;
-        var value = RandomUtilities.RandomNormal(mean, stdev);
+        double value = RandomUtilities.RandomNormal(mean, stdev);
         Assert.IsTrue(value >= mean - 6 * stdev && value <= mean + 6 * stdev);
     }
 
@@ -231,7 +239,7 @@ public class RandomUtilitiesTests
         const double mean = 10.0;
         const double stdev = 2.0;
         const double skew = 1.5;
-        var value = RandomUtilities.RandomNormal(mean, stdev, skew);
+        double value = RandomUtilities.RandomNormal(mean, stdev, skew);
         Assert.IsTrue(value >= mean - 6 * stdev && value <= mean + 6 * stdev);
     }
 
@@ -240,9 +248,9 @@ public class RandomUtilitiesTests
     {
         const double min = 10.0;
         const double max = 20.0;
-        var value = RandomUtilities.RandomNormalOverRange(min, max);
-        var stdev = (max - min) / 8.0;
-        var mean = (max + min) / 2.0;
+        double value = RandomUtilities.RandomNormalOverRange(min, max);
+        double stdev = (max - min) / 8.0;
+        double mean = (max + min) / 2.0;
         Assert.IsTrue(value >= mean - 6 * stdev && value <= mean + 6 * stdev);
     }
 }

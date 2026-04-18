@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete.SpellEffects;
@@ -8,6 +5,9 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
+using System;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -26,7 +26,7 @@ public class RoomAtmosphereEffect : IMagicSpellEffectTemplate
 
     private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands, IMagicSpell spell)
     {
-        var gas = spell.Gameworld.Gases.First();
+        IGas gas = spell.Gameworld.Gases.First();
         return (new RoomAtmosphereEffect(new XElement("Effect",
                 new XAttribute("type", "roomatmosphere"),
                 new XElement("AtmosphereId", gas.Id),
@@ -39,8 +39,8 @@ public class RoomAtmosphereEffect : IMagicSpellEffectTemplate
     protected RoomAtmosphereEffect(XElement root, IMagicSpell spell)
     {
         Spell = spell;
-        var id = long.Parse(root.Element("AtmosphereId").Value);
-        var type = root.Element("AtmosphereType").Value;
+        long id = long.Parse(root.Element("AtmosphereId").Value);
+        string type = root.Element("AtmosphereType").Value;
         Atmosphere = type.Equals("gas", StringComparison.InvariantCultureIgnoreCase)
             ? (IFluid)Gameworld.Gases.Get(id)
             : Gameworld.Liquids.Get(id);
@@ -95,7 +95,7 @@ public class RoomAtmosphereEffect : IMagicSpellEffectTemplate
             actor.OutputHandler.Send($"Colours: {Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
             return false;
         }
-        var colour = Telnet.GetColour(command.SafeRemainingArgument);
+        ANSIColour colour = Telnet.GetColour(command.SafeRemainingArgument);
         if (colour == null)
         {
             actor.OutputHandler.Send($"Invalid colour. Options: {Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
@@ -124,7 +124,7 @@ public class RoomAtmosphereEffect : IMagicSpellEffectTemplate
         }
         if (type == "gas")
         {
-            var gas = Gameworld.Gases.GetByIdOrName(command.SafeRemainingArgument);
+            IGas gas = Gameworld.Gases.GetByIdOrName(command.SafeRemainingArgument);
             if (gas == null)
             {
                 actor.OutputHandler.Send("No such gas.");
@@ -134,7 +134,7 @@ public class RoomAtmosphereEffect : IMagicSpellEffectTemplate
         }
         else
         {
-            var liq = Gameworld.Liquids.GetByIdOrName(command.SafeRemainingArgument);
+            ILiquid liq = Gameworld.Liquids.GetByIdOrName(command.SafeRemainingArgument);
             if (liq == null)
             {
                 actor.OutputHandler.Send("No such liquid.");
@@ -155,7 +155,11 @@ public class RoomAtmosphereEffect : IMagicSpellEffectTemplate
     public bool IsInstantaneous => false;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return IsCompatibleWithTrigger(types.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -177,5 +181,8 @@ public class RoomAtmosphereEffect : IMagicSpellEffectTemplate
         return new SpellRoomAtmosphereEffect(loc, parent, null, Atmosphere, DescAddendum, AddendumColour);
     }
 
-    public IMagicSpellEffectTemplate Clone() => new RoomAtmosphereEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new RoomAtmosphereEffect(SaveToXml(), Spell);
+    }
 }

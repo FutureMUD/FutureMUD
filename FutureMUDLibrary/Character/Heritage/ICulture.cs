@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character.Name;
+﻿using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Form.Shape;
@@ -7,9 +6,12 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.TimeAndDate.Date;
+using System.Collections.Generic;
 
-namespace MudSharp.Character.Heritage {
-    public interface ICulture : IEditableItem, IProgVariable {
+namespace MudSharp.Character.Heritage
+{
+    public interface ICulture : IEditableItem, IProgVariable
+    {
         string Description { get; }
         IEnumerable<INameCulture> NameCultures { get; }
         INameCulture NameCultureForGender(Gender gender);

@@ -1,12 +1,12 @@
-using System;
 using JetBrains.Annotations;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate;
+using System;
 
 namespace MudSharp.Economy
 {
-    
+
     public enum ShopTransactionType
     {
         Sale,

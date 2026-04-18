@@ -1,13 +1,13 @@
+using MudSharp.Construction;
+using MudSharp.Effects;
+using MudSharp.Framework;
+using MudSharp.FutureProg;
+using MudSharp.PerceptionEngine;
+using MudSharp.TimeAndDate.Time;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using MudSharp.Construction;
-using MudSharp.Effects;
-using MudSharp.Framework;
-using MudSharp.TimeAndDate.Time;
-using MudSharp.FutureProg;
-using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Celestial;
 
@@ -41,9 +41,9 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
     public PlanetFromMoon(XElement root, IFuturemud game)
     {
         Gameworld = game;
-        var moonId = long.Parse(root.Element("Moon")!.Value);
+        long moonId = long.Parse(root.Element("Moon")!.Value);
         Moon = (PlanetaryMoon)game.CelestialObjects.Get(moonId)!;
-        var sunId = long.Parse(root.Element("Sun")!.Value);
+        long sunId = long.Parse(root.Element("Sun")!.Value);
         Sun = game.CelestialObjects.Get(sunId);
         PeakIllumination = root.Element("PeakIllumination")?.Value.GetDouble() ?? 0.0;
         AngularRadius = root.Element("AngularRadius")?.Value.GetDouble() ?? 0.0;
@@ -62,7 +62,11 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
 
     public override void Register(IOutputHandler handler) { }
     public override ProgVariableTypes Type => ProgVariableTypes.Error;
-    public override object DatabaseInsert() => null;
+    public override object DatabaseInsert()
+    {
+        return null;
+    }
+
     public override void SetIDFromDatabase(object dbitem) { }
 
     public PerceptionTypes PerceivableTypes => PerceptionTypes.AllVisual;
@@ -75,26 +79,26 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
     public void AddMinutes(int numberOfMinutes) { }
     public void AddMinutes() { MinuteUpdateEvent?.Invoke(this); }
 
-	private double OneMinuteTimeFraction
-	{
-		get
-		{
-			var minutesPerDay = (double)(Moon?.Clock?.HoursPerDay ?? 0) * (Moon?.Clock?.MinutesPerHour ?? 0);
-			return minutesPerDay > 0.0 ? 1.0 / minutesPerDay : 1.0 / 1440.0;
-		}
-	}
+    private double OneMinuteTimeFraction
+    {
+        get
+        {
+            double minutesPerDay = (double)(Moon?.Clock?.HoursPerDay ?? 0) * (Moon?.Clock?.MinutesPerHour ?? 0);
+            return minutesPerDay > 0.0 ? 1.0 / minutesPerDay : 1.0 / 1440.0;
+        }
+    }
 
     protected CelestialMoveDirection CurrentDirection(GeographicCoordinate geography)
     {
-        var dn = CurrentDayNumber;
-        var current = ElevationAngle(dn, geography);
-        var former = ElevationAngle(dn - OneMinuteTimeFraction, geography);
+        double dn = CurrentDayNumber;
+        double current = ElevationAngle(dn, geography);
+        double former = ElevationAngle(dn - OneMinuteTimeFraction, geography);
         return current >= former ? CelestialMoveDirection.Ascending : CelestialMoveDirection.Descending;
     }
 
     private (double RA, double Dec) PlanetEquatorialCoordinates(double dayNumber)
     {
-        var (moonRa, moonDec) = Moon.EquatorialCoordinates(dayNumber);
+        (double moonRa, double moonDec) = Moon.EquatorialCoordinates(dayNumber);
         return ((moonRa + Math.PI).Modulus(2 * Math.PI), -moonDec);
     }
 
@@ -111,49 +115,59 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
 
     private double ElevationAngle(double dayNumber, GeographicCoordinate geography)
     {
-        var (ra, dec) = PlanetEquatorialCoordinates(dayNumber);
-        var ha = HourAngle(dayNumber, geography, ra);
+        (double ra, double dec) = PlanetEquatorialCoordinates(dayNumber);
+        double ha = HourAngle(dayNumber, geography, ra);
         return Math.Asin(Math.Sin(geography.Latitude) * Math.Sin(dec) +
                          Math.Cos(geography.Latitude) * Math.Cos(dec) * Math.Cos(ha));
     }
 
     private double AzimuthAngle(double dayNumber, GeographicCoordinate geography)
     {
-        var (ra, dec) = PlanetEquatorialCoordinates(dayNumber);
-        var ha = HourAngle(dayNumber, geography, ra);
+        (double ra, double dec) = PlanetEquatorialCoordinates(dayNumber);
+        double ha = HourAngle(dayNumber, geography, ra);
         return Math.Atan2(Math.Sin(ha),
                           Math.Cos(ha) * Math.Sin(geography.Latitude) -
                           Math.Tan(dec) * Math.Cos(geography.Latitude));
     }
 
-    public (double RA, double Dec) EquatorialCoordinates(double dayNumber) => PlanetEquatorialCoordinates(dayNumber);
+    public (double RA, double Dec) EquatorialCoordinates(double dayNumber)
+    {
+        return PlanetEquatorialCoordinates(dayNumber);
+    }
 
-    public double CurrentElevationAngle(GeographicCoordinate geography) => ElevationAngle(CurrentDayNumber, geography);
-    public double CurrentAzimuthAngle(GeographicCoordinate geography, double elevationAngle) => AzimuthAngle(CurrentDayNumber, geography);
+    public double CurrentElevationAngle(GeographicCoordinate geography)
+    {
+        return ElevationAngle(CurrentDayNumber, geography);
+    }
+
+    public double CurrentAzimuthAngle(GeographicCoordinate geography, double elevationAngle)
+    {
+        return AzimuthAngle(CurrentDayNumber, geography);
+    }
 
     private double PlanetPhaseAngle()
     {
-        var cycleDay = (Moon.CurrentCelestialDay - Moon.FullMoonReferenceDay).Modulus(Moon.CelestialDaysPerYear);
-        var moonPhase = 2 * Math.PI * (cycleDay / Moon.CelestialDaysPerYear);
+        double cycleDay = (Moon.CurrentCelestialDay - Moon.FullMoonReferenceDay).Modulus(Moon.CelestialDaysPerYear);
+        double moonPhase = 2 * Math.PI * (cycleDay / Moon.CelestialDaysPerYear);
         return (moonPhase + Math.PI).Modulus(2 * Math.PI);
     }
 
     public double CurrentIllumination(GeographicCoordinate geography)
     {
-        var phase = PlanetPhaseAngle();
+        double phase = PlanetPhaseAngle();
         return PeakIllumination * (1 + Math.Cos(phase)) / 2.0;
     }
 
     public CelestialInformation CurrentPosition(GeographicCoordinate geography)
     {
-        var elevation = CurrentElevationAngle(geography);
-        var azimuth = CurrentAzimuthAngle(geography, elevation);
+        double elevation = CurrentElevationAngle(geography);
+        double azimuth = CurrentAzimuthAngle(geography, elevation);
         return new CelestialInformation(this, azimuth, elevation, CurrentDirection(geography));
     }
 
     public CelestialInformation ReturnNewCelestialInformation(ILocation location, CelestialInformation celestialStatus, GeographicCoordinate coordinate)
     {
-        var newStatus = CurrentPosition(coordinate);
+        CelestialInformation newStatus = CurrentPosition(coordinate);
         if (celestialStatus == null)
         {
             newStatus.Direction = CelestialMoveDirection.Ascending;
@@ -172,10 +186,16 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
         return newStatus;
     }
 
-    public string Describe(CelestialInformation info) => $"{Name} is {CurrentPhase().Describe()}";
+    public string Describe(CelestialInformation info)
+    {
+        return $"{Name} is {CurrentPhase().Describe()}";
+    }
 
     public bool CelestialAngleIsUsedToDetermineTimeOfDay => false;
-    public TimeOfDay CurrentTimeOfDay(GeographicCoordinate geography) => Sun?.CurrentTimeOfDay(geography) ?? TimeOfDay.Night;
+    public TimeOfDay CurrentTimeOfDay(GeographicCoordinate geography)
+    {
+        return Sun?.CurrentTimeOfDay(geography) ?? TimeOfDay.Night;
+    }
 
     public MoonPhase CurrentPhase()
     {
@@ -195,16 +215,20 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
 
     public bool IsSunEclipsed(GeographicCoordinate geography)
     {
-        if (Sun == null) return false;
-        var planet = CurrentPosition(geography);
-        var star = Sun.CurrentPosition(geography);
-        var separation = AngularSeparation(planet, star);
+        if (Sun == null)
+        {
+            return false;
+        }
+
+        CelestialInformation planet = CurrentPosition(geography);
+        CelestialInformation star = Sun.CurrentPosition(geography);
+        double separation = AngularSeparation(planet, star);
         return separation <= AngularRadius + SunAngularRadius;
     }
 
     private static double AngularSeparation(CelestialInformation a, CelestialInformation b)
     {
-        var cosine =
+        double cosine =
             Math.Sin(a.LastAscensionAngle) * Math.Sin(b.LastAscensionAngle) +
             Math.Cos(a.LastAscensionAngle) * Math.Cos(b.LastAscensionAngle) *
             Math.Cos(a.LastAzimuthAngle - b.LastAzimuthAngle);
@@ -225,8 +249,8 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
 
     public void EchoTriggerToZone(CelestialTrigger trigger, ILocation location)
     {
-        var echo = $"{trigger.Echo.Fullstop().SubstituteANSIColour().ProperSentences()}";
-        foreach (var ch in location.Characters)
+        string echo = $"{trigger.Echo.Fullstop().SubstituteANSIColour().ProperSentences()}";
+        foreach (Character.ICharacter ch in location.Characters)
         {
             if (!ch.CanSee(this))
             {

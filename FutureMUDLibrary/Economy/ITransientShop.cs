@@ -3,6 +3,6 @@
 namespace MudSharp.Economy;
 
 public interface ITransientShop : IShop
-    {
-        IShopStall? CurrentStall { get; set; }
-    }
+{
+    IShopStall? CurrentStall { get; set; }
+}

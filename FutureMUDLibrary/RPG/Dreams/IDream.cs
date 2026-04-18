@@ -1,20 +1,24 @@
-﻿using System.Collections.Generic;
-using MudSharp.Models;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.Framework.Revision;
+using MudSharp.FutureProg;
+using MudSharp.Models;
+using System.Collections.Generic;
 
-namespace MudSharp.RPG.Dreams {
-    public class DreamStage {
-        public DreamStage(DreamPhase phase) {
+namespace MudSharp.RPG.Dreams
+{
+    public class DreamStage
+    {
+        public DreamStage(DreamPhase phase)
+        {
             DreamerText = phase.DreamerText;
             DreamerCommand = phase.DreamerCommand;
             WaitSeconds = phase.WaitSeconds;
             PhaseID = phase.PhaseId;
         }
 
-        public DreamStage() {
+        public DreamStage()
+        {
         }
 
         public string DreamerText { get; set; }
@@ -23,7 +27,8 @@ namespace MudSharp.RPG.Dreams {
         public int PhaseID { get; init; }
     }
 
-    public interface IDream : IEditableItem {
+    public interface IDream : IEditableItem
+    {
         IEnumerable<DreamStage> DreamStages { get; }
         IFutureProg OnWakeDuringDreamProg { get; }
         IFutureProg OnDreamProg { get; }

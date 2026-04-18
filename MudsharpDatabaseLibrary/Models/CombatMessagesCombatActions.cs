@@ -8,9 +8,9 @@ namespace MudSharp.Models;
 
 public class CombatMessagesCombatActions
 {
-	public long CombatMessageId { get; set; }
-	public long CombatActionId { get; set; }
+    public long CombatMessageId { get; set; }
+    public long CombatActionId { get; set; }
 
-	public virtual CombatMessage CombatMessage { get; set; }
-	public virtual CombatAction CombatAction { get; set; }
+    public virtual CombatMessage CombatMessage { get; set; }
+    public virtual CombatAction CombatAction { get; set; }
 }

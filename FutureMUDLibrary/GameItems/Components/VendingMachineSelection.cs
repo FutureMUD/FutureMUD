@@ -1,16 +1,19 @@
-﻿using System.Xml.Linq;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.FutureProg;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components
 {
-    public class VendingMachineSelection {
-        public VendingMachineSelection() {
+    public class VendingMachineSelection
+    {
+        public VendingMachineSelection()
+        {
         }
 
         public IFuturemud Gameworld { get; set; }
 
-        public VendingMachineSelection(XElement root, IFuturemud gameworld) {
+        public VendingMachineSelection(XElement root, IFuturemud gameworld)
+        {
             Gameworld = gameworld;
             Keyword = root.Element("Keyword").Value;
             Cost = decimal.Parse(root.Element("Cost").Value);
@@ -32,7 +35,8 @@ namespace MudSharp.GameItems.Components
         public string LoadArguments { get; init; }
         public IFutureProg OnLoadProg { get; init; }
 
-        public XElement SaveSelection() {
+        public XElement SaveSelection()
+        {
             return new XElement("Selection",
                 new XElement("Keyword", Keyword),
                 new XElement("Cost", Cost),

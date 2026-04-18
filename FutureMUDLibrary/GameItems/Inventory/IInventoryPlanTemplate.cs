@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using MudSharp.Body;
 using MudSharp.Character;
-using MudSharp.GameItems.Inventory.Plans;
-using System;
-using System.Linq;
-using System.Xml.Linq;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
-using MudSharp.Body;
+using MudSharp.GameItems.Inventory.Plans;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
-namespace MudSharp.GameItems.Inventory {
-    public enum InventoryPlanFeasibility {
+namespace MudSharp.GameItems.Inventory
+{
+    public enum InventoryPlanFeasibility
+    {
         Feasible,
         NotFeasibleNotEnoughHands,
         NotFeasibleNotEnoughWielders,
@@ -24,7 +26,8 @@ namespace MudSharp.GameItems.Inventory {
         DoNotRestoreItems = 2,
     }
 
-    public interface IInventoryPlanTemplate : IXmlSavable, IHaveFuturemud {
+    public interface IInventoryPlanTemplate : IXmlSavable, IHaveFuturemud
+    {
         IEnumerable<IInventoryPlanPhaseTemplate> Phases { get; }
         IInventoryPlanPhaseTemplate FirstPhase { get; }
         IEnumerable<InventoryPlanActionResult> PeekPlanResults(ICharacter executor, IInventoryPlanPhase phase, IInventoryPlan plan);
@@ -38,31 +41,31 @@ namespace MudSharp.GameItems.Inventory {
 
     public abstract class InventoryPlanXmlDefinitionFactory
     {
-	    public static XElement CreateInventoryDefinition((string Tag, InventoryState State, int Quantity)[] actions)
-	    {
-		    return new XElement("Plan",
-			    new XElement("Phase",
-				    from action in actions
-				    select action.State switch
-				    {
-					    InventoryState.Held => new XElement("Action", new XAttribute("state", "held")),
-					    InventoryState.Wielded => new XElement("Action", new XAttribute("state", "wielded")),
-					    InventoryState.Worn => new XElement("Action", new XAttribute("state", "worn")),
-					    InventoryState.Dropped => new XElement("Action", new XAttribute("state", "dropped")),
-					    InventoryState.Sheathed => new XElement("Action", new XAttribute("state", "sheathed")),
-					    InventoryState.InContainer => new XElement("Action", new XAttribute("state", "incontainer")),
-					    InventoryState.Attached => new XElement("Action", new XAttribute("state", "held")),
-						InventoryState.Prosthetic => new XElement("Action", new XAttribute("state", "prosthetic")),
-					    InventoryState.Implanted => new XElement("Action", new XAttribute("state", "implanted")),
-					    InventoryState.Consumed => new XElement("Action", new XAttribute("state", "consume")),
-					    InventoryState.ConsumedLiquid => new XElement("Action", new XAttribute("state", "consumeliquid")),
+        public static XElement CreateInventoryDefinition((string Tag, InventoryState State, int Quantity)[] actions)
+        {
+            return new XElement("Plan",
+                new XElement("Phase",
+                    from action in actions
+                    select action.State switch
+                    {
+                        InventoryState.Held => new XElement("Action", new XAttribute("state", "held")),
+                        InventoryState.Wielded => new XElement("Action", new XAttribute("state", "wielded")),
+                        InventoryState.Worn => new XElement("Action", new XAttribute("state", "worn")),
+                        InventoryState.Dropped => new XElement("Action", new XAttribute("state", "dropped")),
+                        InventoryState.Sheathed => new XElement("Action", new XAttribute("state", "sheathed")),
+                        InventoryState.InContainer => new XElement("Action", new XAttribute("state", "incontainer")),
+                        InventoryState.Attached => new XElement("Action", new XAttribute("state", "held")),
+                        InventoryState.Prosthetic => new XElement("Action", new XAttribute("state", "prosthetic")),
+                        InventoryState.Implanted => new XElement("Action", new XAttribute("state", "implanted")),
+                        InventoryState.Consumed => new XElement("Action", new XAttribute("state", "consume")),
+                        InventoryState.ConsumedLiquid => new XElement("Action", new XAttribute("state", "consumeliquid")),
 
-						_ => throw new NotImplementedException()
-				    }
-				)
-		    );
+                        _ => throw new NotImplementedException()
+                    }
+                )
+            );
 
-	    }
+        }
 
-	}
+    }
 }

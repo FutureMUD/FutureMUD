@@ -1,11 +1,11 @@
-using System;
-using System.Xml.Linq;
-using System.Linq;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
+using System;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -65,7 +65,7 @@ public class RageSpellEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandIntensity(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value))
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send("You must enter a valid intensity.");
             return false;
@@ -84,7 +84,11 @@ public class RageSpellEffect : IMagicSpellEffectTemplate
     public bool IsInstantaneous => false;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return IsCompatibleWithTrigger(types.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -107,5 +111,8 @@ public class RageSpellEffect : IMagicSpellEffectTemplate
         return new SpellRageEffect(ch, parent, null, Intensity);
     }
 
-    public IMagicSpellEffectTemplate Clone() => new RageSpellEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new RageSpellEffect(SaveToXml(), Spell);
+    }
 }

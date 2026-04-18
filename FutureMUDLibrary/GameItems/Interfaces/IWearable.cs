@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
+using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Interfaces {
-    public interface IWearable : IGameItemComponent {
+namespace MudSharp.GameItems.Interfaces
+{
+    public interface IWearable : IGameItemComponent
+    {
         /// <summary>
         ///     On an instance of a wearable item, this is set to however the item is currently being worn
         /// </summary>

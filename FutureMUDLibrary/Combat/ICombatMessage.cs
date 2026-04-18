@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
+using System.Collections.Generic;
 
 namespace MudSharp.Combat
 {

@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
+using System.Collections.Generic;
 
-namespace MudSharp.Construction.Boundary {
-    public interface IExit : IPerceivable {
+namespace MudSharp.Construction.Boundary
+{
+    public interface IExit : IPerceivable
+    {
         bool AcceptsDoor { get; set; }
         SizeCategory DoorSize { get; set; }
         IDoor Door { get; set; }

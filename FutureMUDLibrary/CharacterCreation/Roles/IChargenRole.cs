@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
@@ -9,9 +8,12 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.RPG.Merits;
+using System.Collections.Generic;
 
-namespace MudSharp.CharacterCreation.Roles {
-    public interface IChargenRole : IFrameworkItem, ISaveable, IProgVariable, IEditableItem {
+namespace MudSharp.CharacterCreation.Roles
+{
+    public interface IChargenRole : IFrameworkItem, ISaveable, IProgVariable, IEditableItem
+    {
         /// <summary>
         ///     An enumerable representing the type of role in question
         /// </summary>

@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate.Time;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Celestial;
 
@@ -47,11 +48,11 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
     public SunFromPlanetaryMoon(XElement root, IFuturemud game)
     {
         Gameworld = game;
-        var moonId = long.Parse(root.Element("Moon")!.Value);
+        long moonId = long.Parse(root.Element("Moon")!.Value);
         Moon = (PlanetaryMoon)game.CelestialObjects.Get(moonId)!;
-        var sunId = long.Parse(root.Element("Sun")!.Value);
+        long sunId = long.Parse(root.Element("Sun")!.Value);
         Sun = (NewSun)game.CelestialObjects.Get(sunId)!;
-        var illum = root.Element("Illumination");
+        XElement illum = root.Element("Illumination");
         if (illum != null)
         {
             PeakIllumination = illum.Element("PeakIllumination")?.Value.GetDouble() ?? 0.0;
@@ -80,7 +81,11 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
 
     public override void Register(IOutputHandler handler) { }
     public override ProgVariableTypes Type => ProgVariableTypes.Error;
-    public override object DatabaseInsert() => null;
+    public override object DatabaseInsert()
+    {
+        return null;
+    }
+
     public override void SetIDFromDatabase(object dbitem) { }
 
     public PerceptionTypes PerceivableTypes => PerceptionTypes.AllVisual;
@@ -93,39 +98,39 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
     public void AddMinutes(int numberOfMinutes) { }
     public void AddMinutes() { MinuteUpdateEvent?.Invoke(this); }
 
-	private double OneMinuteTimeFraction
-	{
-		get
-		{
-			var minutesPerDay = (double)(Moon?.Clock?.HoursPerDay ?? 0) * (Moon?.Clock?.MinutesPerHour ?? 0);
-			return minutesPerDay > 0.0 ? 1.0 / minutesPerDay : 1.0 / 1440.0;
-		}
-	}
+    private double OneMinuteTimeFraction
+    {
+        get
+        {
+            double minutesPerDay = (double)(Moon?.Clock?.HoursPerDay ?? 0) * (Moon?.Clock?.MinutesPerHour ?? 0);
+            return minutesPerDay > 0.0 ? 1.0 / minutesPerDay : 1.0 / 1440.0;
+        }
+    }
 
     protected CelestialMoveDirection CurrentDirection(GeographicCoordinate geography)
     {
-        var dn = CurrentDayNumber;
-        var current = ElevationAngle(dn, geography);
-        var former = ElevationAngle(dn - OneMinuteTimeFraction, geography);
+        double dn = CurrentDayNumber;
+        double current = ElevationAngle(dn, geography);
+        double former = ElevationAngle(dn - OneMinuteTimeFraction, geography);
         return current >= former ? CelestialMoveDirection.Ascending : CelestialMoveDirection.Descending;
     }
 
     private (double RA, double Dec) SunEquatorialCoordinates(double dayNumber)
     {
-        var (sunX, sunY, sunZ) = Sun.PositionVector(dayNumber);
-        var (moonX, moonY, moonZ) = Moon.PositionVector(dayNumber);
+        (double sunX, double sunY, double sunZ) = Sun.PositionVector(dayNumber);
+        (double moonX, double moonY, double moonZ) = Moon.PositionVector(dayNumber);
 
-        var x = sunX - moonX;
-        var y = sunY - moonY;
-        var z = sunZ - moonZ;
-        var radius = Math.Sqrt(x * x + y * y + z * z);
+        double x = sunX - moonX;
+        double y = sunY - moonY;
+        double z = sunZ - moonZ;
+        double radius = Math.Sqrt(x * x + y * y + z * z);
         if (radius < 1.0E-12)
         {
             return (Sun.RightAscension(dayNumber).Modulus(2 * Math.PI), Sun.Declension(dayNumber));
         }
 
-        var ra = Math.Atan2(y, x).Modulus(2 * Math.PI);
-        var dec = Math.Asin(Math.Max(-1.0, Math.Min(1.0, z / radius)));
+        double ra = Math.Atan2(y, x).Modulus(2 * Math.PI);
+        double dec = Math.Asin(Math.Max(-1.0, Math.Min(1.0, z / radius)));
         return (ra, dec);
     }
 
@@ -142,23 +147,30 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
 
     private double ElevationAngle(double dayNumber, GeographicCoordinate geography)
     {
-        var (ra, dec) = SunEquatorialCoordinates(dayNumber);
-        var ha = HourAngle(dayNumber, geography, ra);
+        (double ra, double dec) = SunEquatorialCoordinates(dayNumber);
+        double ha = HourAngle(dayNumber, geography, ra);
         return Math.Asin(Math.Sin(geography.Latitude) * Math.Sin(dec) +
                          Math.Cos(geography.Latitude) * Math.Cos(dec) * Math.Cos(ha));
     }
 
     private double AzimuthAngle(double dayNumber, GeographicCoordinate geography)
     {
-        var (ra, dec) = SunEquatorialCoordinates(dayNumber);
-        var ha = HourAngle(dayNumber, geography, ra);
+        (double ra, double dec) = SunEquatorialCoordinates(dayNumber);
+        double ha = HourAngle(dayNumber, geography, ra);
         return Math.Atan2(Math.Sin(ha),
                           Math.Cos(ha) * Math.Sin(geography.Latitude) -
                           Math.Tan(dec) * Math.Cos(geography.Latitude));
     }
 
-    public double CurrentElevationAngle(GeographicCoordinate geography) => ElevationAngle(CurrentDayNumber, geography);
-    public double CurrentAzimuthAngle(GeographicCoordinate geography, double elevationAngle) => AzimuthAngle(CurrentDayNumber, geography);
+    public double CurrentElevationAngle(GeographicCoordinate geography)
+    {
+        return ElevationAngle(CurrentDayNumber, geography);
+    }
+
+    public double CurrentAzimuthAngle(GeographicCoordinate geography, double elevationAngle)
+    {
+        return AzimuthAngle(CurrentDayNumber, geography);
+    }
 
     private double LightLevelParameterU(double elevationAngle)
     {
@@ -167,10 +179,10 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
 
     private double LightLevelParameterL(double elevationAngle)
     {
-        var u = LightLevelParameterU(elevationAngle);
-        var erfU = NumberUtilities.Erfc(u);
-        var exp = Math.Exp(Math.Pow(u, 2));
-        var expTerm = exp * erfU;
+        double u = LightLevelParameterU(elevationAngle);
+        double erfU = NumberUtilities.Erfc(u);
+        double exp = Math.Exp(Math.Pow(u, 2));
+        double expTerm = exp * erfU;
         return Math.Sqrt(Math.PI * AtmosphericDensityScalingFactor * PlanetaryRadius * 0.5) *
                (elevationAngle > 0
                        ? expTerm
@@ -191,56 +203,56 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
 
     private double LightLevelParameterE1(double elevationAngle)
     {
-        var L = LightLevelParameterL(elevationAngle);
-        var result = elevationAngle > 0 ? PeakIllumination * Math.Exp(-1 * AlphaScatteringConstant * L) : 0;
+        double L = LightLevelParameterL(elevationAngle);
+        double result = elevationAngle > 0 ? PeakIllumination * Math.Exp(-1 * AlphaScatteringConstant * L) : 0;
         return !double.IsNaN(result) ? result : 0.0;
     }
 
     private double LightLevelParameterE2(double elevationAngle)
     {
-        var u = LightLevelParameterU(elevationAngle);
-        var L = LightLevelParameterL(elevationAngle);
-        var RhoH = LightLevelParameterRhoH(elevationAngle);
+        double u = LightLevelParameterU(elevationAngle);
+        double L = LightLevelParameterL(elevationAngle);
+        double RhoH = LightLevelParameterRhoH(elevationAngle);
 
-        var factor1 = 1 -
+        double factor1 = 1 -
                       Math.Exp(-1 * AlphaScatteringConstant * L -
                                1.75 * (AlphaScatteringConstant - BetaScatteringConstant) *
                                AtmosphericDensityScalingFactor * RhoH);
-        var factor2 = BetaScatteringConstant / AlphaScatteringConstant * RhoH;
-        var factor3 = AtmosphericDensityScalingFactor /
+        double factor2 = BetaScatteringConstant / AlphaScatteringConstant * RhoH;
+        double factor3 = AtmosphericDensityScalingFactor /
                       (L -
                        1.75 * (AlphaScatteringConstant / BetaScatteringConstant - 1) * AtmosphericDensityScalingFactor * RhoH);
-        var factor4 = 0.44 *
+        double factor4 = 0.44 *
                       Math.Exp(-1.75 *
                                ((AlphaScatteringConstant - BetaScatteringConstant) * AtmosphericDensityScalingFactor));
 
-        var result = PeakIllumination * factor1 * factor2 * factor3 * factor4;
+        double result = PeakIllumination * factor1 * factor2 * factor3 * factor4;
         return !double.IsNaN(result) ? result : 0.0;
     }
 
     public double CurrentIllumination(GeographicCoordinate geography)
     {
-        var angle = CurrentElevationAngle(geography);
+        double angle = CurrentElevationAngle(geography);
         if (double.IsNaN(angle))
         {
             return PeakIllumination;
         }
 
-        var E1 = LightLevelParameterE1(angle);
-        var E2 = LightLevelParameterE2(angle);
+        double E1 = LightLevelParameterE1(angle);
+        double E2 = LightLevelParameterE2(angle);
         return E1 + E2;
     }
 
     public CelestialInformation CurrentPosition(GeographicCoordinate geography)
     {
-        var elevationAngle = CurrentElevationAngle(geography);
-        var azimuth = CurrentAzimuthAngle(geography, elevationAngle);
+        double elevationAngle = CurrentElevationAngle(geography);
+        double azimuth = CurrentAzimuthAngle(geography, elevationAngle);
         return new CelestialInformation(this, azimuth, elevationAngle, CurrentDirection(geography));
     }
 
     public CelestialInformation ReturnNewCelestialInformation(ILocation location, CelestialInformation celestialStatus, GeographicCoordinate coordinate)
     {
-        var newStatus = CurrentPosition(coordinate);
+        CelestialInformation newStatus = CurrentPosition(coordinate);
         if (celestialStatus == null)
         {
             newStatus.Direction = CelestialMoveDirection.Ascending;
@@ -273,8 +285,8 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
 
     public void EchoTriggerToZone(CelestialTrigger trigger, ILocation location)
     {
-        var echo = $"{trigger.Echo.Fullstop().SubstituteANSIColour().ProperSentences()}";
-        foreach (var ch in location.Characters)
+        string echo = $"{trigger.Echo.Fullstop().SubstituteANSIColour().ProperSentences()}";
+        foreach (ICharacter ch in location.Characters)
         {
             if (!ch.CanSee(this))
             {
@@ -291,13 +303,16 @@ public class SunFromPlanetaryMoon : PerceivedItem, ICelestialObject
         }
     }
 
-    public string Describe(CelestialInformation info) => $"{Name} is visible in the sky.";
+    public string Describe(CelestialInformation info)
+    {
+        return $"{Name} is visible in the sky.";
+    }
 
     public bool CelestialAngleIsUsedToDetermineTimeOfDay => true;
 
     public TimeOfDay CurrentTimeOfDay(GeographicCoordinate geography)
     {
-        var position = CurrentPosition(geography);
+        CelestialInformation position = CurrentPosition(geography);
         if (position == null)
         {
             return TimeOfDay.Night;

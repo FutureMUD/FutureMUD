@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.Combat.ScatterStrategies;
 
@@ -27,23 +27,23 @@ internal static class ScatterStrategyUtilities
             return Array.Empty<CellScatterInfo>();
         }
 
-        var cells = originalTarget.CellsAndDistancesInVicinity(range, respectDoors, false).ToList();
+        List<(ICell Cell, int Distance)> cells = originalTarget.CellsAndDistancesInVicinity(range, respectDoors, false).ToList();
         if (cells.Count == 0)
         {
             return Array.Empty<CellScatterInfo>();
         }
 
-        var result = new List<CellScatterInfo>(cells.Count);
-        foreach (var (cell, distance) in cells)
+        List<CellScatterInfo> result = new(cells.Count);
+        foreach ((ICell cell, int distance) in cells)
         {
-            var direction = CardinalDirection.Unknown;
+            CardinalDirection direction = CardinalDirection.Unknown;
             if (distance > 0)
             {
-                var dummy = new DummyPerceiver(location: cell)
+                DummyPerceiver dummy = new(location: cell)
                 {
                     RoomLayer = originalTarget.RoomLayer
                 };
-                var pathToCell = originalTarget
+                List<ICellExit> pathToCell = originalTarget
                         .PathBetween(dummy, (uint)(distance + 1), false, false, true)
                         .ToList();
                 if (pathToCell.Count > 0)

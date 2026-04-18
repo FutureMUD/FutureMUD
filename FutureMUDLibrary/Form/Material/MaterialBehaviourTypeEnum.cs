@@ -1,5 +1,7 @@
-﻿namespace MudSharp.Form.Material {
-    public enum MaterialBehaviourType {
+﻿namespace MudSharp.Form.Material
+{
+    public enum MaterialBehaviourType
+    {
         Metal = 0,
         Stone = 1,
         Wood = 2,
@@ -7,7 +9,7 @@
         Paste = 4,
         Grease = 5,
         Flesh = 6,
-        Muscle = 7, 
+        Muscle = 7,
         Bone = 8,
         Shell = 9,
         Mana = 10,

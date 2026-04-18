@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace MudSharp.Magic
 {

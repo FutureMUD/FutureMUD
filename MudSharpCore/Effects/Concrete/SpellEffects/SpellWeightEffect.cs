@@ -1,9 +1,9 @@
-using System;
-using System.Xml.Linq;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Framework.Units;
 using MudSharp.FutureProg;
+using System;
+using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -21,7 +21,7 @@ public class SpellWeightEffect : MagicSpellEffectBase, IEffectAddsWeight
 
     protected SpellWeightEffect(XElement root, IPerceivable owner) : base(root, owner)
     {
-        var tr = root.Element("Effect");
+        XElement tr = root.Element("Effect");
         AddedWeight = double.Parse(tr.Element("Weight").Value);
     }
 

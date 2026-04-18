@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MudSharp.Celestial;
 using MudSharp.Construction;
 using MudSharp.FutureProg.Variables;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Celestials;
 
@@ -21,7 +21,7 @@ internal class MoonPhaseFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        var obj = ParameterFunctions.First().Result?.GetObject;
+        object obj = ParameterFunctions.First().Result?.GetObject;
         IZone? zone = obj as IZone;
         if (zone == null && obj is ICell cell)
         {
@@ -34,7 +34,7 @@ internal class MoonPhaseFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        var moon = zone.Celestials.OfType<PlanetaryMoon>().FirstOrDefault();
+        PlanetaryMoon moon = zone.Celestials.OfType<PlanetaryMoon>().FirstOrDefault();
         if (moon == null)
         {
             Result = new TextVariable(string.Empty);

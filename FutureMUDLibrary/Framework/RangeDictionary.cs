@@ -33,8 +33,8 @@ namespace MudSharp.Framework
 
         public bool Remove(ValueRange key)
         {
-            var index = -1;
-            for (var i = 0; i < _ranges.Length; i++)
+            int index = -1;
+            for (int i = 0; i < _ranges.Length; i++)
             {
                 if (_ranges[i].Equals(key))
                 {
@@ -56,7 +56,7 @@ namespace MudSharp.Framework
 
         public bool TryGetValue(ValueRange key, out T value)
         {
-            for (var i = 0; i < _ranges.Length; i++)
+            for (int i = 0; i < _ranges.Length; i++)
             {
                 if (_ranges[i].Equals(key))
                 {
@@ -69,9 +69,11 @@ namespace MudSharp.Framework
             return false;
         }
 
-        public T this[ValueRange key] {
-            get {
-                for (var i = 0; i < _ranges.Length; i++)
+        public T this[ValueRange key]
+        {
+            get
+            {
+                for (int i = 0; i < _ranges.Length; i++)
                 {
                     if (_ranges[i].Equals(key))
                     {
@@ -81,8 +83,9 @@ namespace MudSharp.Framework
 
                 throw new KeyNotFoundException("No such ValueRange");
             }
-            set {
-                for (var i = 0; i < _ranges.Length; i++)
+            set
+            {
+                for (int i = 0; i < _ranges.Length; i++)
                 {
                     if (_ranges[i].Equals(key))
                     {
@@ -134,7 +137,7 @@ namespace MudSharp.Framework
                 throw new ArgumentException("The destination array is too small.", nameof(array));
             }
 
-            for (var i = 0; i < _ranges.Length; i++)
+            for (int i = 0; i < _ranges.Length; i++)
             {
                 array[arrayIndex + i] = new KeyValuePair<ValueRange, T>(_ranges[i], _values[i]);
             }
@@ -142,8 +145,8 @@ namespace MudSharp.Framework
 
         public bool Remove(KeyValuePair<ValueRange, T> item)
         {
-            var index = -1;
-            for (var i = 0; i < _ranges.Length; i++)
+            int index = -1;
+            for (int i = 0; i < _ranges.Length; i++)
             {
                 if (_ranges[i].Equals(item.Key) && _values[i].Equals(item.Value))
                 {
@@ -238,9 +241,15 @@ namespace MudSharp.Framework
             }
         }
 
-        IEnumerator<KeyValuePair<ValueRange, T>> IEnumerable<KeyValuePair<ValueRange, T>>.GetEnumerator() => new RangeDictionaryEnumerator(this);
+        IEnumerator<KeyValuePair<ValueRange, T>> IEnumerable<KeyValuePair<ValueRange, T>>.GetEnumerator()
+        {
+            return new RangeDictionaryEnumerator(this);
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => new RangeDictionaryEnumerator(this);
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return new RangeDictionaryEnumerator(this);
+        }
         #endregion
 
         #region IReadOnlyDictionary<double,T> Implementation
@@ -251,8 +260,8 @@ namespace MudSharp.Framework
 
         public bool TryGetValue(double key, out T value)
         {
-            var index = -1;
-            for (var i = 0; i < _ranges.Length; i++)
+            int index = -1;
+            for (int i = 0; i < _ranges.Length; i++)
             {
                 if (_ranges[i].MaximumValue > key && _ranges[i].MinimumValue <= key)
                 {
@@ -271,10 +280,12 @@ namespace MudSharp.Framework
             return true;
         }
 
-        public T this[double key] {
-            get {
-                var index = -1;
-                for (var i = 0; i < _ranges.Length; i++)
+        public T this[double key]
+        {
+            get
+            {
+                int index = -1;
+                for (int i = 0; i < _ranges.Length; i++)
                 {
                     if (_ranges[i].MaximumValue > key && _ranges[i].MinimumValue <= key)
                     {
@@ -298,7 +309,7 @@ namespace MudSharp.Framework
 
         int IReadOnlyCollection<KeyValuePair<double, T>>.Count => _ranges.Length;
 
-        private class RangeDictionaryDoubleEnumerator : IEnumerator<KeyValuePair<double,T>>
+        private class RangeDictionaryDoubleEnumerator : IEnumerator<KeyValuePair<double, T>>
         {
             public RangeDictionaryDoubleEnumerator(RangeDictionary<T> dictionary)
             {

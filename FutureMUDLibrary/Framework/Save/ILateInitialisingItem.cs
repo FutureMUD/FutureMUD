@@ -1,15 +1,18 @@
 ﻿using System;
 
-namespace MudSharp.Framework.Save {
+namespace MudSharp.Framework.Save
+{
     public delegate void LateInitialisingItemDelegate(ILateInitialisingItem item);
 
-    public enum InitialisationPhase {
+    public enum InitialisationPhase
+    {
         First,
         Second,
         AfterFirstDatabaseHit
     }
 
-    public interface ILateInitialisingItem : ISaveable, IFrameworkItem {
+    public interface ILateInitialisingItem : ISaveable, IFrameworkItem
+    {
         bool IdHasBeenRegistered { get; }
         InitialisationPhase InitialisationPhase { get; }
         event LateInitialisingItemDelegate IdRegistered;

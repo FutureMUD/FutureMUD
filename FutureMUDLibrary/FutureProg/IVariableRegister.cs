@@ -1,12 +1,14 @@
-﻿using System;
+﻿using MudSharp.Framework.Save;
+using System;
 using System.Collections.Generic;
-using MudSharp.Framework.Save;
 
-namespace MudSharp.FutureProg {
+namespace MudSharp.FutureProg
+{
     /// <summary>
     ///     The Variable Register tracks persistent prog variables for types and type instances
     /// </summary>
-    public interface IVariableRegister : ISaveable {
+    public interface IVariableRegister : ISaveable
+    {
         IProgVariable GetValue(IProgVariable item, string variable);
         IProgVariable GetDefaultValue(ProgVariableTypes type, string variable);
         bool SetValue(IProgVariable item, string variable, IProgVariable value);

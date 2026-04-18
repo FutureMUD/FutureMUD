@@ -1,15 +1,16 @@
-﻿using System;
+﻿using MudSharp.Character;
+using MudSharp.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Character;
-using MudSharp.Framework;
 
 namespace MudSharp.PerceptionEngine
 {
     [Flags]
-    public enum OutputFlags {
+    public enum OutputFlags
+    {
         /// <summary>
         ///     No OutputFlags, handle as per default case
         /// </summary>
@@ -69,7 +70,8 @@ namespace MudSharp.PerceptionEngine
         PurelyVisual = 1 << 11
     }
 
-    public enum OutputRange {
+    public enum OutputRange
+    {
         /// <summary>
         ///     Just this Perceiver.
         /// </summary>
@@ -111,13 +113,15 @@ namespace MudSharp.PerceptionEngine
         Game
     }
 
-    public enum OutputVisibility {
+    public enum OutputVisibility
+    {
         Normal,
         OOC,
         Guest
     }
 
-    public enum OutputStyle {
+    public enum OutputStyle
+    {
         Normal,
         Important,
         AdminImportant,

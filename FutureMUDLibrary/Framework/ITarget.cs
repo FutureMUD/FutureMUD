@@ -2,13 +2,15 @@
 using MudSharp.Character;
 using MudSharp.Construction.Boundary;
 using MudSharp.GameItems;
-using System.Collections.Generic;
 using MudSharp.GameItems.Interfaces;
+using System.Collections.Generic;
 
 #nullable enable
 
-namespace MudSharp.Framework {
-    public interface ITarget {
+namespace MudSharp.Framework
+{
+    public interface ITarget
+    {
         /// <summary>
         ///     Searches for an returns the first IPerceivable it can find.
         /// </summary>

@@ -1,9 +1,9 @@
-using System.Xml.Linq;
-using MudSharp.Models;
-using MudSharp.Framework;
-using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Character;
+using MudSharp.Framework;
+using MudSharp.Models;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.RPG.Merits.Interfaces;
+using System.Xml.Linq;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 
@@ -11,7 +11,7 @@ public class ScatterChanceMerit : CharacterMeritBase, IScatterChanceMerit
 {
     protected ScatterChanceMerit(Merit merit, IFuturemud gameworld) : base(merit, gameworld)
     {
-        var definition = XElement.Parse(merit.Definition);
+        XElement definition = XElement.Parse(merit.Definition);
         ScatterMultiplier = double.Parse(definition.Element("Multiplier")?.Value ?? "1.0");
     }
 
@@ -64,7 +64,7 @@ public class ScatterChanceMerit : CharacterMeritBase, IScatterChanceMerit
             return false;
         }
 
-        if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+        if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out double value))
         {
             actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
             return false;

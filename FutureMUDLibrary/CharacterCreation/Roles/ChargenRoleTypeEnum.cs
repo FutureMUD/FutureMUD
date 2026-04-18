@@ -1,5 +1,7 @@
-﻿namespace MudSharp.CharacterCreation.Roles {
-    public enum ChargenRoleType {
+﻿namespace MudSharp.CharacterCreation.Roles
+{
+    public enum ChargenRoleType
+    {
         /// <summary>
         ///     The ChargenRole is a Class selection. Will appear in SCORE
         /// </summary>

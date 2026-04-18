@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body.Traits;
+﻿using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -7,6 +6,7 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.RPG.Checks;
+using System.Collections.Generic;
 
 namespace MudSharp.Work.Butchering
 {
@@ -23,7 +23,7 @@ namespace MudSharp.Work.Butchering
         /// The verb used to interact with this race, e.g. butcher vs salvage
         /// </summary>
         ButcheryVerb Verb { get; }
-        
+
         /// <summary>
         /// If specified, a tool tag required to be held to complete the process
         /// </summary>
@@ -44,7 +44,7 @@ namespace MudSharp.Work.Butchering
         /// <summary>
         /// The emotes and delays between each phase of skinning
         /// </summary>
-        IEnumerable<(string Emote,double Delay)> SkinEmotes { get; }
+        IEnumerable<(string Emote, double Delay)> SkinEmotes { get; }
 
         /// <summary>
         /// The emotes and delays between each phase of breakdown

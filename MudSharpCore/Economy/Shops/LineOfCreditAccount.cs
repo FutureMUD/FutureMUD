@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
+﻿using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Primitives;
 using MudSharp.Character;
 using MudSharp.Character.Name;
@@ -11,6 +6,11 @@ using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
 
 namespace MudSharp.Economy.Shops;
 
@@ -28,7 +28,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
         IsSuspended = false;
         using (new FMDB())
         {
-            var dbitem = new Models.LineOfCreditAccount
+            Models.LineOfCreditAccount dbitem = new()
             {
                 AccountName = accountName,
                 AccountOwnerId = accountOwner.Id,
@@ -68,7 +68,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
         _outstandingBalance = account.OutstandingBalance;
         _isSuspended = account.IsSuspended;
 
-        foreach (var item in account.AccountUsers)
+        foreach (Models.LineOfCreditAccountUser item in account.AccountUsers)
         {
             _accountUsers.Add(new LineOfCreditAccountUser
             {
@@ -89,14 +89,14 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
 
     public override void Save()
     {
-        var dbitem = FMDB.Context.LineOfCreditAccounts.Find(Id);
+        Models.LineOfCreditAccount dbitem = FMDB.Context.LineOfCreditAccounts.Find(Id);
         dbitem.AccountName = AccountName;
         dbitem.AccountOwnerId = AccountOwnerId;
         dbitem.IsSuspended = IsSuspended;
         dbitem.AccountLimit = AccountLimit;
         dbitem.OutstandingBalance = OutstandingBalance;
         FMDB.Context.LineOfCreditAccountUsers.RemoveRange(dbitem.AccountUsers);
-        foreach (var user in _accountUsers)
+        foreach (LineOfCreditAccountUser user in _accountUsers)
         {
             dbitem.AccountUsers.Add(new Models.LineOfCreditAccountUser
             {
@@ -261,7 +261,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
 
     public string Show(ICharacter actor)
     {
-        var sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine($"Line of Credit Account {AccountName.ColourName()} for {_shop.Name.TitleCase().ColourName()}");
         sb.AppendLine($"Owner: {AccountOwnerName.GetName(NameStyle.FullName).ColourName()}");
         sb.AppendLine(
@@ -271,7 +271,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
         sb.AppendLine($"Suspended: {IsSuspended.ToColouredString()}");
         sb.AppendLine();
         sb.AppendLine("Authorised Account Users:");
-        foreach (var user in _accountUsers)
+        foreach (LineOfCreditAccountUser user in _accountUsers)
         {
             sb.AppendLine(
                 $"\t{user.PersonalName.GetName(NameStyle.FullName).ColourName()}{(!user.SpendingLimit.HasValue ? " [no limit]".ColourValue() : $" [{Currency.Describe(user.SpendingLimit.Value, CurrencyDescriptionPatternType.ShortDecimal)}]".ColourValue())}");

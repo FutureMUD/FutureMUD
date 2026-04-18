@@ -1,115 +1,115 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine.Parsers;
+using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.Manipulation;
 
 internal class WieldFunction : BuiltInFunction
 {
-	internal WieldFunction(IList<IFunction> parameters, bool silent)
-		: base(parameters)
-	{
-		Silent = silent;
-	}
+    internal WieldFunction(IList<IFunction> parameters, bool silent)
+        : base(parameters)
+    {
+        Silent = silent;
+    }
 
-	public bool Silent { get; set; }
+    public bool Silent { get; set; }
 
-	public override ProgVariableTypes ReturnType
-	{
-		get => ProgVariableTypes.Boolean;
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Boolean;
+        protected set { }
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		var wielder = (ICharacter)ParameterFunctions[0].Result;
-		if (wielder == null)
-		{
-			ErrorMessage = "Wielder Character was null in Wield function.";
-			return StatementResult.Error;
-		}
+        ICharacter wielder = (ICharacter)ParameterFunctions[0].Result;
+        if (wielder == null)
+        {
+            ErrorMessage = "Wielder Character was null in Wield function.";
+            return StatementResult.Error;
+        }
 
-		var target = (IGameItem)ParameterFunctions[1].Result;
-		if (target == null)
-		{
-			ErrorMessage = "Target GameItem was null in Wield function.";
-			return StatementResult.Error;
-		}
+        IGameItem target = (IGameItem)ParameterFunctions[1].Result;
+        if (target == null)
+        {
+            ErrorMessage = "Target GameItem was null in Wield function.";
+            return StatementResult.Error;
+        }
 
-		PlayerEmote emote = null;
-		if (!Silent && !string.IsNullOrEmpty(ParameterFunctions[3].Result.GetObject?.ToString()))
-		{
-			emote = new PlayerEmote(ParameterFunctions[3].Result.GetObject.ToString(), wielder);
-			if (!emote.Valid)
-			{
-				emote = null;
-			}
-		}
+        PlayerEmote emote = null;
+        if (!Silent && !string.IsNullOrEmpty(ParameterFunctions[3].Result.GetObject?.ToString()))
+        {
+            emote = new PlayerEmote(ParameterFunctions[3].Result.GetObject.ToString(), wielder);
+            if (!emote.Valid)
+            {
+                emote = null;
+            }
+        }
 
-		if (wielder.Body.CanWield(target))
-		{
-			var holdable = target.GetItemType<IHoldable>();
-			if (holdable?.HeldBy != null && holdable.HeldBy != wielder.Body)
-			{
-				holdable.HeldBy.Take(target);
-			}
-			else
-			{
-				var containedInContainer = target.ContainedIn?.GetItemType<IContainer>();
-				containedInContainer?.Take(null, target, 0);
-			}
+        if (wielder.Body.CanWield(target))
+        {
+            IHoldable holdable = target.GetItemType<IHoldable>();
+            if (holdable?.HeldBy != null && holdable.HeldBy != wielder.Body)
+            {
+                holdable.HeldBy.Take(target);
+            }
+            else
+            {
+                IContainer containedInContainer = target.ContainedIn?.GetItemType<IContainer>();
+                containedInContainer?.Take(null, target, 0);
+            }
 
-			target.Location?.Extract(target);
-			wielder.Body.Wield(target, emote, Silent);
-			Result = new BooleanVariable(true);
-		}
-		else
-		{
-			Result = new BooleanVariable(false);
-		}
+            target.Location?.Extract(target);
+            wielder.Body.Wield(target, emote, Silent);
+            Result = new BooleanVariable(true);
+        }
+        else
+        {
+            Result = new BooleanVariable(false);
+        }
 
-		return StatementResult.Normal;
-	}
+        return StatementResult.Normal;
+    }
 
-	public static void RegisterFunctionCompiler()
-	{
-                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-                        "wield",
-                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
-                        (pars, gameworld) => new WieldFunction(pars, false),
-                        new[] { "who", "item", "emote" },
-                        new[]
-                        {
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                "wield",
+                new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
+                (pars, gameworld) => new WieldFunction(pars, false),
+                new[] { "who", "item", "emote" },
+                new[]
+                {
                                 "The character wielding the item",
                                 "The item to be wielded",
                                 "An optional emote to accompany the action"
-                        },
-                        "Has a character wield an item. Returns true if successful.",
-                        "Manipulation",
-                        ProgVariableTypes.Boolean
-                ));
+                },
+                "Has a character wield an item. Returns true if successful.",
+                "Manipulation",
+                ProgVariableTypes.Boolean
+        ));
 
-                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-                        "silentwield",
-                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
-                        (pars, gameworld) => new WieldFunction(pars, true),
-                        new[] { "who", "item" },
-                        new[]
-                        {
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                "silentwield",
+                new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
+                (pars, gameworld) => new WieldFunction(pars, true),
+                new[] { "who", "item" },
+                new[]
+                {
                                 "The character wielding the item",
                                 "The item to be wielded"
-                        },
-                        "Has a character wield an item with no associated emote.",
-                        "Manipulation",
-                        ProgVariableTypes.Boolean
-                ));
-        }
+                },
+                "Has a character wield an item with no associated emote.",
+                "Manipulation",
+                ProgVariableTypes.Boolean
+        ));
+    }
 }

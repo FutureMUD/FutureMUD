@@ -1,19 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Health;
 using MudSharp.PerceptionEngine;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
 
-namespace MudSharp.Accounts {
-    public enum AccountStatus {
+namespace MudSharp.Accounts
+{
+    public enum AccountStatus
+    {
         Normal = 0,
         Suspended
     }
-    
+
     public enum CharacterStatus
     {
         Creating = 0,
@@ -24,9 +26,12 @@ namespace MudSharp.Accounts {
         Retired = 5
     }
 
-    public static class AccountExtensions {
-        public static string Describe(this CharacterStatus status) {
-            switch (status) {
+    public static class AccountExtensions
+    {
+        public static string Describe(this CharacterStatus status)
+        {
+            switch (status)
+            {
                 case CharacterStatus.Active:
                     return "Active";
                 case CharacterStatus.Creating:
@@ -45,7 +50,8 @@ namespace MudSharp.Accounts {
         }
     }
 
-    public enum ApprovalRisk {
+    public enum ApprovalRisk
+    {
         None = 0,
         Low = 1,
         Medium = 2,
@@ -54,7 +60,8 @@ namespace MudSharp.Accounts {
         Ridiculous = 8
     }
 
-    public enum ApprovalLevel {
+    public enum ApprovalLevel
+    {
         None = 0,
         Newbie = 1,
         Player = 2,
@@ -62,7 +69,8 @@ namespace MudSharp.Accounts {
         SeniorAdminCharacter = 4
     }
 
-    public enum PermissionLevel {
+    public enum PermissionLevel
+    {
         Any = -1,
         Guest = 0,
         NPC = 1,
@@ -77,7 +85,8 @@ namespace MudSharp.Accounts {
     }
 
     [Flags]
-    public enum Permissions {
+    public enum Permissions
+    {
         None = 0x0,
         Read = 0x1,
         Write = 0x2,
@@ -94,7 +103,8 @@ namespace MudSharp.Accounts {
         Replace = 2
     }
 
-    public interface IHaveAccount {
+    public interface IHaveAccount
+    {
         IAccount Account { get; set; }
     }
 

@@ -1,5 +1,5 @@
-﻿using System;
-using MudSharp.Character;
+﻿using MudSharp.Character;
+using System;
 
 namespace MudSharp.Discord
 {

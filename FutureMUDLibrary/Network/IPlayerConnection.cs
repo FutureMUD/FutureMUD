@@ -1,11 +1,12 @@
-﻿using System;
+﻿using MudSharp.Framework;
+using System;
 using System.Net.Sockets;
-using MudSharp.Framework;
 
 namespace MudSharp.Network
 {
-    
-    public enum ConnectionState {
+
+    public enum ConnectionState
+    {
         Open,
         Closing,
         Closed

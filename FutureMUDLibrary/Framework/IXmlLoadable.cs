@@ -1,7 +1,9 @@
 ﻿using System.Xml.Linq;
 
-namespace MudSharp.Framework {
-    public interface IXmlLoadable {
+namespace MudSharp.Framework
+{
+    public interface IXmlLoadable
+    {
         /// <summary>
         ///     This function causes the object to be loaded from a specified XML filepath
         /// </summary>

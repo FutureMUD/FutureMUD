@@ -1,9 +1,11 @@
-﻿using System;
-using MudSharp.Form.Material;
+﻿using MudSharp.Form.Material;
 using MudSharp.Framework;
+using System;
 
-namespace MudSharp.Effects.Interfaces {
-    public interface ICleanableEffect : IEffectSubtype {
+namespace MudSharp.Effects.Interfaces
+{
+    public interface ICleanableEffect : IEffectSubtype
+    {
         TimeSpan BaseCleanTime { get; }
         ITag CleaningToolTag { get; }
         ILiquid LiquidRequired { get; }

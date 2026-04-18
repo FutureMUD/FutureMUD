@@ -5,9 +5,9 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PlaceholderTests
 {
-	[TestMethod]
-	[Ignore("Placeholder scaffold until direct DiscordBotCore tests are added.")]
-	public void Placeholder()
-	{
-	}
+    [TestMethod]
+    [Ignore("Placeholder scaffold until direct DiscordBotCore tests are added.")]
+    public void Placeholder()
+    {
+    }
 }

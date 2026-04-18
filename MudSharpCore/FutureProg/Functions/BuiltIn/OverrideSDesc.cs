@@ -23,7 +23,7 @@ internal class OverrideSDesc : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(
             new FunctionCompilerInformation(
                 "OverrideSDesc".ToLowerInvariant(),
-                new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text}, // the parameters the function takes
+                new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text }, // the parameters the function takes
                 (pars, gameworld) => new OverrideSDesc(pars, gameworld),
                 new List<string> {
                     "Perceivable",
@@ -59,7 +59,7 @@ internal class OverrideSDesc : BuiltInFunction
                     "The time that this effect will apply for. If null, applies forever"
                 }, // parameter help text
                 "This function adds an override to the target's short description, which applies to all perceivers. Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
-				"Perception", // the category to which this function belongs,
+                "Perception", // the category to which this function belongs,
                 ProgVariableTypes.Boolean // the return type of the function
             )
         );
@@ -83,66 +83,66 @@ internal class OverrideSDesc : BuiltInFunction
                     "The time that this effect will apply for. If null, applies forever",
                     "If specified, the description is only overriden for this perceiver. If null, applies to everyone"
                 }, // parameter help text
-				"This function adds an override to the target's short description, which applies to the specified perceiver only (or all perceivers if null). Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
-				"Perception", // the category to which this function belongs,
+                "This function adds an override to the target's short description, which applies to the specified perceiver only (or all perceivers if null). Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
+                "Perception", // the category to which this function belongs,
                 ProgVariableTypes.Boolean // the return type of the function
             )
         );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"OverrideSDesc".ToLowerInvariant(),
-				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.TimeSpan, ProgVariableTypes.Perceiver, ProgVariableTypes.Text }, // the parameters the function takes
-				(pars, gameworld) => new OverrideSDesc(pars, gameworld),
-				new List<string> {
-					"Perceivable",
-					"Tag",
-					"Description",
-					"Time",
-					"Perceiver",
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "OverrideSDesc".ToLowerInvariant(),
+                new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.TimeSpan, ProgVariableTypes.Perceiver, ProgVariableTypes.Text }, // the parameters the function takes
+                (pars, gameworld) => new OverrideSDesc(pars, gameworld),
+                new List<string> {
+                    "Perceivable",
+                    "Tag",
+                    "Description",
+                    "Time",
+                    "Perceiver",
                     "Prog"
-				}, // parameter names
-				new List<string> {
-					"The perceivable who's description is being altered",
-					"A short bit of text identifying this specific effect and allowing you to remove it later",
-					"The overriden description for this perceivable. Can include description markups",
-					"The time that this effect will apply for. If null, applies forever",
-					"If specified, the description is only overriden for this perceiver. If null, applies to everyone",
+                }, // parameter names
+                new List<string> {
+                    "The perceivable who's description is being altered",
+                    "A short bit of text identifying this specific effect and allowing you to remove it later",
+                    "The overriden description for this perceivable. Can include description markups",
+                    "The time that this effect will apply for. If null, applies forever",
+                    "If specified, the description is only overriden for this perceiver. If null, applies to everyone",
                     "A prog taking a perceivable and perceiver input (or just a single perceivable) and returning boolean that controls whether this applies"
-				}, // parameter help text
-				"This function adds an override to the target's short description, which applies to the specified perceiver only (or all perceivers if null) and only when the filter prog applies. Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
-				"Perception", // the category to which this function belongs,
-				ProgVariableTypes.Boolean // the return type of the function
-			)
-		);
+                }, // parameter help text
+                "This function adds an override to the target's short description, which applies to the specified perceiver only (or all perceivers if null) and only when the filter prog applies. Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
+                "Perception", // the category to which this function belongs,
+                ProgVariableTypes.Boolean // the return type of the function
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"OverrideSDesc".ToLowerInvariant(),
-				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.TimeSpan, ProgVariableTypes.Perceiver, ProgVariableTypes.Number }, // the parameters the function takes
-				(pars, gameworld) => new OverrideSDesc(pars, gameworld),
-				new List<string> {
-					"Perceivable",
-					"Tag",
-					"Description",
-					"Time",
-					"Perceiver",
-					"Prog"
-				}, // parameter names
-				new List<string> {
-					"The perceivable who's description is being altered",
-					"A short bit of text identifying this specific effect and allowing you to remove it later",
-					"The overriden description for this perceivable. Can include description markups",
-					"The time that this effect will apply for. If null, applies forever",
-					"If specified, the description is only overriden for this perceiver. If null, applies to everyone",
-					"A prog taking a perceivable and perceiver input (or just a single perceivable) and returning boolean that controls whether this applies"
-				}, // parameter help text
-				"This function adds an override to the target's short description, which applies to the specified perceiver only (or all perceivers if null) and only when the filter prog applies. Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
-				"Perception", // the category to which this function belongs,
-				ProgVariableTypes.Boolean // the return type of the function
-			)
-		);
-	}
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "OverrideSDesc".ToLowerInvariant(),
+                new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.TimeSpan, ProgVariableTypes.Perceiver, ProgVariableTypes.Number }, // the parameters the function takes
+                (pars, gameworld) => new OverrideSDesc(pars, gameworld),
+                new List<string> {
+                    "Perceivable",
+                    "Tag",
+                    "Description",
+                    "Time",
+                    "Perceiver",
+                    "Prog"
+                }, // parameter names
+                new List<string> {
+                    "The perceivable who's description is being altered",
+                    "A short bit of text identifying this specific effect and allowing you to remove it later",
+                    "The overriden description for this perceivable. Can include description markups",
+                    "The time that this effect will apply for. If null, applies forever",
+                    "If specified, the description is only overriden for this perceiver. If null, applies to everyone",
+                    "A prog taking a perceivable and perceiver input (or just a single perceivable) and returning boolean that controls whether this applies"
+                }, // parameter help text
+                "This function adds an override to the target's short description, which applies to the specified perceiver only (or all perceivers if null) and only when the filter prog applies. Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
+                "Perception", // the category to which this function belongs,
+                ProgVariableTypes.Boolean // the return type of the function
+            )
+        );
+    }
     #endregion
 
     #region Constructors
@@ -154,7 +154,7 @@ internal class OverrideSDesc : BuiltInFunction
 
     public override ProgVariableTypes ReturnType
     {
-        get { return ProgVariableTypes.Boolean; }
+        get => ProgVariableTypes.Boolean;
         protected set { }
     }
 
@@ -165,29 +165,29 @@ internal class OverrideSDesc : BuiltInFunction
             return StatementResult.Error;
         }
 
-        var perceivable = ParameterFunctions[0].Result?.GetObject as IPerceivable;
+        IPerceivable perceivable = ParameterFunctions[0].Result?.GetObject as IPerceivable;
         if (perceivable is null)
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;
         }
 
-		var tag = ParameterFunctions[1].Result?.GetObject as string;
-		if (string.IsNullOrEmpty(tag))
-		{
-			Result = new BooleanVariable(false);
-			return StatementResult.Normal;
-		}
+        string tag = ParameterFunctions[1].Result?.GetObject as string;
+        if (string.IsNullOrEmpty(tag))
+        {
+            Result = new BooleanVariable(false);
+            return StatementResult.Normal;
+        }
 
-		var text = ParameterFunctions[2].Result?.GetObject as string;
+        string text = ParameterFunctions[2].Result?.GetObject as string;
         if (string.IsNullOrEmpty(text))
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;
         }
 
-        var timespan = ParameterFunctions.Count > 3 ? ParameterFunctions[3].Result?.GetObject as TimeSpan? : null;
-        var perceiver = (ParameterFunctions.Count > 4 ? ParameterFunctions[4].Result?.GetObject : null) as IPerceiver;
+        TimeSpan? timespan = ParameterFunctions.Count > 3 ? ParameterFunctions[3].Result?.GetObject as TimeSpan? : null;
+        IPerceiver perceiver = (ParameterFunctions.Count > 4 ? ParameterFunctions[4].Result?.GetObject : null) as IPerceiver;
         IFutureProg prog = null;
         if (ParameterFunctions.Count > 5)
         {
@@ -214,7 +214,7 @@ internal class OverrideSDesc : BuiltInFunction
             }
         }
 
-        var effect = new OverrideSDescFromProg(perceivable, text, tag, perceiver, prog);
+        OverrideSDescFromProg effect = new(perceivable, text, tag, perceiver, prog);
         perceivable.RemoveAllEffects<OverrideSDescFromProg>(x => x.Tag.EqualTo(tag), true);
         if (timespan is not null)
         {

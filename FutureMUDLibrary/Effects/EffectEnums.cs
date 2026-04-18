@@ -1,7 +1,9 @@
 ﻿using System;
 
-namespace MudSharp.Effects {
-    public enum EffectMergeResponse {
+namespace MudSharp.Effects
+{
+    public enum EffectMergeResponse
+    {
         /// <summary>
         ///     This effect is not affected in any way by the new effect
         /// </summary>
@@ -23,7 +25,8 @@ namespace MudSharp.Effects {
         AddDuration
     }
 
-    public enum EffectMergePriority {
+    public enum EffectMergePriority
+    {
         Least,
         Low,
         Medium,
@@ -33,7 +36,8 @@ namespace MudSharp.Effects {
 
     // Todo - this should perhaps belong somewhere else
     [Flags]
-    public enum PerceptionTypes : long {
+    public enum PerceptionTypes : long
+    {
         None = 0,
         VisualRadio = 0x01,
         VisualMicrowave = 0x02,

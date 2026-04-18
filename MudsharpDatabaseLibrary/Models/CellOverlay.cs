@@ -25,7 +25,7 @@ namespace MudSharp.Models
         public double AddedLight { get; set; }
         public long? AtmosphereId { get; set; }
         public string AtmosphereType { get; set; }
-        public bool SafeQuit { get;set; }
+        public bool SafeQuit { get; set; }
 
         public virtual Cell Cell { get; set; }
         public virtual CellOverlayPackage CellOverlayPackage { get; set; }

@@ -57,7 +57,7 @@ namespace MudSharp.GameItems.Prototypes
 
         protected override void LoadFromXml(XElement root)
         {
-            var element = root.Element("ForceDifficulty");
+            XElement element = root.Element("ForceDifficulty");
             if (element != null)
             {
                 ForceDifficulty = (Difficulty)int.Parse(element.Value);
@@ -99,7 +99,7 @@ namespace MudSharp.GameItems.Prototypes
                 LockType = element.Value;
             }
 
-            var attr = root.Attribute("Weight");
+            XAttribute attr = root.Attribute("Weight");
             if (attr != null)
             {
                 WeightLimit = double.Parse(attr.Value);
@@ -244,7 +244,7 @@ namespace MudSharp.GameItems.Prototypes
 
         private bool BuildingCommandLocktype(ICharacter actor, StringStack command)
         {
-            var types = Gameworld.ItemProtos.SelectNotNull(x => x.GetItemType<IHaveSimpleLockType>())
+            List<string> types = Gameworld.ItemProtos.SelectNotNull(x => x.GetItemType<IHaveSimpleLockType>())
                                  .Select(x => x.LockType)
                                  .Distinct()
                                  .ToList();
@@ -284,8 +284,8 @@ namespace MudSharp.GameItems.Prototypes
                 return false;
             }
 
-            var emoteText = command.SafeRemainingArgument.Trim();
-            var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable());
+            string emoteText = command.SafeRemainingArgument.Trim();
+            Emote emote = new(emoteText, new DummyPerceiver(), new DummyPerceivable());
             if (!emote.Valid)
             {
                 actor.OutputHandler.Send(emote.ErrorMessage);
@@ -307,8 +307,8 @@ namespace MudSharp.GameItems.Prototypes
                 return false;
             }
 
-            var emoteText = command.SafeRemainingArgument.Trim();
-            var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable());
+            string emoteText = command.SafeRemainingArgument.Trim();
+            Emote emote = new(emoteText, new DummyPerceiver(), new DummyPerceivable());
             if (!emote.Valid)
             {
                 actor.OutputHandler.Send(emote.ErrorMessage);
@@ -330,8 +330,8 @@ namespace MudSharp.GameItems.Prototypes
                 return false;
             }
 
-            var emoteText = command.SafeRemainingArgument.Trim();
-            var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable(),
+            string emoteText = command.SafeRemainingArgument.Trim();
+            Emote emote = new(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable(),
                 new DummyPerceivable());
             if (!emote.Valid)
             {
@@ -353,8 +353,8 @@ namespace MudSharp.GameItems.Prototypes
                 return false;
             }
 
-            var emoteText = command.SafeRemainingArgument.Trim();
-            var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable(),
+            string emoteText = command.SafeRemainingArgument.Trim();
+            Emote emote = new(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable(),
                 new DummyPerceivable());
             if (!emote.Valid)
             {
@@ -370,7 +370,7 @@ namespace MudSharp.GameItems.Prototypes
 
         private bool BuildingCommandForceDifficulty(ICharacter actor, StringStack command)
         {
-            if (!CheckExtensions.GetDifficulty(command.SafeRemainingArgument, out var difficulty))
+            if (!CheckExtensions.GetDifficulty(command.SafeRemainingArgument, out Difficulty difficulty))
             {
                 actor.Send("That is not a valid difficulty.");
                 return false;
@@ -384,7 +384,7 @@ namespace MudSharp.GameItems.Prototypes
 
         private bool BuildingCommandPickDifficulty(ICharacter actor, StringStack command)
         {
-            if (!CheckExtensions.GetDifficulty(command.SafeRemainingArgument, out var difficulty))
+            if (!CheckExtensions.GetDifficulty(command.SafeRemainingArgument, out Difficulty difficulty))
             {
                 actor.Send("That is not a valid difficulty.");
                 return false;
@@ -406,8 +406,8 @@ namespace MudSharp.GameItems.Prototypes
 
         private bool BuildingCommand_WeightLimit(ICharacter actor, StringStack command)
         {
-            var weightCmd = command.SafeRemainingArgument;
-            var result = actor.Gameworld.UnitManager.GetBaseUnits(weightCmd, UnitType.Mass, out var success);
+            string weightCmd = command.SafeRemainingArgument;
+            double result = actor.Gameworld.UnitManager.GetBaseUnits(weightCmd, UnitType.Mass, out bool success);
             if (success)
             {
                 WeightLimit = result;
@@ -422,14 +422,14 @@ namespace MudSharp.GameItems.Prototypes
 
         private bool BuildingCommand_MaxSize(ICharacter actor, StringStack command)
         {
-            var cmd = command.PopSpeech().ToLowerInvariant();
+            string cmd = command.PopSpeech().ToLowerInvariant();
             if (cmd.Length == 0)
             {
                 actor.OutputHandler.Send("What size do you want to set the limit for this component to?");
                 return false;
             }
 
-            var size = Enum.GetValues(typeof(SizeCategory)).OfType<SizeCategory>().ToList();
+            List<SizeCategory> size = Enum.GetValues(typeof(SizeCategory)).OfType<SizeCategory>().ToList();
             SizeCategory target;
             if (size.Any(x => x.Describe().ToLowerInvariant().StartsWith(cmd, StringComparison.Ordinal)))
             {
@@ -451,7 +451,7 @@ namespace MudSharp.GameItems.Prototypes
 
         private bool BuildingCommand_Preposition(ICharacter actor, StringStack command)
         {
-            var preposition = command.PopSpeech().ToLowerInvariant();
+            string preposition = command.PopSpeech().ToLowerInvariant();
             if (string.IsNullOrEmpty(preposition))
             {
                 actor.OutputHandler.Send("What preposition do you want to use for this container?");
@@ -464,11 +464,11 @@ namespace MudSharp.GameItems.Prototypes
                                      "\" it.");
             return true;
         }
-		#endregion
+        #endregion
 
-		public override string ComponentDescriptionOLC(ICharacter actor)
-		{
-			return $@"{"Shop Stall Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})
+        public override string ComponentDescriptionOLC(ICharacter actor)
+        {
+            return $@"{"Shop Stall Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})
 
 This item can contain {Gameworld.UnitManager.Describe(WeightLimit, UnitType.Mass, actor)} and up to {MaximumContentsSize.ToString().Colour(Telnet.Cyan)} size objects. 
 It {(Transparent ? "is" : "is not")} transparent
@@ -480,6 +480,6 @@ Lock: {LockEmote.Colour(Telnet.Yellow)}
 Unlock: {UnlockEmote.Colour(Telnet.Yellow)}
 Lock (No Actor): {LockEmoteNoActor.Colour(Telnet.Yellow)}
 Unlock (No Actor): {UnlockEmoteNoActor.Colour(Telnet.Yellow)}";
-		}
-	}
+        }
+    }
 }

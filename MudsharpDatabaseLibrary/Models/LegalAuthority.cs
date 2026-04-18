@@ -60,7 +60,7 @@ namespace MudSharp.Models
         public virtual Cell PrisonReleaseLocation { get; set; }
         public virtual Cell PrisonBelongingsLocation { get; set; }
         public virtual Cell JailLocation { get; set; }
-        public virtual Cell CourtLocation { get; set;}
+        public virtual Cell CourtLocation { get; set; }
         public virtual FutureProg OnReleaseProg { get; set; }
         public virtual FutureProg OnImprisonProg { get; set; }
         public virtual FutureProg OnHoldProg { get; set; }

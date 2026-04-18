@@ -19,7 +19,7 @@ namespace MudSharp.Models
         public string? ShortDescription { get; set; }
         public string? FullDescription { get; set; }
         public string? FullDescriptionAddendum { get; set; }
-        public int Priority {get;set;}
+        public int Priority { get; set; }
 
         public virtual GameItemProto GameItemProto { get; set; }
         public virtual FutureProg ApplicabilityProg { get; set; }

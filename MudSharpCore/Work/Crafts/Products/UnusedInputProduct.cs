@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;
@@ -12,294 +8,298 @@ using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine.Lists;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Work.Crafts.Products;
 
 public class UnusedInputProduct : BaseProduct
 {
-	internal class UnusedInputProductData : ICraftProductData
-	{
-		public List<IGameItem> Products { get; } = new();
-		public IPerceivable Perceivable { get; }
+    internal class UnusedInputProductData : ICraftProductData
+    {
+        public List<IGameItem> Products { get; } = new();
+        public IPerceivable Perceivable { get; }
 
-		public void FinaliseLoadTimeTasks()
-		{
-			foreach (var product in Products)
-			{
-				product.FinaliseLoadTimeTasks();
-			}
-		}
+        public void FinaliseLoadTimeTasks()
+        {
+            foreach (IGameItem product in Products)
+            {
+                product.FinaliseLoadTimeTasks();
+            }
+        }
 
-		public XElement SaveToXml()
-		{
-			return new XElement("Data",
-				from product in Products
-				select new XElement("Item", product.Id)
-			);
-		}
+        public XElement SaveToXml()
+        {
+            return new XElement("Data",
+                from product in Products
+                select new XElement("Item", product.Id)
+            );
+        }
 
-		public UnusedInputProductData(IEnumerable<IGameItem> items)
-		{
-			Products.AddRange(items);
-			Perceivable = new PerceivableGroup(Products);
-		}
+        public UnusedInputProductData(IEnumerable<IGameItem> items)
+        {
+            Products.AddRange(items);
+            Perceivable = new PerceivableGroup(Products);
+        }
 
-		public UnusedInputProductData(XElement root, IFuturemud gameworld)
-		{
-			foreach (var element in root.Elements("Item"))
-			{
-				var item = gameworld.TryGetItem(long.Parse(element.Value), true);
-				if (item != null)
-				{
-					Products.Add(item);
-				}
-			}
+        public UnusedInputProductData(XElement root, IFuturemud gameworld)
+        {
+            foreach (XElement element in root.Elements("Item"))
+            {
+                IGameItem item = gameworld.TryGetItem(long.Parse(element.Value), true);
+                if (item != null)
+                {
+                    Products.Add(item);
+                }
+            }
 
-			Perceivable = new PerceivableGroup(Products);
-		}
+            Perceivable = new PerceivableGroup(Products);
+        }
 
-		public void ReleaseProducts(ICell location, RoomLayer layer)
-		{
-			foreach (var item in Products)
-			{
-				item.RoomLayer = layer;
-				location.Insert(item);
-				item.HandleEvent(EventType.ItemFinishedLoading, item);
-				item.Login();
-			}
-		}
+        public void ReleaseProducts(ICell location, RoomLayer layer)
+        {
+            foreach (IGameItem item in Products)
+            {
+                item.RoomLayer = layer;
+                location.Insert(item);
+                item.HandleEvent(EventType.ItemFinishedLoading, item);
+                item.Login();
+            }
+        }
 
-		public void Delete()
-		{
-			foreach (var item in Products)
-			{
-				item.Delete();
-			}
-		}
+        public void Delete()
+        {
+            foreach (IGameItem item in Products)
+            {
+                item.Delete();
+            }
+        }
 
-		public void Quit()
-		{
-			foreach (var item in Products)
-			{
-				item.Quit();
-			}
-		}
-	}
+        public void Quit()
+        {
+            foreach (IGameItem item in Products)
+            {
+                item.Quit();
+            }
+        }
+    }
 
-	protected UnusedInputProduct(CraftProduct product, ICraft craft, IFuturemud gameworld) : base(product, craft,
-		gameworld)
-	{
-		var root = XElement.Parse(product.Definition);
-		WhichInputId = long.Parse(root.Element("WhichInputId").Value);
-		PercentageRecovered = double.Parse(root.Element("PercentageRecovered").Value);
-	}
+    protected UnusedInputProduct(CraftProduct product, ICraft craft, IFuturemud gameworld) : base(product, craft,
+        gameworld)
+    {
+        XElement root = XElement.Parse(product.Definition);
+        WhichInputId = long.Parse(root.Element("WhichInputId").Value);
+        PercentageRecovered = double.Parse(root.Element("PercentageRecovered").Value);
+    }
 
-	protected UnusedInputProduct(ICraft craft, IFuturemud gameworld, bool failproduct) : base(craft, gameworld,
-		failproduct)
-	{
-		PercentageRecovered = 1.0;
-	}
+    protected UnusedInputProduct(ICraft craft, IFuturemud gameworld, bool failproduct) : base(craft, gameworld,
+        failproduct)
+    {
+        PercentageRecovered = 1.0;
+    }
 
-	public long WhichInputId { get; set; }
-	public double PercentageRecovered { get; set; }
+    public long WhichInputId { get; set; }
+    public double PercentageRecovered { get; set; }
 
-	#region Overrides of BaseProduct
+    #region Overrides of BaseProduct
 
-	public override ICraftProductData ProduceProduct(IActiveCraftGameItemComponent component,
-		ItemQuality referenceQuality)
-	{
-		var input = component.ConsumedInputs.FirstOrDefault(x => x.Key.Id == WhichInputId);
-		if (input.Key == null)
-		{
-			throw new ApplicationException("Couldn't find a valid input for craft product to load.");
-		}
+    public override ICraftProductData ProduceProduct(IActiveCraftGameItemComponent component,
+        ItemQuality referenceQuality)
+    {
+        KeyValuePair<ICraftInput, (IPerceivable Input, ICraftInputData Data)> input = component.ConsumedInputs.FirstOrDefault(x => x.Key.Id == WhichInputId);
+        if (input.Key == null)
+        {
+            throw new ApplicationException("Couldn't find a valid input for craft product to load.");
+        }
 
-		IGameItem referenceItem;
-		int quantity;
-		if (input.Key is ICraftInputConsumesGameItem)
-		{
-			referenceItem = (IGameItem)input.Value.Data.Perceivable;
-			quantity = (int)Math.Min(referenceItem.Quantity,
-				Math.Max(1, Math.Ceiling(referenceItem.Quantity * PercentageRecovered)));
-		}
-		else
-		{
-			var refItems = ((PerceivableGroup)input.Value.Data.Perceivable).Members.OfType<IGameItem>().ToList();
-			referenceItem = refItems.First();
-			quantity = (int)Math.Min(refItems.Sum(x => x.Quantity),
-				Math.Max(1, Math.Ceiling(refItems.Sum(x => x.Quantity) * PercentageRecovered)));
-		}
+        IGameItem referenceItem;
+        int quantity;
+        if (input.Key is ICraftInputConsumesGameItem)
+        {
+            referenceItem = (IGameItem)input.Value.Data.Perceivable;
+            quantity = (int)Math.Min(referenceItem.Quantity,
+                Math.Max(1, Math.Ceiling(referenceItem.Quantity * PercentageRecovered)));
+        }
+        else
+        {
+            List<IGameItem> refItems = ((PerceivableGroup)input.Value.Data.Perceivable).Members.OfType<IGameItem>().ToList();
+            referenceItem = refItems.First();
+            quantity = (int)Math.Min(refItems.Sum(x => x.Quantity),
+                Math.Max(1, Math.Ceiling(refItems.Sum(x => x.Quantity) * PercentageRecovered)));
+        }
 
-		var referenceVariable = referenceItem.GetItemType<IVariable>();
-		var variables = (from definition in referenceVariable?.CharacteristicDefinitions ?? [] select (definition, referenceVariable!.GetCharacteristic(definition))).ToList();
+        IVariable referenceVariable = referenceItem.GetItemType<IVariable>();
+        List<(ICharacteristicDefinition definition, ICharacteristicValue)> variables = (from definition in referenceVariable?.CharacteristicDefinitions ?? [] select (definition, referenceVariable!.GetCharacteristic(definition))).ToList();
 
-		if (quantity > 1 && referenceItem.IsItemType<IStackable>())
-		{
-			var newItem = referenceItem.Prototype.CreateNew(null, referenceItem.Skin, quantity, variables).First();
-			newItem.RoomLayer = component.Parent.RoomLayer;
-			Gameworld.Add(newItem);
+        if (quantity > 1 && referenceItem.IsItemType<IStackable>())
+        {
+            IGameItem newItem = referenceItem.Prototype.CreateNew(null, referenceItem.Skin, quantity, variables).First();
+            newItem.RoomLayer = component.Parent.RoomLayer;
+            Gameworld.Add(newItem);
 
-			if (!Gameworld.GetStaticBool("DisableCraftQualityCalculation"))
-			{
-				newItem.Quality = referenceQuality;
-			}
+            if (!Gameworld.GetStaticBool("DisableCraftQualityCalculation"))
+            {
+                newItem.Quality = referenceQuality;
+            }
 
-			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
-			return new UnusedInputProductData(new[] { newItem });
-		}
+            newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+            return new UnusedInputProductData(new[] { newItem });
+        }
 
-		var items = referenceItem.Prototype.CreateNew(null, referenceItem.Skin, quantity, variables).ToList();
-		foreach (var item in items)
-		{
-			item.RoomLayer = component.Parent.RoomLayer;
-			Gameworld.Add(item);
+        List<IGameItem> items = referenceItem.Prototype.CreateNew(null, referenceItem.Skin, quantity, variables).ToList();
+        foreach (IGameItem item in items)
+        {
+            item.RoomLayer = component.Parent.RoomLayer;
+            Gameworld.Add(item);
 
-			if (!Gameworld.GetStaticBool("DisableCraftQualityCalculation"))
-			{
-				item.Quality = referenceQuality;
-			}
-			item.HandleEvent(EventType.ItemFinishedLoading, item);
-		}
+            if (!Gameworld.GetStaticBool("DisableCraftQualityCalculation"))
+            {
+                item.Quality = referenceQuality;
+            }
+            item.HandleEvent(EventType.ItemFinishedLoading, item);
+        }
 
-		return new UnusedInputProductData(items);
-	}
+        return new UnusedInputProductData(items);
+    }
 
-	public override string ProductType => "UnusedInput";
+    public override string ProductType => "UnusedInput";
 
-	protected override string SaveDefinition()
-	{
-		return new XElement("Definition",
-			new XElement("WhichInputId", WhichInputId),
-			new XElement("PercentageRecovered", PercentageRecovered)
-		).ToString();
-	}
+    protected override string SaveDefinition()
+    {
+        return new XElement("Definition",
+            new XElement("WhichInputId", WhichInputId),
+            new XElement("PercentageRecovered", PercentageRecovered)
+        ).ToString();
+    }
 
-	/// <inheritdoc />
-	protected override string SaveDefinitionForRevision(Dictionary<long, long> inputIdMap, Dictionary<long, long> toolIdMap)
-	{
-		return new XElement("Definition",
-			new XElement("WhichInputId", inputIdMap.ContainsKey(WhichInputId) ? inputIdMap[WhichInputId] : 0L),
-			new XElement("PercentageRecovered", PercentageRecovered)
-		).ToString();
-	}
+    /// <inheritdoc />
+    protected override string SaveDefinitionForRevision(Dictionary<long, long> inputIdMap, Dictionary<long, long> toolIdMap)
+    {
+        return new XElement("Definition",
+            new XElement("WhichInputId", inputIdMap.ContainsKey(WhichInputId) ? inputIdMap[WhichInputId] : 0L),
+            new XElement("PercentageRecovered", PercentageRecovered)
+        ).ToString();
+    }
 
-	protected override string BuildingHelpText =>
-		"You can use the following options with this product:\n\tinput <#> - specifies that the target input is the one to be returned\n\tpercentage <x%> - specifies the amount returned (rounds down)";
+    protected override string BuildingHelpText =>
+        "You can use the following options with this product:\n\tinput <#> - specifies that the target input is the one to be returned\n\tpercentage <x%> - specifies the amount returned (rounds down)";
 
-	public override bool BuildingCommand(ICharacter actor, StringStack command)
-	{
-		switch (command.PopSpeech().ToLowerInvariant())
-		{
-			case "input":
-			case "target":
-			case "pair":
-				return BuildingCommandInput(actor, command);
-			case "percentage":
-			case "amount":
-			case "return":
-				return BuildingCommandPercentage(actor, command);
-			default:
-				return base.BuildingCommand(actor, command);
-		}
-	}
+    public override bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopSpeech().ToLowerInvariant())
+        {
+            case "input":
+            case "target":
+            case "pair":
+                return BuildingCommandInput(actor, command);
+            case "percentage":
+            case "amount":
+            case "return":
+                return BuildingCommandPercentage(actor, command);
+            default:
+                return base.BuildingCommand(actor, command);
+        }
+    }
 
-	private bool BuildingCommandInput(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("You must specify an input to pair this product with.");
-			return false;
-		}
+    private bool BuildingCommandInput(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("You must specify an input to pair this product with.");
+            return false;
+        }
 
-		if (!int.TryParse(command.PopSpeech(), out var ivalue))
-		{
-			actor.OutputHandler.Send("Which input number do you want to pair this product with?");
-			return false;
-		}
+        if (!int.TryParse(command.PopSpeech(), out int ivalue))
+        {
+            actor.OutputHandler.Send("Which input number do you want to pair this product with?");
+            return false;
+        }
 
-		var input = Craft.Inputs.ElementAtOrDefault(ivalue - 1);
-		if (input == null)
-		{
-			actor.OutputHandler.Send("There is no such input for this craft.");
-			return false;
-		}
+        ICraftInput input = Craft.Inputs.ElementAtOrDefault(ivalue - 1);
+        if (input == null)
+        {
+            actor.OutputHandler.Send("There is no such input for this craft.");
+            return false;
+        }
 
-		if (!(input is ICraftInputConsumesGameItem) && !(input is ICraftInputConsumesGameItemGroup))
-		{
-			actor.OutputHandler.Send(
-				$"The input {input.Name} is not an appropriate type of input to target with this product.");
-			return false;
-		}
+        if (!(input is ICraftInputConsumesGameItem) && !(input is ICraftInputConsumesGameItemGroup))
+        {
+            actor.OutputHandler.Send(
+                $"The input {input.Name} is not an appropriate type of input to target with this product.");
+            return false;
+        }
 
-		WhichInputId = input.Id;
-		ProductChanged = true;
-		actor.OutputHandler.Send($"This product will now load up copies of the consumed input of {input.Name}.");
-		return true;
-	}
+        WhichInputId = input.Id;
+        ProductChanged = true;
+        actor.OutputHandler.Send($"This product will now load up copies of the consumed input of {input.Name}.");
+        return true;
+    }
 
-	private bool BuildingCommandPercentage(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished || !NumberUtilities.TryParsePercentage(command.SafeRemainingArgument, out var perc))
-		{
-			actor.OutputHandler.Send("You must specify a valid percentage of the original item to be returned.");
-			return false;
-		}
+    private bool BuildingCommandPercentage(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !NumberUtilities.TryParsePercentage(command.SafeRemainingArgument, out double perc))
+        {
+            actor.OutputHandler.Send("You must specify a valid percentage of the original item to be returned.");
+            return false;
+        }
 
-		PercentageRecovered = perc;
-		actor.OutputHandler.Send(
-			$"This product will now return {PercentageRecovered.ToString("P2", actor)} of the original item quantity.");
-		ProductChanged = true;
-		return true;
-	}
+        PercentageRecovered = perc;
+        actor.OutputHandler.Send(
+            $"This product will now return {PercentageRecovered.ToString("P2", actor)} of the original item quantity.");
+        ProductChanged = true;
+        return true;
+    }
 
-	public override bool IsValid()
-	{
-		return Craft.Inputs.Any(x =>
-			x.Id == WhichInputId && (x is ICraftInputConsumesGameItem || x is ICraftInputConsumesGameItemGroup));
-	}
+    public override bool IsValid()
+    {
+        return Craft.Inputs.Any(x =>
+            x.Id == WhichInputId && (x is ICraftInputConsumesGameItem || x is ICraftInputConsumesGameItemGroup));
+    }
 
-	public override string WhyNotValid()
-	{
-		if (Craft.Inputs.All(x => x.Id != WhichInputId))
-		{
-			return "You must first set a valid input to target.";
-		}
+    public override string WhyNotValid()
+    {
+        if (Craft.Inputs.All(x => x.Id != WhichInputId))
+        {
+            return "You must first set a valid input to target.";
+        }
 
-		return "The targeted input is not a valid type of input for this product";
-	}
+        return "The targeted input is not a valid type of input for this product";
+    }
 
-	#endregion
+    #endregion
 
-	public static void RegisterCraftProduct()
-	{
-		CraftProductFactory.RegisterCraftProductType("UnusedInput",
-			(product, craft, game) => new UnusedInputProduct(product, craft, game));
-		CraftProductFactory.RegisterCraftProductTypeForBuilders("unusedinput",
-			(craft, game, fail) => new UnusedInputProduct(craft, game, fail));
-	}
+    public static void RegisterCraftProduct()
+    {
+        CraftProductFactory.RegisterCraftProductType("UnusedInput",
+            (product, craft, game) => new UnusedInputProduct(product, craft, game));
+        CraftProductFactory.RegisterCraftProductTypeForBuilders("unusedinput",
+            (craft, game, fail) => new UnusedInputProduct(craft, game, fail));
+    }
 
-	public override string Name
-	{
-		get
-		{
-			var input = Craft.Inputs.FirstOrDefault(x => x.Id == WhichInputId);
-			if (input == null || !(input is ICraftInputConsumesGameItem || input is ICraftInputConsumesGameItemGroup))
-			{
-				return $"{PercentageRecovered:P2} of {"an invalid input".Colour(Telnet.Red)}";
-			}
+    public override string Name
+    {
+        get
+        {
+            ICraftInput input = Craft.Inputs.FirstOrDefault(x => x.Id == WhichInputId);
+            if (input == null || !(input is ICraftInputConsumesGameItem || input is ICraftInputConsumesGameItemGroup))
+            {
+                return $"{PercentageRecovered:P2} of {"an invalid input".Colour(Telnet.Red)}";
+            }
 
-			return $"{PercentageRecovered:P2} of {input.Name} ($i{Craft.Inputs.ToList().IndexOf(input) + 1})";
-		}
-	}
+            return $"{PercentageRecovered:P2} of {input.Name} ($i{Craft.Inputs.ToList().IndexOf(input) + 1})";
+        }
+    }
 
-	public override string HowSeen(IPerceiver voyeur)
-	{
-		var input = Craft.Inputs.FirstOrDefault(x => x.Id == WhichInputId);
-		if (input == null || !(input is ICraftInputConsumesGameItem || input is ICraftInputConsumesGameItemGroup))
-		{
-			return $"{PercentageRecovered:P2} of {"an invalid input".Colour(Telnet.Red)}";
-		}
+    public override string HowSeen(IPerceiver voyeur)
+    {
+        ICraftInput input = Craft.Inputs.FirstOrDefault(x => x.Id == WhichInputId);
+        if (input == null || !(input is ICraftInputConsumesGameItem || input is ICraftInputConsumesGameItemGroup))
+        {
+            return $"{PercentageRecovered:P2} of {"an invalid input".Colour(Telnet.Red)}";
+        }
 
-		return $"{PercentageRecovered:P2} of {input.Name} ($i{Craft.Inputs.ToList().IndexOf(input) + 1})";
-	}
+        return $"{PercentageRecovered:P2} of {input.Name} ($i{Craft.Inputs.ToList().IndexOf(input) + 1})";
+    }
 }

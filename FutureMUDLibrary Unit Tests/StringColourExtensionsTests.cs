@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MudSharp.Framework;
 using MudSharp.Form.Colour;
+using MudSharp.Framework;
 
 namespace MudSharp_Unit_Tests;
 
@@ -10,27 +10,27 @@ public class StringColourExtensionsTests
     [TestMethod]
     public void ColourIncludingReset_ReplacesEmbeddedResets()
     {
-        var input = $"start{Telnet.RESET}middle{Telnet.RESETALL}end";
-        var expected = $"{Telnet.Red}start{Telnet.Red}middle{Telnet.Red}end{Telnet.RESET}";
-        var actual = input.ColourIncludingReset(Telnet.Red);
+        string input = $"start{Telnet.RESET}middle{Telnet.RESETALL}end";
+        string expected = $"{Telnet.Red}start{Telnet.Red}middle{Telnet.Red}end{Telnet.RESET}";
+        string actual = input.ColourIncludingReset(Telnet.Red);
         Assert.AreEqual(expected, actual);
     }
 
     [TestMethod]
     public void GetRGB_ReturnsCorrectValues()
     {
-        Assert.AreEqual((255,0,0), BasicColour.Red.GetRGB());
-        Assert.AreEqual((0,0,255), BasicColour.Blue.GetRGB());
-        Assert.AreEqual((0,255,0), BasicColour.Green.GetRGB());
-        Assert.AreEqual((0,0,0), BasicColour.Black.GetRGB());
+        Assert.AreEqual((255, 0, 0), BasicColour.Red.GetRGB());
+        Assert.AreEqual((0, 0, 255), BasicColour.Blue.GetRGB());
+        Assert.AreEqual((0, 255, 0), BasicColour.Green.GetRGB());
+        Assert.AreEqual((0, 0, 0), BasicColour.Black.GetRGB());
     }
 
     [TestMethod]
     public void Colour_BasicColour_ProducesAnsiSequence()
     {
         const string text = "test";
-        var result = text.Colour(BasicColour.Red);
-        var expected = $"{Telnet.Black.BackgroundColour}{Telnet.Red.Name}{text}{Telnet.RESETALL}";
+        string result = text.Colour(BasicColour.Red);
+        string expected = $"{Telnet.Black.BackgroundColour}{Telnet.Red.Name}{text}{Telnet.RESETALL}";
         Assert.AreEqual(expected, result);
     }
 
@@ -38,7 +38,7 @@ public class StringColourExtensionsTests
     public void Colour_RGB_ProducesAnsiSequence()
     {
         const string text = "rgb";
-        var result = text.Colour(1, 2, 3);
+        string result = text.Colour(1, 2, 3);
         Assert.AreEqual("\x1b[38;2;1;2;3mrgb\x1B[0m", result);
     }
 
@@ -46,8 +46,8 @@ public class StringColourExtensionsTests
     public void ColourCharacter_TogglesBasedOnBoolean()
     {
         const string text = "character";
-        var coloured = text.ColourCharacter();
-        var uncoloured = text.ColourCharacter(false);
+        string coloured = text.ColourCharacter();
+        string uncoloured = text.ColourCharacter(false);
         Assert.AreEqual($"{Telnet.Magenta}{text}{Telnet.RESET}", coloured);
         Assert.AreEqual(text, uncoloured);
     }
@@ -56,8 +56,8 @@ public class StringColourExtensionsTests
     public void ColourObject_TogglesBasedOnBoolean()
     {
         const string text = "object";
-        var coloured = text.ColourObject();
-        var uncoloured = text.ColourObject(false);
+        string coloured = text.ColourObject();
+        string uncoloured = text.ColourObject(false);
         Assert.AreEqual($"{Telnet.Green}{text}{Telnet.RESET}", coloured);
         Assert.AreEqual(text, uncoloured);
     }
@@ -66,8 +66,8 @@ public class StringColourExtensionsTests
     public void ColourValue_TogglesBasedOnBoolean()
     {
         const string text = "value";
-        var coloured = text.ColourValue();
-        var uncoloured = text.ColourValue(false);
+        string coloured = text.ColourValue();
+        string uncoloured = text.ColourValue(false);
         Assert.AreEqual($"{Telnet.Green}{text}{Telnet.RESET}", coloured);
         Assert.AreEqual(text, uncoloured);
     }
@@ -76,8 +76,8 @@ public class StringColourExtensionsTests
     public void ColourRoom_TogglesBasedOnBoolean()
     {
         const string text = "room";
-        var coloured = text.ColourRoom();
-        var uncoloured = text.ColourRoom(false);
+        string coloured = text.ColourRoom();
+        string uncoloured = text.ColourRoom(false);
         Assert.AreEqual($"{Telnet.Cyan}{text}{Telnet.RESET}", coloured);
         Assert.AreEqual(text, uncoloured);
     }
@@ -86,8 +86,8 @@ public class StringColourExtensionsTests
     public void ColourCommand_TogglesBasedOnBoolean()
     {
         const string text = "command";
-        var coloured = text.ColourCommand();
-        var uncoloured = text.ColourCommand(false);
+        string coloured = text.ColourCommand();
+        string uncoloured = text.ColourCommand(false);
         Assert.AreEqual($"{Telnet.Yellow}{text}{Telnet.RESET}", coloured);
         Assert.AreEqual(text, uncoloured);
     }
@@ -96,8 +96,8 @@ public class StringColourExtensionsTests
     public void ColourName_TogglesBasedOnBoolean()
     {
         const string text = "name";
-        var coloured = text.ColourName();
-        var uncoloured = text.ColourName(false);
+        string coloured = text.ColourName();
+        string uncoloured = text.ColourName(false);
         Assert.AreEqual($"{Telnet.Cyan}{text}{Telnet.RESET}", coloured);
         Assert.AreEqual(text, uncoloured);
     }
@@ -106,8 +106,8 @@ public class StringColourExtensionsTests
     public void ColourError_TogglesBasedOnBoolean()
     {
         const string text = "error";
-        var coloured = text.ColourError();
-        var uncoloured = text.ColourError(false);
+        string coloured = text.ColourError();
+        string uncoloured = text.ColourError(false);
         Assert.AreEqual($"{Telnet.Red}{text}{Telnet.RESET}", coloured);
         Assert.AreEqual(text, uncoloured);
     }
@@ -116,7 +116,7 @@ public class StringColourExtensionsTests
     public void Colour_AnsiColour_WrapsAndResets()
     {
         const string text = "ansi";
-        var result = text.Colour(Telnet.Red);
+        string result = text.Colour(Telnet.Red);
         Assert.AreEqual($"{Telnet.Red}{text}{Telnet.RESET}", result);
     }
 
@@ -124,7 +124,7 @@ public class StringColourExtensionsTests
     public void ColourBold_WrapsAndResets()
     {
         const string text = "bold";
-        var result = text.ColourBold(Telnet.Blue);
+        string result = text.ColourBold(Telnet.Blue);
         Assert.AreEqual($"{Telnet.Blue.Bold}{text}{Telnet.RESET}", result);
     }
 
@@ -132,7 +132,7 @@ public class StringColourExtensionsTests
     public void ColourBackground_WrapsAndResetsAll()
     {
         const string text = "background";
-        var result = text.ColourBackground(Telnet.Red);
+        string result = text.ColourBackground(Telnet.Red);
         Assert.AreEqual($"{Telnet.Red.BackgroundColour}{text}{Telnet.RESETALL}", result);
     }
 
@@ -140,7 +140,7 @@ public class StringColourExtensionsTests
     public void ColourBoldBackground_WrapsAndResetsAll()
     {
         const string text = "boldbackground";
-        var result = text.ColourBoldBackground(Telnet.Green);
+        string result = text.ColourBoldBackground(Telnet.Green);
         Assert.AreEqual($"{Telnet.Green.BoldBackgroundColour}{text}{Telnet.RESETALL}", result);
     }
 
@@ -148,7 +148,7 @@ public class StringColourExtensionsTests
     public void Colour_WithResetColour_UsesResetColour()
     {
         const string text = "resetcolour";
-        var result = text.Colour(Telnet.Red, Telnet.Green);
+        string result = text.Colour(Telnet.Red, Telnet.Green);
         Assert.AreEqual($"{Telnet.Red.Colour}{text}{Telnet.Green.Colour}", result);
     }
 
@@ -156,7 +156,7 @@ public class StringColourExtensionsTests
     public void ColourBold_WithResetColour_UsesResetColour()
     {
         const string text = "boldreset";
-        var result = text.ColourBold(Telnet.Blue, Telnet.Green);
+        string result = text.ColourBold(Telnet.Blue, Telnet.Green);
         Assert.AreEqual($"{Telnet.Blue.Bold}{text}{Telnet.Green.Colour}", result);
     }
 
@@ -164,7 +164,7 @@ public class StringColourExtensionsTests
     public void Colour_StringForegroundBackground_WrapsAndResetsAll()
     {
         const string text = "fgbg";
-        var result = text.Colour(Telnet.RED, Telnet.GREENBACKGROUND);
+        string result = text.Colour(Telnet.RED, Telnet.GREENBACKGROUND);
         Assert.AreEqual($"{Telnet.GREENBACKGROUND}{Telnet.RED}{text}{Telnet.RESETALL}", result);
     }
 
@@ -172,8 +172,8 @@ public class StringColourExtensionsTests
     public void ColourForegroundCustom_AddsResets()
     {
         const string text = "custom";
-        var result = text.ColourForegroundCustom("123");
-        var expected = $"{Telnet.RESETALL}\x1B[38;5;123m{text}{Telnet.RESETALL}";
+        string result = text.ColourForegroundCustom("123");
+        string expected = $"{Telnet.RESETALL}\x1B[38;5;123m{text}{Telnet.RESETALL}";
         Assert.AreEqual(expected, result);
     }
 
@@ -181,8 +181,8 @@ public class StringColourExtensionsTests
     public void FluentColour_TogglesBasedOnBoolean()
     {
         const string text = "fluent";
-        var coloured = text.FluentColour(Telnet.Red, true);
-        var uncoloured = text.FluentColour(Telnet.Red, false);
+        string coloured = text.FluentColour(Telnet.Red, true);
+        string uncoloured = text.FluentColour(Telnet.Red, false);
         Assert.AreEqual($"{Telnet.Red}{text}{Telnet.RESET}", coloured);
         Assert.AreEqual(text, uncoloured);
     }
@@ -191,8 +191,8 @@ public class StringColourExtensionsTests
     public void FluentColourIncludingReset_TogglesBasedOnBoolean()
     {
         const string text = "fluentreset";
-        var coloured = text.FluentColourIncludingReset(Telnet.Blue, true);
-        var uncoloured = text.FluentColourIncludingReset(Telnet.Blue, false);
+        string coloured = text.FluentColourIncludingReset(Telnet.Blue, true);
+        string uncoloured = text.FluentColourIncludingReset(Telnet.Blue, false);
         Assert.AreEqual($"{Telnet.Blue}{text}{Telnet.RESET}", coloured);
         Assert.AreEqual(text, uncoloured);
     }
@@ -200,8 +200,8 @@ public class StringColourExtensionsTests
     [TestMethod]
     public void ColourIfNotColoured_LeavesPreColouredText()
     {
-        var coloured = $"{Telnet.Blue}pre{Telnet.RESET}";
-        var result = coloured.ColourIfNotColoured(Telnet.Red);
+        string coloured = $"{Telnet.Blue}pre{Telnet.RESET}";
+        string result = coloured.ColourIfNotColoured(Telnet.Red);
         Assert.AreEqual(coloured, result);
     }
 
@@ -209,7 +209,7 @@ public class StringColourExtensionsTests
     public void ColourIfNotColoured_ColoursPlainText()
     {
         const string text = "plain";
-        var result = text.ColourIfNotColoured(Telnet.Red);
+        string result = text.ColourIfNotColoured(Telnet.Red);
         Assert.AreEqual($"{Telnet.Red}{text}{Telnet.RESET}", result);
     }
 
@@ -217,7 +217,7 @@ public class StringColourExtensionsTests
     public void Underline_WrapsWithCodes()
     {
         const string text = "under";
-        var result = text.Underline();
+        string result = text.Underline();
         Assert.AreEqual($"{Telnet.UNDERLINE}{text}{Telnet.RESETUNDERLINE}", result);
     }
 
@@ -225,7 +225,7 @@ public class StringColourExtensionsTests
     public void Blink_WrapsWithCodes()
     {
         const string text = "blink";
-        var result = text.Blink();
+        string result = text.Blink();
         Assert.AreEqual($"{Telnet.BLINK}{text}{Telnet.RESETBLINK}", result);
     }
 }

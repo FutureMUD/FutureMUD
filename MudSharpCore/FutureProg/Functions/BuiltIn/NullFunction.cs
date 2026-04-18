@@ -1,33 +1,33 @@
-﻿using System.Collections.Generic;
-using MudSharp.FutureProg.Variables;
+﻿using MudSharp.FutureProg.Variables;
+using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.BuiltIn;
 
 internal class NullFunction : BuiltInFunction
 {
-	private NullFunction(IList<IFunction> parameters)
-		: base(parameters)
-	{
-		ReturnType = FutureProg.GetTypeByName(parameters[0].Result.GetObject.ToString());
-	}
+    private NullFunction(IList<IFunction> parameters)
+        : base(parameters)
+    {
+        ReturnType = FutureProg.GetTypeByName(parameters[0].Result.GetObject.ToString());
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		Result = ProgVariableTypes.ValueType.HasFlag(ReturnType) ? new NullVariable(ReturnType) : null;
-		return StatementResult.Normal;
-	}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        Result = ProgVariableTypes.ValueType.HasFlag(ReturnType) ? new NullVariable(ReturnType) : null;
+        return StatementResult.Normal;
+    }
 
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"null",
-			new[] { ProgVariableTypes.Text | ProgVariableTypes.Literal },
-			(pars, gameworld) => new NullFunction(pars),
-			new List<string> { "type" },
-			new List<string> { "A text literal specifying the type of null variable." },
-			"Returns a null variable of the type specified.",
-			"Null Handling",
-			ProgVariableTypes.Anything
-		));
-	}
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "null",
+            new[] { ProgVariableTypes.Text | ProgVariableTypes.Literal },
+            (pars, gameworld) => new NullFunction(pars),
+            new List<string> { "type" },
+            new List<string> { "A text literal specifying the type of null variable." },
+            "Returns a null variable of the type specified.",
+            "Null Handling",
+            ProgVariableTypes.Anything
+        ));
+    }
 }

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MudSharp.GameItems.Interfaces
 {
-    public interface IImplantPowerPlant : IImplant {
+    public interface IImplantPowerPlant : IImplant
+    {
         bool CanBeginDrawDown(double wattage);
         void BeginDrawdown(IConsumePower item);
 

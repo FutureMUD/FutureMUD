@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body.Traits.Decorators;
+﻿using MudSharp.Body.Traits.Decorators;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
+using System.Collections.Generic;
 
-namespace MudSharp.Body.Traits {
-    public enum TraitType {
+namespace MudSharp.Body.Traits
+{
+    public enum TraitType
+    {
         Skill = 0,
         Attribute = 1,
         DerivedSkill = 2,
@@ -15,7 +17,8 @@ namespace MudSharp.Body.Traits {
         TheoreticalSkill = 4
     }
 
-    public interface ITraitDefinition : IEditableItem, IProgVariable {
+    public interface ITraitDefinition : IEditableItem, IProgVariable
+    {
         /// <summary>
         ///     The group to which this Trait belongs, within its Type. For example, Attributes may have "Physical", "Mental", etc.
         /// </summary>

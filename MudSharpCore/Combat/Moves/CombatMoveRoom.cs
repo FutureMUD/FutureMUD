@@ -5,34 +5,34 @@ namespace MudSharp.Combat.Moves;
 
 public class CombatMoveRoom : CombatMoveBase
 {
-	#region Overrides of CombatMoveBase
+    #region Overrides of CombatMoveBase
 
-	public ICellExit Direction { get; init; }
+    public ICellExit Direction { get; init; }
 
-	public override string Description => $"Moving towards {Direction.DescribeFor(Assailant, false)}.";
+    public override string Description => $"Moving towards {Direction.DescribeFor(Assailant, false)}.";
 
-	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
-	{
-		if (Assailant.CanMove(Direction))
-		{
-			if (!(Direction.Exit.Door?.IsOpen ?? true))
-			{
-				if (Direction.Exit.Door.CanOpen(Assailant.Body))
-				{
-					Assailant.Body.Open(Direction.Exit.Door, null, null);
-				}
-			}
+    public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
+    {
+        if (Assailant.CanMove(Direction))
+        {
+            if (!(Direction.Exit.Door?.IsOpen ?? true))
+            {
+                if (Direction.Exit.Door.CanOpen(Assailant.Body))
+                {
+                    Assailant.Body.Open(Direction.Exit.Door, null, null);
+                }
+            }
 
-			Assailant.Move(Direction);
-			return new CombatMoveResult
-			{
-				MoveWasSuccessful = true,
-				RecoveryDifficulty = Difficulty.Normal
-			};
-		}
+            Assailant.Move(Direction);
+            return new CombatMoveResult
+            {
+                MoveWasSuccessful = true,
+                RecoveryDifficulty = Difficulty.Normal
+            };
+        }
 
-		return CombatMoveResult.Irrelevant;
-	}
+        return CombatMoveResult.Irrelevant;
+    }
 
-	#endregion
+    #endregion
 }

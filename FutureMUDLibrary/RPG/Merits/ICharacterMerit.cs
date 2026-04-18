@@ -4,10 +4,12 @@ using MudSharp.CharacterCreation.Resources;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 
-namespace MudSharp.RPG.Merits {
-    public interface ICharacterMerit : IMerit {
+namespace MudSharp.RPG.Merits
+{
+    public interface ICharacterMerit : IMerit
+    {
         IFutureProg ChargenAvailableProg { get; }
-        ICharacterMerit ParentMerit { get;}
+        ICharacterMerit ParentMerit { get; }
         string ChargenBlurb { get; }
         bool ChargenAvailable(IChargen chargen);
         int ResourceCost(IChargenResource resource);

@@ -1,8 +1,10 @@
 ﻿using System;
 
-namespace MudSharp.Community {
+namespace MudSharp.Community
+{
     [Flags]
-    public enum ClanPrivilegeType : long {
+    public enum ClanPrivilegeType : long
+    {
         None = 0,
         All = long.MaxValue,
         CanPromote = 1 << 0,
@@ -35,9 +37,9 @@ namespace MudSharp.Community {
         CanManageClanProperty = 1 << 27,
         CanManageBankAccounts = 1 << 28,
         CanReportDead = 1 << 29,
-		CanManageClanJobs = 1 << 30,
-		CanManageClanVassals = 1 << 31,
-		CanManageEstates = 1L << 32,
-		UseClanProperty = 1L << 33,
-	}
+        CanManageClanJobs = 1 << 30,
+        CanManageClanVassals = 1 << 31,
+        CanManageEstates = 1L << 32,
+        UseClanProperty = 1L << 33,
+    }
 }

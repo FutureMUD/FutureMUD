@@ -1,10 +1,10 @@
-﻿using System.Linq;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Form.Audio;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Strategies.BodyStratagies;
+using System.Linq;
 
 namespace MudSharp.Body.CommunicationStrategies;
 

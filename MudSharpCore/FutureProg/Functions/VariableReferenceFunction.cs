@@ -2,17 +2,17 @@
 
 internal class VariableReferenceFunction : Function
 {
-	protected string VariableName;
+    protected string VariableName;
 
-	public VariableReferenceFunction(string variableName, ProgVariableTypes type)
-	{
-		VariableName = variableName;
-		ReturnType = type;
-	}
+    public VariableReferenceFunction(string variableName, ProgVariableTypes type)
+    {
+        VariableName = variableName;
+        ReturnType = type;
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		Result = variables.GetVariable(VariableName);
-		return StatementResult.Normal;
-	}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        Result = variables.GetVariable(VariableName);
+        return StatementResult.Normal;
+    }
 }

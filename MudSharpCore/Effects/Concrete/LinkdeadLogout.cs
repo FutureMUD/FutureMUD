@@ -5,25 +5,25 @@ namespace MudSharp.Effects.Concrete;
 
 public class LinkdeadLogout : Effect, IEffectSubtype
 {
-	public LinkdeadLogout(IPerceivable owner)
-		: base(owner)
-	{
-	}
+    public LinkdeadLogout(IPerceivable owner)
+        : base(owner)
+    {
+    }
 
-	protected override string SpecificEffectType => "LinkdeadLogout";
+    protected override string SpecificEffectType => "LinkdeadLogout";
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return "Linkdead - will be logged out when effect expires";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return "Linkdead - will be logged out when effect expires";
+    }
 
-	public override void ExpireEffect()
-	{
-		(Owner as ICharacter)?.Quit();
-	}
+    public override void ExpireEffect()
+    {
+        (Owner as ICharacter)?.Quit();
+    }
 
-	public override string ToString()
-	{
-		return "Linkdead - will be logged out when effect expires";
-	}
+    public override string ToString()
+    {
+        return "Linkdead - will be logged out when effect expires";
+    }
 }

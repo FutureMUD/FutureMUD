@@ -1,6 +1,7 @@
 ﻿using MudSharp.Character;
 
-namespace MudSharp.Effects.Interfaces {
+namespace MudSharp.Effects.Interfaces
+{
     public interface IItemHiddenEffect : IRemoveOnGet
     {
         bool KnewOriginalHidingPlace(ICharacter actor);

@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate.Date;
+using System.Collections.Generic;
 
 namespace MudSharp.Community
 {

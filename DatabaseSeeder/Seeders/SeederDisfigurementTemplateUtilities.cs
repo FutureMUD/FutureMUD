@@ -1,32 +1,32 @@
 #nullable enable
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Body;
 using MudSharp.Communication.Language;
 using MudSharp.Database;
-using MudSharp.Framework.Revision;
 using MudSharp.Form.Colour;
+using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
 internal abstract record SeederDisfigurementTemplateDefinition(
-	string Name,
-	string ShortDescription,
-	string FullDescription,
-	IReadOnlyList<string>? BodypartShapeNames = null,
-	IReadOnlyList<string>? BodypartAliases = null,
-	bool CanSelectInChargen = false,
-	string? CanSelectInChargenProgName = null,
-	IReadOnlyDictionary<string, int>? ChargenCosts = null,
-	string? OverrideCharacteristicPlain = null,
-	string? OverrideCharacteristicWith = null
+    string Name,
+    string ShortDescription,
+    string FullDescription,
+    IReadOnlyList<string>? BodypartShapeNames = null,
+    IReadOnlyList<string>? BodypartAliases = null,
+    bool CanSelectInChargen = false,
+    string? CanSelectInChargenProgName = null,
+    IReadOnlyDictionary<string, int>? ChargenCosts = null,
+    string? OverrideCharacteristicPlain = null,
+    string? OverrideCharacteristicWith = null
 );
 
 internal sealed record SeederTattooTextSlotDefinition(
@@ -43,63 +43,63 @@ internal sealed record SeederTattooTextSlotDefinition(
 );
 
 internal sealed record SeederTattooTemplateDefinition(
-	string Name,
-	string ShortDescription,
-	string FullDescription,
-	SizeCategory MinimumBodypartSize = SizeCategory.Nanoscopic,
-	string? RequiredKnowledgeName = null,
-	double MinimumSkill = 0.0,
-	IReadOnlyDictionary<string, double>? InkColours = null,
-	IReadOnlyList<string>? BodypartShapeNames = null,
-	IReadOnlyList<string>? BodypartAliases = null,
-	bool CanSelectInChargen = false,
-	string? CanSelectInChargenProgName = null,
-	IReadOnlyDictionary<string, int>? ChargenCosts = null,
-	string? OverrideCharacteristicPlain = null,
-	string? OverrideCharacteristicWith = null,
-	IReadOnlyList<SeederTattooTextSlotDefinition>? TextSlots = null
+    string Name,
+    string ShortDescription,
+    string FullDescription,
+    SizeCategory MinimumBodypartSize = SizeCategory.Nanoscopic,
+    string? RequiredKnowledgeName = null,
+    double MinimumSkill = 0.0,
+    IReadOnlyDictionary<string, double>? InkColours = null,
+    IReadOnlyList<string>? BodypartShapeNames = null,
+    IReadOnlyList<string>? BodypartAliases = null,
+    bool CanSelectInChargen = false,
+    string? CanSelectInChargenProgName = null,
+    IReadOnlyDictionary<string, int>? ChargenCosts = null,
+    string? OverrideCharacteristicPlain = null,
+    string? OverrideCharacteristicWith = null,
+    IReadOnlyList<SeederTattooTextSlotDefinition>? TextSlots = null
 ) : SeederDisfigurementTemplateDefinition(
-	Name,
-	ShortDescription,
-	FullDescription,
-	BodypartShapeNames,
-	BodypartAliases,
-	CanSelectInChargen,
-	CanSelectInChargenProgName,
-	ChargenCosts,
-	OverrideCharacteristicPlain,
-	OverrideCharacteristicWith
+    Name,
+    ShortDescription,
+    FullDescription,
+    BodypartShapeNames,
+    BodypartAliases,
+    CanSelectInChargen,
+    CanSelectInChargenProgName,
+    ChargenCosts,
+    OverrideCharacteristicPlain,
+    OverrideCharacteristicWith
 );
 
 internal sealed record SeederScarTemplateDefinition(
-	string Name,
-	string ShortDescription,
-	string FullDescription,
-	int SizeSteps = 0,
-	int Distinctiveness = 1,
-	bool Unique = false,
-	double DamageHealingScarChance = 0.0,
-	double SurgeryHealingScarChance = 0.0,
-	IReadOnlyDictionary<DamageType, WoundSeverity>? DamageTypes = null,
-	IReadOnlyList<SurgicalProcedureType>? SurgeryTypes = null,
-	IReadOnlyList<string>? BodypartShapeNames = null,
-	IReadOnlyList<string>? BodypartAliases = null,
-	bool CanSelectInChargen = false,
-	string? CanSelectInChargenProgName = null,
-	IReadOnlyDictionary<string, int>? ChargenCosts = null,
-	string? OverrideCharacteristicPlain = null,
-	string? OverrideCharacteristicWith = null
+    string Name,
+    string ShortDescription,
+    string FullDescription,
+    int SizeSteps = 0,
+    int Distinctiveness = 1,
+    bool Unique = false,
+    double DamageHealingScarWeight = 0.0,
+    double SurgeryHealingScarWeight = 0.0,
+    IReadOnlyDictionary<DamageType, WoundSeverity>? DamageTypes = null,
+    IReadOnlyList<SurgicalProcedureType>? SurgeryTypes = null,
+    IReadOnlyList<string>? BodypartShapeNames = null,
+    IReadOnlyList<string>? BodypartAliases = null,
+    bool CanSelectInChargen = false,
+    string? CanSelectInChargenProgName = null,
+    IReadOnlyDictionary<string, int>? ChargenCosts = null,
+    string? OverrideCharacteristicPlain = null,
+    string? OverrideCharacteristicWith = null
 ) : SeederDisfigurementTemplateDefinition(
-	Name,
-	ShortDescription,
-	FullDescription,
-	BodypartShapeNames,
-	BodypartAliases,
-	CanSelectInChargen,
-	CanSelectInChargenProgName,
-	ChargenCosts,
-	OverrideCharacteristicPlain,
-	OverrideCharacteristicWith
+    Name,
+    ShortDescription,
+    FullDescription,
+    BodypartShapeNames,
+    BodypartAliases,
+    CanSelectInChargen,
+    CanSelectInChargenProgName,
+    ChargenCosts,
+    OverrideCharacteristicPlain,
+    OverrideCharacteristicWith
 );
 
 internal static class SeederDisfigurementTemplateUtilities

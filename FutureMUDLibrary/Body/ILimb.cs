@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Body.PartProtos;
+﻿using MudSharp.Body.PartProtos;
 using MudSharp.Framework;
+using System;
+using System.Collections.Generic;
 
-namespace MudSharp.Body {
-    public enum LimbType {
+namespace MudSharp.Body
+{
+    public enum LimbType
+    {
         Arm,
         Leg,
         Appendage,
@@ -13,8 +15,9 @@ namespace MudSharp.Body {
         Torso,
         Genitals
     }
-    
-    public interface ILimb : IFrameworkItem {
+
+    public interface ILimb : IFrameworkItem
+    {
         IBodyPrototype Prototype { get; }
         IEnumerable<IBodypart> Parts { get; }
         IBodypart RootBodypart { get; }
@@ -26,30 +29,34 @@ namespace MudSharp.Body {
         IEnumerable<ISpineProto> SpineProtos { get; }
     }
 
-    public static class LimbExtensions {
-	    public static int LimbOrder(this LimbType type)
-	    {
-		    switch (type) {
-			    case LimbType.Arm:
-				    return 4;
-			    case LimbType.Leg:
-				    return 6;
-			    case LimbType.Appendage:
-				    return 3;
-			    case LimbType.Head:
-				    return 0;
-			    case LimbType.Wing:
-				    return 2;
-			    case LimbType.Torso:
-				    return 1;
-			    case LimbType.Genitals:
-				    return 5;
-		    }
+    public static class LimbExtensions
+    {
+        public static int LimbOrder(this LimbType type)
+        {
+            switch (type)
+            {
+                case LimbType.Arm:
+                    return 4;
+                case LimbType.Leg:
+                    return 6;
+                case LimbType.Appendage:
+                    return 3;
+                case LimbType.Head:
+                    return 0;
+                case LimbType.Wing:
+                    return 2;
+                case LimbType.Torso:
+                    return 1;
+                case LimbType.Genitals:
+                    return 5;
+            }
 
-		    throw new ApplicationException("Unknown LimbType in LimbExtensions.Describe");
-	    }
-        public static string Describe(this LimbType type) {
-            switch (type) {
+            throw new ApplicationException("Unknown LimbType in LimbExtensions.Describe");
+        }
+        public static string Describe(this LimbType type)
+        {
+            switch (type)
+            {
                 case LimbType.Arm:
                     return "Arm";
                 case LimbType.Leg:
@@ -69,8 +76,10 @@ namespace MudSharp.Body {
             throw new ApplicationException("Unknown LimbType in LimbExtensions.Describe");
         }
 
-        public static string DescribePlural(this LimbType type) {
-            switch (type) {
+        public static string DescribePlural(this LimbType type)
+        {
+            switch (type)
+            {
                 case LimbType.Arm:
                     return "Arms";
                 case LimbType.Leg:

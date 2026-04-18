@@ -1,6 +1,7 @@
 ﻿namespace MudSharp.GameItems
 {
-    public enum SizeCategory {
+    public enum SizeCategory
+    {
         Nanoscopic = 0,
         Microscopic,
         Miniscule,

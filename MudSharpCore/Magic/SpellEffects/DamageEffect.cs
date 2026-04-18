@@ -1,14 +1,14 @@
-using System;
-using System.Linq;
-using System.Xml.Linq;
+using MudSharp.Body;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
-using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using System;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -88,7 +88,7 @@ public class DamageEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandType(ICharacter actor, StringStack command)
     {
-        if (!command.SafeRemainingArgument.TryParseEnum<DamageType>(out var type))
+        if (!command.SafeRemainingArgument.TryParseEnum<DamageType>(out DamageType type))
         {
             actor.OutputHandler.Send($"Valid types are: {Enum.GetNames(typeof(DamageType)).ListToString()}");
             return false;
@@ -106,7 +106,7 @@ public class DamageEffect : IMagicSpellEffectTemplate
             actor.OutputHandler.Send("You must specify a formula.");
             return false;
         }
-        var expr = new TraitExpression(command.SafeRemainingArgument, Gameworld);
+        TraitExpression expr = new(command.SafeRemainingArgument, Gameworld);
         if (expr.HasErrors())
         {
             actor.OutputHandler.Send(expr.Error);
@@ -125,7 +125,7 @@ public class DamageEffect : IMagicSpellEffectTemplate
             actor.OutputHandler.Send("Specify a bodypart.");
             return false;
         }
-        var part = Gameworld.BodypartPrototypes.GetByIdOrName(command.SafeRemainingArgument);
+        IBodypart part = Gameworld.BodypartPrototypes.GetByIdOrName(command.SafeRemainingArgument);
         if (part == null)
         {
             actor.OutputHandler.Send("No such bodypart.");
@@ -140,7 +140,7 @@ public class DamageEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandLimb(ICharacter actor, StringStack command)
     {
-        if (!command.SafeRemainingArgument.TryParseEnum<LimbType>(out var limb))
+        if (!command.SafeRemainingArgument.TryParseEnum<LimbType>(out LimbType limb))
         {
             actor.OutputHandler.Send($"Valid limbs are: {Enum.GetNames(typeof(LimbType)).ListToString()}");
             return false;
@@ -154,7 +154,7 @@ public class DamageEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        var target = BodypartId != 0
+        string target = BodypartId != 0
             ? Gameworld.BodypartPrototypes.Get(BodypartId)?.Name ?? "none"
             : Limb != (LimbType)(-1) ? Limb.DescribeEnum() : "random";
         return $"Damage {DamageType.DescribeEnum()} - {DamageExpression.OriginalFormulaText.ColourCommand()} target {target}";
@@ -163,7 +163,11 @@ public class DamageEffect : IMagicSpellEffectTemplate
     public bool IsInstantaneous => true;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return IsCompatibleWithTrigger(types.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -182,15 +186,15 @@ public class DamageEffect : IMagicSpellEffectTemplate
         {
             return null;
         }
-        var amount = DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) });
-        var part = BodypartId != 0 ? tch.Body.Bodyparts.FirstOrDefault(x => x.Id == BodypartId) : null;
+        double amount = DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) });
+        IBodypart part = BodypartId != 0 ? tch.Body.Bodyparts.FirstOrDefault(x => x.Id == BodypartId) : null;
         if (part == null && Limb != (LimbType)(-1))
         {
-            var limb = tch.Body.Limbs.FirstOrDefault(x => x.LimbType == Limb);
+            ILimb limb = tch.Body.Limbs.FirstOrDefault(x => x.LimbType == Limb);
             part = limb != null ? tch.Body.BodypartsForLimb(limb).GetWeightedRandom(x => x.RelativeHitChance) : null;
         }
         part ??= tch.Body.RandomBodypart;
-        var dmg = new Damage
+        Damage dmg = new()
         {
             DamageType = DamageType,
             DamageAmount = amount,
@@ -203,5 +207,8 @@ public class DamageEffect : IMagicSpellEffectTemplate
         return null;
     }
 
-    public IMagicSpellEffectTemplate Clone() => new DamageEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new DamageEffect(SaveToXml(), Spell);
+    }
 }

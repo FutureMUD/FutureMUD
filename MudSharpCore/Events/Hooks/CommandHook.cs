@@ -1,7 +1,7 @@
-﻿using System;
+﻿using MudSharp.Framework;
+using System;
 using System.Linq;
 using System.Xml.Linq;
-using MudSharp.Framework;
 
 namespace MudSharp.Events.Hooks;
 
@@ -10,71 +10,65 @@ namespace MudSharp.Events.Hooks;
 /// </summary>
 public class CommandHook : HookBase, ICommandHook
 {
-	protected int _commandExecuterIndex;
-	private string _commandToExecute;
+    protected int _commandExecuterIndex;
+    private string _commandToExecute;
 
-	public CommandHook(Models.Hooks hook, IFuturemud gameworld)
-		: base(hook, gameworld)
-	{
-		LoadFromXml(XElement.Parse(hook.Definition));
-	}
-	
-	#region IHook Members
+    public CommandHook(Models.Hooks hook, IFuturemud gameworld)
+        : base(hook, gameworld)
+    {
+        LoadFromXml(XElement.Parse(hook.Definition));
+    }
 
-	public override Func<EventType, object[], bool> Function
-	{
-		get
-		{
-			return (type, paramlist) =>
-			{
-				if (type != Type)
-				{
-					return false;
-				}
+    #region IHook Members
 
-				((IControllable)paramlist.ElementAt(_commandExecuterIndex)).ExecuteCommand(
-					CommandToExecute(paramlist));
-				return true;
-			};
-		}
-	}
+    public override Func<EventType, object[], bool> Function => (type, paramlist) =>
+                                                                         {
+                                                                             if (type != Type)
+                                                                             {
+                                                                                 return false;
+                                                                             }
 
-	#endregion
+                                                                             ((IControllable)paramlist.ElementAt(_commandExecuterIndex)).ExecuteCommand(
+                                                                                 CommandToExecute(paramlist));
+                                                                             return true;
+                                                                         };
 
-	public static void RegisterLoader()
-	{
-		HookLoaders.Add("CommandHook", (hook, gameworld) => new CommandHook(hook, gameworld));
-	}
+    #endregion
 
-	protected virtual void LoadFromXml(XElement root)
-	{
-		_commandExecuterIndex = int.Parse(root.Attribute("CommandExecutorIndex").Value);
-		var element = root.Element("CommandToExecute");
-		if (element != null)
-		{
-			_commandToExecute = element.Value;
-		}
-	}
+    public static void RegisterLoader()
+    {
+        HookLoaders.Add("CommandHook", (hook, gameworld) => new CommandHook(hook, gameworld));
+    }
 
-	/// <inheritdoc />
-	protected override XElement SaveDefinition()
-	{
-		return new XElement("Definition",
-			new XElement("CommandExecutorIndex", _commandExecuterIndex),
-			new XElement("CommandToExecute", new XCData(_commandToExecute))
-		);
-	}
+    protected virtual void LoadFromXml(XElement root)
+    {
+        _commandExecuterIndex = int.Parse(root.Attribute("CommandExecutorIndex").Value);
+        XElement element = root.Element("CommandToExecute");
+        if (element != null)
+        {
+            _commandToExecute = element.Value;
+        }
+    }
 
-	protected virtual string CommandToExecute(object[] parameters)
-	{
-		return _commandToExecute;
-	}
+    /// <inheritdoc />
+    protected override XElement SaveDefinition()
+    {
+        return new XElement("Definition",
+            new XElement("CommandExecutorIndex", _commandExecuterIndex),
+            new XElement("CommandToExecute", new XCData(_commandToExecute))
+        );
+    }
 
-	public override string InfoForHooklist => $"Executes {_commandToExecute.ColourCommand()}";
+    protected virtual string CommandToExecute(object[] parameters)
+    {
+        return _commandToExecute;
+    }
 
-	public string CommandText
-	{
-		get => _commandToExecute;
-		set => _commandToExecute = value;
-	}
+    public override string InfoForHooklist => $"Executes {_commandToExecute.ColourCommand()}";
+
+    public string CommandText
+    {
+        get => _commandToExecute;
+        set => _commandToExecute = value;
+    }
 }

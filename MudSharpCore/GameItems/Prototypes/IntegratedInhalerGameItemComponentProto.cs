@@ -1,14 +1,14 @@
-using System;
-using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
-using MudSharp.Form.Material;
 using MudSharp.GameItems.Components;
 using MudSharp.Health;
 using MudSharp.PerceptionEngine;
+using System;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -66,7 +66,7 @@ public class IntegratedInhalerGameItemComponentProto : GameItemComponentProto
             actor.OutputHandler.Send("How much gas should be consumed per puff? The units are litres at 1 atmosphere.");
             return false;
         }
-        var amount = Gameworld.UnitManager.GetBaseUnits(command.PopSpeech(), UnitType.FluidVolume, out var success);
+        double amount = Gameworld.UnitManager.GetBaseUnits(command.PopSpeech(), UnitType.FluidVolume, out bool success);
         if (!success)
         {
             actor.OutputHandler.Send("That is not a valid volume.");
@@ -92,7 +92,7 @@ public class IntegratedInhalerGameItemComponentProto : GameItemComponentProto
             Changed = true;
             return true;
         }
-        var gas = long.TryParse(command.PopSpeech(), out var value) ? Gameworld.Gases.Get(value) : Gameworld.Gases.GetByName(command.Last);
+        IGas gas = long.TryParse(command.PopSpeech(), out long value) ? Gameworld.Gases.Get(value) : Gameworld.Gases.GetByName(command.Last);
         if (gas == null)
         {
             actor.OutputHandler.Send("There is no such gas.");

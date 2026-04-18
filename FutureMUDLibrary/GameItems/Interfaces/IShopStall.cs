@@ -4,7 +4,7 @@
 namespace MudSharp.GameItems.Interfaces;
 
 public interface IShopStall : IGameItemComponent, IContainer
-    {
-	ITransientShop? Shop { get; set; }
-	bool IsTrading { get; set; }
+{
+    ITransientShop? Shop { get; set; }
+    bool IsTrading { get; set; }
 }

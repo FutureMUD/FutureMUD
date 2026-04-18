@@ -24,7 +24,7 @@ namespace MudSharp.Migrations
 SET TargetBodyTypeId = 1
 WHERE Id > 0");
 
-			migrationBuilder.AddForeignKey(
+            migrationBuilder.AddForeignKey(
                 name: "FK_SurgicalProcedures_BodyProtos",
                 table: "SurgicalProcedures",
                 column: "TargetBodyTypeId",

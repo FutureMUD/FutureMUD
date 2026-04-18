@@ -6,73 +6,83 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ProgVariableTypesTests
 {
-	[TestMethod]
-	public void StorageString_LegacyType_RoundTrips()
-	{
-		var original = ProgVariableTypes.Character | ProgVariableTypes.Collection;
-		var storage = original.ToStorageString();
-		var reparsed = ProgVariableTypes.FromStorageString(storage);
+    [TestMethod]
+    public void StorageString_LegacyType_RoundTrips()
+    {
+        ProgVariableTypes original = ProgVariableTypes.Character | ProgVariableTypes.Collection;
+        string storage = original.ToStorageString();
+        ProgVariableTypes reparsed = ProgVariableTypes.FromStorageString(storage);
 
-		Assert.AreEqual(original, reparsed);
-		Assert.AreEqual("v1:408", storage);
-	}
+        Assert.AreEqual(original, reparsed);
+        Assert.AreEqual("v1:408", storage);
+    }
 
-	[TestMethod]
-	public void StorageString_OverflowType_RoundTrips()
-	{
-		const string definition = "v1:800000000000000000";
+    [TestMethod]
+    public void StorageString_OverflowType_RoundTrips()
+    {
+        string definition = ProgVariableTypes.LegalClass.ToStorageString();
 
-		var parsed = ProgVariableTypes.FromStorageString(definition);
+        ProgVariableTypes parsed = ProgVariableTypes.FromStorageString(definition);
 
-		Assert.AreEqual(definition, parsed.ToStorageString());
-		Assert.AreEqual(ProgVariableTypeCode.Unknown, parsed.LegacyCode);
-	}
+        Assert.AreEqual(definition, parsed.ToStorageString());
+        Assert.AreEqual(ProgVariableTypeCode.Unknown, parsed.LegacyCode);
+        Assert.AreEqual(ProgTypeKind.LegalClass, parsed.ExactKind);
+    }
 
-	[TestMethod]
-	public void ExactKind_AndElementKind_HandleModifiers()
-	{
-		var collectionType = ProgVariableTypes.Text | ProgVariableTypes.Collection;
-		var literalType = ProgVariableTypes.Boolean | ProgVariableTypes.Literal;
+    [TestMethod]
+    public void ExactKind_AndElementKind_HandleModifiers()
+    {
+        ProgVariableTypes collectionType = ProgVariableTypes.Text | ProgVariableTypes.Collection;
+        ProgVariableTypes literalType = ProgVariableTypes.Boolean | ProgVariableTypes.Literal;
 
-		Assert.AreEqual(ProgTypeKind.Text, collectionType.ElementKind);
-		Assert.AreEqual(ProgTypeKind.Unknown, collectionType.ExactKind);
-		Assert.IsTrue(collectionType.IsCollection);
-		Assert.IsFalse(collectionType.IsExactType);
+        Assert.AreEqual(ProgTypeKind.Text, collectionType.ElementKind);
+        Assert.AreEqual(ProgTypeKind.Unknown, collectionType.ExactKind);
+        Assert.IsTrue(collectionType.IsCollection);
+        Assert.IsFalse(collectionType.IsExactType);
 
-		Assert.AreEqual(ProgTypeKind.Boolean, literalType.ExactKind);
-		Assert.IsTrue(literalType.IsLiteral);
-		Assert.IsTrue(literalType.IsExactType);
-	}
+        Assert.AreEqual(ProgTypeKind.Boolean, literalType.ExactKind);
+        Assert.IsTrue(literalType.IsLiteral);
+        Assert.IsTrue(literalType.IsExactType);
+    }
 
-	[TestMethod]
-	public void Compatibility_AndAliases_WorkWithExistingMaskSemantics()
-	{
-		Assert.IsTrue((ProgVariableTypes.Character | ProgVariableTypes.Collection)
-			.CompatibleWith(ProgVariableTypes.Collection));
-		Assert.IsTrue(ProgVariableTypes.Character.CompatibleWith(ProgVariableTypes.Toon));
-		Assert.IsTrue(ProgVariableTypes.Character.CompatibleWith(ProgVariableTypes.Perceivable));
-		Assert.IsFalse(ProgVariableTypes.Text.CompatibleWith(ProgVariableTypes.Perceivable));
-	}
+    [TestMethod]
+    public void Compatibility_AndAliases_WorkWithExistingMaskSemantics()
+    {
+        Assert.IsTrue((ProgVariableTypes.Character | ProgVariableTypes.Collection)
+            .CompatibleWith(ProgVariableTypes.Collection));
+        Assert.IsTrue(ProgVariableTypes.Character.CompatibleWith(ProgVariableTypes.Toon));
+        Assert.IsTrue(ProgVariableTypes.Character.CompatibleWith(ProgVariableTypes.Perceivable));
+        Assert.IsFalse(ProgVariableTypes.Text.CompatibleWith(ProgVariableTypes.Perceivable));
+    }
 
-	[TestMethod]
-	public void TryParse_AcceptsFriendlyLegacyAndStorageFormats()
-	{
-		Assert.IsTrue(ProgVariableTypes.TryParse("Terrain", out var terrain));
-		Assert.AreEqual(ProgVariableTypes.Terrain, terrain);
+    [TestMethod]
+    public void TryParse_AcceptsFriendlyLegacyAndStorageFormats()
+    {
+        Assert.IsTrue(ProgVariableTypes.TryParse("Terrain", out ProgVariableTypes terrain));
+        Assert.AreEqual(ProgVariableTypes.Terrain, terrain);
 
-		Assert.IsTrue(ProgVariableTypes.TryParse("4398046511104", out var terrainFromLegacy));
-		Assert.AreEqual(ProgVariableTypes.Terrain, terrainFromLegacy);
+        Assert.IsTrue(ProgVariableTypes.TryParse("LegalClass", out ProgVariableTypes legalClass));
+        Assert.AreEqual(ProgVariableTypes.LegalClass, legalClass);
 
-		Assert.IsTrue(ProgVariableTypes.TryParse("Text Collection", out var textCollection));
-		Assert.AreEqual(ProgVariableTypes.Text | ProgVariableTypes.Collection, textCollection);
+        Assert.IsTrue(ProgVariableTypes.TryParse("4398046511104", out ProgVariableTypes terrainFromLegacy));
+        Assert.AreEqual(ProgVariableTypes.Terrain, terrainFromLegacy);
 
-		Assert.IsTrue(ProgVariableTypes.TryParse("v1:408", out var storageType));
-		Assert.AreEqual(ProgVariableTypes.Character | ProgVariableTypes.Collection, storageType);
-	}
+        Assert.IsTrue(ProgVariableTypes.TryParse("Text Collection", out ProgVariableTypes textCollection));
+        Assert.AreEqual(ProgVariableTypes.Text | ProgVariableTypes.Collection, textCollection);
 
-	[TestMethod]
-	public void TryParse_RejectsNegativeLegacyValues()
-	{
-		Assert.IsFalse(ProgVariableTypes.TryParse("-1", out _));
-	}
+        Assert.IsTrue(ProgVariableTypes.TryParse("v1:408", out ProgVariableTypes storageType));
+        Assert.AreEqual(ProgVariableTypes.Character | ProgVariableTypes.Collection, storageType);
+
+        Assert.IsTrue(ProgVariableTypes.ReferenceType.HasFlag(ProgVariableTypes.LegalClass));
+        Assert.IsTrue(ProgVariableTypes.CollectionItem.HasFlag(ProgVariableTypes.LegalClass));
+        Assert.IsTrue(ProgVariableTypes.Anything.HasFlag(ProgVariableTypes.LegalClass));
+        Assert.AreEqual("LegalClass", ProgVariableTypes.LegalClass.Describe());
+        Assert.AreEqual(ProgTypeKind.LegalClass, (ProgVariableTypes.LegalClass | ProgVariableTypes.Collection).ElementKind);
+    }
+
+    [TestMethod]
+    public void TryParse_RejectsNegativeLegacyValues()
+    {
+        Assert.IsFalse(ProgVariableTypes.TryParse("-1", out _));
+    }
 }

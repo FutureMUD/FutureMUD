@@ -8,19 +8,19 @@ namespace MudSharp.Effects.Concrete;
 
 public class WardBeaten : CombatEffectBase, IWardBeatenEffect
 {
-	protected WardBeaten(XElement effect, IPerceivable owner) : base(effect, owner)
-	{
-	}
+    protected WardBeaten(XElement effect, IPerceivable owner) : base(effect, owner)
+    {
+    }
 
-	public WardBeaten(IPerceivable owner, ICombat combat, IFutureProg applicabilityProg = null)
-		: base(owner, combat, applicabilityProg)
-	{
-	}
+    public WardBeaten(IPerceivable owner, ICombat combat, IFutureProg applicabilityProg = null)
+        : base(owner, combat, applicabilityProg)
+    {
+    }
 
-	protected override string SpecificEffectType => "WardBeaten";
+    protected override string SpecificEffectType => "WardBeaten";
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return "Ward defense has been beaten.";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return "Ward defense has been beaten.";
+    }
 }

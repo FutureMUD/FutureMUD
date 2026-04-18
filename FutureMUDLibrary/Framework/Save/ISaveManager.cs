@@ -1,7 +1,9 @@
 ﻿using System;
 
-namespace MudSharp.Framework.Save {
-    public interface ISaveManager {
+namespace MudSharp.Framework.Save
+{
+    public interface ISaveManager
+    {
         /// <summary>
         ///     Indicates that an item is due to be saved and adds it to the queue
         /// </summary>

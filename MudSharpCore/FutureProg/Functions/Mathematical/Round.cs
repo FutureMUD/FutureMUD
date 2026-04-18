@@ -16,84 +16,84 @@ namespace MudSharp.FutureProg.Functions.Mathematical;
 
 internal class Round : BuiltInFunction
 {
-	public IFuturemud Gameworld { get; set; }
-	#region Static Initialisation
-	public static void RegisterFunctionCompiler()
-	{
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"Round".ToLowerInvariant(),
-				new[] { ProgVariableTypes.Number }, // the parameters the function takes
-				(pars, gameworld) => new Round(pars, gameworld),
-				new List<string>
-				{
-					"number"
-				}, // parameter names
-				new List<string>
-				{
-					"The number to round"
-				}, // parameter help text
-				"Rounds a function to zero decimal places", // help text for the function,
+    public IFuturemud Gameworld { get; set; }
+    #region Static Initialisation
+    public static void RegisterFunctionCompiler()
+    {
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "Round".ToLowerInvariant(),
+                new[] { ProgVariableTypes.Number }, // the parameters the function takes
+                (pars, gameworld) => new Round(pars, gameworld),
+                new List<string>
+                {
+                    "number"
+                }, // parameter names
+                new List<string>
+                {
+                    "The number to round"
+                }, // parameter help text
+                "Rounds a function to zero decimal places", // help text for the function,
 
-				"Numbers", // the category to which this function belongs,
+                "Numbers", // the category to which this function belongs,
 
-				ProgVariableTypes.Number // the return type of the function
-			)
-		);
+                ProgVariableTypes.Number // the return type of the function
+            )
+        );
 
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"Round".ToLowerInvariant(),
-				new[] { ProgVariableTypes.Number, ProgVariableTypes.Number }, // the parameters the function takes
-				(pars, gameworld) => new Round(pars, gameworld),
-				new List<string>
-				{
-					"number",
-					"decimals"
-				}, // parameter names
-				new List<string>
-				{
-					"The number to round",
-					"The number of decimal places"
-				}, // parameter help text
-				"Rounds a function to the specified amount of decimal places", // help text for the function,
+        FutureProg.RegisterBuiltInFunctionCompiler(
+            new FunctionCompilerInformation(
+                "Round".ToLowerInvariant(),
+                new[] { ProgVariableTypes.Number, ProgVariableTypes.Number }, // the parameters the function takes
+                (pars, gameworld) => new Round(pars, gameworld),
+                new List<string>
+                {
+                    "number",
+                    "decimals"
+                }, // parameter names
+                new List<string>
+                {
+                    "The number to round",
+                    "The number of decimal places"
+                }, // parameter help text
+                "Rounds a function to the specified amount of decimal places", // help text for the function,
 
-				"Numbers", // the category to which this function belongs,
+                "Numbers", // the category to which this function belongs,
 
-				ProgVariableTypes.Number // the return type of the function
-			)
-		);
-	}
-	#endregion
+                ProgVariableTypes.Number // the return type of the function
+            )
+        );
+    }
+    #endregion
 
-	#region Constructors
-	protected Round(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
-	{
-		Gameworld = gameworld;
-	}
-	#endregion
+    #region Constructors
+    protected Round(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+    {
+        Gameworld = gameworld;
+    }
+    #endregion
 
-	public override ProgVariableTypes ReturnType
-	{
-		get { return ProgVariableTypes.Number; }
-		protected set { }
-	}
+    public override ProgVariableTypes ReturnType
+    {
+        get => ProgVariableTypes.Number;
+        protected set { }
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (base.Execute(variables) == StatementResult.Error)
-		{
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (base.Execute(variables) == StatementResult.Error)
+        {
+            return StatementResult.Error;
+        }
 
-		var number = (decimal?)ParameterFunctions[0].Result?.GetObject ?? 0.0M;
-		var places = 0;
-		if (ParameterFunctions.Count == 2)
-		{
-			places = (int)((decimal?)ParameterFunctions[1].Result?.GetObject ?? 0.0M);
-		}
+        decimal number = (decimal?)ParameterFunctions[0].Result?.GetObject ?? 0.0M;
+        int places = 0;
+        if (ParameterFunctions.Count == 2)
+        {
+            places = (int)((decimal?)ParameterFunctions[1].Result?.GetObject ?? 0.0M);
+        }
 
-		Result = new NumberVariable(Math.Round(number, places));
-		return StatementResult.Normal;
-	}
+        Result = new NumberVariable(Math.Round(number, places));
+        return StatementResult.Normal;
+    }
 }

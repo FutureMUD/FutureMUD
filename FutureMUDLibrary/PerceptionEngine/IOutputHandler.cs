@@ -1,8 +1,10 @@
 ﻿using MudSharp.Framework;
 using System.Linq;
 
-namespace MudSharp.PerceptionEngine {
-    public interface IOutputHandler {
+namespace MudSharp.PerceptionEngine
+{
+    public interface IOutputHandler
+    {
         /// <summary>
         ///     The Perceiver bound to this handler. Returns null if the underlying handler does not handle individual perceivers.
         /// </summary>

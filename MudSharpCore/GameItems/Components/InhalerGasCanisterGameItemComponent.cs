@@ -1,6 +1,6 @@
-using System.Xml.Linq;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
@@ -44,7 +44,7 @@ public class InhalerGasCanisterGameItemComponent : GameItemComponent
     public override void FinaliseLoad()
     {
         base.FinaliseLoad();
-        var container = Parent.GetItemType<IGasContainer>();
+        IGasContainer container = Parent.GetItemType<IGasContainer>();
         if (container != null && container.Gas == null && _prototype.InitialGas != null)
         {
             container.Gas = _prototype.InitialGas;

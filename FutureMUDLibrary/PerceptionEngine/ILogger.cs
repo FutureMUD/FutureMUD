@@ -1,4 +1,6 @@
-﻿namespace MudSharp.PerceptionEngine {
-    public interface ILogger {
+﻿namespace MudSharp.PerceptionEngine
+{
+    public interface ILogger
+    {
     }
 }

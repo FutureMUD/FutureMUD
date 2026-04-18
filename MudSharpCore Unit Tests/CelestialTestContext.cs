@@ -1,9 +1,5 @@
 #nullable enable
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Xml.Linq;
 using Moq;
 using MudSharp.Celestial;
 using MudSharp.Construction;
@@ -11,6 +7,10 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Xml.Linq;
 using RuntimeCalendar = MudSharp.TimeAndDate.Date.Calendar;
 using RuntimeClock = MudSharp.TimeAndDate.Time.Clock;
 
@@ -18,70 +18,70 @@ namespace MudSharp_Unit_Tests;
 
 internal sealed class CelestialTestContext
 {
-	public IFuturemud Gameworld { get; }
-	public RuntimeCalendar Calendar { get; }
-	public RuntimeClock Clock { get; }
-	public NewSun Sun { get; }
-	public PlanetaryMoon Moon { get; }
-	public PlanetFromMoon Planet { get; }
-	public SunFromPlanetaryMoon SunFromMoon { get; }
-	public GeographicCoordinate ZeroGeography { get; } = new(0.0, 0.0, 0.0, 0.0);
-	public GeographicCoordinate DefaultGeography { get; } = new(0.3, 0.1, 0.0, 0.0);
+    public IFuturemud Gameworld { get; }
+    public RuntimeCalendar Calendar { get; }
+    public RuntimeClock Clock { get; }
+    public NewSun Sun { get; }
+    public PlanetaryMoon Moon { get; }
+    public PlanetFromMoon Planet { get; }
+    public SunFromPlanetaryMoon SunFromMoon { get; }
+    public GeographicCoordinate ZeroGeography { get; } = new(0.0, 0.0, 0.0, 0.0);
+    public GeographicCoordinate DefaultGeography { get; } = new(0.3, 0.1, 0.0, 0.0);
 
-	public CelestialTestContext(
-		IFuturemud gameworld,
-		RuntimeCalendar calendar,
-		RuntimeClock clock,
-		NewSun sun,
-		PlanetaryMoon moon,
-		PlanetFromMoon planet,
-		SunFromPlanetaryMoon sunFromMoon)
-	{
-		Gameworld = gameworld;
-		Calendar = calendar;
-		Clock = clock;
-		Sun = sun;
-		Moon = moon;
-		Planet = planet;
-		SunFromMoon = sunFromMoon;
-	}
+    public CelestialTestContext(
+        IFuturemud gameworld,
+        RuntimeCalendar calendar,
+        RuntimeClock clock,
+        NewSun sun,
+        PlanetaryMoon moon,
+        PlanetFromMoon planet,
+        SunFromPlanetaryMoon sunFromMoon)
+    {
+        Gameworld = gameworld;
+        Calendar = calendar;
+        Clock = clock;
+        Sun = sun;
+        Moon = moon;
+        Planet = planet;
+        SunFromMoon = sunFromMoon;
+    }
 
-	public void SetDateTime(string date, int hour, int minute, int second)
-	{
-		Calendar.SetDate(date);
-		Clock.CurrentTime.SetTime(hour, minute, second);
-	}
+    public void SetDateTime(string date, int hour, int minute, int second)
+    {
+        Calendar.SetDate(date);
+        Clock.CurrentTime.SetTime(hour, minute, second);
+    }
 
-	public NewSun CreateSunWithDayOffset(double currentDayNumberOffset)
-	{
-		return new NewSun(
-			XElement.Parse(CelestialTestXml.EarthSunXml(currentDayNumberOffset)),
-			Clock,
-			Gameworld
-		);
-	}
+    public NewSun CreateSunWithDayOffset(double currentDayNumberOffset)
+    {
+        return new NewSun(
+            XElement.Parse(CelestialTestXml.EarthSunXml(currentDayNumberOffset)),
+            Clock,
+            Gameworld
+        );
+    }
 }
 
 internal static class CelestialTestFactory
 {
-	public static CelestialTestContext CreateEarthSystem()
-	{
-		var saveManager = new Mock<ISaveManager>();
-		saveManager.Setup(x => x.Add(It.IsAny<ISaveable>()));
+    public static CelestialTestContext CreateEarthSystem()
+    {
+        Mock<ISaveManager> saveManager = new();
+        saveManager.Setup(x => x.Add(It.IsAny<ISaveable>()));
 
-		var clocks = new All<IClock>();
-		var calendars = new All<ICalendar>();
-		var celestials = new All<ICelestialObject>();
+        All<IClock> clocks = new();
+        All<ICalendar> calendars = new();
+        All<ICelestialObject> celestials = new();
 
-		var gameworld = new Mock<IFuturemud>();
-		gameworld.SetupGet(x => x.Clocks).Returns(clocks);
-		gameworld.SetupGet(x => x.Calendars).Returns(calendars);
-		gameworld.SetupGet(x => x.CelestialObjects).Returns(celestials);
-		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+        Mock<IFuturemud> gameworld = new();
+        gameworld.SetupGet(x => x.Clocks).Returns(clocks);
+        gameworld.SetupGet(x => x.Calendars).Returns(calendars);
+        gameworld.SetupGet(x => x.CelestialObjects).Returns(celestials);
+        gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 
-		var clock = new RuntimeClock(
-			XElement.Parse(
-				@"<Clock>
+        RuntimeClock clock = new(
+            XElement.Parse(
+                @"<Clock>
 	<Alias>UTC</Alias>
 	<Description>Universal Time Clock</Description>
 	<ShortDisplayString>$j:$m:$s $i</ShortDisplayString>
@@ -111,19 +111,19 @@ internal static class CelestialTestFactory
 		<CrudeTimeInterval text=""evening"" Lower=""18"" Upper=""22"" />
 	</CrudeTimeIntervals>
 </Clock>"),
-			gameworld.Object,
-			new MudTimeZone(1, 0, 0, "UTC+0", "utc"),
-			12,
-			0,
-			0)
-		{
-			Id = 1
-		};
-		clocks.Add(clock);
+            gameworld.Object,
+            new MudTimeZone(1, 0, 0, "UTC+0", "utc"),
+            12,
+            0,
+            0)
+        {
+            Id = 1
+        };
+        clocks.Add(clock);
 
-		var calendar = new RuntimeCalendar(
-			XElement.Parse(
-				@"<calendar>
+        RuntimeCalendar calendar = new(
+            XElement.Parse(
+                @"<calendar>
 	<alias>gregorian</alias>
 	<shortname>Gregorian</shortname>
 	<fullname>Gregorian Calendar</fullname>
@@ -164,56 +164,56 @@ internal static class CelestialTestFactory
 	</months>
 	<intercalarymonths />
 </calendar>"),
-			gameworld.Object)
-		{
-			Id = 1
-		};
-		calendar.FeedClock = clock;
-		calendar.SetDate("1/jan/2000");
-		calendars.Add(calendar);
+            gameworld.Object)
+        {
+            Id = 1
+        };
+        calendar.FeedClock = clock;
+        calendar.SetDate("1/jan/2000");
+        calendars.Add(calendar);
 
-		var sun = new NewSun(XElement.Parse(CelestialTestXml.EarthSunXml()), clock, gameworld.Object);
-		celestials.Add(sun);
+        NewSun sun = new(XElement.Parse(CelestialTestXml.EarthSunXml()), clock, gameworld.Object);
+        celestials.Add(sun);
 
-		var moon = new PlanetaryMoon(calendar, clock)
-		{
-			CelestialDaysPerYear = 29.530588,
-			MeanAnomalyAngleAtEpoch = 2.355556,
-			AnomalyChangeAnglePerDay = 0.228027,
-			ArgumentOfPeriapsis = 5.552765,
-			LongitudeOfAscendingNode = 2.18244,
-			OrbitalInclination = 0.0898,
-			OrbitalEccentricity = 0.0549,
-			OrbitalSemiMajorAxis = 384400.0,
-			DayNumberAtEpoch = 2451545.0,
-			SiderealTimeAtEpoch = 4.889488,
-			SiderealTimePerDay = 6.300388,
-			EpochDate = calendar.GetDate("21/jan/2000"),
-			PeakIllumination = 1.0,
-			FullMoonReferenceDay = 0.0
-		};
-		celestials.Add(moon);
+        PlanetaryMoon moon = new(calendar, clock)
+        {
+            CelestialDaysPerYear = 29.530588,
+            MeanAnomalyAngleAtEpoch = 2.355556,
+            AnomalyChangeAnglePerDay = 0.228027,
+            ArgumentOfPeriapsis = 5.552765,
+            LongitudeOfAscendingNode = 2.18244,
+            OrbitalInclination = 0.0898,
+            OrbitalEccentricity = 0.0549,
+            OrbitalSemiMajorAxis = 384400.0,
+            DayNumberAtEpoch = 2451545.0,
+            SiderealTimeAtEpoch = 4.889488,
+            SiderealTimePerDay = 6.300388,
+            EpochDate = calendar.GetDate("21/jan/2000"),
+            PeakIllumination = 1.0,
+            FullMoonReferenceDay = 0.0
+        };
+        celestials.Add(moon);
 
-		var planet = new PlanetFromMoon(moon, sun)
-		{
-			PeakIllumination = 1.0,
-			AngularRadius = 0.0165,
-			SunAngularRadius = 0.004654793
-		};
-		celestials.Add(planet);
+        PlanetFromMoon planet = new(moon, sun)
+        {
+            PeakIllumination = 1.0,
+            AngularRadius = 0.0165,
+            SunAngularRadius = 0.004654793
+        };
+        celestials.Add(planet);
 
-		var sunFromMoon = new SunFromPlanetaryMoon(moon, sun);
-		celestials.Add(sunFromMoon);
+        SunFromPlanetaryMoon sunFromMoon = new(moon, sun);
+        celestials.Add(sunFromMoon);
 
-		return new CelestialTestContext(gameworld.Object, calendar, clock, sun, moon, planet, sunFromMoon);
-	}
+        return new CelestialTestContext(gameworld.Object, calendar, clock, sun, moon, planet, sunFromMoon);
+    }
 }
 
 internal static class CelestialTestXml
 {
-	public static string EarthSunXml(double currentDayNumberOffset = 0.5)
-	{
-		return $@"<Sun>
+    public static string EarthSunXml(double currentDayNumberOffset = 0.5)
+    {
+        return $@"<Sun>
 	<Name>The Sun</Name>
 	<Calendar>1</Calendar>
 	<Orbital>
@@ -245,49 +245,49 @@ internal static class CelestialTestXml
 		<AtmosphericDensityScalingFactor>6.35</AtmosphericDensityScalingFactor>
 	</Illumination>
 </Sun>";
-	}
+    }
 }
 
 internal static class CelestialTestAssertions
 {
-	public const double AngleTolerance = 1.0E-6;
-	public const double DayNumberTolerance = 1.0E-6;
-	public const double UnitTolerance = 1.0E-6;
-	public const double LuxTolerance = 1.0E-3;
+    public const double AngleTolerance = 1.0E-6;
+    public const double DayNumberTolerance = 1.0E-6;
+    public const double UnitTolerance = 1.0E-6;
+    public const double LuxTolerance = 1.0E-3;
 
-	private static readonly MethodInfo SunFromMoonEquatorialCoordinatesMethod =
-		typeof(SunFromPlanetaryMoon).GetMethod(
-			"SunEquatorialCoordinates",
-			BindingFlags.Instance | BindingFlags.NonPublic)!;
+    private static readonly MethodInfo SunFromMoonEquatorialCoordinatesMethod =
+        typeof(SunFromPlanetaryMoon).GetMethod(
+            "SunEquatorialCoordinates",
+            BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-	public static (double RA, double Dec) SunFromMoonEquatorialCoordinates(
-		SunFromPlanetaryMoon sunFromMoon,
-		double dayNumber)
-	{
-		return ((double RA, double Dec))SunFromMoonEquatorialCoordinatesMethod.Invoke(sunFromMoon, [dayNumber])!;
-	}
+    public static (double RA, double Dec) SunFromMoonEquatorialCoordinates(
+        SunFromPlanetaryMoon sunFromMoon,
+        double dayNumber)
+    {
+        return ((double RA, double Dec))SunFromMoonEquatorialCoordinatesMethod.Invoke(sunFromMoon, [dayNumber])!;
+    }
 
-	public static void SetClockDimensions(RuntimeClock clock, int hoursPerDay, int minutesPerHour)
-	{
-		SetClockField(clock, "_hoursPerDay", hoursPerDay);
-		SetClockField(clock, "_minutesPerHour", minutesPerHour);
-	}
+    public static void SetClockDimensions(RuntimeClock clock, int hoursPerDay, int minutesPerHour)
+    {
+        SetClockField(clock, "_hoursPerDay", hoursPerDay);
+        SetClockField(clock, "_minutesPerHour", minutesPerHour);
+    }
 
-	public static double WrappedAbsoluteDifference(double first, double second)
-	{
-		var difference = (first - second).Modulus(2 * Math.PI);
-		if (difference > Math.PI)
-		{
-			difference = 2 * Math.PI - difference;
-		}
+    public static double WrappedAbsoluteDifference(double first, double second)
+    {
+        double difference = (first - second).Modulus(2 * Math.PI);
+        if (difference > Math.PI)
+        {
+            difference = 2 * Math.PI - difference;
+        }
 
-		return Math.Abs(difference);
-	}
+        return Math.Abs(difference);
+    }
 
-	private static void SetClockField(RuntimeClock clock, string fieldName, int value)
-	{
-		typeof(RuntimeClock)
-			.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)!
-			.SetValue(clock, value);
-	}
+    private static void SetClockField(RuntimeClock clock, string fieldName, int value)
+    {
+        typeof(RuntimeClock)
+            .GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)!
+            .SetValue(clock, value);
+    }
 }

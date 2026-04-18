@@ -2,5 +2,5 @@
 
 public interface ILoadingTag : IEditableTag
 {
-	void FinaliseLoad(MudSharp.Models.Tag tag);
+    void FinaliseLoad(MudSharp.Models.Tag tag);
 }

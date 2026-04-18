@@ -1,9 +1,11 @@
-﻿using System;
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Character;
+using System;
 
-namespace MudSharp.Framework.Revision {
-    public enum RevisionStatus {
+namespace MudSharp.Framework.Revision
+{
+    public enum RevisionStatus
+    {
         /// <summary>
         ///     This item has been Revised, and is now superceded
         /// </summary>
@@ -54,7 +56,8 @@ namespace MudSharp.Framework.Revision {
     }
 
 
-    public interface IEditableRevisableItem : IEditableItem, IRevisableItem, IHaveFuturemud, IKeywordedItem {
+    public interface IEditableRevisableItem : IEditableItem, IRevisableItem, IHaveFuturemud, IKeywordedItem
+    {
         /// <summary>
         ///     The ID of the Account who created this Revision
         /// </summary>
@@ -107,9 +110,12 @@ namespace MudSharp.Framework.Revision {
         bool IsAssociatedBuilder(ICharacter character);
     }
 
-    public static class IEditableItemExtensions {
-        public static string Describe(this RevisionStatus status) {
-            switch (status) {
+    public static class IEditableItemExtensions
+    {
+        public static string Describe(this RevisionStatus status)
+        {
+            switch (status)
+            {
                 case RevisionStatus.Current:
                     return "Current";
                 case RevisionStatus.PendingRevision:
@@ -127,8 +133,10 @@ namespace MudSharp.Framework.Revision {
             }
         }
 
-        public static string DescribeColour(this RevisionStatus status) {
-            switch (status) {
+        public static string DescribeColour(this RevisionStatus status)
+        {
+            switch (status)
+            {
                 case RevisionStatus.Current:
                     return "Current".Colour(Telnet.Green);
                 case RevisionStatus.PendingRevision:

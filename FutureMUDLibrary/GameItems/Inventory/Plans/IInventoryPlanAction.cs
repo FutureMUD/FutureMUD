@@ -1,8 +1,10 @@
 ﻿using MudSharp.Character;
 using MudSharp.Framework;
 
-namespace MudSharp.GameItems.Inventory.Plans {
-    public enum DesiredItemState {
+namespace MudSharp.GameItems.Inventory.Plans
+{
+    public enum DesiredItemState
+    {
         InRoom,
         Held,
         Wielded,
@@ -19,7 +21,8 @@ namespace MudSharp.GameItems.Inventory.Plans {
         Apply
     }
 
-    public interface IInventoryPlanAction : IXmlSavable {
+    public interface IInventoryPlanAction : IXmlSavable
+    {
         DesiredItemState DesiredState { get; }
         ITag DesiredTag { get; }
         ITag DesiredSecondaryTag { get; }

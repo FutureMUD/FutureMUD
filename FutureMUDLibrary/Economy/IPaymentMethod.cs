@@ -1,10 +1,10 @@
 ﻿using MudSharp.Character;
+using MudSharp.Economy.Currency;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Economy.Currency;
 
 namespace MudSharp.Economy
 {

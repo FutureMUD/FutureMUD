@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
@@ -14,145 +9,150 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.Effects.Concrete;
 
 public class Suturing : CharacterActionWithTarget, IAffectProximity
 {
-	private static string _effectDurationDiceExpression;
+    private static string _effectDurationDiceExpression;
 
-	private static string EffectDurationDiceExpression
-	{
-		get
-		{
-			if (_effectDurationDiceExpression == null)
-			{
-				_effectDurationDiceExpression = Futuremud.Games.First()
-				                                         .GetStaticConfiguration(
-					                                         "SuturingEffectDurationDiceExpression");
-			}
+    private static string EffectDurationDiceExpression
+    {
+        get
+        {
+            if (_effectDurationDiceExpression == null)
+            {
+                _effectDurationDiceExpression = Futuremud.Games.First()
+                                                         .GetStaticConfiguration(
+                                                             "SuturingEffectDurationDiceExpression");
+            }
 
-			return _effectDurationDiceExpression;
-		}
-	}
+            return _effectDurationDiceExpression;
+        }
+    }
 
-	public static TimeSpan EffectDuration => TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression));
+    public static TimeSpan EffectDuration => TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression));
 
-	public IInventoryPlan OriginalInventoryPlan { get; set; }
+    public IInventoryPlan OriginalInventoryPlan { get; set; }
 
-	#region Overrides of Effect
+    #region Overrides of Effect
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"Suturing the wounds of {TargetCharacter.HowSeen(voyeur)}.";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"Suturing the wounds of {TargetCharacter.HowSeen(voyeur)}.";
+    }
 
-	protected override string SpecificEffectType => "Suturing";
+    protected override string SpecificEffectType => "Suturing";
 
-	#endregion
+    #endregion
 
-	public Suturing(ICharacter owner, ICharacter target) : base(owner, target)
-	{
-		WhyCannotMoveEmoteString = "@ cannot move because $0 $0|are|is suturing $1's wounds.";
-		CancelEmoteString = "@ $0|stop|stops suturing $1's wounds.";
-		LDescAddendum = "suturing $1's wounds";
-		ActionDescription = "suturing $1's wounds";
-		_blocks.Add("general");
-		_blocks.Add("movement");
-	}
+    public Suturing(ICharacter owner, ICharacter target) : base(owner, target)
+    {
+        WhyCannotMoveEmoteString = "@ cannot move because $0 $0|are|is suturing $1's wounds.";
+        CancelEmoteString = "@ $0|stop|stops suturing $1's wounds.";
+        LDescAddendum = "suturing $1's wounds";
+        ActionDescription = "suturing $1's wounds";
+        _blocks.Add("general");
+        _blocks.Add("movement");
+    }
 
-	public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
-	{
-		if (TargetCharacter == thing)
-		{
-			return (true, Proximity.Immediate);
-		}
+    public (bool Affects, Proximity Proximity) GetProximityFor(IPerceivable thing)
+    {
+        if (TargetCharacter == thing)
+        {
+            return (true, Proximity.Immediate);
+        }
 
-		return (false, Proximity.Unapproximable);
-	}
+        return (false, Proximity.Unapproximable);
+    }
 
-	#region Overrides of TargetedBlockingDelayedAction
+    #region Overrides of TargetedBlockingDelayedAction
 
-	/// <summary>
-	///     Fires when an effect is removed, including a matured scheduled effect
-	/// </summary>
-	public override void RemovalEffect()
-	{
-		OriginalInventoryPlan?.FinalisePlan();
-		ReleaseEventHandlers();
-	}
+    /// <summary>
+    ///     Fires when an effect is removed, including a matured scheduled effect
+    /// </summary>
+    public override void RemovalEffect()
+    {
+        OriginalInventoryPlan?.FinalisePlan();
+        ReleaseEventHandlers();
+    }
 
-	#endregion
+    #endregion
 
-	public override void ExpireEffect()
-	{
-		var wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
-		                            .Where(x => x.BleedStatus == BleedStatus.TraumaControlled &&
-		                                        x.CanBeTreated(TreatmentType.Close) != Difficulty.Impossible)
-		                            .ToList();
-		if (!wounds.Any())
-		{
-			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-				"@ have|has finished suturing all of $1's visible wounds.", CharacterOwner, CharacterOwner,
-				TargetCharacter)));
-			Owner.RemoveEffect(this, true);
-			return;
-		}
+    public override void ExpireEffect()
+    {
+        List<IWound> wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
+                                    .Where(x => x.BleedStatus == BleedStatus.TraumaControlled &&
+                                                x.CanBeTreated(TreatmentType.Close) != Difficulty.Impossible)
+                                    .ToList();
+        if (!wounds.Any())
+        {
+            CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+                "@ have|has finished suturing all of $1's visible wounds.", CharacterOwner, CharacterOwner,
+                TargetCharacter)));
+            Owner.RemoveEffect(this, true);
+            return;
+        }
 
-		var inventoryPlan = Gameworld.SutureInventoryPlanTemplate.CreatePlan(CharacterOwner);
-		if (OriginalInventoryPlan == null)
-		{
-			OriginalInventoryPlan = inventoryPlan;
-		}
+        IInventoryPlan inventoryPlan = Gameworld.SutureInventoryPlanTemplate.CreatePlan(CharacterOwner);
+        if (OriginalInventoryPlan == null)
+        {
+            OriginalInventoryPlan = inventoryPlan;
+        }
 
-		if (inventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
-		{
-			inventoryPlan.ExecuteWholePlan();
-		}
+        if (inventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+        {
+            inventoryPlan.ExecuteWholePlan();
+        }
 
-		if (inventoryPlan != OriginalInventoryPlan)
-		{
-			inventoryPlan.FinalisePlanNoRestore();
-		}
+        if (inventoryPlan != OriginalInventoryPlan)
+        {
+            inventoryPlan.FinalisePlanNoRestore();
+        }
 
-		var maxDifficulty = wounds.Select(x => x.CanBeTreated(TreatmentType.Close))
-		                          .Where(x => x != Difficulty.Impossible)
-		                          .DefaultIfEmpty()
-		                          .Max();
-		var treatmentItem =
-			CharacterOwner.Body.HeldItems.SelectNotNull(x => x.GetItemType<ITreatment>())
-			              .Where(x => x.IsTreatmentType(TreatmentType.Close))
-			              .FirstMin(x => x.GetTreatmentDifficulty(maxDifficulty));
+        Difficulty maxDifficulty = wounds.Select(x => x.CanBeTreated(TreatmentType.Close))
+                                  .Where(x => x != Difficulty.Impossible)
+                                  .DefaultIfEmpty()
+                                  .Max();
+        ITreatment treatmentItem =
+            CharacterOwner.Body.HeldItems.SelectNotNull(x => x.GetItemType<ITreatment>())
+                          .Where(x => x.IsTreatmentType(TreatmentType.Close))
+                          .FirstMin(x => x.GetTreatmentDifficulty(maxDifficulty));
 
-		if (treatmentItem == null)
-		{
-			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-				"@ stop|stops suturing $1's wounds because #0 no longer has the correct tools.", CharacterOwner,
-				CharacterOwner, TargetCharacter)));
-			Owner.RemoveEffect(this, true);
-			return;
-		}
+        if (treatmentItem == null)
+        {
+            CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+                "@ stop|stops suturing $1's wounds because #0 no longer has the correct tools.", CharacterOwner,
+                CharacterOwner, TargetCharacter)));
+            Owner.RemoveEffect(this, true);
+            return;
+        }
 
-		var sutureCheck = Gameworld.GetCheck(CheckType.SutureWoundCheck);
-		var worstWound =
-			wounds.Where(x => x.CanBeTreated(TreatmentType.Close) != Difficulty.Impossible)
-			      .FirstMax(x => x.Severity);
-		worstWound.Treat(CharacterOwner, TreatmentType.Close, treatmentItem,
-			sutureCheck.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Close)), false);
+        ICheck sutureCheck = Gameworld.GetCheck(CheckType.SutureWoundCheck);
+        IWound worstWound =
+            wounds.Where(x => x.CanBeTreated(TreatmentType.Close) != Difficulty.Impossible)
+                  .FirstMax(x => x.Severity);
+        worstWound.Treat(CharacterOwner, TreatmentType.Close, treatmentItem,
+            sutureCheck.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Close)), false);
 
-		if (TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
-		                   .Any(x => x.BleedStatus == BleedStatus.TraumaControlled))
-		{
-			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-				"@ continue|continues &0's medical efforts, as $1 still $1|have|has wounds that need suturing.",
-				CharacterOwner, CharacterOwner, TargetCharacter)));
-			CharacterOwner.Reschedule(this, TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression)));
-			return;
-		}
+        if (TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
+                           .Any(x => x.BleedStatus == BleedStatus.TraumaControlled))
+        {
+            CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+                "@ continue|continues &0's medical efforts, as $1 still $1|have|has wounds that need suturing.",
+                CharacterOwner, CharacterOwner, TargetCharacter)));
+            CharacterOwner.Reschedule(this, TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression)));
+            return;
+        }
 
-		CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-			"@ have|has finished suturing all of $1's visible wounds.", CharacterOwner, CharacterOwner,
-			TargetCharacter)));
-		Owner.RemoveEffect(this, true);
-	}
+        CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
+            "@ have|has finished suturing all of $1's visible wounds.", CharacterOwner, CharacterOwner,
+            TargetCharacter)));
+        Owner.RemoveEffect(this, true);
+    }
 }

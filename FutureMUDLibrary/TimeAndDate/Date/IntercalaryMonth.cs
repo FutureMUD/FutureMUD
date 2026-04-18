@@ -1,17 +1,22 @@
-﻿using System.Xml;
+﻿using MudSharp.Framework;
+using System.Xml;
 using System.Xml.Linq;
-using MudSharp.Framework;
 
-namespace MudSharp.TimeAndDate.Date {
-    public class IntercalaryMonth : IXmlLoadable, IXmlSavable {
-        public void LoadFromXml(XElement root) {
-            if (root?.HasElements != true) {
+namespace MudSharp.TimeAndDate.Date
+{
+    public class IntercalaryMonth : IXmlLoadable, IXmlSavable
+    {
+        public void LoadFromXml(XElement root)
+        {
+            if (root?.HasElements != true)
+            {
                 throw new XmlException("Empty or Missing Intercalary Month in LoadFromXml.");
             }
 
             // Normal Days
-            var element = root.Element("position");
-            if ((element == null) || (element.Value.Length == 0)) {
+            XElement element = root.Element("position");
+            if ((element == null) || (element.Value.Length == 0))
+            {
                 throw new XmlException("Missing position value in IntercalaryMonth LoadFromXML.");
             }
 
@@ -19,26 +24,29 @@ namespace MudSharp.TimeAndDate.Date {
 
             // Rule
             element = root.Element("intercalaryrule");
-            if (element?.HasElements != true) {
+            if (element?.HasElements != true)
+            {
                 throw new XmlException("Missing or empty rule in IntercalaryMonth LoadFromXml.");
             }
 
-            var rule = new IntercalaryRule();
+            IntercalaryRule rule = new();
             rule.LoadFromXml(element);
             Rule = rule;
 
             // Month
             element = root.Element("month");
-            if (element?.HasElements != true) {
+            if (element?.HasElements != true)
+            {
                 throw new XmlException("Missing or empty month in IntercalaryMonth LoadFromXml.");
             }
 
-            var month = new MonthDefinition();
+            MonthDefinition month = new();
             month.LoadFromXml(element);
             Month = month;
         }
 
-        public XElement SaveToXml() {
+        public XElement SaveToXml()
+        {
             return new XElement
             (
                 "intercalarymonth", new XElement("position", InsertPosition), Month.SaveToXml(), Rule.SaveToXml());
@@ -53,8 +61,7 @@ namespace MudSharp.TimeAndDate.Date {
 
         public IntercalaryRule Rule
         {
-            get { return _rule; }
-            protected set { _rule = value; }
+            get => _rule; protected set => _rule = value;
         }
 
         /// <summary>
@@ -64,8 +71,7 @@ namespace MudSharp.TimeAndDate.Date {
 
         public MonthDefinition Month
         {
-            get { return _month; }
-            protected set { _month = value; }
+            get => _month; protected set => _month = value;
         }
 
         /// <summary>
@@ -75,18 +81,19 @@ namespace MudSharp.TimeAndDate.Date {
 
         public string InsertPosition
         {
-            get { return _insertPosition; }
-            protected set { _insertPosition = value; }
+            get => _insertPosition; protected set => _insertPosition = value;
         }
 
         #endregion
 
         #region Constructor
 
-        public IntercalaryMonth() {
+        public IntercalaryMonth()
+        {
         }
 
-        public IntercalaryMonth(IntercalaryRule rule, MonthDefinition month, string insertposition) {
+        public IntercalaryMonth(IntercalaryRule rule, MonthDefinition month, string insertposition)
+        {
             _rule = rule;
             _month = month;
             _insertPosition = insertposition;

@@ -6,17 +6,22 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace MudSharp.Framework {
+namespace MudSharp.Framework
+{
 
-    internal static class PluralizationServiceUtil {
-        internal static bool DoesWordContainSuffix(string word, IEnumerable<string> suffixes, CultureInfo culture) {
+    internal static class PluralizationServiceUtil
+    {
+        internal static bool DoesWordContainSuffix(string word, IEnumerable<string> suffixes, CultureInfo culture)
+        {
             return suffixes.Any(s => word.EndsWith(s, true, culture));
         }
 
-        internal static bool TryInflectOnSuffixInWord(string word, IEnumerable<string> suffixes, Func<string, string> operationOnWord, CultureInfo culture, out string newWord) {
+        internal static bool TryInflectOnSuffixInWord(string word, IEnumerable<string> suffixes, Func<string, string> operationOnWord, CultureInfo culture, out string newWord)
+        {
             newWord = null;
 
-            if (DoesWordContainSuffix(word, suffixes, culture)) {
+            if (DoesWordContainSuffix(word, suffixes, culture))
+            {
                 newWord = operationOnWord(word);
                 return true;
             }
@@ -28,81 +33,100 @@ namespace MudSharp.Framework {
     /// This class provide service for both the singularization and pluralization, it takes the word pairs
     /// in the ctor following the rules that the first one is singular and the second one is plural.
     /// </summary>
-    internal class BidirectionalDictionary<TFirst, TSecond> {
+    internal class BidirectionalDictionary<TFirst, TSecond>
+    {
         internal Dictionary<TFirst, TSecond> FirstToSecondDictionary { get; set; }
         internal Dictionary<TSecond, TFirst> SecondToFirstDictionary { get; set; }
 
-        internal BidirectionalDictionary() {
+        internal BidirectionalDictionary()
+        {
             FirstToSecondDictionary = new Dictionary<TFirst, TSecond>();
             SecondToFirstDictionary = new Dictionary<TSecond, TFirst>();
         }
 
-        internal BidirectionalDictionary(Dictionary<TFirst, TSecond> firstToSecondDictionary) : this() {
-            foreach (var key in firstToSecondDictionary.Keys) {
+        internal BidirectionalDictionary(Dictionary<TFirst, TSecond> firstToSecondDictionary) : this()
+        {
+            foreach (TFirst key in firstToSecondDictionary.Keys)
+            {
                 AddValue(key, firstToSecondDictionary[key]);
             }
         }
 
-        internal virtual bool ExistsInFirst(TFirst value) {
-            if (FirstToSecondDictionary.ContainsKey(value)) {
+        internal virtual bool ExistsInFirst(TFirst value)
+        {
+            if (FirstToSecondDictionary.ContainsKey(value))
+            {
                 return true;
             }
             return false;
         }
 
-        internal virtual bool ExistsInSecond(TSecond value) {
-            if (SecondToFirstDictionary.ContainsKey(value)) {
+        internal virtual bool ExistsInSecond(TSecond value)
+        {
+            if (SecondToFirstDictionary.ContainsKey(value))
+            {
                 return true;
             }
             return false;
         }
 
-        internal virtual TSecond GetSecondValue(TFirst value) {
-            if (ExistsInFirst(value)) {
+        internal virtual TSecond GetSecondValue(TFirst value)
+        {
+            if (ExistsInFirst(value))
+            {
                 return FirstToSecondDictionary[value];
             }
-            return default(TSecond);
+            return default;
         }
 
-        internal virtual TFirst GetFirstValue(TSecond value) {
-            if (ExistsInSecond(value)) {
+        internal virtual TFirst GetFirstValue(TSecond value)
+        {
+            if (ExistsInSecond(value))
+            {
                 return SecondToFirstDictionary[value];
             }
-            return default(TFirst);
+            return default;
         }
 
-        internal void AddValue(TFirst firstValue, TSecond secondValue) {
+        internal void AddValue(TFirst firstValue, TSecond secondValue)
+        {
             FirstToSecondDictionary.Add(firstValue, secondValue);
 
-            if (!SecondToFirstDictionary.ContainsKey(secondValue)) {
+            if (!SecondToFirstDictionary.ContainsKey(secondValue))
+            {
                 SecondToFirstDictionary.Add(secondValue, firstValue);
             }
         }
     }
 
-    internal class StringBidirectionalDictionary : BidirectionalDictionary<string, string> {
+    internal class StringBidirectionalDictionary : BidirectionalDictionary<string, string>
+    {
 
         internal StringBidirectionalDictionary() { }
         internal StringBidirectionalDictionary(Dictionary<string, string> firstToSecondDictionary)
             : base(firstToSecondDictionary) { }
 
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        internal override bool ExistsInFirst(string value) {
+        internal override bool ExistsInFirst(string value)
+        {
             return base.ExistsInFirst(value.ToLowerInvariant());
         }
 
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        internal override bool ExistsInSecond(string value) {
+        internal override bool ExistsInSecond(string value)
+        {
             return base.ExistsInSecond(value.ToLowerInvariant());
         }
 
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        internal override string GetFirstValue(string value) {
+        internal override string GetFirstValue(string value)
+        {
             return base.GetFirstValue(value.ToLowerInvariant());
         }
 
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        internal override string GetSecondValue(string value) {
+        internal override string GetSecondValue(string value)
+        {
             return base.GetSecondValue(value.ToLowerInvariant());
         }
 
@@ -128,7 +152,8 @@ namespace MudSharp.Framework {
         //
         // Returns:
         //     An object that specifies which language rules to apply for singulars and plurals.
-        public CultureInfo Culture {
+        public CultureInfo Culture
+        {
             get;
             protected set;
         }
@@ -371,7 +396,8 @@ namespace MudSharp.Framework {
                 {"phalanx", "phalanxes"}
             };
 
-        internal FuturemudPluralizationService() {
+        internal FuturemudPluralizationService()
+        {
             Culture = new CultureInfo("en");
 
             _userDictionary = new BidirectionalDictionary<string, string>();
@@ -425,53 +451,67 @@ namespace MudSharp.Framework {
                 .Concat(_uninflectiveWordList));
         }
 
-        public bool IsPlural(string word) {
-            if (word == null) {
+        public bool IsPlural(string word)
+        {
+            if (word == null)
+            {
                 throw new ArgumentException(nameof(word));
             }
 
-            if (_userDictionary.ExistsInSecond(word)) {
+            if (_userDictionary.ExistsInSecond(word))
+            {
                 return true;
             }
-            if (_userDictionary.ExistsInFirst(word)) {
+            if (_userDictionary.ExistsInFirst(word))
+            {
                 return false;
             }
 
-            if (IsUninflective(word) || _knownPluralWords.Contains(word.ToLower(Culture))) {
+            if (IsUninflective(word) || _knownPluralWords.Contains(word.ToLower(Culture)))
+            {
                 return true;
             }
 
-            if (!Singularize(word).Equals(word)) {
+            if (!Singularize(word).Equals(word))
+            {
                 return true;
             }
 
             return false;
         }
 
-        public bool IsSingular(string word) {
-            if (word == null) {
+        public bool IsSingular(string word)
+        {
+            if (word == null)
+            {
                 throw new ArgumentException(nameof(word));
             }
 
-            if (_userDictionary.ExistsInFirst(word)) {
+            if (_userDictionary.ExistsInFirst(word))
+            {
                 return true;
             }
-            if (_userDictionary.ExistsInSecond(word)) {
+            if (_userDictionary.ExistsInSecond(word))
+            {
                 return false;
             }
 
-            if (IsUninflective(word) || _knownSingluarWords.Contains(word.ToLower(Culture))) {
+            if (IsUninflective(word) || _knownSingluarWords.Contains(word.ToLower(Culture)))
+            {
                 return true;
             }
-            if (!IsNoOpWord(word) && Singularize(word).Equals(word)) {
+            if (!IsNoOpWord(word) && Singularize(word).Equals(word))
+            {
                 return true;
             }
             return false;
         }
 
         // 
-        public string Pluralize(string word) {
-            if (word == null) {
+        public string Pluralize(string word)
+        {
+            if (word == null)
+            {
                 throw new ArgumentException(nameof(word));
             }
 
@@ -479,41 +519,48 @@ namespace MudSharp.Framework {
         }
 
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        private string InternalPluralize(string word) {
+        private string InternalPluralize(string word)
+        {
             // words that we know of
-            if (_userDictionary.ExistsInFirst(word)) {
+            if (_userDictionary.ExistsInFirst(word))
+            {
                 return _userDictionary.GetSecondValue(word);
             }
 
-            if (IsNoOpWord(word)) {
+            if (IsNoOpWord(word))
+            {
                 return word;
             }
 
-            var suffixWord = GetSuffixWord(word, out string prefixWord);
+            string suffixWord = GetSuffixWord(word, out string prefixWord);
 
             // by me -> by me
-            if (IsNoOpWord(suffixWord)) {
+            if (IsNoOpWord(suffixWord))
+            {
                 return prefixWord + suffixWord;
             }
 
             // handle the word that do not inflect in the plural form
-            if (IsUninflective(suffixWord)) {
+            if (IsUninflective(suffixWord))
+            {
                 return prefixWord + suffixWord;
             }
 
             // if word is one of the known plural forms, then just return
-            if (_knownPluralWords.Contains(suffixWord.ToLowerInvariant()) || IsPlural(suffixWord)) {
+            if (_knownPluralWords.Contains(suffixWord.ToLowerInvariant()) || IsPlural(suffixWord))
+            {
                 return prefixWord + suffixWord;
             }
 
             // handle irregular plurals, e.g. "ox" -> "oxen"
-            if (_irregularPluralsPluralizationService.ExistsInFirst(suffixWord)) {
+            if (_irregularPluralsPluralizationService.ExistsInFirst(suffixWord))
+            {
                 return prefixWord + _irregularPluralsPluralizationService.GetSecondValue(suffixWord);
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "man" },
-                s => s.Remove(s.Length - 2, 2) + "en", Culture, out string newSuffixWord))
+                s => s[..^2] + "en", Culture, out string newSuffixWord))
             {
                 return prefixWord + newSuffixWord;
             }
@@ -521,110 +568,130 @@ namespace MudSharp.Framework {
             // handle irregular inflections for common suffixes, e.g. "mouse" -> "mice"
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "louse", "mouse" },
-                s => s.Remove(s.Length - 4, 4) + "ice", Culture, out newSuffixWord)) {
+                s => s[..^4] + "ice", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "tooth" },
-                s => s.Remove(s.Length - 4, 4) + "eeth", Culture, out newSuffixWord)) {
+                s => s[..^4] + "eeth", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "goose" },
-                s => s.Remove(s.Length - 4, 4) + "eese", Culture, out newSuffixWord)) {
+                s => s[..^4] + "eese", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "foot" },
-                s => s.Remove(s.Length - 3, 3) + "eet", Culture, out newSuffixWord)) {
+                s => s[..^3] + "eet", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "zoon" },
-                s => s.Remove(s.Length - 3, 3) + "oa", Culture, out newSuffixWord)) {
+                s => s[..^3] + "oa", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "cis", "sis", "xis" },
-                s => s.Remove(s.Length - 2, 2) + "es", Culture, out newSuffixWord)) {
+                s => s[..^2] + "es", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             // handle assimilated classical inflections, e.g. vertebra -> vertebrae
-            if (_assimilatedClassicalInflectionPluralizationService.ExistsInFirst(suffixWord)) {
+            if (_assimilatedClassicalInflectionPluralizationService.ExistsInFirst(suffixWord))
+            {
                 return prefixWord + _assimilatedClassicalInflectionPluralizationService.GetSecondValue(suffixWord);
             }
 
             // Handle the classical variants of modern inflections
             // 
-            if (_classicalInflectionPluralizationService.ExistsInFirst(suffixWord)) {
+            if (_classicalInflectionPluralizationService.ExistsInFirst(suffixWord))
+            {
                 return prefixWord + _classicalInflectionPluralizationService.GetSecondValue(suffixWord);
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "trix" },
-                s => s.Remove(s.Length - 1, 1) + "ces", Culture, out newSuffixWord)) {
+                s => s[..^1] + "ces", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "eau", "ieu" },
-                s => s + "x", Culture, out newSuffixWord)) {
+                s => s + "x", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
-            if (_wordsEndingWithInxAnxYnxPluralizationService.ExistsInFirst(suffixWord)) {
+            if (_wordsEndingWithInxAnxYnxPluralizationService.ExistsInFirst(suffixWord))
+            {
                 return prefixWord + _wordsEndingWithInxAnxYnxPluralizationService.GetSecondValue(suffixWord);
             }
 
             // [cs]h and ss that take es as plural form
-            if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord, new List<string> { "ch", "sh", "ss" }, s => s + "es", Culture, out newSuffixWord)) {
+            if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord, new List<string> { "ch", "sh", "ss" }, s => s + "es", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             // f, fe that take ves as plural form
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "alf", "elf", "olf", "eaf", "arf" },
-                s => s.EndsWith("deaf", true, Culture) ? s : s.Remove(s.Length - 1, 1) + "ves", Culture, out newSuffixWord)) {
+                s => s.EndsWith("deaf", true, Culture) ? s : s[..^1] + "ves", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "nife", "life", "wife" },
-                s => s.Remove(s.Length - 2, 2) + "ves", Culture, out newSuffixWord)) {
+                s => s[..^2] + "ves", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             // y takes ys as plural form if preceded by a vowel, but ies if preceded by a consonant, e.g. stays, skies
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "ay", "ey", "iy", "oy", "uy" },
-                s => s + "s", Culture, out newSuffixWord)) {
+                s => s + "s", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             // 
 
-            if (suffixWord.EndsWith("y", true, Culture)) {
-                return prefixWord + suffixWord.Remove(suffixWord.Length - 1, 1) + "ies";
+            if (suffixWord.EndsWith("y", true, Culture))
+            {
+                return prefixWord + suffixWord[..^1] + "ies";
             }
 
             // handle some of the words o -> os, and [vowel]o -> os, and the rest are o->oes
-            if (_oSuffixPluralizationService.ExistsInFirst(suffixWord)) {
+            if (_oSuffixPluralizationService.ExistsInFirst(suffixWord))
+            {
                 return prefixWord + _oSuffixPluralizationService.GetSecondValue(suffixWord);
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "ao", "eo", "io", "oo", "uo" },
-                s => s + "s", Culture, out newSuffixWord)) {
+                s => s + "s", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
-            if (suffixWord.EndsWith("o", true, Culture) || suffixWord.EndsWith("s", true, Culture)) {
+            if (suffixWord.EndsWith("o", true, Culture) || suffixWord.EndsWith("s", true, Culture))
+            {
                 return prefixWord + suffixWord + "es";
             }
 
-            if (suffixWord.EndsWith("x", true, Culture)) {
+            if (suffixWord.EndsWith("x", true, Culture))
+            {
                 return prefixWord + suffixWord + "es";
             }
 
@@ -632,8 +699,10 @@ namespace MudSharp.Framework {
             return prefixWord + suffixWord + "s";
         }
 
-        public string Singularize(string word) {
-            if (word == null) {
+        public string Singularize(string word)
+        {
+            if (word == null)
+            {
                 throw new ArgumentException(nameof(word));
             }
 
@@ -641,62 +710,73 @@ namespace MudSharp.Framework {
         }
 
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        private string InternalSingularize(string word) {
+        private string InternalSingularize(string word)
+        {
             // words that we know of
-            if (_userDictionary.ExistsInSecond(word)) {
+            if (_userDictionary.ExistsInSecond(word))
+            {
                 return _userDictionary.GetFirstValue(word);
             }
 
-            if (IsNoOpWord(word)) {
+            if (IsNoOpWord(word))
+            {
                 return word;
             }
 
-            var suffixWord = GetSuffixWord(word, out string prefixWord);
+            string suffixWord = GetSuffixWord(word, out string prefixWord);
 
-            if (IsNoOpWord(suffixWord)) {
+            if (IsNoOpWord(suffixWord))
+            {
                 return prefixWord + suffixWord;
             }
 
             // handle the word that is the same as the plural form
-            if (IsUninflective(suffixWord)) {
+            if (IsUninflective(suffixWord))
+            {
                 return prefixWord + suffixWord;
             }
 
             // if word is one of the known singular words, then just return
 
-            if (_knownSingluarWords.Contains(suffixWord.ToLowerInvariant())) {
+            if (_knownSingluarWords.Contains(suffixWord.ToLowerInvariant()))
+            {
                 return prefixWord + suffixWord;
             }
 
             // handle simple irregular verbs, e.g. was -> were
-            if (_irregularVerbPluralizationService.ExistsInSecond(suffixWord)) {
+            if (_irregularVerbPluralizationService.ExistsInSecond(suffixWord))
+            {
                 return prefixWord + _irregularVerbPluralizationService.GetFirstValue(suffixWord);
             }
 
             // handle irregular plurals, e.g. "ox" -> "oxen"
-            if (_irregularPluralsPluralizationService.ExistsInSecond(suffixWord)) {
+            if (_irregularPluralsPluralizationService.ExistsInSecond(suffixWord))
+            {
                 return prefixWord + _irregularPluralsPluralizationService.GetFirstValue(suffixWord);
             }
 
             // handle singluarization for words ending with sis and pluralized to ses, 
             // e.g. "ses" -> "sis"
-            if (_wordsEndingWithSisPluralizationService.ExistsInSecond(suffixWord)) {
+            if (_wordsEndingWithSisPluralizationService.ExistsInSecond(suffixWord))
+            {
                 return prefixWord + _wordsEndingWithSisPluralizationService.GetFirstValue(suffixWord);
             }
 
             // handle words ending with se, e.g. "ses" -> "se"
-            if (_wordsEndingWithSePluralizationService.ExistsInSecond(suffixWord)) {
+            if (_wordsEndingWithSePluralizationService.ExistsInSecond(suffixWord))
+            {
                 return prefixWord + _wordsEndingWithSePluralizationService.GetFirstValue(suffixWord);
             }
 
             // handle words ending with sus, e.g. "suses" -> "sus"
-            if (_wordsEndingWithSusPluralizationService.ExistsInSecond(suffixWord)) {
+            if (_wordsEndingWithSusPluralizationService.ExistsInSecond(suffixWord))
+            {
                 return prefixWord + _wordsEndingWithSusPluralizationService.GetFirstValue(suffixWord);
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "men" },
-                s => s.Remove(s.Length - 2, 2) + "an", Culture, out string newSuffixWord))
+                s => s[..^2] + "an", Culture, out string newSuffixWord))
             {
                 return prefixWord + newSuffixWord;
             }
@@ -704,100 +784,117 @@ namespace MudSharp.Framework {
             // handle irregular inflections for common suffixes, e.g. "mouse" -> "mice"
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "lice", "mice" },
-                s => s.Remove(s.Length - 3, 3) + "ouse", Culture, out newSuffixWord)) {
+                s => s[..^3] + "ouse", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "teeth" },
-                s => s.Remove(s.Length - 4, 4) + "ooth", Culture, out newSuffixWord)) {
+                s => s[..^4] + "ooth", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "geese" },
-                s => s.Remove(s.Length - 4, 4) + "oose", Culture, out newSuffixWord)) {
+                s => s[..^4] + "oose", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "feet" },
-                s => s.Remove(s.Length - 3, 3) + "oot", Culture, out newSuffixWord)) {
+                s => s[..^3] + "oot", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "zoa" },
-                s => s.Remove(s.Length - 2, 2) + "oon", Culture, out newSuffixWord)) {
+                s => s[..^2] + "oon", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             // [cs]h and ss that take es as plural form, this is being moved up since the sses will be override by the ses
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "ches", "shes", "sses" },
-                s => s.Remove(s.Length - 2, 2), Culture, out newSuffixWord)) {
+                s => s[..^2], Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
 
             // handle assimilated classical inflections, e.g. vertebra -> vertebrae
-            if (_assimilatedClassicalInflectionPluralizationService.ExistsInSecond(suffixWord)) {
+            if (_assimilatedClassicalInflectionPluralizationService.ExistsInSecond(suffixWord))
+            {
                 return prefixWord + _assimilatedClassicalInflectionPluralizationService.GetFirstValue(suffixWord);
             }
 
             // Handle the classical variants of modern inflections
             // 
-            if (_classicalInflectionPluralizationService.ExistsInSecond(suffixWord)) {
+            if (_classicalInflectionPluralizationService.ExistsInSecond(suffixWord))
+            {
                 return prefixWord + _classicalInflectionPluralizationService.GetFirstValue(suffixWord);
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "trices" },
-                s => s.Remove(s.Length - 3, 3) + "x", Culture, out newSuffixWord)) {
+                s => s[..^3] + "x", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "eaux", "ieux" },
-                s => s.Remove(s.Length - 1, 1), Culture, out newSuffixWord)) {
+                s => s[..^1], Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
-            if (_wordsEndingWithInxAnxYnxPluralizationService.ExistsInSecond(suffixWord)) {
+            if (_wordsEndingWithInxAnxYnxPluralizationService.ExistsInSecond(suffixWord))
+            {
                 return prefixWord + _wordsEndingWithInxAnxYnxPluralizationService.GetFirstValue(suffixWord);
             }
 
             // f, fe that take ves as plural form
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "alves", "elves", "olves", "eaves", "arves" },
-                s => s.Remove(s.Length - 3, 3) + "f", Culture, out newSuffixWord)) {
+                s => s[..^3] + "f", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "nives", "lives", "wives" },
-                s => s.Remove(s.Length - 3, 3) + "fe", Culture, out newSuffixWord)) {
+                s => s[..^3] + "fe", Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             // y takes ys as plural form if preceded by a vowel, but ies if preceded by a consonant, e.g. stays, skies
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "ays", "eys", "iys", "oys", "uys" },
-                s => s.Remove(s.Length - 1, 1), Culture, out newSuffixWord)) {
+                s => s[..^1], Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             // 
 
-            if (suffixWord.EndsWith("ies", true, Culture)) {
-                return prefixWord + suffixWord.Remove(suffixWord.Length - 3, 3) + "y";
+            if (suffixWord.EndsWith("ies", true, Culture))
+            {
+                return prefixWord + suffixWord[..^3] + "y";
             }
 
             // handle some of the words o -> os, and [vowel]o -> os, and the rest are o->oes
-            if (_oSuffixPluralizationService.ExistsInSecond(suffixWord)) {
+            if (_oSuffixPluralizationService.ExistsInSecond(suffixWord))
+            {
                 return prefixWord + _oSuffixPluralizationService.GetFirstValue(suffixWord);
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "aos", "eos", "ios", "oos", "uos" },
-                s => suffixWord.Remove(suffixWord.Length - 1, 1), Culture, out newSuffixWord)) {
+                s => suffixWord[..^1], Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
@@ -808,26 +905,31 @@ namespace MudSharp.Framework {
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "ces" },
-                s => s.Remove(s.Length - 1, 1), Culture, out newSuffixWord)) {
+                s => s[..^1], Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
             if (PluralizationServiceUtil.TryInflectOnSuffixInWord(suffixWord,
                 new List<string> { "ces", "ses", "xes" },
-                s => s.Remove(s.Length - 2, 2), Culture, out newSuffixWord)) {
+                s => s[..^2], Culture, out newSuffixWord))
+            {
                 return prefixWord + newSuffixWord;
             }
 
-            if (suffixWord.EndsWith("oes", true, Culture)) {
-                return prefixWord + suffixWord.Remove(suffixWord.Length - 2, 2);
+            if (suffixWord.EndsWith("oes", true, Culture))
+            {
+                return prefixWord + suffixWord[..^2];
             }
 
-            if (suffixWord.EndsWith("ss", true, Culture)) {
+            if (suffixWord.EndsWith("ss", true, Culture))
+            {
                 return prefixWord + suffixWord;
             }
 
-            if (suffixWord.EndsWith("s", true, Culture)) {
-                return prefixWord + suffixWord.Remove(suffixWord.Length - 1, 1);
+            if (suffixWord.EndsWith("s", true, Culture))
+            {
+                return prefixWord + suffixWord[..^1];
             }
 
             // word is a singlar
@@ -842,17 +944,21 @@ namespace MudSharp.Framework {
         /// <param name="word"></param>
         /// <param name="action"></param>
         /// <returns></returns>
-        private string Capitalize(string word, Func<string, string> action) {
-            var result = action(word);
+        private string Capitalize(string word, Func<string, string> action)
+        {
+            string result = action(word);
 
-            if (IsCapitalized(word)) {
+            if (IsCapitalized(word))
+            {
                 if (result.Length == 0)
+                {
                     return result;
+                }
 
-                var sb = new StringBuilder(result.Length);
+                StringBuilder sb = new(result.Length);
 
                 sb.Append(char.ToUpperInvariant(result[0]));
-                sb.Append(result.Substring(1));
+                sb.Append(result[1..]);
                 return sb.ToString();
             }
             return result;
@@ -864,37 +970,44 @@ namespace MudSharp.Framework {
         /// <param name="word"></param>
         /// <param name="prefixWord"></param>
         /// <returns></returns>
-        private string GetSuffixWord(string word, out string prefixWord) {
+        private string GetSuffixWord(string word, out string prefixWord)
+        {
             // use the last space to separate the words
-            var lastSpaceIndex = word.LastIndexOf(' ');
-            prefixWord = word.Substring(0, lastSpaceIndex + 1);
-            return word.Substring(lastSpaceIndex + 1);
+            int lastSpaceIndex = word.LastIndexOf(' ');
+            prefixWord = word[..(lastSpaceIndex + 1)];
+            return word[(lastSpaceIndex + 1)..];
 
             // 
         }
 
-        private bool IsCapitalized(string word) {
+        private bool IsCapitalized(string word)
+        {
             return !string.IsNullOrEmpty(word) && char.IsUpper(word, 0);
         }
 
-        private bool IsAlphabets(string word) {
+        private bool IsAlphabets(string word)
+        {
             // return false when the word is "[\s]*" or leading or tailing with spaces
             // or contains non alphabetical characters
             if (string.IsNullOrEmpty(word.Trim()) || !word.Equals(word.Trim()) ||
-                Regex.IsMatch(word, "[^a-zA-Z\\s]")) {
+                Regex.IsMatch(word, "[^a-zA-Z\\s]"))
+            {
                 return false;
             }
             return true;
         }
 
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        private bool IsUninflective(string word) {
-            if (word == null) {
+        private bool IsUninflective(string word)
+        {
+            if (word == null)
+            {
                 throw new ArgumentException(nameof(word));
             }
             if (PluralizationServiceUtil.DoesWordContainSuffix(word, _uninflectiveSuffixList, Culture)
                            || (!word.ToLower(Culture).Equals(word) && word.EndsWith("ese", false, Culture))
-                           || _uninflectiveWordList.Contains(word.ToLowerInvariant())) {
+                           || _uninflectiveWordList.Contains(word.ToLowerInvariant()))
+            {
                 return true;
             }
             return false;
@@ -907,10 +1020,12 @@ namespace MudSharp.Framework {
         /// <param name="word"></param>
         /// <returns></returns>
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        private bool IsNoOpWord(string word) {
+        private bool IsNoOpWord(string word)
+        {
             if (!IsAlphabets(word) ||
                 word.Length <= 1 ||
-                _pronounList.Contains(word.ToLowerInvariant())) {
+                _pronounList.Contains(word.ToLowerInvariant()))
+            {
                 return true;
             }
             return false;
@@ -926,18 +1041,23 @@ namespace MudSharp.Framework {
         /// </summary>
         /// <param name="singular"></param>
         /// <param name="plural"></param>
-        public void AddWord(string singular, string plural) {
-            if (singular == null) {
+        public void AddWord(string singular, string plural)
+        {
+            if (singular == null)
+            {
                 throw new ArgumentException(nameof(singular));
             }
-            if (plural == null) {
+            if (plural == null)
+            {
                 throw new ArgumentException(nameof(plural));
             }
 
-            if (_userDictionary.ExistsInSecond(plural)) {
+            if (_userDictionary.ExistsInSecond(plural))
+            {
                 throw new ArgumentException($"Plural already exists: {plural}");
             }
-            if (_userDictionary.ExistsInFirst(singular)) {
+            if (_userDictionary.ExistsInFirst(singular))
+            {
                 throw new ArgumentException($"Singular already exists: {singular}");
             }
             _userDictionary.AddValue(singular, plural);

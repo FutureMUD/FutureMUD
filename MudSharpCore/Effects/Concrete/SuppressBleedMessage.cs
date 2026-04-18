@@ -6,14 +6,14 @@ namespace MudSharp.Effects.Concrete;
 
 public class SuppressBleedMessage : Effect, ISuppressBleedMessage
 {
-	public SuppressBleedMessage(IPerceivable owner, IFutureProg applicabilityProg) : base(owner, applicabilityProg)
-	{
-	}
+    public SuppressBleedMessage(IPerceivable owner, IFutureProg applicabilityProg) : base(owner, applicabilityProg)
+    {
+    }
 
-	protected override string SpecificEffectType { get; } = "SuppressBleedMessage";
+    protected override string SpecificEffectType { get; } = "SuppressBleedMessage";
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return "Suppressing Bleeding Message";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return "Suppressing Bleeding Message";
+    }
 }

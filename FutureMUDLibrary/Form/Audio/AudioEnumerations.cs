@@ -1,9 +1,13 @@
 ﻿using System;
 
-namespace MudSharp.Form.Audio {
-    public static class AudioExtensions {
-        public static string Describe(this AudioVolume volume) {
-            switch (volume) {
+namespace MudSharp.Form.Audio
+{
+    public static class AudioExtensions
+    {
+        public static string Describe(this AudioVolume volume)
+        {
+            switch (volume)
+            {
                 case AudioVolume.Silent:
                     return "Silent";
                 case AudioVolume.Faint:
@@ -26,7 +30,8 @@ namespace MudSharp.Form.Audio {
         }
     }
 
-    public enum AudioVolume {
+    public enum AudioVolume
+    {
         Silent = 0,
         Faint = 1,
         Quiet = 2,
@@ -37,7 +42,8 @@ namespace MudSharp.Form.Audio {
         DangerouslyLoud = 7
     }
 
-    public enum AudioQuality {
+    public enum AudioQuality
+    {
         Intermittent = 0,
         Garbled = 1,
         Mechanical = 2,
@@ -49,7 +55,8 @@ namespace MudSharp.Form.Audio {
         Crystal = 8
     }
 
-    public enum AudioStyle {
+    public enum AudioStyle
+    {
         Whisper = 0,
         Say = 1,
         Tell = 2,

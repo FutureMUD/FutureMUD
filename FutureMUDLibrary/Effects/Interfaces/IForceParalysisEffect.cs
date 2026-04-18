@@ -4,5 +4,5 @@ namespace MudSharp.Effects.Interfaces;
 
 public interface IForceParalysisEffect : IEffectSubtype
 {
-	bool ShouldParalyse { get; }
+    bool ShouldParalyse { get; }
 }

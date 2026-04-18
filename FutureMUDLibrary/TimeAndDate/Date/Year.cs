@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace MudSharp.TimeAndDate.Date {
-    public class Year {
+namespace MudSharp.TimeAndDate.Date
+{
+    public class Year
+    {
         #region Properties
 
         protected int _year;
@@ -35,16 +37,18 @@ namespace MudSharp.TimeAndDate.Date {
 
         #region Constructors
 
-        public Year(List<Month> months, int year, ICalendar calendar) {
+        public Year(List<Month> months, int year, ICalendar calendar)
+        {
             _months = months;
             _year = year;
             _calendar = calendar;
-            var trueOrder = 1;
+            int trueOrder = 1;
             _months.ForEach(x => x.TrueOrder = trueOrder++);
             _firstWeekdayIndex = Calendar.GetFirstWeekday(_year);
         }
 
-        public Year(Year copyYear) {
+        public Year(Year copyYear)
+        {
             _year = copyYear._year;
             _months = new List<Month>(copyYear._months);
             _calendar = copyYear._calendar;

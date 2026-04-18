@@ -1,42 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
 public class TimeSeeder : IDatabaseSeeder
 {
-	private static readonly string[] StockCalendarAliases =
-	[
-		"gregorian",
-		"julian",
-		"middle-earth",
-		"tranquility",
-		"republicain",
-		"mission",
-		"seasonal-360",
-		"roman",
-		"dwarven",
-		"shire-reckoning",
-		"stewards-reckoning",
-		"new-reckoning",
-		"orc-reckoning",
-		"rivendell",
-		"kings-reckoning"
-	];
+    private static readonly string[] StockCalendarAliases =
+    [
+        "gregorian",
+        "julian",
+        "middle-earth",
+        "tranquility",
+        "republicain",
+        "mission",
+        "seasonal-360",
+        "roman",
+        "dwarven",
+        "shire-reckoning",
+        "stewards-reckoning",
+        "new-reckoning",
+        "orc-reckoning",
+        "rivendell",
+        "kings-reckoning"
+    ];
 
-	public IEnumerable<(string Id, string Question,
-		Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
-		Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
-		new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
-			Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
-		{
-			("secondsmultiplier", @"How many in-game seconds do you want to pass per real second?
+    public IEnumerable<(string Id, string Question,
+        Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
+        Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
+        new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
+            Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
+        {
+            ("secondsmultiplier", @"How many in-game seconds do you want to pass per real second?
 
 When making your decision on this setting you should consider a few 'side effects' of the choice you make. For example, if you choose a ratio that is a factor of 24 (so 1, 2, 3, 4, 6, or 8) the in-game time at a given real time of the day will always be the same. This means that if a person always logged in at the same real time each day it would also be the same in-game time.
 
@@ -47,15 +47,13 @@ Another consideration is the realism of the scenario. If you use a rate that is 
 Personally, I recommend either 2 or 5 as a ratio but you are free to choose what you will, and you can also adjust this setting later without issue if you change your mind.
 
 With all that in mind, what whole number of in-game seconds should be added for every 1 real second that passes? ",
-				(context, answers) => true,
-				(answer, context) =>
-				{
-					if (!uint.TryParse(answer, out var value) || value <= 0)
-						return (false, "You must supply a valid positive integer.");
-					return (true, string.Empty);
-				}),
-			("mode",
-				@"There are several pre-made calendars that you can choose to use. If you are using a calendar that is not one of the ones listed below, I suggest that you use the latin-ancient calendar and modify the generated file as that calendar makes the most use of advanced features for examples.
+                (context, answers) => true,
+                (answer, context) =>
+                {
+                    if (!uint.TryParse(answer, out uint value) || value <= 0) { return (false, "You must supply a valid positive integer."); } return (true, string.Empty);
+                }),
+            ("mode",
+                @"There are several pre-made calendars that you can choose to use. If you are using a calendar that is not one of the ones listed below, I suggest that you use the latin-ancient calendar and modify the generated file as that calendar makes the most use of advanced features for examples.
 
 Broadly speaking, there are eight calendars for you to choose from:
 
@@ -84,35 +82,33 @@ The specific available calendars are as follows:
 	#Bmission#F: A sci-fi generation ship calendar with 360 day years, 36 day months and 6 day weeks
 	#Bseasonal-360#F: A simple 360 day fantasy calendar with Early/Mid/Late seasons and First Day through Sixth Day weekdays
 ", (context, answers) => true, (answer, context) =>
-				{
-					switch (answer.ToLowerInvariant())
-					{
-						case "gregorian-us":
-						case "gregorian-uk":
-						case "gregorian-us-ce":
-						case "gregorian-uk-ce":
-						case "julian":
-						case "latin-7day":
-						case "latin-8day":
-						case "latin-ancient":
-						case "middle-earth":
-						case "republicain":
-						case "tranquility":
-						case "mission":
-						case "seasonal-360":
-							return (true, string.Empty);
-					}
+                {
+                    switch (answer.ToLowerInvariant())
+                    {
+                        case "gregorian-us":
+                        case "gregorian-uk":
+                        case "gregorian-us-ce":
+                        case "gregorian-uk-ce":
+                        case "julian":
+                        case "latin-7day":
+                        case "latin-8day":
+                        case "latin-ancient":
+                        case "middle-earth":
+                        case "republicain":
+                        case "tranquility":
+                        case "mission":
+                        case "seasonal-360":
+                            return (true, string.Empty);
+                    }
 
-					return (false, "That is not a valid selection.");
-				}),
-			("startyear", "What starting year do you want to set up for the calendar? ", (context, answers) => true,
-				(answer, context) =>
-				{
-					if (!uint.TryParse(answer, out var value) || value <= 0)
-						return (false, "You must supply a valid positive integer.");
-					return (true, string.Empty);
-				}),
-			("ardaage", @"Which age do you want your calendars set up for? 
+                    return (false, "That is not a valid selection.");
+                }),
+            ("startyear", "What starting year do you want to set up for the calendar? ", (context, answers) => true,
+                (answer, context) =>
+                {
+                    if (!uint.TryParse(answer, out uint value) || value <= 0) { return (false, "You must supply a valid positive integer."); } return (true, string.Empty);
+                }),
+            ("ardaage", @"Which age do you want your calendars set up for? 
 
 	#B1) First Age
 	2) Second Age
@@ -120,66 +116,64 @@ The specific available calendars are as follows:
 	4) Fourth Age#F
 
 Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (answer, context) =>
-			{
-				if (!uint.TryParse(answer, out var value) || value <= 0 || value > 4)
-					return (false, "You must answer between 1 and 4.");
-				return (true, string.Empty);
-			})
-		};
+            {
+                if (!uint.TryParse(answer, out uint value) || value <= 0 || value > 4) { return (false, "You must answer between 1 and 4."); } return (true, string.Empty);
+            })
+        };
 
-	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		context.Database.BeginTransaction();
-		var clock = EnsureClock(
-			context,
-			$@"<Clock>  <Alias>UTC</Alias>  <Description>Universal Time Clock</Description>  <ShortDisplayString>$j:$m:$s $i</ShortDisplayString>  <SuperDisplayString>$j:$m:$s $i $t</SuperDisplayString>  <LongDisplayString>$c $i</LongDisplayString>  <SecondsPerMinute>60</SecondsPerMinute>  <MinutesPerHour>60</MinutesPerHour>  <HoursPerDay>24</HoursPerDay>  <InGameSecondsPerRealSecond>{int.Parse(questionAnswers["secondsmultiplier"])}</InGameSecondsPerRealSecond>  <SecondFixedDigits>2</SecondFixedDigits>  <MinuteFixedDigits>2</MinuteFixedDigits>  <HourFixedDigits>0</HourFixedDigits>  <NoZeroHour>true</NoZeroHour>  <NumberOfHourIntervals>2</NumberOfHourIntervals>  <HourIntervalNames>    <HourIntervalName>a.m</HourIntervalName>    <HourIntervalName>p.m</HourIntervalName>  </HourIntervalNames>  <HourIntervalLongNames>    <HourIntervalLongName>in the morning</HourIntervalLongName>    <HourIntervalLongName>in the afternoon</HourIntervalLongName>  </HourIntervalLongNames>  <CrudeTimeIntervals>    <CrudeTimeInterval text=""night"" Lower=""-2"" Upper=""4""/>    <CrudeTimeInterval text=""morning"" Lower=""4"" Upper=""12""/>    <CrudeTimeInterval text=""afternoon"" Lower=""12"" Upper=""18""/>    <CrudeTimeInterval text=""evening"" Lower=""18"" Upper=""22""/>  </CrudeTimeIntervals></Clock>");
-		var utc = EnsureTimezone(context, clock, "UTC", "Universal Time Clock (UTC)", 0, 0);
-		context.SaveChanges();
-		clock.PrimaryTimezoneId = utc.Id;
-		var primaryCalendarAlias = ResolvePrimaryCalendarAlias(questionAnswers["mode"]);
+    public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        context.Database.BeginTransaction();
+        Clock clock = EnsureClock(
+            context,
+            $@"<Clock>  <Alias>UTC</Alias>  <Description>Universal Time Clock</Description>  <ShortDisplayString>$j:$m:$s $i</ShortDisplayString>  <SuperDisplayString>$j:$m:$s $i $t</SuperDisplayString>  <LongDisplayString>$c $i</LongDisplayString>  <SecondsPerMinute>60</SecondsPerMinute>  <MinutesPerHour>60</MinutesPerHour>  <HoursPerDay>24</HoursPerDay>  <InGameSecondsPerRealSecond>{int.Parse(questionAnswers["secondsmultiplier"])}</InGameSecondsPerRealSecond>  <SecondFixedDigits>2</SecondFixedDigits>  <MinuteFixedDigits>2</MinuteFixedDigits>  <HourFixedDigits>0</HourFixedDigits>  <NoZeroHour>true</NoZeroHour>  <NumberOfHourIntervals>2</NumberOfHourIntervals>  <HourIntervalNames>    <HourIntervalName>a.m</HourIntervalName>    <HourIntervalName>p.m</HourIntervalName>  </HourIntervalNames>  <HourIntervalLongNames>    <HourIntervalLongName>in the morning</HourIntervalLongName>    <HourIntervalLongName>in the afternoon</HourIntervalLongName>  </HourIntervalLongNames>  <CrudeTimeIntervals>    <CrudeTimeInterval text=""night"" Lower=""-2"" Upper=""4""/>    <CrudeTimeInterval text=""morning"" Lower=""4"" Upper=""12""/>    <CrudeTimeInterval text=""afternoon"" Lower=""12"" Upper=""18""/>    <CrudeTimeInterval text=""evening"" Lower=""18"" Upper=""22""/>  </CrudeTimeIntervals></Clock>");
+        Timezone utc = EnsureTimezone(context, clock, "UTC", "Universal Time Clock (UTC)", 0, 0);
+        context.SaveChanges();
+        clock.PrimaryTimezoneId = utc.Id;
+        string primaryCalendarAlias = ResolvePrimaryCalendarAlias(questionAnswers["mode"]);
 
-		switch (questionAnswers["mode"].ToLowerInvariant())
-		{
-			case "gregorian-us":
-				SetupGregorian(context, true, false, clock, questionAnswers);
-				break;
-			case "gregorian-uk":
-				SetupGregorian(context, false, false, clock, questionAnswers);
-				break;
-			case "gregorian-us-ce":
-				SetupGregorian(context, true, true, clock, questionAnswers);
-				break;
-			case "gregorian-uk-ce":
-				SetupGregorian(context, false, true, clock, questionAnswers);
-				break;
-			case "julian":
-				SetupJulian(context, clock, questionAnswers);
-				break;
-			case "latin-ancient":
-				SetupLatinAncient(context, clock, questionAnswers);
-				break;
-			case "latin-7day":
-				SetupLatin(context, clock, questionAnswers, false);
-				break;
-			case "latin-8day":
-				SetupLatin(context, clock, questionAnswers, true);
-				break;
-			case "middle-earth":
-				SetupMiddleEarth(context, clock, questionAnswers);
-				break;
-			case "tranquility":
-				SetupTranquility(context, clock, questionAnswers);
-				break;
-			case "mission":
-				SetupMissionCalendar(context, clock, questionAnswers);
-				break;
-			case "seasonal-360":
-				SetupSeasonal360Calendar(context, clock, questionAnswers);
-				break;
-			case "republicain":
-				clock = EnsureClock(
-					context,
-					$@"<Clock>  
+        switch (questionAnswers["mode"].ToLowerInvariant())
+        {
+            case "gregorian-us":
+                SetupGregorian(context, true, false, clock, questionAnswers);
+                break;
+            case "gregorian-uk":
+                SetupGregorian(context, false, false, clock, questionAnswers);
+                break;
+            case "gregorian-us-ce":
+                SetupGregorian(context, true, true, clock, questionAnswers);
+                break;
+            case "gregorian-uk-ce":
+                SetupGregorian(context, false, true, clock, questionAnswers);
+                break;
+            case "julian":
+                SetupJulian(context, clock, questionAnswers);
+                break;
+            case "latin-ancient":
+                SetupLatinAncient(context, clock, questionAnswers);
+                break;
+            case "latin-7day":
+                SetupLatin(context, clock, questionAnswers, false);
+                break;
+            case "latin-8day":
+                SetupLatin(context, clock, questionAnswers, true);
+                break;
+            case "middle-earth":
+                SetupMiddleEarth(context, clock, questionAnswers);
+                break;
+            case "tranquility":
+                SetupTranquility(context, clock, questionAnswers);
+                break;
+            case "mission":
+                SetupMissionCalendar(context, clock, questionAnswers);
+                break;
+            case "seasonal-360":
+                SetupSeasonal360Calendar(context, clock, questionAnswers);
+                break;
+            case "republicain":
+                clock = EnsureClock(
+                    context,
+                    $@"<Clock>  
 	<Alias>Decimal</Alias>
 	<Description>Decimal Clock</Description>
 	<ShortDisplayString>$jh$mm$ss</ShortDisplayString>
@@ -208,214 +202,218 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
 	</CrudeTimeIntervals>
 </Clock>");
 
-				utc = EnsureTimezone(context, clock, "PMT", "Paris Mean Time (PMT)", 0, 0);
-				context.SaveChanges();
-				clock.PrimaryTimezoneId = utc.Id;
-				SetupFrenchRepublican(context, clock, questionAnswers);
-				break;
-			default:
-				throw new InvalidOperationException(@"Invalid selection for ""mode"" in TimeSeeder.");
-		}
+                utc = EnsureTimezone(context, clock, "PMT", "Paris Mean Time (PMT)", 0, 0);
+                EnsureTimezone(context, clock, "UTC", "Universal Time Clock (UTC)", 0, 0);
+                context.SaveChanges();
+                clock.PrimaryTimezoneId = utc.Id;
+                SetupFrenchRepublican(context, clock, questionAnswers);
+                break;
+            default:
+                throw new InvalidOperationException(@"Invalid selection for ""mode"" in TimeSeeder.");
+        }
 
-		context.SaveChanges();
+        context.SaveChanges();
 
-		var primaryCalendar = context.Calendars.Local.FirstOrDefault(x =>
-				string.Equals(CalendarAlias(x.Definition), primaryCalendarAlias, StringComparison.OrdinalIgnoreCase)) ??
-			context.Calendars
-				.AsEnumerable()
-				.First(x => string.Equals(CalendarAlias(x.Definition), primaryCalendarAlias, StringComparison.OrdinalIgnoreCase));
-		SyncShardAndZoneTimeBindings(context, primaryCalendar, clock, utc);
+        Calendar primaryCalendar = context.Calendars.Local.FirstOrDefault(x =>
+                string.Equals(CalendarAlias(x.Definition), primaryCalendarAlias, StringComparison.OrdinalIgnoreCase)) ??
+            context.Calendars
+                .AsEnumerable()
+                .First(x => string.Equals(CalendarAlias(x.Definition), primaryCalendarAlias, StringComparison.OrdinalIgnoreCase));
+        SyncShardAndZoneTimeBindings(context, primaryCalendar, clock, utc);
 
-		context.SaveChanges();
-		context.Database.CommitTransaction();
+        context.SaveChanges();
+        context.Database.CommitTransaction();
 
-		return "Successfully set up clock and calendar.";
-	}
+        return "Successfully set up clock and calendar.";
+    }
 
-	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
-	{
-		if (!context.Accounts.Any()) return ShouldSeedResult.PrerequisitesNotMet;
+    public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
+    {
+        if (!context.Accounts.Any())
+        {
+            return ShouldSeedResult.PrerequisitesNotMet;
+        }
 
-		var hasUtcClock = context.Clocks
-			.Select(x => x.Definition)
-			.AsEnumerable()
-			.Any(x => string.Equals(ClockAlias(x), "UTC", StringComparison.OrdinalIgnoreCase));
-		var hasStockCalendar = context.Calendars
-			.Select(x => x.Definition)
-			.AsEnumerable()
-			.Any(x => StockCalendarAliases.Contains(CalendarAlias(x) ?? string.Empty, StringComparer.OrdinalIgnoreCase));
+        bool hasUtcClock = context.Clocks
+            .Select(x => x.Definition)
+            .AsEnumerable()
+            .Any(x => string.Equals(ClockAlias(x), "UTC", StringComparison.OrdinalIgnoreCase));
+        bool hasStockCalendar = context.Calendars
+            .Select(x => x.Definition)
+            .AsEnumerable()
+            .Any(x => StockCalendarAliases.Contains(CalendarAlias(x) ?? string.Empty, StringComparer.OrdinalIgnoreCase));
 
-		return SeederRepeatabilityHelper.ClassifyByPresence(
-		[
-			hasUtcClock,
-			context.Timezones.Any(x => x.Name == "UTC"),
-			hasStockCalendar
-		]);
-	}
+        return SeederRepeatabilityHelper.ClassifyByPresence(
+        [
+            hasUtcClock,
+            context.Timezones.Any(x => x.Name == "UTC"),
+            hasStockCalendar
+        ]);
+    }
 
-	public int SortOrder => 5;
-	public string Name => "Time Seeder";
-	public string Tagline => "Sets up Calendars and Clocks";
+    public int SortOrder => 5;
+    public string Name => "Time Seeder";
+    public string Tagline => "Sets up Calendars and Clocks";
 
-	public string FullDescription =>
-		"This seeder will set up a clock, timezones and a calendar. It is necessary to have at least one calendar before you can make any cultures, which is a pre-requisite for having characters in game. If you want to do a custom calendar that is not listed in the options that are presented to you, I recommend you choose one anyway and then modify the XML yourself. It should be fairly straightforward but feel free to hit me up for any help.";
+    public string FullDescription =>
+        "This seeder will set up a clock, timezones and a calendar. It is necessary to have at least one calendar before you can make any cultures, which is a pre-requisite for having characters in game. If you want to do a custom calendar that is not listed in the options that are presented to you, I recommend you choose one anyway and then modify the XML yourself. It should be fairly straightforward but feel free to hit me up for any help.";
 
-	private static string ResolvePrimaryCalendarAlias(string mode)
-	{
-		return mode.Trim().ToLowerInvariant() switch
-		{
-			"middle-earth" => "eldarin-quenya",
-			"mission" => "mission",
-			"seasonal-360" => "seasonal-360",
-			"republicain" => "republicain",
-			"tranquility" => "tranquility",
-			"latin-ancient" => "julian",
-			"latin-7day" => "julian",
-			"latin-8day" => "julian",
-			"julian" => "julian",
-			_ => "gregorian"
-		};
-	}
+    private static string ResolvePrimaryCalendarAlias(string mode)
+    {
+        return mode.Trim().ToLowerInvariant() switch
+        {
+            "middle-earth" => "eldarin-quenya",
+            "mission" => "mission",
+            "seasonal-360" => "seasonal-360",
+            "republicain" => "republicain",
+            "tranquility" => "tranquility",
+            "latin-ancient" => "julian",
+            "latin-7day" => "julian",
+            "latin-8day" => "julian",
+            "julian" => "julian",
+            _ => "gregorian"
+        };
+    }
 
-	private static string? ClockAlias(string definition)
-	{
-		return TryReadElementValue(definition, "Alias");
-	}
+    private static string? ClockAlias(string definition)
+    {
+        return TryReadElementValue(definition, "Alias");
+    }
 
-	private static string? CalendarAlias(string definition)
-	{
-		return TryReadElementValue(definition, "alias");
-	}
+    private static string? CalendarAlias(string definition)
+    {
+        return TryReadElementValue(definition, "alias");
+    }
 
-	private static string? TryReadElementValue(string definition, string elementName)
-	{
-		var root = XElement.Parse(definition);
-		return root.Descendants()
-			.FirstOrDefault(x => x.Name.LocalName.Equals(elementName, StringComparison.OrdinalIgnoreCase))
-			?.Value;
-	}
+    private static string? TryReadElementValue(string definition, string elementName)
+    {
+        XElement root = XElement.Parse(definition);
+        return root.Descendants()
+            .FirstOrDefault(x => x.Name.LocalName.Equals(elementName, StringComparison.OrdinalIgnoreCase))
+            ?.Value;
+    }
 
-	private static Clock EnsureClock(FuturemudDatabaseContext context, string definition)
-	{
-		var alias = ClockAlias(definition) ?? throw new InvalidOperationException("Clock definitions must declare an alias.");
-		var clock = context.Clocks.Local.FirstOrDefault(x =>
-			            string.Equals(ClockAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
-		            context.Clocks
-			            .AsEnumerable()
-			            .FirstOrDefault(x => string.Equals(ClockAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
-		            CreateClock(context);
+    private static Clock EnsureClock(FuturemudDatabaseContext context, string definition)
+    {
+        string alias = ClockAlias(definition) ?? throw new InvalidOperationException("Clock definitions must declare an alias.");
+        Clock clock = context.Clocks.Local.FirstOrDefault(x =>
+                        string.Equals(ClockAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
+                    context.Clocks
+                        .AsEnumerable()
+                        .FirstOrDefault(x => string.Equals(ClockAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
+                    CreateClock(context);
 
-		clock.Definition = definition;
-		return clock;
-	}
+        clock.Definition = definition;
+        return clock;
+    }
 
-	private static Timezone EnsureTimezone(FuturemudDatabaseContext context, Clock clock, string name, string description,
-		int offsetHours, int offsetMinutes)
-	{
-		var timezone = SeederRepeatabilityHelper.EnsureEntity(
-			context.Timezones,
-			x => x.ClockId == clock.Id && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase),
-			x => x.ClockId == clock.Id,
-			() =>
-			{
-				var created = new Timezone();
-				context.Timezones.Add(created);
-				return created;
-			});
+    private static Timezone EnsureTimezone(FuturemudDatabaseContext context, Clock clock, string name, string description,
+        int offsetHours, int offsetMinutes)
+    {
+        Timezone timezone = SeederRepeatabilityHelper.EnsureEntity(
+            context.Timezones,
+            x => x.ClockId == clock.Id && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase),
+            x => x.ClockId == clock.Id,
+            () =>
+            {
+                Timezone created = new();
+                context.Timezones.Add(created);
+                return created;
+            });
 
-		timezone.Name = name;
-		timezone.Description = description;
-		timezone.Clock = clock;
-		timezone.ClockId = clock.Id;
-		timezone.OffsetHours = offsetHours;
-		timezone.OffsetMinutes = offsetMinutes;
-		return timezone;
-	}
+        timezone.Name = name;
+        timezone.Description = description;
+        timezone.Clock = clock;
+        timezone.ClockId = clock.Id;
+        timezone.OffsetHours = offsetHours;
+        timezone.OffsetMinutes = offsetMinutes;
+        return timezone;
+    }
 
-	private static Calendar EnsureCalendar(FuturemudDatabaseContext context, Clock clock, string date, string definition)
-	{
-		var alias = CalendarAlias(definition) ??
-		            throw new InvalidOperationException("Calendar definitions must declare an alias.");
-		var calendar = context.Calendars.Local.FirstOrDefault(x =>
-			               string.Equals(CalendarAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
-		               context.Calendars
-			               .AsEnumerable()
-			               .FirstOrDefault(x => string.Equals(CalendarAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
-		               CreateCalendar(context);
+    private static Calendar EnsureCalendar(FuturemudDatabaseContext context, Clock clock, string date, string definition)
+    {
+        string alias = CalendarAlias(definition) ??
+                    throw new InvalidOperationException("Calendar definitions must declare an alias.");
+        Calendar calendar = context.Calendars.Local.FirstOrDefault(x =>
+                           string.Equals(CalendarAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
+                       context.Calendars
+                           .AsEnumerable()
+                           .FirstOrDefault(x => string.Equals(CalendarAlias(x.Definition), alias, StringComparison.OrdinalIgnoreCase)) ??
+                       CreateCalendar(context);
 
-		calendar.FeedClockId = clock.Id;
-		calendar.Date = date;
-		calendar.Definition = definition;
-		return calendar;
-	}
+        calendar.FeedClockId = clock.Id;
+        calendar.Date = date;
+        calendar.Definition = definition;
+        return calendar;
+    }
 
-	private static Clock CreateClock(FuturemudDatabaseContext context)
-	{
-		var created = new Clock();
-		context.Clocks.Add(created);
-		return created;
-	}
+    private static Clock CreateClock(FuturemudDatabaseContext context)
+    {
+        Clock created = new();
+        context.Clocks.Add(created);
+        return created;
+    }
 
-	private static Calendar CreateCalendar(FuturemudDatabaseContext context)
-	{
-		var created = new Calendar();
-		context.Calendars.Add(created);
-		return created;
-	}
+    private static Calendar CreateCalendar(FuturemudDatabaseContext context)
+    {
+        Calendar created = new();
+        context.Calendars.Add(created);
+        return created;
+    }
 
-	private static void SyncShardAndZoneTimeBindings(FuturemudDatabaseContext context, Calendar calendar, Clock clock,
-		Timezone timezone)
-	{
-		foreach (var shard in context.Shards.Include(x => x.Zones).ToList())
-		{
-			var shardCalendar = context.ShardsCalendars.FirstOrDefault(x => x.ShardId == shard.Id);
-			if (shardCalendar is null)
-			{
-				context.ShardsCalendars.Add(new ShardsCalendars { Shard = shard, CalendarId = calendar.Id });
-			}
-			else
-			{
-				shardCalendar.CalendarId = calendar.Id;
-			}
+    private static void SyncShardAndZoneTimeBindings(FuturemudDatabaseContext context, Calendar calendar, Clock clock,
+        Timezone timezone)
+    {
+        foreach (Shard? shard in context.Shards.Include(x => x.Zones).ToList())
+        {
+            ShardsCalendars? shardCalendar = context.ShardsCalendars.FirstOrDefault(x => x.ShardId == shard.Id);
+            if (shardCalendar is null)
+            {
+                context.ShardsCalendars.Add(new ShardsCalendars { Shard = shard, CalendarId = calendar.Id });
+            }
+            else
+            {
+                shardCalendar.CalendarId = calendar.Id;
+            }
 
-			var shardClock = context.ShardsClocks.FirstOrDefault(x => x.ShardId == shard.Id);
-			if (shardClock is null)
-			{
-				context.ShardsClocks.Add(new ShardsClocks { Shard = shard, ClockId = clock.Id });
-			}
-			else
-			{
-				shardClock.ClockId = clock.Id;
-			}
+            ShardsClocks? shardClock = context.ShardsClocks.FirstOrDefault(x => x.ShardId == shard.Id);
+            if (shardClock is null)
+            {
+                context.ShardsClocks.Add(new ShardsClocks { Shard = shard, ClockId = clock.Id });
+            }
+            else
+            {
+                shardClock.ClockId = clock.Id;
+            }
 
-			foreach (var zone in shard.Zones)
-			{
-				var zoneTimezone = context.ZonesTimezones.FirstOrDefault(x => x.ZoneId == zone.Id);
-				if (zoneTimezone is null)
-				{
-					context.ZonesTimezones.Add(new ZonesTimezones
-					{
-						Zone = zone,
-						ClockId = clock.Id,
-						TimezoneId = timezone.Id
-					});
-				}
-				else
-				{
-					zoneTimezone.ClockId = clock.Id;
-					zoneTimezone.TimezoneId = timezone.Id;
-				}
-			}
-		}
-	}
+            foreach (Zone? zone in shard.Zones)
+            {
+                ZonesTimezones? zoneTimezone = context.ZonesTimezones.FirstOrDefault(x => x.ZoneId == zone.Id);
+                if (zoneTimezone is null)
+                {
+                    context.ZonesTimezones.Add(new ZonesTimezones
+                    {
+                        Zone = zone,
+                        ClockId = clock.Id,
+                        TimezoneId = timezone.Id
+                    });
+                }
+                else
+                {
+                    zoneTimezone.ClockId = clock.Id;
+                    zoneTimezone.TimezoneId = timezone.Id;
+                }
+            }
+        }
+    }
 
-	private void SetupMissionCalendar(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		var calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/ignis/{questionAnswers["startyear"]}",
-			Definition = @"<calendar>
+    private void SetupMissionCalendar(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        Calendar calendar = new()
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/ignis/{questionAnswers["startyear"]}",
+            Definition = @"<calendar>
   <alias>mission</alias>
   <shortname>The Mission Calendar</shortname>
   <fullname>The Mission Calendar</fullname>
@@ -552,19 +550,19 @@ Several cultural and operational observances are tied to the Mission Calendar, t
   </months>
   <intercalarymonths/>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
-	}
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
+    }
 
-	private void SetupSeasonal360Calendar(FuturemudDatabaseContext context, Clock clock,
-		IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		var calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/early-winter/{questionAnswers["startyear"]}",
-			Definition = @"<calendar>
+    private void SetupSeasonal360Calendar(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        Calendar calendar = new()
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/early-winter/{questionAnswers["startyear"]}",
+            Definition = @"<calendar>
   <alias>seasonal-360</alias>
   <shortname>Seasonal 360 Calendar</shortname>
   <fullname>The Seasonal 360 Calendar</fullname>
@@ -712,18 +710,18 @@ Several cultural and operational observances are tied to the Mission Calendar, t
   </months>
   <intercalarymonths />
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
-	}
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
+    }
 
-	private void SetupFrenchRepublican(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		var calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/vendemiaire/{questionAnswers["startyear"]}",
-			Definition = @"<calendar>
+    private void SetupFrenchRepublican(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        Calendar calendar = new()
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/vendemiaire/{questionAnswers["startyear"]}",
+            Definition = @"<calendar>
   <alias>republicain</alias>
   <shortname>The Calendrier Républicain</shortname>
   <fullname>The Calendrier Républicain</fullname>
@@ -925,18 +923,18 @@ It was designed in part to remove all religious and royalist influences from the
 	</intercalarymonth>
   </intercalarymonths>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
-	}
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
+    }
 
-	private void SetupTranquility(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		var calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/archimedes/{questionAnswers["startyear"]}",
-			Definition = @"<calendar>
+    private void SetupTranquility(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        Calendar calendar = new()
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/archimedes/{questionAnswers["startyear"]}",
+            Definition = @"<calendar>
   <alias>tranquility</alias>
   <shortname>The Tranquility Calendar</shortname>
   <fullname>The Tranquility Calendar</fullname>
@@ -1161,51 +1159,51 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
 	</intercalarymonth>
   </intercalarymonths>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
-	}
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
+    }
 
-	private void SetupMiddleEarth(FuturemudDatabaseContext context, Clock clock,
-		IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		string modernShort, modernLong, ancientShort, ancientLong;
-		switch (questionAnswers["ardaage"].ToLowerInvariant())
-		{
-			case "1":
-				modernShort = "F.A.";
-				modernLong = "First Age";
-				ancientShort = "Y.T.";
-				ancientLong = "The Years of the Trees";
-				break;
-			case "2":
-				modernShort = "S.A.";
-				modernLong = "Second Age";
-				ancientShort = "bef.";
-				ancientLong = "Before the Second Age";
-				break;
-			case "3":
-				modernShort = "T.A.";
-				modernLong = "Third Age";
-				ancientShort = "bef.";
-				ancientLong = "Before the Third Age";
-				break;
-			case "4":
-				modernShort = "Fo.A.";
-				modernLong = "Fourth Age";
-				ancientShort = "bef.";
-				ancientLong = "Before the Fourth Age";
-				break;
-			default:
-				throw new ApplicationException("Invalid option chosen in SetupMiddleEarth()");
-		}
+    private void SetupMiddleEarth(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        string modernShort, modernLong, ancientShort, ancientLong;
+        switch (questionAnswers["ardaage"].ToLowerInvariant())
+        {
+            case "1":
+                modernShort = "F.A.";
+                modernLong = "First Age";
+                ancientShort = "Y.T.";
+                ancientLong = "The Years of the Trees";
+                break;
+            case "2":
+                modernShort = "S.A.";
+                modernLong = "Second Age";
+                ancientShort = "bef.";
+                ancientLong = "Before the Second Age";
+                break;
+            case "3":
+                modernShort = "T.A.";
+                modernLong = "Third Age";
+                ancientShort = "bef.";
+                ancientLong = "Before the Third Age";
+                break;
+            case "4":
+                modernShort = "Fo.A.";
+                modernLong = "Fourth Age";
+                ancientShort = "bef.";
+                ancientLong = "Before the Fourth Age";
+                break;
+            default:
+                throw new ApplicationException("Invalid option chosen in SetupMiddleEarth()");
+        }
 
-		// Eldarin Quenya
-		var calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/yestare/{questionAnswers["startyear"]}",
-			Definition = @$"<calendar>
+        // Eldarin Quenya
+        Calendar calendar = new()
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/yestare/{questionAnswers["startyear"]}",
+            Definition = @$"<calendar>
   <alias>eldarin-quenya</alias>
   <shortname>Eldarin Calendar (Quenya)</shortname>
   <fullname>The Eldarin Calendar, in Quenya</fullname>
@@ -1358,16 +1356,16 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   <intercalarymonths>
   </intercalarymonths>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
 
-		// Eldarin Sindarin
-		calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/yestare/{questionAnswers["startyear"]}",
-			Definition = @$"<calendar>
+        // Eldarin Sindarin
+        calendar = new Calendar
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/yestare/{questionAnswers["startyear"]}",
+            Definition = @$"<calendar>
   <alias>eldarin-sindarin</alias>
   <shortname>Eldarin Calendar (Sindarin)</shortname>
   <fullname>The Eldarin Calendar, in Sindarin</fullname>
@@ -1520,16 +1518,16 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   <intercalarymonths>
   </intercalarymonths>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
 
-		// King's Reckoning Quenya
-		calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/yestare/{questionAnswers["startyear"]}",
-			Definition = @$"<calendar>
+        // King's Reckoning Quenya
+        calendar = new Calendar
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/yestare/{questionAnswers["startyear"]}",
+            Definition = @$"<calendar>
   <alias>kings-reckoning-quenya</alias>
   <shortname>King's Reckoning Calendar (Quenya)</shortname>
   <fullname>The King's Reckoning Calendar, in Quenya</fullname>
@@ -1751,16 +1749,16 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   <intercalarymonths>
   </intercalarymonths>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
 
-		// King's Reckoning Sindarin
-		calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/yestare/{questionAnswers["startyear"]}",
-			Definition = @$"<calendar>
+        // King's Reckoning Sindarin
+        calendar = new Calendar
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/yestare/{questionAnswers["startyear"]}",
+            Definition = @$"<calendar>
   <alias>kings-reckoning-sindarin</alias>
   <shortname>King's Reckoning Calendar (Sindarin)</shortname>
   <fullname>The King's Reckoning Calendar, in Sindarin</fullname>
@@ -1982,16 +1980,16 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   <intercalarymonths>
   </intercalarymonths>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
 
-		// Shire Reckoning
-		calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/firstyul/{questionAnswers["startyear"]}",
-			Definition = @$"<calendar>
+        // Shire Reckoning
+        calendar = new Calendar
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/firstyul/{questionAnswers["startyear"]}",
+            Definition = @$"<calendar>
   <alias>shire-reckoning</alias>
   <shortname>Shire Reckoning Calendar</shortname>
   <fullname>The Shire Reckoning Calendar</fullname>
@@ -2215,16 +2213,16 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   <intercalarymonths>
   </intercalarymonths>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
 
-		// Steward's Reckoning Quenya
-		calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/yestare/{questionAnswers["startyear"]}",
-			Definition = @$"<calendar>
+        // Steward's Reckoning Quenya
+        calendar = new Calendar
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/yestare/{questionAnswers["startyear"]}",
+            Definition = @$"<calendar>
   <alias>stewards-reckoning-quenya</alias>
   <shortname>Steward's Reckoning Calendar (Quenya)</shortname>
   <fullname>The Steward's Reckoning Calendar, in Quenya</fullname>
@@ -2470,16 +2468,16 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   <intercalarymonths>
   </intercalarymonths>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
 
-		// Steward's Reckoning Sindarin
-		calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/yestare/{questionAnswers["startyear"]}",
-			Definition = @$"<calendar>
+        // Steward's Reckoning Sindarin
+        calendar = new Calendar
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/yestare/{questionAnswers["startyear"]}",
+            Definition = @$"<calendar>
   <alias>stewards-reckoning-sindarin</alias>
   <shortname>Stewards's Reckoning Calendar (Sindarin)</shortname>
   <fullname>The Stewards's Reckoning Calendar, in Sindarin</fullname>
@@ -2725,19 +2723,19 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   <intercalarymonths>
   </intercalarymonths>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
-	}
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
+    }
 
-	private void SetupLatinAncient(FuturemudDatabaseContext context, Clock clock,
-		IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		var calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/ianuarius/{questionAnswers["startyear"]}",
-			Definition = @"<calendar>
+    private void SetupLatinAncient(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        Calendar calendar = new()
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/ianuarius/{questionAnswers["startyear"]}",
+            Definition = @"<calendar>
   <alias>julian</alias>
   <shortname>Julian Calendar</shortname>
   <fullname>The Julian Calendar, in Latin</fullname>
@@ -3017,19 +3015,19 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
 	</intercalarymonth>
   </intercalarymonths>
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
-	}
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
+    }
 
-	private void SetupLatin(FuturemudDatabaseContext context, Clock clock,
-		IReadOnlyDictionary<string, string> questionAnswers, bool useNundinae)
-	{
-		var calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/ianuarius/{questionAnswers["startyear"]}",
-			Definition = @$"<calendar>
+    private void SetupLatin(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers, bool useNundinae)
+    {
+        Calendar calendar = new()
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/ianuarius/{questionAnswers["startyear"]}",
+            Definition = @$"<calendar>
   <alias>julian</alias>
   <shortname>Julian Calendar</shortname>
   <fullname>The Julian Calendar, in Latin</fullname>
@@ -3235,19 +3233,19 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </months>
   <intercalarymonths />
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
-	}
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
+    }
 
-	private void SetupJulian(FuturemudDatabaseContext context, Clock clock,
-		IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		var calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = $"01/january/{questionAnswers["startyear"]}",
-			Definition = @"<calendar>
+    private void SetupJulian(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        Calendar calendar = new()
+        {
+            FeedClockId = clock.Id,
+            Date = $"01/january/{questionAnswers["startyear"]}",
+            Definition = @"<calendar>
   <alias>julian</alias>
   <shortname>Julian Calendar</shortname>
   <fullname>The Julian Calendar, in English</fullname>
@@ -3415,21 +3413,21 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </months>
   <intercalarymonths />
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
-	}
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
+    }
 
-	private void SetupGregorian(FuturemudDatabaseContext context, bool useImperial, bool useCE, Clock clock,
-		IReadOnlyDictionary<string, string> questionAnswers)
-	{
-		var calendar = new Calendar
-		{
-			FeedClockId = clock.Id,
-			Date = useImperial
-				? $"january/01/{questionAnswers["startyear"]}"
-				: $"01/january/{questionAnswers["startyear"]}",
-			Definition = @$"<calendar>
+    private void SetupGregorian(FuturemudDatabaseContext context, bool useImperial, bool useCE, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        Calendar calendar = new()
+        {
+            FeedClockId = clock.Id,
+            Date = useImperial
+                ? $"january/01/{questionAnswers["startyear"]}"
+                : $"01/january/{questionAnswers["startyear"]}",
+            Definition = @$"<calendar>
   <alias>gregorian</alias>
   <shortname>Gregorian Calendar (EN-{(useImperial ? "US" : "UK")})</shortname>
   <fullname>The Gregorian Calendar, in English with {(useImperial ? "British" : "American")} Date Display</fullname>
@@ -3615,8 +3613,8 @@ The Tranquility Calendar originally appeared in the July 1989 (Mendel 19 A.T.) i
   </months>
   <intercalarymonths />
 </calendar>"
-		};
-		calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
-		context.SaveChanges();
-	}
+        };
+        calendar = EnsureCalendar(context, clock, calendar.Date, calendar.Definition);
+        context.SaveChanges();
+    }
 }

@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine.Lists;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MudSharp.Work.Crafts.Inputs;
 
@@ -26,7 +26,7 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
 
     protected ConditionRepairInput(Models.CraftInput input, ICraft craft, IFuturemud gameworld) : base(input, craft, gameworld)
     {
-        var root = XElement.Parse(input.Definition);
+        XElement root = XElement.Parse(input.Definition);
         TargetTag = gameworld.Tags.Get(long.Parse(root.Element("TargetTagId").Value));
         RepairAmount = double.Parse(root.Element("RepairAmount").Value);
     }
@@ -82,7 +82,7 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
             return false;
         }
 
-        var matchedtags = actor.Gameworld.Tags.FindMatchingTags(command.SafeRemainingArgument);
+        List<ITag> matchedtags = actor.Gameworld.Tags.FindMatchingTags(command.SafeRemainingArgument);
         if (matchedtags.Count == 0)
         {
             actor.OutputHandler.Send("There is no such tag.");
@@ -96,7 +96,7 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
             return false;
         }
 
-        var tag = matchedtags.Single();
+        ITag tag = matchedtags.Single();
 
         TargetTag = tag;
         InputChanged = true;
@@ -112,7 +112,7 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
             return false;
         }
 
-        if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+        if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out double value))
         {
             actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
             return false;
@@ -163,8 +163,8 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
 
     public override IEnumerable<IPerceivable> ScoutInput(ICharacter character)
     {
-        var foundItems = new List<IGameItem>();
-        foreach (var item in character.DeepContextualItems
+        List<IGameItem> foundItems = new();
+        foreach (IGameItem item in character.DeepContextualItems
             .Except(character.Body.WornItems)
         )
         {
@@ -200,10 +200,10 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
 
     public override void UseInput(IPerceivable item, ICraftInputData data)
     {
-        var icidwi = (ICraftInputDataWithItems)data;
-        foreach (var gameItem in icidwi.ConsumedItems)
+        ICraftInputDataWithItems icidwi = (ICraftInputDataWithItems)data;
+        foreach (IGameItem gameItem in icidwi.ConsumedItems)
         {
-            var repairAmount = RepairAmount;
+            double repairAmount = RepairAmount;
             if (gameItem.Condition + repairAmount > 1.0)
             {
                 repairAmount = 1.0 - gameItem.Condition;
@@ -228,9 +228,9 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
     {
         public NonDeletingItemInputData(XElement root, IFuturemud gameworld)
         {
-            foreach (var element in root.Element("ConsumedItems").Elements())
+            foreach (XElement element in root.Element("ConsumedItems").Elements())
             {
-                var item = gameworld.TryGetItem(long.Parse(element.Value));
+                IGameItem item = gameworld.TryGetItem(long.Parse(element.Value));
                 ConsumedItems.Add(item);
             }
 
@@ -254,7 +254,7 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
 
         public void ReleaseItemsAtCraftCompletion(ICell location, RoomLayer layer)
         {
-            foreach (var item in ConsumedItems)
+            foreach (IGameItem item in ConsumedItems)
             {
                 item.RoomLayer = layer;
                 location.Insert(item);
@@ -266,7 +266,7 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
 
         public void FinaliseLoadTimeTasks()
         {
-            foreach (var item in ConsumedItems)
+            foreach (IGameItem item in ConsumedItems)
             {
                 item.FinaliseLoadTimeTasks();
             }
@@ -274,14 +274,14 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
 
         public void ConsumeInput(IEnumerable<IGameItem> items)
         {
-            foreach (var item in items)
+            foreach (IGameItem item in items)
             {
-                var target = item;
+                IGameItem target = item;
                 item.InInventoryOf?.Take(target);
                 item.Location?.Extract(target);
                 item.ContainedIn?.Take(target);
-                var connectable = target.GetItemType<IConnectable>();
-                foreach (var attached in target.AttachedAndConnectedItems)
+                IConnectable connectable = target.GetItemType<IConnectable>();
+                foreach (IGameItem attached in target.AttachedAndConnectedItems)
                 {
                     attached.GetItemType<IConnectable>()?.RawDisconnect(connectable, true);
                 }
@@ -306,7 +306,7 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
 
         public void Delete()
         {
-            foreach (var item in ConsumedItems.ToList())
+            foreach (IGameItem item in ConsumedItems.ToList())
             {
                 item.Delete();
             }
@@ -314,7 +314,7 @@ public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
 
         public void Quit()
         {
-            foreach (var item in ConsumedItems.ToList())
+            foreach (IGameItem item in ConsumedItems.ToList())
             {
                 item.Quit();
             }

@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
+using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Interfaces {
-    public interface IChair : IGameItemComponent {
+namespace MudSharp.GameItems.Interfaces
+{
+    public interface IChair : IGameItemComponent
+    {
         ITable Table { get; }
         IEnumerable<IPerceivable> Occupants { get; }
 

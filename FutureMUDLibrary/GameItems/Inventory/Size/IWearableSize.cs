@@ -1,9 +1,11 @@
-﻿using System;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Framework;
+using System;
 
-namespace MudSharp.GameItems.Inventory.Size {
-    public interface IWearableSize : IFrameworkItem {
+namespace MudSharp.GameItems.Inventory.Size
+{
+    public interface IWearableSize : IFrameworkItem
+    {
         /// <summary>
         ///     Sets the size of an item to the parameters of a given body
         /// </summary>

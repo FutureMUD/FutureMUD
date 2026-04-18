@@ -8,9 +8,9 @@ namespace MudSharp.Models
         public CombatMessage()
         {
             CombatMessagesWeaponAttacks = new HashSet<CombatMessagesWeaponAttacks>();
-			CombatMessagesCombatActions = new HashSet<CombatMessagesCombatActions>();
+            CombatMessagesCombatActions = new HashSet<CombatMessagesCombatActions>();
 
-		}
+        }
 
         public long Id { get; set; }
         public int Type { get; set; }
@@ -26,6 +26,6 @@ namespace MudSharp.Models
         public virtual FutureProg Prog { get; set; }
         public virtual FutureProg AuxiliaryProg { get; set; }
         public virtual ICollection<CombatMessagesWeaponAttacks> CombatMessagesWeaponAttacks { get; set; }
-		public virtual ICollection<CombatMessagesCombatActions> CombatMessagesCombatActions { get; set; }
-	}
+        public virtual ICollection<CombatMessagesCombatActions> CombatMessagesCombatActions { get; set; }
+    }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
@@ -10,141 +6,145 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Dreams;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MudSharp.Effects.Concrete;
 
 public class Dreaming : Effect, IDreamingEffect
 {
-	public static Regex DreamRegex =
-		new(@"(?<linked>\*(?<linknum>\d+)){0,1}\{(?<options>[^}]+)\}", RegexOptions.IgnoreCase);
+    public static Regex DreamRegex =
+        new(@"(?<linked>\*(?<linknum>\d+)){0,1}\{(?<options>[^}]+)\}", RegexOptions.IgnoreCase);
 
-	public Dreaming(IPerceivable owner, IDream dream, IFutureProg applicabilityProg = null)
-		: base(owner, applicabilityProg)
-	{
-		Dream = dream;
-		Phase = 0;
-	}
+    public Dreaming(IPerceivable owner, IDream dream, IFutureProg applicabilityProg = null)
+        : base(owner, applicabilityProg)
+    {
+        Dream = dream;
+        Phase = 0;
+    }
 
-	public Dictionary<int, int> LinkedOptionsDictionary = new();
+    public Dictionary<int, int> LinkedOptionsDictionary = new();
 
-	#region Overrides of Effect
+    #region Overrides of Effect
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"{Owner.HowSeen(voyeur, true)} is having the dream {Dream.Name.TitleCase().Colour(Telnet.Green)}";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"{Owner.HowSeen(voyeur, true)} is having the dream {Dream.Name.TitleCase().Colour(Telnet.Green)}";
+    }
 
-	#region Overrides of Object
+    #region Overrides of Object
 
-	/// <summary>
-	///     Returns a string that represents the current object.
-	/// </summary>
-	/// <returns>
-	///     A string that represents the current object.
-	/// </returns>
-	public override string ToString()
-	{
-		return $"Owner is having the dream {Dream.Name.TitleCase()}";
-	}
+    /// <summary>
+    ///     Returns a string that represents the current object.
+    /// </summary>
+    /// <returns>
+    ///     A string that represents the current object.
+    /// </returns>
+    public override string ToString()
+    {
+        return $"Owner is having the dream {Dream.Name.TitleCase()}";
+    }
 
-	#endregion
+    #endregion
 
-	protected override string SpecificEffectType { get; } = "Dreaming";
+    protected override string SpecificEffectType { get; } = "Dreaming";
 
-	#endregion
+    #endregion
 
-	#region Implementation of IDreamingEffect
+    #region Implementation of IDreamingEffect
 
-	public IDream Dream { get; set; }
+    public IDream Dream { get; set; }
 
-	public int Phase { get; set; }
+    public int Phase { get; set; }
 
-	#endregion
+    #endregion
 
-	#region Overrides of Effect
+    #region Overrides of Effect
 
-	/// <summary>
-	///     Fires when the scheduled effect "matures"
-	/// </summary>
-	public override void RemovalEffect()
-	{
-		Dream.FinishDream((ICharacter)Owner);
-		Owner.RemoveEffect(this);
-	}
+    /// <summary>
+    ///     Fires when the scheduled effect "matures"
+    /// </summary>
+    public override void RemovalEffect()
+    {
+        Dream.FinishDream((ICharacter)Owner);
+        Owner.RemoveEffect(this);
+    }
 
-	#region Overrides of Effect
+    #region Overrides of Effect
 
-	private void DoDreamPhase()
-	{
-		var ownerAsCharacter = Owner as ICharacter;
-		if (ownerAsCharacter?.State.HasFlag(CharacterState.Sleeping) != true)
-		{
-			return;
-		}
+    private void DoDreamPhase()
+    {
+        ICharacter ownerAsCharacter = Owner as ICharacter;
+        if (ownerAsCharacter?.State.HasFlag(CharacterState.Sleeping) != true)
+        {
+            return;
+        }
 
-		var phase = Dream.DreamStages.ElementAtOrDefault(Phase++);
-		if (phase == null)
-		{
-			Owner.RemoveEffect(this, true);
-			return;
-		}
+        DreamStage phase = Dream.DreamStages.ElementAtOrDefault(Phase++);
+        if (phase == null)
+        {
+            Owner.RemoveEffect(this, true);
+            return;
+        }
 
-		var text = DreamRegex.Replace(phase.DreamerText, match =>
-		{
-			var options = match.Groups["options"].Value.Split('|').ToList();
-			if (match.Groups["linked"].Length == 0)
-			{
-				return options.GetRandomElement();
-			}
+        string text = DreamRegex.Replace(phase.DreamerText, match =>
+        {
+            List<string> options = match.Groups["options"].Value.Split('|').ToList();
+            if (match.Groups["linked"].Length == 0)
+            {
+                return options.GetRandomElement();
+            }
 
-			var linknum = int.Parse(match.Groups["linknum"].Value);
-			if (LinkedOptionsDictionary.ContainsKey(linknum))
-			{
-				return options.ElementAtOrDefault(
-					LinkedOptionsDictionary[linknum]) ?? options.GetRandomElement();
-			}
+            int linknum = int.Parse(match.Groups["linknum"].Value);
+            if (LinkedOptionsDictionary.ContainsKey(linknum))
+            {
+                return options.ElementAtOrDefault(
+                    LinkedOptionsDictionary[linknum]) ?? options.GetRandomElement();
+            }
 
-			var option = RandomUtilities.Random(0, options.Count);
-			LinkedOptionsDictionary[linknum] = option;
-			return options.ElementAtOrDefault(option) ?? options.GetRandomElement();
-		});
+            int option = RandomUtilities.Random(0, options.Count);
+            LinkedOptionsDictionary[linknum] = option;
+            return options.ElementAtOrDefault(option) ?? options.GetRandomElement();
+        });
 
 
-		Owner.Send(text.NormaliseSpacing().SubstituteANSIColour().ProperSentences());
-		if (!string.IsNullOrWhiteSpace(phase.DreamerCommand))
-		{
-			foreach (var command in phase.DreamerCommand.Split('\n'))
-			{
-				if (command.StartsWith("wake", StringComparison.InvariantCultureIgnoreCase))
-				{
-					ownerAsCharacter.RemoveAllEffects(x => x.IsEffectType<NoWake>());
-				}
+        Owner.Send(text.NormaliseSpacing().SubstituteANSIColour().ProperSentences());
+        if (!string.IsNullOrWhiteSpace(phase.DreamerCommand))
+        {
+            foreach (string command in phase.DreamerCommand.Split('\n'))
+            {
+                if (command.StartsWith("wake", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ownerAsCharacter.RemoveAllEffects(x => x.IsEffectType<NoWake>());
+                }
 
-				ownerAsCharacter.OutOfContextExecuteCommand(command);
-			}
-		}
+                ownerAsCharacter.OutOfContextExecuteCommand(command);
+            }
+        }
 
-		if (Dream.DreamStages.Last() != phase)
-		{
-			Gameworld.Scheduler.AddSchedule(new Schedule(DoDreamPhase, ScheduleType.System,
-				TimeSpan.FromSeconds(phase.WaitSeconds),
-				$"Dreaming for {ownerAsCharacter.PersonalName.GetName(NameStyle.FullName)}"));
-		}
-		else
-		{
-			ownerAsCharacter.RemoveEffect(this, true);
-		}
-	}
+        if (Dream.DreamStages.Last() != phase)
+        {
+            Gameworld.Scheduler.AddSchedule(new Schedule(DoDreamPhase, ScheduleType.System,
+                TimeSpan.FromSeconds(phase.WaitSeconds),
+                $"Dreaming for {ownerAsCharacter.PersonalName.GetName(NameStyle.FullName)}"));
+        }
+        else
+        {
+            ownerAsCharacter.RemoveEffect(this, true);
+        }
+    }
 
-	/// <summary>
-	///     Fires when an effect is first added to an individual
-	/// </summary>
-	public override void InitialEffect()
-	{
-		DoDreamPhase();
-	}
+    /// <summary>
+    ///     Fires when an effect is first added to an individual
+    /// </summary>
+    public override void InitialEffect()
+    {
+        DoDreamPhase();
+    }
 
-	#endregion
+    #endregion
 
-	#endregion
+    #endregion
 }

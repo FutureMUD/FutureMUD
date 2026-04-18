@@ -2,8 +2,8 @@
 
 namespace MudSharp.Framework
 {
-	public interface IPerceivableGroup : IPerceivable
-	{
+    public interface IPerceivableGroup : IPerceivable
+    {
         IEnumerable<IPerceivable> Members { get; }
-	}
+    }
 }

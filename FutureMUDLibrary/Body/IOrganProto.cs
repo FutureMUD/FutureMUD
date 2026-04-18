@@ -1,5 +1,7 @@
-﻿namespace MudSharp.Body {
-    public interface IOrganProto : IBodypart {
+﻿namespace MudSharp.Body
+{
+    public interface IOrganProto : IBodypart
+    {
         double ImplantSpaceOccupied { get; }
         double RelativeInfectability { get; }
         double HypoxiaDamagePerTick { get; }

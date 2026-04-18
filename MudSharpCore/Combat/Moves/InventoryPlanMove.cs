@@ -1,36 +1,36 @@
-﻿using System;
+﻿using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory.Plans;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.GameItems.Inventory;
-using MudSharp.GameItems.Inventory.Plans;
 
 namespace MudSharp.Combat.Moves;
 
 public class InventoryPlanMove : CombatMoveBase
 {
-	public IInventoryPlan Plan { get; init; }
+    public IInventoryPlan Plan { get; init; }
 
-	public Action<InventoryPlanActionResult> AfterPlanActions { get; init; }
+    public Action<InventoryPlanActionResult> AfterPlanActions { get; init; }
 
-	#region Overrides of CombatMoveBase
+    #region Overrides of CombatMoveBase
 
-	public override double BaseDelay => 0.1;
+    public override double BaseDelay => 0.1;
 
-	public override string Description => "Executing an inventory plan";
+    public override string Description => "Executing an inventory plan";
 
-	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
-	{
-		var results = Plan.ExecuteWholePlan();
-		Plan.FinalisePlanNoRestore();
-		foreach (var result in results)
-		{
-			AfterPlanActions?.Invoke(result);
-		}
+    public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
+    {
+        IEnumerable<InventoryPlanActionResult> results = Plan.ExecuteWholePlan();
+        Plan.FinalisePlanNoRestore();
+        foreach (InventoryPlanActionResult result in results)
+        {
+            AfterPlanActions?.Invoke(result);
+        }
 
-		return CombatMoveResult.Irrelevant;
-	}
+        return CombatMoveResult.Irrelevant;
+    }
 
-	#endregion
+    #endregion
 }

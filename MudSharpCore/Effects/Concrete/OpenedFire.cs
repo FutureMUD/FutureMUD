@@ -5,14 +5,14 @@ namespace MudSharp.Effects.Concrete;
 
 public class OpenedFire : CombatEffectBase
 {
-	public OpenedFire(ICharacter owner) : base(owner, owner.Combat, null)
-	{
-	}
+    public OpenedFire(ICharacter owner) : base(owner, owner.Combat, null)
+    {
+    }
 
-	protected override string SpecificEffectType => "OpenedFire";
+    protected override string SpecificEffectType => "OpenedFire";
 
-	public override string Describe(IPerceiver voyeur)
-	{
-		return $"Has opened fire on a target.";
-	}
+    public override string Describe(IPerceiver voyeur)
+    {
+        return $"Has opened fire on a target.";
+    }
 }

@@ -1,4 +1,5 @@
 ﻿namespace MudSharp.Effects;
 
-public interface IEffectSubtype : IEffect {
+public interface IEffectSubtype : IEffect
+{
 }

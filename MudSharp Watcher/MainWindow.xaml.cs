@@ -16,86 +16,86 @@ using System.Windows.Shapes;
 
 namespace MudSharp_Watcher
 {
-	/// <summary>
-	/// Interaction logic for MainWindow.xaml
-	/// </summary>
-	public partial class MainWindow : Window
-	{
-		private ProcessWatcher _watcher = new();
-		private UpdateChecker _checker = new();
-		
-		public MainWindow()
-		{
-			InitializeComponent();
-		}
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        private ProcessWatcher _watcher = new();
+        private UpdateChecker _checker = new();
 
-		#region Overrides of FrameworkElement
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
 
-		/// <inheritdoc />
-		protected override void OnInitialized(EventArgs e)
-		{
-			base.OnInitialized(e);
-			DataContext = new ViewModel();
-			using var fs = new FileStream("LauncherBootInfo.data", FileMode.OpenOrCreate);
-			using var reader = new StreamReader(fs);
-			((ViewModel)DataContext).DatabaseString = reader.ReadLine() ?? "server=localhost;port=3306;database=yourdbo;uid=account;password=password;Default Command Timeout=300000";
-			_checker.StartWatchingForUpdates();
-			_checker.UpdateAvailable += CheckerUpdateAvailable;
-		}
+        #region Overrides of FrameworkElement
 
-		private void CheckerUpdateAvailable(object? sender, EventArgs e)
-		{
-			this.Dispatcher.Invoke(() =>
-			{
-				((ViewModel)DataContext).UpdateAvailable = true;
-			});
-		}
+        /// <inheritdoc />
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+            DataContext = new ViewModel();
+            using FileStream fs = new("LauncherBootInfo.data", FileMode.OpenOrCreate);
+            using StreamReader reader = new(fs);
+            ((ViewModel)DataContext).DatabaseString = reader.ReadLine() ?? "server=localhost;port=3306;database=yourdbo;uid=account;password=password;Default Command Timeout=300000";
+            _checker.StartWatchingForUpdates();
+            _checker.UpdateAvailable += CheckerUpdateAvailable;
+        }
 
-		#endregion
+        private void CheckerUpdateAvailable(object? sender, EventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                ((ViewModel)DataContext).UpdateAvailable = true;
+            });
+        }
 
-		private void LaunchMUDButton_OnClick(object sender, RoutedEventArgs e)
-		{
+        #endregion
 
-			_watcher.DataReceived -= WatcherOnDataReceived;
-			_watcher.DataReceived += WatcherOnDataReceived;
-			_watcher.MudStoppedBooting -= WatcherOnMudStoppedBooting;
-			_watcher.MudStoppedBooting += WatcherOnMudStoppedBooting;
-			_watcher.MudStarted -= WatcherOnMudStarted;
-			_watcher.MudStarted += WatcherOnMudStarted;
-			_watcher.SetDatbaseString(((ViewModel)DataContext).DatabaseString);
-			_watcher.StartMud();
+        private void LaunchMUDButton_OnClick(object sender, RoutedEventArgs e)
+        {
 
-			((ViewModel)DataContext).LaunchButtonEnabled = false;
-		}
+            _watcher.DataReceived -= WatcherOnDataReceived;
+            _watcher.DataReceived += WatcherOnDataReceived;
+            _watcher.MudStoppedBooting -= WatcherOnMudStoppedBooting;
+            _watcher.MudStoppedBooting += WatcherOnMudStoppedBooting;
+            _watcher.MudStarted -= WatcherOnMudStarted;
+            _watcher.MudStarted += WatcherOnMudStarted;
+            _watcher.SetDatbaseString(((ViewModel)DataContext).DatabaseString);
+            _watcher.StartMud();
 
-		private void WatcherOnMudStarted(object? sender, EventArgs e)
-		{
-			this.Dispatcher.Invoke(() =>
-			{
-				((ViewModel)DataContext).GameLaunched = true;
-			});
-		}
+            ((ViewModel)DataContext).LaunchButtonEnabled = false;
+        }
 
-		private void WatcherOnMudStoppedBooting(object? sender, EventArgs e)
-		{
-			this.Dispatcher.Invoke(() =>
-			{
-				((ViewModel)DataContext).LaunchButtonEnabled = true;
-				((ViewModel)DataContext).GameLaunched = false;
-			});
-		}
+        private void WatcherOnMudStarted(object? sender, EventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                ((ViewModel)DataContext).GameLaunched = true;
+            });
+        }
 
-		private void WatcherOnDataReceived(object sender, System.Diagnostics.DataReceivedEventArgs e)
-		{
-			if (string.IsNullOrEmpty(e.Data))
-			{
-				return;
-			}
+        private void WatcherOnMudStoppedBooting(object? sender, EventArgs e)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                ((ViewModel)DataContext).LaunchButtonEnabled = true;
+                ((ViewModel)DataContext).GameLaunched = false;
+            });
+        }
 
-			this.Dispatcher.Invoke(() =>
-			{
-				((ViewModel)DataContext).AppendScrollback(e.Data);
-			});
-		}
-	}
+        private void WatcherOnDataReceived(object sender, System.Diagnostics.DataReceivedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(e.Data))
+            {
+                return;
+            }
+
+            this.Dispatcher.Invoke(() =>
+            {
+                ((ViewModel)DataContext).AppendScrollback(e.Data);
+            });
+        }
+    }
 }

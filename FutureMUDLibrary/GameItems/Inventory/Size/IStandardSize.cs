@@ -1,7 +1,9 @@
 ﻿using MudSharp.Framework;
 
-namespace MudSharp.GameItems.Inventory.Size {
-    public interface IStandardSize : IFrameworkItem {
+namespace MudSharp.GameItems.Inventory.Size
+{
+    public interface IStandardSize : IFrameworkItem
+    {
         /// <summary>
         ///     The ID of the Body Prototype to which this standard size applies
         /// </summary>

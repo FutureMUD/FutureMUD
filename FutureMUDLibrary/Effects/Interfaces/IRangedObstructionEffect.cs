@@ -17,7 +17,7 @@ namespace MudSharp.Effects.Interfaces
         /// <param name="intercessor">The intercessor who is getting in between the attack</param>
         /// <param name="attackOrigin">The origin of the attack. This can be null if it does not have a perceivable option.</param>
         /// <returns>True if the intercessor obstructs the target from the attack</returns>
-        bool IsObstructedFrom(IPerceivable target, IPerceivable intercessor, [CanBeNull]IPerceivable attackOrigin);
+        bool IsObstructedFrom(IPerceivable target, IPerceivable intercessor, [CanBeNull] IPerceivable attackOrigin);
         IPerceivable Obstruction { get; }
     }
 }

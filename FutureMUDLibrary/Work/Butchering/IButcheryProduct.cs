@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using System.Collections.Generic;
 
 namespace MudSharp.Work.Butchering
 {

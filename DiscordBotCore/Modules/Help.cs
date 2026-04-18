@@ -1,57 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore.Storage;
 using MudSharp.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Discord_Bot.Modules;
 
 public class Help : BaseCommandModule
 {
-	[Command("proghelp")]
-	[Aliases("phelp")]
-	public async Task ProgHelpAsync(CommandContext context, [RemainingText] string arguments = "")
-	{
-		    if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
-		    {
-			    await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
-			    return;
-		    }
+    [Command("proghelp")]
+    [Aliases("phelp")]
+    public async Task ProgHelpAsync(CommandContext context, [RemainingText] string arguments = "")
+    {
+        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        {
+            await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
+            return;
+        }
 
-		    await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
+        await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
 
-		    var request = new CachedDiscordRequest
-		    {
-			    Context = context,
-			    OnResponseAction = HandleMudProgHelpResponse
-			};
-		    DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-		    DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"proghelp {request.RequestId} {arguments}");
-		}
+        CachedDiscordRequest request = new()
+        {
+            Context = context,
+            OnResponseAction = HandleMudProgHelpResponse
+        };
+        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"proghelp {request.RequestId} {arguments}");
+    }
 
 
 
-	private async Task HandleMudProgHelpResponse(string text, CommandContext context)
-	{
-		    await context.RespondAsync($"{context.User.Mention} - Prog Help Request");
-		    foreach (var part in text.SplitStringsForDiscord())
-		    {
-			    await context.RespondAsync($"```{part}```");
-		    }
-	    }
+    private async Task HandleMudProgHelpResponse(string text, CommandContext context)
+    {
+        await context.RespondAsync($"{context.User.Mention} - Prog Help Request");
+        foreach (string part in text.SplitStringsForDiscord())
+        {
+            await context.RespondAsync($"```{part}```");
+        }
+    }
 
-	[Command("help")]
-	[Aliases("halp", "hjalp")]
-	public async Task HelpAsync(CommandContext context, [RemainingText]string arguments = "")
-	{
-            if (string.IsNullOrWhiteSpace(arguments))
-            {
-                await context.RespondAsync(@$"Thanks {context.User.Mention}, here is how to use me:
+    [Command("help")]
+    [Aliases("halp", "hjalp")]
+    public async Task HelpAsync(CommandContext context, [RemainingText] string arguments = "")
+    {
+        if (string.IsNullOrWhiteSpace(arguments))
+        {
+            await context.RespondAsync(@$"Thanks {context.User.Mention}, here is how to use me:
 
     **help** - shows this help message
     **help <helpfile>** - shows a helpfile from the MUD
@@ -81,58 +81,58 @@ The following commands require you to be registered and authorised before using 
     **shutdown** - shuts down the MUD
     **shutdownstop** - shuts down the MUD and stops it from rebooting
 ");
-                return;
-            }
-
-            if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
-            {
-                await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
-                return;
-            }
-
-            await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
-
-            var request = new CachedDiscordRequest
-            {
-                Context = context,
-                OnResponseAction = HandleMudHelpResponse
-            };
-            DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-            DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"adminhelp {request.RequestId} {arguments}");
+            return;
         }
 
-	private async Task HandleMudHelpResponse(string text, CommandContext context)
-	{
-            await context.RespondAsync($"{context.User.Mention} - Help Request");
-            foreach (var part in text.SplitStringsForDiscord())
-            {
-                await context.RespondAsync($"```{part}```");
-            }
+        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        {
+            await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
+            return;
         }
 
-	[Command("playerhelp")]
-	public async Task PlayerHelpAsync(CommandContext context, [RemainingText]string arguments)
-	{
-            if (string.IsNullOrWhiteSpace(arguments))
-            {
-                await context.RespondAsync(@$"{context.User.Mention} - you must specify a helpfile you want me to retrieve for you.");
-                return;
-            }
+        await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
 
-            if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
-            {
-                await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
-                return;
-            }
+        CachedDiscordRequest request = new()
+        {
+            Context = context,
+            OnResponseAction = HandleMudHelpResponse
+        };
+        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"adminhelp {request.RequestId} {arguments}");
+    }
 
-            await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
-
-            var request = new CachedDiscordRequest
-            {
-                Context = context,
-                OnResponseAction = HandleMudHelpResponse
-            };
-            DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-            DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"help {request.RequestId} {arguments}");
+    private async Task HandleMudHelpResponse(string text, CommandContext context)
+    {
+        await context.RespondAsync($"{context.User.Mention} - Help Request");
+        foreach (string part in text.SplitStringsForDiscord())
+        {
+            await context.RespondAsync($"```{part}```");
         }
+    }
+
+    [Command("playerhelp")]
+    public async Task PlayerHelpAsync(CommandContext context, [RemainingText] string arguments)
+    {
+        if (string.IsNullOrWhiteSpace(arguments))
+        {
+            await context.RespondAsync(@$"{context.User.Mention} - you must specify a helpfile you want me to retrieve for you.");
+            return;
+        }
+
+        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        {
+            await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
+            return;
+        }
+
+        await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
+
+        CachedDiscordRequest request = new()
+        {
+            Context = context,
+            OnResponseAction = HandleMudHelpResponse
+        };
+        DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"help {request.RequestId} {arguments}");
+    }
 }

@@ -1,7 +1,9 @@
 ﻿using MudSharp.Framework;
 
-namespace MudSharp.Communication.Language.Scramblers {
-    public interface ILanguageScrambler {
+namespace MudSharp.Communication.Language.Scramblers
+{
+    public interface ILanguageScrambler
+    {
         string Name { get; }
 
         string Description { get; }

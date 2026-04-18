@@ -2,13 +2,15 @@
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
-namespace MudSharp.RPG.Merits {
-    public interface IMerit : IEditableItem, IProgVariable {
+namespace MudSharp.RPG.Merits
+{
+    public interface IMerit : IEditableItem, IProgVariable
+    {
         MeritScope MeritScope { get; }
         MeritType MeritType { get; }
         string DatabaseType { get; }
         IFutureProg ApplicabilityProg { get; }
-		bool Applies(IHaveMerits owner);
+        bool Applies(IHaveMerits owner);
         string Describe(IHaveMerits owner, IPerceiver voyeur);
         IMerit Clone(string newName);
     }

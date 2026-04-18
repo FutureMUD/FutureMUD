@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 
-namespace MudSharp.Construction {
-    public interface IRoom : ILocation {
+namespace MudSharp.Construction
+{
+    public interface IRoom : ILocation
+    {
         IZone Zone { get; }
         IShard Shard { get; }
         IEnumerable<ICell> Cells { get; }

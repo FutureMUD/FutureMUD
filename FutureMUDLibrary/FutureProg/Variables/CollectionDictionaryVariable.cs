@@ -39,7 +39,7 @@ namespace MudSharp.FutureProg.Variables
         }
         #endregion
 
-        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler(ProgVariableTypes type)
+        private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler(ProgVariableTypes type)
         {
             return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -52,7 +52,7 @@ namespace MudSharp.FutureProg.Variables
             };
         }
 
-        private static IReadOnlyDictionary<string,string> DotReferenceHelp()
+        private static IReadOnlyDictionary<string, string> DotReferenceHelp()
         {
             return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -65,9 +65,10 @@ namespace MudSharp.FutureProg.Variables
             };
         }
 
-        public static void RegisterFutureProgCompiler() {
+        public static void RegisterFutureProgCompiler()
+        {
             ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.CollectionDictionary, DotReferenceHandler(ProgVariableTypes.Void), DotReferenceHelp());
-            foreach (var flag in ProgVariableTypes.CollectionItem.GetAllFlags())
+            foreach (ProgVariableTypes flag in ProgVariableTypes.CollectionItem.GetAllFlags())
             {
                 if (flag == ProgVariableTypes.Void)
                 {

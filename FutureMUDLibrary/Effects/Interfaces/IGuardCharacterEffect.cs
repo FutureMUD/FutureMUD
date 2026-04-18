@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
+using System.Collections.Generic;
 
-namespace MudSharp.Effects.Interfaces {
+namespace MudSharp.Effects.Interfaces
+{
     public interface IGuardCharacterEffect : IAffectedByChangeInGuarding
     {
         IEnumerable<ICharacter> Targets { get; }

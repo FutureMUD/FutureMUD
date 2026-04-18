@@ -1,6 +1,6 @@
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Framework;
+using System;
 
 namespace MudSharp_Unit_Tests;
 
@@ -10,9 +10,9 @@ public class ValueRangeTests
     [TestMethod]
     public void CompareTo_OrdersByMinimumThenMaximum()
     {
-        var a = new ValueRange { MinimumValue = 0.0, MaximumValue = 1.0 };
-        var b = new ValueRange { MinimumValue = 1.0, MaximumValue = 2.0 };
-        var c = new ValueRange { MinimumValue = 0.0, MaximumValue = 2.0 };
+        ValueRange a = new() { MinimumValue = 0.0, MaximumValue = 1.0 };
+        ValueRange b = new() { MinimumValue = 1.0, MaximumValue = 2.0 };
+        ValueRange c = new() { MinimumValue = 0.0, MaximumValue = 2.0 };
 
         Assert.IsTrue(a.CompareTo(b) < 0, "Range A should come before range B");
         Assert.IsTrue(b.CompareTo(a) > 0, "Range B should come after range A");
@@ -24,7 +24,7 @@ public class ValueRangeTests
     [TestMethod]
     public void IComparableCompareTo_WithDoubleArgument()
     {
-        var range = new ValueRange { MinimumValue = 10.0, MaximumValue = 20.0 };
+        ValueRange range = new() { MinimumValue = 10.0, MaximumValue = 20.0 };
         IComparable comp = range;
 
         Assert.AreEqual(-1, comp.CompareTo(5.0), "Value below range should return -1");
@@ -37,8 +37,8 @@ public class ValueRangeTests
     [TestMethod]
     public void CompareToDouble_Boundaries()
     {
-        var range = new ValueRange { MinimumValue = -5.0, MaximumValue = 5.0 };
-        var comp = (IComparable<double>)range;
+        ValueRange range = new() { MinimumValue = -5.0, MaximumValue = 5.0 };
+        IComparable<double> comp = (IComparable<double>)range;
 
         Assert.AreEqual(-1, comp.CompareTo(-5.1), "Below minimum should return -1");
         Assert.AreEqual(0, comp.CompareTo(-5.0), "Equal to minimum should return 0");

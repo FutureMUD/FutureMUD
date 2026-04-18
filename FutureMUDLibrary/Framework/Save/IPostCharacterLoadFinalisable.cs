@@ -7,5 +7,5 @@ namespace MudSharp.Framework.Save;
 /// </summary>
 public interface IPostCharacterLoadFinalisable
 {
-	void FinaliseLoading();
+    void FinaliseLoading();
 }

@@ -8,20 +8,20 @@ namespace MudSharp.Body.Needs;
 /// </summary>
 public class PassiveNeedsModel : ChangingNeedsModelBase
 {
-	public PassiveNeedsModel(ICharacter character)
-	{
-		Owner = character;
-		AlcoholLitres = 0.0;
-		WaterLitres = 0.0;
-		FoodSatiatedHours = 16.0;
-		DrinkSatiatedHours = 8.0;
-		SatiationReserve = 0.0;
-	}
+    public PassiveNeedsModel(ICharacter character)
+    {
+        Owner = character;
+        AlcoholLitres = 0.0;
+        WaterLitres = 0.0;
+        FoodSatiatedHours = 16.0;
+        DrinkSatiatedHours = 8.0;
+        SatiationReserve = 0.0;
+    }
 
-	public override bool NeedsSave => false;
+    public override bool NeedsSave => false;
 
-	public override void NeedsHeartbeat()
-	{
-		// Do nothing
-	}
+    public override void NeedsHeartbeat()
+    {
+        // Do nothing
+    }
 }

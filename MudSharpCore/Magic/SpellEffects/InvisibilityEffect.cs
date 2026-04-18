@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
@@ -12,156 +6,166 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.PerceptionEngine.Lists;
 using MudSharp.RPG.Checks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
 public class InvisibilityEffect : IMagicSpellEffectTemplate
 {
-	public static void RegisterFactory()
-	{
-		SpellEffectFactory.RegisterLoadTimeFactory("invisibility", (root, spell) => new InvisibilityEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("invisibility", BuilderFactory,
-			"Makes a target invisible",
-			HelpText,
-			false,
-			true,
-			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
-	}
+    public static void RegisterFactory()
+    {
+        SpellEffectFactory.RegisterLoadTimeFactory("invisibility", (root, spell) => new InvisibilityEffect(root, spell));
+        SpellEffectFactory.RegisterBuilderFactory("invisibility", BuilderFactory,
+            "Makes a target invisible",
+            HelpText,
+            false,
+            true,
+            SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
+    }
 
-	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
-		IMagicSpell spell)
-	{
-		return (new InvisibilityEffect(new XElement("Effect",
-			new XAttribute("type", "glow"),
-			new XElement("FilterProg", 0)
-		), spell), string.Empty);
-	}
+    private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
+        IMagicSpell spell)
+    {
+        return (new InvisibilityEffect(new XElement("Effect",
+            new XAttribute("type", "glow"),
+            new XElement("FilterProg", 0)
+        ), spell), string.Empty);
+    }
 
-	public IMagicSpell Spell { get; }
-	public IFutureProg FilterProg { get; set; }
+    public IMagicSpell Spell { get; }
+    public IFutureProg FilterProg { get; set; }
 
-	protected InvisibilityEffect(XElement root, IMagicSpell spell)
-	{
-		Spell = spell;
-		FilterProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FilterProg")?.Value ?? "0"));
-	}
+    protected InvisibilityEffect(XElement root, IMagicSpell spell)
+    {
+        Spell = spell;
+        FilterProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FilterProg")?.Value ?? "0"));
+    }
 
-	#region Implementation of IXmlSavable
+    #region Implementation of IXmlSavable
 
-	public XElement SaveToXml()
-	{
-		return new XElement("Effect",
-			new XAttribute("type", "glow"),
-			new XElement("FilterProg", FilterProg?.Id ?? 0)
-		);
-	}
+    public XElement SaveToXml()
+    {
+        return new XElement("Effect",
+            new XAttribute("type", "glow"),
+            new XElement("FilterProg", FilterProg?.Id ?? 0)
+        );
+    }
 
-	#endregion
+    #endregion
 
-	#region Implementation of IHaveFuturemud
+    #region Implementation of IHaveFuturemud
 
-	public IFuturemud Gameworld => Spell.Gameworld;
+    public IFuturemud Gameworld => Spell.Gameworld;
 
-	#endregion
+    #endregion
 
-	#region Implementation of IEditableItem
+    #region Implementation of IEditableItem
 
-	public const string HelpText = @"You can use the following options with this effect:
+    public const string HelpText = @"You can use the following options with this effect:
 
 	#3filter <prog>#0 - sets a prog that controls who can see the invisible thing";
 
-	public bool BuildingCommand(ICharacter actor, StringStack command)
-	{
-		switch (command.PopSpeech().ToLowerInvariant())
-		{
-			case "filter":
-			case "prog":
-				return BuildingCommandFilter(actor, command);
-		}
+    public bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopSpeech().ToLowerInvariant())
+        {
+            case "filter":
+            case "prog":
+                return BuildingCommandFilter(actor, command);
+        }
 
-		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
-		return false;
-	}
+        actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+        return false;
+    }
 
-	private bool BuildingCommandFilter(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send($"What prog do you want to set as the filter prog for this effect?");
-			return false;
-		}
+    private bool BuildingCommandFilter(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"What prog do you want to set as the filter prog for this effect?");
+            return false;
+        }
 
-		var prog = Gameworld.FutureProgs.GetByIdOrName(command.SafeRemainingArgument);
-		if (prog == null)
-		{
-			actor.OutputHandler.Send("There is no such prog.");
-			return false;
-		}
+        IFutureProg prog = Gameworld.FutureProgs.GetByIdOrName(command.SafeRemainingArgument);
+        if (prog == null)
+        {
+            actor.OutputHandler.Send("There is no such prog.");
+            return false;
+        }
 
-		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
-		{
-			actor.OutputHandler.Send(
-				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
-			return false;
-		}
+        if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
+        {
+            actor.OutputHandler.Send(
+                $"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
+            return false;
+        }
 
-		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
-		{
-			actor.OutputHandler.Send(
-				$"You must specify a prog that accepts a single character (the viewer), whereas {prog.MXPClickableFunctionName()} does not.");
-			return false;
-		}
+        if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
+        {
+            actor.OutputHandler.Send(
+                $"You must specify a prog that accepts a single character (the viewer), whereas {prog.MXPClickableFunctionName()} does not.");
+            return false;
+        }
 
-		Spell.Changed = true;
-		actor.OutputHandler.Send(
-			$"The invisibility effect will now use the {prog.MXPClickableFunctionNameWithId()} prog to filter whether it applies (true means that the invisibility applies, e.g. the target cannot see)");
-		return true;
-	}
+        Spell.Changed = true;
+        actor.OutputHandler.Send(
+            $"The invisibility effect will now use the {prog.MXPClickableFunctionNameWithId()} prog to filter whether it applies (true means that the invisibility applies, e.g. the target cannot see)");
+        return true;
+    }
 
-	public string Show(ICharacter actor)
-	{
-		return $"Invisibility - Filter: {FilterProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}";
-	}
+    public string Show(ICharacter actor)
+    {
+        return $"Invisibility - Filter: {FilterProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}";
+    }
 
-	#endregion
+    #endregion
 
-	#region Implementation of IMagicSpellEffectTemplate
+    #region Implementation of IMagicSpellEffectTemplate
 
-	public bool IsInstantaneous => false;
-	public bool RequiresTarget => true;
+    public bool IsInstantaneous => false;
+    public bool RequiresTarget => true;
 
-	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
-public static bool IsCompatibleWithTrigger(string types)
-	{
-		switch (types)
-		{
-			case "item":
-			case "items":
-			case "character":
-			case "characters":
-			case "perceivable":
-			case "perceivables":
-				return true;
-			default:
-				return false;
-		}
-	}
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return IsCompatibleWithTrigger(types.TargetTypes);
+    }
 
-	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
-	{
-		if (target is not IGameItem && target is not ICharacter && target is not PerceivableGroup)
-		{
-			return null;
-		}
+    public static bool IsCompatibleWithTrigger(string types)
+    {
+        switch (types)
+        {
+            case "item":
+            case "items":
+            case "character":
+            case "characters":
+            case "perceivable":
+            case "perceivables":
+                return true;
+            default:
+                return false;
+        }
+    }
 
-		return new SpellInvisibilityEffect(target, parent, FilterProg);
-	}
+    public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+        SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+    {
+        if (target is not IGameItem && target is not ICharacter && target is not PerceivableGroup)
+        {
+            return null;
+        }
 
-	public IMagicSpellEffectTemplate Clone()
-	{
-		return new InvisibilityEffect(SaveToXml(), Spell);
-	}
+        return new SpellInvisibilityEffect(target, parent, FilterProg);
+    }
 
-	#endregion
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new InvisibilityEffect(SaveToXml(), Spell);
+    }
+
+    #endregion
 }

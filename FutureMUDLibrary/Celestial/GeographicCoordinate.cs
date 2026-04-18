@@ -1,7 +1,9 @@
 ﻿using System;
 
-namespace MudSharp.Celestial {
-    public class GeographicCoordinate {
+namespace MudSharp.Celestial
+{
+    public class GeographicCoordinate
+    {
         protected double _elevation;
         protected double _latitude;
 
@@ -9,7 +11,8 @@ namespace MudSharp.Celestial {
 
         protected double _radius;
 
-        public GeographicCoordinate(double latitude, double longitude, double elevation, double radius) {
+        public GeographicCoordinate(double latitude, double longitude, double elevation, double radius)
+        {
             Latitude = latitude;
             Longitude = longitude;
             Elevation = elevation;
@@ -18,26 +21,22 @@ namespace MudSharp.Celestial {
 
         public double Latitude
         {
-            get { return _latitude; }
-            protected init { _latitude = value; }
+            get => _latitude; protected init => _latitude = value;
         }
 
         public double Longitude
         {
-            get { return _longitude; }
-            protected init { _longitude = value; }
+            get => _longitude; protected init => _longitude = value;
         }
 
         public double Elevation
         {
-            get { return _elevation; }
-            protected init { _elevation = value; }
+            get => _elevation; protected init => _elevation = value;
         }
 
         public double Radius
         {
-            get { return _radius; }
-            protected init { _radius = value; }
+            get => _radius; protected init => _radius = value;
         }
 
         /// <summary>
@@ -45,12 +44,13 @@ namespace MudSharp.Celestial {
         /// </summary>
         /// <param name="other">The other geographical coordinate</param>
         /// <returns>The number of base length units between the two points</returns>
-        public double DistanceTo(GeographicCoordinate other) {
-            var a = Math.Sin(Math.Abs(Latitude - other.Latitude)/2)*Math.Sin(Math.Abs(Latitude - other.Latitude)/2) +
-                    Math.Cos(Latitude)*Math.Cos(other.Latitude)*Math.Sin(Math.Abs(Longitude - other.Longitude)/2)*
-                    Math.Sin(Math.Abs(Longitude - other.Longitude)/2);
-            var c = 2*Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-            return Radius*c;
+        public double DistanceTo(GeographicCoordinate other)
+        {
+            double a = Math.Sin(Math.Abs(Latitude - other.Latitude) / 2) * Math.Sin(Math.Abs(Latitude - other.Latitude) / 2) +
+                    Math.Cos(Latitude) * Math.Cos(other.Latitude) * Math.Sin(Math.Abs(Longitude - other.Longitude) / 2) *
+                    Math.Sin(Math.Abs(Longitude - other.Longitude) / 2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            return Radius * c;
         }
     }
 }

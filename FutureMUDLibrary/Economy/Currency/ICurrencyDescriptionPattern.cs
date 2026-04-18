@@ -1,10 +1,11 @@
 ﻿using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using System.Collections.Generic;
-using MudSharp.Framework.Save;
 
 namespace MudSharp.Economy.Currency;
+
 public enum CurrencyDescriptionPatternType
 {
     Casual = 0,

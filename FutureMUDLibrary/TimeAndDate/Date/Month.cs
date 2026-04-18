@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MudSharp.TimeAndDate.Date {
-    public class Month {
+namespace MudSharp.TimeAndDate.Date
+{
+    public class Month
+    {
         #region Constructor
 
-        public Month(MonthDefinition definition, int whichYear) {
+        public Month(MonthDefinition definition, int whichYear)
+        {
             // Property copies
             _days = definition.NormalDays;
             _alias = definition.Alias;
@@ -20,7 +23,8 @@ namespace MudSharp.TimeAndDate.Date {
             _nonWeekdays = definition.NonWeekdays.ToList();
 
             // Go through each of the intercalary rules and process them
-            definition.Intercalaries.FindAll(x => x.Rule.IsIntercalaryYear(whichYear)).ForEach(i => {
+            definition.Intercalaries.FindAll(x => x.Rule.IsIntercalaryYear(whichYear)).ForEach(i =>
+            {
                 i.RemoveSpecialDayNames.ForEach(x => _dayNames.Remove(x));
                 i.SpecialDayNames.ToList().ForEach(x => _dayNames.Add(x.Key, x.Value));
                 _days += i.InsertNumnewDays;
@@ -74,8 +78,7 @@ namespace MudSharp.TimeAndDate.Date {
 
         public int TrueOrder
         {
-            get { return _trueOrder; }
-            set { _trueOrder = value; }
+            get => _trueOrder; set => _trueOrder = value;
         }
 
         protected List<int> _nonWeekdays;
@@ -100,7 +103,8 @@ namespace MudSharp.TimeAndDate.Date {
         /// </summary>
         /// <param name="whichDay">which numerical day of the month to display</param>
         /// <returns>returns a string with the short version of the day/month</returns>
-        public string GetDayName(MudDate whichDay) {
+        public string GetDayName(MudDate whichDay)
+        {
             //return ((_dayNames.ContainsKey(whichDay)) ? _dayNames[whichDay].ShortName : ((MonthBeforeDay == true) ? (Alias + " " + Utilities.ToOrdinal(whichDay)) : (Utilities.ToOrdinal(whichDay) + " of " + Alias)));
             //return ((_dayNames.ContainsKey(whichDay.Day)) ? _dayNames[whichDay.Day].ShortName + ", " : "") + (NonWeekdays.Contains(whichDay.Day) ? "" : whichDay.Weekday + ", ") + ((MonthBeforeDay == true) ? (FullName + " " + Utilities.ToOrdinal(whichDay.Day)) : (Utilities.ToOrdinal(whichDay.Day) + " " + FullName));
             return _dayNames.ContainsKey(whichDay.Day) ? _dayNames[whichDay.Day].ShortName : "";
@@ -112,17 +116,21 @@ namespace MudSharp.TimeAndDate.Date {
         /// </summary>
         /// <param name="whichDay"></param>
         /// <returns></returns>
-        public string GetFullDayName(MudDate whichDay) {
+        public string GetFullDayName(MudDate whichDay)
+        {
             //return ((_dayNames.ContainsKey(whichDay.Day)) ? _dayNames[whichDay.Day].FullName + ", " : "") + (NonWeekdays.Contains(whichDay.Day) ? "" : whichDay.Weekday + ", ") + ((MonthBeforeDay == true) ? (FullName + " " + Utilities.ToOrdinal(whichDay.Day)) : (Utilities.ToOrdinal(whichDay.Day) + " of " + FullName));
             return _dayNames.ContainsKey(whichDay.Day) ? _dayNames[whichDay.Day].FullName : "";
         }
 
-        public int CountWeekdays() {
+        public int CountWeekdays()
+        {
             return Days - NonWeekdays.Count;
         }
 
-        public override bool Equals(object obj) {
-            if (obj is not Month objAsMonth) {
+        public override bool Equals(object obj)
+        {
+            if (obj is not Month objAsMonth)
+            {
                 return false;
             }
 
@@ -130,8 +138,9 @@ namespace MudSharp.TimeAndDate.Date {
                    (Days == objAsMonth.Days);
         }
 
-        public override int GetHashCode() {
-            return Alias.GetHashCode()*Days.GetHashCode();
+        public override int GetHashCode()
+        {
+            return Alias.GetHashCode() * Days.GetHashCode();
         }
 
         #endregion

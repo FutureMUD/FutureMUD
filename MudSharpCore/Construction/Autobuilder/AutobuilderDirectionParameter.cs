@@ -20,23 +20,23 @@ public class AutobuilderDirectionParameter : IAutobuilderParameter
 
     public bool IsValidArgument(string argument, object[] previousArguments)
     {
-		return argument.TryParseEnum<CardinalDirection>(out var value) && value != CardinalDirection.Unknown && value != CardinalDirection.Up && value != CardinalDirection.Down;
+        return argument.TryParseEnum<CardinalDirection>(out CardinalDirection value) && value != CardinalDirection.Unknown && value != CardinalDirection.Up && value != CardinalDirection.Down;
     }
 
     public string WhyIsNotValidArgument(string argument, object[] previousArguments)
     {
-        if (!argument.TryParseEnum<CardinalDirection>(out var value))
+        if (!argument.TryParseEnum<CardinalDirection>(out CardinalDirection value))
         {
             return
                 $"You must enter a valid cardinal direction for the {ParameterName.Colour(Telnet.Cyan)} argument, and {argument.Colour(Telnet.Red)} does not convert to a valid cardinal direction.";
         }
 
-		return $"The cardinal directions #6up#0, #6down#0 and #6unknown#0 are not valid for this parameter.";
+        return $"The cardinal directions #6up#0, #6down#0 and #6unknown#0 are not valid for this parameter.";
     }
 
     public object GetArgument(string argument)
     {
-		return argument.ParseEnumWithDefault(CardinalDirection.North);
+        return argument.ParseEnumWithDefault(CardinalDirection.North);
     }
 
     #endregion

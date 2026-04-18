@@ -1,26 +1,28 @@
-﻿using MudSharp.TimeAndDate;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MudSharp.Health;
+using MudSharp.TimeAndDate;
 using System.Xml.Linq;
 
 namespace MudSharp.Body.Disfigurements
 {
-    public enum ScarFreshness
-    {
-        Fresh,
-        Recent,
-        Old
-    }
+	public enum ScarFreshness
+	{
+		Fresh,
+		Recent,
+		Old
+	}
 
-    public interface IScar : IDisfigurement
-    {
-        IScarTemplate ScarTemplate { get; }
-        ScarFreshness Freshness { get; }
-        MudDateTime TimeOfScarring { get; }
-        int Distinctiveness { get; }
-        XElement SaveToXml();
-    }
+	public interface IScar : IDisfigurement
+	{
+		ScarFreshness Freshness { get; }
+		MudDateTime TimeOfScarring { get; }
+		int Distinctiveness { get; }
+		int SizeSteps { get; }
+		bool HasSpecialScarCharacteristicOverride { get; }
+		string SpecialScarCharacteristicOverride(bool withForm);
+		bool IsSurgical { get; }
+		DamageType DamageType { get; }
+		WoundSeverity Severity { get; }
+		SurgicalProcedureType? SurgicalProcedureType { get; }
+		XElement SaveToXml();
+	}
 }

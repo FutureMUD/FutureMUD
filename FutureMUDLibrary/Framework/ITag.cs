@@ -3,7 +3,8 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Framework
 {
-    public interface ITag : IFrameworkItem {
+    public interface ITag : IFrameworkItem
+    {
         ITag Parent { get; set; }
         IFutureProg ShouldSeeProg { get; set; }
         IEditableTag GetEditable { get; }

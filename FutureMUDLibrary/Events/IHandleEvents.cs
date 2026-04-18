@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
-using MudSharp.Events.Hooks;
+﻿using MudSharp.Events.Hooks;
+using System.Collections.Generic;
 
-namespace MudSharp.Events {
-	public delegate bool FutureMUDEventHandler(EventType type, params dynamic[] arguments);
+namespace MudSharp.Events
+{
+    public delegate bool FutureMUDEventHandler(EventType type, params dynamic[] arguments);
 
-	public interface IHandleEvents {
-		bool HooksChanged { get; set; }
-		bool HandleEvent(EventType type, params dynamic[] arguments);
-		bool HandlesEvent(params EventType[] types);
-		bool InstallHook(IHook hook);
-		bool RemoveHook(IHook hook);
-		IEnumerable<IHook> Hooks { get; }
-	}
+    public interface IHandleEvents
+    {
+        bool HooksChanged { get; set; }
+        bool HandleEvent(EventType type, params dynamic[] arguments);
+        bool HandlesEvent(params EventType[] types);
+        bool InstallHook(IHook hook);
+        bool RemoveHook(IHook hook);
+        IEnumerable<IHook> Hooks { get; }
+    }
 }

@@ -4,7 +4,7 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Commands
 {
-    
+
     public enum AutoHelp
     {
         Never,              // Never do autohelp, for now it means the attribute does nothing

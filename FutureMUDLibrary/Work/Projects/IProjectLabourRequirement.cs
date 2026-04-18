@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body.Traits;
+﻿using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Framework;
+using System.Collections.Generic;
 
 namespace MudSharp.Work.Projects
 {
-    #nullable enable
+#nullable enable
     public interface IProjectLabourRequirement : IFrameworkItem, IHaveFuturemud
     {
         bool IsMandatoryForProjectCompletion { get; }

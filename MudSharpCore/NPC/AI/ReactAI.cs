@@ -1,17 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
-using MudSharp.Models;
 using MudSharp.Character;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.PerceptionEngine.Outputs;
-using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.GameItems;
+using MudSharp.Models;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
 
@@ -49,12 +49,12 @@ public class ReactAI : ArtificialIntelligenceBase
 
     private void InitialiseDefaults()
     {
-        AddReaction("greet", EventType.CharacterEnterCellFinishWitness, new[]{new[]{ProgVariableTypes.Character, ProgVariableTypes.Character}});
-        AddReaction("farewell", EventType.CharacterLeaveCellWitness, new[]{new[]{ProgVariableTypes.Character, ProgVariableTypes.Character}});
-        AddReaction("weather", EventType.WeatherChanged, new[]{new[]{ProgVariableTypes.Character, ProgVariableTypes.WeatherEvent, ProgVariableTypes.WeatherEvent}});
-        AddReaction("gift", EventType.CharacterGiveItemWitness, new[]{new[]{ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Character}});
-        AddReaction("damage", EventType.CharacterDamagedWitness, new[]{new[]{ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Character}});
-        AddReaction("hide", EventType.CharacterHidesWitness, new[]{new[]{ProgVariableTypes.Character, ProgVariableTypes.Character}});
+        AddReaction("greet", EventType.CharacterEnterCellFinishWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Character } });
+        AddReaction("farewell", EventType.CharacterLeaveCellWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Character } });
+        AddReaction("weather", EventType.WeatherChanged, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.WeatherEvent, ProgVariableTypes.WeatherEvent } });
+        AddReaction("gift", EventType.CharacterGiveItemWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Character } });
+        AddReaction("damage", EventType.CharacterDamagedWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Character } });
+        AddReaction("hide", EventType.CharacterHidesWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Character } });
     }
 
     private void AddReaction(string key, EventType type, IEnumerable<IEnumerable<ProgVariableTypes>> param)
@@ -66,14 +66,14 @@ public class ReactAI : ArtificialIntelligenceBase
     private void LoadFromXml(XElement root)
     {
         InitialiseDefaults();
-        foreach (var rx in root.Elements("Reaction"))
+        foreach (XElement rx in root.Elements("Reaction"))
         {
-            var key = rx.Attribute("key")?.Value ?? string.Empty;
+            string key = rx.Attribute("key")?.Value ?? string.Empty;
             if (!_reactions.ContainsKey(key))
             {
                 continue;
             }
-            var progid = long.Parse(rx.Element("Prog")?.Value ?? "0");
+            long progid = long.Parse(rx.Element("Prog")?.Value ?? "0");
             _reactions[key].Prog = Gameworld.FutureProgs.Get(progid) ?? Gameworld.AlwaysTrueProg;
             _reactions[key].Emote = rx.Element("Emote")?.Value ?? string.Empty;
         }
@@ -115,7 +115,7 @@ Valid reactions: greet, farewell, weather, gift, damage, hide";
             actor.OutputHandler.Send("You must specify a reaction and an emote, or 'clear'.");
             return false;
         }
-        var reaction = command.PopSpeech();
+        string reaction = command.PopSpeech();
         if (!_reactions.ContainsKey(reaction))
         {
             actor.OutputHandler.Send("That is not a valid reaction.");
@@ -134,7 +134,7 @@ Valid reactions: greet, farewell, weather, gift, damage, hide";
             return true;
         }
 
-        var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+        Emote emote = new(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
         if (!emote.Valid)
         {
             actor.OutputHandler.Send(emote.ErrorMessage);
@@ -153,7 +153,7 @@ Valid reactions: greet, farewell, weather, gift, damage, hide";
             actor.OutputHandler.Send("You must specify a reaction and a prog.");
             return false;
         }
-        var reaction = command.PopSpeech();
+        string reaction = command.PopSpeech();
         if (!_reactions.ContainsKey(reaction))
         {
             actor.OutputHandler.Send("That is not a valid reaction.");
@@ -164,7 +164,7 @@ Valid reactions: greet, farewell, weather, gift, damage, hide";
             actor.OutputHandler.Send("Which prog should be used?");
             return false;
         }
-        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, _reactions[reaction].ProgParams).LookupProg();
+        IFutureProg prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, _reactions[reaction].ProgParams).LookupProg();
         if (prog is null)
         {
             return false;
@@ -177,75 +177,129 @@ Valid reactions: greet, farewell, weather, gift, damage, hide";
 
     public override bool HandleEvent(EventType type, params dynamic[] arguments)
     {
-        if (!_reverseLookup.TryGetValue(type, out var key))
+        if (!_reverseLookup.TryGetValue(type, out string key))
         {
             return false;
         }
-        var reaction = _reactions[key];
+        Reaction reaction = _reactions[key];
         switch (type)
         {
             case EventType.CharacterEnterCellFinishWitness:
-                var moverIn = arguments[0] as ICharacter;
-                var witnessIn = arguments[3] as ICharacter;
+                ICharacter moverIn = arguments[0] as ICharacter;
+                ICharacter witnessIn = arguments[3] as ICharacter;
                 if (witnessIn?.Id != Id || moverIn == witnessIn)
+                {
                     return false;
+                }
+
                 if (reaction.Prog?.ExecuteBool(witnessIn, moverIn) == false)
+                {
                     return false;
+                }
+
                 if (!string.IsNullOrWhiteSpace(reaction.Emote))
+                {
                     witnessIn.OutputHandler.Handle(new EmoteOutput(new Emote(reaction.Emote, witnessIn, witnessIn, moverIn)));
+                }
+
                 return true;
             case EventType.CharacterLeaveCellWitness:
-                var moverOut = arguments[0] as ICharacter;
-                var witnessOut = arguments[3] as ICharacter;
+                ICharacter moverOut = arguments[0] as ICharacter;
+                ICharacter witnessOut = arguments[3] as ICharacter;
                 if (witnessOut?.Id != Id || moverOut == witnessOut)
+                {
                     return false;
+                }
+
                 if (reaction.Prog?.ExecuteBool(witnessOut, moverOut) == false)
+                {
                     return false;
+                }
+
                 if (!string.IsNullOrWhiteSpace(reaction.Emote))
+                {
                     witnessOut.OutputHandler.Handle(new EmoteOutput(new Emote(reaction.Emote, witnessOut, witnessOut, moverOut)));
+                }
+
                 return true;
             case EventType.WeatherChanged:
-                var ch = arguments[0] as ICharacter;
+                ICharacter ch = arguments[0] as ICharacter;
                 if (ch?.Id != Id)
+                {
                     return false;
+                }
+
                 if (reaction.Prog?.ExecuteBool(ch, arguments[1], arguments[2]) == false)
+                {
                     return false;
+                }
+
                 if (!string.IsNullOrWhiteSpace(reaction.Emote))
+                {
                     ch.OutputHandler.Handle(new EmoteOutput(new Emote(reaction.Emote, ch)));
+                }
+
                 return true;
             case EventType.CharacterGiveItemWitness:
-                var giver = arguments[0] as ICharacter;
-                var receiver = arguments[1] as ICharacter;
-                var item = arguments[2] as IGameItem;
-                var witnessGift = arguments[3] as ICharacter;
+                ICharacter giver = arguments[0] as ICharacter;
+                ICharacter receiver = arguments[1] as ICharacter;
+                IGameItem item = arguments[2] as IGameItem;
+                ICharacter witnessGift = arguments[3] as ICharacter;
                 if (witnessGift?.Id != Id)
+                {
                     return false;
+                }
+
                 if (reaction.Prog?.ExecuteBool(witnessGift, giver, receiver, item) == false)
+                {
                     return false;
+                }
+
                 if (!string.IsNullOrWhiteSpace(reaction.Emote))
+                {
                     witnessGift.OutputHandler.Handle(new EmoteOutput(new Emote(reaction.Emote, witnessGift, witnessGift, giver)));
+                }
+
                 return true;
             case EventType.CharacterDamagedWitness:
-                var victim = arguments[0] as ICharacter;
-                var weapon = arguments[1] as IGameItem;
-                var aggressor = arguments[2] as ICharacter;
-                var witnessDamage = arguments[3] as ICharacter;
+                ICharacter victim = arguments[0] as ICharacter;
+                IGameItem weapon = arguments[1] as IGameItem;
+                ICharacter aggressor = arguments[2] as ICharacter;
+                ICharacter witnessDamage = arguments[3] as ICharacter;
                 if (witnessDamage?.Id != Id)
+                {
                     return false;
+                }
+
                 if (reaction.Prog?.ExecuteBool(witnessDamage, victim, weapon, aggressor) == false)
+                {
                     return false;
+                }
+
                 if (!string.IsNullOrWhiteSpace(reaction.Emote))
+                {
                     witnessDamage.OutputHandler.Handle(new EmoteOutput(new Emote(reaction.Emote, witnessDamage, witnessDamage, victim)));
+                }
+
                 return true;
             case EventType.CharacterHidesWitness:
-                var hidden = arguments[0] as ICharacter;
-                var witnessHide = arguments[1] as ICharacter;
+                ICharacter hidden = arguments[0] as ICharacter;
+                ICharacter witnessHide = arguments[1] as ICharacter;
                 if (witnessHide?.Id != Id)
+                {
                     return false;
+                }
+
                 if (reaction.Prog?.ExecuteBool(witnessHide, hidden) == false)
+                {
                     return false;
+                }
+
                 if (!string.IsNullOrWhiteSpace(reaction.Emote))
+                {
                     witnessHide.OutputHandler.Handle(new EmoteOutput(new Emote(reaction.Emote, witnessHide, witnessHide, hidden)));
+                }
+
                 return true;
         }
         return false;

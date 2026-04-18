@@ -1,63 +1,63 @@
-﻿using System;
+﻿using MudSharp.Framework;
+using MudSharp.Health;
+using MudSharp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Framework;
-using MudSharp.Health;
-using MudSharp.Models;
 
 namespace MudSharp.Body.PartProtos
 {
-	public class BonyGrabbingWieldingBodypartProto : GrabbingWieldingBodypartProto, IBone
-	{
-		/// <inheritdoc />
-		public BonyGrabbingWieldingBodypartProto(BodypartProto proto, IFuturemud game) : base(proto, game)
-		{
-		}
+    public class BonyGrabbingWieldingBodypartProto : GrabbingWieldingBodypartProto, IBone
+    {
+        /// <inheritdoc />
+        public BonyGrabbingWieldingBodypartProto(BodypartProto proto, IFuturemud game) : base(proto, game)
+        {
+        }
 
-		/// <inheritdoc />
-		protected BonyGrabbingWieldingBodypartProto(BonyGrabbingWieldingBodypartProto rhs, string newName) : base(rhs, newName)
-		{
-		}
+        /// <inheritdoc />
+        protected BonyGrabbingWieldingBodypartProto(BonyGrabbingWieldingBodypartProto rhs, string newName) : base(rhs, newName)
+        {
+        }
 
-		public override IBodypart Clone(string newName)
-		{
-			return new BonyGrabbingWieldingBodypartProto(this, newName);
-		}
+        public override IBodypart Clone(string newName)
+        {
+            return new BonyGrabbingWieldingBodypartProto(this, newName);
+        }
 
-		#region Overrides of GrabbingWieldingBodypartProto
+        #region Overrides of GrabbingWieldingBodypartProto
 
-		/// <inheritdoc />
-		public override BodypartTypeEnum BodypartType => BodypartTypeEnum.BonyGrabbingWielding;
+        /// <inheritdoc />
+        public override BodypartTypeEnum BodypartType => BodypartTypeEnum.BonyGrabbingWielding;
 
-		#endregion
+        #endregion
 
-		#region Implementation of IBone
+        #region Implementation of IBone
 
-		/// <inheritdoc />
-		public bool CriticalBone => true;
+        /// <inheritdoc />
+        public bool CriticalBone => true;
 
-		/// <inheritdoc />
-		public bool CanBeImmobilised => true;
+        /// <inheritdoc />
+        public bool CanBeImmobilised => true;
 
-		/// <inheritdoc />
-		public double BoneHealingModifier => 1.0;
+        /// <inheritdoc />
+        public double BoneHealingModifier => 1.0;
 
-		public double BoneEffectiveHealthModifier => Gameworld.GetStaticDouble("BonyPartEffectiveHitpointForBonebreakModifier");
+        public double BoneEffectiveHealthModifier => Gameworld.GetStaticDouble("BonyPartEffectiveHitpointForBonebreakModifier");
 
-		/// <inheritdoc />
-		public IEnumerable<(IOrganProto Organ, BodypartInternalInfo Info)> CoveredOrgans => Enumerable.Empty<(IOrganProto Organ, BodypartInternalInfo Info)>();
+        /// <inheritdoc />
+        public IEnumerable<(IOrganProto Organ, BodypartInternalInfo Info)> CoveredOrgans => Enumerable.Empty<(IOrganProto Organ, BodypartInternalInfo Info)>();
 
-		/// <inheritdoc />
-		public (double OrdinaryDamage, double BoneDamage) ShouldBeBoneBreak(IDamage damage)
-		{
-			var boneDamage = Math.Max(0.0, (damage.DamageAmount -
-			                 Gameworld.GetStaticDouble($"BonyPartBoneBreakLeeway{damage.DamageType.DescribeEnum()}")) *
-			                 Gameworld.GetStaticDouble($"BonyPartBoneBreakDamage{damage.DamageType.DescribeEnum()}"));
-			return (Gameworld.GetStaticDouble($"BonyPartBoneBreakDamage{damage.DamageType.DescribeEnum()}") * damage.DamageAmount, boneDamage);
-		}
+        /// <inheritdoc />
+        public (double OrdinaryDamage, double BoneDamage) ShouldBeBoneBreak(IDamage damage)
+        {
+            double boneDamage = Math.Max(0.0, (damage.DamageAmount -
+                             Gameworld.GetStaticDouble($"BonyPartBoneBreakLeeway{damage.DamageType.DescribeEnum()}")) *
+                             Gameworld.GetStaticDouble($"BonyPartBoneBreakDamage{damage.DamageType.DescribeEnum()}"));
+            return (Gameworld.GetStaticDouble($"BonyPartBoneBreakDamage{damage.DamageType.DescribeEnum()}") * damage.DamageAmount, boneDamage);
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

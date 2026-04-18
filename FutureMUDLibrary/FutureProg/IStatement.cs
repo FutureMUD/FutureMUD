@@ -1,5 +1,7 @@
-﻿namespace MudSharp.FutureProg {
-    public enum StatementResult {
+﻿namespace MudSharp.FutureProg
+{
+    public enum StatementResult
+    {
         /// <summary>
         ///     The Statement executed as expected and did not alter the program flow
         /// </summary>
@@ -26,7 +28,8 @@
         Error
     }
 
-    public interface IStatement {
+    public interface IStatement
+    {
         /// <summary>
         ///     If the Statement Reports an Error, this should contain the error message
         /// </summary>

@@ -6,21 +6,21 @@ namespace MudSharp.Framework;
 
 public abstract class Proposal : IProposal
 {
-	#region IProposal Members
+    #region IProposal Members
 
-	public abstract void Accept(string message = "");
+    public abstract void Accept(string message = "");
 
-	public abstract void Reject(string message = "");
+    public abstract void Reject(string message = "");
 
-	public abstract void Expire();
+    public abstract void Expire();
 
-	public abstract string Describe(IPerceiver voyeur);
+    public abstract string Describe(IPerceiver voyeur);
 
-	#endregion
+    #endregion
 
-	#region IKeyworded Members
+    #region IKeyworded Members
 
-	public abstract IEnumerable<string> Keywords { get; }
+    public abstract IEnumerable<string> Keywords { get; }
 
-	#endregion
+    #endregion
 }

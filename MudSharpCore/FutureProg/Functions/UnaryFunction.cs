@@ -2,22 +2,22 @@
 
 internal abstract class UnaryFunction : Function
 {
-	protected IFunction InnerFunction;
+    protected IFunction InnerFunction;
 
-	protected UnaryFunction(IFunction innerFunction)
-	{
-		InnerFunction = innerFunction;
-	}
+    protected UnaryFunction(IFunction innerFunction)
+    {
+        InnerFunction = innerFunction;
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		var functionResult = InnerFunction.Execute(variables);
-		if (functionResult == StatementResult.Error)
-		{
-			ErrorMessage = InnerFunction.ErrorMessage;
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        StatementResult functionResult = InnerFunction.Execute(variables);
+        if (functionResult == StatementResult.Error)
+        {
+            ErrorMessage = InnerFunction.ErrorMessage;
+            return StatementResult.Error;
+        }
 
-		return StatementResult.Normal;
-	}
+        return StatementResult.Normal;
+    }
 }

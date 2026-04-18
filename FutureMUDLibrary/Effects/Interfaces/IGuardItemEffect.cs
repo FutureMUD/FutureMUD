@@ -1,6 +1,7 @@
 ﻿using MudSharp.GameItems;
 
-namespace MudSharp.Effects.Interfaces {
+namespace MudSharp.Effects.Interfaces
+{
     public interface IGuardItemEffect : IRemoveOnMeleeCombat, IRemoveOnStateChange, IAffectedByChangeInGuarding
     {
         IGameItem TargetItem { get; }

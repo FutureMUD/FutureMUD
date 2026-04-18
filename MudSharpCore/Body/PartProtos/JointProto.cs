@@ -9,13 +9,13 @@ namespace MudSharp.Body.PartProtos;
 
 public class JointProto : DrapeableBodypartProto
 {
-	public JointProto(DrapeableBodypartProto rhs, string newName) : base(rhs, newName)
-	{
-	}
+    public JointProto(DrapeableBodypartProto rhs, string newName) : base(rhs, newName)
+    {
+    }
 
-	public JointProto(Models.BodypartProto proto, IFuturemud game) : base(proto, game)
-	{
-	}
+    public JointProto(Models.BodypartProto proto, IFuturemud game) : base(proto, game)
+    {
+    }
 
-	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Joint;
+    public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Joint;
 }

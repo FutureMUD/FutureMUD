@@ -1,10 +1,12 @@
 ﻿using System;
 
-namespace MudSharp.GameItems {
+namespace MudSharp.GameItems
+{
     /// <summary>
     ///     This enum contains reasons, from the IGameItem's perspective only, why or why not an item can be "gotten"
     /// </summary>
-    public enum ItemGetResponse {
+    public enum ItemGetResponse
+    {
         /// <summary>
         ///     This item can be gotten
         /// </summary>
@@ -33,7 +35,8 @@ namespace MudSharp.GameItems {
     }
 
     [Flags]
-    public enum ItemCanGetIgnore {
+    public enum ItemCanGetIgnore
+    {
         None = 0,
         IgnoreCombat = 1,
         IgnoreInventoryPlans = 2,
@@ -44,21 +47,25 @@ namespace MudSharp.GameItems {
     }
 
     [Flags]
-    public enum ItemCanWieldFlags {
+    public enum ItemCanWieldFlags
+    {
         None = 0,
         IgnoreFreeHands = 1,
         RequireTwoHands = 2,
         RequireOneHand = 3
     }
 
-    public enum ItemCanWieldResponse {
+    public enum ItemCanWieldResponse
+    {
         CanWield,
         CanWieldOneHandedButNotTwoHanded,
         CannotWield
     }
 
-    public static class EnumExtensions {
-        public static bool AsBool(this ItemGetResponse response) {
+    public static class EnumExtensions
+    {
+        public static bool AsBool(this ItemGetResponse response)
+        {
             return (response == ItemGetResponse.CanGet) || (response == ItemGetResponse.CanGetStack);
         }
     }

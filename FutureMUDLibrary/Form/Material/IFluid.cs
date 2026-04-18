@@ -2,8 +2,10 @@
 using MudSharp.GameItems;
 using MudSharp.Health;
 
-namespace MudSharp.Form.Material {
-    public interface IFluid : IMaterial {
+namespace MudSharp.Form.Material
+{
+    public interface IFluid : IMaterial
+    {
         ANSIColour DisplayColour { get; }
         double Viscosity { get; }
         double SmellIntensity { get; }

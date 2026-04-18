@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using System;
+using System.Collections.Generic;
 
 namespace MudSharp.Construction.Autobuilder
 {

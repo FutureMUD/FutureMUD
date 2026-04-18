@@ -1,21 +1,24 @@
-﻿using System;
-using MudSharp.CharacterCreation.Resources;
+﻿using MudSharp.CharacterCreation.Resources;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.RPG.Checks;
+using System;
 
-namespace MudSharp.RPG.Knowledge {
+namespace MudSharp.RPG.Knowledge
+{
     [Flags]
-    public enum LearnableType {
+    public enum LearnableType
+    {
         NotLearnable = 0,
         LearnableAtSkillUp = 1 << 0,
         LearnableAtChargen = 1 << 1,
         LearnableFromTeacher = 1 << 2
     }
 
-    public interface IKnowledge : IEditableItem, IProgVariable {
+    public interface IKnowledge : IEditableItem, IProgVariable
+    {
         string Description { get; set; }
         string LongDescription { get; set; }
         string KnowledgeType { get; set; }

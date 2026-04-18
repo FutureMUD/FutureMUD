@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
+using System;
+using System.Collections.Generic;
 
-namespace MudSharp.Combat {
+namespace MudSharp.Combat
+{
     public delegate void CombatMergeDelegate(ICombat obsoleteCombat, ICombat newCombat);
 
-    public interface ICombat {
+    public interface ICombat
+    {
         IEnumerable<IPerceiver> Combatants { get; }
 
         /// <summary>

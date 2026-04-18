@@ -5,21 +5,21 @@ namespace MudSharp.Combat.Moves;
 
 public class HelplessDefenseMove : CombatMoveBase, IDefenseMove
 {
-	#region Overrides of CombatMoveBase
+    #region Overrides of CombatMoveBase
 
-	public override string Description { get; } = "Helpless to defend themself";
+    public override string Description { get; } = "Helpless to defend themself";
 
-	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
-	{
-		throw new NotImplementedException();
-	}
+    public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
+    {
+        throw new NotImplementedException();
+    }
 
-	public int DifficultStageUps => 0;
+    public int DifficultStageUps => 0;
 
-	public void ResolveDefenseUsed(OpposedOutcome outcome)
-	{
-		// Do nothing
-	}
+    public void ResolveDefenseUsed(OpposedOutcome outcome)
+    {
+        // Do nothing
+    }
 
-	#endregion
+    #endregion
 }

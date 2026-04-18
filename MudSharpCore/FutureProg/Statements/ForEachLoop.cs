@@ -1,148 +1,151 @@
-﻿using System;
+﻿using MudSharp.Framework;
+using MudSharp.FutureProg.Compiler;
+using MudSharp.FutureProg.Functions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using MudSharp.Framework;
-using MudSharp.FutureProg.Compiler;
-using MudSharp.FutureProg.Functions;
 
 namespace MudSharp.FutureProg.Statements;
 
 internal class ForEachLoop : Statement
 {
-	private static readonly Regex ForEachLoopCompileRegex = new(@"^\s*foreach\s*\((.+) in (.+)\)\s*$");
-	private static readonly Regex ForEachLoopEndCompileRegex = new(@"^\s*end for(?:each)?\s*$");
+    private static readonly Regex ForEachLoopCompileRegex = new(@"^\s*foreach\s*\((.+) in (.+)\)\s*$");
+    private static readonly Regex ForEachLoopEndCompileRegex = new(@"^\s*end for(?:each)?\s*$");
 
-	protected IFunction CollectionFunction;
-	protected IEnumerable<IStatement> ContainedBlock;
-	protected string VarName;
+    protected IFunction CollectionFunction;
+    protected IEnumerable<IStatement> ContainedBlock;
+    protected string VarName;
 
-	public override bool IsReturnOrContainsReturnOnAllBranches() => ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;
+    public override bool IsReturnOrContainsReturnOnAllBranches()
+    {
+        return ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;
+    }
 
-	public ForEachLoop(string varName, IFunction collectionFunction, IEnumerable<IStatement> containedStatements)
-	{
-		VarName = varName;
-		CollectionFunction = collectionFunction;
-		ContainedBlock = containedStatements;
-	}
+    public ForEachLoop(string varName, IFunction collectionFunction, IEnumerable<IStatement> containedStatements)
+    {
+        VarName = varName;
+        CollectionFunction = collectionFunction;
+        ContainedBlock = containedStatements;
+    }
 
-	private static ICompileInfo ForEachLoopCompile(IEnumerable<string> lines,
-		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
-	{
-		var match = ForEachLoopCompileRegex.Match(lines.First());
-		var varName = match.Groups[1].Value.ToLowerInvariant();
-		var collectionExpression = match.Groups[2].Value;
+    private static ICompileInfo ForEachLoopCompile(IEnumerable<string> lines,
+        IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+    {
+        Match match = ForEachLoopCompileRegex.Match(lines.First());
+        string varName = match.Groups[1].Value.ToLowerInvariant();
+        string collectionExpression = match.Groups[2].Value;
 
-		lines = lines.Skip(1);
-		var containedStatements = new List<IStatement>();
-		IDictionary<string, ProgVariableTypes> localVariables =
-			new Dictionary<string, ProgVariableTypes>(variableSpace);
+        lines = lines.Skip(1);
+        List<IStatement> containedStatements = new();
+        IDictionary<string, ProgVariableTypes> localVariables =
+            new Dictionary<string, ProgVariableTypes>(variableSpace);
 
-		var collectionFunctionInfo = FunctionHelper.CompileFunction(collectionExpression, variableSpace, lineNumber,
-			gameworld);
-		if (collectionFunctionInfo.IsError)
-		{
-			return
-				CompileInfo.GetFactory()
-				           .CreateError(
-					           $"The expression for the collection in the ForEach statement did not compile: {collectionFunctionInfo.ErrorMessage}.", lineNumber);
-		}
+        ICompileInfo collectionFunctionInfo = FunctionHelper.CompileFunction(collectionExpression, variableSpace, lineNumber,
+            gameworld);
+        if (collectionFunctionInfo.IsError)
+        {
+            return
+                CompileInfo.GetFactory()
+                           .CreateError(
+                               $"The expression for the collection in the ForEach statement did not compile: {collectionFunctionInfo.ErrorMessage}.", lineNumber);
+        }
 
-		var collectionFunction = (IFunction)collectionFunctionInfo.CompiledStatement;
+        IFunction collectionFunction = (IFunction)collectionFunctionInfo.CompiledStatement;
 
-		if (!collectionFunction.ReturnType.HasFlag(ProgVariableTypes.Collection))
-		{
-			return
-				CompileInfo.GetFactory()
-				           .CreateError(
-					           "The expression for the collection in the ForEach statement does not return a collection.",
-					           lineNumber);
-		}
+        if (!collectionFunction.ReturnType.HasFlag(ProgVariableTypes.Collection))
+        {
+            return
+                CompileInfo.GetFactory()
+                           .CreateError(
+                               "The expression for the collection in the ForEach statement does not return a collection.",
+                               lineNumber);
+        }
 
-		if (!localVariables.ContainsKey(varName))
-		{
-			localVariables[varName] = collectionFunction.ReturnType ^ ProgVariableTypes.Collection;
-		}
+        if (!localVariables.ContainsKey(varName))
+        {
+            localVariables[varName] = collectionFunction.ReturnType ^ ProgVariableTypes.Collection;
+        }
 
-		if (localVariables.ContainsKey(varName) &&
-		    !localVariables[varName].CompatibleWith(collectionFunction.ReturnType ^
-		                                            ProgVariableTypes.Collection))
-		{
-			return
-				CompileInfo.GetFactory()
-				           .CreateError("For Loop's variable was already declared and the type does not match.",
-					           lineNumber);
-		}
+        if (localVariables.ContainsKey(varName) &&
+            !localVariables[varName].CompatibleWith(collectionFunction.ReturnType ^
+                                                    ProgVariableTypes.Collection))
+        {
+            return
+                CompileInfo.GetFactory()
+                           .CreateError("For Loop's variable was already declared and the type does not match.",
+                               lineNumber);
+        }
 
-		var currentLine = lineNumber;
-		while (lines.Any())
-		{
-			var line = lines.First();
-			if (ForEachLoopEndCompileRegex.IsMatch(line))
-			{
-				return
-					CompileInfo.GetFactory()
-					           .CreateNew(new ForEachLoop(varName, collectionFunction, containedStatements),
-						           variableSpace,
-						           lines.Skip(1), lineNumber, currentLine + 1);
-			}
+        int currentLine = lineNumber;
+        while (lines.Any())
+        {
+            string line = lines.First();
+            if (ForEachLoopEndCompileRegex.IsMatch(line))
+            {
+                return
+                    CompileInfo.GetFactory()
+                               .CreateNew(new ForEachLoop(varName, collectionFunction, containedStatements),
+                                   variableSpace,
+                                   lines.Skip(1), lineNumber, currentLine + 1);
+            }
 
-			var statementInfo = FutureProg.CompileNextStatement(lines, localVariables, currentLine + 1, gameworld);
-			if (statementInfo.IsError)
-			{
-				return CompileInfo.GetFactory()
-				                  .CreateError(statementInfo.ErrorMessage, statementInfo.ErrorLineNumber);
-			}
+            ICompileInfo statementInfo = FutureProg.CompileNextStatement(lines, localVariables, currentLine + 1, gameworld);
+            if (statementInfo.IsError)
+            {
+                return CompileInfo.GetFactory()
+                                  .CreateError(statementInfo.ErrorMessage, statementInfo.ErrorLineNumber);
+            }
 
-			if (!statementInfo.IsComment)
-			{
-				containedStatements.Add(statementInfo.CompiledStatement);
-			}
+            if (!statementInfo.IsComment)
+            {
+                containedStatements.Add(statementInfo.CompiledStatement);
+            }
 
-			lines = statementInfo.RemainingLines;
-			currentLine = statementInfo.EndingLineNumber;
-			localVariables = statementInfo.VariableSpace;
-		}
+            lines = statementInfo.RemainingLines;
+            currentLine = statementInfo.EndingLineNumber;
+            localVariables = statementInfo.VariableSpace;
+        }
 
-		return CompileInfo.GetFactory()
-		                  .CreateError("ForEach Loop did not have a matching end for statement.", lineNumber);
-	}
+        return CompileInfo.GetFactory()
+                          .CreateError("ForEach Loop did not have a matching end for statement.", lineNumber);
+    }
 
-	private static string ColouriseStatement(string line)
-	{
-		var match = ForEachLoopCompileRegex.Match(line);
-		return
-			$"{"foreach".Colour(Telnet.Blue, Telnet.Black)} ({match.Groups[1].Value} {"in".Colour(Telnet.Blue, Telnet.Black)} {FunctionHelper.ColouriseFunction(match.Groups[2].Value)})";
-	}
+    private static string ColouriseStatement(string line)
+    {
+        Match match = ForEachLoopCompileRegex.Match(line);
+        return
+            $"{"foreach".Colour(Telnet.Blue, Telnet.Black)} ({match.Groups[1].Value} {"in".Colour(Telnet.Blue, Telnet.Black)} {FunctionHelper.ColouriseFunction(match.Groups[2].Value)})";
+    }
 
-	private static string ColouriseStatementDarkMode(string line)
-	{
-		var match = ForEachLoopCompileRegex.Match(line);
-		return
-			$"{"foreach".Colour(Telnet.KeywordPink)} ({match.Groups[1].Value.Colour(Telnet.VariableCyan)} {"in".Colour(Telnet.KeywordBlue)} {FunctionHelper.ColouriseFunction(match.Groups[2].Value, true)})";
-	}
+    private static string ColouriseStatementDarkMode(string line)
+    {
+        Match match = ForEachLoopCompileRegex.Match(line);
+        return
+            $"{"foreach".Colour(Telnet.KeywordPink)} ({match.Groups[1].Value.Colour(Telnet.VariableCyan)} {"in".Colour(Telnet.KeywordBlue)} {FunctionHelper.ColouriseFunction(match.Groups[2].Value, true)})";
+    }
 
-	public static void RegisterCompiler()
-	{
-		FutureProg.RegisterStatementCompiler(
-			new Tuple
-			<Regex,
-				Func
-				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-				ForEachLoopCompileRegex, ForEachLoopCompile)
-		);
+    public static void RegisterCompiler()
+    {
+        FutureProg.RegisterStatementCompiler(
+            new Tuple
+            <Regex,
+                Func
+                <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+                ForEachLoopCompileRegex, ForEachLoopCompile)
+        );
 
-		FutureProg.RegisterStatementColouriser(
-			new Tuple<Regex, Func<string, string>>(ForEachLoopCompileRegex, ColouriseStatement)
-		);
+        FutureProg.RegisterStatementColouriser(
+            new Tuple<Regex, Func<string, string>>(ForEachLoopCompileRegex, ColouriseStatement)
+        );
 
-		FutureProg.RegisterStatementColouriser(
-			new Tuple<Regex, Func<string, string>>(ForEachLoopCompileRegex, ColouriseStatementDarkMode), true
-		);
+        FutureProg.RegisterStatementColouriser(
+            new Tuple<Regex, Func<string, string>>(ForEachLoopCompileRegex, ColouriseStatementDarkMode), true
+        );
 
-		FutureProg.RegisterStatementHelp("foreach",
-			@"The FOREACH statement is used to create a loop that loops through all of the items of a collection once.
+        FutureProg.RegisterStatementHelp("foreach",
+            @"The FOREACH statement is used to create a loop that loops through all of the items of a collection once.
 
 A FOREACH loop is ended by a corresponding #Hend foreach#0 statement. All the lines in between the FOREACH statement and the END statement are the code that is run on each item in the collection.
 
@@ -167,47 +170,47 @@ For example:
 		#M@totalweight#0 = #M@totalweight#0 + #M@item#0.#MWeight#0
 	#Lend foreach#0
 
-The scope of the variable declared as the item variable is limited to being used inside the code block of the loop.", 
-			"break, continue, end");
-	}
+The scope of the variable declared as the item variable is limited to being used inside the code block of the loop.",
+            "break, continue, end");
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		var collectionResult = CollectionFunction.Execute(variables);
-		if (collectionResult == StatementResult.Error)
-		{
-			ErrorMessage = $"Collection Function returned an error: {CollectionFunction.ErrorMessage}";
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        StatementResult collectionResult = CollectionFunction.Execute(variables);
+        if (collectionResult == StatementResult.Error)
+        {
+            ErrorMessage = $"Collection Function returned an error: {CollectionFunction.ErrorMessage}";
+            return StatementResult.Error;
+        }
 
-		foreach (var item in (IList)CollectionFunction.Result.GetObject)
-		{
-			var localVariables = new LocalVariableSpace(variables);
-			localVariables.SetVariable(VarName, (IProgVariable)item);
-			foreach (var statement in ContainedBlock)
-			{
-				var result = statement.Execute(localVariables);
-				if (result == StatementResult.Break)
-				{
-					return StatementResult.Normal;
-				}
+        foreach (object item in (IList)CollectionFunction.Result.GetObject)
+        {
+            LocalVariableSpace localVariables = new(variables);
+            localVariables.SetVariable(VarName, (IProgVariable)item);
+            foreach (IStatement statement in ContainedBlock)
+            {
+                StatementResult result = statement.Execute(localVariables);
+                if (result == StatementResult.Break)
+                {
+                    return StatementResult.Normal;
+                }
 
-				if (result == StatementResult.Continue)
-				{
-					break;
-				}
+                if (result == StatementResult.Continue)
+                {
+                    break;
+                }
 
-				switch (result)
-				{
-					case StatementResult.Return:
-						return StatementResult.Return;
-					case StatementResult.Error:
-						ErrorMessage = statement.ErrorMessage;
-						return StatementResult.Error;
-				}
-			}
-		}
+                switch (result)
+                {
+                    case StatementResult.Return:
+                        return StatementResult.Return;
+                    case StatementResult.Error:
+                        ErrorMessage = statement.ErrorMessage;
+                        return StatementResult.Error;
+                }
+            }
+        }
 
-		return StatementResult.Normal;
-	}
+        return StatementResult.Normal;
+    }
 }

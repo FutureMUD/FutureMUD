@@ -1,7 +1,7 @@
-using System.Xml.Linq;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -24,7 +24,7 @@ public class SpellNeedRateEffect : MagicSpellEffectBase, INeedRateEffect
 
     protected SpellNeedRateEffect(XElement root, IPerceivable owner) : base(root, owner)
     {
-        var trueRoot = root.Element("Effect");
+        XElement trueRoot = root.Element("Effect");
         HungerMultiplier = double.Parse(trueRoot.Element("HungerMult")!.Value);
         ThirstMultiplier = double.Parse(trueRoot.Element("ThirstMult")!.Value);
         DrunkennessMultiplier = double.Parse(trueRoot.Element("DrunkMult")!.Value);

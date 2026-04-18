@@ -3,528 +3,566 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
 
-namespace MudSharp.Framework {
-	public static class RandomUtilities
-	{
-		public static long LongRandom(long min, long max) {
-			var buf = new byte[8];
-			Constants.Random.NextBytes(buf);
-			var longRand = BitConverter.ToInt64(buf, 0);
-			return Math.Abs(longRand%(max - min)) + min;
-		}
+namespace MudSharp.Framework
+{
+    public static class RandomUtilities
+    {
+        public static long LongRandom(long min, long max)
+        {
+            byte[] buf = new byte[8];
+            Constants.Random.NextBytes(buf);
+            long longRand = BitConverter.ToInt64(buf, 0);
+            return Math.Abs(longRand % (max - min)) + min;
+        }
 
-		/// <summary>
-		/// Generates a random double between min and max (inclusive)
-		/// </summary>
-		/// <param name="min">The minimum value</param>
-		/// <param name="max">The maximum value</param>
-		/// <returns>A random double between the two values</returns>
-		public static double DoubleRandom(double min, double max) {
-			return Constants.Random.NextDouble()*(max - min) + min;
-		}
+        /// <summary>
+        /// Generates a random double between min and max (inclusive)
+        /// </summary>
+        /// <param name="min">The minimum value</param>
+        /// <param name="max">The maximum value</param>
+        /// <returns>A random double between the two values</returns>
+        public static double DoubleRandom(double min, double max)
+        {
+            return Constants.Random.NextDouble() * (max - min) + min;
+        }
 
-		/// <summary>
-		/// Generates a random integer number between min and max (inclusive)
-		/// </summary>
-		/// <param name="min">The minimum value</param>
-		/// <param name="max">The maximum value</param>
-		/// <returns>A random integer between the two values</returns>
-		public static int Random(int min, int max) {
-			return Constants.Random.Next(min, max + 1);
-		}
+        /// <summary>
+        /// Generates a random integer number between min and max (inclusive)
+        /// </summary>
+        /// <param name="min">The minimum value</param>
+        /// <param name="max">The maximum value</param>
+        /// <returns>A random integer between the two values</returns>
+        public static int Random(int min, int max)
+        {
+            return Constants.Random.Next(min, max + 1);
+        }
 
-		private static void OldShuffle<T>(this T[] array) {
-			for (var i = array.Length; i > 1; i--) {
-				// Pick random element to swap.
-				var j = Constants.Random.Next(i); // 0 <= j <= i-1
-				// Swap.
-				(array[j], array[i - 1]) = (array[i - 1], array[j]);
-			}
-		}
+        private static void OldShuffle<T>(this T[] array)
+        {
+            for (int i = array.Length; i > 1; i--)
+            {
+                // Pick random element to swap.
+                int j = Constants.Random.Next(i); // 0 <= j <= i-1
+                                                  // Swap.
+                (array[j], array[i - 1]) = (array[i - 1], array[j]);
+            }
+        }
 
-		public static IEnumerable<T> OldShuffle<T>(this IEnumerable<T> enumerable) {
-			var array = enumerable.ToArray();
-			array.OldShuffle();
-			return array;
-		}
+        public static IEnumerable<T> OldShuffle<T>(this IEnumerable<T> enumerable)
+        {
+            T[] array = enumerable.ToArray();
+            array.OldShuffle();
+            return array;
+        }
 
-		/// <summary>
-		/// Returns a random standard deviation with a probability defined by Student's Distribution
-		/// </summary>
-		/// <returns>A random standard deviation</returns>
-		public static double NextStandard() {
-			double rsq;
-			double v2;
-			do {
-				var v1 = 2.0*Constants.Random.NextDouble() - 1.0;
-				v2 = 2.0*Constants.Random.NextDouble() - 1.0;
-				rsq = v1*v1 + v2*v2;
-			} while ((rsq > 1.0) || (rsq == 0));
-			var fac = Math.Sqrt(-2.0*Math.Log(rsq)/rsq);
-			return v2*fac;
-		}
+        /// <summary>
+        /// Returns a random standard deviation with a probability defined by Student's Distribution
+        /// </summary>
+        /// <returns>A random standard deviation</returns>
+        public static double NextStandard()
+        {
+            double rsq;
+            double v2;
+            do
+            {
+                double v1 = 2.0 * Constants.Random.NextDouble() - 1.0;
+                v2 = 2.0 * Constants.Random.NextDouble() - 1.0;
+                rsq = v1 * v1 + v2 * v2;
+            } while ((rsq > 1.0) || (rsq == 0));
+            double fac = Math.Sqrt(-2.0 * Math.Log(rsq) / rsq);
+            return v2 * fac;
+        }
 
-		/// <summary>
-		/// Given a mean value and a standard deviation, returns a random value with probability in accordance with Student's Distribution (i.e. Normal Distribution)
-		/// </summary>
-		/// <param name="mean">The mean of the distribution</param>
-		/// <param name="stdev">The standard deviation of the distribution</param>
-		/// <returns>A random value</returns>
-		public static double RandomNormal(double mean, double stdev) {
-			return mean + NextStandard()*stdev;
-		}
+        /// <summary>
+        /// Given a mean value and a standard deviation, returns a random value with probability in accordance with Student's Distribution (i.e. Normal Distribution)
+        /// </summary>
+        /// <param name="mean">The mean of the distribution</param>
+        /// <param name="stdev">The standard deviation of the distribution</param>
+        /// <returns>A random value</returns>
+        public static double RandomNormal(double mean, double stdev)
+        {
+            return mean + NextStandard() * stdev;
+        }
 
-		/// <summary>
-		/// Theoretical skewness of a standard skew-normal with shape alpha.
-		/// </summary>
-		private static double SkewnessOfSkewNormal(double alpha)
-		{
-			double delta = alpha / Math.Sqrt(1.0 + alpha * alpha);
-			double c = (4.0 - Math.PI) / 2.0;
-			double m = delta * Math.Sqrt(2.0 / Math.PI);
-			double numerator = c * Math.Pow(m, 3.0);
-			double denominator = Math.Pow(1.0 - 2.0 * (delta * delta) / Math.PI, 1.5);
-			return numerator / denominator;
-		}
+        /// <summary>
+        /// Theoretical skewness of a standard skew-normal with shape alpha.
+        /// </summary>
+        private static double SkewnessOfSkewNormal(double alpha)
+        {
+            double delta = alpha / Math.Sqrt(1.0 + alpha * alpha);
+            double c = (4.0 - Math.PI) / 2.0;
+            double m = delta * Math.Sqrt(2.0 / Math.PI);
+            double numerator = c * Math.Pow(m, 3.0);
+            double denominator = Math.Pow(1.0 - 2.0 * (delta * delta) / Math.PI, 1.5);
+            return numerator / denominator;
+        }
 
-		/// <summary>
-		/// Solve the shape parameter alpha given a desired skewness gamma
-		/// via bisection in [-25, 25].
-		/// </summary>
-		private static double SolveForAlpha(double gamma, double tolerance = 1e-6)
-		{
-			if (Math.Abs(gamma) < tolerance)
-				return 0.0;
+        /// <summary>
+        /// Solve the shape parameter alpha given a desired skewness gamma
+        /// via bisection in [-25, 25].
+        /// </summary>
+        private static double SolveForAlpha(double gamma, double tolerance = 1e-6)
+        {
+            if (Math.Abs(gamma) < tolerance)
+            {
+                return 0.0;
+            }
 
-			double left = -25.0;
-			double right = 25.0;
-			double mid = 0.0;
+            double left = -25.0;
+            double right = 25.0;
+            double mid = 0.0;
 
-			for (int i = 0; i < 200; i++)
-			{
-				mid = 0.5 * (left + right);
-				double fMid = SkewnessOfSkewNormal(mid) - gamma;
+            for (int i = 0; i < 200; i++)
+            {
+                mid = 0.5 * (left + right);
+                double fMid = SkewnessOfSkewNormal(mid) - gamma;
 
-				if (fMid > 0.0)
-					right = mid;
-				else
-					left = mid;
+                if (fMid > 0.0)
+                {
+                    right = mid;
+                }
+                else
+                {
+                    left = mid;
+                }
 
-				if (Math.Abs(fMid) < tolerance)
-					break;
-			}
-			return mid;
-		}
+                if (Math.Abs(fMid) < tolerance)
+                {
+                    break;
+                }
+            }
+            return mid;
+        }
 
-		/// <summary>
-		/// Sample from a standard skew-normal with shape alpha (mean 0, stdev ~ 1).
-		/// </summary>
-		private static double NextSkewNormalAlpha(double alpha)
-		{
-			double z0 = NextStandard();
-			double z1 = NextStandard();
-			double delta = alpha / Math.Sqrt(1.0 + alpha * alpha);
-			return delta * Math.Abs(z0) + Math.Sqrt(1.0 - delta * delta) * z1;
-		}
+        /// <summary>
+        /// Sample from a standard skew-normal with shape alpha (mean 0, stdev ~ 1).
+        /// </summary>
+        private static double NextSkewNormalAlpha(double alpha)
+        {
+            double z0 = NextStandard();
+            double z1 = NextStandard();
+            double delta = alpha / Math.Sqrt(1.0 + alpha * alpha);
+            return delta * Math.Abs(z0) + Math.Sqrt(1.0 - delta * delta) * z1;
+        }
 
-		/// <summary>
-		/// Generate a random value from a skew-normal distribution with
-		/// specified mean, stdev, and approximate skewness.
-		/// </summary>
-		public static double RandomNormal(double mean, double stdev, double skewness)
-		{
-			double alpha = SolveForAlpha(skewness);
-			double x0 = NextSkewNormalAlpha(alpha);
-			return mean + stdev * x0;
-		}
+        /// <summary>
+        /// Generate a random value from a skew-normal distribution with
+        /// specified mean, stdev, and approximate skewness.
+        /// </summary>
+        public static double RandomNormal(double mean, double stdev, double skewness)
+        {
+            double alpha = SolveForAlpha(skewness);
+            double x0 = NextSkewNormalAlpha(alpha);
+            return mean + stdev * x0;
+        }
 
-		/// <summary>
-		/// A wrapper for RandomNormal that assumes the mean is the mid-point of the supplied range and the the standard deviation is 1/8 of the difference
-		/// </summary>
-		/// <param name="minimum"></param>
-		/// <param name="maximum"></param>
-		/// <returns></returns>
-		public static double RandomNormalOverRange(double minimum, double maximum)
-		{                
-			return RandomNormal((maximum + minimum) / 2, (maximum - minimum) / 8);
-		}
+        /// <summary>
+        /// A wrapper for RandomNormal that assumes the mean is the mid-point of the supplied range and the the standard deviation is 1/8 of the difference
+        /// </summary>
+        /// <param name="minimum"></param>
+        /// <param name="maximum"></param>
+        /// <returns></returns>
+        public static double RandomNormalOverRange(double minimum, double maximum)
+        {
+            return RandomNormal((maximum + minimum) / 2, (maximum - minimum) / 8);
+        }
 
-		/// <summary>
-		///     Picks a specified number of random results out of the input, without replacement.
-		///     
-		/// </summary>
-		/// <typeparam name="T">Any type</typeparam>
-		/// <param name="input">An IEnumerable from which random items are to be selected</param>
-		/// <param name="picks">The number of picks to be made. Throws an exception if greater than input.Count()</param>
-		/// <returns>A number of random picks from the input.</returns>
-		public static IEnumerable<T> PickRandom<T>(this IEnumerable<T> input, int picks) {
-			if (picks < 1) {
-				throw new ArgumentException("The number of picks in PickRandom must be greater than 0");
-			}
-			var samplesRemaining = input.Count();
-			if (picks > samplesRemaining) {
-				throw new ArgumentException(
-					"The number of picks in PickRandom must be greater than the number of itmes in the input IEnumerable.");
-			}
+        /// <summary>
+        ///     Picks a specified number of random results out of the input, without replacement.
+        ///     
+        /// </summary>
+        /// <typeparam name="T">Any type</typeparam>
+        /// <param name="input">An IEnumerable from which random items are to be selected</param>
+        /// <param name="picks">The number of picks to be made. Throws an exception if greater than input.Count()</param>
+        /// <returns>A number of random picks from the input.</returns>
+        public static IEnumerable<T> PickRandom<T>(this IEnumerable<T> input, int picks)
+        {
+            if (picks < 1)
+            {
+                throw new ArgumentException("The number of picks in PickRandom must be greater than 0");
+            }
+            int samplesRemaining = input.Count();
+            if (picks > samplesRemaining)
+            {
+                throw new ArgumentException(
+                    "The number of picks in PickRandom must be greater than the number of itmes in the input IEnumerable.");
+            }
 
-			var items = new HashSet<T>();
-			var length = input.Count();
-			while (picks > 0)
-				// if we successfully added it, move on
-			{
-				if (items.Add(input.ElementAt(Constants.Random.Next(length)))) {
-					picks--;
-				}
-			}
+            HashSet<T> items = new();
+            int length = input.Count();
+            while (picks > 0)
+            // if we successfully added it, move on
+            {
+                if (items.Add(input.ElementAt(Constants.Random.Next(length))))
+                {
+                    picks--;
+                }
+            }
 
-			return items;
-		}
+            return items;
+        }
 
-		/// <summary>
-		///     Picks a specified number of random results out of the input, without replacement.
-		/// </summary>
-		/// <typeparam name="T">Any type</typeparam>
-		/// <param name="input">An IEnumerable from which random items are to be selected</param>
-		/// <param name="picks">The number of picks to be made</param>
-		/// <returns>A number of random picks from the input.</returns>
-		public static IEnumerable<T> PickUpToRandom<T>(this IEnumerable<T> input, int picks)
-		{
-			if (picks < 1)
-			{
-				throw new ArgumentException("The number of picks in PickRandom must be greater than 0");
-			}
+        /// <summary>
+        ///     Picks a specified number of random results out of the input, without replacement.
+        /// </summary>
+        /// <typeparam name="T">Any type</typeparam>
+        /// <param name="input">An IEnumerable from which random items are to be selected</param>
+        /// <param name="picks">The number of picks to be made</param>
+        /// <returns>A number of random picks from the input.</returns>
+        public static IEnumerable<T> PickUpToRandom<T>(this IEnumerable<T> input, int picks)
+        {
+            if (picks < 1)
+            {
+                throw new ArgumentException("The number of picks in PickRandom must be greater than 0");
+            }
 
-			var list = input.ToList();
+            List<T> list = input.ToList();
 
-			var samplesRemaining = list.Count;
-			if (picks > samplesRemaining)
-			{
-				return list;
-			}
+            int samplesRemaining = list.Count;
+            if (picks > samplesRemaining)
+            {
+                return list;
+            }
 
-			return list.Shuffle().Take(picks);
-		}
+            return list.Shuffle().Take(picks);
+        }
 
-		public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> input, int picks, Func<T,double> weightSelector)
-		{
-			if (picks < 1)
-			{
-				return Enumerable.Empty<T>();
-			}
+        public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> input, int picks, Func<T, double> weightSelector)
+        {
+            if (picks < 1)
+            {
+                return Enumerable.Empty<T>();
+            }
 
-			var choices = input.Select(x => (Value: x, Weight: weightSelector(x))).ToList();
-			if (choices.Count <= picks)
-			{
-				return input;
-			}
+            List<(T Value, double Weight)> choices = input.Select(x => (Value: x, Weight: weightSelector(x))).ToList();
+            if (choices.Count <= picks)
+            {
+                return input;
+            }
 
-			var sum = choices.Sum(x => x.Weight);
-			var len = choices.Count;
-			var results = new List<T>(picks);
-			while (picks > 0)
-			{
-				var roll = Constants.Random.NextDouble() * sum;
-				for (var i = 0; i < len; i++)
-				{
-					if (choices[i].Weight <= 0)
-					{
-						continue;
-					}
+            double sum = choices.Sum(x => x.Weight);
+            int len = choices.Count;
+            List<T> results = new(picks);
+            while (picks > 0)
+            {
+                double roll = Constants.Random.NextDouble() * sum;
+                for (int i = 0; i < len; i++)
+                {
+                    if (choices[i].Weight <= 0)
+                    {
+                        continue;
+                    }
 
-					if ((roll -= choices[i].Weight) <= 0.0)
-					{
-						var (value, weight) = choices[i];
-						results.Add(value);
-						choices.RemoveAt(i);
-						len--;
-						sum -= weight;
-						break;
-					}
-				}
-				picks--;
-			}
+                    if ((roll -= choices[i].Weight) <= 0.0)
+                    {
+                        (T value, double weight) = choices[i];
+                        results.Add(value);
+                        choices.RemoveAt(i);
+                        len--;
+                        sum -= weight;
+                        break;
+                    }
+                }
+                picks--;
+            }
 
-			return results;
-		}
+            return results;
+        }
 
-		/// <summary>
-		///     Given a specified number of true and false values, returns a "shuffled" queue of the values in a random order
-		/// </summary>
-		/// <param name="numtrue">The number of times true will appear</param>
-		/// <param name="numfalse">The number of times false will appear</param>
-		/// <returns>A shuffled queue of booleans</returns>
-		public static Queue<bool> RandomTruthMask(int numtrue, int numfalse) {
-			var bools = new bool[numtrue + numfalse];
-			for (var i = 0; i < numtrue; i++) {
-				bools[i] = true;
-			}
-			bools.Shuffle();
+        /// <summary>
+        ///     Given a specified number of true and false values, returns a "shuffled" queue of the values in a random order
+        /// </summary>
+        /// <param name="numtrue">The number of times true will appear</param>
+        /// <param name="numfalse">The number of times false will appear</param>
+        /// <returns>A shuffled queue of booleans</returns>
+        public static Queue<bool> RandomTruthMask(int numtrue, int numfalse)
+        {
+            bool[] bools = new bool[numtrue + numfalse];
+            for (int i = 0; i < numtrue; i++)
+            {
+                bools[i] = true;
+            }
+            bools.Shuffle();
 
-			return new Queue<bool>(bools);
-		}
+            return new Queue<bool>(bools);
+        }
 
-		public static Queue<bool> RandomBiasedTruthMask(int numtrue, int numfalse, double[] bias) {
-			var len = bias.Length;
-			var biasArray = new (int Element, double Weight)[len];
-			for (var j = 0; j < len; j++)
-			{
-				biasArray[j] = (j, bias[j]);
-			}
+        public static Queue<bool> RandomBiasedTruthMask(int numtrue, int numfalse, double[] bias)
+        {
+            int len = bias.Length;
+            (int Element, double Weight)[] biasArray = new (int Element, double Weight)[len];
+            for (int j = 0; j < len; j++)
+            {
+                biasArray[j] = (j, bias[j]);
+            }
 
-			if (biasArray.Length != numtrue + numfalse) {
-				throw new ArgumentOutOfRangeException(nameof(bias));
-			}
+            if (biasArray.Length != numtrue + numfalse)
+            {
+                throw new ArgumentOutOfRangeException(nameof(bias));
+            }
 
-			var bools = new bool[numtrue + numfalse];
-			for (var i = 0; i < numtrue; i++) {
-				var random = biasArray.GetWeightedRandom(x => x.Weight);
-				biasArray[random.Element] = (random.Element, 0.0);
-				bools[random.Element] = true;
-			}
+            bool[] bools = new bool[numtrue + numfalse];
+            for (int i = 0; i < numtrue; i++)
+            {
+                (int Element, double Weight) random = biasArray.GetWeightedRandom(x => x.Weight);
+                biasArray[random.Element] = (random.Element, 0.0);
+                bools[random.Element] = true;
+            }
 
-			return new Queue<bool>(bools);
-		}
+            return new Queue<bool>(bools);
+        }
 
-		public static char GetRandomCharacter(bool proper = false) {
-			return proper
-				? char.ToUpper(Constants.ValidRandomCharacters[Constants.Random.Next(0, 26)])
-				: Constants.ValidRandomCharacters[Constants.Random.Next(0, 26)];
-		}
+        public static char GetRandomCharacter(bool proper = false)
+        {
+            return proper
+                ? char.ToUpper(Constants.ValidRandomCharacters[Constants.Random.Next(0, 26)])
+                : Constants.ValidRandomCharacters[Constants.Random.Next(0, 26)];
+        }
 
-		public static bool ConsecutiveSuccess(int rolls, double probability) {
-			while (rolls-- > 0) {
-				if (Constants.Random.NextDouble() > probability) {
-					return false;
-				}
-			}
-			return true;
-		}
+        public static bool ConsecutiveSuccess(int rolls, double probability)
+        {
+            while (rolls-- > 0)
+            {
+                if (Constants.Random.NextDouble() > probability)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
 
-		/// <summary>
-		///     Roll a 1dSides dice against target maxAttempts times, and return an integer representing the number of consecutive
-		///     passes or fails
-		/// </summary>
-		/// <param name="sides">The sides of the dice to roll</param>
-		/// <param name="target">The target number to compare against</param>
-		/// <param name="maxAttempts">The maximum number of attempts to make</param>
-		/// <param name="rolls">A list of doubles that will end up storing the actual roles generated by the calls to Roll</param>
-		/// <returns>
-		///     An integer representing the number of consecutive passes or fails. Scale indicates number of consecutive
-		///     results, Sign indicates success (+ve) or failure (-ve)
-		/// </returns>
-		public static int ConsecutiveRoll(double sides, double target, int maxAttempts, out List<double> rolls)
-		{
-			rolls = new List<double>();
-			var numRolls = 0;
-			var firstResult = Roll(sides, target, out var nextRoll );
-			rolls.Add(nextRoll);
-			while (++numRolls < maxAttempts)
-			{
-				if (Roll(sides, target, out nextRoll) != firstResult)
-				{
-					rolls.Add(nextRoll);
-					break;
-				}
-				rolls.Add(nextRoll);
-			}
-			
-			return firstResult ? numRolls : -1* numRolls;
-		}
+        /// <summary>
+        ///     Roll a 1dSides dice against target maxAttempts times, and return an integer representing the number of consecutive
+        ///     passes or fails
+        /// </summary>
+        /// <param name="sides">The sides of the dice to roll</param>
+        /// <param name="target">The target number to compare against</param>
+        /// <param name="maxAttempts">The maximum number of attempts to make</param>
+        /// <param name="rolls">A list of doubles that will end up storing the actual roles generated by the calls to Roll</param>
+        /// <returns>
+        ///     An integer representing the number of consecutive passes or fails. Scale indicates number of consecutive
+        ///     results, Sign indicates success (+ve) or failure (-ve)
+        /// </returns>
+        public static int ConsecutiveRoll(double sides, double target, int maxAttempts, out List<double> rolls)
+        {
+            rolls = new List<double>();
+            int numRolls = 0;
+            bool firstResult = Roll(sides, target, out double nextRoll);
+            rolls.Add(nextRoll);
+            while (++numRolls < maxAttempts)
+            {
+                if (Roll(sides, target, out nextRoll) != firstResult)
+                {
+                    rolls.Add(nextRoll);
+                    break;
+                }
+                rolls.Add(nextRoll);
+            }
 
-		/// <summary>
-		///     Roll a 1dSides dice against target maxAttempts times, and return an integer representing the number of consecutive
-		///     passes or fails
-		/// </summary>
-		/// <param name="sides">The sides of the dice to roll</param>
-		/// <param name="target">The target number to compare against</param>
-		/// <param name="maxAttempts">The maximum number of attempts to make</param>
-		/// <returns>
-		///     An integer representing the number of consecutive passes or fails. Scale indicates number of consecutive
-		///     results, Sign indicates success (+ve) or failure (-ve)
-		/// </returns>
-		public static int ConsecutiveRoll(double sides, double target, int maxAttempts)
-		{
-			var numRolls = 0;
-			var firstResult = Roll(sides, target);
-			while ((++numRolls < maxAttempts) && (Roll(sides, target) == firstResult))
-			{
-			}
-			return firstResult ? numRolls : -1 * numRolls;
-		}
+            return firstResult ? numRolls : -1 * numRolls;
+        }
 
-		public static int EvaluateConsecutiveSuccesses(IEnumerable<int> rollResults, int target) {
-			if (!rollResults.Any()) {
-				return 0;
-			}
+        /// <summary>
+        ///     Roll a 1dSides dice against target maxAttempts times, and return an integer representing the number of consecutive
+        ///     passes or fails
+        /// </summary>
+        /// <param name="sides">The sides of the dice to roll</param>
+        /// <param name="target">The target number to compare against</param>
+        /// <param name="maxAttempts">The maximum number of attempts to make</param>
+        /// <returns>
+        ///     An integer representing the number of consecutive passes or fails. Scale indicates number of consecutive
+        ///     results, Sign indicates success (+ve) or failure (-ve)
+        /// </returns>
+        public static int ConsecutiveRoll(double sides, double target, int maxAttempts)
+        {
+            int numRolls = 0;
+            bool firstResult = Roll(sides, target);
+            while ((++numRolls < maxAttempts) && (Roll(sides, target) == firstResult))
+            {
+            }
+            return firstResult ? numRolls : -1 * numRolls;
+        }
 
-			if (rollResults.First() <= target) {
-				return rollResults.TakeWhile(x => x <= target).Count();
-			}
+        public static int EvaluateConsecutiveSuccesses(IEnumerable<int> rollResults, int target)
+        {
+            if (!rollResults.Any())
+            {
+                return 0;
+            }
 
-			return rollResults.TakeWhile(x => x > target).Count()*-1;
-		}
+            if (rollResults.First() <= target)
+            {
+                return rollResults.TakeWhile(x => x <= target).Count();
+            }
 
-		public static int EvaluateConsecutiveSuccesses(IEnumerable<double> rollResults, double target)
-		{
-			if (!rollResults.Any())
-			{
-				return 0;
-			}
+            return rollResults.TakeWhile(x => x > target).Count() * -1;
+        }
 
-			if (rollResults.First() <= target)
-			{
-				return rollResults.TakeWhile(x => x <= target).Count();
-			}
+        public static int EvaluateConsecutiveSuccesses(IEnumerable<double> rollResults, double target)
+        {
+            if (!rollResults.Any())
+            {
+                return 0;
+            }
 
-			return rollResults.TakeWhile(x => x > target).Count() * -1;
-		}
+            if (rollResults.First() <= target)
+            {
+                return rollResults.TakeWhile(x => x <= target).Count();
+            }
 
-		/// <summary>
-		/// Rolls below a target number, a.k.a. d100 mechanics / traditional RPI engine
-		/// </summary>
-		/// <param name="sides">The "x" component of the 1dx roll</param>
-		/// <param name="target">The target number to roll below</param>
-		/// <param name="roll">The actual rolled result as an out parameter</param>
-		/// <returns></returns>
-		public static bool Roll(double sides, double target, out double roll)
-		{
-			roll = Constants.Random.NextDouble() * sides; 
-			
-			return roll <= target;
-		}
+            return rollResults.TakeWhile(x => x > target).Count() * -1;
+        }
 
-		/// <summary>
-		/// Rolls below a target number, a.k.a. d100 mechanics / traditional RPI engine
-		/// </summary>
-		/// <param name="sides">The "x" component of the 1dx roll</param>
-		/// <param name="target">The target number to roll below</param>
-		/// <returns></returns>
-		public static bool Roll(double sides, double target)
-		{
-			return (Constants.Random.NextDouble() * sides) <= target;
-		}
+        /// <summary>
+        /// Rolls below a target number, a.k.a. d100 mechanics / traditional RPI engine
+        /// </summary>
+        /// <param name="sides">The "x" component of the 1dx roll</param>
+        /// <param name="target">The target number to roll below</param>
+        /// <param name="roll">The actual rolled result as an out parameter</param>
+        /// <returns></returns>
+        public static bool Roll(double sides, double target, out double roll)
+        {
+            roll = Constants.Random.NextDouble() * sides;
 
-		public static T GetWeightedRandom<T>(this IEnumerable<(T Value, int Weight)> arg)
-		{
-			if (!arg.Any())
-			{
-				return default;
-			}
-			var len = arg.Count();
-			var sum = arg.Sum(x => x.Weight);
-			var calcValues = arg as (T Value, int Weight)[] ?? arg.ToArray();
+            return roll <= target;
+        }
 
-			var roll = Constants.Random.NextDouble() * sum;
-			for (var i = 0; i < len; i++)
-			{
-				if (calcValues[i].Weight <= 0)
-				{
-					continue;
-				}
+        /// <summary>
+        /// Rolls below a target number, a.k.a. d100 mechanics / traditional RPI engine
+        /// </summary>
+        /// <param name="sides">The "x" component of the 1dx roll</param>
+        /// <param name="target">The target number to roll below</param>
+        /// <returns></returns>
+        public static bool Roll(double sides, double target)
+        {
+            return (Constants.Random.NextDouble() * sides) <= target;
+        }
 
-				if ((roll -= calcValues[i].Weight) <= 0.0)
-				{
-					return calcValues[i].Value;
-				}
-			}
+        public static T GetWeightedRandom<T>(this IEnumerable<(T Value, int Weight)> arg)
+        {
+            if (!arg.Any())
+            {
+                return default;
+            }
+            int len = arg.Count();
+            int sum = arg.Sum(x => x.Weight);
+            (T Value, int Weight)[] calcValues = arg as (T Value, int Weight)[] ?? arg.ToArray();
 
-			return calcValues.Last().Value;
-		}
+            double roll = Constants.Random.NextDouble() * sum;
+            for (int i = 0; i < len; i++)
+            {
+                if (calcValues[i].Weight <= 0)
+                {
+                    continue;
+                }
 
-		public static T GetWeightedRandom<T>(this IEnumerable<(T Value, double Weight)> arg)
-		{
-			if (!arg.Any())
-			{
-				return default;
-			}
-			var len = arg.Count();
-			var sum = arg.Sum(x => x.Weight);
-			var calcValues = arg as (T Value, double Weight)[] ?? arg.ToArray();
+                if ((roll -= calcValues[i].Weight) <= 0.0)
+                {
+                    return calcValues[i].Value;
+                }
+            }
 
-			var roll = Constants.Random.NextDouble() * sum;
-			for (var i = 0; i < len; i++)
-			{
-				if (calcValues[i].Weight <= 0)
-				{
-					continue;
-				}
+            return calcValues.Last().Value;
+        }
 
-				if ((roll -= calcValues[i].Weight) <= 0.0)
-				{
-					return calcValues[i].Value;
-				}
-			}
+        public static T GetWeightedRandom<T>(this IEnumerable<(T Value, double Weight)> arg)
+        {
+            if (!arg.Any())
+            {
+                return default;
+            }
+            int len = arg.Count();
+            double sum = arg.Sum(x => x.Weight);
+            (T Value, double Weight)[] calcValues = arg as (T Value, double Weight)[] ?? arg.ToArray();
 
-			return calcValues.Last().Value;
-		}
+            double roll = Constants.Random.NextDouble() * sum;
+            for (int i = 0; i < len; i++)
+            {
+                if (calcValues[i].Weight <= 0)
+                {
+                    continue;
+                }
 
-		public static T GetWeightedRandom<T>(this IEnumerable<T> arg, Func<T, double> evaluator) {
-			if (!arg.Any())
-			{
-				return default;
-			}
-			var len = arg.Count();
-			var calcValues = new(T Value, double Weight)[len];
-			var i = 0;
-			var sum = 0.0;
-			foreach (var item in arg)
-			{
-				var eval = evaluator(item);
-				calcValues[i++] = (item, eval);
-				sum += eval;
-			}
+                if ((roll -= calcValues[i].Weight) <= 0.0)
+                {
+                    return calcValues[i].Value;
+                }
+            }
 
-			var roll = Constants.Random.NextDouble() * sum;
-			for (i = 0; i < len; i++)
-			{
-				if (calcValues[i].Weight <= 0.0)
-				{
-					continue;
-				}
+            return calcValues.Last().Value;
+        }
 
-				if ((roll -= calcValues[i].Weight) <= 0.0)
-				{
-					return calcValues[i].Value;
-				}
-			}
+        public static T GetWeightedRandom<T>(this IEnumerable<T> arg, Func<T, double> evaluator)
+        {
+            if (!arg.Any())
+            {
+                return default;
+            }
+            int len = arg.Count();
+            (T Value, double Weight)[] calcValues = new (T Value, double Weight)[len];
+            int i = 0;
+            double sum = 0.0;
+            foreach (T item in arg)
+            {
+                double eval = evaluator(item);
+                calcValues[i++] = (item, eval);
+                sum += eval;
+            }
 
-			return calcValues.Last().Value;
-		}
+            double roll = Constants.Random.NextDouble() * sum;
+            for (i = 0; i < len; i++)
+            {
+                if (calcValues[i].Weight <= 0.0)
+                {
+                    continue;
+                }
 
-		public static T GetWeightedRandom<T>(this IEnumerable<T> arg, Func<T, int> evaluator) {
-			if (!arg.Any())
-			{
-				return default;
-			}
-			var len = arg.Count();
-			var calcValues = new(T Value, int Weight)[len];
-			var i = 0;
-			var sum = 0;
-			foreach (var item in arg)
-			{
-				var eval = evaluator(item);
-				calcValues[i++] = (item, eval);
-				sum += eval;
-			}
+                if ((roll -= calcValues[i].Weight) <= 0.0)
+                {
+                    return calcValues[i].Value;
+                }
+            }
 
-			var roll = (int)(Constants.Random.NextDouble() * sum);
-			for (i = 0; i < len; i++)
-			{
-				if (calcValues[i].Weight <= 0) {
-					continue;
-				}
+            return calcValues.Last().Value;
+        }
 
-				if ((roll -= calcValues[i].Weight) <= 0)
-				{
-					return calcValues[i].Value;
-				}
-			}
+        public static T GetWeightedRandom<T>(this IEnumerable<T> arg, Func<T, int> evaluator)
+        {
+            if (!arg.Any())
+            {
+                return default;
+            }
+            int len = arg.Count();
+            (T Value, int Weight)[] calcValues = new (T Value, int Weight)[len];
+            int i = 0;
+            int sum = 0;
+            foreach (T item in arg)
+            {
+                int eval = evaluator(item);
+                calcValues[i++] = (item, eval);
+                sum += eval;
+            }
 
-			return calcValues.Last().Value;
-		}
+            int roll = (int)(Constants.Random.NextDouble() * sum);
+            for (i = 0; i < len; i++)
+            {
+                if (calcValues[i].Weight <= 0)
+                {
+                    continue;
+                }
 
-		public static T GetRandomElement<T>(this IEnumerable<T> list) {
-			return !list.Any() ? default : list.ElementAt(Constants.Random.Next(0, list.Count()));
-		}
-	}
+                if ((roll -= calcValues[i].Weight) <= 0)
+                {
+                    return calcValues[i].Value;
+                }
+            }
+
+            return calcValues.Last().Value;
+        }
+
+        public static T GetRandomElement<T>(this IEnumerable<T> list)
+        {
+            return !list.Any() ? default : list.ElementAt(Constants.Random.Next(0, list.Count()));
+        }
+    }
 }

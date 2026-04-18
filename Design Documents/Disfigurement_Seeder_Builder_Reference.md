@@ -22,6 +22,13 @@ At the moment, the stock disfigurement seeder scaffolding ships with no built-in
 
 That means this handoff is about the values the seeder helper can resolve and the defaults it applies when a builder starts adding new definitions.
 
+## Seeder Implementation Gotcha
+`DisfigurementTemplate` is an editable-item style entity with a composite `(Id, RevisionNumber)` primary key, but its `Id` is not database-generated.
+
+That means seeder code creating a new scar or tattoo template must allocate the next available `DisfigurementTemplate.Id` itself. The linked `EditableItem` still uses the normal identity column, so only the template row needs the manual `Id` assignment.
+
+This is a wider FutureMUD seeder pattern too: many editable-item entities use the same composite-key revision model, and not all of those tables auto-generate the entity `Id`.
+
 ## Resolver Rules
 The seeder helper resolves names case-insensitively.
 

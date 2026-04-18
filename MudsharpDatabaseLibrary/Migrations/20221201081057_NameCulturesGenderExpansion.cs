@@ -67,7 +67,7 @@ FROM Cultures");
 SELECT Id, NameCultureId, 4
 FROM Cultures");
 
-			migrationBuilder.AddForeignKey(
+            migrationBuilder.AddForeignKey(
                 name: "FK_ActiveProjects_Characters",
                 table: "ActiveProjects",
                 column: "CharacterId",
@@ -76,9 +76,9 @@ FROM Cultures");
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.DropColumn(
-	            name: "NameCultureId",
-	            table: "Cultures");
-		}
+                name: "NameCultureId",
+                table: "Cultures");
+        }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {

@@ -1,9 +1,11 @@
-﻿using System;
-using MudSharp.Form.Colour;
+﻿using MudSharp.Form.Colour;
 using MudSharp.Framework;
+using System;
 
-namespace MudSharp.GameItems.Interfaces {
-    public enum WritingImplementType {
+namespace MudSharp.GameItems.Interfaces
+{
+    public enum WritingImplementType
+    {
         Pencil,
         Biro,
         Quill,
@@ -14,9 +16,12 @@ namespace MudSharp.GameItems.Interfaces {
         Crayon
     }
 
-    public static class WritingImplementTypeExtensions {
-        public static string Describe(this WritingImplementType type) {
-            switch (type) {
+    public static class WritingImplementTypeExtensions
+    {
+        public static string Describe(this WritingImplementType type)
+        {
+            switch (type)
+            {
                 case WritingImplementType.Biro:
                     return "Biro";
                 case WritingImplementType.Brush:
@@ -38,8 +43,10 @@ namespace MudSharp.GameItems.Interfaces {
             }
         }
 
-        public static string Describe(this WritingImplementType type, IColour colour, ANSIColour ansiColour = null) {
-            switch (type) {
+        public static string Describe(this WritingImplementType type, IColour colour, ANSIColour ansiColour = null)
+        {
+            switch (type)
+            {
                 case WritingImplementType.Biro:
                     return $"{colour?.Name?.Colour(ansiColour)} ink";
                 case WritingImplementType.Brush:
@@ -62,7 +69,8 @@ namespace MudSharp.GameItems.Interfaces {
         }
     }
 
-    public interface IWritingImplement : IGameItemComponent {
+    public interface IWritingImplement : IGameItemComponent
+    {
         WritingImplementType WritingImplementType { get; }
         bool Primed { get; }
         void Use(int uses);

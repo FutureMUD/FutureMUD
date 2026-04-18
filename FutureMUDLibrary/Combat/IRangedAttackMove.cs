@@ -4,5 +4,5 @@ namespace MudSharp.Combat;
 
 public interface IRangedAttackMove : ICombatMove
 {
-	IBodypart TargetBodypart { get; }
+    IBodypart TargetBodypart { get; }
 }

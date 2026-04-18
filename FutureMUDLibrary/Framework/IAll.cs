@@ -1,6 +1,7 @@
 ﻿namespace MudSharp.Framework
 {
-    public interface IAll<in T> where T : class, IFrameworkItem {
+    public interface IAll<in T> where T : class, IFrameworkItem
+    {
         bool Add(T item);
 
         bool Has(long id);
@@ -9,5 +10,5 @@
         void Clear();
         int Count { get; }
 
-	}
+    }
 }

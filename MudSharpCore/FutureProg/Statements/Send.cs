@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Compiler;
@@ -9,212 +6,216 @@ using MudSharp.FutureProg.Functions;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MudSharp.FutureProg.Statements;
 
 internal class Send : Statement, IHaveFuturemud
 {
-	private static readonly Regex SendCompileRegex =
-		new(
-			@"^\s*send(?: (all|local|room|location|zone|shard|surrounds)){0,1}((?: (?:hidden|no1st|gods)){0,3})\s+(.+)\s*$",
-			RegexOptions.IgnoreCase);
+    private static readonly Regex SendCompileRegex =
+        new(
+            @"^\s*send(?: (all|local|room|location|zone|shard|surrounds)){0,1}((?: (?:hidden|no1st|gods)){0,3})\s+(.+)\s*$",
+            RegexOptions.IgnoreCase);
 
-	protected OutputFlags Flags;
-	protected IList<IFunction> ParameterFunctions;
-	protected OutputRange Range;
+    protected OutputFlags Flags;
+    protected IList<IFunction> ParameterFunctions;
+    protected OutputRange Range;
 
-	protected bool SendRaw;
-	protected IFunction TargetFunction;
-	protected IFunction TextFunction;
+    protected bool SendRaw;
+    protected IFunction TargetFunction;
+    protected IFunction TextFunction;
 
-	public Send(string rangeType, string modifiers, IFunction textFunction, IFunction targetFunction,
-		IList<IFunction> parameters, IFuturemud gameworld)
-	{
-		Gameworld = gameworld;
-		TextFunction = textFunction;
-		TargetFunction = targetFunction;
-		ParameterFunctions = parameters;
+    public Send(string rangeType, string modifiers, IFunction textFunction, IFunction targetFunction,
+        IList<IFunction> parameters, IFuturemud gameworld)
+    {
+        Gameworld = gameworld;
+        TextFunction = textFunction;
+        TargetFunction = targetFunction;
+        ParameterFunctions = parameters;
 
-		switch (rangeType.ToLowerInvariant())
-		{
-			case "":
-				Range = OutputRange.Personal;
-				break;
-			case "local":
-				Range = OutputRange.Local;
-				break;
-			case "all":
-				Range = OutputRange.All;
-				break;
-			case "location":
-				Range = OutputRange.Local;
-				break;
-			case "surrounds":
-				Range = OutputRange.Surrounds;
-				break;
-			case "zone":
-				Range = OutputRange.Zone;
-				break;
-			case "shard":
-				Range = OutputRange.Shard;
-				break;
-			default:
-				throw new NotSupportedException();
-		}
+        switch (rangeType.ToLowerInvariant())
+        {
+            case "":
+                Range = OutputRange.Personal;
+                break;
+            case "local":
+                Range = OutputRange.Local;
+                break;
+            case "all":
+                Range = OutputRange.All;
+                break;
+            case "location":
+                Range = OutputRange.Local;
+                break;
+            case "surrounds":
+                Range = OutputRange.Surrounds;
+                break;
+            case "zone":
+                Range = OutputRange.Zone;
+                break;
+            case "shard":
+                Range = OutputRange.Shard;
+                break;
+            default:
+                throw new NotSupportedException();
+        }
 
-		Flags = OutputFlags.Normal;
-		modifiers = modifiers.ToLowerInvariant();
-		if (modifiers.Contains("hidden"))
-		{
-			Flags = Flags | OutputFlags.SuppressObscured;
-		}
+        Flags = OutputFlags.Normal;
+        modifiers = modifiers.ToLowerInvariant();
+        if (modifiers.Contains("hidden"))
+        {
+            Flags = Flags | OutputFlags.SuppressObscured;
+        }
 
-		if (modifiers.Contains("no1st"))
-		{
-			Flags = Flags | OutputFlags.SuppressSource;
-		}
+        if (modifiers.Contains("no1st"))
+        {
+            Flags = Flags | OutputFlags.SuppressSource;
+        }
 
-		if (modifiers.Contains("gods"))
-		{
-			Flags = Flags | OutputFlags.WizOnly;
-		}
+        if (modifiers.Contains("gods"))
+        {
+            Flags = Flags | OutputFlags.WizOnly;
+        }
 
-		if (!parameters.Any())
-		{
-			SendRaw = true;
-		}
-	}
+        if (!parameters.Any())
+        {
+            SendRaw = true;
+        }
+    }
 
-	public IFuturemud Gameworld { get; protected set; }
+    public IFuturemud Gameworld { get; protected set; }
 
-	private static ICompileInfo SendCompile(IEnumerable<string> lines,
-		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
-	{
-		var match = SendCompileRegex.Match(lines.First());
-		var splitArgs = FunctionHelper.ParameterStringSplit(match.Groups[3].Value, ' ');
-		if (splitArgs.IsError)
-		{
-			return CompileInfo.GetFactory().CreateError("Error with arguments of send statement.", lineNumber);
-		}
+    private static ICompileInfo SendCompile(IEnumerable<string> lines,
+        IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+    {
+        Match match = SendCompileRegex.Match(lines.First());
+        FunctionHelper.ParameterSplit splitArgs = FunctionHelper.ParameterStringSplit(match.Groups[3].Value, ' ');
+        if (splitArgs.IsError)
+        {
+            return CompileInfo.GetFactory().CreateError("Error with arguments of send statement.", lineNumber);
+        }
 
-		var compiledArgs =
-			splitArgs.ParameterStrings.Select(
-				x => FunctionHelper.CompileFunction(x, variableSpace, lineNumber, gameworld));
-		if (compiledArgs.Any(x => x.IsError))
-		{
-			return
-				CompileInfo.GetFactory()
-				           .CreateError(
-					           $"Compile error with send statement arguments: {compiledArgs.First(x => x.IsError).ErrorMessage}", lineNumber);
-		}
+        IEnumerable<ICompileInfo> compiledArgs =
+            splitArgs.ParameterStrings.Select(
+                x => FunctionHelper.CompileFunction(x, variableSpace, lineNumber, gameworld));
+        if (compiledArgs.Any(x => x.IsError))
+        {
+            return
+                CompileInfo.GetFactory()
+                           .CreateError(
+                               $"Compile error with send statement arguments: {compiledArgs.First(x => x.IsError).ErrorMessage}", lineNumber);
+        }
 
-		var sendAll = match.Groups[1].Value.ToLowerInvariant() == "all";
-		if (compiledArgs.Count() < 2 && !sendAll)
-		{
-			return
-				CompileInfo.GetFactory()
-				           .CreateError("Send statement requires at least one perceivable for this mode.", lineNumber);
-		}
+        bool sendAll = match.Groups[1].Value.ToLowerInvariant() == "all";
+        if (compiledArgs.Count() < 2 && !sendAll)
+        {
+            return
+                CompileInfo.GetFactory()
+                           .CreateError("Send statement requires at least one perceivable for this mode.", lineNumber);
+        }
 
-		var textArg = (IFunction)compiledArgs.First().CompiledStatement;
-		if (!textArg.ReturnType.CompatibleWith(ProgVariableTypes.Text))
-		{
-			return
-				CompileInfo.GetFactory()
-				           .CreateError("The first argument to the send statement must be of type text.", lineNumber);
-		}
+        IFunction textArg = (IFunction)compiledArgs.First().CompiledStatement;
+        if (!textArg.ReturnType.CompatibleWith(ProgVariableTypes.Text))
+        {
+            return
+                CompileInfo.GetFactory()
+                           .CreateError("The first argument to the send statement must be of type text.", lineNumber);
+        }
 
-		var targetArg = sendAll ? null : (IFunction)compiledArgs.Skip(1).FirstOrDefault().CompiledStatement;
-		ProgVariableTypes targetArgType;
-		switch (match.Groups[1].Value.ToLowerInvariant())
-		{
-			case "":
-				targetArgType = ProgVariableTypes.Character | ProgVariableTypes.Item;
-				break;
-			case "local":
-				targetArgType = ProgVariableTypes.Character | ProgVariableTypes.Item;
-				break;
-			case "room":
-			case "location":
-				targetArgType = ProgVariableTypes.Location;
-				break;
-			case "zone":
-				targetArgType = ProgVariableTypes.Zone;
-				break;
-			case "shard":
-				targetArgType = ProgVariableTypes.Shard;
-				break;
-			case "surrounds":
-				targetArgType = ProgVariableTypes.Location;
-				break;
-			case "all":
-				targetArgType = ProgVariableTypes.Anything;
-				break;
-			default:
-				throw new NotSupportedException();
-		}
+        IFunction targetArg = sendAll ? null : (IFunction)compiledArgs.Skip(1).FirstOrDefault().CompiledStatement;
+        ProgVariableTypes targetArgType;
+        switch (match.Groups[1].Value.ToLowerInvariant())
+        {
+            case "":
+                targetArgType = ProgVariableTypes.Character | ProgVariableTypes.Item;
+                break;
+            case "local":
+                targetArgType = ProgVariableTypes.Character | ProgVariableTypes.Item;
+                break;
+            case "room":
+            case "location":
+                targetArgType = ProgVariableTypes.Location;
+                break;
+            case "zone":
+                targetArgType = ProgVariableTypes.Zone;
+                break;
+            case "shard":
+                targetArgType = ProgVariableTypes.Shard;
+                break;
+            case "surrounds":
+                targetArgType = ProgVariableTypes.Location;
+                break;
+            case "all":
+                targetArgType = ProgVariableTypes.Anything;
+                break;
+            default:
+                throw new NotSupportedException();
+        }
 
-		if (!targetArg?.ReturnType.CompatibleWith(targetArgType) == true)
-		{
-			return
-				CompileInfo.GetFactory()
-				           .CreateError("The type of the second argument does not match the expected type.",
-					           lineNumber);
-		}
+        if (!targetArg?.ReturnType.CompatibleWith(targetArgType) == true)
+        {
+            return
+                CompileInfo.GetFactory()
+                           .CreateError("The type of the second argument does not match the expected type.",
+                               lineNumber);
+        }
 
-		var perceivableArgs = compiledArgs.Skip(sendAll ? 1 : 2).Select(x => (IFunction)x.CompiledStatement);
-		if (perceivableArgs.Any(x => !x.ReturnType.CompatibleWith(ProgVariableTypes.Perceiver)))
-		{
-			return
-				CompileInfo.GetFactory()
-				           .CreateError(
-					           "All arguments but the first and second passed to the send statement must resolve to perceivers.",
-					           lineNumber);
-		}
+        IEnumerable<IFunction> perceivableArgs = compiledArgs.Skip(sendAll ? 1 : 2).Select(x => (IFunction)x.CompiledStatement);
+        if (perceivableArgs.Any(x => !x.ReturnType.CompatibleWith(ProgVariableTypes.Perceiver)))
+        {
+            return
+                CompileInfo.GetFactory()
+                           .CreateError(
+                               "All arguments but the first and second passed to the send statement must resolve to perceivers.",
+                               lineNumber);
+        }
 
-		return
-			CompileInfo.GetFactory()
-			           .CreateNew(
-				           new Send(match.Groups[1].Value, match.Groups[2].Value, textArg, targetArg,
-					           perceivableArgs.ToList(), gameworld), variableSpace, lines.Skip(1), lineNumber,
-				           lineNumber);
-	}
+        return
+            CompileInfo.GetFactory()
+                       .CreateNew(
+                           new Send(match.Groups[1].Value, match.Groups[2].Value, textArg, targetArg,
+                               perceivableArgs.ToList(), gameworld), variableSpace, lines.Skip(1), lineNumber,
+                           lineNumber);
+    }
 
-	private static string ColouriseStatement(string line)
-	{
-		var match = SendCompileRegex.Match(line);
-		var splitArgs = FunctionHelper.ParameterStringSplit(match.Groups[3].Value, ' ');
-		return
-			$"{"send".Colour(Telnet.Cyan, Telnet.Black)}{match.Groups[1].Value.LeadingSpaceIfNotEmpty()}{match.Groups[2].Value.LeadingSpaceIfNotEmpty().Trim()} {(splitArgs.IsError ? match.Groups[3].Value.ColourBold(Telnet.Magenta, Telnet.Black) : splitArgs.ParameterStrings.Select(x => FunctionHelper.ColouriseFunction(x)).ListToString(separator: " ", conjunction: ""))}";
-	}
+    private static string ColouriseStatement(string line)
+    {
+        Match match = SendCompileRegex.Match(line);
+        FunctionHelper.ParameterSplit splitArgs = FunctionHelper.ParameterStringSplit(match.Groups[3].Value, ' ');
+        return
+            $"{"send".Colour(Telnet.Cyan, Telnet.Black)}{match.Groups[1].Value.LeadingSpaceIfNotEmpty()}{match.Groups[2].Value.LeadingSpaceIfNotEmpty().Trim()} {(splitArgs.IsError ? match.Groups[3].Value.ColourBold(Telnet.Magenta, Telnet.Black) : splitArgs.ParameterStrings.Select(x => FunctionHelper.ColouriseFunction(x)).ListToString(separator: " ", conjunction: ""))}";
+    }
 
-	private static string ColouriseStatementDarkMode(string line)
-	{
-		var match = SendCompileRegex.Match(line);
-		var splitArgs = FunctionHelper.ParameterStringSplit(match.Groups[3].Value, ' ');
-		return
-			$"{"send".Colour(Telnet.KeywordPink)}{match.Groups[1].Value.LeadingSpaceIfNotEmpty()}{match.Groups[2].Value.LeadingSpaceIfNotEmpty().Trim()} {(splitArgs.IsError ? match.Groups[3].Value.ColourBold(Telnet.Magenta) : splitArgs.ParameterStrings.Select(x => FunctionHelper.ColouriseFunction(x, true)).ListToString(separator: " ", conjunction: ""))}";
-	}
+    private static string ColouriseStatementDarkMode(string line)
+    {
+        Match match = SendCompileRegex.Match(line);
+        FunctionHelper.ParameterSplit splitArgs = FunctionHelper.ParameterStringSplit(match.Groups[3].Value, ' ');
+        return
+            $"{"send".Colour(Telnet.KeywordPink)}{match.Groups[1].Value.LeadingSpaceIfNotEmpty()}{match.Groups[2].Value.LeadingSpaceIfNotEmpty().Trim()} {(splitArgs.IsError ? match.Groups[3].Value.ColourBold(Telnet.Magenta) : splitArgs.ParameterStrings.Select(x => FunctionHelper.ColouriseFunction(x, true)).ListToString(separator: " ", conjunction: ""))}";
+    }
 
-	public static void RegisterCompiler()
-	{
-		FutureProg.RegisterStatementCompiler(
-			new Tuple
-			<Regex,
-				Func
-				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-				SendCompileRegex, SendCompile)
-		);
+    public static void RegisterCompiler()
+    {
+        FutureProg.RegisterStatementCompiler(
+            new Tuple
+            <Regex,
+                Func
+                <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+                SendCompileRegex, SendCompile)
+        );
 
-		FutureProg.RegisterStatementColouriser(
-			new Tuple<Regex, Func<string, string>>(SendCompileRegex, ColouriseStatement)
-		);
+        FutureProg.RegisterStatementColouriser(
+            new Tuple<Regex, Func<string, string>>(SendCompileRegex, ColouriseStatement)
+        );
 
-		FutureProg.RegisterStatementColouriser(
-			new Tuple<Regex, Func<string, string>>(SendCompileRegex, ColouriseStatementDarkMode), true
-		);
+        FutureProg.RegisterStatementColouriser(
+            new Tuple<Regex, Func<string, string>>(SendCompileRegex, ColouriseStatementDarkMode), true
+        );
 
-		FutureProg.RegisterStatementHelp("send", @"The SEND statement is used to send echoes to players.
+        FutureProg.RegisterStatementHelp("send", @"The SEND statement is used to send echoes to players.
 
 #1Note: This statement is mostly deprecated now. You should instead prefer to use the send built-in functions instead of the statement.#0
 
@@ -240,96 +241,96 @@ The values for the flags argument can be as follows:
 	#3hidden#0 - if others can't see target, don't echo to them instead of echoing with 'someone'
 
 The text that is sent will parse ANSI colour codes using ##s (e.g. ##5a tall man##0) and newline/tab characters (\n or \t). It does not do any in-game language parsing.");
-	}
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		if (TextFunction.Execute(variables) == StatementResult.Error)
-		{
-			ErrorMessage = TextFunction.ErrorMessage;
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        if (TextFunction.Execute(variables) == StatementResult.Error)
+        {
+            ErrorMessage = TextFunction.ErrorMessage;
+            return StatementResult.Error;
+        }
 
-		if (TargetFunction != null && TargetFunction.Execute(variables) == StatementResult.Error)
-		{
-			ErrorMessage = TargetFunction.ErrorMessage;
-			return StatementResult.Error;
-		}
+        if (TargetFunction != null && TargetFunction.Execute(variables) == StatementResult.Error)
+        {
+            ErrorMessage = TargetFunction.ErrorMessage;
+            return StatementResult.Error;
+        }
 
-		foreach (var func in ParameterFunctions)
-		{
-			if (func.Execute(variables) == StatementResult.Error)
-			{
-				ErrorMessage = func.ErrorMessage;
-				return StatementResult.Error;
-			}
-		}
+        foreach (IFunction func in ParameterFunctions)
+        {
+            if (func.Execute(variables) == StatementResult.Error)
+            {
+                ErrorMessage = func.ErrorMessage;
+                return StatementResult.Error;
+            }
+        }
 
-		Output output;
-		if (SendRaw)
-		{
-			output = new RawOutput(((string)TextFunction.Result.GetObject).SubstituteANSIColour(), flags: Flags);
-		}
-		else
-		{
-			output =
-				new EmoteOutput(
-					new Emote(((string)TextFunction.Result.GetObject).SubstituteANSIColour(),
-						(IPerceiver)ParameterFunctions.First().Result.GetObject,
-						ParameterFunctions.Select(x => (IPerceiver)x.Result.GetObject).ToArray()), flags: Flags);
-		}
+        Output output;
+        if (SendRaw)
+        {
+            output = new RawOutput(((string)TextFunction.Result.GetObject).SubstituteANSIColour(), flags: Flags);
+        }
+        else
+        {
+            output =
+                new EmoteOutput(
+                    new Emote(((string)TextFunction.Result.GetObject).SubstituteANSIColour(),
+                        (IPerceiver)ParameterFunctions.First().Result.GetObject,
+                        ParameterFunctions.Select(x => (IPerceiver)x.Result.GetObject).ToArray()), flags: Flags);
+        }
 
-		if (TargetFunction != null)
-		{
-			switch (TargetFunction.ReturnType.LegacyCode)
-			{
-				case ProgVariableTypeCode.Character:
-				case ProgVariableTypeCode.Item:
-					switch (Range)
-					{
-						case OutputRange.Personal:
-							((IPerceivable)TargetFunction.Result.GetObject).OutputHandler.Send(output);
-							break;
-						case OutputRange.Local:
-							((IPerceivable)TargetFunction.Result.GetObject).OutputHandler.Handle(output);
-							break;
-					}
+        if (TargetFunction != null)
+        {
+            switch (TargetFunction.ReturnType.LegacyCode)
+            {
+                case ProgVariableTypeCode.Character:
+                case ProgVariableTypeCode.Item:
+                    switch (Range)
+                    {
+                        case OutputRange.Personal:
+                            ((IPerceivable)TargetFunction.Result.GetObject).OutputHandler.Send(output);
+                            break;
+                        case OutputRange.Local:
+                            ((IPerceivable)TargetFunction.Result.GetObject).OutputHandler.Handle(output);
+                            break;
+                    }
 
-					break;
-				case ProgVariableTypeCode.Location:
-					if (Range == OutputRange.Local)
-					{
-						((ILocation)TargetFunction.Result.GetObject).Handle(output);
-						break;
-					}
+                    break;
+                case ProgVariableTypeCode.Location:
+                    if (Range == OutputRange.Local)
+                    {
+                        ((ILocation)TargetFunction.Result.GetObject).Handle(output);
+                        break;
+                    }
 
-					if (Range == OutputRange.Surrounds)
-					{
-						foreach (var location in ((ICell)TargetFunction.Result.GetObject).Surrounds)
-						{
-							location.Handle(output);
-						}
+                    if (Range == OutputRange.Surrounds)
+                    {
+                        foreach (ICell location in ((ICell)TargetFunction.Result.GetObject).Surrounds)
+                        {
+                            location.Handle(output);
+                        }
 
-						break;
-					}
+                        break;
+                    }
 
-					throw new NotSupportedException();
-				case ProgVariableTypeCode.Shard:
-				case ProgVariableTypeCode.Zone:
-					((ILocation)TargetFunction.Result.GetObject).Handle(output);
-					break;
-				default:
-					throw new NotSupportedException();
-			}
-		}
-		else
-		{
-			foreach (var ch in Gameworld.Characters)
-			{
-				ch.OutputHandler.Handle(output, OutputRange.Personal);
-			}
-		}
+                    throw new NotSupportedException();
+                case ProgVariableTypeCode.Shard:
+                case ProgVariableTypeCode.Zone:
+                    ((ILocation)TargetFunction.Result.GetObject).Handle(output);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+        else
+        {
+            foreach (ICharacter ch in Gameworld.Characters)
+            {
+                ch.OutputHandler.Handle(output, OutputRange.Personal);
+            }
+        }
 
-		return StatementResult.Normal;
-	}
+        return StatementResult.Normal;
+    }
 }

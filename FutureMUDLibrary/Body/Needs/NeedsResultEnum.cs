@@ -1,10 +1,12 @@
-﻿using System;
+﻿using MudSharp.Framework;
+using System;
 using System.Linq;
-using MudSharp.Framework;
 
-namespace MudSharp.Body.Needs {
+namespace MudSharp.Body.Needs
+{
     [Flags]
-    public enum NeedsResult {
+    public enum NeedsResult
+    {
         /// <summary>
         ///     No changes to needs resulted
         /// </summary>
@@ -100,9 +102,12 @@ namespace MudSharp.Body.Needs {
         DrunkOnly = Sober | Tipsy | Drunk | VeryDrunk | Paralytic | Buzzed | BlackoutDrunk
     }
 
-    public static class NeedsExtensions {
-        public static string Describe(this NeedsResult result) {
-            switch (result) {
+    public static class NeedsExtensions
+    {
+        public static string Describe(this NeedsResult result)
+        {
+            switch (result)
+            {
                 case NeedsResult.VeryDrunk:
                     return "Very Drunk";
                 case NeedsResult.Sated:

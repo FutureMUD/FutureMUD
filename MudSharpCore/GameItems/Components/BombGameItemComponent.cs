@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using MudSharp.Construction;
+﻿using MudSharp.Construction;
 using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
@@ -14,121 +7,128 @@ using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
 public class BombGameItemComponent : GameItemComponent, IDetonatable
 {
-	protected BombGameItemComponentProto _prototype;
-	public override IGameItemComponentProto Prototype => _prototype;
+    protected BombGameItemComponentProto _prototype;
+    public override IGameItemComponentProto Prototype => _prototype;
 
-	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
-	{
-		_prototype = (BombGameItemComponentProto)newProto;
-	}
+    protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
+    {
+        _prototype = (BombGameItemComponentProto)newProto;
+    }
 
-	#region Constructors
+    #region Constructors
 
-	public BombGameItemComponent(BombGameItemComponentProto proto, IGameItem parent, bool temporary = false) : base(
-		parent, proto, temporary)
-	{
-		_prototype = proto;
-	}
+    public BombGameItemComponent(BombGameItemComponentProto proto, IGameItem parent, bool temporary = false) : base(
+        parent, proto, temporary)
+    {
+        _prototype = proto;
+    }
 
-	public BombGameItemComponent(MudSharp.Models.GameItemComponent component, BombGameItemComponentProto proto,
-		IGameItem parent) : base(component, parent)
-	{
-		_prototype = proto;
-		_noSave = true;
-		LoadFromXml(XElement.Parse(component.Definition));
-		_noSave = false;
-	}
+    public BombGameItemComponent(MudSharp.Models.GameItemComponent component, BombGameItemComponentProto proto,
+        IGameItem parent) : base(component, parent)
+    {
+        _prototype = proto;
+        _noSave = true;
+        LoadFromXml(XElement.Parse(component.Definition));
+        _noSave = false;
+    }
 
-	public BombGameItemComponent(BombGameItemComponent rhs, IGameItem newParent, bool temporary = false) : base(rhs,
-		newParent, temporary)
-	{
-		_prototype = rhs._prototype;
-	}
+    public BombGameItemComponent(BombGameItemComponent rhs, IGameItem newParent, bool temporary = false) : base(rhs,
+        newParent, temporary)
+    {
+        _prototype = rhs._prototype;
+    }
 
-	protected void LoadFromXml(XElement root)
-	{
-		// TODO
-	}
+    protected void LoadFromXml(XElement root)
+    {
+        // TODO
+    }
 
-	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
-	{
-		return new BombGameItemComponent(this, newParent, temporary);
-	}
+    public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
+    {
+        return new BombGameItemComponent(this, newParent, temporary);
+    }
 
-	#endregion
+    #endregion
 
-	#region Saving
+    #region Saving
 
-	protected override string SaveToXml()
-	{
-		return new XElement("Definition").ToString();
-	}
+    protected override string SaveToXml()
+    {
+        return new XElement("Definition").ToString();
+    }
 
-	#endregion
+    #endregion
 
-	public bool Detonate()
-	{
-		// The first thing we need to do is work out where we are, in terms of proximity
-		var proximitything = Parent.LocationLevelPerceivable;
-		if (proximitything?.Location == null)
-		{
-			throw new ApplicationException($"Bomb exploded in the ether.");
-		}
+    public bool Detonate()
+    {
+        // The first thing we need to do is work out where we are, in terms of proximity
+        IPerceivable proximitything = Parent.LocationLevelPerceivable;
+        if (proximitything?.Location == null)
+        {
+            throw new ApplicationException($"Bomb exploded in the ether.");
+        }
 
-		var damages = _prototype.Damages.Select(x =>
-		{
-			x.DamageExpression.Parameters["quality"] = (int)Parent.Quality;
-			x.StunExpression.Parameters["quality"] = (int)Parent.Quality;
-			var finalDamage = Convert.ToDouble(x.DamageExpression.Evaluate());
-			return new Damage
-			{
-				DamageType = x.DamageType,
-				DamageAmount = finalDamage,
-				PainAmount = finalDamage,
-				StunAmount = Convert.ToDouble(x.StunExpression.Evaluate())
-			};
-		}).ToList();
+        List<Damage> damages = _prototype.Damages.Select(x =>
+        {
+            x.DamageExpression.Parameters["quality"] = (int)Parent.Quality;
+            x.StunExpression.Parameters["quality"] = (int)Parent.Quality;
+            double finalDamage = Convert.ToDouble(x.DamageExpression.Evaluate());
+            return new Damage
+            {
+                DamageType = x.DamageType,
+                DamageAmount = finalDamage,
+                PainAmount = finalDamage,
+                StunAmount = Convert.ToDouble(x.StunExpression.Evaluate())
+            };
+        }).ToList();
 
-		// Echoes
-		proximitything.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.ExplosionEmoteText, Parent, Parent),
-			style: OutputStyle.Explosion));
-		if (_prototype.ExplosionVolume > AudioVolume.Silent)
-		{
-			proximitything.Location.HandleAudioEcho(Gameworld.GetStaticString("ExplosionHeardEcho"), _prototype.ExplosionVolume, Parent, proximitything.RoomLayer);
-		}
+        // Echoes
+        proximitything.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.ExplosionEmoteText, Parent, Parent),
+            style: OutputStyle.Explosion));
+        if (_prototype.ExplosionVolume > AudioVolume.Silent)
+        {
+            proximitything.Location.HandleAudioEcho(Gameworld.GetStaticString("ExplosionHeardEcho"), _prototype.ExplosionVolume, Parent, proximitything.RoomLayer);
+        }
 
 
-		// Damage Dealing
-		var wounds = new List<IWound>();
-		IExplosiveDamage damage;
-		if (Parent.ContainedIn != null)
-		{
-			damage = new ExplosiveDamage(damages, 0.0, _prototype.ExplosionSize, _prototype.MaximumProximity, true,
-				Parent);
-			wounds.AddRange(Parent.ContainedIn.PassiveSufferDamageViaContainedItem(damage, Proximity.Intimate,
-				Body.Facing.Front, Parent));
-		}
-		else if (Parent.InInventoryOf != null)
-		{
-			damage = new ExplosiveDamage(damages, 0.0, _prototype.ExplosionSize, _prototype.MaximumProximity, false,
-				null);
-			wounds.AddRange(Parent.InInventoryOf.InventoryExploded(Parent, damage));
-		}
-		else
-		{
-			damage = new ExplosiveDamage(damages, 0.0, _prototype.ExplosionSize, _prototype.MaximumProximity, false,
-				null);
-			wounds.AddRange(Parent.ExplosionEmantingFromPerceivable(damage));
-		}
+        // Damage Dealing
+        List<IWound> wounds = new();
+        IExplosiveDamage damage;
+        if (Parent.ContainedIn != null)
+        {
+            damage = new ExplosiveDamage(damages, 0.0, _prototype.ExplosionSize, _prototype.MaximumProximity, true,
+                Parent);
+            wounds.AddRange(Parent.ContainedIn.PassiveSufferDamageViaContainedItem(damage, Proximity.Intimate,
+                Body.Facing.Front, Parent));
+        }
+        else if (Parent.InInventoryOf != null)
+        {
+            damage = new ExplosiveDamage(damages, 0.0, _prototype.ExplosionSize, _prototype.MaximumProximity, false,
+                null);
+            wounds.AddRange(Parent.InInventoryOf.InventoryExploded(Parent, damage));
+        }
+        else
+        {
+            damage = new ExplosiveDamage(damages, 0.0, _prototype.ExplosionSize, _prototype.MaximumProximity, false,
+                null);
+            wounds.AddRange(Parent.ExplosionEmantingFromPerceivable(damage));
+        }
 
-		wounds.ProcessPassiveWounds();
-		// Delete the Bomb
-		Parent.Delete();
-		return true;
-	}
+        wounds.ProcessPassiveWounds();
+        // Delete the Bomb
+        Parent.Delete();
+        return true;
+    }
 }

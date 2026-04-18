@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using System;
+using System.Collections.Generic;
 
-namespace MudSharp.Community {
-    public interface IAppointment : IFrameworkItem, ISaveable, IProgVariable {
+namespace MudSharp.Community
+{
+    public interface IAppointment : IFrameworkItem, ISaveable, IProgVariable
+    {
         void LoadElections(IEnumerable<Models.Election> elections);
         IEnumerable<string> Abbreviations { get; }
 
@@ -28,12 +30,12 @@ namespace MudSharp.Community {
         ClanPrivilegeType Privileges { get; set; }
 
         IGameItemProto InsigniaGameItem { get; set; }
-        
+
         bool IsAppointedByElection { get; set; }
         TimeSpan ElectionTerm { get; set; }
         TimeSpan ElectionLeadTime { get; set; }
         TimeSpan NominationPeriod { get; set; }
-        TimeSpan VotingPeriod { get; set; } 
+        TimeSpan VotingPeriod { get; set; }
         int MaximumConsecutiveTerms { get; set; }
         int MaximumTotalTerms { get; set; }
         bool IsSecretBallot { get; set; }
@@ -42,7 +44,7 @@ namespace MudSharp.Community {
         (bool Truth, string Error) CanNominate(ICharacter character);
         IFutureProg NumberOfVotesProg { get; set; }
         int NumberOfVotes(ICharacter character);
-        
+
         string Abbreviation(ICharacter character);
 
         /// <summary>

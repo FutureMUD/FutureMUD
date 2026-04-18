@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -39,6 +36,7 @@ using MudSharp.Form.Characteristics;
 using MudSharp.Form.Colour;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
+using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Decorators;
@@ -64,7 +62,6 @@ using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits;
 using MudSharp.RPG.ScriptedEvents;
-using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
@@ -72,1077 +69,1058 @@ using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.Framework;
 
 public sealed partial class Futuremud : IDisposable
 {
-	#region All<T> Declarations
-
-	private static readonly List<Futuremud> _allgames = new();
-	private readonly All<IAccent> _accents = new();
-	private readonly All<IAccount> _accounts = new();
-	private readonly All<ICharacter> _actors = new();
-	private readonly All<ICharacter> _cachedActors = new();
-	private readonly All<IAIStoryteller> _aiStorytellers = new();
-	private readonly All<IAIStorytellerReferenceDocument> _aiStorytellerReferenceDocuments = new();
-	private readonly All<IAmmunitionType> _ammunitionTypes = new();
-	private readonly All<IArea> _areas = new();
-	private readonly All<IArmourType> _armourTypes = new();
-	private readonly All<IAuctionHouse> _auctionHouses = new();
-	private readonly All<IAuthority> _authorities = new();
-	private readonly All<IAutobuilderArea> _autobuilderAreas = new();
-	private readonly All<IAutobuilderRoom> _autobuilderRooms = new();
-	private readonly All<IBank> _banks = new();
-	private readonly All<IBankAccount> _bankAccounts = new();
-	private readonly All<IBankAccountType> _bankAccountTypes = new();
-	private readonly All<IBloodtype> _bloodtypes = new();
-	private readonly All<IBloodtypeAntigen> _bloodtypeAntigens = new();
-	private readonly All<IBloodModel> _bloodModels = new();
-	private readonly All<IBoard> _boards = new();
-	private readonly All<IBody> _bodies = new();
-	private readonly All<IBodypart> _bodypartPrototypes = new();
-
-	private readonly All<IBodypartGroupDescriber> _bodypartGroupDescriptionRules =
-		new();
-
-	private readonly All<IBodypartShape> _bodypartShapes = new();
-	private readonly All<IBodyPrototype> _bodyPrototypes = new();
-	private readonly All<IButcheryProduct> _butcheryProducts = new();
-	private readonly All<IRaceButcheryProfile> _raceButcheryProfiles = new();
-	private readonly All<ICalendar> _calendars = new();
-	private readonly All<ICelestialObject> _celestialObjects = new();
-
-	private readonly RevisableAll<ICellOverlayPackage> _cellOverlayPackages =
-		new();
-
-	private readonly All<ICell> _cells = new();
-	private readonly All<IChannel> _channels = new();
-	private readonly All<ICharacteristicProfile> _characteristicProfiles = new();
-	private readonly All<ICharacteristicDefinition> _characteristics = new();
-	private readonly All<ICharacteristicValue> _characteristicValues = new();
-	private readonly All<ICharacterIntroTemplate> _characterIntroTemplates = new();
-	private readonly All<ICharacter> _guests = new();
-	private readonly All<ICharacter> _characters = new();
-	private readonly All<IChargenAdvice> _chargenAdvices = new();
-	private readonly All<IChargenResource> _chargenResources = new();
-	private readonly All<ICheck> _checks = new();
-	private readonly All<IClan> _clans = new();
-	private readonly All<IClimateModel> _climateModels = new();
-	private readonly RevisableAll<IDisfigurementTemplate> _disfigurementTemplates = new();
-	private readonly All<IRegionalClimate> _regionalClimates = new();
-	private readonly All<ISeason> _seasons = new();
-	private readonly All<IWeatherController> _weatherControllers = new();
-	private readonly All<IWeatherEvent> _weatherEvents = new();
-	private readonly All<IClock> _clocks = new();
-	private readonly All<ICoin> _coins = new();
-	private readonly All<IColour> _colours = new();
-	private readonly All<ICharacterCombatSettings> _characterCombatSettings = new();
-	private readonly All<ICorpseModel> _corpseModels = new();
-	private readonly RevisableAll<ICraft> _crafts = new();
-	private readonly All<ICulture> _cultures = new();
-	private readonly All<ICurrency> _currencies = new();
-	private readonly List<IDefaultHook> _defaultHooks = new();
-	private readonly All<IDrug> _drugs = new();
-	private readonly All<IDream> _dreams = new();
-	private readonly All<IElection> _elections = new();
-	private readonly All<IEstate> _estates = new();
-
-	private readonly All<IEntityDescriptionPattern> _entityDescriptionPatterns =
-		new();
-
-	private readonly All<IEnforcementAuthority> _enforcementAuthorities = new();
-	private readonly All<ILegalAuthority> _legalAuthorities = new();
-	private readonly All<ILegalClass> _legalClasses = new();
-	private readonly All<IWitnessProfile> _witnessProfiles = new();
-	private readonly All<ILaw> _laws = new();
-	private readonly All<ICrime> _crimes = new();
-
-	private readonly All<IEthnicity> _ethnicities = new();
-	private readonly RevisableAll<IForagable> _foragables = new();
-	private readonly RevisableAll<IForagableProfile> _foragableProfiles = new();
-	private readonly All<IFutureProg> _futureProgs = new();
-	private readonly All<IGrid> _grids = new();
-	private readonly All<IHealthStrategy> _healthStrategies = new();
-	private readonly All<IHearingProfile> _hearingProfiles = new();
-	private readonly All<IHeightWeightModel> _heightWeightModels = new();
-	private readonly All<IHelpfile> _helpfiles = new();
-	private readonly All<IHook> _hooks = new();
-	private readonly All<IKnowledge> _knowledges = new();
-	private readonly All<ISolid> _materials = new();
-	private readonly All<IArtificialIntelligence> _AIs = new();
-	private readonly RevisableAll<INPCTemplate> _npcTemplates = new();
-	private readonly All<IImprovementModel> _improvementModels = new();
-
-	private readonly RevisableAll<IGameItemComponentProto> _itemComponentProtos =
-		new();
-
-	private readonly All<IGameItemGroup> _itemGroups = new();
-	private readonly RevisableAll<IGameItemProto> _itemProtos = new();
-	private readonly All<IGameItem> _items = new();
-	private readonly RevisableAll<IGameItemSkin> _itemSkins = new();
-	private readonly All<IJobListing> _jobListings = new();
-	private readonly All<IActiveJob> _activeJobs = new();
-	private readonly All<IGas> _gases = new();
-	private readonly All<ILanguageDifficultyModel> _languageDifficultyModels = new();
-	private readonly All<ILanguage> _languages = new();
-	private readonly All<ILimb> _limbs = new();
-	private readonly All<ILiquid> _liquids = new();
-	private readonly All<ITemporalListener> _listeners = new();
-
-	private readonly All<IMagicSchool> _magicSchools = new();
-	private readonly All<IMagicCapability> _magicCapabilities = new();
-	private readonly All<IMagicPower> _magicPowers = new();
-	private readonly All<IMagicResource> _magicResources = new();
-	private readonly All<IMagicResourceRegenerator> _magicResourceRegenerators = new();
-	private readonly All<IMagicSpell> _magicSpells = new();
-
-	private readonly All<IMarket> _markets = new();
-	private readonly All<IMarketCategory> _marketCategories = new();
-	private readonly All<IMarketInfluenceTemplate> _marketInfluenceTemplates = new();
-	private readonly All<IMarketInfluence> _marketInfluences = new();
-	private readonly All<IMarketPopulation> _marketPopulations = new();
-
-	private readonly RevisableAll<IProject> _projects = new();
-	private readonly All<IActiveProject> _activeProjects = new();
-
-	private readonly All<IMerit> _merits = new();
-	private readonly All<IMoveSpeed> _moveSpeeds = new();
-	private readonly All<INameCulture> _nameCultures = new();
-	private readonly All<INewPlayerHint> _newPlayerHints = new();
-	private readonly All<INPCSpawner> _npcSpawners = new();
-	private readonly All<IRandomNameProfile> _randomNameProfiles = new();
-	private readonly All<IProperty> _properties = new();
-	private readonly All<IPatrol> _patrols = new();
-	private readonly All<IPopulationBloodModel> _populationBloodModels = new();
-	private readonly All<IProgSchedule> _progSchedules = new();
-	private readonly All<IRace> _races = new();
-	private readonly All<IRangedCover> _rangedCovers = new();
-	private readonly All<IRangedWeaponType> _rangedWeaponTypes = new();
-	private readonly All<IRoom> _rooms = new();
-	private readonly All<IScript> _scripts = new();
-	private readonly All<IScriptedEvent> _scriptedEvents = new();
-	private readonly All<IShard> _shards = new();
-	private readonly All<IShieldType> _shieldTypes = new();
-	private readonly All<IShopper> _shoppers = new();
-	private readonly All<ISkyDescriptionTemplate> _skyDescriptionTemplates = new();
-	private readonly All<IStackDecorator> _stackDecorators = new();
-	private readonly All<ISurgicalProcedure> _surgicalProcedures = new();
-	private readonly All<ITag> _tags = new();
-	private readonly All<ITerrain> _terrains = new();
-	private readonly All<ITrack> _tracks = new();
-	private readonly All<ITraitValueDecorator> _traitDecorators = new();
-	private readonly All<ITraitDefinition> _traits = new();
-	private readonly All<ITraitExpression> _traitExpressions = new();
-	private readonly All<IWearProfile> _wearProfiles = new();
-	private readonly All<IZone> _zones = new();
-	private readonly All<INonCardinalExitTemplate> _nonCardinalExitTemplates = new();
-	private readonly All<ICharacter> _NPCs = new();
-	private readonly List<ISocial> _socials = new();
-	private readonly All<IChargenRole> _roles = new();
-	private readonly All<IWeaponType> _weaponTypes = new();
-	private readonly All<IWearableSize> _wearableSizes = new();
-	private readonly All<IWriting> _writings = new();
-	private readonly All<IDrawing> _drawings = new();
-	private readonly All<IWeaponAttack> _weaponAttacks = new();
-	private readonly All<IAuxiliaryCombatAction> _auxiliaryCombatActions = new();
+    #region All<T> Declarations
+
+    private static readonly List<Futuremud> _allgames = new();
+    private readonly All<IAccent> _accents = new();
+    private readonly All<IAccount> _accounts = new();
+    private readonly All<ICharacter> _actors = new();
+    private readonly All<ICharacter> _cachedActors = new();
+    private readonly All<IAIStoryteller> _aiStorytellers = new();
+    private readonly All<IAIStorytellerReferenceDocument> _aiStorytellerReferenceDocuments = new();
+    private readonly All<IAmmunitionType> _ammunitionTypes = new();
+    private readonly All<IArea> _areas = new();
+    private readonly All<IArmourType> _armourTypes = new();
+    private readonly All<IAuctionHouse> _auctionHouses = new();
+    private readonly All<IAuthority> _authorities = new();
+    private readonly All<IAutobuilderArea> _autobuilderAreas = new();
+    private readonly All<IAutobuilderRoom> _autobuilderRooms = new();
+    private readonly All<IBank> _banks = new();
+    private readonly All<IBankAccount> _bankAccounts = new();
+    private readonly All<IBankAccountType> _bankAccountTypes = new();
+    private readonly All<IBloodtype> _bloodtypes = new();
+    private readonly All<IBloodtypeAntigen> _bloodtypeAntigens = new();
+    private readonly All<IBloodModel> _bloodModels = new();
+    private readonly All<IBoard> _boards = new();
+    private readonly All<IBody> _bodies = new();
+    private readonly All<IBodypart> _bodypartPrototypes = new();
+
+    private readonly All<IBodypartGroupDescriber> _bodypartGroupDescriptionRules =
+        new();
+
+    private readonly All<IBodypartShape> _bodypartShapes = new();
+    private readonly All<IBodyPrototype> _bodyPrototypes = new();
+    private readonly All<IButcheryProduct> _butcheryProducts = new();
+    private readonly All<IRaceButcheryProfile> _raceButcheryProfiles = new();
+    private readonly All<ICalendar> _calendars = new();
+    private readonly All<ICelestialObject> _celestialObjects = new();
+
+    private readonly RevisableAll<ICellOverlayPackage> _cellOverlayPackages =
+        new();
+
+    private readonly All<ICell> _cells = new();
+    private readonly All<IChannel> _channels = new();
+    private readonly All<ICharacteristicProfile> _characteristicProfiles = new();
+    private readonly All<ICharacteristicDefinition> _characteristics = new();
+    private readonly All<ICharacteristicValue> _characteristicValues = new();
+    private readonly All<ICharacterIntroTemplate> _characterIntroTemplates = new();
+    private readonly All<ICharacter> _guests = new();
+    private readonly All<ICharacter> _characters = new();
+    private readonly All<IChargenAdvice> _chargenAdvices = new();
+    private readonly All<IChargenResource> _chargenResources = new();
+    private readonly All<ICheck> _checks = new();
+    private readonly All<IClan> _clans = new();
+    private readonly All<IClimateModel> _climateModels = new();
+    private readonly RevisableAll<IDisfigurementTemplate> _disfigurementTemplates = new();
+    private readonly All<IRegionalClimate> _regionalClimates = new();
+    private readonly All<ISeason> _seasons = new();
+    private readonly All<IWeatherController> _weatherControllers = new();
+    private readonly All<IWeatherEvent> _weatherEvents = new();
+    private readonly All<IClock> _clocks = new();
+    private readonly All<ICoin> _coins = new();
+    private readonly All<IColour> _colours = new();
+    private readonly All<ICharacterCombatSettings> _characterCombatSettings = new();
+    private readonly All<ICorpseModel> _corpseModels = new();
+    private readonly RevisableAll<ICraft> _crafts = new();
+    private readonly All<ICulture> _cultures = new();
+    private readonly All<ICurrency> _currencies = new();
+    private readonly List<IDefaultHook> _defaultHooks = new();
+    private readonly All<IDrug> _drugs = new();
+    private readonly All<IDream> _dreams = new();
+    private readonly All<IElection> _elections = new();
+    private readonly All<IEstate> _estates = new();
+
+    private readonly All<IEntityDescriptionPattern> _entityDescriptionPatterns =
+        new();
+
+    private readonly All<IEnforcementAuthority> _enforcementAuthorities = new();
+    private readonly All<ILegalAuthority> _legalAuthorities = new();
+    private readonly All<ILegalClass> _legalClasses = new();
+    private readonly All<IWitnessProfile> _witnessProfiles = new();
+    private readonly All<ILaw> _laws = new();
+    private readonly All<ICrime> _crimes = new();
+
+    private readonly All<IEthnicity> _ethnicities = new();
+    private readonly RevisableAll<IForagable> _foragables = new();
+    private readonly RevisableAll<IForagableProfile> _foragableProfiles = new();
+    private readonly All<IFutureProg> _futureProgs = new();
+    private readonly All<IGrid> _grids = new();
+    private readonly All<IHealthStrategy> _healthStrategies = new();
+    private readonly All<IHearingProfile> _hearingProfiles = new();
+    private readonly All<IHeightWeightModel> _heightWeightModels = new();
+    private readonly All<IHelpfile> _helpfiles = new();
+    private readonly All<IHook> _hooks = new();
+    private readonly All<IKnowledge> _knowledges = new();
+    private readonly All<ISolid> _materials = new();
+    private readonly All<IArtificialIntelligence> _AIs = new();
+    private readonly RevisableAll<INPCTemplate> _npcTemplates = new();
+    private readonly All<IImprovementModel> _improvementModels = new();
+
+    private readonly RevisableAll<IGameItemComponentProto> _itemComponentProtos =
+        new();
+
+    private readonly All<IGameItemGroup> _itemGroups = new();
+    private readonly RevisableAll<IGameItemProto> _itemProtos = new();
+    private readonly All<IGameItem> _items = new();
+    private readonly RevisableAll<IGameItemSkin> _itemSkins = new();
+    private readonly All<IJobListing> _jobListings = new();
+    private readonly All<IActiveJob> _activeJobs = new();
+    private readonly All<IGas> _gases = new();
+    private readonly All<ILanguageDifficultyModel> _languageDifficultyModels = new();
+    private readonly All<ILanguage> _languages = new();
+    private readonly All<ILimb> _limbs = new();
+    private readonly All<ILiquid> _liquids = new();
+    private readonly All<ITemporalListener> _listeners = new();
+
+    private readonly All<IMagicSchool> _magicSchools = new();
+    private readonly All<IMagicCapability> _magicCapabilities = new();
+    private readonly All<IMagicPower> _magicPowers = new();
+    private readonly All<IMagicResource> _magicResources = new();
+    private readonly All<IMagicResourceRegenerator> _magicResourceRegenerators = new();
+    private readonly All<IMagicSpell> _magicSpells = new();
+
+    private readonly All<IMarket> _markets = new();
+    private readonly All<IMarketCategory> _marketCategories = new();
+    private readonly All<IMarketInfluenceTemplate> _marketInfluenceTemplates = new();
+    private readonly All<IMarketInfluence> _marketInfluences = new();
+    private readonly All<IMarketPopulation> _marketPopulations = new();
+
+    private readonly RevisableAll<IProject> _projects = new();
+    private readonly All<IActiveProject> _activeProjects = new();
+
+    private readonly All<IMerit> _merits = new();
+    private readonly All<IMoveSpeed> _moveSpeeds = new();
+    private readonly All<INameCulture> _nameCultures = new();
+    private readonly All<INewPlayerHint> _newPlayerHints = new();
+    private readonly All<INPCSpawner> _npcSpawners = new();
+    private readonly All<IRandomNameProfile> _randomNameProfiles = new();
+    private readonly All<IProperty> _properties = new();
+    private readonly All<IPatrol> _patrols = new();
+    private readonly All<IPopulationBloodModel> _populationBloodModels = new();
+    private readonly All<IProgSchedule> _progSchedules = new();
+    private readonly All<IRace> _races = new();
+    private readonly All<IRangedCover> _rangedCovers = new();
+    private readonly All<IRangedWeaponType> _rangedWeaponTypes = new();
+    private readonly All<IRoom> _rooms = new();
+    private readonly All<IScript> _scripts = new();
+    private readonly All<IScriptedEvent> _scriptedEvents = new();
+    private readonly All<IShard> _shards = new();
+    private readonly All<IShieldType> _shieldTypes = new();
+    private readonly All<IShopper> _shoppers = new();
+    private readonly All<ISkyDescriptionTemplate> _skyDescriptionTemplates = new();
+    private readonly All<IStackDecorator> _stackDecorators = new();
+    private readonly All<ISurgicalProcedure> _surgicalProcedures = new();
+    private readonly All<ITag> _tags = new();
+    private readonly All<ITerrain> _terrains = new();
+    private readonly All<ITrack> _tracks = new();
+    private readonly All<ITraitValueDecorator> _traitDecorators = new();
+    private readonly All<ITraitDefinition> _traits = new();
+    private readonly All<ITraitExpression> _traitExpressions = new();
+    private readonly All<IWearProfile> _wearProfiles = new();
+    private readonly All<IZone> _zones = new();
+    private readonly All<INonCardinalExitTemplate> _nonCardinalExitTemplates = new();
+    private readonly All<ICharacter> _NPCs = new();
+    private readonly List<ISocial> _socials = new();
+    private readonly All<IChargenRole> _roles = new();
+    private readonly All<IWeaponType> _weaponTypes = new();
+    private readonly All<IWearableSize> _wearableSizes = new();
+    private readonly All<IWriting> _writings = new();
+    private readonly All<IDrawing> _drawings = new();
+    private readonly All<IWeaponAttack> _weaponAttacks = new();
+    private readonly All<IAuxiliaryCombatAction> _auxiliaryCombatActions = new();
 
-	private readonly All<IShop> _shops = new();
-	private readonly All<IEconomicZone> _economicZones = new();
+    private readonly All<IShop> _shops = new();
+    private readonly All<IEconomicZone> _economicZones = new();
 
-	private readonly All<IGroupAITemplate> _groupAITemplates = new();
-	private readonly All<IGroupAI> _groupAIs = new();
+    private readonly All<IGroupAITemplate> _groupAITemplates = new();
+    private readonly All<IGroupAI> _groupAIs = new();
 
-		private readonly All<ILineOfCreditAccount> _lineOfCreditAccounts = new();
-		private readonly All<ICombatArena> _combatArenas = new();
+    private readonly All<ILineOfCreditAccount> _lineOfCreditAccounts = new();
+    private readonly All<ICombatArena> _combatArenas = new();
 
-	#endregion All<T> Declarations
+    #endregion All<T> Declarations
 
-	#region IUneditableAll<T> Declarations
+    #region IUneditableAll<T> Declarations
 
-	public IUneditableAll<IAccent> Accents => _accents;
+    public IUneditableAll<IAccent> Accents => _accents;
 
-	public IUneditableAll<IAccount> Accounts => _accounts;
+    public IUneditableAll<IAccount> Accounts => _accounts;
 
-	/// <summary>
-	/// This collection contains all Actor (NPCs and Characters) that have been loaded into the game
-	/// </summary>
-	public IUneditableAll<ICharacter> Actors => _actors;
+    /// <summary>
+    /// This collection contains all Actor (NPCs and Characters) that have been loaded into the game
+    /// </summary>
+    public IUneditableAll<ICharacter> Actors => _actors;
 
-	public IUneditableAll<ICharacter> CachedActors => _cachedActors;
+    public IUneditableAll<ICharacter> CachedActors => _cachedActors;
 
-	public IUneditableAll<IAIStoryteller> AIStorytellers => _aiStorytellers;
-	public IUneditableAll<IAIStorytellerReferenceDocument> AIStorytellerReferenceDocuments => _aiStorytellerReferenceDocuments;
+    public IUneditableAll<IAIStoryteller> AIStorytellers => _aiStorytellers;
+    public IUneditableAll<IAIStorytellerReferenceDocument> AIStorytellerReferenceDocuments => _aiStorytellerReferenceDocuments;
 
-	public IUneditableAll<IAmmunitionType> AmmunitionTypes => _ammunitionTypes;
+    public IUneditableAll<IAmmunitionType> AmmunitionTypes => _ammunitionTypes;
 
-	public IUneditableAll<IArea> Areas => _areas;
+    public IUneditableAll<IArea> Areas => _areas;
 
-	public IUneditableAll<IAuthority> Authorities => _authorities;
+    public IUneditableAll<IAuthority> Authorities => _authorities;
 
-	public IUneditableAll<IArmourType> ArmourTypes => _armourTypes;
+    public IUneditableAll<IArmourType> ArmourTypes => _armourTypes;
 
-	public IUneditableAll<IAuctionHouse> AuctionHouses => _auctionHouses;
+    public IUneditableAll<IAuctionHouse> AuctionHouses => _auctionHouses;
 
-	public IUneditableAll<IAutobuilderRoom> AutobuilderRooms => _autobuilderRooms;
+    public IUneditableAll<IAutobuilderRoom> AutobuilderRooms => _autobuilderRooms;
 
-	public IUneditableAll<IAutobuilderArea> AutobuilderAreas => _autobuilderAreas;
+    public IUneditableAll<IAutobuilderArea> AutobuilderAreas => _autobuilderAreas;
 
-	public IUneditableAll<IBank> Banks => _banks;
+    public IUneditableAll<IBank> Banks => _banks;
 
-	public IUneditableAll<IBankAccount> BankAccounts => _bankAccounts;
-	public IUneditableAll<IBankAccountType> BankAccountTypes => _bankAccountTypes;
+    public IUneditableAll<IBankAccount> BankAccounts => _bankAccounts;
+    public IUneditableAll<IBankAccountType> BankAccountTypes => _bankAccountTypes;
 
-	public IUneditableAll<IBloodtype> Bloodtypes => _bloodtypes;
+    public IUneditableAll<IBloodtype> Bloodtypes => _bloodtypes;
 
-	public IUneditableAll<IBloodtypeAntigen> BloodtypeAntigens => _bloodtypeAntigens;
+    public IUneditableAll<IBloodtypeAntigen> BloodtypeAntigens => _bloodtypeAntigens;
 
-	public IUneditableAll<IBloodModel> BloodModels => _bloodModels;
+    public IUneditableAll<IBloodModel> BloodModels => _bloodModels;
 
-	public IUneditableAll<IBoard> Boards => _boards;
+    public IUneditableAll<IBoard> Boards => _boards;
 
-	public IUneditableAll<IBody> Bodies => _bodies;
+    public IUneditableAll<IBody> Bodies => _bodies;
 
-	public IUneditableAll<IBodypart> BodypartPrototypes => _bodypartPrototypes;
+    public IUneditableAll<IBodypart> BodypartPrototypes => _bodypartPrototypes;
 
-	public IUneditableAll<IBodypartGroupDescriber> BodypartGroupDescriptionRules => _bodypartGroupDescriptionRules;
+    public IUneditableAll<IBodypartGroupDescriber> BodypartGroupDescriptionRules => _bodypartGroupDescriptionRules;
 
-	public IUneditableAll<IBodypartShape> BodypartShapes => _bodypartShapes;
+    public IUneditableAll<IBodypartShape> BodypartShapes => _bodypartShapes;
 
-	public IUneditableAll<IBodyPrototype> BodyPrototypes => _bodyPrototypes;
+    public IUneditableAll<IBodyPrototype> BodyPrototypes => _bodyPrototypes;
 
-	public IUneditableAll<IButcheryProduct> ButcheryProducts => _butcheryProducts;
+    public IUneditableAll<IButcheryProduct> ButcheryProducts => _butcheryProducts;
 
-	public IUneditableAll<IRaceButcheryProfile> RaceButcheryProfiles => _raceButcheryProfiles;
+    public IUneditableAll<IRaceButcheryProfile> RaceButcheryProfiles => _raceButcheryProfiles;
 
-	public IUneditableAll<ICalendar> Calendars => _calendars;
+    public IUneditableAll<ICalendar> Calendars => _calendars;
 
-	public IUneditableAll<ICelestialObject> CelestialObjects => _celestialObjects;
+    public IUneditableAll<ICelestialObject> CelestialObjects => _celestialObjects;
 
-	public IUneditableRevisableAll<ICellOverlayPackage> CellOverlayPackages => _cellOverlayPackages;
+    public IUneditableRevisableAll<ICellOverlayPackage> CellOverlayPackages => _cellOverlayPackages;
 
-	public IUneditableAll<ICell> Cells => _cells;
+    public IUneditableAll<ICell> Cells => _cells;
 
-	public IUneditableAll<IChannel> Channels => _channels;
+    public IUneditableAll<IChannel> Channels => _channels;
 
-	public IUneditableAll<ICharacteristicProfile> CharacteristicProfiles => _characteristicProfiles;
+    public IUneditableAll<ICharacteristicProfile> CharacteristicProfiles => _characteristicProfiles;
 
-	public IUneditableAll<ICharacteristicDefinition> Characteristics => _characteristics;
+    public IUneditableAll<ICharacteristicDefinition> Characteristics => _characteristics;
 
-	public IUneditableAll<ICharacteristicValue> CharacteristicValues => _characteristicValues;
+    public IUneditableAll<ICharacteristicValue> CharacteristicValues => _characteristicValues;
 
-	public IUneditableAll<IChargenAdvice> ChargenAdvices => _chargenAdvices;
+    public IUneditableAll<IChargenAdvice> ChargenAdvices => _chargenAdvices;
 
-	public IUneditableRevisableAll<ICraft> Crafts => _crafts;
+    public IUneditableRevisableAll<ICraft> Crafts => _crafts;
 
-	public IUneditableAll<IDrug> Drugs => _drugs;
+    public IUneditableAll<IDrug> Drugs => _drugs;
 
-	public IUneditableAll<ICharacter> Guests => _guests;
+    public IUneditableAll<ICharacter> Guests => _guests;
 
-	/// <summary>
-	/// This collection contains all PC Characters that have been loaded into the game.
-	/// </summary>
-	public IUneditableAll<ICharacter> Characters => _characters;
+    /// <summary>
+    /// This collection contains all PC Characters that have been loaded into the game.
+    /// </summary>
+    public IUneditableAll<ICharacter> Characters => _characters;
 
-	public IUneditableAll<ICharacterCombatSettings> CharacterCombatSettings => _characterCombatSettings;
+    public IUneditableAll<ICharacterCombatSettings> CharacterCombatSettings => _characterCombatSettings;
 
-	public IUneditableAll<IChargenResource> ChargenResources => _chargenResources;
+    public IUneditableAll<IChargenResource> ChargenResources => _chargenResources;
 
-	public IUneditableAll<ICharacterIntroTemplate> CharacterIntroTemplates => _characterIntroTemplates;
+    public IUneditableAll<ICharacterIntroTemplate> CharacterIntroTemplates => _characterIntroTemplates;
 
-	public IUneditableAll<ICheck> Checks => _checks;
+    public IUneditableAll<ICheck> Checks => _checks;
 
-	public IUneditableAll<IClan> Clans => _clans;
+    public IUneditableAll<IClan> Clans => _clans;
 
-	public IUneditableAll<IClimateModel> ClimateModels => _climateModels;
-	public IUneditableAll<ICoin> Coins => _coins;
-	public IUneditableRevisableAll<IDisfigurementTemplate> DisfigurementTemplates => _disfigurementTemplates;
+    public IUneditableAll<IClimateModel> ClimateModels => _climateModels;
+    public IUneditableAll<ICoin> Coins => _coins;
+    public IUneditableRevisableAll<IDisfigurementTemplate> DisfigurementTemplates => _disfigurementTemplates;
 
-	public IUneditableAll<IElection> Elections => _elections;
+    public IUneditableAll<IElection> Elections => _elections;
 
-	public IUneditableAll<IRegionalClimate> RegionalClimates => _regionalClimates;
+    public IUneditableAll<IRegionalClimate> RegionalClimates => _regionalClimates;
 
-	public IUneditableAll<ISeason> Seasons => _seasons;
+    public IUneditableAll<ISeason> Seasons => _seasons;
 
-	public IUneditableAll<IWeatherController> WeatherControllers => _weatherControllers;
+    public IUneditableAll<IWeatherController> WeatherControllers => _weatherControllers;
 
-	public IUneditableAll<IWeatherEvent> WeatherEvents => _weatherEvents;
+    public IUneditableAll<IWeatherEvent> WeatherEvents => _weatherEvents;
 
-	public IUneditableAll<IDrawing> Drawings => _drawings;
+    public IUneditableAll<IDrawing> Drawings => _drawings;
 
-	public IUneditableAll<IClock> Clocks => _clocks;
+    public IUneditableAll<IClock> Clocks => _clocks;
 
-	public IUneditableAll<IColour> Colours => _colours;
+    public IUneditableAll<IColour> Colours => _colours;
 
-	public IUneditableAll<ICorpseModel> CorpseModels => _corpseModels;
+    public IUneditableAll<ICorpseModel> CorpseModels => _corpseModels;
 
-	public IUneditableAll<ICulture> Cultures => _cultures;
+    public IUneditableAll<ICulture> Cultures => _cultures;
 
-	public IUneditableAll<ICurrency> Currencies => _currencies;
+    public IUneditableAll<ICurrency> Currencies => _currencies;
 
-	public IEnumerable<IDefaultHook> DefaultHooks => _defaultHooks;
+    public IEnumerable<IDefaultHook> DefaultHooks => _defaultHooks;
 
-	public IUneditableAll<IDream> Dreams => _dreams;
+    public IUneditableAll<IDream> Dreams => _dreams;
 
-	public IUneditableAll<IEntityDescriptionPattern> EntityDescriptionPatterns => _entityDescriptionPatterns;
+    public IUneditableAll<IEntityDescriptionPattern> EntityDescriptionPatterns => _entityDescriptionPatterns;
 
-	public IUneditableAll<IEthnicity> Ethnicities => _ethnicities;
+    public IUneditableAll<IEthnicity> Ethnicities => _ethnicities;
 
-	public IUneditableAll<IEnforcementAuthority> EnforcementAuthorities => _enforcementAuthorities;
-	public IUneditableAll<ILegalAuthority> LegalAuthorities => _legalAuthorities;
-	public IUneditableAll<ILegalClass> LegalClasses => _legalClasses;
-	public IUneditableAll<IWitnessProfile> WitnessProfiles => _witnessProfiles;
-	public IUneditableAll<ILaw> Laws => _laws;
-	public IUneditableAll<ICrime> Crimes => _crimes;
+    public IUneditableAll<IEnforcementAuthority> EnforcementAuthorities => _enforcementAuthorities;
+    public IUneditableAll<ILegalAuthority> LegalAuthorities => _legalAuthorities;
+    public IUneditableAll<ILegalClass> LegalClasses => _legalClasses;
+    public IUneditableAll<IWitnessProfile> WitnessProfiles => _witnessProfiles;
+    public IUneditableAll<ILaw> Laws => _laws;
+    public IUneditableAll<ICrime> Crimes => _crimes;
 
-	public IUneditableRevisableAll<IForagable> Foragables => _foragables;
+    public IUneditableRevisableAll<IForagable> Foragables => _foragables;
 
-	public IUneditableRevisableAll<IForagableProfile> ForagableProfiles => _foragableProfiles;
+    public IUneditableRevisableAll<IForagableProfile> ForagableProfiles => _foragableProfiles;
 
-	public IUneditableAll<IFutureProg> FutureProgs => _futureProgs;
+    public IUneditableAll<IFutureProg> FutureProgs => _futureProgs;
 
-	public IUneditableAll<IGas> Gases => _gases;
+    public IUneditableAll<IGas> Gases => _gases;
 
-	public IUneditableAll<IGrid> Grids => _grids;
+    public IUneditableAll<IGrid> Grids => _grids;
 
-	public IUneditableAll<IHealthStrategy> HealthStrategies => _healthStrategies;
+    public IUneditableAll<IHealthStrategy> HealthStrategies => _healthStrategies;
 
-	public IUneditableAll<IHearingProfile> HearingProfiles => _hearingProfiles;
+    public IUneditableAll<IHearingProfile> HearingProfiles => _hearingProfiles;
 
-	public IUneditableAll<IHeightWeightModel> HeightWeightModels => _heightWeightModels;
+    public IUneditableAll<IHeightWeightModel> HeightWeightModels => _heightWeightModels;
 
-	public IUneditableAll<IHelpfile> Helpfiles => _helpfiles;
+    public IUneditableAll<IHelpfile> Helpfiles => _helpfiles;
 
-	public IUneditableAll<IHook> Hooks => _hooks;
+    public IUneditableAll<IHook> Hooks => _hooks;
 
-	public IUneditableAll<IArtificialIntelligence> AIs => _AIs;
+    public IUneditableAll<IArtificialIntelligence> AIs => _AIs;
 
-	public IUneditableRevisableAll<INPCTemplate> NpcTemplates => _npcTemplates;
-	public IUneditableAll<INPCSpawner> NPCSpawners => _npcSpawners;
+    public IUneditableRevisableAll<INPCTemplate> NpcTemplates => _npcTemplates;
+    public IUneditableAll<INPCSpawner> NPCSpawners => _npcSpawners;
 
-	public IUneditableAll<IImprovementModel> ImprovementModels => _improvementModels;
+    public IUneditableAll<IImprovementModel> ImprovementModels => _improvementModels;
 
-	public IUneditableAll<IGameItemGroup> ItemGroups => _itemGroups;
+    public IUneditableAll<IGameItemGroup> ItemGroups => _itemGroups;
 
-	public IUneditableRevisableAll<IGameItemComponentProto> ItemComponentProtos => _itemComponentProtos;
+    public IUneditableRevisableAll<IGameItemComponentProto> ItemComponentProtos => _itemComponentProtos;
 
-	public IUneditableRevisableAll<IGameItemProto> ItemProtos => _itemProtos;
+    public IUneditableRevisableAll<IGameItemProto> ItemProtos => _itemProtos;
 
-	public IUneditableAll<IGameItem> Items => _items;
-	public IUneditableRevisableAll<IGameItemSkin> ItemSkins => _itemSkins;
+    public IUneditableAll<IGameItem> Items => _items;
+    public IUneditableRevisableAll<IGameItemSkin> ItemSkins => _itemSkins;
 
-	public IUneditableAll<IJobListing> JobListings => _jobListings;
-	public IUneditableAll<IActiveJob> ActiveJobs => _activeJobs;
+    public IUneditableAll<IJobListing> JobListings => _jobListings;
+    public IUneditableAll<IActiveJob> ActiveJobs => _activeJobs;
 
-	public IUneditableAll<IKnowledge> Knowledges => _knowledges;
+    public IUneditableAll<IKnowledge> Knowledges => _knowledges;
 
-	public IUneditableAll<ILanguageDifficultyModel> LanguageDifficultyModels => _languageDifficultyModels;
+    public IUneditableAll<ILanguageDifficultyModel> LanguageDifficultyModels => _languageDifficultyModels;
 
-	public IUneditableAll<ILanguage> Languages => _languages;
+    public IUneditableAll<ILanguage> Languages => _languages;
 
-	public IUneditableAll<ILimb> Limbs => _limbs;
+    public IUneditableAll<ILimb> Limbs => _limbs;
 
-	public IUneditableAll<ILiquid> Liquids => _liquids;
+    public IUneditableAll<ILiquid> Liquids => _liquids;
 
-	public IUneditableAll<ITemporalListener> Listeners => _listeners;
+    public IUneditableAll<ITemporalListener> Listeners => _listeners;
 
-	public IUneditableAll<IMagicSchool> MagicSchools => _magicSchools;
-	public IUneditableAll<IMagicCapability> MagicCapabilities => _magicCapabilities;
-	public IUneditableAll<IMagicPower> MagicPowers => _magicPowers;
-	public IUneditableAll<IMagicResource> MagicResources => _magicResources;
-	public IUneditableAll<IMagicResourceRegenerator> MagicResourceRegenerators => _magicResourceRegenerators;
-	public IUneditableAll<IMagicSpell> MagicSpells => _magicSpells;
-	public IUneditableAll<IMarket> Markets => _markets;
-	public IUneditableAll<IMarketCategory> MarketCategories => _marketCategories;
-	public IUneditableAll<IMarketInfluenceTemplate> MarketInfluenceTemplates => _marketInfluenceTemplates;
-	public IUneditableAll<IMarketInfluence> MarketInfluences => _marketInfluences;
+    public IUneditableAll<IMagicSchool> MagicSchools => _magicSchools;
+    public IUneditableAll<IMagicCapability> MagicCapabilities => _magicCapabilities;
+    public IUneditableAll<IMagicPower> MagicPowers => _magicPowers;
+    public IUneditableAll<IMagicResource> MagicResources => _magicResources;
+    public IUneditableAll<IMagicResourceRegenerator> MagicResourceRegenerators => _magicResourceRegenerators;
+    public IUneditableAll<IMagicSpell> MagicSpells => _magicSpells;
+    public IUneditableAll<IMarket> Markets => _markets;
+    public IUneditableAll<IMarketCategory> MarketCategories => _marketCategories;
+    public IUneditableAll<IMarketInfluenceTemplate> MarketInfluenceTemplates => _marketInfluenceTemplates;
+    public IUneditableAll<IMarketInfluence> MarketInfluences => _marketInfluences;
 
-	public IUneditableAll<IMarketPopulation> MarketPopulations => _marketPopulations;
+    public IUneditableAll<IMarketPopulation> MarketPopulations => _marketPopulations;
 
-	public IUneditableAll<ISolid> Materials => _materials;
+    public IUneditableAll<ISolid> Materials => _materials;
 
-	public IUneditableAll<IMerit> Merits => _merits;
+    public IUneditableAll<IMerit> Merits => _merits;
 
-	public IUneditableAll<IMoveSpeed> MoveSpeeds => _moveSpeeds;
+    public IUneditableAll<IMoveSpeed> MoveSpeeds => _moveSpeeds;
 
-	public IUneditableAll<INameCulture> NameCultures => _nameCultures;
-	public IUneditableAll<INewPlayerHint> NewPlayerHints => _newPlayerHints;
+    public IUneditableAll<INameCulture> NameCultures => _nameCultures;
+    public IUneditableAll<INewPlayerHint> NewPlayerHints => _newPlayerHints;
 
-	public IUneditableAll<IRandomNameProfile> RandomNameProfiles => _randomNameProfiles;
+    public IUneditableAll<IRandomNameProfile> RandomNameProfiles => _randomNameProfiles;
 
-	public IUneditableAll<INonCardinalExitTemplate> NonCardinalExitTemplates => _nonCardinalExitTemplates;
+    public IUneditableAll<INonCardinalExitTemplate> NonCardinalExitTemplates => _nonCardinalExitTemplates;
 
-	/// <summary>
-	/// This collection contains all NPCs that have been loaded into the game.
-	/// </summary>
-	public IUneditableAll<ICharacter> NPCs => _NPCs;
+    /// <summary>
+    /// This collection contains all NPCs that have been loaded into the game.
+    /// </summary>
+    public IUneditableAll<ICharacter> NPCs => _NPCs;
 
-	public IUneditableAll<IPatrol> Patrols => _patrols;
+    public IUneditableAll<IPatrol> Patrols => _patrols;
 
-	public IUneditableAll<IPopulationBloodModel> PopulationBloodModels => _populationBloodModels;
+    public IUneditableAll<IPopulationBloodModel> PopulationBloodModels => _populationBloodModels;
 
-	public IUneditableAll<IProgSchedule> ProgSchedules => _progSchedules;
+    public IUneditableAll<IProgSchedule> ProgSchedules => _progSchedules;
 
-	public IUneditableRevisableAll<IProject> Projects => _projects;
-	public IUneditableAll<IActiveProject> ActiveProjects => _activeProjects;
-	public IUneditableAll<IProperty> Properties => _properties;
-	public IUneditableAll<IRace> Races => _races;
+    public IUneditableRevisableAll<IProject> Projects => _projects;
+    public IUneditableAll<IActiveProject> ActiveProjects => _activeProjects;
+    public IUneditableAll<IProperty> Properties => _properties;
+    public IUneditableAll<IRace> Races => _races;
 
-	public IUneditableAll<IRangedCover> RangedCovers => _rangedCovers;
+    public IUneditableAll<IRangedCover> RangedCovers => _rangedCovers;
 
-	public IUneditableAll<IRangedWeaponType> RangedWeaponTypes => _rangedWeaponTypes;
+    public IUneditableAll<IRangedWeaponType> RangedWeaponTypes => _rangedWeaponTypes;
 
-	public IUneditableAll<IRoom> Rooms => _rooms;
+    public IUneditableAll<IRoom> Rooms => _rooms;
 
-	public IUneditableAll<IScript> Scripts => _scripts;
+    public IUneditableAll<IScript> Scripts => _scripts;
 
-	public IUneditableAll<IScriptedEvent> ScriptedEvents => _scriptedEvents;
+    public IUneditableAll<IScriptedEvent> ScriptedEvents => _scriptedEvents;
 
-	public IUneditableAll<IShard> Shards => _shards;
+    public IUneditableAll<IShard> Shards => _shards;
 
-	public IUneditableAll<IShieldType> ShieldTypes => _shieldTypes;
+    public IUneditableAll<IShieldType> ShieldTypes => _shieldTypes;
 
-	public IUneditableAll<IShopper> Shoppers => _shoppers;
+    public IUneditableAll<IShopper> Shoppers => _shoppers;
 
-	public IUneditableAll<ISkyDescriptionTemplate> SkyDescriptionTemplates => _skyDescriptionTemplates;
+    public IUneditableAll<ISkyDescriptionTemplate> SkyDescriptionTemplates => _skyDescriptionTemplates;
 
-	public IUneditableAll<IStackDecorator> StackDecorators => _stackDecorators;
+    public IUneditableAll<IStackDecorator> StackDecorators => _stackDecorators;
 
-	public IUneditableAll<ISurgicalProcedure> SurgicalProcedures => _surgicalProcedures;
+    public IUneditableAll<ISurgicalProcedure> SurgicalProcedures => _surgicalProcedures;
 
-	public IUneditableAll<ITag> Tags => _tags;
+    public IUneditableAll<ITag> Tags => _tags;
 
-	public IUneditableAll<ITerrain> Terrains => _terrains;
+    public IUneditableAll<ITerrain> Terrains => _terrains;
 
-	public IUneditableAll<ITraitValueDecorator> TraitDecorators => _traitDecorators;
+    public IUneditableAll<ITraitValueDecorator> TraitDecorators => _traitDecorators;
 
-	public IUneditableAll<ITraitDefinition> Traits => _traits;
+    public IUneditableAll<ITraitDefinition> Traits => _traits;
 
-	public IUneditableAll<ITraitExpression> TraitExpressions => _traitExpressions;
+    public IUneditableAll<ITraitExpression> TraitExpressions => _traitExpressions;
 
-	public IUneditableAll<ITrack> Tracks => _tracks;
+    public IUneditableAll<ITrack> Tracks => _tracks;
 
-	public IUneditableAll<IWearProfile> WearProfiles => _wearProfiles;
+    public IUneditableAll<IWearProfile> WearProfiles => _wearProfiles;
 
-	public IUneditableAll<IZone> Zones => _zones;
+    public IUneditableAll<IZone> Zones => _zones;
 
-	public IEnumerable<ISocial> Socials => _socials;
+    public IEnumerable<ISocial> Socials => _socials;
 
-	public IUneditableAll<IChargenRole> Roles => _roles;
+    public IUneditableAll<IChargenRole> Roles => _roles;
 
-	public IUneditableAll<IWeaponType> WeaponTypes => _weaponTypes;
+    public IUneditableAll<IWeaponType> WeaponTypes => _weaponTypes;
 
-	public IUneditableAll<IWearableSize> WearableSizes => _wearableSizes;
+    public IUneditableAll<IWearableSize> WearableSizes => _wearableSizes;
 
-	public IUneditableAll<IWriting> Writings => _writings;
+    public IUneditableAll<IWriting> Writings => _writings;
 
-	public IUneditableAll<IWeaponAttack> WeaponAttacks => _weaponAttacks;
-	public IUneditableAll<IAuxiliaryCombatAction> AuxiliaryCombatActions => _auxiliaryCombatActions;
+    public IUneditableAll<IWeaponAttack> WeaponAttacks => _weaponAttacks;
+    public IUneditableAll<IAuxiliaryCombatAction> AuxiliaryCombatActions => _auxiliaryCombatActions;
 
-	public IUneditableAll<IShop> Shops => _shops;
+    public IUneditableAll<IShop> Shops => _shops;
 
-	public IUneditableAll<IEconomicZone> EconomicZones => _economicZones;
-	public IUneditableAll<IEstate> Estates => _estates;
+    public IUneditableAll<IEconomicZone> EconomicZones => _economicZones;
+    public IUneditableAll<IEstate> Estates => _estates;
 
-	public IUneditableAll<IGroupAITemplate> GroupAITemplates => _groupAITemplates;
+    public IUneditableAll<IGroupAITemplate> GroupAITemplates => _groupAITemplates;
 
-	public IUneditableAll<IGroupAI> GroupAIs => _groupAIs;
+    public IUneditableAll<IGroupAI> GroupAIs => _groupAIs;
 
-		public IUneditableAll<ILineOfCreditAccount> LineOfCreditAccounts => _lineOfCreditAccounts;
-		public IUneditableAll<ICombatArena> CombatArenas => _combatArenas;
+    public IUneditableAll<ILineOfCreditAccount> LineOfCreditAccounts => _lineOfCreditAccounts;
+    public IUneditableAll<ICombatArena> CombatArenas => _combatArenas;
 
-	#endregion IUneditableAll<T> Declarations
+    #endregion IUneditableAll<T> Declarations
 
-	#region Miscellaneous Game Level Variables
+    #region Miscellaneous Game Level Variables
 
-	public IChargenStoryboard ChargenStoryboard { get; private set; }
+    public IChargenStoryboard ChargenStoryboard { get; private set; }
 
-	public RankedRange<ICharacteristicValue> RelativeHeightDescriptors { get; private set; }
+    public RankedRange<ICharacteristicValue> RelativeHeightDescriptors { get; private set; }
 
-	public ILanguageScrambler LanguageScrambler { get; private set; }
-	public ILanguageScrambler ElectronicLanguageScrambler { get; private set; }
+    public ILanguageScrambler LanguageScrambler { get; private set; }
+    public ILanguageScrambler ElectronicLanguageScrambler { get; private set; }
 
-	public IExitManager ExitManager { get; private set; }
+    public IExitManager ExitManager { get; private set; }
 
-	public IGameStatistics GameStatistics { get; private set; }
-	public ILightModel LightModel { get; private set; }
-	public IVariableRegister VariableRegister { get; private set; }
-	public ILogManager LogManager { get; private set; }
-	public ICombatMessageManager CombatMessageManager { get; private set; }
-	public IDiscordConnection DiscordConnection { get; private set; }
+    public IGameStatistics GameStatistics { get; private set; }
+    public ILightModel LightModel { get; private set; }
+    public IVariableRegister VariableRegister { get; private set; }
+    public ILogManager LogManager { get; private set; }
+    public ICombatMessageManager CombatMessageManager { get; private set; }
+    public IDiscordConnection DiscordConnection { get; private set; }
 
-	public Dictionary<long, List<ICharacter>> CachedBodyguards { get; } = new();
+    public Dictionary<long, List<ICharacter>> CachedBodyguards { get; } = new();
 
-	private IFutureProg _alwaysTrueProg;
+    private IFutureProg _alwaysTrueProg;
 
-	public IFutureProg AlwaysTrueProg
-	{
-		get
-		{
-			if (_alwaysTrueProg is null)
-			{
-				_alwaysTrueProg = FutureProgs.Get(GetStaticLong("AlwaysTrueProg"));
-			}
+    public IFutureProg AlwaysTrueProg
+    {
+        get
+        {
+            if (_alwaysTrueProg is null)
+            {
+                _alwaysTrueProg = FutureProgs.Get(GetStaticLong("AlwaysTrueProg"));
+            }
 
-			return _alwaysTrueProg;
-		}
-	}
+            return _alwaysTrueProg;
+        }
+    }
 
-	private IFutureProg _alwaysFalseProg;
+    private IFutureProg _alwaysFalseProg;
 
-	public IFutureProg AlwaysFalseProg
-	{
-		get
-		{
-			if (_alwaysFalseProg is null)
-			{
-				_alwaysFalseProg = FutureProgs.Get(GetStaticLong("AlwaysFalseProg"));
-			}
+    public IFutureProg AlwaysFalseProg
+    {
+        get
+        {
+            if (_alwaysFalseProg is null)
+            {
+                _alwaysFalseProg = FutureProgs.Get(GetStaticLong("AlwaysFalseProg"));
+            }
 
-			return _alwaysFalseProg;
-		}
-	}
+            return _alwaysFalseProg;
+        }
+    }
 
-	private IFutureProg _alwaysZeroProg;
-	public IFutureProg AlwaysZeroProg
-	{
-		get
-		{
-			if (_alwaysZeroProg is null)
-			{
-				_alwaysZeroProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysZero"));
-				if (_alwaysZeroProg is null)
-				{
-					using (new FMDB())
-					{
-						var dbitem = new Models.FutureProg
-						{
-							FunctionName = "AlwaysZero",
-							AcceptsAnyParameters = true,
-							ReturnType = 2,
-							Category = "Core",
-							Subcategory = "Universal",
-							Public = true,
-							FunctionComment = "Accepts any parameters, and always returns zero.",
-							FunctionText = "return 0",
-							StaticType = 2
-						};
-						FMDB.Context.FutureProgs.Add(dbitem);
-						FMDB.Context.SaveChanges();
-						var prog = new FutureProg.FutureProg(dbitem, this);
-						_futureProgs.Add(prog);
-						_alwaysZeroProg = prog;
-					}
-				}
-			}
+    private IFutureProg _alwaysZeroProg;
+    public IFutureProg AlwaysZeroProg
+    {
+        get
+        {
+            if (_alwaysZeroProg is null)
+            {
+                _alwaysZeroProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysZero"));
+                if (_alwaysZeroProg is null)
+                {
+                    using (new FMDB())
+                    {
+                        Models.FutureProg dbitem = new()
+                        {
+                            FunctionName = "AlwaysZero",
+                            AcceptsAnyParameters = true,
+                            ReturnType = 2,
+                            Category = "Core",
+                            Subcategory = "Universal",
+                            Public = true,
+                            FunctionComment = "Accepts any parameters, and always returns zero.",
+                            FunctionText = "return 0",
+                            StaticType = 2
+                        };
+                        FMDB.Context.FutureProgs.Add(dbitem);
+                        FMDB.Context.SaveChanges();
+                        FutureProg.FutureProg prog = new(dbitem, this);
+                        _futureProgs.Add(prog);
+                        _alwaysZeroProg = prog;
+                    }
+                }
+            }
 
-			return _alwaysZeroProg;
-		}
-	}
+            return _alwaysZeroProg;
+        }
+    }
 
-	private IFutureProg _alwaysOneProg;
-	public IFutureProg AlwaysOneProg
-	{
-		get
-		{
-			if (_alwaysOneProg is null)
-			{
-				_alwaysOneProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOne"));
-				if (_alwaysOneProg is null)
-				{
-					using (new FMDB())
-					{
-						var dbitem = new Models.FutureProg
-						{
-							FunctionName = "AlwaysOne",
-							AcceptsAnyParameters = true,
-							ReturnType = 2,
-							Category = "Core",
-							Subcategory = "Universal",
-							Public = true,
-							FunctionComment = "Accepts any parameters, and always returns one.",
-							FunctionText = "return 1",
-							StaticType = 2
-						};
-						FMDB.Context.FutureProgs.Add(dbitem);
-						FMDB.Context.SaveChanges();
-						var prog = new FutureProg.FutureProg(dbitem, this);
-						_futureProgs.Add(prog);
-						_alwaysOneProg = prog;
-					}
-				}
-			}
+    private IFutureProg _alwaysOneProg;
+    public IFutureProg AlwaysOneProg
+    {
+        get
+        {
+            if (_alwaysOneProg is null)
+            {
+                _alwaysOneProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOne"));
+                if (_alwaysOneProg is null)
+                {
+                    using (new FMDB())
+                    {
+                        Models.FutureProg dbitem = new()
+                        {
+                            FunctionName = "AlwaysOne",
+                            AcceptsAnyParameters = true,
+                            ReturnType = 2,
+                            Category = "Core",
+                            Subcategory = "Universal",
+                            Public = true,
+                            FunctionComment = "Accepts any parameters, and always returns one.",
+                            FunctionText = "return 1",
+                            StaticType = 2
+                        };
+                        FMDB.Context.FutureProgs.Add(dbitem);
+                        FMDB.Context.SaveChanges();
+                        FutureProg.FutureProg prog = new(dbitem, this);
+                        _futureProgs.Add(prog);
+                        _alwaysOneProg = prog;
+                    }
+                }
+            }
 
-			return _alwaysOneProg;
-		}
-	}
+            return _alwaysOneProg;
+        }
+    }
 
-	private IFutureProg _alwaysOneHundredProg;
-	public IFutureProg AlwaysOneHundredProg
-	{
-		get
-		{
-			if (_alwaysOneHundredProg is null)
-			{
-				_alwaysOneHundredProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOneHundred"));
-				if (_alwaysOneHundredProg is null)
-				{
-					using (new FMDB())
-					{
-						var dbitem = new Models.FutureProg
-						{
-							FunctionName = "AlwaysOneHundred",
-							AcceptsAnyParameters = true,
-							ReturnType = 2,
-							Category = "Core",
-							Subcategory = "Universal",
-							Public = true,
-							FunctionComment = "Accepts any parameters, and always returns 100.",
-							FunctionText = "return 100",
-							StaticType = 2
-						};
-						FMDB.Context.FutureProgs.Add(dbitem);
-						FMDB.Context.SaveChanges();
-						var prog = new FutureProg.FutureProg(dbitem, this);
-						_futureProgs.Add(prog);
-						_alwaysOneHundredProg = prog;
-					}
-				}
-			}
+    private IFutureProg _alwaysOneHundredProg;
+    public IFutureProg AlwaysOneHundredProg
+    {
+        get
+        {
+            if (_alwaysOneHundredProg is null)
+            {
+                _alwaysOneHundredProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOneHundred"));
+                if (_alwaysOneHundredProg is null)
+                {
+                    using (new FMDB())
+                    {
+                        Models.FutureProg dbitem = new()
+                        {
+                            FunctionName = "AlwaysOneHundred",
+                            AcceptsAnyParameters = true,
+                            ReturnType = 2,
+                            Category = "Core",
+                            Subcategory = "Universal",
+                            Public = true,
+                            FunctionComment = "Accepts any parameters, and always returns 100.",
+                            FunctionText = "return 100",
+                            StaticType = 2
+                        };
+                        FMDB.Context.FutureProgs.Add(dbitem);
+                        FMDB.Context.SaveChanges();
+                        FutureProg.FutureProg prog = new(dbitem, this);
+                        _futureProgs.Add(prog);
+                        _alwaysOneHundredProg = prog;
+                    }
+                }
+            }
 
-			return _alwaysOneHundredProg;
-		}
-	}
+            return _alwaysOneHundredProg;
+        }
+    }
 
-	private IFutureProg _alwaysOneThousandProg;
-	public IFutureProg AlwaysOneThousandProg
-	{
-		get
-		{
-			if (_alwaysOneThousandProg is null)
-			{
-				_alwaysOneThousandProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOneThousand"));
-				if (_alwaysOneThousandProg is null)
-				{
-					using (new FMDB())
-					{
-						var dbitem = new Models.FutureProg
-						{
-							FunctionName = "AlwaysOneThousand",
-							AcceptsAnyParameters = true,
-							ReturnType = 2,
-							Category = "Core",
-							Subcategory = "Universal",
-							Public = true,
-							FunctionComment = "Accepts any parameters, and always returns 1000.",
-							FunctionText = "return 1000",
-							StaticType = 2
-						};
-						FMDB.Context.FutureProgs.Add(dbitem);
-						FMDB.Context.SaveChanges();
-						var prog = new FutureProg.FutureProg(dbitem, this);
-						_futureProgs.Add(prog);
-						_alwaysOneThousandProg = prog;
-					}
-				}
-			}
-
-			return _alwaysOneThousandProg;
-		}
-	}
-
-	private IFutureProg _alwaysTenThousandProg;
-	public IFutureProg AlwaysTenThousandProg
-	{
-		get
-		{
-			if (_alwaysTenThousandProg is null)
-			{
-				_alwaysTenThousandProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysTenThousand"));
-				if (_alwaysTenThousandProg is null)
-				{
-					using (new FMDB())
-					{
-						var dbitem = new Models.FutureProg
-						{
-							FunctionName = "AlwaysTenThousand",
-							AcceptsAnyParameters = true,
-							ReturnType = 2,
-							Category = "Core",
-							Subcategory = "Universal",
-							Public = true,
-							FunctionComment = "Accepts any parameters, and always returns 10000.",
-							FunctionText = "return 10000",
-							StaticType = 2
-						};
-						FMDB.Context.FutureProgs.Add(dbitem);
-						FMDB.Context.SaveChanges();
-						var prog = new FutureProg.FutureProg(dbitem, this);
-						_futureProgs.Add(prog);
-						_alwaysTenThousandProg = prog;
-					}
-				}
-			}
-
-			return _alwaysTenThousandProg;
-		}
-	}
-
-	private IFutureProg _universalErrorTextProg;
-
-	public
-		IFutureProg UniversalErrorTextProg
-	{ get
-		{
-			if (_universalErrorTextProg is null)
-			{
-				_universalErrorTextProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("UniversalErrorText"));
-				if (_universalErrorTextProg is null)
-				{
-					using (new FMDB())
-					{
-						var dbitem = new Models.FutureProg
-						{
-							FunctionName = "UniversalErrorText",
-							AcceptsAnyParameters = true,
-							ReturnTypeDefinition = ProgVariableTypes.Text.ToStorageString(),
-							Category = "Core",
-							Subcategory = "Universal",
-							Public = true,
-							FunctionComment = "Accepts any parameters, and returns a universal error message.",
-							FunctionText = @"return """"You cannot do that for an unspecified reason.""""",
-							StaticType = 2
-						};
-						FMDB.Context.FutureProgs.Add(dbitem);
-						FMDB.Context.SaveChanges();
-						var prog = new FutureProg.FutureProg(dbitem, this);
-						_futureProgs.Add(prog);
-						_universalErrorTextProg = prog;
-					}
-				}
-			}
-
-			return _universalErrorTextProg;
-		}
-	}
-
-	private IFutureProg _emptyTextProg;
-	public IFutureProg EmptyTextProg {
-		get
-		{
-			if (_emptyTextProg is null)
-			{
-				_emptyTextProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("EmptyText"));
-				if (_emptyTextProg is null)
-				{
-					using (new FMDB())
-					{
-						var dbitem = new Models.FutureProg
-						{
-							FunctionName = "EmptyText",
-							AcceptsAnyParameters = true,
-							ReturnTypeDefinition = ProgVariableTypes.Text.ToStorageString(),
-							Category = "Core",
-							Subcategory = "Universal",
-							Public = true,
-							FunctionComment = "Accepts any parameters, and returns a blank string as text.",
-							FunctionText = @"return """"",
-							StaticType = 2
-						};
-						FMDB.Context.FutureProgs.Add(dbitem);
-						FMDB.Context.SaveChanges();
-						var prog = new FutureProg.FutureProg(dbitem, this);
-						_futureProgs.Add(prog);
-						_emptyTextProg = prog;
-					}
-				}
-			}
-
-			return _emptyTextProg;
-		}
-	}
-
-	private readonly List<CharacterPersonalNameLookup> _cachedPersonalNames = new();
-
-	#endregion
-
-	#region Game-level InventoryPlans
-
-	private IInventoryPlanTemplate _bindInventoryPlanTemplate;
-
-	public IInventoryPlanTemplate BindInventoryPlanTemplate
-	{
-		get
-		{
-			return _bindInventoryPlanTemplate ??= new InventoryPlanTemplate(this, new[]
-			{
-				new InventoryPlanPhaseTemplate(1, new[]
-				{
-					InventoryPlanAction.LoadAction(this,
-						DesiredItemState.Held,
-						0,
-						0,
-						item => item.GetItemType<ITreatment>()?.IsTreatmentType(TreatmentType.Trauma) ?? false,
-						null,
-						fitnessscorer: item =>
-							(int)item.GetItemType<ITreatment>().GetTreatmentDifficulty(Difficulty.Normal),
-						originalReference: "treatment")
-				})
-			});
-		}
-	}
-
-	private IInventoryPlanTemplate _cleanWoundInventoryPlanTemplate;
-
-	public IInventoryPlanTemplate CleanWoundInventoryPlanTemplate
-	{
-		get
-		{
-			return _cleanWoundInventoryPlanTemplate ??= new InventoryPlanTemplate(this, new[]
-			{
-				new InventoryPlanPhaseTemplate(1, new[]
-				{
-					InventoryPlanAction.LoadAction(this,
-						DesiredItemState.Held,
-						0,
-						0,
-						item =>
-							(item.GetItemType<ITreatment>()?.IsTreatmentType(TreatmentType.Clean) ?? false) ||
-							(item.GetItemType<ITreatment>()?.IsTreatmentType(TreatmentType.Antiseptic) ?? false),
-						null,
-						fitnessscorer: item =>
-							item.GetItemType<ITreatment>() is ITreatment tr
-								? (tr.IsTreatmentType(TreatmentType.Antiseptic) ? 100.0 : 1.0) *
-								  (int)tr.GetTreatmentDifficulty(Difficulty.Normal)
-								: 0.0,
-						originalReference: "treatment")
-				})
-			});
-		}
-	}
-
-	private IInventoryPlanTemplate _sutureInventoryPlanTemplate;
-
-	public IInventoryPlanTemplate SutureInventoryPlanTemplate
-	{
-		get
-		{
-			return _sutureInventoryPlanTemplate ??= new InventoryPlanTemplate(this, new[]
-			{
-				new InventoryPlanPhaseTemplate(1, new[]
-				{
-					InventoryPlanAction.LoadAction(this,
-						DesiredItemState.Held,
-						0,
-						0,
-						item => item.GetItemType<ITreatment>()
-									?.IsTreatmentType(TreatmentType.Close) ??
-								false,
-						null,
-						fitnessscorer: item =>
-							(int)item.GetItemType<ITreatment>()
-									 .GetTreatmentDifficulty(Difficulty.Normal),
-						originalReference: "treatment")
-				})
-			});
-		}
-	}
-
-	private IInventoryPlanTemplate _tendInventoryPlanTemplate;
-
-	public IInventoryPlanTemplate TendInventoryPlanTemplate
-	{
-		get
-		{
-			return _tendInventoryPlanTemplate ??= new InventoryPlanTemplate(this, new[]
-			{
-				new InventoryPlanPhaseTemplate(1, new[]
-				{
-					InventoryPlanAction.LoadAction(this,
-						DesiredItemState.Held,
-						0,
-						0,
-						item =>
-						{
-							var treatment = item.GetItemType<ITreatment>();
-							return treatment?.IsTreatmentType(TreatmentType.Tend) == true ||
-							       treatment?.IsTreatmentType(TreatmentType.AntiInflammatory) == true;
-						},
-						null,
-						fitnessscorer: item =>
-							item.GetItemType<ITreatment>() is ITreatment tr
-								? (tr.IsTreatmentType(TreatmentType.Tend) ? 100.0 : 1.0) *
-								  (int)tr.GetTreatmentDifficulty(Difficulty.Normal)
-								: 0.0,
-						originalReference: "treatment")
-				})
-			});
-		}
-	}
-
-	#endregion
-
-	#region Static Configs and Strings
-
-	public IEnumerable<string> StaticStringNames => _staticStrings.Keys.AsEnumerable()
-																  .Concat(DefaultStaticSettings.DefaultStaticStrings
-																	  .Keys).Distinct();
-
-	public IEnumerable<string> StaticConfigurationNames => _staticConfigurations.Keys.AsEnumerable()
-		.Concat(DefaultStaticSettings.DefaultStaticConfigurations.Keys).Distinct();
-
-	public void UpdateStaticString(string whichString, string newValue)
-	{
-		_staticStrings[whichString] = newValue;
-	}
-
-	public void UpdateStaticConfiguration(string whichConfiguration, string newValue)
-	{
-		_staticConfigurations[whichConfiguration] = newValue;
-		_staticBools.Remove(whichConfiguration);
-		_staticDoubles.Remove(whichConfiguration);
-		_staticInts.Remove(whichConfiguration);
-		_staticLongs.Remove(whichConfiguration);
-
-		// Special values that need other actions
-		if (whichConfiguration.EqualTo("DisplayProgsInDarkMode"))
-		{
-			foreach (var prog in FutureProgs)
-			{
-				prog.ColouriseFunctionText();
-			}
-
-			return;
-		}
-	}
-
-	public string GetStaticConfiguration(string whichConfiguration)
-	{
-		if (_staticConfigurations.TryGetValue(whichConfiguration, out var returnValue))
-		{
-			return returnValue;
-		}
-
-		if (DefaultStaticSettings.DefaultStaticConfigurations.TryGetValue(whichConfiguration, out returnValue))
-		{
-			_staticConfigurations[whichConfiguration] = returnValue;
-			using (new FMDB())
-			{
-				FMDB.Context.StaticConfigurations.Add(new Models.StaticConfiguration
-					{ SettingName = whichConfiguration, Definition = returnValue });
-				FMDB.Context.SaveChanges();
-			}
-
-			return returnValue;
-		}
-
-		throw new ApplicationException(
-			$"Undefined Static Configuration with no default Requested in Futuremud.GetStaticConfiguration: {whichConfiguration}");
-	}
-
-	public string GetStaticString(string whichString)
-	{
-		if (_staticStrings.TryGetValue(whichString, out var returnValue))
-		{
-			return returnValue;
-		}
-
-		if (DefaultStaticSettings.DefaultStaticStrings.TryGetValue(whichString, out returnValue))
-		{
-			Console.WriteLine(
-				$"Warning: Had to use default value of static string '{whichString}'. Consider setting a value for this yourself.");
-			_staticStrings[whichString] = returnValue;
-			using (new FMDB())
-			{
-				FMDB.Context.StaticStrings.Add(new Models.StaticString(){ Id = whichString, Text = returnValue});
-				FMDB.Context.SaveChanges();
-			}
-			return returnValue;
-		}
-
-		throw new ApplicationException("Undefined Static String Requested in Futuremud.GetStaticString - " +
-									   whichString);
-	}
-
-	private readonly Dictionary<string, bool> _staticBools = new();
-	private CharacterMaterialisationBootPhase _characterMaterialisationBootPhase =
-		CharacterMaterialisationBootPhase.Allowed;
-	private readonly List<IPostCharacterLoadFinalisable> _postCharacterLoadFinalisables = new();
-	private DatabaseUpgradePreparation? _startupDatabaseUpgradePreparation;
-
-	internal void MarkStartupDatabaseUpgradeComplete()
-	{
-		if (_startupDatabaseUpgradePreparation == null)
-		{
-			return;
-		}
-
-		new DatabaseUpgradeCoordinator().CompletePreparedUpgrade(_startupDatabaseUpgradePreparation);
-		_startupDatabaseUpgradePreparation = null;
-	}
-
-	public bool GetStaticBool(string whichConfiguration)
-	{
-		if (_staticBools.TryGetValue(whichConfiguration, out var returnValue))
-		{
-			return returnValue;
-		}
-
-		_staticBools[whichConfiguration] = bool.Parse(GetStaticConfiguration(whichConfiguration));
-		return _staticBools[whichConfiguration];
-	}
-
-	private readonly Dictionary<string, double> _staticDoubles = new();
-
-	public double GetStaticDouble(string whichConfiguration)
-	{
-		if (_staticDoubles.TryGetValue(whichConfiguration, out var returnValue))
-		{
-			return returnValue;
-		}
-
-		_staticDoubles[whichConfiguration] = double.Parse(GetStaticConfiguration(whichConfiguration));
-		return _staticDoubles[whichConfiguration];
-	}
-
-	private readonly Dictionary<string, decimal> _staticDecimals = new();
-
-	public decimal GetStaticDecimal(string whichConfiguration)
-	{
-		if (_staticDecimals.TryGetValue(whichConfiguration, out var returnValue))
-		{
-			return returnValue;
-		}
-
-		_staticDecimals[whichConfiguration] = decimal.Parse(GetStaticConfiguration(whichConfiguration));
-		return _staticDecimals[whichConfiguration];
-	}
-
-	private readonly Dictionary<string, int> _staticInts = new();
-
-	public int GetStaticInt(string whichConfiguration)
-	{
-		if (_staticInts.TryGetValue(whichConfiguration, out var returnValue))
-		{
-			return returnValue;
-		}
-
-		_staticInts[whichConfiguration] = int.Parse(GetStaticConfiguration(whichConfiguration));
-		return _staticInts[whichConfiguration];
-	}
-
-	private readonly Dictionary<string, long> _staticLongs = new();
-
-	public long GetStaticLong(string whichConfiguration)
-	{
-		if (_staticLongs.TryGetValue(whichConfiguration, out var returnValue))
-		{
-			return returnValue;
-		}
-
-		_staticLongs[whichConfiguration] = long.Parse(GetStaticConfiguration(whichConfiguration));
-		return _staticLongs[whichConfiguration];
-	}
-
-	#endregion
+    private IFutureProg _alwaysOneThousandProg;
+    public IFutureProg AlwaysOneThousandProg
+    {
+        get
+        {
+            if (_alwaysOneThousandProg is null)
+            {
+                _alwaysOneThousandProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOneThousand"));
+                if (_alwaysOneThousandProg is null)
+                {
+                    using (new FMDB())
+                    {
+                        Models.FutureProg dbitem = new()
+                        {
+                            FunctionName = "AlwaysOneThousand",
+                            AcceptsAnyParameters = true,
+                            ReturnType = 2,
+                            Category = "Core",
+                            Subcategory = "Universal",
+                            Public = true,
+                            FunctionComment = "Accepts any parameters, and always returns 1000.",
+                            FunctionText = "return 1000",
+                            StaticType = 2
+                        };
+                        FMDB.Context.FutureProgs.Add(dbitem);
+                        FMDB.Context.SaveChanges();
+                        FutureProg.FutureProg prog = new(dbitem, this);
+                        _futureProgs.Add(prog);
+                        _alwaysOneThousandProg = prog;
+                    }
+                }
+            }
+
+            return _alwaysOneThousandProg;
+        }
+    }
+
+    private IFutureProg _alwaysTenThousandProg;
+    public IFutureProg AlwaysTenThousandProg
+    {
+        get
+        {
+            if (_alwaysTenThousandProg is null)
+            {
+                _alwaysTenThousandProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysTenThousand"));
+                if (_alwaysTenThousandProg is null)
+                {
+                    using (new FMDB())
+                    {
+                        Models.FutureProg dbitem = new()
+                        {
+                            FunctionName = "AlwaysTenThousand",
+                            AcceptsAnyParameters = true,
+                            ReturnType = 2,
+                            Category = "Core",
+                            Subcategory = "Universal",
+                            Public = true,
+                            FunctionComment = "Accepts any parameters, and always returns 10000.",
+                            FunctionText = "return 10000",
+                            StaticType = 2
+                        };
+                        FMDB.Context.FutureProgs.Add(dbitem);
+                        FMDB.Context.SaveChanges();
+                        FutureProg.FutureProg prog = new(dbitem, this);
+                        _futureProgs.Add(prog);
+                        _alwaysTenThousandProg = prog;
+                    }
+                }
+            }
+
+            return _alwaysTenThousandProg;
+        }
+    }
+
+    private IFutureProg _universalErrorTextProg;
+
+    public
+        IFutureProg UniversalErrorTextProg
+    {
+        get
+        {
+            if (_universalErrorTextProg is null)
+            {
+                _universalErrorTextProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("UniversalErrorText"));
+                if (_universalErrorTextProg is null)
+                {
+                    using (new FMDB())
+                    {
+                        Models.FutureProg dbitem = new()
+                        {
+                            FunctionName = "UniversalErrorText",
+                            AcceptsAnyParameters = true,
+                            ReturnTypeDefinition = ProgVariableTypes.Text.ToStorageString(),
+                            Category = "Core",
+                            Subcategory = "Universal",
+                            Public = true,
+                            FunctionComment = "Accepts any parameters, and returns a universal error message.",
+                            FunctionText = @"return ""You cannot do that for an unspecified reason.""",
+                            StaticType = 2
+                        };
+                        FMDB.Context.FutureProgs.Add(dbitem);
+                        FMDB.Context.SaveChanges();
+                        FutureProg.FutureProg prog = new(dbitem, this);
+                        _futureProgs.Add(prog);
+                        _universalErrorTextProg = prog;
+                    }
+                }
+            }
+
+            return _universalErrorTextProg;
+        }
+    }
+
+    private IFutureProg _emptyTextProg;
+    public IFutureProg EmptyTextProg
+    {
+        get
+        {
+            if (_emptyTextProg is null)
+            {
+                _emptyTextProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("EmptyText"));
+                if (_emptyTextProg is null)
+                {
+                    using (new FMDB())
+                    {
+                        Models.FutureProg dbitem = new()
+                        {
+                            FunctionName = "EmptyText",
+                            AcceptsAnyParameters = true,
+                            ReturnTypeDefinition = ProgVariableTypes.Text.ToStorageString(),
+                            Category = "Core",
+                            Subcategory = "Universal",
+                            Public = true,
+                            FunctionComment = "Accepts any parameters, and returns a blank string as text.",
+                            FunctionText = @"return """"",
+                            StaticType = 2
+                        };
+                        FMDB.Context.FutureProgs.Add(dbitem);
+                        FMDB.Context.SaveChanges();
+                        FutureProg.FutureProg prog = new(dbitem, this);
+                        _futureProgs.Add(prog);
+                        _emptyTextProg = prog;
+                    }
+                }
+            }
+
+            return _emptyTextProg;
+        }
+    }
+
+    private readonly List<CharacterPersonalNameLookup> _cachedPersonalNames = new();
+
+    #endregion
+
+    #region Game-level InventoryPlans
+
+    private IInventoryPlanTemplate _bindInventoryPlanTemplate;
+
+    public IInventoryPlanTemplate BindInventoryPlanTemplate => _bindInventoryPlanTemplate ??= new InventoryPlanTemplate(this, new[]
+            {
+                new InventoryPlanPhaseTemplate(1, new[]
+                {
+                    InventoryPlanAction.LoadAction(this,
+                        DesiredItemState.Held,
+                        0,
+                        0,
+                        item => item.GetItemType<ITreatment>()?.IsTreatmentType(TreatmentType.Trauma) ?? false,
+                        null,
+                        fitnessscorer: item =>
+                            (int)item.GetItemType<ITreatment>().GetTreatmentDifficulty(Difficulty.Normal),
+                        originalReference: "treatment")
+                })
+            });
+
+    private IInventoryPlanTemplate _cleanWoundInventoryPlanTemplate;
+
+    public IInventoryPlanTemplate CleanWoundInventoryPlanTemplate => _cleanWoundInventoryPlanTemplate ??= new InventoryPlanTemplate(this, new[]
+            {
+                new InventoryPlanPhaseTemplate(1, new[]
+                {
+                    InventoryPlanAction.LoadAction(this,
+                        DesiredItemState.Held,
+                        0,
+                        0,
+                        item =>
+                            (item.GetItemType<ITreatment>()?.IsTreatmentType(TreatmentType.Clean) ?? false) ||
+                            (item.GetItemType<ITreatment>()?.IsTreatmentType(TreatmentType.Antiseptic) ?? false),
+                        null,
+                        fitnessscorer: item =>
+                            item.GetItemType<ITreatment>() is ITreatment tr
+                                ? (tr.IsTreatmentType(TreatmentType.Antiseptic) ? 100.0 : 1.0) *
+                                  (int)tr.GetTreatmentDifficulty(Difficulty.Normal)
+                                : 0.0,
+                        originalReference: "treatment")
+                })
+            });
+
+    private IInventoryPlanTemplate _sutureInventoryPlanTemplate;
+
+    public IInventoryPlanTemplate SutureInventoryPlanTemplate => _sutureInventoryPlanTemplate ??= new InventoryPlanTemplate(this, new[]
+            {
+                new InventoryPlanPhaseTemplate(1, new[]
+                {
+                    InventoryPlanAction.LoadAction(this,
+                        DesiredItemState.Held,
+                        0,
+                        0,
+                        item => item.GetItemType<ITreatment>()
+                                    ?.IsTreatmentType(TreatmentType.Close) ??
+                                false,
+                        null,
+                        fitnessscorer: item =>
+                            (int)item.GetItemType<ITreatment>()
+                                     .GetTreatmentDifficulty(Difficulty.Normal),
+                        originalReference: "treatment")
+                })
+            });
+
+    private IInventoryPlanTemplate _tendInventoryPlanTemplate;
+
+    public IInventoryPlanTemplate TendInventoryPlanTemplate => _tendInventoryPlanTemplate ??= new InventoryPlanTemplate(this, new[]
+            {
+                new InventoryPlanPhaseTemplate(1, new[]
+                {
+                    InventoryPlanAction.LoadAction(this,
+                        DesiredItemState.Held,
+                        0,
+                        0,
+                        item =>
+                        {
+                            ITreatment treatment = item.GetItemType<ITreatment>();
+                            return treatment?.IsTreatmentType(TreatmentType.Tend) == true ||
+                                   treatment?.IsTreatmentType(TreatmentType.AntiInflammatory) == true;
+                        },
+                        null,
+                        fitnessscorer: item =>
+                            item.GetItemType<ITreatment>() is ITreatment tr
+                                ? (tr.IsTreatmentType(TreatmentType.Tend) ? 100.0 : 1.0) *
+                                  (int)tr.GetTreatmentDifficulty(Difficulty.Normal)
+                                : 0.0,
+                        originalReference: "treatment")
+                })
+            });
+
+    #endregion
+
+    #region Static Configs and Strings
+
+    public IEnumerable<string> StaticStringNames => _staticStrings.Keys.AsEnumerable()
+                                                                  .Concat(DefaultStaticSettings.DefaultStaticStrings
+                                                                      .Keys).Distinct();
+
+    public IEnumerable<string> StaticConfigurationNames => _staticConfigurations.Keys.AsEnumerable()
+        .Concat(DefaultStaticSettings.DefaultStaticConfigurations.Keys).Distinct();
+
+    public void UpdateStaticString(string whichString, string newValue)
+    {
+        _staticStrings[whichString] = newValue;
+    }
+
+    public void UpdateStaticConfiguration(string whichConfiguration, string newValue)
+    {
+        _staticConfigurations[whichConfiguration] = newValue;
+        _staticBools.Remove(whichConfiguration);
+        _staticDoubles.Remove(whichConfiguration);
+        _staticInts.Remove(whichConfiguration);
+        _staticLongs.Remove(whichConfiguration);
+
+        // Special values that need other actions
+        if (whichConfiguration.EqualTo("DisplayProgsInDarkMode"))
+        {
+            foreach (IFutureProg prog in FutureProgs)
+            {
+                prog.ColouriseFunctionText();
+            }
+
+            return;
+        }
+    }
+
+    public string GetStaticConfiguration(string whichConfiguration)
+    {
+        if (_staticConfigurations.TryGetValue(whichConfiguration, out string returnValue))
+        {
+            return returnValue;
+        }
+
+        if (DefaultStaticSettings.DefaultStaticConfigurations.TryGetValue(whichConfiguration, out returnValue))
+        {
+            _staticConfigurations[whichConfiguration] = returnValue;
+            using (new FMDB())
+            {
+                FMDB.Context.StaticConfigurations.Add(new Models.StaticConfiguration
+                { SettingName = whichConfiguration, Definition = returnValue });
+                FMDB.Context.SaveChanges();
+            }
+
+            return returnValue;
+        }
+
+        throw new ApplicationException(
+            $"Undefined Static Configuration with no default Requested in Futuremud.GetStaticConfiguration: {whichConfiguration}");
+    }
+
+    public string GetStaticString(string whichString)
+    {
+        if (_staticStrings.TryGetValue(whichString, out string returnValue))
+        {
+            return returnValue;
+        }
+
+        if (DefaultStaticSettings.DefaultStaticStrings.TryGetValue(whichString, out returnValue))
+        {
+            Console.WriteLine(
+                $"Warning: Had to use default value of static string '{whichString}'. Consider setting a value for this yourself.");
+            _staticStrings[whichString] = returnValue;
+            using (new FMDB())
+            {
+                FMDB.Context.StaticStrings.Add(new Models.StaticString() { Id = whichString, Text = returnValue });
+                FMDB.Context.SaveChanges();
+            }
+            return returnValue;
+        }
+
+        throw new ApplicationException("Undefined Static String Requested in Futuremud.GetStaticString - " +
+                                       whichString);
+    }
+
+    private readonly Dictionary<string, bool> _staticBools = new();
+    private CharacterMaterialisationBootPhase _characterMaterialisationBootPhase =
+        CharacterMaterialisationBootPhase.Allowed;
+    private readonly List<IPostCharacterLoadFinalisable> _postCharacterLoadFinalisables = new();
+    private DatabaseUpgradePreparation? _startupDatabaseUpgradePreparation;
+
+    internal void MarkStartupDatabaseUpgradeComplete()
+    {
+        if (_startupDatabaseUpgradePreparation == null)
+        {
+            return;
+        }
+
+        new DatabaseUpgradeCoordinator().CompletePreparedUpgrade(_startupDatabaseUpgradePreparation);
+        _startupDatabaseUpgradePreparation = null;
+    }
+
+    public bool GetStaticBool(string whichConfiguration)
+    {
+        if (_staticBools.TryGetValue(whichConfiguration, out bool returnValue))
+        {
+            return returnValue;
+        }
+
+        _staticBools[whichConfiguration] = bool.Parse(GetStaticConfiguration(whichConfiguration));
+        return _staticBools[whichConfiguration];
+    }
+
+    private readonly Dictionary<string, double> _staticDoubles = new();
+
+    public double GetStaticDouble(string whichConfiguration)
+    {
+        if (_staticDoubles.TryGetValue(whichConfiguration, out double returnValue))
+        {
+            return returnValue;
+        }
+
+        _staticDoubles[whichConfiguration] = double.Parse(GetStaticConfiguration(whichConfiguration));
+        return _staticDoubles[whichConfiguration];
+    }
+
+    private readonly Dictionary<string, decimal> _staticDecimals = new();
+
+    public decimal GetStaticDecimal(string whichConfiguration)
+    {
+        if (_staticDecimals.TryGetValue(whichConfiguration, out decimal returnValue))
+        {
+            return returnValue;
+        }
+
+        _staticDecimals[whichConfiguration] = decimal.Parse(GetStaticConfiguration(whichConfiguration));
+        return _staticDecimals[whichConfiguration];
+    }
+
+    private readonly Dictionary<string, int> _staticInts = new();
+
+    public int GetStaticInt(string whichConfiguration)
+    {
+        if (_staticInts.TryGetValue(whichConfiguration, out int returnValue))
+        {
+            return returnValue;
+        }
+
+        _staticInts[whichConfiguration] = int.Parse(GetStaticConfiguration(whichConfiguration));
+        return _staticInts[whichConfiguration];
+    }
+
+    private readonly Dictionary<string, long> _staticLongs = new();
+
+    public long GetStaticLong(string whichConfiguration)
+    {
+        if (_staticLongs.TryGetValue(whichConfiguration, out long returnValue))
+        {
+            return returnValue;
+        }
+
+        _staticLongs[whichConfiguration] = long.Parse(GetStaticConfiguration(whichConfiguration));
+        return _staticLongs[whichConfiguration];
+    }
+
+    #endregion
 }

@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-using MudSharp.Effects;
+﻿using MudSharp.Effects;
 using MudSharp.Framework;
+using System.Collections.Generic;
 
 namespace MudSharp.Body.Traits
 {
 
-	public interface IHaveTraits : IFrameworkItem {
+    public interface IHaveTraits : IFrameworkItem
+    {
         IEnumerable<ITrait> Traits { get; }
         double TraitValue(ITraitDefinition trait, TraitBonusContext context = TraitBonusContext.None);
         double TraitRawValue(ITraitDefinition trait);

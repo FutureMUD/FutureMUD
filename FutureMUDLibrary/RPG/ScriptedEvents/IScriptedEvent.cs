@@ -13,45 +13,45 @@ namespace MudSharp.RPG.ScriptedEvents;
 #nullable enable
 public interface IScriptedEvent : IFrameworkItem, ISaveable, IEditableItem
 {
-	void Delete();
-	ICharacter? Character { get; }
-	IFutureProg? CharacterFilterProg { get; }
-	bool IsReady { get; }
-	bool IsFinished { get; }
-	bool IsTemplate { get; }
-	DateTime EarliestDate { get; }
+    void Delete();
+    ICharacter? Character { get; }
+    IFutureProg? CharacterFilterProg { get; }
+    bool IsReady { get; }
+    bool IsFinished { get; }
+    bool IsTemplate { get; }
+    DateTime EarliestDate { get; }
 
-	IEnumerable<IScriptedEventFreeTextQuestion> FreeTextQuestions { get; }
-	IEnumerable<IScriptedEventMultipleChoiceQuestion> MultipleChoiceQuestions { get; }
+    IEnumerable<IScriptedEventFreeTextQuestion> FreeTextQuestions { get; }
+    IEnumerable<IScriptedEventMultipleChoiceQuestion> MultipleChoiceQuestions { get; }
 
-	IScriptedEvent Assign(ICharacter actor);
-	IScriptedEvent Clone();
-	void SetFinished();
+    IScriptedEvent Assign(ICharacter actor);
+    IScriptedEvent Clone();
+    void SetFinished();
 }
 
 public interface IScriptedEventFreeTextQuestion : IFrameworkItem, ISaveable, IEditableItem
 {
-	void Delete();
-	string Question { get; }
-	string Answer { get; }
-	void SetAnswer(string answer);
+    void Delete();
+    string Question { get; }
+    string Answer { get; }
+    void SetAnswer(string answer);
 }
 
 public interface IScriptedEventMultipleChoiceQuestion : IFrameworkItem, ISaveable, IEditableItem
 {
-	void Delete();
-	string Question { get; }
-	IScriptedEventMultipleChoiceQuestionAnswer? ChosenAnswer { get; }
-	IEnumerable<IScriptedEventMultipleChoiceQuestionAnswer> Answers { get; }
-	void ChooseAnswer(IScriptedEventMultipleChoiceQuestionAnswer answer);
+    void Delete();
+    string Question { get; }
+    IScriptedEventMultipleChoiceQuestionAnswer? ChosenAnswer { get; }
+    IEnumerable<IScriptedEventMultipleChoiceQuestionAnswer> Answers { get; }
+    void ChooseAnswer(IScriptedEventMultipleChoiceQuestionAnswer answer);
 }
 
 public interface IScriptedEventMultipleChoiceQuestionAnswer : IFrameworkItem, ISaveable, IEditableItem
 {
-	void Delete();
-	string DescriptionBeforeChoice { get; }
-	string DescriptionAfterChoice { get; }
-	IFutureProg? AnswerFilterProg { get; }
-	IFutureProg? AfterChoiceProg { get; }
+    void Delete();
+    string DescriptionBeforeChoice { get; }
+    string DescriptionAfterChoice { get; }
+    IFutureProg? AnswerFilterProg { get; }
+    IFutureProg? AfterChoiceProg { get; }
 }
 

@@ -20,7 +20,7 @@ namespace MudSharp.Communication
         Poster,
         Mural
     }
-    
+
     public interface IDrawing : ICanBeRead
     {
         DrawingSize DrawingSize { get; }

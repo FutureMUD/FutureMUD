@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
-namespace MudSharp.Economy.Currency {
-    public interface ICurrencyDivision : IFrameworkItem, IEditableItem {
+namespace MudSharp.Economy.Currency
+{
+    public interface ICurrencyDivision : IFrameworkItem, IEditableItem
+    {
         /// <summary>
         ///     Conversion between this division and the "base" unit for the currency, e.g. if cents is base unit, dollar is 100.
         /// </summary>

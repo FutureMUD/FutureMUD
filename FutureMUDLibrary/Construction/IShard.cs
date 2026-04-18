@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
-using MudSharp.Celestial;
+﻿using MudSharp.Celestial;
 using MudSharp.FutureProg;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using System.Collections.Generic;
 
-namespace MudSharp.Construction {
-    public interface IShard : ILocation, IProgVariable {
+namespace MudSharp.Construction
+{
+    public interface IShard : ILocation, IProgVariable
+    {
         double MinimumTerrestrialLux { get; }
         IEditableShard GetEditableShard { get; }
         double SphericalRadiusMetres { get; }
@@ -21,7 +23,8 @@ namespace MudSharp.Construction {
         IEnumerable<ICell> Cells { get; }
     }
 
-    public interface IEditableShard : IShard {
+    public interface IEditableShard : IShard
+    {
         new double MinimumTerrestrialLux { get; set; }
         new List<IClock> Clocks { get; }
         new List<ICalendar> Calendars { get; }

@@ -1,5 +1,4 @@
-﻿using System;
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -7,9 +6,12 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
+using System;
 
-namespace MudSharp.GameItems.Interfaces {
-    public enum DoorState {
+namespace MudSharp.GameItems.Interfaces
+{
+    public enum DoorState
+    {
         Uninstalled = 0,
         Open,
         Closed
@@ -17,7 +19,8 @@ namespace MudSharp.GameItems.Interfaces {
 
     public delegate void DoorEvent(IDoor door);
 
-    public interface IDoor : IOpenable, ILockable {
+    public interface IDoor : IOpenable, ILockable
+    {
         IExit InstalledExit { get; set; }
         DoorState State { get; set; }
         bool CanPlayersUninstall { get; }
@@ -37,9 +40,12 @@ namespace MudSharp.GameItems.Interfaces {
         event DoorEvent OnChangeCanFireThrough;
     }
 
-    public static class DoorStateExtensions {
-        public static string Describe(this DoorState state) {
-            switch (state) {
+    public static class DoorStateExtensions
+    {
+        public static string Describe(this DoorState state)
+        {
+            switch (state)
+            {
                 case DoorState.Uninstalled:
                     return "Uninstalled";
                 case DoorState.Open:

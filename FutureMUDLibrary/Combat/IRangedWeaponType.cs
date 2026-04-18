@@ -5,68 +5,69 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.RPG.Checks;
 
-namespace MudSharp.Combat {
-	public interface IRangedWeaponType : IEditableItem, ISaveable
-	{
+namespace MudSharp.Combat
+{
+    public interface IRangedWeaponType : IEditableItem, ISaveable
+    {
 
-		IRangedWeaponType Clone(string name);
+        IRangedWeaponType Clone(string name);
 
-		/// <summary>
-		///     Trait used to line up a shot and take it with this weapon
-		/// </summary>
-		ITraitDefinition FireTrait { get; }
+        /// <summary>
+        ///     Trait used to line up a shot and take it with this weapon
+        /// </summary>
+        ITraitDefinition FireTrait { get; }
 
-		/// <summary>
-		///     Trait used to load, prepare, unload this weapon
-		/// </summary>
-		ITraitDefinition OperateTrait { get; }
+        /// <summary>
+        ///     Trait used to load, prepare, unload this weapon
+        /// </summary>
+        ITraitDefinition OperateTrait { get; }
 
-		/// <summary>
-		///     Whether this weapon can be fired when in melee range
-		/// </summary>
-		bool FireableInMelee { get; }
+        /// <summary>
+        ///     Whether this weapon can be fired when in melee range
+        /// </summary>
+        bool FireableInMelee { get; }
 
-		/// <summary>
-		///     The default number of rooms that this weapon can fire at a target
-		/// </summary>
-		uint DefaultRangeInRooms { get; }
+        /// <summary>
+        ///     The default number of rooms that this weapon can fire at a target
+        /// </summary>
+        uint DefaultRangeInRooms { get; }
 
-		/// <summary>
-		///     A TraitExpression showing what bonus should be applied to the shot. Parameters are quality, range, inmelee (0 or
-		///     1), aim% (0-1)
-		/// </summary>
-		ITraitExpression AccuracyBonusExpression { get; }
+        /// <summary>
+        ///     A TraitExpression showing what bonus should be applied to the shot. Parameters are quality, range, inmelee (0 or
+        ///     1), aim% (0-1)
+        /// </summary>
+        ITraitExpression AccuracyBonusExpression { get; }
 
-		/// <summary>
-		///     A TraitExpression showing what damage bonus should be applied to the shot. Parameters are quality, range
-		/// </summary>
-		ITraitExpression DamageBonusExpression { get; }
+        /// <summary>
+        ///     A TraitExpression showing what damage bonus should be applied to the shot. Parameters are quality, range
+        /// </summary>
+        ITraitExpression DamageBonusExpression { get; }
 
-		AmmunitionLoadType AmmunitionLoadType { get; }
+        AmmunitionLoadType AmmunitionLoadType { get; }
 
-		string SpecificAmmunitionGrade { get; }
+        string SpecificAmmunitionGrade { get; }
 
-		int AmmunitionCapacity { get; }
-		RangedWeaponType RangedWeaponType { get; }
+        int AmmunitionCapacity { get; }
+        RangedWeaponType RangedWeaponType { get; }
 
-		double StaminaToFire { get; }
-		double StaminaPerLoadStage { get; }
-		double CoverBonus { get; }
+        double StaminaToFire { get; }
+        double StaminaPerLoadStage { get; }
+        double CoverBonus { get; }
 
-		Difficulty BaseAimDifficulty { get; }
+        Difficulty BaseAimDifficulty { get; }
 
-		CheckType FireCheck { get; }
+        CheckType FireCheck { get; }
 
-		double LoadCombatDelay { get; }
+        double LoadCombatDelay { get; }
 
-		double ReadyCombatDelay { get; }
+        double ReadyCombatDelay { get; }
 
-		double FireCombatDelay { get; }
+        double FireCombatDelay { get; }
 
-		double AimBonusLostPerShot { get; }
+        double AimBonusLostPerShot { get; }
 
-		bool RequiresFreeHandToReady { get; }
-		bool AlwaysRequiresTwoHandsToWield { get; }
-		WeaponClassification Classification { get; }
-	}
+        bool RequiresFreeHandToReady { get; }
+        bool AlwaysRequiresTwoHandsToWield { get; }
+        WeaponClassification Classification { get; }
+    }
 }

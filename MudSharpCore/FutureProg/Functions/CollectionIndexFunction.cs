@@ -9,34 +9,34 @@ namespace MudSharp.FutureProg.Functions;
 
 internal class CollectionIndexFunction : Function
 {
-	public string WhichVariable { get; }
-	public IFunction IndexFunction { get; }
+    public string WhichVariable { get; }
+    public IFunction IndexFunction { get; }
 
-	public CollectionIndexFunction(string whichVariable, IFunction indexFunction, ProgVariableTypes returnType)
-	{
-		WhichVariable = whichVariable;
-		IndexFunction = indexFunction;
-		ReturnType = returnType;
-	}
+    public CollectionIndexFunction(string whichVariable, IFunction indexFunction, ProgVariableTypes returnType)
+    {
+        WhichVariable = whichVariable;
+        IndexFunction = indexFunction;
+        ReturnType = returnType;
+    }
 
-	public override StatementResult Execute(IVariableSpace variables)
-	{
-		var collection = (IList)variables.GetVariable(WhichVariable)?.GetObject;
-		if (collection == null)
-		{
-			ErrorMessage = "Collection was null";
-			return StatementResult.Error;
-		}
+    public override StatementResult Execute(IVariableSpace variables)
+    {
+        IList collection = (IList)variables.GetVariable(WhichVariable)?.GetObject;
+        if (collection == null)
+        {
+            ErrorMessage = "Collection was null";
+            return StatementResult.Error;
+        }
 
-		var result = IndexFunction.Execute(variables);
-		if (result == StatementResult.Error)
-		{
-			ErrorMessage = IndexFunction.ErrorMessage;
-			return StatementResult.Error;
-		}
+        StatementResult result = IndexFunction.Execute(variables);
+        if (result == StatementResult.Error)
+        {
+            ErrorMessage = IndexFunction.ErrorMessage;
+            return StatementResult.Error;
+        }
 
-		var index = Convert.ToInt32(IndexFunction.Result?.GetObject ?? 0);
-		Result = collection.OfType<IProgVariable>().ElementAtOrDefault(index);
-		return StatementResult.Normal;
-	}
+        int index = Convert.ToInt32(IndexFunction.Result?.GetObject ?? 0);
+        Result = collection.OfType<IProgVariable>().ElementAtOrDefault(index);
+        return StatementResult.Normal;
+    }
 }

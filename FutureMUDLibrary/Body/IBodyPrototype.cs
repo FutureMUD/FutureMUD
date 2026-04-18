@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MudSharp.Body.Position;
+﻿using MudSharp.Body.Position;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Form.Shape;
@@ -8,8 +7,10 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.Movement;
 using MudSharp.Strategies.BodyStratagies;
+using System.Collections.Generic;
 
-namespace MudSharp.Body {
+namespace MudSharp.Body
+{
     public enum BodypartRole
     {
         Core,
@@ -18,7 +19,8 @@ namespace MudSharp.Body {
         Extra
     }
 
-    public interface IBodyPrototype : IFrameworkItem, IHaveFuturemud {
+    public interface IBodyPrototype : IFrameworkItem, IHaveFuturemud
+    {
         IBodyPrototype Parent { get; }
         IBodyCommunicationStrategy Communications { get; }
 
@@ -39,7 +41,7 @@ namespace MudSharp.Body {
         IEnumerable<IBone> Bones { get; }
 
         IEnumerable<IBodypart> AllBodypartsBonesAndOrgans { get; }
-            /// <summary>
+        /// <summary>
         ///     Additional Bodyparts to be connected to the IBody only for females
         /// </summary>
         IEnumerable<IBodypart> FemaleOnlyAdditions { get; }

@@ -1,883 +1,888 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Humanizer;
+using MimeKit;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
-using MudSharp.Database;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Effects.Concrete;
+using MudSharp.CharacterCreation.Roles;
+using MudSharp.Commands;
+using MudSharp.Commands.Modules;
+using MudSharp.Communication;
+using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Database;
+using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
-using System.IO;
-using MudSharp.Commands.Modules;
-using MudSharp.Network;
 using MudSharp.FutureProg;
-using System.Numerics;
 using MudSharp.FutureProg.Functions;
+using MudSharp.Help;
+using MudSharp.Network;
 using MudSharp.NPC;
-using MimeKit;
-using Humanizer;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net.Sockets;
+using System.Numerics;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.Discord;
 
 public sealed class DiscordConnection : IDiscordConnection
 {
-	private static readonly byte[] ByteSeparators = { (byte)'\n' };
-	private TcpClient _client;
-	private NetworkStream _stream;
-	private string _serverAuth;
-	private DateTime _lastConnectionAttempt;
+    private static readonly byte[] ByteSeparators = { (byte)'\n' };
+    private TcpClient _client;
+    private NetworkStream _stream;
+    private string _serverAuth;
+    private DateTime _lastConnectionAttempt;
 
-	public IFuturemud Gameworld { get; private set; }
+    public IFuturemud Gameworld { get; private set; }
 
-	public DiscordConnection(IFuturemud gameworld)
-	{
-		Gameworld = gameworld;
-	}
+    public DiscordConnection(IFuturemud gameworld)
+    {
+        Gameworld = gameworld;
+    }
 
-	public void SendMessageFromProg(ulong channel, string title, string message)
-	{
-		try
-		{
-			SendClientMessage(
-				$"sendmessage {channel.ToString("F0", CultureInfo.InvariantCulture.NumberFormat)} \"{title}\" {message}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-			OpenTcpConnection();
-		}
-	}
-
-	public void NotifyPetition(string account, string message, string location)
-	{
-		try
-		{
-			SendClientMessage($"petition {account} \"{location}\" {message}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-			OpenTcpConnection();
-		}
-	}
-
-	public void NotifyCharacterSubmission(string account, string name, long id)
-	{
-		try
-		{
-			SendClientMessage($"chargen {account} {id} {name}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-			OpenTcpConnection();
-		}
-	}
-
-	public void NotifyShutdown(string shutdownAccount)
-	{
-		try
-		{
-			SendClientMessage($"shutdown {shutdownAccount}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-			OpenTcpConnection();
-		}
-	}
-
-	public void NotifyCharacterApproval(string account, string name, string approver)
-	{
-		try
-		{
-			SendClientMessage($"chargen_approved {account} {approver} {name}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-			OpenTcpConnection();
-		}
-	}
-
-	public void NotifyCharacterRejection(string account, string name, string reviewer)
-	{
-		try
-		{
-			SendClientMessage($"chargen_rejected {account} {reviewer} {name}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-			OpenTcpConnection();
-		}
-	}
-
-	public void NotifyCrash(string crashMessage)
-	{
-		try
-		{
-			SendClientMessage($"crash {crashMessage}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-		}
-	}
-
-	public void NotifyBadEcho(string badEcho)
-	{
-		try
-		{
-			SendClientMessage($"badecho {badEcho}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-		}
-	}
-
-	public void NotifyAdmins(string echo)
-	{
-		try
-		{
-			SendClientMessage($"notifyadmins {echo}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-		}
-	}
-
-	public void NotifyProgError(long progId, string progName, string errorMessage)
-	{
-		try
-		{
-			SendClientMessage($"progerror {progId} \"{progName}\" {errorMessage}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-		}
-	}
-
-	public void NotifyCustomChannel(ulong channel, string header, string echo)
-	{
-		try
-		{
-			SendClientMessage($"custom {channel} \"{header}\" {echo}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-		}
-	}
-
-	public void NotifyInGameChannelUsed(string channel, ulong discordChannel, string author, string text)
-	{
-		try
-		{
-			SendClientMessage($"ingamechannel \"{channel}\" {discordChannel} \"{author}\" \"{text}\"");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-		}
-	}
-
-	public void NotifyDeath(ICharacter who)
-	{
-		try
-		{
-			SendClientMessage(
-				$"notifydeath {who.Id} {who.Account.Name} {who.Location.Id} {who.RoomLayer.DescribeEnum()} \"{who.Location.HowSeen(who, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)}\" \"{who.HowSeen(who, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}\" \"{who.PersonalName.GetName(NameStyle.FullName)}\"");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-		}
-	}
-
-	public void NotifyEnforcement(string subtype, ulong discordChannel, string otherText)
-	{
-		try
-		{
-			SendClientMessage($"enforcement {subtype} {discordChannel} {otherText}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-		}
-	}
-
-	private void SendClientMessage(string message)
-	{
-		var bytes = Encoding.Unicode.GetBytes(message).Concat(new byte[] { 1 });
-		_client?.Client.Send(bytes.ToArray());
-	}
-
-	public bool OpenTcpConnection()
-	{
-		try
-		{
-			_lastConnectionAttempt = DateTime.UtcNow;
-			_client = new TcpClient(Gameworld.GetStaticConfiguration("DiscordBotIpAddress"),
-				Gameworld.GetStaticInt("DiscordBotPort"));
-			_serverAuth = Gameworld.GetStaticConfiguration("DiscordAuthToken");
-			_stream = _client.GetStream();
-			var version = Assembly.GetCallingAssembly().GetName().Version;
-			var versionString = $"v{version.Major}.{version.Minor}.{version.Build}.{version.Revision.ToString("0000")}";
-			SendClientMessage($"login {_serverAuth} {versionString}");
-			return true;
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-			return false;
-		}
-	}
-
-	public void CloseTcpConnection()
-	{
-		try
-		{
-			_client?.Close();
-			_stream?.Close();
-		}
-		catch (Exception)
-		{
-		}
-
-		_client = null;
-		_stream = null;
-	}
-
-	public void HandleMessages()
-	{
-		if (_client == null)
-		{
-			if (DateTime.UtcNow - _lastConnectionAttempt < TimeSpan.FromSeconds(15))
-			{
-				return;
-			}
-
-			if (!OpenTcpConnection())
-			{
-				return;
-			}
-		}
-
-		try
-		{
-			if (!_stream.DataAvailable)
-			{
-				return;
-			}
-
-			var inputBuffer = new byte[4096];
-			var bytes = _stream.Read(inputBuffer, 0, 4096);
-
-			var splitBytes =
-				inputBuffer.Take(bytes).ToArray().SplitDelimiter(ByteSeparators).ToList();
-			foreach (var command in splitBytes)
-			{
-				HandleTcpCommand(Encoding.Unicode.GetString(command));
-			}
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-			OpenTcpConnection();
-		}
-	}
-
-	private void HandleTcpCommand(string getString)
-	{
-		var ss = new StringStack(getString);
-		switch (ss.PopSpeech())
-		{
-			case "help":
-				Console.WriteLine("Discord asked for HELP.");
-				HandleHelpTcpCommand(ss);
-				return;
-			case "proghelp":
-				Console.WriteLine("Discord asked for PROGHELP.");
-				HandleProgHelpTcpCommand(ss);
-				return;
-			case "adminhelp":
-				Console.WriteLine("Discord asked for ADMINHELP.");
-				HandleHelpTcpCommand(ss, true);
-				return;
-			case "authsuccess":
-				Console.WriteLine("DiscordConnection successfully authenticated.");
-				return;
-			case "authfailure":
-				Console.WriteLine("DiscordConnection did not successfully authenticate.");
-				return;
-			case "who":
-				Console.WriteLine("Discord asked for WHO.");
-				HandleWhoTcpCommand(ss);
-				return;
-                        case "where":
-                                Console.WriteLine("Discord asked for WHERE.");
-                                HandleWhereTcpCommand(ss);
-                                return;
-                        case "map":
-                                Console.WriteLine("Discord asked for MAP.");
-                                HandleMapTcpCommand(ss);
-                                return;
-                        case "stats":
-                                Console.WriteLine("Discord asked for STATS.");
-                                HandleStatsTcpCommand(ss);
-                                return;
-                        case "showchargen":
-				HandleShowChargenTcpCommand(ss);
-				return;
-			case "approvechargen":
-				HandleApproveChargenTcpCommand(ss);
-				return;
-			case "rejectchargen":
-				HandleRejectChargenTcpCommand(ss);
-				return;
-			case "broadcast":
-				HandleBroadcastTcpCommand(ss);
-				return;
-			case "send":
-				HandleSendTcpCommand(ss);
-				return;
-			case "sendchannel":
-				HandleSendChannelTcpCommand(ss);
-				return;
-			case "register":
-                                HandleRegisterTcpCommand(ss);
-                                return;
-                        case "showaccount":
-                                HandleShowAccountTcpCommand(ss);
-                                return;
-                        case "showcharacter":
-                                HandleShowCharacterTcpCommand(ss);
-                                return;
-                        case "shutdown":
-                                HandleShutdownTcpCommand(ss);
-                                return;
-                }
-        }
-
-	private void HandleSendChannelTcpCommand(StringStack ss)
-	{
-		var request = ulong.Parse(ss.PopSpeech());
-		var from = ss.PopSpeech();
-		var channel = ss.PopSpeech();
-		var message = ss.SafeRemainingArgument;
-		var account = Gameworld.Accounts.FirstOrDefault(x => x.Name == from);
-		if (account is null)
-		{
-			SendClientMessage($"request {request} sendfailedaccount");
-			return;
-		}
-
-		var igChannel = Gameworld.Channels.FirstOrDefault(x =>
-			x.CommandWords.Any(y => y.StartsWith(channel, StringComparison.InvariantCultureIgnoreCase)));
-		if (igChannel == null)
-		{
-			SendClientMessage($"request {request} sendfailed {channel}");
-			return;
-		}
-
-		if (!igChannel.Send(account, message))
-		{
-			SendClientMessage($"request {request} sendfailed {channel}");
-			return;
-		}
-
-		SendClientMessage($"request {request} sendacknowledge");
-	}
-
-	private void HandleShutdownTcpCommand(StringStack ss)
-	{
-		var requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-		var reboot = bool.Parse(ss.PopSpeech());
-		IAccount account;
-		using (new FMDB())
-		{
-			account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
-			if (account.Authority.Level < PermissionLevel.SeniorAdmin)
-			{
-				return;
-			}
-
-			var time = DateTime.UtcNow;
-			foreach (var dbchar in Gameworld.Characters.SelectNotNull(ch => FMDB.Context.Characters.Find(ch.Id)))
-			{
-				dbchar.LastLogoutTime = time;
-			}
-
-			FMDB.Context.SaveChanges();
-		}
-
-		Gameworld.Characters.ForEach(x => x.EffectsChanged = true);
-		Gameworld.SaveManager.Flush();
-		Gameworld.DiscordConnection.NotifyShutdown(account.Name.Proper());
-
-		if (reboot)
-		{
-			Console.WriteLine($"{account.Name.Proper()} excecuted a shutdown [reboot] command via discord.");
-			Gameworld.SystemMessage(string.Format(Gameworld.GetStaticString("GameShutdownMessageReboot"),
-				Gameworld.Name.Proper().ColourName()));
-		}
-		else
-		{
-			Console.WriteLine($"{account.Name.Proper()} excecuted a shutdown command via discord.");
-			Gameworld.SystemMessage(string.Format(Gameworld.GetStaticString("GameShutdownMessage"),
-				Gameworld.Name.Proper().ColourName()));
-			using (var fs = File.Create("STOP-REBOOTING"))
-			{
-			}
-		}
-
-		Gameworld.HaltGameLoop();
-	}
-
-	private void HandleRejectChargenTcpCommand(StringStack ss)
-	{
-		var request = ulong.Parse(ss.PopSpeech());
-		var which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-		var requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-		var message = ss.RemainingArgument;
-
-		Chargen chargen;
-		IAccount account;
-		using (new FMDB())
-		{
-			var dbitem = FMDB.Context.Chargens.Find(which);
-			if (dbitem == null)
-			{
-				SendClientMessage($"request {request} nosuchchargen {which}");
-				return;
-			}
-
-			chargen = new Chargen(dbitem, Gameworld, dbitem.Account);
-			account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
-		}
-
-		if (chargen.State != ChargenState.Submitted)
-		{
-			SendClientMessage(
-				$"request {request} chargenapprovalerror {which} That chargen is not currently in the submitted state.");
-			return;
-		}
-
-		chargen.RejectApplication(null, account, message, null);
-	}
-
-	private void HandleApproveChargenTcpCommand(StringStack ss)
-	{
-		var request = ulong.Parse(ss.PopSpeech());
-		var which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-		var requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-		var message = ss.RemainingArgument;
-
-		Chargen chargen;
-		IAccount account;
-		using (new FMDB())
-		{
-			var dbitem = FMDB.Context.Chargens.Find(which);
-			if (dbitem == null)
-			{
-				SendClientMessage($"request {request} nosuchchargen {which}");
-				return;
-			}
-
-			chargen = new Chargen(dbitem, Gameworld, dbitem.Account);
-			account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
-		}
-
-		if (chargen.State != ChargenState.Submitted)
-		{
-			SendClientMessage(
-				$"request {request} chargenapprovalerror {which} That chargen is not currently in the submitted state.");
-			return;
-		}
-
-		if (chargen.MinimumApprovalAuthority > account.Authority.Level)
-		{
-			SendClientMessage(
-				$"request {request} chargenapprovalerror {which} That application requires a minimum authority level of {chargen.MinimumApprovalAuthority.Describe()}.");
-			return;
-		}
-
-		if (account.Authority.Level < PermissionLevel.HighAdmin &&
-		    chargen.SelectedRoles.Any(
-			    x =>
-				    x.RequiredApprovers.Any() &&
-				    x.RequiredApprovers.All(
-					    y => !y.Equals(account.Name, StringComparison.InvariantCultureIgnoreCase))))
-		{
-			var blockingRole =
-				chargen.SelectedRoles.First(
-					x =>
-						x.RequiredApprovers.Any() &&
-						x.RequiredApprovers.All(
-							y => !y.Equals(account.Name, StringComparison.InvariantCultureIgnoreCase)));
-			SendClientMessage(
-				$"request {request} chargenapprovalerror {which} The **{blockingRole.Name.TitleCase()}** role requires specific people to approve it, and you are not amongst them.");
-			return;
-		}
-
-		if (
-			chargen.ApplicationCosts.Any(x => chargen.Account.AccountResources[x.Key] < x.Value))
-		{
-			SendClientMessage(
-				$"request {request} chargenapprovalerror {which} Account {chargen.Account.Name.Proper()} no longer has sufficient {chargen.ApplicationCosts.Where(x => chargen.Account.AccountResources[x.Key] < x.Value).Select(x => x.Key.PluralName).ListToString()} to pay for that application.");
-			return;
-		}
-
-		SendClientMessage($"request {request} success");
-		chargen.ApproveApplication(null, account, message, null);
-	}
-
-	private void HandleShowChargenTcpCommand(StringStack ss)
-	{
-		var request = ulong.Parse(ss.PopSpeech());
-		var requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-		var id = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-
-		Chargen chargen;
-		IAccount account;
-		using (new FMDB())
-		{
-			var dbitem = FMDB.Context.Chargens.Find(id);
-			if (dbitem == null)
-			{
-				SendClientMessage($"request {request} nosuchchargen {id}");
-				return;
-			}
-
-			chargen = new Chargen(dbitem, Gameworld, dbitem.Account);
-			account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
-		}
-
-		SendClientMessage(
-			$"request {request} chargeninfo {id} {chargen.DisplayForReviewForDiscord(account, account.Authority.Level).RawText()}");
-	}
-
-        private void HandleRegisterTcpCommand(StringStack ss)
+    public void SendMessageFromProg(ulong channel, string title, string message)
+    {
+        try
         {
-		var request = ulong.Parse(ss.PopSpeech());
-		var discorduserid = ulong.Parse(ss.PopSpeech());
-		var discordusername = ss.PopSpeech();
-		var accountname = ss.PopSpeech();
-
-		var character = Gameworld.Characters.FirstOrDefault(x => x.Account.Name.EqualTo(accountname));
-		if (character == null)
-		{
-			SendClientMessage($"request {request} notfound");
-			return;
-		}
-
-		character.OutputHandler.Send(
-			$"You have received a request to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}.\n{Accept.StandardAcceptPhrasing}");
-		var account = character.Account;
-                character.AddEffect(new Accept(character, new GenericProposal
-                {
-                        AcceptAction = text =>
-			{
-				character.OutputHandler.Send(
-					$"You accept the proposal to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}");
-				try
-				{
-					SendClientMessage($"request {request} registeracknowledge {account.Name} {account.Id}");
-				}
-				catch (SocketException)
-				{
-					CloseTcpConnection();
-				}
-			},
-			RejectAction = text =>
-			{
-				character.OutputHandler.Send(
-					$"You decide not to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}");
-				SendClientMessage($"request {request} rejected");
-			},
-			ExpireAction = () =>
-			{
-				character.OutputHandler.Send(
-					$"You decide not to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}");
-				SendClientMessage($"request {request} timeout");
-			},
-			DescriptionString = "Linking your account to a discord user"
-                }), TimeSpan.FromSeconds(120));
+            SendClientMessage(
+                $"sendmessage {channel.ToString("F0", CultureInfo.InvariantCulture.NumberFormat)} \"{title}\" {message}");
         }
-
-        private void HandleShowAccountTcpCommand(StringStack ss)
+        catch (SocketException)
         {
-                var request = ulong.Parse(ss.PopSpeech());
-                var requesterId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-                var which = ss.PopSpeech();
-
-                IAccount viewer;
-                MudSharp.Models.Account dbitem;
-                IAccount account;
-                using (new FMDB())
-                {
-                        viewer = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterId));
-                        dbitem = long.TryParse(which, out var value)
-                                ? FMDB.Context.Accounts.FirstOrDefault(x => x.Id == value)
-                                : FMDB.Context.Accounts.FirstOrDefault(x => x.Name == which);
-                        if (dbitem == null)
-                        {
-                                SendClientMessage($"request {request} nosuchaccount {which}");
-                                return;
-                        }
-                        account = Gameworld.TryAccount(dbitem);
-                }
-
-                var text = ShowModule.BuildAccountInfo(viewer ?? account, dbitem, account).RawText();
-                SendClientMessage($"request {request} accountinfo {text}");
+            CloseTcpConnection();
+            OpenTcpConnection();
         }
+    }
 
-        private void HandleShowCharacterTcpCommand(StringStack ss)
+    public void NotifyPetition(string account, string message, string location)
+    {
+        try
         {
-                var request = ulong.Parse(ss.PopSpeech());
-                ss.PopSpeech(); // requester id, currently unused
-                var which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-
-                var character = Gameworld.TryGetCharacter(which, true);
-                if (character == null)
-                {
-                        SendClientMessage($"request {request} nosuchcharacter {which}");
-                        return;
-                }
-
-                var text = character.ShowStat(new DummyPerceiver()).RawText();
-                SendClientMessage($"request {request} characterinfo {text}");
+            SendClientMessage($"petition {account} \"{location}\" {message}");
         }
-
-        private void HandleMapTcpCommand(StringStack ss)
+        catch (SocketException)
         {
-                var request = ulong.Parse(ss.PopSpeech());
-                var accountId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-                var cellId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-
-                IAccount account;
-                using (new FMDB())
-                {
-                        account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(accountId));
-                }
-
-                if (account == null || account.Authority.Level < PermissionLevel.JuniorAdmin)
-                {
-                        SendClientMessage($"request {request} notauthorised");
-                        return;
-                }
-
-                var cell = Gameworld.Cells.Get(cellId);
-                if (cell == null)
-                {
-                        SendClientMessage($"request {request} nosuchcell {cellId}");
-                        return;
-                }
-
-                var mapText = GenerateMap(cell, account).RawText();
-                SendClientMessage($"request {request} map {mapText}");
+            CloseTcpConnection();
+            OpenTcpConnection();
         }
+    }
 
-        private string GenerateMap(ICell startCell, IAccount account)
+    public void NotifyCharacterSubmission(string account, string name, long id)
+    {
+        try
         {
-                var width = (account.LineFormatLength - 11) / 10;
-                if (width % 2 == 0)
-                {
-                        width -= 1;
-                }
+            SendClientMessage($"chargen {account} {id} {name}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+            OpenTcpConnection();
+        }
+    }
 
-                var centre = width / 2;
+    public void NotifyShutdown(string shutdownAccount)
+    {
+        try
+        {
+            SendClientMessage($"shutdown {shutdownAccount}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+            OpenTcpConnection();
+        }
+    }
 
-                var cells = new ICell[width, width];
-                var hasNonCompass = new bool[width, width];
-                var hasCartesianClashes = new bool[width, width];
-                var hasBank = new bool[width, width];
-                var hasShop = new bool[width, width];
-                var hasAuctionHouse = new bool[width, width];
-                var hasPlayers = new bool[width, width];
-                var hasHostiles = new bool[width, width];
+    public void NotifyCharacterApproval(string account, string name, string approver)
+    {
+        try
+        {
+            SendClientMessage($"chargen_approved {account} {approver} {name}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+            OpenTcpConnection();
+        }
+    }
 
-                cells[centre, centre] = startCell;
-                var exits = startCell.ExitsFor(null, true).ToList();
-                var queue = new Queue<(ICellExit, int, int)>();
+    public void NotifyCharacterRejection(string account, string name, string reviewer)
+    {
+        try
+        {
+            SendClientMessage($"chargen_rejected {account} {reviewer} {name}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+            OpenTcpConnection();
+        }
+    }
 
-                foreach (var exit in exits)
-                {
-                        queue.Enqueue((exit, centre, centre));
-                }
+    public void NotifyCrash(string crashMessage)
+    {
+        try
+        {
+            SendClientMessage($"crash {crashMessage}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+        }
+    }
 
-                void AddExitCell(ICellExit exitToAdd, int originX, int originY)
-                {
-                        switch (exitToAdd.OutboundDirection)
-                        {
-                                case CardinalDirection.North:
-                                        originY -= 1;
-                                        break;
-                                case CardinalDirection.NorthEast:
-                                        originY -= 1;
-                                        originX += 1;
-                                        break;
-                                case CardinalDirection.East:
-                                        originX += 1;
-                                        break;
-                                case CardinalDirection.SouthEast:
-                                        originX += 1;
-                                        originY += 1;
-                                        break;
-                                case CardinalDirection.South:
-                                        originY += 1;
-                                        break;
-                                case CardinalDirection.SouthWest:
-                                        originX -= 1;
-                                        originY += 1;
-                                        break;
-                                case CardinalDirection.West:
-                                        originX -= 1;
-                                        break;
-                                case CardinalDirection.NorthWest:
-                                        originX -= 1;
-                                        originY -= 1;
-                                        break;
-                                case CardinalDirection.Up:
-                                case CardinalDirection.Down:
-                                case CardinalDirection.Unknown:
-                                        hasNonCompass[originX, originY] = true;
-                                        break;
-                        }
+    public void NotifyBadEcho(string badEcho)
+    {
+        try
+        {
+            SendClientMessage($"badecho {badEcho}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+        }
+    }
 
-                        if (originX < 0 || originX >= width || originY < 0 || originY >= width)
-                        {
-                                return;
-                        }
+    public void NotifyAdmins(string echo)
+    {
+        try
+        {
+            SendClientMessage($"notifyadmins {echo}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+        }
+    }
 
-                        if (cells[originX, originY] is not null)
-                        {
-                                if (cells[originX, originY] != exitToAdd.Destination)
-                                {
-                                        hasCartesianClashes[originX, originY] = true;
-                                }
+    public void NotifyProgError(long progId, string progName, string errorMessage)
+    {
+        try
+        {
+            SendClientMessage($"progerror {progId} \"{progName}\" {errorMessage}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+        }
+    }
 
-                                return;
-                        }
+    public void NotifyCustomChannel(ulong channel, string header, string echo)
+    {
+        try
+        {
+            SendClientMessage($"custom {channel} \"{header}\" {echo}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+        }
+    }
 
-                        var destinationCell = exitToAdd.Destination;
-                        cells[originX, originY] = destinationCell;
-                        foreach (var newExit in destinationCell.ExitsFor(null, true).Except(exitToAdd))
-                        {
-                                switch (newExit.OutboundDirection)
-                                {
-                                        case CardinalDirection.Up:
-                                        case CardinalDirection.Down:
-                                        case CardinalDirection.Unknown:
-                                                hasNonCompass[originX, originY] = true;
-                                                break;
-                                }
+    public void NotifyInGameChannelUsed(string channel, ulong discordChannel, string author, string text)
+    {
+        try
+        {
+            SendClientMessage($"ingamechannel \"{channel}\" {discordChannel} \"{author}\" \"{text}\"");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+        }
+    }
 
-                                queue.Enqueue((newExit, originX, originY));
-                        }
+    public void NotifyDeath(ICharacter who)
+    {
+        try
+        {
+            SendClientMessage(
+                $"notifydeath {who.Id} {who.Account.Name} {who.Location.Id} {who.RoomLayer.DescribeEnum()} \"{who.Location.HowSeen(who, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)}\" \"{who.HowSeen(who, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}\" \"{who.PersonalName.GetName(NameStyle.FullName)}\"");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+        }
+    }
 
-                        if (destinationCell.Shop is not null)
-                        {
-                                hasShop[originX, originY] = true;
-                        }
+    public void NotifyEnforcement(string subtype, ulong discordChannel, string otherText)
+    {
+        try
+        {
+            SendClientMessage($"enforcement {subtype} {discordChannel} {otherText}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+        }
+    }
 
-                        if (startCell.Gameworld.Banks.Any(x => x.BranchLocations.Contains(destinationCell)))
-                        {
-                                hasBank[originX, originY] = true;
-                        }
+    private void SendClientMessage(string message)
+    {
+        IEnumerable<byte> bytes = Encoding.Unicode.GetBytes(message).Concat(new byte[] { 1 });
+        _client?.Client.Send(bytes.ToArray());
+    }
 
-                        if (startCell.Gameworld.AuctionHouses.Any(x => x.AuctionHouseCell == destinationCell))
-                        {
-                                hasAuctionHouse[originX, originY] = true;
-                        }
+    public bool OpenTcpConnection()
+    {
+        try
+        {
+            _lastConnectionAttempt = DateTime.UtcNow;
+            _client = new TcpClient(Gameworld.GetStaticConfiguration("DiscordBotIpAddress"),
+                Gameworld.GetStaticInt("DiscordBotPort"));
+            _serverAuth = Gameworld.GetStaticConfiguration("DiscordAuthToken");
+            _stream = _client.GetStream();
+            Version version = Assembly.GetCallingAssembly().GetName().Version;
+            string versionString = $"v{version.Major}.{version.Minor}.{version.Build}.{version.Revision:0000}";
+            SendClientMessage($"login {_serverAuth} {versionString}");
+            return true;
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+            return false;
+        }
+    }
 
-                        if (destinationCell.Characters.Any(x => x.IsPlayerCharacter))
-                        {
-                                hasPlayers[originX, originY] = true;
-                        }
-
-                        if (destinationCell.Characters.Any(x =>
-                                    x is INPC npc && !npc.AffectedBy<IPauseAIEffect>() && npc.AIs.Any(y => y.CountsAsAggressive)))
-                        {
-                                hasHostiles[originX, originY] = true;
-                        }
-                }
-
-                while (queue.Count > 0)
-                {
-                        var (exit, x, y) = queue.Dequeue();
-                        AddExitCell(exit, x, y);
-                }
-
-                hasPlayers[centre, centre] = true;
-
-                var viewer = new DummyPerceiver(location: startCell) { Account = account };
-                return StringUtilities.DrawMap(viewer, width, width, cells, hasNonCompass, hasCartesianClashes, hasBank, hasShop,
-                        hasAuctionHouse, hasPlayers, hasHostiles);
+    public void CloseTcpConnection()
+    {
+        try
+        {
+            _client?.Close();
+            _stream?.Close();
+        }
+        catch (Exception)
+        {
         }
 
-	private void HandleSendTcpCommand(StringStack ss)
-	{
-		var request = ulong.Parse(ss.PopSpeech());
-		var from = ss.PopSpeech();
-		var to = ss.PopSpeech();
-		var message = ss.RemainingArgument;
-		var user = Gameworld.Connections.FirstOrDefault(x =>
-			x.State == ConnectionState.Open && x.ControlPuppet?.Account?.Name.EqualTo(to) == true);
-		if (user == null)
-		{
-			SendClientMessage($"request {request} sendfailed {to}");
-			return;
-		}
+        _client = null;
+        _stream = null;
+    }
 
-		user.ControlPuppet.OutputHandler?.Send(
-			$"{$"[From {from}]".Colour(Telnet.Green)} {message.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences()}");
-		SendClientMessage($"request {request} sendacknowledge {from} {to} {message}");
-	}
+    public void HandleMessages()
+    {
+        if (_client == null)
+        {
+            if (DateTime.UtcNow - _lastConnectionAttempt < TimeSpan.FromSeconds(15))
+            {
+                return;
+            }
 
-	private void HandleBroadcastTcpCommand(StringStack ss)
-	{
-		if (ss.IsFinished)
-		{
-			return;
-		}
+            if (!OpenTcpConnection())
+            {
+                return;
+            }
+        }
 
-		Gameworld.SystemMessage(ss.RemainingArgument.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences());
-		HandleBroadcast(ss.RemainingArgument.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences());
-	}
+        try
+        {
+            if (!_stream.DataAvailable)
+            {
+                return;
+            }
 
-	private void HandleProgHelpTcpCommand(StringStack ss)
-	{
-		var response = ulong.Parse(ss.PopSpeech());
-		var which = ss.PopForSwitch();
-		switch (which)
-		{
-			case "collections":
-			case "collection":
-			case "statements":
-			case "statement":
-			case "functioncategories":
-			case "functions":
-			case "function":
-			case "types":
-			case "type":
-				break;
-			default:
-				SendClientMessage(
-					$@"request {response} You can use the following prog help options:
+            byte[] inputBuffer = new byte[4096];
+            int bytes = _stream.Read(inputBuffer, 0, 4096);
+
+            List<byte[]> splitBytes =
+                inputBuffer.Take(bytes).ToArray().SplitDelimiter(ByteSeparators).ToList();
+            foreach (byte[] command in splitBytes)
+            {
+                HandleTcpCommand(Encoding.Unicode.GetString(command));
+            }
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+            OpenTcpConnection();
+        }
+    }
+
+    private void HandleTcpCommand(string getString)
+    {
+        StringStack ss = new(getString);
+        switch (ss.PopSpeech())
+        {
+            case "help":
+                Console.WriteLine("Discord asked for HELP.");
+                HandleHelpTcpCommand(ss);
+                return;
+            case "proghelp":
+                Console.WriteLine("Discord asked for PROGHELP.");
+                HandleProgHelpTcpCommand(ss);
+                return;
+            case "adminhelp":
+                Console.WriteLine("Discord asked for ADMINHELP.");
+                HandleHelpTcpCommand(ss, true);
+                return;
+            case "authsuccess":
+                Console.WriteLine("DiscordConnection successfully authenticated.");
+                return;
+            case "authfailure":
+                Console.WriteLine("DiscordConnection did not successfully authenticate.");
+                return;
+            case "who":
+                Console.WriteLine("Discord asked for WHO.");
+                HandleWhoTcpCommand(ss);
+                return;
+            case "where":
+                Console.WriteLine("Discord asked for WHERE.");
+                HandleWhereTcpCommand(ss);
+                return;
+            case "map":
+                Console.WriteLine("Discord asked for MAP.");
+                HandleMapTcpCommand(ss);
+                return;
+            case "stats":
+                Console.WriteLine("Discord asked for STATS.");
+                HandleStatsTcpCommand(ss);
+                return;
+            case "showchargen":
+                HandleShowChargenTcpCommand(ss);
+                return;
+            case "approvechargen":
+                HandleApproveChargenTcpCommand(ss);
+                return;
+            case "rejectchargen":
+                HandleRejectChargenTcpCommand(ss);
+                return;
+            case "broadcast":
+                HandleBroadcastTcpCommand(ss);
+                return;
+            case "send":
+                HandleSendTcpCommand(ss);
+                return;
+            case "sendchannel":
+                HandleSendChannelTcpCommand(ss);
+                return;
+            case "register":
+                HandleRegisterTcpCommand(ss);
+                return;
+            case "showaccount":
+                HandleShowAccountTcpCommand(ss);
+                return;
+            case "showcharacter":
+                HandleShowCharacterTcpCommand(ss);
+                return;
+            case "shutdown":
+                HandleShutdownTcpCommand(ss);
+                return;
+        }
+    }
+
+    private void HandleSendChannelTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        string from = ss.PopSpeech();
+        string channel = ss.PopSpeech();
+        string message = ss.SafeRemainingArgument;
+        IAccount account = Gameworld.Accounts.FirstOrDefault(x => x.Name == from);
+        if (account is null)
+        {
+            SendClientMessage($"request {request} sendfailedaccount");
+            return;
+        }
+
+        IChannel igChannel = Gameworld.Channels.FirstOrDefault(x =>
+            x.CommandWords.Any(y => y.StartsWith(channel, StringComparison.InvariantCultureIgnoreCase)));
+        if (igChannel == null)
+        {
+            SendClientMessage($"request {request} sendfailed {channel}");
+            return;
+        }
+
+        if (!igChannel.Send(account, message))
+        {
+            SendClientMessage($"request {request} sendfailed {channel}");
+            return;
+        }
+
+        SendClientMessage($"request {request} sendacknowledge");
+    }
+
+    private void HandleShutdownTcpCommand(StringStack ss)
+    {
+        long requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+        bool reboot = bool.Parse(ss.PopSpeech());
+        IAccount account;
+        using (new FMDB())
+        {
+            account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
+            if (account.Authority.Level < PermissionLevel.SeniorAdmin)
+            {
+                return;
+            }
+
+            DateTime time = DateTime.UtcNow;
+            foreach (Models.Character dbchar in Gameworld.Characters.SelectNotNull(ch => FMDB.Context.Characters.Find(ch.Id)))
+            {
+                dbchar.LastLogoutTime = time;
+            }
+
+            FMDB.Context.SaveChanges();
+        }
+
+        Gameworld.Characters.ForEach(x => x.EffectsChanged = true);
+        Gameworld.SaveManager.Flush();
+        Gameworld.DiscordConnection.NotifyShutdown(account.Name.Proper());
+
+        if (reboot)
+        {
+            Console.WriteLine($"{account.Name.Proper()} excecuted a shutdown [reboot] command via discord.");
+            Gameworld.SystemMessage(string.Format(Gameworld.GetStaticString("GameShutdownMessageReboot"),
+                Gameworld.Name.Proper().ColourName()));
+        }
+        else
+        {
+            Console.WriteLine($"{account.Name.Proper()} excecuted a shutdown command via discord.");
+            Gameworld.SystemMessage(string.Format(Gameworld.GetStaticString("GameShutdownMessage"),
+                Gameworld.Name.Proper().ColourName()));
+            using (FileStream fs = File.Create("STOP-REBOOTING"))
+            {
+            }
+        }
+
+        Gameworld.HaltGameLoop();
+    }
+
+    private void HandleRejectChargenTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        long which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+        long requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+        string message = ss.RemainingArgument;
+
+        Chargen chargen;
+        IAccount account;
+        using (new FMDB())
+        {
+            Models.Chargen dbitem = FMDB.Context.Chargens.Find(which);
+            if (dbitem == null)
+            {
+                SendClientMessage($"request {request} nosuchchargen {which}");
+                return;
+            }
+
+            chargen = new Chargen(dbitem, Gameworld, dbitem.Account);
+            account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
+        }
+
+        if (chargen.State != ChargenState.Submitted)
+        {
+            SendClientMessage(
+                $"request {request} chargenapprovalerror {which} That chargen is not currently in the submitted state.");
+            return;
+        }
+
+        chargen.RejectApplication(null, account, message, null);
+    }
+
+    private void HandleApproveChargenTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        long which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+        long requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+        string message = ss.RemainingArgument;
+
+        Chargen chargen;
+        IAccount account;
+        using (new FMDB())
+        {
+            Models.Chargen dbitem = FMDB.Context.Chargens.Find(which);
+            if (dbitem == null)
+            {
+                SendClientMessage($"request {request} nosuchchargen {which}");
+                return;
+            }
+
+            chargen = new Chargen(dbitem, Gameworld, dbitem.Account);
+            account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
+        }
+
+        if (chargen.State != ChargenState.Submitted)
+        {
+            SendClientMessage(
+                $"request {request} chargenapprovalerror {which} That chargen is not currently in the submitted state.");
+            return;
+        }
+
+        if (chargen.MinimumApprovalAuthority > account.Authority.Level)
+        {
+            SendClientMessage(
+                $"request {request} chargenapprovalerror {which} That application requires a minimum authority level of {chargen.MinimumApprovalAuthority.Describe()}.");
+            return;
+        }
+
+        if (account.Authority.Level < PermissionLevel.HighAdmin &&
+            chargen.SelectedRoles.Any(
+                x =>
+                    x.RequiredApprovers.Any() &&
+                    x.RequiredApprovers.All(
+                        y => !y.Equals(account.Name, StringComparison.InvariantCultureIgnoreCase))))
+        {
+            IChargenRole blockingRole =
+                chargen.SelectedRoles.First(
+                    x =>
+                        x.RequiredApprovers.Any() &&
+                        x.RequiredApprovers.All(
+                            y => !y.Equals(account.Name, StringComparison.InvariantCultureIgnoreCase)));
+            SendClientMessage(
+                $"request {request} chargenapprovalerror {which} The **{blockingRole.Name.TitleCase()}** role requires specific people to approve it, and you are not amongst them.");
+            return;
+        }
+
+        if (
+            chargen.ApplicationCosts.Any(x => chargen.Account.AccountResources[x.Key] < x.Value))
+        {
+            SendClientMessage(
+                $"request {request} chargenapprovalerror {which} Account {chargen.Account.Name.Proper()} no longer has sufficient {chargen.ApplicationCosts.Where(x => chargen.Account.AccountResources[x.Key] < x.Value).Select(x => x.Key.PluralName).ListToString()} to pay for that application.");
+            return;
+        }
+
+        SendClientMessage($"request {request} success");
+        chargen.ApproveApplication(null, account, message, null);
+    }
+
+    private void HandleShowChargenTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        long requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+        long id = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+
+        Chargen chargen;
+        IAccount account;
+        using (new FMDB())
+        {
+            Models.Chargen dbitem = FMDB.Context.Chargens.Find(id);
+            if (dbitem == null)
+            {
+                SendClientMessage($"request {request} nosuchchargen {id}");
+                return;
+            }
+
+            chargen = new Chargen(dbitem, Gameworld, dbitem.Account);
+            account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterid));
+        }
+
+        SendClientMessage(
+            $"request {request} chargeninfo {id} {chargen.DisplayForReviewForDiscord(account, account.Authority.Level).RawText()}");
+    }
+
+    private void HandleRegisterTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        ulong discorduserid = ulong.Parse(ss.PopSpeech());
+        string discordusername = ss.PopSpeech();
+        string accountname = ss.PopSpeech();
+
+        ICharacter character = Gameworld.Characters.FirstOrDefault(x => x.Account.Name.EqualTo(accountname));
+        if (character == null)
+        {
+            SendClientMessage($"request {request} notfound");
+            return;
+        }
+
+        character.OutputHandler.Send(
+            $"You have received a request to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}.\n{Accept.StandardAcceptPhrasing}");
+        IAccount account = character.Account;
+        character.AddEffect(new Accept(character, new GenericProposal
+        {
+            AcceptAction = text =>
+{
+    character.OutputHandler.Send(
+        $"You accept the proposal to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}");
+    try
+    {
+        SendClientMessage($"request {request} registeracknowledge {account.Name} {account.Id}");
+    }
+    catch (SocketException)
+    {
+        CloseTcpConnection();
+    }
+},
+            RejectAction = text =>
+            {
+                character.OutputHandler.Send(
+                    $"You decide not to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}");
+                SendClientMessage($"request {request} rejected");
+            },
+            ExpireAction = () =>
+            {
+                character.OutputHandler.Send(
+                    $"You decide not to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}");
+                SendClientMessage($"request {request} timeout");
+            },
+            DescriptionString = "Linking your account to a discord user"
+        }), TimeSpan.FromSeconds(120));
+    }
+
+    private void HandleShowAccountTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        long requesterId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+        string which = ss.PopSpeech();
+
+        IAccount viewer;
+        MudSharp.Models.Account dbitem;
+        IAccount account;
+        using (new FMDB())
+        {
+            viewer = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterId));
+            dbitem = long.TryParse(which, out long value)
+                    ? FMDB.Context.Accounts.FirstOrDefault(x => x.Id == value)
+                    : FMDB.Context.Accounts.FirstOrDefault(x => x.Name == which);
+            if (dbitem == null)
+            {
+                SendClientMessage($"request {request} nosuchaccount {which}");
+                return;
+            }
+            account = Gameworld.TryAccount(dbitem);
+        }
+
+        string text = ShowModule.BuildAccountInfo(viewer ?? account, dbitem, account).RawText();
+        SendClientMessage($"request {request} accountinfo {text}");
+    }
+
+    private void HandleShowCharacterTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        ss.PopSpeech(); // requester id, currently unused
+        long which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+
+        ICharacter character = Gameworld.TryGetCharacter(which, true);
+        if (character == null)
+        {
+            SendClientMessage($"request {request} nosuchcharacter {which}");
+            return;
+        }
+
+        string text = character.ShowStat(new DummyPerceiver()).RawText();
+        SendClientMessage($"request {request} characterinfo {text}");
+    }
+
+    private void HandleMapTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        long accountId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+        long cellId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+
+        IAccount account;
+        using (new FMDB())
+        {
+            account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(accountId));
+        }
+
+        if (account == null || account.Authority.Level < PermissionLevel.JuniorAdmin)
+        {
+            SendClientMessage($"request {request} notauthorised");
+            return;
+        }
+
+        ICell cell = Gameworld.Cells.Get(cellId);
+        if (cell == null)
+        {
+            SendClientMessage($"request {request} nosuchcell {cellId}");
+            return;
+        }
+
+        string mapText = GenerateMap(cell, account).RawText();
+        SendClientMessage($"request {request} map {mapText}");
+    }
+
+    private string GenerateMap(ICell startCell, IAccount account)
+    {
+        int width = (account.LineFormatLength - 11) / 10;
+        if (width % 2 == 0)
+        {
+            width -= 1;
+        }
+
+        int centre = width / 2;
+
+        ICell[,] cells = new ICell[width, width];
+        bool[,] hasNonCompass = new bool[width, width];
+        bool[,] hasCartesianClashes = new bool[width, width];
+        bool[,] hasBank = new bool[width, width];
+        bool[,] hasShop = new bool[width, width];
+        bool[,] hasAuctionHouse = new bool[width, width];
+        bool[,] hasPlayers = new bool[width, width];
+        bool[,] hasHostiles = new bool[width, width];
+
+        cells[centre, centre] = startCell;
+        List<ICellExit> exits = startCell.ExitsFor(null, true).ToList();
+        Queue<(ICellExit, int, int)> queue = new();
+
+        foreach (ICellExit exit in exits)
+        {
+            queue.Enqueue((exit, centre, centre));
+        }
+
+        void AddExitCell(ICellExit exitToAdd, int originX, int originY)
+        {
+            switch (exitToAdd.OutboundDirection)
+            {
+                case CardinalDirection.North:
+                    originY -= 1;
+                    break;
+                case CardinalDirection.NorthEast:
+                    originY -= 1;
+                    originX += 1;
+                    break;
+                case CardinalDirection.East:
+                    originX += 1;
+                    break;
+                case CardinalDirection.SouthEast:
+                    originX += 1;
+                    originY += 1;
+                    break;
+                case CardinalDirection.South:
+                    originY += 1;
+                    break;
+                case CardinalDirection.SouthWest:
+                    originX -= 1;
+                    originY += 1;
+                    break;
+                case CardinalDirection.West:
+                    originX -= 1;
+                    break;
+                case CardinalDirection.NorthWest:
+                    originX -= 1;
+                    originY -= 1;
+                    break;
+                case CardinalDirection.Up:
+                case CardinalDirection.Down:
+                case CardinalDirection.Unknown:
+                    hasNonCompass[originX, originY] = true;
+                    break;
+            }
+
+            if (originX < 0 || originX >= width || originY < 0 || originY >= width)
+            {
+                return;
+            }
+
+            if (cells[originX, originY] is not null)
+            {
+                if (cells[originX, originY] != exitToAdd.Destination)
+                {
+                    hasCartesianClashes[originX, originY] = true;
+                }
+
+                return;
+            }
+
+            ICell destinationCell = exitToAdd.Destination;
+            cells[originX, originY] = destinationCell;
+            foreach (ICellExit newExit in destinationCell.ExitsFor(null, true).Except(exitToAdd))
+            {
+                switch (newExit.OutboundDirection)
+                {
+                    case CardinalDirection.Up:
+                    case CardinalDirection.Down:
+                    case CardinalDirection.Unknown:
+                        hasNonCompass[originX, originY] = true;
+                        break;
+                }
+
+                queue.Enqueue((newExit, originX, originY));
+            }
+
+            if (destinationCell.Shop is not null)
+            {
+                hasShop[originX, originY] = true;
+            }
+
+            if (startCell.Gameworld.Banks.Any(x => x.BranchLocations.Contains(destinationCell)))
+            {
+                hasBank[originX, originY] = true;
+            }
+
+            if (startCell.Gameworld.AuctionHouses.Any(x => x.AuctionHouseCell == destinationCell))
+            {
+                hasAuctionHouse[originX, originY] = true;
+            }
+
+            if (destinationCell.Characters.Any(x => x.IsPlayerCharacter))
+            {
+                hasPlayers[originX, originY] = true;
+            }
+
+            if (destinationCell.Characters.Any(x =>
+                        x is INPC npc && !npc.AffectedBy<IPauseAIEffect>() && npc.AIs.Any(y => y.CountsAsAggressive)))
+            {
+                hasHostiles[originX, originY] = true;
+            }
+        }
+
+        while (queue.Count > 0)
+        {
+            (ICellExit exit, int x, int y) = queue.Dequeue();
+            AddExitCell(exit, x, y);
+        }
+
+        hasPlayers[centre, centre] = true;
+
+        DummyPerceiver viewer = new(location: startCell) { Account = account };
+        return StringUtilities.DrawMap(viewer, width, width, cells, hasNonCompass, hasCartesianClashes, hasBank, hasShop,
+                hasAuctionHouse, hasPlayers, hasHostiles);
+    }
+
+    private void HandleSendTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        string from = ss.PopSpeech();
+        string to = ss.PopSpeech();
+        string message = ss.RemainingArgument;
+        IPlayerConnection user = Gameworld.Connections.FirstOrDefault(x =>
+            x.State == ConnectionState.Open && x.ControlPuppet?.Account?.Name.EqualTo(to) == true);
+        if (user == null)
+        {
+            SendClientMessage($"request {request} sendfailed {to}");
+            return;
+        }
+
+        user.ControlPuppet.OutputHandler?.Send(
+            $"{$"[From {from}]".Colour(Telnet.Green)} {message.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences()}");
+        SendClientMessage($"request {request} sendacknowledge {from} {to} {message}");
+    }
+
+    private void HandleBroadcastTcpCommand(StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            return;
+        }
+
+        Gameworld.SystemMessage(ss.RemainingArgument.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences());
+        HandleBroadcast(ss.RemainingArgument.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences());
+    }
+
+    private void HandleProgHelpTcpCommand(StringStack ss)
+    {
+        ulong response = ulong.Parse(ss.PopSpeech());
+        string which = ss.PopForSwitch();
+        switch (which)
+        {
+            case "collections":
+            case "collection":
+            case "statements":
+            case "statement":
+            case "functioncategories":
+            case "functions":
+            case "function":
+            case "types":
+            case "type":
+                break;
+            default:
+                SendClientMessage(
+                    $@"request {response} You can use the following prog help options:
 
 	proghelp types - shows all variable types
 	proghelp type <which> - shows help for a specific variable type
@@ -888,328 +893,328 @@ public sealed class DiscordConnection : IDiscordConnection
 	proghelp functioncategories - show all function categories
 	proghelp functions <category> - show all prog functions for a specific category
 	proghelp function <which> - show help for a specific prog function");
-				return;
-		}
+                return;
+        }
 
-		switch (which)
-		{
-			case "collections":
-				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpCollections(100, true, false)}");
-				return;
-			case "collection":
-				if (ss.IsFinished)
-				{
-					SendClientMessage($"request {response} Which collection extension function would you like to see help for? See PROGHELP COLLECTIONS for a list.");
-					return;
-				}
+        switch (which)
+        {
+            case "collections":
+                SendClientMessage($"request {response} {ProgModule.GetTextProgHelpCollections(100, true, false)}");
+                return;
+            case "collection":
+                if (ss.IsFinished)
+                {
+                    SendClientMessage($"request {response} Which collection extension function would you like to see help for? See PROGHELP COLLECTIONS for a list.");
+                    return;
+                }
 
-				var info = CollectionExtensionFunction.FunctionCompilerInformations.FirstOrDefault(x =>
-					x.FunctionName.EqualTo(ss.SafeRemainingArgument));
-				if (info is null)
-				{
-					SendClientMessage($"request {response} There is no such collection extension type. See PROGHELP COLLECTIONS for a list.");
-					return;
-				}
-				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpCollection(info, 100, false)}");
-				return;
-			case "statements":
-				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpStatements(100, true, false)}");
-				return;
-			case "statement":
-				if (ss.IsFinished)
-				{
-					SendClientMessage($"request {response} Which statement would you like to see help for? See PROGHELP STATEMENTS for a list.");
-					return;
-				}
+                CollectionExtensionFunctionCompilerInformation info = CollectionExtensionFunction.FunctionCompilerInformations.FirstOrDefault(x =>
+                    x.FunctionName.EqualTo(ss.SafeRemainingArgument));
+                if (info is null)
+                {
+                    SendClientMessage($"request {response} There is no such collection extension type. See PROGHELP COLLECTIONS for a list.");
+                    return;
+                }
+                SendClientMessage($"request {response} {ProgModule.GetTextProgHelpCollection(info, 100, false)}");
+                return;
+            case "statements":
+                SendClientMessage($"request {response} {ProgModule.GetTextProgHelpStatements(100, true, false)}");
+                return;
+            case "statement":
+                if (ss.IsFinished)
+                {
+                    SendClientMessage($"request {response} Which statement would you like to see help for? See PROGHELP STATEMENTS for a list.");
+                    return;
+                }
 
-				if (!FutureProg.FutureProg.StatementHelpTexts.TryGetValue(ss.SafeRemainingArgument, out var value))
-				{
-					SendClientMessage($"request {response} There is no such statement. See PROGHELP STATEMENTS for a list.");
-					return;
-				}
-				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpStatement(value, ss.SafeRemainingArgument, 100, false)}");
-				return;
-			case "functioncategories":
-				SendClientMessage($"request {response} {FutureProg.FutureProg.GetFunctionCompilerInformations().Select(x => x.Category).Distinct().ListToCommaSeparatedValues(",")}");
-				return;
-			case "functions":
-				var category = ss.SafeRemainingArgument;
-				if (string.IsNullOrEmpty(category))
-				{
-					SendClientMessage($"request {response} You must specify a function category.");
-					return;
-				}
+                if (!FutureProg.FutureProg.StatementHelpTexts.TryGetValue(ss.SafeRemainingArgument, out (string HelpText, string Related) value))
+                {
+                    SendClientMessage($"request {response} There is no such statement. See PROGHELP STATEMENTS for a list.");
+                    return;
+                }
+                SendClientMessage($"request {response} {ProgModule.GetTextProgHelpStatement(value, ss.SafeRemainingArgument, 100, false)}");
+                return;
+            case "functioncategories":
+                SendClientMessage($"request {response} {FutureProg.FutureProg.GetFunctionCompilerInformations().Select(x => x.Category).Distinct().ListToCommaSeparatedValues(",")}");
+                return;
+            case "functions":
+                string category = ss.SafeRemainingArgument;
+                if (string.IsNullOrEmpty(category))
+                {
+                    SendClientMessage($"request {response} You must specify a function category.");
+                    return;
+                }
 
-				var infos = FutureProg.FutureProg.GetFunctionCompilerInformations().Where(x =>
-					x.Category.EqualTo(category) ||
-					x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase)).ToList();
-				if (!infos.Any())
-				{
-					SendClientMessage($"request {response} There are no prog functions matching that category.");
-					return;
-				}
-				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpFunctions(infos, 100, true, false)}");
-				return;
-			case "function":
-				if (ss.IsFinished)
-				{
-					SendClientMessage($"request {response} Which function do you want to see help for?");
-					return;
-				}
+                List<FunctionCompilerInformation> infos = FutureProg.FutureProg.GetFunctionCompilerInformations().Where(x =>
+                    x.Category.EqualTo(category) ||
+                    x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                if (!infos.Any())
+                {
+                    SendClientMessage($"request {response} There are no prog functions matching that category.");
+                    return;
+                }
+                SendClientMessage($"request {response} {ProgModule.GetTextProgHelpFunctions(infos, 100, true, false)}");
+                return;
+            case "function":
+                if (ss.IsFinished)
+                {
+                    SendClientMessage($"request {response} Which function do you want to see help for?");
+                    return;
+                }
 
-				var whichFunction = ss.SafeRemainingArgument;
-				var functions = FutureProg.FutureProg.GetFunctionCompilerInformations()
-				                          .Where(x => x.FunctionName.EqualTo(whichFunction))
-				                          .ToList();
+                string whichFunction = ss.SafeRemainingArgument;
+                List<FunctionCompilerInformation> functions = FutureProg.FutureProg.GetFunctionCompilerInformations()
+                                          .Where(x => x.FunctionName.EqualTo(whichFunction))
+                                          .ToList();
 
-				if (!functions.Any())
-				{
-					SendClientMessage($"request {response} There are no such functions. Please see PROGHELP FUNCTIONS <CATEGORY> for a list.");
-					return;
-				}
-				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpFunction(functions, 100, 80, true, false)}");
-				return;
-			case "types":
-				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpTypes(false)}");
-				return;
-			case "type":
-				if (ss.IsFinished)
-				{
-					SendClientMessage($"request {response} What type do you want to see property help for?");
-					return;
-				}
+                if (!functions.Any())
+                {
+                    SendClientMessage($"request {response} There are no such functions. Please see PROGHELP FUNCTIONS <CATEGORY> for a list.");
+                    return;
+                }
+                SendClientMessage($"request {response} {ProgModule.GetTextProgHelpFunction(functions, 100, 80, true, false)}");
+                return;
+            case "types":
+                SendClientMessage($"request {response} {ProgModule.GetTextProgHelpTypes(false)}");
+                return;
+            case "type":
+                if (ss.IsFinished)
+                {
+                    SendClientMessage($"request {response} What type do you want to see property help for?");
+                    return;
+                }
 
-				var whichType = ss.SafeRemainingArgument;
-				var type = FutureProg.FutureProg.GetTypeByName(whichType);
-				if (type == ProgVariableTypes.Error)
-				{
-					SendClientMessage($"request {response} There is no such type.");
-					return;
-				}
+                string whichType = ss.SafeRemainingArgument;
+                ProgVariableTypes type = FutureProg.FutureProg.GetTypeByName(whichType);
+                if (type == ProgVariableTypes.Error)
+                {
+                    SendClientMessage($"request {response} There is no such type.");
+                    return;
+                }
 
-				var text = ProgModule.GetProgTypeHelpText(type, 100, true, false);
-				if (text is null)
-				{
-					SendClientMessage($"request {response} The type {type.Describe()} does not have any help.");
-					return;
-				}
-				SendClientMessage($"request {response} {text}");
-				return;
-		}
-	}
+                string text = ProgModule.GetProgTypeHelpText(type, 100, true, false);
+                if (text is null)
+                {
+                    SendClientMessage($"request {response} The type {type.Describe()} does not have any help.");
+                    return;
+                }
+                SendClientMessage($"request {response} {text}");
+                return;
+        }
+    }
 
-	private void HandleHelpTcpCommand(StringStack ss, bool admin = false)
-	{
-		var response = ulong.Parse(ss.PopSpeech());
-		if (ss.IsFinished)
-		{
-			SendClientMessage(
-				$"request {response} You can either use 'help on <category>' to see all helpfiles in a category or 'help <helpfile>' to see a specific helpfile");
-			return;
-		}
+    private void HandleHelpTcpCommand(StringStack ss, bool admin = false)
+    {
+        ulong response = ulong.Parse(ss.PopSpeech());
+        if (ss.IsFinished)
+        {
+            SendClientMessage(
+                $"request {response} You can either use 'help on <category>' to see all helpfiles in a category or 'help <helpfile>' to see a specific helpfile");
+            return;
+        }
 
-		var commandHelps = Gameworld.RetrieveAppropriateCommandTree(null).Commands.CommandHelpInfos.ToList();
-		var sb = new StringBuilder();
-		if (ss.Peek().EqualTo("on"))
-		{
-			if (ss.IsFinished)
-			{
-				SendClientMessage($"request {response} A category must be specified if the ON keyword is used.");
-				return;
-			}
+        List<ICommandHelpInfo> commandHelps = Gameworld.RetrieveAppropriateCommandTree(null).Commands.CommandHelpInfos.ToList();
+        StringBuilder sb = new();
+        if (ss.Peek().EqualTo("on"))
+        {
+            if (ss.IsFinished)
+            {
+                SendClientMessage($"request {response} A category must be specified if the ON keyword is used.");
+                return;
+            }
 
-			ss.PopSpeech();
-			var category = ss.RemainingArgument;
-			var helpFileInfos = new List<(string Name, string Subcategory, string Tagline, string Keywords)>();
-			var helpfiles = Gameworld.Helpfiles.Where(x =>
-				                         x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase) &&
-				                         x.CanView(null))
-			                         .ToList();
-			helpFileInfos.AddRange(helpfiles.Select(x => (x.Name.TitleCase(), x.Subcategory.TitleCase(),
-				x.TagLine.Proper(), x.Keywords.ListToString(separator: " ", conjunction: ""))));
-			if ("commands".StartsWith(category, StringComparison.InvariantCultureIgnoreCase))
-			{
-				helpFileInfos.AddRange(commandHelps.Select(x => (x.HelpName.TitleCase(), "Built-in",
-					$"Built in help for the {x.HelpName.ToUpperInvariant()} command", x.HelpName.ToLowerInvariant())));
-			}
+            ss.PopSpeech();
+            string category = ss.RemainingArgument;
+            List<(string Name, string Subcategory, string Tagline, string Keywords)> helpFileInfos = new();
+            List<IHelpfile> helpfiles = Gameworld.Helpfiles.Where(x =>
+                                         x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase) &&
+                                         x.CanView(null))
+                                     .ToList();
+            helpFileInfos.AddRange(helpfiles.Select(x => (x.Name.TitleCase(), x.Subcategory.TitleCase(),
+                x.TagLine.Proper(), x.Keywords.ListToString(separator: " ", conjunction: ""))));
+            if ("commands".StartsWith(category, StringComparison.InvariantCultureIgnoreCase))
+            {
+                helpFileInfos.AddRange(commandHelps.Select(x => (x.HelpName.TitleCase(), "Built-in",
+                    $"Built in help for the {x.HelpName.ToUpperInvariant()} command", x.HelpName.ToLowerInvariant())));
+            }
 
-			if (!helpFileInfos.Any())
-			{
-				SendClientMessage($"request {response} There are no helpfiles in that category.");
-				return;
-			}
+            if (!helpFileInfos.Any())
+            {
+                SendClientMessage($"request {response} There are no helpfiles in that category.");
+                return;
+            }
 
-			sb.AppendLine(
-				$"There are the following help files in the {helpfiles.FirstOrDefault()?.Category.TitleCase() ?? "Commands"} category:");
-			sb.Append(StringUtilities.GetTextTable(
-				helpFileInfos.Select(
-					x =>
-						new[]
-						{
-							x.Name,
-							x.Subcategory,
-							x.Tagline,
-							x.Keywords
-						}),
-				new[] { "Help File", "Subcategory", "Synopsis", "Keywords" }, 120, false, null, 2, true));
-			SendClientMessage($"request {response} {sb.ToString()}");
-			return;
-		}
+            sb.AppendLine(
+                $"There are the following help files in the {helpfiles.FirstOrDefault()?.Category.TitleCase() ?? "Commands"} category:");
+            sb.Append(StringUtilities.GetTextTable(
+                helpFileInfos.Select(
+                    x =>
+                        new[]
+                        {
+                            x.Name,
+                            x.Subcategory,
+                            x.Tagline,
+                            x.Keywords
+                        }),
+                new[] { "Help File", "Subcategory", "Synopsis", "Keywords" }, 120, false, null, 2, true));
+            SendClientMessage($"request {response} {sb}");
+            return;
+        }
 
-		var desiredFile = ss.PopSpeech();
-		var allhelp = Gameworld.Helpfiles.Where(x => x.CanView(null)).ToList();
-		var help = allhelp.FirstOrDefault(x => x.Name.EqualTo(desiredFile)) ??
-		           allhelp.FirstOrDefault(x =>
-			           x.Name.StartsWith(desiredFile, StringComparison.InvariantCultureIgnoreCase));
-		if (help != null)
-		{
-			sb.AppendLine(
-				$"Helpfile: {help.Name.TitleCase()} Category: {help.Category.TitleCase()} Subcategory: {help.Subcategory.TitleCase()}");
-			sb.AppendLine($"Keywords: {help.Keywords.ListToString(separator: " ", conjunction: "")}");
-			sb.AppendLine($"Tagline: {help.TagLine.ProperSentences()}");
-			sb.AppendLine();
-			sb.AppendLine(help.PublicText.SubstituteANSIColour().Wrap(80).RawText());
-			sb.AppendLine();
-			sb.AppendLine($"Last edited by {help.LastEditedBy.Proper()} on {help.LastEditedDate.ToLongDateString()}");
-			_client.Client.Send(Encoding.Unicode.GetBytes($"request {response} {sb.ToString()}"));
-			return;
-		}
+        string desiredFile = ss.PopSpeech();
+        List<IHelpfile> allhelp = Gameworld.Helpfiles.Where(x => x.CanView(null)).ToList();
+        IHelpfile help = allhelp.FirstOrDefault(x => x.Name.EqualTo(desiredFile)) ??
+                   allhelp.FirstOrDefault(x =>
+                       x.Name.StartsWith(desiredFile, StringComparison.InvariantCultureIgnoreCase));
+        if (help != null)
+        {
+            sb.AppendLine(
+                $"Helpfile: {help.Name.TitleCase()} Category: {help.Category.TitleCase()} Subcategory: {help.Subcategory.TitleCase()}");
+            sb.AppendLine($"Keywords: {help.Keywords.ListToString(separator: " ", conjunction: "")}");
+            sb.AppendLine($"Tagline: {help.TagLine.ProperSentences()}");
+            sb.AppendLine();
+            sb.AppendLine(help.PublicText.SubstituteANSIColour().Wrap(80).RawText());
+            sb.AppendLine();
+            sb.AppendLine($"Last edited by {help.LastEditedBy.Proper()} on {help.LastEditedDate.ToLongDateString()}");
+            _client.Client.Send(Encoding.Unicode.GetBytes($"request {response} {sb}"));
+            return;
+        }
 
-		var commandhelp = commandHelps.FirstOrDefault(x => x.HelpName.EqualTo(desiredFile)) ??
-		                  commandHelps.FirstOrDefault(x =>
-			                  x.HelpName.StartsWith(desiredFile, StringComparison.InvariantCultureIgnoreCase));
-		if (commandhelp == null)
-		{
-			SendClientMessage(
-				$"request {response} There is no helpfile that could be located by the name {desiredFile.ToLowerInvariant()}.");
-			return;
-		}
+        ICommandHelpInfo commandhelp = commandHelps.FirstOrDefault(x => x.HelpName.EqualTo(desiredFile)) ??
+                          commandHelps.FirstOrDefault(x =>
+                              x.HelpName.StartsWith(desiredFile, StringComparison.InvariantCultureIgnoreCase));
+        if (commandhelp == null)
+        {
+            SendClientMessage(
+                $"request {response} There is no helpfile that could be located by the name {desiredFile.ToLowerInvariant()}.");
+            return;
+        }
 
-		sb.AppendLine($"Helpfile: {commandhelp.HelpName.TitleCase()} Category: Commands Subcategory: Built-in");
-		sb.AppendLine($"Keywords: {commandhelp.HelpName}");
-		sb.AppendLine($"Tagline: Built in help for the {commandhelp.HelpName.ToUpperInvariant()} command");
-		sb.AppendLine();
-		sb.AppendLine((admin ? commandhelp.AdminHelp ?? commandhelp.DefaultHelp : commandhelp.DefaultHelp)
-		              .SubstituteANSIColour().Wrap(80).RawText());
-		sb.AppendLine();
-		sb.AppendLine($"Automatically generated by the MUD");
-		SendClientMessage($"request {response} {sb.ToString()}");
-	}
+        sb.AppendLine($"Helpfile: {commandhelp.HelpName.TitleCase()} Category: Commands Subcategory: Built-in");
+        sb.AppendLine($"Keywords: {commandhelp.HelpName}");
+        sb.AppendLine($"Tagline: Built in help for the {commandhelp.HelpName.ToUpperInvariant()} command");
+        sb.AppendLine();
+        sb.AppendLine((admin ? commandhelp.AdminHelp ?? commandhelp.DefaultHelp : commandhelp.DefaultHelp)
+                      .SubstituteANSIColour().Wrap(80).RawText());
+        sb.AppendLine();
+        sb.AppendLine($"Automatically generated by the MUD");
+        SendClientMessage($"request {response} {sb}");
+    }
 
-	private void HandleStatsTcpCommand(StringStack ss)
-	{
-		var request = ulong.Parse(ss.PopSpeech());
-		var sb = new StringBuilder();
-		sb.AppendLine($"The following statistics are available regarding {Gameworld.Name.Proper()}:");
-		sb.AppendLine();
-		var version = Assembly.GetCallingAssembly().GetName().Version;
-		var versionString = $"v{version.Major}.{version.Minor}.{version.Build}.{version.Revision.ToString("0000")}";
-		sb.AppendLine($"{Gameworld.Name.Proper()} is running on {versionString} of the FutureMUD engine.");
-		sb.AppendLine(
-			$"The record number of players online at one time was {Gameworld.GameStatistics.RecordOnlinePlayers:N0}, which was achieved on {Gameworld.GameStatistics.RecordOnlinePlayersDateTime}.");
-		sb.AppendLine(
-			$"The MUD was last booted on {Gameworld.GameStatistics.LastBootTime}, and took {Gameworld.GameStatistics.LastStartupSpan.Describe()}, with a current uptime of {(DateTime.UtcNow - Gameworld.GameStatistics.LastBootTime).Describe()}.");
-		using (new FMDB())
-		{
-			var sinceTime = DateTime.UtcNow.AddDays(-60);
-			sb.AppendLine(
-				$"There are {FMDB.Context.Accounts.Count():N0} registered accounts, of which {FMDB.Context.Accounts.Count(x => x.LastLoginTime != null && x.LastLoginTime >= sinceTime):N0} have logged on in the last 60 days.");
+    private void HandleStatsTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        StringBuilder sb = new();
+        sb.AppendLine($"The following statistics are available regarding {Gameworld.Name.Proper()}:");
+        sb.AppendLine();
+        Version version = Assembly.GetCallingAssembly().GetName().Version;
+        string versionString = $"v{version.Major}.{version.Minor}.{version.Build}.{version.Revision:0000}";
+        sb.AppendLine($"{Gameworld.Name.Proper()} is running on {versionString} of the FutureMUD engine.");
+        sb.AppendLine(
+            $"The record number of players online at one time was {Gameworld.GameStatistics.RecordOnlinePlayers:N0}, which was achieved on {Gameworld.GameStatistics.RecordOnlinePlayersDateTime}.");
+        sb.AppendLine(
+            $"The MUD was last booted on {Gameworld.GameStatistics.LastBootTime}, and took {Gameworld.GameStatistics.LastStartupSpan.Describe()}, with a current uptime of {(DateTime.UtcNow - Gameworld.GameStatistics.LastBootTime).Describe()}.");
+        using (new FMDB())
+        {
+            DateTime sinceTime = DateTime.UtcNow.AddDays(-60);
+            sb.AppendLine(
+                $"There are {FMDB.Context.Accounts.Count():N0} registered accounts, of which {FMDB.Context.Accounts.Count(x => x.LastLoginTime != null && x.LastLoginTime >= sinceTime):N0} have logged on in the last 60 days.");
 
-			var now = DateTime.UtcNow;
-			var totalTime =
-				FMDB.Context.Characters.Where(x => x.Account != null).Sum(x => (long)x.TotalMinutesPlayed) +
-				(long)Gameworld.Characters.Sum(x => (now - x.LoginDateTime).TotalMinutes);
-			sb.AppendLine(
-				$"Players have spent a total of {TimeSpan.FromMinutes(totalTime).Describe()} playing {Gameworld.Name.Proper()}.");
-		}
+            DateTime now = DateTime.UtcNow;
+            long totalTime =
+                FMDB.Context.Characters.Where(x => x.Account != null).Sum(x => (long)x.TotalMinutesPlayed) +
+                (long)Gameworld.Characters.Sum(x => (now - x.LoginDateTime).TotalMinutes);
+            sb.AppendLine(
+                $"Players have spent a total of {TimeSpan.FromMinutes(totalTime).Describe()} playing {Gameworld.Name.Proper()}.");
+        }
 
-		sb.AppendLine(
-			$"There are a total of {Gameworld.Cells.Count():N0} rooms, {Gameworld.ItemProtos.Select(x => x.Id).Distinct().Count():N0} items and {Gameworld.NpcTemplates.Select(x => x.Id).Distinct().Count():N0} NPCs built.");
-		sb.AppendLine(
-			$"There are {Gameworld.Items.Count():N0} items and {Gameworld.NPCs.Count():N0} NPCs in the game world."
-		);
-		sb.AppendLine(
-			$"There are {Gameworld.Crafts.Select(x => x.Id).Distinct().Count().ToString("N0")} distinct crafts.");
-		SendClientMessage($"request {request} {sb}");
-	}
+        sb.AppendLine(
+            $"There are a total of {Gameworld.Cells.Count():N0} rooms, {Gameworld.ItemProtos.Select(x => x.Id).Distinct().Count():N0} items and {Gameworld.NpcTemplates.Select(x => x.Id).Distinct().Count():N0} NPCs built.");
+        sb.AppendLine(
+            $"There are {Gameworld.Items.Count():N0} items and {Gameworld.NPCs.Count():N0} NPCs in the game world."
+        );
+        sb.AppendLine(
+            $"There are {Gameworld.Crafts.Select(x => x.Id).Distinct().Count().ToString("N0")} distinct crafts.");
+        SendClientMessage($"request {request} {sb}");
+    }
 
-	private void HandleWhereTcpCommand(StringStack ss)
-	{
-		var request = ulong.Parse(ss.PopSpeech());
-		SendClientMessage($"request {request} " + StringUtilities.GetTextTable(
-			from character in Gameworld.Characters.Where(x => !x.State.HasFlag(CharacterState.Dead))
-			                           .OrderBy(x => x.Location.Id).ToList()
-			select new[]
-			{
-				character.Id.ToString("N0"),
-				character.PersonalName.GetName(NameStyle.FullWithNickname).TitleCase(),
-				character.Location.Id.ToString("N0"),
-				character.Location.HowSeen(character, colour: false),
-				character.Account.Name.TitleCase()
-			},
-			new[] { "ID", "Name", "Room", "Room Desc", "Account" },
-			150,
-			false,
-			truncatableColumnIndex: 3,
-			unicodeTable: true));
-	}
+    private void HandleWhereTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        SendClientMessage($"request {request} " + StringUtilities.GetTextTable(
+            from character in Gameworld.Characters.Where(x => !x.State.HasFlag(CharacterState.Dead))
+                                       .OrderBy(x => x.Location.Id).ToList()
+            select new[]
+            {
+                character.Id.ToString("N0"),
+                character.PersonalName.GetName(NameStyle.FullWithNickname).TitleCase(),
+                character.Location.Id.ToString("N0"),
+                character.Location.HowSeen(character, colour: false),
+                character.Account.Name.TitleCase()
+            },
+            new[] { "ID", "Name", "Room", "Room Desc", "Account" },
+            150,
+            false,
+            truncatableColumnIndex: 3,
+            unicodeTable: true));
+    }
 
-	private void HandleWhoTcpCommand(StringStack ss)
-	{
-		var request = ulong.Parse(ss.PopSpeech());
-		var count =
-			Gameworld.Characters.Count(
-				x => !x.IsAdministrator() && !x.IsGuest) +
-			Gameworld.NPCs.Count(x => x.EffectsOfType<ICountForWho>().Any());
-		var guestCount = Gameworld.Characters.Count(x => x.IsGuest);
-		var availableAdmins = Gameworld.Characters.Where(x => x.AffectedBy<IAdminAvailableEffect>()).ToList();
-		var extraText = new StringBuilder();
-		foreach (var clan in Gameworld.Clans.Where(x => x.ShowClanMembersInWho))
-		{
-			var clanMembers =
-				Gameworld.Characters.Where(x => x.ClanMemberships.Any(y => y.Clan == clan))
-				         .Concat(Gameworld.NPCs.Where(x => x.EffectsOfType<ICountForWho>().Any())).ToList();
-			extraText.AppendFormat("\nThere are {0:N0} {1} of {2} online.", clanMembers.Count,
-				clanMembers.Count == 1 ? "member" : "members", clan.FullName);
-		}
+    private void HandleWhoTcpCommand(StringStack ss)
+    {
+        ulong request = ulong.Parse(ss.PopSpeech());
+        int count =
+            Gameworld.Characters.Count(
+                x => !x.IsAdministrator() && !x.IsGuest) +
+            Gameworld.NPCs.Count(x => x.EffectsOfType<ICountForWho>().Any());
+        int guestCount = Gameworld.Characters.Count(x => x.IsGuest);
+        List<ICharacter> availableAdmins = Gameworld.Characters.Where(x => x.AffectedBy<IAdminAvailableEffect>()).ToList();
+        StringBuilder extraText = new();
+        foreach (IClan clan in Gameworld.Clans.Where(x => x.ShowClanMembersInWho))
+        {
+            List<ICharacter> clanMembers =
+                Gameworld.Characters.Where(x => x.ClanMemberships.Any(y => y.Clan == clan))
+                         .Concat(Gameworld.NPCs.Where(x => x.EffectsOfType<ICountForWho>().Any())).ToList();
+            extraText.AppendFormat("\nThere are {0:N0} {1} of {2} online.", clanMembers.Count,
+                clanMembers.Count == 1 ? "member" : "members", clan.FullName);
+        }
 
-		if (availableAdmins.Any())
-		{
-			extraText.Append(
-				$"\n\nThe following members of staff are available:\n{availableAdmins.Select(x => "\t" + x.Account.Name.TitleCase()).ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: "")}");
-		}
+        if (availableAdmins.Any())
+        {
+            extraText.Append(
+                $"\n\nThe following members of staff are available:\n{availableAdmins.Select(x => "\t" + x.Account.Name.TitleCase()).ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: "")}");
+        }
 
-		var text = $"request {request} " + string.Format(Gameworld.GetStaticString(count == 0
-				? "WhoTextNoneOnline"
-				: count == 1
-					? "WhoTextOneOnline"
-					: "WhoText"),
-			count,
-			Gameworld.GameStatistics.RecordOnlinePlayers,
-			Gameworld.GameStatistics.RecordOnlinePlayersDateTime,
-			extraText.Length > 0
-				? extraText.ToString()
-				: "",
-			guestCount > 0
-				? $"\nThere are {guestCount} guest{(guestCount == 1 ? "" : "s")} in the guest lounge."
-				: "") + (char)1;
-		SendClientMessage(text);
-	}
+        string text = $"request {request} " + string.Format(Gameworld.GetStaticString(count == 0
+                ? "WhoTextNoneOnline"
+                : count == 1
+                    ? "WhoTextOneOnline"
+                    : "WhoText"),
+            count,
+            Gameworld.GameStatistics.RecordOnlinePlayers,
+            Gameworld.GameStatistics.RecordOnlinePlayersDateTime,
+            extraText.Length > 0
+                ? extraText.ToString()
+                : "",
+            guestCount > 0
+                ? $"\nThere are {guestCount} guest{(guestCount == 1 ? "" : "s")} in the guest lounge."
+                : "") + (char)1;
+        SendClientMessage(text);
+    }
 
-	public void HandleBroadcast(string message)
-	{
-		try
-		{
-			SendClientMessage($"broadcast {message.RawText()}");
-		}
-		catch (SocketException)
-		{
-			CloseTcpConnection();
-		}
-	}
+    public void HandleBroadcast(string message)
+    {
+        try
+        {
+            SendClientMessage($"broadcast {message.RawText()}");
+        }
+        catch (SocketException)
+        {
+            CloseTcpConnection();
+        }
+    }
 
-	public void Dispose()
-	{
-		_client?.Dispose();
-	}
+    public void Dispose()
+    {
+        _client?.Dispose();
+    }
 }

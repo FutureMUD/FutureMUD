@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using System.Collections.Generic;
 
 namespace MudSharp.CharacterCreation
 {
@@ -17,5 +17,5 @@ namespace MudSharp.CharacterCreation
         void AddDependency(ChargenStage stage, ChargenStage dependingStage);
         void RemoveDependency(ChargenStage stage, ChargenStage dependingStage);
         void SwapStoryboard(ChargenStage stage, string newType);
-	}
+    }
 }

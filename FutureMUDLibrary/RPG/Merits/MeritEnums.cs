@@ -1,10 +1,13 @@
-﻿namespace MudSharp.RPG.Merits {
-    public enum MeritType {
+﻿namespace MudSharp.RPG.Merits
+{
+    public enum MeritType
+    {
         Merit,
         Flaw
     }
 
-    public enum MeritScope {
+    public enum MeritScope
+    {
         GameItem,
         Body,
         Character

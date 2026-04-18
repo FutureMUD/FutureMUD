@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Commands.Helpers;
 using MudSharp.Effects.Concrete;
@@ -11,236 +6,241 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Magic;
 using Org.BouncyCastle.Asn1.Sec;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MudSharp.Commands.Modules;
 
 public class MagicModule : Module<ICharacter>
 {
-	private MagicModule()
-		: base("Magic")
-	{
-		IsNecessary = true;
-	}
+    private MagicModule()
+        : base("Magic")
+    {
+        IsNecessary = true;
+    }
 
-	public static MagicModule Instance { get; } = new();
+    public static MagicModule Instance { get; } = new();
 
-	public static bool MagicFilterFunction(object actorObject, string commandWord)
-	{
-		var actor = (ICharacter)actorObject;
-		if (actor.Capabilities.Any(x => x.School.SchoolVerb.EqualTo(commandWord)))
-		{
-			return true;
-		}
+    public static bool MagicFilterFunction(object actorObject, string commandWord)
+    {
+        ICharacter actor = (ICharacter)actorObject;
+        if (actor.Capabilities.Any(x => x.School.SchoolVerb.EqualTo(commandWord)))
+        {
+            return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public static void MagicGeneric(ICharacter actor, string command)
-	{
-		var ss = new StringStack(command);
-		var invoked = ss.PopSpeech().ToLowerInvariant();
-		var cmdText = ss.PopSpeech();
-		var school = actor.Capabilities.Select(x => x.School).Distinct().FirstOrDefault(x =>
-			x.SchoolVerb.StartsWith(invoked, StringComparison.InvariantCultureIgnoreCase));
-		if (school == null)
-		{
-			actor.OutputHandler.Send("Something went wrong with this command.");
-			return;
-		}
+    public static void MagicGeneric(ICharacter actor, string command)
+    {
+        StringStack ss = new(command);
+        string invoked = ss.PopSpeech().ToLowerInvariant();
+        string cmdText = ss.PopSpeech();
+        IMagicSchool school = actor.Capabilities.Select(x => x.School).Distinct().FirstOrDefault(x =>
+            x.SchoolVerb.StartsWith(invoked, StringComparison.InvariantCultureIgnoreCase));
+        if (school == null)
+        {
+            actor.OutputHandler.Send("Something went wrong with this command.");
+            return;
+        }
 
-		if (string.IsNullOrEmpty(cmdText))
-		{
-			MagicStatus(actor, school);
-			return;
-		}
+        if (string.IsNullOrEmpty(cmdText))
+        {
+            MagicStatus(actor, school);
+            return;
+        }
 
-		if (cmdText.EqualToAny("?", "help") && ss.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				$"You can use the {$"{invoked} powers".ColourCommand()} command to list all of your powers, {$"{invoked} help <powername>".ColourCommand()} to get help on the usage of a power, or {$"{invoked} <power command>".ColourCommand()} to invoke that power (see individual power help for the commands).");
-			return;
-		}
+        if (cmdText.EqualToAny("?", "help") && ss.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"You can use the {$"{invoked} powers".ColourCommand()} command to list all of your powers, {$"{invoked} help <powername>".ColourCommand()} to get help on the usage of a power, or {$"{invoked} <power command>".ColourCommand()} to invoke that power (see individual power help for the commands).");
+            return;
+        }
 
-		var schools = actor.Capabilities.Select(x => x.School).Distinct().Where(x =>
-			                   x.SchoolVerb.StartsWith(invoked, StringComparison.InvariantCultureIgnoreCase))
-		                   .ToList();
+        List<IMagicSchool> schools = actor.Capabilities.Select(x => x.School).Distinct().Where(x =>
+                               x.SchoolVerb.StartsWith(invoked, StringComparison.InvariantCultureIgnoreCase))
+                           .ToList();
 
-		var powers = actor.Powers.Where(x => schools.Contains(x.School)).OrderBy(x => x.Name).ToList();
-		if (cmdText.EqualTo("powers"))
-		{
-			var sb = new StringBuilder();
-			sb.AppendLine(
-				$"You have the following {schools.Select(x => x.SchoolAdjective).Distinct().ListToString()} powers:");
-			sb.Append(StringUtilities.GetTextTable(
-				from item in powers
-				select new[] { item.Name, item.Blurb },
-				new[] { "Name", "Blurb" },
-				actor.LineFormatLength,
-				colour: schools.First().PowerListColour, truncatableColumnIndex: 1,
-				unicodeTable: actor.Account.UseUnicode
-			));
-			actor.OutputHandler.Send(sb.ToString());
-			return;
-		}
+        List<IMagicPower> powers = actor.Powers.Where(x => schools.Contains(x.School)).OrderBy(x => x.Name).ToList();
+        if (cmdText.EqualTo("powers"))
+        {
+            StringBuilder sb = new();
+            sb.AppendLine(
+                $"You have the following {schools.Select(x => x.SchoolAdjective).Distinct().ListToString()} powers:");
+            sb.Append(StringUtilities.GetTextTable(
+                from item in powers
+                select new[] { item.Name, item.Blurb },
+                new[] { "Name", "Blurb" },
+                actor.LineFormatLength,
+                colour: schools.First().PowerListColour, truncatableColumnIndex: 1,
+                unicodeTable: actor.Account.UseUnicode
+            ));
+            actor.OutputHandler.Send(sb.ToString());
+            return;
+        }
 
-		if (cmdText.EqualTo("spells"))
-		{
-			var sb = new StringBuilder();
-			sb.AppendLine(
-				$"You have the following {schools.Select(x => x.SchoolAdjective).Distinct().ListToString()} spells:");
-			sb.Append(StringUtilities.GetTextTable(
-				from item in actor.Gameworld.MagicSpells.Where(x => schools.Contains(x.School) && x.ReadyForGame)
-				select new[] { item.Name, item.Blurb },
-				new[] { "Name", "Blurb" },
-				actor.LineFormatLength,
-				colour: schools.First().PowerListColour, truncatableColumnIndex: 1,
-				unicodeTable: actor.Account.UseUnicode
-			));
-			actor.OutputHandler.Send(sb.ToString());
-			return;
-		}
+        if (cmdText.EqualTo("spells"))
+        {
+            StringBuilder sb = new();
+            sb.AppendLine(
+                $"You have the following {schools.Select(x => x.SchoolAdjective).Distinct().ListToString()} spells:");
+            sb.Append(StringUtilities.GetTextTable(
+                from item in actor.Gameworld.MagicSpells.Where(x => schools.Contains(x.School) && x.ReadyForGame)
+                select new[] { item.Name, item.Blurb },
+                new[] { "Name", "Blurb" },
+                actor.LineFormatLength,
+                colour: schools.First().PowerListColour, truncatableColumnIndex: 1,
+                unicodeTable: actor.Account.UseUnicode
+            ));
+            actor.OutputHandler.Send(sb.ToString());
+            return;
+        }
 
-		if (cmdText.EqualTo("cast"))
-		{
-			if (ss.IsFinished)
-			{
-				actor.OutputHandler.Send("Which spell do you want to cast?");
-				return;
-			}
+        if (cmdText.EqualTo("cast"))
+        {
+            if (ss.IsFinished)
+            {
+                actor.OutputHandler.Send("Which spell do you want to cast?");
+                return;
+            }
 
-			var spell = actor.Gameworld.MagicSpells.Where(x =>
-				                 schools.Contains(x.School) && x.ReadyForGame &&
-				                 x.SpellKnownProg.Execute<bool?>(actor, x) == true)
-			                 .GetByNameOrAbbreviation(ss.PopSpeech());
-			if (spell == null)
-			{
-				actor.OutputHandler.Send("You do not know any such spell.");
-				return;
-			}
+            IMagicSpell spell = actor.Gameworld.MagicSpells.Where(x =>
+                                 schools.Contains(x.School) && x.ReadyForGame &&
+                                 x.SpellKnownProg.Execute<bool?>(actor, x) == true)
+                             .GetByNameOrAbbreviation(ss.PopSpeech());
+            if (spell == null)
+            {
+                actor.OutputHandler.Send("You do not know any such spell.");
+                return;
+            }
 
-			if (spell.Trigger is not ICastMagicTrigger ct)
-			{
-				actor.OutputHandler.Send(
-					$"The spell {spell.Name.Colour(spell.School.PowerListColour)} is not of the sort that can be cast with the cast command.");
-				return;
-			}
+            if (spell.Trigger is not ICastMagicTrigger ct)
+            {
+                actor.OutputHandler.Send(
+                    $"The spell {spell.Name.Colour(spell.School.PowerListColour)} is not of the sort that can be cast with the cast command.");
+                return;
+            }
 
-			ct.DoTriggerCast(actor, ss);
-			return;
-		}
+            ct.DoTriggerCast(actor, ss);
+            return;
+        }
 
-		if (cmdText.EqualToAny("spellhelp", "spell"))
-		{
-			if (ss.IsFinished)
-			{
-				actor.OutputHandler.Send("Which spell do you want to get help on?");
-				return;
-			}
+        if (cmdText.EqualToAny("spellhelp", "spell"))
+        {
+            if (ss.IsFinished)
+            {
+                actor.OutputHandler.Send("Which spell do you want to get help on?");
+                return;
+            }
 
-			var spell = actor.Gameworld.MagicSpells.Where(x =>
-				                 schools.Contains(x.School) && x.ReadyForGame &&
-				                 x.SpellKnownProg.Execute<bool?>(actor, x) == true)
-			                 .GetByNameOrAbbreviation(ss.PopSpeech());
-			if (spell == null)
-			{
-				actor.OutputHandler.Send("You do not know any such spell.");
-				return;
-			}
+            IMagicSpell spell = actor.Gameworld.MagicSpells.Where(x =>
+                                 schools.Contains(x.School) && x.ReadyForGame &&
+                                 x.SpellKnownProg.Execute<bool?>(actor, x) == true)
+                             .GetByNameOrAbbreviation(ss.PopSpeech());
+            if (spell == null)
+            {
+                actor.OutputHandler.Send("You do not know any such spell.");
+                return;
+            }
 
-			actor.OutputHandler.Send(spell.ShowPlayerHelp(actor));
-			return;
-		}
+            actor.OutputHandler.Send(spell.ShowPlayerHelp(actor));
+            return;
+        }
 
-		IMagicPower power;
-		if (cmdText.EqualTo("help"))
-		{
-			var powerText = ss.PopSpeech();
-			power = powers.FirstOrDefault(x => x.Name.EqualTo(powerText)) ??
-			        powers.FirstOrDefault(
-				        x => x.Name.StartsWith(powerText, StringComparison.InvariantCultureIgnoreCase));
-			if (power == null)
-			{
-				actor.OutputHandler.Send(
-					$"You have no such power. See {$"{invoked} powers".ColourCommand()} for a list of your powers.");
-				return;
-			}
+        IMagicPower power;
+        if (cmdText.EqualTo("help"))
+        {
+            string powerText = ss.PopSpeech();
+            power = powers.FirstOrDefault(x => x.Name.EqualTo(powerText)) ??
+                    powers.FirstOrDefault(
+                        x => x.Name.StartsWith(powerText, StringComparison.InvariantCultureIgnoreCase));
+            if (power == null)
+            {
+                actor.OutputHandler.Send(
+                    $"You have no such power. See {$"{invoked} powers".ColourCommand()} for a list of your powers.");
+                return;
+            }
 
-			actor.OutputHandler.Send(power.ShowHelp(actor));
-			return;
-		}
+            actor.OutputHandler.Send(power.ShowHelp(actor));
+            return;
+        }
 
-		power = powers.FirstOrDefault(x => x.Verbs.Any(y => y.EqualTo(cmdText))) ??
-		        powers.FirstOrDefault(
-			        x => x.Verbs.Any(y => y.StartsWith(cmdText, StringComparison.InvariantCultureIgnoreCase)));
-		if (power == null)
-		{
-			actor.OutputHandler.Send(
-				$"You have no such power. See {$"{invoked} powers".ColourCommand()} for a list of your powers.");
-			return;
-		}
+        power = powers.FirstOrDefault(x => x.Verbs.Any(y => y.EqualTo(cmdText))) ??
+                powers.FirstOrDefault(
+                    x => x.Verbs.Any(y => y.StartsWith(cmdText, StringComparison.InvariantCultureIgnoreCase)));
+        if (power == null)
+        {
+            actor.OutputHandler.Send(
+                $"You have no such power. See {$"{invoked} powers".ColourCommand()} for a list of your powers.");
+            return;
+        }
 
-		if (actor.AffectedBy<CommandDelayMagicPower>(power))
-		{
-			actor.OutputHandler.Send("You can't do that again yet.");
-			return;
-		}
+        if (actor.AffectedBy<CommandDelayMagicPower>(power))
+        {
+            actor.OutputHandler.Send("You can't do that again yet.");
+            return;
+        }
 
-		var verb = power.Verbs.FirstOrDefault(x => x.EqualTo(cmdText)) ??
-		           power.Verbs.First(x => x.StartsWith(cmdText, StringComparison.InvariantCultureIgnoreCase));
-		power.UseCommand(actor, verb, ss);
-	}
+        string verb = power.Verbs.FirstOrDefault(x => x.EqualTo(cmdText)) ??
+                   power.Verbs.First(x => x.StartsWith(cmdText, StringComparison.InvariantCultureIgnoreCase));
+        power.UseCommand(actor, verb, ss);
+    }
 
-	private static void MagicStatus(ICharacter actor, IMagicSchool school)
-	{
-		var sb = new StringBuilder();
-		var capabilities = actor.Capabilities.Where(x => x.School == school).ToList();
-		sb.AppendLine($"You are {capabilities.Select(x => x.Name.A_An(false, Telnet.Magenta)).ListToString()}");
+    private static void MagicStatus(ICharacter actor, IMagicSchool school)
+    {
+        StringBuilder sb = new();
+        List<IMagicCapability> capabilities = actor.Capabilities.Where(x => x.School == school).ToList();
+        sb.AppendLine($"You are {capabilities.Select(x => x.Name.A_An(false, Telnet.Magenta)).ListToString()}");
 
 
-		var concentration = capabilities.Max(x => x.ConcentrationAbility(actor));
-		sb.AppendLine(
-			$"You are sustaining {actor.CombinedEffectsOfType<IConcentrationConsumingEffect>().Sum(x => x.ConcentrationPointsConsumed).ToString("N2", actor).ColourValue()} / {concentration.ToString("N2", actor).ColourValue()} concentration points worth of powers.");
-		foreach (var resource in actor.MagicResources)
-		{
-			sb.AppendLine(
-				$"You currently have {actor.MagicResourceAmounts[resource].ToString("N2", actor).ColourValue()}/{resource.ResourceCap(actor).ToString("N2", actor).ColourValue()} {resource.Name}.");
-		}
+        double concentration = capabilities.Max(x => x.ConcentrationAbility(actor));
+        sb.AppendLine(
+            $"You are sustaining {actor.CombinedEffectsOfType<IConcentrationConsumingEffect>().Sum(x => x.ConcentrationPointsConsumed).ToString("N2", actor).ColourValue()} / {concentration.ToString("N2", actor).ColourValue()} concentration points worth of powers.");
+        foreach (IMagicResource resource in actor.MagicResources)
+        {
+            sb.AppendLine(
+                $"You currently have {actor.MagicResourceAmounts[resource].ToString("N2", actor).ColourValue()}/{resource.ResourceCap(actor).ToString("N2", actor).ColourValue()} {resource.Name}.");
+        }
 
-		foreach (var effect in actor.CombinedEffectsOfType<IMagicEffect>().Where(x => x.School == school))
-		{
-			sb.AppendLine($"You are currently sustaining the {effect.PowerOrigin.Name.Colour(Telnet.Magenta)} power.");
-		}
+        foreach (IMagicEffect effect in actor.CombinedEffectsOfType<IMagicEffect>().Where(x => x.School == school))
+        {
+            sb.AppendLine($"You are currently sustaining the {effect.PowerOrigin.Name.Colour(Telnet.Magenta)} power.");
+        }
 
-		actor.OutputHandler.Send(sb.ToString());
-	}
+        actor.OutputHandler.Send(sb.ToString());
+    }
 
-	[PlayerCommand("Magic", "magic")]
-	[CommandPermission(PermissionLevel.Admin)]
-	protected static void Magic(ICharacter actor, string command)
-	{
-		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.PopSpeech().ToLowerInvariant())
-		{
-			case "school":
-				MagicSchool(actor, ss);
-				return;
-			case "capability":
-				MagicCapability(actor, ss);
-				return;
-			case "regenerator":
-				MagicRegenerator(actor, ss);
-				return;
-			case "power":
-				MagicPower(actor, ss);
-				return;
-			case "resource":
-				MagicResource(actor, ss);
-				return;
-			case "spell":
-				MagicSpell(actor, ss);
-				return;
-			default:
-				actor.OutputHandler.Send(@"You can use the following sub commands to edit different components of the magic system. See individual commands for help on them:
+    [PlayerCommand("Magic", "magic")]
+    [CommandPermission(PermissionLevel.Admin)]
+    protected static void Magic(ICharacter actor, string command)
+    {
+        StringStack ss = new(command.RemoveFirstWord());
+        switch (ss.PopSpeech().ToLowerInvariant())
+        {
+            case "school":
+                MagicSchool(actor, ss);
+                return;
+            case "capability":
+                MagicCapability(actor, ss);
+                return;
+            case "regenerator":
+                MagicRegenerator(actor, ss);
+                return;
+            case "power":
+                MagicPower(actor, ss);
+                return;
+            case "resource":
+                MagicResource(actor, ss);
+                return;
+            case "spell":
+                MagicSpell(actor, ss);
+                return;
+            default:
+                actor.OutputHandler.Send(@"You can use the following sub commands to edit different components of the magic system. See individual commands for help on them:
 
 	#3magic school#0 - magic schools are types of magic
 	#3magic capability#0 - magic capabilities control who can use magic
@@ -250,154 +250,154 @@ public class MagicModule : Module<ICharacter>
 	#3magic spell#0 - magic spells are completely flexible and editable templates for magical effects
 
 #ENote - It's relatively easy to add new spell effect types. Reach out to Japheth on the FutureMUD discord if you want something added.#0".SubstituteANSIColour());
-				return;
-		}
-	}
+                return;
+        }
+    }
 
-	public static void MagicSchool(ICharacter actor, StringStack command)
-	{
-		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicSchoolHelper);
-	}
+    public static void MagicSchool(ICharacter actor, StringStack command)
+    {
+        BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicSchoolHelper);
+    }
 
-	public static void MagicCapability(ICharacter actor, StringStack command)
-	{
-		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicCapabilityHelper);
-	}
+    public static void MagicCapability(ICharacter actor, StringStack command)
+    {
+        BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicCapabilityHelper);
+    }
 
-	public static void MagicRegenerator(ICharacter actor, StringStack command)
-	{
-		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicRegeneratorHelper);
-	}
+    public static void MagicRegenerator(ICharacter actor, StringStack command)
+    {
+        BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicRegeneratorHelper);
+    }
 
-	public static void MagicPower(ICharacter actor, StringStack command)
-	{
-		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicPowerHelper);
-	}
+    public static void MagicPower(ICharacter actor, StringStack command)
+    {
+        BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicPowerHelper);
+    }
 
-	public static void MagicResource(ICharacter actor, StringStack command)
-	{
-		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicResourceHelper);
-	}
+    public static void MagicResource(ICharacter actor, StringStack command)
+    {
+        BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicResourceHelper);
+    }
 
-	#region Magic Spells
+    #region Magic Spells
 
-	public static void MagicSpell(ICharacter actor, StringStack command)
-	{
-		switch (command.PopForSwitch())
-		{
-			case "triggers":
-				BuildingCommandSpellTriggers(actor, command);
-				return;
-			case "triggerhelp":
-				BuildingCommandSpellTriggerHelp(actor, command);
-				return;
-			case "effects":
-				BuildingCommandSpellEffects(actor, command);
-				return;
-			case "effecthelp":
-				BuildingCommandSpellEffectHelp(actor, command);
-				return;
-		}
-		BuilderModule.GenericBuildingCommand(actor, command.GetUndo(), EditableItemHelper.MagicSpellHelper);
-	}
+    public static void MagicSpell(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "triggers":
+                BuildingCommandSpellTriggers(actor, command);
+                return;
+            case "triggerhelp":
+                BuildingCommandSpellTriggerHelp(actor, command);
+                return;
+            case "effects":
+                BuildingCommandSpellEffects(actor, command);
+                return;
+            case "effecthelp":
+                BuildingCommandSpellEffectHelp(actor, command);
+                return;
+        }
+        BuilderModule.GenericBuildingCommand(actor, command.GetUndo(), EditableItemHelper.MagicSpellHelper);
+    }
 
-	private static void BuildingCommandSpellEffectHelp(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("Which magic spell effect do you want to view help for?");
-			return;
-		}
+    private static void BuildingCommandSpellEffectHelp(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which magic spell effect do you want to view help for?");
+            return;
+        }
 
-		var type = command.SafeRemainingArgument.ToLowerInvariant();
-		if (!SpellEffectFactory.MagicEffectTypes.Any(x => x.EqualTo(type)))
-		{
-			actor.OutputHandler.Send($"There is no magic spell effect type called {type.ColourCommand()}.");
-			return;
-		}
+        string type = command.SafeRemainingArgument.ToLowerInvariant();
+        if (!SpellEffectFactory.MagicEffectTypes.Any(x => x.EqualTo(type)))
+        {
+            actor.OutputHandler.Send($"There is no magic spell effect type called {type.ColourCommand()}.");
+            return;
+        }
 
-		var sb = new StringBuilder();
-		sb.AppendLine($"Help for {type.ToUpperInvariant()}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
-		sb.AppendLine();
-		var (blurb, help, instant, target, triggers) = SpellEffectFactory.BuilderInfoForType(type);
-		sb.AppendLine($"Blurb: {blurb.ColourCommand()}");
-		sb.AppendLine($"Instant: {instant.ToColouredString()}");
-		sb.AppendLine($"Requires Target: {target.ToColouredString()}");
-		sb.AppendLine($"Compatible Triggers: {triggers.ListToColouredString()}");
-		sb.AppendLine();
-		sb.AppendLine("Builder Help:");
-		sb.AppendLine();
-		sb.AppendLine(help.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
-		actor.OutputHandler.Send(sb.ToString());
-	}
+        StringBuilder sb = new();
+        sb.AppendLine($"Help for {type.ToUpperInvariant()}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+        sb.AppendLine();
+        (string blurb, string help, bool instant, bool target, string[] triggers) = SpellEffectFactory.BuilderInfoForType(type);
+        sb.AppendLine($"Blurb: {blurb.ColourCommand()}");
+        sb.AppendLine($"Instant: {instant.ToColouredString()}");
+        sb.AppendLine($"Requires Target: {target.ToColouredString()}");
+        sb.AppendLine($"Compatible Triggers: {triggers.ListToColouredString()}");
+        sb.AppendLine();
+        sb.AppendLine("Builder Help:");
+        sb.AppendLine();
+        sb.AppendLine(help.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
+        actor.OutputHandler.Send(sb.ToString());
+    }
 
-	private static void BuildingCommandSpellEffects(ICharacter actor, StringStack command)
-	{
-		actor.OutputHandler.Send(StringUtilities.GetTextTable(
-			from item in SpellEffectFactory.MagicEffectTypes
-			let info = SpellEffectFactory.BuilderInfoForType(item)
-			select new List<string>
-			{
-				item,
-				info.Blurb
-			},
-			new List<string>
-			{
-				"Name",
-				"Blurb"
-			},
-			actor,
-			Telnet.Magenta));
-	}
+    private static void BuildingCommandSpellEffects(ICharacter actor, StringStack command)
+    {
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            from item in SpellEffectFactory.MagicEffectTypes
+            let info = SpellEffectFactory.BuilderInfoForType(item)
+            select new List<string>
+            {
+                item,
+                info.Blurb
+            },
+            new List<string>
+            {
+                "Name",
+                "Blurb"
+            },
+            actor,
+            Telnet.Magenta));
+    }
 
-	private static void BuildingCommandSpellTriggerHelp(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("Which magic spell trigger do you want to view help for?");
-			return;
-		}
+    private static void BuildingCommandSpellTriggerHelp(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which magic spell trigger do you want to view help for?");
+            return;
+        }
 
-		var type = command.SafeRemainingArgument.ToLowerInvariant();
-		if (!SpellTriggerFactory.MagicTriggerTypes.Any(x => x.EqualTo(type)))
-		{
-			actor.OutputHandler.Send($"There is no magic spell trigger type called {type.ColourCommand()}.");
-			return;
-		}
+        string type = command.SafeRemainingArgument.ToLowerInvariant();
+        if (!SpellTriggerFactory.MagicTriggerTypes.Any(x => x.EqualTo(type)))
+        {
+            actor.OutputHandler.Send($"There is no magic spell trigger type called {type.ColourCommand()}.");
+            return;
+        }
 
-		var sb = new StringBuilder();
-		sb.AppendLine($"Help for {type.ToUpperInvariant()}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
-		sb.AppendLine();
-		var (blurb, types, help) = SpellTriggerFactory.BuilderInfoForType(type);
-		sb.AppendLine($"Blurb: {blurb.ColourCommand()}");
-		sb.AppendLine($"Types: {types.ColourName()}");
-		sb.AppendLine();
-		sb.AppendLine("Builder Help:");
-		sb.AppendLine();
-		sb.AppendLine(help.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
-		actor.OutputHandler.Send(sb.ToString());
-	}
+        StringBuilder sb = new();
+        sb.AppendLine($"Help for {type.ToUpperInvariant()}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+        sb.AppendLine();
+        (string blurb, string types, string help) = SpellTriggerFactory.BuilderInfoForType(type);
+        sb.AppendLine($"Blurb: {blurb.ColourCommand()}");
+        sb.AppendLine($"Types: {types.ColourName()}");
+        sb.AppendLine();
+        sb.AppendLine("Builder Help:");
+        sb.AppendLine();
+        sb.AppendLine(help.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
+        actor.OutputHandler.Send(sb.ToString());
+    }
 
-	private static void BuildingCommandSpellTriggers(ICharacter actor, StringStack command)
-	{
-		actor.OutputHandler.Send(StringUtilities.GetTextTable(
-			from item in SpellTriggerFactory.MagicTriggerTypes
-			let info = SpellTriggerFactory.BuilderInfoForType(item)
-			select new List<string>
-			{
-				item,
-				info.Blurb,
-				info.TargetTypes
-			},
-			new List<string>
-			{
-				"Name",
-				"Blurb",
-				"Type"
-			}, 
-			actor,
-			Telnet.Magenta));
-	}
+    private static void BuildingCommandSpellTriggers(ICharacter actor, StringStack command)
+    {
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            from item in SpellTriggerFactory.MagicTriggerTypes
+            let info = SpellTriggerFactory.BuilderInfoForType(item)
+            select new List<string>
+            {
+                item,
+                info.Blurb,
+                info.TargetTypes
+            },
+            new List<string>
+            {
+                "Name",
+                "Blurb",
+                "Type"
+            },
+            actor,
+            Telnet.Magenta));
+    }
 
-	#endregion
+    #endregion
 }

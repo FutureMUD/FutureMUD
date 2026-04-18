@@ -1,12 +1,12 @@
-using System.Xml.Linq;
-using System.Linq;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Magic;
-using MudSharp.RPG.Checks;
 using MudSharp.PerceptionEngine;
-using MudSharp.Body.Traits;
-using MudSharp.Effects.Interfaces;
+using MudSharp.RPG.Checks;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -59,7 +59,7 @@ public class StaminaDeltaSpellEffect : IMagicSpellEffectTemplate
             actor.OutputHandler.Send("You must specify a formula.");
             return false;
         }
-        var expr = new TraitExpression(command.SafeRemainingArgument, Gameworld);
+        TraitExpression expr = new(command.SafeRemainingArgument, Gameworld);
         if (expr.HasErrors())
         {
             actor.OutputHandler.Send(expr.Error);
@@ -79,7 +79,11 @@ public class StaminaDeltaSpellEffect : IMagicSpellEffectTemplate
     public bool IsInstantaneous => true;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => IsCompatibleWithTrigger(trigger.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger trigger)
+    {
+        return IsCompatibleWithTrigger(trigger.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -95,14 +99,25 @@ public class StaminaDeltaSpellEffect : IMagicSpellEffectTemplate
     public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
         if (target is not ICharacter ch)
+        {
             return null;
-        var amount = AmountExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) });
+        }
+
+        double amount = AmountExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) });
         if (amount >= 0)
+        {
             ch.GainStamina(amount);
+        }
         else
+        {
             ch.SpendStamina(-amount);
+        }
+
         return null;
     }
 
-    public IMagicSpellEffectTemplate Clone() => new StaminaDeltaSpellEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new StaminaDeltaSpellEffect(SaveToXml(), Spell);
+    }
 }

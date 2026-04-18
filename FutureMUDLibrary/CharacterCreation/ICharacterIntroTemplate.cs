@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
+using System;
+using System.Collections.Generic;
 
 namespace MudSharp.CharacterCreation
 {

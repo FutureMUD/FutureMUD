@@ -1,8 +1,10 @@
-﻿using System;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
+using System;
 
-namespace MudSharp.Effects.Interfaces {
-    public interface IActionEffect : IEffectSubtype {
+namespace MudSharp.Effects.Interfaces
+{
+    public interface IActionEffect : IEffectSubtype
+    {
         string ActionDescription { get; }
         Action<IPerceivable> Action { get; }
     }

@@ -2,16 +2,16 @@
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.FutureProg;
 
 namespace MudSharp.RPG.Law
 {
-    public interface ILegalClass : IFrameworkItem, ISaveable, IEditableItem
+    public interface ILegalClass : IFrameworkItem, ISaveable, IEditableItem, IProgVariable
     {
         ILegalAuthority Authority { get; }
         int LegalClassPriority { get; }

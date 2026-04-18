@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MudSharp.FutureProg.Variables {
-    public class DateTimeVariable : ProgVariable {
-        public DateTimeVariable(DateTime dt) {
+namespace MudSharp.FutureProg.Variables
+{
+    public class DateTimeVariable : ProgVariable
+    {
+        public DateTimeVariable(DateTime dt)
+        {
             UnderlyingDateTime = dt;
         }
 
@@ -13,8 +16,10 @@ namespace MudSharp.FutureProg.Variables {
 
         public override object GetObject => UnderlyingDateTime;
 
-        private static ProgVariableTypes DotReferenceHandler(string property) {
-            switch (property.ToLowerInvariant()) {
+        private static ProgVariableTypes DotReferenceHandler(string property)
+        {
+            switch (property.ToLowerInvariant())
+            {
                 case "year":
                     return ProgVariableTypes.Number;
                 case "month":
@@ -32,7 +37,7 @@ namespace MudSharp.FutureProg.Variables {
             }
         }
 
-        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
         {
             return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -45,7 +50,7 @@ namespace MudSharp.FutureProg.Variables {
             };
         }
 
-        private static IReadOnlyDictionary<string,string> DotReferenceHelp()
+        private static IReadOnlyDictionary<string, string> DotReferenceHelp()
         {
             return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -58,12 +63,15 @@ namespace MudSharp.FutureProg.Variables {
             };
         }
 
-        public static void RegisterFutureProgCompiler() {
+        public static void RegisterFutureProgCompiler()
+        {
             ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.DateTime, DotReferenceHandler(), DotReferenceHelp());
         }
 
-        public override IProgVariable GetProperty(string property) {
-            switch (property.ToLowerInvariant()) {
+        public override IProgVariable GetProperty(string property)
+        {
+            switch (property.ToLowerInvariant())
+            {
                 case "year":
                     return new NumberVariable(UnderlyingDateTime.Year);
                 case "month":

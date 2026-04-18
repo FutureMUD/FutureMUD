@@ -1,11 +1,11 @@
-using System;
-using System.Xml.Linq;
-using System.Linq;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
+using System;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -94,7 +94,11 @@ public class TelepathySpellEffect : IMagicSpellEffectTemplate
     public bool IsInstantaneous => false;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return IsCompatibleWithTrigger(types.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -117,5 +121,8 @@ public class TelepathySpellEffect : IMagicSpellEffectTemplate
         return new SpellTelepathyEffect(ch, parent, null, ShowThinks, ShowFeels, ShowEmote);
     }
 
-    public IMagicSpellEffectTemplate Clone() => new TelepathySpellEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new TelepathySpellEffect(SaveToXml(), Spell);
+    }
 }

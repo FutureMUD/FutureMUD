@@ -2,17 +2,22 @@
 using MudSharp.Effects;
 using MudSharp.Framework;
 
-namespace MudSharp.Celestial {
+namespace MudSharp.Celestial
+{
     public delegate void CelestialUpdateHandler(ICelestialObject sender);
 
-    public enum CelestialMoveDirection {
+    public enum CelestialMoveDirection
+    {
         Ascending,
         Descending
     }
 
-    public static class CelestialMoveDirectionExtension {
-        public static string Describe(this CelestialMoveDirection direction) {
-            switch (direction) {
+    public static class CelestialMoveDirectionExtension
+    {
+        public static string Describe(this CelestialMoveDirection direction)
+        {
+            switch (direction)
+            {
                 case CelestialMoveDirection.Ascending:
                     return "Ascending";
                 case CelestialMoveDirection.Descending:
@@ -23,7 +28,8 @@ namespace MudSharp.Celestial {
         }
     }
 
-    public interface ICelestialObject : IFrameworkItem, IPerceivable {
+    public interface ICelestialObject : IFrameworkItem, IPerceivable
+    {
         PerceptionTypes PerceivableTypes { get; }
         void AddMinutes(int numberOfMinutes);
         void AddMinutes();

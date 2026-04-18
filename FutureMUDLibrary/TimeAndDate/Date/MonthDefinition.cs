@@ -1,19 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using MudSharp.Framework;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using MudSharp.Framework;
 
-namespace MudSharp.TimeAndDate.Date {
-    public class MonthDefinition : IXmlSavable, IXmlLoadable {
-        public void LoadFromXml(XElement root) {
-            if (!root.HasElements) {
+namespace MudSharp.TimeAndDate.Date
+{
+    public class MonthDefinition : IXmlSavable, IXmlLoadable
+    {
+        public void LoadFromXml(XElement root)
+        {
+            if (!root.HasElements)
+            {
                 throw new XmlException("Root without any elements in MonthDefinition LoadFromXML.");
             }
 
             // Alias
-            var element = root.Element("alias");
-            if ((element == null) || (element.Value.Length == 0)) {
+            XElement element = root.Element("alias");
+            if ((element == null) || (element.Value.Length == 0))
+            {
                 throw new XmlException("Missing alias value in MonthDefinition LoadFromXML.");
             }
 
@@ -21,7 +26,8 @@ namespace MudSharp.TimeAndDate.Date {
 
             // Full Name
             element = root.Element("fullname");
-            if ((element == null) || (element.Value.Length == 0)) {
+            if ((element == null) || (element.Value.Length == 0))
+            {
                 throw new XmlException("Missing fullname value in MonthDefinition LoadFromXML.");
             }
 
@@ -29,7 +35,8 @@ namespace MudSharp.TimeAndDate.Date {
 
             // ShortName
             element = root.Element("shortname");
-            if ((element == null) || (element.Value.Length == 0)) {
+            if ((element == null) || (element.Value.Length == 0))
+            {
                 throw new XmlException("Missing shortname value in MonthDefinition LoadFromXML.");
             }
 
@@ -37,61 +44,70 @@ namespace MudSharp.TimeAndDate.Date {
 
             // Normal Days
             element = root.Element("normaldays");
-            if ((element == null) || (element.Value.Length == 0)) {
+            if ((element == null) || (element.Value.Length == 0))
+            {
                 throw new XmlException("Missing normaldays value in MonthDefinition LoadFromXML.");
             }
 
-            try {
+            try
+            {
                 NormalDays = int.Parse(element.Value);
             }
-            catch {
+            catch
+            {
                 throw new XmlException("Value for normaldays in MonthDefinition LoadFromXML is not a valid Integer");
             }
 
             // Nominal Order
             element = root.Element("nominalorder");
-            if ((element == null) || (element.Value.Length == 0)) {
+            if ((element == null) || (element.Value.Length == 0))
+            {
                 throw new XmlException("Missing nominalorder value in MonthDefinition LoadFromXML.");
             }
 
-            try {
+            try
+            {
                 NominalOrder = int.Parse(element.Value);
             }
-            catch {
+            catch
+            {
                 throw new XmlException("Value for nominalorder in MonthDefinition LoadFromXML is not a valid Integer");
             }
 
             // Special Day Names
             (from sd in root.Element("specialdays").Elements("specialday")
-                    where (sd.Attribute("day") != null) &&
-                          (sd.Attribute("short") != null) &&
-                          (sd.Attribute("long") != null)
-                    select sd)
+             where (sd.Attribute("day") != null) &&
+                   (sd.Attribute("short") != null) &&
+                   (sd.Attribute("long") != null)
+             select sd)
                 .ToList()
                 .ForEach(x => SpecialDayNames
                         .Add(int.Parse(x.Attribute("day").Value),
-                            new DayName(x.Attribute("short").Value, 
-	                            x.Attribute("long").Value))
+                            new DayName(x.Attribute("short").Value,
+                                x.Attribute("long").Value))
                 );
 
             // Non Weekdays
             (from nwd in root.Element("nonweekdays").Elements("nonweekday")
-                    select nwd)
+             select nwd)
                 .ToList()
                 .ForEach(x => NonWeekdays.Add(int.Parse(x.Value)));
 
             // Intercalaries
             element = root.Element("intercalarydays");
-            if (element?.HasElements == true) {
-                foreach (var subElement in element.Elements()) {
-                    var intercalary = new IntercalaryDay();
+            if (element?.HasElements == true)
+            {
+                foreach (XElement subElement in element.Elements())
+                {
+                    IntercalaryDay intercalary = new();
                     intercalary.LoadFromXml(subElement);
                     _intercalaries.Add(intercalary);
                 }
             }
         }
 
-        public XElement SaveToXml() {
+        public XElement SaveToXml()
+        {
             return new XElement
             (
                 "month", new XElement("alias", Alias), new XElement("shortname", ShortName),
@@ -123,8 +139,7 @@ namespace MudSharp.TimeAndDate.Date {
 
         public string Alias
         {
-            get { return _alias; }
-            protected set { _alias = value; }
+            get => _alias; protected set => _alias = value;
         }
 
         // Short Name of the month, e.g. Jul - used in abbreviated date output
@@ -132,8 +147,7 @@ namespace MudSharp.TimeAndDate.Date {
 
         public string ShortName
         {
-            get { return _shortName; }
-            protected set { _shortName = value; }
+            get => _shortName; protected set => _shortName = value;
         }
 
         // Full name of the month, e.g. July
@@ -141,8 +155,7 @@ namespace MudSharp.TimeAndDate.Date {
 
         public string FullName
         {
-            get { return _fullName; }
-            protected set { _fullName = value; }
+            get => _fullName; protected set => _fullName = value;
         }
 
         /// <summary>
@@ -153,8 +166,7 @@ namespace MudSharp.TimeAndDate.Date {
 
         public int NominalOrder
         {
-            get { return _nominalOrder; }
-            protected set { _nominalOrder = value; }
+            get => _nominalOrder; protected set => _nominalOrder = value;
         }
 
         // Ordinary days in the month
@@ -162,8 +174,7 @@ namespace MudSharp.TimeAndDate.Date {
 
         public int NormalDays
         {
-            get { return _normalDays; }
-            protected set { _normalDays = value; }
+            get => _normalDays; protected set => _normalDays = value;
         }
 
         #endregion
@@ -196,11 +207,13 @@ namespace MudSharp.TimeAndDate.Date {
 
         #region Constructor
 
-        public MonthDefinition() {
+        public MonthDefinition()
+        {
         }
 
         public MonthDefinition(string shortname, string alias, string fullname, int nominalorder, int normaldays,
-            Dictionary<int, DayName> daynames, List<IntercalaryDay> intercalaries) {
+            Dictionary<int, DayName> daynames, List<IntercalaryDay> intercalaries)
+        {
             _alias = alias;
             _shortName = shortname;
             _fullName = fullname;

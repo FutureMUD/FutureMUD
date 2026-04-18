@@ -2,7 +2,8 @@
 
 namespace MudSharp.Framework
 {
-    public interface IHaveTags {
+    public interface IHaveTags
+    {
         IEnumerable<ITag> Tags { get; }
         bool AddTag(ITag tag);
         bool RemoveTag(ITag tag);

@@ -1,7 +1,9 @@
 ﻿using MudSharp.Framework;
 
-namespace MudSharp.TimeAndDate.Listeners {
-    public interface ITemporalListener : IFrameworkItem {
+namespace MudSharp.TimeAndDate.Listeners
+{
+    public interface ITemporalListener : IFrameworkItem
+    {
         /// <summary>
         ///     This function specifies whether this listener or its action have anything to do with the specified item - for
         ///     instance, if the Item was actually an ICharacter who was dead/logging out, this could be used

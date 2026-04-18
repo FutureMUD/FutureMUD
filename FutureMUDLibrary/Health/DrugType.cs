@@ -1,6 +1,7 @@
 ﻿namespace MudSharp.Health
 {
-    public enum DrugType {
+    public enum DrugType
+    {
         Anesthesia = 1,
         Analgesic = 2,
         Immunosuppressive = 3,

@@ -4,8 +4,8 @@ namespace MudSharp.FutureProg;
 
 public static class FutureProgFactory
 {
-	public static IFutureProg CreateNew(MudSharp.Models.FutureProg prog, IFuturemud gameworld)
-	{
-		return new FutureProg(prog, gameworld);
-	}
+    public static IFutureProg CreateNew(MudSharp.Models.FutureProg prog, IFuturemud gameworld)
+    {
+        return new FutureProg(prog, gameworld);
+    }
 }

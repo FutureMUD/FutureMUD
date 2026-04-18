@@ -21,6 +21,7 @@ The current repository has two dedicated economy seeders:
 
 - stock currency packages such as dollars, pounds, fantasy, roman, bits, and Gondor
 - stock divisions, coins, description patterns, and parsing abbreviations
+- historical compact `£sd` formatting for the stock Pounds package, including sub-shilling `d` notation, slash notation above one shilling, full `£/s/d` notation above one pound, quarter-penny glyph fractions, and `–` zero slots in slash forms
 - supporting FutureProg content for some currency pattern applicability
 - additive rerun behavior so multiple currencies can coexist
 
@@ -29,8 +30,12 @@ The current repository has two dedicated economy seeders:
 - a new stock `EconomicZone` shell tied to a chosen currency and physical zone
 - a stock market attached to that zone
 - market categories for every seeded tag beneath the `UsefulSeeder` `Market` tag root, including intermediate and leaf tags such as later-era communications (`Postal Services`, `Printed News`) and personal-service (`Barbering`, `Laundry Services`) needs
+- stock combination-category examples for setting-agnostic family baskets such as `Medicine`, `Writing Materials`, `Clothing`, `Household Goods`, `Hospitality`, `Entertainment`, `Personal Services`, `Communications`, `Military Goods`, and `Professional Tools`, each seeded as an equal-weight roll-up of its direct child categories
 - a reusable library of external market influence templates grouped by sector family, with substantially broader positive and negative scenario coverage than the first pass
+- per-category tariff and subsidy templates for all seeded market categories, using flat percentage price pressure rather than supply or demand pressure
+- dedicated income-focused influence templates for each seeded era, covering wage squeezes, hiring booms, credit crunches, patronage windfalls, and similar household-income shocks
 - era-specific market populations, including priestly and monastic households, with later eras now drawing on hospitality, entertainment, communications, personal-service, and related market tags where appropriate
+- explicit population income factors and non-zero savings caps so seeded households can accumulate reserves before becoming stressed
 - population-stress influence templates and their helper FutureProgs, with stress now reducing lower-priority demand while also contracting supply in the sectors that stressed populations plausibly sustain
 - one seeded `SimpleShopper` per seeded population, with user-selected budget scale and seeded expenditures now scaled by both era assumptions and the chosen currency package
 
@@ -161,14 +166,18 @@ The market and shopper subsystems are also good seeder targets because they are 
 Feasible seed content:
 
 - broad food, seasonings, medicine, writing-material, luxury, industrial, military, logistics, and raw-material categories
+- seeded combination categories for the more setting-agnostic family groups, plus standalone parent categories where the stock seeder deliberately avoids imposing a world-specific basket definition
 - event-style influence templates such as harvest failure, bumper harvest, embargo, caravan surplus, piracy, mining trouble, and war mobilisation
+- price-only adjustment templates such as tariffs, duties, and subsidies that should act as flat percentage pressure on final price
+- income-focused templates that target specific household archetypes without changing supply or demand
 - sample populations representing commoners, merchants, martial households, priestly households, monastic households, literate middling households in later eras, and elites across multiple historical eras
 - reusable `SimpleShopper` templates seeded as live stock shoppers with scale-adjusted budgets
 
 Why they are seed-friendly now:
 
 - categories and templates are reusable content by design
-- market population needs and stress thresholds are already serialized data
+- market category composition is serialized data, so aggregate baskets can be shipped without special code
+- market population needs, stress thresholds, and flicker thresholds are already serialized data
 - shopper behavior is explicitly configured through progs rather than baked into code paths
 
 Current stock package limits:
@@ -177,6 +186,8 @@ Current stock package limits:
 - the seeded shopper progs are intentionally broad and tag-driven rather than world-specific retail logic
 - the seeded populations are builder-friendly archetypes, not a claim of historical simulation completeness
 - seeded money values are intended as builder-facing baselines, not audited historical wage tables; the seeder now normalizes them against era and currency assumptions so stock packages start closer to plausible local price scales
+- the new income, savings, and stress-hysteresis fields give builders a better baseline for resilience, but they are still broad tuning defaults rather than researched historical household balance sheets
+- some broad parent tags such as `Nourishment` remain standalone on purpose because the right weighted basket is highly setting-dependent; builders are expected to tune or replace those with their own combination categories if the stock example set is not enough
 
 ## Possible but World-Dependent Seeder Candidates
 ### Markets tied to seeded economic zones
@@ -285,14 +296,14 @@ The codebase still contains more economy runtime than stock seeding. That gap ma
 - documentation and seeding strategy need to stay aligned so this does not look more complete than it is
 
 ### Automated test coverage is extremely thin
-The current economy test coverage is concentrated in `ShopTests.cs`.
+The current economy test coverage is still light outside shops, but it now also includes targeted coverage for market price pressure, combination-category weighted pricing, influence redistribution through aggregate categories, population income-factor stacking, savings accumulation/depletion, stress hysteresis, and seeded economy package invariants.
 
 There is little or no automated coverage for:
 
 - currency parsing and description behavior
 - bank fees, account permissions, and transfers
 - tax calculation and financial-period rollover
-- markets, populations, influences, and shoppers
+- broader market, shopper, and influence behavior beyond the new targeted income / savings / flat-price / combination-category tests
 - property workflows
 - auctions
 - job lifecycle behavior

@@ -15,21 +15,20 @@ using System.Windows.Shapes;
 
 namespace MudSharp_Watcher
 {
-	/// <summary>
-	/// Interaction logic for CrossTickBoundControl.xaml
-	/// </summary>
-	public partial class CrossTickBoundControl : UserControl
-	{
-		public bool Status
-		{
-			get { return (bool)GetValue(StatusProperty); }
-			set { SetValue(StatusProperty, value); }
-		}
-		public static readonly DependencyProperty StatusProperty = DependencyProperty.Register("Status", typeof(bool), typeof(CrossTickBoundControl), new UIPropertyMetadata(false));
+    /// <summary>
+    /// Interaction logic for CrossTickBoundControl.xaml
+    /// </summary>
+    public partial class CrossTickBoundControl : UserControl
+    {
+        public bool Status
+        {
+            get => (bool)GetValue(StatusProperty); set => SetValue(StatusProperty, value);
+        }
+        public static readonly DependencyProperty StatusProperty = DependencyProperty.Register("Status", typeof(bool), typeof(CrossTickBoundControl), new UIPropertyMetadata(false));
 
-		public CrossTickBoundControl()
-		{
-			InitializeComponent();
-		}
-	}
+        public CrossTickBoundControl()
+        {
+            InitializeComponent();
+        }
+    }
 }

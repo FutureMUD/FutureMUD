@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using MudSharp.Framework;
+﻿using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 
@@ -15,11 +15,13 @@ internal class OnlineCharacters : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(
             new FunctionCompilerInformation(
                 "onlinecharacters",
-				[], // the parameters the function takes
+                [], // the parameters the function takes
                 (pars, gameworld) => new OnlineCharacters(pars, gameworld),
-                new List<string> {
+                new List<string>
+                {
                 }, // parameter names
-                new List<string> {
+                new List<string>
+                {
                 }, // parameter help text
                 "Returns all of the PC characters that are online.", // help text for the function,
                 "Character",// the category to which this function belongs,
@@ -38,7 +40,7 @@ internal class OnlineCharacters : BuiltInFunction
 
     public override ProgVariableTypes ReturnType
     {
-        get { return ProgVariableTypes.Character | ProgVariableTypes.Collection; }
+        get => ProgVariableTypes.Character | ProgVariableTypes.Collection;
         protected set { }
     }
 
@@ -49,7 +51,7 @@ internal class OnlineCharacters : BuiltInFunction
             return StatementResult.Error;
         }
 
-		Result = new CollectionVariable(Gameworld.Characters.ToList(), ProgVariableTypes.Character);
+        Result = new CollectionVariable(Gameworld.Characters.ToList(), ProgVariableTypes.Character);
         return StatementResult.Normal;
     }
 }

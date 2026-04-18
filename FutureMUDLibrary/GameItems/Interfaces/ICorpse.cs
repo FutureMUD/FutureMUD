@@ -1,8 +1,10 @@
-﻿using System;
-using MudSharp.Character;
+﻿using MudSharp.Character;
+using System;
 
-namespace MudSharp.GameItems.Interfaces {
-    public enum DecayState {
+namespace MudSharp.GameItems.Interfaces
+{
+    public enum DecayState
+    {
         Fresh,
         Recent,
         Decaying,

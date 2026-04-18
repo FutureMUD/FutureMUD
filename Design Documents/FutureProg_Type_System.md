@@ -21,6 +21,7 @@ The following usage patterns are intentionally preserved:
 It provides:
 
 - static readonly fields for all legacy concrete types and aliases
+- overflow-era exact types such as `ProgVariableTypes.LegalClass` that are no longer constrained by the legacy 64-bit enum bridge
 - bitwise operators `|`, `&`, `^`, `~`
 - equality operators `==`, `!=`
 - compatibility helpers such as `HasFlag(...)`, `CompatibleWith(...)`
@@ -45,6 +46,8 @@ The engine also keeps a legacy enum bridge, `ProgVariableTypeCode`, for two comp
 - legacy-style exact switching in places where a direct `switch` over constants is still the clearest shape
 
 `ProgVariableTypes.LegacyCode` returns a matching `ProgVariableTypeCode` when the value is still representable as a legacy 64-bit value; otherwise it returns `Unknown`.
+
+New exact types added after the legacy bit range, such as `LegalClass`, should generally be handled with `type.ExactKind`, `type == ProgVariableTypes.SomeType`, or other `ProgVariableTypes`-native checks rather than relying on `LegacyCode` switches.
 
 ## Registry
 

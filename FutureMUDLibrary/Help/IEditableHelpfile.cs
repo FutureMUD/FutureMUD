@@ -1,9 +1,11 @@
-﻿using System;
+﻿using MudSharp.FutureProg;
+using System;
 using System.Collections.Generic;
-using MudSharp.FutureProg;
 
-namespace MudSharp.Help {
-    public interface IEditableHelpfile : IHelpfile {
+namespace MudSharp.Help
+{
+    public interface IEditableHelpfile : IHelpfile
+    {
         new List<string> Keywords { get; }
 
         /// <summary>

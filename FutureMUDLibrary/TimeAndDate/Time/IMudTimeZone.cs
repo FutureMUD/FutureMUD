@@ -13,9 +13,9 @@ namespace MudSharp.TimeAndDate.Time
 
     public interface IEditableMudTimeZone : IMudTimeZone
     {
-	    new int OffsetHours { set; }
-	    new int OffsetMinutes { set; }
-	    new string Description { set; }
+        new int OffsetHours { set; }
+        new int OffsetMinutes { set; }
+        new string Description { set; }
 
-	}
+    }
 }

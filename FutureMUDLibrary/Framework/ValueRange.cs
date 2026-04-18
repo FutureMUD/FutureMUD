@@ -17,8 +17,9 @@ namespace MudSharp.Framework
 
         int IComparable.CompareTo(object obj)
         {
-            if (obj is double d) {
-                return ((IComparable<double>) this).CompareTo(d);
+            if (obj is double d)
+            {
+                return ((IComparable<double>)this).CompareTo(d);
             }
             return CompareTo((ValueRange)obj);
         }

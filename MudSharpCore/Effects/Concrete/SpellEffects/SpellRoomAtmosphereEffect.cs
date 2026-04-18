@@ -1,9 +1,9 @@
-using System;
-using System.Xml.Linq;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
-using MudSharp.Form.Material;
+using System;
+using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -23,9 +23,9 @@ public class SpellRoomAtmosphereEffect : MagicSpellEffectBase, IDescriptionAddit
 
     protected SpellRoomAtmosphereEffect(XElement root, IPerceivable owner) : base(root, owner)
     {
-        var tr = root.Element("Effect");
-        var id = long.Parse(tr.Element("AtmosphereId").Value);
-        var type = tr.Element("AtmosphereType").Value;
+        XElement tr = root.Element("Effect");
+        long id = long.Parse(tr.Element("AtmosphereId").Value);
+        string type = tr.Element("AtmosphereType").Value;
         Atmosphere = type.Equals("gas", StringComparison.InvariantCultureIgnoreCase)
             ? (IFluid)Gameworld.Gases.Get(id)
             : Gameworld.Liquids.Get(id);

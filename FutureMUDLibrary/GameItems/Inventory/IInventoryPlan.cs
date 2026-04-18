@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using MudSharp.Effects.Interfaces;
+﻿using MudSharp.Effects.Interfaces;
 using MudSharp.GameItems.Inventory.Plans;
+using System.Collections.Generic;
 
 namespace MudSharp.GameItems.Inventory
 {

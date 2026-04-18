@@ -1,30 +1,32 @@
-﻿using System;
+﻿using MudSharp.Character;
+using MudSharp.Framework;
+using MudSharp.FutureProg;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 
 namespace MudSharp.Form.Characteristics
 {
-    public enum PluralisationType {
+    public enum PluralisationType
+    {
         UsePluralisationService,
         Plural,
         Singular
     }
-    
+
     public interface ICharacteristicValue : IFrameworkItem
     {
-        IFutureProg ChargenApplicabilityProg {
+        IFutureProg ChargenApplicabilityProg
+        {
             get;
         }
 
         IFutureProg OngoingValidityProg
-		{
+        {
             get;
-		}
+        }
 
         ICharacteristicDefinition Definition { get; }
 

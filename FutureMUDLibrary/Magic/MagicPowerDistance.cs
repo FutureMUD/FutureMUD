@@ -2,13 +2,13 @@
 
 public enum MagicPowerDistance
 {
-	AnyConnectedMind,
-	AnyConnectedMindOrConnectedTo,
-	SameLocationOnly,
-	AdjacentLocationsOnly,
-	SameAreaOnly,
-	SameZoneOnly,
-	SameShardOnly,
-	SamePlaneOnly,
-	SeenTargetOnly
+    AnyConnectedMind,
+    AnyConnectedMindOrConnectedTo,
+    SameLocationOnly,
+    AdjacentLocationsOnly,
+    SameAreaOnly,
+    SameZoneOnly,
+    SameShardOnly,
+    SamePlaneOnly,
+    SeenTargetOnly
 }

@@ -4,17 +4,16 @@ using System.Linq;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Framework;
-using MudSharp.Framework.Revision;
 using MudSharp.Health;
-using MudSharp.Health.Wounds;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Merits;
+using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.Body.Disfigurements;
 
 public static class ScarGeneration
 {
-	private sealed record ScarCandidate(IScarTemplate Template, double Chance);
-
 	public static void TryApplyScar(ICharacter owner, IWound wound)
 	{
 		var gameworld = owner.Gameworld;
@@ -33,125 +32,118 @@ public static class ScarGeneration
 			return;
 		}
 
-		var candidates = GetCandidates(owner, wound, bodypart).ToList();
-		if (!candidates.Any())
+		var overallChance = Math.Min(
+			gameworld.GetStaticDouble("ScarGenerationOverallChanceUpperBound"),
+			GetOccurrenceChance(owner, wound));
+		if (!RandomUtilities.Roll(1.0, overallChance))
 		{
 			return;
 		}
 
-		var overallChance = 1.0 - candidates.Aggregate(1.0, (current, candidate) => current * (1.0 - candidate.Chance));
-		if (!RandomUtilities.Roll(1.0, Math.Max(0.0, Math.Min(gameworld.GetStaticDouble("ScarGenerationOverallChanceUpperBound"), overallChance))))
+		var context = ScarGenerationSupport.GetContext(wound);
+		owner.Body.AddScar(GenerateScar(gameworld, owner.Race, bodypart, context, owner.Location.DateTime()));
+	}
+
+	internal static double GetOccurrenceChance(ICharacter owner, IWound wound)
+	{
+		var context = ScarGenerationSupport.GetContext(wound);
+		var staticChance = GetStaticOccurrenceChance(owner.Gameworld, context);
+		return ClampChance(owner.Gameworld, ApplyMeritModifiers(owner, wound, staticChance));
+	}
+
+	internal static double ApplyMeritModifiers(IHaveMerits owner, IWound wound, double baseChance)
+	{
+		var merits = owner.Merits
+			.OfType<IScarChanceMerit>()
+			.Where(x => x.Applies(owner) && x.AppliesTo(wound))
+			.ToList();
+		if (!merits.Any())
 		{
-			return;
+			return baseChance;
 		}
 
-		var selected = candidates.GetWeightedRandom(x => x.Chance);
-		if (selected is null)
-		{
-			return;
-		}
-
-		owner.Body.AddScar(selected.Template.ProduceScar(owner, bodypart));
+		var flatModifier = merits.Sum(x => x.FlatModifier);
+		var multiplier = merits.Aggregate(1.0, (current, merit) => current * merit.Multiplier);
+		return (baseChance + flatModifier) * multiplier;
 	}
 
-	private static IEnumerable<ScarCandidate> GetCandidates(ICharacter owner, IWound wound, IBodypart bodypart)
+	internal static IScar GenerateScar(
+		IFuturemud gameworld,
+		Character.Heritage.IRace race,
+		IBodypart bodypart,
+		ScarWoundContext context,
+		MudDateTime timeOfScarring,
+		int? variantSeed = null)
 	{
-		var gameworld = owner.Gameworld;
-		return owner.Gameworld.DisfigurementTemplates
-		            .OfType<IScarTemplate>()
-		            .Where(x => x.Status == RevisionStatus.Current)
-		            .Where(x => x.CanBeAppliedToBodypart(owner.Body, bodypart))
-		            .Select(x => (Template: x, Chance: GetChance(gameworld, x, wound)))
-		            .Where(x => x.Chance > 0.0)
-		            .Select(x => new ScarCandidate(x.Template, x.Chance));
+		return ScarGenerationSupport.CreateScar(gameworld, race, bodypart, context, timeOfScarring, variantSeed);
 	}
 
-	private static double GetChance(IFuturemud gameworld, IScarTemplate template, IWound wound)
+	internal static IReadOnlyList<IScar> GenerateScarOptions(
+		IFuturemud gameworld,
+		Character.Heritage.IRace race,
+		IBodypart bodypart,
+		ScarWoundContext context,
+		MudDateTime timeOfScarring,
+		int count)
 	{
-		return wound switch
+		HashSet<string> seen = new(StringComparer.InvariantCultureIgnoreCase);
+		List<IScar> scars = [];
+		var attempts = Math.Max(count * 4, count + 2);
+		for (var i = 0; i < attempts && scars.Count < count; i++)
 		{
-			SimpleOrganicWound organicWound => GetOrganicWoundChance(gameworld, template, organicWound),
-			HealingSimpleWound healingWound => GetHealingWoundChance(gameworld, template, healingWound),
-			_ => 0.0
-		};
-	}
-
-	private static double GetOrganicWoundChance(IFuturemud gameworld, IScarTemplate template, SimpleOrganicWound wound)
-	{
-		if (wound.ScarSurgicalProcedureType is SurgicalProcedureType surgicalProcedureType)
-		{
-			if (!template.CanBeAppliedFromSurgery(surgicalProcedureType))
+			var scar = GenerateScar(gameworld, race, bodypart, context, timeOfScarring, i);
+			var key = $"{scar.ShortDescription}|{scar.FullDescription}";
+			if (!seen.Add(key))
 			{
-				return 0.0;
+				continue;
 			}
 
+			scars.Add(scar);
+		}
+
+		if (!scars.Any())
+		{
+			scars.Add(GenerateScar(gameworld, race, bodypart, context, timeOfScarring, 0));
+		}
+
+		return scars;
+	}
+
+	private static double GetStaticOccurrenceChance(IFuturemud gameworld, ScarWoundContext context)
+	{
+		var baseChance = ScarGenerationSupport.GetBaseChance(gameworld, context) +
+						TendedModifier(gameworld, context.BestTendedOutcome);
+		if (context.IsSurgery)
+		{
 			return ClampChance(
 				gameworld,
-				template.SurgeryHealingScarChance +
-				((int)wound.Severity * gameworld.GetStaticDouble("ScarGenerationOrganicSurgerySeverityPerLevel")) +
-				CheckDegreesModifier(gameworld, wound.ScarSurgeryCheckDegrees) +
-				TendedModifier(gameworld, wound.BestTendedOutcome) +
-				(wound.HadInfection ? gameworld.GetStaticDouble("ScarGenerationOrganicSurgeryHadInfectionModifier") : 0.0) +
-				(wound.WasCleaned
+				baseChance +
+				CheckDegreesModifier(gameworld, context.SurgeryCheckDegrees) +
+				(context.HadInfection ? gameworld.GetStaticDouble("ScarGenerationOrganicSurgeryHadInfectionModifier") : 0.0) +
+				(context.WasCleaned
 					? gameworld.GetStaticDouble("ScarGenerationOrganicSurgeryCleanedModifier")
 					: gameworld.GetStaticDouble("ScarGenerationOrganicSurgeryUncleanModifier")) +
-				(wound.WasAntisepticTreated ? gameworld.GetStaticDouble("ScarGenerationOrganicSurgeryAntisepticModifier") : 0.0) +
-				(wound.WasClosed
+				(context.WasAntisepticTreated ? gameworld.GetStaticDouble("ScarGenerationOrganicSurgeryAntisepticModifier") : 0.0) +
+				(context.WasClosed
 					? gameworld.GetStaticDouble("ScarGenerationOrganicSurgeryClosedModifier")
-					: wound.WasTraumaControlled
+					: context.WasTraumaControlled
 						? gameworld.GetStaticDouble("ScarGenerationOrganicSurgeryTraumaControlledModifier")
 						: gameworld.GetStaticDouble("ScarGenerationOrganicSurgeryOpenModifier")));
 		}
 
-		if (!template.CanBeAppliedFromDamage(wound.DamageType, wound.Severity))
-		{
-			return 0.0;
-		}
-
 		return ClampChance(
 			gameworld,
-			template.DamageHealingScarChance +
-			((int)wound.Severity * gameworld.GetStaticDouble("ScarGenerationOrganicDamageSeverityPerLevel")) +
-			TendedModifier(gameworld, wound.BestTendedOutcome) +
-			(wound.HadInfection ? gameworld.GetStaticDouble("ScarGenerationOrganicDamageHadInfectionModifier") : 0.0) +
-			(wound.WasCleaned
+			baseChance +
+			(context.HadInfection ? gameworld.GetStaticDouble("ScarGenerationOrganicDamageHadInfectionModifier") : 0.0) +
+			(context.WasCleaned
 				? gameworld.GetStaticDouble("ScarGenerationOrganicDamageCleanedModifier")
 				: gameworld.GetStaticDouble("ScarGenerationOrganicDamageUncleanModifier")) +
-			(wound.WasAntisepticTreated ? gameworld.GetStaticDouble("ScarGenerationOrganicDamageAntisepticModifier") : 0.0) +
-			(wound.WasClosed
+			(context.WasAntisepticTreated ? gameworld.GetStaticDouble("ScarGenerationOrganicDamageAntisepticModifier") : 0.0) +
+			(context.WasClosed
 				? gameworld.GetStaticDouble("ScarGenerationOrganicDamageClosedModifier")
-				: wound.WasTraumaControlled
+				: context.WasTraumaControlled
 					? gameworld.GetStaticDouble("ScarGenerationOrganicDamageTraumaControlledModifier")
 					: gameworld.GetStaticDouble("ScarGenerationOrganicDamageOpenModifier")));
-	}
-
-	private static double GetHealingWoundChance(IFuturemud gameworld, IScarTemplate template, HealingSimpleWound wound)
-	{
-		if (wound.ScarSurgicalProcedureType is SurgicalProcedureType surgicalProcedureType)
-		{
-			if (!template.CanBeAppliedFromSurgery(surgicalProcedureType))
-			{
-				return 0.0;
-			}
-
-			return ClampChance(
-				gameworld,
-				template.SurgeryHealingScarChance +
-				((int)wound.Severity * gameworld.GetStaticDouble("ScarGenerationHealingSurgerySeverityPerLevel")) +
-				CheckDegreesModifier(gameworld, wound.ScarSurgeryCheckDegrees) +
-				TendedModifier(gameworld, wound.BestTendedOutcome));
-		}
-
-		if (!template.CanBeAppliedFromDamage(wound.DamageType, wound.Severity))
-		{
-			return 0.0;
-		}
-
-		return ClampChance(
-			gameworld,
-			template.DamageHealingScarChance +
-			((int)wound.Severity * gameworld.GetStaticDouble("ScarGenerationHealingDamageSeverityPerLevel")) +
-			TendedModifier(gameworld, wound.BestTendedOutcome));
 	}
 
 	private static double TendedModifier(IFuturemud gameworld, Outcome outcome)

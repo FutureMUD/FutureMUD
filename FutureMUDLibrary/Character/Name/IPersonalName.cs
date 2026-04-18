@@ -2,8 +2,9 @@
 
 namespace MudSharp.Character.Name
 {
-    
-    public enum NameUsage {
+
+    public enum NameUsage
+    {
         /// <summary>
         ///     A name given at birth
         /// </summary>

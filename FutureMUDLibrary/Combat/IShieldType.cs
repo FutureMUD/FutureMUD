@@ -2,8 +2,10 @@
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 
-namespace MudSharp.Combat {
-    public interface IShieldType : IEditableItem {
+namespace MudSharp.Combat
+{
+    public interface IShieldType : IEditableItem
+    {
         ITraitDefinition BlockTrait { get; }
         double BlockBonus { get; }
         double StaminaPerBlock { get; }

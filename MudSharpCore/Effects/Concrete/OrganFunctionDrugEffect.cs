@@ -1,9 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -20,7 +20,7 @@ public class OrganFunctionDrugEffect : Effect, IOrganFunctionEffect
     public void SetBonuses(Dictionary<BodypartTypeEnum, double> bonuses)
     {
         OrganBonuses.Clear();
-        foreach (var item in bonuses)
+        foreach (KeyValuePair<BodypartTypeEnum, double> item in bonuses)
         {
             OrganBonuses[item.Key] = item.Value;
         }
@@ -28,9 +28,9 @@ public class OrganFunctionDrugEffect : Effect, IOrganFunctionEffect
 
     public IEnumerable<(IOrganProto Organ, double Bonus)> OrganFunctionBonuses(IBody body)
     {
-        foreach (var bonus in OrganBonuses)
+        foreach (KeyValuePair<BodypartTypeEnum, double> bonus in OrganBonuses)
         {
-            foreach (var organ in body.Organs.Where(x => x.BodypartType == bonus.Key))
+            foreach (IOrganProto organ in body.Organs.Where(x => x.BodypartType == bonus.Key))
             {
                 yield return (organ, bonus.Value);
             }
@@ -39,7 +39,7 @@ public class OrganFunctionDrugEffect : Effect, IOrganFunctionEffect
 
     public override string Describe(IPerceiver voyeur)
     {
-        var organs = OrganBonuses.Select(x => x.Key.DescribeEnum().Pluralise().ColourValue()).ListToString();
+        string organs = OrganBonuses.Select(x => x.Key.DescribeEnum().Pluralise().ColourValue()).ListToString();
         return $"Organ function modifier to {organs}";
     }
 }

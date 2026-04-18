@@ -11624,6 +11624,9 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("CombinationCategories")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
@@ -11632,6 +11635,9 @@ namespace MudSharp.Migrations
 
                     b.Property<double>("ElasticityFactorBelow")
                         .HasColumnType("double");
+
+                    b.Property<int>("MarketCategoryType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
@@ -11676,6 +11682,9 @@ namespace MudSharp.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("PopulationImpacts")
+                        .HasColumnType("longtext");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CharacterKnowsAboutInfluenceProgId");
@@ -11707,6 +11716,9 @@ namespace MudSharp.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("PopulationImpacts")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("TemplateSummary")
                         .HasColumnType("longtext");
 
@@ -11728,6 +11740,11 @@ namespace MudSharp.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
+                    b.Property<decimal>("IncomeFactor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(65,30)")
+                        .HasDefaultValue(1.0m);
+
                     b.Property<long>("MarketId")
                         .HasColumnType("bigint");
 
@@ -11742,6 +11759,21 @@ namespace MudSharp.Migrations
 
                     b.Property<int>("PopulationScale")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Savings")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(65,30)")
+                        .HasDefaultValue(0.0m);
+
+                    b.Property<decimal>("SavingsCap")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(65,30)")
+                        .HasDefaultValue(0.0m);
+
+                    b.Property<decimal>("StressFlickerThreshold")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(65,30)")
+                        .HasDefaultValue(0.01m);
 
                     b.HasKey("Id");
 

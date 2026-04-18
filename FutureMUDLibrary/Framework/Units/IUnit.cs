@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
-using MudSharp.Framework.Revision;
+﻿using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using System.Collections.Generic;
 
 namespace MudSharp.Framework.Units
 {
-    public enum UnitType {
+    public enum UnitType
+    {
         Mass = 0,
         Length = 1,
         FluidVolume = 2,

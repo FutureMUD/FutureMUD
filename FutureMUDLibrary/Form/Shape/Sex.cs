@@ -1,5 +1,7 @@
-﻿namespace MudSharp.Form.Shape {
-    public abstract class Gendering {
+﻿namespace MudSharp.Form.Shape
+{
+    public abstract class Gendering
+    {
         public abstract string Name { get; }
 
         public abstract Gender Enum { get; }
@@ -72,8 +74,10 @@
         /// <summary>
         ///     Gets a reference to the Sex indicated by the SexEnum argument.
         /// </summary>
-        public static Gendering Get(Gender sex) {
-            switch (sex) {
+        public static Gendering Get(Gender sex)
+        {
+            switch (sex)
+            {
                 case Gender.Male:
                     return Male.Instance;
                 case Gender.Female:
@@ -87,8 +91,10 @@
             }
         }
 
-        public static Gendering Get(string sex) {
-            switch (sex.ToLowerInvariant()) {
+        public static Gendering Get(string sex)
+        {
+            switch (sex.ToLowerInvariant())
+            {
                 case "male":
                     return Male.Instance;
                 case "female":
@@ -106,8 +112,10 @@
         }
     }
 
-    public class Male : Gendering {
-        private Male() {
+    public class Male : Gendering
+    {
+        private Male()
+        {
         }
 
         public static Male Instance { get; } = new();
@@ -118,33 +126,41 @@
 
         public override bool UseThirdPersonVerbForms => true;
 
-        public override string Subjective(bool proper = false) {
+        public override string Subjective(bool proper = false)
+        {
             return proper ? "He" : "he";
         }
 
-        public override string Objective(bool proper = false) {
+        public override string Objective(bool proper = false)
+        {
             return proper ? "Him" : "him";
         }
 
-        public override string Possessive(bool proper = false) {
+        public override string Possessive(bool proper = false)
+        {
             return proper ? "His" : "his";
         }
 
-        public override string GeneralPossessive(bool proper = false) {
+        public override string GeneralPossessive(bool proper = false)
+        {
             return proper ? "His" : "his";
         }
 
-        public override string GenderClass(bool proper = false) {
+        public override string GenderClass(bool proper = false)
+        {
             return proper ? "Male" : "male";
         }
 
-        public override string Reflexive(bool proper = false) {
+        public override string Reflexive(bool proper = false)
+        {
             return proper ? "Himself" : "himself";
         }
     }
 
-    public class Female : Gendering {
-        private Female() {
+    public class Female : Gendering
+    {
+        private Female()
+        {
         }
 
         public static Female Instance { get; } = new();
@@ -155,33 +171,41 @@
 
         public override bool UseThirdPersonVerbForms => true;
 
-        public override string Subjective(bool proper = false) {
+        public override string Subjective(bool proper = false)
+        {
             return proper ? "She" : "she";
         }
 
-        public override string Objective(bool proper = false) {
+        public override string Objective(bool proper = false)
+        {
             return proper ? "Her" : "her";
         }
 
-        public override string Possessive(bool proper = false) {
+        public override string Possessive(bool proper = false)
+        {
             return proper ? "Her" : "her";
         }
 
-        public override string GeneralPossessive(bool proper = false) {
+        public override string GeneralPossessive(bool proper = false)
+        {
             return proper ? "Hers" : "hers";
         }
 
-        public override string GenderClass(bool proper = false) {
+        public override string GenderClass(bool proper = false)
+        {
             return proper ? "Female" : "female";
         }
 
-        public override string Reflexive(bool proper = false) {
+        public override string Reflexive(bool proper = false)
+        {
             return proper ? "Herself" : "herself";
         }
     }
 
-    public class Neuter : Gendering {
-        private Neuter() {
+    public class Neuter : Gendering
+    {
+        private Neuter()
+        {
         }
 
         public static Neuter Instance { get; } = new();
@@ -192,33 +216,41 @@
 
         public override bool UseThirdPersonVerbForms => true;
 
-        public override string Subjective(bool proper = false) {
+        public override string Subjective(bool proper = false)
+        {
             return proper ? "It" : "it";
         }
 
-        public override string Objective(bool proper = false) {
+        public override string Objective(bool proper = false)
+        {
             return proper ? "It" : "it";
         }
 
-        public override string Possessive(bool proper = false) {
+        public override string Possessive(bool proper = false)
+        {
             return proper ? "Its" : "its";
         }
 
-        public override string GeneralPossessive(bool proper = false) {
+        public override string GeneralPossessive(bool proper = false)
+        {
             return proper ? "Its" : "its";
         }
 
-        public override string GenderClass(bool proper = false) {
+        public override string GenderClass(bool proper = false)
+        {
             return proper ? "Neuter" : "neuter";
         }
 
-        public override string Reflexive(bool proper = false) {
+        public override string Reflexive(bool proper = false)
+        {
             return proper ? "Itself" : "itself";
         }
     }
 
-    public class Indeterminate : Gendering {
-        private Indeterminate() {
+    public class Indeterminate : Gendering
+    {
+        private Indeterminate()
+        {
         }
 
         public static Indeterminate Instance { get; } = new();
@@ -227,27 +259,33 @@
 
         public override Gender Enum => Gender.Indeterminate;
 
-        public override string Subjective(bool proper = false) {
+        public override string Subjective(bool proper = false)
+        {
             return proper ? "They" : "they";
         }
 
-        public override string Objective(bool proper = false) {
+        public override string Objective(bool proper = false)
+        {
             return proper ? "Them" : "them";
         }
 
-        public override string Possessive(bool proper = false) {
+        public override string Possessive(bool proper = false)
+        {
             return proper ? "Their" : "their";
         }
 
-        public override string GeneralPossessive(bool proper = false) {
+        public override string GeneralPossessive(bool proper = false)
+        {
             return proper ? "Theirs" : "theirs";
         }
 
-        public override string GenderClass(bool proper = false) {
+        public override string GenderClass(bool proper = false)
+        {
             return proper ? "Indeterminately-gendered" : "indeterminately-gendered";
         }
 
-        public override string Reflexive(bool proper = false) {
+        public override string Reflexive(bool proper = false)
+        {
             return proper ? "Themselves" : "themselves";
         }
 
@@ -265,7 +303,8 @@
     // Using Indeterminate as the base for now, until something points out I am a cishet fascist and need to change these up.
     public class NonBinary : Gendering
     {
-        private NonBinary() {
+        private NonBinary()
+        {
         }
 
         public static NonBinary Instance { get; } = new();

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Models
 {
-	public class NPCSpawnerZone
-	{
-		public long NPCSpawnerId { get; set; }
-		public long ZoneId { get; set; }
+    public class NPCSpawnerZone
+    {
+        public long NPCSpawnerId { get; set; }
+        public long ZoneId { get; set; }
 
-		public virtual NPCSpawner NPCSpawner { get; set; }
-		public virtual Zone Zone { get; set; }
-	}
+        public virtual NPCSpawner NPCSpawner { get; set; }
+        public virtual Zone Zone { get; set; }
+    }
 }

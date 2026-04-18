@@ -1,7 +1,9 @@
 ﻿using MudSharp.GameItems;
 
-namespace MudSharp.Form.Material {
-    public interface IGas : IFluid {
+namespace MudSharp.Form.Material
+{
+    public interface IGas : IFluid
+    {
         IGas CountsAsGas { get; }
         ItemQuality CountsAsQuality { get; }
         ILiquid LiquidForm { get; }

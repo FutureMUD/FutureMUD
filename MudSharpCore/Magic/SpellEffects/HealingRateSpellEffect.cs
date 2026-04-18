@@ -1,11 +1,11 @@
-using System;
-using System.Xml.Linq;
-using System.Linq;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
+using System;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -76,7 +76,7 @@ public class HealingRateSpellEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandMultiplier(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var value))
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send("You must enter a valid multiplier.");
             return false;
@@ -90,7 +90,7 @@ public class HealingRateSpellEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandStages(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !int.TryParse(command.SafeRemainingArgument, out var value))
+        if (command.IsFinished || !int.TryParse(command.SafeRemainingArgument, out int value))
         {
             actor.OutputHandler.Send("You must enter a valid integer number of stages.");
             return false;
@@ -104,13 +104,17 @@ public class HealingRateSpellEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"HealingRate - x{Multiplier.ToString("N2", actor)} {(Stages>=0?"+":"")}{Stages}";
+        return $"HealingRate - x{Multiplier.ToString("N2", actor)} {(Stages >= 0 ? "+" : "")}{Stages}";
     }
 
     public bool IsInstantaneous => false;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return IsCompatibleWithTrigger(types.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -133,5 +137,8 @@ public class HealingRateSpellEffect : IMagicSpellEffectTemplate
         return new SpellHealingRateEffect(ch, parent, null, Multiplier, Stages);
     }
 
-    public IMagicSpellEffectTemplate Clone() => new HealingRateSpellEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new HealingRateSpellEffect(SaveToXml(), Spell);
+    }
 }

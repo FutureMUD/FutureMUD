@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Form.Shape
 {
-    public enum Gender : short {
+    public enum Gender : short
+    {
         /// <summary>
         ///     Gender is unknown or not able to be determined. Used for things that have a gender that is obscured.
         /// </summary>

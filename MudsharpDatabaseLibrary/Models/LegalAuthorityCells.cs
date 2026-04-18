@@ -9,9 +9,9 @@ namespace MudSharp.Models
     public class LegalAuthorityCells
     {
         public long LegalAuthorityId { get; set; }
-        public long CellId {get;set;}
+        public long CellId { get; set; }
 
-        public virtual LegalAuthority LegalAuthority { get;set; }
+        public virtual LegalAuthority LegalAuthority { get; set; }
         public virtual Cell Cell { get; set; }
     }
 }

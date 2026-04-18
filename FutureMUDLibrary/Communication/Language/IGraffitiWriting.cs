@@ -2,7 +2,7 @@
 
 public interface IGraffitiWriting : IWriting
 {
-	DrawingSize DrawingSize { get; }
-	string ShortDescription { get; }
-	double DrawingSkill { get; }
+    DrawingSize DrawingSize { get; }
+    string ShortDescription { get; }
+    double DrawingSkill { get; }
 }

@@ -1,8 +1,8 @@
-using System.Linq;
-using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Discord_Bot.Modules;
 
@@ -17,7 +17,7 @@ public class Map : BaseCommandModule
             return;
         }
 
-        var registration = DiscordBot.Instance.DetailedUserSettings.FirstOrDefault(x => x.DiscordUserId == context.User.Id);
+        DetailedUserSetting registration = DiscordBot.Instance.DetailedUserSettings.FirstOrDefault(x => x.DiscordUserId == context.User.Id);
         if (registration is null)
         {
             await context.RespondAsync($"You have not yet linked your MUD account and discord account, which is a necessary prerequisite of this command.");
@@ -31,7 +31,7 @@ public class Map : BaseCommandModule
         }
 
         await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
-        var request = new CachedDiscordRequest
+        CachedDiscordRequest request = new()
         {
             Context = context,
             OnResponseAction = HandleMudResponse

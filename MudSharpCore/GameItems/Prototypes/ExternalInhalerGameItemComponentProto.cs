@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -10,6 +7,9 @@ using MudSharp.Framework.Units;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
+using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -38,7 +38,7 @@ public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, ICo
     {
         GasPerPuff = double.Parse(root.Element("GasPerPuff")?.Value ?? "0.0");
         CanisterType = root.Element("CanisterType")?.Value ?? "";
-        var elem = root.Element("Connector");
+        XElement elem = root.Element("Connector");
         Connector = new ConnectorType((Form.Shape.Gender)Convert.ToSByte(elem?.Attribute("gender")?.Value ?? "2"), elem?.Attribute("type")?.Value ?? "inhaler", bool.Parse(elem?.Attribute("powered")?.Value ?? "false"));
     }
 
@@ -81,7 +81,7 @@ public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, ICo
             actor.OutputHandler.Send("How much gas should be consumed per puff? The units are litres at 1 atmosphere.");
             return false;
         }
-        var amount = Gameworld.UnitManager.GetBaseUnits(command.PopSpeech(), UnitType.FluidVolume, out var success);
+        double amount = Gameworld.UnitManager.GetBaseUnits(command.PopSpeech(), UnitType.FluidVolume, out bool success);
         if (!success)
         {
             actor.OutputHandler.Send("That is not a valid volume.");
@@ -126,7 +126,7 @@ public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, ICo
             actor.Send("Which gender should this connector be?");
             return false;
         }
-        var gender = Gendering.Get(command.PopSpeech());
+        Gendering gender = Gendering.Get(command.PopSpeech());
         if (gender.Enum == Form.Shape.Gender.Indeterminate)
         {
             actor.Send("That is not a valid gender.");

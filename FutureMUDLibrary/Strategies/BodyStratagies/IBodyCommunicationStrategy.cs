@@ -4,8 +4,10 @@ using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.PerceptionEngine;
 
-namespace MudSharp.Strategies.BodyStratagies {
-    public interface IBodyCommunicationStrategy {
+namespace MudSharp.Strategies.BodyStratagies
+{
+    public interface IBodyCommunicationStrategy
+    {
         string Name { get; }
         void Emote(IBody body, string emote, bool permitSpeech = true, OutputFlags additionalConditions = OutputFlags.Normal);
         bool CanVocalise(IBody body);

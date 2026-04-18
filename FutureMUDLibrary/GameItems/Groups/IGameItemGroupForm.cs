@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
-using MudSharp.Character;
+﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Groups {
+namespace MudSharp.GameItems.Groups
+{
     /// <summary>
     ///     An IGameItemGroupForm is an interface for the subforms of an IGameItemGroup
     /// </summary>
-    public interface IGameItemGroupForm : IFrameworkItem, ISaveable {
+    public interface IGameItemGroupForm : IFrameworkItem, ISaveable
+    {
         /// <summary>
         ///     Determines whether this form applies in the given cell
         /// </summary>

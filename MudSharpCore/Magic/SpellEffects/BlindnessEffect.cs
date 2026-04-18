@@ -1,10 +1,10 @@
-using System.Linq;
-using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -49,12 +49,19 @@ public class BlindnessEffect : IMagicSpellEffectTemplate
         return false;
     }
 
-    public string Show(ICharacter actor) => "Blindness";
+    public string Show(ICharacter actor)
+    {
+        return "Blindness";
+    }
 
     public bool IsInstantaneous => false;
     public bool RequiresTarget => true;
 
-    public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+    public bool IsCompatibleWithTrigger(IMagicTrigger types)
+    {
+        return IsCompatibleWithTrigger(types.TargetTypes);
+    }
+
     public static bool IsCompatibleWithTrigger(string types)
     {
         switch (types)
@@ -76,5 +83,8 @@ public class BlindnessEffect : IMagicSpellEffectTemplate
         return new SpellBlindnessEffect(ch, parent, null);
     }
 
-    public IMagicSpellEffectTemplate Clone() => new BlindnessEffect(SaveToXml(), Spell);
+    public IMagicSpellEffectTemplate Clone()
+    {
+        return new BlindnessEffect(SaveToXml(), Spell);
+    }
 }

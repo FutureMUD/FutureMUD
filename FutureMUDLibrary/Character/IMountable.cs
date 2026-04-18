@@ -1,13 +1,13 @@
-﻿using System;
+﻿using MudSharp.Body.Position;
+using MudSharp.Construction.Boundary;
+using MudSharp.Framework;
+using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Checks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.RPG.Checks;
-using MudSharp.Construction.Boundary;
-using MudSharp.PerceptionEngine;
-using MudSharp.Framework;
-using MudSharp.Body.Position;
 
 namespace MudSharp.Character;
 

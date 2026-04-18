@@ -1,5 +1,6 @@
 ﻿using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace DatabaseSeeder.Seeders
                 return;
             }
 
-            var tag = new MudSharp.Models.Tag
+            Tag tag = new()
             {
                 Name = name,
                 Parent = _tags[parent]

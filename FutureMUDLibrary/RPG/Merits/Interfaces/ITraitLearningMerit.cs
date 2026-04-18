@@ -1,10 +1,10 @@
-﻿using MudSharp.RPG.Checks;
+﻿using MudSharp.Body.Traits;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MudSharp.Body.Traits;
 
 namespace MudSharp.RPG.Merits.Interfaces
 {

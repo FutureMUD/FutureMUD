@@ -1,5 +1,7 @@
-﻿namespace MudSharp.Framework.Save {
-    public interface ISaveable : IHaveFuturemud {
+﻿namespace MudSharp.Framework.Save
+{
+    public interface ISaveable : IHaveFuturemud
+    {
         /// <summary>
         ///     Indicates that the ISavable has changed since it was last saved
         /// </summary>

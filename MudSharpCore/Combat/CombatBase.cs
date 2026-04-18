@@ -3,6 +3,7 @@ using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Character.Name;
+using MudSharp.Arenas;
 using MudSharp.Combat.Moves;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
@@ -348,7 +349,10 @@ public abstract class CombatBase : ICombat
 
     protected virtual void HandleCombatResult(IPerceiver perceiver, ICombatMove move, ICombatMove response, CombatMoveResult result)
     {
-        // Do nothing
+        if (perceiver is ICharacter attacker)
+        {
+            ArenaScoringHelper.TryRecordCombatResolution(attacker, move, response, result);
+        }
     }
 
     protected virtual void FireOnUseProg(ICombatMove move)

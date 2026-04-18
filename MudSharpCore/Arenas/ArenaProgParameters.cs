@@ -19,6 +19,14 @@ internal static class ArenaProgParameters
         ProgVariableTypes.Text,
         ProgVariableTypes.Text,
         ProgVariableTypes.Text,
+        ProgVariableTypes.Character | ProgVariableTypes.Collection,
+        ProgVariableTypes.Character | ProgVariableTypes.Collection,
+        ProgVariableTypes.Number | ProgVariableTypes.Collection,
+        ProgVariableTypes.Number | ProgVariableTypes.Collection,
+        ProgVariableTypes.Number | ProgVariableTypes.Collection,
+        ProgVariableTypes.Number | ProgVariableTypes.Collection,
+        ProgVariableTypes.Text | ProgVariableTypes.Collection,
+        ProgVariableTypes.Text | ProgVariableTypes.Collection,
     ];
 
     internal static readonly IReadOnlyList<ProgVariableTypes> SideOutfitParameters =
@@ -68,6 +76,9 @@ internal static class ArenaProgParameters
                                .ToList();
         List<ICharacter> participants = roster.Select(x => x.Character!).ToList();
         List<int> sideIndices = roster.Select(x => x.SideIndex).ToList();
+        IReadOnlyList<ArenaScoringSnapshot> snapshots = arenaEvent is ArenaEvent concreteEvent
+            ? concreteEvent.ScoringSnapshots
+            : [];
 
         return
         [
@@ -77,6 +88,14 @@ internal static class ArenaProgParameters
             arenaEvent.EventType.Name,
             arenaEvent.Arena.Name,
             arenaEvent.Name,
+            snapshots.Select(x => x.Attacker).ToList(),
+            snapshots.Select(x => x.Defender).ToList(),
+            snapshots.Select(x => x.AttackerSideIndex).ToList(),
+            snapshots.Select(x => x.DefenderSideIndex).ToList(),
+            snapshots.Select(x => x.LandedHit).ToList(),
+            snapshots.Select(x => x.UndefendedHit).ToList(),
+            snapshots.Select(x => x.ImpactLocationKey).ToList(),
+            snapshots.Select(x => x.ImpactBodypartIdentity).ToList(),
         ];
     }
 

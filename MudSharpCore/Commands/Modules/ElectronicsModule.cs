@@ -64,6 +64,13 @@ You can use the following syntax:
 	#3programming mail account add <user@domain> <password>#0 - creates a mail account on the connected host (administrators only)
 	#3programming mail account enable|disable <user@domain>#0 - enables or disables a mail account (administrators only)
 	#3programming mail account password <user@domain> <password>#0 - changes a mail account password (administrators only)
+	#3programming ftp#0 - shows FTP/file-transfer service status for the connected host (administrators only)
+	#3programming ftp service on|off#0 - enables or disables the connected host's FTP service advertisement (administrators only)
+	#3programming ftp account add <user> <password>#0 - creates an FTP account on the connected host (administrators only)
+	#3programming ftp account enable|disable <user>#0 - enables or disables an FTP account (administrators only)
+	#3programming ftp account password <user> <password>#0 - changes an FTP account password (administrators only)
+	#3programming ftp file list#0 - lists published public FTP files on the current programming owner (administrators only)
+	#3programming ftp file publish|unpublish <file>#0 - changes public FTP visibility for a file on the current programming owner (administrators only)
 	#3programming list [functions|programs]#0 - lists your workspace computer executables
 	#3programming new function|program <name>#0 - creates a new workspace executable and begins editing it
 	#3programming edit <which>#0 - begins editing a workspace executable
@@ -116,6 +123,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		"app",
 		"apps",
 		"mail",
+		"ftp",
 		"processes",
 		"kill",
 		"terminal"
@@ -343,6 +351,9 @@ If more than one terminal could be used, specify one explicitly or connect first
 				return;
 			case "mail":
 				ProgrammingMail(actor, ss);
+				return;
+			case "ftp":
+				ProgrammingFtp(actor, ss);
 				return;
 			case "execute":
 				ProgrammingWorkspaceExecute(actor, ss);
@@ -2277,6 +2288,347 @@ If more than one terminal could be used, specify one explicitly or connect first
 	{
 		actor.Send(error);
 		return false;
+	}
+
+	private static void ProgrammingFtp(ICharacter actor, StringStack ss)
+	{
+		if (!TryGetProgrammingFtpHost(actor, out var host))
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			ShowProgrammingFtpStatus(actor, host);
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "service":
+				ProgrammingFtpService(actor, host, ss);
+				return;
+			case "account":
+				ProgrammingFtpAccount(actor, host, ss);
+				return;
+			case "file":
+				ProgrammingFtpFile(actor, host, ss);
+				return;
+			default:
+				ShowProgrammingFtpStatus(actor, host);
+				return;
+		}
+	}
+
+	private static bool TryGetProgrammingFtpHost(ICharacter actor, out IComputerHost host)
+	{
+		host = default!;
+		if (!actor.IsAdministrator())
+		{
+			actor.Send("Only administrators can configure computer FTP services.");
+			return false;
+		}
+
+		var session = GetCurrentProgrammingTerminalSession(actor);
+		if (session is null)
+		{
+			actor.Send("You must be connected to a computer terminal to configure FTP services.");
+			return false;
+		}
+
+		host = session.Host;
+		return true;
+	}
+
+	private static void ShowProgrammingFtpStatus(ICharacter actor, IComputerHost host)
+	{
+		var ftpService = actor.Gameworld.ComputerFileTransferService;
+		var owner = GetCurrentProgrammingOwner(actor);
+		var accounts = ftpService.GetAccounts(host).ToList();
+		var fileRows = ComputerFileTransferUtilities.EnumerateOwners(host)
+			.Select(ownerEntry => new List<string>
+			{
+				ComputerFileTransferUtilities.DescribeOwner(ownerEntry),
+				(ownerEntry.FileSystem?.Files.Count(x => x.PubliclyAccessible) ?? 0).ToString("N0", actor),
+				ownerEntry.FileSystem?.UsedBytes.ToString("N0", actor) ?? "0",
+				ownerEntry.FileSystem?.CapacityInBytes.ToString("N0", actor) ?? "0"
+			})
+			.ToList();
+		var ownerFiles = owner.FileSystem?.Files
+			.Where(x => x.PubliclyAccessible)
+			.OrderBy(x => x.FileName)
+			.ToList() ?? [];
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"FTP Service Host: {host.Name.ColourName()}");
+		sb.AppendLine($"Advertised: {ftpService.IsFtpServiceEnabled(host).ToColouredString()}");
+		sb.AppendLine($"Current Programming Owner: {DescribeComputerOwner(actor, owner)}");
+		sb.AppendLine();
+		sb.AppendLine("Accessible File Owners:");
+		sb.AppendLine(StringUtilities.GetTextTable(
+			fileRows,
+			new List<string>
+			{
+				"Owner",
+				"Public Files",
+				"Used",
+				"Capacity"
+			},
+			actor.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			actor.Account.UseUnicode));
+		sb.AppendLine();
+		sb.AppendLine($"Published Files On {DescribeComputerOwner(actor, owner)}:");
+		if (!ownerFiles.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				ownerFiles.Select(file => new List<string>
+				{
+					file.FileName,
+					file.SizeInBytes.ToString("N0", actor),
+					file.LastModifiedAtUtc.ToString(actor)
+				}),
+				new List<string>
+				{
+					"File",
+					"Size",
+					"Modified"
+				},
+				actor.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				actor.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Accounts:");
+		if (!accounts.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				accounts.Select(account => new List<string>
+				{
+					account.UserName,
+					account.Enabled.ToColouredString()
+				}),
+				new List<string>
+				{
+					"User",
+					"Enabled"
+				},
+				actor.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				actor.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.AppendLine($"Use {"programming ftp service on|off".ColourCommand()}, {"programming ftp account add|enable|disable|password ...".ColourCommand()}, and {"programming ftp file publish|unpublish <file>".ColourCommand()} to configure this host.");
+		actor.OutputHandler.Send(sb.ToString(), nopage: true);
+	}
+
+	private static void ProgrammingFtpService(ICharacter actor, IComputerHost host, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send($"FTP service advertisement on {host.Name.ColourName()} is currently {actor.Gameworld.ComputerFileTransferService.IsFtpServiceEnabled(host).ToColouredString()}.");
+			return;
+		}
+
+		var enabled = ss.PopSpeech().ToLowerInvariant() switch
+		{
+			"on" or "enable" or "enabled" => true,
+			"off" or "disable" or "disabled" => false,
+			_ => (bool?)null
+		};
+		if (!enabled.HasValue)
+		{
+			actor.Send("You must specify either on or off.");
+			return;
+		}
+
+		if (!actor.Gameworld.ComputerFileTransferService.SetFtpServiceEnabled(host, enabled.Value, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send($"FTP service advertisement on {host.Name.ColourName()} is now {(enabled.Value ? "enabled".ColourValue() : "disabled".ColourError())}.");
+	}
+
+	private static void ProgrammingFtpAccount(ICharacter actor, IComputerHost host, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Do you want to add, enable, disable or change the password of an FTP account?");
+			return;
+		}
+
+		var action = ss.PopSpeech().ToLowerInvariant();
+		var ftpService = actor.Gameworld.ComputerFileTransferService;
+		switch (action)
+		{
+			case "add":
+				if (ss.IsFinished)
+				{
+					actor.Send("Which FTP user do you want to create?");
+					return;
+				}
+
+				var userName = ss.PopSpeech();
+				if (ss.IsFinished)
+				{
+					actor.Send("What password should that new FTP account use?");
+					return;
+				}
+
+				if (!ftpService.CreateAccount(host, userName, ss.SafeRemainingArgument, out var addError))
+				{
+					actor.Send(addError);
+					return;
+				}
+
+				actor.Send($"Created the FTP account {userName.ColourName()} on {host.Name.ColourName()}.");
+				return;
+			case "enable":
+			case "disable":
+				if (ss.IsFinished)
+				{
+					actor.Send("Which FTP user do you want to change?");
+					return;
+				}
+
+				var targetUserName = ss.SafeRemainingArgument;
+				if (!ftpService.SetAccountEnabled(host, targetUserName, action == "enable", out var toggleError))
+				{
+					actor.Send(toggleError);
+					return;
+				}
+
+				actor.Send(
+					$"{targetUserName.ColourName()} is now {(action == "enable" ? "enabled".ColourValue() : "disabled".ColourError())} on {host.Name.ColourName()}.");
+				return;
+			case "password":
+				if (ss.IsFinished)
+				{
+					actor.Send("Which FTP user do you want to change the password for?");
+					return;
+				}
+
+				var passwordUserName = ss.PopSpeech();
+				if (ss.IsFinished)
+				{
+					actor.Send("What new password should that FTP account use?");
+					return;
+				}
+
+				if (!ftpService.SetAccountPassword(host, passwordUserName, ss.SafeRemainingArgument, out var passwordError))
+				{
+					actor.Send(passwordError);
+					return;
+				}
+
+				actor.Send($"Updated the password for {passwordUserName.ColourName()} on {host.Name.ColourName()}.");
+				return;
+			default:
+				actor.Send("You must specify add, enable, disable or password.");
+				return;
+		}
+	}
+
+	private static void ProgrammingFtpFile(ICharacter actor, IComputerHost host, StringStack ss)
+	{
+		var owner = GetCurrentProgrammingOwner(actor);
+		if (owner is not (IComputerHost or IComputerStorage))
+		{
+			actor.Send("FTP file publishing only works on a connected host or one of its mounted storage devices.");
+			return;
+		}
+
+		var fileSystem = owner.FileSystem;
+		if (fileSystem is null)
+		{
+			actor.Send($"{DescribeComputerOwner(actor, owner)} does not expose a writable file system.");
+			return;
+		}
+
+		if (ss.IsFinished || ss.PeekSpeech().EqualTo("list"))
+		{
+			if (!ss.IsFinished)
+			{
+				ss.PopSpeech();
+			}
+
+			var files = fileSystem.Files
+				.Where(x => x.PubliclyAccessible)
+				.OrderBy(x => x.FileName)
+				.ToList();
+			if (!files.Any())
+			{
+				actor.Send($"There are no published FTP files on {DescribeComputerOwner(actor, owner)}.");
+				return;
+			}
+
+			actor.OutputHandler.Send(StringUtilities.GetTextTable(
+				files.Select(file => new List<string>
+				{
+					file.FileName,
+					file.SizeInBytes.ToString("N0", actor),
+					file.LastModifiedAtUtc.ToString(actor)
+				}),
+				new List<string>
+				{
+					"File",
+					"Size",
+					"Modified"
+				},
+				actor.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				actor.Account.UseUnicode), nopage: true);
+			return;
+		}
+
+		var action = ss.PopSpeech().ToLowerInvariant();
+		if (ss.IsFinished)
+		{
+			actor.Send("Which file do you want to work with?");
+			return;
+		}
+
+		var fileName = ss.SafeRemainingArgument;
+		if (fileSystem.GetFile(fileName) is null)
+		{
+			actor.Send($"{DescribeComputerOwner(actor, owner)} does not have a file named {fileName.ColourName()}.");
+			return;
+		}
+
+		var success = action switch
+		{
+			"publish" => fileSystem.SetFilePubliclyAccessible(fileName, true)
+				? SendMailStatus(actor, $"{fileName.ColourName()} is now publicly accessible over FTP on {DescribeComputerOwner(actor, owner)}.")
+				: SendMailError(actor, $"Unable to publish {fileName.ColourName()}."),
+			"unpublish" => fileSystem.SetFilePubliclyAccessible(fileName, false)
+				? SendMailStatus(actor, $"{fileName.ColourName()} is no longer publicly accessible over FTP on {DescribeComputerOwner(actor, owner)}.")
+				: SendMailError(actor, $"Unable to unpublish {fileName.ColourName()}."),
+			_ => false
+		};
+		if (!success && action is not ("publish" or "unpublish"))
+		{
+			actor.Send("You must specify publish, unpublish or list.");
+		}
 	}
 
 	private static void ProgrammingWorkspaceExecute(ICharacter actor, StringStack ss)

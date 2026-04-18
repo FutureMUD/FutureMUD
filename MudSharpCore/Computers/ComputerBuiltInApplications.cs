@@ -34,9 +34,14 @@ public static class ComputerBuiltInApplications
 			"Live pager-style messaging client with relay support for active sessions.",
 			true),
 		new(
+			"ftp",
+			"FTP",
+			"Remote file transfer client and service for public file access and authenticated host storage management.",
+			true),
+		new(
 			"filemanager",
 			"FileManager",
-			"Local file browser, copy tool, and mounted-storage manager.",
+			"Local file browser, copy tool, mounted-storage manager, and public network file reader.",
 			false),
 		new(
 			"directory",

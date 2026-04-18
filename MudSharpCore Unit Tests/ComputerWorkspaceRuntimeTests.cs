@@ -1646,6 +1646,264 @@ return userinput()";
 		}
 	}
 
+	[TestMethod]
+	public void ComputerFileTransferService_GetAdvertisedServiceDetails_ReportsPublicFileCount()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var host = new StubComputerHost
+		{
+			Powered = true,
+			Name = "FTP Host",
+			OwnerHostItemId = 901L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(901L).ToList(),
+			FileSystemStorage = new ComputerMutableFileSystem(1000L)
+		};
+		host.SetNetworkServiceEnabled("ftp", true, out _);
+		host.FileSystemStorage!.WriteFile("public.txt", "hello");
+		host.FileSystemStorage.SetFilePubliclyAccessible("public.txt", true);
+		host.FileSystemStorage.WriteFile("private.txt", "secret");
+
+		var details = gameworld.Object.ComputerFileTransferService.GetAdvertisedServiceDetails(host, "ftp").ToList();
+
+		Assert.AreEqual(1, details.Count);
+		Assert.AreEqual("1 public file", details[0]);
+	}
+
+	[TestMethod]
+	public void ComputerFileTransferService_PublicFiles_AreReachableAcrossNetwork()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		gameworld.SetupGet(x => x.ComputerExecutionService).Returns(service);
+		var grid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var localHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 911L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(911L).ToList(),
+			FileSystemStorage = new ComputerMutableFileSystem(1000L)
+		};
+		var remoteHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Remote Host",
+			OwnerHostItemId = 912L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(912L).ToList(),
+			FileSystemStorage = new ComputerMutableFileSystem(1000L)
+		};
+		remoteHost.SetNetworkServiceEnabled("ftp", true, out _);
+		remoteHost.FileSystemStorage!.WriteFile("public.txt", "public body");
+		remoteHost.FileSystemStorage.SetFilePubliclyAccessible("public.txt", true);
+		remoteHost.FileSystemStorage.WriteFile("private.txt", "private body");
+
+		var localAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 921L,
+			ConnectedHost = localHost,
+			Powered = true,
+			PreferredNetworkAddress = "local.ftp",
+			TelecommunicationsGrid = grid
+		};
+		var remoteAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 922L,
+			ConnectedHost = remoteHost,
+			Powered = true,
+			PreferredNetworkAddress = "remote.ftp",
+			TelecommunicationsGrid = grid
+		};
+		grid.JoinGrid(localAdapter);
+		grid.JoinGrid(remoteAdapter);
+		localHost.NetworkAdapters = new[] { localAdapter };
+		remoteHost.NetworkAdapters = new[] { remoteAdapter };
+
+		var files = gameworld.Object.ComputerFileTransferService.GetFiles(localHost, remoteHost, null, null, out var listError)
+			.ToList();
+		Assert.AreEqual(string.Empty, listError);
+		Assert.AreEqual(1, files.Count);
+		Assert.AreEqual("public.txt", files[0].FileName);
+
+		var publicFile = gameworld.Object.ComputerFileTransferService.ReadFile(localHost, remoteHost, null, null,
+			"public.txt", out var publicError);
+		Assert.IsNotNull(publicFile, publicError);
+		Assert.AreEqual("public body", publicFile.TextContents);
+
+		var privateFile = gameworld.Object.ComputerFileTransferService.ReadFile(localHost, remoteHost, null, null,
+			"private.txt", out var privateError);
+		Assert.IsNull(privateFile);
+		StringAssert.Contains(privateError, "does not expose a readable file");
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TrySubmitTerminalInput_FileManager_CanReadAndCopyPublicRemoteFiles()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		gameworld.SetupGet(x => x.ComputerExecutionService).Returns(service);
+		var grid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var localHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 931L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(931L).ToList(),
+			FileSystemStorage = new ComputerMutableFileSystem(5000L)
+		};
+		var remoteHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Remote Host",
+			OwnerHostItemId = 932L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(932L).ToList(),
+			FileSystemStorage = new ComputerMutableFileSystem(5000L)
+		};
+		remoteHost.SetNetworkServiceEnabled("ftp", true, out _);
+		remoteHost.FileSystemStorage!.WriteFile("public.txt", "Hello from the network");
+		remoteHost.FileSystemStorage.SetFilePubliclyAccessible("public.txt", true);
+
+		var localAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 941L,
+			ConnectedHost = localHost,
+			Powered = true,
+			PreferredNetworkAddress = "local.file",
+			TelecommunicationsGrid = grid
+		};
+		var remoteAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 942L,
+			ConnectedHost = remoteHost,
+			Powered = true,
+			PreferredNetworkAddress = "remote.file",
+			TelecommunicationsGrid = grid
+		};
+		grid.JoinGrid(localAdapter);
+		grid.JoinGrid(remoteAdapter);
+		localHost.NetworkAdapters = new[] { localAdapter };
+		remoteHost.NetworkAdapters = new[] { remoteAdapter };
+
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(1901L);
+		terminal.SetupGet(x => x.Sessions).Returns(Enumerable.Empty<IComputerTerminalSession>());
+		localHost.ConnectedTerminals = new[] { terminal.Object };
+		var output = new Mock<IOutputHandler>();
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.UseUnicode).Returns(false);
+		var user = CreateOwner(gameworld.Object, 98L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		user.SetupGet(x => x.LineFormatLength).Returns(120);
+		user.SetupGet(x => x.Account).Returns(account.Object);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = localHost,
+			CurrentOwner = localHost
+		};
+		var application = service.GetBuiltInApplication(localHost, "filemanager");
+
+		Assert.IsNotNull(application);
+		var start = service.ExecuteBuiltInApplication(user.Object, localHost, application!, session);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, start.Status);
+
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "show public remote.file public.txt", out var showError), showError);
+		output.Verify(x => x.Send(It.Is<string>(s => s.Contains("Hello from the network")), true, true), Times.AtLeastOnce);
+
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "copy public remote.file public.txt", out var copyError), copyError);
+		var copied = localHost.FileSystemStorage!.GetFile("public.txt");
+		Assert.IsNotNull(copied);
+		Assert.AreEqual("Hello from the network", copied.TextContents);
+		Assert.IsFalse(copied.PubliclyAccessible);
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TrySubmitTerminalInput_FtpApp_CanAuthenticateAndUploadFiles()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		gameworld.SetupGet(x => x.ComputerExecutionService).Returns(service);
+		var grid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var localHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 951L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(951L).ToList(),
+			FileSystemStorage = new ComputerMutableFileSystem(5000L)
+		};
+		localHost.FileSystemStorage!.WriteFile("local.txt", "Hello remote");
+		var remoteHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Remote Host",
+			OwnerHostItemId = 952L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(952L).ToList(),
+			FileSystemStorage = new ComputerMutableFileSystem(5000L)
+		};
+		remoteHost.SetNetworkServiceEnabled("ftp", true, out _);
+		Assert.IsTrue(gameworld.Object.ComputerFileTransferService.CreateAccount(remoteHost, "alice", "secret", out var createError),
+			createError);
+
+		var localAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 961L,
+			ConnectedHost = localHost,
+			Powered = true,
+			PreferredNetworkAddress = "local.ftp",
+			TelecommunicationsGrid = grid
+		};
+		var remoteAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 962L,
+			ConnectedHost = remoteHost,
+			Powered = true,
+			PreferredNetworkAddress = "remote.ftp",
+			TelecommunicationsGrid = grid
+		};
+		grid.JoinGrid(localAdapter);
+		grid.JoinGrid(remoteAdapter);
+		localHost.NetworkAdapters = new[] { localAdapter };
+		remoteHost.NetworkAdapters = new[] { remoteAdapter };
+
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(1951L);
+		terminal.SetupGet(x => x.Sessions).Returns(Enumerable.Empty<IComputerTerminalSession>());
+		localHost.ConnectedTerminals = new[] { terminal.Object };
+		var output = new Mock<IOutputHandler>();
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.UseUnicode).Returns(false);
+		var user = CreateOwner(gameworld.Object, 99L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		user.SetupGet(x => x.LineFormatLength).Returns(120);
+		user.SetupGet(x => x.Account).Returns(account.Object);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = localHost,
+			CurrentOwner = localHost
+		};
+		var application = service.GetBuiltInApplication(localHost, "ftp");
+
+		Assert.IsNotNull(application);
+		var start = service.ExecuteBuiltInApplication(user.Object, localHost, application!, session);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, start.Status);
+
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "open remote.ftp", out var openError), openError);
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "login alice secret", out var loginError), loginError);
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "put local.txt uploaded.txt", out var putError), putError);
+
+		var uploaded = remoteHost.FileSystemStorage!.GetFile("uploaded.txt");
+		Assert.IsNotNull(uploaded);
+		Assert.AreEqual("Hello remote", uploaded.TextContents);
+		Assert.IsFalse(uploaded.PubliclyAccessible);
+	}
+
 	private static ComputerWorkspaceProgram CompileProgram(string name, string source,
 		params ComputerExecutableParameter[] parameters)
 	{
@@ -1686,9 +1944,11 @@ return userinput()";
 		var gameworld = new Mock<IFuturemud>();
 		var saveManager = new Mock<ISaveManager>();
 		var mailService = new ComputerMailService(gameworld.Object);
+		var fileTransferService = new ComputerFileTransferService(gameworld.Object);
 		gameworld.SetupGet(x => x.Scheduler).Returns(scheduler.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 		gameworld.SetupGet(x => x.ComputerMailService).Returns(mailService);
+		gameworld.SetupGet(x => x.ComputerFileTransferService).Returns(fileTransferService);
 		return gameworld;
 	}
 
@@ -1770,10 +2030,11 @@ return userinput()";
 		public ITelecommunicationsGrid? TelecommunicationsGrid { get; set; }
 	}
 
-	private sealed class StubComputerHost : IComputerHost, IComputerMutableOwner
+	private sealed class StubComputerHost : IComputerHost, IComputerMutableOwner, IComputerFtpAccountStore
 	{
 		private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
 		private readonly HashSet<string> _enabledNetworkServices = new(StringComparer.InvariantCultureIgnoreCase);
+		private readonly Dictionary<string, ComputerMutableFtpAccount> _ftpAccounts = new(StringComparer.InvariantCultureIgnoreCase);
 		private long _nextProcessId = 1L;
 
 		public bool Powered { get; set; }
@@ -1791,6 +2052,7 @@ return userinput()";
 		public IEnumerable<IComputerTerminal> ConnectedTerminals { get; set; } = Enumerable.Empty<IComputerTerminal>();
 		public IEnumerable<INetworkAdapter> NetworkAdapters { get; set; } = Enumerable.Empty<INetworkAdapter>();
 		public IEnumerable<string> EnabledNetworkServices => _enabledNetworkServices.OrderBy(x => x).ToList();
+		public IEnumerable<IComputerFtpAccount> FtpAccounts => _ftpAccounts.Values.OrderBy(x => x.UserName).ToList();
 
 		public IComputerProcess? GetProcess(long processId)
 		{
@@ -1814,6 +2076,52 @@ return userinput()";
 				_enabledNetworkServices.Remove(applicationId);
 			}
 
+			return true;
+		}
+
+		public bool CreateFtpAccount(string userName, string passwordHash, long passwordSalt, out string error)
+		{
+			error = string.Empty;
+			if (_ftpAccounts.ContainsKey(userName))
+			{
+				error = "Duplicate account.";
+				return false;
+			}
+
+			_ftpAccounts[userName] = new ComputerMutableFtpAccount
+			{
+				UserName = userName,
+				PasswordHash = passwordHash,
+				PasswordSalt = passwordSalt,
+				Enabled = true
+			};
+			return true;
+		}
+
+		public bool SetFtpAccountEnabled(string userName, bool enabled, out string error)
+		{
+			if (!_ftpAccounts.TryGetValue(userName, out var account))
+			{
+				error = "Unknown account.";
+				return false;
+			}
+
+			account.Enabled = enabled;
+			error = string.Empty;
+			return true;
+		}
+
+		public bool SetFtpAccountPassword(string userName, string passwordHash, long passwordSalt, out string error)
+		{
+			if (!_ftpAccounts.TryGetValue(userName, out var account))
+			{
+				error = "Unknown account.";
+				return false;
+			}
+
+			account.PasswordHash = passwordHash;
+			account.PasswordSalt = passwordSalt;
+			error = string.Empty;
 			return true;
 		}
 

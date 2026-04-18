@@ -17,10 +17,11 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent, IComputerHost, IComputerMutableOwner, IConnectable
+public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent, IComputerHost, IComputerMutableOwner, IComputerFtpAccountStore, IConnectable
 {
 	private readonly List<IConnectable> _connectedItems = [];
 	private readonly HashSet<string> _enabledNetworkServices = new(StringComparer.InvariantCultureIgnoreCase);
+	private readonly Dictionary<string, ComputerMutableFtpAccount> _ftpAccounts = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly List<long> _pendingConnectionIds = [];
 	private readonly Dictionary<long, ComputerRuntimeExecutableBase> _executables = new();
 	private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
@@ -56,7 +57,8 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			FileName = x.FileName,
 			TextContents = x.TextContents,
 			CreatedAtUtc = x.CreatedAtUtc,
-			LastModifiedAtUtc = x.LastModifiedAtUtc
+			LastModifiedAtUtc = x.LastModifiedAtUtc,
+			PubliclyAccessible = x.PubliclyAccessible
 		}));
 		foreach (var executable in rhs._executables.Values)
 		{
@@ -109,6 +111,16 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		}
 
 		_enabledNetworkServices.UnionWith(rhs._enabledNetworkServices);
+		foreach (var account in rhs._ftpAccounts.Values)
+		{
+			_ftpAccounts[account.UserName] = new ComputerMutableFtpAccount
+			{
+				UserName = account.UserName,
+				PasswordHash = account.PasswordHash,
+				PasswordSalt = account.PasswordSalt,
+				Enabled = account.Enabled
+			};
+		}
 		_nextExecutableId = rhs._nextExecutableId;
 		_nextProcessId = rhs._nextProcessId;
 	}
@@ -128,6 +140,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	public IEnumerable<IComputerTerminal> ConnectedTerminals => _connectedItems.OfType<IComputerTerminal>().ToList();
 	public IEnumerable<INetworkAdapter> NetworkAdapters => _connectedItems.OfType<INetworkAdapter>().ToList();
 	public IEnumerable<string> EnabledNetworkServices => _enabledNetworkServices.OrderBy(x => x).ToList();
+	public IEnumerable<IComputerFtpAccount> FtpAccounts => _ftpAccounts.Values.OrderBy(x => x.UserName).ToList();
 	public IEnumerable<ConnectorType> Connections => Enumerable.Range(0, _prototype.StoragePorts).Select(_ => ComputerConnectionTypes.HostStoragePort)
 		.Concat(Enumerable.Range(0, _prototype.TerminalPorts).Select(_ => ComputerConnectionTypes.HostTerminalPort))
 		.Concat(Enumerable.Range(0, _prototype.NetworkPorts).Select(_ => ComputerConnectionTypes.HostNetworkPort))
@@ -199,6 +212,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		root.Add(new XElement("EnabledNetworkServices",
 			from service in _enabledNetworkServices.OrderBy(x => x)
 			select new XElement("Service", new XAttribute("id", service))));
+		root.Add(ComputerMutableOwnerXmlPersistence.SaveFtpAccounts(_ftpAccounts.Values));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveFiles(_fileSystem.MutableFiles));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveExecutables(_executables.Values));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveProcesses(_processes.Values));
@@ -319,6 +333,55 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		}
 
 		Changed = true;
+		return true;
+	}
+
+	public bool CreateFtpAccount(string userName, string passwordHash, long passwordSalt, out string error)
+	{
+		error = string.Empty;
+		if (_ftpAccounts.ContainsKey(userName))
+		{
+			error = $"There is already an FTP account named {userName.ColourName()} on {Parent.Name.ColourName()}.";
+			return false;
+		}
+
+		_ftpAccounts[userName] = new ComputerMutableFtpAccount
+		{
+			UserName = userName,
+			PasswordHash = passwordHash,
+			PasswordSalt = passwordSalt,
+			Enabled = true
+		};
+		Changed = true;
+		return true;
+	}
+
+	public bool SetFtpAccountEnabled(string userName, bool enabled, out string error)
+	{
+		if (!_ftpAccounts.TryGetValue(userName, out var account))
+		{
+			error = $"There is no FTP account named {userName.ColourName()} on {Parent.Name.ColourName()}.";
+			return false;
+		}
+
+		account.Enabled = enabled;
+		Changed = true;
+		error = string.Empty;
+		return true;
+	}
+
+	public bool SetFtpAccountPassword(string userName, string passwordHash, long passwordSalt, out string error)
+	{
+		if (!_ftpAccounts.TryGetValue(userName, out var account))
+		{
+			error = $"There is no FTP account named {userName.ColourName()} on {Parent.Name.ColourName()}.";
+			return false;
+		}
+
+		account.PasswordHash = passwordHash;
+		account.PasswordSalt = passwordSalt;
+		Changed = true;
+		error = string.Empty;
 		return true;
 	}
 
@@ -532,6 +595,11 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			         .Cast<string>() ?? Enumerable.Empty<string>())
 		{
 			_enabledNetworkServices.Add(service);
+		}
+
+		foreach (var account in ComputerMutableOwnerXmlPersistence.LoadFtpAccounts(root.Element("FtpAccounts")))
+		{
+			_ftpAccounts[account.UserName] = account;
 		}
 
 		_pendingConnectionIds.AddRange(root.Element("ConnectedItems")?.Elements("Connection")

@@ -96,6 +96,7 @@ The planned computer-programs subsystem follows the same composition rules:
 - common signal semantics should be expressed through interfaces like `ISignalSource` and `ISignalSink`
 - concrete runtime behaviour should still be split into distinct component families such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, and `SignalLight`
 - standalone player-owned computer code still exists outside the item runtime in `FutureMUDLibrary/Computers` / `MudSharpCore/Computers` as `ICharacterComputerWorkspace`, `IComputerExecutionService`, and `IComputerHelpService`, but the same runtime now also supports real host-owned and storage-owned executables through `IComputerExecutableOwner`
+- host-owned and storage-owned file systems now also carry live network-file state such as per-file public visibility flags, while `ComputerHost` runtime configuration additionally carries FTP account data for the built-in remote file-transfer service
 
 This means "computerised" items are expected to compose multiple capabilities:
 - a host component to own files, executables, and running processes
@@ -113,8 +114,9 @@ Built-in applications now follow the same host-owned runtime model rather than e
 - a real `ComputerHost` exposes built-in application definitions as host-bound built-in programs
 - those built-ins are not exposed by the private workspace or mounted storage devices
 - executing one creates a real host process through the shared computer execution service
-- in the current shipped phase `SysMon`, `FileManager`, `Directory`, and `Mail` have implemented built-in behaviour, while the remaining built-in identities stay reserved for future phases
+- in the current shipped phase `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP` have implemented built-in behaviour, while the remaining built-in identities stay reserved for future phases
 - `Mail` is also the first shipped database-backed network service: mail domains, accounts, messages, and mailbox entries persist in dedicated EF-backed tables, while the host only owns the live service enablement and hosted-domain bindings
+- `FTP` is the first shipped XML-backed network file service: the host owns live service enablement and account state, each owner file system owns its per-file public visibility flags, and the telecom-backed runtime layer resolves anonymous or authenticated remote access across reachable hosts
 
 As with telecommunications, the runtime goal is interface-first integration. Game logic should ask for capabilities such as `IComputerHost` or `ISignalSink`, while the item itself remains the orchestration shell that aggregates whichever concrete components are attached.
 

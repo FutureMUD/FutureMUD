@@ -75,6 +75,7 @@ public sealed class ComputerTextFile : IComputerFile
 	public long SizeInBytes => Encoding.UTF8.GetByteCount(TextContents ?? string.Empty);
 	public DateTime CreatedAtUtc { get; init; } = DateTime.UtcNow;
 	public DateTime LastModifiedAtUtc { get; init; } = DateTime.UtcNow;
+	public bool PubliclyAccessible { get; init; }
 }
 
 public sealed class ComputerFileSystemDefinition : IComputerFileSystem
@@ -108,6 +109,11 @@ public sealed class ComputerFileSystemDefinition : IComputerFileSystem
 	}
 
 	public bool DeleteFile(string fileName)
+	{
+		throw new NotSupportedException("ComputerFileSystemDefinition is read-only.");
+	}
+
+	public bool SetFilePubliclyAccessible(string fileName, bool isPublic)
 	{
 		throw new NotSupportedException("ComputerFileSystemDefinition is read-only.");
 	}

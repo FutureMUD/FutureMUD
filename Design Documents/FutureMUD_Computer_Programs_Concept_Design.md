@@ -74,13 +74,20 @@ The first player-facing command surface for this slice has also now landed:
 - `programming` now also exposes built-in host applications through that same connected terminal session:
   - `programming apps`
   - `programming app <name>`
-- administrator characters now also have a host-scoped mail-service configuration surface through an active terminal session:
-  - `programming mail`
-  - `programming mail service on|off`
-  - `programming mail domain add|remove|enable|disable <domain>`
-  - `programming mail account add <user@domain> <password>`
-  - `programming mail account enable|disable <user@domain>`
-  - `programming mail account password <user@domain> <password>`
+- administrator characters now also have host-scoped network-service configuration surfaces through an active terminal session:
+ - `programming mail`
+ - `programming mail service on|off`
+ - `programming mail domain add|remove|enable|disable <domain>`
+ - `programming mail account add <user@domain> <password>`
+ - `programming mail account enable|disable <user@domain>`
+ - `programming mail account password <user@domain> <password>`
+  - `programming ftp`
+  - `programming ftp service on|off`
+  - `programming ftp account add <user> <password>`
+  - `programming ftp account enable|disable <user>`
+  - `programming ftp account password <user> <password>`
+  - `programming ftp file list`
+  - `programming ftp file publish|unpublish <file>`
 - `type` is now the player-facing terminal-input verb:
   - `type <text>` uses the current computer terminal session, or auto-selects a nearby terminal if one can be resolved cleanly
   - `type <terminal> <text>` explicitly targets a nearby terminal
@@ -112,7 +119,7 @@ The first player-facing command surface for this slice has also now landed:
 - the world boot login pass now logs in world-root items only, while inventory-rooted items remain dormant until their owning character or body logs in; extracted mounted modules still activate because their `AutomationMountHost` forwards the item lifecycle to them
 - powered-machine-based automation components no longer begin drawdown merely because they load switched on; they wait for `Login()` before attempting live power use
 
-The remaining work is still substantial. In particular, waits beyond `sleep`, `UserInput()`, and the current v1 `WaitSignal()` implementation, richer multi-port inter-item signal graphs, broader built-in application coverage beyond the currently shipped `SysMon`, `FileManager`, `Directory`, and `Mail`, remote execution semantics beyond local host launch/kill, and broader network services beyond the first shipped `Mail` service are still future phases.
+The remaining work is still substantial. In particular, waits beyond `sleep`, `UserInput()`, and the current v1 `WaitSignal()` implementation, richer multi-port inter-item signal graphs, broader built-in application coverage beyond the currently shipped `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP`, remote execution semantics beyond local host launch/kill, and broader network services beyond the first shipped `Mail` and `FTP` services are still future phases.
 
 ## Core Concepts
 
@@ -132,6 +139,7 @@ The remaining work is still substantial. In particular, waits beyond `sleep`, `U
 - Workspace artifacts still persist in dedicated tables keyed to the owning character, and suspended workspace program processes persist locals, frame state, wake time, result, and last error separately from item revision data
 - Host-backed and storage-backed executables currently persist in item component XML as part of the owning item runtime, not yet in separate generic database tables
 - Network mail is the first shipped database-backed computer service: mail domains, accounts, messages, and mailbox entries now persist in dedicated EF tables rather than in item XML
+- Remote file-transfer access is now the first shipped XML-backed network file service: FTP account state and per-file public visibility persist with the owning host or storage runtime, while anonymous public access and authenticated remote file manipulation are resolved at runtime through the telecom-backed computer network layer
 
 ### Available Types
 
@@ -227,7 +235,7 @@ Future non-exhaustive functions still planned include:
 - CollectionFromFile / DictionaryFromFile / CollectionDictionaryFromFile: read the contents of a file back out into a collection type
 - SendSignal - sends a signal via a signal channel with optional duration, as a once off instruction
 - PulseSignal - sends a signal via a signal channel every 5 seconds for a duration (but doesn't count as interrupted in between)
-- WriteFileRemote/AppendFileRemote/FileExistsRemote/GetFilesRemote - for interacting over an internet network delivered via an IGrid
+- soft-coded remote file helpers such as `WriteFileRemote` / `AppendFileRemote` / `FileExistsRemote` / `GetFilesRemote` - the currently shipped remote file access is exposed through the `FTP` and `FileManager` built-in applications rather than directly to custom computer programs
 - LaunchProgram / KillProgram - to launch or kill other computer programs
 
 ### Hard-Coded Applications
@@ -235,6 +243,7 @@ Future non-exhaustive functions still planned include:
 The baseline built-in application list for the computer subsystem is now fixed as:
 
 - `Mail` - asynchronous email client plus store-and-forward mail service
+- `FTP` - remote file-transfer client plus host file-transfer service
 - `Boards` - bulletin board and newsreader client plus board service
 - `Messenger` - live pager-style messaging client plus relay service
 - `FileManager` - local file browser, copy utility, and mounted-storage manager
@@ -246,16 +255,18 @@ In the current shipped phase:
 - built-in applications are represented as host-bound built-in program definitions rather than a disconnected catalog
 - they execute through the shared computer execution service as real host processes, but use dedicated built-in executors internally
 - they are exposed to players through `programming apps` and `programming app <name>` while connected to a powered terminal session
-- `SysMon`, `FileManager`, `Directory`, and `Mail` currently have implemented runtime behaviour
+- `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP` currently have implemented runtime behaviour
 - `SysMon` is a terminal-session diagnostics tool that reports host power and storage state, connected storage and terminal devices, network adapters, running processes, and locally accessible automation signal sources and sinks on the execution host item
-- `FileManager` is a terminal-session interactive file utility that suspends in `UserInput()` between commands and currently supports listing, reading, editing, writing, appending, deleting, copying, and retargeting files between the host and mounted storage devices
+- `FileManager` is a terminal-session interactive file utility that suspends in `UserInput()` between commands and currently supports listing, reading, editing, writing, appending, deleting, copying, retargeting, and directly inspecting or importing anonymously accessible public files from reachable remote hosts
 - `Directory` is a terminal-session interactive discovery utility that suspends in `UserInput()` between commands and now supports both local host inspection and telecom-backed reachable-host discovery through `hosts`, `show <host>`, and `services <host>`
 - `Mail` is now the first implemented network-capable built-in application: it runs as an interactive terminal client, authenticates against reachable mail domains, manages inbox and sent mail, and uses the ordinary editor flow to compose message bodies
+- `FTP` is now the second implemented network-capable built-in application: it runs as an interactive terminal client, opens a session to a reachable remote host advertising FTP, allows anonymous access to published public files, and allows authenticated full file manipulation across the target host and mounted storage devices
 - `NetworkAdapter` is no longer just a local readiness marker; it is now a telecom-grid-backed endpoint that restores its attached `ITelecommunicationsGrid`, joins and leaves that grid through runtime lifecycle, and publishes a canonical network address
 - canonical adapter addresses use `PreferredNetworkAddress` when it is unique within the reachable linked-grid cluster; otherwise they fall back to a stable generated address of the form `adapter-<itemid>`
 - reachable host discovery is transitive across the linked telecom-grid graph, uses cycle-safe breadth-first traversal, and only includes hosts whose adapters are currently network-ready
 - remote service advertisement is intentionally conservative in the current slice: only built-in applications marked as network services and actually implemented are listed
 - `Mail` is now the first shipped advertised network service, but it is only advertised when the target host has its mail service enabled and at least one enabled hosted domain
+- `FTP` is now the second shipped advertised network service, but it is only advertised when the target host has its FTP service enabled; the advertised details report the count of anonymously readable public files currently exposed by that host and its mounted storage
 - `Boards` and `Messenger` remain reserved built-in application identities for later phases
 
 ## Systems Needed
@@ -300,7 +311,7 @@ In the current shipped phase:
   - `programming apps` and `programming app <name>` now expose host-backed built-in applications through that same connected terminal session
   - the `type` verb is the terminal-facing input surface for real computers and now resumes foreground programs waiting on `UserInput()` for the active terminal session
   - workspace authoring still uses immediate ownership-checked edits rather than tool-gated physical actions
-  - real host-backed or storage-backed program execution currently supports the shipped local file and terminal functions listed above plus completion or persisted `sleep`, `UserInput()`, and v1 `WaitSignal()` suspension; broader graph signal functions, remote file access, and broader network functions are future phases
+- real host-backed or storage-backed program execution currently supports the shipped local file and terminal functions listed above plus completion or persisted `sleep`, `UserInput()`, and v1 `WaitSignal()` suspension; remote file access now exists for players through the `FTP` and `FileManager` built-in applications, while soft-coded remote file functions and broader network execution remain future phases
   - abject failures on electrical work can cause electrical shock damage
 - Both of these command verbs should be able to be surpressed so that they don't appear on non-modern MUDs.
 

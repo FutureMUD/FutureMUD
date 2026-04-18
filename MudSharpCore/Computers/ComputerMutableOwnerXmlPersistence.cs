@@ -195,7 +195,8 @@ internal static class ComputerMutableOwnerXmlPersistence
 				FileName = x.Attribute("name")?.Value ?? string.Empty,
 				TextContents = x.Value ?? string.Empty,
 				CreatedAtUtc = TryParseDateTime(x.Attribute("created")?.Value) ?? DateTime.UtcNow,
-				LastModifiedAtUtc = TryParseDateTime(x.Attribute("modified")?.Value) ?? DateTime.UtcNow
+				LastModifiedAtUtc = TryParseDateTime(x.Attribute("modified")?.Value) ?? DateTime.UtcNow,
+				PubliclyAccessible = bool.TryParse(x.Attribute("public")?.Value, out var isPublic) && isPublic
 			})
 			.ToList();
 	}
@@ -208,7 +209,38 @@ internal static class ComputerMutableOwnerXmlPersistence
 				new XAttribute("name", file.FileName),
 				new XAttribute("created", file.CreatedAtUtc.ToString("O")),
 				new XAttribute("modified", file.LastModifiedAtUtc.ToString("O")),
+				new XAttribute("public", file.PubliclyAccessible),
 				new XCData(file.TextContents ?? string.Empty)));
+	}
+
+	public static IEnumerable<ComputerMutableFtpAccount> LoadFtpAccounts(XElement? element)
+	{
+		if (element is null)
+		{
+			return Enumerable.Empty<ComputerMutableFtpAccount>();
+		}
+
+		return element.Elements("Account")
+			.Select(x => new ComputerMutableFtpAccount
+			{
+				UserName = x.Attribute("name")?.Value ?? string.Empty,
+				PasswordHash = x.Attribute("hash")?.Value ?? string.Empty,
+				PasswordSalt = long.TryParse(x.Attribute("salt")?.Value, out var salt) ? salt : 0L,
+				Enabled = !bool.TryParse(x.Attribute("enabled")?.Value, out var enabled) || enabled
+			})
+			.Where(x => !string.IsNullOrWhiteSpace(x.UserName))
+			.ToList();
+	}
+
+	public static XElement SaveFtpAccounts(IEnumerable<ComputerMutableFtpAccount> accounts)
+	{
+		return new XElement("FtpAccounts",
+			from account in accounts.OrderBy(x => x.UserName)
+			select new XElement("Account",
+				new XAttribute("name", account.UserName),
+				new XAttribute("hash", account.PasswordHash),
+				new XAttribute("salt", account.PasswordSalt),
+				new XAttribute("enabled", account.Enabled)));
 	}
 
 	private static DateTime? TryParseDateTime(string? value)

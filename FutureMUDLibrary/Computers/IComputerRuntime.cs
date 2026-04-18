@@ -49,6 +49,7 @@ public interface IComputerFile
 	long SizeInBytes { get; }
 	DateTime CreatedAtUtc { get; }
 	DateTime LastModifiedAtUtc { get; }
+	bool PubliclyAccessible { get; }
 }
 
 public interface IComputerFileSystem
@@ -62,6 +63,7 @@ public interface IComputerFileSystem
 	void WriteFile(string fileName, string textContents);
 	void AppendFile(string fileName, string textContents);
 	bool DeleteFile(string fileName);
+	bool SetFilePubliclyAccessible(string fileName, bool isPublic);
 }
 
 public interface IComputerBuiltInApplication : IComputerProgramDefinition

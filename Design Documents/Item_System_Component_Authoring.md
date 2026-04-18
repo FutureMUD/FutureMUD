@@ -278,6 +278,7 @@ Current authoring pattern:
 - automation housings author which categories of automation items they may conceal and are themselves the dedicated lockable-container service-access capability on the item
 - signal cables have no meaningful static routing fields on the proto; they are routed at runtime and persist that live route on the component instance
 - hosted computer mail is not a separate item component family in the current shipped phase; it is runtime configuration on a `ComputerHost` exposed through `programming mail ...`, while domains, accounts, messages, and mailbox entries persist in dedicated database tables
+- hosted computer FTP is also not a separate item component family in the current shipped phase; it is runtime configuration on a `ComputerHost` exposed through `programming ftp ...`, while FTP accounts and per-file public visibility flags persist with the owning host or storage runtime data
 - `motionsensor` authors powered-machine settings plus signal value, duration, minimum size, and movement mode (`any`, `begin`, `enter`, `stop`)
 - `lightsensor` authors powered-machine settings and emits current ambient illumination as a live numeric signal
 - `rainsensor` authors powered-machine settings and emits a live numeric rain-intensity signal based on the current weather when climate-exposed

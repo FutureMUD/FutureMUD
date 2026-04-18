@@ -326,17 +326,23 @@ For the first real in-world computer workflow, a practical pass is:
 21. Use `programming app mail` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
 22. Use `type login <user@domain> <password>`, `type inbox`, `type read <id>`, and `type delete <id>` to confirm the mail client authenticates against a reachable hosted domain and can inspect mailbox state.
 23. Use `type send <user@domain>`, `type subject <text>`, `type body`, `type post`, and `type exit` to confirm the mail client can compose and deliver mail, and that `type body` hands off to the ordinary multiline editor before returning to the terminal session.
-24. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
-25. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
-26. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
-27. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
-28. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
-29. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
-30. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
-31. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
-32. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
+24. On a reachable host that should expose public files, use `programming ftp service on`, `programming ftp file list`, and `programming ftp file publish <file>` while connected to that host as an administrator.
+25. Use `type services <host>` in `Directory` from another reachable host and confirm the file server now advertises `FTP` with public-file detail text.
+26. Use `programming app ftp` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
+27. Use `type hosts`, `type open <host>`, `type list`, `type show <file>`, and `type get <file>` to confirm anonymous FTP access can see and copy only published public files.
+28. Use `type login <user> <password>`, `type owners`, `type use <owner>`, `type put <local-file> [remote-file]`, `type delete <file>`, and `type exit` to confirm authenticated FTP can manage files on the target host and its mounted storage devices.
+29. Use `programming app filemanager` on another host and confirm `type list public <host>`, `type show public <host> <file>`, and `type copy public <host> <file>` expose the same anonymously readable public files without requiring a separate FTP login.
+30. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
+31. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
+32. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
+33. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
+34. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
+35. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
+36. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
+37. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
+38. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
 
-In the current shipped phase, `SysMon`, `FileManager`, `Directory`, and `Mail` have built-in application runtime behaviour. `Directory` is still the first proof of the telecom-backed network layer, but it now also shows the first implemented remote network service when reachable hosts have `Mail` enabled and configured with hosted domains. `Boards` and `Messenger` remain reserved built-in identities for future phases.
+In the current shipped phase, `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP` have built-in application runtime behaviour. `Directory` is still the first proof of the telecom-backed network layer, but it now also shows the currently implemented remote network services when reachable hosts have `Mail` or `FTP` enabled and configured. `Boards` and `Messenger` remain reserved built-in identities for future phases.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.
@@ -350,6 +356,8 @@ In the current shipped phase, `SysMon`, `FileManager`, `Directory`, and `Mail` h
 - `type` says nothing is waiting for terminal input: no program on that terminal session is currently suspended in `UserInput()`, or the active terminal / user pairing does not match the waiting process metadata
 - `waitsignal("<name>")` fails at runtime: the current execution host is not a real in-world host item, or there is no signal source component with that name on the real execution host item
 - `programming app <name>` reports no match or no available applications: the actor is probably not connected to a powered terminal session on a powered host, or the named built-in application is not implemented for the current shipped phase
+- `type list` or `type show` in FTP unexpectedly returns nothing: the remote host may not have FTP enabled, may not be reachable through the telecom-backed adapter graph, or the file may not be published for anonymous access
+- `type put` or `type delete` in FTP fails: the session is probably still anonymous rather than authenticated, or the selected remote owner does not exist on the target host
 
 ## Thermal Source Workflow
 Thermal-source items now have a standard content workflow:

@@ -90,8 +90,8 @@ The first real computer-host slice now also includes:
 - `NetworkAdapter` items that represent the host's telecom-backed network-facing capability
 - local computer runtime functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `LaunchProgram`, `KillProgram`, `UserInput`, and `WaitSignal`
 - the terminal-facing `type` verb, which now routes foreground terminal input and resumes programs waiting on `UserInput()`
-- shipped built-in host applications `SysMon`, `FileManager`, `Directory`, and `Mail`
-- the first shipped network service, `Mail`, including host-scoped service enablement, hosted domains, database-backed accounts and mailboxes, and telecom-backed delivery to reachable mail hosts
+- shipped built-in host applications `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP`
+- shipped network services `Mail` and `FTP`, including host-scoped service enablement, hosted domains for mail, per-host FTP account and public-file configuration, database-backed mailboxes, and telecom-backed delivery or remote-file access to reachable hosts
 
 Those verbs currently use staged delayed actions, inventory plans for tool handling, configurable static-string echoes, and dedicated checks rather than instant state changes.
 

@@ -28,6 +28,7 @@ internal static class ComputerBuiltInApplicationExecutors
 		new IComputerBuiltInApplicationExecutor[]
 		{
 			new FileManagerBuiltInApplicationExecutor(),
+			new FtpBuiltInApplicationExecutor(),
 			new MailBuiltInApplicationExecutor(),
 			new DirectoryBuiltInApplicationExecutor(),
 			new SysMonBuiltInApplicationExecutor()
@@ -84,7 +85,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			return WaitForInput(session, state);
 		}
 
-		var response = HandleCommand(session, application, process.Host, state, input!);
+		var response = HandleCommand(gameworld, session, application, process.Host, state, input!);
 		if (!string.IsNullOrWhiteSpace(response.Output))
 		{
 			session.User.OutputHandler.Send(response.Output, nopage: true);
@@ -98,7 +99,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			: WaitForInput(session, state);
 	}
 
-	private static (string Output, bool Exit) HandleCommand(IComputerTerminalSession session,
+	private static (string Output, bool Exit) HandleCommand(IFuturemud gameworld, IComputerTerminalSession session,
 		IComputerBuiltInApplication application,
 		IComputerHost host,
 		FileManagerState state,
@@ -110,13 +111,17 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		{
 			"" => (RenderPrompt(session.User, host, state, null), false),
 			"help" => (RenderHelp(session.User, application, host, state), false),
+			"list" or "ls" or "dir" when !ss.IsFinished && ss.PeekSpeech().EqualTo("public") => HandleListPublic(gameworld, session, host, state, ss),
 			"list" or "ls" or "dir" => (RenderFileList(session.User, host, state, null), false),
+			"public" => HandleListPublic(gameworld, session, host, state, ss),
 			"owners" or "targets" => (RenderOwners(session.User, host, state), false),
+			"show" or "read" or "cat" when !ss.IsFinished && ss.PeekSpeech().EqualTo("public") => HandleShowPublic(gameworld, session, host, state, ss),
 			"show" or "read" or "cat" => HandleShow(session, host, state, ss),
 			"edit" => HandleEdit(session, host, state, ss),
 			"write" => HandleWrite(session, host, state, ss, append: false),
 			"append" => HandleWrite(session, host, state, ss, append: true),
 			"delete" or "del" or "rm" => HandleDelete(session, host, state, ss),
+			"copy" or "cp" when !ss.IsFinished && ss.PeekSpeech().EqualTo("public") => HandleCopyPublic(gameworld, session, host, state, ss),
 			"copy" or "cp" => HandleCopy(session, host, state, ss),
 			"use" or "owner" => HandleUse(session, host, state, ss),
 			"exit" or "quit" => ($"{application.Name.ColourName()} closing.", true),
@@ -151,8 +156,116 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		sb.AppendLine($"{file.FileName.ColourName()} on {DescribeOwner(owner).ColourName()}");
 		sb.AppendLine($"Size: {file.SizeInBytes.ToString("N0", session.User).ColourValue()} bytes");
 		sb.AppendLine($"Modified: {file.LastModifiedAtUtc.ToString(session.User).ColourValue()}");
+		sb.AppendLine($"Public: {file.PubliclyAccessible.ToColouredString()}");
 		sb.AppendLine();
 		sb.AppendLine(file.TextContents);
+		sb.AppendLine();
+		sb.Append(RenderPrompt(session.User, host, state, null));
+		return (sb.ToString(), false);
+	}
+
+	private static (string Output, bool Exit) HandleListPublic(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerHost host, FileManagerState state, StringStack ss)
+	{
+		if (!ss.IsFinished && ss.PeekSpeech().EqualTo("public"))
+		{
+			ss.PopSpeech();
+		}
+
+		if (ss.IsFinished)
+		{
+			return ($"Which reachable host do you want to inspect public files on?\n\n{RenderPrompt(session.User, host, state, null)}",
+				false);
+		}
+
+		var summary = gameworld.ComputerExecutionService.ResolveReachableHost(host, ss.SafeRemainingArgument);
+		if (summary is null || !summary.Host.IsNetworkServiceEnabled("ftp"))
+		{
+			return ($"There is no reachable host advertising public FTP files that matches {ss.SafeRemainingArgument.ColourName()}.\n\n{RenderPrompt(session.User, host, state, null)}",
+				false);
+		}
+
+		var publicFiles = GetAllPublicRemoteFiles(gameworld, host, summary.Host, out var error);
+		if (!string.IsNullOrEmpty(error))
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, host, state, null)}", false);
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Public Network Files on {summary.Host.Name.ColourName()} ({summary.CanonicalAddress.ColourName()}):");
+		if (!publicFiles.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				publicFiles.Select(file => new List<string>
+				{
+					file.OwnerDisplayName,
+					file.FileName,
+					file.SizeInBytes.ToString("N0", session.User),
+					file.LastModifiedAtUtc.ToString(session.User)
+				}),
+				new List<string>
+				{
+					"Owner",
+					"File",
+					"Size",
+					"Modified"
+				},
+				session.User.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				session.User.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.Append(RenderPrompt(session.User, host, state, null));
+		return (sb.ToString(), false);
+	}
+
+	private static (string Output, bool Exit) HandleShowPublic(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerHost host, FileManagerState state, StringStack ss)
+	{
+		if (!ss.IsFinished && ss.PeekSpeech().EqualTo("public"))
+		{
+			ss.PopSpeech();
+		}
+
+		if (ss.IsFinished)
+		{
+			return ($"Which reachable host do you want to read from?\n\n{RenderPrompt(session.User, host, state, null)}",
+				false);
+		}
+
+		var hostIdentifier = ss.PopSpeech();
+		if (ss.IsFinished)
+		{
+			return ($"Which public network file do you want to show?\n\n{RenderPrompt(session.User, host, state, null)}",
+				false);
+		}
+
+		var summary = gameworld.ComputerExecutionService.ResolveReachableHost(host, hostIdentifier);
+		if (summary is null || !summary.Host.IsNetworkServiceEnabled("ftp"))
+		{
+			return ($"There is no reachable host advertising public FTP files that matches {hostIdentifier.ColourName()}.\n\n{RenderPrompt(session.User, host, state, null)}",
+				false);
+		}
+
+		var details = ResolvePublicRemoteFile(gameworld, host, summary.Host, ss.SafeRemainingArgument, out var error);
+		if (details is null)
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, host, state, null)}", false);
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"{details.Summary.FileName.ColourName()} on {summary.Host.Name.ColourName()}");
+		sb.AppendLine($"Size: {details.Summary.SizeInBytes.ToString("N0", session.User).ColourValue()} bytes");
+		sb.AppendLine($"Modified: {details.Summary.LastModifiedAtUtc.ToString(session.User).ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine(details.TextContents);
 		sb.AppendLine();
 		sb.Append(RenderPrompt(session.User, host, state, null));
 		return (sb.ToString(), false);
@@ -318,6 +431,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		}
 
 		targetFileSystem.WriteFile(sourceFile.FileName, sourceFile.TextContents);
+		targetFileSystem.SetFilePubliclyAccessible(sourceFile.FileName, sourceFile.PubliclyAccessible);
 		var sb = new StringBuilder();
 		if (!string.IsNullOrEmpty(warning))
 		{
@@ -326,6 +440,80 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		}
 
 		sb.AppendLine($"Copied {sourceFile.FileName.ColourName()} from {DescribeOwner(sourceOwner).ColourName()} to {DescribeOwner(targetOwner).ColourName()}.");
+		sb.Append(RenderPrompt(session.User, host, state, null));
+		return (sb.ToString(), false);
+	}
+
+	private static (string Output, bool Exit) HandleCopyPublic(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerHost host, FileManagerState state, StringStack ss)
+	{
+		if (!ss.IsFinished && ss.PeekSpeech().EqualTo("public"))
+		{
+			ss.PopSpeech();
+		}
+
+		if (ss.IsFinished)
+		{
+			return ($"Which reachable host do you want to copy a public file from?\n\n{RenderPrompt(session.User, host, state, null)}",
+				false);
+		}
+
+		var hostIdentifier = ss.PopSpeech();
+		if (ss.IsFinished)
+		{
+			return ($"Which public file do you want to copy?\n\n{RenderPrompt(session.User, host, state, null)}", false);
+		}
+
+		var remoteFileName = ss.PopSpeech();
+		if (!ss.IsFinished && ss.PeekSpeech().EqualTo("to"))
+		{
+			ss.PopSpeech();
+		}
+
+		var summary = gameworld.ComputerExecutionService.ResolveReachableHost(host, hostIdentifier);
+		if (summary is null || !summary.Host.IsNetworkServiceEnabled("ftp"))
+		{
+			return ($"There is no reachable host advertising public FTP files that matches {hostIdentifier.ColourName()}.\n\n{RenderPrompt(session.User, host, state, null)}",
+				false);
+		}
+
+		var details = ResolvePublicRemoteFile(gameworld, host, summary.Host, remoteFileName, out var error);
+		if (details is null)
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, host, state, null)}", false);
+		}
+
+		var (targetOwner, warning) = ResolveTargetOwner(host, state);
+		if (!ss.IsFinished)
+		{
+			var explicitTarget = ResolveSelectableOwner(host, ss.SafeRemainingArgument);
+			if (explicitTarget is null)
+			{
+				return ($"You must target either {host.Name.ColourName()} or one of its mounted storage devices.\n\n{RenderPrompt(session.User, host, state, warning)}",
+					false);
+			}
+
+			targetOwner = explicitTarget;
+			warning = null;
+		}
+
+		var targetFileSystem = targetOwner.FileSystem;
+		if (targetFileSystem is null)
+		{
+			return ($"{DescribeOwner(targetOwner).ColourName()} does not expose a writable file system.\n\n{RenderPrompt(session.User, host, state, warning)}",
+				false);
+		}
+
+		targetFileSystem.WriteFile(details.Summary.FileName, details.TextContents);
+		targetFileSystem.SetFilePubliclyAccessible(details.Summary.FileName, false);
+		var sb = new StringBuilder();
+		if (!string.IsNullOrEmpty(warning))
+		{
+			sb.AppendLine(warning);
+			sb.AppendLine();
+		}
+
+		sb.AppendLine($"Copied public network file {details.Summary.FileName.ColourName()} from {summary.Host.Name.ColourName()} to {DescribeOwner(targetOwner).ColourName()}.");
 		sb.Append(RenderPrompt(session.User, host, state, null));
 		return (sb.ToString(), false);
 	}
@@ -367,12 +555,15 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		var sb = new StringBuilder();
 		sb.AppendLine($"{application.Name.ColourName()} commands:");
 		sb.AppendLine($"\t{"list".ColourCommand()} - list files on the current target");
+		sb.AppendLine($"\t{"list public <host>".ColourCommand()} - list published public files on a reachable host");
 		sb.AppendLine($"\t{"show <file>".ColourCommand()} - display a file");
+		sb.AppendLine($"\t{"show public <host> <file>".ColourCommand()} - display a published public network file");
 		sb.AppendLine($"\t{"edit <file>".ColourCommand()} - open a file in the normal multiline editor");
 		sb.AppendLine($"\t{"write <file> <text>".ColourCommand()} - overwrite a file");
 		sb.AppendLine($"\t{"append <file> <text>".ColourCommand()} - append text to a file");
 		sb.AppendLine($"\t{"delete <file>".ColourCommand()} - delete a file");
 		sb.AppendLine($"\t{"copy <file> <target>".ColourCommand()} - copy a file to the host or a mounted storage device");
+		sb.AppendLine($"\t{"copy public <host> <file> [to <target>]".ColourCommand()} - copy a published public network file to a local target");
 		sb.AppendLine($"\t{"owners".ColourCommand()} - list available file owners");
 		sb.AppendLine($"\t{"use <target>".ColourCommand()} - switch the current target");
 		sb.AppendLine($"\t{"help".ColourCommand()} - show this help");
@@ -427,12 +618,14 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			{
 				file.FileName,
 				file.SizeInBytes.ToString("N0", user),
+				file.PubliclyAccessible.ToColouredString(),
 				file.LastModifiedAtUtc.ToString(user)
 			}),
 			new List<string>
 			{
 				"File",
 				"Size",
+				"Public",
 				"Modified"
 			},
 			user.LineFormatLength,
@@ -456,6 +649,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			{
 				DescribeOwner(owner),
 				owner is IComputerStorage storage ? storage.OwnerStorageItemId?.ToString("N0", user) ?? "-" : "host",
+				(owner.FileSystem?.Files.Count(x => x.PubliclyAccessible) ?? 0).ToString("N0", user),
 				owner.FileSystem?.UsedBytes.ToString("N0", user) ?? "0",
 				owner.FileSystem?.CapacityInBytes.ToString("N0", user) ?? "0"
 			}),
@@ -463,6 +657,7 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 			{
 				"Owner",
 				"Selector",
+				"Public Files",
 				"Used",
 				"Capacity"
 			},
@@ -492,6 +687,88 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 
 		sb.Append($"Use {"type <command>".ColourCommand()} for {DescribeOwner(owner).ColourName()}.");
 		return sb.ToString();
+	}
+
+	private static List<ComputerRemoteFileSummary> GetAllPublicRemoteFiles(IFuturemud gameworld, IComputerHost sourceHost,
+		IComputerHost targetHost, out string error)
+	{
+		error = string.Empty;
+		var owners = gameworld.ComputerFileTransferService.GetAccessibleOwners(sourceHost, targetHost, null, out error)
+			.ToList();
+		if (!string.IsNullOrEmpty(error))
+		{
+			return [];
+		}
+
+		var files = new List<ComputerRemoteFileSummary>();
+		foreach (var owner in owners)
+		{
+			var ownerFiles = gameworld.ComputerFileTransferService.GetFiles(sourceHost, targetHost, null, owner.OwnerIdentifier,
+				out error).ToList();
+			if (!string.IsNullOrEmpty(error))
+			{
+				return [];
+			}
+
+			files.AddRange(ownerFiles);
+		}
+
+		return files
+			.OrderBy(x => x.OwnerDisplayName)
+			.ThenBy(x => x.FileName)
+			.ThenBy(x => x.CreatedAtUtc)
+			.ToList();
+	}
+
+	private static ComputerRemoteFileDetails? ResolvePublicRemoteFile(IFuturemud gameworld, IComputerHost sourceHost,
+		IComputerHost targetHost, string fileName, out string error)
+	{
+		error = string.Empty;
+		var files = GetAllPublicRemoteFiles(gameworld, sourceHost, targetHost, out error);
+		if (!string.IsNullOrEmpty(error))
+		{
+			return null;
+		}
+
+		var exact = files
+			.Where(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		if (exact.Count > 1)
+		{
+			error = $"More than one public network file on {targetHost.Name.ColourName()} is named {fileName.ColourName()}. Use FTP to disambiguate by owner.";
+			return null;
+		}
+
+		ComputerRemoteFileSummary? summary = null;
+		if (exact.Count == 1)
+		{
+			summary = exact.Single();
+		}
+		else
+		{
+			var partial = files
+				.Where(x => x.FileName.StartsWith(fileName, StringComparison.InvariantCultureIgnoreCase))
+				.OrderBy(x => x.FileName.Length)
+				.ThenBy(x => x.FileName)
+				.ThenBy(x => x.OwnerDisplayName)
+				.ToList();
+			if (partial.Count > 1)
+			{
+				error = $"More than one public network file on {targetHost.Name.ColourName()} starts with {fileName.ColourName()}. Use FTP to disambiguate by owner.";
+				return null;
+			}
+
+			summary = partial.SingleOrDefault();
+		}
+
+		if (summary is null)
+		{
+			error = $"{targetHost.Name.ColourName()} does not expose a public network file named {fileName.ColourName()}.";
+			return null;
+		}
+
+		return gameworld.ComputerFileTransferService.ReadFile(sourceHost, targetHost, null, summary.OwnerIdentifier,
+			summary.FileName, out error);
 	}
 
 	private static ComputerProgramExecutionOutcome WaitForInput(IComputerTerminalSession session,
@@ -552,34 +829,12 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 
 	private static IComputerExecutableOwner? ResolveSelectableOwner(IComputerHost host, string identifier)
 	{
-		if (identifier.EqualTo("host") || host.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
-		{
-			return host;
-		}
-
-		var storages = host.MountedStorage.ToList();
-		if (long.TryParse(identifier, out var id))
-		{
-			return storages.FirstOrDefault(x => x.OwnerStorageItemId == id);
-		}
-
-		var exact = storages.FirstOrDefault(x => x.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase));
-		if (exact is not null)
-		{
-			return exact;
-		}
-
-		return storages.FirstOrDefault(x => x.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase));
+		return ComputerFileTransferUtilities.ResolveSelectableOwner(host, identifier, out _);
 	}
 
 	private static string DescribeOwner(IComputerExecutableOwner owner)
 	{
-		return owner switch
-		{
-			IComputerStorage storage => storage.Name,
-			IComputerHost host => host.Name,
-			_ => owner.Name
-		};
+		return ComputerFileTransferUtilities.DescribeOwner(owner);
 	}
 }
 

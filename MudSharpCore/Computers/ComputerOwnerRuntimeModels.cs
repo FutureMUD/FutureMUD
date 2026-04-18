@@ -108,6 +108,15 @@ public sealed class ComputerMutableTextFile : IComputerFile
 	public long SizeInBytes => Encoding.UTF8.GetByteCount(TextContents ?? string.Empty);
 	public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 	public DateTime LastModifiedAtUtc { get; set; } = DateTime.UtcNow;
+	public bool PubliclyAccessible { get; set; }
+}
+
+public sealed class ComputerMutableFtpAccount : IComputerFtpAccount
+{
+	public string UserName { get; set; } = string.Empty;
+	public string PasswordHash { get; set; } = string.Empty;
+	public long PasswordSalt { get; set; }
+	public bool Enabled { get; set; }
 }
 
 public sealed class ComputerMutableFileSystem : IComputerFileSystem
@@ -190,6 +199,19 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 		}
 
 		_files.Remove(existing);
+		return true;
+	}
+
+	public bool SetFilePubliclyAccessible(string fileName, bool isPublic)
+	{
+		var existing = _files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+		if (existing is null)
+		{
+			return false;
+		}
+
+		existing.PubliclyAccessible = isPublic;
+		existing.LastModifiedAtUtc = DateTime.UtcNow;
 		return true;
 	}
 

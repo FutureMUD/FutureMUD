@@ -145,6 +145,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         HeartbeatManager = new HeartbeatManager(this);
         ComputerHelpService = new ComputerHelpService();
         ComputerMailService = new ComputerMailService(this);
+        ComputerFileTransferService = new ComputerFileTransferService(this);
         ComputerExecutionService = new ComputerExecutionService(this);
 
         server?.Bind(_connections, AddConnection);

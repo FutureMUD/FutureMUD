@@ -163,6 +163,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
     public IComputerExecutionService ComputerExecutionService { get; protected set; }
     public IComputerHelpService ComputerHelpService { get; protected set; }
     public IComputerMailService ComputerMailService { get; protected set; }
+    public IComputerFileTransferService ComputerFileTransferService { get; protected set; }
     public IEnumerable<IPlayerConnection> Connections => _connections;
 
     void IFuturemudLoader.LoadFromDatabase()

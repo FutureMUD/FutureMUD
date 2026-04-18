@@ -1527,8 +1527,14 @@ public class ComputerExecutionService : IComputerExecutionService
 			.ThenBy(x => x.Id)
 			.Select(x =>
 			{
-				var details = _gameworld.ComputerMailService.GetAdvertisedServiceDetails(targetHost, x.ApplicationId)
-					.ToList();
+				var details = x.ApplicationId.ToLowerInvariant() switch
+				{
+					"mail" => _gameworld.ComputerMailService.GetAdvertisedServiceDetails(targetHost, x.ApplicationId)
+						.ToList(),
+					"ftp" => _gameworld.ComputerFileTransferService.GetAdvertisedServiceDetails(targetHost, x.ApplicationId)
+						.ToList(),
+					_ => []
+				};
 				return new ComputerNetworkServiceSummary
 				{
 					ApplicationId = x.ApplicationId,

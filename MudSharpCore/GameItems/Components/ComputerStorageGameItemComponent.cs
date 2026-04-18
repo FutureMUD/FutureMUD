@@ -55,7 +55,8 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 			FileName = x.FileName,
 			TextContents = x.TextContents,
 			CreatedAtUtc = x.CreatedAtUtc,
-			LastModifiedAtUtc = x.LastModifiedAtUtc
+			LastModifiedAtUtc = x.LastModifiedAtUtc,
+			PubliclyAccessible = x.PubliclyAccessible
 		}));
 		foreach (var executable in rhs._executables.Values)
 		{

@@ -107,13 +107,14 @@ The current shipped computer-host slice now provides those first concrete famili
 - `ComputerHost` is a powered machine component plus `IConnectable` that owns files, executables, processes, mounted storage, terminal connections, network adapters, and built-in application exposure
 - `ComputerStorage` is an `IConnectable` storage owner that persists files and executables and can be mounted into a host
 - `ComputerTerminal` is a powered machine component plus `IConnectable` that owns live player sessions into a connected powered host
-- `NetworkAdapter` is a powered machine component plus `IConnectable` that exposes the host's local network-facing readiness and preferred address
+- `NetworkAdapter` is a powered machine component plus `IConnectable` that exposes the host's telecom-backed network-facing readiness, preferred address, canonical published address, and attached `ITelecommunicationsGrid`
 
 Built-in applications now follow the same host-owned runtime model rather than existing as a disconnected catalog:
 - a real `ComputerHost` exposes built-in application definitions as host-bound built-in programs
 - those built-ins are not exposed by the private workspace or mounted storage devices
 - executing one creates a real host process through the shared computer execution service
-- in the current shipped phase `SysMon`, `FileManager`, and `Directory` have implemented built-in behaviour, while the other built-in identities remain reserved for future phases
+- in the current shipped phase `SysMon`, `FileManager`, `Directory`, and `Mail` have implemented built-in behaviour, while the remaining built-in identities stay reserved for future phases
+- `Mail` is also the first shipped database-backed network service: mail domains, accounts, messages, and mailbox entries persist in dedicated EF-backed tables, while the host only owns the live service enablement and hosted-domain bindings
 
 As with telecommunications, the runtime goal is interface-first integration. Game logic should ask for capabilities such as `IComputerHost` or `ISignalSink`, while the item itself remains the orchestration shell that aggregates whichever concrete components are attached.
 
@@ -184,9 +185,11 @@ The current player-work runtime flow for that slice is:
 - when a terminal session is active, workspace-style `programming` verbs operate on that selected real computer owner instead of the private workspace
 - `programming apps` lists the built-in applications exposed by the connected powered host, regardless of whether the current selected mutable owner is the host or one mounted storage device
 - `programming app <name>` executes the named built-in application on that connected powered host as a real host process
+- administrator characters can now configure host mail service state through the active terminal session with `programming mail`, `programming mail service ...`, `programming mail domain ...`, and `programming mail account ...`
 - `FileManager` is now a shipped built-in application on that surface: it runs as a host process, keeps its current host-or-storage file target in persisted process state, and uses repeated `type <text>` input to drive `list`, `show`, `edit`, `write`, `append`, `delete`, `copy`, `owners`, `use`, `help`, and `exit`
 - `type edit <file>` hands off to the engine's ordinary multiline editor flow, recalls the current file contents, saves on `@`, and leaves the file unchanged on `*cancel`
-- `Directory` is now also a shipped built-in application on that surface: it runs as a host process and uses repeated `type <text>` input to browse the local host summary plus its built-in services, mounted storage devices, connected terminals, and local network adapters
+- `Directory` is now also a shipped built-in application on that surface: it runs as a host process and uses repeated `type <text>` input to browse the local host summary plus its built-in services, mounted storage devices, connected terminals, and local network adapters, and it also supports telecom-backed discovery of reachable hosts through `hosts`, `show <host>`, and `services <host>`
+- `Mail` is now also a shipped built-in application on that surface: it runs as a host process, authenticates against reachable hosted domains, and uses repeated `type <text>` input to log in, list inbox state, read and delete mailbox entries, compose drafts, and post messages
 - `type` is now the terminal-facing input verb: it submits text to the current terminal session, auto-resolves and auto-connects to a nearby terminal when one can be identified cleanly, and resumes the single foreground program on that session if it is suspended in `UserInput()`
 - computer processes now persist terminal-wait metadata for `UserInput()` waits, including the waiting character and terminal item identity, so those waits can survive save/load and still route correctly from `type`
 - host-backed computer processes can now also suspend in `WaitSignal()` with persisted signal-wait metadata that records the awaited local signal binding on the real execution host item
@@ -209,6 +212,11 @@ Telecommunications items are a useful example of how multiple item capabilities 
 - telecommunications grids persist number ownership against the specific endpoint component identity, not just the parent item, so multiple telecom endpoints on one item keep distinct numbers across save/load
 - a telecommunications grid is also a specialised power network, so telecom-connected devices can draw power from producers on that grid without exposing themselves as ordinary electrical-service endpoints
 - each telecommunications grid owns exchange-level behaviour such as prefix, subscriber length, maximum rings before timeout, and direct exchange links used for long-distance routing
+- the same telecommunications grid runtime now also serves as the transport substrate for computer networking: attached `NetworkAdapter` components join the grid as runtime-derived endpoints, publish canonical addresses, and can discover other reachable network-ready adapters across the linked-grid graph
+- computer-network reachability is transitive across linked exchanges in this slice, unlike voice-call routing; discovery walks the linked-grid graph breadth-first with cycle protection
+- canonical network addresses prefer a configured adapter address when it is unique within the reachable linked-grid cluster, and otherwise fall back to a stable generated address of the form `adapter-<itemid>`
+- only implemented built-in applications marked as network services are advertised through the computer discovery layer; `Mail` is now the first shipped one, while reserved identities such as `Boards` and `Messenger` stay hidden until they actually ship
+- `Mail` advertisement is host-service-aware rather than adapter-owned: a host only advertises `Mail` when that host has the service enabled and at least one enabled hosted domain
 - long-distance routing is direct and prefix-based: a call only forwards to directly linked exchanges, never multi-hop chains, and a local-prefix dial always resolves locally instead of forwarding
 - shared numbers are valid at the endpoint layer, which allows multiple outlets or towers to ring for the same number and later join the same live call
 - fax routing is a sibling path rather than a speech-call variant: the grid resolves the same addressed number ownership, but voice-to-fax and fax-to-voice mismatches should surface as modem-like noise instead of a normal connected conversation

@@ -600,6 +600,75 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 	}
 
+	public IEnumerable<ComputerNetworkHostSummary> GetReachableHosts(IComputerHost sourceHost)
+	{
+		EnsureLoadedForOwner(sourceHost);
+		lock (_sync)
+		{
+			RegisterOwner_NoLock(sourceHost);
+			return GetReachableHosts_NoLock(sourceHost);
+		}
+	}
+
+	public ComputerNetworkHostSummary? ResolveReachableHost(IComputerHost sourceHost, string identifier)
+	{
+		if (string.IsNullOrWhiteSpace(identifier))
+		{
+			return null;
+		}
+
+		EnsureLoadedForOwner(sourceHost);
+		lock (_sync)
+		{
+			RegisterOwner_NoLock(sourceHost);
+			var summaries = GetReachableHosts_NoLock(sourceHost);
+			var exactAddress = summaries
+				.Where(x => x.CanonicalAddress.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+				.ToList();
+			if (exactAddress.Count == 1)
+			{
+				return exactAddress.Single();
+			}
+
+			if (exactAddress.Count > 1)
+			{
+				return null;
+			}
+
+			var exactHost = summaries
+				.Where(x => x.Host.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+				.ToList();
+			if (exactHost.Count == 1)
+			{
+				return exactHost.Single();
+			}
+
+			if (exactHost.Count > 1)
+			{
+				return null;
+			}
+
+			var partial = summaries
+				.Where(x => x.CanonicalAddress.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase) ||
+				            x.Host.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase))
+				.ToList();
+			return partial.Count == 1 ? partial.Single() : null;
+		}
+	}
+
+	public IEnumerable<ComputerNetworkServiceSummary> GetAdvertisedServices(IComputerHost sourceHost, IComputerHost targetHost)
+	{
+		EnsureLoadedForOwner(sourceHost);
+		lock (_sync)
+		{
+			RegisterOwner_NoLock(sourceHost);
+			return GetReachableHosts_NoLock(sourceHost)
+				.Any(x => ReferenceEquals(x.Host, targetHost) || x.Host.OwnerHostItemId == targetHost.OwnerHostItemId)
+				? GetAdvertisedServicesForHost_NoLock(targetHost)
+				: Enumerable.Empty<ComputerNetworkServiceSummary>();
+		}
+	}
+
 	public IEnumerable<IComputerExecutableDefinition> GetExecutables(ICharacter owner)
 	{
 		return GetExecutables(GetWorkspace(owner));
@@ -1415,6 +1484,61 @@ public class ComputerExecutionService : IComputerExecutionService
 
 		error = "That computer program is no longer waiting for terminal input.";
 		return false;
+	}
+
+	private List<ComputerNetworkHostSummary> GetReachableHosts_NoLock(IComputerHost sourceHost)
+	{
+		return sourceHost.NetworkAdapters
+			.Where(x => x.NetworkReady)
+			.Where(x => x.TelecommunicationsGrid is not null)
+			.SelectMany(x => x.TelecommunicationsGrid!.GetReachableNetworkEndpoints())
+			.Where(x => x.Adapter.ConnectedHost is not null)
+			.GroupBy(x => x.Adapter.NetworkAdapterItemId)
+			.Select(x => x.First())
+			.Select(endpoint =>
+			{
+				var host = endpoint.Adapter.ConnectedHost!;
+				var services = GetAdvertisedServicesForHost_NoLock(host);
+				return new ComputerNetworkHostSummary
+				{
+					Host = host,
+					Adapter = endpoint.Adapter,
+					Grid = endpoint.Grid,
+					CanonicalAddress = endpoint.CanonicalAddress,
+					IsLocalGrid = endpoint.IsLocalGrid,
+					Available = endpoint.Adapter.NetworkReady && host.Powered,
+					AdvertisedServiceCount = services.Count
+				};
+			})
+			.Where(x => x.Available)
+			.OrderBy(x => x.IsLocalGrid ? 0 : 1)
+			.ThenBy(x => x.Host.Name)
+			.ThenBy(x => x.CanonicalAddress)
+			.ToList();
+	}
+
+	private List<ComputerNetworkServiceSummary> GetAdvertisedServicesForHost_NoLock(IComputerHost targetHost)
+	{
+		return targetHost.BuiltInApplications
+			.Where(x => x.IsNetworkService)
+			.Where(ComputerBuiltInApplicationExecutors.IsImplemented)
+			.Where(x => targetHost.IsNetworkServiceEnabled(x.ApplicationId))
+			.OrderBy(x => x.Name)
+			.ThenBy(x => x.Id)
+			.Select(x =>
+			{
+				var details = _gameworld.ComputerMailService.GetAdvertisedServiceDetails(targetHost, x.ApplicationId)
+					.ToList();
+				return new ComputerNetworkServiceSummary
+				{
+					ApplicationId = x.ApplicationId,
+					Name = x.Name,
+					Summary = x.Summary,
+					ServiceDetails = details
+				};
+			})
+			.Where(x => x.ApplicationId != "mail" || x.ServiceDetails.Any())
+			.ToList();
 	}
 
 	private void PersistExecutable_NoLock(IComputerExecutableOwner owner, ComputerRuntimeExecutableBase executable)

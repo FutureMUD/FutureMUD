@@ -130,9 +130,21 @@ public sealed class ComputerHostDefinition : IComputerHost
 	public IEnumerable<IComputerStorage> MountedStorage { get; init; } = Enumerable.Empty<IComputerStorage>();
 	public IEnumerable<IComputerTerminal> ConnectedTerminals { get; init; } = Enumerable.Empty<IComputerTerminal>();
 	public IEnumerable<INetworkAdapter> NetworkAdapters { get; init; } = Enumerable.Empty<INetworkAdapter>();
+	public IEnumerable<string> EnabledNetworkServices => Enumerable.Empty<string>();
 
 	public IComputerProcess? GetProcess(long processId)
 	{
 		return Processes.FirstOrDefault(x => x.Id == processId);
+	}
+
+	public bool IsNetworkServiceEnabled(string applicationId)
+	{
+		return false;
+	}
+
+	public bool SetNetworkServiceEnabled(string applicationId, bool enabled, out string error)
+	{
+		error = "This computer host definition is read-only.";
+		return false;
 	}
 }

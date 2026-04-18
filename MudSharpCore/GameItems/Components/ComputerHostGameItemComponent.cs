@@ -20,6 +20,7 @@ namespace MudSharp.GameItems.Components;
 public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent, IComputerHost, IComputerMutableOwner, IConnectable
 {
 	private readonly List<IConnectable> _connectedItems = [];
+	private readonly HashSet<string> _enabledNetworkServices = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly List<long> _pendingConnectionIds = [];
 	private readonly Dictionary<long, ComputerRuntimeExecutableBase> _executables = new();
 	private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
@@ -107,6 +108,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			};
 		}
 
+		_enabledNetworkServices.UnionWith(rhs._enabledNetworkServices);
 		_nextExecutableId = rhs._nextExecutableId;
 		_nextProcessId = rhs._nextProcessId;
 	}
@@ -125,6 +127,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	public IEnumerable<IComputerStorage> MountedStorage => _connectedItems.OfType<IComputerStorage>().ToList();
 	public IEnumerable<IComputerTerminal> ConnectedTerminals => _connectedItems.OfType<IComputerTerminal>().ToList();
 	public IEnumerable<INetworkAdapter> NetworkAdapters => _connectedItems.OfType<INetworkAdapter>().ToList();
+	public IEnumerable<string> EnabledNetworkServices => _enabledNetworkServices.OrderBy(x => x).ToList();
 	public IEnumerable<ConnectorType> Connections => Enumerable.Range(0, _prototype.StoragePorts).Select(_ => ComputerConnectionTypes.HostStoragePort)
 		.Concat(Enumerable.Range(0, _prototype.TerminalPorts).Select(_ => ComputerConnectionTypes.HostTerminalPort))
 		.Concat(Enumerable.Range(0, _prototype.NetworkPorts).Select(_ => ComputerConnectionTypes.HostNetworkPort))
@@ -174,6 +177,11 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			$"Its computer host is {(SwitchedOn ? "switched on".ColourValue() : "switched off".ColourError())}, {(IsPowered ? "powered".ColourValue() : "not powered".ColourError())}, with {_executables.Count.ToString("N0", voyeur).ColourValue()} stored executables and {_fileSystem.Files.Count().ToString("N0", voyeur).ColourValue()} files.");
 		sb.AppendLine(
 			$"It has {MountedStorage.Count().ToString("N0", voyeur).ColourValue()} storage {"device".Pluralise(MountedStorage.Count() != 1)}, {ConnectedTerminals.Count().ToString("N0", voyeur).ColourValue()} terminal {"connection".Pluralise(ConnectedTerminals.Count() != 1)}, and {NetworkAdapters.Count().ToString("N0", voyeur).ColourValue()} network {"adapter".Pluralise(NetworkAdapters.Count() != 1)} connected.");
+		if (_enabledNetworkServices.Any())
+		{
+			sb.AppendLine(
+				$"It is advertising the following network services: {_enabledNetworkServices.Select(x => x.ColourName()).ListToString()}.");
+		}
 		return sb.ToString();
 	}
 
@@ -188,6 +196,9 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	{
 		root.Add(new XElement("NextExecutableId", _nextExecutableId));
 		root.Add(new XElement("NextProcessId", _nextProcessId));
+		root.Add(new XElement("EnabledNetworkServices",
+			from service in _enabledNetworkServices.OrderBy(x => x)
+			select new XElement("Service", new XAttribute("id", service))));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveFiles(_fileSystem.MutableFiles));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveExecutables(_executables.Values));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveProcesses(_processes.Values));
@@ -275,6 +286,40 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	public IComputerProcess? GetProcess(long processId)
 	{
 		return _processes.TryGetValue(processId, out var process) ? process : null;
+	}
+
+	public bool IsNetworkServiceEnabled(string applicationId)
+	{
+		return _enabledNetworkServices.Contains(applicationId);
+	}
+
+	public bool SetNetworkServiceEnabled(string applicationId, bool enabled, out string error)
+	{
+		error = string.Empty;
+		var application = BuiltInApplications.FirstOrDefault(x => x.ApplicationId.EqualTo(applicationId));
+		if (application is null)
+		{
+			error = $"There is no built-in application named {applicationId.ColourCommand()} on {Parent.Name.ColourName()}.";
+			return false;
+		}
+
+		if (!application.IsNetworkService)
+		{
+			error = $"{application.Name.ColourName()} is not a network service application.";
+			return false;
+		}
+
+		if (enabled)
+		{
+			_enabledNetworkServices.Add(application.ApplicationId);
+		}
+		else
+		{
+			_enabledNetworkServices.Remove(application.ApplicationId);
+		}
+
+		Changed = true;
+		return true;
 	}
 
 	public IComputerExecutableDefinition CreateExecutableDefinition(ComputerExecutableKind kind, string name)
@@ -481,6 +526,14 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		_nextProcessId = long.TryParse(root.Element("NextProcessId")?.Value, out var nextProcessId)
 			? nextProcessId
 			: 0L;
+		foreach (var service in root.Element("EnabledNetworkServices")?.Elements("Service")
+			         .Select(x => x.Attribute("id")?.Value)
+			         .Where(x => !string.IsNullOrWhiteSpace(x))
+			         .Cast<string>() ?? Enumerable.Empty<string>())
+		{
+			_enabledNetworkServices.Add(service);
+		}
+
 		_pendingConnectionIds.AddRange(root.Element("ConnectedItems")?.Elements("Connection")
 			.Select(x => long.TryParse(x.Attribute("id")?.Value, out var id) ? id : 0L)
 			.Where(x => x > 0) ?? Enumerable.Empty<long>());

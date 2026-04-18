@@ -1,5 +1,6 @@
 #nullable enable
 using MudSharp.Character;
+using MudSharp.Computers;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Form.Audio;
@@ -27,6 +28,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
         new(StringComparer.InvariantCultureIgnoreCase);
     private readonly List<long> _linkedGridIds = [];
     private readonly HashSet<ITelecommunicationsGrid> _linkedGrids = [];
+    private readonly HashSet<INetworkAdapter> _networkAdapters = [];
 
     private readonly List<long> _connectedConsumerIds = [];
     private readonly List<IConsumePower> _connectedConsumers = [];
@@ -134,6 +136,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
     public double TotalSupply => _connectedProducers.Sum(x => x.MaximumPowerInWatts);
     public double TotalDrawdown => _connectedConsumers.Except(_idleConsumers).Sum(x => x.PowerConsumptionInWatts);
     public IEnumerable<ITelecommunicationsGrid> LinkedGrids => _linkedGrids.ToList();
+    public IEnumerable<INetworkAdapter> NetworkAdapters => _networkAdapters.ToList();
     private long NextNumber { get; set; }
 
     public override void LoadTimeInitialise()
@@ -354,6 +357,73 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
         _connectedProducers.Remove(producer);
         Changed = true;
         RecalculateGrid();
+    }
+
+    public void JoinGrid(INetworkAdapter adapter)
+    {
+        _networkAdapters.Add(adapter);
+    }
+
+    public void LeaveGrid(INetworkAdapter adapter)
+    {
+        _networkAdapters.Remove(adapter);
+    }
+
+    public string GetCanonicalNetworkAddress(INetworkAdapter adapter)
+    {
+        string fallback = $"adapter-{adapter.NetworkAdapterItemId}";
+        string preferred = adapter.PreferredNetworkAddress?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(preferred))
+        {
+            return fallback;
+        }
+
+        bool collision = EnumerateNetworkAdapterCluster(reachableOnly: false)
+            .Select(x => x.Adapter)
+            .Where(x => !ReferenceEquals(x, adapter))
+            .Any(x => !string.IsNullOrWhiteSpace(x.PreferredNetworkAddress) &&
+                      x.PreferredNetworkAddress!.Trim().EqualTo(preferred));
+        return collision ? fallback : preferred;
+    }
+
+    public IEnumerable<TelecommunicationsNetworkEndpointInfo> GetReachableNetworkEndpoints()
+    {
+        return EnumerateNetworkAdapterCluster(reachableOnly: true)
+            .Select(x => new TelecommunicationsNetworkEndpointInfo
+            {
+                Adapter = x.Adapter,
+                Grid = x.Grid,
+                CanonicalAddress = x.Grid.GetCanonicalNetworkAddress(x.Adapter),
+                IsLocalGrid = x.IsLocalGrid
+            })
+            .ToList();
+    }
+
+    public TelecommunicationsNetworkEndpointInfo? ResolveReachableNetworkEndpoint(string address)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+        {
+            return null;
+        }
+
+        var endpoints = GetReachableNetworkEndpoints().ToList();
+        var exact = endpoints
+            .Where(x => x.CanonicalAddress.Equals(address, StringComparison.InvariantCultureIgnoreCase))
+            .ToList();
+        if (exact.Count == 1)
+        {
+            return exact.Single();
+        }
+
+        if (exact.Count > 1)
+        {
+            return null;
+        }
+
+        var partial = endpoints
+            .Where(x => x.CanonicalAddress.StartsWith(address, StringComparison.InvariantCultureIgnoreCase))
+            .ToList();
+        return partial.Count == 1 ? partial.Single() : null;
     }
 
     public bool DrawdownSpike(double wattage)
@@ -998,7 +1068,38 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
         sb.AppendLine($"Total Drawdown: {TotalDrawdown.ToString("N2", actor).ColourValue()}");
         sb.AppendLine($"Connected Numbers: {_ownerNumbers.Count.ToString("N0", actor).ColourValue()}");
         sb.AppendLine($"Active Calls: {_activeCallsByNumber.Count.ToString("N0", actor).ColourValue()}");
+        sb.AppendLine($"Attached Network Adapters: {_networkAdapters.Count.ToString("N0", actor).ColourValue()}");
+        sb.AppendLine($"Reachable Network Endpoints: {GetReachableNetworkEndpoints().Count().ToString("N0", actor).ColourValue()}");
         return sb.ToString();
+    }
+
+    private IEnumerable<(ITelecommunicationsGrid Grid, INetworkAdapter Adapter, bool IsLocalGrid)>
+        EnumerateNetworkAdapterCluster(bool reachableOnly)
+    {
+        HashSet<ITelecommunicationsGrid> visited = new(ReferenceEqualityComparer.Instance);
+        Queue<(ITelecommunicationsGrid Grid, bool IsLocalGrid)> queue = new();
+        queue.Enqueue((this, true));
+        while (queue.Count > 0)
+        {
+            var (grid, isLocalGrid) = queue.Dequeue();
+            if (!visited.Add(grid))
+            {
+                continue;
+            }
+
+            foreach (INetworkAdapter adapter in grid.NetworkAdapters
+                         .Where(x => ReferenceEquals(x.TelecommunicationsGrid, grid))
+                         .Where(x => !reachableOnly || x.NetworkReady)
+                         .OrderBy(x => x.NetworkAdapterItemId))
+            {
+                yield return (grid, adapter, isLocalGrid);
+            }
+
+            foreach (ITelecommunicationsGrid linkedGrid in grid.LinkedGrids)
+            {
+                queue.Enqueue((linkedGrid, false));
+            }
+        }
     }
 
     private readonly record struct LoadedAssignment(long ComponentId, long ItemId, string Number);

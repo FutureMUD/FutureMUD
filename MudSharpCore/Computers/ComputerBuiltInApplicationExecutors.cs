@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using MudSharp.Character;
+using MudSharp.Construction.Grids;
 using MudSharp.Editor;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -27,6 +28,7 @@ internal static class ComputerBuiltInApplicationExecutors
 		new IComputerBuiltInApplicationExecutor[]
 		{
 			new FileManagerBuiltInApplicationExecutor(),
+			new MailBuiltInApplicationExecutor(),
 			new DirectoryBuiltInApplicationExecutor(),
 			new SysMonBuiltInApplicationExecutor()
 		}.ToDictionary(x => x.ApplicationId, StringComparer.InvariantCultureIgnoreCase);
@@ -45,6 +47,11 @@ internal static class ComputerBuiltInApplicationExecutors
 		}
 
 		return executor.Execute(gameworld, actor, owner, session, process, application);
+	}
+
+	public static bool IsImplemented(IComputerBuiltInApplication application)
+	{
+		return _executors.ContainsKey(application.ApplicationId);
 	}
 }
 
@@ -576,6 +583,477 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 	}
 }
 
+internal sealed class MailBuiltInApplicationExecutor : IComputerBuiltInApplicationExecutor
+{
+	private sealed class MailState
+	{
+		public long? LoggedInAccountId { get; set; }
+		public string LoggedInAddress { get; set; } = string.Empty;
+		public string ComposeRecipient { get; set; } = string.Empty;
+		public string ComposeSubject { get; set; } = string.Empty;
+		public string ComposeBody { get; set; } = string.Empty;
+
+		public void ClearCompose()
+		{
+			ComposeRecipient = string.Empty;
+			ComposeSubject = string.Empty;
+			ComposeBody = string.Empty;
+		}
+	}
+
+	public string ApplicationId => "mail";
+
+	public ComputerProgramExecutionOutcome Execute(IFuturemud gameworld, ICharacter? actor, IComputerExecutableOwner owner,
+		IComputerTerminalSession? session, ComputerRuntimeProcess process, IComputerBuiltInApplication application)
+	{
+		if (session is null)
+		{
+			return new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = $"{application.Name} requires an active computer terminal session."
+			};
+		}
+
+		var state = LoadState(process.StateJson);
+		var account = ResolveLoggedInAccount(gameworld, process.Host, state, out var warning);
+		var input = ComputerExecutionContextScope.Current?.ConsumePendingTerminalInput();
+		if (string.IsNullOrWhiteSpace(input))
+		{
+			SendOverview(session, application, process, state, account, warning);
+			return WaitForInput(session, state);
+		}
+
+		var response = HandleCommand(gameworld, session, application, process, state, account, input!);
+		if (!string.IsNullOrWhiteSpace(response.Output))
+		{
+			session.User.OutputHandler.Send(response.Output, nopage: true);
+		}
+
+		return response.Exit
+			? new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Completed
+			}
+			: WaitForInput(session, state);
+	}
+
+	private static (string Output, bool Exit) HandleCommand(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerBuiltInApplication application, ComputerRuntimeProcess process, MailState state, IComputerMailAccount? account,
+		string input)
+	{
+		var ss = new StringStack(input.Trim());
+		var command = ss.PopSpeech().ToLowerInvariant();
+		return command switch
+		{
+			"" => (RenderPrompt(session.User, application, state, account, null), false),
+			"help" => (RenderHelp(session.User, application, state, account), false),
+			"login" => HandleLogin(gameworld, session, application, process.Host, state, ss),
+			"logout" => HandleLogout(session, application, state, account),
+			"inbox" or "list" => HandleInbox(gameworld, session, application, process.Host, state, account),
+			"read" or "show" => HandleRead(gameworld, session, application, process.Host, state, account, ss),
+			"delete" or "del" => HandleDelete(gameworld, session, application, process.Host, state, account, ss),
+			"send" => HandleSend(session, application, state, account, ss),
+			"subject" => HandleSubject(session, application, state, account, ss),
+			"body" => HandleBody(session, application, process, state, account),
+			"post" => HandlePost(gameworld, session, application, process.Host, state, account),
+			"cancel" => HandleCancel(session, application, state, account),
+			"exit" or "quit" => ($"{application.Name.ColourName()} closing.", true),
+			_ => ($"That is not a valid {application.Name.ColourName()} command.\n\n{RenderPrompt(session.User, application, state, account, null)}", false)
+		};
+	}
+
+	private static (string Output, bool Exit) HandleLogin(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerBuiltInApplication application, IComputerHost host, MailState state, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			return ($"Which mailbox do you want to log in to?\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		var address = ss.PopSpeech();
+		if (ss.IsFinished)
+		{
+			return ($"What password do you want to use for {address.ColourName()}?\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		var password = ss.SafeRemainingArgument;
+		var authentication = gameworld.ComputerMailService.Authenticate(host, address, password);
+		if (!authentication.Success || authentication.Account is null)
+		{
+			return ($"{authentication.ErrorMessage}\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		state.LoggedInAccountId = authentication.Account.Id;
+		state.LoggedInAddress = authentication.Account.Address;
+		state.ClearCompose();
+		return ($"You log in to {authentication.Account.Address.ColourName()}.\n\n{RenderPrompt(session.User, application, state, authentication.Account, null)}", false);
+	}
+
+	private static (string Output, bool Exit) HandleLogout(IComputerTerminalSession session,
+		IComputerBuiltInApplication application, MailState state, IComputerMailAccount? account)
+	{
+		if (account is null)
+		{
+			return ($"You are not currently logged in to any mailbox.\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		var address = account.Address;
+		state.LoggedInAccountId = null;
+		state.LoggedInAddress = string.Empty;
+		state.ClearCompose();
+		return ($"You log out of {address.ColourName()}.\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+	}
+
+	private static (string Output, bool Exit) HandleInbox(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerBuiltInApplication application, IComputerHost host, MailState state, IComputerMailAccount? account)
+	{
+		if (account is null)
+		{
+			return ($"You must log in before you can read mail.\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		var headers = gameworld.ComputerMailService.GetMailboxHeaders(host, account).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine($"{account.Address.ColourName()} mailbox:");
+		if (!headers.Any())
+		{
+			sb.AppendLine("There are no messages in this mailbox.");
+			sb.AppendLine();
+			sb.Append(RenderPrompt(session.User, application, state, account, null));
+			return (sb.ToString(), false);
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			headers.Select(header => new List<string>
+			{
+				header.MailboxEntryId.ToString("N0", session.User),
+				header.IsSentFolder ? "Sent" : "Inbox",
+				header.SenderAddress,
+				header.RecipientAddress,
+				header.Subject,
+				header.DeliveredAtUtc.ToString(session.User),
+				header.IsRead ? "Read" : "Unread"
+			}),
+			new List<string>
+			{
+				"Id",
+				"Folder",
+				"From",
+				"To",
+				"Subject",
+				"Delivered",
+				"State"
+			},
+			session.User.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			session.User.Account.UseUnicode));
+		sb.AppendLine();
+		sb.Append(RenderPrompt(session.User, application, state, account, null));
+		return (sb.ToString(), false);
+	}
+
+	private static (string Output, bool Exit) HandleRead(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerBuiltInApplication application, IComputerHost host, MailState state, IComputerMailAccount? account,
+		StringStack ss)
+	{
+		if (account is null)
+		{
+			return ($"You must log in before you can read mail.\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		if (ss.IsFinished || !long.TryParse(ss.PopSpeech(), out var mailboxEntryId))
+		{
+			return ($"Which mailbox entry do you want to read?\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+		}
+
+		var message = gameworld.ComputerMailService.ReadMessage(host, account, mailboxEntryId, out var error);
+		if (message is null)
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Message {message.Header.MailboxEntryId.ToString("N0", session.User).ColourValue()}");
+		sb.AppendLine($"Folder: {(message.Header.IsSentFolder ? "Sent" : "Inbox").ColourValue()}");
+		sb.AppendLine($"From: {message.Header.SenderAddress.ColourName()}");
+		sb.AppendLine($"To: {message.Header.RecipientAddress.ColourName()}");
+		sb.AppendLine($"Sent: {message.Header.SentAtUtc.ToString(session.User).ColourValue()}");
+		sb.AppendLine($"Subject: {message.Header.Subject.ColourCommand()}");
+		sb.AppendLine();
+		sb.AppendLine(message.Body);
+		sb.AppendLine();
+		sb.Append(RenderPrompt(session.User, application, state, account, null));
+		return (sb.ToString(), false);
+	}
+
+	private static (string Output, bool Exit) HandleDelete(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerBuiltInApplication application, IComputerHost host, MailState state, IComputerMailAccount? account,
+		StringStack ss)
+	{
+		if (account is null)
+		{
+			return ($"You must log in before you can delete mail.\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		if (ss.IsFinished || !long.TryParse(ss.PopSpeech(), out var mailboxEntryId))
+		{
+			return ($"Which mailbox entry do you want to delete?\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+		}
+
+		if (!gameworld.ComputerMailService.DeleteMessage(host, account, mailboxEntryId, out var error))
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+		}
+
+		return ($"Deleted mailbox entry {mailboxEntryId.ToString("N0", session.User).ColourValue()}.\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+	}
+
+	private static (string Output, bool Exit) HandleSend(IComputerTerminalSession session,
+		IComputerBuiltInApplication application, MailState state, IComputerMailAccount? account, StringStack ss)
+	{
+		if (account is null)
+		{
+			return ($"You must log in before you can compose mail.\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		if (ss.IsFinished)
+		{
+			return ($"Who do you want to send mail to?\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+		}
+
+		state.ComposeRecipient = ss.PopSpeech().Trim().ToLowerInvariant();
+		state.ComposeSubject = string.Empty;
+		state.ComposeBody = string.Empty;
+		return ($"Composing a new message to {state.ComposeRecipient.ColourName()}. Set a subject with {"type subject <text>".ColourCommand()}, edit the body with {"type body".ColourCommand()}, and send it with {"type post".ColourCommand()}.\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+	}
+
+	private static (string Output, bool Exit) HandleSubject(IComputerTerminalSession session,
+		IComputerBuiltInApplication application, MailState state, IComputerMailAccount? account, StringStack ss)
+	{
+		if (account is null)
+		{
+			return ($"You must log in before you can compose mail.\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		if (ss.IsFinished)
+		{
+			return ($"What subject do you want to use?\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+		}
+
+		state.ComposeSubject = ss.SafeRemainingArgument.Trim();
+		return ($"Set the subject to {state.ComposeSubject.ColourCommand()}.\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+	}
+
+	private static (string Output, bool Exit) HandleBody(IComputerTerminalSession session,
+		IComputerBuiltInApplication application, ComputerRuntimeProcess process, MailState state, IComputerMailAccount? account)
+	{
+		if (account is null)
+		{
+			return ($"You must log in before you can compose mail.\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		if (string.IsNullOrWhiteSpace(state.ComposeRecipient))
+		{
+			return ($"Begin a draft first with {"type send <user@domain>".ColourCommand()}.\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+		}
+
+		var recipient = state.ComposeRecipient;
+		session.User.EditorMode(
+			(text, handler, _) =>
+			{
+				state.ComposeBody = text;
+				SaveState(process, state);
+				handler.Send($"Updated the body of your draft to {recipient.ColourName()}. Continue with {"type post".ColourCommand()} when you are ready to send it.");
+			},
+			(handler, _) =>
+			{
+				handler.Send($"You leave the draft body for {recipient.ColourName()} unchanged.");
+			},
+			1.0,
+			state.ComposeBody,
+			EditorOptions.PermitEmpty);
+		return (string.Empty, false);
+	}
+
+	private static (string Output, bool Exit) HandlePost(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerBuiltInApplication application, IComputerHost host, MailState state, IComputerMailAccount? account)
+	{
+		if (account is null)
+		{
+			return ($"You must log in before you can send mail.\n\n{RenderPrompt(session.User, application, state, null, null)}", false);
+		}
+
+		if (string.IsNullOrWhiteSpace(state.ComposeRecipient))
+		{
+			return ($"Begin a draft first with {"type send <user@domain>".ColourCommand()}.\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+		}
+
+		if (!gameworld.ComputerMailService.SendMessage(
+			    host,
+			    account,
+			    state.ComposeRecipient,
+			    state.ComposeSubject,
+			    state.ComposeBody,
+			    out var error))
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+		}
+
+		var recipient = state.ComposeRecipient;
+		state.ClearCompose();
+		return ($"Sent mail to {recipient.ColourName()}.\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+	}
+
+	private static (string Output, bool Exit) HandleCancel(IComputerTerminalSession session,
+		IComputerBuiltInApplication application, MailState state, IComputerMailAccount? account)
+	{
+		if (string.IsNullOrWhiteSpace(state.ComposeRecipient) &&
+		    string.IsNullOrWhiteSpace(state.ComposeSubject) &&
+		    string.IsNullOrWhiteSpace(state.ComposeBody))
+		{
+			return ($"There is no active draft to cancel.\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+		}
+
+		state.ClearCompose();
+		return ($"Cancelled the current draft.\n\n{RenderPrompt(session.User, application, state, account, null)}", false);
+	}
+
+	private static void SendOverview(IComputerTerminalSession session, IComputerBuiltInApplication application,
+		ComputerRuntimeProcess process, MailState state, IComputerMailAccount? account, string? warning)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"{application.Name.ColourName()} :: {process.Host.Name.ColourName()}");
+		if (!string.IsNullOrEmpty(warning))
+		{
+			sb.AppendLine(warning);
+			sb.AppendLine();
+		}
+
+		sb.AppendLine(RenderHelp(session.User, application, state, account));
+		session.User.OutputHandler.Send(sb.ToString(), nopage: true);
+	}
+
+	private static string RenderHelp(ICharacter user, IComputerBuiltInApplication application, MailState state,
+		IComputerMailAccount? account)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"{application.Name.ColourName()} commands:");
+		sb.AppendLine($"\t{"login <user@domain> <password>".ColourCommand()} - log in to a reachable mailbox");
+		sb.AppendLine($"\t{"logout".ColourCommand()} - log out of the current mailbox");
+		sb.AppendLine($"\t{"inbox".ColourCommand()} - list inbox and sent messages");
+		sb.AppendLine($"\t{"read <id>".ColourCommand()} - read one mailbox entry");
+		sb.AppendLine($"\t{"delete <id>".ColourCommand()} - delete one mailbox entry");
+		sb.AppendLine($"\t{"send <user@domain>".ColourCommand()} - begin a new draft");
+		sb.AppendLine($"\t{"subject <text>".ColourCommand()} - set the current draft subject");
+		sb.AppendLine($"\t{"body".ColourCommand()} - edit the current draft body");
+		sb.AppendLine($"\t{"post".ColourCommand()} - send the current draft");
+		sb.AppendLine($"\t{"cancel".ColourCommand()} - cancel the current draft");
+		sb.AppendLine($"\t{"help".ColourCommand()} - show this help");
+		sb.AppendLine($"\t{"exit".ColourCommand()} - close Mail");
+		sb.AppendLine();
+		sb.Append(RenderPrompt(user, application, state, account, null));
+		return sb.ToString();
+	}
+
+	private static string RenderPrompt(ICharacter user, IComputerBuiltInApplication application, MailState state,
+		IComputerMailAccount? account, string? warning)
+	{
+		var sb = new StringBuilder();
+		if (!string.IsNullOrEmpty(warning))
+		{
+			sb.AppendLine(warning);
+		}
+
+		if (account is null)
+		{
+			sb.Append($"Use {"type login <user@domain> <password>".ColourCommand()} to authenticate with a reachable mail domain.");
+			return sb.ToString();
+		}
+
+		sb.Append($"Logged in as {account.Address.ColourName()}.");
+		if (!string.IsNullOrWhiteSpace(state.ComposeRecipient))
+		{
+			sb.Append(
+				$" Draft -> {state.ComposeRecipient.ColourName()}, subject {(string.IsNullOrWhiteSpace(state.ComposeSubject) ? "unset".ColourError() : state.ComposeSubject.ColourCommand())}, body {(string.IsNullOrWhiteSpace(state.ComposeBody) ? "empty".ColourError() : "set".ColourValue())}.");
+		}
+		else
+		{
+			sb.Append($" Begin a draft with {"type send <user@domain>".ColourCommand()}.");
+		}
+
+		return sb.ToString();
+	}
+
+	private static MailState LoadState(string? stateJson)
+	{
+		if (!string.IsNullOrWhiteSpace(stateJson))
+		{
+			try
+			{
+				var state = JsonSerializer.Deserialize<MailState>(stateJson);
+				if (state is not null)
+				{
+					return state;
+				}
+			}
+			catch (JsonException)
+			{
+			}
+		}
+
+		return new MailState();
+	}
+
+	private static IComputerMailAccount? ResolveLoggedInAccount(IFuturemud gameworld, IComputerHost host, MailState state,
+		out string? warning)
+	{
+		warning = null;
+		if (state.LoggedInAccountId is not > 0L)
+		{
+			return null;
+		}
+
+		var account = gameworld.ComputerMailService.GetAccount(host, state.LoggedInAccountId.Value, out var error);
+		if (account is not null)
+		{
+			state.LoggedInAddress = account.Address;
+			return account;
+		}
+
+		warning = error;
+		state.LoggedInAccountId = null;
+		state.LoggedInAddress = string.Empty;
+		state.ClearCompose();
+		return null;
+	}
+
+	private static ComputerProgramExecutionOutcome WaitForInput(IComputerTerminalSession session, MailState state)
+	{
+		return new ComputerProgramExecutionOutcome
+		{
+			Status = ComputerProcessStatus.Sleeping,
+			WaitType = ComputerProcessWaitType.UserInput,
+			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(session.User.Id, session.Terminal.TerminalItemId),
+			WaitingCharacterId = session.User.Id,
+			WaitingTerminalItemId = session.Terminal.TerminalItemId,
+			StateJson = JsonSerializer.Serialize(state)
+		};
+	}
+
+	private static void SaveState(ComputerRuntimeProcess process, MailState state)
+	{
+		process.StateJson = JsonSerializer.Serialize(state);
+		process.LastUpdatedAtUtc = DateTime.UtcNow;
+		if (process.Host is IComputerMutableOwner mutableOwner)
+		{
+			mutableOwner.SaveProcessDefinition(process);
+		}
+	}
+}
+
 internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInApplicationExecutor
 {
 	public string ApplicationId => "directory";
@@ -595,11 +1073,11 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		var input = ComputerExecutionContextScope.Current?.ConsumePendingTerminalInput();
 		if (string.IsNullOrWhiteSpace(input))
 		{
-			SendOverview(session, application, process.Host);
+			SendOverview(gameworld, session, application, process.Host);
 			return WaitForInput(session);
 		}
 
-		var response = HandleCommand(session, application, process.Host, input!);
+		var response = HandleCommand(gameworld, session, application, process.Host, input!);
 		if (!string.IsNullOrWhiteSpace(response.Output))
 		{
 			session.User.OutputHandler.Send(response.Output, nopage: true);
@@ -613,7 +1091,7 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			: WaitForInput(session);
 	}
 
-	private static (string Output, bool Exit) HandleCommand(IComputerTerminalSession session,
+	private static (string Output, bool Exit) HandleCommand(IFuturemud gameworld, IComputerTerminalSession session,
 		IComputerBuiltInApplication application,
 		IComputerHost host,
 		string input)
@@ -622,29 +1100,36 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		var command = ss.PopSpeech().ToLowerInvariant();
 		return command switch
 		{
-			"" or "summary" or "host" => (RenderSummary(session.User, application, host), false),
+			"" or "summary" or "host" => (RenderSummary(gameworld, session.User, application, host), false),
 			"help" => (RenderHelp(application), false),
-			"services" or "apps" => (RenderServices(session.User, host), false),
+			"services" or "apps" when ss.IsFinished => (RenderLocalServices(gameworld, session.User, host), false),
+			"services" or "apps" => HandleRemoteServices(gameworld, session.User, host, ss.SafeRemainingArgument),
 			"storage" or "drives" => (RenderStorage(session.User, host), false),
 			"terminals" or "sessions" => (RenderTerminals(session.User, host), false),
 			"adapters" or "network" => (RenderAdapters(session.User, host), false),
+			"hosts" => (RenderReachableHosts(gameworld, session.User, host), false),
+			"show" => HandleShowRemoteHost(gameworld, session.User, host, ss),
 			"exit" or "quit" => ($"{application.Name.ColourName()} closing.", true),
 			_ => ($"That is not a valid {application.Name.ColourName()} command.\n\n{RenderPrompt()}", false)
 		};
 	}
 
-	private static void SendOverview(IComputerTerminalSession session, IComputerBuiltInApplication application,
+	private static void SendOverview(IFuturemud gameworld, IComputerTerminalSession session, IComputerBuiltInApplication application,
 		IComputerHost host)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine(RenderSummary(session.User, application, host));
+		sb.AppendLine(RenderSummary(gameworld, session.User, application, host));
 		sb.AppendLine();
 		sb.Append(RenderHelp(application));
 		session.User.OutputHandler.Send(sb.ToString(), nopage: true);
 	}
 
-	private static string RenderSummary(ICharacter user, IComputerBuiltInApplication application, IComputerHost host)
+	private static string RenderSummary(IFuturemud gameworld, ICharacter user, IComputerBuiltInApplication application, IComputerHost host)
 	{
+		var computerService = gameworld.ComputerExecutionService;
+		var reachableHosts = computerService is null
+			? []
+			: computerService.GetReachableHosts(host).ToList();
 		var sb = new StringBuilder();
 		sb.AppendLine($"{application.Name.ColourName()} :: {host.Name.ColourName()}");
 		sb.AppendLine(
@@ -663,6 +1148,8 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			$"Connected Terminals: {host.ConnectedTerminals.Count().ToString("N0", user).ColourValue()}");
 		sb.AppendLine(
 			$"Network Adapters: {host.NetworkAdapters.Count().ToString("N0", user).ColourValue()}");
+		sb.AppendLine(
+			$"Reachable Hosts: {reachableHosts.Count.ToString("N0", user).ColourValue()}");
 		sb.AppendLine();
 		sb.Append(RenderPrompt());
 		return sb.ToString();
@@ -674,19 +1161,22 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		sb.AppendLine($"{application.Name.ColourName()} commands:");
 		sb.AppendLine($"\t{"summary".ColourCommand()} - show the local host summary");
 		sb.AppendLine($"\t{"services".ColourCommand()} - list built-in applications on the current host");
+		sb.AppendLine($"\t{"services <host>".ColourCommand()} - list advertised network services for a reachable host");
 		sb.AppendLine($"\t{"storage".ColourCommand()} - list mounted storage devices");
 		sb.AppendLine($"\t{"terminals".ColourCommand()} - list connected terminals and sessions");
 		sb.AppendLine($"\t{"adapters".ColourCommand()} - list local network adapters");
+		sb.AppendLine($"\t{"hosts".ColourCommand()} - list reachable hosts on the telecom-backed network");
+		sb.AppendLine($"\t{"show <host>".ColourCommand()} - show a reachable host summary");
 		sb.AppendLine($"\t{"help".ColourCommand()} - show this help");
 		sb.AppendLine($"\t{"exit".ColourCommand()} - close Directory");
 		sb.AppendLine();
-		sb.AppendLine("This first shipped Directory slice is local-only. It shows the current host and its directly connected services and devices.");
+		sb.AppendLine("Directory is discovery-only in this slice. It can inspect the local host and discover reachable remote hosts, but it does not yet launch remote services.");
 		sb.AppendLine();
 		sb.Append(RenderPrompt());
 		return sb.ToString();
 	}
 
-	private static string RenderServices(ICharacter user, IComputerHost host)
+	private static string RenderLocalServices(IFuturemud gameworld, ICharacter user, IComputerHost host)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("Local Services:");
@@ -702,18 +1192,29 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			return sb.ToString();
 		}
 
+		var advertisedServices = gameworld.ComputerExecutionService?.GetAdvertisedServices(host, host)
+			.ToDictionary(x => x.ApplicationId, StringComparer.InvariantCultureIgnoreCase) ??
+			new Dictionary<string, ComputerNetworkServiceSummary>(StringComparer.InvariantCultureIgnoreCase);
 		sb.AppendLine(StringUtilities.GetTextTable(
 			applications.Select(application => new List<string>
 			{
 				application.Name,
-				application.IsNetworkService ? "network-ready" : "local",
-				application.Summary
+				application.IsNetworkService
+					? host.IsNetworkServiceEnabled(application.ApplicationId) ? "network-enabled" : "network-disabled"
+					: "local",
+				application.Summary,
+				advertisedServices.TryGetValue(application.ApplicationId, out var summary)
+					? summary.ServiceDetails.Any()
+						? summary.ServiceDetails.Select(x => x.ColourName()).ListToString()
+						: "-"
+					: "-"
 			}),
 			new List<string>
 			{
 				"Service",
 				"Scope",
-				"Summary"
+				"Summary",
+				"Details"
 			},
 			user.LineFormatLength,
 			true,
@@ -835,9 +1336,10 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		sb.AppendLine(StringUtilities.GetTextTable(
 			adapters.Select(adapter => new List<string>
 			{
-				DescribeAdapter(adapter),
+				DescribeAdapter(user, adapter),
 				adapter.Powered.ToColouredString(),
 				adapter.NetworkReady.ToColouredString(),
+				DescribeGrid(user, adapter.TelecommunicationsGrid),
 				adapter.NetworkAddress ?? "-"
 			}),
 			new List<string>
@@ -845,6 +1347,7 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 				"Adapter",
 				"Powered",
 				"Ready",
+				"Grid",
 				"Address"
 			},
 			user.LineFormatLength,
@@ -859,7 +1362,7 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 
 	private static string RenderPrompt()
 	{
-		return $"Use {"type <command>".ColourCommand()} to browse the local directory.";
+		return $"Use {"type <command>".ColourCommand()} to browse the local and network directory.";
 	}
 
 	private static ComputerProgramExecutionOutcome WaitForInput(IComputerTerminalSession session)
@@ -882,11 +1385,18 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			: $"Terminal #{terminal.TerminalItemId.ToString("N0", user)}";
 	}
 
-	private static string DescribeAdapter(INetworkAdapter adapter)
+	private static string DescribeAdapter(ICharacter user, INetworkAdapter adapter)
 	{
 		return adapter is IGameItemComponent component
-			? component.Parent.Name
+			? component.Parent.HowSeen(user, true)
 			: adapter.NetworkAddress ?? "Network Adapter";
+	}
+
+	private static string DescribeGrid(ICharacter user, ITelecommunicationsGrid? grid)
+	{
+		return grid is null
+			? "None"
+			: $"#{grid.Id.ToString("N0", user)} ({grid.Prefix})";
 	}
 
 	private static string DescribeOwner(IComputerExecutableOwner owner)
@@ -897,6 +1407,194 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			IComputerHost host => host.Name,
 			_ => owner.Name
 		};
+	}
+
+	private static string RenderReachableHosts(IFuturemud gameworld, ICharacter user, IComputerHost host)
+	{
+		var computerService = gameworld.ComputerExecutionService;
+		var hosts = computerService is null
+			? []
+			: computerService.GetReachableHosts(host).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine("Reachable Hosts:");
+		if (!hosts.Any())
+		{
+			sb.AppendLine("No reachable hosts are currently available on the telecom-backed network from this host.");
+			sb.AppendLine();
+			sb.Append(RenderPrompt());
+			return sb.ToString();
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			hosts.Select(summary => new List<string>
+			{
+				summary.Host.Name,
+				summary.CanonicalAddress,
+				DescribeGrid(user, summary.Grid),
+				summary.IsLocalGrid ? "local" : "linked",
+				summary.Host.Powered.ToColouredString(),
+				summary.AdvertisedServiceCount.ToString("N0", user)
+			}),
+			new List<string>
+			{
+				"Host",
+				"Address",
+				"Grid",
+				"Scope",
+				"Power",
+				"Services"
+			},
+			user.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			user.Account.UseUnicode));
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return sb.ToString();
+	}
+
+	private static (string Output, bool Exit) HandleShowRemoteHost(IFuturemud gameworld, ICharacter user, IComputerHost host,
+		StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			return ("Which reachable host do you want to inspect?\n\n" + RenderPrompt(), false);
+		}
+
+		if (!TryResolveReachableHost(gameworld, host, ss.SafeRemainingArgument, out var summary, out var error))
+		{
+			return ($"{error}\n\n{RenderPrompt()}", false);
+		}
+
+		var services = gameworld.ComputerExecutionService is null
+			? []
+			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, summary!.Host).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine($"{summary.Host.Name.ColourName()} :: {summary.CanonicalAddress.ColourCommand()}");
+		sb.AppendLine($"Scope: {(summary.IsLocalGrid ? "local" : "linked").ColourValue()} via {DescribeGrid(user, summary.Grid).ColourValue()}");
+		sb.AppendLine($"Availability: {(summary.Available ? "reachable".ColourValue() : "offline".ColourError())}");
+		sb.AppendLine($"Host Power: {summary.Host.Powered.ToColouredString()}");
+		sb.AppendLine($"Advertised Services: {services.Count.ToString("N0", user).ColourValue()}");
+		if (!services.Any())
+		{
+			sb.AppendLine($"{summary.Host.Name.ColourName()} is reachable but does not currently advertise any implemented network services.");
+		}
+
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return (sb.ToString(), false);
+	}
+
+	private static (string Output, bool Exit) HandleRemoteServices(IFuturemud gameworld, ICharacter user, IComputerHost host,
+		string identifier)
+	{
+		if (!TryResolveReachableHost(gameworld, host, identifier, out var summary, out var error))
+		{
+			return ($"{error}\n\n{RenderPrompt()}", false);
+		}
+
+		var services = gameworld.ComputerExecutionService is null
+			? []
+			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, summary!.Host).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine($"Advertised Services for {summary.Host.Name.ColourName()} ({summary.CanonicalAddress.ColourCommand()}):");
+		if (!services.Any())
+		{
+			sb.AppendLine($"{summary.Host.Name.ColourName()} does not currently advertise any implemented network services.");
+			sb.AppendLine();
+			sb.Append(RenderPrompt());
+			return (sb.ToString(), false);
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			services.Select(service => new List<string>
+			{
+				service.Name,
+				service.ApplicationId,
+				service.Summary,
+				service.ServiceDetails.Any()
+					? service.ServiceDetails.Select(x => x.ColourName()).ListToString()
+					: "-"
+			}),
+			new List<string>
+			{
+				"Service",
+				"Id",
+				"Summary",
+				"Details"
+			},
+			user.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			user.Account.UseUnicode));
+		sb.AppendLine();
+		sb.Append(RenderPrompt());
+		return (sb.ToString(), false);
+	}
+
+	private static bool TryResolveReachableHost(IFuturemud gameworld, IComputerHost sourceHost, string identifier,
+		out ComputerNetworkHostSummary? summary, out string error)
+	{
+		summary = null;
+		var computerService = gameworld.ComputerExecutionService;
+		var hosts = computerService is null
+			? []
+			: computerService.GetReachableHosts(sourceHost).ToList();
+		if (!hosts.Any())
+		{
+			error = "No reachable hosts are currently available on the telecom-backed network from this host.";
+			return false;
+		}
+
+		var exactAddress = hosts
+			.Where(x => x.CanonicalAddress.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		if (exactAddress.Count == 1)
+		{
+			summary = exactAddress.Single();
+			error = string.Empty;
+			return true;
+		}
+
+		if (exactAddress.Count > 1)
+		{
+			error = $"More than one reachable host matches {identifier.ColourCommand()} by address.";
+			return false;
+		}
+
+		var exactHost = hosts
+			.Where(x => x.Host.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		if (exactHost.Count == 1)
+		{
+			summary = exactHost.Single();
+			error = string.Empty;
+			return true;
+		}
+
+		if (exactHost.Count > 1)
+		{
+			error = $"More than one reachable host matches {identifier.ColourCommand()} by name. Use its canonical network address instead: {exactHost.Select(x => x.CanonicalAddress.ColourCommand()).ListToString()}.";
+			return false;
+		}
+
+		var partial = hosts
+			.Where(x => x.CanonicalAddress.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase) ||
+			            x.Host.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		if (partial.Count == 1)
+		{
+			summary = partial.Single();
+			error = string.Empty;
+			return true;
+		}
+
+		error = partial.Count > 1
+			? $"More than one reachable host matches {identifier.ColourCommand()}. Use a more specific name or one of these canonical addresses: {partial.Select(x => x.CanonicalAddress.ColourCommand()).ListToString()}."
+			: $"There is no reachable host matching {identifier.ColourCommand()}.";
+		return false;
 	}
 }
 
@@ -1049,6 +1747,7 @@ internal sealed class SysMonBuiltInApplicationExecutor : IComputerBuiltInApplica
 				DescribeAdapter(adapter),
 				adapter.Powered.ToColouredString(),
 				adapter.NetworkReady.ToColouredString(),
+				DescribeGrid(user, adapter.TelecommunicationsGrid),
 				adapter.NetworkAddress ?? "-"
 			}),
 			new List<string>
@@ -1056,6 +1755,7 @@ internal sealed class SysMonBuiltInApplicationExecutor : IComputerBuiltInApplica
 				"Adapter",
 				"Powered",
 				"Ready",
+				"Grid",
 				"Address"
 			},
 			user.LineFormatLength,
@@ -1232,6 +1932,13 @@ internal sealed class SysMonBuiltInApplicationExecutor : IComputerBuiltInApplica
 		return adapter is IGameItemComponent component
 			? component.Parent.Name
 			: adapter.GetType().Name;
+	}
+
+	private static string DescribeGrid(ICharacter user, ITelecommunicationsGrid? grid)
+	{
+		return grid is null
+			? "None"
+			: $"#{grid.Id.ToString("N0", user)} ({grid.Prefix})";
 	}
 
 	private static string DescribeProcessWait(ICharacter user, IComputerProcess process)

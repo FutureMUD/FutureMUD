@@ -149,7 +149,7 @@ For the current signal-automation slice, also validate:
 - whether `computerhost` exposes the expected built-in applications through `programming apps` and whether the host reports those applications consistently even when a mounted storage device is selected as the current mutable programming owner
 - whether `computerstorage` mounts into the intended host and exposes the expected files and executables through that host
 - whether `computerterminal` only allows sessions when switched on, powered, and connected to a powered host
-- whether `networkadapter` reports the expected connected host, local address, and local network-ready state
+- whether `networkadapter` reports the expected connected host, attached telecommunications grid, canonical published address, and current network-ready state
 - whether source and sink bindings resolve to the intended local sibling components and endpoint keys on the same item
 - whether `pushbutton` emits the expected value and then returns to zero after its authored duration
 - whether `toggleswitch` changes between its authored on and off values through the normal switch flow
@@ -319,18 +319,24 @@ For the first real in-world computer workflow, a practical pass is:
 14. Use `type owners`, `type list`, `type show <file>`, `type edit <file>`, `type write <file> <text>`, `type append <file> <text>`, `type copy <file> host`, `type use <storage>`, and `type exit` to confirm the connected terminal session is driving FileManager and that it can move between the host file system and mounted storage devices.
 15. When testing `type edit <file>`, confirm it hands off to the normal multiline editor, recalls the current file contents, saves on `@`, and leaves the file unchanged on `*cancel`.
 16. Use `programming app directory` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
-17. Use `type summary`, `type services`, `type storage`, `type terminals`, `type adapters`, and `type exit` to confirm the connected terminal session is driving Directory and that it exposes only local host and directly connected device or service information in the current slice.
-18. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
-19. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
-20. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
-21. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
-22. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
-23. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
-24. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
-25. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
-26. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
+17. If a `networkadapter` is present, attach it to a telecommunications grid and, if desired, link that exchange to another grid that also has a powered reachable host with its own `networkadapter`.
+18. Use `type summary`, `type services`, `type storage`, `type terminals`, `type adapters`, `type hosts`, `type show <host>`, `type services <host>`, and `type exit` to confirm the connected terminal session is driving Directory, that it still exposes the local host and directly connected devices, and that it now discovers reachable hosts across the linked telecommunications-grid graph.
+19. On a reachable host that should act as a mail server, use `programming mail service on`, `programming mail domain add <domain>`, and `programming mail account add <user@domain> <password>` while connected to that host as an administrator.
+20. Use `type services <host>` in `Directory` from another reachable host and confirm the mail server now advertises `Mail` with its hosted domain details instead of reporting no implemented services.
+21. Use `programming app mail` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
+22. Use `type login <user@domain> <password>`, `type inbox`, `type read <id>`, and `type delete <id>` to confirm the mail client authenticates against a reachable hosted domain and can inspect mailbox state.
+23. Use `type send <user@domain>`, `type subject <text>`, `type body`, `type post`, and `type exit` to confirm the mail client can compose and deliver mail, and that `type body` hands off to the ordinary multiline editor before returning to the terminal session.
+24. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
+25. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
+26. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
+27. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
+28. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
+29. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
+30. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
+31. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
+32. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
 
-In the current shipped phase, `SysMon`, `FileManager`, and `Directory` have built-in application runtime behaviour. `Mail`, `Boards`, and `Messenger` remain reserved built-in identities for future phases.
+In the current shipped phase, `SysMon`, `FileManager`, `Directory`, and `Mail` have built-in application runtime behaviour. `Directory` is still the first proof of the telecom-backed network layer, but it now also shows the first implemented remote network service when reachable hosts have `Mail` enabled and configured with hosted domains. `Boards` and `Messenger` remain reserved built-in identities for future phases.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.

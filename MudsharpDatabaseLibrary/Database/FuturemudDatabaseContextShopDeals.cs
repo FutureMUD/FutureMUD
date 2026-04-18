@@ -7,6 +7,9 @@ namespace MudSharp.Database
     {
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
         {
+            ConfigureCharacterComputerWorkspace(modelBuilder);
+            ConfigureComputerMail(modelBuilder);
+
             modelBuilder.Entity<ShopDeal>(entity =>
             {
                 entity.ToTable("ShopDeals");
@@ -84,8 +87,6 @@ namespace MudSharp.Database
                 entity.Property(e => e.StressFlickerThreshold)
                       .HasDefaultValue(0.01m);
             });
-
-            ConfigureCharacterComputerWorkspace(modelBuilder);
         }
     }
 }

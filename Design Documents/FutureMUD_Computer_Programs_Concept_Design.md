@@ -74,6 +74,13 @@ The first player-facing command surface for this slice has also now landed:
 - `programming` now also exposes built-in host applications through that same connected terminal session:
   - `programming apps`
   - `programming app <name>`
+- administrator characters now also have a host-scoped mail-service configuration surface through an active terminal session:
+  - `programming mail`
+  - `programming mail service on|off`
+  - `programming mail domain add|remove|enable|disable <domain>`
+  - `programming mail account add <user@domain> <password>`
+  - `programming mail account enable|disable <user@domain>`
+  - `programming mail account password <user@domain> <password>`
 - `type` is now the player-facing terminal-input verb:
   - `type <text>` uses the current computer terminal session, or auto-selects a nearby terminal if one can be resolved cleanly
   - `type <terminal> <text>` explicitly targets a nearby terminal
@@ -105,7 +112,7 @@ The first player-facing command surface for this slice has also now landed:
 - the world boot login pass now logs in world-root items only, while inventory-rooted items remain dormant until their owning character or body logs in; extracted mounted modules still activate because their `AutomationMountHost` forwards the item lifecycle to them
 - powered-machine-based automation components no longer begin drawdown merely because they load switched on; they wait for `Login()` before attempting live power use
 
-The remaining work is still substantial. In particular, waits beyond `sleep`, `UserInput()`, and the current v1 `WaitSignal()` implementation, richer multi-port inter-item signal graphs, broader built-in application coverage beyond the currently shipped `SysMon`, remote execution semantics beyond local host launch/kill, and telecom-backed data networking are still future phases.
+The remaining work is still substantial. In particular, waits beyond `sleep`, `UserInput()`, and the current v1 `WaitSignal()` implementation, richer multi-port inter-item signal graphs, broader built-in application coverage beyond the currently shipped `SysMon`, `FileManager`, `Directory`, and `Mail`, remote execution semantics beyond local host launch/kill, and broader network services beyond the first shipped `Mail` service are still future phases.
 
 ## Core Concepts
 
@@ -124,6 +131,7 @@ The remaining work is still substantial. In particular, waits beyond `sleep`, `U
 - Standalone functions and programs can still live in a private character-owned workspace, but the same runtime now also supports host-owned and storage-owned executables
 - Workspace artifacts still persist in dedicated tables keyed to the owning character, and suspended workspace program processes persist locals, frame state, wake time, result, and last error separately from item revision data
 - Host-backed and storage-backed executables currently persist in item component XML as part of the owning item runtime, not yet in separate generic database tables
+- Network mail is the first shipped database-backed computer service: mail domains, accounts, messages, and mailbox entries now persist in dedicated EF tables rather than in item XML
 
 ### Available Types
 
@@ -238,11 +246,17 @@ In the current shipped phase:
 - built-in applications are represented as host-bound built-in program definitions rather than a disconnected catalog
 - they execute through the shared computer execution service as real host processes, but use dedicated built-in executors internally
 - they are exposed to players through `programming apps` and `programming app <name>` while connected to a powered terminal session
-- `SysMon`, `FileManager`, and `Directory` currently have implemented runtime behaviour
+- `SysMon`, `FileManager`, `Directory`, and `Mail` currently have implemented runtime behaviour
 - `SysMon` is a terminal-session diagnostics tool that reports host power and storage state, connected storage and terminal devices, network adapters, running processes, and locally accessible automation signal sources and sinks on the execution host item
 - `FileManager` is a terminal-session interactive file utility that suspends in `UserInput()` between commands and currently supports listing, reading, editing, writing, appending, deleting, copying, and retargeting files between the host and mounted storage devices
-- `Directory` is a terminal-session interactive local discovery utility that suspends in `UserInput()` between commands and currently supports browsing the current host summary plus its built-in services, mounted storage devices, connected terminals, and local network adapters
-- `Mail`, `Boards`, and `Messenger` remain reserved built-in application identities for later phases
+- `Directory` is a terminal-session interactive discovery utility that suspends in `UserInput()` between commands and now supports both local host inspection and telecom-backed reachable-host discovery through `hosts`, `show <host>`, and `services <host>`
+- `Mail` is now the first implemented network-capable built-in application: it runs as an interactive terminal client, authenticates against reachable mail domains, manages inbox and sent mail, and uses the ordinary editor flow to compose message bodies
+- `NetworkAdapter` is no longer just a local readiness marker; it is now a telecom-grid-backed endpoint that restores its attached `ITelecommunicationsGrid`, joins and leaves that grid through runtime lifecycle, and publishes a canonical network address
+- canonical adapter addresses use `PreferredNetworkAddress` when it is unique within the reachable linked-grid cluster; otherwise they fall back to a stable generated address of the form `adapter-<itemid>`
+- reachable host discovery is transitive across the linked telecom-grid graph, uses cycle-safe breadth-first traversal, and only includes hosts whose adapters are currently network-ready
+- remote service advertisement is intentionally conservative in the current slice: only built-in applications marked as network services and actually implemented are listed
+- `Mail` is now the first shipped advertised network service, but it is only advertised when the target host has its mail service enabled and at least one enabled hosted domain
+- `Boards` and `Messenger` remain reserved built-in application identities for later phases
 
 ## Systems Needed
 
@@ -274,7 +288,7 @@ In the current shipped phase:
   - `ElectronicLock` is a signal-driven lock that wraps the existing programmable-lock behaviour
   - `RelaySwitch` is a signal-driven relay-controlled power switch that wraps the programmable power-supply behaviour and only produces power while its relay is effectively closed
   - `AlarmSiren` is a powered signal-driven audible sink that repeats a configured alarm emote and room audio echo while active
-- An internet grid type including the equivalent tie-ins to the grid, cell towers etc. Possibly consider extending the internet grid as a special type of telecommunications grid so the same grid can do both.
+- Computer networking now uses the existing telecommunications grid family as its transport substrate rather than introducing a separate internet-grid runtime. Network adapters attach to `ITelecommunicationsGrid`, and computer-host discovery walks the linked-grid graph for reachable network-ready endpoints.
 - Implemented in the current first player-facing slice:
   - a `programming` command verb that now lets players both:
     - manage a private workspace of computer functions and computer programs (`list`, `new`, `edit`, `set`, `parameter`, `compile`, `execute`, `processes`, `kill`, `help`)

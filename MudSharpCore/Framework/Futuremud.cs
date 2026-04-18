@@ -144,6 +144,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         SaveManager = new SaveManager();
         HeartbeatManager = new HeartbeatManager(this);
         ComputerHelpService = new ComputerHelpService();
+        ComputerMailService = new ComputerMailService(this);
         ComputerExecutionService = new ComputerExecutionService(this);
 
         server?.Bind(_connections, AddConnection);

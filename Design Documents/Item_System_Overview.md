@@ -87,8 +87,11 @@ The first real computer-host slice now also includes:
 - powered `ComputerHost` components that own files, executables, running processes, and built-in application exposure
 - `ComputerStorage` items that persist files and executables and can be mounted into a host
 - `ComputerTerminal` items that own user sessions into a powered host
-- `NetworkAdapter` items that represent the host's local network-facing capability
-- local computer runtime functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `LaunchProgram`, and `KillProgram`
+- `NetworkAdapter` items that represent the host's telecom-backed network-facing capability
+- local computer runtime functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `LaunchProgram`, `KillProgram`, `UserInput`, and `WaitSignal`
+- the terminal-facing `type` verb, which now routes foreground terminal input and resumes programs waiting on `UserInput()`
+- shipped built-in host applications `SysMon`, `FileManager`, `Directory`, and `Mail`
+- the first shipped network service, `Mail`, including host-scoped service enablement, hosted domains, database-backed accounts and mailboxes, and telecom-backed delivery to reachable mail hosts
 
 Those verbs currently use staged delayed actions, inventory plans for tool handling, configurable static-string echoes, and dedicated checks rather than instant state changes.
 

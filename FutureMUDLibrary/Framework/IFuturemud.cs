@@ -305,6 +305,7 @@ namespace MudSharp.Framework
         IScheduler Scheduler { get; }
         IComputerExecutionService ComputerExecutionService { get; }
         IComputerHelpService ComputerHelpService { get; }
+        IComputerMailService ComputerMailService { get; }
         IArenaLifecycleService ArenaLifecycleService { get; }
         IArenaScheduler ArenaScheduler { get; }
         IArenaObservationService ArenaObservationService { get; }

@@ -115,9 +115,21 @@ public sealed class CharacterWorkspaceHost : IComputerHost
 	public IEnumerable<IComputerStorage> MountedStorage => Enumerable.Empty<IComputerStorage>();
 	public IEnumerable<IComputerTerminal> ConnectedTerminals => Enumerable.Empty<IComputerTerminal>();
 	public IEnumerable<INetworkAdapter> NetworkAdapters => Enumerable.Empty<INetworkAdapter>();
+	public IEnumerable<string> EnabledNetworkServices => Enumerable.Empty<string>();
 
 	public IComputerProcess? GetProcess(long processId)
 	{
 		return Processes.FirstOrDefault(x => x.Id == processId);
+	}
+
+	public bool IsNetworkServiceEnabled(string applicationId)
+	{
+		return false;
+	}
+
+	public bool SetNetworkServiceEnabled(string applicationId, bool enabled, out string error)
+	{
+		error = "Workspace hosts cannot advertise network services.";
+		return false;
 	}
 }

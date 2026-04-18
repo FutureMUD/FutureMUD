@@ -2,6 +2,7 @@
 
 using MudSharp.Character;
 using MudSharp.Computers;
+using MudSharp.Construction.Grids;
 using MudSharp.Framework;
 using MudSharp.Form.Shape;
 using MudSharp.GameItems.Interfaces;
@@ -15,11 +16,15 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemComponent, INetworkAdapter, IConnectable
+public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemComponent, INetworkAdapter, IConnectable,
+	ICanConnectToTelecommunicationsGrid
 {
 	private readonly List<long> _pendingConnectionIds = [];
 	private NetworkAdapterGameItemComponentProto _prototype;
 	private IConnectable? _connectedHost;
+	private ITelecommunicationsGrid? _telecommunicationsGrid;
+	private bool _telecommunicationsGridJoined;
+	private bool _loggedIn;
 
 	public NetworkAdapterGameItemComponent(NetworkAdapterGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)
@@ -47,10 +52,33 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 	public override IGameItemComponentProto Prototype => _prototype;
 	public IComputerHost? ConnectedHost => _connectedHost as IComputerHost;
 	public bool Powered => IsPowered;
-	public bool NetworkReady => IsPowered && ConnectedHost?.Powered == true;
-	public string? NetworkAddress => string.IsNullOrWhiteSpace(_prototype.PreferredNetworkAddress)
-		? (ConnectedHost is null ? null : $"host-{ConnectedHost.OwnerHostItemId ?? 0:N0}")
-		: _prototype.PreferredNetworkAddress;
+	public bool NetworkReady => Powered && ConnectedHost?.Powered == true && TelecommunicationsGrid is not null;
+	public string? PreferredNetworkAddress =>
+		string.IsNullOrWhiteSpace(_prototype.PreferredNetworkAddress)
+			? null
+			: _prototype.PreferredNetworkAddress.Trim();
+	public string? NetworkAddress => TelecommunicationsGrid?.GetCanonicalNetworkAddress(this) ?? GetFallbackNetworkAddress();
+	public long NetworkAdapterItemId => Parent.Id;
+	public ITelecommunicationsGrid? TelecommunicationsGrid
+	{
+		get => _telecommunicationsGrid;
+		set
+		{
+			if (ReferenceEquals(_telecommunicationsGrid, value))
+			{
+				return;
+			}
+
+			LeaveTelecommunicationsGrid();
+			_telecommunicationsGrid = value;
+			if (_loggedIn)
+			{
+				JoinTelecommunicationsGrid();
+			}
+
+			Changed = true;
+		}
+	}
 	public IEnumerable<ConnectorType> Connections => [ComputerConnectionTypes.NetworkPlug];
 	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems =>
 		_connectedHost is null
@@ -82,7 +110,8 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 		sb.AppendLine();
 		sb.AppendLine();
 		sb.AppendLine(
-			$"Its network adapter is {(SwitchedOn ? "switched on".ColourValue() : "switched off".ColourError())}, {(IsPowered ? "powered".ColourValue() : "not powered".ColourError())}, {(ConnectedHost is null ? "not connected to any computer host".ColourError() : $"connected to {ConnectedHost.Name.ColourName()}".ColourValue())}, and {(NetworkReady ? "network-ready".ColourValue() : "offline".ColourError())}.");
+			$"Its network adapter is {(SwitchedOn ? "switched on".ColourValue() : "switched off".ColourError())}, {(IsPowered ? "powered".ColourValue() : "not powered".ColourError())}, {(ConnectedHost is null ? "not connected to any computer host".ColourError() : $"connected to {ConnectedHost.Name.ColourName()}".ColourValue())}, {(TelecommunicationsGrid is null ? "not attached to any telecommunications grid".ColourError() : $"attached to telecommunications grid #{TelecommunicationsGrid.Id.ToString("N0", voyeur)}".ColourValue())}, and {(NetworkReady ? "network-ready".ColourValue() : "offline".ColourError())}.");
+		sb.AppendLine($"Its canonical network address is {(NetworkAddress?.ColourName() ?? "unassigned".ColourError())}.");
 		return sb.ToString();
 	}
 
@@ -94,6 +123,7 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 
 	protected override XElement SaveToXml(XElement root)
 	{
+		root.Add(new XElement("Grid", TelecommunicationsGrid?.Id ?? 0));
 		root.Add(new XElement("ConnectedItems",
 			_connectedHost is null
 				? null
@@ -117,6 +147,32 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 		}
 
 		_pendingConnectionIds.Clear();
+	}
+
+	public override void Login()
+	{
+		base.Login();
+		_loggedIn = true;
+		JoinTelecommunicationsGrid();
+	}
+
+	public override void Quit()
+	{
+		_loggedIn = false;
+		LeaveTelecommunicationsGrid();
+		base.Quit();
+	}
+
+	public override void Delete()
+	{
+		_loggedIn = false;
+		LeaveTelecommunicationsGrid();
+		if (_connectedHost is not null)
+		{
+			RawDisconnect(_connectedHost, true);
+		}
+
+		base.Delete();
 	}
 
 	protected override void OnPowerCutInAction()
@@ -205,8 +261,44 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 
 	private void LoadRuntimeState(XElement root)
 	{
+		_telecommunicationsGrid = Gameworld.Grids.Get(long.Parse(root.Element("Grid")?.Value ?? "0")) as ITelecommunicationsGrid;
 		_pendingConnectionIds.AddRange(root.Element("ConnectedItems")?.Elements("Connection")
 			.Select(x => long.TryParse(x.Attribute("id")?.Value, out var id) ? id : 0L)
 			.Where(x => x > 0) ?? Enumerable.Empty<long>());
+	}
+
+	private void JoinTelecommunicationsGrid()
+	{
+		if (_telecommunicationsGridJoined || TelecommunicationsGrid is null)
+		{
+			return;
+		}
+
+		TelecommunicationsGrid.JoinGrid((INetworkAdapter)this);
+		_telecommunicationsGridJoined = true;
+	}
+
+	private void LeaveTelecommunicationsGrid()
+	{
+		if (!_telecommunicationsGridJoined || TelecommunicationsGrid is null)
+		{
+			return;
+		}
+
+		TelecommunicationsGrid.LeaveGrid((INetworkAdapter)this);
+		_telecommunicationsGridJoined = false;
+	}
+
+	private string GetFallbackNetworkAddress()
+	{
+		return $"adapter-{NetworkAdapterItemId}";
+	}
+
+	string ICanConnectToGrid.GridType => "Telecommunications";
+
+	IGrid? ICanConnectToGrid.Grid
+	{
+		get => TelecommunicationsGrid;
+		set => TelecommunicationsGrid = value as ITelecommunicationsGrid;
 	}
 }

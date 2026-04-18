@@ -162,6 +162,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
     public IHeartbeatManager HeartbeatManager { get; protected set; }
     public IComputerExecutionService ComputerExecutionService { get; protected set; }
     public IComputerHelpService ComputerHelpService { get; protected set; }
+    public IComputerMailService ComputerMailService { get; protected set; }
     public IEnumerable<IPlayerConnection> Connections => _connections;
 
     void IFuturemudLoader.LoadFromDatabase()

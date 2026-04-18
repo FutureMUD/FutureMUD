@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using MudSharp.Character;
+using MudSharp.Construction.Grids;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Computers;
@@ -77,7 +78,10 @@ public interface IComputerHost : IComputerExecutableOwner
 	IEnumerable<IComputerStorage> MountedStorage { get; }
 	IEnumerable<IComputerTerminal> ConnectedTerminals { get; }
 	IEnumerable<INetworkAdapter> NetworkAdapters { get; }
+	IEnumerable<string> EnabledNetworkServices { get; }
 	IComputerProcess? GetProcess(long processId);
+	bool IsNetworkServiceEnabled(string applicationId);
+	bool SetNetworkServiceEnabled(string applicationId, bool enabled, out string error);
 }
 
 public interface IComputerStorage : IComputerExecutableOwner
@@ -103,12 +107,34 @@ public interface IComputerTerminal
 	IEnumerable<IComputerTerminalSession> Sessions { get; }
 }
 
+public sealed class ComputerNetworkHostSummary
+{
+	public required IComputerHost Host { get; init; }
+	public required INetworkAdapter Adapter { get; init; }
+	public required ITelecommunicationsGrid Grid { get; init; }
+	public string CanonicalAddress { get; init; } = string.Empty;
+	public bool IsLocalGrid { get; init; }
+	public bool Available { get; init; }
+	public int AdvertisedServiceCount { get; init; }
+}
+
+public sealed class ComputerNetworkServiceSummary
+{
+	public string ApplicationId { get; init; } = string.Empty;
+	public string Name { get; init; } = string.Empty;
+	public string Summary { get; init; } = string.Empty;
+	public IReadOnlyCollection<string> ServiceDetails { get; init; } = Array.Empty<string>();
+}
+
 public interface INetworkAdapter
 {
 	IComputerHost? ConnectedHost { get; }
 	bool Powered { get; }
 	bool NetworkReady { get; }
+	string? PreferredNetworkAddress { get; }
 	string? NetworkAddress { get; }
+	long NetworkAdapterItemId { get; }
+	ITelecommunicationsGrid? TelecommunicationsGrid { get; }
 }
 
 public interface ICharacterComputerWorkspace : IComputerExecutableOwner
@@ -137,6 +163,9 @@ public interface IComputerExecutionService
 	void ActivateOwner(IComputerExecutableOwner owner);
 	void DeactivateOwner(IComputerExecutableOwner owner);
 	bool TrySubmitTerminalInput(IComputerTerminalSession session, string text, out string error);
+	IEnumerable<ComputerNetworkHostSummary> GetReachableHosts(IComputerHost sourceHost);
+	ComputerNetworkHostSummary? ResolveReachableHost(IComputerHost sourceHost, string identifier);
+	IEnumerable<ComputerNetworkServiceSummary> GetAdvertisedServices(IComputerHost sourceHost, IComputerHost targetHost);
 	IEnumerable<IComputerExecutableDefinition> GetExecutables(ICharacter owner);
 	IComputerExecutableDefinition? GetExecutable(ICharacter owner, string identifier);
 	IComputerExecutableDefinition? GetExecutable(long id);

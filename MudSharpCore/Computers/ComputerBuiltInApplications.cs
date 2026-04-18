@@ -41,7 +41,7 @@ public static class ComputerBuiltInApplications
 		new(
 			"directory",
 			"Directory",
-			"Local host and service discovery utility.",
+			"Local and telecom-backed host and service discovery utility.",
 			false),
 		new(
 			"sysmon",

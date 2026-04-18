@@ -8,9 +8,11 @@ using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
 using MudSharp.Computers;
+using MudSharp.Construction.Grids;
 using MudSharp.Database;
 using MudSharp.Editor;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -1112,6 +1114,538 @@ return userinput()";
 		Assert.AreEqual(ComputerProcessWaitType.UserInput, liveProcess.WaitType);
 	}
 
+	[TestMethod]
+	public void TelecommunicationsGrid_GetCanonicalNetworkAddress_FallsBackWhenPreferredAddressCollides()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var grid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var hostA = new StubComputerHost { Powered = true, Name = "Host A", OwnerHostItemId = 11L };
+		var hostB = new StubComputerHost { Powered = true, Name = "Host B", OwnerHostItemId = 12L };
+		var adapterA = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 201L,
+			ConnectedHost = hostA,
+			Powered = true,
+			PreferredNetworkAddress = "relay",
+			TelecommunicationsGrid = grid
+		};
+		var adapterB = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 202L,
+			ConnectedHost = hostB,
+			Powered = true,
+			PreferredNetworkAddress = "relay",
+			TelecommunicationsGrid = grid
+		};
+
+		grid.JoinGrid(adapterA);
+		grid.JoinGrid(adapterB);
+
+		Assert.AreEqual("adapter-201", grid.GetCanonicalNetworkAddress(adapterA));
+		Assert.AreEqual("adapter-202", grid.GetCanonicalNetworkAddress(adapterB));
+	}
+
+	[TestMethod]
+	public void TelecommunicationsGrid_GetReachableNetworkEndpoints_TraversesLinkedGridsWithoutDuplicates()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var localGrid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var linkedGrid = new TelecommunicationsGrid(gameworld.Object, null, "556", 4);
+		var farGrid = new TelecommunicationsGrid(gameworld.Object, null, "557", 4);
+		localGrid.LinkGrid(linkedGrid);
+		linkedGrid.LinkGrid(farGrid);
+		farGrid.LinkGrid(localGrid);
+
+		var localHost = new StubComputerHost { Powered = true, Name = "Local Host", OwnerHostItemId = 21L };
+		var linkedHost = new StubComputerHost { Powered = true, Name = "Linked Host", OwnerHostItemId = 22L };
+		var farHost = new StubComputerHost { Powered = true, Name = "Far Host", OwnerHostItemId = 23L };
+		var localAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 301L,
+			ConnectedHost = localHost,
+			Powered = true,
+			PreferredNetworkAddress = "local.host",
+			TelecommunicationsGrid = localGrid
+		};
+		var linkedAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 302L,
+			ConnectedHost = linkedHost,
+			Powered = true,
+			PreferredNetworkAddress = "linked.host",
+			TelecommunicationsGrid = linkedGrid
+		};
+		var farAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 303L,
+			ConnectedHost = farHost,
+			Powered = true,
+			PreferredNetworkAddress = "far.host",
+			TelecommunicationsGrid = farGrid
+		};
+
+		localGrid.JoinGrid(localAdapter);
+		linkedGrid.JoinGrid(linkedAdapter);
+		farGrid.JoinGrid(farAdapter);
+
+		var endpoints = localGrid.GetReachableNetworkEndpoints().ToList();
+
+		Assert.AreEqual(3, endpoints.Count);
+		Assert.AreEqual(1, endpoints.Count(x => x.IsLocalGrid));
+		Assert.AreEqual(1, endpoints.Count(x => x.CanonicalAddress == "local.host"));
+		Assert.AreEqual(1, endpoints.Count(x => x.CanonicalAddress == "linked.host"));
+		Assert.AreEqual(1, endpoints.Count(x => x.CanonicalAddress == "far.host"));
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_GetReachableHosts_ExcludesOfflineHostsAndUnimplementedNetworkServices()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		gameworld.SetupGet(x => x.ComputerExecutionService).Returns(service);
+		var localGrid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var linkedGrid = new TelecommunicationsGrid(gameworld.Object, null, "556", 4);
+		localGrid.LinkGrid(linkedGrid);
+
+		var localHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 31L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(31L).ToList()
+		};
+		var remoteHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Remote Host",
+			OwnerHostItemId = 32L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(32L).ToList()
+		};
+		var offlineHost = new StubComputerHost
+		{
+			Powered = false,
+			Name = "Offline Host",
+			OwnerHostItemId = 33L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(33L).ToList()
+		};
+		var localAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 401L,
+			ConnectedHost = localHost,
+			Powered = true,
+			PreferredNetworkAddress = "local.host",
+			TelecommunicationsGrid = localGrid
+		};
+		var remoteAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 402L,
+			ConnectedHost = remoteHost,
+			Powered = true,
+			PreferredNetworkAddress = "remote.host",
+			TelecommunicationsGrid = linkedGrid
+		};
+		var offlineAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 403L,
+			ConnectedHost = offlineHost,
+			Powered = true,
+			PreferredNetworkAddress = "offline.host",
+			TelecommunicationsGrid = linkedGrid
+		};
+
+		localGrid.JoinGrid(localAdapter);
+		linkedGrid.JoinGrid(remoteAdapter);
+		linkedGrid.JoinGrid(offlineAdapter);
+		localHost.NetworkAdapters = new[] { localAdapter };
+		remoteHost.NetworkAdapters = new[] { remoteAdapter };
+		offlineHost.NetworkAdapters = new[] { offlineAdapter };
+
+		var hosts = service.GetReachableHosts(localHost).ToList();
+
+		Assert.IsTrue(hosts.Any(x => ReferenceEquals(x.Host, localHost) && x.IsLocalGrid));
+		Assert.IsTrue(hosts.Any(x => ReferenceEquals(x.Host, remoteHost) && !x.IsLocalGrid));
+		Assert.IsFalse(hosts.Any(x => ReferenceEquals(x.Host, offlineHost)));
+		Assert.AreEqual(0, service.GetAdvertisedServices(localHost, remoteHost).Count());
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TrySubmitTerminalInput_DirectoryHostsAndRemoteServicesUseNetworkDiscovery()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		gameworld.SetupGet(x => x.ComputerExecutionService).Returns(service);
+		var localGrid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var linkedGrid = new TelecommunicationsGrid(gameworld.Object, null, "556", 4);
+		localGrid.LinkGrid(linkedGrid);
+
+		var host = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Local Host",
+			OwnerHostItemId = 41L,
+			FileSystemStorage = new ComputerMutableFileSystem(4096),
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(41L).ToList()
+		};
+		var remoteHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Remote Host",
+			OwnerHostItemId = 42L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(42L).ToList()
+		};
+		var localAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 501L,
+			ConnectedHost = host,
+			Powered = true,
+			PreferredNetworkAddress = "local.host",
+			TelecommunicationsGrid = localGrid
+		};
+		var remoteAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 502L,
+			ConnectedHost = remoteHost,
+			Powered = true,
+			PreferredNetworkAddress = "remote.host",
+			TelecommunicationsGrid = linkedGrid
+		};
+
+		localGrid.JoinGrid(localAdapter);
+		linkedGrid.JoinGrid(remoteAdapter);
+		host.NetworkAdapters = new[] { localAdapter };
+		remoteHost.NetworkAdapters = new[] { remoteAdapter };
+
+		var terminal = new Mock<IComputerTerminal>();
+		terminal.SetupGet(x => x.TerminalItemId).Returns(1301L);
+		terminal.SetupGet(x => x.Sessions).Returns(Enumerable.Empty<IComputerTerminalSession>());
+		host.ConnectedTerminals = new[] { terminal.Object };
+		var output = new Mock<IOutputHandler>();
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.UseUnicode).Returns(false);
+		var user = CreateOwner(gameworld.Object, 68L);
+		user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		user.SetupGet(x => x.LineFormatLength).Returns(120);
+		user.SetupGet(x => x.Account).Returns(account.Object);
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = terminal.Object,
+			Host = host,
+			CurrentOwner = host
+		};
+		var application = service.GetBuiltInApplication(host, "directory");
+
+		Assert.IsNotNull(application);
+		var start = service.ExecuteBuiltInApplication(user.Object, host, application!, session);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, start.Status);
+
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "hosts", out var hostsError), hostsError);
+		output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("Reachable Hosts") && s.Contains("Remote Host") &&
+				                   s.Contains("remote.host") && s.Contains("linked")),
+				true,
+				true),
+			Times.AtLeastOnce);
+
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "services remote.host", out var servicesError), servicesError);
+		output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("Advertised Services for") &&
+				                   s.Contains("Remote Host") &&
+				                   s.Contains("does not currently advertise any implemented network services")),
+				true,
+				true),
+			Times.AtLeastOnce);
+	}
+
+	[TestMethod]
+	public void ComputerMailService_RegisterDomainCreateAccountAndAuthenticate_Succeeds()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var scheduler = new Mock<IScheduler>();
+			var gameworld = CreateGameworld(scheduler);
+			var host = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Mail Host",
+				OwnerHostItemId = 801L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(801L).ToList()
+			};
+			host.SetNetworkServiceEnabled("mail", true, out _);
+
+			var mailService = gameworld.Object.ComputerMailService;
+			Assert.IsTrue(mailService.RegisterDomain(host, "alpha.example", out var domainError), domainError);
+			Assert.IsTrue(mailService.CreateAccount(host, "alice@alpha.example", "secret", out var accountError), accountError);
+
+			var authentication = mailService.Authenticate(host, "alice@alpha.example", "secret");
+
+			Assert.IsTrue(authentication.Success, authentication.ErrorMessage);
+			Assert.IsNotNull(authentication.Account);
+			Assert.AreEqual("alice@alpha.example", authentication.Account!.Address);
+			Assert.AreEqual(1, context.ComputerMailDomains.Count());
+			Assert.AreEqual(1, context.ComputerMailAccounts.Count());
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
+	public void ComputerMailService_SendMessageToReachableRemoteMailbox_CreatesInboxAndSentCopies()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var scheduler = new Mock<IScheduler>();
+			var gameworld = CreateGameworld(scheduler);
+			var service = new ComputerExecutionService(gameworld.Object);
+			gameworld.SetupGet(x => x.ComputerExecutionService).Returns(service);
+			var localGrid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+			var remoteGrid = new TelecommunicationsGrid(gameworld.Object, null, "556", 4);
+			localGrid.LinkGrid(remoteGrid);
+
+			var localHost = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Local Mail Host",
+				OwnerHostItemId = 811L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(811L).ToList()
+			};
+			var remoteHost = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Remote Mail Host",
+				OwnerHostItemId = 812L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(812L).ToList()
+			};
+			localHost.SetNetworkServiceEnabled("mail", true, out _);
+			remoteHost.SetNetworkServiceEnabled("mail", true, out _);
+
+			var localAdapter = new StubNetworkAdapter
+			{
+				NetworkAdapterItemId = 821L,
+				ConnectedHost = localHost,
+				Powered = true,
+				PreferredNetworkAddress = "local.mail",
+				TelecommunicationsGrid = localGrid
+			};
+			var remoteAdapter = new StubNetworkAdapter
+			{
+				NetworkAdapterItemId = 822L,
+				ConnectedHost = remoteHost,
+				Powered = true,
+				PreferredNetworkAddress = "remote.mail",
+				TelecommunicationsGrid = remoteGrid
+			};
+			localGrid.JoinGrid(localAdapter);
+			remoteGrid.JoinGrid(remoteAdapter);
+			localHost.NetworkAdapters = new[] { localAdapter };
+			remoteHost.NetworkAdapters = new[] { remoteAdapter };
+
+			var mailService = gameworld.Object.ComputerMailService;
+			Assert.IsTrue(mailService.RegisterDomain(localHost, "local.example", out var localDomainError), localDomainError);
+			Assert.IsTrue(mailService.RegisterDomain(remoteHost, "remote.example", out var remoteDomainError), remoteDomainError);
+			Assert.IsTrue(mailService.CreateAccount(localHost, "alice@local.example", "secret", out var localAccountError), localAccountError);
+			Assert.IsTrue(mailService.CreateAccount(remoteHost, "bob@remote.example", "secret", out var remoteAccountError), remoteAccountError);
+
+			var authentication = mailService.Authenticate(localHost, "alice@local.example", "secret");
+			Assert.IsTrue(authentication.Success, authentication.ErrorMessage);
+
+			Assert.IsTrue(mailService.SendMessage(
+					localHost,
+					authentication.Account!,
+					"bob@remote.example",
+					"Test Subject",
+					"Test Body",
+					out var sendError),
+				sendError);
+
+			Assert.AreEqual(1, context.ComputerMailMessages.Count());
+			Assert.AreEqual(2, context.ComputerMailMailboxEntries.Count());
+			var inboxEntry = context.ComputerMailMailboxEntries.Single(x => !x.IsSentFolder);
+			var sentEntry = context.ComputerMailMailboxEntries.Single(x => x.IsSentFolder);
+			Assert.IsFalse(inboxEntry.IsRead);
+			Assert.IsTrue(sentEntry.IsRead);
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_GetAdvertisedServices_IncludesMailDomainsWhenEnabled()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var scheduler = new Mock<IScheduler>();
+			var gameworld = CreateGameworld(scheduler);
+			var service = new ComputerExecutionService(gameworld.Object);
+			gameworld.SetupGet(x => x.ComputerExecutionService).Returns(service);
+			var grid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+			var sourceHost = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Source Host",
+				OwnerHostItemId = 831L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(831L).ToList()
+			};
+			var targetHost = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Target Host",
+				OwnerHostItemId = 832L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(832L).ToList()
+			};
+			targetHost.SetNetworkServiceEnabled("mail", true, out _);
+
+			var sourceAdapter = new StubNetworkAdapter
+			{
+				NetworkAdapterItemId = 841L,
+				ConnectedHost = sourceHost,
+				Powered = true,
+				PreferredNetworkAddress = "source.host",
+				TelecommunicationsGrid = grid
+			};
+			var targetAdapter = new StubNetworkAdapter
+			{
+				NetworkAdapterItemId = 842L,
+				ConnectedHost = targetHost,
+				Powered = true,
+				PreferredNetworkAddress = "target.host",
+				TelecommunicationsGrid = grid
+			};
+			grid.JoinGrid(sourceAdapter);
+			grid.JoinGrid(targetAdapter);
+			sourceHost.NetworkAdapters = new[] { sourceAdapter };
+			targetHost.NetworkAdapters = new[] { targetAdapter };
+
+			Assert.IsTrue(gameworld.Object.ComputerMailService.RegisterDomain(targetHost, "mail.example", out var domainError), domainError);
+
+			var services = service.GetAdvertisedServices(sourceHost, targetHost).ToList();
+
+			Assert.AreEqual(1, services.Count);
+			Assert.AreEqual("mail", services[0].ApplicationId);
+			CollectionAssert.AreEqual(new[] { "mail.example" }, services[0].ServiceDetails.ToArray());
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TrySubmitTerminalInput_MailAppLogsInAndReadsMailbox()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var scheduler = new Mock<IScheduler>();
+			var gameworld = CreateGameworld(scheduler);
+			var service = new ComputerExecutionService(gameworld.Object);
+			gameworld.SetupGet(x => x.ComputerExecutionService).Returns(service);
+			var grid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+			var host = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Mail Host",
+				OwnerHostItemId = 851L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(851L).ToList()
+			};
+			host.SetNetworkServiceEnabled("mail", true, out _);
+			var adapter = new StubNetworkAdapter
+			{
+				NetworkAdapterItemId = 861L,
+				ConnectedHost = host,
+				Powered = true,
+				PreferredNetworkAddress = "mail.host",
+				TelecommunicationsGrid = grid
+			};
+			grid.JoinGrid(adapter);
+			host.NetworkAdapters = new[] { adapter };
+
+			var mailService = gameworld.Object.ComputerMailService;
+			Assert.IsTrue(mailService.RegisterDomain(host, "mail.example", out var domainError), domainError);
+			Assert.IsTrue(mailService.CreateAccount(host, "alice@mail.example", "secret", out var accountError), accountError);
+			var authentication = mailService.Authenticate(host, "alice@mail.example", "secret");
+			Assert.IsTrue(authentication.Success, authentication.ErrorMessage);
+			Assert.IsTrue(mailService.SendMessage(
+					host,
+					authentication.Account!,
+					"alice@mail.example",
+					"Welcome",
+					"Hello from the mail system",
+					out var sendError),
+				sendError);
+			var inboxEntryId = context.ComputerMailMailboxEntries
+				.AsNoTracking()
+				.Single(x => !x.IsSentFolder)
+				.Id;
+
+			var terminal = new Mock<IComputerTerminal>();
+			terminal.SetupGet(x => x.TerminalItemId).Returns(1701L);
+			terminal.SetupGet(x => x.Sessions).Returns(Enumerable.Empty<IComputerTerminalSession>());
+			host.ConnectedTerminals = new[] { terminal.Object };
+			var output = new Mock<IOutputHandler>();
+			var account = new Mock<IAccount>();
+			account.SetupGet(x => x.UseUnicode).Returns(false);
+			var user = CreateOwner(gameworld.Object, 88L);
+			user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+			user.SetupGet(x => x.LineFormatLength).Returns(120);
+			user.SetupGet(x => x.Account).Returns(account.Object);
+			var session = new ComputerTerminalSession
+			{
+				User = user.Object,
+				Terminal = terminal.Object,
+				Host = host,
+				CurrentOwner = host
+			};
+			var application = service.GetBuiltInApplication(host, "mail");
+
+			Assert.IsNotNull(application);
+			var start = service.ExecuteBuiltInApplication(user.Object, host, application!, session);
+			Assert.AreEqual(ComputerProcessStatus.Sleeping, start.Status);
+
+			Assert.IsTrue(service.TrySubmitTerminalInput(session, "login alice@mail.example secret", out var loginError), loginError);
+			output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("log in to") && s.Contains("alice@mail.example")),
+				true,
+				true), Times.AtLeastOnce);
+
+			Assert.IsTrue(service.TrySubmitTerminalInput(session, "inbox", out var inboxError), inboxError);
+			output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("mailbox:") && s.Contains("Welcome")),
+				true,
+				true), Times.AtLeastOnce);
+
+			Assert.IsTrue(service.TrySubmitTerminalInput(session, $"read {inboxEntryId}", out var readError), readError);
+			context.ChangeTracker.Clear();
+			Assert.IsTrue(context.ComputerMailMailboxEntries
+				.AsNoTracking()
+				.Single(x => x.Id == inboxEntryId)
+				.IsRead);
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
 	private static ComputerWorkspaceProgram CompileProgram(string name, string source,
 		params ComputerExecutableParameter[] parameters)
 	{
@@ -1150,7 +1684,11 @@ return userinput()";
 	private static Mock<IFuturemud> CreateGameworld(Mock<IScheduler> scheduler)
 	{
 		var gameworld = new Mock<IFuturemud>();
+		var saveManager = new Mock<ISaveManager>();
+		var mailService = new ComputerMailService(gameworld.Object);
 		gameworld.SetupGet(x => x.Scheduler).Returns(scheduler.Object);
+		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+		gameworld.SetupGet(x => x.ComputerMailService).Returns(mailService);
 		return gameworld;
 	}
 
@@ -1220,9 +1758,22 @@ return userinput()";
 			.SetValue(null, state.InstanceCount);
 	}
 
+	private sealed class StubNetworkAdapter : INetworkAdapter
+	{
+		public IComputerHost? ConnectedHost { get; set; }
+		public bool Powered { get; set; }
+		public bool NetworkReady => Powered && ConnectedHost?.Powered == true && TelecommunicationsGrid is not null;
+		public string? PreferredNetworkAddress { get; set; }
+		public string? NetworkAddress => TelecommunicationsGrid?.GetCanonicalNetworkAddress(this) ??
+		                                 $"adapter-{NetworkAdapterItemId}";
+		public long NetworkAdapterItemId { get; init; }
+		public ITelecommunicationsGrid? TelecommunicationsGrid { get; set; }
+	}
+
 	private sealed class StubComputerHost : IComputerHost, IComputerMutableOwner
 	{
 		private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
+		private readonly HashSet<string> _enabledNetworkServices = new(StringComparer.InvariantCultureIgnoreCase);
 		private long _nextProcessId = 1L;
 
 		public bool Powered { get; set; }
@@ -1239,10 +1790,31 @@ return userinput()";
 		public IEnumerable<IComputerStorage> MountedStorage { get; set; } = Enumerable.Empty<IComputerStorage>();
 		public IEnumerable<IComputerTerminal> ConnectedTerminals { get; set; } = Enumerable.Empty<IComputerTerminal>();
 		public IEnumerable<INetworkAdapter> NetworkAdapters { get; set; } = Enumerable.Empty<INetworkAdapter>();
+		public IEnumerable<string> EnabledNetworkServices => _enabledNetworkServices.OrderBy(x => x).ToList();
 
 		public IComputerProcess? GetProcess(long processId)
 		{
 			return _processes.TryGetValue(processId, out var process) ? process : null;
+		}
+
+		public bool IsNetworkServiceEnabled(string applicationId)
+		{
+			return _enabledNetworkServices.Contains(applicationId);
+		}
+
+		public bool SetNetworkServiceEnabled(string applicationId, bool enabled, out string error)
+		{
+			error = string.Empty;
+			if (enabled)
+			{
+				_enabledNetworkServices.Add(applicationId);
+			}
+			else
+			{
+				_enabledNetworkServices.Remove(applicationId);
+			}
+
+			return true;
 		}
 
 		public IComputerExecutableDefinition CreateExecutableDefinition(ComputerExecutableKind kind, string name)

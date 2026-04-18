@@ -58,6 +58,12 @@ You can use the following syntax:
 	#3type <terminal> <text>#0 - types into a specific nearby terminal
 	#3programming apps#0 - lists the built-in computer applications available on your connected host
 	#3programming app <name>#0 - runs one built-in computer application on your connected host
+	#3programming mail#0 - shows mail service status for the connected host (administrators only)
+	#3programming mail service on|off#0 - enables or disables the connected host's mail service advertisement (administrators only)
+	#3programming mail domain add|remove|enable|disable <domain>#0 - manages hosted mail domains on the connected host (administrators only)
+	#3programming mail account add <user@domain> <password>#0 - creates a mail account on the connected host (administrators only)
+	#3programming mail account enable|disable <user@domain>#0 - enables or disables a mail account (administrators only)
+	#3programming mail account password <user@domain> <password>#0 - changes a mail account password (administrators only)
 	#3programming list [functions|programs]#0 - lists your workspace computer executables
 	#3programming new function|program <name>#0 - creates a new workspace executable and begins editing it
 	#3programming edit <which>#0 - begins editing a workspace executable
@@ -109,6 +115,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		"execute",
 		"app",
 		"apps",
+		"mail",
 		"processes",
 		"kill",
 		"terminal"
@@ -333,6 +340,9 @@ If more than one terminal could be used, specify one explicitly or connect first
 				return;
 			case "apps":
 				ProgrammingWorkspaceApplications(actor);
+				return;
+			case "mail":
+				ProgrammingMail(actor, ss);
 				return;
 			case "execute":
 				ProgrammingWorkspaceExecute(actor, ss);
@@ -1990,6 +2000,283 @@ If more than one terminal could be used, specify one explicitly or connect first
 			Telnet.BoldGreen,
 			1,
 			actor.Account.UseUnicode), nopage: true);
+	}
+
+	private static void ProgrammingMail(ICharacter actor, StringStack ss)
+	{
+		if (!TryGetProgrammingMailHost(actor, out var host))
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			ShowProgrammingMailStatus(actor, host);
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "service":
+				ProgrammingMailService(actor, host, ss);
+				return;
+			case "domain":
+				ProgrammingMailDomain(actor, host, ss);
+				return;
+			case "account":
+				ProgrammingMailAccount(actor, host, ss);
+				return;
+			default:
+				ShowProgrammingMailStatus(actor, host);
+				return;
+		}
+	}
+
+	private static bool TryGetProgrammingMailHost(ICharacter actor, out IComputerHost host)
+	{
+		host = default!;
+		if (!actor.IsAdministrator())
+		{
+			actor.Send("Only administrators can configure computer mail services.");
+			return false;
+		}
+
+		var session = GetCurrentProgrammingTerminalSession(actor);
+		if (session is null)
+		{
+			actor.Send("You must be connected to a computer terminal to configure mail services.");
+			return false;
+		}
+
+		host = session.Host;
+		return true;
+	}
+
+	private static void ShowProgrammingMailStatus(ICharacter actor, IComputerHost host)
+	{
+		var mailService = actor.Gameworld.ComputerMailService;
+		var domains = mailService.GetHostedDomains(host).ToList();
+		var accounts = mailService.GetAccounts(host).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine($"Mail Service Host: {host.Name.ColourName()}");
+		sb.AppendLine($"Advertised: {mailService.IsMailServiceEnabled(host).ToColouredString()}");
+		sb.AppendLine();
+		sb.AppendLine("Domains:");
+		if (!domains.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				domains.Select(domain => new List<string>
+				{
+					domain.DomainName,
+					domain.Enabled.ToColouredString()
+				}),
+				new List<string>
+				{
+					"Domain",
+					"Enabled"
+				},
+				actor.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				actor.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Accounts:");
+		if (!accounts.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				accounts.Select(account => new List<string>
+				{
+					account.Address,
+					account.Enabled.ToColouredString()
+				}),
+				new List<string>
+				{
+					"Mailbox",
+					"Enabled"
+				},
+				actor.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				actor.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.AppendLine($"Use {"programming mail service on|off".ColourCommand()}, {"programming mail domain add|remove|enable|disable <domain>".ColourCommand()}, and {"programming mail account add|enable|disable|password ...".ColourCommand()} to configure this host.");
+		actor.OutputHandler.Send(sb.ToString(), nopage: true);
+	}
+
+	private static void ProgrammingMailService(ICharacter actor, IComputerHost host, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send($"Mail service advertisement on {host.Name.ColourName()} is currently {actor.Gameworld.ComputerMailService.IsMailServiceEnabled(host).ToColouredString()}.");
+			return;
+		}
+
+		var enabled = ss.PopSpeech().ToLowerInvariant() switch
+		{
+			"on" or "enable" or "enabled" => true,
+			"off" or "disable" or "disabled" => false,
+			_ => (bool?)null
+		};
+
+		if (!enabled.HasValue)
+		{
+			actor.Send("You must specify either on or off.");
+			return;
+		}
+
+		if (!actor.Gameworld.ComputerMailService.SetMailServiceEnabled(host, enabled.Value, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send($"Mail service advertisement on {host.Name.ColourName()} is now {(enabled.Value ? "enabled".ColourValue() : "disabled".ColourError())}.");
+	}
+
+	private static void ProgrammingMailDomain(ICharacter actor, IComputerHost host, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Do you want to add, remove, enable or disable a domain?");
+			return;
+		}
+
+		var action = ss.PopSpeech().ToLowerInvariant();
+		if (ss.IsFinished)
+		{
+			actor.Send("Which domain do you want to work with?");
+			return;
+		}
+
+		var domain = ss.SafeRemainingArgument;
+		var mailService = actor.Gameworld.ComputerMailService;
+		var success = action switch
+		{
+			"add" => mailService.RegisterDomain(host, domain, out var addError)
+				? SendMailStatus(actor, $"The domain {domain.ColourName()} is now hosted by {host.Name.ColourName()}.")
+				: SendMailError(actor, addError),
+			"remove" => mailService.RemoveDomain(host, domain, out var removeError)
+				? SendMailStatus(actor, $"The domain {domain.ColourName()} is no longer hosted by {host.Name.ColourName()}.")
+				: SendMailError(actor, removeError),
+			"enable" => mailService.SetDomainEnabled(host, domain, true, out var enableError)
+				? SendMailStatus(actor, $"The domain {domain.ColourName()} is now enabled on {host.Name.ColourName()}.")
+				: SendMailError(actor, enableError),
+			"disable" => mailService.SetDomainEnabled(host, domain, false, out var disableError)
+				? SendMailStatus(actor, $"The domain {domain.ColourName()} is now disabled on {host.Name.ColourName()}.")
+				: SendMailError(actor, disableError),
+			_ => false
+		};
+
+		if (!success && action is not ("add" or "remove" or "enable" or "disable"))
+		{
+			actor.Send("You must specify add, remove, enable or disable.");
+		}
+	}
+
+	private static void ProgrammingMailAccount(ICharacter actor, IComputerHost host, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Do you want to add, enable, disable or change the password of an account?");
+			return;
+		}
+
+		var action = ss.PopSpeech().ToLowerInvariant();
+		var mailService = actor.Gameworld.ComputerMailService;
+		switch (action)
+		{
+			case "add":
+				if (ss.IsFinished)
+				{
+					actor.Send("Which account address do you want to create?");
+					return;
+				}
+
+				var address = ss.PopSpeech();
+				if (ss.IsFinished)
+				{
+					actor.Send("What password should that new account use?");
+					return;
+				}
+
+				if (!mailService.CreateAccount(host, address, ss.SafeRemainingArgument, out var addError))
+				{
+					actor.Send(addError);
+					return;
+				}
+
+				actor.Send($"Created the account {address.ColourName()} on {host.Name.ColourName()}.");
+				return;
+			case "enable":
+			case "disable":
+				if (ss.IsFinished)
+				{
+					actor.Send("Which account address do you want to change?");
+					return;
+				}
+
+				var targetAddress = ss.SafeRemainingArgument;
+				if (!mailService.SetAccountEnabled(host, targetAddress, action == "enable", out var toggleError))
+				{
+					actor.Send(toggleError);
+					return;
+				}
+
+				actor.Send(
+					$"{targetAddress.ColourName()} is now {(action == "enable" ? "enabled".ColourValue() : "disabled".ColourError())} on {host.Name.ColourName()}.");
+				return;
+			case "password":
+				if (ss.IsFinished)
+				{
+					actor.Send("Which account address do you want to change the password for?");
+					return;
+				}
+
+				var passwordAddress = ss.PopSpeech();
+				if (ss.IsFinished)
+				{
+					actor.Send("What new password should that account use?");
+					return;
+				}
+
+				if (!mailService.SetAccountPassword(host, passwordAddress, ss.SafeRemainingArgument, out var passwordError))
+				{
+					actor.Send(passwordError);
+					return;
+				}
+
+				actor.Send($"Updated the password for {passwordAddress.ColourName()} on {host.Name.ColourName()}.");
+				return;
+			default:
+				actor.Send("You must specify add, enable, disable or password.");
+				return;
+		}
+	}
+
+	private static bool SendMailStatus(ICharacter actor, string message)
+	{
+		actor.Send(message);
+		return true;
+	}
+
+	private static bool SendMailError(ICharacter actor, string error)
+	{
+		actor.Send(error);
+		return false;
 	}
 
 	private static void ProgrammingWorkspaceExecute(ICharacter actor, StringStack ss)

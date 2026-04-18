@@ -213,14 +213,162 @@ public class SeederDisfigurementTemplateUtilityTests
         Assert.AreEqual("ornate lettering", slot.Element("AlternateText")?.Value);
     }
 
-    [TestMethod]
-    public void HumanSeeder_DefaultDisfigurementHooks_AreEmptyByDefault()
-    {
-        Assert.AreEqual(0, HumanSeeder.TattooTemplatesForTesting.Count,
-            "Human stock tattoo hooks should start empty until a later content pass adds templates.");
-        Assert.AreEqual(0, HumanSeeder.ScarTemplatesForTesting.Count,
-            "Human stock scar hooks should start empty until a later content pass adds templates.");
-    }
+	[TestMethod]
+	public void SeedTemplates_TattooDefinitions_WithoutExplicitLanguageOrScript_UseFirstNonAdminLanguageAndFirstScript()
+	{
+		using var context = BuildContext();
+		var body = SeedMinimalBodyContext(context);
+		context.TraitDefinitions.Add(new MudSharp.Models.TraitDefinition
+		{
+			Id = 60,
+			Name = "Language Skill",
+			Type = (int)MudSharp.Body.Traits.TraitType.Skill,
+			DecoratorId = 0,
+			TraitGroup = "Skills",
+			ChargenBlurb = string.Empty,
+			Alias = "languageskill",
+			ValueExpression = "value"
+		});
+		context.LanguageDifficultyModels.Add(new LanguageDifficultyModels
+		{
+			Id = 61,
+			Name = "Standard",
+			Type = "simple",
+			Definition = "<Definition />"
+		});
+		context.Knowledges.Add(new Knowledge
+		{
+			Id = 62,
+			Name = "Letters",
+			Description = "Letters",
+			LongDescription = "Letters",
+			Type = "Language",
+			Subtype = "Script"
+		});
+		context.Languages.AddRange(
+			new MudSharp.Models.Language
+			{
+				Id = 63,
+				Name = "Admin Speech",
+				UnknownLanguageDescription = "an unknown language",
+				LanguageObfuscationFactor = 1.0,
+				LinkedTraitId = 60,
+				DifficultyModel = 61
+			},
+			new MudSharp.Models.Language
+			{
+				Id = 64,
+				Name = "Trade Tongue",
+				UnknownLanguageDescription = "an unknown language",
+				LanguageObfuscationFactor = 1.0,
+				LinkedTraitId = 60,
+				DifficultyModel = 61
+			});
+		context.Scripts.Add(new MudSharp.Models.Script
+		{
+			Id = 65,
+			Name = "Merchant Script",
+			KnownScriptDescription = "Merchant script",
+			UnknownScriptDescription = "unknown script",
+			KnowledgeId = 62,
+			DocumentLengthModifier = 1.0,
+			InkUseModifier = 1.0
+		});
+		context.Colours.Add(new Colour
+		{
+			Id = 66,
+			Name = "Black",
+			Fancy = "black"
+		});
+		context.SaveChanges();
+
+		var definition = new SeederTattooTemplateDefinition(
+			"Runtime Banner",
+			"a banner tattoo reading $template{banner}",
+			"A banner tattoo carries the words $template{banner}.",
+			InkColours: new Dictionary<string, double> { ["Black"] = 1.0 },
+			TextSlots:
+			[
+				new SeederTattooTextSlotDefinition(
+					"banner",
+					10,
+					DefaultLanguageName: "",
+					DefaultScriptName: "",
+					DefaultText: "Mom",
+					RequiredCustomText: true,
+					DefaultColourName: "Black")
+			]);
+
+		SeederDisfigurementTemplateUtilities.SeedTemplates(context, body, tattooDefinitions: [definition]);
+
+		var slot = XElement.Parse(context.DisfigurementTemplates.Single().Definition)
+			.Element("TextSlots")?
+			.Element("TextSlot");
+		Assert.IsNotNull(slot);
+		Assert.AreEqual("64", slot.Element("Language")?.Value);
+		Assert.AreEqual("65", slot.Element("Script")?.Value);
+	}
+
+	[TestMethod]
+	public void SeedTemplates_TattooDefinitions_WithoutWritingDefaults_SkipWritingTattoos()
+	{
+		using var context = BuildContext();
+		var body = SeedMinimalBodyContext(context);
+		context.Colours.Add(new Colour
+		{
+			Id = 70,
+			Name = "Black",
+			Fancy = "black"
+		});
+		context.SaveChanges();
+
+		var definition = new SeederTattooTemplateDefinition(
+			"Runtime Banner",
+			"a banner tattoo reading $template{banner}",
+			"A banner tattoo carries the words $template{banner}.",
+			InkColours: new Dictionary<string, double> { ["Black"] = 1.0 },
+			TextSlots:
+			[
+				new SeederTattooTextSlotDefinition(
+					"banner",
+					10,
+					DefaultLanguageName: "",
+					DefaultScriptName: "",
+					DefaultText: "Mom",
+					RequiredCustomText: true,
+					DefaultColourName: "Black")
+			]);
+
+		Assert.IsFalse(
+			SeederDisfigurementTemplateUtilities.HasMissingDefinitions(context, tattooDefinitions: [definition]),
+			"Writing tattoos without any runtime language/script defaults should be treated as intentionally unavailable.");
+
+		SeederDisfigurementTemplateUtilities.SeedTemplates(context, body, tattooDefinitions: [definition]);
+
+		Assert.AreEqual(0, context.DisfigurementTemplates.Count(),
+			"Writing tattoos should not be installed when no suitable language/script defaults can be inferred.");
+	}
+
+	[TestMethod]
+	public void HumanSeeder_TattooTemplates_DefineDirectSkillBandsAndRuntimeWritingDefaults()
+	{
+		Assert.IsTrue(HumanSeeder.TattooTemplatesForTesting.Count > 0,
+			"Human tattoo templates should expose the seeded catalogue for regression checks.");
+		Assert.IsTrue(HumanSeeder.TattooTemplatesForTesting.All(x =>
+			x.MinimumSkill is 0.0 or 20.0 or 40.0 or 60.0),
+			"Human tattoo minimum skills should be authored directly into the supported crude/simple/moderate/master bands.");
+		Assert.AreEqual(0.0, HumanSeeder.TattooTemplatesForTesting.Single(x => x.Name == "Stick-And-Poke Tiny Heart").MinimumSkill);
+		Assert.AreEqual(20.0, HumanSeeder.TattooTemplatesForTesting.Single(x => x.Name == "Classic Rose").MinimumSkill);
+		Assert.AreEqual(40.0, HumanSeeder.TattooTemplatesForTesting.Single(x => x.Name == "Flash Dragon").MinimumSkill);
+		Assert.AreEqual(60.0, HumanSeeder.TattooTemplatesForTesting.Single(x => x.Name == "Infernal Cathedral").MinimumSkill);
+		Assert.IsTrue(HumanSeeder.TattooTemplatesForTesting
+			.Where(x => x.TextSlots?.Any() == true)
+			.SelectMany(x => x.TextSlots!)
+			.All(x => string.IsNullOrWhiteSpace(x.DefaultLanguageName) && string.IsNullOrWhiteSpace(x.DefaultScriptName)),
+			"Human writing tattoos should infer their default language and script at runtime rather than pinning seeder-time names.");
+		Assert.AreEqual(0, HumanSeeder.ScarTemplatesForTesting.Count,
+			"Human stock scar hooks should remain empty until a scar content pass adds templates.");
+	}
 
     private static BodyProto SeedMinimalBodyContext(FuturemudDatabaseContext context)
     {

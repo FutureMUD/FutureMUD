@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using MudSharp.Character;
+using MudSharp.Community.Boards;
 using MudSharp.Construction.Grids;
 using MudSharp.Editor;
 using MudSharp.Framework;
@@ -29,6 +30,7 @@ internal static class ComputerBuiltInApplicationExecutors
 		{
 			new FileManagerBuiltInApplicationExecutor(),
 			new FtpBuiltInApplicationExecutor(),
+			new BoardsBuiltInApplicationExecutor(),
 			new MailBuiltInApplicationExecutor(),
 			new DirectoryBuiltInApplicationExecutor(),
 			new SysMonBuiltInApplicationExecutor()
@@ -834,6 +836,719 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 	private static string DescribeOwner(IComputerFileOwner owner)
 	{
 		return ComputerFileTransferUtilities.DescribeOwner(owner);
+	}
+}
+
+internal sealed class BoardsBuiltInApplicationExecutor : IComputerBuiltInApplicationExecutor
+{
+	private sealed class BoardsState
+	{
+		public long? TargetHostItemId { get; set; }
+		public long? LoggedInAccountId { get; set; }
+		public string LoggedInAddress { get; set; } = string.Empty;
+		public long? SelectedBoardId { get; set; }
+
+		public void ClearLogin()
+		{
+			LoggedInAccountId = null;
+			LoggedInAddress = string.Empty;
+		}
+
+		public void SelectTargetHost(IComputerHost host)
+		{
+			TargetHostItemId = host.OwnerHostItemId;
+			SelectedBoardId = null;
+			ClearLogin();
+		}
+	}
+
+	public string ApplicationId => "boards";
+
+	public ComputerProgramExecutionOutcome Execute(IFuturemud gameworld, ICharacter? actor, IComputerExecutableOwner owner,
+		IComputerTerminalSession? session, ComputerRuntimeProcess process, IComputerBuiltInApplication application)
+	{
+		if (session is null)
+		{
+			return new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = $"{application.Name} requires an active computer terminal session."
+			};
+		}
+
+		var state = LoadState(process.StateJson, process.Host);
+		var targetHost = ResolveTargetHost(gameworld, session, process.Host, state, out var hostWarning);
+		var account = ResolveLoggedInAccount(gameworld, process.Host, targetHost, state, out var accountWarning);
+		var board = ResolveSelectedBoard(gameworld, targetHost, state, out var boardWarning);
+		var warning = hostWarning ?? accountWarning ?? boardWarning;
+		var input = ComputerExecutionContextScope.Current?.ConsumePendingTerminalInput();
+		if (string.IsNullOrWhiteSpace(input))
+		{
+			SendOverview(gameworld, session, application, state, targetHost, account, board, warning);
+			return WaitForInput(session, state);
+		}
+
+		var response = HandleCommand(gameworld, session, application, process, state, targetHost, account, board, input!);
+		if (!string.IsNullOrWhiteSpace(response.Output))
+		{
+			session.User.OutputHandler.Send(response.Output, nopage: true);
+		}
+
+		return response.Exit
+			? new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Completed
+			}
+			: WaitForInput(session, state);
+	}
+
+	private static (string Output, bool Exit) HandleCommand(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerBuiltInApplication application, ComputerRuntimeProcess process, BoardsState state, IComputerHost? targetHost,
+		IComputerNetworkAccount? account, IBoard? board, string input)
+	{
+		var ss = new StringStack(input.Trim());
+		var command = ss.PopSpeech().ToLowerInvariant();
+		return command switch
+		{
+			"" => (RenderPrompt(session.User, state, targetHost, account, board, null), false),
+			"help" => (RenderHelp(session.User, application, state, targetHost, account, board), false),
+			"hosts" => (RenderHosts(gameworld, session, process.Host), false),
+			"open" => HandleOpen(gameworld, session, state, process.Host, ss),
+			"login" => HandleLogin(gameworld, session, state, process.Host, targetHost, ss),
+			"logout" => HandleLogout(session, state, targetHost),
+			"boards" or "listboards" => HandleBoards(gameworld, session, state, targetHost, account, board),
+			"use" or "select" => HandleUse(gameworld, session, state, targetHost, ss),
+			"list" => HandleList(gameworld, session, state, targetHost, board),
+			"read" or "show" => HandleRead(gameworld, session, state, targetHost, board, ss),
+			"post" or "write" => HandlePost(gameworld, session, process, state, targetHost, account, board, ss),
+			"delete" or "del" => HandleDelete(gameworld, session, state, targetHost, account, board, ss),
+			"exit" or "quit" => ($"{application.Name.ColourName()} closing.", true),
+			_ => ($"That is not a valid {application.Name.ColourName()} command.\n\n{RenderPrompt(session.User, state, targetHost, account, board, null)}", false)
+		};
+	}
+
+	private static (string Output, bool Exit) HandleOpen(IFuturemud gameworld, IComputerTerminalSession session,
+		BoardsState state, IComputerHost localHost, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			return ($"Which boards service host do you want to open?\n\n{RenderPrompt(session.User, state, ResolveTargetHost(gameworld, session, localHost, state, out _), null, null, null)}",
+				false);
+		}
+
+		var identifier = ss.SafeRemainingArgument.Trim();
+		var targetHost = ResolveServiceHost(gameworld, session, localHost, identifier, out var error);
+		if (targetHost is null)
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, state, ResolveTargetHost(gameworld, session, localHost, state, out _), null, null, null)}",
+				false);
+		}
+
+		state.SelectTargetHost(targetHost);
+		return ($"Opened the boards service on {targetHost.Name.ColourName()}.\n\n{RenderPrompt(session.User, state, targetHost, null, null, null)}",
+			false);
+	}
+
+	private static (string Output, bool Exit) HandleLogin(IFuturemud gameworld, IComputerTerminalSession session,
+		BoardsState state, IComputerHost localHost, IComputerHost? targetHost, StringStack ss)
+	{
+		if (targetHost is null)
+		{
+			return ($"Open a boards service first with {"type open <host>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, null, null, null, null)}",
+				false);
+		}
+
+		if (ss.IsFinished)
+		{
+			return ($"Which network account do you want to use?\n\n{RenderPrompt(session.User, state, targetHost, null, null, null)}",
+				false);
+		}
+
+		var address = ss.PopSpeech();
+		if (ss.IsFinished)
+		{
+			return ($"What password do you want to use for {address.ColourName()}?\n\n{RenderPrompt(session.User, state, targetHost, null, null, null)}",
+				false);
+		}
+
+		var password = ss.SafeRemainingArgument;
+		var authentication = gameworld.ComputerNetworkIdentityService.Authenticate(localHost, address, password);
+		if (!authentication.Success || authentication.Account is null)
+		{
+			return ($"{authentication.ErrorMessage}\n\n{RenderPrompt(session.User, state, targetHost, null, null, null)}", false);
+		}
+
+		if (!HostAcceptsAccount(gameworld, targetHost, authentication.Account))
+		{
+			return ($"{targetHost.Name.ColourName()} does not accept boards logins for {authentication.Account.Address.ColourName()}.\n\n{RenderPrompt(session.User, state, targetHost, null, null, null)}",
+				false);
+		}
+
+		state.LoggedInAccountId = authentication.Account.Id;
+		state.LoggedInAddress = authentication.Account.Address;
+		return ($"You log in to {authentication.Account.Address.ColourName()} on {targetHost.Name.ColourName()}.\n\n{RenderPrompt(session.User, state, targetHost, authentication.Account, ResolveSelectedBoard(gameworld, targetHost, state, out _), null)}",
+			false);
+	}
+
+	private static (string Output, bool Exit) HandleLogout(IComputerTerminalSession session, BoardsState state,
+		IComputerHost? targetHost)
+	{
+		if (state.LoggedInAccountId is not > 0L)
+		{
+			return ($"You are not currently logged in to any network board identity.\n\n{RenderPrompt(session.User, state, targetHost, null, null, null)}",
+				false);
+		}
+
+		var address = state.LoggedInAddress;
+		state.ClearLogin();
+		return ($"You log out of {address.ColourName()}.\n\n{RenderPrompt(session.User, state, targetHost, null, null, null)}",
+			false);
+	}
+
+	private static (string Output, bool Exit) HandleBoards(IFuturemud gameworld, IComputerTerminalSession session,
+		BoardsState state, IComputerHost? targetHost, IComputerNetworkAccount? account, IBoard? board)
+	{
+		if (targetHost is null)
+		{
+			return ($"There is no current boards service selected. Use {"type hosts".ColourCommand()} and {"type open <host>".ColourCommand()} first.\n\n{RenderPrompt(session.User, state, null, account, board, null)}",
+				false);
+		}
+
+		var hostedBoards = gameworld.ComputerBoardService.GetHostedBoardDetails(targetHost).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine($"Hosted Boards on {targetHost.Name.ColourName()}:");
+		if (!hostedBoards.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				hostedBoards.Select(x => new List<string>
+				{
+					x.BoardId.ToString("N0", session.User),
+					x.BoardName,
+					x.PostCount.ToString("N0", session.User)
+				}),
+				new List<string>
+				{
+					"Id",
+					"Board",
+					"Posts"
+				},
+				session.User.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				session.User.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.Append(RenderPrompt(session.User, state, targetHost, account, board, null));
+		return (sb.ToString(), false);
+	}
+
+	private static (string Output, bool Exit) HandleUse(IFuturemud gameworld, IComputerTerminalSession session,
+		BoardsState state, IComputerHost? targetHost, StringStack ss)
+	{
+		if (targetHost is null)
+		{
+			return ($"Open a boards service first with {"type open <host>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, null, null, null, null)}",
+				false);
+		}
+
+		if (ss.IsFinished)
+		{
+			return ($"Which hosted board do you want to select?\n\n{RenderPrompt(session.User, state, targetHost, null, null, null)}",
+				false);
+		}
+
+		var selectedBoard = gameworld.ComputerBoardService.ResolveHostedBoard(targetHost, ss.SafeRemainingArgument, out var error);
+		if (selectedBoard is null)
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, state, targetHost, null, null, null)}", false);
+		}
+
+		state.SelectedBoardId = selectedBoard.Id;
+		return ($"Selected the hosted board {selectedBoard.Name.ColourName()} on {targetHost.Name.ColourName()}.\n\n{RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), selectedBoard, null)}",
+			false);
+	}
+
+	private static (string Output, bool Exit) HandleList(IFuturemud gameworld, IComputerTerminalSession session,
+		BoardsState state, IComputerHost? targetHost, IBoard? board)
+	{
+		if (targetHost is null)
+		{
+			return ($"Open a boards service first with {"type open <host>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, null, null, null, null)}",
+				false);
+		}
+
+		if (board is null)
+		{
+			return ($"Select one hosted board first with {"type use <board>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), null, null)}",
+				false);
+		}
+
+		var posts = gameworld.ComputerBoardService.GetPosts(targetHost, board).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine($"{board.Name.ColourName()} on {targetHost.Name.ColourName()}:");
+		if (!posts.Any())
+		{
+			sb.AppendLine("There are no posts on this board.");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				posts.Select(x => new List<string>
+				{
+					x.Id.ToString("N0", session.User),
+					x.AuthorName,
+					x.Title,
+					x.PostTime.ToString(session.User)
+				}),
+				new List<string>
+				{
+					"Id",
+					"Author",
+					"Title",
+					"Posted"
+				},
+				session.User.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				session.User.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.Append(RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), board, null));
+		return (sb.ToString(), false);
+	}
+
+	private static (string Output, bool Exit) HandleRead(IFuturemud gameworld, IComputerTerminalSession session,
+		BoardsState state, IComputerHost? targetHost, IBoard? board, StringStack ss)
+	{
+		if (targetHost is null)
+		{
+			return ($"Open a boards service first with {"type open <host>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, null, null, null, null)}",
+				false);
+		}
+
+		if (board is null)
+		{
+			return ($"Select one hosted board first with {"type use <board>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), null, null)}",
+				false);
+		}
+
+		if (ss.IsFinished || !long.TryParse(ss.PopSpeech(), out var postId))
+		{
+			return ($"Which board post do you want to read?\n\n{RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), board, null)}",
+				false);
+		}
+
+		var post = gameworld.ComputerBoardService.ReadPost(targetHost, board, postId, out var error);
+		if (post is null)
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), board, null)}",
+				false);
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Post {post.Id.ToString("N0", session.User).ColourValue()} :: {board.Name.ColourName()}");
+		sb.AppendLine($"Author: {post.AuthorName.ColourName()}");
+		sb.AppendLine($"Posted: {post.PostTime.ToString(session.User).ColourValue()}");
+		if (post.InGameDateTime is not null)
+		{
+			sb.AppendLine($"In-Game: {post.InGameDateTime.GetDateTimeString().ColourValue()}");
+		}
+
+		sb.AppendLine($"Title: {post.Title.ColourCommand()}");
+		sb.AppendLine();
+		sb.AppendLine(post.Text);
+		sb.AppendLine();
+		sb.Append(RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), board, null));
+		return (sb.ToString(), false);
+	}
+
+	private static (string Output, bool Exit) HandlePost(IFuturemud gameworld, IComputerTerminalSession session,
+		ComputerRuntimeProcess process, BoardsState state, IComputerHost? targetHost, IComputerNetworkAccount? account,
+		IBoard? board, StringStack ss)
+	{
+		if (targetHost is null)
+		{
+			return ($"Open a boards service first with {"type open <host>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, null, null, null, null)}",
+				false);
+		}
+
+		if (account is null)
+		{
+			return ($"Log in first with {"type login <user@domain> <password>".ColourCommand()} before posting.\n\n{RenderPrompt(session.User, state, targetHost, null, board, null)}",
+				false);
+		}
+
+		if (board is null)
+		{
+			return ($"Select one hosted board first with {"type use <board>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, targetHost, account, null, null)}",
+				false);
+		}
+
+		if (ss.IsFinished)
+		{
+			return ($"What title do you want to give to your board post?\n\n{RenderPrompt(session.User, state, targetHost, account, board, null)}",
+				false);
+		}
+
+		var title = ss.SafeRemainingArgument.Trim();
+		if (title.Length > 200)
+		{
+			return ($"Board post titles must be 200 characters or fewer.\n\n{RenderPrompt(session.User, state, targetHost, account, board, null)}",
+				false);
+		}
+
+		var boardName = board.Name;
+		session.User.EditorMode(
+			(text, handler, _) =>
+			{
+				if (!gameworld.ComputerBoardService.CreatePost(targetHost, account, board, title, text, out var error))
+				{
+					handler.Send(error);
+					return;
+				}
+
+				handler.Send(
+					$"You post {title.ColourCommand()} to {boardName.ColourName()}. Continue with {"type list".ColourCommand()} to review the board.");
+			},
+			(handler, _) =>
+			{
+				handler.Send($"You decide not to post to {boardName.ColourName()}.");
+			},
+			1.0,
+			string.Empty,
+			EditorOptions.PermitEmpty);
+		return (string.Empty, false);
+	}
+
+	private static (string Output, bool Exit) HandleDelete(IFuturemud gameworld, IComputerTerminalSession session,
+		BoardsState state, IComputerHost? targetHost, IComputerNetworkAccount? account, IBoard? board, StringStack ss)
+	{
+		if (targetHost is null)
+		{
+			return ($"Open a boards service first with {"type open <host>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, null, null, null, null)}",
+				false);
+		}
+
+		if (account is null)
+		{
+			return ($"Log in first with {"type login <user@domain> <password>".ColourCommand()} before deleting a post.\n\n{RenderPrompt(session.User, state, targetHost, null, board, null)}",
+				false);
+		}
+
+		if (board is null)
+		{
+			return ($"Select one hosted board first with {"type use <board>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, targetHost, account, null, null)}",
+				false);
+		}
+
+		if (ss.IsFinished || !long.TryParse(ss.PopSpeech(), out var postId))
+		{
+			return ($"Which board post do you want to delete?\n\n{RenderPrompt(session.User, state, targetHost, account, board, null)}",
+				false);
+		}
+
+		if (!gameworld.ComputerBoardService.DeletePost(targetHost, account, board, postId, out var error))
+		{
+			return ($"{error}\n\n{RenderPrompt(session.User, state, targetHost, account, board, null)}", false);
+		}
+
+		return ($"Deleted board post {postId.ToString("N0", session.User).ColourValue()} from {board.Name.ColourName()}.\n\n{RenderPrompt(session.User, state, targetHost, account, board, null)}",
+			false);
+	}
+
+	private static void SendOverview(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerBuiltInApplication application, BoardsState state, IComputerHost? targetHost, IComputerNetworkAccount? account,
+		IBoard? board, string? warning)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"{application.Name.ColourName()} :: {session.Host.Name.ColourName()}");
+		sb.AppendLine(RenderHelp(session.User, application, state, targetHost, account, board));
+		if (!string.IsNullOrEmpty(warning))
+		{
+			sb.AppendLine();
+			sb.AppendLine(warning);
+		}
+
+		session.User.OutputHandler.Send(sb.ToString(), nopage: true);
+	}
+
+	private static string RenderHelp(ICharacter user, IComputerBuiltInApplication application, BoardsState state,
+		IComputerHost? targetHost, IComputerNetworkAccount? account, IBoard? board)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"{application.Name.ColourName()} commands:");
+		sb.AppendLine($"\t{"hosts".ColourCommand()} - list reachable hosts advertising Boards");
+		sb.AppendLine($"\t{"open <host>".ColourCommand()} - choose which boards service host to use");
+		sb.AppendLine($"\t{"login <user@domain> <password>".ColourCommand()} - authenticate for posting and deletion");
+		sb.AppendLine($"\t{"logout".ColourCommand()} - log out of the current network identity");
+		sb.AppendLine($"\t{"boards".ColourCommand()} - list boards exposed by the selected host");
+		sb.AppendLine($"\t{"use <board>".ColourCommand()} - select one hosted board");
+		sb.AppendLine($"\t{"list".ColourCommand()} - list posts on the selected board");
+		sb.AppendLine($"\t{"read <id>".ColourCommand()} - read one post from the selected board");
+		sb.AppendLine($"\t{"post <title>".ColourCommand()} - open the multiline editor to create a new post");
+		sb.AppendLine($"\t{"delete <id>".ColourCommand()} - delete one of your own network-authored posts");
+		sb.AppendLine($"\t{"help".ColourCommand()} - show this help");
+		sb.AppendLine($"\t{"exit".ColourCommand()} - close Boards");
+		sb.AppendLine();
+		sb.Append(RenderPrompt(user, state, targetHost, account, board, null));
+		return sb.ToString();
+	}
+
+	private static string RenderHosts(IFuturemud gameworld, IComputerTerminalSession session, IComputerHost localHost)
+	{
+		var rows = new List<List<string>>();
+		if (gameworld.ComputerBoardService.IsBoardsServiceEnabled(localHost) &&
+		    gameworld.ComputerBoardService.GetHostedBoardDetails(localHost).Any())
+		{
+			rows.Add(new List<string>
+			{
+				localHost.Name,
+				"local",
+				"Local",
+				gameworld.ComputerBoardService.GetHostedBoardDetails(localHost).Count().ToString("N0", session.User)
+			});
+		}
+
+		rows.AddRange(gameworld.ComputerExecutionService.GetReachableHosts(localHost, session)
+			.Where(x => x.Host.IsNetworkServiceEnabled("boards"))
+			.Where(x => gameworld.ComputerBoardService.GetHostedBoardDetails(x.Host).Any())
+			.Where(x => x.Host.OwnerHostItemId != localHost.OwnerHostItemId)
+			.Select(x => new List<string>
+			{
+				x.Host.Name,
+				x.CanonicalAddress,
+				x.IsLocalGrid ? "Local Grid" : "Linked Grid",
+				gameworld.ComputerBoardService.GetHostedBoardDetails(x.Host).Count().ToString("N0", session.User)
+			}));
+
+		var sb = new StringBuilder();
+		sb.AppendLine("Reachable Boards Hosts:");
+		if (!rows.Any())
+		{
+			sb.AppendLine("\tNone");
+			sb.AppendLine();
+			sb.Append("There are no reachable hosts currently advertising Boards.");
+			return sb.ToString();
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			rows,
+			new List<string>
+			{
+				"Host",
+				"Address",
+				"Scope",
+				"Boards"
+			},
+			session.User.LineFormatLength,
+			true,
+			Telnet.BoldGreen,
+			1,
+			session.User.Account.UseUnicode));
+		return sb.ToString();
+	}
+
+	private static string RenderPrompt(ICharacter user, BoardsState state, IComputerHost? targetHost,
+		IComputerNetworkAccount? account, IBoard? board, string? warning)
+	{
+		var sb = new StringBuilder();
+		if (!string.IsNullOrEmpty(warning))
+		{
+			sb.AppendLine(warning);
+		}
+
+		if (targetHost is null)
+		{
+			sb.Append($"Use {"type hosts".ColourCommand()} to discover reachable boards services.");
+			return sb.ToString();
+		}
+
+		sb.Append($"Boards host: {targetHost.Name.ColourName()}.");
+		sb.Append(account is null
+			? $" Not logged in. Use {"type login <user@domain> <password>".ColourCommand()} to authenticate for posting."
+			: $" Logged in as {account.Address.ColourName()}.");
+		sb.Append(board is null
+			? $" Select a board with {"type use <board>".ColourCommand()}."
+			: $" Current board: {board.Name.ColourName()}.");
+		return sb.ToString();
+	}
+
+	private static BoardsState LoadState(string? stateJson, IComputerHost localHost)
+	{
+		if (!string.IsNullOrWhiteSpace(stateJson))
+		{
+			try
+			{
+				var state = JsonSerializer.Deserialize<BoardsState>(stateJson);
+				if (state is not null)
+				{
+					return state;
+				}
+			}
+			catch (JsonException)
+			{
+			}
+		}
+
+		return new BoardsState
+		{
+			TargetHostItemId = localHost.IsNetworkServiceEnabled("boards") &&
+			                   localHost.HostedBoardIds.Any()
+				? localHost.OwnerHostItemId
+				: null
+		};
+	}
+
+	private static IComputerHost? ResolveTargetHost(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerHost localHost, BoardsState state, out string? warning)
+	{
+		warning = null;
+		if (state.TargetHostItemId is > 0L)
+		{
+			if (localHost.OwnerHostItemId == state.TargetHostItemId &&
+			    gameworld.ComputerBoardService.IsBoardsServiceEnabled(localHost) &&
+			    gameworld.ComputerBoardService.GetHostedBoardDetails(localHost).Any())
+			{
+				return localHost;
+			}
+
+			var remote = gameworld.ComputerExecutionService.GetReachableHosts(localHost, session)
+				.Select(x => x.Host)
+				.FirstOrDefault(x =>
+					x.OwnerHostItemId == state.TargetHostItemId &&
+					x.IsNetworkServiceEnabled("boards") &&
+					gameworld.ComputerBoardService.GetHostedBoardDetails(x).Any());
+			if (remote is not null)
+			{
+				return remote;
+			}
+
+			warning = "The previously selected boards service host is no longer reachable.";
+			state.TargetHostItemId = null;
+			state.SelectedBoardId = null;
+			state.ClearLogin();
+		}
+
+		if (gameworld.ComputerBoardService.IsBoardsServiceEnabled(localHost) &&
+		    gameworld.ComputerBoardService.GetHostedBoardDetails(localHost).Any())
+		{
+			state.TargetHostItemId = localHost.OwnerHostItemId;
+			return localHost;
+		}
+
+		return null;
+	}
+
+	private static IComputerHost? ResolveServiceHost(IFuturemud gameworld, IComputerTerminalSession session,
+		IComputerHost localHost, string identifier, out string error)
+	{
+		error = string.Empty;
+		if (identifier.EqualTo("local") &&
+		    gameworld.ComputerBoardService.IsBoardsServiceEnabled(localHost) &&
+		    gameworld.ComputerBoardService.GetHostedBoardDetails(localHost).Any())
+		{
+			return localHost;
+		}
+
+		if ((localHost.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase) ||
+		     localHost.OwnerHostItemId?.ToString() == identifier) &&
+		    gameworld.ComputerBoardService.IsBoardsServiceEnabled(localHost) &&
+		    gameworld.ComputerBoardService.GetHostedBoardDetails(localHost).Any())
+		{
+			return localHost;
+		}
+
+		var summary = gameworld.ComputerExecutionService.ResolveReachableHost(localHost, identifier, session);
+		if (summary is null || !summary.Host.IsNetworkServiceEnabled("boards"))
+		{
+			error = $"There is no reachable host advertising Boards that matches {identifier.ColourName()}.";
+			return null;
+		}
+
+		if (!gameworld.ComputerBoardService.GetHostedBoardDetails(summary.Host).Any())
+		{
+			error = $"{summary.Host.Name.ColourName()} is not currently exposing any network boards.";
+			return null;
+		}
+
+		return summary.Host;
+	}
+
+	private static IComputerNetworkAccount? ResolveLoggedInAccount(IFuturemud gameworld, IComputerHost executionHost,
+		IComputerHost? targetHost, BoardsState state, out string? warning)
+	{
+		warning = null;
+		if (state.LoggedInAccountId is not > 0L)
+		{
+			return null;
+		}
+
+		var account = gameworld.ComputerNetworkIdentityService.GetAccount(executionHost, state.LoggedInAccountId.Value,
+			out var error);
+		if (account is null)
+		{
+			warning = error;
+			state.ClearLogin();
+			return null;
+		}
+
+		if (targetHost is not null && !HostAcceptsAccount(gameworld, targetHost, account))
+		{
+			warning = $"{targetHost.Name.ColourName()} no longer accepts {account.Address.ColourName()} for board posting.";
+			state.ClearLogin();
+			return null;
+		}
+
+		state.LoggedInAddress = account.Address;
+		return account;
+	}
+
+	private static IBoard? ResolveSelectedBoard(IFuturemud gameworld, IComputerHost? targetHost, BoardsState state,
+		out string? warning)
+	{
+		warning = null;
+		if (targetHost is null || state.SelectedBoardId is not > 0L)
+		{
+			return null;
+		}
+
+		var board = gameworld.ComputerBoardService.GetHostedBoards(targetHost)
+			.FirstOrDefault(x => x.Id == state.SelectedBoardId.Value);
+		if (board is not null)
+		{
+			return board;
+		}
+
+		warning = "The previously selected board is no longer exposed by that host.";
+		state.SelectedBoardId = null;
+		return null;
+	}
+
+	private static bool HostAcceptsAccount(IFuturemud gameworld, IComputerHost targetHost, IComputerNetworkAccount account)
+	{
+		return gameworld.ComputerNetworkIdentityService.GetHostedDomains(targetHost)
+			.Any(x => x.Enabled && x.DomainName.Equals(account.DomainName, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static ComputerProgramExecutionOutcome WaitForInput(IComputerTerminalSession session, BoardsState state)
+	{
+		return new ComputerProgramExecutionOutcome
+		{
+			Status = ComputerProcessStatus.Sleeping,
+			WaitType = ComputerProcessWaitType.UserInput,
+			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(session.User.Id, session.Terminal.TerminalItemId),
+			WaitingCharacterId = session.User.Id,
+			WaitingTerminalItemId = session.Terminal.TerminalItemId,
+			StateJson = JsonSerializer.Serialize(state)
+		};
 	}
 }
 

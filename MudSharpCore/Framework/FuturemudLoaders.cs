@@ -164,6 +164,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
     public IComputerHelpService ComputerHelpService { get; protected set; }
     public IComputerNetworkIdentityService ComputerNetworkIdentityService { get; protected set; }
     public IComputerNetworkTunnelService ComputerNetworkTunnelService { get; protected set; }
+    public IComputerBoardService ComputerBoardService { get; protected set; }
     public IComputerMailService ComputerMailService { get; protected set; }
     public IComputerFileTransferService ComputerFileTransferService { get; protected set; }
     public IEnumerable<IPlayerConnection> Connections => _connections;

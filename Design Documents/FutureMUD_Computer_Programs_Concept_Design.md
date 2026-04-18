@@ -1,6 +1,6 @@
 # FutureMUD Computer Program Design
 
-This is a concept design document to outline a system in FutureMUD for in-world computer programs, to allow builders and players to make custom computer logic that runs on computer and microcomputer systems. The overall system is still incomplete, but the current shipped slice now includes signal automation, player-facing `electrical` and `programming` verbs, a private character-owned computer workspace, and persisted computer-program execution with `sleep`, terminal-session `UserInput()`, and execution-host `WaitSignal()` waits.
+This is a concept design document to outline a system in FutureMUD for in-world computer programs, to allow builders and players to make custom computer logic that runs on computer and microcomputer systems. The subsystem has now reached its intended 1.0 design shape: it includes signal automation, player-facing `electrical` and `programming` verbs, a private character-owned computer workspace, real host-backed terminals and storage, telecom-backed networking, shared `user@domain` identities, and persisted computer-program execution with `sleep`, terminal-session `UserInput()`, and execution-host `WaitSignal()` waits.
 
 ## Current Implementation Status
 
@@ -91,6 +91,9 @@ The first player-facing command surface for this slice has also now landed:
   - `programming mail account add <user@domain> <password>`
   - `programming mail account enable|disable <user@domain>`
   - `programming mail account password <user@domain> <password>`
+  - `programming boards`
+  - `programming boards service on|off`
+  - `programming boards add|remove <board>`
   - `programming ftp`
   - `programming ftp service on|off`
   - `programming ftp account add <user> <password>`
@@ -129,7 +132,56 @@ The first player-facing command surface for this slice has also now landed:
 - the world boot login pass now logs in world-root items only, while inventory-rooted items remain dormant until their owning character or body logs in; extracted mounted modules still activate because their `AutomationMountHost` forwards the item lifecycle to them
 - powered-machine-based automation components no longer begin drawdown merely because they load switched on; they wait for `Login()` before attempting live power use
 
-The remaining work is still substantial. In particular, waits beyond `sleep`, `UserInput()`, and the current v1 `WaitSignal()` implementation, richer multi-port inter-item signal graphs, broader built-in application coverage beyond the currently shipped `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP`, remote execution semantics beyond local host launch/kill, and broader network services beyond the first shipped `Mail` and `FTP` services are still future phases.
+## 1.0 Design Baseline
+
+The 1.0 design for this subsystem is now:
+
+- real in-world computers are terminal-first rather than abstract workspace-only systems
+- the private character workspace remains as a helper and authoring surface, but the main runtime model is now generic across:
+  - character workspace
+  - computer host
+  - mounted computer storage
+  - component-backed file owners such as `FileSignalGenerator`
+- the canonical built-in application catalog is:
+  - `SysMon`
+  - `FileManager`
+  - `Directory`
+  - `Mail`
+  - `FTP`
+  - `Boards`
+  - `Messenger`
+- the currently shipped built-in runtime behaviour is:
+  - `SysMon`
+  - `FileManager`
+  - `Directory`
+  - `Mail`
+  - `FTP`
+  - `Boards`
+- `Messenger` remains the only catalogued built-in application still reserved for a later implementation slice
+- networking is telecommunications-backed rather than a separate parallel grid family
+- network discovery is route-scoped rather than globally flat, using:
+  - `public`
+  - exchange-private subnet scope
+  - explicit VPN scope
+- terminal sessions can gain temporary additional route reachability through authenticated VPN tunnelling without mutating the underlying adapter hardware
+- `Directory` is the primary discovery and tunnel-management client, while `SysMon` is the primary diagnostics and monitoring surface
+- shared `user@domain` identities are the common login model for shipped and planned network services
+- `Mail` is the first database-backed host service
+- `Boards` is the first host service built on an existing world subsystem, reusing the board runtime and persistence while adding host-scoped exposure and shared-identity posting
+- `FTP` and public network files remain XML-backed on the owning host, storage, or component file owner
+- automation is still grounded in mounted modules, sibling/local bindings, dedicated housings, and chained one-hop cable segments, but computers are now first-class participants in that environment through `WaitSignal()`, local file ownership, diagnostics, and file-backed generators
+
+## Future Plans Beyond 1.0
+
+The main post-1.0 expansion points are:
+
+- `Messenger` as the remaining missing shipped-catalog built-in application and network service
+- richer network-security gameplay layered onto the current route-key and device-id model rather than replacing it
+- broader computer-runtime helpers such as collection/dictionary file round-tripping and explicit signal emitters like `SendSignal` and `PulseSignal`
+- broader `WaitSignal()` resolution beyond the current execution-host-local v1 scope
+- richer automation topology authoring, especially explicit multi-port endpoints, clearer branching or junction presentation, and broader persisted graph diagnostics
+- optional higher-level remote-program orchestration if a later gameplay slice proves that remote execution is worth exposing
+- more sophisticated network-service behaviour such as queued delivery, relay semantics, or offline buffering where the gameplay value justifies the added complexity
 
 ## Core Concepts
 
@@ -266,12 +318,13 @@ In the current shipped phase:
 - built-in applications are represented as host-bound built-in program definitions rather than a disconnected catalog
 - they execute through the shared computer execution service as real host processes, but use dedicated built-in executors internally
 - they are exposed to players through `programming apps` and `programming app <name>` while connected to a powered terminal session
-- `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP` currently have implemented runtime behaviour
+- `SysMon`, `FileManager`, `Directory`, `Mail`, `FTP`, and `Boards` currently have implemented runtime behaviour
 - `SysMon` is a terminal-session diagnostics tool that reports host power and storage state, connected storage and terminal devices, network adapters, hardware route memberships, active session tunnels, running processes, and locally accessible automation signal sources and sinks on the execution host item
 - `FileManager` is a terminal-session interactive file utility that suspends in `UserInput()` between commands and currently supports listing, reading, editing, writing, appending, deleting, copying, retargeting, and directly inspecting or importing anonymously accessible public files from reachable remote hosts
 - `Directory` is a terminal-session interactive discovery utility that suspends in `UserInput()` between commands and now supports both local host inspection and telecom-backed reachable-host discovery through `hosts`, `show <host>`, and `services <host>`, plus session-scoped route inspection and VPN tunnelling through `routes`, `gateways`, `tunnel connect ...`, and `tunnel disconnect ...`
 - `Mail` is now the first implemented network-capable built-in application: it runs as an interactive terminal client, authenticates against reachable shared network identities in `user@domain` form, manages inbox and sent mail, and uses the ordinary editor flow to compose message bodies
 - `FTP` is now the second implemented network-capable built-in application: it runs as an interactive terminal client, opens a session to a reachable remote host advertising FTP, allows anonymous access to published public files, and allows authenticated full file manipulation across the target host and mounted storage devices
+- `Boards` is now the third implemented network-capable built-in application: it runs as an interactive terminal client, opens a reachable board-service host, authenticates through the shared `user@domain` identity model, lists the hosted boards exposed by that host, and uses the ordinary editor flow to create or delete network-authored posts
 - `NetworkAdapter` is no longer just a local readiness marker; it is now a telecom-grid-backed endpoint that restores its attached `ITelecommunicationsGrid`, joins and leaves that grid through runtime lifecycle, and publishes a canonical network address
 - `NetworkSwitch` is now the daisy-chain infrastructure pattern for in-world networks: one powered uplink can feed many downstream adapters or further switches without every endpoint needing its own direct exchange attachment
 - `WirelessModem` is now the untethered transport pattern for IoT-style or mobile devices: it exposes the same host-facing network contract as a wired adapter, but derives its transport from powered cellular coverage instead of a direct cable
@@ -288,11 +341,12 @@ In the current shipped phase:
 - remote service advertisement is intentionally conservative in the current slice: only built-in applications marked as network services and actually implemented are listed
 - `Mail` is now the first shipped advertised network service, but it is only advertised when the target host has its mail service enabled and at least one enabled hosted domain
 - `FTP` is now the second shipped advertised network service, but it is only advertised when the target host has its FTP service enabled; the advertised details report the count of anonymously readable public files currently exposed by that host and its mounted storage
+- `Boards` is now the third shipped advertised network service, but it is only advertised when the target host has its boards service enabled and at least one hosted board currently exposed on that host
 - hosts that expose one or more hosted VPN networks now also advertise a lightweight VPN gateway service for discovery, and authenticated terminal sessions can open temporary tunnel routes through those gateways
 - those active tunnel routes are session-scoped rather than hardware-scoped: they change discovery only for the authenticated terminal session that opened them and do not mutate the underlying adapter or host configuration
 - `Directory` and `SysMon` now surface canonical address, stable device id, base access-route summaries, and active session tunnels for both local adapters and remote hosts, which is the current player/admin UX for understanding why something is or is not reachable
 - future hacking should layer on top of this same route-key model by granting, emulating, or stealing temporary route memberships rather than replacing addressability or discovery from scratch
-- `Boards` and `Messenger` remain reserved built-in application identities for later phases
+- `Messenger` remains the only reserved built-in application identity from the 1.0 catalog that is still waiting on a future implementation slice
 
 ## Systems Needed
 

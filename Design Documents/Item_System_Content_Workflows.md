@@ -341,24 +341,28 @@ For the first real in-world computer workflow, a practical pass is:
 24. Use `programming app mail` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
 25. Use `type login <user@domain> <password>`, `type inbox`, `type read <id>`, and `type delete <id>` to confirm the mail client authenticates against a reachable shared network identity on a hosted domain and can inspect mailbox state.
 26. Use `type send <user@domain>`, `type subject <text>`, `type body`, `type post`, and `type exit` to confirm the mail client can compose and deliver mail, and that `type body` hands off to the ordinary multiline editor before returning to the terminal session.
-27. On a reachable host that should expose public files, use `programming ftp service on`, `programming ftp file list`, and `programming ftp file publish <file>` while connected to that host as an administrator.
-28. If that host also has a `filesignalgenerator`, confirm the component owner's backing signal file can be published and later addressed through the same local file-owner selection workflow.
-29. Use `type services <host>` in `Directory` from another reachable host and confirm the file server now advertises `FTP` with public-file detail text.
-30. Use `programming app ftp` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
-31. Use `type hosts`, `type open <host>`, `type list`, `type show <file>`, and `type get <file>` to confirm anonymous FTP access can see and copy only published public files.
-32. Use `type login <user> <password>`, `type owners`, `type use <owner>`, `type put <local-file> [remote-file]`, `type delete <file>`, and `type exit` to confirm authenticated FTP can manage files on the target host and its mounted storage devices.
-33. Use `programming app filemanager` on another host and confirm `type list public <host>`, `type show public <host> <file>`, and `type copy public <host> <file>` expose the same anonymously readable public files without requiring a separate FTP login.
-32. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
-33. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
-34. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
-35. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
-36. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
-37. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
-38. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
-39. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
-40. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
+27. On a reachable host that should also expose network boards, use `programming boards service on` and `programming boards add <board>` while connected to that host as an administrator.
+28. Use `type services <host>` in `Directory` from another reachable host and confirm the board server now advertises `Boards` with its hosted board names instead of reporting no implemented services.
+29. Use `programming app boards` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
+30. Use `type hosts`, `type open <host>`, `type login <user@domain> <password>`, `type boards`, `type use <board>`, `type list`, `type read <id>`, `type post <title>`, `type delete <id>`, `type logout`, and `type exit` to confirm the boards client can authenticate through the shared identity system, browse remote hosted boards, and create or remove network-authored posts using the normal multiline editor for post text.
+31. On a reachable host that should expose public files, use `programming ftp service on`, `programming ftp file list`, and `programming ftp file publish <file>` while connected to that host as an administrator.
+32. If that host also has a `filesignalgenerator`, confirm the component owner's backing signal file can be published and later addressed through the same local file-owner selection workflow.
+33. Use `type services <host>` in `Directory` from another reachable host and confirm the file server now advertises `FTP` with public-file detail text.
+34. Use `programming app ftp` and confirm it opens as a foreground interactive host process that immediately waits on `UserInput()` rather than completing.
+35. Use `type hosts`, `type open <host>`, `type list`, `type show <file>`, and `type get <file>` to confirm anonymous FTP access can see and copy only published public files.
+36. Use `type login <user> <password>`, `type owners`, `type use <owner>`, `type put <local-file> [remote-file]`, `type delete <file>`, and `type exit` to confirm authenticated FTP can manage files on the target host and its mounted storage devices.
+37. Use `programming app filemanager` on another host and confirm `type list public <host>`, `type show public <host> <file>`, and `type copy public <host> <file>` expose the same anonymously readable public files without requiring a separate FTP login.
+38. Create or load a host-backed program that writes a prompt with `WriteTerminal(...)`, then calls `UserInput()`, and confirm `programming execute <which>` leaves it suspended rather than completed.
+39. Use `programming processes` and confirm the waiting process is shown as a `UserInput` wait rather than a timed `Sleep`.
+40. Use `type <text>` while connected and confirm the terminal input surface routes through the current terminal session, resumes the waiting program, and passes the typed text back into that program rather than the private workspace.
+41. If there is only one nearby terminal, or one terminal clearly associated with the current `PositionTarget`, confirm `type <text>` auto-resolves and auto-connects to it even without a prior explicit `programming terminal connect`.
+42. Create or load a host-backed program that calls `WaitSignal("<source name>")` for a signal source component on the real host item and confirm `programming execute <which>` leaves it suspended rather than completed.
+43. Use `programming processes` and confirm the waiting process is shown as a `Signal` wait with the awaited host signal binding rather than a timed `Sleep` or terminal `UserInput`.
+44. Trigger that host signal source and confirm the waiting program resumes and receives the non-zero numeric signal value.
+45. Use `LaunchProgram` and `KillProgram` from a host-backed executable to validate local host process control.
+46. Disconnect with `programming terminal disconnect` and confirm the command surface falls back to the private workspace.
 
-In the current shipped phase, `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP` have built-in application runtime behaviour. `Directory` is still the first proof of the telecom-backed network layer, but it now also shows the currently implemented remote network services when reachable hosts have `Mail` or `FTP` enabled and configured, and it can now open and close authenticated VPN tunnels that temporarily extend discovery only for the active terminal session. `Boards` and `Messenger` remain reserved built-in identities for future phases.
+In the current shipped phase, `SysMon`, `FileManager`, `Directory`, `Mail`, `FTP`, and `Boards` have built-in application runtime behaviour. `Directory` is still the first proof of the telecom-backed network layer, but it now also shows the currently implemented remote network services when reachable hosts have `Mail`, `FTP`, or `Boards` enabled and configured, and it can now open and close authenticated VPN tunnels that temporarily extend discovery only for the active terminal session. `Messenger` remains the reserved built-in identity for a future phase.
 
 ## Failure Patterns to Watch
 - `comp edit new <type>` fails: registration problem.

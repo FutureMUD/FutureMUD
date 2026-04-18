@@ -104,11 +104,14 @@ public interface IComputerHost : IComputerExecutableOwner
 	IEnumerable<INetworkAdapter> NetworkAdapters { get; }
 	IEnumerable<string> EnabledNetworkServices { get; }
 	IEnumerable<string> HostedVpnNetworkIds { get; }
+	IEnumerable<long> HostedBoardIds { get; }
 	IComputerProcess? GetProcess(long processId);
 	bool IsNetworkServiceEnabled(string applicationId);
 	bool SetNetworkServiceEnabled(string applicationId, bool enabled, out string error);
 	bool AddHostedVpnNetwork(string networkId, out string error);
 	bool RemoveHostedVpnNetwork(string networkId, out string error);
+	bool AddHostedBoard(long boardId, out string error);
+	bool RemoveHostedBoard(long boardId, out string error);
 }
 
 public interface IComputerStorage : IComputerExecutableOwner

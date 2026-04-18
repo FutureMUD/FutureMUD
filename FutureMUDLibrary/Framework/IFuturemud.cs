@@ -307,6 +307,7 @@ namespace MudSharp.Framework
         IComputerHelpService ComputerHelpService { get; }
         IComputerNetworkIdentityService ComputerNetworkIdentityService { get; }
         IComputerNetworkTunnelService ComputerNetworkTunnelService { get; }
+        IComputerBoardService ComputerBoardService { get; }
         IComputerMailService ComputerMailService { get; }
         IComputerFileTransferService ComputerFileTransferService { get; }
         IArenaLifecycleService ArenaLifecycleService { get; }

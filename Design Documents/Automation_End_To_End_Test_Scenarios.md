@@ -1,7 +1,7 @@
-# FutureMUD Automation End-To-End Test Scenarios
+# FutureMUD Automation And Computer End-To-End Test Scenarios
 
 ## Scope
-This document captures the current manual end-to-end validation passes for the shipped electronics, programming, and signal-automation slice.
+This document captures the current manual end-to-end validation passes for the shipped electronics, programming, computer, and telecom-backed network slice.
 
 These are developer test scripts, not player documentation. They are intended for use on a dev game instance while validating:
 - component authoring
@@ -10,6 +10,10 @@ These are developer test scripts, not player documentation. They are intended fo
 - mounted microcontrollers
 - automation housings
 - one-room-at-a-time cable routing
+- powered computer hosts, terminals, storage, and host-backed programs
+- terminal-session built-in applications
+- shared `user@domain` identities, VPN tunnelling, and network service discovery
+- `Mail`, `Boards`, and `FTP`
 
 Current behavioural notes:
 - administrator characters perform `electrical` and item-targeted `programming` actions instantly without tool requirements, skill checks, or delayed stages
@@ -19,6 +23,8 @@ Current behavioural notes:
 - duplicate nearby items should be disambiguated with ordinary numeric item targeting such as `2.sensor`, not raw component ids
 - `electrical <item>` should now be the primary debugging surface for automation chains, showing controller inputs, cable mirror routes, nearby routed cable segments, current values, machine state, and whether links are currently resolved or broken
 - use an ordinary non-immwalk mover for motion-sensor testing; administrators with `IImmwalkEffect` no longer emit the witnessed movement events that motion sensors consume
+- `Directory` should now be the primary debugging surface for reachable hosts, service advertisement, routes, gateways, and active VPN tunnels
+- `SysMon` should now be the primary debugging surface for local host power, processes, adapters, hosted VPNs, and active session tunnel state
 
 ## Assumptions
 - Use the normal `comp edit submit`, review, and approval workflow for components.
@@ -349,8 +355,291 @@ select "a panic button" panic
 - Closed housings should block inspection and rewiring of concealed cable ends.
 - Reopening a housing should restore maintenance access.
 
+## Scenario 3: File-Backed Signal Generator With Local And Remote Editing
+
+### Goal
+Validate that a `FileSignalGenerator` can drive automation from a file, be edited locally through `programming item ... file ...`, and optionally be exposed through network file tooling.
+
+### Component Prototypes
+
+#### File-backed signal generator
+```text
+comp edit new filesignalgenerator
+comp set name Signal File Generator
+comp set wattage 25
+comp set mountpower
+comp set file signal.txt
+comp set default 0
+comp edit submit
+```
+
+#### Signal light sink
+```text
+comp edit new signallight
+comp set name File Driven Light
+comp set source "Signal File Generator"
+comp set threshold 0.5
+comp set onemote @ flare|flares into life
+comp set offemote @ dim|dims back down
+comp edit submit
+```
+
+### Item Prototypes
+
+- `a file signal controller`
+  - `FileSignalGenerator`
+  - `SignalLight`
+  - optional `ComputerHost`
+  - optional `NetworkAdapter`
+
+### Live Test Script
+
+1. Load `a file signal controller`.
+2. Power it through the normal game power workflow.
+3. Inspect it:
+```text
+electrical "a file signal controller"
+programming item "a file signal controller" file
+```
+4. Write zero to the file locally:
+```text
+programming item "a file signal controller" file write signal.txt 0
+electrical "a file signal controller"
+```
+5. Confirm the light is off.
+6. Write a non-zero value locally:
+```text
+programming item "a file signal controller" file write signal.txt 1
+electrical "a file signal controller"
+look "a file signal controller"
+```
+7. Confirm the light turns on and `electrical` reports the current signal value as non-zero.
+8. Open the multiline editor path:
+```text
+programming item "a file signal controller" file edit signal.txt
+```
+9. In the editor, replace the contents with `0`, submit with `@`, and confirm the light turns back off.
+10. If the item also has `ComputerHost` and `NetworkAdapter`, connect to its terminal from another reachable host and publish the signal file:
+```text
+programming ftp service on
+programming ftp file publish signal.txt
+```
+11. From another reachable host, validate both remote access paths:
+```text
+programming app filemanager
+type list public <host>
+type show public <host> signal.txt
+type copy public <host> signal.txt
+programming app ftp
+type open <host>
+type list
+type show signal.txt
+```
+
+### Expected Results
+- The `FileSignalGenerator` should emit the parsed numeric value from `signal.txt`.
+- The linked `SignalLight` should react as the file changes.
+- Local `programming item ... file write` and `file edit` should update the live signal immediately.
+- If the file is published, remote public-file inspection should show the same contents without exposing unrelated private files.
+
+## Scenario 4: Powered Computer Host With Terminal Programs And Local Automation Diagnostics
+
+### Goal
+Validate a fully powered local computer host with terminal-session authoring, interactive built-in applications, `UserInput()`, and host-local `WaitSignal()`.
+
+### Item Prototypes
+
+- `a computer host`
+  - `ComputerHost`
+  - optional `NetworkAdapter`
+- `a terminal console`
+  - `ComputerTerminal`
+- `a storage module`
+  - `ComputerStorage`
+
+### Live Test Script
+
+1. Load `a computer host`, `a terminal console`, and `a storage module`.
+2. Connect storage and terminal to the host through the normal item connectivity workflow.
+3. Power the host and terminal.
+4. Connect to the terminal:
+```text
+programming terminal connect "a terminal console"
+programming terminal status
+```
+5. Switch programming ownership to the host and create a simple interactive program:
+```text
+programming terminal owner host
+programming new program prompttest
+programming set return text
+programming set source
+WriteTerminal("Type something:")
+return UserInput()
+programming compile prompttest
+programming execute prompttest
+programming processes
+```
+6. Confirm the process is sleeping on `UserInput`, then resume it:
+```text
+type hello world
+programming processes
+```
+7. Create a signal wait program on a host that also has a local signal source:
+```text
+programming new program waittest
+programming set return number
+programming set source
+return WaitSignal("Signal File Generator")
+programming compile waittest
+programming execute waittest
+programming processes
+```
+8. Trigger the host-local source, for example by editing the `FileSignalGenerator` file from Scenario 3:
+```text
+programming item "a file signal controller" file write signal.txt 1
+programming processes
+```
+9. Run the built-in apps:
+```text
+programming apps
+programming app sysmon
+programming app directory
+type summary
+type adapters
+type routes
+type exit
+programming app filemanager
+type owners
+type list
+type exit
+```
+
+### Expected Results
+- `programming terminal status` should show the connected host, mounted storage, and any active tunnel state.
+- `UserInput()` programs should suspend and resume from `type`.
+- `WaitSignal()` should suspend and resume when the named host-local source emits a non-zero value.
+- `SysMon` should report host power, processes, adapters, and local signal state.
+- `Directory` and `FileManager` should both run as foreground terminal apps that stay open until `type exit`.
+
+## Scenario 5: Network Identity, VPN, Mail, Boards, And FTP
+
+### Goal
+Validate the full 1.0 network-service stack: shared identities, VPN tunnel access, remote discovery, mail, boards, and FTP.
+
+### Required Hosts
+
+- `Public Workstation`
+  - powered `ComputerHost`
+  - `ComputerTerminal`
+  - `NetworkAdapter`
+- `Service Host`
+  - powered `ComputerHost`
+  - `NetworkAdapter`
+  - reachable on the same public route
+- optional `Private Field Host`
+  - powered `ComputerHost`
+  - `NetworkAdapter` or `WirelessModem`
+  - reachable only through exchange-private or VPN scope
+
+### Live Test Script
+
+1. On `Service Host`, configure shared identity and at least one domain:
+```text
+programming network domain add example.net
+programming network account add alice@example.net secret
+programming network account add bob@example.net secret
+```
+2. If testing private reachability, also configure a hosted VPN:
+```text
+programming network vpn add fieldops
+```
+3. On `Service Host`, enable and configure mail:
+```text
+programming mail service on
+programming mail domain add example.net
+```
+4. On `Service Host`, enable and configure boards:
+```text
+programming boards service on
+programming boards add <board>
+```
+5. On `Service Host`, enable and configure FTP:
+```text
+programming ftp service on
+programming ftp account add alice secret
+programming ftp file list
+programming ftp file publish <file>
+```
+6. From `Public Workstation`, validate discovery:
+```text
+programming app directory
+type hosts
+type show <service-host>
+type services <service-host>
+type gateways
+```
+7. If testing VPN/private hosts, open a tunnel:
+```text
+type tunnel connect <service-host> alice@example.net secret fieldops
+type routes
+type hosts
+```
+8. Validate mail:
+```text
+programming app mail
+type login alice@example.net secret
+type inbox
+type send bob@example.net
+type subject Test Message
+type body
+type post
+type exit
+programming app mail
+type login bob@example.net secret
+type inbox
+type read <id>
+type delete <id>
+type exit
+```
+9. Validate boards:
+```text
+programming app boards
+type hosts
+type open <service-host>
+type login alice@example.net secret
+type boards
+type use <board>
+type list
+type post Test Board Post
+type list
+type read <id>
+type delete <id>
+type exit
+```
+10. Validate FTP:
+```text
+programming app ftp
+type open <service-host>
+type list
+type show <file>
+type login alice secret
+type owners
+type use host
+type put <local-file> uploaded.txt
+type delete uploaded.txt
+type exit
+```
+
+### Expected Results
+- `Directory` should only show hosts reachable through current public, subnet, and tunnel routes.
+- VPN tunnels should change visibility only for the active terminal session that opened them.
+- `Mail`, `Boards`, and `FTP` should appear in `Directory services <host>` only when enabled and configured.
+- `Mail` should authenticate via shared `user@domain` identities and deliver persisted messages between hosted accounts.
+- `Boards` should authenticate via shared `user@domain` identities and allow reading plus creation or deletion of network-authored posts on exposed boards.
+- `FTP` should permit anonymous public-file reads and authenticated remote file manipulation separately.
+
 ## Regression Notes
-When running either scenario, pay special attention to:
+When running these scenarios, pay special attention to:
 - `comp set` forwarding on component protos that inherit from other protos with their own builder commands
 - help output from `comp typehelp` and `comp set help` for the automation component family
 - powered-machine behaviour when a sensor or controller is mounted versus loose

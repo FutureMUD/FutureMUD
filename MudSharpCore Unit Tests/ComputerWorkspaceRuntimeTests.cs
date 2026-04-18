@@ -8,6 +8,7 @@ using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
 using MudSharp.Computers;
+using MudSharp.Community.Boards;
 using MudSharp.Construction.Grids;
 using MudSharp.Database;
 using MudSharp.Editor;
@@ -2224,6 +2225,164 @@ return userinput()";
 		Assert.IsFalse(uploaded.PubliclyAccessible);
 	}
 
+	[TestMethod]
+	public void ComputerExecutionService_GetAdvertisedServices_IncludesHostedBoardsWhenEnabled()
+	{
+		var scheduler = new Mock<IScheduler>();
+		var gameworld = CreateGameworld(scheduler);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var board = new StubBoard(301L, "General Discussion");
+		board.MakeNewPost("system@board.example", "Welcome", "Welcome to the board service.");
+		gameworld.SetupGet(x => x.Boards).Returns(BuildRepository<IBoard>(new[] { board }).Object);
+
+		var sourceHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Source Host",
+			OwnerHostItemId = 9301L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(9301L).ToList()
+		};
+		var targetHost = new StubComputerHost
+		{
+			Powered = true,
+			Name = "Target Host",
+			OwnerHostItemId = 9302L,
+			BuiltInApplications = ComputerBuiltInApplications.ForHost(9302L).ToList()
+		};
+		targetHost.SetNetworkServiceEnabled("boards", true, out _);
+		targetHost.AddHostedBoard(board.Id, out _);
+		var grid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var sourceAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 9306L,
+			ConnectedHost = sourceHost,
+			Powered = true,
+			PreferredNetworkAddress = "source.boards",
+			TelecommunicationsGrid = grid
+		};
+		var targetAdapter = new StubNetworkAdapter
+		{
+			NetworkAdapterItemId = 9307L,
+			ConnectedHost = targetHost,
+			Powered = true,
+			PreferredNetworkAddress = "target.boards",
+			TelecommunicationsGrid = grid
+		};
+		grid.JoinGrid(sourceAdapter);
+		grid.JoinGrid(targetAdapter);
+		sourceHost.NetworkAdapters = new[] { sourceAdapter };
+		targetHost.NetworkAdapters = new[] { targetAdapter };
+
+		var hostedBoards = gameworld.Object.ComputerBoardService.GetHostedBoardDetails(targetHost).ToList();
+		Assert.AreEqual(1, hostedBoards.Count);
+		var reachableHosts = service.GetReachableHosts(sourceHost).ToList();
+		Assert.IsTrue(
+			reachableHosts.Any(x => ReferenceEquals(x.Host, targetHost) || x.Host.OwnerHostItemId == targetHost.OwnerHostItemId),
+			$"Reachable hosts were: {string.Join(", ", reachableHosts.Select(x => $"{x.Host.Name} ({x.CanonicalAddress})"))}");
+		var services = service.GetAdvertisedServices(sourceHost, targetHost).ToList();
+
+		Assert.AreEqual(1, services.Count);
+		Assert.AreEqual("boards", services[0].ApplicationId);
+		CollectionAssert.Contains(services[0].ServiceDetails.ToList(), "General Discussion");
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TrySubmitTerminalInput_BoardsApp_UsesSharedIdentityAndCreatesNetworkPosts()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var scheduler = new Mock<IScheduler>();
+			var gameworld = CreateGameworld(scheduler);
+			var service = new ComputerExecutionService(gameworld.Object);
+			var board = new StubBoard(302L, "General Discussion");
+			board.MakeNewPost("system@board.example", "Welcome", "Welcome to the board service.");
+			gameworld.SetupGet(x => x.Boards).Returns(BuildRepository<IBoard>(new[] { board }).Object);
+
+			var host = new StubComputerHost
+			{
+				Powered = true,
+				Name = "Boards Host",
+				OwnerHostItemId = 9303L,
+				BuiltInApplications = ComputerBuiltInApplications.ForHost(9303L).ToList()
+			};
+			host.SetNetworkServiceEnabled("boards", true, out _);
+			host.AddHostedBoard(board.Id, out _);
+
+			var identityService = gameworld.Object.ComputerNetworkIdentityService;
+			Assert.IsTrue(identityService.RegisterDomain(host, "bbs.example", out var domainError), domainError);
+			Assert.IsTrue(identityService.CreateAccount(host, "alice@bbs.example", "secret", out var accountError), accountError);
+
+			var output = new Mock<IOutputHandler>();
+			var account = new Mock<IAccount>();
+			account.SetupGet(x => x.UseUnicode).Returns(false);
+			var user = CreateOwner(gameworld.Object, 9304L);
+			user.SetupGet(x => x.OutputHandler).Returns(output.Object);
+			user.SetupGet(x => x.LineFormatLength).Returns(120);
+			user.SetupGet(x => x.Account).Returns(account.Object);
+			Action<string, IOutputHandler, object[]>? postAction = null;
+			user.Setup(x => x.EditorMode(
+					It.IsAny<Action<string, IOutputHandler, object[]>>(),
+					It.IsAny<Action<IOutputHandler, object[]>>(),
+					It.IsAny<double>(),
+					It.IsAny<string>(),
+					It.IsAny<EditorOptions>(),
+					It.IsAny<object[]>()))
+				.Callback<Action<string, IOutputHandler, object[]>, Action<IOutputHandler, object[]>, double, string, EditorOptions, object[]>(
+					(post, _, _, _, _, _) => { postAction = post; });
+			var terminal = new Mock<IComputerTerminal>();
+			terminal.SetupGet(x => x.TerminalItemId).Returns(9305L);
+			var session = new ComputerTerminalSession
+			{
+				User = user.Object,
+				Terminal = terminal.Object,
+				Host = host,
+				CurrentOwner = host
+			};
+			var application = service.GetBuiltInApplication(host, "boards");
+
+			Assert.IsNotNull(application);
+			var start = service.ExecuteBuiltInApplication(user.Object, host, application!, session);
+			Assert.AreEqual(ComputerProcessStatus.Sleeping, start.Status);
+
+			Assert.IsTrue(service.TrySubmitTerminalInput(session, "boards", out var boardsError), boardsError);
+			output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("Hosted Boards") && s.Contains("General Discussion")),
+				true,
+				true), Times.AtLeastOnce);
+
+			Assert.IsTrue(service.TrySubmitTerminalInput(session, "use general", out var useError), useError);
+			Assert.IsTrue(service.TrySubmitTerminalInput(session, "read 1", out var readError), readError);
+			output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("Welcome") && s.Contains("Welcome to the board service.")),
+				true,
+				true), Times.AtLeastOnce);
+
+			Assert.IsTrue(service.TrySubmitTerminalInput(session, "login alice@bbs.example secret", out var loginError), loginError);
+			output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("alice@bbs.example") && s.Contains("log in")),
+				true,
+				true), Times.AtLeastOnce);
+
+			Assert.IsTrue(service.TrySubmitTerminalInput(session, "post update", out var postError), postError);
+			Assert.IsNotNull(postAction);
+			postAction!("Hello from the network", output.Object, Array.Empty<object>());
+
+			var created = board.Posts.Single(x => x.AuthorName == "alice@bbs.example");
+			Assert.AreEqual("Update", created.Title);
+			Assert.AreEqual("Hello from the network", created.Text);
+
+			Assert.IsTrue(service.TrySubmitTerminalInput(session, $"delete {created.Id}", out var deleteError), deleteError);
+			Assert.IsFalse(board.Posts.Any(x => x.Id == created.Id));
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
 	private static ComputerWorkspaceProgram CompileProgram(string name, string source,
 		params ComputerExecutableParameter[] parameters)
 	{
@@ -2263,19 +2422,38 @@ return userinput()";
 	{
 		var gameworld = new Mock<IFuturemud>();
 		var saveManager = new Mock<ISaveManager>();
+		var boardService = new ComputerBoardService(gameworld.Object);
 		var mailService = new ComputerMailService(gameworld.Object);
 		var networkIdentityService = new ComputerNetworkIdentityService(gameworld.Object);
 		var networkTunnelService = new ComputerNetworkTunnelService(gameworld.Object);
 		var fileTransferService = new ComputerFileTransferService(gameworld.Object);
 		var executionService = new ComputerExecutionService(gameworld.Object);
+		var boards = BuildRepository<IBoard>(Array.Empty<IBoard>());
 		gameworld.SetupGet(x => x.Scheduler).Returns(scheduler.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 		gameworld.SetupGet(x => x.ComputerExecutionService).Returns(executionService);
+		gameworld.SetupGet(x => x.ComputerBoardService).Returns(boardService);
 		gameworld.SetupGet(x => x.ComputerMailService).Returns(mailService);
 		gameworld.SetupGet(x => x.ComputerNetworkIdentityService).Returns(networkIdentityService);
 		gameworld.SetupGet(x => x.ComputerNetworkTunnelService).Returns(networkTunnelService);
 		gameworld.SetupGet(x => x.ComputerFileTransferService).Returns(fileTransferService);
+		gameworld.SetupGet(x => x.Boards).Returns(boards.Object);
 		return gameworld;
+	}
+
+	private static Mock<IUneditableAll<T>> BuildRepository<T>(IEnumerable<T> items) where T : class, IFrameworkItem
+	{
+		var list = items.ToList();
+		var byId = list.ToDictionary(x => x.Id);
+		var repository = new Mock<IUneditableAll<T>>();
+		repository.SetupGet(x => x.Count).Returns(() => list.Count);
+		repository.Setup(x => x.GetEnumerator()).Returns(() => list.GetEnumerator());
+		repository.As<System.Collections.IEnumerable>().Setup(x => x.GetEnumerator()).Returns(() => list.GetEnumerator());
+		repository.Setup(x => x.Get(It.IsAny<long>()))
+			.Returns((long id) => byId.TryGetValue(id, out var value) ? value : null!);
+		repository.Setup(x => x.GetByName(It.IsAny<string>()))
+			.Returns((string name) => list.FirstOrDefault(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase))!);
+		return repository;
 	}
 
 	private static (Mock<IFuturemud> Gameworld, Mock<IGameItem> HostItem, Mock<ISignalSourceComponent> SignalSource,
@@ -2366,6 +2544,7 @@ return userinput()";
 		private readonly Dictionary<long, ComputerRuntimeProcess> _processes = new();
 		private readonly HashSet<string> _enabledNetworkServices = new(StringComparer.InvariantCultureIgnoreCase);
 		private readonly HashSet<string> _hostedVpnNetworkIds = new(StringComparer.InvariantCultureIgnoreCase);
+		private readonly HashSet<long> _hostedBoardIds = [];
 		private readonly Dictionary<string, ComputerMutableFtpAccount> _ftpAccounts = new(StringComparer.InvariantCultureIgnoreCase);
 		private long _nextProcessId = 1L;
 
@@ -2386,6 +2565,7 @@ return userinput()";
 		public IEnumerable<INetworkAdapter> NetworkAdapters { get; set; } = Enumerable.Empty<INetworkAdapter>();
 		public IEnumerable<string> EnabledNetworkServices => _enabledNetworkServices.OrderBy(x => x).ToList();
 		public IEnumerable<string> HostedVpnNetworkIds => _hostedVpnNetworkIds.OrderBy(x => x).ToList();
+		public IEnumerable<long> HostedBoardIds => _hostedBoardIds.OrderBy(x => x).ToList();
 		public IEnumerable<IComputerFtpAccount> FtpAccounts => _ftpAccounts.Values.OrderBy(x => x.UserName).ToList();
 
 		public IComputerProcess? GetProcess(long processId)
@@ -2445,6 +2625,30 @@ return userinput()";
 			if (!_hostedVpnNetworkIds.Remove(normalised))
 			{
 				error = "That VPN network is not hosted.";
+				return false;
+			}
+
+			return true;
+		}
+
+		public bool AddHostedBoard(long boardId, out string error)
+		{
+			error = string.Empty;
+			if (!_hostedBoardIds.Add(boardId))
+			{
+				error = "That board is already hosted.";
+				return false;
+			}
+
+			return true;
+		}
+
+		public bool RemoveHostedBoard(long boardId, out string error)
+		{
+			error = string.Empty;
+			if (!_hostedBoardIds.Remove(boardId))
+			{
+				error = "That board is not hosted.";
 				return false;
 			}
 
@@ -2538,6 +2742,78 @@ return userinput()";
 		public void DeleteProcessDefinition(IComputerProcess process)
 		{
 			_processes.Remove(process.Id);
+		}
+	}
+
+	private sealed class StubBoard : IBoard
+	{
+		private readonly List<IBoardPost> _posts = [];
+		private long _nextPostId = 1L;
+
+		public StubBoard(long id, string name)
+		{
+			Id = id;
+			Name = name;
+		}
+
+		public long Id { get; }
+		public string Name { get; }
+		public string FrameworkItemType => "Board";
+		public bool DisplayOnLogin => false;
+		public MudSharp.TimeAndDate.Date.ICalendar Calendar => null!;
+		public IEnumerable<IBoardPost> Posts => _posts;
+
+		public void MakeNewPost(IAccount author, string title, string text)
+		{
+			_posts.Add(new StubBoardPost(_nextPostId++, title, text, author?.Name ?? "System", author?.Id, false));
+		}
+
+		public void MakeNewPost(ICharacter author, string title, string text)
+		{
+			_posts.Add(new StubBoardPost(_nextPostId++, title, text, $"Character #{author?.Id ?? 0L}", author?.Id, true));
+		}
+
+		public void MakeNewPost(string authorName, string title, string text)
+		{
+			_posts.Add(new StubBoardPost(_nextPostId++, title, text, authorName, null, false));
+		}
+
+		public void DeletePost(IBoardPost post)
+		{
+			_posts.Remove(post);
+		}
+	}
+
+	private sealed class StubBoardPost : IBoardPost
+	{
+		public StubBoardPost(long id, string title, string text, string authorName, long? authorId, bool authorIsCharacter)
+		{
+			Id = id;
+			Title = title;
+			Text = text;
+			AuthorName = authorName;
+			AuthorId = authorId;
+			AuthorIsCharacter = authorIsCharacter;
+			PostTime = DateTime.UtcNow;
+			AuthorShortDescription = string.Empty;
+			AuthorFullDescription = string.Empty;
+		}
+
+		public long Id { get; }
+		public string Name => Title;
+		public string FrameworkItemType => "BoardPost";
+		public string Title { get; }
+		public string Text { get; }
+		public long? AuthorId { get; }
+		public string AuthorName { get; }
+		public DateTime PostTime { get; }
+		public bool AuthorIsCharacter { get; }
+		public MudSharp.TimeAndDate.MudDateTime InGameDateTime => null!;
+		public string AuthorShortDescription { get; }
+		public string AuthorFullDescription { get; }
+
+		public void Delete()
+		{
 		}
 	}
 

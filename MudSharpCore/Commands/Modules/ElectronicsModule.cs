@@ -64,6 +64,9 @@ You can use the following syntax:
 	#3programming network account enable|disable <user@domain>#0 - enables or disables a shared network account (administrators only)
 	#3programming network account password <user@domain> <password>#0 - changes a shared network account password (administrators only)
 	#3programming network vpn add|remove <network>#0 - changes which VPN networks this host exposes for authenticated tunnels (administrators only)
+	#3programming boards#0 - shows boards service status for the connected host (administrators only)
+	#3programming boards service on|off#0 - enables or disables the connected host's boards service advertisement (administrators only)
+	#3programming boards add|remove <board>#0 - changes which boards this host exposes to computer users (administrators only)
 	#3programming mail#0 - shows mail service status for the connected host (administrators only)
 	#3programming mail service on|off#0 - enables or disables the connected host's mail service advertisement (administrators only)
 	#3programming mail domain add|remove|enable|disable <domain>#0 - manages hosted mail domains on the connected host (administrators only)
@@ -133,6 +136,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		"app",
 		"apps",
 		"network",
+		"boards",
 		"mail",
 		"ftp",
 		"processes",
@@ -362,6 +366,9 @@ If more than one terminal could be used, specify one explicitly or connect first
 				return;
 			case "network":
 				ProgrammingNetwork(actor, ss);
+				return;
+			case "boards":
+				ProgrammingBoards(actor, ss);
 				return;
 			case "mail":
 				ProgrammingMail(actor, ss);
@@ -2328,6 +2335,213 @@ If more than one terminal could be used, specify one explicitly or connect first
 				actor.Send("You must specify add, remove, enable, disable or list.");
 				return;
 		}
+	}
+
+	private static void ProgrammingBoards(ICharacter actor, StringStack ss)
+	{
+		if (!TryGetProgrammingBoardsHost(actor, out var host))
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			ShowProgrammingBoardsStatus(actor, host);
+			return;
+		}
+
+		var action = ss.PopSpeech().ToLowerInvariant();
+		switch (action)
+		{
+			case "service":
+				ProgrammingBoardsService(actor, host, ss);
+				return;
+			case "add":
+			case "remove":
+				ProgrammingBoardsMembership(actor, host, action, ss);
+				return;
+			default:
+				ShowProgrammingBoardsStatus(actor, host);
+				return;
+		}
+	}
+
+	private static bool TryGetProgrammingBoardsHost(ICharacter actor, out IComputerHost host)
+	{
+		host = default!;
+		if (!actor.IsAdministrator())
+		{
+			actor.Send("Only administrators can configure computer boards services.");
+			return false;
+		}
+
+		var session = GetCurrentProgrammingTerminalSession(actor);
+		if (session is null)
+		{
+			actor.Send("You must be connected to a computer terminal to configure boards services.");
+			return false;
+		}
+
+		host = session.Host;
+		return true;
+	}
+
+	private static void ShowProgrammingBoardsStatus(ICharacter actor, IComputerHost host)
+	{
+		var boardService = actor.Gameworld.ComputerBoardService;
+		var hostedBoards = boardService.GetHostedBoardDetails(host).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine($"Boards Service Host: {host.Name.ColourName()}");
+		sb.AppendLine($"Advertised: {boardService.IsBoardsServiceEnabled(host).ToColouredString()}");
+		sb.AppendLine($"Hosted Boards: {hostedBoards.Count.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine("Boards:");
+		if (!hostedBoards.Any())
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				hostedBoards.Select(board => new List<string>
+				{
+					board.BoardId.ToString("N0", actor),
+					board.BoardName,
+					board.PostCount.ToString("N0", actor)
+				}),
+				new List<string>
+				{
+					"Id",
+					"Board",
+					"Posts"
+				},
+				actor.LineFormatLength,
+				true,
+				Telnet.BoldGreen,
+				1,
+				actor.Account.UseUnicode));
+		}
+
+		sb.AppendLine();
+		sb.AppendLine(
+			$"Use {"programming boards service on|off".ColourCommand()} and {"programming boards add|remove <board>".ColourCommand()} to configure this host. Shared domains and accounts come from {"programming network".ColourCommand()}.");
+		actor.OutputHandler.Send(sb.ToString(), nopage: true);
+	}
+
+	private static void ProgrammingBoardsService(ICharacter actor, IComputerHost host, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send(
+				$"Boards service advertisement on {host.Name.ColourName()} is currently {actor.Gameworld.ComputerBoardService.IsBoardsServiceEnabled(host).ToColouredString()}.");
+			return;
+		}
+
+		var enabled = ss.PopSpeech().ToLowerInvariant() switch
+		{
+			"on" or "enable" or "enabled" => true,
+			"off" or "disable" or "disabled" => false,
+			_ => (bool?)null
+		};
+		if (!enabled.HasValue)
+		{
+			actor.Send("You must specify either on or off.");
+			return;
+		}
+
+		if (!actor.Gameworld.ComputerBoardService.SetBoardsServiceEnabled(host, enabled.Value, out var error))
+		{
+			actor.Send(error);
+			return;
+		}
+
+		actor.Send(
+			$"Boards service advertisement on {host.Name.ColourName()} is now {(enabled.Value ? "enabled".ColourValue() : "disabled".ColourError())}.");
+	}
+
+	private static void ProgrammingBoardsMembership(ICharacter actor, IComputerHost host, string action, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.Send("Which board do you want to work with?");
+			return;
+		}
+
+		var board = ResolveBoard(actor, ss.SafeRemainingArgument);
+		if (board is null)
+		{
+			return;
+		}
+
+		switch (action)
+		{
+			case "add":
+				if (!host.AddHostedBoard(board.Id, out var addError))
+				{
+					actor.Send(addError);
+					return;
+				}
+
+				actor.Send($"{host.Name.ColourName()} now exposes {board.Name.ColourName()} as a computer board service.");
+				return;
+			case "remove":
+				if (!host.RemoveHostedBoard(board.Id, out var removeError))
+				{
+					actor.Send(removeError);
+					return;
+				}
+
+				actor.Send($"{host.Name.ColourName()} no longer exposes {board.Name.ColourName()} as a computer board service.");
+				return;
+			default:
+				actor.Send("You must specify add or remove.");
+				return;
+		}
+	}
+
+	private static MudSharp.Community.Boards.IBoard? ResolveBoard(ICharacter actor, string identifier)
+	{
+		var boards = actor.Gameworld.Boards.ToList();
+		if (!boards.Any())
+		{
+			actor.Send("There are no boards defined in this game.");
+			return null;
+		}
+
+		if (long.TryParse(identifier, out var boardId))
+		{
+			var idMatch = boards.FirstOrDefault(x => x.Id == boardId);
+			if (idMatch is not null)
+			{
+				return idMatch;
+			}
+		}
+
+		var exact = boards
+			.Where(x => x.Name.Equals(identifier, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		if (exact.Count == 1)
+		{
+			return exact.Single();
+		}
+
+		var prefix = boards
+			.Where(x => x.Name.StartsWith(identifier, StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+		if (prefix.Count == 1)
+		{
+			return prefix.Single();
+		}
+
+		if (exact.Count > 1 || prefix.Count > 1)
+		{
+			actor.Send(
+				$"You must specify one of the following boards:\n{boards.OrderBy(x => x.Name).Select(x => $"\t#{x.Id.ToString("N0", actor)} - {x.Name.ColourName()}").ListToLines()}");
+			return null;
+		}
+
+		actor.Send($"There is no board matching {identifier.ColourCommand()}.");
+		return null;
 	}
 
 	private static void ProgrammingMail(ICharacter actor, StringStack ss)

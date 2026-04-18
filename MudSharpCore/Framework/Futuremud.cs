@@ -146,6 +146,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         ComputerHelpService = new ComputerHelpService();
         ComputerNetworkIdentityService = new ComputerNetworkIdentityService(this);
         ComputerNetworkTunnelService = new ComputerNetworkTunnelService(this);
+        ComputerBoardService = new ComputerBoardService(this);
         ComputerMailService = new ComputerMailService(this);
         ComputerFileTransferService = new ComputerFileTransferService(this);
         ComputerExecutionService = new ComputerExecutionService(this);

@@ -22,6 +22,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	private readonly List<IConnectable> _connectedItems = [];
 	private readonly HashSet<string> _enabledNetworkServices = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly HashSet<string> _hostedVpnNetworkIds = new(StringComparer.InvariantCultureIgnoreCase);
+	private readonly HashSet<long> _hostedBoardIds = [];
 	private readonly Dictionary<string, ComputerMutableFtpAccount> _ftpAccounts = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly List<long> _pendingConnectionIds = [];
 	private readonly Dictionary<long, ComputerRuntimeExecutableBase> _executables = new();
@@ -116,6 +117,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 
 		_enabledNetworkServices.UnionWith(rhs._enabledNetworkServices);
 		_hostedVpnNetworkIds.UnionWith(rhs._hostedVpnNetworkIds);
+		_hostedBoardIds.UnionWith(rhs._hostedBoardIds);
 		foreach (var account in rhs._ftpAccounts.Values)
 		{
 			_ftpAccounts[account.UserName] = new ComputerMutableFtpAccount
@@ -147,6 +149,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	public IEnumerable<INetworkAdapter> NetworkAdapters => _connectedItems.OfType<INetworkAdapter>().ToList();
 	public IEnumerable<string> EnabledNetworkServices => _enabledNetworkServices.OrderBy(x => x).ToList();
 	public IEnumerable<string> HostedVpnNetworkIds => _hostedVpnNetworkIds.OrderBy(x => x).ToList();
+	public IEnumerable<long> HostedBoardIds => _hostedBoardIds.OrderBy(x => x).ToList();
 	public IEnumerable<IComputerFtpAccount> FtpAccounts => _ftpAccounts.Values.OrderBy(x => x.UserName).ToList();
 	public IEnumerable<ConnectorType> Connections => Enumerable.Range(0, _prototype.StoragePorts).Select(_ => ComputerConnectionTypes.HostStoragePort)
 		.Concat(Enumerable.Range(0, _prototype.TerminalPorts).Select(_ => ComputerConnectionTypes.HostTerminalPort))
@@ -207,6 +210,21 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			sb.AppendLine(
 				$"It is exposing the following VPN networks for authenticated tunnels: {_hostedVpnNetworkIds.Select(x => x.ColourName()).ListToString()}.");
 		}
+		if (_hostedBoardIds.Any())
+		{
+			var boardDescriptions = _hostedBoardIds
+				.Select(id => Gameworld.Boards.Get(id))
+				.Where(x => x is not null)
+				.Cast<MudSharp.Community.Boards.IBoard>()
+				.OrderBy(x => x.Name)
+				.Select(x => x.Name.ColourName())
+				.ToList();
+			if (boardDescriptions.Any())
+			{
+				sb.AppendLine(
+					$"It is exposing the following network boards: {boardDescriptions.ListToString()}.");
+			}
+		}
 		return sb.ToString();
 	}
 
@@ -227,6 +245,9 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		root.Add(new XElement("HostedVpnNetworks",
 			from network in _hostedVpnNetworkIds.OrderBy(x => x)
 			select new XElement("Network", new XAttribute("id", network))));
+		root.Add(new XElement("HostedBoards",
+			from boardId in _hostedBoardIds.OrderBy(x => x)
+			select new XElement("Board", new XAttribute("id", boardId))));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveFtpAccounts(_ftpAccounts.Values));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveFiles(_fileSystem.MutableFiles));
 		root.Add(ComputerMutableOwnerXmlPersistence.SaveExecutables(_executables.Values));
@@ -383,6 +404,42 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 
 		Changed = true;
 		error = string.Empty;
+		return true;
+	}
+
+	public bool AddHostedBoard(long boardId, out string error)
+	{
+		error = string.Empty;
+		var board = Gameworld.Boards.Get(boardId);
+		if (board is null)
+		{
+			error = $"There is no board with id {boardId.ToString("N0").ColourValue()}.";
+			return false;
+		}
+
+		if (!_hostedBoardIds.Add(boardId))
+		{
+			error = $"{Parent.Name.ColourName()} is already exposing {board.Name.ColourName()} as a network board.";
+			return false;
+		}
+
+		Changed = true;
+		return true;
+	}
+
+	public bool RemoveHostedBoard(long boardId, out string error)
+	{
+		error = string.Empty;
+		var board = Gameworld.Boards.Get(boardId);
+		if (!_hostedBoardIds.Remove(boardId))
+		{
+			error = board is null
+				? $"{Parent.Name.ColourName()} is not currently exposing a board with id {boardId.ToString("N0").ColourValue()}."
+				: $"{Parent.Name.ColourName()} is not currently exposing {board.Name.ColourName()} as a network board.";
+			return false;
+		}
+
+		Changed = true;
 		return true;
 	}
 
@@ -653,6 +710,13 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 			         .Cast<string>() ?? Enumerable.Empty<string>())
 		{
 			_hostedVpnNetworkIds.Add(ComputerNetworkRoutingUtilities.NormaliseIdentifier(network));
+		}
+
+		foreach (var boardId in root.Element("HostedBoards")?.Elements("Board")
+			         .Select(x => long.TryParse(x.Attribute("id")?.Value, out var id) ? id : 0L)
+			         .Where(x => x > 0L) ?? Enumerable.Empty<long>())
+		{
+			_hostedBoardIds.Add(boardId);
 		}
 
 		foreach (var account in ComputerMutableOwnerXmlPersistence.LoadFtpAccounts(root.Element("FtpAccounts")))

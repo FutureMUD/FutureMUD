@@ -1565,6 +1565,8 @@ public class ComputerExecutionService : IComputerExecutionService
 			{
 				var details = x.ApplicationId.ToLowerInvariant() switch
 				{
+					"boards" => _gameworld.ComputerBoardService.GetAdvertisedServiceDetails(targetHost, x.ApplicationId)
+						.ToList(),
 					"mail" => _gameworld.ComputerMailService.GetAdvertisedServiceDetails(targetHost, x.ApplicationId)
 						.ToList(),
 					"ftp" => _gameworld.ComputerFileTransferService.GetAdvertisedServiceDetails(targetHost, x.ApplicationId)
@@ -1579,7 +1581,12 @@ public class ComputerExecutionService : IComputerExecutionService
 					ServiceDetails = details
 				};
 			})
-			.Where(x => x.ApplicationId != "mail" || x.ServiceDetails.Any())
+			.Where(x => x.ApplicationId switch
+			{
+				"mail" => x.ServiceDetails.Any(),
+				"boards" => x.ServiceDetails.Any(),
+				_ => true
+			})
 			.ToList();
 
 		if (targetHost.HostedVpnNetworkIds.Any())

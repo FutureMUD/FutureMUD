@@ -70,6 +70,20 @@ public class BoardPost : LateInitialisingItem, IBoardPost
         Gameworld.SaveManager.AddInitialisation(this);
     }
 
+    public BoardPost(IBoard board, string authorName, string title, string text, IFuturemud gameworld)
+    {
+        Gameworld = gameworld;
+        Board = board;
+        AuthorId = null;
+        _authorName = string.IsNullOrWhiteSpace(authorName) ? "System" : authorName.Trim();
+        Title = title;
+        Text = text;
+        PostTime = DateTime.UtcNow;
+        InGameDateTime = Board.Calendar?.CurrentDateTime;
+        AuthorIsCharacter = false;
+        Gameworld.SaveManager.AddInitialisation(this);
+    }
+
     #region Overrides of Item
 
     public override string FrameworkItemType => "BoardPost";
@@ -93,7 +107,7 @@ public class BoardPost : LateInitialisingItem, IBoardPost
         {
             if (!AuthorId.HasValue)
             {
-                return "System";
+                return string.IsNullOrWhiteSpace(_authorName) ? "System" : _authorName;
             }
 
             if (_authorName == null)

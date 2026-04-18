@@ -119,6 +119,7 @@ public sealed class CharacterWorkspaceHost : IComputerHost
 	public IEnumerable<INetworkAdapter> NetworkAdapters => Enumerable.Empty<INetworkAdapter>();
 	public IEnumerable<string> EnabledNetworkServices => Enumerable.Empty<string>();
 	public IEnumerable<string> HostedVpnNetworkIds => Enumerable.Empty<string>();
+	public IEnumerable<long> HostedBoardIds => Enumerable.Empty<long>();
 
 	public IComputerProcess? GetProcess(long processId)
 	{
@@ -145,6 +146,18 @@ public sealed class CharacterWorkspaceHost : IComputerHost
 	public bool RemoveHostedVpnNetwork(string networkId, out string error)
 	{
 		error = "Workspace hosts cannot expose VPN networks.";
+		return false;
+	}
+
+	public bool AddHostedBoard(long boardId, out string error)
+	{
+		error = "Workspace hosts cannot expose network boards.";
+		return false;
+	}
+
+	public bool RemoveHostedBoard(long boardId, out string error)
+	{
+		error = "Workspace hosts cannot expose network boards.";
 		return false;
 	}
 }

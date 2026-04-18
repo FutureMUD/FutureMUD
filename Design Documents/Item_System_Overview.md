@@ -94,8 +94,8 @@ The first real computer-host slice now also includes:
 - `NetworkAdapter` items that represent the host's telecom-backed network-facing capability
 - local computer runtime functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `LaunchProgram`, `KillProgram`, `UserInput`, and `WaitSignal`
 - the terminal-facing `type` verb, which now routes foreground terminal input and resumes programs waiting on `UserInput()`
-- shipped built-in host applications `SysMon`, `FileManager`, `Directory`, `Mail`, and `FTP`
-- shipped network services `Mail` and `FTP`, including host-scoped service enablement, hosted domains for mail, per-host FTP account and public-file configuration, database-backed mailboxes, and telecom-backed delivery or remote-file access to reachable hosts
+- shipped built-in host applications `SysMon`, `FileManager`, `Directory`, `Mail`, `FTP`, and `Boards`
+- shipped network services `Mail`, `FTP`, and `Boards`, including host-scoped service enablement, hosted domains for shared identity and mail, per-host FTP account and public-file configuration, hosted-board exposure, database-backed mailboxes, reused board persistence, and telecom-backed delivery or remote-file or remote-board access to reachable hosts
 - file-owner-aware local and remote file workflows, where host-local component owners such as `FileSignalGenerator` can participate alongside the host and mounted storage devices
 
 Computer-network visibility is now intentionally scoped rather than globally flat. Adapters and modems expose one or more route memberships, and discovery only shows hosts that share at least one route with the source device. In the current shipped slice those routes are:

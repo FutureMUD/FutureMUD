@@ -145,6 +145,7 @@ public sealed class ComputerHostDefinition : IComputerHost
 	public IEnumerable<INetworkAdapter> NetworkAdapters { get; init; } = Enumerable.Empty<INetworkAdapter>();
 	public IEnumerable<string> EnabledNetworkServices => Enumerable.Empty<string>();
 	public IEnumerable<string> HostedVpnNetworkIds => Enumerable.Empty<string>();
+	public IEnumerable<long> HostedBoardIds => Enumerable.Empty<long>();
 
 	public IComputerProcess? GetProcess(long processId)
 	{
@@ -169,6 +170,18 @@ public sealed class ComputerHostDefinition : IComputerHost
 	}
 
 	public bool RemoveHostedVpnNetwork(string networkId, out string error)
+	{
+		error = "This computer host definition is read-only.";
+		return false;
+	}
+
+	public bool AddHostedBoard(long boardId, out string error)
+	{
+		error = "This computer host definition is read-only.";
+		return false;
+	}
+
+	public bool RemoveHostedBoard(long boardId, out string error)
 	{
 		error = "This computer host definition is read-only.";
 		return false;

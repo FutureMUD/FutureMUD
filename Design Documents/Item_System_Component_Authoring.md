@@ -255,7 +255,11 @@ Implemented builder-facing component types:
 - `pushbutton`
 - `toggleswitch`
 - `motionsensor`
+- `lightsensor`
+- `rainsensor`
+- `temperaturesensor`
 - `timersensor`
+- `keypad`
 - `microcontroller`
 - `automationmounthost`
 - `automationhousing`
@@ -263,6 +267,7 @@ Implemented builder-facing component types:
 - `signallight`
 - `electronicdoor`
 - `electroniclock`
+- `relayswitch`
 - `alarmsiren`
 
 Current authoring pattern:
@@ -273,9 +278,14 @@ Current authoring pattern:
 - automation housings author which categories of automation items they may conceal and are themselves the dedicated lockable-container service-access capability on the item
 - signal cables have no meaningful static routing fields on the proto; they are routed at runtime and persist that live route on the component instance
 - `motionsensor` authors powered-machine settings plus signal value, duration, minimum size, and movement mode (`any`, `begin`, `enter`, `stop`)
+- `lightsensor` authors powered-machine settings and emits current ambient illumination as a live numeric signal
+- `rainsensor` authors powered-machine settings and emits a live numeric rain-intensity signal based on the current weather when climate-exposed
+- `temperaturesensor` authors powered-machine settings and emits the current ambient temperature as a live numeric signal in Celsius
 - `timersensor` authors powered-machine settings plus active and inactive values, active and inactive durations, and its initial phase
+- `keypad` authors powered-machine settings plus numeric code, emitted signal value, signal duration, and keypad entry emote
 - `microcontroller` authors powered-machine settings, including optional mount-host power draw via `mountpower`
 - `electronicdoor` authors source component prototype, threshold, invert mode, and automatic open and close emotes
+- `relayswitch` authors source component prototype, threshold, invert mode, and programmable power-supply behaviour through the relay-controlled power base
 - `alarmsiren` authors source component prototype, threshold, invert mode, volume, and repeated alarm emote
 
 Important implementation details from this slice:

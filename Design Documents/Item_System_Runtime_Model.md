@@ -109,7 +109,11 @@ The currently implemented automation runtime slice is intentionally narrower tha
 - `PushButton` is an `ISelectable` same-item signal source with authored keyword, signal value, duration, and press emote
 - `ToggleSwitch` is an `ISwitchable` same-item signal source with authored on and off values
 - `MotionSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that listens for witnessed movement events, filters by detection mode and minimum size, and emits a timed numeric signal
+- `LightSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that polls the current ambient illumination and emits that lux value as its signal
+- `RainSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that polls the current weather and emits a numeric rain-intensity scale while its location is climate-exposed
+- `TemperatureSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that polls the current ambient temperature and emits that value in Celsius
 - `TimerSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that alternates between authored active and inactive values on a recurring persisted cycle
+- `Keypad` is a `PoweredMachineBaseGameItemComponent` plus `ISelectable` that accepts numeric `select <item> <digits>` input and emits a momentary numeric signal only when the entered code matches its authored code
 - `Microcontroller` is a `PoweredMachineBaseGameItemComponent` plus `IMicrocontroller` that:
   - binds named inputs to local `ISignalSourceComponent` instances
   - keeps live numeric input values
@@ -120,6 +124,7 @@ The currently implemented automation runtime slice is intentionally narrower tha
 - `SignalLight` is a signal sink layered on top of programmable-light runtime behaviour
 - `ElectronicDoor` is a standalone signal-driven door component built on the shared internal door runtime base and retries until it reaches the currently commanded open or closed state
 - `ElectronicLock` is a signal sink layered on top of programmable-lock runtime behaviour
+- `RelaySwitch` is a signal-driven power producer layered on top of programmable power-supply behaviour, closing or opening its relay according to its configured threshold logic
 - `AlarmSiren` is a `PoweredMachineBaseGameItemComponent` plus `ISignalSinkComponent` that resolves a sibling source, evaluates threshold logic, and emits repeated audible output while active, switched on, and powered
 
 The current live-configuration runtime layer also adds:

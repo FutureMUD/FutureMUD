@@ -41,7 +41,7 @@ The planned computer-programs subsystem is an item-system feature, not a separat
 The intended component families are:
 - host components such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, and `NetworkAdapter`
 - logic components such as `Microcontroller`
-- signal-input components such as `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `TimerSensor`, and `Keypad`
+- signal-input components such as `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `RainSensor`, `TemperatureSensor`, `TimerSensor`, and `Keypad`
 - signal-output components such as `ElectronicDoor`, `ElectronicLock`, `SignalLight`, `RelaySwitch`, and `AlarmSiren`
 
 Those families should share common computer/signal contracts, but each concrete behaviour should still have its own prototype, runtime component, builder help, and persistence rules.
@@ -50,7 +50,11 @@ The first shipped automation slice now includes:
 - `PushButton`
 - `ToggleSwitch`
 - `MotionSensor`
+- `LightSensor`
+- `RainSensor`
+- `TemperatureSensor`
 - `TimerSensor`
+- `Keypad`
 - `Microcontroller`
 - `AutomationMountHost`
 - `AutomationHousing`
@@ -58,6 +62,7 @@ The first shipped automation slice now includes:
 - `SignalLight`
 - `ElectronicDoor`
 - `ElectronicLock`
+- `RelaySwitch`
 - `AlarmSiren`
 
 That slice now combines three patterns:
@@ -65,7 +70,7 @@ That slice now combines three patterns:
 - separate mountable modules installed into `AutomationMountHost` bays as real items rather than collapsed components
 - adjacent-room one-hop signal cable items that mirror one source endpoint across a specific exit
 
-Builders still author local bindings by component prototype name or id, and the current built-in source families all expose a default local endpoint key of `signal`, but runtime resolution no longer depends on later component renames. `AutomationHousing` is now the dedicated housing or junction component family for concealed modules and cable ends, and is itself the lockable/openable/container access capability on the item. `MotionSensor`, `TimerSensor`, and `Microcontroller` are now powered-machine implementations and can optionally draw power from an automation host's parent-item power source when mounted. This is enough to support authored control panels, timed local automation, mounted controllers, indicator lights, signal-driven doors and locks, motion-triggered alarms, concealed service housings, and one-room-at-a-time wiring while leaving broader graphs, richer sensors, and networked hosts for later phases.
+Builders still author local bindings by component prototype name or id, and the current built-in source families all expose a default local endpoint key of `signal`, but runtime resolution no longer depends on later component renames. `AutomationHousing` is now the dedicated housing or junction component family for concealed modules and cable ends, and is itself the lockable/openable/container access capability on the item. `MotionSensor`, `LightSensor`, `RainSensor`, `TemperatureSensor`, `TimerSensor`, `Keypad`, and `Microcontroller` are now powered-machine or selectable-input implementations, and the powered-machine families can optionally draw power from an automation host's parent-item power source when mounted. This is enough to support authored control panels, ambient and weather-driven automation, timed local automation, keypad entry panels, mounted controllers, relay-controlled power paths, indicator lights, signal-driven doors and locks, motion-triggered alarms, concealed service housings, and one-room-at-a-time wiring while leaving broader graphs, richer sensors, and networked hosts for later phases.
 
 The first live player command surface for that slice is also now present:
 - `electrical` for inspecting signal-driven items, installing or removing mountable modules, routing or unrouting cable segments, and configuring sinks

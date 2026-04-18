@@ -5,6 +5,7 @@ using Moq;
 using MudSharp.Body;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Climate;
 using MudSharp.Computers;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -14,6 +15,7 @@ using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Scheduling;
+using MudSharp.Framework.Units;
 using MudSharp.Form.Shape;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -97,6 +99,7 @@ return @togglevalue");
 			{
 				"pushbutton", "toggleswitch", "motionsensor", "timersensor", "microcontroller", "signallight",
 				"electroniclock", "electronicdoor", "alarmsiren", "automationmounthost", "signalcable",
+				"lightsensor", "rainsensor", "temperaturesensor", "keypad", "relayswitch",
 				"automationhousing"
 			},
 			primaryTypes);
@@ -105,6 +108,7 @@ return @togglevalue");
 			{
 				"PushButton", "ToggleSwitch", "MotionSensor", "TimerSensor", "Microcontroller", "SignalLight",
 				"ElectronicLock", "ElectronicDoor", "AlarmSiren", "Automation Mount Host", "Signal Cable Segment",
+				"LightSensor", "RainSensor", "TemperatureSensor", "Keypad", "RelaySwitch",
 				"Automation Housing"
 			},
 			helpTypes);
@@ -793,6 +797,119 @@ return @togglevalue");
 	}
 
 	[TestMethod]
+	public void LightSensor_ReportsCurrentIlluminationWhenPowered()
+	{
+		var gameworld = CreateGameworld();
+		var cell = CreateCell(502L);
+		var illumination = 37.5;
+		cell.Setup(x => x.CurrentIllumination(It.IsAny<IPerceiver>())).Returns(() => illumination);
+		var item = CreateBasicItem(gameworld.Object, 5020L, "Light Sensor", cell.Object);
+		var sensor = new LightSensorGameItemComponent(CreateLightSensorProto(gameworld.Object), item.Object, true)
+		{
+			SwitchedOn = true
+		};
+
+		sensor.OnPowerCutIn();
+		Assert.AreEqual(37.5, sensor.CurrentValue, 0.0001);
+
+		illumination = 12.25;
+		typeof(LightSensorGameItemComponent)
+			.GetMethod("HeartbeatTick", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(sensor, []);
+
+		Assert.AreEqual(12.25, sensor.CurrentValue, 0.0001);
+	}
+
+	[TestMethod]
+	public void RainSensor_ReportsRainIntensityAndSheltersIndoorLocations()
+	{
+		var gameworld = CreateGameworld();
+		var cell = CreateCell(503L);
+		var outdoorsType = CellOutdoorsType.Outdoors;
+		var precipitation = PrecipitationLevel.Rain;
+		var weather = new Mock<IWeatherEvent>();
+		weather.SetupGet(x => x.Precipitation).Returns(() => precipitation);
+		cell.Setup(x => x.OutdoorsType(It.IsAny<IPerceiver>())).Returns(() => outdoorsType);
+		cell.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns(() => weather.Object);
+		var item = CreateBasicItem(gameworld.Object, 5030L, "Rain Sensor", cell.Object);
+		var sensor = new RainSensorGameItemComponent(CreateRainSensorProto(gameworld.Object), item.Object, true)
+		{
+			SwitchedOn = true
+		};
+
+		sensor.OnPowerCutIn();
+		Assert.AreEqual(2.0, sensor.CurrentValue, 0.0001);
+
+		outdoorsType = CellOutdoorsType.Indoors;
+		typeof(RainSensorGameItemComponent)
+			.GetMethod("HeartbeatTick", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(sensor, []);
+
+		Assert.AreEqual(0.0, sensor.CurrentValue, 0.0001);
+	}
+
+	[TestMethod]
+	public void TemperatureSensor_ReportsCurrentTemperatureInCelsiusWhenPowered()
+	{
+		var gameworld = CreateGameworld();
+		var unitManager = new Mock<IUnitManager>();
+		unitManager.SetupGet(x => x.BaseTemperatureToCelcius).Returns(2.0);
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
+		var cell = CreateCell(504L);
+		cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(10.75);
+		var item = CreateBasicItem(gameworld.Object, 5040L, "Temperature Sensor", cell.Object);
+		var sensor = new TemperatureSensorGameItemComponent(CreateTemperatureSensorProto(gameworld.Object), item.Object,
+			true)
+		{
+			SwitchedOn = true
+		};
+
+		sensor.OnPowerCutIn();
+
+		Assert.AreEqual(21.5, sensor.CurrentValue, 0.0001);
+	}
+
+	[TestMethod]
+	public void Keypad_Select_OnlyEmitsSignalForCorrectPoweredCode()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 5050L, "Access Keypad");
+		var sensor = new KeypadGameItemComponent(CreateKeypadProto(gameworld.Object), item.Object, true)
+		{
+			SwitchedOn = true
+		};
+		var actor = new Mock<ICharacter>();
+
+		sensor.OnPowerCutIn();
+		Assert.IsFalse(sensor.Select(actor.Object, "9999", Mock.Of<IEmote>(), true));
+		Assert.AreEqual(0.0, sensor.CurrentValue, 0.0001);
+
+		Assert.IsTrue(sensor.Select(actor.Object, "1234", Mock.Of<IEmote>(), true));
+		Assert.AreEqual(1.0, sensor.CurrentValue, 0.0001);
+	}
+
+	[TestMethod]
+	public void RelaySwitch_ReceiveSignal_PowersConnectedConsumersWhenClosed()
+	{
+		var gameworld = CreateGameworld();
+		var item = CreateBasicItem(gameworld.Object, 5060L, "Relay Switch");
+		var relay = new RelaySwitchGameItemComponent(CreateRelaySwitchProto(gameworld.Object), item.Object, true);
+		var consumer = new Mock<IConsumePower>();
+		consumer.SetupGet(x => x.PowerConsumptionInWatts).Returns(10.0);
+
+		relay.BeginDrawdown(consumer.Object);
+		Assert.IsFalse(relay.ProducingPower);
+
+		relay.ReceiveSignal(new ComputerSignal(1.0, null, null), Mock.Of<ISignalSource>());
+		Assert.IsTrue(relay.ProducingPower);
+		consumer.Verify(x => x.OnPowerCutIn(), Times.Once);
+
+		relay.ReceiveSignal(default, Mock.Of<ISignalSource>());
+		Assert.IsFalse(relay.ProducingPower);
+		consumer.Verify(x => x.OnPowerCutOut(), Times.Once);
+	}
+
+	[TestMethod]
 	public void SignalCableSegment_ConfigureRoute_MirrorsAdjacentSourceAcrossSpecificExit()
 	{
 		var destinationCell = CreateCell(20L);
@@ -1278,12 +1395,15 @@ return @togglevalue");
 		var gameworld = new Mock<IFuturemud>();
 		var heartbeatManager = new Mock<IHeartbeatManager>();
 		var futureProgs = new Mock<IUneditableAll<MudSharp.FutureProg.IFutureProg>>();
+		var unitManager = new Mock<IUnitManager>();
 		var itemList = (items ?? Enumerable.Empty<IGameItem>()).ToList();
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager.Object);
 		gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
+		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
 		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
 			.Returns((long id, bool _) => itemList.FirstOrDefault(x => x.Id == id));
 		futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns((MudSharp.FutureProg.IFutureProg?)null);
+		unitManager.SetupGet(x => x.BaseTemperatureToCelcius).Returns(1.0);
 		return gameworld;
 	}
 
@@ -1295,6 +1415,10 @@ return @togglevalue");
 		cell.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns(() => exitList);
 		cell.Setup(x => x.Insert(It.IsAny<IGameItem>()));
 		cell.Setup(x => x.Extract(It.IsAny<IGameItem>()));
+		cell.Setup(x => x.CurrentIllumination(It.IsAny<IPerceiver>())).Returns(0.0);
+		cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(0.0);
+		cell.Setup(x => x.OutdoorsType(It.IsAny<IPerceiver>())).Returns(CellOutdoorsType.Outdoors);
+		cell.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns((IWeatherEvent?)null);
 		return cell;
 	}
 
@@ -1476,6 +1600,178 @@ return @togglevalue");
 				{
 					Id = 405L,
 					Name = "Motion Sensor",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static LightSensorGameItemComponentProto CreateLightSensorProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 25.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", true),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0)
+		);
+
+		return (LightSensorGameItemComponentProto)typeof(LightSensorGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4061L,
+					Name = "Light Sensor",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static RainSensorGameItemComponentProto CreateRainSensorProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 25.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", true),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0)
+		);
+
+		return (RainSensorGameItemComponentProto)typeof(RainSensorGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4062L,
+					Name = "Rain Sensor",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static TemperatureSensorGameItemComponentProto CreateTemperatureSensorProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 25.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", true),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0)
+		);
+
+		return (TemperatureSensorGameItemComponentProto)typeof(TemperatureSensorGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4063L,
+					Name = "Temperature Sensor",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static KeypadGameItemComponentProto CreateKeypadProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 35.0),
+			new XElement("WattageDiscount", 0.0),
+			new XElement("Switchable", true),
+			new XElement("UseMountHostPowerSource", true),
+			new XElement("PowerOnEmote", new XCData("@ hum|hums briefly as it powers on")),
+			new XElement("PowerOffEmote", new XCData("@ shudder|shudders as it powers down.")),
+			new XElement("OnPoweredProg", 0),
+			new XElement("OnUnpoweredProg", 0),
+			new XElement("Code", new XCData("1234")),
+			new XElement("SignalValue", 1.0),
+			new XElement("SignalDurationSeconds", 1.0),
+			new XElement("EntryEmote", new XCData("@ tap|taps digits into $1"))
+		);
+
+		return (KeypadGameItemComponentProto)typeof(KeypadGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4064L,
+					Name = "Keypad",
+					Description = "Test",
+					RevisionNumber = 1,
+					Definition = definition.ToString(),
+					EditableItem = new MudSharp.Models.EditableItem
+					{
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 1
+					}
+				},
+				gameworld
+			]);
+	}
+
+	private static RelaySwitchGameItemComponentProto CreateRelaySwitchProto(IFuturemud gameworld)
+	{
+		var definition = new XElement("Definition",
+			new XElement("Wattage", 100.0),
+			new XElement("SourceComponentId", 1L),
+			new XElement("SourceComponentName", new XCData("RelaySource")),
+			new XElement("SourceEndpointKey", new XCData("signal")),
+			new XElement("ActivationThreshold", 0.5),
+			new XElement("ClosedWhenAboveThreshold", true)
+		);
+
+		return (RelaySwitchGameItemComponentProto)typeof(RelaySwitchGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([
+				new MudSharp.Models.GameItemComponentProto
+				{
+					Id = 4065L,
+					Name = "Relay Switch",
 					Description = "Test",
 					RevisionNumber = 1,
 					Definition = definition.ToString(),

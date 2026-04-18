@@ -21,7 +21,11 @@ The first implementation slice for this design has now landed. The currently imp
   - `PushButton`
   - `ToggleSwitch`
   - `MotionSensor`
+  - `LightSensor`
+  - `RainSensor`
+  - `TemperatureSensor`
   - `TimerSensor`
+  - `Keypad`
   - `Microcontroller`
   - `AutomationMountHost`
   - `AutomationHousing`
@@ -29,6 +33,7 @@ The first implementation slice for this design has now landed. The currently imp
   - `SignalLight`
   - `ElectronicDoor`
   - `ElectronicLock`
+  - `RelaySwitch`
   - `AlarmSiren`
 
 The current signal-automation slice now has two shipped wiring tiers. Local sink and microcontroller bindings are still authored with sibling component prototype names or ids and are stored/resolved through stable local source identifiers plus explicit local endpoint keys. In addition, `Microcontroller` can now exist as a separate mountable item installed into an `AutomationMountHost`, and `SignalCableSegment` is now a reusable one-hop wire item that mirrors a source endpoint across a specific adjacent-room exit. In the current shipped slice, all built-in local signal sources expose a single default endpoint key of `signal`, longer signal runs are built by chaining more cable segments one room at a time, and broader persisted signal-graph topologies are still future phases.
@@ -173,7 +178,7 @@ The baseline built-in application list for the computer subsystem is now fixed a
 - A desktop computer item to run these programs on
 - A microcontroller item type that has input channels and output channels that can be connected to other items, and can run ComputerFunctions on its channels to handle logic
 - Signal-capable item component families. These should share `ISignalSource` / `ISignalSink` contracts but remain distinct concrete item component types:
-  - Inputs: `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `TimerSensor`, `Keypad`
+  - Inputs: `PushButton`, `ToggleSwitch`, `MotionSensor`, `LightSensor`, `RainSensor`, `TemperatureSensor`, `TimerSensor`, `Keypad`
   - Logic: `Microcontroller`
   - Outputs: `ElectronicDoor`, `ElectronicLock`, `SignalLight`, `RelaySwitch`, `AlarmSiren`
   - Host systems: `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`
@@ -181,7 +186,11 @@ The baseline built-in application list for the computer subsystem is now fixed a
   - `PushButton` is a selectable momentary input that emits a numeric signal for an authored duration
   - `ToggleSwitch` is a persistent on/off numeric input using the normal switchable-item command flow
   - `MotionSensor` is a powered witnessed-movement input that emits a numeric signal for an authored duration when same-location movement matches its configured mode and minimum size
+  - `LightSensor` is a powered ambient measurement input that emits the current illumination level as its numeric signal
+  - `RainSensor` is a powered weather measurement input that emits a numeric rain-intensity scale while climate-exposed and zero while sheltered
+  - `TemperatureSensor` is a powered ambient measurement input that emits the current room temperature in Celsius as its numeric signal
   - `TimerSensor` is a powered recurring same-item input that alternates between authored active and inactive numeric phases from a persisted cycle anchor
+  - `Keypad` is a powered selectable input that accepts numeric digit entry and emits a momentary signal only when the entered code matches its authored code
   - `Microcontroller` is a powered machine component whose inputs are local signal sources resolved through stable local source identifiers plus endpoint keys, whose inline logic compiles as a `ComputerFunction`, and which can now also be installed as a separate module item into an automation host bay
 - powered machine automation modules and sensors can optionally be authored to draw power from an automation host's parent-item power source when mounted, including compatible attached or connected power-producing items on that host; otherwise they look for a power source on their own parent item
   - `AutomationMountHost` provides named bays for separate automation modules and can require a sibling `AutomationHousing` component before those bays are serviceable
@@ -191,6 +200,7 @@ The baseline built-in application list for the computer subsystem is now fixed a
   - `SignalLight` is a signal-driven light source that wraps the existing programmable-light behaviour
   - `ElectronicDoor` is a standalone signal-driven door component built on the shared internal door runtime base, uses threshold logic, and retries opening while the signal remains active
   - `ElectronicLock` is a signal-driven lock that wraps the existing programmable-lock behaviour
+  - `RelaySwitch` is a signal-driven relay-controlled power switch that wraps the programmable power-supply behaviour and only produces power while its relay is effectively closed
   - `AlarmSiren` is a powered signal-driven audible sink that repeats a configured alarm emote and room audio echo while active
 - An internet grid type including the equivalent tie-ins to the grid, cell towers etc. Possibly consider extending the internet grid as a special type of telecommunications grid so the same grid can do both.
 - Implemented in the current first player-facing slice:

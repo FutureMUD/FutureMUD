@@ -34,13 +34,18 @@ Signal-automation examples now include:
 - `comp edit new pushbutton`
 - `comp edit new toggleswitch`
 - `comp edit new motionsensor`
+- `comp edit new lightsensor`
+- `comp edit new rainsensor`
+- `comp edit new temperaturesensor`
 - `comp edit new timersensor`
+- `comp edit new keypad`
 - `comp edit new microcontroller`
 - `comp edit new automationmounthost`
 - `comp edit new signalcable`
 - `comp edit new signallight`
 - `comp edit new electronicdoor`
 - `comp edit new electroniclock`
+- `comp edit new relayswitch`
 - `comp edit new alarmsiren`
 
 This goes through `GameItemComponentManager`, so failure here often means:
@@ -140,13 +145,18 @@ For the current signal-automation slice, also validate:
 - whether `pushbutton` emits the expected value and then returns to zero after its authored duration
 - whether `toggleswitch` changes between its authored on and off values through the normal switch flow
 - whether `motionsensor` reacts only to its configured witnessed movement mode and minimum size, then returns to zero after its authored duration and only while powered
+- whether `lightsensor` emits the current ambient illumination while powered and updates when the room lighting changes
+- whether `rainsensor` emits the expected rain-intensity scale outdoors or climate-exposed and returns to zero while sheltered indoors
+- whether `temperaturesensor` emits the current ambient temperature in Celsius while powered and updates when the room temperature changes
 - whether `timersensor` alternates between its authored active and inactive values on the expected schedule and only emits live signal while powered
+- whether `keypad` only emits its configured signal value after the correct numeric code is entered, and otherwise reports no activation
 - whether `microcontroller` input bindings compile successfully after every `input add`, `input remove`, or `logic` change
 - whether `automationmounthost` bay names, mount types, optional `AutomationHousing` access requirements, and mounted-power expectations match the intended content composition
 - whether `signalcable` successfully mirrors a source across the intended one-room exit hop and clears correctly when unrouted
 - whether `signallight` responds to threshold and invert settings without redundant extra echoes when the effective lit state is unchanged
 - whether `electronicdoor` responds to threshold and invert settings and reaches the commanded open or closed state once any lock conditions permit it
 - whether `electroniclock` responds to threshold and invert settings and correctly drives the underlying lock state
+- whether `relayswitch` correctly opens or closes its relay according to its configured activation condition and only provides power while effectively closed
 - whether `alarmsiren` only sounds while switched on, powered, and above its effective activation condition
 - whether the live `electrical` and `programming` verbs target the intended parent items and components through normal keyword targeting, without relying on raw component ids
 - whether live `electrical` inspection clearly shows controller input bindings, cable mirror routes, current values, and resolved versus broken signal links so end-to-end debugging is practical in game
@@ -239,15 +249,19 @@ For exchange-hosted voicemail, extend that pass with:
 
 For the current microcontroller workflow, a practical end-to-end pass is:
 1. Create a `pushbutton` component and set its keyword, signal value, duration, and emote.
-2. Alternatively create a `timersensor` component and set its active and inactive values, durations, and initial phase for a recurring local input.
-3. Create either a `signallight`, `electronicdoor`, `electroniclock`, or `alarmsiren` sink component and set its source component prototype, threshold, and invert mode. In the current shipped slice, this binds to that source component family's default local `signal` endpoint.
+2. Alternatively create a measurement or timed input such as `lightsensor`, `rainsensor`, `temperaturesensor`, or `timersensor`, or a coded `keypad`, and set its powered-machine and input-specific options.
+3. Create either a `signallight`, `electronicdoor`, `electroniclock`, `relayswitch`, or `alarmsiren` sink component and set its source component prototype, threshold, and invert mode. In the current shipped slice, this binds to that source component family's default local `signal` endpoint.
 4. Optionally create a `microcontroller` component and use `comp set input add <variable> <sourcecomponent>` for each sibling source component prototype. In the current shipped slice, these input bindings also target the source component's default local `signal` endpoint.
 5. Use `comp set logic` on the microcontroller to author inline logic that returns a number.
 6. Attach the authored components to the same item prototype with `item set add`.
 7. Load the item and exercise the input:
    - `select <item> <button keyword>` for `pushbutton`
+   - `select <item> <digits>` for `keypad`
    - `switch <item> on` / `switch <item> off` for `toggleswitch`
    - move through the same location as the composed item for `motionsensor`
+   - change ambient lighting or move between differently lit locations for `lightsensor`
+   - wait for weather changes or test in rain-exposed versus sheltered locations for `rainsensor`
+   - change the ambient room temperature or move between differently heated cells for `temperaturesensor`
    - wait through at least one full active/inactive cycle for `timersensor`
 8. Confirm the sink reacts through the authored sibling source component prototype or through the microcontroller output as authored.
 

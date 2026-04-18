@@ -161,13 +161,18 @@ The current signal-automation slice has its own presentation and integration rul
 - `PushButton` decorates the full description to show the selectable keyword and whether it is currently active
 - `ToggleSwitch` decorates short and full descriptions to show whether it is currently on or off
 - `MotionSensor` decorates the full description to show whether it is currently active plus the movement mode and minimum size it watches for
+- `LightSensor` decorates the full description to show its current illumination reading, switch state, power state, and emitted signal value
+- `RainSensor` decorates the full description to show its current precipitation reading, switch state, power state, and emitted signal value
+- `TemperatureSensor` decorates the full description to show its current ambient temperature reading, switch state, power state, and emitted signal value
 - `TimerSensor` decorates the full description to show its active and inactive values, its cycle timings, and which phase it is currently in
+- `Keypad` decorates the full description to show that it accepts `select <item> <digits>`, along with its switch, power, and active state
 - `Microcontroller` decorates the full description with its current on/off state and numeric output value
 - `AutomationMountHost` decorates the full description with named bay state and whether the host is presently serviceable through its sibling `AutomationHousing` access path
 - `SignalCableSegment` decorates the full description with whether it is routed, which source endpoint it mirrors, and which exit hop it currently spans
 - `AutomationHousing` decorates the full description with whether the housing is sealed or open for service, and when open it lists the concealed automation items inside
 - `SignalLight` and `ElectronicLock` reuse the existing light and lock presentation behaviour, but now integrate with sibling signal sources resolved through stable local identifiers plus explicit endpoint keys
 - `ElectronicDoor` is its own door component family on the shared internal door base, adds control-state detail to the full description, and emits automatic open or close emotes when the commanded state changes
+- `RelaySwitch` primarily presents through electrical inspection because its important state is whether its signal-controlled relay is currently closed and therefore producing power
 - `AlarmSiren` decorates short and full descriptions to show whether it is sounding, and integrates audible room output with sibling signal sources plus power state
 - `component show` output for signal-driven sinks should present the bound local source endpoint, not just the component family, so future multi-port source families stay understandable
 - the current slice is not purely same-item any more, but the external graph is still intentionally modest: presentation should explain mounted modules and one-hop cable segments without implying a full arbitrary wiring network

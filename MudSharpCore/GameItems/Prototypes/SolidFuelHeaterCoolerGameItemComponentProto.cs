@@ -109,7 +109,7 @@ public class SolidFuelHeaterCoolerGameItemComponentProto : SwitchableThermalSour
             case "secondsperweight":
                 return BuildingCommandSecondsPerWeight(actor, command);
             default:
-                return base.BuildingCommand(actor, command);
+                return base.BuildingCommand(actor, command.GetUndo());
         }
     }
 
@@ -177,7 +177,7 @@ public class SolidFuelHeaterCoolerGameItemComponentProto : SwitchableThermalSour
     }
 
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tfueltag <tag> - sets the tag of valid fuel items\n\tcapacity <weight> - sets the maximum stored fuel weight\n\tsecondsperweight <seconds> - sets burn time per unit weight" +
+        "You can use the following options with this component:\n\t#3name <name>#0 - sets the name of the component\n\t#3desc <desc>#0 - sets the description of the component\n\t#3fueltag <tag>#0 - sets the tag of valid fuel items\n\t#3capacity <weight>#0 - sets the maximum stored fuel weight\n\t#3secondsperweight <seconds>#0 - sets burn time per unit weight" +
         SwitchableThermalBuildingHelpText;
 
     public override string ShowBuildingHelp => BuildingHelpText;

@@ -17,6 +17,7 @@
         CharacterIntro = 9,
         CrimeReport = 10,
         ArenaEvent = 11,
-        ArenaRecurringEvent = 12
+        ArenaRecurringEvent = 12,
+        ComputerProgram = 13
     }
 }

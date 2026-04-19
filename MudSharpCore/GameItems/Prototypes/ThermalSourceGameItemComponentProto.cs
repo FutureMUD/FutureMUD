@@ -155,13 +155,13 @@ public abstract class ThermalSourceGameItemComponentProto : GameItemComponentPro
             $"Ambient {AmbientHeat.ToString("N2", actor).ColourValue()}, Intimate {IntimateHeat.ToString("N2", actor).ColourValue()}, Immediate {ImmediateHeat.ToString("N2", actor).ColourValue()}, Proximate {ProximateHeat.ToString("N2", actor).ColourValue()}, Distant {DistantHeat.ToString("N2", actor).ColourValue()}, VeryDistant {VeryDistantHeat.ToString("N2", actor).ColourValue()}";
     }
 
-    protected const string ThermalBuildingHelpText =
-        "\n\tambient <value> - sets the room-wide thermal effect for indoor rooms" +
-        "\n\tintimate <value> - sets the thermal effect at intimate proximity" +
-        "\n\timmediate <value> - sets the thermal effect at immediate proximity" +
-        "\n\tproximate <value> - sets the thermal effect at proximate proximity" +
-        "\n\tdistant <value> - sets the thermal effect at distant proximity" +
-        "\n\tverydistant <value> - sets the thermal effect at very distant proximity" +
-        "\n\tactivedesc <text> - sets the addendum shown while the source is active" +
-        "\n\tinactivedesc <text> - sets the addendum shown while the source is inactive";
+    protected const string ThermalBuildingHelpText = @"
+	#3ambient <value>#0 - sets the room-wide thermal effect for indoor rooms
+	#3intimate <value>#0 - sets the thermal effect at intimate proximity
+	#3immediate <value>#0 - sets the thermal effect at immediate proximity
+	#3proximate <value>#0 - sets the thermal effect at proximate proximity
+	#3distant <value>#0 - sets the thermal effect at distant proximity
+	#3verydistant <value>#0 - sets the thermal effect at very distant proximity
+	#3activedesc <text>#0 - sets the addendum shown while the source is active
+	#3inactivedesc <text>#0 - sets the addendum shown while the source is inactive";
 }

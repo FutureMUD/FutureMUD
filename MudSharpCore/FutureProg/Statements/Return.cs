@@ -98,7 +98,10 @@ internal class Return : Statement
             <Regex,
                 Func
                 <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-                ReturnCompileRegex, ReturnCompile)
+                ReturnCompileRegex, ReturnCompile),
+			FutureProgCompilationContext.StandardFutureProg,
+			FutureProgCompilationContext.ComputerFunction,
+			FutureProgCompilationContext.ComputerProgram
         );
 
         FutureProg.RegisterStatementColouriser(

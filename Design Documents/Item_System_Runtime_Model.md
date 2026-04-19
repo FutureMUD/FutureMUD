@@ -88,6 +88,141 @@ Some subsystems also need reusable runtime data that is not owned by one concret
 - each segment snapshots the language id, accent id, raw text, volume, speech outcome, and immutable speaker identity metadata needed to recreate later playback without consulting the speaker's current state
 - the shared model owns XML round-tripping so stage-1 item implementations can persist recordings in ordinary component XML rather than new database tables
 
+### Computers and signal automation pattern
+The planned computer-programs subsystem follows the same composition rules:
+- shared contracts live in `FutureMUDLibrary/Computers`
+- item-facing automation contracts such as `ISignalSourceComponent`, `ISignalSinkComponent`, and `IMicrocontroller` live in `FutureMUDLibrary/GameItems/Interfaces`
+- live item behaviour should come from item components, not special-case `GameItem` subclasses
+- common signal semantics should be expressed through interfaces like `ISignalSource` and `ISignalSink`
+- concrete runtime behaviour should still be split into distinct component families such as `ComputerHost`, `ComputerTerminal`, `ComputerStorage`, `NetworkAdapter`, `NetworkSwitch`, `WirelessModem`, `Microcontroller`, `PushButton`, `MotionSensor`, `ElectronicDoor`, and `SignalLight`
+- standalone player-owned computer code still exists outside the item runtime in `FutureMUDLibrary/Computers` / `MudSharpCore/Computers` as `ICharacterComputerWorkspace`, `IComputerExecutionService`, and `IComputerHelpService`, but the same runtime now also supports real host-owned and storage-owned executables through `IComputerExecutableOwner`
+- host-owned and storage-owned file systems now also carry live network-file state such as per-file public visibility flags, while `ComputerHost` runtime configuration additionally carries FTP account data for the built-in remote file-transfer service
+- the broader mutable file-surface contract is now `IComputerFileOwner`, which allows non-executable item components such as automation sources to expose a file system to local or remote file tools without also becoming full executable owners
+
+This means "computerised" items are expected to compose multiple capabilities:
+- a host component to own files, executables, and running processes
+- one or more terminal or network-facing components for user and remote interaction
+- signal source and sink components for electrical-style automation
+- ordinary door, lock, light, or switch components when the item also has traditional physical behaviour
+
+The current shipped computer-host slice now provides those first concrete families:
+- `ComputerHost` is a powered machine component plus `IConnectable` that owns files, executables, processes, mounted storage, terminal connections, network adapters, and built-in application exposure
+- `ComputerStorage` is an `IConnectable` storage owner that persists files and executables and can be mounted into a host
+- `ComputerTerminal` is a powered machine component plus `IConnectable` that owns live player sessions into a connected powered host
+- `NetworkAdapter` is a powered machine component plus `IConnectable` that exposes the host's telecom-backed network-facing readiness, preferred address, stable device identifier, access route memberships, canonical published address, and attached `ITelecommunicationsGrid`
+- `NetworkSwitch` is a powered `INetworkInfrastructure` plus `IConnectable` component that can attach directly to a telecommunications grid or uplink through another infrastructure item, then daisy-chain that transport to downstream adapters and switches
+- `WirelessModem` is a powered machine component plus `IConnectable` that exposes the same host-facing network contract as `NetworkAdapter`, but resolves transport by live `ICellPhoneTower` coverage rather than a direct physical uplink
+
+Built-in applications now follow the same host-owned runtime model rather than existing as a disconnected catalog:
+- a real `ComputerHost` exposes built-in application definitions as host-bound built-in programs
+- those built-ins are not exposed by the private workspace or mounted storage devices
+- executing one creates a real host process through the shared computer execution service
+- in the current shipped phase `SysMon`, `FileManager`, `Directory`, `Mail`, `FTP`, and `Boards` have implemented built-in behaviour, while `Messenger` remains reserved for a future phase
+- shared network identity is now a runtime abstraction above the first mail-backed persistence slice: hosts manage generic hosted domains and `user@domain` accounts through `IComputerNetworkIdentityService`, even though the current persisted backing tables are still the mail domain and mail account tables
+- `Mail` is also the first shipped database-backed network service: mail domains, accounts, messages, and mailbox entries persist in dedicated EF-backed tables, while the host only owns the live service enablement and hosted-domain bindings
+- `FTP` is the first shipped XML-backed network file service: the host owns live service enablement and account state, each owner file system owns its per-file public visibility flags, and the telecom-backed runtime layer resolves anonymous or authenticated remote access across reachable hosts
+
+As with telecommunications, the runtime goal is interface-first integration. Game logic should ask for capabilities such as `IComputerHost` or `ISignalSink`, while the item itself remains the orchestration shell that aggregates whichever concrete components are attached.
+
+The currently implemented automation runtime slice is intentionally narrower than the full target design:
+- `PushButton` is an `ISelectable` same-item signal source with authored keyword, signal value, duration, and press emote
+- `ToggleSwitch` is an `ISwitchable` same-item signal source with authored on and off values
+- `MotionSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that listens for witnessed movement events, filters by detection mode and minimum size, and emits a timed numeric signal
+- `LightSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that polls the current ambient illumination and emits that lux value as its signal
+- `RainSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that polls the current weather and emits a numeric rain-intensity scale while its location is climate-exposed
+- `TemperatureSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that polls the current ambient temperature and emits that value in Celsius
+- `TimerSensor` is a `PoweredMachineBaseGameItemComponent` same-item signal source that alternates between authored active and inactive values on a recurring persisted cycle
+- `Keypad` is a `PoweredMachineBaseGameItemComponent` plus `ISelectable` that accepts numeric `select <item> <digits>` input and emits a momentary numeric signal only when the entered code matches its authored code
+- `FileSignalGenerator` is a `PoweredMachineBaseGameItemComponent` plus `ISignalSourceComponent` and `IComputerFileOwner` that owns a small mutable file system, parses one designated text file as a numeric signal, and emits that parsed value while switched on and powered
+- `Microcontroller` is a `PoweredMachineBaseGameItemComponent` plus `IMicrocontroller` that:
+  - binds named inputs to local `ISignalSourceComponent` instances
+  - keeps live numeric input values
+  - compiles authored inline logic in the `ComputerFunction` compilation context
+  - emits a single numeric output signal
+- `AutomationMountHost` is an `IConnectable` plus `IAutomationMountHost` component that owns named automation bays, persists installed module item ids, and can require a sibling `AutomationHousing` component before those bays are serviceable
+- `SignalCableSegment` is an `ISignalSourceComponent` wire item that stores a source binding plus source and destination cells and a routed exit id, then mirrors the source endpoint across that one adjacent-room hop
+- `SignalLight` is a signal sink layered on top of programmable-light runtime behaviour
+- `ElectronicDoor` is a standalone signal-driven door component built on the shared internal door runtime base and retries until it reaches the currently commanded open or closed state
+- `ElectronicLock` is a signal sink layered on top of programmable-lock runtime behaviour
+- `RelaySwitch` is a signal-driven power producer layered on top of programmable power-supply behaviour, closing or opening its relay according to its configured threshold logic
+- `AlarmSiren` is a `PoweredMachineBaseGameItemComponent` plus `ISignalSinkComponent` that resolves a sibling source, evaluates threshold logic, and emits repeated audible output while active, switched on, and powered
+
+The current live-configuration runtime layer also adds:
+- `IRuntimeConfigurableSignalSinkComponent` for sinks whose local binding, threshold, and activation mode can be changed on a live item
+- `IRuntimeProgrammableMicrocontroller` for controllers whose inline logic and local input bindings can be changed on a live item
+- `LocalSignalBinding` and `MicrocontrollerRuntimeInputBinding` as the stable runtime payloads for live local endpoint bindings
+
+Current runtime connection rules for that slice are:
+- sinks and microcontroller inputs resolve their upstream sources by stable local source identifiers plus explicit endpoint keys
+- purely local live bindings still resolve on the same parent item
+- mounted modules remain separate `IGameItem` instances connected through `AutomationMountHost` bays and move with the host item
+- mounted modules inherit spatial context through their host item for `TrueLocations`, perception, and local signal discovery even while removed from ordinary room inventory
+- `SignalCableSegment` is the current external wiring layer: one item mirrors one source endpoint across one adjacent-room exit hop, and longer runs require more cable items
+- live player rewiring stores the runtime component id plus endpoint key in `LocalSignalBinding`, while builder-authored prototype defaults still use prototype-oriented identifiers
+- the currently shipped built-in local source families each expose a single default output endpoint key named `signal`
+- builder commands still accept component prototype names or ids, but stored bindings no longer depend on future component renames
+- one sink definition points at one source endpoint
+- microcontrollers do explicit aggregation by binding multiple input names and recomputing their own single output
+- output propagation is event-driven and suppressed when the computed signal value has not actually changed
+- motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs
+- timer sensors currently generate their own recurring same-item phase changes from a persisted cycle anchor rather than an external event source
+- file-backed signal generators treat file changes as their triggering event source: editing the owned file locally or through network file tools recomputes the parsed signal state and re-emits if the live output value changes
+- powered machine automation modules can be authored to draw power from their automation host's parent-item power source when mounted, including compatible attached or connected power-producing items on that host; otherwise powered machines still resolve power from their own parent item
+- mounted automation modules lazily restore their host linkage from saved host identity during load/login so host-derived power, signal access, and room context continue to work after a reboot
+- mounted automation modules now follow the shared item lifecycle contract: load restores structure, while `Login()` is the first point where they begin live power drawdown, signal subscriptions, timers, and similar active behaviour
+- world boot now logs in only world-root items that are actually present in cells; items rooted in character inventories stay dormant until their owning body or character logs in and propagates the lifecycle to them
+- `AutomationMountHost` forwards `Login()`, `Quit()`, and `Delete()` to mounted bay items so extracted modules still come online and tear down with their host item even though they are not ordinary cell-contained items
+- powered machine automation modules and other powered-machine-based automation components now treat power resolution as a topology-aware live process rather than a single login-time lookup: they subscribe to relevant parent and host power-topology changes, retry for a longer post-login window if switched on but initially unpowered, and refresh power resolution when connected or mounted power availability changes after reboot/load ordering
+- `ElectronicDoor` now performs the same kind of late reconnect retry for its signal binding after load/login, so a controller or mounted module that becomes discoverable slightly later in the reboot sequence can still subscribe and drive the door without manual rewiring
+- witnessed-movement automation ignores movers with `IImmwalkEffect`, and the movement event pipeline suppresses those events at the source as well, so administrator immwalk traversal does not trip motion-driven automation
+- `AutomationHousing` is the dedicated housing or junction component family for concealed automation modules and cable ends, and is itself the lockable-container service-access capability on the item rather than a passive sibling marker
+- automation hosts now use sibling `AutomationHousing` components for mount-bay service access
+- `AutomationMountHost` forwards `Quit()` / `Delete()` teardown to installed mounted items so extracted bay modules do not remain live when their host leaves the game or is destroyed
+- there is still not yet a broader persisted multi-hop signal graph or explicit electrical-network runtime object beyond mounted modules and cable segments
+- local computer runtime now also exposes:
+  - generic executable ownership through `IComputerExecutableOwner`
+  - generic mutable file ownership through `IComputerFileOwner`
+  - mutable host and storage owners through `IComputerMutableOwner`
+  - terminal-scoped execution context via `IComputerTerminalSession`
+  - local file, terminal, and signal-wait functions such as `ReadFile`, `WriteFile`, `AppendFile`, `FileExists`, `GetFiles`, `WriteTerminal`, `ClearTerminal`, `UserInput`, `WaitSignal`, `LaunchProgram`, and `KillProgram`
+
+The current player-work runtime flow for that slice is:
+- `electrical` and `programming` commands target live item components through the runtime-configurable interfaces above
+- `programming` also targets the standalone character-owned workspace when the first token is a reserved workspace verb
+- `programming terminal connect <terminal>` creates a terminal session on a powered connected `ComputerTerminal`
+- `programming terminal owner host` or `programming terminal owner <storage>` selects which real computer owner the workspace-style `programming` verbs mutate
+- when a terminal session is active, workspace-style `programming` verbs operate on that selected real computer owner instead of the private workspace
+- `programming apps` lists the built-in applications exposed by the connected powered host, regardless of whether the current selected mutable owner is the host or one mounted storage device
+- `programming app <name>` executes the named built-in application on that connected powered host as a real host process
+- `programming item <item> file [<component>]`, `file edit`, `file write`, and `file public on|off` now provide the live local editing surface for `FileSignalGenerator` components on ordinary loaded items
+- administrator characters can now configure shared host network identity and hosted VPN routes through the active terminal session with `programming network`, `programming network domain ...`, `programming network account ...`, and `programming network vpn ...`
+- administrator characters can now configure host mail service state through the active terminal session with `programming mail`, `programming mail service ...`, `programming mail domain ...`, and `programming mail account ...`
+- administrator characters can now configure host board-service exposure through the active terminal session with `programming boards`, `programming boards service ...`, and `programming boards add|remove ...`
+- `FileManager` is now a shipped built-in application on that surface: it runs as a host process, keeps its current host-or-storage file target in persisted process state, and uses repeated `type <text>` input to drive `list`, `show`, `edit`, `write`, `append`, `delete`, `copy`, `owners`, `use`, `help`, and `exit`
+- `FileManager` owner enumeration is now file-owner-aware rather than storage-only, so host-local component owners such as `FileSignalGenerator` appear alongside the host and mounted storage devices as selectable file targets
+- `type edit <file>` hands off to the engine's ordinary multiline editor flow, recalls the current file contents, saves on `@`, and leaves the file unchanged on `*cancel`
+- `Directory` is now also a shipped built-in application on that surface: it runs as a host process and uses repeated `type <text>` input to browse the local host summary plus its built-in services, mounted storage devices, connected terminals, and local network adapters, and it also supports telecom-backed discovery of reachable hosts through `hosts`, `show <host>`, and `services <host>`, plus route inspection and authenticated VPN tunnelling through `routes`, `gateways`, `tunnel connect ...`, and `tunnel disconnect ...`
+- `Directory` and `SysMon` now present network adapters in terms of canonical address, stable device id, base access-route summary, and active session tunnels rather than as a flat all-devices-visible network, so players and administrators can see why a host is reachable without being overwhelmed by unrelated infrastructure
+- `Mail` is now also a shipped built-in application on that surface: it runs as a host process, authenticates against reachable shared `user@domain` identities, and uses repeated `type <text>` input to log in, list inbox state, read and delete mailbox entries, compose drafts, and post messages
+- `Boards` is now also a shipped built-in application on that surface: it runs as a host process, opens a reachable board-service host, authenticates against reachable shared `user@domain` identities, lists the boards exposed by that host, and uses the normal editor flow to compose posts
+- `type` is now the terminal-facing input verb: it submits text to the current terminal session, auto-resolves and auto-connects to a nearby terminal when one can be identified cleanly, and resumes the single foreground program on that session if it is suspended in `UserInput()`
+- `programming terminal status` now also surfaces any active session-scoped tunnel routes on the connected terminal session
+- computer processes now persist terminal-wait metadata for `UserInput()` waits, including the waiting character and terminal item identity, so those waits can survive save/load and still route correctly from `type`
+- host-backed computer processes can now also suspend in `WaitSignal()` with persisted signal-wait metadata that records the awaited local signal binding on the real execution host item
+- the current v1 `WaitSignal()` implementation resolves only named signal source components on that real execution host item and resumes when that source emits a non-zero signal value
+- `electrical` also handles the physical install/remove and cable routing workflow for separate automation items
+- public-file publication and authenticated FTP mutation likewise operate on any reachable `IComputerFileOwner`, so a `FileSignalGenerator` on a host item can expose or accept edits through the same network file infrastructure as the host and its mounted storage
+- reachable remote file and service discovery now respects the same route-key accessibility model as `Directory`, so exchange-private and VPN-scoped devices are not unintentionally exposed to unrelated hosts on the broader linked-grid cluster
+- real host-backed or storage-backed program execution is now blocked when the execution host is not powered
+- built-in application execution is likewise blocked when that connected execution host is not powered
+- actions are modelled as targeted delayed effects rather than instant mutation
+- required tools are acquired and restored through inventory plans, so failure costs time but does not permanently consume tools or materials
+- success, progress, cancel, failure, and shock output are driven by configurable static strings rather than hard-coded prose
+- electrical work uses dedicated install/configure checks, and abject electrical failures can apply electrical damage
+- administrator characters bypass the live item tool/check/delay layer for `electrical` and item-targeted `programming`, but still go through the same targeting and service-access validation
+- service housings on doors and automation hosts are addressed through normal `open` / `close` subtargets such as `open north panel`
+- live controller and signal diagnostics are part of `electrical <item>` runtime inspection rather than ordinary item descriptions
+
 ### Telecommunications and cellular pattern
 Telecommunications items are a useful example of how multiple item capabilities compose into one subsystem:
 - wired handsets implement `ITelephone`, but the active phone number may belong to a separate `ITelephoneNumberOwner` endpoint such as a telecommunications outlet
@@ -95,6 +230,24 @@ Telecommunications items are a useful example of how multiple item capabilities 
 - telecommunications grids persist number ownership against the specific endpoint component identity, not just the parent item, so multiple telecom endpoints on one item keep distinct numbers across save/load
 - a telecommunications grid is also a specialised power network, so telecom-connected devices can draw power from producers on that grid without exposing themselves as ordinary electrical-service endpoints
 - each telecommunications grid owns exchange-level behaviour such as prefix, subscriber length, maximum rings before timeout, and direct exchange links used for long-distance routing
+- the same telecommunications grid runtime now also serves as the transport substrate for computer networking: attached `NetworkAdapter` components join the grid as runtime-derived endpoints, publish canonical addresses, and can discover other reachable network-ready adapters across the linked-grid graph
+- computer networking now also has an explicit access-scope model layered on top of that transport. Each reachable endpoint publishes one or more route keys, and host discovery only succeeds when the source and target share at least one route key.
+- computer-network reachability is transitive across linked exchanges in this slice, unlike voice-call routing; discovery walks the linked-grid graph breadth-first with cycle protection
+- canonical network addresses prefer a configured adapter address when it is unique within the reachable linked-grid cluster, and otherwise fall back to a stable generated address of the form `adapter-<itemid>`
+- every network-facing device also now has a stable globally unique device identifier of the form `device-<itemid>`, which is the current player-facing equivalent of a hardware-address or IP-like identifier for diagnostics and future tooling
+- current access-scope route keys are:
+  - `public` for devices exposed to the broader telecom-backed network
+  - exchange-private subnet keys scoped to a specific telecommunications grid and subnet name
+  - explicit `vpn:<name>` memberships
+- exchange-private subnet keys are the current reference model for isolated field networks at an exchange. Devices on the same exchange-local subnet can all see each other even when they are intentionally invisible from the broader public network.
+- `NetworkSwitch` is the infrastructure reference pattern for daisy-chained network topology. It can take one upstream telecom path and fan that out to many downstream adapters or further switches without each endpoint needing a direct grid attachment.
+- `WirelessModem` is the infrastructure reference pattern for untethered IoT or field devices. It joins the same telecom-backed network layer through powered cellular coverage and exposes the same public, subnet, and VPN memberships as a wired adapter.
+- hosts can now also expose one or more hosted VPN network ids, which are advertised as a lightweight VPN gateway service on reachable hosts and can be granted to a terminal session after authenticating with a hosted `user@domain` identity on that gateway host
+- active tunnel memberships are session-scoped rather than hardware-scoped: they extend route visibility only for the authenticated terminal session and do not mutate adapter or host wiring
+- future hacking should layer on top of this route-key model by granting or emulating additional temporary route membership rather than replacing the underlying discovery rules
+- only implemented built-in applications marked as network services are advertised through the computer discovery layer; `Mail`, `FTP`, and `Boards` are now shipped ones, while `Messenger` stays hidden until it actually ships
+- `Mail` advertisement is host-service-aware rather than adapter-owned: a host only advertises `Mail` when that host has the service enabled and at least one enabled hosted domain
+- `Boards` advertisement is likewise host-service-aware rather than adapter-owned: a host only advertises `Boards` when that host has the service enabled and at least one hosted board exposed
 - long-distance routing is direct and prefix-based: a call only forwards to directly linked exchanges, never multi-hop chains, and a local-prefix dial always resolves locally instead of forwarding
 - shared numbers are valid at the endpoint layer, which allows multiple outlets or towers to ring for the same number and later join the same live call
 - fax routing is a sibling path rather than a speech-call variant: the grid resolves the same addressed number ownership, but voice-to-fax and fax-to-voice mismatches should surface as modem-like noise instead of a normal connected conversation
@@ -159,6 +312,9 @@ When a live item is loaded:
 - the `GameItem` is created from database data
 - each stored component row is mapped back to its component proto and runtime component type
 - component `FinaliseLoad()` hooks run after broader object availability is established
+- `FinaliseLoad()` restores structural scaffolding only: references, pending ids, mount relationships, routed cable metadata, and similar non-live state
+- after structural restoration completes, the world login pass logs in world-root items that are actually active in the world, while inventory-rooted item trees remain dormant until their owning body or character logs in
+- `Login()` is the point where live runtime behaviour begins: power drawdown, heartbeats, signal subscriptions, timers, retries, ringing, and comparable active behaviour
 - item-level late initialisation and effect restoration complete
 
 ### Saving live items

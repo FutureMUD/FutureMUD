@@ -60,6 +60,12 @@ internal class DeclareVariable : Statement
                                lineNumber);
         }
 
+		if (!ComputerCompilationRestrictions.TryValidateTypeForContext(type, FutureProg.CurrentCompilationContext,
+			    out var errorMessage))
+		{
+			return CompileInfo.GetFactory().CreateError(errorMessage, lineNumber);
+		}
+
         DeclareVariable newVar = new(match.Groups["varname"].Value.ToLowerInvariant(), type);
         variableSpace.Add(newVar.NameToDeclare, newVar.TypeToDeclare);
         return CompileInfo.GetFactory().CreateNew(newVar, variableSpace, lines.Skip(1), lineNumber, lineNumber);
@@ -86,7 +92,10 @@ internal class DeclareVariable : Statement
             <Regex,
                 Func
                 <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-                DeclareVariableCompileRegex, DeclareVariableCompile)
+                DeclareVariableCompileRegex, DeclareVariableCompile),
+			FutureProgCompilationContext.StandardFutureProg,
+			FutureProgCompilationContext.ComputerFunction,
+			FutureProgCompilationContext.ComputerProgram
         );
 
         FutureProg.RegisterStatementColouriser(

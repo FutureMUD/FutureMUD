@@ -47,9 +47,13 @@ namespace MudSharp.GameItems.Prototypes
         public override string TypeDescription => "LockingContainer";
 
         #region Constructors
-        protected LockingContainerGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld, originator, "LockingContainer")
+        protected LockingContainerGameItemComponentProto(IFuturemud gameworld, IAccount originator) : this(gameworld, originator, "LockingContainer")
         {
         }
+
+		protected LockingContainerGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type) : base(gameworld, originator, type)
+		{
+		}
 
         protected LockingContainerGameItemComponentProto(Models.GameItemComponentProto proto, IFuturemud gameworld) : base(proto, gameworld)
         {
@@ -176,7 +180,7 @@ namespace MudSharp.GameItems.Prototypes
 
         #region Building Commands
 
-        private const string BuildingHelpText =
+        protected const string BuildingHelpText =
         @"You can use the following options with this component:
 
 	#3name <name>#0 - sets the name of the component

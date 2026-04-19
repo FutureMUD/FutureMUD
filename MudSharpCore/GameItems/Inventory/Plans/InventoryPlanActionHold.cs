@@ -60,7 +60,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
 
     protected double GetItemFitness(ICharacter executor, IGameItem item)
     {
-        if (!item.IsA(DesiredTag) || !(PrimaryItemSelector?.Invoke(item) ?? true) ||
+        if ((DesiredTag is not null && !item.IsA(DesiredTag)) || !(PrimaryItemSelector?.Invoke(item) ?? true) ||
             (item.GetItemType<IStackable>()?.Quantity ?? 1) < Quantity)
         {
             return 0.0;
@@ -93,7 +93,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
             executor.Body.HeldItems.Where(
                 x =>
                     ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
-                    x.IsA(DesiredTag) &&
+                    (DesiredTag is null || x.IsA(DesiredTag)) &&
                     (PrimaryItemSelector?.Invoke(x) ?? true));
         foreach (IGameItem item in items)
         {
@@ -109,7 +109,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
             executor.Body.WieldedItems.Where(
                 x =>
                     ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
-                    x.IsA(DesiredTag) &&
+                    (DesiredTag is null || x.IsA(DesiredTag)) &&
                     (PrimaryItemSelector?.Invoke(x) ?? true));
         foreach (IGameItem item in items)
         {
@@ -125,7 +125,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
             executor.Body.WornItems.Where(
                 x =>
                     ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
-                    x.IsA(DesiredTag) &&
+                    (DesiredTag is null || x.IsA(DesiredTag)) &&
                     (PrimaryItemSelector?.Invoke(x) ?? true) &&
                     executor.Body.CanRemoveItem(x, ItemCanGetIgnore.IgnoreFreeHands));
         foreach (IGameItem item in items)
@@ -146,7 +146,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                                 y =>
                                     ((y.Parent.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity ||
                                      QuantityIsOptional) &&
-                                    y.Parent.IsA(DesiredTag) &&
+                                    (DesiredTag is null || y.Parent.IsA(DesiredTag)) &&
                                     (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
                                     executor.Body.CanGet(y.Parent, Quantity,
                                         ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands)
@@ -169,7 +169,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                     .Where(
                         x =>
                             ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
-                            x.IsA(DesiredTag) &&
+                            (DesiredTag is null || x.IsA(DesiredTag)) &&
                             (PrimaryItemSelector?.Invoke(x) ?? true) &&
                             executor.Body.CanDraw(x, null, ItemCanWieldFlags.IgnoreFreeHands)
                     );
@@ -187,7 +187,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
         {
             items = container.Contents.Where(
                 x => ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
-                     x.IsA(DesiredTag) &&
+                     (DesiredTag is null || x.IsA(DesiredTag)) &&
                      (PrimaryItemSelector?.Invoke(x) ?? true) &&
                      executor.Body.CanGet(x, container.Parent, Quantity,
                          ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands)
@@ -207,7 +207,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
             executor.Location.LayerGameItems(executor.RoomLayer).Where(
                 x =>
                     ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
-                    x.IsA(DesiredTag) &&
+                    (DesiredTag is null || x.IsA(DesiredTag)) &&
                     (PrimaryItemSelector?.Invoke(x) ?? true) && executor.Body.CanGet(x, Quantity,
                         ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands));
         foreach (IGameItem item in items)
@@ -229,7 +229,8 @@ public class InventoryPlanActionHold : InventoryPlanAction
                                 y =>
                                     ((y.Parent.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity ||
                                      QuantityIsOptional) &&
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    (DesiredTag is null || y.Parent.IsA(DesiredTag)) &&
+                                    (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
                                     executor.Body.CanGet(y.Parent, Quantity,
                                         ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands)
                             ))
@@ -252,7 +253,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                     .Where(
                         x =>
                             ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
-                            x.IsA(DesiredTag) &&
+                            (DesiredTag is null || x.IsA(DesiredTag)) &&
                             (PrimaryItemSelector?.Invoke(x) ?? true) &&
                             executor.Body.CanDraw(x, null, ItemCanWieldFlags.IgnoreFreeHands)
                     );
@@ -271,7 +272,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
         {
             items = container.Contents.Where(
                 x => ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
-                     x.IsA(DesiredTag) &&
+                     (DesiredTag is null || x.IsA(DesiredTag)) &&
                      (PrimaryItemSelector?.Invoke(x) ?? true) &&
                      executor.Body.CanGet(x, container.Parent, Quantity,
                          ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands)

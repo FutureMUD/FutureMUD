@@ -140,7 +140,7 @@ namespace MudSharp.GameItems.Components
         protected readonly List<IGameItem> _contents = new();
         public IEnumerable<IGameItem> Contents => _contents;
         public string ContentsPreposition => _prototype.ContentsPreposition;
-        public bool CanPut(IGameItem item)
+        public virtual bool CanPut(IGameItem item)
         {
             return
                 item != Parent &&
@@ -149,7 +149,7 @@ namespace MudSharp.GameItems.Components
                 _contents.Sum(x => x.Weight) + item.Weight <= _prototype.WeightLimit;
         }
 
-        public int CanPutAmount(IGameItem item)
+        public virtual int CanPutAmount(IGameItem item)
         {
             return (int)((_prototype.WeightLimit - _contents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
         }
@@ -180,7 +180,7 @@ namespace MudSharp.GameItems.Components
             Changed = true;
         }
 
-        public WhyCannotPutReason WhyCannotPut(IGameItem item)
+        public virtual WhyCannotPutReason WhyCannotPut(IGameItem item)
         {
             if (item == Parent)
             {
@@ -669,7 +669,7 @@ namespace MudSharp.GameItems.Components
                         sb.AppendLine($"It is {(_contents.Sum(x => x.Weight) / _prototype.WeightLimit).ToString("P2", voyeur).Colour(Telnet.Green)} full.");
                     }
 
-                    sb.AppendLine($"{description}\nIt has a built-in lock that accepts key of type {LockType.ColourName()} and {(IsLocked ? "is currently locked." : "is currently unlocked.").Colour(Telnet.Yellow)}");
+                    sb.AppendLine($"It has a built-in lock that accepts key of type {LockType.ColourName()} and {(IsLocked ? "is currently locked." : "is currently unlocked.").Colour(Telnet.Yellow)}");
                     if (Locks.Any())
                     {
                         sb.AppendLine();

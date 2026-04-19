@@ -26,6 +26,12 @@ internal class Switch : Statement
     protected IEnumerable<IStatement> DefaultCase;
     protected IFunction SwitchFunction;
 
+	internal IFunction SwitchExpression => SwitchFunction;
+	internal IReadOnlyList<(IFunction CaseExpression, IReadOnlyList<IStatement> Statements)> CaseBlocks =>
+		Cases.Select(x => (x.Item1, (IReadOnlyList<IStatement>)(x.Item2 as IReadOnlyList<IStatement> ?? x.Item2.ToList()))).ToList();
+	internal IReadOnlyList<IStatement> DefaultStatements =>
+		DefaultCase as IReadOnlyList<IStatement> ?? DefaultCase.ToList();
+
     public override bool IsReturnOrContainsReturnOnAllBranches()
     {
         return Cases.All(x => x.Item2.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false) &&
@@ -225,7 +231,10 @@ internal class Switch : Statement
         <Regex,
             Func<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
             SwitchCompileRegex, SwitchCompile
-        ));
+        ),
+		FutureProgCompilationContext.StandardFutureProg,
+		FutureProgCompilationContext.ComputerFunction,
+		FutureProgCompilationContext.ComputerProgram);
 
         FutureProg.RegisterStatementColouriser(new Tuple<Regex, Func<string, string>>(
             SwitchCompileRegex, ColouriseSwitchStatement

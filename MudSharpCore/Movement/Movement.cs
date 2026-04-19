@@ -492,6 +492,11 @@ public class Movement : IMovement
         TurnaroundTracks();
         foreach (ICharacter mover in CharacterMovers)
         {
+			if (MovementEventUtilities.ShouldSuppressMovementEvents(mover))
+			{
+				continue;
+			}
+
             mover.HandleEvent(EventType.CharacterStopMovement, mover, Exit.Origin, Exit);
             foreach (IHandleEvents witness in mover.Location.EventHandlers.Except(mover))
             {
@@ -701,6 +706,7 @@ public class Movement : IMovement
     /// <inheritdoc />
     public void InitialAction()
     {
+        Exit.Origin.RegisterMovement(this);
         foreach (ICharacter ch in CharacterMovers)
         {
             ch.StartMove(this);
@@ -766,16 +772,19 @@ public class Movement : IMovement
                 foreach (ICharacter person in CharacterMovers)
                 {
                     person.OutputHandler.Handle(output, OutputRange.Personal);
-                    person.HandleEvent(EventType.CharacterStopMovement);
-                    foreach (IHandleEvents witness in person.Location.EventHandlers.Except(person))
-                    {
-                        witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
-                    }
+					if (!MovementEventUtilities.ShouldSuppressMovementEvents(person))
+					{
+						person.HandleEvent(EventType.CharacterStopMovement);
+						foreach (IHandleEvents witness in person.Location.EventHandlers.Except(person))
+						{
+							witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
+						}
 
-                    foreach (IGameItem witness in person.Body.ExternalItems)
-                    {
-                        witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
-                    }
+						foreach (IGameItem witness in person.Body.ExternalItems)
+						{
+							witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
+						}
+					}
                 }
 
                 Cancel();
@@ -817,16 +826,19 @@ public class Movement : IMovement
                 foreach (ICharacter person in CharacterMovers)
                 {
                     person.OutputHandler.Handle(output, OutputRange.Personal);
-                    person.HandleEvent(EventType.CharacterStopMovement);
-                    foreach (IHandleEvents witness in person.Location.EventHandlers.Except(person))
-                    {
-                        witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
-                    }
+					if (!MovementEventUtilities.ShouldSuppressMovementEvents(person))
+					{
+						person.HandleEvent(EventType.CharacterStopMovement);
+						foreach (IHandleEvents witness in person.Location.EventHandlers.Except(person))
+						{
+							witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
+						}
 
-                    foreach (IGameItem witness in person.Body.ExternalItems)
-                    {
-                        witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
-                    }
+						foreach (IGameItem witness in person.Body.ExternalItems)
+						{
+							witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
+						}
+					}
                 }
 
                 Cancel();

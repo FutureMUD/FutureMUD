@@ -107,7 +107,7 @@ public class ConsumableHeaterCoolerGameItemComponentProto : ThermalSourceGameIte
             case "expired":
                 return BuildingCommandExpended(actor, command);
             default:
-                return base.BuildingCommand(actor, command);
+                return base.BuildingCommand(actor, command.GetUndo());
         }
     }
 
@@ -185,7 +185,7 @@ public class ConsumableHeaterCoolerGameItemComponentProto : ThermalSourceGameIte
     }
 
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tfuel <seconds> - sets the burn duration\n\tspent <item proto>|none - sets the replacement item when spent\n\texpended <emote> - sets the spent emote" +
+        "You can use the following options with this component:\n\t#3name <name>#0 - sets the name of the component\n\t#3desc <desc>#0 - sets the description of the component\n\t#3fuel <seconds>#0 - sets the burn duration\n\t#3spent <item proto>|none#0 - sets the replacement item when spent\n\t#3expended <emote>#0 - sets the spent emote" +
         ThermalBuildingHelpText;
 
     public override string ShowBuildingHelp => BuildingHelpText;

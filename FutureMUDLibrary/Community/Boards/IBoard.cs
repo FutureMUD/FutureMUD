@@ -17,6 +17,7 @@ namespace MudSharp.Community.Boards
 
         void MakeNewPost(IAccount author, string title, string text);
         void MakeNewPost(ICharacter author, string title, string text);
+        void MakeNewPost(string authorName, string title, string text);
         void DeletePost(IBoardPost post);
 
 

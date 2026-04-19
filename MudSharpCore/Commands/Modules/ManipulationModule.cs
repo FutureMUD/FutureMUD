@@ -3724,6 +3724,66 @@ The syntax is as follows:
         JunkAction();
     }
 
+    private static bool IsAutomationServicePanelSpecifier(string specifier)
+    {
+        return specifier.EqualToAny("panel", "housing", "service");
+    }
+
+    private static bool ShouldAttemptAutomationServicePanelResolution(IGameItem targetItem, string specifier)
+    {
+        return IsAutomationServicePanelSpecifier(specifier) ||
+               targetItem.Components.OfType<IAutomationHousing>().Any();
+    }
+
+    private static bool TryResolveAutomationServicePanelOpenable(ICharacter actor, IGameItem targetItem,
+        string specifier, out IOpenable openable, out string error)
+    {
+        var housings = targetItem.Components
+                                 .OfType<IAutomationHousing>()
+                                 .OfType<IOpenable>()
+                                 .Select(x => (Openable: x, Component: x as IGameItemComponent))
+                                 .Where(x => x.Component is not null)
+                                 .ToList();
+        openable = null;
+
+        if (!housings.Any())
+        {
+            error = $"{targetItem.HowSeen(actor, true)} does not have any automation service panel.";
+            return false;
+        }
+
+        if (IsAutomationServicePanelSpecifier(specifier))
+        {
+            if (housings.Count == 1)
+            {
+                openable = housings[0].Openable;
+                error = string.Empty;
+                return true;
+            }
+
+            error =
+                $"There is more than one automation service panel on {targetItem.HowSeen(actor, true)}. You must specify which housing you mean.";
+            return false;
+        }
+
+        var matches = housings.Where(x =>
+                                  x.Component!.Name.StartsWith(specifier, StringComparison.InvariantCultureIgnoreCase) ||
+                                  x.Component.Prototype.Name.StartsWith(specifier,
+                                      StringComparison.InvariantCultureIgnoreCase))
+                              .ToList();
+        if (matches.Count == 1)
+        {
+            openable = matches[0].Openable;
+            error = string.Empty;
+            return true;
+        }
+
+        error = matches.Count > 1
+            ? $"There is more than one automation service panel on {targetItem.HowSeen(actor, true)} matching {specifier.ColourCommand()}."
+            : $"There is no automation service panel on {targetItem.HowSeen(actor, true)} matching {specifier.ColourCommand()}.";
+        return false;
+    }
+
     [PlayerCommand("Open", "open")]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [RequiredCharacterState(CharacterState.Able)]
@@ -3752,7 +3812,20 @@ The syntax is as follows:
                 return;
             }
 
-            openable = targetExit.Exit.Door;
+            if (!string.IsNullOrEmpty(cmd2) &&
+                ShouldAttemptAutomationServicePanelResolution(targetExit.Exit.Door.Parent, cmd2))
+            {
+                if (!TryResolveAutomationServicePanelOpenable(actor, targetExit.Exit.Door.Parent, cmd2,
+                        out openable, out var serviceError))
+                {
+                    actor.OutputHandler.Send(serviceError);
+                    return;
+                }
+            }
+            else
+            {
+                openable = targetExit.Exit.Door;
+            }
         }
         else if (!string.IsNullOrEmpty(cmd2))
         {
@@ -3774,6 +3847,22 @@ The syntax is as follows:
             }
             else
             {
+                IGameItem item = cellExits.SelectNotNull(x => x.Exit.Door)
+                                          .Select(x => x.Parent)
+                                          .GetFromItemListByKeyword(cmd, actor) ??
+                                 actor.TargetItem(cmd);
+                if (item != null && ShouldAttemptAutomationServicePanelResolution(item, cmd2))
+                {
+                    if (!TryResolveAutomationServicePanelOpenable(actor, item, cmd2, out openable,
+                            out var serviceError))
+                    {
+                        actor.OutputHandler.Send(serviceError);
+                        return;
+                    }
+
+                    goto resolvedOpenable;
+                }
+
                 openableOwner = actor.TargetActor(cmd);
                 if (openableOwner == null)
                 {
@@ -3794,8 +3883,8 @@ The syntax is as follows:
                     return;
                 }
 
-                IGameItem item = openableOwner.Body.ExternalItemsForOtherActors.Where(x => actor.CanSee(x))
-                                        .GetFromItemListByKeyword(cmd2, actor);
+                item = openableOwner.Body.ExternalItemsForOtherActors.Where(x => actor.CanSee(x))
+                                   .GetFromItemListByKeyword(cmd2, actor);
                 if (item == null)
                 {
                     actor.OutputHandler.Send(
@@ -3836,6 +3925,7 @@ The syntax is as follows:
             }
         }
 
+resolvedOpenable:
         if (openable == null)
         {
             actor.OutputHandler.Send("You do not see that here to open.");
@@ -4502,7 +4592,20 @@ The syntax is as follows:
                 return;
             }
 
-            openable = targetExit.Exit.Door;
+            if (!string.IsNullOrEmpty(cmd2) &&
+                ShouldAttemptAutomationServicePanelResolution(targetExit.Exit.Door.Parent, cmd2))
+            {
+                if (!TryResolveAutomationServicePanelOpenable(actor, targetExit.Exit.Door.Parent, cmd2,
+                        out openable, out var serviceError))
+                {
+                    actor.OutputHandler.Send(serviceError);
+                    return;
+                }
+            }
+            else
+            {
+                openable = targetExit.Exit.Door;
+            }
         }
         else if (!string.IsNullOrEmpty(cmd2))
         {
@@ -4524,6 +4627,22 @@ The syntax is as follows:
             }
             else
             {
+                IGameItem item = cellExits.SelectNotNull(x => x.Exit.Door)
+                                          .Select(x => x.Parent)
+                                          .GetFromItemListByKeyword(cmd, actor.Body) ??
+                                 actor.Body.TargetItem(cmd);
+                if (item != null && ShouldAttemptAutomationServicePanelResolution(item, cmd2))
+                {
+                    if (!TryResolveAutomationServicePanelOpenable(actor, item, cmd2, out openable,
+                            out var serviceError))
+                    {
+                        actor.OutputHandler.Send(serviceError);
+                        return;
+                    }
+
+                    goto resolvedCloseable;
+                }
+
                 openableOwner = actor.TargetActor(cmd);
                 if (openableOwner == null)
                 {
@@ -4544,8 +4663,8 @@ The syntax is as follows:
                     return;
                 }
 
-                IGameItem item = openableOwner.Body.ExternalItemsForOtherActors.Where(x => actor.CanSee(x))
-                                        .GetFromItemListByKeyword(cmd2, actor);
+                item = openableOwner.Body.ExternalItemsForOtherActors.Where(x => actor.CanSee(x))
+                                   .GetFromItemListByKeyword(cmd2, actor);
                 if (item == null)
                 {
                     actor.OutputHandler.Send(
@@ -4587,6 +4706,7 @@ The syntax is as follows:
             }
         }
 
+resolvedCloseable:
         if (openable == null)
         {
             actor.OutputHandler.Send("You do not see that here to close.");

@@ -4486,6 +4486,204 @@ namespace MudSharp.Migrations
                     b.ToTable("CharacterCombatSettings");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterComputerExecutable", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("AutorunOnBoot")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<int>("CompilationContext")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("CompilationStatus")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("CompileError")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CompileError"), "utf8");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("ExecutableKind")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime>("LastModifiedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long>("OwnerCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("OwnerHostItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("OwnerStorageItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("ReturnTypeDefinition")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ReturnTypeDefinition"), "utf8");
+
+                    b.Property<string>("SourceCode")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SourceCode"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("OwnerCharacterId")
+                        .HasDatabaseName("FK_CharacterComputerExecutables_Characters_idx");
+
+                    b.HasIndex("OwnerCharacterId", "Name")
+                        .HasDatabaseName("IX_CharacterComputerExecutables_Owner_Name");
+
+                    b.ToTable("CharacterComputerExecutables", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterComputerExecutableParameter", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CharacterComputerExecutableId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("ParameterIndex")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("ParameterName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ParameterName"), "utf8");
+
+                    b.Property<string>("ParameterTypeDefinition")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ParameterTypeDefinition"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CharacterComputerExecutableId")
+                        .HasDatabaseName("FK_CharacterComputerExecutableParameters_Executables_idx");
+
+                    b.HasIndex("CharacterComputerExecutableId", "ParameterIndex")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CharacterComputerExecutableParameters_Executable_Index");
+
+                    b.ToTable("CharacterComputerExecutableParameters", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterComputerProgramProcess", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CharacterComputerExecutableId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime?>("EndedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("LastError")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("LastError"), "utf8");
+
+                    b.Property<DateTime>("LastUpdatedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<long>("OwnerCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("PowerLossBehaviour")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("ProcessName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ProcessName"), "utf8");
+
+                    b.Property<string>("ResultJson")
+                        .HasColumnType("longtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ResultJson"), "utf8");
+
+                    b.Property<DateTime>("StartedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("StateJson")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("StateJson"), "utf8");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("WaitArgument")
+                        .HasColumnType("varchar(1000)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("WaitArgument"), "utf8");
+
+                    b.Property<int>("WaitType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime?>("WakeTimeUtc")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CharacterComputerExecutableId")
+                        .HasDatabaseName("FK_CharacterComputerProgramProcesses_Executables_idx");
+
+                    b.HasIndex("OwnerCharacterId")
+                        .HasDatabaseName("FK_CharacterComputerProgramProcesses_Characters_idx");
+
+                    b.HasIndex("OwnerCharacterId", "Status", "WakeTimeUtc")
+                        .HasDatabaseName("IX_CharacterComputerProgramProcesses_Owner_Status_Wake");
+
+                    b.ToTable("CharacterComputerProgramProcesses", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterIntroTemplate", b =>
                 {
                     b.Property<long>("Id")
@@ -6076,6 +6274,182 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_CombatMessages_WeaponAttacks_WeaponAttacks_idx");
 
                     b.ToTable("CombatMessages_WeaponAttacks", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ComputerMailAccount", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ComputerMailDomainId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<ulong>("IsEnabled")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<DateTime>("LastModifiedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PasswordHash"), "utf8");
+
+                    b.Property<long>("PasswordSalt")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("UserName"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("ComputerMailDomainId")
+                        .HasDatabaseName("FK_ComputerMailAccounts_ComputerMailDomains_idx");
+
+                    b.HasIndex("ComputerMailDomainId", "UserName")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ComputerMailAccounts_Domain_UserName");
+
+                    b.ToTable("ComputerMailAccounts", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ComputerMailDomain", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("DomainName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DomainName"), "utf8");
+
+                    b.Property<ulong>("Enabled")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long>("HostItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("DomainName")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ComputerMailDomains_DomainName");
+
+                    b.HasIndex("HostItemId")
+                        .HasDatabaseName("FK_ComputerMailDomains_GameItems_idx");
+
+                    b.ToTable("ComputerMailDomains", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ComputerMailMailboxEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ComputerMailAccountId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("ComputerMailMessageId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("DeliveredAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<ulong>("IsDeleted")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<ulong>("IsRead")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<ulong>("IsSentFolder")
+                        .HasColumnType("bit(1)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("ComputerMailAccountId")
+                        .HasDatabaseName("FK_ComputerMailMailboxEntries_ComputerMailAccounts_idx");
+
+                    b.HasIndex("ComputerMailMessageId")
+                        .HasDatabaseName("FK_ComputerMailMailboxEntries_ComputerMailMessages_idx");
+
+                    b.HasIndex("ComputerMailAccountId", "IsDeleted", "IsSentFolder", "DeliveredAtUtc")
+                        .HasDatabaseName("IX_ComputerMailMailboxEntries_Account_Folder_Delivered");
+
+                    b.ToTable("ComputerMailMailboxEntries", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ComputerMailMessage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Body"), "utf8");
+
+                    b.Property<string>("RecipientAddress")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RecipientAddress"), "utf8");
+
+                    b.Property<string>("SenderAddress")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SenderAddress"), "utf8");
+
+                    b.Property<DateTime>("SentAtUtc")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Subject"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("SentAtUtc")
+                        .HasDatabaseName("IX_ComputerMailMessages_SentAtUtc");
+
+                    b.ToTable("ComputerMailMessages", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ConveyancingLocation", b =>
@@ -19551,6 +19925,51 @@ namespace MudSharp.Migrations
                     b.Navigation("PriorityProg");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterComputerExecutable", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "OwnerCharacter")
+                        .WithMany("CharacterComputerExecutables")
+                        .HasForeignKey("OwnerCharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterComputerExecutables_Characters");
+
+                    b.Navigation("OwnerCharacter");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterComputerExecutableParameter", b =>
+                {
+                    b.HasOne("MudSharp.Models.CharacterComputerExecutable", "CharacterComputerExecutable")
+                        .WithMany("Parameters")
+                        .HasForeignKey("CharacterComputerExecutableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterComputerExecutableParameters_CharacterComputerExecutables");
+
+                    b.Navigation("CharacterComputerExecutable");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterComputerProgramProcess", b =>
+                {
+                    b.HasOne("MudSharp.Models.CharacterComputerExecutable", "CharacterComputerExecutable")
+                        .WithMany("Processes")
+                        .HasForeignKey("CharacterComputerExecutableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterComputerProgramProcesses_CharacterComputerExecutables");
+
+                    b.HasOne("MudSharp.Models.Character", "OwnerCharacter")
+                        .WithMany("CharacterComputerProgramProcesses")
+                        .HasForeignKey("OwnerCharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterComputerProgramProcesses_Characters");
+
+                    b.Navigation("CharacterComputerExecutable");
+
+                    b.Navigation("OwnerCharacter");
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterIntroTemplate", b =>
                 {
                     b.HasOne("MudSharp.Models.FutureProg", "AppliesToCharacterProg")
@@ -20392,6 +20811,51 @@ namespace MudSharp.Migrations
                     b.Navigation("CombatMessage");
 
                     b.Navigation("WeaponAttack");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ComputerMailAccount", b =>
+                {
+                    b.HasOne("MudSharp.Models.ComputerMailDomain", "ComputerMailDomain")
+                        .WithMany("Accounts")
+                        .HasForeignKey("ComputerMailDomainId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ComputerMailAccounts_ComputerMailDomains");
+
+                    b.Navigation("ComputerMailDomain");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ComputerMailDomain", b =>
+                {
+                    b.HasOne("MudSharp.Models.GameItem", "HostItem")
+                        .WithMany()
+                        .HasForeignKey("HostItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ComputerMailDomains_GameItems");
+
+                    b.Navigation("HostItem");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ComputerMailMailboxEntry", b =>
+                {
+                    b.HasOne("MudSharp.Models.ComputerMailAccount", "ComputerMailAccount")
+                        .WithMany("MailboxEntries")
+                        .HasForeignKey("ComputerMailAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ComputerMailMailboxEntries_ComputerMailAccounts");
+
+                    b.HasOne("MudSharp.Models.ComputerMailMessage", "ComputerMailMessage")
+                        .WithMany("MailboxEntries")
+                        .HasForeignKey("ComputerMailMessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ComputerMailMailboxEntries_ComputerMailMessages");
+
+                    b.Navigation("ComputerMailAccount");
+
+                    b.Navigation("ComputerMailMessage");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ConveyancingLocation", b =>
@@ -25547,6 +26011,10 @@ namespace MudSharp.Migrations
 
                     b.Navigation("CharacterCombatSettings");
 
+                    b.Navigation("CharacterComputerExecutables");
+
+                    b.Navigation("CharacterComputerProgramProcesses");
+
                     b.Navigation("CharacterKnowledges");
 
                     b.Navigation("CharacterLog");
@@ -25606,6 +26074,13 @@ namespace MudSharp.Migrations
                     b.Navigation("WritingsAuthor");
 
                     b.Navigation("WritingsTrueAuthor");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterComputerExecutable", b =>
+                {
+                    b.Navigation("Parameters");
+
+                    b.Navigation("Processes");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacteristicDefinition", b =>
@@ -25767,6 +26242,21 @@ namespace MudSharp.Migrations
                     b.Navigation("CombatMessagesCombatActions");
 
                     b.Navigation("CombatMessagesWeaponAttacks");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ComputerMailAccount", b =>
+                {
+                    b.Navigation("MailboxEntries");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ComputerMailDomain", b =>
+                {
+                    b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ComputerMailMessage", b =>
+                {
+                    b.Navigation("MailboxEntries");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CorpseModel", b =>

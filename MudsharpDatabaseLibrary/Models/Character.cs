@@ -12,6 +12,8 @@ public partial class Character
         AlliesAlly = new HashSet<Ally>();
         AlliesCharacter = new HashSet<Ally>();
         CharacterCombatSettings = new HashSet<CharacterCombatSetting>();
+        CharacterComputerExecutables = new HashSet<CharacterComputerExecutable>();
+        CharacterComputerProgramProcesses = new HashSet<CharacterComputerProgramProcess>();
         CharacterKnowledges = new HashSet<CharacterKnowledge>();
         CharacterLog = new HashSet<CharacterLog>();
         CharactersAccents = new HashSet<CharacterAccent>();
@@ -115,6 +117,8 @@ public partial class Character
     public virtual ICollection<Ally> AlliesAlly { get; set; }
     public virtual ICollection<Ally> AlliesCharacter { get; set; }
     public virtual ICollection<CharacterCombatSetting> CharacterCombatSettings { get; set; }
+    public virtual ICollection<CharacterComputerExecutable> CharacterComputerExecutables { get; set; }
+    public virtual ICollection<CharacterComputerProgramProcess> CharacterComputerProgramProcesses { get; set; }
     public virtual ICollection<CharacterKnowledge> CharacterKnowledges { get; set; }
     public virtual ICollection<CharacterLog> CharacterLog { get; set; }
     public virtual ICollection<CharacterAccent> CharactersAccents { get; set; }

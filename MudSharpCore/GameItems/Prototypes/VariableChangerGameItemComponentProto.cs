@@ -30,10 +30,15 @@ public class VariableChangerGameItemComponentProto : VariableGameItemComponentPr
 
     public override string TypeDescription => "Variable Changer";
 
-    private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tvariable add <which> <profile> - adds a variable with the specified random profile\n\tvariable remove <which> - removes a variable\n\ttarget <wear> - sets a wear profile that must be used\n\ttarget - clears a wear profile requirement";
+    private const string SpecificBuildingHelpText = @"
+	#3target <wear>#0 - sets a wear profile that must be used
+	#3target#0 - clears a wear profile requirement";
 
-    public override string ShowBuildingHelp => BuildingHelpText;
+    private static readonly string CombinedBuildingHelpText = @$"You can use the following options with this component:
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component{VariableGameItemComponentProto.SpecificBuildingHelpText}{SpecificBuildingHelpText}";
+
+    public override string ShowBuildingHelp => @$"{base.ShowBuildingHelp}{SpecificBuildingHelpText}";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -67,7 +72,7 @@ public class VariableChangerGameItemComponentProto : VariableGameItemComponentPr
             return true;
         }
 
-        return base.BuildingCommand(actor, command);
+        return base.BuildingCommand(actor, command.GetUndo());
     }
 
     public new static void RegisterComponentInitialiser(GameItemComponentManager manager)
@@ -84,7 +89,7 @@ public class VariableChangerGameItemComponentProto : VariableGameItemComponentPr
         manager.AddTypeHelpInfo(
             "VariableChanger",
             $"Changes the values of one characteristic to others when worn, combined with a {"[wearable]".Colour(Telnet.BoldYellow)}",
-            BuildingHelpText
+            CombinedBuildingHelpText
         );
     }
 

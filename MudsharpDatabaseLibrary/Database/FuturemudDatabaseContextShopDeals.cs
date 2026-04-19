@@ -7,6 +7,9 @@ namespace MudSharp.Database
     {
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
         {
+            ConfigureCharacterComputerWorkspace(modelBuilder);
+            ConfigureComputerMail(modelBuilder);
+
             modelBuilder.Entity<ShopDeal>(entity =>
             {
                 entity.ToTable("ShopDeals");

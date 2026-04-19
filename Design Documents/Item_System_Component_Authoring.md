@@ -42,6 +42,13 @@ If the feature also needs shared immutable value objects rather than only a quer
 - gameplay-facing item queries live behind interfaces such as `IAudioStorageTape` and `IAnsweringMachine`
 - XML helpers live with the shared models so stage-1 persistence can stay inside normal item/component XML without feature-specific database tables
 
+Computer-program and signal-automation work should follow the same rule:
+- shared contracts such as `IComputerHost`, `IComputerFileSystem`, `IComputerExecutable`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary/Computers`
+- broader mutable file-owner contracts such as `IComputerFileOwner` belong in `FutureMUDLibrary/Computers` when item components need to expose files without also exposing executable storage
+- item-facing component contracts such as `ISignalSourceComponent`, `ISignalSinkComponent`, and `IMicrocontroller` belong in `FutureMUDLibrary/GameItems/Interfaces`
+- concrete behaviours such as `ComputerHost`, `ComputerStorage`, `ComputerTerminal`, `NetworkAdapter`, `NetworkSwitch`, `WirelessModem`, `Microcontroller`, `PushButton`, `MotionSensor`, or `ElectronicDoor` should still be separate runtime components and component protos in `MudSharpCore`
+- avoid collapsing multiple distinct automation behaviours into one generic "sensor" or "actuator" component unless the gameplay contract is genuinely identical
+
 ## Step 2: Start from the GameItem Template
 The repaired `Item Templates/GameItem` template should now generate a coherent pair:
 - `ExampleGameItemComponent`
@@ -84,6 +91,11 @@ Typical registration includes:
 - `AddBuilderLoader(...)` for `comp edit new <type>`
 - `AddDatabaseLoader(...)` for boot-time loading from the stored type string
 - `AddTypeHelpInfo(...)` for type listings and builder help
+
+For automation and signal-capable types, use the type-summary text intentionally:
+- signal emitters should usually advertise a coloured `[signal generator]` tag
+- signal-driven sinks should usually advertise a coloured `[signal consumer]` tag
+- components that both accept and emit signals, such as relays or microcontrollers, should usually advertise both
 
 Use the builder loader names intentionally:
 - one primary name should be the main builder-facing type keyword
@@ -236,6 +248,80 @@ Use this checklist when adding a new capability:
 - `ContainerGameItemComponentProto` and `ContainerGameItemComponent`
 - `WearableGameItemComponentProto` and `WearableGameItemComponent`
 - `HoldableGameItemComponentProto` and `HoldableGameItemComponent` for the read-only special-case pattern
+
+## Signal Automation Authoring
+The current computer-automation slice is a good reference for "shared contracts, separate concrete behaviours".
+
+Implemented builder-facing component types:
+- `computerhost`
+- `computerterminal`
+- `computerstorage`
+- `networkadapter`
+- `networkswitch`
+- `wirelessmodem`
+- `pushbutton`
+- `toggleswitch`
+- `motionsensor`
+- `lightsensor`
+- `rainsensor`
+- `temperaturesensor`
+- `timersensor`
+- `keypad`
+- `filesignalgenerator`
+- `microcontroller`
+- `automationmounthost`
+- `automationhousing`
+- `signalcable`
+- `signallight`
+- `electronicdoor`
+- `electroniclock`
+- `relayswitch`
+- `alarmsiren`
+
+Current authoring pattern:
+- host and file-storage components author executable and file-owner behaviour, while transport-facing components author connectivity, addressing, and access-scope rules
+- `networkadapter` authors preferred address, whether it participates in the public network, an optional exchange-private subnet name, and zero or more VPN memberships
+- `networkswitch` authors powered-machine settings plus a port count for downstream daisy-chain or endpoint connections; it does not own host executables or file state
+- `wirelessmodem` authors the same addressing and access-scope surface as `networkadapter`, but its runtime transport comes from cellular coverage rather than a direct physical telecommunications-grid attachment
+- sources author their own output behaviour and expose `ISignalSourceComponent`
+- sinks author a `source <componentname>` field and resolve that source from sibling components on the same item
+- microcontrollers author a list of `input add <variable> <sourcecomponent>` bindings and inline `logic`; the binding command accepts a component prototype name or id and stores a stable local source identifier plus the current default local endpoint key
+- automation hosts author one or more named bays plus an optional sibling `automationhousing` component prototype that must be open for service access
+- automation housings author which categories of automation items they may conceal and are themselves the dedicated lockable-container service-access capability on the item
+- signal cables have no meaningful static routing fields on the proto; they are routed at runtime and persist that live route on the component instance
+- hosted computer mail is not a separate item component family in the current shipped phase; it is runtime configuration on a `ComputerHost` exposed through `programming mail ...`, while domains, accounts, messages, and mailbox entries persist in dedicated database tables
+- hosted computer FTP is also not a separate item component family in the current shipped phase; it is runtime configuration on a `ComputerHost` exposed through `programming ftp ...`, while FTP accounts and per-file public visibility flags persist with the owning host or storage runtime data
+- `motionsensor` authors powered-machine settings plus signal value, duration, minimum size, and movement mode (`any`, `begin`, `enter`, `stop`)
+- `lightsensor` authors powered-machine settings and emits current ambient illumination as a live numeric signal
+- `rainsensor` authors powered-machine settings and emits a live numeric rain-intensity signal based on the current weather when climate-exposed
+- `temperaturesensor` authors powered-machine settings and emits the current ambient temperature as a live numeric signal in Celsius
+- `timersensor` authors powered-machine settings plus active and inactive values, active and inactive durations, and its initial phase
+- `keypad` authors powered-machine settings plus numeric code, emitted signal value, signal duration, and keypad entry emote
+- `filesignalgenerator` authors powered-machine settings plus the designated signal file name, initial file contents, file-system capacity, and whether that file should start publicly accessible for remote file tools
+- `microcontroller` authors powered-machine settings, including optional mount-host power draw via `mountpower`
+- `electronicdoor` authors source component prototype, threshold, invert mode, and automatic open and close emotes
+- `relayswitch` authors source component prototype, threshold, invert mode, and programmable power-supply behaviour through the relay-controlled power base
+- `alarmsiren` authors source component prototype, threshold, invert mode, volume, and repeated alarm emote
+
+Important implementation details from this slice:
+- microcontroller inline logic is compiled immediately as a `ComputerFunction` and must return a number
+- input variable names are validated and normalised to lower case at compile time
+- sinks and microcontrollers detach and reconnect to sibling signal sources during load and teardown using stable local source identifiers plus endpoint keys rather than transient component names
+- signal propagation is event-based, so components should avoid re-emitting unchanged values
+- file-backed signal generators are the reference pattern for hybrid automation/file components: the runtime component owns a mutable file system, subscribes to its file-change event, reparses the designated text file into a numeric signal, and can participate in `FileManager` / `FTP` as an `IComputerFileOwner`
+- transport-facing network components are also now the reference pattern for future security-layer expansion: current builder authoring sets steady-state public, subnet, and VPN memberships, while later tunnelling or hacking features should add temporary or authorised runtime memberships without changing the authored base config
+- live player reconfiguration is a separate runtime concern from builder authoring:
+  - configurable sinks that support live rewiring should implement `IRuntimeConfigurableSignalSinkComponent`
+  - live-programmable controllers should implement `IRuntimeProgrammableMicrocontroller`
+  - live-editable file-backed signal sources should expose a file-owner surface plus any focused runtime interface needed by `programming item <item> file ...`
+  - those runtime interfaces are what the `electrical` and `programming` command verbs target on loaded items
+  - standalone character-owned workspace executables are not item components and are instead managed through the computer-runtime services in `MudSharpCore/Computers`
+
+This is the reference approach for the early phases of computerised items:
+1. put the shared signal contract on interfaces first
+2. keep authored thresholds, keywords, and sibling-source names on the proto
+3. keep live signal state and subscriptions on the runtime component
+4. treat broader cross-item graphs as a later concern, but follow the current reference patterns for automation host bays, automation housings, and one-hop cable items when the task explicitly implements them
 
 ## Thermal Source Components
 The thermal-source family is the reference for "same gameplay concept, multiple activation models".

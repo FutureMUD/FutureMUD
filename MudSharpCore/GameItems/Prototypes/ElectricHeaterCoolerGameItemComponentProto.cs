@@ -97,7 +97,7 @@ public class ElectricHeaterCoolerGameItemComponentProto : SwitchableThermalSourc
             case "watt":
                 return BuildingCommandWattage(actor, command);
             default:
-                return base.BuildingCommand(actor, command);
+                return base.BuildingCommand(actor, command.GetUndo());
         }
     }
 
@@ -122,7 +122,7 @@ public class ElectricHeaterCoolerGameItemComponentProto : SwitchableThermalSourc
     }
 
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\twattage <watts> - sets the electrical draw" +
+        "You can use the following options with this component:\n\t#3name <name>#0 - sets the name of the component\n\t#3desc <desc>#0 - sets the description of the component\n\t#3wattage <watts>#0 - sets the electrical draw" +
         SwitchableThermalBuildingHelpText;
 
     public override string ShowBuildingHelp => BuildingHelpText;

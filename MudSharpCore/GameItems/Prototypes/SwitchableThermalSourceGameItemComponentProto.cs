@@ -72,6 +72,6 @@ public abstract class SwitchableThermalSourceGameItemComponentProto : ThermalSou
 
     protected const string SwitchableThermalBuildingHelpText =
         ThermalBuildingHelpText +
-        "\n\tonemote <emote> - sets the emote when the source switches on" +
-        "\n\toffemote <emote> - sets the emote when the source switches off";
+        "\n\t#3onemote <emote>#0 - sets the emote when the source switches on" +
+        "\n\t#3offemote <emote>#0 - sets the emote when the source switches off";
 }

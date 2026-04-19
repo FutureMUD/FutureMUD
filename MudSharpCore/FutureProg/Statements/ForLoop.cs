@@ -22,6 +22,11 @@ internal class ForLoop : Statement
 
     protected IFunction RepetitionsFunction;
 
+	internal IFunction RepetitionsExpression => RepetitionsFunction;
+	internal string LoopVariableName => LoopVarName;
+	internal IReadOnlyList<IStatement> BodyStatements =>
+		ContainedBlock as IReadOnlyList<IStatement> ?? ContainedBlock.ToList();
+
     public override bool IsReturnOrContainsReturnOnAllBranches()
     {
         return ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;
@@ -124,7 +129,10 @@ internal class ForLoop : Statement
             <Regex,
                 Func
                 <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-                ForLoopCompileRegex, ForLoopCompile)
+                ForLoopCompileRegex, ForLoopCompile),
+			FutureProgCompilationContext.StandardFutureProg,
+			FutureProgCompilationContext.ComputerFunction,
+			FutureProgCompilationContext.ComputerProgram
         );
 
         FutureProg.RegisterStatementColouriser(

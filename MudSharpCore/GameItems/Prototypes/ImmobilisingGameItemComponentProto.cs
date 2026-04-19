@@ -63,7 +63,7 @@ public class ImmobilisingGameItemComponentProto : WearableGameItemComponentProto
         manager.AddTypeHelpInfo(
             "Immobilising",
             $"Item is {"[wearable]".Colour(Telnet.BoldYellow)} and can be used to immobilise broken bones (e.g. splint, cast, etc)",
-            BuildingHelpText
+            WearableGameItemComponentProto.BuildingHelp
         );
     }
 
@@ -77,17 +77,14 @@ public class ImmobilisingGameItemComponentProto : WearableGameItemComponentProto
 
     #region Building Commands
 
-    private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component";
-
-    public override string ShowBuildingHelp => BuildingHelpText;
+    public override string ShowBuildingHelp => base.ShowBuildingHelp;
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
             default:
-                return base.BuildingCommand(actor, command);
+                return base.BuildingCommand(actor, command.GetUndo());
         }
     }
 

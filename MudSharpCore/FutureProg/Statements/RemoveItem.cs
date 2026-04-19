@@ -111,7 +111,10 @@ internal class RemoveItem : Statement
             <Regex,
                 Func
                 <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-                RemoveItemCompileRegex, RemoveItemCompile)
+                RemoveItemCompileRegex, RemoveItemCompile),
+			FutureProgCompilationContext.StandardFutureProg,
+			FutureProgCompilationContext.ComputerFunction,
+			FutureProgCompilationContext.ComputerProgram
         );
 
         FutureProg.RegisterStatementColouriser(

@@ -189,6 +189,9 @@ namespace MudSharp.RPG.Checks
         SpitNaturalAttack = 180,
         ExplosiveNaturalAttack = 181,
         BuffetingNaturalAttack = 182,
+        ProgrammingComponentCheck = 183,
+        InstallElectricalComponentCheck = 184,
+        ConfigureElectricalComponentCheck = 185,
     }
 
     public enum FailIfTraitMissingType
@@ -328,6 +331,8 @@ namespace MudSharp.RPG.Checks
                 case CheckType.SpitNaturalAttack:
                 case CheckType.ExplosiveNaturalAttack:
                 case CheckType.BuffetingNaturalAttack:
+                case CheckType.InstallElectricalComponentCheck:
+                case CheckType.ConfigureElectricalComponentCheck:
                     return true;
             }
             return false;

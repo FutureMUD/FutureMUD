@@ -34,7 +34,7 @@ public class ProgLockGameItemComponentProto : GameItemComponentProto, IHaveSimpl
         manager.AddTypeHelpInfo(
             "ProgLock",
             $"A kind of {"[lock]".Colour(Telnet.Yellow)} that can only be locked/unlocked via progs",
-            BuildingHelpText
+            CombinedBuildingHelpText
         );
     }
 
@@ -137,7 +137,12 @@ public class ProgLockGameItemComponentProto : GameItemComponentProto, IHaveSimpl
     }
 
     protected ProgLockGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-        : base(gameworld, originator, "Prog Lock")
+        : this(gameworld, originator, "Prog Lock")
+    {
+    }
+
+    protected ProgLockGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+        : base(gameworld, originator, type)
     {
         ForceDifficulty = Difficulty.Normal;
         PickDifficulty = Difficulty.Normal;
@@ -153,10 +158,21 @@ public class ProgLockGameItemComponentProto : GameItemComponentProto, IHaveSimpl
 
     #region Building Commands
 
-    private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tpick <difficulty> - the difficulty to pick this lock\n\tforce <difficulty> - the difficulty to force this lock\n\tlock <emote> - sets the emote when locked. Use @ for locker, $0 for the lock item, and $1 for the item the lock is installed on\n\tunlock <emote> - sets the emote when unlocked. Use @ for unlocker, $0 for the lock item, and $1 for the item the lock is installed on\n\tolock <emote> - sets the other side emote when locked. Use @ for locker, $0 for the lock item, and $1 for the item the lock is installed on\n\tounlock <emote> - sets the other side emote when unlocked. Use @ for unlocker, $0 for the lock item, and $1 for the item the lock is installed on\n\tlocknoactor <emote> - sets the emote when locked without a person (e.g. prog). $0 is the lock\n\tunlocknoactor <emote> - sets the emote when unlocked without a person (e.g. prog). $0 is the lock";
+    private const string SpecificBuildingHelpText = @"
+	#3pick <difficulty>#0 - the difficulty to pick this lock
+	#3force <difficulty>#0 - the difficulty to force this lock
+	#3lock <emote>#0 - sets the emote when locked. Use @ for locker, $0 for the lock item, and $1 for the item the lock is installed on
+	#3unlock <emote>#0 - sets the emote when unlocked. Use @ for unlocker, $0 for the lock item, and $1 for the item the lock is installed on
+	#3olock <emote>#0 - sets the other side emote when locked. Use @ for locker, $0 for the lock item, and $1 for the item the lock is installed on
+	#3ounlock <emote>#0 - sets the other side emote when unlocked. Use @ for unlocker, $0 for the lock item, and $1 for the item the lock is installed on
+	#3locknoactor <emote>#0 - sets the emote when locked without a person (e.g. prog). $0 is the lock
+	#3unlocknoactor <emote>#0 - sets the emote when unlocked without a person (e.g. prog). $0 is the lock";
 
-    public override string ShowBuildingHelp => BuildingHelpText;
+    private static readonly string CombinedBuildingHelpText = @$"You can use the following options with this component:
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component{SpecificBuildingHelpText}";
+
+    public override string ShowBuildingHelp => CombinedBuildingHelpText;
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {

@@ -100,6 +100,11 @@ internal class DeclareAndAssignVariable : Statement
         IFunction function = (IFunction)rhsInfo.CompiledStatement;
 
         ProgVariableTypes type = function.ReturnType & ~ProgVariableTypes.Literal;
+		if (!ComputerCompilationRestrictions.TryValidateTypeForContext(type, FutureProg.CurrentCompilationContext,
+			    out var errorMessage))
+		{
+			return CompileInfo.GetFactory().CreateError(errorMessage, lineNumber);
+		}
 
         DeclareAndAssignVariable newVar = new(variableName, type, function);
         variableSpace.Add(newVar.NameToDeclare, newVar.TypeToDeclare);
@@ -127,7 +132,10 @@ internal class DeclareAndAssignVariable : Statement
             <Regex,
                 Func
                 <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-                DeclareAndAssignVariableCompileRegex, DeclareAndAssignVariableCompile)
+                DeclareAndAssignVariableCompileRegex, DeclareAndAssignVariableCompile),
+			FutureProgCompilationContext.StandardFutureProg,
+			FutureProgCompilationContext.ComputerFunction,
+			FutureProgCompilationContext.ComputerProgram
         );
 
         FutureProg.RegisterStatementColouriser(

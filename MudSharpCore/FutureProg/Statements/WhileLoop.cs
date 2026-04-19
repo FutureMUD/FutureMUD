@@ -20,6 +20,10 @@ internal class WhileLoop : Statement
     protected IEnumerable<IStatement> ContainedBlock;
     protected IFunction WhileFunction;
 
+	internal IFunction ConditionFunction => WhileFunction;
+	internal IReadOnlyList<IStatement> BodyStatements =>
+		ContainedBlock as IReadOnlyList<IStatement> ?? ContainedBlock.ToList();
+
     public override bool IsReturnOrContainsReturnOnAllBranches()
     {
         return ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;
@@ -113,7 +117,10 @@ internal class WhileLoop : Statement
             <Regex,
                 Func
                 <IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
-                WhileLoopCompileRegex, WhileLoopCompile)
+                WhileLoopCompileRegex, WhileLoopCompile),
+			FutureProgCompilationContext.StandardFutureProg,
+			FutureProgCompilationContext.ComputerFunction,
+			FutureProgCompilationContext.ComputerProgram
         );
 
         FutureProg.RegisterStatementColouriser(

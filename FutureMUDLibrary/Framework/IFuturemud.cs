@@ -20,6 +20,7 @@ using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Communication.Language.DifficultyModels;
 using MudSharp.Communication.Language.Scramblers;
+using MudSharp.Computers;
 using MudSharp.Community;
 using MudSharp.Community.Boards;
 using MudSharp.Construction;
@@ -302,6 +303,13 @@ namespace MudSharp.Framework
 
         IServer Server { get; }
         IScheduler Scheduler { get; }
+        IComputerExecutionService ComputerExecutionService { get; }
+        IComputerHelpService ComputerHelpService { get; }
+        IComputerNetworkIdentityService ComputerNetworkIdentityService { get; }
+        IComputerNetworkTunnelService ComputerNetworkTunnelService { get; }
+        IComputerBoardService ComputerBoardService { get; }
+        IComputerMailService ComputerMailService { get; }
+        IComputerFileTransferService ComputerFileTransferService { get; }
         IArenaLifecycleService ArenaLifecycleService { get; }
         IArenaScheduler ArenaScheduler { get; }
         IArenaObservationService ArenaObservationService { get; }

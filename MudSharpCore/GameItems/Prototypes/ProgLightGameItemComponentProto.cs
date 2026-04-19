@@ -10,8 +10,20 @@ namespace MudSharp.GameItems.Prototypes;
 
 public class ProgLightGameItemComponentProto : GameItemComponentProto
 {
+    private const string SpecificBuildingHelpText = @"
+	#3illumination <lux>#0 - sets the illumination provided by the light";
+
+    private static readonly string CombinedBuildingHelpText = @$"You can use the following options with this component:
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component{SpecificBuildingHelpText}";
+
     protected ProgLightGameItemComponentProto(IFuturemud gameworld, IAccount originator)
-        : base(gameworld, originator, "Prog Light")
+        : this(gameworld, originator, "Prog Light")
+    {
+    }
+
+    protected ProgLightGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
+        : base(gameworld, originator, type)
     {
         IlluminationProvided = 400;
         Changed = true;
@@ -68,10 +80,7 @@ public class ProgLightGameItemComponentProto : GameItemComponentProto
         }
     }
 
-    private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tillumination <lux> - sets the illumination provided by the light";
-
-    public override string ShowBuildingHelp => BuildingHelpText;
+    public override string ShowBuildingHelp => CombinedBuildingHelpText;
 
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
@@ -104,7 +113,7 @@ public class ProgLightGameItemComponentProto : GameItemComponentProto
         manager.AddTypeHelpInfo(
             "ProgLight",
             $"A {"[light source]".Colour(Telnet.Pink)} when {"[powered]".Colour(Telnet.Magenta)}, can only be turned on/off by progs",
-            BuildingHelpText
+            CombinedBuildingHelpText
         );
     }
 

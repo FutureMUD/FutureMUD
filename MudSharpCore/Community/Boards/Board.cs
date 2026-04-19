@@ -49,6 +49,11 @@ public class Board : FrameworkItem, IBoard, IHaveFuturemud
         _posts.Add(new BoardPost(this, author, title, text, Gameworld));
     }
 
+    public void MakeNewPost(string authorName, string title, string text)
+    {
+        _posts.Add(new BoardPost(this, authorName, title, text, Gameworld));
+    }
+
     public void DeletePost(IBoardPost post)
     {
         _posts.Remove(post);

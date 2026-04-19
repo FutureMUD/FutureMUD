@@ -948,26 +948,28 @@ public partial class UsefulSeeder
         long nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
         _context = context;
 
-        #region Containers
         SeedContainers(questionAnswers, errors, now, dbaccount, ref nextId);
         context.SaveChanges();
-        #endregion
 
-        #region Liquid Containers
         SeedLiquidContainers(questionAnswers, errors, now, dbaccount, ref nextId);
         context.SaveChanges();
-        #endregion
 
-        #region Doors
         SeedDoors(questionAnswers, errors, now, dbaccount, ref nextId);
         context.SaveChanges();
-        #endregion
 
+        SeedLocks(now, ref nextId);
+        SeedWritingImplements(context, now, dbaccount, ref nextId);
+    }
+
+    private void SeedLocks(DateTime now, ref long nextId)
+    {
         #region Locks
+
+        long currentId = nextId;
 
         GameItemComponentProto CreateWardedLock(string name, string description, Difficulty force, Difficulty pick)
         {
-            return CreateItemProto(nextId++, now, "Simple Lock", name, description,
+            return CreateItemProto(currentId++, now, "Simple Lock", name, description,
                     $@"<Definition>
   <ForceDifficulty>{(int)force}</ForceDifficulty>
   <PickDifficulty>{(int)pick}</PickDifficulty>
@@ -983,7 +985,7 @@ public partial class UsefulSeeder
 
         GameItemComponentProto CreateLatch(string name, string description, Difficulty force, Difficulty pick)
         {
-            return CreateItemProto(nextId++, now, "Latch", name, description,
+            return CreateItemProto(currentId++, now, "Latch", name, description,
                     $@"<Definition>
   <ForceDifficulty>{(int)force}</ForceDifficulty>
   <PickDifficulty>{(int)pick}</PickDifficulty>
@@ -998,7 +1000,7 @@ public partial class UsefulSeeder
 
         GameItemComponentProto CreateSimpleKey(string name, string description, string lockType)
         {
-            return CreateItemProto(nextId++, now, "Simple Key", name, description,
+            return CreateItemProto(currentId++, now, "Simple Key", name, description,
                     @$"<Definition>
   <LockType>{lockType}</LockType>
 </Definition>");
@@ -1021,18 +1023,30 @@ public partial class UsefulSeeder
         CreateLatch("Latch_Legendary", "This is a legendary quality simple latch (one-sided lock)", Difficulty.Insane, Difficulty.ExtremelyHard);
         CreateLatch("Latch_Admin", "This is a simple latch (one-sided lock) that cannot be picked or forced", Difficulty.Impossible, Difficulty.Impossible);
 
-        context.SaveChanges();
+        nextId = currentId;
+        _context.SaveChanges();
 
         #endregion
+    }
+
+    private void SeedWritingImplements(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
+        SeedBasicWritingImplements(context, now, dbaccount, ref nextId);
+        SeedVariableWritingImplements(context, now, dbaccount, ref nextId);
+    }
+
+    private void SeedBasicWritingImplements(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Writing Implements
 
+        long currentId = nextId;
         GameItemComponentProto holdable = context.GameItemComponentProtos.First(x => x.Type == "Holdable");
         GameItemComponentProto stack = context.GameItemComponentProtos.First(x => x.Name == "Stack_Number");
         Material paperMaterial = context.Materials.First(x => x.Name == "Paper");
 
         GameItemComponentProto CreatePaperSheet(string name, string description, int maxCharacters)
         {
-            return CreateItemProto(nextId++, now, "PaperSheet", name, description,
+            return CreateItemProto(currentId++, now, "PaperSheet", name, description,
                     @$"<Definition>
    <MaximumCharacterLengthOfText>{maxCharacters}</MaximumCharacterLengthOfText>
  </Definition>");
@@ -1040,7 +1054,7 @@ public partial class UsefulSeeder
 
         GameItemComponentProto CreateBiro(string name, string description, long colourId, int totalUses)
         {
-            return CreateItemProto(nextId++, now, "Biro", name, description,
+            return CreateItemProto(currentId++, now, "Biro", name, description,
                     @$"<Definition>
    <Colour>{colourId}</Colour>
    <TotalUses>{totalUses}</TotalUses>
@@ -1049,7 +1063,7 @@ public partial class UsefulSeeder
 
         GameItemComponentProto CreatePencil(string name, string description, long colourId, int usesBeforeSharpening, int totalUses)
         {
-            return CreateItemProto(nextId++, now, "Pencil", name, description,
+            return CreateItemProto(currentId++, now, "Pencil", name, description,
                     @$"<Definition>
    <Colour>{colourId}</Colour>
    <UsesBeforeSharpening>{usesBeforeSharpening}</UsesBeforeSharpening>
@@ -1061,7 +1075,7 @@ public partial class UsefulSeeder
         {
             GameItemComponentProto component = new()
             {
-                Id = nextId++,
+                Id = currentId++,
                 RevisionNumber = 0,
                 EditableItem = new EditableItem
                 {
@@ -1215,10 +1229,10 @@ public partial class UsefulSeeder
         CreateBiro("Biro_Red", "This is a standard red biro pen", context.Colours.First(x => x.Name == "red").Id, 110000);
         CreatePencil("Pencil_Black", "This is a standard black pencil", context.Colours.First(x => x.Name == "black").Id, 11000, 220000);
 
+        nextId = currentId;
         context.SaveChanges();
 
         #endregion
-
     }
 
     private void SeedItemsPart2(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
@@ -1228,6 +1242,13 @@ public partial class UsefulSeeder
         Account dbaccount = context.Accounts.First();
         long nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
 
+        SeedInsulation(context, now, dbaccount, ref nextId);
+        SeedGlasses(context, now, dbaccount, ref nextId);
+        SeedIdentityObscuring(context, now, dbaccount, ref nextId);
+    }
+
+    private void SeedInsulation(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Insulation
 
         GameItemComponentProto component = new()
@@ -1361,10 +1382,13 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
 
+    private void SeedGlasses(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Glasses
 
-        component = new GameItemComponentProto
+        GameItemComponentProto component = new()
         {
             Id = nextId++,
             RevisionNumber = 0,
@@ -1388,10 +1412,14 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
 
+    private void SeedIdentityObscuring(FuturemudDatabaseContext context, DateTime now, Account dbaccount,
+        ref long nextId)
+    {
         #region IdentityObscuring
 
-        component = new GameItemComponentProto
+        GameItemComponentProto component = new()
         {
             Id = nextId++,
             RevisionNumber = 0,
@@ -1562,6 +1590,19 @@ public partial class UsefulSeeder
         Account dbaccount = context.Accounts.First();
         long nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
 
+        SeedDestroyables(context, now, dbaccount, ref nextId);
+        SeedVariables(context, now, dbaccount, ref nextId);
+        SeedChairs(context, now, dbaccount, ref nextId);
+        SeedRangedCoverItemComponents(context, now, ref nextId);
+        SeedTables(context, now, dbaccount, ref nextId);
+        SeedWornExpansion(context, now, dbaccount, ref nextId);
+        SeedHealthRelatedItems(context, now, dbaccount, ref nextId);
+        SeedProsthetics(context, now, dbaccount, ref nextId);
+        SeedDice(context, now, dbaccount, ref nextId);
+    }
+
+    private void SeedDestroyables(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Destroyables
 
         GameItemComponentProto component = new()
@@ -1865,7 +1906,10 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
 
+    private void SeedVariables(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Variables
 
         CharacteristicDefinition colour = context.CharacteristicDefinitions.First(x => x.Name == "Colour");
@@ -1876,6 +1920,7 @@ public partial class UsefulSeeder
         CharacteristicProfile basicColours = context.CharacteristicProfiles.First(x => x.Name == "Basic_Colours");
         CharacteristicProfile fineColours = context.CharacteristicProfiles.First(x => x.Name == "Fine_Colours");
         CharacteristicProfile drabColours = context.CharacteristicProfiles.First(x => x.Name == "Drab_Colours");
+        GameItemComponentProto component;
 
         component = new GameItemComponentProto
         {
@@ -2193,8 +2238,14 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
 
+    private void SeedVariableWritingImplements(FuturemudDatabaseContext context, DateTime now, Account dbaccount,
+        ref long nextId)
+    {
         #region Writing Implements
+
+        GameItemComponentProto component;
 
         component = new GameItemComponentProto
         {
@@ -2361,8 +2412,13 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
 
+    private void SeedChairs(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Chairs
+
+        GameItemComponentProto component;
 
         component = new GameItemComponentProto
         {
@@ -2457,7 +2513,10 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
 
+    private void SeedRangedCoverItemComponents(FuturemudDatabaseContext context, DateTime now, ref long nextId)
+    {
         #region Ranged Cover
 
         RangedCover unflippedTable = CreateOrGetRangedCover(context, "Upright Table", 1, 1, 1,
@@ -2536,7 +2595,15 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
+
+    private void SeedTables(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Tables
+
+        GameItemComponentProto component;
+        RangedCover flippedTable = context.RangedCovers.First(x => x.Name == "Overturned Table");
+        RangedCover unflippedTable = context.RangedCovers.First(x => x.Name == "Upright Table");
 
         component = new GameItemComponentProto
         {
@@ -2719,8 +2786,13 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
 
+    private void SeedWornExpansion(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Worn Expansion
+
+        GameItemComponentProto component;
 
         component = new GameItemComponentProto
         {
@@ -3025,8 +3097,14 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
 
+    private void SeedHealthRelatedItems(FuturemudDatabaseContext context, DateTime now, Account dbaccount,
+        ref long nextId)
+    {
         #region Health-Related Items
+
+        GameItemComponentProto component;
 
         component = new GameItemComponentProto
         {
@@ -3709,8 +3787,14 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
 
+    private void SeedProsthetics(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Prosthetics
+
+        GameItemComponentProto component;
+
         component = new GameItemComponentProto
         {
             Id = nextId++,
@@ -4396,8 +4480,13 @@ public partial class UsefulSeeder
         context.SaveChanges();
 
         #endregion
+    }
 
+    private void SeedDice(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Dice
+
+        GameItemComponentProto component;
 
         component = new GameItemComponentProto
         {
@@ -5018,6 +5107,15 @@ public partial class UsefulSeeder
         Account dbaccount = context.Accounts.First();
         long nextId = context.GameItemComponentProtos.Max(x => x.Id) + 1;
 
+        SeedLighting(context, now, dbaccount, ref nextId);
+        SeedWaterSources(context, now, dbaccount, ref nextId);
+        SeedRepairKits(context, now, dbaccount, ref nextId);
+        SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
+        SeedSmokeables(context, now, dbaccount, ref nextId);
+    }
+
+    private void SeedLighting(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Lighting
         CreateTorchComponent(context, ref nextId, dbaccount, now, "Torch_Infinite",
                 "Turns an item into an ever-burning torch.", 25, -1, false,
@@ -5085,7 +5183,10 @@ public partial class UsefulSeeder
 
         context.SaveChanges();
         #endregion
+    }
 
+    private void SeedWaterSources(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Water Sources
         Liquid waterLiquid = context.Liquids.First(x => x.Name == "water");
         CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_WaterSource",
@@ -5145,10 +5246,13 @@ public partial class UsefulSeeder
 
         context.SaveChanges();
         #endregion
+    }
 
-        GameItemComponentProto component;
+    private void SeedRepairKits(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Repair Kits
 
+        long currentId = nextId;
         DictionaryWithDefault<string, Material> materials = context.Materials.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
         DictionaryWithDefault<string, TraitDefinition> skills = context.TraitDefinitions.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
         DamageType[] damagetypes = new DamageType[]
@@ -5180,7 +5284,7 @@ public partial class UsefulSeeder
 
             GameItemComponentProto repairComponent = new()
             {
-                Id = nextId++,
+                Id = currentId++,
                 RevisionNumber = 0,
                 EditableItem = new EditableItem
                 {
@@ -5247,13 +5351,21 @@ public partial class UsefulSeeder
         AddRepairKitType("Universal", "a repair kit that repairs anything", WoundSeverity.Severe, 250, (skills["Salvaging"] ?? skills["Salvage"])?.Id, -1.0, [], []);
         AddRepairKitType("Universal_Good", "a good-quality repair kit that repairs anything", WoundSeverity.VerySevere, 350, (skills["Salvaging"] ?? skills["Salvage"])?.Id, 0.0, [], []);
         AddRepairKitType("Universal_Poor", "a poor-quality repair kit that repairs anything", WoundSeverity.Moderate, 150, (skills["Salvaging"] ?? skills["Salvage"])?.Id, -2.0, [], []);
+        nextId = currentId;
         #endregion
+    }
 
+    private void SeedAdditionalBuilderExamples(FuturemudDatabaseContext context, DateTime now, Account dbaccount,
+        ref long nextId)
+    {
         #region Additional Builder Examples
+
+        long currentId = nextId;
+        Liquid waterLiquid = context.Liquids.First(x => x.Name == "water");
 
         GameItemComponentProto AddExtraComponent(string type, string name, string description, XElement definition)
         {
-            return CreateComponent(context, ref nextId, dbaccount, now, type, name, description, definition.ToString());
+            return CreateComponent(context, ref currentId, dbaccount, now, type, name, description, definition.ToString());
         }
 
         AddExtraComponent("LockingContainer", "LockingContainer_Lockbox",
@@ -5684,10 +5796,16 @@ public partial class UsefulSeeder
                     new XElement("TimeDisplayString", "$h:$m:$s $t")));
         }
 
+        nextId = currentId;
         context.SaveChanges();
         #endregion
+    }
 
+    private void SeedSmokeables(FuturemudDatabaseContext context, DateTime now, Account dbaccount, ref long nextId)
+    {
         #region Smokeables
+
+        GameItemComponentProto component;
         bool saveChangesRequired = false;
         string characterTypeDefinition = ProgVariableTypes.Character.ToStorageString();
         if (!context.VariableDefinitions.Any(x => x.OwnerTypeDefinition == characterTypeDefinition && x.Property == "nicotineuntil"))

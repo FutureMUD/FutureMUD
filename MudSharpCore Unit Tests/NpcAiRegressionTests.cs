@@ -6,12 +6,17 @@ using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Health;
+using MudSharp.Movement;
+using MudSharp.NPC;
 using MudSharp.NPC.AI;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -161,6 +166,96 @@ public class NpcAiRegressionTests
         Assert.IsTrue(trackingAggressor.HandlesEvent(EventType.CharacterEnterCellWitness));
     }
 
+    [TestMethod]
+    public void SelfCareAI_DetermineRequiredSelfCare_PrefersBindingBeforeSuturing()
+    {
+        Mock<IWound> bleedingWound = CreateWound(BleedStatus.Bleeding);
+        Mock<IWound> traumaControlledWound = CreateWound(BleedStatus.TraumaControlled, Difficulty.Easy);
+
+        SelfCareAI.RequiredSelfCare result = SelfCareAI.DetermineRequiredSelfCare(
+            new[] { bleedingWound.Object, traumaControlledWound.Object },
+            true);
+
+        Assert.AreEqual(SelfCareAI.RequiredSelfCare.Bind, result);
+    }
+
+    [TestMethod]
+    public void SelfCareAI_DetermineRequiredSelfCare_RequiresSuturingCapability()
+    {
+        Mock<IWound> traumaControlledWound = CreateWound(BleedStatus.TraumaControlled, Difficulty.Easy);
+
+        SelfCareAI.RequiredSelfCare withoutTools = SelfCareAI.DetermineRequiredSelfCare(
+            new[] { traumaControlledWound.Object },
+            false);
+        SelfCareAI.RequiredSelfCare withTools = SelfCareAI.DetermineRequiredSelfCare(
+            new[] { traumaControlledWound.Object },
+            true);
+
+        Assert.AreEqual(SelfCareAI.RequiredSelfCare.None, withoutTools);
+        Assert.AreEqual(SelfCareAI.RequiredSelfCare.Suture, withTools);
+    }
+
+    [TestMethod]
+    public void SelfCareAI_CellHasHostileNpcs_IgnoresPausedAggressiveNpcs()
+    {
+        Mock<ICharacter> self = new();
+        Mock<INPC> pausedAggressiveNpc = CreateAggressiveNpc(paused: true);
+        Mock<ICell> cell = new();
+        cell.SetupGet(x => x.Characters).Returns(new ICharacter[] { self.Object, pausedAggressiveNpc.Object });
+
+        bool hasHostiles = SelfCareAI.CellHasHostileNpcs(cell.Object, self.Object);
+
+        Assert.IsFalse(hasHostiles);
+    }
+
+    [TestMethod]
+    public void SelfCareAI_CellHasHostileNpcs_DetectsActiveAggressiveNpcs()
+    {
+        Mock<ICharacter> self = new();
+        Mock<INPC> aggressiveNpc = CreateAggressiveNpc(paused: false);
+        Mock<ICell> cell = new();
+        cell.SetupGet(x => x.Characters).Returns(new ICharacter[] { self.Object, aggressiveNpc.Object });
+
+        bool hasHostiles = SelfCareAI.CellHasHostileNpcs(cell.Object, self.Object);
+
+        Assert.IsTrue(hasHostiles);
+    }
+
+    [TestMethod]
+    public void SelfCareAI_GetSafeExitForSelfCare_SelectsSafeReachableDestination()
+    {
+        Mock<ICharacter> self = new();
+        Mock<ICell> currentCell = new();
+        Mock<ICell> hostileDestination = new();
+        Mock<ICell> safeDestination = new();
+        Mock<ICellExit> hostileExit = new();
+        Mock<ICellExit> safeExit = new();
+
+        Mock<INPC> hostileNpc = CreateAggressiveNpc(paused: false);
+
+        hostileDestination.SetupGet(x => x.Characters).Returns(new ICharacter[] { hostileNpc.Object });
+        safeDestination.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+
+        hostileExit.SetupGet(x => x.Destination).Returns(hostileDestination.Object);
+        safeExit.SetupGet(x => x.Destination).Returns(safeDestination.Object);
+
+        currentCell.Setup(x => x.ExitsFor(self.Object, true)).Returns(new[] { hostileExit.Object, safeExit.Object });
+        self.SetupGet(x => x.Location).Returns(currentCell.Object);
+        self.Setup(x => x.CanMove(hostileExit.Object, It.IsAny<CanMoveFlags>())).Returns(new CanMoveResponse
+        {
+            Result = false,
+            ErrorMessage = "blocked",
+            WouldBeAbleToCross = null,
+            HighestMovingPositionState = null,
+            FastestMoveSpeed = null
+        });
+        self.Setup(x => x.CanMove(safeExit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
+
+        ICellExit? chosenExit = SelfCareAI.GetSafeExitForSelfCare(self.Object);
+
+        Assert.AreSame(safeExit.Object, chosenExit);
+    }
+
     private static IArenaParticipant MockParticipant(ICharacter character, int sideIndex)
     {
         Mock<IArenaParticipant> participant = new();
@@ -168,5 +263,25 @@ public class NpcAiRegressionTests
         participant.SetupGet(x => x.CharacterId).Returns(character.Id);
         participant.SetupGet(x => x.SideIndex).Returns(sideIndex);
         return participant.Object;
+    }
+
+    private static Mock<IWound> CreateWound(BleedStatus bleedStatus, Difficulty closeDifficulty = Difficulty.Impossible)
+    {
+        Mock<IWound> wound = new();
+        wound.SetupGet(x => x.BleedStatus).Returns(bleedStatus);
+        wound.Setup(x => x.CanBeTreated(TreatmentType.Close)).Returns(closeDifficulty);
+        return wound;
+    }
+
+    private static Mock<INPC> CreateAggressiveNpc(bool paused)
+    {
+        Mock<IArtificialIntelligence> aggressiveAi = new();
+        aggressiveAi.SetupGet(x => x.CountsAsAggressive).Returns(true);
+
+        Mock<INPC> npc = new();
+        npc.SetupGet(x => x.State).Returns(CharacterState.Able);
+        npc.SetupGet(x => x.AIs).Returns(new[] { aggressiveAi.Object });
+        npc.Setup(x => x.AffectedBy<IPauseAIEffect>()).Returns(paused);
+        return npc;
     }
 }

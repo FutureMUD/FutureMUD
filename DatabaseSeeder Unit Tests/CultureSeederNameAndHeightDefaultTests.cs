@@ -462,7 +462,7 @@ public class CultureSeederNameAndHeightDefaultTests
 		int givenMinimum,
 		int surnameMinimum)
 	{
-		RandomNameProfile profile = context.RandomNameProfiles.Single(x => x.Name == profileName);
+		MudSharp.Models.RandomNameProfile profile = context.RandomNameProfiles.Single(x => x.Name == profileName);
 		int givenCount = context.RandomNameProfilesElements.Count(x =>
 			x.RandomNameProfileId == profile.Id &&
 			x.NameUsage == (int)NameUsage.BirthName);

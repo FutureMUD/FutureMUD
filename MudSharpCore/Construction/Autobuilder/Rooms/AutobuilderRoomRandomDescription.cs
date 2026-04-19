@@ -38,10 +38,10 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
             TerrainInfos.Add(info.Key, (info.Value.Item1, new Expression(info.Value.Item2.OriginalExpression)));
         }
 
-        foreach (IAutobuilderRandomDescriptionElement element in RandomDescriptionElements)
-        {
-            RandomDescriptionElements.Add(element.Clone());
-        }
+		foreach (IAutobuilderRandomDescriptionElement element in rhs.RandomDescriptionElements)
+		{
+			RandomDescriptionElements.Add(element.Clone());
+		}
 
         using (new FMDB())
         {
@@ -96,27 +96,28 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
     public List<IAutobuilderRandomDescriptionElement> RandomDescriptionElements { get; } = new();
     public string AddToAllRoomDescriptions { get; protected set; }
 
-    protected override void LoadFromXml(XElement root)
-    {
-        ShowCommandByline = root.Element("ShowCommandByline")?.Value ?? "A terrain-specific room without a byline.";
-        AddToAllRoomDescriptions = root.Element("AddToAllRoomDescriptions")?.Value ?? string.Empty;
+	protected override void LoadFromXml(XElement root)
+	{
+		ShowCommandByline = root.Element("ShowCommandByline")?.Value ?? "A terrain-specific room without a byline.";
+		AddToAllRoomDescriptions = root.Element("AddToAllRoomDescriptions")?.Value ?? string.Empty;
+		XElement? defaultElement = root.Element("Default");
 
-        foreach (XElement element in root.Element("Terrains").Elements("Terrain") ?? Enumerable.Empty<XElement>())
-        {
-            ITerrain terrain = Gameworld.Terrains.GetByIdOrName(element.Element("DefaultTerrain").Value);
+		foreach (XElement element in root.Element("Terrains").Elements("Terrain") ?? Enumerable.Empty<XElement>())
+		{
+			ITerrain terrain = Gameworld.Terrains.GetByIdOrName(element.Element("DefaultTerrain").Value);
             if (terrain == null)
             {
                 continue;
             }
 
             AutobuilderRoomInfo roomInfo = new(element, Gameworld);
-            TerrainInfos[terrain] =
-                (roomInfo, new Expression(element.Element("NumberOfRandomElements")?.Value ?? "1"));
-        }
+			TerrainInfos[terrain] =
+				(roomInfo, new Expression(element.Element("NumberOfRandomElements")?.Value ?? "1"));
+		}
 
-        AutobuilderRoomInfo defaultInfo = new(root, Gameworld);
-        DefaultInfo = defaultInfo;
-        NumberOfRandomElements = new Expression(root.Element("NumberOfRandomElements")?.Value ?? "1");
+		AutobuilderRoomInfo defaultInfo = new(defaultElement?.Element("Terrain") ?? root, Gameworld);
+		DefaultInfo = defaultInfo;
+		NumberOfRandomElements = new Expression(defaultElement?.Element("NumberOfRandomElements")?.Value ?? "1");
 
         foreach (XElement element in root.Element("Descriptions")?.Elements() ?? Enumerable.Empty<XElement>())
         {
@@ -128,13 +129,14 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 
     protected override XElement SaveToXml()
     {
-        XElement result = new("Template",
-            new XElement("ApplyAutobuilderTagsAsFrameworkTags", ApplyAutobuilderTagsAsFrameworkTags),
-            new XElement("ShowCommandByline", new XCData(ShowCommandByline)),
-            new XElement("Default", DefaultInfo.SaveToXml(),
-                new XElement("NumberOfRandomElements", new XCData(NumberOfRandomElements.OriginalExpression))),
-            new XElement("Descriptions",
-                from item in RandomDescriptionElements select item.SaveToXml()
+		XElement result = new("Template",
+			new XElement("ApplyAutobuilderTagsAsFrameworkTags", ApplyAutobuilderTagsAsFrameworkTags),
+			new XElement("ShowCommandByline", new XCData(ShowCommandByline)),
+			new XElement("AddToAllRoomDescriptions", new XCData(AddToAllRoomDescriptions)),
+			new XElement("Default", DefaultInfo.SaveToXml(),
+				new XElement("NumberOfRandomElements", new XCData(NumberOfRandomElements.OriginalExpression))),
+			new XElement("Descriptions",
+				from item in RandomDescriptionElements select item.SaveToXml()
             )
         );
         XElement terrainElement = new("Terrains");
@@ -164,35 +166,16 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
         Room room = new(builder, builder.CurrentOverlayPackage);
         ICell cell = room.Cells.First();
         IEditableCellOverlay overlay = cell.GetOrCreateOverlay(builder.CurrentOverlayPackage);
-        (AutobuilderRoomInfo info, Expression expression) = specifiedTerrain != null && TerrainInfos.ContainsKey(specifiedTerrain)
-            ? TerrainInfos[specifiedTerrain]
-            : (DefaultInfo, NumberOfRandomElements);
+		(AutobuilderRoomInfo info, Expression expression) = specifiedTerrain != null && TerrainInfos.ContainsKey(specifiedTerrain)
+			? TerrainInfos[specifiedTerrain]
+			: (DefaultInfo, NumberOfRandomElements);
 
-        overlay.Terrain = specifiedTerrain ?? info.DefaultTerrain;
-        overlay.OutdoorsType = overlay.Terrain.DefaultCellOutdoorsType;
-        switch (overlay.OutdoorsType)
-        {
-            case CellOutdoorsType.Indoors:
-                overlay.AmbientLightFactor = 0.25;
-                break;
-            case CellOutdoorsType.IndoorsWithWindows:
-                overlay.AmbientLightFactor = 0.35;
-                break;
-            case CellOutdoorsType.Outdoors:
-                overlay.AmbientLightFactor = 1.0;
-                break;
-            case CellOutdoorsType.IndoorsNoLight:
-                overlay.AmbientLightFactor = 0.0;
-                break;
-            case CellOutdoorsType.IndoorsClimateExposed:
-                overlay.AmbientLightFactor = 0.9;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+		overlay.Terrain = specifiedTerrain ?? info.DefaultTerrain;
+		overlay.OutdoorsType = info.OutdoorsType;
+		overlay.AmbientLightFactor = info.AmbientLightFactor;
 
-        cell.ForagableProfile = info.ForagableProfile;
-        ApplyTagsToCell(cell, tags);
+		cell.ForagableProfile = info.ForagableProfile;
+		ApplyTagsToCell(cell, tags);
 
         if (!deferDescription)
         {
@@ -283,14 +266,19 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
             sb.Append(info.CellDescription);
         }
 
-        foreach ((string Name, string Text) element in texts)
-        {
-            sb.Append(element.Text.LeadingSpaceIfNotEmpty().Fullstop());
-        }
+		foreach ((string Name, string Text) element in texts)
+		{
+			sb.Append(element.Text.LeadingSpaceIfNotEmpty().Fullstop());
+		}
 
-        overlay.CellDescription = sb.ToString();
-        ApplyTagsToCell(cell, tags);
-    }
+		if (!string.IsNullOrWhiteSpace(AddToAllRoomDescriptions))
+		{
+			sb.Append(AddToAllRoomDescriptions.LeadingSpaceIfNotEmpty().Fullstop());
+		}
+
+		overlay.CellDescription = sb.ToString();
+		ApplyTagsToCell(cell, tags);
+	}
 
     protected override string SubtypeHelpText => @"
 Commands pertaining to the Default Room (used if no override is specified):

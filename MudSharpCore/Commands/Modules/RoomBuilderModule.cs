@@ -4619,7 +4619,7 @@ The syntax for working with areas is as follows:
 The core syntax is as follows:
 
 	#3autoroom list#0 - shows all room templates
-	#3autoroom edit new <name> <school>#0 - creates a new room template
+	#3autoroom edit new <name> <type>#0 - creates a new room template
 	#3autoroom clone <old> <new>#0 - clones an existing room template
 	#3autoroom edit <which>#0 - begins editing a room template
 	#3autoroom close#0 - closes an editing room template
@@ -4643,11 +4643,11 @@ The core syntax is as follows:
 The core syntax is as follows:
 
 	#3autoarea list#0 - shows all area templates
-	#3autoarea edit new <name> <school>#0 - creates a new area template
+	#3autoarea edit new <name> <type>#0 - creates a new area template
 	#3autoarea clone <old> <new>#0 - clones an existing area template
 	#3autoarea edit <which>#0 - begins editing an area template
 	#3autoarea close#0 - closes an editing area template
-	#3autoarea show#0 <which> - shows builder information about a area
+	#3autoarea show <which>#0 - shows builder information about an area
 	#3autoarea show#0 - shows builder information about the currently edited area
 	#3autoarea edit#0 - an alias for area template show (with no args)
 	#3autoarea set <...>#0 - edits the properties of an area template";

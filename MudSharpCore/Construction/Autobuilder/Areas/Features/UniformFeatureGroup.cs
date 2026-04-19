@@ -61,12 +61,13 @@ public class UniformFeatureGroup : TerrainFeatureGroup
 
     public IEnumerable<ITerrain> Terrains => Features.SelectMany(x => x.Terrains).Distinct();
 
-    protected bool AppliesToCell(ICell cell)
-    {
-        return
-            Features.Any() &&
-            (!Terrains.Any() || Terrains.Contains(cell.CurrentOverlay?.Terrain));
-    }
+	protected bool AppliesToCell(ICell cell)
+	{
+		return
+			cell != null &&
+			Features.Any() &&
+			(!Terrains.Any() || Terrains.Contains(cell.CurrentOverlay?.Terrain));
+	}
 
     public override List<Feature> Features { get; } = new();
 
@@ -156,16 +157,15 @@ public class UniformFeatureGroup : TerrainFeatureGroup
                 return BuildingCommandFeature(actor, parent, command);
         }
 
-        actor.OutputHandler.Send(@"You can use the following options with this command:
+		actor.OutputHandler.Send(@"You can use the following options with this command:
 
 	name <name> - changes the name of this group
-	density <min> <max> - sets the average features per room for this group
-	max <#> - sets the maximum number of features from this group for a single room
+	count <#> - sets how many features are applied to each applicable room
 	feature <#> ... - edits properties of a feature
 	feature add simple|adjacent <name> - adds a new feature
 	feature remove <#> - removes a feature");
-        return false;
-    }
+		return false;
+	}
 
     private bool BuildingCommandFeatureCount(ICharacter actor, StringStack command)
     {

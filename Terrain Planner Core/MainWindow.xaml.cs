@@ -281,62 +281,75 @@ namespace Terrain_Planner_Tool
             };
         }
 
+        private void ApplyImportedTerrains(IEnumerable<ImportTerrain> terrains)
+        {
+            _terrains.Clear();
+            _terrains.Add(new Terrain { Colour = Colors.DarkGray, Id = 0, Name = "None", Text = "" });
+            foreach (ImportTerrain terrain in terrains)
+            {
+                _terrains.Add(terrain.Terrain);
+            }
+
+            foreach (MapCell cell in _cells)
+            {
+                cell.Terrain = _terrains.First();
+            }
+
+            PalettePanel.Children.Clear();
+            foreach (Terrain terrain in _terrains)
+            {
+                Button button = new()
+                {
+                    DataContext = terrain,
+                    Content = terrain.Name,
+                    Background = new SolidColorBrush(terrain.Colour)
+                };
+                button.Click += (senderinternal, args) =>
+                {
+                    _currentBrush = (Terrain)((Button)senderinternal).DataContext;
+                };
+                PalettePanel.Children.Add(button);
+            }
+
+            _currentBrush = _terrains.First();
+        }
+
         private async void Button_Click_Import_Terrains_From_API(object sender, RoutedEventArgs e)
         {
-            await using FileStream fs = new("apiaddress.config", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            using StreamReader reader = new(fs);
-
-            string address = await reader.ReadLineAsync();
-            if (string.IsNullOrWhiteSpace(address))
+            try
             {
-                MessageBox.Show(
-                    "There was no information specified in the apiaddress.config file pertaining to the web api address. Please fill in this information and try again.");
-                return;
+                await using FileStream fs = new("apiaddress.config", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                using StreamReader reader = new(fs);
+
+                string address = await reader.ReadLineAsync();
+                if (string.IsNullOrWhiteSpace(address))
+                {
+                    MessageBox.Show(
+                        "There was no information specified in the apiaddress.config file pertaining to the web api address. Please fill in this information and try again.");
+                    return;
+                }
+                HttpClient client = new();
+                HttpResponseMessage response = await client.GetAsync(address);
+                if (response.IsSuccessStatusCode)
+                {
+                    List<ImportTerrain> deserialise = await response.Content.ReadFromJsonAsync<List<ImportTerrain>>();
+                    if (deserialise == null)
+                    {
+                        MessageBox.Show("Invalid terrain information returned.");
+                        return;
+                    }
+
+                    ApplyImportedTerrains(deserialise);
+                    MessageBox.Show("Successfully imported terrains.");
+                    return;
+                }
+
+                MessageBox.Show(response.ReasonPhrase);
             }
-            HttpClient client = new();
-            HttpResponseMessage response = await client.GetAsync(address);
-            if (response.IsSuccessStatusCode)
+            catch (Exception ex)
             {
-                List<ImportTerrain> deserialise = await response.Content.ReadFromJsonAsync<List<ImportTerrain>>();
-                if (deserialise == null)
-                {
-                    MessageBox.Show("Invalid terrain information returned");
-                }
-                _terrains.Clear();
-                _terrains.Add(new Terrain { Colour = Colors.DarkGray, Id = 0, Name = "None", Text = "" });
-                foreach (ImportTerrain terrain in deserialise)
-                {
-                    _terrains.Add(terrain.Terrain);
-                }
-
-                foreach (MapCell cell in _cells)
-                {
-                    cell.Terrain = _terrains.First();
-                }
-
-                PalettePanel.Children.Clear();
-                foreach (Terrain terrain in _terrains)
-                {
-                    Button button = new()
-                    {
-                        DataContext = terrain,
-                        Content = terrain.Name,
-                        Background = new SolidColorBrush(terrain.Colour)
-                    };
-                    button.Click += (senderinternal, args) =>
-                    {
-                        _currentBrush = (Terrain)((Button)senderinternal).DataContext;
-                    };
-                    PalettePanel.Children.Add(button);
-                }
-
-                _currentBrush = _terrains.First();
-                MessageBox.Show("Successfully imported terrains.");
-                return;
+                MessageBox.Show($"Encountered a problem with importing terrains from the API.\n\n{ex.Message}");
             }
-
-            MessageBox.Show(response.ReasonPhrase);
-
         }
 
         private void Button_Click_Import_Terrains(object sender, RoutedEventArgs e)
@@ -346,35 +359,13 @@ namespace Terrain_Planner_Tool
                 string json = Clipboard.GetText();
                 List<ImportTerrain> deserialise =
                     JsonSerializer.Deserialize<List<ImportTerrain>>(json);
-                _terrains.Clear();
-                _terrains.Add(new Terrain { Colour = Colors.DarkGray, Id = 0, Name = "None", Text = "" });
-                foreach (ImportTerrain terrain in deserialise)
+                if (deserialise == null)
                 {
-                    _terrains.Add(terrain.Terrain);
+                    MessageBox.Show("Invalid terrain information returned from your clipboard.");
+                    return;
                 }
 
-                foreach (MapCell cell in _cells)
-                {
-                    cell.Terrain = _terrains.First();
-                }
-
-                PalettePanel.Children.Clear();
-                foreach (Terrain terrain in _terrains)
-                {
-                    Button button = new()
-                    {
-                        DataContext = terrain,
-                        Content = terrain.Name,
-                        Background = new SolidColorBrush(terrain.Colour)
-                    };
-                    button.Click += (senderinternal, args) =>
-                    {
-                        _currentBrush = (Terrain)((Button)senderinternal).DataContext;
-                    };
-                    PalettePanel.Children.Add(button);
-                }
-
-                _currentBrush = _terrains.First();
+                ApplyImportedTerrains(deserialise);
                 MessageBox.Show("Successfully imported terrains.");
             }
             catch (Exception ex)

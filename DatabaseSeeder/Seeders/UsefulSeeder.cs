@@ -129,8 +129,9 @@ public partial class UsefulSeeder : IDatabaseSeeder
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("autobuilder",
-                "Do you want to install an auto builder that can generate random areas with randomised room descriptions?\n\nPlease answer #3yes#f or #3no#f: ",
-                (context, questions) => false,
+                "Do you want to install a starter autobuilder package for the stock terrain catalogue? This adds terrain-aware room templates with preset baseline and random descriptions so builders can immediately generate rooms that match the seeded terrains, especially when paired with the core area-shape templates and Terrain Planner.\n\nPlease answer #3yes#f or #3no#f: ",
+                (context, questions) => context.Terrains.Count() > 1 &&
+                                        ClassifyAutobuilderPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
                 {
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
@@ -236,14 +237,23 @@ public partial class UsefulSeeder : IDatabaseSeeder
             return ShouldSeedResult.PrerequisitesNotMet;
         }
 
-        return CombinePackageStates(
+        List<ShouldSeedResult> packageStates =
+        [
             ClassifyAiPackagePresence(context),
             SeederRepeatabilityHelper.ClassifyByPresence(
                 StockItemMarkers.Select(marker => context.GameItemComponentProtos.Any(x => x.Name == marker))),
             ClassifyModernPackagePresence(context),
             context.Tags.Any(x => x.Name == "Functions")
                 ? ShouldSeedResult.MayAlreadyBeInstalled
-                : ShouldSeedResult.ReadyToInstall);
+                : ShouldSeedResult.ReadyToInstall
+        ];
+
+        if (context.Terrains.Count() > 1)
+        {
+            packageStates.Add(ClassifyAutobuilderPackagePresence(context));
+        }
+
+        return CombinePackageStates(packageStates.ToArray());
     }
 
     public int SortOrder => 200;
@@ -350,7 +360,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     private void SeedTerrainAutobuilder(FuturemudDatabaseContext context,
             IReadOnlyDictionary<string, string> questionAnswers, ICollection<string> errors)
     {
-
+        SeedTerrainAutobuilderCore(context, errors);
     }
 
     private void SeedRangedCovers(FuturemudDatabaseContext context, ICollection<string> errors)

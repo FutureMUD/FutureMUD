@@ -33,10 +33,10 @@ public class AutobuilderRoadRandomDescriptionElement : AutobuilderRandomDescript
         }
     }
 
-    public override IAutobuilderRandomDescriptionElement Clone()
-    {
-        return new AutobuilderRoadRandomDescriptionElement(Gameworld);
-    }
+	public override IAutobuilderRandomDescriptionElement Clone()
+	{
+		return new AutobuilderRoadRandomDescriptionElement(SaveToXml(), Gameworld);
+	}
 
     #region Overrides of AutobuilderRandomDescriptionElement
 

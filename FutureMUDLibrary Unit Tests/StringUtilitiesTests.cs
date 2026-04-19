@@ -340,6 +340,46 @@ public class StringUtilitiesTests
     }
 
     [TestMethod]
+    public void SubstituteWrittenLanguage_MinSkillAlias_UsesAlternateText()
+    {
+        Mock<ITraitDefinition> traitDef = new();
+        Mock<ILanguage> language = new();
+        language.Setup(x => x.Name).Returns("lang");
+        language.Setup(x => x.LinkedTrait).Returns(traitDef.Object);
+        Mock<IScript> script = new();
+        script.Setup(x => x.Name).Returns("script");
+        script.Setup(x => x.KnownScriptDescription).Returns("known");
+        script.Setup(x => x.UnknownScriptDescription).Returns("unknown");
+        Mock<IUneditableAll<ILanguage>> langRepo = new();
+        langRepo.Setup(x => x.GetByName("lang")).Returns(language.Object);
+        Mock<IUneditableAll<IScript>> scriptRepo = new();
+        scriptRepo.Setup(x => x.GetByName("script")).Returns(script.Object);
+        Mock<IColour> colour = new();
+        colour.Setup(x => x.Name).Returns("white");
+        Mock<IUneditableAll<IColour>> colourRepo = new();
+        colourRepo.Setup(x => x.Get(0)).Returns(colour.Object);
+        Mock<IFuturemud> game = new();
+        game.Setup(x => x.Languages).Returns(langRepo.Object);
+        game.Setup(x => x.Scripts).Returns(scriptRepo.Object);
+        game.Setup(x => x.Colours).Returns(colourRepo.Object);
+        game.Setup(x => x.GetStaticInt("DefaultWritingStyleInText")).Returns(0);
+        game.Setup(x => x.GetStaticLong("DefaultWritingColourInText")).Returns(0);
+
+        Mock<ITrait> trait = new();
+        trait.Setup(x => x.Value).Returns(1);
+
+        Mock<ILanguagePerceiver> perceiver = new();
+        perceiver.Setup(x => x.Languages).Returns(new[] { language.Object });
+        perceiver.Setup(x => x.Scripts).Returns(new[] { script.Object });
+        perceiver.As<IHaveTraits>().Setup(x => x.GetTrait(traitDef.Object)).Returns(trait.Object);
+
+        const string input = "writing{lang,script,minskill>5}{hello}{alt}";
+        string result = input.SubstituteWrittenLanguage(perceiver.Object, game.Object);
+        Assert.IsTrue(result.Contains("alt", StringComparison.Ordinal));
+        Assert.IsTrue(result.Contains("Skill not high enough to understand.", StringComparison.Ordinal));
+    }
+
+    [TestMethod]
     public void SubstituteWrittenLanguage_KnownScriptUnknownLanguage_UsesUnknownLanguageHint()
     {
         Mock<ILanguage> language = new();

@@ -185,24 +185,19 @@ Current behaviour is:
 - if the viewer knows the language and script but lacks the required skill, the unreadable text is shown
 - if the alternate text is omitted, the engine uses `DefaultAlternateTextValue`
 
-#### Important Mismatch: `minskill` Versus `skill`
+#### `skill` and `minskill`
 
-Some builder help still says this syntax uses `minskill`.
+Current runtime now supports both attribute names:
 
-Current runtime parser truth is:
+- `skill`
+- `minskill`
 
-- the recognised attribute name is `skill`
-- `minskill` is not parsed
+They are treated as aliases and feed the same required-skill threshold.
 
-So this works:
+So both of these work:
 
 ```text
 writing{english,latin,skill=45}{readable text}{fallback text}
-```
-
-And this does not do what builder help claims:
-
-```text
 writing{english,latin,minskill=45}{readable text}{fallback text}
 ```
 
@@ -326,4 +321,4 @@ The painted board above the door reads @shop.
 - Use `writing` when the text should be readable only to the right viewers; keep the alternate text natural enough that it still reads well in context.
 - Use `check` for small observational details, not for major information gates that should be handled by separate mechanics.
 - Prefer short, robust fallback text. Rooms should still read well when none of the specialised branches trigger.
-- Remember that builder help still says `minskill`, but the parser currently recognises `skill`.
+- `skill` and `minskill` are both accepted for written-language thresholds.

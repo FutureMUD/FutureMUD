@@ -120,7 +120,7 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
         sb.AppendLine($"Maximum Free Boosts: {MaximumFreeBoostsProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Maximum Minuses: {MaximumMinusesProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Maximum Extra Boosts: {MaximumExtraBoosts.ToString("N0", voyeur).ColourValue()}");
-        sb.AppendLine($"Boost Resource: {BoostResource.PluralName.ColourValue()}");
+        sb.AppendLine($"Boost Resource: {BoostResource?.PluralName.ColourValue() ?? "None".ColourError()}");
         sb.AppendLine($"Boost Cost Expression: {BoostCostExpression.OriginalExpression.ColourName()}");
 
         sb.AppendLine();
@@ -150,7 +150,7 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
     public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
     {
         (int nonFreeBoosts, int _) = EvaluateBoosts(chargen);
-        if (nonFreeBoosts == 0)
+        if (nonFreeBoosts == 0 || BoostResource is null)
         {
             return Enumerable.Empty<(IChargenResource, int)>();
         }
@@ -393,7 +393,7 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
             }
 
             (int nonFree, int free) = Storyboard.EvaluateBoosts(Chargen);
-            if (free <= 0 || _maximumFreeBoosts[which] >= _numberOfBoosts[which])
+            if (free <= 0 || _maximumFreeBoosts[which] <= _numberOfBoosts[which])
             {
                 if (nonFree >= Storyboard.MaximumExtraBoosts)
                 {

@@ -13,27 +13,35 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ChargenSeeder : IDatabaseSeeder
 {
-    private static readonly (ChargenStage Stage, string Type)[] StockChargenStages =
+    private static readonly ChargenStage[] RequiredChargenStages =
     [
-        (ChargenStage.Welcome, "WelcomeScreen"),
-        (ChargenStage.SelectRace, "RacePicker"),
-        (ChargenStage.SelectCulture, "CulturePicker"),
-        (ChargenStage.SelectGender, "GenderPicker"),
-        (ChargenStage.SelectHandedness, "HandednessPicker"),
-        (ChargenStage.SelectBirthday, "BirthdayPicker"),
-        (ChargenStage.SelectHeight, "HeightPicker"),
-        (ChargenStage.SelectWeight, "WeightPicker"),
-        (ChargenStage.SelectName, "NamePicker"),
-        (ChargenStage.SelectSkills, "SkillPicker"),
-        (ChargenStage.SelectSkills, "SkillCostPicker"),
-        (ChargenStage.SelectDescription, "DescriptionPicker"),
-        (ChargenStage.SelectStartingLocation, "StartingLocationPicker"),
-        (ChargenStage.SelectNotes, "NotePicker"),
-        (ChargenStage.Submit, "Submit"),
-        (ChargenStage.Menu, "Menu")
+        ChargenStage.Welcome,
+        ChargenStage.SpecialApplication,
+        ChargenStage.SelectRole,
+        ChargenStage.SelectRace,
+        ChargenStage.SelectEthnicity,
+        ChargenStage.SelectGender,
+        ChargenStage.SelectCulture,
+        ChargenStage.SelectHandedness,
+        ChargenStage.SelectBirthday,
+        ChargenStage.SelectHeight,
+        ChargenStage.SelectWeight,
+        ChargenStage.SelectName,
+        ChargenStage.SelectDisfigurements,
+        ChargenStage.SelectMerits,
+        ChargenStage.SelectAttributes,
+        ChargenStage.SelectSkills,
+        ChargenStage.SelectAccents,
+        ChargenStage.SelectKnowledges,
+        ChargenStage.SelectCharacteristics,
+        ChargenStage.SelectDescription,
+        ChargenStage.SelectStartingLocation,
+        ChargenStage.SelectNotes,
+        ChargenStage.Submit,
+        ChargenStage.Menu
     ];
 
-    private static readonly string[] StockChargenProgNames =
+    private static readonly string[] AlwaysRequiredChargenProgNames =
     [
         "MaximumAgeChargen",
         "MinimumAgeChargen",
@@ -46,6 +54,29 @@ public partial class ChargenSeeder : IDatabaseSeeder
         "ChargenNumberOfKnowledgePicks",
         "ChargenFreeKnowledges"
     ];
+
+    private static readonly string[] AttributePointBuyProgNames =
+    [
+        "MaximumAttributeBoosts",
+        "MaximumFreeAttributeBoosts",
+        "MaximumAttributeMinuses",
+        "FreeAttributeBoosts",
+        "AttributeBaseValue"
+    ];
+
+    private static readonly string[] SkillBoostProgNames =
+    [
+        "ChargenSkillBoostCost"
+    ];
+
+    internal const string DefaultStartingLocationRoleName = "Default Starting Location";
+    internal const string SpecialApplicationCostStaticConfiguration = "SpecialApplicationCost";
+    internal const string SpecialApplicationResourceStaticConfiguration = "SpecialApplicationResource";
+
+    internal static IReadOnlyCollection<ChargenStage> RequiredChargenStagesForTesting => RequiredChargenStages;
+    internal static IReadOnlyCollection<string> AlwaysRequiredChargenProgNamesForTesting => AlwaysRequiredChargenProgNames;
+    internal static IReadOnlyCollection<string> AttributePointBuyProgNamesForTesting => AttributePointBuyProgNames;
+    internal static IReadOnlyCollection<string> SkillBoostProgNamesForTesting => SkillBoostProgNames;
 
     public IEnumerable<(string Id, string Question,
         Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
@@ -63,7 +94,7 @@ Please answer #3yes#F or #3no#F: ",
                     if (!answer.EqualToAny("yes", "y", "no", "n")) { return (false, "Invalid selection."); } return (true, string.Empty);
                 }),
             ("rppname",
-                @"What name do you want to give to your RPP/Karma resource? Please enter a name an an alias separated by a slash, e.g. #3Roleplay Point/RPP#F or #3Karma/Karma#f
+                @"What name do you want to give to your RPP/Karma resource? Please enter a name and an alias separated by a slash, e.g. #3Roleplay Point/RPP#F or #3Karma/Karma#f
 
 Please answer: ",
                 (context, answers) => answers["rpp"].EqualToAny("yes", "y"),
@@ -143,7 +174,7 @@ Please answer #3order#f or #3points#f: ",
 #BPicker#f: This screen permits the player to pick a pre-defined number of skills (e.g. classic SOI).
 #BBoosts#F: This screen permits the player to pick a number of skills plus any additional they can pay for, and also lets them select boosts.
 
-#9Note: The ""Boosts"" mode does not work well if you did not select either a Karma/RPP option or BP. It is designed to work with at least one of these, ideally BP.#0
+#9Note: The ""Boosts"" mode works best if you selected either a Karma/RPP option or BP. If you choose boosts without any chargen resource, the seeder will fall back to the simpler picker so chargen remains usable.#0
 
 Please answer #3picker#f or #3boosts#f: ",
                 (context, answers) => { return true; },
@@ -192,6 +223,7 @@ Please answer #3yes#f or #3no#f: ",
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
         context.Database.BeginTransaction();
+        List<string> completionNotes = [];
 
         #region Resources
 
@@ -227,13 +259,13 @@ Please answer #3yes#f or #3no#f: ",
             resource.MaximumResourceFormula = "-1";
             resource.Type = "Simple";
             resource.TextDisplayedToPlayerOnAward =
-                $"Congratulations, you have been awarded {Name.A_An()} for your excellent conduct.";
+                $"Congratulations, you have been awarded {resource.Name.A_An()} for your excellent conduct.";
             resource.TextDisplayedToPlayerOnDeduct =
-                $"You have been penalised for improper behaviour, and have had {Name.A_An()} deducted from your account.";
+                $"You have been penalised for improper behaviour, and have had {resource.Name.A_An()} deducted from your account.";
             rppresource = resource;
         }
 
-        ChargenResource? bpresource = default;
+        ChargenResource? buildPointResource = default;
         if (questionAnswers["bp"].EqualToAny("yes", "y"))
         {
             ChargenResource resource = SeederRepeatabilityHelper.EnsureEntity(
@@ -257,13 +289,106 @@ Please answer #3yes#f or #3no#f: ",
             resource.ShowToPlayerInScore = true;
             resource.Type = "Regenerating";
             resource.MaximumResourceFormula = "1000";
-            resource.TextDisplayedToPlayerOnAward = "You have been awarded build points";
-            resource.TextDisplayedToPlayerOnDeduct = "You have been penalised build points";
-            bpresource = resource;
+            resource.TextDisplayedToPlayerOnAward = "You have been awarded build points.";
+            resource.TextDisplayedToPlayerOnDeduct = "You have had build points deducted from your account.";
+            buildPointResource = resource;
         }
 
         context.SaveChanges();
-        bpresource ??= rppresource;
+        ChargenResource? chargenSpendResource = buildPointResource ?? rppresource;
+        bool hasChargenSpendResource = chargenSpendResource is not null;
+
+        string DescribeChargenCost(ChargenResource? resource, int amount)
+        {
+            return resource is null || amount <= 0
+                ? "no stock surcharge"
+                : $"{amount:N0} {resource.Alias.ToUpperInvariant()}";
+        }
+
+        string BuildSpecialApplicationBlurb()
+        {
+            string costBlurb = chargenSpendResource is null
+                ? "No stock surcharge has been configured because you did not select a chargen resource."
+                : $"The stock surcharge for a special application is {DescribeChargenCost(chargenSpendResource, buildPointResource is not null ? 750 : 2)}, which you can change later.";
+
+            return
+                $"<Screen><Blurb><![CDATA[You may sometimes elect to submit a character application as a \"Special Application\". Special applications are marked differently so that your chargen availability progs can unlock additional roles, races, costs, or other choices for staff-reviewed applications. {costBlurb} Special applications may only be submitted once every 3 months, and they are usually reviewed more closely by staff before approval.]]></Blurb><AutomaticallyDoShortApplicationForAccountFirst>true</AutomaticallyDoShortApplicationForAccountFirst></Screen>";
+        }
+
+        string BuildAttributePointBuyDefinition()
+        {
+            string costExpression = buildPointResource is not null
+                ? "pow(2, max(0,boosts-1)) * 100"
+                : rppresource is not null
+                    ? "pow(2, max(0,boosts-1))"
+                    : "0";
+            int maximumExtraBoosts = buildPointResource is not null ? 6 : rppresource is not null ? 2 : 0;
+            string resourceSupportBlurb = chargenSpendResource is null
+                ? " No chargen resource has been configured, so this stock setup only grants free boosts until you wire a resource in later."
+                : string.Empty;
+
+            return
+                $"<Screen><Blurb><![CDATA[Attributes determine your innate physical, mental and spiritual characteristics. They are used in some checks, as well as potentially determining the potential maximum values of many of your skills. You will select the starting values for these attributes below.{resourceSupportBlurb}]]></Blurb><MaximumBoostsProg>MaximumAttributeBoosts</MaximumBoostsProg><MaximumFreeBoostsProg>MaximumFreeAttributeBoosts</MaximumFreeBoostsProg><MaximumMinusesProg>MaximumAttributeMinuses</MaximumMinusesProg><FreeBoostsProg>FreeAttributeBoosts</FreeBoostsProg><AttributeBaseValueProg>AttributeBaseValue</AttributeBaseValueProg><BoostCostExpression>{costExpression}</BoostCostExpression><BoostResource>{chargenSpendResource?.Id ?? 0}</BoostResource><MaximumExtraBoosts>{maximumExtraBoosts}</MaximumExtraBoosts></Screen>";
+        }
+
+        string BuildSkillCostPickerDefinition()
+        {
+            int freeBoostResource = buildPointResource is not null ? 25 : 1;
+            int maximumBoosts = buildPointResource is not null ? 5 : 3;
+            string resourceName = chargenSpendResource?.PluralName.ToLowerInvariant() ?? "account resources";
+            string freeAllowanceBlurb = freeBoostResource > 0 && chargenSpendResource is not null
+                ? $"Each character also gets {freeBoostResource:N0} free {chargenSpendResource.Alias.ToUpperInvariant()} to spend on boosts, so even a first character can emphasise one key skill."
+                : string.Empty;
+            string antiTrollBlurb = buildPointResource is not null
+                ? " It is mostly designed so that after the first few characters, when players have started to accumulate some build points, they can avoid some of the starting grind, but \"troll\" players who consistently roll red-shirt characters to try and PK don't get the same leg up."
+                : string.Empty;
+            string additionalSkillsCostExpression = buildPointResource is not null ? "50 * Pow(picks,2)" : "Pow(picks,2)";
+
+            return
+                $"<Screen><SkillPickerBlurb><![CDATA[Skills measure your ability to accomplish tasks - to be \"good at something.\" Skills may be learned, with effort, at any time in game.\nNote: Some skill picks are nested and require the selection of another skill first before they are visible in the list. To those with MXP enabled, these nested skills will appear italicized.]]></SkillPickerBlurb><SkillBoostBlurb><![CDATA[The next step is deciding whether to apply any boosts to your character's starting skills. This is a totally optional process, and costs {resourceName}. {freeAllowanceBlurb} Each skill boost will push your starting skill value up approximately one \"rank\".{antiTrollBlurb}]]></SkillBoostBlurb><NumberOfFreeSkillPicksProg>ChargenNumberOfSkillPicks</NumberOfFreeSkillPicksProg><FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg><BoostCostExpression>base * Pow(boosts,2)</BoostCostExpression><AdditionalSkillsCostExpression>{additionalSkillsCostExpression}</AdditionalSkillsCostExpression><MaximumBoosts>{maximumBoosts}</MaximumBoosts><BoostResource>{chargenSpendResource?.Id ?? 0}</BoostResource><FreeBoostResource>{freeBoostResource}</FreeBoostResource><BoostCostProg>ChargenSkillBoostCost</BoostCostProg></Screen>";
+        }
+
+        string BuildAccentPickerDefinition()
+        {
+            int extraPickCost = buildPointResource is not null ? 10 : rppresource is not null ? 1 : 0;
+            string extraPicksElement = chargenSpendResource is null
+                ? string.Empty
+                : $"<AdditionalPicks resource=\"{chargenSpendResource.Id}\" cost=\"{extraPickCost}\"/>";
+
+            return
+                $"<Screen>{extraPicksElement}<Blurb><![CDATA[You will now be given the opportunity to pick which accents you natively employ with any language you have chosen. These are the accents in which you learned to speak the language in question, and represent how you will naturally speak the language. Other accents can be learned by exposure and practice.]]></Blurb></Screen>";
+        }
+
+        StaticConfiguration EnsureStaticConfiguration(string settingName, string definition)
+        {
+            StaticConfiguration setting = SeederRepeatabilityHelper.EnsureEntity(
+                context.StaticConfigurations,
+                x => string.Equals(x.SettingName, settingName, StringComparison.OrdinalIgnoreCase),
+                _ => true,
+                () =>
+                {
+                    StaticConfiguration created = new()
+                    {
+                        SettingName = settingName,
+                        Definition = definition
+                    };
+                    context.StaticConfigurations.Add(created);
+                    return created;
+                });
+            setting.SettingName = settingName;
+            setting.Definition = definition;
+            return setting;
+        }
+
+        int specialApplicationCost = buildPointResource is not null ? 750 : rppresource is not null ? 2 : 0;
+        long specialApplicationResourceId = buildPointResource?.Id ?? rppresource?.Id ?? 0L;
+        EnsureStaticConfiguration(SpecialApplicationCostStaticConfiguration, specialApplicationCost.ToString());
+        EnsureStaticConfiguration(SpecialApplicationResourceStaticConfiguration, specialApplicationResourceId.ToString());
+
+        if (chargenSpendResource is null)
+        {
+            completionNotes.Add("Special applications were configured without a stock surcharge because no chargen resource was selected.");
+        }
 
         #endregion
 
@@ -480,14 +605,16 @@ return @knowledges",
                 "Skills",
                 ProgVariableTypes.Number,
                 "Determines the base cost of boosts to individual skills",
-                @"// This is just an example of how you might set this up. The limit is your own imagination.
+                buildPointResource is not null
+                    ? @"// This is just an example of how you might set this up. The limit is your own imagination.
 if (@skill.Group == ""Combat"")
   return 15
 end if
 if (@skill.Group == ""Language"")
   return 5
 end if
-return 10",
+return 10"
+                    : @"return 1",
                 (ProgVariableTypes.Toon, "ch"),
                 (ProgVariableTypes.Trait, "skill"));
         }
@@ -501,23 +628,61 @@ return 10",
         Dictionary<ChargenStage, ChargenScreenStoryboard> stages = new();
         CollectionDictionary<ChargenScreenStoryboard, ChargenStage> stageDependencies = new();
         int order = 0;
+        bool requestedSkillBoostMode = questionAnswers["skillmode"].EqualTo("boosts");
+        bool useSkillBoostMode = requestedSkillBoostMode && hasChargenSpendResource;
+
+        if (requestedSkillBoostMode && !useSkillBoostMode)
+        {
+            completionNotes.Add("Skill boosts were requested without BP or RPP, so the stock chargen was seeded with the simpler skill picker instead.");
+        }
+
+        long defaultPosterId = context.Accounts
+            .OrderBy(x => x.Id)
+            .Select(x => x.Id)
+            .First();
+
+        void RemoveStoryboard(ChargenScreenStoryboard storyboard)
+        {
+            foreach (ChargenScreenStoryboardDependentStage dependency in context.ChargenScreenStoryboardDependentStages
+                         .Where(x => x.OwnerId == storyboard.Id)
+                         .ToList())
+            {
+                context.ChargenScreenStoryboardDependentStages.Remove(dependency);
+            }
+
+            context.ChargenScreenStoryboards.Remove(storyboard);
+        }
 
         void AddStage(ChargenStage stage, string type, ChargenStage nextStage, string definition,
             params ChargenStage[] dependencies)
         {
-            ChargenScreenStoryboard storyboard = SeederRepeatabilityHelper.EnsureEntity(
-                context.ChargenScreenStoryboards,
-                x => x.ChargenStage == (int)stage &&
-                     string.Equals(x.ChargenType, type, StringComparison.OrdinalIgnoreCase),
-                x => x.ChargenStage == (int)stage,
-                () =>
-                {
-                    ChargenScreenStoryboard created = new();
-                    context.ChargenScreenStoryboards.Add(created);
-                    return created;
-                });
+            List<ChargenScreenStoryboard> existingStoryboards = context.ChargenScreenStoryboards
+                .Where(x => x.ChargenStage == (int)stage)
+                .OrderBy(x => x.Id)
+                .ToList();
+            ChargenScreenStoryboard? storyboard = existingStoryboards
+                .FirstOrDefault(x => string.Equals(x.ChargenType, type, StringComparison.OrdinalIgnoreCase)) ??
+                existingStoryboards.FirstOrDefault();
+
+            if (storyboard is null)
+            {
+                storyboard = new ChargenScreenStoryboard();
+                context.ChargenScreenStoryboards.Add(storyboard);
+            }
+
+            foreach (ChargenScreenStoryboard duplicate in existingStoryboards.Where(x => !ReferenceEquals(x, storyboard)))
+            {
+                RemoveStoryboard(duplicate);
+            }
+
             storyboard.ChargenStage = (int)stage;
-            storyboard.ChargenType = type;
+            if (storyboard.Id == 0 ||
+                string.IsNullOrWhiteSpace(storyboard.ChargenType) ||
+                string.Equals(storyboard.ChargenType, type, StringComparison.OrdinalIgnoreCase))
+            {
+                storyboard.ChargenType = type;
+            }
+
             storyboard.Order = order;
             storyboard.NextStage = (int)nextStage;
             if (string.IsNullOrWhiteSpace(storyboard.StageDefinition))
@@ -534,12 +699,14 @@ return 10",
 
         bool useClasses = questionAnswers["class"].EqualToAny("y", "yes");
         bool useSubclasses = useClasses && questionAnswers["subclass"].EqualToAny("yes", "y");
-        bool usingNonbinary = context.Races.First(x => x.Name == "Human").AllowedGenders == "2 3 4";
+        string allowedGenders = context.Races.First(x => x.Name == "Human").AllowedGenders ?? string.Empty;
+        bool usingNonbinary = allowedGenders.Contains("4", StringComparison.OrdinalIgnoreCase) ||
+                              allowedGenders.Contains("nonbinary", StringComparison.OrdinalIgnoreCase);
 
         if (questionAnswers["role-first"].EqualToAny("role"))
         {
             AddStage(ChargenStage.SpecialApplication, "SpecialApplication", ChargenStage.SelectRole,
-                $"<Screen><Blurb><![CDATA[You may sometimes elect to submit a character application as a \"Special Application\". When you choose to do so, you will be presented with choices as if you had an additional #22 Roleplay Points#0 more than you currently have. {(bpresource != null ? "It will cost you #1750BP#0 to submit a special application in addition to any other costs, and you" : "You")} may only submit a special application once every 3 months. Submitting a special application automatically incurs a higher level of scrutiny and staff must still be satisfied that you meet the requirements for playing the role before approving you.]]></Blurb></Screen>");
+                BuildSpecialApplicationBlurb());
             AddStage(ChargenStage.SelectRole, "RolePicker", ChargenStage.SelectRace,
                 $"<Screen><IntroductionBlurb><![CDATA[You will now be invited to select roles for your character. Roles help flesh out your character's place in the world, and may be used by the staff at times to make decisions about your character.]]>    </IntroductionBlurb>   <RoleTypes>     <RoleType Type=\"Class\" Name=\"Class\" CanSelectNone=\"{(useClasses ? "false" : "true")}\"><![CDATA[Your class represents, in a broad sense, the capabilities of your character. It will appear in your SCORE, and can be referenced in various places by user-customised code. For instance, which skills are available to you, or which spells you learn could all be influenced by class. Class is entirely softcoded however, so it is up to the end user to establish what classes do.]]></RoleType><RoleType Type=\"Subclass\" Name=\"Sub Class\" CanSelectNone=\"{(useSubclasses ? "false" : "true")}\"><![CDATA[Your subclass represents a refinement of your class, and would extend the capabilities of your character. Like class, it appears in SCORE and can be referenced in various places by user-customised code. The use of subclasses is optional - just because you use classes, does not mean that you must use subclasses. Like class, it is entirely softcoded.]]> </RoleType><RoleType Type=\"Profession\" Name=\"Profession\" CanSelectNone=\"false\"><![CDATA[Your profession represents a job, employment, or vocation that your character has coming into the game. It might be used to give you additional starting skills, a starting clan, starting money, or something of that nature.]]></RoleType><RoleType Type=\"Family\" Name=\"Family\" CanSelectNone=\"true\"><![CDATA[Family roles are designed to represent things related to the family origins of the character, whether they be a noble character selecting a great house to which they belong, or even just a player-sponsored role to make an in-character family relation. Typically a family role would be more likely to give clanning and possibly gear or money than skill boosts, for example.]]></RoleType><RoleType Type=\"Story\" Name=\"Story\" CanSelectNone=\"true\"><![CDATA[Story roles represent unique opportunities for the character, or plot-driven backstories. If you choose to take one of these roles, you have some unique role in the story and metaplot.]]></RoleType></RoleTypes></Screen>",
                 ChargenStage.SpecialApplication);
@@ -559,7 +726,7 @@ return 10",
         else
         {
             AddStage(ChargenStage.SpecialApplication, "SpecialApplication", ChargenStage.SelectRace,
-                $"<Screen><Blurb><![CDATA[You may sometimes elect to submit a character application as a \"Special Application\". When you choose to do so, you will be presented with choices as if you had an additional #22 Roleplay Points#0 more than you currently have. {(bpresource != null ? "It will cost you #1750BP#0 to submit a special application in addition to any other costs, and you" : "You")} may only submit a special application once every 3 months. Submitting a special application automatically incurs a higher level of scrutiny and staff must still be satisfied that you meet the requirements for playing the role before approving you.]]></Blurb></Screen>");
+                BuildSpecialApplicationBlurb());
             AddStage(ChargenStage.SelectRace, "RacePicker", ChargenStage.SelectEthnicity,
                 "<Screen><Blurb><![CDATA[Races vary from one another with sufficient differences to be considered different species, biologically speaking. You must choose a Race for your character to be, which will affect the availability of certain choices throughout the character creation process.]]></Blurb><ShowUnselectableRacesAsBlanks>false</ShowUnselectableRacesAsBlanks>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
                 ChargenStage.SpecialApplication);
@@ -592,7 +759,7 @@ return 10",
         AddStage(ChargenStage.SelectName, "NamePicker", ChargenStage.SelectDisfigurements, "<Screen></Screen>",
             ChargenStage.SelectCulture);
         AddStage(ChargenStage.SelectDisfigurements, "DisfigurementPicker", ChargenStage.SelectMerits,
-            @"<Screen><ScarBlurb><![CDATA[You may now pick scars for your character. Scars are permanent disfigurements that add flavour to your character. If you would like to design a scar that does not appear in this list, please submit one to the staff on Discord.]]></ScarBlurb><TattooBlurb><![CDATA[You may now pick tattoos for your character. Tattoos are permanent decorations that add flavour to your character. If you would like to design a tattoo that does not appear in this list, please submit one to the staff on Discord.]]></TattooBlurb><BodypartsBlurb><![CDATA[You may on this screen select bodyparts to begin as severed. For example, you could begin play with a missing eye or a missing hand. Unless you know what you are doing, it is highly recommended that you do not select any options on this screen.]]></BodypartsBlurb><ProstheticsBlurb><![CDATA[On this screen you may pick prosthetics to offset the disfigurements you selected in the previous missing bodyparts screen.]]></ProstheticsBlurb><AllowPickingScars>true</AllowPickingScars><AllowPickingTattoos>true</AllowPickingTattoos><AllowPickingMissingBodyparts>true</AllowPickingMissingBodyparts><Prostheses><!-- What follows is an example of how to insert your own prosthetics once you have built them in game 
+            @"<Screen><ScarBlurb><![CDATA[You may now pick scars for your character. Scars are permanent disfigurements that add flavour to your character. If you would like to design a scar that does not appear in this list, please submit a proposal to your builders or staff team.]]></ScarBlurb><TattooBlurb><![CDATA[You may now pick tattoos for your character. Tattoos are permanent decorations that add flavour to your character. If you would like to design a tattoo that does not appear in this list, please submit a proposal to your builders or staff team.]]></TattooBlurb><BodypartsBlurb><![CDATA[You may on this screen select bodyparts to begin as severed. For example, you could begin play with a missing eye or a missing hand. Unless you know what you are doing, it is highly recommended that you do not select any options on this screen.]]></BodypartsBlurb><ProstheticsBlurb><![CDATA[On this screen you may pick prosthetics to offset the disfigurements you selected in the previous missing bodyparts screen.]]></ProstheticsBlurb><AllowPickingScars>true</AllowPickingScars><AllowPickingTattoos>true</AllowPickingTattoos><AllowPickingMissingBodyparts>true</AllowPickingMissingBodyparts><Prostheses><!-- What follows is an example of how to insert your own prosthetics once you have built them in game 
 	<Prosthetic>
 			<Item>ITEM ID</Item>
 			<Costs><Cost resource=""RESOURCE ID"" amount=""RESOURCE AMOUNT""/></Costs>
@@ -622,8 +789,12 @@ return 10",
                 break;
             case "points":
                 AddStage(ChargenStage.SelectAttributes, "AttributePointBuy", ChargenStage.SelectSkills,
-                    $"<Screen><Blurb><![CDATA[Attributes determine your innate physical, mental and spiritual characteristics. They are used in some checks, as well as potentially determining the potential maximum values of many of your skills. You will select the starting values for these attributes below.]]></Blurb><MaximumBoostsProg>MaximumAttributeBoosts</MaximumBoostsProg><MaximumFreeBoostsProg>MaximumFreeAttributeBoosts</MaximumFreeBoostsProg><MaximumMinusesProg>MaximumAttributeMinuses</MaximumMinusesProg><FreeBoostsProg>FreeAttributeBoosts</FreeBoostsProg><AttributeBaseValueProg>AttributeBaseValue</AttributeBaseValueProg><BoostCostExpression>pow(2, max(0,boosts-1)) * 100</BoostCostExpression><BoostResource>{bpresource?.Id ?? 0}</BoostResource><MaximumExtraBoosts>6</MaximumExtraBoosts></Screen>",
+                    BuildAttributePointBuyDefinition(),
                     ChargenStage.SelectMerits);
+                if (!hasChargenSpendResource)
+                {
+                    completionNotes.Add("Attribute point-buy was seeded in free-only mode because no chargen resource was selected for paid extra boosts.");
+                }
                 break;
             default:
                 throw new ArgumentOutOfRangeException("Unsupported attribute mode.");
@@ -637,16 +808,25 @@ return 10",
                     ChargenStage.SelectAttributes);
                 break;
             case "boosts":
-                AddStage(ChargenStage.SelectSkills, "SkillCostPicker", ChargenStage.SelectAccents,
-                    $"<Screen><SkillPickerBlurb><![CDATA[Skills measure your ability to accomplish tasks - to be \"good at something.\" Skills may be learned, with effort, at any time in game.\nNote: Some skill picks are nested and require the selection of another skill first before they are visible in the list. To those with MXP enabled, these nested skills will appear italicized.]]></SkillPickerBlurb>   <SkillBoostBlurb><![CDATA[The next step is deciding whether to apply any boosts to your character's starting skills. This is a totally optional process, and costs a large amount of build points. Each character also gets one free boost, so even new players can boost an important skill.  Each skill boost will push your starting skill value up approximately one \"rank\". It is mostly designed so that after the first few characters, when players have started to accumulate some build points, they can avoid some of the starting grind, but \"troll\" players who consistently roll red-shirt characters to try and PK don't get the same leg up.]]></SkillBoostBlurb>   <NumberOfFreeSkillPicksProg>ChargenNumberOfSkillPicks</NumberOfFreeSkillPicksProg>   <FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg><BoostCostExpression>base * Pow(boosts,2)</BoostCostExpression><AdditionalSkillsCostExpression>50 * Pow(picks,2)</AdditionalSkillsCostExpression><MaximumBoosts>5</MaximumBoosts><BoostResource>{bpresource?.Id ?? 0}</BoostResource><FreeBoostResource>25</FreeBoostResource><BoostCostProg>ChargenSkillBoostCost</BoostCostProg></Screen>",
-                    ChargenStage.SelectAttributes);
+                if (useSkillBoostMode)
+                {
+                    AddStage(ChargenStage.SelectSkills, "SkillCostPicker", ChargenStage.SelectAccents,
+                        BuildSkillCostPickerDefinition(),
+                        ChargenStage.SelectAttributes);
+                }
+                else
+                {
+                    AddStage(ChargenStage.SelectSkills, "SkillPicker", ChargenStage.SelectAccents,
+                        "<Screen><Blurb><![CDATA[You may now select the skills that your character begins the game with. You can also learn new skills in game.]]></Blurb><NumberOfSkillPicksProg>ChargenNumberOfSkillPicks</NumberOfSkillPicksProg><FreeSkillsProg>ChargenFreeSkills</FreeSkillsProg></Screen>",
+                        ChargenStage.SelectAttributes);
+                }
                 break;
             default:
                 throw new ArgumentOutOfRangeException("Unsupported skill mode.");
         }
 
         AddStage(ChargenStage.SelectAccents, "AccentPicker", ChargenStage.SelectKnowledges,
-            $"<Screen><AdditionalPicks resource=\"{bpresource?.Id ?? 0}\" cost=\"10\"/>   <Blurb><![CDATA[You will now be given the opportunity to pick which accents you natively employ with any language you have chosen. These are the accents in which you learned to speak the language in question, and represent how you will naturally speak the language. Other accents can be learned by exposure and practice.]]></Blurb></Screen>",
+            BuildAccentPickerDefinition(),
             ChargenStage.SelectSkills);
         AddStage(ChargenStage.SelectKnowledges, "KnowledgePickerBySkill", ChargenStage.SelectCharacteristics,
             "<Screen><Blurb><![CDATA[Knowledges are supplements to skills that represent specific areas of training that you have. Generally speaking, knowledges can be taught and learned in game, and they gate things like crafts and surgical procedures.]]></Blurb><NumberOfPicksProg>ChargenNumberOfKnowledgePicks</NumberOfPicksProg><FreeKnowledgesProg>ChargenFreeKnowledges</FreeKnowledgesProg></Screen>",
@@ -660,7 +840,7 @@ return 10",
         ChargenRole role = SeederRepeatabilityHelper.EnsureEntity(
             context.ChargenRoles,
             x => x.Type == (int)ChargenRoleType.StartingLocation &&
-                 string.Equals(x.Name, "Default Starting Location", StringComparison.OrdinalIgnoreCase),
+                 string.Equals(x.Name, DefaultStartingLocationRoleName, StringComparison.OrdinalIgnoreCase),
             x => x.Type == (int)ChargenRoleType.StartingLocation,
             () =>
             {
@@ -668,9 +848,9 @@ return 10",
                 context.ChargenRoles.Add(created);
                 return created;
             });
-        role.Name = "Default Starting Location";
+        role.Name = DefaultStartingLocationRoleName;
         role.Type = (int)ChargenRoleType.StartingLocation;
-        role.PosterId = 1;
+        role.PosterId = defaultPosterId;
         role.MaximumNumberAlive = 0;
         role.MaximumNumberTotal = 0;
         role.ChargenBlurb = "This is the default starting location that has not been described.";
@@ -679,7 +859,7 @@ return 10",
         role.MinimumAuthorityToView = 0;
         context.SaveChanges();
         AddStage(ChargenStage.SelectStartingLocation, "StartingLocationPicker", ChargenStage.SelectNotes,
-            @$"<Screen><Blurb><![CDATA[Your must now select a starting location for your character. This reflects where your character will begin once in the game, but does not mean you are restricted to only that area.]]>    </Blurb>   <Locations>     <Location>       <Name>Guest Lounge</Name>       <Blurb><![CDATA[As you have not yet set up any other starting areas, the default starting area will be the guest lounge.]]></Blurb>       <Location>1</Location>       <Role>{role.Id}</Role><OnCommenceProg>0</OnCommenceProg>     </Location></Locations>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
+            @$"<Screen><Blurb><![CDATA[You must now select a starting location for your character. This reflects where your character will begin once in the game, but does not mean you are restricted to only that area.]]>    </Blurb>   <Locations>     <Location>       <Name>Guest Lounge</Name>       <Blurb><![CDATA[As you have not yet set up any other starting areas, the default starting area will be the guest lounge.]]></Blurb>       <Location>1</Location>       <Role>{role.Id}</Role><OnCommenceProg>0</OnCommenceProg>     </Location></Locations>   <SkipScreenIfOnlyOneChoice>true</SkipScreenIfOnlyOneChoice></Screen>",
             ChargenStage.SelectRole);
         AddStage(ChargenStage.SelectNotes, "NotePicker", ChargenStage.Submit,
             "<Stage><Note Name=\"Background Comment\">\u00a0 \u00a0 \u00a0<Blurb><![CDATA[Please give a brief overview of your character's background and/or personality, in order to give admin storytellers something to work with roleplaying with you. Typically we would expect a minimum of four sentences or dot points.]]></Blurb>\u00a0 \u00a0 \u00a0<Prog>AlwaysTrue</Prog>\u00a0 \u00a0</Note></Stage>",
@@ -720,26 +900,51 @@ return 10",
         #endregion
 
         context.Database.CommitTransaction();
-        return "Character creation has been successfully set up.";
+        return completionNotes.Count > 0
+            ? $"Character creation has been successfully set up. {completionNotes.ListToString(separator: " ", conjunction: " ")}"
+            : "Character creation has been successfully set up.";
     }
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
     {
-        if (!context.Races.Any(x => x.Name == "Human"))
+        if (!context.Accounts.Any() || !context.Races.Any(x => x.Name == "Human"))
         {
             return ShouldSeedResult.PrerequisitesNotMet;
         }
 
+        static string? GetSingleStageType(IEnumerable<string> types)
+        {
+            List<string> distinctTypes = types
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Take(2)
+                .ToList();
+            return distinctTypes.Count == 1 ? distinctTypes[0] : null;
+        }
+
+        string? attributeStageType = GetSingleStageType(context.ChargenScreenStoryboards
+            .Where(x => x.ChargenStage == (int)ChargenStage.SelectAttributes)
+            .Select(x => x.ChargenType));
+        string? skillStageType = GetSingleStageType(context.ChargenScreenStoryboards
+            .Where(x => x.ChargenStage == (int)ChargenStage.SelectSkills)
+            .Select(x => x.ChargenType));
+
         return SeederRepeatabilityHelper.ClassifyByPresence(
-            StockChargenStages.Select(stage =>
-                context.ChargenScreenStoryboards.Any(x =>
-                    x.ChargenStage == (int)stage.Stage &&
-                    x.ChargenType == stage.Type))
-                .Concat(StockChargenProgNames.Select(name =>
+            RequiredChargenStages.Select(stage =>
+                context.ChargenScreenStoryboards.Count(x => x.ChargenStage == (int)stage) == 1)
+                .Concat(AlwaysRequiredChargenProgNames.Select(name =>
                     context.FutureProgs.Any(x => x.FunctionName == name)))
-                .Append(context.ChargenRoles.Any(x =>
+                .Concat(string.Equals(attributeStageType, "AttributePointBuy", StringComparison.OrdinalIgnoreCase)
+                    ? AttributePointBuyProgNames.Select(name => context.FutureProgs.Any(x => x.FunctionName == name))
+                    : [])
+                .Concat(string.Equals(skillStageType, "SkillCostPicker", StringComparison.OrdinalIgnoreCase)
+                    ? SkillBoostProgNames.Select(name => context.FutureProgs.Any(x => x.FunctionName == name))
+                    : [])
+                .Append(context.StaticConfigurations.Any(x => x.SettingName == SpecialApplicationCostStaticConfiguration))
+                .Append(context.StaticConfigurations.Any(x => x.SettingName == SpecialApplicationResourceStaticConfiguration))
+                .Append(context.ChargenRoles.Count(x =>
                     x.Type == (int)ChargenRoleType.StartingLocation &&
-                    x.Name == "Default Starting Location")));
+                    x.Name == DefaultStartingLocationRoleName) == 1));
     }
 
     public int SortOrder => 100;
@@ -747,7 +952,7 @@ return 10",
     public string Tagline => "Sets up Character Creation and Guest Logins";
 
     public string FullDescription =>
-        @"This package will create all the storyboards for character creation so that people can make characters on your game (not to mention other admin avatars other than your own). It will set up resources such as RPP and Karma. You absolutely must set up a human race first.
+        @"This package will create the storyboards for character creation so that people can make characters on your game (not to mention other admin avatars other than your own). It can also set up chargen resources such as RPP, Karma, or Build Points. You absolutely must set up a human race first, and you should plan to follow up with the culture, skill, and merit seeders before opening chargen to players.
 
 Note that it will put placeholder blurb text for each of the chargen stages in by default. You need to go and edit these later to make them specific to your MUD. You can find them in the database in the ChargenScreenStoryboards table.";
 }

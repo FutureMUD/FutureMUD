@@ -125,11 +125,12 @@ public static class SeederMetadataRegistry
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.RepairExisting,
                 [
+                    Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
                     Requirement("The Human seeder must have installed the Human race.", context => context.Races.Any(x => x.Name == "Human"))
                 ],
-                RerunSummary: "Reruns reuse stock chargen resources, helper progs, storyboard stages, and the default starting-location role by stable keys.",
-                UpdateSummary: "Existing storyboard XML is preserved when a matching storyboard already exists; reruns focus on repairing missing stock screens and dependencies.",
-                OwnershipSummary: "Chargen storyboards are tracked by stage and screen type, and helper progs are tracked by function name."
+                RerunSummary: "Reruns reuse stock chargen resources, special-application static settings, helper progs, canonical storyboard stages, and the default starting-location role by stable keys.",
+                UpdateSummary: "Reruns repair missing stock screens, helper progs, dependencies, and special-application settings without creating duplicate storyboard rows for the same chargen stage.",
+                OwnershipSummary: "Chargen storyboards are tracked as one canonical row per chargen stage, helper progs are tracked by function name, and the default starting-location role is tracked by stable name."
             ),
             nameof(StockMeritsSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,

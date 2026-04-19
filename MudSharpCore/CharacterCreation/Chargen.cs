@@ -345,7 +345,12 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public List<IGameItemProto> SelectedProstheses { get; set; } = [];
 
-    public IEnumerable<IChargenAdvice> AllAdvice => Enumerable.Empty<IChargenAdvice>(); // TODO
+    public IEnumerable<IChargenAdvice> AllAdvice =>
+        (SelectedRace?.ChargenAdvices ?? Enumerable.Empty<IChargenAdvice>())
+        .Concat(SelectedEthnicity?.ChargenAdvices ?? Enumerable.Empty<IChargenAdvice>())
+        .Concat(SelectedCulture?.ChargenAdvices ?? Enumerable.Empty<IChargenAdvice>())
+        .Concat(SelectedRoles.SelectMany(x => x.ChargenAdvices))
+        .Distinct();
 
     #region IHaveFuturemud Members
 
@@ -1046,6 +1051,7 @@ public partial class Chargen : FrameworkItem, IChargen
                 break;
             case ChargenStage.SpecialApplication:
                 ApplicationType = ApplicationType.Normal;
+                IsSpecialApplication = false;
                 break;
             case ChargenStage.SelectDisfigurements:
                 MissingBodyparts.Clear();
@@ -1346,6 +1352,8 @@ public partial class Chargen : FrameworkItem, IChargen
                 ApplicationType = IsSpecialApplication ? ApplicationType.Special : ApplicationType.Normal;
             }
 
+            IsSpecialApplication = ApplicationType == ApplicationType.Special;
+
             element = root.Element("SelectedBoosts");
             if (element != null)
             {
@@ -1566,12 +1574,24 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public bool AddMerit(IMerit merit)
     {
-        return false;
+        if (merit is not ICharacterMerit chargenMerit ||
+            SelectedMerits.Any(x => x == chargenMerit || x.Id == chargenMerit.Id))
+        {
+            return false;
+        }
+
+        SelectedMerits.Add(chargenMerit);
+        return true;
     }
 
     public bool RemoveMerit(IMerit merit)
     {
-        return false;
+        if (merit is not ICharacterMerit chargenMerit)
+        {
+            return false;
+        }
+
+        return SelectedMerits.RemoveAll(x => x == chargenMerit || x.Id == chargenMerit.Id) > 0;
     }
 
     #endregion

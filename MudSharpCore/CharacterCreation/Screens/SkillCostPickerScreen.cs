@@ -283,6 +283,16 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 
         protected string DisplaySkillBoostStage()
         {
+            if (Storyboard.BoostResource is null || Storyboard.MaximumBoosts <= 0)
+            {
+                return
+                    $@"{"Skill Boosts".Colour(Telnet.Cyan)}
+
+No chargen resource has been configured for skill boosts on this screen, so there are no additional boosts to purchase.
+
+Type {"done".Colour(Telnet.Yellow)} to continue or {"back".Colour(Telnet.Yellow)} to return to skill selection.";
+            }
+
             StringBuilder sb = new();
             sb.AppendLine("Skill Boosts".Colour(Telnet.Cyan));
             sb.AppendLine();
@@ -416,9 +426,7 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
                     "You must select at least one language before you can advance past skill selection, and you have not selected any.";
             }
 
-            // TODO - other reasons why skill selection couldn't continue
-
-            throw new NotImplementedException();
+            return "You cannot advance past skill selection yet because one or more chargen requirements have not been satisfied.";
         }
 
         public override string HandleCommand(string command)
@@ -444,6 +452,23 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
         private string HandleCommandSkillBoost(string command)
         {
             string lcommand = command.ToLowerInvariant();
+            if (Storyboard.BoostResource is null || Storyboard.MaximumBoosts <= 0)
+            {
+                switch (lcommand)
+                {
+                    case "done":
+                        Chargen.SelectedSkillBoosts.Clear();
+                        Chargen.SelectedSkillBoostCosts.Clear();
+                        State = ChargenScreenState.Complete;
+                        return "";
+                    case "back":
+                        SkillBoostStage = false;
+                        return Display();
+                }
+
+                return DisplaySkillBoostStage();
+            }
+
             if (lcommand == "help")
             {
                 return
@@ -609,6 +634,12 @@ The following arguments can all accept an option number of times to do the actio
                 }
 
                 Chargen.SelectedSkills = Chargen.SelectedSkills.Distinct().ToList();
+                if (Storyboard.BoostResource is null || Storyboard.MaximumBoosts <= 0)
+                {
+                    State = ChargenScreenState.Complete;
+                    return "";
+                }
+
                 SkillBoostStage = true;
                 SelectedBoosts = new Dictionary<ITraitDefinition, int>();
                 SelectedBoostCosts = new Dictionary<ITraitDefinition, int>();

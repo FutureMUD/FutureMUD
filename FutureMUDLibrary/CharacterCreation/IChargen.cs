@@ -43,6 +43,7 @@ namespace MudSharp.CharacterCreation
     public interface IChargen : IFrameworkItem, IHaveFuturemud, ICharacterTemplate, IHaveMerits, IHaveAccount
     {
         ApplicationType ApplicationType { get; set; }
+        bool IsSpecialApplication { get; set; }
         bool CanSubmit { get; }
         IEnumerable<Tuple<string, string>> PriorRejections { get; }
         IEnumerable<ChargenStage> CompletedStages { get; }

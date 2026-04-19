@@ -255,9 +255,7 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
                     "You must select at least one language before you can advance past skill selection, and you have not selected any.";
             }
 
-            // TODO - other reasons why skill selection couldn't continue
-
-            throw new NotImplementedException();
+            return "You cannot advance past skill selection yet because one or more chargen requirements have not been satisfied.";
         }
 
         public override string HandleCommand(string command)

@@ -186,7 +186,7 @@ This project contains the long-running climate and weather regression checks use
 
 ## Test Suite Guide
 
-Use the repository scripts in `scripts/` where practical. They are designed to run inside the repo sandbox without elevation and now have both `.sh` and `.ps1` variants. Run `dotnet restore MudSharp.sln` once first if package state is not already warm.
+Use the repository scripts in `scripts/` where practical. They are designed to run inside the repo sandbox without elevation and now have both `.sh` and `.ps1` variants. Run `dotnet restore MudSharp.sln -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false` once first if package state is not already warm.
 
 | Suite | What it covers | Default? | Run it when | Usually leave it alone when |
 | --- | --- | --- | --- | --- |
@@ -202,10 +202,10 @@ Use the repository scripts in `scripts/` where practical. They are designed to r
 
 Use Windows-native `dotnet` commands directly rather than Linux-only shell invocations, or prefer the paired PowerShell scripts in `scripts\`.
 
-1. Run `dotnet restore MudSharp.sln` when package state needs refreshing.
+1. Run `dotnet restore MudSharp.sln -m:1 -p:RestoreBuildInParallel=false -p:NuGetAudit=false` when package state needs refreshing.
 2. For normal engine verification, prefer targeted project builds instead of `dotnet build MudSharp.sln`.
-3. Build the main engine with `dotnet build MudSharpCore/MudSharpCore.csproj -c Debug -p:NoWarn=NU1902%3BNU1510`.
-4. Build the seeder with `dotnet build DatabaseSeeder/DatabaseSeeder.csproj -c Debug -p:NoWarn=NU1902%3BNU1510`.
+3. Build the main engine with `dotnet build MudSharpCore/MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510`.
+4. Build the seeder with `dotnet build DatabaseSeeder/DatabaseSeeder.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510`.
 5. After `dotnet restore MudSharp.sln`, run the default multi-project unit-test pass with `scripts\test-unit.ps1`.
 6. After `dotnet restore MudSharp.sln`, run only the core runtime unit tests with `scripts\test-unit-core.ps1`.
 7. After `dotnet restore MudSharp.sln`, use the climate and weather regression suite only for climate-specific work or when explicitly requested with `scripts\test-unit-climate.ps1`.
@@ -216,6 +216,8 @@ Notes:
 - The solution includes `FutureMUD_Analyzers.Vsix`, which depends on Visual Studio SDK targets and may fail under plain `dotnet build` on machines without the Visual Studio extension toolchain installed.
 - Because of that VSIX dependency, a full solution build is not the default verification path for Codex on Windows.
 - Suppressing `NU1902` and `NU1510` in local verification commands is acceptable unless the task is specifically about package auditing or dependency hygiene.
+- Default `dotnet restore` and other implicit restore graph walks can fail silently during the parallel MSBuild project-graph step inside sandboxed Codex runs. Prefer the repo scripts, or force single-node restore/builds with `-m:1` and `-p:RestoreBuildInParallel=false`.
+- NuGet vulnerability audit lookups can also be blocked in sandboxed runs, which shows up as `NU1900` warnings against `https://api.nuget.org/v3/index.json`; using `-p:NuGetAudit=false` for local verification is acceptable unless the task is specifically about dependency auditing.
 - `MudSharpCore Unit Tests` can fail silently during the default parallel MSBuild project-graph walk inside sandboxed Codex runs. Prefer the repo scripts, or add `-m:1` when invoking that project with direct `dotnet build` or `dotnet test` commands.
 
 ## Instructions for Codex when Changing Subsystems with Design Documents

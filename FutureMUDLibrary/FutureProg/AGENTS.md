@@ -4,6 +4,7 @@
 
 ## Table of Contents
 - [Purpose and Scope](#purpose-and-scope)
+- [Text Markup Reference](#text-markup-reference)
 - [How FutureProg Fits Into FutureMUD](#how-futureprog-fits-into-futuremud)
   - [Engine integration points](#engine-integration-points)
   - [Lifecycle from authoring to execution](#lifecycle-from-authoring-to-execution)
@@ -83,6 +84,12 @@
 - [Additional Resources and Next Steps](#additional-resources-and-next-steps)
 
 ---
+
+## Text Markup Reference
+
+- [Emote System](../../Design%20Documents/Emote%20System.md)
+- [Character Description System](../../Design%20Documents/Character_Description_System.md)
+- [Room Description Markup](../../Design%20Documents/Room_Description_Markup.md)
 
 ## Purpose and Scope
 

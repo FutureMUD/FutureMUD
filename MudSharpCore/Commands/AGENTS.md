@@ -34,6 +34,11 @@ It inherits from:
 - Avoid side-effecting pops inside LINQ predicates/selectors. Pop into a temporary variable first, or use Peek/PeekSpeech and then pop once when you intentionally advance the stack.
 - Regular expressions are allowed only when whole-input shape branching is substantially clearer than StringStack parsing.
 
+## Text Markup Reference
+- [Emote System](../../Design%20Documents/Emote%20System.md)
+- [Character Description System](../../Design%20Documents/Character_Description_System.md)
+- [Room Description Markup](../../Design%20Documents/Room_Description_Markup.md)
+
 
 ## Notes
 

@@ -24,7 +24,7 @@ using System.Linq;
 
 namespace MudSharp.Community;
 
-public class Clan : SaveableItem, IClan
+public partial class Clan : SaveableItem, IClan
 {
     private static IFutureProg CanCreateClanProg;
     private static IFutureProg OnCreateClanProg;
@@ -169,14 +169,7 @@ public class Clan : SaveableItem, IClan
 
     public bool FreePosition(IAppointment appointment)
     {
-        return appointment.MaximumSimultaneousHolders < 1 ||
-               appointment.MaximumSimultaneousHolders -
-               Memberships.Where(x => x.Appointments.Contains(appointment))
-                          .Sum(
-                              x =>
-                                  ExternalControls.Any()
-                                      ? ExternalControls.Sum(y => y.NumberOfAppointments - y.Appointees.Count)
-                                      : 0) >= 1;
+        return ClanCommandUtilities.HasFreePosition(appointment, Memberships, ExternalControls);
     }
 
     public bool FreePosition(IAppointment appointment, IClan liegeClan)

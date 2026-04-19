@@ -144,7 +144,7 @@ Male Dunlending names commonly end in -oc or -doc, for example 'Madoc', 'Meriado
 		<Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[Your given name is the name given to your by your parents, usually at your birth. It is the only name you will use or need in most contexts.
 		
 Tolkien based Dalish names on Old Norse, so these should be used freely.]]></Element>
-		<Element Usage=""13"" MinimumCount=""1"" MaximumCount=""1"" Name=""Parental Name""><![CDATA[Your parental name is either your father's name and a -son if you are a male, or your mother's name and -sdottr if you are a female.
+		<Element Usage=""7"" MinimumCount=""1"" MaximumCount=""1"" Name=""Parental Name""><![CDATA[Your parental name is either your father's name and a -son if you are a male, or your mother's name and -sdottr if you are a female.
 
 For example, if you are the son of Thorald, your Parental Name will be Thoraldson. If you are the daughter of Ingrid, it will be Ingridsdottr.]]></Element>
 	</Elements>  
@@ -192,7 +192,7 @@ Tolkien based Easterling names on Turkish, so names like 'Yiltig', 'Kustig', 'Ka
 			<Element Usage=""6"" MinimumCount=""1"" MaximumCount=""1"" Name=""Family Name""><![CDATA[A surname is a name added to a given name and is part of a personal name. In many cases, a surname is a family name and many dictionaries define ""surname"" as a synonym of ""family name"".]]></Element>    
 			<Element Usage=""1"" MinimumCount=""0"" MaximumCount=""1"" Name=""Dimunitive""><![CDATA[Many people of this naming culture have a dimunitive, usually a shortened or altered version of their given name that is used by close family and friends in informal contexts. You may choose such a dimunitive if you wish.]]></Element>  
 		</Elements>  
-		<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+))s+(?<patronym>[\w'-]+)s+(?<surname>[^ ""]+)s*(?:""(?<dimunitive>[\w '-]+)""){0,1}$]]></NameEntryRegex>
+		<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+))\s+(?<patronym>[\w'-]+)\s+(?<surname>[^ ""]+)\s*(?:""(?<dimunitive>[\w '-]+)""){0,1}$]]></NameEntryRegex>
 	</NameCulture>");
         NameCulture haradrim = AddNameCulture("Haradrim", @"<NameCulture>  
 	<Counts>

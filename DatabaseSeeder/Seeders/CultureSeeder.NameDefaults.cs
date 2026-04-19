@@ -68,6 +68,9 @@ public partial class CultureSeeder
 			["North African"] = ("Morrocan", "Morrocan")
 		};
 
+	private static readonly IReadOnlyDictionary<string, (string Male, string Female)> ModernEthnicityNameCultureMappings =
+		CreateModernEthnicityNameCultureMappings();
+
 	private static readonly IReadOnlyList<string> FallbackGivenNames =
 		["Alex", "Sam", "Jamie", "Jordan", "Morgan", "Casey", "Riley", "Taylor"];
 
@@ -81,6 +84,23 @@ public partial class CultureSeeder
 		["of Ash", "of Brookside", "of Rivercross", "of Stoneford", "of Westhaven"];
 
 	private sealed record NameCultureElementSeed(NameUsage Usage, int MinimumCount, int MaximumCount);
+
+	private static IReadOnlyDictionary<string, (string Male, string Female)> CreateModernEthnicityNameCultureMappings()
+	{
+		Dictionary<string, (string Male, string Female)> mappings = new(StringComparer.OrdinalIgnoreCase)
+		{
+			["Han"] = ("Modern Chinese", "Modern Chinese"),
+			["Dravidian"] = ("Modern Indian", "Modern Indian"),
+			["Indo-Aryan"] = ("Modern Indian", "Modern Indian")
+		};
+
+		foreach (ModernEthnicityProfileSeed seed in ModernEthnicityProfileSeeds)
+		{
+			mappings[seed.EthnicityName] = (seed.CultureName, seed.CultureName);
+		}
+
+		return mappings;
+	}
 
 	private void ApplyEthnicityNameCultureMappings(
 		IReadOnlyDictionary<string, (string Male, string Female)> mappings)
@@ -106,6 +126,11 @@ public partial class CultureSeeder
 	private void ApplyMedievalEuropeEthnicityNameCultureMappings()
 	{
 		ApplyEthnicityNameCultureMappings(MedievalEuropeEthnicityNameCultureMappings);
+	}
+
+	private void ApplyModernEthnicityNameCultureMappings()
+	{
+		ApplyEthnicityNameCultureMappings(ModernEthnicityNameCultureMappings);
 	}
 
 	private void EnsureFallbackRandomNameProfiles()

@@ -116,6 +116,93 @@ public class CultureSeederNameAndHeightDefaultTests
 	}
 
 	[TestMethod]
+	public void ModernNameSeeder_AddsExpectedProfilesAndMappings()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		Race humanRace = new()
+		{
+			Name = "Human",
+			Description = "Test race",
+			AllowedGenders = "0 1 2 3 4",
+			DiceExpression = "1d1",
+			CommunicationStrategyType = "humanoid",
+			MaximumDragWeightExpression = "1",
+			MaximumLiftWeightExpression = "1",
+			HoldBreathLengthExpression = "1",
+			BreathingVolumeExpression = "1",
+			EatCorpseEmoteText = string.Empty,
+			HandednessOptions = "1"
+		};
+		context.Races.Add(humanRace);
+
+		foreach (string ethnicityName in ModernExpectedMappings().Keys)
+		{
+			context.Ethnicities.Add(new Ethnicity
+			{
+				Name = ethnicityName,
+				ChargenBlurb = string.Empty,
+				ParentRace = humanRace,
+				EthnicGroup = "Test"
+			});
+		}
+
+		context.SaveChanges();
+
+		CultureSeeder seeder = new();
+		SetSeederContext(seeder, context);
+		InvokePrivate(seeder, "SeedEuropeanNames", context);
+		InvokePrivate(seeder, "ApplyModernEthnicityNameCultureMappings");
+
+		foreach (string profileName in new[]
+		{
+			"Modern French Male",
+			"Modern French Female",
+			"Modern German Male",
+			"Modern German Female",
+			"Modern Spanish Male",
+			"Modern Spanish Female",
+			"Modern Portugese Male",
+			"Modern Portugese Female"
+		})
+		{
+			Assert.IsTrue(context.RandomNameProfiles.Any(x => x.Name == profileName),
+				$"Expected {profileName} to be seeded.");
+		}
+
+		foreach (string cultureName in ModernTargetCultures())
+		{
+			Assert.IsTrue(context.RandomNameProfiles.Any(x => x.Name == $"{cultureName} Male"),
+				$"Expected {cultureName} Male to be seeded.");
+			Assert.IsTrue(context.RandomNameProfiles.Any(x => x.Name == $"{cultureName} Female"),
+				$"Expected {cultureName} Female to be seeded.");
+
+			AssertCultureHasReadyCompatibleProfile(context, cultureName, Gender.Male);
+			AssertCultureHasReadyCompatibleProfile(context, cultureName, Gender.Female);
+		}
+
+		foreach ((string cultureName, int givenMinimum, int surnameMinimum) in ModernProfileElementMinimums())
+		{
+			AssertProfileHasMinimumElementCounts(context, $"{cultureName} Male", givenMinimum, surnameMinimum);
+			AssertProfileHasMinimumElementCounts(context, $"{cultureName} Female", givenMinimum, surnameMinimum);
+		}
+
+		foreach ((string ethnicityName, (string maleCulture, string femaleCulture)) in ModernExpectedMappings())
+		{
+			Ethnicity ethnicity = context.Ethnicities.Single(x => x.Name == ethnicityName);
+			List<EthnicitiesNameCultures> links = context.EthnicitiesNameCultures
+				.Where(x => x.EthnicityId == ethnicity.Id)
+				.ToList();
+
+			Assert.AreEqual(5, links.Count, $"Expected five name-culture links for ethnicity {ethnicityName}.");
+			AssertGenderLink(links, Gender.Male, maleCulture);
+			AssertGenderLink(links, Gender.Female, femaleCulture);
+			AssertGenderLink(links, Gender.Neuter, maleCulture);
+			AssertGenderLink(links, Gender.NonBinary, femaleCulture);
+			AssertGenderLink(links, Gender.Indeterminate, maleCulture);
+		}
+	}
+
+	[TestMethod]
 	public void StockRaceSeeders_AssignDefaultHeightWeightModelsForAdvertisedGenders()
 	{
 		IReadOnlyList<string> animalIssues = AnimalSeeder.ValidateTemplateCatalogForTesting();
@@ -234,6 +321,13 @@ public class CultureSeederNameAndHeightDefaultTests
 			.Distinct(StringComparer.OrdinalIgnoreCase);
 	}
 
+	private static IEnumerable<string> ModernTargetCultures()
+	{
+		return ModernExpectedMappings()
+			.SelectMany(x => new[] { x.Value.Male, x.Value.Female })
+			.Distinct(StringComparer.OrdinalIgnoreCase);
+	}
+
 	private static IReadOnlyDictionary<string, (string Male, string Female)> MedievalExpectedMappings()
 	{
 		return new Dictionary<string, (string Male, string Female)>(StringComparer.OrdinalIgnoreCase)
@@ -289,6 +383,97 @@ public class CultureSeederNameAndHeightDefaultTests
 			["Moorish"] = ("Morrocan", "Morrocan"),
 			["North African"] = ("Morrocan", "Morrocan")
 		};
+	}
+
+	private static IReadOnlyDictionary<string, (string Male, string Female)> ModernExpectedMappings()
+	{
+		return new Dictionary<string, (string Male, string Female)>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Germanic"] = ("Modern Germanic", "Modern Germanic"),
+			["Italic"] = ("Modern Italic", "Modern Italic"),
+			["Hispanic"] = ("Modern Iberian", "Modern Iberian"),
+			["Celtic"] = ("Modern Celtic", "Modern Celtic"),
+			["Slavic"] = ("Modern Slavic", "Modern Slavic"),
+			["Greek"] = ("Modern Greek", "Modern Greek"),
+			["Turkish"] = ("Modern Turkic", "Modern Turkic"),
+			["Arabic"] = ("Modern Arabic", "Modern Arabic"),
+			["Persian"] = ("Modern Persian", "Modern Persian"),
+			["Scandanavian"] = ("Modern Scandinavian", "Modern Scandinavian"),
+			["North African"] = ("Modern North African", "Modern North African"),
+			["Bantu"] = ("Modern Sub-Saharan", "Modern Sub-Saharan"),
+			["Khoisan"] = ("Modern Sub-Saharan", "Modern Sub-Saharan"),
+			["Swahili"] = ("Modern Swahili", "Modern Swahili"),
+			["Polynesian"] = ("Modern Oceanic", "Modern Oceanic"),
+			["Austronesian"] = ("Modern Southeast Asian", "Modern Southeast Asian"),
+			["Melanesian"] = ("Modern Oceanic", "Modern Oceanic"),
+			["Afro-Carribean"] = ("Modern Afro-Caribbean", "Modern Afro-Caribbean"),
+			["Afro-American"] = ("Modern Afro-American", "Modern Afro-American"),
+			["Eskimo"] = ("Modern Indigenous North American", "Modern Indigenous North American"),
+			["Amerindian"] = ("Modern Indigenous North American", "Modern Indigenous North American"),
+			["Mesoamerican"] = ("Modern Indigenous Latin American", "Modern Indigenous Latin American"),
+			["Andean"] = ("Modern Indigenous Latin American", "Modern Indigenous Latin American"),
+			["Mongolian"] = ("Modern Central Asian", "Modern Central Asian"),
+			["Yamato"] = ("Modern Japanese", "Modern Japanese"),
+			["Korean"] = ("Modern Korean", "Modern Korean"),
+			["Tibetan"] = ("Modern Central Asian", "Modern Central Asian"),
+			["Uyghur"] = ("Modern Turkic", "Modern Turkic"),
+			["Ainu"] = ("Modern Japanese", "Modern Japanese"),
+			["Aboriginal Australian"] = ("Modern Aboriginal Australian", "Modern Aboriginal Australian"),
+			["Austro-Asiatic"] = ("Modern Southeast Asian", "Modern Southeast Asian"),
+			["Tai-Kadai"] = ("Modern Southeast Asian", "Modern Southeast Asian"),
+			["Anglo-Saxon"] = ("Modern Anglo-Saxon", "Modern Anglo-Saxon"),
+			["Han"] = ("Modern Chinese", "Modern Chinese"),
+			["Dravidian"] = ("Modern Indian", "Modern Indian"),
+			["Indo-Aryan"] = ("Modern Indian", "Modern Indian")
+		};
+	}
+
+	private static IEnumerable<(string CultureName, int GivenMinimum, int SurnameMinimum)> ModernProfileElementMinimums()
+	{
+		yield return ("Modern Germanic", 50, 100);
+		yield return ("Modern Italic", 50, 100);
+		yield return ("Modern Iberian", 50, 100);
+		yield return ("Modern Celtic", 50, 100);
+		yield return ("Modern Slavic", 50, 100);
+		yield return ("Modern Greek", 50, 100);
+		yield return ("Modern Turkic", 50, 100);
+		yield return ("Modern Arabic", 50, 100);
+		yield return ("Modern Persian", 50, 100);
+		yield return ("Modern Scandinavian", 50, 100);
+		yield return ("Modern North African", 50, 100);
+		yield return ("Modern Sub-Saharan", 50, 100);
+		yield return ("Modern Swahili", 50, 100);
+		yield return ("Modern Oceanic", 50, 100);
+		yield return ("Modern Southeast Asian", 50, 100);
+		yield return ("Modern Afro-Caribbean", 50, 100);
+		yield return ("Modern Afro-American", 50, 100);
+		yield return ("Modern Indigenous North American", 50, 100);
+		yield return ("Modern Indigenous Latin American", 50, 100);
+		yield return ("Modern Japanese", 50, 100);
+		yield return ("Modern Korean", 50, 40);
+		yield return ("Modern Central Asian", 50, 60);
+		yield return ("Modern Aboriginal Australian", 50, 100);
+		yield return ("Modern Anglo-Saxon", 50, 100);
+	}
+
+	private static void AssertProfileHasMinimumElementCounts(
+		FuturemudDatabaseContext context,
+		string profileName,
+		int givenMinimum,
+		int surnameMinimum)
+	{
+		RandomNameProfile profile = context.RandomNameProfiles.Single(x => x.Name == profileName);
+		int givenCount = context.RandomNameProfilesElements.Count(x =>
+			x.RandomNameProfileId == profile.Id &&
+			x.NameUsage == (int)NameUsage.BirthName);
+		int surnameCount = context.RandomNameProfilesElements.Count(x =>
+			x.RandomNameProfileId == profile.Id &&
+			x.NameUsage == (int)NameUsage.Surname);
+
+		Assert.IsTrue(givenCount >= givenMinimum,
+			$"Expected {profileName} to have at least {givenMinimum} given names but found {givenCount}.");
+		Assert.IsTrue(surnameCount >= surnameMinimum,
+			$"Expected {profileName} to have at least {surnameMinimum} surnames but found {surnameCount}.");
 	}
 
 	private static string BuildNameCultureDefinition(params (NameUsage Usage, int Minimum, int Maximum)[] elements)

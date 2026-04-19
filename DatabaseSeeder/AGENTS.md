@@ -36,5 +36,9 @@ Interactive installer that seeds initial database data and configuration for a n
   - [../Design Documents/Economy_System_Seeder_State_and_Gaps.md](../Design%20Documents/Economy_System_Seeder_State_and_Gaps.md)
 - `CurrencySeeder` is currently the only dedicated economy seeder. Treat broader economy seeding as an explicit product decision and ground new work in the seeder opportunity matrix documented above.
 
+## Text Markup Reference
+- [Character Description System](../Design%20Documents/Character_Description_System.md)
+- [Human Seeder Description Patterns](../Design%20Documents/Human_Seeder_Description_Patterns.md)
+
 ## Notes
 - All modules inherit both the solution-level and project-level rules unless explicitly overridden.

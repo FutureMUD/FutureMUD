@@ -29,7 +29,7 @@ namespace MudSharp.Framework
         /// </summary>
         private static readonly Regex _substituteANSIColourRGBRegex = new(@"(?<=(?:##){0,})#`(?<red>[0-9]+);(?<green>[0-9]+);(?<blue>[0-9]+);", RegexOptions.IgnoreCase);
         private static readonly Regex _stripANSIRegex = new(@"\e\[(.*?)m");
-        // Form is: writing{language,script,style=???,colour=???,skill>???}{text if can understand}{optional text if can't understand}
+        // Form is: writing{language,script,style=???,colour=???,skill>???|minskill>???}{text if can understand}{optional text if can't understand}
         private static readonly Regex LanguageReplacementRegex = new(@"writing\{(?<details>[a-z0-9 ,><=\.\-]+)\}\{(?<text>[^}]+)\}(?:\{(?<alt>[^}]+)\}){0,1}", RegexOptions.IgnoreCase);
         private static readonly Regex LanguageReplacementAttributeRegex = new(@"(?<attr>[a-z0-9 \-]+)(?<operator>[=><]+)(?<value>[a-z0-9 -]+)", RegexOptions.IgnoreCase);
         private static readonly Regex CheckReplacementRegex = new(@"check\{(?<trait>[^,]+),(?<difficulty>[0-9\.\,]+)\}\{(?<text>[^}]+)\}(?:\{(?<alt>[^}]+)\}){0,1}", RegexOptions.IgnoreCase);
@@ -360,6 +360,7 @@ namespace MudSharp.Framework
                     switch (im.Groups["attr"].Value.ToLowerInvariant())
                     {
                         case "skill":
+                        case "minskill":
                             double.TryParse(im.Groups["value"].Value, out requiredSkill);
                             continue;
                         case "style":

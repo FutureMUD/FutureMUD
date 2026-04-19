@@ -277,13 +277,8 @@ public class Appointment : SaveableItem, IAppointment
 
         if (MaximumConsecutiveTerms > 0)
         {
-            List<IElection> pastElections = Elections
-                                .Where(x => x.IsFinalised && !x.IsByElection)
-                                .OrderByDescending(x => x.ResultsInEffectDate)
-                                .Take(MaximumConsecutiveTerms)
-                                .ToList();
-            if (pastElections.Count >= MaximumConsecutiveTerms &&
-                pastElections.All(x => x.Victors.Any(y => y.MemberId == character.Id)))
+            if (ClanCommandUtilities.HasReachedConsecutiveTermLimit(Elections, character.Id,
+                    MaximumConsecutiveTerms))
             {
                 return (false,
                     $"You have reached the limit of {MaximumConsecutiveTerms.ToString("N0", character).ColourValue()} consecutive terms as {Title(character).ColourValue()}.");
@@ -292,9 +287,7 @@ public class Appointment : SaveableItem, IAppointment
 
         if (MaximumTotalTerms > 0)
         {
-            if (Elections
-                .Where(x => x.IsFinalised && !x.IsByElection)
-                .Count(x => x.Victors.Any(y => y.MemberId == character.Id)) > MaximumTotalTerms)
+            if (ClanCommandUtilities.HasReachedTotalTermLimit(Elections, character.Id, MaximumTotalTerms))
             {
                 return (false,
                     $"You have reached the life-time limit of {MaximumTotalTerms.ToString("N0", character).ColourValue()} total terms as {Title(character).ColourValue()}.");

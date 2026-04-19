@@ -215,7 +215,7 @@ public class ClanMembership : SaveableItem, IClanMembership, ILazyLoadDuringIdle
     public void AppointToPosition(IAppointment appointment)
     {
         Appointments.Add(appointment);
-        if (appointment.MinimumRankToHold.RankNumber > Rank.RankNumber)
+        if (appointment.MinimumRankToHold != null && appointment.MinimumRankToHold.RankNumber > Rank.RankNumber)
         {
             SetRank(appointment.MinimumRankToHold);
         }

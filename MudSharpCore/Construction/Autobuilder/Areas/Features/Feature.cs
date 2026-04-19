@@ -221,11 +221,11 @@ public class Feature
             return false;
         }
 
-        Weighting = value;
-        actor.OutputHandler.Send(
-            $"This feature now has a relative weight of {Weighting.ToString("N3", actor).ColourValue()}, which gives it a {(Weighting / parent.Features.Sum(x => x.Weighting)).ToString("P2", actor).ColourValue()} chance to be selected.");
-        throw new NotImplementedException();
-    }
+		Weighting = value;
+		actor.OutputHandler.Send(
+			$"This feature now has a relative weight of {Weighting.ToString("N3", actor).ColourValue()}, which gives it a {(Weighting / parent.Features.Sum(x => x.Weighting)).ToString("P2", actor).ColourValue()} chance to be selected.");
+		return true;
+	}
 
     private bool BuildingCommandName(ICharacter actor, TerrainFeatureGroup parent, StringStack command)
     {

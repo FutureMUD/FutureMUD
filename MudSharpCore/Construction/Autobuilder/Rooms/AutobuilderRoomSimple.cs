@@ -33,9 +33,9 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
     public ITerrain DefaultTerrain { get; protected set; }
     public IForagableProfile ForagableProfile { get; protected set; }
 
-    public AutobuilderRoomSimple(IFuturemud gameworld, string name) : base(gameworld, name)
-    {
-        ShowCommandByline = "A Terrain-Specific Room Template";
+	public AutobuilderRoomSimple(IFuturemud gameworld, string name) : base(gameworld, name)
+	{
+		ShowCommandByline = "A Simple Room Template";
         DefaultTerrain = gameworld.Terrains.First(x => x.DefaultTerrain);
         CellName = "An Undescribed Location";
         CellDescription = "This location does not have any description";
@@ -119,10 +119,10 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
         );
     }
 
-    public override IAutobuilderRoom Clone(string newName)
-    {
-        throw new NotImplementedException();
-    }
+	public override IAutobuilderRoom Clone(string newName)
+	{
+		return new AutobuilderRoomSimple(this, newName);
+	}
 
     public override ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         params string[] tags)
@@ -148,11 +148,11 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 	#3fp none#0 - removes a foragable profile
 	#3outdoors|cave|indoors|shelter#0 - sets the outdoor behaviour type";
 
-    public override string Show(ICharacter builder)
-    {
-        return
-            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\nThis template will create the same cell every time. This particular template creates cells with terrain type {DefaultTerrain.Name.Colour(Telnet.Green)}, outdoors type {OutdoorsType.Describe().Colour(Telnet.Green)} and Ambient Light Factor {AmbientLightFactor:N3}. {(ForagableProfile == null ? "It does not have a foragable profile set." : $"It will use the {ForagableProfile.Name.Colour(Telnet.Green)} foragable profile.")}\n\nCell Name: {CellName}\nCell Description:\n\n{CellDescription.Wrap(builder.InnerLineFormatLength, "\t")}";
-    }
+	public override string Show(ICharacter builder)
+	{
+		return
+			$"{$"Autobuilder Room Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\nThis template will create the same cell every time. This particular template creates cells with terrain type {DefaultTerrain.Name.Colour(Telnet.Green)}, outdoors type {OutdoorsType.Describe().Colour(Telnet.Green)} and Ambient Light Factor {AmbientLightFactor:N3}. {(ForagableProfile == null ? "It does not have a foragable profile set." : $"It will use the {ForagableProfile.Name.Colour(Telnet.Green)} foragable profile.")}\n\nCell Name: {CellName}\nCell Description:\n\n{CellDescription.Wrap(builder.InnerLineFormatLength, "\t")}";
+	}
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {

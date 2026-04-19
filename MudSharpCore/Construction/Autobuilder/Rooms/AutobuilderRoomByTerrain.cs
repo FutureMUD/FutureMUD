@@ -566,11 +566,12 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
                                      TerrainInfos[terrain].CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
         }
 
-        actor.OutputHandler.Send(
-            "Enter the description in the editor below. Use $terrain to substitute the terrain name.");
-        actor.EditorMode(PostDefaultTerrainDescription, CancelDefaultTerrainDescription, 1.0);
-        return true;
-    }
+		actor.OutputHandler.Send(
+			"Enter the description in the editor below. Use $terrain to substitute the terrain name.");
+		actor.EditorMode(PostDefaultTerrainDescription, CancelDefaultTerrainDescription, 1.0,
+			suppliedArguments: [terrain]);
+		return true;
+	}
 
     private void CancelDefaultTerrainDescription(IOutputHandler arg1, object[] arg2)
     {

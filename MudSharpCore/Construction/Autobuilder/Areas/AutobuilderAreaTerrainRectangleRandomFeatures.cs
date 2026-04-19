@@ -223,12 +223,17 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
         builder.OutputHandler.Send($"Applied {count.ToString("N0", builder).ColourValue()} features in total.");
 #endif
 
-        builder.OutputHandler.PrioritySend("Describing the cells...");
-        foreach (ICell cell in cells)
-        {
-            (x, y) = lookup[cell];
-            roomTemplate.RedescribeRoom(cell, features[x, y].ToArray());
-        }
+		builder.OutputHandler.PrioritySend("Describing the cells...");
+		foreach (ICell cell in cells)
+		{
+			if (cell == null)
+			{
+				continue;
+			}
+
+			(x, y) = lookup[cell];
+			roomTemplate.RedescribeRoom(cell, features[x, y].ToArray());
+		}
 
         return cells.OfType<ICell>().ToList();
     }
@@ -302,8 +307,14 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
             return true;
         }
 
-        return group.BuildingCommand(actor, this, command);
-    }
+		if (group.BuildingCommand(actor, this, command))
+		{
+			Changed = true;
+			return true;
+		}
+
+		return false;
+	}
 
     private bool BuildingCommandGroupRemove(ICharacter actor, StringStack command)
     {

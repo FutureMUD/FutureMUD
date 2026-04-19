@@ -76,12 +76,13 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
 
     public IEnumerable<ITerrain> Terrains => Features.SelectMany(x => x.Terrains).Distinct();
 
-    protected bool AppliesToCell(ICell cell)
-    {
-        return
-            Features.Any() &&
-            (!Terrains.Any() || Terrains.Contains(cell.CurrentOverlay?.Terrain));
-    }
+	protected bool AppliesToCell(ICell cell)
+	{
+		return
+			cell != null &&
+			Features.Any() &&
+			(!Terrains.Any() || Terrains.Contains(cell.CurrentOverlay?.Terrain));
+	}
 
     public override void ApplyTerrainFeatures(ICell[,] cellMap, List<string>[,] featureMap)
     {
@@ -89,8 +90,8 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
         int height = cellMap.GetLength(1);
         List<ICell> cells = cellMap.Cast<ICell>().WhereNotNull(x => x).Where(AppliesToCell).ToList();
 
-        int howMany = (int)Math.Round(RandomUtilities.DoubleRandom(MinimumFeatureDensity, MaximumFeatureDensity) *
-                                      height * width);
+		int howMany = (int)Math.Round(RandomUtilities.DoubleRandom(MinimumFeatureDensity, MaximumFeatureDensity) *
+		                              cells.Count);
         Counter<string> counter = new(StringComparer.InvariantCultureIgnoreCase);
         Counter<ICell> groupCounter = new();
         List<Feature> featuresInConsideration = Features.ToList();
@@ -112,12 +113,15 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
                 }
             }
 
-            List<ICell> validCells = cells.Where(x => feature.CanApply(x)).ToList();
-            if (!validCells.Any(x => groupCounter.Count(x) < MaximumFeaturesPerRoom))
-            {
-                featuresInConsideration.Remove(feature);
-                continue;
-            }
+			List<ICell> validCells = cells
+				.Where(x => feature.CanApply(x))
+				.Where(x => groupCounter.Count(x) < MaximumFeaturesPerRoom)
+				.ToList();
+			if (!validCells.Any())
+			{
+				featuresInConsideration.Remove(feature);
+				continue;
+			}
 
             ICell cell = validCells.GetRandomElement();
             (int X, int Y) = cellMap.GetCoordsOfElement(cell);
@@ -137,11 +141,14 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
             int target = feature.MinimumCount - counter.Count(feature.Name);
             while (target > 0)
             {
-                List<ICell> validCells = cells.Where(x => feature.CanApply(x)).ToList();
-                if (!validCells.Any(x => groupCounter.Count(x) > MaximumFeaturesPerRoom))
-                {
-                    break;
-                }
+				List<ICell> validCells = cells
+					.Where(x => feature.CanApply(x))
+					.Where(x => groupCounter.Count(x) < MaximumFeaturesPerRoom)
+					.ToList();
+				if (!validCells.Any())
+				{
+					break;
+				}
 
                 ICell cell = validCells.GetRandomElement();
                 (int X, int Y) = cellMap.GetCoordsOfElement(cell);
@@ -156,7 +163,7 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
     public override string Show(ICharacter builder)
     {
         StringBuilder sb = new();
-        sb.AppendLine($"Uniform Feature Group - {Name.ColourName()}");
+		sb.AppendLine($"Simple Feature Group - {Name.ColourName()}");
         sb.AppendLine();
         sb.AppendLine(
             $"This feature group will apply a random spattering of its features across the whole area based on a range of feature densities (i.e. average number of features from this group per room)."
@@ -332,10 +339,10 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
             return false;
         }
 
-        if (int.TryParse(command.SafeRemainingArgument, out int value) || value < 1)
-        {
-            actor.OutputHandler.Send("You must enter a valid number.");
-            return false;
+		if (!int.TryParse(command.SafeRemainingArgument, out int value) || value < 1)
+		{
+			actor.OutputHandler.Send("You must enter a valid number.");
+			return false;
         }
 
         MaximumFeaturesPerRoom = value;
@@ -366,10 +373,10 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
             return false;
         }
 
-        if (!double.TryParse(command.PopSpeech(), out double max) || min < 0.0)
-        {
-            actor.OutputHandler.Send($"You must enter a valid number for the maximum density.");
-            return false;
+		if (!double.TryParse(command.PopSpeech(), out double max) || max < 0.0)
+		{
+			actor.OutputHandler.Send($"You must enter a valid number for the maximum density.");
+			return false;
         }
 
         if (min > max)

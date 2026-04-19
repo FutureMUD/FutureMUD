@@ -97,14 +97,24 @@ public class RoadFeatureGroup : TerrainFeatureGroup
         int width = cellMap.GetLength(0);
         int height = cellMap.GetLength(1);
 
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                ICell cell = cellMap[x, y];
-                List<CardinalDirection> list = new();
-                int count = cellMap.ApplyFunctionToAdjacentsReturnCountWithDirection(x, y, (adj, dir) =>
-                {
+		for (int x = 0; x < width; x++)
+		{
+			for (int y = 0; y < height; y++)
+			{
+				ICell cell = cellMap[x, y];
+				if (cell == null)
+				{
+					continue;
+				}
+
+				if (Terrains.Any() && !Terrains.Contains(cell.Terrain(null)))
+				{
+					continue;
+				}
+
+				List<CardinalDirection> list = new();
+				int count = cellMap.ApplyFunctionToAdjacentsReturnCountWithDirection(x, y, (adj, dir) =>
+				{
                     if (adj == null)
                     {
                         return false;
@@ -217,7 +227,7 @@ public class RoadFeatureGroup : TerrainFeatureGroup
                 return BuildingCommandTerrains(actor, command);
         }
 
-        actor.OutputHandler.Send(@"You can use the following options with this command:
+		actor.OutputHandler.Send(@"You can use the following options with this command:
 
 	name <name> - renames this feature group
 	base <tag> - sets the base tag that applies to all matched rooms
@@ -227,9 +237,9 @@ public class RoadFeatureGroup : TerrainFeatureGroup
 	bend <tag> - the tag that applies when there are 2 adjacent matching rooms not in a straight line
 	tee <tag> - the tag that applies when there are 3 adjacent matching rooms
 	crossroads <tag> - the tag that applies when there are 4+ adjacent matching rooms
-	terrain <terrains...> - toggles a list of terrain for this group to apply to+");
-        return false;
-    }
+	terrain <terrains...> - toggles a list of terrain for this group to apply to");
+		return false;
+	}
 
     private bool BuildingCommandCrossroads(ICharacter actor, StringStack command)
     {

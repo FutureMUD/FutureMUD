@@ -1,0 +1,849 @@
+#76000
+Murk Eyebrowless short man CULT_OF_MORGOTH_GAOLER~
+a short, eyebrowless man~
+A short man stands here, with no eyebrows.~
+   This is a short, stubby man, who's head seems to be completely 
+bereft of hair - with not a whisker on his chin, a completely 
+bald head and no eyebrows. Nature seems to have decided to 
+balance this out by heaping hair on the rest of his body, from 
+the backs of his knuckles to the nape of his neck. He is nothing 
+much to look at, and seems to have a permanent frown, but it is, 
+after all, hard to tell without the eyebrows. 
+~
+10 0 20 94 0 5d1+102 1d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 65 5 0 0
+16 16 16 1 16 16 95 16
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 95 95
+0 0 95 0 0 0 95 30 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 30
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 40 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'recruit' com~
+0 0 0
+#76001
+Mardan well-muscled ebon-maned stallion UNIQUE_NARODAR~
+a well-muscled, ebon-maned stallion~
+A well-muscled, ebon-maned stallion stands imposingly here.~
+   A thick, well-groomed mane of ebon black runs the length of 
+this large beast's neck. A volume of sinuous, bulky muscle 
+layers this warhorse's form giving it a stalwart and bulky 
+appearance. Two spider black eyes peer from within deep-set 
+sockets and thin tendrils of roguish, sable mane flick before it 
+as it moves with a powerful, regal grace. Yellowed teeth champ 
+usually from within this creature's grim mouth, broad nostrils 
+sat not far away and broad hooves crowned with tufts of wispy 
+hair carry it onward in its broad pace. 
+~
+134479882 0 25 61 1 5d1+130 1d5+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+20 3 24 1 16 23 77 16
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#76035
+hearse bronze-clad ornate long flat carriage~
+an ornate, bronze-clad hearse~
+A long, flat carriage, clad with ornate bronze sidings, is here.~
+   This carriage, constructed of an solid cherry wood, is roughly 
+rectangular in shape, having a fairly low, flat root - too low 
+for a person to sit up in. It is also somewhat longer than a 
+normal carriage, and along the roof there are many small bronze 
+holdings for candles. In fact, the carriage is clad with bronze 
+sidings, arranged in quite ornate and fanciful patterns. The 
+carriage has two large wagon wheels, and a long stock designed to 
+be attached to some kind of draft animal. 
+~
+278538 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'corporal' bloodhood 'member' com~
+0 0 0
+#76002
+shopkeep cult_of_morgoth_npc~
+the Cult of Morgoth Militia Store~
+#BYou may purchase Cult of Morgoth NPCs here. Type LIST.#0~
+(null)~
+10 0 4 3 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+1 2
+0 76039 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76003
+nulu-nalo shaggy black-furred puppy~
+a shaggy, black-furred puppy~
+A shaggy, black-furred puppy stands here.~
+   This young dog is already quite large for its kind and covered 
+entirely in thick, bristly black fur-- save for where a hairless 
+gash crosses his long, wolfish muzzle. Large, triangular ears 
+cock up from his sloped skull, coming to sharp, slightly tufted, 
+points and the puppy's eyes seem savagely intelligent, a still 
+bright blue in color. His chest is barreled and bulky, covered 
+in thick, shaggy black fur, and his long legs are roped around 
+with muscle, leading down to large, splayed paws that appear much 
+too big for the rest of him. Already, thick muscle layers his 
+hindquarters and haunches, ended by a thickly-furred, but short, 
+pitch-black tail. 
+~
+10 0 4 40 0 5d1+30 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' sak_manor 'member' mordor_char~
+0 0 0
+#76004
+master wirepuller ITHILIEN_BASES~
+a master wirepuller for Ithilien bases~
+A master wirepuller for Ithilien bases is present.~
+No owner
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76005
+slave wirepuller QUARRY room76294 ITHILIEN_BASES~
+a wirepuller for the Quarry base~
+A slave wirepuller is here, designated for the Quarry base.~
+#6Quarry...................76294 :#0
+~
+2097194 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 100 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mm_citizens 'member' amdir_settler 'member' eastvanguard 'member' caolafon-citizen~
+0 0 0
+#76006
+slave wirepuller TREEHOUSE room76486 ITHILIEN_BASES~
+a wirepuller for the Treehouse base~
+A slave wirepuller is here, designated for the Treehouse base.~
+#6Treehouse................76044 :#0
+~
+2097194 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 100 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' caolafon-citizen 'member' eastvanguard 'member' amdir_settler 'member' mt_citizens~
+0 0 0
+#76007
+slave wirepuller TOWER_ONE room76233 ITHILIEN_BASES~
+a wirepuller for the Tower_One base~
+A slave wirepuller is here, designated for the Tower_One base.~
+#6Tower 1..................76520 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76008
+slave wirepuller TOWER_TWO room76278 ITHILIEN_BASES~
+a wirepuller for the Tower_Two base~
+A slave wirepuller is here, designated for the Tower_Two base.~
+#6Tower 2..................76506 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76009
+slave wirepuller RIVER_TREEHOUSE_ONE room76304 ITHILIEN_BASES~
+a wirepuller for the River_Treehouse_One base~
+A slave wirepuller is here, designated for the River_Treehouse_One base.~
+#6Treehouse over river.....76042 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76010
+slave wirepuller MANSE room76200 ITHILIEN_BASES~
+a wirepuller for the Manse base~
+A slave wirepuller is here, designated for the Manse base.~
+#6Manse....................76046 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76011
+slave wirepuller COTTAGE room12042 ITHILIEN_BASES~
+a wirepuller for the Cottage base~
+A slave wirepuller is here, designated for the Cottage base.~
+#6Cottage..................12161 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76012
+slave wirepulled BARN room12062 ITHILIEN_BASES~
+a wirepuller for the Barn base~
+A slave wirepuller is here, designated for the Barn base.~
+#6Barn.....................12162 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76013
+slave wirepuller CAVE_SYSTEM room76291 ITHILIEN_BASES~
+a wirepuller for the Cave System base~
+A slave wirepuller is here, designated for the Cave System base.~
+#6Cave System..............76713 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76014
+slave wirepuller ROPE_BRIDGE room51818 ITHILIEN_BASES~
+a wirepuller for the Rope Bridge base~
+A slave wirepuller is here, designated for the Rope Bridge base.~
+#6Rope Bridge..............52000 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76015
+slave wirepuller HENNETH_ANNUN room51774 ITHILIEN_BASES~
+a wirepuller for the Henneth Annun base~
+A slave wirepuller is here, designated for the Henneth Annun base.~
+(null)~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76016
+slave wirepuller ABANDONED_VILLAGE room51828 ITHILIEN_BASES~
+a wirepuller for the Abandoned Village base~
+A slave wirepuller is here, designated for the Abandoned Village base.~
+#6Abandoned Village........54714 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76017
+slave wirepuller LOG_CABIN room51689 ITHILIEN_BASES~
+a wirepuller for the Log Cabin base~
+A slave wirepuller is here, designated for the Log Cabin base.~
+#6Log Cabin................54708 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76018
+slave wirepuller STONE_BRIDGE_FORT room51506 ITHILIEN_BASES~
+a wirepuller for the Stone Bridge Fort base~
+A slave wirepuller is here, designated for the Stone Bridge Fort base.~
+#6Stone bridge fort........76080 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76019
+slave wirepuller LOG_BRIDGE room51561 ITHILIEN_BASES~
+a wirepuller for the Log Bridge base~
+A slave wirepuller is here, designated for the Log Bridge base.~
+#6Old shack................76096 :#0
+~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76020
+slave wirepuller RIVER_TREEHOUSE_TWO room51514 ITHILIEN_BASES~
+a wirepuller for the River Treehouse Two base~
+A slave wirepuller is here, designated for the River Treehouse Two base.~
+#6Treehouse over river II..76541 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76021
+slave wirepuller HILL_GIANT_CAVE room51469 ITHILIEN_BASES~
+a wirepuller for the Hill Giant Cave base~
+A slave wirepuller is here, designated for the Hill Giant Cave base.~
+#6Hill Giant cave...........4670 :#0
+~
+10 2 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76022
+slave wirepuller CAVE_OVER_ROAD room51599 ITHILIEN_BASES~
+a wirepuller for the Cave over Road base~
+A slave wirepuller is here, designated for the Cave over Road base.~
+#6Cave overlooking road....76062 :#0
+~
+2097194 6 8 29 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 100 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#76023
+slave wirepuller CAVERNS room51502 ITHILIEN_BASES~
+a wirepuller for the Caverns base~
+A slave wirepuller is here, designated for the Caverns base.~
+#6Caves....................76057 :#0
+~
+2097194 6 8 29 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 100 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#76024
+slave wirepuller CRUMBLING_TOWER room12891 ITHILIEN_BASES~
+a wirepuller for the Crumbling Tower base~
+A slave wirepuller is here, designated for the Crumbling Tower base.~
+#6Crumbling Tower...........4677 :#0
+~
+2097194 4 8 29 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' uruk-hai 'member' mordor_char~
+0 0 0
+#76025
+visibility checker byCeredir~
+a visibility checker~
+A visibility checker is here, ready to check if rooms are lit and people visible.~
+(null)~
+10 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76026
+Hidden flag checker OOCHiddenFlagChecker byCeredir~
+a small hidden checking mob~
+A small checker for Hidde flag is here.~
+(null)~
+10 4 8 29 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76027
+BOLIAS wrinkled old gardener brown eyes By_Vaire HoM-Gardener~
+a short, wrinkled old gardener~
+A short, wrinkled old gardener stands here.~
+A short, wrinkled old man has his hair cut short and is groomed neatly.
+His grey hair seems distinguished and he has dark brown eyes. His
+skin is leathery and sags lightly upon his face, which features a set
+of thick, bushy eyebrows which rest above his eyes. His nose, small
+and puglike, certainly don't lend him a quality of handsomeness. And
+his fingers are old and gnarled, fingernails chipped and occassionally
+for those paying attention, a few scars which glint in the light of
+the sun can be spotted upon his face and even arms when he has his
+sleeves rolled up.
+~
+10 0 8 0 0 5d1+105 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+15 14 14 1 19 17 81 17
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 65 65 0 0 0 0
+45 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 30 0 0 0 0
+0 0 0 0 56 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#76535
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+$~

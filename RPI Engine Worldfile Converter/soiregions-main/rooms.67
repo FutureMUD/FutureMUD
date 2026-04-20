@@ -1,0 +1,4748 @@
+#67000
+Base Room for New Morgul~
+   New Morgul is now the sole province of the Uruk-Hai, with the 
+addition of a small trading depot that acts as a drop-off point 
+for the Numenorean estates of Nurn deeper within Mordor. There 
+is little point in being here for PCs, save to buy factory 
+produce made for the Uruk-Hai warhorde, or make deliveries - 
+also, a few of the harder things to find that make no sense to be 
+available in a settlement as poor as Tur Edendor will be here, 
+namely gems, and perfumery. 
+~
+67 -1073676288 0
+0
+S
+#67001
+Bank of the Morgulduin in the Morgul Vale~
+   Rank and smelling strongly of sulphur, the River Morgulduin 
+flows at the base of the sheer mountains which form the south 
+wall of the Morgul Vale. The river here seems fetid and 
+unwholesome, but smaller streams and rivulets join it as it flows 
+west, making it increasingly pure as it flows further from Minas 
+Morgul. The land near the river seems to have benefited little 
+from its moisture, and remains barren, rocky, and near-lifeless. 
+   The river flows from the Morgul Vale into the lands of 
+Ithilien to the west. 
+~
+67 33619972 8
+0
+D0
+~
+~
+0 -1  0 67004
+D1
+~
+~
+0 -1  0 67002
+D3
+~
+~
+0 -1  0 67010
+S
+#67002
+Bank of the Morgulduin in the Morgul Vale~
+   The deep and sulphur scented waters of the River Morgulduin 
+flow westward, emerging through a large metallic grate set 
+beneath a bridge just to the east. The river seems fetid and 
+unwholesome, but smaller springs and rivulets join it as it flows 
+to the west, rendering it more clean the further it flows from 
+Minas Morgul. The river flows right at the base of towering 
+basalt and obsidian cliffs which border the south side of the 
+Morgul Vale. 
+~
+67 1107361796 3
+0
+D0
+~
+~
+0 -1  0 67005
+D3
+~
+~
+0 -1  0 67001
+S
+#67003
+Lond Nirnaeth in the Morgul Vale~
+   The once great road known among the men of Gondor as Lond 
+Nirnaeth travels to the east and southwest, traveling up the 
+middle of the narrow canyon known as the Morgul Vale. Only the 
+most hearty and stubborn briars and thorned bushes cling to life 
+in the near lifeless soil. The vale is bounded to the north and 
+south by the steep and foreboding mountain walls of the Ephel 
+Duath, the border mountains which surround Mordor. 
+   The claw-like top of a dark tower can be seen quite some 
+distance to the southeast. 
+~
+67 327684 3
+0
+D0
+~
+~
+0 -1  0 67008
+D1
+~
+~
+0 -1  0 67004
+D2
+~
+~
+0 -1  0 67010
+S
+#67004
+Lond Nirnaeth in the Morgul Vale~
+   Rutted and filled with potholes, the road once known as Lond 
+Nirnaeth travels east to west down the middle of the Morgul Vale. 
+The vale, a long valley which pierces through the border 
+mountains which protect the west edge of Mordor, narrows to the 
+east. Tall sheer faced cliffs almost seem to lean in over the 
+vale to the north and south. The air seems to never quite be 
+still, and the occasional scent of sulphur can be discerned on a 
+stray breeze. 
+~
+67 327684 3
+0
+D0
+~
+~
+0 -1  0 67007
+D1
+~
+~
+0 -1  0 67005
+D2
+~
+~
+0 -1  0 67001
+D3
+~
+~
+0 -1  0 67003
+S
+#67005
+Lond Nirnaeth in the Morgul Vale~
+   Rutted, cracked and full of potholes, the once proud roadway 
+crawls east and west across the barren landscape of the Morgul 
+Vale. The vale itself narrows to the east, funneled by the near 
+vertical peaks that make up Ephel Duath, the barrier mountains 
+that surround Mordor. Stubborn shrubs and thorny bushes fight 
+for life in the unforgiving soil and dry air. 
+   A tall, ominous tower can be seen to the southeast, where it 
+rises visibly between the mountain peaks. 
+~
+67 1074069508 3
+0
+D0
+~
+~
+0 -1  0 67006
+D1
+~
+~
+0 -1  0 67011
+D2
+~
+~
+0 -1  0 67002
+D3
+~
+~
+0 -1  0 67004
+S
+#67006
+Morgul Vale at a Cliff Face~
+   A steep cliff-face of black basalt and obsidian seems to lean 
+over the floor of the Morgul Vale. Rising thousands of feet from 
+the valley floor, the border mountains create a nearly impassable 
+barrier protecting the west flank of Mordor. Only Morgul Vale 
+provides ready access through this obstacle. Almost unnatural in 
+appearance, nothing living clings to the impossibly steep rock 
+face. A few streams of smoke or steam escape from cracks or 
+vents high above. The air seems to constantly move, and the 
+occasional whiff of sulphur is carried on the breeze. 
+~
+67 33619972 3
+0
+D2
+~
+~
+0 -1  0 67005
+D3
+~
+~
+0 -1  0 67007
+S
+#67007
+Morgul Vale at a Cliff Face~
+   A steep cliff-face of black basalt and obsidian seems to lean 
+over the floor of the Morgul Vale. Rising thousands of feet from 
+the valley floor, the border mountains create a nearly impassable 
+barrier protecting the west flank of Mordor. Only Morgul Vale 
+provides ready access through this obstacle. Almost unnatural in 
+appearance, nothing living clings to the impossibly steep rock 
+face. A few streams of smoke or steam escape from cracks or 
+vents high above. The air seems to constantly move, and the 
+occasional whiff of sulphur is carried on the breeze. 
+~
+67 33619972 3
+0
+D1
+~
+~
+0 -1  0 67006
+D2
+~
+~
+0 -1  0 67004
+D3
+~
+~
+0 -1  0 67008
+S
+#67008
+Morgul Vale at a Cliff Face~
+   A steep cliff-face of black basalt and obsidian seems to lean 
+over the floor of the Morgul Vale. Rising thousands of feet from 
+the valley floor, the border mountains create a nearly impassable 
+barrier protecting the west flank of Mordor. Only Morgul Vale 
+provides ready access through this obstacle. Almost unnatural in 
+appearance, nothing living clings to the impossibly steep rock 
+face. A few streams of smoke or steam escape from cracks or 
+vents high above. The air seems to constantly move, and the 
+occasional whiff of sulphur is carried on the breeze. 
+   The mountains angle toward the southwest, where the mouth of 
+the Vale lies. 
+~
+67 33619972 3
+0
+D1
+~
+~
+0 -1  0 67007
+D2
+~
+~
+0 -1  0 67003
+S
+#67009
+Morgul Road Curving West and North~
+   Morgul Road cuts a swath through the otherwise inpenetrable 
+Mountains of Shadow, curving to the west and north as it follows 
+the valley. The road is unpaved, its dry and dusty surface 
+appearing to have been stamped flat by the countless number of 
+feet journeying upon it over the centuries. Sloping down to the 
+northwest are the banks of the River Morgulduin, behind which 
+loom great black mountain faces as well as to the south. 
+~
+67 327680 3
+0
+S
+#67010
+Lond Nirnaeth Entering the Morgul Vale~
+   The cracked and weed covered road once known as Lond Nirnaeth 
+travels northeast up the narrowing valley of the Morgul Vale. 
+The vale itself is a dry and desolate place, with barren and 
+rocky soil in which only the most hearty plants can grow. Both 
+the road and its surroundings seem to worsen further east, while 
+to the west the land crosses dry plains and eventually opens up 
+onto the more fertile countryside of the Ithilien. 
+   To the south, the waters of the Morgulduin flow past on their 
+journey out of the mouth of the Vale. 
+~
+67 327684 3
+0
+D0
+~
+~
+0 -1  0 67003
+D1
+~
+~
+0 -1  0 67001
+D3
+~
+~
+0 -1  0 4130
+S
+#67011
+A Shadowy Intersection Before a Bridge~
+   This poorly-maintained road, once known as Lond Nirnaeth to 
+the men of Gondor, finally comes to an end here here as it 
+crosses a stone bridge before the gates of Minas Morgul to the 
+south. The sickly waters of the River Morgulduin rush by from 
+the northeast to the west, passing under the bridge. To the 
+north, a deep and narrow ravine cuts into the heart of the 
+sheer-faced mountains. 
+~
+67 327680 3
+0
+D0
+~
+~
+0 -1  0 9219
+D2
+~
+~
+0 -1  0 67012
+D3
+~
+~
+0 -1  0 67005
+S
+#67012
+Upon a Wide, Stone Bridge~
+   Over the pale, yellow-green waters of the River Morgulduin 
+this wide bridge spans. It arches very slightly, and is pieced 
+together of relatively smooth stone. The stones, once a light 
+grey hue, are now dirtied with blotches of brown and black over 
+the surface. Immediately to the south rise the malefic, spired 
+gates that guard the main entrance into the city of Minas Morgul, 
+while to the north lies a barren valley cutting through the 
+mountains. 
+~
+67 134545412 2
+0
+D0
+~
+~
+0 -1  0 67011
+D2
+~
+~
+0 -1  0 67013
+S
+#67013
+Before the Great Gates of Minas Morgul~
+   The great barbican and gates of Minas Morgul rise up sharply 
+to the south, stretching across a break in the mountains. 
+Figures can be seen moving amongst the shadowed turrets as they 
+keep watch over a bridge to the north and a winding path to the 
+south. The path leads down towards city itself, which rises up 
+behind massive basalt walls, its great central spire a mockery of 
+the shining white tower of Minas Tirith. 
+   Mounted on either side of the gates here are a pair of 
+ancient, stone statues that have long since been defaced and 
+broken. The chiseled faces have been deformed past recognition, 
+and the once-white stone pitted and stained to a mottled grey 
+hue. 
+~
+67 134545412 2
+0
+D0
+~
+~
+0 -1  0 67012
+D1
+~
+~
+0 -1  0 67020
+D2
+~
+gate~
+1 6909  100 67014
+S
+#67014
+Inside a Solid Gatehouse~
+   Immense, roughly-hewn stones of blackened granite are layered 
+upon each other to form the walls of this keep that guard 
+entrance to the city of Minas Morgul. Arrow-slits are spaced out 
+along the northern wall on either side of the gate, looking out 
+onto the valley outside. The gate itself is thickly fortified, 
+and barred with a heavy slat of iron. To the south, a hardwood 
+door leads out of the gatehouse and deeper into the territory of 
+the Witchking. 
+~
+67 1275133980 0
+0
+D0
+~
+gate~
+1 6909  100 67013
+D2
+~
+door~
+1 6909  100 67015
+P
+test~
+(null)~
+info test room -1 obj ring oval0
+vstr Oval0 = &(test)
+setval room -1 obj ring oval0 1
+info test room -1 obj ring oval0
+vstr Oval0 = &(test)
+setval room -1 obj ring oval0 2
+info test room -1 obj ring oval0
+vstr Oval0 = &(test)
+setval room -1 obj ring oval0 3
+info test room -1 obj ring oval0
+vstr Oval0 = &(test)
+~
+S
+#67015
+A Narrow Path Before the Gatehouse~
+   A squat, stone building fills the northern pass, reinforcing a 
+set of spiring gates just beyond it. Leading off from the 
+gatehouse is a gravel-strewn pathway that makes an arduous climb 
+through the mountains. Far to the south, a tall, claw-topped 
+tower can be clearly distinguished amongst the pinnacles of the 
+Ephel Duath, giving off an eerie light that is visible even from 
+this distance. 
+~
+67 1074069520 3
+0
+D0
+~
+door~
+1 6909  100 67014
+D1
+~
+~
+0 -1  0 67016
+S
+#67016
+A Narrow, Winding Path Through the Mountains~
+   The sky above is visible only in patches between the peaks of 
+the Ephel Duath, as this narrow pathway winds its way up and down 
+through the bleak, mountainous terrain. An occasional patrol of 
+orcs or dark-skinned humans marches through, filling the area 
+with the echos of booted footsteps crunching upon gravel as they 
+travel between Morgul Vale and the city of Minas Morgul. 
+~
+67 1074069520 3
+0
+D2
+~
+~
+0 -1  0 67017
+D3
+~
+~
+0 -1  0 67015
+S
+#67017
+A Narrow Path North of the City~
+   A sheer face of black, volcanic rock hems this pass to the 
+north, while the city of Minas Morgul looms ominously to the 
+south. The trail, comprised of a layer of loosely shifting 
+gravel over hard-packed dirt, rounds a bend to the north and 
+another to the west as it takes the path of least resistance 
+through the saw-toothed mountains of the Ephel Duath. 
+~
+67 327696 3
+0
+D0
+~
+~
+0 -1  0 67016
+D2
+~
+~
+0 -1  0 67022
+S
+#67018
+Morgul Road Curving West and North~
+   Morgul Road cuts a swath through the otherwise inpenetrable 
+Mountains of Shadow, curving to the west and north as it follows 
+the valley. The road is unpaved, its dry and dusty surface 
+appearing to have been stamped flat by the countless number of 
+feet journeying upon it over the centuries. Sloping down to the 
+northwest are the banks of the River Morgulduin, behind which 
+loom great black mountain faces as well as to the south. 
+~
+67 327684 3
+0
+D2
+~
+~
+0 -1  0 67021
+D3
+~
+~
+0 -1  0 67020
+S
+#67019
+Morgul Vale Under the Shadow of Mountains~
+   The jagged, basaltic rock that forms the Ephel Duath is shorn 
+away here to create a flat cliff face that looms over Morgul 
+Vale. The valley's landscape is desolate and lifeless, comprised 
+only of a yellowish river to the north, a wide dirt road, and the 
+barren earth that lies at the foot of the mountains. Crumbling 
+boulders and bits of rock remain strewn about the ground, 
+providing small pockets of shelter but little else. 
+~
+67 33619972 3
+0
+D0
+~
+~
+0 -1  0 67020
+D1
+~
+~
+0 -1  0 67021
+S
+#67020
+An End of Morgul Road~
+   Here lies one end of a long trek through Morgul Vale, in the 
+form of a broad, hard-packed dirt road that snakes its way 
+through this valley between the towering cliffs of the Ephel 
+Duath. The foul waters of the River Morgulduin flow by to the 
+north, its banks dotted with deformed, pale white flowers that 
+give off a sickening odor. 
+   To the west, a long stone bridge crosses the river, while the 
+great gates of Minas Morgul itself stand between a gap in the 
+mountains on the southern side of the vale. 
+~
+67 327684 3
+0
+D1
+~
+~
+0 -1  0 67018
+D2
+~
+~
+0 -1  0 67019
+D3
+~
+~
+0 -1  0 67013
+S
+#67021
+Morgul Vale Under the Shadow of Mountains~
+   The jagged, basaltic rock that forms the Ephel Duath is shorn 
+away here to create a flat cliff face that looms over Morgul 
+Vale. The valley's landscape is desolate and lifeless, comprised 
+only of a yellowish river to the north, a wide dirt road, and the 
+barren earth that lies at the foot of the mountains. Crumbling 
+boulders and bits of rock remain strewn about the ground, 
+providing small pockets of shelter but little else. 
+~
+67 33619972 3
+0
+D0
+~
+~
+0 -1  0 67018
+D3
+~
+~
+0 -1  0 67019
+S
+#67022
+At the Northern Gates of Minas Morgul~
+   The gate is enormous. A kind of oily metal comprises its 
+bones, the bars twisting and arching about in some ancient 
+torment. A sculpture in the metal dominates the design, standing 
+a foot or so above man height, and covered in loose flowing 
+robes. The figure, seemingly reverent and pure, has been 
+defaced, broken and torn, his arm shattered. The statue's face 
+is so deformed that it looks as if he were stuck in an eternal 
+state of pained torment. The metal of the bars is set in the 
+dark stone, and the whole thing appears nigh impenetrable. 
+~
+67 1140916240 2
+0
+D0
+~
+~
+0 -1  0 67017
+D2
+~
+gate~
+1 6909  100 67023
+S
+#67023
+Under the Heavy, Black Gates of Minas Morgul~
+   Heavy reinforced arches of dark stone form a high, wide 
+ceiling above the passage through the gates into the vale of 
+Morgul. A thick, iron banded door leads west into a sort of 
+guard station bearing an archery slit in the wall for bows and 
+crossbows to be aimed into the courtyard. The path inside is 
+made of cool cobbled stone that is now mucked and covered with 
+dirt and mud in places from the passing of so many feet making 
+the passageway somewhat more slick and treacherous. A faint 
+layer of ash also covers the walls and open ground. 
+   To the south is another doorway which leads deeper into the 
+halls of Azun Keep, the Gate to Morgul. 
+~
+67 67174428 0
+0
+D0
+~
+gate~
+1 6909  100 67022
+D2
+~
+door~
+1 6909  100 67024
+S
+#67024
+The Great Hall of Azun Keep Near a Small Hardwood Door~
+   A small hardwood door directly to the north defends the 
+entrance into Azun Keep. In contrast with the heavy stone wall, 
+the door seems somewhat unremarkable, and prone to attack. To 
+the credit of the ancient architects who designed this fortress, 
+the path through the wall, on the other side of the door, 
+inclines at a downward angle, and then curves somewhat to the 
+south, creating a passage too twisted and impassable for any 
+conventional battering ram. Several round holes are scattered 
+throughout the door, allowing defenders to attack any enemies on 
+the other side with pikes. The rest of the Great Hall is 
+somewhat visible through the sooty haze to the south. 
+~
+67 1140916252 0
+0
+D0
+~
+door~
+1 6909  100 67023
+D1
+~
+~
+0 -1  0 67025
+D2
+~
+~
+0 -1  0 67028
+D3
+~
+~
+0 -1  0 67026
+S
+#67025
+The Great Hall of Azun Keep~
+   The thick grey stone wall of Azun Keep skirts the room here to 
+the east and to the north. It slants slightly inwards on the 
+north side of the Keep, following an ancient fortress design that 
+supposedly makes the wall near impregnable to heavy bombardment. 
+The walls, the floor, and the insides of the scattered arrow 
+slits, are covered with age-old mold and muck, leaving the entire 
+keep dark and grimy. 
+   A set of dank, stone stairs wind downward here, leading 
+underground beneath the gatekeep. 
+~
+67 67174424 0
+0
+D2
+~
+~
+0 -1  0 67029
+D3
+~
+~
+0 -1  0 67024
+D5
+~
+~
+0 -1  0 67053
+S
+#67026
+The Great Hall of Azun Keep~
+   The two enormous slabs of grey stone come together into a 
+sharp corner. The wall to the north is slightly tilted inwards 
+and sports a whole assortment of wedge-shaped arrow slits. The 
+walls are generally smooth to the touch, being covered by a layer 
+of ancient black mildew. The mildew is apparently extremely 
+toxic, as, in the corner, there are several rotting corpses of 
+very thin goblins with the black mildew growing around the mouth 
+area. 
+~
+67 1140916248 0
+0
+D1
+~
+~
+0 -1  0 67024
+D2
+~
+~
+0 -1  0 67027
+E
+corpses goblins mildew~
+The corpses of these goblins lie curled up on the floor next
+to the walls, below large patches of a thick black mildew.
+They are in various states of decay, some being little more
+than collections of bones picked clean, and others still
+bearing recognizable facial features. Among the least-decayed
+bodies, the gaunt faces are twisted into masks of agony, with
+a heavy black mildew growing around the mouths. Rat droppings
+litter the ground around and among the bodies, but the bodies
+themselves are strangely untouched, no bite-marks visible on
+the flesh stretched tight over their protruding bones.
+~
+E
+reformat~
+~
+E
+mildew~
+The mildew that covers these walls is very thick, the normally
+circular patches giving way to a clinging mass which blankets
+the walls, covering any gaps in the grey stone. It is black in
+colour, dark against the lighter-coloured stone walls, with the
+occasional small white splotches adding contrast. The air is
+thick where the mildew grows the most dense, a heavy, acrid
+stench assailing the nostrils.
+~
+E
+goblins~
+The corpses of these goblins lie curled up on the floor next
+to the walls, below large patches of a thick black mildew.
+They are in various states of decay, some being little more
+than collections of bones picked clean, and others still
+bearing recognizable facial features. Among the least-decayed
+bodies, the gaunt faces are twisted into masks of agony, with
+a heavy black mildew growing around the mouths. Rat droppings
+litter the ground around and among the bodies, but the bodies
+themselves are strangely untouched, no bite-marks visible on
+the flesh stretched tight over their protruding bones.
+~
+S
+#67027
+The Great Hall of Azun Keep~
+   The western wall of the Great Hall looms to the west. This 
+portion of the hall appears to have once been a makeshift mess 
+hall. Large pieces of stone and wood that once used to be tables 
+and benches, and are now too large to remove by means of either 
+of the two small doors, are scattered around the area. A small 
+fireplace has been built into the wall to the south. A clay pipe 
+with a large funnel hangs over the fireplace, sending the smoke 
+outside of the Great Hall. Directly west of the fireplace, there 
+hangs a tattered rag resembling a tapestry. 
+~
+67 1140916248 0
+0
+D0
+~
+~
+0 -1  0 67026
+D1
+~
+~
+0 -1  0 67028
+D2
+~
+~
+0 -1  0 67030
+E
+tapestry~
+A large woolen article that once used to be a tapestry hangs
+upon the wall.  While it used to cover most of this entire section
+of the wall, it appears that every so often, over the course of its
+multi-centennial life, someone walked by, and detached a piece from
+the bottom of the tapestry.  Currently, the only parts remaining
+are those that are just above a taller man's arm-reach.  Most of
+the colors have been faded, or eaten away by moths.  From a
+distance, one can merely see the resemblance of a yellow sun in
+the upper right hand corner.
+~
+S
+#67028
+The Center of the Great Hall~
+   The Great Hall of the Keep expands in all cardinal directions 
+here. To the north, a small reinforced hardwood door leads 
+outside of the fortifications of the keep, while at the end of 
+the hall to the south, a reinforced portcullis leads inside the 
+city. Several white marble columns carved in a classic style 
+reminiscent of that of the early Far Haradrim help support the 
+stone ceiling above. An unpleasant odor emanates from somewhere 
+to the southwest. 
+~
+67 67174424 0
+0
+D0
+~
+~
+0 -1  0 67024
+D1
+~
+~
+0 -1  0 67029
+D2
+~
+~
+0 -1  0 67031
+D3
+~
+~
+0 -1  0 67027
+S
+#67029
+The Great Hall of Azun Keep~
+   To the east, a heavy, grime-covered dark grey stone wall 
+provides the external support for Azun Keep. The wall has been 
+designed wide enough so as to be able to withstand the volleys of 
+some of the larger catapults; a large orc would be able to lie 
+down lengthwise into any of the wedge-shaped arrow slits 
+scattered at regular intervals along the massive stone structure. 
+The usual dirt-covered state of the Keep's hall is even thicker 
+here, the packed soil deliberately laid for this recently 
+converted section of the building. Under the careful scrutiny of 
+crest-helmed Black Watch and slit-visored Uruk-Hai training 
+between many different components of the Witchking's Horde takes 
+place, both spars and other training of the militant bent. 
+~
+67 1140916248 0
+0
+D0
+~
+~
+0 -1  0 67025
+D2
+~
+~
+0 -1  0 67032
+D3
+~
+~
+0 -1  0 67028
+S
+#67030
+The Great Hall of Azun Keep Near a Rough Stair~
+   The floor of the Great Hall here has been entirely hewn apart, 
+leaving a small, narrow, irregular staircase that leads down into 
+a dank cavern below. The wall is basically intact, but it is 
+visible where its foundations have been destroyed; the cavern 
+below cuts away to the south. The staircase is very slimy, and 
+most of the orcs and goblins that climb or descend it tend to use 
+their hands for support. 
+~
+67 1140916248 0
+0
+D0
+~
+~
+0 -1  0 67027
+D1
+~
+~
+0 -1  0 67031
+D5
+~
+~
+0 -1  0 67059
+S
+#67031
+The Great Hall of Azun~
+   Much stonework has gone into the creation of this great hall. 
+Several white pillars have been erected to support the huge stone 
+ceiling far above. A putrid smell floats in the air, and seems 
+to be drifting from the east. To the northeast is a spiral 
+staircase that leads upwards. To the west, a small hole in the 
+floor reveals a dangerous staircase lowering into a dark cavern. 
+   A large archway leads into the city to the south. 
+~
+67 67174424 0
+0
+D0
+~
+~
+0 -1  0 67028
+D1
+~
+~
+0 -1  0 67032
+D2
+~
+portcullis~
+1 6909  100 67033
+D3
+~
+~
+0 -1  0 67030
+S
+#67032
+The Great Hall of Azun Keep near a Spiral Stair~
+   The large grey walls come together from the east and south 
+into a lighter-colored, worn cornerstone. The entire corner is 
+particularly putrid and unsanitary, as a large pile of garbage 
+and refuse has been mashed beneath a narrow, rusted-iron, spiral 
+staircase. A thick cloud of large, wicked flies circles around 
+the staircase, ready to defend its prize against any competition. 
+Occasionally, some starved goblin or orc would attempt to catch 
+some flies to supplement his or her supper. 
+~
+67 67174424 0
+0
+D0
+~
+~
+0 -1  0 67029
+D3
+~
+~
+0 -1  0 67031
+D4
+~
+~
+0 -1  0 67055
+E
+refuse garbage flies~
+This rickety-looking staircase rises up from the bare floor, its
+rusted iron struts bent slightly. A thin handrail follows the
+staircase from bottom to top on each side, the wrought-iron
+lacking any sort of ornamentation, save only for the occasional
+large dent or scratch. The stairs themselves are wide enough for
+only two humans to walk abreast, and even then only if they are
+of slight built. In sharp contrast to the dark-red rust which
+coats the railings and supports along the sides of the staircase,
+the stairs themselves are smooth and shiny, a testament to
+heavy and frequent use.
+~
+E
+staircase~
+This rickety-looking staircase rises up from the bare floor, its rusted iron str
+uts bent slightly. A thin handrail follows the staircase from bottom to top on e
+ach side, the wrought-iron lacking any sort of ornamentation, save only for the 
+occasional large dent or scratch. The stairs themselves are wide enough for only
+ two humans to walk abreast, and even then only if they are of slight build. In 
+sharp contrast to the dark-red rust which coats the railings and supports along 
+the sides of the staircase, the stairs themselves are smooth and shiny, a testam
+ent to heavy and frequent use.
+~
+S
+#67033
+A Fortified Archway Between Minas Morgul and the Black Gates of Azun~
+   A solid, black stone archway looms overhead at a height great 
+enough for the tallest of trolls to pass through. A series of 
+stairs leads north, deeper into the gate fortress while a simple, 
+unadorned door lies to the west. A heavy iron gate bars further 
+passage south of here, clearly meant to keep those who do not 
+belong inside out. Faces carved from beautiful white stone are 
+now stained black from soot as numerous torch holders have been 
+erected here in order to keep this part of the fortress lit at 
+all times of the day. 
+~
+67 1140916248 0
+0
+D0
+~
+portcullis~
+1 6909  100 67031
+D2
+~
+gates~
+1 6909  100 67034
+E
+heads faces stone~
+Many of these faces bear likeness to benevolent or stern old men, their countena
+nces dignified yet somewhat sad. They are carved from a beautiful white stone, w
+hich provides sharp contrast to the black soot which stains all but a few small 
+portions of any given face, a result of the many torches which have been install
+ed on the wall among them. The faces are marred by more than just soot; many hav
+e had their noses broken off, their chins chipped away, and bear many deep cuts 
+and scratches on the white stone, a testament to the destructiveness of the orc-
+kind which pass by them daily.
+~
+S
+#67034
+Morgul Tower Road Before a Large Fortress~
+   The stone-cobbled path comes to an abrupt halt here at a pair 
+of arching iron gates set deeply into the dark granite of a large 
+fortress. Two oversized braziers hang from the walls, lit with 
+an intense flame at all times of the day and lighting the stairs 
+leading up into the stronghold. Heavily-armoured blocks of 
+Uruk-Hai march north and south along the street at all times 
+during both day and night, occasionally leading a line of 
+shackled goblin slaves before them. 
+~
+67 1275396116 1
+0
+D0
+~
+gates~
+1 6909  100 67033
+D2
+~
+~
+0 -1  0 67035
+E
+braziers~
+These oversized braziers hang from thick iron chains which strain against hooks 
+mounted high up on the walls. A layer of rust is faintly visible on the chains, 
+otherwise buried under a thick covering of black soot. The braziers themselves l
+ook to have been cast from thick bronze, the metal glinting very slightly in the
+ light they cast over the area. These braziers are lit at all times, their flame
+s large and bright, casting shadows against the walls as various orc and human-k
+ind move up the stairs toward the stronghold.
+~
+S
+#67035
+At the Gates of the Traveler Quarter~
+   A pair of tall, weathered gates stand to the west, looking 
+somewhat damaged and slightly charred, leading in to the Traveler 
+Quarter. Lashed to the farmost northern end of the gate is a 
+massive ivorty tusk that curves outward to cast a shadow upon the 
+stone cobbled path that runs north and south in front of the 
+gates. On the eastern side of the street is a squat, stone 
+building from which emanate all sorts of loud barking. 
+~
+67 1141178384 1
+0
+D0
+~
+~
+0 -1  0 67034
+D1
+~
+door~
+1 -1  0 67105
+D2
+~
+~
+0 -1  0 67036
+D3
+~
+gate~
+1 -1  0 67091
+E
+tusks gate~
+This tusk is massive, extending fully the wide of both gates. It is lashed to th
+e farmost end of each gate with wide, thick strips of black-dyed leather, which 
+wrap many times around the tusk and thread through the iron bars of each gate. T
+he tusk itself is whiteish-yellow in colour, and though mostly smooth, bears man
+y small nicks and fine, hairline cracks, some of which may be traced its full le
+ngth. It curves very slightly the entire length, resembling in shape a flattened
+ crescent-moon, and extends outwards from the gates, casting a pointed shadow on
+ the cobbled stone path.
+~
+S
+#67036
+Morgul Tower Road~
+   The Morgul Tower road runs straight north and south between 
+Azun Gatekeep and the Dark Tower, freshly cobbled of dark black 
+stone. High, sturdy walls rise up on either side of the road, 
+the western one made of tar-covered logs, while the eastern one 
+is constructed from stone. The walls serve to separate areas of 
+the city from one another, and cast a shadow upon the street at 
+all hours of the day but high noon. 
+~
+67 1141178384 1
+0
+D0
+~
+~
+0 -1  0 67035
+D2
+~
+~
+0 -1  0 67037
+S
+#67037
+At the Gates of the Black Numenorean Quarter~
+   An ancient stone fence, much older than the construction of 
+Minas Morgul, rises up to the east here, a twisted heap of bronze 
+set in its centre, the entrance way filled with stone rubble and 
+wooden debris. The entrance to the old Black Numenorean quarter 
+is blocked, beyond the low wall numerous charred shells of 
+buildings visible, as well as the occasional scavenging team of 
+goblins lead by burly Uruk-Hai. Morgul Tower Road continues 
+north towards a gatehouse and south towards the tower itself, 
+restricted on either side by high walls. 
+~
+67 67436560 1
+8
+D0
+~
+~
+0 -1  0 67036
+D1
+~
+ruined-gate~
+1 -1  0 67061
+D2
+~
+~
+0 -1  0 67038
+S
+#67038
+Morgul Tower Road~
+   Morgul Tower Road runs straight north and south between Azun 
+Gatekeep and the Dark Tower. Heavily patrolled by swarms of 
+orkish forces leaving and returning to and from the tower, this 
+road is freshly cobbled, of dark black stone. Noisy at all hours 
+of the day, shrill cries can be heard in the distance, often 
+coming from the tower, keeping those who pass unnerved, and 
+making those leaving the road quicken their pace. 
+~
+67 1141178384 1
+0
+D0
+~
+~
+0 -1  0 67037
+D2
+~
+~
+0 -1  0 67039
+S
+#67039
+Before the Drawbridge to the Tower of Minas Morgul~
+   The massive gate of Morgul Tower lies to the south, across the 
+swampy moat of noxious, oily water. The gate itself spans the 
+width of the moat, opening like a predatory maw. Orcs patrol 
+high above on the battlements, donned with dark robes to shield 
+against sunlight, while periodically strange lights dance around 
+one of the windows followed by a pained howl. The road branches 
+north, west, and east here as it enters different sectors of the 
+city. 
+~
+67 1141178384 1
+0
+D0
+~
+~
+0 -1  0 67038
+D1
+~
+~
+0 -1  0 67052
+D2
+~
+drawbridge~
+1 -1  0 67062
+D3
+~
+~
+0 -1  0 67040
+S
+#67040
+Arena Road West of an Intersection~
+   This stone-cobbled road is well constructed, as it holds up 
+against constant battering under the passage of people and carts 
+at all hours. The dirt to either side of the road is a cracked 
+reddish-brown, and occasionally a sprig of green plant might claw 
+its way to the surface only to be trampled by the multitude of 
+feet and cart wheels. The dauntingly tall Tower of Minas Morgul 
+rises up just to the southeast, across a moat of sulphuric water. 
+~
+67 67436560 1
+0
+D1
+~
+~
+0 -1  0 67039
+D3
+~
+~
+0 -1  0 67041
+S
+#67041
+Rounding a Bend on Arena Road~
+   A series of thick logs, blackened with tar and lashed together 
+by coarse rope, line the road to the north and form a wall. This 
+road sees high traffic at all hours of the day, traversed 
+primarily by orc-kin, from tiny goblins to lumbering trolls, 
+though the occasional group of men can be seen on the path as it 
+leads in and out of the commercial district of the city. The 
+stone cobbles underfoot are tread thin, and though crumbling in 
+some places are generally maintained by slave labor. 
+~
+67 67436560 1
+0
+D1
+~
+~
+0 -1  0 67040
+D2
+~
+~
+0 -1  0 67042
+S
+#67042
+Arena Road Under the Shadow of Morgul Tower~
+   Arena Road skirts the rank, sulphuric moat of Morgul Tower to 
+the east, curving around its western bank. A empty intersection 
+lies to the south, while this road continues its broad path 
+southward towards the arena itself, its black spires visible on 
+the horizon. Northward is a bend in the road, disappearing past 
+the northwestern flank of the tower. Masses of armoured orcs, 
+from the scrap-metal clad horde orcs to the plate-clad Uruk-Hai, 
+moving along its length, dispersed by the occasional passing of a 
+wagon or cart. 
+~
+67 1141178384 1
+0
+D0
+~
+~
+0 -1  0 67041
+D2
+~
+~
+0 -1  0 67043
+S
+#67043
+Crossing of Arena Road and Slave Road~
+   A steady stream of caravans and wagons turns westward along 
+the road here each day, heading into the Slavers' District. 
+Lines of shackled slaves, both human and lesser orc-kin, are 
+driven at a shuffling pace to their next destination. The ground 
+underfoot was smoothly paved at one point in the murky past, but 
+is now crumbling in places where the stonework has fallen into 
+disrepair. Morgul Tower and its surrounding moat are to the 
+east, causing the road to curve slightly. 
+~
+67 1141178384 1
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+Entering the Slaving Distract where the Uruk-Hai tend to
+their slaves could be a very bad idea; you realise you're
+likely to get enslaved randomly yourself if you head that way.
+~
+~
+~
+D0
+~
+~
+0 -1  0 67042
+D2
+~
+~
+0 -1  0 67044
+S
+#67044
+Arena Road North of the Uruk-Hai Marshall Yards~
+   A side street to the east cuts past the southern face of 
+Morgul Tower, connecting the two halves of the city. Arena Road 
+continues its straight, north and south path that leads to and 
+from the arena district, heavily traveled by orcs and goblins in 
+both day and night. To the south, a broad, stony field is 
+covered in hundreds of permanent, long, black, hide tents, dozens 
+of Uruk-Hai visible sparring and marching in regiments. 
+~
+67 1141178384 1
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+You begin to head to the south, before realising that
+entering the training grounds of the Uruk Hai could be
+a very, very costly mistake.
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 67043
+D1
+~
+~
+0 -1  0 67045
+S
+#67045
+A Side Street South of Morgul Tower~
+   Westward, this short street opens out onto Arena Road, where 
+during the day many orcs turn to cut across the city using this 
+street. There is an increased presence of Uruk Hai soldiers 
+here, patrolling the area in strict formation. To the north, the 
+sheer walls of Morgul Tower rise up to a dizzying height, forcing 
+one to crane one's neck to see the top of the tower. The 
+street's cobbles are crumbling away at the edges, succumbing to 
+the passage of time and traffic. 
+~
+67 1141178384 1
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D1
+~
+~
+0 -1  0 67046
+D3
+~
+~
+0 -1  0 67044
+S
+#67046
+Before a Gate at the Base of Morgul Tower~
+   Looming ominously here is the malificent Tower of Minas 
+Morgul, its back facing the street. A well-oiled portcullis is 
+set at its base, across a short stone bridge spanning the moat. 
+The tower, constructed of the blackest stone, rises up hundreds 
+of feet to a claw-shaped top that rends the sky, its sheer-sided 
+walls curving slightly and dotted with narrow windows. The 
+gateway is guarded by a duty of Uruk Hai soldiers, standing 
+silent and motionless at their posts. 
+~
+67 67436560 1
+0
+D0
+~
+portcullis~
+1 6072  75 67063
+D1
+~
+~
+0 -1  0 67047
+D3
+~
+~
+0 -1  0 67045
+S
+#67047
+A Side Street South of Morgul Tower~
+   Eastward, this short street opens out onto a four-way 
+intersection on the fringe of the former orkish slums. There is 
+an increased presence of Uruk Hai soldiers here, patrolling the 
+area in strict formation. To the north, the sheer walls of 
+Morgul Tower rise up to a dizzying height, forcing one to crane 
+one's neck to see the top of the tower. The street's cobbles are 
+crumbling away at the edges, succumbing to the passage of time 
+and traffic. 
+~
+67 67436560 1
+0
+D1
+~
+~
+0 -1  0 67048
+D3
+~
+~
+0 -1  0 67046
+S
+#67048
+Essel Azon At the Borders of the Ruins of the Goblin Slums~
+   A crossing of roads occurs here as Essel Azon changes to what 
+was once Sharkundu Road to the south, while a dirt path heads 
+into the former slums to the east and a short side street cuts 
+past Morgul Tower to the west. The paths to the south and east 
+are unamangeable, nothing more than tiny walkways through great 
+mounds of rubble and wooden debris, stretching from this point to 
+the distant sheer walls of the Ephel Duath to the south and east. 
+Goblin scavenging parties can be seen working in the ruins of the 
+slums. 
+~
+67 1140916240 1
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+There is nothing but the ruins of the slums in that direction.
+~
+There is nothing but the ruins of the slums in that direction.
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 67049
+D3
+~
+~
+0 -1  0 67047
+S
+#67049
+Essel Azon Nearing the Former Orkish Slums~
+   The winding road of Essel Azon enters the ruins of the former 
+slums to the south here. Patrols of orc soldiers make their way 
+noisily through at regular intervals, scattering commoners to the 
+sides and into dwellings lining the road until they have passed. 
+A high, roughly-constructed wall of blackened stone rises up to 
+the east, billowing smoke visible from behind it accompanied by 
+metallic clanging sounds at all hours. 
+~
+67 1140916240 1
+0
+D0
+~
+~
+0 -1  0 67050
+D2
+~
+~
+0 -1  0 67048
+S
+#67050
+Essel Azon West of Some Iron Gates~
+   The grime-covered stone wall to the east rises up to form a 
+crude archway, crowning a set of iron gates that open eastward 
+into a section of the city obscured by haze. A malformed 
+figurehead is mounted at the center of the arch, the horned head 
+of some beast with gaping mouth and curled tongue glaring down at 
+those who pass through the gates. Essel Azon continues its 
+slowly curving path north and south, frequented by throngs of 
+orcs and goblins. 
+~
+67 67436560 1
+0
+D0
+~
+~
+0 -1  0 67051
+D1
+~
+gates~
+1 -1  0 67070
+D2
+~
+~
+0 -1  0 67049
+S
+#67051
+A Bend in Essel Azon Following a Wall~
+   Smooth, black stone has been worn away by the passage of too 
+many feet as this road leads past Morgul Tower to the west and 
+towards the orkish quarter to the south. The piles of trash seen 
+elsewhere in the slums are kept to a minimum here and enough 
+guard patrols pass to make this place somewhat secure. To the 
+north and east, an aged wall of dark grey stone blocks off the 
+road from another sector of the city, burned out shells of grand 
+manors visible beyond its empty parapet. 
+~
+67 1141178384 1
+0
+D2
+~
+~
+0 -1  0 67050
+D3
+~
+~
+0 -1  0 67052
+S
+#67052
+Essel Azon East of the Intersection Before Morgul Tower~
+   The long-established road of Essel Azon wends its way eastward 
+deeper into the city, its black surface worn smooth by the 
+passage of countless feet. It is fenced to the north by an aged 
+wall of dark grey stone, while a fetid moat to the southwest 
+surrounds Morgul Tower. Lines of shackled slaves are trafficked 
+along this road occasionally, heading in and out of a set of iron 
+gates in the distance, while at night time the majority of 
+passerby are made up of orc-kin. 
+~
+67 67436560 1
+0
+D1
+~
+~
+0 -1  0 67051
+D3
+~
+~
+0 -1  0 67039
+S
+#67053
+At the Bottom of a Stairwell~
+   A set of straight, stone stairs descend from the south, 
+leading down to a cramped room at its bottom. Set in the center 
+of the western wall is an iron-bound door, its hinges and metal 
+parts rusted. A single torch is mounted upon the northern wall, 
+casting a dim flickering light over the area. 
+~
+67 1140916248 0
+0
+D3
+~
+door~
+1 -1  0 67054
+D4
+~
+~
+0 -1  0 67025
+S
+#67054
+Blank Room~
+   Needed for the door to work. 
+~
+67 -1073676280 0
+0
+D1
+~
+door~
+1 -1  0 67053
+S
+#67055
+Top of a Worn, Spiral Stair~
+   The uneven spiral stairway opens on the south end of this 
+hallway leading away from the quarters of the Uruk-Hai officers 
+based in the Gatekeep. The staircase itself is lit by many 
+torches and kept quite bright, perhaps as a deterrent for the 
+occasional orc that might come wandering through here. Hanging 
+from the eastern wall is a banner depicting a jagged crown of 
+white depicted on a field of black. 
+~
+67 1140916252 0
+0
+D0
+~
+door~
+1 -1  0 67056
+D3
+~
+double-doors~
+1 -1  0 67058
+D4
+~
+trapdoor~
+1 -1  0 67057
+D5
+~
+~
+0 -1  0 67032
+E
+banner lightning gauntlet eastern wall~
+This banner is several feet wide and very long, extending from
+ceiling to floor. It is tightly woven from what looks to be a
+very fine wool, and dyed pitch black. In the very center of the
+banner, head-height on a tall human, the weave changes shape
+and texture to form a representation of a gauntleted fist, and
+is dyed a deep bronze colour. Clutched in the fist, the yellow-
+dyed weave creating a striking contrast against the black
+background, is a lightning bolt, extending diagonally from one
+side of the banner to the other. The very bottom edge of the
+banner is a slightly duller colour, owing to a heavy layer of
+dust collecting there, and the weave is beginning to fray.
+~
+S
+#67056
+A Busy Messhall Filled with Tables~
+   Large and spacious, this mess hall was obviously meant to
+handle far more people than it does now.  A few rows of simple
+wooden tables and benches huddles in the middle of the open
+space while torches, bracketted to the walls, provide the 
+windowless room with a constant, flickering light.
+~
+67 1275136024 0
+0
+D2
+~
+door~
+1 -1  0 67055
+S
+#67057
+The Top of a Drafty Lookout Tower~
+   The mournful wind sweeps almost ceaselessly past, this room 
+being open to the elements and consequently affording an 
+unobstructed view of the corrupted, ruined city that is Minas 
+Morgul. The floor is rough, molding grey stone, and a balustrade 
+raises up about waist-height on the average orc. Goblins are 
+reduced to tiny specks, and orc-kin and larger resemble small 
+dolls as they roam the city streets and through the gates leading 
+in and out of the Keep below. The forbidding mountain range 
+stretches out into the distance, becoming a purple haze as it 
+merges with the horizon, and the jagged scar of the vale cuts 
+haphazardly along to the west. 
+~
+67 1073807360 1
+0
+D5
+~
+trapdoor~
+1 -1  0 67055
+S
+#67058
+A Small Conference Hall~
+   Not too large, this rectangular room spreads out to the east 
+and west, a long table in its center surrounded by the dark, cold 
+granite of the four walls. Made to be filled with men in times 
+of conference, it is otherwise used seldom. When a voice makes 
+itself known, it sounds clearly throughout the entire room, 
+having the effect of bouncing from wall to wall, creating a 
+somewhat eerie feeling. A simple rug lies underfoot, its 
+bleached color adding nothing to the plain furnishings. 
+~
+67 67174424 0
+0
+D1
+~
+door~
+1 -1  0 67055
+S
+#67059
+At the Bottom of a Spiral Stair~
+   A meandering spiral staircase juts up from the floor here, 
+weaving maliciously into the darkness. The uneven and jagged 
+stairs are rough and crude, obviously crafted for optimal 
+practicality rather than beauty. A thin yet revoltingly goopy 
+slime seems to cling to certain steps, and it seems to thicken as 
+the stairs approach the bottom floor. Dark granite walls envelop 
+the staircase in all directions except to the south, and the 
+cracked and jagged floor seems to have been worn, as if by the 
+tread of many feet over long years. 
+~
+67 65800 0
+0
+D2
+~
+door~
+1 -1  0 67060
+D4
+~
+~
+0 -1  0 67030
+S
+#67060
+A Large, Open Space in a Roughly Carved, Underworld Cavern~
+   This portion of the cavern extends upward significantly, the 
+ceiling becoming invisible within the oppressive darkness. A 
+very faint sound of trickling water comes from the east, barely 
+audible. The charred and blackened stone walls seem to yield to 
+an intersection of some sort here, and the ground is relatively 
+smooth. A door to the west hangs unevenly on its hinges, though 
+it is padlocked and appears sturdy enough to make opening it by 
+force difficult. It is fairly obvious that the floor here 
+receives the grace of many footfalls, most of them likely 
+belonging to foul creatures. 
+~
+67 65672 0
+0
+D0
+~
+door~
+1 -1  0 67059
+S
+#67061
+Spare Room~
+   I like spam!
+~
+67 -1073152000 0
+0
+D3
+~
+ruined-gate~
+1 -1  0 67037
+S
+#67062
+Beneath a Shadowed Archway at the Mouth of the Tower~
+   Thick black stone, smooth and featureless, forms the gate arch.  
+Narrow slits provide a line of fire for archers and dim movement 
+can be seen beyond them.  The great drawbridge lies to the north, 
+and south a huge, reinforced portcullis of black metal stands, 
+covered in metal spikes.
+~
+67 1140916504 0
+0
+D0
+~
+drawbridge~
+1 -1  0 67039
+S
+#67063
+A Darkened Foyer~
+   Dimly lit by fluttering wall lamps, this cold stone room is 
+remarkably quiet. Only the most distant echos can be heard of 
+the keep proper. A large wall tapestry of the great, lidless eye 
+presides over everything, a constant reminder of vigilance. The 
+thick iron manacles on the walls and uncomfortable chairs make it 
+obvious that visitors can expect little in the way of a warm 
+welcome. 
+~
+67 1140916248 0
+0
+D2
+~
+portcullis~
+1 6072  75 67046
+D5
+~
+~
+0 -1  0 67064
+S
+#67064
+A Tightly Twisting Stairwell~
+   Winding deeper into the rock, this twisting stairwell curves 
+down into the depths of Morgul Tower. Clean and dry, the short, 
+sharply turning steps are designed to accomodate those whose feet 
+have been chained together. Soot-stained lamps cast an eerie 
+glow and set shadows dancing. The ominous flickering and 
+capering shades make fitting company to the echoing footsteps 
+that carry the doomed to, and more rarely from, the pit below. 
+~
+67 1140916248 0
+0
+D4
+~
+~
+0 -1  0 67063
+D5
+~
+~
+0 -1  0 67065
+S
+#67065
+A Cold, Stone Room~
+   Though well-lit, this room is uncomfortably cold, its stone 
+walls stark and unardorned. Thick iron manacles, one set in each 
+corner, make this room's purpose as a preliminary holding room 
+clear. The soft echo of moans, whimpers of pain, and the 
+unmistakeable click of heavy boots on unyielding stone blend to 
+provide a constant backdrop of noise. 
+~
+67 1275133976 0
+0
+D0
+~
+door~
+1 6072  45 67066
+D1
+~
+door~
+1 6072  45 67067
+D2
+~
+door~
+1 6072  45 67068
+D3
+~
+door~
+1 6072  45 67069
+D4
+~
+~
+0 -1  0 67064
+S
+#67066
+A Dank, Quiet Cell~
+   This tiny, rank little stone cell radiates an air of bleak 
+hopelessness. Not even a rodent's scurrying interrupts the quiet 
+gloom. A set of thick, jagged wrought-iron manacles adorns each 
+wall. The scent of mold and death are the only distractions 
+aside from the distant echo of the rooms beyond. 
+~
+67 1208027400 0
+0
+D2
+~
+door~
+1 6072  45 67065
+S
+#67067
+A Dank, Quiet Cell~
+   This tiny, rank little stone cell radiates an air of bleak 
+hopelessness. Not even a rodent's scurrying interrupts the quiet 
+gloom. A set of thick, jagged wrought-iron manacles adorns each 
+wall. The scent of mold and death are the only distractions 
+aside from the distant echo of the rooms beyond. 
+~
+67 1208027400 0
+0
+D3
+~
+door~
+1 6072  45 67065
+S
+#67068
+An Interrogation Cell~
+   This large stone room is well lit by several large wall 
+sconces as well as a huge bronze brazier in the middle of the 
+room. Its flames cast wild shadows across the black stone walls, 
+fitting complement to the grim business that goes on here. In 
+the center, next to the brazier, are a set of manacles and a 
+rather bloody drain hole. 
+~
+67 1275136008 0
+0
+D0
+~
+door~
+1 6072  45 67065
+S
+#67069
+A Dank, Quiet Cell~
+   This tiny, rank little stone cell radiates an air of bleak 
+hopelessness. Not even a rodent's scurrying interrupts the quiet 
+gloom. A set of thick, jagged wrought-iron manacles adorns each 
+wall. The scent of mold and death are the only distractions 
+aside from the distant echo of the rooms beyond. 
+~
+67 1208027400 0
+0
+D1
+~
+door~
+1 6072  45 67065
+S
+#67070
+Under the Gates of the Industrial Sector~
+   Rising up dozens of feet, the gates of the industrial sector 
+loom here, dominating the view of the west. Soot, ash, and grime 
+coat the cobblestones of the road, which stretches from the 
+western gate to a gate visible some distance to the east. Faint 
+clangs are audible a good ways to the east. The road is rather 
+well-travelled; whether day or night, an orc or two is sure to be 
+seen on its routine. A crude tent has been established on the 
+southern side of the road. 
+~
+67 67436560 1
+0
+D1
+~
+~
+0 -1  0 67071
+D2
+~
+tent-flap~
+1 -1  0 67092
+D3
+~
+gates~
+1 -1  0 67050
+S
+#67071
+Along a Wide, Soot-Covered Road~
+   Dirty, grimy, and caked with soot, this road is barely kept in 
+a respectable state, given the number of orcs, goblins, and 
+various other darker races that traverse it. At any given hour, 
+at least a dozen can be seen along its stretch, moving about on 
+their daily routine and scarcely loitering. A number of short, 
+stout stone dwellings line the road to the south, stuffed 
+together to the point where the walls touch each other. Most 
+seem in disrepair. On the northern side of the road, a number of 
+orc-kin move in and out of a businessplace. 
+~
+67 1141178384 1
+0
+D0
+~
+door~
+1 -1  0 67085
+D1
+~
+~
+0 -1  0 67072
+D2
+~
+curtain~
+1 -1  0 67090
+D3
+~
+~
+0 -1  0 67070
+S
+#67072
+Along a Wide, Soot-Covered Road~
+   Not much different than the rest of Minas Morgul, this 
+commodious road of the Industrial Sector stretches along east and 
+west. Through the cracks between the cobblestones, a variety of 
+brown and green weeds sprout, though most are quite trampled. 
+Not a yard is in sight all along the south, where a multitude of 
+stocky stone buildings are jammed wall-to-wall. Along the 
+northern side of the road are a variety of buildings, but one in 
+particular has a number of orcs and other dark races entering and 
+leaving from time to time. 
+~
+67 67436560 1
+0
+D0
+~
+door~
+1 -1  0 67086
+D1
+~
+~
+0 -1  0 67073
+D2
+~
+door~
+1 -1  0 67087
+D3
+~
+~
+0 -1  0 67071
+S
+#67073
+Along a Wide, Soot-Covered Road~
+   Continually traversed by the darker races, this expansive road 
+rarely has anyone loitering along its length. Apparently 
+constructed in haste out of cobblestone, the road has long since 
+fallen into a slight state of disrepair. A hole or large gap 
+between cobblestones here and there bears passage for a number of 
+green and brown weeds to sprout. At the northern most edge of 
+the road, a large, shabby stone building stands, and on the 
+southern edge, a number of dwellings are crammed. 
+~
+67 1141178384 1
+0
+D0
+~
+door~
+1 -1  0 67089
+D2
+~
+door~
+1 -1  0 67088
+D3
+~
+~
+0 -1  0 67072
+S
+#67074
+Branch off a Wide, Soot-Covered Road~
+   Joining together here are two cobblestone roads, one 
+stretching east and west between a pair of gates at either end of 
+the sector, while snaking along northward is another road, this 
+one in a much worse state of disrepair. Sprigs of weeds sprout 
+from the ground, and off to the east many loud bangs and clangs 
+pierce the air. Though both roads are well-travelled, the 
+east-and-west course is a good deal more populated, as small 
+throngs of orcs move along it. 
+~
+67 67436560 1
+0
+D0
+~
+~
+0 -1  0 67079
+D1
+~
+~
+0 -1  0 67075
+S
+#67075
+Along a Wide, Soot-Covered Road~
+   Continuing east to a towering black gate and west to another 
+shorter gate, this wide road leads through the squalid stone 
+buildings of this sector of Minas Morgul. A constant commotion 
+is audible at any given hour, the dark races of men shouting, 
+orcs and goblins arguing and chattering, and above all else, a 
+number of rhythmic clanging, banging, and clinking sounds 
+resonate from the massive building lining the northern edge of 
+the road. 
+~
+67 67436560 1
+0
+D1
+~
+~
+0 -1  0 67076
+D3
+~
+~
+0 -1  0 67074
+S
+#67076
+Along a Wide, Soot-Covered Road~
+   Save for the sky at times, the only colors comprising this 
+rather unscenic route's view are the grey of the cobblestones and 
+the black of the mounds of soot upon them. Frequently tread 
+upon, the stones on this road's surface are old and cracked, 
+weeds sprouting from gaps between them in many places. Blocking 
+movement to the north is a stocky and very long building, which 
+stretches along to the east and west. Along the southern edge of 
+the road are a number of stone dwellings, little or no space 
+between them. 
+~
+67 67436560 1
+0
+D1
+~
+~
+0 -1  0 67084
+D3
+~
+~
+0 -1  0 67075
+S
+#67077
+At the Eastern Gates of Minas Morgul~
+   Towering high above the head of the numerous orcs and goblins 
+that travel through them, a pair of blackened iron gates allow 
+egress to the east. A soot-covered, grimy cobblestone road 
+stretches along here, from the gates to the east to a set of 
+similar gates a distance to the west. At any given point along 
+the road, a number of squat, stone buildings are crammed 
+together, most in disrepair. 
+~
+67 1141178384 1
+0
+D1
+~
+gate~
+1 -1  0 67078
+D3
+~
+~
+0 -1  0 67084
+S
+#67078
+Mountain Trail at the Eastern Gates~
+   Descending from the east at a sharp angle, this trail winds 
+along the mountain's craggy face, straightening out only as it 
+reaches the eastern gates of Minas Morgul. Though the trail 
+itself is kept relatively clear, the ground everywhere else is 
+covered in a layer of loose, shifting shale and chunks of black 
+rock. 
+~
+67 1074069508 3
+0
+D3
+~
+gate~
+1 -1  0 67077
+S
+#67079
+A Roughly-Cobbled Path~
+   Though it's still traversable, this branch off the main road 
+to the south seems to have seen much better days. Regardless of 
+the weather, the view from this path always consists of the 
+bleak, dreary greys and blacks of Minas Morgul. Consistent 
+throughout the area are the squat, ramshackle stone buildings all 
+along the sides of the roads, though to the east lies a mammoth 
+building, a gate upon its wall. The path continues northward to 
+a curve and southward, where it rejoins with the main road. A 
+trail of carriages moves in and out through the area, leading 
+from the eastern gate out onto the larger, southern road. 
+~
+67 1141178388 1
+0
+D0
+~
+~
+0 -1  0 67080
+D1
+~
+gate~
+1 -1  0 5598
+D2
+~
+~
+0 -1  0 67074
+S
+#67080
+Bend in a Roughly-Cobbled Path~
+   Here, the rough and sometimes upturned cobblestones of the 
+path curve both east and south, snaking their way along the rows 
+of ramshackle houses, all seemingly the same design over and over 
+along the eges of the street. To the north stands one of many 
+stocky, stone buildings, and the street continues its course 
+south and east. 
+~
+67 67436560 1
+0
+D1
+~
+~
+0 -1  0 67081
+D2
+~
+~
+0 -1  0 67079
+S
+#67081
+A Roughly-Cobbled Path~
+   Considering the small amount of traffic visible on this path, 
+the cause of its state of disrepair is an obvious neglect to it. 
+Upturned and cracked cobblestones abound all along its length, 
+and sprigs of weeds sprout through the furrows between the 
+stones. Along the northern edge of the street sits a row of 
+slave quarters, all extremely similar: short, squat, made of stone, 
+and decrepit. Blocking egress to the south is an immense stone 
+building, the chimney perched atop its roof continually billowing 
+out smoke. 
+~
+67 67436560 1
+0
+D1
+~
+~
+0 -1  0 67082
+D3
+~
+~
+0 -1  0 67080
+S
+#67082
+Bend in a Roughly-Cobbled Path Along Rows of Slave Housing~
+   Here, the trail's progress is impeded to the south by a short, 
+sprawling stonework building; atop its roof sprouts a massive 
+chimney, billowing tufts of smoke wafting from it at any given 
+time. Echoes of the clangs of metal-on-metal resound from 
+within. To the east, the road meets a row of ramshackle, 
+run-down slave quarters, indiscernable from one another. The 
+path's course continues northward and eastward, snaking through 
+even more rows of slave quarter. 
+~
+67 67436560 1
+0
+D0
+~
+~
+0 -1  0 67083
+D2
+~
+iron-banded-door~
+1 -1  0 5597
+D3
+~
+~
+0 -1  0 67081
+S
+#67083
+A Roughly-Cobbled Path Along Rows of Slave Housing~
+   Coming to an abrupt halt at a towering blackened wall, this 
+run-down road passes through rows and rows of similarly short, 
+squat stone buildings, most of which have seen much better days. 
+Scarcely populated and even more scarcely traversed, the road is 
+empty more often than not, and a general silence prevails save 
+for the repeated, rhythmic distant clangs of metal on metal some 
+distance to the south. 
+~
+67 1141178384 1
+0
+D2
+~
+~
+0 -1  0 67082
+S
+#67084
+A Soot-Covered Road South of an Immense Building~
+   Ash and soot have been caked onto the dull cobblestones of 
+this fairly well-maintained, if dirty road that stretches to the 
+east and west. All along the southern edge, several squat, 
+stonework buildings are jammed in tightly alongside one another. 
+A single, massive building stretches to the north and west, a 
+wide pair of doors allowing entrance here. A chimney extends 
+from its roof and at all times, day or night, billowing tufts of 
+smoke waft out from it. 
+~
+67 67436560 1
+0
+D0
+~
+broad-double-doors~
+1 -1  0 5595
+D1
+~
+~
+0 -1  0 67077
+D3
+~
+~
+0 -1  0 67076
+S
+#67085
+Grudd's Bows, Bolts, and Bludz~
+   This cramped, dimly-lit building has surely seen better days, 
+its stonework walls chipped and cracked, allowing shafts of light 
+through from outside during the day. The walls are lined with 
+pegs that have either been driven through the boards, or simply 
+placed through one of the numerous punched out knot-holes in the 
+wood. From the pegs hang bows and crossbows in various stages of 
+completion. A table full of tools has been set up in the center 
+of this building for the shop owner to stand behind and a rough 
+mat has been tossed in the corner for a bed. 
+~
+67 67176472 0
+0
+D2
+~
+door~
+1 -1  0 67071
+S
+#67086
+Ulpa's Iron~
+   A large wooden desk has been shoved up against the back wall, 
+a crooked stool gathering dust behind it. An oval has been 
+etched onto the side of the desk, facing towards the door, some 
+additional markings making it out to be a crude, empty 
+eye-socket. On either side of the desk are wooden cases 
+displaying various weapons or armor, one in particular showcasing 
+a battered shoulder plate, its engraving scarred beyond 
+recognition. Racks line either wall perpendicular to the door 
+and are stacked with weapons and smaller pieces of armor, while a 
+few tables closer to the desk are piled up with vests, hauberks 
+and the larger pieces of armor. The floor is scuffed, worn by 
+many booted feet, a testament to the frequent traffic to and from 
+this store. 
+~
+67 1140918296 0
+0
+D2
+~
+door~
+1 -1  0 67072
+S
+#67087
+The Carpenter's Annex of The Hammer And Nail~
+   This is the west wing of a large, stone-wrought structure, 
+which looks to have a very well thatched roof. Many wooden 
+crates are stacked up behind, and about the counter, full of the 
+wares of this store. Some select items have been put out on 
+various display cases about the store, but the vast bulk of the 
+wares seem to be contained in the crates. There is a reasonable 
+volume of human and orcish patronage at all times of the day and 
+night, this place never truly quiet. A heavy woolen curtain 
+separates the two sections of the store. 
+~
+67 68225048 0
+0
+D0
+~
+door~
+1 -1  0 67072
+D1
+~
+curtain~
+1 -1  0 67088
+S
+#67088
+The Blacksmith's Annex of The Hammer And Nail~
+   This is the east wing of a large, stone-wrought structure, 
+which looks to have a very well thatched roof. Large, heavy 
+wooden beams criss-cross the roof, leading to wooden supports on 
+the walls and in the middle of the floor space. There is a long 
+running counter, behind which sits many barrels and crates, 
+containing multitudinous goods and wares, some of which are also 
+displayed in wooden display cases about the wooden floor. There 
+is generally a fairly large flow of human and orcish patronage 
+through this area, ensuring that it is rarely a quiet place. A 
+heavy, woolen curtain separates the two sections of the store. 
+~
+67 68225048 0
+0
+D0
+~
+door~
+1 -1  0 67073
+D3
+~
+curtain~
+1 -1  0 67087
+S
+#67089
+Yrarg's Ironworks~
+   A wide variety of odd tools and implements used by orkish 
+craftsmen have been collected about this room and lie against the 
+walls or upon the floor. A small desk has been set up near the 
+front of the room where various items have been displayed for 
+sale. A low-arching door has been set up on the north end of 
+this building leading off to a small back room. 
+~
+67 1140918296 0
+0
+D2
+~
+door~
+1 -1  0 67073
+S
+#67090
+Grunk's Leathers and Hide Shop~
+   This shop extends back into the cliff wall about twenty paces, 
+its dimensions coarsely hewn out of solid rock. The crude 
+entryway has a tattered, faded piece of canvas serving as a door. 
+Torch sconces spaced out along the wall illuminate several sturdy 
+racks of leather goods for sale, and a stone counter near the 
+back is stacked with hides. 
+~
+67 1140918296 0
+0
+D0
+~
+curtain~
+1 -1  0 67071
+S
+#67092
+Kregg's Weapon Outlet~
+   Numerous crates of weaponry have been stacked about beneath 
+the leather canopy of this large tent, a constant stream of burly 
+goblins running to and fro the large northern entrance of the area 
+carrying in new boxes or taking away empty ones. A number of 
+other denizens of Minas Morgul dwell within the tent, looking 
+over the arrayed selection of gleaming and wickedly pointed 
+weapons, the noise of their chatter a muted silence compared to 
+the great roar echoing from outside the tent. 
+~
+67 1140918296 0
+0
+D0
+~
+tent-flap~
+1 -1  0 67070
+S
+#67091
+Opening of the Traveler Quarter Near the Gates~
+   A broad square opens up to the north, west and south, filled 
+with a light crowd of travelers, resource dealers, traders, and 
+other people who have reason to stay overnight in the Uruk Hai 
+stronghold of Minas Morgul and need a place to stay and trade. 
+To the east, a pair of tall, wooden gates lead out onto the 
+streets of Morgul, open during the day and night. Now and then, 
+wagons and carts are driven through the gates both entering and 
+exiting the Traveler Quarter, as people move to clear a path for 
+the vehicles. 
+~
+67 71368720 1
+0
+D0
+~
+~
+0 -1  0 67093
+D1
+~
+gate~
+1 -1  0 67035
+D2
+~
+~
+0 -1  0 67100
+D3
+~
+~
+0 -1  0 67095
+S
+#67093
+Corner of the Somewhat Empty Bazaar~
+   A few shouts, yells, and haggling conversations are held 
+across this large, yet mostly empty bazaar, as merchants bringing 
+goods to and from Mordor, to and from distant lands use this 
+quarter of Minas Morgul to purchase supplies and hawk their wares 
+opportunistically. The square opens up to the south and west, 
+while the thick, stone wall of some large building stands to the 
+north. Tar-covered, wooden logs that have been lashed together 
+form the wall that encloses the Traveler Quarter from the rest of 
+the city, running north and south along the eastern perimeter of 
+the marketplace. 
+~
+67 1145110544 1
+0
+D0
+~
+door~
+1 -1  0 67102
+D1
+~
+door~
+1 -1  0 67101
+D2
+~
+~
+0 -1  0 67091
+D3
+~
+~
+0 -1  0 67094
+S
+#67094
+In the Bazaar Before a Small Warehouse~
+   Just north of this area of the bazaar stands a large, 
+sandstone warehouse. Large amounts of rocky gravel have been 
+pummeled deep into the dirt here, making an even path. The air 
+is quite hot, and a foul odor of sweating bodies and animal fur 
+permeates freely. To the southeast is the opening of the 
+Traders' Bazaar, while to the north lies the warehouse. To the 
+west is one of the many paths leading through the bazaar. 
+~
+67 71368720 1
+0
+D0
+~
+door~
+1 -1  0 67103
+D1
+~
+~
+0 -1  0 67093
+D2
+~
+~
+0 -1  0 67095
+D3
+~
+~
+0 -1  0 67099
+S
+#67095
+Centre of the Bazaar, About a Well~
+   This marketplace is the busiest part of the Traveler Quarter, 
+the sounds of haggling and bartering common throughout the area, 
+generated by the merchants of various races that deal in bulk 
+goods and commodities and use Minas Morgul as a supply point 
+between the inner Mordorian lands of Nurn and the distant 
+southern kingdom of Haradwaith. Tents and pavilions of 
+loosely-woven cloth are pitched within close proximity of each 
+other, their occupants doing business buying road-supplies and 
+tending to their wagons. The bazaar continues in all directions. 
+~
+67 71368720 1
+0
+D0
+~
+~
+0 -1  0 67094
+D1
+~
+~
+0 -1  0 67091
+D2
+~
+~
+0 -1  0 67096
+D3
+~
+~
+0 -1  0 67098
+S
+#67096
+The Traveler Bazaar Before a Tented Pavilion~
+   A small pavilion has been set up here, with a tent over it to 
+keep out the heat, and sometimes the rain. To the east, a narrow 
+trail leads between several tents. Many people are walking 
+through the bazaar, conducting their daily business. The sounds 
+of people yelling, bartering with sellers, and occasionally 
+screaming or yelling at others, can be heard all around, and a 
+closer sound of men laughing and carrying on can be heard coming 
+from a somewhat busy and popular tavern to the west. 
+~
+67 1145110544 1
+0
+D0
+~
+~
+0 -1  0 67095
+D1
+~
+~
+0 -1  0 67100
+D2
+~
+tent-flap~
+1 -1  0 67108
+D3
+~
+~
+0 -1  0 67097
+S
+#67097
+The Traders' Bazaar Before a Subdued, Quiet Tavern~
+   A large tavern has been built to the south of here, providing 
+tired men with a place to sit down and relax among others. The 
+sounds of those inside can be heard faintly, the quiet chatter of 
+traders and merchants from distant lands taking time to relax 
+before returning to the dusty roads. The bazaar continues to the 
+north and east, where the sounds of people bartering and selling 
+can be heard drifting across the area. To the east, a large 
+tented pavilion has been set up. The doorway to the west has 
+been covered by many long strings of beads. 
+~
+67 1140916240 1
+0
+D0
+~
+~
+0 -1  0 67098
+D1
+~
+~
+0 -1  0 67096
+D2
+~
+curtain~
+1 -1  0 67106
+D3
+~
+beaded-curtain~
+1 -1  0 67107
+S
+#67098
+Western Edge of the Traders' Bazaar~
+   Many stalls and caravans have been scattered along the edges 
+of this path. Their owners bustle from one customer to the next 
+trying to sell off their wares. This part of the bazaar is in 
+quite close proximity to the remnants of the Haradrim Quarter, 
+but any progress to the west is halted by a large, seemingly 
+newly constructed stables complex. The air is very hot, and 
+contains a foul odor of sweat and animal fur. Paths lead in all 
+directions save west, heading off to other parts of the Bazaar. 
+~
+67 71368720 1
+0
+D0
+~
+~
+0 -1  0 67099
+D1
+~
+~
+0 -1  0 67095
+D2
+~
+~
+0 -1  0 67097
+D3
+~
+gate~
+1 -1  0 67104
+S
+#67099
+Corner of the Bazaar Before a Few Storefronts~
+   Sounds of people yelling and bartering bounce back and forth 
+across the busy Bazaar. The smells of dust and sweat are enough 
+to choke those people that have not spent a lot of time here and 
+grown used to it. A curtain separates this part of the bazaar 
+from a small tattoo parlor to the north, while a sizeable 
+pavilion stands to the west, heat wafting out through its tent 
+flaps. The bazaar spreads out to the south and east. 
+~
+67 1140916240 1
+0
+D0
+~
+curtain~
+1 -1  0 67109
+D1
+~
+~
+0 -1  0 67094
+D2
+~
+~
+0 -1  0 67098
+S
+#67100
+The Traveler Bazaar Between Some Tents~
+   This narrow pathway passes in between many different tents, 
+all of various shapes and sizes. Several small pegs stick out of 
+the ground, with guide-lines attached to them, to keep people 
+from setting up their tents too close to the path. One of the 
+tents is a fiery shade of orange while the other is a pale shade 
+of blue. The sounds of people chatting, haggling and yelling 
+fill the air, as does the pungent aroma of sweat. The path 
+continues on north and west through the bazaar, while some 
+buildings line the perimeter to the south. 
+~
+67 1145110544 1
+0
+D0
+~
+~
+0 -1  0 67091
+D2
+~
+carpet~
+1 -1  0 67110
+D3
+~
+~
+0 -1  0 67096
+S
+#67101
+Nazirah's Clothier and Dye Supply~
+   This room is quite small, wood-panelled walls simple and 
+unadorned. Shelves line the back wall, bottles of assorted 
+colour dyes arranged neatly on them, and a long, scratched wooden 
+counter extends from one wall to the center of the room. Various 
+other tools and supplies are on display throughout the room, 
+which is overall well-lit though cramped. 
+~
+67 1140918296 0
+0
+D3
+~
+door~
+1 -1  0 67093
+S
+#67102
+"Abib's Imports"~
+   This very secure sandstone building has thick walls and a securely
+barred door. Its long windows are narrow, and also barred with iron.
+Inside, locked cases reveal the goods for sale. Richly decorated
+hangings dangle from the walls, but cannot detract from the safe,
+structured feel of this small shopfront.
+~
+67 1140918296 0
+0
+D2
+~
+door~
+1 -1  0 67093
+S
+#67103
+Abdali Street Apothecary~
+   This small shop has a pungent, spicy scent that pervades the 
+air and threatens to become downright cloying if one remains too 
+long. Bundles of dried herbs and colorful vials line numerous 
+shelves, giving the room an eclectic, exotic appearance. It is 
+the front of a house, with doors leading to living areas and 
+storerooms, but the main door leads back out south to the street. 
+~
+67 1140918296 0
+0
+D2
+~
+door~
+1 -1  0 67094
+S
+#67104
+A Stable Supply Hall Surrounded by Pens~
+   This is the supply hall for the stable complex. Almost any 
+piece of equipment required for the various animals kept in the 
+complex can be found here. There are saddles of all shapes and 
+sizes, apparently for more than just horses. Large barrels of 
+feed have been stacked to the ceiling, and are all appropriately 
+labeled. The sounds of the animals being kept here drift through 
+the walls. Short wooden doors to both the north and west lead to 
+pens where the animals are kept. 
+~
+67 1140916248 0
+0
+D1
+~
+gate~
+1 -1  0 67098
+S
+#67105
+Uruk Kennels~
+The war kennels of the Uruk-Hai. No PCs.
+~
+67 -1073676288 0
+0
+D3
+~
+door~
+1 -1  0 67035
+S
+#67106
+Tavern of Biko al'Hajjaj~
+   The center of this tavern is dominated by a sunken grill 
+filled with smouldering coals and ringed with stones. Sizzling 
+meats, vegetables, and cauldrons of stew cook over the firepit, 
+filling the room with a warm, spicy aroma. Large pieces of 
+leather cured to various shades of tan and brown have been nailed 
+to the walls, not only giving them the appearance of tent sides, 
+but acting as both a buffer to the noise in the establishment and 
+a crude form of insulation. Overhead, the rafters are draped 
+with billowing lengths of fabric of a sandy-brown hue. Scattered 
+over the earthen floor are thick, wildly patterned rugs and 
+tasseled cushions, and while few tables grace the tavern, a row 
+of low, flat-topped chests act as both storage for cheeses and 
+wines and furniture to eat at for those who prefer such amneties. 
+The occasional loud barks of laughter and strings of curses 
+punctuate the constant drone of conversation. 
+~
+67 1140918552 0
+0
+D0
+~
+curtain~
+1 -1  0 67097
+P
+knock~
+door~
+if clan(-1, privileged)
+vstr You pass in to the backroom of the tavern.
+trans_group -1 67106 67666
+ostr $n enters from the main tavern.
+else do
+vstr You try and pass in to the backroom of the tavern, but a pair of burly Haradrim block your path, claiming they've never heard of you.
+fi done
+~
+S
+#67107
+Minas Morgul Pawning and Trade Goods~
+   Counters and shelves line all four walls of this small store. 
+An old wooden sign hanging above one of the shelves announces the 
+name of the store. Several small tables have also been set up in 
+the middle of the room. The counters, shelves, and tables are 
+all littered with various objects for sale. Some of them don't 
+appear to be worth very much, but some of them look like they 
+might be rather valuable, and most of these valuable items are 
+locked in glass display cases. Long strings of beads cover the 
+doorway to the east, which leads back out to the Bazaar. 
+~
+67 1275136024 0
+0
+D1
+~
+beaded-curtain~
+1 -1  0 67097
+S
+#67108
+A Foodseller's Kiosk~
+   This tent has been raised on the southern edge of the square, 
+and contains various foodstuffs on display for sale on the 
+carpeted floor and hanging from the wooden support beams. A 
+rough counter of pine wood stands near the back of the tent. 
+~
+67 1275136024 0
+0
+D0
+~
+tent-flap~
+1 -1  0 67096
+S
+#67109
+A Small, Dirt-Floor Tattoo Booth~
+   This cramped room is lit dimly by torches set in rusting metal 
+holders, which are bolted to the shoddy, wood-plank walls. A 
+fraying, dark blue woolen rug partially hides the dirt floor, and 
+a multitude of small clay pots and needles are arrayed within a 
+set of shelves built into the back wall. A table stands in the 
+very center of the booth, covered with a stained, off-white linen 
+cloth. Beside it is a rickety wooden chair. 
+~
+67 67174424 0
+0
+D2
+~
+curtain~
+1 -1  0 67099
+E
+table stained~
+   This nicked and scarred wooden table has surely seen better 
+days, but looks sturdy enough. It is covered with an off-white 
+linen cloth which bears many suspect-looking rusty-red stains, as
+well as various splotches of faded dye.
+~
+E
+rickety chair~
+   This chair wobbles slightly when someone sits in it, but is
+sturdy enough to hold a reasonable amount of weight.
+~
+S
+#67110
+Al-Khamin's Fine Threads~
+   A gigantic loom towers in the far rear corner of this 
+sandstone building, a menagerie of colourful threads woven within 
+it, not quite to the point of a finished product yet. A few 
+well-crafted wooden tables display a profound plethora of fine 
+garments. A wide range of exotic and unusual colours line the 
+tables, all masterfully created with meticulous hands. The 
+calibre of garb, furniture and the components of the building 
+itself insinuate that this is quite a respectable establishment 
+within the clothing market. A sturdy mahogany door, draped with 
+a curtain of intricately woven blue and yellow threads provides 
+access to another room in the building; rugs decorating the rest 
+of the wall. 
+~
+67 67174424 0
+0
+D0
+~
+carpet~
+1 -1  0 67100
+S
+#67111
+Archer Box for New Minas Morgul~
+   Scourge of the idiot, bane of the unlucky.
+~
+67 1140916232 0
+0
+D0
+~
+~
+0 -1  0 67012
+D1
+~
+~
+0 -1  0 67020
+D2
+~
+~
+0 -1  0 67115
+D3
+~
+~
+0 -1  0 67112
+D5
+~
+~
+0 -1  0 67013
+S
+#67112
+Archer Box for New Minas Morgul~
+   Scourge of the idiot, bane of the unlucky.
+~
+67 1140916232 0
+0
+D0
+~
+~
+0 -1  0 67005
+D1
+~
+~
+0 -1  0 67111
+D3
+~
+~
+0 -1  0 67113
+D5
+~
+~
+0 -1  0 67002
+S
+#67113
+Archer Box for New Minas Morgul~
+   Scourge of the idiot, bane of the unlucky.
+~
+67 1140916232 0
+0
+D0
+~
+~
+0 -1  0 67004
+D1
+~
+~
+0 -1  0 67112
+D3
+~
+~
+0 -1  0 67114
+D5
+~
+~
+0 -1  0 67001
+S
+#67114
+Archer Box for New Minas Morgul~
+   Scourge of the idiot, bane of the unlucky.
+~
+67 1140916232 0
+0
+D0
+~
+~
+0 -1  0 67003
+D1
+~
+~
+0 -1  0 67113
+D3
+~
+~
+0 -1  0 4130
+D5
+~
+~
+0 -1  0 67010
+S
+#67115
+Archer Box for New Minas Morgul~
+   Scourge of the idiot, bane of the unlucky.
+~
+67 1140916232 0
+0
+D0
+~
+~
+0 -1  0 67111
+D1
+~
+~
+0 -1  0 67019
+S
+#67116
+Osgiliath Attack Headquarters~
+No Description Set.
+~
+67 65540 0
+0
+D1
+~
+~
+0 -1  0 67134
+D3
+~
+~
+0 -1  0 67136
+D5
+~
+~
+0 -1  0 67117
+S
+#67117
+Horde Orc and Goblin Central~
+No Description Set.
+~
+67 65536 0
+0
+D0
+~
+~
+0 -1  0 67118
+D1
+~
+~
+0 -1  0 67119
+D2
+~
+~
+0 -1  0 67120
+D3
+~
+~
+0 -1  0 67121
+D4
+~
+~
+0 -1  0 67116
+D5
+~
+~
+0 -1  0 67122
+S
+#67118
+Gothakra Sentinel Orcs and Goblins~
+No Description Set.
+~
+67 65536 0
+0
+D0
+~
+door~
+1 -1  0 67130
+D2
+~
+~
+0 -1  0 67117
+S
+#67119
+TEK Sentinel Orcs and Goblins~
+No Description Set.
+~
+67 65536 0
+0
+D1
+~
+door~
+1 -1  0 67131
+D3
+~
+~
+0 -1  0 67117
+S
+#67120
+Slum-Conscript Orcs and Goblins~
+No Description Set.
+~
+67 65536 0
+0
+D0
+~
+~
+0 -1  0 67117
+S
+#67121
+Azog's Axe Orcs and Goblins~
+No Description Set.
+~
+67 65536 0
+0
+D1
+~
+~
+0 -1  0 67117
+D3
+~
+door~
+1 -1  0 67132
+S
+#67122
+Horde Orc and Goblin Central~
+No Description Set.
+~
+67 65536 0
+0
+D0
+~
+~
+0 -1  0 67123
+D1
+~
+isdoor~
+0 -1  0 67124
+D2
+~
+~
+0 -1  0 67125
+D3
+~
+~
+0 -1  0 67126
+D4
+~
+~
+0 -1  0 67117
+S
+#67123
+Ghen's Crusher Orcs~
+No Description Set.
+~
+67 65536 0
+0
+D0
+~
+door~
+1 -1  0 67127
+D2
+~
+~
+0 -1  0 67122
+S
+#67124
+Yuletid's Goblins~
+No Description Set.
+~
+67 65536 0
+0
+D1
+~
+door~
+1 -1  0 67128
+D3
+~
+~
+0 -1  0 67122
+S
+#67125
+Slavers' Guild Elites~
+No Description Set.
+~
+67 65536 0
+0
+D0
+~
+~
+0 -1  0 67122
+S
+#67126
+Spearclan Orcs and Goblins~
+No Description Set.
+~
+67 65536 0
+0
+D1
+~
+~
+0 -1  0 67122
+D3
+~
+door~
+1 -1  0 67129
+S
+#67127
+Ghen Wandering~
+No Description Set.
+~
+67 65536 0
+0
+D2
+~
+door~
+1 -1  0 67123
+S
+#67128
+Yuletid Wanderer~
+No Description Set.
+~
+67 65536 0
+0
+D3
+~
+door~
+1 -1  0 67124
+S
+#67129
+Spearclan~
+No Description Set.
+~
+67 65536 0
+0
+D1
+~
+door~
+1 -1  0 67126
+S
+#67130
+Gothakra Wanderer~
+No Description Set.
+~
+67 65536 0
+0
+D2
+~
+door~
+1 -1  0 67118
+S
+#67131
+TEK Wanderer~
+No Description Set.
+~
+67 65536 0
+0
+D3
+~
+door~
+1 -1  0 67119
+S
+#67132
+Azog Wandering~
+No Description Set.
+~
+67 65536 0
+0
+D1
+~
+door~
+1 -1  0 67121
+S
+#67134
+Olog-Hai Room~
+No Description Set.
+~
+67 65536 0
+0
+D3
+~
+~
+0 -1  0 67116
+S
+#67136
+Osgiliath Defenders - Assorted~
+No Description Set.
+~
+67 65536 0
+0
+D1
+~
+~
+0 -1  0 67116
+S
+#67137
+New Room~
+   grgsgesgseg
+~
+67 1073807360 0
+0
+S
+#67138
+New Room~
+   grgsgesgseg
+~
+67 1073807360 0
+0
+S
+#67139
+New Room~
+   grgsgesgseg
+~
+67 1073807360 0
+0
+S
+#67140
+New Room~
+   grgsgesgseg
+~
+67 1073807360 0
+0
+S
+#67141
+New Room~
+   grgsgesgseg
+~
+67 1073807360 0
+0
+S
+#67142
+New Room~
+   grgsgesgseg
+~
+67 1073807360 0
+0
+S
+#67143
+New Room~
+   grgsgesgseg
+~
+67 1073807360 0
+0
+S
+#67666
+Sweet Smelling Backroom~
+   This backroom is quite small, and crowded with perhaps a dozen 
+burly figures, all of whom have their faces masked in black 
+headscarves. Garbled, muttered dialects of Haradrim are spoken 
+softly here, incomprehensibly to even those of the Southern 
+nation, and much dealing and trading takes place in the form of 
+large, securely sealed crates. From the north, the noises and 
+sounds of Biko's tavern can be heard. 
+~
+67 1140916252 0
+0
+D0
+~
+~
+0 -1  0 67106
+S
+#67667
+Storeroom For Drugs~
+   Crates and crates and crates of khaskhas are stored here. 
+~
+67 1409351688 0
+0
+S
+#67144
+About a Large Firepit~
+   This corner of the hand-hacked cavern is soot streaked and the 
+high ceiling is lost in the thick, hazy cloud of smoke that 
+gutters above the heads of most denizens of the underwarrens. To 
+the northeast, a large roaring fire burns day and night, 
+consuming trash, rats and dead bodies impartially and constantly. 
+The entire area is rather cramped, with orkin roasting meat, 
+rutting, dancing and dying all in the glow of firelight. A 
+tunnel leads away from the clamour to the south. 
+~
+67 2163208 0
+0
+D0
+~
+~
+0 -1  0 67146
+D1
+~
+~
+0 -1  0 67145
+D2
+~
+~
+0 -1  0 70015
+P
+look glance exam examine~
+fire firepit pit~
+vstr This large pit has been shallowly scraped out of the cavern floor and is full of tattered clothing, corpses, refuse, sticks, logs and even a few red-hot coals. Its flames lick the air and the smoke haze of the cavern makes the shadows of passing orkin on the walls dance wraithlike.
+fidone
+~
+S
+#67145
+About a Large Firepit~
+   This corner of the hand-hacked cavern is soot streaked and the 
+high ceiling is lost in the thick, hazy cloud of smoke that 
+gutters above the heads of most denizens of the underwarrens. To 
+the northwest, a large roaring fire burns day and night, 
+consuming trash, rats and dead bodies impartially and constantly. 
+The entire area is rather cramped, with orkin roasting meat, 
+rutting, dancing and dying all in the glow of firelight. 
+~
+67 2163208 0
+0
+D0
+~
+~
+0 -1  0 67147
+D3
+~
+~
+0 -1  0 67144
+P
+look glance exam examine~
+fire firepit pit~
+vstr This large pit has been shallowly scraped out of the cavern floor and is full of tattered clothing, corpses, refuse, sticks, logs and even a few red-hot coals. Its flames lick the air and the smoke haze of the cavern makes the shadows of passing orkin on the walls dance wraithlike.
+fidone
+~
+S
+#67146
+About a Large Firepit~
+   This corner of the hand-hacked cavern is soot streaked and the 
+high ceiling is lost in the thick, hazy cloud of smoke that 
+gutters above the heads of most denizens of the underwarrens. To 
+the southeast, a large roaring fire burns day and night, 
+consuming trash, rats and dead bodies impartially and constantly. 
+The entire area is rather cramped, with orkin roasting meat, 
+rutting, dancing and dying all in the glow of firelight. A 
+tunnel leads away from the clamour to the north. 
+~
+67 2163208 0
+0
+D0
+~
+~
+0 -1  0 71045
+D1
+~
+~
+0 -1  0 67147
+D2
+~
+~
+0 -1  0 67144
+P
+look glance exam examine~
+fire firepit pit~
+vstr This large pit has been shallowly scraped out of the cavern floor and is full of tattered clothing, corpses, refuse, sticks, logs and even a few red-hot coals. Its flames lick the air and the smoke haze of the cavern makes the shadows of passing orkin on the walls dance wraithlike.
+fidone
+~
+S
+#67147
+About a Large Firepit~
+   This corner of the hand-hacked cavern is soot streaked and the 
+high ceiling is lost in the thick, hazy cloud of smoke that 
+gutters above the heads of most denizens of the underwarrens. To 
+the southwest, a large roaring fire burns day and night, 
+consuming trash, rats and dead bodies impartially and constantly. 
+The entire area is rather cramped, with orkin roasting meat, 
+rutting, dancing and dying all in the glow of firelight. 
+~
+67 2163208 0
+0
+D2
+~
+~
+0 -1  0 67145
+D3
+~
+~
+0 -1  0 67146
+P
+look glance exam examine~
+fire firepit pit~
+vstr This large pit has been shallowly scraped out of the cavern floor and is full of tattered clothing, corpses, refuse, sticks, logs and even a few red-hot coals. Its flames lick the air and the smoke haze of the cavern makes the shadows of passing orkin on the walls dance wraithlike.
+fidone
+~
+S
+#67148
+A Large Construction Site~
+   Stacks of lumber and piles of rock fill much of this large 
+construction site in the underwarrens, situated near the cesspool 
+which lies just to the east. The stink carries through the 
+hollowed-out shell of a building, though, without walls and 
+having only a set door-frame standing to mark it as anything but 
+a pile of trash and refuse. 
+~
+67 65536 0
+0
+P
+leave exit out go~
+outside construction site building  ~
+vstr You move away from the construction site, nearer the cesspool.
+ostr $n moves away from the construction site, nearer the cesspool.
+trans 71048
+atlook 71048
+ostr $n moves away from the construction site.
+fidone
+~
+P
+look glance~
+outside cesspool out west south east north down up~
+vstr You glance through the partially-constructed doorframe.
+ostr $n glances through the partially-constructed doorframe.
+atlook 71048
+fidone
+~
+S
+#67149
+Inside a Murky Olive Green Shanty~
+   This sordid shelter is constructed from mismatched wooden 
+boards and large sheets of iron, lashed together with rope in 
+some places while other parts of the walls seem to stay together 
+out of sheer camaraderie. Gaps and holes in the makeshift walls 
+have been patched up with leather and bits of wood, and the whole 
+thing seems like it would protect its inhabitants from little 
+more than the elements. A broad straw mat occupies a portion of 
+the bare ground while the rest is carpeted with skins and furs. 
+The roof is a slanted construction of wooden boards hammered 
+together with nails that protrude through the inside in places. 
+The door is a questionable slab of tarnished metal held in place 
+with a padlock on each side. 
+~
+67 67174660 0
+0
+D0
+~
+murky-green-door~
+1 67015  70 66062
+P
+look l lo look~
+window street out~
+vstr As you look out the window, you can see: 
+atlook 66062
+~
+S
+#67150
+A Ramshackle Building~
+   The hum of the road is virtually non-existent in this 
+run-down, derelict building. What windows once existed at its 
+front have now been so extensively shuttered up that they are 
+thicker than the original walls. The heavy oaken door that 
+guards the front is marred with scratches, splotches of paint and 
+fungus. The door has a hatch that may be pulled across to peek 
+outside. Unlike most buildings in the slums, this one has a 
+wooden floor, the poorly laid, old boards creaking as one moves 
+across them. Two filthy windows sit on either side of a rickety 
+door looking out over the yard. 
+~
+67 67176712 0
+0
+D0
+~
+shabby-door~
+1 67016  60 67152
+D1
+~
+flimsy-door~
+1 -1  0 67151
+D2
+~
+rickety-door~
+1 67016  60 66065
+D5
+~
+rotting-trapdoor~
+1 67017  60 67153
+P
+peer peek peep~
+south hole door~
+vstr You look through the small peep hole in the south door and see...
+ostr $n looks through the small peep hole in the south door.
+atlook 66065
+~
+P
+look l lo look~
+window yard out~
+vstr As you look out the window, you can see: 
+atlook 67152
+~
+P
+open close~
+shutter window~
+if flag(indoors,67150) 
+vstr You open the shutters, allowing light and outside weather to flow in.
+rftog indoors 67150
+else do
+vstr You close the shutters, barring the light and outside weather from entering.
+rftog indoors 67150
+fi done
+~
+S
+#67151
+A Small, Stuffy Room~
+   This room is considerably smaller than the front room. It is 
+noticeably lacking in floorboards, packed dirt and straw acting 
+as a floor instead. It is generally cast into darkness as it has 
+no windows, the only glimmer of daylight creeping its way in when 
+the door is open. Perhaps as a result of its lack of 
+circulation, the room carries a heavy air, its odour generally 
+unpleasant with rats and mice often seen peaking above the floor 
+or out of the walls. The only exit is to the west, back into the 
+buildings largest room. 
+~
+67 67176712 0
+0
+D3
+~
+flimsy-door~
+1 -1  0 67150
+S
+#67152
+A Rocky, Barren Yard~
+   Uneven as it climbs upwards away from the building to the 
+south, this yard is bleak and unforgiving. Only small patches of 
+grass claw their way out of the rocky ground, and when they do 
+their life tends to be short. The yard is large enough, allowing 
+enough space for four or so humans to comfortably move about it. 
+To the north the yard is halted by an massive, looming pile of 
+trash that towers high above, ending the expansion of this part 
+of the slums. Low shanties and two-storey wooden buildings can 
+be seen to stretch and twist to the east and west, the high trash 
+pile to the north dictating where they be built and their size. 
+To the south, a filthy door leads into a building. 
+~
+67 67584 0
+0
+D2
+~
+shabby-door~
+1 67016  60 67150
+P
+climb cl cli clim ~
+trash tr tra tras debris de debr debri~
+vstr You slip and slide up the pile of trash.
+ostr %n slips and slides up the pile of trash.
+trans 66066
+atlook 66066
+ostr %n disappears over the pile of trash.
+~
+S
+#67153
+A Dismal, Foul-Smelling Wooden Cell~
+This dank, unstable wooden cell is barely six foot in height, the only
+source of light coming from the tiny cracks and gaps in the few floorboards
+above that act as its sole entrance and exit. The ground is made up of
+packed dirt and straw and the walls are a mixture of naked soil supported
+by the occasional plank of wood. Crude beams support the wooden roof
+and the stomping of feet can be heard whenever anyone moves about
+above. The air is stuffy, foul and accompanied by the constant squeak
+of rats and mice. Cobwebs and their spiders are to be found everywhere
+about the cell. A rudimentary step ladder rests by one part of the cell,
+allowing one to boost themselves up in order to climb out, once
+the rotting trapdoor is opened that is.
+~
+67 67174664 0
+0
+D4
+~
+rotting-trapdoor~
+1 67017  60 67150
+S
+#67154
+Inside a Roomy, Striped Tent~
+   Wide and long this well-constructed, red striped tent is roomy 
+and comfortable. The canvas dulls the sounds of the surrounding 
+market and affords decent shelter from the weather. A plank on 
+overturned barrels doubles as a counter. This area of the tent 
+is closed off behind the counter by a stout door, set in a wall 
+of logs. A sturdy wooden ramp of logs leads down the the square. 
+A flag allows you to leave the tent. #6leave tent#8 
+~
+67 67700760 0
+0
+D1
+~
+stout-door~
+1 67018  60 67155
+P
+leave go walk ~
+tent~
+vstr You lift the flap and leaves a red-stripped tent.
+ostr $n lifts the flap and leaves a red-stripped tent.
+trans 67158
+atlook 67158
+ostr $n lifts the flap and leaves a red-stripped tent.
+~
+P
+ring ~
+bell~
+ostr The bell gives a resounding 'ding' as $n rings it.
+vstr The bells gives a resounding 'ding' as you ring it.
+atecho (67155) The sound of a loud bell drifts in from the storefront.
+atecho (67156) The sound of a loud bell drifts in from the living room.
+atecho (67157) The sound of a loud bell drifts in from the living room.
+~
+S
+#67155
+A Small Living Quarter~
+   Small but comfortable this room boasts a curving u-shaped, 
+wooden ceiling and white-washed, log walls. The logs are chinked 
+with mud and straw. A lantern swings from the ceiling throwing 
+uneven light across the room. The floor is constructed of bare 
+planks of sanded pine covered with fresh rushes. 
+~
+67 67176716 0
+0
+D1
+~
+narrow-door~
+1 67018  60 67156
+D2
+~
+tattered-curtain~
+1 -1  0 67157
+D3
+~
+stout-door~
+1 67018  60 67154
+P
+look l lo look~
+window street out~
+vstr As you look out the window, you can see: 
+atlook 67158
+~
+P
+open close~
+shutter window~
+if flag(indoors,67155) 
+vstr You open the shutters, allowing light and outside weather to flow in.
+rftog indoors 67155
+else do
+vstr You close the shutters, barring the light and outside weather from entering.
+rftog indoors 67155
+fi done
+~
+P
+peer peek peep~
+west hole door~
+vstr You look through the small peep hole in the western door and see...
+ostr $n looks through the small peep hole in the western door.
+atlook 67158
+~
+S
+#67156
+Inside A Small Closet~
+   Lined with shelves and hooks, this small room is clean and 
+neat. Wares are artfully displayed on the shelves and hanging on 
+hooks and racks. 
+~
+67 336658440 0
+0
+D3
+~
+narrow-door~
+1 67018  60 67155
+S
+#67157
+A Cramped Workroom~
+   Cabinets, shelving and a bench clutters this tiny room. 
+Crates litter the planked floor and lanterns hang from either 
+side of the door. A small hearth and stove crowd one corner of 
+the tiny room and hooks are set into the u-shaped wooden ceiling. 
+The log walls are chinked with mud and straw. 
+~
+67 67176704 0
+0
+D0
+~
+tattered-curtain~
+1 -1  0 67155
+S
+#67158
+A Small Walkway~
+   Jutting out above the Market Place below this small walkway is 
+bare rock. A large red-stripped tent spans the length of the 
+ledge. Buildings, most fashioned out of wood but some looking to 
+be carved directly out of the mountain can be seen spreading out 
+behind the tent and across the plateau. A wide log ramp, chinked 
+with mud and straw leads down to the market place proper. A 
+flap, allows entrance into the tent. #6enter tent#8 
+~
+67 67700752 1
+0
+D5
+~
+~
+0 -1  0 66016
+P
+enter go walk ~
+tent~
+vstr You lift the flap and enter a red-stripped tent.
+ostr $n lifts the flap and enters a red-stripped tent.
+trans 67154
+atlook 67154
+ostr $n lifts the flap and disappears into a red-stripped tent.
+~
+S
+#67159
+A Squalid, Small Shanty~
+   This squalid shanty's thin walls do little to keep out the 
+noises of the shantytown, or its smells. Wind howling in along 
+the rocks and across the cliffs, between the gaps in the housing, 
+brings with it at times scattered rain, choking dust, grit and 
+dirt - creeping through the shoddy caulking. The floor is packed 
+dirt and a threadbare woolen rug covers much of it, patched 
+unevenly and multi-coloured. The shanty is completely windowless 
+and appears, while certainly by no means comfortable, in no 
+immediate danger of caving into itself. The door, a roughly-cut 
+section of thin metal, has a heavy padlock and sturdy iron bolt 
+hinges. 
+~
+67 70320392 0
+0
+D3
+~
+door~
+1 67019  0 66069
+S
+#67160
+A Dilapidated Main Hall~
+   Seemingly spacious like a grand entrance hall, this ragged 
+room hints at seeing better days. Carved ornamentation in the 
+wall has been chipped and in some cases beaten away. Pillars 
+that were once aesthetic are broken, giving the room a almost 
+claustrophobic feel as if the sinking roof might collapse. 
+Crimson, moth-eaten curtains hang over boarded up windows with 
+scattered glass about the bare wooden floor. The sole source of 
+light here is a busted lantern which gives off a dim shade of 
+light. A door to the east leads into another room while a large 
+iron ring on the ground hints at the presence of a trapdoor. 
+~
+67 67176716 0
+0
+D1
+~
+rickety-door~
+1 -1  0 67162
+D3
+~
+dingy-green-door~
+1 67021  65 66073
+D4
+~
+~
+0 67021  65 67161
+D5
+~
+trap-door~
+1 67021  65 67161
+S
+#67161
+A Cold, Stone-Walled Cellar~
+   This cellar has been carved out of the mountain and its walls 
+are made of natural, black stone. The walls are hardly straight, 
+rock jutting out in some places and the corners of the room are 
+rounded. The floor is halfway covered with rotten wooden planks 
+and the other half of the floor is solid rock ground. A musty 
+scent lingers in the air, heavy on the nostrils. A sturdy 
+trapdoor with a rocked carved stairs leads up. A dim, dying 
+lantern hangs from a hook in the stone wall, the light 
+occasionally flickering out. 
+~
+67 67176712 0
+0
+D4
+~
+trap-door~
+1 67021  65 67160
+S
+#67162
+A Lopsided, Small Bedroom~
+   Everything in this room seems a bit off, signs of rot and 
+cracks run down the swollen wooden walls as if the foundation of 
+this room were splitting at the seams. The whole room seems to 
+lean downward as if built on a slope. Faded, dull grey wooden 
+planks line the floor with the occasional loose nail able to 
+catch the foot or boot. Patchwork ratty curtains drape over a 
+nearby window, giving a dull shade of light to the room. 
+~
+67 67176712 0
+0
+D3
+~
+rickety-door~
+1 -1  0 67160
+S
+#67163
+The Bloody Scalpel~
+   The floor of this airy, spacious clinic is made of 
+closely-fitted dark stones, which are coupled with whitewashed 
+masonry walls, lending this area a soothing feeling of 
+cleanliness and peace. A few simple beds are set on the eastern 
+end, where those bearing illness are tended or rest. The 
+resident Healer and a wide, operating table stand behind a 
+discreet white linen curtain, the stone cover kept spotless when 
+not in use. 
+~
+67 67698712 0
+0
+D0
+~
+door~
+1 -1  0 66730
+D2
+~
+door~
+1 67022  75 67164
+P
+ring ~
+bell~
+ostr The bell gives a resounding 'ding' as $n rings it.
+vstr The bells gives a resounding 'ding' as you ring it.
+atecho (67164) The sound of a loud bell drifts in from the storefront.
+atecho (67168) The sound of a loud bell drifts in from the storefront.
+atecho (67165) The sound of a loud bell drifts in from upstairs.
+atecho (67166) The sound of a loud bell drifts in from downstairs.
+atecho (67167) The sound of a loud bell drifts in from downstairs.
+~
+S
+#67164
+A Modest, Aromatic Workroom ~
+   This modest, pleasant room has whitewashed stone walls and a 
+dark tiled floor. Creating a colourful display, bundles of both 
+fresh and dried flowers and herbs hang from the ceiling beams 
+while several storage pieces are arranged along one wall with a 
+long workbench. Rows of shelving hold the various tools and 
+ingredients used in the owner's trade and in the west. This room 
+seems to double as a common area and a workroom. 
+~
+67 67174664 0
+0
+D0
+~
+door~
+1 67022  75 67163
+D2
+~
+door~
+1 67022  75 67168
+D4
+~
+door~
+1 67022  75 67166
+D5
+~
+trapdoor~
+1 -1  0 67165
+P
+peer peek peep~
+north hole door~
+vstr You look through the small peep hole in the northern door and see...
+ostr $n looks through the small peep hole in the norther door.
+atlook 67163
+~
+S
+#67165
+A Large, Dark Cellar~
+   A flight of ancient grey stone steps lead into this room, the 
+center of the steps worn down with a hollow from the centuries of 
+use. The walls of the cellar are made of dark grey stone, and it 
+appears the cellar was carved out of the rock. Small rustlings 
+in the darkness hint that perhaps there are some rodent denziens 
+in this cellar. The walls are lined with bins and shelves made 
+of roughly smoothed wood, and there are two isles of yet more 
+bins and shelves dividing the center of the room into thirds. On 
+the west wall can also be seen some ancient wine racks with some 
+dusty bottles housed within. 
+~
+67 67174664 0
+0
+D4
+~
+trapdoor~
+1 -1  0 67164
+S
+#67166
+The Master's Bedroom~
+   This room is spacious and comfortable. The stone floor is 
+covered by a thick, light grey woolen carpet, stretching over 
+most of the open floor space. Closely fitted stone slabs can be 
+seen in between the carpet and various pieces of furniture. 
+Lightning is provided by a pair of clear glass lamps, as well as 
+by a large, clear glass window to the north. This room is silent 
+and calm, allowing for the inhabitant to rest or study easily. A 
+teakwood door in the western wall and eastern wall provide exit 
+from the room. 
+~
+67 67174664 0
+0
+D4
+~
+door~
+1 -1  0 67167
+D5
+~
+door~
+1 67022  75 67164
+P
+look l lo loo look~
+window street out~
+vstr As you look out the window, you can see: 
+atlook 66730
+~
+P
+open close~
+shutter window~
+if flag(indoors,67166) 
+vstr You open the shutters, allowing light and outside weather to flow in.
+rftog indoors 67166
+else do
+vstr You close the shutters, barring the light and outside weather from 
+entering.
+rftog indoors 67166
+fi done
+~
+S
+#67167
+Low-Roofed Stone Attic~
+   A small space set between the second floor and the flat stone 
+roof, this attic is high enough only for the shortest of men to 
+walk without hunching and ducking, lest they strike their heads 
+against the hard, dark-stoned roof. Large windows with shutters 
+allow a wide view out onto the streets of Tur Edenor and let air 
+pass through the room, clearing out the stagnant, slightly 
+claustrophobic atmosphere. An opening in the wooden floorboards 
+in the north of the room allows one to descend down a stone 
+staircase to the first floor of the building. 
+~
+67 67174664 0
+0
+D5
+~
+door~
+1 -1  0 67166
+P
+look l lo loo look~
+window street out~
+vstr As you look out the window, you can see: 
+atlook 66730
+~
+P
+open close~
+shutter window~
+if flag(indoors,67166) 
+vstr You open the shutters, allowing light and outside weather to flow in.
+rftog indoors 67166
+else do
+vstr You close the shutters, barring the light and outside weather from 
+entering.
+rftog indoors 67166
+fi done
+~
+S
+#67168
+Storeroom for The Bloody Scalpel~
+   Smaller than the main room, this store-room is tucked in the 
+back of the clinic. Several shelves line the stone walls, each 
+neatly arranged with a variety of bandages, wraps and tools, 
+while the fragrant smell of herbal remedies rises from another. 
+~
+67 336134152 0
+0
+D0
+~
+door~
+1 67022  75 67164
+S
+#67169
+A Small, Dusty Yard~
+   This dusty yard of packed dirt is rather small. A high stone 
+wall and iron-barred gate separates it from the rest of the city, 
+topped with cruelly barbed, iron spikes. The noise from the 
+street to the north and the Market Square to the far west is a 
+muted drone in the yard. Closer, pressed up against the western 
+wall, is a small wooden shack: rank smells waft from that 
+direction. South is a two-storied stone building. Through its 
+open archway can be seen ragged blankets, nests, and cots. 
+~
+67 67174400 1
+0
+D0
+~
+gate~
+3 67023  0 66106
+D2
+~
+~
+0 -1  0 67171
+D3
+~
+door~
+1 -1  0 67170
+S
+#67170
+Latrine~
+   This small wooden building consists of thinly planked walls, a 
+dirt floor, and a roof of tin sheeting that slopes gently towards 
+the western wall of the outside compound. It is utterly barren 
+save for a large trench dug into the packed earth, and this 
+trench runs four or five feet into the ground. Judging by the 
+hasty construction of both the building and the trench, falling 
+in would be easy. Climbing out might prove considerably more 
+difficult. 
+~
+67 67174408 1
+0
+D1
+~
+door~
+1 -1  0 67169
+S
+#67171
+Barracks~
+   Rectangular in shape, the walls and floors of this building 
+are made of the same grey stone. A few of the stones on the 
+floor are cracked and not-so-old bloodstains mark the room here 
+and there. The walls are bare except for a few scratch marks and 
+cracks, and are rough to the touch. Simple sconces are placed 
+far apart, lighting this spartan room dimly. To the north an 
+archway leads out into a dusty yard. In the southwest corner of 
+the room a narrow and steep staircase leads upwards to another 
+floor. 
+~
+67 67174664 0
+0
+D0
+~
+~
+0 -1  0 67169
+D2
+~
+door~
+1 66870  60 67176
+D4
+~
+~
+0 -1  0 67172
+S
+#67172
+Barracks~
+   Bleak grey stone walls frame this rectangular room. Of 
+average craftsmanship the stones aren't all flush, some sticking 
+out a bit here and there. The floor, made of the same grey stone 
+as the walls isn't completely even. Cracked stones here and 
+there along with signs of blood that wasn't cleaned up properly 
+speak of a rough, if recent, past. Torches give off a dim light 
+throughout the room when light isn't shining through an 
+iron-barred window that looks out over the yard to the north. In 
+the southwest corner a narrow staircase with tall steps leads 
+down into a similar room below. 
+~
+67 67174664 0
+0
+D3
+~
+door~
+1 66869  20 67175
+D5
+~
+~
+0 -1  0 67171
+S
+#67173
+Sloped Tunnel Of Dark Rock~
+   This tunnel has been cut into the rock and slopes sharply 
+downwards, progressively more dank and damp the deeper one goes. 
+The walls of this tunnel are uneven and rough to the touch, 
+gather fungus and are perpetually chilly. Widening out to the 
+east, the tunnel comes to a blunt end and forms a small, 
+bowl-shaped cave. 
+~
+67 65608 0
+0
+D1
+~
+~
+0 -1  0 67174
+D4
+~
+~
+0 -1  0 66199
+S
+#67174
+Small, Bowl-Shaped Cave~
+   This small cave has been cut from the dark rock much of the 
+caverns above rest on, and as such echoes from the sounds of 
+orkish life above, and the steady drip, drip, drip of water from 
+far below. Due to the haphazard construction of this cave, 
+everything slopes in, forming a shallow bowl and a muddy pool at 
+its center. The walls are uneven, roughly hewn, and the entire 
+place reeks of musty decay. 
+~
+67 65992 0
+0
+D3
+~
+~
+0 -1  0 67173
+S
+#67175
+A Cubic Stone Room~
+   This room is little more than a hollowed cube of grey stone. 
+To the north rests an iron-barred window, allowing a view into 
+the yards below. Eastward lies a simple wooden door with a 
+lockable bronze door knob. On the southern wall is an iron torch 
+sconce, offering a source of light to the room's occupants. 
+~
+67 67174400 0
+0
+A
+~
+~
+~
+~
+~
+~
+   This room is little more than a hollowed cube of grey stone. 
+To the north rests an iron-barred window, allowing a view into 
+the torch lit yards below. Eastward lies a simple wooden door 
+with a lockable bronze door knob. On the southern wall is an 
+iron torch sconce, filling the room with an occasional sputter 
+and flickering light. 
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D1
+~
+door~
+1 66869  20 67172
+S
+#67176
+An Ornate Recreational Room~
+   The gray stone ceases at the doorway of this room, giving way 
+to polished sandstone. It is small and contains several 
+iron-barred windows with closable wooden shutters. To the north 
+west of the room a simple crater has been hollowed out, about 
+three feet deep and five in diameter to allow for a bathing pool. 
+Along the windows are extended slabs of sandstone, to allow for 
+the placement of decorations. From the ceiling hangs a simple, 
+iron-chained chandelier, giving light to the room during the 
+night. 
+~
+67 67174408 0
+0
+D0
+~
+door~
+1 66870  60 67171
+S
+#67177
+A Spacious Workshop~
+   This workshop has been arranged neatly with a few lanterns 
+hanging from the ceiling to brighten the room. The floor is made 
+of a plain hardwood, laid over the stone, decorated by several 
+nicks at random place along the floor. To the southern end, 
+against the wall of the room, a large workbench can be found, 
+flanked by a series of shelves that is filled with drying animal 
+hides. 
+~
+67 67174664 1
+0
+D3
+~
+door~
+1 66865  0 66242
+D4
+~
+trapdoor~
+1 66865  0 67178
+S
+#67178
+A Damp Storeroom~
+   This storeroom is covered by dark wood panelling, both on the 
+floor and the walls. Few lanterns hang from the ceiling and 
+partially light the room, aided in this by what sunlight passes 
+through a small window that is set on the northern side of the 
+room. Shelves and crate have been arranged in order against the 
+wall, showing that this room used to put up ready items for 
+display puposes only. 
+~
+67 336134152 1
+0
+D5
+~
+trapdoor~
+1 66865  0 67177
+S
+#67179
+On the Northern End of a Black Canvas Tent~
+   Fashioned in the same manner as it's larger equivalent to the 
+south, this annex holds a bare, hard decorum. The walls are of 
+dark, grimy canvas, and the only light is provided by a flap 
+which has been rolled up on the eastern side. During all times 
+of the day, bronze-clad guards stand vigilant near the entrance, 
+keeping watch over their surroundings. 
+~
+67 67698712 0
+0
+D2
+~
+flap~
+1 -1  0 66197
+S
+#67180
+The Southern Annex of a Black Canvas Tent~
+   Akin to design as the room to the north, this annex maintains 
+a military, no-nonsense atmosphere. The walls are of dark, grimy 
+canvas, and the only respite form the dark is provided by a flap 
+which has been rolled up on the eastern side. Bronze-armored 
+guards stand guard at all hours of the day, maintaining their 
+post beside the entrance 
+~
+67 67698712 0
+0
+D0
+~
+flap~
+1 -1  0 66197
+S
+#67181
+A Damp Torchlit Hallway~
+   Damp and dripping, this musty hallway leads straight from the 
+gatehouse to the north southward, cut into the craggy rock of Tur 
+Edendors peaks. The noise of wagons and spot-checks of the Black 
+Watch are regularly heard to the north, echoed down this enclosed 
+torchlit hallway. An iron-barred door blocks further passage in 
+the southern black rock. 
+~
+67 69795866 0
+0
+D0
+~
+~
+0 -1  0 66110
+D2
+~
+iron-barred-door~
+1 67028  60 67182
+S
+#67182
+An Underground Martial Yard~
+   Hewn from the craggy rock of Tur Edendor this underground room 
+is dank and musty. Roughly oval in shape it still bear marks of 
+its construction with deep chisel marks along the walls and 
+scattered rock at its base. A number of torches have been stuck 
+into black iron sconces to cast ample light onto the surrounding 
+area. Hung on the walls are several animal head trophies - 
+glaring boars with jutting tusks, a giant mottled warg with 
+mismatched eyes and several wolves baring their fangs and gum. A 
+small stone well has been constructed in the centre of this 
+underground yard, drips echoing in its dark Small rock alcoves 
+have also been hewn from the wall where a variety of things are 
+stored from masonry tools to cooking equipment. 
+~
+67 69795850 0
+0
+D0
+~
+iron-barred-door~
+1 67028  60 67181
+D1
+~
+reinforced-door~
+1 67028  60 67183
+D2
+~
+~
+0 -1  0 67184
+D3
+~
+stable-door~
+1 -1  0 67199
+D5
+~
+~
+0 -1  0 67185
+S
+#67183
+A Wooden Cookhouse~
+   This wooden structure has been hastily fashioned, the walls 
+bereft of any decoration. A small hole in the roof allows for 
+smoke to trail out and there are a number of additional windows, 
+only covered by thin animal hide flaps. The floor is the 
+hard-packed stone of the market square, worn and coarse. A few 
+rough stone counters are positioned against the walls and shelves 
+atop them. 
+~
+67 67174424 0
+0
+D3
+~
+reinforced-door~
+1 67028  60 67182
+S
+#67184
+A Damp Rock-Hewn Corridor~
+   Water drips through the craggy rock of this corridor onto the 
+cold stone floor giving it a damp and sour twinge to the nose. 
+The corridor is roughly straight, leading from a wide oval 
+martial yard to the north southward. A number of black iron 
+sconces line the jagged walls, casting a dull orange light 
+through the area. 
+~
+67 67174424 0
+0
+D0
+~
+~
+0 -1  0 67182
+D1
+~
+door~
+1 66921  60 67186
+D2
+~
+~
+0 -1  0 67189
+D3
+~
+iron-enforced-door~
+1 66922  60 67188
+D4
+~
+~
+0 -1  0 67190
+S
+#67185
+A Rock-Hewn Cavern by an Underground Stream~
+   The prominent feature of this underground cavern is the little 
+stream that passes from the north over the jagged black rock of 
+Tur Edendor and south through a thin hole in the rockbed, worn 
+through by thousands of years. The cavern itself is roughly 
+circular in shape and has been hewn from the very same black 
+rock. The stream is tucked into the very western portion of the 
+room, where soldiers often relax on straw mats washing their 
+equipment. Thanks to the stream, the air down here is much 
+cooler than above. So, a number of comfortable chairs and tables 
+have been set around the area. A narrow stairwell carved from 
+black rock leads to the martial yard above. 
+~
+67 67174680 0
+0
+D4
+~
+~
+0 -1  0 67182
+S
+#67186
+A Rock-Hewn Workshop~
+   Hewn from the black peaks of Tur Edendor this workshop still 
+shows signs of its construction, rubble and masonry tools strewn 
+around the base of the walls which themselves bear chisel marks. 
+The air inside here is hot and stuffy, even though a small 
+iron-barred window looks onto the market square where carts 
+rattle by. The room extends further to the south through a 
+narrow rock hallway lined with black iron sconces. 
+~
+67 67174424 0
+0
+D2
+~
+~
+0 -1  0 67187
+D3
+~
+door~
+1 66921  60 67184
+S
+#67187
+A Rock-Hewn Worshop Extension~
+   A number of iron sconces have been bolted into the rock hewn 
+walls here, shedding ample torchlight over the surroundings. 
+Signs of this muggy room's construction are still visible at the 
+base of the chiselled walls where debris still lies in heaps. 
+That said, there is enough room in this workshop for numerous 
+workbenches, shelves and tables. 
+~
+67 67174424 0
+0
+D0
+~
+~
+0 -1  0 67186
+S
+#67188
+A Long Rock-Hewn Armory~
+   A number of iron sconces have been bolted into the rock hewn 
+walls of this armory, shedding ample torchlight over the 
+surroundings. Signs of this muggy rooms construction are still 
+visible at the base of the chiselled walls where debris still 
+lies in heaps. Shelves and crates line the two walls that extend 
+far into the rock westward. 
+~
+67 67174424 0
+0
+D1
+~
+iron-enforced-door~
+1 66922  60 67184
+S
+#67189
+A Vast Rock-Hewn Barracks~
+   Cut from the black rock of Tur Edendor's peaks this vast 
+underground barracks opens out from the northern hallway, lit up 
+by scores of black iron sconces. Bunks and beds have been 
+roughly ordered into blocks alongside the craggy wall. Soldiers 
+of all background mill around in this usually quiet atmosphere, 
+cleaning equipment, sleeping or talking. 
+~
+67 67174680 0
+0
+D0
+~
+~
+0 -1  0 67184
+D5
+~
+trapdoor~
+1 -1  0 67200
+S
+#67190
+Inside a Craggy Rock Bastion~
+   Craggy black stairs lead into this hastily constructed stone 
+bastion from a busy hallway below. Torches sputter in black iron 
+sconces, shedding ample firelight over the roughly chiselled 
+walls. In the western wall of this small bastion an iron-barred 
+door has been constructed, winds whistling through the bars. 
+~
+67 67174424 0
+0
+D1
+~
+door~
+1 66922  60 67198
+D3
+~
+iron-barred-door~
+1 -1  0 67191
+D5
+~
+~
+0 -1  0 67184
+S
+#67191
+A Wooden Boardwalk around Black Peaks~
+   Harsh winds rush through the high peaks of the Ephel Duath 
+here, though not quite strong enough to unsettle this narrow 
+wooden boardwalk. Secured tightly with numerous bolts and ropes 
+to the black rock, it snakes its way around a blunt peak to the 
+north and west. Towering high above the ground, there is a 
+decent vantage point over much of South Ithilien here and one 
+might glimpse into the town of Tur Edendor far below to the east 
+and north. 
+~
+67 67174404 3
+0
+D0
+~
+~
+0 -1  0 67195
+D1
+~
+iron-barred-door~
+1 -1  0 67190
+D3
+~
+~
+0 -1  0 67193
+S
+#67192
+In the Air Before the Sheer Slopes of the Ephel Duath~
+   "Whoops!" is the thought that enters your mind, having fallen 
+from the rim of peaks that provides the barrier and border of Tur 
+Edendor and now occupying the chill air off the slopes of the 
+Ephel Duath. The only direction for you to take now is... down, 
+down to the jagged rocks below. 
+~
+67 66564 0
+0
+D0
+~
+~
+0 -1  0 66111
+D2
+~
+~
+0 -1  0 67195
+D4
+~
+~
+0 -1  0 67195
+D5
+~
+~
+0 -1  0 66111
+S
+#67193
+A Wooden Boardwalk in Black Peaks Overlooking South Ithilien~
+   Winding around the black peaks of the Ephel Duath this sturdy 
+boardwalk is a battlement of sorts, giving a good vantage point 
+over South Ithilien. Harsh winds coarse through the stubby 
+peaks, threatening to dislodge the lightest of sentries though a 
+solid iron handrail has been fastened around the edges. The 
+boardwalk continues to the east and meets an intersection. 
+~
+67 67174404 3
+0
+D1
+~
+~
+0 -1  0 67191
+D2
+~
+~
+0 -1  0 67197
+D3
+~
+~
+0 -1  0 67196
+S
+#67194
+In the Air Before the Sheer Slopes of the Ephel Duath~
+   "Whoops!" is the thought that enters your mind, having fallen 
+from the rim of peaks that provides the barrier and border of Tur 
+Edendor and now occupying the chill air off the slopes of the 
+Ephel Duath. The only direction for you to take now is... down, 
+down to the jagged rocks below. 
+~
+67 66564 0
+0
+D1
+~
+~
+0 -1  0 67195
+D3
+~
+~
+0 -1  0 66140
+D4
+~
+~
+0 -1  0 67195
+D5
+~
+~
+0 -1  0 66140
+S
+#67195
+A Wooden Boardwalk through Tur Edendor's Black Peaks~
+   Winding around the black peaks of the Ephel Duath this sturdy 
+boardwalk is a battlement of sorts, giving a good vantage point 
+over South Ithilien. Harsh winds coarse through the stubby 
+peaks, threatening to dislodge the lightest of sentries though a 
+solid iron handrail has been fastened around the edges. The 
+boardwalk continues to the south and meets an intersection. 
+There is a particularly good view here of the ravine road leading 
+to the gates of Tur Edendor. 
+~
+67 67174404 3
+0
+D0
+~
+~
+0 -1  0 67192
+D2
+~
+~
+0 -1  0 67191
+D3
+~
+~
+0 -1  0 67194
+S
+#67196
+In the Air Before the Sheer Slopes of the Ephel Duath~
+   "Whoops!" is the thought that enters your mind, having fallen 
+from the rim of peaks that provides the barrier and border of Tur 
+Edendor and now occupying the chill air off the slopes of the 
+Ephel Duath. The only direction for you to take now is... down, 
+down to the jagged rocks below. 
+~
+67 66564 0
+0
+D1
+~
+~
+0 -1  0 67193
+D3
+~
+~
+0 -1  0 10753
+D4
+~
+~
+0 -1  0 67193
+D5
+~
+~
+0 -1  0 10753
+S
+#67197
+In the Air Before the Sheer Slopes of the Ephel Duath~
+   "Whoops!" is the thought that enters your mind, having fallen 
+from the rim of peaks that provides the barrier and border of Tur 
+Edendor and now occupying the chill air off the slopes of the 
+Ephel Duath. The only direction for you to take now is... down, 
+down to the jagged rocks below. 
+~
+67 66564 0
+0
+D0
+~
+~
+0 -1  0 67193
+D2
+~
+~
+0 -1  0 10754
+D4
+~
+~
+0 -1  0 67193
+D5
+~
+~
+0 -1  0 10754
+S
+#67198
+A Rock-Hewn, Wood-Panelled Room~
+   The craggy black walls of this room are visible through some 
+parts of the wooden slats that have been bolted in place, washed 
+with a drab brown paint for some minor decoration. This room 
+stretches from west to east and meets another wooden door in the 
+roughly hewn rock wall. A number of torches and lamps have been 
+hung from black iron pegs on the wall to shed ample light over 
+the moderately comfortable room. 
+~
+67 67174668 0
+0
+D3
+~
+door~
+1 66922  60 67190
+P
+engage buy request summon~
+slavers slaves slave conscript soldier~
+if clanrank(edendor_legion, sergeant)
+if mexist(66209, 67198)
+vstr The slavers are already here.
+else do
+loadmob 66209 67198
+force 66209 67198 say (entering the room after being summoned) You wanted a conscript, or slave?
+fi done
+else do
+vstr The slavers would not listen to a summons from you.
+fi done
+~
+S
+#67199
+A Rock-Hewn Stable~
+   A number of wooden stalls are set against the two parallel 
+walls of this rock-hewn stable from east to west. Several black 
+iron sconces and lanterns have been fastened to the craggy walls, 
+casting ample light over the number of horses that are kept here. 
+Straw lines the floor of nearly every stall and a wire mesh 
+bucket on each door for food. The strong odour of horse manure 
+is strong and wafts constantly through the area. 
+~
+67 68223000 0
+0
+D1
+~
+stable-door~
+1 -1  0 67182
+S
+#67200
+A Balmy Rock-Hewn Cavern~
+   This underground cavern is dank, humid and musty. Water drips 
+onto the floor from the craggy rock ceiling and forms in puddles 
+around the room. The room is enveloped in darkness, only light 
+from the above filtering in through a small wooden trapdoor. 
+Numerous alcoves in the walls have been cut from the rock for 
+storage and a number of sleeping pallets have been strewn around 
+on the floor. 
+~
+67 2162952 0
+0
+D4
+~
+trapdoor~
+1 -1  0 67189
+S
+#67201
+Distance~
+   What it says 
+~
+67 67436548 3
+0
+D1
+~
+~
+0 -1  0 67202
+D3
+~
+~
+0 -1  0 10729
+S
+#67202
+Archer box for TE RAVINE~
+What it says, foo.
+~
+67 67436544 3
+0
+D3
+~
+~
+0 -1  0 67201
+P
+test~
+~
+set var lhand nothing
+set var rhand nothing
+info lhand room -1 char -1 worn lhand sdesc
+info rhand room -1 char -1 worn rhand sdesc
+vstr &(lhand)
+vstr &(rhand)
+~
+S
+#67203
+A Small, Cramped Shopfront~
+   Shelves filled with merchandise nearly cover three walls of 
+the inside of this tent. A single lamp hanging from the roof 
+with a short length of chain keeps the place lit throughout the 
+night. A small passage between the shelves on the southern wall 
+leads to an inner room. The bare cobbles of the marketplace 
+makes up the floor, but in this small area they have been well 
+swept. 
+~
+67 69271576 0
+0
+D0
+~
+~
+0 -1  0 66001
+D2
+~
+door~
+1 67032  50 67204
+S
+#67204
+A Cluttered Storeroom~
+   All available space in this area has been filled with shelves 
+and crates for storage, leaving little space to move around in. 
+A small passage leads north out into the store. 
+~
+67 337707032 0
+0
+D0
+~
+door~
+1 67032  50 67203
+S
+$~

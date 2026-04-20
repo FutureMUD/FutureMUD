@@ -1,0 +1,101 @@
+#96688
+Orodin MERCHANT_EMPORIUM older man distinguished keeper~
+a distinguished older man~
+A distinguished older man stands behind the counter.~
+   This man has seen many a year, his once full thick head of 
+ebon coloured hair now streaked with gray. A set of gray-blue 
+eyes, speckled with a slight case of cataracts stand above a 
+weathered nose. The lower half of his face is obscured by a 
+neatly trimmed beard, his cheeks above a tanned-rosy hue. Though 
+his body is thin, he carries his frail frame with an air of 
+dignity and refinement. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 3582 0 4324
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+2516 96688 0.800000 1.300000 0.900000 1.100000 4132
+0.000000 0.000000 0 0.000000 0.000000 0 188743680
+-1
+15 25 12 59 54 8 26 35 17 53
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' osgmerchant_fed~
+0 0 0
+#96001
+Orodin MERCHANT_EMPORIUM older man distinguished keeper~
+a distinguished older man~
+A distinguished older man stands behind the counter.~
+THIS IS A CLONE OF THE SHOPKEEP IN 2516.
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 3582 0 4324
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+11552 96688 0.800000 1.300000 0.900000 1.100000 4132
+0.000000 0.000000 0 0.000000 0.000000 0 188743680
+-1
+15 25 12 59 54 8 26 35 17 53
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' osgmerchant_fed~
+0 0 0
+#96000
+Clyde aging grizzled man slouch~
+an aging, grizzled man~
+An aging, grizzled man slouches here.~
+   This man has seen better years, several broad scars on his 
+features a testament to them. Standing at a near average height, 
+flabby muscle wraps his form, a good paunch settling on his gut. 
+His hands are leathery and calloused, a good layer of grit caked 
+beneath the yellowed nails. On his chin, a heavy layer of 
+gristly stubble rests, shifting with each movement of his mouth. 
+~
+10 0 8 0 0 5d1+90 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 12 12 1 12 12 81 12
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' cladimir~
+0 0 0
+$~

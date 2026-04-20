@@ -1,0 +1,797 @@
+#76000
+armband sable bearing crimson viper ANTROZOUS_MOB TEXTILE~
+a sable armband bearing a crimson viper~
+A sable armband bearing a crimson viper lies here.~
+   The armband is made of soft yet simple cotton and had been 
+dyed a sable to match the darkest night. Several laces can be 
+slipped through loops on the opposite side so that it may be tied 
+as tight or loose as the wearer would wish. Set against the dark 
+fabric is a vibrant crimson viper outlined in gold. 
+
+~
+11 4096 134217729
+0 0 0 0
+5 0.000000
+0 0 0 15 0 0 1
+0.000000 0 0 0 7 0 0
+#76001
+bell series brass enormous METAL~
+a series of enormous brass bells~
+Many different types of bells, made of heavy brass, sit in their wheel-rope mounts here.~
+   There are all kinds of different bells here - at least three 
+different sizes and two different shapes. They are connected to 
+a series of wheels and cogs, and pulled upon with one of several 
+ropes, setting in motion different mechanical patterns of 
+pealing. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#76002
+armband $color cloth TEXTILE~
+a $color armband~
+A length of $color cloth is here.~
+   This is a length of squarish $color cloth, relatively durable, 
+and designed to wrapped around the upper arm and knotted off. 
+~
+11 33558528 134217729
+0 0 0 0
+10 0.000000
+0 0 0 10 134217728 0 1
+5.000000 0 0 0 7 0 0
+#76003
+kaal fanatic purchase OTHER~
+A Kaal Fanatic~
+A Kaal Fanatic stands here, ready to be bought~
+~
+61 4198400 1
+66804 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+300.000000 0 0 0 0 0 0
+#76004
+fanatic elite kaal OTHER~
+an elite Kaal fanatic~
+An Elite Kaal is here, ready for purchase.~
+~
+61 4096 1
+66805 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+450.000000 0 0 0 0 0 0
+#76005
+ticket puppy UNIQUE_PNAZIR OTHER~
+a ticket for a shaggy, black-furred puppy~
+A ticket for a shaggy, black-furred puppy lies here.~
+~
+61 0 1
+76003 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76006
+key brass small CULT_OF_MORGOTH_GRANARY METAL~
+a small brass key~
+A small brass key lies here.~
+   This is a small, single-toothed key with a fairly simple head. 
+Made of unpolished brass, it has a loop on the end of it to allow 
+it to sling onto a keyring. 
+~
+18 0 1
+0 0 0 0
+25 0.000000
+0 0 0 15 0 0 1
+0.000000 0 0 0 19 0 0
+#76007
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76008
+heavy rusty gate NORTH_FACING_DEFS OTHER~
+a heavy, rusty gate~
+A heavy, rusty gate blocks the way north.~
+This rusty old gate blocks any way through. It does not look entirely robust. You may even try and -break- the -gate-.
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76009
+shattered gate ITHIL_KITE_DEFS OTHER~
+a shattered gate~
+A shattered gate swings uselessly here.~
+   This is a bent and broken old rusty gate barely swinging on 
+its hinges. 
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76010
+damage gate GATE_BASH_PROG ITHIL_KITE_DEFS OTHER~
+#Bsome damage to the gate#0~
+#BSome damage to the gate.#0~
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76011
+heavy rusty gate SOUTH_FACING_DEFS OTHER~
+a heavy, rusty gate~
+A heavy, rusty gate blocks the way south.~
+This rusty old gate blocks any way through. It does not look entirely robust. You may even try and -break- the -gate-.
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76012
+heavy rusty gate EAST_FACING_DEFS OTHER~
+a heavy, rusty gate~
+A heavy, rusty gate blocks the way east.~
+This rusty old gate blocks any way through. It does not look entirely robust. You may even try and -break- the -gate-.
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76013
+heavy rusty gate WEST_FACING_DEFS OTHER~
+a heavy, rusty gate~
+A heavy, rusty gate blocks the way west.~
+This rusty old gate blocks any way through. It does not look entirely robust. You may even try and -break- the -gate-.
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76014
+mansion ruined OTHER~
+a ruined mansion~
+The ruins of a mansion stands here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76015
+CONSTRUCTION BYBONES VANGUARD_FORTRESS clearing large STONE~
+a large clearing for construction~
+a large area north of the bridge has been completely cleared out. The grass and roots for several hundred feet in all directions torn out, and the earth torched.~
+   The clearing has been torn up and flattened for many yards in 
+each direction, and is almost always abuzz with activity. Large 
+burly men are take shifts rolling massive logs across the earth, 
+flattening it. The beginnings of a foundation is being dug near 
+the center of the area, with great trees having been felled to 
+support the insides of the 'trenchwork'. Shovels and picks lay 
+strewn about, and a great many men have taken up residence here. 
+~
+12 4096 1
+0 0 0 0
+2000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76016
+catapult model small POFGAELSUL BYBONES SIEGEMODEL OTHER"~
+a small working model of a catapult~
+A model of a small catapult rests here, collecting dust.~
+   This model is a deceptively simple assembly of sanded pine 
+wood, yet clearly the work of a skilled hand. A small frame is 
+flanked on the front-end by a pair of outward-facing triangles, a 
+crossguard set between the two posts. A mixture of nails and 
+glue holds it together, and a winded string towards the rear 
+holds what appears to be a basket-capped throwing arm. A pair of 
+tiny dowels allows the string to be winded tighter, and a strip 
+of iron wire threaded through a trio of hooks keeps the arm in 
+place. 
+~
+12 4096 1
+0 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76017
+key long dull iron CABIN_76085_AMDIR_EXT METAL~
+a long, dull iron key~
+A long, dull iron key has been discarded here.~
+~
+18 0 1
+0 0 0 0
+2 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76018
+row of half-decomposed corpses byClub OTHER~
+a row of half-decomposed corpses, all dressed in tattered clothing and armor~
+A row of half-decomposed corpses are lined up against the cavern wall here, their corpses in tattered black clothes and rusted scale armor.~
+   There are a row of corpses here - three to be exact - that 
+have been lined up against the rigid stone wall. It is clear 
+that they have been there for ages as most of the bodies are bare 
+bone. A mere glance with the naked eye alone would not be able 
+to determine cause of death or sex. Despite the age, some hunks 
+of putrid-smelling flesh still hangs to their bodies, which are 
+kept somewhat preserved by the chill air of the cave. But the 
+moisture from many rains over the past years has caused the flesh 
+to bloat and grow soggy, along with the hair that still clings to 
+their scalps. One of the corpses is missing a few random digits 
+on its hand. The corpses are adorned in jet-black cloaks, and 
+all have collars with double stars engraved into their rusting 
+scale collars. Their bodies were once protected by gleaming 
+scale armor, but it has since deteriorated to orange mush due to 
+the water. 
+~
+11 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76091
+simple iron key METAL~
+a simple iron key~
+A simple iron key lies here.~
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76019
+token Gondor claimed ITHILIEN_BASES OTHER~
+#9a Gondor base ownership token#0~
+#9This base has been claimed by the forces of Gondor.#0~
+#EGondor#0
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76020
+token Caolafon Northmen claimed ITHILIEN_BASES OTHER~
+#9a Northmen base ownership token#0~
+#9This base has been claimed by the forces of Caolafon.#0~
+#FNorthmen#0
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76021
+token Orcs orkish claimed ITHILIEN_BASES OTHER~
+#9an orkish base ownership token#0~
+#9This base has been claimed by the orkish forces.#0~
+#ABlackbloods#0
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76022
+token Haradrim Haradan claimed ITHILIEN_BASES OTHER~
+#9a Haradrim base ownership token#0~
+#9This base has been claimed by the forces of Harad.#0~
+#3Harad#0
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76023
+token Balchoth Easterling claimed ITHILIEN_BASES OTHER~
+#9a Balchoth base ownership token#0~
+#9This base has been claimed by the forces of the Balchoth.#0~
+#BBalchoth#0
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76024
+token Mordor united claimed ITHILIEN_BASES OTHER~
+#9a Mordor base ownership token#0~
+#9This base has been claimed by the united forces of Mordor.#0~
+#9Mordor#0
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76025
+token Western Alliance united claimed ITHILIEN_BASES OTHER~
+#9an Alliance base ownership token#0~
+#9This base has been claimed by the united forces of the Western alliance.#0~
+#CAlliance#0
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76026
+black quiver ankle small xxSnorkBuiltxx LEATHER~
+a small black quiver~
+A small black quiver has been left here.~
+   This small thin cylindrical quiver appears to hold few arrows. 
+Inside the tube leather wedges hold the shafts of arrows or bolts 
+tightly while their tips lightly pierce a wooden block at the 
+base. While sacrificing capacity for immobility the quiver looks 
+able to attach to the ankle and affords the wearer the confidence 
+of a full range of motion. The exterior is a dull black high 
+quality leather with subtle accents of a tree running along the 
+front edge and blooming into a branch accented aperture at the 
+top. At the base leather straps appear intended to tie about the 
+ankle while at the top a wide leather strap sports a muted brass 
+buckle that allows the wearer to secure the quiver to their body. 
+~
+57 4096 16777217
+5 0 0 0
+100 0.000000
+0 0 0 30 516 0 1
+50.000000 0 0 0 14 0 0
+#76027
+marker base ownership OOC byCeredir OTHER~
+a base ownership marker~
+This marker doesn't hold any data.~
+   This OOC marker's ldesc is meant to serve as a means to keep 
+track of who's holding which base. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76028
+antlers stag bone mounted OTHER~
+a set of mounted stag antlers~
+A set of mounted stag antlers has been set here.~
+   Care is evident in the presentation of these splayed antlers. 
+They are a clean, gleaming, bone white with nary a nick or 
+scratch evident on their many tines. One cannot help but wonder 
+at the majesty of the animal from which they once were borne. 
+They have been mounted on a placard of dark hardwood and set into 
+a maroon leather cushion. The edge of the mounting cushion is 
+held in place by a series of evenly spaced bronze rivets. 
+~
+12 4198400 0
+0 0 0 0
+400 0.000000
+0 0 0 0 1024 0 1
+80.000000 0 0 0 0 0 0
+#76029
+key iron simple one xxsnork_forpofgritchen METAL~
+a simple iron key~
+A simple iron key lies here forgotten.~
+   This simple squat iron key has a cylindrical shaft supporting 
+a basic set of tines at its end. The handle is a basic flat disk 
+with a single line well cut into it. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#76030
+key iron simple two xxsnork_forpofgritchen METAL~
+a simple iron key~
+A simple iron key lies here forgotten.~
+   This simple squat iron key has a cylindrical shaft supporting 
+a basic set of tines at its end. The handle is a basic flat disk 
+with a double line well cut into it. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76031
+entrance reinforced north BASH_PROG NotShield byCeredir WOOD~
+a reinforced entrance~
+The entrance to the north has been reinforced.~
+   Wooden and sturdy, this door looks like it could stand quite 
+some punishment. You can, however, try to #6break door#0. 
+~
+6 4096 0
+0 0 0 0
+50000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76032
+smoke heavy roiling byCeredir BASH_DOOR OTHER~
+some heavy roiling smoke~
+#3Some heavy, roiling smoke is here, making your eyes water.#0~
+~
+12 4198400 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76035
+manacles progmanacles iron byCeredir METAL~
+iron manacles~
+Some iron manacles are here.~
+   Heavy, forged of dark iron, these manacles seem sturdy enough 
+to restrain even a very strong person. 
+
+#6OOC: Once you #Bwear#0#6 these, you will be shackled and unable 
+to do anything until someone releases you.#0 
+~
+12 4096 16781313
+0 0 0 0
+8100 0.000000
+0 0 0 0 0 0 1
+80.000000 0 0 0 0 0 0
+#76033
+temp_bridgehold_76078 harad soldier board OTHER~
+#5a Harad soldier passing on messages#0~
+#5A Harad soldier passing on messages is here.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+C
+mordor_char~
+member~
+#76036
+log thick wooden WOOD~
+a thick wooden log~
+A thick wooden log lies here.~
+~
+18 4104 1
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76037
+Good token partial gondor ownership byCeredir ITHILIEN_BASES OTHER~
+a partial Gondor ownership token~
+Gondor has partially claimed the base.~
+pGondor
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76038
+Good token partial Northmen ownership byCeredir ITHILIEN_BASES OTHER~
+a partial Northmen ownership token~
+Northmen have partially claimed the base.~
+pNorthmen
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76039
+Evil token partial Orcs orkish ownership byCeredir ITHILIEN_BASES OTHER~
+a partial orkish ownership token~
+Orcs have partially claimed the base.~
+pOrcs
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76040
+Evil token partial Haradrim ownership byCeredir ITHILIEN_BASES OTHER~
+a partial Haradrim ownership token~
+Haradrim have partially claimed the base.~
+pHaradrim
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76041
+Evil token partial Balchoth ownership byCeredir ITHILIEN_BASES OTHER~
+a partial Balchoth ownership token~
+The Balchoth have partially claimed the base.~
+pBalchoth
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76042
+Evil token partial Mordor ownership byCeredir ITHILIEN_BASES OTHER~
+a partial Mordor ownership token~
+Mordor has partially claimed the base.~
+pMordor
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76043
+Good token partial Alliance ownership byCeredir ITHILIEN_BASES OTHER~
+a partial Alliance ownership token~
+The Western alliance has partially claimed this base.~
+pAlliance
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76044
+scout report CrumblingTowerScout Ithilien_Bases byCeredir OTHER~
+#5a scout from the crumbling tower#0~
+#5A scout from the crumbling tower base reports here.#0~
+   A snaga runner has arrived from the crumbling tower, reporting 
+following recent activities at the base: 
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#76045
+scout report CrumblingTowerScout ScanReport Ithilien_Bases byCeredir OTHER~
+#5a scout from the crumbling tower#0~
+#5A scout from the crumbling tower reports an enemy sighted!#0~
+   A snaga runner has arrived from the crumbling tower, reporting 
+following recent activities at the base:
+~
+12 4096 1
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#76046
+scout report AmdirTreehouseScout Ithilien_Bases byCeredir OTHER~
+#5a scout from the treehouse#0~
+#5A scout from the treehouse base reports here.#0~
+   A runner from the treehouse near Amdir reports following 
+recent activities: 
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#76047
+scout report AmdirTreehouseScout ScanReport Ithilien_Bases byCeredir OTHER~
+#5a scout from the treehouse#0~
+#5A scout from the treehouse reports an enemy sighted!#0~
+   A runner from the treehouse near Amdir reports following 
+recent activities: 
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#76048
+runner report SpireRoadAlert ScanReport Ithilien_Bases byCeredir OTHER~
+#5a runner from the Spire#0~
+#5A runner from the Spire claims that an enemy has been spotted southwards along the road.#0~
+   A runner has been sent from the Spire to bring the word that 
+enemy movement has been spotted somewhere along the road, near 
+one of the cave bases. 
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#76049
+Elrohir baby boy hale dark-haired pale grey eyes GADRILS OTHER~
+#5a hale, dark-haired baby boy with pale grey eyes#0~
+#5A hale, dark-haired baby boy with pale grey eyes#0 is laying here.~
+   Hale and flush with health, this young child is little more 
+than an infant. Wisps of dark hair thickly tuft the crown of his 
+head, curling onto his forehead and around his ears and neck, the 
+locks soft but little-tamed. Fair of hue, his velvety-soft skin 
+escapes paleness with a tinge of a natural tanner hue, whose only 
+blemish is the faintest spray of freckles over the bridge his 
+baby-button nose. A pair of wide, thickly-lashed eyes survey the 
+world through irises of a pale grey, a delicate, cloud-like hue. 
+Despite his chubbiness, his limbs move with a strength of 
+purpose, with tiny hands that grasp tight and legs, ended with 
+similarly tiny feet, which kick roughly when he's excited 
+~
+5 4096 8193
+0 0 0 3
+1200 0.000000
+0 0 0 0 512 0 1
+0.000000 0 0 0 0 0 0
+#76050
+runner report SpireRoadAlert EntryReport Ithilien_Bases byCeredir OTHER~
+#5a runner from the Spire#0~
+#5A runner from the Spire is here, claiming that one of the cave bases is under attack!#0~
+   A runner has been sent from the Spire, announcing that enemies 
+have entered one of the cave bases! 
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#76051
+token collected byCeredir OOC ITHILIEN_BASES OTHER~
+a coin collected token~
+The coin has already been collected by #5someone#0.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76052
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76053
+sword long METAL~
+a long sword~
+a gleaming long sword~
+~
+5 4108 8193
+0 2 4 3
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76054
+BY_VAIRE ADMIN_NO_LOAD book giant tome midnight black LEATHER~
+A giant tome, covered in midnight black leather~
+A giant tome, covered in midnight black leather rests here~
+Embelleshed with golden threads down the spine, which reads Vaire.
+The cover of the tome in silver thread reads Journal. The massive
+book easily looks to contain hundreds of pages. Upon the back of
+the book is the image of Vaire standing at Namo's side in the halls
+of Mandos.
+~
+54 4096 1
+100 0 0 0
+1000 0.000000
+0 0 0 39 0 0 1
+1000.000000 0 0 0 14 0 0
+#76055
+gown BY_VAIRE ADMIN_NO_LOAD flowing bone white TEXTILE~
+a flowing gown of bone white silk~
+A flowing gown of bone white silk lies crumpled here in a heap~
+The softest silk of a medium weight clings and drapes in
+folds about the wearer's form. The neckline scoops modestly,
+showing only the collarbone as the silk cups and lifts the
+breasts slightly, drawing in at the midriff gently to emphasize
+the figure, before flaring out at the hips and falling to the
+wearer's ankles in a seamless hem. Upon the back of the gown,
+embroidered in golden threads is the image of a wonderous gate,
+leading into the halls of Mandos.
+~
+11 4096 9
+1 1 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 5 0 0
+#76056
+gloves BY_VAIRE ADMIN_NO_LOAD bone white silk gloves TEXTILE~
+A pair of bone white silk gloves~
+a pair of bone white silk gloves lies here crumpled~
+The finest silk threads of bone white wrap around the wearer's
+wrist, flowing over the hands and ending in skin tight
+fingertips, which allow the wearer to weave with their fingers
+protected from wear, without hampering the skill of the weaver.
+Upon the back of each hand is the vividly embroidered image of
+a spider.
+~
+11 4096 129
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 5 0 0
+#76057
+palisade_northmen complete wooden encloses base_progs byCeredir OOC NOT_A_SHIELD WOOD~
+a completed wooden palisade~
+A completed wooden palisade encloses the base.~
+   This palisade securely walls in a small cottage and yard. In 
+one section of the wall is a small gate where allied forces can 
+#6enter palisade#0 to gain access. Enemy forces will need to 
+attempt to force their way in with an assault to #6break 
+palisade#0. 
+~
+6 537006088 8
+2 0 0 0
+10000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76058
+palisade_gondor complete wooden encloses base_progs byCeredir OOC NOT_A_SHIELD WOOD~
+a completed wooden palisade~
+A completed wooden palisade encloses the base.~
+   This palisade securely walls in a small cottage and yard. In 
+one section of the wall is a small gate where allied forces can 
+#6enter palisade#0 to gain access. Enemy forces will need to 
+attempt to force their way in with an assault to #6break 
+palisade#0. 
+~
+6 4096 0
+0 0 0 0
+1000000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76901
+phase1 shadowtoken OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76902
+phase2 shadowtoken OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76903
+phase3 shadowtoken OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76904
+phase4 shadowtoken OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76905
+phase5 shadowtoken OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

@@ -1,0 +1,3312 @@
+#51001
+auto-create BATTALION formless member ithilien liegeman~
+a formless liegeman of the Ithilien Battalion~
+a formless liegeman of the Ithilien Battalion is here, lacking form~
+   Still wet behind the ears, this youthful liegeman appears as 
+though he would be more comfortable a hammer, saw or shovel in 
+hand rather than arms of war. None the less, they keep a 
+vigilant, if nervous watch on the surrounding land as they tend 
+their duties. 
+~
+4618 0 24 0 0 5d1+93 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 13 81 16
+268435456 0
+0 37 46 45 45 48 36 35 42 48
+47 42 49 49 31 44 30 34 40 46
+40 33 35 0 60 36 0 0 22 67
+0 0 50 0 0 24 24 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 44 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' amdir_settler 'private' eradan_battalion 'private' ithilien_battalion 'private' eastvanguard 'member' eradan_vet 'member' osgi_citizens 'member' mt_citizens~
+5760 51002 2
+#51002
+auto-create BATTALION formless member ithilien Footman plebe~
+a formless footman of the Ithilien Battalion plebe~
+a formless footman of the Ithilien Battalion is here, lacking form~
+   Stout and muscled, this footman keeps a vigilant watch upon 
+his surroundings. Ready to leap once more into action in the 
+service of his Lord, his stance is an easy one, alert but at 
+rest, the posture of one confident in their abilities. 
+~
+4618 0 30 0 0 5d1+93 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 13 81 16
+268435456 0
+0 43 50 53 50 40 46 46 42 48
+60 45 45 57 59 42 50 42 49 50
+53 56 48 0 45 43 0 0 25 63
+0 0 67 0 0 33 34 34 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 57 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' amdir_settler 'corporal' eastvanguard 'corporal' ithilien_battalion 'corporal' eradan_battalion 'member' eradan_vet 'member' osgi_citizens 'member' mt_citizens~
+11520 51003 2
+#51003
+auto-create BATTALION formless member ithilien Armsman elite~
+a formless Armsman of the Ithilien battalion elite~
+a formless Armsman of the Ithilien Battalion is here, lacking form~
+   This soldier of Gondor stands resolute, proudly bearing 
+highly-polished armour, a firmly disciplined demeanor, and plenty 
+of scars upon their flesh. Whether standing guard or holding the 
+line, they stand ready to boldly and firmly defend the West. 
+~
+522 0 38 0 0 5d1+104 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 2 24 0 0 0 0 0 0 0 0 0
+16 16 16 3 16 14 81 16
+268435456 0
+0 61 66 71 66 64 63 71 70 74
+72 77 58 67 67 76 65 71 64 61
+70 74 66 0 69 69 0 0 49 69
+0 0 69 0 0 50 53 49 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 65 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' eradan_battalion 'private' ithilien_battalion 'private' amdir_settler 'private' eastvanguard~
+0 0 2
+#51004
+auto-create GONDOR_ARMY formless aggro archer ithilien plebe~
+a formless Gondorian archer plebe~
+A formless Gondorian archer plebe is here.~
+   Stout and alert, this archer keeps a vigilant watch upon his 
+surroundings. Ready to leap once more into action in the service 
+of his Lord, his stance is an easy one, alert but at rest, the 
+posture of one confident in their abilities. 
+~
+2097706 0 28 0 0 5d1+101 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 2 24 0 0 0 0 0 0 0 0 0
+16 16 16 3 16 13 81 16
+268435456 0
+0 54 44 50 46 47 43 42 43 45
+54 43 56 48 40 55 44 55 42 51
+54 54 0 0 60 69 0 0 30 69
+0 0 60 0 0 29 27 27 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' caolafon-citizen 'member' amdir_settler 'private' eradan_battalion 'private' ithilien_battalion 'member' mt_citizens 'member' osgi_citizens~
+0 0 2
+#51005
+auto-create BATTALION_DALAMIR formless aggro archer ithilien plebe~
+a formless footman of Lord Dalamir's Battalion plebe~
+A formless footman of Lord Dalamir's Battalion plebe is here.~
+   Stout and sturdy, this footman keeps a vigilant watch upon his 
+surroundings. Ready to leap once more into action in the service 
+of his Lord, his stance is an easy one, alert but at rest, the 
+posture of one confident in their abilities. 
+~
+2097674 0 30 0 0 5d1+101 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 2 24 0 0 0 0 0 0 0 0 0
+16 16 16 3 16 13 81 16
+268435456 0
+0 45 55 57 52 40 48 52 54 56
+52 43 47 55 60 53 46 49 51 52
+45 51 0 0 46 47 0 0 27 36
+0 0 52 0 0 26 29 30 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 54 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' amdir_settler 'member' caolafon-citizen 'private' ithilien_battalion 'member' mt_citizens 'member' osgi_citizens~
+0 0 2
+#51000
+liftHACK hidden mob helpful soldier modbyPhear~
+a helpful soldier~
+A helpful soldier stands here.~
+(null)~
+10 2 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ithilien_battalion 'member' eradan_battalion~
+0 0 0
+#51006
+auto-create Hack Battalion Soldier-imitate~
+a formless gatehack~
+a formless gatehack~
+   Stout and sturdy, this footman keeps a vigilant watch upon his 
+surroundings. Ready to leap once more into action in the service 
+of his Lord, his stance is an easy one, alert but at rest, the 
+posture of one confident in their abilities. 
+~
+10 0 24 0 40 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 35 48 37 42 42 36 39 32 43
+37 47 46 39 30 35 41 43 34 32
+38 47 0 0 59 59 0 0 22 56
+0 0 59 0 0 19 18 18 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' amdir_settler 'corporal' ithilien_battalion 'corporal' eradan_battalion 'member' osgi_citizens~
+0 0 0
+#51007
+Jahi tall swarthy man Cormac RPT~
+a tall, swarthy man~
+A tall, swarthy man stands here~
+   Close cropped black hair covers this tall man's head. Coffee 
+color eyes cut large round shapes beneath his heavy brow. His 
+nose arcs in a hawklike accent over his wide, thin lipped mouth. 
+His jaw is strong and his chin square and in need of a shave. 
+Broad shoulders taper down to trim hips. His hands are large and 
+caloused. His legs strong and long. His skin is the color of 
+aged parchment. 
+~
+10 0 30 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 11 12 1 17 16 80 16
+0 0
+0 30 30 60 30 30 30 30 30 30
+30 30 30 40 30 30 45 50 30 34
+60 60 0 0 60 60 0 0 0 100
+0 0 100 0 0 50 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+50 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'sergeant' silvermoon 'sergeant' mordor_char~
+0 0 0
+#51008
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51009
+Telgor rough-black-furred one-eyed wolf~
+a rough-black-furred, one-eyed wolf~
+A rough-black-furred, one-eyed wolf prowls here.~
+   This wolf stands just a little higher than average for its 
+species, reaching to about a Man's hip. A single intelligent eye 
+gazes out at the world, the other scarred shut. Rough black fur 
+mats its muscular body, though in some places scars push back the 
+hair. Its tail is fairly long, its teeth sharper than the finest 
+dagger, powerful jaws moving with the easy knowledge of a sure 
+kill. Its claws face the world like a protective wall of spikes, 
+dangerous in their own right. 
+~
+10 0 25 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 70 70 0 0 0 0
+0 0 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51010
+BLACKMARKET youthful looking man emerald-eyed Litun~
+a youthful-looking, emerald-eyed man~
+A youthful-looking, emerald-eyed man is here.~
+   Scraggly brown hair hangs down in dirty streaks down this 
+man's head, ornamented with multicolor beads attached to the 
+ends. His eyebrows tinge emerald-colored eyes which sparkle and 
+dance with the energy of youth. An easy grin is never far from 
+his thin lips, and his limbs are made of smooth skin, light 
+muscle rippling beneath. 
+~
+138 0 29 0 0 5d1+93 1d2+0 0 8 8 0 0 0 0 524
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+10 18 13 1 14 13 81 14
+1 0
+51251 51250 2.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 58 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 40 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 100 100 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 100 100 100 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' black-market~
+0 0 0
+#51011
+Dervish silvermoon harad defender elite~
+a formless silvermoon autocreate~
+A formless silvermoon autocrate watches vigilantly.~
+   Dark hair, dark-eyes, and swarthy skin declare this soldier's 
+southern heritage. The proud bearing shows in their straight 
+back and squared shoulders. Their dark eyes are never still as 
+the soldiers keep quiet watch over the area. 
+~
+4106 0 24 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 11 12 1 17 16 80 16
+268435456 0
+0 49 38 41 34 46 39 37 42 49
+49 44 43 40 36 32 48 43 37 38
+31 33 33 0 38 60 0 0 21 62
+0 0 59 0 0 25 24 20 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 47 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+62 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' cobra 'member' witchking_horde 'member' mordor_char 'sergeant' silvermoon 'sergeant' fahad_jafari~
+0 0 0
+#51012
+Mestellen stallion pEOTHELM horse large coal fine~
+a fine-haired, large coal stallion~
+A fine-haired, large coal stallion stands here, quite tall.~
+   Ferociously intelligent eyes of a light brown flecked with 
+gold gaze outwards, a streak of mean in the way they regard 
+anything. At least 18 hands high, this horse bears a beautiful 
+coat of a coal-black color, shining as it covers the rippling 
+muscle beneath. Thick, powerful hindquarters and a broad chest 
+make this horse seem extremely strong. It is obviously well 
+groomed. Heavy hooves stamp at the ground in an eager manner. 
+~
+134479882 0 20 47 1 5d1+116 1d4+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+22 13 7 1 18 22 81 18
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 35 0
+35 0 31 0 0 60 25 60 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#51013
+Tiny troll jaundiced mane OTTO~
+a long maned troll with jaundiced eyes~
+A long maned troll with jaundiced eyes looms here.~
+   This hulking troll stands at over twelve-feet and is covered 
+in hair thick enough to be called fur. Its muscles are 
+enormously proportioned, accentuating rogue tufts of white 
+follicles around its joints. Its arms are longer than they 
+should be and end in thick hands with gnarled and yellowed 
+fingernails. There is little neck to speak of beneath its square 
+head, which is offset by a lack of ears and lips. Carved by the 
+gods of battle, they have long since gone missing beneath the 
+rush of steel. Its eyes are jaundiced, edged in pink and red. 
+~
+8 8388614 35 28 4 5d1+300 1d7+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+24 8 16 1 15 24 81 10
+0 0
+0 64 0 0 70 0 0 70 0 0
+0 0 60 0 0 0 0 0 0 0
+74 56 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51014
+trunk mountainous olog troll ww_minion_ithil byphear~
+a mountainous troll with an iron plate over its eye~
+A mountainous Olog-Hai with an iron plate above his right eye, stands here.~
+   Rusted and partially overgrown by the creep of flesh, a thick 
+metal plate sits in prominence above this troll's right eye. It 
+is perhaps the most attractive thing about it as its body is 
+covered in open sores and lesions. They weep and ooze a greenish 
+puss that has given his blackened skin a lacquered finished. Its 
+eyes are tiny pinpricks, almost entirely hidden by eyelids that 
+slough atop each other like loose hosiery. It is gigantic, even 
+as members of its own species goes, with an enormous belly 
+complete with stretch marks and varicose veins. 
+~
+42 4 36 86 7 5d1+310 2d4+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+25 9 18 1 16 24 81 8
+0 0
+0 67 0 0 0 0 0 72 0 0
+0 0 65 0 0 0 0 0 0 0
+75 45 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 50 50
+0 100 50 0 0 0 0 0 0 0
+50 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' minion_ww_ithil~
+0 0 0
+#51018
+Disposable stoic raptor gaze UNIQUE_MONGREL_OTTO~
+a stoic man with a raptor-like gaze~
+A stoic man with a raptor-like gaze looms here.~
+   Barely topping five-feet, this squat, thick necked man stands 
+with a confident turn of his head. His build is stocky, with 
+wide shoulders and legs thick as tree trunks. A long brown beard 
+flows down to his mid-section, matched in length by two long 
+braids from just in front of his ears. His hard face, showing no 
+emotion, is cracked and weathered by the echoes of past violence. 
+He moves with confidence belied in the raptor-like glint of his 
+hazel eyes. 
+~
+8 0 30 0 0 5d1+96 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 10 11 1 15 14 81 15
+0 0
+0 50 50 54 60 55 55 60 55 60
+60 0 50 0 0 0 50 60 60 0
+55 45 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51015
+goblin-pleb_OTTO~
+auto-create Plebe Goblin OTTO~
+auto-create Plebe Goblin OTTO waits here.~
+   A life of hardship is written clearly into this small goblin's 
+emaciated body. Scars mare the exposed flesh - grey lines 
+standing in stark contrast to its greasy flesh. Red-eyes, clear 
+with hate, glare from under a sloping brow. Hands, clawed and 
+sporting broken fingernails, hang from boney wrists. While 
+appearing half-starved, there is a vibrant desperation evident in 
+its quick movements that lend this creature an incongruous degree 
+of menace. 
+~
+8 8388612 23 24 0 5d1+96 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 10 11 1 17 14 95 16
+268435456 0
+0 31 35 37 31 34 33 46 41 40
+37 39 38 37 47 43 37 38 36 36
+42 48 0 0 33 37 0 0 22 59
+0 0 56 0 0 21 20 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 42 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 4 0 0 0 0 0 0 0 0
+0 0 0 0 6 61 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51016
+goblin commoner OTTO~
+auto-create commoner goblin OTTO~
+auto-create commoner goblin OTTO stands ready.~
+   This snaga is hunched over with rounded shoulders and a 
+stooped gait. Lanky arms and legs holding barely enough meat to 
+be called muscle root it to the ground. Scraggly hair falls down 
+over its eyes, hiding their true color behind a veil of umber. 
+Its teeth are yellowed and cracked, mirroring the poor hygiene 
+that are the hallmarks of its gum line. This vile creature has 
+felt its share of hard work and violence and it seems prepared to 
+pass on the favor. 
+~
+8 8388612 22 24 0 5d1+90 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 10 12 1 18 12 95 16
+268435456 0
+0 39 45 38 44 30 37 42 42 45
+39 44 32 44 44 44 31 41 39 48
+41 30 0 0 52 36 0 0 25 66
+0 0 51 0 0 21 16 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 28 0 0 0 0 0 0 0 0
+0 0 0 0 11 66 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51017
+goblin elite OTTO~
+auto-create goblin elite OTTO~
+auto-create goblin elite OTTO crouches here.~
+   Skin grabs tightly to lanky muscle, pulled over a small frame 
+with uncommonly long arms. Its nose is elongated, wide at the 
+bridge and thick of nostril. Sunken eyes accentuate the length 
+of its skull, seeming to contort the face into something 
+raptor-like. Its hand are wiry and yet strong, curling and 
+uncurling with each breath. Its scalp can be seen through its 
+thinning, greasy hair, which is periodically flaked with 
+dandruff. Small and agile, this creature is no stranger to 
+danger. 
+~
+40 8388612 24 24 0 5d1+96 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 11 10 1 17 14 95 16
+268435456 0
+0 40 39 37 38 43 34 48 38 43
+40 43 40 42 45 49 33 40 37 30
+31 36 0 0 45 49 0 0 24 53
+0 0 57 0 0 22 15 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 37 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 50 64 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51019
+orc plebe OTTO~
+auto-create orc plebe OTTO stands hunched over.~
+orc-plebe auto-create OTTO stands hunched over.~
+   A mischievous gleam lights this small ork's large green eyes. 
+They are set in a wrinkled, soot-grey face and hint at a cunning 
+that might explain the creature's well fed body. Slight 
+shoulders and a thin neck lend some height to the ork's small 
+frame. 
+~
+8 8388612 24 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 16 1 15 16 95 14
+268435456 0
+0 39 44 46 37 41 31 31 47 37
+31 37 38 34 30 30 49 47 40 31
+36 31 0 0 60 54 0 0 16 55
+0 0 59 0 0 17 20 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 38 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 27 0 0 0 0 0 0 0 0
+0 0 0 0 26 67 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51020
+orc commoner OTTO~
+auto-create orc commoner OTTO~
+auto-create orc commoner OTTO stands here warily.~
+   A mischievous gleam lights this small ork's large green eyes. 
+They are set in a wrinkled, soot-grey face and hint at a cunning 
+that might explain the creature's well fed body. Slight 
+shoulders and a thin neck lend some height to the goblin's small 
+frame. 
+~
+8 8388612 25 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 12 10 1 15 16 95 14
+268435456 0
+0 47 46 40 41 44 37 50 33 47
+44 38 40 43 48 37 50 34 35 30
+41 30 0 0 51 40 0 0 24 66
+0 0 63 0 0 25 18 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 41 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 19 66 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51021
+orc elite OTTO~
+auto-create orc elite OTTO~
+auto-create orc elite OTTO stands here snarling.~
+   The vicious unyielding gaze of this well muscled ork reveals 
+an utter confidence in their martial ability. Broad shoulders, 
+as well as a tightly muscled back and thick arms are supported by 
+its thick bowered legs. Their skin is a deep grey with stygian 
+pits for eyes. Glowering bushy black eyebrows are drawn in a 
+perpetual scowl and short cropped bristly black hair sprouts from 
+the top of their pointed heads. Hands, calloused and able, 
+clench and unclench in anxious anticipation. 
+~
+8 8388612 35 25 0 5d1+99 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 10 14 1 15 15 94 14
+268435456 0
+0 48 64 59 49 64 43 44 64 62
+54 59 48 59 71 63 58 58 63 53
+49 52 0 0 66 68 0 0 46 41
+0 0 65 0 0 50 53 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 58 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 7 0 0 0 0 0 0 0 0
+0 0 0 0 68 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51022
+mongrel plebe OTTO~
+auto-create mongrel plebe OTTO~
+auto-create mongrel plebe OTTO stands here.~
+   Watery blue eyes are set deep in large in this homely 
+mongrel's face. Their cheeks are marred by streaks of red from 
+the elements or too much drink - it is hard to tell. Brown hair 
+in a nest of mousy curls tumbles just below the earlobes, which 
+wraps its head in a halo of unkept tangles. Rounded shoulders 
+and fatty curves, bespeak a hard life with a terrible diet. 
+Though their spirit seems defeated, there is yet anger in its 
+eyes. 
+~
+8 0 25 0 0 5d1+84 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 10 10 1 18 10 95 18
+268435456 0
+0 30 50 30 0 0 30 0 30 30
+0 0 0 0 0 0 40 0 0 0
+32 32 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51023
+mongrel common OTTO~
+auto-create mongrel common OTTO~
+auto-create mongrel common OTTO stands here quietly.~
+   Long hair, straight and brown, is pulled back in loose bundles 
+at the base of their neck. Its skinny body and light brown eyes 
+shows its young age. Its face is wreathed in scars and a 
+hardened tan that resembles cracked and dried limestone. Drawn 
+lips offer little if any expression, though eyes wander warily to 
+all that passes nearby. 
+~
+8 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 12 11 1 13 16 95 14
+268435456 0
+0 40 0 40 40 0 40 40 0 40
+40 0 0 0 0 0 50 50 0 0
+40 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51024
+mongrel elite OTTO~
+auto-create mongrel elite OTTO~
+auto-create mongrel elite OTTO searches its surroundings warily.~
+   Deeply tanned skin stands in contrast to the white hair and 
+clear blue eyes of this middle-aged mongrel. Its limbs are thin 
+and appear to be an economy of toil-hardened flesh. Its features 
+are exotic and hint at its mixed breeding. Its shoulders are 
+slightly stooped and belie its actual height.. 
+~
+40 0 27 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 10 10 1 15 16 95 14
+268435456 0
+0 40 0 55 55 0 55 55 0 50
+50 0 50 0 0 0 0 55 0 0
+50 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51025
+Kieron thick-maned bay-coated charger pGRULN bypher horse~
+a thick-maned, bay-coated charger~
+A thick-maned, bay-coated warhorse stands here.~
+   This Graehims' large stature boasts muscular shoulders and 
+stands roughly 18 hands high. A richly coal colored mane flows 
+from its great neck, down over its coat of mixed bay-brown and 
+lighter hues. Its powerful legs lead down to hoofs covered in 
+thick white hair. 
+~
+262154 0 25 61 0 5d1+95 1d2+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+20 10 12 1 15 18 81 19
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 30 0 0 0 0 0 0 0 0
+0 0 50 0 0 68 30 40 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 40 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ithilien_battalion 'member' eradan_battalion 'member' gruln_horse 'member' mt_citizens~
+0 0 0
+#51026
+Haradan elite~
+auto-create Haradn Elite RALALAN~
+auto-create Haradn Elite RALALAN waits here warily.~
+   Geometric scarring, a dark brown against deep caramel skin, 
+decorates the well developed cheekbones of this Haradan. Their 
+hair is black and closely cropped in martial concern, echoing the 
+neatly trimmed and bushy beard below. Its body is broad 
+shouldered and thick limbed, muscles hardened by a life of 
+physical effort. Calloused hands with thick tendons and 
+ligaments twist into the thick muscles of their forearm. They 
+walk with confidence and surety. 
+~
+8 0 4 0 0 5d1+93 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 11 11 1 19 13 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51027
+Harad Noble RALALAN~
+auto-create haradan elite RALALAN~
+auto-create haradan elite RALALAN stands here proudly.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51028
+Caranaur horse warhorse destrier blood bay UniqueEradan byPhear caranaur~
+a massive, dark, blood bay, destrier~
+A massive, dark, blood bay, destrier stands here, pawing the ground~
+   Almost half again the size of a normal riding horse, this 
+monstrous warhorse casts its intelligent and intense eyes about 
+almost constantly, pawing a massive hoof at the ground and snorting 
+irritably. Its coat is a dark, blood bay, with a black mane, 
+tail and feathers. Thick cords of muscle ripple under its hide.
+~
+134479882 0 37 61 0 5d1+80 2d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+25 16 16 1 15 25 81 20
+0 0
+0 75 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+75 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_vet 'member' ithilien_battalion 'member' eradan_battalion 'ithilien' member~
+0 0 0
+#51029
+storm horse warhorse destrier black UniqueEradanGuard byPhear Storm~
+a massive, black coated destrier~
+A massive, black coated destrier stands here flicking his ears.~
+   Almost half again the size of a normal riding horse, this 
+monstrous warhorse casts its intelligent and intense eyes about 
+almost constantly, pawing a massive hoof at the ground and snorting 
+irritably. Its coat is a black with charcoal-grey mane, tail and 
+feathers. Thick cords of muscle ripple under its hide.
+~
+134479882 0 37 61 0 5d1+80 2d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+25 16 16 1 15 25 81 20
+0 0
+0 75 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+75 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_vet 'member' ithilien_battalion 'member' eradan_battalion 'ithilien' member~
+0 0 0
+#51030
+cloud horse warhorse destrier grey UniqueEradanGuard byPhear Cloud~
+a massive, grey coated destrier~
+A massive, grey coated destrier stands here flicking his tail.~
+   Almost half again the size of a normal riding horse, this 
+monstrous warhorse casts its intelligent and intense eyes about 
+almost constantly, pawing a massive hoof at the ground and snorting 
+irritably. Its coat is a light grey with a black mane, tail and 
+feathers. Thick cords of muscle ripple under its hide.
+~
+134479882 0 37 61 0 5d1+80 2d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+25 16 16 1 15 25 81 20
+0 0
+0 75 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+75 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_vet 'member' eradan_battalion 'member' ithilien_battalion 'member' mt_citizens~
+0 0 0
+#51031
+Raenil black-haired cloud-grey tall xEradanGuard byPhear~
+a tall, black-haired man~
+A tall, black-haired, cloud-grey eyed man stands here.~
+   With eyes the color of dark clouds, this man watches 
+everything that goes on about him. A muscled body, 
+standing ready to react. His face is clean-shaven and 
+continually set firm and serious. Dark hair is kept 
+cropped short, and orderly. His skin, though fairly 
+light, is nevertheless tanned, and many scarred can be 
+noted when it is exposed. Bushy black eyebrows sit on 
+a high and noble forehead. The man's hands are large 
+and heavily scarred. His back is carried straight, the 
+wide shoulders proudly squared. 
+~
+10 0 30 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 60 0 60 0 0 0 0 0 0
+60 0 0 0 0 0 0 0 0 0
+60 60 0 0 60 60 0 0 60 60
+0 0 60 0 0 50 60 60 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 60
+0 60 0 0 0 0 0 0 0 0
+60 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' eradan_vet 'member' mt_citizens 'sergeant' eradan_battalion 'sergeant' ithilien_battalion~
+0 0 0
+#51032
+Jaecob grey dark tall xEradanGuard byPhear~
+a tall, grey-haired man~
+A tall, grey-haired, dark-eyed man stands here, eyes keen~
+   This man's dark eyes continually scan about his 
+surroundings, noticing everything that goes on about 
+him. His heavily muscled body, standing always ready 
+to react. His face is clean-shaven and set in a serious
+visage. Dark grey hair is kept cut short, and neat. 
+His skin, though fairly light, is nevertheless tanned, 
+and exhibits many scars. Thin dark grey eyebrows sit on 
+a high and noble forehead. The man's hands are long 
+and fairly scarred. His stance is straight, the wide 
+shoulders squared proudly. 
+~
+10 0 30 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 60 0 60 0 0 0 0 0 0
+60 0 0 0 0 0 0 0 0 0
+60 60 0 0 60 60 0 0 60 60
+0 0 60 0 0 50 60 60 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 60
+0 60 0 0 0 0 0 0 0 0
+60 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' eradan_vet 'member' mt_citizens 'sergeant' eradan_battalion 'sergeant' ithilien_battalion~
+0 0 0
+#51033
+Nalan apprentice_sage young green-eyed blond-haired man ARAPHOR_PLOT~
+a green-eyed, blond-haired young man~
+A green-eyed, blond-haired young man is here.~
+   This man is rather young, barely out of his teenage years. 
+Lithe blonde hair, slightly mussy, careens its way down his head 
+and a rather large nose potrudes between two green eyes. His 
+thin lips do nothing to compliment the small wisp of a beard he 
+attempts to grow. In fact, his entire body seems rather gangly 
+and awkward, as if still growing. 
+~
+8 0 10 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+9 18 14 1 10 16 81 9
+0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 40 0 0 0
+0 0 0 0 0 0 0 0 0 50
+50 100 0 0 0 0 0 0 0 0
+100 0 0 0 50 50 0 0 0 0
+0 0 0 50 40 50 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51034
+Erik manse_door_guard tall broad xeradanbattalion byphear~
+a tall, broad-shouldered man~
+A tall, broad-shouldered man tends the door here.~
+   This old veteran bears the scars of many battles at the side 
+of the soldiers of Lord Eradan. Protecting the entrance into 
+Osgiliath, he is ready to bar entrance. Huge and muscled, this 
+man bears the air of a sergeant in his manners of speaking and 
+ordering those around him. 
+~
+2097162 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 37 33 47 50 47 49 30 37 31
+37 34 36 49 46 47 35 36 39 45
+50 32 35 0 41 51 0 0 21 14
+0 0 44 0 0 21 19 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 31 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 51 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' hd_officers 'corporal' eradan_vet~
+0 0 0
+#51035
+Annurin Herunan distinguished silver xEradanAttache byPhear~
+a tall, distinguished, silver-haired man~
+A tall, distinguished, silver-haired man with grey eyes stands here~
+   Silver hair showing an occasional black strand crowns a regal 
+head held erect above a proud, straight back. This man's keen 
+grey eyes exhibit an unmistakable intelligence and his entire 
+demeanor is one of confidence and competence. His hands show old 
+scars typical of a swordsman, yet their callouses are of a type 
+associated more with a man who spends long days with a quill. 
+Tall and lean, he moves with a fluid elegance. 
+
+
+~
+10 0 30 1 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 16 17 1 15 16 81 15
+0 0
+0 60 0 60 0 0 0 0 0 0
+60 0 0 0 0 0 0 0 0 0
+60 60 0 0 60 60 0 0 60 60
+0 0 60 0 0 50 60 60 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 60
+0 60 0 0 0 0 0 0 0 0
+60 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' eradan_vet 'member' mt_citizens 'sergeant' eradan_battalion 'sergeant' ithilien_battalion~
+0 0 0
+#51036
+holander bay wrinkly stallion UniquePOFAowein byPhear Holander~
+a long-and-wrinkly necked, bay-coated stallion~
+A long-and-wrinkly necked, bay-coated stallion stands here.~
+   Standing at roughly 16 hands high, this stallion keeps itself 
+in a manner befitting its worn exterior. Its mane and tail are a 
+dark black, split-ends and thin hairs jutting out in meandering 
+directions. A jagged, dull-pink, scar runs from top of his 
+right-front side to about midway down his ribcage, the long-ago 
+rough and healed flesh within rising slightly out and above the 
+surface. His legs appears sturdy, a white stocking rising from 
+his back-left hood to his knee, with several scratches and minor 
+scars visible upon his legs and underside. A slight slope forms 
+in the middle of his back, small patches of hair removed and 
+callouses forming wear a saddle would be worn. Vericose veins 
+rise from his lean and muscular form throughout his body, though 
+mainly upon his haunches and down his legs. Long and wrinkly, 
+the stallions neck seems a bit longer than average, lending 
+itself to a slightly arched appearance as it ascends into a black 
+muzzle with a white snip upon his nose. Dark brown eyes look 
+alertly from beneath two high-perched ears, the right of which 
+has a V shaped sliced from it. 
+~
+134479882 0 37 61 0 5d1+80 2d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+25 16 16 1 15 25 81 20
+0 0
+0 75 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+75 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 55 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_vet 'member' ithilien_battalion 'member' eradan_battalion 'ithilien' member~
+0 0 0
+#51037
+blizzard horse warhorse destrier snow white Eradanattache byphear Blizzard~
+a young, snow white destier~
+A young, strong destrier with a snow white coat stands here.~
+   Its coat is white with a few grey specks on its hind quarters. 
+Its long mane and tail are also of white hair. Thick cords of 
+muscle ripple under its hide as it moves on long, strong legs. 
+Standing much taller than the average horse this massive warhorse 
+casts its intense eyes about almost constantly, its ears flicking 
+at any sound. 
+~
+134479882 0 37 61 0 5d1+80 2d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+25 16 16 1 15 25 81 20
+0 0
+0 75 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+75 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 70 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_battalion 'member' ithilien_battalion 'member' eradan_vet~
+0 0 0
+#51038
+Selwyn Rowlie balding overweight Garrison_Cook byPhear~
+a balding, overweight man with blue eyes~
+A balding, overweight man with blue eyes keeps busy here.~
+   The most noticeable feature of this man is his girth. Severely 
+overweight, he looks like a man who knows his food well. His cheeks and 
+nose are rosy and his countenance is jovial. His hair is brown, what 
+little of it is left, and his eyes are vivid gems of blue in the 
+crinkles and creases of his face. His eyebrows are wild and bushy and 
+expressive; his lips so thin as to be nearly nonexistent. His hands are 
+worn, large and strong. 
+~
+2097162 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 37 33 47 50 47 49 30 37 31
+37 34 36 49 46 47 35 36 39 45
+50 32 35 0 41 51 0 0 21 14
+0 0 44 0 0 21 19 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 31 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 51 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_battalion 'member' ithilien_battalion 'member' mt_citizens 'member' osgi_citizens~
+0 0 0
+#51039
+template warhorse horse destrier color UniqueEcthel byPhear Warhorse~
+a massive destrier~
+A massive destrier stands here flicking its tail.~
+   Almost half again the size of a normal riding horse, this 
+monstrous warhorse casts its intelligent and intense eyes about 
+almost constantly, pawing a massive hoof at the ground and snorting 
+irritably. Its coat is a light grey with a black mane, tail and 
+feathers. Thick cords of muscle ripple under its hide.
+~
+134479882 0 37 61 0 5d1+80 2d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+25 16 16 1 15 25 81 20
+0 0
+0 75 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+75 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51040
+immense pitch-black-coated charger raug UniqueEcthel byPhear Warhorse~
+an immense, pitch-black-coated charger~
+An immense, pitch-black-coated charger towers here.~
+   His head held with little humility, this stallion towers at 
+seventeen hands height. A fibrous muscle structure and a heavy 
+physique hint great speed and power. The sleek midnight coat 
+stretched over his hulking frame, which shimmers with each 
+movement while exposed to light. A lengthy mane sprouts from the 
+back of his wide-girthed neck, which tapers neatly as it reaches 
+his forehead, below which sit a pair of brown-hued eyes, the 
+whites of which are constantly visible. 
+~
+134479882 0 30 61 0 5d1+80 2d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+25 16 16 1 15 25 81 20
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+75 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' arhzan_npc 'member' mordor_char 'member' mordor_slavers~
+0 0 0
+#51041
+Micah Rylie tow-headed muscular lad POFerinur byPhear~
+a tow-headed, muscular lad~
+A tow-headed, muscular lad stands here~
+   This boy is come early to his growth, though his oversized 
+hands and feet hint at more to come.  Shoulders already heavy 
+with muscle support a broad neck and a head topped with neatly 
+cut blond hair.  Serious blue eyes, aged beyond their years, 
+look from a broad, square-jawed face sporting a generous 
+smattering of freckles.  His movements seem awkward at times.  
+His hands are calloused in that particular way that any 
+swordsman will recognize as coming from long hours of practice
+with blade and shield, though he bears no visible scars.
+~
+10 0 15 0 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 62 1 0 0
+16 12 14 1 12 12 81 16
+0 0
+0 20 0 31 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 30 0
+0 0 31 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 52 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 69 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 55 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_battalion 'member' ithilien_battalion 'member' erinur_npc 'member' mt_citizens 'corporal' terendil_leatherworker_shop~
+0 0 0
+#51042
+man variable xbattalionVSturedendorx xprivate-rankx~
+a variable battalion soldier - private~
+A variable battalion soldier - private - stands here.~
+   Rugged and scarred, this armsman's rough skin displays the 
+tale of many past battles and survived hardships. His 
+experienced gaze keeps a firm watch on his surroundings as he 
+goes about his daily duties. The heavy mail that adorns his 
+frame is worn like a familiar second skin, only slightly 
+hindering this experienced warrior. 
+~
+10 0 25 0 0 5d1+90 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 16 1 16 12 81 15
+268435456 0
+0 50 50 35 36 40 31 36 36 40
+42 33 47 41 37 39 49 48 38 35
+30 40 0 0 55 56 0 0 16 63
+0 0 59 0 0 18 17 24 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 44 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 63 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' osgi_citizens 'member' mt_citizens 'private' ithilien_battalion 'member' eradan_vet 'private' eradan_battalion~
+0 0 0
+#51043
+An onyx-haired, hawk-nosed man moves by, lost in thought.~
+a short-haired soldier~
+A soldier with short cropped hair stands here~
+   This soldier is sworn into the service of Eradan, Lord of the 
+Crossroads and the Emyn Arnen. They stand vigilant, and poised to 
+leap into action with a given command. They scan their surroundings 
+regularly, keeping close watch. 
+ 
+ 
+<worn on head>           #2an iron helmet with a long nose guard#0
+<worn at throat>         #2a simple silver tree charm on a black cord#0
+<worn at neck>           #2a sturdy ringmail gorget#0
+<worn about body>        #2a hooded black cloak displaying the White Tree#0
+<worn on body>           #2a scalemail vest#0
+<across the back>        #2a simple leather backpack#0
+<worn over shoulder>     #2a simple, black leather shoulder strap#0
+<about upper right arm>  #2a grey armband bearing service badges#0
+<about upper left arm>   #2a polished shoulder guard engraved with a pair of crossed swords#0
+<worn on arms>           #2a pair of iron scalemail sleeves#0
+<worn on hands>          #2a pair of leather gauntlets riveted with iron scales#0
+<worn about waist>       #2a thick, black leather belt#0
+<worn on legs>           #2a pair of heavy scalemail leggings#0
+<worn on feet>           #2a pair of knee-high, black leather boots#0
+ 
+ 
+~
+2097451 0 25 0 4 5d1+96 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 15 16 1 15 14 81 14
+268435456 0
+0 39 33 36 49 36 37 32 30 50
+38 34 32 47 32 36 39 42 44 33
+42 31 0 0 41 54 0 0 25 62
+0 0 55 0 0 23 17 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 36 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'corporal' ithilien_battalion~
+0 0 0
+#51044
+patrolprivate gondorian battalion soldier byPhear variable~
+a short-haired soldier~
+A soldier with short cropped hair stands here~
+   This soldier is sworn into the service of Eradan, Lord of the 
+Crossroads and the Emyn Arnen. They stand vigilant, and poised to 
+leap into action with a given command. They scan their surroundings 
+regularly, keeping close watch. 
+ 
+ 
+<worn on head>           #2an iron helmet with a long nose guard#0
+<worn at throat>         #2a simple silver tree charm on a black cord#0
+<worn at neck>           #2a sturdy ringmail gorget#0
+<worn about body>        #2a hooded black cloak displaying the White Tree#0
+<worn on body>           #2a sturdy ringmail vest#0
+<across the back>        #2a simple leather backpack#0
+<about upper right arm>  #2a grey armband bearing service badges#0
+<about upper left arm>   #2a polished shoulder guard engraved with a pair of crossed swords#0
+<worn on arms>           #2a pair of sturdy, ringmail sleeves#0
+<worn on hands>          #2a pair of fine, thick leather gauntlets#0
+<worn on legs>           #2a pair of ringmail leggings#0
+<worn on feet>           #2a pair of knee-high, black leather boots#0
+ 
+ 
+~
+2097162 0 25 0 3 5d1+96 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 13 16 1 16 14 81 17
+268435456 0
+0 32 38 44 35 37 45 41 35 46
+35 34 43 50 37 34 37 46 45 48
+40 32 0 0 36 31 0 0 22 66
+0 0 62 0 0 20 23 18 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' ithilien_battalion 'member' mt_citizens~
+0 0 0
+#51045
+patrolscout gondorian battalion scout byPhear variable~
+a trim man with brownish hair~
+A trim man with short brownish hair and light blue eyes waits here~
+   This soldier is sworn into the service of Eradan, Lord of the 
+Crossroads and the Emyn Arnen. They stand vigilant, and poised to 
+leap into action with a given command. They scan their surroundings 
+regularly, keeping close watch. 
+ 
+ 
+<worn on head>           #2a green leather cap#0
+<worn at throat>         #2a simple silver tree charm on a black cord#0
+<worn at neck>           #2a dark-green leather gorget#0
+<worn about body>        #2a forest green cloak displaying the White Tree#0
+<worn on body>           #2a dark-green leather jerkin#0
+<across the back>        #2a simple leather backpack#0
+<about upper right arm>  #2a grey armband bearing service badges#0
+<about upper left arm>   #2a embossed, forest-green leather armguard#0
+<worn on arms>           #2a dark-green pair of leather sleeves#0
+<worn on hands>          #2a pair of forest green archer's gloves #0
+<worn on legs>           #2a dark-green pair of leather leggings#0
+<worn on feet>           #2a pair of high, dark-brown leather boots#0
+ 
+ 
+~
+2097162 0 25 0 2 5d1+93 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 14 15 1 17 13 81 17
+268435456 0
+0 34 43 37 40 34 34 46 38 36
+44 36 34 34 50 34 42 41 47 33
+33 30 0 0 60 42 0 0 24 66
+0 0 62 0 0 15 22 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 43 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 66 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' ithilien_battalion 'member' mt_citizens~
+0 0 0
+#51046
+patrolleader gondorian battalion variable byPhear~
+a short-haired soldier~
+A soldier with short cropped hair stands here~
+   This soldier is sworn into the service of Dorelas, Lord of 
+Dor-en-Rhunmen. They stand vigilant, and poised to leap into 
+action with a given command. They scan their surroundings 
+regularly, keeping close watch. 
+ 
+ 
+<worn on head>           #2an iron helmet with a long nose guard#0
+<worn at throat>         #2a simple silver tree charm on a black cord#0
+<worn at neck>           #2a sturdy ringmail gorget#0
+<worn about body>        #2a hooded black cloak displaying the White Tree#0
+<worn on body>           #2a scalemail vest#0
+<across the back>        #2a simple leather backpack#0
+<worn over shoulder>     #2a simple, black leather shoulder strap#0
+<worn on arms>           #2a pair of iron scalemail sleeves#0
+<worn on hands>          #2a pair of leather gauntlets riveted with iron scales#0
+<worn about waist>       #2a thick, black leather belt#0
+<worn on legs>           #2a pair of heavy scalemail leggings#0
+<worn on feet>           #2a pair of knee-high, black leather boots#0
+ 
+ 
+~
+2097451 0 26 0 4 5d1+96 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 15 16 1 15 14 81 14
+268435456 0
+0 46 41 51 53 39 53 48 51 48
+46 42 39 48 0 46 42 41 40 50
+42 48 0 0 0 0 0 0 0 60
+0 0 55 0 0 0 32 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 51 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 41 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' ithilien_battalion 'member' mt_citizens~
+0 0 0
+#51047
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51048
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51049
+pair mangonel wheeled engine xtefall byphear Wood~
+a pair of wooden mangonel hitched to a team of horses~
+A pair of wooden mangonel are hitched to a team of horses here.~
+   A team of two large, draft horses are hitched to a pair of 
+wood and rope mangonels. Wooden wheels have been attached to 
+the mangonel allowing for ease of transport. 
+~
+262154 0 4 47 0 5d1+250 1d2+0 0 8 8 0 0 0 2 0
+0 0 0 0 0 0 24 93304 0 0 1 0 0 0 0 0
+25 16 16 1 16 25 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eastvanguard 'member' ithilien_battalion 'member' eradan_battalion~
+0 0 0
+#51050
+honor-guard formation eight uniqueeradantruce byphear~
+eight mounted guardsmen, bearing banners~
+Eight mounted guardsmen clad in jet-black plate mail are lined up here, proudly bearing the banners of Gondor, the White Tree and each of the Lord's of Ithilien.~
+Eight guardsmen, mounted on finely armored horses are lined up in a tight formation. The soldiers are armored in immacuately kept, jet-black plate mail, the two on the outside of the formation bearing fine shields bearing the moon and shield markings of Lord Eradan. The six in the center carry long, jet-black lances bearing the banners with the White Tree and, the Banners of each of the Lords of Ithilien. These guardsmen are ever watchful of their task, keeping the banners held high and safe.
+~
+262154 0 27 47 3 5d1+250 2d4+0 0 8 8 0 0 0 2 0
+0 0 0 0 0 0 24 93304 0 0 1 0 0 0 0 0
+25 16 16 1 16 25 81 16
+0 0
+0 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+55 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' eastvanguard 'member' ithilien_battalion 'member' eradan_battalion~
+0 0 0
+#51051
+mounted-soldiers fifty Pel-Ecthel xbattalionecthel byphear~
+a formation of fifty mounted Pel Ecthel~
+A formation of fifty mounted Pel Ecthel stand ready, their white cloaks fluttering in the breeze.~
+A formation of fifty, heavily armed Pel Ecthel of Lord Eradan are mounted on horses in a tight formation, thier polished armor reflecting any light and their white cloaks fluttering in the breeze. The soldiers are ever vigilant and observant, exercising thier duty.
+~
+262154 0 27 47 3 5d1+750 2d6+0 0 8 8 0 0 0 2 0
+0 0 0 0 0 0 24 93304 0 0 1 0 0 0 0 0
+25 16 16 1 16 25 81 16
+0 0
+0 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+55 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' eastvanguard 'member' ithilien_battalion 'member' eradan_battalion~
+0 0 0
+#51052
+Mornloch stallion warhorse well-muscled mid-night black uniquealandil byphear mornloch~
+a large horse with a mid-night black coat~
+A large, well-muscled stallion wearing a coat as black as mid-night stands here quietly.~
+   A bit taller than a normal riding horse, this stallion is well-muscled and has intelligent, eyes that scan it's surroundings almost constantly. Its coat is a deep, black like that of a moonlss night. His long mane, tail and feathers match his coat. Well-toned muscles ripple beneath its hide.
+
+~
+134479882 0 37 61 0 5d1+80 2d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+25 16 16 1 15 25 81 20
+0 0
+0 75 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+75 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' eradan_vet 'member' ithilien_battalion 'member' eradan_battalion 'ithilien' member~
+0 0 0
+#51053
+Beryon guardian blue-eyed skeleton man istavarna byphear sageplot~
+a tall skeleton with eyes glowing a soft blue~
+An imposing figure of what was once a man with a soft blue glowing from it's eyes sockets stands here proudly.~
+   This being is nothing but the skeleton of a man who once lived long ago. Strips of cartiledge and decomposing flesh riddle only some parts of its skeletal form, showing the age of which the creature has. Its eyes stand out above all else, staring out in a soft blueish glow. Its stature is unmoving and its form broad and tall, despite only bones being left. A tatterd cloak of white wool hangs from shoulders loosely beaing aged and worn armor. A polished shield adorns the left arm and a longsword is held in his right hand.
+~
+268435466 41943044 30 64 3 5d1+100 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 10 0 1 16 25 81 18
+0 0
+0 50 0 61 0 0 0 0 0 0
+0 0 58 0 0 0 0 0 0 0
+70 57 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 59 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' sages~
+0 0 0
+#51054
+Calimiar lost-sage grey-eyed skeleton man byphear sageplot~
+a tall, thin skeleton~
+A tall, thin skeleton wrapped in a grey cloak lies here.~
+   This being is nothing but the skeleton of a man who once lived long ago. Strips of cartiledge and decomposing flesh riddle only some parts of its skeletal form, showing the age of which the creature has. Its stature is unmoving and its form tall but thin, despite only bones being left. A tatterd cloak of grey wool is wrapped about it, a rip visible in it over the figues chest. Clutched in its hands is an iron-bound tome of brittle ash-grey leather.
+~
+268435466 41943044 30 64 3 5d1+100 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 10 0 1 16 25 81 18
+0 0
+0 50 0 61 0 0 0 0 0 0
+0 0 58 0 0 0 0 0 0 0
+70 57 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 59 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'master' sages~
+0 0 0
+#51055
+Ibaria Elerdine chubby older women nanny pofdambeth byphear percs~
+a chubby older woman~
+A chubby, older woman stands here with hands on her hips.~
+   This older woman has obviously seen a great deal of life and seems to approve of what she has seen. Wrinkles line her face, creasing the areas around her twinkling grey eyes, lips and even her cheeks from decades of smiling and laughing. Her lips more often than not curve upwards. Her eyebrows are thin, tapered, and as white as her hair. A matronly figure, her body is quite plump as it settles with time and gravity. Her frame and chubby little hands, while small, maintain a sense of efficiency and confidence about them. Her soft white hair seems to always be neatly combed, plaited and wrapped into a wreath over the crown of her head.
+~
+10 0 15 0 0 5d1+96 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+15 16 16 1 16 14 81 16
+0 0
+0 30 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 60 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' dambeth_npc 'member' erinur_npc 'member' eradan_battalion 'member' ithilien_battalion 'member' mt_citizens~
+0 0 0
+#51056
+timer invisible dock clock rprog byphear batt_ferry~
+an invisible dock timer~
+An invisible dock timer is here.~
+(null)~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 51056 0
+#51057
+formless bandit ELITE AUTOCREATE~
+a formless bandit autocreate~
+A formless bandit autocrate watches vigilantly.~
+   Rough features are possessed by these men and women, they have 
+many scars and notches showing their hard living and many fights. 
+Their varied skin tones, hair-colors, and eye-colors gives 
+evidence to their mixed heritage. They looked hardened and grim. 
+~
+2097194 0 24 94 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 35 45 36 43 30 39 48 44 36
+46 30 31 42 39 38 45 35 37 43
+45 32 0 0 43 55 0 0 16 60
+0 0 61 0 0 17 20 22 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 33 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 69 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' ithilien_brigands~
+0 0 0
+#51058
+formless bandit ELITE AUTOCREATE~
+a formless bandit autocreate~
+A formless bandit autocrate watches vigilantly.~
+   Rough features are possessed by these men and women, they have 
+many scars and notches showing their hard living and many fights. 
+Their varied skin tones, hair-colors, and eye-colors gives 
+evidence to their mixed heritage. They looked hardened and grim. 
+~
+2097162 0 24 94 0 5d1+105 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 16 16 1 15 17 81 16
+268435456 0
+0 35 46 36 43 38 39 49 30 41
+43 32 36 31 40 38 48 44 36 43
+40 50 0 0 60 37 0 0 25 62
+0 0 58 0 0 18 17 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 69 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' ithilien_brigands~
+0 0 0
+#51059
+Leader ithilien-brigands patrol-leader byphear~
+a tall, broad-shouldered man~
+A tall, broad-shouldered, dark man is standing here.~
+   A thick, ridged brow sits over a pair of dark, beady eyes, 
+giving this half-troll a brutish appearance. Dark, greyish black 
+skin is laced with scars in a wide assortment of shapes and 
+severity, the largest of which runs directly up his back to 
+dissappear as it reaches his bald skull. A set of small, dirty 
+tusks jut from his broad, lower lip, the left snapped off halfway 
+toward its apex, while the right seems to have been sharpened. 
+Nearly as wide as he is tall, generous muscles coat his frame, 
+padded with a healthy layer of fat, and his movements are slow 
+and ponderous. 
+~
+2097163 0 25 0 0 5d1+102 2d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 17 16 1 16 16 81 14
+0 0
+0 47 43 49 44 33 39 37 35 50
+50 39 42 44 37 42 38 31 38 42
+45 48 0 0 54 45 0 0 19 53
+0 0 58 0 0 18 17 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 34 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 55 0 0 0 0 0 0 0 0
+0 0 0 0 45 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' ithilien_brigands~
+0 0 0
+#51060
+half-orc auto-create bandit~
+a half-orc auto-create bandit~
+A half-orc auto-create bandit uh... bandits here.~
+   Bearing themself in what passes as a proud and confident 
+manner for a half-breed, this individual is muscular and bears 
+many scars, the sign of experience granted from previous battles. 
+Possessing a discipline unseen in most of its race, this 
+half-orc's enlarged jaw is set straight as they gaze with 
+narrowed eyes over their surroundings.
+
+<worn on head>           #2a long leather cowl studded with bones#0
+<worn at neck>           #2a bone-studded leather gorget#0
+<worn on body>           #2a bone-studded leather hauberk#0
+<worn on arms>           #2a pair of bone-studded leather sleeves#0
+<worn on hands>          #2thick bone-studded gauntlets#0
+<worn on legs>           #2a pair of bone-studded leather leggings#0
+<worn on feet>           #2a pair of sturdy bone-buckled leather boots#0
+~
+2097194 786436 24 26 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 63 4 16 0
+11 13 16 1 17 12 81 9
+268435456 0
+0 31 35 45 45 46 36 38 35 49
+40 43 31 44 43 48 36 36 33 44
+39 43 34 0 58 53 0 0 25 64
+0 0 65 0 0 21 15 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 13 64 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' ithilien_brigands~
+0 0 0
+#51061
+Tracc huge trollish man BATT_PLOT_BRIGAND by phear~
+a huge, trollish looking man~
+A huge, trollish looking man stands here looking rough.~
+   Rough features are possessed by these men and women, they have 
+many scars and notches showing their hard living and many fights. 
+Their varied skin tones, hair-colors, and eye-colors gives 
+evidence to their mixed heritage. They looked hardened and grim. 
+~
+2097194 8388612 25 27 0 5d1+105 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 13 16 1 12 17 81 13
+0 0
+0 44 39 36 37 43 45 31 31 50
+45 32 31 34 44 48 41 41 46 34
+45 40 0 0 35 33 0 0 20 67
+0 0 52 0 0 15 24 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 34 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 69 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' ithilien_brigands~
+0 0 0
+#51062
+postmaster white-haired wrinkled man HAWK_DOVE_POSTMASTER Reynold~
+a white-haired, wrinkled man~
+A white-haired, wrinkled man operates the postroom here.~
+   This man is white-haired and obviously very old. He has many 
+wrinkles around his eyes and on his hands, with a stooped posture 
+and slow, shuffling steps. He is about average height and weight 
+and has long gnarly fingers. 
+~
+26 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+51191 8217 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+21100 3392 21101 21102 21103 21104 21105 21106 21107 21108 21109 21110 21111 21112 21113 21114 21115 21116 21117 21118 21119 21120 21121 21122 21123 21124 21125 21126 21127 -1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 3 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' hawk_dove_2~
+0 0 0
+#51063
+Dirk obsidian black destrier intelligent warhorse destrier xUniqueSwift byphear Horse~
+a tall, obsidian black destrier~
+A tall, obsidian black destrier with intelligent eyes stands here.~
+   This horse has a striking appearance with its shiny, black 
+coat the hue of obsidian, its tall well-proportioned frame 
+generously corded with well developed muscles, and its long wavy 
+black mane and tail. Upon its thick and muscular neck, its well 
+proportioned head has fine features and its large eyes bear a 
+keen intelligence within them. The horse moves with trained 
+grace and dignity, but with such energy that it can spring into 
+action at a moment's call. Its long wavy tail occasionally 
+flicks aside to ward off flies. 
+~
+134479882 0 27 61 0 5d1+80 2d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+25 16 16 1 15 25 81 20
+0 0
+0 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+55 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' erynion_npc 'member' mt_citizens 'member' eastvanguar 'member' eastvanguard 'member' ithilien_battalion 'member' eradan_battalion~
+0 0 0
+#51064
+Sage wight sickly half decayed figure byHalfjack~
+a withered, sickly and half decayed figure~
+A withered, sickly and half decayed figure is here.~
+   Standing tall, despite a rather large slouch, this 
+half-decayed figure glares outwards with milky white eyes. Flesh 
+hangs slack from the creature's bones, sometimes missing 
+completely. Patchy black hair hangs down to its shoulders, with 
+the hairless portions of its head revealing yellow bone. The 
+right side of its chest is completely devoid of flesh, revealing 
+the bone underneath, and the lack of organs, which allows for an 
+almost undisturbed view right through the figure. Its fingertips 
+are sharpened into claws, and its palms are torn up, showing 
+bloodstained bones. 
+~
+8 48 27 3 0 5d1+57 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 29 0 0 0 2 0 74 2 0 0
+1 1 1 1 1 1 81 1
+0 0
+0 43 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 32 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 32 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51065
+warrior dust covered mummified mummy wight byHalfjack~
+a dust-covered, mummified wight~
+A dust-covered, mummified wight is here~
+   The wight's flesh, incredibly well-preserved and dried, is 
+drawn taught over the creature's bones. Thick layers of dust 
+have settled over his form, covering up or heavily muting the 
+colors of his body, except for his bright milky white eyes. His 
+hair is a dull black, covered and inundated with dark grey dust. 
+His fingertips have been sharpened into claws, each extending 
+from the already bone thin fingers into needle-sharp points. 
+~
+8 32 34 101 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+1 1 1 1 1 1 81 1
+0 0
+0 43 0 69 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+62 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51066
+guinea pig byConscript~
+a chubby brown and white guinea pig~
+A chubby brown and white guinea pig looks perpetually alarmed.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 8 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51067
+Tea small striped kitten blue~
+a small striped kitten, with large blue eyes~
+A small striped kitten, with large blue eyes is here~
+   Over-sized blue eyes, with curiously enlarged pupils gaze out 
+from the otherwise miniscule form of this kitten. Black lines 
+form a faint 'M' across his forehead, followed up promptly by 
+black and orange stripes across a brown canvas of fur. Aroun his 
+mouth, the fur is bright white, creating a small beard which 
+contrasts strongly with his otherwise fairly dark coloring. His 
+whiskers are long and curved forwards slightly, adding to the 
+image of facial hair. His front paws are similarly white, though 
+his rear follow the striped pattern that covers the rest of his 
+body. 
+~
+134217738 4 4 38 0 5d1+10 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+14 14 16 1 20 18 81 20
+65536 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51068
+mist drifting greyish~
+#2a drifting greyish mist#0~
+#2A greyish mist drifts here#0~
+   Drifting through the area on the wind, greyish mist diminishes 
+any light passing through it and deadens noise, making the area 
+feel eerie and unnatural. 
+~
+536870920 0 4 0 0 5d1+111 2d20+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 14 19 1 7 19 81 7
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51069
+Ebhan Amdir_ngate_guard heavy broad xeradan_battalion byConscript~
+a heavy, broad-shouldered man~
+A heavy, broad-shouldered man attends to the gate.~
+   This old veteran bears the scars of many battles at the side 
+of the soldiers of Lord Eradan. Protecting the entrance into 
+Lord Eradan's Keep, he is ready to bar passage. Huge and 
+muscled, this man bears the air of a sergeant in his manners of 
+speaking and ordering those around him. 
+~
+2097162 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 37 33 47 50 47 49 30 37 31
+37 34 36 49 46 47 35 36 39 45
+50 32 35 0 41 51 0 0 21 14
+0 0 44 0 0 21 19 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 31 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 51 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_battalion 'member' ithilien_battalion 'member' mt_citizens 'member' osgi_citizens~
+0 0 0
+#51070
+Angrim Amdir_wgate_guard stern broad xeradan_battalion byConscript~
+a stern, broad-shouldered man~
+A stern, broad-shouldered man attends to the gate.~
+   This old veteran bears the scars of many battles at the side 
+of the soldiers of Lord Eradan. Protecting the entrance into 
+Lord Eradan's Keep, he is ready to bar passage. Huge and 
+muscled, this man bears the air of a sergeant in his manners of 
+speaking and ordering those around him. 
+~
+2097162 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 37 33 47 50 47 49 30 37 31
+37 34 36 49 46 47 35 36 39 45
+50 32 35 0 41 51 0 0 21 14
+0 0 44 0 0 21 19 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 31 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 51 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_battalion 'member' ithilien_battalion 'member' mt_citizens 'member' osgi_citizens~
+0 0 0
+#51071
+soldiers dozen eradan surcoat shield silver moon byConscript~
+a dozen soldiers wearing grey surcoats bearing a black shield before a silver full moon~
+A dozen soldiers of Gondor stand silent vigil over the fallen.~
+(null)~
+8 0 4 0 3 5d1+129 12d3+0 0 7 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+25 16 16 1 16 25 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51072
+Ailivin Inner_cairn_guard solemn broad xeradan_battalion byConscript~
+a solemn, broad-shouldered man~
+A solemn, broad-shouldered man stands by the heavy door.~
+   This old veteran bears the scars of many battles at the side 
+of the soldiers of Lord Eradan. Protecting the entrance into 
+Lord Eradan's Keep, he is ready to bar passage. Huge and 
+muscled, this man bears the air of a sergeant in his manners of 
+speaking and ordering those around him. 
+~
+2097162 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 37 33 47 50 47 49 30 37 31
+37 34 36 49 46 47 35 36 39 45
+50 32 35 0 41 51 0 0 21 14
+0 0 44 0 0 21 19 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 31 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 51 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_battalion 'member' ithilien_battalion 'member' mt_citizens 'member' osgi_citizens~
+0 0 0
+#51073
+Remmenlhing blotchy-grey-coated amber-eyed mare ~
+a blotchy-grey-coated, amber-eyed mare~
+A blotchy-grey-coated, amber-eyed mare is here, flicking its tail.~
+   Standing roughly at the height of a man's shoulder, this horse
+maintains a proud and dignified facade. Its head is held high,
+intelligent eyes glaring out into the distance, and a thick,
+healthy-looking mane runs down the back of its neck. Its coat
+appears well-cared-for, and a thick, knotted layer of muscle
+ripples gracefully beneath its sleek skin.
+~
+134479882 0 30 47 0 5d1+145 1d5+0 0 8 8 0 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+15 16 17 1 16 20 77 17
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' erinur_npc 'member' eradan_battalion 'member' ithilien_battalion~
+0 0 0
+#51074
+Wheekat wizened old warty goblin~
+a wizened, warty old goblin~
+A wizened, warty old goblin stands hunched here.~
+   This goblin, a male, is very old. He has long, spindly limbs 
+with a greyish-green complexion and he is covered from head to 
+toe in warts of various sizes. His head is bulbous with stringy 
+grey hair and he has large, frog-like eyes, a thin nose and a 
+wide mouth. His ears are large and pointed and tend to flap 
+about when he moves. 
+~
+10 8388612 30 24 0 5d1+93 2d3+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 13 18 1 15 13 81 15
+0 0
+0 50 0 0 0 0 0 0 0 0
+60 50 0 0 0 0 0 0 0 0
+8 50 0 0 70 70 0 0 0 50
+50 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 70 0
+0 0 0 0 0 0 0 70 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' gothakra 'member' mordor_char~
+0 0 0
+#51075
+daeron long pitch-black-haired steel-grey-eyed man hawk byphear ith_ranger~
+a steel-grey-eyed man with long black hair~
+A man with steel-grey-eyes and long black hair stands quietly here.~
+   Looming imperiously over most lesser men, this man bears the 
+clear marks of his Dunedain heritage. Stern steel-grey eyes peer 
+out from his chiseled features, with a wisdom and age betraying 
+his middle-aged appearance. He is quite stout, hardened sinew 
+composing his large frame. Straight jet-black hair cascades over 
+his shoulders and back, a sheen of light catching in the strands. 
+His hands are broad and calloused and his composure grim. 
+~
+8 0 39 101 0 5d1+110 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+19 15 20 1 17 18 81 17
+0 0
+0 60 61 68 79 0 0 0 60 0
+0 0 0 0 0 0 63 73 0 0
+65 60 0 0 67 69 0 0 60 60
+63 0 65 0 0 0 67 58 50 60
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 55 0 0 0
+0 0 0 0 0 60 0 55 0 0
+45 60 0 0 0 0 0 0 0 0
+60 52 0 0 0 0 0 0 0 0
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' east_vanguard 'member' eradan_battalion 'member' ithilien_battalion 'lieutenant' ithilin_rangers 'member' ithilien_citizen~
+0 0 0
+#51076
+Subhi Kramatian ERADAN byConscript stallion steel grey coat agile alert~
+an agile, steel grey coated stallion~
+An agile, steel-grey stallion gazes out with bright, alert eyes.~
+   Long-limbed and sleekly muscled with a compact torso, this 
+horse is a fine specimen of its breed. Its head has a curiously 
+dished profile, giving prominence to a pair of fiercely alert 
+eyes. Sharp ears point out from a silky black mane, swiveling 
+this way and that as the horse takes in its surroundings at every 
+moment. Its coat is a lustrous steel grey, growing darker where 
+it covers the flanks and slender legs. 
+~
+262154 0 29 47 0 5d1+95 1d3+0 0 8 8 0 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+16 8 14 1 16 20 77 18
+0 0
+0 58 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 69 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' caolafon-citizen 'member' eradan_battalion~
+0 0 0
+#51077
+Hamid Kramatian stallion ERADAN byConscript fiercely alert strawberry roan~
+a sleek, alert strawberry roan~
+A fiercely alert stallion stands here, its strawberry roan coat gleaming.~
+   Long-limbed and sleekly muscled with a compact torso, this 
+horse is a fine specimen of its breed. Its head has a curiously 
+dished profile, giving prominence to a pair of fiercely alert 
+eyes. Sharp ears point out from a silky flaxen mane, swiveling 
+this way and that as the horse takes in its surroundings at every 
+moment. Its coat is lustrous, made of interspersed chestnut and 
+white hairs, growing darker where it covers the flanks and 
+slender legs. 
+~
+262154 0 29 47 0 5d1+95 1d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 127 0 0 0
+16 8 14 1 16 20 77 18
+0 0
+0 58 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 69 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eastern_vanguard 'member' ithilien_battalions 'member' eradan_battalion~
+0 0 0
+#51078
+Garadun thickset amber-eyed man byConscript~
+a thickset, amber-eyed man~
+A thickset, amber-eyed man is here.~
+   This man's barrel-chested torso stands upon a pair of squat, 
+muscular legs, giving him an overall stocky appearance. His fair 
+skin has been sun-bronzed and weathered by the elements, a 
+tribute to a life of outdoor toil. His charcoal black hair is 
+kept short and cropped in a military fashion upon his head, and 
+hard amber eyes look out from a somewhat rounded face centered by 
+a large bulbous nose. 
+~
+10 0 21 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 69 4 0 0
+16 16 13 1 16 16 81 16
+0 0
+0 33 0 33 0 0 33 0 0 0
+0 0 0 33 0 0 43 0 0 0
+30 30 30 0 0 0 0 0 0 30
+0 0 30 0 0 0 16 15 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51079
+Redeye snarling red eyed wwminion byPhear wolf~
+a huge, black-furred wolf with eyes burning red~
+A huge, black-furred wolf with glowing red eyes stands here, bloody spittle dripping from his fangs.~
+   This wolf stands much larger than those of his brethren, Its 
+coat a solid black, black as Ithilien on a moonless night. A 
+pair of sharp, intelligent eyes burn red, in a terrifying 
+contrast to the black of its fur. 
+~
+43 4 33 62 7 5d1+165 2d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+20 15 14 1 19 16 81 16
+0 0
+0 67 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+45 55 0 0 61 62 0 0 0 50
+0 0 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 57 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' minion_ww_ithil~
+0 0 0
+#51080
+blackpack fanged black-furred red-eyed wwminion byphear wolf~
+a black furred, red-eyed wolf~
+A black furred wolf with red eyes stands here, its fangs bared in a vicious snarl.~
+   This a wolf, coated in thick black fur, as black as a moonless night.
+It bears eyes as red as hot coals and, fangs that are long and
+sharp.
+~
+43 4 27 62 5 5d1+75 1d7+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+18 10 10 1 16 16 81 16
+268435456 0
+0 54 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+45 44 0 0 61 62 0 0 0 50
+0 0 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' minion_ww_ithil~
+0 0 0
+#51081
+uruk elite shock trooper variable xRPT-CrossroadsFightMoriaOpenx xShammatx~
+an elite uruk shock trooper variable~
+An elite uruk shock trooper variable stands here.~
+   So far as Uruk-Hai are concerned, this one bears itself with 
+an arrogance seen as haughty even by most of its kind, its 
+bestial eyes gazing dismissively over all that is surveys. Head 
+held high and shoulders set back, this uruk stands nearly 
+man-high. Jagged, yellow teeth bare behind savagely peeled-back, 
+black lips and many scars riddle this uruk's body. Under these 
+peppered scars and gashes, so calloused and tough in places that 
+it is comparable to leather, a dusky black skin stretches taut 
+over muscle and bone.
+#0
+<worn on head>           #2a stout, slit-visored helmet#0
+<worn at neck>           #2a scale-set gorget of beaten iron#0
+<worn about body>        #2a hide cloak marked with a white crown#0
+<worn on body>           #2a scale-backed breastplate of beaten iron#0
+<worn on arms>           #2a pair of scale-framed vambraces#0
+<worn on hands>          #2a pair of scale-set iron gauntlets#0
+<worn on legs>           #2a pair of scale-framed iron greaves#0
+<worn on feet>           #2a crude pair of pointed, iron-toed boots#0
+~
+11 4 38 29 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 13 9 1 17 16 95 15
+268435456 0
+0 75 61 72 67 73 71 73 73 73
+67 62 72 68 77 69 76 67 69 59
+76 67 0 0 62 63 0 0 47 61
+0 0 58 0 0 46 55 49 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 61 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 61 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'private' minion_ww_ithil 'private' uruk-hai~
+0 0 0
+#51082
+variable troll olog Ithilien_War~
+an olog-hai troll aggressor variable~
+An olog-hai troll aggressor variable stands here.~
+   Looming well over the height of most smaller buildings, this 
+fearfully massive troll towers over its surroundings. Its thick 
+hide is a meshwork of scars, and its beady eyes survey the area 
+with a cold glint. Long, jagged, yellowed teeth protrude from 
+its maw, glistening with a foul patina of putrid saliva, and long 
+ropes of thick, corded muscle cover its entire body. 
+~
+522 8388612 35 28 5 5d1+200 1d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+24 10 14 1 10 25 94 8
+268435456 0
+0 60 0 0 70 0 0 70 0 0
+0 0 0 50 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 50 0
+0 0 50 0 0 0 40 40 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 40 40 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'corporal' minion_ww_ithil~
+0 0 0
+#51083
+Lamouir Herunan delicate sable XEradanbride byphear woman~
+a delicate-featured, sable-crowned woman~
+A woman with delicate features, soft grey eyes and a crown of sable colored hair ~
+   This woman's heart-shaped face bears a delicacy that is 
+accented by her coloring. Her skin is as pale and elegant as 
+porcelain, framed by a mane of sable hair; more often than not 
+sleekly coiffed. Eyes the soft shade of a grey dove's wing gaze 
+out with clarity from under a brow that can only be described as 
+noble. A mouth, mobile and quick to demonstrate moods through 
+minuscule motions, is formed with a narrow upper lip and plumper 
+rose-tinted lower tier that hide pearl-like teeth from view. Her 
+willowy figure is tall, but not devoid of curves. Youthful, but 
+well past her teenage years, she carries herself with the 
+confidence of experience; dark head held high. 
+~
+10 0 24 1 0 5d1+96 1d2+0 0 7 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 19 15 1 18 14 81 17
+0 0
+0 36 0 0 0 0 0 0 48 0
+0 0 0 0 0 0 0 0 0 0
+41 40 0 0 0 0 0 0 61 64
+0 0 62 0 0 100 38 58 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 37 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 59 0 60
+43 68 0 0 0 0 0 0 0 0
+68 58 0 0 0 0 0 0 0 0
+0 0 0 0 66 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' eradan_battalion 'sergeant' ithilien_battalion 'sergeant' ithilien_citizen 'sergeant' eradan_vet 'member' mt_citizens~
+0 0 0
+#51084
+zephyr fordinen horse roan small-muzzled lite pofdinen byphear~
+a small-muzzled roan stallion~
+A small-muzzled roan stallion stands here, eagerly stomping the ground.~
+   This exotic horse appears to be of the Kramatian breed or 
+descended from the breed. It's short haired coat is roan in 
+color and well brushed. This horse appears to be built for 
+speed, looking lighter than a standard warhorse. This specimen 
+is still built heavier than standard riding horses and looks as 
+though it can hold it's own in combat. 
+~
+134479882 0 32 61 0 5d1+80 2d3+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+20 16 14 1 21 16 81 25
+0 0
+0 64 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+62 58 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 68 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 70 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' dinen_npc 'member' eradan_battalion 'member' ithilien_battalion 'member' eradan_vet~
+0 0 0
+#51085
+Andrem BATTALION VANGUARD young sturdy man byConscript~
+a sturdy young man~
+A sturdy young young man guards the entryways.~
+   This soldier is sworn into the service of Eradan, Lord of the 
+Emyn Arnen. He stands vigilant, and poised to leap into action 
+with a given command. He scans his surroundings regularly, 
+keeping close watch. 
+~
+10 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 50 0 50 50 0 50 50 0 50
+50 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' mt_stall_10 'sergeant' strongroom_eradan~
+0 0 0
+#51086
+brigand member lackey Ithilien spawn formless byphear~
+a formless Moria Wilderness brigand~
+A formless Ithilien brigand stands here.~
+   A rough and dirty individual, this person looks to have very 
+little concern for anyone but themselves. Muscular yet, trim 
+this individual looks quite capable to survive the wilds. Hair 
+grows unchecked and uncared for, as well as pretty much 
+everything else. 
+~
+2097450 0 25 0 3 5d1+102 1d8+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 16 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 47 37 39 34 47 49 43 31 44
+47 50 49 35 46 30 48 32 40 45
+46 50 0 0 48 31 0 0 19 68
+0 0 52 0 0 15 23 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 46 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' ithilien_brigands~
+0 0 0
+#51087
+Ellmeera byConscript Kramatian graceful sorrel mare~
+a graceful sorrel mare~
+A graceful sorrel mare whickers softly here.~
+   With the sleek copper hairs of a true sorrel, this mare is 
+long-limbed and slender with a compact torso. The head of this 
+steed has a curiously dished profile, giving prominence to a pair 
+of alert brown eyes. Sharp copper-red ears perk out from a silky 
+golden mane, swiveling at the slightest noise. Her tail is a 
+similar golden confection to the mane, a glimmering light 
+contrast to the bright copper of her hide. Never still, from her 
+pointed ears to her swishing tail, the graceful horse is a fine 
+example of a delicate Kramatian bred for riding. 
+~
+134479882 0 25 0 0 5d1+204 1d4+0 0 8 8 2 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+17 8 14 1 15 50 81 19
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 65 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' ithilien_battalion 'corporal' eradan_battalion 'member' mt_citizens~
+0 0 0
+#51088
+Jaekyle WEREWOLF PHEARPLOT tall man midnight-black shadowy grey byConscript xxjaekxx~
+a tall man with midnight-black hair and shadowy grey eyes~
+A tall man stands here, with midnight-black hair and shadowy grey eyes.~
+   With a regal bearing, this slightly weathered man, his face 
+bearing some wrinkles around his eyes and lips, stands tall and 
+proud. His hair, meticulously groomed to a fine silky black 
+sheen drifts down past his shoulders, pushed back to reveal his 
+large forehead. Fairly bushy black eyebrows seem ever creased at 
+severe angles, providing a stark contrast to his shadowy grey 
+eyes. His nose is perfectly straight, and flares out at the end 
+to two wide nostrils. His cheeks are even and flat, their shape 
+tarnished only by faint laugh lines, until they get to his 
+pronounced jaw, with his rounded chin. Broadness takes command 
+as his shoulders and chest are concerned, narrowing evenly until 
+his legs are reached, which, though still slender, bear a refined 
+musculature. His skin is an even pale, almost sickly in its 
+extremity, and seeming almost fragile. 
+~
+10 0 35 3 0 5d1+99 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 14 16 1 18 15 81 15
+0 0
+0 50 0 70 50 0 50 50 0 50
+50 0 0 0 0 0 0 0 0 0
+70 70 0 0 50 65 0 0 0 100
+50 50 0 0 0 50 50 100 50 50
+0 0 0 0 0 60 0 0 60 0
+0 60 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 100
+50 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_battalion 'commander' witchking_horde 'commander' minion_ww_ithil~
+0 0 0
+#51089
+Nimes short stern-faced man battalion quartermaster~
+a short, stern-faced man~
+A short, stern-faced man is here, directing workers.~
+   Slightly balding, what is left of this man's hair is grey. 
+Despite his age, his dark brown eyes appear quite alert. He is 
+short of stature, partly due to his age though it is doubtful he 
+was ever a tall man. His movements, slowed with age, are 
+nevertheless deliberate. 
+~
+1050 0 20 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+54580 96139 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+2277 1000 2092 199 6068 1001 3082 1009 1075 1673 98136 1113 97705 1183 1762 96 1499 1073 2040 11653 11654 51001 51002 50033 50034 51035 51036 11395 11396 79988 51003 1561 1599 1029 2260 22106 79959 798 81 2308 51114 51109 51110 51111 51112 51115 51116 51281 51187 1017 51133 51132 50047 50101 -1
+0 0 0 0 0 0 0 0 0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 40 0 0 0 0 0 0 0 100
+0 0 100 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 80 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 80 0 0
+0 0 0 0 0 80 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_vet~
+0 0 0
+#51090
+fang monstrous wolf snarling long-fanged wwminion byphear WOLF~
+a monstrous, black, long fanged wolf~
+A monstrous, black, long fanged wolf with glowing red eyes prowls here.~
+   Fur as dark as a moonless night completely coats this hulking 
+wolf from head to toe. Piercing, glowing, red eyes stand out 
+starkly against the black background that is this wolf's body, 
+lying slanted within its feral-looking, canine face. A gaping 
+maw splits open to reveal a set of frighteningly sharp teeth, the 
+foremost of these being a pair of extrememly long fangs. Tough 
+sinew ropes its way about this wolf's body, from its muscular 
+neck and shoulders, down to its lithe hindquarters, rippling 
+beneath the skin with every movement. Each of its four paws are 
+the size of a large, full-grown human's hands, ending in black 
+claws that dig into the earth as it moves. 
+~
+43 4 33 62 6 5d1+185 2d5+0 0 8 8 0 0 0 0 0
+97155 0 0 80189 0 0 24 0 0 0 1 0 0 0 0 0
+21 15 14 1 17 20 81 15
+0 0
+0 67 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+70 61 0 0 61 62 0 0 0 66
+0 0 61 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 57 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+66 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' witchking_horde 'lieutenant' minion_ww_ithil~
+0 0 0
+#51091
+slash wolf monstrous growling sharp-fanged wwminion byphear WOLF~
+a monstrous, black, sharp fanged wolf~
+A monstrous, black, sharp fanged wolf with glowing red eyes prowls here.~
+   Fur as dark as a moonless night completely coats this hulking 
+wolf from head to toe. Angrily glowing, red eyes stand out 
+starkly against the black background that is this wolf's body, 
+lying slightly slanted within its feral-looking, canine face. A 
+gaping maw splits open to reveal a set of frighteningly sharp 
+teeth, the foremost of these being a pair of sharp-pointed fangs. 
+Tough sinew ropes its way about this wolf's body, from its 
+muscular neck and shoulders, down to its lithe hindquarters, 
+rippling beneath the skin with every movement. Each of its four 
+paws are the size of a large, full-grown human's hands, ending in 
+black claws that dig into the earth as it moves. 
+~
+43 4 33 62 6 5d1+168 2d5+0 0 8 8 0 0 0 0 0
+97155 0 0 80189 0 0 24 0 0 0 1 0 0 0 0 0
+19 15 14 1 20 19 81 21
+0 0
+0 67 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+74 68 0 0 71 70 0 0 0 66
+0 0 66 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 71 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+67 0 0 0 0 67 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' witchking_horde 'lieutenant' minion_ww_ithil~
+0 0 0
+#51092
+bonesnapper monstrous wolf drooling crooked-fanged wwminion byphear WOLF~
+a monstrous, black, crooked fanged wolf~
+A monstrous, black, crooked fanged wolf with glowing red eyes prowls here.~
+   Fur as dark as a moonless night completely coats this hulking 
+wolf from head to toe. dimly, glowing, red eyes stand out 
+starkly against the black background that is this wolf's body, 
+lying slightly slanted within its feral-looking, canine face. A 
+gaping maw splits open to reveal a set of frighteningly sharp 
+teeth, the foremost of these being a pair of crooked and twisted 
+fangs. Tough sinew ropes its way about this wolf's body, from 
+its muscular neck and shoulders, down to its lithe hindquarters, 
+rippling beneath the skin with every movement. Each of its four 
+paws are the size of a large, full-grown human's hands, ending in 
+black claws that dig into the earth as it moves. 
+~
+43 4 33 62 7 5d1+205 2d5+0 0 8 8 0 0 0 0 0
+97155 0 0 80189 0 0 24 0 0 0 1 0 0 0 0 0
+22 15 14 1 19 16 81 16
+0 0
+0 67 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+78 66 0 0 68 67 0 0 0 67
+0 0 67 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+60 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' witchking_horde 'lieutenant' minion_ww_ithil~
+0 0 0
+#51093
+neckbiter monstrous wolf sharp eyed cracked-fanged wwminion byphear WOLF~
+a monstrous, black, cracked fanged wolf~
+A monstrous, black, cracked fanged wolf with glowing red eyes prowls here.~
+   Fur as dark as a moonless night completely coats this hulking 
+wolf from head to toe. bright, glowing, red eyes stand out 
+starkly against the black background that is this wolf's body, 
+lying slightly slanted within its feral-looking, canine face. A 
+gaping maw splits open to reveal a set of frighteningly sharp 
+teeth, the foremost of these being a pair of un-even and broken 
+fangs. Tough sinew ropes its way about this wolf's body, from 
+its muscular neck and shoulders, down to its lithe hindquarters, 
+rippling beneath the skin with every movement. Each of its four 
+paws are the size of a large, full-grown human's hands, ending in 
+black claws that dig into the earth as it moves. 
+~
+43 4 33 62 5 5d1+190 2d5+0 0 8 8 0 0 0 0 0
+97155 0 0 80189 0 0 24 0 0 0 1 0 0 0 0 0
+20 15 14 1 19 16 81 16
+0 0
+0 67 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+45 66 0 0 68 67 0 0 0 67
+0 0 67 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+63 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' witchking_horde 'lieutenant' minion_ww_ithil~
+0 0 0
+#51094
+fleshrender monstrous wolf slant eyed wicked-fanged wwminion byphear WOLF~
+a monstrous, black, wicked fanged wolf~
+A monstrous, black, wicked fanged wolf with glowing, slanted, red eyes prowls here.~
+   Fur as dark as a moonless night completely coats this hulking 
+wolf from head to toe. glowing, pulsing red eyes stand out 
+starkly against the black background that is this wolf's body, 
+lying slightly slanted within its feral-looking, canine face. A 
+gaping maw splits open to reveal a set of frighteningly sharp 
+teeth, the foremost of these being a pair of wickedly curved 
+fangs. Tough sinew ropes its way about this wolf's body, from 
+its muscular neck and shoulders, down to its lithe hindquarters, 
+rippling beneath the skin with every movement. Each of its four 
+paws are the size of a large, full-grown human's hands, ending in 
+black claws that dig into the earth as it moves. 
+~
+43 4 37 62 7 5d1+215 2d5+0 0 8 8 0 0 0 0 0
+97155 0 0 80189 0 0 24 0 0 0 1 0 0 0 0 0
+23 15 14 1 19 21 81 16
+0 0
+0 74 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+74 67 0 0 61 62 0 0 0 67
+0 0 67 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 61 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+61 0 0 0 0 61 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' witchking_horde 'lieutenant' minion_ww_ithil~
+0 0 0
+#51095
+spider monstrous spike legged mother byphear~
+a monstrous, spiked-legged spider~
+A monstrous, spiked-legged spider hunches here on its eight long legs.~
+   Easily the size of a healthy draft horse, this spider is of 
+absolutely monstrous proportions for such a creature, its long, 
+bulky legs covered in knife-length barbs that glisten black. Its 
+heavy, bloated midsection is covered in a shiny black carapace, 
+overlaid with a short, spiky layer of what appears to be a 
+bristly kind of fur. Eight dull red eyes flick about at the top 
+of the spiders head, set above a massive collection of fangs. 
+~
+2097194 4 40 32 4 5d1+160 1d10+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 34603010 0 0 262144 0
+16 16 16 1 16 16 77 16
+0 0
+0 80 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 80 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ravine~
+0 0 0
+#51096
+Jaekyle WEREWOLF_3RD_STATE_PHEARPLOT byConscript mist black swirling~
+a black, swirling mist~
+A black, swirling mist floats above the ground.~
+   A thick, swirling black mist hovers above the ground. Its 
+size and shape are constantly changing, the only constant being 
+the lack of light passing through the mass and the feeling of 
+distinct -wrongness- that it exudes. 
+~
+536870922 0 4 3 10 5d1+129 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+10 14 16 1 18 25 81 25
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 170 70 0 0 0 100
+0 0 0 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 100
+50 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'commander' minion_ww_ithil 'commander' witchking_horde~
+0 0 0
+#51500
+thickly muscled dog well defined neck bricklike head wardog~
+a thickly-muscled dog, with a well-defined neck and bricklike head~
+A thickly-muscled dog, with a well-defined neck and bricklike head stands here.~
+   Of proud stock, this great hound stands broader in stature 
+than a wolf. Short brindle fur covers a creature bred for 
+strength and stamina. Its canines are sharpened and its claws 
+are tipped. Intelligent dark brown eyes stare out of a face flat 
+like a bull. Its legs are not too long, but it seems tireless 
+and graceful nonetheless. 
+~
+8 0 25 40 1 5d1+80 2d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 50 37 35 39 35 30 34 39 43
+34 34 34 45 32 48 47 50 42 48
+41 39 0 0 50 50 0 0 25 69
+0 0 70 0 0 18 60 60 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 10 0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#51097
+wren bird pudgy mottled brown xSONG_OF_SHADOW_PLOTx xNauriel~
+a pudgy, mottled-brown wren~
+A pudgy, mottled-brown wren is perched on a branch overhead.~
+   The body of this small, plump bird forms a near half-circle, 
+its back flat and its lightly-coloured lower body rounded until 
+its thin legs are hardly visible beneath. Its head almost 
+appears to be a part of its torso, and is set with a pair of 
+glistening black, beady eyes and a short, thin beak. Its tail 
+stands straight up behind it, and when it is still its short 
+wings blend with the mottled, dusky feathers upon its back. 
+~
+673185928 0 8 35 0 5d1+20 1d1+0 0 8 8 0 0 0 0 0
+0 0 0 97305 0 0 24 0 0 0 3 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51098
+shrew small grey furred xSONG_OF_SHADOW_PLOTx xNauriel~
+a small, grey-furred shrew~
+A small, grey-furred shrew rustles through the underbrush.~
+   This small creature closely resembles a cross between a mouse 
+and a mole in appearance. Its body is somewhat elongated and its 
+crooked snout comes to a downward point. A long, rat-like tail 
+extends from its furry grey body, and is face is marked with a 
+pair of beady black eyes and small, sharp teeth. 
+~
+136314888 4 8 50 0 5d1+25 1d1+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#51099
+Herbert mottled grey frog xpofMarv xNauriel~
+a mottled-grey frog~
+A mottled-grey frog hops about here.~
+   This small creature is one of many of its species that call 
+the marsh home. It is on a constant quest, searching out tasty 
+small insects to slap out of the air with a long tongue. Loud 
+and obnoxious, the constant croaks and other sounds leaving this 
+amphibian make it a sore sight as well as a burden on the ears. 
+~
+1048586 33554432 8 44 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizen 'member' amdir_settler 'member' caolafon-citizen~
+0 0 0
+$~

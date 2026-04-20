@@ -1,0 +1,7608 @@
+#15000
+Base Room - Osgiliath Maze~
+   This zone is being used for Indoor Osgiliath Expansion
+
+Osgiliath Fair Maze: 15001-15230
+
+Osgiliath Guard Tower: 15500 - 15599 (Sighentist)
+~
+15 65544 0
+0
+S
+#15001
+The Entrance to the Hedge Maze~
+   Tall hedges tower up around this area in the very corner of 
+the maze. Covering the ground here is carefully tended, dark 
+green grass, cut low to the ground. All around, flowers bloom 
+profusely, and colorful ribbons have been tied in the bushes. 
+Set around the area are many ornate stone benches. A break in 
+the tall outer hedge lies to the south, leading out into Anorien, 
+while to the north and west branch two paths that lead deeper 
+into the hedge maze. 
+~
+15 1140916240 4
+0
+D0
+~
+~
+0 -1  0 15016
+D3
+~
+~
+0 -1  0 15002
+S
+#15002
+West of the Entrance to the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. The path 
+here has two exits. 
+   The path through the hedge continues west and east towards the 
+maze entrance. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15001
+D3
+~
+~
+0 -1  0 15012
+S
+#15003
+A Four-Way in the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   This area of the hedge maze has paths that leads in all 
+directions. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15006
+D1
+~
+~
+0 -1  0 15061
+D2
+~
+~
+0 -1  0 15005
+D3
+~
+~
+0 -1  0 15004
+S
+#15004
+A Dead End in the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+leads straight to a wall of hedges. 
+   The path through leads to a dead end, the only way out being 
+east. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15003
+S
+#15005
+A Bend in the Hedges~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path here through the hedges bends north and west. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15003
+D3
+~
+~
+0 -1  0 15007
+S
+#15006
+A Bend North of a Four-Way Intersection in the Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there 
+   The path here bends west and then southwards towards a 
+four-way intersection in the paths of the maze. 
+~
+15 67174416 4
+0
+D2
+~
+~
+0 -1  0 15003
+D3
+~
+~
+0 -1  0 15078
+S
+#15007
+Inside the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. The path 
+here has two exits. 
+   The path through the hedge maze continues west and east. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15005
+D3
+~
+~
+0 -1  0 15008
+S
+#15008
+An T-Shaped Intersection in the Hedges~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green, interwoven with one enother so thickly that one cannot see 
+through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+maze. It is wide enough for three people to walk side by side 
+upon the path, lush grass cut short providing the walking area. 
+   Two paths intersect here, creating a T-shape in the hedges. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15037
+D1
+~
+~
+0 -1  0 15007
+D2
+~
+~
+0 -1  0 15009
+S
+#15009
+A Bend in the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. The path 
+here has two exits. 
+   The path bends through the hedge maze, leaving exits north and 
+west. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15008
+D3
+~
+~
+0 -1  0 15010
+S
+#15010
+Inside the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path is a straight course here east and west. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15009
+D3
+~
+~
+0 -1  0 15011
+S
+#15011
+An Intersection of Paths in the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   Two paths cross here inside the hedge maze, creating a 
+four-way intersection that leads in all directions. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15026
+D1
+~
+~
+0 -1  0 15010
+D2
+~
+~
+0 -1  0 15013
+D3
+~
+~
+0 -1  0 15014
+S
+#15012
+A Bend in the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path through the maze hedge here bends north and east. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15022
+D1
+~
+~
+0 -1  0 15002
+S
+#15013
+A T-Shaped Intersection in the Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   Two paths intersect here, creating a T-shape in the hedges. 
+The path leads north, east, and south here. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15011
+D1
+~
+~
+0 -1  0 15020
+D2
+~
+~
+0 -1  0 15015
+S
+#15014
+A Fork in the Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   Two paths intersect here, creating a T-shape in the hedges. 
+Exits lead north, east and west. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15027
+D1
+~
+~
+0 -1  0 15011
+D3
+~
+~
+0 -1  0 15067
+S
+#15015
+A Bend in the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+leads straight to a wall of hedges. 
+   The bend in the hedge maze leads north and east. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15013
+D1
+~
+~
+0 -1  0 15019
+S
+#15016
+North of the Entrance to the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. The path 
+here has two exits. 
+   The path through the hedge continues west and south towards 
+the maze entrance. 
+~
+15 1140916240 4
+0
+D2
+~
+~
+0 -1  0 15001
+D3
+~
+~
+0 -1  0 15017
+S
+#15017
+Inside the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path through the hedge continues north and east. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15032
+D1
+~
+~
+0 -1  0 15016
+S
+#15018
+A Dead End in the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+leads straight to a wall of hedges. 
+   The path through leads to a dead end, the only way out being 
+south. 
+~
+15 67174416 4
+0
+D2
+~
+~
+0 -1  0 15091
+S
+#15019
+Inside the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path leads east and west here. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15034
+D3
+~
+~
+0 -1  0 15015
+S
+#15020
+Inside the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. 
+   The path through leads east and west. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15021
+D3
+~
+~
+0 -1  0 15013
+S
+#15021
+Inside the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path through the hedge maze here leads east and west. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15022
+D3
+~
+~
+0 -1  0 15020
+S
+#15022
+A T-Shaped Intersection in the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+The path here continues east and west. maze. It is wide enough 
+for three people to walk side by side 
+   Two paths intersect here, leading north, west, and south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15023
+D2
+~
+~
+0 -1  0 15012
+D3
+~
+~
+0 -1  0 15021
+S
+#15023
+A Dead End In the Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path through leads to a dead end, the only way out being 
+south. 
+~
+15 67174416 4
+0
+D2
+~
+~
+0 -1  0 15022
+S
+#15024
+A Dead End in the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. This way leads straight to a 
+wall of hedges. 
+   The path through leads to a dead end, the only way out being 
+south. 
+~
+15 67174416 4
+0
+D2
+~
+~
+0 -1  0 15025
+S
+#15025
+Inside the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. The path 
+in the maze bends around a corner here. 
+   The path bends north and west here. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15024
+D3
+~
+~
+0 -1  0 15026
+S
+#15026
+Inside the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path bends east and south here. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15025
+D2
+~
+~
+0 -1  0 15011
+S
+#15027
+Inside the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. 
+   The path here leads south towards a three-way intersection and 
+continues northwards towards another three-way. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15028
+D2
+~
+~
+0 -1  0 15014
+S
+#15028
+A Three-Way Intersection in the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   Two paths intersect here, creating a T-shape in the hedges 
+that leads east, west, and south. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15030
+D2
+~
+~
+0 -1  0 15027
+D3
+~
+~
+0 -1  0 15029
+S
+#15029
+A Dead End in the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+leads straight to a wall of hedges. 
+   The path through leads to a dead end, the only way out being 
+east. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15028
+S
+#15030
+A Bend North and West in the Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+bends around the corner. 
+   The path bends north and east. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15033
+D3
+~
+~
+0 -1  0 15028
+S
+#15031
+Inside the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path through the hedge continues north and west. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15046
+D3
+~
+~
+0 -1  0 15032
+S
+#15032
+Inside the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path through the hedge continues south and east. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15031
+D2
+~
+~
+0 -1  0 15017
+S
+#15033
+A Bend East and North in the Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path here bends south and east. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15035
+D2
+~
+~
+0 -1  0 15030
+S
+#15034
+A Dead End in the Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+leads straight to a wall of hedges. 
+   The path through leads to a dead end, the only way out being 
+west. 
+~
+15 67174416 4
+0
+D3
+~
+~
+0 -1  0 15019
+S
+#15035
+Inside the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green, interwoven with one enother so thickly that one cannot see 
+through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+maze. It is wide enough for three people to walk side by side 
+upon the path, lush grass cut short providing the walking area. 
+   The path here continues east and west. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15036
+D3
+~
+~
+0 -1  0 15033
+S
+#15036
+A T-Shaped Intersection in the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+bends around the corner. 
+   Two paths intersect here, creating a T-shape in the hedges 
+that leads north, west, and south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15038
+D2
+~
+~
+0 -1  0 15037
+D3
+~
+~
+0 -1  0 15035
+S
+#15037
+Inside a Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path leads north and south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15036
+D2
+~
+~
+0 -1  0 15008
+S
+#15038
+A Bend West and South in the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The short grass leads west and south here in a path through 
+the maze. 
+~
+15 67174416 4
+0
+D2
+~
+~
+0 -1  0 15036
+D3
+~
+~
+0 -1  0 15039
+S
+#15039
+A Bend East and North in the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path bends here through the maze north and east. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15040
+D1
+~
+~
+0 -1  0 15038
+S
+#15040
+A T-Shaped Intersection in the Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path branches here into three separate paths leading 
+north, west, and south. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15081
+D2
+~
+~
+0 -1  0 15039
+D3
+~
+~
+0 -1  0 15041
+S
+#15041
+East of the Exit of the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+bends around the corner. 
+   The maze leads east, south, and west here towards the exit of 
+the hedge maze. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15040
+D2
+~
+~
+0 -1  0 15042
+D3
+~
+~
+0 -1  0 15083
+S
+#15042
+A Bend South of a T-Shaped Intersection~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path through the maze bends west and northwards, one can 
+see a T-shaped intersection. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15041
+D3
+~
+~
+0 -1  0 15043
+S
+#15043
+Inside the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path branches three ways here, west, south, and east. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15042
+D2
+~
+~
+0 -1  0 15044
+D3
+~
+~
+0 -1  0 15045
+S
+#15044
+A Dead End in the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path comes to a dead end here, the only exit leading back 
+north. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15043
+S
+#15045
+Inside the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path leads east and west here. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15043
+D3
+~
+~
+0 -1  0 15047
+S
+#15046
+Inside the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This 
+corner provides only two exits. 
+   The path through the hedge continues north and south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15061
+D2
+~
+~
+0 -1  0 15031
+S
+#15047
+A Straight Path through the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path continues in a straight path east and west. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15045
+D3
+~
+~
+0 -1  0 15048
+S
+#15049
+A Straight Path through the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path leads north and south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15048
+D2
+~
+~
+0 -1  0 15050
+S
+#15050
+Inside the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path leads north and southwards towards a bend in the 
+path. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15049
+D2
+~
+~
+0 -1  0 15051
+S
+#15051
+A Bend North and West in the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path bends north and west here. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15050
+D3
+~
+~
+0 -1  0 15052
+S
+#15052
+Inside the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+bends around the corner. 
+   The path leads straight east and west. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15051
+D3
+~
+~
+0 -1  0 15053
+S
+#15053
+A Bend East and South in the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path here bends east and south. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15052
+D2
+~
+~
+0 -1  0 15054
+S
+#15054
+A Straight Path through the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path continues north and south here. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15053
+D2
+~
+~
+0 -1  0 15055
+S
+#15055
+North of the Southwestern Corner of the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   This path is straight north and south though to the south, one 
+approaches a corner of the hedge maze. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15054
+D2
+~
+~
+0 -1  0 15056
+S
+#15056
+Southwestern Corner of the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+bends around the corner. 
+   The path here bends north and east around the southwestern 
+corner of the maze. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15055
+D1
+~
+~
+0 -1  0 15057
+S
+#15057
+East of the Southwestern Corner of the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   East and west the short-cut grass leads, the southwestern 
+corner of the hedge maze visible westwards. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15058
+D3
+~
+~
+0 -1  0 15056
+S
+#15058
+Inside the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path here leads west and east towards a T-shaped 
+intersection. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15059
+D3
+~
+~
+0 -1  0 15057
+S
+#15059
+A Three-Way Intersection~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path branches in three directions here, north, east, and 
+west. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15065
+D1
+~
+~
+0 -1  0 15060
+D3
+~
+~
+0 -1  0 15058
+S
+#15060
+East of a Three-Way Intersection in the Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+bends around the corner. 
+   The path goes east and west towards a three-way intersection. 
+~
+15 65560 4
+0
+D1
+~
+~
+0 -1  0 15062
+D3
+~
+~
+0 -1  0 15059
+S
+#15061
+Inside the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path through the hedge forks here, giving three exits 
+north, west and south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15076
+D2
+~
+~
+0 -1  0 15046
+D3
+~
+~
+0 -1  0 15003
+S
+#15062
+A Bend in the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The maze path here goes around a hedge corner leading north 
+and west. 
+~
+15 65560 4
+0
+D0
+~
+~
+0 -1  0 15063
+D3
+~
+~
+0 -1  0 15060
+S
+#15063
+A Bend West and South in the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path bends around this corner of a hedge west and south. 
+~
+15 67174416 4
+0
+D2
+~
+~
+0 -1  0 15062
+D3
+~
+~
+0 -1  0 15064
+S
+#15064
+A Dead End in the Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path runs straight into a wall of tall shrubs, obviously a 
+dead end. The only exit leads eastwards. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15063
+S
+#15065
+South of a Four-Way Intersection~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path here only leads south and north towards a four-way. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15066
+D2
+~
+~
+0 -1  0 15059
+S
+#15066
+A Four-Way Intersection in the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   In all directions, paths spread out through the hedge maze 
+from this intersection. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15072
+D1
+~
+~
+0 -1  0 15067
+D2
+~
+~
+0 -1  0 15065
+D3
+~
+~
+0 -1  0 15068
+S
+#15067
+East of a Four-Way Intersection in the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path heads east and west here. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15014
+D3
+~
+~
+0 -1  0 15066
+S
+#15068
+West of the Four Way Intersection in the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path here leads east and west. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15066
+D3
+~
+~
+0 -1  0 15069
+S
+#15069
+A Bend South and East in the Hedges~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+bends around the corner. 
+   The path bends south and east. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15068
+D2
+~
+~
+0 -1  0 15070
+S
+#15070
+A Bend North and East in the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path bends north and east through the hedge maze. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15069
+D1
+~
+~
+0 -1  0 15071
+S
+#15071
+A Dead End in the Hedges~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path leads straight into a wall of hedges here, the only 
+exit leading west. 
+~
+15 67174416 4
+0
+D3
+~
+~
+0 -1  0 15070
+S
+#15072
+North of a Four-Way Intersection~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path throuugh the hedges here leads east, north, and 
+south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15074
+D1
+~
+~
+0 -1  0 15073
+D2
+~
+~
+0 -1  0 15066
+S
+#15073
+A Dead End in the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+leads straight into a wall of ribbon-covered hedges. 
+   The path hits a dead end here, only leaving a path westwards. 
+~
+15 67174416 4
+0
+D3
+~
+~
+0 -1  0 15072
+S
+#15074
+North of a Three-Way Intersection~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path here leads only north and south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15075
+D2
+~
+~
+0 -1  0 15072
+S
+#15075
+A Bend in the Hedge Maze Leading East and South~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path here bends south and east around a corner of mazes. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15077
+D2
+~
+~
+0 -1  0 15074
+S
+#15076
+Inside the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path through the maze leads north and south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15091
+D2
+~
+~
+0 -1  0 15061
+S
+#15078
+A Bend North and East in the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green, interwoven with one enother so thickly that one cannot see 
+through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+maze. It is wide enough for three people to walk side by side 
+upon the path, lush grass cut short providing the walking area. 
+   The path here bends north and east. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15079
+D1
+~
+~
+0 -1  0 15006
+S
+#15079
+Inside the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path here leads north and south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15080
+D2
+~
+~
+0 -1  0 15078
+S
+#15080
+A Three-Way in the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. 
+   The paths here intersect to make three exits leading east, 
+west, and south. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15082
+D2
+~
+~
+0 -1  0 15079
+D3
+~
+~
+0 -1  0 15081
+S
+#15081
+West of an Intesection in the Hedge Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path here leads east and westwards towards a T-shaped 
+intersection in the maze. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15080
+D3
+~
+~
+0 -1  0 15040
+S
+#15082
+A Dead End in the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path of short-cut grass here leads straight into a wall of 
+hedges, obviously a dead end. The only exit leads back 
+westwards. 
+~
+15 67174416 4
+0
+D3
+~
+~
+0 -1  0 15080
+S
+#15083
+Before the Exit of the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The paths leads west, east, and north as the maze ends here. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15095
+D1
+~
+~
+0 -1  0 15041
+D3
+~
+~
+0 -1  0 15084
+S
+#15084
+West of the Exit of the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The path here leads west and east towards the exit of the 
+maze. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15083
+D3
+~
+~
+0 -1  0 15085
+S
+#15085
+A Bend in the Hedge Maze South and East~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The maze here leads east and south. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15084
+D2
+~
+~
+0 -1  0 15086
+S
+#15087
+A Bend North and West in the Hedge Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The hedge maze here bends west and north towards an 
+intersection. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15086
+D3
+~
+~
+0 -1  0 15088
+S
+#15088
+An Intersection in the Northwestern Corner of the Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The maze here leads north, east, and south here. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15089
+D1
+~
+~
+0 -1  0 15087
+D2
+~
+~
+0 -1  0 15093
+S
+#15089
+South of the Northwestern Corner of the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. 
+   The maze here is a straight course only north and south. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15090
+D2
+~
+~
+0 -1  0 15088
+S
+#15090
+The Northwestern Corner of the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   This path leads straight into a dead end, a tall hedge of 
+shrubs rising forth to block the path. The only exit is south. 
+~
+15 67174416 4
+0
+D2
+~
+~
+0 -1  0 15089
+S
+#15091
+Inside the Hedge Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path through leads only north, west, and south here. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15018
+D2
+~
+~
+0 -1  0 15076
+D3
+~
+~
+0 -1  0 15092
+S
+#15092
+A Dead End in the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+leads straight to a wall of hedges. 
+   The path through leads to a dead end, the only way out being 
+east. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15091
+S
+#15093
+A Bend in the Maze North and East~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path here bends north and east. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15088
+D1
+~
+~
+0 -1  0 15094
+S
+#15094
+A Dead End in the Maze~
+   Tall hedges of neatly-trimmed branches rise up on either side 
+of the sparse, grassy path of this maze. The leaves are a dark 
+green , interwoven with one enother so thickly that one cannot 
+see through to the other side of the hedge and bright, colorful 
+ribbons have been tied intermittently along the path within the 
+upon the path, lush grass cut short providing the walking area. 
+maze. It is wide enough for three people to walk side by side 
+   The maze path here leads straight towards a wall of hedges. 
+It is obviously a dead end and the only path leads back 
+westwards. 
+~
+15 67174416 4
+0
+D3
+~
+~
+0 -1  0 15093
+S
+#15095
+The Exit of the Hedge Maze~
+   Tall hedges tower up around this area in the very corner of 
+the maze. Covering the ground here is carefully tended, dark 
+green grass, cut low to the ground. All around, flowers bloom 
+profusely, and colorful ribbons have been tied in the bushes. 
+Set around the area are many ornate stone benches. A break in 
+the tall outer hedge lies to the south, leading out to here at 
+the exit of the hedge maze. 
+~
+15 67174416 4
+0
+D2
+~
+~
+0 -1  0 15083
+P
+leave exit~
+hedge maze~
+vstr You exit the maze and head back to the festival.
+ostr $n exits the maze and heads back to the festival.
+trans 8439
+atlook 8439
+~
+S
+#15097
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D3
+~
+~
+0 -1  0 15098
+S
+#15098
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15097
+S
+#15099
+A Well-Lit Hallway, South of the Commons~
+   Wooden panels make up the walls and floor of this long 
+hallway, obviously well-kept as there is little dust or 
+scuff-marks that can be seen. Glass lamps have been affixed 
+equally-spaced along the walls to provide ample lighting for 
+those that pass this way, set between the doors that are set to 
+either side leading to private Fellow bedchambers. 
+   The hustle and bustle of the Commons can be heard just to the 
+north. 
+~
+15 67174408 0
+0
+D0
+~
+~
+0 -1  0 2518
+D1
+~
+black-painted-door~
+1 15316  30 15101
+D3
+~
+yellow-painted-door~
+1 15294  30 15100
+S
+#15100
+A Small Bedroom~
+   This small-sized room is large enough to hold a few basic 
+furniture pieces though is in no way large enough to accomodate a 
+family. The walls are freshly-painted a soft grey in color and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There is a single, curtained window 
+set into the far wall to illuminate the room during the day the 
+door leads back out into the hallway. 
+~
+15 65800 0
+0
+D1
+~
+door~
+1 15294  30 15099
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15100
+~
+S
+#15101
+A Small Bedroom~
+   This small-sized room is large enough to hold a few basic 
+furniture pieces though is in no way large enough to accomodate a 
+family. The walls are freshly-painted a soft grey in color and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There is a single, curtained window 
+set into the far wall to illuminate the room during the day the 
+door leads back out into the hallway. 
+~
+15 65800 0
+0
+D3
+~
+door~
+1 15316  30 15099
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15101
+~
+S
+#15102
+A Landing Above the Commons~
+   Journeymen of all Fellowships head up and down the stairs into 
+the commons here, moving to their bedchambers which line the 
+halls that branch off in all directions from this landing. A 
+single, silver-sconced lamp illuminates the area, showing off the 
+rich mahogany color of the wood while the sounds of the common 
+area can be heard drifting up from below. 
+~
+15 67174408 0
+0
+D0
+~
+~
+0 -1  0 15317
+D2
+~
+~
+0 -1  0 15319
+D3
+~
+~
+0 -1  0 15318
+D5
+~
+~
+0 -1  0 2518
+S
+#15103
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15118
+S
+#15104
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15119
+D3
+~
+~
+0 -1  0 15105
+S
+#15105
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15104
+S
+#15108
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15123
+D1
+~
+~
+0 -1  0 15107
+D2
+~
+~
+0 -1  0 15093
+D3
+~
+~
+0 -1  0 15109
+S
+#15109
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15124
+D1
+~
+~
+0 -1  0 15108
+S
+#15110
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15125
+D3
+~
+~
+0 -1  0 15111
+S
+#15116
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15131
+D1
+~
+~
+0 -1  0 15115
+S
+#15118
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15133
+D2
+~
+~
+0 -1  0 15103
+S
+#15119
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15104
+D3
+~
+~
+0 -1  0 15120
+S
+#15106
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15121
+D3
+~
+~
+0 -1  0 15107
+S
+#15107
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15122
+D1
+~
+~
+0 -1  0 15106
+D3
+~
+~
+0 -1  0 15108
+S
+#15111
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15110
+S
+#15112
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15127
+D3
+~
+~
+0 -1  0 15113
+S
+#15113
+#5THE CENTER OF THE MAZE#0~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15112
+S
+#15114
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15129
+S
+#15115
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15130
+D3
+~
+~
+0 -1  0 15116
+S
+#15120
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15135
+D1
+~
+~
+0 -1  0 15119
+S
+#15121
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15136
+D2
+~
+~
+0 -1  0 15106
+S
+#15122
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15107
+D3
+~
+~
+0 -1  0 15123
+S
+#15123
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15138
+D1
+~
+~
+0 -1  0 15122
+D2
+~
+~
+0 -1  0 15108
+D3
+~
+~
+0 -1  0 15124
+S
+#15124
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15139
+D1
+~
+~
+0 -1  0 15123
+D2
+~
+~
+0 -1  0 15109
+D3
+~
+~
+0 -1  0 15125
+S
+#15125
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15140
+D1
+~
+~
+0 -1  0 15124
+D2
+~
+~
+0 -1  0 15110
+S
+#15126
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15141
+D3
+~
+~
+0 -1  0 15127
+S
+#15127
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15142
+D1
+~
+~
+0 -1  0 15126
+D2
+~
+~
+0 -1  0 15112
+S
+#15128
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15143
+D3
+~
+~
+0 -1  0 15129
+S
+#15129
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15144
+D1
+~
+~
+0 -1  0 15128
+D2
+~
+~
+0 -1  0 15114
+S
+#15130
+A Small Bedroom~
+   This small-sized room is large enough to hold a few basic 
+furniture pieces though is in no way large enough to accomodate a 
+family. The walls are freshly-painted a soft grey in color and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There is a single, curtained window 
+set into the far wall to illuminate the room during the day the 
+door leads back out into the hallway. 
+~
+15 65800 0
+0
+D2
+~
+door~
+1 15130  30 15263
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15130
+~
+S
+#15131
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15146
+D2
+~
+~
+0 -1  0 15116
+S
+#15132
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15147
+D3
+~
+~
+0 -1  0 15133
+S
+#15133
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15148
+D1
+~
+~
+0 -1  0 15132
+D2
+~
+~
+0 -1  0 15118
+D3
+~
+~
+0 -1  0 15134
+S
+#15134
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15133
+S
+#15135
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15150
+D2
+~
+~
+0 -1  0 15120
+S
+#15136
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15151
+D2
+~
+~
+0 -1  0 15121
+D3
+~
+~
+0 -1  0 15137
+S
+#15137
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15152
+D1
+~
+~
+0 -1  0 15136
+D3
+~
+~
+0 -1  0 15138
+S
+#15138
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15137
+D2
+~
+~
+0 -1  0 15123
+D3
+~
+~
+0 -1  0 15139
+S
+#15139
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15138
+D2
+~
+~
+0 -1  0 15124
+D3
+~
+~
+0 -1  0 15140
+S
+#15140
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15155
+D1
+~
+~
+0 -1  0 15139
+D2
+~
+~
+0 -1  0 15125
+S
+#15141
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15156
+D2
+~
+~
+0 -1  0 15126
+S
+#15142
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15127
+D3
+~
+~
+0 -1  0 15143
+S
+#15143
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15142
+D2
+~
+~
+0 -1  0 15128
+D3
+~
+~
+0 -1  0 15144
+S
+#15144
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15143
+D2
+~
+~
+0 -1  0 15129
+S
+#15145
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15160
+S
+#15146
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15131
+S
+#15147
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15132
+S
+#15148
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15163
+D2
+~
+~
+0 -1  0 15133
+D3
+~
+~
+0 -1  0 15149
+S
+#15149
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15164
+D1
+~
+~
+0 -1  0 15148
+D3
+~
+~
+0 -1  0 15150
+S
+#15150
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15149
+D2
+~
+~
+0 -1  0 15135
+S
+#15151
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15166
+D2
+~
+~
+0 -1  0 15136
+S
+#15152
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15167
+D2
+~
+~
+0 -1  0 15137
+D3
+~
+~
+0 -1  0 15153
+S
+#15153
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15168
+D1
+~
+~
+0 -1  0 15152
+D3
+~
+~
+0 -1  0 15154
+S
+#15154
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15169
+D1
+~
+~
+0 -1  0 15153
+S
+#15155
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15140
+S
+#15156
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15141
+D3
+~
+~
+0 -1  0 15157
+S
+#15157
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15172
+D1
+~
+~
+0 -1  0 15156
+D3
+~
+~
+0 -1  0 15158
+S
+#15158
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15173
+D1
+~
+~
+0 -1  0 15157
+S
+#15159
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15174
+D3
+~
+~
+0 -1  0 15160
+S
+#15160
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15159
+D2
+~
+~
+0 -1  0 15145
+S
+#15161
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D3
+~
+~
+0 -1  0 15162
+S
+#15162
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15177
+D1
+~
+~
+0 -1  0 15161
+S
+#15163
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15178
+D2
+~
+~
+0 -1  0 15148
+S
+#15164
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15149
+D3
+~
+~
+0 -1  0 15165
+S
+#15165
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15180
+D1
+~
+~
+0 -1  0 15164
+S
+#15166
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15151
+D3
+~
+~
+0 -1  0 15167
+S
+#15167
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15166
+D2
+~
+~
+0 -1  0 15152
+S
+#15168
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15153
+D3
+~
+~
+0 -1  0 15169
+S
+#15169
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15168
+D2
+~
+~
+0 -1  0 15154
+S
+#15170
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15185
+D3
+~
+~
+0 -1  0 15171
+S
+#15171
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15186
+D1
+~
+~
+0 -1  0 15170
+D3
+~
+~
+0 -1  0 15172
+S
+#15172
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15187
+D1
+~
+~
+0 -1  0 15171
+D2
+~
+~
+0 -1  0 15157
+S
+#15173
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15158
+S
+#15174
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15159
+D3
+~
+~
+0 -1  0 15175
+S
+#15175
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15190
+D1
+~
+~
+0 -1  0 15174
+D3
+~
+~
+0 -1  0 15176
+S
+#15176
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15191
+D1
+~
+~
+0 -1  0 15175
+S
+#15177
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15192
+D2
+~
+~
+0 -1  0 15162
+D3
+~
+~
+0 -1  0 15178
+S
+#15178
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15193
+D1
+~
+~
+0 -1  0 15177
+D2
+~
+~
+0 -1  0 15163
+D3
+~
+~
+0 -1  0 15179
+S
+#15179
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15194
+D1
+~
+~
+0 -1  0 15178
+D3
+~
+~
+0 -1  0 15180
+S
+#15180
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15179
+D2
+~
+~
+0 -1  0 15165
+S
+#15181
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15196
+D3
+~
+~
+0 -1  0 15182
+S
+#15182
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15181
+D3
+~
+~
+0 -1  0 15183
+S
+#15183
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15198
+D1
+~
+~
+0 -1  0 15182
+D3
+~
+~
+0 -1  0 15184
+S
+#15184
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15183
+S
+#15185
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15200
+D2
+~
+~
+0 -1  0 15170
+S
+#15186
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15171
+S
+#15187
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15172
+S
+#15188
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15203
+D3
+~
+~
+0 -1  0 15189
+S
+#15189
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15188
+S
+#15190
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15175
+S
+#15191
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15206
+D2
+~
+~
+0 -1  0 15176
+S
+#15192
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15207
+D2
+~
+~
+0 -1  0 15177
+S
+#15193
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15208
+D2
+~
+~
+0 -1  0 15178
+S
+#15194
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15209
+D2
+~
+~
+0 -1  0 15179
+D3
+~
+~
+0 -1  0 15195
+S
+#15195
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15210
+D1
+~
+~
+0 -1  0 15194
+S
+#15196
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15211
+D2
+~
+~
+0 -1  0 15181
+D3
+~
+~
+0 -1  0 15197
+S
+#15197
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15196
+S
+#15198
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15183
+D3
+~
+~
+0 -1  0 15199
+S
+#15199
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15198
+D3
+~
+~
+0 -1  0 15200
+S
+#15200
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15199
+D2
+~
+~
+0 -1  0 15185
+S
+#15201
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15216
+D3
+~
+~
+0 -1  0 15202
+S
+#15202
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15217
+D1
+~
+~
+0 -1  0 15201
+D3
+~
+~
+0 -1  0 15203
+S
+#15203
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15218
+D1
+~
+~
+0 -1  0 15202
+D2
+~
+~
+0 -1  0 15188
+S
+#15204
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D3
+~
+~
+0 -1  0 15205
+S
+#15205
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15220
+D1
+~
+~
+0 -1  0 15204
+D3
+~
+~
+0 -1  0 15206
+S
+#15206
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15221
+D1
+~
+~
+0 -1  0 15205
+D2
+~
+~
+0 -1  0 15191
+S
+#15207
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15222
+D2
+~
+~
+0 -1  0 15192
+D3
+~
+~
+0 -1  0 15208
+S
+#15208
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15223
+D1
+~
+~
+0 -1  0 15207
+D2
+~
+~
+0 -1  0 15193
+S
+#15209
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15224
+D2
+~
+~
+0 -1  0 15194
+D3
+~
+~
+0 -1  0 15210
+S
+#15210
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D0
+~
+~
+0 -1  0 15225
+D1
+~
+~
+0 -1  0 15209
+D2
+~
+~
+0 -1  0 15195
+S
+#15211
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15196
+D3
+~
+~
+0 -1  0 15212
+S
+#15212
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15211
+D3
+~
+~
+0 -1  0 15213
+S
+#15213
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15212
+D3
+~
+~
+0 -1  0 15214
+S
+#15214
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15213
+D3
+~
+~
+0 -1  0 15215
+S
+#15215
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15214
+D3
+~
+~
+0 -1  0 15216
+S
+#15216
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15215
+D2
+~
+~
+0 -1  0 15201
+S
+#15217
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15202
+S
+#15218
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15203
+D3
+~
+~
+0 -1  0 15219
+S
+#15219
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15218
+D3
+~
+~
+0 -1  0 15220
+S
+#15220
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15219
+D2
+~
+~
+0 -1  0 15205
+S
+#15221
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15206
+S
+#15222
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15207
+D3
+~
+~
+0 -1  0 15223
+S
+#15223
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15222
+D2
+~
+~
+0 -1  0 15208
+S
+#15224
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D2
+~
+~
+0 -1  0 15209
+D3
+~
+~
+0 -1  0 15225
+S
+#15225
+New Room~
+No Description Set.
+~
+15 65536 0
+0
+D1
+~
+~
+0 -1  0 15224
+D2
+~
+~
+0 -1  0 15210
+S
+#15300
+UNUSED Terendil's Leathergoods~
+   A narrow, neat shopfront invites customers mulling in from the 
+busy marketplace. Rough, axe-hewn pine walls surround the dim 
+display area, peeking upon the occupants with relentless woody 
+eyes, while the small glassed windows in the western wall cast 
+uncertain shadows on the tiny opposing door. Whenever the 
+outside door closes, a small cloud of strong chemical smells 
+wafts up from the various hides and leathergoods haphazardly 
+displayed upon the walls and shelves. 
+~
+15 1140916248 0
+0
+S
+#15301
+Workroom~
+   Lined on all six sides by dark-colored wooden panels, this 
+room is remarkably spartan. The windows in the eastern wall have 
+rough, semi-transparent glass panes while useful for letting in 
+air or light, they are too small and close to the ceiling to 
+allow a view of the outside. A large heavy wooden door leads to 
+the shopfront to the west, and a flight of winding stairs in 
+northeast corner may be used to ascend to the first floor. 
+Beneath it, there is another smaller, less-noticiable trapdoor 
+connecting to the cellar. The distinct smell of freshly tanned 
+leather wafts up from the contents of the room. 
+~
+15 1140916236 0
+0
+D3
+~
+~
+0 -1  0 2589
+D4
+~
+~
+0 -1  0 11097
+D5
+~
+hatch~
+1 -1  0 15302
+P
+open pull push close~
+window shutter curtain~
+vstr You walk over to the window and adjust the curtains.
+ostr $n walks over to the window and adjusts the curtains.
+rftog indoors 15301
+fi alldone
+~
+S
+#15302
+Storage Cellar~
+   While the ceiling of the cellar and the main structural 
+support of the building above is built of heavy pine longs and 
+planks, the entire foundation encapsulating this large room is 
+composed of worn, heavy, white stone. The minor designs within 
+some faces of the stone, as well as the time-worn smooth surfaces 
+strongly suggest that the builders, the purpose, and even the age 
+of the two parts of the building are drastically different. The 
+floor is similarly composed of heavy, damp white stone, but there 
+are small patches of what appear to be pieces of tile that had 
+somehow not managed to get dislodged from the floor. Some faint, 
+incomprehensible sigils appear in the eastern wall, just below 
+where the stone has been broken off and replaced with the wooden 
+construction. Set into the north wall is small door. 
+~
+15 67174408 0
+0
+D0
+~
+door~
+1 -1  0 96700
+D1
+~
+door~
+1 -1  0 21354
+D4
+~
+hatch~
+1 -1  0 15301
+S
+#15303
+Airy Loft~
+   Fitting into the triangle of the roof, this attic has been 
+meticulously and neatly refitted into comfortable living 
+quarters. A layer of straw insulation has been carefully secured 
+with hides and heavy cloth into the parallel bars supporting the 
+sloped roof. The latched vertical tile-glassed windows built 
+into both sides of the roof let in adequate light during daytime, 
+while additional dark-stained pine shutters can be closed to help 
+provide additional heat during the winter. The walls are covered 
+with dark-stained panels and into one corner a fireplace has been 
+built. A sloped wooden door opens outward to the west, and a 
+large trapdoor leads downstairs. 
+~
+15 67174664 0
+0
+D3
+~
+door~
+1 2882  55 15304
+D5
+~
+trapdoor~
+1 -1  0 11097
+P
+open push pull close~
+window curtain shutter~
+vstr You walk over to the window and adjust the shutters.
+ostr $n walks over to the window and adjusts the shutters.
+rftog indoors 15303
+fi alldone
+~
+S
+#15304
+A Balcony Overlooking Rath Celerdain~
+   Looking over the busy street below, this sturdy balcony serves 
+as an outdoor recreational area and a place to enjoy the evening 
+sun. A heavy collapsible canvas awning protects the loping door 
+to the east from the rain, with several jutting wooden poles 
+allowing the cloth roof to be further pulled out to encompass the 
+entire balcony. To the west Mount Mindolluin and the rising 
+upper circles of Minas Tirith can be seen. 
+~
+15 1073807360 1
+0
+D1
+~
+door~
+1 2882  55 15303
+P
+pull cover push close~
+awning canvas roof~
+vstr You carefully move the wooden poles and adjust the awning.
+ostr $n moves the wooden poles and adjusts the awning.
+rftog indoors 15304
+fi alldone
+~
+P
+look glance~
+balcony~
+vstr You peer out over the balcony.
+ostr $n peers out over the balcony.
+atlook 1027
+fi alldone
+~
+S
+#15226
+A Spacious Reception Area~
+   Entering this opulent foyer and reception area is like 
+entering another world, even by Rath Siriondil standards. 
+Inside, the air is slightly cooler than outside, and scented of 
+fine resins and herbs. Thick, sturdy doors lead off in most 
+directions, with the main one set just to the east leading back 
+to the street. Floor lamps, each heavy-looking and baroquely 
+carved in ancient designs, stand at regular intervals, 
+illuminating a room that is already well-lit by windows set along 
+the east wall. The white walls are hung with antique-looking 
+tapestries embroidered in stirring Gondorian patriotic and 
+historical designs, and a tawny-and-crimson rug covers most of 
+the floor. Everything here reminds most visitors of calm, cool, 
+rational businesslike efficiency. 
+~
+15 201918488 0
+0
+D0
+~
+door~
+1 2903  40 15227
+D4
+~
+door~
+1 2899  40 15238
+S
+#15227
+A Tidy, Square Office~
+   This is a small, efficient, well-furnished office, with a white
+tile floor and whitewashed walls. A rug covers most of the floor,
+and hangings break up the monotony of the walls, while the shelves
+and bookcases are all antique-looking. Several oil lamps provide
+illumination, though barred windows let in the air when desired.
+Its one door stands to the south.
+~
+15 67701016 1
+0
+D2
+~
+door~
+1 2903  40 15226
+S
+#15228
+A Tidy, Square Office~
+   This is a small, efficient, well-furnished office, with a stone
+floor and whitewashed walls. A thick rug covers most of the floor,
+lending some warmth to an otherwise spartan place. A large
+hanging breaks up the monotony of the western wall, while 
+a shelf is set in the north one, probably for storing the 
+materials the occupant requires for his tasks. Several oil 
+lamps provide illumination, though a small, barred window 
+lets in some air when required, set on the southern wall.
+A sturdy wooden door leads out to the east.
+~
+15 67701000 1
+0
+D1
+~
+sturdy wooden door~
+1 2903  30 15233
+S
+#15229
+Private Office Overlooking Rath Siriondil~
+   A spacious office, clearly that belonging to the person who
+administers this building's enterprise, this opulent room houses
+work-related furniture. Its entire feel is that of unhurried quality
+and calm, businesslike efficiency. Nothing in it is out of place or
+mussed up; nothing here is anything except clean and perfectly
+organized. Its white-painted walls and pure white tiled floor are
+set with hangings, ornamental armor and weapons, and a rich, deep-blue
+rug that covers most of the floor. A pair of doors lead north and out
+to the staircase.
+~
+15 67700760 0
+0
+D0
+~
+door~
+1 2811  40 15230
+D2
+~
+door~
+1 2811  40 15238
+S
+#15230
+A Large Bedroom~
+   Very spacious, to the point of looking too large for the 
+amount of furniture in it, this well-appointed room functions as 
+a bedroom. Its walls are pure white, a very pale wood, and the 
+floor is made of the same color tile, perfectly fitted and 
+polished to a shine, though most of it is covered with a large, 
+ornate floor rug made of rich, midnight blue wool and tassled in 
+gold along its edges. Baroque-looking silver-chased brass hooks 
+hold antique-looking oil lamps, and windows all along the north 
+and eastern wall let in the light. Glass-paned doors to the east 
+open onto a sumptuous balcony, while the other door opens to the 
+south. 
+~
+15 67701016 0
+0
+D1
+~
+door~
+1 2811  50 15235
+D2
+~
+door~
+1 2811  50 15229
+P
+open close shut adjust~
+drapes windows shutters blinds curtains~
+vstr You adjust the curtains at the glass doors and windows.
+ostr $n adjusts the curtains at the glass doors and windows.
+rftog indoors 15230
+fi alldone
+~
+S
+#15231
+The Warehouse Depot~
+   This warehouse stretches wide and tall from the entrance to the east. 
+Well constructed, and newly built, the scent of wood and mortar 
+pervades your nostrils. This part seems to be some sort of depot for 
+whichever goods are brought in, by hand of wagon, which are then
+piled or stored in the varied crates and wooden boxes set around, most
+of them ordered neatly. Workhands seem to worry at the loading and
+unloading of goods at most times, the large area lit by barred windows 
+near the roof or by large lamps set in the walls.
+This depot can be left by the wide, strong doors to the east or through
+the large, banded-iron door to the north. An apparently thick wooden 
+door leads south, after a small landing and a short flight of steps.
+~
+15 1544093704 0
+0
+D0
+~
+iron-banded door~
+1 15068  0 15232
+D1
+~
+wide strong door~
+1 2902  50 2845
+D2
+~
+thick wooden door~
+1 15071  30 15233
+S
+#15232
+Inside a Large Warehouse~
+   This is the northern end of a very large warehouse, newly-built
+from the scent of wood and construction. It is utilitarian but
+extremely well-constructed, with no flourishes or other decorative
+touches but with all corners edged and mitered. Its ceiling is very
+high overhead, and it is built with shelves all around at wide
+intervals for holding large objects.
+   A door leads west into another room.
+~
+15 470353928 0
+0
+D2
+~
+iron-banded door~
+1 15068  0 15231
+D3
+~
+door~
+1 2811  50 15234
+S
+#15233
+A Small Hallway~
+   This small hallway connects the warehouse to the north with what 
+seems to be the rooms and office of the personnel working through 
+the day to keep the place in working order. The floor is made of stone, 
+and the walls are strong masonry. A large skylight allows the sun to 
+pour down clear illumination by day, while at night, two large oil 
+lamps are lit, set in the walls. 
+Doors lead to all directions here. North, back into the warehouse, 
+while wooden ones lead east, west and south. 
+~
+15 1543569416 0
+0
+D0
+~
+thick wooden door~
+1 15071  30 15231
+D1
+~
+door~
+1 -1  0 15237
+D3
+~
+sturdy wooden door~
+1 2903  30 15228
+S
+#15234
+A Small Back-Room~
+   This tidy little room is used for storing more delicate items, and
+its shelves, built smaller and closer together, reflect this fact.
+It is exceptionally secure, with only one carefully-shielded lamp
+set near the door to illuminate the room, and no windows.
+~
+15 336136200 0
+0
+D1
+~
+door~
+1 2811  50 15232
+S
+#15235
+A Balcony Overlooking Rath Siriondil~
+   This large, scenic, spacious crest juts out slightly above the 
+expensive-looking homes of Rath Siriondil. Its balustrade is 
+made of white stone, the same as that used for the walls, giving 
+a clean, chiseled appearance. Each rail in the balustrade is 
+carved in a scrolling, precise design, each with carved ivy and 
+leaves that mix and mingle with the real ivy that grows all up 
+along the wall and balcony. Lit by antique-looking oil lamps 
+that give off a golden candlelight in the evenings, it has a 
+sedate, calm, and studied feel evident only in the most opulent 
+of gardens. The curve of the balcony's guard wall is carved as 
+well, with each post topped with a carved shape -- a pyramid, 
+then a globe, then a pyramid again, the three shapes set 
+equidistant from each other. 
+   Glass doors lead back into the bedroom. 
+~
+15 67700752 1
+0
+A
+~
+~
+~
+~
+~
+~
+   This large, scenic, spacious crest juts out slightly above the 
+expensive-looking homes of Rath Siriondil. The evening's darkness
+isilluminated with the golden light from the antique-looking lamps
+hung on their hooks near the glass doors, and other lights are
+visible on the street beyond, on the white stone houses nearby here.
+The balcony's balustrade wall is made of white stone, the same as that
+used for the walls, giving a clean, chiseled appearance. Each rail in the
+balustrade is carved in a scrolling, precise design, each with carved
+ivy and leaves, mixing and mingling with the night-darkened real ivy
+growing up all along the walls and balcony. In all but the worst
+weather, those on the balcony are shielded from the elements by a roof,
+leaving the exotic scents and sounds here to waft in and entice the
+senses. 
+   Glass doors lead back into the bedroom. 
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D3
+~
+doors~
+1 2811  50 15230
+E
+wall balustrade post rail~
+   Very careful inspection will reveal a minute carving along one
+edge of the wall, near the south edge of it. It's a pair of initials:
+EB+DD, encircled with a heart. The overall carving is well-done, but
+very small -- only very careful inspection would reveal it; it's also
+done using fancy Adunaic letters.
+~
+P
+peer gaze look~
+east street outside down balcony~
+vstr You look out, over the balcony, and see...
+ostr $n looks over the edge of the balcony.
+atlook 2845
+fi alldone
+~
+S
+#15236
+A Sumptuous Dining Area~
+   This is a large, beautifully-appointed dining room, with its tile
+floor and perfectly panelled walls. Deep blue wainscotting extends
+halfway up to the panelling, about hip-height, and all the edges and
+corners of each wall are set with deeply-mitered moulding and carved
+gingerbreading. It is a dizzyingly opulent room, like all of the ones
+in this building, with an air of quiet, serene, genteel nobility.
+Its oil lamps look like they're hundreds of years old, and all hang 
+from silver-chased brass hooks. Perfectly clean and organized, the
+room is tasteful and carefully furnished.
+~
+15 1275136024 0
+0
+D0
+~
+~
+0 -1  0 15238
+D1
+~
+door~
+1 -1  0 15237
+S
+#15237
+A Small Kitchen~
+   This simple kitchen is all function.  Alight by day from a barred
+window set in the eastern door and by a small chandelier at night,
+it is warmed with the heat of a stove in all seasons. A a cook 
+could prepare the meals for the small regiment of men that work 
+in the warehouse here with little problem, the shelves and pantry
+seemingly set in a way to help the work of the occupant.
+The only exit is west, through a wooden door.
+~
+15 1275136008 0
+0
+D3
+~
+door~
+1 -1  0 15233
+S
+#15238
+An Elegant Landing~
+   Decorated in the same wealth and comfort carried through
+below, this landing is well lit and spacious. The door to 
+the north is rich mahogany and the fittings upon it finished
+is well polished brass. South, an arched passage opens up
+into a much larger room while a short set of stairs leads
+to another large and well reinforced door heading to the
+reception area below. The same tawny and crimson rug from
+the stairs spills up to cover the floors here as well, 
+muffling your steps.
+~
+15 1141442584 0
+0
+D0
+~
+door~
+1 2811  40 15229
+D2
+~
+~
+0 -1  0 15236
+D5
+~
+door~
+1 2899  40 15226
+S
+#15240
+Common Area~
+   This will be the Commons of the Pel-Ecthel HQ. 
+~
+15 1140918552 1
+0
+S
+#15239
+Olrein and Sons Carpentry~
+   This plain-looking shop is based in an old building, with a 
+cleared lower floor that serves as a shopfront. A door leads 
+back into the main part of the house. Narrow, rectangular 
+windows, all unglazed but with shutters, look out at the street 
+beyond. Though simple, the shop is clean, with a wooden floor 
+and walls that look regularly scrubbed. 
+~
+15 1275136024 0
+0
+D0
+~
+door~
+1 15239  0 15309
+D2
+~
+door~
+1 -1  0 11475
+P
+ring dingle tinkle touch~
+bell silver~
+vstr You ring the silver bell on the counter.
+ostr %n rings the silver bell on the counter.
+atecho 15309 A sharp, clear tone rings in from the south.
+atecho 15096 A sharp, clear tone rings in from the south.
+atecho 15310 A sharp, clear tone echoes in from the south-west.
+atecho 15308 A muffled tone echoes in from the south.
+atecho 15306 A muffled tone echoes in from below.
+atecho 15307 A muffled tone echoes in from below.
+fi alldone
+~
+S
+#15505
+A Cool, Dug-out Cellar~
+   Damp and cool, this cellar has barely enough room for an 
+average person to stand upright. The walls are rough-hewn packed 
+earth and rock, with numerous pale-white tree roots dangling from 
+the west wall. The floor is hard-packed earth with the odd-cut 
+ends of boards pieced together to make a serviceable floor to 
+keep stored goods from being immediately ruined by the dampness. 
+A sturdy ladder in the corner leads to a trap-door above. 
+~
+15 65544 0
+0
+S
+#15243
+Ramshackle Hut~
+   This hutt was constructed hastily, from its ramshackle 
+appearance. It is relatively small, with an old door to the 
+west, and a single window looking out into the backlot beyond it. 
+The roof and walls are made of wooden panels, unfinished and 
+dull. The floor is of stone. There is a chimney in the far 
+northeast corner and several cabinets lining the wall. It seems 
+entirely untouched by past ravages. 
+~
+15 1073807624 0
+0
+D3
+~
+rickety-door~
+1 -1  0 22281
+S
+#15400
+The City Gardens~
+   The noisy hustle and bustle of the market, loud shouts of 
+street-hawkers and haggling customers fade here in this lush and 
+fragrant parkland. The area is enclosed by a tall, wrought iron 
+fence to the west and the walls of several tall buildings to the 
+north and south. The stone walls are softened by climbing ivy 
+vines which sprawl across their rough surface. The foundation 
+stones of an old building have been restacked to border 
+ornamental flowerbeds which spill over with a riot of colors. A 
+wide pathway lit with ornamented brass lanterns winds eastward 
+through the manicured flowerbeds and some sitting benches, 
+leading toward the far side of the gardens. To the south of the 
+path stands a stone cairn flanked by rowan trees, a solitary 
+lantern burning night and day above it. 
+~
+15 67174416 1
+0
+D1
+~
+~
+0 -1  0 15401
+D3
+~
+irongate~
+1 -1  0 2471
+S
+#15401
+The City Gardens~
+   Enclosed on three sides by the walls of tall buildings 
+situated to the north, east and south, this section of 
+well-manicured gardens is peaceful and secluded. Ivy climbs the 
+walls with a flourish of verdent green, looking as though the 
+gardens wish to escape into the city. Occasional windows look 
+out into the park, the lights flickering as people move about 
+inside. A wide pathway wends its way through neatly manicured 
+bushes and wide beds of inviting grasses and wildflowers, leading 
+westward toward a distant gate. A manicured sitting area is in 
+the northeast corner, where granite benches are flanked by clumps 
+of blooming violets, the area lit with a soothing glow by ornate 
+brass lanterns on tall poles. 
+   A small wooden garden shed sits in the northeast corner,
+behind some tall bushes that flower in the warmer months.
+~
+15 1140916240 1
+0
+D3
+~
+~
+0 -1  0 15400
+P
+enter~
+shed path hurdle~
+vstr You step down the path between the hurdles towards the shed.
+ostr $n steps down a path in the corner of the garden towards a small wooden shed.
+trans 15402
+atlook 15402
+ostr $n is entering from the south.
+~
+S
+#15600
+A Second-Storey Room With Shattered Roof~
+   The decaying and abused walls of this upper level room are 
+cracked and broken in places, as the entire roof appears to have 
+been knocked off some time ago, a segment still hanging from the 
+northern wall. The worn floorboards squeak worryingly if anyone 
+walks here. A sturdy door, set in the southern wall, leads out 
+onto a narrow balcony. However, while the doorway remains 
+intact, the wall on either side has toppled to the ground. A 
+creaky wooden staircase leads down to the first floor of the old 
+building. 
+~
+15 1073809414 3
+0
+D2
+~
+~
+0 -1  0 22997
+D5
+~
+~
+0 -1  0 22572
+S
+#15244
+Inside A White Oak Carriage~
+   Inside this carriage is quiet comfortable, arranged with two 
+opposing benches of overstuffed silk on a wooden frame. The 
+inside, just like the outside, is all made of well polished white 
+oak, carved and embellished with silver filigree. The floor is 
+set with a roughly woven mat to absorb water and give traction in 
+the oft-wet weather of the region. The doors on either side are 
+set with heavy velvet curtains of ocean blue and tassled 
+tie-backs so one can enjoy the day or block out the rain as 
+desired. All in all it is a very clean, very comfortable coach, 
+the decorations all in white, silver and ocean blue. 
+~
+15 1140918280 0
+0
+S
+#15245
+A Grey-Tiled Courtyard~
+   Bordered by an elaborate, silvered gate, and seperated by 
+scattered squares of lush grass, this courtyard has been set with 
+a repeating pattern of grey stone tiles, their surfaces worn 
+smooth by years of weather. Rows of poplars and spruce further 
+divide the courtyard into columns, the main tile-set path leading 
+straight southward to the front of a sprawling estate, climbing 
+upward to end at the bulk of an engraved ebonwood door. The low 
+facade of the estate is fashioned of grey-pebbled sandstone, the 
+slatted roof sporting rectangles of red clay. A collapsed white 
+tower can be seen looming over the southeastern section of the 
+building, at the edge of the Anduin to the east. 
+~
+15 1073807360 1
+0
+D2
+~
+carved-ebonwood-door~
+1 -1  0 15246
+S
+#15246
+A Tapestried Hall~
+   A wide hall stretches forward here, its domed roof supported 
+by two rows of sandstone columns, their bases surrounded by the 
+strange black wood panels of the hall's floor. Windows of etched 
+glass scatter shafts of light between the columns in the daytime, 
+while elaborate lanterns of twisting bronze keep the hall 
+well-lit at night. Drapes of green silk hug the ends of the 
+spotless panes, complimented by the rich azure and burgundy of 
+the many heavy tapestries that hang like sentries on the western 
+and eastern walls of the enclosure, depicting scenes of battle 
+and many solemn faces. One large tapestry hangs above a 
+double-door to the south, proudly displaying the image of a blue, 
+spread-winged falcon over a many-speared red sun. Two other 
+doors lead away from the hall, while the northern door exits out 
+onto a grey-tiled courtyard. 
+~
+15 1140916232 0
+0
+D0
+~
+carved-ebonwood-door~
+1 -1  0 15245
+D3
+~
+pinewood-door~
+1 -1  0 15247
+S
+#15247
+A Guest Lounge~
+   A burgundy-painted pinewood door to the east opens out onto 
+this spacious, stone-walled room. The floor, fashioned of 
+ebonwood panels with twisting, inky grain, falls away as the wall 
+bends north to west to south, forming a crescent whose length is 
+set with several wide windows of etched glass. Paintings, and 
+the occasional tapestry, hang from the sandstone walls, and the 
+room is sparsely dotted with furniture, lending it an open but 
+comfortable atmosphere. A fireplace is set into the southern 
+wing of the flat western wall, adding to the elegance of the 
+lounge. 
+~
+15 1073807368 0
+0
+D1
+~
+pinewood-door~
+1 -1  0 15246
+S
+#15248
+A Roomy, Wide-Windowed Chamber~
+   The finely-plastered walls of this roomy, square chamber have 
+been painted a deep burgundy, the rich colour complimented by the 
+shade of the uncovered, pine-panelled floor. The room's 
+furniture is tastefully arranged, lending to an open, but homely 
+atmosphere. The entirety of the chamber's southern wall is set 
+with three, massive windows of clouded glass, which are bordered 
+by drapes of a verdant green fabric. Sconced lanterns line the 
+walls, flanking a number of small framed prints. 
+~
+15 1073807624 0
+0
+D0
+~
+door~
+1 2976  50 2543
+P
+adjust~
+drapes~
+vstr You adjust the drapes over the southern windows.
+ostr $n adjusts the drapes over the southern windows.
+rftog indoors 15248
+fi alldone
+~
+S
+#15500
+Winding Trail Through Wreckage~
+   Almost impassable, this choked passage of rubble can be moved 
+along north-south while huge sections of roofing and blocks press 
+in on either side. There is enough room for perhaps three humans 
+abreast and twice their height. Above, creaking and straining of 
+old supports offer little comfort. 
+~
+15 65546 0
+0
+D0
+~
+~
+0 -1  0 15507
+D2
+~
+~
+0 -1  0 22243
+C
+6
+S
+#15501
+Wide Smooth Section of Roof~
+   Somehow, while all around is a view of a collapsed structure 
+of limestone, granite, marble and iron, here an entire segment of 
+sloping roof remains, rising up westwards. The view of eastern 
+Osgiliath is spectacular and leads swiftly eastwards as far as 
+the Black Mountains of the Ephel Duath and the Morgul Vale 
+somewhere beyond the Forests of the Moon. The view to the north 
+is of Ithilien and the thick sparkling band of the Anduin during 
+daylight hours. Westwards the section ends suddenly and is 
+broken into smaller pieces, leading to a fatal drop below of many 
+floors, although some platforms and remains cn be seen stretching 
+far above the Anduin resting on old pillars. 
+   An easy climb down from here is offered at the south-eastern 
+corner, where the roof has shifted outwards until it nearly 
+touches a rooftop amidst the carnage of old Osgiliath. 
+Southwards, a missing wall grants access to a small section of 
+the remains of the Great Dome's eastern fortress. 
+~
+15 1073807362 1
+0
+D2
+~
+~
+0 -1  0 22242
+D3
+~
+~
+0 -1  0 15503
+D5
+~
+~
+0 -1  0 2095
+E
+reformat~
+~
+P
+fire release~
+short-mangonel-shot~
+if oexist(4062, 15501) 
+get 4062 15501 
+put 4048 15501 
+vstr You fire the loaded mangonel, pushing the latch forward. 
+ostr $n fires the loaded mangonel, pushing the latch forward. 
+vstr The mangonel unwinds with a loud whipping sound, sending its projectile hurtling eastward. 
+ostr The mangonel unwinds with a loud whipping sound, sending its projectile hurtling eastward. 
+vbr -
+zone_echo 50 outside A high pitched whipping sound followed by sharp lash of the sound of a projectile echoes throughout the city, heading towards the east.
+zone_echo 22 outside A high pitched whipping sound followed by sharp lash of the sound of a projectile echoes throughout the city, heading towards the east.
+set random 1d2
+if (random=1)
+pain 50455 6 10 all blunt
+atecho 50455 The stones rain down on you and the surrounding area, sending dirt and dust flying. 
+else do
+pain 22122 6 10 all blunt
+atecho 22122 The stones rain down on you and the surrounding area, sending dirt and dust flying. 
+fi done
+vbr -
+vstr You begin to slowly rewind the mangonel, readying it again for firing.
+ostr $n begins to slowly rewind the mangonel into a firing position.
+delay 90 xxxwindxxx mangonel
+else do 
+vstr The mangonel isn't here, or isn't completely ready yet. 
+fi done 
+~
+P
+fire release~
+long-mangonel-shot~
+if oexist(4062, 15501) 
+get 4062 15501 
+put 4048 15501 
+vstr You fire the loaded mangonel, pushing the latch forward. 
+ostr $n fires the loaded mangonel, pushing the latch forward. 
+vstr The mangonel unwinds with a loud whipping sound, sending its projectile hurtling eastward. 
+ostr The mangonel unwinds with a loud whipping sound, sending its projectile hurtling eastward. 
+zone_echo 50 outside A high pitched whipping sound followed by sharp lash of the sound of a projectile echoes throughout the city, heading towards the east.
+zone_echo 22 outside A high pitched whipping sound followed by sharp lash of the sound of a projectile echoes throughout the city, heading towards the east.
+set random 1d3
+if (random=1)
+pain 22123 6 10 all blunt
+atecho 22123 The stones rain down on you and the surrounding area, sending dirt and dust flying. 
+if (random=3)
+pain 22124 6 10 all blunt
+atecho 22124 The stones rain down on you and the surrounding area, sending dirt and dust flying. 
+else do
+pain 50021 6 10 all blunt
+atecho 50021 The stones rain down on you and the surrounding area, sending dirt and dust flying. 
+fi done
+vbr -
+vstr You begin to slowly rewind the mangonel, readying it again for firing.
+ostr $n begins to slowly rewind the mangonel into a firing position.
+delay 90 xxxwindxxx mangonel
+else do 
+vstr The mangonel isn't here, or isn't completely ready yet. 
+fi done 
+~
+P
+xxxwindxxx~
+mangonel~
+if oexist(4058, 15501) 
+vstr You complete rewinding the mangonel, reloading it and setting it into a firing position.
+ostr $n finishes rewinding the mangonel, reloading it and setting it into a firing position.
+get 4048
+put 4062 15501
+fi done
+~
+S
+#15502
+West Annex of A Spacious Armoury~
+   The first thing that one notices in this room is the near
+overpowering smell of oil. Hardened leather suits of armour rest
+on racks bear the aroma, blades of all sorts lay wrapped in oil
+soaked rags as do the array of mail suits displayed along the
+rear wall. Spacious and well ordered, the armoury bears enough
+arms and armour to outfit an army. Pike and halberds lay leaned
+against tall racks that in turn bear axes and maces, everything
+kept in impeccable condition. A small, shielded lantern casts a
+slight light onto the room.
+~
+15 1140916232 0
+0
+S
+#15503
+Above Wreckage and Ruins~
+Above the ruined fortress on the eastern bank of the Anduin.
+~
+15 1073808384 1
+0
+D1
+~
+~
+0 -1  0 15501
+D3
+~
+~
+0 -1  0 22166
+S
+#15504
+West Annex of A Spacious Armoury~
+   The first thing that one notices in this room is the near
+overpowering smell of oil. Hardened leather suits of armour rest
+on racks bear the aroma, blades of all sorts lay wrapped in oil
+soaked rags as do the array of mail suits displayed along the
+rear wall. Spacious and well ordered, the armoury bears enough
+arms and armour to outfit an army. Pike and halberds lay leaned
+against tall racks that in turn bear axes and maces, everything
+kept in impeccable condition. A small, shielded lantern casts a
+slight light onto the room.
+~
+15 1140916232 0
+0
+D2
+~
+~
+0 -1  0 15506
+S
+#15506
+West Annex of A Spacious Armoury~
+   The first thing that one notices in this room is the near
+overpowering smell of oil. Hardened leather suits of armour rest
+on racks bear the aroma, blades of all sorts lay wrapped in oil
+soaked rags as do the array of mail suits displayed along the
+rear wall. Spacious and well ordered, the armoury bears enough
+arms and armour to outfit an army. Pike and halberds lay leaned
+against tall racks that in turn bear axes and maces, everything
+kept in impeccable condition. A small, shielded lantern casts a
+slight light onto the room.
+~
+15 67174408 0
+0
+D0
+~
+~
+0 -1  0 15504
+S
+#15507
+A Shattered Chamber~
+   Remnants of weapons racks rot here amidst the limestone blocks 
+and sections of ceiling that crush pike shafts and picked-clean 
+skeletons of humanoids still clutching rusted halberks and 
+wearing blemished yrcish armor. It seems from the number of 
+remains that a large section of the Great Dome's east side 
+collapsed suddenly here, burying those looting this chamber. An 
+open doorway opens northwards with a breeze felt from beyond. A 
+small gap to the west offers access to an intact doorway. 
+Southwards is further ruin and wreckage. 
+~
+15 1073807370 0
+0
+D0
+~
+~
+0 -1  0 15510
+D2
+~
+~
+0 -1  0 15500
+D3
+~
+door~
+1 -1  0 15509
+S
+#15508
+A Well-Kept Windowless Office~
+   The first thing that one notices in this room is the near
+overpowering smell of oil. Hardened leather suits of armour rest
+on racks bear the aroma, blades of all sorts lay wrapped in oil
+soaked rags as do the array of mail suits displayed along the
+rear wall. Spacious and well ordered, the armoury bears enough
+arms and armour to outfit an army. Pike and halberds lay leaned
+against tall racks that in turn bear axes and maces, everything
+kept in impeccable condition. A small, shielded lantern casts a
+slight light onto the room.
+~
+15 1140916232 0
+0
+S
+#15509
+An Exposed Floor Above Ruins~
+   Walking through the doorway from the eastern chamber, it is 
+quickly noticed that only a few feet remain of the floor of 
+whatever chamber this used to be. Shorn off and laying somewhere 
+beneath here, the entire section of the roof, floor and walls are 
+gone. Looking down, a view of boulders, rubble and remains is 
+all that is offered. To the west is a view of a series of 
+columns, some broken, some leaning against each other. Resting 
+atop some are the remains of the Great Dome roof as it narrowed 
+and stretched across the Bel-Iant bridge over the Anduin, nearly 
+a mile to the western shore beyond. Rushing water can be heard 
+far below along with the macabre sight of the river flowing above 
+what was once the greatest bridge over the Anduin. 
+~
+15 1073807362 1
+0
+D1
+~
+door~
+1 -1  0 15507
+D5
+~
+~
+0 -1  0 22248
+C
+4
+S
+#15510
+A Ruined Armory With A Hole~
+   An old reek of oil lingers among the wrecked chamber, filled 
+with rubble and the press of shattered helms and mail suits. 
+Nothing here is recoverable, being too long exposed to the 
+elements from the large hole in the northern half of the 
+destroyed building. Stepping over chunks of basalt as well as 
+barely recognisable burnt remains, access to the only exit at 
+ground level from this room is reached southwards. Rainwater 
+pools under the shattered ceiling space and rats scurry through 
+cracks and under piles of ruined remnants of Osgiliath's proud 
+past. 
+~
+15 1073807362 1
+0
+D2
+~
+~
+0 -1  0 15507
+D4
+~
+~
+0 -1  0 22166
+S
+#15402
+Plot before a Wooden Shed~
+   A small, cleared area is here behind some tall, flowering 
+bushes. A rectangular wooden garden shed fills the space 
+prominently, made of red-stained pinewood and of sturdy 
+construction. Thick stone walls rise behind the shed to the east 
+and south. 
+~
+15 1140916240 1
+0
+D1
+~
+door~
+1 2556  25 15403
+D2
+The public gardens lie to the south.
+~
+~
+0 -1  0 15401
+S
+#15403
+Inside a Wooden Shed~
+   Sturdy, red-stained pinewood walls frame all sides of this 
+small room. There are no windows, the floor is hard-packed dirt, 
+and the only exit is a heavy oaken door to the west. While not 
+large, there is still enough room to move about comfortably and 
+store carts and gardening implements. 
+~
+15 65544 0
+0
+D3
+~
+door~
+1 -1  0 15402
+S
+#15404
+A Small Bedroom~
+   This small-sized room is large enough to hold a few basic 
+furniture pieces though is in no way large enough to accomodate a 
+family. The walls are freshly-painted a soft grey in color and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There is a single, curtained window 
+set into the far wall to illuminate the room during the day the 
+door leads back out into the hallway. 
+~
+15 1073807624 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+You cannot pass through the dull-grey stone walls.
+~
+~
+You cannot pass through the dull-grey stone walls.
+~
+You cannot pass through the dull-grey stone walls.
+~
+~
+~
+D3
+~
+door~
+1 15404  30 11990
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15404
+~
+S
+#15405
+A Small Bedroom~
+   This small-sized room is large enough to hold a few basic 
+furniture pieces though is in no way large enough to accomodate a 
+family. The walls are freshly-painted a soft grey in color and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There is a single, curtained window 
+set into the far wall to illuminate the room during the day the 
+door leads back out into the hallway. 
+~
+15 1073807624 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+You cannot pass through the dull-grey stone walls.
+~
+You cannot pass through the dull-grey stone walls.
+~
+You cannot pass through the dull-grey stone walls.
+~
+~
+~
+~
+D0
+~
+door~
+1 15405  30 15263
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15405
+~
+S
+#15406
+A Small Bedroom~
+   This small-sized room is large enough to hold a few basic 
+furniture pieces though is in no way large enough to accomodate a 
+family. The walls are freshly-painted a soft grey in color and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There is a single, curtained window 
+set into the far wall to illuminate the room during the day the 
+door leads back out into the hallway. 
+~
+15 1073807624 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+You cannot pass through the dull-grey stone walls.
+~
+You cannot pass through the dull-grey stone walls.
+~
+You cannot pass through the dull-grey stone walls.
+~
+~
+~
+D1
+~
+door~
+1 15406  30 11990
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15406
+~
+S
+#15249
+A Small, Cozy Kitchen~
+   This room is brightly lit by lamps on the walls, giving it a 
+warm feeling. It is arranged in such a manner as to be 
+confining, but not quite cramped. Various smells permeate the 
+air at almost any hour of the day, as it seems to be used as a 
+kitchen area. Where they show amidst the furnishings, the floor 
+and walls are faded wood, marred in many places with scuffs and 
+scratches. A door in the northern wall leads to the staircase 
+which links the other floors of the building. 
+~
+15 67174408 0
+0
+D2
+~
+door~
+1 -1  0 2721
+D4
+~
+door~
+1 5127  0 2719
+D5
+~
+door~
+1 2661  0 2720
+S
+#15250
+A Grey-Tiled Courtyard~
+   Bordered by what seems to have at one time been an elaborate 
+gate, now a rusty chunk of immovable metal barring the way, this 
+courtyard has seen better days. Repeating patterns of grey stone 
+tiles, their surfaces worn smooth by years of weather, lay 
+cracked upon the ground. Rows of skeletal trees, their claw-like 
+branches rising without hope of salvation, further divide the 
+courtyard into columns, the main tile-set path leading straight 
+southwards to the front of a desolate estate. Its windows 
+boarded up, glass shattered upon the ground, walls pitted, it 
+seems a mockery of its former splendor. The low facade of the 
+estate is fashioned of grey-pebbled sandstone, the slatted roof 
+sporting rectangles of red clay, some of these fallen to the 
+ground or simply missing. 
+~
+15 1073807362 1
+0
+D2
+~
+bedraggled-double-door~
+0 15056  100 15251
+E
+wall~
+You see a board sticking up from a cracked portion of the wall. It
+seems to have some sort of holes through it, and a bit of rope lays
+cut against it.
+~
+E
+slatted~
+Barely visible, carved onto one of the fallen rectangles, are the
+words, "My ideas have found a home." The name Araphor has been
+carved in.
+~
+P
+climb~
+wall~
+if haso(-1,1470)
+vstr You swing a grappling hook attached to a hemp rope up to the top of the wall and climb up over it.
+ostr $n swings a grappling hook attached to a hemp rope up to the top of the wall and climbs up over it.
+trans 22814
+atlook 22814
+ostr $n climbs down the wall onto the pile of rubble.
+else do
+vstr You can't, it's too steep.
+~
+P
+climb~
+rope~
+if haso(-1,1470)
+vstr You swing a grappling hook attached to a hemp rope up to the top of the wal
+l and climb up over it.
+ostr $n swings a grappling hook attached to a hemp rope up to the top of the wal
+l and climbs up over it.
+trans 3205
+atlook 3205
+ostr $n up from the west wall.
+else do
+vstr You can't, it's too steep.
+~
+S
+#15251
+An Abandoned Hall Lined With Faded Tapestries~
+   A wide hall stretches forward here, its domed roof, gaps in 
+its surface allowing the sky to be shown, supporting by two rows 
+of cracked sandstone columns. The black wood panels of the 
+hall's floor seem to have suffered under the neglecting hand of 
+abandon, dust accumulating and rot having begun to set in. 
+Windows, some of their etched glass panes still visible, are 
+boarded up firmly in a vain attempt to provide more security. 
+Elaborate lanterns of twisting bronze hang upon the walls, their 
+existence supported but their function destroyed. Drapes of 
+green silk, moth-eaten, hug the ends of the windows, complimented 
+in a rather mocking way by the heavy tapestries colored in azure 
+and burgundy which hang like sentries on the western and eastern 
+walls of the enclosure, depicting scenes of battle and many 
+solemn faces. These tapestries seem uncared for however have 
+deteriorated little. One large tapestry hangs high upon the 
+southern wall, depicting in a decrepit manner a blue, 
+spread-winged falcon over a many-speared red sun. A single door 
+leads to the west. 
+   The doors to the north and west were once sturdy and strong,
+but now hang in splinters and shards and are broken.
+~
+15 67586 0
+0
+D0
+~
+bedraggled-double-door~
+0 15056  100 15250
+D3
+~
+burgundy-door~
+0 15056  100 15252
+E
+tapestry~
+The tapestries, their solemn faces seeming to gaze with stern sadness
+ upon the ruined room, are still affixed firmly to the wall, even
+age slow in tearing these beautiful works down.
+~
+S
+#15252
+A Dusty Lounge~
+   A burgundy-painted pinewood door, the color flaking in places 
+to reveal the surface beneath, opens out onto this spacious, 
+stone-walled room. The floor, fashioned of ebonwood panels with 
+twisting, inky grain, seems dusty and dirty, though little else 
+save perhaps vermin have harmed it. The wall bends north to west 
+to south, forming a crescent whose length is set with several 
+wide, boarded windows. Paintings, age and rats having reached 
+them in the form of holes and yellowing, accompanied by the 
+occasional tapestry in fairer condition, hang from the sandstone 
+walls, and the room is sparsely dotted with old, moldy furniture 
+lending it a rather desolate, abandoned atmosphere. A fireplace 
+is set into the southern wing of the flat western wall, its ashes 
+an unusually large mound. 
+~
+15 67586 0
+0
+D1
+~
+burgundy-door~
+0 15056  100 15251
+E
+fireplace ashes mound~
+What at first appeared to be ashes are, upon closer inspection, revealed to be the remains of charred bones, a few white pieces still visible among the pile.
+~
+S
+#15253
+At the Bow of the Intrepid~
+   The ship ends at a dull point here, and a short mast rises 
+from the bow. A triangular foresail is attached, complete with a 
+boom and rig. Numerous ropes and line are coiled on the mast in 
+neat rigs, and the fullsail blasts full whenever the wind picks 
+up. 
+~
+15 1073807360 0
+0
+D2
+~
+~
+0 -1  0 15254
+S
+#15254
+At the Midsection of the Intrepid~
+   Twelve men could easily stand shoulder-to-shoulder here on the 
+main deck of the ship. The worn wooden panels underfoot are held 
+secure by rusty nails that keep them firmly down. The main sail 
+flutters overhead, the mast directly in the middle of the deck. 
+A door is set fore in the sterncastle, ladders flanking it on 
+either side which lead up to the aft deck, and sturdy-yet-old 
+wooden rails flank the sides of the boat. The ship creaks a bit 
+as it bobs in the water. A small crew of sailors busily move 
+about the deck, checking rigs and performing other tasks. 
+~
+15 1073807360 0
+0
+D0
+~
+~
+0 -1  0 15253
+D2
+~
+door~
+1 15063  20 15259
+D3
+~
+~
+0 -1  0 13005
+D4
+~
+~
+0 -1  0 15255
+D5
+~
+hatch~
+1 15063  20 15257
+P
+climb~
+ladder~
+vstr You ascend the ladder to the aft deck.
+ostr $n ascends the ladder to the aft deck.
+trans 15260
+atlook 15260
+ostr $n ascends the ladder to the aft deck.
+~
+S
+#15255
+Climbing the Mast~
+   A single rope ladder climbs up the main mast of the ship, 
+leading eventually to the crows nest high above. Surrounding it 
+are all sorts of rigging equipment, from ropes to chains. The 
+mast is very thick, and tends to sway every time the large 
+triangular sail catches wind. The rope ladder continues as it 
+climbs the mast, with footholds sunken into the wood in even 
+intervals. 
+~
+15 1073807360 0
+0
+D4
+~
+~
+0 -1  0 15256
+D5
+~
+~
+0 -1  0 15254
+P
+lower~
+sail~
+atecho 15253 The main sail lowers, fluttering as it leads downward.
+atecho 15254 The main sail lowers, fluttering as it leads downward.
+atecho 15260 The main sail lowers, fluttering as it leads downward.
+vstr You untie the main sail, allowing it to drape down.
+ostr $n unties the main sail, allowing it to drape down.
+atecho 15256 Someone lowers the mast below.
+~
+P
+raise~
+mainsail~
+vstr You raise the main sail and tie it securely to it's perch.
+ostr $n raises the main sail and ties it securely to it's perch..
+atecho 15254 The main sail rises, eventually being tied securely to it's perch.
+atecho 15260 The main sail rises, eventually being tied securely to it's perch.
+atecho 15256 Someone raises the mast below.
+atecho 15253 The main sail rises, eventually being tied securely to it's perch.
+~
+S
+#15256
+In a Small Crow's Nest~
+   The main mast narrows slightly, barely supporting the weight 
+of the circular platform perch near its top. Well above it, 
+there's room for the ship's flag to fly, with a flag-rope 
+connected to a swivel at the very top of the mast beneath a 
+finial. The platform itself is made of sturdy treated 
+greyish-brown wood, roughened by sea air and water, and it's not 
+entirely snug against wind. It'd reach about waist-height to 
+most people, with a ledge all around it to lean on if desired. 
+It rocks and heaves with every motion of the ship below, but 
+despite the instability it affords a spectacular view of the 
+surrounding area and of the deck that looks entirely too far 
+down. A rope ladder leads down the mast, with patina'd bronze 
+footholds sunk into the wood at regular intervals. 
+~
+15 1073807360 0
+0
+D5
+~
+~
+0 -1  0 15255
+S
+#15257
+A Narrow Hallway~
+   The creeking of the ship seems to be the only sound that makes 
+it's way into the bottom-side of this hallway, which seems wide 
+enough for two men abreast. It extends down the ship and is 
+dimly lit by lanterns dangling just overhead. 
+   A stout door is set to the west, leading into sleeping 
+quarters, whilst to the north the ship's galley can be seen. To 
+the south lies an iron-banded door. 
+~
+15 67174408 0
+0
+D0
+~
+~
+0 -1  0 15267
+D2
+~
+secured-door~
+1 15064  20 15258
+D3
+~
+door~
+1 -1  0 15266
+D4
+~
+hatch~
+1 -1  0 15254
+S
+#15258
+A Small Cargo Hold~
+   This modest cargo hold makes up the rear of the ship, the 
+walls sloping downward with the hull. The floorboards are level, 
+though they creak when pressure is applied to them. This storage 
+area looks like it could hold a few large crates of goods, as 
+well as a few pieces of furniture if needed. 
+~
+15 1140916232 0
+0
+D0
+~
+secured-door~
+1 -1  0 15257
+S
+#15259
+A Modest Cabin~
+This room holds an impressive nature, it's width equal to that 
+of the ship. Along the edges of the wooden ceiling lie simply 
+engraved edgings that lead to wooden walls. The floorboards and 
+walls of the cabin are made from thick pieces of wood that have 
+been heavily caulked and sealed. Among the many scents that 
+intermingle here, the smell of Westmansweed and wood are the 
+prominent ones, seeming to mix into a rather pleasant odor. 
+   On the floor lies a large, rounded plush blue carpet, scarlet 
+intigrated into it in a simple bulls-eye design. 
+~
+15 1073807368 0
+0
+D0
+~
+door~
+1 -1  0 15254
+S
+#15260
+At the Stern of the Intrepid~
+   This small-sized deck is positioned about the sterncastle. 
+There is a wheel looming above the main deck, which is used to 
+steer the ship, and a compass sits next to it on a small 
+platform. A sturdy, wooden railing slinks along all four sides 
+of the deck, save where two ladders lead downward to the main 
+deck, allowing access to the rest of the ship. 
+~
+15 1073807360 0
+0
+P
+climb~
+ladder~
+vstr You climb down the ladder to the main deck.
+ostr $n climbs down the ladder, dissappearing to the main deck.
+trans 15254
+atlook 15254
+ostr $n climbs the ladder from the aft deck.
+~
+P
+setsail~
+osgi~
+atecho 15253 The ship pulls up alongside the Docks of Osgiliath
+atecho 15254 The ship pulls up alongside the Docks of Osgiliath
+atecho 15255 The ship pulls up alongside the Docks of Osgiliath
+atecho 15256 The ship pulls up alongside the Docks of Osgiliath
+atecho 15260 The ship pulls up alongside the Docks of Osgiliath
+atecho 2459 A large ship pulls up to the docks.
+link 2459 e 15254
+~
+P
+leave~
+osgiliath~
+atecho 15253 The ship pulls away from the Docks of Osgiliath.
+atecho 15254 The ship pulls away from the Docks of Osgiliath.
+atecho 15255 The ship pulls away from the Docks of Osgiliath.
+atecho 15256 The ship pulls away from the Docks of Osgiliath.
+atecho 15260 The ship pulls away from the Docks of Osgiliath.
+unlink w 15254
+~
+P
+setsail~
+tirith~
+atecho 15254 The ship pulls up alongside the Harlond Docks
+atecho 15253 The ship pulls up alongside the Harlond Docks
+atecho 15255 The ship pulls up alongside the Harlond Docks
+atecho 15256 The ship pulls up alongside the Harlond Docks
+atecho 15260 The ship pulls up alongside the Harlond Docks
+atecho 3472 A large ship pulls up alongside the dock.
+link 3472 e 15254
+~
+P
+leave~
+minas-tirith~
+atecho 15253 The ship pulls away from the Harlond Docks.
+atecho 15254 The ship pulls away from the Harlond Docks.
+atecho 15255 The ship pulls away from the Harlond Docks.
+atecho 15256 The ship pulls away from the Harlond Docks.
+atecho 15260 The ship pulls away from the Harlond Docks.
+atecho 3472 A large ship pulls away from the dock.
+unlink w 15254
+~
+P
+setsail~
+pelargir~
+atecho 15253 The ship pulls up alongside the Docks of Pelargir.
+atecho 15254 The ship pulls up alongside the Docks of Pelargir.
+atecho 15255 The ship pulls up alongside the Docks of Pelargir.
+atecho 15256 The ship pulls up alongside the Docks of Pelargir.
+atecho 15260 The ship pulls up alongside the Docks of Pelargir.
+atecho 13005 A large ship pulls up to the docks.
+link 13005 e 15254
+~
+P
+leave~
+pelargir~
+atecho 15253 The ship pulls away from the Docks of Pelargir.
+atecho 15254 The ship pulls away from the Docks of Pelargir.
+atecho 15255 The ship pulls away from the Docks of Pelargir.
+atecho 15256 The ship pulls away from the Docks of Pelargir.
+atecho 15260 The ship pulls away from the Docks of Pelargir.
+atecho 13005 A large ship pulls away from the dock.
+unlink w 15254
+~
+S
+#15261
+A Cellar~
+   A narrow stone staircase sits in a corner of this small 
+cellar, and the walls and floor are made of rough irregular 
+stones. Light is visible in between the planks that make up the 
+ceiling, and there are several large beams that span across it, 
+as well as two thick wooden pillars. 
+~
+15 1140916232 0
+0
+D4
+~
+trapdoor~
+1 -1  0 2834
+S
+#15262
+Brenna's Threads (S)~
+   This square-shaped shopfront continues from the north,
+an archway dividing the two parts of it. A wooden floor is
+set about with rugs, making shopping the racks and shelves
+a comfortable experience on the feet. A large window to
+the east looks out at the street.
+~
+15 201918476 0
+0
+D0
+~
+none~
+0 -1  0 11025
+S
+#15263
+A Well-Lit Hallway, West of the Commons~
+   Wooden panels make up the walls and floor of this long 
+hallway, obviously well-kept as there is little dust or 
+scuff-marks that can be seen. Glass lamps have been affixed 
+equally-spaced along the walls to provide ample lighting for 
+those that pass this way, set between the doors that are set to 
+either side leading to private Fellow bedchambers. 
+   The hustle and bustle of the Commons can be heard just to the 
+east. 
+~
+15 67174408 0
+0
+D0
+~
+brown-painted-door~
+1 15130  30 15130
+D1
+~
+~
+0 -1  0 2518
+D2
+~
+green-painted-door~
+1 15405  30 15405
+S
+#15264
+The Burnt-Out Ruins of a Warehouse~
+   What was once a warehouse is now a charred and thoroughly 
+destroyed assortment of ash and rubble. Although more or less 
+everything has been destroyed beyond recognition, some of the 
+larger sections of masonry that were stored here have managed to 
+survive with salvageable levels of damage. There is no longer a 
+roof, and the weather is free to enter the remains of this 
+building. 
+~
+15 201394184 0
+0
+D1
+~
+door~
+1 -1  0 2426
+D3
+~
+~
+0 -1  0 15265
+S
+#15265
+The Burnt-Out Ruins of a Warehouse with a Collapsed Roof~
+   What was once a warehouse is now a charred and thoroughly 
+destroyed assortment of ash and rubble. Only the odd piece of 
+half-charred and smashed machinery gives any indication of what 
+this place was once used for. There is no longer a roof, and the 
+weather is free to enter the remains of this building. 
+~
+15 67174416 0
+0
+D1
+~
+~
+0 -1  0 15264
+S
+#15267
+A Small Galley~
+   This expansive galley, where the crew's food is prepared, is 
+well kept and orderly. Smelling pleasantly of food at all times 
+of the day and attains a welcoming atmosphere. The walls and 
+floor are made of tightly caulked wood, and the whole room sways 
+back and forth with the rocking of the ship.
+~
+15 201394184 0
+0
+D2
+~
+~
+0 -1  0 15257
+S
+#15266
+A Cargo Hold Turned Sleeping Quarters~
+   Tightly fit planks, caulked and sealed, make up the floor and 
+walls of this room. The looser planks above and the regular 
+supports spaced through the room imply that the room was 
+originally designed as a cargo hold, but has been efficiently 
+altered to make it simple sleeping quarters for several 
+individuals. The ever- present creek of wood on wood is about 
+the only sound that generally makes its way into this otherwise 
+quiet room and its original design as a hold makes it wider than 
+you would expect of a sleeping berth. 
+~
+15 1140916232 0
+0
+D1
+~
+door~
+1 -1  0 15257
+S
+#15268
+UNUSED An Abandoned Woodwright's Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old woodwright's shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073809420 0
+0
+D1
+~
+door~
+1 -1  0 2170
+S
+#15269
+The Charred Remnants of a Building~
+   A pile of burnt timbers and broken rubble lies strewn across 
+the ground. It is barely possible to determine the shape of the 
+original building that once stood here. The intensity of the 
+fire that swept through its interior has left only the outer 
+stone walls standing. The thick stone walls are scarred and 
+blackened by soot and ash, leaving them a mucky grey colour. 
+~
+15 1073809412 1
+0
+D1
+~
+~
+0 -1  0 2187
+S
+#15270
+An Abandoned Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old shop. Not much is left 
+in the room. Its looks as if the owner had taken great care to 
+remove even the smallest of fixtures and fittings that could have 
+been of value. 
+~
+15 1073807368 0
+0
+D1
+~
+door~
+1 -1  0 22172
+S
+#15271
+An Abandoned Dye-makers Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old dyemaker's shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 65544 0
+0
+S
+#15272
+An Abandoned Weaver's Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old weaver's shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073807368 0
+0
+D0
+~
+broken-door~
+3 -1  0 22481
+S
+#15273
+An Abandoned Perfumer's Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old perfumer's shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073809416 0
+0
+D1
+~
+door~
+1 -1  0 2844
+S
+#15274
+An Abandoned Clothier's Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old clothier's shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073807360 0
+0
+S
+#15275
+UNUSED An Abandoned Chandler's~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old chandler's shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073809416 0
+0
+D3
+~
+door~
+1 -1  0 2173
+S
+#15276
+UNUSED An Abandoned Leatherwright's~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old leatherwright's shop. Not much 
+is left in the room. Its looks as if the owner had taken great 
+care to remove even the smallest of fixtures and fittings that 
+could have been of value. 
+~
+15 1073809416 0
+0
+D1
+~
+door~
+1 5127  0 2171
+S
+#15277
+An Abandoned Leatherwright's~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old leatherwright's shop. Not much 
+is left in the room. Its looks as if the owner had taken great 
+care to remove even the smallest of fixtures and fittings that 
+could have been of value. 
+~
+15 1073809416 0
+0
+D3
+~
+door~
+1 -1  0 2472
+S
+#15278
+An Abandoned Vinter's Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old vintner's shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073807368 0
+0
+D3
+~
+door~
+1 -1  0 2174
+S
+#15279
+A Makeshift Forge~
+   The original use of this place, probably a shop, is now lost to
+the setting of a makeshift forge. Half the northern wall is taken
+by a freshly built chimney, that houses a forge of massive size,
+yet of simple craftmanship. The walls lack any finishing, and
+are of simple stone, bearing the marks of whichever covering
+they had prior to being abandoned. The floor, of stone, has
+nothing to conceal the cold, harsh nature of granite, and 
+bears many scuff marks, globs of molten metal and chips.
+The heat is constant and tiring, as the forge is always alight,
+as men seem to keep it fed and blowing with infernal rage,
+constantly shaping weapons at a fast pace. A simple door
+leads outside, to the more bearable outside air.
+~
+15 1140918540 0
+0
+D2
+~
+door~
+1 1202  70 2383
+S
+#15280
+An Abandoned Tool Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of this old tool shop. Not much is left 
+in the room. Its looks as if the owner had taken great care to 
+remove even the smallest of fixtures and fittings that could have 
+been of value. 
+~
+15 1073807360 0
+0
+D1
+~
+door~
+1 -1  0 2425
+S
+#15281
+A Large Wood-Floored Room~
+   This rectangular-shaped room is cleared of debris and well-
+cleaned, with a new floor made of wood and wooden walls that,
+while not panelled, are certainly in good shape. The roof is also
+repaired. The building looks almost brand-new, and smells faintly
+of woodworking and masonry-work.
+   Archways lead north and west.
+~
+15 1073809416 0
+0
+D0
+~
+~
+0 -1  0 15290
+D1
+~
+door~
+1 -1  0 22778
+D3
+~
+~
+0 -1  0 15293
+S
+#15282
+An Abandoned General Store~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old general store. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073809420 0
+0
+D0
+~
+door~
+1 -1  0 2392
+S
+#15283
+An Abandoned Hunting Store~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of this old hunting store. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073809420 0
+0
+D2
+~
+door~
+1 -1  0 2421
+S
+#15284
+UNUSED An Abandoned Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of this old shop. Not much is left in the 
+room. Its looks as if the owner had taken great care to remove 
+even the smallest of fixtures and fittings that could have been 
+of value. 
+~
+15 1342242816 0
+0
+D0
+~
+door~
+1 5127  0 2123
+S
+#15285
+An Abandoned Clothier's~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old clothier's shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073809420 0
+0
+D0
+~
+door~
+1 -1  0 2545
+S
+#15286
+An Abandoned Antique Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of an old antique shop. Not much is left 
+in the room. Its looks as if the owner had taken great care to 
+remove even the smallest of fixtures and fittings that could have 
+been of value. 
+~
+15 67596 0
+0
+D0
+~
+door~
+1 -1  0 2398
+D2
+~
+door~
+1 -1  0 2491
+S
+#15287
+An Abandoned Glassblowers~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old glassblower's shop. Not much 
+is left in the room. Its looks as if the owner had taken great 
+care to remove even the smallest of fixtures and fittings that 
+could have been of value. 
+~
+15 1073809420 0
+0
+D0
+~
+door~
+1 5127  0 2472
+S
+#15288
+UNUSED An Abandoned Parchment Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old parchment shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073809420 0
+0
+D3
+~
+door~
+1 -1  0 2170
+S
+#15289
+An Abandoned Leatherworks~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old leatherworker's shop. Not much 
+is left in the room. Its looks as if the owner had taken great 
+care to remove even the smallest of fixtures and fittings that 
+could have been of value. 
+~
+15 1073809420 0
+0
+D2
+~
+door~
+1 5127  0 2422
+S
+#15290
+A Reclaimed Shopfront~
+   Reclamation efforts have refloored this building, as well as
+set up a new door in the north wall and made an archway to the
+south. The furniture, all of it scarred and completely damaged,
+has been removed, and the walls whitewashed and cleaned. The ceiling
+has also been worked on. A new window set in the northern wall looks
+out on the street, letting the light in to this room during the day
+to reveal a completely new interior.
+~
+15 1073809422 0
+0
+D0
+~
+door~
+1 -1  0 22121
+D2
+~
+~
+0 -1  0 15281
+P
+peer gaze look~
+window north street outside~
+vstr You peer through one of the holes in the wall, looking beyond the rubble covering this particular building, and onto the street beyond.
+ostr $n peers through a hole in the wall.
+atlook 22121
+fi alldone
+~
+C
+15
+S
+#15291
+An Abandoned Blacksmiths~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old blacksmiths shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073809420 0
+0
+S
+#15292
+An Abandoned Shop~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of this old shop. Not much is left in the 
+room. Its looks as if the owner had taken great care to remove 
+even the smallest of fixtures and fittings that could have been 
+of value. 
+~
+15 1073809420 0
+0
+D0
+~
+door~
+1 5127  0 2530
+S
+#15293
+A Large Back Room~
+   This large wood-floored room is square in shape, and cleaned
+of all debris. The counters and furniture that once stood here are
+gone, replaced by simple wood tiling and whitewashed walls. Though
+not panelled, the walls are ceiled, as is the roof, so that no wind
+can get in. The air smells faintly of wood shavings, but none are
+in evidence on the floor. A window in the west wall looks out on a
+street.
+   An archway leads east, and a door is set near the window to the
+west.
+~
+15 67596 0
+0
+D1
+~
+~
+0 -1  0 15281
+D3
+~
+door~
+1 -1  0 22175
+P
+peer gaze look~
+window west street outside~
+vstr You look out the window, to the west.
+ostr $n looks out the window, to the west.
+vbr -
+atlook 22175
+fi alldone
+~
+C
+15
+S
+#15294
+An Abandoned Locksmith's~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old locksmith's shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 67596 0
+0
+D2
+~
+door~
+1 5127  0 2384
+S
+#15295
+An Abandoned Herbalist~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of the old herbalist's shop. Not much is 
+left in the room. Its looks as if the owner had taken great care 
+to remove even the smallest of fixtures and fittings that could 
+have been of value. 
+~
+15 1073809420 0
+0
+D2
+~
+door~
+1 5127  0 2544
+S
+#15241
+Linden's Flammables~
+   This small shopfront is part of the lower floor of an old 
+stone house, one that wasn't put together very well. Its stone 
+walls are stained with soot and old dirt, and the stone floor is 
+cracked in places and not very clean. Its shelves are freshly 
+dusted, though, and what can be cleaned and maintained has been. 
+A window looks out to the street to the south, while a door leads 
+out to the street. 
+~
+15 1275660312 0
+0
+D1
+~
+door~
+1 -1  0 1027
+S
+#15242
+A Storeroom~
+   This small storeroom is made of stone, and though it's not 
+very well-made, it is scrupulously clean. Shelves hold a variety 
+of bottles and other materials. 
+~
+15 1543571464 0
+0
+D4
+~
+trapdoor~
+1 15241  40 11399
+S
+#15296
+UNUSED An Abandoned Emporium~
+   Cobwebs adorn the ceiling of this once well-kept shop. An old 
+counter sits to one side of the room covered in a thick carpet of 
+dust. The walls are scarred with pits and cracks in a few places 
+and there is some evidence still of the wooden panelling which 
+once covered the walls of this old emporium. Not much is left in 
+the room. Its looks as if the owner had taken great care to 
+remove even the smallest of fixtures and fittings that could have 
+been of value. 
+~
+15 1073809420 0
+0
+D0
+~
+door~
+1 5127  0 2122
+S
+#15297
+A Treatment Area~
+   This building is made from large blocks of light grey granite 
+which have been skillfully mortared together. The walls rise up 
+in a fairly high ceiling and remain unpolished. The floors are 
+made of the same stone however they have been carefully polished. 
+Stone stairs lead up to the second floor. There are double doors 
+to the east that lead into a smaller room. Another double door 
+to the west leads out of the building and into the courtyard 
+beyond. 
+~
+15 1208027400 0
+0
+D1
+~
+curtain~
+1 -1  0 15298
+D3
+~
+door~
+1 -1  0 22343
+D4
+~
+~
+0 -1  0 15299
+S
+#15298
+A Chirurgery Room~
+   This small room is made up of large, light grey granite blocks 
+like the rest of the building. Contrasting against them in the 
+middle of the room is a large dark granite slab that reaches up 
+to about waist height and is polished smooth just like the floor. 
+Shelves adorn the walls to hold medical supplies. A chandelier 
+hang above the slab and numbers lanterns are hung around the room 
+to provide lots of light. To the west a set of double doors 
+gives entry into the room. 
+~
+15 1208025352 0
+0
+D3
+~
+curtain~
+1 -1  0 15297
+S
+#15299
+A Spacious Recovery Room~
+   A wide set of stone stairs leads into this long room made from 
+large blocks of light grey stone. The walls raise up to a high 
+peaked roof with shuttered windows set into them to allow 
+ventalation as well as light into the room. A fireplace is set 
+in the western wall while a door in the eastern wall leads into a 
+small room. 
+~
+15 1073807624 0
+0
+D1
+~
+door~
+1 15305  45 15305
+D5
+~
+~
+0 -1  0 15297
+P
+open close shut pull draw~
+window curtain blind shutter~
+vstr You walk over to the window and adjust the shutters.
+ostr $n walks over to the window and adjusts the shutters.
+rftog indoors 15299
+fi alldone
+~
+S
+#15305
+A Cozy Bedroom~
+    This cozy sized room is constructed of large light grey 
+stones.  A shuttered window rests within the eastern wall, 
+offering a vantage point over the ruined city and even reveals 
+the edge of Ithilien.  A fireplace made of stone is set within 
+the northern wall, giving a warm glow that fills the room with 
+a soft light.
+~
+15 1073807624 0
+0
+D3
+~
+door~
+1 15305  45 15299
+E
+window~
+This window lies within the eastern wall of the stone room, 
+offering a distant view of the broken city of Osgiliath.  Beyond
+the crumbled ruins of the walls of Osgiliath can be seen the 
+Forest of Ithilien.  The woodland looks at peace as it lies in 
+the far distance of sight.
+~
+P
+open close shut pull draw~
+window curtain blind shutter~
+vstr You walk over to the window and adjust the shutters.
+ostr $n walks over to the window and adjusts the shutters.
+rftog indoors 15305
+fi alldone
+~
+S
+#15048
+A Branch in the Hedge Maze~
+   The tall, dark-green shrubs that make up this maze loom up 
+over the grassy path. Though not huge, the path here is sizable, 
+large enough for three people to walk abreast. The hedge here 
+grows thickly, so dense that it cannot be seen through. This way 
+intersects another path, creating three exits. 
+   The paths lead east south and west. 
+~
+15 67174416 4
+0
+D1
+~
+~
+0 -1  0 15047
+D2
+~
+~
+0 -1  0 15049
+D3
+~
+~
+0 -1  0 15086
+S
+#15077
+A Dead End in the Maze~
+   Neatly groomed dark-green hedges rise up on either side of the 
+sparse grassy path of this maze. Wide enough for three people to 
+walk side by side the path continues on, bordered by the lush, 
+dense vegetation of the maze walls. 
+   The path leads straight into a wall of hedges here, the only 
+exit leading back west. 
+~
+15 67174416 4
+0
+D3
+~
+~
+0 -1  0 15075
+S
+#15086
+A T-Shaped Intersection in the Maze~
+   Healthy shrubs, their leaves a dark green in color, rise up in 
+neatly-trimmed hedges on either side of the maze. Lush grass has 
+been cut short, providing a path through the maze that is wide 
+enough for three people to walk side by side as the path 
+continues on. Many brightly-colored ribbons have been tied onto 
+various branches of the hedge, adding cheerful splashes of color 
+here and there. 
+   The path here leads north, south, and east towards another 
+three-way intersection in the maze. 
+~
+15 67174416 4
+0
+D0
+~
+~
+0 -1  0 15085
+D1
+~
+~
+0 -1  0 15048
+D2
+~
+~
+0 -1  0 15087
+S
+#15096
+A Spacious Workshop~
+   This wide and spacious woodworking shop is two stories high, 
+with thick oaken beams drawn laterally across the space. During 
+the day, columns of dust-illuminated sunlight fall from open 
+skylights upon the ample work area, brightening it fully. A few 
+rooms on the second storey overlook the shop floor, each with 
+glass-paned windows facing out from high above. Dangling from 
+the rafters are a set of oil lanterns on blackened iron chains. 
+In the front of the workshop, a neatly trimmed staircase traces 
+up the wall, making its way to the second level. 
+~
+15 67176476 0
+0
+D0
+~
+curtain~
+1 -1  0 15308
+D1
+~
+~
+0 -1  0 15310
+D2
+~
+shop-door~
+1 -1  0 15309
+D3
+~
+door~
+1 15239  50 96109
+D4
+~
+~
+0 -1  0 15306
+S
+#15306
+A Hallway Above the Shop Floor~
+   This sparsely appointed hallway runs the length of the shop, 
+leading from a stairway at one end to a distant window set at its 
+furthest length. Its floor is lined with neatly trimmed 
+fittings, all set above the beautifully joined maple floorboards. 
+A lamp fixture of curling black iron sits at eye level on one 
+wall. 
+~
+15 67174412 0
+0
+D1
+~
+engraved-oak-door~
+1 15167  60 15347
+D3
+~
+door~
+1 15167  60 15307
+D5
+~
+~
+0 -1  0 15096
+S
+#15307
+A Dormitory Overlooking the Workshop~
+   Bunkbeds line one wall of this dorm room, butting up against 
+the neatly-trimmed paneled walls. Maple-wood flooring runs the 
+length of the dorm, the wood smooth with years of foot traffic 
+and care. On the opposite side of the dorm lay a dramatic set of 
+shelves, their extent lining high up into the rafters. A window 
+on the wall opposite the door looks out onto the shopfloor. 
+~
+15 65800 0
+0
+D1
+~
+door~
+1 15167  60 15306
+S
+#15308
+A Refurbished Kitchen~
+   Recently renovated, the focal point of this kitchen is an old 
+but well-maintained cast-iron stove that dominates one corner of 
+the room. A set of tastefully trimmed fine maple-wood cabinets 
+line the walls, providing for ample storage. The scent of spices 
+and herbs filters through the air, borne along by the louvered 
+vents above the windows. A thin burgundy coloured linen drape 
+covers the exit of the kitchen, separating it from the sounds of 
+the workshop beyond. 
+~
+15 67174408 0
+0
+D2
+~
+curtain~
+1 -1  0 15096
+S
+#15309
+A Modest Sitting Room~
+   This intimate addition to the shop is nicely furnished, it's 
+wide maple floorboards waxed and polished to a warm hue. In the 
+corner of the room stands a proud granite stonework fireplace, a 
+thick, carved wooden mantle seamlessly mounted to its face. A 
+fogged-glass bay window sits amid floor-to-ceiling maple-wood 
+shelving, offering bright but filtered light throughout the room 
+during daytime. 
+~
+15 67174668 0
+0
+D0
+~
+shop-door~
+1 -1  0 15096
+D2
+~
+door~
+1 15239  0 15239
+P
+deposit~
+storeroom~
+vstr #5A young, dark-haired lad#0 helps to set the items for sale.
+ostr #5A young, dark-haired lad#0 helps $n bring the goods to the storeroom.
+force -1 15309 vfjump vfstoreroom
+~
+P
+vfjump~
+vfstoreroom~
+trans 96109
+force -1 96109 drop all
+force -1 96109 vfjump vfmain
+~
+P
+help~
+room~
+vstr The obvious things to do in this room are -
+vbr -
+vstr "#6Deposit Storeroom#0"
+~
+S
+#15310
+A Storage Room for Lumber and Supplies~
+   Inset from the main workshop and tucked underneath a set of 
+stairs rising up to the second level, this storage area for 
+lumber is scantly illuminated. The sharp and rich aromas of many 
+different kinds of wood and lumber fills the air and a light 
+layer of dust covers over the worn maple-wood flooring. A large 
+rack for lumber lines one wall with rails for large pieces 
+setting atop slotted shelving for smaller pieces. A single wall 
+sconce hangs from the thick timber of the support beam for the 
+staircase. 
+~
+15 67174412 0
+0
+D3
+~
+~
+0 -1  0 15096
+S
+#15311
+Atop a Tower's Wooden Platform~
+   Fashioned of sturdy pine planks, this tower rises on stout
+log legs off to the west side of the opening in the ruined city
+walls. It offers a commanding view of the area outside of the 
+breach in the wall. The platform itself is surrounded by a low
+wooden railing, and is crowned by a slatted roof of wooden 
+shingles that provide shelter from the elements. A square hole has
+been cut in the center of the platform's floor with a wooden ladder
+hinged to one of the edges, providing access to the ground below.
+~
+15 1140918288 0
+0
+D0
+~
+~
+0 -1  0 15316
+D1
+~
+~
+0 -1  0 15316
+D2
+~
+~
+0 -1  0 15316
+D3
+~
+~
+0 -1  0 15316
+D5
+~
+~
+0 -1  0 4472
+E
+north~
+~
+P
+leave go approach~
+tower ladder street~
+vstr You approach the center of the tower and climb down the ladder positioned there.
+ostr $n approaches the center of the tower, and climbs down the ladder positioned there.
+trans 4472
+atlook 4472
+ostr $n descends the tower's ladder, stepping onto the path.
+fi alldone
+~
+S
+#15312
+Light Woodlands Near Ruined Walls~
+   Some animals can be seen passing through this area, though they
+are shy and avoid contact with any who are near. Tree shadows fall
+over almost everything, though none block the sky fully as the area
+is only lightly wooded. The ground is littered with dead leaves that
+have decayed over time leaving the soil mostly moist with small shrubs
+growing everywhere. To the south, the ruined gray walls of a city
+rise, a gaping hole revealing a path into the city. Sharpened log
+palisades have been built on each side of the path.
+~
+15 33619968 5
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+P
+enter go approach~
+sturdy wooden tower~
+vstr You approach the center of the tower and climb the ladder positioned there.
+ostr $n approaches the center of the tower, and climbs the ladder positioned there.
+trans 15311
+atlook 15311
+ostr $n ascends the tower's ladder, stepping onto the platform.
+fi alldone
+~
+S
+#15313
+Street Running By Flattened Buildings~
+   The building to the west seem literally flattened. Supports,
+roofs, walls all have collapsed inwards, the top of this mess of
+debris pitted and scarred with old, broken arrows, large rocks
+and soot-streaked logs. It spills into the street, rendering the
+street slimmer than it once was, the grey cobblestones beneath
+only visible at intervals, churned dirt and mud in their place.
+A smell of cold ash wafts through here, lending the area even
+more of a dismal, forgotten atmosphere. A wall, pitted and scarred
+rises to the east, the foundations of an older wall crumbled at 
+its base. A small wooden sign bearing a horse is splayed atop one
+of the ruined buildings.
+
+   A wall of rope bound logs are set to the north, a wooden gate
+hung in the mid-section of the wall. There are wooden steps leading
+up to an archers platform on the eastern end of the wall.
+~
+15 1107361794 1
+0
+D0
+~
+gate~
+1 -1  0 15314
+D4
+~
+~
+0 -1  0 15315
+S
+#15314
+A Rubble-Strewn Street~
+   Lampposts, set at random intervals, run north and south here,
+rather large gaps in between each occupied with twisted, stricken
+heaps of metal which may at one time been copies of their still
+standing brethren. The lanterns have all long expired, some
+with shattered panes and others with twisted bodies. Heading 
+parallel to the lanterns is a large, confused jumble of rubble,
+only a few buildings peeking their grimy walls through. Those 
+few buildings visible are mostly one-story, made of grayish brown
+stone, though the couple of two-story buildings who have survived
+hold wooden walls, the paint long chipped with only remnants 
+remaining. A pitted and scarred wall rises opposite these.
+
+   Sharpened log palisades have been built to the south, a short 
+wall of rope lashed logs set behind them. A wooden gate reaches 
+across the path.
+~
+15 1107361792 1
+0
+D2
+~
+gate~
+1 -1  0 15313
+E
+stone~
+Upon closer inspection, one sees that the brown in this stone is not in fact part of the stone, but seems to be stains, intermingled with black spots.
+~
+S
+#15315
+Atop a Tower's Wooden Platform~
+   Fashioned of sturdy oaken planks, this tower rises above the rope
+bound log wall, offering a commanding view of the street to the north.
+The platform itself is surrounded by a low wooden railing, and is
+crowned by a slatted roof of wooden shingles that provide shelter 
+from the elements. A wooden ladder attached to the edge of the 
+platform provides access to the street below.
+~
+15 1140916240 0
+0
+D5
+~
+~
+0 -1  0 15313
+S
+#15316
+Falling out of the Bridge Tower~
+You seem to be falling... fast.
+~
+15 1073808384 0
+0
+D0
+~
+~
+0 -1  0 4473
+D1
+~
+~
+0 -1  0 4470
+D2
+~
+~
+0 -1  0 2974
+D3
+~
+~
+0 -1  0 4059
+D5
+~
+~
+0 -1  0 15312
+S
+#15317
+A Mahogany-Panelled Hallway, North of the Landing~
+   Fine, mahogany wood has been richly-stained to make up the 
+panels that line the walls and floor of this long hallway. 
+Silver-sconced lamps have been affixed equally-spaced along the 
+walls to provide ample lighting for those that pass this way, set 
+between doors that line either side that lead to private Fellow 
+Bedchambers. 
+   The hustle and bustle of the stairway landing can be heard to 
+the south. 
+~
+15 67174408 0
+0
+D1
+~
+ruby-red-door~
+1 15320  30 15320
+D2
+~
+~
+0 -1  0 15102
+D3
+~
+dark-blue-door~
+1 15322  30 15322
+S
+#15318
+A Mahogany-Panelled Hallway, West of the Landing~
+   Fine, mahogany wood has been richly-stained to make up the 
+panels that line the walls and floor of this long hallway. 
+Silver-sconced lamps have been affixed equally-spaced along the 
+walls to provide ample lighting for those that pass this way, set 
+between doors that line either side that lead to private Fellow 
+Bedchambers. 
+   The hustle and bustle of the stairway landing can be heard to 
+the east. 
+~
+15 67174408 0
+0
+D0
+~
+leaf-green-door~
+1 15330  30 15330
+D1
+~
+~
+0 -1  0 15102
+D2
+~
+earthen-brown-door~
+1 15328  30 15328
+S
+#15319
+A Mahogany-Panelled Hallway, South of the Landing~
+   Fine, mahogany wood has been richly-stained to make up the 
+panels that line the walls and floor of this long hallway. 
+Silver-sconced lamps have been affixed equally-spaced along the 
+walls to provide ample lighting for those that pass this way, set 
+between doors that line either side that lead to private Fellow 
+Bedchambers. 
+   The hustle and bustle of the stairway landing can be heard to 
+the north. 
+~
+15 67174408 0
+0
+D0
+~
+~
+0 -1  0 15102
+D1
+~
+midnight-black-door~
+1 15324  30 15324
+D3
+~
+pale-yellow-door~
+1 15326  30 15326
+S
+#15320
+A Modest, Grey-Painted Room~
+   This modestly-sized apartment room is large enough to hold a 
+few basic furniture pieces though and is simple, but elegant in 
+style. The walls are freshly-painted a soft, sage green and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There are two windows set into the 
+wall that overlook the grounds outside the complex while a single 
+archway leads into another room. 
+~
+15 65800 0
+0
+D0
+~
+curtain~
+1 -1  0 15321
+D3
+~
+door~
+1 15320  30 15317
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15320
+~
+S
+#15321
+A Comfortable Bedroom~
+   Like the main room of the home, the walls here are painted a 
+soft grey with simple molding in an eggshell white that runs 
+across the tops and bottoms of the walls. A single, curtained 
+window allows fresh air and light to stream in through the day 
+and a glass lamp set upon the wall allows for lighting in the 
+evening. The room itself is comfortable in feel but not very 
+large, only allowing for a few pieces of furniture. 
+~
+15 65800 0
+0
+D2
+~
+curtain~
+1 -1  0 15320
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15321
+~
+S
+#15322
+A Modest, Grey-Painted Room~
+   This modestly-sized apartment room is large enough to hold a 
+few basic furniture pieces though and is simple, but elegant in 
+style. The walls are freshly-painted a soft, sage green and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There are two windows set into the 
+wall that overlook the grounds outside the complex while a single 
+archway leads into another room. 
+~
+15 65800 0
+0
+D0
+~
+curtain~
+1 -1  0 15323
+D1
+~
+door~
+1 15322  30 15317
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15322
+~
+S
+#15323
+A Comfortable Bedroom~
+   Like the main room of the home, the walls here are painted a 
+soft grey with simple molding in an eggshell white that runs 
+across the tops and bottoms of the walls. A single, curtained 
+window allows fresh air and light to stream in through the day 
+and a glass lamp set upon the wall allows for lighting in the 
+evening. The room itself is comfortable in feel but not very 
+large, only allowing for a few pieces of furniture. 
+~
+15 65800 0
+0
+D2
+~
+curtain~
+1 -1  0 15322
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15323
+~
+S
+#15324
+A Modest, Grey-Painted Room~
+   This modestly-sized apartment room is large enough to hold a 
+few basic furniture pieces though and is simple, but elegant in 
+style. The walls are freshly-painted a soft, sage green and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There are two windows set into the 
+wall that overlook the grounds outside the complex while a single 
+archway leads into another room. 
+~
+15 65800 0
+0
+D2
+~
+curtain~
+1 -1  0 15325
+D3
+~
+door~
+1 15324  30 15319
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15324
+~
+S
+#15325
+A Comfortable Bedroom~
+   Like the main room of the home, the walls here are painted a 
+soft grey with simple molding in an eggshell white that runs 
+across the tops and bottoms of the walls. A single, curtained 
+window allows fresh air and light to stream in through the day 
+and a glass lamp set upon the wall allows for lighting in the 
+evening. The room itself is comfortable in feel but not very 
+large, only allowing for a few pieces of furniture. 
+~
+15 65800 0
+0
+D0
+~
+curtain~
+1 -1  0 15324
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15325
+~
+S
+#15326
+A Modest, Grey-Painted Room~
+   This modestly-sized apartment room is large enough to hold a 
+few basic furniture pieces though and is simple, but elegant in 
+style. The walls are freshly-painted a soft, sage green and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There are two windows set into the 
+wall that overlook the grounds outside the complex while a single 
+archway leads into another room. 
+~
+15 65800 0
+0
+D1
+~
+door~
+1 15326  30 15319
+D2
+~
+curtain~
+1 -1  0 15327
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15326
+~
+S
+#15327
+A Comfortable Bedroom~
+   Like the main room of the home, the walls here are painted a 
+soft grey with simple molding in an eggshell white that runs 
+across the tops and bottoms of the walls. A single, curtained 
+window allows fresh air and light to stream in through the day 
+and a glass lamp set upon the wall allows for lighting in the 
+evening. The room itself is comfortable in feel but not very 
+large, only allowing for a few pieces of furniture. 
+~
+15 65800 0
+0
+D0
+~
+curtain~
+1 -1  0 15326
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15327
+~
+S
+#15328
+A Modest, Grey-Painted Room~
+   This modestly-sized apartment room is large enough to hold a 
+few basic furniture pieces though and is simple, but elegant in 
+style. The walls are freshly-painted a soft, sage green and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There are two windows set into the 
+wall that overlook the grounds outside the complex while a single 
+archway leads into another room. 
+~
+15 65800 0
+0
+D0
+~
+door~
+1 15328  30 15318
+D3
+~
+curtain~
+1 -1  0 15329
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15328
+~
+S
+#15329
+A Comfortable Bedroom~
+   Like the main room of the home, the walls here are painted a 
+soft grey with simple molding in an eggshell white that runs 
+across the tops and bottoms of the walls. A single, curtained 
+window allows fresh air and light to stream in through the day 
+and a glass lamp set upon the wall allows for lighting in the 
+evening. The room itself is comfortable in feel but not very 
+large, only allowing for a few pieces of furniture. 
+~
+15 65800 0
+0
+D1
+~
+curtain~
+1 -1  0 15328
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15329
+~
+S
+#15330
+A Modest, Grey-Painted Room~
+   This modestly-sized apartment room is large enough to hold a 
+few basic furniture pieces though and is simple, but elegant in 
+style. The walls are freshly-painted a soft, sage green and a 
+simple molding in an eggshell white color runs across the tops 
+and bottoms of the walls. There are two windows set into the 
+wall that overlook the grounds outside the complex while a single 
+archway leads into another room. 
+~
+15 65800 0
+0
+D2
+~
+door~
+1 15330  30 15318
+D3
+~
+curtain~
+1 -1  0 15331
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15330
+~
+S
+#15331
+A Comfortable Bedroom~
+   Like the main room of the home, the walls here are painted a 
+soft grey with simple molding in an eggshell white that runs 
+across the tops and bottoms of the walls. A single, curtained 
+window allows fresh air and light to stream in through the day 
+and a glass lamp set upon the wall allows for lighting in the 
+evening. The room itself is comfortable in feel but not very 
+large, only allowing for a few pieces of furniture. 
+~
+15 65800 0
+0
+D1
+~
+curtain~
+1 -1  0 15330
+P
+open close adjust~
+window curtains~
+vstr You move over to the windows to adjust the curtains.
+ostr $n moves over to the window to adjust the curtains.
+rftog indoors 15331
+~
+S
+#15117
+Rushing Air Towards the Alley~
+   Heading down to the alley below. 
+~
+15 66560 1
+0
+D4
+~
+~
+0 -1  0 22997
+D5
+~
+~
+0 -1  0 22258
+S
+#15530
+Plunging to the Alley Below~
+Falling through the air toward a filth-strewn alley
+~
+15 66560 3
+0
+D4
+~
+~
+0 -1  0 22656
+D5
+~
+~
+0 -1  0 22637
+S
+#15332
+A Damp Cellar~
+   Though set high above the river to escape the worst of any 
+flooding, still this dank room is moist with damp and 
+heavily-scented with rot and mould. Overpowering this though is 
+the stench of charred flesh and bones. Dark patches bear tribute 
+to the feats of those who triumphed here long ago and disposed of 
+so many hundreds of citizens who once called this city their 
+home. 
+   A vertical ladder offers escape to the hovel above. 
+~
+15 134285580 0
+0
+D4
+~
+~
+0 -1  0 22566
+S
+#15333
+Falling Through the Air~
+   Down towards the street. 
+~
+15 66560 3
+0
+S
+#15334
+Falling Through The Air~
+   Whoosh. 
+~
+15 66560 1
+0
+D4
+~
+~
+0 -1  0 22028
+D5
+~
+~
+0 -1  0 22384
+S
+#15335
+Looking Out Over The Eastern Palisade~
+   The western section of the palisade offers a low platform from 
+which archers can draw their bows and stare eastwards to the city 
+street. 
+~
+15 65538 3
+0
+D3
+~
+~
+0 -1  0 22382
+D5
+~
+~
+0 -1  0 15336
+S
+#15336
+Through the Air~
+Whoosh!
+~
+15 66560 3
+0
+D4
+~
+~
+0 -1  0 15335
+D5
+~
+~
+0 -1  0 22383
+S
+#15337
+Looking Out Over The Southern Palisade~
+   The northern section of the palisade offers a low platform 
+from which archers can draw their bows and stare southwards to 
+the city street. 
+~
+15 65538 3
+0
+D0
+~
+~
+0 -1  0 22382
+D5
+~
+~
+0 -1  0 15338
+S
+#15338
+Falling Down~
+Whoosh.
+~
+15 66560 3
+0
+D4
+~
+~
+0 -1  0 15337
+D5
+~
+~
+0 -1  0 22416
+S
+#15339
+Looking Out Over The Northern Palisade~
+   The southern section of the palisade offers a low platform 
+from which archers can draw their bows and stare northwards to 
+the city street. 
+~
+15 65538 3
+0
+D2
+~
+~
+0 -1  0 22382
+D5
+~
+~
+0 -1  0 15340
+S
+#15340
+In the Air~
+Whoosh
+~
+15 66560 3
+0
+D4
+~
+~
+0 -1  0 15339
+D5
+~
+~
+0 -1  0 22415
+S
+#15341
+A Steep Dug Out Tunnel~
+   Under crumbling blocks of Dome roofing, iron sections of wall 
+supports, great pillars propping up the mass of twisted girding 
+and masonry, this tunnel descends from the east to the west. It 
+is a long and expansive passageway, strewn with bones and old 
+rusting equipment and armor of many past battles. 
+~
+15 33619978 0
+0
+D1
+~
+~
+0 -1  0 22110
+D3
+~
+~
+0 -1  0 22108
+S
+#15342
+A Bone Stairwell~
+   A rising stairwell of bones, skulls and little more, wraps 
+around a desecrated pillar where once the faces of Kings were 
+carved. Now they are formless faces, the features chiseled or 
+torn away. This stairwell winds up to a small opening and down 
+to a large chamber. 
+~
+15 134285326 0
+0
+D2
+~
+~
+0 -1  0 22108
+D4
+~
+~
+0 -1  0 15343
+S
+#15343
+A Rubble Platform Above the Great Dome~
+   A small platform here climb out of a stairwell of bone below. 
+To the west a larger protruding section of collapsed roofing 
+extends over the street below. 
+~
+15 65542 1
+0
+D3
+~
+~
+0 -1  0 15344
+D5
+~
+~
+0 -1  0 15342
+S
+#15344
+The Edge Of A Large Collapse On the Great Dome~
+   Looking down from here the street below can be seen. To the 
+north a burnt out tower lays charred and dulled. To the south 
+the ruins of the Dome rise up blocking access. Eastwards a hole 
+can be seen in the rubble, leading out of sight, though the roof 
+collapse rises just beyond. 
+~
+15 65542 1
+0
+D1
+~
+~
+0 -1  0 15343
+D3
+~
+~
+0 -1  0 15346
+D5
+~
+~
+0 -1  0 15345
+S
+#15345
+Falling Through The Air~
+Whoosh.
+~
+15 66560 3
+0
+D4
+~
+~
+0 -1  0 15344
+D5
+~
+~
+0 -1  0 22392
+S
+#15346
+Falling Through The Air~
+   Whoosh 
+~
+15 66560 3
+0
+D1
+~
+~
+0 -1  0 15344
+D3
+~
+~
+0 -1  0 22388
+D5
+~
+~
+0 -1  0 22392
+S
+#15347
+A Large Master Bedroom~
+   Lovingly crafted with flawless maple boards, the floors of 
+this bedroom are polished and sealed by a careful hand. The 
+walls, wooden as well, are covered in grand carvings and 
+etchings. Scenes depicting the White Tree, and often times 
+groups of soldiers gathered about are carefully engraved into the 
+main portions of the walls. The ceiling itself has been married 
+perfectly with the walls, the smooth boards beautifully engraved 
+with one great, massive image of the White Tree. 
+
+
+   The door to the west is made from solid oak, with engraved 
+sigils about it. 
+~
+15 65536 0
+0
+D3
+~
+engraved-oak-door~
+1 15167  60 15306
+S
+#15348
+A Broad Causeway~
+   Relatively recent construction has extended this causeway as 
+it leads eastward toward a pair of branching towers jutting up 
+from a broad ancient city wall. They bracket an enormous 
+portcullis and gate. The road has been constructed of large well 
+hewn granite slabs which have been expertly lain. The cobbles 
+have been lain in an alternating pattern of black and white 
+checkerboard. 
+~
+15 67436564 0
+0
+D1
+~
+~
+0 -1  0 2100
+S
+$~

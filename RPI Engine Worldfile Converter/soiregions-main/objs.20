@@ -1,0 +1,270 @@
+#20000
+__hmas_example_docked_tur_edendor __docked_port_object OTHER~
+a generic object~
+The HMAS Example is docked at Tur-Edendor.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20001
+__hmas_example_docked_haven __docked_port_object OTHER~
+a generic object~
+The HMAS Example is docked at Haven, Umbar.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20002
+__destination_port_object OTHER~
+a generic object~
+The Ship is sailing towards Haven, Umbar.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 20 0 0
+#20003
+__destination_port_object OTHER~
+a generic object~
+The Ship is sailing towards Tur Edendor.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 20 0 0
+#20004
+__morphing_ship_object __0_hours_to_go OTHER~
+a generic object~
+The ship is ready to dock.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20005
+__morphing_ship_object __6_hours_to_go OTHER~
+a generic object~
+The ship is getting nearer to the destination.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 20004 0 0 0 0
+#20006
+__morphing_ship_object __12_hours_to_go OTHER~
+a generic object~
+The ship is far from the destination.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 20005 0 0 0 0
+#20007
+infirmary_aide infirmary aide messages board OTHER~
+#5an infirmary aide~
+#5An infirmary aide stands here, passing messages.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20008
+medal shining silver UNIQUE_2479COMPETITION crossed sword spear OTHER~
+a shining, silver medal with a crossed sword and spear~
+A shining, silver medal with a crossed sword and spear lies here.~
+   Simple in design and craft, this silver medal shines brightly. 
+The metal has been shaped into a sword and spear, the former 
+crossed over the top of the latter. Etched carefully along the 
+length of the blade are four digits, '2479', the sigils flowing 
+gently and gracefully. Affixed to the back of this medal is a 
+simple pin, allowing the badge to be affixed to an article of 
+clothing. 
+~
+12 4096 10485761
+0 0 0 0
+15 0.000000
+0 0 0 0 516 0 1
+150.000000 0 0 0 0 0 0
+#20010
+jacket~
+a leather jacket~
+a heavy leather jacket~
+~
+9 4620 1
+2 0 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20240
+kevlar pair underpants eyeholes TEXTILE~
+a pair kevlar underpants cut with eyeholes~
+A pair kevlar underpants cut with eyeholes are piled here.~
+   This pitch black mass of material is masterfully weaved into a 
+protective undergarment. Fashioned out of the highest quality 
+kevlar, it would prove protective against bullets and the weather 
+alike. Cut and sitched into either side of the piece are two 
+almond-shaped holes, indistinct in their purpose. 
+~
+9 528392 16
+2 3 0 0
+700 0.000000
+0 
+~
+0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20011
+underpants flowery TEXTILE~
+a pair of flowery underpants~
+A pair of flowery underpants lies here.~
+Engraved with various flowers of all shapes and sizes, this pair of
+underpants fastens with a large, pink bow.
+~
+9 4104 17
+2 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20241
+gigantic rock debris gravity bed STONE~
+a gigantic piece of still space debris~
+A gigantic piece of still space debris float here, commanding gravity.~
+   Made up of little more than rocks, this large cluster has 
+developed to be the central point of this system. The various 
+grey and black rocks have melded together to form a single jagged 
+mass that rotates slowly in comparison to the sweeping 
+revolutions of its appendages. 
+~
+15 2101256 0
+100 0 -1 0
+300 0.000000
+0 3 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20242
+sun ball ever burning LIQUID~
+an ever burning sun~
+A swirling ball of ever burning plasma floats here, way off in the distance.~
+   The true size of this orb is impossible to discern, as is its 
+distance from you. The heat it emits is enough to offset the 
+frigid chill of the vacuum, which offers some insight in to its 
+power. White at the center, this ball pulses with every shade of 
+yellow and orange along with the various darker spots of black 
+that scatter along its surface. 
+~
+1 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 12 20248 0 0 0 0
+#20243
+capsule spaceship METAL~
+the age old capsule of a spaceship~
+The age old capsule of a spaceship float here.~
+   This metal husk has not seen the kind side of time, chipped 
+and aged. The paint that once coated its metallic surface 
+savaged by the numerous contacts it has made in its orbit. Yet 
+clear on its side is a red flag that bears a tiny yellow star in 
+the far corner, unharmed by time or space. The top hatch of this 
+massive capsule is hinged, allowing anyone to pull from its 
+contents at will. 
+~
+15 4104 0
+1000 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20246
+aging shotgun solid gold METAL~
+an aging shotgun of burnished gold~
+An aging shotgun of burnished gold rests here on its side.~
+~
+5 4096 532481
+3 2 5 18
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20244
+crimson leather ammo belt LEATHER~
+a crimson leather ammo belt~
+a crimson leather ammo belt~
+   The many bullets lining this red leather belt are its most 
+obvious feature, the lead tips pointing out of each small strap 
+holding them in place. There is whimsical text trailing along 
+the surface, quoting the lyrics to a song by the name of Starless 
+in yellow lettering. 
+~
+57 4096 2049
+12 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20245
+Book Saturday PARCHMENT~
+The Book of Saturday~
+Here is The Book of Saturday, in all of its glory.~
+~
+54 4616 2097153
+0 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20247
+large flat-topped cooking grill METAL~
+a large, flat-topped cooking grill with a hinged lid~
+A large, flat-topped cooking grill with a hinged lid stands here, ever burning.~
+   Made out of dark iron, this charcoal grill stands about four 
+feet high at its cooking surface. The charred metal along the 
+inside of the hood and the entire cooking grid make apparent that 
+it has seen many uses over a prolonged period of time. 
+Underneath the grid slumbers a stack of glowing embers that 
+radiate intense here should the hood be opened. Set on the face 
+of the hood next to the temperature gauge is a little marking 
+that bears the words "TilianCo". 
+~
+15 4096 1
+2000 1 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20248
+Luminous glowing gray full moon STONE~
+a luminous gray full moon~
+Glowing luminously, a gray full moon is suspended here.~
+   This massive grey sphere hides an impossible distance away, 
+which can be attributed to the lack of nearby objects to offer 
+perspective. Marring the surface of this rock is a clear face. 
+This face can only be seen if you tilt your head to side and 
+squint really hard and strongly resembles the actor Ben Kingsley. 
+~
+1 4104 0
+100 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#20249
+screaming mask UNIQUEADMIN TILIAN TEXTILE~
+a screaming mask~
+A mask painted with a pink screaming face.~
+   This mask bears the fleshy face of a man, in the shade of deep 
+pink. The shadows are obtuse , painted in blues and purples. 
+His face is panicked with flaring nostriled and wide eye. A 
+screaming mawl bears many crooked white teeth, the mouth wide 
+open to show all the way down his throat. 
+~
+9 528384 67108865
+0 0 0 0
+100 0.000000
+0 
+screaming-face-masked~
+0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

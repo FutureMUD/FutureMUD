@@ -1,0 +1,5439 @@
+#74000
+Base Room~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+74 67174408 0
+0
+S
+#74001
+Grassy Slope of the Anduin~
+   The farmlands of South Ithilien come to a gradual end as the
+ground slips beneath the brisk waters of the River Anduin west,
+the lands about the riverbank clear of any cultivation and home 
+to nothing more than a flourishing of shoreside trees and tall 
+grasses. Just as the terrain slopes down from east to west, so
+does it fall gradually from the distant white plateau of Emyn
+Arnen north to a ford of rivers southward.
+~
+74 1073807360 13
+0
+D1
+~
+~
+0 -1  0 74002
+D2
+~
+~
+0 -1  0 74005
+D3
+~
+~
+0 -1  0 10563
+S
+#74002
+Shore of the River Anduin~
+   West, the waters of the River Anduin run, far from the 
+frenzied rush from which the currents surge to the north, but 
+still fast enough to easily drag under all but the greatest of
+swimmers. The shore here of loose dirt descends slowly under the
+cold flow, the occasional coniferous tree sprouting out along the
+riverbank or large rock rising out a short distance in the water.
+The opposite bank of the river lies far to the west, barely 
+visible against the course of the river.
+~
+74 1073807360 13
+0
+D0
+~
+~
+0 -1  0 10544
+D1
+~
+~
+0 -1  0 74003
+D2
+~
+~
+0 -1  0 74006
+D3
+~
+~
+0 -1  0 74001
+S
+#74003
+Farmlands Bordered North and East by Forest~
+   While the eastern horizon is dominated by the bleak peaks of 
+the Ephel Duath that rise above the thin woodlands and barren 
+plains of South Ithilien, here, vibrant crops grow year round, 
+tended by the peasantry of Gondor that works the fields under the 
+watchful shadow of the southwest-ward orc-inhabited stony bluff. 
+Spread between the fields and pastures is the occasional 
+green-watered dam. 
+~
+74 1107361792 4
+0
+D0
+~
+~
+0 -1  0 10545
+D1
+~
+~
+0 -1  0 10567
+D2
+~
+~
+0 -1  0 74007
+D3
+~
+~
+0 -1  0 74002
+S
+#74004
+Sloping Dirt Bank Leading West in to a River~
+   West, the waters of the River Anduin run, far from the 
+frenzied rush from which the currents surge to the north, but 
+still fast enough to easily drag under all but the greatest of
+swimmers. The shore here of loose dirt descends slowly under the
+cold flow, the occasional coniferous tree sprouting out along the
+riverbank or large rock rising out a short distance in the water.
+The opposite bank of the river lies far to the west, barely 
+visible against the course of the river.
+~
+74 1073807360 13
+0
+D0
+~
+~
+0 -1  0 10563
+D1
+~
+~
+0 -1  0 74005
+D2
+~
+~
+0 -1  0 74009
+S
+#74005
+Fertile, Rolling Hills~
+   The normal rolling landscape of South Ithilien smooths to a 
+flat, fertile stretch of land, occupied by hardworking farmers 
+that have made numerous cottages to live in as they tend the rows 
+of crops that grow in plentifully here. During the night, the 
+only lights are those that twinkle in the distant orc-inhabited 
+stony bluff that sits above the fief, to the southeast. 
+~
+74 1208287232 4
+0
+D0
+~
+~
+0 -1  0 74001
+D1
+~
+~
+0 -1  0 74006
+D2
+~
+~
+0 -1  0 74010
+D3
+~
+~
+0 -1  0 74004
+S
+#74006
+Fertile Croplands, Near a Rocky Bluff~
+   While the eastern horizon is dominated by the bleak peaks of 
+the Ephel Duath that rise above the thin woodlands and barren 
+plains of South Ithilien, here, vibrant crops grow year round, 
+tended by the peasantry of Gondor that works the fields under the 
+watchful shadow of the south-ward orc-inhabited stony bluff. 
+Spread between the fields and pastures is the occasional 
+green-watered dam. 
+~
+74 1208287232 4
+0
+D0
+~
+~
+0 -1  0 74002
+D1
+~
+~
+0 -1  0 74007
+D3
+~
+~
+0 -1  0 74005
+S
+#74007
+Fertile Fieldlands~
+   Tended fields grow bountiful crops in this section of South 
+Ithilien, farmers seen tending to their flocks and produce, 
+housed in the numerous daub and wattle cottages that populate the 
+green, fallow hills. Numerous paths and wagon tracks cut across 
+the cultivated lands, leading between the various farmsteads and 
+towards the orc-inhabited stony bluff located on a hill to the 
+southwest. 
+~
+74 1208287232 4
+0
+D0
+~
+~
+0 -1  0 74003
+D1
+~
+~
+0 -1  0 74008
+D2
+~
+~
+0 -1  0 74011
+D3
+~
+~
+0 -1  0 74006
+S
+#74008
+Fields Bordered North and East by a Forest~
+   Long rows of tilled earth bear crops year round in these lush
+lands of South Ithilien, broken every now and again by a grouping
+of peasant cottages or orchids of fruit bearing trees. The 
+farmlands continue for some distance, but surrounding it to the 
+north, east and south is a thin forest of firs, spruces and 
+cedars that roll down from Emyn Arnen to the north.
+~
+74 1107361792 4
+0
+D0
+~
+~
+0 -1  0 10567
+D2
+~
+~
+0 -1  0 74012
+D3
+~
+~
+0 -1  0 74007
+S
+#74009
+South-East of the River Anduin~
+   The farmlands of South Ithilien come to a gradual end as the
+ground slips beneath the brisk waters of the River Anduin west,
+the lands about the riverbank clear of any cultivation and home 
+to nothing more than a flourishing of shoreside trees and tall 
+grasses. Just as the terrain slopes down from east to west, so
+does it fall gradually from the distant white plateau of Emyn
+Arnen north to a ford of rivers southward.
+~
+74 1073807360 13
+0
+D0
+~
+~
+0 -1  0 74004
+D1
+~
+~
+0 -1  0 74010
+D2
+~
+~
+0 -1  0 74013
+D3
+~
+~
+0 -1  0 10602
+S
+#74010
+Fertile Croplands~
+   While the eastern horizon is dominated by the bleak peaks of 
+the Ephel Duath that rise above the thin woodlands and barren 
+plains of South Ithilien, here, vibrant crops grow year round, 
+tended by the peasantry of Gondor that works the fields under the 
+watchful shadow of the east-ward orc-inhabited stony bluff. 
+Spread between the fields and pastures is the occasional 
+green-watered dam. 
+~
+74 1208287248 4
+0
+D0
+~
+~
+0 -1  0 74005
+D2
+~
+~
+0 -1  0 74014
+D3
+~
+~
+0 -1  0 74009
+S
+#74011
+Fertile Orchards and Fields~
+   Long rows of tilled earth bear crops year round in these lush
+lands of South Ithilien, broken every now and again by a grouping
+of peasant cottages or orchards of fruit bearing trees. The 
+farmlands continue for some distance, but surrounding it to the 
+north, east and south is a thin forest of firs, spruces and 
+cedars that roll down from Emyn Arnen to the north.
+~
+74 1073807360 4
+0
+D0
+~
+~
+0 -1  0 74007
+D1
+~
+~
+0 -1  0 74012
+D2
+~
+~
+0 -1  0 74016
+S
+#74012
+Fertile Fieldlands~
+   Fields left fallow, to grow only tall, green grasses, roam
+across this part of this small, South Ithilien fiefdom, small
+animals such as fieldmice and rabbits seen making their way 
+through the undergrowth. Elsewhere, farmers work the land, but
+are careful to keep a safe distance from any outsiders that may
+travel along the rickety dirt paths that cut through the fief.
+~
+74 1107361792 4
+0
+D0
+~
+~
+0 -1  0 74008
+D2
+~
+~
+0 -1  0 74017
+D3
+~
+~
+0 -1  0 74011
+S
+#74013
+Gentle Farmland~
+   While the eastern horizon is dominated by the bleak peaks of 
+the Ephel Duath that rise above the thin woodlands and barren 
+plains of South Ithilien, here, vibrant crops grow year round, 
+tended by the peasantry of Gondor that works the fields under the 
+watchful shadow of the north-eastward orc-inhabited stony bluff. 
+Spread between the fields and pastures is the occasional 
+green-watered dam. 
+~
+74 1107361792 4
+0
+D0
+~
+~
+0 -1  0 74009
+D1
+~
+~
+0 -1  0 74014
+D3
+~
+~
+0 -1  0 10623
+S
+#74014
+Through Tended Fields, Near a Rocky Bluff~
+   Tended fields grow bountiful crops in this section of South 
+Ithilien, farmers seen tending to their flocks and produce, 
+housed in the numerous daub and wattle cottages that populate the 
+green, fallow hills. Numerous paths and wagon tracks cut across 
+the cultivated lands, leading between the various farmsteads and 
+towards the orc-inhabited stony bluff located on a hill to the 
+northeast. 
+~
+74 134545408 4
+0
+D0
+~
+~
+0 -1  0 74010
+D1
+~
+~
+0 -1  0 74015
+D3
+~
+~
+0 -1  0 74013
+S
+#74015
+South of an Orc-Infested Bluff~
+   Long rows of tilled earth bear crops year round in these lush
+lands of South Ithilien, broken every now and again by a grouping
+of peasant cottages or orchids of fruit bearing trees. The 
+farmlands continue for some distance, but surrounding it to the 
+north, east and south is a thin forest of firs, spruces and 
+cedars that roll down from Emyn Arnen to the north.
+~
+74 134545408 4
+0
+D1
+~
+~
+0 -1  0 74016
+D3
+~
+~
+0 -1  0 74014
+S
+#74016
+Fallow Fields in the Ithilien~
+   Fields left fallow, to grow only tall, green grasses, roam
+across this part of this small, South Ithilien fiefdom, small
+animals such as fieldmice and rabbits seen making their way 
+through the undergrowth. Elsewhere, farmers work the land, but
+are careful to keep a safe distance from any outsiders that may
+travel along the rickety dirt paths that cut through the fief.
+~
+74 134545408 4
+0
+D0
+~
+~
+0 -1  0 74011
+D1
+~
+~
+0 -1  0 74017
+D2
+~
+~
+0 -1  0 74020
+D3
+~
+~
+0 -1  0 74015
+S
+#74017
+A Fertile Field, Near the Forest~
+   The normal rolling landscape of South Ithilien smooths to a 
+flat, fertile stretch of land, occupied by hardworking farmers 
+that have made numerous cottages to live in as they tend the rows 
+of crops that grow in plentifully here. During the night, the 
+only lights are those that twinkle in the distant orc-inhabited 
+stony bluff that sits above the fief, to the northwest. 
+~
+74 33619968 4
+0
+D0
+~
+~
+0 -1  0 74012
+D2
+~
+~
+0 -1  0 10651
+D3
+~
+~
+0 -1  0 74016
+S
+#74018
+Through Orchards and Farmland~
+   Long rows of tilled earth bear crops year round in these lush
+lands of South Ithilien, broken every now and again by a grouping
+of peasant cottages or orchards of fruit bearing trees. The 
+farmlands continue for some distance, but surrounding it to the 
+north, east and south is a thin forest of firs, spruces and 
+cedars that roll down from Emyn Arnen to the north.
+~
+74 1107361792 4
+0
+D1
+~
+~
+0 -1  0 74019
+D2
+~
+~
+0 -1  0 10671
+D3
+~
+~
+0 -1  0 10647
+S
+#74019
+Through Fallow Fields~
+   Fields left fallow, to grow only tall, green grasses, roam
+across this part of this small, South Ithilien fiefdom, small
+animals such as fieldmice and rabbits seen making their way 
+through the undergrowth. Elsewhere, farmers work the land, but
+are careful to keep a safe distance from any outsiders that may
+travel along the rickety dirt paths that cut through the fief.
+~
+74 1107361792 4
+0
+D2
+~
+~
+0 -1  0 10672
+D3
+~
+~
+0 -1  0 74018
+S
+#74020
+Fertile Fields, Just North of the Trees~
+   The normal rolling landscape of South Ithilien smooths to a 
+flat, fertile stretch of land, occupied by hardworking farmers 
+that have made numerous cottages to live in as they tend the rows 
+of crops that grow in plentifully here. During the night, the 
+only lights are those that twinkle in the distant orc-inhabited 
+stony bluff that sits above the fief, to the northwest. 
+~
+74 1107361792 4
+0
+D0
+~
+~
+0 -1  0 74016
+D1
+~
+~
+0 -1  0 10651
+S
+#74021
+Southern Crude Battlements of the Orkish Fort~
+   A crude battlements have been carved out of the dark, greyish 
+stony bluff that dominates South Ithilien here. Dark, ragged 
+flags of human flesh and totems of bone decorated with chimes of 
+stripped knuckles have been speared in to the flat, plateau-top 
+of the rock, the grisly totems clattering and spinning whenever a 
+breeze picks up. A rough rim of stone, waist high, runs along 
+the outside of the bluff, granting a commanding view of the drab, 
+peasant-inhabited fields around this Orkish fort. 
+~
+74 1073807368 0
+0
+D0
+~
+~
+0 -1  0 74029
+D1
+~
+~
+0 -1  0 74022
+D2
+~
+~
+0 -1  0 12719
+D3
+~
+~
+0 -1  0 74028
+S
+#74022
+Southern Crude Battlements of the Orkish Fort~
+   A crude battlements have been carved out of the dark, greyish 
+stony bluff that dominates South Ithilien here. Dark, ragged 
+flags of human flesh and totems of bone decorated with chimes of 
+stripped knuckles have been speared in to the flat, plateau-top 
+of the rock, the grisly totems clattering and spinning whenever a 
+breeze picks up. A rough rim of stone, waist high, runs along 
+the outside of the bluff, granting a commanding view of the drab, 
+peasant-inhabited fields around this Orkish fort. 
+~
+74 1073807360 0
+0
+D0
+~
+~
+0 -1  0 74023
+D1
+~
+~
+0 -1  0 12720
+D2
+~
+~
+0 -1  0 12720
+D3
+~
+~
+0 -1  0 74021
+S
+#74023
+Southern Crude Battlements of the Orkish Fort~
+   A crude battlements have been carved out of the dark, greyish 
+stony bluff that dominates South Ithilien here. Dark, ragged 
+flags of human flesh and totems of bone decorated with chimes of 
+stripped knuckles have been speared in to the flat, plateau-top 
+of the rock, the grisly totems clattering and spinning whenever a 
+breeze picks up. A rough rim of stone, waist high, runs along 
+the outside of the bluff, granting a commanding view of the drab, 
+peasant-inhabited fields around this Orkish fort. 
+~
+74 1073807360 0
+0
+D0
+~
+~
+0 -1  0 74024
+D1
+~
+~
+0 -1  0 12721
+D2
+~
+~
+0 -1  0 74022
+D3
+~
+~
+0 -1  0 74029
+S
+#74024
+Southern Crude Battlements of the Orkish Fort~
+   A crude battlements have been carved out of the dark, greyish 
+stony bluff that dominates South Ithilien here. Dark, ragged 
+flags of human flesh and totems of bone decorated with chimes of 
+stripped knuckles have been speared in to the flat, plateau-top 
+of the rock, the grisly totems clattering and spinning whenever a 
+breeze picks up. A rough rim of stone, waist high, runs along 
+the outside of the bluff, granting a commanding view of the drab, 
+peasant-inhabited fields around this Orkish fort. 
+~
+74 1073807360 0
+0
+D0
+~
+~
+0 -1  0 12722
+D1
+~
+~
+0 -1  0 12722
+D2
+~
+~
+0 -1  0 74023
+D3
+~
+~
+0 -1  0 74025
+S
+#74025
+Southern Crude Battlements of the Orkish Fort~
+   A crude battlements have been carved out of the dark, greyish 
+stony bluff that dominates South Ithilien here. Dark, ragged 
+flags of human flesh and totems of bone decorated with chimes of 
+stripped knuckles have been speared in to the flat, plateau-top 
+of the rock, the grisly totems clattering and spinning whenever a 
+breeze picks up. A rough rim of stone, waist high, runs along 
+the outside of the bluff, granting a commanding view of the drab, 
+peasant-inhabited fields around this Orkish fort. 
+~
+74 1073807360 0
+0
+D0
+~
+~
+0 -1  0 12723
+D1
+~
+~
+0 -1  0 74024
+D2
+~
+~
+0 -1  0 74029
+D3
+~
+~
+0 -1  0 74026
+S
+#74026
+Southern Crude Battlements of the Orkish Fort~
+   A crude battlements have been carved out of the dark, greyish 
+stony bluff that dominates South Ithilien here. Dark, ragged 
+flags of human flesh and totems of bone decorated with chimes of 
+stripped knuckles have been speared in to the flat, plateau-top 
+of the rock, the grisly totems clattering and spinning whenever a 
+breeze picks up. A rough rim of stone, waist high, runs along 
+the outside of the bluff, granting a commanding view of the drab, 
+peasant-inhabited fields around this Orkish fort. 
+~
+74 1073807360 0
+0
+D0
+~
+~
+0 -1  0 12724
+D1
+~
+~
+0 -1  0 74025
+D2
+~
+~
+0 -1  0 74027
+D3
+~
+~
+0 -1  0 12724
+S
+#74027
+Southern Crude Battlements of the Orkish Fort~
+   A crude battlements have been carved out of the dark, greyish 
+stony bluff that dominates South Ithilien here. Dark, ragged 
+flags of human flesh and totems of bone decorated with chimes of 
+stripped knuckles have been speared in to the flat, plateau-top 
+of the rock, the grisly totems clattering and spinning whenever a 
+breeze picks up. A rough rim of stone, waist high, runs along 
+the outside of the bluff, granting a commanding view of the drab, 
+peasant-inhabited fields around this Orkish fort. 
+~
+74 1073807360 0
+0
+D0
+~
+~
+0 -1  0 74026
+D1
+~
+~
+0 -1  0 74029
+D2
+~
+~
+0 -1  0 74028
+D3
+~
+~
+0 -1  0 12725
+S
+#74028
+Southern Crude Battlements of the Orkish Fort~
+   A crude battlements have been carved out of the dark, greyish 
+stony bluff that dominates South Ithilien here. Dark, ragged 
+flags of human flesh and totems of bone decorated with chimes of 
+stripped knuckles have been speared in to the flat, plateau-top 
+of the rock, the grisly totems clattering and spinning whenever a 
+breeze picks up. A rough rim of stone, waist high, runs along 
+the outside of the bluff, granting a commanding view of the drab, 
+peasant-inhabited fields around this Orkish fort. 
+~
+74 1073807360 0
+0
+D0
+~
+~
+0 -1  0 74027
+D1
+~
+~
+0 -1  0 74021
+D2
+~
+~
+0 -1  0 12726
+D3
+~
+~
+0 -1  0 12726
+S
+#74029
+Top of the Orkish Fort~
+   The flat top of the rocky bluff colonised by orcs and goblins 
+is decorated with numerous totems and flags of human skin, skulls 
+of various animals and humanoids rammed through spears, decaying 
+corpses being attacked by scavenger birds, and all other manner 
+of grisly, gruesome trophies. The rock underfoot is pocked and 
+uneven, the stone of a dark greyish hue and somewhat cracked 
+towards the centre of the area. Four narrow carved paths lead 
+down to the waist-height parapet that runs about the edge of the 
+fort-bluff. 
+~
+74 1073807360 0
+0
+D0
+~
+~
+0 -1  0 74025
+D1
+~
+~
+0 -1  0 74023
+D2
+~
+~
+0 -1  0 74021
+D3
+~
+~
+0 -1  0 74027
+S
+#74030
+New Room~
+No Description Set.
+~
+74 65536 0
+0
+D0
+~
+portcullis~
+1 -1  0 74035
+D1
+~
+~
+0 -1  0 74037
+D2
+~
+~
+0 -1  0 74031
+D3
+~
+~
+0 -1  0 74036
+S
+#74031
+New Room~
+No Description Set.
+~
+74 65536 0
+0
+D0
+~
+~
+0 -1  0 74030
+D1
+~
+~
+0 -1  0 74033
+D2
+~
+~
+0 -1  0 74034
+D3
+~
+~
+0 -1  0 74032
+S
+#74032
+New Room~
+No Description Set.
+~
+74 65536 0
+0
+D1
+~
+~
+0 -1  0 74031
+S
+#74033
+New Room~
+No Description Set.
+~
+74 65536 0
+0
+D3
+~
+~
+0 -1  0 74031
+S
+#74034
+New Room~
+No Description Set.
+~
+74 65536 0
+0
+D0
+~
+~
+0 -1  0 74031
+S
+#74035
+New Room~
+No Description Set.
+~
+74 65536 0
+0
+D2
+~
+portcullis~
+1 -1  0 74030
+S
+#74036
+New Room~
+No Description Set.
+~
+74 65536 0
+0
+D1
+~
+~
+0 -1  0 74030
+S
+#74037
+New Room~
+No Description Set.
+~
+74 65536 0
+0
+D3
+~
+~
+0 -1  0 74030
+S
+#74038
+Rolling Hills East of a White Cliff~
+   Rolling hills extend in every direction, covered in thick 
+grasses which range from two to four feet in height. The land 
+has a wild, unconquered look to it and has so far fought off any 
+attempts to cultivate it, though the local wildlife has worn 
+narrow tracks which allow passage through the more thickly 
+vegetated areas. The light brown earth is only visible in areas 
+where an ancient trickle of water may have once carved a ravine 
+in ages past. 
+   To the west, the chalky-white plateau of Emyn Arnen rises 
+above South Ithilien. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 10372
+D1
+~
+~
+0 -1  0 74039
+D2
+~
+~
+0 -1  0 74045
+S
+#74039
+Patchy, Scrub-Dotted Hills ~
+   The ground here is rather arid, dotted with small, green and 
+brown shrubs and a mixture of yellow and pale-green grasses. 
+Travel is made easy by the hardened earth, though there is 
+neither sign of civilization, nor any reason for one to travel 
+here apparent. The lands to the north seem greener, while 
+rolling hills raise out from the ground to the west. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 10373
+D2
+~
+~
+0 -1  0 74046
+D3
+~
+~
+0 -1  0 74038
+D5
+~
+~
+0 -1  0 74040
+S
+#74040
+North and South Along a Path ~
+   To the north and south the Harad Road continues on its course 
+through the hills and plains of this land. To the south, the 
+road enters a twisting ravine between steep, loose dirt and rock 
+hillsides. The road itself, is merely a trail of packed dirt 
+that has been worn down over the centuries into a small ditch 
+compared to the land immediately to either side of the road. 
+Hills mainly comprise the land around the road here. 
+~
+74 65536 3
+0
+D0
+~
+~
+0 -1  0 10374
+D1
+~
+~
+0 -1  0 74041
+D2
+~
+~
+0 -1  0 74047
+D4
+~
+~
+0 -1  0 74039
+S
+#74041
+Overgrown Grassy Fields East of a Trail~
+   The broad fields of South Ithilien are wild and overgrown, 
+tall grasses and scrabble bushes growing in the wide, windswept 
+plains untamed by the hands of men. The ground is hard 
+underfoot, and interspersed with more than the occasional rock, 
+great boulders piled up on small rises of land every so often. 
+The area is devoid of wildlife, the ominous presence of the 
+black, shard like mountains of the Ephel Duath casting a dour 
+atmosphere over the landscape. 
+~
+74 65536 4
+0
+D0
+~
+~
+0 -1  0 10375
+D2
+~
+~
+0 -1  0 74048
+D3
+~
+~
+0 -1  0 74040
+D4
+~
+~
+0 -1  0 74042
+S
+#74042
+Vast Foothills Coated In Dead Grass~
+   A thick growth of low lying bushes roams across the hills of 
+South Ithilien that lie between the low lying plains to the west 
+and the steep, thrusting, presence of the eastward mountains. 
+Small animal life darts amongst the clustered clumps of 
+vegetation, as well as the occasional larger predator lurking far 
+from the distant plateau to the northwest, or the forest 
+westward. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 10376
+D1
+~
+~
+0 -1  0 74043
+D2
+~
+~
+0 -1  0 74049
+D5
+~
+~
+0 -1  0 74041
+S
+#74043
+Vast Foothills Coated In Dead Grass~
+   A thick growth of low lying bushes roams across the hills of 
+South Ithilien that lie between the low lying plains to the west 
+and the steep, thrusting, presence of the eastward mountains. 
+Small animal life darts amongst the clustered clumps of 
+vegetation, as well as the occasional larger predator lurking far 
+from the distant plateau to the northwest, or the forest 
+westward. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 10377
+D2
+~
+~
+0 -1  0 74050
+D3
+~
+~
+0 -1  0 74042
+S
+#74044
+A Steep, Windy Plateau of Jagged Rock ~
+   The stark range of the Ephel Duath roams from north to south 
+here, this land a bumpy, rocky spit of land situated before the 
+steep ascent of the mountains to the east and the softer, greener 
+hillands of South Ithilien to the west. The only life to be seen 
+here are the occasional flock of dark birds that make their homes 
+in the craggy lips and caves visible on the surface of the dark 
+mountains. 
+~
+74 65536 8
+0
+D0
+~
+~
+0 -1  0 10378
+D2
+~
+~
+0 -1  0 74051
+S
+#74045
+Rock Strewn Hills East of the Emyn Arnen~
+   The land about this area is quite hilly and occasionally 
+broken in small cliffs. Rocks and boulders break through the 
+healthy undergrowth of the land which comprises mostly small 
+shrubs and bushes which only come to the height of a mans shin 
+and occasionally to his knee. The wind blows among the hills and 
+strange echoes can be heard at times as the wind blows around the 
+rocks. 
+   To the west, the chalky-white plateau of Emyn Arnen rises 
+above South Ithilien. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 74038
+D1
+~
+~
+0 -1  0 74046
+S
+#74046
+Patchy, Scrub-Dotted Hills  ~
+   Here, the ancient forces of wind and rain have caused the 
+collapse of one side of a grassy hill. The wild, tough grasses 
+of the area have yet to tame the resultant gash of earth that 
+shows like a wound in an otherwise grassy sea. However, they 
+have conquered the rest of the softly undulating ground here, and 
+the vegetation resists the legs of the passing traveler just as 
+the hills tax them. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 74039
+D3
+~
+~
+0 -1  0 74045
+S
+#74047
+Twist to the North and East on the Harad Road~
+   East and south continues the Harad Road in a seemingly endless 
+journey over the land, carrying those who travel upon it through 
+a rough hilly terrain. At the moment, the road follows a deep 
+ravine with steep collapsed hill sides hemming it in. The 
+eastern horizon is dominated by a constant line of black 
+mountains. 
+~
+74 65536 3
+0
+D0
+~
+~
+0 -1  0 74040
+D1
+~
+~
+0 -1  0 74048
+S
+#74048
+Twist to the West and South on the Harad Road~
+   West and south continues the Harad Road in a seemingly endless 
+journey over the land, carrying those who travel upon it through 
+a rough hilly terrain. At the moment, the road follows a deep 
+ravine with steep collapsed hill sides hemming it in. The 
+eastern horizon is dominated by a constant line of black 
+mountains. 
+~
+74 65536 3
+0
+D0
+~
+~
+0 -1  0 74041
+D2
+~
+~
+0 -1  0 74055
+D3
+~
+~
+0 -1  0 74047
+D4
+~
+~
+0 -1  0 74049
+S
+#74049
+Spare Foothills of the Ephel Duath Mountains~
+   The ground here is far from flat, rising in waves of hills and 
+falls of valleys, spotted by the occasional gnarled tree that 
+spurts forth from the ground and is accompanied by a clustering 
+of bony bushes. The terrain gradually lifts from the long flat 
+fields of South Ithilien westward, to the mighty, stark mountain 
+face of the Ephel Duath which lie due east. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 74042
+D1
+~
+~
+0 -1  0 74050
+D5
+~
+~
+0 -1  0 74048
+S
+#74050
+A Scrub-Dotted Field~
+   Barren describes the wind blown landscape here well, the dark 
+soil hard underfoot and the vegetation that grows being scrubby 
+and wiry bushes, and some stretches of pale grass that bows in 
+the wind. More often than not, great gusts of air blow down from 
+the distant wall of mountains that lie to the east, the mighty 
+Ephel Duath, blotting out the dawn sun. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 74043
+D3
+~
+~
+0 -1  0 74049
+S
+#74051
+A Vast, Scrub-Dotted Hill at the Base of the Ephel Duath~
+   The towering, expansive mountain range grants the hard rock 
+ground here a permanent shadow until past the noon of the day, 
+the massive formation of volcanic rock blotting out the eastern 
+horizon and the dark lands of Mordor that lies beneath. To the 
+west, the fairer lands of South Ithilien can be seen, the terrain 
+sloping downwards in that direction to finally end at a vast 
+woodlands and a river. 
+~
+74 65536 8
+0
+D0
+~
+~
+0 -1  0 74044
+D2
+~
+~
+0 -1  0 74058
+S
+#74052
+Sparse, Rocky Woodland Beneath Tall Cliffs ~
+   The sheer, chalk-white cliff walls of the Emyn Arnen jut out 
+far above South Ithilien just a short distance to the north, and 
+here the land descends rapidly as it heads south in a series of 
+rocky, bumpy falls, headed straight in to a thin forest of 
+spruces, cedars and firs. Amidst the rocky ground, the 
+occasional knot of trees grows high in the chill, mountain air, 
+as can be seen the odd large animal track. 
+~
+74 65536 8
+0
+D1
+~
+~
+0 -1  0 74053
+D2
+~
+~
+0 -1  0 74059
+S
+#74053
+Tough Grassed Hill West of a Road ~
+   Here, the ancient forces of wind and rain have caused the 
+collapse of one side of a grassy hill. The wild, tough grasses 
+of the area have yet to tame the resultant gash of earth that 
+shows like a wound in an otherwise grassy sea. However, they 
+have conquered the rest of the softly undulating ground here, and 
+the vegetation resists the legs of the passing traveler just as 
+the hills tax them. 
+~
+74 65536 7
+0
+D1
+~
+~
+0 -1  0 74054
+D2
+~
+~
+0 -1  0 74060
+D3
+~
+~
+0 -1  0 74052
+S
+#74054
+Tough Grassed Hill West of a Road ~
+   Here, the ancient forces of wind and rain have caused the 
+collapse of one side of a grassy hill. The wild, tough grasses 
+of the area have yet to tame the resultant gash of earth that 
+shows like a wound in an otherwise grassy sea. However, they 
+have conquered the rest of the softly undulating ground here, and 
+the vegetation resists the legs of the passing traveler just as 
+the hills tax them. 
+~
+74 65536 7
+0
+D2
+~
+~
+0 -1  0 74061
+D3
+~
+~
+0 -1  0 74053
+S
+#74055
+Curve in the Harad Road, Running North and East~
+   The unglamorous dirt trail that is Harad Road winds its way 
+east and south through South Ithilien, leading past the borders 
+of a coniferous forest westward, and hilly land becomes the black 
+mountains of Mordor to the east. The occasional patch of grass 
+grows across the road, at times the trail becomes 
+indistinguishable from the scrubby plains that it cuts through. 
+~
+74 65536 3
+0
+D0
+~
+~
+0 -1  0 74048
+D1
+~
+~
+0 -1  0 74056
+S
+#74056
+Sharp Turn to the West and South on the Harad Road~
+   West and south continues the Harad Road in a seemingly endless 
+journey over the land, carrying those who travel upon it through 
+a variety of terrains. At the moment, deep in a twisting ravine. 
+The eastern horizon is dominated by a constant line of black 
+mountains. 
+~
+74 65536 3
+0
+D2
+~
+~
+0 -1  0 74063
+D3
+~
+~
+0 -1  0 74055
+D4
+~
+~
+0 -1  0 74075
+S
+#74057
+A Steep Rocky Hill~
+   The ground here is far from flat, rising in waves of hills and 
+falls of valleys, spotted by the occasional gnarled tree that 
+spurts forth from the ground and is accompanied by a clustering 
+of bony bushes. The terrain gradually lifts from the long flat 
+fields of South Ithilien westward, to the mighty, stark mountain 
+face of the Ephel Duath which lie due east. 
+~
+74 65536 7
+0
+D2
+~
+~
+0 -1  0 74064
+S
+#74058
+An Overshadowed Plateau before the Ephel Duath~
+   The stark range of the Ephel Duath roams from north to south 
+here, this land a bumpy, rocky spit of land situated before the 
+steep ascent of the mountains to the east and the softer, greener 
+hillands of South Ithilien to the west. The only life to be seen 
+here are the occasional flock of dark birds that make their homes 
+in the craggy lips and caves visible on the surface of the dark 
+mountains. 
+~
+74 65536 8
+0
+D0
+~
+~
+0 -1  0 74051
+D2
+~
+~
+0 -1  0 74065
+S
+#74060
+Patchy, Scrub-Dotted Hills ~
+   The ground here is rather arid, dotted with small, green and 
+brown shrubs and a mixture of yellow and pale-green grasses. 
+Travel is made easy by the hardened earth, though there is 
+neither sign of civilization, nor any reason for one to travel 
+here apparent. The lands to the north seem greener, while 
+rolling hills raise out from the ground to the west. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 74053
+D1
+~
+~
+0 -1  0 74061
+D2
+~
+~
+0 -1  0 74067
+D4
+~
+~
+0 -1  0 74059
+S
+#74090
+A Foggy Evergreen Wood~
+   A grey fog lays still upon the woodland floor, stirring only 
+with the passage of infrequent travelers. The light of the sun 
+filters dimly through the scraggly tops of the evergreens, 
+drawing white streaks through the shadowy mist below. The 
+undergrowth is sparse, consisting of thin, reddish-brown grasses 
+growing knee-high in the heavy shadowy air. The trees are quite 
+tall, their thin trunks straight and dark, slick with moisture 
+from the fog. No branches grow upon them except at the very top, 
+and the trees grow closely together. 
+~
+74 33882112 5
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74093
+D1
+~
+~
+0 -1  0 74091
+D2
+~
+~
+0 -1  0 74087
+D3
+~
+~
+0 -1  0 74089
+S
+#74091
+Tall Conifers in a Foggy Wood~
+   The densely packed trunks of trees draw black vertical lines 
+through a muted fog, their sparse top branches covered with long 
+green needles. Red-brown grass covers the ground in thin patchy 
+sections, growing knee high on an average man, round stalks 
+fanning out at the top into cloudy arrays seeking in vain for 
+sunlight. The air hangs heavy beneath the evergreens, as if the 
+wood holds its breath. There is no sound of birdsong or any 
+rustling of small animals about, nor even drone of insects. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74094
+D2
+~
+~
+0 -1  0 74088
+D3
+~
+~
+0 -1  0 74090
+S
+#74092
+Murky Woodland~
+   Black, slender trunks covered with rough bark stretch far 
+above the woodland floor, devoid of branches until the unruly, 
+twisting, intertwined canopy of weak twigs and thin needles. The 
+heavy air beneath is laced with fog and silence; nothing stirs 
+but that disturbed by the rare passerby. The sparse, red-brown 
+grass grows in sickly patches underfoot, moisture glistening on 
+the blades. Sunlight seems as if it is consciously held back by 
+the fog and the branches above, pushing through in murky streaks. 
+~
+74 65536 5
+0
+D0
+~
+~
+0 -1  0 74095
+D1
+~
+~
+0 -1  0 74093
+D2
+~
+~
+0 -1  0 74089
+S
+#74093
+Fog Covered Wood~
+   Murky light from the sun labors through the densely woven 
+branches far above the woodland floor, adding indistinct shadows 
+to the fog-enshrouded space below the high canopy. The tree 
+trunks rise, slender and black, straight and tall up through the 
+fog, their rough bark glistening with moisture. Silence lays 
+heavily here, the sounds of the traveler stepping through the 
+feeble red-brown grass are shockingly loud. 
+~
+74 1073807360 5
+0
+D0
+~
+~
+0 -1  0 74096
+D1
+~
+~
+0 -1  0 74094
+D2
+~
+~
+0 -1  0 74090
+D3
+~
+~
+0 -1  0 74092
+S
+#74068
+Curve in the Pathway, Running South and East ~
+   The unglamorous dirt trail that is Harad Road winds its way 
+east and south through South Ithilien, leading past the borders 
+of a coniferous forest westward, and hilly land becomes the black 
+mountains of Mordor to the east. The occasional patch of grass 
+grows across the road, at times the trail becomes 
+indistinguishable from the scrubby plains that it cuts through. 
+~
+74 65536 3
+0
+D1
+~
+~
+0 -1  0 74069
+D2
+~
+~
+0 -1  0 10382
+S
+#74069
+Twisting Path Leading North and West~
+   The dusty path of the Harad road continues north and west here 
+through South Ithilien, little more than a narrow depression of 
+land, as if once an ancient river ran along this course. To the 
+east of the road, bleak plains and distant mountains rise up, 
+while the western edge is bordered by a thin woodland. Long 
+wagon ruts form the boundaries of this haphazard road. 
+   
+   A log cabin has recently been built off to the side of the 
+road, providing temporary shelter and a means of communications 
+for travelers. 
+~
+74 201392132 3
+0
+D0
+~
+gated-barricade~
+1 22005  0 74062
+D1
+~
+door~
+1 -1  0 74190
+D2
+~
+~
+0 -1  0 10383
+D3
+~
+~
+0 -1  0 74068
+S
+#74070
+Foothills Of The Ephel Duath~
+   The ground here is far from flat, rising in waves of hills and 
+falls of valleys, spotted by the occasional gnarled tree that 
+spurts forth from the ground and is accompanied by a clustering 
+of bony bushes. The terrain gradually lifts from the long flat 
+fields of South Ithilien westward, to the mighty, stark mountain 
+face of the Ephel Duath which lie due east. 
+~
+74 65600 7
+0
+D1
+~
+~
+0 -1  0 74071
+D2
+~
+~
+0 -1  0 10384
+S
+#74071
+Wind-Blasted Rock Underhill ~
+   Howling wind funnels down the notches and gaps in the 
+splintered peaks of the black mountains of Mordor that burst from 
+the ground to the east, a short run of increasingly rocky and 
+steep terrain rising up to them. Along with the wind comes the 
+smell of something old, a chill presence and the occasional fine 
+dust of soot. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 74064
+D2
+~
+~
+0 -1  0 10385
+D3
+~
+~
+0 -1  0 74070
+S
+#74072
+Before Wind-Blasted Peaks~
+   Howling wind funnels down the notches and gaps in the 
+splintered peaks of the black mountains of Mordor that burst from 
+the ground to the east, a short run of increasingly rocky and 
+steep terrain rising up to them. Along with the wind comes the 
+smell of something old, a chill presence and the occasional fine 
+dust of soot. 
+~
+74 65536 8
+0
+D0
+~
+~
+0 -1  0 74065
+D2
+~
+~
+0 -1  0 10386
+S
+#74106
+Eerie Shrouded Wood~
+   The fog presses in upon the rare traveler who ventures here, 
+weighted down with silence. Slender black trunks stretch up 
+straight and tall, branchless until the very top, where weak 
+twisted arms sparsely adorned with long thin needles crawl across 
+the sky, inextricably intertwined with those of neighboring 
+trees. The rough bark of the closely-spaced trees is slick with 
+moisture, and reddish-brown patches of sparse grass struggle for 
+survival on the shadowed floor of the wood. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74109
+D2
+~
+~
+0 -1  0 74103
+D3
+~
+~
+0 -1  0 74105
+S
+#74107
+Tree Bearing Fungus~
+   Thick slabs of oozing disc-shaped fungus jut from the bark of 
+one twisted trunk in a wood of otherwise unmarred straight 
+slender trunks. An unpleasant scent is present near this one 
+tree, adding to the oppressive atmosphere in the fog-darkened, 
+heavy air beneath the tall evergreens. The marked silence of 
+this wood is startling, for there is no rattling of small animals 
+foraging, nor birdsong, nor even the sound of insects. There is 
+only the wood, and the fog. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74110
+D1
+~
+~
+0 -1  0 74108
+D2
+~
+~
+0 -1  0 74104
+S
+#74108
+A Foggy Evergreen Wood~
+   A grey fog lays still upon the woodland floor, stirring only 
+with the passage of infrequent travelers. The light of the sun 
+filters dimly through the scraggly tops of the evergreens, 
+drawing white streaks through the shadowy mist below. The 
+undergrowth is sparse, consisting of thin, reddish-brown grasses 
+growing knee-high in the heavy shadowy air. The trees are quite 
+tall, their thin trunks straight and dark, slick with moisture 
+from the fog. No branches grow upon them except at the very top, 
+and the trees grow closely together. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74111
+D1
+~
+~
+0 -1  0 74109
+D2
+~
+~
+0 -1  0 74105
+D3
+~
+~
+0 -1  0 74107
+S
+#74109
+Tall Conifers in a Foggy Wood~
+   The densely packed trunks of trees draw black vertical lines 
+through a muted fog, their sparse top branches covered with long 
+green needles. Red-brown grass covers the ground in thin patchy 
+sections, growing knee high on an average man, round stalks 
+fanning out at the top into cloudy arrays seeking in vain for 
+sunlight. The air hangs heavy beneath the evergreens, as if the 
+wood holds its breath. There is no sound of birdsong or any 
+rustling of small animals about, nor even drone of insects. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74112
+D2
+~
+~
+0 -1  0 74106
+D3
+~
+~
+0 -1  0 74108
+S
+#74140
+A Foggy Evergreen Wood~
+   A grey fog lays still upon the woodland floor, stirring only 
+with the passage of infrequent travelers. The light of the sun 
+filters dimly through the scraggly tops of the evergreens, 
+drawing white streaks through the shadowy mist below. The 
+undergrowth is sparse, consisting of thin, reddish-brown grasses 
+growing knee-high in the heavy shadowy air. The trees are quite 
+tall, their thin trunks straight and dark, slick with moisture 
+from the fog. No branches grow upon them except at the very top, 
+and the trees grow closely together. 
+~
+74 1107361792 5
+0
+D1
+~
+~
+0 -1  0 74141
+D2
+~
+~
+0 -1  0 74125
+D3
+~
+~
+0 -1  0 74139
+S
+#74141
+Tall Conifers in a Foggy Wood~
+   The densely packed trunks of trees draw black vertical lines 
+through a muted fog, their sparse top branches covered with long 
+green needles. Red-brown grass covers the ground in thin patchy 
+sections, growing knee high on an average man, round stalks 
+fanning out at the top into cloudy arrays seeking in vain for 
+sunlight. The air hangs heavy beneath the evergreens, as if the 
+wood holds its breath. There is no sound of birdsong or any 
+rustling of small animals about, nor even drone of insects. 
+~
+74 1107361792 5
+0
+D1
+~
+~
+0 -1  0 74142
+D2
+~
+~
+0 -1  0 74126
+D3
+~
+~
+0 -1  0 74140
+S
+#74142
+Murky Woodland~
+   Black, slender trunks covered with rough bark stretch far 
+above the woodland floor, devoid of branches until the unruly, 
+twisting, intertwined canopy of weak twigs and thin needles. The 
+heavy air beneath is laced with fog and silence; nothing stirs 
+but that disturbed by the rare passerby. The sparse, red-brown 
+grass grows in sickly patches underfoot, moisture glistening on 
+the blades. Sunlight seems as if it is consciously held back by 
+the fog and the branches above, pushing through in murky streaks. 
+~
+74 1107361792 5
+0
+D2
+~
+~
+0 -1  0 74127
+D3
+~
+~
+0 -1  0 74141
+S
+#74143
+Fog Covered Wood~
+   Murky light from the sun labors through the densely woven 
+branches far above the woodland floor, adding indistinct shadows 
+to the fog-enshrouded space below the high canopy. The tree 
+trunks rise, slender and black, straight and tall up through the 
+fog, their rough bark glistening with moisture. Silence lays 
+heavily here, the sounds of the traveler stepping through the 
+feeble red-brown grass are shockingly loud. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74156
+D1
+~
+~
+0 -1  0 74144
+D3
+~
+~
+0 -1  0 74079
+S
+#74160
+In The Foul-Smelling Swamp~
+   Inky black water, thick with mud and other foul substances, 
+oozes forth from the slippery bank of slick earth from the west. 
+No current pushes the water, instead its surface is like a flat 
+of black glass, save until movement in the dank liquid sends 
+spreading ripples across it. Ever present in the air is a 
+dismal, diminishing stillness, the bleak colours and shapes of 
+the swamp at times seemingly smothering. The waters continue to 
+east and south. 
+   The mighty mountain range of the Emyn Muil lie to the north,
+the northern border of the marsh as the outlying hills quickly
+rise up from the dark depths.
+~
+74 1073807360 -1
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D1
+~
+~
+0 -1  0 74161
+D2
+~
+~
+0 -1  0 74147
+D3
+~
+~
+0 -1  0 74159
+S
+#74161
+Muddy Water Bordering a Path to the South and East~
+   Still water spreads silently throughout the area here, 
+reaching up to the waist of a full grown man in some places. The 
+ground beneath the pitch black surface is far from flat, instead 
+rising and falling with little order or pattern. Regardless of 
+the depth, the thick mud clings to anything that touches it, and 
+many strange shapes brush against ones legs and feet when moving 
+through these turgid waters. To the west the water continues on, 
+while a sharp incline lies to south and east. 
+   The mighty mountain range of the Emyn Muil lie to the north,
+the northern border of the marsh as the outlying hills quickly
+rise up from the dark depths.
+~
+74 65536 3
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D1
+~
+~
+0 -1  0 74162
+D2
+~
+~
+0 -1  0 74148
+D3
+~
+~
+0 -1  0 74160
+S
+#74162
+Sodden Landscape~
+   Tufts of hard, brown grass and small, grey plants shoot out of
+the soft ground of the north Ithilien, the roaming heath
+seemingly abandoned by all things living. The occasional great
+tree lays strangled by lichen, bowed down under the weight of
+years, and on the occasionally hillock of hard land heaps of
+rotted wood and stone can be seen. In all directions the bog
+continues, distant mountains visible to the north and east, their
+peaks capped with snow.
+~
+74 1073807360 3
+0
+D1
+~
+~
+0 -1  0 74163
+D2
+~
+~
+0 -1  0 74149
+D3
+~
+~
+0 -1  0 74161
+S
+#74163
+Hilly Woodlands~
+   The sky can be seen filtering through the branches of the 
+trees in this woodland area. The trees are tall and though some 
+seem to be dying others are full of life. Animals can be heard 
+scurrying through the undergrowth occasionally and the wind 
+rustles the leaves of the trees. Small shrubs grow everywhere 
+and occasionally a rock pokes through the undergrowth. 
+~
+74 33619968 7
+0
+D1
+~
+~
+0 -1  0 74164
+D2
+~
+~
+0 -1  0 74150
+D3
+~
+~
+0 -1  0 74162
+S
+#74061
+Hilly Land North and West of a Trail ~
+   Rolling hills extend in every direction, covered in thick 
+grasses which range from two to four feet in height. The land 
+has a wild, unconquered look to it and has so far fought off any 
+attempts to cultivate it, though the local wildlife has worn 
+narrow tracks which allow passage through the more thickly 
+vegetated areas. The light brown earth is only visible in areas 
+where an ancient trickle of water may have once carved a ravine 
+in ages past. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 74054
+D3
+~
+~
+0 -1  0 74060
+S
+#74062
+Curve in the Pathway, Running South and East~
+   The unglamorous dirt trail that is Harad Road winds its way 
+east and south through South Ithilien, leading past the grassy 
+hills that extend westward, and hilly land becomes the black 
+mountains of Mordor to the east. The occasional patch of grass 
+or brush grows along the road. The road snakes through a deep 
+ravine at this point, it's walls consisting of loose gravel and 
+rising steeply. 
+   
+   A gated barricade has been constructed, reachinng from wall to 
+wall, its presence blocking any further travel. 
+~
+74 201392132 3
+0
+D1
+~
+~
+0 -1  0 74063
+D2
+~
+gated-barricade~
+1 22005  0 74069
+S
+#74063
+Twisting Path Leading North and West~
+   The dusty path of the Harad road continues north and west here 
+through South Ithilien, little more than a narrow depression of 
+land, as if once an ancient river ran along this course. To the 
+east of the road, bleak hills and distant mountains rise up, 
+while the western edge is bordered by hills that rise to a great 
+plateau to the west. Long wagon ruts form the boundaries of this 
+haphazard road. 
+~
+74 65536 3
+0
+D0
+~
+~
+0 -1  0 74056
+D3
+~
+~
+0 -1  0 74062
+S
+#74064
+A Steep Rocky Hill~
+   The ground here is far from flat, rising in waves of hills and 
+falls of valleys, spotted by the occasional gnarled tree that 
+spurts forth from the ground and is accompanied by a clustering 
+of bony bushes. The terrain gradually lifts from the long flat 
+fields of South Ithilien westward, to the mighty, stark mountain 
+face of the Ephel Duath which lie due east. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 74057
+D2
+~
+~
+0 -1  0 74071
+D5
+~
+~
+0 -1  0 74076
+S
+#74065
+Underneath the Dismal Ephel Duath ~
+   The stark range of the Ephel Duath roams from north to south 
+here, this land a bumpy, rocky spit of land situated before the 
+steep ascent of the mountains to the east and the softer, greener 
+hillands of South Ithilien to the west. The only life to be seen 
+here are the occasional flock of dark birds that make their homes 
+in the craggy lips and caves visible on the surface of the dark 
+mountains. 
+~
+74 65536 8
+0
+D0
+~
+~
+0 -1  0 74058
+D2
+~
+~
+0 -1  0 74072
+S
+#74066
+Weathered, Mountainous Ground Beneath a Plateau~
+   Toweringly large evergreens climb high in to the sky here, 
+nearly as high as the stalwart, rocky ledges of the northern Emyn 
+Arnen that cast a noon shadow over this rocky slope. The craggy, 
+weather-scored rocks of this slope rise and fall, but a clear 
+descent down to the southern evergreen forest is present here. 
+Etched in to the predominately stone ground here are innumerable 
+little gullies that fill with water when rain descends from the 
+sky above and the plateau of the Emyn Arnen. 
+~
+74 65536 8
+0
+D0
+~
+~
+0 -1  0 74059
+D2
+~
+~
+0 -1  0 10380
+D5
+~
+~
+0 -1  0 74067
+S
+#74074
+Loose Dirt and Rock Face of a Collapsed Hill Side~
+   While possible to ascend and descend the face of the loose 
+dirt and rock hillside, the climb is far from leisurely; one is 
+forced to haul themselves up with their hands and feet up the 
+crumbling surface, grappling for any and every solid foothold or 
+handhold. 
+~
+74 98308 7
+0
+D4
+~
+~
+0 -1  0 74067
+S
+#74075
+Sheer Wall of Loose Dirt and Stone~
+   While possible to ascend and descend the face of the loose 
+dirt and rock hillside, the climb is far from leisurely; one is 
+forced to haul themselves up with their hands and feet up the 
+crumbling surface, grappling for any and every solid foothold or 
+handhold. 
+~
+74 66560 7
+0
+D4
+~
+~
+0 -1  0 74057
+D5
+~
+~
+0 -1  0 74056
+S
+#74076
+Sheer Wall of Loose Dirt and Stone~
+   While some might consider it possible to ascend and descend 
+the face of this shear wall of loose dirt and rock, the climb 
+would be exremely tough; one is faced with nothing solid on which 
+to haul themselves up with. 
+~
+74 66560 7
+0
+D4
+~
+~
+0 -1  0 74064
+S
+#74077
+Tree Bearing Fungus~
+   Thick slabs of oozing disc-shaped fungus jut from the bark of 
+one twisted trunk in a wood of otherwise unmarred straight 
+slender trunks. An unpleasant scent is present near this one 
+tree, adding to the oppressive atmosphere in the fog-darkened, 
+heavy air beneath the tall evergreens. The marked silence of 
+this wood is startling, for there is no rattling of small animals 
+foraging, nor birdsong, nor even the sound of insects. There is 
+only the wood, and the fog. 
+~
+74 1073807360 5
+0
+D0
+~
+~
+0 -1  0 74080
+D1
+~
+~
+0 -1  0 74078
+S
+#74078
+A Foggy Evergreen Wood~
+   A grey fog lays still upon the woodland floor, stirring only 
+with the passage of infrequent travelers. The light of the sun 
+filters dimly through the scraggly tops of the evergreens, 
+drawing white streaks through the shadowy mist below. The 
+undergrowth is sparse, consisting of thin, reddish-brown grasses 
+growing knee-high in the heavy shadowy air. The trees are quite 
+tall, their thin trunks straight and dark, slick with moisture 
+from the fog. No branches grow upon them except at the very top, 
+and the trees grow closely together. 
+~
+74 1073807360 5
+0
+D0
+~
+~
+0 -1  0 74081
+D1
+~
+~
+0 -1  0 74079
+D3
+~
+~
+0 -1  0 74077
+S
+#74079
+Tall Conifers in a Foggy Wood~
+   The densely packed trunks of trees draw black vertical lines 
+through a muted fog, their sparse top branches covered with long 
+green needles. Red-brown grass covers the ground in thin patchy 
+sections, growing knee high on an average man, round stalks 
+fanning out at the top into cloudy arrays seeking in vain for 
+sunlight. The air hangs heavy beneath the evergreens, as if the 
+wood holds its breath. There is no sound of birdsong or any 
+rustling of small animals about, nor even drone of insects. 
+~
+74 1073807360 5
+0
+D0
+~
+~
+0 -1  0 74082
+D1
+~
+~
+0 -1  0 74143
+D3
+~
+~
+0 -1  0 74078
+S
+#74080
+Murky Woodland~
+   Black, slender trunks covered with rough bark stretch far 
+above the woodland floor, devoid of branches until the unruly, 
+twisting, intertwined canopy of weak twigs and thin needles. The 
+heavy air beneath is laced with fog and silence; nothing stirs 
+but that disturbed by the rare passerby. The sparse, red-brown 
+grass grows in sickly patches underfoot, moisture glistening on 
+the blades. Sunlight seems as if it is consciously held back by 
+the fog and the branches above, pushing through in murky streaks. 
+~
+74 1073807360 5
+0
+D0
+~
+~
+0 -1  0 74083
+D1
+~
+~
+0 -1  0 74081
+D2
+~
+~
+0 -1  0 74077
+S
+#74081
+Fog Covered Wood~
+   Murky light from the sun labors through the densely woven 
+branches far above the woodland floor, adding indistinct shadows 
+to the fog-enshrouded space below the high canopy. The tree 
+trunks rise, slender and black, straight and tall up through the 
+fog, their rough bark glistening with moisture. Silence lays 
+heavily here, the sounds of the traveler stepping through the 
+feeble red-brown grass are shockingly loud. 
+~
+74 65536 5
+0
+D0
+~
+~
+0 -1  0 74084
+D1
+~
+~
+0 -1  0 74082
+D3
+~
+~
+0 -1  0 74080
+S
+#74082
+Eerie Shrouded Wood~
+   The fog presses in upon the rare traveler who ventures here, 
+weighted down with silence. Slender black trunks stretch up 
+straight and tall, branchless until the very top, where weak 
+twisted arms sparsely adorned with long thin needles crawl across 
+the sky, inextricably intertwined with those of neighboring 
+trees. The rough bark of the closely-spaced trees is slick with 
+moisture, and reddish-brown patches of sparse grass struggle for 
+survival on the shadowed floor of the wood. 
+~
+74 1073807872 5
+0
+D0
+~
+~
+0 -1  0 74085
+D1
+~
+~
+0 -1  0 74156
+D2
+~
+~
+0 -1  0 74079
+D3
+~
+~
+0 -1  0 74081
+S
+#74083
+Tree Bearing Fungus~
+   Thick slabs of oozing disc-shaped fungus jut from the bark of 
+one twisted trunk in a wood of otherwise unmarred straight 
+slender trunks. An unpleasant scent is present near this one 
+tree, adding to the oppressive atmosphere in the fog-darkened, 
+heavy air beneath the tall evergreens. The marked silence of 
+this wood is startling, for there is no rattling of small animals 
+foraging, nor birdsong, nor even the sound of insects. There is 
+only the wood, and the fog. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74086
+D1
+~
+~
+0 -1  0 74084
+D2
+~
+~
+0 -1  0 74080
+S
+#74084
+A Foggy Evergreen Wood~
+   A grey fog lays still upon the woodland floor, stirring only 
+with the passage of infrequent travelers. The light of the sun 
+filters dimly through the scraggly tops of the evergreens, 
+drawing white streaks through the shadowy mist below. The 
+undergrowth is sparse, consisting of thin, reddish-brown grasses 
+growing knee-high in the heavy shadowy air. The trees are quite 
+tall, their thin trunks straight and dark, slick with moisture 
+from the fog. No branches grow upon them except at the very top, 
+and the trees grow closely together. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74087
+D1
+~
+~
+0 -1  0 74085
+D2
+~
+~
+0 -1  0 74081
+D3
+~
+~
+0 -1  0 74083
+S
+#74085
+Tall Conifers in a Foggy Wood~
+   The densely packed trunks of trees draw black vertical lines 
+through a muted fog, their sparse top branches covered with long 
+green needles. Red-brown grass covers the ground in thin patchy 
+sections, growing knee high on an average man, round stalks 
+fanning out at the top into cloudy arrays seeking in vain for 
+sunlight. The air hangs heavy beneath the evergreens, as if the 
+wood holds its breath. There is no sound of birdsong or any 
+rustling of small animals about, nor even drone of insects. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74088
+D2
+~
+~
+0 -1  0 74082
+D3
+~
+~
+0 -1  0 74084
+S
+#74087
+Fog Covered Wood~
+   Murky light from the sun labors through the densely woven 
+branches far above the woodland floor, adding indistinct shadows 
+to the fog-enshrouded space below the high canopy. The tree 
+trunks rise, slender and black, straight and tall up through the 
+fog, their rough bark glistening with moisture. Silence lays 
+heavily here, the sounds of the traveler stepping through the 
+feeble red-brown grass are shockingly loud. 
+~
+74 1107361792 3
+0
+D0
+~
+~
+0 -1  0 74090
+D1
+~
+~
+0 -1  0 74088
+D2
+~
+~
+0 -1  0 74084
+D3
+~
+~
+0 -1  0 74086
+S
+#74088
+Eerie Shrouded Wood~
+   The fog presses in upon the rare traveler who ventures here, 
+weighted down with silence. Slender black trunks stretch up 
+straight and tall, branchless until the very top, where weak 
+twisted arms sparsely adorned with long thin needles crawl across 
+the sky, inextricably intertwined with those of neighboring 
+trees. The rough bark of the closely-spaced trees is slick with 
+moisture, and reddish-brown patches of sparse grass struggle for 
+survival on the shadowed floor of the wood. 
+~
+74 1107361792 3
+0
+D0
+~
+~
+0 -1  0 74091
+D2
+~
+~
+0 -1  0 74085
+D3
+~
+~
+0 -1  0 74087
+S
+#74089
+Tree Bearing Fungus~
+   Thick slabs of oozing disc-shaped fungus jut from the bark of 
+one twisted trunk in a wood of otherwise unmarred straight 
+slender trunks. An unpleasant scent is present near this one 
+tree, adding to the oppressive atmosphere in the fog-darkened, 
+heavy air beneath the tall evergreens. The marked silence of 
+this wood is startling, for there is no rattling of small animals 
+foraging, nor birdsong, nor even the sound of insects. There is 
+only the wood, and the fog. 
+~
+74 33619968 5
+0
+D0
+~
+~
+0 -1  0 74092
+D1
+~
+~
+0 -1  0 74090
+D2
+~
+~
+0 -1  0 74086
+E
+boulder~
+This boulder is massive in size and has been shaped thoroughly by tools judging by the rough hackings marring its entirety. It blocks the large entrance to a cave in the face of cliff.
+~
+S
+#74094
+Eerie Shrouded Wood~
+   The fog presses in upon the rare traveler who ventures here, 
+weighted down with silence. Slender black trunks stretch up 
+straight and tall, branchless until the very top, where weak 
+twisted arms sparsely adorned with long thin needles crawl across 
+the sky, inextricably intertwined with those of neighboring 
+trees. The rough bark of the closely-spaced trees is slick with 
+moisture, and reddish-brown patches of sparse grass struggle for 
+survival on the shadowed floor of the wood. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74097
+D2
+~
+~
+0 -1  0 74091
+D3
+~
+~
+0 -1  0 74093
+S
+#74095
+Tree Bearing Fungus~
+   Thick slabs of oozing disc-shaped fungus jut from the bark of 
+one twisted trunk in a wood of otherwise unmarred straight 
+slender trunks. An unpleasant scent is present near this one 
+tree, adding to the oppressive atmosphere in the fog-darkened, 
+heavy air beneath the tall evergreens. The marked silence of 
+this wood is startling, for there is no rattling of small animals 
+foraging, nor birdsong, nor even the sound of insects. There is 
+only the wood, and the fog. 
+~
+74 1107361792 3
+0
+D0
+~
+~
+0 -1  0 74098
+D1
+~
+~
+0 -1  0 74096
+D2
+~
+~
+0 -1  0 74092
+S
+#74097
+Tall Conifers in a Foggy Wood~
+   The densely packed trunks of trees draw black vertical lines 
+through a muted fog, their sparse top branches covered with long 
+green needles. Red-brown grass covers the ground in thin patchy 
+sections, growing knee high on an average man, round stalks 
+fanning out at the top into cloudy arrays seeking in vain for 
+sunlight. The air hangs heavy beneath the evergreens, as if the 
+wood holds its breath. There is no sound of birdsong or any 
+rustling of small animals about, nor even drone of insects. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74100
+D2
+~
+~
+0 -1  0 74094
+D3
+~
+~
+0 -1  0 74096
+S
+#74098
+Murky Woodland~
+   Black, slender trunks covered with rough bark stretch far 
+above the woodland floor, devoid of branches until the unruly, 
+twisting, intertwined canopy of weak twigs and thin needles. The 
+heavy air beneath is laced with fog and silence; nothing stirs 
+but that disturbed by the rare passerby. The sparse, red-brown 
+grass grows in sickly patches underfoot, moisture glistening on 
+the blades. Sunlight seems as if it is consciously held back by 
+the fog and the branches above, pushing through in murky streaks. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74101
+D1
+~
+~
+0 -1  0 74099
+D2
+~
+~
+0 -1  0 74095
+S
+#74099
+Fog Covered Wood~
+   Murky light from the sun labors through the densely woven 
+branches far above the woodland floor, adding indistinct shadows 
+to the fog-enshrouded space below the high canopy. The tree 
+trunks rise, slender and black, straight and tall up through the 
+fog, their rough bark glistening with moisture. Silence lays 
+heavily here, the sounds of the traveler stepping through the 
+feeble red-brown grass are shockingly loud. 
+~
+74 1107361792 3
+0
+D0
+~
+~
+0 -1  0 74102
+D1
+~
+~
+0 -1  0 74100
+D2
+~
+~
+0 -1  0 74096
+D3
+~
+~
+0 -1  0 74098
+S
+#74100
+Eerie Shrouded Wood~
+   The fog presses in upon the rare traveler who ventures here, 
+weighted down with silence. Slender black trunks stretch up 
+straight and tall, branchless until the very top, where weak 
+twisted arms sparsely adorned with long thin needles crawl across 
+the sky, inextricably intertwined with those of neighboring 
+trees. The rough bark of the closely-spaced trees is slick with 
+moisture, and reddish-brown patches of sparse grass struggle for 
+survival on the shadowed floor of the wood. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74103
+D2
+~
+~
+0 -1  0 74097
+D3
+~
+~
+0 -1  0 74099
+S
+#74101
+Tree Bearing Fungus~
+   Thick slabs of oozing disc-shaped fungus jut from the bark of 
+one twisted trunk in a wood of otherwise unmarred straight 
+slender trunks. An unpleasant scent is present near this one 
+tree, adding to the oppressive atmosphere in the fog-darkened, 
+heavy air beneath the tall evergreens. The marked silence of 
+this wood is startling, for there is no rattling of small animals 
+foraging, nor birdsong, nor even the sound of insects. There is 
+only the wood, and the fog. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74104
+D1
+~
+~
+0 -1  0 74102
+D2
+~
+~
+0 -1  0 74098
+S
+#74102
+A Foggy Evergreen Wood~
+   A grey fog lays still upon the woodland floor, stirring only 
+with the passage of infrequent travelers. The light of the sun 
+filters dimly through the scraggly tops of the evergreens, 
+drawing white streaks through the shadowy mist below. The 
+undergrowth is sparse, consisting of thin, reddish-brown grasses 
+growing knee-high in the heavy shadowy air. The trees are quite 
+tall, their thin trunks straight and dark, slick with moisture 
+from the fog. No branches grow upon them except at the very top, 
+and the trees grow closely together. 
+~
+74 33619968 3
+0
+D0
+~
+~
+0 -1  0 74105
+D1
+~
+~
+0 -1  0 74103
+D2
+~
+~
+0 -1  0 74099
+D3
+~
+~
+0 -1  0 74101
+S
+#74103
+Tall Conifers in a Foggy Wood~
+   The densely packed trunks of trees draw black vertical lines 
+through a muted fog, their sparse top branches covered with long 
+green needles. Red-brown grass covers the ground in thin patchy 
+sections, growing knee high on an average man, round stalks 
+fanning out at the top into cloudy arrays seeking in vain for 
+sunlight. The air hangs heavy beneath the evergreens, as if the 
+wood holds its breath. There is no sound of birdsong or any 
+rustling of small animals about, nor even drone of insects. 
+~
+74 1073807360 3
+0
+D0
+~
+~
+0 -1  0 74106
+D2
+~
+~
+0 -1  0 74100
+D3
+~
+~
+0 -1  0 74102
+S
+#74104
+Murky Woodland~
+   Black, slender trunks covered with rough bark stretch far 
+above the woodland floor, devoid of branches until the unruly, 
+twisting, intertwined canopy of weak twigs and thin needles. The 
+heavy air beneath is laced with fog and silence; nothing stirs 
+but that disturbed by the rare passerby. The sparse, red-brown 
+grass grows in sickly patches underfoot, moisture glistening on 
+the blades. Sunlight seems as if it is consciously held back by 
+the fog and the branches above, pushing through in murky streaks. 
+~
+74 1073807360 3
+0
+D0
+~
+~
+0 -1  0 74107
+D1
+~
+~
+0 -1  0 74105
+D2
+~
+~
+0 -1  0 74101
+S
+#74105
+Fog Covered Wood~
+   Murky light from the sun labors through the densely woven 
+branches far above the woodland floor, adding indistinct shadows 
+to the fog-enshrouded space below the high canopy. The tree 
+trunks rise, slender and black, straight and tall up through the 
+fog, their rough bark glistening with moisture. Silence lays 
+heavily here, the sounds of the traveler stepping through the 
+feeble red-brown grass are shockingly loud. 
+~
+74 1073807360 3
+0
+D0
+~
+~
+0 -1  0 74108
+D1
+~
+~
+0 -1  0 74106
+D2
+~
+~
+0 -1  0 74102
+D3
+~
+~
+0 -1  0 74104
+S
+#74110
+Murky Woodland~
+   Black, slender trunks covered with rough bark stretch far 
+above the woodland floor, devoid of branches until the unruly, 
+twisting, intertwined canopy of weak twigs and thin needles. The 
+heavy air beneath is laced with fog and silence; nothing stirs 
+but that disturbed by the rare passerby. The sparse, red-brown 
+grass grows in sickly patches underfoot, moisture glistening on 
+the blades. Sunlight seems as if it is consciously held back by 
+the fog and the branches above, pushing through in murky streaks. 
+~
+74 33619968 5
+0
+D0
+~
+~
+0 -1  0 74125
+D1
+~
+~
+0 -1  0 74111
+D2
+~
+~
+0 -1  0 74107
+S
+#74111
+Fog Covered Wood~
+   Murky light from the sun labors through the densely woven 
+branches far above the woodland floor, adding indistinct shadows 
+to the fog-enshrouded space below the high canopy. The tree 
+trunks rise, slender and black, straight and tall up through the 
+fog, their rough bark glistening with moisture. Silence lays 
+heavily here, the sounds of the traveler stepping through the 
+feeble red-brown grass are shockingly loud. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74126
+D1
+~
+~
+0 -1  0 74112
+D2
+~
+~
+0 -1  0 74108
+D3
+~
+~
+0 -1  0 74110
+S
+#74112
+Eerie Shrouded Wood~
+   The fog presses in upon the rare traveler who ventures here, 
+weighted down with silence. Slender black trunks stretch up 
+straight and tall, branchless until the very top, where weak 
+twisted arms sparsely adorned with long thin needles crawl across 
+the sky, inextricably intertwined with those of neighboring 
+trees. The rough bark of the closely-spaced trees is slick with 
+moisture, and reddish-brown patches of sparse grass struggle for 
+survival on the shadowed floor of the wood. 
+~
+74 33882112 5
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74127
+D2
+~
+~
+0 -1  0 74109
+D3
+~
+~
+0 -1  0 74111
+S
+#74113
+Patchy, Scrub-Dotted Hills~
+   Rolling hills extend in every direction, covered in thick 
+grasses which range from two to four feet in height. The land 
+has a wild, unconquered look to it and has so far fought off any 
+attempts to cultivate it, though the local wildlife has worn 
+narrow tracks which allow passage through the more thickly 
+vegetated areas. The light brown earth is only visible in the 
+steep sides of the deep graben that runs from the west to the 
+north. 
+~
+74 1107361792 7
+0
+D0
+~
+~
+0 -1  0 74128
+D1
+~
+~
+0 -1  0 74114
+S
+#74114
+Hillock West of Harad Road~
+   The land about this area is quite hilly and occasionally 
+broken in small cliffs. Rocks and boulders break through the 
+healthy undergrowth of the land which comprises mostly small 
+shrubs and bushes which only come to the height of a mans shin 
+and occasionally to his knee. The wind blows among the hills and 
+strange echoes can be heard at times as the wind blows around the 
+rocks.
+~
+74 1107361792 3
+0
+D0
+~
+~
+0 -1  0 74129
+D1
+~
+~
+0 -1  0 74115
+D3
+~
+~
+0 -1  0 74113
+S
+#74115
+Eroded Hillside Overlooking Woodlands ~
+   The land about this area is quite hilly and occasionally 
+broken in small cliffs. Rocks and boulders break through the 
+healthy undergrowth of the land which comprises mostly small 
+shrubs and bushes which only come to the height of a mans shin 
+and occasionally to his knee. The wind blows among the hills and 
+strange echoes can be heard at times as the wind blows around the 
+rocks. 
+   To the south-west, the chalky-white plateau of Emyn Arnen 
+rises above South Ithilien. 
+~
+74 65536 3
+0
+D0
+~
+~
+0 -1  0 74130
+D1
+~
+~
+0 -1  0 74116
+D3
+~
+~
+0 -1  0 74114
+S
+#74116
+Hillock West of Harad Road~
+   The land about this area is quite hilly and occasionally 
+broken in small cliffs. Rocks and boulders break through the 
+healthy undergrowth of the land which comprises mostly small 
+shrubs and bushes which only come to the height of a mans shin 
+and occasionally to his knee. The wind blows among the hills and 
+strange echoes can be heard at times as the wind blows around the 
+rocks.
+~
+74 1073807360 7
+0
+D0
+~
+~
+0 -1  0 74131
+D1
+~
+~
+0 -1  0 74117
+D3
+~
+~
+0 -1  0 74115
+S
+#74117
+Hilly Land Broken Into Small Cliffs~
+   The land about this area is quite hilly and occasionally 
+broken in small cliffs. Rocks and boulders break through the 
+healthy undergrowth of the land which comprises mostly small 
+shrubs and bushes which only come to the height of a mans shin 
+and occasionally to his knee. The wind blows among the hills and 
+strange echoes can be heard at times as the wind blows around the 
+rocks.
+~
+74 1073807360 7
+0
+D0
+~
+~
+0 -1  0 74132
+D1
+~
+~
+0 -1  0 74118
+D3
+~
+~
+0 -1  0 74116
+S
+#74118
+Rock Strewn Hills East of the Emyn Arnen~
+   The land about this area is quite hilly and occasionally 
+broken in small cliffs. Rocks and boulders break through the 
+healthy undergrowth of the land which comprises mostly small 
+shrubs and bushes which only come to the height of a mans shin 
+and occasionally to his knee. The wind blows among the hills and 
+strange echoes can be heard at times as the wind blows around the 
+rocks.
+   To the west, the chalky-white plateau of Emyn Arnen rises
+above South Ithilien.
+~
+74 1073807360 7
+0
+D0
+~
+~
+0 -1  0 74133
+D1
+~
+~
+0 -1  0 74119
+D3
+~
+~
+0 -1  0 74117
+S
+#74119
+Rolling Hills East of a White Cliff~
+   Rolling hills extend in every direction, covered in thick 
+grasses which range from two to four feet in height. The land 
+has a wild, unconquered look to it and has so far fought off any 
+attempts to cultivate it, though the local wildlife has worn 
+narrow tracks which allow passage through the more thickly 
+vegetated areas. The light brown earth is only visible in areas 
+where an ancient trickle of water may have once carved a ravine 
+in ages past. 
+   To the west, the chalky-white plateau of Emyn Arnen rises 
+above South Ithilien. 
+~
+74 65536 3
+0
+D0
+~
+~
+0 -1  0 74134
+D1
+~
+~
+0 -1  0 74120
+D3
+~
+~
+0 -1  0 74118
+S
+#74122
+Tall Conifers in a Foggy Wood~
+   The densely packed trunks of trees draw black vertical lines 
+through a muted fog, their sparse top branches covered with long 
+green needles. Red-brown grass covers the ground in thin patchy 
+sections, growing knee high on an average man, round stalks 
+fanning out at the top into cloudy arrays seeking in vain for 
+sunlight. The air hangs heavy beneath the evergreens, as if the 
+wood holds its breath. There is no sound of birdsong or any 
+rustling of small animals about, nor even drone of insects. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74137
+D1
+~
+~
+0 -1  0 74123
+D3
+~
+~
+0 -1  0 74121
+S
+#74123
+Murky Woodland~
+   Black, slender trunks covered with rough bark stretch far 
+above the woodland floor, devoid of branches until the unruly, 
+twisting, intertwined canopy of weak twigs and thin needles. The 
+heavy air beneath is laced with fog and silence; nothing stirs 
+but that disturbed by the rare passerby. The sparse, red-brown 
+grass grows in sickly patches underfoot, moisture glistening on 
+the blades. Sunlight seems as if it is consciously held back by 
+the fog and the branches above, pushing through in murky streaks. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74138
+D1
+~
+~
+0 -1  0 74124
+D3
+~
+~
+0 -1  0 74122
+S
+#74124
+Fog Covered Wood~
+   Murky light from the sun labors through the densely woven 
+branches far above the woodland floor, adding indistinct shadows 
+to the fog-enshrouded space below the high canopy. The tree 
+trunks rise, slender and black, straight and tall up through the 
+fog, their rough bark glistening with moisture. Silence lays 
+heavily here, the sounds of the traveler stepping through the 
+feeble red-brown grass are shockingly loud. 
+~
+74 33619968 5
+0
+D0
+~
+~
+0 -1  0 74139
+D1
+~
+~
+0 -1  0 74125
+D3
+~
+~
+0 -1  0 74123
+S
+#74488
+New Room~
+No Description Set.
+~
+74 65536 3
+0
+D2
+~
+~
+0 -1  0 74149
+D3
+~
+~
+0 -1  0 74124
+S
+#74125
+Eerie Shrouded Wood~
+   The fog presses in upon the rare traveler who ventures here, 
+weighted down with silence. Slender black trunks stretch up 
+straight and tall, branchless until the very top, where weak 
+twisted arms sparsely adorned with long thin needles crawl across 
+the sky, inextricably intertwined with those of neighboring 
+trees. The rough bark of the closely-spaced trees is slick with 
+moisture, and reddish-brown patches of sparse grass struggle for 
+survival on the shadowed floor of the wood. 
+~
+74 33619968 5
+0
+D0
+~
+~
+0 -1  0 74140
+D1
+~
+~
+0 -1  0 74126
+D2
+~
+~
+0 -1  0 74110
+D3
+~
+~
+0 -1  0 74124
+S
+#74126
+Tree Bearing Fungus~
+   Thick slabs of oozing disc-shaped fungus jut from the bark of 
+one twisted trunk in a wood of otherwise unmarred straight 
+slender trunks. An unpleasant scent is present near this one 
+tree, adding to the oppressive atmosphere in the fog-darkened, 
+heavy air beneath the tall evergreens. The marked silence of 
+this wood is startling, for there is no rattling of small animals 
+foraging, nor birdsong, nor even the sound of insects. There is 
+only the wood, and the fog. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74141
+D1
+~
+~
+0 -1  0 74127
+D2
+~
+~
+0 -1  0 74111
+D3
+~
+~
+0 -1  0 74125
+S
+#74127
+A Foggy Evergreen Wood~
+   A grey fog lays still upon the woodland floor, stirring only 
+with the passage of infrequent travelers. The light of the sun 
+filters dimly through the scraggly tops of the evergreens, 
+drawing white streaks through the shadowy mist below. The 
+undergrowth is sparse, consisting of thin, reddish-brown grasses 
+growing knee-high in the heavy shadowy air. The trees are quite 
+tall, their thin trunks straight and dark, slick with moisture 
+from the fog. No branches grow upon them except at the very top, 
+and the trees grow closely together. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74142
+D2
+~
+~
+0 -1  0 74112
+D3
+~
+~
+0 -1  0 74126
+S
+#74128
+Eroded Hillside Overlooking Wild Grasslands~
+   Here, natural forces of the earth have caused the collapse of 
+many a grassy hill. A deep and wide graben runs like a gash in 
+the earth from the cliffs of the Emyn Arnen to the northeast, 
+wild grass covering the softly undulating ground on either side. 
+The vegetation here resists the legs of the passing traveler just 
+as the hills tax them. 
+~
+74 1107361796 7
+0
+D1
+~
+~
+0 -1  0 74129
+D2
+~
+~
+0 -1  0 74113
+S
+#74129
+Patchy, Scrub-Dotted Hills~
+   The land about this area is quite hilly and occasionally 
+broken in small cliffs. Rocks and boulders break through the 
+healthy undergrowth of the land which comprises mostly small 
+shrubs and bushes which only come to the height of a mans shin 
+and occasionally to his knee. The wind blows among the hills and 
+strange echoes can be heard at times as the wind blows around the 
+rocks. 
+~
+74 33619968 7
+0
+D1
+~
+~
+0 -1  0 74130
+D2
+~
+~
+0 -1  0 74114
+D3
+~
+~
+0 -1  0 74128
+S
+#74130
+Hilly Scrublands~
+   Here, the ancient forces of wind and rain have caused the 
+collapse of one side of a grassy hill. The wild, tough grasses 
+of the area have yet to tame the resultant gash of earth that 
+shows like a wound in an otherwise grassy sea. However, they 
+have conquered the rest of the softly undulating ground here, and 
+the vegetation resists the legs of the passing traveler just as 
+the hills tax them. 
+   To the south, the chalky-white plateau of Emyn Arnen rises 
+above South Ithilien. 
+~
+74 1073807360 3
+0
+D1
+~
+~
+0 -1  0 74131
+D2
+~
+~
+0 -1  0 74115
+D3
+~
+~
+0 -1  0 74129
+S
+#74131
+Patchy, Scrub-Dotted Hills~
+   Rolling hills extend in every direction, covered in thick 
+grasses which range from two to four feet in height. The land 
+has a wild, unconquered look to it and has so far fought off any 
+attempts to cultivate it, though the local wildlife has worn 
+narrow tracks which allow passage through the more thickly 
+vegetated areas. The light brown earth is only visible in areas 
+where an ancient trickle of water may have once carved a ravine 
+in ages past. 
+~
+74 1073807360 7
+0
+D1
+~
+~
+0 -1  0 74132
+D2
+~
+~
+0 -1  0 74116
+D3
+~
+~
+0 -1  0 74130
+S
+#74132
+Collapsed Hill East of the Emyn Arnen~
+   Here, the ancient forces of wind and rain have caused the 
+collapse of one side of a grassy hill. The wild, tough grasses 
+of the area have yet to tame the resultant gash of earth that 
+shows like a wound in an otherwise grassy sea. However, they 
+have conquered the rest of the softly undulating ground here, and 
+the vegetation resists the legs of the passing traveler just as 
+the hills tax them. 
+   To the west, the chalky-white plateau of Emyn Arnen rises
+above South Ithilien.
+~
+74 1073807360 7
+0
+D1
+~
+~
+0 -1  0 74133
+D2
+~
+~
+0 -1  0 74117
+D3
+~
+~
+0 -1  0 74131
+E
+boulder~
+This boulder is massive in size and has been shaped thoroughly by tools judging by the rough hackings marring its entirety. It blocks the large entrance to a cave in the face of cliff.
+~
+S
+#74133
+Rolling Hills East of a White Cliff~
+   Rolling hills extend in every direction, covered in thick 
+grasses which range from two to four feet in height. The land 
+has a wild, unconquered look to it and has so far fought off any 
+attempts to cultivate it, though the local wildlife has worn 
+narrow tracks which allow passage through the more thickly 
+vegetated areas. The light brown earth is only visible in areas 
+where an ancient trickle of water may have once carved a ravine 
+in ages past. 
+   To the west, the chalky-white plateau of Emyn Arnen rises
+above South Ithilien.
+~
+74 1073807360 7
+0
+D1
+~
+~
+0 -1  0 74134
+D2
+~
+~
+0 -1  0 74118
+D3
+~
+~
+0 -1  0 74132
+S
+#74134
+Hilly Land North and West of a Trail~
+   Rolling hills extend in every direction, covered in thick 
+grasses which range from two to four feet in height. The land 
+has a wild, unconquered look to it and has so far fought off any 
+attempts to cultivate it, though the local wildlife has worn 
+narrow tracks which allow passage through the more thickly 
+vegetated areas. The light brown earth is only visible in areas 
+where an ancient trickle of water may have once carved a ravine 
+in ages past. 
+~
+74 1073807360 3
+0
+D1
+~
+~
+0 -1  0 74135
+D2
+~
+~
+0 -1  0 74119
+D3
+~
+~
+0 -1  0 74133
+S
+#74135
+Tall Conifers in a Foggy Wood~
+   The densely packed trunks of trees draw black vertical lines 
+through a muted fog, their sparse top branches covered with long 
+green needles. Red-brown grass covers the ground in thin patchy 
+sections, growing knee high on an average man, round stalks 
+fanning out at the top into cloudy arrays seeking in vain for 
+sunlight. The air hangs heavy beneath the evergreens, as if the 
+wood holds its breath. There is no sound of birdsong or any 
+rustling of small animals about, nor even drone of insects. 
+~
+74 1107361792 5
+0
+D1
+~
+~
+0 -1  0 74136
+D2
+~
+~
+0 -1  0 74120
+D3
+~
+~
+0 -1  0 74134
+S
+#74136
+Murky Woodland~
+   Black, slender trunks covered with rough bark stretch far 
+above the woodland floor, devoid of branches until the unruly, 
+twisting, intertwined canopy of weak twigs and thin needles. The 
+heavy air beneath is laced with fog and silence; nothing stirs 
+but that disturbed by the rare passerby. The sparse, red-brown 
+grass grows in sickly patches underfoot, moisture glistening on 
+the blades. Sunlight seems as if it is consciously held back by 
+the fog and the branches above, pushing through in murky streaks. 
+~
+74 1107361792 5
+0
+D1
+~
+~
+0 -1  0 74137
+D2
+~
+~
+0 -1  0 74121
+D3
+~
+~
+0 -1  0 74135
+S
+#74137
+Fog Covered Wood~
+   Murky light from the sun labors through the densely woven 
+branches far above the woodland floor, adding indistinct shadows 
+to the fog-enshrouded space below the high canopy. The tree 
+trunks rise, slender and black, straight and tall up through the 
+fog, their rough bark glistening with moisture. Silence lays 
+heavily here, the sounds of the traveler stepping through the 
+feeble red-brown grass are shockingly loud. 
+~
+74 1107361792 5
+0
+D1
+~
+~
+0 -1  0 74138
+D2
+~
+~
+0 -1  0 74122
+D3
+~
+~
+0 -1  0 74136
+S
+#74138
+Eerie Shrouded Wood~
+   The fog presses in upon the rare traveler who ventures here, 
+weighted down with silence. Slender black trunks stretch up 
+straight and tall, branchless until the very top, where weak 
+twisted arms sparsely adorned with long thin needles crawl across 
+the sky, inextricably intertwined with those of neighboring 
+trees. The rough bark of the closely-spaced trees is slick with 
+moisture, and reddish-brown patches of sparse grass struggle for 
+survival on the shadowed floor of the wood. 
+~
+74 1107362304 5
+0
+D1
+~
+~
+0 -1  0 74139
+D2
+~
+~
+0 -1  0 74123
+D3
+~
+~
+0 -1  0 74137
+S
+#74139
+Tree Bearing Fungus~
+   Thick slabs of oozing disc-shaped fungus jut from the bark of 
+one twisted trunk in a wood of otherwise unmarred straight 
+slender trunks. An unpleasant scent is present near this one 
+tree, adding to the oppressive atmosphere in the fog-darkened, 
+heavy air beneath the tall evergreens. The marked silence of 
+this wood is startling, for there is no rattling of small animals 
+foraging, nor birdsong, nor even the sound of insects. There is 
+only the wood, and the fog. 
+~
+74 1107361792 5
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D1
+~
+~
+0 -1  0 74140
+D2
+~
+~
+0 -1  0 74124
+D3
+~
+~
+0 -1  0 74138
+S
+#74145
+Tree Bearing Fungus~
+   Thick slabs of oozing disc-shaped fungus jut from the bark of 
+one twisted trunk in a wood of otherwise unmarred straight 
+slender trunks. An unpleasant scent is present near this one 
+tree, adding to the oppressive atmosphere in the fog-darkened, 
+heavy air beneath the tall evergreens. The marked silence of 
+this wood is startling, for there is no rattling of small animals 
+foraging, nor birdsong, nor even the sound of insects. There is 
+only the wood, and the fog. 
+~
+74 35979264 5
+0
+D0
+~
+~
+0 -1  0 74158
+D1
+~
+~
+0 -1  0 74146
+D3
+~
+~
+0 -1  0 74144
+S
+#74146
+Wet Heathland~
+   A vast expanse of wet heathland stretches here, snaking in all
+directions. The horizon is clearly visible here, the massive
+mountains of the Emyn Muil and dark stretches of swamp and marsh
+set before them. The earth is soft and wet, overrun with
+low-lying scrubs and wet vegetation. Dead trees are littered
+sparsely across the area, their blackened husks granting new life
+to the bog. A web of algae stretches over the network of glassy
+pools here, disappearing into a forest of reeds.
+~
+74 1073807360 3
+0
+D0
+~
+~
+0 -1  0 74159
+D1
+~
+~
+0 -1  0 74147
+D3
+~
+~
+0 -1  0 74145
+S
+#74147
+Narrow Path Leading South Into The Swamp And North Into The Mountains~
+   In all directions the dark waters of the marsh lay still, the 
+surface of the swamp broken by an occasional moss-marked tree and 
+the twisting path of ground that cuts through the turgid mud and 
+decrepit flora. Rough and uneven, the trail is formed of rock 
+and raised earth, the edges quickly sloping down into thick mud 
+and brackish waters. Leading from north to south, it passes by 
+the forlorn nature of the marsh, allowing an unparalleled view of 
+the marsh, the oppressive silence that hangs easily over it. 
+   The mighty mountain range of the Emyn Muil lie to the north,
+the northern border of the marsh as the outlying hills quickly
+rise up from the dark depths.
+~
+74 1074069508 3
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74160
+D1
+~
+~
+0 -1  0 74148
+D3
+~
+~
+0 -1  0 74146
+S
+#74148
+Within a Brackish Bog~
+   A vast expanse of wet heathland stretches here, snaking in all
+directions. The horizon is clearly visible here, the massive
+mountains of the Emyn Muil and dark stretches of swamp and marsh
+set before them. The earth is soft and wet, overrun with
+low-lying scrubs and wet vegetation. Dead trees are littered
+sparsely across the area, their blackened husks granting new life
+to the bog. A web of algae stretches over the network of glassy
+pools here, disappearing into a forest of reeds.
+~
+74 1073807360 3
+0
+D0
+~
+~
+0 -1  0 74161
+D1
+~
+~
+0 -1  0 74149
+D3
+~
+~
+0 -1  0 74147
+S
+#74149
+Northern Ithilien Dry Lands~
+   The landscape is dark and bleak, with only a few sparse 
+patches of long-dead vegetation. Loose grey stones litter the 
+ground, occasionally shifting in slides of tumbling rock. Rising 
+to the east are the jagged outlines of stark black mountains. As 
+far as the eye can see, the terrain is barren, descending 
+slightly to the west. 
+~
+74 1107365888 7
+0
+D0
+~
+~
+0 -1  0 74162
+D1
+~
+~
+0 -1  0 74150
+D3
+~
+~
+0 -1  0 74148
+S
+#74150
+Wind-Blasted Rock Underhill~
+   Howling wind funnels down the notches and gaps in the
+splintered peaks of the black mountains of Mordor that burst from
+the ground to the east, a short run of increasingly rocky and
+steep terrain rising up to them. Along with the wind comes the
+smell of something old, a chill presence and the occasional fine
+dust of soot.
+~
+74 1107361792 7
+0
+D0
+~
+~
+0 -1  0 74163
+D1
+~
+~
+0 -1  0 74151
+D3
+~
+~
+0 -1  0 74149
+S
+#74151
+Northern Ithilien Dry Lands~
+   The landscape is dark and bleak, with only a few dead, 
+desiccated trees amongst the boulders. Loose grey stones litter 
+the ground, occasionally shifting in slides of tumbling rock. 
+Rising to the east are the jagged outlines of stark black 
+mountains. As far as the eye can see, the terrain is barren, 
+sloping downward as it goes west. 
+   The basaltic, near-vertical slopes of the Ephel Duath rise up 
+directly to the east and north. 
+~
+74 1107361792 7
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74164
+D1
+~
+~
+0 -1  0 74152
+D3
+~
+~
+0 -1  0 74150
+S
+#74152
+North Ithilien Dry Plains~
+   The land here rises and falls gracefully in a hilly landscape. 
+Here and there grass grows and the occasional small shrub manages 
+to poke through the mostly dry land. The odd tree has also 
+managed to find a way to survive here and long gnarled roots 
+extend out searching for more water. Few animals can be heard in 
+this place and even fewer can be seen, the sound most prevalent 
+being the wind. 
+~
+74 33619968 7
+0
+D0
+~
+~
+0 -1  0 74165
+D1
+~
+~
+0 -1  0 74153
+D3
+~
+~
+0 -1  0 74151
+S
+#74153
+A Grove of Pine Trees Upon the Hills~
+   The land here rises and falls gracefully in a hilly landscape. 
+Here and there grass grows and the occasional small shrub manages 
+to poke through the mostly dry land. The odd tree has also 
+managed to find a way to survive here and long gnarled roots 
+extend out searching for more water. Few animals can be heard in 
+this place and even fewer can be seen, the sound most prevalent 
+being the wind. 
+~
+74 1107361792 7
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74166
+D1
+~
+~
+0 -1  0 74154
+D3
+~
+~
+0 -1  0 74152
+S
+#74154
+Northern Ithilien Dry Lands~
+   The land here is slightly cracked and broken the lack of 
+moisture in the ground causing the landscape to crumble slightly. 
+Grass grows here and small green and brown shrubs manage to find 
+a place to grow. Trees can rarely be seen being few and far 
+between, hidden by the rise and fall of the hills, despite this 
+the occasional tree does appear. 
+~
+74 1107361792 7
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74167
+D3
+~
+~
+0 -1  0 74153
+S
+#74155
+Roily Mire~
+   This depression of land in South Ithilien pools frequently 
+with water, a number of tiny streams and rivulets filling with
+muddy liquid with the movement of the tides, spilling forth to
+drench the surrounding countryside. Past the boggy land, the
+distant northern and eastern horizon are claimed by mountains
+ranges, the former by the white cliffs of the Emyn Arnen, the
+latter the black shards of the Ephel Duath. South and west, the
+terrain continues to descend to a junction of rivers.
+~
+74 1073807360 13
+0
+S
+#74156
+Eerie Shrouded Wood~
+   The fog presses in upon the rare traveler who ventures here, 
+weighted down with silence. Slender black trunks stretch up 
+straight and tall, branchless until the very top, where weak 
+twisted arms sparsely adorned with long thin needles crawl across 
+the sky, inextricably intertwined with those of neighboring 
+trees. The rough bark of the closely-spaced trees is slick with 
+moisture, and reddish-brown patches of sparse grass struggle for 
+survival on the shadowed floor of the wood. 
+~
+74 1073807872 5
+0
+D1
+~
+~
+0 -1  0 74157
+D2
+~
+~
+0 -1  0 74143
+D3
+~
+~
+0 -1  0 74082
+S
+#74157
+Tall Conifers in a Foggy Wood~
+   The densely packed trunks of trees draw black vertical lines 
+through a muted fog, their sparse top branches covered with long 
+green needles. Red-brown grass covers the ground in thin patchy 
+sections, growing knee high on an average man, round stalks 
+fanning out at the top into cloudy arrays seeking in vain for 
+sunlight. The air hangs heavy beneath the evergreens, as if the 
+wood holds its breath. There is no sound of birdsong or any 
+rustling of small animals about, nor even drone of insects. 
+~
+74 65536 5
+0
+D1
+~
+~
+0 -1  0 74158
+D2
+~
+~
+0 -1  0 74144
+D3
+~
+~
+0 -1  0 74156
+S
+#74158
+Murky Woodland~
+   Black, slender trunks covered with rough bark stretch far 
+above the woodland floor, devoid of branches until the unruly, 
+twisting, intertwined canopy of weak twigs and thin needles. The 
+heavy air beneath is laced with fog and silence; nothing stirs 
+but that disturbed by the rare passerby. The sparse, red-brown 
+grass grows in sickly patches underfoot, moisture glistening on 
+the blades. Sunlight seems as if it is consciously held back by 
+the fog and the branches above, pushing through in murky streaks. 
+~
+74 1073807360 5
+0
+D1
+~
+~
+0 -1  0 74159
+D2
+~
+~
+0 -1  0 74145
+D3
+~
+~
+0 -1  0 74157
+S
+#74164
+North Ithilien Dry Plains~
+   The land here is quite dry and unwelcoming of travellers with 
+not much water in the immediate area. Grass grows in patches 
+mostly and small shrubs occasionally manage to find a perchance 
+in the dry ground. Animals can rarely be heard or seen and the 
+most obvious sound is the wind with few other sounds intruding up 
+on the area. 
+   The imposing Mountains of Shadow rise from the land not far to 
+the east, cutting off all hope of travel in that direction. 
+~
+74 1107361792 7
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D1
+~
+~
+0 -1  0 74165
+D2
+~
+~
+0 -1  0 74151
+D3
+~
+~
+0 -1  0 74163
+S
+#74165
+Northern Ithilien Dry Lands~
+   This hilly landscape rises and falls quite gently, in places 
+however the land has cracked and fallen creating small cliffs 
+though none very large. Grasslands mostly fill the area though 
+the grass is mostly patchy, dying shrubs of green and brown can 
+be seen covering the ground. Few noises intrude upon the 
+immediate area, animals avoiding the place. 
+   The basaltic, near-vertical slopes of the Ephel Duath rise up 
+directly to the east and south. A large, round boulder is set in 
+the face of the mountain. 
+~
+74 1107361792 7
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D1
+~
+~
+0 -1  0 74166
+D2
+~
+~
+0 -1  0 74152
+D3
+~
+~
+0 -1  0 74164
+S
+#74166
+Northern Ithilien Dry Lands~
+   The land here is quite dry and unwelcoming of travellers with 
+not much water in the immediate area. Grass grows in patches 
+mostly and small shrubs occasionally manage to find a perchance 
+in the dry ground. Animals can rarely be heard or seen and the 
+most obvious sound is the wind with few other sounds intruding up 
+on the area. 
+~
+74 1107361792 7
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74168
+D1
+~
+~
+0 -1  0 74167
+D2
+~
+~
+0 -1  0 74153
+D3
+~
+~
+0 -1  0 74165
+S
+#74167
+Barren Plains Approaching the Ephel Duath~
+   The landscape is dark and bleak, with only a few sparse 
+patches of dry and wilting vegetation. Loose grey stones litter 
+the ground, occasionally shifting in slides of tumbling rock. 
+Rising to the east are the jagged outlines of stark black 
+mountains. As far as the eye can see, the terrain is barren, 
+descending slightly to the west. 
+~
+74 1107361792 7
+0
+D0
+~
+~
+0 -1  0 74169
+D2
+~
+~
+0 -1  0 74154
+D3
+~
+~
+0 -1  0 74166
+S
+#74168
+Sloped, Dry Plains Southwest of a Stream~
+   Cutting a channel across the dry plains here is a fast-flowing 
+stream that runs downhill to the northwest, originating from a 
+waterfall over the high mountains to the east. The banks of the 
+stream appear to support some more plant growth than the 
+surrounding terrain, patches of pale green wildgrass and wiry 
+scrubs sprouting up along the water's edge. The land continues 
+sloping downward to the west, where a vast forest is visible. 
+~
+74 1073807360 4
+0
+D0
+~
+~
+0 -1  0 74170
+D1
+~
+~
+0 -1  0 74169
+S
+#74170
+Grasslands Southwest of a Stream~
+   Knee-high, yellowish grass covers the land between a large 
+forest to the southwest and a stream to the north. The ground is 
+relatively firm underfoot, although the bank grows muddier as it 
+nears the water's edge. Small birds take shelter in the grasses, 
+darting in and out of delicate, hanging nests as they nip at 
+passing insects. The stream's clear waters tumble downhill to 
+the west with a loud, rushing noise. 
+~
+74 1075904516 4
+0
+A
+~
+~
+~
+~
+   A light blanket of snow covers the ground here, broken only by
+the tops of yellowish, knee-high grasses that cover the land
+between a large forest to the southwest and a stream to the north.
+The ground is relatively firm underfoot, although the bank grows
+muddier as it nears the water's edge. All is silent except for the
+wind, the whispers of settling snow, and the stream's clear waters
+tumbling downhill to the west with a rushing noise.
+~
+~
+   Colors muted under the shadow of night, knee-high grasses
+cover the land between a large forest to the southwest and a
+stream to the north. The ground is relatively firm underfoot,
+although the bank grows muddier as it nears the water's edge.
+Insects chirp and hum from amidst the grasses, while the
+occasional call of a bullfrog sounds from along the shore. The
+stream's clear waters tumble downhill to the west with a loud,
+rushing noise.
+~
+~
+~
+~
+   A light blanket of snow covers the ground here, broken only by
+the tops of yellowish, knee-high grasses that cover the land
+between a large forest to the southwest and a stream to the north.
+The ground is relatively firm underfoot, although the bank grows
+muddier as it nears the water's edge. All is silent except for the
+wind, the whispers of settling snow, and the stream's clear waters
+tumbling downhill to the west with a rushing noise.
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74173
+D1
+~
+~
+0 -1  0 74171
+D2
+~
+~
+0 -1  0 74168
+S
+#74171
+Barren Hills of North Ithilien~
+   Jagged gray and black rocks are everywhere; occasionally, 
+loose sections of ground shift and tumble west, where the land 
+slants downward. Looming to the east are huge mountains, looking 
+just as desolate as the nearby terrain. There is no sign of 
+plant or animal life. Scattered here and there are the cracked 
+and desiccated remains of long-dead trees. 
+   The flank of a mountain of the Ephel Duath rises up at a steep 
+slope, hemming in the lands to the east. 
+~
+74 1107361792 7
+0
+D0
+~
+~
+0 -1  0 74174
+D1
+~
+~
+0 -1  0 74172
+D2
+~
+~
+0 -1  0 74169
+D3
+~
+~
+0 -1  0 74170
+S
+#74174
+High-Grass Lands About A Hillock~
+   The ground underfoot here varies greatly as it stretches
+across untold miles of the far northern Ithilien. From broken
+puddles of muddy water to soggy soil, all punctured by the
+occasional outcropping of dark rock, there is little in the way
+to support easy travel across the heathland, yet alone
+habitation. A steady silence hangs in the air, the uninhabited
+bog set far from civilization, though the occasional rustling of
+grass betrays the presence of some life.
+~
+74 1073807360 4
+0
+D0
+~
+~
+0 -1  0 74179
+D1
+~
+~
+0 -1  0 74175
+D2
+~
+~
+0 -1  0 74171
+D3
+~
+~
+0 -1  0 74173
+S
+#74175
+North Ithilien Dry Plains~
+   The land here is quite dry and unwelcoming of travellers with 
+not much water in the immediate area. Grass grows in patches 
+mostly and small shrubs occasionally manage to find a perchance 
+in the dry ground. Animals can rarely be heard or seen and the 
+most obvious sound is the wind with few other sounds intruding up 
+on the area. 
+   The imposing Mountains of Shadow rise from the land not far to 
+the east, cutting off all hope of travel in that direction. 
+~
+74 1107361792 7
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74180
+D1
+~
+~
+0 -1  0 74176
+D2
+~
+~
+0 -1  0 74172
+D3
+~
+~
+0 -1  0 74174
+S
+#74176
+Northern Ithilien Dry Lands~
+   The land here is quite dry and unwelcoming of travellers with 
+not much water in the immediate area. Grass grows in patches 
+mostly and small shrubs occasionally manage to find a perchance 
+in the dry ground. Animals can rarely be heard or seen and the 
+most obvious sound is the wind with few other sounds intruding up 
+on the area. 
+~
+74 1107361792 7
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74181
+D1
+~
+~
+0 -1  0 74177
+D3
+~
+~
+0 -1  0 74175
+S
+#74177
+Sparse, Scrub-Dotted Countryside~
+   The terrain here is a wild, uninhabited land that spreads out 
+to the east and south, the beginnings of a forest enroaching from 
+the north and west. The immediate area is dotted with small, 
+green and brown shrubs and a mixture of yellow and pale-green 
+grasses. Not many travelers are seen, most preferring the safer 
+roads. The crumbling walls of what was once a fairly large 
+fortification lie southeast of here. 
+~
+74 1075904512 3
+0
+D0
+~
+~
+0 -1  0 74182
+D3
+~
+~
+0 -1  0 74176
+S
+#74178
+A Grassy Stretch of Bog~
+   Tufts of hard, brown grass and small, grey plants shoot out of
+the soft ground of the north Ithilien, the roaming heath
+seemingly abandoned by all things living. The occasional great
+tree lays strangled by lichen, bowed down under the weight of
+years, and on the occasionally hillock of hard land heaps of
+rotted wood and stone can be seen. In all directions the bog
+continues, distant mountains visible to the north and east, their
+peaks capped with snow.
+~
+74 1073807360 3
+0
+D1
+~
+~
+0 -1  0 74179
+D2
+~
+~
+0 -1  0 74173
+S
+#74179
+Grasslands South of a Huge Sink Hole~
+   The immediate area is dotted with small, green and brown 
+shrubs and a mixture of yellow and pale-green grasses. The 
+occasional tree provides shelter for the wildlife here and the 
+wind can be heard blowing through the hills. Not many travelers 
+are seen, most preferring the safer roads. A well-trodden trail 
+cuts through the grasslands to the east, while the ground to the 
+west has been violently pushed skyward, creating a steep, stone 
+escarpment that runs from the south to the north. 
+~
+74 1075904512 3
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D1
+~
+~
+0 -1  0 74180
+D2
+~
+~
+0 -1  0 74174
+D3
+~
+~
+0 -1  0 74178
+S
+#74180
+Sparse, Grassy Countryside~
+   These lands appear to have been tended fields at one time, but 
+they now show no signs of human inhabitation. Overgrown grasses 
+and scraggly weeds cover the relatively flat ground, interspersed 
+with an occasional twiggy bush. A large mound of rubble and ruin 
+looms a short distance to the west atop a hill, while a wide road 
+and dry hilly terrain is to the east. 
+~
+74 1107361792 3
+0
+D1
+~
+~
+0 -1  0 74181
+D2
+~
+~
+0 -1  0 74175
+D3
+~
+~
+0 -1  0 74179
+S
+#74181
+Hilly Grasslands~
+   The terrain here is a wild, uninhabited land that spreads out 
+to the west and south, a hard-packed dirt road hemming it in the 
+other directions. Low hills spaced one after the other are 
+covered by tall, straw-like grasses that bend and rustle in the 
+wind. The land being relatively flat, one can get a good view of 
+the surrounding countryside from atop one of these hills. A 
+stone fortress juts out to the southwest, while a steep mountain 
+range is within sight far to the east. 
+~
+74 1073807360 3
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D1
+~
+~
+0 -1  0 74182
+D2
+~
+~
+0 -1  0 74176
+D3
+~
+~
+0 -1  0 74180
+S
+#74182
+Scrub-Dotted Hills Far North of a Fort~
+   The immediate area is dotted with small, green and brown 
+shrubs and a mixture of yellow and pale-green grasses. The 
+occasional tree provides shelter for the wildlife here and the 
+wind can be heard blowing through the hills. Not many travelers 
+are seen, most preferring the safer roads. The hills grow more 
+pronounced to the east, while a fort lies to the south.
+~
+74 2162688 3
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D2
+~
+~
+0 -1  0 74177
+D3
+~
+~
+0 -1  0 74181
+S
+#74184
+New Room~
+No Description Set.
+~
+74 65536 13
+0
+D1
+~
+~
+0 -1  0 74185
+S
+#74185
+New Room~
+No Description Set.
+~
+74 65536 4
+0
+D1
+~
+~
+0 -1  0 74186
+D3
+~
+~
+0 -1  0 74184
+S
+#74186
+New Room~
+No Description Set.
+~
+74 65536 -1
+0
+D1
+~
+~
+0 -1  0 74187
+D3
+~
+~
+0 -1  0 74185
+S
+#74187
+New Room~
+No Description Set.
+~
+74 65536 4
+0
+D1
+~
+~
+0 -1  0 74188
+D3
+~
+~
+0 -1  0 74186
+S
+#74188
+New Room~
+No Description Set.
+~
+74 65536 6
+0
+D1
+~
+~
+0 -1  0 74189
+D3
+~
+~
+0 -1  0 74187
+S
+#74189
+New Room~
+No Description Set.
+~
+74 65536 6
+0
+D3
+~
+~
+0 -1  0 74188
+S
+#74196
+New Room~
+No Description Set.
+~
+74 65536 7
+0
+D1
+~
+~
+0 -1  0 74197
+S
+#74197
+New Room~
+No Description Set.
+~
+74 65536 3
+0
+D1
+~
+~
+0 -1  0 74198
+D3
+~
+~
+0 -1  0 74196
+S
+#74198
+New Room~
+No Description Set.
+~
+74 65536 4
+0
+D1
+~
+~
+0 -1  0 74199
+D3
+~
+~
+0 -1  0 74197
+S
+#74199
+New Room~
+No Description Set.
+~
+74 65536 4
+0
+D0
+~
+~
+0 -1  0 74175
+D1
+~
+~
+0 -1  0 74200
+D3
+~
+~
+0 -1  0 74198
+S
+#74200
+New Room~
+No Description Set.
+~
+74 65536 4
+0
+D1
+~
+~
+0 -1  0 74201
+D3
+~
+~
+0 -1  0 74199
+S
+#74201
+New Room~
+No Description Set.
+~
+74 65536 4
+0
+D1
+~
+~
+0 -1  0 74202
+D3
+~
+~
+0 -1  0 74200
+S
+#74202
+New Room~
+No Description Set.
+~
+74 65536 4
+0
+D0
+~
+~
+0 -1  0 74178
+D1
+~
+~
+0 -1  0 74203
+D3
+~
+~
+0 -1  0 74201
+S
+#74203
+New Room~
+No Description Set.
+~
+74 65536 6
+0
+D0
+~
+~
+0 -1  0 74179
+D1
+~
+~
+0 -1  0 74204
+D3
+~
+~
+0 -1  0 74202
+S
+#74204
+New Room~
+No Description Set.
+~
+74 65536 6
+0
+D0
+~
+~
+0 -1  0 74180
+D3
+~
+~
+0 -1  0 74203
+S
+#74059
+Sparse, Rocky Woodland Beneath Tall Cliffs~
+   The sheer, chalk-white cliff walls of the Emyn Arnen jut out 
+far above South Ithilien just a short distance to the north, and 
+here the land descends rapidly as it heads south in a series of 
+rocky, bumpy falls, headed straight in to a thin forest of 
+spruces, cedars and firs. Amidst the rocky ground, the 
+occasional knot of trees grows high in the chill, mountain air, 
+as can be seen the odd large animal track. 
+~
+74 65536 8
+0
+D0
+~
+~
+0 -1  0 74052
+D2
+~
+~
+0 -1  0 74066
+D5
+~
+~
+0 -1  0 74060
+S
+#74067
+Patchy, Scrub-Dotted Hills~
+   Here, the ancient forces of wind and rain have caused the 
+collapse of one side of a grassy hill. The wild, tough grasses 
+of the area have yet to tame the resultant gash of earth that 
+shows like a wound in an otherwise grassy sea. However, they 
+have conquered the rest of the softly undulating ground here, and 
+the vegetation resists the legs of the passing traveler just as 
+the hills tax them. 
+~
+74 65536 7
+0
+D0
+~
+~
+0 -1  0 74060
+D4
+~
+~
+0 -1  0 74066
+D5
+~
+~
+0 -1  0 74074
+S
+#74073
+Wildlife Scatter Room for South Ithilien~
+Scatter Room.
+~
+74 65540 4
+0
+D0
+~
+~
+0 -1  0 10160
+D1
+~
+~
+0 -1  0 10632
+D2
+~
+~
+0 -1  0 10798
+D3
+~
+~
+0 -1  0 10555
+D4
+~
+~
+0 -1  0 10403
+D5
+~
+~
+0 -1  0 10229
+S
+#74500
+In a Narrow Tunnel through the Mountains~
+   Growing darker as the tunnel pierces the foreboding mountains 
+of the Ephel Duath, its walls are crumbling and interwoven with 
+spider webs. A rancid smell drifts through the tunnel and 
+surrounding offshoots, all too small for the average humanoid.
+Pieces of clothing lay strewn about the place, torn into shreds. 
+Collections of ivory bones lie at intervals down the trail, set 
+in triangular piles with a skull at their top. Footsteps are 
+amplified in volume, echoing loudly down the forthcoming tunnels. 
+~
+74 65608 0
+0
+D3
+~
+~
+0 -1  0 4575
+D5
+~
+~
+0 -1  0 74501
+S
+#74501
+Descending Lofty Tunnel Through Jagged Caverns~
+   The bone and clothing in this area seems to have become 
+utilized in a somewhat more resolute fashion: small ivory shards 
+and squares of blood-stained cloth have been wrapped around one 
+another; torn; snapped; ripped, all in what seem like an attempt 
+to either garishly decorate the area or as a deterrent to anyone 
+who ventured into these rancid smelling passages through the 
+mountain. The vast, towering caverns have tunnels snaking in a 
+few directions, one in particular moving in a downward slope, 
+opening out abruptly. 
+~
+74 65608 0
+0
+D1
+~
+~
+0 -1  0 74502
+D4
+~
+~
+0 -1  0 74500
+S
+#74502
+Crumbling Tunnel Deeper in the Ephel Duath Range~
+   The tunnel snakes deeper into the dark rock of this mountain 
+range, any sign of life now long gone. Footsteps echo deeply and 
+reverberate throughout and off the cave's crumbling walls. A 
+rancid smell wafts through the system of small rocky offshoots 
+and various pieces of clothing have been torn and shredded at 
+various points in the room, blood staining them a crusty maroon. 
+~
+74 65608 0
+0
+D3
+~
+~
+0 -1  0 74501
+D5
+~
+~
+0 -1  0 74503
+S
+#74503
+A Narrow Cave Snaking Southward~
+   Narrowing considerably, this long stretch of cave is hewn 
+primarily out of rock. Walls smooth and ground stained dark, 
+there is a stale, malodorous scent lingering in the air, its 
+source not immediately apparent. A long-decayed skeleton has 
+been picked clean by time and various small creatures, the bones 
+scattered in one rounded corner, not far from their companions. 
+And most prominent on the wall, an ambling, brown trail has been 
+traced as though words written onto the stone, marked by an old, 
+dripping handprint and dipping crookedly from its starting point. 
+Its edges have begun to flake away, time having had its way with 
+the coherence. 
+~
+74 65672 0
+0
+D2
+~
+heavy timber door~
+1 8033  0 74504
+D4
+~
+~
+0 -1  0 74502
+S
+#74504
+In the Southern End of a Large Cavern~
+   The rock walls of this large cavern are cracked and crumbling. 
+The ceiling and walls are shored up by what was once thick, 
+wooden beams now rotting and splintering apart. Puddles of murky 
+water seep up from cracks in the rubble strewn floor. The air is 
+dank and heavy. The smell of wet rock and rotting wood fills the 
+air. 
+~
+74 65672 0
+0
+D0
+~
+heavy timber door~
+1 8033  0 74503
+D1
+~
+~
+0 -1  0 74505
+S
+#74505
+A Large Crumbling Cavern~
+   The rock walls of this large cavern are cracked and crumbling. 
+The ceiling and walls are shured up by what was once thick, 
+wooden beams now rotting and splintering apart. Puddles of murky 
+water seep up from cracks in the rubble strewn floor. The air is 
+dank and heavy. The smell of wet rock and rotting wood fills the 
+air. An haphazard pile of rock blocks the view of the eastern end
+of the chamber.
+~
+74 65672 0
+0
+D3
+~
+~
+0 -1  0 74504
+D4
+~
+~
+0 -1  0 74506
+Q0
+6
+There is a small ebon chest hidden n the rubble close to the wall to the north.
+~
+Q4
+5
+A crumbling stone stairway leads up in the eastern end of the chamber.
+~
+S
+#74506
+A Small Crumbling Rock Vault~
+   A crumbling staircase carved out from the wall enters the 
+chamber rom the western end of the chamber. The rock walls, 
+damp and cracking are shured up with rotting beams. The ceiling 
+of the cave is colapsed at the rear while the remainder is 
+supported by rotting beams. The air is damp and heavy with a 
+musty and acrid stench. 
+~
+74 65672 0
+0
+D5
+~
+~
+0 -1  0 74505
+S
+#74086
+Murky Woodland~
+   Black, slender trunks covered with rough bark stretch far 
+above the woodland floor, devoid of branches until the unruly, 
+twisting, intertwined canopy of weak twigs and thin needles. The 
+heavy air beneath is laced with fog and silence; nothing stirs 
+but that disturbed by the rare passerby. The sparse, red-brown 
+grass grows in sickly patches underfoot, moisture glistening on 
+the blades. Sunlight seems as if it is consciously held back by 
+the fog and the branches above, pushing through in murky streaks. 
+~
+74 1107361792 3
+0
+D0
+~
+~
+0 -1  0 74089
+D1
+~
+~
+0 -1  0 74087
+D2
+~
+~
+0 -1  0 74083
+S
+#74096
+A Foggy Evergreen Wood~
+   A grey fog lays still upon the woodland floor, stirring only 
+with the passage of infrequent travelers. The light of the sun 
+filters dimly through the scraggly tops of the evergreens, 
+drawing white streaks through the shadowy mist below. The 
+undergrowth is sparse, consisting of thin, reddish-brown grasses 
+growing knee-high in the heavy shadowy air. The trees are quite 
+tall, their thin trunks straight and dark, slick with moisture 
+from the fog. No branches grow upon them except at the very top, 
+and the trees grow closely together. 
+~
+74 1107361792 3
+0
+D0
+~
+~
+0 -1  0 74099
+D1
+~
+~
+0 -1  0 74097
+D2
+~
+~
+0 -1  0 74093
+D3
+~
+~
+0 -1  0 74095
+S
+#74120
+Tree Bearing Fungus~
+   Thick slabs of oozing disc-shaped fungus jut from the bark of 
+one twisted trunk in a wood of otherwise unmarred straight 
+slender trunks. An unpleasant scent is present near this one 
+tree, adding to the oppressive atmosphere in the fog-darkened, 
+heavy air beneath the tall evergreens. The marked silence of 
+this wood is startling, for there is no rattling of small animals 
+foraging, nor birdsong, nor even the sound of insects. There is 
+only the wood, and the fog. 
+~
+74 1107361792 5
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74135
+D1
+~
+~
+0 -1  0 74121
+D3
+~
+~
+0 -1  0 74119
+S
+#74121
+A Foggy Evergreen Wood~
+   A grey fog lays still upon the woodland floor, stirring only 
+with the passage of infrequent travelers. The light of the sun 
+filters dimly through the scraggly tops of the evergreens, 
+drawing white streaks through the shadowy mist below. The 
+undergrowth is sparse, consisting of thin, reddish-brown grasses 
+growing knee-high in the heavy shadowy air. The trees are quite 
+tall, their thin trunks straight and dark, slick with moisture 
+from the fog. No branches grow upon them except at the very top, 
+and the trees grow closely together. 
+~
+74 1107361792 5
+0
+D0
+~
+~
+0 -1  0 74136
+D1
+~
+~
+0 -1  0 74122
+D3
+~
+~
+0 -1  0 74120
+S
+#74144
+Boggy Lowlands~
+   Small hillocks and short gullies rise and fall here in South
+Ithilien, the overriding dampness of the land wearing away the 
+areas of dirt and soil and leaving the occasional high peak of
+flint or some other form of rock. The marshy ground lets nothing
+grow upon it except low lying scrub bushes, and the occasional
+colony of moss upon an ancient, felled shell of a dead tree. To
+the south and west, the land grows moister as it approaches a 
+pair of large rivers.
+~
+74 1107362304 13
+0
+D0
+~
+~
+0 -1  0 74157
+D1
+~
+~
+0 -1  0 74145
+D3
+~
+~
+0 -1  0 74143
+S
+#74159
+The Barren North Ithilien~
+   The contours of the far Northern Ithilien roll up and down in
+gentle curves, the small hills and gulleys created all of soft,
+boggy land typical to the roaming heathland. Numerous small
+bushes and dark grasses grow in a rampant, haphazard fashion
+across the countryside, the large flora of trees strewn either
+dead across puddles of muddy water or bent at strange angles.
+Broadly sloping down from the horizon-set eastern mountains, a
+dark stain of land crowds the north border of the bog.
+~
+74 1073807360 3
+0
+D1
+~
+~
+0 -1  0 74160
+D2
+~
+~
+0 -1  0 74146
+D3
+~
+~
+0 -1  0 74158
+S
+#74169
+Northern Ithilien Dry Lands~
+   The ground is cracked and broken, and littered with loose dark 
+gray rock that shifts and slides occasionally. To the east, 
+huge, stark black mountains are visible; the land rises slightly 
+as it approaches them. There is no sign of plant or animal life, 
+only the long-dead skeletons of desiccated trees. Boulders dot 
+the landscape, standing out amongst the smaller stones. 
+~
+74 1107361792 7
+0
+D0
+~
+~
+0 -1  0 74171
+D2
+~
+~
+0 -1  0 74167
+D3
+~
+~
+0 -1  0 74168
+S
+#74172
+North Ithilien Dry Plains~
+   The terrain is rocky, with very little vegetation and no sign 
+of animal life. Boulders dot the landscape, and jagged, dark 
+gray and black stones litter the ground, occasionally shifting in 
+small, tumbling landslides. The mountains of Ephel Duath loom to 
+the east, stark and black, with the ground rising sharply to meet 
+them. 
+To the north a road passing through the Morgul Vale can be seen.
+While to the south there is the slippery banks of the Morgulduin.
+~
+74 1107365888 7
+0
+D0
+~
+~
+0 -1  0 74175
+D3
+~
+~
+0 -1  0 74171
+S
+#74173
+Grasslands Bordering a Stream and Forest~
+   Charred trees and bushes cover this incline, the vegetation 
+blackened by a fire so ferocious that nothing seems to have grown 
+back - no green tendrils amidst the results of some mighty 
+conflagation, just ash and blackened husks and trunks. The 
+ground is relatively firm underfoot, although the bank grows 
+muddier as it nears the water's edge. The stream's clear waters 
+tumble downhill to the west with a loud, rushing noise. 
+~
+74 2162688 4
+0
+A
+~
+~
+~
+~
+   A light blanket of snow covers the ground here, broken only by
+the tops of yellowish, knee-high grasses that cover the land
+between a large forest to the southwest and a stream to the north.
+The ground is relatively firm underfoot, although the bank grows
+muddier as it nears the water's edge. All is silent except for the
+wind, the whispers of settling snow, and the stream's clear waters
+tumbling downhill to the west with a rushing noise.
+~
+~
+   Colors muted under the shadow of night, knee-high grasses
+cover the land between a large forest to the southwest and a
+stream to the north. The ground is relatively firm underfoot,
+although the bank grows muddier as it nears the water's edge.
+Insects chirp and hum from amidst the grasses, while the
+occasional call of a bullfrog sounds from along the shore. The
+stream's clear waters tumble downhill to the west with a loud,
+rushing noise.
+~
+~
+~
+~
+   A light blanket of snow covers the ground here, broken only by
+the tops of yellowish, knee-high grasses that cover the land
+between a large forest to the southwest and a stream to the north.
+The ground is relatively firm underfoot, although the bank grows
+muddier as it nears the water's edge. All is silent except for the
+wind, the whispers of settling snow, and the stream's clear waters
+tumbling downhill to the west with a rushing noise.
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 74178
+D1
+~
+~
+0 -1  0 74174
+D2
+~
+~
+0 -1  0 74170
+S
+#74183
+Wildlife Scatter Room for South Ithilien~
+Scatter Room.
+~
+74 65536 0
+0
+D1
+~
+~
+0 -1  0 10632
+D2
+~
+~
+0 -1  0 10798
+D3
+~
+~
+0 -1  0 10614
+D4
+~
+~
+0 -1  0 10403
+S
+#74190
+Small Log Cabin Beside the Harad Road~
+   Clearly of fresh construction, this log cabin is little more 
+than a bare shell, large enough to fit a brazier for warmth and a 
+few tables. It is clearly a place for temporary visitors to rest 
+or meet before continuing their journey. 
+   
+   [OOC: Please "#4send runner#0" if you wish to alert the 
+soldiers at the fort that you would like them to journey here and 
+meet you.] 
+~
+74 201392140 0
+0
+D3
+~
+door~
+1 -1  0 74069
+P
+send~
+runner~
+if oexist (11814,74190)
+ostr The messenger has departed and will return shortly.
+vstr The messenger has departed and will return shortly.
+else do
+clan_echo zone ithilien_battalion A runner arrives announcing that a visitor, looking like $n, is waiting in the cabin at the barricade on the Harad Road. They wish to meet with a representative of Lord Eradan and await a reply.
+ostr The messenger is sent to the fort by $n.
+vstr The messenger makes haste to the fort.
+put 11814 74190
+~
+S
+$~

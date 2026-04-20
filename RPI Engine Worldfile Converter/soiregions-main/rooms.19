@@ -1,0 +1,4074 @@
+#19000
+Base-Room for Rivers~
+This is the base-room for lots of big rivers in the game.
+19000-19199 is for the Morgulduin.
+19200-19399 is for the Poros.
+~
+19 1073807368 0
+0
+S
+#19001
+Polluted Morgulduin Flowing Over A Ruined Bridge~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+The remains of a stone bridge lay under the waters. 
+~
+19 1073809408 17
+0
+D0
+~
+~
+0 -1  0 19003
+D1
+~
+~
+0 -1  0 19002
+D3
+~
+~
+0 -1  0 19066
+D5
+~
+~
+0 -1  0 19101
+S
+#19002
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath. 
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19004
+D1
+~
+~
+0 -1  0 10072
+D2
+~
+~
+0 -1  0 10074
+D3
+~
+~
+0 -1  0 19001
+D5
+~
+~
+0 -1  0 19102
+S
+#19003
+Polluted Morgulduin Flowing Over A Ruined Bridge~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+The remains of a stone bridge lay under the waters. 
+~
+19 1073809408 17
+0
+D1
+~
+~
+0 -1  0 19004
+D2
+~
+~
+0 -1  0 19001
+D3
+~
+~
+0 -1  0 19067
+D5
+~
+~
+0 -1  0 19103
+S
+#19004
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath. 
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19005
+D2
+~
+~
+0 -1  0 19002
+D3
+~
+~
+0 -1  0 19003
+D5
+~
+~
+0 -1  0 19104
+S
+#19005
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19007
+D1
+~
+~
+0 -1  0 19006
+D2
+~
+~
+0 -1  0 10072
+D3
+~
+~
+0 -1  0 19004
+D5
+~
+~
+0 -1  0 19105
+S
+#19006
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19008
+D1
+~
+~
+0 -1  0 19009
+D2
+~
+~
+0 -1  0 10071
+D3
+~
+~
+0 -1  0 19005
+D5
+~
+~
+0 -1  0 19106
+S
+#19007
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19008
+D2
+~
+~
+0 -1  0 19005
+D5
+~
+~
+0 -1  0 19107
+S
+#19008
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19010
+D2
+~
+~
+0 -1  0 19006
+D3
+~
+~
+0 -1  0 19007
+D5
+~
+~
+0 -1  0 19108
+S
+#19009
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19010
+D1
+~
+~
+0 -1  0 19012
+D2
+~
+~
+0 -1  0 10070
+D3
+~
+~
+0 -1  0 19006
+D5
+~
+~
+0 -1  0 19109
+S
+#19010
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19011
+D2
+~
+~
+0 -1  0 19009
+D3
+~
+~
+0 -1  0 19008
+D5
+~
+~
+0 -1  0 19110
+S
+#19011
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19013
+D2
+~
+~
+0 -1  0 19012
+D3
+~
+~
+0 -1  0 19010
+D5
+~
+~
+0 -1  0 19111
+S
+#19012
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19011
+D1
+~
+~
+0 -1  0 10067
+D2
+~
+~
+0 -1  0 10069
+D3
+~
+~
+0 -1  0 19009
+D5
+~
+~
+0 -1  0 19112
+S
+#19013
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19014
+D1
+~
+~
+0 -1  0 19016
+D2
+~
+~
+0 -1  0 10067
+D3
+~
+~
+0 -1  0 19011
+D5
+~
+~
+0 -1  0 19113
+S
+#19014
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19015
+D2
+~
+~
+0 -1  0 19013
+D5
+~
+~
+0 -1  0 19114
+S
+#19015
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19018
+D2
+~
+~
+0 -1  0 19016
+D3
+~
+~
+0 -1  0 19014
+D5
+~
+~
+0 -1  0 19115
+S
+#19016
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19015
+D1
+~
+~
+0 -1  0 19017
+D2
+~
+~
+0 -1  0 10066
+D3
+~
+~
+0 -1  0 19013
+D5
+~
+~
+0 -1  0 19116
+S
+#19017
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19018
+D1
+~
+~
+0 -1  0 19020
+D2
+~
+~
+0 -1  0 10065
+D3
+~
+~
+0 -1  0 19016
+D5
+~
+~
+0 -1  0 19117
+S
+#19018
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19019
+D2
+~
+~
+0 -1  0 19017
+D3
+~
+~
+0 -1  0 19015
+D5
+~
+~
+0 -1  0 19118
+S
+#19019
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D2
+~
+~
+0 -1  0 19020
+D3
+~
+~
+0 -1  0 19018
+D5
+~
+~
+0 -1  0 19119
+S
+#19020
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19019
+D1
+~
+~
+0 -1  0 19021
+D2
+~
+~
+0 -1  0 10064
+D3
+~
+~
+0 -1  0 19017
+D5
+~
+~
+0 -1  0 19120
+S
+#19021
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19022
+D2
+~
+~
+0 -1  0 10063
+D3
+~
+~
+0 -1  0 19020
+D5
+~
+~
+0 -1  0 19121
+S
+#19022
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19023
+D1
+~
+~
+0 -1  0 19025
+D2
+~
+~
+0 -1  0 19021
+D3
+~
+~
+0 -1  0 19019
+D5
+~
+~
+0 -1  0 19122
+S
+#19023
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19024
+D2
+~
+~
+0 -1  0 19022
+D5
+~
+~
+0 -1  0 19123
+S
+#19024
+A Washed-Out Ford in the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. Broad stone pillars rise 
+from the filthy waters to a bridge passing overhead. The bank of 
+the river to the north is ragged and raw, too steep and torn to 
+climb. 
+~
+19 1075904516 17
+0
+D1
+~
+~
+0 -1  0 19027
+D2
+~
+~
+0 -1  0 19025
+D3
+~
+~
+0 -1  0 19023
+S
+#19025
+A Ravaged Section of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. Broad stone pillars rise 
+from the filthy waters to a bridge passing overhead. The bank of 
+the river to the south is ragged and raw, too steep and torn to 
+climb. 
+~
+19 1075904516 17
+0
+D0
+~
+~
+0 -1  0 19024
+D1
+~
+~
+0 -1  0 19026
+D3
+~
+~
+0 -1  0 19022
+S
+#19026
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19027
+D1
+~
+~
+0 -1  0 19033
+D2
+~
+~
+0 -1  0 10017
+D3
+~
+~
+0 -1  0 19025
+D5
+~
+~
+0 -1  0 19126
+S
+#19027
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19032
+D2
+~
+~
+0 -1  0 19026
+D3
+~
+~
+0 -1  0 19024
+D5
+~
+~
+0 -1  0 19127
+S
+#19028
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19029
+D5
+~
+~
+0 -1  0 19128
+S
+#19029
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D2
+~
+~
+0 -1  0 19028
+D5
+~
+~
+0 -1  0 19129
+S
+#19030
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 4055
+D1
+~
+~
+0 -1  0 19036
+D3
+~
+~
+0 -1  0 4039
+D5
+~
+~
+0 -1  0 19130
+S
+#19031
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19035
+D2
+~
+~
+0 -1  0 19032
+D5
+~
+~
+0 -1  0 19131
+S
+#19032
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19031
+D1
+~
+~
+0 -1  0 19034
+D2
+~
+~
+0 -1  0 19033
+D3
+~
+~
+0 -1  0 19027
+D5
+~
+~
+0 -1  0 19132
+S
+#19033
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19032
+D1
+~
+~
+0 -1  0 10028
+D2
+~
+~
+0 -1  0 10041
+D3
+~
+~
+0 -1  0 19026
+D5
+~
+~
+0 -1  0 19133
+S
+#19034
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19035
+D1
+~
+~
+0 -1  0 19039
+D2
+~
+~
+0 -1  0 10028
+D3
+~
+~
+0 -1  0 19032
+D5
+~
+~
+0 -1  0 19134
+S
+#19035
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19038
+D2
+~
+~
+0 -1  0 19034
+D3
+~
+~
+0 -1  0 19031
+D5
+~
+~
+0 -1  0 19135
+S
+#19036
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 4056
+D1
+~
+~
+0 -1  0 19037
+D3
+~
+~
+0 -1  0 19030
+D5
+~
+~
+0 -1  0 19136
+S
+#19037
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 4057
+D1
+~
+~
+0 -1  0 19042
+D3
+~
+~
+0 -1  0 19036
+D5
+~
+~
+0 -1  0 19137
+S
+#19038
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19041
+D2
+~
+~
+0 -1  0 19039
+D3
+~
+~
+0 -1  0 19035
+D5
+~
+~
+0 -1  0 19138
+S
+#19039
+Polluted Waters North of a Pier~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath. To the south, a wooden 
+dock juts into the river 
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19038
+D1
+~
+~
+0 -1  0 19040
+D2
+~
+~
+0 -1  0 10027
+D3
+~
+~
+0 -1  0 19034
+D5
+~
+~
+0 -1  0 19139
+P
+rocksfall~
+peopledie~
+if skillcheck(danger-sense,1d50)
+vstr The hackles on your neck rise, and your stomach twists in an unpleasant, foreboding knot.  A moment later, you feel yourself scrambling to the side - and a fortunate event it was, for a moment later a sizable rock thuds down from the heavens onto where you once stood.
+ostr $n nimbly moves off to the side, narrowly avoiding a hail of rocks and stones that arrives, launched in from the tower's top to the south
+ostr -
+else do
+if stat(aur,18)
+set random 1d4
+else do 
+set random 1d3
+fi done
+if (random=4)
+vstr Fate would seem to be on your side today - Though a barrage of rocks are unleashed from the mangonel atop the fortress to the south, you miraculously escape unscathed.
+ostr $n nimbly steps to the side, narrowly avoiding a hail of rocks and stones that comes tumbling down from above.
+ostr -
+else do
+if skill (dodge, 50)
+if skillcheck(dodge, 1d200)
+vstr Spotting the skies darken from an incoming hail of rocks, you quickly leap aside just in time to avoid injury as the stones splash into the water.
+ostr $n nimbly moves to the side, narrowly avoiding a hail of rocks and stones that come tumbling down from the south.
+ostr - 
+else do
+if skillcheck (dodge, 1d200)
+vstr Almost too late, you spot a storm of rocks launched towards you from the fortress's tower. Diving to the side, you manage to escape at least some of the brunt.
+ostr $n attempts to avoid the hail of stones and rocks, though is only partially successful.
+ostr -
+pain -1 1 3 -1 blunt
+pain -1 1 3 -1 blunt
+else do
+vstr You find yourself in the midst of a storm of rocks, stones and other debris unleashed from the tower's catapult, the material smashing painfully against your frame.
+ostr Too slow to avoid the barrage of rocks from the tower's catapult, $n is struck by numerous stones. 
+ostr -
+pain -1 1 3 -1 blunt
+pain -1 1 3 -1 blunt
+pain -1 1 3 -1 blunt
+pain -1 1 3 -1 blunt
+fi done
+fi done
+else do
+if skillcheck (dodge, 1d150)
+vstr Almost too late, you spot a storm of rocks cascading down towards you from the tower's catapult. Leaping to the side, you manage to escape at least some of the brunt.
+ostr $n attempts to avoid the hail of stones and rocks, though is only partially successful.
+ostr -
+pain -1 1 3 -1 blunt
+pain -1 1 3 -1 blunt
+else do
+vstr You find yourself in the midst of a storm of rocks, stones and other debris plummeting towards the earth from the Garrison's mangonel, the material smashing painfully against your frame.
+ostr Too slow to avoid the barrage of rocks from above, $n is struck by numerous stones. 
+ostr -
+pain -1 1 3 -1 blunt
+pain -1 1 3 -1 blunt
+pain -1 1 3 -1 blunt
+pain -1 1 3 -1 blunt
+fi done
+fi done
+fi done
+fi all done
+fi all done
+~
+S
+#19040
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19041
+D1
+~
+~
+0 -1  0 10016
+D2
+~
+~
+0 -1  0 10026
+D3
+~
+~
+0 -1  0 19039
+D5
+~
+~
+0 -1  0 19140
+S
+#19041
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19046
+D2
+~
+~
+0 -1  0 19040
+D3
+~
+~
+0 -1  0 19038
+D5
+~
+~
+0 -1  0 19141
+S
+#19042
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 4058
+D3
+~
+~
+0 -1  0 19037
+D5
+~
+~
+0 -1  0 19142
+S
+#19043
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D5
+~
+~
+0 -1  0 19143
+S
+#19044
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 4078
+D1
+~
+~
+0 -1  0 19049
+D3
+~
+~
+0 -1  0 4058
+D5
+~
+~
+0 -1  0 19144
+S
+#19045
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19048
+D2
+~
+~
+0 -1  0 19046
+D5
+~
+~
+0 -1  0 19145
+S
+#19046
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19045
+D1
+~
+~
+0 -1  0 19047
+D2
+~
+~
+0 -1  0 10016
+D3
+~
+~
+0 -1  0 19041
+D5
+~
+~
+0 -1  0 19146
+S
+#19047
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19048
+D1
+~
+~
+0 -1  0 19050
+D2
+~
+~
+0 -1  0 71016
+D3
+~
+~
+0 -1  0 19046
+D5
+~
+~
+0 -1  0 19147
+S
+#19048
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19051
+D2
+~
+~
+0 -1  0 19047
+D3
+~
+~
+0 -1  0 19045
+D5
+~
+~
+0 -1  0 19148
+S
+#19049
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 4465
+D1
+~
+~
+0 -1  0 19052
+D3
+~
+~
+0 -1  0 19044
+D5
+~
+~
+0 -1  0 19149
+S
+#19050
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19051
+D1
+~
+~
+0 -1  0 19057
+D2
+~
+~
+0 -1  0 71017
+D3
+~
+~
+0 -1  0 19047
+D5
+~
+~
+0 -1  0 19150
+S
+#19051
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19056
+D2
+~
+~
+0 -1  0 19050
+D3
+~
+~
+0 -1  0 19048
+D5
+~
+~
+0 -1  0 19151
+S
+#19052
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 4466
+D1
+~
+~
+0 -1  0 19055
+D3
+~
+~
+0 -1  0 19049
+D5
+~
+~
+0 -1  0 19152
+S
+#19053
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+~
+19 67584 17
+0
+D5
+~
+~
+0 -1  0 19153
+S
+#19054
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+   To the east, the waters of the river flow under a bridge.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 4464
+D1
+~
+~
+0 -1  0 19061
+D2
+~
+~
+0 -1  0 19055
+D3
+~
+~
+0 -1  0 4466
+D5
+~
+~
+0 -1  0 19154
+S
+#19055
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+   To the east, the waters of the river flow under a bridge.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19054
+D1
+~
+~
+0 -1  0 19060
+D3
+~
+~
+0 -1  0 19052
+D5
+~
+~
+0 -1  0 19155
+S
+#19056
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+   To the east, the waters of the river flow under a bridge.
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19059
+D2
+~
+~
+0 -1  0 19057
+D3
+~
+~
+0 -1  0 19051
+D5
+~
+~
+0 -1  0 19156
+S
+#19057
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+   To the east, the waters of the river flow under a bridge.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19056
+D1
+~
+~
+0 -1  0 19058
+D2
+~
+~
+0 -1  0 71018
+D3
+~
+~
+0 -1  0 19050
+D5
+~
+~
+0 -1  0 19157
+S
+#19058
+Under a Bridge~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+Directly overhead is a broad bridge of yellowed bones and twisted, 
+spiny branbles, forcing one beneath the surface of the water here. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19059
+D1
+~
+~
+0 -1  0 19065
+D3
+~
+~
+0 -1  0 19057
+S
+#19059
+Under a Bridge~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+Directly overhead is a broad bridge of yellowed bones and twisted, 
+spiny branbles, forcing one beneath the surface of the water here. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19064
+D2
+~
+~
+0 -1  0 19058
+D3
+~
+~
+0 -1  0 19056
+S
+#19060
+Under a Bridge~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+Directly overhead is a broad bridge of yellowed bones and twisted, 
+spiny branbles, forcing one beneath the surface of the water here. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19061
+D1
+~
+~
+0 -1  0 19063
+D3
+~
+~
+0 -1  0 19055
+S
+#19061
+Under a Bridge~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+Directly overhead is a broad bridge of yellowed bones and twisted, 
+spiny branbles, forcing one beneath the surface of the water here. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19062
+D2
+~
+~
+0 -1  0 19060
+D3
+~
+~
+0 -1  0 19054
+S
+#19062
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+   To the west, the waters of the river flow under a bridge.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 4080
+D2
+~
+~
+0 -1  0 19063
+D3
+~
+~
+0 -1  0 19061
+D5
+~
+~
+0 -1  0 19162
+S
+#19063
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+   To the west, the waters of the river flow under a bridge.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19062
+D3
+~
+~
+0 -1  0 19060
+D5
+~
+~
+0 -1  0 19163
+S
+#19064
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+   To the west, the waters of the river flow under a bridge.
+~
+19 67584 17
+0
+D2
+~
+~
+0 -1  0 19065
+D3
+~
+~
+0 -1  0 19059
+D5
+~
+~
+0 -1  0 19164
+S
+#19065
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath.
+   To the west, the waters of the river flow under a bridge.
+~
+19 67584 17
+0
+D0
+~
+~
+0 -1  0 19064
+D2
+~
+~
+0 -1  0 10218
+D3
+~
+~
+0 -1  0 19058
+D4
+~
+~
+0 -1  0 3700
+D5
+~
+~
+0 -1  0 19165
+S
+#19066
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath. 
+~
+19 67584 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+Swimming in to the Anduin wouldn't be a bright idea, even for you.
+~
+~
+~
+D0
+~
+~
+0 -1  0 19067
+D1
+~
+~
+0 -1  0 19001
+D2
+~
+~
+0 -1  0 10076
+D5
+~
+~
+0 -1  0 19166
+S
+#19067
+In the Polluted Waters of the Morgulduin~
+   The waters of Morgulduin are rank to the nose, the smell of 
+sulfur and refuse seeming to cling to any who enter it. While 
+the current is not fast, it is discernible, flowing from the 
+eastern mountain range, the black wall of the Ephel Duath that 
+mark the eastern horizon, to the west. While not too terribly 
+cold, the river is quite deep, and those not powerful swimmers 
+run the risk of being dragged underneath. 
+~
+19 67584 17
+0
+D1
+~
+~
+0 -1  0 19003
+D2
+~
+~
+0 -1  0 19066
+D5
+~
+~
+0 -1  0 19167
+S
+#19110
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19111
+D2
+~
+~
+0 -1  0 19109
+D3
+~
+~
+0 -1  0 19108
+D4
+~
+~
+0 -1  0 19010
+S
+#19111
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19113
+D2
+~
+~
+0 -1  0 19112
+D3
+~
+~
+0 -1  0 19110
+D4
+~
+~
+0 -1  0 19011
+S
+#19112
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19111
+D3
+~
+~
+0 -1  0 19109
+D4
+~
+~
+0 -1  0 19012
+S
+#19113
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19114
+D1
+~
+~
+0 -1  0 19116
+D3
+~
+~
+0 -1  0 19111
+D4
+~
+~
+0 -1  0 19013
+S
+#19114
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19115
+D2
+~
+~
+0 -1  0 19113
+D4
+~
+~
+0 -1  0 19014
+S
+#19115
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19118
+D2
+~
+~
+0 -1  0 19116
+D3
+~
+~
+0 -1  0 19114
+D4
+~
+~
+0 -1  0 19015
+S
+#19116
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19115
+D1
+~
+~
+0 -1  0 19117
+D3
+~
+~
+0 -1  0 19113
+D4
+~
+~
+0 -1  0 19016
+S
+#19117
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19118
+D1
+~
+~
+0 -1  0 19120
+D3
+~
+~
+0 -1  0 19116
+D4
+~
+~
+0 -1  0 19017
+S
+#19118
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19119
+D2
+~
+~
+0 -1  0 19117
+D3
+~
+~
+0 -1  0 19115
+D4
+~
+~
+0 -1  0 19018
+S
+#19119
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19122
+D2
+~
+~
+0 -1  0 19120
+D3
+~
+~
+0 -1  0 19118
+D4
+~
+~
+0 -1  0 19019
+S
+#19120
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19119
+D1
+~
+~
+0 -1  0 19121
+D3
+~
+~
+0 -1  0 19117
+D4
+~
+~
+0 -1  0 19020
+S
+#19121
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19122
+D3
+~
+~
+0 -1  0 19120
+D4
+~
+~
+0 -1  0 19021
+S
+#19122
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19123
+D2
+~
+~
+0 -1  0 19121
+D3
+~
+~
+0 -1  0 19119
+D4
+~
+~
+0 -1  0 19022
+S
+#19123
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D2
+~
+~
+0 -1  0 19122
+D4
+~
+~
+0 -1  0 19023
+S
+#19124
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+S
+#19125
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+S
+#19126
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19127
+D1
+~
+~
+0 -1  0 19133
+D4
+~
+~
+0 -1  0 19026
+S
+#19127
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19132
+D2
+~
+~
+0 -1  0 19126
+D4
+~
+~
+0 -1  0 19027
+S
+#19128
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D4
+~
+~
+0 -1  0 19028
+S
+#19129
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D4
+~
+~
+0 -1  0 19029
+S
+#19130
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19136
+D4
+~
+~
+0 -1  0 19030
+S
+#19131
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19135
+D2
+~
+~
+0 -1  0 19132
+D4
+~
+~
+0 -1  0 19031
+S
+#19132
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19131
+D1
+~
+~
+0 -1  0 19134
+D2
+~
+~
+0 -1  0 19133
+D3
+~
+~
+0 -1  0 19127
+D4
+~
+~
+0 -1  0 19032
+S
+#19133
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19132
+D3
+~
+~
+0 -1  0 19126
+D4
+~
+~
+0 -1  0 19033
+S
+#19134
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19135
+D1
+~
+~
+0 -1  0 19139
+D3
+~
+~
+0 -1  0 19132
+D4
+~
+~
+0 -1  0 19034
+S
+#19135
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19138
+D2
+~
+~
+0 -1  0 19134
+D3
+~
+~
+0 -1  0 19131
+D4
+~
+~
+0 -1  0 19035
+S
+#19136
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19137
+D3
+~
+~
+0 -1  0 19130
+D4
+~
+~
+0 -1  0 19036
+S
+#19137
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19142
+D3
+~
+~
+0 -1  0 19136
+D4
+~
+~
+0 -1  0 19037
+S
+#19138
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19141
+D2
+~
+~
+0 -1  0 19139
+D3
+~
+~
+0 -1  0 19135
+D4
+~
+~
+0 -1  0 19038
+S
+#19139
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19138
+D1
+~
+~
+0 -1  0 19140
+D3
+~
+~
+0 -1  0 19134
+D4
+~
+~
+0 -1  0 19039
+S
+#19140
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19141
+D3
+~
+~
+0 -1  0 19139
+D4
+~
+~
+0 -1  0 19040
+S
+#19141
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D2
+~
+~
+0 -1  0 19140
+D3
+~
+~
+0 -1  0 19138
+D4
+~
+~
+0 -1  0 19041
+S
+#19142
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D3
+~
+~
+0 -1  0 19137
+D4
+~
+~
+0 -1  0 19042
+S
+#19143
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D4
+~
+~
+0 -1  0 19043
+S
+#19144
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19149
+D4
+~
+~
+0 -1  0 19044
+S
+#19145
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19148
+D2
+~
+~
+0 -1  0 19146
+D4
+~
+~
+0 -1  0 19045
+S
+#19146
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19145
+D1
+~
+~
+0 -1  0 19147
+D4
+~
+~
+0 -1  0 19046
+S
+#19147
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19148
+D1
+~
+~
+0 -1  0 19150
+D3
+~
+~
+0 -1  0 19146
+D4
+~
+~
+0 -1  0 19047
+S
+#19148
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19151
+D2
+~
+~
+0 -1  0 19147
+D3
+~
+~
+0 -1  0 19145
+D4
+~
+~
+0 -1  0 19048
+S
+#19149
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19152
+D3
+~
+~
+0 -1  0 19144
+D4
+~
+~
+0 -1  0 19049
+S
+#19150
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19151
+D1
+~
+~
+0 -1  0 19157
+D3
+~
+~
+0 -1  0 19147
+D4
+~
+~
+0 -1  0 19050
+S
+#19151
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19156
+D2
+~
+~
+0 -1  0 19150
+D3
+~
+~
+0 -1  0 19148
+D4
+~
+~
+0 -1  0 19051
+S
+#19152
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19155
+D3
+~
+~
+0 -1  0 19149
+D4
+~
+~
+0 -1  0 19052
+S
+#19153
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D4
+~
+~
+0 -1  0 19053
+S
+#19154
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D2
+~
+~
+0 -1  0 19155
+D4
+~
+~
+0 -1  0 19054
+S
+#19155
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19154
+D3
+~
+~
+0 -1  0 19152
+D4
+~
+~
+0 -1  0 19055
+S
+#19156
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D2
+~
+~
+0 -1  0 19157
+D3
+~
+~
+0 -1  0 19151
+D4
+~
+~
+0 -1  0 19056
+S
+#19157
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19156
+D3
+~
+~
+0 -1  0 19150
+D4
+~
+~
+0 -1  0 19057
+S
+#19158
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+S
+#19159
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+S
+#19160
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+S
+#19161
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+S
+#19162
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D2
+~
+~
+0 -1  0 19163
+D4
+~
+~
+0 -1  0 19062
+S
+#19163
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19162
+D4
+~
+~
+0 -1  0 19063
+S
+#19164
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D2
+~
+~
+0 -1  0 19165
+D4
+~
+~
+0 -1  0 19064
+S
+#19165
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19164
+D4
+~
+~
+0 -1  0 19065
+S
+#19166
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19167
+D1
+~
+~
+0 -1  0 19101
+D4
+~
+~
+0 -1  0 19066
+S
+#19167
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19103
+D2
+~
+~
+0 -1  0 19166
+D4
+~
+~
+0 -1  0 19067
+S
+#19101
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19103
+D1
+~
+~
+0 -1  0 19102
+D3
+~
+~
+0 -1  0 19166
+D4
+~
+~
+0 -1  0 19001
+S
+#19102
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19104
+D3
+~
+~
+0 -1  0 19101
+D4
+~
+~
+0 -1  0 19002
+S
+#19103
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19104
+D2
+~
+~
+0 -1  0 19101
+D3
+~
+~
+0 -1  0 19167
+D4
+~
+~
+0 -1  0 19003
+S
+#19104
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19105
+D2
+~
+~
+0 -1  0 19102
+D3
+~
+~
+0 -1  0 19103
+D4
+~
+~
+0 -1  0 19004
+S
+#19105
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19107
+D1
+~
+~
+0 -1  0 19106
+D3
+~
+~
+0 -1  0 19104
+D4
+~
+~
+0 -1  0 19005
+S
+#19106
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19108
+D1
+~
+~
+0 -1  0 19109
+D3
+~
+~
+0 -1  0 19105
+D4
+~
+~
+0 -1  0 19006
+S
+#19107
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19108
+D2
+~
+~
+0 -1  0 19105
+D4
+~
+~
+0 -1  0 19007
+S
+#19108
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D1
+~
+~
+0 -1  0 19110
+D2
+~
+~
+0 -1  0 19106
+D3
+~
+~
+0 -1  0 19107
+D4
+~
+~
+0 -1  0 19008
+S
+#19109
+Bottom of the Morgulduin~
+   The foul water is all pervasive here; no escape from it, save 
+by swimming up to the distant surface. The sulfur stings the 
+eyes, but the vague shapes that can be made out here are those of 
+the sloping river bank, and the occasional bloated, mutated fish. 
+~
+19 1073809408 20
+0
+D0
+~
+~
+0 -1  0 19110
+D1
+~
+~
+0 -1  0 19112
+D3
+~
+~
+0 -1  0 19106
+D4
+~
+~
+0 -1  0 19009
+S
+#19068
+A Hastily-Constructed Dock~
+   Thrown together with an assortment of lumber, rope and nails, 
+this structure stretches out from the eastern bank, offering 
+ballards for securing ships, but little else. Wide enough to 
+berth perhaps a single large ship, this has clearly been put 
+together by a military force, as the flags of Lord Eradan are 
+posted in the four corners of the docks. 
+
+A naval vessel carries soldiers and freight between the various 
+military docks and Harlond. 
+~
+19 67174406 10
+0
+D0
+~
+door~
+1 -1  0 51384
+D1
+~
+guarded-gate~
+1 22005  60 10153
+P
+help~
+room~
+vstr If a caravel ship is present, "board caravel" will render it accessible to anyone with Eradan Ballions clanning. The caravel ship travels to and from Amdir, Harlond, Harad and Arnen.
+~
+S
+#19069
+A Freshly Timbered Wooden Hut~
+Clearly of fresh and hasty construction, this wooden building is little more than a bare hut, large enough to fit a brazier for warmth and a few tables. It is clearly a place for temporary visitors to rest or meet before continuing their journey.
+~
+19 67176716 0
+0
+S
+#19300
+A Small Side-Street off of Rath Celerdain~
+   A small side-street winds its way through the buildings off of 
+Rath Celerdain. The cobbles of the street are well-worn and the 
+buildings along it appear to be residential in nature. Hanging 
+lamps have been set at regular intervals along the street, 
+providing a constant dim light throughout the dark hours. The 
+bustle off of the main road echoes off the sides of the buildings 
+and the cobbles. 
+~
+19 67174416 1
+0
+D1
+~
+~
+0 -1  0 1028
+D2
+This sturdy iron gate has been embellished with iron lilies
+that have been painted a bright-white. The gate itself is quite
+functional and seems to be well-kept. There is handle with a
+lock on it set into the right side of the gate's door. Through
+the gate you can see a small front yard and a house beyond.
+~
+lily-engraved iron gate~
+3 19300  60 19301
+P
+ring~
+bell~
+atecho 19301,19302,19303,19304,19305,19306,19307,19308,19309,19310,19311,19312,19313,19314 Someone rings a bell nearby from outside the house.
+vstr You ring the bell and a clear, dulcet tone rings out.
+ostr $n rings the bell, a clear, dulcet tone ringing out.
+~
+S
+#19301
+A Well-Manicured Front Garden~
+   A cobbled path leads a straight path through a well-manicured 
+garden up to the front steps of the house to the south. Rose 
+bushes line the edges of the path and off to one corner under the 
+shade of a tree sits a garden bench. An iron gate surrounds the 
+front lawn and goes around the sides of the house towards the 
+back. A gate allows access back onto the street and a brightly 
+painted blue door gives access into the home. 
+~
+19 67174400 4
+0
+D0
+This sturdy iron gate has been embellished with iron lilies
+that have been painted a bright-white. The gate itself is quite
+functional and seems to be well-kept. There is handle with a
+lock on it set into the right side of the gate's door. Through
+the gate you can see a small side street.
+~
+lily-engraved iron gate~
+3 19300  60 19300
+D2
+To the south you see a quaint house of white stone. Set into
+the center of the house, between two windows is set a blue
+oak door that allows access into the dwelling beyond. A
+small window has been set into the top quarter of the door,
+allowing one to look out into the yard from inside.
+~
+oaken door painted blue~
+1 19300  60 19302
+D3
+~
+~
+0 -1  0 19315
+P
+go head enter~
+backyard~
+vstr You make your way around the side of the house and into the backyard.
+ostr $n walks around the side of the house and into the backyard.
+atecho 19308 $n enters the backyard from around the side of the house.
+trans_group -1 19301 19308
+~
+S
+#19302
+A Short Foyer~
+   Rustic stone tiles line the floor of the short foyer up to a 
+simple, yet elegant staircase that leads to the second floor. 
+The walls have been painted a warm cream color to accent the 
+floor. Two cherry-wood sconces hang on the left and right walls, 
+giving a subtle warm light to the foyer. To the west an archway 
+leads into a formal dining room and a larger archway leads south 
+into the living room. 
+~
+19 67174408 0
+0
+D0
+A sturdy oak door leads out into the front lawn beyond.
+~
+oaken door painted blue~
+1 19300  60 19301
+D2
+~
+~
+0 -1  0 19304
+D3
+~
+~
+0 -1  0 19303
+D4
+~
+~
+0 -1  0 19309
+P
+look~
+window outside~
+vstr You look through the window in the door out into the front yard.
+vbr -
+atlook 19301
+~
+S
+#19303
+A Formal Dinning Room~
+   Large enough to fit a spacious table and chairs, this room has 
+been decorated for formal dining. A carved cherry-wood 
+chandelier hangs over the center of the dining table, giving off 
+ample light. The walls have been painted a warm crimson color 
+and polished cherry-wood boards line the floor. An archway leads 
+back to the foyer to the east and another arch, concealed with a 
+curtain leads to the south. 
+~
+19 67174408 0
+0
+D1
+~
+~
+0 -1  0 19302
+D2
+~
+curtain~
+1 -1  0 19305
+S
+#19304
+A Large Livingroom~
+   A soft plush carpet of light colored wool lines this room from 
+corner to corner. The walls have been painted a warm cream color 
+and a large mahogany chandelier hangs in the center of the large 
+room, giving off ample light. The eastern area of the room has 
+been designated an office area, where a desk and bookcase reside. 
+The remainder of the room is taken up with a large couch that 
+faces out into the garden to the south. Large pane-glass windows 
+sit on either side of the southern door, allowing for a great 
+deal of sunlight to enter the room during the daylight hours. 
+~
+19 67174664 0
+0
+D0
+~
+~
+0 -1  0 19302
+D2
+~
+pane-glass door~
+1 -1  0 19308
+P
+look glance~
+window outside garden~
+vstr You look out the windows into the garden.
+vbr -
+ostr $n gazes out the window in the back garden.
+atlook 19308
+~
+S
+#19305
+An Expansive Kitchen~
+   This room is large and immaculate. The floor is set with 
+white tiles, tightly placed together. The walls have been 
+painted a warm amber color and a large brass chandelier hangs 
+down from the ceiling. The kitchen has been well appointed with 
+all of the tools needed for cooking and more. A glass paned door 
+leads out to the garden behind the house and in the western 
+corner a cellar door can be seen. A curtained archway leads back 
+to the north and the dining room beyond. 
+~
+19 67174664 0
+0
+D0
+~
+curtain~
+1 -1  0 19303
+D2
+~
+glass-paned door~
+1 -1  0 19307
+D5
+~
+cellar door~
+1 -1  0 19306
+P
+look glance gaze~
+garden glass glass-door~
+vstr You glance out the glass door into the garden.
+vbr -
+ostr $n looks out through the glass door into the garden.
+atlook 19307
+~
+S
+#19306
+A Broad Cellar Beneath the House~
+   Spanning out beneath the house this cellar is surprisingly 
+well lit. The walls have been finished in stone blocks and the 
+floor with the same. Simple iron sconces hang on the walls at 
+even intervals, lighting the way through the rows of racks and 
+cabinets that fill the cellar. There is a drainage hole in the 
+far corner of the cellar where a set of meat hooks hang. The 
+only exit from the cellar is a short stair leading back up into 
+the kitchen. 
+~
+19 67174408 0
+0
+D4
+~
+cellar door~
+1 -1  0 19305
+S
+#19307
+A Small Orchard and Herb Garden~
+   The lots behind the house have been cleared out and a small 
+orchard and herb garden have been planted here. The trees line 
+the back half of the garden in small rows and closer to the house 
+flower beds are filled with herbs and other flowers. Off to the 
+western corner of the garden is where the tool sheds and bins are 
+kept. The scent of growing plants and fresh compost fills this 
+area of the garden. A set of glass doors leads into the kitchen 
+of the house to the north and the garden continues on to the 
+east. A greenhouse has been built close to the house, where 
+various exotic herbs and flowers grow, protected. 
+~
+19 100728832 5
+0
+D0
+~
+glass-paned door~
+1 -1  0 19305
+D1
+~
+~
+0 -1  0 19308
+S
+#19308
+A Huge Backyard Garden~
+   Spanning out over a plot, this yard is massive and well-kept. 
+Manicured trees dot the yard at random intervals and a dirt path 
+winds its way through the garden past flower beds filled with 
+various flowers and plants towards a clearing in the center of 
+the yard where a garden table sits under the shade of an apple 
+tree. Different types of ivy grow up over the iron fence that 
+surrounds the yard, lending an air of privacy to the yard. The 
+yard continues on to the west and a set of paned glass doors 
+leads into the house to the north. 
+~
+19 67174400 5
+0
+D0
+~
+pane-glass door~
+1 -1  0 19304
+D3
+~
+~
+0 -1  0 19307
+P
+go enter head~
+frontyard front~
+vstr You make your way around the side of the house and into the front yard.
+ostr $n walks around the side of the house and into the front yard.
+atecho 19301 $n enters the front yard from around the side of the house.
+trans_group -1 19308 19301
+~
+S
+#19309
+A Short Hallway off a Landing~
+   This hallway leads a short distance before ending in a door to 
+the south and one to the west. The walls are painted white and 
+the floor is lain with simple oak planes that have been polished 
+to a high sheen. Simple oaken sconces hang on the wall to the 
+right of each door. The staircase leads back down into the foyer 
+below. The Master suite is south, behind an engraved oak door 
+and a guest room is off to the west. 
+~
+19 67174408 0
+0
+D2
+~
+engraved oak door~
+1 19300  20 19311
+D3
+~
+oak door~
+1 -1  0 19310
+D5
+~
+~
+0 -1  0 19302
+P
+pull open unlatch~
+book case passage~
+if clan(-1,house_courcel)
+if link(19317, e)
+vstr The passage is already opened.
+else do
+vstr You reach into the eastern bookshelf and click a tug on hidden latch under the shelf, opening a section of the bookcase.
+ostr $n reaches into a bookshelf on the eastern wall and a click can be heard, revealing a passage behind the bookcase.
+link 19309 e 19317
+fi done
+else do
+fi done
+~
+P
+close shut push~
+secret case book shelf~
+vstr You push the secret door closed with a -click-.
+ostr $n pulls shut the passage behind the eastern bookcase.
+unlink east 19309
+~
+S
+#19310
+A Roomy Child's Room~
+   Significantly more roomy than one would expect, this suite has 
+child's toys and items throughout it. The floors are covered in 
+a soft wool rug and the walls have been painted a cool, light 
+green paint. A simple wooden chandelier hangs in the center of 
+the room, giving of ample light and the room has been furnished 
+for comfort and safety. A mural has been painted on one wall of 
+a sprawling garden with a variety of animals and birds in it. 
+~
+19 67174664 0
+0
+D1
+~
+oak door~
+1 -1  0 19309
+S
+#19311
+The Master Suite~
+   This room has been decorated with a simple stately elegance. 
+The floors are covered with a soft brown wool carpeting and the 
+walls have been painted a deep crimson color. Pine moulding 
+lines the ceiling and has been stained a deep dark shade. Golden 
+sconces hang on the walls, giving off a soft, warm light. An 
+archway leads west into a cool colored bathroom and a closet has 
+been set into the eastern wall. The room has been furnished with 
+luxury and comfort in mind. 
+~
+19 67174664 0
+0
+D0
+~
+engraved oak door~
+1 19300  20 19309
+D1
+~
+closet door~
+1 -1  0 19313
+D3
+~
+~
+0 -1  0 19312
+S
+#19312
+A Blue Tiled Bathroom~
+   Bright blue tiles line both the floor and walls of the 
+bathroom in a pattern of flowing water. A clear crystal 
+chandelier hangs in the center of the room, spreading light 
+across the tiles. Along the southern wall, a fireplace has been 
+set, giving warmth to the room that would otherwise be very cool. 
+A bathing tub takes up the majority of the room and on the 
+western wall a wash basin sits atop a side table. There are 
+hooks on the wall to hang towels and clothes while bathing and a 
+small cupboard hangs above the table, holding various bath 
+accessories. 
+~
+19 67174664 0
+0
+D1
+~
+~
+0 -1  0 19311
+S
+#19313
+A Large Walk-In Closet~
+   This closet is rather large, big enough for a few people to 
+stand easily within it. The walls are painted a plain white and 
+the floor is covered with cedar planks. Sets of shelves and 
+hanging rods line the walls, all made of cedar as well. There is 
+a small chandelier hanging from the ceiling providing enough 
+light to be able to discern the colors of the clothing kept 
+within easily. A single door leads back out into the bedroom 
+beyond. 
+~
+19 67174412 0
+0
+D3
+~
+closet door~
+1 -1  0 19311
+P
+open~
+trap trapdoor attic~
+if link(19314, up)
+vstr The trapdoor is already opened.
+else do
+vstr You pull down the trapdoor leading up into an attic space.
+ostr $n pulls open a trapdoor in the ceiling leading up into an attic space above.
+link 19313 up 19314
+fi done
+~
+P
+close~
+trap trapdoor attic~
+if link(19314, down)
+vstr You close the trapdoor carefully.
+ostr $n closes the trapdoor leading to the attic.
+unlink down 19314
+else do
+vstr The trapdoor is already closed.
+fi done
+~
+C
+3
+S
+#19314
+A Spacious Attic~
+   Long boards run across the ceiling, forming the roof of the 
+townhouse. There are two round windows, lending light to the 
+attic, one at the front and one at the rear of the large space. 
+The space itself is barely finished out, with little more than 
+plank boards making up the floor and walls. While there is room 
+enough to stand upright, the ceiling is not very high. A single 
+#6trapdoor#0 can be #6open#0ed to lead back into the house 
+proper. 
+~
+19 67174412 0
+0
+P
+open~
+trap trapdoor door~
+if link(19313, down)
+vstr The trapdoor is already opened.
+else do
+vstr You pull up the trapdoor leading back down into the closet below.
+ostr $n pulls open a trapdoor in the floor that leads down into a closet below.
+link 19314  down 19313
+fi done
+~
+P
+close~
+trap trapdoor door~
+if link(19313, up)
+vstr You close the trapdoor carefully.
+ostr $n closes the trapdoor leading to the closet below.
+unlink up 19313
+else do
+vstr The trapdoor is already closed.
+fi done
+~
+P
+close shut pull~
+secret case book shelf~
+if link(19316, s)
+vstr You pull the secret door closed with a -click- from beyond the door.
+ostr $n pulls closed the secret door to the north.
+unlink s 19316
+else do
+vstr The secret door is already closed.
+~
+S
+#19315
+A Small Private Stable~
+   These stables are small, only housing a few stalls and a small 
+exercise yard in the back. The stalls themselves are well-made 
+and the animals within them appear to be well taken care of and 
+maintained. There is amble storage for the tools needed for 
+maintaining a working stable. The smell of the flowers from the 
+garden waft into the stables, mixing with the scent of the 
+animals in a pleasant manner. Lanterns hang from the rafters, 
+supplying ample light within the stables day or night. 
+~
+19 67174408 0
+0
+D1
+~
+~
+0 -1  0 19301
+S
+#19316
+The Top of a Towering Spire~
+   Formed of strong grey stone, this tower stands several dozen 
+feet up from the building it stands upon. With near two dozen 
+feet of height between the floor and the spired ceiling it offers 
+ample room. Around its circumfrance a stained wooden platform 
+has been raised, forming a ring about the room itself, edged with 
+a wrought iron banister. At the lower depth of the room, 
+hardwood floors have been laid, stained a deep brown. Set upon 
+the northern wall a wide open window has bee set giving a 
+commanding view of the grounds below. Set within the stone wall 
+of the lower pulpit, a fireplace has been set. 
+~
+19 201394440 0
+0
+D5
+~
+~
+0 -1  0 19317
+P
+look gaze peer peek~
+window garden gate~
+vstr You look out of the window down into the yard below.
+ostr $n looks out of the large window.
+vbr -
+atlook 19301
+vbr -
+vstr Your gaze moves over the garden gate and into the alley beyond.
+vbr -
+atlook 19300
+~
+P
+pull open unlatch~
+book case shelf passage~
+if clan(-1,house_courcel)
+if link(19314, n)
+vstr The passage is already opened.
+else do
+vstr You reach into the southern bookshelf and click a small hidden latch under the shelf, opening a passage behind the bookcase.
+ostr $n reaches into a bookshelf on the southern wall and a click can be heard, revealing a passage behind the bookcase.
+link 19316 s 19314
+fi done
+else do
+fi done
+~
+P
+close shut push~
+passage book shelf case~
+if clan(-1, house_courcel)
+if link(19314, n)
+vstr You push the bookcase back into place with a -click-.
+ostr $n pushes the bookcase closed, closing off the passage.
+unlink n 19314
+else do
+vstr The passage is already closed.
+fi done
+else do
+fi done
+~
+S
+#19317
+Within a Narrow Spiral Stairwell~
+   With barely enough room for two people to stand side by side, 
+this small and secreted stairwell begins straight out from behind 
+the wall to the west, cold stone leads the way upwards in a 
+circular motion around a growing spire. Only a few wrought iron 
+sconces illuminate the otherwise barren stairwell. 
+~
+19 201394184 0
+0
+D4
+~
+~
+0 -1  0 19316
+P
+close shut pull~
+book case door passage~
+vstr You pull the bookshelf shut, cutting off the passage to the hallway.
+ostr $n pulls shut the bookshelf, cutting of the passage to the hallway.
+unlink west 19317
+~
+P
+open push move~
+book case door passage~
+vstr You push open bookshelf, granting passage in to the hallway.
+ostr $n pushes open the bookshelf, granting passage in to the hallway.
+Link 19317 west 19309
+~
+S
+$~

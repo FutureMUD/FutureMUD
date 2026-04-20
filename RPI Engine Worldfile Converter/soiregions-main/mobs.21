@@ -1,0 +1,4391 @@
+#21000
+auto create SENTINEL minas tirith upper class prototype~
+a formless minas tirith upper class prototype~
+A formless minas tirith upper class prototype is here.~
+   Obviously a member of Minas Tirith's upper class, this 
+individual is finely-dressed and well-kept in appearance. Often 
+accompanied by a servant or a guard, they move at a relaxed pace 
+throughout the city, barely sparing the time to look too closely 
+at anyone nearby. 
+~
+10 0 23 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 67633168 0 0 3145728 0
+16 16 16 1 16 16 81 16
+268500992 0
+0 37 40 40 34 46 47 41 38 32
+47 33 46 36 41 46 33 45 39 50
+30 45 0 0 44 49 0 0 18 69
+0 0 69 0 0 20 22 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 48 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 70 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_upper_class~
+0 0 0
+#21002
+auto create SENTINEL minas tirith both class prototype~
+a formless minas tirith both class prototype~
+A formless minas tirith both class prototype is here.~
+   This individual seems to be neatly-kept if not finely-dressed, 
+looking as though they prize their appearance. Their steps 
+through the streets are often quick in pace, and they seem often 
+too busy to pause and chat with those nearby. 
+~
+4106 0 24 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 67108864 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 42 42 41 31 32 35 48 47 49
+46 31 44 35 37 47 47 44 39 36
+48 35 35 0 41 49 0 0 25 62
+0 0 66 0 0 18 23 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_both_class~
+0 0 0
+#21001
+auto create minas tirith lower class prototype~
+a formless minas tirith lower class prototype~
+A formless minas tirith lower class prototype is here.~
+   Ragged and often dirty, this ill-kept individual is clearly of 
+the Minas Tirith lower class. Rather suspicious glances are 
+offered around then in unfamiliar territories, though in much of 
+the slums, they appear to be at perfect ease. 
+~
+8 0 24 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 2097168 0 0 524288 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 30 47 33 40 45 42 48 49 41
+44 49 48 48 41 46 42 45 39 41
+48 50 0 0 33 46 0 0 23 65
+0 0 51 0 0 16 17 16 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_lower_class~
+0 0 0
+#21007
+Killian white haired man drooping mustache~
+a white-haired man with a drooping mustache~
+A white-haired man with a drooping mustache sits behind the counter repairing shoes.~
+   With a round, amiable face and brightly twinkling eyes this 
+man has a certain air of youthfulness that belies his wispy, 
+colorless hair and creased and weathered visage. As though to 
+make up for a certain scarcity on top, his facial hair exists in 
+particular abundance, from his woolly eyebrows to the carefully 
+groomed plumes of his long, white mustache, spilling past his 
+mouth toward his chin. His hands seem oversized in proportion to 
+his frame, his thick fingers hard with callous, but still 
+noticeably nimble. 
+~
+26 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 20 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21006 21007 1.300000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 8200
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21008
+Alenthia plump brown-haired young xCOLORS_OF_THE_WHITE_CITY~
+a plump, brown-haired young woman~
+A plump, brown-haired young woman sits behind a counter.~
+   A short statured, plump young woman sits behind the counter 
+with a cheery smile upon her pink lips. Her eyes would hold a 
+mirth within their hazel tone. Long tresses for chocolate brown 
+hair fall down her back with a few colorful ribbons that were 
+tied into it. Her hands were only slightly worked, but there 
+were tinges of colors that seem to have stained her skin in 
+different spots on her fingers. 
+~
+154 0 4 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21008 21009 1.240000 0.500000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+91693 91175 97118 -1
+46 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 30 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21013
+Cormac Cutson BUTCHER_SHOP barrel chested meaty old man~
+a barrel-chested, meaty old man~
+A barrel-chested meaty old man stands behind the counter.~
+   Getting on in years, this old man still portrays a formidable 
+presence. While not particularly tall, and hunched over in his 
+old age, he does however possess a brawny physique, with his 
+bursting, broad chest surrounded by a meaty, but solid gut and 
+short bulky arms. Noticably, he has very large, heavily 
+calloused hands. Perhaps naturally pale, his skin has been 
+harshly weathered over the years, turning it a coarse greyish 
+colour with a tinge of light red evidenct in his heavily 
+wrinkled, frowning visage. Clearly balding, thin grey hair is 
+usually found combed over his dome in a feeble attempt to hide 
+the inevitable. While losing hair on top, there is no shortage 
+in regards to his face. A dark beard that greys sporadically 
+covers everywhere a beard can cover. Always kept neat, it is 
+never found trailing below his chin, but is grown full 
+nonetheless. Narrow, light green eyes side either side of a 
+slightly hooked, large nose. Above these sit thick, bushy black 
+eyebrows with only a hint of greying evident there. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21013 21015 1.100000 0.250000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' butcher_shop~
+0 0 0
+#21024
+Alain SOUNDS_OF_CITY FIRST_CIRCLE_SHOP quietly wheezing man reedy proportions~
+a quietly wheezing man of reedy proportions~
+A man of reedy proportions stands here, tending to the shop as he wheezes quietly.~
+   This man apparently suffers from some kind of chronic disease 
+of the lungs or general upper body as, with each of his 
+inhalations, a rather loud, and vaguely annoying, wheezing sound 
+passes from him. Over all, he's of a mostly sick rather pallid 
+disposition, with pale flesh and dark circles under his eyes. 
+Despite his physical condition, he looks amiable enough and is 
+frequently wearing a bright, if tired, smile. 
+~
+26 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21024 96153 1.500000 0.500000 1.550000 0.800000 32
+1.450000 0.700000 8388608 1.500000 0.750000 4096 17152
+97106 11717 1813 2591 11992 11976 6592 97370 5283 97173 1926 97996 97409 1633 2598 97096 1915 -1
+37 35 36 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 30 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21014
+Enrick POFDANIELL rawboned rat faced young fellow Cutson~
+a rawboned, rat-faced young fellow~
+A rawboned, rat-faced young fellow slouches here with his thumb hooked over his belt.~
+   Spindly, sporadically thrown-about black hair grows freely 
+atop his mans angular, rather rat-like face. His beard never 
+grows large, but is nonetheless constantly cast in a dark, sable 
+shadow. He has thin, pale lips that are often parted to display 
+twisted, rotten-looking yellowy teeth. Consistent with his sharp 
+features, his narrow nose points forwards and finally hooks at 
+its end. His light green eyes are beady and bulge outwards for 
+all to see. He is a sinewy fellow, with little muscle evident 
+across his bony frame. He is a little short, but appears taller 
+than he is due to his very skinny, rawboned physique. 
+~
+10 0 20 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 40 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' butcher_shop~
+0 0 0
+#21003
+auto create SENTINEL minas tirith lower class prototype~
+a formless minas tirith lower class prototype~
+A formless minas tirith lower class prototype is here.~
+   Ragged and often dirty, this ill-kept individual is clearly of 
+the Minas Tirith lower class. Rather suspicious glances are 
+offered around then in unfamiliar territories, though in much of 
+the slums, they appear to be at perfect ease. 
+~
+10 0 23 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 2097168 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 36 36 31 47 32 41 33 32 32
+31 43 39 37 46 33 36 39 45 46
+44 48 0 0 58 52 0 0 24 36
+0 0 53 0 0 20 25 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 44 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 65 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_lower_class~
+0 0 0
+#21004
+auto create minas tirith upper class prototype~
+a formless minas tirith upper class prototype~
+A formless minas tirith upper class prototype is here.~
+   Obviously a member of Minas Tirith's upper class, this 
+individual is finely-dressed and well-kept in appearance. Often 
+accompanied by a servant or a guard, they move at a relaxed pace 
+throughout the city, barely sparing the time to look too closely 
+at anyone nearby. 
+~
+8 0 25 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 524304 0 0 3145728 0
+16 16 16 1 16 16 81 16
+268500992 0
+0 49 42 41 49 33 46 38 36 50
+42 47 36 46 48 49 42 39 48 40
+48 35 0 0 55 36 0 0 18 69
+0 0 64 0 0 21 20 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 33 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_upper_class~
+0 0 0
+#21005
+auto-create minas tirith both class prototype~
+a formless minas tirith both class prototype~
+A formless minas tirith both class prototype is here.~
+   This individual seems to be neatly-kept if not finely-dressed, 
+looking as though they prize their appearance. Their steps 
+through the streets are often quick in pace, and they seem often 
+too busy to pause and chat with those nearby. 
+~
+10 0 24 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 67108864 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 47 39 45 42 30 33 44 49 31
+42 35 46 42 45 46 32 48 33 45
+31 37 0 0 49 46 0 0 22 46
+0 0 57 0 0 25 23 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 32 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_both_class~
+0 0 0
+#21025
+man MT_STALL broad shoulders greying hair~
+a man with broad shoulders and greying hair~
+A man with broad shoulders and greying hair stands beside a row of casks and firkins, waiting on customers.~
+   A short crop of grey-streaked, chestnut-brown hair crowns the 
+top of this middle-aged man's head. The palms of his hands and 
+pads of his fingers appear calloused and hardened by years of 
+hard work. He moves about on a pair of stocky, well-muscled 
+legs, hefting full casks and firkins on his broad shoulders with 
+ease. When he smiles, which is more often than not, his thick 
+lips part to reveal a set of age-yellowed teeth. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+11475 21026 1.250000 0.400000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_stall_13~
+0 0 0
+#21027
+Ardass MT_STALL burly plump cheeked man~
+a burly plump-cheeked man~
+A burly plump-cheeked man cheerfully tends to customers here.~
+   This man's plump cheeks are ruddy, and blue eyes sparkle 
+beneath greying brows. His chestnut hair is dashed white in 
+places, and his rotund figure testifies a life spent sampling the 
+produce he sells. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+11662 21028 1.000000 0.600000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_stall_14~
+0 0 0
+#21036
+Able FIRST_CIRCLE_SHOP DIAMOND_IN_THE_ROUGH papery-white young woman~
+a papery-white-skinned young woman~
+A papery-white-skinned young woman stands here, tending to the wares of the shop.~
+   Of frail build and form, this young woman looks instantly 
+fragile. Her skin is an ashen hue, papery in look, and little 
+color interrupts this pale visage. Her hands, however, are 
+steady as they work with the stones in the shop, and her eyes 
+are alert and sure. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 2 0 48 0 134217796
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21036 96155 2.300000 0.450000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+21 8 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21051
+Vamon REDCLOAKS_KNIFE_THROWER lanky brown hair man~
+a lanky man with brown hair~
+A brown-haired, lanky man loiters here.~
+   This fellow has a skeletal build, and is quite tall for a Man. 
+He has short and poorly cut chestnut-hued hair, and narrow-set 
+brown eyes. His appendages are long and heavily muscled. Each 
+of his fingers is also long and slender, and covered in small 
+nicks. His left ear is missing a small piece of the lobe. 
+~
+10 0 30 0 0 5d1+87 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 70 3 0 0
+18 13 9 1 20 11 81 14
+0 0
+0 25 25 0 0 0 0 0 25 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 100 100 100 100
+0 0 100 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 25 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' redcloak~
+0 0 0
+#21006
+sewer-rat FLOODS MT~
+a damp-furred rat~
+A soaked rat, stinking of sewage.~
+   The filth and disease that hang about this foul vermin are 
+almost visible, yet where they are not the numerous sores and 
+dirt spread about its body reminds any and all that the rat is 
+truly a bearer of plagues and worse. Rather nimble despite its 
+unhealthy condition, the rat never completely pauses, continually 
+scurrying over the terrain before it, or turning its head this 
+way and that. A sickening smell wafts from the fur of the rat, 
+and it is soaking wet. 
+~
+2283929736 4 21 53 0 5d1+10 1d2+0 0 8 8 0 0 0 0 0
+1574 0 0 98065 0 0 24 0 0 0 1 0 4 1 0 0
+6 10 10 1 14 6 77 18
+0 0
+0 42 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+44 45 0 0 33 57 0 0 21 60
+0 0 60 0 0 0 18 22 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 10 0 0
+0 64 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21009
+rat variable big bugger MT_FLOODS~
+a rat~
+A rat is here.~
+   This rat seems to be much larger than the normal variety that 
+could be seen in the back alleys of the street. Fat and bloated 
+from whatever meals it has and an almost vicious look in its 
+gleaming red eyes. Teeth dark brown to black and claws long and 
+sharp looking, this is no normal rat. It moves about slowly and 
+powerfully with its large back legs, its fat pink tail dragging 
+behind it. 
+~
+136314888 786436 24 53 0 5d1+30 1d3+0 0 8 8 0 0 0 0 0
+1574 0 0 98065 0 0 24 0 0 0 1 0 4 1 0 0
+12 10 10 1 14 12 81 18
+268435456 0
+0 42 41 40 40 30 49 36 41 35
+33 41 39 33 33 45 46 40 32 34
+42 41 0 0 60 31 0 0 18 51
+0 0 53 0 0 16 21 18 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 65 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21010
+Fergy scrawny teen shaggy mop GM_SQUAL_21253~
+a scrawny teen with a shaggy mop of dark hair~
+A scrawny teen with a shaggy mop of dark hair is here.~
+   This young man man is of an average height and girth, with 
+shaggy hair that hangs in his eyes, seemingly left greasy and 
+untended. He has wide gray eyes that shine like glass, their 
+silver looking more like crystal. His face, long and acned, 
+shows many scars, a single through his right eyebrow when his 
+unkempt bangs allow a view. His mouth is thin with pouting lips 
+and his nose is long and narrow like the rest of his face. He 
+tells anyone who asks that his name is Fergy and speaks in a 
+high-pitched, despondent voice. 
+~
+1034 0 20 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21253 21254 1.300000 0.400000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 40 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 40 0 0 0 0 0 0 0 40
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' marketeer~
+0 0 0
+#21011
+shady fence GM_FENCE~
+a shady fence~
+A shady fence acts shifty here.~
+A shady-looking fence stands here.  He looks rather shifty.
+~
+1050 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21011 21012 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21103
+ornate sturdy carriage draft horses~
+#2an ornate, sturdy carriage#0~
+#2An ornate, sturdy carriage is here, emblazoned with two, golden coins.#0~
+   Built with attention to detail, this carriage is an example of 
+fine craftsmanship. It sits, rather sturdily on large, thick 
+wheels, to allow travel on the ruts and rock wherever it goes. 
+It has been painted green everwhere, dark forest in hue, although 
+the moldings and dentals of its roof have been covered tastefully 
+in gold leaf. On both sides, small golden coins have been 
+painted, breaking up the green slightly, and matching the roof. 
+In the front of the carriage, raised to accomidate a driver, a 
+wooden platform has been attached, then covered in leather padded 
+seats. The hitch is sturdy and oaken. 
+~
+278666 0 4 47 0 5d1+98 1d2+0 0 8 8 0 0 0 2 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' kelbran_family 'private' fed_guard~
+0 0 0
+#21012
+horse MALRED_UNIQUE black draft gelding massive feathered graheim~
+a massive black draft horse gelding with feathery hooves~
+A black draft horse gelding is here, massive in size, with feathered hair about its hooves.~
+   Bred to pull loads and able to do it for long periods of time, 
+this large horses is immense in stature. At the withers, its 
+height reaches nearly nineteen hands, and it slopes lightly 
+uphill. Its coat is shiny and black, given these traits from 
+obvious care and plenty of grooming. Muscling is abundant due to 
+the nature of its work, especially so across the shoulders and 
+against the chest. Because of the extra weight the muscling and 
+bone structure amounts to, its feet are the size of small dinner 
+platters. Apparent to a trained eye is the marks of a gelded 
+horse; the soft muscling of the face and the ease of its 
+temperance. Also evident is the breeding, which one would know 
+as a graehim. 
+~
+134480010 0 15 47 0 5d1+142 1d3+0 0 8 8 0 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+18 7 8 1 15 18 81 18
+0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 55 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21015
+Nimrod's mugger mob~
+a sour-looking mugger~
+A sour-looking mugger lingers in the shadows.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 2097152 0 0 262144 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' annoncitizen~
+0 0 0
+#21016
+Jerry Master Landlord~
+a master landlord~
+A Master Landlord is here, monitoring rentals.~
+This is Jerry, Master Overlord of Landlords in Minas Tirith
+and beyond.  For help with registering a new landlord, rental
+propery or creating a key, or basically anything landlordish
+type help mtrentals.
+~
+10 0 50 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 100 100 100
+100 100 100 100 100 100 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_lower_class~
+0 0 0
+#21017
+Fanny curvy woman umber-colored hair~
+a curvy woman with umber-colored hair~
+A curvy woman with long umber-colored hair and hazel eyes stands here.~
+This woman has long, curly hair the shade of umber. Her face is
+flawless, no scars or imperfections can be seen. Her eyes are a
+light shade of blue, and her nose is delicate and straight. Her
+teeth are an off-white when she smiles, and her chin is not
+prominent. Her voluptuous figure is the most prominent part
+of her, and her hands have no calluses. She has very pale skin,
+without tan.
+~
+10 0 25 0 0 5d1+90 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+10 11 10 1 13 12 81 13
+0 0
+0 25 0 0 0 0 0 0 50 0
+0 0 0 0 0 0 0 0 0 0
+22 15 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 18 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 61 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21186
+Bella mule tinker cart wain dusty~
+a gaily-painted, mule-drawn tinker's cart~
+A gaily-painted, mule-drawn tinker's cart stands here.~
+Drawn by a dusty, long-eared mule, this four-wheeled tinker's
+cart is a study of space utilization.  Pots, pans, tools
+and various other items hang from every possibly nook and
+cranny of this gaily-painted cart, that announce its presence
+whenever it moves with a loud jingle-jangle of tin goods
+banging against one another.  A small door in the side of
+the painted cart affords entrance to would-be clientele.
+~
+278538 0 0 47 0 5d1+250 1d2+0 0 8 8 2 0 0 2 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21018
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21019
+Tinker Tomas shaggy gangly pubescent boy blond UNIQUE PHORAS~
+a gangly, pubescent boy with shaggy blond hair~
+A gangly, pubescent boy with shaggy blond hair waits on customers.~
+This boy seems to be of northern stock, with his blond hair,
+rough exterior and a well-defined tan.  Of wiry build, he sports
+long, gangly limbs terminated by thick, calloused hands which
+confess his familiarity with a hard-day's labor. Having a longish
+face and strong jaw, the youth seems quite fit and capable. His
+most outstanding features are his bright blue eyes and strong,
+well-defined nose.
+~
+8 0 25 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21186 21187 1.400000 0.400000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 50 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21020
+Smilt long-necked man greying hair~
+a long-necked man with greying hair~
+A long-necked man with greying hair stands here.~
+This man stands at average height with pepper-grey hair. His eyes
+are a dark brown, and his nose is hook-shaped. Frown lines worry
+the edges of his lips, and crease lines are easily visible on his
+forehead. He is rather skinny looking, though he does not look to
+be weak, and his skin is darkly-tanned with many calluses.
+~
+10 0 30 0 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+13 12 11 1 13 12 81 13
+0 0
+0 8 0 0 0 0 0 0 60 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#21021
+Vern lanky, buck-toothed man~
+a lanky, buck-toothed man~
+A lanky, buck-toothed man stands here.~
+This man is barely taller than the average man, and skinnier than
+most. His hair is dark and greasy, and oil is easily seen on his
+face. A bad overbite and buck-teeth can be seen whenever he opens
+his mouth. Some cuts mar his hands and wrists and he seems to be
+rather pale, but not overly muscular or bulky.
+~
+10 0 30 0 0 5d1+93 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+11 10 10 1 14 13 81 15
+0 0
+0 8 0 0 0 0 0 0 60 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#21022
+Vincent little umber-haired hazel-eyed boy~
+a little, tawny-haired, hazel-eyed boy~
+A little, tawny-haired, hazel-eyed boy stands here.~
+This boy is still small, though of average height for his young
+age. He has medium-brown hair of an tawny shade, with hazel eyes.
+His nose is small and button-shaped, and he is still rather
+chubby with baby fat, though there are a few calluses forming on
+his hands.
+~
+10 0 4 0 0 5d1+93 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 15 12 1 14 13 81 10
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#21023
+Vavra little umber-haired hazel-eyed girl~
+a little, tawny-haired, hazel-eyed girl~
+A little, tawny-haired, hazel-eyed girl stands here.~
+This girl is still small, though of average height for her young
+age. She has medium-brown hair of a tawny shade, with hazel
+eyes. Her nose is small and button-shaped, and she is still
+rather chubby with baby fat, though she is starting to show a
+light tan to her skin.
+~
+10 0 4 0 0 5d1+93 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+10 15 12 1 14 13 81 10
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#21026
+Aerune Nimrulai dignified tall~
+a dignified, grey-eyed man~
+A tall man of a dignified bearing is here.~
+   This man is tall and well-built. He has dark hair, almost 
+black in hue, and his eyes are a somber shade of grey. His face 
+has but the first hint of a slight few wrinkles around his eyes, 
+and his jaw is strong. His muscles show prominently on his pale 
+skin. 
+~
+10 0 4 0 0 5d1+93 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+11 15 12 1 14 13 81 13
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21028
+Bernice average, well-tanned woman~
+an average, well-tanned woman~
+An average, well-tanned woman stands here.~
+This woman is rather plump around the middle and over average
+height. Her hair is a light brown, with rich brown eyes. Laugh
+lines are visible on her face, and her nose seems to be rather
+small. Though not overweight she seems to have never lost the fat
+around her hips and abdomen. A deep tan stains her skin with
+thick, dark calluses on the insides of her hands. There seems to
+be a bit of dirt under her fingernails as well.
+~
+10 0 4 0 0 5d1+93 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+11 15 12 1 14 13 81 13
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#21029
+Sammy SNAKEBITE_SHOPKEEP skinny bright-eyed blue dark curls thin~
+a thin young woman with dark curls~
+A blue-eyed young woman with dark curls is here, serving the patrons.~
+   Of slightly shorter statue, this woman carries herself with an 
+air or confidence. She moves, seemingly acustomed to the life in 
+the slums. Starting from her head, dark curly locks fall down 
+her shoulders. Kept somewhat neat and clean, these frame her 
+pleasant features. Her eyes are a vibrant blue, wide and 
+inteligent, they rest either side of a pert nose, and above a 
+thin mouth. Her body lacks many of the curves some have, though 
+she retains enough to ensure her femininity, a subtle busom and a 
+set of skinny hips. Her skin is pale and lacks any scar or mark 
+save for the odd callouses upon her fingers that betray her life 
+of work. 
+~
+10 0 4 0 0 5d1+90 1d1+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 64 2 0 0
+13 12 12 1 17 12 81 14
+1 0
+21170 21172 1.100000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+166 98205 704 708 97292 98023 -1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21147
+Cha REDCLOAKS_MUSCLE short matte black man~
+a short, matte-black-haired man~
+A matte-black-haired man with blue eyes lingers here.~
+   This man is rather short, but far from scrawny - he has 
+broadly defined shoulders, and thick arm muscles. His face is 
+scarred, with a pronounced chin, and two round, blue orbs for 
+eyes. His hair is a matte-black color, and has been poorly 
+tended to. 
+~
+10 0 27 0 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 65 4 0 0
+19 10 10 1 16 18 81 16
+0 0
+0 50 25 0 0 0 40 0 25 0
+0 0 0 55 0 0 0 0 0 0
+0 40 0 0 0 0 100 100 100 100
+0 0 100 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 25 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' redcloak~
+0 0 0
+#21125
+Alex gangly fair-haired boy~
+a gangly, fair-haired boy~
+A gangly, fair-haired boy tends to the horses.~
+   This young boy seems to be just beginning to reach his teen 
+years, his arms and legs gangly. His hair is a fair shade of 
+blond, cut in a shaggy style and is rather unkempt, closer 
+inspection revealing even a few hay pieces tangled in the 
+strands. Though young, his hands are already callused from 
+manual labor though there is always a perpetual, cheeky smile 
+upon his face as he bustles about the stables. 
+~
+10 0 15 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+8388609 0
+21125 0 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 50
+0 0 0 0 0 45 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' mt_citizens 'private' mt_upper_class 'private' malred 'private' kelbran_family~
+0 0 0
+#21148
+Dayma REDCLOAKS_ARSONIST one eyed scarred face woman~
+a one-eyed woman with a scarred face~
+A scarred woman with one eye is in the area.~
+   This short woman is middle-aged, lacking the curves of a 
+youthful lady, but not entirely faded in form. Her face, 
+however, is a ruin - one eye is missing, and terrible, nasty 
+scars run all across it, all of them old and well set. Her hair 
+is a light shade of red, and her one remaining eye is bright 
+green in color. She is missing her two smallest fingers on her 
+right hand. 
+~
+10 0 27 0 0 5d1+87 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+9 18 13 1 19 11 81 17
+0 0
+0 30 50 0 0 0 0 0 50 0
+0 0 0 55 0 0 0 0 0 40
+40 35 0 0 50 50 50 50 50 50
+0 0 100 0 0 0 60 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' redcloak~
+0 0 0
+#21030
+formless mtembassyguard Harad Elite~
+a formless mtembassyguard autocreate~
+A formless mtembassyguard autocreat watches vigilantly.~
+   Dark hair, dark-eyes, and swarthy skin declare this soldier's 
+southern heritage. The proud bearing shows in their straight 
+back and squared shoulders. Their dark eyes are never still as 
+the soldiers keep quiet watch over the area. 
+~
+8 4194304 39 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 11 12 1 17 16 80 16
+268435456 0
+0 79 74 72 78 61 66 77 68 77
+65 79 58 76 72 70 63 68 75 64
+66 60 67 0 67 64 0 0 51 62
+0 0 62 0 0 52 53 49 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 74 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+62 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#21031
+movers KITCHEN_EQ burly~
+a group of burly movers~
+A dozen or so burly movers are here, setting up a kitchen.~
+   These twelve movers are burly, looming fellows, but they seem 
+to have a friendly demeanor. All have brown or black hair, and 
+they all seem to be native Gondorians. 
+~
+10485898 0 4 0 100 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 25 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 200 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21032
+grasshopper MTEMBASSY trigger puller tiny miniscule green~
+a tiny, green grasshopper~
+A miniscule grasshopper frolics about the area.~
+(null)~
+10 524288 25 0 100 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 50 0 0 0 50 0 0
+0 0 0 0 0 0 0 0 0 0
+50 8 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21033
+Issam mtembassyguard stolid dark skinned man harad~
+a stolid, dark skinned man~
+A stolid, dark skinned man watches the area vigilantly.~
+   Dark hair, dark-eyes, and swarthy skin declare this soldier's 
+southern heritage. The proud bearing shows in their straight 
+back and squared shoulders. Their dark eyes are never still as 
+the soldiers keep quiet watch over the area. 
+~
+10 4194304 25 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 73 4 0 0
+16 11 12 1 17 16 80 16
+0 0
+0 39 50 37 36 48 34 33 33 33
+34 44 40 31 37 36 46 33 35 33
+33 30 40 0 42 35 0 0 18 62
+0 0 57 0 0 23 24 24 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 38 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+62 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' cobra_enforcers 'sergeant' cobra 'sergeant' silvermoon 'member' haradaic_embassy~
+0 0 0
+#21034
+Muti mtembassyguard muscular man war tattoos harad~
+a muscular man with war-tattoos~
+A muscular man with war-tattoos watches the area vigilantly.~
+   Dark hair, dark-eyes, and swarthy skin declare this soldier's 
+southern heritage. The proud bearing shows in their straight 
+back and squared shoulders. Their dark eyes are never still as 
+the soldiers keep quiet watch over the area. 
+~
+10 4194304 25 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 68 5 0 0
+16 11 12 1 17 16 80 16
+0 0
+0 39 50 37 36 48 34 33 33 33
+34 44 40 31 37 36 46 33 35 33
+33 30 40 0 42 35 0 0 18 62
+0 0 57 0 0 23 24 24 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 38 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+62 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' haradaic_embassy 'private' silvermoon 'private' cobra 'corporal' cobra_enforcers~
+0 0 0
+#21035
+Saqira mtembassyguard tall tanned man obsidian harad~
+a tall, tanned man with obsidian eyes~
+A tall, tanned man with obsidian eyes watches the area vigilantly.~
+   Dark hair, dark-eyes, and swarthy skin declare this soldier's 
+southern heritage. The proud bearing shows in their straight 
+back and squared shoulders. Their dark eyes are never still as 
+the soldiers keep quiet watch over the area. 
+~
+1050 4194304 25 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 82 2 0 0
+16 11 12 1 17 16 80 16
+1 1
+23252 23228 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+23314 23050 23051 23315 23316 91019 -1
+0 0 0 0 0 0 0 0 0 0
+0 39 50 37 36 48 34 33 33 33
+34 44 40 31 37 36 46 33 35 33
+33 30 40 0 42 35 0 0 18 62
+0 0 57 0 0 23 24 24 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 38 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+62 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'sergeant' mordor_slavers 'sergeant' reflected_moon_officers~
+0 0 0
+#21037
+Husniyah mtembassyservant slender umber skin shaabba teen harad~
+a slender, umber-skinned shaabba~
+A slender, umber-skinned shaabba lingers here.~
+   This servant girl cannot be much past fifteen years in age, 
+though she is fully blossomed as a woman. Her skin is tanned and 
+looks to be very smooth, free of any marks or scars. Her body is 
+curvy, and it is set in a docile stance almost constantly. 
+~
+138 0 4 6 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 80 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' haradaic_embassy~
+0 0 0
+#21038
+Kalila mtembassyservant tanned curvaceous teen shaabba harad~
+a curvaceous, tanned shaabba~
+A curvaceous, tanned shaabba lingers here.~
+   This servant girl cannot be much past fifteen years in age, 
+though she is fully blossomed as a woman. Her skin is tanned and 
+looks to be very smooth, free of any marks or scars. Her body is 
+curvy, and it is set in a docile stance almost constantly. 
+~
+138 0 4 6 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 80 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' haradaic_embassy~
+0 0 0
+#21039
+Maha mtembassyservant deep bosomed plump shaabba teen harad~
+a deep-bosomed, plump shaabba~
+A deep-bosomed, plump shaabba lingers here.~
+   This servant girl cannot be much past fifteen years in age, 
+though she is fully blossomed as a woman. Her skin is tanned and 
+looks to be very smooth, free of any marks or scars. Her body is 
+not so very slender - instead, it is somewhat plump. However, 
+her form has a beauty to it, and it is set in a docile stance 
+almost constantly. 
+~
+138 0 4 6 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 80 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' haradaic_embassy~
+0 0 0
+#21040
+Faris mtembassyostler dark skinned facial face scar scarring tanned man ostler~
+a dark-skinned man with facial scarring~
+A tanned man with a long, thin scar on his face tends the stables here.~
+   This aging Haradaic man is tall and well-built, with wide 
+shoulders and powerful legs. He has black eyes, and lightly 
+tanned skin, and his hair is a shade of dark grey. On his face, 
+a long scar extends from his upper right forehead to his lower 
+left check. 
+~
+10 0 18 0 0 5d1+96 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 14 17 1 16 14 80 18
+8388609 0
+0 0 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 35 0 0 0 0 0 0 36 0
+0 0 0 0 0 0 0 0 0 0
+35 26 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 36 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' haradaic_embassy~
+0 0 0
+#21041
+Constance curvy woman blonde PAGASE~
+a curvy woman with long blonde hair~
+A curvy woman with long blonde hair stands here.~
+   With blonde hair cascading down to the small of her back, this 
+young woman stands at average height for her people. Without a 
+single wrinkle or mark on her face, a pair of light green eyes 
+sit astride a diminutive nose. Her frame is light and thin, with 
+only the gentle curves that define her gender offering her 
+substance. Her fingers are small and slender, each dexterous and 
+soft textured. 
+~
+10 0 16 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 32 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21042
+Annuil strong jawed night~
+a strong-jawed, night-haired man~
+A strong jawed man with night-black hair is here.~
+   A strong jaw and statuesque features shape the sombre face of 
+this man. His deepset, ash-grey eyes are often shadowed by 
+strands of thick, night-black hair. Signs of battle mark him: a 
+long, thin scar winds its way over an eye and across the bridge 
+of his nose. Several more stretch in jagged clusters, pale and 
+twisted, across his neck. Though signs of age have started to 
+crop up - grayer streaks in his dark hair, or wrinkles etched 
+into his face, these are belayed by broad shoulders and a height 
+just over six feet. 
+~
+10 0 32 1 0 5d1+105 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 4 0 0
+17 17 17 1 17 17 81 17
+0 0
+0 40 0 65 0 0 0 0 0 0
+0 0 0 0 0 0 60 0 0 0
+45 45 38 0 0 0 0 0 50 50
+0 0 50 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+60 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21149
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21043
+Brianny graceful classic features mane orbs BYBONES BURIAN_SISTER~
+a graceful woman with classic features~
+A graceful woman with classic features is here.~
+   Of classic silhouette, this woman's flawless, snowy complected 
+face is accented by bright orbs of stormy grey. Framing her 
+features is a full mane of ebony curls that cascade just past her 
+shoulders. Long, graceful arms, tapered and manicured nails 
+betray a life of creature comforts and little or no physical 
+labor. Standing upon svelte legs, she carries herself in proud 
+manner, her chin often ticked slighty higher than the norm when 
+she walks. A brilliant smile framed by lush, pink lips greets 
+most who address the woman in civil manner. There is a 
+wholesome, healthy glow to the woman, she seems to be fit and 
+overall, quite capable. 
+~
+10 0 20 1 0 5d1+93 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 64 2 0 0
+15 18 17 1 16 13 81 13
+0 0
+0 8 0 0 0 0 0 0 40 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 70
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21044
+Nickels SNAKEBITE_GUARD burly thicket feller heavy-set greying deep brown man~
+a burly thickset feller~
+A heavy-set man with greying hair and deep brown eyes is here, watching intently.~
+   Broad and heavy this man is taller and wider than most of his 
+kind. A thin shock of greying hair covers his scalp which leads 
+down to two sideburns framing his face. Two deepset brown eyes 
+peer out from under a stooped brow. His nose is wide, sitting at 
+a slight angle on his face. Smashed over the course of the 
+years, it gives off a quiet wheeze when he breathes. His chest 
+is akin to a barrel with hair, seeming a mix of fat and unused 
+muscle. Solid arms sprout from his shoulders and are akin to his 
+chest, covered in coarse dark hair. Squat, heavy legs keep him 
+upright, and a glance at them bare would show that they too are 
+hairy. His skin is marked with the scars and marks gathered 
+through a hard life. 
+~
+10 0 20 0 0 5d1+99 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 12 1 13 15 81 14
+0 0
+0 40 40 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 35 0 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21045
+formless ABWATCH_ENFORCER_WANDER enforcer prototype~
+a formless enforcer prototype~
+A formless enforcer prototype is here, patrolling the Borough.~
+   This attentive Watchman oversees the security of the Annon 
+Borough, watching carefully for a disturbance of the peace. Eyes 
+slightly narrowed and lips set into a grim line, they appear 
+quite serious about upholding their sworn duty to the Borough. 
+They move in stone-cold silence, having precious little time for 
+conversation. 
+~
+4104 0 25 122 0 5d1+98 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 8 0
+17 11 13 1 14 16 81 15
+268435456 0
+0 39 38 33 40 43 48 48 45 50
+45 40 38 41 41 38 36 33 39 30
+32 40 37 0 39 39 0 0 24 62
+0 0 54 0 0 18 23 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 34 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' tirithguard 'member' tirithguard_3 'member' tirithguard_11 'private' abwatch 'member' mtc_council~
+0 0 0
+#21046
+formless ABWATCH_HORSE_WANDER horse prototype~
+a formless warhorse prototype~
+A formless warhorse prototype stands here quietly.~
+   Standing roughly at the height of a man's shoulder, this horse 
+maintains a proud and dignified facade. Its head is held high, 
+intelligent eyes glaring out into the distance, and a thick, 
+healthy-looking mane runs down the back of its neck. Its coat 
+appears well-cared-for, and a thick, knotted layer of muscle 
+ripples gracefully beneath its sleek skin. 
+~
+134479880 0 23 61 1 5d1+98 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+18 7 8 1 15 18 77 18
+268435456 0
+0 46 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' abwatch~
+0 0 0
+#21047
+formless ABWATCH_ENFORCER_SENTINEL enforcer prototype~
+a formless enforcer prototype~
+A formless enforcer prototype is standing here, looking alert.~
+   This attentive Watchman oversees the security of the Annon 
+Borough, watching carefully for a disturbance of the peace. Eyes 
+slightly narrowed and lips set into a grim line, they appear 
+quite serious about upholding their sworn duty to the Borough. 
+They move in stone-cold silence, having precious little time for 
+conversation. 
+~
+4106 0 25 122 0 5d1+98 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 11 13 1 14 16 81 15
+268435456 0
+0 30 50 46 48 48 37 45 34 31
+46 44 50 42 37 33 39 41 47 41
+50 31 39 0 38 33 0 0 24 62
+0 0 60 0 0 16 23 15 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 37 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mtc_council 'private' abwatch 'member' tirithguard_11 'member' tirithguard_3 'member' tirithguard~
+0 0 0
+#21048
+formless ABWATCH_HORSE_SENTINEL horse prototype~
+a formless warhorse prototype~
+A formless warhorse prototype stands here quietly.~
+   Standing roughly at the height of a man's shoulder, this horse 
+maintains a proud and dignified facade. Its head is held high, 
+intelligent eyes glaring out into the distance, and a thick, 
+healthy-looking mane runs down the back of its neck. Its coat 
+appears well-cared-for, and a thick, knotted layer of muscle 
+ripples gracefully beneath its sleek skin. 
+~
+134479882 0 23 61 1 5d1+98 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+18 7 8 1 15 18 77 18
+268435456 0
+0 46 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' abwatch~
+0 0 0
+#21049
+formless PTIRNEN_SENTRIES_MERCENARY mercenary prototype~
+a formless mercenary prototype~
+A formless mercenary prototype lingers here.~
+   Tough and scarred by a life of obvious combat training, this 
+person doesn't seem like someone to cross. Wary and watchful, 
+they patrol the area with a hawk-like gaze, appearing quite 
+competent despite their rough and somewhat shoddy appearance. 
+~
+10 0 20 94 0 5d1+99 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 12 1 13 15 81 14
+268435456 0
+0 40 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'private' tirnenestel_leathers 'private' tirnens_traders 'member' fahad-jafari~
+0 0 0
+#21061
+formless ABWATCH_ENFORCER_WANDER enforcer prototype~
+a formless enforcer prototype~
+A formless enforcer prototype is here, patrolling the Borough.~
+   This attentive Watchman oversees the security of the Annon 
+Borough, watching carefully for a disturbance of the peace. Eyes 
+slightly narrowed and lips set into a grim line, they appear 
+quite serious about upholding their sworn duty to the Borough. 
+They move in stone-cold silence, having precious little time for 
+conversation. 
+~
+4104 0 25 0 0 5d1+102 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 67108880 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 37 36 48 50 32 48 42 47 32
+37 34 35 45 44 48 36 40 45 43
+37 35 34 0 39 58 0 0 21 62
+0 0 56 0 0 22 24 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 49 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mtc_council 'private' abwatch 'member' tirithguard_11 'member' tirithguard_3 'member' tirithguard~
+0 0 0
+#21062
+formless ABWATCH_ENFORCER_WANDER enforcer prototype~
+a formless enforcer prototype~
+A formless enforcer prototype is here, patrolling the Borough.~
+   This attentive Watchman oversees the security of the Annon 
+Borough, watching carefully for a disturbance of the peace. Eyes 
+slightly narrowed and lips set into a grim line, they appear 
+quite serious about upholding their sworn duty to the Borough. 
+They move in stone-cold silence, having precious little time for 
+conversation. 
+~
+4104 0 25 0 0 5d1+102 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 67108880 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 37 36 48 50 32 48 42 47 32
+37 34 35 45 44 48 36 40 45 43
+37 35 34 0 39 58 0 0 21 62
+0 0 56 0 0 22 24 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 49 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mtc_council 'private' abwatch 'member' tirithguard_11 'member' tirithguard_3 'member' tirithguard~
+0 0 0
+#21063
+formless ABWATCH_ENFORCER_WANDER enforcer prototype~
+a formless enforcer prototype~
+A formless enforcer prototype is here, patrolling the Borough.~
+   This attentive Watchman oversees the security of the Annon 
+Borough, watching carefully for a disturbance of the peace. Eyes 
+slightly narrowed and lips set into a grim line, they appear 
+quite serious about upholding their sworn duty to the Borough. 
+They move in stone-cold silence, having precious little time for 
+conversation. 
+~
+4104 0 25 0 0 5d1+102 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 67108880 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 37 36 48 50 32 48 42 47 32
+37 34 35 45 44 48 36 40 45 43
+37 35 34 0 39 58 0 0 21 62
+0 0 56 0 0 22 24 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 49 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mtc_council 'private' abwatch 'member' tirithguard_11 'member' tirithguard_3 'member' tirithguard~
+0 0 0
+#21064
+formless ABWATCH_ENFORCER_WANDER enforcer prototype~
+a formless enforcer prototype~
+A formless enforcer prototype is here, patrolling the Borough.~
+   This attentive Watchman oversees the security of the Annon 
+Borough, watching carefully for a disturbance of the peace. Eyes 
+slightly narrowed and lips set into a grim line, they appear 
+quite serious about upholding their sworn duty to the Borough. 
+They move in stone-cold silence, having precious little time for 
+conversation. 
+~
+4104 0 25 0 0 5d1+102 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 67108880 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 37 36 48 50 32 48 42 47 32
+37 34 35 45 44 48 36 40 45 43
+37 35 34 0 39 58 0 0 21 62
+0 0 56 0 0 22 24 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 49 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mtc_council 'private' abwatch 'member' tirithguard_11 'member' tirithguard_3 'member' tirithguard~
+0 0 0
+#21065
+formless ABWATCH_ENFORCER_WANDER enforcer prototype~
+a formless enforcer prototype~
+A formless enforcer prototype is here, patrolling the Borough.~
+   This attentive Watchman oversees the security of the Annon 
+Borough, watching carefully for a disturbance of the peace. Eyes 
+slightly narrowed and lips set into a grim line, they appear 
+quite serious about upholding their sworn duty to the Borough. 
+They move in stone-cold silence, having precious little time for 
+conversation. 
+~
+4104 0 25 0 0 5d1+102 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 67108880 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 37 36 48 50 32 48 42 47 32
+37 34 35 45 44 48 36 40 45 43
+37 35 34 0 39 58 0 0 21 62
+0 0 56 0 0 22 24 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 49 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mtc_council 'private' abwatch 'member' tirithguard_11 'member' tirithguard_3 'member' tirithguard~
+0 0 0
+#21066
+formless ABWATCH_ENFORCER_WANDER enforcer prototype~
+a formless enforcer prototype~
+A formless enforcer prototype is here, patrolling the Borough.~
+   This attentive Watchman oversees the security of the Annon 
+Borough, watching carefully for a disturbance of the peace. Eyes 
+slightly narrowed and lips set into a grim line, they appear 
+quite serious about upholding their sworn duty to the Borough. 
+They move in stone-cold silence, having precious little time for 
+conversation. 
+~
+4104 0 25 0 0 5d1+102 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 67108880 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 37 36 48 50 32 48 42 47 32
+37 34 35 45 44 48 36 40 45 43
+37 35 34 0 39 58 0 0 21 62
+0 0 56 0 0 22 24 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 49 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mtc_council 'private' abwatch 'member' tirithguard_11 'member' tirithguard_3 'member' tirithguard~
+0 0 0
+#21277
+Auto-Reset ABWATCH_CONTROL_ROOM proud grey eyed man~
+a proud, grey-eyed man~
+A proud man with grey eyes stands at attention here.~
+(null)~
+8 524290 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21050
+Fletch P_HARUL calico cat kitten~
+a calico kitten with no tail~
+A calico, tailless kitten is here.~
+   Small but long-haired, this kitten is little more than fur and 
+feet; his tail is nothing more than a blunt stub, blackly-furred. 
+One ear is orange, along with half of the kitten's face, while 
+the other is black - the rest of the kitten's face, however, is 
+the same off-white as his feet. His eyes are a vibrant, bright 
+blue. His nose is small and black. 
+~
+138 4 0 38 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+10 10 10 1 10 10 77 10
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21052
+Fletch P_HARUL calico cat young~
+a calico young cat with no tail~
+A youthful, calico cat with no tail is here.~
+   This young cat is calico and long-haired, with half of his 
+face, and one of his ears, orange and the other side of his face 
+off-white, to match his four similarly socked paws. His tail is 
+nothing more than a blunt, blackly-furred stub and his eyes are 
+fading from blue to a yellowy green. A shallow scar runs over 
+his small, black nose. 
+~
+138 4 0 38 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+10 10 10 1 10 10 77 10
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21053
+Fletch P_HARUL calico cat~
+a calico cat with no tail~
+A tailless cat, with a calico coat, is here.~
+   This cat is calico and long-haired, with half of his face, and 
+one of his ears, orange and the other side of his face off-white, 
+to match his four similarly socked paws. His tail is nothing 
+more than a blunt, blackly-furred stub and his eyes are an 
+attentive, yellowy green. A shallow scar runs over his small, 
+black nose. 
+~
+138 4 0 38 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+10 10 10 1 10 10 77 10
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21054
+Fletch P_HARUL calico cat old aging~
+an old, calico cat with no tail~
+An aging, calico cat with no tail is here~
+   This old cat is calico, with long, ratty hair. Half of his 
+face, and one of his ears, is orange and the other ear is black; 
+the other side of his face, however, is off-white to match his 
+four similarly socked paws. His tail is nothing more than a 
+blunt, blackly-furred stub and his eyes are yellowy green, though 
+one has filmed over and is milky. A shallow scar runs over his 
+small, black nose, and numerous other nicks hide under his long 
+fur. 
+~
+138 4 0 38 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+10 10 10 1 10 10 77 10
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21055
+Jebby MAIL_DELIVERY_BOY young delivery boy byConscript~
+a young delivery boy~
+A young delivery boy runs by, intent on his duties.~
+   This young lad of about twelve runs through with a bag over 
+one shoulder, delivering mail. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' eradan_battalion 'member' mt_citizens~
+0 0 0
+#21056
+Aeson MT_HONOR_GUARD byConscript solemn tall ebon haired man~
+a solemn, tall man with ebon hair~
+A tall, ebon-haired man stands solemnly in the plaza.~
+   Standing proudly erect, this soldier stands silently in the 
+Sun Plaza. His grey eyes stare straight ahead from a composed, 
+clean-shaven face beneath neatly trimmed ebon hair. His armor 
+and leather shines magnificently, impeccably cared for. 
+~
+10 0 25 1 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 50 0 50 50 0 50 50 0 50
+50 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' eastern_vanguard 'lieutenant' eradan_battalion 'sergeant' mt_citizen~
+0 0 0
+#21057
+Weatherby old greying man blue eyes HURIN_OSTLER BYBONES~
+an old, blue eyed man~
+A man with greying hair and sky-blue eyes stands here, tending to the horses.~
+   Hands covered in thick, padded callouses top the lanky arms of 
+this aging man. With long streaks of grey present in his hair, 
+he has passed that of middle age and moved on to the later part 
+of his life. His face is covered with a uniform mask of scars 
+and gouges, each one long since healed. His eyes, a shimmering 
+sky blue, easily perceive the world from around a nose that is 
+hooked from many breaks. Though he does not appear bulky with 
+muscle, his form is still toned and strong. 
+~
+8 0 30 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+8388609 0
+21308 0 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 50 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 0 120
+0 0 120 0 0 69 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 58 0 0 0 0 0 0
+0 0 0 0 0 0 69 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+69 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 69 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21320
+Crithacoth massive black grey streaked man eyed haired CITADEL_HURIN_GUARD BYBONES_HURIN~
+a massive ash-eyed man with obsidian hair~
+A massive man stands here, with black hair and eyes the color of ash.~
+   A strong jaw and statuesque features shape the sombre face of 
+this man. His deepset, ash-grey eyes are often shadowed by 
+strands of thick, night-black hair. Signs of battle mark him: a 
+long, thin scar winds its way over an eye and across the bridge 
+of his nose. Several more stretch in jagged clusters, pale and 
+twisted, across his neck. Though signs of age have started to 
+crop up - grayer streaks in his dark hair, or wrinkles etched 
+into his face, these are belayed by broad shoulders and a height 
+just over six feet. 
+~
+10 0 35 1 0 5d1+114 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 4 0 0
+19 18 20 1 18 20 81 16
+0 0
+0 40 0 71 0 0 0 0 0 0
+0 0 0 0 0 0 60 0 0 0
+73 62 72 0 0 0 0 0 50 120
+0 0 120 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 73 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+73 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21058
+Dinenguruth athletic grey black obsidian slate haired eyed eyes ASTIRIAN_BADASS BYBONES~
+a black-haired man with grey eyes~
+An athletic man with obsidian hair and slate grey eyes stands here, eyes alert.~
+   Toned muscles are bound beneath the tanned flesh of this man, 
+from head to toe. His hair is colored that of obsidian, and has 
+been shorn off to leave less than three inches coming from his 
+scalp. A nose clearly broken and reset several times rests 
+between a pair of slate grey eyes, each sharp and unclouded. 
+With a mouth retaining all of its teeth, his face is rounded out 
+by a pair of thin lips above a strong chin. His form is 
+athletic, with legs strong and powerful matching to an equally 
+capable pair of arms. Scars cover his torso and hands, from 
+jagged marks, to healed over puncture wounds. His hands are 
+covered in thick padded callouses, save the tips of his thumbs, 
+index and middle fingers. 
+~
+8 0 41 101 0 5d1+130 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 69 2 0 0
+19 20 18 1 22 18 81 20
+0 0
+0 70 0 83 0 0 0 0 0 0
+82 0 0 0 0 0 78 78 0 0
+77 70 0 0 70 70 0 0 0 120
+0 0 120 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 72 0 0 0 0 0 0
+0 0 0 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 74 0
+74 100 0 0 0 0 0 0 0 0
+120 0 0 0 74 74 0 0 0 0
+0 0 0 0 120 120 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21059
+Belegmaethor ebon storm grey black haired eyed muscular middle-aged man HOUSE_NIMRULAI_BADASS BYBONES AUTHORIZED_ADMIN_ONLY Army_Captain~
+a middle-aged man with black hair and grey eyes~
+A muscular man with storm-grey eyes and ebon hair stands here, watching the area alertly.~
+   Appearing to be middle aged, this muscular man has his life 
+carved into his flesh. Scars wind their way around his face and 
+neck, harsh and long. Long ebon-black hair falls from his scalp, 
+framing a strong face. Storm-grey eyes stare alertly about, 
+resting astride a nose half-mashed. A thin-lipped mouth 
+completes his features, hiding several missing teeth. His body 
+is built thick and heavy, from a long life of labour. 
+~
+10 0 40 101 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 20 20 1 20 20 81 20
+0 0
+0 70 0 80 80 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+80 69 0 0 0 0 0 0 0 120
+0 0 120 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 80 0 0 0
+0 0 0 0 0 0 0 0 120 0
+0 100 120 0 120 0 0 0 0 0
+120 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 80 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'stands' behind 'a' stove,~
+0 0 0
+#21060
+Hanah POFDROXYCAENE_ENTOURAGE_ELITE young woman spry snuff cerulean sinewy~
+a spry young woman with snuff-colored hair~
+A cerulean-eyed, sinewy woman with snuff-colored hair is here.~
+   This woman has a slender, well-muscled form - clearly, she is 
+no fragile lady, but her body curves as a woman's should. She is 
+not very tall, nor very massive - her body lacks visible fat 
+entirely. Her eyes are wide, and colored cerulean, and her hair 
+is snuff-colored, and cut to shoulder-length. 
+~
+10 0 32 0 0 5d1+102 1d5+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 50 62 60 0 0 0 0 0 0
+0 0 0 0 0 0 65 0 0 0
+45 45 38 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' droxent~
+0 0 0
+#21067
+Dyniman POFDROXYCAENE_ENTOURAGE_REGULAR man fellow aged graying snuff ecru~
+an aged, snuff-haired fellow with ecru eyes~
+A graying fellow with snuff-colored hair is here.~
+   This man is clearly past his prime - his skin has begun to 
+wrinkle, and is covered in a number of pockmarks, and his 
+snuff-colored hair has begun to fade into a silver-brown color. 
+His form is muscled and fit, but some bulges of fat have 
+developed on his frame. He has green-brown eyes, and a short, 
+pointy nose. 
+~
+10 0 20 0 0 5d1+99 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 12 1 13 15 81 14
+0 0
+0 40 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' droxent~
+0 0 0
+#21068
+Iroto POFDROXYCAENE_ENTOURAGE_REGULAR middle man burly snuff emerald~
+a burly, middle-aged man with snuff-colored hair~
+An emerald-eyed man with a head of snuff-colored hair is here.~
+   All signs of youth have faded from this man's form, but the 
+effects of old age have not yet begun to wear upon him. He has a 
+well-muscled, stocky form, topped with broad, thick shoulders. 
+His digits are porky, and his hands are quite massive. This 
+fellow's face is set with a pair of emerald eyes, and he has a 
+head of snuff-colored hair. 
+~
+10 0 20 0 0 5d1+99 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 12 1 13 15 81 14
+0 0
+0 40 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' droxent~
+0 0 0
+#21339
+Dinenmaethor patrician features man grey dark black short Dinen Maethor May Din BY_BONES RANGER_LT BATTALIONS_STORY~
+a man with patrician features~
+A lithe man with dark grey eyes and short black hair stands here, watching his surroundings.~
+   Of middling age, lines of hard living have been etched into 
+this man's face. His skin is tanned lightly, like leather almost 
+in texture. Short black hair has been carefully hewn, leaving a 
+few inches to hang from his scalp. An aquiline nose extends from 
+between a pair of dark grey orbs. His face is well-finished with 
+a thin-lipped mouth, all of his teeth shown intact when he opens 
+it. His form is compact and athletic, the muscles on his arms 
+and legs more lean than powerful. Callouses have built up on the 
+pads of his feet, as well as the fingers and palms of his hands. 
+~
+8 0 39 101 0 5d1+100 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 19 18 1 19 19 81 19
+0 0
+0 65 76 75 0 0 0 0 0 0
+78 0 0 0 0 0 0 72 0 0
+73 65 0 0 75 75 0 0 0 100
+0 0 120 0 0 75 75 75 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 67 0 0 0 0 0 0
+0 0 0 0 0 0 100 0 0 0
+0 0 0 0 0 75 0 0 0 0
+73 100 0 0 0 0 0 0 0 0
+100 0 0 0 73 73 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21069
+rioter HEATOFTHESUMMER enraged balled fists~
+an enraged rioter~
+A rioter with balled fists stands here, looking for trouble.~
+   This person is brutish and dirty, their cracked teeth and 
+scarred visage speaking of a lifetime of pain and poverty. 
+They wear an enraged look on their face, fists clenched and
+ready to pummel whomever crosses their path.
+#0
+<worn on body          #2an old linen shirt with off white patches#0
+<worn about waist      #2a plain, brown leather belt#0
+<worn on legs          #2a pair of rough, dingy greyish green homespun leggings#0
+<worn on feet          #2a pair of brown leather boots#0
+~
+42 0 24 0 1 5d1+96 1d6+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+15 9 15 1 15 14 81 16
+0 0
+0 49 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_lower_class~
+0 0 0
+#21070
+Lady Dylili Anfaron xxEROHASCOUSIN woman regal features silver black~
+a silver-eyed woman with regal features~
+A regal woman is here, with black hair and silver eyes.~
+   This woman is slightly taller than most, with long, slender 
+legs supporting her curvy torso. Her skin is fair, and 
+unblemished. She has a head of long, black hair, which is held 
+up in a bun. Her nose is short and quaint, and her eyes are a 
+silver shade of grey. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21071
+elandra enourmous buxom woman DOORGUARD_21343~
+an enormous, buxom woman~
+An enourmous woman towers here, watching alertly.~
+   Easily looming over the largest of women and men alike, this 
+large woman's limbs are thick and large with muscles. Her 
+breasts are large, and seem more so by her posture, with her 
+shoulders back and her spine straight. She seems boisterous, 
+with a cheerful-looking red face and dimples in her cheeks. 
+Bright, baby blue eyes shine out of her face, contrasting sharply 
+with her deep, red-tinged brown hair and tanned skin. In spite 
+of her youthful looks, she has few scars marring the skin of her 
+arms and hands, and a small mark in her forehead, as if struck 
+there once by a blunt object. She keeps a watchful gaze over the 
+area she stands. 
+~
+8 0 15 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 4 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 30 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' steelswans 'corporal' radiantswan~
+0 0 0
+#21500
+Gravis rotund clerk with balding hair x xx xxx xxxg xxxgo xxxgon~
+a rotund clerk with balding hair~
+A rotund clerk with balding hair sits behind a desk here.~
+(null)~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 18 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21501
+Brudas smoky haired hunchbacked hunch backed old man~
+a smoky-haired, hunchbacked old man~
+A smoky-haired, hunchbacked old man moves about the warehouse here.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21502
+nexus job gondorian byorome OTHER~
+a job nexus~
+A job nexus controls the output of job items here.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21503
+floating hand~
+a floating hand~
+A floating hand is awaiting a command here.~
+(null)~
+8 2 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21072
+Weardmund, Wuldane, Dog, Wolf, Pepper, Dusky, PETCEOLWULF~
+an alert, pepper-gray furred wuldane~
+A dusky-yellow orbed, pepper-gray furred wuldane patrols the area.~
+   Bearing a striking resemblance to that of a wolf, this 
+peppery-gray coloured dog stands at near nine hands in height to 
+the shoulder. Alert, suspicious orbs of dusky yellow are framed 
+by a pair of erect ears and sit just above a broad muzzle tapered 
+with a jet black nose. A thick, glorious coat of mixed charcoal 
+and silvery fur provide most of the striking guard hairs that sit 
+above his undercoat, particularly evident over his powerful back 
+and across the chest and legs. Splayed paws, the fore pair 
+slighter larger than the rear, tread lightly across the ground as 
+he moves. His tail, making up almost a quarter of his length, is 
+coloured identically to the rest of his body but for a tinge of 
+jet black fur at the extremity. With a healthy, luxuriant coat 
+and a powerful, well-muscled frame it is evident that this dog 
+has been bred for hunting or even war, his appearance indicative 
+of an animal in the prime of its life. 
+~
+1048586 0 30 40 0 5d1+95 1d6+2 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ceolwulfnpc 'member' mt_citizens~
+0 0 0
+#21073
+Joscelin Nimrulai august dark haired older man NIMRULAIPUBLICFACEEVENTSGUY~
+an august, dark-haired older man~
+An august, dark-haired older man stands here.~
+   Of strong Gondorian stock this man carries himself with an 
+upright bearing. His build is one of strength and vitality 
+though it has past its peak. While still broad and well built, 
+signs of age begin to show upon his grim features. His grey eyes 
+are hooded and set under thick greying eyebrows, a narrow nose 
+and a mouth not used to smiling make up his features. 
+~
+8 0 30 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 20 50 0 60 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 50
+8 40 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 30 30 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 60 0
+0 100 0 0 0 0 0 0 0 0
+100 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#21074
+Drayl ample blonde headed young man~
+an ample, blond-headed young man~
+An ample, blond-headed young man stands here.~
+   Standing slightly taller than an average man of his kind, this 
+grisly fellow is rugged and thick. Unkempt locks of dark blond 
+hair top cap his wide head, curling at the ends to frame his 
+face. His nose, twice broken, is short but protrudes far off his 
+face below a pair of bright green eyes. At the bottom of his 
+face a sculpted chin is ever more present against the roundness 
+of his features. Running along the left side of his neck is a 
+wide and gruesome scar that reaches from collarbone to the bottom 
+of his chin, the remnants of some awful affair. Built on a 
+sturdy frame, his muscles - while not massive - are firm and 
+large for a man his size and lend to his bulky appearance. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_lower_class 'journeyman' valdans_thugs~
+0 0 0
+#21075
+Brena young woman feminine curves~
+a young woman with feminine curves~
+A young woman with feminine curves loiters here behind a counter.~
+   Smooth, brunette hair falls to this young womans shoulders, 
+moving freely with her movement. Her skin is slightly tanned and 
+free of scars. The most attractive feature of this young woman 
+would have to be her face. Sitting below thin, brunette eyebrows 
+are two emerald green eyes; bearing a kindness yet sharp look to 
+them. Her nose is perfect in shape and fits her face. Below her 
+nose sits a small mouth, usually showing a smile. This womans 
+shoulders are small yet firm. Her arms are long and bare some 
+muscle. Her feminine curves are well sized for her body and her 
+stomach is flat. The long legs of this young woman show her to 
+be athletic. The overall appearance of this young woman shows 
+her to be fit, if not a little thin. 
+~
+1034 0 8 0 0 5d1+102 1d2+0 0 8 8 2 0 8 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21253 21254 1.300000 0.500000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+39 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_block_stock_barrel 'member' mt_citizens~
+0 0 0
+#21076
+Gruntle rough dull weathered musular middle~
+a rough, dull-eyed middle-aged man~
+A weathered, muscular middle-aged man stands here attentively.~
+   Rough in a appearance this man is clearly of the lower-class. 
+Multiple scars mar this mans broad rounded face. Though muscular 
+he stands slightly shorter than the average of his race. His 
+hair is brown and cut short leaving his dull blue eyes uncovered. 
+Usually frowning he stands attentive his eyes constantly looking 
+over the area. 
+~
+10 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+45 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21077
+Dorothy stocky unshaven man xxLIMPERS_DENxx~
+a stocky, unshaven man~
+A stocky, unshaven man is here.~
+   The years have not been kind to this squat, heavy man. His 
+face is creased and pockmarked, additionally decorated by a 
+handful of small scars that edge in around his left ear. His 
+nose is blunt and the cheeks bear a ruddy cast, disappearing into 
+an often unwashed beard that has arisen more from lack of shaving 
+than any intent of its owner. His belly protrudes generously 
+over his barrel chest, and the arms bear a thick, slab like 
+countenance. 
+~
+10 0 20 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 14 1 16 16 81 14
+0 0
+0 40 40 40 35 0 40 35 40 40
+35 0 0 40 0 0 40 40 0 35
+40 40 0 0 40 40 0 0 0 0
+0 0 40 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_lower_class 'member' limpers_den~
+0 0 0
+#21078
+Kenneth aging grey-eyed man xxLIMPERS_DENxx~
+an aging, grey-eyed man~
+An aging, grey-eyed man is here.~
+   Tall and rail thin, the wrinkles have crept into this man's 
+face and hands, creasing and lining the passage of the years into 
+his countenance. Despite this, he retains a pleasant sort of 
+look about him, the curling hair, peppered with generous amounts 
+of silver, cut short and swept back from the forehead, and a jaw 
+shaven clean of stubble. His eyes retain a sharpness that belies 
+his age, but his features are betrayed by the weakness of his 
+chin, which does him a disservice. Overall, the man appears 
+clean, and well groomed. 
+~
+10 0 20 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 14 1 16 16 81 14
+0 0
+0 40 0 40 35 0 40 35 0 40
+35 0 0 40 0 0 40 40 0 0
+40 40 0 0 40 40 0 0 0 0
+0 0 40 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_lower_class 'member' limpers_den~
+0 0 0
+#21097
+Vincent NPC_GUARD thick necked rough goatee with ByIarwain~
+a thick-necked man with a rough goatee~
+A thick-necked man with a rough goatee is here.~
+   Seen from the front, this man's neck is as wide as his 
+face--and he has a pretty wide face. He has a short crop of 
+curly black hair that comes down to a very small widow's peak. 
+His dark eyebrows are bushy and thick. His eyes are wide-spaced 
+on his large face and are dark brown. His nose is also wide, and 
+the nostrils flare up slightly at the ends. His lips are pale 
+but otherwise unremarkable. His entire face is covered with 
+stubble, but it has been cut off pretty close to his face except 
+around his mouth, leaving a rough sort of goatee. He has two 
+cauliflower ears, and his skin is tough and pock-marked. His 
+nose, upon careful inspection, is canted at a slight angle. He 
+is taller than average, and much bigger--large and muscular. His 
+hands are thick, tough, and capable-looking. As he stands, both 
+his arms and legs curve outward at the elbows and knees. Because 
+of his clothing, it is hard to tell if this is simply posturing 
+or an actual imbalance in his muscle tone. 
+~
+10 0 20 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 40 0 40 0 0 40 40 0 0
+0 0 0 40 0 0 40 0 0 0
+40 40 0 0 0 0 0 0 40 40
+0 0 50 0 0 0 40 40 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21079
+Seymour UNIQUE_PXAVIER puppy tiny velvety nosed ByIarwain PUPPY_MOB~
+a tiny, velvety-nosed puppy~
+A tiny, velvety-nosed puppy lingers here.~
+   This tiny puppy is covered in soft greyish-brown fur with a 
+head slightly too large for its body, bobbing in the air as it 
+gallivants around playfully. Its eyes and ears are constantly 
+switching their attention to anything that moves in the vicinity, 
+after which the puppy usually takes chase, growling and barking 
+in a lively, unthreatening manner. Its nose is light brown, warm 
+and velvety, and its teeth are small and milk-white in color. At 
+the sight of its owner it will often wag its tail with such 
+enthusiasm that the whole rear of its body will sway, putting the 
+puppy at risk of toppling itself over. 
+~
+134217738 0 2 40 0 5d1+25 1d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+9 10 10 1 14 9 77 14
+0 0
+0 5 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_lower_class~
+8640 21080 0
+#21080
+Seymour UNIQUE_PXAVIER puppy small unkempt ByIarwain YOUNG_DOG_MOB~
+a small, unkempt puppy~
+A small and unkempt puppy lingers here.~
+   The puppy's greyish-brown fur has grown long and unkempt, with 
+loose tangles running from its chest down to its belly. Its paws 
+and coat are muddied from running happily in the streets, having 
+acquired a faint smell of old straw. Though still small, its 
+gangly legs raise it almost to knee-height, its lean body bereft 
+of excess weight. Its nose is damp and cool, a dark shade of 
+chocolate brown, much like its eyes, and often wags its tail when 
+seeing familiar people or meeting new ones. 
+~
+134217738 0 5 40 0 5d1+25 1d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+9 10 10 1 14 9 77 14
+0 0
+0 10 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_lower_class~
+8640 21081 0
+#21081
+Seymour UNIQUE_PXAVIER dog young stray ByIarwain ADULT_MOB~
+a young, stray dog~
+A young, stray dog lingers here, panting.~
+   This young dog's greyish-brown fur has become matted on its 
+back, with tangles running from its chest down to its belly. The 
+fur on the end of its muzzle is thick and reasonably neat, 
+drooping down like a short beard, with a large, damp 
+chocolate-brown nose above it. The dog's teeth are slightly 
+yellowed near the gums, its eyes large and warm brown in 
+colouration. Its chest is very lean, with the outline of its 
+ribs faintly visible. 
+~
+134217738 0 10 40 0 5d1+25 1d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+9 10 10 1 14 9 77 14
+0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_lower_class~
+8640 21082 0
+#21082
+Seymour UNIQUE_PXAVIER dog dirty unkempt ByIarwain MATURE_DOG_MOB~
+a dirty, unkempt dog~
+A dirty, unkempt dog hangs around here.~
+   The dog's greyish-brown fur is matted on its back, with 
+tangles running from its chest down to its belly. The fur on the 
+end of its muzzle is thick and reasonably neat, drooping down in 
+a short beard, with a large, damp chocolate-brown nose above it. 
+The dog's teeth are yellowed and worn, bushy eyebrows above its 
+brown eyes angled in a forlorn expression. Occasionally it 
+whimpers, its rib bones clearly visible beneath a flattened, 
+dusty coat. 
+~
+134217738 0 10 40 0 5d1+25 1d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+9 10 10 1 14 9 77 14
+0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_lower_class~
+0 0 0
+#21083
+Swift plain matured UNIQUE_ROGUE_GONDOR faced male ByIarwain~
+a plain-faced, matured male~
+A plan-faced, matured male is here.~
+   This man is moderately sized, neither large nor small - just 
+average. His shoulders and bony, leading down to thin arms and 
+even thinner wrists. His legs are again rather thin, but they 
+stand straight and powerful. Pale skin is weathered against his 
+typically shaped face - features being rather plain with brown 
+eyes and thick, dark stubble peppering his jaw and cheeks. His 
+dark hair drapes in oily locks, clinging to his scalp rather 
+desperately. 
+~
+10 0 35 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+19 16 14 1 21 16 81 22
+0 0
+0 50 0 0 0 0 0 0 70 0
+0 0 0 0 0 0 60 0 60 0
+55 55 0 0 70 70 0 0 50 70
+0 0 50 0 0 0 0 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' wayside_tavern 'member' mt_lower_class 'member' mt_citizens~
+0 0 0
+#21084
+Niles effiminate blondew haired young man gondortheaterclan~
+an effeminate, blond haired young man~
+An effeminate, blond haired young man stands, selling tickets.~
+   With an air of culture and refinement to his sharp features, 
+this young gentleman stands with an aloof confidence. Blond hair 
+falls about his shoulders, more akin to a ladies in its shine and 
+style. He is lean of build and light of foot with little excess 
+weight to him. His movements are airy and smooth. 
+~
+26 0 8 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+11280 18174 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 517
+21446 -1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' mt_citizen~
+0 0 0
+#21085
+ Jenny hazel black elderly woman generalgoods rawmaterials shopkeeper~
+an elderly, hazel-eyed, black-haired woman~
+An elderly woman with black hair and hazel eyes serves goods here.~
+   Thin in face and body, this woman has grown quite old. Her 
+face carries the wrinkles of the time spent experiencing a wide 
+variety of squints, scowls and even smiles. The lines around her 
+hazel eyes are well defined and layered like that of an ancient 
+tree. Her hands, while small and frail, still hold an unwavering 
+steadiness. Her hair is a flat black with wisps of grey. 
+~
+1034 0 20 0 0 5d1+90 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+6 17 16 1 18 12 81 9
+1 0
+21401 21403 1.500000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 2840
+-1
+0 0 0 0 0 0 0 0 0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 40 0 0 0 0 0 0 0 40
+0 0 40 0 50 0 60 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' snarling_wuldane 'member' mt_citizens~
+0 0 0
+#21086
+Skinner cat scar nosed tawny fur clone xpofCassael xbyNauriel~
+a scar-nosed cat with tawny fur~
+A tawny-furred cat with a scarred nose stands here.~
+   Tawny coloured fur spouts in all directions on this cat, dirt, 
+grime, mire and blood encrusted on it as it tufts out in a wild 
+and unruly fashion. This cat's nose is scarred, as is the entire 
+of its face, without a doubt from its prey of its rough 
+lifestyle. 
+~
+135266314 4 17 38 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+1645 0 0 97647 0 0 24 0 0 0 2 0 11 0 0 0
+8 10 10 1 14 8 77 16
+0 0
+0 34 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 30 30 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' wayside_tavern 'private' mt_lower_class~
+0 0 0
+#21087
+Tarnith MT_Slums_Butcher freckled young man dark eyes pofBother xNauriel~
+a freckled young man with dark eyes~
+A freckled young man with dark eyes stands here, tending the shopfront.~
+   A tousled mop of dust-brown hair falls about the pointed face 
+of this dark-eyed, freckled and pale-skinned young man. Behind 
+his thin lips lie a set of somewhat discoloured, gapped teeth, 
+displayed in a sly smile should the expression appear. His frame 
+is wiry and his height average, with thin, nimble fingers bearing 
+light scars and callouses. 
+~
+1049610 0 17 0 0 5d1+102 1d2+0 0 8 8 1 0 4096 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+1465 96003 1.100000 0.500000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 16777473
+-1
+0 0 0 0 0 0 0 0 0 0
+0 21 34 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 62 59 43 50
+0 0 50 0 56 0 0 0 0 30
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' mt_clever_cut_butcher~
+0 0 0
+#21088
+Halomir tawny tressed brawny young man pofBother xNauriel~
+a tawny-tressed, brawny young man~
+A dark-eyed, brawny young man with tawny tresses is standing nearby.~
+   Large, dark-brown eyes peer out from a face with defined 
+cheekbones and a strong, squared jaw. Shaggy, tawny locks of 
+hair hang in strands about his rugged features, sweeping his 
+shoulders. His frame is toned, with broad shoulders and a trim 
+waist, the man of a decent height for one of his race. Often his 
+visage appears austere while neutral, but the very faint 
+beginnings of lines about his eyes and lips speak of an easy, 
+earnest smile just below the surface. 
+~
+1048586 0 20 0 0 5d1+99 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 3 0 0
+16 10 12 1 13 15 81 14
+0 0
+0 40 25 40 0 28 36 0 32 0
+0 0 0 0 0 0 0 0 0 33
+35 35 0 0 0 0 36 0 50 60
+28 0 50 0 0 0 50 0 0 19
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 24 0 16 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' amdir_settler 'corporal' mt_clever_cut_butcher~
+0 0 0
+#21089
+Jacian rugged well built man pofCassaelguard xNauriel~
+a rugged, well-built young man~
+A rugged, well-built young man keeps an eye on the area.~
+   This young man is made up of a tall and ruggedly built frame, 
+an obvious indication of his physical strength and stamina. His 
+face, however, is rather boyish with a small nose and a 
+square-set jaw sitting beneath a pair of emerald green eyes. The 
+hair atop his head is a golden blonde, cut short in a shaggy 
+manner and appearing unmanaged as it sticks up in places. His 
+skin is graced with a light tan and, at the end of rather broad 
+shoulders are thick arms and large hands. His legs are long and 
+they fall thickly to a pair of long feet, and his normal stature 
+is slightly stooped. 
+~
+1048586 0 20 0 0 5d1+99 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 69 3 0 0
+16 10 12 1 13 15 81 14
+0 0
+0 40 36 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' wayside_tavern~
+0 0 0
+#21090
+formless ABWATCH_HORSE_SENTINEL horse prototype~
+a formless warhorse prototype~
+A formless warhorse prototype stands here quietly.~
+   Standing roughly at the height of a man's shoulder, this horse 
+maintains a proud and dignified facade. Its head is held high, 
+intelligent eyes glaring out into the distance, and a thick, 
+healthy-looking mane runs down the back of its neck. Its coat 
+appears well-cared-for, and a thick, knotted layer of muscle 
+ripples gracefully beneath its sleek skin. 
+~
+134479882 0 23 61 1 5d1+98 1d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+18 7 8 1 15 18 77 18
+0 0
+0 46 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' abwatch~
+0 0 0
+#21091
+Anafriel little boy dark haired grey eyed pofSidione~
+a young, dark haired grey-eyed little boy~
+A young, dark haired, grey-eyed little boy runs about playing.~
+   With a wavy mane of dark black hair atop his head, this young 
+boy is nigh always running about and getting into things. His 
+quick, grey eyes look out at everything with curiosity and 
+excitement. He has agile hands and quick feet and a growing 
+smart wit about him. He appears to be a happy young boy. 
+~
+10 0 8 124 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 25 0
+0 100 0 0 0 0 0 0 0 0
+50 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 20 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' fox_lily_staff 'member' mt_citizens 'member' amdir_settler 'private' house_courcel~
+0 0 0
+#21092
+Elwood moderately scarred aphotic eyed man pofCassael xNauriel~
+a moderately scarred, aphotic-eyed man~
+A moderately scarred, aphotic-eyed man solicitously observes the surrounds.~
+   It is quite obvious this middle-aged man has survived a 
+grueling existence by the moderate collection of scarring he 
+displays upon his figure and face. Set beneath a projected and 
+bushy brow, his scrutinous gaze ever preserves through the 
+cimmerian glaze of his pupils. The unfortunate nose possessed 
+has ostensibly been smashed many times over and now lies in flat 
+and doughy ruin, the wide and high position of his jutting 
+cheekbones causing a sunken flair to cheeks that become a bony 
+jaw. His teeth are equally uncared for and forgotten. His 
+smile-line framed, thin-lipped mouth obscures a fair few missing 
+teeth, those that miraculously remain left to suffer in varying 
+stages of decay. He sports a Dirty-blonde mane of hair which 
+hangs to mid-face in a thin and straight manner. An extensive 
+and overall brawny upper body area makes half of a lengthy torso 
+which comes to a tapered end at a narrow hip. This sun skinned 
+man's legs share the imposing bulk his upper body displays, his 
+worn and aging frame completed by abrasive hands and good-sized 
+feet. 
+~
+1048586 0 32 0 0 5d1+102 1d5+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 70 3 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 50 0 60 0 0 0 0 0 0
+62 0 0 0 0 0 0 0 65 0
+45 45 38 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' wayside_tavern 'member' mt_lower_class~
+0 0 0
+#21093
+Magnis xxpofcassaelxsnork prodigious stunningly grey owl bird~
+a prodigious, stunningly grey owl~
+A prodigious, stunningly grey owl is perched here.~
+   This stunning avian is dark grey overall interspersed with 
+bars and flecks of light grey and white. When perched, he 
+appears very bulky because of his dense, fluffy plumage, long 
+wings extending past the body, a relatively long tail, and a 
+large head. The size of the head, and the prominent facial disk 
+make the piercing yellow eyes appear small. A noticeable white 
+"moustache" strip is under the facial disk, broken by a black 
+bow-tie and the feet are heavily feathered, mostly remaining 
+obscured from view. 
+~
+1048586 0 25 35 0 5d1+50 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+6 16 10 1 16 10 77 16
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 50 80 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21094
+Tordek xMT_Block_Stock_Barrelx brawny shaggy bearded man pofDuranol pofCassael xNauriel~
+a brawny, shaggy-bearded man~
+A brawny, shaggy-bearded man looms here.~
+   Standing a head taller than most, this man's head is nearly 
+devoid of all hair save for large, bushy eyebrows and a wild, 
+thick beard. Sporting a thick neck and barreled chest lead down 
+to a similarly bulky body, a good deal of muscle evident. 
+~
+10 0 20 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 40 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_block_stock_barrel~
+0 0 0
+#21095
+Corin Santillan GONDOR_COUNCIL tall straight man authorised_admin_only~
+a tall, straight-backed man~
+A tall, straight-backed man is here.~
+   This man is tall and slender, straight-backed, and with a 
+certain stately grace. His shoulders are broad, though somewhat 
+sloping. His dark hair is brushed straight back from a high 
+slightly-lined forehead, and is threaded here and there with the 
+odd silvered strand. It falls in gentle waves onto his 
+shoulders. His nose is straight and aquiline, mouth well formed 
+and full, framed by a well-trimmed grey-flecked moustache and 
+beard. His deepset eyes, while shadowed, are startlingly pale, 
+colour shifting between ash grey and lightest blue. His fingers 
+are often ink-stained. 
+~
+8 0 40 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 77 0 0 0
+16 22 20 1 20 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 81 0 0 0 0 0 0 0 0
+16 81 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 81 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 70 0
+70 100 0 0 0 0 0 0 0 0
+70 70 70 0 0 70 0 0 0 0
+0 0 0 70 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'master' app_fellow 'master' sages 'master' fellow_family 'leader' gondor_council 'member' mt_upper_class 'leader' mt_citizens~
+0 0 0
+#21096
+Chaucen MTSLUMS_RENTALS immaculately shaven slick haired gentleman xNauriel~
+an immaculately-shaven, slick-haired gentleman~
+An immaculately-shaven, slick-haired gentleman attends to his duties here.~
+   The shave of this man is so close, one would believe him to be 
+but a lad if it were not for the deeply-creased collection of 
+crows feet at the corners of his eyes. his white blond hair 
+glistens with some concoction used to keep it ever slicked back 
+upon a square-jawed head beset with a pair of brilliant sapphire 
+eyes. His brows are somewhat bushy, yet sit in a sharp arch 
+below a lightly wrinkled forehead. He is somewhat trim and 
+masterfully straight-backed, this joined by rather long arms and 
+legs. 
+~
+10 0 20 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 40 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21098
+Caleb Boramus lanky aquiline man middle aged black nose Blood_Ring_Op~
+a black-haired middle-aged man~
+A lanky man of middling age, with an aquiline nose stands here.~
+   Rather tall for one of his people, this lanky man should be in 
+his late thirties, or perhaps beyond. Black hair covers his 
+head, with just a smattering of grey around the temples. His 
+features, sharp and prominent, are almost 'regal' in how defined 
+they are. His nose is sharp and almost predatory, the beak like 
+appendage protruding over his thin-lipped mouth. Rounding out 
+his face are a pair of clear, stone-grey eyes. His body is thin 
+and supple, with hardly any 'muscle' showing on his form. Long 
+arms end in dexterous fingers, and his thin feet are covered in 
+callouses. 
+~
+8 0 33 1 0 5d1+90 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+11 18 20 1 16 12 81 10
+0 0
+0 16 0 67 0 0 0 0 0 0
+0 59 0 0 0 0 0 0 0 0
+59 71 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 71 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 73 73
+73 100 0 0 0 0 0 0 0 0
+0 0 0 0 73 73 0 0 0 0
+0 0 0 74 74 74 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21099
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21100
+Blint sable statuesque woman _xMAIL_TIRITHx_ _Niph_~
+a sable, statuesque woman~
+A sable, statuesque woman is here.~
+   This tall woman has an elegant bearing. Her light blue eyes 
+offset her dark hair, which frames fine cheeks and a shapely, 
+pert nose. 
+~
+10 0 25 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 50 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 50 60
+0 0 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' mail_tirith 'member' mt_citizens~
+0 0 0
+#21101
+horse stallion _xNIPH_FOR_SOTS_ACT_1_SCENE_IIIx_ white tangled~
+a white stallion with a tangled mane~
+A white tangle-maned stallion is here.~
+   This stallion may once have been well cared for, but he seems 
+quite feral now. He is unbridled, and without saddle. Coat 
+unkempt, tangled mane and tail are the most obvious things about 
+him. But an ostler would immediately note that although he has 
+an ungroomed and wild appearance, he is still partially shod. 
+~
+262154 0 30 47 0 5d1+160 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+20 6 16 1 4 22 81 14
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'commander' osgi_citizens 'commander' ithilien_battalion 'commander' eradan_battalion 'commander' amdir_gaol 'commander' eradan_veteran 'commander' eastvanguard 'commander' amdir_settler 'commander' tirithguard 'commander' tirithguard_3 'commander' tirithguard_11 'commander' abwatch 'commander' mt_council 'commander' mt_citizens~
+0 0 0
+#21102
+Keller grey goatee bald thin man gallery shopkeep~
+a grey-goateed, thin, bald man~
+A grey-goateed, thin, bald man stands here.~
+   A grey goatee brackets this older man's thin lipped mouth, his 
+gaunt facial features accentuating his thin limbed frame. He 
+stands an average height and his shoulders are slightly slouched 
+in age. 
+~
+10 0 8 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21102 21409 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 512
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ruinallon 'member' mt_citizens~
+0 0 0
+#21104
+Lament shadowy nameless broker~
+a shadowy figure of nondescript bearing~
+A shadowy figure of nondescript bearing stands here, hugging the shadows.~
+   The figure before you seems to shift away from an observer's 
+attention, his body and face demurring and defying attempts to 
+plumb their details. 
+~
+26 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21415 21416 0.600000 1.100000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+21461 21462 21463 21464 21465 21466 21467 21468 21469 21470 21471 21472 21473 21474 21475 21476 21477 21478 21479 21480 8434 8435 8436 8437 8438 8439 8440 8441 8442 8443 8444 8445 8446 8447 8448 8449 8450 8451 22171 22172 -1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21105
+Pin meager-built, redheaded young man KEEPER_21458~
+a meager-built, redheaded young man~
+A meager-built, redheaded young man.~
+   Proportionately stunted in a shorter-then-average height for 
+the human race, this young man is built in a meager, 
+sinuously-muscled frame of slender appendages with a plainly 
+triangular torso composed of broad shoulders, lean hips and a 
+smooth stomach. His face is round and topped in a mass of 
+windswept, haphazardly-cut curls that hang loosely tangled about 
+to his squarish jaw in a burnished, red-blond color. Boyishly 
+delicate, his features are cut from a tawny, clay-like 
+complexion. A pair of round cheekbones, an aquiline nose and a 
+wide, bowed mouth of pink lips fit over a narrow chin. Thick, 
+ginger-toned eyebrows arc over a pair of round, heavily-lidded 
+eyes colored the wet brown of mud. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21458 21465 1.500000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' honeyedhand~
+0 0 0
+#21106
+Ark gruff burly fellow DOORGUARD_21402~
+a gruff, burly fellow~
+A gruff, burly fellow handles the doors here.~
+   This man looks as if he has lived a life of hardship and 
+physical labor. His large hands are colloused to the bone and 
+the skin on them looks more like tough leather. His arms are 
+thick and powerful, forged into such by years of hard work. His 
+barreled chest, broad shoulders, and bull neck add to his burly 
+frame. His dark, unshaven face constantly holds a gruff and 
+almost-angry expression. 
+~
+10 0 20 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 40 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 40 0 0 0 0 0 0 0 40
+0 0 40 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' snarling_wuldane~
+0 0 0
+#21107
+Cardamon Duvrais sober solid faced man P_NUWOR BY_BONES~
+a solid, sober-faced man~
+A tall, sober-faced man with a solid looking build stands here.~
+   This figure's most apparent feature is his constant expression 
+of haughty superiority to all around him, with a straight back 
+and practiced poses as he moves. Each movement with a modicum of 
+grace and intent, his form never wavers unnecessarily. His eyes 
+are a gleaming silver-grey color, their color very slightly faded 
+with age, though still burning with life and alertness. His face 
+is hardened, and a number of wrinkles are visible along his face, 
+though his skin is almost leathery. All of his appendages 
+covered with callouses of years, showing signs of work and toil. 
+His body bears a great deal of scars along its length, and his 
+left eyebrow has a claw-mark upon it that causes it to swell very 
+slightly with the scar-tissue. His complexion is slightly 
+pallid, though he bears light tanning on his face and arms, very 
+faint age spots present along his hands. He stands a head taller 
+than most Men, and is proportioned equally, with shoulders common 
+to his height. His frame is thick and solidly-composed, and he 
+has the corded muscles to show for it. 
+~
+10 0 32 0 0 5d1+102 1d5+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 50 0 60 0 0 0 0 0 0
+62 0 0 0 0 0 0 0 65 0
+45 45 38 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21108
+Aboloft fragile hunched man white P_LINDUIAL BY_BONES~
+a fragile, hunched man with white hair~
+A fragile, hunched man with white hair tends the counter here.~
+   This elderly man of fragile bones has grown hunched through 
+years of bending over jewels and trinkets. His shoulder-length 
+white hair is neatly groomed and tied back. Deep-set beneath the 
+wrinkles of his brow are a pair of twinkling sapphire eyes, 
+holding more of a smile than his pale, thin lips. 
+~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21466 21471 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+70 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#21109
+Thornen massive bull-necked man black MENS_CLOTHING pofTaymeeka xElanor~
+a massive, bull-necked man with black hair~
+A massive, bull-necked man with black hair stands guard here.~
+   This towering man looks to be a block of thick musculature 
+chiseled from ivory marble. The mans skin is a pale cream shade 
+and marred with an array of faded red scars, pockmarks and a few 
+age spots. He bears a thick crop of ebon-black hair that is 
+often tied back at the nape of his neck, the tail of which hangs 
+down to his shoulder-blades. His face is marked with strong 
+features, a squared jaw and a sharp hawk-like nose with thin 
+lips. The mans eyes are sunken slightly and set below a broad 
+brow-ridge and are the color of emeralds. A thick, bullish neck 
+leads to broad shoulders and muscular arms capped with massive 
+calloused hands. A fairly trim waist then leads to his sturdily 
+muscled legs that carry him in a confidant swagger. 
+~
+10 0 32 0 0 5d1+102 1d5+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 50 0 60 0 0 0 0 0 0
+62 0 0 0 0 0 0 0 65 0
+45 45 38 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mens_clothing 'member' mt_citizens~
+0 0 0
+#21110
+Terwyn broad shouldered young man tall BY_BONES PC_NUWOR~
+A sturdy, broad-shouldered young man~
+A tall, broad-shouldered young man stands here behind the counter.~
+   No older than his early twenties by appearance, this young man 
+appears to be strong and well muscled. With powerful, dexterous 
+hands tipping each of his massive arms, he has clearly seen 
+labour in his lifetime. A few errant scars mark his features, 
+but many of them are covered by the mop of black hair on his 
+head. Blue-green eyes rest astride a slightly mashed nose, and 
+his eyebrows are only present in part. 
+~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21110 21474 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+70 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' nuwor_shop~
+0 0 0
+#21111
+Sammy feminine dark haired young woman BY_BONES PCJOHN~
+a feminine, dark-haired young woman~
+A feminine, dark-haired young woman waits here behind the counter.~
+   Shoulder length chestnut colored hair falls down this 
+attractive young woman. Well into her twenties, her feminine 
+side is obvious to anyone who'd spare even a glance. Brown eyes 
+and a small rounded nose are set above dark colored lips. She is 
+of average height, and perhaps little on skinnier side. 
+~
+10 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21475 21478 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+70 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' rook_pawn_shop 'member' mt_citizens~
+0 0 0
+#21112
+DO NOT LOAD~
+a narrow-browed, dark-haired man~
+A sharp-featured man with dark hair and a narrow brow stands here, unobtrusively.~
+   This man is young, with broad shoulders and an athletic build. 
+His high brow is narrow, and framed with sleek dark hair which 
+lays across his shoulders in a fine sheet. Clear grey eyes offer 
+a piercing gaze, from either side of a aquiline nose. His mouth 
+is firm, thin-lipped and somewhat pale in color. 
+~
+10 0 35 1 0 5d1+84 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 74 2 0 0
+12 21 20 1 16 10 81 12
+0 0
+0 16 0 70 0 0 0 0 0 0
+0 65 0 0 0 0 0 0 0 0
+16 60 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 100
+100 100 0 0 0 0 0 0 0 0
+100 100 0 0 100 100 0 0 0 0
+0 100 0 100 100 100 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' bloodring 'lieutenant' servantsofthesteward 'member' mt_citizens 'journeyman' fellow_family 'journeyman' sages~
+0 0 0
+#21113
+Beran burly battle marked bloke heavily scarred unsmiling BY_BONES SNARLING_WULDANES~
+a burly, battle-marked bloke~
+A heavily scarred man stands here, his features unsmiling.~
+   Everything about this fellow speaks of a life centered around 
+war and strife. He is a big man who certainly stands out in a 
+crowd. His pale skin is littered with scars of all shapes and 
+sizes and stretches tightly over well-pronounced, corded muscles. 
+His never smiling visage bears hard, stone-like features and 
+proudly shows off a long, jagged scar on the right cheek. The 
+middle aged mans messy blond hair and the unkempt beard of the 
+same color give him a disheveled appearance. 
+~
+10 0 32 0 0 5d1+102 1d5+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 50 0 60 0 0 0 0 0 0
+62 0 0 0 0 0 0 0 65 0
+45 45 38 0 0 0 0 0 50 60
+0 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' snarling_wuldane~
+0 0 0
+#21114
+Morgan Brightfield RogueCouncil black raven hair storm grey eyed toned man BYBONES AUTHORIZED_ANIMATION_ONLY~
+a toned man with raven-black hair~
+A young, well-toned man with raven-black hair and storm-grey eyes stands here.~
+   Either by luck or fine breeding, this young man's features are 
+rather well formed. Even, lightly tanned skin covers his body, 
+disappearing towards his scalp. Clean and soft hair comes down 
+to the man's shoulders, the colour that of a raven's feather. 
+Tied back with a band of leather, it is kept free of the stormy 
+grey orbs that give him sight. Sitting astride a rather average 
+nose, they assist his thin-lipped mouth in rounding out his 
+features. His chin is strong, without an ounce of fat to be 
+found anywhere upon his face. Immediately it is apparent that 
+this man is considerably experienced in manual labour. To say 
+nothing of his strong neck, his shoulders and arms are powerful, 
+tone evident from the barest glance. Though his chest is broad, 
+it is rather even instead of 'barrel' like. Though his 
+long-fingered hands do bear a scar or three, no other part of his 
+body shows a single blemish or marking. 
+~
+10 0 36 1 0 5d1+96 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 18 20 1 16 14 81 10
+0 0
+0 73 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+70 70 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 70 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 70 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'master' city_fellows 'master' app_fellow 'master' fellow_family 'master' armorsmiths~
+0 0 0
+#21115
+Avarast Mulhanian tall salt pepper chiselled cheeks cleft chin man middle aged BYBONES AUTHORIZED_ANIMATION_ONLY~
+a cleft-chinned man with chiselled cheeks~
+A tall, middle-aged man stands here, his eyes like slate and his hair the color of salt and pepper.~
+   Though clearly not past his prime, this man is none the less 
+reaching his middling years. His hair, a light mixture of black 
+and grey, rests down below his shoulders. Unbound nor 
+restrained, it compliments his features easily. Eyes like rocks 
+of slate, his vision rests astride a slightly hooked nose, 
+straddling a full-lipped mouth. High and rather chiselled 
+cheekbones lead down to his cleft chin, the jawline rather 
+strong. His body is lithe and willowy, far more tone to his 
+muscle than mass. His arms lead down to a pair of dexterous 
+fingers, permanent smudges of ink coating each tip. 
+~
+10 0 36 1 0 5d1+96 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 22 20 1 16 14 81 10
+0 0
+0 73 0 70 0 0 0 0 0 0
+0 70 0 0 0 0 0 0 0 0
+70 70 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 77 100
+100 100 100 0 77 0 0 0 0 0
+100 80 100 0 100 100 0 100 100 0
+0 0 0 100 70 70 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citycouncil 'member' gondor_council 'lieutenant' servantsofthesteward 'lieutenant' bloodring 'master' sages 'member' mt_citizens 'master' city_fellows 'master' app_fellow 'master' fellow_family~
+0 0 0
+#21116
+Linduial winsome walnut young woman lass~
+a winsome, walnut-haired young woman~
+A winsome, walnut-haired young woman is here.~
+   Like filaments of copper and gold, sun-kissed strands glitter 
+among the dark walnut waves that cascade around this woman's 
+heart-shaped face; incorrigibly escaping any binding to trail 
+into her line of vision. Delicate as her almost childlike build, 
+her winsome features are small: fragile cheekbones, tiny straight 
+nose and lips generous in width but otherwise proportional. 
+Spreading across the milky expanse of her neck and terminating in 
+a crooked smear just over her chin and below her right cheek is 
+the unmistakable mar of a vast dark reddish-brown birthmark. Her 
+large eyes are almond-shaped, the dark fringe of lashes imitating 
+the darker ring that surrounds the pale grey-green of her irises. 
+Although callipygian, her thin frame means the muscles of her 
+short legs are wiry, offering little mass. Small as the rest of 
+her and with a wiry strength, her thin arms terminate in agile 
+and notably dexterous fingers. Her small stature and fine bones 
+make it easy to overlook the remainder of her slight curves which 
+provide the only indication that this is a fully grown woman and 
+not a youth. 
+~
+10 0 19 124 0 5d1+80 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 62 0 0 0
+15 19 14 1 15 10 81 13
+0 0
+0 38 0 0 0 0 0 0 31 0
+0 0 0 0 0 0 0 0 0 0
+37 32 0 0 0 0 0 0 31 48
+42 0 48 0 45 0 39 28 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 36 0 0 59 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 0 0 0 0 0 0 0 0 0
+0 69 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 36 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'journeyman' fellow_family 'journeyman' app_fellow 'journeyman' jewelers 'member' mt_citizens 'commander' linduial_shop 'journeyman' city_fellows~
+0 0 0
+#21480
+Veril xGHASH_xMASONRY_xSHOPKEEP lithe honey haired youth pofBrylorian xNauriel~
+a lithe, honey-haired youth~
+A lithe, honey-haired youth stands here.~
+   Layers of shaggy, well-kept hair fall about this mans face in 
+a cascading frame. It is the color of honey and appears to be 
+pulled back into a ponytail. Livid blue eyes, and smooth boyish 
+facial features offer his scant form a undeniable presence of 
+youth. He is lithe, with little muscular definition but he holds 
+an intelligent gaze deep in his oceanic iris's. Upon closer 
+inspection, this figures teeth are in perfect alignment, 
+well-tended and barely visible beneath his thin lipline. He 
+holds the appearance of nobility and gives off an aura of 
+cleanliness as he watches the storefront with appraising eyes. 
+~
+1048586 0 8 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+21480 21485 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ghashmasonry~
+0 0 0
+#21117
+Galladeth xWAYSIDE_xKITCHEN_Doorkeep shapely pockmarked young woman xNauriel~
+a shapely, pockmarked young woman~
+A young, pockmarked woman is here, going about her chores.~
+   This young woman is quite pale, with night-hued, ringleted 
+locks that are tied back with a ribbon, a curl falling free on 
+either side to frame her soft face. A pair of mismatched grey 
+and blue eyes peer out above a pinched nose upon a visage that 
+would be lovely save for the pockmarks marring her skin. She 
+stands at an average height, with a frame that verges on thin, 
+and she appears mostly well kept. 
+~
+10 0 8 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' mt_lower_class 'corporal' wayside_tavern~
+0 0 0
+$~

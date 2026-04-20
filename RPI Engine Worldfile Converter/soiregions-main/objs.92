@@ -1,0 +1,295 @@
+#92000
+compress dried out fever_apoth_med junk OTHER~
+a dried-out compress~
+A dried-out compress is discarded here.~
+   Dried-out and stiff, this compress is now useless. The linen 
+wrappings are stained from the herbal remedies within and no 
+longer flexible. It still has a faintly herbal smell which is 
+not entirely unpleasant, but is largely unidentifiable. 
+~
+12 4096 1
+0 0 0 0
+30 0.000000
+0 0 0 0 256 0 1
+0.000000 0 0 0 0 0 0
+#92001
+drop lavender oil herb APOTHECARY_CRAFT LIQUID~
+a drop of lavender oil~
+A drop of lavender oil is carefully separated here.~
+~
+25 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+1.750000 0 0 0 0 0 0
+#92002
+compress fever treated advanced lavender cool medicine TEXTILE~
+a cool, treated, fever compress~
+A cool, treated, fever compress is set aside here.~
+   Cool and damp to the touch, this compress is thick and 
+soothing against the forehead. Linen bandage material is folded 
+tightly around a thick pad of prepared moss, which slowly stains 
+the bandages a pale lilac color with its effluent. It gives off 
+a relaxing floral scent. 
+~
+52 4096 1
+1 15 40 6
+30 0.000000
+0 64 0 0 0 0 1
+20.000000 48 92000 0 7 0 0
+#92003
+compress fever simple cool medicine TEXTILE~
+a cool, simple, fever compress~
+A cool, simple, fever compress is set aside here.~
+   Cool and damp to the touch, this compress is thick and 
+soothing against the forehead. Linen bandage material is folded 
+tightly around a thick pad of prepared moss, which slowly stains 
+the bandages yellow with its effluent. 
+~
+52 4096 1
+1 10 20 4
+30 0.000000
+0 64 0 0 0 0 1
+9.000000 48 92000 0 7 0 0
+#92004
+flea powder packet herb_apothecary OTHER~
+a packet of flea powder~
+A paper packet lies on the ground.~
+   A small paper packet is neatly folded on itself, containing 
+about a handful of fine brown powder. It smells faintly of 
+licorice, and can be easily scattered. The paper is marked to 
+indicate that the powder is useful against fleas. 
+~
+12 4198400 1
+0 0 0 0
+10 0.000000
+0 0 0 0 134217728 0 1
+7.000000 0 0 0 0 0 0
+#92101
+localmerchant1 merchantman traveling tent pavilion OTHER~
+the tent of a traveling merchantman~
+The tent of a traveling merchantman is here.~
+   More of a small pavilion than a tent, this merchant's stand is 
+brightly coloured with wide pinstripes extending from the 
+pinnacle to the tent's base. Trade goods have been set up within 
+the tent as well as outside. The scent of cooking rises from 
+within this merchant's tent. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 86 0 0 0 0
+#92103
+localmerchant2 peddler local tent shop OTHER~
+the tent of a local peddler~
+A local peddler has set up a tent tied to the end of a wagon here.~
+   A tarp has been tied to the side of this peddler's wagon, the 
+gaily colored but tattered fabric providing some protection for 
+the goods arrayed beneath. A collection of crates, boxes and 
+other items have been laid out under the awning, set out in a 
+half-circle. Also tied to the end of the wagon is a light 
+hammock, woven of blue cording. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 480 86 0 0 0 0
+#92105
+localmerchant3 tradesman stand general OTHER~
+the stand of a general tradesman~
+A general tradesman has set up a stand here.~
+   This stand has been set up before a donkey-pulled cart and is 
+brightly denoted by two posts bearing triangular flag-pennets. 
+Arrayed on the stand of this general tradesman are a variety of 
+tools, gadgetry and other miscellaneous items. The cart has been 
+well-kept, though the faded, flaking paint tells of many hours 
+under the sun. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 480 86 0 0 0 0
+#92107
+localmerchant4 merchantman cart goods OTHER~
+the cart of a local merchantman~
+Goods are arranged before the cart of this local merchantman.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 480 86 0 0 0 0
+#92109
+localmerchant5 wagon laden goods OTHER.~
+a wagon laden with goods~
+A wagon laden with goods is here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1080 86 0 0 0 0
+#92111
+localship1 merchant vessel tent pier dock OTHER~
+a tent servicing a small merchant vessel~
+A tent has been set up at the end of a pier where a small merchant vessel has been docked.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 360 86 0 0 0 0
+#92113
+localship2 fishing boat stand fisherman local OTHER~
+a stand near a local fishing boat~
+A fisherman has set up a stand near his local fishing boat.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 240 86 0 0 0 0
+#92115
+distantcaravan1 twenty mule caravan tent OTHER~
+a tent near a twenty-mule caravan~
+A tent has been set up beside a twenty-mule caravan.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 86 0 0 0 0
+#92117
+distantcaravan2 thirty mule caravan shop OTHER~
+the shop of a thirty-mule caravan~
+A thirty-mule caravan has set up shop here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 86 0 0 0 0
+#92119
+distantcaravan3 peddlers band tent OTHER~
+the tent of a band of wandering peddlers~
+A band of wandering peddlers have set up a tent here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 480 86 0 0 0 0
+#92121
+distantcaravan4 wagon train wain OTHER~
+a wagon train~
+A wain occupied by a wagon train.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 86 0 0 0 0
+#92123
+distantcaravan5 wagon heavily laden train wain OTHER~
+a heavily laden wagon train~
+A wain occupied by a heavily laden wagon train.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 960 86 0 0 0 0
+#92125
+distantcaravan6 gypsies wandering shop tent garish OTHER~
+a tent set beside a band of wandering gypsies~
+A garish shop-tent has been set by a band of wandering gypsies.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 480 86 0 0 0 0
+#92127
+distantcaravan7 merchant stand wandering OTHER~
+a stand occupied by a wandering merchant~
+A wandering merchant has set up a stand here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 480 86 0 0 0 0
+#92129
+distantcaravan8 nomads nomadic traders tent OTHER~
+a tent occupied by a band of nomadic traders~
+Nomadic traders have set up a tent here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 360 86 0 0 0 0
+#92131
+distantcaravan9 foreign caravan stand OTHER~
+a stand set before a foreign caravan~
+A foreign caravan has set a stand here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 86 0 0 0 0
+#92133
+distantship1 vessel merchant stand pier OTHER~
+a stand near a small merchant vessel~
+A stand has been set at the end of a pier near a small merchant vessel.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 360 86 0 0 0 0
+#92135
+distantship2 schooner foreign stand pier OTHER~
+a stand near a small foreign schooner~
+A stand has been set at the end of a pier near a small foreign schooner.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 480 86 0 0 0 0
+#92137
+distantship3 clipper ship tent full pier OTHER~
+a tent near a full clipper ship~
+A tent has been set at the end of a pier near a full clipper ship.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 480 86 0 0 0 0
+#92139
+distantship4 galleon laden pavilion pier OTHER~
+a pavilion near a laden galleon~
+A stand has been set at the end of a pier near a laden galleon.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 600 86 0 0 0 0
+#92006
+6_hour six timer economy OTHER~
+a six hour timer~
+A six hour timer is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6 86 0 0 0 0
+$~

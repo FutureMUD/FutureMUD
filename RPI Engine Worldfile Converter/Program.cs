@@ -12,7 +12,7 @@ internal class Program
         //Console.WriteLine("Input File:");
         //var path = Console.ReadLine();
         List<RPIItem> items = new();
-        string headPath = @"E:\User Data\OneDrive\SOI Worldfiles\soiregions-main\";
+        string headPath = @"C:\Users\luker\OneDrive\source\repos\FutureMUD\RPI Engine Worldfile Converter\soiregions-main\";
         foreach (string path in Directory.GetFiles(headPath, "objs.*"))
         {
             using (FileStream fs = new(path, FileMode.Open))

@@ -1,0 +1,477 @@
+#88188
+courier variable~
+a variable courier~
+A variable courier is here.~
+#5A courier stands here, preparing for travel.#0
+~
+8 0 24 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 43 36 39 34 40 35 39 48 30
+39 39 41 38 49 33 42 47 42 38
+40 49 0 0 37 52 0 0 25 68
+0 0 60 0 0 22 20 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 48 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' heren_carnatalion 'member' outpost_citizens~
+0 0 0
+#88001
+spirit lifbewerigend xxlifbewerigendspirit form ethereal dark figure~
+the ethereal form of a dark figure~
+The ethereal form of a dark figure resides here.~
+   This figure is covered in a shadowy, ethereal mask that isn't 
+quite tangible in appearance. It is human in size and stature, 
+but its face is mostly discernable, eclipsed by the darkness that 
+shrouds it. There is a weightless and effortless quality to it, 
+and judging by the proportions of its body one could tell that it 
+doesn't exactly touch the ground. Its chilling presence mutes 
+its surroundings, drawing and commanding attention. 
+~
+805306378 33554436 25 98 0 5d1+98 1d3+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 12 12 1 17 16 78 17
+0 0
+0 19 37 0 0 0 37 0 30 34
+28 50 0 40 0 0 19 12 0 0
+100 100 20 0 34 0 0 0 0 0
+0 0 50 0 0 0 0 0 0 0
+0 0 0 0 0 80 80 80 80 0
+80 80 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 70 60
+45 34 0 0 0 0 0 0 0 0
+0 100 0 0 0 56 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88000
+musicians haphazard group~
+a haphazard group of musicians~
+A haphazard group of musicians is settled into one corner here.~
+   Surrounded by an assortment of instruments - including, but 
+not limited to, a lute, fiddle, and an upturned barrel as a 
+makeshift drum - sit three men. The tall, awkward one seems to 
+be at the forefront of the group most-times with only a fiddle on 
+his lap, while the young, clean-shaven man and the rugged, 
+straw-haired man are the ones mostly surrounded by the other 
+instruments. They sit on three stools in a sort of slump, a 
+bored expression on their faces when not performing. Several 
+empty horns lay scattered on the floor around them. A tin cup 
+sits just by the awkward man's foot, a few coins inside. 
+~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+28 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88002
+dog target~
+a dog~
+A dog is here, being used for humane testing.~
+This is a test mobile for Daffie's Auto-Aging Animal Program.
+~
+134217738 0 2 40 0 5d1+74 1d4+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 8 8 1 16 8 81 16
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 4 0 0 0 0 0
+0 0 0 6 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 9 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88003
+trigger PELANOR_TITHE_TRIGGERMOB notice wardenry paperwork~
+#2some Wardenry paperwork#0~
+#2A notice of some sort from the Wardenry has been left here.#0~
+   This notice depicts some rather unimportant changes in the 
+laws of the land, regarding the punishment for cruelty to animals 
+~
+10 524290 0 0 0 5d1+102 1d4+0 0 8 8 0 0 0 0 0
+0 0 2 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88004
+trigger PELANOR_TITHE_MONEYSORTER notice wardenry paperwork~
+#2some Wardenry paperwork#0~
+#2A notice of some sort from the Wardenry has been left here.#0~
+   This notice depicts some rather unimportant changes in the 
+laws of the land, regarding the punishment for cruelty to animals 
+~
+10 524290 0 0 0 5d1+102 1d4+0 0 8 8 0 0 0 0 0
+0 0 2 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88005
+mob new~
+a new mobile~
+A wandering mobile.~
+(null)~
+268435464 41943044 4 64 0 5d1+98 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88006
+Rolon MONEYER fat chubby silver man dunedain~
+a chubby, silver-eyed man~
+A fat man with silver eyes is here, exchanging currency.~
+   This dunedain is quite out of shape, with a big, bulging 
+chest, and thick, portly arms. His legs are short and sturdy, 
+and he seems to be below the average height for his kin. He has 
+jet-black hair, and two bright silver eyes. 
+~
+138 0 7 0 0 5d1+108 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+10 18 16 1 16 18 81 8
+0 0
+0 15 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 15 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88049
+mobile GLOBAL_TAX_MODULE_TRIGGERMOB trigger puller tax~
+a tax trigger-puller mobile~
+A tax trigger-puller mobile is here.~
+   This notice depicts some rather unimportant changes in the 
+laws of the land, regarding the punishment for cruelty to animals 
+~
+10 524290 0 0 0 5d1+102 1d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88200
+DISTMOB GLOBAL_TAX_MODULE mobile~
+a distributionmob~
+A distributionmob for the Global Tax Module is here.~
+(null)~
+10 524290 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88201
+TRIGGERMOB GLOBAL_TAX_MODULE mobile~
+a triggermob~
+A triggermob for the Global Tax Module is here.~
+(null)~
+10 524290 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88800
+tornado UNIQUE_ADMIN BANGARANG WIND planeteer violent whirling F6~
+a violent, whirling tornado~
+A violent, whirling tornado demolishes everything in its path.~
+   This massive, whirling tornado is truly horrific. The winds 
+violently blow up through the ever growing funnel-like column 
+rising from the ground to the skies above. A deep brooding fury 
+overwhelmes the senses as it drives onward, devouring everything 
+in its path. 
+~
+538968074 0 4 0 100 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88996
+Vizzini Sicilian criminal genius UNIQUE_BANGARANG~
+A sicilian criminal genius~
+A sicilian criminal genius sits at the throne, in classic 'The Thinker' poise.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88900
+Dragon Nanny tiny-winged fat UNIQUE_ADMIN BANGARANG DRAGON_WARS~
+a fat, tiny-winged dragon nanny~
+A fat, tiny-winged dragon nanny flies about.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88901
+UNIQUE_ADMIN DRAGON_WARS ByBangarang~
+an unconfigured dragon wars dragon~
+An unconfigured dragon wars dragon is here.~
+(null)~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88007
+Mailer Daemon Postoffice~
+a postoffice mailer daemon~
+A postoffice mailer daemon stands here, sorting mail.~
+(null)~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+25 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#88008
+postmaster Halburg bent old man~
+a bent old man~
+A bent old man handles mail here.~
+(null)~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+$~

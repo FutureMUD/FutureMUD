@@ -1,0 +1,1134 @@
+#81000
+Place Marker zone81000~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81001
+horse auto-create Kramatian SILVERMOON_DERVISH_ONLY~
+an auto-create Kramatian horse~
+An auto-create Kramatian horse stands here, waiting to be variablized.~
+   Long-limbed and sleekly muscled with a compact torso, this 
+horse is a fine specimen of its breed. Its head has a curiously 
+dished profile, giving prominence to a pair of fiercely alert 
+eyes. Sharp ears point out from a silky mane, swiveling this way 
+and that as the horse takes in its surroundings at every moment. 
+Its coat is lustrous, growing darker where it covers the flanks 
+and slender legs. 
+~
+262152 0 24 47 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 49 45 33 39 33 34 42 34 42
+44 37 30 31 38 30 44 30 39 49
+42 38 0 0 32 49 0 0 20 61
+0 0 58 0 0 17 21 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 34 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 69 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' silvermoon 'sergeant' field-cobra 'sergeant' cobra~
+0 0 0
+#81002
+formless silvermoon ELITE Patroller MOUNTED Harad Enforcer Fahad Jafari~
+a formless silvermoon autocreate~
+A formless silvermoon autocrate watches vigilantly.~
+   Dark hair, dark-eyes, and swarthy skin declare this soldier's 
+southern heritage. The proud bearing shows in their straight 
+back and squared shoulders. Their dark eyes are never still as 
+the soldiers keep quiet watch over the area. 
+~
+4104 0 40 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 11 12 1 17 16 80 16
+268435456 0
+0 73 62 76 65 65 76 64 66 77
+65 80 58 68 75 70 64 80 66 68
+77 65 65 0 67 64 0 0 52 62
+0 0 62 0 0 45 47 53 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 65 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+62 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' cobra 'sergeant' field-cobra 'sergeant' silvermoon~
+0 0 0
+#81003
+formless silvermoon ELITE Patroller ARCHER Harad Enforcer Fahad Jafari~
+a formless silvermoon autocreate~
+A formless silvermoon autocrate watches vigilantly.~
+   Dark hair, dark-eyes, and swarthy skin declare this soldier's 
+southern heritage. The proud bearing shows in their straight 
+back and squared shoulders. Their dark eyes are never still as 
+the soldiers keep quiet watch over the area. 
+~
+4106 0 24 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 11 12 1 17 16 80 16
+268435456 0
+0 44 47 48 42 47 44 30 44 47
+41 39 46 41 36 42 47 38 49 50
+33 38 38 0 56 47 0 0 21 70
+0 0 62 0 0 17 18 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 41 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+69 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' cobra 'sergeant' field-cobra 'sergeant' silvermoon~
+0 0 0
+#81004
+jamal Silvermoon-cobra jailer zone-81 tall thickset man Fahad Jafari~
+a tall, thickset man~
+A tall, thickset man keeps quiet vigilance.~
+   Wideset mud, brown eyes with heavy, dark brows, peer out over 
+his hawklike nose. His thick lips lead to a square, chin and 
+strong jaw. He is tall but with thick neck and shoulders. His 
+arms are brawny and his muscular legs taper down to huge feet. 
+His hair is long and dark. His hands are huge and long fingered. 
+~
+67112970 0 22 6 0 5d1+111 1d2+0 0 8 8 1 0 0 0 0
+0 0 80153 0 80154 0 24 0 0 0 0 0 0 0 0 80155
+19 10 10 1 17 19 80 17
+0 0
+0 30 0 30 0 0 0 0 0 0
+0 0 0 40 0 0 45 0 0 0
+30 30 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' cobra 'sergeant' field-cobra~
+0 0 0
+#81005
+lion large tawny-furred sable-ruffed HARAD~
+a large, tawny-furred, sable-ruffed lion~
+A large, tawny-furred, sable-ruffed lion prowls.~
+   Sleek and powerfully built, this tawny-furred beast gives an 
+imposing sight. Its piercing golden eyes are large and alert, 
+set above a faintly scarred nose. Savagely curved fangs can been 
+seen just beyond its darkened maw. A sabled ruff extends from 
+the back of its protruding ears, channeled down its forearms and 
+briefly along its spine. Muscular limbs coil and bunch at even 
+the small movement, while its tufted tail constantly twitches 
+around. 
+~
+2105384 786436 32 38 2 5d1+190 2d5+0 0 8 8 1 0 0 0 0
+81019 0 0 90792 0 0 24 0 0 0 2 0 0 0 1048576 0
+22 9 13 1 15 19 77 20
+0 0
+0 65 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 60 0 0 69 66 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' haradwaith_lions~
+0 0 0
+#81006
+leech slimy green stripped huge HARAD~
+a huge, slimy, green-stripped, slithering leech~
+A huge, slimy, green-stripped, slithering leech crawls here.~
+   Slug-like and slimy this huge brown leech, has wide green 
+stripes across it's gelatonous-like. It tapers, thick blob like 
+head to its squirmy round, flat tail. Its sucker like mouth 
+puffs and retracts as it rears raising and lowering its worm like 
+head. Muscular straw-like proboscis protrude from its jaws ready 
+to puncture its prey. Its segmented body is slim covered and 
+leaves a trail in its wake. 
+~
+2105384 0 25 48 2 5d1+50 2d3+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 262144 0
+20 2 2 1 10 10 77 10
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 50 0 0 100 100 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81007
+scorpion giant black brown ~
+a giant, brown scorpion~
+A giant, brown-colored, black-clawed scorpion~
+   Two black eyes sit atop this creatures head. Along the edges 
+of its rounded carapice sit three more pair of tiny, black eyes 
+and eight, segmented black legs and two powerful, thick and heavy 
+pinchers. Its abdomen is long and segmented. Its curling tail 
+consists of six segements with a long, stinger at the end for 
+injecting its poison. 
+~
+2105352 786436 15 32 3 5d1+100 2d4+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 262144 0
+21 5 9 1 17 20 77 15
+0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 10 0 0 100 100 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81008
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81009
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81010
+key small brass INK WELL METAL~
+a pale-eyed, grim-faced man~
+a pale-eyed, grim-faced man is here.~
+   This half-orc looks to be underfed, and bears many fresh 
+bruises about their body, their demeanor skittish and nervous, 
+especially about full-blooded orcs. Their features are a 
+grotesque mix of human and orc, skin shifting from leathery 
+stretches of black to more natural skin tones about their body. 
+This half-breed bears a few scars about their body, and moves in 
+a near-shuffle. 
+~
+10 0 25 94 0 5d1+105 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 8 10 1 16 17 80 15
+0 0
+0 30 30 30 30 30 30 30 30 30
+30 30 30 40 30 30 45 50 30 34
+30 30 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' curion_keep 'member' fahad_jafari~
+0 0 0
+#81011
+Istari tall well muscled man ISTARI LIVESTOCK AND GRAIN ~
+a tall, well-muscled man~
+A tall, well-muscled man.~
+   Straight black hair brushes this tall man's broad shoulders. 
+His broad brow frames his dark eyes. A wide nose slashes 
+downward to his full lipped mouth. His chin is strong and his 
+jaw square and clean shaven. His skin is the color of aged 
+vellum. His body shows tone and muscles from hard labor. His 
+hands are big and caloused. 
+~
+10 0 25 6 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+19 16 16 1 18 18 80 16
+8388609 3
+81643 96162 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+97761 1215 1217 98419 98055 99060 1216 2106 1214 97730 99059 1557 1898 6584 97090 98920 1922 1556 6042 98087 98387 2435 2478 97463 225 284 1555 1982 2618 2619 2757 3237 67000 97255 5185 1553 1562 -1
+0 0 0 0 0 0 0 0 0 0
+0 30 30 30 30 30 30 30 30 30
+30 30 30 40 30 30 45 50 30 34
+30 30 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' fahad_jafari~
+0 0 0
+#81012
+horse auto-create Kramatian WAR HARAD_ONLY~
+an auto-create Kramatian war horse ~
+An auto-create Kramatian war horse stands here, waiting to be variablized.~
+   Long-limbed and sleekly muscled with a compact torso, this 
+horse is a fine specimen of its breed. Its head has a curiously 
+dished profile, giving prominence to a pair of fiercely alert 
+eyes. Sharp ears point out from a silky mane, swiveling this way 
+and that as the horse takes in its surroundings at every moment. 
+Its coat is lustrous, growing darker where it covers the flanks 
+and slender legs. 
+~
+134479882 0 24 47 0 5d1+140 1d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 8 14 1 12 25 77 19
+268435456 0
+0 49 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 10 0 0 33 33 0 0 19 60
+0 0 57 0 0 50 18 15 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 43 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'member' mordor_slavers~
+0 0 0
+#81013
+Annupis weathered, pock-marked man HARNEN_FERRY~
+a weathered, pock-marked man~
+A weathered, pock-marked man minds the ferry.~
+   The deeply tanned skin of this man shows the harsh evidence of 
+a life lived most of his time outdoors, the signs of weathering 
+upon his hardened face. Heavy brows and dark brown eyes give his 
+facial features a solemn look. His black hair is peppered by 
+white hairs, the lengths of them trimmed close, from the hair on 
+his head to the full beard on his face. And while his form is 
+strong and muscular, his hands bear slender, knobby fingers. 
+~
+10 0 50 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 16 16 1 16 16 80 16
+0 0
+0 100 80 80 80 0 0 0 0 80
+0 0 0 0 0 0 0 0 0 0
+80 80 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 80 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81014
+asif gyasi short bearded man gyasi trading post~
+a short bearded man~
+A short bearded man watches here.~
+   Short cropped hair curls close to this short man's head. A 
+broad forehead arches over deep set bark brown eyes. His nose is 
+slab like and his mouth taut and drawn. His jaw is square and a 
+thick bristly beard grows from his chin. Thick shoulders and 
+neck lead to a stocky body. His legs are short and muscular. 
+His arms short and heavy. His hands and fingers are beefy. 
+~
+10 0 25 6 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 14 14 1 16 18 80 14
+1 3
+81658 81659 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+98833 166 98239 6152 6224 6413 1267 1065 80002 2622 -1
+0 0 0 0 0 0 0 0 0 0
+0 30 30 30 30 30 30 30 30 30
+30 30 30 40 30 30 45 50 30 34
+30 30 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' gyasi_keep 'member' fahad_jafari~
+0 0 0
+#81015
+fikri gyasi thin bearded man gyasi trading post~
+a thin bearded man~
+A thin, bearded man watches here.~
+   Lanky oily hair hangs limply from this thin man's head. A 
+broad forehead arches over deep set chocolate brown eyes. His 
+nose is slab like and his mouth taut and drawn. His jaw is 
+square and a thick bristly beard grows from his chin. Rounded 
+shoulders and neck lead to a wiry body. His legs are long and 
+thin. His arms slender and overly long. His hands and fingers 
+are delicate. 
+~
+10 0 25 6 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 14 14 1 16 18 80 14
+1 0
+81635 81648 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+1421 1345 2010 97030 98072 1919 1822 6337 -1
+0 0 0 0 0 0 0 0 0 0
+0 30 30 30 30 30 30 30 30 30
+30 30 30 40 30 30 45 50 30 34
+30 30 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' gyasi_keep 'member' fahad_jafari~
+0 0 0
+#81016
+gamal gyasi broad shouldered man gyasi trading post~
+a broad-shouldered man~
+A broad-shouldered man watches here.~
+   Thick wavy hair hangs from this broad-shouldered man's head. 
+A broad forehead arches over deep set golden-brown eyes. His 
+nose is slab like and his mouth taut and drawn. His jaw and chin 
+is square. Broad shoulders and thick neck lead to a sturdy body. 
+His legs are long and muscular. His arms strong and well toned. 
+His hands big and fingers are thick. 
+~
+10 0 25 6 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 14 14 1 16 18 80 14
+1 3
+81650 81651 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+98292 97654 -1
+0 0 0 0 0 0 0 0 0 0
+0 30 30 30 30 30 30 30 30 30
+30 30 30 40 30 30 45 50 30 34
+30 30 0 0 60 60 0 0 55 100
+0 0 100 0 0 0 55 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' gyasi_keep 'member' fahad_jafari~
+0 0 0
+#81017
+isam gyasi tall thin man gyasi trading post~
+a tall, thin man~
+A tall, thin man watches here.~
+   Dark braided hair hangs from this tall man's head. A broad 
+forehead arches over deep set mud-brown eyes. His nose is slab 
+like and his mouth taut and drawn. His jaw and chin is square 
+and bearded. Thin shoulders and long neck lead to a slender 
+body. His legs are long and lean. His arms skinny but well 
+toned. His hands are large and fingers are thin. 
+~
+10 0 25 6 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 14 14 1 16 18 80 14
+1 0
+81649 81652 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+6117 97381 -1
+0 0 0 0 0 0 0 0 0 0
+0 30 30 30 30 30 30 30 30 30
+30 30 30 40 30 30 45 50 30 34
+30 30 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' gyasi_keep 'member' fahad_jafari~
+0 0 0
+#81018
+jibral gyasi tall thin man gyasi trading post~
+a round, thick-fingered man~
+A round, thick-fingered man watches here.~
+   Dark braided hair hangs from this big man's head. A broad 
+forehead arches over deep set doe-brown eyes. His nose is slab 
+like and his mouth taut and drawn. His jaw and chin is square 
+and bearded. Thick shoulders and neck lead to a round body. His 
+legs are short and heavy. His arms thick but well toned. His 
+hands are large and fingers are thick. 
+~
+10 0 25 6 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 14 14 1 16 18 80 14
+8388609 0
+81653 81661 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 30 30 30 30 30 30 30 30 30
+30 30 30 40 30 30 45 50 30 34
+30 30 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' gyasi_keep 'member' fahad_jafari~
+0 0 0
+#81019
+tiger male orange black stripe Haradwaith qShadow~
+a magnificent male tiger~
+A magnificient male tiger with with orange fur striped with black prowls here.~
+   Distinct black stripes form a unique pattern upon the rich 
+orange fur of this majestic cat. A white ruff encircled by a 
+black stripe encircles his head beneath his ears. White fur with 
+black markings encircle round yellow eyes that peer out over his 
+long orange furred nose. His mouth is black-lipped with white 
+and black fur markings. His throat and chest are creamy white 
+marked with black. From his belly stretching downward to the 
+inside of his powerful legs and beneath his massive paws, his fur 
+is creamy white with black stripes. With his sleek muscles 
+rippling with every move, he walks with power and grace. 
+~
+2105640 786436 32 38 2 5d1+250 1d8+0 0 8 8 1 0 0 0 0
+80629 0 0 80631 0 0 24 0 0 0 2 0 0 0 1310720 0
+25 14 14 1 13 25 77 18
+0 0
+0 65 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+10 25 0 0 100 100 0 0 50 100
+0 0 50 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 65 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 100 100
+100 100 100 0 0 100 100 100 0 0
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81020
+snake serpeant asp small slender black-ringed viper qShadow~
+a long black viper with black rings~
+A long black viper with black rings is here.~
+(null)~
+136323080 786436 12 58 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+10 10 10 1 17 10 77 20
+0 0
+0 25 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 63 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81021
+Haradwaith Wilderness South of Harnen Critter Loader Guy qshadow~
+Haradwaith Critter Loader~
+Haradwaith Critter Loader is here being important.~
+(null)~
+8 0 4 6 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81022
+boar barrel-chested black long yellowish tusks plains boar Haradwaith qShadow~
+a barrel-chested, black plains boar with yellowish tusks~
+A barrel-chested, black plains boar moves through here, sharp tusks curving from his jaw.~
+   Of a squat, thick build, this boar stands from the ground on a 
+set of stocky legs that end in cloven hoofs. Short and bristly 
+black hair grows all over his body, thinning out towards the end 
+of his elongated snout. A pair of long, sharp yellow tusks curve 
+out from his jaw, while a thickly-muscled neck and barrel chest 
+ensure a hard hit should anyone have the misfortune of getting 
+caught in an enraged charge. 
+~
+136315176 4 30 36 0 5d1+100 2d3+0 0 8 8 1 0 0 0 0
+97126 0 0 97547 0 0 24 0 0 0 1 0 0 0 1048592 0
+18 8 16 1 10 18 77 12
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 30 0 0 40 40 0 0 0 0
+0 0 0 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81023
+goose wild bird fowl grey brown black red feather pHaradwaith qShadow ~
+a large long-necked, grey-feathered bird~
+A large long-necked, grey-feathered bird broods here.~
+   Gray and brown feathers cover most of this large water-fowl's 
+plump body. It's head and long neck are feathered a rich black. 
+A red stripe of feathers runs down the sides of its head to it's 
+slender throat. It's bill is broad and a dusky yellow-brown 
+which matches it's large webbed feet and bony, spindly 
+unfeathered legs. 
+~
+136315240 0 15 35 0 5d1+20 1d1+0 0 8 8 1 0 0 0 0
+66470 0 0 97124 0 0 24 0 0 0 1 0 0 0 1048576 0
+8 10 10 1 16 10 77 16
+0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 5 0 0 100 100 0 0 0 100
+0 0 100 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81024
+Iah tiny silver tabby kitten p qShadow ~
+a tiny silver tabby kitten~
+A tiny silver tabby kitten is here.~
+   The runt of its litter, this kitten is quite a little fellow. 
+Big green eyes peek out at the world curiously, ringed with 
+hazel. A blaze of white goes up from his cinnamon-coloured nose 
+and under his eyes, and down across his chin to his chest. The 
+rest of his silky soft fur is a silvery grey striped with black. 
+His tail is slightly too long for his body, ringed and tipped 
+with black, the end tending to flop over to the side like a 
+question mark. 
+~
+10 4 7 38 0 5d1+20 1d1+0 0 8 8 1 0 0 0 0
+1642 0 0 97647 0 0 24 0 0 0 2 0 0 0 0 0
+4 10 10 1 15 6 77 15
+0 0
+0 15 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 5 0 0 100 100 0 0 0 100
+0 0 100 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 15 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' zagiri_keep 'member' xash_keep~
+0 0 0
+#81025
+Nabina long-limbed cinnamon-skinned woman pSayruin qShadow~
+a long-limbed, cinnamon-skinned woman~
+A long-limbed, cinnamon-skinned woman is here~
+   Frame comprised of long, sinewy limbs this woman's physique 
+would generally be described as athletic. Dark alluring eyes 
+pierce their surroundings from a high vantage point gifted by a 
+lank, willowy frame. She is not however, without the curves 
+expected from a woman, a ample bosom and rounded hips hint at 
+hidden treats only faintly offset by the masses of scars, often 
+hidden by her clothing, decorating her body. Her hair is kept to 
+a medium length, not quite making it to her shoulders it is a 
+obsidian black. 
+~
+10 0 25 6 0 5d1+96 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 9 10 1 15 14 80 14
+0 0
+0 45 30 50 30 30 30 30 30 30
+30 30 30 40 30 30 45 30 30 34
+40 40 0 0 45 50 0 0 0 100
+0 0 100 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' fahad_jafari 'member' montsho_akrab~
+0 0 0
+#81026
+formless harmless spider auto-create~
+a formless spider~
+A formless spider crawls here.~
+   This spider crawls over walls, floor and ceiling, staying away 
+from harsh light. All eight of its legs are covered in the 
+finest of hairs and whilst it looks creepy it appears relatively 
+harmless. 
+~
+2097160 4 24 32 0 5d1+5 1d2+0 0 7 8 0 0 0 0 0
+0 0 0 40145 0 0 24 0 0 0 1 0 0 0 67108864 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 30 34 43 42 48 45 48 45 46
+34 30 48 32 39 49 35 49 44 31
+48 47 0 0 33 44 0 0 16 69
+0 0 52 0 0 19 19 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 34 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 69 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81027
+Jara adolescent thickly built male~
+a thickly-built, adolescent male lion~
+A thickly-built, adolescent male lion is here, eyeing his surroundings.~
+   Grown to early adult-hood, this dark-golden furred male lion 
+already shows signs of the beast to come in later life. On the 
+heavy end of near two-hundred pounds, this big-cat shows no sign 
+of ever having gone without a meal, with broad muscle-corded 
+chest and shoulders, long sturdy back, and huge paws at the end 
+of muscular legs capable of vicious swipes of sheathed claws. 
+Brilliant yellow-gold eyes take in the world with an almost 
+amused and self assertive sweep, muzzle sleek and nose pitch 
+black. Lips when pulled back, revealing thick pink gums and 
+ivory white incisors lining the jaws, pink tongue slavering in 
+the maw. Ringing the thick neck of the lion is an even, heavy, 
+mane of dark black, not quite fully grown in but ringing from 
+center of the chest, up either side the neck to meet at the 
+scruff, while a wild black mo-hawk grows from his brow-line back 
+to meet the mane. 
+~
+1048586 4 30 38 4 5d1+150 2d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+20 9 9 1 18 19 81 18
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 60 0 0 60 60 0 0 60 0
+0 0 60 0 0 0 100 0 60 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' fahad_jafari 'recruit' javul_keep~
+0 0 0
+#81028
+rabbit white fur small HARADWAITH FARMLANDS AND PLAINS qShadow~
+a small, white-furred rabbit~
+A small rabbit with pure white fur is here.~
+   Rather small even for one of its kind, this rabbit seems 
+constantly wary of all things about it. Its fur is pure white in 
+colour. A pair of long ears flops about the rabbit's head, 
+cropping up straight whenever a loud noise sounds near the 
+animal. This rabbit completes moves about in quick motions, 
+never staying in one spot for too long. 
+~
+2283798664 0 7 52 0 5d1+15 1d2+0 0 8 8 1 0 0 0 0
+97319 0 0 97444 0 0 24 0 0 0 1 0 6 1 262144 0
+6 8 8 1 10 10 77 50
+65536 0
+0 15 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 10 0 35 35 0 0 0 60
+0 0 50 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81029
+rabbit light-grey long-eared HARADWAITH PLAINS AND FARMLANDS qShadow~
+a light-grey, long-eared rabbit~
+A light-grey, long-eared rabbit stands on its hind legs here.~
+   Long ears sprout out from either side of this rabbit's small 
+head, covered in the same light-grey fur as the rest of the 
+rabbit's body, with the exception of its fluffy white tail. A 
+small button nose sits at the end of the rabbit's furred snout, a 
+pair of dark brown eyes looking past it. The hind legs of the 
+rabbit are significantly larger than its fore legs and it moves 
+with a succession of hops. 
+~
+2283798664 0 10 52 0 5d1+15 1d2+0 0 8 8 2 0 0 0 0
+1640 0 0 97444 0 0 24 0 0 0 1 0 2 1 4 0
+6 8 8 1 10 10 77 50
+65536 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 10 0 30 30 0 0 0 60
+0 0 50 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81030
+rabbit mottled fur small HARADWAITH PLAINS AND FARMLANDS qShadow~
+a small, mottled-fur rabbit~
+A small rabbit with mottled fur is here.~
+   Rather small even for one of its kind, this rabbit seems 
+constantly wary of all things about it. Its fur is primarily a 
+dark grey in colour, yet here and there it is spotted with white 
+patches, creating a mottled look from a distance. A pair of long 
+ears flops about the rabbit's head, cropping up straight whenever 
+a loud noise sounds near the animal. This rabbit completes moves 
+about in quick motions, never staying in one spot for too long. 
+~
+2283798664 0 7 52 0 5d1+15 1d2+0 0 8 8 1 0 0 0 0
+1640 0 0 97444 0 0 24 0 0 0 1 0 6 1 0 0
+6 8 8 1 10 10 77 50
+65536 0
+0 15 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 10 0 35 35 0 0 0 60
+0 0 50 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81031
+buck deer young muscular HARADWAITH PLAINS AND FARMLANDS qShadow~
+a young, muscular buck~
+A young, muscular buck stands here with a wary composure.~
+   This young, male deer looks to have recently come to full 
+adulthood, bearing his lithe yet muscular body proudly as they 
+move about with a certain grace on four thin legs. A pair of 
+antlers have sprouted out from between the ears of this young 
+buck, branching out over the animal's dark eyes set in its 
+elongated face. 
+~
+2283798664 4 25 95 0 5d1+90 1d3+0 0 8 8 1 0 0 0 0
+2059 0 0 97530 0 0 24 0 0 0 1 0 80 5 262148 0
+14 8 8 1 10 16 77 18
+65536 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 10 0 20 25 0 0 0 0
+0 0 0 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81032
+doe deer graceful reddish-brown coat brown HARADWAITH PLAINS AND FARMLANDS qShadow~
+a graceful, brown-coated doe~
+A graceful doe with a reddish-brown coat pauses here for a moment.~
+   The coat of fur that covers this deer is a reddish brown in 
+colour, save for the underside of its narrow tail, which is a 
+stark shade of white. Rather young, this female doe is slightly 
+scrawny, yet it stills moves with grace and speed. A pair of 
+soulful black eyes peers out from the head of this female deer. 
+~
+2283798664 4 20 95 0 5d1+60 1d3+0 0 8 8 2 0 0 0 0
+2059 0 0 97183 0 0 24 0 0 0 1 0 80 5 262148 0
+14 8 8 1 32 16 77 15
+65536 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 10 0 15 25 0 0 0 0
+0 0 0 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81033
+fawn deer light-brown spotted HARADWAITH PLAINS AND FARMLANDS qShadow~
+a spotted, light-brown fawn~
+A spotted, light-brown fawn lies amongst the underbrush.~
+   Of a rather gangly, awkward build, this fawn spends most of 
+its time hidden in the undergrowth of the surrounding area, only 
+occasionally coming out to graze. Its coat is very soft and 
+fine, light brown, and dusted with some pale spots along the back 
+and neck. Rounded ears are tipped with black, while the 
+underside of its tail is a startling white. 
+~
+2283798664 4 10 95 0 5d1+98 1d2+0 0 8 8 2 0 0 0 0
+2248 0 0 97183 0 0 24 0 0 0 1 0 65 5 16 0
+8 7 7 1 10 16 77 33
+65536 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 30 25 0 0 0 0
+0 0 0 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#81034
+bird songbird multi-colored chirping HARADWAITH PLAINS-FARMLANDS-METRO qShadow~
+a multi-colored songbird~
+A multi-colored songbird is perched upon the high branches, chirping merrily.~
+This little songbird's feathers glitter of all the bright colors 
+of the rainbow, as it flutters lightly among the high branches of 
+the forest trees.  It sings merrily, bringing joy to the land, 
+with a voice of unexpected sharpness for a creature of its size.  
+~
+673185928 0 0 35 0 5d1+20 1d1+0 0 8 8 1 0 0 0 0
+2062 0 0 97305 0 0 24 0 0 0 3 0 0 0 0 0
+4 4 4 1 20 4 36 20
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 100 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+$~

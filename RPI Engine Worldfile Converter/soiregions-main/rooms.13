@@ -1,0 +1,2637 @@
+#13000
+Base Room for Falco's Docks~
+   In this zone there'll be a number of docks for Falco's Captain
+Auger to prance around in followed by his pack of floozies.
+I suppose we could let some other people come to them as well.
+~
+13 1140916232 0
+0
+P
+test~
+~
+set var emptypooltest empty
+vstr EPT: &(emptypooltest)
+objvnum &(1) 1 emptypooltest
+vstr EPT: &(emptypooltest)
+if (&(emptypooltest)=empty)
+vstr wtf?
+else do
+vstr Yay
+fi done
+~
+S
+#13001
+A Wide Boardwalk By A Limestone Watchtower~
+   This sturdy dock is wide, and made from strong dark wood, 
+clearly weathered by time, but still firm. To the south lay the 
+waters of the River Sirith, as they lap gently at the posts 
+holding up the boardwalk in the dock inlet. Across the narrow 
+waters, one hundred feet to the south, the other half of the dock 
+is visible. Piles of crates fill up parts of the dock, 
+surrounded by groups of sailors and dock workers. To the north 
+the dock is hemmed in by large warehouses, old and weathered, and 
+the limestone crumbled in places. 
+   The dock continues to the east, while to the west past three 
+high watchtowers and the city wall, lies the River Sirith. 
+~
+13 1140916240 10
+0
+D1
+~
+~
+0 -1  0 13002
+D3
+~
+~
+0 -1  0 13083
+S
+#13002
+A Wide Boardwalk Stretches East and West~
+   Made from hundreds of long, dark stained planks of wood, this 
+boardwalk is around fifty feet in width, from the water to the 
+limestone warehouses which border all around the docks. It 
+stretches over a hundred feet to the east and west, filled day 
+and night with sailors and dock workers from the trading vessels 
+which are moored everywhere. The dark waters several feet lower 
+than the boardwalk reach a hundred feet southwards, to the other 
+half of the docks, and to the east the inlet is joined by more 
+sturdy boardwalk. In the distance to the east, the inlet waters 
+meet with the River Sirith, passing by great watchtowers of 
+smooth limestone. 
+~
+13 1140916240 10
+0
+D1
+~
+~
+0 -1  0 13003
+D3
+~
+~
+0 -1  0 13001
+S
+#13003
+A Sharp Turn In The Study Wooden Docks~
+   The sturdy wooden boardwalk turns at a right angle here, 
+stretching a long way to the west, though it is hard to see how 
+far due to the huge number of sailors and dock workers who bustle 
+about the docks at all times of the day, shifting crates of goods 
+back and forth from the warehouses which line the dock. Towering 
+above the warehouses to the east, the top of three high water 
+towers is visible, their surfaces smooth and strong, made from 
+white rock, though their ancient splendor is diminished by the 
+crumbling of the rock at the top of the towers. Many boats and a 
+smaller number of larger vessels lay bobbing in the waters, 
+moored at the docks as some vessels attempt to maneuver through 
+the organized chaos, out of the dock inlet, and into the waters 
+of the River Sirith to the east. 
+   To the north, between two weathered, limestone warehouses, a 
+large, ornate arch stretches between them and to the north 
+stretches a wide road. 
+~
+13 67174416 10
+0
+D0
+~
+large-gates~
+1 -1  0 13008
+D2
+~
+~
+0 -1  0 13004
+D3
+~
+~
+0 -1  0 13002
+S
+#13004
+A Wide Boardwalk At The End Of The Dock Inlet ~
+   The boardwalk stretches nearly a hundred feet from the 
+northern and southern corner, and to the east the waters of the 
+inlet which the dock is built around it visible, stretching 
+around three hundred feet before it meets the mouth of the River 
+Sirith, flowing into the great River Anduin. Piles of sodden, 
+infested ropes lay coiled upon the docks by thick black mooring 
+posts. Several groups of dock workers and sailors stand around 
+at all times of the day, talking loudly, or handling crates of 
+goods from the ships and boats moored at the docks. 
+   Immediately at the eastern edge of the boardwalk, it is lined 
+by high, limestone warehouses, while to the north and south the 
+dock turns at a right angle, continuing west. 
+~
+13 67174416 10
+0
+D0
+~
+~
+0 -1  0 13003
+D2
+~
+~
+0 -1  0 13005
+S
+#13005
+A Sharp Turn In The Study Wooden Docks~
+   The dark, weathered boardwalk turns at a right angle, heading 
+northward and westward. The dock is bustling all times of the 
+day, with sailors and dock workers shifting crates into the 
+nearby limestone warehouses which surround the dock to the east 
+and south. In the corner is a small gap between the warehouses 
+where they meet. Along the waters edge on the wooden boardwalk 
+there are an even spread of black metal posts, some with boats 
+moored to them. The metal of these posts is chipped and 
+weathered in places, though they still remain sturdy. The docks 
+are raised several feet from the waters surface, which is dark 
+and laps gently from the movements of trading vessels in the 
+alcove into the island. 
+~
+13 1140916240 10
+0
+D0
+~
+~
+0 -1  0 13004
+D1
+~
+~
+0 -1  0 15254
+D3
+~
+~
+0 -1  0 13006
+S
+#13006
+The Wide Boardwalk Continues East and West~
+   The wide, sturdy boardwalk continues to the east and west, 
+always busy with traders and sailors moving crates of goods into 
+the high warehouses which line the docks to the south. The docks 
+are an inlet into the island, situated between the mouths of the 
+River Sirith, and the Great River Anduin itself. The dark, oaken 
+boardwalk is over forty feet from the water to the warehouses, 
+and it stretches over a hundred feet east and west. Many small 
+trading vessels are moored at the docks, and fewer large ships 
+between these. 
+   All around the docks are signs of ancient greatness, from the 
+lofty warehouses, to the high watcher towers visible to the east, 
+smooth and strong, but crumbling and weathered at the top. 
+~
+13 67174416 10
+0
+D1
+~
+~
+0 -1  0 13005
+D3
+~
+~
+0 -1  0 13007
+S
+#13007
+A Wide Boardwalk Ends By A Limestone Watchtower~
+   This sturdy dock is wide, and made from strong dark wood, 
+clearly weathered by time, but still firm. To the north is the 
+waters of the River Sirith in the dock inlet, lapping at the 
+posts which hold up the boardwalk. In the water there is 
+constantly the movement of ships and boats, loading and unloading 
+goods to trade. Piles of crates fill up parts of the dock, 
+surrounded by groups of sailors and dock workers. To the south 
+the dock is hemmed in by large warehouses, old and weathered, and 
+the limestone crumbled in places. 
+   The dock continues to the east, while to the west rise two low 
+walls, leading to a small courtyard at the foot of a high 
+watchtower, crafted from white limestone by the stone workers of 
+old. It is adjoined to two more similar towers by a high wall, 
+crenellated and strong, but weathered and old. Past these lies 
+the River Sirith. 
+~
+13 1140916240 10
+0
+D1
+~
+~
+0 -1  0 13006
+D3
+~
+~
+0 -1  0 13080
+S
+#13008
+Rath Minsir At The Gates To The Docks~
+   Rath Minsir, the river road, runs north east along the island, 
+parallel to the city wall. Emerging from the docks to the south 
+from between two lofty limestone warehouses, and under a great 
+arch, carved with a scene of a great ship with many white sails, 
+it continues far into the distance, twisting a little which 
+prevents seeing a great distance. One end of the scene upon the 
+arch has become weathered and cracked in places. The large gate 
+forged from dark steel remains strong, swinging freely upon its 
+great hinges. 
+   Either side of the road are many small buildings built from 
+light coloured blocks of stone, there doors unlocked day and 
+night to the traders and merchants who constantly throng the 
+streets. 
+~
+13 1141178384 1
+0
+D0
+~
+~
+0 -1  0 13009
+D2
+~
+large-gates~
+1 -1  0 13003
+S
+#13009
+Rath Minsir Turns South And East Past Many Buildings~
+   The road here is wide, traversed constantly by merchants and 
+sailors, and horses pulling carts loaded with goods. The floor 
+has been made from chunks of irregular shaped stone, laid in ages 
+past by talented masons, the fragments fit together to create a 
+smooth surface. Though from years of travelling and a lack of 
+masons skilled enough to repair, the road has become uneven in 
+places, with chunks missing and sticking out at odd angles. The 
+shops and building which are crammed along side the road are 
+mainly crafted from lumps of limestone, though the odd one made 
+with timber and darker stone are visible. 
+   The road here turns a little, though it remains in the general 
+course of following the high city wall which is visible to the 
+west above the roofs of the buildings. 
+~
+13 1141178384 1
+0
+D1
+~
+~
+0 -1  0 13010
+D2
+~
+~
+0 -1  0 13008
+S
+#13010
+Wide, Twisting Rath Minsir Heading North East~
+   The wide stone road, made from large chunks and fragments of 
+off-white stone, continues in a north east direction, following 
+the massive stone wall which is always visible above the top of 
+the buildings to the west. Here, the road twists, heading 
+slightly inland, though after a few hundred yards it twists back 
+a little more. At the center of this drag of the road it widens, 
+and a small number of market stalls are set up either side of the 
+road, visited by the constant sailors and traders moving their 
+goods up and down Rath Minsir. 
+   This clearly ancient road shows signs of much deterioration 
+and decay, but the once great splendor is still shown by the 
+smoothness of the road, despite the odd out of place slab. 
+~
+13 1141178384 1
+0
+D0
+~
+~
+0 -1  0 13011
+D3
+~
+~
+0 -1  0 13009
+S
+#13011
+Rath Minsir Heading North East Parallel With The City Wall~
+   The wide stone path is here become quite broken and in need of 
+repair. Many of the small chunks laid to form the path have 
+become upturned or shattered, and from the ever increasing gaps 
+between the chunks grows straggly weeds and grass. The path 
+however still holds a great many traders, travelling northward to 
+the market, or southward to the docks. Horses pulling carts 
+stacked with crates also rattle along the road. The building on 
+either side of the road thin out here, leaving the great city 
+wall to the west clearly visible. 
+   The road twists and turns slightly as it weaves its way past 
+the buildings, heading north-east, and south-west. To the east 
+lies a tavern, sound echoing out of it at all hours of the day. 
+~
+13 1141178384 1
+0
+D0
+~
+~
+0 -1  0 13012
+D1
+~
+door~
+1 -1  0 13017
+D2
+~
+~
+0 -1  0 13010
+S
+#13012
+A Wide Junction In Rath Minsir~
+   Here the ancient Rath Minsir, crafted from thousands of small 
+fragments of randomly shaped rocks, laid to form a perfectly flat 
+and smooth surface, meets with a road heading eastward across the 
+island. Small buildings crafted from stone and with flat roofs 
+are spread lightly at the sides of the road. The high, 
+crenellated white stone wall is visible to the west, resting 
+between the River Sirith, and the triangular island which 
+Pelargir is situated upon. 
+   To the north east, the road continues, twisting slightly, but 
+heading generally towards the large market square. Southwards, 
+the docks stretch out over the River.
+~
+13 67436560 1
+0
+D0
+~
+~
+0 -1  0 13013
+D1
+~
+door~
+1 -1  0 13020
+D2
+~
+~
+0 -1  0 13011
+S
+#13017
+The Crow's Nest~
+   Crowded and dimly lit this tavern is the definition of 
+suspicious. Tables filled with murmuring sailors, merchants, and 
+other gloomy patrons. The lighting sets an almost foreboding 
+mood. Nonetheless, the place always seems to attract a large 
+crowd. 
+~
+13 1143013400 1
+0
+D3
+~
+door~
+1 -1  0 13011
+S
+#13080
+A Narrow Cobbled Path Before a Watchtower~
+   A limestone wall no higher than a tall man rises either side 
+of this path which can hold three abreast. The floor has been 
+layed with hundreds of small chunks of white stone of every 
+shape, laid to somehow fit perfectly together with an even gap 
+between each chunk. However, time has had the better of the path 
+and wall, as it shows signs of moss and mould growing all over it 
+all, and along the edges it has become cracked and broken, in 
+some places showing the mud below. 
+   The path is not any longer than twenty yards, leading to a 
+small courtyard to the west, and the start of a bustling 
+boardwalk eastward. 
+~
+13 1140916240 1
+0
+D1
+~
+~
+0 -1  0 13007
+D3
+~
+~
+0 -1  0 13081
+S
+#13081
+A Round Courtyard Before A High Tower~
+   To the east a narrow path leads into this courtyard, the walls 
+which surround that path going outwards to make this area. It is 
+round, about twenty yards in diameter, surrounded by a low, 
+crumbling wall. At the western end rises a short set of steps to 
+the solid oaken door of a watchtower. This tower is off-white in 
+colour, high and proud. Visible at the very top, between the 
+crenellations is a flag, waving lightly in any gust of wind. 
+Behind the low wall, and the high watertower is visible a much 
+higher wall, linking this tower to two more of similar stature. 
+~
+13 1140916240 0
+0
+D1
+~
+~
+0 -1  0 13080
+D3
+~
+door~
+2 99  100 13082
+S
+#13082
+Inside The Watchtower~
+   This is the inside of the watchtower, which is unavailable to
+the public, and probably always will be. The end.
+~
+13 1073807360 0
+0
+D1
+~
+door~
+2 -1  0 13081
+S
+#13013
+The Stone Paved Rath Minsir By The City Wall~
+   Heading in the general direction of north-east and south-west,
+following the direction of the city wall to the west, Rath Minsir
+twists and turns quickly at all points of its course, weaving
+between buildings and houses. At this point however, the stone
+crafted path twists right next to the city wall, following at the
+foot of it for a few hundred yards. The wall is crafted from
+huge rectangular chunks of off-white stone, towering high above
+the heads of the many traders who travel this road. At the foot
+of the wall it sticks out in a small ledge, providing a place
+to sit with the midday sun upon ones face.
+~
+13 1141178384 1
+0
+D1
+~
+~
+0 -1  0 13014
+D2
+~
+~
+0 -1  0 13012
+S
+#13014
+Rath Minsir Curving Inland Past Open Shopfronts~
+   To the south-west, Rath Minsir follows the course of the city 
+wall tightly, twisting to the side slightly at times. However, 
+at this point in the off-white stone path, it curves slowly 
+eastward, the number of buildings at the road side becoming very 
+large, as the compact stone shops vie for trade from the many 
+passers by. The road, though wide and strong is old. Grass is 
+visible, growing from between the cracks of the randomly shaped 
+rock fragments, and some of them are cracked and loose. 
+   To the east, between two large stone buildings, the road
+emerges in a large, bustling market square.
+~
+13 67436560 1
+0
+D0
+~
+door~
+1 -1  0 13019
+D1
+~
+~
+0 -1  0 13073
+D2
+~
+door~
+1 -1  0 13018
+D3
+~
+~
+0 -1  0 13013
+S
+#13070
+The Corner of the Market Square~
+   The market square is as busy here as anywhere else. Tents, 
+booths and stalls have been set up all about the area, creating a 
+maze of paths on the hexagonal slabbed floor, blackened with age. 
+The market stretches out to the south and east, while northwards 
+is the city wall, angling north-east to meet with the opposite 
+wall at a huge watchtower. The constant bustle of the market 
+area is offset by the general feeling of age throughout the area; 
+from the great masonry of ancient days which is no crumbled and 
+covered in vines, to the hawkers and merchants shouting about 
+their wares, this market is extremely varied, presenting a 
+typical image of this city. 
+~
+13 1145110528 1
+0
+D1
+~
+~
+0 -1  0 13071
+D2
+~
+~
+0 -1  0 13073
+S
+#13071
+Northern End of a Bustling Market~
+   The always busy market place continues in all directions but
+to the north. There rises a massive watchtower, built from white
+rock which has not taken well to time. A low wall surrounds the 
+tower, and an archway with an iron gate is set in the wall, 
+providing access from the market place. The market itself is
+constantly bustling with hundreds of traders, hawkers and 
+merchants at their small stalls which have been erected on the
+old, hexagonal slabbed floor, dark with age.
+~
+13 1145110528 1
+0
+D1
+~
+~
+0 -1  0 13072
+D2
+~
+~
+0 -1  0 13074
+D3
+~
+~
+0 -1  0 13070
+S
+#13072
+The Corner of a Great Marketplace~
+   This large market square is constantly filled, day and night, 
+with peddlers and merchants of all shapes, sizes and origins. 
+Shouting their wares from behind many a hastily erected stall, 
+there always seems to be some sort of argument going on about the 
+quality or price of a certain good. The city wall rises to the 
+north-east, heading diagonally, north-west to south-east. The 
+ancient, moss infested wall meets with another diagonal wall to 
+the north, with a great watchtower at the point of intersection. 
+   The hexagonal flagstone floor is in many places cracked and 
+broken, revealing the hard packed dirt beneath. The market 
+continues to the south and west. 
+~
+13 1145110544 1
+0
+D2
+~
+~
+0 -1  0 13075
+D3
+~
+~
+0 -1  0 13071
+S
+#13073
+A Bustling Market~
+   Filled to the brim at dawn till dusk, and never empty, this 
+bustling entrance to the large market square of Pelargir 
+stretches north and south a short distance, and slightly further 
+to the east. The stone paved path which makes up most of the 
+rest of the city is forsaken here for larger, hexagonal slabs, 
+which have become blackened and dirtied by many years of carts 
+and peddlers moving about. Some slabs are missing, or broken, 
+leaving potholes and the dirt visible underfoot. 
+   All around are market stalls set up, filled with exotic goods 
+brought in by ship and boat. Many peddlers hawk their wares 
+loudly, creating a noisy atmosphere constantly. 
+~
+13 1145110544 1
+0
+D0
+~
+~
+0 -1  0 13070
+D1
+~
+~
+0 -1  0 13074
+D2
+~
+~
+0 -1  0 13076
+D3
+~
+~
+0 -1  0 13014
+S
+#13074
+Busy Center of a Great Market Square~
+   The center of Pelargir's market square is the busiest part of
+the whole city. People of many hue of skin gather here to buy or
+sell goods at the booths, stalls and tents which have been erected
+everywhere upon the coppery coloured flagstones. Age has had a bad
+effect upon the stones however, marring them mostly dark, and many 
+are cracked or broken, revealing the hard packed dirt underneath.
+   In the very center the booths, stalls and tents come to an
+abrupt halt and there rises three great statues which seem to
+command respect.
+~
+13 1145110528 1
+0
+D0
+~
+~
+0 -1  0 13071
+D1
+~
+~
+0 -1  0 13075
+D2
+~
+~
+0 -1  0 13078
+D3
+~
+~
+0 -1  0 13073
+S
+#13075
+A Bustling Market~
+   At this eastern entrance to the Pelargir Market Square, the 
+road which slopes off to the south-west meets with the hexagonal 
+flagstones of the market. They are blackened and cracked from 
+age, and from the constant movement of carts pulled by mules, 
+carrying boxes and boxes filled with various exotic goods to be 
+placed on the many stalls and tents erected seemingly randomly 
+throughout the square. 
+   There is no clear path between the tents, instead one has to 
+snake their way through the hustle and bustle of the many people 
+constantly gathered here, and try not to get lost in the maze of 
+booths and stalls. 
+~
+13 1145110544 1
+0
+D0
+~
+~
+0 -1  0 13072
+D2
+~
+~
+0 -1  0 13079
+D3
+~
+~
+0 -1  0 13074
+S
+#13076
+South-Eastern Corner of a Bustling Market Square~
+   This bustling market place is the complete vision of Pelargirs 
+trading prowess. Many stalls, booth and tents have been set up 
+almost permanently, creating narrow winding paths through the 
+square, filled with people of many different skin colours, 
+looking only to buy or sell goods. To the south and west the 
+square is hemmed in by a number of high buildings, white-washed, 
+but visible decaying, with some of the stone bricks crumbling and 
+breaking, much like the hexagonal flagstones which make up the 
+floor here. 
+~
+13 1145110544 1
+0
+D0
+~
+~
+0 -1  0 13073
+D1
+~
+~
+0 -1  0 13078
+S
+#13078
+A Busy Marketplace Filled With Stalls and Booths~
+   Filled to the brim at dawn till dusk, and never empty, the 
+southern end of the large market square of Pelargir stretches out 
+in all directions, bar southwards, where it is hemmed in by 
+whitewashed buildings, old and crumbling, but still always busy. 
+The stone paved path which makes up most of the rest of the city 
+is forsaken here for larger, hexagonal slabs, which have become 
+blackened and dirtied by many years of carts and peddlers moving 
+about. Some slabs are missing, or broken, leaving potholes and 
+the dirt visible underfoot. 
+   All around are market stalls set up, filled with exotic goods 
+brought in by ship and boat. Many peddlers hawk their wares 
+loudly, creating a noisy atmosphere constantly. 
+~
+13 1145110544 1
+0
+D0
+~
+~
+0 -1  0 13074
+D1
+~
+~
+0 -1  0 13079
+D3
+~
+~
+0 -1  0 13076
+S
+#13079
+In The South-Eastern Corner of a Great Marketplace~
+   This market place is constantly filled with merchants, who have
+set up many stalls, booth and tents almost permanently, creating 
+narrow winding paths through the square. Gathered throughout,
+shouting and laughing, are many people of different skin colours, 
+looking only to buy or sell goods. To the south and east the 
+square is hemmed in by a number of high buildings, white-washed, 
+but visible decaying, with some of the stone bricks crumbling and 
+breaking, much like the hexagonal flagstones which make up the 
+floor here. 
+~
+13 1145110544 1
+0
+D0
+~
+~
+0 -1  0 13075
+D3
+~
+~
+0 -1  0 13078
+S
+#13083
+A Narrow Cobbled Path Before a Watchtower~
+   A limestone wall no higher than a tall man rises either side 
+of this path which can hold three abreast. The floor has been 
+layed with hundreds of small chunks of white stone of every 
+shape, laid to somehow fit perfectly together with an even gap 
+between each chunk. However, time has had the better of the path 
+and wall, as it shows signs of moss and mould growing all over it 
+all, and along the edges it has become cracked and broken, in 
+some places showing the mud below. 
+   The path is not any longer than twenty yards, leading to a 
+small courtyard to the west, and the start of a bustling 
+boardwalk eastward. 
+~
+13 1140916240 1
+0
+D1
+~
+~
+0 -1  0 13001
+D3
+~
+~
+0 -1  0 13084
+S
+#13084
+A Round Courtyard Before A High Tower~
+   To the east a narrow path leads into this courtyard, the walls 
+which surround that path going outwards to make this area. It is 
+round, about twenty yards in diameter, surrounded by a low, 
+crumbling wall. At the western end rises a short set of steps to 
+the solid oaken door of a watchtower. This tower is off-white in 
+colour, high and proud. Visible at the very top, between the 
+crenellations is a flag, waving lightly in any gust of wind. 
+Behind the low wall, and the high watertower is visible a much 
+higher wall, linking this tower to two more of similar stature. 
+~
+13 1140916240 0
+0
+D1
+~
+~
+0 -1  0 13083
+D3
+~
+door~
+2 -1  0 13085
+S
+#13085
+Inside The Watchtower~
+   This is the inside of the watchtower, which is unavailable to
+the public, and probably always will be. The end.
+~
+13 1073807360 0
+0
+D1
+~
+door~
+1 -1  0 13084
+S
+#13999
+Store room for mob vnum 13001, A fat peddler~
+This guy trades in exotic looking fruits.
+~
+13 268500992 0
+0
+S
+#13998
+Store room for mob vnum 13002, A sweaty man~
+   This man wanders through the market selling herbs and spices.
+~
+13 1342242816 0
+0
+S
+#13997
+Store room for mob 13003, a short girl.~
+   This girl wanders through the market square selling little 
+wooden trinkets of exotic style.
+~
+13 1073807360 0
+0
+S
+#13996
+Store rm for mob Thayr: 13005~
+Store Room
+~
+13 1342242816 0
+0
+S
+#13995
+Store rm for mob Arabore vnum 13000~
+Store Room
+~
+13 1342242816 0
+0
+S
+#13994
+Store rm mob 13006 Dreyrir Pelargir Weaponsmith~
+Store rm for mob 13006 Dreyrir.
+~
+13 1342242816 0
+0
+S
+#13900
+Underwater in a Deep, Murky Pool~
+   Here in the pit of the tunnels, a pool of dark, rancid water 
+has formed in the dug-out area below. Pillars carved with 
+angular runes and blocks of stone carved with similar runes hint 
+that this was not always full of water. The sound of steady 
+dripping echoes off the walls, though the source is not visible. 
+~
+13 1073807496 20
+0
+D4
+~
+~
+0 -1  0 13901
+S
+#13901
+The End of a Dark Tunnel in an Underground Lake~
+   A dark tunnel ends here at the edge of an underground lake of 
+murky water. A tunnel continues to the north, the only other way 
+is down into the dark water. Along the sides of the wide tunnel 
+thick pillars of stone have been erected to support it. The lake 
+itself is still in only the way that such subterannean places can 
+be, not a ripple or other source of movement visible within it. 
+~
+13 65544 16
+0
+D0
+~
+~
+0 -1  0 13902
+D5
+~
+~
+0 -1  0 13900
+S
+#13902
+Skirting the Edge of an Underground Lake~
+   The damp tunnel snakes around a corner here, ending at the 
+edge of murky water. The path widens near the edge of the water, 
+a large symbol engraved in the rock upon the ground. The carved 
+path takes any trespassers here directly against the water's 
+edge, where it laps at the stone a mere six or seven inches from 
+the feet of the travelers. Along the western way, the lake 
+curves, gently cupping the stone flooring. The western floor 
+seems to slide over a higher portion of rock and seems to be only 
+some two or three inches deep. 
+~
+13 1073807368 0
+0
+D0
+~
+~
+0 -1  0 13957
+D1
+~
+~
+0 -1  0 13903
+D2
+~
+~
+0 -1  0 13901
+D3
+~
+~
+0 -1  0 13949
+S
+#13903
+At a Sharp Turn in the Tunnel~
+   The tunnel angles sharply here from south to west, the rock 
+itself carved away with sharp precision. The wall sconces and 
+brackets continue on in their regular interval, with little to 
+mark this underground corner as unique. Those of sharp senses, 
+however, would pick up a faint moisture in the air towards the 
+western way, a wettening. 
+~
+13 65544 0
+0
+D2
+~
+~
+0 -1  0 13904
+D3
+~
+~
+0 -1  0 13902
+S
+#13904
+A Twist in a Dark Tunnel~
+   The tunnel continues its twisting, winding path through the 
+stone, still cut with a sharp attention to cruel, hard corners 
+and the strange, odd designs still thrown in at seemingly random 
+intervals. Steps throughout this item-less area echo 
+resoundingly, with any bold enough to wear armor sending a mass 
+of echoes moving up and down the stone. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13903
+D1
+~
+~
+0 -1  0 13905
+S
+#13905
+A Straight Course In a Dark Tunnel~
+   The dirt tunnel's course stays straight through the area, 
+though long, gnarled roots sometimes shoot in through the 
+ceiling. A set of ancient stone pillars flank either side of the 
+large rectangular passageway, ancient runes etched along the 
+stone. 
+~
+13 65544 0
+0
+D1
+~
+~
+0 -1  0 13906
+D3
+~
+~
+0 -1  0 13904
+S
+#13906
+A Gentle Turn in the Tunnel~
+   Rather than a hard, abrupt turn as most of these tunnels seem 
+to sport, this change in direction is more of a gradual, patient 
+sort. In this part of the tunnels, the only decoration upon the 
+walls being the iron wall sconces and brackets to hold dark, 
+fuel-less torches. Despite the stillness of the air and general 
+silence, the odd echo of a falling stone or drip of water is 
+still audible through the labrynth. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13907
+D3
+~
+~
+0 -1  0 13905
+S
+#13907
+A Straight Course Through a Dark Tunnel~
+   The dimensions of this straight course through the dark stone 
+is prim and proper, as if whoever had carved such a pathway had 
+been the owner of a perfection's eye for detail. The floor and 
+walls are smooth, their joining sharp rather than dulled or 
+curved, showing the signs of the high level of care put into the 
+proper carving. In almost complete silence, the tunnel 
+straightens on from north to south. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13908
+D1
+~
+~
+0 -1  0 13948
+D2
+~
+~
+0 -1  0 13906
+S
+#13908
+Approaching a Turn of the Dark Tunnel~
+   While this tunnel seems to hold a generally straigh southernly 
+course, a curve of the northern way is dimly visible through the 
+bad illumination of the area. The stone walls themselves show a 
+bit of a loss of smoothness and perfection here, a few jutting 
+pieces presenting a fingerslength away from the wall to cast odd, 
+frightening shadows onto the floor. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13909
+D2
+~
+~
+0 -1  0 13907
+S
+#13909
+A Twisting Turn in a Dim Tunnel~
+   The tunnel here holds a deadend to the east, as if the 
+original plans had been lain to expand in that direction. The 
+dent in the eastern wall is only some two or three feet in length 
+before it straightens into its fully fleshed-out south-to-west 
+path. Save that two or three feet long mistake, the rest of the 
+walls are smooth and cut with skill. 
+~
+13 65544 0
+0
+D2
+~
+~
+0 -1  0 13908
+D3
+~
+~
+0 -1  0 13910
+S
+#13910
+A Sharp Curve in a Dark Tunnel~
+   This curve is formed with an abruptness that is almost 
+startling, due to the narrowness of the tunnels. They are, 
+perhaps, wide enough for a pair of men to walk abreast wthin 
+without getting overly comfortable with eachother. Along the 
+base of the southern wall there seems to be some sort of insignia 
+that's been scrawled into the stone, its style looping and 
+strange. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13911
+D1
+~
+~
+0 -1  0 13909
+S
+#13911
+An Open Area of Dirt, Supported with Columns~
+   Large columns line the walls of the area, intricately carved 
+with runes and other symbols. Four tunnel-like extensions 
+surround it, each leading in a different direction into the dark 
+gloom. An extremely narrow tunnel winds westward, and one only 
+slightly larger runs towards the east. Those to the north and 
+south appear to be of average size. Every sound echoes, from the 
+crunch of rock underneath, to the sound of any voices that might 
+speak within. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13916
+D1
+~
+~
+0 -1  0 13914
+D2
+~
+~
+0 -1  0 13910
+D3
+~
+~
+0 -1  0 13912
+S
+#13912
+A Narrow Side Tunnel~
+   Narrow and low of ceiling, this tunnel provides little room to 
+move through--most of average size would find themselves needing 
+to duck and to move carefully to avoid their arms scraping 
+against the walls. A large, open area is immediately east, while 
+a narrow alcove of sorts is visible to the west. 
+~
+13 65548 0
+0
+D1
+~
+~
+0 -1  0 13911
+D3
+~
+~
+0 -1  0 13913
+S
+#13913
+A Narrow Alcove~
+   The tiny tunnel leading from the east ends here, in an open 
+area that's been filled with various materials--an altar standing 
+at one end, with old, dusty candles surrounding it. Runes line 
+the walls and the columns set within. The remnants of a firepit 
+stand within the center of the room, lined with smooth stones. A 
+faint series of cracks and lines mar the floor of this room, as 
+if struck by some large blow. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13955
+D1
+~
+~
+0 -1  0 13912
+P
+lift pull raise open enter~
+trap trapdoor trap-door~
+vstr You lean down and, after carefully observing the maze of cracks on the floor, manage to work your fingers into one of the indentions and, with a grunt of effort, lift a stone-covered trap door and slip below.
+ostr $n leans down and, after carefully observing the maze of cracks on the floor, manages to work their fingers into one of the indentions and, with a grunt of effort, lifts a stone-covered trap door and slip below.
+trans 13956
+atlook 13956
+ostr $n slips into the area from the trapdoor above, pulling it closed after them.
+~
+S
+#13914
+A Side Tunnel Decending from West to East~
+   The stench of the alcove set just off to the east of here, 
+below the downward slope, filters into this area, nearly 
+overpowering. Along the walls, small runes have been carved, 
+messily in places and more neatly than others. Stone pillars 
+have been set along them as well, similar runes decorating their 
+surfaces. 
+~
+13 65544 0
+0
+D1
+~
+~
+0 -1  0 13915
+D3
+~
+~
+0 -1  0 13911
+S
+#13915
+A Horribly-Stenched Alcove~
+   A putrid stench fills this rather expansive alcove, bones 
+scattered about. Ancient pillars of stone line the walls, their 
+rectangular forms covered in small archaic runes. The middle of 
+the ground seems to be worn down as it dips slightly compared to 
+the ground near the walls. A crack, perhaps a three handspans 
+wide, is apparent in the eastern wall. 
+~
+13 1073807368 0
+0
+D3
+~
+~
+0 -1  0 13914
+P
+enter shift move push pull adjust turn lift~
+corpses skeleton bones filth dust crack gap east~
+vstr You lean forwards and push side some of the skeletons on the wall, brushing away the cobwebs and dust to reveal a narrow, but passable, crack in the eastern wall. You move through it.
+ostr $n leans forward and pushes aside some of the skeletons on the wall, brushing away the cobwebs and dust to reveal a narrow, but passable, crack in the eastern wall. They move through it.
+trans 13942
+ostr $n squeezes carefully through a narrow crack in the western wall.
+atlook 13942
+~
+S
+#13916
+A Link Between Two Intersections~
+   While this area itself seems to be of straight enough manner, 
+it looks to be a sort of small hallway or conduit between two 
+broader areas. The air in this specific area is of a dull, 
+stagnant taste, while to the north and south it seems that the 
+breathing would be a little easier. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13917
+D2
+~
+~
+0 -1  0 13911
+S
+#13917
+A Cramped Crossing of Tunnels~
+   In this small, cramped area, tunnels cross, one leading north 
+to south, and the other from west to east. Each appears to be 
+narrow, leading into an almost tangible darkness; anything beyond 
+is impossible to see from this point. The sound of rocks and 
+hardened dirt underfoot are painfully audible in the silence of 
+the tunnels. Deep within the caves, the only light is that which 
+is brought in from the outside, though empty sconces along the 
+walls hint that light was once provided from within. 
+~
+13 65548 0
+0
+D0
+~
+~
+0 -1  0 13921
+D1
+~
+~
+0 -1  0 13918
+D2
+~
+~
+0 -1  0 13916
+D3
+~
+~
+0 -1  0 13919
+S
+#13918
+An Eerily Cold Crevice~
+   The temperature drastically drops within this tiny crevice of 
+the tunnel, warmer near the opening to the west but colder within 
+the confines of this small area. The walls are inexplicably 
+moist, condensation gathering where runes have been etched into 
+them. Occasionally, a splinter of bone is visible amidst the 
+pebbles and dirt of the floor. A single empty sconce in good 
+condition has been secured to the eastern section of this area. 
+~
+13 65544 0
+0
+D3
+~
+~
+0 -1  0 13917
+S
+#13919
+Within a Narrow Tunnel~
+   Remnants of bone litter the floor along with tiny stones and 
+pebbles, making a disorienting crunching sound with each step 
+through. The tunnel narrows at the opening to the east, widening 
+considerably into an area set off to the west, where the 
+concentration of the pieces of bone increases. Sconces in nearly 
+perfect condition line the walls. 
+~
+13 65548 0
+0
+D1
+~
+~
+0 -1  0 13917
+D3
+~
+~
+0 -1  0 13920
+S
+#13920
+Within a Bone-Littered Catacomb~
+   The mouth of this section of the tunnel is wide, though the 
+ceiling immediately lowers again as one moves within this section 
+of it. Both tiny slivers of bone and larger, complete bones can 
+be found within, scattered along the ground. Runes have been 
+etched into the walls, lining their surfaces with careful 
+precision. Along the floor are darker areas, and the smell of 
+old blood hangs in the air. Several well-cared-for sconces have 
+been set at precise, even distances from each other, along the 
+circular walls. 
+~
+13 65544 0
+0
+D1
+~
+~
+0 -1  0 13919
+P
+pull move adjust yank molest~
+wall-sconce sconce iron~
+vstr You reach forwards and give the iron shaft of one of the wall sconces a hard, firm pull--as you do so, a narrow segment of the wall, rough wood painted a dark grey, moves out of the way of the southern wall.
+ostr $n reaches forward and gives the iron shaft of one of the wall sconces a hard, firm pull--as they do so, a narrow segment of the wall, rough wood painted a dark grey, moves out of the way of the southern wall.
+link 13920 south 13955
+~
+S
+#13921
+Near an Intersection of Paths~
+   Only a narrow, short stretch of tunnel is visible to the north 
+as it disappears into a profound darkness there, while to the 
+south, an intersection of tunnels is immediately visible. As 
+footsteps echo against the walls, the rustling of clothing and 
+armor join the sounds, creating an eerie cacophony of mingling 
+noises. Brackets clearly designed to hold torches have been 
+secured to the wall, though they remain empty. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13922
+D2
+~
+~
+0 -1  0 13917
+S
+#13922
+A Soft, Turning Incline Within the Tunnel~
+   The slope leading from the west finds a medium here, this 
+section flat rather than continuing at an angle downwards. Upon 
+close examination, the occasional rune can be seen carved within 
+the walls of the cave, though they're hardly concentrated. 
+Pebbles and hardened pieces of dirt are scattered along the 
+ground. Rusted sconces, empty of torches, line the walls. 
+~
+13 65544 0
+0
+D2
+~
+~
+0 -1  0 13921
+D3
+~
+~
+0 -1  0 13923
+S
+#13923
+A Gently Inclined Tunnel, Leaning Downward from the East~
+   As the tunnel continues its downward slope towards the east, 
+the end of it and a flat section of the caves is visible in that 
+direction as well. To the west, an upward incline becomes steep 
+and angular, difficult to maneuver, before it, too, levels out 
+into an even section of ground. The walls are narrow, and moist 
+to the touch. Brackets holding burned-out torches are set at 
+regular intervals along the walls. 
+~
+13 65544 0
+0
+D1
+~
+~
+0 -1  0 13922
+D3
+~
+~
+0 -1  0 13924
+S
+#13924
+A Level Area of Ground in a Dark Tunnel~
+   The tunnel splits here as the even ground continues to the 
+north in a wide path, and begins a sharp downward slope towards 
+the east through a narrow section of the cave. Condensation has 
+formed along the walls, occasionally sliding down and dripping 
+along the floor, where water pools in stagnant puddles. Brackets 
+made for containing torches have been secured to the walls, 
+though they are all empty in this stretch. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13925
+D1
+~
+~
+0 -1  0 13923
+D3
+~
+~
+0 -1  0 13927
+S
+#13925
+Along the Tunnel~
+   A wide stretch of tunnel continues through here, ending in a 
+wide area to the south rather than continuing far in that 
+direction. Northwards, the tunnel continues to widen, easy to 
+walk through and manage. Darkness shrouds most of the caves from 
+view, shadows cast from all around. While sconces and brackets 
+have been arranged strategically, at even distances, they are 
+either empty or contain burned-out torches. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13926
+D2
+~
+~
+0 -1  0 13924
+S
+#13926
+Along a Wide Tunnel~
+   Narrowing only slightly to the south, this wide tunnel snakes 
+from the north in an almost straight path, only a slight curve to 
+the walls. With each step, feet crunch on hard dirt, pebbles, 
+and stone, and each sound made by those within echoes off the 
+walls. Empty brackets clearly made to bear torches have been set 
+at even intervals from each other. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13929
+D2
+~
+~
+0 -1  0 13925
+S
+#13927
+A Side-Tunnel~
+   From the east, the ground slopes downwards into this area, a 
+gentle incline of a path set on either side with an even array of 
+empty sconces. The ceiling is low, making most of average size 
+duck as they pass through, and each wall is moist, condensation 
+having gathered on most of the surface. 
+~
+13 65548 0
+0
+D1
+~
+~
+0 -1  0 13924
+D3
+~
+~
+0 -1  0 13928
+S
+#13928
+Within Shallow Water in a Pit~
+   As the tunnel leads from the west into this circular area, the 
+sound of water dripping echoes off of each wall. Thin slivers of 
+water run down the walls, collecting in a stagnant pool at the 
+bottom of the pit. Though it's shallow, the water looks to be 
+rancid, unmoving and dark of color. 
+~
+13 65544 0
+0
+D1
+~
+~
+0 -1  0 13927
+S
+#13929
+Nearing One End of a Tunnel~
+   This wide space of the tunnel leading from the north begins to 
+narrow to the south, the walls on either side of the nearly- 
+straight path closing in. Sounds echo within the dark, both 
+those obviously made by people passing through and those that are 
+a bit more difficult to pinpoint the origin of. Each wall is 
+slick with condensation, moist to the touch. Old-looking sconces 
+have been posted along the walls at even distances, though the 
+torches within have long since burned out. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13930
+D2
+~
+~
+0 -1  0 13926
+S
+#13930
+One End of a Tunnel~
+   A sturdy double-door blocks entrance into what lies beyond 
+this series of tunnels, carved with runes both on the wood of the 
+door and that which surrounds it. Stone and dirt are easily 
+visible underfoot, though the area is mostly curiously clean. 
+Along the walls, rusted sconces have been set, long since 
+burned-out torches resting within them. 
+~
+13 65544 0
+0
+D0
+~
+double-door~
+1 2262  45 13931
+D2
+~
+~
+0 -1  0 13929
+S
+#13931
+In a Cold, Circular Room~
+   Stone walls mark the circular confines of this room, only two 
+exits leading out. One, to the south, opens past sturdy double 
+doors into a cavern, from which cool air constantly arises. The 
+other is in the form of an aged-looking trapdoor that leads out. 
+There are no furnishings or items marking it as unique; it is 
+bare of any decoration and personalization, but for a series of 
+runes lining the walls. 
+~
+13 65544 0
+0
+D2
+~
+double-door~
+1 2262  45 13930
+P
+op ope open cl clo clos close~
+do doo door tr tra trap hea heav heavy dou doub doubl double~
+atecho 13900-13957 The very faint sound of tinkling bells rings out through the area, though at a glance, you cannot see the source.
+doitanyway -1
+~
+S
+#13932
+A Large Common Area~
+   This spacious room of stone echoes dimly with the faint sound 
+of water coming from the south, though this room appears to be 
+untouched by any moisture. Luxurious in its furnishings, it 
+shows the quality of having been lived in but still neatly-kept, 
+everything in its place. A light layering of dust has descended 
+over it, spiderwebs stretching along the ceiling from wall to 
+wall. 
+~
+13 65544 0
+0
+D0
+~
+~
+0 -1  0 13933
+D2
+~
+~
+0 -1  0 13952
+D3
+~
+~
+0 -1  0 13939
+S
+#13933
+A Circular Area~
+   In this tiny room off of the commons to the south, the 
+circular walls seem placed with the sole purpose of leading into 
+more rooms off to the side. To the west, a dust-covered beaded 
+curtain leads into an intricate altar room, while to the east, a 
+door leads into a kitchen area. Stairs lead down into a training 
+pit, while to the north, a locked door bars further travel. 
+~
+13 65544 0
+0
+D0
+~
+door~
+1 13900  0 13934
+D1
+~
+door~
+1 -1  0 13936
+D2
+~
+~
+0 -1  0 13932
+D3
+~
+beaded-curtain~
+1 -1  0 13937
+D5
+~
+~
+0 -1  0 13938
+S
+#13934
+A Bleak Office~
+   Devoid of any sort of finery or cheerful accents, this office 
+is simple and dark. The stone walls and floor are unadorned, and 
+the desk within, while well-made, is scratched and dark in color. 
+A gate blocks entrance into the armory set to the west, while a 
+door leads south into a hallway of sorts. 
+~
+13 65544 0
+0
+D2
+~
+door~
+1 13900  0 13933
+D3
+~
+gate~
+1 13900  0 13935
+S
+#13935
+A Roughly-Made Armory~
+   After one has made the journey through the eastern gate and 
+into this area, the most noticeable aspect would be the rows and 
+rows of shelves, armor stands, and other such holding places--all 
+of them gaping, empty. It looks as if, sometime in the distant 
+past, this once well-stocked armor has been looted barren, 
+anything of value, save the wooden shelves and racks, has been 
+stripped bare. 
+~
+13 65544 0
+0
+D1
+~
+gate~
+1 13900  0 13934
+S
+#13936
+An Unassuming Kitchen~
+   Simple of make and build but well-stocked, this kitchen seems 
+to hold all of the essentials for preparing meals without the 
+excess qualities that might make it overdone. The wall and 
+floors are comprised of cool stone, carefully kept though over 
+time, a light layer of dust has formed over each item within the 
+room. 
+~
+13 65544 0
+0
+D3
+~
+door~
+1 -1  0 13933
+S
+#13937
+An Ornate Altar Room~
+   The picture of opulence and wealth, this altar room is still 
+grand despite the layering of dust that has descended over the 
+finery within. The altar is of massive size and comprised of 
+marble, etched with a series of runes across the base. Atop it 
+is a silken cloth, where candles and various ritualistic items 
+have been set. Sconce after sconce of fine metal lines the 
+walls, providing light when the torch in each has been lit. 
+Unlike most others in the complex, these appear to still be 
+usable. The floor and walls are of stone, though finely-made 
+rugs cover the surface of the former. 
+~
+13 65544 0
+0
+D1
+~
+beaded-curtain~
+1 -1  0 13933
+S
+#13938
+A Square Training Area~
+   This area, like the rest of the compound, has been dug out of 
+the dark stone with a precise, prim skill, the corners of the 
+room clearly defined. In the middle of the room, a sparring ring 
+has been erected, the mat slightly raised from the cold stone of 
+the floor in addition to being roped off. Signs of disuse, 
+however are obvious, from the thick layer of dust to the rusted 
+quality of any of the metal currently seen. 
+~
+13 65544 0
+0
+D4
+~
+~
+0 -1  0 13933
+S
+#13939
+A Narrow Hallway~
+   This narrow hallway is surrounded on either side by stone, 
+leading into an open common area to the east, and to a solid door 
+of oak to the west. Intricate sconces of metal have been set at 
+even intervals along these walls, providing light for those who 
+would pass through when new torches are alit within them. 
+~
+13 65672 0
+0
+D1
+~
+~
+0 -1  0 13932
+D3
+~
+door~
+1 -1  0 13940
+S
+#13940
+Large Sleeping Quarters~
+   The walls and floor of this large room are made of stone, cool 
+to the touch and haphazardly covered with rugs. Instead of 
+simple bunks, however, the beds neatly lined up from one edge of 
+the room to the other are of intricate build and fine coverings. 
+Though it is currently dark, brackets secured to the walls devoid 
+of torches, when all are full, it seems to be well-lit. A single 
+door leads into a narrow hallway to the east. 
+~
+13 65544 0
+0
+D1
+~
+door~
+1 -1  0 13939
+S
+#13015
+A Small Backroom~
+   This small, plainly-built room is the back area for a shop, 
+plain and practical. The walls are unpainted and smell slightly 
+of smoke, and the floor is made of rough-cut pine. There is a 
+small brown stain on the back wall, near a staircase descending 
+into the cellar. 
+~
+13 1140918540 0
+0
+D2
+~
+door~
+1 1545  0 2532
+D5
+~
+~
+0 -1  0 13016
+S
+#13016
+A Storage Cellar~
+This small cellar is lined with simple shelves, upon which the 
+shop's goods may be stacked. It is simply built from plain-cut stone
+and lacks any decor whatsoever.
+~
+13 1409351688 0
+0
+D4
+~
+~
+0 -1  0 13015
+S
+#13018
+The Sailor's Delight~
+   With walls of stone, this shopfront appears very old indeed. 
+The floor is well-kept and clean, though a few cobwebs dangle 
+lazily from the ceiling, illuminated by the bright window which 
+lies by the door. Vibrant clothes or all styles and qualities 
+are folded upon the many racks, creating a disorderly atmosphere 
+to an otherwise orderly store. 
+~
+13 1140916248 0
+0
+D0
+~
+door~
+1 -1  0 13014
+S
+#13019
+A Sweeter Deal~
+   Baskets like the walls in this fruit shop, joined by baskets 
+which sit on tables through the room. An array of smells--some 
+tangy, some sweet--linger in the air here, and light is provided 
+by two windows by the door during the day, and a lantern at 
+night. 
+~
+13 67174424 0
+0
+D2
+~
+door~
+1 -1  0 13014
+S
+#13020
+The Iron Sail~
+   A metallic scent mingles in the air of this armorer's shop, 
+walls of grey stone making up the walls. Armor lines the walls, 
+being neatly displayed on shelves throughout the store. The 
+floor is made from countless river-rocks which have been situated 
+together seamlessly, creating a mosaic of dark colors. Two 
+single windows frame the door to the west, and a lantern hangs 
+from the ceiling on an iron chain. 
+~
+13 1140916248 1
+0
+D3
+~
+door~
+1 -1  0 13012
+S
+#13021
+The Healer's Garden~
+   The floor of this airy, spacious clinic is made of 
+closely-fitted white marble slabs, the stone and masonry walls 
+finely finished and bearing a pristine, snow-white color. The 
+outside garden, and the overall quietness and pulchritude of this 
+Clinic reflects the gondorian tradition for healing, with this 
+being a smaller , yet richly-appointed, version of the Houses of 
+Healing in the Sixth Circle. A row of large beds are set on the 
+eastern wall , where those bearing illness or injury are tended 
+or rest, with the aid of the fresh, invigorating smell of garden 
+outside, and the skillful help of the Master Healer. No 
+chirurgeon's table is evident in place, the most complex 
+procedures possibly taking place behind closed doors, as not to 
+disturb the convalescents. 
+   The door that stand to the north is open at all times, and 
+allows light to filter through the day, aided by a wide, clear 
+glass window to its side, while large, glass-paned lamps can be 
+lit at night. A small door, finely burnished and made out of 
+black willow stand south, offering entrance to the back of the 
+Clinic. 
+~
+13 1140916488 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+A whitewashed stone wall blocks any advance in that direction
+~
+A whitewashed stone wall blocks any advance in that direction
+~
+~
+A whitewashed stone wall blocks any advance in that direction
+~
+~
+~
+D0
+~
+~
+0 -1  0 1389
+D2
+~
+door~
+1 -1  0 13023
+S
+#13022
+The Plaza of the Sun Clinic~
+   The floor of this airy, spacious clinic is made of 
+closely-fitted white stones, which are coupled with the 
+whitewashed masonry walls, lending this area a soothing feeling 
+of cleanliness and peace. A few simple beds are set on the 
+eastern end, where those bearing illness are tended or rest, 
+aided by the fresh smell of the outside evergreens and the help 
+of the resident Healer. A wide, operating table stands behind a 
+discreet white linen curtain, the stone cover kept spotless when 
+not in use. 
+   The door that stands to the south is kept open at almost all 
+times, allowing light to enter through the day, aided by a wide, 
+clear glass window to its side. A small, darkly-stained teak 
+door stands to the north, offering entrance to the back of the 
+Clinic. 
+~
+13 67701004 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+A whitewashed stone wall stands in that direction.
+~
+~
+A whitewashed stone wall stands in that direction.
+~
+~
+~
+D0
+~
+door~
+1 11322  0 2594
+D2
+~
+ample-door~
+1 -1  0 1759
+P
+climb enter~
+litter~
+vstr You nod to the men awaiting you at the entrance of the Clinic, and allow them to help you into a small, elegant litter. The men close a set of veiled courtains and ou relax as you are led upper into  the higher circles of Minas Tirith
+ostr $n climbs into a small, elegant litter, which is hauled by a pair of strong gondorians, which make way into the higher circles of the city.
+trans 1267
+atlook 1267
+fi all done
+~
+P
+ring~
+bell~
+atecho 1975 The muffled sound of a bell rings out from below.
+atecho 2609 The muffled sound of a bell rings out from below.
+atecho 1976 The muffled sound of a bell rings out from nearby.
+atecho 13028 You hear a bell from somewhere nearby.
+atecho 13029 You hear a bell from somewhere nearby.
+atecho 13030 You hear a bell from somewhere nearby.
+atecho 13027 The muffled sound of a bell rings out from below.
+atecho 13026 You hear a bell from somewhere nearby.
+atecho 2610 You hear a bell from somewhere nearby.
+atecho 2594 A bell rings from just south of here.
+vstr You ring the bell and a clear, dulcet tone rings out.
+ostr $n rings the bell, a clear, dulcet tone ringing out.
+fi alldone
+~
+P
+enter~
+backroom~
+if clan (-1,sun_clinic)
+vstr You enter the backroom.
+ostr $n is allowed into the backroom.
+trans 2594
+atlook 2594
+ostr $n is entering from outside.
+else do
+fi done
+~
+S
+#13023
+The Chirurgery Room~
+   The floor of this pristine, clean room is made of fine, white
+marble that almost mirrors anyone standing on it. The walls
+have also been painted white, and are made of large blocks
+of granite. A large stone basin stands to the east, under a
+wide window, fed constantly by a pure flow of water coming
+from an elaborate iron faucet. Near the tall roof, a wide 
+glass window takes on the sun through most of the day, 
+lighting the room clearly. In the exact center of the floor, 
+a wide table, with a stone top, sits solidly, lighted by a 
+large skylight. Fine lamps are set on the walls, lit at night,
+setting the place in a constant, persistent light needed
+for the chirurgeons to work.
+   A beautifully door made of black willow stands to the 
+north allowing entrance to the main room of the clinic,
+while a white door allows further passage to the 
+back of the clinic to the west.
+~
+13 67174680 0
+0
+D0
+~
+door~
+1 -1  0 13021
+D3
+~
+door~
+1 -1  0 13024
+S
+#13024
+The Healers Repose~
+   This well-appointed, wide dormitory serves as a rest and study
+room for whichever person learns under the attending Master
+of the Clinic. Airy, thanks to fine glass windows to the north 
+and south walls, the place is quiet and sports the same, 
+mirror-like white marble of the other rooms. White-washed
+walls of sturdy masonry support a long shelf full of aging
+tomes, a wide repository of medical knowledge. Two large,
+comfortable beds and a long table allow the occupants to
+rest, study or relax with ease. Glass lamps are set on the walls
+to keep the place well-lit at night. A fine door made of 
+white-willow wood stands east, leading to the chirurgery room.
+~
+13 1140916248 0
+0
+D1
+~
+door~
+1 -1  0 13023
+S
+#13025
+Storeroom To The Healer's Garden~
+This is the storeroom for the Healer's Garden, the
+clinic in the Third Circle of Minas Tirith. Healing
+items are neatly arranged here for sale.
+~
+13 1409351680 0
+0
+S
+#13026
+Storeroom for the Sun Plaza Clinic~
+   Smaller than the main room, this store-room is tucked in the 
+back of the clinic. Several shelves line the stone walls, each 
+neatly arranged with a variety of bandages, wraps and tools, 
+while the fragrant smell of herbal remedies rises from another. 
+A sturdy door set in the southern wall allows egress. 
+~
+13 1409351688 0
+0
+D2
+~
+door~
+1 2371  45 1976
+P
+vfjump~
+vfmain~
+trans 2594
+force -1 2594 drop bag
+~
+S
+#13027
+A Small, Women's Dormitory~
+   This small yet comfortable room is made of the same stone 
+floor and whitewashed masonry walls than the rest of the clinic. 
+A few bookshelves are built into the northern wall disrupted only 
+by a high-set window. A glass lamp on either side of the door 
+brings illumination at night. The only exit is through the 
+teakwood door to the east. 
+~
+13 1140916488 0
+0
+D1
+~
+door~
+1 -1  0 1975
+S
+#13028
+A Kitchen and Dining Area~
+   Small, yet functional in design, this area is built of stone. 
+Well-cut slabs make up the floor and the walls are crafted of 
+sturdy masonry, which has been whitewashed like the rest of the 
+clinic room's light is provided by large windows in the northern 
+wall giving a splendid view of a herb garden outside. One side 
+of the room has been converted into kitchen with a stove and 
+built-in cupboards. The other side has a dining table and chairs 
+prominently featured. A door made of teak are is set in the 
+southern wall and a single glass door to the north leads out into 
+a back lot. 
+~
+13 1140916488 0
+0
+D0
+~
+glass-door~
+1 -1  0 13030
+D2
+~
+door~
+1 -1  0 2594
+D3
+~
+door~
+1 11322  50 13036
+S
+#13029
+The Master's Bedroom~
+   This room is spacious and comfortable. The stone floor is 
+covered by a thick, light grey woolen carpet, stretching over 
+most of the open floor space. Closely fitted stone slabs can be 
+seen in between the carpet and various pieces of furniture. 
+Lightning is provided by a pair of clear glass lamps, as well as 
+by a large, clear glass window to the north. This room is silent 
+and calm, allowing for the inhabitant to rest or study easily. A 
+teakwood door in the western wall and eastern wall provide exit 
+from the room. 
+~
+13 67174664 0
+0
+D1
+~
+~
+0 -1  0 13038
+D3
+~
+door~
+1 -1  0 2610
+P
+open close~
+windows curtains window curtain~
+vstr You walk to the window and adjust the curtains.
+ostr $n walks to the window and adjusts the curtains.
+rftog indoors 13029
+~
+P
+(null)~
+(null)~
+(null)~
+S
+#13030
+A Small Herb Garden~
+   This small garden offers a calm respite from the hustle and 
+bustle of the city, a high wooden fence blocking out the noise 
+and sights on all sides but the southern, where the clinic 
+resides. A variety of plants circle a crushed stone walkway 
+which terminates in a small, simple fountain, surrounded by a 
+pair of benches. The smell of herbs and flowers fills the air. 
+The only exit from this sanctuary is a leaded glass door to the 
+south. 
+~
+13 65536 0
+0
+D2
+~
+glass-door~
+1 -1  0 13028
+P
+enter pass open~
+door wall hidden secret~
+if clan (-1,endelmar)
+vstr You slip through a secret door behind the wall.
+ostr $n disappears behind a wall.
+trans_group -1 13030 18175
+else do
+fi done
+~
+S
+#13941
+Moving Through A Narrow Schism~
+   This area is only wide enough for one man to walk abreast, 
+seemingly utter natural in its formation rather than having been 
+touched by the hand of man. There is no floor to speak of, as 
+the bowed, harshly-angled walls come to a point, making walking 
+through this area awkward to say the least. For all intents and 
+purposes, it looks as if this area was simply created whenever 
+some schism forced the section of the wall to separate. 
+~
+13 65608 0
+0
+D2
+~
+~
+0 -1  0 13942
+S
+#13942
+A Gradually Widening Area~
+   While the northern area looks to be of clearly natural make, 
+the work of human hands can slowly be seen taking shape in this 
+stone-hewn area--particularly with the presence of a floor that 
+looks to have been carved with novice-esque skill at best, rather 
+than any sort of open stonemastery. Along the eastern way, 
+however, it seems that conditions slowly become more hospitable, 
+the walls widening farther from each other to grant a more easily 
+navigable path. 
+~
+13 65608 0
+0
+D0
+~
+~
+0 -1  0 13941
+D1
+~
+~
+0 -1  0 13943
+P
+squeeze move go enter~
+crack gap split pass~
+vstr You move forwards and, with a deep inhalation, squeeze through the crack in the western wall.
+ostr $n moves forward and, with a deep inhalation, squeezes through the crack in the western wall.
+trans 13915
+atlook 13915
+ostr $n squeezes into the area through the narrow crack in the eastern wall.
+~
+S
+#13943
+A Gradually Widening Area~
+   While the northern area looks to be of clearly natural make, 
+the work of human hands can slowly be seen taking shape in this 
+stone-hewn area--particularly with the presence of a floor that 
+looks to have been carved with novice-esque skill at best, rather 
+than any sort of open stonemastery. Along the eastern way, 
+however, it seems that conditions slowly become more hospitable, 
+the walls widening farther from eachother to grant a more easily 
+navigable path. 
+~
+13 65608 0
+0
+D2
+~
+~
+0 -1  0 13944
+D3
+~
+~
+0 -1  0 13942
+S
+#13944
+An Area Marked with Feces~
+   This area, perhaps some ten feet by ten feet, looks to have 
+little worth note--the ground is still roughly hewn to be 
+flatish, despite its roughness. The walls are of grey-black 
+stone that, rather than being touched by any tool of man, look to 
+have been sheared away from its counterpart on the other side of 
+the room through natural means. A small pile of feces, its scent 
+having long ago been stolen by the ages, sits in one corner. 
+~
+13 65608 0
+0
+D0
+~
+~
+0 -1  0 13943
+D2
+~
+~
+0 -1  0 13945
+S
+#13945
+A Cavern of Blood-Spatters~
+   This area seems to be a sort of naturally-occurring caven, 
+stalagmites and stalagtites growing respectively from the floor 
+and ceiling of the area. A number of small bones are piled in 
+one corner, along with a small bundle of rags. The most 
+distinguishing feature of this cavern, however, are the massive 
+blood spatters that cover an entire corner. They have aged to 
+the point where they are dried and hold that unique black-brown 
+of thickly dried blood. 
+~
+13 65608 0
+0
+D0
+~
+~
+0 -1  0 13944
+D3
+~
+~
+0 -1  0 13946
+S
+#13946
+An Abrupt Jerk in the Tunnel~
+   While the southern way is cut in a smooth, unnaturally 
+straightforward manner, the eastern wall has been rent open as if 
+by some massive blast, bits of rock and scree still at rest on 
+the ground a it leads eastwards. The eastern way, what parts of 
+it are visible, seems to be formed of a more natural manner 
+rather than the strange, glass-like passageway of the south. 
+~
+13 65608 0
+0
+D1
+~
+~
+0 -1  0 13945
+D2
+~
+~
+0 -1  0 13947
+S
+#13947
+An Unnaturally Straight Path~
+   While the western area is gaping open, its walls blasted open 
+by some great force, this path here bores eastwards in an 
+unnaturally straight manner--there is no shift, no jog, nothing 
+but a clear, precisely north-bound straight line. The walls, 
+floor, and ceiling are as smooth as glass, seamless and without 
+cracks on the dark stone. 
+~
+13 65608 0
+0
+D0
+~
+~
+0 -1  0 13946
+D3
+~
+~
+0 -1  0 13948
+S
+#13948
+A Jagged Opening Within the Rock~
+   As if blasted open by some great cataclysm, the western 
+section of the walls of this narrow tunnel are jagged and gaping 
+open, the stone rent from some mighty blow. Whereas the eastern 
+way narrows down to only allow one man to walk abreast this area 
+here has been opened by the force of the explosion, walls, 
+ceiling, and floor all blasted. Black scorch marks lay heavy 
+upon the walls. 
+~
+13 65608 0
+0
+D1
+~
+~
+0 -1  0 13947
+D3
+~
+~
+0 -1  0 13907
+S
+#13949
+Amongst A Shallow, Underground Stream~
+   Similar to the rest of the tunnel system, this length of 
+tunnel here is carved with a sharp, angular accuracy, out of the 
+same black stone, and with the same iron wall sconces set into 
+the walls. The floor, however, is covered in perhaps a 
+finger-deep, constant stream of water that flows out of the 
+eastern way and into the area. 
+~
+13 65608 0
+0
+D1
+~
+~
+0 -1  0 13902
+D3
+~
+~
+0 -1  0 13950
+S
+#13950
+Atop A Water-Ridden Stairwell~
+   The smooth, accurate architecture of the underground cave 
+system continues here in a set of cleanly-cut stairs, some 
+handful of steps in all, that lead slightly southwards. The 
+fingerlength deep water spills over them and, judging from the 
+smoothed nature of the stairs' edges, has been for some time, 
+dulling the acuteness of their stonework. The smoothly-cut 
+hallway itself continues south, water perhaps a hand deep now. 
+~
+13 65608 0
+0
+D1
+~
+~
+0 -1  0 13949
+D2
+~
+~
+0 -1  0 13951
+S
+#13951
+A Turn in the Waterway~
+   This sharp jerk in the water-sleuced hallway remains much the 
+same as any other, the walls broad enough for several to walk 
+abreast, and high enough for a man of average proportions to walk 
+through with a good bit of clearance. The water would stream 
+rapidly over the ankles of any travelers here, moving westwards 
+now in the dark tunnel. 
+~
+13 65608 0
+0
+D0
+~
+~
+0 -1  0 13950
+D3
+~
+~
+0 -1  0 13952
+S
+#13952
+Atop a Long, Cascading Stairwell~
+   The middle of this long stairwell, which stretches both down 
+to the south and rises to the north, is perhaps some twenty to 
+twenty-five feet above its landing on the southern end, the sound 
+of trickling water filling the area and echoing through the 
+surrounding passageways as the liquid rushes down the long length 
+of stairs. The integrity and sharpness of each stairs' angle has 
+been eroded by what seems to be a good deal of time since the 
+water began to run over it. The northern stairs, however, show 
+none of this wear and tear, each angle still acute and sharp as 
+it rises upwards. 
+~
+13 65608 0
+0
+D0
+~
+~
+0 -1  0 13932
+D1
+~
+~
+0 -1  0 13951
+D2
+~
+~
+0 -1  0 13953
+S
+#13953
+Surrounding a Vast, Bottomless Hole~
+   The set of stairs that enter from the northern way is the only 
+viable entrance into this rather large room, its dimensions some 
+fifteen by twenty feet. The entirety of the walls, floor, and 
+ceiling have been painstakingly enruned, the harsh symbols 
+leaving a vague aura of distaste present in any good-aligned 
+person. In the center of the room, there appears to be some kind 
+of circular altar, its center missing in a perfectly circular 
+fashion. As the water rises and rises to the perhaps four-foot 
+tall top of the altar, it slowly spills down into the hole in a 
+never-ending stream. Disturbingly, no sound of splash is heard 
+as the water pours silently into the abyss. 
+~
+13 65608 0
+0
+D0
+~
+~
+0 -1  0 13952
+S
+#13954
+New Room~
+rlink n to 13924; rlink s to 13920
+~
+13 65608 0
+0
+S
+#13955
+At a Narrow Squeeze in the Tunnels~
+   The walls in this section of tunnel narrow together, forcing 
+any travelers to move through in singles. On either side of this 
+narrow passageway are dark holes, only pitch-black able to be 
+seen within. Travel to both the north and south directions, 
+however, look open, if deserted and long-past any recent use. 
+~
+13 65608 0
+0
+D2
+~
+~
+0 -1  0 13913
+P
+pull move adjust yank molest~
+wall-sconce sconce iron~
+ostr $n reaches forward and gives the iron shaft of one of the wall sconces a hard, firm pull--as they do so, a narrow segment of the wall, rough wood painted a dark grey, moves before the northern section of wall, closing it off.
+vstr You reach forwards and give the iron shaft of one of the wall sconces a hard, firm pull--as you do so, a narrow segment of the wall, rough wood painted a dark grey, moves before the northern section of wall, closing it off.
+unlink north 13955
+~
+S
+#13956
+A Dead-End in the Tunnels~
+   Like the southern way, this area is a tunnel composed of 
+straight-carved black and gray stone, that seems to simply, 
+abruptly, stop at the northern wall. There is little to make 
+this area seem remarkable, the same iron wall sconces here as in 
+the rest of the tunnel system, though the ceiling itself is 
+covered in a myraid of small cracks and is rather lower than 
+other sections of the tunnels. 
+~
+13 65608 0
+0
+D2
+~
+~
+0 -1  0 13957
+P
+raise lift push open~
+trap trap-door trapdoor opening~
+vstr You reach upwards and, applying pressure to the ceiling of the room, lift the trapdoor upwards and crawls out of the area.
+ostr $n reaches upwards and, applying pressure to the ceiling of the room, lifts the trapdoor upwards and crawls out of the area.
+trans 13913
+ostr $n crawls out of a carefully-concealed trap-door in the floor, closing it firmly after them.
+~
+S
+#13957
+Water-Scented Tunnels~
+   In the stillness of the tunnel system, any oddity would be 
+rather starkly noticed and, in this area, it is the heavy smell 
+and sound of water to the southern way. While little of note 
+seems to rise from the northern way, the sound of gently-lapping 
+water can be heard from the southern darkness. 
+~
+13 65608 0
+0
+D0
+~
+~
+0 -1  0 13956
+D2
+~
+~
+0 -1  0 13902
+S
+#13031
+Storeroom for the Iron Sail~
+Storeroom for 13020, shopkeeper 13012. Armor only!
+~
+13 268500992 0
+0
+S
+#13032
+Before the Cabin Door~
+   A cleared area of ground surrounds this white washed 
+structure. Horizontal logs form the walls of the structure. At 
+the corners the logs have been notched to allow the logs 
+interlock with one another. The notches and roughly even log 
+size combine to make minimal chinks between the pieces of lumber, 
+but the chinks that do exist have been packed with clay or some 
+material. There is a single, odd sized door on the northern side 
+of the building which requires navigating a relatively base and 
+low door frame. The roof is composed of birch shingles. 
+~
+13 100728832 0
+0
+D0
+~
+oak-door~
+1 -1  0 13033
+D2
+~
+~
+0 -1  0 14263
+P
+s so sou sout south~
+(null)~
+ostr $n makes their way away from the cabin and towards the center of the palisade.
+vstr You make your way away from the cabin towards the center of the palisade.
+atecho 14263 Someone walks out of the cabin and towards the center of the palisade.
+trans_group -1 13032 14263
+~
+S
+#13033
+A Rustic Hall~
+   This rectangular room is fairly large. The floor is made of 
+hard packed dirt, and the walls are of unfinished wood. The 
+bottom most logs appear to be hickory while birch and pine form 
+the rest. Over all, the room is fairly rustic and simple with 
+minimal efforts made of creating a comfortable living space. The 
+lack of windows, flooring, and anything other than the 
+utilitarian necessities of walls and a roof make it a fairly 
+dismal abode. A bit more effort seems to have gone into one 
+corner than the rest where hide hangings serve to screen it from 
+the rest of the room. A ladder in the center of the western wall 
+leads up. 
+~
+13 67174684 0
+0
+D1
+~
+beaded-curtain~
+1 -1  0 13034
+D2
+~
+oak-door~
+1 -1  0 13032
+D4
+~
+trap-door~
+1 -1  0 13035
+S
+#13034
+Inside a Hide Partitioned Area~
+   This hide hemmed in area is big enough for, perhaps, a couple 
+of close together bunks. Hides line the walls and are strung up 
+to provide some privacy from the rest of the room. While not as 
+secluded as a separate room, the bearskin partitions are slightly 
+better than nothing. 
+~
+13 67174428 0
+0
+D3
+~
+beaded-curtain~
+1 -1  0 13033
+S
+#13035
+A Loft~
+   This loft is floored with roughly hewn pine logs which have 
+been split in two. The logs have been generally placed with 
+about an inch of space between each other, extending from the 
+middle to the front of the building. Not exactly a spacious 
+place, the low, slanting roof serves to make it feel even more 
+confined. The rafters are composed of more pine logs while pine 
+lumber covered by birch shingles serves as a mostly functional 
+roof. Light and smoke travel through the holes at each end of 
+the building, just under the eaves. 
+~
+13 67174664 0
+0
+D5
+~
+trap-door~
+1 -1  0 13033
+S
+#13036
+A Storage Closet~
+   This utility closet has been set up with shelves for the 
+simple storage of pantry foods and other items. This portion of 
+the building has been built of the same stone floor and 
+whitewashed masonry walls as the rest of the clinic. There are 
+no windows and the only exit is to the east that leads back to 
+the kitchen. 
+~
+13 67174408 0
+0
+D1
+~
+door~
+1 11322  50 13028
+S
+#13037
+A Large Cellar~
+   The temperature in this room is usually rather cool. Like the 
+rest of the clinic, it posesses the same stone floor and 
+whitewashed walls. The cellar looks like it stretches underneath 
+the entire clinic, making it a rather large room. Rows of 
+shelving and racks can be seen along the walls. Some of them 
+hold various tools. By the look of it, the room has been set up 
+with different workstations. Some areas have workbenches while 
+one area to the very end looks closed off from the rest of the 
+cellar. That area holds a sturdy, grey marble table as well as a 
+tray with several rather sharp objects. There is a very sterile 
+feel, but often a fresh smell that comes from that area. Through 
+the wooden timber ceiling of the cellar the faint sound of voices 
+can sometimes be made out. Set in the northwest corner is a 
+small staircase leading out. 
+~
+13 67174408 0
+0
+D4
+~
+~
+0 -1  0 1976
+S
+#13038
+A Large Walkin Closet~
+   Furnished elegantly with stained oak pannels lining the walls, 
+this spacious closet can easily hold racks of clothing as well as 
+abundant space for two people to easily change. Under foot long 
+streches of hardwood flooring lie, polished and varnished to a 
+near mirror sheen. Around the room itself, turned wood rods 
+allow masses of clothes be to hung. A trio of glass lamps hang 
+from the ceiling bathing this room in a warm glow. 
+~
+13 67174408 0
+0
+D3
+~
+~
+0 -1  0 13029
+S
+$~

@@ -1,0 +1,601 @@
+#67000
+deed horse OTHER pack~
+a pack horse~
+The deed for a pack horse is here.~
+~
+61 0 1
+66029 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+300.000000 0 0 0 0 0 0
+#67001
+deed horse OTHER battle prepared~
+a battle prepared horse~
+The deed for a battle prepared horse is here.~
+~
+61 0 1
+67003 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1000.000000 0 0 0 0 0 0
+#67002
+deed warhorse OTHER battle trained~
+a battle-trained warhorse~
+The deed for a battle-trained warhorse is here.~
+~
+61 4096 1
+67004 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#67003
+ballista taut wooden hide WOOD~
+a taut wood and hide ballista~
+A ballista of wood and hide is here, the bow wound back.~
+~
+12 0 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 67006 0 32 0 0
+#67004
+ballista taut wooden hide WOOD~
+a taut, wood-and-hide ballista~
+A ballista of wood and hide is here, the bow wound back.~
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 67006 0 32 0 0
+#67005
+gauge ballista aiming WOOD~
+a ballista aiming gauge~
+a ballista aiming gauge lies discarded here.~
+~
+5 4096 8193
+3 0 10 17
+90000 0.000000
+7 -12 0 40 0 0 1
+0.000000 0 0 0 32 0 0
+#67006
+ballista slack wooden hide WOOD~
+a slack, wood and hide ballista~
+A ballista of wood and hide is here, the bow slack.~
+~
+12 4096 1
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#67007
+arrow bolt spear-length wooden WOOD~
+a readied spear-length wooden bolt~
+A spear-length wooden bolt lies here.~
+~
+7 4112 1
+12 3 4 0
+90000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 67008 0 32 0 0
+#67008
+bolt arrow ballista spear-length wooden WOOD~
+a spear-length wooden bolt~
+A spear-length wooden bolt lies here.~
+   Made wholly of wood, this bolt is easily taller than a person.
+Its sharp end is crudely whittled to a point, but otherwise it's
+just a length of wood.
+~
+7 268439552 1
+1 9 9 10
+500 0.000000
+0 0 0 10 134217728 0 1
+30.000000 0 0 0 32 0 0
+#67009
+crown iron stark METAL~
+a stark, iron, crown~
+A stark iron crown lies here.~
+   This crown looks grim, the thick iron is has been fashioned 
+out of greasy and dark, marred by many flaws, nicks and scratches 
+up and down the metal. The design in a simple one, with a peaked 
+point of metal sitting on top of the wearer's brow, and then a 
+smaller pattern of jagged indentations follow about the rest of 
+their head. There are no soft edges on the crown, all 
+measurements and corners stark, hard, and sharp. 
+~
+12 0 17
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#67010
+trebuchet titantic war machine black wood skulls OTHER~
+a titantic trebuchet decorated with skulls~
+A titantic trebuchet has been fashioned from black wood, the war machine decorated with dozens of skulls.~
+   This trebuchet is longer than a city street, and taller than a 
+house, the thing a mammoth construction of blackened wood, iron 
+bolts, sinew, rope, wheels, handles, gears and cogs. All manner 
+of machinery pieces have been placed about it, but most 
+impressive is the bulging counter-weight and weight box that hang 
+heavy in the air at the front of the trebuchet. Running from the 
+weight box is a long ironwood beam, many ropes of sinew and hemp 
+running between the two pieces and a pair of giant turning wheels 
+that must be usable by only trolls. The trebuchet is decorated 
+with skulls of all shapes and sizes, each crudely pierced through 
+a short iron spike. 
+~
+12 0 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#67011
+backdoor back door secure strange smell OTHER~
+a secure door visible at the back of the tavern~
+A door is set at the back of the tavern, a strange smell coming from it.~
+   This secure door looks recently added, but it is very secure - 
+bolted, iron bars, stout wood, and a pair of huge Haradrim 
+guarding it. Still, you could try to knock on it and see what 
+happens, 
+~
+12 0 0
+0 0 0 0
+10000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#67012
+cloak fine adorned sand-hued clock Unique-pMansur TEXTILE~
+a fine adorned sand-hued cloak~
+A fine adorned sand-hued cloak is set carefully aside.~
+   This fine silken cloak is adorned with a large serpent coiling 
+around a crecent moon depicted on the cloak in black embroidery. 
+It bellows down the length of a man with it's side trimmed in a 
+fine golden trim all around it. It fastens to it's wearer around 
+the neck by an elaborate golden clasp. The cloak has two fine 
+gold chains hanging from the sides of the clasp attaching to the 
+shoulders of the cloak drapping down slighty. This cloak is one 
+of great value and made of very expensive material. 
+
+~
+11 528384 1025
+0 0 0 0
+30 0.000000
+0 
+sand-hued cloaked~
+0 39 12296 0 1
+1000.000000 0 0 0 7 0 0
+#67013
+shield ornate crescent shield UNIQUE_PMANSUR METAL~
+an ornate crescent shield~
+An ornate crescent shield is place carefully aside.~
+   This shield is made of light steel placed in thin layers over 
+itself several times to ensure great strength and a light weight. 
+The shield is shaped in the shape of a crescent moon, able to 
+cover the body easily by a skilled user as well as their opposite 
+shoulder and groin with the tips of the crescent. The shield has 
+a silver trim with etched symbols of battle around the outside 
+adding to it's value and giving it a more authentic look. This 
+shield is a finely crafted piece of defensive weaponry. 
+~
+6 4096 9175041
+5 12 35 0
+600 0.000000
+0 0 0 39 0 0 1
+900.000000 0 0 0 28 0 0
+#67014
+UNDERWARRENSBOARD orc goblin rag-clad gathering OTHER~
+a gathering of rag-clad orcs and goblins~
+Rag-clad orcs and goblins gather about the large firepit.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#67015
+key murky olive green shanty vnumroom67149 WOOD~
+a murky olive green wooden key~
+A murky olive green wooden key is tossed aside here.~
+   A murky green wooden key. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 39 0 0 1
+15.000000 0 0 0 32 0 0
+#67016
+key shanty scored wooden key pMeedhur WOOD~
+a scored wooden key~
+A scored wooden key is set aside here.~
+   This key is made from wood and shows many scores across it's 
+surface. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 39 0 0 1
+25.000000 0 0 0 32 0 0
+#67017
+key long wood key SHANTY WOOD~
+a long wooden key~
+A long wooden key is laid here.~
+   A long wooden key. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+25.000000 0 0 0 32 0 0
+#67018
+key slender brass key METAL~
+a slender brass key~
+A slender brass key rests here.~
+   A slender brass key. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+25.000000 0 0 0 19 0 0
+#67019
+key tiny lightweight tin xHARULSHANTYKEYx METAL~
+a tiny, lightweight tin key~
+A tiny tin key lies here, looking to not weigh much.~
+   This tin key is smaller than most, fitting easily in half the 
+palm of a grown man's hand. Its teeth are surprisingly thick, 
+however, and few - the piece looks to be well forged, if turning 
+rusty. A gouge marks the flat handle, and another cuts across it 
+to form a crude, lopsided T. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 20 0 0 1
+10.000000 0 0 0 20 0 0
+#67020
+key dingy-green-door dingy green key shanty TE WOOD~
+a dingy-green wooden key~
+A dingy-green wooden key is tossed carelessly aside here.~
+   This key is wood and painted a green that is dingy with dirt. 
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+25.000000 0 0 0 32 0 0
+#67021
+key green shanty TE WOOD~
+a dirty green wooden key~
+A dirty green wooden key is laid here.~
+   This key is made from wood. It's green paint is dirty. 
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+25.000000 0 0 0 32 0 0
+#67022
+key short brass stubby barrel pBlaen pSingrave METAL~
+a stubby brass key with a short barrel~
+A stubby brass key with a short barrel is laid here.~
+   This stubby brass key with a short barrel has three uneven 
+brass teeth. 
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 38 0 0 1
+25.000000 0 0 0 19 0 0
+#67023
+key bronze scratch-marked xGladiatorSchoolKeyx METAL~
+a scratch-marked bronze key~
+A bronze key lies here, covered in scratches.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 20 0 0 1
+50.000000 0 0 0 16 0 0
+#67024
+xTEgladiatorboardx board urchin rag-clad outside xShammatx OTHER~
+a rag-clad urchin outside the gate~
+An urchin stands nearby, just outside the gate, and shouts into the yard.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 456 67025 0 0 0 0
+#67025
+timer morphto invisible TE gladiator board xShammatx OTHER~
+an invisible morphto timer for TE Gladiator board~
+An invisible morphto timer for the TE gladiator school lies here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 120 67024 0 0 0 0
+#67026
+vest moulded silver-trimmed xDavakGladiatorx xShammatx LEATHER~
+a silver-trimmed, moulded leather vest~
+A moulded leather vest lies here, silver-trimmed~
+This hard, leather vest fastens with buckles and straps rather
+than laces. The leather has been boiled in wax and left to
+harden over a mold in the shape of a torso. Dyed a rich, dark
+brown, the vest blends well with forest and other terrain, and
+upon the center of the breast, the faint embossing of a white
+tree is still visible. Around the edges and between the vest and
+the back the leather is trimmed in polished silver.
+~
+9 4096 9
+3 1 0 0
+450 0.000000
+0 0 0 35 0 0 1
+1000.000000 0 0 0 14 0 0
+#67027
+cloak fine golden-brown lion pelt xToallaCraftedx xShammatx LEATHER~
+a fine, golden-brown lion pelt cloak~
+A fine cloak of lion pelt lies here, golden brown in colour.~
+   This beautiful cloak has been fashioned from the pelt of a 
+lioness and is a tawny, golden-brown in colour, well-tanned and 
+sleek. Plush, quilted lining has been stitched to the inside of 
+the lion skin to keep the wearer warm and it boasts a deep cowl. 
+Down the front of the cloak three large claws have been placed 
+and could serve as makeshift buttons, thin leather loops opposite 
+them, if the wearer wished to fasten the cloak shut. A silver 
+clasp completes the piece: two fangs, presumably from the same 
+lioness as the pelt, have been embedded in its surface. 
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+lion-pelt-cloaked~
+0 35 4096 0 1
+1750.000000 0 0 0 14 0 0
+#67256
+token baby NOT READY YET xbabyrprogx PREGNANCY OTHER~
+a #1NOT READY YET#0 baby token~
+A #1NOT READY YET#0 baby token lies here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6480 67257 0 0 0 0
+#67257
+token baby READY NOW xbabyrprogx PREGNANCY OTHER~
+a #2READY NOW#0 baby token~
+A #2READY NOW#0 baby token lies here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#67258
+baby pudgy $color swaddling cloth OTHER xbabyrprogx~
+#5a pudgy baby in $color swaddling cloth#0~
+#5A pudgy baby wrapped in $color swaddling cloth lies here.#0~
+   This little baby looks to have been just newly born, still 
+flush pink and soft and warm, with pudgy little folds of flesh 
+rolling over on themselves. They have very little in the way of 
+hair, and often sleeps. This infant has been wrapped in $color 
+swaddling cloth. 
+~
+15 35655680 1
+500 0 -1 0
+300 0.000000
+0 0 0 15 0 0 1
+0.000000 0 0 0 0 0 0
+#67028
+key LEGION_BARRACKS greasy black four teeth METAL~
+a greasy black key with four teeth~
+A greasy black key with four teeth lies here on the ground.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#67500
+group anxious gathering press ganged common-folk OTHER~
+#5an anxious large group of press-ganged common-folk#0~
+#5An anxious large group of press-ganged common-folk are gathered here against their will.#0~
+   This large group of common-folk nervously talk to each other 
+as Legion guards stand nearby watching them, occasionally beating 
+protestors to the ground and keeping this rabble in some kind of 
+order. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#67501
+group long poles common-folk1 OTHER~
+#5a group of common-folk ready for training#0~
+#5A group of common-folk are assembled here ready for training to commence.#0~
+   After agreeing to be trained, about thirty common-folk stand 
+here, waiting anxiously for training to begin. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#67502
+formation standing ready holding common-folk2 OTHER~
+#5a formation of common-folk holding long poles#0~
+#5A formation of common-folk holding long poles have finished marching training.#0~
+   These common-folk have completed learning how to march and 
+hold long poles imitating spears and polearms. They stand in 
+formation, awaiting further training. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#67503
+formation resting common-folk3 OTHER~
+#5a formation of common-folk resting#0~
+#5A formation of common-folk carrying long poles rest here before attempting any more marching.#0~
+   These common-folk rest after a hard day of training with 
+little to show for it. They will try again later. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 8 67501 0 0 0 0
+#67504
+formation marching common-folk3 OTHER~
+#5a formation of marching common-folk carrying long poles#0~
+#5A formation of common-folk carrying long poles marching up and down.#0~
+   These common-folk are trying to learn how to march and hold 
+long poles imitating spears and polearms. They stumble often or 
+knock poles against each other as they try and perfect putting 
+one foot in front of the other in formation. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 72 67502 0 0 0 0
+#67505
+group spear common-folk6 OTHER~
+#5a group of thirty spear-wielding common-folk#0~
+#5A group of thirty common-folk work on attacking and defending with spears and polearms.#0~
+   After trying successfully to learn the basics of how to march 
+and hold long poles imitating spears and polearms, these thirty 
+common-folk now try to learn how to attack and defend, lunging 
+and standing together in a line, fall back as one - and 
+repeating. Day and night they work. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 72 67506 0 0 0 0
+#67506
+formation spears common-folk7 OTHER~
+#5a formation of spear-ready common-folk#0~
+#5A formation of spear-ready common-folk stand waiting after successful spear and polearm training.#0~
+   After these thirty common-folk were guided and cajoled into 
+learning how to attack and defend, lunge and stand together in a 
+line, fall back as one - and repeating day and night - they have 
+rested in triumph. Now they are ready to continue with their 
+next lessons. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#67507
+formation resting common-folk8 OTHER~
+#5a formation of common-folk resting#0~
+#5A formation of common-folk rest here before attempting any more spearwork.#0~
+   After trying to learn the basics of how to learn how to attack 
+and defend with spears and polearms, these thirty common-folk 
+rest after a hard day of training with little to show for it. 
+They will try again tomorrow. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 8 67502 0 0 0 0
+#67508
+formation spears common-folk7 OTHER~
+#5a group of thirty combat-ready legion recruits#0~
+#5A group of thirty combat-ready legion recruits stand ready, dressed in leather armor.#0~
+   An unlikely assortment of leather-clad men and women of the 
+Legion are assembled here, ready with leather armor, an old spear 
+each and some supplies. They are ready to move and respond to 
+the orders of the Legion. 
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#67029
+xgorc-circle-messageboardx shriveled old snaga board OTHER~
+#5a shriveled, old snaga#0~
+#5A shriveled, old snaga#0 is here, speaking to any who will listen.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 0 0 0
+#67030
+earring iron small spidery-legged wolf head xIrgzirrx xShammatx METAL~
+a small, iron earring bearing a spidery-legged wolf head~
+A small, iron earring bearing a spidery-legged wolf head sits here.~
+   This earring is just a piece of dull iron, round in shape, 
+with a chain made of three links. An image of a scowling wolf 
+head with eight spider legs around it has been depicted on its 
+surface with some kind of black pigment. 
+~
+8 4096 4194305
+0 0 0 0
+15 0.000000
+0 0 0 15 0 0 1
+35.000000 0 0 0 17 0 0
+#67031
+arrow xONLYFORARCHERBOXESx yard-shaft shaft dark-fletched METAL~
+a dark-fletched, yard-shaft arrow~
+A dark-fletched arrow with a yard long shaft lies here.~
+   Measuring a full yard in length, this arrow is well designed 
+for flight upon the battlefield. Dull iron tops the shaft, 
+unpolished yet sharpened to a penetrating point, and a collection 
+of black-dyed feathers have been used in the fletching process of 
+the arrow's construction. 
+~
+7 4096 1
+1 6 0 0
+10 0.000000
+0 0 0 30 0 0 1
+0.000000 144 36 0 28 0 0
+S
+100004
+#67032
+key SAEMON_STALL flat bronze two teeth METAL~
+a flat bronze key with two teeth~
+A flat bronze key with two teeth lies here on the ground.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#67033
+tent SAEMON_STALL small green TEXTILE~
+a small green canvas tent~
+A small green canvas tent is erected here.~
+   Erected here in a quiet corner of the marketplace stands a 
+small, unassuming green tent, its flap tied open with a short 
+length of rope. Above the opening a narrow wooden bracelet and a 
+dull, wooden arrow has been attached to the fabric with a few 
+stitches. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#67034
+phallus orkish xManeshmanhoodx MEAT~
+a severed, orkish phallus~
+A severed, orkish phallus lies here, clearly not where it belongs.~
+~
+12 4096 1
+0 0 0 0
+75 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+$~

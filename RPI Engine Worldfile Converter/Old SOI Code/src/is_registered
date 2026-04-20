@@ -1,0 +1,250 @@
+act.comm.cpp:      && IS_SET (ch->desc->acct->flags, ACCOUNT_NOPETITION))
+act.informative.cpp:	(int)(ch->desc->acct->timezone * 60.0 * 60.0);
+act.informative.cpp:	  (int) (ch->desc->acct->timezone * 60.0 * 60.0);
+act.informative.cpp:	 - ((int)(ch->desc->acct->timezone * 60.0 * 60.0)))
+act.informative.cpp:	 - ((int) (ch->desc->acct->timezone * 60.0 * 60.0)))
+act.informative.cpp:      && ch->desc->acct && (acct_rpp = ch->desc->acct->get_rpp ()) > 0
+act.informative.cpp:      && IS_SET (ch->desc->acct->flags, ACCOUNT_RPPDISPLAY))
+act.informative.cpp:  if (ch->desc && ch->desc->acct && ch->desc->acct->get_last_nominate () > 0)
+act.informative.cpp:      std::string date = ch->desc->acct->get_nominate_rpp_date_string ();
+act.informative.cpp:		      rpp = d->acct ? d->acct->get_rpp () : 0;
+act.informative.cpp:  sprintf (from, "%s <%s>", ch->tname, ch->desc->acct->email.c_str ());
+act.other.cpp:  if(ch->desc->acct->get_rpp() < 1)
+act.other.cpp:    ch->desc->acct->deduct_rpp (1);
+act.other.cpp:    ch->desc->acct->deduct_rpp (1);
+act.other.cpp:    ch->desc->acct->deduct_rpp (1);
+act.other.cpp:    ch->desc->acct->deduct_rpp (1);
+act.other.cpp:    ch->desc->acct->deduct_rpp (1);
+act.other.cpp:    ch->desc->acct->deduct_rpp (1);
+act.other.cpp:    ch->desc->acct->deduct_rpp (1);
+act.other.cpp:  if (!d->acct || str_cmp(d->acct->name.c_str (), "Guest") == 0)
+act.other.cpp:  account_time = d->acct->created_on;
+act.other.cpp:	       ch->desc->acct->name.c_str (),
+act.other.cpp:  account_time = d->acct->created_on;
+act.other.cpp:	       -5, ch->desc->acct->name.c_str (), date2, buf2, "", msg, 0);
+act.other.cpp:  account_time = d->acct->created_on;
+act.other.cpp:  d->acct->nominate_rpp ();
+act.other.cpp:	       -5, ch->desc->acct->name.c_str (), date2, buf2, "", msg, 0);
+act.other.cpp:  if (!acct->is_registered ())
+act.other.cpp:  if((time (0) - acct->get_last_nominate ()) <= 60 * 60 * 24 * 15)
+act.other.cpp:  account_time = d->acct->created_on;
+act.other.cpp:	       -5, ch->desc->acct->name.c_str (), date2, buf2, "", msg, 0);
+comm.cpp:	      if (IS_SET (d->acct->flags, ACCOUNT_NOVOTE))
+comm.cpp:	 d->acct->name.c_str (), d->character->tname,
+comm.cpp:		     d->acct->name.c_str (), d->character->tname,
+comm.cpp:		     d->acct->name.c_str (), d->character->tname,
+comm.cpp:	  && d->acct->color)
+fight.cpp:  if (!acct->is_registered ())
+fight.cpp:	   "\n", MUD_NAME, MUD_EMAIL, acct->email.c_str (), MUD_EMAIL, MUD_NAME, ch->tname);
+fight.cpp:  sprintf (buf, "/usr/sbin/sendmail %s < %s", acct->email.c_str (), ch->tname);
+guest.cpp:  sprintf (tname_buf, "%s-Guest", d->acct->name.c_str ());
+guest.cpp:  ch->color = d->acct->color;
+guest.cpp:  ch->pc->account_name = str_dup (d->acct->name.c_str ());
+guest.cpp:  if (is_guide (d->acct->name.c_str ()))
+limits.cpp:	      ch->desc->acct->pay_application_cost (ch->pc->app_cost);
+magic.cpp:  if (!acct->is_registered ()) 
+magic.cpp:  else if (!tch || !acct->is_registered ())
+magic.cpp:		   d->acct->email.c_str ());
+magic.cpp:		   d->acct->name.c_str (),
+magic.cpp:		   d->acct->name.c_str (),
+magic.cpp:	  sprintf (email, "%s Player <%s>", MUD_NAME, acct->email.c_str ());
+magic.cpp:  if (!acct->is_registered ())
+magic.cpp:		   d->acct->email.c_str ());
+magic.cpp:		   d->acct->name.c_str (),
+magic.cpp:	       "\n%s", d->acct->name.c_str (), d->character->pc->msg);
+mysql.cpp:  if (acct->is_registered () && *buf)
+mysql.cpp:	  sprintf (email, "%s Player <%s>", MUD_NAME, acct->email.c_str ());
+mysql.cpp:	  if (acct->is_registered ())
+mysql.cpp:  if (!acct || acct->name.empty () || !message)
+mysql.cpp:     acct->name.c_str (), (int) message->flags, message->from,
+nanny.cpp:  if (!d->acct || d->acct->name.empty ())
+nanny.cpp:     d->acct->name.c_str ());
+nanny.cpp:  if (!d->acct || d->acct->name.empty ())
+nanny.cpp:   ("SELECT lastlogoff FROM %s.pfiles WHERE account = '%s'", player_db.c_str (), d->acct->name.c_str ());
+nanny.cpp:  if (!str_cmp (argument, "Anonymous") || !d->acct->is_registered ())
+nanny.cpp:  if (d->acct && d->acct->is_registered () && d->acct->name.length ())
+nanny.cpp:	 d->acct->name.c_str (), d->strClientHostname, d->strClientIpAddr,
+nanny.cpp:  if (bIsBanned && !IS_SET (d->acct->flags, ACCOUNT_NOBAN))
+nanny.cpp:  if (str_cmp(d->acct->last_ip.c_str (), d->strClientHostname) != 0)
+nanny.cpp:  if (!check_password (argument, d->acct->password.c_str ()))
+nanny.cpp:	 d->acct->name.c_str (), d->strClientHostname, d->strClientIpAddr,
+nanny.cpp:      if (str_cmp (d->acct->last_ip.c_str (), d->strClientHostname) != 0)
+nanny.cpp:	     d->acct->name.c_str (), d->strClientHostname);
+nanny.cpp:	      && !IS_SET (d->acct->flags, ACCOUNT_NOBAN))
+nanny.cpp:	      if (d->acct && is_admin (d->acct->name.c_str ()))
+nanny.cpp:			   d->acct->name.c_str ());
+nanny.cpp:			   d->acct->name.c_str ());
+nanny.cpp:      d->acct->password_attempt++;
+nanny.cpp:  d->color = d->acct->color;
+nanny.cpp:      d->acct->get_last_ip_sql_safe (escaped_ip);
+nanny.cpp:      d->acct->get_name_sql_safe (escaped_name);
+nanny.cpp:	  if (!IS_SET (d->acct->flags, ACCOUNT_IPSHARER) && nSharedIP > 0
+nanny.cpp:	      && str_cmp (d->acct->name.c_str (), "Guest") != 0
+nanny.cpp:	      && str_cmp (d->acct->last_ip.c_str (), "(null)") != 0
+nanny.cpp:	      && d->acct->last_ip.find ("lost-tales.org") == std::string::npos)
+nanny.cpp:    sprintf (buf, "%s [%s] has logged in.%s\n", d->acct->name.c_str (),
+nanny.cpp:	"WHERE username = '" + d->acct->name + "'" ;
+nanny.cpp:     d->acct->name.c_str (), 
+nanny.cpp:  d->acct->update_last_ip (d->strClientHostname);
+nanny.cpp:  d->acct->password_attempt = 0;
+nanny.cpp:      && !acct->is_registered ())
+nanny.cpp:      d->acct->set_name (d->stored);
+nanny.cpp:      d->acct->created_on = time (0);
+nanny.cpp:	 d->acct->name.c_str (), "Other");
+nanny.cpp:	 d->acct->name.c_str (), referrer);
+nanny.cpp:     argument, d->acct->name.c_str ());
+nanny.cpp:  d->acct->set_email (argument);
+nanny.cpp:  d->acct->update_password (d->stored);
+nanny.cpp:	   "                                 The Admin Team\n", acct->name.c_str (),
+nanny.cpp:  acct->set_password (encrypted);
+nanny.cpp:  acct->newsletter = true;
+nanny.cpp:  acct->get_name_sql_safe (escaped_name);
+nanny.cpp:  acct->get_password_sql_safe (escaped_password);
+nanny.cpp:  acct->get_email_sql_safe (escaped_email);
+nanny.cpp:  acct->get_last_ip_sql_safe (escaped_last_ip);
+nanny.cpp:  acct->set_password (encrypted);
+nanny.cpp:      d->acct->set_last_ip (d->strClientHostname);
+nanny.cpp:      sprintf (buf, "New account: %s [%s].\n", d->acct->name.c_str (),
+nanny.cpp:      sprintf (buf, "New account: %s [%s].", d->acct->name.c_str (),
+nanny.cpp:	 d->acct->name.c_str (), 
+nanny.cpp:     player_db.c_str (), d->acct->name.c_str ());
+nanny.cpp:      add_message (1, row[0], -2, d->acct->name.c_str (), date, "Retired.", "",
+nanny.cpp:  if (!check_password (argument, d->acct->password.c_str ()))
+nanny.cpp:     player_db.c_str (), d->acct->name.c_str ());
+nanny.cpp:  if (!check_password (argument, d->acct->password.c_str ()))
+nanny.cpp:		    d->acct->name.c_str ());
+nanny.cpp:		    player_db.c_str (), d->acct->name.c_str ());
+nanny.cpp:		    d->acct->name.c_str ());
+nanny.cpp:     d->acct->name.c_str ());
+nanny.cpp:		    d->acct->name.c_str ());
+nanny.cpp:		    player_db.c_str (), d->acct->name.c_str ());
+nanny.cpp:  sprintf (buf, "Account %s has been terminated.", d->acct->name.c_str ());
+nanny.cpp:  if (!acct || acct->name.empty ())
+nanny.cpp:     acct->name.c_str ());
+nanny.cpp:      admin = is_admin (d->acct->name.c_str ());
+nanny.cpp:  message->from_account = str_dup (d->acct->name.c_str ());
+nanny.cpp:  if (!acct->is_registered ())
+nanny.cpp:	  if (!td->acct || td->acct->name.empty () || !td->character
+nanny.cpp:	  if (str_cmp (td->acct->name.c_str (), acct->name.c_str ()) == 0)
+nanny.cpp:  if (!acct->is_registered ())
+nanny.cpp:		    acct->name.c_str ());
+nanny.cpp:  if (str_cmp (acct->name.c_str (), "Guest") == 0)
+nanny.cpp:  d->stored = str_dup (acct->name.c_str ());
+nanny.cpp:      d->acct->get_name_sql_safe (escaped_name);
+nanny.cpp:			   << (timezone + (int)(d->acct->timezone * 3600)) << 
+nanny.cpp:      if (is_admin (d->acct->name.c_str ()))
+nanny.cpp:	       (is_admin (d->acct->name.c_str ()) ? imm_buf : ""),
+nanny.cpp:	 d->acct->name.c_str (), (long int) d->stored);
+nanny.cpp:	 d->acct->name.c_str (), (long int) d->stored);
+nanny.cpp:  if (d->acct->color && !d->color)
+nanny.cpp:      sprintf (buf, "%s [%s] has logged out.\n", d->acct->name.c_str (),
+nanny.cpp:      sprintf (buf, "%s [%s] has logged out.", d->acct->name.c_str (),
+nanny.cpp:      if (strcasecmp ("Unknown", d->acct->name.c_str ()) == 0)
+nanny.cpp:      if (d->acct->toggle_color_flag())
+nanny.cpp:      if (strcasecmp ("Unknown", d->acct->name.c_str ()) == 0)
+nanny.cpp:      if (d->acct->toggle_newsletter_flag ())
+nanny.cpp:      if (strcasecmp ("Unknown", d->acct->name.c_str()) == 0)
+nanny.cpp:      SEND_TO_Q (d->acct->email.c_str (), d);
+nanny.cpp:      if (IS_SET (d->acct->flags, ACCOUNT_NOGUEST))
+nanny.cpp:	  if (!td->character || !td->acct || td->acct->name.empty ())
+nanny.cpp:	  if (!str_cmp (td->acct->name.c_str (), d->acct->name.c_str ()))
+nanny.cpp:			d->acct->name.c_str (), 
+nanny.cpp:			d->acct->name.c_str ());
+nanny.cpp:      if (strcasecmp ("Unknown", d->acct->name.c_str ()) == 0)
+nanny.cpp:	 d->acct->name.c_str ());
+nanny.cpp:      if (strcasecmp ("Unknown", d->acct->name.c_str ()) == 0)
+nanny.cpp:      if (str_cmp ("Unknown", d->acct->name.c_str ()) == 0)
+nanny.cpp:			d->acct->name.c_str (), STATE_SUSPENDED);
+nanny.cpp:      if (str_cmp ("Unknown", d->acct->name.c_str ())==0)
+nanny.cpp:      if (str_cmp ("Unknown", d->acct->name.c_str ()) == 0)
+nanny.cpp:      if (IS_SET (d->acct->flags, ACCOUNT_NORETIRE))
+nanny.cpp:     d->acct->name.c_str ());
+nanny.cpp:  mysql_safe_query (PFILE_QUERY, player_db.c_str (), d->acct->name.c_str ());
+nanny.cpp:	  if (!td->character || !td->acct || td->acct->name.empty ())
+nanny.cpp:	  if (IS_SET (td->acct->flags, ACCOUNT_IPSHARER) &&
+nanny.cpp:	       strcmp (td->acct->name.c_str(), d->acct->name.c_str()))
+nanny.cpp:	       || !str_cmp (td->acct->name.c_str (), d->acct->name.c_str ()))
+nanny.cpp:  if (engine.in_play_mode () && !is_admin (d->acct->name.c_str ()) && maintenance_lock)
+nanny.cpp:  if (!engine.in_play_mode () && !is_admin (d->acct->name.c_str ()))
+nanny.cpp:  if (d->acct->color)
+nanny.cpp:	   && !IS_SET (d->acct->flags, ACCOUNT_NOVOTE))
+nanny.cpp:	 d->acct->name.c_str ());
+nanny.cpp:	 argument, d->acct->name.c_str ());
+nanny.cpp:      d->acct->update_email (d->stored);
+nanny.cpp:	       d->acct->get_rpp () >=
+nanny.cpp:  if (!strncasecmp (d->acct->name.c_str (), arg, d->acct->name.length ())
+nanny.cpp:      || !strncasecmp (arg, d->acct->name.c_str (), strlen (arg)))
+nanny.cpp:  d->character->pc->account_name = add_hash (d->acct->name.c_str ());
+nanny.cpp:      if (role->cost > (d->acct->get_rpp ()))
+nanny.cpp:	  if (role->cost > (d->acct->get_rpp ()))
+nanny.cpp:  if (atoi (row[RACE_RPP_COST]) > d->acct->get_rpp ())
+nanny.cpp:      if (!available_roles (d->acct->get_rpp ()))
+nanny.cpp:      if (!d->acct->get_rpp ())
+nanny.cpp:	  if (role->cost > (d->acct->get_rpp ()))
+nanny.cpp:	 d->acct->name.c_str ());
+nanny.cpp:      if (block && !is_admin (d->acct->name.c_str ()))
+nanny.cpp:      if (d->acct->get_rpp () < req)
+nanny.cpp:	  if (!available_roles (d->acct->get_rpp ()))
+olc.cpp:  if (is_being_reviewed (review_ch->tname, ch->desc->acct->name.c_str ()))
+olc.cpp:  if (!is_yours (review_ch->tname, ch->desc->acct->name.c_str ()))
+olc.cpp:	 review_ch->tname, ch->desc->acct->name.c_str());
+olc.cpp:	      && d->acct->get_rpp () <= atoi (buf2)
+olc.cpp:	      && ((time (0) - d->acct->get_last_rpp_date ()) >= 60 * 60 * 24 * 60))
+roles.cpp:      if (!acct->is_registered ())
+staff.cpp:  if (!acct->is_registered ())
+staff.cpp:  if (GET_TRUST (ch) < 5 && is_admin (acct->name.c_str ()))
+staff.cpp:  if (acct->is_registered ())
+staff.cpp:  acct->set_email (email);
+staff.cpp:  acct->set_name (name);
+staff.cpp:  acct->created_on = time (0);
+staff.cpp:  if (!acct->is_registered ())
+staff.cpp:  if (deduction < 1 || deduction > acct->get_rpp ())
+staff.cpp:  acct->deduct_rpp (deduction);
+staff.cpp:  if (!acct->is_registered ())
+staff.cpp:      && IS_SET (tch->desc->acct->flags, ACCOUNT_RPPDISPLAY))
+staff.cpp:  acct->award_rpp ();
+staff.cpp:  sprintf (from, "%s <%s>", d->character->tname, d->acct->email.c_str ());
+staff.cpp:  send_email (acct, d->acct->email.c_str (), from, d->character->delay_who2,
+staff.cpp:  if (!acct->is_registered ())
+staff.cpp:  ch->delay_who = str_dup (acct->name.c_str ());
+staff.cpp:	  if (!IS_SET (d->acct->flags, ACCOUNT_NOBAN))
+staff.cpp:	  d->acct->name.length () && !strcmp (d->acct->name.c_str (), argument))
+staff.cpp:  if (!acct->is_registered ())
+staff.cpp:  sprintf (buf, "\n   #2Account Name:#0             %s\n", acct->name.c_str ());
+staff.cpp:	   acct->email.c_str ());
+staff.cpp:	   acct->last_ip.c_str ());
+staff.cpp:     acct->last_ip.c_str (), acct->name.c_str ());
+staff.cpp:      if (!IS_SET (acct->flags, ACCOUNT_IPSHARER)
+staff.cpp:	  && mysql_num_rows (result) > 0 && str_cmp (acct->name.c_str (), "Guest")
+staff.cpp:	  && acct->last_ip.compare ("(null)") != 0
+staff.cpp:	  && acct->last_ip.find ("middle-earth.us") == std::string::npos)
+staff.cpp:     player_db.c_str (), acct->name.c_str ());
+staff.cpp:  account_time = acct->created_on;
+staff.cpp:	   acct->get_rpp ());
+staff.cpp:  if (acct->get_last_rpp_date () > 0)
+staff.cpp:      std::string date = acct->get_last_rpp_date_string ();
+staff.cpp:  if (acct->get_last_nominate () > 0)
+staff.cpp:      std::string date = acct->get_nominate_rpp_date_string ();
+staff.cpp:		    acct->name.c_str ());
+staff.cpp:	   acct->forum_posts);
+staff.cpp:  if (acct->flags)
+staff.cpp:      if (IS_SET (acct->flags, ACCOUNT_NOPETITION))
+staff.cpp:      if (IS_SET (acct->flags, ACCOUNT_NOGUEST))
+staff.cpp:      if (IS_SET (acct->flags, ACCOUNT_NOPSI))
+staff.cpp:      if (IS_SET (acct->flags, ACCOUNT_NOBAN))
+staff.cpp:      if (IS_SET (acct->flags, ACCOUNT_NORETIRE))
+staff.cpp:      if (IS_SET (acct->flags, ACCOUNT_NOVOTE))
+staff.cpp:      if (IS_SET (acct->flags, ACCOUNT_IPSHARER))
+staff.cpp:      if (IS_SET (acct->flags, ACCOUNT_RPPDISPLAY))
+staff.cpp:	   acct->color ? "On" : "Off");
+staff.cpp:	   acct->code ? "Yes" : "No");
+staff.cpp:	   acct->newsletter ? "Subscribed" : "Opted Out");
+staff.cpp:     acct->name.c_str ());
+staff.cpp:      if (ch->desc->acct->toggle_ignore_vote_notes ()) 
+staff.cpp:      if (ch->desc->acct->toggle_rpp_visibility ())
+utility.cpp:	  && ch->desc->acct->get_rpp () >= 1)
+utility.cpp:	  && ch->desc->acct->get_rpp () >= 2)
+utility.cpp:  if (to_acct->email.empty ())
+utility.cpp:  if (!strchr (to_acct->email.c_str (), '@'))
+utility.cpp:  fprintf (fp, "To: %s\n", to_acct->email.c_str ());
+utility.cpp:	     to_acct->name.c_str (), to_acct->password.c_str ());*/

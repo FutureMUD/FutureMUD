@@ -1,0 +1,145 @@
+#70000
+Ravista muscular shortly cropped zSHARIAH ABDUL_MATIN~
+a muscular woman with shortly cropped hair~
+A muscular woman with shortly cropped hair is here, her arms crossed over her chest.~
+   Shortly cropped black hair spikes over this bulky woman's
+head, thick and shiny. She bares none of the usual feminine
+curvature, only her facial features showing her gender in an
+odd contrast to the rest of her muscular form. Her skin is a
+deep color of chocolate, and her eyes a slightly lighter hue
+of brown.
+~
+10 0 25 6 0 5d1+108 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 5 0 0
+18 9 10 1 17 18 95 17
+0 0
+0 50 35 35 35 35 35 35 35 35
+35 35 0 35 35 0 35 35 35 35
+35 35 0 0 50 50 0 0 0 100
+0 0 100 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' shariah_keep 'member' mordor_char 'member' abdul_matin~
+0 0 0
+#70001
+goblin variable gang Olop~
+a variable gang snaga for Olop~
+A variable gang snaga for Olop stands here.~
+   This goblin looks considerably underfed, and has apparently 
+lived an even harsher life than the norm in Minas Morgul. 
+Slinking cautiously along, its eyes are alert and wary, and it 
+often pauses to sniff the air. A powerful stench rises from its 
+body, the sickening miasma of one that wallows constantly in the 
+filth that it is covered in from head to toe.
+#0
+<worn on head>           #2a thin iron skullcap#0
+<worn on body>           #2a crude wolf-hide vest#0
+<about upper right arm>  #2a poorly dyed, purple bandana#0
+<worn about waist>       #2a piece of hemp rope#0
+<worn on legs>           #2crude, uncured wolf-hide leggings#0
+<worn on feet>           #2a pair of rough, oily boots#0
+~
+4169 8388612 23 24 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 2097664 0 0 68157440 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 33 30 42 42 37 44 38 40 42
+46 34 44 31 43 43 36 40 42 44
+50 32 36 0 58 42 0 0 17 59
+0 0 66 0 0 17 20 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 68 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' gang_one~
+0 0 0
+#70002
+orc variable gang Olop~
+a variable gang orc for Olop~
+A variable gang orc for Olop stands here.~
+   This beefy orc is heavily muscled, but their true height is 
+concealed by their constant stoop, lumbering by with their burly 
+hands swinging next to their knees. Thick, greasy hair covers 
+their head, and no small amount of the rest of their body, the 
+orc smelling like sweat and rotting meat. Their gazes look 
+suspiciously past their craggy facial features, eyes lingering on 
+anything out of the ordinary.
+#0
+<worn on head>           #2a thin iron skullcap#0
+<worn on body>           #2a crude wolf-hide vest#0
+<about upper right arm>  #2a poorly dyed, purple bandana#0
+<worn about waist>       #2a piece of hemp rope#0
+<worn on legs>           #2crude, uncured wolf-hide leggings#0
+<worn on feet>           #2a pair of rough, oily boots#0
+~
+4169 8388612 25 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 2097664 0 0 68157440 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 33 33 35 44 36 50 41 40 37
+40 30 39 38 32 49 33 50 38 45
+38 32 31 0 56 51 0 0 21 68
+0 0 68 0 0 15 19 18 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 41 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 68 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' gang_one~
+0 0 0
+#70003
+skeletal orc Rugatan bulging MINES~
+a skeletal orc with bulging black eyes~
+A skeletal orc with bulging black eyes is slouching here.~
+This deeply black skinned orc is a diminitive creature, his short,
+unimpressive frame matched by his scrawn arms and legs. His leathery
+skin clings to his bones so tightly that he appears nothing more
+than a skeletal with skin. His gaunt face is sickly in its nature
+with hollowed cheeks contrasting starkly against his bulging, bug-like
+black eyes. His hair is equally dark but is thinning for the most
+part and so he appears to be sporadically balding.
+~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 2 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+$~

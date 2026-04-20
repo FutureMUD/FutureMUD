@@ -1,0 +1,74 @@
+#71000
+iron black key SILVERMOON__pMANSUR METAL~
+a big black iron key~
+A big, black iron key is set here.~
+This large key is made from heavy black iron. The barrel is very long and thick. There
+are four jagged teeth at the end of varing sizes and notices. The handle is a oval
+eye made of the same hammered, black, iron.
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#71001
+key dingy brothel orkish_underwarrens METAL~
+a dingy brothel key~
+The dingy key to a brothel lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 10 0 0 1
+10.000000 0 0 0 28 0 0
+#71002
+key dingy pink brothel METAL~
+a dingy, pink-coloured key~
+A dingy, pink-coloured key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 10 0 0 1
+10.000000 0 0 0 28 0 0
+#71003
+key dingy uneven-toothed brothel METAL~
+a dingy, uneven-toothed key~
+A dingy key with uneven teeth lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 10 0 0 1
+10.000000 0 0 0 28 0 0
+#71004
+key dingy plain-iron brothel METAL~
+a dingy, plain-iron key~
+A dingy, plain iron key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 10 0 0 1
+10.000000 0 0 0 17 0 0
+#71005
+key dingy red-coloured brothel METAL~
+a dingy, red-coloured key~
+A dingy, red-coloured key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 10 0 0 1
+10.000000 0 0 0 28 0 0
+#71006
+construction workers lumber tools supplies _NOMORPH_ OTHER~
+a group of workers~
+Workers come and go here bearing lumber, tools, and other supplies.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

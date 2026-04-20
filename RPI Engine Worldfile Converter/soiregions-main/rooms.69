@@ -1,0 +1,236 @@
+#69000
+Base Room~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+69 65544 0
+0
+S
+#69001
+A Steamy, Lavish Wash Chamber~
+   Tiles of polished alabaster and lapis adorn the floor and 
+walls of this room, the diverse range of hues of blue and white 
+utilized to depict a sweeping seascape about the room, eddying 
+swirls rising into crashing waves. Behind these tiles internal 
+ceramic piping heat the floor and walls, a vent for periodically 
+emitting dense, humid clouds of steam into the room. A wide 
+basin is set into the wall near the ceiling, water constantly 
+pouring over from its overfilled brim in a perpetual cascade that 
+slips down in an even ribbon of water to a grate below. But 
+central to the room rests a shallow but wide pool, large enough 
+to comfortably accommodate two or three bathers, the water 
+clouded a rosy hue from various minerals and herbs, filling the 
+room with a refreshing fragrance. 
+~
+69 1140918284 0
+0
+D2
+~
+wooden door~
+1 -1  0 2759
+S
+#69002
+A Makeshift Hospital~
+   This open courtyard has been covered with several lenghts
+of tarp and canvas, sustained by long wooden beams, 
+apparently scavenged from collapsed buildings. Many 
+makeshift bunks and beds have been set on what was this
+courtyard, filled with injured men, mostly soldiers. The 
+screams and whimpers of the men are almost unbereable, 
+a pair of trestle tables set up near the dilapidated entrance to 
+the house to act as chirurgery ones. A pair of Healers tend
+to those wounded, and the place reeks of the sweet smell
+of blood, pungent urine and lingers of death. A wall has been
+demolished and a door, probably from a destroyed building,
+set on it, allowing entry to whatever room it keeps behind.
+~
+69 65792 1
+0
+D0
+~
+gate~
+1 69000  30 2385
+D2
+~
+door~
+1 2370  60 16005
+P
+enter ~
+aviary cage~
+ostr Opening up the gate on the Aviary, $n slips into the huge iron cage.
+atecho 69006 $n opens up the gate of the aviary, and slips inside.
+trans 69006
+atlook 69006
+~
+S
+#69003
+A Large, Modestly Maintained Living Room~
+   The northern door of dark, rich wood is bolted with iron 
+hinges to the shadow-cast wood panels which form the majority of 
+the framework for this modest cottage. The entrance opens 
+subsequently onto a large room although its use is clearly 
+multi-purpose judging by a few work units, shelves and cupboards 
+situated to the west of the room and a small, dark-grained table 
+of wood to the east. Thin torches of dark iron, which have been 
+fastened at regular intervals around the edges of this room, cast 
+flickering, dull light over the objects and spider webs and 
+general dust cling to the various small nooks and crannies 
+between the windows and their neighbouring wooden panels. A thin 
+dark carpet of midnight black leads from the northern entrance, 
+southwards into what looks like a small bedroom, accessible via a 
+small wooden door and a more petite, less easily accessible 
+wooden door is situated past some furniture in the south-eastern 
+panels of this multi-functional room. 
+~
+69 1140916488 0
+0
+D1
+~
+door~
+1 69000  0 69005
+D2
+~
+door~
+1 69000  0 69004
+S
+#69004
+A Dimly-Lit Private Room~
+   Dirty panels of dark, rich wood have been laid out rather 
+neatly to create the sturdy floor of this private bedroom. Aside 
+the window which casts forth rays of light, in the daytime 
+period, over the rooms usually dingy interior, are a few shelves 
+scattered with books amongst other objects and a wide pedestal 
+sits comfortably beside a clean-linened bed. A single iron torch 
+has been set into the eastern wall to provide ample light when 
+the hours of darkness fall over this modest cottage and various 
+drapes, tapestries and paintings of Stewards past adorn the 
+thickly paneled walls of this somewhat confines. A well-crafted, 
+richly stained desk sits beneath the southern window which looks 
+out onto the streets and buildings of Osgiliath some distance 
+off, and its presence accentuates the rooms comforting, yet 
+almost dingy confines. 
+~
+69 1140916488 0
+0
+D0
+~
+door~
+1 69000  0 69003
+P
+open go enter descend~
+trapdoor downstairs cellar~
+ostr $n opens a small trapdoor by the dresser, and descends down into the darkness.
+vstr You open a small trapdoor by the dresser, and descend down into the darkness.
+atecho 69007 A trapdoor opens above, and the retractable stairs extend, $n walking down them before closing the door behind them.
+trans 69007
+atlook 69007
+~
+S
+#69005
+A Simple, Private Bedroom~
+   Through a petite door of rich, cobwebbed dark wood in the 
+western wall, lies a somewhat multi-functional room. Panels of 
+similarly dark, worn wood have been set as sturdy floorboards and 
+a few thin rugs have been scattered in disguise of various 
+marrings. A neatly-framed window hung with dirtied spider webs 
+casts forth rays of light over this dingy interior during the 
+daylight hours and draped about the walls are simple tapestries 
+and paintings of Stewards past and a simple iron torch to cast 
+flickering, ample light over the room come sunset. A simple 
+stool of wood sits alongside a bed of clean linens and more 
+noticeably, a rich desk of dark grained wood sits beneath the 
+eastern window, making the room less spacious and therefore 
+somewhat welcoming. 
+~
+69 1140916488 0
+0
+D3
+~
+door~
+1 69000  0 69003
+S
+#69006
+Inside a Huge Iron Aviary~
+   In the middle of the courtyard, this aviary sits, relatively 
+heavy iron bars forming a criss-crossing pattern of the cage. 
+There are many wooden perches and constructed trees in here, on 
+which many score of pigeons sit, cooing loudly amongst each 
+other. A white-painted roost with an access door is in the very 
+middle of the cage. 
+~
+69 1073807360 0
+0
+D1
+~
+cage-door~
+1 -1  0 69002
+S
+#69007
+A Dank, Featureless Underground Room~
+   A dank, musty and putrid smell wafts through the stuffy air of 
+this dimly lit, wide-surfaced cellar. A retractable staircase of 
+craggy, splintered wood provides access from the iron-banded 
+trapdoor above, to root firmly into two carved niches of the 
+mottled, cold stone floor. Ash grey cobbles have been set firmly 
+into the wet earth below ones feet and its expanse is somewhat 
+wide and certainly plain. The only decoration of this reclusive, 
+dingy interior is perhaps only seen in the stale water droplets 
+that fall from the hardwood ceiling above to catch the flickering 
+orange light of the iron-grated torches which cast forth over the 
+cellar to glimmer dark, sinister shadows of what sparse furniture 
+is set on the floor. Save that, the copper and ochre-brown 
+moulds transfused with sickly greens hue the stone walls in a 
+morose fashion. 
+~
+69 1073807624 0
+0
+P
+climb return~
+stair upstairs uptop~
+ostr $n pulls down the small, retractable stair and ascends through the trapdoor, leaving this place.
+vstr You pull down the small, retractable stair, and ascend through the trapdoor, returning upstairs.
+atecho 69004 A trapdoor opens next to the dresser, and $n emerges.
+trans 69004
+atlook 69004
+~
+S
+#69008
+Base Room for Mordorian Port~
+It's a base room
+~
+69 1073807360 0
+0
+S
+#69009
+Base Room for Umbar Port~
+It's Umbar
+~
+69 1073807360 0
+0
+S
+#69010
+Base Room for Haradaic Port~
+It's somewhere in Haradwaith
+~
+69 1073807360 0
+0
+S
+#69011
+Inside the Demonstration Ship~
+This would be a multi-room ship with safequit areas and all sorts of stuff
+~
+69 1073807360 0
+0
+S
+#69017
+Liza's Hardware Storage~
+   This cluttered storeroom is lined with shelves bulging with 
+every manner of imaginable tools and impliments. Crates, bins 
+and barrels are strewn haphazardly across the sawdust covered 
+floor. There are no windows and the room is clean. The floor is 
+covered with sweet smelling rushes. 
+~
+69 335609864 0
+0
+S
+$~

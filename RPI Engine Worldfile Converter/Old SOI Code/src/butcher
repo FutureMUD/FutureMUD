@@ -1,0 +1,177 @@
+void
+delayed_butcher3 (CHAR_DATA * ch)
+{
+  OBJ_DATA *obj1;
+  OBJ_DATA *obj2;
+  OBJ_DATA *obj3;
+  OBJ_DATA *carcass;
+  char buf[MAX_INPUT_LENGTH];
+  char *p;
+  int i = 0, roll = 0;
+  bool failed = false;
+
+  carcass = (OBJ_DATA *) ch->delay_info1;
+
+	// is it really a CARCASS
+  if (GET_ITEM_TYPE(carcass) != ITEM_CARCASS)
+      {
+      ch->delay_info1 = 0;
+      ch->delay_info2 = 0;
+      ch->delay = 0;
+      ch->delay_type = 0;
+      send_to_char ("The carcass you were butchering is no longer here.\n", ch);
+	return; 
+      }
+      
+  if (!carcass)
+      {
+	// The carcass being skinned is gone, abort.
+	ch->delay_info1 = 0;
+	ch->delay_info2 = 0;
+	ch->delay = 0;
+	ch->delay_type = 0;
+	send_to_char ("The carcass you were butchering is no longer here.\n", ch);
+        return;			
+      }
+    
+  if (!CAN_SEE_OBJ (ch, carcass))
+    {
+      // The carcass being skinned is gone, abort.
+      ch->delay_info1 = 0;
+      ch->delay_info2 = 0;
+      ch->delay = 0;
+      ch->delay_type = 0;
+      send_to_char ("You can't see the carcass you were butchering.\n", ch);
+      return;
+    }
+
+  if (!carcass || sizeof (*carcass) < sizeof (OBJ_DATA))
+    {
+      send_to_char
+	("There has been an error with the carcass. Aborting to avoid crash.\n", ch);
+      return;
+    }
+
+  // Test for skill increase.
+
+  skill_use (ch, SKILL_BUTCHERY, -40);
+
+  // First two ranks, easy to butcher.
+ 
+  if (skill_level (ch, SKILL_BUTCHERY, -40))
+  {
+    if (carcass->o.od.value[0])
+    {
+      if(!(obj1 = load_object(carcass->o.od.value[0]))
+      {
+        send_to_char ("Problem...please contact an immortal.\n", ch);
+        return;
+      }
+      else
+      {
+
+        // Give them a piece of meat for free, otherwise,
+        // they roll their skill for each piece of meat.
+
+        obj_to_room (obj1, ch->in_room);
+
+        for(i = 1; i < carcass->o.od.value[1]; i++)
+        {
+          if(skill_level(ch, SKILL_BUTCHERY, -40))
+            obj_to_room (obj1, ch->in_room);
+        }
+      }
+    }
+  }
+  else
+  {
+    failed = true;
+    send_to_char ("You demolished the carcass, failing to reciver any meat from the bones.\n", ch);
+    act ("$n demolishes a carcass.", false, ch, 0, 0, TO_ROOM);
+  }
+
+  if(!failed && skill_level(ch, SKILL_BUTCHERY, -20)
+  {
+    if (carcass->o.od.value[2])
+    {
+      if(!(obj2 = load_object(carcass->o.od.value[2]))
+      {
+        send_to_char ("Problem...please contact an immortal.\n", ch);
+        return;
+      }
+      else
+      {
+
+        // Give them a piece of meat for free, otherwise,
+        // they roll their skill for each piece of meat.
+
+        obj_to_room (obj2, ch->in_room);
+
+        for(i = 1; i < carcass->o.od.value[3]; i++)
+        {
+          if(skill_level(ch, SKILL_BUTCHERY, -20))
+            obj_to_room (obj2, ch->in_room);
+        }
+      }
+    }
+
+  }
+  else
+  {
+    failed = true;
+    send_to_char ("You cut some meat from the carcass, but ruin much of the rest.\n", ch);
+    act ("$n cuts some meat from a carcass.", false, ch, 0, 0, TO_ROOM);
+  }
+
+  if(!failed && skill_level(ch, SKILL_BUTCHERY, 0)
+  {
+    if (carcass->o.od.value[4])
+    {
+      if(!(obj3 = load_object(carcass->o.od.value[4]))
+      {
+        send_to_char ("Problem...please contact an immortal.\n", ch);
+        return;
+      }
+      else
+      {
+
+        // Give them a piece of meat for free, otherwise,
+        // they roll their skill for each piece of meat.
+
+        obj_to_room (obj3, ch->in_room);
+
+        for(i = 1; i < carcass->o.od.value[5]; i++)
+        {
+          if(skill_level(ch, SKILL_BUTCHERY, 0))
+            obj_to_room (obj3, ch->in_room);
+        }
+      }
+    }
+
+  
+    send_to_char ("You skillfully strip the carcass for all the meat it has.\n", ch);
+    act ("$n strips the carcass for all the meat is has.", false, ch, 0, 0, TO_ROOM);
+
+  }
+  else
+  {
+    failed = true;
+    send_to_char ("You butcher a good deal of meat from the carcass, but are unable to render some.\n", ch);
+    act ("$n cuts a good deal of meat from a carcass.", false, ch, 0, 0, TO_ROOM);
+  }
+    
+
+
+      if (CAN_SEE_OBJ (ch, skin))
+	{
+	  send_to_char ("You have successfully skinned the carcass.\n", ch);
+	  act ("$n has successfully skinned the carcass.", false, ch, 0, 0, TO_ROOM | _ACT_FORMAT);
+	}
+
+  ch->delay_type = 0;
+  ch->delay = 0;
+  ch->delay_info1 = 0;
+  ch->delay_info2 = 0;
+
+  extract_obj (carcass);
+}

@@ -1,0 +1,4112 @@
+#95000
+cloakpin ivory oak leaf vfCENHUIN WOOD~
+an ivory oak-leaf cloakpin~
+An ivory oak-leaf cloakpin lies upon the ground here.~
+   Carved to the form of an oak leaf, this small cloak pin is 
+made of yellowish ivory. The leaf is depicted simply, with small 
+veins represented by sunken lines in the surface. A small silver 
+pin is attached to the back of the leaf, allowing it to be 
+affixed to a cloak or mantle. 
+~
+8 4096 10485761
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+200.000000 0 0 0 32 0 0
+#95001
+ring gold vine shaped elegant ruby METAL METAL~
+an elegant, vine-shaped gold ring set with a ruby~
+An elegant, vine-shaped gold ring set with a ruby lies here.~
+   Elegantly crafted, the band of this slender ring was made to 
+resemble a trio of vines twining about each other. Several tiny 
+leaves, set with slivers of emerald and accented with veins of 
+gold adorn the band. Almost lifelike in their detail, the vines 
+twist up at the top of the ring, grasping a fat, brilliant red 
+ruby. Catching and reflecting light with its many facets, the 
+stone gleams resplendently in its setting. 
+~
+8 4096 3
+0 0 0 0
+24 0.000000
+0 0 0 0 4100 0 1
+1600.000000 0 0 0 28 0 0
+#95002
+anklet bronze vine shaped thin vfCENHUIN METAL~
+a thin, vine-shaped bronze anklet~
+A thin, vine-shaped bronze anklet lies upon the ground here.~
+   Twining about one another, two slender bronze vines make up 
+this anklet. Adorned with small flowers, this piece of 
+ornamentation is fairly simple, hints at detail added along the 
+length of it to catch the eye. The bronze has been rubbed with a 
+darkening agent, lending a rich, deep color to the metal and 
+bringing out the tiny accents. 
+~
+8 4096 16777217
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+59.000000 0 0 0 16 0 0
+#95005
+cloak PC_GALVORN brown woolen cherry applique TEXTILE~
+a brown woolen cloak with a cherry applique~
+A brown woolen cloak sewn with a cherry applique lies here.~
+   Fashioned in a usable, yet not extravagent manner, this cloak 
+is formed of thick wool, warm enough to protect against the 
+chills of a cold night. Dyed brown, it reaches down to the 
+ankles of its wearer, and a long, deep hood is sewn into the 
+cloak to offer further protection from the weather. Contrasting 
+with the dull brown dye of the cloak, a large, bright red 
+applique of a cluster of three cherries has been sewn neatly onto 
+the back. 
+~
+11 528384 1025
+0 0 0 0
+400 0.000000
+0 
+brown-cloaked~
+0 30 0 0 1
+0.000000 0 0 0 3 0 0
+#95006
+cloak UNIQUE_PGALVORN sapphire blue velvet golden star TEXTILE~
+a sapphire blue velvet cloak displaying a golden star~
+A heap of sapphire blue velvet fabric is piled here.~
+   This sumptuous, full-bodied cloak is sewn of lustrous, 
+sapphire blue velvet. It goes to the ankles in heavy swirls of 
+solid fabric, its panels flaring from a smooth neck seam. Its 
+hood is roomy and wide, and its gold clasp, shaped like a star, 
+is both ornate and strong. On the back of this cloak is sewn a 
+well-made silken applique in the likeness of a golden star. The 
+garment is, overall, luxurious and exquisitely crafted. 
+~
+11 528384 1025
+0 0 0 0
+400 0.000000
+0 
+sapphire-cloaked~
+0 34 4134 0 1
+1000.000000 0 0 0 6 0 0
+#95007
+flag PC_GALVORN black bearing white tree OTHER~
+a black flag bearing the White Tree~
+A black flag bearing the White Tree flies here.~
+   This black flag is made of linen fabric. Its edges have been 
+turned under and sewn carefully. The flag is about a yard tall 
+and two yards long, and both of its sides display a brilliant 
+White Tree. 
+~
+11 4096 1
+0 0 0 0
+300 0.000000
+0 0 0 29 0 0 1
+0.000000 0 0 0 0 0 0
+#95003
+necklace UNIQUE braided leather bear tooth LEATHER~
+a braided leather, bear-tooth necklace~
+A bear-tooth necklace of braided leather lies coiled here.~
+   This braided leather necklace is fashioned out of simple 
+leather cording, cut into thin strips and braided tightly to form 
+a braided leather cord. Bear fangs with small holes in them, 
+just large enough to fit over the leather adorn the braided cord 
+at half inch intervals. 
+~
+12 4096 2097153
+0 0 0 0
+30 0.000000
+0 0 0 0 1056 0 1
+4.000000 0 0 0 14 0 0
+#95004
+infant UNIQUE_ISOLDA chubby baby round blue eyes NONE~
+#5a chubby infant with round blue eyes#0~
+#5A chubby infant with round blue eyes is here.#0~
+   This chubby male infant's most prominent feature is his large, 
+round blue eyes. The only hair upon his head is a small, 
+sable-black wisp, contrasting sharply with the paleness of his 
+skin. His limbs, when not swaddled, flail about heedlessly, 
+unless the child is sleeping. 
+~
+12 4096 1
+0 0 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95008
+helm UNIQUE_BJORN full matte-black iron METAL~
+a matte-black iron full-helm~
+A blackened iron full-helm lies here, its visor closed.~
+   This helm is designed to cover the entire head, and is made of 
+thick iron which has been blackened. Fashioned from three panels 
+riveted together with a low dome top, the visor of the piece has 
+slits from where the mouth would be and a long vertical slit up 
+to where the nose would be. There are two eye-holes in the piece 
+as well, and the inside of the helm has been padded with fur to 
+avoid painful jolts to the head, as well as for comfort. The 
+helm is sturdy and, though seeming slightly crude, it looks as 
+though it would hold together well. 
+~
+9 528384 17
+3 3 5 5
+500 0.000000
+5 
+full-helmed~
+0 25 8 0 1
+800.000000 0 0 0 17 0 0
+A
+10029 -10
+A
+10025 -10
+A
+10024 -10
+A
+10032 -10
+A
+10028 -10
+#95009
+corpse UNIQUE_FEIN charred broken headless wight OTHER~
+a charred, headless wight corpse~
+A charred, headless, and broken corpse lies here.~
+   This corpse appears to have been human at one time, but is now 
+horribly burned. Only a few clumps of blackened flesh now cling 
+to the equally darkened bones, many of which are broken. The 
+head appears to have been severed rather cleanly, as the neck 
+bears no signs of breakage. 
+~
+15 4096 1
+10 0 -1 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95010
+black linen apron oak tree embroidered UNIQUE_LYNX TEXTILE~
+a black, oak-tree-embroidered linen apron~
+A black linen apron lies here, embroidered with a red oak tree.~
+   It is a basic apron made of black linen, tying around the 
+waist. It covers from the waist down to about the knees in 
+slightly ruffled-edge fabric. On the top right of the bib is 
+embroidered an oak tree in red floss, the details deftly done if 
+not extravagant. 
+~
+15 4096 2049
+800 0 -1 0
+30 0.000000
+0 0 0 30 0 0 1
+80.000000 0 0 0 2 0 0
+#95011
+necklace UNIQUE_PTISHRIC goblin ear crude OTHER~
+a crude goblin ear necklace~
+A severed goblin ear with a length of cord attached to it lies here.~
+   This necklace is simply a severed goblin ear that has been 
+pierced and threaded with a length of hemp cord, which has been 
+knotted. The ear itself looks to have been torn slightly in the 
+past, scar tissue visible despite the fact that the ear looks a 
+bit dry and wrinkled. The ear also appears to be heavily 
+pierced, a few pieces of metal that served as jewelry still 
+lodged in it. 
+~
+12 4096 2097153
+0 0 0 0
+10 0.000000
+0 0 0 0 2312 0 1
+4.000000 0 0 0 0 0 0
+#95012
+apron plain linen embroidered UNIQUE_LANTERN TEXTILE~
+a plain linen apron embroidered with a Lantern~
+A plain linen apron has been dropped here, a lantern embroidered on it.~
+   It is a basic apron made of white linen, tying around the 
+waist. It covers from the waist down to about the knees in 
+slightly ruffled-edge fabric. The Lantern Inn insignia has been 
+skillfully embroidered in black silk thread centered on the 
+apron's front. 
+
+~
+15 4096 2049
+800 0 0 0
+30 0.000000
+0 0 0 30 0 0 1
+40.000000 0 0 0 2 0 0
+#95013
+warhammer UNIQUE shortened tusk GOOD_QUALITY PGRITHEN METAL~
+a shortened, polished steel warhammer~
+A shortened warhammer with a tusk has been left here.~
+   This warhammer is not as large as its two-handed cousin yet 
+still looks deadly. A steel head is formed into a blunt 
+hammer-like face with a tusk-shaped arch forming the backside of 
+the warhammer. On each side of the hammer is a careful and 
+detailed etching of a boar. Beneath the protruding tusk holds 
+another etching, though, of a short, bearded figure holding an 
+immense battle-axe. The warhammer has an oaken shaft which has 
+been shortened to be held in one hand and wrapped in leather for 
+grip. 
+~
+5 4096 8193
+0 1 8 6
+500 0.000000
+3 0 0 33 8392708 0 1
+0.000000 0 0 0 18 0 0
+#95014
+knife ivory raven-headed PROFICIENT_QUALITY PDAEREN METAL ornate hilted~
+an ornate, ivory-hilted knife~
+A raven-headed, ivory-hilted knife is left here unattended.~
+   A raven's head is carved into the ivory pommel of this finely 
+crafted hunting knife. Set in the raven's eyes are two onyx 
+stones which breathe some life into the pommel. An ivory handle 
+has a five-pointed star carved into it. A finely sharpened steel 
+blade has a small etching of a short, bearded figure holding an 
+immense battle-axe near the hilt. 
+~
+5 4096 8193
+0 1 6 2
+100 0.000000
+4 0 0 33 8392740 0 1
+0.000000 0 0 0 28 0 0
+#95015
+mace EXPERT_QUALITY ruby-laid steel dragon hilt PKELTORR METAL~
+a ruby-laid steel mace with a dragon hilt~
+A ruby-laid steel mace with a dragon-carved hilt is laid here forgotten.~
+   A large, steel ball covered in numerous spikes sits atop an 
+elegant solid oak shaft in this flawless mace. Each pernicious 
+spike is three inches long, with a dangerously sharp point. The 
+solid oak shaft has been heavily polished to a dark, glossy 
+shine. Laid into a thick silver ring on the top and bottom of 
+the shaft are several fire-red, intricate rubies. A 
+meticulously-carved dragon's head has been cut into the shaft. 
+This intimidating object, obviously a weapon of war, is well- 
+balanced in weight and looks as though it will deliver a crushing 
+blow when utilized by onesuitably skilled. 
+~
+5 4096 8193
+0 1 9 6
+400 0.000000
+3 0 0 34 4132 0 1
+800.000000 0 0 0 18 0 0
+#95016
+clasp cloak UNIQUE bronze swan METAL~
+a bronze cloak clasp in the shape of a swan~
+A bronze coak clasp shaped like a swan is here, glinting on the ground.~
+   Made from bronze, this elegant cloak clasp has been delicately 
+sculpted into the form of a Dol-Amrothian Swan. The polished 
+swan glints more brightly than the surrounding brushed bronze, 
+making the swan stick out. A delicate closable clasp is on the 
+back, allowing it to be attached to a cloak. 
+~
+11 4096 2097153
+0 0 0 0
+20 0.000000
+0 0 0 34 0 0 1
+40.000000 0 0 0 16 0 0
+#95017
+axe PTARAMIR PROFICIENT_QUALITY razor-sharp oak-hafted METAL~
+a razor-sharp, oak-hafted axe~
+A razor-sharp, oak-hafted axe lies here.~
+   This axe has been forged of fine steel. It is perfectly 
+balanced and honed to a razor edge. The wickedly curved head is 
+attached to a two and a half foot long, fire-hardened oak haft 
+with a series of steel rivets. Leather cord is wrapped around 
+the base of the haft to provide a good grip. On the back of the 
+axe head has been etched a short, bearded figure holding an 
+immense battle-axe. 
+~
+5 4096 8193
+0 1 8 3
+300 0.000000
+2 0 0 33 0 0 1
+400.000000 0 0 0 28 0 0
+S
+100003
+#95018
+ring amethyst-set golden METAL~
+an amethyst-set golden ring~
+A golden ring set with an amethyst rests here, shining brightly from the ground.~
+   This gleaming golden band is formed seamlessly. The gold 
+shines, accentuating the large, faceted amethyst that has been 
+mounted on its top with four prongs flowing elegantly together to 
+the bottom, where they seem to grow out of the band. The 
+amethyst has been cut expertly and leaves little to be desired; 
+the stone itself is a deep, rich purple. Both stone and band 
+complement each other perfectly, creating a sleek yet stunning 
+ring. 
+~
+11 4096 3
+0 0 0 0
+1 0.000000
+0 0 0 34 0 0 1
+750.000000 0 0 0 28 0 0
+#95019
+keyring PARLENIA silver sapphire charm METAL~
+a silver keyring with a sapphire charm~
+A sapphire charm attached to a silver keyring lies here, glinting softly.~
+   An elegantly-shaped piece of silver has been formed into a 
+perfect circle, the only diversion being a small gleaming clasp, 
+used to open and close the ring. Hanging from the ring is a 
+small silver charm, set in the middle with a deep blue, faceted 
+sapphire. The entire ring has been polished to a high gleam, 
+though the charm is brighter than the ring. 
+~
+59 4096 262145
+15 0 -1 0
+12 0.000000
+0 0 0 33 8388612 0 1
+190.000000 0 0 0 28 0 0
+#95020
+shield UNIQUE_PKANTOR polished steel heater golden lion etched METAL~
+a polished steel heater shield etched with a golden lion~
+A heater shield etched with a golden lion is here.~
+   This shield is composed of quality steel and has been 
+well-kept, polished to a fair sheen. It is shaped in the usual 
+manner of heater shields, the bottom tapering slightly and the 
+inside-edges padded with leather. Etched along the front of it 
+is the image of a maned lion's head, its muzzle closed and large 
+eyes open. The mane itself has been etched onto the steel, care 
+having been taken to create a fair level of detail around the 
+features of the large feline's head. A few languid whiskers 
+protrude from the muzzle, and the eyes have also been skillfully 
+rendered. Around each black line of etching gold enamel has been 
+placed, emboldening each line and contour of the image. 
+~
+6 4608 8912897
+6 16 40 0
+1000 0.000000
+0 0 0 35 4096 0 1
+1000.000000 0 0 0 18 0 0
+#95021
+painting large PVERIKA PSYLHOUL PNAYA WOOD~
+a large painting~
+A large painting is here, depicting a smiling man and woman.~
+   This painting is framed with a simple wooden frame and has 
+been done on thick canvas. The object depicts a couple looking 
+rather pleased in each other's arms. The man in the painting has 
+chestnut-hued hair and a full beard of the same color. His eyes 
+are a stark sea-green and his skin is tanned, while faint scars 
+can be seen on his cheek and neck. The woman is shown as having 
+curly brown hair streaked with silver, and her eyes are a 
+striking sky-blue. Her cheekbones are high, contributing to the 
+beauty of her oval-shaped face. The background of the painting 
+consists of a cherry tree trunk whose blossoms hover over the 
+couple's head at the top of the painting. At the bottom right of 
+the art piece there is a signature drawn in the shape of a fox's 
+head carved into what appears to be a wooden die. 
+~
+12 4096 1
+0 0 0 0
+400 0.000000
+0 0 0 32 0 0 1
+0.000000 0 0 0 32 0 0
+#95022
+dagger EXPERT_QUALITY DO_NOT_LOAD PC_UNIQUE PEROHTAR ornate chalcedony-bladed ELVISH_QUALITY wtf METAL~
+an ornate, chalcedony-bladed dagger~
+An ornately crafted dagger has been left here, its blade made of a translucent chalcedony.~
+   Crafted flawlessly out of beautiful translucent blue 
+chalcedony this dagger is both an expertly crafted weapon and a 
+splendor of artwork. The blade is crafted out of a translucent 
+blue chalcedony sharpened and curved slightly to a sharp point. 
+The crossguard, however, is not wide nor provide much protection 
+for the hand. Two fang-like pieces of steel rise out of the 
+silver-inlaid hilt onto each side of the blade. The hilt has 
+been engraved with a few runic designs and lacks any extra grip. 
+The blade was obviously crafted for a master or purely for show. 
+~
+5 4096 8193
+0 1 7 8
+300 0.000000
+0 0 0 40 524448 0 1
+1700.000000 0 0 0 28 0 0
+A
+10008 5
+#95023
+breastplate PC_UNIQUE PEROHTAR silver-detailed leaf-patterned ELVISH_QUALITY METAL~
+a silver-detailed, leaf-adorned breastplate~
+A bright, silver-detailed breastplate has been left here, a leaf pattern etched into its surface.~
+   Crafted out of a high quality steel, this breastplate provides 
+excellent protection for the torso. The steel has been made into 
+smooth leaf-style pattern making it difficult for a blade to 
+deliver a full blow to the torso. Silver details have been laid 
+into the breastplate as well, and it has been polished to a 
+bright shine. 
+~
+9 4096 9
+3 5 0 0
+800 0.000000
+0 0 0 40 0 0 1
+2000.000000 0 0 0 28 0 0
+#95024
+mask PLAYER_UNIQUE ELVISH_QUALITY polished silver-detailed steel METAL~
+an ornate, silver-detailed obsidian mask~
+An ornately detailed mask has been left here.~
+   This well-polished mask is a masterpiece of work. The mask is 
+mainly made of obsidian detailed with intricate silver and gold 
+patterns. The mask covers the forehead, the bridge of the nose, 
+around the eyes, and the cheeks. The mouth and eyes are left 
+unobstructed. The surface of the mask is smooth and in the shape 
+of a humanoid face. 
+~
+9 528384 67108865
+3 5 0 0
+100 0.000000
+0 
+silver-detailed-masked~
+0 40 528544 0 1
+1200.000000 0 0 0 18 0 0
+#95025
+voulge VARIAG UNIQUE bronze double-sided METAL~
+a bronze, double-sided voulge~
+A long, double-sided voulge made of bronze has been left here.~
+~
+5 4096 8193
+0 2 6 10
+700 0.000000
+2 0 0 34 0 0 1
+1400.000000 0 0 0 16 0 0
+#95027
+rock muddy cracked STONE~
+a spherical, cracked rock~
+A spherical rock with a crack running down its middle lays here.~
+This rock is coated in limestone and nearly circular in shape.
+A crack runs down one side, with a smaller line leading from it
+running all the way around. It gives the rock the appearance
+of an egg split in half then pushed back together. The crack
+is too small to see what is inside, but it feels lighter than
+you would expect a rock of this size to be, which is about the
+same as a man's skull.
+~
+12 4096 1
+0 0 0 0
+400 0.000000
+0 0 0 60 256 0 1
+0.000000 0 0 0 30 0 0
+#95026
+hollow cup shaped rock half STONE~
+a hollow cup-shaped limestone rock~
+A hollow cup-shaped limestone rock, lined inside with small jagged crystals.~
+The limestone exterior of this cup-shaped rock once hid a
+hollow interior, lined with hundreds of tiny dark purple
+crystals. If it was paired with its other half it would be as
+big as a man's skull. There is a goblet-sized space inside
+the rock.
+~
+15 4096 1
+200 0 -1 0
+105 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#95028
+stubby broad silver key METAL~
+a stubby broad, silver key~
+A stubby, broad silver key is here~
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#95029
+door WOOD~
+a heavy, oaken door with a small keyhole~
+A heavy, oaken door with a small keyhole is set into the western brickwall.~
+   This door is expertly made, fitting perfectly within the 
+brickwork of the western wall. It is a heavy, oaken frame, with 
+an oddly small keyhole and large rusty iron doorknob. Old pieces 
+of plaster are stuck to it. No gap undernear the door can be 
+seen. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#95030
+small delicate silver key OTHER~
+a small, delicate silver key~
+A small, delicate silver key is here.~
+This small silver key has a very short, delicate handle and
+a tiny, intricate set of grooves and notches.
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95031
+coat long sable colored coat UNIQUE_PLUCIUN TEXTILE~
+a long, sable-colored coat~
+A long, sable colored coat lies here.~
+   Fashioned from thick sable-colored wool, this mid-length coat 
+provides ample protection from the cold. It is fitted to the 
+waist and extends down to the wearer's knees. A row of buttons 
+closes the front to the neck. It is of good quality. 
+~
+11 4096 1025
+0 0 0 0
+600 0.000000
+0 0 0 36 32 0 1
+200.000000 0 0 0 7 0 0
+#95032
+spear PFEARUIN_UNIQUE obsidian-headed ash-grey Ahaenech METAL~
+an obsidian-headed, ash-grey spear~
+A slim ash-grey spear with an obsidian head has been left here, glinting oddly in the light.~
+   Slender and lightweight this spear is rather short allowing 
+for easy use in one hand. The shaft of the spear is a dark 
+ash-grey steel with an obsidian head that gleams a dark crimson 
+in the light. The design of the spearhead is flawless in design, 
+shaped and sharpened perfectly. Along the spearhead and shaft 
+attach, a scrawling tengwar has been enruned into it. 
+~
+5 4104 8193
+0 1 9 9
+400 0.000000
+1 0 0 40 0 0 1
+4000.000000 0 0 0 28 0 0
+#95033
+flask PFEARUIN_UNIQUE silver-capped ivory horn-shaped hip flask METAL~
+a gleaming silver-capped, ivory hip flask~
+A long, horn-shaped hip flask made of ivory has been left here.~
+   Made out of a high quality, polished ivory this long 
+horn-shaped flask has been capped with a gleaming silver. Carved 
+into the ivory is an intricate forest display in which spans the 
+length of the flask on two sides. The wide, open mouth of the 
+ivory horn has been plugged with a silver capped stopper. A 
+short strap of a black leather has been attached to the top of 
+the flask to allow easy storage of it upon a belt or over the 
+shoulder. 
+~
+17 4096 8650753
+10 10 487 0
+100 0.000000
+0 0 0 40 0 0 1
+850.000000 0 0 0 28 0 0
+#95034
+pavise PFEARUIN_UNIQUE intricate gold and crimson METAL~
+an intricate, gold and crimson pavise~
+An intricate pavise has been left here.~
+   Crafted of a high quality yet lightweight metal this shield 
+has been crafted into a long, intricate pavise. The middle of 
+this oval pavise has a large oval-shaped crimson gem set into it, 
+atop and below the gem the shield has been colored a similar 
+crimson color is the shape of a shape on either side. The rim of 
+the shield has been colored a vibrant gold that has since dulled 
+slightly through liberal use. Two half-heart shaped notches have 
+been cut into both sides of the pavise. 
+~
+6 4096 8912897
+5 12 60 0
+600 0.000000
+0 0 0 40 528544 0 1
+3200.000000 0 0 0 28 0 0
+#95035
+gloves PFEARUIN_UNIQUE plated smoky grey METAL~
+a pair of plated smoky-grey gloves~
+A pair of plated gloves of smoky-grey leather have been left here.~
+   Made out of a thin smoky-grey leather the top of these gloves 
+have been plated with a smoky steel to protect the wearer's 
+hands, without sacrificing motor skills. The leather is thinned 
+in many places around the sides and bottom, seemingly allowing 
+for the comfortable fitting of bracers over each. 
+~
+9 4096 129
+3 5 0 0
+300 0.000000
+0 0 0 40 0 0 1
+1200.000000 0 0 0 28 0 0
+#95036
+bracer PFEARUIN_UNIQUE smoky grey leather LEATHER~
+a smoky-grey leather bracer~
+A well-made bracer of smoky-grey leather has been left here.~
+   Made out of a light leather this bracer has been flawlessly 
+made to fit over the user's hand and forearm. Bracing the wrist 
+and allowing for solidly supported slight alterations this bracer 
+allows for devestating accuracy, very obviously made for the use 
+of both the use of a long weapon or that of archery. 
+~
+9 4096 4097
+3 1 0 0
+50 0.000000
+0 0 0 40 528544 0 1
+500.000000 0 0 0 14 0 0
+#95037
+belt PFEARUIN_UNIQUE thin sword-belt smoky grey leather LEATHER~
+a thin sword-belt of smoky-grey leather~
+A thin sword-belt made of a smoky-grey leather has been left here.~
+   Crafted of a smoky-grey leather this belt has a very practical 
+use. There are notches on the sides for easy attachment of 
+sheathes to the belt. A light silvery buckle secures it around 
+the waist of the wearer. An intricate leaf-pattern has been made 
+into the smoky-grey leather. 
+~
+11 4096 2049
+0 0 0 0
+100 0.000000
+0 0 0 40 0 0 1
+250.000000 0 0 0 14 0 0
+#95038
+ticket locksmith 1st_Locksmith OTHER~
+a locksmith ticket~
+A locksmith ticket has been discarded here.~
+   This ticket from the locksmiths indicates that your key will 
+be ready in one hour from purchase. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+5.000000 1 95039 0 0 0 0
+#95039
+ticket locksmith Ready_Locksmith OTHER~
+a locksmith ticket, ready to be presented~
+A locksmith ticket, ready to be presented, has been discarded here.~
+   This ticket is ready to hand over to the locksmiths. Be sure 
+to only be holding the ticket and your key before you "collect 
+key". 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95040
+kilt wolf hide black rough TEXTILE DUNLENDING~
+a black-dyed, wolf-hide kilt~
+a black-dyed, wolf-hide kilt lies here in a pile.~
+   Dyed black wolf pelts make up this kilt. Though skillfully 
+sewn, it is not much to look at, roughly made and patchy in 
+places. Wrapping around the hips, hanging down just above the 
+knees, the fur has been turned outwards, seeming somewhat 
+battered. 
+~
+11 4096 33
+0 0 0 0
+400 0.000000
+0 0 0 25 264192 0 1
+100.000000 0 0 0 7 0 0
+#95041
+torc thin silver wire twisted DUNLENDING METAL wolf fang~
+a silver wolf-head torc~
+A silver torc lies here, ending in wolf-heads.~
+   Very thin silver wire has been carefully twisted into this 
+torc. Skillfully made, this torc is solid in appearance, making 
+almost a completely circle. The ends of the wire leave a couple 
+of inches space in the front, allowing for it to be slipped 
+around the throat. Each end has been formed into the shape of a 
+wolf head, its fangs bared. The piece is well made, appearing to 
+offer a small amount of protection to the neck. 
+~
+8 4096 2097153
+3 5 0 0
+30 0.000000
+0 0 0 30 262144 0 1
+300.000000 0 0 0 28 0 0
+#95042
+hunter green kilt wool TEXTILE DUNLENDING~
+a hunter-green, rough wool kilt~
+A hunter-green, rough wool kilt lies here in a pile.~
+   This kilt has been sewn from rough wool, dyed a hunter green. 
+It has been designed to wrap around the hips, hanging down to 
+just above the knees. Rough in texture, this kilt has a few 
+small tears and rips in it. 
+~
+11 4096 33
+0 0 0 0
+400 0.000000
+0 0 0 25 264192 0 1
+100.000000 0 0 0 3 0 0
+#95043
+gemshorn ELVISH ebony tipped ivory long curved OTHER~
+a long, ebony-tipped ivory gemshorn~
+A long curved horn with an ebony tip has been left here, several small holes carved into it in a line.~
+   This long, curved ivory gemshorn has been crafted flawlessly 
+and has been well-polished for a bright shine. The bright 
+polished ivory curves gently to the point, the end fading to a 
+dark ebony. A series of seven different sized holes have been 
+carved perfectly into it, the sizes going progressively from 
+largest to smallest as it goes from the bulk of the horn-shaped 
+instrument towards the point. An angled rectangular cut has been 
+gently carved into the end of the instrument, near the bulk 
+opposite of the point. The point has been dulled and the horn 
+has been hallowed as to allow the user the ability to, if used 
+correctly, create flawless, beautiful sounding music. 
+~
+35 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 40 0 0 1
+800.000000 0 0 0 31 0 0
+#95044
+cloak embroidered silver grey wool hood hawk dove HAWK_DOVE_PBRENNA TEXTILE~
+a silver grey wool cloak embroidered with a hawk and dove~
+A silver grey wool cloak embroidered with a hawk and dove lays discarded here.~
+   Fashioned in a usable, yet not extravagant manner, this cloak 
+is formed of thick wool, warm enough to protect against the 
+chills of a cold night. Dyed $finecolor, it reaches down to the 
+ankles of its wearer, and a long, deep hood is sewn into the back 
+to offer further protection from the weather. A hawk, wings 
+backswept in flight is embroidered near the clasp on this cloak. 
+A perfect dove has been embroidered in fine detail at the hawk's 
+heart. 
+~
+11 34082816 1025
+0 0 0 0
+500 0.000000
+0 
+$finecolor-cloaked~
+0 35 0 0 1
+300.000000 0 0 0 3 0 0
+#95045
+attractively cut pure white dress wave gold accents TEXTILE $finecolor~
+an attractively-cut, $finecolor dress with gold wave accents~
+An attractively cut, $finecolor dress lays here.~
+   This dress is made of fine $finecolor, and is all the more eye 
+catching for the gold waves it sports. Its daringly scooped 
+neckline, and graceful flared sleeves are trimmed with bright 
+gold piping, and the corseted bodice is cinched tight in the back 
+with a striking gold cord. The skirt, falling close to the body, 
+shows fullness added by vidid gold gores whenever the wearer 
+moves. 
+~
+15 33558528 9
+100 0 -1 0
+200 0.000000
+0 0 0 30 4100 0 1
+800.000000 0 0 0 7 0 0
+#95046
+doll exquisite porcelain silk doll IMPORT_CASI OTHER~
+an exquisite silk-dressed doll~
+A exquisite silk-dressed doll is propped up here.~
+   This doll is made from a Master Doll maker, She has a pale 
+blond colored mohair wig. Her face has been beautifully painted, 
+with deep sky-blue glass eyes set within it. Her sea-green pure 
+silk dress is stunning, it has tiny little black buttons down the 
+front and has been trimmed with cream cotton lace and dark green 
+braid. Under her dress she is wearing a white cotton slip and 
+pantaloons, both have been trimmed with fine lace. Her hat has 
+been decorated with five tiny silk roses and small downy 
+feathers. She is carrying a silk umbrella that is trimmed with 
+cream cotton lace. She is wearing the tiny black beaded 
+necklace, possibly of small black pearls. She is poseable, her 
+head, arms and legs move. She truly is exquisite and very 
+collectable too. 
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 40 0 0 1
+1000.000000 0 0 0 5 0 0
+#95047
+collar slender studded tag silver OTHER~
+a slender black collar with silver studs and a small tag~
+A slender strip of leather lays here with a small tag attached.~
+   This thin strip of leather is lined on the inside with soft 
+blue velvet. Ornamental silver studs are spaced out evenly 
+across the outer side, ending in a silver clasp that bears a 
+small tag. One versed in Numenian-Tengwar would find it reads, 
+"Tad" in flowing script. 
+~
+8 4096 5
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95048
+basket woven basket crib cotton OTHER~
+a finely-crafted reed woven basket~
+A reed woven basket lined in soft cotton cloth lays here.~
+   Meticulously crafted of woven white reed this basket contains 
+a luxurious cotton-covered mattress, padded liner, and thin 
+cotton sheet.The warm cotton patterned fabric removes for easy 
+washing. Atop that a warm down filled blanket is patterned with 
+animals provides warmth and protection for the child within. 
+~
+15 4104 8388609
+100000 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 4 0 0
+#95049
+sling soft cotton $color TEXTILE~
+a $color sling made of soft cotton~
+A soft sling made of $color cotton lays here.~
+   This $color cotton sling is soft and easily worn over the shoulder
+to help carry the weight of a child. Easily cleanable and maintained,
+this sling provides warmth and comfort for the child inside.
+~
+15 35655680 8912897
+10000 0 -1 0
+300 0.000000
+0 -1 0 0 0 0 1
+55.000000 0 0 0 4 0 0
+#95050
+plaque ooc OTHER~
+#6an OOC plaque#0~
+#6An OOC plaque has been mounted on the northern wall.#0~
+To deliver a package, including a letter, to the post office,
+simply purchase a bag from the shopkeeper here and fill it
+with whatever you wish to deliver. Please bear in mind the bag
+is the size of a small satchel.
+
+Once you are ready, hold the bag in one hand and be sure to
+have five coppers on your person, as that is what it costs
+to make a delivery - except to the soldiers, they are free
+to send parcels and letters to!
+
+Now, type #3deliver mail#0 and your package will be taken
+and either will be on its way to a postbox or will be stored
+for the Hawk and Dove to hand deliver (be sure to leave
+a letter in the bag so they know who to take it to).
+
+Soldier packages are FREE! All you need to do is to type
+#3SOLDIER PACKAGE#0 and a free bag for the soldiers will
+be placed on the ground in this room. Pick it up, fill it
+and then #3deliver mail#0.
+
+If you want a postbox, please contact the Hawk and Dove.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95051
+crutch straight carved wilderness WOOD~
+a wooden crutch carved with wildlife scenes~
+A straight wooden crutch lays here, carved with wildlife scenes.~
+   This crutch is long and straight, one end softly padded and 
+able to be put under the arm for support. Made from a hearty 
+oak, this crutch is strong and durable. Along it's entire length 
+various wildlife and flowers can be seen carved into it. 
+~
+5 4096 8193
+0 1 2 6
+700 0.000000
+3 5 0 0 0 0 1
+50.000000 0 0 0 32 0 0
+#95052
+astrolabe brass dull UNIQUE_ILLARIA_FOR_NOW_1_1_2007 METAL~
+a brass astrolabe~
+A dull brass astrolabe lays here.~
+   Made of dull brass, this astrolabe is a palm-sized, engraved 
+hollow disk. On its surface lie three intricately carved brass 
+plates, each bearing the markings of the known celestial bodies. 
+When aligned properly, this instrument allows the user to 
+navigate the lands using celestrial bearings. 
+~
+8 4096 2097157
+0 0 0 0
+300 0.000000
+0 0 0 0 0 0 1
+200.000000 0 0 0 19 0 0
+#95053
+compass rosewood box small UNIQUE_ILLARIA WOOD~
+a rosewood encased compass~
+A small rosewood box lies here.~
+   Encased in rosewood and a circular glass disk, a small black 
+needle is perched above thirty-two cardinal points painted to the 
+outside of the circle. When held flat, the needle points to the 
+north and points out the direction the user is moving. A brass 
+hinged, rosewood lid allows the compass to be closed and latched 
+when not in use. When exposed on the underside of the lid, an 
+etching bears letters I.L written in Numenian-Tengwar. 
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#95054
+list postboxes available OTHER~
+#6a list of postboxes available#0~
+#6A list of postboxes available has been pinned up here.#0~
+The Hawk and Dove - Hawk Dove Katalyn 
+Wooden Wonders - Raldir 
+The Battered Shield - Agase Volensby Shield
+The Minas Tirith Shelter - Agase Volensby Shelter 
+Brenna's Threads et al - Brenna Laney Blythe
+The City Guard - Minas Tirith Guard 
+Cladimir's Metalskins - Cladimir Nistrodin Aeruil
+The Jewel of Minas Tirith - Jewel Cenhuin Anteya Piyren 
+Plaza of the Sun Clinic - Jaelyn Clinic Taergarol
+Master Galvorn Celeban - Galvorn Celeban
+Clothier's Emporium - Kylene Clothier Emporium
+Greenleaf Winery - Greenleaf Winery Siago Vineyard
+Clerk Balagos Othuinoss - Balagos Othuinoss
+Ye Olde Forge - Solmund Forge
+Minas Tirith City Council - MinasTirithCouncil Council MTC
+Gondor Council - Nocht Arucard Gondor Drayton LordProvost
+The Blades of Minas Tirith - Blades Geraint Lithan
+The Quartermaster of Lord Eradan - Asinius Quartermaster
+The Gilded Lily - Lilianne Gilded Lily
+Student's Sanctuary - Student Sanctuary Doralthos Erinur
+Mistress Gloria's Chandlery Shop - Chandlery Charmaine Gloria
+Dauntless Compound - Dauntless Stallion Adrianna Averill
+Silverthorn - Silverthorn Bellidar
+To mail to a Fellowship's postbox, type #6send|post <insert fellowship name here>#0.
+List of Fellowships Available:
+Woodwrights
+Armorers
+Weaponsmiths
+Bakers
+Sages
+Healers
+Horticulturists
+Apothecarists
+Hostelers
+Jewelers
+Metalsmiths
+Leatherwrights
+Woodwrights
+Masons
+Clothwrights
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95055
+burnt corpse horribly TOY_STORE_FIRE MEAT~
+a horribly burnt corpse~
+A horribly burnt corpse lies here.~
+   This corpse appears to be human, but is now horribly burned. 
+Only a few clumps of blackened flesh now cling to the equally 
+darkened bones, many of which are broken. The head appears to 
+have been crushed by a stone or a club. The lower half of the 
+right arm is missing, the bones broken and burned at the end. 
+The left hand is also missing two fingers, whether from the fire 
+or previous injuries is unknown. The right knee has been 
+crushed, and the jaw is missing several teeth. 
+~
+15 4096 1
+0 0 -1 0
+15000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95056
+shield EOTHEOD maroon etched sun steel round-shield METAL~
+a maroon steel round-shield etched with a sun~
+A maroon steel round-shield etched with a sun lay forgotten here.~
+   This large steel round-shield is painted solid maroon. At its 
+center a brilliant display of a golden sun is etched and painted. 
+The sun takes up half the shield and is artistically designed. 
+Adorning this shield, several smaller suns and horses are painted 
+on the rest of the face of the shield. On the back, a sturdy 
+leather strap has been affixed, making it easy to wield. The 
+large size offers ample protection. 
+~
+6 4096 8912897
+5 12 20 0
+600 0.000000
+0 0 0 40 0 0 1
+1000.000000 0 0 0 18 0 0
+#95057
+tunic UNIQUE_PTARIUS falcon-embroidered azure woolen TEXTILE~
+a falcon-embroidered, azure woolen tunic~
+An azure woolen tunic embroidered with a falcon and suburst lies here discarded.~
+   This tunic has been knitted from wool dyed azure in colour, 
+the material reaching down to the mid-thighs and elbows while 
+worn. Fairly loose, the tunic does little to restrict movement 
+and is of sturdy enough work and design to survive the rigours of 
+everyday life. Upon the left breast, a sunburst of handwith in 
+size has been carefully embroidered in bright red floss, the 
+delicate image of a falcon also embroidered within its center in 
+the same color. 
+~
+11 4096 9
+0 0 0 0
+100 0.000000
+0 0 0 0 134217733 0 1
+98.000000 0 0 0 3 0 0
+#95058
+statue XASTIRTOWER Earnur stone marble well-detailed man OTHER~
+a well-detailed stone statue~
+A well-detailed stone statue of a man stands here.~
+   In contrast to the grey bedrock of the mountainside, this 
+statue is carved of veined black marble, affixed firmly to a 
+stone base. The statue depicts a regal man, his chin held high, 
+his gaze resolute on the outline of a castle door carved on the 
+flat face of the mountainside ahead of him. He has high 
+cheekbones, a straight nose, his lips set with determination. He 
+is carved with ornate armor, a cape flowing behind him marked 
+with the White Tree of Gondor. He holds a shield at the ready on 
+his left arm, his right tipping a longsword forward in a gesture 
+of challenge. At the base of the statue it reads in Westron, 
+perfectly carved in Numenian-Tengwar sigils, "King Earnur strides 
+to the gates of Minas Morgul, going forth to face the Witchking 
+of Angmar in single combat." 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#95059
+statue raven XASTIRTOWER basalt carved black stone OTHER~
+a carved black basalt raven~
+A black raven of carved basalt perches above the doorway, wings spread.~
+   Carved in rich detail of black rough-textured basalt, this 
+statue of a raven looks almost as lifelike as those in the skies 
+above. The bird stands about three feet in height, its back 
+hunched up as its curved wings spread to the sides, spanning from 
+one edge to the other of the wide doorframe. Its beak is carved 
+open in a raucous caw, it's eyes red with embedded stone, glaring 
+down at the area before the doorway it guards. Individual 
+feathers are outlined, by the craftsman, textured as if ruffled 
+up from the bird's back. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#95060
+statue Earnur regal XASTIRTOWER armored carved stone marble OTHER~
+a marble statue of a regal, armored man~
+A marble statue of a regal, armored man stands in an alcove.~
+   The white marble statue depicts a regal man, his chin held 
+high, his gaze resolute as he looks forward to the distance. He 
+has high cheekbones, a straight nose, his lips set with 
+determination. He is carved with ornate armor, a kite shield 
+held in front of him marked with the White Tree of Gondor. His 
+ornate helm is tucked under his arm, his hair brushed back on his 
+head neatly, holding the carved circlet of a crown. Engraved 
+neatly with Numenian-Tengwar sigils, it reads: King Earnur, Son 
+of Earnil II, King of Gondor, III 2050. 
+~
+12 4096 0
+0 0 0 0
+20000 0.000000
+0 0 0 0 37 0 1
+0.000000 0 0 0 30 0 0
+#95061
+statue Dior XASTIRTOWER corpulent short carved stone marble OTHER~
+a marble statue of a corpulent, short man~
+A marble statue of a corpulent, short man stands in an alcove.~
+   This statue depicts a rotund man dressed in fur-trimmed 
+official robes of state, the seal of the Steward hung around his 
+neck. The statue is of white marble, carved with careful detail, 
+even to showing the rings on his fingers and the sparse hairs in 
+a balding pate. The expressive, sunken eyes show a look of 
+sadness above puffed cheeks and a clean-shaven double chin. 
+Engraved neatly in Numenian-Tengwar, it reads: Steward Dior, Son 
+of Barahir, Steward of Gondor, III 2435. 
+~
+12 4096 0
+0 0 0 0
+20000 0.000000
+0 0 0 0 37 0 1
+0.000000 0 0 0 30 0 0
+#95062
+statue Ar-Pharazon XASTIRTOWER handsome tall carved stone marble OTHER~
+a marble statue of a tall, handsome man~
+A marble statue of a tall, handsome man stands in an alcove.~
+   Standing almost seven feet in height, this white marble statue 
+has been carved with exquisite care, depicting a man who in life 
+would have been handsome enough to take the breath away. He has 
+high, noble features, perfectly symmetrical, his hair carved in 
+thick, cascading waves back from his face. His eyebrows arch in 
+a self-assurance above a thin, slightly haughty smirk. Though 
+carved in ornate plates of armor, the size of his frame implies 
+the power housed within. His hand bears a longsword pointed 
+downward at a lazy angle, its point resting by his foot, the hint 
+of liquid carved running down the blade. Engraved neatly in 
+Numenian-Tengwar, it reads: Ar-Pharazon, Son of Gimilkhad King of 
+Numenor, II 3319 
+~
+12 4096 0
+0 0 0 0
+20000 0.000000
+0 0 0 0 37 0 1
+0.000000 0 0 0 30 0 0
+#95063
+ring UNIQUE_PSHARLINE willow-bough silver simple METAL~
+a simple, willow-bough silver ring~
+A simple, willow-bough silver ring has been left here.~
+   This simple ring, with three silver boughs of willow braided 
+together, is of a moderate thickness. Delicate engraving runs 
+along the length of the branches, enhancing their appearance to 
+make them near life-like. 
+~
+11 4096 3
+0 0 0 0
+12 0.000000
+0 0 0 0 0 0 1
+200.000000 0 0 0 28 0 0
+#95064
+cloak PEORUN moss green hammer chisel applique TEXTILECRAFT~
+a moss green cloak with hammer and chisel applique~
+A moss green cloak with hammer and chisel applique lies here in a heap.~
+   A moss green cloak with hammer and chisel applique lies here. 
+Made from sturdy, moss green wool this cloak is warm and 
+enveloping. It drapes from the neck down to the calf, and has a 
+deep hood to protect from the elements. The back has an 
+elaborate design of a grey, stone-like acorn with the crossed 
+hammer and chisel above it. Each edge of the elaborate applique 
+has been fastidiously stitched to the cloak, the stitches small 
+enough to go largely unnoticed. 
+~
+11 528384 1025
+0 0 0 0
+100 0.000000
+0 
+moss green-cloaked~
+0 0 8388644 0 1
+260.000000 0 0 0 7 0 0
+#95065
+eye patch leather eagle feather UNIQUE_PCANFAYRIE LEATHER~
+a leather eyepatch with an eagles feather painted on it~
+A leather eyepatch with an eagles feather painted on it, lies here.~
+A small oval of undyed leather has been stitched firmly to a long, thin leather band. On the front of the patch, an eagle's feather has been painted. It is meant to go around a wearer's head, completely covering up one eye.
+~
+11 0 67108865
+0 0 0 0
+1 0.000000
+0 0 0 15 0 0 1
+40.000000 0 0 0 14 0 0
+#95066
+map IN_PROGRESS Anorien beacons PC_BIHI_BLAIR PARCHMENT~
+a map of Anorien~
+A map of Anorien lies here.~
+ [OOC: you must use a monospaced font to view this map]
+ 
+           |                                    
+ F#6rrrrrrrrr#0B#6rrrrrrrrrrrrrrrrrrrrrr#0                         
+[ ]--[ ]---#3AaaaaA#0---[ ]--[ ]--[ ]#6r#0            
+           |    #3a#0    |    |    | #6r#0             
+ MMMMMMMM  |    #3a#0    |    |    | #6rrrrrr#0        
+        M [ ]---#3A#0---[ ]--[ ]--[ ]--[ ]#6r#0       
+        M  |    #3a#0    |    |    |    | #6r#0        
+        M  |    #3a#0    |    |    |    | #6r#0        
+        M [ ]--[ ]--[ ]--[ ]--[ ]--[ ]#6r#0         
+        M  |    #3a#0    |    |    |    | #6r#0   
+        M  |    #3a#0    |    |    |    | #6rrrrrrrrrrr#0     
+        M [ ]---#3A#0---[ ]--[ ]--[ ]--[ ]--[ ]--[ ]#6r#0     
+        M  |    #3a#0    |    |    |    |    |    | #6r#0 
+        M  |    #3a#0    |    |    |    |    |    | #6rrrrrr #0 
+        M [ ]---#3A#0---[ ]--[ ]--[ ]--[ ]--[ ]--[ ]--[ ]#6r#0
+        M  |    #3a#0    |    |    |    |    |    |    | #6r    #4R#0
+        M  |    #3a#0    |    |    |    |    |    |    | #6rrrrr#4R#0
+        M [ ]---#3A#0---[ ]--[ ]--[ ]--[ ]--[ ]--[ ]--[#9^#0]--[ ]#4R#0
+        M  |    #3a#0    |    |    |    |    |    |    |    | #4R#0
+        M  |    #3a#0    |    |    |    |    |    |    |    | #4R#0
+~
+8 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95067
+war donations huge bin wooden WOOD~
+a huge wooden donation bin~
+A huge wooden donation bin looms by a wall.~
+   This huge wooden bin looms waist-high on most men and is twice 
+as wide. The wooden planks are thick and sturdy, and a black and 
+grey flag, bearing a shield within a moon, has been tacked up at 
+the corners to drape decoratively across the front. All manner 
+of things are stowed inside the bin, ranging from pots of lantern 
+oil to polished weaponry. Smartly dressed soldiers stand on 
+stiff-backed watch beside it, and assistants constantly transfer 
+the contents to a back room. 
+   #6OOC: "donate war"#0 is the syntax. It will take whatever is 
+in your character's hands and deposit that in the storeroom, so 
+make sure you are holding what you wish to donate. 
+~
+12 4096 0
+0 0 0 0
+30000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#95068
+token wooden MT_SHELTER carved WOOD~
+a carved wooden token~
+A wooden token carved with a cupped pair of hands lies here.~
+   This small token is decorated with a crude carving of a cupped 
+pair of hands. It is round in shape and has been sanded smooth. 
+~
+12 4198400 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#95069
+breastplate polished steel MT_NUMENOR METAL~
+a polished, finely engraved, steel platemail breastplate~
+A polished, finely engraved, steel platemail breastplate has been left here.~
+   This steel breastplate has been expertly crafted, and polished 
+to a high sheen. The steel is thick and heavy, and straps onto 
+the body with dark, leather straps and silver buckles. The edges 
+are turned, providing a nice rounded trimwork around the 
+breastplate. It provides excellent protection for the torso, 
+shoulders, and back. Fine engravings cover the trimwork, written 
+in a flowing, faint script. 
+~
+9 4096 9
+4 5 0 0
+1300 0.000000
+0 0 0 50 4612 0 1
+3500.000000 0 0 0 18 0 0
+#95070
+shield kite well made engraved fine MT_ARMORY METAL~
+a well made, engraved, kite shield~
+A well made, engraved, kite shield has been left here.~
+   This shield is made from several layers of iron, pounded flat 
+to taper slightly at the edges. It is several feet across in the 
+middle, and the sides curve downwards to a point. The surface is 
+angled slightly, forming a ridge that runs vertically down the 
+middle of the shield. The entire front of the shield is polished 
+to a high sheen, with a vertical line of faint, spiralling script 
+etched into the middle. 
+~
+6 4096 8912897
+6 16 40 0
+1000 0.000000
+0 0 0 50 4612 0 1
+2000.000000 0 0 0 28 0 0
+#95072
+stone rune-covered rune UNIQUE_PNEBAVLA_CLAN OTHER~
+a rune-covered stone~
+A rune-covered stone lies here.~
+   This dark grey stone has been cut to bear many faceted sides, 
+twenty five total. Upon each side, a unique rune has been 
+crudely cut into the smooth face, the recesses darkened with soot 
+to bring out the detail. 
+~
+65 4198400 1
+24 0 0 0
+3 0.000000
+0 
+Fehu Uruz Thurisaz Ansuz Raidho Kenaz Gebo Wunjo Hagalaz Nauthiz Isa Jera Eihwaz Perthro Algiz Sowilo Tiwaz Berkano Ehwaz Mannaz Laguz Ingwaz Dagaz Othala~
+0 0 262704 0 1
+0.000000 0 0 0 30 0 0
+#95073
+stones rune handful UNIQUE_PNEBAVLA_CLAN OTHER~
+a handful of rune stones~
+A handful of rune stones are scattered here.~
+~
+65 4198400 1
+26 0 0 0
+10 0.000000
+0 
+Fehu Uruz Thurisaz Ansuz Raidho Kenaz Gebo Wunjo Hagalaz Nauthiz Isa Jera Eihwaz Perthro Algiz Sowilo Tiwaz Berkano Ehwaz Mannaz Laguz Ingwaz Dagaz Othala Blank~
+0 0 262688 0 1
+0.000000 0 0 0 30 0 0
+#95074
+pouch UNIQUE_PNEBAVLA_CLAN weathered leather cord OTHER~
+a weathered leather pouch on a cord~
+A weathered leather pouch on a cord lies here, decorated in beads and feathers.~
+   This leather pouch is quite large and is weathered by time, 
+wrinkles deeply-ingrained all over the surface. A long, leather 
+cord allows it to be tied shut but also is knotted at the ends to 
+allow it to be draped over one's neck or worn elsewhere. Faded, 
+some ancient markings can be see faintly-inked all over the 
+pouch, though most are incoherent now, and the rest only half 
+visible. Sewn onto the sideseams of the pouch are many wooden 
+beads, their color now dull, and feathers of various sizes. 
+~
+15 4096 10747909
+100 0 -1 0
+300 0.000000
+1 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+#95075
+faded forest-green cloak star MT_ARMORY TEXTILE~
+a faded forest-green cloak bearing a five-pointed star clasp~
+A faded forest-green cloak bearing a five-pointed star clasp is here.~
+   The five pointed star at the center of this burnished clasp 
+gleams brightly against the tarnished silver metal backing, 
+drawing together the folds of the cloak it adorns. The cloak 
+itself is full and bears a deep hood, though the fabric has seen 
+many, many years, having been neatly patched in several places. 
+Subtle patterns and shades have been woven in the fabric of the 
+cloak, the texture blending in with most natural surroundings. 
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+faded-green-hooded~
+0 0 4644 0 1
+1000.000000 0 0 0 7 0 0
+A
+10025 7
+A
+10024 7
+#95076
+forest-green cloak golden tree clasp TEXTILE MT_ARMORY~
+a forest green cloak adorned with a golden tree clasp~
+A forest green cloak adorned with a golden tree clasp lay here.~
+   This full, hooded cloak is drawn together by an antiquated 
+oval gilded clasp. Folds of deep forest green spill out from the 
+clasp-point, the ample fabric able to shroud the wearer and 
+muffle their movement. A subtle pattern of differing shades of 
+greens and browns has been woven into the cloak-fabric, blending 
+into most natural locations. The clasp itself is of fine 
+craftsmanship, the burnished metal bearing an archaic etching of 
+a gleaming golden tree. The metal surrounding the tree is of a 
+different hue, and somewhat subdued. 
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+forest-green-cloaked~
+0 0 4644 0 1
+3500.000000 0 0 0 7 0 0
+A
+10028 5
+A
+10024 12
+A
+10025 12
+#95077
+harness ingeniously strap buckle UNIQUE_PFHALETH LEATHER~
+an ingeniously constructed harness~
+A harness lays here discarded, formed of many leather straps and buckles.~
+   A broad leather strap, intended to encircle a person's chest, 
+just above the abdomen, forms the foundation of this harness. 
+From this first belt-like section of leather, another broad loop 
+runs at right-angles, fastened with neat stitching to the front 
+and back of the first. Buckles allow for adjustment to this 
+strap, to enable a firm comfortable fit around the shoulder of 
+the wearer. From the front of this shoulder strap extends 
+another, slightly narrower piece of leather which terminates in a 
+broad soft leather wristband, fitted with buckles which close it 
+tightly around the wrist, and if desired, then fasten the wrist 
+firmly against the body strap. In the Numenian-Tengwar script, 
+the word Haleth is carefully carved onto the shoulder strap above 
+the stitching. 
+~
+11 0 8388609
+0 0 0 0
+300 0.000000
+0 0 0 35 800 0 1
+80.000000 0 0 0 14 0 0
+#95078
+ring sapphire UNIQUE_PBRENNA gold intricate METAL~
+an intricate ring of sapphires and white gold~
+An intricate ring of sapphires and white gold is laying here.~
+   A highly untraditional piece, this ring has been designed as 
+an intricate pattern of two ribbons twisted about one another. 
+Each white gold swirl of ribbon turns about itself on the flat, 
+the loops and twirls in the design outlining dozens of small 
+channel set sapphires within it. The clarity of the ocean-blue 
+sapphires stands in stark contrast to the polished face of the 
+metal, the facets of the stones arranged to glitter marvelously 
+with any available light. The ring has been sized for the 
+slender hand of a woman. 
+~
+8 4096 3
+0 0 0 0
+5 0.000000
+0 0 0 85 0 0 1
+4100.000000 0 0 0 28 0 0
+#95079
+ring vines UNIQUE_PVARLIN gold engraved heavy METAL~
+a vine-engraved, heavy gold ring~
+A vine-engraved, heavy gold ring lay here.~
+   This ring is made of solid gold and is fitted to a male's 
+finger. An almost-delicate pattern of vines and flowers lay 
+within a channel on this band, each blossom, stem and leaf 
+carefully engraved. The metal has a deliberate antiqued look to 
+it, the vinery and flowers polished, while the metal surrounding 
+them blackened and recessed below. 
+~
+8 4096 3
+0 0 0 0
+8 0.000000
+0 0 0 85 0 0 1
+750.000000 0 0 0 28 0 0
+#95080
+NEWBIE_AREA_BOARD OOC POLICIES board new players information OTHER~
+the new players' information board~
+#6LOOK BOARD#3 to see things that you #9MUST#0 #3know and things that will #FHELP#0 #3you get adjusted. #6READ #3<#2###3> for each entry.~
+~
+12 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95081
+tavern NEWBIE_AREA_OOC quaint busy looking OTHER~
+a quaint but busy-looking tavern~
+A quaint but busy-looking tavern lies on the east side of the bridge.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95082
+sign SHELTER NEWBIE_AREA brightly painted here OTHER~
+a brightly-painted sign~
+A brightly-painted sign invites you to #6LOOK HERE#2.#0~
+#EThe Minas Tirith Shelter For The Homeless & Hungry#0
+
+#FWe are a player run, Gondor based, organization in Minas Tirith 
+that supports noncombat, crafting oriented characters who enjoy 
+big city life and related social roleplay. If you're 
+unemployed and need a place to live and try your hand at 
+crafting while exploring what the city has to offer then the 
+Minas Tirith Shelter might be the place for you.#0
+
+#FThe Shelter itself is located just south of the Other Side 
+Alehouse on the second circle of Minas Tirith. Messages may be 
+left for the Shelter's overseer with the young boy standing 
+outside the front door. To gain entrance/acceptance to the 
+Shelter and all it has to offer (crafting mentors & expansive 
+workroom) please seek out #AAgase #0or #ATaigh #Fin game.#0
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95083
+WEATHER_CODE_OBJECT thin blanket fresh white snow OTHER~
+#6a blanket of fresh white snow#0~
+#6A blanket of fresh white snow covers the ground.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 4 95084 0 0 0 0
+#95084
+WEATHER_CODE_OBJECT blanket hard compacted snow OTHER~
+#6a blanket of hard compacted snow#0~
+#6A blanket of hard compacted snow covers the ground.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#95085
+WEATHER_CODE_OBJECT patches slushy snow OTHER~
+patches of slushy snow~
+#6Patches of slushy snow cover the ground.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 12 86 0 0 0 0
+#95086
+WEATHER_CODE puddles gathered water OTHER~
+#6puddles of gathered water#0~
+#6Puddles of gathered water sit on the ground.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6 95087 0 0 0 0
+#95087
+WEATHER_CODE patches dried puddles OTHER~
+#6patches of dried puddles#0~
+#6Patches of dried puddles sit on the ground.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6 86 0 0 0 0
+#95088
+WEATHER_CODE_OBJECT thin layer ash OTHER~
+#6a thin layer of ash#0~
+#6A thin layer of ash covers everything the area.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6 95089 0 0 0 0
+#95089
+WEATHER_CODE_OBJECT scattering thinly spread ashes OTHER~
+#6a scattering of thinly spread ashes#0~
+#6A scattering of thinly spread ashes covers the area.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6 86 0 0 0 0
+#95090
+WEATHER_CODE_OBJECT cloud foul smelling fumes OTHER~
+#6a cloud of foul smelling fumes#0~
+#6A cloud of foul smelling fumes lingers here.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6 95091 0 0 0 0
+#95091
+WEATHER_CODE_OBJECT thinning cloud foul smelling fumes OTHER~
+#6a thinning cloud of foul smelling fumes#0~
+#6A thinning cloud of foul smelling fumes lingers here.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6 86 0 0 0 0
+#95092
+WEATHER_CODE_OBJECT clumps muddy ash OTHER~
+#6clumps of muddy ash#0~
+#6Clumps of muddy ash litter the ground here.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6 86 0 0 0 0
+#95093
+foreman warehouse TRADE shrewd OTHER~
+the warehouse foreman~
+A shrewd looking warehouse foreman stands here.~
+   This man stands about the height of an average male and has a 
+dominating demeanor. When at work, he bustles here and there, 
+barking orders to his team of men. 
+~
+12 4096 0
+0 0 0 0
+18000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95094
+laborers warehouse TRADE OTHER~
+a team of warehouse laborers~
+A team of warehouse laborers stand here.~
+   This team consists of an average mix of individuals hired to 
+work within a warehouse. Most of these laborers are well-muscled 
+and ply their trade well. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95095
+lading bill LADING_LEATHER ECON goods leatherworking~
+a bill of lading for leatherworking goods~
+A bill of lading has been carelessly left here.~
+You recognize that this bill of lading calls out the following items:
+10 bronze buckles
+10 spools of thick thread
+3 deer hides
+3 cow Hides
+10 strings of bronze buttons
+~
+67 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+#95096
+case display mahogany fine fashioned WOOD~
+a finely-fashioned mahogany display case~
+A finely-fashioned mahogany display case has been mounted on the wall here.~
+   A lengthy cabinet with twin glass doors, this piece's function 
+is for display. It's back is of soft, crushed velvet, and set 
+with small mounts for service medals and ribbons. On the 
+opposite side are small stands for trophies, set in an ascending 
+stair to ensure each award displayed has its own tier, and can be 
+viewed in its entirety. Fashioned of flnished mahogany, the dark 
+wood's fine grain serves as a classic, neatly-made background for 
+any award collection. 
+~
+15 4096 0
+500 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+480.000000 0 0 0 32 0 0
+#95097
+cutlass UNIQUE_PGERAINT blackened blade exotic engravings basket hilt METAL~
+an engraved, basket-hilted cutlass~
+A cutlass with a blackened blade and exotic engravings has been dropped here.~
+   The length of this weapon is just below three feet, made of 
+what seems to be solid, well-worked steel. With a slight curve 
+towards the tip, it has been carefully sharpened, holding a 
+vicious hone, its hilt affixed solidly with rivets and wrapped in 
+storm-grey leather. The hand of the wielder is protected by a 
+cupped handguard, made of some type of stained brass. Engravings 
+have been carefully drawn on the surface of the brass, depicting 
+a fox bearing a trident below a willow tree, with what seems to 
+be swirling waves around it. The weapon has a comfortable, solid 
+heft and weight, and holds an excellent balance, which offers 
+ease to the wielder for a wide range of motions. The darkened 
+surface of the brass handguard is peer to the blade, which has 
+been blackened through some process on the metal, yielding a 
+matte surface that does not reflect the light. The quality of 
+the metal, the engraving and complexity of the darkening, show 
+the skill of the western weaponsmith that forged this piece. 
+~
+5 4096 8193
+0 1 9 3
+400 0.000000
+4 0 0 34 0 0 1
+1200.000000 0 0 0 28 0 0
+S
+100003
+#95098
+axe EXPERT_QUALITY UNIQUE_PGERAINT massive engravings ravens watery steel METAL~
+a raven-engraved, watery steel axe~
+A massive axe with engravings of ravens has been dropped here.~
+   A heavy, brutal weapon, this double-headed greataxe is a piece 
+designed with fierce violence as goal. Made of fine steel, the 
+metal has been polished and worked as to have a watery, slightly 
+rippled appearance, forming twin crescent blades. Over the 
+surface of the steel, on each face, a flight of ravens have been 
+meticulously drawn. Long depressions emit from the center of the 
+axe-head, both adding to the engravings and slightly lessening 
+the overall weight of the weapon. The shaft is long and sturdy, 
+making this axe stand half as tall as a man. The wood looks hard 
+and strong, and has been wrapped in black strips of leather. At 
+the end of the shaft a square of thick steel has been affixed, 
+adding counterbalance to the weapon. The axehead seems to have 
+been forged from one massive piece of metal, worked into the 
+proper shape, which indicates this is a weapon for one both of 
+great strength and a devastating, blunt style of combat. 
+~
+5 4096 8193
+0 2 7 4
+800 0.000000
+4 0 0 34 0 0 1
+1200.000000 0 0 0 18 0 0
+#95099
+dice dies bones crude xzLOADED OTHER~
+a bone die~
+A small cube of bone has been discarded here.~
+~
+65 4198400 1
+6 0 0 0
+1 0.000000
+0 
+one two four four dagger skull~
+0 0 0 0 1
+53.000000 0 0 0 0 0 0
+#95100
+blanket UNIQUE_PLUCIUN soft pale blue snowflake baby TEXTILE~
+a soft, pale blue, snowflake decorated baby blanket~
+A soft, pale blue, snowflake decorated baby blanket is here.~
+   This small blanket has been crafted from the softest of wools. 
+The thick fabric is pale blue in color, and starting in one 
+corner is an intricately embroidered silver snowflake design. 
+The first six-sided shape is the largest and most detailed. 
+Radiating out from the corner is a series of smaller snowflakes, 
+each one unique. 
+~
+47 4096 1025
+0 0 0 0
+100 0.000000
+0 0 0 0 4 0 1
+100.000000 0 0 0 7 0 0
+#95101
+tunic UNIQUE_PBLYTHE UNIQUE_PLUCIUN UNIQUE_HEREN_CARNATALION azure woolen embroidered white winged horse TEXTILE~
+an azure woolen tunic embroidered with a white winged horse~
+An azure woolen tunic embroidered with a white winged horse is folded here.~
+   This tunic has been knitted from wool dyed azure in colour, 
+the material reaching down to the mid-thighs and elbows while 
+worn. Fairly loose, the tunic does little to restrict movement 
+and is of sturdy enough work and design to survive the rigours of 
+everyday life. Embroidered on the right side of the breast is a 
+prancing winged horse wielding a sword, the borders done in 
+stem-stitch and the filled-in areas done in satin-stitch, all in 
+fine white linen thread. 
+~
+47 4096 9
+0 0 0 0
+175 0.000000
+0 0 0 0 0 0 1
+200.000000 0 0 0 3 0 0
+#95102
+dress UNIQUE_PBLYTHE UNIQUE_PLUCIUN UNIQUE_HEREN_CARNATALION azure woolen embroidered white winged horse TEXTILE~
+an azure woolen dress embroidered with a white winged horse~
+An azure woolen dress embroidered with a white winged horse is folded here.~
+   This plain woolen dress is dyed azure, and cut to cover the 
+body modestly. Several gores give it fullness. It flows from 
+the neck to the ankles, with two long gores that run from under 
+the armhole to the ground in flaring panels. The sleeves are 
+long and fitted, with embroidered burgundy diamonds around their 
+edges. Embroidered on the right side of the breast is a prancing 
+winged horse wielding a sword, the borders done in stem-stitch 
+and the filled-in areas done in satin-stitch, all in fine white 
+linen thread. 
+~
+47 4096 9
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+250.000000 0 0 0 3 0 0
+#95103
+chalkholder UNIQUE_POFERINUR engraved silver OTHER~
+an engraved silver chalkholder~
+An engraved silver chalkholder has been set here.~
+   Engraved with entertwining vines and leaves, this cylinder of 
+silver holds a piece of chalk firmly, only a fraction of the 
+chalk protruding out of the opening. 
+~
+55 4096 33554433
+0 0 0 0
+25 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 0 0 0
+A
+10105 10
+#95104
+lute string metal brightly glimmering METAL~
+a brightly-glimmering lute string~
+A brightly-glimmering lute string lays here.~
+   This lute string is of enough length to suit its purpose and 
+is composed of highly tempered metal. It has been well-crafted 
+and shines faintly in the light. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+100.000000 0 0 0 28 0 0
+#95105
+cuirass UNIQUE_SAELTHORN bronze eagle inlaid steel cuirass METAL~
+an steel cuirass, inlaid with a bronzed eagle~
+A polished steel cuirass inlaid with a bronzed white tailed eagle, lies here.~
+   A finely crafted, steel cuirass has been polished to a 
+high sheen. Placed over the heart is the detailed figure of 
+a white tailed eagle. Enchased exquisitely in bronze, the 
+white tailed eagle has its great wings spread wide, its 
+wing tips reaching up along each side of the neck. Facing 
+outward, the eagle's deadly talons and sharp beak are open, 
+ready to rain death upon its prey. Its eyes, intense and 
+intelligent, bear fine but subtle etchings of the White Tree.
+Polished steel bands form articulated pauldrons that cover 
+the shoulders and the upper portion of the arms. All edges
+are tightly rolled and all fasteners have been enameled in
+black. The straps are of tooled leather, and the inside 
+surfaces are lightly padded and covered in soft deerhide.
+~
+9 4096 9
+3 5 0 0
+1200 0.000000
+0 0 0 30 4613 0 1
+2000.000000 0 0 0 16 0 0
+A
+10025 -20
+A
+10024 -20
+A
+10037 -10
+#95106
+cloak UNIQUE_POFSYNERTH patchwork wolf fur TEXTILE~
+a patchwork wolf fur cloak~
+A patchwork wolf fur cloak has been set here.~
+   The black fur of this cloak is greasy and all along its 
+length, one can see many patches of linen and wool. The pelts 
+appear to have been quickly whipped together in a hasty fashion 
+with not much care taken. It appears this cloak has been lucky 
+enough to have some extra stitching added to it, as a good size 
+pocket has been sewn to one front on the inside. 
+~
+15 528384 1025
+1000 0 -1 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#95107
+tunic UNIQUE_ POFSYNERTH patchwork dreary blue linen TEXTILE~
+a patchwork tunic of dreary blue linen~
+A patchwork tunic of dreary blue linen has been left here.~
+   While the tunic's main colour seems of at least once been a 
+dreary white, it has clearly had some recent patchwork done to 
+it--off cuts of blue wool, and linen have been sewn in to cover 
+holes and probably stains. The stitching seems to have been 
+reinforced also. But overall, the garment is still shoddy, itchy 
+and uncomfortable. 
+~
+15 4096 9
+1500 0 0 0
+200 0.000000
+0 0 0 0 2056 0 1
+0.000000 0 0 0 2 0 0
+#95108
+hammer SIMPLE_QUALITY ugly gray iron thick oak massive heavy METAL~
+an ugly, gray-iron hammer with a thick oak shaft~
+A massive hammer with a heavy iron head lies here unattended.~
+   This hammer is absolutely enormous, obviously requiring 
+someone of immense strength to wield it with any sort of 
+effectiveness. Its square iron head alone is nearly the length 
+of a man's forearm, and the shaft reaches three feet in length, 
+made up of rounded, heavy oak. Leather is wrapped around the 
+bottom half to provide a secure grip. 
+~
+5 4096 270337
+0 2 5 7
+1500 0.000000
+3 0 0 29 4 0 1
+98.000000 0 0 0 17 0 0
+#95109
+surcoat UNIQUE_POFLUCIUN long grey white linen shirt TEXTILE~
+a long grey surcoat over a white linen shirt~
+A long grey surcoat and a white linen shirt are here.~
+   With slits up both sides, this long surcoat hangs past the 
+wearer's knees. Trimmed in a darker shade of grey then the rest 
+of the garment, the hem, neck, and sleeves all bear the detailed 
+embroidery of a flowing design. Worn beneath this sturdy surcoat 
+is a comfortable white linen shirt. Its long sleeves are roomy, 
+and flare out slightly at the cuffs. 
+~
+11 4096 9
+0 0 0 0
+150 0.000000
+0 0 0 0 4 0 1
+0.000000 0 0 0 2 0 0
+#95110
+cloak UNIQUE_POFBLYTHE hooded scarlet horse appliqued silvery grey TEXTILE~
+a hooded, scarlet-horse-appliqued, silvery grey wool cloak~
+A hooded, scarlet-horse-appliqued, silvery grey wool cloak has been left here.~
+   Fashioned in a usable, yet not extravagent manner, this cloak 
+is formed of thick wool, warm enough to protect against the 
+chills of a cold night. Dyed silver grey, it reaches down to the 
+ankles of its wearer, and a long, deep hood is sewn into the back 
+to offer further protection from the weather. Appliqued in linen 
+onto the back is a large rearing pale scarlet horse, darker 
+pieces of fabric outlining the eyes, shadows of musculature, 
+hooves, mane and tail in a semi-stylised manner. The stitching 
+is neat and precise, done in white thread. 
+~
+11 528384 1025
+0 0 0 0
+400 0.000000
+0 
+silvery-grey-cloaked~
+0 0 4 0 1
+0.000000 0 0 0 7 0 0
+#95111
+falchion bronze slender runed blade xUNIQUE-Zajar finely-etched steel-bladed METAL~
+a steel falchion with a slender, runed blade~
+A bronze-hilted steel-bladed falchion lies here~
+   Consisting of a single-edged, tempered steel blade, this 
+falchion's form is far from standard. The back of the blade is 
+straight, yet its edged side shaped gracefully. Quite narrow at 
+the crossguard, it curves sharply outward creating a jutting 
+hook, then its width is gradually reduced as the curve reverses 
+inward. The length between the hook and tip is narrower until it 
+widens outward again near the end, allowing for battering 
+strikes. Deep blood grooves run along each side, lined with 
+strange runes. The crossguard is of bronze, forged in low-relief 
+to depict the head of a mystical horned beast and its hilt is 
+wrapped in a tooled greenish leather, worn and cracked from use. 
+The pommel a clawlike hook, a small flame scratched in it. 
+~
+5 4096 8193
+0 1 9 3
+600 0.000000
+2 0 0 25 520 0 1
+750.000000 0 0 0 18 0 0
+A
+18 1
+#95112
+headstone granite engraved sculpted unique_pofNissah gravestone STONE~
+a sculpted gravestone~
+A finely sculpted, engraved, granite headstone has been set here.~
+[Finely engraved in Numenian-Tengwar]
+ 
+            Nissah  Naira 
+            ' The Witch ' 
+             ' Clyo-ha '
+          Daughter of Naira
+  
+     Born 2454         Died 2480 
+ 
+" I did not waste my time in life, do
+     not waste yours mourning me."
+ 
+~
+12 4096 0
+0 0 0 0
+4000 0.000000
+0 0 0 10 256 0 1
+250.000000 0 0 0 30 0 0
+#95113
+bin UNIQUE_PDAMBETH modified windowed test chamber xPHEAR WOOD~
+a medium-sized windowed wooden bin~
+#5A medium-sized wooden bin, modified with a glass window in the front sits here.~
+   This medium sized wooden bin has a pair of wooden handles fastened 
+on each side. The front of the bin has a small glass window built in to it 
+with two pairs of small holes, on either side and slightly below the glass 
+window.Mounted in these holes are leather gauntlets, allowing a person to 
+manipulate items placed inside the bin. Wax has been generously rubbed into 
+the seams and joints of the gauntlets, sealing them. The inside of the bin 
+has been generously coated in tar with special attention to the joints and 
+seams. A strip of narrow, waxed deer hide runs along the top edge of the 
+bin, allowing for a tight seal when the lid is closed. Heavy metal latches
+have been affixed to the bin to secure the lid. Inside the bin, two small
+burlap sacks have been attached to the walls.
+~
+15 4096 1
+300 0 -1 0
+10000 0.000000
+0 0 0 30 516 0 1
+80.000000 0 0 0 32 0 0
+#95114
+hauberk cuirbouilli leather xUnique-PcErinur xPHEAR LEATHER~
+a storm-grey, embossed cuirbouilli hauberk~
+A storm-grey, embossed cuirbouilli hauberk rests here.~
+   This thick leather cuirbouilli hauberk has been masterfully 
+crafted and custom-fitted for a very tall, lean man. As much a work 
+of art as it is functional, this armor serves to offer lightweight 
+protection to its wearer as well as presenting a handsome and 
+fashionable appearance. On the left breast, a small, exquisitely 
+embossed symbol depicts a rosebud, dyed the soft red of a winter 
+rose, surrounded by three tiny stars, gilded with gold foil. It wraps
+around the wearer's body snugly, and is well padded on the inside 
+to promote comfort and to turn away penetrating blows. The leather 
+softens as it moves closer to the wearers hips and waist, allowing 
+for freedom of movement.  Belt loops along the side make for excellent 
+support of a belt. Along the head and armholes, rivets to allow the 
+wearer to fasten a gorget and sleeves can be found.
+~
+9 4608 9
+3 1 0 0
+750 0.000000
+0 0 0 35 4612 0 1
+300.000000 0 0 0 14 0 0
+#95115
+vambraces storm-grey cuirbouilli leather xUnique-PcErinur xPHEAR LEATHER~
+a pair of storm-grey, cuirbouilli vambraces~
+A pair of circular pieces of leather lie here.~
+   Made of supple, storm-grey leather, masterfully worked, these 
+vambraces were designed to cover the wearer's arms from the shoulder 
+down to the forearm in a snug fit. Rigid cuirbouilli leather has been 
+artfully riveted onto the shoulder area, trimmed with a tasteful stamped 
+design of fine, intricate knots.  Hard leather has also been fastened to 
+the upper arm, forearm, and a round cup to protect the elbow, allowing 
+for ease of movement and as much protection as can be provided.  Straps 
+with black enameled steel buckles allow them to be attached to a hauberk.  
+~
+9 4608 257
+3 1 0 0
+150 0.000000
+0 0 0 35 4612 0 1
+120.000000 0 0 0 14 0 0
+#95116
+leggings cuirbouilli leather xUnique-PCErinur xPHEAR LEATHER~
+a pair of storm-grey cuirbouilli leggings~
+A pair of supple, storm-grey leather leggings is here, lined with rigid leather.~
+   Made of supple, tight-fitting leather, masterfully crafted, these 
+leggings were designed to ease the wearer's ability to travel. For 
+protection, two rigid cuirbouilli skirts, edged with a tasteful stamped 
+pattern of fine, intricate knots, have been riveted to the waist and along 
+either leg to cover the thighs.  The same rigid leather has been riveted 
+to the knee area and down the shins.  The leggings are quite long, 
+obviously made for a very tall man tending toward lankiness.
+~
+9 4096 33
+3 1 0 0
+600 0.000000
+0 0 0 35 4612 0 1
+300.000000 0 0 0 14 0 0
+#95117
+gorget hard leather xUnique-PCErinur xPHEAR LEATHER~
+a storm-grey hard leather gorget~
+A storm-grey hard leather gorget is here.~
+   Ingenuously crafted of rigid pieces of leather padded with fine 
+linen, this gorget affords some comfort as well as protection. It 
+attaches to a hauberk by small straps and black enameled steel buckles. 
+The leather has been boiled in wax and left to harden, and dyed 
+storm-grey.
+~
+9 4096 5
+2 1 0 0
+200 0.000000
+0 0 0 35 4612 0 1
+120.000000 0 0 0 14 0 0
+#95118
+helm leather xUnique-PCErinur xPHEAR LEATHER~
+a storm-grey leather-covered helm~
+A storm-grey leather-covered helm is here.~
+   This helmet consists of a round cap of metal, padded on the inside 
+with fine, quilted linen. The outside is covered in storm-grey, thin 
+leather, expertly fitted to the metal. Space is made for the eyes to 
+keep their full range of vision. The back of the head and neck are 
+covered. A pair of thick cheekguards extend to cover the sides of the 
+wearer's face and mouth. The entirety of the border of the facial opening 
+has been embossed with a tiny pattern of intricate knots. A thick leather 
+strap passes under the chin to secure the helm.
+~
+9 4096 17
+2 5 0 0
+400 0.000000
+0 0 0 35 4612 0 1
+250.000000 0 0 0 14 0 0
+#95119
+gauntlet leather xUnique-PCErinur xPHEAR LEATHER~
+a pair of storm-grey leather gauntlets~
+A pair of storm-grey leather gauntlets lies here.~
+   Sturdy leather, dyed storm-grey, has been masterfully crafted into 
+a pair of light but protective gauntlets that cover the wrists and the 
+backs of the hands, leaving the fingers free for fine work. The leather 
+extends up the forearm, and is cuffed below the elbow. Laces close the 
+underside of the forearms.
+~
+9 4096 129
+2 1 0 0
+300 0.000000
+0 0 0 35 4612 0 1
+90.000000 0 0 0 14 0 0
+#95120
+hauberk UNIQUE_PDAMBETH cuirbouilli leather xPHEAR LEATHER~
+a mist-grey, embossed cuirbouilli hauberk~
+A mist-grey, embossed cuirbouilli hauberk rests here.~
+   This thick leather cuirbouilli hauberk has been masterfully 
+crafted and custom-fitted for a slender woman. As much a work of art 
+as it is functional, this armor serves to offer lightweight protection 
+to its wearer as well as presenting a close-fitting and fashionable 
+appearance. On the left breast, a small, exquisitely embossed symbol 
+depicts a rosebud, dyed the soft red of a winter rose, surrounded by 
+three tiny stars, gilded with gold foil. It wraps around the wearer's 
+body snugly, curving to allow room for the breasts, presenting a 
+flattering and protective figure. On the underside of the mist-colored 
+leather, the hauberk is well padded to promote comfort and to turn away 
+penetrating blows. The leather softens and narrows  as it moves closer 
+to the wearers waist before flaring over the hips, allowing for freedom 
+of movement. Belt loops along the side make for excellent support of a 
+belt. Along the head and armholes, rivets to allow the wearer to fasten 
+a gorget and sleeves can be found.   
+~
+9 4096 9
+3 1 0 0
+750 0.000000
+0 0 0 35 4612 0 1
+300.000000 0 0 0 14 0 0
+#95121
+vambraces UNIQUE_PDAMBETH mist-grey cuirbouilli xPHEAR LEATHER~
+a pair of mist-grey, cuirbouilli vambraces~
+A pair of circular pieces of leather lie here.~
+   Made of supple, mist-grey leather, masterfully worked, these 
+vambraces were designed to cover the wearer's arms from the shoulder down 
+to the forearm in a snug fit. Rigid cuirbouilli leather has been artfully 
+riveted onto the shoulder area, trimmed with a tasteful stamped design of 
+fine, intricate knots. Hard leather has also been fastened to the upper 
+arm, forearm, and a round cup to protect the elbow, allowing for ease of 
+movement and as much protection as can be provided. Straps with black
+enameled steel buckles allow them to be attached to a hauberk.  
+~
+9 4608 257
+3 1 0 0
+150 0.000000
+0 0 0 35 4612 0 1
+120.000000 0 0 0 14 0 0
+#95122
+leggings UNIQUE_PDAMBETH cuirbouilli xPHEAR LEATHER~
+a pair of mist-grey cuirbouilli leggings~
+A pair of supple, mist-grey leather leggings is here, lined with rigid leather.~
+   Made of supple, tight-fitting leather, masterfully crafted to fit 
+a feminine form, these leggings were designed to ease the wearer's ability 
+to travel. For protection, two rigid cuirbouilli skirts, edged with a 
+tasteful stamped pattern of fine, intricate knots, have been riveted to 
+the waist and along either leg to cover the thighs. The same rigid leather 
+has been riveted to the knee area and down the shins.  
+~
+9 4096 33
+3 1 0 0
+600 0.000000
+0 0 0 35 4612 0 1
+300.000000 0 0 0 14 0 0
+#95123
+gorget UNIQUE_PDAMBETH hard xPHEAR LEATHER~
+a mist-grey hard leather gorget~
+A mist-grey hard leather gorget is here.~
+   Ingenuously crafted of rigid pieces of leather padded with fine 
+linen, this gorget affords some comfort as well as protection. It attaches 
+to a hauberk by small straps and black enameled steel buckles. The leather 
+has been boiled in wax and left to harden, and dyed mist-grey.  
+~
+9 4096 5
+2 1 0 0
+200 0.000000
+0 0 0 35 4612 0 1
+120.000000 0 0 0 14 0 0
+#95124
+helm UNIQUE_PDAMBETH xPHEAR LEATHER~
+a mist-grey leather-covered helm~
+A mist-grey leather-covered helm is here.~
+   This helmet consists of a round cap of metal, padded on the inside 
+with fine, quilted linen. The outside is covered in mist-grey, thin leather, 
+expertly fitted to the metal. Space is made for the eyes to keep their full 
+range of vision. The back of the head and neck are covered. A pair of thick cheekguards extend to cover the sides of the wearer's face and mouth. The 
+entirety of the border of the facial opening has been embossed with a tiny 
+pattern of intricate knots. A thick leather strap passes under the chin to 
+secure the helm.  
+~
+9 4096 17
+2 5 0 0
+400 0.000000
+0 0 0 35 4612 0 1
+250.000000 0 0 0 14 0 0
+#95125
+gauntlet UNIQUE_PDAMBETH xPHEAR LEATHER~
+a pair of mist-grey leather gauntlets~
+A pair of mist-grey leather gauntlets lies here.~
+   Sturdy leather, dyed mist-grey, has been masterfully crafted into 
+a pair of light but protective gauntlets that cover the wrists and the 
+backs of the hands, leaving the fingers free for fine work. The leather 
+extends up the forearm, and is cuffed below the elbow. The cuff is 
+embossed with a small rosebud encircled by three tiny stars. Laces 
+close the underside of the forearms. 
+~
+9 4096 129
+2 1 0 0
+300 0.000000
+0 0 0 35 4612 0 1
+90.000000 0 0 0 14 0 0
+#95126
+flag UNIQUE_POFLUCIUN forest green white tree gondor OTHER~
+a forest green flag bearing the White Tree~
+A forest green flag bearing the White Tree of Gondor flies here.~
+   Dyed a strong forest-green in color, this flag has been 
+emblazoned with a stoic White Tree in the center. The tree's 
+branches reach up towards a line of white stars, which complete 
+the symbol of the Steward of Gondor. The borders of the flag 
+have been finished in white, and the flag has been attached to a 
+long wooden pole. 
+~
+12 4096 1
+0 0 0 0
+300 0.000000
+0 0 0 29 0 0 1
+0.000000 0 0 0 0 0 0
+#95127
+dress UNIQUE_POFLUCIUN UNIQUE_POFBORMEGIL UNIQUE_HEREN_CARNATALION azure woolen argent seabird TEXTILE~
+an azure woolen dress embroidered with an argent seabird~
+An azure woolen dress embroidered with an argent seabird has been left here.~
+   This plain woolen dress is dyed azure, and cut to cover the 
+body modestly. Several gores give it fullness. It flows from 
+the neck to the ankles, with two long gores that run from under 
+the armhole to the ground in flaring panels. The sleeves are 
+long and fitted, with embroidered burgundy diamonds around their 
+edges. Embroidered on the breast is an argent seabird, it wings 
+outstretched. Both talons extended forward; the right bearing a 
+sword, the left a scroll. 
+~
+47 4096 9
+0 0 0 0
+175 0.000000
+0 0 0 0 0 0 1
+200.000000 0 0 0 3 0 0
+#95128
+ring UNIQUE_PDAMBETH band delicate gleaming gold xPHEAR METAL~
+a delicate, gleaming gold, etched ring~
+A delicate band of smooth, gleaming, etched gold has been set here.~
+   This band of warm, gleaming gold is smooth and delicate, made to fit 
+a woman's finger. It is intricately etched with an exquisite rosebud 
+surrounded by three tiny stars.  
+~
+12 4096 3
+0 0 0 0
+2 0.000000
+0 0 0 30 4096 0 1
+650.000000 0 0 0 28 0 0
+#95129
+heavy band gleaming gold ring Unique_Pof_erinur byPhear METAL~
+a heavy gleaming gold, etched ring~
+A heavy band of smooth, gleaming, etched gold has been set here.~
+   This band of warm, gleaming gold is smooth and heavy, made to fit 
+a large man's hand. It is intricately etched with an exquisite rosebud 
+surrounded by three tiny stars.
+~
+12 4096 3
+0 0 0 0
+5 0.000000
+0 0 0 30 4096 0 1
+650.000000 0 0 0 28 0 0
+#95130
+armband POFBORMEGIL azure embroidered argent seabird TEXTILE~
+an azure armband embroidered with an argent seabird~
+An azure armband embroidered with an argent seabird lies here.~
+   Little more than a band of azure-dyed wool, this armband has 
+aseabird with wings outspread and both talons extended forward; 
+the right bearing a sword, the left a scroll embroidered in 
+argent-grey thread. The pattern uses stem-stitching for the 
+outline and satin-stitching to fill the solid areas, the rest of 
+the work done in neat, exact stitches. 
+~
+11 4096 134217729
+0 0 0 0
+110 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#95131
+tunic UNIQUE_POFBORMEGIL UNIQUE_POFLUCIUN UNIQUE_HEREN_CARNATALION azure woolen embroidered argent seabird TEXTILE~
+an azure woolen tunic embroidered with an argent seabird~
+An azure woolen tunic embroidered with an argent seabird has been set here.~
+   This tunic has been knitted from wool dyed azure in colour, 
+the material reaching down to the mid-thighs and elbows while 
+worn. Fairly loose, the tunic does little to restrict movement 
+and is of sturdy enough work and design to survive the rigours of 
+everyday life. Embroidered on the right side of the breast is an 
+argent seabird with its wings outspread. Talons extended foward, 
+the right bearing a sword, the left a scroll.
+~
+11 4096 9
+0 0 0 0
+125 0.000000
+0 0 0 0 0 0 1
+200.000000 0 0 0 3 0 0
+#95132
+dress UNIQUE_LISETTE_NPC layered many bright colors ribbons UNIQUE_NOCHT TEXTILE~
+a many-layered dress of bright colors and ribbons~
+A dress of many layers of colors and ribbons has been left here.~
+   Layers upon layers of many types of cloth comprise this dress, 
+the pieces of fabric those of different sorts--cotton, linen, and 
+wool as well as a few here and there of silk and velvet. They 
+have been sewn at various locations, making it a splash of fabric 
+and bright colors from pink to yellow and blue to red and green. 
+Equally varied in color and material are a multitude of thin and 
+wide ribbons alike, a few boasting tiny bells or beads at the 
+tips. The arrangement of the cloth pieces and ribbons together 
+is such that the original sky blue color of the dress shows only 
+at the snug-fitting bodice, contrasting with the yellow ties. 
+Long sleeves of a sort have been layered and cut to where they 
+often show the wearer's arms during movement. Despite the 
+loudness and seeming disorganization of the dress, it appears to 
+have been carefully hemmed and sewn in places, with no tattered 
+threads or unraveling cloths. 
+~
+15 4096 9
+10000 0 0 0
+250 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 7 0 0
+#95133
+leggings UNIQUE_LISETTE_NPC patched pale pink neatly UNIQUE_NOCHT TEXTILE~
+a pair of neatly-patched pale pink leggings~
+A pair of neatly-patched pale pink leggings has been set here.~
+   Made of a pale pink linen, these leggings have faded in color 
+though they still seem to be well-kept and cared for. Patches of 
+varying vivid colors have been neatly sewn into them with tiny 
+stitches, some small while others are rather large. The 
+arrangement suggests that the locations of the patching may have 
+been more intentional than by circumstance. 
+~
+11 4096 33
+0 0 0 0
+100 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 7 0 0
+#95134
+shawls UNIQUE_LISETTE_NPC thin layered pink blue yellow set UNIQUE_NOCHT TEXTILE~
+thin, layered shawls of pink, blue, and yellow~
+A set of three thin shawls have been left here in a heap.~
+   Each made of thin fabric, a set of three shawls have been 
+carefully arranged one on top of the next. Of pink, blue, and 
+yellow fabric, they are bright and vibrant, the cloth looking 
+well-cared for. At parts of the hems of each are small ribbons, 
+enabling the wearer to keep them as a single unit without 
+difficulty or to loosen them into three with extra decoration. 
+~
+11 4096 1025
+0 0 0 0
+50 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 7 0 0
+#95135
+locket UNIQUE_LISETTE_NPC tarnished silver oval chain UNIQUE_NOCHT METAL~
+a tarnished oval locket on a silver chain~
+A tarnished oval locket on a silver chain has been set here.~
+   Made of a now-tarnished metal that might be identifiable with 
+effort as silver, this small locket has been made in the shape of 
+an oval. A tiny catch on the side permits it to be opened, 
+though the space it reveals seems too small to keep any item of 
+real interest. It has been suspended from a thin silver chain. 
+~
+15 4096 2097157
+1000 0 0 0
+5 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 28 0 0
+#95136
+bracelet UNIQUE_LISETTE_NPC charms tiny UNIQUE_NOCHT METAL~
+a bracelet of tiny charms~
+A bracelet of tiny charms has been set here.~
+   While the main, unifying chain part of this bracelet is made 
+of a sturdy bronze, most of it is hidden by the series of odd 
+objects dangling from it. Small bells and beads, as well as 
+thin, short ribbons and a few tiny gems have been securely 
+attached to it, movement causing a light twinkling sound when 
+they fall against each other. 
+~
+11 4096 4097
+0 0 0 0
+10 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 20 0 0
+#95137
+box UNIQUE_LISETTE_NPC medium simple wooden UNIQUE_NOCHT WOOD~
+a simple wooden box of medium size~
+A simple wooden box of medium size has been set here.~
+   Carved from sturdy-looking but not very expensive wood, this 
+rectangular shaped box is of medium size. The depth is that to 
+allow many small objects to be placed into it, and the length 
+allows for those longer items as well. The lid of the box 
+appears to be able to be lifted from it to expose the contents, 
+often held in place by a ribbon or piece of rope. 
+~
+15 4096 1
+10000 0 -1 0
+200 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 32 0 0
+#95138
+ribbons UNIQUE_LISETTE_NPC set different color hair UNIQUE_NOCHT TEXTILE~
+a set of different-colored ribbons~
+A set of different-colored ribbons has been left here.~
+   Five ribbons of different vibrant colors have been gathered 
+together, used as a single ribbon to wear in one's hair. The 
+edges of each have been neatly-hemmed and well-kept. 
+~
+11 4096 33554433
+0 0 0 0
+5 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 7 0 0
+#95139
+sash UNIQUE_LISETTE ribbons array interwoven colorful long UNIQUE_NOCHT TEXTILE~
+an array of interwoven, colorful long ribbons~
+An array of colorful long ribbons have been left here.~
+   At least ten lengthy ribbons of different colors and fabrics 
+have been loosely woven together, used as a makeshift sash. The 
+ends of each are neatly-hemmed, the colors still vibrant. 
+~
+11 4096 2049
+0 0 0 0
+5 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 7 0 0
+#95140
+puppet UNIQUE_LISETTE_NPC regal female hand UNIQUE_NOCHT OTHER~
+a regal female hand-puppet~
+A regal female hand-puppet has been left here.~
+   This small female puppet has been made from sturdy, pale 
+beige-colored fabric, which has been sewn into its design of a 
+replica of the human form. The face is comprised of two grey 
+button eyes, while the nose and mouth have been painted on. 
+Black yarn has been sewn to the top of the head, mimicking the 
+appearance of hair, and accented by a thin golden thread serving 
+as a makeshift circlet. Tiny ears have been attached beneath the 
+hair, while the other details such as fingers have simply been 
+marked by embroidery knots. An imitation in miniature of a dark 
+blue silk dress allows the puppet to remain clad, sewn to its 
+form from the waist up too securely to allow for its movement. 
+From the waist down, however, the fabric of the skirt is loose 
+and flowing, ending at tiny black cloth slippers sewn onto its 
+feet. An opening at the back of the puppet and a hollowness 
+within allows for it to be controlled with one's hand. 
+~
+11 4096 129
+0 0 0 0
+100 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95141
+puppet UNIQUE_LISETTE_NPC regal male hand UNIQUE_NOCHT OTHER~
+a regal male hand-puppet~
+A regal male hand-puppet has been left here.~
+   This small male puppet has been made from sturdy, pale 
+beige-colored fabric, which has been sewn into its design of a 
+replica of the human form. The face is comprised of two grey 
+button eyes, while the nose and mouth have been painted on. A 
+light layer of black embroidery mimics the appearance of hair on 
+the top of the head, and is accented by a thin golden thread 
+serving as a makeshift circlet. Tiny ears have been attached 
+beneath the hair, while the other details such as fingers have 
+simply been marked by embroidery knots. An imitation in 
+miniature of a dark blue silk tunic and leggings allows the 
+puppet to remain clad--the tunic has been sewn closely to the 
+puppet to keep from it loosening, though from about the waist 
+down, the fabric is loose. The leggings are closely fitted to 
+the man's legs, ending at tiny black cloth slippers sewn onto its 
+feet. An opening at the back of the puppet and a hollowness 
+within allows for it to be controlled with one's hand. 
+~
+11 4096 129
+0 0 0 0
+100 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95142
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+11 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95143
+dragon UNIQUE_LISETTE_NPC lizard hand puppet large green UNIQUE_NOCHT OTHER~
+a handheld puppet of a large green lizard~
+A handheld puppet of a large green lizard has been set here.~
+   This puppet has been made of a sturdy cloth dyed a dark shade 
+of green, though embroidered patches allow for different shades 
+to comprise scales of sorts on its body. It has stiff pieces of 
+material sewn onto parts of it for ridges, along the creature's 
+back and down the tail of similar material. Its eyes are of red 
+buttons, and its mouth has been embroidered in red thread. From 
+the back, there is an opening that allows for it to be controlled 
+by hand. 
+~
+11 4096 129
+0 0 0 0
+100 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95144
+puppet UNIQUE_LISETTE_NPC male generic hand UNIQUE_NOCHT OTHER~
+a generic hand-held male puppet~
+A generic hand-held male puppet has been left here.~
+   This small puppet has been made from sturdy, pale 
+beige-colored fabric, which has been sewn into its design of a 
+replica of the human form. The face is comprised of two button 
+eyes, while the nose and mouth have been painted on. A light 
+layer of brown embroidery mimics the appearance of hair on the 
+top of the head. Tiny ears have been attached beneath the hair, 
+while the other details such as fingers have simply been marked 
+by embroidery knots. An opening at the back of the puppet and a 
+hollowness within allows for it to be controlled with one's hand. 
+~
+11 4096 129
+0 0 0 0
+100 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95145
+puppet UNIQUE_LISETTE_NPC female generic hand UNIQUE_NOCHT OTHER~
+a generic hand-held female puppet~
+A generic hand-held female puppet has been left here.~
+   This small puppet has been made from sturdy, pale 
+beige-colored fabric, which has been sewn into its design of a 
+replica of the human form. The face is comprised of two button 
+eyes, while the nose and mouth have been painted on. Several 
+strands of thick brown yarn have been sewn in, serving to mimic 
+the appearance of hair on the top of the head. Tiny ears have 
+been attached beneath the hair, while the other details such as 
+fingers have simply been marked by embroidery knots. An opening 
+at the back of the puppet and a hollowness within allows for it 
+to be controlled with one's hand. 
+~
+11 4096 129
+0 0 0 0
+100 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95146
+dress UNIQUE_LISETTE_NPC miniature $color cloth PUPPET_CLOTHES UNIQUE_NOCHT OTHER~
+a miniature dress of $color cloth~
+A miniature dress of $color cloth has been left here.~
+~
+12 33558528 1
+0 0 0 0
+5 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95147
+tunic UNIQUE_LISETTE_NPC miniature $color cloth PUPPET_CLOTHES UNIQUE_NOCHT OTHER~
+a miniature tunic of $color cloth~
+A miniature tunic of $color cloth has been left here.~
+~
+12 33558528 1
+0 0 0 0
+5 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95148
+leggings UNIQUE_LISETTE_NPC miniature $color cloth PUPPET_CLOTHES UNIQUE_NOCHT OTHER~
+miniature leggings of $color cloth~
+Miniature leggings of $color cloth have been left here.~
+~
+12 33558528 1
+0 0 0 0
+5 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95149
+sword UNIQUE_LISETTE_NPC miniature painted PUPPET UNIQUE_NOCHT OTHER~
+a miniature painted sword~
+A miniature painted sword has been set here.~
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95150
+cloak UNIQUE_LISETTE_NPC miniature $color cloth PUPPET_CLOTHES UNIQUE_NOCHT OTHER~
+a miniature cloak of $color cloth~
+A miniature cloak of $color cloth has been set here.~
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95151
+puppet UNIQUE_LISETTE_NPC stocking white UNIQUE_NOCHT PUPPET OTHER~
+a simple puppet made from a white stocking~
+A white stocking puppet has been left here.~
+   A simple white stocking has been turned into a mock hand-held 
+puppet, with button eyes sewn onto the part where the toes would 
+normally rest, and a note and mouth embroidered on. It has two 
+little ears of excess fabric, but is simple in make and design. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95152
+pouch UNIQUE_LISETTE_NPC small patchwork UNIQUE_NOCHT OTHER~
+a small patchwork pouch~
+A small patchwork pouch has been left here.~
+   Made of several layers of patchwork cloth sewn together, this 
+pouch is small but sturdy. The stitching is even and tight, and 
+it seems as though it'll hold up considerably well. 
+~
+15 4096 262145
+1000 0 -1 0
+50 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#95153
+gown stately $finecolor velvet TEXTILE~
+a stately gown of $finecolor velvet and white linen~
+A stately gown of $finecolor velvet and white linen lays here.~
+   This gown has been crafted of high quality fabric, and close 
+attention has been paid to detail. The underdress of this 
+garment is made of fine white linen. The sleeves are long and 
+flare toward the cuffs, and the skirt has been given plenty of 
+body. The underdress is covered by lustrous, $finecolor velvet 
+over the bodice and skirt. The bodice is made to fit snugly over 
+the wearer, with black silk cord lacing up the sides. The velvet 
+hugs the wearer's waist before flaring out into a full skirt that 
+terminates just above the wearer's feet. The round neckline of 
+the dress is adorned with black floral embroidery. 
+~
+11 33558528 9
+0 0 0 0
+600 0.000000
+0 0 0 0 8392708 0 1
+2400.000000 0 0 0 2 0 0
+#95154
+vambraces steel hawk blazoned UniqueAsinius byPhear METAL~
+a pair of polished steel vambraces~
+A pair of hawk-blazoned, polished steel vambraces have been laid here.~
+   Fashioned of the highest-grades of steel and in stunning, 
+stylized fluidity, these vambraces are clearly born of a Master's 
+hand. Lacking angles, each edge of the articulated upper and 
+lower arm pieces, as well as the elbow guard, have been turned 
+beautifully to provide a rounded surface capable of slipping 
+blows. On the outside of each bicep a black engraving as been 
+made, rendering a hawk in remarkable clarity. It's wings are 
+spread and its expression fierce, with great hooked talons and a 
+wicked beak. As if a final touch, the steel has been trimmed by 
+polished brass, affording these pieces a pleasing flicker of 
+silver and gold when in bright light. 
+~
+9 4096 257
+3 5 0 0
+1200 0.000000
+0 0 0 33 4100 0 1
+2900.000000 0 0 0 18 0 0
+A
+10025 -20
+A
+10024 -30
+A
+10037 -20
+#95155
+greaves steel polished brass UniqueAsinius byPhear METAL~
+a pair of polished steel greaves~
+A pair of brass-trimmed, polished steel greaves have been laid here.~
+   Trimmed in polished brass and fitted to the wearer's legs, 
+these greaves are polished to a near mirror shine. Forged of the 
+finest steel, they are the work of a Master smith. They are 
+infact a collection of pieces, covering both the front and back 
+of the shins. Articulated at the knee for movement, they then 
+yield to full thigh-plates, the brass-trimmed edges rounded to 
+aide in the turning of blows. 
+~
+9 4096 33
+3 5 0 0
+1400 0.000000
+0 0 0 33 4100 0 1
+4000.000000 0 0 0 18 0 0
+A
+10025 -20
+A
+10024 -30
+A
+10037 -20
+#95156
+mouse small house grey-brown TestCritterpofDambeth byPhear OTHER~
+a small, greyish-brown house mouse~
+A small, greyish-brown house mouse twitches his nose here.~
+   This small rodent has greyish-brown hair, a long skinny tail, 
+and a long whiskered nose. 
+~
+12 4096 8388609
+0 0 0 0
+100 0.000000
+0 0 0 30 134283264 0 1
+5.000000 0 0 0 0 0 0
+#95157
+cane UNIQUE_PRENAL bronze capped walking WOOD~
+a bronze-capped walking cane~
+A bronze-capped walking cane has been set here.~
+   This walking stick has been made of dark ebonwood and 
+strengthened further with clean, dulled bronze. The bottom is 
+fully enclosed in bronze, nearly several inches up the wood 
+itself, it is tarnished slightly from use, though is mostly 
+clean. Leading up, the dark wood takes shape, an inch thick all 
+the way through its length, the wood is naturally dark by colour 
+though appears to have been stained further, contrasting against 
+the dulled bronze. The handle of the cane is moulded to fit the 
+hand, wrapped in dyed black leather. As with the rest of the 
+stick, the handle is plain and unadorned save for the a slight 
+inscription just below the leather wrapping reading 'HD' in the 
+Numenorien Tengwar. 
+~
+39 4096 1
+0 0 0 0
+250 0.000000
+0 0 0 0 36 0 1
+200.000000 0 0 0 32 0 0
+#95421
+quiver lynx UNIQUE_PIMHARN LEATHER~
+a lynx-hide quiver~
+A lynx-hide quiver lies here discarded.~
+   It is a cylindrical leather container, about forearm-length, 
+designed with a strap to sling over one's shoulder, and a loop 
+which can attach to a belt. It is fairly narrow in diameter. 
+The leather that forms it has been painstakingly covered with 
+glowing gold and grey spotted lynx-hide, carefully stitched into 
+place, which catches the light and reflects a soft sheen. 
+~
+57 4096 8650753
+15 0 0 0
+75 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 14 0 0
+#95158
+cleaver UNIQUE_POFDANIELL brutal ironwood handle METAL~
+a brutal cleaver with an ironwood handle~
+A brutal cleaver with an ironwood handle has been set here.~
+   Simplistic in design, this cleavers blade is a fat, 
+rectangular shape, with it curving outwards at the blunt-sides' 
+end. Less than an inch inwards at this curvature, a small hole 
+is present, presumably for use in hanging the tool from a 
+butcher's hook. While a tool in nature, this crude item could 
+make a formidable and vicious weapon in the right hands. Its 
+steel blade show signs of long-term use, with scratches and 
+stained blood marring the metal. The cleaver has a sturdy, if 
+not slightly weathered handle made from ironwood. 
+~
+5 4096 8193
+0 1 6 2
+250 0.000000
+2 0 0 32 0 0 1
+300.000000 0 0 0 17 0 0
+#95159
+doghouse UNIQUE_POFSORMIR small wooden WOOD~
+a small, wooden doghouse~
+A small, wooden doghouse is here.~
+   This wooden doghouse seems to be made for a small sized dog or 
+other animal as it's much shorter than a normal doghouse, though 
+it's still as wide as one might expect. Boards are glued 
+together to make a structure that provides basic shelter for 
+anything small enough to fit inside it. Although basic, it is of 
+good workmanship and it has been sanded smooth with obvious 
+attention to detail. 
+~
+12 4096 1
+0 0 0 0
+4000 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 32 0 0
+#95160
+blouse UNIQUE_POFCAERA vest UNIQUE_POFLUCIUN long sleeved cotton snakeskin TEXTILE~
+a long-sleeved black cotton blouse topped with a snakeskin vest~
+A long-sleeved black cotton blouse topped with a snakeskin vest has been set here.~
+   This pair is made up firstly of an exotic snakeskin vest. 
+Sleeveless and v- necked, fitted to the wearer. Bronze and gold 
+scales of snakeskin are nicely complemented by a row of bronze 
+buttons down the front. Secondly, worn beneath the vest is a 
+long-sleeve blouse of black cotton. It is made from a thin, 
+light weight weave. The sleeves are long and puffy, and there is 
+a small ruffle along the edge of the collar of the blouse. 
+~
+11 4096 9
+0 0 0 0
+330 0.000000
+0 0 0 0 4 0 1
+173.000000 0 0 0 4 0 0
+#95161
+soldiers tales box filing papers UniqueBattalion byPhear OTHER~
+a filing box - Soldiers' Tales~
+A box labelled 'Soldiers' Tales' sits here~
+   Neatly fashioned of cherrywood, this box is designed to 
+carry parchments and correspondence. A small silver plaque 
+on the front has "Master Sage Erinur Aranin" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid 
+fold closed, a latch is used to secure it. 
+~
+15 4096 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 0 0 0
+#95162
+research notes box filing papers UniqueBattalion byPhear OTHER~
+a filing box - Research Notes~
+A box labelled 'Research Notes' sits here~
+   Neatly fashioned of cherrywood, this box is designed to 
+carry parchments and correspondence. A small silver plaque 
+on the front has "Master Sage Erinur Aranin" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid 
+fold closed, a latch is used to secure it. 
+~
+15 4096 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 0 0 0
+#95163
+wills box filing papers UniqueBattalion byPhear OTHER~
+a filing box - Wills~
+A box labelled 'Wills' sits here~
+   Neatly fashioned of cherrywood, this box is designed to 
+carry parchments and correspondence. A small silver plaque 
+on the front has "Master Sage Erinur Aranin" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid 
+fold closed, a latch is used to secure it. 
+~
+15 4096 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 0 0 0
+#95164
+Archives Letters Wills box filing papers UniqueBattalion byPhear OTHER~
+a filing box - Archives of Letters and Wills~
+A box labelled 'Archives - Letters and Wills' sits here~
+   Neatly fashioned of cherrywood, this box is designed to 
+carry parchments and correspondence. A small silver plaque 
+on the front has "Master Sage Erinur Aranin" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid 
+fold closed, a latch is used to secure it. 
+~
+15 4096 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 0 0 0
+#95165
+Receipts box filing papers UniqueBattalion byPhear OTHER~
+a filing box - Receipts~
+A box labelled 'Receipts' sits here~
+   Neatly fashioned of cherrywood, this box is designed to 
+carry parchments and correspondence. A small silver plaque 
+on the front has "Master Sage Erinur Aranin" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid 
+fold closed, a latch is used to secure it. 
+~
+15 4096 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 0 0 0
+#95166
+Archives Eastern Documents box filing papers UniqueBattalion byPhear OTHER~
+a filing box - Archives of Eastern Documents~
+A box labelled 'Archives - Eastern Documents' sits here~
+   Neatly fashioned of cherrywood, this box is designed to 
+carry parchments and correspondence. A small silver plaque 
+on the front has "Master Sage Erinur Aranin" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid 
+fold closed, a latch is used to secure it. 
+~
+15 4096 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 0 0 0
+#95167
+Archives Reports box filing papers UniqueBattalion byPhear OTHER~
+a filing box - Archives of Reports~
+A box labelled 'Archives - Reports' sits here~
+   Neatly fashioned of cherrywood, this box is designed to 
+carry parchments and correspondence. A small silver plaque 
+on the front has "Master Sage Erinur Aranin" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid 
+fold closed, a latch is used to secure it. 
+~
+15 4096 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 0 0 0
+#95168
+Ciphers Codes box filing papers UniqueBattalion byPhear OTHER~
+a filing box - Ciphers and Codes~
+A box labelled 'Ciphers and Codes' sits here~
+   Neatly fashioned of cherrywood, this box is designed to 
+carry parchments and correspondence. A small silver plaque 
+on the front has "Master Sage Erinur Aranin" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid 
+fold closed, a latch is used to secure it. 
+~
+15 4096 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 0 0 0
+#95169
+Archives Other box filing papers UniqueBattalion byPhear OTHER~
+a filing box - Other~
+A box labelled 'Archives - Other' sits here~
+   Neatly fashioned of cherrywood, this box is designed to 
+carry parchments and correspondence. A small silver plaque 
+on the front has "Master Sage Erinur Aranin" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid 
+fold closed, a latch is used to secure it. 
+~
+15 4096 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 0 0 0
+#95170
+ring UNIQUE_POFSAPTHAN intricate silver amethyst METAL~
+an intricate silver ring adorned with an amethyst~
+An intricate silver ring adorned with an amethyst has been set here.~
+   Polished to a high sheen and glinting in the light, this 
+delicate silver ring is inlaid with a large amethyst of the 
+deepest purple. The rounded stone is highlighted with swirls of 
+dark red, and upon closer inspection one might detect a faint, 
+abstract image, that of a face with a high crown, a crimson 
+portrait lost in a sea of purple. On the underside of the 
+slender band there are faint markings, slanted sigils of a 
+miniscule proportion, almost too small to make out. 
+~
+8 4096 3
+0 0 0 0
+20 0.000000
+0 0 0 0 32 0 1
+300.000000 0 0 0 28 0 0
+#95171
+dress UNIQUE_POFLUCIUN elegant deep blue linen wide hanging sleeves TEXTILE~
+an elegant deep blue linen dress with wide hanging sleeves~
+An elegant deep blue linen dress with wide hanging sleeves has been set here.~
+   The deep blue linen of this dress is of good quality, as is 
+the workmanship. The neck is square and low-cut, but not 
+immodestly so. With a thin silken ribbon, the bodice laces up 
+both the front an back to ensure an ideal fit for the wearer's 
+figure. Over the hips, the material flows smoothly into a long, 
+full skirt that ends just above the ground. The sleeves of the 
+dress are long and flared. 
+~
+11 4096 9
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+200.000000 0 0 0 2 0 0
+#95172
+cloak UNIQUE_POFSAPTHAN gold-embroidered deep-backed fine black linen TEXTILE~
+a gold-embroidered, deep-backed cloak of fine black linen~
+A gold-embroidered, deep-backed cloak of fine black linen has been set here.~
+   Voluminous and enveloping this finely-woven cloak is made to 
+be pinned broadly to the shoulders with round, engraved clasps of 
+solid gold; a polished gold chain hangs between the two clasps 
+over the wearers chest. Painstakingly engraved on each clasp is 
+the image of a tall tree, a sun set in the trunk of the left and 
+a moon on the right; surrounding the centerpiece is a swirling 
+halo intertwined with a myriad of stars, artistically represented 
+in the expensive metal. The cloak itself is made of the finest 
+black linen and drapes far down from both shoulders to gather 
+around the lower back, leaving the upper back of one who would 
+wear the garment bare in the center. Starkly contrasting with 
+the black of the linen is the swirling patterns of golden silk 
+that run around the edges of the cloak, becoming more extravagant 
+in the lower corners, extending further inwards to represent the 
+branches of a tree. 
+~
+11 528384 1025
+0 0 0 0
+150 0.000000
+0 
+fine-black-linen-cloaked~
+0 35 0 0 1
+1300.000000 0 0 0 2 0 0
+#95173
+case UNIQUE_POFLUCIUN padded instrument TEXTILE~
+a padded instrument case~
+A padded instrument case has been set here.~
+   Quilted linen has been used in the construction of this item. 
+The walls of the bag are stuffed with a thick padded that would 
+offer the contents a fair amount of protection. Not overly 
+large, this bag could only house a few smaller items. A flap has 
+been left to close and secure the bag, and a strap had been used 
+so it is possible to carry over the shoulder or attached to a 
+belt. 
+~
+15 4096 8650753
+500 0 -1 0
+150 0.000000
+0 0 0 0 0 0 1
+50.000000 0 0 0 7 0 0
+#95555
+cloak forest green tooled infinite knot wool Unique_Ceolwulf Eotheod TEXTILE~
+a fine, forest green wool cloak trimmed with a tooled infinite knot design~
+a fine, forest green wool cloak lies in a crumpled heap here.~
+   Fashioned for practical usage, this cloak is formed of a fine, 
+thick wool, warm enough to protect against the harsher elements 
+the wearer is like to encounter. Dyed a deep forest green, it 
+reaches down to the ankles of its wearer, and a long, tooled 
+leather strap decorates the outer rim of the cloak. Upon closer 
+inspection, the golden thread appears to follow a central line, 
+with circular hoops all interlocked as they follow the central 
+line along the length of the strap. The tooled, embroidered 
+strap accentuates the fine quality that has gone into the making 
+of this cloak, while retaining practicality of use. 
+~
+11 4608 1025
+0 0 0 0
+100 0.000000
+0 0 0 30 4224 0 1
+200.000000 0 0 0 3 0 0
+#95071
+seal OTHER~
+an uninitialized seal~
+An uninitialized seal is here.~
+This is a small metal tube, just over an inch long and perhaps 
+three-quarters of an inch wide.
+
+~
+11 0 1
+0 0 0 0
+80 0.000000
+0 0 0 95 0 0 1
+1000.000000 0 0 0 0 0 0
+#95174
+shirt VARIAG UNIQUE PKHESHEK felt-padded bronze lamellar METAL~
+a felt-padded, bronze lamellar shirt~
+A felt-padded, bronze lamellar shirt lies here.~
+   This loose shirt consists of a series of finely-forged bronze 
+lames. The individual lames are tightly wound together with 
+cords of tough sinew. The plates are dark and lack 
+ornamentation, but appear to be more than serviceable. Narrow 
+spaulders of the same construction are buckled to the top of the 
+shirt, to rest upon the wearer's shoulders. Beneath the armor's 
+exterior is a gambeson of padded felt. 
+~
+9 0 9
+2 3 0 0
+1000 0.000000
+0 0 0 30 0 0 1
+425.000000 0 0 0 28 0 0
+#95175
+skirt VARIAG UNIQUE PKHESHEK heavy lamellar dark bronze plates METAL~
+a heavy lamellar skirt of dark bronze plates~
+A heavy lamellar skirt of dark bronze plates sits in a heap here.~
+   This parted skirt, designed to drape over the wearer's thighs 
+and shins, is fashioned of a series of narrow, rectangular, dark 
+bronze plates, sewn together with sinew to resemble the scales of 
+a serpent. The skirt appears to be rather weighty, but 
+nevertheless affords the wearer significant freedom of movement, 
+as a result of its design. The plates that constitute the armor 
+are plain but well-forged. 
+~
+9 0 33
+2 3 0 0
+1000 0.000000
+0 0 0 30 0 0 1
+500.000000 0 0 0 28 0 0
+#95176
+sleeves VARIAG UNIQUE PKHESHEK pair dark bronze lamellar METAL~
+a pair of dark bronze lamellar sleeves~
+A pair of dark bronze lamellar sleeves have been deposited here.~
+   A series of dark bronze plates, unadorned but finely crafted, 
+have been bound together with cords of sinew to form this pair of 
+protective lamellar sleeves. The sleeves are as flexible as any 
+made of mail, requiring no division at the joints. Both grow 
+more narrow toward the cuff, hugging the forearm of the wearer. 
+~
+9 0 257
+2 3 0 0
+800 0.000000
+0 0 0 30 0 0 1
+300.000000 0 0 0 28 0 0
+#95177
+gorget VARIAG UNIQUE PKHESHEK dusky bronze scales METAL~
+a gorget of dusky bronze scales~
+A gorget of dusky bronze scales rests here.~
+   An array of overlapping metal scales has been bolted to a 
+circlet of stiff leather, intended to wrap about the wearer's 
+neck. The scales are made from sturdy bronze, the surface of 
+which has a dull, dusky quality. The gorget has a heavy buckle 
+at the back, for ease of removal. 
+~
+9 0 5
+2 3 0 0
+400 0.000000
+0 0 0 30 0 0 1
+115.000000 0 0 0 28 0 0
+#95178
+coat VARIAG UNIQUE PKHESHEK ragged long black sable fur TEXTILE~
+a ragged, long black coat of sable fur~
+A ragged, long black coat of sable fur lies in a pile here.~
+   This long coat, now ragged and fraying, is fashioned of a 
+series of jet black sable pelts, carefully seamed together with 
+dark thread. In spite of the age of the garment, the fur retains 
+a rich, lustrous quality, a variety of paler hues shifting across 
+its feathery surface as it is moved. The coat is relatively 
+thin, seeming dense enough to offer warmth during the year's 
+colder seasons, but not so thick as to overheat the wearer during 
+a mild summer or spring. The garment is torn toward the bottom, 
+its lower edges shredded and uneven. 
+~
+11 0 1025
+0 0 0 0
+200 0.000000
+0 0 0 30 0 0 1
+500.000000 0 0 0 7 0 0
+#95189
+sleeves studded scales $color UNIQUE_ARNORIAN_DUN LEATHER~
+a pair of $color leather sleeves studded with scales~
+A pair of $color leather sleeves studded with scales lie in a heap here.~
+   These sleeves are crafted of smooth, $color leather. Though 
+well-crafted, they lack decor, and thick scales of darker, more 
+rigid leather have been riveted onto the surface for additional 
+protection. Light and flexible, a second thin layer of leather 
+on the inside cushions the wearer from the rivets and makes this 
+armor overall both comfortable and effective pieces. 
+~
+9 33558528 257
+3 1 0 0
+400 0.000000
+0 0 0 100 0 0 1
+500.000000 0 0 0 14 0 0
+#95179
+talisman UNIQUE PKHESHEK crude yellow teeth OTHER~
+a crude talisman of yellow teeth~
+A crude talisman of yellow teeth lies here.~
+   This crude talisman is nothing more than a thin length of 
+twine, threaded through a set of teeth, yellowed with age. The 
+teeth, which vary in size, all resmble those of a human being - 
+about thirty or so adorn the amulet. 
+~
+8 0 2097153
+0 0 0 0
+20 0.000000
+0 0 0 20 0 0 1
+0.000000 0 0 0 0 0 0
+#95180
+harp UNIQUE_PMELUIIAL slender star heart engraved WOOD~
+a slender, star-in-heart-engraved harp~
+A slender harp engraved with a star within a heart stands on its base.~
+   This slender harp is elegant in form and carved from a 
+light-colored maple wood, small enough to fit in the crook of 
+one's arm though yet still large enough with a base to place it 
+upon a table for play. The fluted column extends upwards at a 
+slight angle, supporting the neck of the instrument where many 
+brays have been set for the tuning or adjusting of each of the 
+twenty-six, metal strings. The block extends far enough for a 
+comfortable fit from the more severe angle of the soundboard 
+where it rests against one's shoulder. There is little 
+decoration to this harp, the only obvious embellishment being a 
+simple carving of a star within the center of a heart upon one 
+side of the sound box. Beneath the supporting base, the name 
+'Meluiial' has been burned into the wood. 
+~
+37 135168 1
+0 0 0 0
+500 0.000000
+0 0 0 0 516 0 1
+200.000000 0 0 0 32 0 0
+#95181
+banana fruit yellow plump OTHER~
+#3a plump yellow banana#0~
+#3A plump yellow banana hangs here from a nearby tree.#0~
+   This plump yellow banana looks absolutely delicious to hungry 
+eyes. While its exterior is firm and only slightly glossy to the 
+eye, a touch of its skin leaves the observer in bliss, the smooth 
+surface speaking volumes of the perfection of this particular 
+banana. 
+~
+11 4096 8261
+0 0 0 0
+15 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95182
+ring twisted UNIQUE_PKELBRAN gold emerald rubies METAL~
+a twisted, gold ring set with an emerald and rubies~
+A twisted, gold ring set with an emerald and rubies gleams brightly here.~
+   This ring is finely-crafted, gleaming gold artfully twisted 
+into a delicate braid until it tapers and smoothens out at its 
+shank. The near pure metal serves as a stunning background for 
+the gemstone that has been set atop it. A flawless emerald cut 
+with many facets burns with the brilliance of its inner, green 
+fire while two ruby slivers are set to each side, flanking the 
+center gemstone with their blood red color. The inside of the 
+ring has been engraved with flowing script in the Westron tongue, 
+'Without love, I am nothing. - Kel.' 
+~
+11 0 3
+0 0 0 0
+1 0.000000
+0 0 0 0 4676 0 1
+3000.000000 0 0 0 0 0 0
+#95183
+sword GOOD_QUALITY UNIQUE_PGADRIL weathered broad-bladed sword METAL~
+a weathered, broad-bladed sword~
+A weathered, broad-bladed sword lies here.~
+   This brand is forged of dark, tempered iron that has been 
+meticulously and lovingly sharpened to a razor's edge. It stands 
+over a hand and a half in length with a slender cross-guard and 
+tapered, leather-bound hilt. The sword has seen its years, 
+evident in the scarring along the fine iron and pommel, and is 
+detailed only with a small pair of oak leaves with a raised star. 
+~
+5 4096 8193
+0 1 8 3
+330 0.000000
+0 0 0 0 4128 0 1
+400.000000 0 0 0 17 0 0
+#95184
+roundshield UNIQUE_PGADRIL pitted iron shield METAL~
+a pitted, iron roundshield~
+A pitted, iron roundshield lies here, forgotten.~
+   This shield is crafted of aged iron and bears the signs of its 
+age in the form of numerous dents and pits along its dull 
+surface. The construction is of practical and efficient design, 
+rounded with an interior of oiled leather that culminates in a 
+sturdy strap to hold it to the bearer's arm. 
+~
+6 0 8912897
+5 12 35 0
+600 0.000000
+0 0 0 0 160 0 1
+200.000000 0 0 0 17 0 0
+#95185
+breastplate UNIQUE_PNISTRODIN polished steel ByConscript METAL~
+a breastplate of polished steel~
+A breastplate of polished steel has been set aside here.~
+   This breastplate, forged of high-quality steel, has been 
+polished to a high shine, its surface showing no flaws or 
+scratches which may take away from its appearance. While lacking 
+any ornate design, the piece has been reinforced along the edges 
+with bronze, while the inside has been reinforced and padded with 
+leather to give extra support, as well as to provide some comfort 
+to the wearer. Onto the bottom edge of the piece a simple design 
+has been stamped, that of a hammer and shield. 
+~
+9 4096 9
+3 5 0 0
+1200 0.000000
+0 0 0 35 0 0 1
+2500.000000 0 0 0 18 0 0
+A
+10036 -20
+A
+10025 -20
+A
+10024 -30
+#95186
+helm thick UNIQUE_PNISTRODIN iron full byConscript METAL~
+a thick, iron full helm~
+A thick, iron full helm lays here on its side.~
+   Shaped from wrought iron, this helm has been forged with 
+simplicity and functionality in mind, the form just slightly 
+squared with a simple T cut in the visor providing a sufficient 
+field of vision while at the same time providing ample protection 
+to the user's face. The helm is nearly devoid of all 
+ornamentation, excepting the image of a dove rising from the 
+breast of a hawk which has been stamped into the neck of the 
+helm. 
+~
+9 528384 17
+2 5 0 5
+600 0.000000
+0 
+thick-iron-full-helmed~
+0 35 4 0 1
+800.000000 0 0 0 17 0 0
+A
+10025 -10
+A
+10024 -10
+A
+10032 -10
+A
+10028 -10
+#95187
+ring UNIQUE PSANDRY PLEOBIN PAGASE heavy iron silver detail METAL~
+a heavy iron ring with silver detail~
+A heavy iron ring with silver detail lies here.~
+   This thick band of iron has been cast into a seamless circle, 
+leaving the inside of the ring smooth to the touch. The edges of 
+the ring curve slowly together, any evidence of hammering long 
+lost to the artisan's talents. Along the exterior of the band, 
+an inscription reading 'Together as one against the Tide' has 
+been chipped out of the iron and filled with silver. The 
+lusterous silver standing out clearly from the solid iron behind 
+it, a stark contrast shown when its details are illuminated. 
+~
+11 4096 3
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+300.000000 0 0 0 17 0 0
+#95188
+leggings studded scale $color UNIQUE_ARNORIAN_DUN LEATHER~
+a pair of $color leather leggings studded with scales~
+A pair of $color leather leggings studded with scales lie in a heap here.~
+   These leggings are crafted of smooth, $color leather. Though 
+well-crafted, they lack decor, and thick scales of darker, more 
+rigid leather have been riveted onto the surface for additional 
+protection. Light and flexible, a second thin layer of leather 
+on the inside cushions the wearer from the rivets. The knees are 
+set with another layer of courbouilli covered in scales to offer 
+more guard for the vulnerable joints. 
+~
+9 33558528 33
+3 1 0 0
+600 0.000000
+0 0 0 100 0 0 1
+500.000000 0 0 0 14 0 0
+#95190
+gorget studded scales $color UNIQUE_ARNORIAN_DUN LEATHER~
+a $color leather gorget studded with scales~
+A $color leather gorget studded with scales rests here.~
+   This gorget is crafted of smooth, $color leather. Though 
+well-crafted, it lacks decor, and thick scales of darker, more 
+rigid leather have been riveted onto the surface. Additionally, 
+thin strips of metal are between the layers of leather, lending 
+vital protection to the neck area. 
+~
+9 33558528 5
+3 1 0 0
+100 0.000000
+0 0 0 100 32 0 1
+500.000000 0 0 0 14 0 0
+#95191
+hauberk studded scales reinforced $color UNIQUE_ARNORIAN_DUN LEATHER~
+a leather hauberk, fitted with thin, $color iron plates~
+A leather hauberk, fitted with thin, $color iron plates rests here.~
+   This hauberk is crafted of smooth, $color leather. Though 
+well-crafted, it lacks decor, and thick scales of darker, more 
+rigid leather have been riveted onto the surface. Additionally, 
+thin, but sturdy plates of metal have been fitted between the 
+layers of leather, lending more solid protection to the chest and 
+midsection. 
+~
+9 33558528 9
+2 3 3 0
+1000 0.000000
+0 0 0 100 32 0 1
+1000.000000 0 0 0 17 0 0
+#95192
+longknife razor edge iron melted leather handle UNIQUE_PMIRIELLE Tithembereth METAL~
+a razor-sharp iron longknife with a melted leather handle~
+A razor-sharp iron longknife with a melted leather handle lies here.~
+   The wide blade of this longknife is longer than a man's 
+forearm with a slight upward curvature along the point. The 
+single, razor-sharp and wickedly curved edge of the polished 
+blade gleans when angled to the light. The leather that wraps 
+around its wooden hilt is badly melted, dark burns and tears 
+marring what must have once been a beautiful embossing of vine 
+shapes. The weapon itself appears to still be of use and of 
+excellent craftsmanship, well-balanced and perfectly forged. 
+~
+5 4096 8193
+0 1 5 2
+200 0.000000
+4 0 0 100 0 0 1
+1000.000000 0 0 0 17 0 0
+#95193
+longsword sleekly bladed iron UNIQUE_PMIRIELLE Belegaran METAL~
+a sleekly-bladed iron longsword~
+A sleekly-bladed iron longsword lies here.~
+   This thin iron longsword is on the small side, and double 
+fullers have been run along both sides of the blade's center to 
+make it lighter and more easily handled. The balance from hilt 
+to blade is even, and the edges have been honed razor sharp. A 
+small iron ball is attached to the back of the wrapped-leather, 
+twisting-vine embossed hilt, designed to deliver brute blunt 
+force when the need arises. 
+~
+5 4096 8193
+0 1 8 3
+300 0.000000
+4 0 0 34 0 0 1
+1500.000000 0 0 0 17 0 0
+S
+100003
+#95194
+longsword GOOD_QUALITY OSGILIATH_GUARD fine sword long sharpened royal blue hilt METAL~
+a fine, sindarin-engraved steel longsword~
+A finely made steel longsword lays on the ground here.~
+   Made of high-quality steel, this fine longsword is made with 
+evident skill and attention to detail. The blade is solid, 
+polished to high-sheen and fashioned with expertise, revealing no 
+mark or mar from the hammer. It extends about three feet, and 
+has sharpened expertly to a near razor-fine edge. Tengwar 
+letting runs down the length of the blade on both sides. An 
+elegant cross-guard made of artfully dulled bronze is set above 
+the fine maplewood hilt, protecting the wielders hand and wrist 
+from damage. Thin black leather thongs have been wrapped around 
+the hilt, providing a secure, solid grip. 
+~
+5 4096 8193
+0 1 9 3
+225 0.000000
+4 -2 0 0 4160 0 1
+780.000000 0 0 0 18 0 0
+S
+100003
+#95195
+quiver ARNORIAN_DUNADAN well-worn faded-brown leather LEATHER~
+a well-worn, faded-brown leather quiver~
+A well-worn, faded-brown leather quiver lays here.~
+   It is a cylindrical leather container, about forearm-length, 
+designed with straps to be worn over the shoulder, or hung from a 
+belt. It is colored brown, and is well worn, yet sturdy. 
+~
+57 4096 8650753
+25 0 0 0
+200 0.000000
+0 0 0 30 0 0 1
+50.000000 0 0 0 0 0 0
+#95196
+swordbelt ARNORIAN_DUNADAN well-worn faded-brown leather belt pouch LEATHER~
+a well-worn, faded-brown swordbelt with a pouch~
+A well-worn, faded-brown swordbelt with a pouch has been left here.~
+   Made of well-worn brown leather this sword-belt fits 
+comfortably around the wearer's waist. It sports a large, pouch 
+large enough to carry a few items. The belt is secured with a 
+small, iron buckle. A second ring of leather rides below the 
+first, both rings joining at the buckle. 
+~
+15 4096 2049
+700 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+50.000000 0 0 0 0 0 0
+#95350
+sword DO_NOT_LOAD NO_DESC bastard rune etched METAL~
+a rune-etched bastard sword~
+A rune-etched bastard sword lies here, radiating a menacing energy.~
+~
+5 4104 8193
+0 2 4 4
+700 0.000000
+4 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95197
+UNIQUE_LEGOLIN ADMIN_OBJ river long warm LIQUID~
+#4A warm, slow-moving river#0~
+#4A warm, slow-moving river winds its way through the tunnel here.#0~
+   This river is wide and deep, running smoothly through the aged 
+rock tunnel that surrounds it. 
+~
+23 4096 0
+-1 -1 764 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95200
+flute exquisite silver crystal UNIQUE_POBRIAN METAL~
+an exquisite, silver and crystal flute~
+An exquisite, silver and crystal flute has been put aside here.~
+   Composed of two sections, this flute is artful and delicate, 
+an exquisite testament to the prowess of the maker. Formed of 
+beautiful silver and capped by a faceted crystal, the two 
+sections slide together with such precision that it is difficult 
+to detect the seam between them. Several holes set in perfect 
+straightness perforate the body of the instrument, allowing the 
+player to form different notes. A closer look reveals that each 
+hole is rimmed with tiny, inset crystal, casting light off from 
+the flute and adding to its luster. However, the true beauty of 
+this instrument is in its music when played, the voice of the 
+flute is a full expression of the mood of the player. Whether 
+rich and warm, or soft and haunting, the body and range of sound, 
+and the purity of that sound, which emits from the instrument is 
+likely unmatched by any other. 
+~
+35 4096 8912897
+0 0 0 0
+100 0.000000
+0 0 0 0 528416 0 1
+500.000000 0 0 0 28 0 0
+#95201
+sword slender EXPERT_QUALITY UNIQUE_POBRIAN unadorned arming sword Narluin METAL~
+a slender, unadorned arming sword~
+A slender, unadorned arming sword lies here.~
+   Rather plain in appearance, this sword is nonetheless composed 
+of a fine, glittering steel alloy, unmarred and undimmed in 
+lustre. The blade is slender and long, with a narrow fuller 
+running from the hilt nearly to the tip. Acutely pointed and 
+with a diamond cross-section, the sword seems designed for 
+thrusting as well as cutting. Gently upswept, a crescent 
+cross-guard protects the wielder's hand, while the grip is 
+wrapped in a supple, royal blue leather. A silvery, wheel pommel 
+adds balance to the blade, and indeed, when taken in hand, the 
+blade is surpassingly nimble and deft. Unadorned by inscription 
+or decoration, the true art of this blade is in its function, for 
+it is a weapon crafted for war by the hands of a master possessed 
+of skill beyond the hands of Men. 
+~
+5 4104 8193
+0 1 9 3
+300 0.000000
+1 0 0 40 528544 0 1
+2000.000000 0 0 0 28 0 0
+#95202
+sword slender EXPERT_QUALITY UNIQUE_POBRIAN gleaming arming Narluin METAL~
+a slender arming sword gleaming with an #Cicy-blue#0 luster~
+A slender arming sword lies here, gleaming with a #Cbright, blue light#0.~
+   Gleaming with a fierce, icy-blue light, this sword is composed 
+of a fine, glittering steel alloy, unmarred and undimmed in 
+lustre, the light suffusing the blade from center to edges. The 
+blade is slender and long, with a narrow fuller running from the 
+hilt nearly to the tip. Acutely pointed and with a diamond 
+cross-section, the sword seems designed for thrusting as well as 
+cutting. Gently upswept, a crescent cross-guard protects the 
+wielder's hand, while the grip is wrapped in a supple, royal blue 
+leather. A silvery, wheel pommel adds balance to the blade, and 
+indeed, when taken in hand, the blade is surpassingly nimble and 
+deft. Unadorned by inscription or decoration, the true art of 
+this blade is in its function, for it is a weapon crafted for war 
+by the hands of a master possessed of skill beyond the hands of 
+Men. 
+~
+5 4104 8193
+0 1 9 3
+300 0.000000
+1 0 0 40 528544 0 1
+2000.000000 0 0 0 28 0 0
+#95198
+duck portion herbed dumplings cooking_craft MEAT~
+a portion of herbed duck and dumplings~
+A portion of herbed duck and dumplings is here, giving off a fragrant scent.~
+   A fragrant, herb and butter scent wafts up from this portion 
+of food. The duck meat has been well cooked and appears to have 
+been shredded finely. It is accompanied by puffy, pale yellow 
+balls of dough. The entire portion is lightly speckled with 
+fine, white and crystallized bits of salt. 
+~
+19 4096 1
+6 0 0 0
+100 0.000000
+0 5 0 20 0 0 1
+2.000000 0 0 0 0 0 0
+#95199
+fowl boiled portion MEAT~
+a portion of boiled fowl~
+A portion of boiled fowl is here.~
+   The meat has been boiled with a bit of spices to the point 
+that the type of fowl is indiscernible. It is edible but is 
+rather plain with only a slight hint of dill present. 
+~
+19 4096 1
+6 0 0 0
+100 0.000000
+0 2 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#95203
+chicken portion herbed dumplings cooking_craft MEAT~
+a portion of herbed chicken and dumplings~
+A portion of herbed chicken and dumplings is here, giving off a fragrant scent.~
+   A fragrant, herb and butter scent wafts up from this portion 
+of food. The chicken meat has been well cooked and appears to 
+have been shredded finely. It is accompanied by puffy, pale 
+yellow balls of dough. The entire portion is lightly speckled 
+with fine, white and crystallized bits of salt. 
+~
+19 4096 1
+6 0 0 0
+100 0.000000
+0 5 0 20 0 0 1
+2.000000 0 0 0 0 0 0
+#95204
+turkey portion herbed dumplings cooking_craft MEAT~
+a portion of herbed turkey and dumplings~
+A portion of herbed turkey and dumplings is here, giving off a fragrant scent.~
+   A fragrant, herb and butter scent wafts up from this portion 
+of food. The turkey meat has been well cooked and appears to 
+have been shredded finely. It is accompanied by puffy, pale 
+yellow balls of dough. The entire portion is lightly speckled 
+with fine, white and crystallized bits of salt. 
+~
+19 4096 1
+6 0 0 0
+100 0.000000
+0 5 0 20 0 0 1
+2.000000 0 0 0 0 0 0
+#95205
+pheasant portion herbed dumplings cooking_craft MEAT~
+a portion of herbed pheasant and dumplings~
+A portion of herbed pheasant and dumplings is here, giving off a fragrant scent.~
+   A fragrant, herb and butter scent wafts up from this portion 
+of food. The pheasant meat has been well cooked and appears to 
+have been shredded finely. It is accompanied by puffy, pale 
+yellow balls of dough. The entire portion is lightly speckled 
+with fine, white and crystallized bits of salt. 
+~
+19 4096 1
+6 0 0 0
+100 0.000000
+0 5 0 20 0 0 1
+2.000000 0 0 0 0 0 0
+#95206
+flogger leather LEGOLIN_UNIQUE LEATHER~
+a thick black leather flogger~
+A rather thick, black leather flogger lies here in a heap.~
+~
+5 4104 270337
+0 500 1 5
+0 0.000000
+4 0 0 0 4194816 0 1
+0.000000 0 0 0 14 0 0
+#95207
+cloak billowing lion hooded hood LEATHER~
+a billowing, lion-hide cloak~
+A billowing, lion-hide cloak with a deep hood has been left here.~
+   Made of fine, golden, lion hides, this billowing and dramatic 
+cloak is simply designed, yet masterfully sewn. The fur is short 
+and soft, and the cloak is intricately lined throughout in a deep 
+brown linen. It closes at the front with a sturdy, two-part 
+bronze clasp. It reaches down to the calves, and is both roomy 
+and quite warm. 
+~
+11 528384 1025
+0 0 0 0
+400 0.000000
+0 
+lion-cloaked~
+0 30 4128 0 1
+650.000000 0 0 0 14 0 0
+#95208
+circlet foxes ivy silver METAL UNIQUE_ELENTIRIEL NO_LOAD~
+a silver circlet of foxes and ivy~
+A fine circlet of silver, depicting foxes and ivies, has been forgotten here.~
+   Around the top of the circlet is arranged a motive of foxes 
+and ivy. Two foxes, stand over the front of the circlet facing 
+each other. Details, such as the veins on the ivy leaves or the 
+the fur on the foxes, are clearly evident and sensitively 
+rendered. The circlet itself forms a semi-crown of highly 
+polished silver, bearing the hallmarks of quality workmanship. 
+~
+8 4096 17
+0 0 0 0
+40 0.000000
+0 0 0 30 4100 0 1
+2000.000000 0 0 0 28 0 0
+#95209
+bouquet roses yellow VEGETATION flowers~
+a bouquet of yellow roses~
+A bouquet of yellow roses has been set here.~
+   These beautiful roses are delicate yellow and slightly larger 
+than their red cousins. Twelve are arranged into a flawless 
+bouquet of floribunda blooms. Each rose carries a damask-rose 
+fragrance, and they've been dethorned and tied together with 
+white silk cord, the color of the silk contrasting with both the 
+dark-green stems and flowers, and the delicate yellow of the 
+blooms. 
+~
+12 4096 1
+0 0 0 0
+30 0.000000
+0 0 0 30 134217728 0 1
+40.000000 0 0 0 0 0 0
+#95999
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+47 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95210
+jacket~
+a leather jacket~
+a heavy leather jacket~
+~
+9 12 9
+2 0 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95475
+cloak by_nergal NO_LOAD flowing blood cloak LEATHER~
+#9a flowing cloak of acidic-blood#0~
+#9A flowing cloak of acidic-blood#0~
+~
+9 4108 9
+2 0 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95211
+warclaws by_nergal NO_LOAD claws bone elongated METAL~
+razor-sharp claws of elongated bones~
+Razor-sharp claws of elongated bones~
+~
+5 4108 8193
+0 2 4 3
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95212
+throne by_nergal NO_LOAD writhing throne flesh METAL~
+a writhing, groaning throne of living, human-flesh~
+A writhing, groaning throne of living, human-flesh~
+~
+15 2101256 1
+100 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95213
+crossbow ByTaurgalas ADMIN_ONLY bow exquisite jeweled carven culumalda WOOD~
+an exquisitely carven and jeweled culumalda crossbow~
+An exquisitely carven and jeweled culumalda crossbow lies here, waiting for use.~
+   The wood of a culumalda tree has been hewn to create both the 
+stock and bow of crossbow, stained a pale reddish hue and 
+polished until it gleams. Intricate carving of twining vinework 
+graces the stock, beautifully inlaid with polished and gleaming 
+faceted emeralds. The grip upon the stock is a delicately tanned 
+hide of tawny softness, edged with golden threadwork. Gleaming 
+golden brass provides the metal for the fittings and the ratchet. 
+The elastic gut that strings the bow has been cleaned to a color 
+of off-white bone. As beautiful a showpiece as this crossbow 
+might be, the exquisite craftsmanship is more than mere 
+aesthetic: the balance and weight are precisely designed to form 
+a deadly weapon. 
+~
+5 536875016 8658945
+2 2 1 18
+700 0.000000
+-1 0 0 60 0 0 1
+0.000000 0 0 0 32 0 0
+#95214
+quiver ByTaurgalas gold fawn embossed rich LEATHER~
+a rich fawn and gold embossed leather quiver~
+A rich fawn and gold embossed leather quiver has been left here, the strap neatly nestled inside.~
+   This quiver of rich and supple fawn-colored leather has been 
+delicately tooled with a pattern of intertwining, leaf-covered 
+vines. Upon the top and holding the sturdy strap and base 
+together, gleaming gold thread twinkles. Upon the strap, a 
+single vine weaves its way, putting off delicate shoots and 
+leaves in exquisite embossing. 
+~
+57 4096 8388609
+25 0 0 0
+200 0.000000
+0 0 0 40 0 0 1
+0.000000 0 0 0 0 0 0
+#95216
+worn ByTaurgalas ADMIN_ONLY gown dress iridescent shimmering spiderweb dew TEXTILE~
+a shimmering gown of iridescent spiderweb and dew~
+A shimmering gown of iridescent spiderweb and dew glistens here.~
+   Delicate threads of spiderweb have been cleverly woven into 
+long strands to create the fabric of this unusual gown. 
+Glittering dewdrops the size of pearls accent the spiderwebs, 
+clinging to the surface to create a shimmering, sparkling 
+iridescence. The gown itself is ephemeral in its delicacy, the 
+strands separating and coming together like fringe in an 
+ever-shifting flow that shows tantalizing glimpses of the figure 
+beneath without ever fully exposing it. The multitude of woven 
+strands reach from shoulder to wrist, from neck to ankle, but 
+every slightest movement sends the spiderwebs into motion sending 
+flashes of reflective color brilliantly sparkling from the drops 
+of dew. 
+~
+11 4608 9
+0 0 0 0
+100 0.000000
+0 0 0 40 0 0 1
+0.000000 0 0 0 5 0 0
+#95217
+sword ByTaurgalas longsword long well-balanced METAL~
+a well-balanced longsword~
+A well-balanced longsword has been abandoned here.~
+   This is a standard, well-balanced longsword made from iron. 
+The heft and balance are sufficient that while devoid of 
+ostentation, this appears to be a solid and serviceable weapon. 
+~
+5 4096 8193
+0 1 8 3
+360 0.000000
+4 0 0 30 0 0 1
+175.000000 0 0 0 17 0 0
+#95218
+belt ByTaurgalas gold fawn embossed rich LEATHER~
+an embossed leather belt of fawn color with a bejeweled buckle~
+An embossed leather belt of fawn color with a bejeweled buckle has been neatly coiled here.~
+   This slender belt is made of rich and supple fawn-colored 
+leather that has been delicately tooled with a pattern of 
+intertwining, leaf-covered vines. The outer edges of the worked 
+leather is edged with gleaming gold thread that twinkles and 
+catches the light. At one end, a highly polished golden brass 
+buckle set with five sparkling, faceted emeralds provides 
+closure. 
+~
+11 4608 2049
+500 0 0 0
+100 0.000000
+0 0 0 40 0 0 1
+0.000000 0 0 0 14 0 0
+#95219
+couch ByTaurgalas hill hillock moss $finecolor wildflowers VEGETATION~
+a hillock covered in moss and $finecolor wildflowers~
+A hillock rises from the ground, covered in moss and $finecolor wildflowers~
+   A comfortable hillock rises from the ground. The earthen 
+mound is covered in moss, dead leaves and fresh vine growth with 
+$finecolor wildflowers splashing brightly amongst the browns and 
+greens. The soft cushioning is quite inviting and it looks a 
+quiet and incredibly comfortable place to sit or rest for a 
+spell. 
+~
+15 35655688 1
+80000 0 -1 0
+300 0.000000
+0 12 0 30 4096 0 1
+0.000000 0 0 0 32 0 0
+#95220
+pouch ByTaurgalas spiderweb dew iridescent shimmering TEXTILE~
+a shimmering pouch of iridescent spiderweb and dew~
+A shimmering pouch of iridescent spiderweb and dew has been abandoned here.~
+~
+15 4616 25427969
+800000 1 -1 0
+300 0.000000
+0 0 0 40 0 0 1
+0.000000 0 0 0 5 0 0
+#95215
+sheath ByTaurgalas ADMIN_ONLY ornate gold mesh LEATHER~
+an ornate, gold-meshed sheath~
+An ornate, gold-meshed sheath is here.~
+   Loops of leather braided into each other create an intricate 
+mesh that holds together the shape of this sheath. Thick gold 
+strips are masterfully woven into each other to create a look of 
+treebranches that thickens into a solid golden plate near the 
+bottom of the sheath. This plate has been adorned with seven 
+spheres of brilliantly faceted emeralds that are evenly spaced 
+apart from one another. While ornate, the sheath is sturdy and 
+strong. 
+~
+58 4608 8650753
+100000 0 0 0
+500 0.000000
+0 0 0 30 0 0 1
+800.000000 0 0 0 0 0 0
+#95221
+scimitar eagle steel winged talon EXPERT_QUALITY byMeneldor METAL~
+a long, steel-bladed eagle scimitar~
+A long, eagle scimitar with a steel blade is lying here.~
+   From hilt to tip this weapon gives the appearance of a 
+majestic eagle reaching for its prey. The hilt is fashioned into 
+a ruby-eyed eagle's head. Its handguards, which flair out to 
+either side like wings, are slightly layered and etched with 
+feathers. The curve of the blade, ending in a sharpened point 
+looks remarkably like a talon. 
+~
+5 4104 8193
+0 1 9 3
+300 0.000000
+4 0 0 30 0 0 1
+1700.000000 0 0 0 28 0 0
+A
+18 2
+#95222
+crossbow yewwood eagle bow hand-crafted EXPERT_QUALITY byMeneldor WOOD~
+a finely-crafted eagle crossbow~
+A finely-crafted, yewwood eagle crossbow is set here.~
+   This high quality, yew wood crossbow has been hand-crafted 
+into the form of an eagle. The front of the stock extends out 
+above the stirrup, and is hand carved into an eagle's head. The 
+lathe extending to either side forms its wings, while the end of 
+the stock flairs out slightly to the sides, like the tail of an 
+eagle. The lever trigger underneath has been shaped into the 
+eagle's legs. 
+~
+5 4104 8396801
+3 2 1 18
+800 0.000000
+1 0 0 60 0 0 1
+0.000000 0 0 0 32 0 0
+#95223
+bolt steel-tipped crossbow talon eagle byMeneldor METAL WOOD~
+a steel-tipped, taloned crossbow bolt~
+A steel-tipped, taloned crossbow bolt, with eagle feather fletchings lies here.~
+   This bolt is constructed from alder, with fletchings cut from 
+eagle feathers, and then set with a steel tip. The head has been 
+delicately cut and filed to create four slightly curved prongs at 
+the tip. When examined closely the configuration of these prongs 
+seem to resemble the talons of an eagle's foot, and are quite 
+fine and sharp. 
+~
+7 4198400 1
+1 6 6 5
+20 0.000000
+0 0 0 40 0 0 1
+0.000000 0 0 0 32 0 0
+#95224
+nest bed platform walnut purple byMeneldor WOOD~
+a large oval-shaped nest~
+A large, oval-shaped nest forms a bed on a raised platform along one wall.~
+   It is a large oval-shaped bed made from walnut, and is 
+attached to the raised platform it sits on. The wood has been 
+shaped and fastened together to form an oval, than expertly 
+carved to give the impression of sticks and twigs, creating the 
+appearance of a large nest. The firm, but comfortable mattress 
+sits below the top of the frame, so it is only seen when standing 
+on the platform, keeping the illusion of a nest. The mattress is 
+covered with soft, purple bed linens. 
+~
+15 35655680 0
+60000 0 -1 0
+10000 0.000000
+0 4 0 40 0 0 1
+0.000000 0 0 0 0 0 0
+#95225
+wood plant bronze walnut fiber partition byMeneldor WOOD VEGETATION~
+a wood and plant, woven partition~
+A wood-framed, woven plant fiber partition stands here.~
+   This six-foot tall, nine-foot wide partition is framed in 
+walnut, and constructed of woven plant fibers, bringing an earthy 
+feel to the room. Its three sections are held together with 
+bronze hardware and hinges. 
+~
+12 4198400 1
+0 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+100.000000 0 0 0 32 0 0
+#95226
+bolt long wickedly sharp thorn ADMIN_ONLY By_Taurgalas WOOD~
+a long, wickedly sharp, black thorn~
+A long, wickedly sharp, black thorn gleams malevonlently here.~
+   This long black thorn gleams with malevolence. Whatever plant 
+it was plucked from must have been huge, given the length of the 
+object; about the same as an ordinary bolt. The thorn is ragged 
+at one end, but it tapers to a glistening black point that 
+appears wickedly sharp. There is little doubt that this could be 
+a terrifying missile. 
+~
+7 4198408 1
+3 20 20 0
+10 0.000000
+1 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#95227
+teacup cup plain ceramic CERAMIC~
+a ceramic teacup~
+A plain, ceramic teacup has been left here.~
+   Made of white clay, this cup is formed of a small, delicate 
+bowl, bearing a flat, steady base. It has no markings on it, 
+having neither a handle nor painted decoration. Instead, it is 
+simply an ivory color and holds a smooth, glazed surface, giving 
+it a very clean appearance. 
+~
+17 4096 1
+4 4 91537 0
+50 0.000000
+0 0 0 0 0 0 1
+0.000000 96 86 0 0 0 0
+#95228
+sword~
+a long sword~
+a gleaming long sword~
+~
+5 4096 33562625
+0 2 4 3
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#95229
+ring pendant chain necklace silver moonstone jewelry PTzevi METAL~
+a moonstone and silver ring on a silver chain~
+A silver ring set with a moonstone cabochon hanging from a silver chain is coiled here.~
+   This well-made necklace is made of simple, delicate silver 
+links with a clasp securing it closed at the back of the neck. 
+Strung upon the thin chain is a narrow, shiny ring of silver. A 
+moonstone cabochon, oval-shaped and smooth, rests in a setting 
+edged in thin strands of braided silver. The stone is almost 
+colorless, with a pale blue sheen that seems to float above it; 
+it is not overly large, but is much wider than the band. 
+~
+8 4096 2097159
+0 0 0 0
+20 0.000000
+0 0 0 30 134221824 0 1
+180.000000 0 0 0 28 0 0
+#95230
+tumbler rock gem_craft stone WOOD~
+a wooden rock tumbler~
+A wood rock tumbler sits here.~
+   This cylindrical wooden container has a thick piece of cloth 
+attached inside the door. The cloth overhangs from the door when 
+closed to better seal it when closed. The cylinder itself has a 
+piece of metal sticking out of one end, and a handle out the 
+other, allowing it to sit on the base stand. The handle acts as 
+a crank to turn the tumbler. 
+~
+41 4096 1
+0 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+100.000000 0 0 0 32 0 0
+#95231
+sand pile small clean OTHER~
+a small pile of clean sand~
+A small pile of clean sand sits here.~
+~
+21 4198400 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+0.400000 0 0 0 0 0 0
+#95232
+longsword UNIQUE_PHOAR Expert_quality steel fine engraved rune long sword METAL~
+a fine, rune-engraved, steel longsword~
+A fine, rune-engraved, steel longsword has been left here unattended.~
+   Made of high-quality steel, this fine longsword is made with 
+evident skill and attention to detail. The blade is solid, 
+polished to high-sheen and fashioned with expertise, revealing no 
+mark or mar from the hammer. It extends about three feet, and 
+has sharpened expertly to a near razor-fine edge. An elegant 
+cross-guard made of artfully dulled bronze is set above the fine 
+maple wood hilt, protecting the wielders hand and wrist from 
+damage. Thin black leather thongs have been wrapped around the 
+hilt, providing a secure, solid grip. Runes have been carved 
+into the blade along the spine near the crossguard and appear 
+somehow cryptic. 
+~
+5 135168 8193
+0 1 9 3
+220 0.000000
+4 0 0 60 9441824 0 1
+900.000000 0 0 0 28 0 0
+#95233
+onyx uncut raw unfaceted gemstone ore STONE~
+an uncut onyx stone~
+An uncut onyx stone is left here.~
+   This black quartz crystal has a pyramid-shaped end and a long 
+angular shaftlike body. It is uncut and unpolished, ready to be 
+made into whatever the cutter desires. 
+~
+8 4198400 1
+0 0 0 0
+5 0.000000
+0 0 0 30 0 0 1
+8.000000 0 0 0 0 0 0
+#95234
+crystal chunk light-green xperidot STONE~
+a small chunk of light-green crystal~
+A small chunk of light-green crystal lay here.~
+   This small chunk of light-green crystals lay embedded in a 
+larger heft of stone, the facets of the stones laced with the 
+surrounding rock. When light hits the facets in the right 
+manner, an unrefined glint and reflection can be seen. 
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+4.000000 0 0 0 0 0 0
+#95235
+crystal peridot chunk STONE~
+a tiny raw chunk of peridot~
+A tiny raw chunk of peridot lay here, embedded within a geode.~
+   This tiny light-green peridot crystal lay embedded in a larger 
+heft of stone, the facets of the stones laced with the 
+surrounding rock. When light hits the facets in the right 
+manner, an unrefined glint and reflection can be seen. 
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+8.000000 0 0 0 0 0 0
+#95236
+rockface crystal studded face MINING STONE~
+a crystal studded rock-face~
+This section of rock has several crystals jutting from it.~
+~
+21 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 10 90798 0 0 0 0
+#95237
+pendant UNIQUEpcHOAR byVAIRE rune engraved pendant bearing ocean blue stone METAL~
+a rune-engraved pendant bearing an ocean-blue stone~
+A rune-engraved pendant bearing an ocean-blue stone lay here.~
+Suspended from a simple, black silk cord, this pendant features
+a small, round, azure aventurine stone bearing many striations
+of deep blue arranged in a pattern that resembles a roiling sea.
+Several thin prongs secure it to a flat, coin-shaped setting of
+polished bronze which bears strange runes engraved above, below,
+to the right, and to the left of the stone. 
+~
+8 135688 2101253
+0 0 0 0
+100 0.000000
+0 0 0 60 1048576 0 1
+750.000000 0 0 0 28 0 0
+#95238
+warhammer UNIQUE_PHOAR byLEGOLIN DWARVISH_QUALITY masterfully-crafted rune-engraved steel METAL~
+a masterfully-crafted, rune-engraved, steel warhammer~
+A masterfully-crafted, rune-engraved, steel warhammer has been left here.~
+   This steel warhammer is clearly a masterwork piece of 
+weaponry. A single ingot of steel, forged into the head of a 
+warhammer, one side thick and squared off like a hammer, the 
+other sharp and pointed. The steel is polished and exquisitely 
+well worked and tempered to a strength and durability one would 
+never hazard on a long, thin sword blade. The head is 
+forge-welded to a polished steel haft nearly an inch thick, the 
+end wrapped in several thin strips of leather sewn together to 
+provide a firm grip. Detailed, fine runes encircle either side 
+of the head. One experienced with forging or wielding similar 
+weapons would immediately notice its strange balance, one that 
+renders it useless to any but the shortest of Men. However, in 
+the hands of such an individual, provided he is incredibly strong 
+and sufficiently skilled, this weapon could prove quite deadly, 
+capable of wearing down and penetrating almost any armor. 
+~
+5 135176 8193
+0 2 7 7
+1000 0.000000
+3 0 0 34 9441312 0 1
+1200.000000 0 0 0 28 0 0
+#95239
+ring seal fox gold UNIQUE pofEliam byTaurgalas METAL~
+a gold ring engraved with a fox seal~
+A gold seal ring, bearing a fox symbol on its bezel, lies here.~
+   The bezel of this gold ring bears the engraving of a fox in 
+profile, facing to the right with its tail held slightly up into 
+the air. Where there would be a white tuft upon the tail, a thin 
+etching zigzags through the engraving, splitting the tip from the 
+rest of the engraved creature's fur. The whole is surrounded by 
+two upraised circles, one slightly larger than the other and at 
+the very bottom, between these two is the Tree of Gondor, small, 
+but clearly defined. Upon the sides of the ring, are a series of 
+two lines of sigils, etched in tight and delicate script. To 
+those who might know them, the language is Sindarin and the 
+sigils are Arnorian Tengwar. 
+~
+8 4096 3
+0 0 0 0
+5 0.000000
+0 0 0 35 4708 0 1
+1050.000000 0 0 0 28 0 0
+$~

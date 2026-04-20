@@ -1,0 +1,2400 @@
+#24001
+Ondoher Artamir Faramir statues large three _ARMENELOS_ _UNIQUE_ STONE~
+three great statues~
+Three great statues are set here, towering over those walking by.~
+   These three statues of white marble are works of the same 
+artisan, and set together on a giant base of similar stone. 
+Larger than life size, they command attention from those who pass 
+by underneath. The tallest of the three, in front, carries a 
+winged crown in the crook of his left arm, and wields a sword in 
+his right hand held aloft. He is gird in mail, and on a fine 
+cuirass is carved a beautiful white tree and stars. 
+   
+   The two behind are smaller figures, yet still dwarf a normal 
+human's size. The taller is graced with a circlet on his 
+forehead and wears similar detailed raiment. The third is 
+dressed as a common soldier, yet his features match the other two 
+in grace, bearing, and lineage. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24002
+inscriptions names carvings _ARMENELOS_ _UNIQUE_ STONE~
+a set of inscriptions~
+An inscription is carved in each statue.~
+~
+53 4096 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24003
+inscriptions names carvings _ARMENELOS_ _UNIQUE_ STONE~
+a set of inscriptions~
+An inscription is carved in each statue~
+   A block of granite, with one side carved flat lies here 
+marking the burial area of someone's dearly departed. The face 
+of the marker has been carved with an inscription indicating the 
+interned's name and dates of birth and death. Some of the 
+markers also possess a special phrase or religious quote. 
+~
+53 4096 0
+0 0 0 0
+3500 0.000000
+0 0 0 0 256 0 1
+125.000000 0 0 0 30 0 0
+#24004
+stained glass window irises _UNIQUE_ _ARMENELOS_ GLASS~
+a stained glass window~
+A stained glass window casts soft light into the room.~
+   Soft light spills through the stained glass of this window, a 
+series of sixteen glass tiles set in a square pattern, morticed 
+with gold. The image crosses the tiles as a stylized set of blue 
+irises, intertwined with long leaves. Stunning in its elegant 
+simplicity, it uplifts the entire room with its grace. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24005
+tapestry ancient woman gazebo sea _UNIQUE_ _ARMENELOS_ TEXTILE~
+an ancient tapestry~
+An ancient tapestry hangs high upon the wall.~
+   This faded tapestry is of a woman in a white gown, sitting at 
+a stone bench within a gazebo. The gazebo overlooks a cliff side 
+and an ocean view. The sea is calm, and it is a cloudless day. 
+The woman has her left hand outstretched, and a white gull is 
+alighting upon it. 
+   The artistry of the piece is masterful, even though it is now 
+worn by time. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24000
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24006
+silver bowl leaf _UNIQUE_ _ARMENELOS_ METAL~
+a silver bowl~
+A silver bowl sparkles atop a pedestal here.~
+   Upon a marble pedestal lays a carved silver bowl of leaf 
+patterns. The artisan carved their design from the bowl, leaving 
+gaps between the leaves of silver that make up the piece. The 
+metalwork is otherwise plain and unadorned. Light gleams from 
+the bare polished silver. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24007
+row statues lamps figures _ARMENELOS_ _UNIQUE_ METAL~
+a row of statues holding lamps~
+A row of statues holding lamps are set into the ground at intervals.~
+   This row of lamps are hung from metal statues of soldiers of 
+Gondor. Each soldier holds a spear aloft, and to each spear is 
+affixed a brass bracket which holds an oil filled glass globe. 
+The soldiers are all alike, but each bracket is of a unique 
+design. One is an image of flying eagles, another of hunting 
+foxes, another still of leaping fish. They seem to represent 
+fauna and flora from all corners of the Realm of Gondor. All 
+hold the glass firmly, and when lit cast shadows of their animals 
+all about in a bewildering array of light and dark. 
+~
+1 4104 0
+0 0 20 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24008
+small ecthel statue statuette knight _UNIQUE_ _ARMENELOS_ STONE~
+a statuette of a knight~
+A statuette of a Knight of Gondor is here.~
+   Standing just over a foot tall, this marble statuette of a 
+knight upon a horse is finely detailed. From the white tree on 
+the escutcheon to the overlapped plates on the crinet, the horse 
+is accurately rendered. The knight holds a heavy spear in hand, 
+and bears a sword in a scabbard which is also graced by the white 
+tree emblem. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24009
+table BY_VAIRE ancient crumbling decaying STONE~
+an ancient decaying, crumbling table~
+An ancient decaying, crumbling table lies in ruins.~
+Faded sigils scratched and worn beyond recognition by smudging, cracks
+can be seen in a few locations on this rough dilapidated wreck of a
+table. Upon it's top, the three quarters of it which has survived are
+darkly stained with worn blood and fresher slime. Insects skitter
+across it's length, quickly disappearing between the cracks which riddle
+the entire length of the table. Off-center is a claw-like piece of iron
+twisted and embedded deeply into the stone with bits of dull glass
+fragments nearby suggesting it may have previously been a lantern
+that had gotten crushed into the stone. Between these clawlike pieces
+of iron is trapped the long-dead corpse of a rat, the meat having
+been scavenged long ago as mangy pieces of fur cling to the skeleton
+of the rodent, and an inedible mould which gives off a distinctly
+unpleasant aroma, nestling itself between the crevices from which
+the insects scurry to and fro. Four roughly hewn stone blocks spaced
+unevenly about the table provide seats.
+~
+15 2101248 0
+15000 0 -1 0
+250000 0.000000
+0 4 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24010
+couch old rotten warg pelt for_Kite by_Nauriel OTHER~
+an old, rotten warg-pelt couch~
+An old, rotten warg-pelt couch sags near the wall.~
+   The rancid smell of rotten hide permeates the area surrounding 
+this dilapidated piece of furniture. Moldy stuffing of stained 
+scraps of fabric is exposed in the many places that the warg pelt 
+cover has been torn or decayed, and its entire structure seems to 
+sag with age and wear. The arm on the right side appears to have 
+been broken off at some point, leaving mysteriously stained 
+jagged shanks of wood protruding forth from beneath the ragged, 
+stinking hide. 
+~
+15 2101248 0
+3000 0 -1 0
+15000 0.000000
+0 3 0 0 2048 0 1
+0.000000 0 0 0 14 0 0
+#24011
+EgthelaGranary board Granary byCeredir OOC OTHER~
+an OOC board for Egthela's Granary~
+An OOC board for Egthela's Granary is here.~
+~
+22 4108 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24012
+kit repair mending~
+a repair kit~
+A repair kit lies on the floor.~
+~
+64 4096 262145
+100 0 0 56
+500 0.000000
+3 5 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24013
+ticket copy key byCeredir locksmithprog OTHER~
+a ticket for a key copy~
+A ticket for a key copy is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24014
+fountain white marble deep basin STONE~
+a white-marbled fountain emitting the sound of bells~
+A white-marbled fountain emitting the sound of bells is set here.~
+   A wide pool is contained with a high white-marbled walled 
+basin, much of the glory of container faded and worn now. Within 
+the pool a sweeping spiral has been carved out of a single block 
+of black and silver speckled marble. A single boldly steep 
+channel twists about what becomes a wide base and narrow top, 
+with a large silvered glass bowl set at the very tip. The force 
+of the water that is channelled here sends a great plume of heavy 
+spray upwards, captured as it falls and then dropping through a 
+hole in the glass bowl to flood down the spiral channel into the 
+pool. As the water descends, a series of glass bells of 
+ascending tone spin and ring with clear and fresh notes, gaily 
+emitting their song amidst the awful gloom of this place. 
+~
+23 4096 0
+-1 -1 4 0
+1000000 0.000000
+0 0 0 45 135168 0 1
+0.000000 0 0 0 0 0 0
+#24015
+NoirinanLocksmithLogbook board logbook locksmith byCeredir OTHER~
+a locksmith's logbook~
+A locksmith's logbook is here.~
+~
+22 4108 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24016
+bronze statue archer crouched _ARMENELOS_ _UNIQUE_ METAL~
+a statue of an archer~
+A bronze statue of an archer has been placed carefully along the wall.~
+   Made of gilded copper, this figurine is of a crouched man 
+holding a bow, about to release a yard shafted arrow. Naked, his 
+rippled musculature is in sharp relief. Intent upon the distant 
+target, his brow is furrowed over an aquiline nose as he sights 
+past the tip of the broadhead just beyond his left hand, wrapped 
+around the golden shortbow. The copper is very green underneath 
+the gold. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24017
+rug carpet panorama Numenor Andunie _UNIQUE_ _ARMENELOS_ TEXTILE~
+a great rug~
+A great rug is set upon the floor here.~
+   This rug has grown in beauty as it aged, and is now of a 
+sufficiently significant antiquity to exude beauty, elegance, and 
+quality in equal measure. Imaginative and artistic coloring has 
+combined with the most careful fabric work to produce an image 
+that is vast and breathtaking. 
+   Anor the sun is unseen, yet the interplay of his soft glow 
+with the long shadows cast about upon the image are the epitome 
+of perfect gloaming, as twilight falls upon a shoreline. In the 
+foreground, a city is nestled within a bay set between two arms 
+of land that both curve the same direction. There are towers in 
+the city that look out, upon the water. A great bird flies high 
+above the tallest tower. In the background, the land rises to a 
+set of mountains, with one single, very tall peak among them. In 
+the far distance, the Sea completely encircles the land. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24018
+depositbag bag Egthela_Library_prog byCeredir TEXTILE~
+a large delivery bag~
+A large delivery bag is here.~
+~
+15 4104 1
+129889721 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24019
+bust marble woman regal _ARMENELOS_ _UNIQUE_ STONE~
+a marble bust~
+A marble bust of a regal woman is here atop a pedestal.~
+   The eye is drawn to the nape of the neck of this white marble 
+bust, which is positioned in the room to highlight the feature. 
+Her head is turned away, a hint of a gown over a single shoulder, 
+and her hair elegantly coiled atop her head. A soft cheek can be 
+seen, as well as one ear. The artist has captured a moment of 
+beauty and courtliness for all time. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24020
+golden figurine woman hounds _ARMENELOS_ _UNIQUE_ METAL~
+a golden figurine~
+A golden figurine rests upon a side table here.~
+   Braided tresses and a silver girdle define the woman of this 
+statuette. Diaphanous sleeves trail from her wrists. She is 
+walking a matched pair of sight hounds on leads. The three of 
+them are affixed to a base of yellow marble. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24021
+ticket BY_VAIRE NO_LOAD stall xxxshop24219 xxxstore24971 PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of The North Eastern Mittalmar Stall
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24022
+ticket BY_VAIRE NO_LOAD stall expired PARCHMENT~
+an expired stall ticket~
+An expired stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marked the holder as the valid owner of a noted stall location,
+though it is now out of date and expired, invalid and will
+not be accepted at any stall by it's shopkeeper.
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24023
+gatehouse_gossips_24102 hawkers travellers board group gossip OTHER~
+a group of hawkers and travellers sharing stories and news~
+A group of hawkers and travellers share stories and news.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24024
+haradrim_garrison_public_24028 tidily garmented young clerk STOLENFORLIBRARY board OTHER~
+a tidily garmented young clerk passing messages~
+A tidily garmented young clerk is passing messages here.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24025
+balchoth_under_public_24521 bronze armored balchoth warrior board OTHER~
+a pair of bronze-armoured Easterling warriors~
+A pair of bronze-armoured Easterling warriors bars the doorway to the north, also passing messages between those on the two sides of the doors upon request.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24026
+lodge_tavern_24119 board group haradrim gossip corner OTHER~
+a group of Haradrim gathered about a table gossiping~
+A group of Haradrim gather about a table, gossiping in a corner.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24027
+sunglasses by_Draxx NO_LOAD Team Neutral pair OTHER~
+a pair of Team Neutral sunglasses~
+A pair of Team Neutral sunglasses lie here, looking cool.~
+   A pair of cool guy sunglasses with dark shades are here. 
+Across the lenses of the glasses, the words "TEAM NEUTRAL" are 
+written in grey print. These shades are bound to make anyone 
+"stylin' and profilin'" as they strut their way through life. 
+Can you dig it? 
+~
+9 135176 67108865
+25 1 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+#24028
+shirt by_Draxx NO_LOAD team neutral LEATHER~
+a grey Team Neutral t-shirt~
+A Team Neutral T-shirt lies here in a crumpled heap.~
+   It is a plain grey t-shirt with "TEAM NEUTRAL" written in 
+white lettering. The sleeves of the shirt hand down to just 
+about the elbow, while the bottom of the shirt reaches down to 
+just beyond the hips. It's not form-fitting, but it's not baggy 
+either. 
+~
+9 135176 9
+60 5 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#24029
+belt by_Draxx NO_LOAD studded adorned trophies LEATHER~
+a studded leather belt adorned with trophies~
+A studded leather belt lies here, adorned with war trophies.~
+   Metal studs have been riveted to a long, crude strap of 
+leather to make this belt. Various blood stains can be seen all 
+across the belts surface, giving it a dyed look of browns, 
+blacks, and red. The belt is adorned with trophies, including 
+scalps, fingers, teeth, ears, as well as other horrific 
+unmentionable items. 
+~
+9 4104 2057
+10 1 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+#24030
+skirt by_Draxx NO_LOAD blackened blood-splattered chainmail METAL~
+a blackened, blood-splattered chainmail skirt~
+A blackened chainmail skirt lies here in a heap, splattered with blood.~
+   Small blackened chain rings have been linked together to form 
+this chainmail skirt. The skirt completely circles the lower 
+body, hanging loosely down past the knees. Masterfully crafted, 
+it is obvious that this armor has seen a lot of combat. Some of 
+the chain links are broken and missing, but the blood splattered 
+all across the surface is the biggest indication. Some of the 
+links have a red and crimson shine to them, some of the blood 
+dried and crusted, some freshly spilled. 
+~
+9 4104 41
+30 4 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#24031
+cap by_Draxx NO_LOAD black Team Evil baseball LEATHER~
+a black Team Evil baseball cap~
+A black Team Evil baseball cap lies here.~
+   Black fabric has been carefully stitched together to create 
+this baseball cap. Though it is simple in design, it emanates 
+evil from the white lettering that forms the words 'TEAM EVIL' 
+over the front of the cap. Only true fans of Team Evil can 
+appreciate the design and careful craftsmanship and are usually 
+quite proud to wear it. 
+~
+9 135176 17
+25 4 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+#24032
+ticket BY_VAIRE NO_LOAD stall xxxshop24221 xxxstore24972 PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of The Northern Mittalmar Stall
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24033
+ticket BY_VAIRE NO_LOAD stall xxxshop24222 xxxstore24973 PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+marks the holder as the valid owner of The North Western
+Mittalmar Stall.
+~
+9 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24034
+ticket BY_VAIRE NO_LOAD stall xxxshop24223 xxxstore24974 PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of The Western Mittalmar
+Stall
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24035
+ticket BY_VAIRE NO_LOAD stall xxxshop24224 xxxstore24975 PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of The South Western
+Mittalmar Stall.
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24036
+ticket BY_VAIRE NO_LOAD stall xxxshop24225 xxxstore24976 PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of the South Eastern
+Mittalmar Stall.
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24037
+ticket BY_VAIRE NO_LOAD stall PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of a noted stall location,
+with permission to access the stall to which it belongs.
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24038
+ticket BY_VAIRE NO_LOAD stall PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of a noted stall location,
+with permission to access the stall to which it belongs.
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24039
+ticket BY_VAIRE NO_LOAD stall PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of a noted stall location,
+with permission to access the stall to which it belongs.
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24040
+fountain ebon swans large STONE~
+a large fountain with ebon swans~
+A large fountain, with ebon swans in near flight, is set here.~
+   This large fountain that uses the force of the waterfall 
+thundering overhead to push through a pipe and press water up 
+through four ebon swans set at each other's backs, each near 
+flight and their necks stretched upwards to call out to the 
+leaning cliff-face. Narrow stone benches are set about it, moss 
+and lichen clinging to their thick, stoic bases. 
+~
+23 4096 0
+-1 -1 4 0
+1000000 0.000000
+0 0 0 45 135168 0 1
+0.000000 0 0 0 0 0 0
+#24041
+trough rectangular simple filled water STONE~
+a simple, rectangular stone trough filled with water~
+At the side of the path sits a simple, rectangular stone trough filled with water.~
+   This shallow trough is constructed of simple stone slabs, 
+built up in a rectangular shape and set at the side of the 
+roadway. A gurgling of water swirls near the bottom at one end, 
+where a small pipe can be seen poking in, gently refilling the 
+water. 
+~
+17 4096 0
+10000 10000 4 0
+200 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#24042
+fountain drinking small stone basin STONE~
+a small drinking fountain with a stone basin~
+A small drinking fountain with a stone basin is set against a wall here.~
+   The small basin drains away through the narrow stone pillar 
+that falls into the ground below. A sliding stone panel on a 
+steel hinge slides back and forth over a vertical pipe. When 
+released, water bubbles up to fill the basin. 
+~
+17 4096 0
+10000 10000 4 0
+200 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#24043
+rubble piles huge PROGGED_MORDOR_RUBBLE OTHER~
+a series of huge piles of rubble, broken glass, remnants of old buildings, and discarded items~
+A series of huge piles of rubble, broken glass, remnants of old buildings, and discarded items is here.~
+   Comprising broken aged glass, twisted iron poles pitted with 
+rust, great blocks of stone still clutching decayed mortar, the 
+odd rusted item left behind, this is a place for scavengers to 
+crawl among the wreckage that once stood proud and new to the 
+east within the garrison. Streams of grime run out of the huge 
+mounds during heavy rain and pour into the long trough besides 
+the wide roadway of packed dirt and wide lanterns hanging from 
+newly-sunk poles. Rats and stray dogs slink about, tearing at 
+discarded wreckage and, some say, the murdered and disappeared 
+hidden amongst the past here. You can #Bscavenge#0 here. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24044
+couch broken old rotten warg pelt for_Kite by_Nauriel OTHER~
+an old, rotten, broken warg-pelt couch~
+An old, rotten warg-pelt couch sits broken near the wall.~
+   The rancid smell of rotten hide permeates the area surrounding 
+this dilapidated piece of furniture. Moldy stuffing of stained 
+scraps of fabric is exposed in the many places that the warg pelt 
+cover has been torn or decayed, and its entire structure seems to 
+sag with age and wear. The arm on the right side appears to have 
+been broken off at some point, leaving mysteriously stained 
+jagged shanks of wood protruding forth from beneath the ragged, 
+stinking hide. 
+~
+15 2101248 0
+3000 0 -1 0
+15000 0.000000
+0 2 0 0 2048 0 1
+0.000000 0 0 0 14 0 0
+#24045
+object sign RPT Mordor Temporary byCeredir OTHER~
+A sign~
+#BTo join the RPT, you must first manage to roll yourself a Guest character with a Mountain Orc Race. Then, do JOIN MORDOR -name-, where 'name' is the desired name of your temporary character.#0~
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24050
+wagon transport mordor OTHER~
+one of several wagons rumbling back and forth~
+A series of wagons rumble back and forth here.~
+   The Egthela transport system is hardly sophisticaed. Old 
+wagons, no doubt stolen from Ithilien's abandoned farmsteads, 
+ride the stony paths and avenues back and forth all day and 
+night. A covered seat houses the scowling blackblood 
+wagonmasters who are paid for their services by the Priest-Lord. 
+Back and forth, on and on, occasionally crashing off the ramps 
+and killing everyone inside, but normally quite safe.
+
+  #Btravel romenna#0 - takes you to the end of the middle tier's avenue.
+  #Btravel foundry#0 - takes you to the Great Foundry entrance.
+  #Btravel swill#0 - delivers you to the Swill Hole and Sunken Arena.
+  #Btravel tunnel#0 - delivers you to the entrance of the Underdwellings.
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24046
+boat xMORDOR_DEADPOND_FERRYx Ratty Finn pair faced orcs sit within rowboat floating near by_Nauriel OTHER~
+#5a pair of rat-faced orcs within a rowboat#0~
+#5A pair of rat-faced orcs sit within a rowboat, floating near the dock.#0~
+   Seated in a rickety teak rowboat tied off to the end of the 
+dock are the Finn twins: a pair of pink-eyed, rat-faced orcs with 
+burly arms and scrawny legs. 
+   #6To use the ferry, you must #3board boat#6. The fee for 
+using the ferry is 5cp.#0 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24047
+marker xMORDOR_DEADPOND_FERRYx timer by_Nauriel OTHER~
+the Dead Pond Ferry marker~
+The highly useful Dead Pond Ferry marker is here!~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 4194304 0 1
+0.000000 0 0 0 0 0 0
+#24048
+oars SIMPLE_QUALITY medium-blunt set rowing by_Nauriel WOOD~
+a set of rowing oars~
+A set of rowing oars rest here.~
+   Over twenty feet long, these large oars are made of thick, 
+sturdy wood and painted to help seal out water. Very heavy, they 
+are manned by several men each. 
+~
+5 4096 8193
+1 1 7 6
+5000 0.000000
+3 0 0 33 0 0 1
+150.000000 0 0 0 32 0 0
+#24049
+tilt arena_crew board tiny snaga one leg OTHER~
+#5a tiny snaga with one leg#0~
+#5A tiny snaga with one leg #0passes messages here in a high-pitched whine.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24051
+BN_manse_board board polite servant OTHER~
+#5a polite servant passing on messages#0~
+#5A polite servant passes on messages here.#0~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24057
+upperstew_board board chirpy servant OTHER~
+#5a chirpy servant passing on messages#0~
+#5A chirpy servant passes on messages here.#0~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24052
+instructions arena mob byCeredir token OTHER~
+an arena instructions token~
+An arena instructions token is here, unconfigured.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24053
+slavesmordor board burly slaver eyepatch OTHER~
+a burly slaver with an eyepatch relaying messages~
+A burly slaver with an eyepatch relays messages here.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24054
+helm UNIQUE_ARENA_ULFARR human masked blackened iron by_Nauriel METAL~
+a human-masked helm of blackened iron~
+A human-masked helm of blackened iron lies here.~
+   This helm has been forged to take the unique shape of its 
+wearer's head, and its protection encompases the entire head and 
+face, as well as part of the neck. Its back piece, beginning at 
+the crown of the head, is smooth and rounded, bearing a loop for 
+a chain at the base of its neck. Another piece extends down over 
+the brow in an exaggerated widow's peak, with barbed iron rivets 
+along its edge. From there is a mask in the shape of a stylized 
+human face, with narrowed slits for eyes, a prominent, pointed 
+nose, and high cheekbones. A hinged bucket-jaw rests below that, 
+its rivets larger versions of the barbs across the brow. It 
+appears that the front half of this helm can be unfastened and 
+slid back to allow for easy removal. 
+~
+9 528384 17
+2 3 0 0
+400 0.000000
+0 
+blackened-iron-faced~
+0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#24055
+necklace UNIQUE pofUlfarr chunky silver ring attached black iron chain METAL~
+a chunky silver ring on a black-iron chain~
+A chunky silver ring on a black-iron chain lies here.~
+   A blackened iron chain crafted to endure punishment is looped 
+through a rather plain but chunky silver ring, its surface nicked 
+and worn from ages of battle. 
+~
+8 4096 2097157
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#24056
+Middle-Tier By_vaire plain masterkey key xxxrm24050xxx xxxrm24051xxx bronze METAL~
+a plain bronze key with middle-tier markings~
+A plain bronze key with middle-tier markings rests here.~
+Simple in design, this bronze key has no ornamentation to
+adorn it aside from a few simple designs to mark it as a key
+which belongs to a middle-tier shop.
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#24058
+ticket By_Vaire shop xxxshop24250 xxxstore24052 PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of a Malle Nundulne
+near the Nisinen Gardens.
+~
+44 4096 1
+0 24015 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24059
+ticket By_Vaire stall Mittalmar slaughterhouse PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of a Tent before the
+Slaughterhouse.
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24060
+SWILLKITCHENBOARD squirmy little snaga board OTHER~
+#5a squirmy, little snaga#0~
+#5A squirmy, little snaga stands here, passing along messages#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24193
+key ARENABOSSOFFICE heavy blackened METAL~
+a heavy, blackened metal key~
+A heavy, blackened metal key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#24195
+key ARENASLAVEPEN clunky wide-handled METAL~
+a clunky, wide-handled key~
+A clunky, wide-handled key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#24061
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24062
+ ticket By_Vaire shop xxxshop24055 xxxstore24057 PARCHMENT~
+a stall ticket~
+A stall ticket lies here, threatening to blow away.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of a Malle Nundulne
+near the Nisinen Gardens.
+~
+44 4096 1
+0 24015 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24022 0 0 0 0
+#24063
+greatcoat coat patchwork hooded pAndorelas UNIQUE byCeredir LEATHER~
+a hooded greatcoat of patchwork leather~
+A patchwork-leather greatcoat lies crumpled here.~
+   Sewn of many different heavy patches of supple leather, this 
+greatcoat is by far from masterfully made, though it seems to be 
+able to serve its purpose of keeping the wearer dry and warm very 
+well regardless. The coat seems to be designed with armour in 
+mind. Two large arms allow the coat to be used over all but the 
+thickest of armour types and a large, heavy hood covers the 
+wearers head when needed. The coat reaches down easily to 
+ankles, even on the frame of a taller person. The coat has 
+clearly been soaked in oil many times, providing good water 
+proofing, water droplets simply sliding from it when contact is 
+made. Several small pockets and two larger ones are present on 
+the inside. It is lined in thick, shaggy fur. 
+~
+11 528384 1025
+4 0 0 0
+200 0.000000
+0 
+patchwork-leather-coated~
+0 30 0 0 1
+0.000000 0 0 0 14 0 0
+#24064
+object black talon-marked iron full helm UNIQUE_TALONGUARD METAL~
+an iron full-helm marked with a black talon~
+A talon-marked iron full-helm lies here.~
+   This iron full-helm is, at its basic design, a sturdy cylinder 
+which angles inwards at the eye-slits. Made mostly of 
+well-polished iron, a raised talon spreads down across the face, 
+with the middle directly over the nose and the others to the 
+sides of the eyes; these have been blackened, as have the 
+reinforced bands about the eyes and top of the helm, save for a 
+strip around the talons, which remains uncoloured. The helm 
+almost fully conceals the wearer's face, obscuring all but a 
+small portion of the wearer's eyes. 
+~
+9 921600 17
+2 5 0 0
+500 0.000000
+0 
+iron-full-helmed~
+0 35 0 0 1
+900.000000 0 0 0 17 0 0
+#24065
+plate gorget blackened iron UNIQUE_TALONGUARD METAL~
+a plate gorget of blackened iron~
+A plate gorget of blackened iron lies here.~
+This iron gorget has been polished to a glossy black. Simple 
+yet well-made, leather straps around the bottom of its inside are 
+set to fasten it to a breastplate, while on the outside gleam 
+silvery steel rivets, a concession to decoration, while the 
+hinges of the piece are found at the back.
+~
+9 4096 5
+2 5 0 0
+500 0.000000
+0 0 0 30 0 0 1
+750.000000 0 0 0 17 0 0
+#24066
+polished iron breastplate black talon UNIQUE_TALONGUARD METAL~
+a polished iron breastplate emblazoned with a black talon~
+A polished iron breastplate marked with a black talon lies here.~
+   This piece consists of a breastplate and back-plate of iron, 
+each hammered smooth and fitted to the intended wearer; fastening 
+them together are tooled straps of black leather, and iron 
+buckles of a matching colour. Each shoulder bears a pauldron of 
+gleaming, blackened iron, and, upon the polished iron 
+breastplate, over the wearer's solar plexus, is the image of the 
+clawed foot of some great bird of prey, the talons reaching about 
+the rib-cage and seeming to pierce the sides. 
+~
+9 4096 9
+2 5 0 0
+1600 0.000000
+0 0 0 38 4104 0 1
+2000.000000 0 0 0 17 0 0
+#24067
+gauntlets black iron taloned gauntlets UNIQUE_TALONGUARD METAL~
+a pair of taloned, black-iron gauntlets~
+A pair of black iron gauntlets with taloned fingers lie here.~
+   These articulated gauntlets have been made of overlapping 
+plates of blackened iron, leaving them highly protective yet 
+still moderately flexible. Each finger ends in a talon-like 
+point, sharp, certainly, though still more decorative than 
+functional. 
+~
+9 135168 129
+2 5 0 0
+650 0.000000
+0 0 0 29 8 0 1
+700.000000 0 0 0 17 0 0
+#24068
+vambraces black iron marked UNIQUE_TALONGUARD METAL~
+a pair of talon-marked, black iron vambraces~
+A pair of talon-marked, black iron vambraces lie here.~
+   Forged from blackened iron, these pieces actually each consist 
+of vambrace and rerebrace, the joint covered by linked mail. On 
+the outside of the rerebraces, mid-upper-arm, the grasping foot 
+of a bird of prey has been engraved, the iron there shining 
+silvery against the black background. 
+~
+9 4096 257
+2 5 0 0
+700 0.000000
+0 0 0 33 4164 0 1
+1400.000000 0 0 0 17 0 0
+#24069
+greaves plate iron UNIQUE_TALONGUARD METAL~
+a pair of partially-blackened iron greaves~
+A pair of partially-blackened iron greaves lie here.~
+   These well-forged pieces of armour consist of a series black 
+iron plates which protect the fronts and backs of most of the 
+legs, save the back of the knee, which is protected by mail; 
+around the top, further chain has been designed to fasten to the 
+matching cuirass. Though well-made, the armour is not without 
+its weight, perhaps added to further by the great, hinged iron 
+talons fastened to the ankle which descend over the front of the 
+wearer's boots. 
+~
+9 4608 33
+2 5 0 0
+1600 0.000000
+0 0 0 35 4 0 1
+2000.000000 0 0 0 17 0 0
+#24197
+key ARENASTORAGE rusty blackened-steel METAL~
+a rusty, blackened-steel key~
+A rusty, blackened-steel key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#24189
+key ARENAMANAGER slender polished-steel METAL~
+a slender, polished-steel key~
+A slender, polished-steel key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24070
+collar iron slave thick bearing skull bleeding eye SlaveCollar EGTHELA_ARENA METAL~
+a thick, iron slave collar bearing a skull with a bleeding eye~
+A thick, iron slave collar bearing a skull with a bleeding eye lies here.~
+   This thick collar of iron is prominently adorned with the 
+image of a skull with a bleeding eye. The piece is hinged and 
+designed to fit snugly about the neck of its wearer, with a 
+sturdy lock at the back of the piece, making it exceptionally 
+difficult to remove, once it has been fitted. 
+~
+9 4096 2097157
+2 5 0 0
+5 0.000000
+0 0 0 25 0 0 1
+50.000000 0 0 0 17 0 0
+#24071
+ring UNIQUE_EYES massive eye-marked bone OTHER~
+a massive, eye-marked bone ring~
+A massive, eye-marked bone ring lies here.~
+   This hollow thighbone of unknown origin is about as long as 
+the space between knuckles and wide enough to fit over a glove. 
+The edges of the beige tube are filed smooth. Holes pock the 
+surface, most the size of a pinprick. A long diamond eye shape 
+has been scored into the smooth surface along with a square 
+pupil. The marks are deep and narrow with bloody splinters set 
+into them. Some of the dry blood has run out of the mark, 
+leaving dark stained tracks which flow away from the eye and 
+around the ring. 
+~
+11 4096 3
+0 0 0 0
+12 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24072
+ticket by_Solon shop xxxshop24058xxx PARCHMENT~
+a ticket of shop ownership~
+A small ticket of shop ownership is here.~
+A thick piece of parchment upon which there is a stamp that
+marks the holder as the valid owner of a Malle Nundulne
+near the Bathhouse.
+~
+44 4096 1
+0 24020 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 24073 0 0 0 0
+#24073
+ticket by_Solon NO_LOAD shop expired PARCHMENT~
+an expired shop ownership ticket~
+An expired shop ownership ticket is here.~
+   A thick piece of parchment upon which there is a stamp that 
+marks the holder as the valid owner of a shop location, though it 
+is now out of date and expired, invalid and not be accepted at 
+any shop by its shopkeeper. 
+~
+44 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24260
+cleaver SIMPLE_QUALITY large black iron METAL~
+a large cleaver of black iron~
+A large cleaver of black iron lies here.~
+   This cleaver is large, being of about two feet in length from 
+the top of the blade to the bottom of the handle. Its handle is 
+of wood, stained with blood and covered with scars. Its blade is 
+about a foot long and half as wide, its edge slightly worn, 
+dulled and notched in several places. 
+~
+5 4096 8193
+0 1 7 3
+450 0.000000
+2 0 0 25 134217728 0 1
+65.000000 0 0 0 28 0 0
+#24074
+patch BLOOD_WATCH bleeding eye thorn LEATHER~
+a shoulder patch bearing a thorn-pierced bleeding eye~
+A patch of leather lies here, a thorn-pierced bleeding eye on one side.~
+   Mottled brown, this patch of leather has a bleeding, 
+dirty-yellow eye painted on its surface with a thorn piercing it. 
+A worn thong of hide is threaded through, allowing it to be tied 
+to an arm. 
+~
+11 135168 134217729
+0 0 0 0
+100 0.000000
+0 0 0 23 0 0 1
+0.000000 0 0 0 14 0 0
+#24075
+collar iron slave thick bearing gauntleted fist SlaveCollar BLACK_WATCH METAL~
+a thick, iron slave collar bearing a gauntleted fist~
+A thick, iron slave collar bearing a gauntleted fist lies discarded here.~
+   This thick collar of iron is polished to a gleaming shine and 
+is prominently adorned with the image of a gauntleted fist 
+clutching a lightning bolt, made of bronze and onyx and riveted 
+to the collar itself. The piece is hinged and designed to fit 
+snugly about the neck of its wearer, though its appearance is 
+somewhat decorative and could almost be mistaken for a piece of 
+jewelry were it not for the sturdy lock at the back of the piece, 
+making it exceptionally difficult to remove, once it has been 
+fitted. 
+~
+9 4096 2097157
+0 5 0 0
+5 0.000000
+0 0 0 25 0 0 1
+50.000000 0 0 0 17 0 0
+#24076
+scholar HARAD_STUDY_CRAFT elderly caramel-skinned OTHER~
+#5an elderly, caramel-skinned scholar#0~
+#5An elderly, caramel-skinned scholar is here giving lessons.#0~
+   This elderly scholar stands here, back slightly stooped from 
+age. His wrinkled skin has a deep, rich caramel color to it, 
+betraying his Harad ancestry. He wears long, flowing robes made 
+of the finest silk. Usually buried in a book or gazing over 
+sheets of parchment, he occasionally takes the time to give 
+lessons to students that ask. His mood is often somber and 
+withdrawn, as if his heads were in the clouds, contemplating vast 
+ideas and theories. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24077
+egthela_warehouse board ledger thin military clerk desk RM_24062 OTHER~
+#5a thin military clerk sitting at a desk#0~
+#5Sitting at the desk, a thin military clerk records in his ledger.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24101
+bodice etched smoky grey hard fitted pKANDIDIA LEATHER~
+an etched, smoky-grey hard leather fitted bodice~
+A smoky-grey hard leather bodice has been left here, its surface bearing etchings in the leather.~
+   Laced at the sides with sapphire cord, this bodice is made out 
+of panels of hardened smoky grey hued leather that have been 
+shaped and structured to the female form in an hourglass shape. 
+Each of the panels is tightly sewn to its neighbours with thick 
+thread that matches the hue of the lacing cords. The front panel 
+is larger and flat, designed to flatter, with an etched design of 
+a crescent moon at chest height. Wide leather is used as straps 
+over the shoulders to ensure the armour is more secure, each of 
+these containing small, round holes to lace sleeves onto the 
+garment. Buckles are placed on these straps as they pass the 
+collarbone and back of the neck to attach a collar. At the end 
+of the lacing cords are strung small, carved bone beads and they 
+are topped with sapphire and bronze-hued feathers the size of a 
+woman's little finger, the decorations left to dangle over the 
+hips. The edges of the leather are sewn with deep sapphire silk 
+to increase comfort during wearing as well as add a splash of 
+luxury. 
+~
+9 4096 9
+3 1 0 0
+700 0.000000
+0 0 0 40 12288 0 1
+750.000000 0 0 0 14 0 0
+#24102
+sleeves smoky grey sapphire blue snakeskin pKANDIDIA LEATHER~
+a pair of smoky-grey and sapphire-blue snakeskin leather sleeves~
+A pair of smoky-grey and sapphire-blue sleeves of snakeskin leather have been left here on the ground.~
+   Supple diamonds of dyed leather have been sewn together in a 
+snakeskin pattern for these sleeves. The majority of the pieces 
+are smoky grey, however a handful of sapphire blue have been 
+scattered in amid the darker pieces. The sleeves are laced at 
+the cuffs, binding them to the wrists, and have silver-capped 
+blue cord points to attach them to body armour. 
+~
+9 4096 257
+3 1 0 0
+500 0.000000
+0 0 0 40 12288 0 1
+450.000000 0 0 0 14 0 0
+#24103
+collar sapphire blue trimmed smoky grey pKANDIDIA LEATHER~
+a sapphire-blue trimmed, smoky-grey leather collar~
+A smoky-grey leather collar with sapphire-blue trimming has been left on the ground here.~
+   This collar is made up of smoky grey leather plates sewn 
+tightly together with thick sapphire hued thread. It covers the 
+entire neck and extends down to each side over the collarbones 
+and behind the neck with broad leather straps to secure it to 
+body armour. Sapphire blue silk has been sewn to the edges of 
+the leather for comfort and aesthetics. 
+~
+9 4096 5
+3 1 0 0
+300 0.000000
+0 0 0 40 12288 0 1
+250.000000 0 0 0 14 0 0
+#24104
+leggings smoky grey black plating pKANDIDIA LEATHER~
+a pair of smoky-grey leather leggings with black plating~
+A pair of smoky-grey leather leggings with black plating have been left on the ground here.~
+   Well-fashioned, these leggings are of an exotic look, being 
+similar to brigandine. While bearing a series of sooty black 
+round steel plates set atop each thigh, knee and shin, this pair 
+of leggings is composed of tightly moulded, pliable smoky grey 
+leather that clasps and reveals the wearer's form. Blue cord 
+laces the leggings up, each ending in ornate silver points. 
+~
+9 4096 16417
+3 1 0 0
+550 0.000000
+0 0 0 40 12288 0 1
+800.000000 0 0 0 14 0 0
+#24105
+helm sapphire blue butterfly emblazoned pKANDIDIA LEATHER~
+a sapphire-blue butterfly emblazoned leather helm~
+A sapphire-blue leather helm, emblazoned with butterflies, has been left here.~
+   Made of moulded hard leather, dyed sapphire-blue and painted 
+realistically, the front of this helm resembles a butterfly with 
+spread wings, its body forming the nose-guard. Two elliptical 
+slits grace the upper wings of the butterfly, stylised to 
+resemble exotically shaped eyes through which the wearer's own 
+eyes can be seen. The butterfly plate slides vertically, being 
+able to be pinned upon the top of the head for a greater field of 
+vision, or to cover the face for greater protection. The rest of 
+the head is encircled with snug-fitting, smoky grey hardened 
+leather lined with thick sapphire-blue silk. 
+~
+9 4096 17
+3 1 0 0
+300 0.000000
+0 0 0 40 12288 0 1
+550.000000 0 0 0 14 0 0
+#24078
+brooch HARAD_FELLOWSHIP_APPRENTICE copper crescent-shaped METAL~
+a copper, crescent-shaped brooch~
+A copper, crescent-shaped brooch lies here.~
+   Fashioned from copper, this brooch is formed into a crescent 
+moon shape. The body of the moon is flat and smooth; however it 
+is moulded with the edges curved towards the wearer to create a 
+rounded outline. The entire thing has been buffed to a 
+mirror-polish shine, and is backed by a simple pin to attach it 
+to clothing. 
+~
+8 4096 10485761
+0 0 0 0
+25 0.000000
+0 0 0 30 8397312 0 1
+300.000000 0 0 0 28 0 0
+#24079
+brooch HARAD_FELLOWSHIP_JOURNEYMAN ivory crescent-shaped METAL~
+an ivory, crescent-shaped brooch~
+An ivory, crescent-shaped brooch lies here.~
+   Fashioned from ivory, this brooch is carved into a crescent 
+moon shape. Made from a single piece of ivory, the body of the 
+moon is flat and has been buffed smooth. The edges have been 
+sculpted to curve towards the wearer and create a rounded 
+outline. The quality is high with no chips or cracks in the 
+piece which is backed by a simple bronze pin to attach it to 
+clothing. 
+~
+8 4096 10485761
+0 0 0 0
+25 0.000000
+0 0 0 30 8397312 0 1
+300.000000 0 0 0 28 0 0
+#24080
+brooch HARAD_FELLOWSHIP_MASTER amber crescent-shaped METAL~
+an amber, crescent-shaped brooch~
+An amber, crescent-shaped brooch lies here.~
+   Fashioned from amber, this brooch is carved into a crescent 
+moon shape. Made from a single amber stone, the body of the moon 
+is flat and has been buffed to a shine. The edges have been 
+sanded to curve towards the wearer and create a rounded outline. 
+Of high quality, the piece is perfectly smooth, without chips or 
+cracks, and it is backed by a simple bronze pin to attach it to 
+clothing. 
+~
+8 4096 10485761
+0 0 0 0
+25 0.000000
+0 0 0 30 8397312 0 1
+300.000000 0 0 0 28 0 0
+#24081
+net GLADIATOR lead weighted tough woven fibre OTHER~
+a lead-weighted net of tough woven fibres~
+A tough net that has been weighted with lead, comprised of woven fibre, has been left here.~
+   Thick woven rope has been weighted with scarred balls of lead 
+to form this heavy net. A leather strap has been wrapped around 
+the middle of the net to form a handle, allowing the net to be 
+used akin to a shield, or to be thrown into the air. 
+~
+6 4096 8912897
+5 12 35 0
+600 0.000000
+0 0 0 32 0 0 1
+200.000000 0 0 0 32 0 0
+#24085
+banner BLOODWATCH BURZHASAT long rusty poleaxe blood red five black spear METAL~
+a long, rusty poleaxe bearing a spear marked, blood-red banner~
+A long, rusty poleaxe stands here, attached to the top is a blood-red banner, clustered diagonally with five black spears.~
+   This long, wooden pole has a large, blood-red banner attached 
+at the top, as well as a somewhat rusted, pointed iron axe-head 
+on it's tip which has been roughly sharpened. The grisly banner 
+consists of a blood-red field, on which five black spears have 
+been clustered diagonally. The stitching is haphazard and 
+shoddy, yet the insignia is still clearly depicted. The banner 
+and axe-head are attached to a thick, red paint-flaked wooden 
+pole that can stand upright on it's own, and allows the grisly 
+banner to flap in the wind whether being carried or on display. 
+~
+5 4096 8193
+0 1 11 10
+865 0.000000
+1 -1 0 29 0 0 1
+0.000000 0 0 0 28 0 0
+#24086
+bracer mottled blood red spear marked BLOODWATCH BURZHASAT LEATHER~
+a mottled, spear-marked bracer of blood-red leather~
+A mottled black leather bracer has been left on the ground here.~
+   This bracer of mottled, blood-red leather is thick and padded 
+on the inside with torn animal fur. It slips over the wrist to 
+provide a layer of protection, and it is held in place with a 
+leather thong. Five spears have been burned into the leathers 
+surface, appearing black against the red background, arranged in 
+a diagonal cluster. 
+~
+9 4608 4097
+3 1 0 0
+50 0.000000
+0 0 0 55 16384 0 1
+50.000000 0 0 0 14 0 0
+#24082
+key HOUSE_ODULUN heavy steel METAL~
+a heavy steel key~
+A heavy steel key lies here.~
+   Made of thick, pressed steel, this key would be considered no 
+different than most others. The thing that sets it apart is the 
+engraving of a scale with an entwined snake, flanked by a fox and 
+a mongoose that has been delicately carved in to the steel 
+surface. Other than that, this key is fairly unremarkable. 
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24083
+Pleebo EYES-OF-BLOOD_BOARD goblin one-eyed deformed OTHER~
+#5a one-eyed, deformed goblin#0~
+#5A one-eyed, deformed goblin passes messages here.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24084
+key HOUSE_ODULUN_FRONTGATE engraved silver METAL~
+an engraved silver key~
+An engraved silver key lies here, glinting.~
+   This key is relatively large and made of a sturdy silver 
+alloy. It has a long stem and neatly cut teeth, with an oval 
+shaped base, pressed flat and cut with a hole to slide onto a 
+keyring. It is engraved, delicately, with a scale with an 
+entwined snake, flanked by a fox and a mongoose. The fox's tail 
+curves down to the teeth of the key. 
+~
+18 4096 1
+0 0 0 0
+2 0.000000
+0 0 0 32 0 0 1
+40.000000 0 0 0 28 0 0
+#24087
+key HOUSE_ODULUN_FRONTDOOR heavy brass engraved METAL~
+an engraved, heavy brass key~
+An engraved, heavy brass key lies here.~
+   It is a heavy brass key with the image of a scale with an 
+entwined snake, flanked by a fox and a mongoose on its handle. 
+~
+18 4096 1
+0 0 0 0
+15 0.000000
+0 0 0 30 0 0 1
+20.000000 0 0 0 19 0 0
+#24088
+key HOUSE_ODULUN_BEDROOM shiny light-weight silver METAL~
+a shiny, light-weight silver key~
+A shiny, light-weight silver key lies here.~
+   This key is long-handled but light nonetheless. It is made of 
+silver, well-oiled and shiny. The handle is engraved with the 
+image of a scale with an entwined snake, flanked by a fox and a 
+mongoose. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#24091
+dagger EXPERT_QUALITY MORGUL_BLADE CEREMONIAL ornate embellished steel bladed pSERGHA METAL UNIQUE~
+an ornately-runed, embellished, steel-bladed dagger~
+An ornate, steel-bladed dagger embellished with a blood-filled glass encapsule lies here, discarded.~
+   A blade of fine steel is one of the main ingredients of this 
+dagger, although the shape of it is something rather odd. 
+Imitating a serpent, the blade is thin, twisting, with slight 
+indentations along the length. Giving off a fine sheen in even 
+dim light, the blade is truly a piece of fine workmanship. The 
+only other oddity about the weapon would be the hilt; made of a 
+pure white material, resembling ivory, it is long and smooth, 
+with only an occasional fleck of a dull grey. Embellished within 
+the center of the hilt is a small, encapsulated vessel, filled 
+with what appears to be an ichorous, blackish-red substance. 
+Dark, ornate runes encompass the entirety of the ceremonial 
+weapon, etched deep and with vivid precision in an ominously 
+Morgulite style. 
+~
+5 4096 8193
+1 1 7 8
+100 0.000000
+0 0 0 29 16408 0 1
+250.000000 0 0 0 18 0 0
+#24120
+chains dark iron gruesome fetishes pTharishak METAL~
+dark iron chains adorned with gruesome fetishes~
+A series of gruesomely adorned iron chains lies here in a pile.~
+   Hewn of dark iron purposefully smoked longer than necessary to 
+take out any remaining shine the metal might have held. Crafted 
+of one continual snaking of links, these dark iron bindings are 
+adorned with independently with blunt weights and hooks spanning 
+in size from fish-hooks to slaughter-house meat-hooks, some even 
+still hooked into the wearers mutilated flesh. At once perhaps 
+used to restrain, now the ends would be worn about the shoulders, 
+and dangle shattered as trophies to clatter with the movements of 
+the wearer. Scattered about in chinks of the iron, are severed 
+digits of several races, flaccid tongues, perhaps strings of 
+teeth or top-knots scalped from owners. 
+~
+11 4096 301
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+150.000000 0 0 0 17 0 0
+#24121
+noose heavy thick blackened chain pTharishak METAL~
+a heavy noose of thick, blackened chain~
+A heavy noose of thick, blackened chain lies on the ground here.~
+   Chain links forged of thick, dark iron form a heavy noose and 
+short leash that ends in a broken link. The loop is wide enough 
+to pass over the head of a tremendous beast, and the blackened 
+metal is covered with a layer of grimy filth. The leash is only 
+a few feet long, the broken link suggesting that it had meant to 
+be longer. 
+~
+5 4096 8197
+2 2 6 7
+500 0.000000
+3 0 0 29 16384 0 1
+50.000000 0 0 0 28 0 0
+#24122
+claws gore stained set iron pTharishak METAL~
+a gore-stained set of iron claws~
+A few bloodied claw blades in a pile.~
+   Thick iron blades, extending roughly seven or eight inches 
+long and being two three inches wide, make up this series of 
+embedded weapons. Sunken deep into the host's flesh, the iron 
+has been stained crimson and black in blotches yet easily retain 
+brutal efficiency when brought to bear by monsterous owner. The 
+placement between the fingers giving ample clearance in order to 
+curl a fist, grasp weaponry, or other dexterous tasks without too 
+much hinderance. 
+~
+5 4096 8321
+0 1 4 1
+400 0.000000
+4 2 0 30 16384 0 1
+230.000000 0 0 0 28 0 0
+A
+10001 5
+#24123
+helm huge horned bristling black scales pTharishak METAL~
+a huge, horned helm of bristling black scales~
+A huge, horned helmet lies here, bristly with scales and crafted for a giant.~
+   A crude pair of horns has been attached to the temples of this 
+giant-sized helm, which is made of thick panels of leather set 
+with blackened scales. They drape down the back of the neck, and 
+a nosepiece is set in front, a slender taper of metal that offers 
+some slight protection to the face. The scales are set closely 
+together, bristling outward as they cover the helm, and a great 
+number are used to fashion the monstrously large helmet. 
+~
+9 4096 17
+3 5 0 0
+1200 0.000000
+0 0 0 29 16384 0 1
+400.000000 0 0 0 28 0 0
+#24130
+tunic xGLADIATOR_RECRUIT heavily layered cloth OTHER~
+a shabby, heavily-layered cloth tunic~
+A shabby tunic of heavily layered fabric has been heaped here.~
+   Made of cotton fabric heavily-padded, this tunic has seen 
+better days and is in shabby condition. Layers of the heavy 
+fabric have been stitched on top of the next. The shoulders 
+feature cap sleeves, short ones with a slightly-rolled brim, and 
+the neckline is v-shaped with a stained edge. The tunic is plain 
+overall, and was once a white colour but now has been stained in 
+places with sweat, blood, and muck. 
+~
+9 135168 9
+1 0 0 0
+300 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 7 0 0
+#24131
+loincloth xGLADIATOR_RECRUIT rough cloth wrappings OTHER~
+a rough loincloth and cloth wrappings~
+A rough loincloth and its cloth wrappings has been left here.~
+   Thick and wide cloth wrappings form a rough skirt around the 
+wearer's loins and thighs, with a loincloth underneath. They are 
+patchy, but thick with many layers. Once a white colour, now 
+they are stain with sweat and blood. 
+~
+9 135168 33
+1 0 0 0
+205 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 0 0 0
+#24132
+bracers xGLADIATOR_RECRUIT pair thick cloth OTHER~
+a thick pair of cloth arm bracers~
+Thick cloth bracers have been left here carelessly.~
+   The heavy fabric of these arm bracers, worn on the upper arm, 
+are robustly-stitched together into several thick layers to form 
+a heavy-padding thick enough to absorb the damage of blows from 
+practice weapons. 
+~
+9 135168 257
+1 0 0 0
+200 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 0 0 0
+#24133
+collar xGLADIATOR_RECRUIT tarnished tin stamped caged helmet METAL~
+a tarnished tin collar stamped with a caged helmet~
+A tarnished tin collar that has been stamped with a caged helmet, has been left here.~
+   The collar has been hastily forged from two thin pieces of 
+tarnished tin. It closes with a locked hinge of stronger metal. 
+Scratches and mars mark its surface, and on the front the stamp 
+of a caged helmet is clearly indented. 
+~
+9 4096 5
+1 5 4 0
+300 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 20 0 0
+#24134
+band xGLADIATOR_RECRUIT sweat stained twisted cloth OTHER~
+a thick, sweat-stained band of twisted cloth~
+A thick, sweat-stained band of cloth has been left here.~
+   A twisted length of thick cloth has been formed into a ring to 
+form a sweaty headband. While its true purpose is likely to keep 
+sweat from it's wearers eyes, it offers some scant protection 
+from blows to the temple and brow with the extra padding. 
+~
+9 4096 17
+1 0 0 0
+100 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 7 0 0
+#24135
+tunic xGLADIATOR_PRIVATE black thick quilted cloth OTHER~
+a black, thick-quilted cloth tunic~
+A black, thick-quilted tunic of thick cloth has been left here.~
+   Made of black-dyed cloth and heavily-padded, this tunic has a 
+quilted, diamond-patterned surface. The diamonds are punched in 
+a pattern of lines across the tunic, particularly along the seam 
+lines. The shoulders feature cap sleeves, short ones with a 
+slightly-rolled brim, and the neckline is v-shaped with a 
+contrasting edging that is also diamond punched. It is enough to 
+protect blows from practice weapons, but those of real ones would 
+do the wearer extreme damage. A small patch bearing a caged 
+helmet has been sewn over the right breast. 
+~
+9 4096 9
+2 0 0 0
+300 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 7 0 0
+#24136
+loincloth xGLADIATOR_PRIVATE studded thick cloth wrappings OTHER~
+a studded loincloth and thick cloth wrappings~
+A studded loincloth with thick cloth wrappings is heaped here.~
+   Thick brass studs have been placed an roughly-even intervals 
+along a loincloth, which has long, thick wrappings to form a 
+padded skirt around the wearer's loins and thighs. The fabric 
+has been dyed black and is frayed in places. 
+~
+9 4096 33
+2 0 0 0
+205 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 0 0 0
+#24137
+armguard xGLADIATOR_PRIVATE sole overlapping pauldron LEATHER~
+a leather armguard and overlapping pauldron~
+A single leather armguard with an attached pauldron has been set here.~
+   Marred leather has been layered in thick strips, to form an 
+articulated armguard that protects the forearm and upper arm of 
+the wearer. They are affixed in place by cordage that runs under 
+the arm. A waxy pauldron overlaps the widest leather strip at 
+the top of the arm, adding a layer of protection to the shoulder 
+and helping to deflect blows that land there. The arm uncovered
+by the armguard is afforded some basic protection with some
+thick leather strapping.
+~
+9 4096 257
+1 1 0 0
+350 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 14 0 0
+#24138
+collar xGLADIATOR_PRIVATE thick iron marked caged helmet METAL~
+a thick iron collar marked with a caged helmet~
+A thick collar of iron, marked with a caged helmet, has been set here.~
+   This has been hastily forged from two thick pieces of dull 
+iron. It closes around the neck and clasps with a locked hinge. 
+Nicks and imperfections mar its surface. The marking of a caged 
+helm has been etched efficiently into the front of the iron 
+collar. 
+~
+9 4096 5
+2 5 4 0
+400 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 19 0 0
+#24139
+skullcap xGLADIATOR_PRIVATE rounded leather surfaced LEATHER~
+a round, leather-surfaced skullcap~
+A round skullcap that has been made of a cloth liner and leather surface is on the ground here.~
+   This cap has been made of two pieces, one of a leather outer 
+layer and the other a padded cloth liner. Stitched tightly 
+together to cover the skull, it has flaps down the ears that 
+attach to laces which one can tie beneath the chin. It is not 
+sturdy enough to absorb the blow of a real weapon. Upon the 
+right ear-flap, the image of a caged helm has been burnt into the 
+leather. 
+~
+9 4096 17
+2 1 0 0
+200 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 0 0 0
+#24140
+halter xGLADIATOR_CORPORAL tooled brass plate LEATHER~
+a tooled leather halter and brass plate~
+A tooled leather halter and metal plate has been left here.~
+   A unique chestpiece of thick, tooled leather wraps the upper 
+body, with a layer of brass plate engraved with a caged helmet 
+covering the right breast. The halter is held in place with a 
+harness of straps and bindings which run the wearer's shoulders 
+and back. The abdomen is covered with a double layer of dark 
+tanned leather, formed with a muscular appearance in mind and 
+strapped to the harness with metal buckles. 
+~
+9 4096 9
+3 1 0 0
+850 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 14 0 0
+#24141
+greave xGLADIATOR_CORPORAL sole tall beaten brass METAL~
+a tall, sole greave of beaten brass~
+A single, tall, brass greave lies here.~
+   This sole greave is rather tall, reaching from foot to thigh, 
+a series of straps running along the lower half and allowing it 
+to be securely tied to one's leg. Fashioned from brass, while it 
+may have once shined, those days are long over now, the beaten 
+and tarnished surface of the piece of metal obviously the victim 
+of many a savage blow. Some leather strappings offer meager 
+protection to the left uncovered by the greave. 
+~
+9 4096 33
+1 5 0 0
+400 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 19 0 0
+#24142
+armguard xGLADIATOR_CORPORAL single banded brass METAL~
+a single, banded-brass armguard~
+A long loop of banded-brass rings lies here.~
+Designed to be worn upon the length of one arm, this arm guard
+is fashion from a series of thick brass hoops, overlapping and
+moving in a somewhat jerky fashion. Far from a piece of fine
+craftsmanship, the arm guard is scratched and marked with many
+stains. It ends at the wrist with little ceremony, and a rounded
+piece of brass lets it cover one's shoulder. Thick leather
+strapping affords the arm unprotected by the armguard some
+basic coverage.
+~
+9 4096 257
+1 5 0 0
+400 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 19 0 0
+#24143
+collar xGLADIATOR_CORPORAL thick brass engraved caged helmet METAL~
+a thick brass collar engraved with a caged helmet~
+A thick collar of brass, engraved with a caged helmet, has been set here.~
+   This burnished brass collar has been cast from two thick, 
+shiny pieces. A small locked hinge clasps the two pieces 
+together to bind the wearers neck. The emblem of a caged helmet 
+has been carefully engraved onto the front of the collar, and the 
+heavy metal providing a thick layer against the wearer's skin. 
+~
+9 4096 5
+3 5 4 0
+400 0.000000
+0 0 0 0 520 0 1
+0.000000 0 0 0 19 0 0
+#24144
+helmet xGLADIATOR_CORPORAL large open caged gladiator METAL~
+a large, open-caged gladiator helmet~
+A large helm of gladiator fashion, boasting an open cage, is resting here.~
+   Forged from solid, dark iron to enclose the wearer's head, 
+this large gladiator helm boasts a cage the covers the face, with 
+a open grill that allows for decent visage. A crest of iron runs 
+the top of the helm, with short dags along the sides, and the 
+backside ends in a flared edge. Some of the horizontal and 
+vertical bars of the cage-like mask have been dented inwards at 
+some point in the past, and the surface of the helm is marred in 
+other places with dents and scratchs. 
+~
+9 4096 17
+2 5 2 0
+650 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24145
+girdle xGLADIATOR brass studded broad LEATHER~
+a brass-studded, broad leather girdle~
+A brass-studded girdle of broad leather has been set here.~
+   Shiny brass studs line this broad girdle of thick, dark-tanned 
+leather. It wraps the wearer's waist, wider in girth at the 
+front to cover more of the stomach, and around the back to offer 
+crucial support in heavy lifting. 
+~
+9 4096 2049
+2 1 0 0
+200 0.000000
+0 0 0 40 0 0 1
+0.000000 0 0 0 10 0 0
+#24146
+sandals xGLADIATOR pair corded knee high LEATHER~
+a pair of corded, knee-high leather sandals~
+Set here are a pair of corded leather sandals.~
+   These pair of sandals have been formed from thick, dusty 
+leather. They have slightly padded soles and a series of leather 
+stappings that run the wearer's legs to knee height, somewhat 
+aiding to protect the wearer's lower legs. 
+~
+11 4096 65
+0 0 0 0
+100 0.000000
+0 0 0 25 8 0 1
+0.000000 0 0 0 0 0 0
+#24147
+patch xGLADIATORS dark caged helmet LEATHER:~
+a dark leather patch bearing a caged helmet~
+A dark leather patch bearing a caged helmet has been left here on the ground.~
+   This patch of hard, dark leather is about a hands length in 
+width and wraps about the upper arm of the wearer. It is held in 
+place by some grimy ties. The emblem of a caged helmet has been 
+burnt into the leather surface. 
+~
+11 4096 134217729
+0 0 0 0
+10 0.000000
+0 0 0 30 8 0 1
+0.000000 0 0 0 14 0 0
+#24353
+key rusty METAL METAL~
+a rusty key tied to a leather string~
+A rusty key is lying here, tied to a leather string.~
+   This key is quite corroded from the rust that covers it. It 
+looks quite fragile and should probably be handled with care. 
+The key is tied to a leather string which might be hung around 
+the throat.
+~
+18 4096 2113537
+0 0 0 0
+1 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 28 0 0
+#24555
+key long twisted bronze UPPER_STEWARD METAL~
+a long, twisted bronze key~
+A long, twisted bronze key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 16 0 0
+#24089
+bell ornamented brass bell METAL~
+an ornamented brass bell~
+An ornamented brass bell stands upon a small plinth.~
+   This is an exquisite and old-looking bell, cast of brass and 
+with geometric ornamentation covering the entirety of the outer 
+surface. It stands upon a plinth with a small hammer beside it, 
+similarly ornamented. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 4096 0 1
+0.000000 0 0 0 0 0 0
+#24971
+key shop24219 rope-bound key OTHER~
+a rope-bound key~
+A large, rope-bound key lies here.~
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24999
+capacious sable cloak green viper HARADRIM reflected_moon_clan TEXTILE~
+a capacious, sable cloak embroidered with a green viper~
+A capacious, sable cloaked embroidered with a green viper is lying here in a crumpled heap.~
+   This hooded cloak flows down to the knees and provides ample 
+material to conceal the wearer's form thanks to its capacious 
+size. It has been sewn from a thick, sturdy, wool-dyed sable in 
+hue and the back has been embroidered with a green serpent. 
+Thick leather pads have been sewn into the wool at the shoulders 
+to provide limited protection but more importantly a visual 
+increase in the wearer's size. A brass clasp in the shape of a 
+serpent is available for securing the cloak. 
+~
+11 528384 1025
+0 0 0 0
+200 0.000000
+0 
+sable-cloaked~
+0 30 8200 0 1
+157.000000 0 0 0 7 0 0
+#24589
+scarf purple gold silk laden bells discarded TEXTILE~
+a gold and purple silk scarf~
+A purple and gold silk scarf laden with bells has been discarded here.~
+   This scarf has been woven with precision and skill. Bordering 
+around the purple cloth is a golden silk that is laden with 
+bells. The gilded bells are spaced out by a hands width and are 
+attached all the way around the border of the scarf. 
+~
+11 4096 67108885
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+45.000000 0 0 0 5 0 0
+#24599
+bandana Rethbren ebon hued silk hawk intricate grey silver thread TEXTILE~
+an ebon-hued bandana adorned with a silver-and-grey hawk~
+An ebony bandana fashioned of silk and decorated with a hawk lies here.~
+   This large square of silk has been dyed a rich ebon in colour, 
+the outer edges of the bandana double stitched with a gentle 
+thread of blue a shade darker. The centre of the bandana has 
+been decorated with a predatory hawk in flight, rendered in 
+intricate embroidery of silver and grey coloured thread. The 
+bird's sleek limbs are outstretched, talons artfully depicted in 
+the two colours against the darker silk. 
+~
+12 4096 201326865
+0 0 0 0
+100 0.000000
+0 0 0 0 8192 0 1
+70.000000 0 0 0 5 0 0
+#24598
+bandana Gaskin azure silk dragon intricate gold silver thread TEXTILE~
+an azure bandana adorned with a silver-and-gold dragon~
+An azure bandana fashioned of silk and decorated with a dragon lies here.~
+   This large square of silk has been dyed a rich azure in 
+colour, the outer edges of the bandana double stitched with a 
+gentle thread of blue a shade darker. The centre of the bandana 
+has been decorated with a large, sinuous serpent, mouth agape in 
+a snarl rendered in intricate embroidery of silver and gold 
+coloured thread. Sleek limbs are outstretched, talons artfully 
+depicted in the two colours against the darker silk as the long, 
+serpentine body of the dragon curls and twists, occupying much ro 
+om on the bandana. 
+~
+12 4096 201326865
+0 0 0 0
+100 0.000000
+0 0 0 0 8192 0 1
+70.000000 0 0 0 5 0 0
+#24597
+bandana Varathen sea green silk wicked tree intricate silver thread TEXTILE~
+a sea-green bandana adorned with a silver, wicked-looking tree~
+A sea-green bandana fashioned of silk and decorated with a wicked-looking tree lies here.~
+   This large square of silk has been dyed a rich sea-green in 
+colour, the outer edges of the bandana double stitched with a 
+gentle thread of blue a shade darker. The centre of the bandana 
+has been decorated with a wicked-looking Tree, rendered in 
+intricate embroidery of silver thread with gold embellishments. 
+The tree's limbs spread out, bearing small thorns, with clear 
+skill and mastery of it's embroiderer. 
+~
+12 4096 201326865
+0 0 0 0
+100 0.000000
+0 0 0 0 8192 0 1
+70.000000 0 0 0 5 0 0
+#24596
+bandana Peridan ruby red silk blazing sun orange thread TEXTILE~
+a ruby-red bandana adorned with a blazing orange sun~
+A ruby-red bandana fashioned of silk and decorated with a blazing sun lies here.~
+   This large square of silk has been dyed a rich ruby-red in 
+colour, the outer edges of the bandana double stitched with a 
+gentle thread of red a shade darker. The centre of the bandana 
+has been decorated with a large, blazing sun, flaming tendrils 
+waving off in intricate embroidery of bright orange coloured 
+thread. The rich dye-work and the skill of the embroidery on the 
+bandana is as a skilled hand. 
+~
+12 4096 201326865
+0 0 0 0
+100 0.000000
+0 0 0 0 8192 0 1
+70.000000 0 0 0 5 0 0
+#24595
+bandana AlMahkBa bright yellow silk white scaled snake thread TEXTILE~
+a bright-yellow bandana adorned with a scaled, white snake~
+A bright-yellow bandana fashioned of silk and decorated with a scaled snake lies here.~
+   This large square of silk has been dyed a vivid bright-yellow 
+in colour, the outer edges of the bandana double stitched with a 
+gentle thread of yellow a shade darker. The centre of the 
+bandana has been decorated with a coiled snake, intricately 
+emroidered in white thread with black scale detailing. The rich 
+dye-work and skill of the embroidery on the bandana is from a 
+skilled hand. 
+~
+12 4096 201326865
+0 0 0 0
+100 0.000000
+0 0 0 0 8192 0 1
+70.000000 0 0 0 5 0 0
+#24180
+hauberk black, leather-wrapped, chainmail hauberk XCORSAIR_CHAINMAIL METAL~
+a black, leather-wrapped, chainmail hauberk~
+A black, leather-wrapped, chainmail hauberk lies here discarded.~
+   This piece of armor is made of many quality, fire-darkened 
+iron rings, tightly woven together in a diamond pattern. The 
+hauberk covers from neck to shoulders to hips. Black plates of 
+boiled leather have been riveted around the neck area and the 
+chest, providing extra protection to critical parts of the 
+wearer. Rectangular dags of black leather hang down from the 
+shoulders and all along the lower edge of the garment, giving it 
+a bold and dashing appearance. 
+~
+9 4096 9
+2 4 0 0
+1300 0.000000
+0 0 0 39 12288 0 1
+1500.000000 0 0 0 28 0 0
+A
+10025 -5
+A
+10024 -10
+A
+10037 -10
+#24181
+sleeves black leather-fitted chainmail sleeves xCORSAIR_CHAINMAIL METAL~
+a pair of black, leather-fitted chainmail sleeves~
+A pair of black, leather-fitted chain sleeves are set here.~
+   Made of dull, fire-darkened iron rings, this pair of sleeves 
+attaches to a hauberk with small ties at the top, the dense 
+garment covering the arms all the way to the wrists. The dark 
+iron mesh is tightly woven in a diamond shaped pattern, boiled 
+black leather has been shapped and fitted to the elbows and 
+forearms. 
+~
+9 4096 257
+2 4 0 0
+1000 0.000000
+0 0 0 39 12288 0 1
+1000.000000 0 0 0 28 0 0
+A
+10025 -5
+A
+10024 -10
+A
+10036 -10
+A
+10037 -10
+#24182
+leggings black leather fitted chainmail leggings xCORSAIR_CHAINMAIL METAL~
+a pair of black, leather-fitted chainmail leggings~
+A pair of black, leather-fitted chainmail leggings rest here.~
+   Made of hard, fire-darkened iron, these leggings are composed 
+of row upon row of interlocking small rings. The small rings are 
+tightly woven in a diamond patterned shape, providing light, 
+strong protection to the legs. Boiled, black leather plating has 
+been riveted to the shins and knees. The leggings buckle at the 
+waist and along the backs and cover from hips to ankles. 
+~
+9 4096 33
+2 4 0 0
+1000 0.000000
+0 0 0 39 12288 0 1
+1400.000000 0 0 0 28 0 0
+A
+10025 -5
+A
+10024 -10
+A
+10037 -10
+A
+10036 -10
+#24183
+gauntlets black leather backed chainmail xCORSAIR_CHAINMAIL METAL~
+a pair of black, leather-backed chainmail gauntlets~
+A pair of black, leather-backed chainmail gauntlets lay here.~
+   These well-made, chainmail gloves have been formed by 
+countless small, fire-darkened iron rings, linked one to another 
+patterened into the shape of a human hand. A bronze buckle at 
+the wrist helps secure the gauntlet, while several leather strips 
+running along the links futher ensure grip and an even wear. 
+Black boiled leather has been riveted to the back of them and the 
+backs of the fingers. 
+~
+9 4096 129
+2 4 0 0
+500 0.000000
+0 0 0 39 12288 0 1
+600.000000 0 0 0 28 0 0
+A
+10017 -15
+A
+10016 -15
+A
+10018 -5
+#24184
+collar dark chain leather set xCORSAIR_CHAINMAIL METAL~
+a dark-chain, leather set collar~
+A dark-chain, leather set collar is set here.~
+   This collar has been cleverly wrought of quality, fire 
+darkened chainmail, with a piece of black leather interwoven 
+through it. Another piece of black leather covers it, adorned 
+with a diamond like pattern. It is both light and supple, and 
+bears no obvious insignia upon it. 
+~
+9 4096 5
+2 4 0 0
+300 0.000000
+0 0 0 39 12288 0 1
+600.000000 0 0 0 0 0 0
+#24185
+helmet feather crested leather covered xCORSAIR METAL~
+a feather-crested, leather-covered helmet~
+A feather-crested helmet, covered with a layer of leather, is placed here.~
+   This helmet is made of well wrought dark iron, covering the 
+head, brow and arching down and around to cover the cheeks all 
+the way to the neck. A thick nasal, covered in studded brass, 
+curves down from the brow as well. A layer of black leather 
+covers the dome of the helmet and most of the exposed iron, 
+dulling the glint given off by the metal. Three crests of large 
+white feathers runs from just above the brow and from the sides 
+of the helm to the back of the head, the feathers tilted back. 
+~
+9 4096 17
+2 5 0 0
+500 0.000000
+0 0 0 39 12288 0 1
+1200.000000 0 0 0 28 0 0
+A
+10032 -5
+#24186
+shield black ship engraved roundshield xCORSAIR METAL~
+a black, ship-engraved iron roundshield~
+A black ship-engraved roundshield is on the ground.~
+   This roundshield has been made of dulled iron, darkened to be 
+sooty black. Leather strapping allows the shield to be fixed to 
+it's bearers arm. Mottled leather runs along the rim of the 
+shield, providing some padding to the rim. The center of the 
+shield has been engraved in the shape of a twin-masted pirate 
+sloop. 
+~
+6 4608 9175041
+5 12 35 0
+600 0.000000
+0 0 0 39 0 0 1
+500.000000 0 0 0 0 0 0
+#24187
+hauberk ornate plated leather xCORSAIR_SCALE METAL~
+an ornate, plated leather hauberk~
+An ornate hauberk studded with bronze plates lies here.~
+   Made of a thick, quality leather this hauberk is plated and 
+scaled with thin metal. Strips of bronze plating curves from the 
+sides around up and under bronze pauldrons at the shoulders, 
+while the front and back of the piece are scaled in oblong bronze 
+plates. Not solidly plated nor thick plates used allows much 
+more maneuverability and makes it considerably lighter. 
+~
+9 4096 9
+2 3 0 0
+950 0.000000
+0 0 0 34 8192 0 1
+700.000000 0 0 0 28 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -10
+#24188
+leggings plated leather xCORSAIR_SCALE METAL~
+a pair of metal-plated leather leggings~
+A pair of leather leggings, covering in bronze plates, have been left here.~
+   Crafted of a quality, thick leather, these leggings are plated 
+with thin strips and scales of bronze. The inside of each leg is 
+lined with a quilted fabric, providing some comfort to the 
+wearer. The thighs and shins are covered in overlapped bronze 
+scales, while curved bronze plated strips protect the knees. 
+~
+9 4096 33
+2 3 0 0
+950 0.000000
+0 0 0 29 8192 0 1
+650.000000 0 0 0 28 0 0
+A
+10025 -5
+A
+10024 -10
+A
+10037 -10
+#24190
+gauntlets metal backed leather xCORSAIR_SCALE METAL~
+a pair of metal-backed leather gauntlets~
+A pair of leather gauntlets, backed with thin bronze strips, are left here.~
+   Crafted of a quality leather, these leather gauntlets cover 
+the whole of the hand and run up to the forearm, ending in 
+slightly flared cuffs. Thin metal plates of bronze cover the 
+backhand of each gauntlet and the top of the fingers, providing 
+extra protection to the wearer. 
+~
+9 4096 129
+2 3 0 0
+305 0.000000
+0 0 0 29 8192 0 1
+275.000000 0 0 0 16 0 0
+#24191
+sleeves metal plated leather xCORSAIR_SCALE METAL~
+a pair of metal-plated leather sleeves~
+A pair of leather sleeves, plated with bronze scales and strips, are set here.~
+   Crafted of a quality, thick leather, these sleeves provide 
+sturdy protection to the arms. Thin, oblong plates scale over 
+each other to provide a layer of bronze metal over the leather, 
+with curved bronze strips covering the elbows. Laquered buckles 
+fasten the sleeves to the wearer in several spots. 
+~
+9 4096 257
+2 3 3 0
+700 0.000000
+0 0 0 29 8192 0 1
+500.000000 0 0 0 16 0 0
+A
+10025 -5
+A
+10024 -10
+A
+10037 -10
+#24192
+helmet rounded plume black bristly bronze xCORSAIR METAL~
+a rounded bronze helmet with a bristly black plume~
+A rounded bronze helmet with a bristly black plume has been left here.~
+   Crafted out of a thick bronze this helmet is polished and 
+quite protective. Well rounded to fit the head easily and 
+comfortably with a long noseguard. The sides of the helm extend 
+forward providing ample protection for the sides of the head 
+curling around to cover the cheeks leaving a Y-like shape that 
+isn't covered, from the chin up to the nose, then extending 
+diagonally out allowing both eyes to be free to see. A short, 
+black, bristly plume extends out of a thin fin-like piece of 
+bronze that has been affixed to the top of the helmet starting at 
+about where the forehead would be down the back to the bottom, 
+where it stops at the back of the neck. 
+~
+9 4096 17
+2 5 0 0
+600 0.000000
+0 0 0 36 8192 0 1
+800.000000 0 0 0 16 0 0
+#24194
+collar plated metal polished xCORSAIR_SCALE_SUIT METAL~
+a polished, plated metal collar~
+A plated circle of leather has been left here.~
+   This collar has been made out of a quality leather and has 
+been plated with thin strips of dark bronze. Though having seen 
+its share of use, the quality shows in that the scratches and 
+nicks are barely visible in the polished bronze. This collar 
+attaches easily to a hauberk and provides ample protection to the 
+neck, fastening with a set of laquered buckles. 
+~
+9 4096 5
+2 3 0 0
+400 0.000000
+0 0 0 36 8192 0 1
+350.000000 0 0 0 28 0 0
+#24196
+breastplate contoured boiled $finecolor xCORSAIR_LEATHER LEATHER~
+a contoured, boiled $finecolor leather breastplate~
+A contoured, boiled $finecolor leather breastplate has been discared here.~
+   This breastplate has been constructed from two seperate pieces 
+of boiled, $finecolor leather which connect at the sides with 
+three firm bronze buckles and soft leather straps. The armour 
+has no sleeves, nor a collar, and the chestpiece appears to have 
+been contoured to snuggly fit an individual of considerably toned 
+shape. About the outside of each piece of the armour, a thin 
+metal rod has been inserted into a fold of boiled leather to 
+create a suit of armour that will hold its shape over time. 
+~
+9 33558528 9
+3 1 0 0
+800 0.000000
+0 0 0 34 0 0 1
+400.000000 0 0 0 14 0 0
+#24198
+skirt armoured plated leather strips xCORSAIR_LEATHER LEATHER~
+an armoured skirt of plated, leather strips~
+An armoured skirt lies here, made of iron plated, soft leather strips.~
+   Commonly worn with greaves, this leather skirt has not been 
+made for comfort or fashion and is instead a quite proficient 
+battledress. The waist is a thick, wide leather band around 
+which has been rivetted thin strips of iron and from which drapes 
+longer strips of soft, pliable leather. These strips, which hang 
+to the knees of the wearer, are also plated by squares of iron, 
+polished to a metallic sheen, and do to protect the groin and 
+upper thighs of the user. 
+~
+9 4096 2049
+3 1 3 0
+500 0.000000
+0 0 0 50 8192 0 1
+350.000000 0 0 0 14 0 0
+#24199
+leggings boiled $finecolor leather xCORSAIR_LEATHER LEATHER~
+a pair of boiled, $finecolor leather leggings~
+A pair of boiled, $finecolor leather leggings lie here.~
+   These well-crafted leggings are of thick, $finecolor dyed 
+leather that has been boiled and waxed until shiny and hard. 
+Inflexible entirely, they fasten to the legs, namely about the 
+thighs and calves, by a series of leather straps and bronze 
+buckles. There is a lining of quilted fabric on the inside to 
+provide some comfort to the wearer. 
+~
+9 33558528 33
+3 1 0 0
+300 0.000000
+0 0 0 55 0 0 1
+350.000000 0 0 0 14 0 0
+#24200
+armguards boiled $finecolor leather xCORSAIR_LEATHER LEATHER~
+a pair of boiled, $finecolor leather armguards~
+A pair of boiled, $finecolor leather armguards lie here.~
+   This pair of arm-guards has been well-crafted to withstand 
+blows resiliently and effectively. Made of thick, $finecolored 
+leather, they have been boiled and waxed until hard and 
+inflexible. They buckle to the arms by a series of leather 
+straps and bronze buckles and protect both the upper arm and 
+lower arm in two separate pieces that, while leaving the elbow 
+unprotected, also do to increase the mobility and flexibility of 
+the wearer's arms in combat and other more menial tasks. 
+~
+9 33558528 257
+3 1 0 0
+400 0.000000
+0 0 0 55 0 0 1
+250.000000 0 0 0 14 0 0
+#24201
+gorget embossed $finecolor leather gorget xCORSAIR_LEATHER LEATHER~
+an embossed, $finecolor leather gorget~
+A $finecolor leather gorget lies here, a design embossed upon it.~
+   This hard, leather gorget attaches to a vest by small straps 
+and buckles, rather than laces. The leather has been boiled in 
+wax and left to harden. The gorget has been dyed $finecolor, and 
+a wavy border has been embossed along the bottom collar. 
+~
+9 33558528 5
+3 1 0 0
+200 0.000000
+0 0 0 29 8192 0 1
+175.000000 0 0 0 14 0 0
+#24588
+spyglass brass-rimmed wooden monocular telescope glass strap xCORSAIR WOOD~
+a brass-rimmed, wooden spyglass with a shoulder strap~
+A brass-rimmed, wooden spyglass rests here.~
+   A little over a foot in length, this spyglass is made of 
+darkly-stained wood. Tapering from one end to the other, the 
+larger end is perhaps twice the width of the narrower one, itself
+about an inch in diameter. Both ends are rimmed with brass into 
+which have been set recessed lenses. A shoulder strap is 
+attached to the spyglass, allowing it to be worn when not in use.
+~
+8 4608 8921089
+0 0 0 0
+15 0.000000
+0 0 0 33 32 0 1
+800.000000 0 0 0 0 0 0
+A
+10032 40
+#24277
+key crab-shaped ivory Rigging Rats OTHER~
+a small, crab-shaped ivory key~
+A small, crab-shaped ivory key is set here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+25.000000 0 0 0 0 0 0
+#24278
+key crawfish ivory etched stylized rigging rats storeroom OTHER~
+a crawfish shaped ivory key~
+A crawfish shaped ivory key is here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#24403
+ring pChessentra delicate silver rose garnet teardrop METAL~
+a delicate ring crowned in a silver rose and garnet teardrop~
+A delicate ring crowned in a silver rose and garnet teardrop has been left upon the ground here.~
+   This ring is a thin, delicate band formed of silver hammered 
+to a smooth, mirror-like finish. Silver, cut and finely-molded 
+into a coil, has been discreetly soldered to the band in the 
+likeness of a blooming desert rose. Within the unfurling cradle 
+of the flower rests a gleaming garnet teardrop held tightly in a 
+deceptively fragile setting. 
+~
+11 4096 3
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+750.000000 0 0 0 0 0 0
+$~

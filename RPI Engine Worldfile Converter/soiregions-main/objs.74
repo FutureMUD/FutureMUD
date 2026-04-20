@@ -1,0 +1,198 @@
+#74000
+falchion xUNIQUE xExpert_xQuality bone-hilted steel METAL~
+a heavy, bone-hilted steel falchion~
+A heavy steel falchion lies here, its hilt of carved bone.~
+   Thick, dusky steel makes up this falchion's wide blade and, 
+though its single edge has been sharpened to a razor-edge, 
+appears to rely more on the strength of the wielder to deliver 
+crushing chops and blows. Its hilt is of thick, carved bone 
+wrapped by undyed leather strips and a wide, staring eye has been 
+engraved into its circular, iron pommel, outlined in tarnished 
+brass. The quillions are straight, short, and made of a darker 
+steel than the blade. Twisting patterns have been carved into 
+the metal crossguard and into the bone hilt, while jagged runes 
+have been etched along one side of the thick steel blade of the 
+falchion, at times catching in the light. 
+~
+5 4096 8193
+0 1 9 3
+500 0.000000
+2 0 0 34 0 0 1
+1200.000000 0 0 0 18 0 0
+#74001
+skullcap spiked dual cheek guards METAL~
+a spiked skullcap with dual cheek guards~
+A dark-iron skullcap with dual cheek guards lies here, adorned by spikes.~
+   This skullcap is forged of a single, thick piece of dark iron. 
+A large spike protrudes over the brow, jutting outwards, and 
+smaller spikes of bronze adorn its cap. Dual cheek guards, as 
+well as a short noseguard, run down from the large protruding 
+spike to form a sort of face-plate, leaving large squares for the 
+eyes to glint through, and a rectangular, empty space beneath the 
+noseguard, between the cheek guards. It appears, despite its 
+spiked decoration, to have been well-crafted and quite resilient 
+to blows. 
+~
+9 0 17
+2 3 0 0
+400 0.000000
+0 0 0 34 0 0 1
+600.000000 0 0 0 28 0 0
+A
+10032 -10
+#74002
+atmosphere cold forboding xMagicxCraft OTHER~
+#4a cold and foreboding atmosphere#0~
+#4The atmosphere here is cold and foreboding.~
+   The air here is unnaturally cold, and a deep sense of unease 
+feels your stomach merely by remaining here. 
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#74003
+totem grisly bone xMagicxCraft xCharged OTHER~
+a grisly bone totem~
+A grisly totem fashioned from bones stands here.~
+   The centre of this grisly totem of bones is a collection of 
+long thigh bones lashed together with sinew and crude twine, 
+covered in jagged runes and sigils inked with blood. Around this 
+spire, a dozen off-shots of sharpened bones protrude, dried blood 
+covering these. Scores of smaller bones from hands and feet of 
+any number of animals have been tied to the totem, each bearing a 
+different rune upon them. 
+~
+12 0 0
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 3 74004 0 0 0 0
+#74004
+totem grisly bone xMagicxCraft xUnCharged OTHER~
+a grisly bone totem~
+A grisly totem fashioned from bones stands here.~
+   The centre of this grisly totem of bones is a collection of 
+long thigh bones lashed together with sinew and crude twine, 
+covered in jagged runes and sigils inked with blood. Around this 
+spire, a dozen off-shots of sharpened bones protrude, dried blood 
+covering these. Scores of smaller bones from hands and feet of 
+any number of animals have been tied to the totem, each bearing a 
+different rune upon them. 
+~
+12 0 0
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#74005
+gem throbbing dull red light xMagicxCraft OTHER~
+a throbbing red gem~
+A dull red gem throbs with an unnatural light.~
+   This gem appears to be an ordinary ruby, save for the dull, 
+hellish red light that shines from within it, the gem itself 
+seeming to throb and expand and contract, as is something was 
+moving about inside of it. 
+~
+12 4096 1
+0 0 0 0
+600 0.000000
+0 0 0 0 0 0 1
+0.000000 6480 97860 0 0 0 0
+#74006
+diamond UNIQUE_RITUALCRAFT faceted OTHER xRitualxMagic hole~
+a faceted diamond with a hole through the centre~
+A faceted diamond lies here, a hole punctured clean through the centre of it.~
+   This small gemstone is a transparent, high-quality diamond, 
+but despite the rock's legendary strength something has driven a 
+hole straight down through the centre of the stone. Strangely, 
+the diamond bears no cracks or breakages from the hole, looking 
+instead to have been naturally formed.
+~
+8 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134221856 0 1
+100.000000 0 0 0 0 0 0
+#74007
+amulet METAL corroded dark greasy glyph~
+a dark, greasy, corroded metal amulet~
+A dark, greasy, corroded metal amulets lies here, a glyph carved upon it.~
+   This amulet is made up of a dark, greasy, corroded iron chain, 
+upon which a dark, greasy, corroded iron pendant has been 
+threaded through. The amulet smells vaguely of rotting flesh, 
+and upon both sides of it a glyph has been carved in to it, 
+looking somewhat like a circle punctured by four jagged lines 
+from the top of it. 
+~
+12 4104 2097153
+0 0 0 0
+25 0.000000
+0 0 0 0 2304 0 1
+0.000000 0 0 0 28 0 0
+A
+10028 10
+A
+10075 10
+A
+10032 10
+A
+10029 10
+#74008
+morningstar MASTER_QUALITY fiendish icy-blue-hued Zirakzigil UNIQUE_PNARODAR METAL~
+a fiendish, icy-blue-hued morningstar~
+A cruelly-spiked morning-star, hued icy blue lies here on the floor.~
+   Composed of an icy-blue material, this morning-star has been 
+masterfully crafted. Set at close to three feet in length, its 
+haft has been tightly wrapped in a similarly blue leather though 
+it may, on closer inspection, show a few signs of use. Even so, 
+the wrap remains tight around the thick handle and a number of 
+poignant, cruel spikes jut from the weapon's bulging head. The 
+spikes usually appear well-polished, enhancing the cool blue 
+which emanates this delicately made piece. Engraved deeply all 
+over the weapon's bulbous head appear to be intricate scenes of 
+battle and warfare, swordsmen, archers and horses all depicted on 
+a corpse-strewn battlefield. 
+~
+5 135176 8193
+0 2 7 7
+700 0.000000
+3 0 0 44 135712 0 1
+3820.000000 0 0 0 28 0 0
+#74009
+gauntlets steel spider-black-hued pair METAL~
+a pair of spider-black-hued steel gauntlets~
+A pair of blackened, fine steel gauntlets lies here, forgotten.~
+   These fine gauntlets have been masterfully crafted from a 
+blackened steel. Small plates interlock to give the wearer a 
+decent flexibility in their hands and leather wrapping lies 
+beneath to stop the dark metal from tearing away at the skin. 
+Upon each minor plate is engraved a tiny, intricate scene of 
+warfare. Horses, archers and swordsmen line the corpse-strewn 
+battlefield as arrows and blood fly up into the lifeless air. 
+~
+9 4096 129
+3 5 0 0
+400 0.000000
+0 0 0 33 4128 0 1
+560.000000 0 0 0 18 0 0
+A
+10017 -25
+A
+10016 -25
+#81736
+thin silver key polished _KORISANTH METAL~
+a thin key of polished silver~
+Left here is a thin key of polished silver.~
+This key is made of polished silver and appears to be carefully
+made. The handle is broud and thin, coming to a narrow shaft
+with several etched-teeth where the key would go into a lock.
+Though quite small, this key is quite sturdy and long.
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

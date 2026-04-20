@@ -1,0 +1,630 @@
+#18000
+MT_sewer randomiser echo~
+an adorable randomising echo~
+An adoraable sewer echo randomises here.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#18001
+trog Lovely lichen fleshed creature gnarled quashed features XXMT_SEWERS~
+a lichen-fleshed creature of gnarled, quashed features~
+A lichen-fleshed creature of gnarled, quashed features lurks here.~
+   This creature, perilously thin, moves in a nigh on permanently 
+hunched over posture. Its eyes and cheeks are sunken around its 
+features, making its appearance skull-like, the whites of the 
+creature's eyes strangely bright in relation to its ashen, 
+sickly-looking skin. Several parts of this vaguely human-shaped 
+creature seem to be a housing place for several types of low, 
+dull-green lichen, it growing over the person's filthy skin. 
+Their arms and legs are stick-thin, the muscle there lean and 
+wiry. The creature itself seems to move with an almost 
+insectile, ungraceful manner, tongue frequently slipping from 
+between slit and cut lips to test the air, snake-like. 
+~
+40 786432 27 0 2 5d1+102 1d6+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 12 12 1 22 16 81 22
+0 0
+0 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 80 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'leader' sewer_doll~
+0 0 0
+#18002
+Baby Doll trog-child emaciated sunken featured child XXMT_SEWERS~
+an emaciated, sunken-featured child~
+An emaciated, sunken-featured child is here, crying quietly in the dark.~
+   This child, at first glance, looks like nothing more than any 
+emaciated, starved child. Whenever the little being breathes, 
+her ribs become lightly visible, and her features are gently 
+sunken as she looks about. Her eyes are a round, clear blue, and 
+she has a mop of blonde hair that'd almost be pretty, were it not 
+for the pieces of gunk and muck stuck inside it. Her little 
+limbs are wraith-thin, from skeletal fingers to narrow little 
+ankles. It'd take one of keen eyes or close inspection to detect 
+some of the muck about her fingers is dried, congealing blood and 
+the child-like gleam in her eyes is bloodthirsty. 
+~
+10 524288 4 0 0 5d1+84 1d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+13 16 16 1 22 10 81 22
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 80 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' sewer_doll~
+0 0 0
+#18003
+trog Mommy hunched over humanoid filthy skeletal frame bloody features XXMT_SEWERS~
+a hunched-over humanoid of filthy, skeletal frame and bloody features~
+A hunched-over humanoid of filthy, skeletal frame and bloody features lurks here.~
+   This creature looks utterly human at first glance, merely one 
+of wraith-like thinness and of emaciated build. Were it to stand 
+straight upwards, it'd be as tall as your average Gondorian man, 
+and has plain enough features, at a glance. Were one to take a 
+closer examination of its face, however, they'd see that there is 
+a layer of caked, dried blood all about the creature's mouth, 
+matching the entirety of its filth and dirt-stained attire. It 
+moves in almost permanent hunch, its fingers malnourished to the 
+point of being claw-like and its teeth sharp from long use and 
+apparent filing. It looks on almost all that moves, even its own 
+kind, with a weighing, assessing hunger. The creature's sunken 
+eyes in its skull-like head are quick, darting, and strangely 
+white when compared to its ashen complexion and filthy flesh. 
+~
+40 786432 22 0 0 5d1+96 1d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 16 16 1 20 14 81 20
+0 0
+0 45 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 80 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' sewer_doll~
+0 0 0
+#18005
+cock rooster proud green comb fight MT_SLUM~
+a proud fighting cock~
+A fighting cock stands here, proudly holding up its green comb.~
+   This proud-looking cock looks ready for a fight. Its head 
+instinctively moves back and forth so as to present its sharpened 
+beak in a threatening gesture. The rooster has a shiny greenish 
+comb on top of its head that matches its flamboyant body and 
+stubby cut wings. 
+~
+40 0 17 35 0 5d1+21 1d2+0 0 8 8 0 0 0 0 0
+2062 0 0 98060 0 0 24 0 0 0 2 0 0 0 0 0
+10 11 12 1 18 8 77 20
+0 0
+0 35 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#18006
+rooster red collar fight MT_SLUM~
+a red-collared fighting rooster~
+A red-collared rooster waits for a fight.~
+   This proud-looking rooster looks ready for a fight. Its head 
+instinctively moves back and forth so as to present its sharpened 
+beak in a threatening gesture. The rooster has a scarred comb on 
+top of its head, and has a distincive collar of red feathers that 
+stands out against its flamboyant body feahters and stubby cut 
+wings. 
+~
+40 0 17 35 0 5d1+21 1d2+0 0 8 8 0 0 0 0 0
+2062 0 0 98060 0 0 24 0 0 0 2 0 0 0 0 0
+10 11 12 1 18 8 77 20
+0 0
+0 35 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#18004
+ Emmalynn PC_NPC tall brutish black emma lynn woman braid ~
+a tall, brutish woman~
+A tall, brutish woman with a black braid is here.~
+   Standing taller than most men, her weather-beaten face is 
+marred by several scars, and her eyes, a deep emerald green, peer 
+out at the world over a broken nose. A single, thick braid of 
+black hair falls over her shoulders reaching nearly to her waist. 
+Those shoulders are broad enough to belong to a man, but a very 
+ample bosom and wide hips make it plain she is a woman. Strong 
+arms, heavy legs and calloused hands show that she is no stranger 
+to hard work. 
+~
+8 0 17 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 68 4 0 0
+18 8 12 1 12 16 81 15
+0 0
+0 32 0 31 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+23 27 0 0 0 29 0 33 38 36
+0 0 44 0 0 0 41 41 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 28 0 0 31 34 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 59 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_slum 'member' mt_citzens 'member' mt_shelter 'member' reds_academy 'member' burkes_shop 'private' burkes_back~
+0 0 0
+#18007
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#18008
+Lawrence GONDORMILITARY_EXPORTS QUARTERMASTER staunch thick-browed man~
+a staunch, thick-browed man~
+A staunch, thick-browed man stands here.~
+   This man stands rather tall with near platinum-colored hair 
+tied back to accentuate the severe features of his face. He is 
+staunch in build with rather broad shoulders and his most 
+noticeable feature are the two, bushy brows above his deep green 
+eyes. 
+~
+1050 0 15 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 50
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' ithilien_battalion 'lieutenant' eradan_battalion~
+0 0 0
+#18009
+mob new~
+the invisible council shopkeep~
+An invisible shopkeeper stands here.~
+   Transparent and invisible to mortal eyes, this shopkeeper 
+oversees the tax paying of the Minas Tirith Annon Borough council 
+~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#18100
+atmospheric generator OTHER~
+atmospheric generator~
+An atmospheric generator is here.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#18010
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#18011
+Club baby~
+a cute little baby club~
+A cute little baby club is here, destroying everything it can swat its head at.~
+   This club is only a few inches long, have just been born. How 
+clubs are born is a mystery, and determining whether they are 
+mammals might not be pleasant for anybody. It romps around, 
+looking for objects to destroy and people to beat. 
+~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#18012
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#18013
+George a pitch black, thick-coated Wuldane~
+a pitch black, thick-coated Wuldane~
+A pitch black, thick-coated Wuldane stands here alertly, its muzzle kept low to the ground.~
+   This fierce-looking Wuldane has a narrow chest with a powerful 
+back and legs. His paws have a slight webbing between each toe 
+and blunt claws to enhance grip on slippery surfaces and other 
+kinds of rough terrain. A thick and bulky coat of black-bristled 
+hairs consist of what looks like two layers, one made up of tough 
+guard hairs that repel water and dirty whilst the second is a 
+dense, water-resistant undercoat that insulates. A pair of 
+yellow-gold to orange irises watch their surroundings and a 
+pointed muzzle sits below with large teeth that distinguish this 
+well-trained adult Wuldane from other canids. 
+~
+8 0 8 40 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#18014
+Cabbage old wiry bloke oversized ears **PLOTNPCBYHAWKES**~
+an old, wiry bloke with oversized ears~
+An old, wiry bloke with oversized ears sulks here.~
+   Despite being a few years past his prime, this man is still 
+quite tall and for the most party healthy, gangly arms and legs 
+give him a lanky appearance. His features have taken the worst 
+of his long years, overly large ears give him almost comical 
+look, gnarled lips curl often in a snarl or frown, this does 
+little to hide the fact that he misses nearly half of his 
+yellowed teeth. In spite of his awkwardness his manner and 
+movements suggest confidence. 
+~
+10 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 50 0 0 0 0 0 50 0
+0 0 0 0 0 0 0 0 0 50
+16 40 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_lower_class 'member' mt_citizen~
+0 0 0
+#18015
+Bowser heavy thick set brute balding sparse **PLOTNPCBYHAWKES~
+a thickset brute with sparse hair~
+A heavyset brute is here, balding.~
+   Fat and heavy, this bruiser of a man is little more than a big 
+slab of fat and muscle. From his stoomped and slouched, not to 
+mention broad, posture, to his barrel-like chest. His features 
+are blunt, with a wide pug-nose and double chin. What little 
+hair he has left has been stuck down across his his scalp in a 
+horrid comeover. He moves slowly and can be heard muttering and 
+grumbling through thick lips. 
+~
+10 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 50 0 0
+0 0 0 0 0 0 0 0 0 0
+25 35 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_lower_class 'member' mt_citizen~
+0 0 0
+#18020
+Hawkwind horse destrider white sleek UNIQUE_POIMRI~
+a sleek, white-maned destrider~
+A sleek, white-maned destrider stands here.~
+   Of average bulk and graceful tone, this creature's coat and 
+mane are well-groomed and cut, hinting that it leads a life of 
+domestication rather than one in the wilderness. Standing tall 
+on four muscular legs, there is no hesitancy or fear detectable 
+in this horse's posture, seemingly ready to spring into a flurry 
+of action and motion at a moment's notice. 
+~
+134479882 0 25 47 0 5d1+80 2d2+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 98316
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' house_courcel 'member' caolafon-citizen 'member' amdir_settler 'member' mt_citizen~
+0 0 0
+#18016
+Faran horse stallion ash-grey UNIQUE_POSIDOINE~
+an ash-grey coated, long-legged young stallion~
+An ash-grey coated, long-legged young stallion stands here, whickering.~
+   Of average bulk and graceful tone, this creature's coat and 
+mane are well-groomed and cut, hinting that it leads a life of 
+domestication rather than one in the wilderness. Standing tall 
+on four muscular legs, there is no hesitancy or fear detectable 
+in this horse's posture, seemingly ready to spring into a flurry 
+of action and motion at a moment's notice. 
+~
+134479882 0 25 47 0 5d1+80 2d2+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 98316
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' house_courcel 'member' caolafon-citizen 'member' amdir_settler 'member' mt_citizen~
+0 0 0
+#18017
+Garth xWhite_City_Furrierx short stocky black haired man xNauriel~
+a short and stocky black-haired man~
+A short and stocky black-haired man is here.~
+   Shorter than average men, but very stocky in build, this man 
+is powerfully built. Very short-cropped black hair and molasses 
+brown eyes join a hooked nose on his somber face. A short beard 
+and a trimmed moustache cover his lower face. A barrel chest, 
+square shoulders and hairy arms add to his physique. Thick legs 
+support him well, but it is apparent he is stronger than he is 
+fast. A jagged, white scar winds it's way across his chest, and 
+is partially visible on his right shoulder. 
+~
+1048586 0 29 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 59 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+43 46 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 25 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' white_city_furrier~
+0 0 0
+$~

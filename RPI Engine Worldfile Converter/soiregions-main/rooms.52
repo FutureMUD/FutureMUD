@@ -1,0 +1,2456 @@
+#52000
+Base Room~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+52 65544 0
+0
+S
+#52001
+Atop a Steep Bank~
+   Rising in a slightly concave shape, the eastern bank of the 
+mighty Anduin river has been worn down until the land itself 
+rises above the water some six feet. The land has been eroded 
+into a vaguely concave shape, extending slightly over the 
+generally placid-enough water below. As the earth surrendered to 
+the continuous theft of the water, the root systems of several of 
+the trees have been exposed lending something of a bleak air to 
+this bank. While the lip of the bank is clear enough, save for 
+several scraggly bushes and a several of those root-revealed 
+trees, moving any farther eastwards takes one directly into some 
+thick underbrush which marks the beginning of a large wood. 
+~
+52 1073807360 6
+0
+D1
+~
+~
+0 -1  0 52032
+D2
+~
+~
+0 -1  0 52002
+S
+#52002
+Atop a U-Shaped Bend in the River~
+   While moving in a generally southern course, the river's bank 
+is not completely straight. This area lies in the middle of a 
+U-shape bend in the river, the underbrush here lessened and 
+several pieces of driftwood visible resting on the land. The few 
+trees which stand on this miniscule peninnsula look slightly 
+stunted, weaker than their farther-east brethren. In 
+approximately the middle of the area a small circle has been 
+cleared atop the ground, the diameter some ten feet across. 
+Lying in the middle are the remains of an old campfire, several 
+flat-topped logs situated around it. 
+~
+52 1073807360 6
+0
+D0
+~
+~
+0 -1  0 52001
+D1
+~
+~
+0 -1  0 52033
+D2
+~
+~
+0 -1  0 52003
+S
+#52003
+Adjacent the Anduin River~
+   The land here is rather rough and uneven, the little open 
+terrain directly bordering the Anduin River often laden with 
+bumps from large stones, tree roots, and shrubs encouraging one 
+to keep an eye on their feet. The river itself meets the banks 
+rather abruptly, having eroded away the often-seen gentle slope 
+into more of a gourge formation with the lip of the bank some ten 
+feet above the water level. While there is little vegitation on 
+the edge of the land itself, moving eastwards one encounters 
+thick patches of underbrush. 
+~
+52 1073807360 5
+0
+D0
+~
+~
+0 -1  0 52002
+D1
+~
+~
+0 -1  0 52034
+D2
+~
+~
+0 -1  0 52004
+S
+#52004
+Along a Curve in the River~
+   The river here tarries from its generally southern course to 
+move eastwards in a rather large, L-shaped jog. Where the river 
+has bitten into the land a tree is in the process of being 
+undermined, now hanging at a noticeable slant over the top of the 
+water. Along the western edge of the area, several small burrows 
+and animal-holes can be found in the earth to coincide with the 
+common-place sounds of the eastern forest. 
+~
+52 65536 5
+0
+D0
+~
+~
+0 -1  0 52003
+D1
+~
+~
+0 -1  0 52035
+S
+#52005
+Atop a Large Sandbar~
+   Exiting in something of a pin-shape, this large sandbar is 
+surrounded on all sides by the rushing water of the Anduin river. 
+Primarily sand and mud, the ground beneath any occupants feet 
+feels perpetually soft and leaves deep tracks behind. While 
+evidence of animal inhabitants are scarce, there are a few 
+tracks, mostly fowl, scattered about the area. Clustered near 
+the southern edge of the sandbar lies a rather desperate-looking 
+clump of shrubs. Leading towards the east bank is a rather 
+precarious-looking way of large stones and captured wood. 
+~
+52 1073807360 5
+0
+E
+shrub~
+These rather ill-looking shrubs are hanging for dear life near the southern end of this sand bar but seem to be losing the fight to stay there as their hold looks tenious and ready to fail at any moment. They cover an area of perhaps three feet in diameter.
+~
+P
+exit leave return walk step~
+land shore stones bridge wood~
+vstr You draw in a deep breath as you set your foot on the way back towards land. After several almost-falls, saved mostly by luck rather than skill, you find your way back to land.
+ostr $n draws in a deep breath as they set their foot on the way back towards land. They almost fall several times but, seemingly by luck rather than skill, find their way back to land.
+atlook 52036
+trans 52036
+ostr After almost falling into the quickly-moving river several times, $n crosses the shoddy bridge and makes it back onto the shore.
+~
+S
+#52006
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D1
+~
+~
+0 -1  0 52037
+D2
+~
+~
+0 -1  0 52007
+S
+#52007
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52006
+D1
+~
+~
+0 -1  0 52038
+D2
+~
+~
+0 -1  0 52008
+S
+#52008
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52007
+D1
+~
+~
+0 -1  0 52039
+D2
+~
+~
+0 -1  0 52009
+S
+#52009
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52008
+D1
+~
+~
+0 -1  0 52040
+D2
+~
+~
+0 -1  0 52010
+S
+#52010
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52009
+D1
+~
+~
+0 -1  0 52041
+D2
+~
+~
+0 -1  0 52011
+S
+#52011
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52010
+D1
+~
+~
+0 -1  0 52042
+D2
+~
+~
+0 -1  0 52012
+S
+#52012
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52011
+D1
+~
+~
+0 -1  0 52043
+D2
+~
+~
+0 -1  0 52013
+S
+#52013
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52012
+D1
+~
+~
+0 -1  0 52044
+D2
+~
+~
+0 -1  0 52014
+S
+#52014
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52013
+D1
+~
+~
+0 -1  0 52045
+D2
+~
+~
+0 -1  0 52015
+S
+#52015
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52014
+D1
+~
+~
+0 -1  0 52046
+D2
+~
+~
+0 -1  0 52016
+S
+#52016
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52015
+D1
+~
+~
+0 -1  0 52047
+D2
+~
+~
+0 -1  0 52017
+S
+#52017
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52016
+D1
+~
+~
+0 -1  0 52048
+D2
+~
+~
+0 -1  0 52018
+S
+#52018
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52017
+D1
+~
+~
+0 -1  0 52049
+D2
+~
+~
+0 -1  0 52019
+S
+#52019
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52018
+D1
+~
+~
+0 -1  0 52050
+D2
+~
+~
+0 -1  0 52020
+S
+#52020
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52019
+D1
+~
+~
+0 -1  0 52051
+D2
+~
+~
+0 -1  0 52021
+S
+#52021
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52020
+D1
+~
+~
+0 -1  0 52052
+D2
+~
+~
+0 -1  0 52022
+S
+#52022
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52021
+D1
+~
+~
+0 -1  0 52053
+D2
+~
+~
+0 -1  0 52023
+S
+#52023
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52022
+D2
+~
+~
+0 -1  0 52024
+S
+#52024
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52023
+D2
+~
+~
+0 -1  0 52025
+S
+#52025
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52024
+D1
+~
+~
+0 -1  0 52120
+D2
+~
+~
+0 -1  0 52026
+S
+#52026
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52025
+D2
+~
+~
+0 -1  0 52027
+S
+#52027
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52026
+D2
+~
+~
+0 -1  0 52028
+S
+#52028
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52027
+D2
+~
+~
+0 -1  0 52029
+S
+#52029
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52028
+D2
+~
+~
+0 -1  0 52030
+S
+#52030
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52029
+D2
+~
+~
+0 -1  0 52031
+S
+#52031
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52030
+S
+#52032
+At the Forest's Edge~
+   The eastern edge of the area is thick with underbrush, acting 
+as a perimeter of sorts before the trees become truly numerous. 
+Moving through that area is rather difficult, many of the thorn 
+bushes and bristle-laden plants seeking to latch on to any soft 
+material, be it flesh or cloth. Towards the west the Anduin 
+river is visible, with its high banks and sparse shrubbery. 
+North and south are overgrown in a similar fashion, the brush 
+making entrance into, and exit from, the eastern wood a somewhat 
+painful affair. 
+~
+52 65536 5
+0
+D1
+~
+~
+0 -1  0 52054
+D2
+~
+~
+0 -1  0 52033
+D3
+~
+~
+0 -1  0 52001
+S
+#52033
+Amidst Thick Underbrush~
+   Travel here is assured to be a thorny affair, the entire 
+eastern side of this area marred by thick brambles and 
+thorn-patches. To one with woods knowledge, a few, rare game 
+paths could offer insight to a pain-free path working through the 
+large thicket, but any unskilled, or unarmored, would feel the 
+bite and scratch of the forests' edge. 
+~
+52 65536 5
+0
+D0
+~
+~
+0 -1  0 52032
+D1
+~
+~
+0 -1  0 52055
+D2
+~
+~
+0 -1  0 52034
+D3
+~
+~
+0 -1  0 52002
+S
+#52034
+Near a Large Thicket~
+   Westwards, in the distance, lies the large River Anduin while 
+towards the east are the beginnings of quite a large forest. The 
+most notable feature of this specific area, however, is the broad 
+thicket that lies here. Rabbit holes have been tunneled into the 
+dirt around it, their entrances heavily guarded with the long 
+black thorns of the brambles. 
+~
+52 65536 5
+0
+D0
+~
+~
+0 -1  0 52033
+D2
+~
+~
+0 -1  0 52035
+D3
+~
+~
+0 -1  0 52003
+P
+enter climb~
+thicket thorns~
+vstr You painfully brush aside the bottom-most layer of thorns and brambles, scooting awkwardly inside
+ostr $n painfully brushes aside the bottom-most layer of thorwns and brambles, crawling awkwardly inside
+trans 52056
+atlook 52056
+ostr $n pushes aside the brambles and crawls awkwardly into the thicket
+~
+S
+#52035
+Wooded Banks of the Anduin~
+   The river here is in the midst of making an abrupt turn, the 
+vast watercourse now moving southwards at its languid pace. The 
+banks are riddled with creature burrows, mostly the smaller, 
+circular tunnels of crawfish, snakes, and frogs. Towards the 
+southern end of the area the high bank slowly, gradually gives 
+way to a gentle slope and milder banks rather than the 
+erosion-spawned higher ones present here. Eastwards a thick wood 
+looms, a hill vaguely visible in the distance. 
+~
+52 1073807360 5
+0
+D0
+~
+~
+0 -1  0 52034
+D1
+~
+~
+0 -1  0 52057
+D2
+~
+~
+0 -1  0 52036
+D3
+~
+~
+0 -1  0 52004
+S
+#52036
+Following the Path of the Anduin~
+   A thin, rather short-lived, game trail follows the edge of the 
+high bank as it moves from the northern edge of the area towards 
+the south before veering abruptly eastwards. Pushing southwards 
+requires one to climb over a fallen tree, lichen and moss having 
+grown over the once-mighty trunk. Extending from the bank and 
+towards a sandbar in the river is a rather dangerous-looking and 
+precarious network of large stones and caught driftwood. 
+~
+52 1073807360 5
+0
+D0
+~
+~
+0 -1  0 52035
+D1
+~
+~
+0 -1  0 52058
+D2
+~
+~
+0 -1  0 52037
+P
+approach enter step walk~
+barge island stones bridge~
+vstr You make your way precariously across the ever-shifting and unsteady path of large stones and captured driftwood towards the large sandbar.
+ostr $n makes their way precariously across the ever-shifting and unsteady path of large stones and captured driftwood towards the large sandbar.
+atlook 52005
+trans 52005
+
+
+
+ostr $n approaches the sandbar moving with ponderous slowness over the rickety bridge of large stones and captured driftwood.
+l
+~
+S
+#52037
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52036
+D1
+~
+~
+0 -1  0 52059
+D2
+~
+~
+0 -1  0 52038
+D3
+~
+~
+0 -1  0 52006
+S
+#52038
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52037
+D1
+~
+~
+0 -1  0 52060
+D2
+~
+~
+0 -1  0 52039
+D3
+~
+~
+0 -1  0 52007
+S
+#52039
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52038
+D1
+~
+~
+0 -1  0 52061
+D2
+~
+~
+0 -1  0 52040
+D3
+~
+~
+0 -1  0 52008
+S
+#52040
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52039
+D1
+~
+~
+0 -1  0 52062
+D2
+~
+~
+0 -1  0 52041
+D3
+~
+~
+0 -1  0 52009
+S
+#52041
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52040
+D1
+~
+~
+0 -1  0 52063
+D2
+~
+~
+0 -1  0 52042
+D3
+~
+~
+0 -1  0 52010
+S
+#52042
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52041
+D1
+~
+~
+0 -1  0 52064
+D2
+~
+~
+0 -1  0 52043
+D3
+~
+~
+0 -1  0 52011
+S
+#52043
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52042
+D1
+~
+~
+0 -1  0 52065
+D2
+~
+~
+0 -1  0 52044
+D3
+~
+~
+0 -1  0 52012
+S
+#52044
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52043
+D1
+~
+~
+0 -1  0 52066
+D2
+~
+~
+0 -1  0 52045
+D3
+~
+~
+0 -1  0 52013
+S
+#52045
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52044
+D1
+~
+~
+0 -1  0 52067
+D2
+~
+~
+0 -1  0 52046
+D3
+~
+~
+0 -1  0 52014
+S
+#52046
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52045
+D1
+~
+~
+0 -1  0 52068
+D2
+~
+~
+0 -1  0 52047
+D3
+~
+~
+0 -1  0 52015
+S
+#52047
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52046
+D1
+~
+~
+0 -1  0 52069
+D2
+~
+~
+0 -1  0 52048
+D3
+~
+~
+0 -1  0 52016
+S
+#52048
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52047
+D1
+~
+~
+0 -1  0 52070
+D2
+~
+~
+0 -1  0 52049
+D3
+~
+~
+0 -1  0 52017
+S
+#52049
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52048
+D1
+~
+~
+0 -1  0 52071
+D2
+~
+~
+0 -1  0 52050
+D3
+~
+~
+0 -1  0 52018
+S
+#52050
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52049
+D1
+~
+~
+0 -1  0 52072
+D2
+~
+~
+0 -1  0 52051
+D3
+~
+~
+0 -1  0 52019
+S
+#52051
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52050
+D2
+~
+~
+0 -1  0 52052
+D3
+~
+~
+0 -1  0 52020
+S
+#52052
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52051
+D2
+~
+~
+0 -1  0 52053
+D3
+~
+~
+0 -1  0 52021
+S
+#52053
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52052
+D3
+~
+~
+0 -1  0 52022
+S
+#52120
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D3
+~
+~
+0 -1  0 52025
+S
+#52054
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D1
+~
+~
+0 -1  0 52073
+D2
+~
+~
+0 -1  0 52055
+D3
+~
+~
+0 -1  0 52032
+S
+#52055
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52054
+D1
+~
+~
+0 -1  0 52074
+D3
+~
+~
+0 -1  0 52033
+S
+#52056
+Inside The Thicket~
+   No more than one or two people, max, could fit inside this 
+thicket and not be painfully obvious as to where they are. 
+Provided that these spacial limitations are met then, aside from 
+the pain of crawling in and out past the large black thorns, this 
+would make a rather good hiding-spot. Any sunlight shining down 
+through the thorns would leave the ground criss-crossed by 
+multiple lines of shadow, giving any occupant a somewhat 
+distorted view. While the thick vines of this thicket patch 
+block out any outsiders look in, the reverse is also true--any 
+view to the outside is heavily limited 
+~
+52 65536 5
+0
+P
+leave crawl~
+thicket out~
+vstr With a awkward, shuffing crawl you begin to work your way out of the thicket.
+ostr $n With an awkard, shuffling crawl $n makes their way out of the thicket.
+trans 52034
+atlook 52034
+ostr $n crawls out of the thicket with several large scratches, quite vulnerable until they rise
+~
+S
+#52057
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D1
+~
+~
+0 -1  0 52076
+D2
+~
+~
+0 -1  0 52058
+D3
+~
+~
+0 -1  0 52035
+S
+#52058
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52057
+D1
+~
+~
+0 -1  0 52077
+D2
+~
+~
+0 -1  0 52059
+D3
+~
+~
+0 -1  0 52036
+S
+#52059
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52058
+D1
+~
+~
+0 -1  0 52078
+D2
+~
+~
+0 -1  0 52060
+D3
+~
+~
+0 -1  0 52037
+S
+#52060
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52059
+D1
+~
+~
+0 -1  0 52079
+D2
+~
+~
+0 -1  0 52061
+D3
+~
+~
+0 -1  0 52038
+S
+#52061
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52060
+D1
+~
+~
+0 -1  0 52080
+D2
+~
+~
+0 -1  0 52062
+D3
+~
+~
+0 -1  0 52039
+S
+#52062
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52061
+D1
+~
+~
+0 -1  0 52081
+D2
+~
+~
+0 -1  0 52063
+D3
+~
+~
+0 -1  0 52040
+S
+#52063
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52062
+D1
+~
+~
+0 -1  0 52082
+D2
+~
+~
+0 -1  0 52064
+D3
+~
+~
+0 -1  0 52041
+S
+#52064
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52063
+D1
+~
+~
+0 -1  0 52083
+D2
+~
+~
+0 -1  0 52065
+D3
+~
+~
+0 -1  0 52042
+S
+#52065
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52064
+D1
+~
+~
+0 -1  0 52084
+D2
+~
+~
+0 -1  0 52066
+D3
+~
+~
+0 -1  0 52043
+S
+#52066
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52065
+D1
+~
+~
+0 -1  0 52085
+D2
+~
+~
+0 -1  0 52067
+D3
+~
+~
+0 -1  0 52044
+S
+#52067
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52066
+D1
+~
+~
+0 -1  0 52086
+D2
+~
+~
+0 -1  0 52068
+D3
+~
+~
+0 -1  0 52045
+S
+#52068
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52067
+D1
+~
+~
+0 -1  0 52087
+D2
+~
+~
+0 -1  0 52069
+D3
+~
+~
+0 -1  0 52046
+S
+#52069
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52068
+D2
+~
+~
+0 -1  0 52070
+D3
+~
+~
+0 -1  0 52047
+S
+#52070
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52069
+D2
+~
+~
+0 -1  0 52071
+D3
+~
+~
+0 -1  0 52048
+S
+#52071
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52070
+D2
+~
+~
+0 -1  0 52072
+D3
+~
+~
+0 -1  0 52049
+S
+#52072
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52071
+D3
+~
+~
+0 -1  0 52050
+S
+#52073
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D2
+~
+~
+0 -1  0 52074
+D3
+~
+~
+0 -1  0 52054
+S
+#52074
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52073
+D2
+~
+~
+0 -1  0 52075
+D3
+~
+~
+0 -1  0 52055
+S
+#52075
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52074
+D2
+~
+~
+0 -1  0 52076
+S
+#52076
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52075
+D2
+~
+~
+0 -1  0 52077
+D3
+~
+~
+0 -1  0 52057
+S
+#52077
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52076
+D1
+~
+~
+0 -1  0 52089
+D2
+~
+~
+0 -1  0 52078
+D3
+~
+~
+0 -1  0 52058
+S
+#52078
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52077
+D1
+~
+~
+0 -1  0 52090
+D2
+~
+~
+0 -1  0 52079
+D3
+~
+~
+0 -1  0 52059
+S
+#52079
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52078
+D1
+~
+~
+0 -1  0 52091
+D2
+~
+~
+0 -1  0 52080
+D3
+~
+~
+0 -1  0 52060
+S
+#52080
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52079
+D1
+~
+~
+0 -1  0 52092
+D2
+~
+~
+0 -1  0 52081
+D3
+~
+~
+0 -1  0 52061
+S
+#52081
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52080
+D1
+~
+~
+0 -1  0 52093
+D2
+~
+~
+0 -1  0 52082
+D3
+~
+~
+0 -1  0 52062
+S
+#52082
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52081
+D1
+~
+~
+0 -1  0 52094
+D2
+~
+~
+0 -1  0 52083
+D3
+~
+~
+0 -1  0 52063
+S
+#52083
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52082
+D1
+~
+~
+0 -1  0 52095
+D2
+~
+~
+0 -1  0 52084
+D3
+~
+~
+0 -1  0 52064
+S
+#52084
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52083
+D1
+~
+~
+0 -1  0 52096
+D2
+~
+~
+0 -1  0 52085
+D3
+~
+~
+0 -1  0 52065
+S
+#52085
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52084
+D1
+~
+~
+0 -1  0 52097
+D2
+~
+~
+0 -1  0 52086
+D3
+~
+~
+0 -1  0 52066
+S
+#52086
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52085
+D2
+~
+~
+0 -1  0 52087
+D3
+~
+~
+0 -1  0 52067
+S
+#52087
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52086
+D3
+~
+~
+0 -1  0 52068
+S
+#52089
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D1
+~
+~
+0 -1  0 52098
+D2
+~
+~
+0 -1  0 52090
+D3
+~
+~
+0 -1  0 52077
+S
+#52090
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52089
+D1
+~
+~
+0 -1  0 52099
+D2
+~
+~
+0 -1  0 52091
+D3
+~
+~
+0 -1  0 52078
+S
+#52091
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52090
+D1
+~
+~
+0 -1  0 52100
+D2
+~
+~
+0 -1  0 52092
+D3
+~
+~
+0 -1  0 52079
+S
+#52092
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52091
+D1
+~
+~
+0 -1  0 52102
+D2
+~
+~
+0 -1  0 52093
+D3
+~
+~
+0 -1  0 52080
+S
+#52093
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52092
+D1
+~
+~
+0 -1  0 52103
+D2
+~
+~
+0 -1  0 52094
+D3
+~
+~
+0 -1  0 52081
+S
+#52094
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52093
+D1
+~
+~
+0 -1  0 52104
+D2
+~
+~
+0 -1  0 52095
+D3
+~
+~
+0 -1  0 52082
+S
+#52095
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52094
+D1
+~
+~
+0 -1  0 52105
+D2
+~
+~
+0 -1  0 52096
+D3
+~
+~
+0 -1  0 52083
+S
+#52096
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52095
+D1
+~
+~
+0 -1  0 52106
+D2
+~
+~
+0 -1  0 52097
+D3
+~
+~
+0 -1  0 52084
+S
+#52097
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52096
+D3
+~
+~
+0 -1  0 52085
+S
+#52098
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D2
+~
+~
+0 -1  0 52099
+D3
+~
+~
+0 -1  0 52089
+S
+#52099
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52098
+D2
+~
+~
+0 -1  0 52100
+D3
+~
+~
+0 -1  0 52090
+S
+#52100
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52099
+D1
+~
+~
+0 -1  0 52107
+D2
+~
+~
+0 -1  0 52102
+D3
+~
+~
+0 -1  0 52091
+S
+#52102
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52100
+D1
+~
+~
+0 -1  0 52108
+D2
+~
+~
+0 -1  0 52103
+D3
+~
+~
+0 -1  0 52092
+S
+#52103
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52102
+D1
+~
+~
+0 -1  0 52109
+D2
+~
+~
+0 -1  0 52104
+D3
+~
+~
+0 -1  0 52093
+S
+#52104
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52103
+D1
+~
+~
+0 -1  0 52110
+D2
+~
+~
+0 -1  0 52105
+D3
+~
+~
+0 -1  0 52094
+S
+#52105
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52104
+D1
+~
+~
+0 -1  0 52111
+D2
+~
+~
+0 -1  0 52106
+D3
+~
+~
+0 -1  0 52095
+S
+#52106
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52105
+D1
+~
+~
+0 -1  0 52112
+D3
+~
+~
+0 -1  0 52096
+S
+#52107
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D1
+~
+~
+0 -1  0 52113
+D2
+~
+~
+0 -1  0 52108
+D3
+~
+~
+0 -1  0 52100
+S
+#52108
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52107
+D1
+~
+~
+0 -1  0 52114
+D2
+~
+~
+0 -1  0 52109
+D3
+~
+~
+0 -1  0 52102
+S
+#52109
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52108
+D1
+~
+~
+0 -1  0 52115
+D2
+~
+~
+0 -1  0 52110
+D3
+~
+~
+0 -1  0 52103
+S
+#52110
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52109
+D1
+~
+~
+0 -1  0 52116
+D2
+~
+~
+0 -1  0 52111
+D3
+~
+~
+0 -1  0 52104
+S
+#52111
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52110
+D1
+~
+~
+0 -1  0 52117
+D2
+~
+~
+0 -1  0 52112
+D3
+~
+~
+0 -1  0 52105
+S
+#52112
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52111
+D3
+~
+~
+0 -1  0 52106
+S
+#52113
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D2
+~
+~
+0 -1  0 52114
+D3
+~
+~
+0 -1  0 52107
+S
+#52114
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52113
+D2
+~
+~
+0 -1  0 52115
+D3
+~
+~
+0 -1  0 52108
+S
+#52115
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52114
+D1
+~
+~
+0 -1  0 52118
+D2
+~
+~
+0 -1  0 52116
+D3
+~
+~
+0 -1  0 52109
+S
+#52116
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52115
+D2
+~
+~
+0 -1  0 52117
+D3
+~
+~
+0 -1  0 52110
+S
+#52117
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D0
+~
+~
+0 -1  0 52116
+D3
+~
+~
+0 -1  0 52111
+S
+#52118
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D1
+~
+~
+0 -1  0 52119
+D3
+~
+~
+0 -1  0 52115
+S
+#52119
+New Room~
+No Description Set.
+~
+52 65536 0
+0
+D3
+~
+~
+0 -1  0 52118
+S
+$~

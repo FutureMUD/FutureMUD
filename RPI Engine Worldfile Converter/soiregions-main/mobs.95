@@ -1,0 +1,159 @@
+#95000
+stallion NEWBIE_AREA_OOC grey maned horse~
+a grey-maned stallion~
+A grey-maned stallion stands here, stomping his foot.~
+   Standing roughly at the height of a man's shoulder, this horse
+maintains a proud and dignified facade. Its head is held high,
+intelligent eyes glaring out into the distance, and a thick,
+healthy-looking mane runs down the back of its neck. Its coat
+appears well-cared-for, and a thick, knotted layer of muscle
+ripples gracefully beneath its sleek skin.
+~
+262154 0 4 47 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 50 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#95001
+Bryn puppy breycoat UNIQUE_PBOROGIL brown long dog~
+a brown, long-haired puppy~
+A brown, long-haired puppy with two different eye tones is here.~
+   Short and fuzzy, this puppy looks very young and full of 
+energy. Wispy brown fur covers its small body, countershaded in 
+white. A splash of white fur covers the extended snout, 
+highlighting a small chocolate-coloured nose. On its rounded 
+face are both a dark brown eye and a blue one. 
+~
+134217738 0 15 40 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+1646 0 0 1647 0 0 24 0 0 0 1 0 12 5 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' z3_astirian_wardens 'member' amdir_settler 'member' borogil_npcs 'member' mt_citizens~
+6480 95002 0
+#95002
+Bryn brown long young dog breycoat UNIQUE_PBOROGIL~
+a brown, long-haired young dog~
+A brown, long-haired young dog with two different eye tones is here.~
+   Tall and lanky, this young dog stands nearly three feet above 
+the ground. Long layered brown fur covers its body, 
+countershaded in white. A splash of white fur covers the 
+extended snout, highlighting a its chocolate-coloured nose. On 
+its rounded face are both a dark brown eye and a blue one. 
+~
+134217738 0 22 40 0 5d1+80 1d4+0 0 8 8 1 0 0 0 0
+1646 0 0 1647 0 0 24 0 0 0 1 0 35 5 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 45 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' z3_astirian_wardens 'member' amdir_settlers 'member' borogil_npcs 'member' mt_citizens~
+8640 95003 0
+#95003
+Bryn brown large long UNIQUE_PBOROGIL dog breycoat~
+a brown, long-haired large dog~
+A brown, long-haired large dog with two different eye tones is here.~
+   Tall and able-bodied, this dog stands a full three feet above 
+the ground. Long layered brown fur covers its body, 
+countershaded in white. A splash of white fur covers the 
+extended snout, highlighting a its chocolate-coloured nose. On 
+its rounded face are both a dark brown eye and a blue one. 
+~
+134217738 0 25 40 0 5d1+80 1d4+0 0 8 8 1 0 0 0 0
+1646 0 0 1647 0 0 24 0 0 0 1 0 35 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+10 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' z3_astirian_wardens 'member' amdir_settler 'member' borogil_npcs 'member' mt_citizens~
+69120 95004 0
+#95004
+Bryn greying long large dog breycoat UNIQUE_PBOROGIL~
+a greying, long-haired large dog~
+A greying, long-haired large dog with two different eye tones is here.~
+   This aging dog, though greying, still stands three feet above 
+the ground. Grey mixes with its long layered brown fur, creating 
+a drab dark tone not as distinct from its white countershading as 
+it might once have been. A splash of white fur covers the 
+extended snout, highlighting a its chocolate-coloured nose. On 
+its rounded face are both a dark brown eye and a blue one, 
+surrounded by greying brows and facial fur. 
+~
+134217738 0 8 40 0 5d1+80 1d4+0 0 8 8 1 0 0 0 0
+1646 0 0 1647 0 0 24 0 0 0 1 0 35 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' z3_astirian_wardens 'member' amdir_settler 'member' borogil_npcs 'member' mt_citizens~
+0 0 0
+$~

@@ -150,23 +150,6 @@ namespace RPI_Engine_Worldfile_Converter
         Armband = 1 << 27,
     }
 
-    //public enum RPIMaterial
-    //{
-    //	None,
-    //	Textile,
-    //	Leather,
-    //	Wood,
-    //	Metal,
-    //	Stone,
-    //	Glass,
-    //	Parchment,
-    //	Liquid,
-    //	Vegetation,
-    //	Ceramic,
-    //	Other,
-    //	Meat,
-    //}
-
     public enum RPIMaterial
     {
         None,

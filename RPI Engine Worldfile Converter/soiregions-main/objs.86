@@ -1,0 +1,58 @@
+#86000
+form application post-box OTHER~
+a post-box application form~
+A post-box application form has been left here.~
+This is an application form for a post-box. What you need to do 
+is take it to a location where you want your postbox to be, and 
+then type #6configure post-box <direction>#0, where direction is a 
+door which leads to the street. Next, you need to pick a name for 
+your mail to be addressed to, using the syntax #6configure address 
+<name>#0, for example, #3configure address bob#0. Once you've done that, 
+assuming you chose a valid location and name, simply return to the 
+post office and #6register postbox#0. 
+~
+8 0 1
+0 0 0 0
+1 0.000000
+0 0 0 100 0 0 1
+100.000000 0 0 0 0 0 0
+#86001
+spectacles bronze-rimmed pair SPECIAL_POSTAL_OBJECT OTHER~
+a pair of bronze-rimmed spectacles~
+A pair of bronze-rimmed spectacles rest here.~
+The frames of these spectacles have been fashioned from 
+burnished bronze metal, thin like wire but sturdy. The sides of 
+the spectacles curl severely at each end to fit behind the ears 
+of the wearer and the lenses magnify anything placed before them 
+for the wearer to see. Each perfectly-created, glass lens has a 
+minute groove around the edging which allows the frames of the 
+spectacles to fit gently around the glass. The pair is 
+lightweight and delicate, very fragile despite the obvious 
+careful make. 
+~
+8 0 67108865
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+100.000000 0 0 0 0 0 0
+#86002
+object configuration post-box postbox OTHER~
+a postbox configuration object~
+A postbox configuration object is here.~
+~
+8 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#86003
+bag postiebag OTHER~
+a rather large bag~
+a large brown bag lies here~
+~
+15 0 1
+10000 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

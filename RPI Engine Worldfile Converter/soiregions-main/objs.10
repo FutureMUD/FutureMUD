@@ -1,0 +1,1509 @@
+#10000
+pond round still waters LIQUID~
+#4a pond with still waters#0~
+#4A pond lies at the bottom of the clearing, its waters still.#0~
+~
+23 4096 0
+-1 -1 495 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10113
+shack abandoned old R10145 OTHER~
+an abandoned shack~
+An abandoned shack sits here, long ago forgotten.~
+   The old shack sits atop the crest of the tallest of the 
+surrounding hills, weathered by time and the elements. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 65536 0 1
+0.000000 0 0 0 0 0 0
+#10001
+components mangonel ITHILIEN_DOMINATION WOOD~
+a pile of mangonel components~
+A pile of mangonel components has been left here.~
+~
+12 4096 0
+0 0 0 0
+25000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10002
+spring underground cloudy OTHER~
+#6a cloudy, underground spring#0~
+#6An underground spring bubbles here, the water a cloudy, milky colour.#0~
+~
+23 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10003
+snowball rounded white OTHER ball~
+a rounded, white, snowball~
+A white ball of snow lies here, the perfect size for a hand.~
+   Round, white, and made of snow, this snowball has been fashion 
+in a rather haphazard manner of compacted snow. It is large 
+enough to fit in to the hand of an average sized man, and weighs 
+somewhat more than one might guess at a first glance. 
+~
+12 268439552 8193
+1 1 1 5
+100 0.000000
+3 0 0 3 256 0 1
+0.000000 1 86 0 0 0 0
+#10004
+barricade ITHILIENxUNIQUE felled logs OTHER~
+a charred barricade of felled trees~
+A charred barricade of felled trees lies in ashes and ruins here.~
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10005
+key wooden dull 10200key OTHER~
+a dull, wooden key~
+A dull, wooden key lies here.~
+~
+18 4096 1
+0 0 0 0
+15 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10006
+shield NPCxCLAN wooden eagle marked WOOD~
+an eagle-marked wooden shield~
+An eagle-marked wooden shield is set here.~
+   This plain shield is made of wood, carefully planed and 
+finished. Simple in design, with a raised edge, it has two 
+handles in back to hold onto. Over the top of it is a leather 
+cover, the background a pure white, and set upon it a simple 
+painting of an eagle in flight, talons outstretched. 
+~
+6 4096 8912897
+5 12 35 0
+600 0.000000
+0 0 0 29 134217728 0 1
+40.000000 0 0 0 32 0 0
+#10008
+gate reinforced ITHILIEN_DOMINATION strong OTHER~
+#6the reinforced gate#0~
+#6A reinforced wooden gate is set into the wall of the fort.~
+   This stout wooden gate, both halves fashioned of solid oak, is 
+in good order. It is reinforced by a netting of chains, and 
+broad bands of iron, which have been hammered lengthwise across 
+the gate's breadth. It is set a foot deep into the wall of a 
+fort beyond, and is only lightly worn by use and weather.
+
+   #6To hail the gatekeep atop of the fort, type 'hail gatekeep'#0
+~
+12 4096 0
+0 0 0 0
+25000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10009
+portcullis wooden rope-lashed ITHILIEN_DOMINATION OTHER~
+#6the rope-lashed, wooden portcullis#0~
+#6A rope-lashed wooden portcullis hangs here.~
+   Lashed by ropes, this wooden portcullis is currently blocking 
+the route ahead, its triangular-tipped prongs touching the ground 
+below. It appears to be fashioned of heavy oak, reinforced by 
+iron nails. Its lattice of small, square-shaped holes would 
+likely keep out most oncoming projectiles, and it seems to be in 
+a generally solid condition. 
+~
+12 4096 0
+0 0 0 0
+25000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10010
+gate shattered ITHILIEN_DOMINATION OTHER~
+#6the shattered gate#0~
+#6A shattered gate is set into the wall of the fort.~
+   The gates set in the wall have be smashed and shattered open, 
+requiring but a simple push to send them shoved back and baring 
+the way inside wide open.
+
+   #6Typing 'shatter gate' will open a hole in the gates,#0
+   #6allowing you to attack inside!#0
+~
+12 4096 0
+0 0 0 0
+25000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10011
+portcullis splintered ITHILIEN_DOMINATION OTHER~
+#6the splintered portcullis#0~
+#6A splintered portcullis hangs here.~
+   The portcullis have been splintered open, the lower sections 
+lying uselessly across the ground, one able to push the wooden 
+structure backwards easily.
+   #6Typing 'splinter portcullis' will open a hole in the portcullis,#0
+   #6allowing you attack inside!#0
+~
+12 4096 0
+0 0 0 0
+25000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10012
+winch gate ITHILIEN_DOMINATION OTHER loose metal and rope~
+a loose gate winch of metal and rope~
+A loose gate winch of metal and rope has been built here.~
+~
+12 4096 0
+0 0 0 0
+6000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#10013
+winch gate ITHILIEN_DOMINATION OTHER taunt metal and rope~
+a taut gate winch of metal and rope~
+A taut gate winch of metal and rope has been built here.~
+~
+18 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1 10012 0 28 0 0
+#10014
+roof reinforced ITHILIEN_DOMINATION wooden OTHER~
+the reinforced wooden roof~
+A reinforced roof constructed from sturdy wood is set overhead.~
+~
+12 4096 0
+0 0 0 0
+6000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10015
+roof cracked ITHILIEN_DOMINATION OTHER wooden~
+the cracked wooden roof~
+A cracked roof constructed from splintered wood is set overhead.~
+~
+12 4096 0
+0 0 0 0
+6000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10016
+roof shattered frame ITHILIEN_DOMINATION OTHER wooden~
+the shattered wooden roof frame~
+A shattered wooden roof frame is set overhead.~
+~
+12 4096 0
+0 0 0 0
+6000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10017
+key xxNEFORT large rope-bound OTHER~
+a large, rope-bound key~
+A large, rope-bound key lies here.~
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10018
+wall ITHILIEN_DOMINATION wooden fort OTHER~
+#6the wooden wall of a fort#0~
+#6The wooden walls of a fort rise up above the Ithilien.~
+~
+12 4096 0
+0 0 0 0
+25000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10019
+clearing ITHILIEN_DOMINATION ground OTHER~
+a broad clearing~
+There is a broad clearing of ground amidst the fields here.~
+   This broad clearing of ground is home to nothing more than a 
+relatively flat patch of dirt and low lying grass. It looks like 
+an appropriate place should someone wish to construct machinery 
+upon here, or perhaps even excavate the ground. 
+~
+12 4096 0
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10020
+catapult ITHILIEN_DOMINATION wooden iron-studded massive WOOD~
+a readied wooden catapult~
+A massive, iron-studded wooden catapult is here, the arm wound and sling loaded with a boulder.~
+~
+12 4096 0
+0 0 0 0
+16000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10021
+land cultivated OTHER~
+#6the cultivated land#0~
+#6The land here is farmed and cultivated.~
+~
+12 4096 0
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10022
+farmhouses ITHILIEN_DOMINATION peaceful cluster OTHER~
+a peaceful cluster of farmhouses~
+A peaceful group of farmhouses is clustered here.~
+~
+12 4096 0
+0 0 0 0
+60000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 10023 0 0 0 0
+#10023
+farmhouses ITHILIEN_DOMINATION damaged cluster OTHER~
+a cluster of damaged farmhouses~
+A cluster of farmhouses damaged and battered is here.~
+~
+12 4096 0
+0 0 0 0
+60000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 10024 0 0 0 0
+#10024
+farmhouses ITHILIEN_DOMINATION savaged cluster OTHER~
+a cluster of savaged farmhouses~
+A cluster of farmhouses savaged and ruined is here.~
+~
+12 4096 0
+0 0 0 0
+60000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 10025 0 0 0 0
+#10025
+farmhouses ITHILIEN_DOMINATION pillaged cluster OTHER~
+a cluster of pillaged farmhouses~
+A cluster of farmhouses pillaged and torched is here.~
+~
+12 4096 0
+0 0 0 0
+60000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 10026 0 0 0 0
+#10026
+farmhouses ITHILIEN_DOMINATION razed blackened OTHER~
+a cluster of razed and blackened farmhouses~
+A cluster of farmhouses razed and blackened is here.~
+~
+12 4096 0
+0 0 0 0
+60000 0.000000
+0 0 0 0 0 0 1
+0.000000 4320 10021 0 0 0 0
+#10027
+havoc xxxPillageCounterxxx OTHER~
+#6havoc and confusion#0~
+#6Havoc and confusion spreads through the area!~
+~
+12 71307264 0
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#10028
+havoc xxxPillageCounterxxx small amount OTHER~
+#6a small amount of havoc and confusion#0~
+#6A small amount of havoc and confusion rules through the area!~
+~
+12 4096 0
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 4 86 0 0 0 0
+#10029
+havoc xxxPillageCounterxxx moderate confusion disorder amount OTHER~
+#6a moderate amount of havoc, confusion and disorder#0~
+#6A moderate amount of havoc, confusion and disorder is occuring here!~
+~
+12 4096 0
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 4 86 0 0 0 0
+#10030
+havoc xxxPillageCounterxxx large confusion disorder and calamity amount OTHER~
+#6a large amount of havoc, confusion, disorder and calamity#0~
+#6A large amount of havoc, confusion, disorder and calamity is taking place!~
+~
+12 4096 0
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 4 86 0 0 0 0
+#10031
+havoc xxxPillageCounterxxx massive chaos cataclysm devastation OTHER~
+#6a massive amount of havoc, chaos, cataclysm and devastation#0~
+#6Havoc, chaos, cataclysm and devastation rule here!~
+~
+12 4096 0
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 4 86 0 0 0 0
+#10032
+flag ITHILIEN_DOMINATION eagle-marked OTHER~
+an eagle-marked flag~
+A white flag marked with a eagle flies high here.~
+~
+12 4096 0
+0 0 0 0
+6000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10033
+writing words wall OTHER~
+some words written in blood~
+Jagged words and letters have been scribblerd across the wall in blood.~
+~
+53 4096 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 20 0 0
+#10034
+ink BLOOD_INK UNIQUE_ADMIN OTHER~
+a bottle of blood-magic-ink~
+Nothing very much is here.~
+~
+56 4108 1
+50 50 0 0
+100 0.000000
+0 
+blood~
+0 0 4194304 0 1
+0.000000 0 0 0 0 0 0
+#10035
+key twine-bound OTHER~
+a large, twine-bound key~
+A large, twine-bound key has been left here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10036
+building charred moss-covered stone walls OTHER~
+a charred building with moss-covered stone walls~
+A charred building, the stone walls covered in moss, rises from the forest floor here, nestled between the spruces and firs.~
+~
+12 0 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#10037
+skulls dozens knocking OTHER~
+the hanging skulls~
+Dozens of skulls hang here, knocking together with dull echoes whenever the wind blows through.~
+   These human and animal skulls have been left to be picked 
+clean by rodents and insects. They hand from the roof structure 
+at a uniform height and are lined up so that they swing against 
+each other on a windy day. 
+~
+12 0 0
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10038
+push-cart wooden manor corpses OTHER~
+a weathered wooden push-cart~
+A wooden push-cart is set before the doorway of a looted, fire-gutted, smashed-window manor, a pile of decaying corpses scattered before it.~
+   This push-cart is made of weathered wood. About three feet 
+square and a foot deep, the cart looks sturdy even if a bit 
+battered, its unfinished surface scratched and nicked. Resting 
+on two large wheels, the cart has two wooden bars extending out 
+from one end with standing bars attached down from each allowing 
+the cart to remain in an upright position when at rest. 
+~
+15 0 0
+50000 0 0 0
+5000 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 32 0 0
+#10039
+water LIQUID~
+filled with foul water~
+Some careless admin has left a generic object here.~
+~
+50 0 1
+0 -1 -1 0
+15 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10040
+Poros River swiftly downstream water LIQUID~
+#6the River Poros#0~
+#6The River Poros flows swiftly downstream.#0~
+~
+23 4096 0
+-1 -1 4 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10041
+scepter heavily-bejeweled silver bull-headed CULT_OF_MORGOTH METAL~
+a heavily-bejewelled, bull-headed silver scepter~
+A heavily-bejewelled, bull-headed silver scepter has been left upon the ground here.~
+   This scepter is about the length of an average man's arm, from 
+shoulder to fingertips, and the outside is completely sealed with 
+fine silver. The weight of the scepter betrays the true 
+composition to the perceptive observer, however, as it is heavier 
+than one would expect, probably having a core of some other 
+material. The head of the scepter, that of a bovine bull, has 
+been wrought from fine jewel stones, a fist-sized sapphire making 
+the bulk of the head, with horns of carefully carved emerald, 
+eyes of ruby, and features of inlaid onyx. There are also many 
+diamonds of various sorts affixed to the shaft of the scepter. 
+~
+5 135168 8193
+0 1 8 6
+550 0.000000
+3 0 0 22 135208 0 1
+4340.000000 0 0 0 28 0 0
+#10042
+scepter heavily-bejeweled gold lioness-headed lion-headed CULT_OF_MORGOTH METAL~
+a heavily-bejewelled, gold scepter with a lioness head~
+A heavily-bejewelled, lioness-headed gold scepter has been left upon the ground here.~
+   This scepter is about half the length of an average man's arm, 
+from elbow to fingertips, and the outside is completely sealed 
+with delicate gold. The weight of the scepter betrays the true 
+composition to the perceptive observer, however, as it is heavier 
+than one would expect, probably having a core of some other 
+material. The head of the scepter, that of a roaring lioness, 
+has been wrought from fine jewel stones, a fist-sized sapphire 
+making the bulk of the head, with painstakingly detailed hair of 
+carefully carved emerald, eyes of ruby, and features of inlaid 
+onyx. There are also many diamonds of various sorts affixed to 
+the shaft of the scepter. 
+~
+5 135168 8193
+0 1 8 6
+810 0.000000
+3 0 0 15 135208 0 1
+0.000000 0 0 0 28 0 0
+#10043
+gaiter pair gaiters leather sable-colored CULT_OF_MORGOTH LEATHER~
+a pair of sable colored leather gaiters~
+A pair of sable-colored leather gaiters have been discarded here.~
+   This garment, known as a gaiter, is essentially an oblong of 
+sable leather, with a series of buckles on the long edge, which 
+can be wrapped around the calf and ankle of the wearer. 
+~
+11 4096 33
+0 0 0 0
+45 0.000000
+0 0 0 30 40 0 1
+120.000000 0 0 0 14 0 0
+#10044
+pillar granite trapezoidal bull lioness flag CULT_OF_MORGOTH STONE~
+a flag flown between two pillars of granite~
+#6Two trapezoidal pillars of granite have been driven into the ground here, with a flag bearing a bull and a lioness drawn between them.#0~
+   These two pillars of coarse, dark granite have been worked to 
+be a stretched trapezoid, perhaps two feet by two feet at the 
+base, thinning to a square foot by the pinnacle, around nine feet 
+above the ground. An iron railing has been bolted into the sides 
+of the pillars, between them each, and a thick, black canvas flag 
+has been drawn between them - the flag itself depicting a 
+muscular, healthy bovine bull, and a sleek, alert lioness 
+standing side by side, eyeing each other but otherwise calm and 
+commanding. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#10045
+mitre tall sable silver two lappets CULT_OF_MORGOTH TEXTILE~
+a tall, sable mitre with two silver lappets~
+A tall, sable mitre with two silver lappets has been discarded here.~
+   This tall, complex piece of headwear seems externally to 
+consist of two hemi-conical fragments of a stiff, reinforced 
+sable fabric, with two long, trailing lappets, silver silk with 
+red tengwar of a highly artistic nature. 
+~
+11 4096 17
+0 0 0 0
+30 0.000000
+0 0 0 22 135208 0 1
+375.000000 0 0 0 7 0 0
+#10046
+chasuble $color short pile silk CULT_OF_MORGOTH TEXTILE~
+a short, $color silk chasuble~
+A short, $color pile of silk lies here.~
+   This garment, made of $color silk, is a form of frock, similar 
+to a scapula, or poncho, that has a single hole for the head of 
+the wearer and is thrown over the top of other garments. It is 
+reasonably short, carrying to approximately gut height, and 
+sitting only broad enough to cover the shoulders. Although quite 
+well crafted, it is completely unadorned. 
+~
+11 33558528 1025
+0 0 0 0
+100 0.000000
+0 0 0 20 0 0 1
+285.000000 0 0 0 5 0 0
+#10047
+warg_head_board STRANGE_BREW_BOARD variety human patrons OTHER~
+a variety of mostly human patrons~
+A variety of mostly human patrons gather in the tavern.~
+~
+22 4096 0
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10048
+alb $finecolor silk plain CULT_OF_MORGOTH TEXTILE~
+a plain, $finecolor silk alb~
+A plain, $finecolor silk alb has been folded and left here.~
+   This figure-hugging smock, known as an alb, is made of fairly 
+thin and unadorned $finecolor silk, and meets the wearer's neck 
+in a stiff collar, flowing all the way down to cover the wearer's 
+feet. The sleeves are deep and pointed, evidently designed to 
+hang below the wearer's hands, and the whole garment is 
+continuous, with hidden seems and no obvious way to get into or 
+out of the thing except by pulling it over one's head. 
+~
+11 33558528 9
+0 0 0 0
+100 0.000000
+0 0 0 0 4136 0 1
+510.000000 0 0 0 5 0 0
+#10049
+corpse blackened young blond-haired lad MEAT~
+the blackened corpse of a young, blond-haired lad~
+The blackened corpse of a young, blond-haired lad is lying here.~
+   It is the corpse of a young, blond-haired lad. Stark nude, 
+swollen and black, most of his body has seen some sort of blunt 
+trauma. In fact, not much of his body has retained its natural 
+color, now stiffened and hideously black. Most prominent of all 
+the injuries, a brutal hole in his skull has been opened, so much 
+so that barely any of his hair has not been dyed a rich crimson. 
+#0 
+   It has a small contusion on the left hip, a small bruise on 
+the left hip, a small contusion on the abdomen, a small contusion 
+on the left thigh, a small contusion on the abdomen, a small 
+contusion on the right calf, a small abrasion on the abdomen, a 
+small abrasion on the right thigh, a small abrasion on the 
+thorax, a small bruise on the thorax, a small bruise on the left 
+forearm, a small bruise on the right hip, a small bruise on the 
+abdomen, a small bruise on the left forearm, a small contusion on 
+the abdomen, a small abrasion on the left thigh, a small abrasion 
+on the right shoulder, a small abrasion on the left calf, a small 
+bruise on the face, a small abrasion on the thorax, a small 
+contusion on the face, a small abrasion on the right calf, a 
+small contusion on the right hip, a small bruise on the left 
+forearm, a small bruise on the left thigh, a small abrasion on 
+the left calf, a small bruise on the left upper arm, a small 
+contusion on the right shoulder, a small bruise on the left calf, 
+a small contusion on the right upper arm, a small abrasion on the 
+thorax, a small contusion on the right calf, a small contusion on 
+the thorax, a small contusion on the skull, a minor contusion on 
+the abdomen, a small bruise on the left upper arm, a small 
+abrasion on the left hip, a small contusion on the left shoulder, 
+a small bruise on the skull, a small abrasion on the left hand, a 
+small abrasion on the left foot, a small contusion on the left 
+thigh, a small contusion on the thorax, and a mortal hole in the 
+skull. 
+~
+15 4096 1
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10050
+brain hunk covered coagulated blood grey ooze blob crimson jelly MEAT~
+a hunk of brain covered in coagulated blood~
+A blob of grey ooze covered in a thick crimson jelly lies on the ground here.~
+   Loose and shredded, this chunk of brain is swathed in a puddle
+of blood that has set and turned into a jelly-like state. Made of
+a pinkish-grey hue, the majority of it has taken to the deep
+color of crimson from the blood.
+~
+12 4096 1
+0 0 0 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10051
+corpse hanging pale-skinned diminutive lass MEAT~
+the hanging corpse of a pale-skinned, diminutive lass~
+The corpse of a pale-skinned, diminutive lass hangs here from a wall.~
+   Eyes locked in an empty stare of death, her head is pitched
+forward towards her chest and slightly to the side, leaving her
+mouth partly agape. From a distance, her age is not easily
+known, but her small frame and pale skin give resemblence to a
+young daughter. Around her neck a sheet of some white material
+has been knotted tightly while the other end disappears from
+sight over the edge of the windowsill. Her position is such that
+she stares out over the intersection, in a perpetual nod towards
+the Dome of Stars.
+~
+15 4096 0
+1000 0 -1 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10052
+boulder crushed beneath massive corpse legs STONE~
+a massive boulder resting on a corpse~
+A massive boulder has created a bowl of jutting cobblestones in the middle of the street, a pair of mailed legs jutting out from beneath it.~
+   Dressed in scalemail and a pair of thick, black boots the legs
+that jut from beneath the boulder are thick in girth. Laying with
+their knees upon the cobblestones, the end of a black cloak marked
+with the bottom half of a white sigil is visible spread out over
+the back of the legs. The right leg seems to have sustained heavy
+damage just where it begins to extend below the boulder, mail
+shattered, visible flesh has torn asunder and a pool of thick
+blood has collected around the leg. The boulder itself is a grey
+color, most likely granite. Gigantic, it rests in a dent in the
+street, cobblestones pulled from their places to jar upwards.
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#10053
+masonry random pieces fallen STONE~
+a few random pieces of fallen masonry~
+Various pieces of masonry are scattered about the street here.~
+   Primarily white, these pieces of masonry have fallen from the
+buildings and walls in the area. Mostly from exterior walls and
+ceilings of the buildings, they're a combination of stonework
+and mortar. Most of the larger pieces have broken from the fall.
+~
+12 4096 1
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+A
+1 18
+#10054
+building collapsed lot STONE~
+a collapsed building~
+A building has collapsed in a lot along the street.~
+   Primarily made of white stone and mortar, the building's frame
+has been shattered in some fashion as to cause it to fall in on
+itself. Timbers and shards of walls stand and rest in wild
+disarray throughout the lot.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#10055
+wall collapsed exterior STONE~
+a collapsed wall~
+An exterior wall from a building has fallen across the street here.~
+   Battered and white, the wall from the building has for some
+reason dislodged itself from the frame and collapsed out across
+the street. Shattered into various plates and pieces of masonry,
+it still retains the openings and woodwork of a door and several
+windows.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#10056
+bodies pile random MEAT~
+a pile of random bodies~
+Several piles of bodies have formed throughout the street here.~
+   Men, women, and children of all ages and sizes have been
+stacked on top of each other in piles and pyramids on the side
+of the street as well in the middle of it. Most are at least
+partly nude, having been looted of their belongings well before
+coming to rest as part of the pile. The stench that rises in
+the area is enough to set eyes to water and noses to run.
+~
+15 4096 0
+10000000 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10057
+stench decaying smell OTHER~
+a decaying, rotten stench~
+The smell of decaying and rot forcefully resides in the air here.~
+   Of enough potency to send people into a state of regurgitation,
+the air here carries the not-so-delicate smell of decay and rot.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10058
+poison OTHER~
+some poison~
+Some poison sits here, looking poisonous.~
+~
+33 0 1
+7800 0 0 0
+100 0.000000
+0 1 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10059
+large portion charred fire OTHER~
+#9a large portion of charred and burnt land#0~
+#9A large portion of this area has been consumed by fire!#0~
+   Any buildings here were most likely once stood proudly; now, 
+they are but blackened shells, the timber tops and support beams 
+burned away by the fires of the lightning strikes. If no 
+building would be here, trees and the ground itself are shattered 
+and charred. 
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10060
+house boarded-up bolted shuttered town-house OTHER~
+a boarded-up, shuttered town-house~
+An intact wooden town-house stands amidst the other, damaged buildings, the front door boarded up and the all the windows heavily shuttered.~
+   Unlike the buildings either side of this town house, which 
+look to have been looted, struck with siege machinery, or quite 
+possibly both, this building is in quite good condition, save for 
+the many reinforcing planks of wood nailed over every opening of 
+the house. If one were to listen carefully, movement upon the 
+creaking floorboards and steps inside the barricaded building, 
+along with hushes whispers, is audible. 
+~
+12 0 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10061
+cart spoiled breed over-turned OTHER~
+an over-turned cart containing much spoiled rye bread~
+A baker's cart has been overturned here, a large quantity of moldy, dark rye bread littering the street about it.~
+   This simple baker's cart of two wheels and wooden tray has 
+been discarded here, both of the wheels damaged beyond repair. 
+Not only has the slender wooden frame of the cart clattered down 
+to the street, but many a baker's dozen of loaves of dark rye 
+bread. Greyish mold grows prolifically about the bread. 
+~
+12 0 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10062
+house abandoned dilapidated fire-damaged battered $drabcolor OTHER~
+an abandoned, battered, fire-damaged house painted $drabcolor~
+An abandoned, battered, dilapidated and fire-damaged house is set amongst many others like it, this one painted $drabcolor.~
+   This house has been covered in a shoddy coat of $drabcolor 
+paint, the sides peeling and flaking off to reveal even poorer 
+coats beneath it. The sides of this house are licked with soot 
+and scorch marks, as is much of the other houses along this 
+street, though the cause is not immediately apparent. The roof 
+and wooden walls are also slightly battered, and the absence of 
+door handles, gutters, awnings or anything else made of metal 
+suggests that this house was the site of some rather desperate 
+looting. The doors and windows swing wide open with a stiff 
+breeze. 
+~
+12 33554432 0
+0 7 1 -1
+10000 0.000000
+0 99032 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10063
+crowd_morph token OTHER~
+a crowd morph token~
+A crowd morph token is here.~
+~
+12 0 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 16 99006 0 0 0 0
+#10064
+mess gory trample livestock OTHER~
+a gory mess of trampled livestock~
+A gory mess of trampled livestock stains the cobbles.~
+   What was once many geese, ducks, birds, piglets, and other 
+small animals brought to the city to be traded in wooden cages 
+looks to have been trampled underfoot here, the bleeding and 
+pierced carcasses of the animals, individual bodies impossible to 
+identify, dashed across the hard cobbles in splashes of dark reds 
+and purples. 
+~
+12 0 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10065
+band youths urchins gathering OTHER~
+a band of cobble-gathering urchins~
+A band of urchins gathering about the road, prising up the cobbles.~
+   Perhaps a half-dozen sooty-faced urchins, none looking to even 
+be in their teens, are busy at work along the city road here, 
+prising up the cobblestones and placing them in to burlap sacks 
+held open by the youngest-looking of the crew. They carry crude 
+knives and slings upon their belts, and work with a grim 
+determimation, making no jokes or conversation amongst 
+themselves. 
+~
+12 0 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 2 10066 0 0 0 0
+#10066
+urchin_morph token OTHER~
+urchin_morph token~
+An urchin_morph token is here.~
+~
+12 4 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 24 10065 0 0 0 0
+#10067
+mound scorched stone wood ruins building OTHER~
+a mound of scorched stone and wood~
+A mound of scorched stone and wood is heaped here, the ruins of what once was a building.~
+   This must once have been a building, but has now collapsed 
+into a large mound of scorched stone and wood. Ashes coat the 
+debris liberally, and shards of other materials such as pottery, 
+fabric, and glass are scattered within. There is nothing of 
+salvageable quality to be found, all having been broken or 
+damaged already. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#10068
+cabinet broken partially burned WOOD~
+a broken, partially-burned cabinet~
+A broken, partially-burned cabinet lies here on its side.~
+   Wood that has been warped by heat and damaged by rough 
+treatment makes up what is left of this cabinet, which now lies 
+on its side. The doors will no longer close, the latches are 
+missing, and broken legs make it impossible to stand up. 
+~
+37 4096 0
+2500 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10069
+house fire gutted stone STONE~
+a fire-gutted stone house~
+A fire-gutted stone house stares down at the street here, looming hauntingly.~
+   This once was a fairly well-built house, but has now been 
+completely gutted by fire. Two stories tall, the upper windows 
+stare like hollow eyes at the street below, giving it a haunting 
+appearance. There is nothing of value left within, the fire 
+having claimed all but a few scraps of burned fabric, broken and 
+scorched furniture, and plenty of ashes. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#10070
+charnel-heap fire blasted bodies rubble OTHER~
+a fire-blasted heap of charnel~
+A fire-blasted charnel heap sprawls here, bodies and rubble lying amidst one another.~
+   Bodies in horrific condition lie here, sprawled and piled 
+amongst rubble, both stone, wood, and fragments of other 
+materials. The corpses are torn, cut, and broken, limbs lying 
+askew and an atrocious list of mutilations present on each poor 
+soul's mortal remains. The smell is heavy, burnt flesh and blood 
+mixes with smoke and soot. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10071
+blood bloody streaks series flesh clothing OTHER~
+a series of bloody streaks~
+A series of bloody streaks are present on the ground, bits of tattered flesh and burnt clothing strewn amidst them.~
+   Bloody streaks are smeared across the ground here, apparently 
+caused by something or someone being dragged violently along. 
+Bits of tattered flesh, burned clothing, hair, and other carnage 
+adds to the grim sight. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#10072
+carriage shattered overturned dead horse WOOD~
+a shattered, overturned carriage~
+An overturned carriage lies here, shattered and hitched to a dead horse.~
+   Hitched still to a deceased horse, this carriage has been 
+broken and ravaged by violence. The wheels are cracked and 
+hanging loosely, the walls shattered and stained with blood. The 
+horse lies limply on its side, partially gutted and with glassy 
+eyes staring dead at the sky. 
+~
+15 4096 0
+5000 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10073
+pile burned splintered wood heap WOOD~
+a burned pile of splintered wood~
+A burned pile of splintered wood is heaped here.~
+   Charred and scorched, this pile of wood was once a 
+construction of some sort, perhaps a large piece of furniture or 
+part of a building. Nails jut from the scraps here and there, 
+and ashes are mixed liberally with the splintered wood. There 
+are no pieces large or intact enough to salvage. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10074
+house ruined defaced defiled STONE~
+a ruined, defaced stone house~
+A ruined stone house stands here, its facade defaced and defiled.~
+   This was once a house of fairly well-to-do construction, but 
+is now just a burnt ruin. The marks of flames mar the tops of 
+the windows, and blood and ashes have been used to scrawl crude 
+drawings and smears over the stone. The door is broken 
+completely, hanging on its hinges, and all within has been looted 
+or destroyed violently. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#10075
+hut small thatch roofed OTHER~
+a small, thatch-roofed hut~
+A small, thatch-roofed hut stands here, strangely untouched by the surrounding carnage.~
+   This small hut stands amidst toppled buildings, scorched 
+edifices, and piles of rubble and stone. Although made of wood, 
+it is strangely untouched by damage or fire, standing serenely 
+amidst an otherwise grim scene of ruin. The door is shut 
+securely, barring entrance to the interior. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10076
+corpses row cruelly piked scorched OTHER~
+a row of cruelly piked, scorched corpses~
+A row of scorched corpses stands here, piked cruelly in scarecrow fashion.~
+   Standing in a row, several corpses have been desecrated and 
+impaled upon pikes. Their clothes and bodies are ravaged by 
+fire, burnt and crisped. What is left of their faces show scenes 
+of fear and torment. None have been spared here - both women and 
+children are equally represented alongside men. Their arms have 
+been splayed out in a scarecrow fashion, making the sight 
+horrific indeed. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10077
+pulpit ornate gold silver bull lioness CULT_OF_MORGOTH METAL~
+an ornate, gold and silver pulpit~
+A pulpit, with an ornately wrought silver bull and golden lioness, stands here.~
+   This pulpit is truly a work of art; an ornately worked silver 
+bull, wrought of silver, on its hind legs, at the feet of which 
+stalks an equally ornate golden lioness. Above them both, a 
+giant hand fans out with its hand in the cupped position, upon 
+which the speaker can place tomes, notes, or anything they wish. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#10078
+pews wooden rows many CULT_OF_MORGOTH WOOD~
+many rows of wooden pews~
+Many rows of wooden pews have been set up here, leaving an aisle in the middle.~
+   These pews are fairly utilitarian; good, solid oak, stained a 
+dark red wood colour. They have ample back support, and are 
+suitably long, however, the lack of cushioning may offend the 
+tastes of some rears. They are spaced closely, but comfortably. 
+~
+15 2101248 0
+0 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10079
+splinters WOOD wood scattered shards FALL_RPT_DEBRIS~
+scattered wood splinters~
+Shards of wood, mostly of splinter size, lie all over the ground here.~
+   It's a lot of wood, it's splintered, and it's all over the 
+place. 
+~
+13 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10080
+ash white layer FALL_RPT_DEBRIS OTHER~
+a layer of white ash~
+The ground, and every stationary thing in the area, has been covered in a layer of white ash.~
+   The ground here has been covered with a fine layer of ash, 
+mostly white with the occasional fleck or grey, black or brown. 
+It has gotten on anything that doesn't move, though there are 
+some tracks through, where things have traversed. 
+~
+13 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10081
+glass shattered crystals shards FALL_RPT_DEBRIS GLASS~
+shards of shattered glass~
+The area is littered with crystals of shattered glass of various sizes.~
+The area is littered with crystals of shattered glass of various sizes.
+~
+13 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10082
+plaster chunks broken FALL_RPT_DEBRIS OTHER~
+chunks of broken plaster~
+Large chunks of broken plaster have fallen to the ground here, sundered by some trauma.~
+   Large chunks of broken plaster have fallen to the ground here, 
+sundered by some trauma. 
+~
+13 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10083
+plaster dust FALL_RPT_DEBRIS OTHER~
+plaster dust~
+The ground and the surroundings have been covered in fine plaster dust.~
+   The ground and the surroundings have been covered in fine 
+plaster dust. 
+~
+13 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10084
+altar thin legged sleek-black broad-surfaced obsidian iron METAL CULT_OF_MORGOTH~
+a thin legged, sleek-black altar~
+A broad-surfaced altar composed of a swirling mass of obsidian and iron.~
+   This broad-surfaced altar has been masterfully hewn from 
+deposits of iron and sleek black obsidian. The metal and stone 
+have conflated to form dark, cloudy swirls on the altar's 
+exterior. Few scratches show themselves atop the broad, squared 
+surface of the altar and on either corner the dark, shadowy 
+material has been thinly twisted to form thin legs on which this 
+prominent altar stands. Skillfully etched onto the smooth 
+surface of the altar is an intricate image of a powerfully 
+muscled bull, rearing on its hind legs and beneath it is a regal, 
+slender lioness, its sharp incisors exposed to all. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#10085
+altar dark mahogany rich polished smooth-surfaced pedestal CULT_OF_MORGOTH WOOD~
+a dark altar of rich mahogany~
+A smooth-surfaced altar composed of polished mahogany wood is here, fitted to a pedestal. ~
+   Though only a simple broad box fitting composed of slender, 
+rich mahogany panels, this fine altar is perfectly designed for 
+its purpose its surface is beautifully smoothed over to show few 
+markings or scratches on the wood and by thin metal clasps it has 
+been fastened into the dark rock of the room. The box is adorned 
+usually with strange candles and perhaps offerings of food, money 
+and even the odd cylindrical scroll curse. Draped from its edges 
+are rippling pieces of sleek silk cloth and set above the altar, 
+also fastened to the wall, is a delicately crafted picture of a 
+bull and a lioness: depicted in grayish, black colours, the bull 
+rears on its hind legs, its bulging frame ripping with muscles 
+and below it, crafted from lighter paints, is a slender lioness 
+with borne, sharp teeth. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10086
+armband knotted strip grey cloth raven TEXTILES~
+a knotted strip of grey cloth bearing a raven~
+A knotted strip of grey cloth has been left here.~
+   This long, thin strip of grey cloth has been knotted to be 
+tied around a person's arm. On the armband, the crude image of a 
+black raven has been painted on. 
+~
+11 135168 134217729
+0 0 0 0
+5 0.000000
+0 0 0 10 0 0 1
+20.000000 0 0 0 7 0 0
+#10087
+key long bronze miniscule lever tail CULT_OF_MORGOTH SEEKERS_HQ_MAIN METAL~
+a long bronze key with a miniscule lever on the tail~
+A long bronze key with a miniscule lever on the tail has been left here.~
+~
+18 135168 1
+0 0 0 0
+20 0.000000
+0 0 0 30 0 0 1
+200.000000 0 0 0 16 0 0
+#10088
+cloak silken thick flail circle skulls motif UNIQUE_ANGOMIR CULT_OF_MORGOTH TEXTILE~
+a thick, silken cloak with a flail and a circle of skulls motif~
+A thick, silken cloak with a flail and circle of skulls motif lies here.~
+   This silken cloak has been died a vibrant, crimson red, and 
+the hem has been covered by black fur. On the back of the cloak, 
+a silver image of a giant, three headed flail can be seen, 
+surrounded by a circle of white skulls. 
+~
+11 4096 1025
+0 0 0 0
+100 0.000000
+0 0 0 39 0 0 1
+0.000000 0 0 0 5 0 0
+#10089
+shield viper-emblazoned heater lustrous UNIQUE_PANTROZOUS METAL~
+a lustrous, viper-emblazoned heater shield~
+A lustrous, viper-emblazoned heater shield lies here.~
+   It is a shield that bears the touch of a true master's hand. 
+The onyx surface shows a dull reflection when looked upon, due to 
+meticulous polishing. Emblazoned upon the center of the shield 
+is a crimson, gold outlined viper. Its head is turned to the 
+right, maw gaping to show fierce fangs and the serpent's forked 
+tongue. The shield, when planted upon the ground, rises to a 
+grown man's midriff and is wide enough to offer ample protection 
+to the bearer. The lines of the shield taper inward at the 
+bottom to form an inverted teardrop. The shield curves inward to 
+fit the contour of the bearer's torso, and a pair of solid, black 
+leather straps are set on the obverse side. 
+~
+6 4096 8912897
+6 16 40 0
+1000 0.000000
+0 0 0 35 40 0 1
+430.000000 0 0 0 28 0 0
+#10090
+token steel gauntlet-engraved UNIQUE_PANTROZOUS METAL~
+a gauntlet-engraved steel token~
+A gauntlet-engraved steel token sits here.~
+   This steel token is roughly three finger-widths in diameter. 
+It is smooth and well crafted from fine steel. Upon close 
+inspection the engraving on one side is seen to be a 
+spiked-gauntlet that bears a blazing flame in its grasp. The 
+opposite side of the token has three loops large enough for 
+fingers to be slipped through. 
+~
+11 4096 3
+0 0 0 0
+50 0.000000
+0 0 0 10 0 0 1
+20.000000 0 0 0 18 0 0
+A
+10017 -25
+A
+10016 -25
+A
+10017 25
+A
+10016 25
+#10091
+mask mithril long-faced hefty UNIQUE_SEEKERS_PLOT_DO_NOT_LOAD METAL~
+a hefty, long-faced mithril mask~
+A hefty, long-faced mithril mask has been left here.~
+   This extensive mask is quite hefty, extending down past the 
+chin of the wearer and spreading out across the shoulders, as 
+well as rising more than a foot above the head of the wearer. 
+Made of an exceptionally light, but enormously strong, the light 
+metal seems to reflect most all of the light that comes its way, 
+giving the illusion of a halo of light about the wearer when in 
+bright conditions. The mask itself is actually fairly slim, and 
+has roughly humanoid features, although grossly exaggerated, 
+being rather long faced. The top of the mask is adorned with 
+many eye-shaped apertures, bejeweled heavily, almost like a 
+spider's eyes. There is no mouthpiece. 
+~
+11 528384 67108865
+0 0 0 0
+850 0.000000
+0 
+long-mithril-masked~
+0 50 0 0 1
+0.000000 0 0 0 28 0 0
+#10092
+tome enormously ancient large tome UNIQUE_SEEKERS_PLOT PARCHMENT~
+a large, enormously ancient tome~
+A large, enormously ancient tome stands here, some fragment of a long lost past.~
+   This tome, made of a thick, half-rotten leather of a creature 
+of epic proportions, looks to be immensely ancient. The spine is 
+a weatherworn, but surprisingly lustrous bronze, and the covers 
+are attached to the spine by metal arms, hinged. 
+~
+54 4104 1
+100 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10093
+snowman OTHER~
+a chubby, poorly-made snowman~
+A chubby, poorly made snowman sits here quietly.~
+   This snowman comprises a large rounded lump of snow as his 
+main body, then another smaller snowball above with twigs 
+sticking in it, no doubt to represent arms. A snowball head with 
+a carrot nose and coal eyes finishes the rather poorly 
+constructed snowman. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 20 10094 0 0 0 0
+#10094
+melted snowman OTHER~
+a melted snowman~
+The remains of a snowman are here in a puddle of melted snow.~
+   All that remains of a once-proud snowman is a chewed carrot 
+and a snapped twig, laying atop a small pile of snow and ice. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 16 86 0 0 0 0
+#10095
+soldier statue stoic bull lioness banner south STONE~
+a statue of a stoic soldier~
+#FA statue of a stoic soldier holding a bull and lioness banner points south.#0~
+   Grey stone has been smoothly carved into a near life-size 
+image of a well-armored soldier. It stands approximately five 
+feet tall and has been crafted with attention to detail. The 
+features of the unknown male are stoic as he stares toward the 
+horizon. Thrust out proudly before him is a longsword that is 
+held as if to say its wielder both anticipates and is ready for 
+an imminent conflict. Held in his left hand is a long shaft, at 
+the top of which there flies a grey banner with brilliantly sewn 
+bull and rearing lioness of a deep indigo color. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#10096
+windmill xMinixFort derelict stone boarded up windows location OTHER~
+a derelict, boarded-up windmill~
+A stone windmill rises here, the windows in its stone structure securely boarded.~
+   This stone windmill looks as old as the long-ago razed and 
+abandoned farmhouses that form a crude ring around it, the soot 
+blackened walls of cut and set rock crammed with lichen and moss. 
+The rickety wooden blades of the structure turn slowly, the 
+fabric covering them tattered and flapping wildly in the lightest 
+of winds, though it looks like a particularly nimble climber 
+could scale them. All the windows and doors of the windmill are 
+heavily barred, this activity looking to have been recent. 
+~
+12 0 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#10097
+cave opening xMinixFort Emyn Arnen OTHER~
+the fortified entrance to a cave~
+A crooked path flanked by a log palisade on either side leads up to the opening of a cave set in the cliffs of the Emyn Arnen.~
+   A crooked path leads up to the entrance of a cave in the Emyn 
+Arnen, yet the path is well protected by thorny bushes and felled 
+logs, making the task of preventing anyone from climbing it far 
+too easy for whatever force occupies the inhabited cave at the 
+top of the path. Little can be seen of the cave from down here, 
+save for a vague guess at what type of force holds this location. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10098
+shawl UNIQUE_PMEG embroidered scarlet wool faded used TEXTILE~
+an embroidered shawl of faded scarlet wool~
+An embroidered shawl of faded scarlet wool lies here.~
+   Made from a piece of thick wool folded diagonally and sewn with even
+stitches to keep it that way, this shawl was once dyed a vivid scarlet
+which has faded evenly into a more sedate hue. Along the edges, and
+especially in the corners, a pattern of leaves and flowers has been
+embroidered, outlined in black thread and filled with once-bright
+corn-gold, leaf-green and cornflower-blue. It can be worn around
+the shoulders, staying there easily.
+~
+11 0 8389633
+0 0 0 0
+100 0.000000
+0 0 0 30 65540 0 1
+30.000000 0 0 0 3 0 0
+#10099
+treehouse massive destroyed burnt OTHER~
+a massive, ruined treehouse lays burnt and smashed here~
+A massive treehouse has been destroyed here, huge trunk damaged heavily by fire and axe, as it lays in ruin.~
+   This massive treehouse has been ruined, the tree itself burnt 
+and chopped until it lay dead over a large area here. 
+~
+12 4096 0
+0 0 0 0
+99900 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10100
+farmhouse xMinixFort rebuilt old pond OTHER~
+the farmhouse by the pond~
+An old, recently rebuilt farmhouse stands on the end of the pond, in the middle of overgrown fields.~
+~
+12 0 0
+0 0 0 0
+99900 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10101
+test test scarf test $color TEXTILE~
+scarf test $color test"~
+scarf test $color test"~
+scarf test $color test 
+] @
+~
+11 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#10102
+pendant knotwork time-worn timeworn bronze METAL UNIQUE_PEOVEN~
+a time-worn bronze knotwork pendant~
+A bronze knotwork pendant lies here, on a chain.~
+   It is a little bronze pendant made of ribbons of metal all
+knotworked intricately. It dangles from a simple bronze chain
+that clasps in the back, and reaches a bit past the hollow of
+the throat when worn.
+~
+8 4096 2097153
+0 0 0 0
+6 0.000000
+0 0 0 30 65572 0 1
+45.000000 0 0 0 16 0 0
+#10103
+trench short length SIEGECRAFT OTHER~
+a short length of trench~
+A short length of trench is dug here.~
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10104
+trench long dug out OTHER SIEGECRAFT~
+a long dug-out trench~
+A long dug-out trench runs through here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#10105
+palisade framework segment WOOD~
+a segment of palisade framework~
+A segment of palisade framework stands here.~
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10106
+palisade gondorian WOOD wooden stakes skirted building~
+a large wooden palisade skirted with stakes~
+A large wooden palisade is skirted with stakes.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#10107
+clog shoe wooden $color leather LEATHER-CRAFTER WOOD~
+a pair of wooden clogs with a $color leather strap~
+A pair of wooden clogs with a $color leather strap are tossed aside here.~
+   The soles are made from thick, formed slabs of grainy oak. A 
+simple strap of $color leather is tacked onto the wooden soles to 
+hold the open shoe in place with some comfort. These clogs are 
+simple and servicable and quite comfortable for walking. 
+~
+11 33558528 65
+0 0 0 0
+150 0.000000
+0 0 0 30 134219776 0 1
+24.000000 0 0 0 14 0 0
+#10108
+castle ADMIN_STUFF little plastic silly OTHER~
+a little plastic castle~
+A little plastic castle sits here.~
+   Brightly colored and made of cheap plastic this castle is 
+about six feet high at its tallest. It awaits its plastic prince 
+and princess. Etched on the side is a link: 
+http://www.youtube.com/watch?v=DBJmyrx26Gc 
+~
+13 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

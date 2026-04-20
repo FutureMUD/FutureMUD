@@ -1,0 +1,137 @@
+void
+post_nominate (DESCRIPTOR_DATA * d)
+{
+  CHAR_DATA *ch;
+  char buf2[AVG_STRING_LENGTH];
+  char msg[MAX_STRING_LENGTH];
+  char *date;
+  char *date2;
+  const char *wr;
+  time_t account_time;
+
+  account_time = d->acct->created_on;
+  date = (char *) asctime (localtime (&account_time));
+
+  account_time = time (0);
+  date2 = (char *) asctime (localtime (&account_time));
+
+  date2[strlen (date2) - 1] = '\0';
+
+  ch = d->character;
+  if (!*d->pending_message->message)
+    {
+      send_to_char ("You must leave a reason for your nomination.\n", ch);
+      mem_free (date);
+      mem_free (date2);
+      ch->delay_ch = NULL;
+      return;
+    }
+
+  d->acct->nominate_rpp ();
+
+  sprintf (buf2, "#1%s#0: #2%s#0", ch->delay_ch->name, ch->delay_ch->account);
+
+  wr = get_room_desc_tag (ch, ch->room);
+  sprintf (msg, "From: %s [%d%s%s]\n", ch->tname, ch->in_room,
+	   wr ? " - rset " : "", wr ? wr : "");
+  sprintf (msg + strlen (msg), "\n");
+  sprintf (msg + strlen (msg), "%s", ch->desc->pending_message->message);
+
+  add_message (1, "Nominations",
+	       -5, ch->desc->acct->name.c_str (), date2, buf2, "", msg, 0);
+
+  send_to_char
+    ("Thank you! Your nomination for a reward point will be review by the staff.\n\r",
+     ch);
+
+  unload_message (d->pending_message);
+
+  mem_free (date);
+  mem_free (date2);
+  ch->delay_ch = NULL;
+}
+
+void
+do_nominate (CHAR_DATA * ch, char *argument, int cmd)
+{
+  CHAR_DATA *tch;
+  char buf[MAX_STRING_LENGTH];
+  account *acct;
+  bool loaded = false;
+  char verify[MAX_STRING_LENGTH];
+
+  if (IS_NPC (ch))
+    {
+      send_to_char ("Mobiles can't submit nominations.\n\r", ch);
+      return;
+    }
+
+  if (!*argument)
+    {
+      send_to_char ("Which PC would you like to nominate for a Reward Point?\n"
+                    "To nominate an account, see #6HELP NOMINATE#0.\n", ch);
+      return;
+    }
+
+  if (!(tch = get_char_room_vis (ch, buf)))
+  {
+    send_to_char("You must be in the same room as the PC to nominate them.\n", ch);
+    return;
+  }
+
+  if (IS_NPC (tch) || IS_GUEST(tch))
+    {
+      send_to_char ("This command only works for player characters.\n", ch);
+      return;
+    }
+
+  if(tch == ch)
+    {
+      send_to_char ("Really? You think -you- deserve an award? Who'da thunk it?", ch);
+      return;
+    }
+
+  argument = one_argument(argument, verify);
+
+  if (*verify != '!')
+  {
+    sprintf(buf, "Are you sure you wish to nominate #2%s#0?\n Add ! to the end of the command if you really mean it.\n", short_desc(tch));
+    send_to_char(buf, ch);
+    return;
+  }
+
+  acct = new account (ch->pc->account_name);
+
+  if (!acct->is_registered ())
+  {
+    delete acct;
+    act("Hmm... there seems to be a problem with your acocunt. Notify the staff.", false, ch, 0, 0, TO_CHAR | _ACT_FORMAT);
+    return;
+  }
+
+  if((time (0) - acct->get_last_nominate_date ()) < 60 * 60 * 24 * 30)
+  {
+    send_to_char("You've already made a nomination within the last thirty days.\n", ch);
+  }
+
+  CREATE (ch->desc->pending_message, MESSAGE_DATA, 1);
+  send_to_char
+    ("Describe why you believe the player in question deserves a\n"
+     "reward. Typically, the admins give rewards to players who\n"
+     "demonstrate strong roleplaying abilities, clan management\n"
+     "achievements, assisting new players, contributing objects\n"
+     "or documentation to the game, and so on.\n\n"
+     "Terminate the editor with an '@' symbol, and remember you\n"
+     "can only nominate once a month.\n", ch);
+
+  make_quiet (ch);
+
+  ch->delay_ch = tch;
+
+  CREATE (ch->desc->pending_message, MESSAGE_DATA, 1);
+
+  ch->desc->str = &ch->desc->pending_message->message;
+  ch->desc->max_str = MAX_STRING_LENGTH;
+  ch->desc->proc = post_nominate;
+  
+}

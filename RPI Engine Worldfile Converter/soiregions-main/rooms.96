@@ -1,0 +1,4054 @@
+#96000
+Herbalism & Storeroom Zone~
+   This zone is where all herbalism related objects go, as well 
+as where all shopkeep store-rooms are being re-located. 
+   #1Please ask Nix before doing anything here!#0 
+   Minas Tirith storerooms: 96000 to 96300. 
+   Minas Morgul storerooms: 96301 to 96600. 
+   Osgiliath storerooms: 96601 to 96800. 
+   Storerooms anywhere else: 96801 to 96999. 
+~
+96 1073807368 0
+0
+S
+#96001
+Store Rm: Lars: mob 1019, shop 1162.~
+   This is a storeroom for a fowler in Minas Tirith, named Lars. 
+He sells freshly plucked dead birds: i.e., birds that can be used 
+in cooking crafts. 
+~
+96 -805240824 0
+0
+D3
+~
+~
+0 -1  0 1162
+S
+#96002
+Store Rm: Kendrel: mob 1027, shop 1154~
+   This is the storeroom for an usurer in Minas Tirith, named 
+Kendrel. Fastidious man, habitually polishes his spectacles and 
+keeps his nails nice and clean. 
+~
+96 -805240824 0
+0
+D3
+~
+~
+0 -1  0 1154
+S
+#96003
+A Small Storeroom~
+   This storeroom is barely clean enough to keep the meat here 
+fresh. Stone walls are clearly not washed too often and rivulets 
+of blood drain into a central plug with the distant sound of the 
+sewers beneath confirmed by a rising smell during the Summer 
+months. A compact old oak door leads westwards into the 
+shopfront itself. 
+~
+96 1409351688 0
+0
+D3
+~
+old-oak-door~
+1 21596  50 1465
+S
+#96005
+Store Rm: Voffen: mob 1114, shop 1046~
+   This is the storeroom for Voffen, a pipe-weed dealer in Minas 
+Tirith. He's a middle-aged man who prefers good food, wine, and 
+music to actual work. He likes relaxing and lazily enjoying 
+life. In his youth he was into adventure, but now he just wants 
+to sit back and retire with much money, as he's grown overly-fond 
+of comfortable living. 
+~
+96 -1878982648 0
+0
+D3
+~
+~
+0 -1  0 1046
+S
+#96004
+Store Rm: Aramie: mob 1033, shop 1141~
+   This is the store room for Aramie, a nut-seller in Minas 
+Tirith. He is fair and hardworking, and pretty honest with his 
+prices. He likes a simple, uncluttered life. 
+~
+96 -805240824 0
+0
+D3
+~
+~
+0 -1  0 1141
+S
+#96006
+Store Rm: Maril: mob 1115, shop 1459~
+   This is the storeroom for Maril, a hide-dealer in Minas 
+Tirith. She'll purchase butchered animals and their hides, then 
+sells the processed hides and ready-to-cook meat. A young woman, 
+sometimes she is cocky and reckless, but always manages to make 
+enough coin to keep her going. 
+~
+96 -1878982648 0
+0
+S
+#96007
+Store Rm: Vincel Carrow: mob 1110, shop 1056~
+   This is the storeroom for Vincel Carrow, a vinter supplier in 
+Minas Tirith. He's a strong, hard-working guy, rather severe and 
+intense about everything; yet he presents a calm, collected 
+exterior. 
+~
+96 -1878982648 0
+0
+D3
+~
+~
+0 -1  0 1056
+S
+#96008
+Store Rm: Fenric: mob 1108, shop 1074~
+   This is the storeroom for Fenric, a feather-seller in Minas 
+Tirith. He's a friendly guy, always talkative and eager to 
+listen. He spends as much time as he can out in the sun, and 
+thoroughly enjoys running his business. 
+~
+96 -805240824 0
+0
+D3
+~
+~
+0 -1  0 1074
+S
+#96009
+Store Rm: Emnir: mob 1035, shop 1062~
+   This is the storage room for Emnir, a weaver in Minas Tirith. 
+He's a jovial man with a keen eye for weaving and the patience to 
+do his job well. 
+~
+96 -805240824 0
+0
+D3
+~
+~
+0 -1  0 1062
+S
+#96010
+Store Rm: Jeric: mob 1036, store 1128~
+   Storage for Jeric, a poor but hardworking farmer who runs
+the creamery of the First Circle. He's bright, a newlywed who's
+full of optimism about the future and high hopes for himself.
+His wife's a weaver who makes homespun somewhere around 1st circle.
+He's completely on the side of the lower-class folk, and will cut
+a good deal for one of his own class, but he has a poor man's 
+natural dislike of very well-to-do people -- he'll be absolutely
+courteous, but won't go out of his way usually.
+~
+96 -1878982648 0
+0
+D3
+~
+~
+0 -1  0 1128
+S
+#96011
+Store Rm: Lerris: mob 1037, shop 1126~
+   This is the storeroom for Lerris Cordwright, master Cordwright 
+in Minas Tirith. Sells cord of various sorts. No personality 
+yet, feel free to think of one. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 1126
+S
+#96012
+Store Rm: Arral: mob 1039, shop 1113~
+   This is the storage room for Arral, a fruit-vendor in Minas 
+Tirith. He has no personality yet, poor chump. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 1113
+S
+#96013
+Store Rm: Sheyla: mob 1041, shop 1106~
+   This is the storage room for Sheyla, a leather-wright in Minas 
+Tirith. She's an adventurous, swashbuckling soul, very friendly 
+and open. She drives a hard bargain, though, and it's hard to 
+pull anything over on her. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 1106
+S
+#96014
+Store Rm: Kelen: mob 1042, shop 1100~
+   This is the storage room for Kelen, a tailor in Minas Tirith. 
+He is rather haughty and self-confident, very smooth and slick, a 
+copper-pincher. Feel free to come up with a more detailed 
+personality and stick it in here. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 1100
+S
+#96015
+A Small Storage Cellar~
+   Set directly into the stone of the mountain beneath the tavern 
+above, this storage area remains dark and cool, even during the 
+hottest of summer months. The walls are lined with shelves, upon 
+which row after row of supplies have been neatly arranged. A 
+narrow staircase leads upward to a trapdoor set into the wooden 
+floor of the room above. 
+~
+96 1409875976 0
+0
+D4
+~
+trapdoor~
+1 2087  45 3001
+E
+immnote~
+The shopkeep mob's name is Kieran, no. 1043. This is the
+storage room for 1108, the Battered Shield in Minas Tirith.
+~
+P
+vfjump~
+vfmain~
+trans 1948
+force -1 1948 drop tray
+~
+S
+#96016
+Store Rm: Marric: mob 1044, shop 1039~
+   This place smells like a ten-days-dead fish. No wonder - this 
+is the storage room for Marric, the Fishmonger, in Minas Tirith. 
+He's not a very friendly guy. He buys fish that merchants bring 
+in from the Anduin and isn't all that happy with his job. 
+~
+96 -1878982656 0
+0
+D3
+~
+~
+0 -1  0 1039
+S
+#96017
+Store Rm: Wabik Grestone: mob 1049, shop 1031~
+   This is the storage room for Wabik Grestone, the bartender at 
+the Old Guest House in Minas Tirith. He has no personality 
+defined yet, poor chump. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 1031
+S
+#96018
+Store Rm: Joril Erenast: mob 1050, shop 1105~
+   This is the storage room for Joril Erenast, a honeyman in 
+Minas Tirith. No personality defined as of yet. 
+~
+96 -1878982656 0
+0
+D3
+~
+~
+0 -1  0 1105
+S
+#96019
+Store Rm: Jisal Erac: mob 1051, shop 1101~
+   This is the storage room for Jisal Erac, a chandler in Minas 
+Tirith. He keeps his shop organized and neat, a reflection of 
+his own quiet, reserved personality. He is very polite to his 
+customers, but difficult to barter with. 
+~
+96 -1878982656 0
+0
+D3
+~
+~
+0 -1  0 1101
+S
+#96020
+Store Rm: Kassi: mob 1052, shop 1091.~
+   This is the storage room for Kassi, an herbalist in Minas 
+Tirith. She has no personality defined yet. 
+~
+96 -1878982656 0
+0
+D3
+~
+~
+0 -1  0 1091
+E
+reformat~
+~
+S
+#96601
+Store Rm: Jessa: mob 2139, shop 2126~
+   This is the storage room for Jessa, a journeyman Leatherwright 
+in Osgiliath. She buys used leather armors as well as hides and 
+furs from hunters. She repairs the armors if needed and re-sells 
+them, as well as making her own leather armor and clothing. She 
+doesn't deal much in finer stuff, preferring to service the poor 
+of Osgiliath out of charity as well as necessity. She is a 
+friendly, soft-hearted woman, but is very firm about her business 
+and difficult to haggle down. 
+~
+96 65536 0
+0
+D5
+~
+~
+0 -1  0 2126
+S
+#96301
+Store Rm: Gimkra: mob 5077, shop 5543~
+   Storeroom for a pawnshop keeper in Morgul's slavers district, 
+named Gimkra. She trades in goods confiscated from captured 
+humans, and is also willing to buy random loot at a very low 
+price. Gimkra is extremely shrewd, and drives a hard bargain 
+with little patience for those she deems beneath herself. She's 
+smart enough to show the proper respect for greater orcs, though. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 5543
+S
+#96021
+Store Rm: Cathan: mob 1100, shop 0.~
+   This is the storage room for Cathan, a wandering pie-hawker in 
+the first level of Minas Tirith. His load-up point is in the 
+Plaza of the Sun, room 1004. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 1004
+S
+#96602
+Store Rm: Derry: mob 2025, shop 2010.~
+   This is the storage room for Derry's Training Armaments, in 
+Osgiliath. Derry has no personality defined yet, feel free to 
+make one up. 
+~
+96 1342242816 0
+0
+D3
+~
+~
+0 -1  0 2010
+S
+#96603
+Cluttered Storage Room~
+   This cluttered backroom is filled with all sorts of stacked
+parchments, tomes, and various containers filled with ink. The
+shelves are overloaded, and any careless movement results in a
+cloud of flying parchments and dust. The northeastern corner of
+the closet has a larger area set aside for items requiring space.
+There is only one door, to the north.
+~
+96 335609864 0
+0
+D0
+~
+door~
+1 2076  50 2021
+E
+immnote~
+The shopkeep's name is Delethar, mob 2032. This is the storage
+room for 2017, Delethar's Parchment and Supply, in Osgiliath.
+~
+S
+#96604
+Store Rm: Berendel: mob 2042, shop 2042~
+   This is the storage room for Berendel's Warehouse in 
+Osgiliath. Berendel deals in furs and hides, lumber, and 
+woodcraft items. 
+~
+96 1342242824 0
+0
+D3
+~
+~
+0 -1  0 2042
+S
+#96022
+Store Rm: Lucas: mob 1038, shop 1087~
+   This is the storage room for Lucas, a reed-seller in Minas 
+Tirith. He has no personality defined just yet. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 1087
+S
+#96023
+Store Rm: Dugg: mob 1054, shop 1050~
+   This is the store-room for Dugg, a produce-seller in Minas 
+Tirith, off the Plaza of the Sun. He has no personality defined 
+yet. 
+~
+96 -805240824 0
+0
+D3
+~
+~
+0 -1  0 1050
+S
+#96024
+Store Rm: Belsedan: mob 1031, shop 1239~
+   This is the storage room for Belsedan's herbalism and alchemy 
+shop in Minas Tirith. No personality defined yet. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 1239
+S
+#96025
+Store Rm: Aldis: mob 1048, store 1503~
+   This is the storage room for Aldis, proprieter of The Cook's 
+Helper in Minas Tirith, a cookery tool shop. He has no 
+personality set yet. 
+~
+96 -805240824 0
+0
+D3
+~
+~
+0 -1  0 1503
+S
+#96026
+Store Rm: Lunis: mob 1769, shop 1237~
+   This is the storage room for Lunis, who runs a hardware shop 
+called Rath Sinth Hardware in 3rd Circle Minas Tirith. He has no 
+personality defined yet. 
+~
+96 -1878982648 0
+0
+D3
+~
+~
+0 -1  0 1237
+S
+#96027
+Store Rm: Jessica: mob 1009, shop 1424~
+   This is the storage room for Jessica, the barkeep at the 
+Wizard's Cafe in Minas Tirith. She has no personality defined 
+yet. 
+~
+96 -1073676288 0
+0
+D3
+~
+~
+0 -1  0 1424
+S
+#96028
+Store Rm: Nakalko: mob 1136, shop 1244~
+   Midlevel gemstones.
+~
+96 -805240824 0
+0
+D3
+~
+~
+0 -1  0 1244
+S
+#96605
+Foorth's Store Room. Mob 2033. Shop 11036~
+   This the storage room for Foorth who sells wild vegetables in 
+the Minas Tirith Great Market Square. He has no personality, 
+apparently. 
+~
+96 268500992 0
+0
+S
+#96606
+Store Rm: Zelthar: mob 2026, shop 2012~
+   This is the storage room for Zelthar, a physician in 
+Osgiliath. He has no personality defined yet. 
+~
+96 1073807360 0
+0
+D3
+~
+~
+0 -1  0 2012
+S
+#96302
+A Storage Warehouse~
+   This room is a fairly large expanse with various crates and 
+objects lying around for preparation to sell. The floor is made 
+out of stout Birchwood planking and the walls continue the odd, 
+sandstone motif. A ragged, half-done banner of a serpent hangs 
+in one corner, clearly completed some long time ago and hung here 
+thoughtlessly. 
+~
+96 1409351688 0
+0
+D1
+~
+door~
+1 6053  40 6247
+D2
+~
+curtain~
+1 -1  0 6248
+D5
+~
+~
+0 -1  0 6244
+E
+immnote~
+   Storeroom for Kyma, mob 6005. Shopkeep for Golden Arms Trading
+Company in the Harador Quarter.
+~
+S
+#96303
+Store Rm: Grisha: mob 5019, shop 5518~
+   Storeroom for Grisha, the warg ostler in Minas Morgul. 
+~
+96 -1073676280 0
+0
+S
+#96304
+Store Rm: Kathayur: mob 6911, shop 6302~
+   Storeroom for Kathayur, the usurer in the Black Numenorean 
+quarter of Minas Morgul. He is of mixed Black Numenorean and 
+Haradrim blood, though he refuses to talk about it. A bit on the 
+nervous side, he'll speak in a pompous tone to make up for it, 
+but will break into stutters if he gets too flustered. 
+~
+96 -1878982648 0
+0
+D5
+~
+~
+0 -1  0 6302
+S
+#96305
+Store Rm: Hamaru: mob 6000, shop 6240~
+   Storage room for Hamaru, of Hamaru's Scimitars in the Harador 
+Bazaar in Minas Morgul. No personality defined as of yet. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 6240
+S
+#96306
+Store Rm: Haniri: mob 6902, shop 6241~
+   Storage room for Haniri, pawn broker in the Harador Bazaar in 
+Minas Morgul. No personality defined yet. 
+~
+96 -805240824 0
+0
+D3
+~
+~
+0 -1  0 6241
+S
+#96307
+Store Rm: Saben: mob 6916, shop 6303~
+   Storeroom for Saben, owner of the Dun Arath Arms and Weaponry 
+shop in the Black Numenorean quarter of Minas Morgul. He is very 
+haughty, viewing the "lesser" races with a condescending 
+attitude, impatient and snippy with customers who are not Black 
+Numenorean. 
+~
+96 -2147418112 0
+0
+D5
+~
+~
+0 -1  0 6303
+S
+#96308
+Store Rm: Biko's Tavern: mob 6010, shop 6242~
+   This is the storage room for Biko, who runs a tavern just off 
+the Harador Bazaar in Minas Morgul. He's a decent businessman, 
+and tries to keep his tavern fairly clean, letting minor scuffles 
+pass by ignored but kicking anyone out if they start getting too 
+rowdy. He's quick-witted and sharp-tongued, and a bit of a 
+ladies man. 
+~
+96 -805240832 0
+0
+D3
+~
+~
+0 -1  0 6242
+S
+#96310
+Store Rm: Tallia: mob 6001, shop 6307~
+   Storeroom for Tallia, a chandler in the Black Numenorean 
+quarter of Minas Morgul. She has a love of finely-crafted goods, 
+but can be a vicious bargainer nonetheless. Takes great pride in 
+her craft. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 6307
+S
+#96311
+Store Rm: Izrezir: mob 6017, shop 6309~
+   Storeroom for Izrezir, a bronze-working armorsmith in the Black 
+Numenorean quarter of Minas Morgul. Sharply intelligent, this 
+man knows all the ins and outs of his business and is not easily 
+fooled by swindlers. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 6309
+S
+#96313
+Store Rm: Sheera: mob 6826, shop 6316~
+   Storeroom for Sheera, an innkeeper in the Black Numenorean 
+quarter of Minas Morgul. 
+~
+96 -1073676280 0
+0
+D5
+~
+~
+0 -1  0 6316
+S
+#96314
+Store Rm: Grudd: mob 5051, shop 5596~
+   Storeroom for Grudd, an orkish fletcher in Minas Morgul. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 5596
+S
+#96315
+Store Rm: Kregg: mob 5056, shop 5599~
+   Storeroom for Kregg, an orkish weaponsmith in Minas Morgul. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 5599
+S
+#96316
+Store Rm: Faradin: mob 6006, store 6257~
+   Storage for Faradin, shopkeep of "The Great Harad Glassworks" 
+in Minas Morgul's Haradrim Quarter. 
+~
+96 -805240832 0
+0
+S
+#96317
+A Small Backroom and Storage Area~
+   This small storage closet houses a small workroom and a few 
+tools. The room is mostly dusty and light is entirely 
+non-existent due to how the walls have been sealed up with solid 
+wood planking. The bottom of the floor however, is made out of 
+mortared brick and stretches the length of this closet. While 
+this room is shorter then the main room of the shop it isnt so 
+short that the average orc would have to duck to enter it. 
+~
+96 1342242824 0
+0
+S
+#96318
+A Squat Storage Room~
+   This storage room has damp walls with a lot of condensation 
+upon the walls. The room is small and spartan, with its floors, 
+ceiling, and floor all a dull grey colour. The door set within 
+the north wall has been heavily lacquered in order to prevent 
+decay in the moist environment of the bathhouse. 
+~
+96 1409351688 0
+0
+D0
+~
+door~
+1 1202  30 6264
+P
+leave~
+storeroom~
+vstr You rap on the door, leaving once it is opened.
+ostr $n knocks on the door, leaving once it is opened; the door is quickly shut once more after $n is gone.
+atecho 6264 Someone knocks on the door, then the shopkeeper opens the door for them.
+trans 6264
+atlook 6264
+~
+S
+#96319
+Store Rm: Grunk: mob 5001, shop 5569~
+   Storeroom for Grunk, an orkish leatherworker in Minas Morgul. 
+~
+96 -738131960 0
+0
+D5
+~
+~
+0 -1  0 5569
+S
+#96320
+Store Rm: Snargol: mob 5082, shop 5604~
+   Storeroom for Snargol, an orkish carpenter in Minas Morgul. 
+~
+96 -805240832 0
+0
+D5
+~
+~
+0 -1  0 5604
+S
+#96321
+Store Rm: Frengal: mob 5053, shop 5636~
+   Storeroom for Frengal, a goblin tailor in Minas Morgul. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 5636
+S
+#96322
+Store Rm: Yagga: mob 5232, shop 5646~
+   Storeroom for Yagga, an orkish supplies-vendor in Minas 
+Morgul. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 5646
+S
+#96323
+Store Rm: Dragyl: mob 7100, shop 5637~
+   Storeroom for Dragyl, a goblin knife-seller in Minas Morgul. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 5637
+S
+#96324
+Store Rm: Griskal: mob 5059, shop 5633~
+   Storeroom for Griskal, an orkish armorsmith in Minas Morgul. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 5633
+S
+#96325
+Store Rm: Trugga: mob 5207, shop 5634~
+   Storeroom for Trugga, a hide and leatherworker in Minas 
+Morgul. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 5634
+S
+#96326
+Store Rm: Vrul: mob 5054, shop 5635~
+   Storeroom for Vrul, an orkish cobbler in Minas Morgul. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 5635
+S
+#96327
+Store Rm: Oltakh: mob 5026, shop 5566~
+   Storeroom for Oltakh, an orkish weapons-dealer in Arena Square 
+of Minas Morgul. 
+~
+96 -2147418104 0
+0
+S
+#96328
+Store Rm: Nishag: mob 5075, shop 5571~
+   Storeroom for Nishag, keeper of the Minas Morgul Labor 
+Masonry. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 5571
+S
+#96607
+Shelved Storeroom~
+   Large enough to hold all that it contains without appearing 
+cramped, this storeroom has a number of maple wood shelves built 
+directly into the walls. A number of large bins lay about the 
+place, stacked full of old and now worthless goods, while stock 
+fit for sale is arranged on the racks and shelves that ring the 
+room. Light is cast down from a single lantern suspended from 
+the roof, deep shadows cast in the corners due to this slight 
+illumination. A stout oak door is set in the southern wall. 
+~
+96 268501000 0
+0
+D2
+~
+door~
+1 5127  0 2535
+E
+immnote~
+   This is the storage room for Carmen, mob 2009, shop 2208.
+Varsi's General Goods, in Osgiliath.
+~
+S
+#96329
+Store Rm: Miaye: mob 6011, shop 6270~
+   Storage room for Miaye, a cobbler in the Harad District of 
+Minas Morgul. Sells Harad footwear, obviously. Cheerful, 
+outgoing, enjoys her business immensely. Difficult to bargain 
+with, but not stingy or a tightwad - just knows a good bargain 
+when she sees one. Has a husband in the Dervish of the Silver 
+Moon, and occasionally goes out riding with him when they both 
+have some time off. 
+~
+96 -805240832 0
+0
+D5
+~
+~
+0 -1  0 6270
+S
+#96330
+Store Rm: Makmuk: mob 5234, shop 5537~
+   Storeroom for Makmuk, the orkish overseer of Minas Morgul's 
+lumberyard. 
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 5537
+S
+#96608
+A Dank, Dark Storage Cellar~
+   The air in this cellar is heavy with moisture and the walls 
+glisten in the dim light. In some places water can be seen 
+running down the rough-hewn stone of the walls, likely emanating 
+from the very earth this cellar was dug from. The thick smell of 
+mold is apparent and indeed it seems to have succeeding in 
+advancing up the stone walls to various levels throughout. A 
+trapdoor is set into the ceiling, with a set of uneven steps 
+leading down from above. 
+~
+96 1342242816 0
+0
+D4
+~
+trapdoor~
+1 -1  0 7098
+S
+#96801
+Store Rm: Abram: mob 3904, shop 3919~
+   Storeroom for Abram, a fur and pelt trader in Arradoc. 
+~
+96 1342242816 0
+0
+D5
+~
+~
+0 -1  0 3919
+S
+#96802
+Store Rm: Ghlack: mob 5169, shop 3920~
+Storeroom for Ghlack, a food merchant in Arradoc.
+~
+96 268500992 0
+0
+D5
+~
+~
+0 -1  0 3920
+S
+#96803
+Store Rm: Winslow: mob 3906, shop 3929~
+   Storeroom for Winslow, the ostler in Arradoc. 
+~
+96 1342242817 0
+0
+D5
+~
+~
+0 -1  0 3929
+S
+#96804
+New Room~
+No Description Set.
+~
+96 268500992 0
+0
+D5
+~
+~
+0 -1  0 3921
+S
+#96331
+Store Rm: Arabi: mob 6008, shop 6222~
+   Storeroom for Arabi, a smokeshop keeper in the Haradrim sector 
+of Morgul. 
+~
+96 -805240832 0
+0
+D5
+~
+~
+0 -1  0 6222
+S
+#96332
+Store Rm: Galresh: mob 5086, Rm 6261~
+   This is the storeroom for Galresh, a stable supplier in Minas 
+Morgul. He's a rather suspicious fellow; he does his job well 
+but he has aspirations to someday get somewhere where he won't be 
+stuck selling saddles. 
+~
+96 -1811873784 1
+0
+D5
+~
+~
+0 -1  0 6261
+S
+#96333
+Store Rm: Phaza: mob 6015, room 6005~
+   Storeroom for Phaza, a serving girl for the officers of the 
+Black Watch in Minas Morgul. 
+~
+96 1073807360 0
+0
+D5
+~
+~
+0 -1  0 6005
+S
+#96609
+Store Room for Auviel. Mob 2133, Shop 2571~
+   The Potter's Wheel - A shop run by Auviel with the help of her 
+son, Allen, in the slums of Minas Tirith. Sells all manner of 
+pottery goods as well as the supplies to make them, and runs a 
+brisk if not incredily profitable trade in raw clay. She buys 
+low and sells low, and thus often manages to draw plenty of 
+customers to her store, but her lack of greed and the fine she 
+pays to the Rogues for 'protection' ensures that she stays 
+somewhat poor. She is a truly good-natured soul, despite her 
+less-than-perfect looks and shoddy clothing. She loves her 
+business, and is very talkative and friendly. 
+~
+96 1342242816 0
+0
+D2
+~
+door~
+1 1545  0 1463
+S
+#96610
+Store Rm: Marith: shop 2554, mob 2167~
+No Description Set.
+~
+96 268500992 0
+0
+D5
+~
+~
+0 -1  0 2554
+S
+#96611
+Store Rm: Liam: mob 2170, shop 2553~
+   Store for Liam, an herbalist in the slightly-more-reputable 
+area of the Osgiliath slums. He couldn't afford fellowshipping, 
+a license, or a good location, but had definite talent, and 
+decided to open shop in the first floor of a crumbling house he 
+inhereted from his now-dead mother. The location isn't a very 
+bad one, as it is right off Rath Earandil, and he gets the 
+occasional richer customer, along with all the poor and ragged 
+that come to him for cheap remedies and and niceties to make the 
+stench and squalor of their living quarters a little more 
+bearable. 
+~
+96 1342242816 0
+0
+D5
+~
+~
+0 -1  0 2553
+S
+#96880
+Back Room Of General Goods~
+   Used for storage of the goods not on display in the main part 
+of the shop, this room is piled with crates and bags. Fairly 
+clean, the room is nevertheless a bit dusty in the corners. 
+There is a door in the east wall leading back to the main room of 
+the building. 
+~
+96 1409353752 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D1
+This door appears to be in good condition, the wood in fine shape and the hinges new and shiny.
+~
+door~
+1 3834  30 3833
+S
+#96881
+Back Room Of The Blackmith ~
+   This building appears to be older than most of the buildings 
+in the area, the wood showing signs of age and exposure. 
+Nevertheless, it was very well-constructed and still appears 
+sturdy. Used primarily as storage, this room is filled with 
+scrap metal and coal for the forge as well as a few ingots of 
+iron and a crate of assorted tools. 
+~
+96 1409353752 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D2
+This door appears quite sturdy. Set on finely-crafted iron hinges, it appears capable of standing the roughest of treatment.
+~
+door~
+1 3836  30 3835
+S
+#96882
+Back Room Of "The Copper Tankard"~
+   This room appears to be a storage room for the adjoining 
+tavern. Built onto the back of the building, it is of newer 
+construction though of no finer quality. Set up in the room are 
+several barrels of various drinks as well as a small fireplace 
+and cooking area. A bit dirty, the room smells of alcohol and 
+burnt meat, possibly two of the establishment's specialties. 
+~
+96 1409353752 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D3
+This door appears to lead into the public room of the tavern.
+~
+door~
+1 3832  30 3831
+S
+#96883
+A Small Stone-Walled Storage Pit Beneath The Mill~
+   The walls of this small storage pit are made of stone to keep 
+out moisture from the nearby river. Barely tall enough to give a 
+short man head-room, a taller man would find its ceiling somewhat 
+low. The floor of this room, while also lined with stone, is 
+somewhat damp, suggesting that water does indeed seep in from 
+surrounding soil. 
+~
+96 1342244873 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D4
+A short ladder leads up to this small trapdoor in the ceiling.
+~
+trapdoor~
+1 3839  30 3838
+S
+#96884
+Beneath the Main Floor of the Mill~
+   This room is filled with stone and pillars supporting the mill 
+above. Apparently, it is also used for storage of equipment and 
+grain as piles of both testify to. The air is surprisingly dry, 
+a tribute to its builders, the well-constructed walls being 
+partially below the river level. 
+~
+96 1342244889 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D4
+A rickety ladder leads up to a trapdoor in the ceiling.
+~
+trapdoor~
+1 3821  30 3821
+S
+#96612
+Store Rm: Granis: mob 2172, shop 2660~
+   This is the storage room for Granis, a butcher in Osgilath's 
+west side. He's not particularly picky about what he buys, and 
+he's a no-nonsense, gruff sort of guy. He won't take anything 
+that's obviously rotted, but as for the rest, business is 
+business and it's just going to get cooked anyway. He keeps his 
+prices low enough to be competitive, and buys for a relatively 
+fair price, which in turn brings out a healthy amount of business 
+despite his less-than-reputable sources. A lot of that pay goes 
+to the Rogues, however, because despite his toughness, he doesn't 
+feel like having to deal with a bunch of armed thugs wreaking 
+havoc at night. 
+~
+96 1342242816 0
+0
+D5
+~
+~
+0 -1  0 2660
+S
+#96613
+Store Rm: Koochi's Cook's Corner: shop 2474, mob 2034~
+   Koochi's Cook's Corner in Western Osgiliath off the main 
+street that runs west-east. 
+~
+96 1342242816 0
+0
+D5
+~
+~
+0 -1  0 2474
+S
+#96614
+Store Rm: Sedoras: mob 2078, shop 2475~
+   Storage for Sedoras the locksmith, relocated to the second 
+circle in Minas Tirith. 
+~
+96 268500992 0
+0
+S
+#96615
+Store Rm: Carson: mob 2008, shop 2477~
+   Storage room for Carson, a Blacksmith off the west-east 
+running street in Western Osgiliath. Doesn't make arms and 
+armour, but can repair them, instead produces general things like 
+clasps, buckles, nails, tools, horseshoes, etc. 
+~
+96 1342242816 0
+0
+D5
+~
+~
+0 -1  0 2477
+S
+#96616
+A Storage Cupboard~
+   Rows of sturdy shelving line the walls of this roomy storage 
+cupboard. This room is clearly used to store the drinks and food 
+prepared by the tavern cooks. 
+~
+96 335609864 0
+0
+D3
+~
+door~
+1 2553  50 2666
+S
+#96617
+A Small Storage Room~
+   This somewhat-cramped room's walls are lined with shelves and 
+racks which hold various garments and sewn items. While items 
+are tightly-squeezed into the small space, they appear 
+meticulously organized, and the room is, for the most part, 
+clean. 
+~
+96 1409351688 0
+0
+D0
+~
+door~
+1 3297  0 2720
+E
+immnote~
+Store Rm: Greya's Threads: mob 2036, shop 2536
+~
+S
+#96618
+Store Rm: Mieri: mob 2089, shop 0 (wanderer)~
+   Wandering trinket hawker in the farmer's market in West 
+Osgiliath. 
+~
+96 1342242816 0
+0
+S
+#96619
+Store Rm: Paynor 2010, shop 11004~
+   Grain and flour seller in the Farmer's market in Osgiliath. 
+Now relocated to Minas Tirith.
+~
+96 1342242816 0
+0
+D5
+~
+~
+0 -1  0 2471
+S
+#96620
+Store Rm: Eyana: mob 2012, shop 2661~
+   This is the storage room for Eyana, a woman of gypsy descent 
+that has set up shop in the farmer's market in Western Osgiliath. 
+She recieves quite a bit of skeptism for her dark looks, which 
+has made it difficult to rise in station, though her tiny stall 
+does well enough. Her eye-color is probably the only thing that 
+keeps a lynch mob from descending on her and carting her off on 
+suspicion of being Haradrim. 
+~
+96 1342242816 0
+0
+D5
+~
+~
+0 -1  0 2661
+S
+#96622
+Loriel. Mob 2783 Shop 11058.~
+   Storage room for Loriel. Dyeshop on the third circle of Minas 
+Tirith. 
+~
+96 469829656 0
+0
+S
+#96623
+Store Rm: Malia: mob 2174, shop 2476~
+   Malia, a retired farm wife with a dead husband and whose kids 
+now have their own farm. She sells farming tools and general 
+supplies. A friendly if somewhat stiff-necked woman. Her tent 
+is in the farmer's market in West Osgiliath. 
+~
+96 1342242824 0
+0
+D5
+~
+~
+0 -1  0 2476
+S
+#96624
+Store Rm: Mirna: mob 2175, shop 2445~
+   Storeroom for Mirna, keeper of a bait shack on one of 
+Osgiliath's docks. She's on the older side of middle-aged, and a 
+bit lethargic. 
+~
+96 268500992 0
+0
+D5
+~
+~
+0 -1  0 2445
+S
+#96625
+Store Rm: Barven: mob 2002, shop 2541~
+   Merchant's name is Barven, spent many years in prison at the 
+limestone quarries in Lossarnarch. Came out of it and saved up 
+the money to buy the store, worked here the rest of his life. 
+Has lots of interesting stories about his time spent in the 
+quarries and his life before that. 
+~
+96 268500992 0
+0
+D5
+~
+~
+0 -1  0 2541
+S
+#96626
+A Small Storage Cellar~
+   This small cellar holds overflow from the shop in this 
+building. It has a wooden floor and walls, with shelves built 
+out around three of its four walls. It is barely large enough 
+for two people to stand in comfortably. A sturdy wooden 
+staircase leads up to a trapdoor in the ceiling. 
+~
+96 1409351688 0
+0
+D4
+~
+trapdoor~
+1 21617  55 2558
+E
+reformat~
+~
+E
+immnote~
+The shopkeep's name is Arbella, mob 2809.
+This is the storage room for shop 2557, the
+Market Glassworks.
+~
+S
+#96621
+Store Rm: Eileen: mob 2006, shop 2470 (Farmer's Market)~
+   Storage room for Eileen, a farmer in the market on Osgiliath's 
+west side. Buys butter and eggs, but only if they're fresh. 
+~
+96 1342242816 0
+0
+D5
+~
+~
+0 -1  0 2470
+S
+#96627
+Shelved Storeroom~
+   Large enough to hold all that it contains without appearing 
+cramped, this storeroom has a number of maple wood shelves built 
+directly into the walls. A number of large bins lay about the 
+place, stacked full of old and now worthless goods, while stock 
+fit for sale is arranged on the racks and shelves that ring the 
+room. Light is cast down from a single lantern suspended from 
+the roof, deep shadows cast in the corners due to this slight 
+illumination. A stout oak door is set in the southern wall. 
+~
+96 268501000 0
+0
+D2
+~
+door~
+1 -1  0 2210
+S
+#96628
+A Small Underground Storage Cellar~
+   Cramped and crowded, this more-or-less tiny square cellar is 
+used to house that which is sold in the tavern before it is sold. 
+The trapdoor set in the ceiling is accessible by a strong wooden 
+ladder, and the smell of ale, food, and especially that of 
+Westmansweed lingers in the air. 
+~
+96 335609864 0
+0
+D4
+~
+trapdoor~
+1 -1  0 2631
+E
+immnote~
+This is the storage cellar for the Rogue's tavern in the West
+Osgiliath slums, vnum 2277.
+~
+S
+#96629
+Store Rm: Podan the Fishmonger: shop 2461, mob 2176~
+   This is the storage room for Podan, a filthy old man that 
+sells fish of all sorts. He isn't too picky about his sources, 
+as long as it sells, and doesn't get him the boot because of 
+obviously rotted seafood. His shop is an old houseboat moored 
+permanently to the docks in Osgiliath. 
+~
+96 1342242824 0
+0
+S
+#96805
+Storage for the Ithilien Windmill~
+Storage for the N. Ithilien windmill at room 3848.
+~
+96 1073807360 0
+0
+S
+#96640
+Store rm: Minya: mob 2091, shop Osgiliath Fair *need to add vnum once known*~
+   This is the storage room for Minya, a Confectioner who sells 
+candy in Osgiliath. She is very fond of sweets and has a 
+pleasant, outgoing personality. 
+~
+96 67174400 0
+0
+S
+#96630
+Store Rm: analise: mob 2180, shop 2094 ~
+   This is the storeroom for the food to be served at the dance 
+during the Osgiliath Spring Fair. 
+~
+96 1073807360 0
+0
+S
+#96631
+Store Rm: andrew: mob 2181, shop 2167~
+   This is the storeroom for the tankards andrew will sell to 
+people attending the dance in the ballroom at the fair. 
+~
+96 1073807360 0
+0
+S
+#96334
+Store Rm: Najah: mob 6029, shop 6029~
+Very basic foodstuffs.
+~
+96 -805240824 0
+0
+D5
+~
+~
+0 -1  0 6029
+S
+#96335
+~
+Storage for the windmill in room 3848.
+~
+96 268500992 0
+0
+S
+#96029
+StoreRm: Rm 1088, Mob 1040~
+   Storeroom for Brendan, an Ironsmith in Minas Tirith. No 
+personality as of yet, feel free to make one up.
+~
+96 268500992 0
+0
+D5
+~
+~
+0 -1  0 1088
+S
+#96641
+Store rm: Misha: mob 2186, shop Osgiliath Fair *need to add vnum once known*~
+   This is the storage room for Misha, a trinket seller who sells 
+spring flowers and keepsakes from the Spring Fair. 
+~
+96 1409351688 0
+0
+S
+#96675
+Storeroom for Spotter mob: 2199 Spring Fair RPT~
+This is the storeroom for Spotter the rotten produce merchant
+who sells stuff from his crate to the crowd at the public
+hanging.
+~
+96 1342242816 0
+0
+S
+#96999
+Storeroom for Betting NPC for Horserace (Mob 111)~
+   This room is the storeroom for mob 111, the betting NPC for 
+the Osgiliath Spring Fair's Pel-Tirith Derby. 
+~
+96 1342242816 0
+0
+S
+#96336
+Store Rm: Nazirah: Mob 6021, shop 6032~
+   Storeroom for Nazirah, haradrim clothier supplier in the 
+Harador Bazaar. 
+~
+96 1342242816 0
+0
+S
+#96030
+StoreRm: Randall: Mob 1138, Shop 1234~
+   Storeroom for Randall, a cartseller in Minas Tirith. No 
+personality as of yet. 
+~
+96 268501248 0
+0
+S
+#96806
+The Spear And Shield Storage Room~
+   Small and cramped, this appears to be a pantry where food is 
+kept. Relatively clean, it is lined with shelves where 
+foodstuffs are stored for use in the kitchen. A curtained 
+doorway to the south is the only exit. 
+~
+96 1342242816 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The wall of the building blocks your way.
+~
+The wall of the room blocks your way.
+~
+~
+The wall of the building blocks your way.
+~
+~
+~
+D2
+~
+curtain~
+1 -1  0 3882
+S
+#96031
+Store Rm: Sara Anne: Mob 2131, shop 1495.~
+   This is a storeroom for the clothing shop in Minas Tirith, 
+"Celeban's Clothing of Minas Tirith." It is run by Galvorn's 
+family, though they don't plan on giving it up to him. *g* Sara 
+Anne runs the store - jread galvorn 3 to find out about her. 
+Mainly upperclass clothing. Rosa Celeban actuallys *owns* the 
+store, but she doesn't do much, and is usually in the back of the 
+shop. Salvon Celeban, Galvorn's father, is dead. 
+~
+96 1342242816 0
+0
+D5
+~
+~
+0 -1  0 1495
+S
+#96337
+Store Rm: Liysi: mob 6024, shop 6034~
+   Storage room for a writing supply shop in the Black Num 
+quarter in Minas Morgul, run by Liysi. She has no personality 
+defined yet. 
+~
+96 1342242816 0
+0
+S
+#96632
+Barrel Shaped Underground Vault~
+   This large, barrel shaped underground vault is used to store 
+money and the precious metals and gems sold by the usury. The 
+walls are made of large granite blocks reinforced with mortar and 
+iron rods, preventing would be thieves from tunneling into the 
+vault from the outside. Thick sheets of iron plating have been 
+used to line the walls, floor and ceiling adding extra 
+reinforcement to allow the vault to withstand an explosive blast. 
+Under dire circumstances the vault has been used as a stronghold 
+during attacks on the city. Several lanterns, attached to the 
+walls, provide light inside this otherwise pitch dark room. A 
+solid, iron door with a formidable lock provides egress into the 
+narrow passageway outside. A long iron bar can be slid across 
+the door to prevent it from being knocked in. 
+~
+96 335609864 0
+0
+D3
+A solid iron door with a formidable lock.
+~
+solid iron door~
+1 2632  75 2511
+S
+#96633
+Inside A Storage Cupboard~
+   Several sturdy shelves, lining the back wall of the cupboard, 
+provide ample space for the storage of a variety of goods 
+awaiting sale. A hinged door with a sturdy lock keeps the items 
+fairly safe from would be thieves. 
+~
+96 1409351688 0
+0
+D0
+~
+door~
+1 -1  0 11111
+D1
+~
+~
+0 -1  0 11703
+S
+#96032
+Store Rm: Laurin: mob 1047, shop 1078~
+   This is the store room for Laurin, a parchment supplier in 
+Minas Tirith. No personality yet. 
+~
+96 335609856 0
+0
+S
+#96033
+Store Rm: Robyn: Mob 1135, Shop 1103~
+   Merchant's name is Robyn. Recently moved in and sells flour, 
+yeast, sugar and butter for the producing of bakery products off 
+the cart she nabbed. Pleasant thing, but really good at cutting 
+a bargin. 
+~
+96 1409351688 0
+0
+S
+#96034
+Store Rm: Mob 1423 - wandering peddlar~
+   Names is Nelav. One leg is slightly game, which prevents him 
+from running, otherwise it's just a slight limp. Got it in his 
+guardsmen days. Fairly pressing to sell his items, which consist 
+of various "magic" charms, as well as second hand jewellry. Some 
+hocked, some stolen, he only buys from the Rogue's Fellowship. 
+~
+96 1342242816 0
+0
+S
+#96035
+Storage Room for "Rath-Spann Inn"~
+Merchant's name is Bulrin. He's the kind of guy who knows
+everyone's name, extremely friendly, no enemies, carefully
+balances loyalties between the guard and fellowship. Alwaya
+open for a talk about anything. However, extremely good haggler
+and has been running his inn for a long time.
+DO NOT PURGE!!!
+9 rooms for sale. Ones on Southern-Side second floor of better value.
+Look in the direction of the doors to see what number the key corresponds
+to.
+Prices (going on Amritsar and Fox's document)
+Rooms 1-3 7-9 : 1 coin per night.
+Rooms 4-6 : 1 penny 2 farthings per night.
+~
+96 1342243072 0
+0
+S
+#96036
+Store Rm: Vincent: Mob 1407, rm 1355~
+   Owner's name is Vincent. Doesn't have much of a sense of
+humour, but likes hearing stories, especially ones from adventuerers.
+Stylised him as a bit of one, but thinks he can't leave tavern because
+he's too important.
+Tavern is mainly used by guards and watchmen, not many civillians come
+by. Place for very sombre, heavy drinking, where getting drunk is perfected
+to an art. The patrons hate disturbances, and tend to end them permenantly.
+DO NOT PURGE FOR THE LOVE OF GOD!!!
+~
+96 1342243072 0
+0
+S
+#96037
+Store Rm: Kevanni: Mob 1411, room 1212~
+   Store room for Kevanni, a userer in Minas Tirith. 
+~
+96 1342242816 0
+0
+S
+#96038
+Store Rm: Vessa: Mob 1414, room 1272~
+   Merchant's name is Vessa. While she looks innocent, she's not 
+afraid to deal damage with her dagger in order to protect herself 
+or her bar. Most of the regulars in the corner club know this, 
+and keep their remarks down about here. One of the more upclass 
+taverns of the second circle, very old and on good relationships 
+with guard and rogues fellowship. 
+~
+96 1342243072 0
+0
+S
+#96039
+Store Rm: Sarpy: Mob 1420, store 1063~
+This is a fence store for members of the Rogue's Fellowship. Anyone else
+is ejected forcefully by guard. Merchant's name is Sarpy, lost his hand
+when he was young for being caught thieivng.
+Will buy anything of worth. He knows a fair bit about gems, hence the
+gem crafting skill, but not making, rather valuing them.
+~
+96 1342243080 0
+0
+S
+#96040
+A Small, Dark Store Room~
+   Shelves line every inch of the northern and southern walls, 
+leaving the eastern wall open to store larger items against, and 
+a place for a doorway leading out set to the west. It looks to 
+have been recently renovated, the cool stone of the walls and 
+floor clean, and the shelving comprised of thick, freshly-cut 
+wood. 
+   The items stored here are for sale in the commons area of the 
+tavern. 
+~
+96 1409875992 0
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D3
+~
+door~
+1 1279  0 1674
+P
+xxjumpxx~
+xxkitchenxx~
+trans 1672
+force -1 1672 put tray table
+~
+S
+#96041
+Backside of a Tent~
+   There is little space to move in the backside of this red and 
+yellow tent. Crates, boxes, dusty piles of juggling equipment 
+and bright costumes have been piled wherever there is space, a 
+number of them leaning at alarming angles. A narrow path of the 
+cobblestones on which the tent has been erected weaves its way 
+through the stored items, and a flap set to the south allows 
+passage to the main area of the tent. 
+~
+96 1409351704 0
+0
+D2
+~
+flap~
+2 1627  45 1490
+S
+#96043
+Storage Room, The Leaking Barrel Tavern~
+   This back room of the tavern is used strictly for storing 
+gallons and gallons of drinks, as well as a few non-perishable 
+food items. Dusty walls and a dirt-splotched floor make up this 
+rather cramped room, surrounded on the east and west by stacks of 
+barrels. The thick odor of alcohol permeates this place. 
+   A tall door of mahogany stands to the south, heavily 
+contrasting the filth of the rest of the tavern. There is a 
+small rectangular hole near the top of the door, though it looks 
+to be covered by a panel on the other side. 
+~
+96 269551884 0
+0
+D0
+~
+door~
+1 3425  70 1222
+D2
+~
+door~
+1 3426  70 1064
+S
+#96044
+Store Rm: Durin: mob 1010, shop 1219~
+   Merchant's name is Durin, a teenager employed by the Baker's 
+Fellowship to watch over the store. Shop deals in all kinds of 
+baker's equipment at slightly higher prices. Duran was a former 
+street rat, so is wise with people trying to steal off him and 
+the like. 
+~
+96 1409351688 0
+0
+S
+#96045
+Store Rm: Meliner: mob 1410, shop 1210~
+Owner's name is Meliner. She is rather good at her craft, and somewhat
+of a perfectionist that makes her work rather slow. Fairly bendable
+morals, and will sell lockpicks for enough money. However, she is
+not stupid and will not serve any bum off the street, and knows guards
+when she sees them.
+Is happy to tend to all legitimate locksmithy needs.
+PURGE AND FACE THE REVOLUTIONARY HORDES OF ZAPATA!!!
+[3~
+96 268500998 6
+0
+S
+#96046
+Store Rm: Pog: mob 1436, shop 1092~
+Man buys all rat tails for a single copper piece. Won't take
+the body.
+~
+96 1342242816 0
+0
+S
+#96047
+Small Storage Basement~
+   This small whitewashed basement is used for storing food for
+sale to the tavern's patrons. A rickety wooden staircase is the
+only way in or out of the place.
+~
+96 1409351688 0
+0
+D4
+~
+trapdoor~
+1 -1  0 1095
+E
+immnote~
+Storeroom for Talli, barmaid of the Golden Cat Brothel. Mob 1438,
+shop 1374.
+~
+S
+#96048
+Store Rm: Vanders: mob 1403, shop 1300~
+   Merchant's name is Vanders. He's fairly honest and friendly, 
+but been in the business of tinker for long enough to know when 
+someone is trying to cheat him. Not afriad to throw out people 
+who try to steal from him or his stall with force, but otherwise 
+is rather helpful. Good for fixing every items, but has next to 
+no knowledge in reparing weaponry and armour. 
+   DO NOT PURGE!!!!! 
+~
+96 1342243072 0
+0
+S
+#96049
+Store Rm: Paleb: mob 1409, shop 1201~
+   Owner's name is Paleb. Very rough inn, Watch rarely bothers 
+to come down to see how its progressing. Cross the wrong person 
+in there and expect to get a beating for it. Used as an meeting 
+place by the Rogue's Fellowship, Pabel is a member in it. Many 
+people in the inn will sell their services as a thug or whatever 
+for the asking. Bar fights are common. DO NOT PURGE UNLESS YOU 
+WISH FOR THE DREAD DEMONS THAT JIM CONTROLS TO COME AND DEVOUR 
+YOUR POOR MORTAL SOUL!!! 
+~
+96 65792 0
+0
+S
+#96050
+Store Rm: Jonas: mob 1501, store 1501~
+   Lots of tools.
+~
+96 1409351688 0
+0
+S
+#96051
+Store Rm: Kegel: mob 1020, shop 1421~
+   Merchant's name is Kegel. Sells very select silver dining 
+ware, tends to think of himself as an expert in his field and 
+rather pompous. Store sells silver cutlery, plus occasional 
+silver candlesticks and whatnot. 
+~
+96 268500992 0
+0
+S
+#96052
+Storage for Mahon, cooper, 3rd circle, room 1439~
+   Rather young man, just completed his apprenticeship as a 
+cooper and taking over from his master. Very disorganized, tends 
+to forget a lot of things, but skilled at his trade. 
+~
+96 1073807368 0
+0
+S
+#96053
+A Storeroom~
+   Marked with shelves and racks on all the walls, this small
+chamber functions as the storeroom for Ralte's Fine Blades.
+~
+96 1543569416 0
+0
+D3
+~
+door~
+1 11157  50 1926
+P
+vfjump~
+vfmain~
+trans 1926
+force -1 1926 drop bag
+~
+S
+#96054
+Store Rm: Henrik: mob 1023, room 1173~
+   Merchant's name is Henrik, he's a master in his craft but a 
+bit rough at times. Doesn't like dainty stuff, prefers a good 
+mug of ale cand a bar brawl to a formal dinner. Will make any 
+kind of boots however, doesn't ask questions. DO NOT PURGE! 
+~
+96 1409351688 0
+0
+S
+#96055
+Store Rm: Iric: mob 1025, shop 1152~
+   Merchant's name is Iric. He's an apprentice for the master 
+that runs the store. It deals in all kinds of ink, and also 
+stocks some parchments as well. 
+~
+96 1409351680 0
+0
+S
+#96056
+Store Rm: Maurel: mob 1056, shop 1429~
+   Maurel runs the store. Comes from a huge line of people who 
+make wine. Very pedantic about certain wines, and loves to 
+sample his own goods. Extremely confident of himself and his 
+skills. 
+~
+96 1342242816 0
+0
+S
+#96057
+A Gloomy Storeroom~
+   Poblak is an old retired mercenary who in retirement has gone 
+to brewing. He's been moderately successful, mainly for being a 
+keen as a shark and conserving as much money as possible. If 
+there's anything he doesn't have in his store, then he will 
+import it for players at a price. 
+~
+96 1409351944 0
+0
+D3
+~
+door~
+1 -1  0 1473
+E
+immnote~
+Store room for Poblak, mob 1060, shop 1420.
+~
+S
+#96058
+Store Rm: Farrin Sinth: mob 1496, shop 1242~
+   Merchant's name is Farrin. Is a very good huntsman with the crossbow,
+and use to be in the guard before he retired to the woodwrights.
+Thinks the crossbow is the best thing since sliced bread, and can
+get into heated arguments otherwise.
+Store provides all things archers need.
+DO NOT PURGE OR ZAPATA WILL DO SOMETHING NASTY TO YOU!
+~
+96 1342242824 0
+0
+S
+#96059
+Store Rm: Riama: mob 1449, shop 1380~
+   Merchant's name is Riama, absolutely loves his hair and 
+mustache as it is. Runs a fairly tight business, and is careful 
+with his coin. Knows a lot about a lot of languages. The 
+Spinning Dagger is somewhat of a hangout for adventour wannabes, 
+and sometimes Riama will host a knife-throwing competition. 
+Generally a fairly safe place to be in. DO NOT PURGE FOR THE 
+SWEET LOVE OF THE CHRIST-GOD-CHILD! 
+~
+96 1409351692 0
+0
+S
+#96634
+UNUSED A Small Storage Closet~
+   This small room is clearly used to store food and drinks to be 
+served in the lounge. A series of sturdy shelves lines the 
+walls, providing ample storage space. A small brass lantern 
+provides dim lighting to the space. A sturdy door set in the 
+western wall provides egress into the lounge. 
+~
+96 1140916232 0
+0
+D3
+~
+door~
+1 2631  70 2633
+S
+#96635
+Inside A Storage Cupboard~
+   Several sturdy shelves, lining the back wall of the cupboard, 
+provide ample space for the storage of a variety of goods 
+awaiting sale. A hinged door with a sturdy lock keeps the items 
+fairly safe from would be thieves. 
+~
+96 1409351688 0
+0
+D2
+~
+door~
+1 11141  0 11212
+S
+#96060
+Store Rm: Lissy: Mob 1265, shop 1174~
+Merchant's name is Lissy. Fairly high up in the Baker's Fellowship, her
+store serves as a sample of their many fine goods. She is fairly haughty
+herself.
+~
+96 1409351688 0
+0
+D2
+~
+door~
+1 11381  40 1985
+S
+#96061
+A Cluttered Storeroom~
+   Sturdy shelves line every inch of wall space available in this 
+storeroom, armor and other metalworkings placed here and there. 
+Even upon the shelves, there are numerous bins and chests bearing 
+other armor pieces, cluttering the entire room. It is quite 
+cramped but well lit by the glass lamps mounted upon the walls. 
+The room has no decoration and is overall quite plain. 
+~
+96 335609864 0
+0
+D2
+~
+door~
+1 11315  90 1269
+P
+vfjump~
+vfmain~
+trans 96141
+force -1 96141 drop bag
+~
+S
+#96062
+A Cluttered Storeroom~
+   Numerous racks and shelves ring there way around the stone
+basework of this storeroom, filled with all kinds of things
+pertaining to woodwork. An area has been set aside in the
+south eastern corner of it for larger constructions such as tables
+and cabinets which lay stacked upon one another. While a large
+room, the sheer volume of goods, both constructed and in progress,
+stored here ensure that movement through it becomes almost like
+through some sort of wooden hedge maze. To the west an oak door
+leads out of the storeroom.
+~
+96 1543571464 0
+0
+D3
+~
+door~
+1 1564  30 1285
+E
+immnote~
+Store room for Coramir - mob 1086, shop 1245.
+~
+S
+#96063
+A Storeroom for the Finer Side~
+   This large storeroom has a number of shelves and racks
+for the overflow of the Finer Side clothier shop. A single
+door stands to the north.
+~
+96 1409351688 0
+0
+D0
+~
+door~
+1 11379  35 1979
+D1
+~
+~
+0 -1  0 11720
+S
+#96064
+Store Rm: Belinda: Mob 1099, store 1148~
+   Merchant's name is Belinda, just a workin' girl. The Light of 
+the Tunnel offers fair quality food, aiming for a more upclass 
+market then common ale of the peasantry. 
+~
+96 1342242816 0
+0
+S
+#96065
+Store Rm: Beatrice: Mob 1101, shop 1158~
+   Merchant's name is Beatrice. This is simply a store run by 
+the street-traders that sells hats, belts, pouches, caps, gloves 
+and any other small item of clothing they can get their grubby 
+little mits on. 
+~
+96 268500992 0
+0
+S
+#96066
+Store Rm: Vargin: Mob 1102, shop 1164~
+   Merchant's name is Vargin. Easy bloke to deal with, enjoys 
+making pottery. Will let other members of the fellowship use his 
+stuff without worry. 
+~
+96 268500992 0
+0
+S
+#96067
+Store Rm: Blorn: Mob 1105, store 1178~
+DO NOT PURGE OR THY SHALL FACE A MOST PAINFUL DEATH!
+~
+96 1342242816 0
+0
+S
+#96068
+Store Rm: Niamen: Mob 1107, shop 1226~
+   Merchant's name is Niamen. His hands were damaged in a severe 
+glass accidnet when he was an apprentice, and more times since 
+then. But he's kept with it, and now is fairly skilled in his 
+profession. A bit guarded personality, but enjoys talking about 
+glass. 
+~
+96 268501000 0
+0
+S
+#96069
+Store Rm: Leric: Mob 1109, shop 1230~
+   Mob's name is Leric. Very down to earth fellow who's skilled 
+in all sorts of leather goods making. No specific talent, makes 
+everything pretty much except armour and boots. 
+~
+96 1342242824 0
+0
+S
+#96070
+Store Rm: Alise: Mob 1111, shop 1241~
+   Merchant's name is Alise. She's rather strong, and beats 
+anyone to a pulp that calls her ugly. Very confident woman who 
+enjoys her trade. 
+~
+96 268501000 0
+0
+S
+#96071
+Store Rm: Oradiath: Mob 2041, shop 2057~
+   Fine jewelry and gems.
+~
+96 1409351688 0
+0
+S
+#96072
+Store Rm: Aldimir: Mob 1551, shop 1551~
+   This room is for items for Aldimir's Goods. 
+~
+96 1409351688 0
+0
+S
+#96073
+Store Rm: Robert: Mob 1062, shop 1532~
+   This is the storeroom for the Silver Moon Inn of the Fourth 
+circle just north and west of the gate. Room : 1532 
+~
+96 1409351704 0
+0
+S
+#96074
+Store Rm: Rale: Mob 1063, shop 1559~
+   This is Rale's Toys storeroom. 
+~
+96 335611928 0
+0
+S
+#96075
+Store Rm: Barry: Mob 1097, shop 1558~
+   This is the storeroom for "The Fruit Tree". 
+~
+96 1409351688 0
+0
+S
+#96076
+Store Rm: Rosario: Mob 1519, shop 1519~
+   Various dyes and stuff. Rosario sells slightly cheaper than
+Loriel, so it's worth someone's time to buy here and sell to
+Loriel.
+~
+96 1409351688 0
+0
+S
+#96077
+Store Rm: Chryssa, Mob 1034, spawn 1033 (wandering vendor)~
+   Chryssa's not a street-kid, she has a family, though it is a 
+foster family. Tries to look her best when she's out selling, 
+though her wardrobe's not exactly posh. 
+~
+96 1342242824 0
+0
+S
+#96078
+Store Rm: Fallan: Mob 1131, shop 1278~
+   Fallan is the owner of a used clothing shop in the first 
+circle of Minas Tirith. He was born a cripple and therefore 
+isn't very well-off, as he's been unable to do much (if any) 
+physical work. He gets real pissed off if anybody ever mentions 
+the word "cripple" around him, or insinuates that they are better 
+than him because of physical ability. 
+~
+96 1342242824 0
+0
+S
+#96079
+Store Rm: Brego, Mob 1142, spawn 1037 (sentinel vendor)~
+   Brego's family forced the poor kid to act as a street vendor 
+to help support their dismal income; without it they'd starve. 
+Kid is very skittish, not really the salesman-type. He's maybe 
+12 or 13 years old, sells various cheap herbs and spices and 
+things. 
+~
+96 1342242824 0
+0
+S
+#96080
+Stoe Rm: Alarie: Mob 1143, spawn 1082 (wandering vendor)~
+   Alarie has led a hard life, but is a very strong woman. She 
+doesn't take any crap, and works hard selling various small baked 
+breads to help support her family, which includes several 
+children around eight to twelve in age. 
+~
+96 1342242824 0
+0
+S
+#96081
+Store Rm: Jory Yannik: Mob 1144, spawn 1045 (wandering vendor)~
+   Jory Yannik is not your ordinary run-of-the-mill poor man 
+forced to take wares to the streets. He sells on the streets 
+because he likes it, and because he's good at it. He comes from 
+a middle-class family, and therefore would be provided for even 
+if he doesn't sell well. He sells small toys of all kinds, 
+always wanting to bring happiness to others, though he doesn't 
+give things away freely. 
+~
+96 1342242824 0
+0
+S
+#96082
+Store Rm: PAtuk: Mob 1145, spawn 1084 (sentinel vendor)~
+   Patuk served a term in the military sometime earlier in his 
+life, but has now retired (early), to put his skills as a 
+fletcher to use. He's quite good at his trade; he pays for 
+membership in the Fellowship, but rarely ever makes any large 
+deals. 
+~
+96 1342242824 0
+0
+S
+#96083
+Store Rm: Kalya: mob 1146, spawn 1094 (wandering vendor)~
+   Kalya's in her mid-late teens, an up-and-coming in the 
+Fellowship of bakers. She does have a master, but his or her 
+shop is rather far off the beaten path, so he has Kalya take out 
+goods to find customers. She is confident and well-spoken, 
+definately destined to find a niche. 
+~
+96 1342242824 0
+0
+S
+#96084
+Store Rm: Tanya: mob 1147, spawn 1012 (wandering vendor)~
+   Tanya is the somewhat spoiled daughter of a candy maker. Her 
+father has, however, finally showed some interest in her welfare 
+by kicking her out of the house to try her hand at pulling her 
+weight (insert laugh here). 
+~
+96 1342242824 0
+0
+S
+#96085
+Store Rm: Ellan: Mob 1148, spawn 1097 (wandering vendor)~
+   Eh, I'm starting to feel lazy and tired. Story for her, heh - 
+Ellan's getting on in years, pushing thirty-five or forty-ish. 
+Still kickin' though, she sells candles. Doesn't make 'em, just 
+sells 'em. Has a special deal with a chandler she's known for 
+years, isn't likely to change until she bites it. 
+~
+96 1342242824 0
+0
+S
+#96086
+Store Rm: Tule: mob 1149, shop XXX (wandering vendor)~
+   Tule grew up on the streets, and he's still on them today, 
+heh. He manages to scratch his way by selling odds and ends, 
+some stolen, some acquired in other ways, but nothing 
+particularly expensive or of quality. Unfellowshipped. 
+~
+96 1342242824 0
+0
+S
+#96087
+Store Rm: Kalon: Mob 1151, spawn 1668 (sentinel vendor)~
+   Kalon is the son of a somewhat poor family. Not too bad off, 
+regular commoner-type. 
+~
+96 1342242824 0
+0
+S
+#96088
+Store Rm: Nadja: mob 1152, spawn 1099 (sentinel vendor)~
+   Nadja is - whaddya know - a gypsy. She grew up moving from 
+place to place as a trader, but has settled for the time being in 
+Minas Tirith, hawking colourful and beaded sewn and knitted items 
+on the streets. She is rather bold and boisterous, always ready 
+to have fun. 
+~
+96 1342242824 0
+0
+S
+#96089
+Store Rm: Satrin: Mob 1153, spawn 1175 (wandering vendor)~
+   Satrin is just striking out on his own, having come from a 
+fairly large family. He acts as a liason with local farmers and 
+hunters, buying small amounts of meat and foods and selling them 
+on the streets of Minas Tirith. Please DO NOT put a lot of coin 
+in this storeroom; the guy will likely end up jaunting around 
+with 80 lbs of rabbit meat on him. 
+~
+96 1342242824 0
+0
+S
+#96090
+Store Rm: Tathan: mob 1154, shop X~
+   Tathan is a rather lowly clay-worker who owns a wain in the 
+Tirith slums. Sells cheap and medium-low quality pots and 
+things. Rather cautious and suspicious guy, tends to give 
+customers a good looking over to make sure he's not going to end 
+up being mugged. 
+~
+96 1342242816 0
+0
+S
+#96092
+Store Rm: Halsik: mob 1156, shop 1466~
+   Halsik is a VERY suspicious fellow. If the Watch 
+comes-a-questioning, he'll be more than happy to tell them 
+whatever they ask, rather than risk getting into trouble himself. 
+He speaks with a slight stutter as well, and isn't all that 
+popular due to the fact that he would more likely turn in a pal 
+to save his own skin. 
+~
+96 1342242824 0
+0
+S
+#96093
+Store Rm: Taff: mob 1157, shop 1467~
+   Taff sells low to medium quality weapons, and DOES NOT TAKE 
+CUSTOM ORDERS. He doesn't make 'em, he sells what he gets. So 
+no customs, 'kay? He's a fairly bright lad, and he'd probably 
+have been better off with his nose in a book than selling weapons 
+off a wagon. Kind of shy too, but does the best he can. 
+~
+96 268500992 0
+0
+S
+#96094
+Store Rm: Owen: mob 1415, shop 1468~
+   Kid doesn't sell much of anything at all, mostly just takes 
+advantage of those who don't want to ride all the way to the 
+third circle to stable their horses. 
+~
+96 1073807360 0
+0
+S
+#96095
+Store Rm: Ragir: mob 1158, shop 1469~
+   Sells used and poor-quality tools. Nothing fancy or dainty or 
+otherwise easily breakable please! If asked for, don't load 'em. 
+~
+96 268501000 0
+0
+S
+#96096
+Store Rm: Frenn Sabian: mob 1159, shop 1520~
+   Frenn Sabian grew up in a fairly low-class family. Thus, he's 
+had to make it on his own, and is damn proud of it. He entered 
+early into the street traders and worked his way along through 
+wit and talent, as well as a persuasive tongue. He doesn't give 
+any quarter when making deals, and is very defensive about the 
+high quality of his goods. 
+~
+96 1342242824 0
+0
+S
+#96636
+A Cold Storage Cellar~
+   This earthen cellar has packed-dirt walls that are whitewashed,
+giving the room an antiseptic appearance and scent. A sturdy wooden
+staircase leads down to it from a trapdoor set in the ceiling. Beams
+in the ceiling support the room. Shelves and racks made of wood
+along the walls hold a variety of stored meats, down where it is
+so much cooler, as indeed it does tend to stay uniformly cool no
+matter what the temperature is.
+~
+96 201392156 0
+0
+D4
+~
+trapdoor~
+1 -1  0 2676
+S
+#96097
+Store Rm: Lars: mob 1160, shop 1522~
+   Lars is in his lower twenties, fresh in his mastership. He's 
+bright, he's damn good at his work, and he's used to his comfort. 
+He's a man of honor and all that jazz. Never try to dupe him, 
+bad things may happen. Sells fine quality, expensive wood items. 
+~
+96 1342242824 0
+0
+S
+#96098
+Store Rm: Waldor: mob 1161, shop 1664~
+   High-class Minas Tirith armoursmith. He sells any sort of 
+quality armour, though he is quite pricy. Doesn't talk much, but 
+he's got good sense and is by no means stupid. 
+~
+96 1342242824 0
+0
+S
+#96099
+Store Rm: Irramin Quince: mob 1162, shop 1665~
+   Irramin's a userer in Minas Tirith. Fairly high interest, and 
+he'll want definate proof that he's going to get his money paid 
+back. Other than that, he'll field pretty much anything short of 
+financing an army. 
+~
+96 1342242824 0
+0
+S
+#96100
+Store Rm: Marguerite: mob 1666, shop 1666~
+   Storeroom for the classy Silver Stag Inn in the 5th circle of 
+Minas Tirith. Sells only classy stuff, and most ordinary 
+citizens will never see the interior of this place. 
+~
+96 1342242824 0
+0
+S
+#96685
+A Small Storage Closet~
+   This small closet is built out with shelves all around. There 
+are no light sources in here, and only one door to the north. 
+The shelves hold overflow goods for the shop. 
+~
+96 1409351688 0
+0
+D0
+~
+door~
+1 2998  60 2620
+S
+#96101
+Store Rm: Bugo, mob 6058, shop 6058~
+   Storeroom for a little charcoaler's tent in the middle of Arena
+Square, sells only firewood and fuels.
+~
+96 1342242824 0
+0
+S
+#96102
+Store Rm: Abib, mob 6037, room 6063~
+   Storeroom for sale of fine ingots, plus gemstones and other
+precious materials. Abib is a culture, full-blooded Harad,
+and a member of the Cabal. Sensual and smooth, he is a lover
+of fine wine and poetry.
+~
+96 1342242816 0
+0
+S
+#96103
+Store Rm. for Janan (herbalist) mob 6064, room 6064~
+Janan is a fullblooded Harad, about 55 years old, a widow who
+gets by quite well on her own efforts. She is a classic Jewish
+grandmother type, bustling and busybodied.
+Voice: (in a warm, maternal voice)
+~
+96 1409351688 0
+0
+S
+#96104
+Store Room: Dajal's Pottery (6074, mob 6074)~
+   Storage for a Harad potter.
+~
+96 1342242824 0
+0
+S
+#96687
+A Cramped Storage Cellar~
+   Once used to store supplies, this cramped cellar is now empty 
+and lined with smoke-smeared cold stone, keeping the space cool, 
+and perhaps preserving its grisly occupants. 
+~
+96 1073807368 0
+0
+D4
+~
+loose-trapdoor~
+3 -1  0 22698
+S
+#96105
+Storage for Razzaq, butcher, 6080, MM~
+   Exotic meats for cooking.
+~
+96 1342242824 0
+0
+S
+#96688
+A Finely Accoutered Store Room~
+   This storage room is large, but well-ordered. Fine cabinets 
+hold delicate glassware and collectibles on the uppermost 
+shelves, while the larger row of bottom shelving holds an array 
+of bolts of fine fabric, decorative items and oversized goods. 
+Small chests of drawers with polished brass-knob pulls are used 
+to store the smaller, expensive bits of jewelery and pretty 
+trinkets. Muted light filters through the glass-paned door, 
+softly illuminating the myriad of exquisite items. 
+   A small trapdoor sits in the corner of the storeroom. 
+~
+96 1409351688 0
+0
+D2
+~
+glass-paned-door~
+1 2670  45 2516
+D5
+~
+~
+0 -1  0 96650
+P
+stock~
+the_storeroom~
+set random 1d41
+vstr Random Set
+if (random=41)
+vstr Loading In Object 579, qty 1
+loadobj 96688 1 579
+fi done
+if (random=40)
+vstr Loading In Object 581, qty 1
+loadobj 96688 1 581
+fi done
+if (random=39)
+vstr Loading In Object 1909, qty 1
+loadobj 96688 1 1909
+fi done
+if (random=38)
+vstr Loading In Object 2635, qty 1
+loadobj 96688 1 2635
+fi done
+if (random=37)
+vstr Loading In Object 2636, qty 1
+loadobj 96688 1 2636
+fi done
+if (random=36)
+vstr Loading In Object 2637, qty 1
+loadobj 96688 1 2637
+fi done
+if (random=35)
+vstr Loading In Object 2638, qty 1
+loadobj 96688 1 2638
+fi done
+if (random=34)
+vstr Loading In Object 2639, qty 1
+loadobj 96688 1 2639
+fi done
+if (random=33)
+vstr Loading In Object 2641, qty 1
+loadobj 96688 1 2641
+fi done
+if (random=32)
+vstr Loading In Object 2642, qty 1
+loadobj 96688 1 2642
+fi done
+if (random=31)
+vstr Loading In Object 2645, qty 1
+loadobj 96688 1 2645
+fi done
+if (random=30)
+vstr Loading In Object 2646, qty 1
+loadobj 96688 1 2646
+fi done
+if (random=29)
+vstr Loading In Object 2647, qty 1
+loadobj 96688 1 2647
+fi done
+if (random=28)
+vstr Loading In Object 2649, qty 1
+loadobj 96688 1 2649
+fi done
+if (random=27)
+vstr Loading In Object 2650, qty 1
+loadobj 96688 1 2650
+fi done
+if (random=26)
+vstr Loading In Object 2653, qty 1
+loadobj 96688 1 2653
+fi done
+if (random=25)
+vstr Loading In Object 2654, qty 1
+loadobj 96688 1 2654
+fi done
+if (random=24)
+vstr Loading In Object 2655, qty 1
+loadobj 96688 1 2655
+fi done
+if (random=23)
+vstr Loading In Object 2656, qty 1
+loadobj 96688 1 2656
+fi done
+if (random=22)
+vstr Loading In Object 2657, qty 1
+loadobj 96688 1 2657
+fi done
+if (random=21)
+vstr Loading In Object 2662, qty 1
+loadobj 96688 1 2662
+fi done
+if (random=20)
+vstr Loading In Object 2671, qty 1
+loadobj 96688 1 2671
+fi done
+if (random=19)
+vstr Loading In Object 2672, qty 1
+loadobj 96688 1 2672
+fi done
+if (random=18)
+vstr Loading In Object 2724, qty 1
+loadobj 96688 1 2724
+fi done
+if (random=17)
+vstr Loading In Object 2761, qty 1
+loadobj 96688 1 2761
+fi done
+if (random=16)
+vstr Loading In Object 2762, qty 1
+loadobj 96688 1 2762
+fi done
+if (random=15)
+vstr Loading In Object 2765, qty 1
+loadobj 96688 1 2765
+fi done
+if (random=14)
+vstr Loading In Object 2791, qty 1
+loadobj 96688 1 2791
+fi done
+if (random=13)
+vstr Loading In Object 2792, qty 1
+loadobj 96688 1 2792
+fi done
+if (random=12)
+vstr Loading In Object 2793, qty 1
+loadobj 96688 1 2793
+fi done
+if (random=11)
+vstr Loading In Object 2795, qty 1
+loadobj 96688 1 2795
+fi done
+if (random=10)
+vstr Loading In Object 2796, qty 1
+loadobj 96688 1 2796
+fi done
+if (random=9)
+vstr Loading In Object 2799, qty 1
+loadobj 96688 1 2799
+fi done
+if (random=8)
+vstr Loading In Object 2802, qty 1
+loadobj 96688 1 2802
+fi done
+if (random=7)
+vstr Loading In Object 2803, qty 1
+loadobj 96688 1 2803
+fi done
+if (random=6)
+vstr Loading In Object 2804, qty 1
+loadobj 96688 1 2804
+fi done
+if (random=5)
+vstr Loading In Object 2805, qty 1
+loadobj 96688 1 2805
+fi done
+if (random=4)
+vstr Loading In Object 2807, qty 1
+loadobj 96688 1 2807
+fi done
+if (random=3)
+vstr Loading In Object 2840, qty 1
+loadobj 96688 1 2840
+fi done
+if (random=2)
+vstr Loading In Object 3269, qty 1
+loadobj 96688 1 3269
+fi done
+if (random=1)
+vstr Loading In Object 3270, qty 1
+loadobj 96688 1 3270
+fi done
+~
+P
+buyfrom~
+the_storeroom~
+set random 1d41
+vstr Random Set
+if (random=41)
+vstr Taking Object 579.
+get 579 96688
+fi done
+if (random=40)
+vstr Taking Object 581.
+get 581 96688
+fi done
+if (random=39)
+vstr Taking Object 1909.
+get 1909 96688
+fi done
+if (random=38)
+vstr Taking Object 2635.
+get 2635 96688
+fi done
+if (random=37)
+vstr Taking Object 2636.
+get 2636 96688
+fi done
+if (random=36)
+vstr Taking Object 2637.
+get 2637 96688
+fi done
+if (random=35)
+vstr Taking Object 2638.
+get 2638 96688
+fi done
+if (random=34)
+vstr Taking Object 2639.
+get 2639 96688
+fi done
+if (random=33)
+vstr Taking Object 2641.
+get 2641 96688
+fi done
+if (random=32)
+vstr Taking Object 2642.
+get 2642 96688
+fi done
+if (random=31)
+vstr Taking Object 2645.
+get 2645 96688
+fi done
+if (random=30)
+vstr Taking Object 2646.
+get 2646 96688
+fi done
+if (random=29)
+vstr Taking Object 2647.
+get 2647 96688
+fi done
+if (random=28)
+vstr Taking Object 2649.
+get 2649 96688
+fi done
+if (random=27)
+vstr Taking Object 2650.
+get 2650 96688
+fi done
+if (random=26)
+vstr Taking Object 2653.
+get 2653 96688
+fi done
+if (random=25)
+vstr Taking Object 2654.
+get 2654 96688
+fi done
+if (random=24)
+vstr Taking Object 2655.
+get 2655 96688
+fi done
+if (random=23)
+vstr Taking Object 2656.
+get 2656 96688
+fi done
+if (random=22)
+vstr Taking Object 2657.
+get 2657 96688
+fi done
+if (random=21)
+vstr Taking Object 2662.
+get 2662 96688
+fi done
+if (random=20)
+vstr Taking Object 2671.
+get 2671 96688
+fi done
+if (random=19)
+vstr Taking Object 2672.
+get 2672 96688
+fi done
+if (random=18)
+vstr Taking Object 2724.
+get 2724 96688
+fi done
+if (random=17)
+vstr Taking Object 2761.
+get 2761 96688
+fi done
+if (random=16)
+vstr Taking Object 2762.
+get 2762 96688
+fi done
+if (random=15)
+vstr Taking Object 2765.
+get 2765 96688
+fi done
+if (random=14)
+vstr Taking Object 2791.
+get 2791 96688
+fi done
+if (random=13)
+vstr Taking Object 2792.
+get 2792 96688
+fi done
+if (random=12)
+vstr Taking Object 2793.
+get 2793 96688
+fi done
+if (random=11)
+vstr Taking Object 2795.
+get 2795 96688
+fi done
+if (random=10)
+vstr Taking Object 2796.
+get 2796 96688
+fi done
+if (random=9)
+vstr Taking Object 2799.
+get 2799 96688
+fi done
+if (random=8)
+vstr Taking Object 2802.
+get 2802 96688
+fi done
+if (random=7)
+vstr Taking Object 2803.
+get 2803 96688
+fi done
+if (random=6)
+vstr Taking Object 2804.
+get 2804 96688
+fi done
+if (random=5)
+vstr Taking Object 2805.
+get 2805 96688
+fi done
+if (random=4)
+vstr Taking Object 2807.
+get 2807 96688
+fi done
+if (random=3)
+vstr Taking Object 2840.
+get 2840 96688
+fi done
+if (random=2)
+vstr Taking Object 3269.
+get 3269 96688
+fi done
+if (random=1)
+vstr Taking Object 3270.
+get 3270 96688
+fi done
+
+~
+P
+do~
+store_room_actions~
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  buyfrom the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+force -1 96688  stock the_storeroom
+~
+S
+#96650
+A Tidy Storage Cellar~
+   Dug from the earth below the Emporium, this small cellar's 
+walls are reinforced with blocks of hewn-stone. A richly-stained 
+plank floor has been installed, providing a dry and clean area 
+for storage. Sturdy shelves line the walls, displaying various 
+foodstuffs and beverages served at the Emporium. 
+   A narrow stone staircase leads up into the room above. 
+~
+96 1409351688 0
+0
+D4
+~
+~
+0 -1  0 96688
+S
+#96106
+Storage for Rahman (vnum 6050), room 6033, medic~
+   Just a little medical shop where the healer hangs out.
+~
+96 1342242816 0
+0
+S
+#96107
+Storage for Yoric/Smoker in Arradoc (room 3953, mob 3146)~
+   A smokehouse in Arradoc.
+~
+96 1073807368 0
+0
+S
+#96666
+A Small Storage Closet~
+   This small storage closet is lined with shelves. It houses 
+all kinds of thread and fabric, most of them inexpensive. The 
+items placed in here are sold in the shop. 
+~
+96 1342242824 0
+0
+D2
+~
+door~
+1 -1  0 11065
+S
+#96665
+Storeroom for Sergeant Aegidius~
+This room holds items for Aegidius, the Rangers' "shop".
+mob 3149, room 3898
+~
+96 1409351680 0
+0
+S
+#96350
+Store Rm: Grisga, Yrkish Foodseller: mob 5131, shop 5632 ~
+No Description Set.
+~
+96 268501000 0
+0
+D5
+~
+~
+0 -1  0 5632
+S
+#96108
+Storage for Leomir's Warehouse, room 1225 (vnum 1106)~
+Various trade goods such as cheap barrels of wine, bolts of fabric,
+wood, etc.
+~
+96 1342242824 0
+0
+S
+#96340
+Storeroom Shop_6399 Mob_6086 PATIK : FOODSTUFF SUPPLY SLAVE HOUSE SAKLITHAN~
+   This is the storage room for the House Saklithan supply slave. 
+Deliveries should be restricted to raw meats, basic dry goods 
+like salt, sugar, flour, rice, beans, etc. No exotic fruits or 
+vegetables or fancy spices. He is meant to supply the slave 
+kitchen with basic raw ingredients for meals. 
+~
+96 1342242816 0
+0
+D1
+~
+~
+0 -1  0 6399
+E
+reformat~
+~
+S
+#96700
+Storage Closet~
+   Sturdy pine shelves line the walls, from floor to ceiling, and 
+are lined with various leather goods held in storage until put on 
+display in the storefront. The smell of tanned leather and 
+various chemicals fills the small closet. A brass lantern, 
+firmly attached to the wall, bathes the small space with soft 
+light. The door in the southern wall leads back to the storage 
+cellar. 
+~
+96 1409351688 0
+0
+D2
+~
+door~
+1 -1  0 15302
+S
+#96638
+Large Cupboard~
+   This large, dark cupboard is lined with sturdy shelves and 
+rows of glass jars used to store candy that is ready for sale. 
+~
+96 1342242824 0
+0
+S
+#96109
+A Large Storage Room~
+   Basic furniture for when the PC shop run under Clairvel is 
+understocked.
+~
+96 1409351688 0
+0
+D1
+~
+door~
+1 15239  50 15096
+P
+vfjump~
+vfmain~
+trans 15309
+vstr #5A young, dark-haired lad#0 lets you back out of the storeroom.
+ostr #5A young, dark-haired lad#0 locks up the storeroom.
+~
+S
+#96110
+Storage for Jamey, butcher, 3rd circle (1454)~
+   Third circle meats, fine foods.
+~
+96 1342242824 0
+0
+S
+#96111
+Storage for Ardis, grocer, 3rd circle (1685)~
+   3rd circle, nice foods.
+~
+96 1342242824 0
+0
+S
+#96112
+Storage for Yara, Florist, 4th circle (1691)~
+  Flowers, etc. 4th circle, so very nice.
+~
+96 268501000 0
+0
+S
+#96113
+Inside a Large Warehouse (S)~
+   This is the southern end of a very large warehouse, 
+newly-built from the scent of wood and construction. It is 
+utilitarian but extremely well-constructed, with no flourishes or 
+other decorative touches but with all corners edged and mitered. 
+Its ceiling is very high overhead, and it is built with shelves 
+all around at wide intervals for holding large objects. 
+~
+96 1277231112 0
+0
+S
+#96114
+Storage for Arilian, stablegirl, 1265~
+SIXTH CIRCLE ostler.
+~
+96 1342242824 0
+0
+S
+#96115
+Store rm mob 1168 Kelmin Woodseller~
+Store room for mob 1168, Kelmin. Minas Tirith Woodseller.
+~
+96 1342242816 0
+0
+S
+#96116
+Storage for Kered, 1713, 5th Circle Turning Leaf~
+   Exquisite food and drink for the brothel/lounge crowd.
+~
+96 1342242824 0
+0
+S
+#96117
+Storage for Darimir, 1715, 5th circle chandler~
+   Exquisite candles and lanterns for the fifth circle of MT.
+~
+96 1342242824 0
+0
+S
+#96118
+Storage for Redolas, 4th Circle woodworker, 1717~
+4th Circle fine woodworks. Nothing too big, not furniture usually.
+~
+96 1342242824 0
+0
+S
+#96119
+Storage for Mariella, Perfumer, 4th Circ, 1719~
+   Fourth Circle, Starlight Arcade.
+~
+96 1342242824 0
+0
+S
+#96120
+Storage for Gerevick, room 1723, mob 1724~
+   Fourth Circle, Silver Arcade, herbals and supplies. Gerevick 
+is a very learned fellow, wise and insightful, and doesn't like 
+rough people at all. 
+~
+96 1342242824 0
+0
+S
+#96121
+Storage for Faral, lumberyard, 4th Circle, 1725~
+   Fourth Circle lumberyard and supplies for homebuilding and
+maintenance. imagine a Manhattan Home Depot.
+~
+96 1342242824 0
+0
+S
+#96122
+Storeroom for Portius, 4th Circle Baths (1726)~
+   Towels, soap, small drinks, etc.
+~
+96 1342242824 0
+0
+S
+#96123
+Storage for Johnathan, Second Circle Cooper, mob 1182~
+   Fat and greedy, very skilled in his work but generally lazy. 
+He does possess considerable business acumen though but mostly 
+designed to aid him doing as little as possible. 
+~
+96 1342242824 -1
+0
+S
+#96124
+Store Rm: Henry: Mobile 1184, Shop 11095~
+   Henry runs the Rath Celerdain Forge. The Forge specialises in 
+smelting, refining and the sale and storage of metal ores. 
+Please make sure he stocks only these items. The man himself is 
+short and very hairy with a big head and double chin. He is very 
+loud and bossy and extremly unrefined and grubby. He spends all 
+day every day in his courtyard screaming at the cart owners and 
+his own staff as the stock is moved around the area. 
+~
+96 1342242824 0
+0
+D1
+~
+gate~
+1 -1  0 11095
+S
+#96125
+Herman's Storeroom: Mob 1185. Shop 11040.~
+   Herman is lazy, very lazy. He owns a tent trading in 
+farm-bought vegetables at the Great Market Square of Minas 
+Tirith. He has no fixed personality. I was thinking along the 
+lines of Lurch from the Munsters. 
+~
+96 1342242816 0
+0
+D3
+~
+~
+0 -1  0 11040
+S
+#96126
+Wilwarin's Storeroom: Mob 1186. Shop 11041.~
+   Wilwarin is a big girl. Woah she is. She runs a fruit stand 
+in the Great Market Square. She has no defined personality. Was 
+thinking something out of Wagner's Ring Cycle. 
+~
+96 1342242816 0
+0
+D3
+~
+~
+0 -1  0 11041
+S
+#96127
+Jennifer's Storeroom: Mob 1187. Shop 11037.~
+   Jennifer is a waif like and delicate creature. She runs a 
+small fruit stand in the Great Market Square selling wild fruit 
+and berries. SHe has no defined personality. 
+~
+96 1342242816 0
+0
+S
+#96128
+Johnny's Storeroom: Mob 1188. Shop 11039.~
+   Johnny is a typical teenage kid. He hates working here. He 
+hates having to smile at the customers. He has raging hormones 
+and will drawl over anything in a skirt. 
+~
+96 1342242816 0
+0
+S
+#96129
+The Cheese Tent Store: Mob 1189. Shop 11096.~
+   This is the storeroom for the Cheese tent in the Great Minas 
+Tirith Market. 
+~
+96 1409351688 0
+0
+D3
+~
+~
+0 -1  0 11096
+S
+#96131
+Jerrac's Storeroom: Mob 2127. Shop: 11033~
+No Description Set.
+~
+96 268500992 0
+0
+D5
+~
+~
+0 -1  0 11033
+S
+#96132
+Yonik's Storeroom: Shop 11196. Mob 2283.~
+No Description Set.
+~
+96 268500992 0
+0
+D5
+~
+~
+0 -1  0 11196
+S
+#96134
+Atler's Storeroom: Shop 11193. Mob 11003.~
+No Description Set.
+~
+96 268500992 0
+0
+D5
+~
+~
+0 -1  0 11193
+S
+#96136
+Ilsan's Storeroom: Shop 11198. Mob 1077.~
+No Description Set.
+~
+96 268500992 0
+0
+D5
+~
+~
+0 -1  0 11198
+S
+#96139
+Nimes' Storage Room: Mob Vnum 81, Store Vnum 22402~
+MOB is in Room 51177.
+~
+96 1342242816 0
+0
+D5
+~
+~
+0 -1  0 22402
+S
+#96140
+A Small Tiled Kitchen~
+   Glazed grey tiles cover the floor of this small kitchen, its 
+walls freshly-painted a bright white in color. A large stove 
+dominates the far corner of the room while lining the walls are 
+various shelves. Set into the western wall is a fireplace, white 
+stones surrounding its base to prevent ash and woodchips from 
+spilling out onto the floor and in the northern wall, a small 
+window is high set, allowing a slight breeze to pass through. A 
+curtain covering the eastern archway allows passage into the 
+large workroom beyond. 
+~
+96 1073807640 0
+0
+D0
+~
+sliding-door~
+1 11106  60 96142
+D1
+~
+curtain~
+1 -1  0 96141
+S
+#96141
+A Spacious Antechamber~
+   The walls of this room have been freshly-painted a warm sienna 
+brown in color including the ceiling though the plank floor 
+boords seem somewhat worn but still in good condition. The room 
+itself is rather spacious, large enough to accomodate quite a few 
+pieces of furniture while still providing ample space for people 
+to mov around comfortably. A window is set in the eastern wall, 
+providing sunlight during the daytime and has been covered by 
+crisp, ivory-colored linen curtains. Hung upon the walls are 
+numerous pieces of well-polished armor and shields of varying 
+sizes and types of metal but all clearly masterfully-crafted. A 
+door to the north leads to the workroom while a curtain separates 
+the antechamber from the kitchen beyond to the west. The door 
+set atop the stairs leads to the dormitory and the one in the 
+southern wall leads back out to the shop front. 
+~
+96 1141440796 0
+0
+D0
+~
+door~
+1 11148  0 1269
+D2
+~
+~
+0 -1  0 1247
+D3
+~
+curtain~
+1 -1  0 96140
+D4
+~
+trapdoor~
+1 11106  45 1920
+P
+deposit~
+storeroom~
+vstr You direct #5a balding, middle-aged man#0 to set the items for sale.
+ostr #5A balding, middle-aged man#0 brings the bag into the storeroom.
+force 1230 96141 vfjump vfstoreroom
+~
+P
+vfjump~
+vfstoreroom~
+trans 96061
+force -1 96061 empty bag
+force -1 96061 vfjump vfmain
+~
+P
+peer peek gaze~
+south keyhole door ~
+vstr You peer through the keyhole in the southern door and see...
+ostr %n peers through the keyhole in the southern door.
+atlook 1247
+~
+S
+#96142
+A Small, Dirt-Filled Yard~
+   This small yard bears no grass. Instead, it is only a 
+wood-fenced area, the ground made of hard-packed dirt with small 
+sprouts of weeds growing here and there from the dark earth. It 
+is an unkept and rather sorry lot, dirt and mud staining the 
+stone wall of the building south upon which a thick, wooden door 
+can slide open or closed. The door itself bears a large and 
+intimidating bronze lock and bears no window capable of peering 
+into the building itself. 
+~
+96 1073809412 0
+0
+D2
+~
+sliding-door~
+1 11106  60 96140
+S
+#96808
+Shop room~
+Shoproom for Charles, mob 1742, room 1742, clothwright hall merchant
+~
+96 1409351688 0
+0
+S
+#96143
+Storeroom~
+   This is the storeroom for Loric (mob 8090), seller of Wardens 
+and Wardenry armor at shop 8349 (the warehouse). 
+~
+96 335609864 0
+0
+S
+#96144
+A Store Room for the Dining Area~
+   This cool storage area is filled with a multitude of shelves 
+and racks for the storage of food and liquors. The walls are of 
+dark grey stone, and the area is kept lit by a couple of dim 
+brass lanterns. 
+   The items stored in this area are for sale in the dining hall 
+of the tavern. 
+~
+96 1409351704 0
+0
+D2
+~
+door~
+1 1279  0 1674
+P
+xxjumpxx~
+xxkitchenxx~
+trans 1672
+force -1 1672 put tray table
+~
+S
+#96145
+A Clean Storage Room~
+   This area is kept very clean, and is full of high end 
+beverages and foods. A number of shelves, bins, and racks are 
+available to keep things organized. 
+   Items sold here are intended to be sold in the Lounge Area. 
+~
+96 1409875976 0
+0
+D1
+~
+door~
+1 1279  0 1674
+D2
+~
+~
+0 -1  0 96168
+P
+xxjumpxx~
+xxkitchenxx~
+trans 1672
+force -1 1672 put tray table
+~
+S
+#96146
+Storemoom for Amon Herbist Harad Square Tur Edendor~
+   A small herb cart. 
+~
+96 268500992 0
+0
+S
+#96147
+A Cluttered Storeroom~
+A cluttered storeroom.
+~
+96 65536 0
+0
+D3
+~
+door~
+1 73057  90 73256
+S
+#96148
+~
+~
+96 65536 0
+0
+S
+#96149
+A Large Humidore~
+Inside a large humidore.
+~
+96 335609864 0
+0
+D3
+~
+door~
+1 66768  80 66938
+S
+#96150
+Barskh's Cage OOC NPC Vendor~
+   A crowded room full of Orkish type soldiers. 
+~
+96 335609864 0
+0
+S
+#96151
+Storage for Bakery on First Circle~
+for 11929
+~
+96 268500992 0
+0
+S
+#96152
+Storage for Pet Shop~
+No Description Set.
+~
+96 335609864 0
+0
+D1
+~
+door~
+1 11998  50 21067
+S
+#96153
+Store Rm: Alain the Instrument/Music Seller: shop 21024, mob 21024~
+   Storage for Sounds of the City on the first circle, a shop for 
+instruments and related things. Alain is an elderly man with a 
+lung condition, who constantly wheezes, but he knows about 
+instruments of most kinds. He makes them himself, along with the 
+help of assistants. 
+~
+96 335609860 0
+0
+D0
+~
+door~
+1 21058  50 21024
+S
+#96154
+A Medium-Sized Storage Room~
+   Of medium size and simple build, this storage room has been 
+designed to hold the maximum amount of objects possible. It runs 
+the length of the shop from north to south, but is only perhaps a 
+third of the size of the shop itself in width. A single door 
+leads back out into the shopfront, positioned to the west. 
+~
+96 335612172 0
+0
+D3
+~
+door~
+1 11885  35 11828
+P
+leave~
+storeroom~
+vstr You knock on the door and it is opened from the other side. You step back out into the shopfront.
+ostr %n knocks on the door and steps out into the shopfronl when it is opened.
+trans 11828
+atlook 11828
+ostr %n steps out into the shopfront from the other side of the door.
+~
+S
+#96155
+A Small Storage Room~
+   Shelves and cases provide room to keep the raw gemstones that 
+are the most common wares of the shop. The door leading out has 
+been set to the north. 
+~
+96 335609864 0
+0
+D3
+~
+door~
+1 11947  50 21051
+S
+#96156
+Storage Fahad'Jafari Registrar~
+   This room is full of file cabinets holding all manner of 
+licenses and registrations. 
+~
+96 335609864 0
+0
+D1
+~
+heavy-wooden-door~
+1 80037  85 80173
+S
+#96157
+A Heavy Storage Cabinet~
+   A heavy storage cabinet owned by the healer in the Souk, 
+Fahad'Jafari. 
+~
+96 67174424 0
+0
+D1
+~
+heavy-cabinet~
+1 80045  75 80174
+S
+#96158
+Usury Storage Fahad'Jafari~
+   Quiet and dust free this tiny room is plain and unadorned. 
+
+~
+96 335609880 0
+0
+D4
+~
+iron-barred-door~
+1 80047  80 80175
+S
+#96159
+Cashier's Storage Fahad'Jafari~
+   This small cramped room is cluttered with cabinets and desks 
+full of receipts. 
+~
+96 335609864 0
+0
+Q4
+100
+You don't see anything there.
+~
+Q5
+100
+~
+S
+#96160
+Fahad'Jafari - Treasury~
+   Relatively dust free this room is impeccable neat and clean. 
+The windowless walls are made of reinforced adobe, keeping out 
+the heat of day. The entire room is painted with lime to keep 
+out insects and pests. Chests and bins are placed in careful 
+order around the room on the spotless floor. The air is dry and 
+cool. 
+~
+96 67174408 0
+0
+S
+#96042
+The Fellowship Office Front Storeroom~
+   This tiny storage area holds certificates and coin for the 
+Quartermaster of the Fellowships to organize. 
+~
+96 335609864 0
+0
+D3
+~
+small-doorway~
+1 11290  0 1455
+S
+#96091
+Central Great market clearing house for 1004~
+This place holds all goods sold in the great Market.
+~
+96 335609864 0
+0
+S
+#96161
+Central Great market clearing house for 1004 II~
+   This place holds all goods sold in the great Market. 
+~
+96 67174408 0
+0
+S
+#96162
+Istari's Barn and Silo Storage~
+   A busy building with a hay strew dirt floor. 
+~
+96 335609864 0
+0
+D5
+~
+thick-heavy-door~
+1 81028  80 81643
+S
+#96133
+Drodus Storeroom~
+   This is the Storeroom for Drodus, Herbalis from the Herb 
+Market at the Southwestern End of the Plaza, rnum 11473. 
+~
+96 335609880 0
+0
+S
+#96137
+Carla's Storeroom~
+   This is the storeroom for Carla, Shopkeeper of The Grain 
+Market at the Southern End of the Plaza, rnum 11472. 
+~
+96 336134168 0
+0
+S
+#96130
+Angost Coin Exchange Storeroom~
+Storeroom for mob 42061, shop 42392
+~
+96 335609864 0
+0
+S
+#96163
+Guild Butcher Random Room~
+Random load room for shop 45159 - mobile 43187
+~
+96 65544 0
+0
+S
+#96164
+Randomizer Room for Lorewan - Guild Shop~
+For mob 42081 in room 43029
+~
+96 67174408 0
+0
+S
+#96165
+Emtpy Randomizer - Caolafan~
+An Empty Randomizer for Caolafan.
+~
+96 67174408 0
+0
+S
+#96166
+Randomiser Room for Maedh Woodworker Angost 42129~
+   This is the randomiser room for Maedh mob 42129 in room 42129 
+in Angost. 
+~
+96 67174408 0
+0
+S
+#96167
+Randomiser Room for Angost Outpost Clothier Mob Kammy 42125~
+   This is the randomiser room for clothing for mob Kammy 42125 
+at shop 42125. 
+~
+96 67174408 0
+0
+S
+#96168
+A Well-Kept Storage Area~
+   Countless shelves line the walls, spacious and wide and giving 
+plenty of room to store bottles and other items. The walls are 
+made of a solid wood, similar to that of the floor underfoot. 
+Only a single door provides entry to and exit from the room as it 
+leads eastward back into a small cellar. 
+   Items sold here are intended for sale in the gambling lounge. 
+~
+96 336134168 0
+0
+D0
+~
+~
+0 -1  0 96145
+P
+xxjumpxx~
+xxkitchenxx~
+trans 1672
+force -1 1672 put tray table
+~
+S
+#96169
+Storeroom for Eolon, Coin Exchange in Angost~
+   For mob 42061 in room 42392. Mob Eolon, coin exchanger for 
+Angost. 
+~
+96 335609864 0
+0
+S
+#96807
+The Amdir Chow Hall Storeroom~
+   Shelves line this storeroom, filled with food ready for the 
+soldiers. Men in aprons hurry through, carrying food in and out 
+on metal trays. A door in the western wall leads out into the 
+kitchen. 
+~
+96 335609880 0
+0
+E
+immnote~
+The shopkeep's name is Mack, mnum 54001.  This is the storage room for 54430, the Amdir Chow Hall.
+~
+P
+loadup~
+rabbit~
+if haso(-1,97444)
+   loadobj -1 12 98023
+   take 97444 1
+   force 54001 54430 mark all free
+else do
+      vstr You need to be holding #2the dressed carcass of a rabbit#0.
+fi done
+~
+P
+loadup~
+boar~
+if haso(-1,97843,2)
+   if haso(-1,97547)
+      loadobj -1 48 98113
+      loadobj -1 16 97033
+      loadobj -1 80 98412
+      loadobj -1 2 97732
+      take 97547 1
+      take 97843 2
+      force 54001 54430 mark all free
+   else do
+      vstr You need to be holding #2a raw boar's carcass#0.
+   fi done
+else do
+   vstr You need to be holding 2 of #2a lump of butter#0.
+fi done
+~
+P
+loadup~
+deer~
+if haso(-1,97698,2)
+   if haso(-1,97183)
+      loadobj -1 24 98830
+      loadobj -1 50 97053
+      take 97183 1
+      take 97698 8
+      force 54001 54430 mark all free
+   else do
+      vstr You need to be holding #2a deer carcass#0.
+   fi done
+else do
+   vstr You need to be holding 8 of #2a spoonful of butter#0.
+fi done
+~
+P
+help~
+room~
+vstr Things you can do in this room -
+vstr "loadup rabbit"
+vstr "loadup boar"
+vstr "loadup deer"
+vstr "markit free"
+~
+P
+leave~
+storeroom~
+vstr You step through the door into the kitchen.
+ostr $n steps out the door.
+trans 54432
+atlook 54432
+~
+P
+vfjump~
+vfmain~
+trans 54432
+force -1 54432 drop tray
+~
+P
+markit~
+free~
+force 54001 54430 mark all free
+~
+S
+#96810
+The Amdir Buyer Sorting Room~
+   Goods from the buyer are brought here and sorted on large 
+tables before being carried to the warehouse to the west. At any 
+given time, one might see furs, meat, logs, or even rocks being 
+bundled and picked through by the workers here. 
+~
+96 335609880 0
+0
+D2
+~
+banded-door~
+1 54008  0 54475
+D3
+~
+door~
+1 -1  0 54477
+E
+immnote~
+The storekeeper's name is Roackmor, 54002.  The shop is 54475, the Amdir Buyer.
+~
+P
+kn kno knoc knock~
+w we wes west~
+set var doit 0
+if clan (-1,eradan_quartermaster)
+   set var doit 1
+else do
+   if clan (-1,strongroom_eradan)
+      set var doit 1
+   fi done
+fi done
+if (&(doit)=1)
+   trans 54477
+   atlook 54477
+fi done
+~
+P
+help~
+room~
+vstr The things you can do here are -
+vbf -
+vstr "knock west"
+~
+P
+test~
+cleaner~
+force 54005 -1 clean itup
+~
+S
+#96811
+Amdir General Store Storeroom~
+   This room is filled with crates and bins stacked haphazardly 
+all about. It seems as if any moment something might topple. 
+The walls are simply the inside of the squared logs use to build 
+the store, rough and unpainted. The floor is made of planks that 
+groan now and then under the weight of the merchandise here. 
+~
+96 335609880 0
+0
+D0
+~
+door~
+1 54009  0 54476
+E
+immnote~
+This is the storeroom for Niall, 54006, the storekeep at the Amdir General Store 54476.  He's a friendly, cheerful man, and though it seems impossible in the clutter of his store, knows exactly where anything is, and can fetch it instantly.
+~
+S
+#96809
+Storeroom for Amdir Mail Station~
+Mail storeroom for Rynser, mob 54015, shop room 54538.
+~
+96 335609864 0
+0
+S
+#96812
+A Wooden Storage Area~
+   This room is plain and windowless, a brass lantern suspended 
+from a hook in the ceiling the only source of light within. Each 
+of the walls are lined with shelf after shelf, and a heavy 
+curtain hanging in the doorway in the western wall separates it 
+from the kitchen area. 
+~
+96 335609880 0
+0
+E
+immnote~
+This is the storeroom for the Amdir Tavern.  Shopkeeper is Chas, 54016, and the store is 54541.
+~
+P
+leave~
+storeroom~
+ostr $n pushes the curtain aside and leaves.
+vstr You push the curtain aside and leave.
+trans 54542
+delay 2 look
+~
+S
+#96821
+A Small, Sweet Scented Storeroom~
+   This room is barelly twelve feet square but it is often 
+crowded with crates, jars, barrels and other containers all 
+emitting strange, sweet smells. The walls are crafted from 
+roughly hewn granite blocks and are plain in appearance. A 
+trapdoor, reached via a sturdy wooden ladder, is situated in 
+roughly the middle of the ceiling. 
+~
+96 268501000 0
+0
+D4
+~
+wooden-trapdoor~
+1 82100  25 82100
+S
+#96170
+Mirela's Randomizer Room Angost Gypsy~
+Randomizer room for Angost Gypsy wagon - Mobile #42458. 
+~
+96 65536 0
+0
+S
+#96180
+Boar's Head Storage Room~
+   A cool, moist air circulates around this lower basement 
+storage room, giving the space a damp, boggy smell. A rock floor 
+with a large drainage hole cut in the center whisks away the 
+rainwater that often collects in the soggy soil behind the wooden 
+walls during storms. The storage shelves in this space appear 
+ransacked and ill-cared for, with obvious signs that rats and 
+other wildlife entered, gnawed, and feasted on the wooden 
+furnishings and food stores. A knotty-looking, wobbly-legged 
+wooden ladder allows one to #6leave#0 the #6storeroom#0. 
+~
+96 335611912 0
+0
+P
+leave exit~
+room storeroom storage~
+vstr You begin climbing back up the rickety wooden ladder, the frame creaking under your weight. 
+atecho 45081 As $n emerges from the storeroom below, the slight scent of damp bog follows $e. 
+trans_group -1 -1 45081
+atlook 45081
+~
+S
+#96138
+Storeroom for Jack the Hide Seller (58)~
+A crowded storeroom
+~
+96 268500992 0
+0
+S
+#96135
+rname Eleyna's Cured Pelts and Hides Storeroom~
+A crowded storeroom
+~
+96 268500992 0
+0
+S
+$~

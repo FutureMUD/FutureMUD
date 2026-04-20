@@ -1,0 +1,1712 @@
+#24000
+Phelan large brown bristly furred hound~
+a large, bristly-brown furred hound~
+A large, bristly-brown furred hound is here, watching its surroundings.~
+   Rhovanion Wuldane, a breed of war, is brought to the finest in 
+this marvelous beast. Fully three and a half feet to it's it's 
+back, roughly three and a half feet from broad chest to rear 
+haunches, and looking to weigh in at around a hundred and 
+twenty-five pounds. Bristly sandy brown coat covers rippling 
+lupine muscles. Right ear ragged, as if having been ripped but 
+still functional swivels at surrounding noises along with his 
+left. Eyes emerald green, luminescent in the right light, stare 
+out with feral intensity from their sockets above a wide muzzle 
+lined with large, sharp teeth designed for rending. Each of it's 
+legs are strongly built, movements showing controlled power, with 
+large splayed foot pads displaying somewhat hooked claws. 
+~
+134217738 0 15 40 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 5 5 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' vang_dogs1 'member' vang_dogs~
+0 0 0
+#24001
+Taluan SiloMerchant merchant byCeredir pale dark-haired~
+a pale, dark-haired merchant~
+A pale, dark-haired merchant is present, marking down the bags delivered to the Granary.~
+   Sitting in a small stall right in front of the Granary, this 
+merchant observes people bringing in the bags of grain to be 
+stored within one of the large silos. A large tome open in front 
+of himself, he marks down the names and amounts brought in, a 
+stack of coins close at hand, ready to be used to pay the farmers 
+for their produce. 
+   #6OOC: You can check HELP GRANARY here to learn about the 
+syntax and rules to use the Merchant.#0 
+~
+10 0 22 3 0 5d1+87 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+10 18 20 1 14 11 95 13
+65536 0
+0 30 0 0 0 0 0 0 45 0
+0 0 0 0 0 0 0 0 0 0
+16 40 0 0 0 0 0 0 0 0
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 74
+65 43 0 0 0 0 0 72 0 0
+66 0 0 0 0 73 0 0 0 0
+0 0 0 0 0 66 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' black_watch 'sergeant' mordor_char~
+0 0 0
+#24002
+clerk libraryclerk slim dark-complexed byCeredir~
+a slim, dark-complexed clerk~
+A slim, dark-complexed clerk sits at a desk, accepting and giving out packages.~
+   A slim figure is the framework for this dark-complexed Haradan 
+man. With almost pitch-black skin, he has a rather mysterious 
+quality to him. His sharp, grey-rimmed eyes are very analytical, 
+carefully examining every single detail. A thin, pointed nose is 
+arranged over thick lips and a clean shaven face, giving him a 
+very dignified appearance. His hair is short and neatly 
+arranged, showing that he takes good care of himself. There are 
+no visible scars or pockmarks on his skin. 
+~
+10 0 8 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+0 0
+0 16 16 16 16 16 16 16 16 16
+16 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#24003
+Halo snaga sanguine-haired busty shopkeep24219~
+a busty, sanguine-haired snaga~
+A busty, sanguine-haired snaga stands here, displaying her various wares.~
+   With a ruggedly-built body and a busty chest, this female 
+snaga is rather short for one of her race. She has sanguine 
+colored hair and wears it in a roughly-braided ponytail. Her 
+yellowish-brown eyes are above a thin, pointed nose and thin, 
+blood red-colored lips framed by high-boned cheeks and a weak 
+chin. Her mouth is defined by bucked teeth, while the rest are a 
+gnarled mess. Her greenish-brown skin is stretched taught over 
+her body and a few warts can be seen here and there. Her knees 
+knock together nervously on an almost constant basis as her eyes 
+flicker from side to side anxiously. 
+~
+10 8388612 8 24 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+1 1
+24219 24971 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 16 16 16 16 16 16 16 16
+16 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24004
+Erunk orc scarred chalky-skinned shopkeep24221~
+a scarred, chalky-skinned orc~
+A scarred, chalky-skinned orc is here, managing their stall.~
+   Jagged scars claw their way across the eyes of this 
+bald-headed orc. His grisly features are not easy to look upon 
+and they betray an even harder life. He is held up on an 
+extremely stout frame with almost tree-trunk like legs and a 
+barrel chest, all wrapped up in chalky-colored skin. His eyes 
+are a faded yellow and betray a vicious countenance and a short 
+temper. 
+~
+26 8388612 8 119 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+1 1
+24221 24972 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 16 16 16 16 16 16 16 16
+16 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 75 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24005
+Kruurt snaga ink-black-haired angular-framed shopkeep24222~
+an angular-framed, ink-black-haired snaga~
+An angular-framed, ink-black-haired snaga helps customers here.~
+   This short snaga is angular-framed, with a thin, recent scar 
+across their right wrist, and a thick, inflammed scar across 
+their left knee. He has inky-black hair and wears it braided in 
+loose braids that cascade to his shoulders. His sharp yellow 
+eyes are above a flaring nose and thin lips. His skin is pallid 
+and weathered, accented by gnarled arms with dirty, unmanicured 
+hands. His small body has a flat chest and his limbs are lanky 
+and thin. 
+~
+10 8388612 8 24 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+1 1
+24222 24973 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 16 16 16 16 16 16 16 16
+16 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24006
+Haashnak orc long-necked jaundiced shopkeep24223~
+a long-necked, jaundiced orc~
+A long-necked, jaundiced orc stands here, hawking his inventory.~
+   Overall this Orc is of average height with an unusually long 
+neck. He has pitch black hair that is roughly cropped and cut 
+rather short. His humus yellow eyes are above a bulbous nose and 
+full shaped lips, which are framed by pendulous cheeks. A 
+prominently squared jaw forms this Orc's face, mild tusks poking 
+out from his bottom lip. Jaundiced skin stretches over his 
+entire form and at the end of delicate shoulders are red and 
+scoured arms with well-manicured hands. His podgy body has a 
+underdeveloped chest with a protruding stomach and he is 
+thick-legged with missing toes. 
+~
+10 8388612 8 119 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+1 1
+24223 24974 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 16 16 16 16 16 16 16 16
+16 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24007
+Praadish orc toothless deathly-pale shopkeep24224~
+a toothless, deathly-pale orc~
+A toothless, deathly-pale orc tends to their stall.~
+   Deathly-pale skin covers the entire body of this female orc of 
+average height. She has raven black hair and wears it in a messy 
+top bun. Her hawkish yellow eyes are above a broken nose and 
+sanguine colored lips, framed by high-boned cheeks and a jutting 
+chin. A greasy complection and toothless mouth accentuate just 
+how unattractive this orc is. Her sinewy body has a top-heavy 
+chest with a over the belt stomach, thin legs and dainty feet. 
+~
+10 8388612 8 119 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+1 1
+24224 24975 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 16 16 16 16 16 16 16 16
+16 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24008
+Krogor snaga hawk-nosed bow-legged shopkeep24225~
+a hawk-nosed, bow-legged snaga~
+A hawk-nosed, bow-legged snaga works here.~
+   A bow-legged stance sets the standard for this snaga's 
+appearance. He has coal black hair, which is a mess that hangs 
+on to his shoulders and over his face. His sanguine-yellow eyes 
+are deep-set above a beaked nose and dry, gray-colored lips. His 
+skin is chalky-colored and burlap textured. At the end of 
+drooping shoulders are long arms with chapped hands. His gaunt 
+body has a barrel chest with a plump middle. 
+~
+10 8388612 8 24 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+1 1
+24225 24976 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 16 16 16 16 16 16 16 16
+16 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24009
+shopkeep7~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24010
+shopkeep8~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24011
+shopkeep9~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24012
+Krushg beastmaster huge scar-riddled olog-hai byCeredir~
+a huge, scar-riddled olog-hai~
+A scar-riddled olog-hai is looming here.~
+   Large and wide, this olog-hai moves around the Arena with a 
+purposeful stride, directing smaller orcs and slaves as they take 
+care of the beasts that are caged below the fighting grounds. 
+His greenish skin has a pebbly texture and is crossed with many 
+ridged scars from bites and claws of his temporary pets. 
+   If you have a creature subdued, you can CAGE <target> and 
+collect the bounty that this olog pays for anything that can be 
+used for Arena fighting. 
+~
+10 4 44 86 2 5d1+268 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+23 12 13 1 11 16 95 18
+0 0
+0 78 0 0 0 48 0 88 0 0
+0 0 0 0 0 0 0 0 0 65
+56 68 100 0 0 0 0 0 35 0
+0 0 44 0 0 0 0 33 0 65
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 69 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 63 63 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'member' egthela_arena~
+0 0 0
+#24013
+tentacle thrashing massive byCeredir~
+a massive, thrashing tentacle~
+A massive tentacle thrashes here, separated from the body of some gargantuan monster.~
+   Long and powerful-looking, this tentacle seems to have been 
+ripped or cut off from the body of some gargantuan creature. Its 
+thick, elephantine skin glistens wetly, its color an altering 
+pattern of gray-green hues. Large pale green suction cups dot 
+the underside, each ringed with many small claws. Even though 
+separated from its owner's body, the limb thrashes and flails 
+wildly, moving around on its own with serpentine motions. 
+~
+40 4 30 56 2 5d1+100 2d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 1 10 1 8 14 1 20
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' squids~
+0 0 0
+#24014
+Finn xMORDOR_DEADPOND_FERRYx pair rat faced male orcs xNauriel~
+a pair of rat-faced male orcs~
+A pair of rat-faced male orcs are sitting on a bench, oars in hand.~
+   These orcs show amazing contrast in their build. Broad of 
+shoulders, their arms are heaped with muscle from a lifetime of 
+rowing, overdeveloped and deformed, even, from their lack of 
+other use. Their bodies are broad, almost barrel-chested, 
+heavily muscled from that same activity; however, a look at their 
+legs might lead one to wonder whether the much thinner limbs 
+could bear their weight for long should they depart from their 
+boat. Their eyes have a pinkish hue to them, set in narrow, 
+rattish faces with pointed noses which might not look altogether 
+out of place on one of those creatures. Though their faces 
+typically hold a placid expression, the eyes themselves have a 
+manic glint to them, seeming somehow to match their jagged 
+yellowed teeth which, when revealed, are set at odd angles and 
+not all accounted for. 
+~
+10 8388612 31 121 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 55 0 0 0
+19 13 16 1 16 16 95 16
+0 0
+0 56 62 46 0 0 0 61 0 0
+0 0 0 0 0 0 0 0 0 0
+50 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#24015
+Kamimi shopkeep By_vaire short slender bronze skinned woman~
+a short, slender bronze skinned woman~
+A short, slender bronze skinned woman showing wares for sale stands here.~
+A young woman, just out of her teenage years, she stands straight
+with long mahogany hair. Her eyes are a dark brown, almost black
+in their darkness. Her bronze skin, soft to the touch compliments
+her graceful movements. 
+~
+10 0 8 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+1 1
+24050 24052 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24016
+Sklurk snaga hawk-nosed bow-legged shopkeep24053~
+a hawk-nosed, bow-legged snaga~
+A hawk-nosed, bow-legged snaga works here.~
+   A bow-legged stance sets the standard for this snaga's 
+appearance. He has coal black hair, which is a mess that hangs 
+on to his shoulders and over his face. His sanguine-yellow eyes 
+are deep-set above a beaked nose and dry, gray-colored lips. His 
+skin is chalky-colored and burlap textured. At the end of 
+drooping shoulders are long arms with chapped hands. His gaunt 
+body has a barrel chest with a plump middle. 
+~
+26 8388612 8 24 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+1 1
+24053 24054 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 16 16 16 16 16 16 16 16
+16 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24017
+mundaici scarred hawk-nosed heavy-browed man~
+a scarred, hawk-nosed, heavy-browed man~
+A scarred, hawk-nosed, heavy-browed man is here.~
+   This man stands perhaps not quite at average height for a 
+human, and is covered in leathery skin -- in colour, for it is a 
+middling shade of brown, and in the lines it bears from exposure 
+to weather. Scars criss-cross his face, small, for the most 
+part, yet, from just below the corner of one eye, a line of 
+knotted flesh trails down and back to the corner of his jawbone, 
+where it ends. His brown eyes, deep-set, are shadowed beneath 
+thick, dark eyebrows, appearing almost to be the black of both 
+that hair and that which crowns his head, falling down to 
+shoulder length, yet kept from his face. His build is muscular, 
+though corded and compact rather than brawny. Noticeable, too, 
+are his hooked, beak-like nose which curves down towards the 
+point, and the wide variety of tattoos in which he has been 
+covered. An upwards-pointing arrow trails up his right arm from 
+just above the elbow towards the shoulder; vines have been inked 
+twined tightly about it, constricting even as they branch 
+outwards. On the opposite side, a three-pointed mountain sits, 
+the central peak highest, and the image split through diagonally 
+with a jagged bolt of lightning. A necklace of wolves' teeth has 
+been tattooed about his right forearm, just above the wrist, and 
+the other is wreathed in a ring of flame. An image of a shield 
+stretches across most of his chest, various small weapons 
+embedded in its outer edge, and, on his legs, five-clawed gashes 
+mark the outer edge of each thigh. 
+~
+10 0 43 128 0 5d1+126 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 66 4 0 0
+16 9 14 1 14 16 87 16
+0 0
+0 72 0 0 0 0 87 0 0 0
+77 0 0 0 0 0 72 0 0 0
+77 62 0 0 65 63 0 0 34 31
+0 0 68 0 0 0 51 40 0 23
+0 0 0 0 0 0 0 0 0 0
+0 0 0 76 0 0 0 0 0 45
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 61 0 0
+0 0 0 0 100 68 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' balchoth_vanguard 'member' mordor_char~
+0 0 0
+#24018
+warg rabid frothy-mawed byCeredir CultPlot~
+a rabid, frothy-mawed warg~
+A rabid, frothy-mawed warg is stalking through the area.~
+   Even though its body is lean and powerfully muscled, this 
+wargs doesn't look to be exactly healthy. Mangy fur hangs from 
+its sides in ugly knotted clumps, its eyes are glazed over and 
+clusters of foam dribble from its snarling maw. Blood glistens 
+among the fur, a number of claw marks scarring the beast's entire 
+body. 
+~
+264 786436 30 89 3 5d1+140 2d4+0 0 8 8 0 0 0 0 0
+90030 0 0 90029 0 0 24 0 0 0 1 0 0 0 0 0
+19 5 20 1 18 15 77 15
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 45 45 0 0 45 0
+0 0 50 0 0 0 22 54 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ravine 'commander' wargpack~
+0 0 0
+#24019
+Sharrik shopkeep24055 young coal-eyed man byCeredir~
+a coal-eyed young man~
+A young man with coal eyes tends to the shop.~
+(null)~
+138 0 8 6 0 5d1+114 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 2 24 0 0 0 0 0 0 0 0 0
+16 16 16 4 16 16 95 16
+65537 1
+24055 24057 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' mordor_slavers 'member' mordor_char~
+0 0 0
+#24020
+Karria fine cocoa skinned young woman reflected_moon_clan shopkeeper~
+a fine, cocoa-skinned young woman~
+A fine, cocoa-skinned young woman stands here peddling cloth goods.~
+   This shopkeeper specializes in all manners of clothing and 
+items there in related to clothing. This young woman is 
+obviously from Harad and a servant to the Reflected Moon Clan. 
+~
+1034 0 8 6 0 5d1+90 1d2+0 0 8 8 0 0 2 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 12 12 1 12 12 81 12
+1 1
+24058 24060 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 1573392
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' mordor_slavers 'member' mordor_char~
+0 0 0
+#24021
+Graluth uruk-hai thick-skinned tattooed gladiator byDraxx~
+a thick-skinned, tattooed uruk-hai~
+A thick-skinned, tattooed uruk-hai stands here.~
+   Thick, leathery skin wraps itself tightly around the large 
+frame of this coal-skinned uruk-hai. His grey eyes are ever 
+watchful, gazing about the area with intent and suspicion. 
+Ritualistic tattoos cover almost all of his exposed skin, 
+including surrounding his face in swirling patterns. His hands 
+are weathered and battered, betraying years of hard labor. 
+Jagged teeth stick out of his thick, cracked lips, which are 
+topped by a squat, pig-like nose. He carries an intense demeanor 
+about him. 
+~
+10 4 39 29 0 5d1+105 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 11 13 1 14 17 95 14
+0 0
+0 79 68 76 75 73 76 78 66 55
+60 0 0 0 0 0 0 0 0 70
+77 68 0 0 0 0 0 0 55 50
+0 0 58 0 0 0 53 22 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 68 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 62 63 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' egthela_arena~
+0 0 0
+#24747
+Khamul_the_Easterling nazgul ringwraith black-clad hooded figure Ulaire~
+a hooded, black-clad figure~
+A hooded, black-clad figure is here.~
+   The figure which stands here is not tall by the standards of 
+men, though he does show some breadth. His black robes are drawn 
+closely about him, revealing nothing save the black gauntlets 
+which escape the sleeves of his cloak, the sabatons of a like 
+colour, and the mask which covers his face, leaving dark 
+eye-holes staring forth. His motions are deliberate, purposeful, 
+and he carries himself with an air of power which seems only to 
+enhance his total self-assurance. 
+~
+268435466 8388612 50 83 15 5d1+10000 3d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 68 3 0 0
+18 16 25 1 16 18 81 16
+0 0
+0 100 0 100 0 0 0 0 0 100
+0 0 0 100 0 0 100 0 0 0
+100 100 0 0 100 100 0 0 100 100
+0 0 100 0 0 100 100 100 100 0
+0 0 0 0 100 100 100 100 100 100
+100 100 0 100 0 0 100 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 50 100
+50 50 0 0 0 0 0 100 0 0
+40 0 0 0 40 100 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' mordor_char~
+0 0 0
+#24022
+Nulumagan pDRAXX_ONLY Odulun Numenorean striking raven-haired young man Estel~
+a striking, raven-haired young man~
+A striking, raven-haired young man is here.~
+   This young man is quite tall, well into the sixth-foot and an 
+indeterminate number of inches. His youthful features are still 
+somewhat apparent, though he looks to have advanced in to 
+adulthood, while still maintaining some rather striking features. 
+His hair is raven-black, cropped mid-length and smoothed back 
+over his head, not a single bit out of place. He is of an 
+average width, though is frame is slender and tightly-muscled. 
+Piercing grey eyes are framed by thin black eyebrows and a 
+slender nose, which slopes down to thin, pale lips. Though his 
+skin takes a greyish pallor, it is almost statuesque, as if 
+carved out of marble. He is clean-shaven and there are no 
+visible scars on his appearance, but there is an unmistakable 
+aura of power about him. 
+~
+10 0 42 3 0 5d1+105 1d3+0 0 8 8 1 0 0 0 0
+5006 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+15 18 19 1 18 17 95 15
+0 0
+0 19 37 0 0 0 0 0 85 34
+0 50 0 40 0 0 19 12 0 0
+100 100 20 0 70 69 70 0 0 0
+0 0 70 0 0 0 0 0 0 0
+0 0 0 0 0 80 80 80 80 0
+80 80 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 60
+45 34 0 0 0 0 0 0 0 0
+100 100 0 0 100 56 0 0 0 0
+0 0 0 0 0 80 0 0 100 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'captain' library_egthela 'captain' house_odulun 'captain' bw_servant 'captain' black_watch 'sergeant' witchking_horde 'captain' mordor_char~
+0 0 0
+#24023
+Abrazagar xNahar_npcx tall scarred man dark hair~
+a tall, scarred man with dark hair~
+A tall, scarred man with dark hair is here.~
+   Exceedingly tall, this man has a tendency to loom over others. 
+His features are rather smooth and unremarkable, the lines of 
+fading scars being the most notable. His hair is pitch black, 
+cropped close to his head, and his eyes are a dark and stern grey 
+color. His lips are thin and have a natural tendency to look 
+disapproving even in their neutral state, and his skin is pale 
+but rather worn. His limbs are long and thick, his hands 
+proportionately large, though he seems to be missing the smallest 
+finger of his left hand. 
+~
+10 0 25 3 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+0 0
+0 46 36 50 44 49 37 33 41 49
+34 36 44 45 45 49 36 30 37 46
+42 33 31 0 65 36 0 0 23 73
+0 0 63 0 0 22 15 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 38 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 73
+0 20 0 0 0 0 0 0 0 0
+30 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' black_watch 'member' mordor_char~
+0 0 0
+#24024
+Fsahd Fajara dark eyed dusky young man REFLECTED_MOON_UNIT_COMMANDER~
+a dark-eyed dusky young man~
+A dark-eyed young man with dusky skin is standing here jauntily.~
+   This lofty, dusky-skinned young man is graced with 
+aristocratic features. He has dark almond-shaped eyes, an 
+aquiline nose, and thin lips. Both tall and of an athletic 
+build, he appears to be very confident in his movements. He has 
+long, muscular arms and is supported by lengthy legs with rounded 
+calves. His strong hands bear long, dextrous fingers. 
+~
+10 0 37 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 6 3 0 0
+18 10 16 1 17 16 80 17
+0 0
+0 50 70 75 55 50 65 50 55 75
+75 0 65 0 0 50 65 50 70 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'captain' mordor_slaver 'member' mordor_char~
+0 0 0
+#24025
+Ahzim Kaddifa olive skinned matured man forked beard REFLECTED_MOON_UNIT_COMMANDER~
+an olive-skinned matured man with a forked beard~
+An olive-skinned matured man with a forked beard is here, standing somberly.~
+   Of an average height, and slim build, this matured man's dark 
+hair is starting to be flecked with grey. He has olive-hued skin 
+that has been nicked in places by scars. Dark eyes are set 
+evenly on each side of his hooked nose, the facial hair around 
+his thin lips kept trimmed, and his beard worn forked from his 
+chin. He has sinewy arms, with calloused hands and rangy legs. 
+~
+10 0 32 6 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 6 3 0 0
+16 17 17 1 16 16 80 15
+0 0
+0 50 65 65 55 50 65 50 55 65
+60 0 65 0 0 50 65 50 65 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 50 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'captain' mordor_slaver 'member' mordor_char~
+0 0 0
+#24026
+Jarusha HARAD_SMUGGLING dusky cocoa-skinned woman~
+a dusky, cocoa-skinned woman~
+A dusky, cocoa-skinned woman lingers here.~
+   Cocoa-colored skin stretches over the body of this dusky 
+woman. Her features are thin and worn, betraying years of 
+tiresome labor. Not unattractive by any means, her form is 
+muscular, showing some mild curves of femininity. Her skin is 
+weathered and some scars are visible over her features. Her eyes 
+are a dark brown shade, always observant and watchful. She seems 
+light on her feet and capable of sudden movement at any time. 
+~
+1050 0 25 6 0 5d1+87 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 15 13 1 17 11 95 15
+1 0
+0 24067 0.300000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 43 44 30 40 49 34 32 48 48
+44 50 32 42 39 46 37 49 40 33
+39 46 0 0 57 54 0 0 0 36
+0 0 56 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 55 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'corporal' mordor_slavers~
+0 0 0
+#24067
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24027
+Rugtuk hairy broad faced orc BLOODWATCH_UNIT_COMMANDER~
+a hairy, broad-faced short orc~
+A hairy, broad-faced orc is standing here, quite short and wide in stature.~
+   Coarse black hair grows wild all over this short orc, his 
+broad face a bushy mass of matted beard. Feral yellow eyes glint 
+out from slanted sockets, on either side of a wiry haired, mashed 
+nose. Longish arms hand at his sides, corded with thick muscles, 
+and he has a pair of bowed legs. 
+~
+10 8388612 25 121 0 5d1+100 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 10 8 1 18 16 95 16
+0 0
+0 40 0 50 0 0 50 0 0 50
+0 0 0 0 0 0 0 0 0 0
+40 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 90 90 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' vadok_kraun 'member' mordor_char~
+0 0 0
+#24028
+Hrok gangly green skinned male orc BLOODWATCH_UNIT_COMMANDER~
+a gangly, green-skinned male orc~
+A gangly, green-skinned male orc is lurking here.~
+   Gangly and long-limbed, this male orc's lean frame is wrapped 
+tight with sickly green skin. His narrow face is predominated by 
+a sharp, beaked nose, with a slanted yellow eyeball set on either 
+side, and fang-lapped lips underneath. His hair has been crudely 
+shaved into a mohawk, and his scalp is riddled with scars. 
+~
+10 8388612 32 120 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 15 12 1 20 14 95 20
+0 0
+0 40 0 0 0 0 0 0 0 65
+0 0 0 65 0 0 65 0 0 0
+50 50 0 0 70 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 65 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 90 90 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' vadok_kraun 'member' mordor_char~
+0 0 0
+#24029
+Scrag rawboned male orc shaved head BLOODWATCH_UNIT_COMMANDER~
+a rawboned male orc with a shaved head~
+A rawboned male orc, his head crudely shaved to the scalp, prowls about here.~
+   Moist and flaccid green skin hangs from the bones of this 
+skinny male orc, giving him a rawboned and emaciated appearance. 
+His scalp has been roughly shaved down to the scalp, mostly 
+devoid of hair save for the odd tuft, and showing a variety of 
+nicks and scars. Long bony arms hang at his sides when at ease, 
+ending in bony claw-fingered hands. 
+~
+10 8388612 32 120 0 5d1+90 1d2+0 0 7 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 15 12 1 20 14 95 20
+0 0
+0 16 0 0 0 0 0 0 0 65
+0 0 0 65 0 0 65 0 0 0
+50 50 0 0 70 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 90 90 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' vadok_kraun 'member' mordor_char~
+0 0 0
+#24030
+Puskill fleshy gravel-skinned uruk-hai BLOODWATCH_UNIT_COMMANDER~
+a fleshy, gravel-skinned uruk-hai~
+A fleshy, gravel-skinned uruk-hai is looming here.~
+   Tall and fleshed out with thick muscle, this uruk-hai is a 
+superiour example of his race with corded sinew and tough skin 
+wrapping his bones and muscle. A thick mane of raven-black hair, 
+tied off with grimy black leather cording, hangs down his broad 
+back. His beady black eyes stare forward in a hard scrutiny of 
+his surroundings and its nose is squashed flat, a gruesome scar 
+running across it. 
+~
+10 4 39 29 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 78 5 0 0
+20 14 13 1 16 18 94 13
+0 0
+0 66 0 65 76 0 0 0 62 0
+0 0 79 68 0 0 0 0 61 51
+74 59 0 0 0 0 0 0 40 0
+0 0 50 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 54 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'captain' vadok_kraun 'member' mordor_char~
+0 0 0
+#24031
+Ragk tall scar ridden uruk hai bound hard muscle BLOODWATCH UNIT_COMMANDER~
+a scar-ridden uruk-hai bound with hard muscle~
+A tall, scar-ridden uruk-hai is standing here, his frame bound with hard muscle.~
+   Robust and bound with hard-packed muscle, this uruk-hai has 
+clearly seen his share of battles, his tough skin rippled with 
+scarring of all sorts. His scalp has been crudely shaved, nicked 
+with torn tissue, and devoid of hair. A brutal visage of mashed 
+features and beady black eyes make up his facial features, and 
+his hulking frame gives him a looming presence. 
+~
+10 4 39 29 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 78 5 0 0
+20 14 13 1 16 18 94 13
+0 0
+0 66 0 65 76 0 0 0 62 0
+0 0 79 68 0 0 0 0 61 51
+74 59 0 0 0 0 0 0 40 0
+0 0 50 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 54 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'captain' vadok_kraun 'member' mordor_char~
+0 0 0
+#24033
+Bazog leathery-skinned one-eyed uruk hai BAZOG_BOYS_LEADER~
+a leathery-skinned uruk-hai with one eye~
+A leathery-skinned uruk-hai with one eye is looming here.~
+   Thick leathery grey skin wraps the muscular frame of this 
+uruk-hai, nicked and scarred in places from the wounds of former 
+battles. A top-knot of raven black hair adorns the crown of his 
+head. His facial features are a brutal array of mashed nose, 
+cheeks and lips. He stands tall, frame hulking and capable of 
+athletic feats. 
+~
+10 4 39 29 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 78 5 0 0
+20 14 13 1 16 18 94 13
+0 0
+0 66 0 65 76 0 0 0 62 0
+0 0 79 68 0 0 0 0 61 51
+74 59 0 0 0 0 0 0 40 0
+0 0 50 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 54 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'captain' uruk-hai 'member' mordor_char~
+0 0 0
+#24034
+Blacksnout hulking shaggy black furred warg BAZOG_BOYS_UNIT_COMMANDER~
+a hulking, shaggy black-furred warg~
+A hulking, shaggy black-furred warg prowls about here.~
+   A striking example of its kind, this warg has dark black fur 
+with some white streaks running through it. It stands nearly as 
+tall as some men, larger than most of its kind, and its movements 
+are controlled by strong muscle. It has dark and intelligent 
+eyes situated above a mouth packed with razor-sharp teeth, and 
+its general appearance and demeanor are quite vicious.
+~
+136314891 4 32 89 4 5d1+125 1d8+0 0 8 8 1 0 0 0 0
+90030 0 0 90029 0 0 24 0 0 0 1 33554432 0 0 69468164 0
+20 16 16 1 16 25 94 18
+0 0
+0 65 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+15 15 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 100 100 0 50
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+100 100 0 100 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' uruk-hai 'private' moria_pack 'leader' south_warg~
+0 0 0
+#24035
+Scrot narrow eyed tough skinned uruk hai BAZOG_BOYS_UNIT_COMMANDER~
+a narrow-eyed uruk-hai with tough skin~
+A narrow-eyed uruk-hai with tough skin is standing here.~
+   This uruk-hai is not particular tall or burly, but stands for 
+one of his kind with an unsettling, vicious confidence. His eyes 
+are a dark yellow and slit narrowly; cat's eyes. He is as dark 
+as pitch, and though a few paler scars break the uniformity of 
+his skin's black colouring, they are surprisingly few and far 
+between. He is slightly bow-legged, with wide shoulders, and 
+thick hands. His hair is an off-gray, almost blue-toned, and 
+lies in short bristles on his skull. 
+~
+10 4 35 29 0 5d1+105 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 12 12 1 18 17 94 15
+0 0
+0 50 0 67 60 0 0 0 0 0
+70 0 60 50 0 0 0 0 34 0
+65 58 0 0 0 0 0 0 50 0
+0 0 50 0 0 0 45 45 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 56 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 45 0 0 0 0 0 0 0 0
+0 0 0 0 100 45 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' uruk-hai 'member' mordor_char~
+0 0 0
+#24036
+Grudder a one armed uruk hai tangled black hair BAZOG_BOYS_UNIT_COMMANDER~
+a one-armed uruk-hai with tangled black hair~
+A one-armed uruk-hai with tangled black hair stands here menacingly.~
+   This uruk-hai is not particular tall or burly, but stands for 
+one of his kind with an unsettling, vicious confidence. His eyes 
+are a dark yellow and slit narrowly; cat's eyes. He is as dark 
+as pitch, and though a few paler scars break the uniformity of 
+his skin's black colouring, they are surprisingly few and far 
+between. He is slightly bow-legged, with wide shoulders, and 
+thick hands. His hair is an off-gray, almost blue-toned, and 
+lies in short bristles on his skull. He has only his right arm
+as the other seems to have been hacked off at some point.
+~
+10 4 35 29 0 5d1+105 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 12 14 1 12 17 94 12
+0 0
+0 50 0 67 60 0 0 0 0 0
+70 0 60 50 0 0 0 0 34 0
+65 58 0 0 0 0 0 0 50 0
+0 0 50 0 0 0 45 45 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 56 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 45 0 0 0 0 0 0 0 0
+0 0 0 0 100 45 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' uruk-hai 'member' mordor_char~
+0 0 0
+#24037
+Agor Egthela_Miller NUMENOREAN sallow skinned man greasy black hair~
+a sallow-skinned man with greasy black hair~
+A sallow-skinned man with greasy black hair mutters something quietly here.~
+   Appearing jaundiced, with sallow, yellow-tinted skin, this 
+matured man has seen better days surely, his facial appearance 
+drawn and haggard and his body meager and bent. His long arms 
+and legs are lanky, loose muscle held in place along thin bones 
+by soft, yellowish skin. His breath is stale and ridden with the 
+stench of alcohol, and his teeth are browned and in disrepair. 
+~
+10 0 50 3 0 5d1+96 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 12 16 1 14 14 95 12
+1 1
+24203 24071 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+97500 97291 97568 98055 97445 97563 97079 97211 97724 2222 98987 -1
+24 0 0 0 0 0 0 0 0 0
+0 100 20 50 0 0 0 0 100 0
+0 0 0 0 0 0 0 0 0 0
+100 100 30 0 0 0 0 0 0 71
+0 0 60 0 40 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 51 0 0
+0 0 0 0 0 0 40 0 0 0
+0 100 0 0 0 0 100 0 0 50
+100 50 0 0 0 0 0 0 0 0
+0 0 0 0 20 100 0 0 0 0
+0 0 0 0 0 40 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' black_watch 'member' mordor_char~
+0 0 0
+#24038
+Ulo Egthela_Lampwright NUMENOREAN lank scraggly haired man narrow face~
+a lank, scraggly-haired man with a narrow face~
+A lank man, his hair scraggly and his face narrow, makes his rounds here, carrying a dimly lit lantern.~
+   Lank, and thin in build, this pale-skinned man's hair falls 
+down to his shoulders in scraggly, tangled locks. His narrow 
+face is likewise set with sharp, pinched features; a hooked nose, 
+thin pale lips, and beady dark-brown eyes. His head is craned 
+forward on his neck, and his posture is quite bad. Long, skinny 
+arms sway at his sides when he moves upon twiggy, knob-kneed 
+legs. 
+~
+10 0 8 0 0 5d1+96 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 16 12 1 15 14 95 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 75 0 0 0 0 0 0
+0 0 0 16 0 0 40 0 0 0
+0 0 0 75 0 0 0 0 0 50
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#24039
+Fil Egthela_Plantsman NUMENOREAN wrinkly older man furrowed brow~
+a wrinkly, older man with a furrowed brow~
+A wrinkly, older man, his brow furrowed, is standing here, eyes always seeming to rest on the nearest plant life.~
+   Standing slightly bowed, older age is apparent when appraising 
+this man. His facial skin is wrinkled, and dotted with small 
+age-marks. Creases are constant upon his brow. Soft brown eyes 
+sit upon either side of a small nose, and his face is devoid of 
+hair. His hands are gnarled, and dirt clings under his finger 
+tips. 
+~
+10 0 8 0 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 18 18 1 15 12 95 12
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+75 0 0 0 0 0 0 0 0 0
+0 0 75 75 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 75 0
+0 0 0 75 0 0 75 0 0 50
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 75 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#24040
+Melan Egthela_Vault_Keeper NUMENOREAN panarthar svelte grey eyed man pale skin~
+a svelte, grey-eyed man with pale skin~
+A svelte, grey-eyed man, his skin pale, is standing here observantly.~
+   Sharp, grey eyes predominate the visage of this stoic, svelte 
+man. His face is graced with pleasant enough features, his nose 
+aquiline, lips full and hale, and his squared chin shaved clean. 
+He has lean, slender limbs, his arms sinuous and his legs rangy 
+with rounded calves. Overall, he has a confident appearance, and 
+holds himself with a proud bearing. 
+~
+1034 0 25 3 0 5d1+99 1d2+0 0 8 8 1 0 328 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 18 16 1 15 15 90 12
+1 1
+24529 24072 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 81920
+1341 98400 1252 97141 1334 97162 -1
+17 0 0 0 0 0 0 0 0 0
+0 16 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 40
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 75 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 60 0 0 0 0 0
+0 0 0 0 0 0 0 50 0 75
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 75 0 0 0 0
+0 0 0 0 0 75 0 0 0 0
+0 0 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' black_watch 'member' mordor_char~
+0 0 0
+#24032
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24041
+Zakhirz trainer BY_DRAXX NO_LOAD bald pale-skinned man~
+a bald, pale-skinned man~
+A bald, pale-skinned man is here, training the Black Watch.~
+   The first most noticeable feature about this man would be his 
+shiny bald head. When not kept under a helmet, it has a slight 
+gleam that comes off of it in the right light. Thick, bushy 
+black eyebrows framing his dark brown eyes, themselves nearly 
+black. His nose is thin and hooked, the tip turning down toward 
+his thin, pale lips. A stern, pale-skinned face shows discipline 
+and order. Thick, well-defined muscles cover his arms and 
+shoulders, his arms ending in rough, calloused fingers hands, 
+betraying years of hard labor. His legs are thick like tree 
+trunks and thickly muscled, suggesting that this man is extremely 
+sturdy on his feet. 
+~
+10 0 35 3 0 5d1+111 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 15 16 1 17 19 95 18
+0 0
+0 66 50 70 50 50 70 0 50 50
+50 50 0 0 0 0 0 0 0 0
+65 50 0 0 53 48 0 0 0 0
+0 0 0 0 0 0 53 40 38 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+75 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 75 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' egthela_slaves 'private' black_watch 'member' mordor_char~
+0 0 0
+#24042
+Bakitabdahe Bakita Kita Fatin sable-tressed, tawny-hued young woman MORDOR_SLAVE_NPC xNauriel~
+a sable-tressed, tawny-hued young woman~
+A sable-tressed young woman with tawny-hued skin is here, her eyes a brilliant hazel.~
+   Well-kept thick waves of rich, sable-hued tresses tumble from 
+this young woman's crown, framing her youthful, heart-shaped face 
+and draping over her slender shoulders to settle about her narrow 
+waist. A wide pair of almond-shaped eyes are set on either side 
+of a small, pert nose, which rests above a full set of 
+dark-coloured lips. Her chin is delicate, leading to a slender 
+neck and lithe arms that end in delicate, manicured hands. Her 
+lower body is marked by wide feminine curves and well-muscled 
+legs, and her supple, tawny skin appears healthy and 
+well-maintained. 
+~
+10 0 35 6 0 5d1+96 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 18 16 1 16 14 80 16
+0 0
+0 63 45 0 0 70 0 0 56 0
+0 53 0 0 0 0 0 0 0 70
+55 45 0 0 60 60 0 0 50 100
+0 0 61 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 100
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 50 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' mordor_char~
+0 0 0
+#24043
+Nulubawiba Bawiba steel steely-eyed eyed woman burst snowy halo hair xxTaurgalasNPC~
+a steely-eyed woman with a halo of snowy hair~
+A steely-eyed woman with a halo of snowy hair watches here.~
+   This woman has the graceful and elegant neck of a far younger 
+woman; her skin porcelain pale and smooth. Her sharp grey eyes, 
+however, are cutting as steel and timelessly old. Her hair is 
+fine and thin and crackles forth in a snow-white burst from any 
+attempt at binding, giving the illusion of thickness and 
+halo-like wisping. Her lips are thin, making her mouth a mere 
+slash beneath her pointed nose. The rest of her form is thin and 
+insubstantial, a slight hunch to her narrow shoulders from 
+leaning forward over tomes too often over time. Long and spindly 
+fingers are perpetually stained with inks of various colors, 
+speckles leading up across her forearms. 
+~
+134217738 0 30 3 0 5d1+96 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 62 1 0 0
+12 18 20 1 18 14 95 14
+0 0
+0 16 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 45 0 0 60 60 0 0 0 0
+0 60 70 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 70
+70 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 70 0 0 70 0
+0 0 0 30 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#24888
+Belaria Rethben swarthy skinned ochre haired woman pEldritch~
+a swarthy-skinned, ochre-haired woman~
+A swarthy-skinned, ochre-haired woman is standing here.~
+   Standing a little taller than most, this salty woman holds a 
+slender figure, fit and trim. Dark ochre-hair frames her 
+features, its length reaching just past her shoulders, and at the 
+left side a single braid can be seen. Her face has a sharp, 
+chiseled appearance to it with a slightly upturned nose that 
+tapers off to a point just above thin lips. Her heavy-lidded 
+eyes, framed by long, sooty lashes, are a pale mahogany holding 
+glinting shards of amber. She has willowy hands, slightly 
+calloused with long elongated fingers. A dark-inked tattoo on 
+her right forearm shows a scaled sea serpent snatched up in the 
+talons of a hawk. 
+~
+10 0 32 4 0 5d1+90 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 70 2 0 0
+16 14 16 1 16 12 80 15
+0 0
+0 50 0 65 0 0 0 0 55 0
+0 0 0 55 0 0 0 0 50 50
+50 60 0 0 0 0 60 50 0 0
+0 0 0 0 50 50 0 0 0 0
+60 0 0 0 0 0 0 0 0 0
+0 0 60 50 0 0 0 0 40 0
+0 0 0 0 0 0 0 0 0 0
+40 0 0 0 0 0 0 0 0 100
+100 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 60 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'captain' corsairs 'member' mordor_char~
+0 0 0
+#24044
+Hal small fluffy kitten cat PofTzevi~
+a small, fluffy kitten~
+A small, fluffy kitten is here, its tail puffed out.~
+   This small white and grey animal is barely big enough to fit 
+inside of a helm. Two blue eyes peer at the world over a 
+patchwork nose of white and grey with a pink tip. The head and 
+tail of this animal appear disproportionately large and might 
+indicate more growth to come. Furry feet cap its short legs. 
+~
+10 4 12 38 0 5d1+20 1d1+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+2 6 4 1 10 8 81 18
+0 0
+0 25 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 40 40 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#24090
+wagon imposing wooden siege ITHILIEN_WAR MORDOR~
+a imposing wooden siege wagon~
+A imposing wooden siege wagon drawn by two Horned Beasts is at rest here.~
+   This imposing wagon is a monster in size and in design, the 
+height easily large enough to contain the tallest of trolls. The 
+wagon is a misshapen box built out of fire-hardened logs and 
+planks lashed together with iron bars, enclosing anything within 
+entirely. Along its sides are over a dozen oblong and misshapen 
+square holes which have been cut out to allow those within to 
+release arrows or crossbow-bolts upon those without. The front 
+of this wagon consists of a long, iron thill, allowing the two 
+Horned Beasts at the fore to move this massive wagon. Sitting at 
+the centre of the wagon's front face is a large, protected 
+driver's bench that allows several sizeable beings a place to sit 
+between wooden walls positioned about it. The rear of the wagon 
+consists of a large, wooden gate which lowers and raises, much 
+like a draw-bridge, allowing large numbers to enter or exit with 
+haste. Supporting the wagon is a frame consisting of three iron 
+axles, separated equally between the frame, which contains six 
+massive iron-spoked wheels that house long, sharp spikes. These 
+wheels, while mostly even in size, have a slight wobble, making 
+for a bumpy ride; nonetheless, they keep the wagon around ten 
+feet above the ground. 
+~
+278538 0 0 61 12 5d1+300 1d2+0 0 7 8 0 0 0 2 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 80 77 16
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 90 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' hammers_crew 'member' mordor_char~
+0 0 0
+#24091
+horned beast~
+an enormous, horned beast covered in armor-like grey hide~
+(null)~
+(null)~
+8 4 25 82 7 5d1+150 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+25 16 16 1 16 25 81 10
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 60 80
+0 0 40 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+$~

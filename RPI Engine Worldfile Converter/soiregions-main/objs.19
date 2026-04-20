@@ -1,0 +1,610 @@
+#19681
+bushel bundle spinach leaves VEGETATION~
+a bushel of spinach leaves~
+A bushel of spinach leaves lays here in a basket.~
+   These spinach leaves have been gathered into a bushel basket, 
+and tied with a short length of twine rope. The leaves are a 
+dark hue of green, while even darker veins run up into them from 
+the stems. There are approximately 50 or 60 servings in this 
+basket. 
+~
+12 4198400 1
+2 0 0 0
+1530 0.000000
+0 5 0 0 0 0 1
+60.000000 0 0 0 0 0 0
+#19682
+spinach serving boiled VEGETATION~
+a serving of boiled spinach~
+A serving of boiled spinach has been left here.~
+This small serving of spinach is limp and flat as the leaves have been boiled until they have become soft and supple.
+~
+19 4096 1
+2 0 0 0
+100 0.000000
+0 3 0 0 0 0 1
+3.000000 0 0 0 0 0 0
+#19683
+beet plump VEGETATION~
+a plump beet~
+A plump beet lays here.~
+This bright red beet has a round, bulb-like surface with softer variations of pink scattered over its surface here and there. The bulb area leads to a small, tapering root at one end and the other extends into bright green, stalk-like leaves.
+~
+19 4198400 1
+1 0 0 0
+100 0.000000
+0 2 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#19684
+beet VEGETATION~
+a handful of beets~
+A handful of beets lay here.~
+This is a small number of reddish beets. The bulb areas are rather plump and the stalks are particular green and healthy looking.
+~
+19 4198400 1
+2 0 0 0
+100 0.000000
+0 3 0 0 0 0 1
+3.000000 0 0 0 0 0 0
+#19685
+beets bushel bag OTHER~
+a bushel bag of beets~
+A bushel bag of beets is here.~
+   This burlap bag contains a number of reddish beets. The beets 
+are particularly plump around the bulb areas and have several 
+greenish stems which extend into large, green leaves. 
+~
+19 4096 1
+2 0 0 0
+1500 0.000000
+0 4 0 0 0 0 1
+14.000000 0 0 0 0 0 0
+#19686
+beets serving VEGETATION~
+a serving of boiled beets~
+A serving of boiled beets is here.~
+This small serving of boiled beets is just enough to act as a sidedish. The beets have been boiled and cut into thin reddish slices, glossy with juice.
+~
+19 4096 1
+2 0 0 0
+100 0.000000
+0 4 0 0 0 0 1
+3.000000 0 0 0 0 0 0
+#19687
+beets serving VEGETATION~
+a serving of picked beets~
+A serving of picked beets is here.~
+This small serving of pickled beets has a somewhat zesty aromy about it. It is just enough to act as a sidedish and the beets have been cut into thin crimson strips.
+~
+19 4096 1
+2 0 0 0
+100 0.000000
+0 3 0 0 0 0 1
+3.000000 0 0 0 0 0 0
+#19688
+beets cheese smothered VEGETATION~
+a bowl of cheese-smothered beets~
+A bowl of cheese smothered beets is set here.~
+This small bowl has been filled to the brim with thick, warm slices of juicy red beet drenched in a hearty layer of melted cheese. It emits a soft aroma that only affords a hint of the flavour which the food carries.
+~
+19 4096 1
+2 0 0 0
+100 0.000000
+0 3 0 0 0 0 1
+3.000000 0 0 0 0 0 0
+#19690
+fish saffron garlic dish fragrant serving OTHER~
+a serving of saffron and garlic fish~
+a fragrant dish of saffron and garlic fish has been set here~
+This fish fillet has been carefully cooked to perfection, covered in a fragrant saffron and garlic sauce. The fish is slightly crisped on the outside yet flavourful and moist within. The sauce is tinged yellow with a subtle saffron scent that does not overpower the fish, but enhances it's natural flavour.
+~
+19 4096 1
+6 0 0 0
+5 0.000000
+0 3 0 0 0 0 1
+10.000000 0 0 0 0 0 0
+#19691
+pudding rice almond rice serving OTHER~
+a serving of almond and rice pudding~
+A bowl of sweet rice with almond pudding is sitting here.~
+The rice in this dish is sitting in a thickened almond milk. There are small pieces of crushed almonds amid the rice grains. The pudding has a sweet scent, not unlike roses. The texture is smooth smooth, almost silky, but it is accented by the tender nature of the rice and almonds pieces.
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 0 0 0 1
+15.000000 0 0 0 0 0 0
+#19692
+marinade juniper bowl OTHER~
+a bowl of  juniper marinade~
+A wide bowl of juniper marinade is sitting here.~
+Resting in a wide bowl, this strong smelling liquid assaults your senses as you near it. The liquid within it is a deep red, with puddles of oil floating on the top, with bits of red and white floating around in it.
+~
+19 4096 1
+3 0 0 0
+100 0.000000
+0 8 0 0 0 0 1
+10.000000 0 0 0 0 0 0
+#19693
+porkchops bowl OTHER~
+a bowl of marinating pork chops~
+A bowl with raw pork chops drenched with juniper marinade sits here.~
+The raw pork chops within this bowl have been tenderized and infused with the flavour of the marinade it sits in. The meat needs to be cooked, and the marinade, now done it's job, can be discarded.
+~
+19 4096 1
+5 0 0 0
+200 0.000000
+0 3 0 0 0 0 1
+20.000000 1 19694 0 0 0 0
+#19694
+porkchops marinated bowl OTHER~
+some marinated pork chops in a wide bowl~
+A bowl of thoroughly marinated pork chops sits here ready to be cooked.~
+The raw pork chops within this bowl have been tenderized and infused with the flavour of the marinade it sits in. The meat needs to be cooked, and the marinade, now done it's job, can be discarded.
+~
+12 4096 1
+5 0 0 0
+300 0.000000
+0 3 0 0 0 0 1
+20.000000 0 0 0 0 0 0
+#19695
+porkchops marinaded pork chop  sauce juniper OTHER~
+some marinated pork chops with juniper sauce~
+Some marinated pork chops with juniper sauce is set out here.~
+A beautifully tender pork chop, covered in a delightful juniper sauce. The pork has been flavoured with garlic and juniper, giving a unique taste. The sauce is slightly vinegary, but still has the tart sweetness of the juniper. The flavours mingle together to create a wonderful dichotomy of sweet and sour. The meat has been tenderized to perfection and falls apart in your mouth.
+~
+12 4108 1
+0 0 0 0
+5 0.000000
+0 4 0 0 0 0 1
+30.000000 0 0 0 0 0 0
+#19698
+key~
+a silvery-handled key~
+A silvery key with a long handle~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19697
+key spiralling silver OTHER~
+a silver key with a spiralling handle~
+A silver key with a spiralling handle lays here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19699
+cape sea green embroidered TEXTILE~
+a finely-woven, sea green cape lined with fur~
+A finely-woven, sea green cape lined with fur lays here.~
+   This cape is woven from the finest of wool and woven to be as 
+soft as silk. The interior of the cape and hood are lined 
+thickly with very soft rabbit fur, to keep the wearer warm in 
+cold weather. Its entirely sea green in colour and covers the 
+shoulders of the wearer neatly, pinned about the throat with a 
+delicate silver clasp detailed as a running horse. 
+~
+11 34082816 1025
+0 0 0 0
+100 0.000000
+0 
+sea-green-hooded~
+0 0 0 0 1
+600.000000 0 0 0 3 0 0
+#19700
+fragment shield archaic  OTHER.~
+an archaic shield fragment~
+An archaic shield fragment is displayed here.~
+   This small fragment looks like it was was once the bottom edge 
+of a shield. The metal has been dulled to a dim silver, having 
+lost most of its shine with the touch of time. Crawling over the 
+surface like cobwebs are small veins of rust, most prominent 
+along the edges. Despite the damage to it, deep etchings still 
+cover it in a labyrinthial design, forming incomplete depictions. 
+The trough of the etchings have are filled with gold to emphasize 
+the patterns, which unlike the metal, shows no sign of rusting. 
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 32 0 1
+14000.000000 0 0 0 0 0 0
+#19701
+messenger attentive OTHER MEERIYA BOARD~
+an attentive messenger~
+An attentive messenger takes messages here.~
+~
+22 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19702
+object generic~
+pillar thingies~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19703
+fireplace extravagant OTHER~
+an extravagant fireplace~
+An extravagant fireplace is set into the wall.~
+~
+41 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19704
+panels mahogany engraved WOOD~
+a number of watercolour-painted screens~
+A number of screens divide the hall into chambers here.~
+   Painstakingly carved into the dark, gleaming mahogany wood of 
+these panels are the small shapes of foxes and birds. Serving as 
+borders and bridges between sections are coiling ranks of ivy 
+whose leaves curve and swerve between the animals. The carvings 
+are as smooth as the wood itself and the glossing of the surface 
+suggests it has been thoroughly polished. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19705
+panes stained glass GLASS~
+various stained glass ceiling panes~
+Various stained glass panes are fitted to the ceiling here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19706
+tome leather-bound small~
+a small, leather-bound tome~
+A small tome has been left here.~
+~
+54 12 1
+25 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19708
+painting P_MEERIYA white tree oil OTHER~
+a large oil-painting of a white tree~
+A large oil-painting of a white tree is here.~
+   The tips of dark, gnarled roots, steadily progress and expand 
+into paler tones as they crawl up to become a treetrunk. Gnarled 
+and worn, patterns swirl in shapes over the bark, creeping along 
+mossy-green patches verdant and young, while others are darker 
+and older in appearance. Dappled strokes create the mottled 
+affair, the grooved texture emphasizing the aged appearance of 
+the tree. By the time the trunk evolves into a mighty expanse of 
+branches, the colours chosen are varying degrees of white. 
+Leaves sprout from smaller extension, painted meticulously and 
+with great detail. Curling tips are soaked in golden yellow that 
+arch into veins covering the off-white surface of the leaves 
+themselves. The great white tree stands watch over a hillside 
+that hosts a field of green grass, no one blade exactly as the 
+rest in its nestle. Light tones are made even lighter due to 
+contrast of the background given by a turmoiled sky, 
+orange-crested clouds morphing into deeper greys and near blacks, 
+speaking of a time the sun is setting. The focal point of the 
+piece is unquestionably the white tree, whose pale hues serve to 
+draw the eye almost immediatly. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19710
+key fox-handled METAL~
+a fox-handled key~
+A fox-handled key lays here.~
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19711
+key flower-handled METAL~
+a flower-handled key~
+A key with a handle decorated with flowers lays here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19713
+key METAL bronze-capped~
+a large, bronze-capped key~
+A large, bronze-capped key.~
+~
+18 4108 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19712
+key~
+a key~
+a small silver key~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19720
+seashell sea spiral OTHER~
+a spiraling, jagged-edged seashell~
+a spiraling, jagged-edged seashell is displayed here.~
+   This nautilus shell is surely ancient if its faded lines and 
+hues are any indication. Very faint lines can be found on 
+virtually ever part of the shell, spiraling back towards the 
+center. The body of the shell itself also spirals, and time's 
+fingers have worn the surface smooth save for the farthest 
+outgrowth, which has a jagged edge, almost as if that part of the 
+shell had broken off or been severed. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+2000.000000 0 0 0 0 0 0
+#19721
+replica miniature dol-amroth city OTHER~
+a stately, grey-eyed young man~
+A stately, grey-eyed young man is here.~
+Excessively detailed, this carving has been fashioned from blue 
+green granite and dark oak wood that has been laminted to shine 
+even within the dimmest of light. The entire artworks is about 
+four wide and rests upon a circular stone base that rises up to 
+create a great hillside against a city. Three compact wooden 
+quarters-connected by narrow, winding streets twind up through 
+elaborate little porticulles gates and thin tunnels carved out of 
+the hill's bluish granite. Each individual quarter is raised 
+higher then the other, resulting in a tiered arrangement. 
+Throughout the small cities passages are buildings adorned with 
+elborate wood work that has been brightly painted into yellow and 
+green. Ivy vines and carvings of wildlife are placed in wooden 
+archways above small areas bearing miniature trees and benches. 
+At the zenith of the city, set into the side of the hillside, is 
+what seems to be a large gate of some kind. Nearby, jutting out 
+from the rock base, is a carefully carved stone tower that by 
+comparison, reaches well above any other structure in height. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1000.000000 0 0 0 32 0 0
+#19730
+gown UNIQUE_POFLUCIUN velvet embroidered delcately ivory blue OTHER~
+a delicately embroidered, ivory and blue velvet gown~
+A delicately embroidered, ivory and blue velvet gown lays here.~
+   This gown has been fashioned with a meticulous attention paid 
+to detail. The velvet used in the bodice and hems has been dyed 
+a dark blue and embellished with an embroidered design of 
+swirling vines and blossoms. The sleeves and skirt remain 
+unadorned and are the color of ivory. Along the modest neckline 
+lies a matching thin scarf held in place with two small bands. 
+The bodice then covers from the shoulders to the waist rising 
+higher on the hips and settling into a slight V in the front. 
+The long sleeves begin to flare just below the elbow, ending at 
+the wrist in a wide dark blue hanging cuffs. The full skirt is 
+long and simple, reaching all the way to the floor. The bottom 
+hem done to match the bodice and cuffs. 
+~
+11 4608 9
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+1800.000000 0 0 0 0 0 0
+#19731
+plate glass UNIQUE NIMRULAI cobalt etched OTHER~
+a cobalt etched glass plate~
+A cobalt etched plate is here.~
+   This plates are a transparent cobalt blue, with white etchings 
+along the rim that draw out the color. Within its center, 
+conflicting with the dark blue, is a pure white swan that has 
+been carefully painted onto the surface. The glass is thick 
+enough to serve the hottest food without scorching the finest 
+silk tablecloth. 
+~
+15 4096 1
+40000 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+23.000000 0 0 0 0 0 0
+#19732
+platter ceramic swan OTHER~
+a swan-white serving platter~
+A swan-white serving platter is here.~
+   This ceramic serving platter is long and wide with a upward 
+curve to the edges. It is meant to hold quite a bit of food. A 
+white glaze on the surface gives it the swan-white color and also 
+protects it against damage from heat or cold, or repeated 
+washings. 
+~
+15 4608 1
+40000 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19733
+bear glazed cherries roasted OTHER.~
+a serving of roasted bear with glazed cherries~
+A serving of roasted bear with glazed cherries is here.~
+   This roasted meat is thick and juicy, seared to tenderness 
+with most of its juices in tact and fragrant herbs speckling the 
+outside. Little pieces of onion are soft, adding flavor without 
+texture while the cherries that the bear is cooked in are glazed, 
+adding a small explosion of flavor when bitten into. 
+~
+19 4096 1
+8 0 0 0
+300 0.000000
+0 3 0 0 0 0 1
+18.000000 0 0 0 0 0 0
+#19300
+key lily bronze small POSIDOINE_HOUSE_KEY house_19300 METAL~
+a small bronze lily-shaped key~
+A small bronze key with a lily-shaped handle lies forgotten on the ground.~
+   This key has been fashioned from bronze. Its four teeth are 
+well made and the handle has been cast in the shape of a blooming 
+lily. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19000
+songbird metal plates pof_meeriya treasure_edhellond museum_piece METAL~
+a small metal songbird~
+A songbird made of metal plates is displayed here.~
+~
+8 4096 0
+0 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19001
+box ancient jet black music pof_meeriya treasure_edhellond museum_piece WOOD~
+an ancient, jet-black music box~
+An ancient, jet-black music box sits here.~
+   Whorls swirls around the four corners of this box, engraved 
+into the polished exterior. Those curves ripple into the 
+center-areas only to suddenly halt where they are joined in an 
+almost chaotic merging by straighter lines. Everything flows 
+together to form extravagant forms and intricate patterns that 
+hold no certain shape of one thing or another. Chips fracture 
+the vessel, littered profusely around the lower-left edge, but 
+the majority of the box remains intact. Its lid is slightly 
+larger than the rest of it and bears upon it a lone image, that 
+of a lake, impressed into its very center, perhaps the most 
+stunning in its simplicity and isolation It has been carved 
+deeply enough into the black stone of the box that it has been 
+filled with what would appear to be water and sealed with a layer 
+of almost transparent blue stone, showing its only colour 
+whenever the right angle of light falls over it; and when it 
+does, it shimmers. At the mouth of the lid is a slight indent, a 
+gap that allows a view deeper into the dark spaces hidden from 
+sight: but there lays only the muted gleam of what seems to thin 
+iron wires spaced evenly. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#19002
+brooch silver black pearl egg pof_meeriya treasure_museum METAL~
+a silver brooch inlaid with six black pearls~
+An silver brooch inlaid with six black pearls is on display here.~
+   This silver brooch of fine craft work is inset with black 
+pearls. Overall, it resembles a birds nest with six eggs. An 
+ostentatious fringe surrounds each 'egg', a fanciful wreath of 
+fronds that sits slightly higher than the base. Upon each onyx 
+pearl is a barely-noticeable chasing of a bird that changes from 
+the first to the last to tell a small story. The first image 
+shows the little bird from where it is sitting upon a branch, to 
+the moment when it is opening its wings. Upon the final pearl it 
+has taken flight. While there is nothing remarkable about the 
+bird itself, the skill that must have gone into the carefully 
+composed etchings remains unquestioned. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19004
+tail scraggly pof_meeriya treasure_museum LEATHER~
+a scraggly tail~
+A scraggly tail hangs here.~
+   Two rubies, raw and unworked have been faceted into the eye 
+sockets of this small statuette. Made of silver, it has by all 
+appearance similarities to a wolf: but stands upon legs far 
+longer than any of such kin to be found within the wilds. Its 
+made in a stance that supports a coming leap, with its head 
+tucked down low and its nose curved up into the air. Lips are 
+pulled up, little detail having gone into the mouth itself, but 
+enough to demonstrate not one, but two rows of teeth. The hair 
+upon its back stands raised in between the bulk of muscles upon a 
+great-chested form. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#19005
+statuette wolf-like creature pof_meeriya treasure_museum METAL~
+a statuette of a wolf-like creature~
+A statuette of a wolf-like creature stands here.~
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19006
+orb glass small pof_meeriya treasure_museum xxxOrbwhileoff GLASS~
+a small glass orb~
+A small glass orb is here.~
+   This small glass orb is unremarkable even under close 
+examination. It looks to be recently made with no nicks or 
+scratches over the pristine surface. Like all glass, it enhances 
+the shape or colors of the things directly behind it, when viewed 
+through it. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#19007
+orb glass small pof_meeriya treasure_museum xxxOrbwhileon GLASS~
+a small glass orb~
+A small glass orb is here.~
+   Runes of Sindarin nature glow softly at opposite points upon 
+this orb. Seeming to be lit from within, there is no visible 
+point of origin for the light that reflects clearly over the 
+pristine surface. Small pinpoints of white-blue form fractal 
+patterns whenever the angle of view over the orb changes. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2 19006 0 0 0 0
+#19003
+key Xmuseumkey bronze slender METAL~
+a slender bronze key~
+A slender bronze key has been discarded here.~
+   This bronze key sports a patina of age along its slender 
+length. Its head displays a rather intricate pattern of tines 
+while its handle appears to mimic the look of a small open book. 
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 20 4 0 1
+0.000000 0 0 0 0 0 0
+$~

@@ -1,0 +1,2153 @@
+#18001
+man child angry beating MT_SLUM CRIME OTHER~
+a man beating a child~
+A very angry looking man is beating a small child. The child has several welts and bruise, and is crying as they try to get away.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2 18007 0 20 0 0
+#18002
+teens mugging woman MT_SLUM CRIME OTHER~
+some teens mugging an old woman~
+Several teenagers are holding an old woman at knife point, while they go through her pouch.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2 18009 0 0 0 0
+#18003
+grimy man woman assaulting MT_SLUM CRIME OTHER~
+a grimy man assaulting a woman~
+A grimy looking man is trying to tear the tunic off of a very frightened woman who is screaming for help.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2 18011 0 20 0 0
+#18004
+woman beating child MT_SLUM CRIME OTHER~
+a woman beating a child~
+A very angry looking woman is beating a small child. The child has several welts and bruise, and is crying as they try to get away.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2 18005 0 20 0 0
+#18000
+trash pile disorderly MT_SLUMS OTHER~
+a disorderly pile of trash~
+A pile of disorderly trash is strewn about the area.~
+   This pile has numerous small items that have washed down from 
+the refuse dumps on the streets above. Some items may have been 
+washed up here by high sewage levels as well. While much of this 
+pile is filth, there are a few things that may still hold some 
+use, although the malodorous stench will deter many scavangers. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18005
+timer short to_man_child street corner MT_SLUM OTHER~
+an empty street corner~
+An empty street corner is here.~
+A short timer that will morph into a man beating a child crime object.
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 4 18001 0 0 0 0
+#18006
+timer long to_man_child street corner MT_SLUM OTHER~
+an empty street corner~
+An empty street corner is here.~
+A long timer that will morph into a man beating a child crime object.
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 8 18001 0 0 0 0
+#18007
+timer short to_teen_mugg street corner MT_SLUM OTHER~
+an empty street corner~
+An empty street corner is here.~
+   A short timer that will morph into a teen mugging crime 
+object. 
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 4 18002 0 0 0 0
+#18008
+timer long to_teen_mugg street corner MT_SLUM OTHER~
+an empty street corner~
+An empty street corner is here.~
+   A long timer that will morph into a teen mugging crime object. 
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 8 18002 0 0 0 0
+#18009
+timer short to_man_assault street corner MT_SLUM OTHER~
+an empty street corner~
+An empty street corner is here.~
+   A short timer that will morph into a grimy man assaulting 
+woman crime object. 
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 4 18003 0 0 0 0
+#18010
+timer long to_man_assault street corner MT_SLUM OTHER~
+an empty street corner~
+An empty street corner is here.~
+   A long timer that will morph into a grimy man assaulting woman 
+crime object. 
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 8 18003 0 0 0 0
+#18011
+timer short to_woman_child street corner MT_SLUM OTHER~
+an empty street corner~
+An empty street corner is here.~
+   A short timer that will morph into a woman beating child crime 
+object. 
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 4 18004 0 0 0 0
+#18012
+timer long to_woman_child street corner MT_SLUM OTHER~
+an empty street corner~
+An empty street corner is here.~
+   A long timer that will morph into a woman beating child crime 
+object. 
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 8 18004 0 0 0 0
+#18013
+MT_PALM MT_HUB MT_SEWER key thick rusty iron METAL~
+a thick, rusty iron key~
+A thick, rusty iron key has been discarded here.~
+~
+18 4096 1
+0 0 0 0
+80 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#18014
+MT_SEWERS MT_UNDERGROUND dark icy pool water reservoir LIQUID~
+a dark, icy pool~
+A dark, icy pool fills the bottom of the reservoir.~
+~
+17 4096 0
+50 50 4 0
+200 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18015
+worn pair linen pants TEXTILE $color~
+a worn pair of $color linen pants~
+A worn pair of $color pants lies here in a heap.~
+   This pair of simply made pants is sewn from plain linen and 
+dyed $color. They are fastened at the waist by a series of 
+unadorned wooden buttons which have seen better days, as indeed 
+have the knees and hems of the garment. Though they have clearly 
+born some wear, they seem sturdy enough to last a few more years. 
+~
+11 33558528 33
+0 0 0 0
+40 0.000000
+0 0 0 0 2048 0 1
+35.000000 0 0 0 2 0 0
+#18016
+poor worn pair $color woolen pants TEXTILE~
+a worn pair of $color woolen pants~
+A worn pair of $color woolen pants lies in a heap here.~
+   These blue breeches are made of plain, rough wool, and are a 
+little scratchy. Full-cut for freedom of movement, they tie at 
+the waist and flop a little at the ankles if not tucked in. 
+Although they have clearly seen more than one owner, these pants 
+appear sturdy enough to last a few more years. 
+~
+11 33558528 33
+0 0 0 0
+75 0.000000
+0 0 0 0 2048 0 1
+57.000000 0 0 0 3 0 0
+#18017
+poor blouse $color linen low-cut cut threadbare TEXTILE~
+a low-cut blouse of threadbare $color linen~
+A low-cut blouse of threadbare black linen has been discarded here.~
+   Made from $color linen, this blouse has a low-cut sweetheart 
+neckline and three-quarters-lengths sleeves that end in ruffles. 
+Thought it might once have been a fine garment, the top is 
+threadbare and has clearly seen its share of owners. 
+~
+11 33558528 9
+0 0 0 0
+40 0.000000
+0 0 0 0 2048 0 1
+40.000000 0 0 0 2 0 0
+#18018
+poor worn blanket $color woolen TEXTILE~
+a worn $color woolen blanket~
+A worn $color woolen blanket has been draped here.~
+It is a large, rectangular blanket, suitable for a medium-sized bed. Made of $color purple wool, it is blanket-stitched on the sides and edged in matching linen across its top edge. Though it still serves its function, its numerous owners are remembered in the frayed edges and the runs in the linen.
+~
+11 33558528 1025
+0 0 0 0
+300 0.000000
+0 0 0 0 2048 0 1
+90.000000 0 0 0 3 0 0
+#18019
+dirty beggar alms MT_SLUMS CRAFT_OBJ OTHER~
+a dirty beggar soliciting alms~
+A dirty beggar is here, soliciting alms.~
+   This beggar's skin and hair is as dirty as their shabby 
+clothing. They are both meek and persistent, smelling sympathy 
+on even the most stony-faced passer-by. Though it is clear from 
+their gaunt features that they get too little to eat, there is 
+still an air of performance to their begging. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18020
+bundle small goods bag bag_one MT_SMUGGLING OTHER~
+a small bundle of goods~
+A small bundle of goods has been abandoned here.~
+   This small bag of goods could be anything, but is packed 
+carefully, so the exact contents are unknown. The bag is closed 
+with a rope that is tied in a very intricate manner. You can 
+open it, but you would never be able to re-tie the knot properly. 
+~
+8 131072 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+100.000000 0 0 0 0 0 0
+#18021
+bundle small goods bag bag_two MT_SMUGGLING OTHER~
+a small bundle of goods~
+A small bundle of goods has been abandoned here.~
+   This small bag of goods could be anything, but is packed 
+carefully, so the exact contents are unknown. The bag is closed 
+with a rope that is tied in a very intricate manner. You can 
+open it, but you would never be able to re-tie the knot properly. 
+~
+8 131072 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+100.000000 0 0 0 0 0 0
+#18022
+bundle small goods bag bag_three MT_SMUGGLING OTHER~
+a small bundle of goods~
+A small bundle of goods has been abandoned here.~
+   This small bag of goods could be anything, but is packed 
+carefully, so the exact contents are unknown. The bag is closed 
+with a rope that is tied in a very intricate manner. You can 
+open it, but you would never be able to re-tie the knot properly. 
+~
+8 131072 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+100.000000 0 0 0 0 0 0
+#18023
+bundle small goods bag bag_four MT_SMUGGLING OTHER~
+a small bundle of goods~
+A small bundle of goods has been abandoned here.~
+   This small bag of goods could be anything, but is packed 
+carefully, so the exact contents are unknown. The bag is closed 
+with a rope that is tied in a very intricate manner. You can 
+open it, but you would never be able to re-tie the knot properly. 
+~
+8 131072 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 0 0 0
+#18024
+bundle small goods bag bag_five MT_SMUGGLING OTHER~
+a small bundle of goods~
+A small bundle of goods has been abandoned here.~
+   This small bag of goods could be anything, but is packed 
+carefully, so the exact contents are unknown. The bag is closed 
+with a rope that is tied in a very intricate manner. You can 
+open it, but you would never be able to re-tie the knot properly. 
+~
+8 131072 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 0 0 0
+#18025
+bundle small goods bag bag_six MT_SMUGGLING OTHER~
+a small bundle of goods~
+A small bundle of goods has been abandoned here.~
+   This small bag of goods could be anything, but is packed 
+carefully, so the exact contents are unknown. The bag is closed 
+with a rope that is tied in a very intricate manner. You can 
+open it, but you would never be able to re-tie the knot properly. 
+~
+8 131072 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 0 0 0
+#18026
+bundle small goods bag bag_seven MT_SMUGGLING OTHER~
+a small bundle of goods~
+A small bundle of goods has been abandoned here.~
+   This small bag of goods could be anything, but is packed 
+carefully, so the exact contents are unknown. The bag is closed 
+with a rope that is tied in a very intricate manner. You can 
+open it, but you would never be able to re-tie the knot properly. 
+~
+8 131072 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+1000.000000 0 0 0 0 0 0
+#18027
+bundle small goods bag bag_eight MT_SMUGGLING OTHER~
+a small bundle of goods~
+A small bundle of goods has been abandoned here.~
+   This small bag of goods could be anything, but is packed 
+carefully, so the exact contents are unknown. The bag is closed 
+with a rope that is tied in a very intricate manner. You can 
+open it, but you would never be able to re-tie the knot properly. 
+~
+8 131072 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+1000.000000 0 0 0 0 0 0
+#18028
+bundle small goods bag bag_nine MT_SMUGGLING OTHER~
+a small bundle of goods~
+A small bundle of goods has been abandoned here.~
+   This small bag of goods could be anything, but is packed 
+carefully, so the exact contents are unknown. The bag is closed 
+with a rope that is tied in a very intricate manner. You can 
+open it, but you would never be able to re-tie the knot properly. 
+~
+8 131072 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+1000.000000 0 0 0 0 0 0
+#18029
+timer smuggling boat OTHER~
+a smuggling boat timer~
+A smuggling boat timer ticks away.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6 2357 0 0 0 0
+#18400
+river MT_SEWERS slow moving sluggish sewage CRAFT_OBJ OTHER~
+a slow-moving river of sewage~
+A sluggish river of sewage flows through here.~
+   A wide, slow-moving river of human waste spills through the 
+area, its repulsive viscosity quietly resisting the momentum of 
+the flow as it moves from a higher elevation to a lower one. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18030
+eyepatch MT_SLUMS white homespun thin band circle TEXTILE~
+a white homespun eyepatch~
+Q~
+~
+11 33558528 67108865
+0 0 0 0
+5 0.000000
+0 0 0 0 2048 0 1
+10.000000 0 0 0 7 0 0
+#18031
+mittens MT_SLUMS pair fraying yellow woolen mittens TEXTILE~
+a fraying pair of yellow woolen mittens~
+A fraying pair of yellow woolen mittens has been left here.~
+   These hand-knitted mittens are made of thick, warm yellow 
+wool, though the material has thinned over time and with use. 
+They have clearly seen at least one hard-wearing previous owner, 
+and the wool is fraying at the fingertips and along the wrist 
+seams. All in all, though, they are well-made and likely to last 
+some years into the future yet. 
+~
+11 33558528 129
+0 0 0 0
+30 0.000000
+0 0 0 5 2048 0 1
+12.000000 0 0 0 3 0 0
+#18032
+tin MT_SLUMS game jacks collection odd bits hunk stone OTHER~
+bits of tin collected with a small hunk of stone~
+A collection of odd bits of tin and a small hunk of stone are here.~
+   Small pieces of tin are collected together here, roughly the 
+same size and weight though they vary widely in shape. Nearby is 
+a fist-sized hunk of stone with irregular edges worn smooth by 
+handling. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 2048 0 1
+5.000000 0 0 0 30 0 0
+#18033
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+11 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18401
+key MT_SEWERS PALM jagged black iron frayed twine METAL~
+a jagged, black iron key~
+A jagged, black iron key threaded with frayed twine lies here.~
+   This key is little more than a narrow, palm-length hunk of 
+black iron. The tip is jagged and assymetrical, better suited to 
+prying than manipulating tumblers in a mechanical lock. A hole 
+has been punched through the other end and a length of frayed 
+twine has been tied there. 
+~
+18 4096 1
+0 0 0 0
+30 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#18034
+bag donated rope burlap MT_SLUM TEXTILE~
+a rope-strapped burlap bag filled with donated food~
+A rope-strapped burlap bag filled with donated food lies here.~
+~
+12 4096 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 256 0 1
+0.000000 0 0 0 1 0 0
+#18035
+crate donation simple rough MT_SLUM WOOD~
+a simple, rough wooden crate filled with donated goods~
+A simple, rough wooden crate filled with donated goods sits here.~
+~
+12 0 1
+0 0 0 0
+30000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#18036
+wall cleaned fresh MT_SLUM OTHER~
+a freshly cleaned wall~
+There is a freshly cleaned wall here.~
+   This section of wall may have been painted in the past, but it 
+has been scrubbed clean. It may be old stone, but it looks well 
+tended now. 
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2160 11718 0 0 0 0
+#18037
+crowd commoners slummer MT_SLUM OTHER~
+a crowd of commoners and slum dwellers~
+A crowd of commoners and slum dwellers are gathered here.~
+   A large group of slum dwellers, men and women, adults and 
+children, have gathered in a circular crowd here, happily 
+chatting as they pass the time of day. The children are laughing 
+as they play, and the adults seem satisfied and happy. 
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 8 86 0 0 0 0
+#18038
+gossip timer MT_SLUMS OTHER~
+a gossip timmer~
+A gossip timer is ticking away here.~
+This decays into a gossip monger who sells information for a price.
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1 18039 0 0 0 0
+#18039
+object generic~
+#5a cloaked figure#0~
+#5A cloaked figure#0 leans against the wall.~
+A lone figure leans against the wall, their identity hidden under a cloak.
+
+
+#6OOC: You can try "seek gossip" if you have the coin for it. Gossip will cost between 5 and 50 coppers. The Lower class gets gossip cheaper than the upper class.#0
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18040
+key bronze long four teeth METAL~
+a long bronze key with four teeth~
+A long bronze key with four teeth lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#18041
+alley alleway rummaged recent OTHER~
+a recently rummaged alleyway~
+This alleyway looks to be recently rummaged through.~
+   All manner of items line this alleyway, all bearing signs of 
+having recently been rummaged through. No items of even marginal 
+value remain. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1 18042 0 0 0 0
+#18042
+alley garbage fills packed OTHER~
+an alley packed with garbage~
+Garbage fills the alleyway.~
+   Boxes, crates and filth line the sides of this alleyway, 
+everything heaped atop one another in a haphazard manner. Bits 
+of old food mingle together in a fly-speckled heap, while smells 
+rich and stale alike combine to form a putrid cloud over the 
+alley. While mostly useless, an enterprising soul #Frummaging#0 
+through the mess in the #Falley#0 may indeed find something of 
+use. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18043
+boy galind UNIQUE_pDAMBETH tinu bright-eyed soft ebon curls OTHER~
+#5a bright-eyed ebon-curled little boy#0~
+#5A bright-eyed ebon-curled little boy waits here.#0~
+   Bright eyes of a dark flinty-silver shade peer curiously at 
+the world from under this toddler's head of soft ebon curls. He 
+bears the chubby cheeks, round stomach, and stout legs of a 
+well-fed and healthy young child. His small hands bear agile 
+fingers and his thin lips are often pursed in concentration. 
+Attentive and curious, he seems to soak up his very surroundings. 
+~
+15 2101248 1
+1500 0 -1 0
+2000 0.000000
+0 1 0 0 0 0 1
+0.000000 0 0 0 20 0 0
+#18044
+key silver HERENYAND_WAREHOUSE crimson-glass inlay METAL~
+a silver key with a crimson-glass inlay~
+A silver key with a crimson-glass inlay lies here.~
+This silver key is shiny and lightweight, small pieces of crushed, crimson-colored glass inlaid into the handle and glazed over with a clear coating to prevent cutting one's hand.
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18045
+key crimson-handled HERENYAND_WAREHOUSE silver METAL~
+a crimson-handled, silver key~
+A crimson-handled, silver key lies here.~
+This key has been made from shiny silver, its handle covered in a slightly-grooved ceramic coating that has been glazed a deep crimson in color.
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18046
+bed bunk $color wooden linens WOOD~
+a wooden bunk bed with $color linens~
+A wooden bunk bed with $color linens is here.~
+This bunk bed has been sturdily-crafted from plain, pine wood that has been sanded smooth and well-stained. Though of plain make, the beds are quite comfortable and covered with warm, $color linens.
+~
+15 35655680 0
+400000 0 -1 0
+20000 0.000000
+0 4 0 0 0 0 1
+350.000000 0 0 0 32 0 0
+#18047
+key silver ALGARINA_WAREHOUSE wave-marked ocean METAL~
+a silver, wave-marked key~
+A silver key with an ocean waved burned into its handle lies here.~
+   This key is made of silver, the handle wrapped in wood sanded 
+smooth and painted an emerald green in color, a miniature ocean 
+wave having been burned onto one side of the handle. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#18048
+key ocean ALGARINA_WAREHOUSE_OFFICE blue handled silver METAL~
+a silver, blue-handled key~
+A silver key with an ocean blue handle lies here.~
+   This key is small and slender, fashioned from shiny silver. 
+Its handle is slim as well and made of wood that has been painted 
+an ocean blue in color. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18049
+SINDBAROFFICE lanky neat-haired young man Leon board OTHER~
+#5a lanky, neat-haired young man~
+#5A lanky, neat-haired young man takes messages from behind a desk.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18050
+SINDBARWAREHOUSE young aid azure tunic board OTHER~
+#5a young aid in an azure tunic~
+#5A young aid in an azure tunic passes messages here.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18051
+MALREDOFFICE short woman ponytail Maia board OTHER~
+#5a short woman with a ponytail~
+#5A short woman with a ponytail takes messages behind the desk.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18052
+MALREDWAREHOUSE young aid green tunic board OTHER~
+#5a young aid in a green tunic~
+#5A young aid in a green tunic passes messages here.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18053
+HERENYANDOFFICE blond round-faced young man Sean board OTHER~
+#5a blond, round-faced young man~
+#5A blond, round-faced young man takes messages behind the desk.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18054
+HERENYANDWAREHOUSE young aid crimson tunic board OTHER~
+#5a young aid in a crimson tunic~
+#5A young aid in a crimson tunic passes messages here.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18055
+ALGARINAOFFICE slender dark-haired young woman Mirela board OTHER~
+#5a slender, dark-haired young woman~
+#5A slender, dark-haired young woman takes messages behind the desk.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18056
+ALGARINAWAREHOUSE young aid emerald green tunic board OTHER~
+#5a young aid in an emerald green tunic~
+#5A young aid in an emerald green tunic passes messages here.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18057
+certificate FELLOWSHIP_LOUNGE crisp private lounge OTHER~
+a certificate for access to the private lounge~
+A crisp certificate lies discarded here.~
+   This crisp certificate is made of pale vellum, the writing 
+upon it inked clearly. It grants a Fellowshipped Apprentice 
+access into the private lounge of the Gilded Lily. 
+~
+12 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+75.000000 0 0 0 0 0 0
+#18058
+breastplate UNIQUE_PNISTRODIN reinforced iron METAL~
+a reinforced, iron breastplate~
+A reinforced, iron breastplate lies here.~
+   Skillfully crafted from well wrought iron, this breastplate 
+has been worked to be as sturdy as possible, leaving it able to 
+ward off most blows to the chest and midsection. While basic in 
+design, this breastplate still offers superior protection to the 
+chest and upper abdomen, the thick iron used polished to a shine 
+while at the same time, strips of bronze have been used to 
+further reinforce the piece, as well as to add some contrast. A 
+pair of leather straps on the sides finish the piece, buckles on 
+each allowing the piece to be adjusted for size and fit. 
+~
+9 4096 9
+2 5 0 0
+1700 0.000000
+0 0 0 0 0 0 1
+1200.000000 0 0 0 0 0 0
+A
+10025 -20
+A
+10024 -30
+A
+10036 -20
+#18059
+key STUDENT_SANCTUARY_MASTER_BEDROOM silver tome-engraved handle METAL~
+a silver key with a tome-engraved handle~
+A silver key with a tome-engraved handle lies here.~
+   This key is quite heavy, fashioned from silver that has been 
+polished to a high sheen. Upon the handle, an open tome has been 
+engraved, the recesses darkened to bring out the detail. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18060
+coaches MT_COACH_SYSTEM some well-groomed horses OTHER~
+#5some well-groomed horses and coaches~
+#5Some well-groomed horses and coaches await passengers here.~
+   A few coaches are gathered here, well-groomed horses leading 
+them and their passengers off to their required destinations. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18061
+MT_COACH_SYSTEM sign coaches OOC OTHER~
+#6an ooc sign for coaches~
+#6An OOC sign for the coaches is here.~
+   #6This sign shows the prices for travel to and from various 
+locations. Fellowship Housing Complex: Free to all Fellows. 5 
+coppers otherwise. 
+   To ride the coaches, type the location of where you want to 
+go. For example, if you wish to go to the Fellowship Housing, 
+type 'Fellowship Housing.' Of course, this is without the 
+quotation marks. 
+   If you wish to be taken to the First Circle's Plaza of the 
+Sun, type 'Sun Plaza' from any of the coach locations to be 
+driven there. You will have to pay the appropriate fee from each 
+specified location to return to the Sun Plaza (i.e. 5 for the 
+Fellowship Housing).#0 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18062
+ring ANNONB opulent Annon Borough gold official seal METAL~
+an opulent, gold ring bearing an official seal~
+An opulent, gold ring bearing the official Annon Borough seal lies here.~
+   This ring has been masterfully crafted from fine, heavy gold 
+and polished to a fine sheen. The top of the ring has been 
+flattened out and upon its surface a deep engraving has been 
+made, depicting the image of a shield embellished with a pair of 
+crossed swords set beneath a crown of many pointed stars. A 
+solid border of raised, flat metal surrounds the engraving, 
+indicating that this ring is likely used to add an official seal 
+to documents. 
+~
+11 135168 3
+0 0 0 0
+3 0.000000
+0 0 0 0 512 0 1
+0.000000 0 0 0 0 0 0
+#18063
+sash ANNONB opulent burgundy velvet trimmed gold silk TEXTILE~
+an opulent, burgundy velvet sash trimmed with gold silk~
+An opulent, burgundy velvet sash trimmed with gold silk lies here.~
+   This luxurious burgundy-velvet sash has been masterfully 
+embroidered with the image of a shield embellished with a pair of 
+crossed swords set beneath a crown of many pointed stars, 
+official crest of the Annon Borough Council. Worn draped over 
+the wearer's shoulder; opulent gold silk has been used to trim 
+the edges of this formal velvet sash. 
+~
+11 135168 526337
+0 0 0 0
+50 0.000000
+0 0 0 0 512 0 1
+0.000000 0 0 0 0 0 0
+#18064
+cape ABWATCH burgundy crown sword crest TEXTILE~
+a burgundy cape embroidered with a crown-and-sword crest~
+A heap of burgundy has been abandoned on the floor here.~
+   Fashioned from a length or two of very simple wool, this cape 
+billows down to the wearer's knees. At the neck, a few bright 
+silver links keep the cape upon the shoulders of the wearer, and 
+on the clasp, an intricately-wrought crown of pointed stars. On 
+the back of the cape a shield embellished with a pair of crossed 
+swords set beneath a crown of many pointed stars is beautifully 
+embroidered in silver thread. 
+~
+11 135168 1025
+0 0 0 0
+100 0.000000
+0 0 0 0 512 0 1
+0.000000 0 0 0 0 0 0
+#18065
+certificate Apprenticeship GONDOR_FELLOWSHIPS Fellowship OTHER~
+a certificate of Apprenticeship into a Fellowship~
+A certificate of Apprenticeship lies here discarded.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 8388608 0 1
+300.000000 0 0 0 0 0 0
+#18066
+certificate Journeyman promotion GONDOR_FELLOWSHIPS OTHER~
+a certificate for Journeyman promotion~
+A certificate for a promotion to Journeyman lies here discarded.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 8388608 0 1
+300.000000 0 0 0 0 0 0
+#18067
+certificate Master GONDOR_FELLOWSHIP examinations OTHER~
+a certificate for Master examinations~
+A certificate for Master examinations lies here discarded.~
+   This certificate declares the holder as a Journeyman ready to 
+begin his or her Master's examinations via submissions, 
+interviews, or trials. Please announce the purchase of this 
+certificate to the appropriate Borough and Fellowship Offices. 
+Remember, three trials must be successfully passed in order to 
+become a Master. Failure to pass any one of these trials cancels 
+the promotion and the fee for purchase of this certificate will 
+not be renewed. A new certificate must then be purchased to 
+re-apply for Mastership in your Fellowship. 
+~
+12 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 8388608 0 1
+2000.000000 0 0 0 0 0 0
+#18068
+Gregiel PLUCIUN_SHOP stocky middle-aged man curly black hair board OTHER~
+#5a stocky, middle-aged man with curly black hair~
+#5A stocky, middle-aged man with curly black hair passes messages.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18069
+armband UNIQUE_HEREN_CARNATALION pair red lances embroidered white TEXTILE~
+a white armband with a pair of red lances~
+A white armband embroidered with a pair of red lances lies here.~
+   This armband is made of sturdy but finely-woven linen dyed to 
+a pure white in color. Artfully embroidered at the center of its 
+length is a pair of two, crossed red lances, the rest of the 
+fabric left bare and long enough to be tied around one's arm. 
+~
+11 4096 134217729
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+10.000000 0 0 0 0 0 0
+#18070
+skirt UNIQUE_PLUCIUN smokey grey wool skirt trimmed pure white fur TEXTILE~
+a fine, smokey grey wool skirt trimmed in pure white fur~
+A fine, smokey grey wool skirt trimmed in pure white fur lies here.~
+   This skirt is made of soft, finely woven wool, dyed smoky 
+grey. It is softly gathered from a v-shaped waistband, falling 
+in flared panels to the wearer's ankles. It closes down the 
+front with a row of bronze buttons. The bottom hem lined with a 
+soft, pure white rabbit fur. 
+~
+11 4096 33
+0 0 0 0
+140 0.000000
+0 0 0 0 8388612 0 1
+260.000000 0 0 0 0 0 0
+#18071
+vest blouse UNIQUE_PLUCIUN rabbit-fur mist grey TEXTILE~
+a rabbit-fur vest over a mist grey blouse~
+A rabbit-fur vest over a mist grey blouse lies here.~
+   The full sleeves of a mist grey linen blouse and the short 
+collar are all that are visible from under a pure-white rabbit 
+fur vest. The vest is made up of several seemlessly joined pelts 
+who's bottom edge comes just to the waist. The front closes in 
+the front with a row of bronze buttons. 
+~
+11 4096 9
+0 0 0 0
+140 0.000000
+0 0 0 0 8388612 0 1
+250.000000 0 0 0 7 0 0
+#18072
+GONDORMILITARY young aide surcoat board OTHER~
+#5a young aide in a surcoat#0~
+#5A young aide in a surcoat stands here, passing messages.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18073
+GILDEDLILY Darcy boy talkative dun-haired young boy board OTHER~
+#5a talkative, dun-haired young boy~
+#5A talkative, dun-haired young boy does some chores here.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+C
+fox_lily_staff~
+member~
+#18074
+hat UNIQUE_PLUCIUN stiff-brimmed hat long midnight blue plume TEXTILE~
+a stiff-brimmed hat with a long, midnight blue plume~
+A stiff-brimmed hat with a long, midnight-blue plume lies here.~
+   This stiff black woolen hat has a high crown, circled by a red 
+silken band. The brim of the hat extends several inches all 
+around, curving slightly upward on the sides. From the band 
+extends a rather large and sleek midnight black feather. 
+~
+11 0 1
+0 0 0 0
+30 0.000000
+0 0 0 0 0 0 1
+80.000000 0 0 0 0 0 0
+#18075
+City Configuration OTHER~
+the city configuration~
+The city configuration token is here, floating.~
+~
+8 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18076
+key MTGATES well-oiled leather-wrapped METAL~
+a well-oiled, leather-wrapped key~
+A well-oiled, leather-wrapped key lies here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18077
+key worn iron 11996_PYVITORI METAL~
+a worn, iron key~
+A worn, iron key lies here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18078
+blouse bodice UNIQUE_PLUCIUN fine long-sleeved white blouse form-fitting black velvet TEXTILE~
+a fine, long-sleeved white blouse with a form-fitting black velvet bodice~
+A fine, long-sleeved white blouse with a form-fitting black velvet bodice lies here.~
+   This sleeveless bodice, made of a luxurious black velvet, is 
+worn over a wide- sleeved finely woven white blouse. Starting at 
+the top, an adjustable strap crosses each shoulder. The neckline 
+is a modest square with the front closing with silken lacing. 
+The garment is fitted to the waist and bust. The bottom hem, 
+rounded in the back comes to a point in the front. The blouse 
+beneath is of the highest quality linen. With a keyhole neckline 
+and long flaring sleeves. 
+~
+15 4096 9
+400 0 0 0
+200 0.000000
+0 0 0 0 8388644 0 1
+2500.000000 0 0 0 0 0 0
+#18079
+gown UNIQUE_PLUCIUN_PAMELIA sweeping back-laced golden yellow TEXTILE~
+a sweeping, back-laced golden yellow gown~
+A sweeping, back-laced golden yellow gown lies here.~
+   Made of a golden yellow linen woven so finely as to feel 
+almost silky, this dramatic gown sweeps to the floor in breezy, 
+figure caressing folds. The waistline is simple, gathered 
+slightly at the hips to add a gentle flounce to the skirt. The 
+neckline is modestly high, scooping shallowly across the wearer's 
+collarbones to thin straps over the shoulders. The back, 
+however, plunges dangerously far downward, held together by an 
+intricate criss-cross of gold silk ribbon. 
+~
+11 0 9
+0 0 0 0
+100 0.000000
+0 0 0 0 8392740 0 1
+600.000000 0 0 0 0 0 0
+#18080
+scroll ANNON_BOROUGH_COUNCIL SOCIAL_WELFARE_REP AB_COUNCIL_PARCHMENTS UNIQUE_AB crisp crest seal Annon Borough PARCHMENT~
+a crisp scroll bearing the Annon Borough council crest~
+A crisp scroll bearing the sealed crest of the Annon Borough has been forgotten here.~
+~
+53 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18087
+license Annon Borough Cityworkers funding 5k OTHER~
+A 5000 copper Annual Borough Citworkers Funding~
+A license worth 5000 coppers for the Annual Borough Citworkers Funding is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18086
+license Law&Order Law Order 25k OTHER~
+A 25000 copper Law and Order License~
+A license worth 25000 coppers for Law and Order is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18082
+license Law&Order Law Order 5k OTHER~
+A 5000 copper Law and Order License~
+A license worth 5000 coppers for Law and Order is here.~
+oset desc reformat
+oset cost 5000
+oset name 'license Law&Order Law Order 5k OTHER'
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18083
+license Law&Order Law Order 10k OTHER~
+A 10000 copper Law and Order License~
+A license worth 10000 coppers for Law and Order is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+10000.000000 0 0 0 0 0 0
+#18081
+certificate MT_TAX tax OTHER~
+a simple tax certificate~
+An Annon Borough Tax certificate is here.~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18084
+license Law&Order Law Order 15k OTHER~
+A 15000 copper Law and Order License~
+A license worth 15000 coppers for Law and Order is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+15000.000000 0 0 0 0 0 0
+#18085
+license Law&Order Law Order 20k OTHER~
+A 20000 copper Law and Order License~
+A license worth 20000 coppers for Law and Order is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+20000.000000 0 0 0 0 0 0
+#18088
+license Annon Borough Cityworkers funding 10k OTHER~
+a 10000 copper Annual Borough Citworkers Funding~
+A license worth 10000 coppers for the Annual Borough Citworkers Funding is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+10000.000000 0 0 0 0 0 0
+#18089
+license Annon Borough Cityworkers funding 15k OTHER~
+a 15000 copper Annual Borough Citworkers Funding~
+A license worth 15000 coppers for the Annual Borough Citworkers Funding is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+15000.000000 0 0 0 0 0 0
+#18090
+license Annon Borough Cityworkers funding 20k OTHER~
+a 20000 copper Annual Borough Citworkers Funding~
+A license worth 20000 coppers for the Annual Borough Citworkers Funding is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+20000.000000 0 0 0 0 0 0
+#18091
+license Annon Borough Cityworkers funding 25k OTHER~
+a 25000 copper Annual Borough Citworkers Funding~
+A license worth 25000 coppers for the Annual Borough Citworkers Funding is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+25000.000000 0 0 0 0 0 0
+#18092
+culvert TIRITH_SEWERS stone culvert covered iron grate METAL~
+a stone culvert covered by an iron grate~
+A stone culvert is here spewing putrid water, covered with an iron grate.~
+   A horrible stench rises from the water that flows from the 
+mouth of the culvert. A few hands inside the tube is a sturdy 
+iron grate, seemingly able to withstand the forces of nature that 
+seek to rust it to pieces. Refuse is stuck to the bars of the 
+grate, but the force of the wastewater pushes past it anyhow. If 
+one were to get past the surge of sewage flying past, they would 
+see that the grate has been affixed upon hinges, but only swings 
+into the flow. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#18093
+culvert TIRITH_SEWERS stone blocking refuse travelling covered iron grate METAL~
+the ending of the culvert, covered in an iron grate~
+A stone culvert is here blocking refuse travelling westward, covered with an iron grate.~
+   A horrible stench rises from the water that flows from the 
+mouth of the culvert. A few hands inside the tube is a sturdy 
+iron grate, seemingly able to withstand the forces of nature that 
+seek to rust it to pieces. Refuse is stuck to the bars of the 
+grate, but the force of the wastewater pushes past it anyhow. If 
+one were to get past the surge of sewage flying past, they would 
+see that the grate has been affixed upon hinges, but only swings 
+into the flow. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#18094
+grappling-hook UNIQUE_RPROG 18103 iron rope rubble METAL~
+a grappling hook stuck in the rubble~
+A grappling hook is stuck in the rubble here, its rope leading down into the darkness of the sinkhole.~
+   A hemp rope of roughly ten feet in length has been knotted 
+through the hole in the grappling hook. Four large iron prongs 
+form out, each hooked at the end so that it may gain purchase 
+when required, from the centre of the hook. Of a fair weight, 
+the grappling hook is ill-suited for use as a weapon save for the 
+truely desperate, but instead made for the purpose of scaling and 
+climbing. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#18095
+object generic~
+a black and white checked bandana~
+Some careless admin has left a generic object here.~
+~
+11 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18096
+black white checked bandana TEXTILE~
+a black and white checked bandana~
+a heavy leather jacket~
+A black and white checked bandana.
+~
+9 4108 9
+2 0 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18097
+bandana black white checked HAWKES TEXTILE~
+a black and white checked bandana~
+A black and white checked bandana lies on the floor~
+~
+11 4608 17
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18098
+slick leather pants breeches LEATHER~
+a pair of slick, leather breeches~
+A pair of smart leather breeches lie here, catching the light.~
+~
+11 4608 33
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18099
+vest flak padded thickly LEATHER~
+a thickly padded flak vest~
+A thickly padded flak vest lies here~
+~
+11 4608 9
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18100
+board HAWKES nail METAL~
+a board with a nail in~
+A board with a nail in.~
+~
+5 4104 8193
+0 2 4 3
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18101
+spacious wrought iron bench HAWKES METAL~
+a spacious wrought iron bench~
+A spacious bench made of wrought iron and smooth stone is here.~
+   The frame of this bench is made of thick coils of wrought iron 
+painted a dull bronze in colour. Four squat legs hold it upright 
+and several rounded beams support the smooth stone of the seat. 
+Its backing is also made of the same bronze shaded metal, they 
+have been shaped in to a simplistic design of coils and curves, 
+all of which meet in the middle to create the image of a seven 
+branched tree. 
+~
+15 2101760 0
+5 0 -1 0
+20000 0.000000
+0 3 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18102
+UNIQUEADMINHAWKES tie leather TEXTILE~
+a smart black leather tie~
+A thin coil of leather has been left here.~
+~
+11 4608 5
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18103
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+29 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18104
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+29 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18105
+statue woman one one-armed TILIAN STONE~
+a one-armed statue of a woman~
+A pile of rubble and debris at her feet, a beautiful woman is depicted here in statue form.~
+   The most noticable feature of this statue is its missing arm, 
+broken off by time and weather over the years it has seen. 
+Otherwise, this woman is wonderfully beautiful with a round face 
+and full, pouting lips that are gently curved into a smile. The 
+crumbling stone of which this statue is built does not dampen the 
+beauty of her face, nor does it hide the true craftsmanship used 
+in its making. 
+~
+23 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18106
+defaced statue large sword Tarondor TILIAN STONE~
+a defaced statue bearing a large sword~
+The defaced statue of a man stands here proudly, bearing a large sword at his front.~
+   Swathed in robes, the form of this man-sized statue is 
+ambiguous at best as it has seen much ware. Most noticably 
+lacking a face, bits and pieces of its robes and armor are broken 
+away or missing all together. Atop its head is sculpted a jagged 
+crown that is fused together with tiny pieces of glass to give 
+the illusion of gemstones. In its hands, facing the ground, is a 
+long bladed sword of rusted iron that is clearly older than any 
+man. The grip on this sword is unmoving without the use of 
+tools. At the statue's foot a small title is etched in 
+Numenian-Tengwar: XXVII - Tarondor. 
+~
+23 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18200
+statue woman child old STONE~
+a weather-worn statue of a woman and child~
+A weather-worn statue of a woman and child looms here.~
+   Broken bits of stone lay scattered like debris around the base 
+of this enormous, weather-worn statue. Spiderweb cracks wind 
+their way over the shape of it, minute chunks missing in several 
+areas where the damage is more severe. The statue itself shows a 
+womanly figure, whose robes have carefully been carved to denote 
+a flowing quality. Her delicately-carved hands are protective 
+cupped over a small stone figure which tries to hide itself away 
+against her. Some of the fingers of the woman are gnarled and 
+twisted from the wear of the elements, the grey-granite from 
+which they have been carved stained darker hues. Her face holds 
+ambiguous features with a long, aquiline nose. Faint lines have 
+been tenderly etched at the corners of her eyes. Little can be 
+seen of the child who is sealed in the folds of the womans robe. 
+~
+12 4096 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18107
+demolished remants statue Telemnar legs stone dark TILIAN STONE~
+the demolished remnants of a statue~
+Standing here with spread feet are a pair of dark stone legs, its torso lost.~
+   About waist high on an average man, this pair legs are all 
+that is left from a once proud statue. Perhaps once of a great 
+king or noble warrior, the man depicted here is lost forever. 
+All that is left now is two armored appendages tied together with 
+the lower portion of a pelvis. The grevious, uneven wound it 
+sustained has left a rough surface at its top, rigid and unlevel. 
+The armor sculpted on to the figure is masterful in form, great 
+care taken with each rivet and scale. The hard stone that makes 
+up what's left of this statue stands firm through the ages, with 
+little ware showing on even the slightest of edges. The upper 
+half of the statue is nowhere to be found. At the statue's foot 
+a small title is etched in Numenian-Tengwar: XXVI - Telemnar. 
+~
+23 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18201
+ruined statue black basalt STONE'~
+a ruined, black-basalt statue~
+A ruined statue of black-basalt is here.~
+   Once perhaps the growning glory of a sculptors work, this 
+statue of a stallion is now reduced to one which suffers from the 
+maladictions of time. Carved from black basalt and reinforced 
+with gritty mortar, the dark stone has lost its gleam with the 
+cover of moss and the smear of grime that pollutes its surface. 
+A equine face lovingly carved has half of its head shattered, 
+destroying the fine features it may once have had. Bird 
+excrement paints it with colours paler or browner in several 
+areas, littered like a blanket over the muscled currents of its 
+stone form. A flowing mane curves like errant waves around its 
+neck, but is severely chipped and nicked. 
+~
+12 4096 0
+0 0 0 0
+102300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18203
+statue gnarled tree STONE~
+a decrepit statue of a gnarled tree~
+A decrepit statue of a gnarled tree twists skywards here.~
+   Sculpted from yellow-veined limestone, this tremendous statue 
+towers several feet into the air. Each branch has been 
+individually fashioned, twisting and winding and colliding with 
+each other in sinious, snake-like length and from afar may seem 
+like one coiled, sinister mass. The roots of the tree crawl over 
+the square, solidlimestone block which acts as its base, nearly 
+obscuring some faded etchings which have been reduced to vague, 
+dulled imprints. Moss grows in thick patches over the statue and 
+upon its base, tiny insects are often seen scurrying about within 
+it. 
+~
+12 4096 0
+0 0 0 0
+200000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18204
+pillars ruined obsidian STONE~
+a pair of ruined obsidian pillars~
+A pair of ruined obsidian pillars stand here.~
+   These toppled obsidian pillars are all that is left of what 
+might once have been a grand archway. Now the remnants lay 
+flanked by rubble and refuse which are caught within the nets of 
+wilted ivy vines. Even though its found in abundance, the ivy 
+struggles to grow. As if touched by some disease which squeezes 
+the life from it, the brownish leaves are rumpled and wrinkled, 
+while others are left dead upon their stalks. The midnight-black 
+pillars which they veil are rutted and pitted, one standing 
+taller than the other. A closer look at them may reveal minute, 
+wave-like engravings, most of which are too filled with much to 
+show further detail. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18202
+old statue mottled eagles several STONE~
+several old, mottled statues~
+Several old statues are perched over the rooftops.~
+   Perched high on the rooftops in a vigilant watch over the 
+street are several old statues of eagles. Though crafted from 
+the palest of limestone, the surface is corroded and scatched. 
+Mottled patches of yellow and green have been burnt into them 
+from prolonged exposure to the seasons. Perhaps the most 
+prominent aspect of the statues are the detail which have gone 
+into the creation of each one. Distinctly lifelike, some have 
+wings aloft with taloned claws splayed, while others are hunkered 
+forward and stare intently down to the streets; as if watching 
+for prey. All have sharp, avian features, with the limestone of 
+their beaks smoothened to tapering points and feathers 
+individually carved. 
+~
+12 4096 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18108
+plaque gold small OOC OTHER~
+A small OOC plaque is tacked to the wall.~
+A small, golden OOC plaque is tacked to the wall nearby the entrance.~
+#6To ask about a specific item type "Ask (keyword)"#0
+
+#6Eg:#0
+Ask fragment
+or Ask shield
+
+#6A guide will then approach your character and discuss
+the history of the object. If you wish them to stop at
+any time, type stop.#0
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18109
+key METAL squirrel handled~
+a squirrel-handled key~
+A squirrel-handled key lays here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18110
+barrel milk OTHER~
+a barrel filled with milk~
+A barrel filled with milk is here.~
+~
+17 4096 1
+20 9 9 0
+2000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18111
+key engraved silvery OTHER~
+an engraved, silvery-key~
+An engraved, silvery-key lays here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18122
+container thin tin OTHER~
+a thin-walled tin container~
+A thin-walled tin container lays here.~
+   This small tin container has a watertight body and a screw on 
+lid. It is unpainted and quite simple in its design. 
+~
+15 4096 1
+100 0 -1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18123
+lock hair small OTHER~
+a short lock of blonde hair~
+A short lock of blonde hair lays here.~
+   This is a small bit of some golden blonde hair, about 2-3 
+inches in length. 
+~
+12 4096 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18112
+fireplace extravagant OTHER~
+an extravagant fireplace~
+An extravagant fireplace is set into the wall.~
+~
+1 4096 0
+0 0 54 1
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 4 19703 0 0 0 0
+#18113
+shirt stiff collar $color $finecolor TEXTILE~
+A stiff collared, $color shirt lays here.~
+Some careless admin has left a generic object here.~
+   A well made garment, this shirt has been constructed to last. 
+The $color linen has been cut for the comfort of the wearer, 
+allowing ease of movement without being over baggy. The collar 
+is short and stiff, with a laced up front opening. The cuffs of 
+the long sleeves hang loosely around the wrist and are wide 
+enough to be rolled up if desired. At the breast, on the left 
+side, is a pocket large enough for only a few small objects. The 
+bottom hem reaches mid-thigh on most with a slit on each side. 
+~
+11 4096 9
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+160.000000 0 0 0 0 0 0
+#18161
+key~
+a key~
+a small silver key~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18114
+long twisted iron key METAL~
+a twisted, iron key~
+A long key of twisted iron lies here.~
+~
+18 536875008 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18115
+vest UNIQUE_PLUCIUN fitted black green woolen linen shirt TEXTILE~
+a fitted, black woolen vest over a green linen shirt~
+A fitted, black woolen vest over a green linen shirt lies here.~
+   This well-made, black woolen vest is worn over soft, green 
+linen shirt. The vest itself has been carefully fitted to the 
+wearer. It is sleeveless and closes down the front with row of 
+polished bronze buttons. The shirt, cut comfortably, is long 
+sleeved. It has a short laying collar, and the hem hangs far 
+enough to be tucked in. Overall, the outfit presents a clean, 
+stylish look. 
+~
+11 4096 9
+0 0 0 0
+60 0.000000
+0 0 0 0 0 0 1
+220.000000 0 0 0 2 0 0
+#18116
+long sleeved white tree embroidered black fine linen shirt UNIQUE_POFCALAMIR TEXTILE~
+a long sleeved, white tree embroidered black fine linen shirt~
+A long sleeved, white tree embroidered black fine linen shirt lies folded here.~
+   Rigid in design, fit precisely to the owner, durably 
+constructed. The is shirt is made from finely woven black linen. 
+A short stiff collar circles the neck matching the stiffened 
+cuffs at the end of the long sleeves. The front closes with a 
+row of hidden silver buttons starting at the shoulder and 
+extending down one side. The front panel left unbroken to 
+display a stylized image of the White Tree of Gondor. 
+~
+47 4096 9
+0 0 0 0
+50 0.000000
+0 0 0 31 4100 0 1
+0.000000 0 0 0 2 0 0
+#18117
+ring engraved gold diamond ring POCALAMIR_UNIQUE METAL~
+an engraved gold diamond ring~
+An engraved gold diamond ring lies here.~
+   This gold ring has been carefully engraved to resemble the 
+White Tree of Minas Tirith, the tree's bark wrapping around the 
+ring. At the top where the most detail of branches can be found, 
+seven stars are represented by six small diamonds and one larger 
+diamond in the middle. Inside the ring the following words are 
+engraved "And Love Was You". 
+~
+8 4096 3
+0 0 0 0
+30 0.000000
+0 0 0 30 134221824 0 1
+1600.000000 0 0 0 28 0 0
+#18118
+ring braided engraved solid gold POSHARLINE_UNIQUE METAL~
+a braided engraved solid gold ring~
+A braided engraved solid gold ring lies here.~
+   This ring has both gold and silver entwined. The top of the 
+ring where the most gold can be found resembles a sunburst. As 
+the rays expand outward they become silver and begin to resemble 
+athalas leaves, or kingsfoil, that is usually used by the 
+Fellowship of Healers. Inside the ring the following words are 
+engraved "For I Found Love". 
+~
+8 4096 3
+0 0 0 0
+30 0.000000
+0 0 0 30 134221824 0 1
+1200.000000 0 0 0 28 0 0
+#18119
+large elegant white lilies Hallowmas PCALAMIR OTHER~
+a large elegant wreath of white lilies~
+A large elegant wreath of white lilies rests on the steps of the monument, bearing a message~
+This beautifully arranged wreath has been painstakingly crafted
+from inter weaved ivy runners, forming a circular mesh into
+which dozens of exquisite white lilies have been slotted,
+forming a snowy white blanket on top of the dark green. The
+centre of the wreath contains a circular plaque of dark
+mahogany wood into which an inscription has been etched and
+picked out in silver. The etching is headed with a symbol of
+the White Tree of Gondor, beneath which those capable of 
+reading can see the words:
+
+"In memory Captain Karriker of the Minas Tirith Guard and all
+those who have made the ultimate sacrifice for Gondor, on 
+whatever front their wars were fought. Our world is less 
+without you but your example will not be forgotten.
+
+Calamir Endelmar"
+~
+12 4096 1
+0 0 0 0
+300 0.000000
+0 0 0 50 0 0 1
+0.000000 0 0 0 0 0 0
+#18120
+Emerald, blonde, baby, girl, Emmy OTHER~
+#5an emerald-eyed, blonde baby girl~
+#5An emerald-eyed, blonde baby girl lies here.~
+   This young infant is tiny but otherwise healthy. Her skin is 
+very fair, with a pink and rosy undertone. Wispy blonde hairs 
+cover her head, and she peers out through wide, emerald green 
+eyes. Though small, she is pudgy everywhere. 
+~
+18 4096 1
+0 0 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18124
+mace flanged iron bySolon METAL~
+an oak-handled, iron-flanged mace~
+An oak-handled, iron-flanged mace lies here.~
+Made of sturdy oak, and wrapped in a darkened leather around
+it's base, the shaft of this weapon is ideal to hold up the
+heavy iron at it's top.  It has a mass of iron that is flanged
+to allow easier penetration of armor, and the leather wrapping
+allows for a sure grip.
+~
+5 4096 8193
+5 1 7 6
+700 0.000000
+3 0 0 22 0 0 1
+400.000000 0 0 0 17 0 0
+#18125
+shortsword sharp GOOD_QUALITY steel bySolon METAL~
+a sharp, steel-bladed shortsword~
+A sharp, steel-bladed shortsword has been left here.~
+   The blade of this shortsword is made of high quality, 
+sharpened steel. The hilt has a rounded, ball-like base, and is 
+layered with thin strips of leather. It has a simple, and short 
+guard between the hilt and blade, and appears to be perfectly 
+balanced. 
+~
+5 4096 8193
+5 1 6 2
+600 0.000000
+4 0 0 35 0 0 1
+700.000000 0 0 0 18 0 0
+S
+100002
+#18126
+scaled leather leggings bySolon METAL~
+a well-made pair of scaled leather leggings~
+A well-made pair of scaled leather leggings lies here.~
+   These well-made leggings of supple, yet, darkened leather have 
+been made for freedom of movement, and modest protection. Dulled 
+metal scales have been fastened to overlap the leather to help 
+ward off damage. Fastening at the hip, they trail down the 
+wearer's legs all the way to the ankles, flared at the bottom to 
+allow them to easily fit over any boot. 
+~
+9 4096 33
+2 3 0 0
+600 0.000000
+0 0 0 30 0 0 1
+350.000000 0 0 0 28 0 0
+A
+10025 -5
+A
+10024 -5
+#18127
+dark gorget scales bySolon METAL~
+a dark leathered gorget overlapped with iron scales~
+A dark leathered gorget overlapped with iron scales is here.~
+~
+9 4096 5
+2 3 0 0
+700 0.000000
+0 0 0 30 0 0 1
+600.000000 0 0 0 28 0 0
+A
+10024 -5
+A
+10025 -5
+#18128
+moss hardened vambraces bySolon LEATHER~
+a pair of moss-colored, hardened leather vambraces~
+A pair of moss-colored, hardened leather vambraces are here.~
+   These vambraces are of a deep, moss coloring, made from 
+hardened leather. They fit snugly around the arms, and are 
+fastened by small but strong cords which are criss-crossed 
+through small loops of metal on the underside of the arms. 
+~
+9 4608 257
+2 1 0 0
+700 0.000000
+0 0 0 35 0 0 1
+275.000000 0 0 0 14 0 0
+#18121
+key hawkes dungeon key ADMINKEY byHawkes METAL~
+Hawkes' Dungeon Key!~
+This is they key to Hawkes' dunegon!~
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18129
+key small bronze key triangular GRITCHEN METAL~
+a small bronze key with a triangular end~
+A small bronze key with a triangular end lies here.~
+   This is a small bronze key with a triangular end. It is very 
+light in the hand, and has a highly polished finish to it. 
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 16 0 0
+#18130
+key long wood GRITCHEN WOOD~
+a long wooden key~
+A long wooden key is laid here.~
+   A long wooden key. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+25.000000 0 0 0 32 0 0
+#18131
+seal wax official red UNIQUE_MT OTHER~
+an official wax seal~
+An official wax seal lies here, affixed to a length of ribbon.~
+   It is an oval shaped, flat piece of sealing wax bearing the 
+embossed image of a pair of clasped hands overlapping a hexagonal 
+shaped coin. A length of ribbon has been affixed to the back of 
+the seal, enabling it to be attached to a parchment or other 
+official document. 
+~
+12 4096 1
+0 0 0 0
+20 0.000000
+0 0 0 30 32 0 1
+0.000000 0 0 0 0 0 0
+#18132
+key small mask engraved iron image stamped METAL~
+a small mask-engraved key of iron~
+A key lies here, its head stamped with the image of a mask.~
+   Made of simple iron, this key has been stamped with the 
+classic theater image of a mask. 
+~
+18 536875008 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18133
+flute UNUQUE_PERALOTH small bronze etchings by_Glaurung METAL~
+a small bronze flute with etchings~
+A small bronze flute with etchings over it lies here.~
+   This small, hollow tube of bronze has been polished to a high 
+sheen. Four small holes form a line along one side of the 
+instrument, designed to change the pitch when the flute is 
+played. Numerous etchings cover its thin metal, most depicting 
+small swirls and random patterns. In the centre of the 
+instrument, the word 'Peraloth' is inscribed neatly in 
+Numenian-Tenguar sigils, edged on either side by simple lines. 
+~
+35 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18134
+xMT_furrier_boardx board short brown man records orders requests leather bound tome by_Nauriel OTHER~
+#5a short, brown-haired man#0~
+#5A short, brown-haired man records orders and requests in a leather bound tome.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18135
+xMT_furrier_kitchenx board large message hangs by_Nauriel OTHER~
+a large message board~
+A large message board hangs on the wall.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18186
+key 18184 xWHITE_CITY_FURRIERx slender steel burnished by_Nauriel METAL~
+a slender, burnished steel key~
+A slender, burnished steel key glints dully from the ground.~
+   This key is slender and simple in design. It is rendered from 
+burnished steel, with a loop at its head large enough to fit upon 
+a keyring. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+25.000000 0 0 0 0 0 0
+#18136
+xMT_SOLDIERS_RESTx board older war scarred man sits counter tome requests orders laid open by_Nauriel OTHER~
+#5an older, war-scarred man#0~
+#5An older, war-scarred man sits at the counter, a tome for requests and orders laid open in front of him.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18137
+baby Thom night crowned dark eyed infant boy xpofIsteth xpofBanor xNauriel OTHER~
+#5a night-crowned, dark eyed infant boy#0~
+#5A night-crowned, dark eyed infant boy is resting here.#0~
+   This little infant spends most of their time sleeping, his 
+expression content, even peaceful. When awake, little eyes of a 
+rich brown gaze at the world, tiny little fingers opening and 
+closing and at times, reaching out to grasp whatever might be 
+within reach of his little hands, including fingers, hair and 
+jewelry. A midnight crown of dark hair adorns his head already, 
+fine as downy feathers and just as soft. 
+~
+12 4096 1
+0 0 0 0
+670 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18138
+lamb chop raw food_craft MEAT~
+a raw lamb chop~
+A raw lamb chop lies here waiting to be cooked.~
+~
+19 4198400 1
+1 0 0 0
+100 0.000000
+0 1 0 10 167776256 0 1
+5.000000 48 150 0 0 0 0
+#18139
+ribs rack raw lamb food_craft MEAT~
+a raw rack of lamb~
+A raw rack of lamb lies here waiting to be cooked.~
+   These lamb ribs are prime for cooking, with most of the fat 
+and inedible portions removed except, of course, for the bones. 
+As they are, they are nearly inedible, requiring cooking to 
+become truly useful. 
+~
+19 4096 1
+10 0 0 0
+400 0.000000
+0 5 0 20 167776256 0 1
+8.000000 0 0 0 0 0 0
+#18140
+rack ribs roasted lamb food MEAT~
+an entire roasted rack of lamb~
+An entire roasted frack of lamb steams here, the bones jutting out at an angle.~
+   Succulent pink meat lightly seasoned with rosemary and thyme 
+adorns this beautifully roasted rack of lamb. The outside is 
+seasoned, oiled and just crisp. Rib bones stick out along one 
+side, providing the perfect handles should someone but carve the 
+delectable chop-like morsels of meat apart. 
+~
+19 4096 1
+12 0 0 0
+400 0.000000
+0 5 0 30 0 0 1
+15.000000 8640 90772 0 0 0 0
+#18141
+rack serving ribs roasted lamb food MEAT~
+a serving of roasted rack of lamb~
+A serving of roasted rack of lamb resides here on a plate.~
+   This is a serving of succulently roasted lamb, well seasoned 
+with rosemary and thyme. The outside is perfectly crisped, but 
+the inside, where the meat joins to the rib bone, is delectably 
+pink and juicy and goes down a tender morsel. 
+~
+19 4096 1
+6 0 0 0
+60 0.000000
+0 3 0 30 0 0 1
+3.000000 8640 90772 0 0 0 0
+#18142
+chop lamb fried cooked food_craft MEAT~
+a fried lamb chop~
+A fried lamb chop lies here on a plate.~
+   This is a nicely cooked chop of lamb, fried to a nice golden 
+brown and lightly seasoned. A delicious smell wafts from the 
+warm cut of meat. 
+~
+19 4096 1
+8 0 0 0
+80 0.000000
+0 2 0 30 184549376 0 1
+8.500000 8640 90772 0 0 0 0
+#18143
+chop lamb baked cooked food_craft MEAT~
+a baked lamb chop~
+A delicately baked lamb chop lies here on a plate.~
+   A delicately baked lambchop lies here upon its plate; pale 
+skin rubbed with spice and wafting a most appetizing scent. 
+~
+19 4096 1
+8 0 0 0
+80 0.000000
+0 2 0 0 184549376 0 1
+9.000000 8640 90772 0 0 0 0
+#18144
+key silver plated small KEYED_TO_18183 xNauriel METAL~
+a small, silver-plated key~
+A small, silver-plated key lies here.~
+   This key has been plated in a thin silver, its finish nicked 
+and scarred from long years of use. 
+~
+18 4096 16385
+0 0 0 0
+25 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#18145
+key KEYED_TO_11579 light-weight silver OTHER~
+a light-weight, silver key~
+A light-weight silver key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#18146
+breastplate fitted UNIQUE_HAWKDOVE steel dull-steel etched hawk chain METAL~
+a dulled-steel etched breastplate~
+A dulled-steel etched breastplate lays here.~
+   This breastplate, crafted of fine steel, natural shine 
+meticulously dusted to a soft dulled sheen, has been made of 
+plate laid over chainmail which extends below the lower edge of 
+the piece, to protect the lower abdomen. Buckled straps couple 
+it at shoulders and sides with a backplate. Etched in sharp 
+bright facets on the left breast is an intricate engraving of a 
+hawk, wings outstretched in flight. Echoing this etching is that 
+of a dove on the backplate. 
+~
+9 4096 9
+3 5 0 0
+1100 0.000000
+0 0 0 33 4132 0 1
+2500.000000 0 0 0 18 0 0
+#18147
+key etched fox PofJaragh XElanor 2047 OTHER~
+a key etched with a fox~
+A key etched with a fox has been set here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+8.000000 0 0 0 0 0 0
+#18148
+key white handled storeroom PofJaragh XElanor 2050 OTHER~
+a white-handled key~
+A white-handled key has been set here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+8.000000 0 0 0 0 0 0
+#18149
+painting vividly detailed ink painting UNIQUE_XPTaymeeka xElanor OTHER~
+a vividly detailed, ink painting~
+A vividly detailed ink painting lies here on the ground.~
+   This particular wall display is done on a broad, coarsely 
+woven linen canvas with a sturdy wooden frame. The image that is 
+displayed is done in vivid detail and depicts the inside of a 
+tavern. Within the colored ink 'painting' are many people, most 
+set into groups of threes and fours, one group gathering off near 
+one table appear to be animatedly speaking to one another, some 
+from other groups appear to be looking towards this lively bunch 
+as they talk about something. Off in another section is a group 
+of what appear to be musicians in mid song, beating or strumming 
+against their makeshift instruments. On the right side of the 
+image is a long cedar bar with a fat, hairy-armed man standing 
+behind it with a cleaning cloth in one hand and a shot glass in 
+the other, looking to be cleaning the glass out as he stands 
+watching the entirety of the room. Many of the people are 
+wearing smiles or laughing, a few others who look to have chosen 
+to sit by themselves merely appear content to watch the goings on 
+of the tavern, sipping drinks or eating steamy meals set out 
+before them. Barely caught within the art display is the image 
+of a booth along the far left side of the canvas, a tall man with 
+black hair and blue eyes standing with his arms crossed near it 
+as if guarding the booth. Within the booth itself is a short, 
+bright-eyed, sandy-haired man, looking to be caught up in 
+conversation with someone, a faint smile curving at his lips, 
+though who he is speaking to cannot be seen from the viewpoint of 
+the art piece itself. 
+~
+8 4096 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 36 0 1
+0.000000 0 0 0 0 0 0
+#18150
+dress short sleeved rosy pink lily fine line UNIQUE_PLUCIUN xElanor TEXTILE~
+a short sleeved rosy pink dress with lily white accents~
+A short sleeved rosy pink dress with lily white accents has been left here.~
+   This dress is made from fine quality linen and stitched by a 
+master hand. The style is simple, but elegant, with a squared 
+neckline and a flared skirt sewn very long, allowing several 
+inches of dual-layered fabric to touch the floor. A rosy-pink 
+bodice is fitted over the rest of the waistless design, extending 
+up over the shoulders, secured with black laces across the bust, 
+and left open-fronted for the rest of the length. The 
+under-layer is lily-white, including sleeves which are gathered 
+softly near the upper arm, making a ruffle effect before they 
+cut-off just below the elbow. 
+~
+11 4096 9
+0 0 0 0
+100 0.000000
+0 0 0 0 4100 0 1
+550.000000 0 0 0 2 0 0
+#18151
+ring UNIQUE_EMPORIUM gold seal METAL METAL~
+an engraved, gold seal ring~
+A gold seal ring, bearing an engraved symbol on its bezel, lies here.~
+   The bezel of this gold ring bears an engraving that depicts 
+the image of a pair of clasped hands overlapping a hexagonal 
+coin. It looks as if it would leave an impression of the image 
+if pressed into something maleable, like sealing wax. 
+~
+8 4096 3
+0 0 0 0
+5 0.000000
+0 0 0 35 4708 0 1
+1050.000000 0 0 0 28 0 0
+$~

@@ -1,0 +1,2740 @@
+#45062
+key large iron polished engraved METAL~
+a large, tree engraved, shining iron key~
+a large, tree engraved, shining iron key is here.~
+~
+18 4096 1
+0 0 0 0
+150 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45100
+crypt stone granite STONE~
+a large stone crypt~
+A large, stone crypt takes up a large portion of this corner of the graveyard.~
+Carved from large blocks of granite, this crypt spans the length
+of this section of the graveyard. An iron door is fitted into
+the center of the crypt and the doorframe is edged in carvings
+of ivy and flowers. Above the door, some sigils are carved
+in an arching fashion. There are two granite vases set into
+the stone on either side of the door, for holding flowers.
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45275
+five-tooth five tooth armory iron key METAL~
+a five-tooth iron key~
+Someone has left a five-tooth iron key here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45000
+frog toad carcass body CAO_FROG_BODY OTHER~
+a small bloated amphibian body~
+A small bloated amphibian body lies here in ooze.~
+   This small carcass of an amphibian would provide little meat 
+for a Man, its legs and arms twig-thin, and body bloated. Though 
+recently deceased, its belly has already begun to puff with 
+gasses, and its skin oozes some odd fluid, making it slick and 
+slimy to the touch. In a tragedy of irony, flies once this 
+creature's proud supper, now land on its body, poking around. 
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45008
+gatekey thick iron key Caolafon_gate METAL~
+a thick iron gate key~
+A thick iron key has been left in the dirt here, forgotten.~
+   This key is rather thick and sturdy, having been crated of 
+iron. It has six teeth, four along one side and two facing the 
+opposite direction. On the handle of the key a stamp of a gate 
+has been placed. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#45123
+case display mahogany broken glass-paned GLASS~
+a smashed in glass and mahogany display case~
+A smashed in glass and mahogany display case sits in a corner.~
+   Crafted of richly-stained mahogany, this display case was 
+enclosed with clear-glass panes, which provided a view of the 
+items displayed inside. In its current condition, it is useless. 
+The wood was undamaged, so if the glass panes were replaced, and 
+the mahogany polished, this would once again be an exquisite 
+display case. 
+~
+15 2101248 0
+10000 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45314
+key smooth black iron ornate METAL~
+a smooth, black iron key~
+An ornate key made of smooth, black iron glints dully on the ground.~
+   This heavy key is approximately the length of a man's palm, 
+and has been smoothly and elegantly wrought of black iron. The 
+handle is composed of an intricate knot of metal, tapering to a 
+long, cylindrical bar with several notches, or 'teeth', on the 
+opposite end. 
+~
+63 4096 16385
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#45316
+key gnarled wooden WOOD~
+a gnarled wooden key~
+A gnarled wooden key has been left here.~
+This key has been carved out of old gnarled wood.
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#45191
+hador cao_housing_board thin blond lanky man OTHER~
+#5a tall, lanky blond haired man#0~
+#5A tall, lanky blond haired man sits behind a desk, renting rooms.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45198
+key bear-room brown METAL~
+a bear-shaped key~
+A bear-shaped key has been left here.~
+This is the key to the Bear Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45900 0 28 0 0
+#45201
+key moose-room METAL~
+a moose-shaped key~
+A moose-shaped key has been left here.~
+This is the key to the Moose Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45903 0 28 0 0
+#45202
+key wolf-room METAL~
+a wolf-shaped key~
+A wolf-shaped key has been left here.~
+This is the key to the Wolf Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45906 0 28 0 0
+#45199
+key elk-room METAL~
+an elk-shaped key~
+An elk-shaped key has been left here.~
+This is the key to the Elk Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45909 0 28 0 0
+#45200
+key horse-room METAL~
+a horse-shaped key~
+A horse-shaped key has been left here.~
+This is the key to the Horse Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45912 0 28 0 0
+#45900
+expired rent agreement rental bear-room PARCHMENT~
+an expired rental agreement for the Bear Suite~
+An expired rental agreement for the Bear Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45903
+expired rent agreement rental moose-room PARCHMENT~
+an expired rental agreement for the Moose Suite~
+An expired rental agreement for the Moose Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45906
+expired rent agreement rental wolf-room PARCHMENT~
+an expired rental agreement for the Wolf Suite~
+An expired rental agreement for the Wolf Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45909
+expired rent agreement rental elk-room PARCHMENT~
+an expired rental agreement for the Elk Suite~
+An expired rental agreement for the Elk Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45912
+expired rent agreement rental horse-room PARCHMENT~
+an expired rental agreement for the Horse Suite~
+An expired rental agreement for the Horse Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45915
+expired rent agreement rental white-room PARCHMENT~
+an expired rental agreement for the White Suite~
+An expired rental agreement for the White Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45918
+expired rent agreement rental red-room PARCHMENT~
+an expired rental agreement for the Red Suite~
+An expired rental agreement for the Red Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45921
+expired rent agreement rental blue-room PARCHMENT~
+an expired rental agreement for the Blue Suite~
+An expired rental agreement for the Blue Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45924
+expired rent agreement rental purple-room PARCHMENT~
+an expired rental agreement for the Purple Suite~
+An expired rental agreement for the Purple Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45927
+expired rent agreement rental yellow-room PARCHMENT~
+an expired rental agreement for the Yellow Suite~
+An expired rental agreement for the Yellow Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45930
+expired rent agreement rental green-room PARCHMENT~
+an expired rental agreement for the Green Suite~
+An expired rental agreement for the Green Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45933
+expired rent agreement rental gold-room PARCHMENT~
+an expired rental agreement for the Gold Suite~
+An expired rental agreement for the Gold Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45936
+expired rent agreement rental silver-room PARCHMENT~
+an expired rental agreement for the Silver Suite~
+An expired rental agreement for the Silver Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45939
+expired rent agreement rental bronze-room PARCHMENT~
+an expired rental agreement for the Bronze Suite~
+An expired rental agreement for the Bronze Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45942
+expired rent agreement rental copper-room PARCHMENT~
+an expired rental agreement for the Copper Suite~
+An expired rental agreement for the Copper Suite in the Caolafon Housing Complex has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45901
+bear-suite rent-timer PARCHMENT~
+bear-suite rent-timer~
+A rent timer for bear suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45904
+moose-suite rent-timer PARCHMENT~
+moose-suite rent-timer~
+A rent timer for moose suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45907
+wolf-suite rent-timer PARCHMENT~
+wolf-suite rent-timer~
+A rent timer for wolf suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45910
+elk-suite rent-timer PARCHMENT~
+elk-suite rent-timer~
+A rent timer for elk suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45913
+horse-suite rent-timer PARCHMENT~
+horse-suite rent-timer~
+A rent timer for horse suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45916
+white-suite rent-timer PARCHMENT~
+white-suite rent-timer~
+A rent timer for white suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45919
+red-suite rent-timer PARCHMENT~
+red-suite rent-timer~
+A rent timer for red suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45922
+blue-suite rent-timer PARCHMENT~
+blue-suite rent-timer~
+A rent timer for blue suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45925
+purple-suite rent-timer PARCHMENT~
+purple-suite rent-timer~
+A rent timer for purple suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45928
+yellow-suite rent-timer PARCHMENT~
+yellow-suite rent-timer~
+A rent timer for yellow suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45931
+green-suite rent-timer PARCHMENT~
+green-suite rent-timer~
+A rent timer for green suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45934
+gold-suite rent-timer PARCHMENT~
+gold-suite rent-timer~
+A rent timer for gold suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45937
+silver-suite rent-timer PARCHMENT~
+silver-suite rent-timer~
+A rent timer for silver suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45940
+bronze-suite rent-timer PARCHMENT~
+bronze-suite rent-timer~
+A rent timer for bronze suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45944
+rented copper-timer PARCHMENT~
+Copper Suite rented timer~
+Copper Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45939 0 0 0 0
+#45943
+copper-suite rent-timer PARCHMENT~
+copper-suite rent-timer~
+A rent timer for copper suite for Caolafon Housing Complex is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45902
+rented bear-timer PARCHMENT~
+Bear Suite rented timer~
+Bear Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45901 0 0 0 0
+#45905
+rented moose-timer PARCHMENT~
+Moose Suite rented timer~
+Moose Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45904 0 0 0 0
+#45908
+rented wolf-timer PARCHMENT~
+Wolf Suite rented timer~
+Wolf Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45907 0 0 0 0
+#45911
+rented elk-timer PARCHMENT~
+Elk Suite rented timer~
+Elk Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45910 0 0 0 0
+#45914
+rented horse-timer PARCHMENT~
+Horse Suite rented timer~
+Horse Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45913 0 0 0 0
+#45917
+rented white-timer PARCHMENT~
+White Suite rented timer~
+White Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45916 0 0 0 0
+#45920
+rented red-timer PARCHMENT~
+Red Suite rented timer~
+Red Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45919 0 0 0 0
+#45923
+rented blue-timer PARCHMENT~
+Blue Suite rented timer~
+Blue Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45922 0 0 0 0
+#45926
+rented purple-timer PARCHMENT~
+Purple Suite rented timer~
+Purple Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45925 0 0 0 0
+#45929
+rented yellow-timer PARCHMENT~
+Yellow Suite rented timer~
+Yellow Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45928 0 0 0 0
+#45932
+rented green-timer PARCHMENT~
+Green Suite rented timer~
+Green Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45931 0 0 0 0
+#45935
+rented gold-timer PARCHMENT~
+Gold Suite rented timer~
+Gold Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45934 0 0 0 0
+#45938
+rented silver-timer PARCHMENT~
+Silver Suite rented timer~
+Silver Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45937 0 0 0 0
+#45941
+rented bronze-timer PARCHMENT~
+Bronze Suite rented timer~
+Bronze Suite rented timer is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45940 0 0 0 0
+#45206
+key white-room METAL~
+a white-colored key~
+A white-colored key has been left here.~
+This is the key to the White Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45915 0 28 0 0
+#45207
+key red-room METAL~
+a red-colored key~
+A red-colored key has been left here.~
+This is the key to the Red Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45918 0 28 0 0
+#45210
+key blue-room METAL~
+a blue-colored key~
+A blue-colored key has been left here.~
+This is the key to the Blue Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45921 0 28 0 0
+#45211
+key purple-room METAL~
+a purple-colored key~
+A purple-colored key has been left here.~
+This is the key to the Purple Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45924 0 28 0 0
+#45208
+key yellow-room METAL~
+a yellow-colored key~
+A yellow-colored key has been left here.~
+This is the key to the Yellow Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45927 0 28 0 0
+#45209
+key green-room METAL~
+a green-colored key~
+A green-colored key has been left here.~
+This is the key to the Green Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+150.000000 4320 45930 0 28 0 0
+#45213
+key gold-room METAL~
+a gold-colored key~
+A gold-colored key has been left here.~
+This is the key to the Gold Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+300.000000 4320 45933 0 28 0 0
+#45215
+key silver-room METAL~
+a silver-colored key~
+A silver-colored key has been left here.~
+This is the key to the Silver Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+300.000000 4320 45936 0 28 0 0
+#45217
+key bronze-room METAL~
+a bronze-colored key~
+A bronze-colored key has been left here.~
+This is the key to the Bronze Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+300.000000 4320 45939 0 28 0 0
+#45219
+key copper-room METAL~
+a copper-colored key~
+A copper-colored key has been left here.~
+This is the key to the Copper Suite in the Caolafon Housing Complex.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+300.000000 4320 45942 0 28 0 0
+#45290
+key barracks_key cao_marsh_barracks green iron METAL~
+a green iron key~
+A green iron key has been left here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#45001
+Fifty x50Archers xCao xCaolafon leather clad archers Heron Snake cloak Ithilien_War xShiningArrows OTHER~
+#5a group of fifty Marsh Warden archers#0~
+#5A formation of fifty Heron and Snake cloaked Marsh Warden archers led by a champagne-haired, clean-shaven Brimskr stand here, bows by their sides.#0~
+   Sturdy armor protecting their forms, two and a half score 
+archers have been assembled here, rustling Heron and Snake cloaks 
+marking them as members of the Marsh Wardenry of Caolafon. With 
+bows at their sides, a quiver full of sturdy arrows at their 
+backs, and sword tucked into their belts, they stand at the ready 
+to engage the enemy. The fur-lined cloak of #5a champagne 
+haired, clean shaven Brimskr#0 stands out amidst the gathering as 
+he issues commands in Atliduk and accented Westron. 
+~
+12 4096 1
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45002
+Fifty 50Infantry light infantry xCao xCaolafon Heron Snake cloak Ithilien_War XEagleCompany OTHER~
+#5a group of fifty Marsh Warden infantry#0~
+#5Assembled here is a formation of axe and sword-bearing Marsh Wardens, a slim, honey-bearded Brimskr standing out amidst the company.#0 ~
+   Clad in riveted-iron chainmail of the Northern style each of 
+the fifty soldiers within this company wears the Heron and Snake 
+cloak of the Marsh Wardens of Caolafon. Split between light 
+sword and throwing axemen, this group carries for stealth rather 
+than strength. The fur-lined cloak of #5a slim, honey-bearded 
+Brimskr#0 stands out amidst the gathering as he issues commands 
+in Atliduk and accented Westron. Feathers and markings of an 
+avian nature mark many of the men with this company. 
+~
+12 4096 1
+45004 5 0 0
+100 0.000000
+0 0 0 0 0 0 1
+450.000000 0 0 0 0 0 0
+#45003
+Fifty 50Infantry light infantry xCao xCaolafon Heron Snake cloak Ithilien_War XBoarCompany OTHER~
+#5a group of fifty Marsh Warden infantry#0~
+#5Assembled here is a formation of hammer, sword, and shield-bearing Marsh Wardens, a hefty, scar-lipped Brimskr standing out amidst the company.#0 ~
+   Clad in riveted-iron chainmail of the Northern style each of 
+the fifty soldiers within this company wears the Heron and Snake 
+cloak of the Marsh Wardens of Caolafon. Large of stature and 
+girth, the heavy warhammer, claymore, and shield wielding men 
+here appear hale and hefty. The fur-lined cloak of #5a hefty, 
+scar-lipped Brimskr #0 stands out amidst the gathering as he 
+issues commands in Atliduk and accented Westron. Boar-tusk 
+daggers and other porcine decorations mark many of the soldiers. 
+~
+12 4096 1
+45005 5 0 0
+100 0.000000
+0 0 0 0 0 0 1
+600.000000 0 0 0 0 0 0
+#45165
+key yellow cao_bakery iron METAL~
+a yellow iron key~
+A yellow iron key has been left here, forgotten.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45004
+BOARSHEAD_KITCHEN_BOARD message board curly thin OTHER~
+#5a thin, curly-haired woman giving messages#0~
+#5A thin, curly-haired young woman gives messages here.#0~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45137
+key six-tooth copper MW_SHOP METAL~
+a six-tooth copper key~
+A six-tooth copper key has been left here, forgotten.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#45005
+tankard engraved boar wooden BOARSHEAD_INN WOOD~
+a boar-head engraved tankard~
+A boar-head engraved tankard lies here, contents spilled.~
+   A knowledgeable hand obviously engraved this tankard from a 
+fairly low quality and knotty, yet serviceable type of wood. The 
+fierce and proud imagine of a wild boar covers the front of this 
+vessel the beasts complete with deeply carved beady eyes and 
+long, thick tusks. Finely etched lines around the image show the 
+coarse bristles of the animal, true to form. 
+~
+17 4096 1
+15 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45006
+shot shooter boar trotter BOARSHEAD_INN WOOD~
+a boar-trotter shooter~
+A boar-trotter shooter lies here, contents wasted.~
+   This small wooden shooter was carefully carved out of a knot 
+from some felled tree, the warp lines tight and compact. Barely 
+a mouthful would fit into this tiny vessel - its outside engraved 
+with the small etching of the track caused by a boar's trotter. 
+Obviously meant for the consumption of powerful spirits or 
+expensive elixirs, one would need a significant number of these 
+to truly quench any kind of intense thirst. 
+~
+17 0 1
+1 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45358
+key rusty bronze TRAV_STORAGE METAL~
+a rusty bronze key~
+A rusty bronze key has been left here, forgotten.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#45363
+jailkey jailer's key iron thick METAL~
+a thick iron jailer's key~
+A thick iron key lays in the dirt here, forgotten.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45007
+cloak CAO_MARSH_UNIQUE earthen brown hooded heron snake Marshwarden TEXTILE~
+a hooded, earthen brown cloak emblazoned with a heron and snake emblem~
+A hooded, earthen brown cloak has been left here, a heron and snake emblem emblazoned upon it's back.~
+   Made of weather-treated earthen brown dyed leather, this cloak 
+is perfect for use in wet and humid environs. The cloak has a 
+deep cowled hood that can be pulled down far over the face to 
+avoid light or bugs. On the back of the cloak the emblem of the 
+Marsh Wardens has been emblazoned in the form of a green shield 
+with a white heron grasping a red snake in it's mouth. The 
+emblem takes up the majority of the upper back of the cloak. 
+~
+11 528384 1025
+0 0 0 0
+100 0.000000
+0 
+earthen-brown-cloaked~
+0 29 268435968 0 1
+200.000000 0 0 0 14 0 0
+#45009
+cloak CAO_MARSH_UNIQUE earthen brown hooded heron snake fur Marshwarden Leader TEXTILE~
+a fur-lined hooded, earthen brown cloak emblazoned with a heron and snake emblem~
+A fur-lined hooded, earthen brown cloak has been left here, a heron and snake emblem emblazoned upon it's back.~
+   Made of weather-treated earthen brown dyed leather, this cloak 
+is perfect for use in wet and humid environs. The cloak has a 
+deep cowled hood that can be pulled down far over the face to 
+avoid light or bugs. This particular cloak as been lined with a 
+thin fur inside. On the back of the cloak the emblem of the 
+Marsh Wardens has been emblazoned in the form of a green shield 
+with a white heron grasping a red snake in it's mouth. The 
+emblem takes up the majority of the upper back of the cloak. 
+~
+11 528384 1025
+0 0 0 0
+100 0.000000
+0 
+fur-lined-earthen-brown-cloaked~
+0 35 268435968 0 1
+300.000000 0 0 0 14 0 0
+#45010
+banner UNIQUE_MARSHWARDEN insignia white heron red snake green shield TEXTILE~
+a tall banner bearing the insignia of a white heron gripping a red snake on a field of green~
+A tall banner bearing the insignia of a white heron gripping a red snake on a field of green hangs here.~
+   Made from a length of green linen, the insignia of a white 
+heron gripping a red snake has been sewn masterfully upon its 
+surface. Four hoops of material line the top of the banner, 
+allowing a spear or pole to be strung through it. Sewn beneath 
+the insignia are sigils which bear the name Marshwardens of 
+Caolafon in gold thread. 
+~
+12 4096 524289
+0 0 0 0
+600 0.000000
+0 0 0 35 0 0 1
+100.000000 0 0 0 32 0 0
+#45377
+painting P_BOROGIL ancient rowan dusty landscape OTHER~
+A large, ancient painting of a landscape~
+A large, ancient painting of a landscape is here.~
+   This painting is very, very ancient. And, even through the 
+layers of dust, it obviously was the work of an artist of 
+surpassing skill. The paints were applied with a thickness and a 
+texture that lets you see every stroke the artist made, when 
+close up. Standing further back, you see a night time depiction, 
+from a distance, of a city of glittering lights, with a massive, 
+white tower in its center. The city has a harbour, and many 
+white ships in the shape of swans are seen. The harbour is 
+encircled by jagged cliffs. One of the ships is shown sailing 
+under a stone archway, apparently leading out to the Sea. 
+Through the dust, a light atop a great distant mountain in the 
+background glows, and draws your eye. The paint was not applied 
+to canvas, but to wood, from a single great tree, as can be seen 
+by looking on the back side of the panel. The frame surrounding 
+the piece is of lesser antiquity, but still very fine, and 
+matches it well. It is made of four elegant sections of Rowan, 
+engraved with the images of seven golden-leafed stars, their 
+applique faintly-peeling, and many leaves green-hued Holly. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45372
+dog head key METAL~
+a key shaped like a dog's head~
+A key shaped like a dog's head is here.~
+   This metal key has been shaped to look like the head of a dog. 
+The artisan gave the key's handle both long ears and a very large 
+muzzle. 
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45178
+small complex key METAL~
+a small, complex key~
+A small, complex key is here.~
+This small, metal key has a complex pattern of teeth.
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45373
+small complex key METAL~
+a small, complex key~
+A small, complex key is here.~
+This small, metal key has a complex pattern of teeth.
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45376
+horse key bedroom METAL~
+a horse shaped metal key~
+A horse shaped metal key is here.~
+This key is shaped like the head of a horse.
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45084
+key green-tassled BH_Room METAL~
+a key with a green tassel~
+A key with a green tassel has been left here.~
+This is the key to the Green Suite in the Boar's Head Inn.
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+30.000000 720 45088 0 0 0 0
+#45085
+key blue-tassled BH_Room METAL~
+a key with a blue tassel~
+A key with a blue tassel has been left here.~
+This is the key to the Boar's Blue Suite in the Boar's Head
+Inn.
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+30.000000 720 45089 0 28 0 0
+#45086
+key yellow-tassled BH_Room METAL~
+a key with a yellow tassel~
+A key with a yellow tassel has been left here.~
+This is the key to the Yellow Suite in the Boar's Head Inn.
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+30.000000 720 45090 0 0 0 0
+#45087
+key red-tassled BH_Room METAL~
+a key with a red tassel~
+A key with a red tassel has been left here.~
+This is the key to the Red Suite in the Boar's Head Inn.
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+30.000000 720 45091 0 0 0 0
+#45088
+expired rent agreement rental green-room BH_INN PARCHMENT~
+an expired rental agreement for the Green Room at the Boar's Head Inn~
+An expired rental agreement for the Green Room in the Boar's Head Inn has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45089
+expired rent agreement rental blue-room BH_INN PARCHMENT~
+an expired rental agreement for the Blue Room at the Boar's Head Inn~
+An expired rental agreement for the Blue Room in the Boar's Head Inn has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45090
+expired rent agreement rental yellow-room BH_INN PARCHMENT~
+an expired rental agreement for the Yellow Room at the Boar's Head Inn~
+An expired rental agreement for the Yellow Room in the Boar's Head Inn has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45091
+expired rent agreement rental red-room BH_INN PARCHMENT~
+an expired rental agreement for the Red Room at the Boar's Head Inn~
+An expired rental agreement for the Red Room in the Boar's Head Inn has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#45092
+green-room rent-timer BH_ROOM PARCHMENT~
+green-room rent-timer for Boar's Head Inn~
+A rent timer for the green room for Boar's Head Inn is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45093
+blue-room rent-timer BH_ROOM PARCHMENT~
+blue-room rent-timer for Boar's Head Inn~
+A rent timer for the blue room for Boar's Head Inn is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45094
+yellow-room rent-timer BH_ROOM PARCHMENT~
+yellow-room rent-timer for Boar's Head Inn~
+A rent timer for the yellow room for Boar's Head Inn is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45095
+red-room rent-timer BH_ROOM PARCHMENT~
+red-room rent-timer for Boar's Head Inn~
+A rent timer for the red room for Boar's Head Inn is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45096
+rented green-room-timer BH_INN PARCHMENT~
+Green Room rented timer~
+Green Room rented timer for Boar's Head Inn is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 45092 0 0 0 0
+#45097
+rented blue-room-timer BH_INN PARCHMENT~
+Blue Room rented timer~
+Blue Room rented timer for Boar's Head Inn is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 45093 0 0 0 0
+#45098
+rented yellow-room-timer BH_INN PARCHMENT~
+Yellow Room rented timer~
+Yellow Room rented timer for Boar's Head Inn is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 45094 0 0 0 0
+#45099
+rented red-room-timer BH_INN PARCHMENT~
+Red Room rented timer~
+Red Room rented timer for Boar's Head Inn is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 45095 0 0 0 0
+#45083
+boars_head_rent_Board Naamah rosey-cheeked young lass OTHER~
+#5a rosey-cheeked young lass#0~
+#5A rosey-cheeked young lass sits behind a desk, renting rooms.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45011
+tall olive green white flower plant growing cluster pepper Water-Pepper VEGETATION~
+a growing cluster of white-flowered olive-green plants~
+A cluster of white-flowered olive-green plants grows in the water here.~
+   Growing amidst weedy growth of aquatic plants and grasses in 
+this watery area, this reddish-brown stemmed cluster of plants 
+sprawls amidst the other flora, branching to about two feet from 
+the waterline. Long, tapering, olive-green leaves are 
+interspered with drooping, green stamens dotted with green and 
+white, and rarely pink-topped flowers. When the plant is at 
+seed, waterfowl and songbirds are often found within the foliage 
+of these water-pepper plants. 
+~
+29 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45012
+stalk olive green white flower pepper plant Water-Pepper VEGETATION~
+a stalk of olive-green with greenish-white flowers~
+A stalk of olive-green with greenish-white flowers lies here uprooted.~
+   Though the long, tapering leaves olive-green leaves of this 
+plant stalk lack the furry appearance of Stinging Nettle, 
+mishandling or crushing this Water Pepper with bare hands 
+produces a similiar reaction - itching and rash. Fibrous roots 
+spread out from the bottom, that cling with the moist, earthy 
+scent of the area this plant thrives in. 
+~
+31 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+2.000000 0 0 0 32 0 0
+#45013
+flowers Water-Pepper pepper handful herb plant herbalism_craft VEGETATION~
+a handful of greenish-white Water-Pepper flowers~
+Some greenish-white Water-Pepper flowers sit here, getting trampled. ~
+   This small handful of white and green flowers is tinged with 
+the occassional hint of pink. Many segmented, they look like 
+wheat-buds or small berries. Fresh from the stalk, they have 
+little hint of aroma. 
+~
+31 4194304 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+2.500000 0 0 0 0 0 0
+#45014
+flowers Water-Pepper pepper handful herb plant herbalism_craft VEGETATION~
+a handful of dried, pungent Water-Pepper flowers~
+A handful of dried, pungent Water-Pepper flowers sits here.~
+   This dried handful of faded white and green flowers has taken 
+on the brownish-grey tinge of drynes. Several flowers are 
+bruised and give off an acrid, peppery scent, an oily sheen 
+leaking from the green pods that hold the flowers. 
+~
+31 4194304 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 0 0 0
+#45015
+greens Water-pepper pungent pepper raw OTHER~
+a handful of raw, pungent Water-Pepper leaves~
+Some raw Water-Pepper leaves give off a pungent smell.~
+~
+19 4194304 1
+2 0 0 0
+18 0.000000
+0 1 0 0 268436480 0 1
+0.500000 0 0 0 0 0 0
+#45016
+greens cooked chopped Water-Pepper pungent pepper OTHER~
+a serving of pungent, peppery greens~
+A serving of boiled, pungent, peppery greens sits here.~
+~
+19 0 1
+3 0 0 0
+30 0.000000
+0 2 0 0 0 0 1
+1.100000 8640 90772 0 0 0 0
+#45021
+pepper flower water water-pepper dried OTHER~
+a handful of drying water-pepper flowers~
+A handful of drying water-pepper flowers gives off a faint scent.~
+~
+31 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 217 45014 0 0 0 0
+#45405
+key heron-shaped iron METAL~
+a heron-shaped iron key~
+A heron-shaped iron key has been left here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#45022
+snakeskin greenish-brown massive pile LEATHER~
+a massive greenish-brown snakeskin~
+A massive pile of greenish-brown snakeskin lies here.~
+This is an absolutely massive amount of snakeskin, almost thirty
+feet in length. The scales are a greenish-brown color with black
+and white diamonds accenting it along it's length. It is ready
+for use in crafting.
+~
+38 4198400 1
+0 0 0 0
+200 0.000000
+0 0 0 0 268436512 0 1
+30.000000 0 0 0 14 0 0
+#45023
+pants snakeskin belted leather CAO_MARSH LEATHER~
+a pair of belted greenish-brown snakeskin pants~
+Someone has left a pair of greenish-brown snakeskin pants in a pile here.~
+   These pants have been made from the skin of the giant marsh 
+snake and is a greenish-brown color. Black and white diamonds 
+line the outer seam of the pants and two pockets have been sewn 
+into the outside seams. The pants button up the front and have a 
+built-in belt of the same greenish-brown snakeskin. A bronze 
+buckle adorns the front of the belt. The emblem of the Marsh 
+Wardens, a heron catching a snake has been seared into the right 
+hip of the pants, barely noticeable to the naked eye. 
+~
+15 4096 2081
+200 0 -1 0
+200 0.000000
+0 0 0 35 268435488 0 1
+200.000000 0 0 0 14 0 0
+#45024
+armband CAO_MARSH snakeskin greenish-brown heron-snake LEATHER~
+a greenish-brown snakeskin armband bearing a heron and snake emblem~
+A greenish-brown snakeskin armband bearing a heron and snake emblem lies here.~
+   This armband has been crafted from a greenish-brown snakeskin. 
+It buckles on the inside of the arm and bears the heron and snake 
+emblem of the Marsh Wardens of Caolafon on the outer side. 
+~
+11 135168 134217729
+0 0 0 0
+5 0.000000
+0 0 0 0 268436000 0 1
+0.000000 0 0 0 14 0 0
+#45025
+heavy wooden palisade gate NORTH_FACING OTHER~
+a reinforced section of wooden palisade~
+A reinforced section of wooden palisade blocks the way north.~
+   This reinforced section of wooden palisade blocks the way 
+further north. Though steady, with enough force assuredly a 
+force could #6break#0 the #6palisade#0. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45321
+Mouse tiny golden fur POFKISKA_PET OTHER~
+#5a tiny mouse with golden fur#0~
+#5A tiny mouse with golden fur sits here, peering around curiously.#0~
+   This tiny mouse, no bigger than a childs palm, has soft golden 
+fur covering its little body. Behind it a little thin tail curls 
+back. At the tip of its little pink nose, a half-dozen long 
+whiskers sprout, each of these quivers with a nigh constant 
+twitching. Little paws set with tiny claws and a pair of equally 
+small teeth give this little rodent the chance to give an 
+annoying nip. 
+~
+11 4608 95162837
+0 0 0 0
+100 0.000000
+0 0 0 40 0 0 1
+0.000000 0 0 0 32 0 0
+#45329
+sailor dirty few types boast AmdirtradeboardCao OTHER~
+#5a few dirty sailor type#0~
+#5A few dirty sailor types linger here, boasting.#0~
+   A small group of salty, ruffians, toss back tankards of beer 
+while they gossip. 
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45330
+dandy regal man impeccable grooming OTHER~
+#5a regal man with impeccable grooming#0~
+#5A regal man with impeccable grooming stands behind the counter, taking orders.#0~
+   A small group of salty, ruffians, toss back tankards of beer 
+while they gossip. 
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45331
+key iron etched knife hide CAOLEATHERSHOPBEDROOM METAL~
+an iron key etched with a knife and hide motif~
+An iron key lies here, its handle etched.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#45364
+cao_jail_board ledger prisoner records OTHER~
+a ledger of prisoner records~
+A ledger sits on the desk here with the records of the prisoners of the jail.~
+~
+22 4104 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45281
+cao_jail_reception_board forms stack papers OTHER~
+a large stack of forms and papers~
+Large stacks of forms and papers sit on the desk here.~
+~
+22 4104 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45026
+frog leg raw MEAT~
+a raw frog leg~
+Someone has left a raw frog leg here.~
+This is a raw frog leg, skinned and ready for cooking.
+~
+19 4096 1
+3 0 0 0
+100 0.000000
+0 2 0 0 0 0 1
+2.000000 0 0 0 0 0 0
+#45999
+configuration object random OTHER~
+a random object configuration object~
+Some careless admin has left a generic object here.~
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45030
+huge bell beaten iron suspended CAOCROSSROADBELL METAL~
+a huge, raised bell of beaten iron~
+A huge bell of beaten iron has been suspended here, held aloft by two sturdy wooden legs.~
+   This huge bell has been made of tough, beaten iron. It hangs 
+in the air, supported by a sturdy A-frame of treated timber. The
+construction as a whole is simple and robust with the only 
+decoration being that of a simple etching of a heron ringed by 
+several looking toads. The embelishment is of poor quality, far 
+from that of the frame itself, it looks to be far newer than the 
+bell itself. Strapped to the crossbeam of the frame lies a heavy 
+wooden hammer lies, that too suitably defaced with a frogs 
+leering face.
+You may #6strike#0 the bell #6once#0, #6twice#0, or #6thrice#0.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#45027
+iron bound door _HEREN_ _HC_ OTHER~
+an iron bound door~
+An Iron bound door is set into the west wall.~
+   This iron bound door is heavy and strong. Leaders of the 
+Heren Carnatalion may #6enter#0 the #6strongroom#0 through it. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45031
+box heavy palm sized ring UNIQUE_POFTELDCALA METAL~
+a heavy, palm-sized ring box~
+A heavy, palm-sized ring box lies here.~
+   Belying its size, this small ring box is exceptionally heavy, 
+weighty in the hand due to it unusual construction. Solid steel 
+has been folded and tempered to form the box, the walls unusually 
+thick and exceedingly strong. When closed, the box seems almost 
+seamless, only a very careful inspection revealing the hair thin 
+separation between top and bottom. The box opens on internal 
+hinges, leaving no point vulnerable on the exterior. An artful 
+clasp upon the front holds the box sealed; forged in the image of 
+a beautiful fountain, water spilling over the top to the front 
+where the keyhole of the lock is. Tiny crystals have been 
+embedded within the clasp, giving the waters of the fountain a 
+sense of fluid shimmer and light against the tempered steel. 
+~
+15 4096 1
+2 1 45032 100
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 18 0 0
+#45032
+key fountain slender UNIQUE_POFTELDCALA RINGBOXKEY METAL~
+a slender, fountain-headed key~
+A slender key worked in the shape of a fountain lies here.~
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45033
+key stamped axe key POFHOAR METAL~
+a heavy, axe stamped key~
+A heavy, axe stamped key lies here, on the floor.~
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45147
+key swan rope entwined fImportExportCao METAL~
+an iron rope-entwined swan-shaped key~
+An iron key with a rope-entwined swan-shaped handle has been left here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45443
+caihana_import_export_board board request notice WOOD~
+a notice board for requests~
+A large notice board is set next to the counter, where requests can be made.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#45029
+rice wild brown black marshy OTHER~
+a serving of black and brown wild rice~
+A serving of black and brown wild rice sits here, giving off a slightly marshy smell.~
+   A plethora of beige, brown, and black shades make up this 
+small, individual portion of wild rice. Some has been boiled so 
+some grains curl and bend showing their meaty white insides, 
+while samples throughout are slightly underdone, giving the mixed 
+mouthfeel of warm chewiness flecked with crunch. A marshy, 
+yeasty, almost bread-like smell eminates from the rice, its dense 
+nature making it a nutritious meal. 
+~
+19 4096 1
+5 0 0 0
+40 0.000000
+0 3 0 30 419430400 0 1
+2.000000 8640 90772 0 0 0 0
+#45034
+hawkestone_staff_cao Ryna curly haired lass OTHER~
+#5a curly-haired young lass#0~
+#5A curly-haired young lass stands here, cheerfully taking messages.#0~
+   This young lass, barely out of adolescence, has a mass of 
+curly brown hair that falls haphazardly around her slim face. 
+Her eyes are a bright, clear blue color, seeming to laugh even 
+when she wears a serious expression. She speaks rather rapidly 
+at times, in such a way that occasionally makes her difficult to 
+understand unless she makes a point to stop and slow down. She 
+is relatively short, but her limbs are long and awkward. 
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45035
+skunk stink smell stench spray progskunkstink OTHER~
+#Athe stench of skunk spray#0~
+#AThe stench of skunk spray clings to this individual.#0~
+~
+11 0 67108864
+0 0 0 0
+100 0.000000
+0 0 0 0 4194304 0 1
+0.000000 0 0 0 0 0 0
+#45051
+boiled frog leg cooked MEAT~
+a boiled frog leg~
+A boiled frog leg has been left here, glistening moistly.~
+   The pale meat attached to the jointed bones of the lower half 
+of a frog has been boiled to a point where the meat is cooked and 
+edible. It has barely any seasoning and remains pasty in color. 
+~
+19 4096 1
+3 0 0 0
+300 0.000000
+0 2 0 30 0 0 1
+3.000000 0 0 0 0 0 0
+#45052
+fried cooked frog leg legs MEAT~
+a pair of fried frog legs~
+A pair of fried frog legs lie here showing off their nicely browned exterior.~
+   Crunchy breading surrounds the succulent meat on these small 
+legs, fried to a nice and crispy golden brown. Each pair of legs 
+is but a few mouthfuls, but they promise to be delicious 
+mouthfuls if the scent is anything to judge by. 
+~
+19 4096 1
+6 0 0 0
+300 0.000000
+0 4 0 30 0 0 1
+7.000000 0 0 0 0 0 0
+#45053
+baked frog leg legs mushroom sauce MEAT~
+a serving of baked frog legs smothered in a mushroom sauce~
+A serving of baked frog legs smothered in a mushroom sauce have been left on a plate here.~
+   These delectable tidbits of meat have been boiled to juicy 
+perfection and smothered in a warm sauce of herbed cream and 
+mushrooms. There are enough frog legs to make a filling portion 
+when paired with the rich sauce. 
+~
+19 4096 1
+8 0 0 0
+300 0.000000
+0 4 0 30 0 0 1
+10.000000 0 0 0 0 0 0
+#45040
+key long steel many tome CAO_LORE_HOUSE METAL~
+a long, multi-toothed steel key~
+A long, multi-toothed steel key sits here.~
+   This long, well-crafted key holds the steady weight of poured 
+steel. Complex, and many-toothed, its flat handle shows the 
+raised detail of an open tome. Unique, it must certainly only 
+fit one suitable lock of equal complexity. 
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 4194304 0 1
+0.000000 0 0 0 0 0 0
+#45028
+tapestry enormous wool TEXTILE~
+an enormous, fine wool tapestry~
+An enormous, fine wool tapestry is here.~
+   This tapestry is a prodigious work, sized for hanging in a 
+large Hall. The team of artisans who created it used wool dyed 
+in a variety of bright colors. There are no unusual hues, just 
+blues and whites, and greys and greens, and other colors found in 
+nature. Yet the work is masterful, the scene stunning. The 
+background is beautiful, bright sky with perfect wisps of cloud 
+and elegant, tall trees reaching skyward, some in pale pink 
+flower. In the foreground is a grass covered mound laced with 
+small white flowers, a woman rests upon a stone set at its crest. 
+She is looking to her feet, where a roundshield patterned in 
+green has been placed alongside a helm of silver and gold. In 
+her lap, a spear with a rusting tip lies, grasped loosely in her 
+fingers. Long golden hair cascades over bare shoulders, offset 
+by a gown of the finest ivory. Her cloak of gold with a lining 
+matched to her gown has been cast unnoticed by her side. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45036
+table side intricately inlaid WOOD~
+an intricately inlaid side table~
+An intricately inlaid side table has been set along the wall here.~
+   This table of deeply lacquered, dark grained wood has been 
+inset with more than a thousand tiny pieces of bright tile, and 
+numerous cut gems. Jasper, turquoise, amethyst, and tourmaline 
+are among the semiprecious stones that were stippled to depict a 
+waterway, passing through a narrowed passage between two cliffs 
+that then open into a wide lake. At the lake's farther end a 
+tall mountain rises up, sheer cliffs overhanging the water. 
+~
+15 4104 1
+100 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45037
+tapestry small patterned TEXTILE~
+a small patterned tapestry~
+A small, patterned tapestry has been hung here.~
+   A lush background of dark green fabric has been painstakingly 
+woven with a floral design. Soft blue petals fan out, inset with 
+tiny clusters of red bell florets. Closed tulips are depicted in 
+shades of red and orange, white stamen protruding. Intertwining 
+vines weave their way through the flowers and along the edges of 
+the piece, providing a cohesive, natural finish. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45017
+dreng armor package CAO_MARSH byLegolon OTHER~
+a package of Dreng armor~
+A large package of Dreng armor lies here.~
+   A large burlap sack contains various armor items usable by the 
+Marsh Warden Drengs. 
+~
+12 0 1
+0 0 0 0
+500 0.000000
+0 0 0 30 512 0 1
+300.000000 0 0 0 0 0 0
+#45018
+spjot armor package CAO_MARSH byLegolin OTHER~
+a package of Spjot armor~
+A large package of Spjot armor lies here.~
+   A large burlap sack contains various armor items usable by the 
+Marsh Warden Spjots. 
+~
+12 0 1
+0 0 0 0
+500 0.000000
+0 0 0 30 512 0 1
+300.000000 0 0 0 0 0 0
+#45019
+brimskr armor package CAO_MARSH byLegolin OTHER~
+a package of Brimskr armor~
+A large package of Brimskr armor lies here.~
+   A large burlap sack contains various armor items usable by the 
+Marsh Warden Brimskr. 
+~
+12 0 1
+0 0 0 0
+500 0.000000
+0 0 0 30 512 0 1
+300.000000 0 0 0 0 0 0
+#45020
+hundredsman armor package CAO_MARSH byLegolin OTHER~
+a package of Hundredsman armor~
+A large package of Hundredsman armor lies here.~
+   A large burlap sack contains various armor items usable by the 
+Marsh Warden Hundredsmen. 
+~
+12 0 1
+0 0 0 0
+500 0.000000
+0 0 0 30 512 0 1
+300.000000 0 0 0 0 0 0
+#45450
+gherdin_timber_board lad thick hardy Jimmy BOARD OTHER~
+a thick, hardy lad~
+A thick, hardy lad stands here overseeing the inventory.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45038
+small two canoe NORTHMEN WOOD~
+a small, two-person canoe~
+A small, two-person canoe floats here.~
+~
+15 2101248 1
+50000 0 -1 0
+3000 0.000000
+0 2 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#45041
+rice patch mature wild xCao_Craft OTHER~
+a patch of mature wild rice~
+A patch of mature wild rice stands amidst the larger growth.~
+   This section of rich, aquatic grass spreads out from the 
+marshy surface of the water. Now during the high summer months, 
+mature grains of a variety of brown and black brackish hues cling 
+to the panicles, breaking off when the stalk is hit or struck and 
+offering a rich bounty of food for man or beast. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#45042
+CAO_LOREHOUSE mop headed teenaged girl Anna board OTHER~
+#5a mop-headed teenaged girl#0~
+#5A mop-headed teenaged girl stands here passing along messages.#0~
+A young girl of about the age of sixteen summers or so. Her brown hair is almot shockingly bushy, sticking out in all sorts of directions. A quill rests haphazardly behind one ear.
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45043
+CAO_BAKERY board petite girl yellow curls OTHER~
+#5a petite girl with yellow curls#0~
+#5A petite girl with yellow curls stands here relaying messages.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45044
+small sack seeds sugarbeet VEGETATION~
+a small sack of sugarbeet seeds~
+A small sack of sugarbeet seeds lays here.~
+   This is a small sack filled with sugarbeet seeds. The top is 
+fastened by a fraying, pale yellow rope and a pale sugarbeet has 
+roughly been painted onto the burlap surface. 
+~
+12 0 1
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+35.000000 0 0 0 0 0 0
+#45045
+sugarbeet small plot closely planted xFAILOBJ young VEGETATION xCAO_CRAFT~
+a small plot of closely planted young sugarbeet plants~
+A small plot of closely planted sugarbeet plants sprout here.~
+   This small plot sprouts tiny sugarbeet seedlings that barely 
+protrude from the earth. Many of them grow dangerously close 
+together, risking the potential bounty of this sweet crop. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 45058 0 0 0 0
+#45046
+sugarbeet small plot young VEGETATION xCAO_CRAFT~
+a small plot of closely growing sugarbeet plants~
+A small plot of closely growing sugarbeet plants shouts up from the ground.~
+   This small plot sprouts several clusters of close growing 
+sugarbeet stalks, and a fair number of weeds that begin to 
+strangle and invade the crop patch. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1056 91337 0 0 0 0
+#45047
+sugarbeet small plot young VEGETATION xSUCCESSOBJ xCAO_CRAFT~
+a small plot of young sugarbeet plants~
+A small plot of young sugarbeet plants sprout here.~
+   This small plot sprouts tiny sugarbeet seedlings that barely 
+protrude from the earth. They seem to be a good distance away 
+from another with no signs of ailment. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 45048 0 0 0 0
+#45048
+sugarbeet small plot young VEGETATION xCAO_CRAFT~
+a small plot of growing sugarbeet plants~
+A small plot of growing sugarbeet plants grows here.~
+   Small sugarbeet stalks have begun to rise out of the earth, 
+quite healthy in their colouring. There are also a number of 
+weeds. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1056 91337 0 0 0 0
+#45050
+sugarbeet unevenly flowering VEGETATION xCAO_CRAFT~
+some unevenly flowering sugarbeet~
+Rows of unevenly flowering sugarbeets grow here.~
+   The sugarbeets are growing well, but the flowers aren't quite 
+perfect. The weeding didn't go as well, and it's affected their 
+growth. Still, there are plenty of blooms. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 45056 0 0 0 0
+#45054
+sugarbeet flowering plot VEGETATION xCAO_CRAFT~
+a small plot of flowering sugarbeets~
+A small plot of flowering sugarbeets grow here.~
+   These sugarbeets are growing well, and the flowers are nearly 
+perfect. The weeding went well, and the plants are taking 
+advantage of the well tended soil. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 45057 0 0 0 0
+#45055
+sugar beet uneven poorly plot flowering xFAILOBJ VEGETATION xCAO_CRAFT~
+a small plot of poorly-flowering sugarbeets~
+A small plot of poorly-flowering sugarbeets grow here.~
+   These ripening sugarbeets are struggling to grow, with only a 
+small number of the plants showing signs of life. Many of them 
+are bruised in areas. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 45058 0 0 0 0
+#45056
+sugarbeet uneven ripening plot VEGETATION xCAO_CRAFT~
+a small plot of unevenly ripening sugarbeets~
+A small plot of unevely ripening sugarbeets grow here.~
+   These sugarbeets are growing well, but the flowers aren't 
+quite perfect. The weeding didn't go as well, and it's affected 
+their growth. Still, there are plenty of blooms which are 
+starting to get larger. They grow in uneven clusters. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 45058 0 0 0 0
+#45057
+sugarbeet ripening plot VEGETATION xCAO_CRAFT~
+a small plot of ripening sugarbeets~
+A small plot of ripening sugarbeets grow here.~
+   These sugarbeet are growing rather well. There are a few 
+weeds between them, and a large number of healthy ones. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 45060 0 0 0 0
+#45058
+sugarbeet unevenly grown ripe plot xCAO_CRAFT VEGETATION~
+a small plot of unevenly grown ripe sugarbeets~
+A small plot of unevenly grown ripe sugarbeets grow here.~
+   The majority of the sugarbeet are ripe, though here and there 
+there are one or two who are still struggling along. They grow 
+in small clusters and unevenly. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1056 91337 0 0 0 0
+#45059
+sugarbeet poorly grown ripe plot xCAO_CRAFT VEGETATION~
+a small plot of poorly grown ripe sugarbeets~
+A small plot of poorly grown ripe sugarbeets grow here.~
+   Looking ready for harvest, many of the sugarbeet are squashed 
+and small, stunted in their growth. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1056 91337 0 0 0 0
+#45060
+sugarbeet well grown ripe plot xCAO_CRAFT VEGETATION~
+a small plot of well grown ripe sugarbeets~
+A small plot of well grown ripe sugarbeets grow here.~
+   These sugarbeet are ripe and healthy, most of them quite 
+large. There are little signs of damage to any of them, and the 
+leaves are a bright shade of green. They would seem ready for 
+harvest. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 336 45061 0 0 0 0
+#45061
+sugarbeet overly ripe plot xCAO_CRAFT VEGETATION~
+a small plot of overly ripe sugarbeets~
+A small plot of overly ripe sugarbeets grow here.~
+   Looking ready for harvest, many of the sugarbeets are squashed 
+and small, stunted in their growth. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1056 91337 0 0 0 0
+#45063
+sugarbeet poorly ripening plot xCAO_CRAFT VEGETATION~
+a small plot of poorly ripening sugarbeets~
+A small plot of poorly ripening sugarbeets grow here.~
+   These sugarbeets are poorly ripening, and struggling to grow. 
+Many of them are bruised and damaged, while others show signs of 
+wilting, their leafy tops dropping and floppy. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 45059 0 0 0 0
+#45064
+sugar sugarbeets bushel bag OTHER xCAO_CRAFT~
+a bushel bag of sugarbeets~
+A bushel bag of sugarbeets is here.~
+   This burlap bag contains a number of pale, parsnip-like sugar 
+beets. Small hairs grow off of the tapered beets, that grow 
+upwards into large, dark-green leaves. 
+~
+12 4096 1
+2 0 0 0
+100 0.000000
+0 4 0 0 0 0 1
+10.000000 0 0 0 0 0 0
+#45065
+sugarbeet sugar tapered pale xCAO_FARM_CRAFT VEGETATION~
+a pale, tapered sugarbeet~
+A pale, tapered sugarbeet sits here.~
+~
+19 4194304 1
+6 0 0 0
+100 0.000000
+0 2 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#45066
+sugarbeet sugar beet cut up xCAO_FARM_CRAFT OTHER~
+some pale cut-up sugar beets~
+A sweet-smelling pile of cut-up sugarbeets sit here, oozing juice.~
+   This is a large pile of pale, cut-up sugar beets, stems 
+removed. The pile gives off a faint, sweet smell. 
+~
+19 4096 1
+0 0 0 0
+300 0.000000
+0 3 0 30 256 0 1
+10.000000 0 0 0 0 0 0
+#45067
+beet sugar handful VEGETATION xCAO_FARM_CRAFT~
+a handful of sugar beets~
+A handful of pale sugar beets lay here.~
+   This is a small number of pale sugarbeets. The tapered, 
+parnisip-like beets look juicy and the stalks are particular 
+green and healthy looking. 
+~
+19 4198400 1
+2 0 0 0
+100 0.000000
+0 3 0 0 0 0 1
+3.000000 0 0 0 0 0 0
+#45068
+jar molasses large OTHER xCAO_FARM_CRAFT~
+a large jar of molasses~
+A large jar of molasses is set here.~
+   This squat jar is rather large, with short, stout handles on 
+either side. The glass is clear and plain, curving downward in a 
+gentle arc. The bottom is thicker than the sides, and the top 
+has a narrow, curled rim. 
+~
+19 4198400 16385
+5 0 0 0
+120 0.000000
+0 2 0 30 134217728 0 1
+30.000000 0 0 0 0 0 0
+#45069
+sugar raw juice portion xCAO_FARM_CRAFT OTHER~
+a portion of raw sugar-juice~
+A portion of raw sugar-juice threatens to ooze everywhere.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45070
+carved wooden Guild Collective plaque WOOD~
+#6a carved wooden Guild Collective plaque#0~
+#6A carved wooden Guild Collective plaque hangs on the wall.#0~
+   This round plaque sits about a foot in diameter, divided into 
+quarters with a thick line. Made of simple wood, and set with a 
+simple shellac, it provides a bare surface to better display the 
+engravings carved on its surface. A sturdy axe with a log, a 
+mining pick with a rock, a fish and a haunch of meat, and a small 
+sheep and a sheaf of wheat show within each of the windows - 
+displaying the professions of Caolafon's proud Guild Collective. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#45049
+Fifty x50Archers xCao xCaolafon leather clad archers Heron Snake cloak Ithilien_War xTrueArrows OTHER~
+#5a group of fifty Marsh Warden archers#0~
+#5A loose formation of fifty Heron and Snake cloaked Marsh Warden archers led by a willowy, strawberry-blond Brimskr stand here, bows by their sides.#0~
+   Sturdy armor protecting their forms, two and a half score 
+archers have been assembled here, rustling Heron and Snake cloaks 
+marking them as members of the Marsh Wardenry of Caolafons. With 
+bows at their sides, a quiver full of sturdy arrows at their 
+backs, and sword tucked into their belts, they stand at the ready 
+to engage the enemy. The fur-lined cloak of #5a willowy, 
+strawberry-blond Brimskr#0 stands out amidst the gathering as he 
+issues commands in Atliduk and accented Westron. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45071
+Fifty 50Infantry light infantry xCao xCaolafon Heron Snake cloak Ithilien_War XBearCompany OTHER~
+#5a group of fifty Marsh Warden infantry#0~
+#5Assembled here is a formation of spear and shield-bearing Marsh Wardens, a thoroughly-hairy auburn haired Brimskr standing out amidst the company.#0 ~
+   Clad in riveted-iron chainmail of the Northern style each of 
+the fifty soldiers within this company wears the Heron and Snake 
+cloak of the Marsh Wardens of Caolafon. Split between spears and 
+shieldmen, the company of men here stand overwhelmingly lofty and 
+fair-haired, with the steady bearing of unease likely of hardened 
+soldiers. The fur-lined cloak of #5a thoroughly-hairy auburn 
+haired Brimskr#0 stands out amidst the gathering as he issues 
+commands in Atliduk and accented Westron. Accoutrements of an 
+ursine nature mark many of the men with this company. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45072
+Supply Dump Cache Drop Caolafon Ithilien_War OTHER~
+a Caolafon Supply Cache~
+A supply cache has been left here, guarded by ten lightly armoured soldiers. A banner displaying a Heron and Snake emblem has been posted nearby.~
+   A variety of supplies, consumables and barrels of water have 
+been stacked in place here. A temporary structure has been 
+assembled over top of them to protect them from the elements. 
+Guarding the supplies are ten soldiers in riveted chainmail, with 
+a Heron and Snake banner nearby.' 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45073
+Officer Marshwarden Orders Chap Bloke Bloody Ithilien_War OTHER~
+A Marshwarden Officer~
+An officer bearing a Heron and Snake cloak stands here, dispensing orders brusquely and attempting to keep discipline.~
+   Wearing an iron breastplate and riveted iron chainmail, this 
+officer of the Marshwardenry tries hard to keep order here, at 
+the same time they dispense battle plans and tactics. A Heron 
+and Snake cloak has been donned and protects them from the 
+elements. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45074
+helm bear iron spangen reddish fur xCao METAL~
+a bear-fur covered iron spangen-helm~
+A bear-fur covered iron spangen-helm lies here discarded.~
+   This iron helmet has been fused from four triangular panels, 
+now covered by reddish-dyed bear fur and lined with leather to 
+provide comfort for long-term wearing. Extending down from the 
+crown and upon the narrow iron noseguard rests a muzzle of fur 
+set with bear fangs, giving a wearing the faint impression of 
+seeming bear-faced themselves. 
+~
+9 4096 17
+2 3 0 0
+400 0.000000
+0 0 0 30 0 0 1
+225.000000 0 0 0 17 0 0
+#45075
+surcoat coat reddish bear fur Heron Snake Marsh Warden xCao xMarshWardens LEATHER~
+a surcoat of reddish bear-fur with the Heron-and-Snake~
+A surcoat of reddish bear-fur with the Heron-and-Snake lies crumpled here.~
+   Thick brown bear fur with a slightly dyed reddish tinge 
+creates the form of this surcoat. Obviously designed to endure 
+its fair share of exposure to both elements and warfare, its 
+provides both warmth and some coverage for deflecting blows. On 
+a frequent combatant, the coat is quickly marred with visible 
+lacerations and gouges, the trophy marks of battles. Though it 
+has no hood, the tighter form buffers against the chance of 
+snagging against bramble or bush when traveling through heavy 
+woods. The emblazoned symbol of the Marsh Wardens - the Heron 
+and Snake has been carefully sewn onto the back. 
+~
+9 4096 1025
+1 1 0 0
+800 0.000000
+0 0 0 30 0 0 1
+300.000000 0 0 0 14 0 0
+#45076
+vest bearhide bear fur ringmail ring iron mail xCAO_UNIQUE METAL~
+a reddish-dyed bearhide vest set with iron rings~
+A reddish-dyed bearhide vest set with iron rings is set here.~
+   This thick, sturdy vest is made of cured bearskin, brown fur 
+dyed a slight reddish tint still clinging to the outside. It 
+covers the torso simply, with no collar or sleeves, with 
+unadorned bronze buttons closing it down the front. This vest 
+has been used as the base for a ringmail framework, a fishscale 
+like pattern linking the rings over the surface in a blending of 
+natural strength and man made protection. 
+~
+9 4096 9
+2 2 0 0
+900 0.000000
+0 0 0 29 268435456 0 1
+285.000000 0 0 0 17 0 0
+#45077
+legging bearhide bear fur ringmail ring iron mail xCAO_UNIQUE METAL~
+a reddish-dyed pair of bearhide leggings set with iron rings~
+A reddish-dyed pair of bearhide leggings set with iron rings sits here.~
+   Sewn from the cured hide of a bear, these thick leggings 
+stretch from ankle to waist. The coarse, shaggy brown fur has 
+been dyed a slight reddish tint. A fishscale like pattern links 
+iron armoring rings over the thick fur surface in a blending of 
+natural strength and man made protection. 
+~
+9 4096 33
+2 2 0 0
+900 0.000000
+0 0 0 29 268435456 0 1
+290.000000 0 0 0 17 0 0
+#45078
+camp basic disorganized Gondorian soldiers ITHILIEN_WAR OTHER~
+a basic, disorganized Gondorian camp~
+A basic disorganized camp of Gondorian soldiers has recently been erected here.~
+   This camp has been hastily erected. Tents are scattered 
+around and although archers surround the perimeter, it hasn't yet 
+been organized with any thought to defensibility. Inside the 
+camp, a few campfires have been lit and the hustle and bustle of 
+everyday soldierly activity continues on. 
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 120 45079 0 0 0 0
+#45079
+camp well-organized Gondorian soldiers morph1 ITHILIEN_WAR OTHER~
+a well-organized Gondorian camp~
+A well-organized camp of Gondorian soldiers has been erected here.~
+   Tents have been carefully set up to form this camp, arranged 
+in concentric rings. Archers surround the perimeter as do other 
+sentries and between the tents are organized weapons. Inside the 
+camp, a few campfires have been lit and the hustle and bustle of 
+everyday soldierly activity continues on. 
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 120 45080 0 0 0 0
+#45080
+camp well-defended organized Gondorian soldier morph2 ITHILIEN_WAR OTHER~
+a well-defended, organized Gondorian camp~
+A well-defended, organized camp of Gondorian soldiers has been erected here.~
+   A palisade is manned with archers and sentries, surrounding 
+the well-defended camp. Concentric rings of tents lead inwards, 
+each tent near a stack of organized weaponry. The soldiers 
+within move with purpose, their training having readied them for 
+any encounter. 
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#45101
+camp basic disorganized wardenry northerner Caolafon wardens ITHILIEN_WAR OTHER~
+a basic, disorganized Northerner camp~
+A basic, disorganized camp of Northerner Wardenry has recently been erected here.~
+   This northern camp has been hastily erected. Bearskin tents 
+are scattered around and although archers surround the perimeter, 
+it hasn't yet been organized with any thought to defensibility. 
+Inside the camp, a few campfires have been lit and sounds of 
+sparring practice and drinking songs drift out into the air. 
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 120 45102 0 0 0 0
+#45102
+camp well-organized northerners Caolafon warden morph1 ITHILIEN_WAR OTHER~
+a well-organized Northerner camp~
+A well-organized camp of northerner Wardenry has been erected here.~
+   Bearskin tents have been carefully set up to form this camp, 
+arranged in concentric rings. Archers surround the perimeter as 
+do other sentries and between the tents are organized weapons. 
+Inside the camp, a few campfires have been lit and the hustle and 
+bustle of everyday wardenry activity continues on. 
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 120 45103 0 0 0 0
+#45103
+camp well-defended organized wardenry northerner Caolafon wardens morph2 ITHILIEN_WAR OTHER~
+a well-defended, organized Northerner camp~
+A well-defended, organized camp of Northern Marsh Wardens stands here.~
+   A palisade is manned with archers and sentries, surrounding 
+the well-defended camp. Concentric rings of bearskin tents lead 
+inwards, each tent near a stack of organized weaponry. A row of 
+horses are set to picket at one side and a campfire is located 
+towards the center of the camp. The wardens within move with 
+purpose, their training having readied them for any encounter. 
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#45110
+flag ITHILIEN_WAR Caolafon company camp archer black arrows white star green banner OTHER~
+a green flag set with black arrows over a white star~
+A green flag set with black arrows over a white star flutters in the wind.~
+   This green flag flies proudly; firmly affixed to a wooden pole 
+that has been staked into the ground. The heraldry is of a pair 
+of black arrows crossed over a white five-pointed star. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45111
+flag ITHILIEN_WAR Caolafon company camp archer white arrows golden sun green banner OTHER~
+a green flag bearing white crossed arrows over a golden sun~
+A green flag bearing white crossed arrows over a golden sun flutters in the wind.~
+This green flag flies proudly; firmly affixed to a wooden pole that has been staked into the ground. The heraldry 
+is of a pair of white arrows crossed over a golden sun.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45112
+flag ITHILIEN_WAR Caolafon company camp archer red bear green banner OTHER~
+a green flag bearing a red bear~
+A green flag bearing a red bear flutters in the wind.~
+   This green flag flies proudly; firmly affixed to a wooden pole 
+that has been staked into the ground. The heraldry is of a large 
+brownish-red bear standing on two legs at full height, a 
+gold-embroidered crown topping its kingly ursine head. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45113
+flag ITHILIEN_WAR Caolafon company camp archer golden eagle green banner OTHER~
+a green flag bearing a golden eagle~
+A green flag bearing a golden eagle flutters in the wind.~
+   This green flag flies proudly; firmly affixed to a wooden pole 
+that has been staked into the ground. The heraldry is of a large 
+golden eagle. His wings are spread with dexter head and open 
+beak. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45114
+flag ITHILIEN_WAR Caolafon company camp archer black boar green banner OTHER~
+a green flag bearing a black boar~
+A green flag bearing a black boar flutters in the wind.~
+   This green flag flies proudly; firmly affixed to a wooden pole 
+that has been staked into the ground. The heraldry is of a black 
+boar standing with tusks pointing dexter over a white sinister 
+bend. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45115
+flag ITHILIEN_WAR Gondor company camp archer red horseshoe white banner OTHER~
+a white flag bearing a red horseshoe~
+A white flag bearing a red horseshoe flutters in the wind.~
+   This white flag flies proudly; firmly affixed to a wooden pole 
+that has been staked into the ground. The heraldry is of a 
+single red horsehoe at the center of the banner. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45116
+flag ITHILIEN_WAR Gondor company camp archer red tower full moon black banner OTHER~
+a black flag bearing a red tower on a full moon~
+A black flag bearing a red tower on a full moon flutters in the wind.~
+   This black flag flies proudly; firmly affixed to a wooden pole 
+that has been staked into the ground. The heraldry is of a red 
+tower at the center of a white full moon. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45117
+flag ITHILIEN_WAR Gondor company camp archer upright white sword black banner OTHER~
+a black flag bearing an upright white sword~
+A black flag bearing an upright white sword flutters in the wind.~
+   This black flag flies proudly; firmly affixed to a wooden pole 
+that has been staked into the ground. The heraldry is of an 
+upright white sword standing over a deep grey sinister bend. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45118
+flag ITHILIEN_WAR Gondor company camp archer white star black banner OTHER~
+a black flag bearing a white star~
+A black flag bearing a white star flutters in the wind.~
+   This black flag flies proudly; firmly affixed to a wooden pole 
+that has been staked into the ground. The heraldry is of a 
+single white heraldic compass star. The lines of the many points 
+of the star have been embroidered in glittering silver thread. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45119
+flag ITHILIEN_WAR Gondor company camp archer grey spearhead black banner OTHER~
+a black flag bearing a white spearhead~
+A black flag bearing a white spearhead flutters in the wind.~
+   This black flag flies proudly; firmly affixed to a wooden pole 
+that has been staked into the ground. The heraldry is of a 
+single pure white spearhead, bright against the black background. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45120
+flag Mordor ITHILIEN_WAR company camp archer black waxing crescent moon banner OTHER~
+a black flag bearing a waxing crescent moon~
+A black flag bearing a waxing crescent moon flutters in the wind.~
+   This flag flies proudly; firmly affixed to a wooden pole that 
+has been staked into the ground. The heraldry is of a single red 
+waxing crescent moon upon a solid field of black. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45121
+flag Mordor ITHILIEN_WAR company camp archer black pair crossed lightning bolts banner OTHER~
+a black flag bearing a pair of crossed lightning bolts~
+A black flag bearing a pair of crossed lightning bolts flutters in the wind.~
+   This flag flies proudly; firmly affixed to a wooden pole that 
+has been staked into the ground. The heraldry is of a pair of 
+crossed golden lightning bolts upon a solid field of black. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45122
+flag Mordor ITHILIEN_WAR company camp archer black red thorn-pierced bleeding eye banner OTHER~
+a black flag bearing a thorn-pierced bleeding eye~
+A black flag bearing a red thorn-pierced bleeding eye flutters in the wind.~
+   This flag flies proudly; firmly affixed to a wooden pole that 
+has been staked into the ground. The heraldry is of a vibrantly 
+red thorn-pierced bleeding eye upon a solid field of black. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45124
+flag Mordor ITHILIEN_WAR company camp archer black red thorn-pierced bleeding wall eye banner OTHER~
+a black flag bearing a thorn-pierced bleeding eye over a wall~
+A black flag bearing a red thorn-pierced bleeding eye over a wall flutters in the wind.~
+   This flag flies proudly; firmly affixed to a wooden pole that 
+has been staked into the ground. The heraldry is of a vibrantly 
+red thorn-pierced bleeding eye set over a crenelated wall, also 
+in red, upon a solid field of black. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45125
+flag ITHILIEN_WAR Mordor Bazog ragged black flag marked white crown OTHER~
+a ragged, black flag marked with a white crown~
+A ragged, black flag marked with a white crown is hung here defiantly.~
+   This ragged black flag flies defiantly; firmly affixed to a 
+wooden pole that has been staked into the ground. The heraldry 
+is of a crude white crown, stark against the black background. 
+~
+12 4096 0
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45081
+hat cap bear fur ill-fitting hide_craft LEATHER~
+an ill-fitting bear-fur cap~
+An ill-fitting bear-fur cap lies here abandoned.~
+   This hat appears to have been crafted from scraps of another 
+effort, the bear fur forming the hat patchy and mismatched on 
+several seams. Though less than appealing appearance wise, the 
+hat still maintains some ability to provide warmth. 
+~
+11 0 17
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+25.000000 0 0 0 14 0 0
+#45082
+ship wreck riverboat transport xnahar_objectsx xCAO_PLOTx WOOD~
+a shipwrecked riverboat transport~
+A shipwrecked riverboat transport lies half-buried in the sand, a mass of skeletons visible through the hull.~
+   Clearly once a nicely-sized vessel meant to traverse the 
+Anduin, the remains of this boat show a rather large hole in the 
+hull, probably the contributing factor to its sinking. It seems 
+to have been beneath the water for quite some time, with seaweed 
+climbing the base of the rotting planks and lichen claiming the 
+remaining visible bits of wood. A mass of skeletons are visible 
+through the hole in the side of the boat, and closer inspection 
+would reveal that number to be thirty dead souls trapped below. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45104
+small silver locket xnahar_objectsx xCAO_PLOTx WOOD~
+a small, water-damaged silver locket~
+A small, water-damaged silver locket lies half buried in the sand.~
+   This silver locket was clearly once an item of great beauty, 
+though most of it has been tarnished away by constant exposure to 
+the water. An intricate design graces the front, half of it worn 
+away. When opened, a barely visible engraving is revealed, what 
+looks to be two words, though the first has been lost to time. 
+The second, however, is quite clearly preserved: 'Arelas'. 
+~
+11 4096 2097153
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45105
+rice wild field dry brown wheat-like xCAO_CRAFT OTHER~
+a field of dry wheat-like wild rice~
+A field of dry wheat-like wild rice grows here upon the marshy waters.~
+   This growth of rich, aquatic grass spreads out from the marshy 
+surface of the water. Tall and spindly, the wild brown and green 
+grass has the faint likening to a more terrestrial wheat stalk. 
+Waterfowl of a variety of species flit in and out of the grasses, 
+looking to take advantage of the smaller lifeforms that live 
+within the rice's maze-like network of roots and stalks. 
+~
+29 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45039
+rice wild mature gathering stem xCao_Craft OTHER~
+some stem-strewn mature wild rice~
+A gathering of stem-strewn mature wild rice lays here collected.~
+   This handful of mature wild rice grains display a plethora of 
+beige, brown, and black shades when worked back and forth in the 
+hand, the husks seperating from the grains. Only a few immature 
+pale green grains shows that this harvest was collected at the 
+peak of summer. Stems and other bits of debris cling with the 
+mixture, needing seperating from the usable grain. 
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45106
+bag rice raw wild burlap heavy grains xCao_Craft OTHER~
+a burlap bag filled with raw wild rice~
+A burlap bag filled with raw wild rice is set here.~
+   This large heavy burlap bag, when placed on the ground, towers 
+to the height of a small hobbit. Its end is tied with a piece of 
+rough hemp rope in such a manner that it could only be undone by 
+cutting the rope. Several small grass-like plants astride the 
+Heron and Snake are drawn on the bag with a piece of charcoal, 
+signifying that the bag is filled with Caofalon-grown wild rice. 
+~
+24 4096 16385
+0 0 0 0
+4000 0.000000
+0 0 0 30 134217728 0 1
+30.000000 0 0 0 0 0 0
+#45107
+rice wild name unhusked cup food_craft OTHER~
+a cup of unhusked raw wild rice~
+A cup of unhusked raw wild rice lies here.~
+   This handful of mature wild rice grains display a plethora of 
+beige, brown, and black shades when worked back and forth in the 
+hand, the husks seperating from the grains. It has been cleaned 
+of debris, but requires parching and rinsing from the husks. 
+~
+24 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.750000 0 0 0 0 0 0
+#45108
+rice wild husked cup food_craft OTHER~
+a cup of raw wild rice~
+A cup of raw wild rice sits here, ready for cooking.~
+   This handful of mature wild rice grains display a plethora of 
+beige, brown, and black shades. It has been cleaned of debris, 
+parched, and husked and is ready for cooking. 
+~
+24 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#45109
+CaolafonGranary board Granary byFrigga OOC OTHER~
+an OOC board for Caolafon's Granary~
+An OOC board for Caolafon's Granary is here.~
+~
+22 4108 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45126
+shipmast large protruding wreck xnahar_objectsx xCAO_PLOTx WOOD~
+the shipmast of a wreck protruding through the water~
+The shipmast of a wreck protrudes jaggedly through the water.~
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45127
+burlap bag foraged foods mixed xCAO_GRANARY OTHER~
+a burlap bag of mixed foraged foods~
+A burlap bag of mixed foraged foods lies here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45128
+rented bear-guest PARCHMENT~
+bear suite guest timer~
+Bear Suite Guest timer.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 86 0 0 0 0
+#45129
+Bear owner-name PARCHMENT~
+bear suite owner~
+Bear suite owner.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45901 0 0 0 0
+#45130
+Moose owner-name PARCHMENT~
+moose suite owner~
+Moose suite owner.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 4344 45901 0 0 0 0
+#45131
+small silver key snake heron xnahar_objectsx METAL~
+a small silver key with a snake and heron emblem~
+A small silver key lies here.~
+   A small silver key that easily fits into the palm of an 
+average-sized hand. The teeth are designed rather simply, and 
+the top of the key has been pressed with the Marsh Wardenry 
+heraldry of the heron and snake. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#45132
+Aella UNIQUE_pReodyn teensy flame infant girl OTHER~
+#5a teensy, flame-haired infant girl#0~
+#5A teensy, flame-haired infant girl crawls on the floor here.#0~
+   A shock of silky, red curls top the head of this round-faced 
+baby girl. Big, dark green eyes peer out from beneath little 
+auburn brows, perched above a small, blunt nose and thin, pinkish 
+lips. Her soft skin is very fair and unblemished, though her 
+pudgy cheeks are slightly rosy with youth. 
+~
+15 4096 1
+100 0 -1 0
+700 0.000000
+0 -1 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#45511
+cloak warden heron eagle hooded TEXTILE~
+a brown hooded cloak, sewn with eagle's feathers~
+A Marshwarden's cloak sewn with eagle feathers lies here in a heap.'~
+   This heavy woolen cloak, sewn from brown dyed cloth has been 
+decorated with the gathered feathers of eagles and other birds of 
+prey. Long and billowing, it hangs easily to the wearer's 
+ankles, giving the impression of flight during a particularly 
+strong wind. Sewn onto the back of the garment sits the mark of 
+the Marshwardens of Caolafon - a heron devouring a snake. 
+~
+11 524288 1025
+0 0 0 0
+300 0.000000
+0 
+eagle-feather-cloaked~
+0 35 0 0 1
+0.000000 0 0 0 7 0 0
+#45133
+atmosphere eerie spooky CAOLAFON token LEGOLIN_CAOLAFON OTHER~
+an atmosphere CAOLAFON outside token~
+An atmosphere CAOLAFON outside token is about to scare the begeezes out of someone!~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

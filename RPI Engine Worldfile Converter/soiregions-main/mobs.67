@@ -1,0 +1,803 @@
+#67000
+uruk-hai prototype fierce black-skinned warrior~
+a stalwart, black-skinned uruk-hai~
+A stalwart, black-skinned uruk-hai stands here.~
+   Head held high, shoulders set back, lips curved near always 
+into a savage grin filled with jagged, yellowed teeth, this orc 
+bears itself with a haughty pride, bestial eyes gazing 
+dismissively over all that it surveys. Its skin is so callused 
+and tough as to be almost leathery, and is dusky black in colour, 
+save for the places where scars fleck up and down its form. 
+~
+4169 4 25 29 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 67371032 72 4 0 0
+20 11 11 1 15 18 94 15
+268435456 0
+0 46 49 43 42 50 49 40 34 38
+41 37 37 42 41 34 33 32 40 33
+39 36 37 0 45 46 0 0 16 61
+0 0 61 0 0 20 20 16 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 46 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 61 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' mordor_char 'corporal' witchking_horde 'private' uruk-hai~
+0 0 0
+#67001
+uruk-hai prototype archer fierce black-skinned warrior~
+a stalwart, black-skinned uruk-hai~
+A stalwart, black-skinned uruk-hai stands here.~
+   Head held high, shoulders set back, lips curved near always 
+into a savage grin filled with jagged, yellowed teeth, this orc 
+bears itself with a haughty pride, bestial eyes gazing 
+dismissively over all that it surveys. Its skin is so callused 
+and tough as to be almost leathery, and is dusky black in colour, 
+save for the places where scars fleck up and down its form. 
+~
+2101864 4 25 29 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 72 4 0 0
+20 11 11 1 15 18 94 15
+268435456 0
+0 46 46 34 34 38 38 44 43 34
+36 37 50 33 42 41 31 49 34 32
+41 33 37 0 44 41 0 0 25 61
+0 0 55 0 0 15 18 22 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 37 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 61 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'private' uruk-hai~
+0 0 0
+#67002
+uruk-hai prototype fierce black-skinned warrior~
+a stalwart, black-skinned uruk-hai~
+A stalwart, black-skinned uruk-hai stands here.~
+   Head held high, shoulders set back, lips curved near always 
+into a savage grin filled with jagged, yellowed teeth, this orc 
+bears itself with a haughty pride, bestial eyes gazing 
+dismissively over all that it surveys. Its skin is so callused 
+and tough as to be almost leathery, and is dusky black in colour, 
+save for the places where scars fleck up and down its form. 
+~
+2097194 4 25 29 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 72 4 0 0
+20 11 11 1 15 18 94 15
+268435456 0
+0 35 30 48 50 42 35 33 30 44
+47 34 47 30 33 35 38 50 43 33
+33 47 0 0 59 35 0 0 25 61
+0 0 57 0 0 21 19 22 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 38 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 61 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'private' uruk-hai~
+0 0 0
+#67003
+auto-create mid-quality horse~
+a mid-quality horse prototype~
+A mid-quality horse prototype stands here calmly, whickering.~
+   Of average bulk and graceful tone, this creature's coat and
+mane are well-groomed and cut, hinting that it leads a life of
+domestication rather than one in the wilderness. Standing tall
+on four muscular legs, there is no hesitancy or fear detectable
+in this horse's posture, seemingly ready to spring into a flurry
+of action and motion at a moment's notice.
+~
+134479882 0 15 47 0 5d1+85 1d4+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 70 0 0 0
+18 6 6 1 25 12 77 25
+268435456 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#67004
+auto-create warhorse tirith-guard prototype horse~
+a tirith-guard warhorse prototype~
+A tirith-guard warhorse prototype stands here quietly~
+   Standing roughly at the height of a man's shoulder, this horse 
+maintains a proud and dignified facade. Its head is held high, 
+intelligent eyes glaring out into the distance, and a thick, 
+healthy-looking mane runs down the back of its neck. Its coat 
+appears well-cared-for, and a thick, knotted layer of muscle 
+ripples gracefully beneath its sleek skin. 
+~
+134483978 0 25 61 0 5d1+95 1d5+0 0 8 8 0 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+18 6 6 1 25 12 81 25
+268435456 0
+0 30 45 49 38 30 47 34 43 45
+43 35 33 44 50 36 36 31 42 31
+44 33 38 0 50 38 0 0 24 66
+0 0 60 0 0 50 24 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 42 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 66 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' astirian_retinue 'member' mt_citizens~
+0 0 0
+#67010
+goblin Gothakra auto-create~
+a gothakra auto-create goblin~
+A gothakra-clanned goblin snivels here.~
+   Smaller and less imposing than an Orc, this goblin still holds 
+itself with some obvious military training. It keeps a wary, 
+alert air about itself as it moves through the area, flinching 
+often at sudden sounds or movements, as if prepared to jump upon 
+the slightest threat. Its posture is hunched and, though 
+disgustingly filthy, it seems relatively well-fed and healthy. 
+~
+4138 8388612 25 121 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 10 95 16
+268435456 0
+0 38 44 44 50 30 31 30 43 48
+36 50 37 40 37 50 50 32 50 38
+35 37 38 0 50 37 0 0 23 67
+0 0 51 0 0 15 18 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 13 0 0 0 0 0 0 0 0
+0 0 0 0 22 67 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' witchking_horde 'private' gothakra 'member' mm_denizens~
+0 0 0
+#67101
+auto-create orc sentinel enforcer prototype khagdu~
+a formless orc sentinel khagdu member~
+A formless orc sentinel khagdu cultist is here, being spooky.~
+   This orc holds themselves in a proud, near haughty manner, 
+shoulders set back and head straight as they stand here firmly, 
+gazing about with two fierce eyes. Apart from their near 
+remarkable discipline for one of their race, the most noticeable 
+thing about this orc are the countless scars covering its body, 
+thin, pale, raised lumps of flesh that contrast starkly with dark 
+skin. When this orc's dark lips are drawn back, a missing 
+eyetooth becomes apparent. 
+~
+10 8388612 24 25 0 5d1+96 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 14 94 16
+268435456 0
+0 42 42 46 42 48 40 40 33 34
+36 35 41 44 36 39 49 37 44 30
+39 42 31 0 37 34 0 0 0 29
+0 0 59 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 43 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 17 0 0 0 0 0 0 0 0
+0 0 0 0 70 38 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'private' bar_caged 'recruit' khagdu~
+0 0 0
+#67102
+auto-create mountain orc sentinel archer prototype for North Ithilien KITE~
+a formless mountain orc sentinel archer of North Ithilien~
+a formless mountain orc sentinel archer of North Ithilien is here.~
+   Set low to the ground, this goblin bears upon it a patchwork 
+of scars across its body; some are set in warping patterns, 
+others merely the mementos of battles long gone. Holding 
+themselves in what could only be described as a haughty manner 
+for one of their twisted race, this mountain orc's eyes gleam 
+with a fierce zeal. More often than not, their deformed lips are 
+drawn back, teeth missing amongst their collection of blackened, 
+rotting stumps. 
+~
+554 8388612 25 121 0 5d1+83 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 52 3 0 0
+18 9 12 1 12 11 94 12
+268435456 0
+0 44 43 47 45 30 38 50 48 35
+41 36 31 38 38 41 37 42 31 43
+42 41 32 0 37 39 0 0 17 27
+0 0 63 0 0 19 15 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 36 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 18 0 0 0 0 0 0 0 0
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'member' ithil_orc~
+0 0 0
+#67103
+auto-create orcish Blade warrior sentinel aggressive~
+an aggressive, auto-create orcish Blade warrior~
+An aggressive, auto-create orcish Blade warrior stands here.~
+   The height of this orc is lessened by its hunched stance and bow
+legged gait, yet it still moves with a savage and wary speed, muscles
+woven tightly across its broad shoulders. With dark skin, marked with
+many blemishes and scars, and suspicious eyes, the orc makes its way
+across Arda. A most noticeable trait of this orc is the copious hair
+that flows from its chin and head, strong braids knitted from the
+coarse strands, many tied off with small bones or coins. 
+~
+2101290 8388612 24 25 0 5d1+84 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 63 0 0 0
+9 12 11 1 18 10 94 16
+268435456 0
+0 35 49 42 48 34 42 39 31 41
+36 38 35 33 44 43 32 39 31 46
+34 35 34 0 58 38 0 0 25 65
+0 0 56 0 0 22 24 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 31 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#67104
+auto-create goblin Blade warrior sentinel aggressive~
+an aggressive, auto-create goblin Blade warrior~
+An aggressive, auto-create goblin Blade warrior stands here.~
+   This goblin is hunched in a near-constant crawl, thick 
+calluses marking its hands and feet caused no doubt by its 
+scrabbling mode of movement. Through beady eyes in warily 
+observes all before it, its blotchy skin marked with the 
+occasional scar. Long braids of tightly bound hair run hang from 
+this goblin's head. 
+~
+2101288 8388612 25 24 0 5d1+84 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 54 3 0 0
+18 17 12 1 10 10 94 13
+268435456 0
+0 50 40 42 33 48 30 47 34 36
+36 38 42 38 31 36 40 47 48 33
+30 40 31 0 48 44 0 0 0 19
+0 0 45 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 44 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 21 0 0 0 0 0 0 0 0
+0 0 0 0 54 21 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' witchking_horde 'member' orc_slaughter_clan 'member' mm_denizens~
+0 0 0
+#67005
+auto-create troll hideous prototype~
+a hideous-looking troll prototype~
+A hideous-looking troll prototype looms here.~
+   Looming well over the height of most smaller buildings, this
+fearfully massive troll towers over its surroundings. Its thick
+hide is a meshwork of scars, and its beady eyes survey the area
+with a cold glint. Long, jagged, yellowed teeth protrude from
+its maw, glistening with a foul patina of putrid saliva, and
+long ropes of thick, corded muscle cover its entire body.
+~
+4106 4 24 86 7 5d1+225 2d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 103 6 0 0
+25 6 10 1 10 25 95 10
+268435456 0
+0 43 30 41 31 30 49 45 30 30
+43 47 41 46 38 38 32 46 38 28
+44 46 39 0 50 53 0 0 19 53
+0 0 53 0 0 21 20 15 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 53 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' gothakra 'member' witchking_horde~
+0 0 0
+#67006
+street-fighter Osgiliathian~
+an Osgiliathian street-fighter~
+An Osgiliathian street-fighter, well, street-fights here.~
+   Rather than flee the city, this Osgiliathian has obviously 
+stayed behind, determined to defend their city, their 
+neighbourhood, and their house to the violent end. A determined 
+light burns within their eyes, and while they may be scuffed with 
+dirt and looking to have been without a bath, proper food, or a 
+good sleep for quite some days, they nevertheless look ready to 
+see action. 
+~
+10 0 23 0 0 5d1+84 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 61 4 0 0
+12 12 16 1 8 10 81 14
+268435456 0
+0 46 40 43 31 47 43 34 43 45
+31 45 44 44 36 31 36 35 31 42
+34 38 0 0 60 58 0 0 18 60
+0 0 56 0 0 19 23 22 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 49 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#67007
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#67008
+group xDrugxDealing scarf-wrapped individuals~
+a group of scarf-wrapped individuals~
+A group of scarf-wrapped individuals directs the selling of bulk khaskhas here.~
+(null)~
+26 0 50 4 20 5d1+102 4d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+1 2
+67666 67667 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 35 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#67354
+junkie goblin xDrugxDealing~
+a junkie goblin~
+A junkie goblin twitches here.~
+   This little goblin may be near naked and bone thin, but by the 
+way it twitches, froths, snarls and snaps at anything close to it 
+suggests that in its maddened state, the goblin snaga would be 
+more than enough of an enemy to any who stands in the way of it, 
+and it fulfilling its addiction. 
+~
+4171 8388612 4 24 2 5d1+90 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 12 81 16
+268435456 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' drugpushers~
+0 0 0
+#67009
+gondorian slave auto-create for Tur Edendor~
+a gondorian slave autocreate for Tur Edendor~
+A gondorian slave autocreate for Tur Edendor loiters here.~
+   This downtrodden slave is Gondorian, with a very downcast
+and upset look. Moving with graceless despair, this slave embodies
+abject fear and weariness.
+~
+10 0 24 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 11 12 1 17 16 81 16
+268435456 0
+0 36 48 40 38 39 39 44 38 32
+40 38 33 40 32 38 30 38 46 49
+41 46 0 0 52 32 0 0 25 62
+0 0 61 0 0 15 22 16 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#67011
+Benny thin pock-marked man~
+a thin, pock-marked man~
+A thin, pock-marked man sullenly tends his wares.~
+   This man is thin and tall. Long, lank, brown hair brushes his 
+bony shoulders. Big, oval, hazy-blue eyes peer out from beneath 
+his shaggy brown brow. His nose slashes down over his 
+thin-lipped mouth. Stubble covers his weak chin. He is 
+long-legged and armed. His hands tremble slightly as he works 
+over his stock. 
+~
+10 0 15 94 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 11 12 1 17 16 95 16
+1 2
+67154 67156 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 30 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 100
+100 100 100 0 100 0 0 0 100 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' toalla-keep~
+0 0 0
+#67012
+Candice tiny svelte red-haired green-eyed pale-skinned-freckled pBlaen pSingrave pclinic qShadow~
+a tiny, svelte, green-eyed, red-haired woman~
+A svelte, pale-skinned-freckled, green-eyed, red-haired woman is here.~
+   Tiny and svelte, this finely curving woman has thick dark, red 
+hair tumbling down her slender back in heavy waves. Her 
+pale-skin is dotted with light freckles and blushed with a soft 
+peachy-pink. Large green-eyes gaze through heavy, sooty lashes. 
+A pert nose perches over her rosebud mouth. Her slender throat 
+gives way to a curvaceous body which leads down to her slim hips 
+and shapely legs. Her delicate hands are well manicured. 
+~
+1073741834 0 22 94 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 11 12 1 17 16 95 16
+1 2
+67163 67168 1.200000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 30 30 0 0 0 0 0 30 0
+0 0 0 40 0 0 45 0 0 0
+30 30 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 45 0 100
+100 100 100 0 100 0 0 0 100 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' singrave 'member' bloody_scalpel~
+0 0 0
+#67013
+Tina woman timid untidy young xLeatherShopkeepCurionx xShammatx~
+a timid, untidy young woman~
+A timid, untidy young woman stands here.~
+   This individual is clearly not of any highborn blood - just a 
+mongrel. Her hair is untidy and wild, and her features are 
+marked with the occasional patch of dirt, especially their hands 
+and fingernails. Notably, she glances skittishly about and her 
+pale skin gives her an unhealthy, wan pallor. 
+~
+10 0 23 94 0 5d1+90 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+9 15 16 1 15 12 95 16
+1 2
+66241 67178 1.200000 0.001000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 46 35 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+15 20 0 0 0 0 0 0 35 45
+0 0 35 0 40 0 0 10 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#67014
+Turgid half-man bulky bald xgorcNPCdoorguardx xShammatx~
+a bulky, bald half-man~
+A bulky, bald half-man stands here, watching the door.~
+Broad shoulders serve as the base for the melon of a head this half-man has. 
+From these same shoulders dangle thick, veiny arms that hang to mid-thigh of 
+similar legs. A potbelly centers his figure and, when worn, hangs over the belt 
+of his trousers. His face is cratered with pockmarks and scars, making him 
+genuinely ugly by most standards. His dull yellowish blue eyes watch his 
+surroundings with a mix of boredom and duty. 
+~
+10 4 22 26 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+0 0
+0 45 40 35 0 15 30 0 35 40
+0 0 0 0 0 0 0 0 0 0
+35 25 0 0 0 0 0 0 50 0
+0 0 45 0 0 0 0 40 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'corporal' gorc_keep~
+0 0 0
+#67015
+Fran dirty one-eyed boy xShammatx xDontFeartheReaperx~
+a dirty, one-eyed boy~
+A dirty, one-eyed boy skulks here.~
+   This young boy has messy brown hair that hangs in scraggly 
+knots past his ears, partially obscuring a pair of ugly, 
+mud-brown eyes. His face is smeared with dirt, though there is a 
+strange, distinctive burn scar on the the left side of his lower 
+ear, beneath his ear, and his nose looks to have already been 
+broken once in the past. His teeth are yellowy, and a few are 
+missing. 
+~
+10 0 25 94 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 13 14 1 16 12 95 14
+0 0
+0 50 45 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 40
+40 51 0 0 64 65 0 0 50 0
+0 0 50 0 0 0 0 40 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 54 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 50 0 0 65 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' slum_gang~
+0 0 0
+#67016
+Pidgin snaga bulging-eyed female xGorcRUTx xShammatx~
+a bulging-eyed female snaga~
+A female snaga with bulging ice blue eyes stands here.~
+   This female snaga's most distinct feature is her large, 
+bulging bright ice blue eyes. They stick out on either side of 
+her long pointy nose, and from beneath her thin wiry eyebrows. 
+Her greasy red-hued hair is kept from her eyes in a long 
+ponytail. Under these eyes is a thick lipped mouth full of 
+crooked, sharp fangs. Her canines are just long enough to poke 
+up from behind her lips when closed. Her form bears a slight 
+feminine curve to it but is otherwise quite skinny. It is 
+covered tightly with swarthy blackish-brown skin. 
+~
+10 8388612 21 24 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+11 13 10 1 17 16 94 16
+0 0
+0 25 42 0 0 38 0 0 0 0
+0 0 0 0 0 0 0 0 32 0
+20 30 0 0 40 39 0 0 25 0
+0 0 30 0 0 0 0 30 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 31 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 60 45 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 35 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#67017
+half-orc variable TE RAVINE archer xSHAMMATx~
+a variable TE RAVINE archer~
+A variable TE RAVINE archer is here.~
+(null)~
+2101290 4 25 26 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 37 43 50 44 31 41 42 33 35
+31 39 34 36 37 44 33 38 37 31
+37 49 32 0 33 57 0 0 18 57
+0 0 61 0 0 20 21 22 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 67 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' edendor_legion 'member' mordor_char~
+0 0 0
+#67018
+conscript one among group thirty mobile spear-wielding common-folk xTE-UNITx~
+one among a group of thirty mobile, spear-wielding common-folk~
+A group of thirty mobile, spear-wielding common-folk stand here.~
+   An unlikely assortment of thirty leather-clad men and women - 
+each and every one of them wearing #2a leather armband bearing a 
+black sickle moon#0 on their upper arm - stand here in a constant 
+state of uneasy readiness, supplies slung in packs across their 
+backs and old spears held vertically in their hands. 
+~
+42 4 20 26 7 5d1+105 1d8+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+15 10 5 1 10 17 95 10
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+20 30 0 0 0 0 0 0 50 0
+0 0 40 0 0 0 0 30 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' edendor_legion 'member' mordor_char~
+0 0 0
+#67019
+man plebe variable TE SLUM GANG~
+a plebe variable mob for TE SLUM GANG~
+A plebe variable mob for TE SLUM GANG kills shit here.~
+   This ratty shanty-town dweller looks desperate and dangerous, 
+with red-rimmed eyes and pocked, ugly skin. They wear a mottley 
+assortment of rags, leather and even some pieces of iron armor, 
+all in states of disrepair and rot, and their teeth are yellowy 
+and in some places even missing. 
+~
+10 0 30 94 2 5d1+96 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+13 16 9 1 16 14 95 16
+268435456 0
+0 48 59 58 54 60 49 46 60 59
+53 41 41 58 46 41 47 49 47 46
+43 54 0 0 41 61 0 0 29 65
+0 0 62 0 0 27 32 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 49 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 15 0 0 0 0 0 0 0 0
+0 0 0 0 0 65 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' slum_gang~
+0 0 0
+$~

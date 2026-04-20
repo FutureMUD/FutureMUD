@@ -1,0 +1,5383 @@
+#43000
+Angost Outpost Rooms~
+This is the base room for Outpost (Angost/Halburg) rooms.
+~
+43 65544 0
+0
+S
+#43001
+Angost Pre-Game Clothing Storeroom~
+Clothing Storeroom for Agnost Pre-Game Shopping Complex.
+  
+Mob: 42995 Shop: 42995
+~
+43 268500992 0
+0
+S
+#43002
+Angost Pre-Game Accessories Storeroom~
+Accessories Storeroom for Agnost Pre-Game Shopping Complex.
+  
+Mob: 42994 Shop: 42995
+~
+43 268500992 0
+0
+S
+#43004
+Angost Luck and Study Storage Room~
+A room!
+A room!
+~
+43 268501000 0
+0
+D4
+~
+hidden-door~
+1 -1  0 42998
+S
+#43003
+Angost Pre-Game Armor Storeroom~
+Armor Storeroom for Agnost Pre-Game Shopping Complex.
+  
+Mob: 42993 Shop: 42996
+~
+43 268500992 0
+0
+S
+#43005
+Angost Pre-Game Weapon Storeroom~
+Weapon Storeroom for Agnost Pre-Game Shopping Complex.
+  
+Mob: 42992 Shop: 42996
+~
+43 268500992 0
+0
+S
+#43006
+Angost Pre-Game Crafts Storeroom~
+Crafts Storeroom for Agnost Pre-Game Shopping Complex.
+  
+Mob: 42991 Shop: 42997
+~
+43 268500992 0
+0
+S
+#43007
+Angost Pre-Game General Storeroom~
+General Storeroom for Agnost Pre-Game Shopping Complex.
+  
+Mob: 42990 Shop: 42997
+~
+43 268500992 0
+0
+S
+#43008
+A Private Yard~
+   Sectioned off with tall wooden posts, this yard continues out 
+from the side of the longhouse stretching eastwards. Along the 
+northern side, markers run at even intervals. Years of damage, 
+clearly caused by arrow-fire have taken their toll upon the 
+wooden fence. Off to the south end of the yard, a raised 
+sparring ring is set up.
+   A door to the west leads back into the longhouse.
+~
+43 67174400 4
+0
+D3
+~
+door~
+1 -1  0 42362
+P
+enter go~
+ring sparring~
+vstr You step into a slightly-raised, wooden sparring ring.
+ostr $n steps into a slightly-raised, wooden sparring ring.
+atecho 43009 $n ducks under the ropes and enters the sparring ring.
+trans 43009
+atlook 43009
+~
+S
+#43009
+A Raised Sparring Platform~
+   Lifted up on a small platform this sparring ring is spacious, 
+walled with thick ropes and its floor covered in sand. Large 
+enough to support several men, its base is made of massive logs 
+for support, the sand spread liberally over thick planks. 
+   #6OOC: Type help room to learn how to spar with the trainer!#0
+~
+43 67174400 4
+0
+P
+help~
+room~
+vstr You can do the following things:
+vstr To train with Brand, simply attack him with your practice weapons.
+vstr When finished, type #6STOP LESSON#0 or #6STOP SPAR#0, and then #6STOP#0 again.
+vstr Be sure to use this training aid responsibly, and with IC care!
+~
+P
+stop cancel~
+spar fight lesson~
+vstr You call for an end to the sparring match.
+ostr %n calls for an end to the sparring match.
+force 42071 43009 emote grunts, nodding, as he reaches up to wipe away a smear of blood.
+force 42071 43009 stop
+vstr Be sure to type #6STOP#0 again.
+~
+P
+leave exit~
+ring sparring rope~
+vstr You duck under the ropes of the sparring ring and step out.
+ostr $n ducks under the ropes of the sparring ring and steps out.
+atecho 43008 $n ducks under the ropes of the sparring ring and steps out.
+trans 43008
+atlook 43008
+~
+S
+#43010
+A Tiny Chamber~
+   Barely large enough for someone to fill this space in a 
+crouch, this small room is dug into the very ground the longhouse 
+was built upon. Capable of holding perhaps a chest or two and 
+other small items, the space is damp, packed hard with clay. A 
+small opening leads into the above room. 
+~
+43 65544 0
+0
+S
+#43011
+Before A Large, Weathered Longhouse~
+   A wide, dirt path branches off from the road to the north 
+leading up to just before the doors of a large, weathered 
+longhouse. The area here is mostly sparse of vegetation a few 
+stubborn bushes sprouting up here and there along the area but 
+mostly, what surrounds the structure are rocks and dirt. Further 
+south of the building, more longhouses can be seen. 
+~
+43 67174400 3
+0
+D0
+~
+~
+0 -1  0 42162
+D2
+~
+double-doors~
+1 42191  50 43012
+S
+#43012
+In the Main Living Area of the Longhouse~
+   Thick, sturdy logs compose the walls of this rather large 
+living area of the longhouse, the wood worn but still sturdy and 
+well-chinked. The ceiling rises high to a peaked roof and a set 
+of wooden steps in the far corner of the room lead up to what can 
+be seen of a small loft. Three windows covered by faded curtains 
+are set in the northern wall, allowing sunlight to filter in 
+during the day while a fireplace of river rocks and an old 
+lantern provide lighting here during the evening. To the east 
+and west, hallways branch out further into the longhouse while a 
+southern arch leads into the kitchen. 
+~
+43 67174664 0
+0
+D0
+~
+double-doors~
+1 42191  50 43011
+D1
+~
+~
+0 -1  0 43019
+D2
+~
+~
+0 -1  0 43013
+D3
+~
+~
+0 -1  0 43014
+D4
+~
+~
+0 -1  0 43024
+D5
+~
+trapdoor~
+1 43021  0 43018
+S
+#43013
+A Stone-Flag-Floored Kitchen~
+   Unlike the rest of the longhouse which is floored with wood, 
+grey stones have been fitted together underfoot to help prevent 
+the spread of cooking fire. The same dark stones make up the 
+walls here with the exception of the ceiling which is made with 
+old but sturdy wood. A large hearth dominates the southern wall, 
+and when lit, it warms the room quite easily. 
+~
+43 67174664 0
+0
+D0
+~
+~
+0 -1  0 43012
+D5
+~
+trapdoor~
+1 -1  0 43015
+S
+#43014
+A Narrow Hallway with Creaking Floorboards~
+   This narrow hallway branches off west from the main room of 
+the longhouse. It is dimly-lit with only a single, old lanter to 
+light the passage to reveal wooden floorboards that creak 
+underfoot. Doors line the walls, leading into private chambers. 
+~
+43 67174408 0
+0
+D0
+~
+door~
+1 43016  0 43016
+D1
+~
+~
+0 -1  0 43012
+D2
+~
+door~
+1 43017  0 43017
+D3
+~
+door~
+1 43022  0 43022
+S
+#43015
+A Cool Cellar~
+   The walls of this cellar are lined with grey stones 
+roughly-cut and jagged a bit here and there. Thick beams support 
+the ceiling and the room is spacious overall, extending under the 
+whole of the main room above. The floor is made of hard-packed 
+dirt and it is rather cold in here. 
+~
+43 67174408 0
+0
+D4
+~
+trapdoor~
+1 -1  0 43013
+S
+#43016
+A Modestly-Sized Bedchamber~
+   Built as a newer add-on to the main structure of the 
+longhouse, this room is rather large. The walls are made from 
+thick logs chinked together securely, protecting the inside from 
+the elements and the ceiling is gabled with wooden planks the 
+same color of the well-fitted floorboards. 
+~
+43 65800 0
+0
+D2
+~
+door~
+1 43016  0 43014
+P
+open close adjust~
+window curtain~
+vstr You adjust the curtain over the window.
+ostr $n adjusts the curtain over the window.
+rftog indoors 43016
+~
+S
+#43017
+A Private Quarter~
+   Though weathered, this private quarter is large enough to 
+house three or four people quite comfortably. Instead of being 
+square, it is rectangular and long in shape, a few beds are lined 
+here with a set of shelves at the far end, dominating most of the 
+wall. A wide window is covered by a faded curtain and an old, 
+brass lantern hangs from just beside the doorway to the north 
+that leads back out into the hallway. 
+~
+43 65800 0
+0
+D0
+~
+door~
+1 43017  0 43014
+P
+open close adjust~
+window curtain~
+vstr You adjust the curtain over the window.
+ostr $n adjusts the curtain over the window.
+rftog indoors 43017
+~
+S
+#43018
+A Large Cellar~
+   A flight of sturdy, wooden steps lead into this room, the 
+center of the steps worn smooth from years of use. The walls of 
+the cellar are lined with wooden boards though the floors are 
+made of hard-packed dirt. Small rustlings in the darkness hint 
+that perhaps there are some rodent denziens in this cellar. 
+~
+43 65544 0
+0
+D4
+~
+trapdoor~
+1 43021  0 43012
+S
+#43019
+A Narrow, Door-Lined Hallway~
+   This narrow hallway branches off east from the main room of 
+the longhouse. It is dimly-lit with only a single, old lanter to 
+light the passage to reveal wooden floorboards that creak 
+underfoot. The northern door leads into the men's dormitory 
+while south is the women's. 
+~
+43 67174408 0
+0
+D0
+~
+door~
+1 -1  0 43023
+D2
+~
+door~
+1 -1  0 43020
+D3
+~
+~
+0 -1  0 43012
+S
+#43020
+A Women's Dormitory~
+   Like the rest of the building, this room is made of logs, 
+floor to ceiling. It is large, though only allows a moderate 
+amount of space, most of the room taken up by the many bunks that 
+line the walls, matching lockers set at the foot of each bed. 
+Two windows with hide curtains have been built into the south 
+wall, allowing light to shine in through the daytime though 
+lanterns have been set equally-spaced here and there, to provide 
+ample lighting in the evening. 
+~
+43 67174664 0
+0
+D0
+~
+door~
+1 -1  0 43019
+S
+#43021
+A Small Storage Room~
+   The whole of this room is made of thick, birch logs 
+tightly-fitted together for security and chinked to keep out the 
+elements. It is quite small and a few shelves line the walls, 
+leaving little room for anything else. 
+~
+43 67174408 0
+0
+D1
+~
+door~
+1 43021  50 42012
+C
+2
+S
+#43022
+A Small Study at the End of the Hall~
+   This room is located at the end of the hallway and is quite 
+small, only large enough to house a single person. The floor is 
+made of worn floorboards that creak under one's weight though 
+they are still yet sturdy as the thick logs that make up the 
+walls. A single window is set to the north, curtained by a faded 
+ivory curtain while a door to the east leads back out into the 
+hall. 
+~
+43 65800 0
+0
+D1
+~
+door~
+1 43022  0 43014
+P
+open close adjust~
+window curtain~
+vstr You adjust the curtain over the window.
+ostr $n adjusts the curtain over the window.
+rftog indoors 43022
+~
+P
+message~
+sos~
+if oexists(88188,88188)
+vstr There is no courier available to meet with you at this time.
+else do
+put 88188 88188
+put 88189 88188
+loadmob 88188 43022 stayput
+vstr A courier arrives to meet with you, ready to travel south to Gondor to bear whatever you send them along with.
+fi done
+~
+P
+xxxhold~
+(null)~
+vstr The courier finishes preparations for their journey, and promptly leaves without a word.
+ostr The courier finishes preparations for their journey, and promptly leaves without a word.
+trans 88188
+~
+S
+#43023
+A Men's Dormitory~
+   Built from floor to ceiling of long, circular logs, this room 
+has been outfitted to make the most of the space. Windows in the 
+northern and eastern walls provide light at all times of the day, 
+and lanterns are mounted at intervals upon the wall at easy 
+reach. The bunks that line the walls are all aligned in an even 
+fashion, causing the room to stretch further than its moderate 
+size. 
+~
+43 67174664 0
+0
+D2
+~
+door~
+1 -1  0 43019
+S
+#43024
+A Small, Low-Ceilinged Loft~
+   The stairs lead up to this small loft, the ceiling so low that 
+the average man would have to hunch here. At one point, the roof 
+slopes downward so much that the wall rises only a few inches 
+above the head of the few cots that have been set up here in this 
+makeshift treatment area. A single lantern hangs higher upon one 
+of the walls, providing soft lighting for those housed here. 
+~
+43 67174664 0
+0
+D5
+~
+~
+0 -1  0 43012
+P
+peek look glance~
+downstairs down below~
+vstr You look over the edge of the loft into the room below and see...
+ostr $n looks over the edge of the loft.
+atlook 43012
+~
+S
+#43025
+A Cramped Kitchen~
+   Made of simple planks of rough wood, this cramped kitchen only 
+provides enough room for its purpose. The few pieces of 
+furniture leave little room to move around, only small pathways 
+available for one to make their way through the small room. 
+   A single door leads out to the west, and opening into a 
+modestly-sized backroom
+~
+43 67174408 0
+0
+D3
+~
+door~
+1 -1  0 42126
+S
+#43026
+A Small Alleyway~
+   A narrow alley winds its way through ancient foundations and 
+run down shelters. The rising walls of the cliffs block progress 
+to the west, while the back sides of buildings stand to the east. 
+No signs of recent human inhabitation can be seen, and the alley 
+abruptly ends at a small doorway set into a southern building. 
+~
+43 327680 1
+0
+D0
+~
+~
+0 -1  0 42031
+D2
+~
+door~
+1 42059  30 42306
+S
+#43027
+Before A Wide Longhouse~
+   Sitting snugly against a wall of ancient stones, this 
+longhouse looks to be newly renovated. Adorning the outside wall 
+of the longhouse are symbols from each guild - an iron-wrought 
+mounting of crossed picks, a life-like wooden mount of wheat 
+stalks, a stone stag in regal pose, and a tree with high-reaching 
+branches. A small awning has been erected over a sturdy door, 
+providing a bit of shelter from the elements. Many people 
+#6enter#0 the #6longhouse#0 to do business with the Guilds. 
+~
+43 67174400 3
+0
+D1
+~
+~
+0 -1  0 42197
+P
+enter knock goto~
+longhouse shop wide~
+vstr You approach the door of #2the wide, Guild shop longhouse#0 knocking on the door.
+ostr $n approaches the door of #2the wide, Guild shop longhouse#0 knocking on the door.
+trans_group -1 43027 43028
+~
+S
+#43028
+Inside A Wide Longhouse~
+   An inviting entry hall connections the intersections of this 
+longhouse, the strong smell of pine and paint clinging to the air 
+from the fresh building work. The walls are decorated with an 
+odd assortment of worn tools of the Guild's various trades while 
+a wooden chandelier hangs from the ceiling. The floor is 
+well-polished, featuring an intricate pattern of various wood 
+shades that stretches the corridors. The southern door has a 
+round worn spot from Guildsmen that frequently #6knock#0 to gain 
+entry to the shop and lounge towards the #6south#0. 
+~
+43 67174408 0
+0
+D0
+~
+double-doors~
+1 -1  0 43029
+D1
+~
+~
+0 -1  0 43187
+D2
+~
+hinged-door~
+1 2543  50 43030
+D3
+~
+~
+0 -1  0 43183
+P
+knock~
+south s sou so ~
+if mexist(42240, 43030) 
+if clan (-1,outpost_guilds)
+vstr The shopkeeper inside the southern doorway shouts back in Atliduk, "You best be in the Guild asking to come in here!"
+ostr Hearing, $n's knock, the shopkeeper inside the southern doorway shouts back to them in Atliduk, "You best be in the Guild asking to come in here!"
+vbr 1
+vstr The door swings open from the inside, allowing you inside. 
+ostr The door swings open from the inside, allowing $n inside. 
+vbr 1
+trans 43030
+atlook 43030
+else do
+vstr The shopkeeper inside the southern doorway shouts back in Atliduk, his tone rising in agitation, "You're no Guildsman! You already got to shop, now go away!
+ostr Responding to $n's knock, the shopkeeper inside the southern doorway shouts back in Atliduk, his tone rising in agitation, "You're no Guildsman! You already got to shop, now go away!
+fi end
+~
+P
+leave~
+longhouse long house~
+vstr You leave the guild's longhouse.
+ostr $n leaves the longhouse.
+trans_group -1 -1 43027
+atlook 43027
+~
+P
+help~
+room~
+vstr #6Leave longhouse#0 to exit the buidling
+vstr #6Knock south#0 to enter the Guild lounge
+~
+S
+#43029
+Before A Well-Organized Storefront~
+   A vast array of shelves and bins line the walls of this 
+massive storefront set into almost half of the longhouse. A 
+large counter wraps across the northern section of the room, 
+witha small entryway left open. The more valuable items are 
+blocked off by this, set behind the counter along the northern 
+wall in a prominent display shelf. Carved into the double-doors, 
+in a two-by-two pattern are four symbols, a stag, a stalk of 
+wheat, a set of crossed picks, and a large tree. 
+   Double doors lead into the entry hall to the south.
+~
+43 67174408 0
+0
+D2
+~
+double-doors~
+1 -1  0 43028
+P
+request~
+flour~
+if oexist (43040, -1)
+vstr #5A regal man with impeccible grooming#0 tells you, 'I don't have any flour to give right now, come back tomorrow.'
+else do
+if clan(-1, outpost_bakery) 
+vstr You chat with #5a regal man with impeccible grooming#0 requesting some flour.  
+ostr $n chats with #5a regal man with impeccible grooming#0 requesting some flour.  
+  if haso(-1,01510)
+vbr -
+vstr #5A regal man with impeccible grooming#0 hands you a bag of flour after he looks over your cup with a nod. 
+ostr #5A regal man with impeccible grooming#0 hands #n a bag of flour after he looks over their cup with a nod. 
+take 01510
+give 01214
+loadobj -1 1 43040
+  else do 
+     if haso(-1,98422) 
+vbr -
+vstr #5A regal man with impeccible grooming#0 hands you a bag of flour after he looks over your cup with a nod. 
+ostr #5A regal man with impeccible grooming#0 hands #n a bag of flour after he looks over their cup with a nod.
+take 98422 
+give 98419
+loadobj -1 1 43040
+     else do 
+         if haso(-1,99065) 
+vbr -
+vstr #5A regal man with impeccible grooming#0 hands you a bag of flour after he looks over your cup with a nod. 
+ostr #5A regal man with impeccible grooming#0 hands #n a bag of flour after he looks over their cup with a nod.
+take 99065 
+give 01215 
+loadobj -1 1 43040
+         else do 
+         vbr -
+         vstr #5A regal man with impeccible grooming#0 snorts his nose at you, informing you that you have no flour to show him."  
+         fi done 
+     fi done 
+   fi done
+else do
+vbr -
+vstr #5A regal man with impeccible grooming#0 snorts his nose at you, informing you that you do not work for the bakery."   
+fi done
+fi done
+~
+S
+#43030
+A Small, Private Lounge~
+   This small, cozy area is set with modest furnishings, couches 
+wrapping all around the southern wall to each side as well as 
+finely-wrought iron scones to create a quiet, intimate 
+atmosphere. Newly installed shelving against the southern wall 
+provides shop space for the man who runs both shops here, and 
+waits to help fellow Guildsmen who wish to #6leave#0 the 
+#6lounge#0. A single, curtained window provides ample light 
+during the daylight hours, and the floor is well-polished. 
+~
+43 67174408 0
+0
+D0
+~
+hinged-door~
+1 2543  50 43028
+P
+leave~
+lounge~
+vstr You nod to #5the broad, red-faced man#0 after you finish your business in the lounge.
+ostr $n nods to #5the broad, red-faced man#0 after you finish your business in the lounge.
+vbr 1
+vstr #5The broad, red-faced man#0 opens the door, allowing you out.
+ostr #5The broad, red-faced man#0 opens the door, allowing $n out.
+trans 43028
+atlook 43028
+fi done
+~
+S
+#43031
+Storeroom for General Goods and Tool Complex 45127~
+No Description Set.
+~
+43 268501000 0
+0
+D4
+~
+~
+0 -1  0 43029
+S
+#43032
+Farmer's Guild Stall ~
+   This simple stall is build of sturdy logs, with a wide open 
+counter space cut into the front. The walls are lined with old 
+farming tools for decoration, while bins and crates displaying 
+various wares line the floor. A heavily-thatched roof expands 
+into an overhang, shielding the stall from the elements. 
+   To the north leads back to the Market square.
+~
+43 67174408 0
+0
+D0
+~
+~
+0 -1  0 43049
+P
+enter~
+storeroom~
+if clan (-1,outpost_guilds)
+vstr The shopkeeper takes your bag to the storeroom, dropping off the items within and returning to you.
+ostr The shopkeeper takes $n's bag to the storeroom, dropping off the items within and returning the bag.
+transmob 42084 43032 43044
+force 42084 43044 empty bag
+transmob 42084 43044 43032
+force 42084 43032 drop bag
+else do
+vstr You are not in the farmers guild.
+force 42084 43032 drop all
+~
+P
+enter~
+storeroom~
+if clanrank (outpost_guilds,sergeant)
+vstr You are allowed access to the storeroom.
+ostr $n disappears into the back of the stall.
+trans 43044
+atlook 43044
+else do
+vstr You are not allowed access to the storeroom.
+fi done
+~
+S
+#43033
+Miner's Guild Stall~
+   This simple stall is build of sturdy logs, with a wide open 
+counter space cut into the front. The walls are lined with old 
+mining tools for decoration, featuring a prominent pair of 
+oversized picks, crossed over each other. Bins and crates 
+displaying various wares line the floor and the counter shows 
+samples of its inventory. A heavily-thatched roof expands into 
+an overhang, shielding the stall from the elements. 
+~
+43 67174408 0
+0
+D1
+~
+~
+0 -1  0 43049
+D3
+~
+door~
+1 -1  0 43072
+P
+deposit~
+storeroom~
+if clan (-1,outpost_guilds)
+vstr The shopkeeper takes your bag to the storeroom, dropping off the items within and returning to you.
+ostr The shopkeeper takes $n's bag to the storeroom, dropping off the items within and returning the bag.
+transmob 42090 43033 43072
+force 42090 43072 empty bag
+transmob 42090 43072 43033
+force 42090 43033 drop bag
+else do
+vstr You are not in the miners guild.
+force 42090 43033 drop all
+~
+P
+visit go enter~
+storeroom~
+if clanrank (outpost_guilds,sergeant)
+vstr You are allowed access to the storeroom.
+ostr $n disappears into the back of the stall.
+trans 43072
+atlook 43072
+else do
+vstr You are not allowed access to the storeroom.
+fi done
+~
+S
+#43034
+Timberwright's Guild Stall~
+   This simple stall is build of sturdy logs, with a wide open 
+counter space cut into the front. The walls are lined with old 
+axes and saws for decoration, featuring a single trunk with a 
+highly-detailed tree carved into it. Bins and crates displaying 
+various wares line the floor and the counter shows samples of its 
+inventory. A heavily-thatched roof expands into an overhang, 
+shielding the stall from the elements. 
+   To the south leads back out to the market square.
+~
+43 67174408 0
+0
+D2
+~
+~
+0 -1  0 43049
+P
+deposit~
+storeroom~
+if clan (-1,outpost_guilds)
+vstr The shopkeeper takes your bag to the storeroom, dropping off the items within and returning to you.
+ostr The shopkeeper takes $n's bag to the storeroom, dropping off the items within and returning the bag.
+transmob 42089 43034 43071
+force 42089 43071 empty bag
+transmob 42089 43071 43034
+force 42089 43034 drop bag
+else do
+vstr You are not in the Guild.
+force 42089 43034 drop all
+~
+P
+visit go enter~
+storeroom~
+if clanrank (outpost_guilds,sergeant)
+vstr You are allowed access to the storeroom.
+ostr $n disappears into the back of the stall.
+trans 43071
+atlook 43071
+else do
+vstr You are not allowed access to the storeroom.
+fi done
+~
+S
+#43035
+The Guild Collective's Crop Shoppe~
+   River rocks from the Anduin in all manner of hues grey, brown, 
+and mauve form the sturdy frame of this complex. Roughly planed 
+wooden logs, overlain with sod form the roof, providing 
+protection from elements for goods, customers, and workers alike. 
+Baskets, bins, and bags hang about the small shop area, ready to 
+display a variety of tasty fresh farm goods. Those with 
+permission might #6visit#0 the #6stockroom#0, while a door to the 
+east allows visitors to return to the roadside beyond. 
+~
+43 68222984 0
+0
+D1
+~
+smooth-willow-door~
+1 -1  0 45357
+D2
+~
+~
+0 -1  0 45188
+D3
+~
+~
+0 -1  0 45190
+P
+deposit~
+storeroom~
+vstr #5A beefy, wispy-haired man#0 takes your bag to the storeroom, dropping off the items within and returning to you.
+ostr #5A beefy, wispy-haired man#0 takes $n's bag to the storeroom, dropping off the items within and returning the bag.
+transmob 42139 43035 45414
+force 42139 45414 empty bag
+transmob 42139 45414 43035
+force 42139 43035 drop bag
+~
+P
+visit enter~
+stockroom storeroom~
+if clanrank (cao_guild,apprentice)
+vstr You nod to #5a beefy, wispy-haired man#0 and step towards the shop's storage area. 
+ostr $n nods to #5a beefy, wispy-haired man#0 and steps towards the shop's storage area. 
+trans 45414
+atlook 45414
+atecho 45414 $n enters from the shop. 
+else do
+vstr #5A beefy, wispy-haired man#0 shakes his head at you, and informs you,"By the Ealdorman's orders, only Foreman are allowed to access the till."
+fi done
+~
+S
+#43036
+A Small Side Room~
+   Nestled into the corner of the longhouse, this cozy room 
+features a single window and a small fireplace. The window is 
+shuttered and decorated with a simple hide curtain that adjusts 
+to allow light in or add privacy. the fireplace is set into the 
+wall with smooth river rocks, blackened with use. 
+   To the east is a sturdy door leading into the men's barracks.
+~
+43 67174680 0
+0
+D1
+~
+door~
+1 42260  50 42133
+S
+#43037
+A Cramped Side Room~
+   Nestled into the corner of the longhouse, this cozy room 
+features a single window and a small fireplace. The window is 
+shuttered and decorated with a simple hide curtain that adjusts 
+to allow light in or add privacy. the fireplace is set into the 
+wall with smooth river rocks, blackened with use. 
+   To the west is a sturdy door leading into the women's barracks.
+~
+43 67174680 0
+0
+D3
+~
+door~
+1 42261  50 42146
+S
+#43038
+A Cozy Room~
+   Nestled into the corner of the longhouse, this cozy room 
+features a single window and a small fireplace. The window is 
+shuttered and decorated with a simple hide curtain that adjusts 
+to allow light in or add privacy. the fireplace is set into the 
+wall with smooth river rocks, blackened with use. 
+   To the east is a sturdy door leading into the men's barracks.
+~
+43 67174680 0
+0
+D1
+~
+door~
+1 42260  50 42369
+S
+#43039
+A Small Side Room~
+   Nestled into the corner of the longhouse, this cozy room 
+features a single window and a small fireplace. The window is 
+shuttered and decorated with a simple hide curtain that adjusts 
+to allow light in or add privacy. the fireplace is set into the 
+wall with smooth river rocks, blackened with use 
+   To the west is a sturdy door leading into the women's barracks.
+~
+43 67174680 0
+0
+D3
+~
+door~
+1 42261  50 42371
+S
+#43040
+A Small Armory~
+   Set into a corner of the longhouse, this room obviously serves 
+more for storage than for study or sleep - the walls and floor 
+bare save shelves and bins. Chips and dents mar the walls, as if 
+weapons had been throw into or against them. It smells faintly 
+of pine and wet fur, and the simple wooden door leads back into 
+the often noisy and chaotic men's barracks beyond. 
+~
+43 67174680 0
+0
+D1
+~
+door~
+1 42260  50 42364
+S
+#43041
+A Private Room~
+   Nestled into the corner of the longhouse, this cozy room 
+features a single window and a large, bear-fur rug. The window 
+is shuttered and decorated with a simple hide curtain that 
+adjusts to allow light in or add privacy. To the west, a sturdy 
+wooden door leads back to the women's barracks. 
+~
+43 67174680 0
+0
+D3
+~
+door~
+1 42261  50 42373
+P
+open close adjust~
+window curtain shutters~
+vstr You walk over to the window and open its shutters.
+ostr $n walks over to the window and opens its shutters.
+rftog indoors 43041
+fi alldone 
+~
+S
+#43042
+A Private Room~
+   Nestled into the corner of the longhouse, this cozy room 
+features a single window and a small fireplace. The window is 
+shuttered and decorated with a simple hide curtain that adjusts 
+to allow light in or add privacy. the fireplace is set into the 
+wall with smooth river rocks, blackened with use. 
+   To the east is a sturdy door leading into the men's barracks.
+~
+43 67174680 0
+0
+D1
+~
+door~
+1 42260  50 42376
+S
+#43043
+A Small Side Room~
+   Nestled into the corner of the longhouse, this cozy room 
+features a single window and a small fireplace. The window is 
+shuttered and decorated with a simple hide curtain that adjusts 
+to allow light in or add privacy. the fireplace is set into the 
+wall with smooth river rocks, blackened with use. 
+   To the west is a sturdy door leading into the women's barracks.
+~
+43 67174680 0
+0
+D3
+~
+door~
+1 42261  50 42378
+S
+#43044
+Fabrics and Findings Storeroom 45128~
+This backroom is small and cluttered, filled with bins
+and racks for holding various objects.
+~
+43 336658440 0
+0
+S
+#43045
+Eastern Market Square~
+   More or less the center of the market, this space is left open 
+for the traffic through the other tents and stalls set up in the 
+surrounding area. A few peddlers wander about, lending their 
+voices to the numerous others calling out prices or dealing 
+during the day. 
+   The road winds out of the stalls to the west, while in all 
+other directions stalls continue, the air filled with shouts of 
+vendors. 
+~
+43 67174400 4
+0
+D0
+~
+~
+0 -1  0 43046
+D2
+~
+~
+0 -1  0 43047
+D3
+~
+~
+0 -1  0 42014
+P
+enter go approach~
+stall red lance shop~
+vstr You approach the small, thatch-roofed stall.
+ostr $n approaches the small, thatch-roofed stall.
+trans 43177
+ostr $n approaches the small, thatch-roofed stall.
+atlook 43177
+~
+S
+#43046
+Northeastern Market Square~
+   Running along the palisade wall, a few merchants have set up 
+their wagons or tents here, the paths spanned by thick planks 
+over muddied ground. One wagon, wheels long since rotted, has 
+been converted into display of various farming goods, the canopy 
+in ragged and provided little shelter there. 
+   The road winds out of the market to the southwest, while to the 
+south and west the stalls continue on. 
+~
+43 67174400 1
+0
+D2
+~
+~
+0 -1  0 43045
+D3
+~
+~
+0 -1  0 43048
+P
+wait~
+service~
+if oexist (11072, 43046)
+vstr The shopkeeper quickly serves the customers, finally giving you a tired smile as they finish dispatching various goods.
+purge 42384
+get 11072 43046
+put 11073 43046
+loadobj 42384 1 98027
+loadobj 42384 1 97226
+loadobj 42384 1 98109
+loadobj 42384 1 98651
+loadobj 42384 1 97444
+loadobj 42384 1 97298
+loadobj 42384 1 98587
+loadobj 42384 1 98213
+loadobj 42384 1 1120
+loadobj 42384 1 90783
+loadobj 42384 1 97305
+loadobj 42384 5 42134
+~
+S
+#43047
+Southeastern Market Square~
+   Nestled into the southeastern corner of the inner palisade 
+walls, this section of the market is rundown, with only the 
+slimmest of planks bridging the gaps between each stall or tent, 
+sparing those who travel here from the muddy, refuse-laden 
+grounds. A few ragged peddlers hustle trinkets and baubles as 
+customers come and go to poorly-built stalls and tattered tents. 
+   The road winds out of the market to the northwest, while directly
+north lies the center of the market itself.
+~
+43 67174400 1
+0
+D0
+~
+~
+0 -1  0 43045
+P
+test~
+this~
+set count obj -1 42557
+vstr count is: &(count)
+~
+S
+#43048
+Northern Market Square~
+   The northern corner of the market, stalls and tents are set up 
+sporadically, the isles and pathways cluttered with refuse and 
+empty crates. A few long-standing stalls are prominently 
+displayed with signs, while newly erected tents line the spaces 
+in between. An open-front stall welcomes those selling all kinds 
+of meat, bartering off the pieces to customers. 
+~
+43 67174400 1
+0
+D1
+~
+~
+0 -1  0 43046
+D2
+~
+~
+0 -1  0 42014
+P
+enter~
+tent~
+vstr You push aside the flap of the tent and step inside.
+ostr $n pushes aside the flap of the tent and steps inside.
+trans 42095
+atlook 42095
+ostr $n arrives from the south.
+~
+S
+#43049
+A Cluttered Market Square~
+   Cluttered tents and stalls line almost on top of each other in 
+this cramped market space. During daylight hours the area is 
+crowded with fresh produce and busy customers while the 
+shopkeepers shout out prices and display their wares. To the 
+south, the great cedar tree can be seen, partially blocking the 
+watchtower. Set into the ground and carved of stone are the 
+guild symbols, A tree to the north, a noble stag to the east, 
+crossed picks to the west, and a stalk of wheat to the south. 
+   #6OOC: Leave the marketplace by typing 'leave market'.#0 
+~
+43 67174400 1
+0
+D0
+~
+~
+0 -1  0 43034
+D1
+~
+~
+0 -1  0 43035
+D2
+~
+~
+0 -1  0 43032
+D3
+~
+~
+0 -1  0 43033
+P
+leave~
+market~
+vstr You leave the market, heading towards the Mead Hall.
+ostr $n leaves the market, heading towards the Mead Hall.
+trans 42001
+atlook 42001
+ostr $n arrives from between market tents. 
+~
+S
+#43050
+A Martial Yard Before a Sturdy Watchtower~
+   A large yard of stomped dirt and the occasional patch of grass 
+stretches out here. Weapon racks filled with training gear and a 
+few benches stand along the edges of the field. In the middle 
+there's a large sparring ring where one can find activity as long 
+as it's daylight. Towards the north a pair of large double-doors 
+lead into a large tower, judging by the conditions of the stones 
+the tower has been newly erected. Towards the west is a smaller, 
+iron-banded door which lead into a simply wooden barrack. Along 
+the tower heading east is a wide dirt trail. 
+~
+43 67174404 13
+0
+D0
+~
+heavy-oak-doors~
+1 43001  50 43054
+D1
+~
+~
+0 -1  0 43066
+D2
+~
+sturdy-iron-gate~
+3 43001  50 42022
+D3
+~
+iron-banded-door~
+1 43001  50 43051
+P
+nomoresparring~
+ring sparring rope~
+vstr You climb through the ropes into the sparring ring.
+ostr $n climbs through the ropes into the sparring ring.
+trans 42357
+atlook 42357
+ostr $n climbs into the sparring ring through the ropes.
+fi alldone
+~
+P
+climb~
+roof barracks~
+if skillcheck (climb,1d70)
+force -1 -1 emote scales up the side of the western structure, though it affords little in the way of easy footing, and scrambles onto the building's roof
+atecho 43145 Scrambling awkwardly up the side of the building from the courtyard below, $n climbs up onto the roof.
+trans 43145
+atlook 43145
+else do
+pain 5 20 -1 blunt
+atecho 43050 Dangerously, $n attempts to scale up the side of the western structure and onto the roof. However, it affords them little in the way of easy footing, and half-way up they slip and sprawl haphazardly all the way back down onto the packed earth below.
+fi done
+~
+P
+n no nor nort north~
+~
+if clanrank (earmhyde,captain)
+doitanyway -1
+else do
+if clan (-1,dalewatch)
+doitanyway -1
+else do
+vstr #5A peg-legged, bent old man#0 sneers at #5you#0 and informs #5you#0 that Earmhyde and foreigners are not allowed inside the Dalewatch Barracks.
+ostr #5A peg-legged, bent old man#0 refuses to open the door to the Dalewatch barracks for $n.
+fi done
+fi done
+~
+P
+sn sne snea sneak~
+n no nor nort north~
+if clanrank (earmhyde,captain)
+doitanyway -1
+else do
+if clan (-1,dalewatch)
+doitanyway -1
+else do
+vstr #5A peg-legged, bent old man#0 sneers at #5you#0 and informs #5you#0 that Earmhyde and foreigners are not allowed inside the Dalewatch Barracks.
+ostr #5A peg-legged, bent old man#0 refuses to open the door to the Dalewatch barracks for $n.
+fi done
+fi done
+~
+S
+#43051
+A Cluttered Common Area~
+   The musty stench of sweat and dirt drifts through the air. A 
+newly constructed wooden floor lies naked, without rugs or hides, 
+but on the walls hang several simple pieces of thick cloth in 
+different colors, both for decoration and for keeping the warmth. 
+From the ceiling hangs a simple iron ring filled with candles, 
+spreading a soft light around the room. Tables and chairs have 
+been scattered about the room, a few shelves along the walls and 
+a fireplace built into the southern wall. One can head out 
+towards the east as well as going north and west. 
+~
+43 67174664 0
+0
+D0
+~
+~
+0 -1  0 43070
+D1
+~
+iron-banded-door~
+1 -1  0 43050
+D2
+~
+~
+0 -1  0 43144
+D3
+~
+door~
+1 43006  30 43053
+P
+engage buy request summon call~
+trader trade thrall~
+if clanrank(earmhyde, sergeant)
+if mexist(43020, 43051)
+vstr The traders are already here.
+else do
+loadmob 43020 43051
+force 43020 43051 say (entering the commons after being summoned) You have business with the thrall traders?
+delay 20 xxxtraderleavesxxx
+fi done
+else do
+vstr The thrall traders would not listen to a summons from you.
+fi done
+~
+P
+xxxtraderleavesxxx~
+~
+if mexist(43020, 43051)
+force 43020 43051 say I've others to do business with. Farewell.
+exmob Trygve 43051
+else do
+fi done
+~
+S
+#43052
+Cramped Armory~
+   This small armory also functions as a storeroom. Rows of 
+racks and shelves are cluttering the floor and walls, all filled 
+with equipment and arms of all sorts. A small iron candlestick 
+right by the door spreads a little bit of light, other then that 
+there are no windows or any other sources of light. 
+~
+43 67174408 0
+0
+D1
+~
+door~
+1 43005  40 43070
+S
+#43053
+A Small, Private Quarter~
+   This private room is smaller then the commons to the east, yet 
+has enough room to hold a fair bit of furniture. Two beds, on 
+along the northern wall and one against the southern, as well as 
+two desks and a few shelves fill the room. A small window is in 
+the western wall, letting in a bit of light during the day. 
+Simple brass lamps have been fixed onto the walls to spread some 
+light during the night. The only way out is to the east. 
+~
+43 67174664 0
+0
+D1
+~
+door~
+1 43006  30 43051
+P
+move reveal~
+panel wood secret~
+if oexist(42184,42395)
+vstr You pull out a well-hidden section of wood, revealing a small hole. Reaching in you pull out a small tin box, quickly covering back up the section.
+ostr $n moves a piece of wood from the section of the wall, revealing a hidden hole and withdrawing a small tin box, quickly replacing the section to conceal it. 
+trans 42395
+force -1 42395 get box
+trans 43053
+else do
+vstr You pull out the section of wood, but find the space empty. Quickly, you cover it back up.
+ostr $n moves a section of wood and reveals a hole only to quickly cover it back up.
+fi alldone
+~
+P
+replace cover~
+wood box secret panel~
+if haso(-1,42184)
+vstr You quickly slip the box into a well-hidden hole after removing a section of wood, then replacing it - concealing the tin box entirely.
+ostr $n reveals a hidden hole in a section of the wall, quickly placing a box inside and concealing it again by replacing the wood.
+trans 42395
+force -1 42395 drop box
+trans 43053
+else do
+vstr You are not holding the tin box.
+~
+P
+check~
+hole wood secret panel~
+vstr You remove the section of wood to reveal a hole and glance inside finding...
+ostr $n removes a section of wood in the wall to reveal a hole, then looks inside.
+atlook 42395
+vstr You quickly replace the section, concealing the hole.
+ostr Covers the hole by replacing the section of wood.
+~
+S
+#43054
+A Table-Lined Mess Hall~
+This enormous hall must take up most of the first floor of the 
+tower. The slightly vaulted ceiling is high up in the air, thick 
+beams of fire-hardened oak keeping the entire structure steady. 
+A huge, iron chandelier hangs from the high ceiling, spreading a 
+comfortable light throughout the hall. Several long tables and 
+benches are placed in the middle of the room, giving the soldiers 
+a place to sit and eat. Banners and cloth sceneries are hanging 
+along the cold stone walls with a few iron candle-holders. A 
+wide fireplace spreads light and warmth, built into the eastern 
+wall and before it lies two large bear rugs. One can find 
+watchmen bustling about this mess hall at all hours of the day. 
+There is an open arch leading north and another leading west. In 
+the northeastern corner there's a wide, spiraling staircase 
+leading up to the next floor and down to the basement.
+~
+43 67174664 0
+0
+D0
+~
+wooden-door~
+1 -1  0 43056
+D2
+~
+heavy-oak-doors~
+1 43001  50 43050
+D3
+~
+curtain~
+1 -1  0 43055
+D4
+~
+~
+0 -1  0 43057
+D5
+~
+~
+0 -1  0 43062
+P
+withdraw~
+funds pound~
+If clanrank (dalewatch,corporal)
+vstr The coin is transferred to you.
+ostr A pound is delivered to $n from the Watchers of the Dale's funds.
+trans 42487
+force -1 42487 get 1 pound
+trans 43054
+force -1 43054 write board Pound withdrawn for following reason.
+Fi done
+Else do
+Vstr You do not have the rank to transfer funds.
+Fi done
+~
+P
+hire~
+~
+if clanrank(dalewatch, sergeant)
+if (&(1)=recruit)
+if haso(-1,99102)
+take 99102 1
+loadmob 42020 -1 stayput
+force 42020 -1 say Ready to serve!
+else do
+vstr You do not have any platters of meat to feed your new recruit.
+fi done
+else do
+if (&(1)=private)
+if haso(-1,99103)
+take 99103 1
+loadmob 42021 -1 stayput
+force 42021 -1 say Ready to serve!
+else do
+vstr You do not have any medium-sized platters of meat to feed your new recruit.
+fi done
+else do
+if (&(1)=corporal)
+if haso(-1,99104)
+take 99104 1
+loadmob 42022 -1 stayput
+force 42022 -1 say Ready to serve!
+else do
+vstr You do not have any large platters of meat to feed your new recruit.
+fi done
+else do
+vstr You can only #3Hire#0 #6Recruit#0's, #6Private#0's or #6Corporal#0's.
+fi done
+fi done
+fi done
+else do
+vstr You are not high enough rank to recruit anyone.
+fi done
+fi alldone
+~
+S
+#43055
+A Small Healer's Area~
+   Unlike the mess hall to the east, this room is small and dimly 
+lit. Stone makes up the ceiling, floor and walls however, thick 
+fur-rugs lie along the cold floor and gobelin tapestries hang 
+from the walls to dim the echo, offer some warmth in all this 
+cold. A small fireplace sit in the eastern wall, kettles and 
+stands to roast and cook things on scattered around it. The 
+southern wall is filled with medicine cabinet and shelves, 
+holding an array of items for medicinal use, while the northern 
+wall holds half a dozen simple cots for the ill. There's a sweet 
+smell in the air, the entire room being warm and almost cozy. 
+~
+43 67174664 0
+0
+D1
+~
+curtain~
+1 -1  0 43054
+S
+#43056
+A Stone-Floored Kitchen~
+   A large kitchen spreads out before you. The smell of roasted 
+meat and thick gravies wafts through the air. It's hot and the 
+air thick, stoves, pantries, shelves all line the walls. An 
+enormous fireplace with room to roast several pigs at once, takes 
+up most of the western wall. The walls, floor and ceiling are 
+all made out of thick stone and on the northern side of the 
+kitchen, in the floor, is a trapdoor leading down. 
+~
+43 67174408 0
+0
+D2
+~
+wooden door~
+1 -1  0 43054
+D5
+~
+trapdoor~
+1 -1  0 43074
+S
+#43057
+A Central Spiral Staircase~
+   The wide staircase ends here. A solid stone platform leads 
+people either east or west. The walls are lined with thick cloth 
+banners in different colors. A few iron candelabra stands along 
+the walls to spread some light. The roof is high, tilted as if 
+to signal the end of the tower being close. 
+~
+43 67174408 0
+0
+D1
+~
+heavy-iron-doors~
+1 43004  40 43059
+D3
+~
+door~
+1 43003  0 43058
+D5
+~
+~
+0 -1  0 43054
+S
+#43058
+A Large, Stone-Walled Barracks~
+   The barracks are bustling with soldiers at all hours of the 
+day. Some sleeping in one of the many bunk beds, some sitting 
+talking by the benches or tables. Shelves and stands line the 
+stone walls while simply storage crates or chest are spread out 
+amongst the cots. A few simple rugs provide some warmth for bare 
+feet and the cold walls are covered in thick cloth tapestries. 
+From the flat stone ceiling hangs a large iron chandelier which 
+spreads a soft light together with the candle-stick fixed on the 
+walls or standing on the ground. A fireplace line the northern 
+wall, doors lead south and east. 
+~
+43 67174664 0
+0
+D1
+~
+door~
+1 43003  0 43057
+D2
+~
+door~
+1 42119  30 43060
+S
+#43059
+A Narrow Rampart Onto the Palisade~
+   A few logs have been cut in half and hammered together to 
+create a narrow rampart. The walkway leads from the top of the 
+tower onto the palisades, high above the ground below. There is 
+a low wooden railing running along the rampart, perhaps reaching 
+a grown man to the knees. 
+~
+43 201394176 1
+0
+D1
+~
+~
+0 -1  0 42018
+D3
+~
+heavy-iron-doors~
+1 43004  40 43057
+S
+#43060
+A Small, Officers' Quarters~
+   This room is much smaller then the barracks through the 
+northern door. Yet it is large enough to hold a few beds along 
+the walls, two desks in the middle of the room and various other 
+pieces of simple furniture. Long iron candlesticks stand on 
+various places on the ground to provide a dim light to this shard 
+office. A small fireplace has been built into the western wall 
+and before it lies a fine bearskin rug. Towards the east is a 
+thick, iron-enforced door which leads onwards. 
+~
+43 67174680 0
+0
+D0
+~
+door~
+1 42119  0 43058
+D1
+~
+door~
+1 43002  60 43061
+P
+look glance~
+window yard~
+vstr You peer out the window down at the yard.
+ostr $n moves over to the window, looking down at the yard.
+atlook 43050
+~
+S
+#43061
+The Dale Watch Armory~
+   Stepping into the room there is not much space to move at all. 
+Cramped with crates, barrels and racks which are all filled with 
+various goods, but mostly with armor and weapons. Two iron 
+candlesticks are fixed on either side of the door, the walls, 
+ceiling and floor are all bare stone. 
+~
+43 67174408 0
+0
+D3
+~
+door~
+1 43002  30 43060
+S
+#43062
+Basement Surrounded by Jail Cells~
+   A narrow staircase has led down to this small, cold basement. 
+Torches are fixed to the walls between the three thick, 
+iron-banded doors. Each door has a small iron-bared window at 
+the top and a solid wooden hatch at the bottom that can only be 
+opened from the outside. A desk stands in the middle of the 
+room, in which it normally sits a guard. Next to the staircase 
+leading up are a couple of chests on the floor and a few pegs on 
+the walls. 
+~
+43 67174408 0
+0
+D0
+~
+windowed-iron-door~
+3 43007  0 43065
+D2
+~
+windowed-iron-door~
+3 43007  0 43064
+D3
+~
+windowed-iron-door~
+3 43007  0 43063
+D4
+~
+~
+0 -1  0 43054
+P
+strip~
+prisoner~
+Vstr The prison guard gets the clothes off your body and into a sack, whether you want to or not. 
+ostr The prison guard grunts lowly as he quickly strips the prisoner naked and stuffing his belongings into a bag. 
+strip 43062
+fi done
+~
+S
+#43063
+Jail Cell~
+   This stone cell is small and cramped to say the least. A 
+simple wooden cot has been fixed to the western wall, padded only 
+with some hay and a coarse burlap blanket. A little clay bowl 
+and a bucket stands in one corner, other then that the damp cell 
+is bare. A thick door with an iron-barred little window leads 
+out, a thick hatch which can only be opened from the outside sits 
+on the lower part of the door. 
+#6OOC: 'request food' and 'request clothes' for food and clothes.#0
+~
+43 67174680 0
+0
+D1
+~
+windowed-iron-door~
+3 -1  0 43062
+P
+call request~
+clothes~
+vstr You bang on the door.
+ostr %n bangs on the cell door.
+atecho 43063 A hatch at the base of the door is opened.
+atecho 43063 Clothes are shoved through.
+atecho 43063 The hatch snaps closed again as quick as it opened.
+atecho 43062 Someone bangs at a cell door, the guard promptly shoves in some old pieces of clothing through a hatch in the door.
+put 1446 43063
+put 1445 43063
+~
+P
+call request~
+food~
+vstr You bang on the door.
+ostr %n bangs on the cell door.
+atecho 43063 A hatch at the base of the door is opened.
+atecho 43063 Food and water are shoved through.
+atecho 43063 The hatch snaps closed again as quick as it opened.
+atecho 43062 Someone bangs at the eastern cell door, the guard promptly shoves food and water through a hatch in the door.  
+put 1441 43063
+put 700  43063
+~
+S
+#43064
+Jail Cell~
+   This stone cell is small and cramped to say the least. A 
+simple wooden cot has been fixed to the western wall, padded only 
+with some hay and a coarse burlap blanket. A little clay bowl 
+and a bucket stands in one corner, other then that the damp cell 
+is bare. A thick door with an iron-barred little window leads 
+out, a thick hatch which can only be opened from the outside sits 
+on the lower part of the door. 
+#6OOC: 'request food' and 'request clothes' for food and clothes.#0
+~
+43 67174680 0
+0
+D0
+~
+windowed-iron-door~
+3 -1  0 43062
+P
+call request~
+food~
+vstr You bang on the door.
+ostr %n bangs on the cell door.
+atecho 43064 A hatch at the base of the door is opened.
+atecho 43064 Food and water are shoved through.
+atecho 43064 The hatch snaps closed again as quick as it opened.
+atecho 43062 Someone bangs at the eastern cell door, the guard promptly shoves food and water through a hatch in the door.  
+put 1441 43064
+put 700  43064
+~
+P
+call request~
+clothes~
+vstr You bang on the door.
+ostr %n bangs on the cell door.
+atecho 43064 A hatch at the base of the door is opened.
+atecho 43064 Clothes are shoved through.
+atecho 43064 The hatch snaps closed again as quick as it opened.
+atecho 43062 Someone bangs at a cell door, the guard promptly shoves in some old pieces of clothing through a hatch in the door.
+put 1446 43064
+put 1445 43064
+~
+S
+#43065
+Jail Cell~
+   This stone cell is small and cramped to say the least. A 
+simple wooden cot has been fixed to the western wall, padded only 
+with some hay and a coarse burlap blanket. A little clay bowl 
+and a bucket stands in one corner, other then that the damp cell 
+is bare. A thick door with an iron-barred little window leads 
+out, a thick hatch which can only be opened from the outside sits 
+on the lower part of the door. 
+#6OOC: 'request food' and 'request clothes' for food and clothes.#0
+~
+43 67174680 0
+0
+D2
+~
+windowed-iron-door~
+3 -1  0 43062
+P
+call request~
+food~
+vstr You bang on the door.
+ostr %n bangs on the cell door.
+atecho 43065 A hatch at the base of the door is opened.
+atecho 43065 Food and water are shoved through.
+atecho 43065 The hatch snaps closed again as quick as it opened.
+atecho 43062 Someone bangs at the eastern cell door, the guard promptly shoves food and water through a hatch in the door.  
+put 1441 43065
+put 700  43065
+~
+P
+call request~
+clothes~
+vstr You bang on the door.
+ostr %n bangs on the cell door.
+atecho 43065 A hatch at the base of the door is opened.
+atecho 43065 Clothes are shoved through.
+atecho 43065 The hatch snaps closed again as quick as it opened.
+atecho 43062 Someone bangs at a cell door, the guard promptly shoves in some old pieces of clothing through a hatch in the door.
+put 1446 43065
+put 1445 43065
+~
+S
+#43066
+Path Around Tower~
+   The wide, dirt path curves around the tower, leading north and 
+west. Scraggly tufts of weed seems ever present among the grass 
+surrounding the path. Part of the area is shaded from above by a 
+wide wooden rampart that connects the upper floor of the tower to 
+the palisade in the east. The further north you go the stronger 
+the smell of hay and manure grows, while to the south the sound 
+of men hollering and wooden weapons clashing echo out. A few 
+long lamp-poles stand at either side of the path, evenly spaced 
+and spreading a soft light during the hours of the night. 
+~
+43 67174400 3
+0
+D0
+~
+~
+0 -1  0 43067
+D3
+~
+~
+0 -1  0 43050
+S
+#43067
+Approaching a Stables~
+   An enormous, open area stretches out here. The smell of 
+manure and hay is lingering in the air, ever present. A few 
+strategically placed lampposts spread light over the area at 
+night. Towards the north, a pair of double-doors lead into the 
+stables, surely the smell must originate from there. And on the 
+far western side of the field stands a long row of newly built 
+latrines. 
+~
+43 67174400 4
+0
+D0
+~
+double-doors~
+1 -1  0 43068
+D2
+~
+~
+0 -1  0 43066
+P
+enter go~
+shed~
+if clanrank (dalewatch,private)
+vstr You unlock the door and let yourself into the outbuilding.
+ostr $n unlocks the door to the shed and steps inside.
+atecho 43195 $n enters the workshop.
+trans 43195
+atlook 43195
+else do
+fi done
+~
+S
+#43068
+A Small Stables~
+   The smell of hay and manure is thick in here, the sound of 
+horses neighing and snorting coming from several of the stalls. 
+Despite seeming to have been newly erected, these stables are 
+already worn and well-used. Several stalls line the walls, 
+occupied by horses of every breed. A small but sturdy wooden 
+ladder leads up to a hayloft at the far side of the stables. The 
+ground is hard dirt, kept as clean as possible by the recruits 
+that bustle about the area. 
+~
+43 67174408 0
+0
+D0
+~
+~
+0 -1  0 43193
+D2
+~
+double-doors~
+1 -1  0 43067
+D4
+~
+~
+0 -1  0 43069
+P
+take get retrieve~
+horse~
+info room 43068 
+if clanrank (dalewatch, private)
+vstr You ask #5a heavyset copper braid-bearded fellow#0 to fetch one of the Dalewatch's horses for #5you#0 to use.
+ostr $n asks #5a heavyset copper braid-bearded fellow#0 to fetch one of the horses from a stall for $s.
+loadmob 43007 21352 stayput
+loadobj 21352 1 43045
+force 43007 21352 get barding
+force 43007 21352 wear barding
+loadobj 21352 1 1557
+force 43007 21352 get bridle 
+force 43007 21352 wear bridle
+loadobj 21352 1 1556
+force 43007 21352 get saddle
+force 43007 21352 wear saddle
+loadobj 21352 1 1555
+force 43007 21352 get horseshoes
+force 43007 21352 wear horseshoes
+transmob 43007 21352 43068
+vbr -
+vstr #5A heavyset copper braid-bearded fellow#0 brings out a stallion, handing #5you#0 the reins.
+force -1 43068 hitch stallion
+else do
+vstr #5A heavyset copper braid-bearded fellow#0 looks #5you#0 over for a moment before informing #5you#0 that you do not have permission to use one of the Dalewatch steeds.
+ostr #5A heavyset copper braid-bearded fellow#0 tells $n that $s does not have permission to use of the Dalewatch steeds.
+fi done
+~
+P
+return~
+horse~
+force all -1 dismount
+vstr You hand over the reins of the stallion to #5a heavyset copper braid-bearded fellow#0.
+ostr $n hands over the reins of the stallion to #5a heavyset copper braid-bearded fellow#0 who takes the stallion into a stall.
+transmob 43007 43068 21352
+exmob stallion 21352
+~
+S
+#43069
+A Low-Ceilinged Hayloft~
+   An old rickety ladder leads up to the center of this hay loft. 
+The air ever lingers with a strong musty scent of hay and straw. 
+Taking up the entire southern end of the loft, hay and straw 
+bales are stacked, though many rather loosely. At no point do 
+the bales reach more than waist high, and in many places, they 
+have come undone and a pile of loose straw and hay remains. 
+Across from the hay, only a bare wooden floor remains. Many 
+pieces of loose hay or straw are strewn about, ever escaping a 
+broom. The wooden rafters and support beams are old and many 
+easily give way to splinters. The ceiling occasionally leaks 
+during a storm, and not even a close inspection can reveal many 
+repairs to the roof. Windows have been cut into the sides, to 
+allow in light, but no glass has ever been set in the large 
+openings and the elements outside often find their way in. 
+~
+43 67174408 0
+0
+D5
+~
+~
+0 -1  0 43068
+S
+#43071
+Gherdin's Guild Timbers Storeroom~
+   A large open storeroom houses many piles of felled timber in 
+rows, sorted by type of wood for easy reference. People may 
+#6leave#0 the #6storeroom#0 through the single large door leading 
+down a ramp into the main shopfront. 
+~
+43 336658440 0
+0
+P
+leave exit~
+storeroom~
+vstr You step out of the storeroom back into the workroom.
+ostr $n opens the double doors and heads back west into the workroom.
+atecho 45180 The large double doors in the eastern wall open as $n enters from the storeroom.
+trans_group -1 43071 45450
+~
+S
+#43072
+Miner Guild Stall Storeroom~
+This backroom is small and cluttered, filled with bins
+and racks for holding various objects.
+~
+43 336658440 0
+0
+D1
+~
+door~
+1 -1  0 43033
+S
+#43073
+Gwil's Hunting Accessories Storeroom for shop 45181~
+Storeroom for shop 45181, mob 42197.
+~
+43 336658440 0
+0
+S
+#43070
+At the Far End of the Longhouse~
+   Several rows of rickety bunk beds, a few shelves and other 
+furniture cause the room to look extremely cluttered, filled to 
+the brim with things. However at closer inspection it is evident 
+that the barracks have been decorated with some precision, 
+everything seeming to have it's place to make sure one can walk 
+around freely without bumping into anything. Iron candlesticks 
+sit fixed to the walls, spreading a soft light at the darkest 
+hours of the night while a few small windows spread light during 
+the day. Along the northern wall sits a small fireplace, 
+spreading a bit of warmth. To the west is a sturdy wooden door 
+with a large lock on it, the only other way out is back to the 
+south. 
+~
+43 67174664 0
+0
+D2
+~
+~
+0 -1  0 43051
+D3
+~
+door~
+1 43005  40 43052
+S
+#43074
+A Cold Cellar~
+   Dark and cold, this cellar seems to be as large as the kitchen 
+above. The walls and ceiling are made out of thick stone while 
+the floor only hard-packed dirt. Shelves, meat hooks and racks 
+line the walls, filled with supplies of all kinds. Barrels, 
+crates and tables are spread out over the floor, making it a bit 
+tricky to navigate through this small space. The only way out of 
+here is by a solid wood staircase leading up through a trapdoor. 
+~
+43 67174408 0
+0
+D4
+~
+trapdoor~
+1 -1  0 43056
+S
+#43076
+Commons of the Weeping Woman Inn~
+   The commons is simply made of a moderately-sized room filled 
+with a number of tables of all different sizes and types of wood. 
+A large hearth dominates one wall, lit to perpetually keep the 
+room warm while a simple, pinewood bar runs the length of another 
+wall. The room has quite a rustic feel, dirt and a bit of grass 
+underfoot upon creaking floorboards while mostly farmers and a 
+few travellers move through the room which is not overly 
+patroned. 
+   A narrow staircase leads up to the second floor though a 
+locked door blocks access. 
+~
+43 67174664 0
+0
+D1
+~
+door~
+1 -1  0 43077
+S
+#43077
+A Yard Before a Roadside Inn and Stables~
+   Set off the side of the road here is a dirt trail leading up 
+to an even larger, dirt-filled yard before a two-story 
+countryside inn. Just to the south is a stables beyond a fence 
+but otherwise, the area seems bare as a few weeds grow in the 
+ground with patches of grass. The inn itself seems rather plain, 
+as if once used first as a farmhouse. 
+~
+43 67174400 0
+0
+D2
+~
+door~
+1 -1  0 43078
+D3
+~
+door~
+1 -1  0 43076
+S
+#43078
+A Musty Stables~
+   This stables is rather simple, only a few stalls available and 
+mostly unused. There are a few tools hanging on hooks upon the 
+walls while straw covers the ground and only one or two stalls 
+bear plain-looking steeds within. 
+~
+43 67174408 0
+0
+D0
+~
+door~
+1 -1  0 43077
+S
+#43075
+A Rustic Cottage Living Room~
+   Large, pinewood logs make up the walls and and ceiling of this 
+moderately-sized living area, well-chinked with obvious 
+craftsmanship to keep out the elements. The room itself has been 
+divided as an area in the corner has been cleared for cooking, a 
+stove set against one wall with a small hearth nearby, the floor 
+around it made of stone to prevent the spread of fire. The rest 
+of the room is not new, but seems cozy nonetheless, furniture and 
+rustic decorations giving this space a homey feeling. 
+~
+43 65800 0
+0
+D1
+~
+door~
+1 42289  35 43080
+D2
+~
+curtain~
+1 -1  0 43079
+P
+adjust close open~
+curtains window windows~
+vstr You adjust the curtain over the window.
+ostr $n adjusts the window curtain.
+rftog indoors 43075
+~
+P
+look peek gaze glance~
+windows window outside~
+vstr You glance outside the window and see...
+ostr $n looks outside the window.
+atlook 43080
+~
+S
+#43079
+A Cozy Bedroom~
+   At this end of the cottage, an archway leads through to this 
+small but comfortable bedroom, enough space granted that two or 
+even three can share it adequately. It is made of pinewood logs 
+as the rest of the house, but a curtained window overlooks the 
+waters of the nearby brook. 
+~
+43 65800 0
+0
+D0
+~
+curtain~
+1 -1  0 43075
+P
+look gaze glance peer peek~
+window outside~
+vstr You push aside the window curtain and glance outside.
+ostr $n pushes aside the window curtain and glances outside.
+atlook 42290
+~
+P
+adjust open close~
+window curtains~
+vstr You adjust the curtains over the window.
+ostr $n adjusts the curtains.
+rftog indoors 43079
+~
+S
+#43080
+Before A Rustic, Green-Painted Cottage~
+   This yard is filled with knee-high, green grass, the dirt 
+beneath soft and fertile. A short, dirt-trodden path leads up to 
+the doorstep of a rather small cottage, the home rustic and 
+painted with dull, green colour. Around the doorframe and window 
+though, newly-painted white decorates the wood, hinting that the 
+house is indeed occupied and well-maintained. To the east, the 
+path leads back to the group of cottages gathered around the 
+brook. 
+~
+43 67174400 4
+0
+D1
+~
+~
+0 -1  0 42290
+D3
+~
+door~
+1 42289  35 43075
+S
+#43081
+A Muddy Area Near the Rocky Base of the Waterfall~
+   A steep stairway cut into the very rock of the mountain allows 
+for passage down to this area below near the base of the 
+waterfall. A perpetual mist blurs all here like a silvery fog, 
+keeping the air moist while the nearby waterfall rages below, the 
+water crashing loudly like thunder against the rocks and into the 
+waters of the brook. Along the brook's edge the ground seems to 
+have been pulled away unnaturally, exposing a deep clay pit. 
+~
+43 67174400 0
+0
+D4
+~
+~
+0 -1  0 42164
+S
+#43082
+Peddler Random object Room~
+peddler random object room
+~
+43 65536 0
+0
+D1
+~
+~
+0 -1  0 43083
+P
+test~
+this~
+noop Change 1d4 to however often, 1d4 means about 1 time an hour
+set random1 1d4
+if (&(random1)=1)
+noop Count the number of object 14050 we have in room 43082
+noop Store it as variable count1
+set count1 obj 14050 43082
+noop Roll to randomly select the object from the available pool.
+noop Store it as variable random2
+set random2 1d&(count1)
+noop Gather information about the object we selected.
+noop The object we are loading is stored in oval0
+info load room 43082 obj &(random2).OTHER oval0
+noop Get the sdesc and cost of the object stored in oval0
+info sdesc obj &(load) sdesc
+info cost obj &(load) cost
+noop Change this to the markup of the keeper.
+math cost multiply 1.4
+noop Holla. 
+force -1 -1 Shout On sale now! Get it while it's hot! &(sdesc) for only &(cost)!
+noop Set the room of the mobs actual storeroom, and load the object.
+loadobj 43083 1 &(load)
+else do
+vstr No dice.
+fi done
+~
+S
+#43083
+Peddler shop room~
+peddler shop
+~
+43 65536 0
+0
+D3
+~
+~
+0 -1  0 43082
+S
+#43084
+The Southern End of a Plateau Above the Outpost~
+   Short grass twists lazily below, caught by even the faintest 
+of passing breezes in their whirling machinations which set forth 
+from above and below, setting a course down upon the village 
+visible below. Small paths are rutted off from use towards 
+cottages and longhouses spread wide apart, each set upon a 
+sizable plot of land, the fertile ground and soil beneath proving 
+their value. The occasional shrub or small tree juts out from 
+the earth below, spindly branches and leaves caught betwixt the 
+occasional blade of grass. 
+   A narrow set of stairs cut into the plateau leads down to a 
+collection of cottages below. 
+~
+43 67174400 0
+0
+D0
+~
+~
+0 -1  0 43085
+D1
+~
+~
+0 -1  0 43086
+D3
+~
+~
+0 -1  0 42567
+D5
+~
+~
+0 -1  0 42290
+S
+#43085
+The Northern End of the Plateau~
+   Short grass twists lazily below, caught by even the faintest 
+of passing breezes in their whirling machinations which set forth 
+from above and below, setting a course down upon the village 
+visible below. Small paths are rutted off from use towards 
+cottages and longhouses spread wide apart, each set upon a 
+sizable plot of land, the fertile ground and soil beneath proving 
+their value. The occasional shrub or small tree juts out from 
+the earth below, spindly branches and leaves caught betwixt the 
+occasional blade of grass. 
+~
+43 67174400 0
+0
+D0
+~
+~
+0 -1  0 43089
+D1
+~
+~
+0 -1  0 43088
+D2
+~
+~
+0 -1  0 43084
+D3
+~
+~
+0 -1  0 43087
+S
+#43086
+Before A Longhouse In A State Of Disrepair~
+   Faded stains and intricate chipped carvings are imbued into 
+the timber supporting the bulking frame of a massive longhouse 
+looming perilously to the east. Brush and grass grows wildly at 
+its base, slowly creeping its way in soft patches towards an 
+arched and masterfully constructed double-doorway which sits 
+beneath a dust-laden stained glass window, arching overhead and 
+set with colors of red and green, the faint images of foul beasts 
+and those who are set upon slaying them victoriously. Off to the 
+southern side of the longhouse, caught in a twisting mixture of 
+grass and flowery undergrowth is a single, desolate bench, long 
+since forgotten in its material solitude. 
+~
+43 65536 0
+0
+D1
+~
+Massive-Doorway~
+1 38099  0 43119
+D3
+~
+~
+0 -1  0 43084
+S
+#43087
+Before A Sturdy Longhouse~
+   Monumental pillars of oak are posted as the front supports for 
+the sturdy longhouse presenting itself westwards, the vestiges of 
+battle-hardened warriors adorning each pillar in detailed and 
+articulate repose. Lustrous stained-glass windows are portioned 
+in half-circled arc's over the substantial double-doorway 
+beneath. Each wall is constructed of high-stacked logs, expertly 
+notched together in a criss-cross pattern doubling as structural 
+support and rising high towards the equidistant slopes of the 
+roof above. To the south of the longhouse is a rutted pit of mud 
+and earth encircled with stones, a large wooden sparring pell set 
+off to its side. 
+~
+43 65536 0
+0
+D1
+~
+~
+0 -1  0 43085
+D3
+~
+Double-Doorway~
+1 -1  0 43125
+S
+#43088
+Before a Quaint Cottage~
+   Well-trimmed bushes and a painstakingly organized garden are 
+set about the exterior of a quaint cottage caught within their 
+twiggy meanderings, casting easily identifiable differentiation 
+between this patch of land and the rest of the plateau 
+surrounding. A small stone chimney pipes up from centrally 
+triangulated roof which drapes over the four walls beneath in 
+protective shadowing. Two small, square windows of hazy glass 
+are set to either side of the simple doorway leading within, led 
+to by a trampled dirt pathway lined with rock and stone. 
+~
+43 65536 0
+0
+D0
+~
+Simple-Doorway~
+1 -1  0 43123
+D3
+~
+~
+0 -1  0 43085
+S
+#43089
+Before A Grand, Oak-Wood Cottage~
+   A path of slabbed rock imbued into the ground beneath snakes 
+its way up an incline in the plateau and towards a emerging cabin 
+to the north, grand in stature and built with the an air of 
+haughty exceptionalism. A triagonal outcropping juts forth from 
+the main body of the cabin, clear windows portioned off in 
+rectangles dominating the walled face above the eminent 
+double-doors below. Lesser outcroppings of similar design and 
+function are set to either side, each providing a fogged window 
+into the world within and set above the main body of the cabin, 
+corresponding in comparative repose to the rest and constructed 
+of long logs of solid oak supported intermittently by stone 
+supports. To the side and back of the cabin are several large 
+bushes overlapping one another. 
+~
+43 65536 0
+0
+D0
+~
+Opulent-Doorway~
+1 2500  0 43136
+D2
+~
+~
+0 -1  0 43085
+P
+pull~
+hidden-lever~
+Delay 2 look
+Vstr Making your way through a small, barely noticeable pathway etched out of the dense brush behind the cabin, you come upon a small area, smoothed and set from the rest.  Dusting off the upper right most corner of the surface below, you expose a small lever and pull it, allowing you access below! 
+vbr - 
+ostr $n moves to the back of the Grand Cabin and into the dense brush, disappearing within amidst its intermingling of thick branches and shadow.
+trans 43134
+Obr -
+~
+S
+#43090
+Amidst a Complex System of Stables~
+   Upon entering, it's clear this area is used as stables - used 
+for housing horses and maintaining their care. To the west, the 
+village markets can be seen, and to the east, a small wooden door 
+has been planted for access beyond. This specific area however 
+is a complex maze of wooden gates and fences. Horses of all 
+sizes are boarded up and being taken care of. Animal feed is 
+stacked in several piles under a structure consisting of three 
+walls and a sloped roof. The sounds of snorts, grunts, and 
+occasional whinny drift out sporadically at all hours, and a 
+musky odor seems to hang in the air. 
+~
+43 67174428 0
+0
+D1
+~
+door~
+1 42325  40 43091
+D3
+~
+~
+0 -1  0 42003
+S
+#43091
+A Small, Rustic Living Area~
+   This rustic living area is old and dusty, with walls paneled 
+in dark, scratched wood and a cold stone floor that is marred and 
+dull, reflecting absolutely no light. The ceiling is higher than 
+normal, with wide, barred windows to the east, allowing sunshine 
+to fill the room during the daytime. The room has a light, airy 
+feel to it - but a strong musty smell lingers in the air. A lone 
+door has been fixed into the western wall, its hinges old and 
+rusty-- barely functional. Positioned in the northernmost wall, 
+an ancient staircase of wood leads upstairs into an airy loft. 
+~
+43 67174664 0
+0
+D3
+~
+door~
+1 42325  40 43090
+D4
+~
+~
+0 -1  0 43092
+S
+#43092
+A Low-Ceilinged Loft~
+   Fitting into the triangle of the roof, this attic has been 
+meticulously and neatly refitted into comfortable living 
+quarters. A layer of straw insulation has been carefully secured 
+with hides and heavy cloth into the parallel bars supporting the 
+sloped roof . The latched vertical tile-glassed windows built 
+into both sides of the roof let in adequate light during daytime. 
+The walls are covered with dark-stained panels and into one 
+corner a small fireplace has been built from stone. A sloping 
+staircase of old, timeworn wood leads downstairs into an open, 
+rustic living area. 
+~
+43 67174664 0
+0
+D5
+~
+~
+0 -1  0 43091
+S
+#43093
+Before the Large Guild House~
+   A wide awning protrudes from the halfway mark on this 
+two-story building, providing shade and protection from the 
+elements for those gathered close to the Guild House. Though the 
+building is well-built of steady craftsmanship, the gaudy and 
+uncoordinated coloring of the house detracts from its appearance. 
+One of the outside walls is painted a garish yellow, striking in 
+its opposition to the blander rust color covering the rest of the 
+house. Some elegance remains in the structure, however, in the 
+elaborately carved double-doors leading into the house, each door 
+scored with lines, and intricately carved with the symbols of the 
+four guilds: the stag, the pick, the tree, and the wheat shaft. 
+A simple iron bell hangs near the doorway, chain awaiting a tug. 
+~
+43 67174400 1
+0
+D0
+~
+double-doors~
+1 42118  0 43094
+D1
+~
+~
+0 -1  0 42034
+P
+ring tug~
+bell~
+vstr You tug on the simple iron bell near the doorway, sending out a ring. 
+ostr A clattering ring echoes out as $n tugs on the bell. 
+atecho 43094-43109,43120,43121 A faint, clattering ring echoes throughout the guild house. 
+~
+S
+#43094
+A Large, Trophy-Decorated Commons~
+   Numerous preserved heads of animals ranging from moose, stag, 
+and many more have been hung upon plaques that decorate the walls 
+of this rather large commons. The furniture that decorates this 
+spacious room is of the best, northman quality, and four, low 
+tables surrounded by fur hides serve as seats for any wishing it, 
+the surface of the tables carved with symbols of the various 
+guilds. In the center of the guild hall is a stone-lined firepit 
+to which the tables have been arranged around while a little 
+hatch in the ceiling can be opened by pulling upon an iron chain, 
+allowing smoke to drift out of the building. 
+   Various hallways branch from this room as well as a set of 
+stairs that lead up to the second floor of the Guild Hall. 
+~
+43 67174664 0
+0
+D0
+~
+~
+0 -1  0 43097
+D1
+~
+~
+0 -1  0 43096
+D2
+~
+double-doors~
+1 42118  0 43093
+D3
+~
+~
+0 -1  0 43095
+D4
+~
+~
+0 -1  0 43105
+S
+#43095
+A Wide, Well-Lit Hallway West of the Commons~
+   This hallway is rather wide, and seems fairly new, the 
+floorboards well-fitted together. However, the walls to either 
+side seem somehow older, the wood scratched with age and 
+curiously weather-worn though visible effort has been made to 
+spruce them up, a fresh coating of paint covering the older wood. 
+A few lanterns hang to either side of the hall, offering ample 
+lighting. North leads into the leatherworkers' workshop while 
+south into the farmers' workshop. 
+~
+43 67174408 0
+0
+D0
+~
+door~
+1 -1  0 43098
+D1
+~
+~
+0 -1  0 43094
+D2
+~
+door~
+1 -1  0 43099
+S
+#43096
+A Wide, Well-Lit Hallway East of the Commons~
+   This hallway is rather wide, and seems fairly new, the 
+floorboards well-fitted together. However, the walls to either 
+side seem somehow older, the wood scratched with age and 
+curiously weather-worn though visible effort has been made to 
+spruce them up, a fresh coating of paint covering the older wood. 
+A few lanterns hang to either side of the hall, offering ample 
+lighting. North leads into the metalworkers' workshop while 
+south into the timberwrights' workshop. 
+~
+43 67174408 0
+0
+D0
+~
+door~
+1 -1  0 43100
+D2
+~
+door~
+1 -1  0 43101
+D3
+~
+~
+0 -1  0 43094
+S
+#43097
+A Table-Lined Kitchen and Dining Hall~
+   Tables and more tables have been arranged everywhere around 
+this hall, piles of fur placed around each for seating. There is 
+a cacophony of sound here, voices of many guildspeople drifting 
+throughout the House as the wander in and out of the dining hall 
+where most of the sounds originate. The far end of the room is 
+cleared of debris and is quite clean as it is obviously the 
+kitchen, a large firepit built into the ground where a gigantic 
+cauldron perpetually hangs over. There is another fireplace 
+built into the wall for more cooking with a stove placed nearby 
+and shelves lining every inch of wall space in that corner. 
+   A narrow door leads north, out to a yard behind the Guild 
+House while south leads into the busy commons. 
+~
+43 67174664 0
+0
+D0
+~
+door~
+1 -1  0 43103
+D2
+~
+~
+0 -1  0 43094
+D5
+~
+trapdoor~
+1 -1  0 43113
+S
+#43098
+A Rustic-Looking Workroom Lined with Animal Heads and Furs~
+   Beautifully-tanned furs of every animal imaginable have been 
+hung like tapestries upon the walls of this spacious workroom 
+while displayed above them are various, preserved animal heads. 
+There are many bins and shelves placed here containing a large 
+amount of tanned leathers prepared into cloaks while some are 
+left ready for crafting. A large table dominates the center of 
+the room and scattered upon it are various tools and knives, 
+having recently been used. 
+~
+43 67174664 0
+0
+D0
+~
+door~
+1 -1  0 43102
+D2
+~
+door~
+1 -1  0 43095
+D5
+~
+trapdoor~
+1 -1  0 43110
+S
+#43099
+A Bright Yellow Workroom~
+   This room is rather sparse, mostly consisting of the many tool 
+racks that line the walls filled with shovels, pitchforks, or 
+other tools needed to tend Angost's fertile fields. In the 
+center of the room is a smaller worktable and set to the sides 
+are butter churns and other things needed for processing farmed 
+goods and resources. This room seems more spacious than the 
+other workrooms in the Guild House, painted a bright shade of 
+sunny yellow while baskets of dried fruits and other harvested 
+foods sit on display along the top tiers of the many shelves. 
+~
+43 67174664 0
+0
+D0
+~
+door~
+1 -1  0 43095
+S
+#43100
+A Sooty Workroom~
+   Despite the newness of this room, a trail of soot already has 
+been stained into the wooden floorboards, trailing from the 
+northern door and into the room, having been spread all over the 
+floor. The room smells like polishing oil and little pieces of 
+unfinished tools lie en mass within crates that are stacked all 
+over the room. To the south, a door leads back to the hallway 
+while north leads to an outdoor forge. 
+~
+43 67174664 0
+0
+D0
+~
+door~
+1 -1  0 43104
+D2
+~
+door~
+1 -1  0 43096
+D5
+~
+trapdoor~
+1 -1  0 43111
+S
+#43101
+A Sawdust-Filled Workroom~
+   Shelves and crates filled with blocks of wood or other pieces 
+of lumber line the walls from floor to ceiling here while other 
+finished wares have been packed into boxes near the worktable 
+that dominates the center of the room. A thin layer of sawdust 
+covers nearly everything here, making it somewhat hard to breathe 
+though wide windows in the south and eastern walls can be opened 
+to air out the room. A door north leads back out to the hallway. 
+~
+43 67174664 0
+0
+D0
+~
+door~
+1 -1  0 43096
+D5
+~
+trapdoor~
+1 -1  0 43112
+S
+#43102
+A Sheltered, Open-Air Tanning Yard~
+   A wooden shelter has been erected here behind the Guild Hall 
+taking up most of the room at the end of the dirt-filled yard. 
+There are pelts lined up everywhere drying and other leather 
+hides stretched out, hanging from hooks placed in the beams that 
+run overhead. The shelter is open-air, allowing the stink fumes 
+from the tanning to rise up and away and the crafting area is 
+rather cluttered, many tools and raw hides piled upon each other, 
+ready for working. 
+~
+43 67174664 1
+0
+D1
+~
+~
+0 -1  0 43103
+D2
+~
+door~
+1 -1  0 43098
+S
+#43103
+In the Center of a Dirt-Filled Yard~
+   Set behind the dining hall and between the tanning yard to the 
+west and the forge to the east is this dirt-filled yard. The 
+area is cleared of most things except the weapons rack that rests 
+against the back of the building and the row of herbs and flowers 
+that have been planted along the stone wall that lines this whole 
+enclosure. The area remains otherwise bare with plenty of room 
+to walk around. 
+~
+43 67174400 1
+0
+D1
+~
+~
+0 -1  0 43104
+D2
+~
+door~
+1 -1  0 43097
+D3
+~
+~
+0 -1  0 43102
+P
+enter go~
+ring sparring~
+vstr You step into #2a slightly-raised, wooden sparring ring#0.
+ostr $n steps into #2a slightly-raised, wooden sparring ring#0.
+atecho 43192 $n ducks under the ropes and enters the sparring ring.
+trans 43192
+atlook 43192
+~
+S
+#43104
+An Outdoor Forge and Smelting Area~
+   An awning has been built to stick out from the back of the 
+Guild House, sheltering those who work at the large, sweltering 
+forge beneath it. Just nearby is the circular smelting forge, 
+plumes of smoke rising high above into the open air of the yard. 
+There are many bins and crates piled high here filled with many 
+ingots of iron as well as tools, weapons, and other odds and 
+ends. A door south leads back into one of the workrooms of the 
+House. 
+~
+43 67174400 1
+0
+D2
+~
+door~
+1 -1  0 43100
+D3
+~
+~
+0 -1  0 43103
+S
+#43105
+A Landing Above the Commons~
+   The staircase leads up to this small landing. It is simply 
+furnished with only a window set in the northern wall to allow 
+light to filter in during the daytime while a rustic end table 
+has been placed beneath it, a perpetual vase of flowers, dried or 
+fresh, decorating its surface. To the east and west branch wide 
+hallways, the west leading to the men's quarters while the east 
+leads to the women's. 
+~
+43 67174408 0
+0
+D1
+~
+~
+0 -1  0 43108
+D3
+~
+~
+0 -1  0 43120
+D5
+~
+~
+0 -1  0 43094
+S
+#43106
+A Women's Dormitory~
+   Like the rest of the building, this room is made of new wood 
+freshly-painted a soft green from floor to ceiling. It is large, 
+though only allows a moderate amount of space, most of the room 
+taken up by the many bunks that line the walls, matching lockers 
+set at the foot of each bed. Two windows with hide curtains have 
+been built into the south and eastern walls, allowing light to 
+shine in through the daytime though lanterns have been set 
+equally-spaced here and there, to provide ample lighting in the 
+evening. 
+~
+43 67174664 0
+0
+D0
+~
+door~
+1 -1  0 43108
+S
+#43107
+A Men's Dormitory~
+   Like the rest of the building, this room is made of new wood 
+freshly-painted a dark green from floor to ceiling. It is large, 
+though only allows a moderate amount of space, most of the room 
+taken up by the many bunks that line the walls, matching lockers 
+set at the foot of each bed. Two windows with hide curtains have 
+been built into the south and western walls, allowing light to 
+shine in through the daytime though lanterns have been set 
+equally-spaced here and there, to provide ample lighting in the 
+evening. 
+~
+43 67174664 0
+0
+D0
+~
+door~
+1 -1  0 43120
+S
+#43108
+A Hallway in the Women's Quarters~
+   An iron-wrought lantern hangs at the end of this hallway, 
+perpetually lit whether night or day. To either side is a single 
+door, to the north leading to the foremen's dormitory while south 
+for the rest of the female guildsmen. West leads back to the 
+landing and staircase where voices drift up from the commons 
+below. 
+~
+43 67174408 0
+0
+D0
+~
+door~
+1 42260  0 43109
+D2
+~
+door~
+1 -1  0 43106
+D3
+~
+~
+0 -1  0 43105
+S
+#43109
+A Spacious Dormitory~
+   Nestled into the corner of the room is a small fireplace to 
+warm the occupants in the colder days. The window is shuttered 
+and decorated with a thick, hide curtain that adjusts to allow 
+light in or add privacy, simple, geometric designs stiched for 
+decoration. Despite the large size of the room, there are only a 
+few beds that line the walls, each with a locked chest at the 
+foot of each. A small writing desk is set against another wall 
+right beside a plain bookshelf. 
+~
+43 67174664 0
+0
+D2
+~
+door~
+1 42260  0 43108
+S
+#43120
+A Hallway in the Men's Quarters~
+   An iron-wrought lantern hangs at the end of this hallway, 
+perpetually lit whether night or day. To either side is a single 
+door, to the north leading to the foremen's dormitory while south 
+for the rest of the male guildsmen. East leads back to the 
+landing and staircase where voices drift up from the commons 
+below. 
+~
+43 67174408 0
+0
+D0
+~
+door~
+1 42261  0 43121
+D1
+~
+~
+0 -1  0 43105
+D2
+~
+door~
+1 -1  0 43107
+S
+#43121
+A Spacious Dormitory~
+   Nestled into the corner of the room is a small fireplace to 
+warm the occupants in the colder days. The window is shuttered 
+and decorated with a thick, hide curtain that adjusts to allow 
+light in or add privacy, simple, geometric designs stiched for 
+decoration. Despite the large size of the room, there are only a 
+few beds that line the walls, each with a locked chest at the 
+foot of each. A small writing desk is set against another wall 
+right beside a plain bookshelf. 
+~
+43 67174664 0
+0
+D2
+~
+door~
+1 42261  0 43120
+S
+#43110
+A Cramped Cellar~
+   Dug out of the mountain and the dirt surrounding it, this 
+cellar has been reinforced with heavy lumber and packed clay. 
+Shelves and crates line every available bit of space but still 
+allow for easy passage around the amply-lit room. 
+   A short staircase to the north allows the short climb back to 
+the workshop above. 
+~
+43 67174408 0
+0
+D4
+~
+trapdoor~
+1 -1  0 43098
+S
+#43111
+A Cramped Cellar~
+   Dug out of the mountain and the dirt surrounding it, this 
+cellar has been reinforced with heavy lumber and packed clay. 
+Shelves and crates line every available bit of space but still 
+allow for easy passage around the amply-lit room. 
+   A short staircase to the north allows the short climb back to 
+the workshop above. 
+~
+43 67174408 0
+0
+D4
+~
+trapdoor~
+1 -1  0 43100
+S
+#43112
+A Cramped Cellar~
+   Dug out of the mountain and the dirt surrounding it, this 
+cellar has been reinforced with heavy lumber and packed clay. 
+Shelves and crates line every available bit of space but still 
+allow for easy passage around the amply-lit room. 
+   A short staircase to the north allows the short climb back to 
+the workshop above. 
+~
+43 67174408 0
+0
+D4
+~
+trapdoor~
+1 -1  0 43101
+S
+#43113
+A Cool Storage Cellar~
+   There are many barrel racks that line the walls here filled 
+with barrels of ale, flour, barley and many other things like 
+cured and salted meat. Where there are no barrel racks, meat 
+hooks hang from the thick, oak-beamed ceiling bearing raw 
+carcasses of smaller animals and the chunks of meat cut from 
+larger beasts. Despite the large size of the cellar, it is still 
+rather cramped with more crate-lined foodstuffs piled high, each 
+labelled for easy inspection. A set of wide and easily-ascending 
+stairs lead up to the kitchen above. 
+~
+43 67174408 0
+0
+D4
+~
+trapdoor~
+1 -1  0 43097
+S
+#43666
+Tossed into the Air by a Black-Scaled Wyrm~
+You plummet to the ground below!
+~
+43 67175424 8
+0
+D5
+~
+~
+0 -1  0 42312
+S
+#43667
+Tossed into the Air by a Black-Scaled Wyrm~
+You are tumbling, spinning, falling through the air!
+~
+43 67175424 8
+0
+D5
+~
+~
+0 -1  0 43666
+S
+#43130
+A Roped-Off Sparring Ring~
+   The area in the center of the courtyard has been roped off and 
+the ground razed to nothing more than a flat mound of dirt. 
+There are literally hundreds of footprints painting the surface 
+of the earth, though most are smeared. They give a hint at the 
+purpose of this place; it is a place for training in combat, 
+apparently frequented often by would-be fighters who leave their 
+tell-tale marks behind in the dust. 
+~
+43 67174400 1
+0
+P
+xxxdoitdon~
+(null)~
+force -1 -1 rname A Roped-Off Sparring Ring
+force -1 -1 rflag light
+force -1 -1 rsector city
+setval room -1 desc The area in the center of the courtyard has been roped off and the ground razed to nothing more than a flat mound of dirt. There are literally hundreds of footprints painting the surface of the earth, though most are smeared. They give a hint at the purpose of this place; it is a place for training in combat, apparently frequented often by would-be fighters who leave their tell-tale marks behind in the dust.
+force -1 -1 rdesc reformat
+~
+P
+leave duck~
+ring rope ropes~
+delay 2 look
+vstr #5You#0 step over the ropes and out of the sparring area.
+ostr Lowering the ropes a little, $n steps out of the sparring area.
+atecho 42167 Someone steps over the ropes and out of the sparring area.
+trans 42167
+~
+S
+#43114
+Before a Rustic, Brown-Painted Cottage~
+   This yard is filled with knee-high, green grass, the dirt 
+beneath soft and fertile. A short, dirt-trodden path leads up to 
+the doorstep of a rather small cottage, the home rustic and left 
+unpainted, merely the vibrant brown of the logs. Though simple 
+in make, the cottage is rather sturdy and has been kept clean. 
+To the east, the path leads back to the group of cottages 
+gathered around the brook. 
+~
+43 67174400 0
+0
+D0
+~
+door~
+1 43009  30 43115
+D1
+~
+~
+0 -1  0 42290
+S
+#43115
+A Rustic Living Area~
+   Large, pinewood logs make up the walls and and ceiling of this 
+moderately-sized living area, well-chinked with obvious 
+craftsmanship to keep out the elements. The room itself has been 
+divided as an area in the corner has been cleared for cooking, a 
+stove set against one wall with a small hearth nearby, the floor 
+around it made of stone to prevent the spread of fire. The rest 
+of the room is not new, but seems cozy nonetheless, furniture and 
+rustic decorations giving this space a homey feeling. 
+~
+43 65800 0
+0
+D0
+~
+curtain~
+1 -1  0 43116
+D2
+~
+door~
+1 43009  30 43114
+P
+open close adjust~
+shutter shutters window~
+vstr You adjust the shutters over the window.
+ostr $n adjusts the shutters.
+rftog indoors 43115
+~
+P
+peek glance look gaze~
+window windows outside~
+vstr You glance outside the window and see...
+ostr $n looks outside the window.
+atlook 43114
+~
+S
+#43116
+A Cozy Bedroom~
+   At this end of the cottage, an archway leads through to this 
+small but comfortable bedroom, enough space granted that two or 
+even three can share it adequately. It is made of pinewood logs 
+as the rest of the house, but a curtained window overlooks the 
+waters of the nearby brook. 
+~
+43 65800 0
+0
+D2
+~
+curtain~
+1 -1  0 43115
+P
+look gaze glance peer peek~
+outside window~
+vstr You push aside the window curtain and glance outside.
+ostr $n pushes aside the window curtain and glances outside.
+atlook 42290
+~
+P
+adjust open close~
+shutter shutters window~
+vstr You adjust the shutters over the window.
+ostr $n adjusts the shutters.
+rftog indoors 43116
+~
+S
+#43117
+Kodiak's Hoochy Hut~
+   Set in the design of a once well-used kitchen, this room has 
+been converted into a makeshift work area. Tools and knives hang 
+from the walls, their uses made obvious by the pelts and skins 
+dangling from a clothes line pulled tight along the western wall. 
+A large stove is central upon the floor, hinting to the rooms 
+past glory and purpose. 
+~
+43 67174408 0
+0
+D2
+~
+Door~
+1 -1  0 42871
+S
+#43118
+The Hole Store-Room~
+   This old earth-packed basement room is little more than a few 
+sanded planks lining the walls and an old oak wood door leading 
+back into the fray of the cellar beyond. Several knotty wood 
+shelves sit along the confines of this room, the cool air of the 
+underground providing an excellent place for storage. Only one 
+or two people can comfortably fit within this room, the low 
+ceiling and haphazard construction not allowing for taller 
+occupants. An earthy smell hangs constantly on the air. 
+~
+43 65536 0
+0
+D2
+~
+old oak door~
+1 -1  0 42765
+P
+leave open ~
+storeroom south oak old door~
+vstr You open the old oaken door along the southern wall, leaving the storeroom. 
+ostr $n opens the old oaken door along the southern wall, leaving the storeroom.
+trans 42765
+atlook 42765
+~
+S
+#43119
+A Simple Dust-Laden Bedroom~
+   A newly lain rug of intricately woven material cast upon a 
+soft under-layer does little to distract from the various 
+scratches, markings and notches taken out of the floor here. 
+Tapestries and murals line the walls, garish images of plumpy 
+bossomed women and horrifying beasts setting dim the light that 
+catches them from the entry-way window and the blackened 
+iron-torch holders set into the stout wood columns within. 
+Towards the north, a doorway leads to another small room. 
+~
+43 67174664 0
+0
+D0
+~
+Simple-Doorway~
+1 -1  0 43122
+D3
+~
+Massive-Doorway~
+1 38099  0 43086
+S
+#43122
+A Spartan Work Area and Kitchen~
+   This once busy kitchen appears to have been long since 
+abandoned, the area in a state of chaotic disarray. Long clothes 
+line stretch the walls - a variety of prized pelts of all shapes 
+and sizes hanging up them and causing the lines to sag low 
+beneath their weight. A few mounted specimens make this small 
+space feel even smaller, and obviously the former home of someone 
+highly skilled in the art of the hunt. 
+~
+43 67174408 0
+0
+D2
+~
+Simple-Doorway~
+1 -1  0 43119
+S
+#43123
+A Cozy Abode~
+   Pluckily designed and sewn curtains drape over two 
+haze-glassed windows set into the southern wall upon either side 
+of the entryway, threads of light blues and pale greens 
+intertwining in a mishmash of color. A homely blue rug hugs 
+itself tightly upon the floor beneath, its edges showing the very 
+faintest signs of fraying though its surface is impeccably 
+spotless. Pleasant aromas seem to be almost embedded into the 
+walls without any definite point of origin, discerning mixtures 
+of spices and herbs intermingled with hearty wafts of meals long 
+since past. Pegs have been tacked into the wall nearest the rock 
+and clay fireplace built into the eastern wall, providing ample 
+space for cooking utensils and tools. An ornately designed door 
+leads northwards, a large flower carved into its center. 
+~
+43 67174408 0
+0
+D0
+~
+Elegant-Doorway~
+1 -1  0 43124
+D2
+~
+Simple-Doorway~
+1 -1  0 43088
+S
+#43124
+An Open Bedroom~
+   Engraved candle-holders braced upon the walls on either side 
+of the room help to fill it with a resplendent amber light, 
+unobscured in the relative openness of this space. Vines and 
+herb plants curl out from within ceramic pots set upon small 
+shelves set high over the northern wall, their leafy overhangings 
+providing a bit of natural atmosphere to the surrounds. Thick 
+oak planks make up the floorboards beneath, solid and soundless 
+in their support. 
+~
+43 67174408 0
+0
+D2
+~
+Elegant-Doorway~
+1 -1  0 43123
+S
+#43125
+A Great Gathering Hall~
+   Tall oak columns are spaced evenly about every fifteen feet 
+down the length of this great gathering hall, banners embroidered 
+with the markings of embattled veterans and memories draped 
+inwardly while iron-torch holders are set securely above each, 
+lighting the room in a constantly shifting motion of amber and 
+shadow. An enduring floor covering of rich greens and reds 
+intermingling runs down the center-point of the hall, widening 
+out into a full circle surrounding a massive stone fire pit which 
+vents upwards into a small open-walled outcropping set high in 
+the ceiling above. The floor beneath is constructed of heavy 
+wood planks, each seat seamlessly into the next. At the far 
+western end of the hall is a second set of double-doors, swords 
+crossed beneath round-shields hung upon either side. 
+~
+43 67174408 0
+0
+D1
+~
+Double-Doorway~
+1 -1  0 43087
+D3
+~
+Door~
+1 -1  0 43127
+S
+#43126
+Before a Rustic, Red-Painted Cottage~
+   This yard is filled with knee-high, green grass, the dirt 
+beneath soft and fertile. A short, dirt-trodden path leads up to 
+the doorstep of a rather small cottage, the home rustic and 
+freshly-painted a plain, red color. Though simple in make, the 
+cottage is rather sturdy and has been kept clean. To the east, 
+the path leads to the gathering of cottages and the brook. 
+~
+43 67174400 0
+0
+D1
+~
+~
+0 -1  0 42290
+D3
+~
+door~
+1 43010  30 43128
+S
+#43127
+A Modest Bedroom~
+   White stones are stacked in ordered fashion about the length 
+and exterior of a fireplace set into the southern wall, a small 
+circular mat of red set before it, the southern-most edges tinted 
+in a faint, sooty grey. Wooden pine planks arch overhead, 
+forming the frame for a large window looking out onto the plateau 
+beyond, thick woolen drapes hung upon a horizontally hung pole 
+above. The floorboards are smooth and well-polished, the floor 
+in a meticulous state of cleanliness. 
+~
+43 67174408 0
+0
+D1
+~
+~
+0 -1  0 43125
+S
+#43128
+A Rustic Living Area~
+   Large, pinewood logs make up the walls and and ceiling of this 
+moderately-sized living area, well-chinked with obvious 
+craftsmanship to keep out the elements. The room itself has been 
+divided as an area in the corner has been cleared for cooking, a 
+stove set against one wall with a small hearth nearby, the floor 
+around it made of stone to prevent the spread of fire. The rest 
+of the room is not new, but seems cozy nonetheless, furniture and 
+rustic decorations giving this space a homey feeling. 
+~
+43 65800 0
+0
+D0
+~
+curtain~
+1 -1  0 43129
+D1
+~
+door~
+1 43010  30 43126
+P
+look glance peek peer~
+outside window~
+vstr You look outside the window and see...
+ostr $n peers outside the window.
+atlook 43126
+~
+P
+open close adjust~
+window curtains~
+vstr You adjust the curtains over the window.
+ostr $n adjusts the curtains.
+rftog indoors 43128
+~
+S
+#43129
+A Cozy Bedroom~
+   At this end of the cottage, an archway leads through to this 
+small but comfortable bedroom, enough space granted that two or 
+even three can share it adequately. It is made of pinewood logs 
+as the rest of the house, but a curtained window overlooks the 
+waters of the nearby brook. 
+~
+43 65792 0
+0
+D2
+~
+curtain~
+1 -1  0 43128
+P
+look glance peek peer~
+window outside~
+vstr You look outside the window and see...
+ostr $n peers outside the window.
+atlook 42290
+~
+P
+open close adjust~
+window curtains~
+vstr You adjust the curtains over the window.
+ostr $n adjusts the curtains.
+rftog indoors 43129
+~
+P
+sneak~
+window outside~
+vstr Stealthily, you slip through the window and drop outside of the cottage.
+ostr Stealthily, $n slips through the window and drops outside of the cottage.
+trans 42290
+atlook 42290
+~
+S
+#43131
+Before a Rustic, Black-Painted Cottage~
+   This yard is filled with knee-high, green grass, the dirt 
+beneath soft and fertile. A short, dirt-trodden path leads up to 
+the doorstep of a rather small cottage, the home rustic and 
+covered in dull, black paint. Though simple in make, the cottage 
+is rather sturdy and has been kept clean. To the east, the path 
+leads back to the group of cottages gathered around the brook. 
+~
+43 67174400 0
+0
+D0
+~
+~
+0 -1  0 42009
+D2
+~
+door~
+1 43012  30 43132
+S
+#43132
+A Rustic Living Area~
+   Large , pinewood logs make up the walls and and ceiling of 
+this moderately-sized living area, well-chinked with obvious 
+craftsmanship to keep out the elements. The room itself has been 
+divided as an area in the corner has been cleared for cooking, a 
+stove set against one wall with a small hearth nearby, the floor 
+around it made of stone to prevent the spread of fire. The rest 
+of the room is not new, but seems cozy nonetheless, furniture and 
+rustic decorations giving this space a homey feeling. 
+~
+43 65800 0
+0
+D0
+~
+door~
+1 43012  30 43131
+D1
+~
+curtain~
+1 -1  0 43133
+P
+open close adjust~
+window curtains~
+vstr You adjust the curtains over the window.
+ostr $n adjusts the curtains.
+rftog indoors 43132
+~
+P
+look glance peer peek~
+outside window~
+vstr You peer outside the window and see...
+ostr $n peers outside the window.
+atlook 43131
+~
+S
+#43133
+A Cozy Bedroom~
+   At this end of the cottage, an archway leads through to this 
+small but comfortable bedroom, enough space granted that two or 
+even three can share it adequately. It is made of pinewood logs 
+as the rest of the house, but a curtained window overlooks the 
+waters of the nearby brook. 
+~
+43 65800 0
+0
+D3
+~
+curtain~
+1 -1  0 43132
+P
+adjust open close~
+window curtains~
+vstr You adjust the curtains over the window.
+ostr $n adjusts the curtains.
+rftog indoors 43133
+~
+P
+look glance peek peer~
+outside window brook~
+vstr You peer outside the window and see...
+ostr $n peers outside the window.
+atlook 42009
+~
+S
+#43134
+A Danke Passageway~
+   Stout lumber supports the earthen walls and ceiling set on all 
+sides of this passageway, the occasional root or foundational 
+rock jutting out from within. The air is stale, unmoving and 
+deathly quiet in its thick solitude as it dampens sounds in its 
+mass. Thick iron torch-holders go unused, empty and rusting as 
+they march down the line of lumber supports in organized fashion 
+towards a shoddily constructed doorway to the east. 
+~
+43 67174409 0
+0
+D1
+~
+shoddily-constructed doorway~
+1 -1  0 43135
+P
+leave pull~
+passage lever~
+Delay 2 look
+Vstr As you pull a small lever alongside the ragged staircase leading above it slides back and allows you access through! 
+vbr - 
+ostr $n pulls a small lever alongside the staircase leading above, allowing them access through.
+trans 43089
+Obr - 
+~
+S
+#43135
+A Dungeon Walled in Earth~
+   Insects crawl in long lines through small pocks in the earthen 
+ceiling, the pitter patter of their meanderings creaking in the 
+still air of this small dug-out area of timber-supported earth 
+and chipped rock. The floor below is spattered with blood and 
+the viscous remnants of vomit, urine and feces caught together in 
+pools besotten by bloated insects and ever-expanding mold and 
+grime. Chains line the walls, seeming to serve varying functions 
+and purposes, the door westwards providing the only hope of 
+escape from this dank pit. 
+~
+43 65545 0
+0
+D3
+~
+shoddily-constructed doorway~
+1 -1  0 43134
+S
+#43136
+An Ostentatious Gathering Hall~
+   Stout oaken beams form cuneate points in the high-ceiling 
+above, setting the stage and frame for the grandiose windows 
+formed above and to the sides of the entry way to allow in the 
+happenings of the world outside. Columns of granite line an 
+elongated entry-rug leading within, their positioning seeming 
+almost one of opulence rather than form or function as they lead 
+inwards towards a gathering area set about a granite fireplace 
+made communal by the circular green floor covering beneath. 
+Predominant to the room is another large communal area, its 
+floored area covered likewise by another thick rug made of 
+luscious materials where a table would be set. An intricately 
+designed doorway larger than the rest leads further northwards, 
+while two comparatively simple doors lead off to either side. 
+~
+43 67174408 0
+0
+D0
+~
+Intricate-Doorway~
+1 -1  0 43141
+D1
+~
+Simple-Doorway~
+1 -1  0 43137
+D2
+~
+Opulent-Doorway~
+1 2500  0 43089
+D3
+~
+Simple-Doorway~
+1 -1  0 43140
+S
+#43137
+A Simple Broom Closet~
+   Squared and dismal in nature and stature, this tiny room is 
+filled with various types of cleaning supplies and tools. 
+Discernable scents of soap and lye wafts heavily throughout, 
+strong to the scent and almost palpable in its airy taste mixed 
+with the faintest twinge of mildew emanating from wooden areas 
+set beneath leaky buckets. High shelves line the walls in 
+cascading lines, each cramped with various necessities. 
+~
+43 67174408 0
+0
+D3
+~
+Simple-Doorway~
+1 -1  0 43136
+Q0
+20
+A Hidden-Doorway Behind the Shelves
+~
+P
+push~
+hidden-switch~
+Delay 2 look
+Vstr Depressing a small switch behind the northernmost wall of shelves, you feel a slight vibration as the wall shifts, swinging one hundred and eighty degrees, bringing you within a small hidden room behind! 
+vbr - 
+ostr $n depresses something behind the northernmost wall of shelves, causing them to swing one-hundred and eighty degrees, carrying $n with them!
+trans 43139
+Obr - 
+~
+S
+#43139
+An Oppressive Backroom~
+   Candles drip black wax down upon the barren floor from their 
+places in holders lining the walls of this circular room in 
+similar fashion, casting the area in a dizzying dance of shadow 
+and dreary glow. Oppressive etchings and inscriptions are carved 
+into the walls, depicting images of violence, pain and 
+destruction set dominantly against a backdrop of flame. The 
+floor beneath is sticky from some unseen substance, constructed 
+of aging wood which creaks at every movement in protest. 
+~
+43 67174408 0
+0
+P
+push depress~
+switch~
+Delay 2 look
+Vstr Depressing a switch set besides the shifting shelves to the south, you cause them to swing around in a half-circle, bringing you back into the storage closet! 
+vbr - 
+ostr $n pressed a switch set beside the shifting shelves to the south, swinging them through and around!
+trans 43137
+Obr - 
+~
+S
+#43140
+A Kitchen Second'ing as Servants Quarters~
+   Set apart from the grandeur of the rest of the structure, this 
+small room is dank and barren, filled with only the most required 
+of necessities and the barest of comforts. Pots and pans dangle 
+in ordered fashion from racks high above a black iron stove, 
+ornate utensils and serving platters kept separated and standing 
+out amidst the otherwise spartan instruments. Soiled rags and 
+scraps of cloth are kept piled in the northwestern corner. 
+~
+43 67174408 0
+0
+D1
+~
+Simple-Doorway~
+1 -1  0 43136
+S
+#43141
+A Bawdy Bedroom~
+   Slanted ceiling rise upwards into a flat section, squared and 
+centered over this room, huge oak braces and supports carrying 
+the weight of the roof above, a half-circle window arching over 
+and above the far side of the room. Beneath the window is an 
+exorbitant tapestry depicting images of several women 
+intertwining themselves upon the limbs of a white-haired man 
+standing victoriously atop a mountain peak. Elegant gold and 
+silver candelbras are tacked on each wall, setting the room 
+alight in a luminescent haze carrying with it the sweet scent of 
+dried herbs meshed within the wax. The floors are solidly built 
+and finely polished, smooth and lain to the point of perfection, 
+holding firm against the foundation beneath. A small fireplace 
+composed of white marble slabs and fragments is set upon the 
+western wall, only the faintest tinges of soot marring its 
+otherwise spotless edges. 
+~
+43 67174408 0
+0
+D2
+~
+Intricate-Doorway~
+1 -1  0 43136
+S
+#43138
+A Westmansweed-Scented Storeroom~
+   This dim, windowless stockroom is lit by a single suspended 
+lantern, its light barely reaching the walls of the room. The 
+odour of Westmansweed grows stronger the deeper one goes into the 
+room, mixing with the brackish, old scent of the peat and straw 
+roof above the room. Ground in bits of herbs and old medicines 
+stain the floors, a lingering testimony to this shop's history. 
+A single door allows #6exit#0 from this cramped #6storeroom#0. 
+~
+43 336658440 0
+0
+P
+exit~
+storeroom~
+vstr You move towards storeroom door, reaching to open it. 
+ostr $n moves towards the storeroom door, reaching to open it. 
+trans 45342
+atlook 45342
+~
+S
+#43142
+Cadfan's Storeroom~
+Storeroom for Cadfan, Glass and Ceramics seller in Caolafon room 45139
+~
+43 268501000 0
+0
+D1
+~
+~
+0 -1  0 43138
+S
+#43143
+Inside of a Gypsy Wagon~
+   The inside of this brightly painted shop assaults the senses 
+with its garish array of colors. The dark floorboards remain 
+unsanded and unpainted beneath several small rugs. Every 
+available bit of space is taken up with bric-a-brac and wooden 
+shelves bolted to the walls, well stocked with jars and small 
+packages. A heavy, constant scent of spices and herbs fills the 
+room, giving it an exotic air. The back of the wagon is 
+partitioned off by a thick, purple beaded-velvet curtain. 
+~
+43 67174440 0
+8
+D1
+~
+richly-beaded curtain~
+1 -1  0 43194
+D5
+~
+red-painted hatch-door~
+1 80187  0 45141
+S
+#43144
+A Wide, Stench-Filled Latrine~
+   This room is shallow, but wide, and sports a low, wooden roof. 
+In a neat little row sit seven holes, all leading down into 
+places unknown, and all filled with human filth. A thick, almost 
+palpable stench drifts up from these holes, filling the quaint 
+little latrine at all times. 
+~
+43 67174408 0
+0
+D0
+~
+~
+0 -1  0 43051
+P
+xxxclean~
+~
+if oexist (90455,-1)
+get 90455 43144
+put 90453 43144
+get 42467 43144
+get 42467 43051
+put 42468 43144
+atecho 43051 The stench from the southern latrine begins to slowly dissipate.
+else do
+vstr You do not need to clean the latrine right now.
+fi done
+~
+P
+xxxangostspawn~
+(null)~
+if oexist(42467,43144)
+set random 1d100
+if (random=100)
+delay 1 xxxspread
+else do
+vstr No spread.
+fi done
+else do
+vstr No latrine.
+fi done
+~
+P
+xxxspread~
+(null)~
+if oexist(42467,43051)
+vstr Cannot spread more.
+else do
+put 42467 43051
+atecho 43051 A strong stench begins to overtake the room from the southern latrine.
+fi done
+~
+P
+clean~
+dirty-latrine~
+if oexist(1651,-1)
+if oexist(2010,-1)
+delay 1 xxxcleanx
+else do
+if haso(-1,2010)
+delay 1 xxxcleanx
+else do
+vstr You need to be holding #2an oak-handled shovel#0 and have #2a pile of ashes#0 in the room to clean the latrine.
+fi done
+fi done
+else do
+vstr You need to be holding #2an oak-handled shovel#0 and have #2a pile of ashes#0 in the room to clean the latrine.
+fi done
+~
+P
+xxxcleanx~
+(null)~
+delay 15 emote removes the wooden covering from *latrine and sets it aside
+delay 40 emote begins to shovel *ashes over the latrine with *shovel, covering the waste heavily
+delay 70 emote replaces the old dirt over the ash-filled latrine until the hole is filled in. And then, they stomp it heavily with their feet, packing the dirt down as much as they can
+delay 79 xxxclean
+delay 80 emote steps back from *latrine, finished
+~
+S
+#43145
+The Slanted Roof of a Barracks~
+   This roof is altogether unremarkable-- pine planks make up the 
+slightly-tilted roof which slants down towards the martial yard 
+below. At its lowest point, the roof is about 6 feet off the 
+ground. Atop the roof one is provided a clear view of the 
+martial yards, as well as a sight of the top of the palisade, 
+beyond. 
+~
+43 65540 1
+0
+D5
+~
+~
+0 -1  0 43050
+S
+#43146
+Before a Modest, Roughly-Logged Cottage~
+   This yard is filled with knee-high, green grass, the dirt 
+beneath soft and fertile. A short, flat stone path leads up to 
+the doorstep of a modestly-sized cottage. Rough, square-cut logs 
+frame the cottage, while the walls are washed in an off-white 
+color. Though simple in make, the cottage is rather sturdy and 
+has been kept clean. To the east, the path leads back to the 
+group of cottages gathered around the brook. 
+~
+43 67174400 4
+0
+D0
+~
+~
+0 -1  0 42009
+D2
+~
+solid-door~
+1 43147  50 43147
+S
+#43147
+A Simple Living Area~
+   Large, pinewood logs make up the walls and and ceiling of this 
+moderately-sized living area, well-chinked with obvious 
+craftsmanship to keep out the elements. The raised floor is made 
+up of thick wooden planks, sanded and polished smooth. The rest 
+of the room is not new, but seems cozy nonetheless, furniture and 
+rustic decorations giving this space a homey feeling. The 
+kitchen hearth warms the cottage, while a fur-curtained doorway 
+leads to the bedroom and a staircase leads to the attic above. 
+~
+43 65800 0
+0
+D0
+~
+solid-door~
+1 43147  50 43146
+D1
+~
+bear-fur-curtained~
+1 -1  0 43149
+D3
+~
+~
+0 -1  0 43148
+D4
+~
+~
+0 -1  0 43150
+P
+open close adjust~
+window windows curtain curtains~
+vstr You adjust the curtains over the window.
+ostr $n adjusts the curtains.
+rftog indoors 43147
+~
+P
+look glance peer peek~
+out outside window~
+vstr You peer outside the window and see...
+ostr $n peers outside the window.
+atlook 43146
+~
+S
+#43148
+An Open Kitchen Area~
+   Sanded wooden planks covered in a pine stain create this 
+well-appointed kitchen that has numerous cupboards and shelves. 
+The hardwood floor is scuffed in several spots, with some odd 
+scratches marking the surface. A large pantry occupies one 
+corner of this room with a fireplace and stove set upon along the 
+other. Smelling of wood and the scents of cooking, this small 
+kitchen would serve homecooked meals well in a cozy setting. 
+~
+43 65800 0
+0
+D1
+~
+~
+0 -1  0 43147
+P
+look glance peer peek~
+out outside window~
+vstr You peer outside the window and see...
+ostr $n peers outside the window.
+atlook 43146
+~
+P
+adjust open close~
+curtain curtains window~
+vstr You adjust the curtains over the window.
+ostr $n adjusts the curtains.
+rftog indoors 43148
+~
+S
+#43149
+A Cozy Bedroom~
+   Simple sanded wooden planks covered in a pine-scented stain 
+create this bedroom, that leads curtain-doored back into living 
+area area, to take advantage of the heat coming from the hearth. 
+A large, thick bear-skinned rug comprises most of the floor, 
+adding a soft walk underneath the foot and a ward against chill. 
+Relatively spacious for a cabin of this size, this bedroom could 
+hold several people comfortably, with a curtained window that 
+overlooks the waters of the nearby brook. 
+~
+43 65800 0
+0
+D3
+~
+bear-fur-curtained~
+1 -1  0 43147
+P
+open close adjust~
+window windows curtain curtains~
+vstr You adjust the curtains over the window.
+ostr $n adjusts the curtains.
+rftog indoors 43149
+~
+P
+look glance peer peek~
+out outside window windows~
+vstr You peer outside the window and see...
+ostr $n peers outside the window.
+atlook 43149
+~
+S
+#43150
+A Simple Cottage Attic~
+   The same thick, pinewood logs that make up the living area of 
+this cabin form this small attic room. The unsanded logs, 
+untempered by cooking fires still give off a pine scent. The 
+clay and rock chimney of the hearth below extends here through 
+the room and towards the roof, providing warmth in the cold. The 
+furniture in the room makes it out to be a small study. 
+~
+43 65800 0
+0
+D5
+~
+~
+0 -1  0 43147
+S
+#43151
+Store room for 42996 ANGOST PRE-GAME~
+blah
+~
+43 268501000 0
+0
+S
+#43152
+Inside a Simple Horse Cart~
+   Simple, sanded planks of an unknown wood come together to form 
+this wagon cart. Though sturdy of make, and of solid 
+construction, it appears more for function than form with few 
+other frills. Squat rather than tall, it would better suit for 
+carrying objects than passengers, and likely assures a rough and 
+uncomfortable ride without due consideration. Simple green paint 
+protects the inside and outside of the wagon. 
+~
+43 201398280 0
+0
+S
+#43999
+ANGOST PREGAME HEREN CARNATALION 42974~
+HC pregame shop room
+~
+43 335609856 0
+0
+S
+#43998
+ANGOST PREGAME EARMHYDE 42973~
+earmhyde pregame shop
+~
+43 335609856 0
+0
+S
+#43997
+ANGOST PREGAME WELCOME 42976~
+Welcome shop
+~
+43 268501000 0
+0
+S
+#43153
+An Entrance to Musty Catacombs~
+   This passage leading into an underground cavern of musty, 
+stinking walls is dark and eerie. A staircase of old, rotting 
+bones lined with skulls leads down into the floor littered with 
+remnants of past life. Various trinkets and ageworn baubles 
+glint below the skeleton ridden ground. Even in flickering 
+torchlight, the surroundings and tunnels leading from this small 
+entrance remain depthless. 
+~
+43 65547 0
+0
+D2
+~
+~
+0 -1  0 43174
+S
+#43154
+A Ledge Above a Brick Lined Pit~
+   This ancient room leads around a pit filled with an artistic 
+array of skulls and human bones. Old, dusty brick lines the pit, 
+keeping its innards safe. The skulls in the man-made circle are 
+arranged in a peculiar fashion; a ring of skulls is flanked with 
+long, thick bones and repeats the pattern until the very center 
+of the pit. A mound of hundreds of heads reaches up, almost to 
+the ledge treaded upon. To the west lies a small archway, only 
+big enough for one person at a time to squeeze through. 
+~
+43 65547 0
+0
+D1
+~
+~
+0 -1  0 43175
+D3
+~
+~
+0 -1  0 43155
+D5
+~
+~
+0 -1  0 43157
+S
+#43155
+A Sarcophagus-Lined Burial Ground~
+   This crevice within the tunnels of the cavern has been put to 
+use for a single-family burial tomb. The floor here is cleared 
+of bones and skulls and remains immaculate except for the dust of 
+years passed lining the cool rock. Several, stone caskets are 
+set within dug out portions in the crumbling, stone walls. The 
+sarcophaguses seem undisturbed and almost serene despite the 
+surroundings. 
+~
+43 65547 0
+0
+D1
+~
+~
+0 -1  0 43154
+S
+#43157
+Within a Skeleton Lined Pit~
+   Within this skeleton lined pit, bugs crawl and noises emerge 
+almost as if the bones below are rattling and howling. An 
+extremely crude and precarious ladder seems the only way out of 
+this circular prison. 
+~
+43 66571 0
+0
+D4
+~
+~
+0 -1  0 43154
+S
+#43156
+A Cavern Between Two Archways~
+   Rows of neatly lined skulls of varying shapes, sizes and 
+conditions rise against the walls of this tunnel. The largest of 
+the skeleton heads curve with the archways leading to the north 
+and east. A stuffy and stale air is lent from the multitude of 
+bones lining room. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43158
+D1
+~
+~
+0 -1  0 43160
+D3
+~
+~
+0 -1  0 43175
+S
+#43158
+Before a Small Chamber~
+   Along the two walls of this cave tunnel leading to the north 
+and south, many depictions of groups of families, their offspring 
+and family name rest. Lines and rows connect the worn images of 
+the relatives together, all leading to a single matriarch who is 
+carved above the curved passage to the north. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43159
+D2
+~
+~
+0 -1  0 43156
+S
+#43159
+A Tomb With a Single Casket~
+   Crude carvings of many, many people are etched into the stony 
+walls of this tomb. A single, lone funerary box made of gleaming 
+wood sits within the rock walls, seeming untouched. Once 
+beautiful cloths now yellowed with time drape over the solitary 
+casket and on top of them rest utensils and candles of the finest 
+make. 
+~
+43 65547 0
+0
+D2
+~
+~
+0 -1  0 43158
+P
+open op ope~
+tomb tom to sarc sarcophagus casket ~
+info used room -1 obj 6904 quality
+if (&(used)=1)
+doitanyway -1
+else do
+force -1 -1 emo You brush away a bit of the cobwebs from the sarcophagus before prying the lid off with all of your strength.
+vbr -
+obr -
+atecho 43159 A faint pair of hisses echo against the cold, stone walls of the tomb. Two large, slithering serpents move out of their home within the stone casket, obviously angry at the disturbance of their slumber!
+loadmob 42136 43159 stayput
+loadmob 42136 43159 stayput
+setval room -1 obj 6904 quality 1
+fi done
+~
+S
+#43160
+A Grotto Littered With Wall Carvings~
+   Scraped into the walls of this cavity within smooth rock are 
+whitened drawings of a large battle. Many bipedal creatures 
+raise spears against an army of shorter, stockier creatures. 
+Limp bodies are strewn between the opposing forces and on either 
+side, behind the throngs, are single, more ornate renderings of 
+those depicted. A distinguished man, holding his spear high, 
+arcs over the armies below toward a snarling orc with a brutish 
+warhammer. 
+~
+43 65547 0
+0
+D2
+~
+~
+0 -1  0 43161
+D3
+~
+~
+0 -1  0 43156
+S
+#43161
+A Small Chamber~
+   Two metal caskets sit beside one another on the cleared, but 
+dingy floor of this private burial room. On one sarcophagus sits 
+a hefty war-axe, rusted with age. On the other rests a 
+finely-woven blanket with tassled edges. Lightened spots of 
+varying sizes along the cloth that embrace either of these 
+caskets suggests other items accompanied the pair in death. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43160
+S
+#43162
+A Spacious Passageway~
+   Pebbles, small bones and other varied bits of rubble are 
+rittled over the floor of this tunnel. Even lit with torchlight, 
+this damp channel remains incredibly dark. Small stands are 
+carved into the sides of the rock, where burned out wicks upon 
+simple, iron candelabras reside. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43175
+D2
+~
+~
+0 -1  0 43163
+S
+#43163
+Within a Small Hollow~
+   Many, crudely etched forms of what appear to be small Men 
+litter the dark crag on either side of the tunnel. Some of the 
+carvings have small scribbles at the feet and all have obscure 
+letters in varying sizes beneath them. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43162
+D2
+~
+~
+0 -1  0 43164
+D3
+~
+~
+0 -1  0 43165
+S
+#43164
+A Quiet Passage Lined with Stalactites~
+   The air here is damper than the stone halls to the north and 
+south. Small, gnarled rocks hang from the ceiling, lurching down 
+like fingers and appear in more frequency to the eastern cavity. 
+A very faint drip can be heard in the distance within the 
+stillness of the cave. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43163
+D1
+~
+~
+0 -1  0 43167
+D2
+~
+~
+0 -1  0 43169
+S
+#43165
+A Tomb Lined with Many Caskets~
+   Along the cool walls of this chamber are roughly sketched 
+images of children. Beneath each rendering is a single name, 
+indiscernible due to the wear of time. Many smaller 
+sarcophaguses line this large room and most are adorned with 
+small toys, trinkets, cups and blankets. 
+~
+43 65547 0
+0
+D1
+~
+~
+0 -1  0 43163
+S
+#43167
+Wettening tunnel~
+   A musty smell and the faint sound of dripping are both present 
+within this part of the grotto. Moss litters and lines the 
+arching walls that lead to the moistening air to the east. The 
+stony ground is unusually devoid of any skeletal remains, unlike 
+the other areas of this underground lair. 
+~
+43 65547 0
+0
+D1
+~
+~
+0 -1  0 43168
+D3
+~
+~
+0 -1  0 43164
+S
+#43168
+A Small, Underground Brook Embraced by Stalagmites~
+   The constant dripping of water can be heard from the jagged 
+rock formations withered by the constant flow of liquid down its 
+course. A babbling tributary catches some of the droplets and 
+carries them away through crevices too small to swim through. 
+Lurching stalagmites that catch any light and cast shadows in 
+every direction hug the deep water formation on either side. The 
+cavern floor here is free of any skeletal debris. 
+~
+43 65547 0
+0
+D3
+~
+~
+0 -1  0 43167
+S
+#43169
+A Long Stretch of Tunnel~
+   Chilly air wafts through this dank and plain chamber. Many 
+candleholders, utensils and other iron tools litter the 
+surrounding walls at the base, as if waiting to be worn down into 
+the layer of bone, metal and rock on the ground. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43164
+D2
+~
+~
+0 -1  0 43170
+S
+#43170
+A Corner Passageway Lined with Carvings~
+   Half-completed, jagged swirls and curves have been rubbed 
+along the surface of the rock walls, as if the artist were trying 
+to weave a pattern. Only a faint trace of rock lines the floor 
+of this hall. The temperature remains cool and clammy, though 
+the air appears to be somewhat warmer than the passages to the 
+north. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43169
+D1
+~
+~
+0 -1  0 43171
+S
+#43171
+A Snaking Tunnel~
+   The terrain in this tunnel is levelled with a stable layer of 
+bone, odd pieces of metal and bone. The air grows colder, 
+crisper to the northern mouth of this passage. To the south, a 
+makeshift set of stairs starts a slight descent down into a 
+warmer, murkier climate. 
+~
+43 65547 0
+0
+D2
+~
+~
+0 -1  0 43172
+D3
+~
+~
+0 -1  0 43170
+S
+#43172
+A Muddy Tunnel~
+   Stale and stagnant puddles of mush and mud sit throughout the 
+floor of this particular passage. Many insects buzz with life, 
+interrupting the silence that seems constant throughout the rest 
+of the subterranean hall. A crude staircase made from old, 
+rotted wood leads up an incline leading from the muck to a dry 
+passage to the north. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43171
+D2
+~
+~
+0 -1  0 43173
+S
+#43173
+A Curved Tunnel~
+   Smoother walls line this path through cool stone. On the 
+surrounding, curved sides, carvings of animals large and small 
+have been scraped into the rock. Every sound can be heard as an 
+echo within this cavern, from the clacking dislodge of a pebble 
+to the scuttle of beetles. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43172
+D1
+~
+~
+0 -1  0 43174
+S
+#43174
+A Crudely Carved Path Through Stone Walls~
+   The sides of this tunnel are hacked crudely, unbecoming of the 
+rest of the smooth-walled grotto. Jagged rock surrounds all who 
+travel through to follow the passageway to the west. 
+~
+43 65547 0
+0
+D0
+~
+~
+0 -1  0 43153
+D3
+~
+~
+0 -1  0 43173
+S
+#43175
+A Small Room Lined with Hefty Boulders~
+   Unusually large rocks line the stony walls of this underground 
+cavern. The air is cool and moist and moss grows rampant in 
+every crack and crevice. Three carved out mouths lead to small 
+pathways into the deeper, dark hollow. 
+~
+43 65547 0
+0
+D1
+~
+~
+0 -1  0 43156
+D2
+~
+~
+0 -1  0 43162
+D3
+~
+~
+0 -1  0 43154
+D4
+~
+dusty trapdoor~
+1 -1  0 42826
+S
+#43166
+A Small Clearing Before a Rickety Green Shack~
+   This small clearing before an old shack is littered with 
+ancient ruins. The dirt is laden trinkets and tools of old and 
+the grass grows sparsely among the rocks and debris. Weedy 
+flowers and other hardy roots reach around the makeshift home's 
+base, almost decorating it. The shack sits firmly, despite its 
+thin walls and tin roof. 
+~
+43 67174400 0
+0
+D0
+~
+rickety-door~
+1 43176  30 43176
+D3
+~
+~
+0 -1  0 42032
+S
+#43176
+A Tottering, Green-Painted Shack~
+   The inside of this shack seems homey and plain. Sturdy 
+shelves sit on walls that creak with every sway of the plateau's 
+wind. The floor is made of unremarkable flats of wood that fit 
+together and rise up or sink down in some spots. A simple tin 
+roof with a few minor rust stains covers the top of this 
+green-painted shanty. A single, small window is nestled to one 
+side of the door. 
+~
+43 67176712 0
+0
+D2
+~
+rickety-door~
+1 -1  0 43166
+P
+peer gaze snoop squint~
+window~
+vstr You peer through the small window beside the door and see...
+ostr $n peers through the small window beside the door.
+atlook 43166
+fi alldone
+~
+S
+#43177
+The Red-Lances Market Stall~
+   This simple stall of wooden planks, devoid of decoration or 
+comfort serves its function in providing a market shopfront. Two 
+poles hold the simple roof aloft, the walls made of sanded planks 
+covered in a leather wrapping to provide some protection against 
+the elements, as well as airflow and views into the market 
+beyond. There is no discernable floorboarding, only the bare and 
+dusty road lies underfoot, often soggy and cold. Simple bins and 
+shelves have been tacked to the inside walls of the stall, with a 
+few strung lanterns providing lighting. A single barrel stool 
+sits here for the aged shopkeeper. 
+~
+43 67174408 0
+0
+P
+exit leave~
+stall market red lance~
+vstr You push aside the leather-flap of the stall, returning to the market. 
+ostr $n pushes aside the leather-flap of the stall, returning to the market. 
+trans 43045
+ostr $n returns from the small, thatched-roof stall. 
+atlook 43045
+~
+P
+deposit~
+storeroom~
+if clan (-1,heren_carnatalion)
+vstr The shopkeeper takes your bag to the storeroom, dropping off the items within and returning to you.
+ostr The shopkeeper takes $n's bag to the storeroom, dropping off the items within and returning the bag.
+transmob 43080 43177 43178
+force 43080 43178 empty bag
+transmob 43080 43178 43177
+force 43080 43177 drop bag
+else do
+vstr #5The streaky-haired, older woman#0 shakes her head at you, informing you are not a member of the clan she works for.
+force 43080 43177 drop all
+~
+P
+enter go visit~
+storeroom storage down~
+if clan (-1,HC_Stall)
+vstr #5The streaky-haired, older woman#0 nods at you, standing aside to reveal the trapdoor behind the counter.
+ostr $n goes behind the counter, disappearing down a trapdoor. 
+trans 43178
+atlook 43178
+else do
+vstr #5The streaky-haired, older woman#0 shakes her head at you, informing you are not a member of the clan she works for, and she will not let you access the storeroom. 
+fi done
+~
+S
+#43178
+The Red-Lances Stall Storeroom~
+   The dirt-walled storage center serves as little more than dirt 
+hole to keep goods for later sales. A well-constructed and 
+sturdy wood and iron-nail ladder leads back up to the stall floor 
+above, while a wrought iron and wooden plank door serves to keep 
+this room hidden from customers. Dirt loosened from the floor 
+above often sprinkles and falls around, long term standing about 
+this small underground space hardly recommended. 
+   
+~
+43 68222984 0
+0
+P
+leave exit up~
+(null)~
+vstr You head back up through the trapdoor and ladder leading upwards, closing it behind you with a loud slam.
+ostr $n heads back up through the trapdoor and ladder leading back upwards, closing it behind them with a loud slam. 
+trans 43177
+ostr $n emerges from a hidden trapdoor behind the counter.
+atlook 43177
+~
+S
+#43179
+A Clearing Before A Petite Cottage~
+   A meadowy clearing full of flora and fauna is trimmed around a 
+worn stone path that leads up to a small cottage. Vines creep 
+and reach up the sides of the sturdy wooden establishment in a 
+fond embrace of nature. The sounds of insects buzzing and 
+bustling accompany the air through the warmer months. 
+~
+43 65536 0
+0
+D0
+~
+plain-wooden-door~
+1 43179  50 43180
+D1
+~
+~
+0 -1  0 42009
+P
+leave~
+cottage room clearing~
+trans 42009
+atlook 42009
+~
+S
+#43180
+A Cozy Cottage~
+   This barely two-room cottage is small and homey. Thick, wood 
+walls and a thatched roof are plain but appear sturdy and well 
+built. The floor is comprised of even, wooden planks that 
+sometimes creak underfoot. A set of old, but nontheless 
+well-kept stairs lead to a loft overhead. Large windows with a 
+smoky tint allow an abundance of light to radiate through the 
+house. 
+~
+43 67176712 0
+0
+D2
+~
+plain-wooden-door~
+1 43179  45 43179
+D4
+~
+~
+0 -1  0 43181
+S
+#43181
+In a Loft Above the Main Room of the Cottage~
+   This bungalow is ample enough room for bedding and other small 
+furnishings. It is of the same make as the rest of the house, 
+though sounds of wildlife and running water can be heard more 
+clearly here, above the main room. A guarded railing keeps 
+anyone who might move too close to the edge of the loft from 
+toppling into the room below. 
+~
+43 67176712 0
+0
+D5
+~
+~
+0 -1  0 43180
+P
+peer gaze snoop squint~
+down room entrance~
+vstr You take a peek over the railing and see...
+ostr $n peeks over the railing to look at the main room below.
+atlook 43180
+fi alldone
+~
+S
+#43182
+A Serene Dale~
+   This clearing in the forest is calm and has an unusually 
+peaceful air to it. The sweet chirps of birds and the buzz of 
+bees permeate through the glade in the warmer seasons. A single, 
+ringed and old tree stump sits in the very middle of the 
+clearing, where the light radiates most through the canopies of 
+the lush, surrounding trees. The forest floor is clean and 
+devoid of any debris of thick underbrush that might inhibit the 
+movements of animal and Man alike. The foliage is tended and 
+trimmed, unlike the rest of the surrounding woods. 
+~
+43 65540 0
+0
+D2
+~
+~
+0 -1  0 43106
+S
+#43183
+A Guild Bake-Shop~
+   This warm, cozy newly built shop has freshly painted and 
+sanded blue-painted walls that are decorated with a pattern of 
+the yellow wheat-shaft insignia of the Farmers. A collection of 
+various fur rugs keeps the floor underneath warm and soft 
+underfoot, and fabric-lined shelving tacked to the walls provides 
+display space. Iron sconces hanging from the walls provide 
+light, and a simple barrel turned chair provides a resting spot 
+for the shopkeeper. The eastern doorway leads back to the 
+longhouse intersection, while a door along the western wall 
+allows bakery employees to #6enter#0 the #6kitchen.#0 
+~
+43 67174408 0
+0
+D1
+~
+~
+0 -1  0 43028
+P
+enter~
+backroom back kitchen~
+if clan(-1, outpost_bakery)
+vstr You step through the backdoor into the kitchen.
+ostr $n steps through a backdoor leading to the kitchen.
+atecho 43185 $n enters the kitchen from the storefront.
+trans_group -1 -1 43185
+else do
+vstr You are not allowed into the kitchen.
+ostr #5A plump middle-aged blond woman#0 steps in front of $n, preventing $n from entering the kitchen.
+fi done
+~
+P
+ring~
+bell~
+vstr You ring #2a plain bronze bell#0 sending out a clear note.
+ostr $n reaches over and rings #2a plain bronze bell#0, sending out a clear note.
+atecho 43185 The sound of bell ringing can be heard from the storefront.
+atecho 43184  The faint sound of a bell ringing can be heard.
+~
+S
+#43184
+A Simple Wooden Storeroom~
+   Simply constructed of various kinds and shades of wood, this 
+room is obviously built more with function than form in mind. 
+Sturdy and well-constructed, shelves and cabinets bolted to three 
+of the walls allow goods of all kinds to be displayed and kept, 
+the cool air of this storage room working to preserve the fresh 
+baked goods often held with in. Several strews of herb clusters 
+tacked along the walls serve to keep away pests, while the door 
+allowes one to easily #6leave#0 the #6storeroom#0 and return to 
+the kitchen. 
+~
+43 336658440 0
+0
+P
+leave exit~
+storeroom~
+vstr You leave the storerom, returning to the kitchen beyond.
+ostr $n leaves the storeroom, returning to the kitchen beyond.
+atecho 45351 steps out of the storeroom, closing the door behind them.
+trans 45351
+atlook 45351
+~
+S
+#43185
+A Large, Well-Equipped Kitchen~
+   Rather large, this kitchen has been built with space in mind. 
+Along the western wall the fireplace and stoves reside, with 
+triple chimneys leading up through the ceiling. The walls have 
+been painted with a cream colored paint and cabinets, pantries 
+and racks line the southern and eastern walls. The floor has 
+been tiled with flat river stones and there is a grate on the 
+floor that leads to an iron pipe to the storeroom visible below. 
+A single door allows people to #6leave#0 the #6kitchen#0, while a 
+hatch in the floor allows one to #6enter#0 the #6storeroom.#0 
+~
+43 67174664 0
+0
+P
+look loo open~
+window slat~
+vstr You slide open a slat in the door and peer out into the storefront.
+ostr $n slides open a slat in the door and looks out into the storefront.
+atecho 43183 A small slat in the eastern door slides open briefly.
+atlook 43183
+~
+P
+help~
+room~
+vstr #6Open slat#0 looks out into the storefront.
+~
+P
+light~
+~
+doitanyway -1
+delay 105 xxrandomsmell
+~
+P
+xxrandomsmell~
+~
+if oexist (98005, -1)
+set random 1d4
+if (random=1)
+atecho 43183 The smell of fresh baked bread wafts in through the kitchen door, filling the area.
+else do
+if (random=2)
+atecho 43183 The sweet scent of freshly baked pastries fills the area.
+else do
+if (random=3)
+atecho 43183 The succulent scent of freshly baked meat pies wafts in from the kitchen.
+else do
+if (random=4)
+atecho 43183 The intoxicating smell of fresh baked pies fills the area.
+fi done
+fi alldone
+~
+P
+leave~
+kitchen~
+vstr You open the eastern door, step out of the kitchen and emerge into the shop front. 
+ostr $n steps back into the storefront through the eastern doorway.
+atecho 43183 As $n steps through the doorway from the kitchen, #5a plump, middle-aged blond woman#0 nods to them, letting them pass.
+trans_group -1 -1 43183
+~
+P
+enter~
+storeroom~
+if clanrank(outpost_bakery,corporal)
+vstr You move towards the center of the kitchen, bending down to open the trapdoor and head into the storeroom below. 
+ostr $n moves towards the center of the kitchen, bending down to open the trapdoor and head into the storeroom below. 
+atecho 43184 $n climbs down the staircase from above. 
+trans 43184
+atlook 43184
+else do
+vstr You realize you do not have the proper permission to enter the storeroom, and #5a plump, middle-aged blond woman#0 would likely be angry with your attempts. 
+fi done
+~
+S
+#43186
+Outside a fortified village~
+   Archers line the walls looking out over the fortifications of 
+the village into the wilderness for enemies. 
+~
+43 67174400 3
+0
+S
+#43187
+A Tidy Butcher's Shop~
+   Having been recently built, this shop smells of fresh lumber 
+and fresh meat. The walls have been sanded smooth and are 
+painted a bright white color. A large butcher's counter takes up 
+a good portion of the eastern side of the store. Many ice tubs 
+sit atop the counter, keeping cool the freshly butchered meats. 
+Iron sconces hang on the walls illuminating the storefront. 
+There is a doorway to the east that the butchers #6enter#0 to get 
+into the #6slaughterhouse#0 at the back of the store. 
+~
+43 67174408 0
+0
+D3
+~
+~
+0 -1  0 43028
+P
+enter~
+slaughterhouse slaughter house~
+if clan (-1,outpost_butcher)
+vstr You enter the slaughterhouse through the eastern doorway.
+ostr $n enters the slaughterhouse through the eastern doorway.
+atecho 43188 $n enters from the western doorway.
+trans_group -1 -1 43188
+else do
+vstr You are not authorized to go there.
+ostr A thick, burly looking butcher steps in front of $n raising #2a sharp meat cleaver#0 and prevents $s from entering the slaughterhouse.
+fi done
+~
+P
+deposit~
+storeroom~
+if clan (-1,outpost_butcher)
+vstr #5A thick, burly looking butcher#0 looks over your bag, nodding and disappearing into the slaughterhouse beyond. 
+ostr #5A thick, burly looking butcher#0 looks over $n's bag, nodding and disappearing into the slaughterhouse beyond. 
+transmob 43187 43187 43189
+force 43187 43189 empty bag
+transmob 43187 43189 43187
+force 43187 43187 drop bag
+else do
+vstr #5A thick, burly looking butcher#0 shakes #2a sharp meat cleaver#0 at you, informing you that he doesn't take meat from unknown people.
+force 43187 43187 drop bag
+~
+S
+#43188
+Slaughterhouse Behind the Butcher's Shop~
+   The room is rather large and quite cold from a line of vents 
+high up in the ceiling. The walls are sanded wood that has been 
+painted in a stark white color. Many meat hooks hang in one end 
+of the slaughterhouse and the floors are tiled with a large drain 
+set in the center of the room to drain blood and water. A door 
+along the western wall allows employees to #6leave#0 the 
+#6slaughterhouse#0 and a trapdoor in the back corner of the room 
+allows employees to #6enter#0 the #6storeroom#0. 
+~
+43 67174664 0
+0
+D2
+~
+wrought-iron gate~
+3 -1  0 43190
+P
+leave exit~
+slaughterhouse slaughter house~
+vstr You leave the slaughterhouse and head back into the butcher's shop.
+ostr $n leaves the slaughterhouse through the western doorway.
+atecho 43187 $n enters the butcher's shop from the slaughterhouse.
+trans_group -1 -1 43187
+~
+P
+enter~
+storeroom~
+if clanrank (outpost_butcher, corporal)
+vstr You step through the trapdoor into the storeroom.
+ostr $n steps through the trapdoor into the storeroom.
+atecho 43189 $n enters the storeroom from the trapdoor.
+trans 43189
+atlook 43189
+else do
+vstr You are not authorized to enter the storeroom.
+fi done
+~
+P
+(null)~
+(null)~
+(null)~
+S
+#43189
+Butcher's Shop Storeroom~
+   Old abandoned barrels and crates messily lay about this 
+storeroom, the sent of blood, meat, and spices heavy in the air 
+whether heavy or light of stock. Hooks hang from the walls to 
+support larger carcasses, to allow the shopkeeper easy access to 
+the items within. A set of stairs leading around the shopfront, 
+allow one to #6leave#0 the #6storeroom#0 and return to the 
+gathering room and bedroom above. 
+~
+43 336658440 0
+0
+P
+exit leave~
+storeroom~
+vstr You step out of the storeroom and head back up the stairs to the gathering room. 
+ostr $n heads up into the gathering room. 
+atecho 45379 $n enters from the storeroom below. 
+trans 45379
+atlook 45379
+~
+S
+#43190
+Clearing Behind the Slaughterhouse~
+   A small area has been cleared behind the slaughterhouse. A 
+rock path leads to a smokehouse that takes up the majority of the 
+clearing. Two iron sconces hang on either side of the gate that 
+leads back into the slaughterhouse, lighting the clearing 
+sufficiently. 
+~
+43 67174400 1
+0
+D0
+~
+wrought-iron gate~
+3 -1  0 43188
+S
+#43800
+Atop the Fortified Walls of the Village~
+   The walls circle the village and give a good vantage point for 
+the countryside beyond. When properly supplied, archers line the 
+walls, keeping the village safe from the attacks of wild animals 
+and orcs alike. 
+~
+43 67174408 0
+0
+D1
+~
+~
+0 -1  0 43186
+D5
+~
+~
+0 -1  0 43700
+P
+outfit~
+generic~
+info roomvnum room -1 vnum
+loadmob 42153 &(roomvnum) stayput
+loadobj &(roomvnum) 1 42272
+force 42153 &(roomvnum) get cuirass
+force 42153 &(roomvnum) wear cuirass
+loadobj &(roomvnum) 1 1183
+force 42153 &(roomvnum) get harness
+force 42153 &(roomvnum) wear harness
+loadobj &(roomvnum) 1 42275
+force 42153 &(roomvnum) get greaves
+force 42153 &(roomvnum) wear greaves
+loadobj &(roomvnum) 1 2299
+force 42153 &(roomvnum) get helmet
+force 42153 &(roomvnum) wear helmet
+loadobj &(roomvnum) 1 1013
+force 42153 &(roomvnum) get boots
+force 42153 &(roomvnum) wear boots
+loadobj &(roomvnum) 1 42273
+force 42153 &(roomvnum) get vambraces
+force 42153 &(roomvnum) wear vambraces
+loadobj &(roomvnum) 1 42278
+force 42153 &(roomvnum) get gorget
+force 42153 &(roomvnum) wear gorget
+loadobj &(roomvnum) 1 1036
+force 42153 &(roomvnum) get gauntlets
+force 42153 &(roomvnum) wear gauntlets
+loadobj &(roomvnum) 1 1014
+force 42153 &(roomvnum) get belt
+force 42153 &(roomvnum) wear belt
+~
+P
+outfit~
+boss~
+info roomvnum room -1 vnum
+loadmob 42154 &(roomvnum) stayput
+loadobj &(roomvnum) 1 1022
+force 42154 &(roomvnum) get vest
+force 42154 &(roomvnum) wear vest
+loadobj &(roomvnum) 1 1183
+force 42154 &(roomvnum) get harness
+force 42154 &(roomvnum) wear harness
+loadobj &(roomvnum) 1 1494
+force 42154 &(roomvnum) get leggings
+force 42154 &(roomvnum) wear leggings
+loadobj &(roomvnum) 1 1091
+force 42154 &(roomvnum) get helmet
+force 42154 &(roomvnum) wear helmet
+loadobj &(roomvnum) 1 1013
+force 42154 &(roomvnum) get boots
+force 42154 &(roomvnum) wear boots
+loadobj &(roomvnum) 1 1024
+force 42154 &(roomvnum) get sleeves
+force 42154 &(roomvnum) wear sleeves
+loadobj &(roomvnum) 1 1023
+force 42154 &(roomvnum) get gorget
+force 42154 &(roomvnum) wear gorget
+loadobj &(roomvnum) 1 1497
+force 42154 &(roomvnum) get gauntlets
+force 42154 &(roomvnum) wear gauntlets
+loadobj &(roomvnum) 1 1014
+force 42154 &(roomvnum) get belt
+force 42154 &(roomvnum) wear belt
+~
+P
+outfit~
+genericarcher~
+info roomvnum room -1 vnum
+loadobj &(roomvnum) 1 1762
+force 42153 &(roomvnum) get quiver
+force 42153 &(roomvnum) wear quiver
+loadobj &(roomvnum) 12 97607
+force 42153 &(roomvnum) get arrow
+force 42153 &(roomvnum) put arrow quiver
+loadobj &(roomvnum) 1 1561
+force 42153 &(roomvnum) get longbow
+force 42153 &(roomvnum) wield longbow
+~
+P
+outfit~
+archerboss~
+info roomvnum room -1 vnum
+loadobj &(roomvnum) 1 1762
+force 42154 &(roomvnum) get quiver
+force 42154 &(roomvnum) wear quiver
+loadobj &(roomvnum) 12 97607
+force 42154 &(roomvnum) get arrow
+force 42154 &(roomvnum) put arrow quiver
+loadobj &(roomvnum) 1 1561
+force 42154 &(roomvnum) get longbow
+force 42154 &(roomvnum) wield longbow
+~
+P
+n no nor nort north~
+(null)~
+vstr You walk over to the northern edge of the wall and look out over the countryside.
+ostr $n walks over to the northern edge of the wall and looks out over the countryside.
+~
+P
+e ea eas east~
+(null)~
+vstr You walk over to the eastern edge of the wall and look out over the countryside.
+ostr $n walks over to the eastern edge of the wall and looks out over the countryside.
+~
+P
+s so sou south~
+(null)~
+vstr You walk over to the southern edge of the wall and look out over the countryside.
+ostr $n walks over to the southern edge of the wall and looks out over the countryside.
+~
+P
+w we wes west~
+(null)~
+vstr You walk over to the western edge of the wall and look out over the countryside.
+ostr $n walks over to the western edge of the wall and looks out over the countryside.
+~
+S
+#43700
+Inside a Fortified Village~
+   A small northland village sprawls out here. There are few 
+longhouses set around the village square and villagers #6enter#0 
+the #6longhouse#0 marked with a Trader's Post frequently. A well 
+marks the center of the village and it looks as though supplies 
+are left here to keep the men nourished while they stand guard on 
+the well-fortified walls. Villagers #6leave#0 the #6village#0 
+along a path through the fortified gatehouse. 
+~
+43 67174656 1
+0
+D4
+~
+~
+0 -1  0 43800
+P
+resupply~
+location~
+info villageroom room -1 vnum
+info archerroom room -1 exit up
+if oexist (43701,&(villageroom))
+vstr The fighters still have some food.
+else do
+if oexist (43702,&(villageroom))
+vstr The fighters have just been given rations and are well fed.
+else do
+if oexist (43700,&(villageroom))
+if oexist (79960,&(villageroom))
+get 79960 &(villageroom)
+get 43700 &(villageroom)
+loadobj &(villageroom) 1 43702
+vstr A group of villagers takes a large stack of food sacks and distributes them to the fighters.
+ostr A group of villagers takes a large stack of food sacks and distributes them to the fighters.
+force 43155 &(archerroom) outfit generic
+force 43155 &(archerroom) outfit genericarcher
+force 43155 &(archerroom) outfit generic
+force 43155 &(archerroom) outfit genericarcher
+force 43155 &(archerroom) outfit generic
+force 43155 &(archerroom) outfit genericarcher
+force 43155 &(archerroom) outfit boss
+force 43155 &(archerroom) outfit archerboss
+force 43155 &(archerroom) outfit boss
+force 43155 &(archerroom) outfit archerboss
+force 43155 &(archerroom) outfit boss
+force 43155 &(archerroom) outfit archerboss
+else do
+vstr There is no food here to supply the fighters.
+fi done
+fi done
+fi done
+fi done
+~
+P
+leave exit~
+village~
+info villageroom room -1 vnum
+ostr $n leaves the village.
+vstr You leave the village
+trans_group -1  &(villageroom) 43186
+~
+P
+enter~
+longhouse~
+vstr You enter the Trading Post longhouse.
+ostr $n steps into one of the longhouses.
+atecho 43750 $n steps into the shop from the square.
+trans 43750
+atlook 43750
+~
+S
+#43996
+Northlands Drop Room~
+This room is for dropping mobs and objects for holding/deleting.
+~
+43 65544 0
+0
+S
+#43750
+A Small Trading Post~
+   Taking up the majority of this small longhouse, this shopfront 
+is relatively free of clutter. The wares are stored various bins 
+and a small counter is set against the back wall, blocking the 
+exit to the backroom from the rest of the store. Iron sconces 
+light the shop and there is a single exit with with shoppers use 
+to #6leave#0 the #6longhouse#0. 
+~
+43 67174408 0
+0
+P
+leave~
+longhouse~
+vstr You step out of the longhouse and back into the village sqauare.
+ostr $n steps out of the longhouse and back into the village square.
+atecho 43700 $n enters the square from one of the longhouses.
+trans 43700
+atlook 43700
+~
+S
+#43751
+Storeroom for a Small Trading Post (vnum 43750)~
+This is the cramped storeroom for the Trading Post.
+~
+43 335609864 0
+0
+S
+#43191
+Earmhyde NPC-LOADER STOREROOM~
+NPC Loader Storeroom for shopkeeper 43020, shop 43051.
+~
+43 268500992 0
+0
+S
+#43194
+In the Back of the Gypsy Wagon~
+   The girth of this room is squat and its cramped space tends to 
+keep a plethora of smells and spices lingering within this small, 
+curtain-partitioned back end of the wagon. Planked, wooden 
+floorboards creek beneath any steps or movements made. The 
+covered walls and ceiling of this back-end to the wagon are 
+covered in numerous trinkets, feathers and oddities which are 
+lavishly fashioned and skillful in their make. 
+~
+43 67190796 0
+0
+D3
+~
+richly-beaded curtain~
+1 -1  0 43143
+S
+#43192
+A Raised Sparring Platform~
+   Lifted up on a small platform this sparring ring is spacious, 
+walled with thick ropes and its floor covered in sand. Large 
+enough to support several men, its base is made of massive logs 
+for support, the sand spread liberally over thick planks. 
+   #6OOC: Type help room to learn how to spar with the trainer!#0
+~
+43 67174400 4
+0
+P
+help~
+room~
+vstr You can do the following things:
+vstr To train with Brand, simply attack him with your practice weapons.
+vstr When finished, type #6STOP LESSON#0 or #6STOP SPAR#0, and then #6STOP#0 again.
+vstr Be sure to use this training aid responsibly, and with IC care!
+~
+P
+stop cancel~
+spar fight lesson~
+vstr You call for an end to the sparring match.
+ostr %n calls for an end to the sparring match.
+force 42071 43192 emote grunts, nodding, as he reaches up to wipe away a smear of blood.
+force 42071 43192 stop
+vstr Be sure to type #6STOP#0 again.
+~
+P
+leave exit~
+ring sparring rope~
+vstr You duck under the ropes of the sparring ring and step out.
+ostr $n ducks under the ropes of the sparring ring and steps out.
+atecho 43008 ostr $n ducks under the ropes of the sparring ring and steps out.
+trans 43103
+atlook 43103
+~
+S
+#43193
+An Indoor Riding Arena~
+   A worn oval marks the indoor riding ring within this roofed 
+arena, packed earth stomped by the innumerable passes of equine 
+feet. Soldiers drill military maneuvers on horseback, training 
+both themselves and their steeds to move forward and back, pivot 
+and wheel in the delicate dance of combat footwork. Others 
+charge the quintain, learning to strike at speed and to remove 
+the horses fear. Simple walls and a peaked roof all made of hewn 
+planking protect from the elements year round, but do not 
+completely stop the filtering light and drafty breezes from 
+dancing in the hoof-stirred dust. 
+~
+43 67174408 0
+0
+D2
+~
+~
+0 -1  0 43068
+S
+#43195
+A Sharp-Smelling Workshop~
+   Nestled in the corner between the tower and barn, this wooden 
+outbuilding provides a dry, warm workshop for its artisan's use. 
+Precisely-fitted pinewood boards make the walls, roof, and floor, 
+though a stained and acid-marked braid rug softens footfalls in 
+the room's center. A wooden shuttered window in the south wall 
+can be opened to let in fresh air, slides and props crafted 
+artfully to allow it to be fixed open at four different 
+positions. Shelves with dozens of compartments have been 
+ingeniously crafted into the corners, maximizing the small room's 
+capacity. Even when the windows open, the strange, astringent 
+smells of the room cannot be completely dispersed. 
+~
+43 67174408 0
+0
+D1
+~
+~
+0 -1  0 43067
+S
+#43196
+A Simple Pine Workroom~
+   This newly finished room smells of pine boarding and the furs 
+that line the floor and walls, providing both the practical 
+application of warmth and a space to show off trophy catches. 
+Simple in design, it has spaces and benches for work of various 
+kinds, and table for sitting at, though little else in the way of 
+comfort. Iron and glass lanterns provide light, a riverrock 
+fireplace providing the ability to warm the room. 
+~
+43 67174424 0
+0
+D1
+~
+~
+0 -1  0 42372
+D5
+~
+trapdoor~
+1 -1  0 42363
+S
+#43197
+Travelling Along Near Fangorn~
+   Here, amidst the diaspora leaving Halburg, a caravan of 
+horses, wagons, and people on foot clog up the make-shift trail 
+near the forest, many within the group working diligently to 
+cautiously avoid closing the distance between them and the 
+forboding trees just beyond. Dark and overshadowing, the ancient 
+forest fills this trail with an uneasy feeling, the dark twisted 
+and overgrown branches looming almost threateningly. Looking 
+back to the smoking ruin of nature reclaiming, the only choice is 
+to #6continue#0 on the #6journey#0 on to safety in Caolafan. 
+~
+43 33619968 6
+0
+P
+continue~
+journey~
+vstr You continue along the make shift pathway, working to avoid being jostled or shoved by the others travelling with you. Dust begins to kick up from the ground, and the path begins to slicken with mud as the hooves of horses and wheels of carts dig deep into the earth. You cough for a moment, waving away the growing cloud of wafting debris and heading further on your way. 
+delay 30 xxxjourneyxxx yyy2yyy
+~
+P
+xxxjourneyxxx~
+yyy2yyy~
+vstr Your journey grinds to a halt, as people around you begin to complain and fret at the reasoning. 
+vbr - 
+vstr In time, someone returns from the front of the line to inform that further ahead, a horse has slipped and fallen on the muddy ground - and that the poor beast needed to put down and moved aside so that the journey could continue. Several of the taller, blonde-haired people with the group hang their heads a moment, a few muttering about the waste of a fine companion, and handful of men thumping their chests with a fist. 
+delay 120 xxxjourneyxxx yyy3yyy
+~
+P
+xxxjourneyxxx~
+yyy3yyy~
+vstr As the journey wears on, children within the group begin to wail and cry, filling the air with their complaints. In an effort to lighten the mood, several men begin to cry a rousing song in Atliduk. Even with no accompaniment, the deeply heartfelt nature of the tune makes up for any warbles in the pitch. 
+vbr -
+vstr The men sing, "This land of my fathers, is very dear to me! Land of Eotheod - the righteous, and the free!" "Such warriors and heroes, I could e'er seek to be!"
+vbr -
+vstr "Remember her warriors so brave - For freedom's sake, Wulfhere the Great and the blood he gave!"
+vbr -
+vstr "Northern lands, Northern lands - may you ever stand so true - Keep us e'er in your big heart, great Readmanu!" 
+vbr -
+vstr "While enemies always surround, I remember this land so proud! Long may our line and tongue remain!" 
+vbr -
+vstr Slowly the song dissolves into humming, many tear-strained cheeks and strained expressions on those who walk by. 
+delay 60 xxxjourneyxxx xxx4xxx
+~
+P
+xxxjourneyxxx~
+xxx4xxx~
+vstr The gathering stops for a while - setting a campfire and preparing a meal of salted meat and fresh fishes, a small grouping of women returning with various foragables found along the trail, while men return with buckets of water for themselves and horse alike. 
+vbr - 
+vstr The fresh buckets of water inform you that the mighty Anduin is nearby, and after the quiet, unhurried meal, the gathering sets off towards a few newly made small boats. A few of the men looking deeply bothered as their large, warhorses do not fit on board. Removing their bridles and saddles, the proud men share a last moment with their companion beasts, sending them into the wilds with a spank to the flank. 
+delay 30 xxxboardingxxx yyyboatyyy
+~
+P
+xxxboardingxxx ~
+yyyboatyyy~
+vstr The gathering divides into passengers and crew for the boats, various belongings abandoned along the way as maximum room is made to ensure everyone's safe passage. The anchors are pulled up, and the crew of men in each boat sets to the oars, shoving off from the river's edge, and leaving the land behind. They continue to follow the great Anduin to the south east. 
+delay 30 xxxboatxxx yyy1yyy
+~
+P
+xxxboatxxx~
+yyy1yyy~
+vstr The ship rocks back and forth as it skirts over the waves of the river, splashing those sitting closest to the sides with a near continuous spray of water. More cargo is dumped along the journey, floating ahead downstream like driftwood, in an effort to raise the boat further out of the water. 
+vbr - 
+vstr One nearby boat overturns as those inside argue and fight over what to dump and what to keep, their loud voices echoing up and down stream, before their chatter gives way to frantic shouts and cries for help. Eventually, the dripping wet people are set back into their boat, their silence stoic as the journey continues.
+delay 30 xxxboatxxx yyyfinalyyy
+~
+P
+xxxboatxxx~
+yyyfinalyyy~
+vstr Birds descend upon the cargo boats, attempting to dive into the rations stocked into vulnerable burlap bags. Waving of hands and threats with arrows only deters the beasts for a few moments, before they begin their threats again renting the air with their obnoxious cries. 
+vbr -
+vstr Fighting the birds provides some mild form of entertainment as the journey stretches on endlessly - before the faint vision of a town shows along the riverbank - simple and obviously in need of attention by a settled populace, the town never the less shows some signs of residence - including billowing smoke from two prominent buildings - the distinct scent of brew filtering in along the air. 
+delay 30 xxxdisembarkxxx xxxcaolafanxxx
+~
+P
+xxxdisembarkxxx~
+xxxcaolafanxxx~
+vstr The ships pull up onto the dock, throwing land ties and beginning to pull ashore, many clamoring to remove themselves from the boats. A more zealous individuals leave the boat, only to rush and kiss the dock beneath them. 
+vbr -
+vstr You gather your belongings and disembark onto the rickety wooden dock of Caolafan. 
+trans_group -1 43197 45300
+~
+S
+$~

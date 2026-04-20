@@ -1,0 +1,1724 @@
+#31000
+kit healer~
+a healer's kit~
+A healer's kit lies on the floor.~
+~
+52 4108 1
+0 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#31001
+alcohol medicinal dose REMEDY LIQUID~
+a dose of medicinal alcohol~
+A dose of medicinal alcohol is measured here.~
+~
+52 4198400 1
+1 3 0 0
+0 0.000000
+0 10 0 0 0 0 1
+3.000000 2880 86 0 0 0 0
+#31002
+alcohol pure refined medicinal corked flask APOTHECARY GLASS~
+a corked flask of refined alcohol~
+A corked flask of refined alcohol rests here.~
+A small, glass flask of clear liquid, this container 
+is labeled as 'refined alcohol' with a symbol indicating 
+it is not safe for consumption.
+~
+12 4198400 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 0 0 0
+#31003
+tannic acid small jar thin tan liquid clear APOTHECARY GLASS~
+a small jar of thin tan liquid~
+A small jar of thin tan liquid rests here.~
+This tiny jar of clear glass is filled with a thin and watery
+liquid, light tan in color.  It is sealed by a hard membrane, 
+perhaps a dried bit of disposable bladder, to prevent spilling.
+~
+12 4198400 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+7.000000 0 0 0 0 0 0
+#31004
+acorns edible soaked leached tender handful pieces HERBALISM APOTHECARY FOOD OTHER~
+a handful of tender acorn pieces~
+A handful of tender acorn pieces rest in a small mound.~
+Broken into pieces and with the hulls and caps removed,
+these bits of acorn have been soaked until tender.  Only
+the delicious-looking nutmeat remains.
+~
+19 4198400 1
+5 0 0 0
+5 0.000000
+0 1 0 0 0 0 1
+2.000000 0 0 0 0 0 0
+#31005
+bandage tannin moist sharp smelling cloth med_craft remedy linen healer_craft MEDICINE OTHER TEXTILE~
+a moist, sharp-smelling bandage~
+A moist, sharp-smelling bandage lays here.~
+Wet with tan-colored liquid, this bandage has a smell that
+is sharp and poingiant, like potent alcohol and an herbal
+hint that is not unpleasant.  
+~
+52 4096 1
+1 8 15 4
+15 0.000000
+0 326 0 0 0 0 1
+12.000000 720 98123 0 2 0 0
+#31006
+rib-spreader hinged iron spreader tool MEDICINE HEALING METAL~
+a hinged iron spreader~
+A hinged iron spreader lies here.~
+Resembling a strange pair of scissors, this iron tool has
+two long, flat panels of metal instead of blades but has a
+hinge and then two handles by which it can be opened or closed.
+A simple metal latch allows it to be locked into an open
+or a closed position.  Simple, sturdy iron, it looks like
+it could stand significant pressure.
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+30.000000 0 0 0 17 0 0
+#31007
+bandage annulas moist leaf linen silver-tipped leaves Dunedain healer_craft MEDICINE OTHER"~
+a moist, leaf-and-linen bandage~
+A moist bandage wrapped around silver-tipped leaves rests here.~
+Clean linen wraps around a handful of crushed silver-tipped
+leaves, the moisture and natural oils of them seeping out
+through the fabric and cool to the touch.
+~
+52 4096 1
+1 10 37 4
+25 0.000000
+0 0 0 0 0 0 1
+8.000000 24 98123 0 2 0 0
+#31008
+compress cold bandage ice linen TEXTILE healer_craft MEDICINE OTHER~
+a cold compress~
+A cold compress sits here in a puddle.~
+A linen bandage is carefully wrapped and tied, emanating 
+cold from the ice contained within.  The cloth is wet, 
+melting water seeping through it until its efficacy is gone.  
+~
+52 4096 17
+1 8 0 3
+100 0.000000
+0 68 0 0 0 0 1
+5.000000 0 0 0 2 0 0
+#31009
+pressure-bag irrigation long fine steel spout leather bag HEALER LEATHER~
+a leather pressure-bag with a long fine-steel spout~
+A leather bag with a steel spout is tossed aside here.~
+This finely-stitched bag of water-tight leather can 
+hold a variety of medicinal liquids.  A tight-fitting 
+cap allows a fine steel spout to be attached, narrowing
+to a quarter inch at the point to permit concentrated
+irrigation of deep puncture wounds.  Squeezing the bag
+squirts liquid from the spout with varying force depending
+how hard it is squeezed, which is clearly its function.
+~
+15 4096 1
+100 0 -1 0
+100 0.000000
+0 0 0 0 0 0 1
+30.000000 0 0 0 14 0 0
+#31010
+dose salt saline irrigation fluid warm LIQUID healer-craft REMEDY MEDICINE OTHER~
+a dose of warm saline irrigation fluid~
+A bit of salt water is here in a container.~
+~
+52 4198400 1
+1 5 18 1
+0 0.000000
+0 8 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#31011
+dose chamomile irrigation pleasant-smelling yellow fluid warm LIQUID healer-craft REMEDY MEDICINE OTHER~
+a dose of warm pleasant-smelling yellow irrigation fluid~
+A bit of pleasant-smelling yellow fluid is here in a container.~
+~
+52 4198400 1
+1 8 18 3
+0 0.000000
+0 8 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#31012
+dose tutsan irrigation bright orange-red fluid warm LIQUID healer-craft REMEDY MEDICINE OTHER~
+a dose of warm, bright orange-red irrigation fluid~
+A bit of bright orange-red fluid is here in a container.~
+~
+52 4198400 1
+1 8 18 4
+0 0.000000
+0 8 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#31013
+dose butterbur irrigation cloudy pinkish fluid warm LIQUID healer-craft REMEDY MEDICINE OTHER~
+a dose of warm, cloudy, pinkish irrigation fluid~
+A bit of cloudy, pinkish fluid is here in a container.~
+~
+52 4198400 1
+1 8 18 1
+0 0.000000
+0 8 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#31014
+dose woundwort irrigation spicy-smelling greenish-olive fluid warm LIQUID healer-craft REMEDY MEDICINE OTHER~
+a dose of warm spicy-smelling greenish-olive irrigation fluid~
+A bit of spicy-smelling greenish-olive fluid is here in a container.~
+~
+52 4198400 1
+1 8 18 2
+0 0.000000
+0 8 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#31015
+dose chestnut irrigation clear grey-green fluid warm LIQUID healer-craft REMEDY MEDICINE OTHER~
+a dose of warm clear grey-green irrigation fluid~
+A bit of clear grey-green fluid is here in a container.~
+~
+52 4198400 1
+1 8 18 4
+0 0.000000
+0 8 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#31016
+dose marigold irrigation deep orange fluid warm LIQUID healer-craft REMEDY MEDICINE OTHER~
+a dose of warm deep orange irrigation fluid~
+A bit of deep orange fluid is here in a container.~
+~
+52 4198400 1
+1 8 18 5
+0 0.000000
+0 8 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#31017
+charcoal activated lump porous pure black ALCHEMY APOTHECARY ORE OTHER~
+a lump of porous pure-black charcoal~
+A lump of porous pure-black charcoal sits here.~
+This fist-sized lump of charcoal is crumbly and pure-black, 
+rubbing off on the fingers when touched.  Examined closely, 
+you can see it is entirely pitted with tiny holes, so small 
+they can barely be noticed by the naked eye.
+
+~
+21 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+7.500000 0 0 0 0 0 0
+#31018
+charcoal activated powder fine black packet MEDICINE REMEDY APOTHECARY ORE OTHER~
+a packet of fine black powder~
+A paper packet containing fine black powder sits here.~
+This disposable paper packet has a fold-over flap that,
+when opened, reveals a fine black powder.  It does not
+have any distinct smell, and if tested, has a bland
+taste.  It contains about a handful of powder, or two 
+mouthfuls if it were to be swallowed.
+
+~
+19 4198400 1
+0 0 0 0
+0 0.000000
+0 2 0 0 0 0 1
+5.000000 0 0 0 0 0 0
+#31019
+floor-press press heavy wood stone metal APOTHECARY FARMING TOOL OTHER~
+a heavy floor-press~
+A heavy floor-press stands to the side.~
+   This floor press fills a good amount of space. It has four 
+short legs at its base which attach to a barrel. Short and 
+slatted, it is able to hold about a bushel of fruit, nuts, or 
+other material, the slats allowing liquid to drip through. A 
+weight stone is used to press down on the material. Metal 
+plating meets the stone and connects to the corkscrew winch, 
+which is lowered by cranking hard on the wheel above. 
+~
+41 4096 1
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+150.000000 0 0 0 30 0 0
+#31020
+jar almond unprocessed oil large sharp-smelling APOTHECARY FARMING LIQUID OTHER~
+a large jar of sharp-smelling almond oil~
+A large jar of sharp-smelling almond oil rests here.~
+~
+12 4096 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+25.000000 0 0 0 0 0 0
+#31021
+jar lye cloudy acrid liquid large MODERN_POTASSIUM_HYDROXIDE APOTHECARY ALCHEMY LIQUID OTHER~
+a large jar of cloudy, acrid liquid~
+A large jar of cloudy, acrid liquid rests here.~
+~
+12 4198400 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+15.000000 0 0 0 0 0 0
+#31022
+alembic glass pelican multi-chambered ALCHEMY APOTHECARY LAB OTHER~
+a multi-chambered glass alembic~
+A multi-chambered glass alembic is arranged on a table by the wall.~
+This alchemical device is similar to a basic alembic, albeit 
+much more complex. It is made of thick, durable glass, and 
+consists of several chambers connected with glass tubing. All 
+of the parts can be removed, and so replaced with vessels and 
+tubes of different shapes and sizes. At the center is a large 
+glass circulating chamber, with arms on either side feeding the
+condensed vapors back into the bottom of the chamber. The main 
+chamber is fed by several retorts below it, attached by glass 
+tubing. Above the circulating chamber is a condensing chamber 
+or alembic, which feeds the condensate through a 
+downward-sloping tube to a glass cucurbit which collects 
+resulting liquid. 
+~
+41 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+350.000000 0 0 0 0 0 0
+#31023
+jar vitriol colorless odorless oily liquid MODERN_SULFURIC_ACID APOTHECARY ALCHEMY OTHER~
+a jar of colorless, odorless, oily liquid~
+A jar of colorless, odorless, oily liquid rests here.~
+~
+12 4198400 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+30.000000 0 0 0 0 0 0
+#31024
+jar muriatic acid clear misty liquid MODERN_HYDROCHLORIC_ACID ALCHEMY APOTHECARY OTHER~
+a jar of clear, misty liquid~
+A jar of clear, misty liquid rests here.~
+~
+12 4198400 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 0 0 0
+#31025
+jar cyanide solution large clear bitter smelling colorless fluid MODERN_HYDROCYANIC_ACID ALCHEMY APOTHECARY FLUID OTHER~
+a large jar of clear, bitter-smelling, colorless fluid~
+A large jar of clear, bitter-smelling, colorless fluid rests here.~
+This large, squat jar is filled with a clear, colorless
+fluid, only slightly more viscous than water.  It has a 
+bitter smell, faintly reminiscent of almonds.
+~
+12 4198400 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+75.000000 0 0 0 0 0 0
+#31026
+mustard ground black pinch MEDICINE FOOD APOTHECARY OTHER~
+a pinch of ground black mustard~
+A pinch of ground black mustard is here.~
+~
+19 4198400 1
+-1 0 0 0
+0 0.000000
+0 1 0 0 0 0 1
+2.500000 0 0 0 0 0 0
+#31027
+mustard ground white pinch MEDICINE FOOD APOTHECARY OTHER~
+a pinch of ground white mustard~
+A pinch of ground white mustard is here.~
+~
+19 4198400 1
+-1 0 0 0
+0 0.000000
+0 1 0 0 0 0 1
+2.500000 0 0 0 0 0 0
+#31028
+plaster mustard extremely pungent CLOTH MEDICINE OTHER~
+an extremely pungent mustard plaster~
+An extremely pungent mustard plaster rests here, unmistakably fragrant.~
+This folded cloth bandage contains a yellowish paste that 
+is so fragrant it makes your eyes water and your nose feel
+clearer for smelling it.  It blends the sharp scents of 
+mustard and alcohol unmistakably, and is likely used to
+clear the head.
+~
+25 4096 9
+1 1 1 1
+5 0.000000
+0 0 0 0 0 0 1
+10.000000 168 98123 0 0 0 0
+#31029
+plant Mint clipped spear leaf cluster green GARDENING VEGETATION~
+a clipped cluster of spear-leafed green plants~
+A cluster of clipped spear-leaved green plants fill the air with a fresh scent.~
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 192 96030 0 0 0 0
+#31030
+crystals essence-of-salt hexagonal pale yellow measure MODERN_SODIUM_PEROXIDE ALCHEMY APOTHECARY ORE OTHER~
+a measure of pale-yellow hexagonal crystals~
+A measure of pale-yellow hexagonal crystals has been left here.~
+This is a small measure of crystals, each one a 
+faint pale yellow and formed into a neat and
+regular hexagonal shape.  
+~
+21 4198400 1
+0 0 0 0
+25 0.000000
+0 0 0 0 0 0 1
+2.100000 0 0 0 0 0 0
+#31031
+jar activated-water pale blue clean smelling liquid large water MODERN_HYDROGEN_PEROXIDE ALCHEMY APOTHECARY LAB OTHER~
+a large jar of pale-blue, clean-smelling liquid~
+A large jar of pale-blue, clean-smelling liquid sits here.~
+This large, squat jar of thick glass contains a 
+thin, watery liquid which has the faintest hint
+of blue tinge to it.  The smell of it has no 
+discernable odor, but is nonetheless clean and 
+refreshing.  
+~
+12 4198400 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+30.000000 0 0 0 0 0 0
+#31032
+beaker triangular large glass ALCHEMY APOTHECARY LAB GLASS~
+a large triangular glass beaker~
+A large beaker of triangular glass rests here.~
+This glass beaker has a wide, circular base 
+narrowing to a slender neck suitable for a 
+cork.  It holds about a gallon of fluid due 
+to its large size.
+~
+17 4096 1
+40 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+15.000000 0 0 0 0 0 0
+#31033
+centrifuge floor mounted wooden ALCHEMY APOTHECARY TOOL WOOD~
+a floor-mounted wooden centrifuge~
+A wooden centrifuge is mounted here on a floor-base.~
+A sturdy piece of machinery, this centrifuge is constructed 
+of stout hardwood timbers.  A three-legged wooden base 
+rests on the floor, braced to withstand rocking movements.  
+Drawers in the base hold a wide variety of lead 
+counterweights for use during the machinerys operation.   
+A set of heavy iron gears of various sizes interlock their 
+teeth at the top of their base, allowing a long crank 
+handle to cause the rapid motion of the centrifugal arms.  
+The arms are atop the gears, one side affixed with clamps
+for holding large beakers, the other end possessing a 
+container for counterweights to ensure proper balancing.  
+~
+41 4096 0
+0 0 0 0
+15000 0.000000
+0 0 0 0 0 0 1
+250.000000 0 0 0 32 0 0
+#31034
+jar activated-water pale blue clean smelling liquid tiny water MODERN_HYDROGEN_PEROXIDE ALCHEMY APOTHECARY LAB OTHER~
+a tiny jar of pale-blue, clean-smelling liquid~
+A tiny jar of pale-blue, clean-smelling liquid rests here.~
+This tiny glass jar contains a thin, watery liquid 
+which has the faintest hint of blue tinge to it.  
+The smell of it has no discernable odor, but is 
+nonetheless clean and refreshing.  It appears like
+water but flares when tossed on a fire.  When 
+poured onto a wound it stings slightly and foams
+dramatically as it cleanses infection.
+~
+52 4096 1
+2 8 10 2
+5 0.000000
+0 10 0 0 0 0 1
+9.000000 0 0 0 20 0 0
+#31035
+astringent alum powder package white powder APOTHECARY MEDICINE REMEDY OTHER~
+a package of astringent powder~
+A package of astringent powder is left here.~
+This small paper packet is labeled as a powdered 
+astringent for use on cuts and mouth sores.  It 
+contains white crystaline powder, bitter to the 
+taste and causing a strong puckering on the lips.  
+~
+52 4096 1
+2 5 0 1
+25 0.000000
+0 258 0 0 0 0 1
+4.000000 0 0 0 0 0 0
+#31036
+jar wart remover small MODERN_SULFURIC_ACID APOTHECARY MEDICINE LIQUID~
+a small jar of wart remover~
+A small jar of wart remover rests here.~
+This tiny corked glass jar is labeled in Westron as
+'Wart Remover' and has a caution about putting it
+on skin.  It is an oily, clear fluid without 
+a strong or distinctive odor.  
+~
+25 4096 1
+0 1 1 6
+5 0.000000
+0 0 0 0 0 0 1
+10.000000 0 0 0 0 0 0
+#31037
+teapot pot ceramic_craft plain LIQUID~
+a plain ceramic teapot~
+A plain ceramic teapot stands here on its base.~
+Its body is squat, with a plain curving handle and a short,
+curved spout. A small hole its top, covered with a lid with
+barely any handle at all, reveals that it is hollow inside.
+~
+17 4096 1
+16 16 96283 0
+105 0.000000
+0 0 0 0 0 0 1
+25.000000 0 0 0 0 0 0
+#31038
+manure-bed nitre-bed-1 long fragrant bed pile mound ALCHEMY OTHER~
+a long, fragrant bed of manure~
+A long bed of manure steams fragrantly.~
+This is a horizonal bed of manure about two
+yards wide, five yards long, and three feet
+deep.  It is covered over with burlap staked
+out with twine to protect it from harsh rain.
+Its fragrance is unmistakable as the earth
+within ferments with fresh offal.
+~
+41 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1440 31039 0 0 0 0
+#31055
+mold wooden rectangular APOTHECARY WAX WOOD OTHER'~
+a rectangular wooden mold~
+A rectangular wooden mold rests here.~
+This is a simple mold in the shape of a rectangle,
+made from sturdy wood and joined with nails.
+~
+41 4096 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+6.000000 0 0 0 32 0 0
+#31039
+manure-bed nitre-bed-1 aged long fragrant bed mound pile ALCHEMY OTHER~
+a long, fragrant bed of aged manure~
+A long bed of aged manure steams fragrantly.~
+   This is a horizonal bed of manure about two yards wide, five 
+yards long, and three feet deep. It is covered over with burlap 
+staked out with twine to protect it from harsh rain. Its 
+fragrance is unmistakable as the earth within ferments with fresh 
+offal. It seems ready for rotating. 
+~
+21 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#31040
+manure-bed nitre-bed-fail long fragrant bed mound pile ALCHEMY OTHER~
+a long, fragrant bed of manure~
+A long bed of manure steams fragrantly.~
+This is a horizonal bed of manure about two
+yards wide, five yards long, and three feet
+deep.  It is covered over with burlap staked
+out with twine to protect it from harsh rain.
+Its fragrance is unmistakable as the earth
+within ferments with fresh offal.
+~
+21 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1440 31041 0 0 0 0
+#31041
+stench foul nitre-bed-fail rot ALCHEMY OTHER~
+the foul stench of rot~
+#6 The foul stench of rot hangs thick in the air over a decayed and collapsed mound.#0~
+~
+21 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 1440 86 0 0 0 0
+#31042
+manure-bed nitre-bed-2 long fragrant bed dark soil mound pile ALCHEMY OTHER~
+a long, fragrant bed of dark soil~
+A long bed of dark soil steams fragrantly.~
+   This is a horizonal bed of manure about two yards wide, five 
+yards long, and three feet deep. It is covered over with burlap 
+staked out with twine to protect it from harsh rain. This bed 
+has been properly decomposing, the distinct smell of manure faded 
+and replaced by organic, loamy smells with a hint of unpleasant 
+acrid aroma. 
+~
+21 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1440 31043 0 0 0 0
+#31043
+manure-bed nitre-bed-2 aged long fragrant bed dark soil mound pile ALCHEMY OTHER~
+a long, fragrant bed of aged dark soil~
+A long bed of aged dark soil steams fragrantly.~
+   This is a horizonal bed of manure about two yards wide, five 
+yards long, and three feet deep. It is covered over with burlap 
+staked out with twine to protect it from harsh rain. This bed 
+has been properly decomposing, the distinct smell of manure faded 
+and replaced by organic, loamy smells with a hint of unpleasant 
+acrid aroma. 
+~
+21 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#31044
+manure-bed nitre-bed-3 long fragrant bed moist acrid soil mound pile ALCHEMY OTHER~
+a long, fragrant bed of moist, acrid soil~
+A long bed of moist, acrid soil steams fragrantly.~
+   This is a horizonal bed of manure about two yards wide, five 
+yards long, and three feet deep. It is covered over with burlap 
+staked out with twine to protect it from harsh rain. The 
+contents of this mound are now uniform and unrecognizable as to 
+what they once were. Dark, unpleasant soil is scattered with the 
+formation of tiny crystals, an unpleasant, acrid aroma 
+overpowering if you remain nearby. 
+~
+21 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1440 31045 0 0 0 0
+#31045
+manure-bed nitre-bed-3 aged long fragrant bed moist acrid soil mound pile ALCHEMY OTHER~
+a long, fragrant bed of aged moist, acrid soil~
+A long bed of aged moist, acrid soil steams fragrantly.~
+   This is a horizonal bed of manure about two yards wide, five 
+yards long, and three feet deep. It is covered over with burlap 
+staked out with twine to protect it from harsh rain. The 
+contents of this mound are now uniform and unrecognizable as to 
+what they once were. Dark, unpleasant soil is scattered with the 
+formation of tiny crystals, an unpleasant, acrid aroma 
+overpowering if you remain nearby. 
+~
+21 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#31046
+manure-bed nitre-bed-4 long fragrant bed moist acrid soil mound pile ALCHEMY OTHER~
+a long, fragrant bed of glistening, dark soil~
+A long bed of glistening, dark soil steams fragrantly.~
+   This is a horizonal bed of manure about two yards wide, five 
+yards long, and three feet deep. It is covered over with burlap 
+staked out with twine to protect it from harsh rain. 
+Freshly-turned clumps of dark, unpleasant soil make up this 
+mound, its acrid scent totally overpowering. 
+~
+21 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1440 31047 0 0 0 0
+#31047
+manure-bed nitre-bed-4 long fragrant bed dark soil mound pile ALCHEMY OTHER~
+a long, fragrant bed of dark, crystaline soil~
+A long bed of dark, crystaline soil steams fragrantly.~
+This is a horizonal bed of manure about two
+yards wide, five yards long, and three feet
+deep.  It is covered over with burlap staked
+out with twine to protect it from harsh rain.
+The dark earth glistens with tiny crystals,
+as if it had glass dust blown upon it.
+~
+21 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+87.120003 0 0 0 0 0 0
+#31048
+flask liquid nitre cloudy liquid swirling white flecks ALCHEMY LIQUID OTHER~
+a flask of cloudy liquid swirling with white flecks~
+A flask of cloudy liquid swirling with white flecks rests here.~
+~
+12 4198400 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+15.000000 0 0 0 0 0 0
+#31049
+crystals nitre drying small pool ALCHEMY LIQUID OTHER~
+a small pool of drying nitre crystals~
+A small pool of drying nitre crystals evaporates in an evaporating tray.~
+~
+21 4096 1
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 192 31051 0 0 0 0
+#31050
+tray evaporating rack wide trays ALCHEMY APOTHECARY OTHER~
+an glass evaporating tray~
+A wide rack of glass evaporating trays stands by the wall.~
+This rack is about a yard wide, standing on the
+floor and rising to a man's height.  It has many
+drawer-slides, each one securely holding a glass
+evaporating tray.  
+~
+41 4096 0
+0 0 0 0
+20000 0.000000
+0 0 0 0 0 0 1
+300.000000 0 0 0 20 0 0
+#31051
+crystals nitre dried translucent white handful ALCHEMY ORE OTHER~
+a handful of translucent white crystals~
+A handful of translucent white crystals is left here."~
+These crystals are orthorhombic in shape, ranging 
+from clear to translucent white.  
+~
+21 4198400 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+11.250000 0 0 0 0 0 0
+#31052
+crystals nitre sack translucent ORE OTHER~
+a sack of translucent crystals~
+A sack of translucent crystals is here.~
+This small burlap bag is tied off, full of
+crystals that are orthorhombic in shape,  
+ranging from clear to translucent white.
+~
+21 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+169.750000 0 0 0 0 0 0
+#31053
+crystals sulfur measure fine brilliant yellow sulphur ALCHEMY ORE OTHER~
+a measure of fine, brilliant-yellow crystals~
+A measure of fine, brilliant-yellow-crystals is left here.~
+This small measure is a fine crystalline powder,
+brilliant yellow in color, with the unmistakable
+pungent odor of sulfur.
+~
+21 4198400 1
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+3.270000 0 0 0 0 0 0
+#31054
+crystals sulfur sack fine brilliant-yellow ORE OTHER~
+a sack of fine, brilliant-yellow crystals~
+A sack of fine, brilliant-yellow crystals is here.~
+This small burlap bag is tied off, full of
+a fine crystalline powder, brilliant yellow 
+in color, with the unmistakable pungent 
+odor of sulfur.
+~
+21 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+50.000000 0 0 0 0 0 0
+#31057
+bush bayberry shiny-leaved green white waxy berry berries HERBALISM VEGETATION~
+a shiny-leaved bush and green-white waxy berries~
+A shiny-leaved bush and green-white waxy berries grows here.~
+A bush of moderate size standing no taller than
+a man, this fruiting bush has lanceolate leaves
+that are shiny and resinous with spots on both
+sides.  The bush is covered in globular berries
+crusted with greenish-white wax, ripe and 
+ready to be picked.
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 30 134217728 0 1
+10.000000 72 86 0 0 0 0
+#31056
+bush bayberry shiny-leaved green white waxy picked HERBALISM VEGETATION~
+a shiny-leaved bush~
+a shiny-leaved bush, picked of berries, grows here.~
+A bush of moderate size standing no taller than
+a man, this fruiting bush has lanceolate leaves
+that are shiny and resinous with spots on both
+sides.  The bush is covered in globular berries
+that are still ripening, appearing to have been
+recently picked over.
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 96 31057 0 0 0 0
+#31060
+plant Belladonna picked leafy green shrub VEGETATION~
+a large, leafy green shrub~
+A leafy green shrub sprouts in the shade.~
+This shrub spreads out in several thin greenish-brown 
+branches, from which hand-sized, oval-shaped leaves sprout. 
+Scattered along the stems are small, stone-sized seedpods, some
+split open to reveal where berries have been picked away.
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 96 96010 0 0 0 0
+#31058
+plant Basil slender green white flowers shoots VEGETATION~
+a clipped slender green plant with white flowers~
+A clipped slender plant shoots up from the ground, topped with white flowers.~
+Shaded a lush, verdant green, this slender-stalked plant 
+shoots straight up from the ground, a multitude of spade-shaped
+leaves branching off the central stem. The leaves are
+approximately the size of a hobbit's hand, and the edges are
+smooth. Tiny, clustered white blossoms dust the top.
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 192 96008 0 0 0 0
+#31059
+bottle small clear-glass empty GLASS~
+a small clear-glass bottle~
+A small clear-glass bottle has been left here.~
+This bottle is made of clear glass, designed to be 
+functional rather than decorative.  The glass has bubbles 
+and imperfections in it as evidence of its quick and 
+utilitarian manufacture.
+
+~
+17 4096 1
+4 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+2.000000 0 0 0 0 0 0
+#31061
+shrub honeysuckle arching bush fragrant yellow flowers VEGETATION~
+an arching shrub with fragrant yellow flowers~
+An arching shrub with fragrant yellow flowers grows here.~
+An arching shrub with simple, oval leaves, the branches
+twine around and are arranged ornamentally, carefully 
+trimmed and grown.  The bush blooms with fragrant 
+yellow trumpet-shaped flowers with a rich, sweet, 
+honeyed scent.  
+~
+29 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#31062
+vine honeysuckle twining fragrant yellow flowers VEGETATION~
+twining vines with fragrant yellow flowers~
+Twining vines with fragrant yellow flowers spread up the stone wall.~
+Twining vines with simple, oval leaves, the branches
+twine haphazardly as they grow wild up the stone, 
+clinging to cracks and chinks.  The vines bloom with 
+fragrant yellow trumpet-shaped flowers with a rich, 
+sweet, honeyed scent.  
+~
+29 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#31063
+flower honeysuckle cluster trumpet shaped fragrant yellow flowers VEGETATION~
+a cluster of fragrant yellow trumpet-shaped flowers~
+A cluster of fragrant yellow trumpet-shaped flowers lies here.~
+This snippet if vine holds several fragrant yellow
+trumpet-shaped flowers with a rich, sweet, honeyed
+scent.  
+~
+29 4198400 33554433
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+2.000000 720 96198 0 0 0 0
+#31064
+flower cherry blossoms fragrant pink many petalled cluster FLOWER ORCHARDING VEGETATION~
+a cluster of fragrant pink many-petalled blossoms~
+A cluster of fragrant pink many-petalled blossoms lies here.~
+~
+29 4198400 33554433
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.500000 0 0 0 0 0 0
+#31065
+flower apple blossoms fragrant white five petal cluster FLOWER ORCHARDING VEGETATION~
+a cluster of fragrant white five-petal blossoms~
+A cluster of fragrant white five-petal blossoms lies here.~
+~
+29 4198400 33554433
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.500000 0 0 0 0 0 0
+#31066
+flower peach pink cupped blossoms fragrant cluster FLOWER ORCHARDING VEGETATION~
+a cluster of fragrant, pink, cupped blossoms~
+A cluster of fragrant, pink, cupped  blossoms lies here.~
+~
+29 4198400 33554433
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.500000 0 0 0 0 0 0
+#31067
+flower pear blossoms fragrant speckled white cluster FLOWER ORCHARDING VEGETATION~
+a cluster of fragrant speckled-white blossoms~
+A cluster of fragrant speckled-white blossoms lies here.~
+~
+29 4198400 33554433
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.500000 0 0 0 0 0 0
+#31068
+flower plum blossoms fragrant pale pink cluster FLOWER ORCHARDING VEGETATION~
+a cluster of fragrant pale pink blossoms~
+A cluster of fragrant pale pink blossoms lies here.~
+~
+29 4198400 33554433
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.500000 0 0 0 0 0 0
+#31069
+flowers lilac blooms tall stem columns fragrant pink FLOWER GARDENING VEGETATION~
+a tall stem covered with columns of fragrant pink lilac blooms~
+A tall stem covered with columns of fragrant pink lilac blooms lies here.~
+A central stem about six to eight inches long is 
+covered by concentric circles of tiny blooms 
+shooting outward from it, making a solid cylinder
+of fragrance and color entirely composed of the
+pink lilac blooms.  
+~
+29 4198400 33554433
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+4.000000 0 0 0 0 0 0
+#31070
+bush lilac pink ornamental tall bloom FLOWER GARDENING VEGETATION~
+an ornamental lilac bush~
+A tall ornamental bush which blooms with pink lilac blooms grows here.~
+~
+29 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#31071
+flowers lilac blooms tall stem columns fragrant purple FLOWER GARDENING VEGETATION~
+a tall stem covered with columns of fragrant purple lilac blooms~
+A tall stem covered with columns of fragrant purple lilac blooms lies here.~
+A central stem about six to eight inches long is 
+covered by concentric circles of tiny blooms 
+shooting outward from it, making a solid cylinder
+of fragrance and color entirely composed of the
+purple lilac blooms.  
+~
+29 4198400 33554433
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+4.000000 0 0 0 0 0 0
+#31072
+bush lilac purple ornamental tall bloom FLOWER GARDENING VEGETATION~
+an ornamental lilac bush~
+A tall ornamental bush which blooms with purple lilac blooms grows here.~
+This bush stands six to eight feet tall, coppiced
+thin trunks supporting branches laden with oval 
+leaves.  In the springtime, it is covered with 
+upright flowers, each about eight inches tall and
+composed of dozens tiny purple lilac blooms from
+the central stem.   
+~
+29 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#31073
+flowers lilac blooms tall stem columns fragrant white FLOWER GARDENING VEGETATION~
+a tall stem covered with columns of fragrant white lilac blooms~
+A tall stem covered with columns of fragrant white lilac blooms lies here.~
+A central stem about six to eight inches long is 
+covered by concentric circles of tiny blooms 
+shooting outward from it, making a solid cylinder
+of fragrance and color entirely composed of the
+white lilac blooms.  
+~
+29 4198400 33554433
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+4.000000 0 0 0 0 0 0
+#31074
+bush lilac white ornamental tall bloom FLOWER GARDENING VEGETATION~
+an ornamental lilac bush~
+A tall ornamental bush which blooms with white lilac blooms grows here.~
+This bush stands six to eight feet tall, coppiced
+thin trunks supporting branches laden with oval 
+leaves.  In the springtime, it is covered with 
+upright flowers, each about eight inches tall and
+composed of dozens tiny white lilac blooms from
+the central stem.   
+~
+29 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#31075
+flowers lilac blooms tall stem columns fragrant blue FLOWER GARDENING VEGETATION~
+a tall stem covered with columns of fragrant blue lilac blooms~
+A tall stem covered with columns of fragrant blue lilac blooms lies here.~
+A central stem about six to eight inches long is 
+covered by concentric circles of tiny blooms 
+shooting outward from it, making a solid cylinder
+of fragrance and color entirely composed of the
+blue lilac blooms.  
+~
+29 4198400 33554433
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+4.000000 0 0 0 0 0 0
+#31076
+bush lilac blue ornamental tall bloom FLOWER GARDENING VEGETATION~
+an ornamental lilac bush~
+A tall ornamental bush which blooms with blue lilac blooms grows here.~
+This bush stands six to eight feet tall, coppiced
+thin trunks supporting branches laden with oval 
+leaves.  In the springtime, it is covered with 
+upright flowers, each about eight inches tall and
+composed of dozens tiny blue lilac blooms from
+the central stem.   
+~
+29 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#31077
+seeds lily viable GARDENING_CRAFT herbalism VEGETATION~
+some viable lily seeds~
+Some viable lily seeds have been dropped here.~
+a small mound of curved, brown seeds; when planted, they
+will sprout and mature into lily flowers.
+~
+12 4198400 1
+0 0 0 0
+15 0.000000
+0 0 0 0 4 0 1
+5.000000 6505 31078 0 0 0 0
+#31078
+seeds lily non-viable GARDENING_CRAFT herbalism VEGETATION~
+some non-viable lily seeds~
+Some non-viable lily seeds have been discarded here.~
+~
+13 4198400 1
+0 0 0 0
+15 0.000000
+0 0 0 0 256 0 1
+0.000000 745 86 0 0 0 0
+#31079
+seeds carnation viable GARDENING_CRAFT herbalism VEGETATION~
+some viable carnation seeds~
+Some viable carnation seeds have been dropped here.~
+A small mound of curved, brown seeds; when planted they
+will sprout and mature into lily plants.
+~
+12 4198400 1
+0 0 0 0
+15 0.000000
+0 0 0 0 4 0 1
+5.000000 6505 31080 0 0 0 0
+#31080
+seeds carnation non-viable GARDENING_CRAFT herbalism VEGETATION~
+some non-viable carnation seeds~
+Some non-viable carnation seeds have been discarded here.~
+~
+13 4198400 1
+0 0 0 0
+15 0.000000
+0 0 0 0 256 0 1
+0.000000 745 86 0 0 0 0
+#31081
+tray lily seeds GARDENING_CRAFT soil wooden WOOD~
+a tray filled with soil covered seeds~
+A wooden tray filled with soil covered lily seeds sits here.~
+Rectangular in shape and fashioned from wood, this tray is
+filled with fertile soil and sewn with small curved brown seeds
+that will soon sprout into lily seedlings.
+~
+12 4096 1
+0 0 0 0
+900 0.000000
+0 0 0 30 0 0 1
+20.000000 337 31082 0 32 0 0
+#31082
+tray lily seedlings GARDENING_CRAFT green soil wooden WOOD~
+a tray filled with green seedlings~
+A wooden tray filled with lily seedlings sits here.~
+Rectangular in shape and fashioned from wood, this tray is
+filled with fertile soil and tiny, green seedlings that will soon 
+grow into lily plants. 
+~
+12 4096 1
+0 0 0 0
+900 0.000000
+0 0 0 30 0 0 1
+20.000000 337 31083 0 32 0 0
+#31083
+tray lily plants GARDENING_CRAFT young green soil wooden WOOD~
+a tray filled with young lily plants~
+A wooden tray filled with young lily plants sits here.~
+Rectangular in shape and fashioned from wood, this tray is
+filled with fertile soil and young lily plants. The basal
+leaves of the plants are spatula-shaped and stalked, while the 
+stem leaves are lance-shaped and attached directly at the base.
+The dark-green leaves and stems of the plants are roughly hairy.
+No flowers can be seen at present, though the plants appear 
+vibrant and healthy. 
+~
+12 4096 1
+0 0 0 0
+900 0.000000
+0 0 0 30 0 0 1
+20.000000 745 31084 0 32 0 0
+#31084
+tray lily flowering GARDENING_CRAFT plants soil wooden WOOD~
+a tray filled with lily flowers~
+A tray filled with lily flowers sits here.~
+Rectangular in shape and fashioned from wood, this tray is
+filled with fertile soil and mature lily flowers. The basal
+leaves of the plants are spatula-shaped and stalked, while the
+stem leaves are lance-shaped and attached directly at the base.
+The dark-green leaves and stems of the plants are roughly hairy.
+An abundance of solitary, white conical flowerheads with 
+on slender stems bloom fragrantly.
+~
+12 4096 1
+0 0 0 0
+900 0.000000
+0 0 0 30 4 0 1
+40.000000 1440 31085 0 32 0 0
+#31085
+tray lily wilting GARDENING_CRAFT plants soil wooden WOOD~
+a tray filled with wilting lily flowers~
+A tray filled with wilting lily flowers sits here.~
+Rectangular in shape and fashioned from wood, this tray is
+filled with fertile soil and lily flowers. The basal leaves 
+of the plants are spatula-shaped and stalked, while the stem 
+leaves are lance-shaped and attached directly at the base. The 
+wilted, dark-green leaves and stems of the plants are roughly 
+hairy. The once white flowers have shrivelled up,
+turned brown and gone to seed. Several clusters of curved brown
+seeds can be seen at the end of the dried stems, waiting to be
+collected. 
+~
+12 4096 1
+0 0 0 0
+900 0.000000
+0 0 0 30 4 0 1
+10.000000 1776 98682 0 32 0 0
+#31086
+flower lily white trumpet shaped VEGETATION~
+a white, trumpet-shaped lily~
+A white, trumpet-shaped lily lies here.~
+~
+31 4198400 1
+0 0 0 0
+20 0.000000
+0 0 0 0 4 0 1
+8.000000 720 31087 0 0 0 0
+#31087
+flower wilted lily white trumpet VEGETATION~
+a wilted white lily~
+A wilted white lily lies here.~
+~
+13 4198400 1
+0 0 0 0
+100 0.000000
+0 0 0 0 256 0 1
+0.000000 337 86 0 0 0 0
+#31088
+tray carnation seeds GARDENING_CRAFT soil wooden WOOD~
+a tray filled with soil covered seeds~
+A wooden tray filled with soil covered carnation seeds sits here.~
+Rectangular in shape and fashioned from wood, this tray is
+filled with fertile soil and sewn with small curved brown seeds
+that will soon sprout into carnation seedlings.
+~
+12 4096 1
+0 0 0 0
+900 0.000000
+0 0 0 0 0 0 1
+20.000000 337 31089 0 32 0 0
+#31089
+tray carnation seedlings GARDENING_CRAFT green soil wooden WOOD~
+a tray filled with green seedlings~
+A wooden tray filled with carnation seedlings sits here.~
+Rectangular in shape and fashioned from wood, this tray is
+filled with fertile soil and tiny, green seedlings that will soon
+grow into carnation plants. 
+~
+12 4096 1
+0 0 0 0
+900 0.000000
+0 0 0 30 0 0 1
+20.000000 337 31090 0 32 0 0
+#31090
+tray carnation plants GARDENING_CRAFT young green soil wooden WOOD~
+a tray filled with young carnation plants~
+A wooden tray filled with young carnation plants sits here.~
+Rectangular in shape and fashioned from wood, this tray is
+filled with fertile soil and young carnation plants. The 
+leaves of the plants are spatula-shaped and stalked, while the
+stem leaves are lance-shaped and attached directly at the base.
+The dark-green leaves and stems of the plants are roughly hairy.
+No flowers can be seen at present, though the plants appear
+vibrant and healthy. 
+~
+12 4096 1
+0 0 0 0
+900 0.000000
+0 0 0 30 0 0 1
+20.000000 745 31091 0 32 0 0
+#31091
+tray carnation flowering GARDENING_CRAFT plants soil wooden WOOD~
+a tray filled with carnation flowers~
+A tray filled with carnation flowers sits here.~
+Rectangular in shape and fashioned from wood, this tray is
+filled with fertile soil and mature carnation flowers. The 
+leaves of the plants are spatula-shaped and stalked, while the
+stem leaves are lance-shaped and attached directly at the base.
+The dark-green leaves and stems of the plants are roughly hairy.
+An abundance of solitary, white, fluffy flowerheads on slender
+stems bloom fragrantly
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 30 4 0 1
+40.000000 1440 31092 0 32 0 0
+#31092
+tray carnation wilting GARDENING_CRAFT plants soil wooden WOOD~
+a tray filled with wilting carnation flowers~
+A tray filled with wilting carnation flowers sits here.~
+Rectangular in shape and fashioned from wood, this tray is
+filled with fertile soil and carnation flowers. The leaves 
+of the plants are spatula-shaped and stalked, while the stem
+leaves are lance-shaped and attached directly at the base. The
+wilted, dark-green leaves and stems of the plants are roughly 
+hairy. The once white flowers have shrivelled up,
+turned brown and gone to seed. Several clusters of curved brown
+seeds can be seen at the end of the dried stems, waiting to be
+collected.
+~
+12 4096 1
+0 0 0 0
+900 0.000000
+0 0 0 30 4 0 1
+10.000000 1776 98682 0 32 0 0
+#31093
+flower wilted carnation VEGETATION~
+a wilted carnation~
+A wilted carnation lies here.~
+~
+13 4198400 1
+0 0 0 0
+100 0.000000
+0 0 0 0 256 0 1
+0.000000 337 86 0 0 0 0
+#31094
+flower carnation white fringe-petalled VEGETATION~
+a white, fringe-petalled carnation~
+A white, fringe-petalled carnation lies here.~
+This flower blooms atop a long straw-like stem, its flower
+composed of a plethora of fringed petals packed together
+to make an attractive bloom.  Its fragrance is light and
+flowery, pleasantly aromatic.
+~
+31 4198400 1
+0 0 0 0
+100 0.000000
+0 0 0 0 4 0 1
+5.000000 720 31093 0 0 0 0
+#31096
+flower carnation $finecolor colored fringe-petalled VEGETATION~
+a $finecolor fringe-petalled carnation~
+A $finecolor fringe-petalled carnation lies here.~
+This flower blooms atop a long straw-like stem, its flower
+composed of a plethora of fringed petals packed together
+to make an attractive $finecolor bloom.  Its fragrance is light and
+flowery, pleasantly aromatic.
+~
+31 33558528 1
+0 0 0 0
+100 0.000000
+0 0 0 0 4 0 1
+15.000000 0 0 0 0 0 0
+#31097
+flower carnation $drabcolor colored fringe-petalled VEGETATION~
+a $drabcolor fringe-petalled carnation~
+A $drabcolor fringe-petalled carnation lies here.~
+This flower blooms atop a long straw-like stem, its flower
+composed of a plethora of fringed petals packed together
+to make an attractive $drabcolor bloom.  Its fragrance is light and
+flowery, pleasantly aromatic.
+~
+31 33558528 1
+0 0 0 0
+100 0.000000
+0 0 0 0 4 0 1
+3.000000 720 31093 0 0 0 0
+#31098
+tub wooden oaken large $color carnation soaking WOOD~
+a tub of soaking $color carnations~
+A tub of soaking $color carnations sits to the side.~
+This tub has been filled with $color carnations which are
+soaking up the dye. It is made of vertical wooden planks and
+looks like a barrel sawn in half. It is water-tight and metal
+bands run horizontally along it to keep it that way.
+~
+12 33558528 1
+0 0 0 0
+1500 0.000000
+0 0 0 0 32 0 1
+50.000000 168 31099 0 32 0 0
+#31100
+tub wooden oaken large carnation soaking $finecolor WOOD~
+a tub of soaking $finecolor carnations~
+A tub of soaking $finecolor carnations sits to the side.~
+   This tub has been filled with $finecolor carnations which are 
+soaking up the dye. It is made of vertical wooden planks and 
+looks like a barrel sawn in half. It is water-tight and metal 
+bands run horizontally along it to keep it that way. 
+~
+12 33558528 1
+0 0 0 0
+1500 0.000000
+0 0 0 0 32 0 1
+70.000000 168 31101 0 32 0 0
+#31101
+object tub wooden oaken large carnation soaked $finecolor WOOD~
+a tub of soaked $finecolor carnations~
+A tub of soaked $finecolor carnations sits to the side.~
+   This tub has been filled with $finecolor carnations which have 
+soaked up the dye. It is made of vertical wooden planks and 
+looks like a barrel sawn in half. It is water-tight and metal 
+bands run horizontally along it to keep it that way. 
+~
+46 33558528 1
+0 0 0 0
+1500 0.000000
+0 0 0 0 32 0 1
+70.000000 0 0 0 0 0 0
+#31102
+tartar clumpy white powder small measure ALCHEMY VINTNER ORE STONE~
+a small measure of clumpy white powder~
+A small measure of clumpy white powder lies here.~
+A small pile of clumpy white powder, this material is 
+known to cooks as Cream of Tartar.
+~
+21 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+4.000000 0 0 0 30 0 0
+#31103
+scales balance brass set APOTHECARY ALCHEMY METAL~
+a set of brass balance scales~
+A set of brass balance scales rests on a stand.~
+   Fixed securely to a base of polished mahogany, the post, pans 
+and balance arm of this set of scales have been cast in 
+high-quality brass. Nestled between the two pans of the scales 
+are a set of curved weights, each of varying size and mass. An 
+entwined leaf and candle symbol has been etched into the center. 
+The equilibrium of the loads is indicated along the arm at the 
+top of the scales. 
+~
+41 4096 1
+0 0 0 0
+3000 0.000000
+0 0 0 0 544 0 1
+300.000000 0 0 0 19 0 0
+#31104
+forceps tissue finely crafted pair fine steel  MEDICINE HEALER METAL~
+a pair of finely crafted tissue forceps~
+A pair of finely crafted tissue forceps rests here.~
+This is a tool that looks similar to a pair of scissors, 
+with ringed grips at the one end, finely crafted from 
+fine-steel. Instead of blades after the joint, the finely 
+crafted forceps end in very fine rounded tips with teeth on 
+the gripping surface, ideal for grasping tissue for 
+prolonged periods of time. The hinge has a small key on it 
+that may be turned into small indentations in the surface 
+of the hinge so it can be locked into place.
+~
+41 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 4096 0 1
+100.000000 0 0 0 18 0 0
+A
+10077 5
+#31105
+forceps tissue pair steel  MEDICINE HEALER METAL~
+a pair of steel tissue forceps~
+A pair of tissue forceps rests here.~
+This is a tool that looks similar to a pair of scissors, 
+with ringed grips at the one end, formed in steel. Instead 
+of blades after the joint, the forceps end in triangular 
+tips with cross-hatching on the gripping surface, useful 
+for grasping tissue for prolonged periods of time.
+~
+41 4096 1
+0 0 0 0
+25 0.000000
+0 0 0 0 0 0 1
+50.000000 0 0 0 18 0 0
+#31106
+forceps tissue crude pair bronze  MEDICINE HEALER METAL~
+a pair of bronze tissue forceps~
+A pair of bronze tissue forceps rests here.~
+Formed from roughly-cast bronze, this tool appears similar 
+to a pair of scissors, with ringed grips at the one end. 
+Instead of blades after the joint at the other end, the 
+forceps end in triangular tips with etched ridges on the 
+gripping surface, adequate for grasping tissue.  
+~
+41 4096 1
+0 0 0 0
+25 0.000000
+0 0 0 0 134217728 0 1
+20.000000 0 0 0 16 0 0
+#31107
+forceps extraction fine-steel pair  MEDICINE HEALER METAL~
+a pair of fine-steel extraction forceps~
+A pair of fine-steel extraction forceps rests here.~
+The ringed handle on these finely-crafted fine-steel 
+forceps allow adequate leverage through the hinge to be 
+applied to the beak. The hinge has a small key on it that 
+may be turned into small indentations in the surface of the 
+hinge itself to lock it into place. The curved tips have 
+small teeth, to aid them in grasping and holding onto small 
+items.
+~
+41 4096 1
+0 0 0 0
+25 0.000000
+0 0 0 0 4096 0 1
+100.000000 0 0 0 18 0 0
+A
+10077 5
+#31108
+forceps extraction steel pair MEDICINE HEALER METAL~
+a pair of steel extraction forceps~
+A pair of steel extraction forceps rests here.~
+The ringed handle on these plain steel forceps allow 
+adequate leverage through the hinge to be applied to the 
+beak. The curved tips have etched cross-hatching, to aid 
+them in grasping and holding onto small items.
+~
+41 4096 1
+0 0 0 0
+25 0.000000
+0 0 0 0 0 0 1
+50.000000 0 0 0 18 0 0
+#31109
+forceps extraction bronze crude cast pair MEDICINE HEALER METAL~
+a pair of cast-bronze extraction forceps~
+A pair of cast-bronze extraction forceps rests here.~
+These bronze forceps have roughly-cast ringed handles, 
+allowing adequate leverage through the loose hinge to be 
+applied to the beak. The curved tips have etched cross-
+hatching, to aid them in grasping and holding onto small 
+items.
+~
+41 4096 1
+0 0 0 0
+25 0.000000
+0 0 0 0 134217728 0 1
+20.000000 0 0 0 16 0 0
+#31110
+forceps tweezer fine-steel pair MEDICINE HEALER METAL~
+a pair of fine-steel forceps~
+A pair of fine-steel forceps rests here.~
+The ringed handle on these finely crafted steel forceps 
+allow precise leverage through the hinge to be applied to 
+straight, tweezer-like tips. The curved tips have finely 
+engraved cross-hatching on the interior edge.
+~
+41 4096 1
+0 0 0 0
+25 0.000000
+0 0 0 0 4096 0 1
+100.000000 0 0 0 18 0 0
+A
+10077 5
+#31111
+forceps tweezer steel pair MEDICINE HEALER METAL~
+a pair of steel forceps~
+A pair of steel forceps rests here.~
+The ringed handle on these plain steel forceps allow 
+adequate leverage through the hinge to be applied to the 
+straight, tweezer-like tips. The straight tips have etched 
+cross-hatching on the interior edge.
+~
+41 4096 1
+0 0 0 0
+25 0.000000
+0 0 0 0 0 0 1
+50.000000 0 0 0 18 0 0
+#31112
+forceps tweezer bronze pair MEDICINE HEALER METAL~
+a pair of cast-bronze forceps~
+A pair of cast-bronze forceps rests here.~
+These bronze forceps have rough-cast bronze ringed handles, 
+allowing adequate leverage through the hinge to be applied 
+to the straight, tweezer-like ends. The straight tips have 
+etched cross-hatching on the interior.
+~
+41 4096 1
+0 0 0 0
+25 0.000000
+0 0 0 0 134217728 0 1
+20.000000 0 0 0 16 0 0
+#31095
+carnation flower $color fringe petalled VEGETATION~
+a $color fringe-petalled carnation~
+A $color fringe-petalled carnation lies here.~
+   This flower blooms atop a long straw-like stem, its flower 
+composed of a plethora of fringed petals packed together to make 
+an attractive $color bloom. Its fragrance is light and flowery, 
+pleasantly aromatic. 
+~
+31 37752832 33554449
+0 0 0 0
+100 0.000000
+0 0 0 20 4 0 1
+10.000000 0 0 0 0 0 0
+A
+10 0
+#31099
+tub wooden oaken large carnation $color soaked WOOD~
+a tub of soaked, $color carnations~
+A tub of soaked, $color carnations sits to the side.~
+   This tub has been filled with $color carnations which have 
+soaked up the dye. It is made of vertical wooden planks and 
+looks like a barrel sawn in half. It is water-tight and metal 
+bands run horizontally along it to keep it that way. 
+~
+12 33558528 1
+0 0 0 0
+1500 0.000000
+0 0 0 30 32 0 1
+50.000000 0 0 0 0 0 0
+#31113
+rosebush yellow bush delicate full bloom VEGETATION~
+a yellow rosebush in full bloom~
+A rosebush with delicate, yellow blooms grows here.~
+   It is a lushly green bush with few flaws. It blooms profusely 
+with delicate, yellow roses in the floribunda fashion, with 
+clusters of many-petalled flowers on each stem. Its thorns are a 
+strong deterrent to those desirous of picking any. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2160 31114 0 0 0 0
+#31114
+rosebush yellow autumn fall bush leaves VEGETATION~
+a yellow rosebush losing its leaves~
+A yellow rosebush droops here, its leaves falling.~
+   The blooms long faded, this rosebush is slowly losing all its 
+leaves. Once dark green, they are now withered with the chill 
+weather, and falling into a pile at the bush's base. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2160 31115 0 0 0 0
+#31115
+rosebush yellow bush dormant completely dead-looking VEGETATION~
+a completely dormant rosebush~
+A dead-looking, completely dormant rosebush is planted here.~
+   There's no telling what kind of roses come from this rosebush; 
+it's totally dead-looking, the stems all devoid of leaves and dry 
+as kindling. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2160 31116 0 0 0 0
+#31116
+rosebush yellow well tended bush VEGETATION~
+a well-tended yellow rosebush~
+A well-tended yellow rosebush grows here.~
+   This rosebush has some yellow roses growing on its dark green 
+leaves in the floribunda fashion, with the open blooms scented 
+deeply with damask. It's been pruned and all the dead blooms and 
+leaves cut off. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2160 31113 0 0 0 0
+#31117
+rosebush pink bush soft full bloom VEGETATION~
+a pink rosebush in full bloom~
+A rosebush with soft, pink blooms grows here.~
+   It is a lushly green bush with few flaws. It blooms profusely 
+with soft, pink roses in the floribunda fashion, with clusters of 
+many-petalled flowers on each stem. Its thorns are a strong 
+deterrent to those desirous of picking any. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2160 31118 0 0 0 0
+#31118
+rosebush pink autumn fall bush leaves VEGETATION~
+a pink rosebush losing its leaves~
+A pink rosebush droops here, its leaves falling.~
+   The blooms long faded, this rosebush is slowly losing all its 
+leaves. Once dark green, they are now withered with the chill 
+weather, and falling into a pile at the bush's base. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2160 31119 0 0 0 0
+#31119
+rosebush pink bush dormant completely dead-looking VEGETATION~
+a completely dormant rosebush~
+A dead-looking, completely dormant rosebush is planted here.~
+   There's no telling what kind of roses come from this rosebush; 
+it's totally dead-looking, the stems all devoid of leaves and dry 
+as kindling. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2160 31120 0 0 0 0
+#31120
+rosebush pink well tended bush VEGETATION~
+a well-tended pink rosebush~
+A well-tended pink rosebush grows here.~
+   This rosebush has some yellow roses growing on its dark green 
+leaves in the floribunda fashion, with the open blooms scented 
+deeply with damask. It's been pruned and all the dead blooms and 
+leaves cut off. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2160 31117 0 0 0 0
+#31121
+rose delicate yellow VEGETATION~
+a delicate, yellow rose~
+A delicate, yellow rose lies on the ground.~
+   Not quite a long-stemmed flower, this rose has delicate, 
+yellow bloom with an enchanting aroma. The soft, yellow petals 
+nestle against large, dark green leaves. 
+~
+12 4096 33554433
+0 0 0 0
+5 0.000000
+0 0 0 30 4 0 1
+3.500000 0 0 0 0 0 0
+#31122
+rose yellow florist_craft long-stemmed VEGETATION~
+a long-stemmed, delicate, yellow rose~
+A delicate, yellow rose lies flat on the ground.~
+   It is long-stemmed, with the dark green leaves and thorns left 
+on and making a beautiful contrast to the yellow of the flower's 
+petals. Each soft petal is perfect, deepening in color to an 
+almost sunny hue at the flower's center. 
+~
+12 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4 0 1
+3.500000 745 1156 0 0 0 0
+#31123
+rose soft pink VEGETATION~
+a soft, pink rose~
+A soft, pink rose lies on the ground.~
+   Not quite a long-stemmed flower, this rose has soft, pink 
+bloom with an enchanting aroma. The pink petals nestle against 
+large, dark green leaves. 
+~
+12 4096 33554433
+0 0 0 0
+5 0.000000
+0 0 0 30 4 0 1
+3.500000 0 0 0 0 0 0
+#31124
+rose pink florist_craft long-stemmed VEGETATION~
+a long-stemmed, pink rose~
+A soft, pink rose lies flat on the ground.~
+   It is long-stemmed, with the dark green leaves and thorns left 
+on and making a beautiful contrast to the pink of the flower's 
+petals. Each soft petal is perfect, deepening in color to an 
+almost crimson hue at the flower's center. 
+~
+12 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4 0 1
+3.500000 745 1156 0 0 0 0
+#31125
+sweet violet drying sweet-scented, deep-purple flower VEGETATION~
+a drying, sweet-scented, deep-purple flower~
+A drying, sweet-scented, deep-purple flower lies here.~
+   This drying blossom emits a delicate, sweet scent; it bears 
+five sepals extended at their bases and five unequal sized, 
+deep-purple hued petals. It is borne on a very slender green 
+stem that appears barely able to support the weight of the 
+flowerhead. 
+~
+31 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.250000 168 90571 0 0 0 0
+$~

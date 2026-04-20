@@ -1,0 +1,3032 @@
+#41000
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41051
+man-like being of gigantic proportions~
+a man-like being of gigantic proportions~
+A man-like being of gigantic proportions lumbers here, shoulders slumped heavily.~
+   Gigantic in size, this enormous beast appears to be comparative 
+in features to Man excluding the vast difference in sheer size of 
+body.  This beast is also quite hairy and has many missing and 
+rotted teeth dotting the mouth that sits embedded on the face 
+that serves as a resting point for the unkempt hair that resides 
+atop this mammoth being.
+~
+2097450 8388612 30 28 5 5d1+250 2d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+24 6 12 1 13 23 81 7
+0 0
+0 60 0 0 0 0 0 50 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 15 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 10 0 0 0 0 0 0 0 0
+0 0 0 0 15 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41030
+stretch spider webbing~
+a stretch of spider webbing~
+A stretch of spider webbing hangs from a cranny in the wall.~
+(null)~
+2097162 0 0 35 4 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41654
+auto-create Moria troll~
+a generic troll~
+A generic troll is mulling about here.~
+   Of moderate size, this troll looks like most of its kind.  It 
+possesses an unkempt mat of hair upon the top of its skull, and 
+holds a blank stare on its face at most time.  It is rotund at 
+the mid-section and has arms and legs like the trunks of trees.
+~
+298 8388612 23 28 7 5d1+150 2d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+23 8 8 1 12 23 94 8
+268435456 0
+0 35 44 43 32 43 46 38 41 45
+45 30 34 38 44 47 47 31 43 44
+46 48 0 0 49 31 0 0 19 57
+0 0 51 0 0 20 25 22 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 57 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_hordes~
+0 0 0
+#41200
+InvisibleDoorMechanicMob for closing dwarven doors~
+invisibleDoorMechanicMob for closing dwarven doors~
+InvisibleDoorMechanicMob for closing dwarven doors is set here.~
+(null)~
+10 2 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41201
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41175
+orc-skirmisher moria orc auto-create orc-fodder moria-orc~
+a generic Moria orc~
+a generic Moria orc sulks about.~
+   Short and unkempt, these orcs are wild-looking creatures that 
+often scan the area with quick and darting gazes. Bearing small 
+arms and crummy leather armor, this skirmisher is small but 
+appears to be a scrappy fighter. 
+~
+298 8388612 25 119 0 5d1+92 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 12 14 1 16 14 94 16
+268435456 0
+0 32 40 43 34 31 41 49 49 46
+32 31 36 44 33 43 47 42 50 31
+39 36 0 0 39 47 0 0 16 63
+0 0 51 0 0 22 15 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 32 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 63 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_pack 'member' moria_hordes~
+0 0 0
+#41001
+spider hairy large xyoufailedmoriax~
+a large, hairy spider~
+A large spider rises up from the rubble here, hairy and mean.~
+   Hoary and ancient, this creature has been stirred up out of 
+its nest by careless hands; its entire body bears the scars of 
+old battles before: one spingly leg is missing, another 
+shortened, and its carapace is scored by bladestrokes. An old, 
+rotted arrow is lodged just behind its many-eyed, many-fanged 
+head, the fletching too dirtied to make out. Hair covers most of 
+this arachnid's body, giving it a loathesome, evil look. 
+~
+2097194 4 29 32 4 5d1+80 1d8+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 2097152 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 58 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 58 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41002
+MORIA_SWARM black leathery bat~
+a black, leathery-winged bat~
+A black, leathery-winged bat flies around here.~
+   Small and flighty, this bat hovers about quickly, rapidly 
+flapping its leathery wings to provide lift. The fur about the 
+body of this small creature is black, making it difficult to 
+distinguish when it flies in the darkness or in a swarm.
+~
+807403560 4 27 33 0 5d1+15 1d3+0 0 8 8 0 0 0 0 0
+98061 0 0 97091 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 65 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+96 86 0
+#41003
+invisible MORIA_BAT_RPROG mob~
+an invisible MORIA_BAT_RPROG mob~
+An invisible MORIA_BAT_RPROG mob is here.~
+(null)~
+10 2 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+1 41044 0
+#41004
+Wheekat wizened old warty goblin~
+a wizened, warty old goblin~
+A wizened, warty old goblin stands hunched here.~
+   This goblin, a male, is very old. He has long, spindly limbs 
+with a greyish-green complexion and he is covered from head to 
+toe in warts of various sizes. His head is bulbous with stringy 
+grey hair and he has large, frog-like eyes, a thin nose and a 
+wide mouth. His ears are large and pointed and tend to flap 
+about when he moves. 
+~
+10 8388612 30 24 0 5d1+93 2d3+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 13 18 1 15 13 81 15
+0 0
+0 50 0 0 0 0 0 0 0 0
+60 50 0 0 0 0 0 0 0 0
+8 50 0 0 70 70 0 0 0 50
+50 0 50 0 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 70 0
+0 0 0 0 0 0 0 70 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' gothakra 'member' mordor_char~
+0 0 0
+#41005
+Gorgat UNIQUE_BLACKREND sinew built pale skinned orc~
+a sinewy-built, pale-skinned orc~
+A lithe orc with pale skin and yellow eyes stands here.~
+   A top this orcs thick head a mass of black hair sprouts out, 
+hanging down his back. His mottled pale skin is covered in 
+blisters, boils but most of all scars. Beady yellow eyes peer 
+out at the world from beneath a pair of thin dark eyebrows. The 
+sinewy beast has a long, sharp nose that togethere with his 
+hunched stature gives him a predator-like appearance. His lips 
+are black, a trickle or saliva seeming to be constantly present 
+and as he shows his teeth one can see they are yellowish and very 
+sharp. A thin neck with a horrible, ugly teeth-mark scar leads 
+to a pair of broad but not very large shoulders. His arms are as 
+sinewy and agile as the rest of his body and his long legs carry 
+him with a predatory grace. 
+~
+10 8388612 36 119 0 5d1+92 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 58 4 0 0
+16 12 14 1 18 14 94 18
+0 0
+0 58 0 72 0 52 33 0 55 36
+50 0 0 50 50 44 67 0 32 66
+64 67 0 0 66 67 0 0 58 64
+0 0 52 0 0 0 100 59 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 66 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' azog_warhost 'lieutenant' huul_blackrend~
+0 0 0
+#41006
+orc variable xblackrendx xgruntx~
+a variable orc~
+a variable orc lingers here.~
+   Another orc amongst the ruthless beasts sworn to Huul 
+Blackrend stands here, their allegiance as plain as the mark on 
+their arm. With teeth bared in a hostile snarl, eyes quickly 
+looking around for something to stab or eat, they carry 
+themselves with a savagery surprising even for most orcs. 
+~
+8 8388612 23 119 0 5d1+98 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 31 38 42 42 31 39 33 43 33
+43 47 30 33 44 38 39 38 36 41
+34 30 0 0 54 53 0 0 25 66
+0 0 62 0 0 17 20 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 33 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 66 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'recruit' azog_warhost 'private' huul_blackrend~
+0 0 0
+#41007
+Yrtz UNIQUE_BLACKREND darkly yellow skinned black eyed orc~
+a darkly yellow-skinned, black-eyed orc~
+A darkly yellow-skinned, black-eyed orc lingers here~
+   Before you stands a, by orc measures, very tall orc. His 
+build is skinny with long, spidery legs and arms packed with 
+lithe, agile muscles. He is completely bald, almost proudly 
+showing off his sickly yellow scalp and scrunched up face. It 
+seems as if this orc have taken a few hits to many to his ugly 
+features as he's missing both ears and his face is completely 
+scrunched up with old, poorly made stitches and repairs. At the 
+side of his head someone have used two thick, long strips of 
+metal to repair an old wound. His eyes are black as night, 
+peering out at the world with a furious hatred. 
+~
+10 8388612 35 121 0 5d1+92 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+15 13 13 1 18 14 94 14
+0 0
+0 52 54 65 0 0 0 0 0 0
+0 0 43 71 0 0 0 0 64 48
+65 53 0 0 64 64 0 0 54 50
+0 0 58 0 0 0 43 58 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 66 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'lieutenant' blackrend 'private' azog_warhost 'lieutenant' huul_blackrend~
+0 0 0
+#41008
+Nikas UNIQUE_BLACKREND goblin mottled yellow eyed~
+a mottled, yellow-eyed small orc~
+A mottled, yellow-eyed small orc skulks here.~
+   This mottle-skinned goblin is an array of blacks, browns and 
+grays with subtler yellows and even some sickly shades of darker 
+green staining his skin. He is of no spectacular height for one 
+of his kind but carries himself with a certain swagger enough to 
+pick him out of a crowd - his yellow eyes, the colour of stale 
+urine, have a proud glint to them, if not also a wary leer at 
+most times. His hair, messy and tangled, hangs over his slightly 
+pointed ears, though one has been notched, and is the colour of 
+ash. Rather lanky, what little bulk this snaga carries seems to 
+situate about his calves and thighs, and he is slightly 
+bow-legged. His fangs, though small, are wickedly sharp. 
+~
+10 8388612 39 119 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+9 12 13 1 20 10 94 19
+0 0
+0 8 47 0 0 0 0 0 79 0
+0 0 0 0 0 0 0 0 35 53
+8 59 0 0 60 62 0 0 43 65
+0 0 45 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 56 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 23
+43 100 34 0 0 0 0 0 0 0
+0 0 0 0 60 55 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'lieutenant' blackrend 'sergeant' huul_blackrend 'private' azog_warhost~
+0 0 0
+#41009
+Shatog dark-brown lean warg xMoriax~
+a dark-brown, lean warg~
+A warg with dark-brown fur prowls here.~
+   A sleek, wolf-like creature is here. His dark-brown fur is 
+glossy and seemingly well kept. Amber eyes filled with 
+intelligence and cunning peer out at the world from the middle of 
+his canine face. His wide maw is filled with thick, sharp teeth 
+and his lean form rippling with agile muscles. The beast seems 
+to be about the size of any other wolf and each careful step 
+equally predatory 
+~
+10 262148 45 89 7 5d1+150 2d7+0 0 8 8 1 0 0 0 0
+90030 0 0 90029 0 0 1 0 0 0 1 0 0 0 0 0
+16 12 15 1 20 14 95 20
+0 0
+0 90 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 56 56 0 0 80 80
+0 0 54 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 75 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 70 0 0 100 100
+0 100 0 0 100 0 0 0 0 0
+100 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' moria_dwellers 'commander' moria_pack~
+0 0 0
+#41010
+red-eyed black-furred warg Dahamab~
+a red-eyed, black-furred warg~
+A red-eyed, black-furred warg prowls her~
+   Piercing red eyes stare out at the world, shaded by 
+pitch-black fur. This female warg is larger then your average 
+wolf but still by no means huge. Instead she is packed with lean 
+muscles, each move of her large paws well calculated and careful. 
+If she were to curl her lips a mass of sharp, white teeth show, 
+hinting at the pain and damage she could cause any other living 
+being. Despite her obvious animal appearance, intelligence 
+shines through her red eyes, revealing that this is no ordinary 
+wolf. 
+~
+10 4 35 89 6 5d1+130 2d6+0 0 8 8 2 0 0 0 0
+90030 0 0 90020 0 0 24 0 0 0 1 0 0 0 0 0
+14 14 13 1 20 14 95 20
+0 0
+0 70 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 55 54 0 0 80 80
+0 0 80 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 65 0 0 100 100
+0 100 0 0 100 0 0 0 0 0
+100 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' moria_dwellers 'commander' moria_pack~
+0 0 0
+#41011
+Zahgiraa dark-grey sleek wolf~
+a dark-grey furred, sleek wolf~
+A dark-grey furred, sleek wolf prowls here.~
+   Smaller then your average wolf the look in her clear blue eyes 
+is fierce, hostile even. She moves with a predatory step which 
+is common to her brethren but there seems to be a spring to her, 
+a readiness in every move that is uncommon even for wolves. 
+Scars of various size travel over her dark-grey body, revealing 
+that she has seen many fights in her young life but survived them 
+all. She seems quick to curl her lips back to show her sharp 
+teeth and snap out at anyone or anything, even into thin air. 
+~
+10 262148 37 62 5 5d1+100 2d5+0 0 8 8 2 0 0 0 0
+2061 0 0 97045 0 0 24 0 0 0 1 0 0 0 0 0
+16 10 14 1 20 13 81 20
+0 0
+0 75 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 80 80 0 0 0 100
+0 0 80 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 62 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 80 0 0 100 100
+0 100 0 0 100 0 0 0 0 0
+100 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' moria_dwellers 'lieutenant' moria_pack~
+0 0 0
+#41012
+boar hulking dark-brown cave tunnel swine~
+a hulking, dark-brown cave boar~
+A hulking, dark-brown wild boar roots about here.~
+   This large beast seems composed solely of thick, heavy 
+muscles. Brown and black bristles cover its enormous back as he 
+it moves on four thick cloves. Tusks that could surely rip a man 
+to pieces jut out by its pig-like snout, its large mouth is 
+filled with blunt teeth. Small, beady yellow eyes peer out at 
+the world, resting in the middle of its ugly face. A little tail 
+pokes out from the back of the animal, swishing back and forth as 
+the beast moves about, sniffing and grunting. 
+~
+136315176 4 30 36 1 5d1+100 2d3+0 0 8 8 0 0 0 0 0
+97126 0 0 97547 0 0 24 0 0 0 1 33554432 0 0 67371026 0
+20 8 16 1 10 12 77 14
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+192 86 0
+#41013
+Auto-create variable spider small~
+a variable small spider~
+A variable small spider creeps here~
+   A hideous, dark spider creeps here. It is not giant by any 
+means but still twice the size of a normal man's head. Long, 
+stiff arachnid limbs stretch out from the rounded, dark body. 
+Strong insect jaws jut out from it's ugly, spider-face, oozing 
+with a thick liquid. It has a multitude of eyes above the sharp 
+jaws and a greedy little mouth hiding behind them. 
+~
+136314920 786436 15 32 2 5d1+40 1d3+0 0 8 8 0 0 0 0 0
+5467 0 0 5463 0 0 24 0 0 0 1 0 0 0 67633156 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 50 50 0 0 50 50
+0 0 0 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 15 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 50 0
+0 50 0 0 0 0 0 0 0 0
+50 50 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+96 86 0
+#41014
+Dunk orc mottled lazy-eyed xMORIAxBARKEEPx~
+a lazy-eyed, mottled orc~
+A mottled orc with a lazy eye hunkers here, trading goods for swill.~
+   This rather bulky orc is mottle-skinned and yellow-eyed, with 
+a mouthful of broken, leering teeth and countless scars winding 
+about his arms and legs. His head has been shaved, though 
+bristly hairs poke out from his dark-skinned scalp, and one of 
+his eyes is lazy and filmed over. 
+~
+10 8388612 25 119 1 5d1+98 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+0 0
+0 45 0 40 0 0 50 0 0 0
+47 0 0 40 0 0 0 0 0 0
+46 43 0 0 0 0 0 0 50 40
+0 0 40 0 40 0 0 30 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' azog_warhost~
+0 0 0
+#41015
+Tamtukuhwuh orc small wiry xPAWN1xTRASHxHEAPx xTRADERx~
+a wiry, small orc~
+A wiry, small orc squats by the trash heap, trading odds and ends.~
+   This small orc squats before the smoldering trash heap, dark 
+skin sweating profusely, and barks out offers for various goods, 
+trading those in turn for things taken from the trash heap 
+itself. His eyes are beady and red, and he is quite wiry - 
+bordering emaciation, with ribs visible and pronounced knuckles 
+and spine. 
+~
+1034 8388612 25 119 1 5d1+98 1d2+0 0 8 8 1 0 3327 0 213352443
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+1 1
+41089 41424 0.300000 0.500000 2.500000 1.000000 1048576
+3.000000 1.500000 16 0.000000 0.000000 0 55050240
+-1
+5 4 17 11 15 13 19 25 26 32
+0 35 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 45
+45 46 0 0 0 0 0 0 56 40
+0 0 45 0 0 0 0 40 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' azog_warhost~
+0 0 0
+#41016
+Trowt UNIQUE_BLACKREND weedy crook nosed orc~
+a weedy, crook-nosed orc~
+A weedy, crook-nosed orc hangs by the door here.~
+   This lanky orc is rather small, with pronounced, pointed ears 
+razoring back on either side of his skull and two yellowy, 
+leering eyes. His weedy body is criss-crossed by various scars, 
+some more faded than others, and he is slightly bandy-legged. 
+His skin is dark and his nose looks to have been broken several 
+different times - and ways - and now resembles a smashed up 
+staircase more than it does a true snout. 
+~
+10 8388612 25 119 0 5d1+95 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+13 12 10 1 18 15 94 17
+0 0
+0 40 0 46 0 0 0 0 0 45
+50 0 0 0 0 0 0 0 0 0
+50 45 0 0 40 30 0 0 50 40
+0 0 45 0 0 0 0 40 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 43 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 35 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' blackrend 'corporal' huul_blackrend 'recruit' azog_warhost~
+0 0 0
+#41017
+Krulsh short wild haired orc TROPHY-ORC~
+a short, wild-haired orc~
+A short, wild-haired orc stands here, tending the store.~
+   This orc is particularly short and squat, with stubby arms and 
+legs. He sports a sloping brow and a lantern jaw, with a crooked 
+and broad nose and red eyes. His hair is several different 
+colors-- the most prominant of which are red, blue, yellow, and 
+green. It all stands on end, circling his head in a bizarre 
+mane. 
+~
+8 8388612 30 119 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 12 12 1 17 15 81 16
+1 0
+41364 41365 1.000000 0.500000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+38 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 60 0
+0 0 0 0 0 0 0 0 0 0
+55 50 0 0 58 58 0 0 56 0
+0 0 100 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41018
+warhost-orc moria-orc azog_warhost orc auto-create~
+a generic warhost-orc~
+A generic warhost-orc stands here.~
+   Bearing themself in what passes as a proud and confident 
+manner for an Orc, this individual is muscular and bears many 
+scars, the sign of experience granted from previous battles. 
+Possessing a discipline unseen in most of its race, this Orc's 
+enlarged jaw is set straight as they gaze with narrowed eyes over 
+their surroundings. 
+~
+10 8388612 23 119 0 5d1+98 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 10 10 1 16 16 95 16
+268435456 0
+0 31 43 37 46 42 34 34 42 44
+32 34 44 34 35 33 42 34 46 50
+47 42 0 0 60 50 0 0 18 59
+0 0 58 0 0 17 19 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 0 0
+0 0 0 0 17 59 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' variable 'corporal' azog_warhost~
+0 0 0
+#41019
+Mob Dispenser TUNNELS_OF_MORIA~
+a Mob Dispenser for the Tunnels of Moria stands here.~
+A Mob Dispenser for the Tunnels of Moria stands here.~
+   Bearing themself in what passes as a proud and confident 
+manner for an Orc, this individual is muscular and bears many 
+scars, the sign of experience granted from previous battles. 
+Possessing a discipline unseen in most of its race, this Orc's 
+enlarged jaw is set straight as they gaze with narrowed eyes over 
+their surroundings. 
+~
+10 8388614 25 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 10 10 1 16 16 94 16
+0 0
+0 31 43 50 46 42 34 34 42 44
+32 34 44 34 35 33 42 34 46 50
+50 42 0 0 60 50 0 0 18 59
+0 0 58 0 0 17 19 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 0 0
+0 0 0 0 17 59 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41020
+Mob Dispenser Hunting_grounds TUNNELS_OF_MORIA~
+a Mob Dispenser. Hunting Grounds, Tunnels of Moria~
+A Mob Dispenser for the Hunting grounds, tunnels of moria.~
+   Bearing themself in what passes as a proud and confident 
+manner for an Orc, this individual is muscular and bears many 
+scars, the sign of experience granted from previous battles. 
+Possessing a discipline unseen in most of its race, this Orc's 
+enlarged jaw is set straight as they gaze with narrowed eyes over 
+their surroundings. 
+~
+10 8388614 23 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 10 10 1 16 16 95 16
+0 0
+0 31 43 37 46 42 34 34 42 44
+32 34 44 34 35 33 42 34 46 50
+47 42 0 0 60 50 0 0 18 59
+0 0 58 0 0 17 19 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 0 0
+0 0 0 0 17 59 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41021
+Gralk lean bug eyed orc ONE-OF-TENSHIN-NPC-SHOPKEEP-TO-41393-KTHXBAI~
+a lean, bug-eyed orc~
+A lean, bug-eyed orc stands here, tending the shop.~
+   This male orc is rather short for his kin and is quite lean 
+with long bony arms. He has coarse skin that is black with a 
+slight greenish tint. Upon his slouched back lie many scars, of 
+various shape and depth. Scarce strands of black, muck ridden 
+hair drape down to his shoulders. The orc's face is narrow with 
+hollow cheeks and a protruding sharp chin. He has sharp pointy 
+teeth, hidden by thin black lips. A narrow, upturned nose 
+seperates his two bright brown bug eyes. 
+~
+1034 8388612 25 119 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+1 1
+41393 41428 0.300000 0.500000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+97895 5480 -1
+29 31 10 32 52 0 0 0 0 0
+0 50 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 50 0
+0 0 50 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' festering_wound 'private' scorched_hand~
+0 0 0
+#41022
+Gurtanz orc sinewy black-skinned arms_armor xTRADERx Shopkeep~
+a sinewy, black-skinned orc~
+a sinewy, black skinned orc stands behind a counter with several other orkish shopkeepers, exchanging armor for coin.~
+   This orc's black skin is mottled and scarred. Standing 
+hunched over, his arms swing unusually low-- his knuckles hang 
+near his knees. A heavy brow hangs over slitted red eyes. Two 
+massive teeth just from this orc's lower jaw, accentuating his 
+underbite. 
+~
+1034 8388612 25 119 1 5d1+98 1d2+0 0 8 8 1 0 2110 0 77003455
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+1 1
+41358 41389 1.300000 0.500000 2.500000 1.000000 1048576
+3.000000 1.500000 16 0.000000 0.000000 0 55050240
+-1
+5 9 0 0 0 0 0 0 0 0
+0 35 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 45
+45 46 0 0 0 0 0 0 56 40
+0 0 45 0 0 0 0 40 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' azog_warhost~
+0 0 0
+#41023
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41024
+squat large-nosed orc Moria Gothakra_Doorkeep Gurthaz~
+a squat, large-nosed orc~
+A squat, large-nosed orc stands here keeping an eye on the exit.~
+   Bearing themself in what passes as a proud and confident 
+manner for an Orc, this individual is muscular and bears many 
+scars, the sign of experience granted from previous battles. 
+Possessing a discipline unseen in most of its race, this Orc's 
+enlarged jaw is set straight as they gaze with narrowed eyes over 
+their surroundings. 
+~
+10 8388612 23 119 0 5d1+98 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 10 10 1 16 16 95 16
+0 0
+0 31 43 37 46 42 34 34 42 44
+32 34 44 34 35 33 42 34 46 50
+47 42 0 0 60 50 0 0 18 59
+0 0 58 0 0 17 19 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 0 0
+0 0 0 0 17 59 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41025
+Gugnok orc sinewy long eared tenshin~
+a sinewy, long-eared orc~
+A sinewy, long-eared orc lingers nearby.~
+   This orc carries himself with ease, his stern gaze is 
+accentuated by his deeply set dark red eyes. Even when the orc 
+is slouched he is taller than most of the breed. His whole body 
+is sinewy making the orc look strong and agile. Pitch black skin 
+is rough and coarse; being covered with battle scars and notches 
+everywhere. He has a large bald head with long ears going 
+backwards. The forehead is protruding, shadowing his deeply set 
+eyes. His nose is wide and seemingly long since broken. 
+~
+10 8388612 25 119 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 66 3 0 0
+19 9 11 1 17 16 94 14
+0 0
+0 50 0 50 50 0 0 0 0 0
+0 0 0 50 0 0 0 0 50 0
+50 50 0 0 50 50 0 0 50 50
+0 0 50 0 0 0 40 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' scorched_hand~
+0 0 0
+#41026
+Sugnuk orc pot bellied long fanged orc tenshin~
+a pot-bellied, long-fanged orc~
+A pot-bellied, long-fanged orc moves within the area, saggy stomach overhanging.~
+   This orc has a slouched posture and does not appear to be tall 
+even when standing straight. He has wobbly, bent legs that 
+appear to be challenged with carrying his pot belly. The orc's 
+sharp featured face is dark with contrasting yellow eyes. His 
+dark blue lips are pressed with the orc's long fangs. The right 
+flare of his long pointed nose has a small chunk of skin bitten 
+out. Going down from his head there's a lot of hair that cover 
+his ears and sometimes his eyes. 
+~
+10 8388612 25 119 0 5d1+100 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 68 4 0 0
+18 10 10 1 16 16 94 16
+0 0
+0 50 0 0 0 0 50 50 0 0
+0 0 0 50 0 0 0 0 50 0
+50 50 0 0 0 0 0 0 50 50
+0 0 50 0 0 0 40 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' scorched_hand~
+0 0 0
+#41027
+Ruknak orc skeletal female small tenshin~
+a skeletal, small female orc~
+A skeletal female orc of small size resides here, favoring her left leg.~
+   Standing below most orcs this female orc looks tired and weak. 
+Her body is skeletal, wrapped in wrinkly black skin making her 
+bust look barely female. Her right leg is slightly shorter than 
+her left one, making her limp while she walks. Her face is round 
+with small, narrow grey eyes and jagged teeth. 
+~
+10 8388612 25 119 0 5d1+80 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 60 2 0 0
+19 9 10 1 17 18 94 16
+0 0
+0 50 0 0 0 0 0 0 0 50
+50 0 0 50 0 0 0 0 50 0
+50 50 0 0 0 0 0 0 50 50
+0 0 50 0 0 0 40 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' crimson_arms~
+0 0 0
+#41028
+Beroglok orc muscular scarred planted tenshin~
+a scarred, muscular orc~
+A scarred, muscular orc is planted firmly on the ground here.~
+   This orc has a slouched posture but he's tall and his body is 
+heavily built. His arms and legs are meaty, bearing many scars 
+and cuts. The orc has a lean waist and broad shoulders. Upon a 
+closer look one could notice symmetrical scars crossing his 
+forehead vertically. He has dark, blood red eyes and a nose with 
+wide open flares. His upper fangs protrude from his mouth going 
+downwards towards his firm jaw. 
+~
+10 8388612 32 119 0 5d1+104 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 67 4 0 0
+16 11 10 1 15 18 94 15
+0 0
+0 50 0 0 0 0 50 0 0 65
+0 0 50 60 0 0 0 0 60 0
+65 50 0 0 0 0 0 0 50 50
+0 0 50 0 0 0 40 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' crimson_arms~
+0 0 0
+#41029
+Larzdeesh warg silver large eyed Moria tenshin warg~
+a large, silver-eyed warg~
+A large, silver-eyed warg is here, haunched in a predatory stance.~
+   This warg is significantly larger than most of his kin. He 
+has a heavy, muscular body covered in thick stygian hide, which 
+has a white mark on its nape. Upon his back, small bleached 
+finger bones tied into his thick fur go all the way along his 
+spine as well as its long black tail. This warg has large claws 
+and meaty legs. Yet the most significant mark is his silvery 
+eyes that gaze out of his large, pitch black head with sharp 
+fangs. 
+~
+262154 4 29 89 6 5d1+100 1d6+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 13 12 1 13 14 94 18
+0 0
+0 58 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 45 0 0 0 0 0 0 0 0
+0 0 50 0 0 60 40 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 58 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'sergeant' crimson_arms~
+0 0 0
+#41031
+Nargruskh UNIQUE_BLACKREND compact one eyed orc~
+a compact, one-eyed orc~
+A compact orc lingers nearby, lone eye watching hawkishly.~
+   Sporting a long and thick topknot from a roughly shaven head, 
+this male orc stands tall and looks reasonably strong upon first 
+impression. His body is compact, well-worked muscle sculpting 
+his lean form, a reward from a life of intensive labor. A set of 
+meaty hands spout from his arms, fingernails clipped to stubs, 
+knuckles worn and severely marred in a creamy blemish, comparing 
+to his tautly drawn black skin. Upon closer inspection of his 
+face, his right eye is missing, the socket empty, housing nothing 
+but darkness - the other eye however looks functional, colored 
+completely black. Scars litter his body in a gruesome mess. 
+~
+10 8388612 35 119 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 66 3 0 0
+18 12 16 1 16 16 94 16
+0 0
+0 60 0 70 0 0 0 0 0 0
+60 0 0 20 0 0 0 0 20 0
+68 50 0 0 50 50 0 0 40 60
+0 0 20 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 60 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' blackrend 'member' moria_dwellers~
+0 0 0
+#41032
+Poogdu dreadlocked orc slouching posture byKarkus FORWORMWOOD GOTHAKRAN~
+a dreadlocked orc of slouching posture~
+A dreadlocked orc stands close by, posture slouched.~
+   A thick, interlocking mess of bone-adorned dreadlocks hang 
+depressingly from the scalp of his solid bodied orc. His 
+features are hard, nose scrunched, nostrils broad. Two 
+black-ringed, crimson-colored eyes skittishly perceive the world 
+about him. His body is quite thick, bandy arms sprouting from a 
+boxed-chest, hands small and bony with several fingers missing 
+their tips. His legs are short, keeping his form closer to the 
+ground than most of his kin. His dark skin is riddled with scars 
+from other the years, ranging from holes to clean gashes. 
+~
+10 8388612 25 119 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 58 2 0 0
+14 10 14 1 17 16 94 13
+0 0
+0 50 0 50 50 0 0 0 0 0
+0 50 0 0 0 0 50 0 0 0
+50 50 0 0 60 50 0 0 50 50
+0 0 40 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' gothakra~
+0 0 0
+#41033
+Hrack brawny black skinned orc MORIA-PRE-GAME-ORC~
+a brawny, black-skinned orc~
+A brawny, black-skinned orc stands here, dealing out arms and armor.~
+   This orc is large a burly, his black skin wrapped tight around 
+his mucles. He stands taller than the average orc, and 
+significantly wider-- though an ounce of fat could not be found 
+on him. He has a low, sloping brow, and his eyes are nearly 
+squinted shut, though a sliver of bright red is still visible. 
+His head is shaved bald, and a fair amount of scars covers his 
+head, face, and body. 
+~
+10 8388612 50 121 4 5d1+98 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+1 1
+41433 41454 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41034
+Brahk green eyed grey skinned young orc MORIA-PREGAME-SHOPKEEP~
+a green-eyed, grey-skinned young orc~
+A green-eyed, grey-skinned young orc stands here, dealing various goods.~
+   This orc's black hair is long and pulled back into a tight 
+ponytail. Bright green eyes sit over a bulbous nose which, in 
+turn, is over a long-wide mouth. His body is tall and lanky and 
+wrapped in scars. 
+~
+10 8388612 50 119 100 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+1 1
+41434 41437 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41035
+Rosgazh bestial saw toothed pHulk byKarkus black male orc~
+a bestial, saw-toothed, black male orc~
+A bestial, saw-toothed, black male orc lurks here, scrutiny in his fiery eyes.~
+   Brutally mangled, this charcoal-skinned orc stands fairly high 
+for one of his kin. His arms are lengthy and bandy, sprouting 
+out from a massive barrel chest which stacks above a flat 
+stomach. Ritualistic etchings mar his body, coiling scars 
+wrapping like a serpent around his fore and upper arms. His face 
+looks to have been ruthlessly abused in the past, his nose bent 
+and broken, skewered to the right side. His lips are thick, 
+protecting a set of blackish, saw-edged snaggleteeth - the breath 
+that wafts from its depths is truly putrid, reeking of rot and 
+decay. 
+~
+10 8388612 38 121 0 5d1+105 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 57 4 0 0
+19 14 19 1 19 16 94 15
+0 0
+0 67 0 75 0 0 0 0 0 0
+77 0 0 76 0 0 0 0 70 0
+75 62 0 0 0 0 0 0 65 100
+0 0 65 0 0 0 0 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 70 0
+0 100 0 0 50 0 0 0 0 0
+50 50 0 0 50 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'member' moria_hordes~
+0 0 0
+#41036
+orc-skirmisher moria orc auto-create orc-fodder moria-orc ARCHER~
+a generic Moria orc~
+a generic Moria orc sulks about.~
+   Short and unkempt, these orcs are wild-looking creatures that 
+often scan the area with quick and darting gazes. Bearing small 
+arms and crummy leather armor, this skirmisher is small but 
+appears to be a scrappy fighter. 
+~
+2097162 8388612 25 119 0 5d1+92 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 12 14 1 16 14 94 16
+268435456 0
+0 44 32 46 50 48 35 35 30 45
+40 48 46 43 40 47 44 42 43 49
+46 38 0 0 36 49 0 0 23 63
+0 0 62 0 0 18 16 16 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 42 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 63 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'member' moria_hordes~
+0 0 0
+#41037
+variable orc WEAK_MORIA~
+a weak moria orc variable~
+A weak moria orc variable crouches here.~
+   Another sinewy, short Orc from a seemingly endless horde of 
+beasts crouches here. Beady eyes, a large mouth and a prominent 
+nose makes up the ugly facial features of the creature. Its 
+blotchy skin, marred with scars and other blemishes, is dark in 
+color. It looks quick and agile, the look on its face revealing 
+it is more then read for some fighting. 
+~
+2097192 8388612 25 119 0 5d1+53 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 30 13 1 16 1 94 16
+268435456 0
+0 8 40 40 40 40 40 40 40 40
+40 0 0 0 0 0 50 40 40 0
+40 30 0 0 48 50 0 0 60 0
+0 0 60 0 0 0 100 60 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 100 0 0 0 0 0
+100 100 0 0 50 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'member' azog_warhost~
+0 0 0
+#41038
+mob new~
+a new mobile~
+(null)~
+(null)~
+104 8388612 4 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41039
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41040
+Auto-create variable spider big~
+a variable big spider~
+A variable big spider creeps here~
+   A hideous, dark spider creeps here. It is large by all means, 
+easily the size of a fully-grown man. Long, stiff arachnid limbs 
+stretch out from the rounded, dark body. Strong insect jaws jut 
+out from it's ugly, spider-face, oozing with a thick liquid. It 
+has a multitude of eyes above the sharp jaws and a greedy little 
+mouth hiding behind them. 
+~
+136314920 786436 30 32 5 5d1+65 2d6+0 0 8 8 1 0 0 0 0
+5467 0 0 41126 0 0 24 0 0 0 1 0 0 0 67633156 0
+20 6 10 1 19 25 77 17
+268435456 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 25 0 0 50 50 0 0 100 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 50 100 0
+0 100 0 0 0 0 0 0 0 0
+100 100 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+144 86 0
+#41041
+Murga slouching orc PHYSICIAN thick black ponytail healer EGTHELA_ARENA~
+a slouching orc with a thick, black ponytail~
+A slouching orc with a thick, black ponytail is here, tending to patients.~
+   The beady black eyes of this male orc glint with an uncanny 
+cunning, their dark shine matching that of his unusually 
+well-kept dark hair, which is pulled severely away from his 
+squashed, brutal features into a ponytail bound with a strip of 
+leather. His skin is coarse and mottled, being an uneven blotchy 
+shade of grey over most of his visible flesh. Hair covers him 
+profusely, over his chest, arms, and even the back of his hands, 
+the latter of which look rather capable and strong. His back is 
+severely hunched, perhaps due to natural deformity or simply bad 
+orkish posture. 
+~
+1090519050 8388612 34 119 0 5d1+104 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 17 19 1 16 18 95 12
+0 1
+0 30 30 30 30 30 30 30 30 30
+30 69 0 0 0 0 0 0 0 34
+30 58 0 0 0 0 0 0 60 0
+0 0 72 0 0 0 0 0 0 0
+0 0 70 70 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 70 0 100
+100 100 100 0 100 0 0 0 100 0
+0 0 0 0 60 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' vadok_kraun 'corporal' egthela_arena~
+0 0 0
+#41129
+adolescent morph from object 41129 YRCHMORIA~
+A morphed adolescent orc squats here.~
+a generic Moria orc sulks about.~
+   Short and unkempt, this orc is a wild-looking creatures that 
+often scan the area with quick and darting gazes. Fiercely 
+tribal, they follow their leaders to the death, unless they are 
+running for their lives. 
+~
+10 8388612 25 119 0 5d1+92 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 12 14 1 16 14 94 16
+268435456 0
+0 39 31 41 44 39 32 36 43 40
+44 49 41 45 34 38 50 35 44 43
+45 34 0 0 45 38 0 0 16 63
+0 0 52 0 0 23 25 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 43 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 6 0 0 0 0 0 0 0 0
+0 0 0 0 50 63 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'member' moria_dwellers 'member' moria_hordes~
+0 0 0
+#41130
+breeding sow YRCHMORIA~
+a pregnant breeding sow orc~
+A pregnant breeding sow orc glowers here, squatting.~
+   This fat and bloated female orc is clearly pregnant. When at 
+her nest she barks out orders for cleaning, feeding and birthing. 
+Other females run around her, terrified and pups are often found 
+flung in every direction when she rampages when angered. A 
+hulking, intimidating figure, which some orcs may find 
+attractive. 
+~
+10 8388612 25 119 0 5d1+92 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 12 14 1 16 14 94 16
+0 0
+0 39 31 41 44 39 32 36 43 40
+44 49 41 45 34 38 50 35 44 43
+45 34 0 0 45 38 0 0 16 63
+0 0 52 0 0 23 25 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 43 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 6 0 0 0 0 0 0 0 0
+0 0 0 0 50 63 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_hordes~
+0 0 0
+#41042
+second mob dispenser TUNNELS_OF_MORIA~
+second mob dispenser for the tunnels of moria~
+Second Mob dispenser for the Tunnels of Moria stands here.~
+   Bearing themself in what passes as a proud and confident 
+manner for an Orc, this individual is muscular and bears many 
+scars, the sign of experience granted from previous battles. 
+Possessing a discipline unseen in most of its race, this Orc's 
+enlarged jaw is set straight as they gaze with narrowed eyes over 
+their surroundings. 
+~
+10 8388614 25 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 10 10 1 16 16 94 16
+0 0
+0 31 43 50 46 42 34 34 42 44
+32 34 44 34 35 33 42 34 46 50
+50 42 0 0 60 50 0 0 18 59
+0 0 58 0 0 17 19 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0 0 0
+0 0 0 0 17 59 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41043
+Wagnit xTHEIRONRODx undernourished bald orc trade~
+an undernourished, bald orc~
+An undernourished, bald orc slouches behind his counter, selling trade tools.~
+   Crudely shaven, this small orc's head looks to have served a 
+rough lifespan, caved in deeply on the right side, the results of 
+some possible serious head trauma. Two keen black eyes watch 
+carefully, their sockets sunken into a flattened face. A small, 
+scrunched nose pokes out over thin lips, nostrils flared. 
+Although small, this orc's limbs are well defined with muscle, a 
+tale less story of a labor intensive lifetime. His overall frame 
+appears somewhat lithe and lean, but maybe a little underfed. 
+~
+1034 8388612 30 119 0 5d1+98 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+1 1
+41449 41450 0.300000 0.600000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 33557264
+5145 -1
+0 0 0 0 0 0 0 0 0 0
+0 60 0 0 0 0 0 0 50 0
+0 0 0 0 0 0 0 0 0 0
+8 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41044
+orc-labourer auto-create The Mines Of Moria~
+an orc-labourer auto-create for The Mines~
+An orc-labourer auto-create for The Mines lingers nearby.~
+   A meaty head attached by a nearly invisible neck to even more 
+meaty shoulders betray the orc's profession as something 
+involving unrelenting heavy labour, the mere tatters and rags 
+they wear further casting them as part of the orcish population 
+which make up the Mines of Moria, working to near-death for the 
+smallest of food scraps and quirks. Their deep-set eyes are dim, 
+and enlargened teeth nearly blunt, shuffling about with little 
+purpose or manner. 
+~
+201 8388612 25 119 0 5d1+98 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 1572992 0 0 35652100 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 46 31 41 48 49 32 38 33 42
+45 50 32 41 39 47 36 50 34 45
+44 43 0 0 39 37 0 0 15 66
+0 0 55 0 0 23 23 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 48 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 66 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41045
+Bugrk xSawnCleaverx pot bellied orc piggish male~
+a pot-bellied, piggish male orc~
+A pot-bellied, piggish male orc sells meat from the southern wall, calling out prices with vicious barks.~
+   A pot belly sagging out over his hefty pelvis, this obese orc 
+stands fairly high for one of sheer size. His scraggly, greasy 
+black hair hangs down to his broad shoulders, tied back messily 
+with a length of smelly animal sinew. Two bold eyes watch 
+carefully, staring out from either side of a crooked, broken 
+nose. His lips are thick, hiding mangled, twisted fangs. On 
+first appearance, he seems rather imposing, legs thick, arms 
+bandy and stomach bloated. 
+~
+1034 8388612 30 119 0 5d1+80 1d2+0 0 8 8 0 0 0 0 33554432
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+1 1
+41451 41495 0.300000 0.600000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+5161 98095 5265 5463 -1
+19 0 0 0 0 0 0 0 0 0
+0 50 60 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 60 0
+0 0 30 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41046
+Burzumlub spider gargantuan barned QUEEN_SPIDER_PLOT dozen hateful glowing eyes~
+a gargantuan, barbed spider with dozens of hateful, glowing eyes~
+A gargantuan, barbed spider with dozens of hateful, glowing eyes looms here.~
+   Monstrous in size, this gargantuan spider looms with a 
+presence like no other. The overall size of this arachnid is 
+overwhelming, standing far beyond the head of any man. The 
+humongous body, split into two sections, sprouts twelve thick, 
+armored legs - each leg barbed with ultra-sharp splinters of 
+carapace. Dozens of eyes, each one hateful to the iris stare out 
+with keen precision, the sense of intelligence wrought deep into 
+its focus. A ferocious mouth housing vicious fangs spews gooey 
+ooze and mucus, emitting a strong, bitter odor. 
+~
+2097162 4 45 32 8 5d1+400 5d4+0 0 7 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 34603010 0 0 262144 0
+23 15 15 1 23 23 81 18
+0 0
+0 90 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 100 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 80 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41047
+spider gargantuan variable nesting PLOT_SPIDER~
+a gargantuan, variable nesting spider~
+A gargantuan, variable nesting spider stands here, on many articulate legs.~
+   The lengthy, precariously thin legs of this spider rise up 
+much taller than most men, sinking down to rest it's thick, 
+rounded body. Despite the almost skeletal gauntness of this 
+immense beast, it moves with whip crack motion, skittering almost 
+effortlessly over anything in it's path. A dozen overly large 
+yellow eyes glare out from atop its head, set right above a set 
+of sword-blade length fangs, oozing with goo and mucus. 
+~
+136314890 4 40 32 5 5d1+160 1d11+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 34603010 0 0 262144 0
+16 16 16 1 16 16 77 16
+268435456 0
+0 80 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 80 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ravine~
+0 0 0
+#41048
+Ruggtik cock eyed xUSEDGOODS_MORIAx spindly orc~
+a spindly, cock-eyed orc~
+A cock-eyed orc stumbles around his pile of junk, selling and trading his used goods.~
+   Not large by any means, this small orc hunches with a 
+painfully bent back. His thin-boned arms extend out from his 
+little box-shaped chest, ending in spindly, buckled fingers with 
+sharp, chipped nails. His feet hold him steady to the ground, 
+balancing his small frame. Entirely shaved, his head is covered 
+with small scars and scratches, blemished white in skin darker 
+than charcoal. Two cocked eyes wobble lifelessly in sunken 
+sockets, staring out with an oblivious, uncontrolled gaze. 
+~
+1050 8388612 25 119 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+1 1
+41363 41457 0.300000 0.600000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 50 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 50 50
+0 0 50 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41049
+Mugglit runty xDABLEEDINGFISTx pig faced female orc~
+a runty, pig-faced female orc~
+A runty, pig-faced female orc stands next to the eastern doorway.~
+   Runty in size, this small little female orc sports a crop of 
+wrinkly, thin-dreaded hair which sags lazily to her bony, rounded 
+shoulders. Extending further, her arms are thin and bony, 
+finishing up with a pair of cruelly-tipped fingers. Her stomach 
+is slim, chest skeletal, each rib easily visible on naked, bare 
+skin. She stabilizes herself with two, flat-bottomed feet. 
+~
+10 8388612 25 119 0 5d1+70 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+0 0
+0 8 0 0 0 0 0 0 50 0
+0 0 0 0 0 0 0 0 0 0
+40 40 0 0 0 0 0 0 50 50
+0 0 50 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' grutz_command_clan~
+0 0 0
+#41050
+auto-create orc formless blackrend prototype~
+a formless blackrend orc prototype~
+A formless blackrend orc prototype is here.~
+   Marked with the formidable black-hand, this orc moves about 
+with an eerie confidence. Their broad shoulders sprout out thick 
+arms which lead it heavily scarred fingers and knuckles. Their 
+frame overall isn't anything too impressive, sized at average for 
+one of their kin. Two eyes, colored black stare out quietly, set 
+on either side of a beaten, flattened nose. Their maw is 
+infested with crooked, mangled teeth, some sharp, some blunt, 
+some rotted beyond fixable. 
+~
+10 8388612 24 119 0 5d1+110 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 16 16 1 17 20 94 18
+268435456 0
+0 41 47 44 48 49 30 35 33 30
+37 38 41 41 35 46 42 30 35 47
+46 41 0 0 58 34 0 0 17 68
+0 0 67 0 0 18 22 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 41 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 68 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' blackrend 'member' moria_dwellers~
+0 0 0
+#41052
+rot fanged razor backed cave bear MINES-BEAR~
+a rot-fanged, razor-backed cave bear~
+A rot-fanged, razor-backed cave bear is here.~
+   This hulking creature stands a scant few feet from the 
+ground-- but is far wider than it is tall. Its pale skin is 
+absolutely devoid of hair, and is stretched taut over its 
+thickly-muscled body. Razor-sharp spines jut from its naked 
+back, made entirely of bone. Its ears are large, wide, pointed, 
+and jut an entire foot over its skull. Its eyes are a pale, 
+milky white, and its snout ends in a light pink nose. A constant 
+stream of saliva drips down from its maw, wherein lies a row of 
+rotting, albeit viciously sharp, fangs. 
+~
+2097160 4 30 34 4 5d1+200 2d4+0 0 8 8 0 0 0 0 0
+97581 0 0 97708 0 0 24 0 0 0 2 0 0 0 524292 0
+20 9 10 1 10 19 81 15
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+20 20 0 0 0 0 0 0 30 0
+0 0 30 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+1 86 0
+#41053
+Orc BLACKREND WARRIOR VARIABLE~
+A generic orc of Blackrend's Band~
+A generic orc of Blackrend's Band stands here.~
+(null)~
+10 8388612 24 119 0 5d1+98 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 36 42 30 39 31 43 34 48 35
+45 36 34 31 36 46 49 35 44 40
+40 43 0 0 58 42 0 0 17 68
+0 0 56 0 0 17 21 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 46 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 68 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41060
+Auto-create variable spider big~
+a variable big spider~
+A variable big spider creeps here~
+   A hideous, dark spider creeps here. It is large by all means, 
+easily the size of a fully-grown man. Long, stiff arachnid limbs 
+stretch out from the rounded, dark body. Strong insect jaws jut 
+out from it's ugly, spider-face, oozing with a thick liquid. It 
+has a multitude of eyes above the sharp jaws and a greedy little 
+mouth hiding behind them. 
+~
+136314890 786436 25 32 5 5d1+65 2d3+0 0 8 8 1 0 0 0 0
+5467 0 0 41126 0 0 24 0 0 0 1 0 0 0 67633156 0
+20 6 10 1 19 25 81 17
+268435456 0
+0 34 41 47 39 43 49 30 36 49
+43 49 44 50 49 47 38 50 36 34
+37 47 0 0 35 50 0 0 19 55
+0 0 56 0 0 18 25 18 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 46 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 56 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41054
+adolescent morph from object 41129 YRCHMORIA~
+A morphed adolescent orc squats here.~
+a generic Moria orc sulks about.~
+   Short and unkempt, this orc is a wild-looking creatures that 
+often scan the area with quick and darting gazes. Fiercely 
+tribal, they follow their leaders to the death, unless they are 
+running for their lives. 
+~
+10 8388612 25 119 0 5d1+92 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 12 14 1 16 14 94 16
+268435456 0
+0 39 31 41 44 39 32 36 43 40
+44 49 41 45 34 38 50 35 44 43
+45 34 0 0 45 38 0 0 16 63
+0 0 52 0 0 23 25 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 43 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 6 0 0 0 0 0 0 0 0
+0 0 0 0 50 63 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' blackrend 'member' blackrends_band~
+0 0 0
+#41313
+Troglodyte MINES_OF_MORIA fearsome sharp clawed BYOWAIN Chieftan~
+a fearsome, sharp-clawed creature~
+a fearsome, sharp-clawed creature is here, growling~
+   This fear inspiring creature bears itself with a bestial 
+pride, standing upright with its weight on two highly muscular 
+legs, its viciously-clawed forepaws are also highly developed, 
+corded with sinewy muscle. Its skin is smooth and hairless but 
+looks very thick, shaded a mottled umber hue that blends easily 
+with rocky, dark surroundings. As tall as a man and just as 
+heavy, its body is solid and movements quick. A short neck leads 
+up from its body to a flattish head with overlarge, eerily 
+gleaming blue eyes. Its maw shows row after row of sharp but 
+tiny teeth. 
+~
+2098472 0 25 30 3 5d1+80 2d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+12 8 20 1 18 15 81 19
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 30 0
+0 0 32 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 10 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41314
+orc CAVE ORC FERAL VARIABLE~
+a generic cave orc~
+a generic cave orc is here~
+   This stout looking creature glares out with feral eyes, 
+watching it's surroundings warily. It is small, and lean, but 
+appears quite fierce. Armed with bone weapons and hide clothing, 
+it hold's its position. 
+~
+2097194 8388612 24 119 0 5d1+98 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 36 42 30 39 31 43 34 48 35
+45 36 34 31 36 46 49 35 44 40
+40 43 0 0 58 42 0 0 17 68
+0 0 56 0 0 17 21 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 46 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 68 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_hordes 'member' moria_inhabitants~
+0 0 0
+#41055
+JUKKA hulking fat faced orc BYOWAIN~
+a hulking, fat-faced orc~
+a hulking orc with a fat face is here~
+   This black skinned, big orc is of a prodidigous size, and has 
+an immensely fat face. Squat, tubby legs support his frame, 
+appearing almost to small for his body. His face is particulary 
+fat, and he posseses a piggish pair of tiny brown eyes, staring 
+out over a hooked nose. 
+~
+10 8388612 32 121 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 12 10 1 15 18 94 14
+0 0
+0 30 0 0 50 0 0 0 0 0
+65 0 0 0 0 0 0 0 0 0
+30 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' dwellers_of_moria~
+0 0 0
+#41056
+TEST ORC~
+THE TEST ORC~
+THE TEST ORC IS TESTY~
+(null)~
+8 4 41 29 0 5d1+96 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+22 11 14 1 14 14 81 15
+0 0
+0 8 0 1 1 0 1 1 0 1
+83 0 1 0 0 0 1 1 1 1
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41188
+orc PRISONER CRIMSON_ARMS VARIABLE~
+a generic cave orc~
+a generic cave orc is here~
+This stout looking creature glares out with feral eyes, watching it's surroundings warily. It is small, and lean, but appears quite fierce. Armed with bone weapons and hide clothing, it hold's its position.
+~
+10 8388612 24 119 0 5d1+74 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 10 94 16
+268435456 0
+0 36 42 30 39 31 43 34 48 35
+45 36 34 31 36 46 49 35 44 40
+40 43 0 0 58 42 0 0 17 68
+0 0 56 0 0 17 21 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 46 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 68 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' crimson_arms~
+0 0 0
+#41166
+trogspawn two legged bulky creature spiked flesh sharp claws~
+a two-legged, bulky creature of spiked flesh and sharp claws~
+A two-legged, bulky creature of spiked flesh and sharp claws prowls around the area.~
+   This creature, were it straighed to full height, would stand 
+at perhaps shoulder-height against the average man. 
+Straightening it to full height, however, could be something of 
+an issue as the creature seems to move in a perpetual, bent-over 
+crouch. It moves on two legs, its arms thickly rippled with 
+muscle and long, hanging well past the creature's waist in its 
+bent manner. The flesh of the creature itself is of a dark 
+black, almost purplish, tint that would blend well with dark, 
+dank environments. Covering the whole of the creature's flesh 
+are dagger-like protusions, perhaps as long as a forefinger. 
+While they are not sharp, they are as rigid as bone and they give 
+the creature a threatening, menacing appearance. While the hands 
+appear to be of almost humanoid make, the head holds none of this 
+semblance: the eyes are large, round, eerily white and its maw is 
+a gaping thing, full of small, razor-sharp teeth. No hair is 
+visible anywhere on the creature's body. 
+~
+40 0 17 30 4 5d1+100 2d7+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+14 16 9 1 14 17 81 14
+0 0
+0 35 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+168 86 0
+#41167
+spawn trigger-puller~
+a trogspawn trigger-puller~
+#1A foreboding fog of noxious, rolling black fumes settles here.#0~
+(null)~
+10 2 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41057
+Hackksies UNIQUE_BLACKREND tubby little long fingers~
+a tubby little orc with long fingers~
+A tubby little orc with long fingers squats by the wall, a dirty knife in his hand~
+   This orc is rather tubby, and somewhat short. A pudgy face 
+betrays little emotion as he works, dirty knife applied rather 
+deftly to almost any wound imaginable, even if it isn't needed. 
+He appears skillful, but applies his trade without much 
+enthusiasim. 
+~
+1073741834 8388612 4 121 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 18 18 1 18 12 94 12
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 60 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' blackrend~
+0 0 0
+#41058
+Roofnugk gnarled xSawnCleaverx lantern jawed male orc~
+a gnarled, lantern-jawed orc~
+Standing by the trapdoor here is a gnarled, lantern-jawed male orc.~
+   This orc stands slightly taller than most of his kin, his 
+height enhanced by the rigid, upright posture in which he carries 
+himself. His shoulders are broad, and the muscles that adorn his 
+frame are large and well-toned. The near-black skin of this male 
+orc is as thick as leather, pale discolorations of scars raised 
+across his brutish figure. Between this orc's crude, sloping 
+brow and elongated jaw filled with blackened, jagged teeth rests 
+a pair of oval eyes, the color of dark pitch. 
+~
+10 8388612 25 121 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+0 0
+0 50 45 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 8 0 0 50 50 0 0 50 50
+0 0 50 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' saw_and_cleaver_butchery~
+0 0 0
+#41059
+Bahzoog slavering knobbly xxPAYMASTERxx AZOG~
+a slavering orc with knobbly knees~
+A slavering orc with knobbly knees stands at a desk, an open strongbox beside him~
+Black skin covers this skinny orc, greasy and somewhat reflective. He is tall for his kin, with knobbly knees and elbows. Busy most of the time, he stands behind a rotting desk and doles out small sacks of coin, to fierce looking orcs.
+~
+10 8388612 30 121 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+1 0
+41059 41389 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 50 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' azogs_fist~
+0 0 0
+#41061
+Moog burly orc AZOG_ENGINEER BLACKREND_ENGINEER scaly skinned deformed orc~
+a burly, deformed, scaly-skinned orc~
+A burly orc with scaly-skin and a deformed head directs work here.~
+   This burly orc stands with a broad stance. His shoulders are 
+thick, descending down to flabby arms - scars marring their 
+length in a gruesome display. His face is deformed badly, as 
+though it has been pummeled by a blunt instrument - he is 
+deformed. His eyes are a deep red, staring out with an obvious 
+strain. His tautly-drawn skin is an ashy grey, very course and 
+scaly to the touch. 
+~
+10 8388612 30 121 0 5d1+100 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+0 0
+0 8 0 0 0 60 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 50 0 0 0 0 0 0 0 50
+0 0 50 0 0 0 0 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 50 0 0 0
+0 0 50 0 0 0 0 0 0 0
+0 0 50 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 100 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' blackrend~
+0 0 0
+#41062
+POOKA CAVESNAGA Instigator Fat Hairless stumpy~
+a fat, stumpy orc with no hair~
+A fat, stumpy orc with no hair is here.~
+   This tubby little orc is rather fat, and doesn't have any hair 
+whatsoever. His face is round, and somewhat bare of wrinkles or 
+lines, due to an extremely chubby complexion. Eyes are small and 
+piercing, and he also is equipped with a large, rotting-toothed 
+mouth. Standing a little below five feet tall, he is by no means 
+imposing. His right hand is devoid of fingers, horrible scarring 
+reducing his wrist to a stump. 
+~
+10 8388612 25 119 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+0 0
+0 8 0 50 0 0 0 0 50 0
+0 0 0 50 0 0 0 0 0 50
+8 50 0 0 0 0 0 0 0 0
+0 0 60 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_inhabitants~
+0 0 0
+#41100
+Auto-create variable spider big~
+a variable big spider~
+A variable big spider creeps here~
+   A hideous, dark spider creeps here. It is large by all means, 
+easily the size of a fully-grown man. Long, stiff arachnid limbs 
+stretch out from the rounded, dark body. Strong insect jaws jut 
+out from it's ugly, spider-face, oozing with a thick liquid. It 
+has a multitude of eyes above the sharp jaws and a greedy little 
+mouth hiding behind them. 
+~
+136314890 4 30 32 5 5d1+65 2d3+0 0 8 8 1 0 0 0 0
+5467 0 0 41126 0 0 24 0 0 0 1 0 0 0 67633156 0
+20 6 10 1 19 25 77 17
+268435456 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 25 0 0 50 50 0 0 100 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 50 100 0
+0 100 0 0 0 0 0 0 0 0
+100 100 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#41063
+wight airy stout figure dwarf dwarven moria_dwarf bykodiak~
+an ethereal, stout figure~
+An airy, stout figure ebbs in violent pulses of red and black here.~
+   Thin tendrils of smoke and air violently surge into each 
+other, casting the visage of this stout form in ever-shifting 
+pulsations seemingly caught in the unseen machinations of a 
+stormy wind. Though caught in a mingling air, the rotting form 
+of a stout humanoid can be made out within, long braids and 
+twists of hair and beard featured dominantly over its thickly 
+boned facial features. Its eyes are black, hollow, their gaze 
+caught amidst the timeless darkness which serves as their 
+direction and backdrop. 
+~
+134217738 36 25 23 5 5d1+57 2d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+1 1 1 1 1 1 81 1
+0 0
+0 50 0 50 0 0 50 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 100 100 55 0 0 0
+0 0 58 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 100 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41064
+horrific short figure fiery dwarf moria_wight wight bykodiak~
+a horrific, short figure with fiery eyes~
+A horrific, short, fiery-eyed figure lingers, entangled in ebon vapor.~
+   Tangles of black smoke intertwine to form the image of long, 
+braided hair winding its way violently amongst the hideously torn 
+features of this figure. Scorched bone juts out of its cheeks, 
+exposed and crawling with all manner of pale insect trailing 
+behind the leavings of puss and slime, resting upon either side 
+of a no-lipped mouth of cracked teeth. Its eyes are cast amongst 
+an orange and red glow, fiery and cruel. Its entire form seems 
+captured within and supported by a hazy black smoke which twists 
+its way in and out of the cracked bone and rent flesh. 
+~
+134217738 36 37 23 7 5d1+57 2d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+1 1 1 1 1 1 81 1
+0 0
+0 75 0 75 0 0 75 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 100 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41065
+short foul humanoid wight flesh loosely bones byNom~
+a short, foul humanoid wight~
+A short, foul humanoid wight stands here, flesh hanging loosely from its bones.~
+This creature is repulsive to any eyes, long hunks of flesh affixed
+to its bones very loosely, making the bones beneath easily visible.
+Burning eyes mark the features of the figure, along with a gaping
+mouth, and a bristly, petrified beard. The figure is very short,
+although its bulk is made up in its breadth. When in motion, its
+gait is long and unsteady, giving it a shambling appearance.
+~
+8 4 15 23 2 5d1+57 2d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+1 1 1 1 1 1 94 1
+0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 100 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41066
+toad fat brown-spotted MINES~
+a fat, brown-spotted toad~
+A fat, brown-spotted toad hops around.~
+   This toad is grey with brown spots. It has a very round, fat 
+body which is supported by springy legs. It has large eyes which 
+protrude from the top of its head, and they glisten even in very 
+low light. Its body is not slimy, but rather coarse and dry. 
+~
+8 786432 2 0 0 5d1+78 1d2+0 0 8 8 1 0 0 0 0
+91403 0 0 91404 0 0 24 0 0 0 1 0 0 0 0 0
+3 2 16 1 5 8 81 7
+0 0
+0 4 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 100 20 0 0 0 100
+0 0 100 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41067
+mammoth crocodile croc albino scales bulk~
+a mammoth crocodile thick with albino scales~
+A mammoth crocodile drags its albino bulk here.~
+   This massive reptile is more than twenty feet long and looks
+to outweigh a troll. Thick, milk-white scales armor a bulk of
+fat and muscle that can move with surprising agility in the hunt.
+Glossy white eyes with red slits stare above a long, powerful
+snout unable to keep all its sharp fangs inside. Ending the creature
+is a tail that looks powerful enough to crack stone in its thrashings.
+~
+136315176 4 37 36 4 5d1+150 3d3+0 0 8 8 0 0 0 0 0
+41188 0 0 41189 0 0 24 0 0 0 1 33554432 0 0 67371026 0
+20 8 16 1 10 20 77 14
+0 0
+0 75 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 41188
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41332
+ferocious boar large muscle sword sword-tusked tusked beast solid~
+a ferocious boar large and corded with muscle~
+A sword-tusked beast of solid muscle puts its snout to the ground here.~
+   Larger than its cousins elsewhere in this mountain, this beast
+has survived the rigors of its habitat through pure strength and
+aggression. Its body is an angry knot of thick muscle and coarse
+hair. Beady eyes that seem constantly enraged glare above wide,
+flaring nostrils and a rough mouth bearing tusks sharp and long
+as swords.
+~
+136315176 4 35 36 4 5d1+150 3d3+0 0 8 8 0 0 0 0 0
+97126 0 0 97547 0 0 24 0 0 0 1 33554432 0 0 67371026 0
+20 8 16 1 10 20 77 14
+0 0
+0 70 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 41188
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41157
+fanged fang long glowing worm aglow giant~
+a giant, fanged worm faintly aglow~
+A fanged, long and glowing worm slithers through the muck.~
+   An albino worm, twelve feet long and dimly glowing a pale
+white, snakes along through the swamp here. It whips itself about
+with bestial strength despite the chitinous armor that encircles
+its ropelike body. A wide, circular mouth bares many teeth and a
+sucking appendage.
+~
+136315176 4 30 36 4 5d1+100 2d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 33554432 0 0 67371026 0
+20 8 16 1 10 20 77 14
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 41188
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41288
+sprawling many-headed many headed plant bristling spines~
+a sprawling, many-headed plant~
+A many-headed plant bristling with spines towers here.~
+   This plant sprawls here, its dark forest tentacles and vines
+running many yards in all directions. At its center is a thickly-wound
+column of plant matter from which sprout many heads, each mouthed,
+toothed and moving with a strange intelligence, each about the size
+of an orc's head, though they are round and featureless save for
+their mouths.
+~
+136315178 4 25 36 2 5d1+250 2d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 33554432 0 0 67371026 0
+20 8 16 1 10 20 77 14
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 10 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41999
+black-furred silvery-eyed pup~
+a black-furred, silvery-eyed warg pup~
+A black-furred, silvery-eyed warg pup is here.~
+   This warg pup has the awkward proportions of all young 
+animals, it's head is slightly too large for it's body, and it's 
+legs are somewhat short and stubby. It's fur is the color of 
+pitch and it's eyes the color of silver. It's small mouth is 
+full of tiny fangs that are sharp and needle-like and it's 
+oversized paws already sport dangerously sharp claws. 
+~
+262154 4 25 89 2 5d1+80 2d4+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+12 12 12 1 12 12 94 12
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 60 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' crimson_arms 'member' moria_dwellers~
+0 0 0
+#41998
+white-splotched, brown-furred warg pup~
+a brown-furred warg pup with white splotches~
+A brown-furred warg pup with white splotches is here.~
+   This young warg pup has brown fur with patches of white 
+scattered over it's body. It has long, thin legs that look 
+unlikely to support it's stocky, muscular body. It's brown, 
+widely-spaced eyes are nearly obscured by it's long fur. It's 
+mouth is full of small, sharp fangs that, even at it's young age, 
+look capable of savaging most prey. 
+~
+262154 4 25 89 2 5d1+80 2d4+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+12 12 12 1 12 12 94 12
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 60 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'sergeant' crimson_arms~
+0 0 0
+#41997
+a black-furred, tan-striped warg pup~
+a black-furred, tan-striped warg pup~
+A black-furred, tan-striped warg pup is here.~
+   This young, female warg pup has black fur with stripes of tan 
+running along it's flanks and ribcage along with a spot in the 
+middle of her forehead. Her small mouth is bristling with 
+needle-sharp little fangs and her oversized paws sport razor 
+sharp claws. Her body is awkward in the manner of juvenile 
+beasts, with proportions that are just a little bit off. Her 
+legs, slightly too short for her body, and her head appearing too 
+large. 
+~
+262154 4 25 89 2 5d1+80 2d4+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+12 12 12 1 12 12 94 12
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 60 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' crimson_arms 'member' moria_dwellers~
+0 0 0
+#41996
+hulking scar-covred orc gatekeeper~
+a hulking, scar-covered orc~
+A hulking, scar-covered orc stands near the grate.~
+   This large orc's body is riddled with scars of various types 
+and sizes. His frame is heavy and squat, with large, bulky 
+muscles. His yellow eyes are squinty and narrow, and his mouth 
+full of jaggedly broken teeth. 
+~
+2097162 8388612 4 121 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 80 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41995
+one-armed brutally maimed orc gatekeeper~
+a one armed, brutally maimed orc~
+A one armed, brutally maimed orc stands beside the gate.~
+   This small, lean orc has only one arm, and half of his face is 
+a twisted mass of scars. His body is twisted and broken, and 
+moving undoubtedly causes him pain. He is completely bald, his 
+scalp criss-crossed with numerous scars. 
+~
+10 8388612 4 119 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 60 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41994
+orc gladiator variable~
+a variable mountain orc gladiator~
+A variable mountain orc gladiator is here.~
+   This mountain orc has been pressed into service as a 
+gladiator. Their body is scrawny and malnourished and they has 
+been poorly outfitted. They are undoubtedly meant to die in the 
+arena. 
+~
+2097192 8388612 20 119 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 8 0 0 0 0 0 0 40 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 60 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41993
+orc mirkwood gladiator variable~
+a variable mirkwood orc gladiator~
+A variable mirkwood orc gladiator is here.~
+   This tall, lanky orc has dusky skin and yellowed fangs. He 
+has been pressed into service as a gladiator, doomed to fight 
+over and over until his death. His body is criss-crossed with 
+scars and sheathed in taut, wiry muscle. 
+~
+2097192 8388612 25 120 0 5d1+95 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 18 94 20
+268435456 0
+0 40 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+45 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41992
+bandit human variable~
+a variable human bandit~
+A variable human bandit is here.~
+(null)~
+10 0 25 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 40 49 31 35 39 44 47 41 33
+50 36 34 40 42 39 42 32 45 50
+48 47 0 0 35 41 0 0 21 58
+0 0 52 0 0 16 20 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#41991
+Twofingers grizzled old black orc~
+a grizzled old black-skinned orc~
+A grizzled old black-skinned orc is here.~
+   This orc appears old, but is still rippling with well toned 
+muscle. His body is covered from head to toe in a multitude of 
+scars. His hair is long, stringy and stark white. His right ear 
+is missing, as well as two fingers from his left hand. The left 
+side of his face a mass of scar tissue and that side of his nose 
+is missing as well. 
+~
+10 8388612 37 121 0 5d1+120 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 13 13 1 15 20 94 16
+0 0
+0 60 0 60 75 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 57 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 64 64 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' glad_moria 'member' moria_dwellers 'member' glad_mast~
+0 0 0
+#41990
+squat long-armed gujek NPC~
+a squat, long-armed orc~
+A squat, long-armed orc with dark skin is here.~
+   A bush of hair coming down this orc's head is so filthy, it 
+began to braid itself into many dreadlocks that fall down to his 
+broad shoulders, with tiny bone fragments tied in their endings. 
+It is streaked with grey hairs. Unusually large head is full 
+with disfigurations, from many notches in his pointy ears, to 
+asymmetrical jaw and jagged teeth, or dozens of scars acquired 
+over the years, which he saw quite a few. Even though his height 
+is unremarkable, his width is something that stands him apart 
+among his kin. Whether it is neck, torso or his limbs, the sheer 
+power is obvious. 
+~
+10 8388612 26 121 0 5d1+110 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 11 7 1 16 20 94 15
+0 0
+0 38 0 52 47 0 45 0 0 0
+0 0 0 42 0 0 0 0 0 0
+45 45 0 0 41 32 0 0 38 41
+0 0 39 0 0 0 43 37 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 40 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 59 21 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#41068
+Sheega stocky shaven-headed female orc pRAGNAR BFT byCeredir~
+a stocky, shaven-headed female orc~
+A stocky, shaven-headed female orc is here.~
+   Knots of ropy muscles wrap around this female's short figure, 
+giving her a stocky appearance. Most of her skin is pale, ash 
+gray in color, but a white irregular splotch covers most of her 
+round face. Black eyebrows frame a pair of beady, 
+crimson-colored eyes, an avian nose set between them. A deep 
+ridged scar begins just above the left brow and runs all the way 
+towards the top of this orc's perfectly bald head. 
+~
+10 8388612 25 119 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 14 14 1 16 16 94 16
+0 0
+0 30 40 40 0 40 40 0 40 40
+0 0 0 0 0 0 0 0 50 0
+40 40 0 0 10 30 0 0 0 0
+0 0 0 0 0 0 35 30 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 66 30 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+$~

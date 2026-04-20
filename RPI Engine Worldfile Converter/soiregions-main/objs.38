@@ -1,0 +1,2470 @@
+#38000
+board_children_shelter_38001 children shelter sprightly maid OTHER~
+a sprightly maid taking messages~
+A sprightly maid takes messages for the children's shelter.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38001
+sandbag wall defences OTHER~
+a long wall of sandbags~
+A long wall stretches the length of a barn here, constructed with dozens of sandbags.~
+   This long section of wall comprises sandbags piled on top of 
+each other. It stretches the length of a normal barn and is 
+piled four high. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38002
+shored wall sandbags OTHER~
+a log-shored wall of sandbags~
+A log-shored wall of sandbags stretches here the length of a barn.~
+   This long section of high wall comprises sandbags piled on top 
+of each other, with a log stretches on each side to secure them 
+in place. It stretches the length of a normal barn and is piled 
+eight high. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38255
+sign BATTERED_SHIELD_VILLEIN_STALL_2 battered-looking shield image ale spirits OTHER~
+a sign decorated with the image of a battered-looking shield~
+A sign decorated with the image of a battered-looking shield with the words 'Ale & Spirits' written underneath is attached to the front of the eastern stall.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38003
+short thick black iron key METAL~
+a short, thick black iron key~
+Discarded here is a short, thick black iron key.~
+~
+18 0 1
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38004
+corpse young onyx haired HASRYNN Rynn other MEAT~
+#5the corpse of a young man with onyx colored hair~
+#5The corpse of a young man with onyx colored hair rests here.~
+~
+12 4096 1
+0 0 0 0
+12000 0.000000
+0 0 0 0 768 0 1
+0.000000 0 0 0 0 0 0
+#38005
+anormilitary rider passing orders and news BOARD OTHER~
+#5a messenger riding back and forth passes on orders and news#0~
+#5Riders pass between the Wardenry, Vanguard and Yeomanry passing on news and orders.#0~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38006
+Tent FAKE_TENT medium wedge TEXTILE byHalfjack~
+a medium-sized wedge tent~
+A medium-sized wedge tent has been erected here.~
+   This moderate-sized wedge tent is made of canvas and measures 
+about fifteen feet-wide and ten feet deep. Designed to fold over 
+an internal frame of two vertical poles connected by a ridge 
+pole, the tent forms a wedge when viewed from the ends. About 
+eight feet high, each end of the tent features a rounded, 
+half-conical shape. In one side of the tent is a five-foot high, 
+three-foot wide door, covered with two flaps that may be tied 
+off. 
+~
+8 8785920 1
+0 0 0 0
+10000000 0.000000
+0 0 0 0 0 0 1
+220.000000 0 0 0 0 0 0
+#38007
+Tent FAKE_TENT small worn worn-canvas wedge TEXTILE byHalfjack~
+a small, worn-canvas wedge tent~
+A small, worn-canvas wedge tent has been erected here.~
+   This small wedge tent is made of canvas and measures nearly 
+ten feet-wide and seven feet deep. Designed to fold over an 
+internal frame of two vertical poles connected by a ridge pole, 
+the tent forms a wedge when viewed from the ends. About seven 
+feet high, each end of the tent features a rounded, half-conical 
+shape. In one side of the tent is a five-foot high, three-foot 
+wide door, covered with two flaps that may be tied off. The 
+canvas of this tent is worn thin in spots and several patches 
+cover holes in the material. 
+~
+8 8785920 1
+0 0 0 0
+10000000 0.000000
+0 0 0 0 0 0 1
+220.000000 0 0 0 0 0 0
+#38008
+Tent FAKE_TENT UNIQUE_ERADAN field huge black cotton pavilion byHalfjack byConscript TEXTILE~
+a huge pavilion made of heavy black cotton~
+A huge pavilion made of heavy black cotton has been erected here~
+Layers of heavy black cotton make up the large, sturdy walls of 
+this massive pavilion tent. From the peak of the tent 
+flies a dark grey triangular flag bearing a painstakingly 
+rendered large black shield set before the rising silvery-white 
+lies, leading into the tent. 
+moon. At one end of the tent, a single large rectangular door 
+~
+8 8785920 1
+0 0 0 0
+10000000 0.000000
+0 0 0 0 0 0 1
+220.000000 0 0 0 0 0 0
+#38009
+banner RETNKTLYN deep green golden eagle flagpole long TEXTILE~
+a long flagpole, bearing a deep green banner emblazoned with a golden eagle~
+A long flagpole, bearing a deep green banner emblazoned with a golden eagle flies proudly here.~
+   This rectangular banner is made of carefully sewn deep green 
+linen, gold tassles hanging from its lower corners. Worked in 
+golden yellow fabric, edged with gold stitching, the stylised 
+form of a hunting eagle has been appliqued into the centre of the 
+banner. Its wings backswept, flight feathers spread, neck 
+tight-curved, and talons outstretched, it plunges upon its prey. 
+As the wind shifts the banner, pinpoints of light flicker from 
+the intricate stitching which defines the feathers. The fabric 
+of the banner itself has been affixed to a pole of plain 
+pinewood, about fourteen foot in length, and disappears into the 
+earth below. In the lower corner furthest from the pole a small 
+leaf green rectangle displays an embroidered sword and star 
+emblem, worked in white thread. 
+~
+12 4096 0
+0 0 0 0
+1400 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 7 0 0
+#38177
+banner RETNKTLYN deep green golden eagle WOOD~
+a deep green banner emblazoned with a golden eagle~
+A deep green banner emblazoned with a golden eagle flies here.~
+   This rectangular banner is made of carefully sewn deep green 
+linen, gold tassles hanging from its lower corners. Worked in 
+golden yellow fabric, edged with gold stitching, the stylised 
+form of a hunting eagle has been appliqued into the centre of the 
+banner. Its wings backswept, flight feathers spread, neck 
+tight-curved, and talons outstretched, it plunges upon its prey. 
+As the wind shifts the banner, pinpoints of light flicker from 
+the intricate stitching which defines the feathers. The fabric 
+of the banner itself has been affixed to a pole of plain 
+pinewood, about seven feet in length. The bottom of the pole is 
+capped with a shaped iron head, designed to ease the planting of 
+the banner when it is thrust into the earth. In the lower corner 
+furthest from the pole a small leaf green rectangle displays an 
+embroidered sword and star emblem, worked in white thread. 
+~
+5 0 8193
+0 1 11 10
+840 0.000000
+1 -1 0 29 0 0 1
+0.000000 0 0 0 32 0 0
+#38178
+brassard deep green leather golden eagle RTNRKTLYN TEXTILE~
+a deep green leather brassard embossed with a golden eagle~
+A deep green brassard lies here, embossed with a golden eagle, superimposed over a sword and star.~
+   This deep green band of stiff leather, designed to be worn 
+about the upper arm, is sturdily fashioned. Its surface is 
+embossed with the emblem of Greathouse Astirian - a straight 
+sword before a seven-pointed star, and superimposed upon this is 
+the image of a golden eagle. 
+~
+11 0 134217729
+0 0 0 0
+5 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 7 0 0
+#38179
+tabard deep green linen golden eagle RTNRKTLYN TEXTILE~
+a deep green linen tabard, bearing the design of a golden eagle~
+A deep green linen tabard, bearing the design of a golden eagle is neatly folded here.~
+   This tabard has been crafted from high quality linen. It is a 
+deep green in color, with golden yellow trim. Across the chest 
+is an appliqued design depicting the stylised form of a hunting 
+eagle. Its wings backswept, flight feathers spread, neck 
+tight-curved, and talons outstretched, it plunges upon its prey. 
+Pinpoints of light flicker from the gold thread used to detail 
+the wings and feathers. The back of the tabard bears the 
+likeness of a sword and star, the symbol of the Greathouse 
+Astirian, in white embroidery. The tabard is designed to fit 
+loosely over the head of the wearer, covering the front and back. 
+~
+11 0 1025
+0 0 0 0
+250 0.000000
+0 0 0 34 0 0 1
+0.000000 0 0 0 7 0 0
+#38180
+cloak deep green hooded golden eagle RTNRKTLYN TEXTILE~
+a deep green hooded cloak bearing the design of a golden eagle~
+A deep green hooded cloak bearing the design of a golden eagle has been left here.~
+   Sewn from thick wool, this deep green cloak has a deep hood. 
+Its billowing cloth has been waterproofed with pine-tar on the 
+outside, tough enough to withstand the elements. Blazoned across 
+its back is the appliqued and embroidered image of a hunting 
+eagle, wings backswept, flight feathers spread, neck 
+tight-curved, and talons outstretched, as it plunges upon its 
+prey. Pinpoints of light flicker from the gold thread used to 
+detail the wings and feathers. On the left front shoulder, 
+carefully embroidered in white thread is the likeness of a sword 
+and star, the symbol of the Greathouse Astirian. 
+~
+11 524288 1025
+0 0 0 0
+300 0.000000
+0 
+deep-green-cloaked~
+0 30 0 0 1
+300.000000 0 0 0 3 0 0
+#38010
+lighter UNIQUE_PORORI iron chandelier METAL~
+a long, iron chandelier lighter~
+A long, iron chandelier lighter is here~
+   A long shaft of iron has been twisted around to form this 
+chandelier lighter. The end branches off into two ends, 
+providing a clasp for a wick and a cup for snuffing out lights. 
+A small ball has been fixed to the other end to help even the 
+weight out. 
+~
+12 4096 1
+0 1 4 6
+500 0.000000
+3 0 0 30 0 0 1
+30.000000 0 0 0 28 0 0
+#38082
+key slender iron METAL~
+a slender key of iron~
+A slender key of iron lies here~
+   This slender key has a simple cylindrical shaft ending in a 
+three pronged bit. The bow is made of three strips of iron, 
+twisting and entwining with each other with a hole enabling it to 
+be fitted to a keyring. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#38087
+bulky iron key METAL~
+a bulky iron key~
+A bulky iron key lies here~
+   This key is quite heavy and looks to be made for a large door. 
+A thick rod of iron forms the shank, ending in a two pronged bit. 
+The bow is a simple O-form, allowing it to be fitted to a 
+keyring. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#38011
+key small iron eagle METAL~
+a small iron key bearing an eagle inscription~
+A small iron key bearing an eagle inscription has been discarded here.~
+~
+18 0 1
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38012
+key small silver eagle METAL~
+a small silver key bearing an eagle inscription~
+A small silver key bearing an eagle inscription has been discarded here.~
+~
+18 0 1
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38013
+large burning pyre WOOD~
+#1a large, burning pyre#0~
+#1A large pyre resides here, blazing with intense flames.#0~
+   Many lengths of wood have been stacked together to create a 
+utilitarian pyre. However, this stack of wood is currently 
+blazing with a strong fire, intense flames consuming the wood 
+that formed this simple funeral pyre and anything upon it. 
+~
+1 4104 0
+12 12 54 1
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 12 1651 0 0 0 0
+#38014
+cadre_board_1 cadre private message common OTHER~
+#5a cadre private takes messages for the common room#0~
+#5A cadre private takes messages for the common room here.#0~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38015
+cadre_board_2 cadre private OTHER~
+#5a cadre member taking messages for the private room#0~
+#5A cadre member takes messages for the private room here.#0~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38016
+cadre_board_3 board notice OTHER~
+a small noticeboard set in the northern wall~
+A small noticeboard is set in the northern wall.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38099
+METAL small iron notched Cabin_38098 key~
+a small notched key~
+A small notched iron key has been left here~
+It is a small notched iron key tied to a red ribbon.
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38017
+voting_villeins short man astirian finery vote cast OTHER~
+#5a short man in Astirian finery accepting votes#0~
+#5A short man in Astirian finery#0 accepts nominations for the position of Sheriff of Wardog's Assembly for the year 2488 S.R.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+C
+rhubarb_ninja~
+member~
+#38018
+tutu UNIQUE_ADMIN RHUBARB fluffy pink double-layered TEXTILE~
+a fluffy, double-layered pink tutu~
+Crumpled on the ground is a fluffy, double-layered pink tutu.~
+This delicate yet well-crafted tutu is composed of two layers. The 
+top one is a thicker material and dyed a darker hue of pink, while 
+the bottom portion is fluffier with more defined ruffles and light 
+pink in color. It fits snugly around the wearer via a white elastic 
+band skillfully sewn at the top.
+~
+11 135176 2049
+0 0 0 0
+100 0.000000
+0 0 0 100 0 0 1
+0.000000 0 0 0 7 0 0
+#38019
+key THORNHILL_CABIN_38105_BYEONWE sturdy iron METAL~
+a sturdy iron key~
+A sturdy iron key lies here.~
+This key has been forged from thick iron and appears quite sturdy,
+though it is dull and lackluster in appearance. At one end are three
+teeth and the other a loop, connected in the middle by a thick shaft.
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#38280
+HDOVE_WORKROOM small noticeboard OTHER~
+a small noticeboard~
+A small noticeboard nailed to the side of the tool rack.~
+~
+22 4104 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38020
+masons CONSTRUCTION_BYEONWE burly group OTHER~
+#5a collection of burly masons#0~
+#5A collection of burly masons#0 are congregated about the site, working various chunks of stone.~
+   These burly masons are clad in dusty clothing and covered in 
+dirt and sweat. Many toil away with heavy pickaxes and hammers, 
+splitting massive chunks of rock near a towering stack of granite 
+cubes. Others are busy elsewhere, shaping stone and setting it 
+into place. The resonating sounds of their yells and clangs ring 
+through the construction site. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38021
+workers CONSTRUCTION_BYEONWE several sweat-drenched OTHER~
+#5several sweat-drenched workers#0~
+#5Several sweat-drenched workers#0 are situated around mule-drawn wagons, unloading various building materials into stacks.~
+   These hardy workers are situated around several heavily-laden 
+wagons drawn by mules, clad in dusty garb and drenched in sweat. 
+After vigorously unloading various construction materials from 
+the wagons, they then pile them into organized stacks in close 
+proximity. A tall foreman directs this multitude of workers, his 
+bellows heard above the din of construction. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38022
+tracks CONSTRUCTION_BYEONWE construction site crossing number deep-rutted OTHER~
+a number of rutted wagon tracks~
+Crossing through the construction site are a number of deep-rutted wagon tracks.~
+   Makeshift roads have been carved into the earth, crossing over 
+the entirety of the construction site. They have been deeply 
+forged from the comings and goings of heavily-laden wagons. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38023
+wagons CONSTRUCTION_BYEONWE heavily-laden mule-drawn gathering OTHER~
+a gathering of heavily-laden mule-drawn wagons~
+A gathering of heavily-laden, mule-drawn wagons is here.~
+   Approximately a score of large wagons, drawn by stout mules, 
+are gathered here. They are heavily-laden with various 
+construction materials large and small. Several workers surround 
+them, quickly unloading the items. About half that number of 
+wagons can be seen travelling along wheel rutted trails, coming 
+to and going from the site. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38024
+stack CONSTRUCTION_BYEONWE towering granite cubes OTHER~
+a towering stack of granite cubes~
+A towering stack of granite cubes rests here, sinking into the earth from its enormous weight.~
+   Towering above the area is a stack of dark-grey granite cubes, 
+speckled black and white. They have been skillfully cut into 
+near-perfect squares of varying sizes. At the base of the stack 
+they have begun to sink into the earth, a testament to their 
+incredible weight. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38025
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38026
+sand CONSTRUCTION_BYEONWE looming mass OTHER~
+a looming pile of sand~
+A looming mass of sand has been piled here.~
+   This enormous mass of sand occupies a large area of the 
+construction site. An unimaginable number of grains have been 
+dumped here to form this looming conical pile of beige sand. 
+~
+12 536875008 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38027
+crew CONSTRUCTION_BYEONWE bustling work shovels OTHER~
+#5a bustling work crew bearing shovels#0~
+#5A bustling work crew bearing shovels#0 is scattered about the construction site.~
+   Scattered throughout the construction site are several men in 
+dirty clothing bearing work-scarred shovels. Some stand resting, 
+leaning against their tools, sweat and dirt intermingled covering 
+their faces. Others are hard at work: forming foundations, 
+digging pits in some areas, and piling earth in others. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38028
+assembly CONSTRUCTION_BYEONWE dirt-covered men digging OTHER~
+#5a dirt-covered assembly of men#0~
+#0Digging at the bottom of an expansive pit is#0 #5a dirt-covered assembly of men#0.~
+   One of many pits carved into the earth here, this expansive 
+hole is filled with an assembly of dirt-covered men. Working at 
+the direction of a foreman, these workers are busy excavating the 
+pit further. Some, armed with shovels, scoop up the earth while 
+others load it into buckets to be hauled up to the surface. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38029
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38030
+assortment CONSTRUCTION_BYEONWE cranes pulley systems OTHER~
+an assortment of large cranes and pulley systems~
+An assortment of large cranes and pulley systems is distributed throughout the area.~
+   An assortment of cranes and pulley systems have been 
+distributed throughout the construction site. The massive 
+cranes, similar to the trebuchets used for war, rise high into 
+the air and transport the materials needed for building into 
+place. Compound pulley systems, some consisting of several large 
+wheels, are harnessed to stocky oxen and hoist the incredible 
+weight of stone blocks to difficult heights. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38031
+engineers CONSTRUCTION_BYEONWE group well-dressed OTHER~
+#5a group of engineers#0~
+#5A group of well-dressed engineers#0 are spread throughout the site, located around the many cranes and pulley systems present.~
+   Gathered around the many cranes and pulley systems inhabiting 
+the construction site, these well-dressed engineers stay occupied 
+by operating, maintaining, and overseeing the use of these large 
+pieces of equipment that set huge chunks of stone and materials 
+into place. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38032
+scaffolding CONSTRUCTION_BYEONWE wooden multitude OTHER~
+a multitude of wooden scaffolding~
+A multitude of wooden scaffolding has been erected throughout the building site.~
+   Erected throughout the vast building area is a multitude of 
+scaffolding of varying height. Composed of hundreds of wooden 
+planks nailed together, this ever-growing assemblage of 
+scaffolding has begun to take on the semblance of a massive 
+spider web. Several workers line the platforms, shaping stone 
+and overseeing the placement of building materials. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38033
+key EOTHELM_CABIN_38114_BYEONWE small thin iron METAL~
+a thin iron key~
+A small, thin key forged from iron lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38034
+key EOTHELM_CABIN_38114_BYEONWE long thick iron METAL~
+a thick iron key~
+A long, thick key forged of iron lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38849
+certificate legal business OTHER~
+an Anorien certificate allowing for the purchase of a business permit~
+An Anorien certificate allowing for the purchase of a business permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a company 
+that operates inside Anorien. It contains the official stamp of 
+Great Lord Astirian. Its only use beyond granting permission is 
+that it may be shown to the Clerk in the Meeting Hall when 
+attempting to purchase a company permit. That purchase will 
+result in this certificate being kept by the clerk. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38850
+permit legal hunting business OTHER~
+an Anorien hunting company permit~
+An Anorien hunting company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a hunting 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38851
+permit legal mining business OTHER~
+an Anorien mining company permit~
+An Anorien mining company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a mining 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38852
+permit legal farming business OTHER~
+an Anorien farming company permit~
+An Anorien farming company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a farming 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38853
+permit legal logging and carpentry business OTHER~
+an Anorien logging and carpentry company permit~
+An Anorien logging and carpentry company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a logging 
+and carpentry company that operates inside Anorien. It contains 
+the official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38854
+permit legal leatherworking business OTHER~
+an Anorien leatherworking company permit~
+An Anorien leatherworking company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a 
+leatherworking company that operates inside Anorien. It contains 
+the official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38855
+permit legal armoring business OTHER~
+an Anorien armorsmithing company permit~
+An Anorien armorsmithing company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage an 
+armorsmithing company that operates inside Anorien. It contains 
+the official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38856
+permit legal weaponsmithy business OTHER~
+an Anorien weaponsmithy company permit~
+An Anorien weaponsmithy company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a farming 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38857
+permit legal apothecary business OTHER~
+an Anorien apothecary company permit~
+An Anorien apothecary company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage an 
+apothecary company that operates inside Anorien. It contains the 
+official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38858
+permit legal construction business OTHER~
+an Anorien construction company permit~
+An Anorien construction company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a 
+construction company that operates inside Anorien. It contains 
+the official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38859
+permit legal bakery business OTHER~
+an Anorien bakery company permit~
+An Anorien bakery company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a bakery 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38860
+permit legal jewelery business OTHER~
+an Anorien jewelery company permit~
+An Anorien jewelery company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a jewelery 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38861
+permit legal brewery business OTHER~
+an Anorien brewery company permit~
+An Anorien brewery company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a brewery 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38862
+permit legal clothier business OTHER~
+an Anorien clothier company permit~
+An Anorien clothier company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a clothier 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38863
+annual certificate legal hunting business OTHER~
+an Anorien hunting company annual certificate~
+An Anorien hunting company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+hunting company that operates inside Anorien. It contains the 
+official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38864
+annual certificate legal mining business OTHER~
+an Anorien mining company annual certificate~
+An Anorien mining company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a mining 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38865
+annual certificate legal farming business OTHER~
+an Anorien farming company annual certificate~
+An Anorien farming company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+farming company that operates inside Anorien. It contains the 
+official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38866
+annual certificate legal logging and carpentry business OTHER~
+an Anorien logging and carpentry company annual certificate~
+An Anorien logging and carpentry company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+logging and carpentry company that operates inside Anorien. It 
+contains the official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38867
+annual certificate legal leatherworking business OTHER~
+an Anorien leatherworking company annual certificate~
+An Anorien leatherworking company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+leatherworking company that operates inside Anorien. It contains 
+the official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38868
+annual certificate legal armoring business OTHER~
+an Anorien armorsmithing company annual certificate~
+An Anorien armorsmithing company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for an 
+armorsmithing company that operates inside Anorien. It contains 
+the official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38869
+annual certificate legal weaponsmithy business OTHER~
+an Anorien weaponsmithy company annual certificate~
+An Anorien weaponsmithy company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+farming company that operates inside Anorien. It contains the 
+official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38870
+annual certificate legal apothecary business OTHER~
+an Anorien apothecary company annual certificate~
+An Anorien apothecary company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for an 
+apothecary company that operates inside Anorien. It contains the 
+official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38871
+annual certificate legal construction business OTHER~
+an Anorien construction company annual certificate~
+An Anorien construction company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+construction company that operates inside Anorien. It contains 
+the official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38872
+annual certificate legal bakery business OTHER~
+an Anorien bakery company annual certificate~
+An Anorien bakery company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a bakery 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38873
+annual certificate legal jewelery business OTHER~
+an Anorien jewelery company annual certificate~
+An Anorien jewelery company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+jewelery company that operates inside Anorien. It contains the 
+official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38874
+annual certificate legal brewery business OTHER~
+an Anorien brewery company annual certificate~
+An Anorien brewery company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+brewery company that operates inside Anorien. It contains the 
+official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38875
+annual certificate legal clothier business OTHER~
+an Anorien clothier company annual certificate~
+An Anorien clothier company annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+clothier company that operates inside Anorien. It contains the 
+official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 0 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 8640 38876 0 0 0 0
+#38876
+expired annual certificate parchment scroll OTHER~
+an expired Anorien company annual certificate~
+An expired Anorien company annual certificate has been discarded here.~
+This sturdy parchment has served its purpose to grant a year's permission to work for a company owner in Anorien. However it is now expired and must be replaced in the Wardogs Meeting Hall. The original Company Permit will need to be taken to the clerk there or they will not sell a certificate.
+~
+12 4096 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38035
+OOC sign company permits certificates OTHER~
+#Ban OOC sign explaining company permits and certificates#0~
+#BAn OOC sign explaining company permits and certificates is set here.#0~
+If you are trying to purchase a Company Permit, please find 
+an authorised person to interview you and give you the certificate 
+you need. If you have that certificate, please ensure you are 
+holding it. If you are trying to purchase a Company Certificate, 
+please make sure you hold the Company Permit in your hand and the 
+coin needed for the Clerk to see.
+A 3000 cp Anorien hunting company permits 
+B 3000 cp Anorien mining company permits 
+C 3000 cp Anorien farming company permits 
+D 3000 cp Anorien logging and carpentry company permits 
+E 3000 cp Anorien leatherworking company permits 
+F 3000 cp Anorien armorsmithing company permits 
+G 3000 cp Anorien weaponsmithy company permits 
+H 3000 cp Anorien apothecary company permits 
+I 3000 cp Anorien construction company permits 
+J 3000 cp Anorien bakery company permits 
+K 3000 cp Anorien jewelery company permits 
+L 3000 cp Anorien brewery company permits 
+M 3000 cp Anorien clothier company permits 
+N 60 cp Anorien hunting company annual certificate 
+O 60 cp Anorien mining company annual certificate 
+P 60 cp Anorien farming company annual certificates 
+Q 60 cp Anorien logging and carpentry company annual certificate 
+R 60 cp Anorien leatherworking company annual certificate 
+S 60 cp Anorien armorsmithing company annual certificate 
+T 60 cp Anorien weaponsmithy company annual certificate 
+U 60 cp Anorien apothecary company annual certificate 
+V 60 cp Anorien construction company annual certificate 
+W 60 cp Anorien bakery company annual certificate 
+X 60 cp Anorien jewelery company annual certificate 
+Y 60 cp Anorien brewery company annual certificate 
+Z 60 cp Anorien clothier company annual certificate 
+AA 3000 cp Anorien metalsmithing company permits 
+BB 60 cp Anorien metalsmithing company annual certificate 
+CC 3000 cp Anorien beers and wines company permit
+DD 60 cp Anorien beers and wines company annual certificate
+#BUse the purchase command to buy these, e.g. purchase H.#0
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38036
+key long handled silver key METAL~
+a long-handled silver key~
+A long-handled silver key has been discarded here.~
+~
+18 0 1
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38037
+key long handled star engraved key METAL~
+a long-handled star-engraved key~
+A long-handled star-engraved key has been discarded here.~
+~
+18 0 1
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38038
+tracks CAUSEWAY_CONSTRUCTION_BYEONWE freshly made deep rutted OTHER~
+freshly made, deep-rutted tracks~
+Freshly made, deep-rutted tracks wear a new track across verdant countryside.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38039
+logs CAUSEWAY_CONSTRUCTION_BYEONWE towering trimmed piles OTHER~
+towering piles of trimmed logs~
+Towering piles of trimmed logs carefully stacked line the roadside.~
+   Piles of stacked logs sit heavily on the ground here, massive 
+stakes driven into the ground at different points to support 
+their weight and stop them from tumbling down and crushing 
+everything in their path. A great majority of the logs are huge, 
+their great bulk proving difficult for a grown man to reach 
+around fully. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38040
+legs CAUSEWAY_CONSTRUCTION pair leather legs sticking out beneath massive heap rocks OTHER~
+a pair of leather clad legs sticking out from beneath a massive heap of rocks~
+A pair of leather clad legs stick out at an unnatural angle from beneath a massive heap of rocks, their owner hidden beneath the debris.~
+   Sticking out at unnatural angles are a pair of leather clad 
+legs, the rest of the owner buried somewhere beneath the massive 
+pile of rocks. Blood has seeped through the clothing and dried a 
+rusty red color, covering some of the rocks nearby and the pair 
+of scuffed boots that remain on the hapless person's feet. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38292
+great_crossing_warehouse board ledger thin military clerk desk RM_38335 OTHER~
+#5a thin military clerk sitting at a desk#0~
+#5Sitting at the desk, a thin, military clerk records in his ledger.#0~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38041
+warehouse recently constructed pine large military building OTHER~
+a freshly built, large military warehouse with wide open double doors~
+A freshly built, large military warehouse with wide open double doors and a short path leading inside sits just off the southeast corner of the Great Crossroads.~
+   A large warehouse has been recently built here in haste. Pine 
+lumber has been nailed to oak posts to form a temporary 
+structure. Great double doors are strapped open with rope coils 
+and soldiers of the Steward stand guard around it. The entrance 
+though seems welcoming as many people are filing in and out. As 
+they go in they drag with them small pushcarts laden with 
+jewelry, old helms and weapons, clothing, hides, even some bring 
+barrels of salted meat and carts bearing lumber and granite. 
+When they leave, they are empty-handed. Inside can be seen 
+soldiers dragging anything they are given into piles and then 
+sorting them into long rows of shelves and crates. Soldiers call 
+out for you to come and give anything you can, even the smallest 
+item, to aid the war effort! You can "enter" the "building" to do 
+that. 
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38042
+shortbow finely made recurved yew wood bow PRIZE_GREENFEST WOOD~
+a uniquely-carved, recurved, yew-wood shortbow~
+A uniquely-carved, recurved, yew-wood shortbow lies here.~
+   This exquisitely-crafted shortbow is made of the finest 
+materials. The bow itself is made of the highest-quality yew 
+wood. The wood is quite stout, having a strong natural 
+resistance to bending. Brown leather, soft and supple, is 
+wrapped around the middle of the bow, serving as a hand grip. At 
+both ends the bow curves back on itself, and a taut bowstring 
+made of braided linen is stretched between the ends. 
+   The entire length of the bow has been decorated with scenes of 
+the Hunt, which are burnt in place then painted and stained. A 
+stag stares back over its tall shoulders with antlers proudly 
+raised, arrows seek out the throat of a bear, a clutch of rabbits 
+hang from a willow trap. At the very tip of the bow sits a small 
+sword and stars insignia of Great Lord Astirian. 
+~
+5 4096 8396801
+2 1 5 16
+280 0.000000
+1 0 0 40 5124 0 1
+850.000000 0 0 0 32 0 0
+S
+100006
+#38043
+longbow bow finely made enscribed GREENFEST_PRIZE WOOD~
+a finely made, enscribed longbow~
+A finely-made, enscribed longbow rests here.~
+   The bow is made of high quality seasoned hardwood, good and 
+pliant, with a slight polish that makes it gleam. The ends of 
+the bow, where the string goes, are lightly carved with a 
+diamond-shaped pattern, and the handle is ornately turned and 
+wrapped with dark green leather strips. A series of amber gems 
+have been set along the bow, representing the eyes of creatures 
+struck by arrows. Orcs, wild trolls, Haradrim cavalry, all fall 
+before the wielder of this bow. An enscribed symbol of a sword 
+and stars, the mark of Great Lord Astirian, finishes off this 
+exquisite weapon. 
+~
+5 4096 8396801
+3 0 5 17
+330 0.000000
+2 0 0 30 134222848 0 1
+950.000000 0 0 0 32 0 0
+S
+100005
+#38044
+quiver GREENFEST_PRIZE silver-capped dark-brown-leathered LEATHER~
+a silver-capped, dark-brown-leather quiver~
+A quiver made of dark-leather with a silver cap has been discarded here.~
+   The bottom of this quiver is capped with silver which is 
+smoothly woven into a fine, dark-brown leather. The weaving of 
+the leather on this quiver is tight, but gives slightly when 
+pushed upon. The top of the quiver has a silver ring around the 
+brim. The strap is made of the same, fine leather. A silver 
+sword is set halfway down the quiver, crested by stars, marking 
+this as crafted by the Great Lord Astirian's own leathersmiths. 
+~
+57 4608 8650753
+15 0 0 0
+200 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 14 0 0
+#38045
+pendant GL_ASTIRIAN_GIVE engraved silver leaf chain OTHER~
+an engraved pendant on a light silver cord~
+An engraved pendant on a light silver cord has been discarded here.~
+   This pendant is small and kite-shield-shaped, a sword before a 
+seven-pointed star engraved on the polished surface. It has been 
+strung onto a light silver chain. On the back is the stamp of 
+the silversmiths of Minas Tirith, next to a stylised map of 
+Anorien, at least that part within which Great Lord Astirian 
+serves as protector. 
+~
+8 4608 2097157
+0 0 0 0
+30 0.000000
+0 0 0 32 8393284 0 1
+65.000000 0 0 0 28 0 0
+#38046
+OOC sign xxTrake_Paymasterroom_White_Stagxx OTHER~
+#6an OOC sign#0~
+#6An OOC sign is here.#0~
+   This room is solely for the use of paying employees, it should 
+not be used as storage for anything but coin -only-. 
+   You may leave this room via the command "leave room". 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38047
+RIVERWATCH wiry copper haired teenager board OTHER~
+#5a wiry, copper-haired teenager#0~
+#5A wiry, copper-haired teenager responds to those wanting to deliver messages.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38048
+CAUSEWAY_CONSTRUCTION freshly foundation stone STONE~
+a freshly laid foundation of stone~
+A foundation of stone, recently constructed is dug into the ground here.~
+   Surrounded by busily working laborers, this foundation of 
+stone has been recently dug into the ground. Laid with an 
+incredible amoung of painstakingly overseen labor, this area
+has been prepared to serve as a suitable foundation for some 
+sort of massive construction. Although the future construction
+cannot be foretold by the foundation, it will obviously be a 
+very large undertaking.
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38049
+longbow bow finely made enscribed GREENFEST_PRIZE WOOD~
+a finely made, enscribed longbow~
+A finely-made, enscribed longbow rests here.~
+   The bow is made of high quality seasoned hardwood, good and 
+pliant, with a slight polish that makes it gleam. The ends of 
+the bow, where the string goes, are lightly carved with a 
+diamond-shaped pattern, and the handle is ornately turned and 
+wrapped with leaf green leather strips. A pair of deep green 
+gems are set above and beneath the grip, cradled into exquisitely 
+carved whorls of ivy, and intertwined vines. A dusting of 
+gold-leaf picks out some of the raised relief. An enscribed 
+symbol of a sword and stars, the mark of Great Lord Astirian, 
+finishes off this exquisite weapon. 
+~
+5 4096 8396801
+3 0 5 17
+330 0.000000
+2 0 0 30 134222848 0 1
+950.000000 0 0 0 32 0 0
+S
+100005
+#38050
+shortbow finely made recurved yew wood bow PRIZE_GREENFEST WOOD~
+a uniquely-carved, recurved, yew-wood shortbow~
+A uniquely-carved, recurved, yew-wood shortbow lies here.~
+This exquisitely-crafted shortbow is made of the finest 
+materials. The bow itself is made of the highest-quality yew 
+wood. The wood is quite stout, having a strong natural 
+resistance to bending. Leaf green leather, soft and supple, is 
+wrapped around the middle of the bow, serving as a hand grip. At 
+both ends the bow curves back on itself, and a taut bowstring 
+made of braided linen is stretched between the ends.
+Finely crafted carving picks out the figure of a hunter, back
+taut, bow raised, arrow nocked and aimed at some unseen target
+far off across open countryside. Gold leaf picks out the high
+relief of the carved wood. At the very tip of the bow sits a small 
+sword and stars insignia of Great Lord Astirian.
+~
+5 4096 8396801
+2 1 5 16
+280 0.000000
+1 0 0 40 5124 0 1
+850.000000 0 0 0 32 0 0
+S
+100006
+#38051
+emerald green wooden key WOOD~
+a small wooden key of emerald green wood~
+A small wooden key of emerald green wood lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38052
+a grand theater OTHER~
+a grand theater~
+A grand theater looms in the distance. #6<enter theater>#0~
+~
+9 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38053
+wooden leaf engraved key WOOD~
+a wooden, leaf-engraved key~
+A wooden, leaf-engraved key lies here~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38054
+narrow wooden key WOOD~
+a narrow, wooden key~
+A narrow, wooden key lies here~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38055
+key long bronze villein_stall_1 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38056
+key long bronze villein_stall_2 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38057
+key long bronze villein_stall_3 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38058
+key long bronze villein_stall_4 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38059
+key long bronze villein_stall_5 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38060
+key long bronze villein_stall_6 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38061
+key long bronze villein_stall_7 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38062
+key long bronze villein_stall_8 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38063
+key long bronze villein_stall_9 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38064
+key long bronze villein_stall_10 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38065
+key long bronze villein_stall_11 METAL~
+a long, bronze key~
+A long, bronze key.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38066
+pier rickety wooden ISLAND_TIMER WOOD~
+a rickety wooden pier~
+A rickety wooden pier juts out into the water.~
+   Rickety wood beams emerge from the water to form the base of 
+this pier. Planks have been nailed atop it in a long line, some 
+of them worn and rotting away at the edges where the water has 
+lapped over the side. The pier itself is just large enough to 
+allow for a sloop or other small vessel to be tied off to it. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#38067
+pier rickety wooden ISLAND_TIMER_USED WOOD~
+a rickety wooden pier~
+A rickety wooden pier juts out into the water.~
+   Rickety wood beams emerge from the water to form the base of 
+this pier. Planks have been nailed atop it in a long line, some 
+of them worn and rotting away at the edges where the water has 
+lapped over the side. The pier itself is just large enough to 
+allow for a sloop or other small vessel to be tied off to it. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 504 38066 0 32 0 0
+#38068
+tree yule gifts fir RPT_YULE OTHER~
+a broad fir tree, decked with candles and small gifts~
+A broad fir tree sits squarely here, bedecked with candles, fruits and small gifts.~
+   A squat and wide-branched fir tree sits firmly here. Every 
+part of the tree is covered in small candies, ribbons, fruits 
+tied on loosely and candles waiting to be taken and lit. Anyone 
+walking close enough is encouraged to take a candle. OOC: #3take 
+candle#0. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38069
+key silver thin METAL~
+a thin, silver key~
+A thin, silver key has been left here.~
+~
+18 0 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38070
+key solid iron CABIN_38208_HANDD METAL~
+a solid iron key~
+A solid iron key has been discarded here.~
+This solid iron key has a rough inscription of a bird of prey's wing carved into the handle.
+~
+18 0 1
+0 0 0 0
+2 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38088
+cancer cigarette byClub ADMIN ONLY VEGETATION~
+a light-colored cigarette~
+A light-colored cigarette is lying here, begging to be smoked.~
+   This cigarette has a very soft, smooth look to it. Smoking it 
+would reveal an equally smooth taste. Along one side of this 
+cigarette, it reads "Turkish Royal". Someone with a brain would 
+know this is a Camel brand. 
+~
+15 4096 1
+300 0 -1 0
+20 0.000000
+0 0 0 30 134217728 0 1
+12.000000 0 0 0 0 0 0
+#38071
+corpse burly man reddish blond callum makay OTHER~
+the corpse of a burly man with greying, reddish-blond hair~
+The corpse of a burly man with greying, reddish-blond hair has been placed here.~
+   This man has been carefully cared for after death. He has 
+been wrapped in suitable cloths, then dressed in armor. 
+~
+12 4096 1
+0 0 0 0
+8000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38072
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+11 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38073
+terrarium frog glass bowl filled plantlife water housing small green UNIQUE pofBother by_Nauriel OTHER~
+a large, glass terrarium housing #5a small, green frog#0~
+A large glass bowl filled with plantlife and #4water#2 housing #5a small, green frog#2 is here.#0~
+   Within the confines of this large, deep bowl has been arranged 
+what appears to be a miniature forest floor. Over a layer of 
+dirt lies a soft carpet of moss, broken by a few spike-leafed 
+plants. A large slab of rock, also covered in moss, has been 
+propped up against one side, creating a sort of cavern beneath, 
+camouflaged with more leafy green plants. Smaller rocks and 
+chunks of wood are littered throughout the structure, and to 
+another side there is a dish of clean water. Here and there, 
+crickets can be seen wandering about. The inhabitant of this 
+makeshift forest scene is #5a small, green frog with orange 
+toes#0, but a good #6view#0 of the creature requires close 
+examination, for its colouration causes it to occasionally blend 
+with the plantlife provided for it. If you look closely, you can 
+see the #6frog#0 much better. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38074
+staff BY_VAIRE ADMIN_NO_LOAD ebony ivory STONE~
+an ebony and ivory staff~
+An ebony and ivory staff lies here.~
+A staff of twined ivory and ebony, wrought from the stone by
+Aule as a gift for Vaire. The stone appears as a single piece
+despite being made of ivory and ebony and begins in a rounded
+hook, a diamond levitating within the hook glowing a soft
+blue and humming quietly with power where it sits. The staff
+is extremely light with dwarven runes etched carefully along
+it's length and ending in a thinned, flat base.
+~
+5 4096 8193
+0 1 7 6
+1000 0.000000
+3 -2 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38666
+sword by_GLAURUNG NO_LOAD iron meteorite METAL~
+a blackened iron sword~
+A blackened iron sword lies here, its edges shining faintly.~
+   At first glance, this sword would seem to be merely made by a 
+master of his craft with blackened iron. A closer inspection 
+reveals that this is in fact an elvish blade, with the sigils 
+'Anglachel' inscribed on its blade. Stronger than any steel, 
+this blade is made of black iron meteorite; its edges kept razor 
+sharp and shine with a pale fire. It's hilt has been carefully 
+wrapped in supple, black leather and provides both a comfortable 
+grip, and a firm one. 
+~
+5 4108 8193
+0 2 4 3
+700 0.000000
+0 0 0 0 0 0 1
+50000.000000 0 0 0 0 0 0
+#38977
+Whip By_Elanor NO_LOAD thorny vine belt long LEATHER~
+a long, thorny vine belt~
+A long, thorny vine belt is here.~
+   This is a long vine with luscious dark green leaves and 
+thorns. It looks to be about five feet long, though at the end 
+of the vine is what looks to be a buckle made of thorny barb. 
+When not around the waist making a rather interesting belt, it 
+seems that it grows in size and the buckle turns to what looks 
+like a rather firm handle. 
+~
+5 4104 10241
+0 1 7 2
+700 0.000000
+4 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+#38075
+breastplate BY_VAIRE ADMIN_NO_LOAD brilliantly shining breast breastplate METAL~
+a brilliantly shining breastplate~
+A brilliantly shining breastplate lies here.~
+Made from mithril, this breastplate fits perfectly to the female
+form. Etched upon it's surface is a progression of the history
+of the Valar's beginning upon Valinor. Upon the sides of the armor
+are the two trees, spanning from the base and reaching up towards
+the arms, where thick leather straps buckle the sides of the armor.
+~
+9 4104 9
+2 0 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 22 0 0
+#38076
+backpack BY_VAIRE NO_LOAD large backpack padded iron frame LEATHER~
+a large backpack with a well padded iron frame~
+A large backpack with a wedd padded iron frame lies here.~
+This well designed and constructed backpack looks like it can
+hold a sizeable quantity of goods. Made of a thick leather, the
+flap has a scrolling vinework and fauna theme etched out upon
+it's surface while it's edges are covered by an edging of
+rough canvas to prevent the edges from deterioration. The
+buckle upon the flap is made from iron and inside you can see
+that laid out iron rods line the bottom of the pack each rod
+carefully sewn into the framework to give it that much more
+support and durability. The straps are made of thick, padded
+leather and are adjustable, the inside of the strap lined
+with a comfortable ivory fleece.
+~
+15 4096 524289
+15000 1 1 0
+1500 0.000000
+0 0 0 0 0 0 1
+250.000000 0 0 0 0 0 0
+#38077
+skirt UNIQUE_ADMIN pure flame by_Nauriel TEXTILE~
+a skirt of #1pure flame#0~
+A skirt of #1pure flame#0 crackles here in a silken heap.~
+   This skirt appears to be crafted from elemental fire, woven 
+into a silken-looking fabric, soft to the touch if not for its 
+blistering heat. It is ever shifting, dancing and flickering, 
+and radiates a soft glow about itself. The full skirt, which 
+sweeps the floor and sends sparks flying upward upon contact, is 
+gathered at a wide band of tailored flame that is designed to sit 
+low on the hips. The garment emits a soft crackling noise, and a 
+haze lingers on all sides of it, a testiment to the calidity of 
+the vestment. 
+~
+11 4096 2081
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38078
+fan UNIQUE_ADMIN warfan flame mithril by_Nauriel METAL~
+a mithril-slatted warfan of #1pure flame#0~
+A mithril-slatted warfan of #1pure flame#0 lies here, emitting a soft glow.~
+   This weapon is as beautiful as it is functional. It is 
+comprised of eight slats of mithril, each one foot in length, 
+held together at the base by a sturdy peg, over which are 
+stretched a taut length of fabric. This fabric is not ordinary, 
+however, in that it appears to be elemental fire woven into a 
+sturdy, silken material that still crackles and dances with the 
+light of unharnessed flame. The weapon can be used for blocking 
+and bludgeoning when closed, as well as provide a distraction and 
+some cover for subterfuge when opened. It does not serve much 
+use as a regular fan, in any case, for it is heavy and bears a 
+blistering temperature, making it far too unbearable for mortal 
+hands to manage. 
+~
+5 5640 270337
+0 20 20 5
+700 0.000000
+3 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#38667
+statue by_GLAURUNG NO_LOAD dragon diamond statue OTHER~
+a massive dragon statue~
+A massive statue of a dragon stands here, glittering brightly.~
+   This statue seems to be made purely of diamond. It depicts a 
+wingless, fierce looking dragon on all fours with its maw held 
+wide open. One of the three pieces of this statue that isn't 
+diamond, are the glittering rubies that rest in its mouth, each 
+faceted masterfully and glimmer in any light. If one was to look 
+properly at the statue, they would see that it has thousands of 
+small black diamonds studded over its surface. Two large rubies 
+symbolize this dragon's fiery eyes. This statue is beyond the 
+skill and resources of mortal men. 
+~
+12 4096 0
+0 0 0 0
+220400 0.000000
+0 0 0 0 0 0 1
+1000000000.000000 0 0 0 0 0 0
+#38079
+chestplate UNIQUE_ADMIN form fitting half mithril by_Nauriel METAL~
+a form-fitting half-chestplate of blackened mithril~
+A form-fitting half-chestplate of blackened mithril lies here.~
+   Forged of purest mithril in the heat of dragon fire, this 
+chestplate is incredibly light for how very solid it is. The 
+unadorned, fire-blackened mithril has been tailored to fit a 
+specific form-- namely female, from the looks of it-- and extends 
+only to the bottom of the ribcage, making maneuvering about in a 
+flexible manner quite easy when worn. 
+~
+9 4104 9
+50 5 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#38978
+shirt by_Elanor NO_LOAD mithril corset sunny yellow METAL~
+a sunny yellow mithril corset~
+A mithril sunny yellow corset is here.~
+   This expertly crafted garment has no sleeves and has somehow 
+been colored sunny yellow. The chasm molds to the shape of the 
+wearers torso highlighting the curves, much like a corset. The 
+mithril is incredibly lightweight, and so thin that it is almost 
+see through. Even in the faintest of lights this garment has a 
+shimmery look to it. 
+~
+9 4104 9
+4 4 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#38979
+armband by_Elanor NO_LOAD pink leaf gold METAL~
+a pink and green leaf gold armband~
+A coiled up pink and green leaf gold armband is here.~
+   This thick gold armband coils like a snake around the wearer's 
+upper arm. The armband has been designed to look like a long 
+thin stick of rhubarb with leaves and all. Upon the surface in 
+bright pink letters the words "Rhubarb's Property-you has been 
+warned!" have been masterfully engraved. 
+~
+11 4096 134217729
+0 0 0 0
+30 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 28 0 0
+#38980
+bracelet by_Elanor NO_LOAD heart charm gold METAL~
+a gold, heart charm bracelet~
+A gold, heart charm bracelet is here.~
+   This gold bracelet has been masterfully made. Upon first 
+glance the metal looks shiny and very well polished. Though upon 
+closer inspection, the image of a shadowy creature with and oddly 
+shaped head can be seen. Its large horns protrude with their 
+tips curling down alongside its face. Even the fiery red eyes 
+can be seen as flames rise around it. Where the clasp meets a 
+heart charm bracelet hangs with a simple engraving of 
+"Valarauka's Pet" 
+~
+11 4096 4097
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+150000.000000 0 0 0 28 0 0
+#38080
+fan UNIQUE_ADMIN closed warfan flame mithril by_Nauriel METAL~
+a closed, mithril-slatted warfan~
+A mithril-slatted warfan lies here, emitting a strange crackling sound.~
+   This weapon is comprised of eight slats of mithril, each one 
+foot in length, held together at the base by a sturdy peg. It 
+can be used for blocking and bludgeoning in its current closed 
+state, and it is heavy and bears a blistering temperature, making 
+it far too unbearable for mortal hands to manage. 
+~
+5 6664 262145
+50 5 10 5
+700 0.000000
+3 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#38981
+fountain By_Elanor NO_LOAD dragon STONE~
+a dragon fountain~
+A dragon fountain arcs water gracefully through the air into a pool.~
+   A marble and granite fountain of a dragon stands to full 
+height with its wings towards its back, water flowing from its 
+mouth and cascading into the pool at its base. The stone is so 
+well crafted it looks real, and its gem-like eyes seem to follow 
+those that dare to come near. Its arms and hands are open, as if 
+waiting to strike, or pull someone protectively into its embrace. 
+A plaque set into the pool reads "Beware foe; Welcome friend" 
+~
+23 4096 0
+1000000 1000000 764 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38081
+frog Terrence small green pofBother by_Nauriel OTHER~
+#5a small, green frog with orange toes#0~
+#5A small, green frog with orange toes hops about here#0.~
+   A broad, flat head houses two large, orange eyes with black 
+pupils, which are occasionally treated to a cleansing lick from 
+the frog's flexible, extendable tongue. Its hind legs, which are 
+streaked with blue, are disproportional with the muscle housed 
+within, tapered with webbed feet, the orange toes of which end in 
+little glistening balls. Its skin has a moist, sticky-looking 
+sheen to it at all times. 
+~
+12 4608 8388625
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38083
+terrarium large glass bowl plantlife water pofBother by_Nauriel OTHER~
+a large, glass terrarium~
+A large glass bowl filled with plantlife and #4water#2 is here.#0~
+   Within the confines of this large, deep bowl has been arranged 
+what appears to be a miniature forest floor. Over a layer of 
+dirt lies a soft carpet of moss, broken by a few spike-leafed 
+plants. A large slab of rock, also covered in moss, has been 
+propped up against one side, creating a sort of cavern beneath, 
+camouflaged with more leafy green plants. Smaller rocks and 
+chunks of wood are littered throughout the structure, and to 
+another side there is a dish of clean water. Here and there, 
+crickets can be seen wandering about. 
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38084
+key UNIQUE_ADMIN slender charred by_Nauriel METAL~
+a slender, charred key~
+A slender, charred key glints dully from the ground.~
+   This key is slender and simple in design. Made of a matte, 
+silver metal, it has charred finger marks upon its surface, 
+leaving only its teeth completely free of marring. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+25.000000 0 0 0 0 0 0
+#38085
+frog test variable CAO_FROG_OBJ by_Nauriel OTHER~
+a variable frog~
+A variable frog object is here, waiting to be transformed.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38982
+leggings by_Elanor NO_LOAD mithril leaf green skirt METAL~
+a leaf green mithril skirt~
+A mithril leaf green skirt is here.~
+   This leaf green skirt has been made out of mithril. The 
+material is incredibly lightweight, and so thin that it is almost 
+see through. Even in the faintest of lights this garment has a 
+shimmery look to it. The skirt sits low on the wearer's hips and 
+only goes down to just about an inch above the knees. Whenever 
+the wearer moves, flashes of the upper legs are revealed through 
+side slits that are not seen when standing still, which also 
+serve to lessen any hindrance to movement. 
+~
+9 4104 33
+2 4 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#38086
+nectar ADMIN divine by_Nauriel LIQUID~
+filled with divine nectar~
+~
+~
+50 4096 0
+2 17 17 0
+10 0.000000
+0 0 0 100 4194304 0 1
+1.760000 0 0 0 0 0 0
+#38668
+pants by_GLAURUNG NO_LOAD pair tight black dragon skin LEATHER~
+a pair of tight, black dragon skin pants~
+A pair of tight fitting, dragon skin pants are on the ground here.~
+   These pants are incredibly tight and form fitting, leaving 
+very little to the imagination. They are buttoned closed with 
+small mithril buttons, which glimmer in the light. The leather 
+itself that makes these pants seems to have been made of dragon 
+hide, with the beast's scales still intact on it, providing ample 
+protection. They come down to the wearers ankles, molding to 
+their skin. The pants themselves appear to be expertly made, 
+providing both ample protection to the wearers lower half, as 
+well as a fashionable, if rather bold, look. 
+~
+11 4608 33
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38669
+vial by_GLAURUNG NO_LOAD small glass pink juice Glaurhoo OTHER~
+a small glass vial filled with pink juice~
+A small glass vial filled with bright pink juice sits here, a delectable aroma surrounding it.~
+   Made of surprisingly thick glass, this vial has a small logo 
+of parchment stuck onto it, bearing the words 'Glaurhoo, for when 
+your love life needs a little bit of fire.' Then in smaller 
+writing, 'Taken fresh from the throat hole of Glaurung. Keep 
+away from children, side affects may include: Nausea, vomiting, 
+exhaustion, death. Only for external use, if swallowed, call 
+poison control' Inside the vial itself, there is a bright pink 
+liquid that looks to be slightly thick and rolls easily over the 
+glass. At the top of the vial it is sealed with black wax, 
+bearing the stamp of a wingless dragon. 
+~
+25 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38089
+bottle crystal technicoloured coloured GLASS~
+a technicoloured crystal bottle~
+A bottle fashioned out of fine coloured crystal rests on its base.~
+   Built from fine colored crystal, this bottle appears to be 
+absolutely flawless. Clear faceted crystals arranged in an 
+elaborate pattern are interlaced with veins of untarnished 
+silver. The bottle is wide and round at its base, and narrows 
+towards its mouth. Some unknown force keeps the bottle 
+unmovable, pinned to its current location. 
+~
+17 4096 0
+20 20 38086 149
+600 600.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38090
+veil ADMIN gossamer by_Nauriel OTHER~
+a gossamer veil of woven #1flame#0~
+Some woven elemental flame lies in a silken heap here.~
+~
+11 4096 67108865
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38091
+Ceredir ADMIN NO_LOAD pocket sized bespectcled goblin by_Nauriel OTHER~
+#5a pocket-sized bespectacled goblin#0~
+#5A pocket-sized bespectacled goblin is here.#0~
+This small creature looks tired, the hardships of demanding 
+work coupled with poor feeding etched deep into its features. It 
+moves with a small hunch, eyes darting around nervously in search 
+for possible dangers. It smells of sweat, blood, and other 
+things that should better remain undescribed. He is pocket-sized.
+
+A bespectacled goblin appears to be in excellent condition. 
+
+<worn on face>           #2a pair of bone-rimmed spectacles#0(invisible)
+<worn about body>        #2a thick, flea-ridden, wolf fur cloak with a deep cowl#0
+<worn on body>           #2a dreary olive green leather vest#0
+<worn over shoulder>     #2a tattered shoulder strap#0
+<worn over shoulder>     #5a small, green frog with orange toes#0
+<worn about waist>       #2a piece of hemp rope#0
+<worn on belt>           #2a faded blue black linen pouch#0
+<worn on legs>           #2a shoddy tattered loincloth#0
+<worn on feet>           #2crude wrappings of worn, rotting hide#0
+~
+12 4096 42205201
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38092
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38093
+widget misc by_Nauriel OTHER~
+Nauriels Widget~
+Nauriels Widget lies here, being widgety.~
+~
+12 4100 132914559
+0 0 0 0
+100 0.000000
+0 0 0 0 4194304 0 1
+0.000000 0 0 0 0 0 0
+#38094
+brooch UNIQUE_NO_LOAD silver moth shaped xpofDrothesgil xNauriel METAL~
+a silver, moth-shaped brooch~
+A silver, moth-shaped brooch lies here, glinting in the light.~
+   This fine brooch is forged of silver and made in the shape of 
+a life size moth. Every detail has been given attention by the 
+crafter - from the moth's dappled wings, it's mane of tiny hairs 
+and to it's lopsided antennae. The fine limbs and details of the 
+moth are flat against the moth's fat body so they wont break. 
+Tarnished and worn, the silver appears old but still retains some 
+luster. 
+~
+8 4096 2097157
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38095
+xMT_Riverwatch_Boardx board auburn curled lass assists chores relays messages xNauriel OTHER~
+#5an auburn-curled lass#0~
+#5An auburn-curled lass assists with chores and relays messages here#0.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38096
+key xMT_Riverwatchx xKEYED_xTO_x38121 water etched etchings steel xNauriel METAL~
+a water-etched steel key~
+A key with etchings resembling water lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38848
+permit legal metalsmith business OTHER~
+an Anorien metalsmith company permit~
+An Anorien metalsmith company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a farming 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. 
+~
+12 4096 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38877
+permit legal metalsmith business annual OTHER~
+an Anorien metalsmith annual certificate~
+An Anorien metalsmith annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+metalsmith company that operates inside Anorien. It contains the 
+official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 4096 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 0 0 0
+#38097
+copper key small CABIN_8231 OTHER~
+a small copper key~
+A small copper key is discarded here.~
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 15 0 0
+#38098
+permit legal beers_wines_spirits business OTHER~
+an Anorien beers wines and spirits company permit~
+An Anorien beers wines and spirits company permit has been discarded here.~
+   This sturdy parchment entitles the bearer to manage a farming 
+company that operates inside Anorien. It contains the official 
+stamp of Great Lord Astirian. It contains identification of the 
+company's owner in the form of numbers and letters, presumably 
+cross referenced against a ledger held by the Great Lord's 
+Provost. 
+~
+12 4096 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+3000.000000 0 0 0 0 0 0
+#38100
+permit legal beers_wines_spirits business annual OTHER~
+an Anorien beers wines and spirits annual certificate~
+An Anorien beers wines and spirits annual certificate has been discarded here.~
+   This sturdy parchment entitles the bearer to work for a 
+metalsmith company that operates inside Anorien. It contains the 
+official stamp of Great Lord Astirian. It contains 
+identification of the company's owner in the form of numbers and 
+letters, presumably cross referenced against a ledger held by the 
+Great Lord's Provost. It must be renewed every year. 
+~
+12 4096 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 0 0 0
+#38101
+shortbow finely made recurved yew wood bow PRIZE_GREENFEST WOOD~
+a uniquely-carved, recurved, yew-wood shortbow~
+A uniquely-carved, recurved, yew-wood shortbow lies here.~
+   This exquisitely-crafted shortbow is made of the finest 
+materials. The bow itself is made of the highest-quality yew 
+wood. The wood is quite stout, having a strong natural 
+resistance to bending. Rich brown leather, soft and supple, is 
+wrapped around the middle of the bow, serving as a hand grip. At 
+both ends the bow curves back on itself, and a taut bowstring 
+made of braided linen is stretched between the ends. Worked the 
+length of the bow are intricately intertwining vines. Flight 
+arrows slip between the vines, each set of finely carved flights 
+dusted with silver leaf. At the very tip of the bow sits a small 
+sword and stars insignia of Great Lord Astirian. 
+~
+5 4096 8396801
+2 1 5 16
+280 0.000000
+1 0 0 40 5124 0 1
+850.000000 0 0 0 32 0 0
+#38102
+longbow bow finely made enscribed GREENFEST_PRIZE WOOD~
+a finely made, enscribed longbow~
+A finely-made, enscribed longbow rests here.~
+   The bow is made of high quality seasoned hardwood, good and 
+pliant, with a slight polish that makes it gleam. The ends of 
+the bow, where the string goes, are lightly carved with a 
+diamond-shaped pattern, and the handle is ornately turned and 
+wrapped with rich brown leather strips. On the upper limb, the 
+head of a stag is carefully carved, twelve-tined antlers 
+magnificent above a finely etched head. The lower limb is 
+enwrapped with vines, each leaf detailed with drifts of gold 
+leaf. An enscribed symbol of a sword and stars, the mark of 
+Great Lord Astirian, finishes off this exquisite weapon. 
+~
+5 4096 8396801
+3 0 5 17
+330 0.000000
+2 0 0 30 134222848 0 1
+950.000000 0 0 0 32 0 0
+#38242
+key long bronze xelanor 38242 OTHER~
+a long, bronze key~
+A long, bronze key has been set here. ~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38243
+key long bronze xelanor 38243 OTHER~
+a long, bronze key~
+A long, bronze key has been set here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38244
+key long bronze xelanor 38244 OTHER~
+a long, bronze key~
+A long, bronze key has been set here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38245
+key long bronze xelanor 38245 OTHER~
+a long, bronze key~
+A long, bronze key has been set here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38103
+finely-crafted elm cradle UNIQUE_JARAGH xxElanor WOOD~
+a finely-crafted, elm cradle set~
+A finely-crafted, elm cradle set stands here.~
+   This finely-carved chair and cradle set is constructed of 
+high-quality elm lumber, shaped with a rectangular frame, the 
+entirety of the polished piece stained to a warm brown hue. All 
+of the cradle's edges are rounded, granting it a sleek and 
+comfortable feel. Perhaps one of the most unusual features of 
+this item is the fact that the padded seat is adjoined, allowing 
+the opportunity to rock back and forth or just be able to rest in 
+comfort. The rounded head of the cradle raised slightly higher 
+than the other sides, where the intricate carving of a fox curled 
+around a longbow can be spotted, looking down upon its would-be 
+occupant, ever watchful. 
+~
+15 2101248 1
+15000 0 -1 0
+2500 0.000000
+0 2 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38104
+suspenders pair xNauriel TEXTILE~
+a pair of suspenders~
+A pair of suspenders lie here, abandoned.~
+   This is a simple set of two cloth straps with bronze clamps on 
+either end to hook to a pair of trousers at the waistband. They 
+are meant to stretch over the shoulders on either side, and meet 
+at the upper back with a small bronze clip. 
+~
+11 4096 8912897
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38105
+finely exquisitely-crafted white-oak reflex bow POsmond xElanor WOOD~
+an exquisitely-crafted, white-oak reflex bow~
+An exquisitely-crafted, white-oak reflex bow lies here.~
+   This shortbow is of incredibly exquisite make, composed of the 
+finest materials and formed by a master craftsman. It is 
+composed of the highest-quality white oak, and uses dense horn 
+and sinew in its construction, to form a solid and resilient 
+composite form. It bends outward away from the wielder when 
+unstrung, and as such, provides incredible draw weight, and would 
+require a very strong user to operate properly. It bears thin 
+strips of soft scarlet leather about the center of the bow, and 
+the string is composed of tightly-braided linen, and seems to 
+have been solidified with a lining of sinew. Its make is precise 
+and masterful, and it would likely be a formidable and lethal 
+weapon in the hands of a skilled user. 
+~
+5 4096 8396801
+2 1 5 16
+280 0.000000
+1 0 0 40 5124 0 1
+850.000000 0 0 0 32 0 0
+#38258
+key small silver 38258 POlizia xelanor OTHER~
+a small silver key~
+A small silver key is here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38254
+Key diamond head silver 38255 pOlizia xelanor OTHER~
+a diamond-head silver key~
+A diamond-head silver key is here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38106
+refined tree-carved oak bookcase shelf UNIQUE_JARAGH XElanor WOOD~
+a refined, tree-carved oaken bookcase~
+A refined, tree-carved oaken bookcase stands against the wall here.~
+   Made of tempered oak and stained a rich, dark brown, this 
+enclosed bookcase stands taller than most Men, allowing for many 
+volumes and curios to be proudly stored and displayed within. 
+Two doors, meticulously carved and detailed into the form of a 
+large, leafy tree overlay two large panes of fine, sage green 
+glass allow the owners collection to be locked away, via an 
+expertly-wrought lock embedded within the woodwork, towards the 
+middle of the trunk. On both sides of the case are large oaken 
+posts which have been carved with an inward curve, serving both 
+as further complementing the overall aesthetic and granting the 
+piece further stability, making it almost impossible to move 
+alone with ease. The entirety of this work has been smoothed and 
+shined to enhance the overall look and feel. 
+~
+15 4096 1
+15000 1 38108 0
+12000 0.000000
+0 0 0 0 0 0 1
+1500.000000 0 0 0 32 0 0
+#38107
+Rose-carved arched garden bench UNIQUE_JARAGH xElanor WOOD~
+a rose-carved, arched garden bench~
+A rose-carved, arched garden bench stands here.~
+   Sturdily built from cedar wood, this garden bench is large 
+enough to comfortably seat six. The piece as a whole forms a 
+smooth arch, the legs and outer edges of the curve are 
+meticulously carved in numerous stylized roses; buds, blooms, 
+leaves, and thorned stems, which are accentuated by the naturally 
+reddish undertone of the wood. Although the wood is naturally 
+weather resistant, its entire surface has been stained as further 
+protection against the everyday exposure to the elements. While 
+the design is sturdy, the many minor nuance of the bench shows a 
+great deal of care and attention to detail and comfort, lending a 
+slightly more delicate appearance. 
+~
+15 2101248 1
+40000 0 -1 0
+2000 0.000000
+0 6 0 0 0 0 1
+350.000000 0 0 0 32 0 0
+#38108
+key long copper XElanor xvnum38106 METAL~
+a long copper key~
+A long copper key is here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38109
+key long oval gate PofSadoridhren_Bruigar METAL~
+a long, oval key~
+A long, oval key lays here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#38110
+key square headed house PofSadoridhren_Bruigar METAL~
+a square headed key~
+A square headed key lays here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#38111
+board message stout woman chocolate pOlizia xelanor OTHER~
+a message board set next to #5a stout, blonde woman with chocolate brown eyes#0~
+A message board is set next to #5a stout, blonde woman with chocolate brown eyes. #0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38112
+Key forest etched 38274 pOlizia xelanor OTHER~
+a forest etched key~
+A forest etched key is here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38113
+Joanne xFORTUITOUSxFOXxADVENTURExCOMPANYxBOARDx xpofSadoridhren brunette girl board xNauriel OTHER~
+#5a brunette girl#0~
+#5A brunette girl tidies up and relays messages here.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#38114
+earrings pair silver bell generic xNauriel METAL~
+a pair of silver bell earrings~
+A pair of silver bells on wire lay here abandoned.~
+   These two delicate earrings are comprised of silver bells upon 
+silver wire, with fishhook-style clasps backed by a small silver 
+clasp that can be twisted over fine threads etched into the 
+metal, to keep the earrings from falling out. They dangle down 
+to the wearer's jaw and jingle with even the slightest of 
+movement. 
+~
+8 4096 4194305
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+100.000000 0 0 0 0 0 0
+$~

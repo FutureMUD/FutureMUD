@@ -1,0 +1,1008 @@
+#99000
+Base Room for Dwelling Zone~
+The rooms in this zone are to be used STRICTLY for the master
+floorplans that DWELLING objects use to create their areas.
+
+A few things to remember. One: dwelling objects with the PITCHABLE
+flag may only use one-room floorplans - tents and the like. Two:
+other than that, your imagination's the limit. Floorplans can
+basically be just like any other PC home you'd normally build.
+
+After a dwelling object has cloned its floorplan into z100, the
+cloned rooms can then be edited/modified to your heart's content
+with regular builder commands without affecting the master, and
+other dwellings of that same VNUM.
+
+Lastly, all floorplans need to be isolated blocks of rooms -
+they should NOT be linked to ANY OTHER AREA. EVER.
+~
+99 65544 0
+0
+S
+#99001
+Inside the Tent~
+   Moderately-sized, the inside of this tent measures about 
+fifteen feet-wide and ten feet deep. Two eight-foot high, 
+vertical poles connected by a shorter ridge pole form the frame 
+of this tent, supporting the canvas. The ends of the tent are 
+half-conical in shape judging by the size, this tent could easily 
+sleep four. In one side of the tent is a five foot-high, 
+three-foot wide door with two flaps that may be tied off. 
+~
+99 1140916488 0
+0
+S
+#99002
+Inside the Tent~
+   Moderately-sized, the inside of this tent measures about 
+fifteen feet-wide and ten feet deep. Two eight-foot high, 
+vertical poles connected by a shorter ridge pole form the frame 
+of this tent, supporting the striped canvas. The ends of the 
+tent are half-conical in shape judging by the size, this tent 
+could easily sleep four. In one side of the tent is a five 
+foot-high, three-foot wide door with two flaps that may be tied 
+off. 
+~
+99 1140916488 0
+0
+S
+#99003
+Inside the Tent~
+   A bit small and cramped, the inside of this tent measures 
+about ten feet-wide and seven feet deep. Two seven-foot high, 
+vertical poles connected by a shorter ridge pole form the frame 
+of this tent, supporting the striped canvas. The ends of the 
+tent are half-conical in shape and, judging by the size, this 
+tent could sleep two. In one side of the tent is a five 
+foot-high, three-foot wide door with two flaps that may be tied 
+off. 
+~
+99 67174664 0
+0
+S
+#99004
+Inside the Tent~
+   Large and roomy, the inside of this tent measures about twenty 
+feet-wide and ten feet deep. Two eight-foot high, vertical poles 
+connected by a ten-foot ridge pole form the frame of this tent, 
+supporting the striped canvas. The ends of the tent are 
+half-conical in shape judging by the size, this tent could easily 
+sleep eight individuals. In one side of the tent is a five 
+foot-high, three-foot wide door with two flaps that may be tied 
+off. 
+~
+99 1140916488 0
+0
+S
+#99005
+Inside the Tent~
+   Moderately-sized, the inside of this tent measures about 
+fifteen feet-wide and ten feet deep. Two eight-foot high, 
+vertical poles connected by a shorter ridge pole form the frame 
+of this tent, supporting the worn canvas. The ends of the tent 
+are half-conical in shape and the material used in its 
+construction is worn thin in spots with patches covering holes. 
+Still, judging by the size, this tent could easily sleep four. 
+In one side of the tent is a five foot-high, three-foot wide door 
+with two flaps that may be tied off. 
+~
+99 1140916488 0
+0
+S
+#99006
+Inside the Tent~
+   A bit small and cramped, the inside of this tent measures 
+about ten feet-wide and seven feet deep. Two seven-foot high, 
+vertical poles connected by a shorter ridge pole form the frame 
+of this tent, supporting the worn canvas. The ends of the tent 
+are half-conical in shape and the material used in its 
+construction is worn thin in spots with patches covering holes. 
+Still, judging by the size, this tent could sleep two people. In 
+one side of the tent is a five foot-high, three-foot wide door 
+with two flaps that may be tied off. 
+~
+99 1140916488 0
+0
+S
+#99007
+Inside the Tent~
+   Moderately-sized, the inside of this tent measures about 
+fifteen feet-wide and ten feet deep. Two eight-foot high, 
+vertical poles connected by a shorter ridge pole form the frame 
+of this tent, supporting the worn, striped canvas. The ends of 
+the tent are half-conical in shape and the material used in its 
+construction is worn thin in spots with patches covering holes. 
+Still, judging by the size, this tent could easily sleep four. 
+In one side of the tent is a five foot-high, three-foot wide door 
+with two flaps that may be tied off. 
+~
+99 1140916488 0
+0
+S
+#99008
+Inside the Tent~
+   A bit small and cramped, the inside of this tent measures 
+about ten feet-wide and seven feet deep. Two seven-foot high, 
+vertical poles connected by a shorter ridge pole form the frame 
+of this tent, supporting the worn, striped canvas. The ends of 
+the tent are half-conical in shape and the material used in its 
+construction is worn thin in spots with patches covering holes. 
+Still, judging by the size, this tent could sleep two people. In 
+one side of the tent is a five foot-high, three-foot wide door 
+with two flaps that may be tied off. 
+~
+99 1140916488 0
+0
+S
+#99009
+Inside the Tent~
+   A bit small and cramped, the inside of this tent measures 
+about ten feet-wide and seven feet deep. Two seven-foot high, 
+vertical poles connected by a shorter ridge pole form the frame 
+of this tent, supporting the canvas. The ends of the tent are 
+half-conical in shape and, judging by the size, this tent could 
+sleep two. In one side of the tent is a five foot-high, 
+three-foot wide door with two flaps that may be tied off. 
+~
+99 1140916488 0
+0
+S
+#99100
+Knee-High Grass About The Farm~
+   A narrow trail of packed dirt runs through knee-high grass, 
+leading north to a large, battered farmhouse, the wooden planks 
+of varying hues as they've been replaced over the many seasons 
+the house has seen. Heavy shutters and a thick door face down 
+the path, bearing the occasional notch and scrape across them. 
+Either side of the trail rises up high grass, reaching to the 
+knee of a man, a short cut of dirt leading to the western barn, 
+large gates painted a drab red colour. 
+~
+99 1073807360 4
+0
+S
+#99101
+New Room~
+   The lowest floor of this farmhouse looks to serve as a 
+kitchen, bedroom and living room for its occupants, a dozen 
+pallets of burlap sacks stuffed with straw tucked into one 
+corner, the centre of the wooden construction occupied by a large 
+cauldron that serves as a fireplace and stove. River rushes have 
+been laid over the floor, yet the old wooden boards still creak 
+beneath the foot. A pair of stout, barred shutters look out over 
+the southern trail, a staircase running up along the northern 
+wall leading to the next floor of the farmhouse. 
+~
+99 1073807368 0
+0
+S
+#99102
+Top Floor of the Farmhouse~
+   Numerous beds and pallets occupy the top floor of the 
+farmhouse, the two slopes of the ceiling reaching to a long edge 
+resting a few feet above the head of an average man, running from 
+north to south. At the southern edge of the farmhouse, a pair of 
+thick shutters lie, offering a view outside the building and down 
+onto the trail that leads before it. Odds and ends of farmlife 
+litter the ground, such as old pieces of leather tack, rusted hoe 
+heads and the occasional spotless bone. A staircase on the 
+northern side of the house leads down. 
+~
+99 1073807368 0
+0
+S
+#99103
+New Room~
+   Despite your best attempts to fly after rather abruptly 
+leaping from the farmhouse shutters, the laws of gravity dictate 
+otherwise, sending you falling down to the hard earth below. 
+~
+99 1073808384 4
+0
+S
+#99104
+Inside the Barn~
+   Numerous stalls divide this barnhouse into a number of 
+sections, each of the divisions filled with hay and straw. The 
+smell of animals and manure hang heavy in the air, the dirt of 
+the floor warm. Dust climbs freely up the drab-red-painted walls 
+of the barn, and a colony of cobwebs has claimed the sloped 
+ceiling. At the eastern end of the barn, a large pair of gates 
+lie, unbarred from this side, opening out onto a grassy trail. 
+~
+99 1073807368 0
+0
+S
+#99010
+Charred Shell of a Farmhouse~
+   Untamed grass grows freely about this portion of the northern 
+reaches of Ithilien, yet the picturesque countryside is ruined by 
+the charred shell of a large farmhouse that juts out, the 
+blackened stone base mostly intact, a short growth of fire 
+ravaged wood reaching a few dismal feet into the air. Odds and 
+ends of farming equipment litter the soot and ash ingrained stone 
+floor, from crisped pieces of leather to old scythe heads twisted 
+by the fire that tore through the farmhouse. In all directions 
+the fields of Ithilien run. 
+~
+99 65536 4
+0
+Q5
+35
+Under a large slab of burned wood, you spot a trapdoor opening
+outwards, leading down into a small basement.
+~
+S
+#99011
+Smoke Reeking Stone Basement~
+   The heavy scent of woodsmoke infuses the stones that make up 
+this space hacked beneath the dirt, the air somewhat cooler and 
+more damp than that which filters through the cracks of the 
+charred trapdoor set in the centre of the basement, a narrow set 
+of steps leading up to it. Cobwebs and dust are all that occupy 
+this basement now, consigned to the spiders and other insects to 
+watch the ages go by. 
+~
+99 1073807368 0
+0
+S
+#99012
+Outside the Farmhouse~
+   Constructed from a stone foundation and a wooden exterior, 
+this double-storey farmhouse rises high into the air, the heavily 
+barred shutters and stout door testament to the troubles and 
+perils faced by dwellings such as this in the lands of Ithilien. 
+An ancient, flaking coat of paint covers the wooden planks of the 
+farmhouse, yet while the outward appearances of the building may 
+have be left to the elements the structure looks rather sturdy. 
+In all directions, the Ithilien extends outwards. 
+~
+99 1073807360 4
+0
+S
+#99013
+Bottom Floor of the Farmhouse~
+   The lowest floor of this farmhouse looks to serve as a 
+kitchen, bedroom and living room for its occupants, a dozen 
+pallets of burlap sacks stuffed with straw tucked into one 
+corner, the centre of the wooden construction occupied by a large 
+cauldron that serves as a fireplace and stove. River rushes have 
+been laid over the floor, yet the old wooden boards still creak 
+beneath the foot. A pair of stout, barred shutters look out over 
+the northern trail, a staircase running up along the northern 
+wall leading to the next floor of the farmhouse. 
+~
+99 1140916232 0
+0
+S
+#99014
+Top Floor of the Farmhouse~
+   Numerous beds and pallets occupy the top floor of the 
+farmhouse, the two slopes of the ceiling reaching to a long edge 
+resting a few feet above the head of an average man, running from 
+north to south. At the northern edge of the farmhouse, a pair of 
+thick shutters lie, offering a view outside the building and down 
+onto the trail that leads before it. Odds and ends of farmlife 
+litter the ground, such as old pieces of leather tack, rusted hoe 
+heads and the occasional spotless bone. A staircase on the 
+northern side of the house leads down. 
+~
+99 67174408 0
+0
+S
+#99015
+In The Air Outside The Farmhouse~
+   Despite your best attempts to fly after rather abruptly 
+leaping from the farmhouse shutters, the laws of gravity dictate 
+otherwise, sending you falling down to the hard earth below. 
+~
+99 1073808388 4
+0
+S
+#99016
+Ithilien Fields Before a Squat Fort~
+   The dry fields of the Ithilien come to a halt here before a 
+squat fort that rises from the ground, a short dirt trail running 
+to the thick wooden gate, armed figures visible as they patrol up 
+and down the battlements. A steep, earthen wall forms the outer 
+perimeter of this fort, at the top a wall of fire-hardened, 
+tar-blackened stakes rising half a dozen feet. Inside the 
+roughly circular fort, a small tower has been built, of the same 
+raw, fire-proofed logs as the outer wall. 
+~
+99 67174404 4
+0
+D3
+~
+gate~
+1 -1  0 99017
+S
+#99017
+Dirt Marshal Yard Within the Small Wooden Fort~
+   Dark dirt is underfoot in this small marshal yard within the 
+squat fort, the area enclosed by wall of sharpened, blackened and 
+tarred logs that from a rough circle about the central tower. A 
+northern door leads into the rough construction, fashioned of 
+wood treated the same as the outer wall. The yard is kept clean, 
+and soldiers bustle about with it, engaged in drills or moving 
+supplies back and forth from the gate. A ramp of earth leads 
+south up onto the battlements. 
+~
+99 67174404 1
+0
+D0
+~
+door~
+1 -1  0 99019
+D1
+~
+gate~
+1 -1  0 99016
+D2
+~
+~
+0 -1  0 99018
+S
+#99019
+Inside the Squat Wooden Tower~
+   What little room there is in this squat wooden tower is 
+occupied by crude pallets and bunks, and on occasion the soldiers 
+of the fort resting when not on duty. The walls have been 
+fashioned crudely of wooden logs, blackened and tarred to grant 
+protection against fire. A stout doorway rests in the southern 
+side of the tower, opening inwards out into the marshal yard of 
+the fort, and a thick ladder ends at a trapdoor, leading out onto
+the top of the tower. 
+~
+99 67174664 0
+0
+D2
+~
+door~
+1 -1  0 99017
+S
+#99020
+Atop the Squat Wooden Tower in the Fort, Overlooking the Ithilien~
+   A commanding view of the Ithilien is gained from his squat 
+tower, during the day allowing one to see all the way from the 
+dark, looming mountain range to the east, to the massive 
+sprawling Anduin river to the west. A knee-height parapet runs 
+about the tower, forcing one to move with a degree of caution 
+about the edge lest trip and fall down into the marshal yard 
+below. A heavy brazier rests in the centre of the towertop, and 
+on the southern edge a trapdoor leads downward to inside the 
+construction. A series of wooden planks leads downwards to the 
+north, back onto the battlements of the fort. rdesc reformat 
+~
+99 1140916224 1
+0
+D0
+~
+~
+0 -1  0 99021
+D5
+~
+~
+0 -1  0 99018
+S
+#99018
+Upon the Battlements About the Fort~
+   A packed dirt path rings a rough circle about the marshal yard 
+and central tower of this squat fort, the battlements leading 
+past the sharpened points of the fire-proofed trees that fashion 
+the outer wall of the fortification. A steep incline of dark 
+earth runs up to the battlements in all directions, the wooden 
+stakes and dirt path a half dozen feet above the ground below. 
+On the southern arc, a ramp leads down into the main yard of the 
+fort, while opposite it on the northern side a plank walkway 
+leads to atop the tower. 
+~
+99 1140916224 1
+0
+D0
+~
+~
+0 -1  0 99017
+D1
+~
+~
+0 -1  0 99022
+D4
+~
+~
+0 -1  0 99020
+S
+#99021
+Air About the Squat Wooden Tower~
+   Foolishly, your actions have carried you right off the end of 
+the wooden tower, leaving you to plunge down outside the fort no 
+matter how hard you may trap and flap your arms. 
+~
+99 1073808388 1
+0
+D2
+~
+~
+0 -1  0 99020
+S
+#99022
+On The Earthern Bank Before the Battlements~
+   The steep incline of the earthern bank before the battlements 
+is far too difficult to climb unassisted, especially with the 
+presence of the soldiers of the squat fort it rings about doing 
+their task and protecting the fortification from intruders. 
+~
+99 1073808388 1
+0
+D3
+~
+~
+0 -1  0 99018
+S
+#99023
+A Quaint Living Room~
+   Built of solid blocks of granite, this small, cozy living room 
+is solidly built, and still spacious enough to accomodate a good 
+amount of furnishings and occupants. The building seems to have 
+been recently renovated, with clean, unstained floorboards and a 
+fresh layer of whitewash upon the walls. 
+   An archway leads westward, while a curtain of beads leads 
+north. 
+~
+99 65800 0
+0
+D0
+~
+curtain~
+1 -1  0 99024
+D3
+~
+~
+0 -1  0 99025
+S
+#99024
+A Tiny Kitchen~
+ This small kitchen is spacious enough for one person to 
+comfortably work and another person to get by, but any further 
+than that is pushing it. Definitely not the largest of kitchens, 
+it serves its purpose with its various furnishings and equipment.
+A curtain of beads leads southward, back to the living room.
+~
+99 1073807624 0
+0
+D2
+~
+curtain~
+1 -1  0 99023
+S
+#99025
+A White-Washed Room~
+   Quaint and homely, this small white-washed room of granite 
+blocks bears enough space for a couple beds and a bit of 
+furnishings. The ceiling and floor are made of pinewood planks, 
+unstained and pale. A doorless archway leads east into the main 
+living room. 
+~
+99 1073807624 0
+0
+D1
+~
+~
+0 -1  0 99023
+S
+#99026
+Boulder Fall~
+   All around the fields of the Anorien stretch out, fading to 
+forest in the northeast and cast in the shadow of Mindolluin to 
+the west. About a small, log cabin is a low stone wall, crumbled 
+and overtaken by ivy. A small path is cobbled from an opening in 
+the wall, long devoid of a gate, and leading up to the door of 
+the cabin. On either side of it the grass has been tended. 
+~
+99 1073807360 3
+0
+D1
+~
+~
+0 -1  0 8100
+D3
+~
+door~
+1 3301  30 99027
+S
+#99027
+A Cosy, Log Cabin~
+   While not exceedingly large, this cabin carries an air of 
+openness. The walls of this cabin are formed by carefully cut 
+and smoothed logs, patched in between to ward against wind and 
+rain. Set into the eastern wall is a sturdy wooden door, bearing 
+a lock, and directly across on the western wall is a four-paned 
+window which allows in light from the setting sun and a view of 
+the wilds surrounding the cabin. 
+~
+99 1073807368 0
+0
+D1
+~
+door~
+1 3301  30 99026
+D2
+~
+~
+0 -1  0 8573
+D4
+~
+trapdoor~
+1 -1  0 99028
+P
+open close~
+window shutters~
+vstr You walk over to the window and open its shutters.
+ostr $n walks over to the window and opens its shutters.
+rftog indoors 99027
+fi alldone
+~
+P
+look glance~
+window shutters~
+vstr You peer out through the shutters of the window.
+ostr $n peer out through the shutters of a window.
+atlook 8101
+fi alldone
+~
+S
+#99028
+A Small Attic~
+   The attic is fairly close to the roof of the cabin, but still 
+bears enough space for a decently tall man to stand upright 
+towards the center. It is rather simple with one small, paned 
+window towards the east, overlooking the wilds beyond. It's 
+often quite warm as the heat drifts up from the fireplace, making 
+it ideal for sleeping. A small trapdoor in the southern part of 
+the room leads down to the main room of the cabin. 
+~
+99 65800 0
+0
+D5
+~
+trapdoor~
+1 -1  0 99027
+P
+open close~
+window shutters~
+vstr You walk over to the window and open its shutters.
+ostr $n walks over to the window and opens its shutters.
+rftog indoors 99028
+fi alldone
+~
+P
+look glance~
+window shutters~
+vstr You peer out through the shutters of the window.
+ostr $n peer out through the shutters of a window.
+atlook 99026
+fi alldone
+~
+S
+#99029
+Inside a Ramshackle Shanty~
+   There is only room enough for four people inside this 
+ramshackle shanty. The walls are solid enough, though when a 
+strong wind or storm assails from the outside the elements are 
+more than inclined to seep in through the cracks in the 
+daub-and-wattle and occasional stretch of tarpaulin. The roof is 
+flat, the floor of uneven and rotting rushes. A stout door with 
+a heavy lock upon it leads to the outside. 
+~
+99 1073809672 0
+0
+S
+#99030
+Roughly Spherical, Dug-Out Warren~
+   This warren looks to have been dug out by hand and pick, the 
+walls of chipped-surfaced dark stone. Roughly spherical is 
+shape, the air is stale and warm, the heat quite obviously due to 
+how far below the surface this cave is. There is perhaps room 
+for only three or four humanoids to squeeze in to the small 
+warren at any one time, any more threatening to spill out past 
+the stout wooden door to the outside. 
+~
+99 1073809672 0
+0
+S
+#99031
+Cramped Inn Room~
+   This cramped room looks big enough to hold only two people 
+comfortably, and maybe a third if squeezed in the narrow space 
+between the four walls and simple straw pallet bed. There are no 
+windows, illumination having to be provided by the occupants, and 
+the warped wooden boards underfoot creak with every step placed 
+upon them. A stout door opens outwards to a hallway. 
+~
+99 1073807628 0
+0
+S
+#99032
+Inside of an Abandoned, Stripped House~
+   There is nothing in this house, save the walls; anything else 
+looks to have been dragged out the front door that slams and 
+shuts with every gust of the wind, the heavy scratches in the 
+wooden floor leading towards the door way a telling clue for 
+those who come to this conclusion. 
+~
+99 1073807368 0
+0
+S
+#99033
+Inside a Rough, Wooden Barrack~
+   Assembled of logs and clay with hay to insulate from the
+elements, this small barrack is a simple place for men to
+sleep and rest protected from the elements. A group of
+bunks are set by the walls, and a small fireplace has been
+erected to keep the place warm from the inclemencies of
+winter. A shuttered window is the only ventilation for this
+crude dwelling. Apparently, nobody has used this place for
+some time, as the beds are undisturbed and the floor has a
+small film of dust.
+~
+99 1140916488 0
+0
+S
+#99034
+Inside A Simple Cottage~
+   This broad, circular room is fashioned of grey stone, wooden 
+beams crossing the ceiling to support a thatched roof above. A 
+few pieces of furniture dot the enclosure, clustered about a 
+fireplace by the eastern wall. A stove of cast iron lies along 
+the room's northern bend, a metal pipe leading fumes up and away 
+to a chimney. A tall pine door leads to a room to the east, while
+a heavy door of polished oak leads south onto the yard of the 
+cottage. One could leave the cottage to the west.
+~
+99 1140916488 0
+0
+D1
+~
+pine-door~
+1 66182  50 99035
+D2
+~
+oak-door~
+1 -1  0 99036
+D3
+~
+door~
+1 66182  0 99038
+S
+#99035
+A Quiet Bedchamber~
+   Small but comfortable, this quiet bedchamber, fashioned of 
+grey brick, is moderately attended, set with sturdy, serviceable 
+furniture. Shuttered windows on the eastern wall offer light in 
+the daytime, a bed of pine placed just beneath them. The chamber 
+is kept heated by the stove piping from the cottage's main room, 
+accessible through a tall, pinewood door set along the western 
+wall. 
+~
+99 1140916488 0
+0
+D3
+~
+pine-door~
+1 66182  50 99034
+S
+#99036
+A Farming Field~
+   Roughly the size of an acre, this field is large enough to 
+accomodate a pair of crops, yet still be worked by a single man.
+A modest fence ensures that wandering animals can't feed from
+the crops, as well as keep the farms animals from wandering
+too far. One could enter a small stone cottage to the north, or
+walk further east into another field.
+~
+99 1073807360 4
+0
+D0
+~
+oak-door~
+1 -1  0 99034
+D1
+~
+~
+0 -1  0 99037
+S
+#99037
+A Farming Field~
+   Roughly the size of an acre, this field is large enough to 
+accomodate a pair of crops, yet still be worked by a single man.
+A modest fence ensures that wandering animals can't feed from
+the crops, as well as keep the farms animals from wandering
+too far. West lies a a field set south of a cottage.
+~
+99 1073807360 4
+0
+D3
+~
+~
+0 -1  0 99036
+S
+#99038
+A Path Leading to a Simple Cottage~
+   This short dirt trail leads up to a simple, grey stone 
+farmhouse. The south side of the farm contains the various 
+fields where the farming is done, and there is a short several 
+foot wooden fence surrounding the property. 
+~
+99 1073807360 3
+0
+D1
+~
+door~
+1 66182  0 99034
+S
+#99039
+A Decent Living Room~
+   The walls of this room are freshly-painted a peachy color 
+while the floorboards are made of rather sturdy but mildly worn 
+hardwood. The living room itself is large, capable of bearing a 
+few pieces of furniture while still allowing enough room for 
+walking about. A modest-sized window has been set into the 
+southern wall, curtained by ivory linen while a curtain in the 
+same color covers the archway that leads to the kitchen to the 
+east. A narrow hallway leads north, further into the home and a 
+door to the south leads out onto the street. 
+~
+99 268503308 0
+8
+D0
+~
+~
+0 -1  0 90041
+D1
+~
+curtain~
+1 -1  0 99040
+P
+open close adjust~
+window curtains~
+vstr You walk over to the window and adjust the curtains.
+ostr $n walks over to the window and adjusts its curtains.
+rftog indoors 99039
+~
+S
+#99040
+A Small Kitchen~
+   This kitchen is small in size though capable of use for modest 
+cooking as well as leaving enough space for the necessary kitchen 
+equipment and furniture. The walls are a freshly-painted peach 
+in hue and the floor is made of white stones, matching in color 
+with that of the small fireplace and chimney rising up the 
+southern wall. A stove has been placed in the far corner of the 
+room and a set of shelves dominate the most of the western wall, 
+set to either side of the archway which bears an ivory-colored 
+linen curtain, separating the kitchen from the living room 
+beyond. 
+~
+99 1073807624 0
+0
+D3
+~
+curtain~
+1 -1  0 99039
+P
+open close adjust~
+windows curtains shutters~
+vstr You walk over to the window and adjust the curtains.
+ostr $n walks over to the window and adjusts its curtains.
+rftog indoors 99040
+~
+S
+#99669
+Inside a Damp Cave~
+   The light in this area is sketchy at best, vague and 
+disorienting closer to a more truthful bend. Several scraggly 
+trees have grown in front of the cave's entrance, casting any 
+sunlight that manages to creep inside to be rendered strange and 
+distorted. The floor itself is slickened with damp, as are the 
+walls of dark, cold stone. The cave stretches farther westwards, 
+what little light that is presented in the current area even more 
+stifled there. 
+~
+99 65544 7
+0
+D1
+~
+~
+0 -1  0 3222
+D3
+~
+~
+0 -1  0 99670
+S
+#99670
+The End of a Dank Tunnel~
+   The most pervasive note in this room's makeup is the heavy 
+smell of mold, of wet fabric left that way for too long. 
+Sleeping mats and pallets are scattered about the floor of the 
+cavern, all of which are at least semi-dampened from the cave 
+surroundings. The cave ends abruptly towards the western way, 
+nothing but inky blackness and cold stone there. A ways to the 
+east lays the entrance to the cave, any light from its mouth lost 
+this deep in. 
+~
+99 65800 7
+0
+D1
+~
+~
+0 -1  0 99669
+S
+#99041
+Inside the Pavillion~
+   A pavillion has been set up, sturdy and well-woven cloth 
+draped over wooden poles that have been stuck in the ground. The 
+walls are open-air, leaving those inside sheltered from the skies 
+above but still fairly vulnerable to the elements. It is quite 
+roomy within, capable of holding quite a few people. 
+~
+99 67174408 0
+0
+S
+#99042
+A Logged Cottage~
+   This logged cottage is big enough to have two rooms, but it is 
+instaed left open with a supporting beam in the middle. It have 
+only one door towards the southern end and carries no windows. 
+It is built in thick logs, with much skill and is sealed from 
+cold and wind with moss and wood shavings. A small fireplace is 
+set in the end directly adjectant the door, and straw covers the 
+floor. 
+~
+99 65536 0
+0
+S
+#99043
+testfloorplan~
+No Description Set.
+~
+99 65536 0
+0
+D0
+~
+~
+0 -1  0 99044
+S
+#99044
+testfloorplan2~
+No Description Set.
+~
+99 65536 0
+0
+D2
+~
+~
+0 -1  0 99043
+S
+#99045
+Inside the Mud Hut~
+   Of a circular dome-shape design, this mud and wood hut is 
+simple in its construction. Long, thin branches form the 
+structure, dug into the soil beneath it and arc upwards to form 
+the dome. Similar branches cross horizontally round the 
+circumference, making it more sturdy to the elements. Packed in 
+between is a thick layer of mud and on top of that lies straw, 
+woven around the wooden frame to create a quite efficient 
+waterproof outer layer. At the top a smoke hole opens up to the 
+skies and it bears a simple, wooden door which is somewhat 
+shorter than the average person. 
+~
+99 67174664 0
+0
+S
+#99046
+A Cramped Room Within the Lean-To~
+   This cramped room can barely hold three people, and only 
+really one comfortably. The floor is of dirt, packed down and 
+damp, and the low roof is at a slant, leaving more space to the 
+right of the room than the left. 
+~
+99 67174408 0
+0
+D5
+~
+~
+0 -1  0 99047
+S
+#99047
+A Tiny Larder~
+   This tiny larder has been dug out beneath the main room of the 
+lean-to and can only just barely hold a human body, standing 
+upright. Its main purpose, as it is slightly damp and cold, 
+seems to be holding food - or, alternatively, tools, hides, etc. 
+It is a storage cubby. 
+~
+99 65544 0
+0
+D4
+~
+~
+0 -1  0 99046
+S
+#99048
+Within a Narrow Mineshaft~
+   This narrow mineshaft delves some distance into the rock, cut 
+crudely, and with no particular order or form to its 
+construction. At times metallic glints are visible in the rock 
+walls, and water drips from the low ceiling, making the fungus 
+covered floor slippery and wet. It widens a little to the north, 
+curving steeply downwards. 
+~
+99 65864 0
+0
+D0
+~
+~
+0 -1  0 99049
+S
+#99049
+A Widening Mineshaft~
+   The mineshaft widens considerably here, though the floor and 
+walls are even rockier than they are to the south, as it twists 
+down into the earth. Bit of debris make the ground treacherous, 
+and the mineshaft cuts off abruptly on its curve downwards, the 
+edge disappearing into darkness. The ceiling is higher, making 
+it easier to move about. This place is almost roomy. 
+~
+99 65864 0
+0
+D2
+~
+~
+0 -1  0 99048
+D5
+~
+~
+0 -1  0 99050
+S
+#99050
+On a Ledge at the Bottom of a Shallow Drop-Off~
+   This rock ledge has been cut out of the wall, a single stone 
+stair leading down into darkness. Several feet below it, 
+however, the darkness truncates rather abruptly by way of a 
+shallow pool of stagnant cave water, and several feet above it is 
+solid ground again. It would not be too hard to climb up from 
+here back into the mineshaft, or down from here into the pool of 
+water. 
+~
+99 65864 0
+0
+D4
+~
+~
+0 -1  0 99049
+S
+#99051
+Inside a Huge Pavilion Tent~
+   Glistening black walls of carefully joined bolts of silk held 
+aloft by stained brown wooden poles form an opulent shelter from 
+outside weathers. Brass lanterns, polished until they reflect 
+their own light, shed warm illumination throughout the tent as 
+they sway slightly from the cross. The ground is covered by 
+sturdy woven rugs of twisted cloths of black and silver wool. On 
+one end, a rectangular opening leads outside. A large, colorful 
+tapestry has been hung over the opening to protect the 
+inhabitants, intricate work depicting Gondorian Soldiers marching 
+in rank and file behind the flag of Gondor and a banner bearing a 
+black shield before a silvery grey moon. 
+~
+99 67174664 0
+0
+S
+#99052
+inside tent test~
+inside of a tent
+~
+99 65536 0
+0
+S
+$~

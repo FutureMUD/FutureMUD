@@ -1,0 +1,663 @@
+#13001
+river sirith water inlet LIQUID PELARGIR~
+#6the River Sirith#0~
+#6The water of the River Sirith laps gently in this dock inlet.#0~
+~
+23 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13000
+Isildur Elendil Anarion statues great ancient three STONE PELARGIR UNIQUE~
+three ancient statues~
+Three great statues from ancient days are set here, towering above the market.~
+   Carved from great amounts of white stone, these statues are 
+over thrice the height of the tallest nobleman. There are three 
+men carved, one taller than the other two. The faces of all 
+three men are stern, with sharp features and shoulder length 
+hair. Upon their brows rest crowns, the tallest man wearing the 
+most jeweled and carefully engraved, and upon their broad 
+shoulders rest great suits of armour. Rippling muscles are 
+visible on all the men, and each has their hand upon the hilt of 
+a longsword. They stand, each looking out to one of the three 
+great towers of the city, the tallest looking to the northern, 
+while the two younger, shorter numenoreans look south west and 
+south east.
+   Though they have been carved with great love and great skill,
+time has taken its toll upon the three statues. In places, the 
+intricate features have been weathered away, and in others the
+white stone has turned green, with vines running up the legs 
+of the men.
+~
+12 4096 0
+0 0 0 0
+500000 0.000000
+0 0 0 0 512 0 1
+0.000000 0 0 0 30 0 0
+#13002
+plaque golden METAL PELARGIR~
+a golden plaque~
+A golden plaque is riveted to the base of each of the statues.~
+~
+53 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 67108864 0 1
+0.000000 0 0 0 28 0 0
+#13003
+avocado dark green large OTHER PELARGIR~
+a large, dark green avocado~
+A dark green avocado lies here on the floor.~
+   Of an egg shape, but significantly larger, this fruit has a 
+dark green skin all about it, which is waxy and shiny, but 
+covered in many tiny lumps. The fruit is firm to the touch, and 
+the inside is of a light green colour. A large stone is in the 
+center. 
+~
+19 4096 1
+3 0 0 0
+4 0.000000
+0 2 0 0 67108864 0 1
+8.000000 0 0 0 0 0 0
+#13004
+bucket goo ARCENIA_PLAUE_INK UNIQUE_ADMIN ink OTHER~
+a bucket filled with goo~
+A bucket filled with Arcenia's magic ink goo is here.~
+~
+56 4108 1
+384 384 0 0
+200 0.000000
+0 
+the plaque~
+0 0 4194304 0 1
+1.000000 0 0 0 0 0 0
+#13005
+coconut brown thick-shelled furry OTHER PELARGIR~
+a brown, thick-shelled coconut~
+A brown coconut with a thick, furry shell lies here.~
+   This exotic piece of food is of the size which can easily be
+held in the palm of an outstretched hand. It is of a light brown
+hue, and it very hard on the outside. The shell is covered in many
+small fibers, and no clear way of opening it is visible. However,
+once opened, the inside is a cloudy white colour, white a large
+space in the middle filled with coconut milk.
+~
+19 4096 1
+4 0 0 0
+300 0.000000
+0 3 0 30 67109024 0 1
+15.000000 0 0 0 0 0 0
+#13007
+bracer SAILOR metal engraved METAL~
+an engraved metal bracer~
+An engraved bracer of polished metal.~
+   Made out of a quality metal this bracer is of a solid make. 
+Made to fit comfortably and easily onto the arm, protecting the 
+hands, wrist, and forearm. Smooth and well-polished this bracer 
+is only marred by the skilled engraving of a sailing ship on the 
+forearm guard. 
+~
+9 4096 4097
+4 5 0 0
+100 0.000000
+0 0 0 34 0 0 1
+70.000000 0 0 0 28 0 0
+A
+10001 4
+#13008
+hauberk PELARGIR_IMPORT ornate plated leather METAL~
+an ornate, plated leather hauberk~
+An ornate hauberk studded with bronze plates lies here.~
+   Made of a thick, quality leather this hauberk is plated with 
+thin bronze. Strips of bronze plating curves from the sides 
+around up and under bronze pauldrons at the shoulders. Not 
+solidly plated nor thick plates used allows much more 
+maneuverability and makes it considerably lighter. 
+~
+9 4096 9
+2 3 0 0
+800 0.000000
+0 0 0 34 8392864 0 1
+550.000000 0 0 0 28 0 0
+#13009
+greaves PELARGIR_IMPORT polished bronze METAL~
+a pair of polished bronze greaves~
+A pair of bronze greaves have been set here, glinting in the light.~
+   Crafted of a quality bronze these greaves give a solid, yet 
+comfortable protection for the legs. Protecting the ankles over 
+the shins, stopping below the knees. Unadorned but its smooth 
+surface is polished. 
+~
+9 4096 33
+3 5 0 0
+1225 0.000000
+0 0 0 29 8392864 0 1
+950.000000 0 0 0 16 0 0
+#13010
+vambraces PELARGIR_IMPORT ornate bronze METAL~
+a pair of ornate bronze vambraces.~
+A pair of well-polished bronze vambraces have been set here.~
+   Expertly crafted and well-polished these bronze vambraces are 
+a very sturdy piece of armor. Inlaid with silver filigree and 
+ornatly designed the vambraces are also a work of art. Curved 
+designs wind around the length of the vambraces while several 
+studs line the outter edge. 
+~
+9 4096 257
+3 5 0 0
+1225 0.000000
+0 0 0 29 8392864 0 1
+950.000000 0 0 0 16 0 0
+#13011
+helmet PELARGIR_IMPORT helm rounded plume bristly bronze METAL~
+a rounded bronze helmet with a bristly black plume~
+A rounded bronze helmet with a bristly black plume has been left here.~
+   Expertly crafted out of a fine bronze this helmet is very 
+protective. Well rounded to fit the head easily and comfortably 
+with a long noseguard. The sides of the helm extend forward 
+providing ample protection for the sides of the head curling 
+around to cover the cheeks leaving a Y-like shape that isn't 
+covered, from the chin up to the nose, then extending diagonally 
+out allowing both eyes to be free to see. A short, black, 
+bristly plume extends out of a thin fin-like piece of bronze that 
+has been affixed to the top of the helmet starting at about where 
+the forehead would be down the back to the bottom, where it stops 
+at the back of the neck. 
+~
+9 4096 17
+3 5 0 0
+600 0.000000
+0 0 0 36 8392864 0 1
+400.000000 0 0 0 16 0 0
+#13012
+roundshield PELARGIR_IMPORT shield ornate blackened metal METAL~
+an ornate, blackened metal roundshield~
+An ornately designed roundshield made of a blackened metal has been left here.~
+   Crafted expertly out of a blackened metal this roundshield has 
+been crafted for extensive combat use as well as a decoration. 
+Made of a strong, semi-thick metal with approximatly a foot wide 
+half-circle as been cut into both sides of the shield. A zig-zag 
+pattern outlines the edge of the shield with a thick foot and a 
+half wide metal disc set in the middle of the shield with the 
+depiction of a battle upon it. 
+~
+6 4096 8912897
+5 12 35 0
+600 0.000000
+0 0 0 36 8392864 0 1
+900.000000 0 0 0 28 0 0
+#13013
+spear GOOD_QUALITY cedar shafted bronze headed one handed light METAL~
+a cedar-shafted, one-handed spear with a bronze-head~
+A light, cedar-shafted spear with a bronze head has been set here.~
+   Crafted expertly this spear can be easily wielded in one hand. 
+The shaft is made out of light but very strong cedar topped with 
+a razor-sharp, well-polished bronze head. The spear is rather 
+plain, but expertly made and perfectly balanced to double as a 
+throwing weapon as well as a piercing one. 
+~
+5 268439552 8193
+0 2 6 9
+300 0.000000
+1 0 0 36 8392864 0 1
+165.000000 0 0 0 16 0 0
+#13014
+longsword EXPERT_QUALITY sword PELARGIR_IMPORT bright steel-bladed tapering ornate black hilt METAL~
+a bright, steel-bladed longsword with a tapering blade~
+An ornately designed longsword with a tapering steel blade and black hilt lies here.~
+   Forged of a high quality steel, this longsword has been 
+expertly crafted. The blade is extremely well polished, giving 
+off a bright, glinting shine. The hilt has been made of a bright 
+steel wrapped in a midnight black leather cord for excellent 
+grip. Curved, angular designs adorn the hilt. The base of the 
+blade has been narrowed a few centimeters and dulled while the 
+remainder tapers up to a fine point. 
+~
+5 4096 8193
+0 1 9 3
+400 0.000000
+1 0 0 36 0 0 1
+650.000000 0 0 0 18 0 0
+S
+100003
+#13015
+cuirass PELARGIR_IMPORT ornate steel-plated METAL~
+an ornate, steel-plated cuirass~
+An ornately designed cuirass covered in steel plates has been set here.~
+   This thick leather cuirass is covered in ornately designed 
+plates. A large, rectangular plate in the middle of the chest 
+with many other, smaller steel plates covering the rest of the 
+cuirass. The small plates on the sides are about an inch in 
+width, patterned in thin chains and studded. Covering the 
+abdomen are longer rectangular plates with studded box designs on 
+it. 
+~
+9 4096 9
+3 5 0 0
+1200 0.000000
+0 0 0 36 8392864 0 1
+4200.000000 0 0 0 18 0 0
+A
+10025 -20
+A
+10024 -30
+A
+10037 -20
+#13016
+vambraces PELARGIR_IMPORT pair ornate steel METAL~
+a pair of ornate steel vambraces~
+A pair of ornately designed steel vambraces have been left here.~
+   Crafted out of quality steel these vambraces provide ample 
+protectionf or the forearm. Adorned with several patterned studs 
+and circular and straight designs they are a work of art as well 
+as proficient armor. Well-polished and smooth they give off a 
+nice shine. 
+~
+9 4096 257
+3 5 0 0
+1175 0.000000
+0 0 0 33 8392864 0 1
+1550.000000 0 0 0 18 0 0
+#13017
+greaves PELARGIR_IMPORT bright steel greaves pair METAL~
+a pair of bright steel greaves~
+A pair of steel greaves with a bright shine have been left here.~
+   Crafted of a quality steel these greaves have been polished to 
+give off a bright shine. Smooth and other than a few curved 
+patterns, completely unadorned. Expertly made these greaves are 
+light and thin but sacrifice no protection for the weight 
+difference. 
+~
+9 4096 33
+3 5 0 0
+1175 0.000000
+0 0 0 33 8392864 0 1
+1550.000000 0 0 0 18 0 0
+#13018
+tabard PELARGIR_IMPORT finely made silver trimmed azure black tabard TEXTILE~
+a finely made, silver trimmed tabard~
+A finely made azure and black tabard has been left here.~
+   Crafted out of a fine linen this tabard has been made out of 
+an azure and black linen trimmed in silver. From the shoulder 
+clasps the azure and black linen flows down the back, the black 
+ending below mid-back in a narrow oval-shape, the azure linen 
+frames the outside of the tabard and trimmed in silver. 
+~
+11 4096 1025
+0 0 0 0
+100 0.000000
+0 0 0 32 8392832 0 1
+100.000000 0 0 0 7 0 0
+#13900
+key CULT_ARMORY jet-inset object long thin key OTHER~
+a long, jet-inset key~
+A long, thin object set with a glimmering jet stone has been left here.~
+~
+18 4096 1
+0 0 0 0
+25 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13019
+casque PELARGIR_IMPORT polished steel long noseguard METAL~
+a polished steel casque with a long noseguard~
+A well-polished steel casque has been left here.~
+   This casque was made out of quality steel by a skilled 
+craftsman. The steel is well-polished to a bright sheen and has 
+been made to fit a specific user. The casque fits tightly over 
+the user's head providing ample protection to the person's skull, 
+and cheeks with its long side guards. A long unadorned noseguard 
+also provides some protection for the user's face. The surface 
+of the casque is smooth and polished as well. 
+~
+9 4096 17
+3 5 0 0
+405 0.000000
+0 0 0 36 0 0 1
+1200.000000 0 0 0 18 0 0
+#13020
+collar PELARGIR_IMPORT plated metal gorget polished METAL~
+a polished, plated metal collar~
+A plated circle of leather has been left here.~
+   This collar has been made out of a quality metal and has been 
+well-polished. Though having seen its share of use, the quality 
+shows in that the scratches and nicks are barely visible. This 
+collar attaches easily to a hauberk and provides ample protection 
+to the neck. 
+~
+9 4096 5
+2 5 0 0
+500 0.000000
+0 0 0 36 8392736 0 1
+550.000000 0 0 0 28 0 0
+#13021
+soldier injured severely HEALER_TEST OTHER~
+#5a severely injured soldier#0~
+#5A severely injured soldier lies here, near death.#0~
+   This youthful gondorian has suffered a severe mauling at the 
+hands of some dark enemy, possible in one of the violent 
+skirmishes on the eastern border. Donning simple ringmail armor, 
+he has a wide, bleeding slice on his right thigh and a 
+darkly-fletched arrow buried through his thorax, which has 
+perforated his mail, flesh, ribs and back armor. His breath 
+comes in a ragged, pained way, and his eyes are glassy. Death 
+will surely come soon if this badly injured man is not treated. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13022
+healers gathering masters OTHER HEALER_TEST~
+#5a gathering of Master Healers#0~
+#5A gathering of Master Healers stands around, gossiping.#0~
+   This assembly of men bear the elegant, simple clothes of 
+affluent styles, all similar for donning a gold kingsfoil 
+pendant. Gathered for some specific task or purpose, these men 
+appear composed and silent, waiting for some sort of event to 
+bring forth their attention. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13023
+young healer assitant HEALER_TEST OTHER~
+#5a young healer assistant#0~
+#5A young healer assistant stands ready to help.#0~
+   This youthful, smart male seems deft and curious, as he stands 
+by, eager to assist the Healers in their proceedings. Donning 
+simple linen clothing of pure white color, his youthful features 
+are yet to be touched with the signs of experience or sorrow. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13024
+soldier bandaged HEALER_TEST OTHER~
+#5a bandaged soldier#0~
+#5A bandaged soldier lies here, resting.#0~
+   This young man, apparently a soldier, has been severely 
+wounded in some armed combat. However, due to the skill of an 
+attendant, he has been skillfully treated, bandaged closely in 
+the chest and leg. Breathing slowly and with some effort, color 
+or present on his cheeks and his eye sparkle with determination 
+to survive. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13025
+crate rough arrow fire branded CRAFT_OBJ WOOD~
+a crate with an arrowhead brand~
+A rough crate, branded in fire with an arrow has been left here.~
+~
+12 4096 1
+0 0 0 0
+7000 0.000000
+0 0 0 0 0 0 1
+1000.000000 0 0 0 32 0 0
+#13026
+shipment crates lumbers OTHER ARMY_CONTRACT~
+a shipment of crates and lumber~
+A shipment of crates and lumber have been neatly stacked in this area.~
+   This assembly of crates and lumbers all bear the fire-branded 
+symbol of the Tree of Gondor. Stacked neatly, these crates 
+probably contain some sort of military supply, while the lengths 
+of lumber are all ash wood. Until they they are opened, the 
+finality of this shipment cannot be discerned. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13027
+young soldier cart OTHER PROG_ITEM~
+#5a young soldier#0~
+#5A young soldier is here, waiting for something, by a cart.#0~
+A young man stands here, his equipment and armour showing that
+he is a member of the Battalions. Behind him is a mule,
+shaking its tail bad-temperedly, attached to a cart full of
+supplies and materials.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13028
+parchments sheafs HEALER_TEST OTHER~
+several written parchments~
+Several sheafs of parchment have been forgotten here.~
+   Inscribed with great skill in numenian-tengwar, these 
+parchments are extensely and neatly packed with what might be 
+some sort of treatise or sages discussion. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13029
+tome musty leather HEALER_TEST OTHER~
+a musty, slim tome~
+A musty, slim tome rests calmly here, cover made of leather.~
+This tome, bearing the assault of some sort of fungal growth on some of its leather cover, is made with the finest parchment, papery thin and bleached white. It contains some sort of arcane or obscure knowledge, written in Numenian-Tengwar sigils.
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+#13030
+crate simple rough WOOD~
+a simple, rough wooden crate~
+A simple, rough crate made of wood lies on the ground.~
+   This crude wooden box has been built using rough, unfinished 
+lumber and assembled with simple, long iron nails. Although far 
+from pretty, the thickness of the lumber and the overall sturdy 
+built of the crate guarantee that, once the lid is nailed shut, 
+the contents inside the box will remain secured and overally 
+unharmed. 
+~
+15 4096 1
+50000 0 -1 0
+400 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 32 0 0
+#13031
+feathers fletching red OTHER~
+some fletching feathers, dyed red~
+Some fletching feathers, dyed black, have been left here.~
+These simple feathers have been dyed red, and are ready to be attached to an arrow.
+~
+12 33558528 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.500000 0 0 0 0 0 0
+#13032
+longsword GOOD_QUALITY sword iron tempered METAL JOURNEYMAN~
+a tempered iron, fine longsword~
+A tempered iron, fine longsword has been carelessly left here.~
+   Made of carefully forged and tempered iron, the blade of this 
+longsword has a smooth, skillfully wrought surface, free of any 
+evident marks of hammering. A crossguard that curls to protect 
+the hand of the wielder is complemented by a hilt wrapped in 
+fine, blue-dyed leather, that insures a good grip of the weapon. 
+A semi-spherical pommel made of lustrous bronze is set on the end 
+of the hilt, giving the weapon its balance. Overall, this 
+weapon's edge, sturdy manufacture and quality of the metal speak 
+of a trustable, excellent blade. 
+~
+5 6144 8193
+0 1 8 3
+300 0.000000
+4 0 0 30 4 0 1
+400.000000 0 0 0 17 0 0
+S
+100003
+#13033
+soldier invis OTHER PROG_OBJ~
+#5an invisible soldier#0~
+#5A soldier is here, invisibly waiting for his timer to end.#0~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 13027 0 0 0 0
+#13034
+arrows 300 black fletched bundle huge OTHER~
+a huge bundle of 300 black-and-white fletched arrows~
+A huge bundle of 300 black-and-white fletched arrows lies here.~
+   This bundle contains 300 black-and-white fletched arrows,
+bound with leather cord.
+~
+12 4198400 1
+0 0 0 0
+3000 0.000000
+0 0 0 0 517 0 1
+1134.000000 0 0 0 0 0 0
+#13035
+token tree engraved METAL RALDIR_CONTRACT~
+a small tree-engraved metal token~
+A small tree-engraved metal token glints dully here.~
+   Made of a thin yet firm piece of metal, this small token has a 
+simple engraving of the White Tree of Gondor. Apparently of no 
+value by itself, tokens like this are used to represent various 
+types of transactions. 
+~
+8 135168 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 28 0 0
+#13036
+ring silver strands sapphire polished JEWELLER METAL~
+a polished, silver strands ring~
+A ring made of many strands of silver and set with a sapphire has been left here.~
+Several different thin strands of highly polished, solid silver have been woven into a band fitted for a small finger. At the top of the ring is set a small beautifully facted deep blue sapphire, which is set with four elegantly shaped settings one from each stand.  The blue of the sapphire reflects in all directions off of the different strands which have been shined until they glint.  Under the sapphire is a tight silver band which has been carefully welded into position which holds the rest of the ring together.
+~
+8 4608 3
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+700.000000 0 0 0 28 0 0
+#13200
+shield huge rock flat STONE~
+a huge flat rock with rough natural handholds~
+A huge flat rock with rough natural handholds rests here.~
+This round natural rock is flattened on one side with natural handholds, though only a huge creature could attempt to lift such a weight.
+~
+6 0 1
+0 0 0 0
+50000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+A
+10020 15
+#13037
+armband white tree image MT_COUNCIL_HIRED TEXTILE~
+an armband with the image of the white tree~
+An armband with the image of the white tree is here.~
+This is a neat, square armband made of plain, black-dyed cotton.
+Upon it, a cotton silhouette of the White Tree of Gondor is sewn
+with even, utilitarian stitching.
+~
+8 0 134217729
+0 0 0 0
+5 0.000000
+0 0 0 100 0 0 1
+0.000000 0 0 0 4 0 0
+#13038
+gondorianticket OTHER~
+a purchase ticket~
+A purchase ticket is here.~
+~
+61 0 1
+13014 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13039
+delivery OTHER~
+a delivery center configuration token~
+A delivery center has been setup here.~
+~
+8 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13040
+delivery OTHER~
+a delivery~
+A delivery is here, waiting to be fulfilled.~
+This delivery has not been properly configured.
+~
+8 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1440 86 0 0 0 0
+#13041
+crate IMPORT-CRATE-DO-NOT-TOUCH WOOD~
+a wooden crate~
+A wooden crate is here.~
+~
+8 0 1
+0 0 0 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 1440 86 0 0 0 0
+#13042
+spear GOOD_QUALITY oak shafter iron headed one hand  METAL~
+an oak-shafted, one-handed spear with an iron head~
+An oak-shafted spear has been left here, its iron head glinting dully.~
+   Crafted with evident attention, this solid spear can be 
+wielded in one hand with ease, the length of the shaft being 
+thinner and lighter than what an usual, two handed weapon would 
+have been. The spearhead has been crafted from iron and affixed 
+firmly to the wood with bronze rivets, keeping a sharp, honed 
+edge. The weight and balance of this spear would allow someone 
+strong enough to use it as a throwing weapon, making the weapon 
+quite versatile in the hand of a skilled user. 
+~
+5 268439552 8193
+0 1 8 9
+350 0.000000
+1 0 0 34 8388608 0 1
+150.000000 0 0 0 17 0 0
+#13091
+key SHELTER STORAGE OTHER~
+a key~
+a small silver key~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#13043
+ink drabcolor $drabcolor pot small CERAMIC~
+a small ceramic pot of $drabcolor ink~
+A small ceramic pot of $drabcolor ink has been left here.~
+A small pot of $drabcolor ink sits here.
+~
+56 33558528 1
+10 10 0 0
+200 0.000000
+0 
+drabcolored~
+0 0 2048 0 1
+0.000000 0 0 0 0 0 0
+$~

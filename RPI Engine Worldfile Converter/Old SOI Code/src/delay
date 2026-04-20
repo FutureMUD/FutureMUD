@@ -1,0 +1,16 @@
+clan.h:  if (!ch->enforcement[0])
+clan.h:  return ch->enforcement[ch->room->zone];
+group.h:  for (tch = ch->room->people; tch; tch = tch->next_in_room)
+group.h:      if (tch->following == ch)
+structs.h:  // std::set<CHAR_DATA*> *group; // complement to ch->following
+utils.h:#define HSHR(ch) (!IS_SET (ch->affected_by, AFF_HOODED) ? ((ch)->sex ?	\
+utils.h:#define HSSH(ch) (!IS_SET (ch->affected_by, AFF_HOODED) ? ((ch)->sex ?	\
+utils.h:#define HMHR(ch) (!IS_SET (ch->affected_by, AFF_HOODED) ? ((ch)->sex ?	\
+utils.h:#define IS_GUIDE(ch)	(!IS_NPC(ch) ? (IS_MORTAL(ch) && !IS_SET (ch->plr_flags, NEW_PLAYER_TAG) ? ch->pc->is_guide : 0) : 0)
+utils.h:			ch->room->sector_type != SECT_INSIDE && ch->room->sector_type != SECT_UNDERWATER)
+utils.h:#define EXIT(ch, door)  ((ch->room) ? (ch)->room->dir_option[door] : NULL)
+utils.h:#define IS_MOUNT(ch) (IS_SET (ch->act, ACT_MOUNT))
+utils.h:                      !IS_SET (ch->act, ACT_MOUNT))
+utils.h:                      IS_SET (ch->act, ACT_MOUNT))
+utils.h:						ch->hitchee->hitcher == ch)
+utils.h:						ch->hitcher->hitchee == ch)

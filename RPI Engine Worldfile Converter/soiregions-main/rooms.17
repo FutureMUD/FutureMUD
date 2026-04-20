@@ -1,0 +1,7835 @@
+#17000
+Baseroom for Lebenin/Lossarnach~
+   As the title says. Zapata is in charge of this baby, so don't 
+be doing anything in this zone unless he's told you to. 
+~
+17 1073807368 0
+0
+S
+#17001
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D2
+~
+~
+0 -1  0 17023
+D3
+~
+~
+0 -1  0 17002
+S
+#17002
+Farmlands~
+No Description Set.
+~
+17 65536 12
+0
+D1
+~
+~
+0 -1  0 17001
+D2
+~
+~
+0 -1  0 17024
+D3
+~
+~
+0 -1  0 17003
+S
+#17003
+Farmlands~
+No Description Set.
+~
+17 65536 12
+0
+D1
+~
+~
+0 -1  0 17002
+D2
+~
+~
+0 -1  0 17025
+D3
+~
+~
+0 -1  0 17004
+S
+#17004
+Farmlands~
+No Description Set.
+~
+17 65536 12
+0
+D1
+~
+~
+0 -1  0 17003
+D2
+~
+~
+0 -1  0 17026
+D3
+~
+~
+0 -1  0 17005
+S
+#17005
+Farmlands~
+No Description Set.
+~
+17 65536 12
+0
+D0
+~
+~
+0 -1  0 17360
+D1
+~
+~
+0 -1  0 17004
+D2
+~
+~
+0 -1  0 17027
+D3
+~
+~
+0 -1  0 17006
+S
+#17006
+Road~
+   Whether under the light of the sun in the sky or the golden 
+glow of the stout lamp posts erected periodically along this 
+broad road leading from north to south through the lands of 
+Lossarnach, the occasional traveler can be seen making the trek 
+towards the White Mountains to the north and the Anduin to the 
+south. From farmers wearing home-made clothing leading cattle, 
+to well dressed merchants and the dour guardsmen that defend 
+Gondor, a light presence of people is always here along the road. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17359
+D1
+~
+~
+0 -1  0 17005
+D2
+~
+~
+0 -1  0 17028
+D3
+~
+~
+0 -1  0 17007
+S
+#17007
+Farmland~
+No Description Set.
+~
+17 65536 12
+0
+D1
+~
+~
+0 -1  0 17006
+D2
+~
+~
+0 -1  0 17029
+D3
+~
+~
+0 -1  0 17008
+S
+#17008
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D1
+~
+~
+0 -1  0 17007
+D2
+~
+~
+0 -1  0 17030
+D3
+~
+~
+0 -1  0 17009
+S
+#17009
+Waterfall Bottom~
+No Description Set.
+~
+17 65536 16
+0
+D1
+~
+~
+0 -1  0 17008
+D2
+~
+~
+0 -1  0 17031
+D4
+~
+~
+0 -1  0 17340
+D5
+~
+~
+0 -1  0 17341
+S
+#17010
+Waterfall Top~
+No Description Set.
+~
+17 65536 7
+0
+D2
+~
+~
+0 -1  0 17032
+D3
+~
+~
+0 -1  0 17011
+D5
+~
+~
+0 -1  0 17340
+S
+#17011
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D1
+~
+~
+0 -1  0 17010
+D2
+~
+~
+0 -1  0 17033
+D3
+~
+~
+0 -1  0 17012
+S
+#17012
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D0
+~
+~
+0 -1  0 17334
+D1
+~
+~
+0 -1  0 17011
+D2
+~
+~
+0 -1  0 17034
+D3
+~
+~
+0 -1  0 17013
+S
+#17013
+Plateu~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17335
+D1
+~
+~
+0 -1  0 17012
+D2
+~
+~
+0 -1  0 17035
+D3
+~
+~
+0 -1  0 17014
+S
+#17014
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D0
+~
+~
+0 -1  0 17336
+D1
+~
+~
+0 -1  0 17013
+D2
+~
+~
+0 -1  0 17036
+D3
+~
+~
+0 -1  0 17015
+S
+#17015
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D1
+~
+~
+0 -1  0 17014
+D2
+~
+~
+0 -1  0 17037
+D3
+~
+~
+0 -1  0 17016
+S
+#17016
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D1
+~
+~
+0 -1  0 17015
+D2
+~
+~
+0 -1  0 17038
+D3
+~
+~
+0 -1  0 17017
+S
+#17017
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D0
+~
+~
+0 -1  0 17337
+D1
+~
+~
+0 -1  0 17016
+D2
+~
+~
+0 -1  0 17039
+D3
+~
+~
+0 -1  0 17018
+S
+#17018
+Plateu~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17338
+D1
+~
+~
+0 -1  0 17017
+D2
+~
+~
+0 -1  0 17040
+D3
+~
+~
+0 -1  0 17019
+S
+#17019
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D0
+~
+~
+0 -1  0 17339
+D1
+~
+~
+0 -1  0 17018
+D2
+~
+~
+0 -1  0 17041
+D3
+~
+~
+0 -1  0 17020
+S
+#17020
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D1
+~
+~
+0 -1  0 17019
+D2
+~
+~
+0 -1  0 17042
+D3
+~
+~
+0 -1  0 17021
+S
+#17021
+Waterfall Top~
+No Description Set.
+~
+17 65536 7
+0
+D1
+~
+~
+0 -1  0 17020
+D2
+~
+~
+0 -1  0 17043
+S
+#17022
+Waterfall Bottom~
+No Description Set.
+~
+17 65536 7
+0
+D2
+~
+~
+0 -1  0 17044
+S
+#17023
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17001
+D2
+~
+~
+0 -1  0 17045
+D3
+~
+~
+0 -1  0 17024
+S
+#17024
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17002
+D1
+~
+~
+0 -1  0 17023
+D2
+~
+~
+0 -1  0 17046
+D3
+~
+~
+0 -1  0 17025
+S
+#17025
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17003
+D1
+~
+~
+0 -1  0 17024
+D2
+~
+~
+0 -1  0 17047
+D3
+~
+~
+0 -1  0 17026
+S
+#17026
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17004
+D1
+~
+~
+0 -1  0 17025
+D2
+~
+~
+0 -1  0 17048
+D3
+~
+~
+0 -1  0 17027
+S
+#17027
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17005
+D1
+~
+~
+0 -1  0 17026
+D2
+~
+~
+0 -1  0 17049
+D3
+~
+~
+0 -1  0 17028
+S
+#17028
+Road~
+   Underfoot spans a broad highway hewn of close set white 
+cobblestones, leading across the gentle hills of Lossarnach north 
+and south. The northern horizon is dominated by the spine of 
+Gondor, the snow capped White Mountains, and in the distance to 
+the north east the towers and turrets of distant Minas Tirith can 
+be seen at the base Mount Mindollin. Westward, the fields run 
+but a short distance before the gentle flow of the River Erui 
+cuts through them, beyond that a dense forest clustered about the 
+base of the mountain range. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17006
+D1
+~
+~
+0 -1  0 17027
+D2
+~
+~
+0 -1  0 17050
+D3
+~
+~
+0 -1  0 17029
+S
+#17029
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17007
+D1
+~
+~
+0 -1  0 17028
+D2
+~
+~
+0 -1  0 17051
+D3
+~
+~
+0 -1  0 17030
+S
+#17030
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17008
+D1
+~
+~
+0 -1  0 17029
+D2
+~
+~
+0 -1  0 17052
+D3
+~
+~
+0 -1  0 17031
+S
+#17031
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17009
+D1
+~
+~
+0 -1  0 17030
+D2
+~
+~
+0 -1  0 17053
+D5
+~
+~
+0 -1  0 17342
+S
+#17032
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17010
+D2
+~
+~
+0 -1  0 17054
+D3
+~
+~
+0 -1  0 17033
+S
+#17033
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17011
+D1
+~
+~
+0 -1  0 17032
+D2
+~
+~
+0 -1  0 17055
+D3
+~
+~
+0 -1  0 17034
+S
+#17034
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17012
+D1
+~
+~
+0 -1  0 17033
+D2
+~
+~
+0 -1  0 17056
+D3
+~
+~
+0 -1  0 17035
+S
+#17035
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17013
+D1
+~
+~
+0 -1  0 17034
+D2
+~
+~
+0 -1  0 17057
+D3
+~
+~
+0 -1  0 17036
+S
+#17036
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17014
+D1
+~
+~
+0 -1  0 17035
+D2
+~
+~
+0 -1  0 17058
+D3
+~
+~
+0 -1  0 17037
+S
+#17037
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17015
+D1
+~
+~
+0 -1  0 17036
+D2
+~
+~
+0 -1  0 17059
+D3
+~
+~
+0 -1  0 17038
+S
+#17038
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17016
+D1
+~
+~
+0 -1  0 17037
+D2
+~
+~
+0 -1  0 17060
+D3
+~
+~
+0 -1  0 17039
+S
+#17039
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17017
+D1
+~
+~
+0 -1  0 17038
+D2
+~
+~
+0 -1  0 17061
+D3
+~
+~
+0 -1  0 17040
+S
+#17040
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17018
+D1
+~
+~
+0 -1  0 17039
+D2
+~
+~
+0 -1  0 17062
+D3
+~
+~
+0 -1  0 17041
+S
+#17041
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17019
+D1
+~
+~
+0 -1  0 17040
+D2
+~
+~
+0 -1  0 17063
+D3
+~
+~
+0 -1  0 17042
+S
+#17042
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17020
+D1
+~
+~
+0 -1  0 17041
+D2
+~
+~
+0 -1  0 17064
+D3
+~
+~
+0 -1  0 17043
+S
+#17043
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17021
+D1
+~
+~
+0 -1  0 17042
+D2
+~
+~
+0 -1  0 17065
+S
+#17044
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17022
+D2
+~
+~
+0 -1  0 17066
+S
+#17045
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17023
+D2
+~
+~
+0 -1  0 17067
+D3
+~
+~
+0 -1  0 17046
+S
+#17046
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17024
+D1
+~
+~
+0 -1  0 17045
+D2
+~
+~
+0 -1  0 17068
+D3
+~
+~
+0 -1  0 17047
+S
+#17047
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17025
+D1
+~
+~
+0 -1  0 17046
+D2
+~
+~
+0 -1  0 17069
+D3
+~
+~
+0 -1  0 17048
+S
+#17048
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17026
+D1
+~
+~
+0 -1  0 17047
+D2
+~
+~
+0 -1  0 17070
+D3
+~
+~
+0 -1  0 17049
+S
+#17049
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17027
+D1
+~
+~
+0 -1  0 17048
+D2
+~
+~
+0 -1  0 17071
+D3
+~
+~
+0 -1  0 17050
+S
+#17050
+Road~
+   Wide enough to accommodate twelve men marching abreast, this 
+road of regal, whitish stones is well maintained, either boundary 
+of it marked with heavier, squared cobbles whilst the centre is 
+filled with rectangular paves, fitting so close together that
+barely a tuft of grass or weed emerges from between them. 
+Running straight from north to south, this highway cuts a path 
+through the green fields of the Gondorian fiefdom of Lossarnach.
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17028
+D1
+~
+~
+0 -1  0 17049
+D2
+~
+~
+0 -1  0 17072
+D3
+~
+~
+0 -1  0 17051
+S
+#17051
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17029
+D1
+~
+~
+0 -1  0 17050
+D2
+~
+~
+0 -1  0 17073
+D3
+~
+~
+0 -1  0 17052
+S
+#17052
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17030
+D1
+~
+~
+0 -1  0 17051
+D2
+~
+~
+0 -1  0 17074
+D3
+~
+~
+0 -1  0 17053
+S
+#17053
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17031
+D1
+~
+~
+0 -1  0 17052
+D2
+~
+~
+0 -1  0 17075
+D5
+~
+~
+0 -1  0 17343
+S
+#17054
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17032
+D2
+~
+~
+0 -1  0 17076
+D3
+~
+~
+0 -1  0 17055
+S
+#17055
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17033
+D1
+~
+~
+0 -1  0 17054
+D2
+~
+~
+0 -1  0 17077
+D3
+~
+~
+0 -1  0 17056
+S
+#17056
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17034
+D1
+~
+~
+0 -1  0 17055
+D2
+~
+~
+0 -1  0 17078
+D3
+~
+~
+0 -1  0 17057
+S
+#17057
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17035
+D1
+~
+~
+0 -1  0 17056
+D3
+~
+~
+0 -1  0 17058
+S
+#17058
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17036
+D1
+~
+~
+0 -1  0 17057
+D3
+~
+~
+0 -1  0 17059
+S
+#17059
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17037
+D1
+~
+~
+0 -1  0 17058
+D2
+~
+~
+0 -1  0 17081
+D3
+~
+~
+0 -1  0 17060
+S
+#17060
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17038
+D1
+~
+~
+0 -1  0 17059
+D2
+~
+~
+0 -1  0 17082
+D3
+~
+~
+0 -1  0 17061
+S
+#17061
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17039
+D1
+~
+~
+0 -1  0 17060
+D2
+~
+~
+0 -1  0 17083
+D3
+~
+~
+0 -1  0 17062
+S
+#17062
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17040
+D1
+~
+~
+0 -1  0 17061
+D2
+~
+~
+0 -1  0 17084
+D3
+~
+~
+0 -1  0 17063
+S
+#17063
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17041
+D1
+~
+~
+0 -1  0 17062
+D3
+~
+~
+0 -1  0 17064
+S
+#17064
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17042
+D1
+~
+~
+0 -1  0 17063
+D2
+~
+~
+0 -1  0 17332
+D3
+~
+~
+0 -1  0 17065
+S
+#17065
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17043
+D1
+~
+~
+0 -1  0 17064
+S
+#17066
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17044
+D2
+~
+~
+0 -1  0 17088
+S
+#17067
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17045
+D2
+~
+~
+0 -1  0 17089
+D3
+~
+~
+0 -1  0 17068
+S
+#17068
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17046
+D1
+~
+~
+0 -1  0 17067
+D2
+~
+~
+0 -1  0 17090
+D3
+~
+~
+0 -1  0 17069
+S
+#17069
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17047
+D1
+~
+~
+0 -1  0 17068
+D2
+~
+~
+0 -1  0 17091
+D3
+~
+~
+0 -1  0 17070
+S
+#17070
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17048
+D1
+~
+~
+0 -1  0 17069
+D2
+~
+~
+0 -1  0 17092
+D3
+~
+~
+0 -1  0 17071
+S
+#17071
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17049
+D1
+~
+~
+0 -1  0 17070
+D2
+~
+~
+0 -1  0 17093
+D3
+~
+~
+0 -1  0 17072
+S
+#17072
+Road~
+   Whether under the light of the sun in the sky or the golden 
+glow of the stout lamp posts erected periodically along this 
+broad road leading from north to south through the lands of 
+Lossarnach, the occasional traveler can be seen making the trek
+towards the White Mountains to the north and the Anduin to the 
+south. From farmers wearing home-made clothing leading cattle, 
+to well dressed merchants and the dour guardsmen that defend 
+Gondor, a light presence of people is always here along the road. 
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17050
+D1
+~
+~
+0 -1  0 17071
+D2
+~
+~
+0 -1  0 17094
+D3
+~
+~
+0 -1  0 17073
+S
+#17073
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17051
+D1
+~
+~
+0 -1  0 17072
+D2
+~
+~
+0 -1  0 17095
+D3
+~
+~
+0 -1  0 17074
+S
+#17074
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17052
+D1
+~
+~
+0 -1  0 17073
+D2
+~
+~
+0 -1  0 17096
+D3
+~
+~
+0 -1  0 17075
+S
+#17075
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17053
+D1
+~
+~
+0 -1  0 17074
+D2
+~
+~
+0 -1  0 17097
+D5
+~
+~
+0 -1  0 17344
+S
+#17076
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17054
+D3
+~
+~
+0 -1  0 17077
+S
+#17077
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17055
+D1
+~
+~
+0 -1  0 17076
+D3
+~
+~
+0 -1  0 17078
+S
+#17078
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17056
+D1
+~
+~
+0 -1  0 17077
+D2
+~
+~
+0 -1  0 17333
+S
+#17079
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D2
+~
+~
+0 -1  0 17101
+D3
+~
+~
+0 -1  0 17080
+S
+#17080
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D1
+~
+~
+0 -1  0 17079
+D2
+~
+~
+0 -1  0 17102
+S
+#17081
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17059
+D3
+~
+~
+0 -1  0 17082
+S
+#17082
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17060
+D1
+~
+~
+0 -1  0 17081
+D3
+~
+~
+0 -1  0 17083
+S
+#17083
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17061
+D1
+~
+~
+0 -1  0 17082
+D2
+~
+~
+0 -1  0 17105
+D3
+~
+~
+0 -1  0 17084
+S
+#17084
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17062
+D1
+~
+~
+0 -1  0 17083
+D2
+~
+~
+0 -1  0 17106
+S
+#17085
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D2
+~
+~
+0 -1  0 17107
+D3
+~
+~
+0 -1  0 17086
+S
+#17086
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17332
+D1
+~
+~
+0 -1  0 17085
+D2
+~
+~
+0 -1  0 17108
+D3
+~
+~
+0 -1  0 17087
+S
+#17087
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D1
+~
+~
+0 -1  0 17086
+D2
+~
+~
+0 -1  0 17109
+D3
+~
+~
+0 -1  0 17088
+S
+#17088
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17066
+D1
+~
+~
+0 -1  0 17087
+D2
+~
+~
+0 -1  0 17110
+S
+#17089
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17067
+D3
+~
+~
+0 -1  0 17090
+S
+#17090
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17068
+D1
+~
+~
+0 -1  0 17089
+D2
+~
+~
+0 -1  0 17111
+D3
+~
+~
+0 -1  0 17091
+S
+#17091
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17069
+D1
+~
+~
+0 -1  0 17090
+D2
+~
+~
+0 -1  0 17112
+D3
+~
+~
+0 -1  0 17092
+S
+#17092
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17070
+D1
+~
+~
+0 -1  0 17091
+D2
+~
+~
+0 -1  0 17113
+D3
+~
+~
+0 -1  0 17093
+S
+#17093
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17071
+D1
+~
+~
+0 -1  0 17092
+D2
+~
+~
+0 -1  0 17114
+D3
+~
+~
+0 -1  0 17094
+S
+#17094
+Road~
+   Underfoot spans a broad highway hewn of close set white 
+cobblestones, leading across the gentle hills of Lossarnach north 
+and south. The northern horizon is dominated by the spine of 
+Gondor, the snow capped White Mountains, and in the distance to 
+the north east the towers and turrets of distant Minas Tirith can 
+be seen at the base Mount Mindollin. Westward, the fields run 
+but a short distance before the gentle flow of the River Erui 
+cuts through them, beyond that a dense forest clustered about the 
+base of the mountain range. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17072
+D1
+~
+~
+0 -1  0 17093
+D2
+~
+~
+0 -1  0 17115
+D3
+~
+~
+0 -1  0 17095
+S
+#17095
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17073
+D1
+~
+~
+0 -1  0 17094
+D2
+~
+~
+0 -1  0 17116
+D3
+~
+~
+0 -1  0 17096
+S
+#17096
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17074
+D1
+~
+~
+0 -1  0 17095
+D2
+~
+~
+0 -1  0 17117
+D3
+~
+~
+0 -1  0 17097
+S
+#17097
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17075
+D1
+~
+~
+0 -1  0 17096
+D2
+~
+~
+0 -1  0 17118
+D3
+~
+~
+0 -1  0 17098
+D5
+~
+~
+0 -1  0 17345
+S
+#17098
+Forested Erui Shore~
+No Description Set.
+~
+17 65536 5
+0
+D1
+~
+~
+0 -1  0 17097
+D2
+~
+~
+0 -1  0 17119
+D3
+~
+~
+0 -1  0 17099
+S
+#17099
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D1
+~
+~
+0 -1  0 17098
+D2
+~
+~
+0 -1  0 17120
+D3
+~
+~
+0 -1  0 17100
+S
+#17100
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17333
+D1
+~
+~
+0 -1  0 17099
+D2
+~
+~
+0 -1  0 17121
+D3
+~
+~
+0 -1  0 17101
+S
+#17101
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17079
+D1
+~
+~
+0 -1  0 17100
+D2
+~
+~
+0 -1  0 17122
+D3
+~
+~
+0 -1  0 17102
+S
+#17102
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17080
+D1
+~
+~
+0 -1  0 17101
+D2
+~
+~
+0 -1  0 17123
+D3
+~
+~
+0 -1  0 17103
+S
+#17103
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D1
+~
+~
+0 -1  0 17102
+D2
+~
+~
+0 -1  0 17124
+D3
+~
+~
+0 -1  0 17104
+S
+#17104
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D1
+~
+~
+0 -1  0 17103
+D2
+~
+~
+0 -1  0 17125
+S
+#17105
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17083
+D3
+~
+~
+0 -1  0 17106
+S
+#17106
+Plateu Forest~
+No Description Set.
+~
+17 65536 6
+0
+D0
+~
+~
+0 -1  0 17084
+D1
+~
+~
+0 -1  0 17105
+S
+#17107
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17085
+D2
+~
+~
+0 -1  0 17128
+D3
+~
+~
+0 -1  0 17108
+S
+#17108
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17086
+D1
+~
+~
+0 -1  0 17107
+D2
+~
+~
+0 -1  0 17129
+D3
+~
+~
+0 -1  0 17109
+S
+#17109
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17087
+D1
+~
+~
+0 -1  0 17108
+D2
+~
+~
+0 -1  0 17130
+D3
+~
+~
+0 -1  0 17110
+S
+#17110
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17088
+D1
+~
+~
+0 -1  0 17109
+D2
+~
+~
+0 -1  0 17131
+S
+#17111
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17090
+D2
+~
+~
+0 -1  0 17132
+D3
+~
+~
+0 -1  0 17112
+S
+#17112
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17091
+D1
+~
+~
+0 -1  0 17111
+D2
+~
+~
+0 -1  0 17133
+D3
+~
+~
+0 -1  0 17113
+S
+#17113
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17092
+D1
+~
+~
+0 -1  0 17112
+D2
+~
+~
+0 -1  0 17134
+D3
+~
+~
+0 -1  0 17114
+S
+#17114
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17093
+D1
+~
+~
+0 -1  0 17113
+D2
+~
+~
+0 -1  0 17135
+D3
+~
+~
+0 -1  0 17115
+S
+#17115
+Road~
+   Wide enough to accommodate twelve men marching abreast, this 
+road of regal, whitish stones is well maintained, either boundary 
+of it marked with heavier, squared cobbles whilst the centre is 
+filled with rectangular paves, fitting so close together that
+barely a tuft of grass or weed emerges from between them. 
+Running straight from north to south, this highway cuts a path 
+through the green fields of the Gondorian fiefdom of Lossarnach.
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17094
+D1
+~
+~
+0 -1  0 17114
+D2
+~
+~
+0 -1  0 17136
+D3
+~
+~
+0 -1  0 17116
+S
+#17116
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17095
+D1
+~
+~
+0 -1  0 17115
+D2
+~
+~
+0 -1  0 17137
+D3
+~
+~
+0 -1  0 17117
+S
+#17117
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17096
+D1
+~
+~
+0 -1  0 17116
+D2
+~
+~
+0 -1  0 17138
+D3
+~
+~
+0 -1  0 17118
+S
+#17118
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17097
+D1
+~
+~
+0 -1  0 17117
+D2
+~
+~
+0 -1  0 17139
+D3
+~
+~
+0 -1  0 17119
+D5
+~
+~
+0 -1  0 17346
+S
+#17119
+Forested Erui Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17098
+D1
+~
+~
+0 -1  0 17118
+D2
+~
+~
+0 -1  0 17140
+D3
+~
+~
+0 -1  0 17120
+S
+#17120
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17099
+D1
+~
+~
+0 -1  0 17119
+D2
+~
+~
+0 -1  0 17141
+D3
+~
+~
+0 -1  0 17121
+S
+#17121
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17100
+D1
+~
+~
+0 -1  0 17120
+D2
+~
+~
+0 -1  0 17142
+D3
+~
+~
+0 -1  0 17122
+S
+#17122
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17101
+D1
+~
+~
+0 -1  0 17121
+D2
+~
+~
+0 -1  0 17143
+D3
+~
+~
+0 -1  0 17123
+S
+#17123
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17102
+D1
+~
+~
+0 -1  0 17122
+D2
+~
+~
+0 -1  0 17144
+D3
+~
+~
+0 -1  0 17124
+S
+#17124
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17103
+D1
+~
+~
+0 -1  0 17123
+D2
+~
+~
+0 -1  0 17145
+D3
+~
+~
+0 -1  0 17125
+S
+#17125
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17104
+D1
+~
+~
+0 -1  0 17124
+D2
+~
+~
+0 -1  0 17146
+D3
+~
+~
+0 -1  0 17126
+S
+#17126
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D1
+~
+~
+0 -1  0 17125
+D2
+~
+~
+0 -1  0 17147
+D3
+~
+~
+0 -1  0 17127
+S
+#17127
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D1
+~
+~
+0 -1  0 17126
+D2
+~
+~
+0 -1  0 17148
+D3
+~
+~
+0 -1  0 17128
+S
+#17128
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17107
+D1
+~
+~
+0 -1  0 17127
+D2
+~
+~
+0 -1  0 17149
+D3
+~
+~
+0 -1  0 17129
+S
+#17129
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17108
+D1
+~
+~
+0 -1  0 17128
+D2
+~
+~
+0 -1  0 17150
+D3
+~
+~
+0 -1  0 17130
+S
+#17130
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17109
+D1
+~
+~
+0 -1  0 17129
+D2
+~
+~
+0 -1  0 17151
+D3
+~
+~
+0 -1  0 17131
+S
+#17131
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17110
+D1
+~
+~
+0 -1  0 17130
+D2
+~
+~
+0 -1  0 17152
+S
+#17132
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17111
+D2
+~
+~
+0 -1  0 17153
+D3
+~
+~
+0 -1  0 17133
+S
+#17133
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17112
+D1
+~
+~
+0 -1  0 17132
+D2
+~
+~
+0 -1  0 17154
+D3
+~
+~
+0 -1  0 17134
+S
+#17134
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17113
+D1
+~
+~
+0 -1  0 17133
+D2
+~
+~
+0 -1  0 17155
+D3
+~
+~
+0 -1  0 17135
+S
+#17135
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17114
+D1
+~
+~
+0 -1  0 17134
+D2
+~
+~
+0 -1  0 17156
+D3
+~
+~
+0 -1  0 17136
+S
+#17136
+Road~
+   Whether under the light of the sun in the sky or the golden 
+glow of the stout lamp posts erected periodically along this 
+broad road leading from north to south through the lands of 
+Lossarnach, the occasional traveler can be seen making the trek
+towards the White Mountains to the north and the Anduin to the 
+south. From farmers wearing home-made clothing leading cattle, 
+to well dressed merchants and the dour guardsmen that defend 
+Gondor, a light presence of people is always here along the road. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17115
+D1
+~
+~
+0 -1  0 17135
+D2
+~
+~
+0 -1  0 17157
+D3
+~
+~
+0 -1  0 17137
+S
+#17137
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17116
+D1
+~
+~
+0 -1  0 17136
+D2
+~
+~
+0 -1  0 17158
+D3
+~
+~
+0 -1  0 17138
+S
+#17138
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17117
+D1
+~
+~
+0 -1  0 17137
+D2
+~
+~
+0 -1  0 17159
+D3
+~
+~
+0 -1  0 17139
+S
+#17139
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17118
+D1
+~
+~
+0 -1  0 17138
+D2
+~
+~
+0 -1  0 17160
+D3
+~
+~
+0 -1  0 17140
+D5
+~
+~
+0 -1  0 17347
+S
+#17140
+Forested Erui Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17119
+D1
+~
+~
+0 -1  0 17139
+D2
+~
+~
+0 -1  0 17161
+D3
+~
+~
+0 -1  0 17141
+S
+#17141
+Forested Erui Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17120
+D1
+~
+~
+0 -1  0 17140
+D2
+~
+~
+0 -1  0 17162
+D3
+~
+~
+0 -1  0 17142
+S
+#17142
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17121
+D1
+~
+~
+0 -1  0 17141
+D2
+~
+~
+0 -1  0 17163
+D3
+~
+~
+0 -1  0 17143
+S
+#17143
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17122
+D1
+~
+~
+0 -1  0 17142
+D2
+~
+~
+0 -1  0 17164
+D3
+~
+~
+0 -1  0 17144
+S
+#17144
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17123
+D1
+~
+~
+0 -1  0 17143
+D2
+~
+~
+0 -1  0 17165
+D3
+~
+~
+0 -1  0 17145
+S
+#17145
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17124
+D1
+~
+~
+0 -1  0 17144
+D2
+~
+~
+0 -1  0 17166
+D3
+~
+~
+0 -1  0 17146
+S
+#17146
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17125
+D1
+~
+~
+0 -1  0 17145
+D2
+~
+~
+0 -1  0 17167
+D3
+~
+~
+0 -1  0 17147
+S
+#17147
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17126
+D1
+~
+~
+0 -1  0 17146
+D2
+~
+~
+0 -1  0 17168
+D3
+~
+~
+0 -1  0 17148
+S
+#17148
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17127
+D1
+~
+~
+0 -1  0 17147
+D2
+~
+~
+0 -1  0 17169
+D3
+~
+~
+0 -1  0 17149
+S
+#17149
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17128
+D1
+~
+~
+0 -1  0 17148
+D2
+~
+~
+0 -1  0 17170
+D3
+~
+~
+0 -1  0 17150
+S
+#17150
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17129
+D1
+~
+~
+0 -1  0 17149
+D2
+~
+~
+0 -1  0 17171
+D3
+~
+~
+0 -1  0 17151
+S
+#17151
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17130
+D1
+~
+~
+0 -1  0 17150
+D2
+~
+~
+0 -1  0 17172
+D3
+~
+~
+0 -1  0 17152
+S
+#17152
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17131
+D1
+~
+~
+0 -1  0 17151
+S
+#17153
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17132
+D2
+~
+~
+0 -1  0 17173
+D3
+~
+~
+0 -1  0 17154
+S
+#17154
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17133
+D1
+~
+~
+0 -1  0 17153
+D2
+~
+~
+0 -1  0 17174
+D3
+~
+~
+0 -1  0 17155
+S
+#17155
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17134
+D1
+~
+~
+0 -1  0 17154
+D2
+~
+~
+0 -1  0 17175
+D3
+~
+~
+0 -1  0 17156
+S
+#17156
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17135
+D1
+~
+~
+0 -1  0 17155
+D2
+~
+~
+0 -1  0 17176
+D3
+~
+~
+0 -1  0 17157
+S
+#17157
+Road~
+   Underfoot spans a broad highway hewn of close set white 
+cobblestones, leading across the gentle hills of Lossarnach north 
+and south. The northern horizon is dominated by the spine of 
+Gondor, the snow capped White Mountains, and in the distance to 
+the north east the towers and turrets of distant Minas Tirith can 
+be seen at the base Mount Mindollin. Westward, the fields run 
+but a short distance before the gentle flow of the River Erui 
+cuts through them, beyond that a dense forest clustered about the 
+base of the mountain range. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17136
+D1
+~
+~
+0 -1  0 17156
+D2
+~
+~
+0 -1  0 17177
+D3
+~
+~
+0 -1  0 17158
+S
+#17158
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17137
+D1
+~
+~
+0 -1  0 17157
+D2
+~
+~
+0 -1  0 17178
+D3
+~
+~
+0 -1  0 17159
+S
+#17159
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17138
+D1
+~
+~
+0 -1  0 17158
+D2
+~
+~
+0 -1  0 17179
+D3
+~
+~
+0 -1  0 17160
+S
+#17160
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17139
+D1
+~
+~
+0 -1  0 17159
+D2
+~
+~
+0 -1  0 17180
+D3
+~
+~
+0 -1  0 17161
+D5
+~
+~
+0 -1  0 17348
+S
+#17161
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17140
+D1
+~
+~
+0 -1  0 17160
+D2
+~
+~
+0 -1  0 17181
+D3
+~
+~
+0 -1  0 17162
+D5
+~
+~
+0 -1  0 17349
+S
+#17162
+Forested Erui Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17141
+D1
+~
+~
+0 -1  0 17161
+D2
+~
+~
+0 -1  0 17182
+D3
+~
+~
+0 -1  0 17163
+S
+#17163
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17142
+D1
+~
+~
+0 -1  0 17162
+D2
+~
+~
+0 -1  0 17183
+D3
+~
+~
+0 -1  0 17164
+S
+#17164
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17143
+D1
+~
+~
+0 -1  0 17163
+D2
+~
+~
+0 -1  0 17184
+D3
+~
+~
+0 -1  0 17165
+S
+#17165
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17144
+D1
+~
+~
+0 -1  0 17164
+D2
+~
+~
+0 -1  0 17185
+D3
+~
+~
+0 -1  0 17166
+S
+#17166
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17145
+D1
+~
+~
+0 -1  0 17165
+D2
+~
+~
+0 -1  0 17186
+D3
+~
+~
+0 -1  0 17167
+S
+#17167
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17146
+D1
+~
+~
+0 -1  0 17166
+D2
+~
+~
+0 -1  0 17187
+D3
+~
+~
+0 -1  0 17168
+S
+#17168
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17147
+D1
+~
+~
+0 -1  0 17167
+D2
+~
+~
+0 -1  0 17188
+D3
+~
+~
+0 -1  0 17169
+S
+#17169
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17148
+D1
+~
+~
+0 -1  0 17168
+D2
+~
+~
+0 -1  0 17189
+D3
+~
+~
+0 -1  0 17170
+S
+#17170
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17149
+D1
+~
+~
+0 -1  0 17169
+D2
+~
+~
+0 -1  0 17190
+D3
+~
+~
+0 -1  0 17171
+S
+#17171
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17150
+D1
+~
+~
+0 -1  0 17170
+D2
+~
+~
+0 -1  0 17191
+D3
+~
+~
+0 -1  0 17172
+S
+#17172
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17151
+D1
+~
+~
+0 -1  0 17171
+D2
+~
+~
+0 -1  0 17192
+S
+#17173
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17153
+D2
+~
+~
+0 -1  0 17193
+D3
+~
+~
+0 -1  0 17174
+S
+#17174
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17154
+D1
+~
+~
+0 -1  0 17173
+D2
+~
+~
+0 -1  0 17194
+D3
+~
+~
+0 -1  0 17175
+S
+#17175
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17155
+D1
+~
+~
+0 -1  0 17174
+D2
+~
+~
+0 -1  0 17195
+D3
+~
+~
+0 -1  0 17176
+S
+#17176
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17156
+D1
+~
+~
+0 -1  0 17175
+D2
+~
+~
+0 -1  0 17196
+D3
+~
+~
+0 -1  0 17177
+S
+#17177
+Road~
+   Wide enough to accommodate twelve men marching abreast, this 
+road of regal, whitish stones is well maintained, either boundary 
+of it marked with heavier, squared cobbles whilst the centre is 
+filled with rectangular paves, fitting so close together that
+barely a tuft of grass or weed emerges from between them. 
+Running straight from north to south, this highway cuts a path 
+through the green fields of the Gondorian fiefdom of Lossarnach.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17157
+D1
+~
+~
+0 -1  0 17176
+D2
+~
+~
+0 -1  0 17197
+D3
+~
+~
+0 -1  0 17178
+S
+#17178
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17158
+D1
+~
+~
+0 -1  0 17177
+D2
+~
+~
+0 -1  0 17198
+D3
+~
+~
+0 -1  0 17179
+S
+#17179
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17159
+D1
+~
+~
+0 -1  0 17178
+D2
+~
+~
+0 -1  0 17199
+D3
+~
+~
+0 -1  0 17180
+S
+#17180
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17160
+D1
+~
+~
+0 -1  0 17179
+D2
+~
+~
+0 -1  0 17200
+D3
+~
+~
+0 -1  0 17181
+S
+#17181
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17161
+D1
+~
+~
+0 -1  0 17180
+D2
+~
+~
+0 -1  0 17351
+D3
+~
+~
+0 -1  0 17182
+D5
+~
+~
+0 -1  0 17350
+S
+#17182
+Forested Erui Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17162
+D1
+~
+~
+0 -1  0 17181
+D2
+~
+~
+0 -1  0 17202
+D3
+~
+~
+0 -1  0 17183
+S
+#17183
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17163
+D1
+~
+~
+0 -1  0 17182
+D2
+~
+~
+0 -1  0 17203
+D3
+~
+~
+0 -1  0 17184
+S
+#17184
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17164
+D1
+~
+~
+0 -1  0 17183
+D2
+~
+~
+0 -1  0 17204
+D3
+~
+~
+0 -1  0 17185
+S
+#17185
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17165
+D1
+~
+~
+0 -1  0 17184
+D2
+~
+~
+0 -1  0 17205
+D3
+~
+~
+0 -1  0 17186
+S
+#17186
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17166
+D1
+~
+~
+0 -1  0 17185
+D2
+~
+~
+0 -1  0 17206
+D3
+~
+~
+0 -1  0 17187
+S
+#17187
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17167
+D1
+~
+~
+0 -1  0 17186
+D2
+~
+~
+0 -1  0 17207
+D3
+~
+~
+0 -1  0 17188
+S
+#17188
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17168
+D1
+~
+~
+0 -1  0 17187
+D2
+~
+~
+0 -1  0 17208
+D3
+~
+~
+0 -1  0 17189
+S
+#17189
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17169
+D1
+~
+~
+0 -1  0 17188
+D2
+~
+~
+0 -1  0 17209
+D3
+~
+~
+0 -1  0 17190
+S
+#17190
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17170
+D1
+~
+~
+0 -1  0 17189
+D2
+~
+~
+0 -1  0 17210
+D3
+~
+~
+0 -1  0 17191
+S
+#17191
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17171
+D1
+~
+~
+0 -1  0 17190
+D2
+~
+~
+0 -1  0 17211
+D3
+~
+~
+0 -1  0 17192
+S
+#17192
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17172
+D1
+~
+~
+0 -1  0 17191
+D2
+~
+~
+0 -1  0 17212
+S
+#17193
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17173
+D3
+~
+~
+0 -1  0 17194
+S
+#17194
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17174
+D1
+~
+~
+0 -1  0 17193
+D2
+~
+~
+0 -1  0 17213
+D3
+~
+~
+0 -1  0 17195
+S
+#17195
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17175
+D1
+~
+~
+0 -1  0 17194
+D2
+~
+~
+0 -1  0 17214
+D3
+~
+~
+0 -1  0 17196
+S
+#17196
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17176
+D1
+~
+~
+0 -1  0 17195
+D2
+~
+~
+0 -1  0 17215
+D3
+~
+~
+0 -1  0 17197
+S
+#17197
+Road~
+   Whether under the light of the sun in the sky or the golden 
+glow of the stout lamp posts erected periodically along this 
+broad road leading from north to west through the lands of 
+Lossarnach, the occasional traveler can be seen making the trek 
+towards the White Mountains to the north and the Anduin to the 
+south-west. From farmers wearing home-made clothing leading 
+cattle, to well dressed merchants and the dour guardsmen that 
+defend Gondor, a light presence of people is always here along 
+the road. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17177
+D1
+~
+~
+0 -1  0 17196
+D2
+~
+~
+0 -1  0 17216
+D3
+~
+~
+0 -1  0 17198
+S
+#17198
+Road~
+   Underfoot spans a broad highway hewn of close set white 
+cobblestones, leading across the gentle hills of Lossarnach north 
+and south. The northern horizon is dominated by the spine of 
+Gondor, the snow capped White Mountains, and in the distance to 
+the north east the towers and turrets of distant Minas Tirith can 
+be seen at the base Mount Mindollin. North-west, the fields run 
+but a short distance before the gentle flow of the River Erui 
+cuts through them, beyond that a dense forest clustered about the 
+base of the mountain range. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17178
+D1
+~
+~
+0 -1  0 17197
+D2
+~
+~
+0 -1  0 17217
+D3
+~
+~
+0 -1  0 17199
+S
+#17199
+Road~
+   Wide enough to accommodate twelve men marching abreast, this 
+road of regal, whitish stones is well maintained, either boundary 
+of it marked with heavier, squared cobbles whilst the centre is 
+filled with rectangular paves, fitting so close together that 
+barely a tuft of grass or weed emerges from between them. 
+Running straight from east to west, this highway cuts a path 
+through the green fields of the Gondorian fiefdom of Lossarnach. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17179
+D1
+~
+~
+0 -1  0 17198
+D2
+~
+~
+0 -1  0 17218
+D3
+~
+~
+0 -1  0 17200
+S
+#17200
+Bridge Start~
+   Westward lies the gentle flowing River Erui, and thus the well 
+established highway leading from here east and north to the 
+distant White Mountains comes to a halt. In its place rises up a 
+skillfully constructed bridge, fashioned of the same whitish 
+stone, the gradual arch of the bridge allowing passage across the 
+blue water. Set either side of the entrance to the bridge is a 
+stout wooden pole, atop it fluttering a banner, depicted on it 
+the Tree of Gondor in colours of green and gold. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17180
+D1
+~
+~
+0 -1  0 17199
+D2
+~
+~
+0 -1  0 17219
+D3
+~
+~
+0 -1  0 17201
+S
+#17201
+Bridge Over Erui~
+   Constructed of a coarse, white stone, this bridge spans the 
+length of the River Erui, the splash and slap of the water 
+against the stone pillars below echoed audibly as one stands 
+here. The bridge is shaped like an arch, a high perimeter of 
+stone set on the northern and southern side of the bridge 
+preventing even the most careless from falling into the river. 
+At the east and west end of the bridge, as the structure melds 
+into the long highway through the Lossarnach, a pair of lamp 
+posts hang, ensuring the stones of the construction are lit in 
+both night and day. 
+~
+17 1073807376 2
+0
+D1
+~
+~
+0 -1  0 17200
+D3
+~
+~
+0 -1  0 17202
+S
+#17202
+Bridge Start~
+   The broad, white-cobbled road that cuts through the lands of 
+Lossarnach from the west comes to a halt here at the beginning of 
+the dark blue river Erui, in its place an arched bridge of ornate 
+stone work rising up over it, allowing one to progress further 
+east through the lands of Gondor. And progress indeed do a 
+number of rural folk bound on carts bearing all manner of goods 
+for sale at some distant market, the traffic over the bridge 
+supervised by the gaze of dour watchmen. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17182
+D1
+~
+~
+0 -1  0 17201
+D2
+~
+~
+0 -1  0 17221
+D3
+~
+~
+0 -1  0 17203
+S
+#17203
+Road~
+   Whether under the light of the sun in the sky or the golden 
+glow of the stout lamp posts erected periodically along this 
+broad road leading from east to south through the lands of 
+Lossarnach, the occasional traveler can be seen making the trek 
+towards the White Mountains to the north-east and the Anduin to 
+the south. From farmers wearing home-made clothing leading 
+cattle, to well dressed merchants and the dour guardsmen that 
+defend Gondor, a light presence of people is always here along 
+the road. 
+~
+17 1073807376 2
+0
+D0
+~
+~
+0 -1  0 17183
+D1
+~
+~
+0 -1  0 17202
+D2
+~
+~
+0 -1  0 17222
+D3
+~
+~
+0 -1  0 17204
+S
+#17204
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17184
+D1
+~
+~
+0 -1  0 17203
+D2
+~
+~
+0 -1  0 17223
+D3
+~
+~
+0 -1  0 17205
+S
+#17205
+Trail~
+No Description Set.
+~
+17 65536 3
+0
+D0
+~
+~
+0 -1  0 17185
+D1
+~
+~
+0 -1  0 17204
+D2
+~
+~
+0 -1  0 17224
+D3
+~
+~
+0 -1  0 17206
+S
+#17206
+Logging Camp~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17186
+D1
+~
+~
+0 -1  0 17205
+D2
+~
+~
+0 -1  0 17225
+D3
+~
+~
+0 -1  0 17207
+S
+#17207
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17187
+D1
+~
+~
+0 -1  0 17206
+D2
+~
+~
+0 -1  0 17226
+D3
+~
+~
+0 -1  0 17208
+S
+#17208
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17188
+D1
+~
+~
+0 -1  0 17207
+D2
+~
+~
+0 -1  0 17227
+D3
+~
+~
+0 -1  0 17209
+S
+#17209
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17189
+D1
+~
+~
+0 -1  0 17208
+D2
+~
+~
+0 -1  0 17228
+D3
+~
+~
+0 -1  0 17210
+S
+#17210
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17190
+D1
+~
+~
+0 -1  0 17209
+D2
+~
+~
+0 -1  0 17229
+D3
+~
+~
+0 -1  0 17211
+S
+#17211
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17191
+D1
+~
+~
+0 -1  0 17210
+D2
+~
+~
+0 -1  0 17230
+D3
+~
+~
+0 -1  0 17212
+S
+#17212
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17192
+D1
+~
+~
+0 -1  0 17211
+D2
+~
+~
+0 -1  0 17231
+S
+#17213
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17194
+D3
+~
+~
+0 -1  0 17214
+S
+#17214
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17195
+D1
+~
+~
+0 -1  0 17213
+D2
+~
+~
+0 -1  0 17232
+D3
+~
+~
+0 -1  0 17215
+S
+#17215
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17196
+D1
+~
+~
+0 -1  0 17214
+D2
+~
+~
+0 -1  0 17233
+D3
+~
+~
+0 -1  0 17216
+S
+#17216
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17197
+D1
+~
+~
+0 -1  0 17215
+D2
+~
+~
+0 -1  0 17234
+D3
+~
+~
+0 -1  0 17217
+S
+#17217
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17198
+D1
+~
+~
+0 -1  0 17216
+D2
+~
+~
+0 -1  0 17235
+D3
+~
+~
+0 -1  0 17218
+S
+#17218
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17199
+D1
+~
+~
+0 -1  0 17217
+D2
+~
+~
+0 -1  0 17236
+D3
+~
+~
+0 -1  0 17219
+S
+#17219
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17200
+D1
+~
+~
+0 -1  0 17218
+D2
+~
+~
+0 -1  0 17237
+D3
+~
+~
+0 -1  0 17220
+S
+#17220
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17351
+D1
+~
+~
+0 -1  0 17219
+D2
+~
+~
+0 -1  0 17238
+D3
+~
+~
+0 -1  0 17221
+D5
+~
+~
+0 -1  0 17352
+S
+#17221
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17202
+D1
+~
+~
+0 -1  0 17220
+D2
+~
+~
+0 -1  0 17239
+D3
+~
+~
+0 -1  0 17222
+S
+#17222
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17203
+D1
+~
+~
+0 -1  0 17221
+D2
+~
+~
+0 -1  0 17240
+D3
+~
+~
+0 -1  0 17223
+S
+#17223
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17204
+D1
+~
+~
+0 -1  0 17222
+D2
+~
+~
+0 -1  0 17241
+D3
+~
+~
+0 -1  0 17224
+S
+#17224
+Trail~
+No Description Set.
+~
+17 65536 3
+0
+D0
+~
+~
+0 -1  0 17205
+D1
+~
+~
+0 -1  0 17223
+D2
+~
+~
+0 -1  0 17242
+D3
+~
+~
+0 -1  0 17225
+S
+#17225
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17206
+D1
+~
+~
+0 -1  0 17224
+D2
+~
+~
+0 -1  0 17243
+D3
+~
+~
+0 -1  0 17226
+S
+#17226
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17207
+D1
+~
+~
+0 -1  0 17225
+D2
+~
+~
+0 -1  0 17244
+D3
+~
+~
+0 -1  0 17227
+S
+#17227
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17208
+D1
+~
+~
+0 -1  0 17226
+D2
+~
+~
+0 -1  0 17245
+D3
+~
+~
+0 -1  0 17228
+S
+#17228
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17209
+D1
+~
+~
+0 -1  0 17227
+D2
+~
+~
+0 -1  0 17246
+D3
+~
+~
+0 -1  0 17229
+S
+#17229
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17210
+D1
+~
+~
+0 -1  0 17228
+D2
+~
+~
+0 -1  0 17247
+D3
+~
+~
+0 -1  0 17230
+S
+#17230
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17211
+D1
+~
+~
+0 -1  0 17229
+D2
+~
+~
+0 -1  0 17248
+D3
+~
+~
+0 -1  0 17231
+S
+#17231
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17212
+D1
+~
+~
+0 -1  0 17230
+D2
+~
+~
+0 -1  0 17249
+S
+#17232
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17214
+D3
+~
+~
+0 -1  0 17233
+S
+#17233
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17215
+D1
+~
+~
+0 -1  0 17232
+D2
+~
+~
+0 -1  0 17250
+D3
+~
+~
+0 -1  0 17234
+S
+#17234
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17216
+D1
+~
+~
+0 -1  0 17233
+D2
+~
+~
+0 -1  0 17251
+D3
+~
+~
+0 -1  0 17235
+S
+#17235
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17217
+D1
+~
+~
+0 -1  0 17234
+D2
+~
+~
+0 -1  0 17252
+D3
+~
+~
+0 -1  0 17236
+S
+#17236
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17218
+D1
+~
+~
+0 -1  0 17235
+D2
+~
+~
+0 -1  0 17253
+D3
+~
+~
+0 -1  0 17237
+S
+#17237
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17219
+D1
+~
+~
+0 -1  0 17236
+D2
+~
+~
+0 -1  0 17254
+D3
+~
+~
+0 -1  0 17238
+S
+#17238
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17220
+D1
+~
+~
+0 -1  0 17237
+D2
+~
+~
+0 -1  0 17255
+D3
+~
+~
+0 -1  0 17239
+D5
+~
+~
+0 -1  0 17353
+S
+#17239
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17221
+D1
+~
+~
+0 -1  0 17238
+D2
+~
+~
+0 -1  0 17256
+D3
+~
+~
+0 -1  0 17240
+S
+#17240
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17222
+D1
+~
+~
+0 -1  0 17239
+D2
+~
+~
+0 -1  0 17257
+D3
+~
+~
+0 -1  0 17241
+S
+#17241
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17223
+D1
+~
+~
+0 -1  0 17240
+D2
+~
+~
+0 -1  0 17258
+D3
+~
+~
+0 -1  0 17242
+S
+#17242
+Trail~
+No Description Set.
+~
+17 65536 3
+0
+D0
+~
+~
+0 -1  0 17224
+D1
+~
+~
+0 -1  0 17241
+D2
+~
+~
+0 -1  0 17259
+D3
+~
+~
+0 -1  0 17243
+S
+#17243
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17225
+D1
+~
+~
+0 -1  0 17242
+D2
+~
+~
+0 -1  0 17260
+D3
+~
+~
+0 -1  0 17244
+S
+#17244
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17226
+D1
+~
+~
+0 -1  0 17243
+D2
+~
+~
+0 -1  0 17261
+D3
+~
+~
+0 -1  0 17245
+S
+#17245
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17227
+D1
+~
+~
+0 -1  0 17244
+D2
+~
+~
+0 -1  0 17262
+D3
+~
+~
+0 -1  0 17246
+S
+#17246
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17228
+D1
+~
+~
+0 -1  0 17245
+D2
+~
+~
+0 -1  0 17263
+D3
+~
+~
+0 -1  0 17247
+S
+#17247
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17229
+D1
+~
+~
+0 -1  0 17246
+D2
+~
+~
+0 -1  0 17264
+D3
+~
+~
+0 -1  0 17248
+S
+#17248
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17230
+D1
+~
+~
+0 -1  0 17247
+D2
+~
+~
+0 -1  0 17265
+D3
+~
+~
+0 -1  0 17249
+S
+#17249
+Forested Sirith Shore~
+No Description Set.
+~
+17 65536 5
+0
+D0
+~
+~
+0 -1  0 17231
+D1
+~
+~
+0 -1  0 17248
+S
+#17250
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17233
+D3
+~
+~
+0 -1  0 17251
+S
+#17251
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17234
+D1
+~
+~
+0 -1  0 17250
+D2
+~
+~
+0 -1  0 17266
+D3
+~
+~
+0 -1  0 17252
+S
+#17252
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17235
+D1
+~
+~
+0 -1  0 17251
+D2
+~
+~
+0 -1  0 17267
+D3
+~
+~
+0 -1  0 17253
+S
+#17253
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17236
+D1
+~
+~
+0 -1  0 17252
+D2
+~
+~
+0 -1  0 17268
+D3
+~
+~
+0 -1  0 17254
+S
+#17254
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17237
+D1
+~
+~
+0 -1  0 17253
+D2
+~
+~
+0 -1  0 17269
+D3
+~
+~
+0 -1  0 17255
+D5
+~
+~
+0 -1  0 17355
+S
+#17255
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17238
+D1
+~
+~
+0 -1  0 17254
+D2
+~
+~
+0 -1  0 17270
+D3
+~
+~
+0 -1  0 17256
+D5
+~
+~
+0 -1  0 17354
+S
+#17256
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17239
+D1
+~
+~
+0 -1  0 17255
+D2
+~
+~
+0 -1  0 17271
+D3
+~
+~
+0 -1  0 17257
+S
+#17257
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17240
+D1
+~
+~
+0 -1  0 17256
+D2
+~
+~
+0 -1  0 17272
+D3
+~
+~
+0 -1  0 17258
+S
+#17258
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17241
+D1
+~
+~
+0 -1  0 17257
+D2
+~
+~
+0 -1  0 17273
+D3
+~
+~
+0 -1  0 17259
+S
+#17259
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17242
+D1
+~
+~
+0 -1  0 17258
+D2
+~
+~
+0 -1  0 17274
+D3
+~
+~
+0 -1  0 17260
+S
+#17260
+Road Corner~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17243
+D1
+~
+~
+0 -1  0 17259
+D2
+~
+~
+0 -1  0 17275
+D3
+~
+~
+0 -1  0 17261
+S
+#17261
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17244
+D1
+~
+~
+0 -1  0 17260
+D2
+~
+~
+0 -1  0 17276
+D3
+~
+~
+0 -1  0 17262
+S
+#17262
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17245
+D1
+~
+~
+0 -1  0 17261
+D2
+~
+~
+0 -1  0 17277
+D3
+~
+~
+0 -1  0 17263
+S
+#17263
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17246
+D1
+~
+~
+0 -1  0 17262
+D2
+~
+~
+0 -1  0 17278
+D3
+~
+~
+0 -1  0 17264
+S
+#17264
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17247
+D1
+~
+~
+0 -1  0 17263
+D2
+~
+~
+0 -1  0 17279
+D3
+~
+~
+0 -1  0 17265
+S
+#17265
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17248
+D1
+~
+~
+0 -1  0 17264
+D2
+~
+~
+0 -1  0 17280
+S
+#17266
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17251
+D3
+~
+~
+0 -1  0 17267
+S
+#17267
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17252
+D1
+~
+~
+0 -1  0 17266
+D2
+~
+~
+0 -1  0 17281
+D3
+~
+~
+0 -1  0 17268
+S
+#17268
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17253
+D1
+~
+~
+0 -1  0 17267
+D2
+~
+~
+0 -1  0 17282
+D3
+~
+~
+0 -1  0 17269
+S
+#17269
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17254
+D1
+~
+~
+0 -1  0 17268
+D2
+~
+~
+0 -1  0 17283
+D3
+~
+~
+0 -1  0 17270
+D5
+~
+~
+0 -1  0 17356
+S
+#17270
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17255
+D1
+~
+~
+0 -1  0 17269
+D2
+~
+~
+0 -1  0 17284
+D3
+~
+~
+0 -1  0 17271
+S
+#17271
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17256
+D1
+~
+~
+0 -1  0 17270
+D2
+~
+~
+0 -1  0 17285
+D3
+~
+~
+0 -1  0 17272
+S
+#17272
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17257
+D1
+~
+~
+0 -1  0 17271
+D2
+~
+~
+0 -1  0 17286
+D3
+~
+~
+0 -1  0 17273
+S
+#17273
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17258
+D1
+~
+~
+0 -1  0 17272
+D2
+~
+~
+0 -1  0 17287
+D3
+~
+~
+0 -1  0 17274
+S
+#17274
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17259
+D1
+~
+~
+0 -1  0 17273
+D2
+~
+~
+0 -1  0 17288
+D3
+~
+~
+0 -1  0 17275
+S
+#17275
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17260
+D1
+~
+~
+0 -1  0 17274
+D2
+~
+~
+0 -1  0 17289
+D3
+~
+~
+0 -1  0 17276
+S
+#17276
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17261
+D1
+~
+~
+0 -1  0 17275
+D2
+~
+~
+0 -1  0 17290
+D3
+~
+~
+0 -1  0 17277
+S
+#17277
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17262
+D1
+~
+~
+0 -1  0 17276
+D2
+~
+~
+0 -1  0 17291
+D3
+~
+~
+0 -1  0 17278
+S
+#17278
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17263
+D1
+~
+~
+0 -1  0 17277
+D2
+~
+~
+0 -1  0 17292
+D3
+~
+~
+0 -1  0 17279
+S
+#17279
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17264
+D1
+~
+~
+0 -1  0 17278
+D2
+~
+~
+0 -1  0 17293
+D3
+~
+~
+0 -1  0 17280
+S
+#17280
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17265
+D1
+~
+~
+0 -1  0 17279
+S
+#17281
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17267
+D2
+~
+~
+0 -1  0 17294
+D3
+~
+~
+0 -1  0 17282
+S
+#17282
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17268
+D1
+~
+~
+0 -1  0 17281
+D2
+~
+~
+0 -1  0 17295
+D3
+~
+~
+0 -1  0 17283
+S
+#17283
+Erui Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17269
+D1
+~
+~
+0 -1  0 17282
+D2
+~
+~
+0 -1  0 17296
+D3
+~
+~
+0 -1  0 17284
+D5
+~
+~
+0 -1  0 17357
+S
+#17284
+Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17270
+D1
+~
+~
+0 -1  0 17283
+D2
+~
+~
+0 -1  0 17297
+D3
+~
+~
+0 -1  0 17285
+S
+#17285
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17271
+D1
+~
+~
+0 -1  0 17284
+D2
+~
+~
+0 -1  0 17298
+D3
+~
+~
+0 -1  0 17286
+S
+#17286
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17272
+D1
+~
+~
+0 -1  0 17285
+D2
+~
+~
+0 -1  0 17299
+D3
+~
+~
+0 -1  0 17287
+S
+#17287
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17273
+D1
+~
+~
+0 -1  0 17286
+D2
+~
+~
+0 -1  0 17300
+D3
+~
+~
+0 -1  0 17288
+S
+#17288
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17274
+D1
+~
+~
+0 -1  0 17287
+D2
+~
+~
+0 -1  0 17301
+D3
+~
+~
+0 -1  0 17289
+S
+#17289
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17275
+D1
+~
+~
+0 -1  0 17288
+D2
+~
+~
+0 -1  0 17302
+D3
+~
+~
+0 -1  0 17290
+S
+#17290
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17276
+D1
+~
+~
+0 -1  0 17289
+D2
+~
+~
+0 -1  0 17303
+D3
+~
+~
+0 -1  0 17291
+S
+#17291
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17277
+D1
+~
+~
+0 -1  0 17290
+D2
+~
+~
+0 -1  0 17304
+D3
+~
+~
+0 -1  0 17292
+S
+#17292
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17278
+D1
+~
+~
+0 -1  0 17291
+D2
+~
+~
+0 -1  0 17305
+D3
+~
+~
+0 -1  0 17293
+S
+#17293
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17279
+D1
+~
+~
+0 -1  0 17292
+D2
+~
+~
+0 -1  0 17306
+S
+#17294
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17281
+D3
+~
+~
+0 -1  0 17295
+S
+#17295
+Anduin/Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17282
+D1
+~
+~
+0 -1  0 17294
+D3
+~
+~
+0 -1  0 17296
+S
+#17296
+Erui River Surface~
+No Description Set.
+~
+17 65536 17
+0
+D0
+~
+~
+0 -1  0 17283
+D1
+~
+~
+0 -1  0 17295
+D3
+~
+~
+0 -1  0 17297
+D5
+~
+~
+0 -1  0 17358
+S
+#17297
+Anduin/Erui Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17284
+D1
+~
+~
+0 -1  0 17296
+D3
+~
+~
+0 -1  0 17298
+S
+#17298
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17285
+D1
+~
+~
+0 -1  0 17297
+D2
+~
+~
+0 -1  0 17307
+D3
+~
+~
+0 -1  0 17299
+S
+#17299
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17286
+D1
+~
+~
+0 -1  0 17298
+D2
+~
+~
+0 -1  0 17308
+D3
+~
+~
+0 -1  0 17300
+S
+#17300
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17287
+D1
+~
+~
+0 -1  0 17299
+D2
+~
+~
+0 -1  0 17309
+D3
+~
+~
+0 -1  0 17301
+S
+#17301
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17288
+D1
+~
+~
+0 -1  0 17300
+D2
+~
+~
+0 -1  0 17310
+D3
+~
+~
+0 -1  0 17302
+S
+#17302
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17289
+D1
+~
+~
+0 -1  0 17301
+D2
+~
+~
+0 -1  0 17311
+D3
+~
+~
+0 -1  0 17303
+S
+#17303
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17290
+D1
+~
+~
+0 -1  0 17302
+D2
+~
+~
+0 -1  0 17312
+D3
+~
+~
+0 -1  0 17304
+S
+#17304
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17291
+D1
+~
+~
+0 -1  0 17303
+D2
+~
+~
+0 -1  0 17313
+D3
+~
+~
+0 -1  0 17305
+S
+#17305
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17292
+D1
+~
+~
+0 -1  0 17304
+D2
+~
+~
+0 -1  0 17314
+D3
+~
+~
+0 -1  0 17306
+S
+#17306
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17293
+D1
+~
+~
+0 -1  0 17305
+S
+#17307
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17298
+D3
+~
+~
+0 -1  0 17308
+S
+#17308
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17299
+D1
+~
+~
+0 -1  0 17307
+D2
+~
+~
+0 -1  0 17315
+D3
+~
+~
+0 -1  0 17309
+S
+#17309
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17300
+D1
+~
+~
+0 -1  0 17308
+D2
+~
+~
+0 -1  0 17316
+D3
+~
+~
+0 -1  0 17310
+S
+#17310
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17301
+D1
+~
+~
+0 -1  0 17309
+D2
+~
+~
+0 -1  0 17317
+D3
+~
+~
+0 -1  0 17311
+S
+#17311
+Crossroad~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17302
+D1
+~
+~
+0 -1  0 17310
+D2
+~
+~
+0 -1  0 17318
+D3
+~
+~
+0 -1  0 17312
+S
+#17312
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17303
+D1
+~
+~
+0 -1  0 17311
+D2
+~
+~
+0 -1  0 17319
+D3
+~
+~
+0 -1  0 17313
+S
+#17313
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17304
+D1
+~
+~
+0 -1  0 17312
+D2
+~
+~
+0 -1  0 17320
+D3
+~
+~
+0 -1  0 17314
+S
+#17314
+Bridge Over The Sirith~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17305
+D1
+~
+~
+0 -1  0 17313
+D2
+~
+~
+0 -1  0 17321
+S
+#17315
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17308
+D3
+~
+~
+0 -1  0 17316
+S
+#17316
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17309
+D1
+~
+~
+0 -1  0 17315
+D2
+~
+~
+0 -1  0 17322
+D3
+~
+~
+0 -1  0 17317
+S
+#17317
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17310
+D1
+~
+~
+0 -1  0 17316
+D2
+~
+~
+0 -1  0 17323
+D3
+~
+~
+0 -1  0 17318
+S
+#17318
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17311
+D1
+~
+~
+0 -1  0 17317
+D2
+~
+~
+0 -1  0 17324
+D3
+~
+~
+0 -1  0 17319
+S
+#17319
+Empty Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17312
+D1
+~
+~
+0 -1  0 17318
+D2
+~
+~
+0 -1  0 17325
+D3
+~
+~
+0 -1  0 17320
+S
+#17320
+Sirith Shore~
+No Description Set.
+~
+17 65552 13
+0
+D0
+~
+~
+0 -1  0 17313
+D1
+~
+~
+0 -1  0 17319
+D2
+~
+~
+0 -1  0 17326
+D3
+~
+~
+0 -1  0 17321
+S
+#17321
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17314
+D1
+~
+~
+0 -1  0 17320
+S
+#17322
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17316
+D2
+~
+~
+0 -1  0 17327
+D3
+~
+~
+0 -1  0 17323
+S
+#17323
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17317
+D1
+~
+~
+0 -1  0 17322
+D2
+~
+~
+0 -1  0 17328
+D3
+~
+~
+0 -1  0 17324
+S
+#17324
+Road~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17318
+D1
+~
+~
+0 -1  0 17323
+D2
+~
+~
+0 -1  0 17329
+D3
+~
+~
+0 -1  0 17325
+S
+#17325
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17319
+D1
+~
+~
+0 -1  0 17324
+D2
+~
+~
+0 -1  0 17330
+D3
+~
+~
+0 -1  0 17326
+S
+#17326
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17320
+D1
+~
+~
+0 -1  0 17325
+D2
+~
+~
+0 -1  0 17331
+S
+#17327
+Anduin Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17322
+D3
+~
+~
+0 -1  0 17328
+S
+#17328
+Before the City Wall~
+No Description Set.
+~
+17 65536 4
+0
+D0
+~
+~
+0 -1  0 17323
+D1
+~
+~
+0 -1  0 17327
+D3
+~
+~
+0 -1  0 17329
+S
+#17329
+Before the Gate~
+No Description Set.
+~
+17 65552 2
+0
+D0
+~
+~
+0 -1  0 17324
+D1
+~
+~
+0 -1  0 17328
+D3
+~
+~
+0 -1  0 17330
+S
+#17330
+Before the City Wall~
+No Description Set.
+~
+17 65536 4
+0
+D0
+~
+~
+0 -1  0 17325
+D1
+~
+~
+0 -1  0 17329
+D3
+~
+~
+0 -1  0 17331
+S
+#17331
+Sirith Shore~
+No Description Set.
+~
+17 65536 13
+0
+D0
+~
+~
+0 -1  0 17326
+D1
+~
+~
+0 -1  0 17330
+S
+#17332
+Steep Path Up The Plateu~
+No Description Set.
+~
+17 65536 7
+0
+D0
+~
+~
+0 -1  0 17064
+D2
+~
+~
+0 -1  0 17086
+S
+#17333
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D0
+~
+~
+0 -1  0 17078
+D2
+~
+~
+0 -1  0 17100
+S
+#17334
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D2
+~
+~
+0 -1  0 17012
+D3
+~
+~
+0 -1  0 17335
+S
+#17335
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D1
+~
+~
+0 -1  0 17334
+D2
+~
+~
+0 -1  0 17013
+D3
+~
+~
+0 -1  0 17336
+S
+#17336
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D1
+~
+~
+0 -1  0 17335
+D2
+~
+~
+0 -1  0 17014
+S
+#17337
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D2
+~
+~
+0 -1  0 17017
+D3
+~
+~
+0 -1  0 17338
+S
+#17338
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D1
+~
+~
+0 -1  0 17337
+D2
+~
+~
+0 -1  0 17018
+D3
+~
+~
+0 -1  0 17339
+S
+#17339
+Mountain-Edge~
+No Description Set.
+~
+17 65536 8
+0
+D1
+~
+~
+0 -1  0 17338
+D2
+~
+~
+0 -1  0 17019
+S
+#17340
+Climbing the Rock Edge Beneath a Waterfall~
+No Description Set.
+~
+17 98304 8
+0
+D4
+~
+~
+0 -1  0 17010
+D5
+~
+~
+0 -1  0 17009
+S
+#17341
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D2
+~
+~
+0 -1  0 17342
+D4
+~
+~
+0 -1  0 17009
+S
+#17342
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17341
+D2
+~
+~
+0 -1  0 17343
+D4
+~
+~
+0 -1  0 17031
+S
+#17343
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17342
+D2
+~
+~
+0 -1  0 17344
+D4
+~
+~
+0 -1  0 17053
+S
+#17344
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17343
+D2
+~
+~
+0 -1  0 17345
+D4
+~
+~
+0 -1  0 17075
+S
+#17345
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17344
+D2
+~
+~
+0 -1  0 17346
+D4
+~
+~
+0 -1  0 17097
+S
+#17346
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17345
+D2
+~
+~
+0 -1  0 17347
+D4
+~
+~
+0 -1  0 17118
+S
+#17347
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17346
+D2
+~
+~
+0 -1  0 17348
+D4
+~
+~
+0 -1  0 17139
+S
+#17348
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17347
+D3
+~
+~
+0 -1  0 17349
+D4
+~
+~
+0 -1  0 17160
+S
+#17349
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D1
+~
+~
+0 -1  0 17348
+D2
+~
+~
+0 -1  0 17350
+D4
+~
+~
+0 -1  0 17161
+S
+#17350
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17349
+D2
+~
+~
+0 -1  0 17351
+D4
+~
+~
+0 -1  0 17181
+S
+#17351
+Beneath the Surface of the Bridge~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17350
+D2
+~
+~
+0 -1  0 17352
+S
+#17352
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17351
+D2
+~
+~
+0 -1  0 17353
+D4
+~
+~
+0 -1  0 17220
+S
+#17353
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17352
+D2
+~
+~
+0 -1  0 17354
+D4
+~
+~
+0 -1  0 17238
+S
+#17354
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17353
+D1
+~
+~
+0 -1  0 17355
+D4
+~
+~
+0 -1  0 17255
+S
+#17355
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D2
+~
+~
+0 -1  0 17356
+D3
+~
+~
+0 -1  0 17354
+D4
+~
+~
+0 -1  0 17254
+S
+#17356
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17355
+D2
+~
+~
+0 -1  0 17357
+D4
+~
+~
+0 -1  0 17269
+S
+#17357
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17356
+D2
+~
+~
+0 -1  0 17358
+D4
+~
+~
+0 -1  0 17283
+S
+#17358
+Beneath the Surface of the Erui~
+No Description Set.
+~
+17 65536 20
+0
+D0
+~
+~
+0 -1  0 17357
+D4
+~
+~
+0 -1  0 17296
+S
+#17359
+Road~
+   Wide enough to accommodate twelve men marching abreast, this 
+road of regal, whitish stones is well maintained, either boundary 
+of it marked with heavier, squared cobbles whilst the centre is 
+filled with rectangular paves, fitting so close together that 
+barely a tuft of grass or weed emerges from between them. 
+Running straight from north to south, this highway cuts a path 
+through the green fields of the Gondorian fiefdom of Lossarnach. 
+~
+17 65536 2
+0
+D1
+~
+~
+0 -1  0 17360
+D2
+~
+~
+0 -1  0 17006
+S
+#17360
+New Room~
+No Description Set.
+~
+17 65536 0
+0
+D2
+~
+~
+0 -1  0 17005
+D3
+~
+~
+0 -1  0 17359
+S
+$~

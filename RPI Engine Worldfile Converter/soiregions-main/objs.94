@@ -1,0 +1,813 @@
+#94000
+curved DO_NOT_LOAD EXPERT_QUALITY ivory-pommeled METAL UNIQUE_JAZU NEVER_COPY MASTER MAGIC~
+an ivory-pommeled, curved dagger~
+A ivory-pommeled, curved dagger lies upon the ground.~
+   An intricately carved ivory handle serves as a comfortable 
+grip for this exotic dagger with a wicked upturned blade. The 
+edge of the blade isn't particularly sharp, but the point has 
+been tempered and sharpened a near-whitish wicked gleam. The 
+handle seems to almost glow under certain angles when exposed to 
+unnatural light. 
+~
+5 4104 8193
+0 1 7 8
+130 0.000000
+0 0 0 35 0 0 1
+500.000000 0 0 0 28 0 0
+#94001
+attanar moss stout coarse green HERBALISM VEGETATION~
+a patch of stout, coarse green moss~
+A patch of stout, coarse green moss grows from from a nearby rock.~
+   This tuft of coarse, green moss is strongly attached to a 
+rock, the vegetation tenuously laced in cracks in the stone. Of 
+short length, the solidity of its attachment conveys a stout 
+appearance. 
+~
+29 4096 0
+94002 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 4320 87 0 0 0 0
+#94002
+attanar moss clump coarse craft HERBALISM VEGETATION~
+a clump of coarse, green moss~
+A clump of coarse, green moss has been neglected in the ground, drying.~
+   A clump of vivid green, coarse moss has been gathered from its 
+natural habitat and now dries softly in the room air. The moss 
+has a coarse, spongy texture and an earthy, wet odor when 
+smelled. 
+~
+29 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94003
+scalp leathery goblin OTHER~
+a leathery goblin scalp~
+A leathery goblin scalp.~
+~
+45 0 262145
+0 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+20.000000 672 86 0 14 0 0
+#94004
+scalp leathery orc OTHER~
+a leathery orc scalp~
+A leathery orc scalp.~
+~
+45 0 262145
+0 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+30.000000 672 86 0 14 0 0
+#94005
+scalp scarred bloody human OTHER~
+a bloody, scarred, human scalp~
+A bloody human scalp.~
+~
+45 0 262145
+0 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+37.000000 672 86 0 0 0 0
+#94006
+scalp tattooed human OTHER scarred~
+a tattooed, scarred, human scalp~
+A tattooed human scalp.~
+~
+45 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+40.000000 672 86 0 0 0 0
+#94007
+scalp tough leathery goblin OTHER~
+a tough, leathery goblin scalp~
+A tough, leathery goblin scalp.~
+~
+45 0 262145
+0 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+35.000000 672 86 0 14 0 0
+#94008
+scalp tough leathery orc OTHER~
+a tough, leathery orc scalp~
+A tough, leathery orc scalp.~
+~
+45 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+40.000000 672 86 0 14 0 0
+#94009
+scalp tough leathery half-orc OTHER~
+a tough, leathery half-orc scalp~
+A tough, leathery half-orc scalp.~
+~
+45 0 262145
+0 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+37.000000 672 86 0 14 0 0
+#94010
+ears pair of warg ears OTHER~
+a pair of warg ears~
+A pair of warg ears is here.~
+~
+45 0 262145
+0 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+30.000000 672 86 0 0 0 0
+#94011
+scalp troll scaly OTHER~
+a scaly troll scalp~
+A scaly troll scalp is here.~
+~
+45 0 262145
+0 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+50.000000 672 86 0 0 0 0
+#94012
+bounties no OTHER~
+#6no outstanding group bounties#0~
+#6There are currently no outstanding group bounties.#0~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94013
+bounty OOC yes OTHER~
+#6an outstanding group bounty#0~
+#6There is currently an outstanding group bounty.#0~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 94012 0 0 0 0
+#94014
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94015
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94016
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94017
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94018
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94019
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94020
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94021
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94022
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94023
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94024
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94025
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94026
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94027
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94028
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94029
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94100
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94101
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94102
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94103
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94104
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94105
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94106
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94107
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94108
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94109
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94110
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-mobile object~
+A hard-bounty-mobile object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94111
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-mobile object~
+A hard-bounty-mobile object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94112
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-mobile object~
+A hard-bounty-mobile object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94113
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-mobile object~
+A hard-bounty-mobile object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94114
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-mobile object~
+A hard-bounty-mobile object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94115
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-mobile object~
+A hard-bounty-mobile object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94116
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-mobile object~
+A hard-bounty-mobile object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94117
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-mobile object~
+A hard-bounty-mobile object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94118
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-mobile object~
+A hard-bounty-mobile object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94119
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-mobile object~
+A hard-bounty-mobile object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94120
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-location object~
+A hard-bounty-location object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94121
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-location object~
+A hard-bounty-location object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94122
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-location object~
+A hard-bounty-location object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94123
+bo_obj HARD BOUNTY OTHER~
+a hard-bounty-location object~
+A hard-bounty-location object is here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94200
+cave small cobweb covered xBOUNTY OTHER~
+a small, cobweb-covered cave~
+The entrance to a small, cobweb-covered cave rises up from the rocks.~
+   This entrance leads inside a small, cobweb-covered cave, 
+rising a short distance from the black rocks of the area. 
+~
+12 0 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 4195072 0 1
+0.000000 672 86 0 0 0 0
+#94900
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94901
+scalp bloody human OTHER~
+a bloody human scalp~
+A bloody human scalp.~
+~
+45 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+25.000000 672 86 0 0 0 0
+#94902
+scalp tattooed human OTHER~
+a tattooed human scalp~
+A tattooed human scalp.~
+~
+45 0 262145
+94009 0 0 0
+100 0.000000
+0 0 0 0 2304 0 1
+27.000000 672 86 0 0 0 0
+#94501
+wGonBan OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94001 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94502
+wHarTri OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94002 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94503
+wGob OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94003 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94504
+wOrc OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94004 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94505
+sGonBan OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94005 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94506
+sHarTri OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94006 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94507
+sGob OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94007 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94508
+sOrc OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94008 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94509
+sHalOrc OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94009 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94510
+sWarg OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94010 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94511
+sTroll OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+61 0 1
+94011 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#94300
+circle rough hide tents xBOUNTY OTHER~
+a circle of rough hide tents~
+A circle of rough hide tents forms a small encampment here.~
+   A circle of rough hide tents and stick-and-leaf lean-tos have 
+been constructed here in the Ithilien, looking to be inhabited or 
+recently inhabited by a group of people. There are no further 
+clues to the identification of who lives in this worthless and 
+scrappy encampment, but only a fool would approach it without a 
+modicum of caution. 
+~
+12 0 0
+0 0 0 0
+50000 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#94030
+ledger_quartermaster bounty massive yellowed foreboding OTHER desk~
+a massive, yellowing ledger~
+A massive, yellowing ledger sits forebodingly on a desk.~
+   This ledger is ancient, the pages warped and hard to the 
+touch, and yellowing. Drawn upon it, page after page, are 
+descriptions of criminals, their deeds, and their portraits, most 
+of them stamped with a red cross upon the little pictures. 
+~
+22 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94031
+helpfile ooc note bounty how to OTHER~
+#6an OOC How-To for being a Bounty Hunter#0~
+#6Want to be a bounty hunter? Type #9#6look ooc#0#6 to find out how.~
+   #6Hard Bounties#0 These reflect a group of hardened criminals, 
+bandits, run-aways, rebels, Gondorians, deserters, or other 
+nuisances or annoyances to Duke Krayd and his hands of South 
+Ithilien. 
+
+To check if there are any bounties available, type #6check 
+hard-bounty#0. If no bounty is being offered, then the Bounty 
+Master will go through his books and find one. If someone has 
+already checked this, then he will repeat the details of that 
+bounty to you. Precisely what bounty is offered, and what 
+location that appear, is up to luck. There are ten different 
+groups available to be offered, four broad areas and forty total 
+locations where the groups can hide out, so there should be 
+variation enough for anyone. 
+
+A cave or small camp object will be loaded where the group is 
+hiding out, and it is here that they will remain until found. 
+Where precisely the campsite or cave will load is up to luck, 
+but, seeing as the hunted quite often know they are wanted, it's 
+safe to bet they've chosen very out of the way locations to make 
+their camp. 
+
+To collect the bounty, wade in the camp, kill the aggressive 
+mobiles inside, and take their scalps via the #6skin#0 command. 
+No skill in skin is needed; just use the command and you'll 
+automatically get the scalps. Then, bring the scalps back to the 
+bounty master, and sell them to him for the bounty. 
+
+Each bounty will be offered for a Real Life week, and then fade 
+away. Even if the bounty is collected, then it will still be a 
+Real Life week before another can be generated. 
+
+How many people that are required for the groups vary. Some 
+groups could theoretically be taken by one PC! However, to be 
+safe, between four PCs would be the minimum, and ten PCs more 
+than enough. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#94032
+fire stron bruning forge BySaladin OTHER~
+#1a strong fire burning in the forge#0~
+#1A strong fire is burning inside the forge.#0~
+   Bright and unbearably hot, this fire has been stoked, fueled 
+and kept until the temperature inside is high enough to melt most 
+metals or work any metallurgy that requires such high 
+temperature. 
+~
+1 4096 0
+6 6 54 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 6 1651 0 0 0 0
+#94033
+log half-log heavy sturdy BySaladin charcoal_making WOOD ~
+a heavy, sturdy half-log~
+A heavy, sturdy half-log has been dropped here.~
+   This hefty part of an undetermined log corresponds roughly to 
+one quarter of a raw cut tree. Apparently it has been cut 
+lenghtwise in half, then cut again at the middle. Useable for a 
+variety of purposes, this could be put on a large bonfire or 
+hearth, providing of a veritable and lasting source of fuel for 
+fire. 
+~
+49 4096 1
+0 0 0 0
+3700 0.000000
+0 0 0 0 0 0 1
+3.000000 0 0 0 0 0 0
+$~

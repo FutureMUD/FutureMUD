@@ -1,0 +1,94 @@
+#55000
+workmen FORT_CONSTRUCTION ready team OTHER~
+#5a team of workmen~
+#5A team of workmen are assembled here, ready for direction.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#55001
+workmen FORT_CONSTRUCTION busied team OTHER~
+#5a team of busied workmen~
+#5A team of busied workmen are here, moving about the construction site.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 144 55000 0 0 0 0
+#55002
+logs FORT_CONSTRUCTION stack felled WOOD~
+a stack of felled logs~
+A stack of felled logs have been lashed together here.~
+~
+12 4194304 1
+0 0 0 0
+6000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#55003
+block FORT_CONSTRUCTION rough stone STONE~
+a rough block of grey stone~
+A rough block of grey stone has been set here.~
+~
+12 4194304 1
+0 0 0 0
+6000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#55004
+progress FORT_CONSTRUCTION construction OTHER~
+#6the progress in the construction~
+#6Progress has been made in the construction here.~
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#55005
+rock face FORT_CONSTRUCTION rough grey quarry OTHER~
+a rough, grey rock face~
+A rough, grey rock face looms here, stone quarried from its base.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#55006
+Entwash River flows downstream LIQUID~
+#4the River Entwash#0~
+#4The River Entwash flows downstream.#0~
+   The River Entwash winds its way through the Fangorn Forest. 
+The waters are clear and relatively shallow at the edges. The 
+banks are lined with dark, brooding trees and underbrush. The 
+rare bird that flies overhead doesn't stay long at the banks. 
+There are no fish to be seen in the shallows of the river, but 
+perhaps in the center of the moderately flowing water some live. 
+~
+17 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#55007
+Limlight river tributary flows eastward LIQUID~
+#6The Limlight River#0~
+#6The Limlight River flows eastward from the Anduin River.#0~
+   A tributary of the great Anduin River, the Limlight flows 
+slowly at an easterly pace towards the Great River. Though 
+smaller than the great rivers it connects to, it is filled with 
+life. The grass edging the banks is green and vibrant and 
+flowers and other plants spring up sporadically. Birds soar 
+overhead, watching the schools of fish in the blue waters. The 
+water is cool and refreshing. 
+~
+17 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

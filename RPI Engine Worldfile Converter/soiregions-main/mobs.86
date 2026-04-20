@@ -1,0 +1,60 @@
+#86000
+Postal variable postal worker~
+variable postal worker~
+A variable postal worker is here.~
+This is a postal worker, going about their duty.
+~
+10 0 25 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 36 41 43 33 49 47 36 31 38
+50 33 45 48 34 37 44 48 41 45
+49 41 0 0 38 42 0 0 24 69
+0 0 52 0 0 17 17 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 47 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 69 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#86001
+_postie ruddy-faced old man Arador~
+a ruddy-faced old man~
+A ruddy-faced old man tends to the post office here.~
+This is a ruddy-faced old man, who lovingly tends to his post 
+office.
+
+#6post <person>#0 to post a letter.
+#6buy application#0 to purchase an application for a mailbox.
+#6list mailboxes#0 to see a list of all registered recipients.
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+$~

@@ -1,0 +1,1273 @@
+#20000
+Base Room~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+20 65544 0
+0
+S
+#20001
+River Anduin Near the Western Shore~
+   This near the shore, the Anduin's waters are more or less 
+still, compared to the rest of the great river. Reeds grow up 
+through the water along the western side, near to the bank, which 
+is not far away. The flow of the the river is southerly, and in 
+the distance it bends slightly around to the west. To the 
+northwest the walls of Osgiliath can be seen. Due north the 
+city's great bridge spans the immense river. To the east, there 
+is nothing but water. 
+~
+20 1073807360 17
+0
+D0
+~
+~
+0 -1  0 20002
+D1
+~
+~
+0 -1  0 20011
+S
+#20002
+River Anduin Under the Western Walls of Osgiliath~
+   This near the shore, the Anduin's waters are more or less 
+still, compared to the rest of the great river. Reeds grow up 
+through the water along the western side, near to the eroded and 
+slimey walls of Osgiliath that reach the bank. The flow of the 
+the river is southerly, and in the distance it bends slightly 
+around to the west. To the west the walls of Osgiliath can be 
+seen, rising up along the bank. Just to the north the city's 
+great bridge spans the immense river. To the east, there is 
+nothing but water. 
+~
+20 1073807360 17
+0
+D0
+~
+~
+0 -1  0 20003
+D1
+~
+~
+0 -1  0 20012
+D2
+~
+~
+0 -1  0 20001
+S
+#20003
+River Anduin Under the Western Walls of Osgiliath~
+   Immediately to the west the walls of Osgiliath rise up on the 
+banks of the Anduin, and the waters flow relatively swiftly past. 
+High overhead the great bridge of Osgiliath spans the river, 
+overshadowing it. The water is very cold, and a dark blue in 
+colour, and quite deep. Moss and lichen cling to the walls of 
+Osgiliath, along with slime and algae. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20004
+D1
+~
+~
+0 -1  0 20013
+D2
+~
+~
+0 -1  0 20002
+S
+#20004
+River Anduin Under the Bridge of Osgiliath~
+   Immediately to the west the walls of Osgiliath rise up on the 
+banks of the Anduin, and the waters flow relatively swiftly past. 
+High overhead the great bridge of Osgiliath spans the river, 
+overshadowing it. The water is very cold, and a dark blue in 
+colour, and quite deep. Moss and lichen cling to the walls of 
+Osgiliath, along with slime and algae. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20005
+D1
+~
+~
+0 -1  0 20014
+D2
+~
+~
+0 -1  0 20003
+S
+#20005
+River Anduin Under the Bridge of Osgiliath~
+   Immediately to the west the walls of Osgiliath rise up on the 
+banks of the Anduin, and the waters flow relatively swiftly past. 
+High overhead the great bridge of Osgiliath spans the river, 
+overshadowing it. The water is very cold, and a dark blue in 
+colour, and quite deep. Moss and lichen cling to the walls of 
+Osgiliath, along with slime and algae. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20006
+D1
+~
+~
+0 -1  0 20015
+D2
+~
+~
+0 -1  0 20004
+S
+#20006
+River Anduin Under the Bridge of Osgiliath~
+   Immediately to the west the walls of Osgiliath rise up on the 
+banks of the Anduin, and the waters flow relatively swiftly past. 
+High overhead the great bridge of Osgiliath spans the river, 
+overshadowing it. The water is very cold, and a dark blue in 
+colour, and quite deep. Moss and lichen cling to the walls of 
+Osgiliath, along with slime and algae. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20007
+D1
+~
+~
+0 -1  0 20016
+D2
+~
+~
+0 -1  0 20005
+S
+#20007
+River Anduin Under the Bridge of Osgiliath~
+   Immediately to the west the walls of Osgiliath rise up on the 
+banks of the Anduin, and the waters flow relatively swiftly past. 
+High overhead the great bridge of Osgiliath spans the river, 
+overshadowing it. The water is very cold, and a dark blue in 
+colour, and quite deep. Moss and lichen cling to the walls of 
+Osgiliath, along with slime and algae. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20008
+D1
+~
+~
+0 -1  0 20017
+D2
+~
+~
+0 -1  0 20006
+S
+#20008
+River Anduin Under the Bridge of Osgiliath~
+   Immediately to the west the walls of Osgiliath rise up on the 
+banks of the Anduin, and the waters flow relatively swiftly past. 
+High overhead the great bridge of Osgiliath spans the river, 
+overshadowing it. The water is very cold, and a dark blue in 
+colour, and quite deep. Moss and lichen cling to the walls of 
+Osgiliath, along with slime and algae. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20009
+D1
+~
+~
+0 -1  0 20018
+D2
+~
+~
+0 -1  0 20007
+S
+#20009
+River Anduin Under the Bridge of Osgiliath~
+   Immediately to the west the walls of Osgiliath rise up on the 
+banks of the Anduin, and the waters flow relatively swiftly past. 
+High overhead the great bridge of Osgiliath spans the river, 
+overshadowing it. The water is very cold, and a dark blue in 
+colour, and quite deep. Moss and lichen cling to the walls of 
+Osgiliath, along with slime and algae. 
+~
+20 1073807360 17
+0
+D0
+~
+~
+0 -1  0 20010
+D1
+~
+~
+0 -1  0 20019
+D2
+~
+~
+0 -1  0 20008
+S
+#20010
+River Anduin Under the Bridge of Osgiliath~
+   Immediately to the west the walls of Osgiliath rise up on the 
+banks of the Anduin, and the waters flow relatively swiftly past. 
+High overhead the great bridge of Osgiliath spans the river, 
+overshadowing it. The water is very cold, and a dark blue in 
+colour, and quite deep. Moss and lichen cling to the walls of 
+Osgiliath, along with slime and algae. 
+~
+20 1073807360 17
+0
+D1
+~
+~
+0 -1  0 20020
+D2
+~
+~
+0 -1  0 20009
+S
+#20011
+River Anduin in Sight of the Western Shore~
+   The Anduin flows more swiftly from the north to the south 
+here, though the current is not at its strongest. To the north 
+is the bridge of Osgiliath, spanning the river, while on the west 
+in the distance lies the shore. To the east and south there is 
+nothing but water, swiftly flowing past. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20012
+D1
+~
+~
+0 -1  0 20021
+D3
+~
+~
+0 -1  0 20001
+S
+#20012
+River Anduin South of the Bridge of Osgiliath~
+   The Anduin flows more swiftly from the north to the south 
+here, though the current is not at its strongest. Just to the 
+north is the bridge of Osgiliath, spanning the river, while on 
+the west in the distance lies the shore. To the east and south 
+there is nothing but water, swiftly flowing past. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20013
+D1
+~
+~
+0 -1  0 20022
+D2
+~
+~
+0 -1  0 20011
+D3
+~
+~
+0 -1  0 20002
+S
+#20013
+River Anduin Under the Bridge of Osgiliath~
+   The Anduin flows more swiftly from the north to the south 
+here, though the current is not at its strongest. High overhead 
+is the bridge of Osgiliath, spanning the river from west to east, 
+and to the west the walls of Osgiliath, bordering the river can 
+be seen. There is nothing but water to the east and south, 
+swiftly flowing past. 
+~
+20 1073807360 17
+0
+D0
+~
+~
+0 -1  0 20014
+D1
+~
+~
+0 -1  0 20023
+D2
+~
+~
+0 -1  0 20012
+D3
+~
+~
+0 -1  0 20003
+S
+#20014
+River Anduin Under the Bridge of Osgiliath~
+   The Anduin flows more swiftly from the north to the south 
+here, though the current is not at its strongest. High overhead 
+is the bridge of Osgiliath, spanning the river from west to east, 
+and to the west the walls of Osgiliath, bordering the river can 
+be seen. There is nothing but water to the east and south, 
+swiftly flowing past. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20015
+D1
+~
+~
+0 -1  0 20024
+D2
+~
+~
+0 -1  0 20013
+D3
+~
+~
+0 -1  0 20004
+S
+#20015
+River Anduin Under the Bridge of Osgiliath~
+   The Anduin flows more swiftly from the north to the south 
+here, though the current is not at its strongest. High overhead 
+is the bridge of Osgiliath, spanning the river from west to east, 
+and to the west the walls of Osgiliath, bordering the river can 
+be seen. There is nothing but water to the east and south, 
+swiftly flowing past. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20016
+D1
+~
+~
+0 -1  0 20025
+D2
+~
+~
+0 -1  0 20014
+D3
+~
+~
+0 -1  0 20005
+S
+#20016
+River Anduin Under the Bridge of Osgiliath~
+   The Anduin flows more swiftly from the north to the south 
+here, though the current is not at its strongest. High overhead 
+is the bridge of Osgiliath, spanning the river from west to east, 
+and to the west the walls of Osgiliath, bordering the river can 
+be seen. There is nothing but water to the east and south, 
+swiftly flowing past. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20017
+D1
+~
+~
+0 -1  0 20026
+D2
+~
+~
+0 -1  0 20015
+D3
+~
+~
+0 -1  0 20006
+S
+#20017
+River Anduin Under the Bridge of Osgiliath~
+   The Anduin flows more swiftly from the north to the south 
+here, though the current is not at its strongest. High overhead 
+is the bridge of Osgiliath, spanning the river from west to east, 
+and to the west the walls of Osgiliath, bordering the river can 
+be seen. There is nothing but water to the east and south, 
+swiftly flowing past. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20018
+D1
+~
+~
+0 -1  0 20027
+D2
+~
+~
+0 -1  0 20016
+D3
+~
+~
+0 -1  0 20007
+S
+#20018
+River Anduin Under the Bridge of Osgiliath~
+   The Anduin flows more swiftly from the north to the south 
+here, though the current is not at its strongest. High overhead 
+is the bridge of Osgiliath, spanning the river from west to east, 
+and to the west the walls of Osgiliath, bordering the river can 
+be seen. There is nothing but water to the east and south, 
+swiftly flowing past. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20019
+D1
+~
+~
+0 -1  0 20028
+D2
+~
+~
+0 -1  0 20017
+D3
+~
+~
+0 -1  0 20008
+S
+#20019
+River Anduin Under the Bridge of Osgiliath~
+   The Anduin flows more swiftly from the north to the south 
+here, though the current is not at its strongest. High overhead 
+is the bridge of Osgiliath, spanning the river from west to east, 
+and to the west the walls of Osgiliath, bordering the river can 
+be seen. There is nothing but water to the east and south, 
+swiftly flowing past. 
+~
+20 65536 17
+0
+D0
+~
+~
+0 -1  0 20020
+D1
+~
+~
+0 -1  0 20029
+D2
+~
+~
+0 -1  0 20018
+D3
+~
+~
+0 -1  0 20009
+S
+#20020
+River Anduin Under the Bridge of Osgiliath~
+   The Anduin flows more swiftly from the north to the south 
+here, though the current is not at its strongest. High overhead 
+is the bridge of Osgiliath, spanning the river from west to east, 
+and to the west the walls of Osgiliath, bordering the river can 
+be seen. There is nothing but water to the east and south, 
+swiftly flowing past. 
+~
+20 65536 17
+0
+D1
+~
+~
+0 -1  0 20030
+D2
+~
+~
+0 -1  0 20019
+D3
+~
+~
+0 -1  0 20010
+S
+#20021
+Out in the Anduin River~
+   Here the flow of the Anduin is very great, making swimming 
+here treacherous. All around there is little to see but water. 
+Very far in the distance to the west is the shore, and north the 
+great bridge of Osgiliath spans the river, overshadowing it. The 
+water is very cold and a dark blue-green in colour. 
+The river grows far more treacherous further east, its current
+much too strong for anyone to swim further across.
+~
+20 65536 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The river is much too wide and the current far too swift to be able to swim further across.
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 20022
+D3
+~
+~
+0 -1  0 20011
+S
+#20022
+Out in the Anduin, South of the Bridge of Osgiliath~
+   Here the flow of the Anduin is very great, making swimming 
+here treacherous. All around there is little to see but water. 
+Very far in the distance to the west is the shore, and just to 
+the north the great bridge of Osgiliath spans the river, 
+overshadowing it. The water is very cold and a deep blue-green 
+in colour. 
+The river grows far more treacherous further east, its current
+much too strong for anyone to swim further across.
+~
+20 1073807360 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The river is much too wide and the current far too swift to be able to swim further across.
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 20023
+D2
+~
+~
+0 -1  0 20021
+D3
+~
+~
+0 -1  0 20012
+S
+#20023
+River Anduin Under the Bridge of Osgiliath~
+   Here the flow of the Anduin is very great, making swimming 
+here treacherous. All around there is little to see but water. 
+Very far in the distance to the west is the shore, with 
+Osgiliath's walls rising up on it, and high overhead the great 
+bridge of Osgiliath spans the river from west to east, 
+overshadowing it. The water is very cold and a deep blue-green 
+in colour. 
+The river grows far more treacherous further east, its current
+much too strong for anyone to swim further across.
+~
+20 65536 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The river is much too wide and the current far too swift to be able to swim further across.
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 20024
+D2
+~
+~
+0 -1  0 20022
+D3
+~
+~
+0 -1  0 20013
+S
+#20024
+River Anduin Under the Bridge of Osgiliath~
+   Here the flow of the Anduin is very great, making swimming 
+here treacherous. All around there is little to see but water. 
+Very far in the distance to the west is the shore, with 
+Osgiliath's walls rising up on it, and high overhead the great 
+bridge of Osgiliath spans the river from west to east, 
+overshadowing it. The water is very cold and a deep blue-green 
+in colour. 
+The river grows far more treacherous further east, its current
+much too strong for anyone to swim further across.
+~
+20 1073807360 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The river is much too wide and the current far too swift to be able to swim further across.
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 20025
+D2
+~
+~
+0 -1  0 20023
+D3
+~
+~
+0 -1  0 20014
+S
+#20025
+River Anduin Under the Bridge of Osgiliath~
+   Here the flow of the Anduin is very great, making swimming 
+here treacherous. All around there is little to see but water. 
+Very far in the distance to the west is the shore, with 
+Osgiliath's walls rising up on it, and high overhead the great 
+bridge of Osgiliath spans the river from west to east, 
+overshadowing it. The water is very cold and a deep blue-green 
+in colour. 
+The river grows far more treacherous further east, its current
+much too strong for anyone to swim further across.
+~
+20 1073807360 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The river is much too wide and the current far too swift to be able to swim further across.
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 20026
+D2
+~
+~
+0 -1  0 20024
+D3
+~
+~
+0 -1  0 20015
+S
+#20026
+River Anduin Under the Bridge of Osgiliath~
+   Here the flow of the Anduin is very great, making swimming 
+here treacherous. All around there is little to see but water. 
+Very far in the distance to the west is the shore, with 
+Osgiliath's walls rising up on it, and high overhead the great 
+bridge of Osgiliath spans the river from west to east, 
+overshadowing it. The water is very cold and a deep blue-green 
+in colour. 
+The river grows far more treacherous further east, its current
+much too strong for anyone to swim further across.
+~
+20 1073807360 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The river is much too wide and the current far too swift to be able to swim further across.
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 20027
+D2
+~
+~
+0 -1  0 20025
+D3
+~
+~
+0 -1  0 20016
+S
+#20027
+River Anduin Under the Bridge of Osgiliath~
+   Here the flow of the Anduin is very great, making swimming 
+here treacherous. All around there is little to see but water. 
+Very far in the distance to the west is the shore, with 
+Osgiliath's walls rising up on it, and high overhead the great 
+bridge of Osgiliath spans the river from west to east, 
+overshadowing it. The water is very cold and a deep blue-green 
+in colour. 
+The river grows far more treacherous further east, its current
+much too strong for anyone to swim further across.
+~
+20 1073807360 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The river is much too wide and the current far too swift to be able to swim further across.
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 20028
+D2
+~
+~
+0 -1  0 20026
+D3
+~
+~
+0 -1  0 20017
+S
+#20028
+River Anduin Under the Bridge of Osgiliath~
+   Here the flow of the Anduin is very great, making swimming 
+here treacherous. All around there is little to see but water. 
+Very far in the distance to the west is the shore, with 
+Osgiliath's walls rising up on it, and high overhead the great 
+bridge of Osgiliath spans the river from west to east, 
+overshadowing it. The water is very cold and a deep blue-green 
+in colour. 
+The river grows far more treacherous further east, its current
+much too strong for anyone to swim further across.
+~
+20 1073807360 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The river is much too wide and the current far too swift to be able to swim further across.
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 20029
+D2
+~
+~
+0 -1  0 20027
+D3
+~
+~
+0 -1  0 20018
+S
+#20029
+River Anduin Under the Bridge of Osgiliath~
+   Here the flow of the Anduin is very great, making swimming 
+here treacherous. All around there is little to see but water. 
+Very far in the distance to the west is the shore, with 
+Osgiliath's walls rising up on it, and high overhead the great 
+bridge of Osgiliath spans the river from west to east, 
+overshadowing it. The water is very cold and a deep blue-green 
+in colour. 
+The river grows far more treacherous further east, its current
+much too strong for anyone to swim further across.
+~
+20 1073807360 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The river is much too wide and the current far too swift to be able to swim further across.
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 20030
+D2
+~
+~
+0 -1  0 20028
+D3
+~
+~
+0 -1  0 20019
+S
+#20030
+River Anduin Under the Bridge of Osgiliath~
+   Here the flow of the Anduin is very great, making swimming 
+here treacherous. All around there is little to see but water. 
+Very far in the distance to the west is the shore, with 
+Osgiliath's walls rising up on it, and high overhead the great 
+bridge of Osgiliath spans the river from west to east, 
+overshadowing it. The water is very cold and a deep blue-green 
+in colour. 
+The river grows far more treacherous further east, its current
+much too strong for anyone to swim further across.
+~
+20 1073807360 17
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+The river is much too wide and the current far too swift to be able to swim further across.
+~
+~
+~
+~
+~
+D2
+~
+~
+0 -1  0 20029
+D3
+~
+~
+0 -1  0 20020
+S
+#20050
+The Tur-Edendor Example Port~
+   This is the port where people will come from Tur-Edendor, and 
+sail off into the wide world. 
+~
+20 1073807360 10
+0
+S
+#20051
+Haven, Umbar~
+This is the ProtoPort destination dock. Players will sail here from Tur Edendor.
+~
+20 1073807360 0
+0
+S
+#20052
+Inside the Ship~
+This is the base room for the ship.
+~
+20 1073807360 0
+0
+S
+#20999
+Floating among the stars beyond a backdrop of starlight~
+   Every so often a piece of cosmic debris drifts past your head 
+or arm, moving on its wayward path towards oblivion. Far off on 
+the horizon is an ever full sun that glows bright through the 
+pinprick light from each of the many stars. Countless in number, 
+these dots hang from the sky by an infinite number of invisible 
+strings. It is temperate if slightly cool, the cold of space 
+balanced by the great heat from the pulsing orb of the far off 
+sun. 
+~
+20 134283264 0
+0
+A
+Every so often a piece of cosmic debris drifts past your head 
+or arm, moving on its wayward path towards oblivion. Far off on 
+the horizon is an ever full sun that glows bright through the 
+pinprick light from each of the many stars. Countless in number, 
+these dots hang from the sky by an infinite number of invisible 
+strings. It is temperate if slightly cool, the cold of space 
+balanced by the great heat from the pulsing orb of the far off 
+sun. 
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+That would hurl you off into space!
+~
+That would hurl you off into space!
+~
+That would hurl you off into space!
+~
+That would hurl you off into space!
+~
+That would hurl you off into space!
+~
+Do you WANT to die a thousands deaths to the sun?  ..I think not!
+~
+D3
+~
+~
+0 -1  0 974
+S
+#20031
+A Wooded Area just beyond a Cave Mouth~
+   Nestled in the curvature of the precarious mountain walls, 
+this small section of wood hosts a struggling sense of abandoned 
+gloom. Dark trees devoid of foliage loom menacingly, their naked 
+and twisted branches reaching in anguish to the sky. The ground 
+underfoot is covered in a dense layer of organic rot, the leaves 
+and twigs decayed into a thick and pungent slime. Here and there 
+lie the old and rotted ends of long-fallen trees, their bark 
+almost completely overrun by thick moss and sickly yellow fungi. 
+~
+20 33619968 5
+0
+D0
+~
+~
+0 -1  0 20036
+D3
+~
+~
+0 -1  0 20032
+S
+#20032
+A Narrow Stretch of Woods up the Hills~
+   Silence reigns eerily over this section of wood, bordered to 
+the north by a stony embrace. Devoid even of the natural sounds 
+of wildlife and sheltered from the winds, the twisted black trees 
+cling to the slippery bed of decay that coats the ground. The 
+curving trunks rise to angular branches and sharp twigs; crooked 
+forms lacking the softness foliage lends. The ground angles from 
+east to west, leading up toward a stony wall. 
+~
+20 33619968 5
+0
+D0
+~
+~
+0 -1  0 20035
+D1
+~
+~
+0 -1  0 20031
+D3
+~
+~
+0 -1  0 20033
+S
+#20033
+The Termination of Woods at a Rock Face~
+   At a sharp angle, the rock walls join here, the ground rising 
+the nearer to the stone it gets. Passage to the south is 
+rendered nearly impossible due to the sheer slope of the rising 
+cliff-face, though a very steep and narrow natural path heads up 
+along the western wall and into the mountain. Below that is the 
+mouth of a swiftly descending cave cloaked in darkness. 
+   Here the trees thin even further and those that do grow appear 
+even more sickly and twisted than the rest. Mounds of rock and 
+dirt undulate out of the ground-covering rot; small bastions of 
+respite from the slippery slime. 
+~
+20 33619968 8
+0
+D0
+~
+~
+0 -1  0 20034
+D1
+~
+~
+0 -1  0 20032
+D4
+~
+~
+0 -1  0 20040
+S
+#20034
+Foggy Woods reaching an Overlook~
+   Rising to a quick dropoff, the trees give way to the 
+precipice-like overlook, hanging over the marsh presumably below 
+but impossible to discern through the heavy yellow haze that just 
+barely touches the base of this higher ground. To the west, the 
+clear bluff meets sheer cliff-face prevening further travel in 
+that direction. Underfoot, no grass grows, instead, the thick 
+brown slime of decaying leaves makes for precarious footing. 
+~
+20 33628160 5
+0
+D1
+~
+~
+0 -1  0 20035
+D2
+~
+~
+0 -1  0 20033
+S
+#20035
+A Rise in Foggy Woods~
+   Upon the rise of the ground, a fog remains about knee-height 
+on a normal human, thick and soupy of yellowish hue. The snaking 
+tendrils wind around the dark and dying trees to hide the coiling 
+knotty roots from view and coating the slimy organic decay of the 
+ground with moisture. From somewhere to the north, the sound of 
+blurping water indicates a rapid descent into the damp. 
+~
+20 33628160 5
+0
+D1
+~
+~
+0 -1  0 20036
+D2
+~
+~
+0 -1  0 20032
+D3
+~
+~
+0 -1  0 20034
+S
+#20036
+The Foggy Joining of Woods and Marsh~
+   Angling down from the eastern wall, the ground declines, 
+approaching what appears to be a stagnant marsh. A heavy haze of 
+yellowish fog carries a foul odor; a mineral stink that only 
+seems to amplify the reek of rot from the damp and decaying 
+leaves rotting underfoot. The trees break near the thick reeds 
+which punctuate the fog, indicating the marsh's edge. To the 
+west, the ground appears to rise again. 
+~
+20 33628160 5
+0
+D0
+~
+~
+0 -1  0 20037
+D2
+~
+~
+0 -1  0 20031
+D3
+~
+~
+0 -1  0 20035
+S
+#20037
+Where the Swampy Marsh Meets a Wood~
+   The sweaty rank odor of the marsh, aided by its moist 
+companion, the fog, assails the senses like a wall. The thick 
+yellow-tinted fog hangs humidly over the stagnant muddy waters, 
+obscuring the reeds and any ability to gauge the depth of the 
+mire. Beneath the waters, gooey mud gives way underfoot, 
+creating a hazard both slippery and still clinging like glue to 
+any invader. 
+~
+20 33628160 9
+0
+D2
+~
+~
+0 -1  0 20036
+D3
+~
+~
+0 -1  0 20038
+S
+#20038
+In a Foggy Marsh Near Rising Ground~
+   Rising like the keel of some vast ship, the solid ground rises 
+from the murky depths to the south. Spiking out from the muddy 
+wall, blackened twisting roots jab out to trip, gouge, or spear 
+anyone foolish enough to seek the wall as a support or guide. 
+Mud sucks and slurps at invading footwear, eager to ensnare 
+foreign objects to that soggy realm. Periodically, some unseen 
+entity surges in the cloudy waters, creating ripples that blub 
+sickeningly against anything in their undulating paths. 
+~
+20 33628160 9
+0
+D1
+~
+~
+0 -1  0 20037
+D3
+~
+~
+0 -1  0 20039
+S
+#20039
+Where Land Cuts Off the Marsh~
+   Perhaps due to the marsh water eating away at it, the wall of 
+earth has decayed into a wide, curving overhang, terminating this 
+section of the marsh. Along the water's edge, through the rank 
+fog, stone appears, denuded from its protective covering of mud. 
+The soupy water remains thick and stagnant. Too heavy with silt 
+and mud to effectively slap against the stone, the rare and 
+sluggish ripples in the liquid cling to the rock, leaving the 
+surface riddled with dirt along the water's edge. 
+~
+20 33628160 9
+0
+D1
+~
+~
+0 -1  0 20038
+S
+#20040
+A Plateau Overlooking An Ancient Swampland~
+   This flat stretch of rock overlooks an ancient, reeking 
+swampland to the east, the entire area covered in a yellowish fog 
+no matter the time of day nor season. A steeply-sloping and 
+treacherous-looking path leads down toward that area. To the 
+west are the mountains and northern Ithilien beyond. 
+~
+20 33619968 8
+0
+D3
+~
+~
+0 -1  0 76408
+D5
+~
+~
+0 -1  0 20033
+S
+$~

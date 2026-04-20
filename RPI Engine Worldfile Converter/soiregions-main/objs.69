@@ -1,0 +1,114 @@
+#69000
+key polished many-toothed UNIQUE_EUSTICE UNIQUE_NARODAR METAL~
+a polished, many-toothed key~
+A polished, many-toothed key lies here.~
+It's #2a polished, many-toothed key#0.
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#69001
+port_mordor_rprog_object OTHER~
+Port Mordor~
+The ship is currently docked in Port Mordor.~
+The ship is currently docked in Port Mordor.
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#69002
+port_umbar_rprog_object OTHER~
+Port Umbar~
+The ship is currently docked in Umbar.~
+The ship is currently docked in Umbar.
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#69003
+port_harad_rprog_object OTHER~
+Port Harad~
+The ship is currently docked in Haradwaith.~
+The ship is currently docked in Haradwaith.
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#69004
+ship_set_sail_umbar_crit_success_rprog_object OTHER~
+The great ocean~
+The ship has set sail.~
+The ship has set sail, and is upon the wide open ocean.
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 4 69005 0 0 0 0
+#69005
+ship_umbar_dock_rprog_object OTHER~
+Port Umbar~
+The ship is ready to dock in Umbar.~
+The ship is ready to dock in Umbar. #9DOCK UMBAR#0 to bring it in to port.
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#69006
+ship_set_sail_umbar_success_rprog_object OTHER~
+The great ocean~
+The ship has set sail.~
+The ship has set sail, and is upon the wide open ocean.
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 8 69005 0 0 0 0
+#69007
+ship_set_sail_umbar_failure_rprog_object OTHER~
+The great ocean~
+The ship has set sail.~
+The ship has set sail, and is upon the wide open ocean.
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 6 69008 0 0 0 0
+#69008
+ship_umbar_dock_failure_rprog_object OTHER~
+Port Umbar~
+The ship is ready to dock in Umbar.~
+The ship is ready to dock in Umbar. #9DOCK UMBAR#0 to bring it in to port.
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#76034
+key iron byCeredir xManaclesProg METAL~
+an iron key~
+An iron key lies here.~
+   This key is small, forged simply from dark iron. 
+
+#6OOC: You can use this key to #Brelease <person>#0#6 that has 
+been shackled with the use of #5iron manacles#6.#0 
+~
+12 4096 1
+0 0 0 0
+3 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

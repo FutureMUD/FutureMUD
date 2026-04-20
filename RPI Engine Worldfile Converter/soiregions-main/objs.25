@@ -1,0 +1,125 @@
+#25000
+spud pellet small chunk potato OTHER UNIQUE~
+a spud pellet~
+A small chunk of potato lies here on the floor.~
+This small chunk of potato is slightly moist. It is of a roughly
+spherical shape, and is the perfect size to be loaded into a 
+spud gun.
+~
+7 4198408 1
+1 1 1 0
+100 0.000000
+0 0 0 25 4194304 0 1
+0.000000 0 0 0 0 0 0
+#25001
+a steel NO_LOAD gladius with a red leather handle byClub METAL~
+a steel gladius with a red leather handle~
+A steel gladius with a red leather handle has been left on the ground.~
+   Made by a masterful hand, the steel on this gladius is 
+tempered and sharp enough to pierce through flesh like butter. 
+The hilt looks like a half-circle and the handle is wrapped in 
+high-quality red leather that provides an excellent grip for its 
+user. The pommel at the end balances the rest of this lethal 
+weapon. Overall it looks simple, lacking any intricate details, 
+but a trained eye can tell that this is not a tool to be reckoned 
+with. 
+~
+5 4096 8193
+1 1 7 9
+500 0.000000
+0 -2 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#25002
+mirror BY_VAIRE NO_LOAD quicksilver rosewood framed OTHER~
+a full-length mirror, framed with intricately carved rosewood~
+A full-length mirrior, framed with intricately carved rosewood rests here.~
+The frame of this mirror is covered in rosewood, which has been worked into images of flowers and wildlife. The mirror itself bears a dull greyish
+sheen and has a dulled reflective quality to it.
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#25003
+BOGGLE NO-LOAD ADMIN-UNIQUE BY_Vaire Trophy-for-frigga silver gold trophy METAL~
+a small boggle trophy, framed in gold and silver~
+A small boggle trophy, framed in gold and silver rests here.~
+It is a game of boggle, brilliantly with four panes of strudy, but
+clear glass to form the cover of the base, the intersecting pieces
+of glass held firmly together with a silver wire filigree. The
+dice within this set are etched with lettering upon carved ivory
+pieces, the lettering painted black with masterful precision. The
+base of the set itself is forged from gold, little dividers which
+allow the dice to rest neatly within, and the square sides of the
+base are etched with magnificent figures, such as Readmanu, a
+Lhurgoyf, and others. Beneath the base of the tropy, you can see
+a little piece of parchment stick out, titled #6help rules#0.
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#25004
+boggle_board by_vaire Janice NO-LOAD board buxom lass choclately brown hair OTHER~
+#5a buxom lass, with chocolatey-brown hair#0~
+#5A buxom lass, with chocolately-brown hair stands here, helping with the boggle game.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#25005
+lantern sturdy thick-paned thick paned lamp by_vaire slummer_job lamp_lighter iron pole METAL~
+a sturdy, thick-paned lamp suspended from an iron pole~
+A sturdy, thick-paned lamp suspended from an iron pole stands here.~
+~
+1 4096 0
+96 96 54 1
+500 0.000000
+1 0 0 0 0 0 1
+0.000000 96 25008 0 17 0 0
+#25006
+by_vaire lamp_lighter oil barrel heavy oak oil WOOD~
+a heavy oak barrel bearing the sigil of the Minas Tirith Council office~
+A heavy oak barrel bearing the sigil of the Minas Tirith Council office and marked 'oil' stands here.~
+#1For details on using this object, please see: #6help lamplighter#0
+Thick oaken wooden planks are fitted tightly together so as to 
+leave no openings for any liquid to escape the container. At 
+three locations, the barrel is circumvented by thick iron bands. 
+A plain removable lid locks the barrel from the top, while a 
+narrow spout allows smaller containers to be filled.
+~
+17 4096 1
+1800 1800 54 0
+1100 0.000000
+0 0 0 30 134217728 0 1
+40.000000 0 0 0 32 0 0
+#25007
+payslip pay slip parchment by_vaire slummer_jobs city_job PARCHMENT~
+a small slip of parchment paper~
+A small slip of parchment paper sits here, threatening to blow away.~
+#1For details on using this object, please see: #6help lamplighter#0
+This is a slip of paper bearing the signature of a city
+guard, or official with the note that the bearer is entitled
+too exchange the slip for payment for work performed for
+the city.
+~
+16 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 68 0 1
+5.000000 0 0 0 0 0 0
+#25008
+lantern sturdy thick-paned thick paned lamp by_vaire slummer_job lamp_lighter iron pole METAL~
+a sturdy, thick-paned lamp suspended from an iron pole~
+A sturdy, thick-paned lamp suspended from an iron pole stands here.~
+~
+1 4096 0
+96 96 54 0
+500 0.000000
+1 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+$~

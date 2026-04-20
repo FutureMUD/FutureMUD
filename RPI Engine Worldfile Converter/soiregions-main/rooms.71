@@ -1,0 +1,2017 @@
+#71000
+Base Room~
+   This is the base room for the north-eastern fort, and fief 
+after Japheth's weather linkage changes come in to effect. 
+~
+71 1073807360 7
+0
+S
+#71001
+Southern Gatehouse of the Walled Village~
+   The battlements above the walled village below have been 
+constructed carefully, fashioned from stout tree trunks shaped 
+and fire hardened, and carefully proofed against any attack from 
+fire. A sweeping view of South Ithilien is visible from high up 
+here, the immediate farmlands about the walled village, the Emyn 
+Arnen south-west, the Ephel Duath East, and the River Anduin 
+west. A boardwalk leads about the rest of the battlements. 
+   Here, the wooden structure continues over one's head, a rough 
+wooden gatehouse built to grant extra protection to the section 
+of the battlements situated over the village gate. 
+~
+71 1141178376 1
+0
+D0
+~
+~
+0 -1  0 71009
+D1
+~
+~
+0 -1  0 71002
+D2
+~
+~
+0 -1  0 12675
+D3
+~
+~
+0 -1  0 71008
+S
+#71002
+South-Eastern Battlements of the Walled Village~
+   The battlements above the walled village below have been 
+constructed carefully, fashioned from stout tree trunks shaped 
+and fire hardened, and carefully proofed against any attack from 
+fire. A sweeping view of South Ithilien is visible from high up 
+here, the immediate farmlands about the walled village, the Emyn 
+Arnen south-west, the Ephel Duath East, and the River Anduin 
+west. A boardwalk leads about the rest of the battlements. 
+~
+71 1141178368 1
+0
+D0
+~
+~
+0 -1  0 71003
+D1
+~
+~
+0 -1  0 12676
+D2
+~
+~
+0 -1  0 12676
+D3
+~
+~
+0 -1  0 71001
+S
+#71003
+Eastern Battlements of the Walled Village~
+   The battlements above the walled village below have been 
+constructed carefully, fashioned from stout tree trunks shaped 
+and fire hardened, and carefully proofed against any attack from 
+fire. A sweeping view of South Ithilien is visible from high up 
+here, the immediate farmlands about the walled village, the Emyn 
+Arnen south-west, the Ephel Duath East, and the River Anduin 
+west. A boardwalk leads about the rest of the battlements. 
+~
+71 1141178368 1
+0
+D0
+~
+~
+0 -1  0 71004
+D1
+~
+~
+0 -1  0 12677
+D2
+~
+~
+0 -1  0 71002
+D3
+~
+~
+0 -1  0 71009
+D5
+~
+~
+0 -1  0 71010
+S
+#71004
+North-Eastern Battlements of the Walled Village~
+   The battlements above the walled village below have been 
+constructed carefully, fashioned from stout tree trunks shaped 
+and fire hardened, and carefully proofed against any attack from 
+fire. A sweeping view of South Ithilien is visible from high up 
+here, the immediate farmlands about the walled village, the Emyn 
+Arnen south-west, the Ephel Duath East, and the River Anduin 
+west. A boardwalk leads about the rest of the battlements. 
+~
+71 1141178368 1
+0
+D0
+~
+~
+0 -1  0 12678
+D1
+~
+~
+0 -1  0 12678
+D2
+~
+~
+0 -1  0 71003
+D3
+~
+~
+0 -1  0 71005
+S
+#71005
+Northern Gatehouse of the Walled Village~
+   The battlements above the walled village below have been 
+constructed carefully, fashioned from stout tree trunks shaped 
+and fire hardened, and carefully proofed against any attack from 
+fire. A sweeping view of South Ithilien is visible from high up 
+here, the immediate farmlands about the walled village, the Emyn 
+Arnen south-west, the Ephel Duath East, and the River Anduin 
+west. A boardwalk leads about the rest of the battlements. 
+   Here, the wooden structure continues over one's head, a rough 
+wooden gatehouse built to grant extra protection to the section 
+of the battlements situated over the village gate. A series of 
+thick wooden shutters in the ground open down to a murderhole. 
+~
+71 1141178376 1
+0
+D0
+~
+~
+0 -1  0 12679
+D1
+~
+~
+0 -1  0 71004
+D2
+~
+~
+0 -1  0 71009
+D3
+~
+~
+0 -1  0 71006
+D5
+~
+~
+0 -1  0 12683
+S
+#71006
+North-Western Battlements of the Walled Village~
+   The battlements above the walled village below have been 
+constructed carefully, fashioned from stout tree trunks shaped 
+and fire hardened, and carefully proofed against any attack from 
+fire. A sweeping view of South Ithilien is visible from high up 
+here, the immediate farmlands about the walled village, the Emyn 
+Arnen south-west, the Ephel Duath East, and the River Anduin 
+west. A boardwalk leads about the rest of the battlements. 
+~
+71 1141178368 1
+0
+D0
+~
+~
+0 -1  0 12680
+D1
+~
+~
+0 -1  0 71005
+D2
+~
+~
+0 -1  0 71007
+D3
+~
+~
+0 -1  0 12680
+S
+#71007
+Western Battlements of the Walled Village~
+   The battlements above the walled village below have been 
+constructed carefully, fashioned from stout tree trunks shaped 
+and fire hardened, and carefully proofed against any attack from 
+fire. A sweeping view of South Ithilien is visible from high up 
+here, the immediate farmlands about the walled village, the Emyn 
+Arnen south-west, the Ephel Duath East, and the River Anduin 
+west. A boardwalk leads about the rest of the battlements. 
+~
+71 1141178368 1
+0
+D0
+~
+~
+0 -1  0 71006
+D1
+~
+~
+0 -1  0 71009
+D2
+~
+~
+0 -1  0 71008
+D3
+~
+~
+0 -1  0 12681
+D5
+~
+~
+0 -1  0 71013
+S
+#71008
+South-Western Battlements of the Walled Village~
+   The battlements above the walled village below have been 
+constructed carefully, fashioned from stout tree trunks shaped 
+and fire hardened, and carefully proofed against any attack from 
+fire. A sweeping view of South Ithilien is visible from high up 
+here, the immediate farmlands about the walled village, the Emyn 
+Arnen south-west, the Ephel Duath East, and the River Anduin 
+west. A boardwalk leads about the rest of the battlements. 
+~
+71 1141178368 1
+0
+D0
+~
+~
+0 -1  0 71007
+D1
+~
+~
+0 -1  0 71001
+D2
+~
+~
+0 -1  0 12674
+D3
+~
+~
+0 -1  0 12674
+S
+#71009
+Battlement Boardwalk Above the Village~
+   The centre of this area is a gaping hole of air, leading down 
+to the middle of the tiny village below. Instead, bordering it 
+to the north, east, south and west are the boardwalks of the 
+battlements around the walls of the village, this section 
+allowing one to make their way quickly from one side of the fort 
+to another. 
+~
+71 1141178368 1
+0
+D0
+~
+~
+0 -1  0 71005
+D1
+~
+~
+0 -1  0 71003
+D2
+~
+~
+0 -1  0 71001
+D3
+~
+~
+0 -1  0 71007
+D5
+~
+~
+0 -1  0 12682
+S
+#71010
+Dirt Path Through the Walled Village~
+   This dirt path leads through the small stone and wooden houses 
+that have been constructed along it, that house the wealthier 
+denizens of the village, or, at least, wealthy compared to the 
+poor farmers that labour in the fields outside. A number of 
+brightly painted market stalls are arranged at the odd point 
+along the road, offering basic services such as smithying and 
+tinkering to the populace. To the north, a rope-lashed 
+portcullis lies, while to the east a ladder is lain against the 
+battlements. 
+~
+71 1140916224 1
+0
+D0
+~
+sturdy-portcullis~
+1 -1  0 71011
+D2
+~
+~
+0 -1  0 71012
+D4
+~
+~
+0 -1  0 71003
+S
+#71011
+Underneath the Gatehouse~
+   This narrow passage is perhaps broad enough for three men to 
+walk through abreast, as it leads through the stout gates and a 
+rope-lashed portcullis that permits entry in to the small walled 
+village, or access outside to the South Ithilien. Overhead is a 
+creaking wooden walkway, shot throughout it numerous small arrow 
+holes and tunnels, allowing anyone stationed above to rain ruin 
+and death down in to the gatehouse. 
+~
+71 1140916236 0
+0
+D2
+~
+sturdy-portcullis~
+1 -1  0 71010
+S
+#71012
+Town Square of the Tiny Village~
+   The crooked path that cuts from south to north through this 
+tiny village enlargens here to a dusty town square, filled with 
+laughing children and chattering commoners dressed in drab, 
+homespun clothing, yet nonetheless look healthy and well fed. 
+The buildings in this section of the village are slightly larger 
+than those found elsewhere, a prominent building fashioned from 
+stone and painted wood set to the south, clearly the house of the 
+lord of the fiefdom. 
+~
+71 1140916224 1
+0
+D0
+~
+~
+0 -1  0 71010
+D1
+~
+~
+0 -1  0 71041
+D2
+~
+~
+0 -1  0 71013
+S
+#71013
+Ramshackle Village Path~
+   A ramshackle path cuts from the southern portcullis to deeper 
+north inside the tiny village, littered with livestock of all 
+sorts and more than the odd wagon as farmers take their wares to 
+and from the markets, or to give as tribute to their local lord. 
+Underfoot, the path is nothing more than packed dirt, but is kept 
+sturdy by the constant stream of villagers that make their way 
+along this road and through the gate, or in to their simple 
+houses that line in. A thick ladder set against the western 
+battlements allows one access up to them. 
+~
+71 1140916224 1
+0
+D0
+~
+~
+0 -1  0 71012
+D2
+~
+sturdy-portcullis~
+1 -1  0 71014
+D3
+~
+~
+0 -1  0 71040
+D4
+~
+~
+0 -1  0 71007
+S
+#71014
+Underneath the Gatehouse~
+   This narrow passage is perhaps broad enough for three men to 
+walk through abreast, as it leads through the stout gates and a 
+rope-lashed portcullis that permits entry in to the small walled 
+village, or access outside to the South Ithilien. Overhead is a 
+creaking wooden walkway, shot throughout it numerous small arrow 
+holes and tunnels, allowing anyone stationed above to rain ruin 
+and death down in to the gatehouse. 
+~
+71 1140916236 0
+0
+D0
+~
+sturdy-portcullis~
+1 -1  0 71013
+D2
+~
+sturdy gate~
+1 8034  90 71030
+S
+#71015
+A Small, Walled Yard Underneath the Battlements~
+   This yard, with a dustbowl dirt ground, and walls made of big 
+sheets of scrap tin hastily nailed together, is in the shadow of 
+the battlements, and the troops can usually be seen patrolling 
+the walls (and can also see into this yard). It is in the shade 
+most of the day, making it a pleasant place to be outdoors. 
+~
+71 1073807360 0
+0
+D1
+~
+door~
+1 -1  0 12696
+S
+#71016
+Southern Bank of the Morgulduin~
+   The bank of Morgulduin is quite barren, no grass grows and 
+only the occasional bush or shrub manages to live, though they 
+appear to be dying. Few animals can be seen preferring to hide 
+from travellers. The bank is occasionally broken though mostly 
+it slopes down into the river. The land closest to the water 
+mostly consists of pebbles and small rocks. 
+~
+71 1075904512 4
+0
+D0
+~
+~
+0 -1  0 19047
+D1
+~
+~
+0 -1  0 71017
+D2
+~
+~
+0 -1  0 71019
+D3
+~
+~
+0 -1  0 10016
+S
+#71017
+A Bend in Harad Road South of the River~
+   The broad, hard-packed road takes a bend here, following the 
+southern banks of the river for a while before turning onto a 
+straighter path to the south. To the east, the increasingly 
+barren lands slope upward as if to meet the black mountains of 
+the Ephel Duath. The lands to the southwest, on the other hand, 
+grow greener as they eventually give way to an expanse of 
+woodlands. 
+~
+71 1074069504 4
+0
+A
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+D0
+~
+~
+0 -1  0 19050
+D1
+~
+~
+0 -1  0 71018
+D2
+~
+~
+0 -1  0 71070
+D3
+~
+~
+0 -1  0 71016
+S
+#71018
+Harad Road South of the Morgulduin~
+   The road takes a bend to the southwest, while to the north it 
+crosses over a bridge of bones and twisted, thorny brambles 
+spanning the pale waters of the River Morgulduin. A few parched 
+tufts of grass and weeds sprout out alongside the road near the 
+river, their sickly appearance matching the color of the flowing 
+waters. Few travelers, if any, can be seen using this road. 
+~
+71 327680 3
+0
+D0
+~
+~
+0 -1  0 19057
+D1
+~
+~
+0 -1  0 71038
+D2
+~
+~
+0 -1  0 71022
+D3
+~
+~
+0 -1  0 71017
+S
+#71019
+Logged Fringe Near the River~
+   What once may have been a fringe of light woodlands 
+before the foul, flowing waters of the Morgulduin somewhere 
+to the north-west is now a plain covered in felled, rotting logs 
+and moss-covered tree stumps. The soil is dry, and little wildlife 
+moves through the area, the ravaged land and the looming site 
+of a fort off to the southwest doing their part is driving any 
+natural life away. Large boulders have been thrust up through 
+the ground, blocking travel to the east.
+~
+71 1107361792 5
+0
+D0
+~
+~
+0 -1  0 71016
+D1
+~
+~
+0 -1  0 71070
+D2
+~
+~
+0 -1  0 71025
+D3
+~
+~
+0 -1  0 71020
+S
+#71020
+North-East of a Fort in the Ithilien Hills~
+   The land about this area is quite hilly and occasionally 
+broken in small cliffs. Rocks and boulders break through the 
+healthy undergrowth of the land which comprises mostly small 
+shrubs and bushes which only come to the height of a mans shin 
+and occasionally to his knee. The wind blows among the hills and 
+strange echoes can be heard at times as the wind blows around the 
+rocks.
+~
+71 65536 4
+0
+D0
+~
+~
+0 -1  0 10016
+D1
+~
+~
+0 -1  0 71019
+D2
+~
+~
+0 -1  0 71024
+D5
+~
+~
+0 -1  0 10026
+S
+#71021
+Harad Road East of A Stone Garrison~
+   To the north and south the Harad Road continues on its course 
+through the hills and plains of this land. The road is mostly 
+packed dirt that has been worn down over the centuries into a 
+small ditch compared to the land immediately to either side of 
+the road. Grasslands mainly comprise the land around the road 
+here, covering the hills in a sea of ripples caused by the wind.
+Several large rocks have been thrust up through the ground to 
+the west, limiting travel in that direction only by the road
+that leads off that way. 
+~
+71 1208287232 2
+0
+D0
+~
+~
+0 -1  0 71070
+D2
+~
+~
+0 -1  0 71030
+D3
+~
+~
+0 -1  0 71025
+D4
+~
+~
+0 -1  0 71026
+S
+#71022
+Desolate Hills Rising Steeply To The East~
+   The ground here is far from flat, rising in waves of hills and 
+falls of valleys, spotted by the occasional gnarled tree that 
+spurts forth from the ground and is accompanied by a clustering 
+of bony bushes. The terrain gradually lifts from the long flat 
+fields of South Ithilien westward, to the mighty, stark mountain 
+face of the Ephel Duath which lie due east. 
+~
+71 1073807360 7
+0
+D0
+~
+~
+0 -1  0 71018
+D1
+~
+~
+0 -1  0 71069
+D2
+~
+~
+0 -1  0 71026
+D5
+~
+~
+0 -1  0 71070
+S
+#71023
+Desolate Hills Growing Steeper To The East~
+   Travel through these hills is far from easy; the landscape 
+climbs and falls, yet uniformly grows more steep and stark as it 
+heads east to the towering, shard-like black mountains that mark 
+the lands of Mordor. No human habitation is visible this close 
+to dark border, but across the west the occasional fortified 
+village or isolated farmhouse can be seen. 
+~
+71 1073807360 7
+0
+D0
+~
+~
+0 -1  0 71069
+D2
+~
+~
+0 -1  0 71027
+D3
+~
+~
+0 -1  0 71026
+D4
+~
+~
+0 -1  0 10232
+S
+#71024
+Open Woodlands~
+   The trees are spaced a good distance from one another, their 
+boughs only touching in the areas of thickest growth and casting 
+occasional shadows upon the ground. A mixture of deciduous trees 
+take root here, from solid oaks and graceful maples to catkin- 
+bearing alders. Some ferns and low-lying bushes sprout here and 
+there, but not so much as to hinder travelers. The woodlands 
+dwindle to the east as they give way to drier hills. 
+~
+71 33619968 5
+0
+D0
+~
+~
+0 -1  0 71020
+D2
+~
+~
+0 -1  0 73043
+D3
+~
+~
+0 -1  0 10038
+D4
+~
+~
+0 -1  0 71025
+S
+#71025
+Hills West of a Fort~
+   The immediate area is covered in small green and brown shrubs 
+interspersed with yellowed dying grass as well as green and 
+vibrant. The occasionally tree provides shelter and homes for 
+the wildlife here and the wind can be heard blowing through the 
+hills. Not many travellers can be seen, most preferring the 
+safer roads. 
+   To the southwest an oak and alder woodland sprouts up in the 
+dry Ithilien hills. Travel eastwards is impossible due to several 
+large rocks having been thrust upwards through the ground, 
+running to the north.
+~
+71 1107361792 7
+0
+D0
+~
+~
+0 -1  0 71019
+D1
+~
+~
+0 -1  0 71021
+D2
+~
+~
+0 -1  0 73061
+D5
+~
+~
+0 -1  0 71024
+S
+#71026
+Foothills Marked with the Occasional Farm East of Fortifications~
+   A thick growth of low lying bushes roams across the hills of 
+South Ithilien that lie between the low lying plains to the west 
+and the steep, thrusting, presence of the eastward moutains. 
+Small animal life darts amongst the clustered clumps of 
+vegetation, as well as the occasional larger predator lurking far 
+from the distant plateau to the northwest, or the forest westward. 
+~
+71 33619968 7
+0
+D0
+~
+~
+0 -1  0 71022
+D1
+~
+~
+0 -1  0 71023
+D2
+~
+~
+0 -1  0 71031
+D5
+~
+~
+0 -1  0 71021
+S
+#71027
+Barren, Hard-Soiled Foothills~
+   Barren describes the wind blown landscape here well, the dark 
+soil hard underfoot and the vegetation that grows being scrubby 
+and wiry bushes, and some stretches of pale grass that bows in 
+the wind. More often than not, great gusts of air blow down from 
+the distant wall of mountains that lie to the east, the mighty 
+Ephel Duath, blotting out the dawn sun. 
+~
+71 1073807360 7
+0
+D0
+~
+~
+0 -1  0 71023
+D2
+~
+~
+0 -1  0 10223
+D3
+~
+~
+0 -1  0 71031
+D4
+~
+~
+0 -1  0 10234
+S
+#71028
+Oak and Alder Woodlands~
+   The forest here rides a consistent slope downward from east to 
+west. Oak and alder trees predominate the area, but here and 
+there a coniferous tree shoots skyward, showing only a long, 
+resinous trunk devoid of branches. The forest floor is covered 
+with brown needles and leaves of seasons past, providing a rich 
+base for the array of fragrant plants that make their home near 
+the earth. 
+~
+71 1107361808 6
+0
+D0
+~
+~
+0 -1  0 73043
+D1
+~
+~
+0 -1  0 71029
+D3
+~
+~
+0 -1  0 10059
+S
+#71029
+Sparsely Wooded Area by a Road~
+   Visible betwixt the trunks and branches of the trees is a 
+wide, dusty road that lies to the east. The flora here is 
+thinner than the rest of the woodlands continuing westward. 
+Rustling ash trees cast a mottled shade upon the ground, while 
+the occasional pine towers over the others. Scattered about are 
+patches of wildflowers and many stones. 
+~
+71 33619984 7
+0
+D2
+~
+~
+0 -1  0 71033
+D3
+~
+~
+0 -1  0 10087
+P
+evade~
+barrage~
+if skillcheck(dodge,8d10)
+vstr A hail of stones and rocks comes crashing from the sky, sent by an enemy engine!
+vbr -
+vstr With deftness, you quickly run away, avoiding most of the damage, scratched by barely a straying stone.
+ostr With deftness, $n quickly runs away, avoiding most of the damage, scratched by barely a straying stone.
+pain 71029 1 5 -1 blunt
+else do
+vstr A hail of stones and rocks comes crashing from the sky, sent by an enemy engine!
+vstr Too slow to avoid the incoming onslaught, you receive the brunt of the attack!
+ostr Too slow to avoid the incoming onslaught, $n receives the brunt of the attack!
+pain 71029  4 14 -1 blunt
+fi done
+~
+S
+#71030
+Harad Road South of a Walled Township~
+   North and south continues Harad Road in a seemingly endless 
+journey over the land, carrying those who travel upon it through 
+a variety of terrains. At the moment, trees are bordering the 
+road to the west as they mark the beginnings of a forest 
+spreading forth in that direction. The eastern horizon is 
+dominated by a constant line of black mountains. 
+~
+71 1074069504 2
+0
+D0
+~
+~
+0 -1  0 71021
+D2
+~
+~
+0 -1  0 71034
+D3
+~
+~
+0 -1  0 73061
+D4
+~
+~
+0 -1  0 71031
+P
+evade~
+barrage~
+if skillcheck(dodge,8d10)
+vstr A hail of stones and rocks comes crashing from the sky, sent by an enemy engine!
+vbr -
+vstr With deftness, you quickly run away, avoiding most of the damage, scratched by barely a straying stone.
+ostr With deftness, $n quickly runs away, avoiding most of the damage, scratched by barely a straying stone.
+pain 71030 1 5 -1 blunt
+else do
+vstr A hail of stones and rocks comes crashing from the sky, sent by an enemy engine!
+vstr Too slow to avoid the incoming onslaught, you receive the brunt of the attack!
+ostr Too slow to avoid the incoming onslaught, $n receives the brunt of the attack!
+pain 71030  4 14 -1 blunt
+fi done
+~
+S
+#71031
+Foothills Sloping Downward To The Western Plains~
+   The landscape here is damaged, bruised and beaten into hilly 
+growths and small valley drops, covered in a coating of yellow 
+grass. The occasional animal stalks through the area, though 
+most common are circles of soaring birds high in the air, 
+drifting on the winds that blow across South Ithilien. To the 
+west, the vast, dry plains of Gondor's hither lands stretch. 
+~
+71 1073807360 7
+0
+D0
+~
+~
+0 -1  0 71026
+D1
+~
+~
+0 -1  0 71027
+D2
+~
+~
+0 -1  0 71035
+D5
+~
+~
+0 -1  0 71030
+S
+#71032
+Hilly Terrain Occasionally Marked By Gnarled Trees~
+   The ground here is far from flat, rising in waves of hills and 
+falls of valleys, spotted by the occasional gnarled tree that 
+spurts forth from the ground and is accompanied by a clustering 
+of bony bushes. The terrain gradually lifts from the long flat 
+fields of South Ithilien westward, to the mighty, stark mountain 
+face of the Ephel Duath which lie due east. 
+~
+71 1073807360 7
+0
+D2
+~
+~
+0 -1  0 10223
+D3
+~
+~
+0 -1  0 71031
+S
+#71033
+Hilly Scrublands West of a Road~
+   Here, the ancient forces of wind and rain have caused the 
+collapse of one side of a grassy hill. The wild, tough grasses 
+of the area have yet to tame the resultant gash of earth that 
+shows like a wound in an otherwise grassy sea. However, they 
+have conquered the rest of the softly undulating ground here, and 
+the vegetation resists the legs of the passing traveler just as 
+the hills tax them. 
+~
+71 1107361812 7
+0
+D0
+~
+~
+0 -1  0 71029
+D1
+~
+~
+0 -1  0 71034
+D2
+~
+~
+0 -1  0 10093
+P
+excavate~
+entrance~
+if oexist(4067, 71033)
+get 4067 71033
+get 4066 71033
+atecho 71033 The work done here is finished, expansion to the walls is now possible.
+link 71033 d 71100
+else do
+vstr There is still earth to hack away before the tunnel can be expanded.
+fi done
+~
+P
+collapse~
+pit~
+if oexist(4067, 71102)
+get 4067 71102
+get 4066 71102
+atecho 71033 The tunnel crashes down with a mighty roar and as it does so, the enemy wall collapses, opening a breach!
+unlink 71033 d 71100
+link 71030 n 71040
+else do
+vstr There is still earth to hack away before the tunnel can be collapsed.
+fi done
+~
+P
+evade~
+barrage~
+if skillcheck(dodge,8d10)
+vstr A hail of stones and rocks comes crashing from the sky, sent by an enemy engine!
+vbr -
+vstr With deftness, you quickly run away, avoiding most of the damage, scratched by barely a straying stone.
+ostr With deftness, $n quickly runs away, avoiding most of the damage, scratched by barely a straying stone.
+pain 71033 1 4 -1 blunt
+else do
+vstr A hail of stones and rocks comes crashing from the sky, sent by an enemy engine!
+vstr Too slow to avoid the incoming onslaught, you receive the brunt of the attack!
+ostr Too slow to avoid the incoming onslaught, $n receives the brunt of the attack!
+pain 71033 4 16 -1 blunt
+fi done
+~
+S
+#71034
+A Bend in Harad Road~
+   North and east continues Harad Road in a seemingly endless 
+journey over the land, carrying those who travel upon it through 
+a variety of terrains. At the moment, barren scrubland are 
+bordering the road to the west, as they mark the beginnings of 
+the great plain of South Ithilien spreading forth in that 
+direction. The eastern horizon is dominated by a constant line 
+of black mountains. 
+~
+71 1074069504 2
+0
+D0
+~
+~
+0 -1  0 71030
+D1
+~
+~
+0 -1  0 71035
+D2
+~
+~
+0 -1  0 10092
+D3
+~
+~
+0 -1  0 10088
+P
+excavate~
+entrance~
+if oexist(4067, 71034)
+get 4067 71034
+get 4066 71034
+atecho 71034 The work done here is finished, expansion to the walls is now possible.
+link 71034 d 71100
+else do
+vstr There is still earth to hack away before the tunnel can be expanded.
+fi done
+~
+P
+collapse~
+pit~
+if oexist(4067, 71102)
+get 4067 71102
+get 4066 71102
+atecho 71034 The tunnel crashes down with a mighty roar and as it does so, the enemy wall collapses, opening a breach!
+unlink 71033 d 71100
+link 71030 d 71040
+else do
+vstr There is still earth to hack away before the tunnel can be collapsed.
+fi done
+~
+S
+#71035
+A Bend in Harad Road~
+   The road continues to the west and south through grasslands 
+which seem to become ever more dry and arid as it heads towards 
+the mountains that loom in the distance to the east. The road is 
+mostly made of dirt though occasionally a stone sticks out 
+resembling what might have been an ancient cobblestone from times 
+long past. 
+~
+71 1074069504 2
+0
+D0
+~
+~
+0 -1  0 71031
+D2
+~
+~
+0 -1  0 10091
+D3
+~
+~
+0 -1  0 71034
+D4
+~
+~
+0 -1  0 10223
+P
+evade~
+barrage~
+if skillcheck(dodge,8d10)
+vstr A hail of stones and rocks comes crashing from the sky, sent by an enemy engine!
+vbr -
+vstr With deftness, you quickly run away, avoiding most of the damage, scratched by barely a straying stone.
+ostr With deftness, $n quickly runs away, avoiding most of the damage, scratched by barely a straying stone.
+pain 71035 1 5 -1 blunt
+else do
+vstr A hail of stones and rocks comes crashing from the sky, sent by an enemy engine!
+vstr Too slow to avoid the incoming onslaught, you receive the brunt of the attack!
+ostr Too slow to avoid the incoming onslaught, $n receives the brunt of the attack!
+pain 71035  4 14 -1 blunt
+fi done
+~
+S
+#71036
+Harad Road Before a Collapsed Bridge in the Morgulduin~
+   The road continues to the north while to the south it crosses 
+the pale waters of the Morgulduin over a bridge made of yellowed 
+bones and twisted brambles. The banks of the river here are rocky 
+and barren, no grass grows beneath the boulders or in the crevices 
+that line the side of the water. Seldom can travelers be seen 
+using this road, the black peaks of the Ephel Duath rising 
+ominously a distance to the east.
+ 
+   A broken crude log gate hangs loosely off to the side of the 
+bridge. The twisted and broken remains of a crude wooden tower 
+sit up on the opposte bank. 
+
+~
+71 167837696 3
+0
+D0
+~
+~
+0 -1  0 4079
+D1
+~
+~
+0 -1  0 4080
+D3
+~
+~
+0 -1  0 4464
+S
+#71037
+An Arched, Twisted, Bone Bridge Over the River~
+   This bridge, once of stone, is now a dark and evil thing. 
+Composed of what is obviously bones - human and animal both - it 
+rises low over the foul river, bristly with brambles and stinking 
+of death and decay. The filth of the very Morgulduin itself has 
+been used in its recomposition: both gates remain broken, and its 
+tower cracked and caved-in. 
+~
+71 1174470672 3
+0
+E
+reformat~
+look
+~
+S
+#71038
+Harad Road South of a Twisted, Bone Bridge~
+   A submerged bridge, made of yellowed bones and twisted 
+brambles lays under the torrents of the Morgulduin to the north, 
+blocking passage across the Harad Road. 
+~
+71 134283264 3
+0
+D2
+~
+~
+0 -1  0 71069
+D3
+~
+~
+0 -1  0 71018
+D4
+~
+~
+0 -1  0 10218
+S
+#71039
+Atop of a Squat Wooden Tower Above the Bridge~
+   A squat wooden tower is set over the southern shore where the 
+stone bridge branches the Morgulduin, allowing the owner of the 
+fort set to the south-west in the middle of some fertile 
+farmlands to control the passage of traffic between North and 
+South Ithilien with ease. The tower is nothing more than a 
+square-shaped construction of wood, a thin parapet roughly 
+ankle-height running around its length and a sturdy wooden ladder 
+leading down to the bridge. 
+~
+71 1140916232 0
+0
+D0
+~
+~
+0 -1  0 12717
+D2
+~
+~
+0 -1  0 12718
+S
+#71101
+A Freshly Dug Tunnel~
+   Dug from the earth at a shallow depth, this tunnel has been
+created by the concerted effort of many shovels, picks and
+hands, and holds support thanks to some freshly set wooden 
+supports. Part of a sapping effort to undemrine a nearby 
+fortification, more advance shall be necessary before the
+digging effort yields its fruit. The exit is back through the 
+tunnel.
+~
+71 65536 0
+0
+P
+lengthen~
+tunnel~
+if oexist(4067, 71101)
+if oexist(4063, 71101)
+get 4067 71101
+get 4066 71101
+atecho 71101 The work done here is finished, expansion to the walls is now possible.
+link 71101 n 71102
+else do
+vstr The tunnel does not have any supports. You must build them before you can press on.
+fi done
+else do
+vstr There is still earth to hack away before the tunnel can be expanded.
+fi alldone
+~
+S
+#71100
+A Freshly Dug Tunnel Entrance~
+   Dug from the nearby earth in a somewhat hasty fashion, and
+held together by rough wooden supports, this place is nothing 
+but the beggining of a more serious and extense sapping effort
+agains the nearby walls. A strong smell of freshly removed earth
+and a moist feeling of underground pervade this locale. One
+can leave the tunnel with some effort upwards, back into the 
+battelfield.
+~
+71 1073807360 0
+0
+P
+lengthen~
+tunnel~
+if oexist(4067, 71100)
+if oexist(4063, 71100)
+get 4067 71100
+get 4066 71100
+atecho 71100 The work done here is finished, expansion to the walls is now possible.
+link 71100 n 71101
+else do
+vstr The tunnel does not have any supports. You must build them before you can press on.
+fi done
+else do
+vstr There is still earth to hack away before the tunnel can be expanded.
+fi alldone
+~
+S
+#71102
+Below the Walls of a Fort~
+   Dug from the earth at a shallow depth, this tunnel has been
+created by the concerted effort of many shovels, picks and
+hands, and holds support thanks to some freshly set wooden 
+support. Thanks to considerable effort taken to reach this 
+point, the tunnel has managed to delve deep enough to reach
+the base of the enemy wall. If the supports were to be 
+collapsed, the weight of the fortification would bring the
+wall crashing, offering a breach into enemy territory.
+~
+71 65536 0
+0
+S
+#71040
+Near The Collapsed Walls~
+   The destroyed remains of a sturdy wooden wall fill the 
+area, along some corpses and debris. The sapping efforts 
+of the enemy have succeeded and opened a breach in the
+fortifications, yielding it open to assault. 
+~
+71 1140916224 1
+0
+D1
+~
+~
+0 -1  0 71013
+S
+#71041
+A Dusty Path Between Village Dwellings~
+   This path leads to a barn and stables to the east. On either 
+side are the houses of the villagers. They are small, but 
+well-maintained, with flower pots and thatch everywhere. South 
+can be seen the battlements protecting the village. 
+~
+71 1073807360 1
+0
+D1
+~
+~
+0 -1  0 71042
+D3
+~
+~
+0 -1  0 71012
+S
+#71042
+A Small Dusty Yard~
+   This yard is at the end of a path which leads to village 
+houses to the west. To the north a large barn sits, seemingly in 
+good repair. Stables stand to the east next to the village 
+fortifications. Southwards is the wall sourrounding this 
+village. 
+~
+71 1073807360 3
+0
+D0
+~
+barn-doors~
+1 -1  0 71043
+D1
+~
+stable-doors~
+1 -1  0 71044
+D3
+~
+~
+0 -1  0 71041
+S
+#71043
+A Large Airy Barn~
+High and generally large, this barn has a permanent smell of 
+animals in it. The floor is completely covered in straw, which 
+in some places has been brushed out the way to reveal a packed 
+dirt floor. There are several stalls which have been constructed 
+at the far end.
+   A large, circular window above the double doors allows light
+in during the day, while lanterns upon the walls light the barn at
+night.
+~
+71 1140916236 0
+0
+D2
+~
+barn-doors~
+1 -1  0 71042
+S
+#71044
+A Small, Wood Planked Stable~
+   Solid, wood-planked walls surround the confines of this stable 
+as a heavy animal scent hangs in the air. Hay seems to line the 
+floor of this barn-like structure although it stops near the west 
+wall where a thick, wooden door has been set that leads into the 
+yard. Six stalls have been slotted into this room to hold horses 
+though many look unused. 
+~
+71 1140916232 0
+0
+D3
+~
+stable-doors~
+1 -1  0 71042
+S
+#71045
+A Tall, Wind-Scoured Tunnel~
+   A loud howling fills this wind-scoured intersection of 
+tunnels, the roughly circular underground area filled with 
+blowing grit and dust. Churning in from the north, laden with a 
+foul stench, the wind is pulled as though by a physical force 
+straight upward into a dark fissure in the tall ceiling. Other 
+tunnels slope slightly upward to the west and south, the marks of 
+tools visible on the walls. 
+~
+71 2163208 0
+0
+D0
+~
+~
+0 -1  0 71046
+D2
+~
+~
+0 -1  0 67146
+D3
+~
+~
+0 -1  0 70016
+S
+#71046
+A Narrow, Twisting Tunnel~
+   Narrow and twisting, one can barely see along this tunnel as 
+it winds through the solid stone of the mountains. Spaced 
+unevenly along its length are a series of dark burrows, probably 
+dwellings of those who inhabit these depths. The air here is in 
+constant motion, moaning its way from the east to the south, and 
+filled with a choking stench that seems to find a new and 
+uniquely vile flavor every several moments. The floor slants 
+upward to the south, and the tunnel widens and becomes more even 
+to the east. 
+~
+71 1075905032 0
+0
+D1
+~
+~
+0 -1  0 71047
+D2
+~
+~
+0 -1  0 71045
+S
+#71047
+A Hot, Breezy Intersection of Tunnels~
+   This rough intersection of tunnels looks haphazard at best, a 
+sudden and unplanned meeting of natural and artificially made 
+passages. The air is breezy and hot, flowing constantly from 
+north to west with a low moaning sound. A barely tolerable 
+stench emanates from what looks to be a side passage to the east, 
+which angles slickly downward into the darkness along with a flow 
+of sewage running through a shallow trench. 
+~
+71 1075905048 0
+0
+D0
+~
+~
+0 -1  0 71049
+D1
+~
+~
+0 -1  0 71048
+D3
+~
+~
+0 -1  0 71046
+S
+#71048
+A Sloping Cavern of Stinking Muck~
+   A slow, but steady trickle of filth and sewage rolls into this 
+cavern, both from the west and from several grated holes in the 
+walls and ceiling. It collects in a cesspool at the bottom of 
+the sloped floor, unbelievable in its odor and wretched in 
+appearance. Flies buzz constantly over the bubbling muck, their 
+population visible as an ever-churning cloud in the oppressive 
+air. Where the floor slopes to the east, a large grate has been 
+set into the wall to allow some of the filth to escape its 
+imprisonment here. The cavern slopes upward to the west, where 
+there is some slight relief from the horrible smell. 
+   A rickety building has been hastily constructed to the east, 
+the mucky filth running up right to its high, wooden landing. 
+~
+71 2163224 0
+0
+D1
+~
+planks~
+1 -1  0 71054
+D3
+~
+~
+0 -1  0 71047
+P
+enter go walk~
+cave~
+if oexist(66985, 66047)
+if clan(-1, privileged)
+vstr You go to enter the drugden, but realise you wouldn't be caught dead there... and being caught dead is quite likely what's happen if you try. Maybe come back when you've got someone of a more local bent to help you.
+else do
+if clan(-1, gang_one)
+vstr You check over your shoulder, and slowly, warily approach a cave crudely hacked in to the tunnels.
+ostr $n slowly, warily approaches a cave crudely hacked in to the tunnels, gesturing for those behind $m to follow.
+trans_group -1 66047 66983
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+if clan(-1, gang_two)
+vstr You check over your shoulder, and slowly, warily approach a cave crudely hacked in to the tunnels.
+ostr $n slowly, warily approaches a cave crudely hacked in to the tunnels, gesturing for those behind $m to follow.
+trans_group -1 66047 66983
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+if clan(-1, gang_three)
+vstr You check over your shoulder, and slowly, warily approach a cave crudely hacked in to the tunnels. 
+ostr $n slowly, warily approaches a cave crudely hacked in to the tunnels, gesturing for those behind $m to follow.
+trans_group -1 66047 66983
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+vstr This place looks far too shady, too dangerous, and too derelict for you to risk your life by entering. Best find a local to help you if you still want to go there.
+fi done
+fi done
+fi done
+else do
+vstr There is no drugden to enter here.
+fi done
+~
+P
+push move~
+grate~
+vstr You move towards the grate, wading through knee-high filth and pulling it just far enough open to squeeze beneath it.
+ostr $n wades through knee-high filth, tugging the grate at the edge of the cesspool open and disappearing beneath it.
+trans 66697
+atlook 66697
+ostr $n slides under the grate, wading thickly through the muck.
+fidone
+~
+P
+enter go walk approach~
+construction site construction-site building~
+vstr You move towards the construction site, ducking through a partially constructed doorway.
+ostr $n moves towards the construction site, ducking through a partially constructed doorway.
+trans 67148
+atlook 67148
+ostr $n steps in from outside.
+fidone
+~
+S
+#71049
+A Sloped, Breezy Underground Passage~
+   Sloped stone floors and roughly cut walls make up this 
+passageway, which is cut into solid rock. The air is constantly 
+moving, a ragged breeze rushing past at almost all times. Warm 
+and dark, a variety of foul smells can be caught by the nose, 
+some of which no doubt issue from the slow trickle of raw sewage 
+that runs along a shallow trench at the side of the passage and, 
+at times, slops into the tunnel to make footing slick. The 
+passageway continues to the north, and slopes downward to the 
+south. 
+~
+71 1075905032 0
+0
+D0
+~
+~
+0 -1  0 71050
+D2
+~
+~
+0 -1  0 71047
+S
+#71050
+A Windy Tunnel With Uneven, Shelved Floors~
+   This wide, natural tunnel has been worked by tools recently to 
+make it more hospitable to foot travel, but even so, it remains 
+difficult to traverse. The floor is broken and uneven, shelves 
+of rock terraced over one another. There are occasionally stone 
+blocks or wooden steps and ladders set up to allow easier 
+movement. A fairly strong breeze blows constantly through the 
+tunnel, flowing from the west toward the south. The tunnel also 
+continues to the east, where it appears to widen further. 
+~
+71 1075905032 0
+0
+D1
+~
+~
+0 -1  0 71052
+D2
+~
+~
+0 -1  0 71049
+D3
+~
+~
+0 -1  0 71051
+P
+climb~
+shelf rock~
+vstr You scurry towards a shelf, reaching up for a handhold and hauling yourself upwards onto a small shelf.
+ostr $n moves towards a shelf of rock, pulling themselves quickly upon it.
+vbr -
+trans 66638
+atlook 66638
+fi done
+~
+S
+#71051
+A Jagged, Spiralling Stone Corridor~
+   Jagged stone floors slope here, sharply in places and almost 
+flat in others. The corridor runs in a roughly spiral fashion, 
+appearing to be partially natural and partially dug from the 
+rock. A harsh breeze whips about, headed from above and blowing 
+bits of dust and other particles around. The area is completely 
+unlit, making footing treacherous for those who are unaware. The 
+tunnel leads both upwards and eastwards. 
+~
+71 1075905032 0
+0
+D1
+~
+~
+0 -1  0 71050
+D4
+~
+~
+0 -1  0 66033
+P
+go enter approach~
+porch rift rock~
+vstr You approach the rock porch.
+ostr %n approaches a rock porch.
+trans 66966
+atlook 66966
+fi all done
+~
+S
+#71052
+A Low, Broad Cavern Bordered by Warren Holes~
+   The tunnels widen here, forming a broad cavern intersected 
+only by a few rough pillars. The edge of the area is lined with 
+holes, burrows, and tentlike shanties, and the area is almost 
+constantly bustling with some sort of activity. The smell in 
+here is noxious, a bouquet of stenches arising from each hovel 
+and nest that is dug here. Trash strewn in every nook and cranny 
+adds to this unpleasant atmosphere, and the floor is slick with 
+grease and slime of unnamable composition. The only exit from 
+this cavern lies to the west, where the low moan of moving air 
+can be heard. 
+~
+71 2163208 0
+0
+D3
+~
+~
+0 -1  0 71050
+P
+enter go walk~
+cave~
+if oexist(66985, 66038)
+if clan(-1, privileged)
+vstr You go to enter the drugden, but realise you wouldn't be caught dead there... and being caught dead is quite likely what's happen if you try. Maybe come back when you've got someone of a more local bent to help you.
+else do
+if clan(-1, gang_one)
+vstr You check over your shoulder, and slowly, warily approach a cave crudely hacked in to the tunnels.
+ostr $n slowly, warily approaches a cave crudely hacked in to the tunnels, gesturing for those behind $m to follow.
+trans_group -1 66038 66985
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+if clan(-1, gang_two)
+vstr You check over your shoulder, and slowly, warily approach a cave crudely hacked in to the tunnels.
+ostr $n slowly, warily approaches a cave crudely hacked in to the tunnels, gesturing for those behind $m to follow.
+trans_group -1 66038 66985
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+if clan(-1, gang_three)
+vstr You check over your shoulder, and slowly, warily approach a cave crudely hacked in to the tunnels. 
+ostr $n slowly, warily approaches a cave crudely hacked in to the tunnels, gesturing for those behind $m to follow.
+trans_group -1 66038 66985
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+vstr This place looks far too shady, too dangerous, and too derelict for you to risk your life by entering. Best find a local to help you if you still want to go there.
+fi done
+fi done
+fi done
+else do
+vstr There is no drugden to enter here.
+fi done
+~
+S
+#71053
+Mizar's Gang Distribution Room~
+No Description Set.
+~
+71 65536 0
+0
+D1
+~
+~
+0 -1  0 71048
+D3
+~
+~
+0 -1  0 71051
+S
+#71054
+Rickety, Foul-Smelling Brothel~
+   This crude brothel has been constructed of termite eaten 
+wooden planks, rope, bits of bone and even rough, uncut logs. 
+Its assembly has been, like the materials used to build it, 
+motley and haphazard, with roped together walls, rusted iron 
+nails and creaky leaning barrels pushed into corners and propping 
+up much larger timbers. The floor, originally wood planked, 
+seems to have gone the way of the cesspool outside it and is now 
+slimed with filth and the grime of the underwarrens: old meat, 
+ragged hides, bits of bone and other, more unsavoury, things. 
+Nests have been scattered about near the walls of the 
+establishment, where slant-eyed orkish whores cat-call the 
+patrons over, their faces gaunt and their bodies wasted. A 
+spiralling wooden stairway leads upwards to a second floor, as 
+unstable as the first. 
+~
+71 2163464 0
+0
+D3
+~
+planks~
+1 -1  0 71048
+D4
+~
+~
+0 -1  0 71055
+D5
+~
+grate~
+3 71001  0 71061
+S
+#71055
+Cramped, Narrow Hallway~
+   This narrow hallway is only wide enough for two or three small 
+goblins to move side-by-side along it, and some of the larger 
+orkish patrons go so far as to completely block access from one 
+end of the hall to the other with their prodigious bulk. Though 
+dim lit, the hall has a distinctly red cast to it and bugs crawl 
+along the walls and across the floor. The ruckus of the room 
+below filters up from the stairway at all hours. 
+~
+71 2163208 0
+0
+D0
+~
+~
+0 -1  0 71058
+D1
+~
+door~
+1 71004  0 71056
+D3
+~
+red door~
+1 71005  0 71057
+D5
+~
+~
+0 -1  0 71054
+S
+#71056
+A Foul-Smelling Room~
+   Smelling of the cesspool below, sex, booze, sweat and blood, 
+this cramped room would be a rather uncomfortable place to spend 
+any length of time. Barren but for a crude nest in the center of 
+the room, it is dim lit and windowless, dank and rather warm even 
+in the coolest weather. 
+~
+71 2162952 0
+0
+D3
+~
+door~
+1 71004  0 71055
+S
+#71057
+A Dingy Room~
+   Smelling of the cesspool below, sex, booze, sweat and blood, 
+this cramped room would be a rather uncomfortable place to spend 
+any length of time. Barren but for a crude nest in the center of 
+the room, it is dim lit and windowless, dank and rather warm even 
+in the coolest weather. 
+~
+71 2162952 0
+0
+D1
+~
+red door~
+1 71005  0 71055
+S
+#71058
+Cramped, Narrow Hallway~
+   This narrow hallway is only wide enough for two or three small 
+goblins to move side-by-side along it, and some of the larger 
+orkish patrons go so far as to completely block access from one 
+end of the hall to the other with their prodigious bulk. Though 
+dim lit, the hall has a distinctly red cast to it and bugs crawl 
+along the walls and across the floor. The ruckus of the room 
+below filters in from the south at all hours. 
+~
+71 2162696 0
+0
+D1
+~
+pink door~
+1 71002  0 71060
+D2
+~
+~
+0 -1  0 71055
+D3
+~
+uneven door~
+1 71003  0 71059
+S
+#71059
+Cramped Room~
+   Smelling of the cesspool below, sex, booze, sweat and blood, 
+this cramped room would be a rather uncomfortable place to spend 
+any length of time. Barren but for a crude nest in the center of 
+the room, it is dim lit and windowless, dank and rather warm even 
+in the coolest weather. 
+~
+71 2162952 0
+0
+D1
+~
+uneven door~
+1 71003  0 71058
+S
+#71060
+Dank, Dim-Lit Room~
+   Smelling of the cesspool below, sex, booze, sweat and blood, 
+this cramped room would be a rather uncomfortable place to spend 
+any length of time. Barren but for a crude nest in the center of 
+the room, it is dim lit and windowless, dank and rather warm even 
+in the coolest weather. 
+~
+71 2162952 0
+0
+D3
+~
+pink door~
+1 71002  0 71058
+S
+#71061
+Beneath the Grate~
+   A tunnel has been dug straight down into the rock, leaving 
+only a short ledge along its eastern side, and continues down 
+into darkness. Far below the sound of running water can be 
+heard, along with at times much more inhuman, alien sounds: 
+brays, snarls, the undulating howl of some rabid beast. 
+~
+71 2162696 0
+0
+D4
+~
+grate~
+3 71001  0 71054
+D5
+~
+~
+0 -1  0 66697
+S
+#71062
+OOC: STOREROOM FOR RILGI THE ORKISH WHORE~
+   As the title suggests. 
+~
+71 268500992 0
+0
+S
+#71063
+A Roughly Dug-out Common Room~
+   This curious common room has been dug out of the ground 
+noticeably quickly. The walls have been lined with thick wooden 
+planks, and wide iron beams support the ceiling. The area is in 
+poor decor due to its rushed construction and is rather poorly 
+lit, only by a few dull lanterns. 
+~
+71 67174656 0
+0
+D1
+~
+~
+0 -1  0 71064
+S
+#71064
+A Wooden-Framed Narrow Hallway~
+   The walkway here is made up only of a few narrow sheets of 
+wood to cover the damp dirt. The walls are solid, however not 
+completely covered. Lines of support beams are closely packed 
+together to support it from collapsing. The hall is dully lit by 
+two lanterns hanging precariously overhead. 
+~
+71 67174400 0
+0
+D0
+~
+door~
+1 -1  0 71065
+D1
+~
+door~
+1 -1  0 71067
+D2
+~
+door~
+1 -1  0 71066
+D3
+~
+~
+0 -1  0 71063
+S
+#71065
+A Damp, Dark Meeting Room~
+   This rather small room is circular in shape. It is rather 
+well constructed, much more than the area near it. On the 
+ceiling starting in the middle of the room the White Tree of 
+Gondor has been drawn into the supporting roof. A series of 
+thick, circular beams have been placed along the outskirts of the 
+room perfectly distanced from each other. 
+~
+71 67174656 0
+0
+D2
+~
+door~
+1 -1  0 71064
+S
+#71066
+A Poorly-lit, Mud-filled Culd-E-Sac~
+   This room has been roughly crafted and dug-out lopsided, with 
+only a single support beam to keep the room from collapsing. The 
+ground is dug deeper than the entrance and is filled with about a 
+foot and a half of substantially watery mud. Only a slight, four 
+foot long rise along the southern wall stands above the muddy 
+water. 
+~
+71 67174656 0
+0
+D0
+~
+door~
+1 -1  0 71064
+S
+#71067
+A Wide Musky Sleeping Area~
+   This room is very wide and very long. Easily a couple hundred 
+yards long and wide. Many thick woolen mats filled with cotton 
+are strewn about on the ground, purposes for sleeping on. The 
+ceiling and walls are supported by a very numerous amount of 
+steel beams. The area is very dimly lit and it is difficult to 
+see the closer to the ground you look. 
+~
+71 67174656 0
+0
+D3
+~
+door~
+1 -1  0 71064
+S
+#71068
+Wind-Swept, Rocky Base of the Ephel Duath~
+   Wind constantly howls down through the notches and gaps in the 
+jagged peaks of the black mountains of Mordor that rise from the 
+ground to the east, a short run of increasingly rocky and steep 
+terrain rising up to them. Along with the wind comes the smell 
+of something old, a chill presence and the occasional fine dust 
+of soot. 
+~
+71 65536 8
+0
+D0
+~
+~
+0 -1  0 10218
+D2
+~
+~
+0 -1  0 10232
+D5
+~
+~
+0 -1  0 71069
+S
+#71069
+Desolate Hills Rising Steeply To The East~
+   Travel through these hills is difficult at best; the landscape 
+climbs in ragged steps with deep falls, yet uniformly grows more 
+steep and stark as it heads east to the towering, shard-like 
+black mountains that mark the lands of Mordor. No human 
+habitation is visible this close to dark border, but towards the 
+west a tall, stone fort can be seen. 
+~
+71 65536 8
+0
+D0
+~
+~
+0 -1  0 71038
+D2
+~
+~
+0 -1  0 71023
+D3
+~
+~
+0 -1  0 71022
+D4
+~
+~
+0 -1  0 71068
+S
+#71070
+Harad Road Northeast of A Tall Stone Garrison~
+   To the north and south the Harad Road continues on its course 
+through the hills and plains of this land. The road is mostly 
+packed dirt that has been worn down over the centuries into a 
+small ditch compared to the land immediately to either side of 
+the road. Grasslands mainly comprise the land around the road 
+here, covering the hills in a sea of ripples caused by the wind. 
+Several large rocks have been thrust up through the ground to the 
+west, limiting travel in that direction only through a small gap 
+that leads off that way. 
+~
+71 327680 2
+0
+D0
+~
+~
+0 -1  0 71017
+D2
+~
+~
+0 -1  0 71021
+D3
+~
+~
+0 -1  0 71019
+D4
+~
+~
+0 -1  0 71022
+S
+$~

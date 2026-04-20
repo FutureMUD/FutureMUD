@@ -1,0 +1,575 @@
+#82000
+Haradwaith Desert, Sewer and Undercity-Ruins Base Room~
+   Harad Desert, Sewers and Undercity Ruins 
+~
+82 65544 0
+0
+S
+#82001
+A Passage Meeting Some Stairs~
+   The stairs reach a level floor here, the carefully laid stone 
+tiles slippery from a light layer of dark-green mould. The walls 
+are covered in this same mould and on their once-white plaster 
+surface a mural, depicting a gathering of dark-skinned men in 
+formal attire, can faintly be seen. The northern wall has fallen 
+away completely, nothing left but debris. To the west a dark 
+arched passage opens up while small vermin and insects dart along 
+the floor. 
+~
+82 65666 0
+0
+D0
+~
+~
+0 -1  0 80364
+D2
+~
+robust-wooden-door~
+1 82100  30 82019
+D3
+~
+~
+0 -1  0 82006
+D4
+~
+~
+0 -1  0 80357
+S
+#82002
+Plummeting Downwards~
+   Exquisite carvings of lions and scorpions on the stone walls 
+of this room pass by as if in slow motion as you fall. A caved 
+in archway blocks the eastern wall, preventing any passage. In 
+the distance to the south is an intact arch with its black 
+passage stretching into impenetrable darkness. A jagged crack in 
+the floor looms above, its yawning mouth just out of reach. A 
+broken ledge juts out from the southern wall. The air is dank 
+and musty and mould grows on the rotting plaster and stones. 
+~
+82 66568 14
+0
+D2
+~
+~
+0 -1  0 80364
+D4
+~
+~
+0 -1  0 80356
+D5
+~
+~
+0 -1  0 80366
+S
+#82003
+A Stairway Leading Off The Docks~
+   A few slippery stone stairs lead down here off the dock and 
+onto a small wooden deck in order to allow workmen easier access 
+to smaller vessels. The deck and stairs allow room for only a 
+few men to fit without danger of falling into the water around 
+them. Slimy green algae covers the stairs from years of exposure 
+to the Sheshem-Mew but the dock seems to have been kept clean of 
+this, either by conscious effort or through constant use. A 
+large wooden support pole for the dock is here, descending beyond 
+the blue-green surface of the river 
+~
+82 218169364 0
+0
+D4
+~
+~
+0 -1  0 80032
+P
+cl cli clim climb~
+d do dow down po pol pole~
+if skill(climb,31)
+  vstr You grab a hold on the pole and carefully climb down into the waters of the Sheshem-Mew.
+  ostr $n Carefully climbs down a supporting pole and disappears into the waters of the Sheshem-Mew.
+trans 82004
+atlook 82004
+else do
+vstr You don't think you could do that safely.
+~
+S
+#82004
+Shallow Waters Beside The Dock~
+   The blue-green water of the Sheshem-Mew river surrounds you as 
+you swim. Fish, big and small, rush away from you to safer 
+confines. Support poles can be seen breaking the surface of the 
+water overhead whilst below you the seabed is covered in sand, 
+swirling with the easy current. A large grate can be seen under 
+the dock, slightly ajar. 
+~
+82 67174404 20
+0
+P
+cl cli clim climb~
+po pol pole~
+vstr You swim toward the large pole and attempt to climb upwards.
+ostr $n swims toward the large pole and attempts to climb it.
+if skill(climb,31)
+trans 82003
+atlook 82003
+else do
+vstr The pole proves too slippery, you can't climb it!
+ostr $n slips off the pole and back to the sandy riverbed.
+~
+P
+en ent ente enter op ope open~
+gr gra grat grate~
+vstr You swim toward the grate and slip inside.
+ostr $n swims through the grate under the dock.
+trans 82005
+atlook 82005
+~
+S
+#82005
+Under The Dock~
+   Water laps about your knees, its murky colour not quite hiding 
+the stone floor underfoot. The ceiling is low, wooden planks 
+running across with the occasional sound of people passing over 
+your head, the footsteps echoing in this small space. The floor 
+rises steadily until it becomes hard to stand straight. The 
+floor stops at the end of this small passage, a dark drop opening 
+up ahead of it. 
+   A ladder leads down into the room below. 
+~
+82 1114112 0
+0
+D5
+~
+~
+0 -1  0 80631
+P
+ent ente enter cli clim climb~
+gr gra grat grate~
+vstr You swim towards the grate and slip through it.
+ostr $n swims toward the grate and slips through it.
+trans 82004
+atlook 82004
+~
+S
+#82006
+Along A Dark Hallway~
+   The hallway turns eastwards here, coming from a flight of 
+carefully laid stairs to the north. The floor is damp and the 
+walls are covered in a light layer of dark-green mould, a collage 
+of pictures on the once-white plaster depicting everyday scenes, 
+from weaving to farming, all of the characters in the mural 
+dark-skinned. The mural is broken due to a large crack in the 
+southern wall whilst to the north a small flight of stairs 
+continue under a stone archway. An elaborately-worked, rusty 
+iron grate is set in the north-western corner of the room, its 
+latch broken. A foul smell permeates through the air here, 
+seeming to come from the north. 
+~
+82 65666 0
+0
+D0
+~
+~
+0 -1  0 80365
+D1
+~
+~
+0 -1  0 82001
+P
+cl cli clim climb~
+gr gra grat grate~
+vstr You open the grate and squeeze into it.
+ostr #5$n#0 Squeezes into the elaborately carved grate.
+atecho 80360 #5Someone#0 squeezes through the grate and drops easily into the murky water.
+trans 80360
+atlook 80360
+~
+P
+sli slip ent ente enter~
+cr cra crac crack~
+vstr You slip through the crack in the southern wall.
+ostr #5$n#0 slips through the gap in the southern wall.
+atecho 82007 #5Someone#0 slips into the room from the north.
+trans 82007
+atlook 82007
+~
+S
+#82007
+A Large, Converted Barracks~
+   This large room differs from the rest of the ruins, its walls 
+cleaned of mould and the floor recently swept. A mural, clearly 
+retouched, works its way around the room on all four stone walls 
+depicting dark-skinned scholars toiling over scrolls of 
+parchment, a frieze of alternating scarabs and scorpions skirting 
+the ceiling. Two columns, easily the most noticeable part of the 
+room, stand strong in the middle of the room - their fluted stone 
+seeming to hold the stone ceiling in place. 
+   There is a man-sized crack in the northern wall. 
+~
+82 67174400 0
+0
+D3
+~
+~
+0 -1  0 82008
+P
+sli slip ent ente enter~
+cr cra crac crack~
+vstr You slip through the crack in the northern wall.
+ostr #5$n#0 slips through the gap in the northern wall.
+atecho 82006 #5Someone#0 slips into the room from the south.
+trans 82006
+atlook 82006
+~
+S
+#82008
+A Dank Stone Common-Room~
+   The grandeur and cleanliness of the eastern room continues 
+here, though the dank smell of stagnant air is more notable in 
+this room. The white-plastered walls of this room are bare 
+except for the flickering flames of torches, spreading a dim glow 
+of light around the room. Clearly furnished to act as a meeting 
+area; a few men spread around this room, neither quiet nor loud 
+though all are seemingly cautious. 
+~
+82 67174400 0
+0
+D1
+~
+~
+0 -1  0 82007
+D2
+~
+beaded-curtain~
+1 -1  0 82009
+S
+#82009
+A Small, Spartan Kitchen~
+   This small room, possibly once used for storage, has been 
+furnished with the wares of a kitchen; stove, shelves and oven 
+cluttering the tiny space. The walls are plain and only a few 
+torches are mounted on their plastered surface, making the 
+lighting poor and often flickering. A weird smell permeates 
+through the room, a mixture of burnt meat, stagnant air and 
+burning oil. 
+~
+82 67174400 0
+0
+D0
+~
+beaded-curtain~
+1 -1  0 82008
+S
+#82010
+The Ruins of a Grand Room~
+   This room is wide and long, stretching out to the west and 
+north from this corner. The walls are made of precisely laid 
+stone, covered with crumbling plaster and bearing faded murals of 
+dark-skinned women dancing alongside a lone harp player. Water 
+licks at the walls leaving a brown ring of grime to mark its 
+highest point at almost waist level. A short flight of stairs 
+peaks out of this murky water in the western wall, leading 
+through an archway. 
+~
+82 65544 14
+0
+D0
+~
+~
+0 -1  0 82011
+D1
+~
+~
+0 -1  0 80365
+D3
+~
+~
+0 -1  0 82012
+S
+#82011
+The Ruins of a Grand Room~
+   This room is wide and long, stretching out to the east and 
+south from this corner. The walls are made of precisely laid 
+stone, covered with crumbling plaster and bearing faded murals of 
+dark-skinned children playing in the sand. Water licks at the 
+walls leaving a brown ring of grime to mark its highest point at 
+almost waist level. 
+~
+82 65544 14
+0
+D1
+~
+~
+0 -1  0 80366
+D2
+~
+~
+0 -1  0 82010
+S
+#82012
+Atop a Small Flight of Stairs ~
+   A small layer of water is present atop these carefully laid 
+stone stairs, making passage slightly difficult. Walls of 
+crumbling white plaster lead into a room to the west, dark mould 
+covering the remaining sections of the walls. The high ceiling 
+rises overhead, small pieces of debris occasionally dropping into 
+the water underfoot. Vermin make passage over the floor, 
+apparently unconcerned with the human presence as they scurry 
+about. 
+~
+82 65545 0
+0
+D1
+~
+~
+0 -1  0 82010
+D3
+~
+~
+0 -1  0 82013
+S
+#82013
+The End of a Short Corridor~
+   The corridor comes to an abrupt halt here, the western wall 
+having caved in. Large rocks and debris are littered about the 
+area, the damage to the walls quite significant, part of the 
+northern wall having fallen away as well. A small trickle of 
+water leaks out through the collapsed wall, whose murals have 
+faded many years ago. Small pieces of ceiling drop down every 
+now and then; too small to do much harm but adding to the 
+eeriness of the area as they splash onto the thin layer of water 
+on the floor. Vermin and insects traverse the area, most 
+scurrying into and out of the hole in the northern wall. 
+~
+82 65546 0
+0
+D1
+~
+~
+0 -1  0 82012
+P
+n no nor nort north~
+(null)~
+vstr You begin walking northward, making your way through the damaged wall.
+ostr #5$n#0 begins walking northward, making their way through the damaged wall.
+atecho 82014 #5$n#0 is entering from the south.
+trans 82014
+atlook 82014
+~
+S
+#82014
+A Small, Discrete Shop~
+   This small, surprisingly well kept room has been furnished as 
+a shop, though very little wares line the shelves. The walls 
+have been re-plastered, the old plaster showing through in places 
+with its dull yellow contrasting against the new, white plaster. 
+The stonework of the floor has been redone, a tile scarab 
+dominating the elaborate granite tiling. Few people seem to 
+frequent this store, and all of them are cautious to reveal 
+themselves or say much. Despite the renovation of the room there 
+are still signs of its ruin, the most noticeable a hole in the 
+northern section of the ceiling. 
+~
+82 67174408 0
+0
+D2
+~
+~
+0 -1  0 82013
+S
+#82015
+Balancing on a Crumbling Ledge~
+   Rocks tumble precariously down into the darkness beyond this 
+small ledge here, the faint sound of them hitting the ground 
+below barely heard. Darkness surrounds this small precipice of 
+granite stone though a flickering torch on the southern wall 
+provides just enough light to look for suitable footing. A 
+stairwell, narrow and as decrepit as the ledge you stand on, 
+leads downwards here, making its way into the darkness. 
+~
+82 67174410 8
+0
+D2
+~
+~
+0 -1  0 80361
+D5
+~
+~
+0 -1  0 82016
+C
+1
+S
+#82016
+Narrow Staircase Surrounded by Darkness~
+   The narrow staircase continues down into the darkness here, 
+the occasional torch lighting the way. A crumbling ledge breaks 
+off to the west here, though the way seems unsure. The rest of 
+the area mimics that of the stairway, once well laid granite 
+blocks fallen into disrepair and damaged by both time and man. 
+The only seemingly solid wall is the one to the south and even it 
+bears large gaps, the flickering light showing some sort of room 
+beyond the wall. 
+~
+82 67207176 8
+0
+D3
+~
+~
+0 -1  0 80364
+D4
+~
+~
+0 -1  0 82015
+D5
+~
+~
+0 -1  0 82017
+S
+#82017
+The Ruins of a Grand Foyer~
+   Rubble litters the floor of this room, occasional pieces of 
+debris falling from above and a collapsed western wall the 
+apparent source of this. A narrow, crumbling staircase leads 
+upwards from this room, the broken and faded repairs indicating 
+its previous use to be somewhat of a lobby. The room is large 
+and the stonework is exquisite, though now damaged and covered 
+with the scars of time and wear. The murals on the faded plaster 
+walls depict fully armoured men standing guard, one upon each 
+wall, dark-skinned and bearing the finest of bronze equipment and 
+arms. 
+~
+82 67174402 0
+0
+D4
+~
+~
+0 -1  0 82016
+P
+tu tur turn pul pull twi twis twist~
+blo bloc block gra gran grani granit granite~
+vstr #5You#0 turn #2a granite block#0 and step through the door which opens before you in the wall.
+ostr #5$n#0 turns #2a granite block#0 and steps through the door which opens before them.
+atecho 82100 A door opens in the eastern wall and #5$n#0 enters through it.
+trans 82100
+atlook 82100
+~
+S
+#82018
+Store Rm: Mahadji: mob 82000, shop 82014~
+   Mahadji, the shopkeep for the fence organisation of the 
+underground Fahad Scorpion gang, is a very cautious, suspicious 
+man. He only trusts those who he knows or those who openly wear 
+the scorpion tattoo. He's low level in terms of authority, he's 
+just the expendable face of the shop and he knows this. 
+~
+82 268500992 0
+0
+S
+#82100
+A Hidden Store~
+   This room is of moderate size and made entirely of stones, 
+with hairline joints between each expertly laid granite block in 
+the floor, walls and ceiling. A series of wooden shelves line 
+the walls either side and behind the counter, an exotic range of 
+powders, leaves and resins contained in jars along their wooden 
+lengths. The room is filled with a mix of scents; sweet, tangy 
+and those in between meeting the nostrils in a bizarre mix. The 
+few patrons of this shop all seem quite cautious and most do not 
+stick around for very long. 
+~
+82 65544 0
+0
+D5
+~
+wooden-trapdoor~
+1 82100  25 96821
+P
+tu tur turn twi twis twist pul pull~
+bl bloc block gra gran grani granit granite~
+ostr #5$n#0 turns #2a granite block#0 and steps through the door which opens before them.
+vstr #5You#0 turn #2a granite block#0 and step through the door which opens before you in the wall.
+atecho 82017 A door opens in the eastern wall and #5$n#0 enters through it.
+trans 82017
+atlook 82017
+~
+S
+#82019
+An Underground Gaol~
+   Neatly laid heavy granite blocks form the walls of this dim 
+room, the only light coming from bronze lanterns hung on the cold 
+stone walls. The light flickers eerily across all in the room, 
+revealing the room's stark features. Heavy, iron-barred doors 
+sit in the walls to the east and south, a solid wooden door 
+leading to the north. 
+
+#6Type HELP ROOM for more information on jailing prisoners.#0 
+~
+82 201392136 0
+0
+D0
+~
+robust-wooden-door~
+1 82019  30 82001
+D1
+~
+iron-barred-door~
+3 82019  50 82020
+D2
+~
+iron-barred-door~
+3 82019  50 82021
+P
+strip~
+~
+info targetname room -1 char &(0) name
+info targetdesc room -1 char &(0) sdesc
+force &(targetname) -1 xxstrip
+~
+P
+xxstrip~
+(null)~
+strip 82019
+vstr #5A burly, dark-skinned man#0 moves over to #5you#0 and begins to remove #5your#0 equipment.
+ostr #5A burly, dark-skinned man#0 moves over to $n and begins to strip them of their gear.
+vstr -
+vstr Your gear is removed from you and stuffed into a bag.
+ostr $n is stripped, their equipment placed into a bag.
+~
+P
+he hel help~
+ro roo room~
+vstr #6OOC: To strip a prisoner completely of their gear type 'STRIP <target> and the jailer will take care of it.#0
+~
+S
+#82020
+A Small, Dank Cell~
+   This cell is small, cold, damp and only just light enough to 
+see in by virtue of a lone lantern set into the granite stone 
+wall. The ceiling is only just high enough for a grown man to 
+stand and the floor is cold and covered in a light mould which is 
+slippery underfoot. Iron shackles are bound to the wall and an 
+uninviting pallet has been set up as a bed. 
+~
+82 201394444 0
+0
+D3
+~
+iron-barred-door~
+3 -1  0 82019
+S
+#82021
+A Small, Dank Cell~
+   This cell is small, cold, damp and only just light enough to 
+see in by virtue of a lone lantern set into the granite stone 
+wall. The ceiling is only just high enough for a grown man to 
+stand and the floor is cold and covered in a light mould which is 
+slippery underfoot. Iron shackles are bound to the wall and an 
+uninviting pallet has been set up as a bed. 
+~
+82 201394444 0
+0
+D0
+~
+iron-barred-door~
+3 -1  0 82019
+S
+$~

@@ -1,0 +1,272 @@
+#68000
+clan a turf OTHER~
+clan a turf~
+clan a turf~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68001
+clan b turf OTHER~
+clan b turf~
+clan b turf~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68002
+shakedown ready OTHER~
+ready for shakedown~
+ready for shakedown~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68003
+shakedown not ready OTHER~
+not ready for shakedown~
+not ready for shakedown~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 68002 0 0 0 0
+#68004
+air intimidation OTHER~
+#6an air of intimidation#0~
+#6There is an air of intimidation here#0~
+~
+12 4194304 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#68005
+money ready OTHER~
+money ready~
+Money ready to collect.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68006
+money not ready OTHER~
+money not ready~
+Money not ready to collect.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68007
+shake down step 1 OTHER~
+shake down step 1 achieved~
+Shake down step 1 achieved.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68008
+shake down step 2 OTHER~
+shake down step 2 achieved~
+Shake down step 2 achieved.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68009
+shake down step 3 achieved OTHER~
+shake down step 3 achieved.~
+Some careless admin has left a generic object here.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68010
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68011
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68012
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68013
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68014
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68015
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68016
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68017
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68018
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68019
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68100
+cloth linen white blowfly emblazoned CLAN_RALAN TEXTILE~
+a white linen cloth emblazoned with a blowfly #1(NOT DUE)#0~
+A white linen cloth emblazoned with a blowfly lies here.~
+   This is a six inch by six inch piece of white linen cloth, 
+with a simple blowfly charge sewn on to it. The sides have been 
+finished off with a plain white stitch, and the cloth is 
+otherwise unadorned. #1THIS PAYDAY IS NOT YET READY TO CLAIM#0. 
+~
+12 0 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 68101 0 2 0 0
+#68101
+cloth linen off-white blowfly emblazoned CLAN_RALAN TEXTILE~
+an off-white linen cloth emblazoned with a blowfly #2(DUE)#0~
+An off-white linen cloth emblazoned with a blowfly lies here.~
+   This is a six inch by six inch piece of dirty, off-white linen 
+cloth, with a simple blowfly charge sewn on to it. The sides 
+have been finished off with a plain white stitch, and the cloth 
+is otherwise unadorned. #2THIS PAYDAY IS READY TO CLAIM#0. 
+~
+12 0 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 0 0 0 2 0 0
+#68102
+object generic~
+a ready payday~
+A payday is ready to be collected here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#68020
+key~
+a key~
+a small silver key~
+~
+18 12 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#68021
+key simple small iron METAL VILLAGExKEY BLOWFLIES~
+a simple, small iron key~
+A simple, small iron key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 15 0 0 1
+10.000000 0 0 0 17 0 0
+#68022
+lean-to old hidden brush xShammatTESTINGx WOOD~
+an old lean-to hidden in the brush~
+An old lean-to sits here, hidden in the brush.~
+   This old lean-to sits, half hidden in the brush, with a slight 
+lean to the left. Vines grow up its windowless sides, and old 
+wood is starting to crack from the wind and weather. 
+~
+12 4096 0
+0 3 1 -1
+25000 0.000000
+0 99046 0 20 0 0 1
+50.000000 0 0 0 32 0 0
+$~

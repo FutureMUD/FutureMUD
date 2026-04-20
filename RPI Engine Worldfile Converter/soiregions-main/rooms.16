@@ -1,0 +1,98 @@
+#16000
+Base Room~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+16 65544 0
+0
+S
+#16001
+A Hastily Built Warehouse~
+   The original purpose of this large area cannot be discerned 
+from the efforts taken at transforming it into an operating, 
+field depot. All interior walls have been demolished and the 
+roof sustained with large, roughly-finished wooden beams. 
+The harsh stone floor is laid bare, and seems to already have 
+endured a large amount of abuse, bearing a chipped, flaky 
+surface, victim to much traffic by foot and hoof. What must
+have been the entrance to this place has been tore down 
+hastily, to allow the passage of wagons and carts. An overall
+sense of chaos and disorder fills the warehouse, with so 
+many items scattered inside, which, nonetheless, have a sort 
+of logic to them, as they are grouped with some intent 
+behind it. The only exit is through the demolished wall south.
+~
+16 65800 0
+0
+D2
+~
+~
+0 -1  0 2384
+S
+#16003
+Crossing of Roads East of the Barred City Gates~
+   An enlarged square of black and white cobblestones has been 
+placed here with roads joining from the north, south and east, an 
+iron portcullis set in the city wall westwards. The portcullis has
+been lowered and a set of thick, iron chains cross entwine on its
+lenght, shutting it down. A wide, solid barricade of logs has been 
+set in front of the portcullis, shutting any chance to reach the
+portcullis. Behind these two obstacles, the great western gate
+of Osgiliath has been closed shut and apparently barred, 
+forbidding passage into the Anorien. Four cast-iron lamp 
+posts, rusted with old age but still able to bear light in the 
+darkness, have been set in each of the four corners of this 
+crossroads. 
+~
+16 1073807360 0
+0
+S
+#16004
+The Burned-Out Shell of a Field Hospital~
+   This room is nothing but a collection of smoky, fiery stains, 
+large scorch marks, and collapsed and burned wood. Larged hunks 
+of stone from the eastern and northern walls litter the floor, 
+and many burned corpses of both humans and rats cover the floor 
+underfoot. 
+~
+16 1140916488 0
+0
+D2
+~
+door~
+1 1202  70 2385
+S
+#16005
+A Small Storage and Bedroom~
+   This small, simple room must have been some sort of
+bedroom in the past of this building, but now serves simply as
+a storage room for the medical supplies the hospital uses, and
+as a poor respite from the unending needs of the injured to
+the south. A few bins and a bed are set around, used for the
+needs of the healers. No window is set in the walls, but a poor,
+sputtering brass lantern has been affixed to the western wall,
+shedding a hesitant light into the gloomy area. The only
+exit is through the door to the south, back into the Hospital.
+~
+16 67174664 0
+0
+D0
+~
+door~
+1 2370  60 69002
+S
+#16007
+New Room~
+   This street of Osgiliath is empty, disturbingly so; farming 
+produce lays rotting in the streets, as does uncollected refuse. 
+Lanterns and lamp posts are untended, the glass smashed. The 
+buidlings that line the street are either boarded up, looted, or 
+but a blackened stone shell. A smoky pallour of soot and haze 
+often hangs in the air, drifting in from the east. An eerie 
+silence, disturbed only by the rare person to walk through, 
+pervades the abandoned and ruined buildings of Osgiliath. 
+~
+16 1073807360 0
+0
+S
+$~

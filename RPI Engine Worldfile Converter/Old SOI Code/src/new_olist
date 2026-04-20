@@ -1,0 +1,164 @@
+void
+do_olist (CHAR_DATA * ch, char *argument, int cmd)
+{
+  int header = 1;
+  int type = -1;
+  int inclusive;
+  int zone = -1;
+  int yes_key1 = 0;
+  int yes_key2 = 0;
+  int yes_key3 = 0;
+  int count = 0;
+  OBJ_DATA *obj;
+
+  std::string buf, key1, key2, key3, econ, notecon, arg;
+
+  arg.assign(argument);
+  arg = one_argument (arg, buf);
+
+  if (buf.empty())
+  {
+    send_to_char ("Selection Parameters:\n\n", ch);
+    send_to_char("   +/-<object keyword>       Include/exclude object keyword.\n", ch);
+    send_to_char("   <zone>                    Objects from zone only.\n", ch);
+    send_to_char("   <item-type>               Include items of item-type.\n", ch);
+    send_to_char("   *econ               Include items with this econ flag.\n", ch);
+    send_to_char("   ^econ               Include items without this econ flag.\n", ch);
+    send_to_char ("\nExample:   olist +sword -rusty weapon 10 *beor ^fine\n", ch);
+    send_to_char("will only get non-rusty swords of type weapon from zone 10 that are econ-flagged beor but not econ-flagged fine.\n", ch);
+    return;
+  }
+
+  while (!(buf.empty()))
+    {
+
+      inclusive = 1;
+
+      type = index_lookup (item_types, buf.c_str());
+
+      if (buf.length() > 1 && isalpha(buf[0]) && type != -1)
+      {
+        arg = one_argument (arg, buf);
+	continue;
+      }
+
+      if (isdigit (*buf))
+	{
+
+	  if ((zone = atoi (buf)) >= MAX_ZONE)
+	    {
+	      send_to_char ("Zone not in range 0..99\n", ch);
+	      return;
+	    }
+
+	  argument = one_argument (argument, buf);
+	  continue;
+	}
+
+      switch (*buf)
+	{
+
+	case '-':
+	  inclusive = 0;
+	case '+':
+
+	  if (!buf[1])
+	    {
+	      send_to_char ("Expected keyname after 'k'.\n", ch);
+	      return;
+	    }
+
+	  if (!*key1)
+	    {
+	      yes_key1 = inclusive;
+	      strcpy (key1, buf + 1);
+	    }
+	  else if (!*key2)
+	    {
+	      yes_key2 = inclusive;
+	      strcpy (key2, buf + 1);
+	    }
+	  else if (*key3)
+	    {
+	      send_to_char ("Sorry, at most three keywords.\n", ch);
+	      return;
+	    }
+	  else
+	    {
+	      yes_key3 = inclusive;
+	      strcpy (key3, buf + 1);
+	    }
+
+	  break;
+
+	case 'z':
+
+	  argument = one_argument (argument, buf);
+
+	  if (!isdigit (*buf) || atoi (buf) >= MAX_ZONE)
+	    {
+	      send_to_char ("Expected valid zone after 'z'.\n", ch);
+	      return;
+	    }
+
+	  zone = atoi (buf);
+
+	  break;
+	}
+
+      argument = one_argument (argument, buf);
+    }
+
+  *b_buf = '\0';
+
+  for (obj = full_object_list; obj; obj = obj->lnext)
+    {
+
+      if (zone != -1 && obj->zone != zone)
+	continue;
+
+      if (type != -1 && obj->obj_flags.type_flag != type)
+	continue;
+
+      if (*key1)
+	{
+	  if (yes_key1 && !isname (key1, obj->name))
+	    continue;
+	  else if (!yes_key1 && isname (key1, obj->name))
+	    continue;
+	}
+
+      if (*key2)
+	{
+	  if (yes_key2 && !isname (key2, obj->name))
+	    continue;
+	  else if (!yes_key2 && isname (key2, obj->name))
+	    continue;
+	}
+
+      if (*key3)
+	{
+	  if (yes_key3 && !isname (key3, obj->name))
+	    continue;
+	  else if (!yes_key3 && isname (key3, obj->name))
+	    continue;
+	}
+
+      count++;
+
+      if (count < 200)
+	olist_show (obj, type, header);
+
+      header = 0;
+    }
+
+  if (count > 200)
+    {
+      sprintf (buf, "You have selected %d objects (too many to print).\n",
+	       count);
+      send_to_char (buf, ch);
+      return;
+    }
+
+  page_string (ch->desc, b_buf);
+}

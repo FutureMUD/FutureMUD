@@ -1,0 +1,2125 @@
+#54000
+key AMDIR_WAREHOUSE byConscript elm leaf engraved iron one METAL~
+an iron key engraved with an elm leaf~
+An iron key engraved with an elm leaf has been left here.~
+   The head of this key of heavy iron key is carved on one side 
+with the image of an elm leaf. On the other, it is marked with a 
+numeral one. 
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54001
+channel AMDIR byConscript fast running water LIQUID~
+#4a channel of fast-running water#0~
+#4A deep channel carries fast-running water here.#0~
+   A narrow channel, several feet deep, brings clean water in 
+from the Anduin. It is about eight feet wide, with nearly 
+vertical banks, and the water flows through it with a strong 
+current. 
+~
+23 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54002
+key AMDIR_CHOW_HALL byConscript elm leaf engraved iron two METAL~
+an iron key engraved with an elm leaf~
+An iron key engraved with an elm leaf has been left here.~
+   The head of this key of heavy iron key is carved on one side 
+with the image of an elm leaf. On the other, it is marked with a 
+numeral two. 
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 29 0 0 1
+0.000000 0 0 0 17 0 0
+#54004
+shed logs AMDIR_FORGE built byCONSCRIPT WOOD~
+a small shed built of logs~
+A small log shed has been constructed here.~
+   This small, sturdy shed has been constructed of birch logs. 
+It is windowless and has but one door, which bears a round plaque 
+displaying the heraldry of Lord Eradan in black and grey. The 
+roof overhangs a bit in front, covering a muscular, sooty man 
+wearing a filthy leather apron, who sits on a stool before the 
+doorway taking his turn as watchman and enjoying his break from 
+the heat of the forge. 
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#54005
+storeroom AMDIR_WOODSHOP byConscript small walled OTHER~
+a small storeroom~
+A small storeroom has been walled off in the northwest corner.~
+   A small storeroom made of rough, unfinished planks of pine has 
+been walled of in the northwestern corner of the loft. Upon the 
+door is a circular plaque bearing the black and grey heraldry of 
+Lord Eradan. A heavy hasp with a sturdy iron lock has been 
+fastened to the door, holding it closed. 
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54006
+shed AMDIR rough hewn planks byConscript WOOD~
+a small shed of rough-hewn planks~
+A small shed of rough-hewn planks has been built here.~
+   A small shed made of rough, unfinished planks of pine has been 
+built here. Upon the door hangs a circular plaque bearing the 
+black and grey heraldry of Lord Eradan. A heavy hasp with a 
+sturdy iron lock has been fastened to the door, holding it 
+closed. 
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#54007
+well Amdir cistern stone small byConscript STONE~
+a small stone cistern~
+A small stone cistern sits beside the bridge.~
+   A small rectangular cistern has been built beside the channel 
+of the local stone. Rising about three feet high, it is six feet 
+long and three wide. Pipes of baked, glazed clay bring water in 
+from the channel and take out the overflow, so that the water 
+within is always refreshed. 
+~
+23 135168 0
+-1 -1 4 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54008
+key AMDIR_BUYER byConscript elm leaf engraved iron three METAL~
+an iron key engraved with an elm leaf~
+An iron key engraved with an elm leaf has been left here.~
+   The head of this key of heavy iron key is carved on one side 
+with the image of an elm leaf. On the other, it is marked with a 
+numeral three. 
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#54009
+key AMDIR_GENERAL_STORE byConscript elm leaf engraved iron four METAL~
+an iron key engraved with an elm leaf~
+An iron key engraved with an elm leaf has been left here.~
+   The head of this key of heavy iron key is carved on one side 
+with the image of an elm leaf. On the other, it is marked with a 
+numeral four. 
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#54003
+configuration AMDIR_HONOR_CALLER object Honor Caller OTHER~
+a configuration object for the Amdir Honor Caller~
+A configuration object for the Amdir Honor Guard lies on the floor here.~
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54010
+soldiers AMDIR_HONOR_GUARD two armor leather polished byConscript OTHER~
+a pair of well-turned-out Vanguard soldiers~
+#5Two soldiers, their armor and leather highly polished, stand at parade rest behind their officer.#0~
+   Two immaculately turned out soldiers stand at parade rest, 
+their eyes fixed straight ahead, their bearing exudes pride and 
+competence. One of them, a hefty man in plate, wears the black 
+cloak of the Pel-Dagor. The other is a lean, agile-looking man 
+in the forest green of the Pel-Tirith. Both bear the gorget that 
+indicates the rank of sergeant in their respective divisions. 
+Each piece of metal has been polished to a high shine each piece 
+of leather worked and soaped until it is supple and rich. Each 
+of these soldiers are the epitome of the Gondorian soldier. 
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54011
+book AMDIR_HONOR_GUARD byConscript black intricately tooled leather OTHER~
+'The Honored Dead of the Lords of House Eradan'~
+A book covered with intricately tooled black leather lays here~
+   Covered with supple leather dyed a gleaming black, this book 
+is of obvious quality. The title is written with golden ink upon 
+the spine. Upon the front cover is intricate tooling, showing a 
+stylized White Tree of Gondor above Lord Eradans heraldry of a 
+shield before a full moon. 
+~
+54 135168 1
+25 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54012
+key AMDIR_ISOLATION_ROOM byConscript elm leaf engraved iron five METAL~
+an iron key engraved with an elm leaf~
+An iron key engraved with an elm leaf has been left here.~
+The head of this key of heavy iron key is carved on one side 
+with the image of an elm leaf. On the other, it is marked with a 
+numeral six.
+~
+18 135168 1
+6 0 0 0
+10 0.000000
+0 0 0 29 0 0 1
+0.000000 0 0 0 0 0 0
+#54013
+key AMDIR_Dambeth_Erinur_Cabin byConscript elm leafe engraved iron five METAL~
+an iron key engraved with an elm leaf~
+An iron key engraved with an elm leaf has been left here.~
+   The head of this key of heavy iron key is carved on one side 
+with the image of an elm leaf. On the other, it is marked with a 
+numeral five. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54014
+ERADAN_TICKET_MINDER bespectacled man OTHER~
+a bespectacled man~
+#5A bespectacled man#0 wearing the black and grey of Eradan's household sits at a small desk beside a strongbox.~
+~
+22 135168 1
+0 0 1 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54015
+stair unstable rope planks byConscript WOOD~
+a stair of rope and planks~
+A stair of rope and planks climbs up to the ledge above.~
+   These stairs are constructed of wide planks supported by 
+strong ropes that are fastened to spikes driven into the stone at 
+the bottom, and that lead upward at a steep angle over the edge 
+of the ledge above. They feel unstable as they sway slightly 
+when used, but they are in fact quite sturdy. 
+~
+12 135168 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#54016
+stair tangled ropes planks pile byConscript OTHER~
+a pile of tangled rope and planks~
+Wooden planks tangled in thick ropes lie in a pile.~
+   Wide planks are piled haphazardly, tangled with strong rope 
+that passes through holes bored in each end of each plank, large 
+knots holding them in place. The rope is securely fastened to 
+thick iron eyebolts sunken into the stone floor. 
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#54017
+clamp levers metal pair byConscript NEEDED_FOR_RPROG OTHER~
+a pair of clamps fastened to ropes~
+A pair of metal clamps are fastened to the very stone with spikes, each with a lever attached.~
+   Two metal clamps are fastened to the very stone with spikes, 
+each with a lever attached. The rope supporting each side of a 
+set of stairs leading downward passes through a clamp. 
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54018
+clamp empty metal levers byConscript NEEDED_FOR_RPROG OTHER~
+a pair of empty metal clamps~
+A pair of metal clamps are fastened to the very stone with spikes, their levers raised and their maws empty.~
+   Two metal clamps are fastened to the very stone with spikes, 
+each with a lever attached. The levers are raised, and the raspy 
+jaws that grip are empty. 
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54019
+key CAIR_ANDROS_TOWER_OFFICE byConscript elm leaf engraved iron seven METAL~
+an iron key engraved with an elm leaf~
+An iron key engraved with an elm leaf has been left here.~
+The head of this key of heavy iron key is carved on one side with the image of 
+an elm leaf. On the other, it is marked with a numeral seven.
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 29 0 0 1
+0.000000 0 0 0 17 0 0
+#54020
+lift raised secured byConscript OTHER~
+the raised lift platform~
+The lift platform is raised and secured.~
+   The lift platform consists of thick planks laid over a strong, 
+rectangular timber frame. Heavy iron eyebolts are driven through 
+planks and timber at the four corners and the middles of the long 
+sides. Six chains are hooked to the eyebolts on one end and to a 
+thick iron ring on the other, their lengths cut so that the ring 
+rises above the exact center of the platform to mate with the 
+hook on the end of the crane's heavy rope. The platform is 
+lashed securely to the dock. 
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 32 0 0
+#54021
+lift lowered secured byConscript OTHER~
+the lowered lift platform~
+The lift platform is lowered and secured.~
+   The lift platform consists of thick planks laid over a strong, 
+rectangular timber frame. Heavy iron eyebolts are driven through 
+planks and timber at the four corners and the middles of the long 
+sides. Six chains are hooked to the eyebolts on one end and to a 
+thick iron ring on the other, their lengths cut so that the ring 
+rises above the exact center of the platform to mate with the 
+hook on the end of the crane's heavy rope, which stretches far 
+above. The platform is lashed securely to the dock. 
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#54022
+winch heavy metal framework iron byConscript METAL~
+a heavy metal winch~
+A heavy metal winch sits in a framework of iron.~
+   This is a heavy winch cast of iron, mounted firmly in a strong 
+frame that may be fastened to stone or wood. The crank on the 
+side of the winch is as long as a man's arm, and the barrel is 
+large enough to hold a great deal of rope or chain. 
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#54023
+boat CA_FERRY byConscript moored oval0 - 1 is CA, 2 is Amdir WOOD~
+a wide, shallow sailing vessel~
+A wide, shallow boat is moored to the eastern side of the dock, a gangplank lowered to allow access.~
+   This is a single-masted ship, shallow and broad, her wide deck 
+cleared to allow the transport of up to a score of armored men 
+standing shoulder to shoulder. The railing is formed of 
+waist-high posts with a single rope run through holes bored 
+through the tops. There is a short bowsprit to allow a small 
+jib. A long steering oar at the stern is manned by the master, 
+and there are two sailors to handle the lines and sail. The ship 
+is old and seems oft-patched, though she is lovingly maintained. 
+Her bow has been carved with some ornamentation, though not much, 
+leaves and vines curling about her painted-on name. She proudly 
+flies the White Tree of Gondor at the top of her mast, and a 
+pennant below bearing the heraldry of Lord Eradan. 
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#54024
+boat CA_FERRY byConscript moored at Amdir WOOD~
+a wide, shallow sailing vessel~
+A wide, shallow boat is moored to the northern side of the dock, a gangplank lowered to allow access.~
+This is a single-masted ship, shallow and broad, her wide deck 
+cleared to allow the transport of up to a score of armored men 
+standing shoulder to shoulder. The railing is formed of 
+waist-high posts with a single rope run through holes bored 
+through the tops. There is a short bowsprit to allow a small 
+jib. A long steering oar at the stern is manned by the master, 
+and there are two sailors to handle the lines and sail. The ship 
+is old and seems oft-patched, though she is lovingly maintained. 
+Her bow has been carved with some ornamentation, though not much, 
+leaves and vines curling about her painted-on name. She proudly 
+flies the White Tree of Gondor at the top of her mast, and a 
+pennant below bearing the heraldry of Lord Eradan.
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54025
+flag TROUBLE_FLAG byConscript OTHER~
+a red flag~
+A red flag is here, with the words 'Fix It!' emblazoned in bold white letters.~
+   This flag indicates a room that is unfinished. If it is not 
+obvious what needs doing, stat the room and check the immnotes. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54026
+key CA_OFFICERS' QUARTERS byConscript worn iron METAL~
+a worn iron key~
+A worn key of iron has been dropped here.~
+   This is a heavy iron key, so worn that the image of the White 
+Tree of Gondor is barely visible upon its head. 
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#54027
+key CA_SECURE_STORAGE byConscript worn iron METAL~
+a worn iron key~
+A worn key or iron has been dropped here.~
+This is a heavy iron key, so worn that the image of the White 
+Tree of Gondor is barely visible upon its head.
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#54028
+trapdoor open byConscript WOOD~
+an open trapdoor~
+A trapdoor has been opened in the floor.~
+   This trapdoor is cleverly made of a sheet of the rock of the 
+floor, fastened atop a rusting metal frame. When closed, it fits 
+nearly seamlessly, but it stands open now. 
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 32 0 0
+#54029
+key AMDIR_TP_QM byConscript elm leaf engraved iron eight METAL~
+an iron key engraved with an elm leaf~
+An iron key engraved with an elm leaf has been left here.~
+The head of this key of heavy iron key is carved on one side with the image of 
+an elm leaf. On the other, it is marked with a numeral eight.
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54030
+Contracts UNIQUE_BATT box filing papers byConscript WOOD~
+a filing box - Contracts~
+A box labeled 'Contracts' sits here.~
+   Neatly fashioned of cherrywood, this box is designed to carry 
+parchments and correspondence. A small silver plaque on the 
+front has "Master Sage Erinur Aranin" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid fold 
+closed, a latch is used to secure it. 
+~
+15 4096 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 32 0 0
+#54031
+Archives Contracts UNIQUE_BATT box filing papers byConscript WOOD~
+a filing box - Contract Archives~
+A box labeled 'Contracts - Archives' sits here.~
+   Neatly fashioned of cherrywood, this box is designed to carry 
+parchments and correspondence. A small silver plaque on the 
+front has "Archives - Contracts" scribed in neat 
+Numenian-Tengwar. Hinges at the box's rear help the lid fold 
+closed, a latch is used to secure it. 
+~
+15 135168 1
+2500 0 -1 0
+300 0.000000
+0 0 0 30 4 0 1
+5.000000 0 0 0 0 0 0
+#54032
+key AMDIR_GAOL_GATE byConscript elm leaf engraved iron nine METAL~
+an iron key engraved with an elm leaf~
+An iron key engraved with an elm leaf has been left here.~
+   The head of this key of heavy iron key is carved on one side 
+with the image of an elm leaf. On the other, it is marked with a 
+numeral nine. 
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#54033
+key AMDIR_GAOL_CELLS byConscript elm leaf engraved iron ten METAL~
+an iron key engraved with an elm leaf~
+An iron key engraved with an elm leaf has been left here.~
+The head of this key of heavy iron key is carved on one side 
+with the image of an elm leaf. On the other, it is marked with a 
+numerals 10. 
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 17 0 0
+#54034
+strongbox UNIQUE_CA interior byConscript inside OTHER~
+inside the strongbox~
+inside the strongbox~
+   The interior of the strongbox is lined with well-tanned 
+leather, dyed a light grey. 
+~
+15 4108 1
+50000 0 -1 0
+300 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 0 0 0
+#54035
+bin UNIQUE_ERADAN lockable large grey lidded byConscript WOOD~
+a large, grey, lidded bin~
+A large, grey, lidded bin sits near the storage area.~
+   This is a very large bin, perhaps four feet deep, made of 
+strong wood. A hasp on the lid enables it to be locked when 
+closed. The corners are reinforced with brass. It is painted a 
+steel grey, and upon its lid is the heraldry of Lord Eradan. 
+~
+15 135168 1
+100000 0 2 0
+5000 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 32 0 0
+#54036
+caravel Amdir_Ithilien_Arnen_Harlond lanteen-rigged two-masted WOOD~
+a lanteen-rigged, two-masted caravel~
+A lanteen-rigged, two-masted caravel is tied to the west side of the dock.~
+   A two-masted vessel is tied to the western edge of the dock. 
+She is about twenty yards long, and about a third as wide. Black 
+sails are furled upon long yards mounted at an angle upon the 
+masts. The main mast proudly flies the flag of Gondor, black 
+with a white tree, and a line running from the aft end of the 
+rear spar to the rail on the sterncastle holds a pennant bearing 
+the heraldry of Lord General Eradan. 
+~
+12 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 32 0 0
+#54037
+token VISIBLE_STABLE_TICKET MINDER byConscript droppings pile OTHER~
+a steaming pile of horse droppings~
+A steaming pile of horse droppings lies on the floor.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54038
+AMDIR_TRADING_POST_TRANSACTIONS_BOARD byConscript sage studious young books OTHER~
+#5a young sage keeps the books#0~
+#5A studious young sage keeps the books.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+C
+strongroom_eradan~
+member~
+#54039
+WHITE_HART_BOARD board patrons loyal small group byHalfjack OTHER~
+#5a small group of loyal patrons#0~
+#5A small group of loyal patrons share stories, rumors and gossip#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54040
+WHITE_HART_BREWERY small hart head key OTHER~
+a small key, shaped as the Hart's head~
+A small key, shaped as the Hart's head glints faintly.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+10.000000 0 0 0 0 0 0
+#54041
+cabin large stone WOOD byHalfjack~
+a large, stone-reinforced cabin~
+A large, stone-reinforced cabin is nestled in the ground, half buried.~
+~
+12 0 0
+0 0 0 0
+1500 0.000000
+0 54628 0 23 0 0 1
+0.000000 0 0 0 32 0 0
+#54042
+veil pLuciun silk white opaque gleaming TEXTILE byHalfjack TEXTILE~
+a nearly opaque, gleaming white silk veil~
+A gleaming white silk veil has been left here.~
+   Made from the thickest, gleaming white silk this exquisite 
+veil is almost opaque and allows just a hint of the wearers 
+features to show even from close up. Falling from the crown 
+down, the silk is wrapped around a silvery, velvet band that 
+clasps to the back of the head with a small silver loop. The 
+band is adorned with threads of the thinnest, woven into each one 
+another to form a decorative pattern over the hair. 
+~
+11 135168 67108865
+0 0 0 0
+1 0.000000
+0 0 0 31 4100 0 1
+500.000000 0 0 0 5 0 0
+#54043
+gown pLuciun beaded exquisit gleaming white TEXTILE byHalfjack TEXTILE~
+a beaded gown of exquisite gleaming white silk~
+A beaded gown of gleaming white silk has been left here.~
+   Flowing skirts of thick silk fall lavishly from the trim 
+waistline of this exquisite, gleaming white dress, lightly 
+brushing over the ground. The furling layers of silk are lightly 
+parted and exquisitely draped at the front of the skirts to 
+reveal the subtle glisten of silvery satin underneath. 
+Scintillating, snow-white beads form subtle patterns upon the 
+satin, curling into waves and spirals that tumble around myriads 
+of minute, well-placed shells, just as pale in colour. The 
+bodice extends into an elegant V-shaped neckline that serves to 
+emphasize the neck area. Encrusted around the collar are small 
+pearly-white beads, the fabric underneath low enough to reveal 
+the wearer's collarbone before rising as it heads around the 
+neck. Drawn taught with velvet bands above the elbows, the 
+sleeves flair out beyond swirling around the hands of the wearer 
+with even the most minute movement. This style of the elegant 
+dress is cut close to the rib cage but drapes out along the body 
+in a slightly flared A shape skirt, it creates a smooth, clean 
+line. 
+~
+11 135168 9
+0 0 0 0
+200 0.000000
+0 0 0 32 4100 0 1
+1200.000000 0 0 0 0 0 0
+#54044
+cincher pLuciun delicately embroiderd dark red silk waist TEXTILE byHalfjack TEXTILE~
+a delicately embroidered dark red silk waist cincher~
+A delicately embroidered dark red silk waist cincher is here.~
+   This wide belt of dark red silk consists of four panels and 
+laces closed on both sides. The edges, top and bottom have been 
+trimmed with a black silk cord. Each panel of smooth lustrous 
+silk has been made of several layers of material shaped with 
+stiff boning. A matching thread has been used to impart a 
+delicate design of peacock feathers throughout the garment. 
+Silken cord laced through silver grommets allows one to tighten 
+the garment to create a slimming affect, accentuating the wearers 
+hips. 
+~
+11 135168 2049
+0 0 0 0
+5 0.000000
+0 0 0 30 4100 0 1
+300.000000 0 0 0 0 0 0
+#54045
+vest scalemail crude iron ORKISH METAL byHalfjack METAL~
+a crude scalemail vest of darkened iron~
+A crude scalemail vest of darkened iron lies here.~
+   The dark iron scales of this vest have been mismatched onto 
+the leather that forms its vest. Some are thick and hearty 
+scales, while others are thin, cracked or broken. The only thing 
+they seem to have in common is that they are all scarred by 
+battle. The iron itself is darkened either through grime, flame 
+or blood, and each version of the darkening is present on the 
+vest. The leather underneath the scales is stiff and hard, 
+further preventing ease of movement, but adding to its defensive 
+properties. 
+~
+9 4608 9
+2 3 0 0
+875 0.000000
+0 0 0 21 18440 0 1
+335.000000 0 0 0 28 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -10
+A
+10036 -5
+#54046
+gorget scalemail crude iron ORKISH METAL byHalfjack METAL~
+a crude scalemail gorget of darkened iron~
+A crude scalemail gorget of darkened iron lies here.~
+   This gorget's iron scales are dark, sharp and often 
+mismatched. They bear many different wounds of battle, and 
+appear to have been scavenged together haphazardly. Their most 
+common feature is the dark coloration, though its source is not 
+readily apparent. Nor is whether or not the coloration was 
+intentional. 
+~
+9 4096 5
+2 3 0 0
+500 0.000000
+0 0 0 21 18440 0 1
+335.000000 0 0 0 28 0 0
+#54047
+helm crude iron ORKISH METAL byHalfjack METAL mask~
+a worn, dark iron helm~
+A worn, dark iron helm lies here.~
+   The iron of this helm is blackened through both time and 
+grime. It bears dents and gashes from battles long past. 
+However, despite its deformities, the helm still looks sturdy and 
+workable. The helm covers the wearer's face for added 
+protection, leaving small slits for the eyes to see out of, and a 
+worn grate over the mouth for ease of breath during heated 
+combat. 
+~
+9 659456 17
+2 5 0 0
+506 0.000000
+0 
+dark-iron-helmed~
+0 20 18440 0 1
+300.000000 0 0 0 28 0 0
+#54048
+sword SUB_QUALITY longsword iron darkened METAL byHalfjack orkish~
+a longsword of darkened iron~
+A longsword of darkened iron lies here.~
+   This longsword is old and worn, rust tainting its blade where 
+it can get past the darkened iron. The source of the iron's 
+coloring is unknown, be it blood, fire or craft, however it is 
+persistant, even past the nicks in the blade itself. The blade 
+is single edged, with a faint curve away from the edged side. 
+The old wooden hilt is wrapped in decaying leather cord, ending 
+in a similarly blackened iron pommel. 
+~
+5 4096 8193
+0 1 6 3
+700 0.000000
+4 0 0 21 18440 0 1
+250.000000 0 0 0 0 0 0
+S
+100003
+#54049
+key iron small simple METAL byHalfjack~
+a simple, small iron key~
+A simple, small iron key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#54050
+skeletal hand hilt BONE OTHER~
+a skeletal hand holding a hilt~
+A skeletal hand holding a hilt lies here.~
+   This skeletal hand is bare of flesh but seems to be a human 
+hand. It clenches in its fist a hilt, the bony fingers tight 
+around the rotted wood. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54051
+broadsword sword GOOD_QUALITY UNIQUE_EVAN_FIX sturdy iron blade METAL byHalfjack~
+a sturdy, iron broadsword~
+A sturdy iron broadsword lies here, its blade razor sharp.~
+   A thick-set blade of iron meets a solid hilt styled in a 
+simple curving pattern at the base of this sword. The blade is 
+quite well made, and quite short. It bears few extraordinary 
+features outside it's surprisingly sharp, twin edges. The hilt 
+is wrapped in a single piece of red leather sewn behind small 
+quillons for a perfected grip. 
+~
+5 4096 8193
+0 1 8 3
+350 0.000000
+4 0 0 32 4 0 1
+200.000000 0 0 0 17 0 0
+#54052
+Mirane green eyed baby girl tawny curls METAL byHalfjack~
+#5a green-eyed baby girl with tawny curls#0~
+#5A green-eyed baby girl with tawny curls is here.#0~
+   A healthily plump little girl, this baby has a chubby-cheeked 
+face with a gently dimpled chin and pale skin. A little snub 
+nose is spattered with golden freckles that spread to under her 
+wide eyes. Dark moss green in color, they hold hints of gray 
+when shadowed by her long lashes. Her hair is a warm brown, 
+riotous curls that tangle all around her face in little ringlets, 
+picking up hints of gold in the light. 
+~
+5 4096 8193
+0 2 4 6
+805 0.000000
+3 0 0 33 0 0 1
+0.000000 0 0 0 0 0 0
+#54053
+cloak leaf green embroidered billowing woolen thick TEXTILE UNIQUE_DALAMIR_RANGERS~
+an embroidered, leaf green cloak~
+A thick woolen cloak dyed leaf green is here.~
+   Sewn from thick wool, this cloak was designed to match the 
+colors of a woodland surrounding. It's billowing cloth has been 
+waterproofed with pine-tar on the outside, which also neutralizes 
+the smell of its wearer, preventing him from being hunted by 
+animals that hunt by smell. The inside of the cloak is artfully 
+embroidered with the symbol of crossed swords between stars - the 
+heraldry of Dalamir, Lord of the Cross-Roads. Despite very muted 
+colors being used in the embroidering, there is an exceptional 
+level of detail in the crossed swords, right down to their 
+stylized hilts. 
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+leaf-green-hooded~
+0 0 4644 0 1
+600.000000 0 0 0 3 0 0
+#54054
+hauberk UNIQUE_DALAMIR_RANGERS leather-wrapped chainmail moon METAL byHalfjack~
+a leather-wrapped, embossed hauberk of fine chainmail~
+A leather-wrapped, embossed hauberk of fine chainmail lies here~
+   Obviously of skilled craftsmanship, this hauberk of fine steel 
+chain has been interwoven with thin strips of leather, and 
+covered with a layer of leather, dyed a mottled forest-green. 
+The leather is light weight, and soft and supple around the 
+joints, while hardened over the pectorals, and the shoulder 
+blades. Holding the leather tight against the wearer's body are 
+a few straps down either side of the torso. On the left breast, 
+embossed and dyed with great skill is a pair of crossed swords 
+set between muted grey stars. 
+~
+9 135168 9
+3 4 0 0
+900 0.000000
+0 0 0 33 0 0 1
+0.000000 0 0 0 28 0 0
+#54055
+sleeves UNIQUE_DALAMIR_RANGERS chainmail leather-wrapped leather wrapped METAL byHalfjack~
+a pair of leather-wrapped, fine chainmail sleeves~
+A pair of leather-wrapped, fine chainmail sleeves~
+   Fine and skillfully crafted steel chainmail forms the basis 
+for this pair of sleeves. Interwoven through each link are small 
+cords of leather, and placed over the chain are larger pieces of 
+mottled forest-green leather. The leather is hardened around the 
+upper arm and forearm, to provide increased protection, and 
+supple about the shoulders, elbows and wrists to allow for 
+freedom of movement. Stamped into the bottom of the forearm of 
+each sleeve is an uncolored pair of crossed swords set between 
+stars. 
+~
+9 135168 257
+3 4 0 0
+1000 0.000000
+0 0 0 33 4132 0 1
+2450.000000 0 0 0 28 0 0
+#54056
+gorget UNIQUE_DALAMIR_RANGERS collar leather-wrapped chain METAL byHalfjack~
+a leather and chain collar of forest green~
+A leather and chain collar of forest green lies here~
+   This collar has been cleverly wrought of fine chainmail, with 
+strips of leather interwoven through the links. A thin, light 
+and supple piece of leather, dyed a mottled forest green is 
+wrapped about the collar, preventing any glint or glare, and 
+dampening any sound from the chain. On the left side of the 
+throat, is a tiny, uncolored but exquisitely stamped 
+representation of a pair of crossed swords between stars. On the 
+right, stamped perhaps even more masterfully and this time dyed 
+with a muted white is an artful rendition of the White Tree of 
+Gondor. 
+~
+9 4096 5
+3 4 0 0
+100 0.000000
+0 0 0 33 0 0 1
+0.000000 0 0 0 28 0 0
+#54057
+leggings UNIQUE_DALAMIR_RANGERS leather-wrapped chainmail leggings METAL byHalfjack~
+a pair of leather-wrapped, fine chainmail leggings~
+A pair of leather-wrapped, fine chainmail leggings is here~
+   A skillfully crafted pair of chainmail leggings has small 
+strips of leather interwoven through each link, and is covered 
+with a durable layer of mottled forest-green dyed leather. 
+Around the joints, the hips, knees and ankles, the leather is 
+soft and supple, allowing for freedom of movement. However, 
+around the thighs and calves, the leather is hardened to increase 
+its protection. Various dark leather straps allow the hardened 
+leather to be pulled tighter about the wearer's legs to secure 
+the leggings in place. 
+~
+9 135168 33
+3 4 0 0
+1000 0.000000
+0 0 0 33 4132 0 1
+2500.000000 0 0 0 28 0 0
+#54058
+key small WHITE_HART_APARTMENTS hart head shaped one engraved METAL byHalfjack~
+a small, Hart's head shaped key, engraved with a one~
+A small, Hart's shaped key glints faintly.~
+   This small, iron key, is carefully shaped so that opposite its 
+teeth, is an artful rendition of a Hart's head, with a full rack 
+of antlers included. The antlers join over his skull, allowing 
+the key to be secured to a keyring. The teeth of the key are 
+faintly worn, and they have an almost crude appearance to them in 
+comparison to the head at the opposite end of the key. Engraved 
+into the Hart's "neck" is the numeral one. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+5.000000 744 54089 0 28 0 0
+#54059
+key small WHITE_HART_APARTMENTS hart head shaped two engraved METAL byHalfjack~
+a small, Hart's head shaped key, engraved with a two~
+A small, Hart's shaped key glints faintly.~
+   This small, iron key, is carefully shaped so that opposite its 
+teeth, is an artful rendition of a Hart's head, with a full rack 
+of antlers included. The antlers join over his skull, allowing 
+the key to be secured to a keyring. The teeth of the key are 
+faintly worn, and they have an almost crude appearance to them in 
+comparison to the head at the opposite end of the key. Engraved 
+into the Hart's "neck" is the numeral two. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 54091 0 0 0 0
+#54060
+key small WHITE_HART_APARTMENTS hart head shaped three engraved METAL byHalfjack~
+a small, Hart's head shaped key, engraved with a three~
+A small, Hart's shaped key glints faintly.~
+   This small, iron key, is carefully shaped so that opposite its 
+teeth, is an artful rendition of a Hart's head, with a full rack 
+of antlers included. The antlers join over his skull, allowing 
+the key to be secured to a keyring. The teeth of the key are 
+faintly worn, and they have an almost crude appearance to them in 
+comparison to the head at the opposite end of the key. Engraved 
+into the Hart's "neck" is the numeral three. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+5.000000 744 54093 0 28 0 0
+#54061
+key small WHITE_HART_APARTMENTS hart head shaped four engraved METAL byHalfjack~
+a small, Hart's head shaped key, engraved with a four~
+A small, Hart's shaped key glints faintly.~
+   This small, iron key, is carefully shaped so that opposite its 
+teeth, is an artful rendition of a Hart's head, with a full rack 
+of antlers included. The antlers join over his skull, allowing 
+the key to be secured to a keyring. The teeth of the key are 
+faintly worn, and they have an almost crude appearance to them in 
+comparison to the head at the opposite end of the key. Engraved 
+into the Hart's "neck" is the numeral four. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+5.000000 744 54095 0 28 0 0
+#54062
+key small WHITE_HART_APARTMENTS hart head shaped five engraved METAL byHalfjack~
+a small, Hart's head shaped key, engraved with a five~
+A small, Hart's shaped key glints faintly.~
+   This small, iron key, is carefully shaped so that opposite its 
+teeth, is an artful rendition of a Hart's head, with a full rack 
+of antlers included. The antlers join over his skull, allowing 
+the key to be secured to a keyring. The teeth of the key are 
+faintly worn, and they have an almost crude appearance to them in 
+comparison to the head at the opposite end of the key. Engraved 
+into the Hart's "neck" is the numeral five. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+5.000000 744 54097 0 28 0 0
+#54063
+key small WHITE_HART_APARTMENTS hart head shaped six engraved METAL byHalfjack~
+a small, Hart's head shaped key, engraved with a six~
+A small, Hart's shaped key glints faintly.~
+   This small, iron key, is carefully shaped so that opposite its 
+teeth, is an artful rendition of a Hart's head, with a full rack 
+of antlers included. The antlers join over his skull, allowing 
+the key to be secured to a keyring. The teeth of the key are 
+faintly worn, and they have an almost crude appearance to them in 
+comparison to the head at the opposite end of the key. Engraved 
+into the Hart's "neck" is the numeral six. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+5.000000 744 54099 0 28 0 0
+#54064
+key small WHITE_HART_APARTMENTS hart head shaped seven engraved METAL byHalfjack~
+a small, Hart's head shaped key, engraved with a seven~
+A small, Hart's shaped key glints faintly.~
+   This small, iron key, is carefully shaped so that opposite its 
+teeth, is an artful rendition of a Hart's head, with a full rack 
+of antlers included. The antlers join over his skull, allowing 
+the key to be secured to a keyring. The teeth of the key are 
+faintly worn, and they have an almost crude appearance to them in 
+comparison to the head at the opposite end of the key. Engraved 
+into the Hart's "neck" is the numeral seven. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+5.000000 744 54101 0 28 0 0
+#54065
+key small WHITE_HART_APARTMENTS hart head shaped eight engraved METAL byHalfjack~
+a small, Hart's head shaped key, engraved with a eight~
+A small, Hart's shaped key glints faintly.~
+   This small, iron key, is carefully shaped so that opposite its 
+teeth, is an artful rendition of a Hart's head, with a full rack 
+of antlers included. The antlers join over his skull, allowing 
+the key to be secured to a keyring. The teeth of the key are 
+faintly worn, and they have an almost crude appearance to them in 
+comparison to the head at the opposite end of the key. Engraved 
+into the Hart's "neck" is the numeral eight. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+5.000000 744 86 0 28 0 0
+#54066
+key AMDIR_CABIN_WHITE_HART METAL~
+an iron key engraved with three shields~
+An iron key has been discarded here.~
+This long iron key bears the markings of three simple shields.
+~
+18 0 1
+0 0 0 0
+2 0.000000
+0 0 0 0 0 0 1
+0.100000 0 0 0 0 0 0
+#54067
+vambraces pair iron polished METAL byHalfjack~
+a pair of polished iron vambraces~
+A pair of polished iron vambraces lies here, gleaming.~
+   Made from quality iron, this pair of iron vambraces have been 
+both finely crafted and well-polished. They give off a small 
+shine, and are made of two iron plates over the upper and lower 
+arms, with an elbow cup rivetted where they join. Beneath this 
+all is a thin layer of leather covering to make the wearing more 
+comfortable and absorb shock. 
+~
+9 4096 257
+2 5 0 0
+1000 0.000000
+0 0 0 33 0 0 1
+1500.000000 0 0 0 17 0 0
+#54068
+bracer sturdy iron polished METAL byHalfjack~
+a sturdy polished iron bracer~
+A finely polished iron bracer lays here.~
+   Crafted of sturdy iron, this bracer provides adequate forearm 
+protection. Unadorned, though finely polished, it gleams 
+brightly. Thick leather straps secure it comfortably with thick 
+iron buckles. 
+~
+9 4096 4097
+3 5 5 0
+100 0.000000
+0 0 0 33 0 0 1
+120.000000 0 0 0 17 0 0
+#54069
+key iron small POFIMRAZOR METAL byHalfjack~
+a small iron key~
+A small iron key lies here.~
+   This key is simple and small, crafted with service in mind 
+instead of appearance. Still, the craftsmanship is good, and 
+there are no dents, nicks or mishappen parts. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 17 0 0
+#54070
+tome time worn leather bound PHRIMSEN LEATHER byHalfjack~
+a time-worn leather-bound tome~
+A heavily-worn leather-bound tome lies here.~
+The leather covers of this book are a time-bleached sandy-brown
+with darker strips placed an inch away from the top and bottom
+of the tome, then stretching from one cover to the other. The
+leather is dried out with age, with deep cracks reaching from
+one the spine out, and spider-webbing across the leather. The
+pages of the tome are preserved slightly better between the
+covers, but show age as well. Their edges are worn and frail,
+ready to break or tear, and they hold a sense of rigidity.
+Should one open the book, and leaf through, the pages would
+not bend easily over each other, but would lie flat, devoid
+of moisture and flexibility.
+~
+54 4096 1
+25 0 0 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+#54071
+gorget chainmail image white tree CAPTAIN METAL~
+a chainmail gorget displaying an image of the White Tree~
+a chainmail gorget bearing an image of the White Tree~
+   Apparently well-made and sturdily constructed, this chainmail 
+gorget rises to the underside of the wearer's chin, providing 
+decent protection. On the left side, easily visible on the 
+wearer's neck is the image of the White Tree in the silver metal 
+rivetted onto the gorget. 
+~
+9 4096 5
+2 4 0 0
+350 0.000000
+0 0 0 29 513 0 1
+250.000000 0 0 0 28 0 0
+#54072
+spear ornate ornately carved slender steel head pofRedwald WOOD byHalfjack~
+an ornately-carved, slender-shafted, steel headed spear~
+An ornately-carved, slender-shafted, steel headed spear lies here.~
+   This spear is around four and a half feet long and is meant to 
+be wielded in one hand. The shaft is slender, allowing it to be 
+used not only in combat but as a throwing weapon as well. The 
+cedar wood of the shaft has been covered all along its length in 
+rather ornate carvings of various animals ranging from eagles 
+with wings spread wide to giant bears and even mystical creatures 
+such as a large-fanged wyrm, each of the carvings darkened to 
+bring out the detail, the indentations burned with precision. 
+Mounted atop the spear is a slender, steel head that has been 
+molded in the shape of a leaf, the tip razor sharp. Fresh wood 
+shows near the base of the spear-head, and the lashings are new 
+leather, hinting that this may not be the original head. 
+~
+5 4096 8193
+0 1 9 9
+300 0.000000
+1 0 0 35 0 0 1
+0.000000 0 0 0 32 0 0
+#54073
+broadsword GOOD_QUALITYheavy steel blade sword METAL byHalfjack~
+a heavy steel-bladed broadsword~
+A steel-bladed broadsword lies here.~
+   A wide and thick blade of steel extends forty-five inches in 
+length. Both sides of the weapon's blade are edged, and come to 
+meet in a sharp point. The blade is forged with a deep fuller, 
+that extends right up to the crossguard. The hilt is wrapped in 
+crisscrossing layers of black leather, with a thick, utilitarian 
+crossguard at one end, and a heavy pommel at the other. The hilt 
+easily accommodates two hands, but the weight allows it to be 
+used successfully with just one. 
+~
+5 4096 8193
+0 1 8 3
+700 0.000000
+4 0 0 33 4612 0 1
+0.000000 0 0 0 28 0 0
+#54074
+bowl wooden WOOD~
+a wooden bowl~
+A wooden bowl sits here.~
+   This hastily crafted wooden bowl still bears the marks of the 
+chisel that carved it. While it appears to be a serviceable 
+vessel it is stained by past use and holds little value above its 
+utility. 
+~
+17 4096 1
+6 0 0 0
+50 0.000000
+0 0 0 4 0 0 1
+0.000000 720 86 0 32 0 0
+#54075
+teacup cup simple CERAMIC~
+a simple teacup~
+A simple teacup has been left here.~
+   Austere in the extreme this small teacup appears to have been 
+forged with low quality ceramics by hands concerned more with 
+utility than artistry. Holding little worth or quality it 
+adequately serves it purpose. 
+~
+17 4096 1
+4 0 0 0
+25 0.000000
+0 0 0 10 0 0 1
+0.000000 0 0 0 0 0 0
+#54470
+statue bronze Lon UNIQUE METAL~
+a bronze statue~
+A bronze statue has been carefully set among the stones here.~
+   This small statue was rendered with immaculate detail, 
+depicting a man standing along side a small cart, filled with 
+farming tools. The man, quite skinny looking, wears corboulli 
+armor and has a longsword girt by his side. He carries a bag of 
+seeds in one hand, and a rabbit pelt in the other. The artist 
+has rendered a very lifelike image of a huntsman and farmer, with 
+loving artistry. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54076
+stockade_news_54944 tall grey eyed soldier board OTHER~
+#5a tall, grey-eyed soldier#0~
+#5A tall, grey-eyed soldier#0 collects and delivers messages here.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+C
+ithilien_battalion~
+member~
+#54077
+stockade rough hewn timber center clearing gondor zzSnorkmade WOOD~
+a rough-hewn, hastily constructed stockade~
+#2A rough-hewn, hastily constructed stockade#0 stands here.~
+   Constructed of rough hewn timbers, and apparently hastily 
+constructed, this stockade is none the less an imposing structure 
+which appears quite defensible. The bottom floor is comprised of 
+hardwood logs rising from the ground. Their pointed ends 
+reaching several meters the sky. From within two fortified 
+platforms can easily be discerned, the occupants of which are 
+protected by log walls of similar construction though even at a 
+distance several archer slits can be detected. A single 
+reinforced gate serves as both entrance and egress. 
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54078
+WOOD catapult formidable wooden sinew~
+a formidable wooden catapult~
+A formidable catapult constructed of wood and sinew sits here.~
+   This machine of war is no laughing matter, and even to the 
+untrained eye, it has clearly been skillfully crafted by a master 
+of the arts of war. The large firing arm is cranked by means of 
+a winded, thick cord of sinew, the tensile strength of that 
+material supplying the punch when the payload is released via the 
+arm snapping forward. At the terminal end of the arm lays the 
+basket, primed for loading with whatever the projectile the 
+situation calls for. 
+~
+12 4096 1
+0 0 0 0
+30000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54079
+baby Dormindle pudgy pitch haired boy pofGracious pofLothgam by_Nauriel OTHER~
+#5a pudgy, pitch-haired baby boy#0~
+#5A pudgy, pitch-haired baby boy lies upon his back here.#0~
+   Little tufts of inky hair curl in thick patches over this 
+infant's head. His head is perfectly formed and his cheeks are 
+full and chubby. Two tiny hands comprised of five perfect 
+fingers each sit on the baby's chubby little arms. The infants 
+well-formed legs lead down to two tiny feet with five perfect 
+little toes each. Peering up out of his round face are two 
+blue-grey eyes framed by inky lashes. 
+~
+15 4096 1
+500 0 -1 0
+870 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54080
+xAmdir_Trading_Post_boardx board grizzled old soldier stands here relaying messages by_Nauriel OTHER~
+#5a grizzled old soldier#0~
+#5A grizzled old soldier stands here, relaying messages.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54081
+key *OsgGarrison* steel heavy METAL~
+a heavy steel key~
+A heavy steel key has been discarded here.~
+   Made of steel, this key is quite heavy and sturdy. The metal 
+is dull and worn, making the key itself look rather old. 
+Multiple teeth are set into its handle, running outward from the 
+main body. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 18 0 0
+#54082
+_NIPH_DELETE_WRONG_ZONE OTHER~
+an enormous, fine wool tapestry~
+An enormous, fine wool tapestry is here.~
+   This tapestry is a prodigious work, sized for hanging in a 
+large Hall. The team of artisans who created it used wool dyed 
+in a variety of bright colors. There are no unusual hues, just 
+blues and whites, and greys and greens, and other colors found in 
+nature. Yet the work is masterful, the scene stunning. The 
+background is beautiful, bright sky with perfect wisps of cloud 
+and elegant, tall trees reaching skyward, some in pale pink 
+flower. In the foreground is a grass covered mound laced with 
+small white flowers, a woman rests upon a stone set at its crest. 
+She is looking to her feet, where a roundshield patterned in 
+green has been placed alongside a helm of silver and gold. In 
+her lap, a spear with a rusting tip lies, grasped loosely in her 
+fingers. Long golden hair cascades over bare shoulders, offset 
+by a gown of the finest ivory. Her cloak of gold with a lining 
+matched to her gown has been cast unnoticed by her side. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54083
+key slender three toothed iron KEYED_TO_54754 OTHER~
+a slender, three-toothed iron key~
+A slender, three-toothed iron key has been left here.~
+   This key has been made of iron but is rather slender and 
+somewhat light in weight. It is well-kept, oiled and devoid of 
+any rust. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 0 0 0
+#54084
+key slender iron KEYED_TO_54757 by_Nauriel METAL~
+a slender key of iron~
+A slender key of iron lies here~
+   This slender key has a simple cylindrical shaft ending in a 
+three pronged bit. The bow is made of three strips of iron, 
+twisting and entwining with each other with a hole enabling it to 
+be fitted to a keyring. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#54085
+key weighty three-toothed iron KEYED_TO_54763 by_Nauriel METAL~
+a weighty, three-toothed iron key~
+A large, three-toothed key fashioned of iron sits here.~
+~
+18 4096 1
+0 0 0 0
+75 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#54086
+key heavy iron four toothed KEYED_TO_54760 METAL~
+a heavy, four-toothed iron key~
+A heavy, four-toothed iron key lies here.~
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#54087
+Tulio xAMDIR_White_Hart_rentalsx board dark eyed young man behind desk xNauriel OTHER~
+#5a dark-eyed young man#0~
+#5A dark-eyed young man sits here behind a desk.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54088
+RENTED room timer room1 xAMDIR_White_Hart_rentalx xNauriel PARCHMENT~
+room #6ONE#0 #1rented#0 timer object~
+Room #6ONE#0 #1RENTED#0 timer at the White Hart is here.~
+~
+53 4100 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 86 0 0 0 0
+#54089
+parchment expired rental agreement room one room1 1 xAMDIR_xWhite_xHart_xrental xNauriel PARCHMENT~
+an expired Hart rental agreement for room one~
+An expired Hart rental agreement for room one lies here.~
+   This is an expired rental agreement for room one at the White 
+Hart Tavern in Amdir. It indicates from the moment of receipt 
+that one has one month to renew one's rent or check out before 
+the room will be put back up for rent. 
+
+The owners of the Hart take no responsibility for items left 
+behind due to delinquent rent. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#54090
+RENTED room timer room2 xAMDIR_White_Hart_rentalx xNauriel PARCHMENT~
+room #6TWO#0 #1rented#0 timer object~
+Room #6TWO#0 #1RENTED#0 timer at the White Hart is here.~
+~
+53 4100 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 86 0 0 0 0
+#54091
+parchment expired rental agreement room two room2 2 xAMDIR_xWhite_xHart_xrental xNauriel PARCHMENT~
+an expired Hart rental agreement for room two~
+An expired Hart rental agreement for room two lies here.~
+   This is an expired rental agreement for room one at the White 
+Hart Tavern in Amdir. It indicates from the moment of receipt 
+that one has one month to renew one's rent or check out before 
+the room will be put back up for rent. 
+
+The owners of the Hart take no responsibility for items left 
+behind due to delinquent rent. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#54093
+parchment expired rental agreement room three room3 3 xAMDIR_xWhite_xHart_xrental xNauriel PARCHMENT~
+an expired Hart rental agreement for room three~
+An expired Hart rental agreement for room three lies here.~
+   This is an expired rental agreement for room one at the White 
+Hart Tavern in Amdir. It indicates from the moment of receipt 
+that one has one month to renew one's rent or check out before 
+the room will be put back up for rent. 
+
+The owners of the Hart take no responsibility for items left 
+behind due to delinquent rent. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#54092
+RENTED room timer room3 xAMDIR_White_Hart_rentalx xNauriel PARCHMENT~
+room #6THREE#0 #1rented#0 timer object~
+Room #6THREE#0 #1RENTED#0 timer at the White Hart is here.~
+~
+53 4100 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 86 0 0 0 0
+#54095
+parchment expired rental agreement room four room4 4 xAMDIR_xWhite_xHart_xrental xNauriel PARCHMENT~
+an expired Hart rental agreement for room four~
+An expired Hart rental agreement for room four lies here.~
+   This is an expired rental agreement for room one at the White 
+Hart Tavern in Amdir. It indicates from the moment of receipt 
+that one has one month to renew one's rent or check out before 
+the room will be put back up for rent. 
+
+The owners of the Hart take no responsibility for items left 
+behind due to delinquent rent. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#54094
+RENTED room timer room4 xAMDIR_White_Hart_rentalx xNauriel PARCHMENT~
+room #6FOUR#0 #1rented#0 timer object~
+Room #6FOUR#0 #1RENTED#0 timer at the White Hart is here.~
+~
+53 4100 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 86 0 0 0 0
+#54096
+RENTED room timer room5 xAMDIR_White_Hart_rentalx xNauriel PARCHMENT~
+room #6FIVE#0 #1rented#0 timer object~
+Room #6FIVE#0 #1RENTED#0 timer at the White Hart is here.~
+~
+53 4100 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 86 0 0 0 0
+#54097
+parchment expired rental agreement room five room5 5 xAMDIR_xWhite_xHart_xrental xNauriel PARCHMENT~
+an expired Hart rental agreement for room five~
+An expired Hart rental agreement for room five lies here.~
+   This is an expired rental agreement for room one at the White 
+Hart Tavern in Amdir. It indicates from the moment of receipt 
+that one has one month to renew one's rent or check out before 
+the room will be put back up for rent. 
+
+The owners of the Hart take no responsibility for items left 
+behind due to delinquent rent. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#54099
+parchment expired rental agreement room six room6 6 xAMDIR_xWhite_xHart_xrental xNauriel PARCHMENT~
+an expired Hart rental agreement for room six~
+An expired Hart rental agreement for room six lies here.~
+   This is an expired rental agreement for room one at the White 
+Hart Tavern in Amdir. It indicates from the moment of receipt 
+that one has one month to renew one's rent or check out before 
+the room will be put back up for rent. 
+
+The owners of the Hart take no responsibility for items left 
+behind due to delinquent rent. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#54098
+RENTED room timer room6 xAMDIR_White_Hart_rentalx xNauriel PARCHMENT~
+room #6SIX#0 #1rented#0 timer object~
+Room #6SIX#0 #1RENTED#0 timer at the White Hart is here.~
+~
+53 4100 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 86 0 0 0 0
+#54101
+parchment expired rental agreement room seven room7 7 xAMDIR_xWhite_xHart_xrental xNauriel PARCHMENT~
+an expired Hart rental agreement for room seven~
+An expired Hart rental agreement for room seven lies here.~
+   This is an expired rental agreement for room one at the White 
+Hart Tavern in Amdir. It indicates from the moment of receipt 
+that one has one month to renew one's rent or check out before 
+the room will be put back up for rent. 
+
+The owners of the Hart take no responsibility for items left 
+behind due to delinquent rent. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#54100
+RENTED room timer room7 xAMDIR_White_Hart_rentalx xNauriel PARCHMENT~
+room #6SEVEN#0 #1rented#0 timer object~
+Room #6SEVEN#0 #1RENTED#0 timer at the White Hart is here.~
+~
+53 4100 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 86 0 0 0 0
+#54103
+parchment expired rental agreement room eight room8 8 xAMDIR_xWhite_xHart_xrental xNauriel PARCHMENT~
+an expired Hart rental agreement for room eight~
+An expired Hart rental agreement for room eight lies here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#54102
+RENTED room timer room8 xAMDIR_White_Hart_rentalx xNauriel PARCHMENT~
+room #6EIGHT#0 #1rented#0 timer object~
+Room #6EIGHT#0 #1RENTED#0 timer at the White Hart is here.~
+~
+53 4100 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 86 0 0 0 0
+#54112
+mound dirt ground pile thorn thornbush VEGETATION~
+a mound of dirt~
+A mound of dirt has been piled up here.~
+   A large mound of dirt as if something has been buried or 
+perhaps unearthed is piled upon the ground. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54113
+baby Coldir Bo_The_Second cherubic gold maned boy xpofCalathen xpofMayzie xNauriel OTHER~
+#5a gold-maned baby boy#0~
+#5A gold-maned baby boy is here.#0~
+   This baby's round face is haloed in a mass of golden-yellow 
+curls, the light color a soft contrast to the alabaster hue of 
+his skin. His pudgy cheeks are rosy and frame a small pink mouth 
+and a pert, aristocratic nose that turns up at the end. Wide, 
+bright sapphire eyes, nearly too large for his face, sit beneath 
+dark lashes. He is rather large for a baby of his age, long of 
+limb and pleasantly plump. 
+~
+15 4096 1
+1000 0 -1 0
+619 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54114
+thornbush thorn bush thorn-covered shrub hedge vine vines black ByTaurgalas VEGETATION~
+a hedge of black thorn-covered vines~
+A hedge of black thorn-covered vines threatens passage with an air of malevolence.~
+   Thick black vines twine around each other in a twisting shrub 
+that has grown to around three feet in height and sprawling a 
+vast distance in width. Vicious thorns spike out at angles from 
+the hedge in readiness to jab the unwary. The bark is slick and 
+so darkly black that light seems to disappear. There is no leafy 
+growth nor flowers upon the vines, but they seem to live with a 
+sickening heartiness that lends malice to the bush. Sharp spikes 
+spanning the size of a fingernail to the length of a man's arm 
+jut out from the vines which worm around each other, the very 
+darkness making them appear to writhe and move except when you 
+look directly upon them. Knotted black roots gnarl up out of the 
+ground to trip the unwary and leech further life from the ground. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54115
+thornbush thorn bush thorn-covered shrub wall vine vines black xxeastblockxx ByTaurgalas VEGETATION~
+a wall of black thorn-covered vines~
+A wall of black thorn-covered vines malevolently cuts off passage to the east.~
+   Thick black vines twine around each other in a twisting 
+sprawling wall that has grown to nearly six feet in height and 
+sprawling a vast distance in width. Passage around it seems 
+nearly impossible, thanks to the vicious thorns that spike out at 
+angles. The bark is slick and so darkly black that light seems 
+to disappear. There is no leafy growth nor flowers upon this 
+vine, but it seems to live with a sickening heartiness that lends 
+malice to the bush. Sharp spikes spanning the size of a 
+fingernail to the length of a man's arm jut out from the vines 
+which worm around each other, the very darkness making them 
+appear to writhe and move except when you look directly upon 
+them. Knotted black roots gnarl up out of the ground to trip the 
+unwary and leech further life from the ground. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54116
+thornbush thorn bush thorn-covered shrub wall vine vines black xxwestblockxx ByTaurgalas VEGETATION~
+a wall of black thorn-covered vines~
+A wall of black thorn-covered vines malevolently cuts off passage to the west.~
+   Thick black vines twine around each other in a twisting 
+sprawling wall that has grown to nearly six feet in height and 
+sprawling a vast distance in width. Passage around it seems 
+nearly impossible, thanks to the vicious thorns that spike out at 
+angles. The bark is slick and so darkly black that light seems 
+to disappear. There is no leafy growth nor flowers upon this 
+vine, but it seems to live with a sickening heartiness that lends 
+malice to the bush. Sharp spikes spanning the size of a 
+fingernail to the length of a man's arm jut out from the vines 
+which worm around each other, the very darkness making them 
+appear to writhe and move except when you look directly upon 
+them. Knotted black roots gnarl up out of the ground to trip the 
+unwary and leech further life from the ground. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54121
+black thorn vine vines thorn thorns ByTaurgalas VEGETATION~
+a black vine bearing thorns~
+A black vine bearing thorns slithers from the ground with an air of malevolence.~
+   A single vine slithers out of the ground, seeming as if to 
+writhe malevolently. It worms its way in a gnarling twisting 
+path, sharp thorns jutting out. It bears no leafy growth nor 
+flower and is so jet black that it seems to suck in all invading 
+light, leeching it away. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54122
+vine vines black tangle thorn thorns thorn-covered ByTaurgalas VEGETATION~
+a tangle of black thorn-covered vines~
+A tangle of black thorn-covered vines twists malevolently from the ground.~
+   Slender black vines twine around each other to create a tangle 
+out of which nasty finger-sized spikes barb. The bark covering 
+the thorns and vines alike is of a black so deep that it seems to 
+suck in all the light, appearing wickedly slick to the touch. No 
+leaves nor flowers sprout from the growth to soften or ease the 
+cruel intent of this twisted plant. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54117
+thornbush thorn bush thorn-covered shrub wall vine vines black xxnorthblockxx ByTaurgalas VEGETATION~
+a wall of black thorn-covered vines~
+A wall of black thorn-covered vines malevolently cuts off passage to the north.~
+   Thick black vines twine around each other in a twisting 
+sprawling wall that has grown to nearly six feet in height and 
+sprawling a vast distance in width. Passage around it seems 
+nearly impossible, thanks to the vicious thorns that spike out at 
+angles. The bark is slick and so darkly black that light seems 
+to disappear. There is no leafy growth nor flowers upon this 
+vine, but it seems to live with a sickening heartiness that lends 
+malice to the bush. Sharp spikes spanning the size of a 
+fingernail to the length of a man's arm jut out from the vines 
+which worm around each other, the very darkness making them 
+appear to writhe and move except when you look directly upon 
+them. Knotted black roots gnarl up out of the ground to trip the 
+unwary and leech further life from the ground. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54118
+thornbush thorn bush thorn-covered shrub wall vine vines black xxsouthblockxx ByTaurgalas VEGETATION~
+a wall of black thorn-covered vines~
+A wall of black thorn-covered vines malevolently cuts off passage to the south.~
+   Thick black vines twine around each other in a twisting 
+sprawling wall that has grown to nearly six feet in height and 
+sprawling a vast distance in width. Passage around it seems 
+nearly impossible, thanks to the vicious thorns that spike out at 
+angles. The bark is slick and so darkly black that light seems 
+to disappear. There is no leafy growth nor flowers upon this 
+vine, but it seems to live with a sickening heartiness that lends 
+malice to the bush. Sharp spikes spanning the size of a 
+fingernail to the length of a man's arm jut out from the vines 
+which worm around each other, the very darkness making them 
+appear to writhe and move except when you look directly upon 
+them. Knotted black roots gnarl up out of the ground to trip the 
+unwary and leech further life from the ground. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54119
+thornbush thorn bush thorn-covered shrub wall vine vines black xxupblockxx ByTaurgalas VEGETATION~
+a wall of black thorn-covered vines~
+A wall of black thorn-covered vines malevolently cuts off passage upwards.~
+   Thick black vines twine around each other in a twisting 
+sprawling wall that has grown to nearly six feet in height and 
+sprawling a vast distance in width. Passage around it seems 
+nearly impossible, thanks to the vicious thorns that spike out at 
+angles. The bark is slick and so darkly black that light seems 
+to disappear. There is no leafy growth nor flowers upon this 
+vine, but it seems to live with a sickening heartiness that lends 
+malice to the bush. Sharp spikes spanning the size of a 
+fingernail to the length of a man's arm jut out from the vines 
+which worm around each other, the very darkness making them 
+appear to writhe and move except when you look directly upon 
+them. Knotted black roots gnarl up out of the ground to trip the 
+unwary and leech further life from the ground. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54120
+thornbush thorn bush thorn-covered shrub wall vine vines black xxdownblockxx ByTaurgalas VEGETATION~
+a wall of black thorn-covered vines~
+A wall of black thorn-covered vines malevolently cuts off passage downwards.~
+   Thick black vines twine around each other in a twisting 
+sprawling wall that has grown to nearly six feet in height and 
+sprawling a vast distance in width. Passage around it seems 
+nearly impossible, thanks to the vicious thorns that spike out at 
+angles. The bark is slick and so darkly black that light seems 
+to disappear. There is no leafy growth nor flowers upon this 
+vine, but it seems to live with a sickening heartiness that lends 
+malice to the bush. Sharp spikes spanning the size of a 
+fingernail to the length of a man's arm jut out from the vines 
+which worm around each other, the very darkness making them 
+appear to writhe and move except when you look directly upon 
+them. Knotted black roots gnarl up out of the ground to trip the 
+unwary and leech further life from the ground. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54123
+thornbush thorn bush vine dark black root malevolence ByTaurgalas VEGETATION~
+a thornbush made of black vines~
+A thornbush made of twining black vines gives off a dark air of malevolence.~
+   Thick black vines twine around each other in a twisting 
+sprawling mass from which vicious thorns spike out at angles. 
+The bark is slick and so darkly black that light seems to 
+disappear. There is no leafy growth nor flowers upon this vine, 
+but it seems to live with a sickening heartiness that lends 
+malice to the bush. Hand-length sharp spikes jut out from the 
+vines which worm around each other, the very darkness making them 
+appear to writhe and move except when you look directly upon 
+them. Knotted black roots gnarl up out of the ground to trip the 
+unwary and leech further life from the ground. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54124
+tree xSHADOW_xPLOT large viscous fungus rotting bark xNauriel WOOD~
+a large tree with viscous fungus~
+A large tree grows here with a viscous fungus and somewhat rotting bark about its base.~
+   Healthsome, green leaves sprout from the limbs of this large 
+tree, fanning out against the sky. Despite its generous size and 
+the hale wooden husk coating most of its length, the bottom of 
+the tree, and especially some of its more exposed roots, tells an 
+entirely different story. A muculent, putrid-smelling fungus the 
+colour of egg yolk clings to dark, rotting, and in some places 
+dead-looking bark. Even the soil at the base of this impressive 
+specimine of plantlife appears somewhat befouled, and the odor of 
+decay and something far more offensive to the senses clings to 
+the very air around it. 
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54125
+fungus xSHADOW_xPLOT hunk viscous foul odor xNauriel OTHER~
+a hunk of viscous, yellow fungus~
+A hunk of viscous, yellow fungus is here emitting a foul odor.~
+   This fleshy bit of matter is spongy and porous, verifying its 
+fungal nature. It is the colour of an egg yolk and is covered in 
+a thick, foul-smelling mucus-like substance. 
+~
+12 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54126
+bark xSHADOW_xPLOT chunk dark tree smelling decay xNauriel WOOD~
+a chunk of soft, rotten tree bark~
+A chunk of dark tree bark is here, smelling of decay.~
+   The smell of natural decay is accompanied by a faint, fouler 
+odor surrounding this chunk of rotten tree bark. It is soft, 
+dark and moist with a thick, mucus-like substance. 
+~
+39 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54127
+archers forty 40Archer Tirith Gondorian green cloaked Ithilien_War OTHER~
+#5a group of forty Gondorian archers#0~
+#5A group of forty green-cloaked archers#0 are dispersed throughout the area in groups of four and five.~
+   Using the terrain to its fullest extent, two score figures in 
+White Tree marked green cloaks are grouped silently about the 
+area. In fours and fives, the figures remain hidden and silent, 
+prepared to move at a moment's notice. A mixture of short and 
+longbows are carried, with each archer bearing a full quiver. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54128
+infantry forty 40Dagor Dagor shields soldiers Gondorian Ithilien_War OTHER~
+#5a group of forty Dagor infantry~
+#5A large formation of forty soldiers#0 is positioned here, each clad in platemail and iron chain. To the fore is a great banner, bearing the White Tree.~
+   Apparently expecting to move soon, this group of heavily 
+armoured soldiers remain in a tight formation. Their armour and 
+indeed any metal objects they carry have been dulled, and they 
+hold their shields with grim determination. Leading them is a 
+bannerman carrying the Standard of the White Tree. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54129
+infantry forty 40VetDagor Veteran dagor heavy elite soldiers Gondorian Ithilien_War OTHER~
+#5a group of forty veteran Dagor soldiers#0~
+#5A group of forty steel-clad veteran soldiers#0 stands here, each bearing a great tower shield and longsword. They are led by a banner carrier, the banner bearing the White Tree.~
+   Standing in a somewhat relaxed formation, these heavily 
+armoured individuals are the elite of the Pel Dagor. Steel plate 
+and chain have been donned, and they are cloaked by fine black 
+wool, each bearing the White Tree. Great tower shields are held 
+by each of the soldiers, and shoulder sheaths hold long swords. 
+A finely armoured individual has been chosen to carry the 
+standard, and the White Tree is held high above the heads of the 
+men. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54130
+Catapult SiegeCat 25Guards Dagor siege escort guarded twenty five guards  fifteen engineers wagon Gondorian Ithilien_War OTHER~
+a siege catapult and #5twenty five Dagor guards#0~
+A large wagon is here, tended by fifteen siege engineers and protected by twenty five heavily armoured soldiers.~
+   A large supply wagon, bearing a number of complex and 
+intricate parts, is attended by fifteen rough looking men. Each 
+wears the Moon of Lord Eradan upon their tabard, siege engineers 
+all of them. Protecting the wagon is a formation of twenty five 
+Pel Dagor, each one clad in plate and chain. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54131
+cavalrymen forty 40Ecthel Ecthel knights horsemen horses spearhead Cirion_Guard Ithilien_War OTHER~
+#5a group of forty Ecthel knights#0~
+#5A spearhead of forty heavy cavalrymen#0 is in the area, riding at a canter in formation. Their cloaks are bone white, and they all wear the White Tree proudly.~
+   Whether at a slow canter or a dead halt, the formation of 
+these Pel Ecthel remains in good order. Knights of Gondor all, 
+they are the best that their country can offer. Each is clad in 
+steel plate, with a sword at their sides and a spear in hand. 
+Their helms are fully enclosed, sealing these elite veterans from 
+view. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54132
+scouts forty 40Rangers Rangers scouts Ithilien_Rangers cloaked Gondorian Ithilien_War OTHER~
+#5a group of forty Ithilien Rangers#0~
+Hidden throughout the area in pairs are forty earthen-brown cloaked figures. They are masterfully obscured from view, shielded from all but the keenest eye.~
+   Silent and mobile, these Rangers of Ithilien are some of the 
+deadliest Men to walk the region. Hidden perfectly from view, 
+only the faintest evidence of their presence is visible. They 
+are here in pairs, numbering nearly two score. No sound is made 
+by any of them, and communication is done through obscure 
+gestures and animal calls. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54133
+cavalry forty 40Cavalry light horsemen horses formation mounted Gondorian Ithilien_War OTHER~
+#5a group of forty light cavalry#0~
+#5A formation of forty mounted horsemen#0 is assembled here, their iron armour gleaming in what little light is present. Black cloaks bearing the White Tree cover their backs.~
+   Two score light cavalrymen are assembled here, perched in 
+their saddles. Their armour is well kept and in good repair, and 
+the spears they all carry reflect the light from their steel 
+tips. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54134
+supply dump Gondorian chache guards Dagor infantry Ithilien_war OTHER~
+a Gondorian supply dump~
+A cache of supplies has been left here under light guard, with ten men in black White Tree cloaks standing watch.~
+   Crates, barrels, and sacks of supplies have been stacked about 
+the area. They are kept under the careful watch of the Pel Dagor 
+soldiers assigned to this duty. A light ring of palisade walls 
+defends the cache from intruders.' 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54135
+Gondorian_Officer_Ithilien_War officer orders Gondor Ithilien_War board OTHER~
+#5a Gondorian Officer#0~
+#5A Gondorian officer stands here distributing orders and making reports.#0~
+   With a gorget of some rank about their neck, this figure is an 
+officer of the Gondorian Armies. A fine woolen cloak with the 
+White Tree identifies their nationality, and the orders they 
+distribute are brusque and clipped. Eternally without patience, 
+the Officer's only job is to ensure order is kept in the area.' 
+~
+22 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54136
+armband GONDOR black grey spearhead ITHILIEN_DIRNAITH ITHILIEN_WAR xNauriel TEXTILE~
+a black armband bearing a grey spearhead~
+A black armband bearing a grey spearhead lies here.~
+~
+11 4096 134217729
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54137
+armband GONDOR white red horseshoe MAER_REINBORN ITHILIEN_WAR xNauriel TEXTILE~
+a white armband bearing a red hoofprint~
+A white armband bearing a red hoofprint lies here.~
+~
+11 4096 134217729
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54138
+armband GONDOR red tower white moon black MAER_BERIOST ITHILIEN_WAR xNauriel TEXTILE~
+a black armband bearing a red tower within a white moon~
+A black armband bearing a red tower within a white moon lies here.~
+~
+11 4096 134217729
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54139
+armband GONDOR upright sword white grey MAER_TUMAGOR ITHILIEN_WAR xNauriel TEXTILE~
+a grey armband bearing an upright sword of white~
+A grey armband bearing an upright sword of white lies here.~
+~
+11 4096 134217729
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54140
+armband GONDOR white heraldic compass star black MAER_THANGAIL ITHILIEN_WAR xNauriel TEXTILE~
+a black armband bearing a white heraldic compass star~
+A black armband bearing a white heraldic compass star lies here.~
+~
+11 4096 134217729
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54141
+armband GONDOR white spearhead black MAER_MINEITU ITHILIEN_WAR xNauriel TEXTILE~
+a black armband bearing a white spearhead~
+A black armband bearing a white spearhead lies here.~
+~
+11 4096 134217729
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54142
+medallion badge token BATTALIONS DIRNAITH ERADAN bright silver spearhead xNauriel METAL~
+a bright silver token of a spearhead~
+A bright silver token of a spearhead lies here.~
+   Crafted of fine, polished silver and exhibiting a great 
+attention to detail, this small and intricate medal has been 
+crafted to display a spearhead. Along its lower edge runs an 
+inscription in Numenian Tengwar, readable only by those who know 
+the sigils: "BOLDNESS AND RESOLVE" 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 0 4 0 1
+100.000000 0 0 0 28 0 0
+#54104
+flask NO_LOAD ERADAN_BATTALIONS_ONLY silvered steel flask etched White Tree shield xNauriel METAL~
+a silvered steel flask etched with the White Tree in a shield~
+An etched silvered steel flask lies here.~
+   This beautifully wrought flask has been lovingly crafted of 
+silvered steel, flawless in design and sturdy in structure. A 
+lid of the same material has been cleverly hinged to the top of 
+the flask to snap over its round mouth, which leads to the 
+vessel's smooth shoulders, slightly curved in a convex fashion, 
+with an unobtrusive metallic half-loop upon its back, strong 
+enough to clip onto a belt at the hip. Upon the front is etched, 
+with meticulous attention to detail, a shield in relief, with the 
+image of the White Tree of Gondor emblazoned upon its centre. 
+Around this shield is the shape of a full moon. 
+~
+17 4096 262145
+15 15 366 0
+100 0.000000
+0 0 0 0 0 0 1
+35.650002 0 0 0 0 0 0
+#54105
+group unoutfitted Recruits CRAFTOBJ xNauriel OTHER~
+#5a group of unoutfitted Recruits#0~
+#5A group of unoutfitted Recruits mills about.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54107
+xEGTHELA_xSIEGE_xBOARD board young civilian recruiter xNauriel OTHER~
+#5a young civilian recruiter#0~
+#5A young civilian recruiter sits behind a desk, taking down names into a tome.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#54106
+banner black grey spearhead Dirnaith xNauriel OTHER~
+a black banner bearing a grey spearhead~
+A black banner bearing a grey spearhead has been proudly planted here.~
+~
+12 4096 524289
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

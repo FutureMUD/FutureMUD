@@ -1,0 +1,355 @@
+#60000
+obelisk UNIQUE_KRAYD sigil etched obsidian dark OTHER~
+a tall, sigil-etched obelisk~
+An obsidian obelisk etched with dark sigils rises up here, nearly touching the domed roof.~
+   This obsidian, polished obelisk has been inscribed with 
+columns and columns of twisting, curved, complex sigils. Each of 
+its four faces that taper upwards are immaculately decorated with 
+the symbols. The mammoth stone piece rises high up to the domed 
+ceiling of the chamber. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#60001
+chest UNIQUE_KRAYD metal-banded etched scythe sigil heavy iron bandings WOOD~
+a metal-banded chest etched with a scythe-like sigil~
+A heavy chest with iron bandings sits here, a scythe-like sigil etched on to its face.~
+   Thick bands of iron protect the hardwood top of this heavy 
+chest which is gently curving itself. It has two locks on its 
+left and right side. Predominantly, a strange sigil taking the 
+shape of a scythe has been engraved on the face. 
+~
+15 4096 1
+9500 0 -1 0
+800 0.000000
+0 0 0 32 134217728 0 1
+0.000000 0 0 0 32 0 0
+#60002
+sentinel UNIQUE_KRAYD eyeless male STONE~
+an eyeless, male stone sentinel~
+An eyeless, male stone sentinel keeps eternal watch over the foyer.~
+   This statue is almost twice the height of a typically-sized 
+man, stretching well over ten feet into the air. The stonework 
+itself is impeccable, depicting a broad-shouldered, robed figure 
+still possessing the flower of youth, his garment's hood pushed 
+back to expose a strong chin and high cheekbones. The face is 
+marred only by the two gaping voids where eyes should have 
+resided; the stone is carved out here, leaving a pair of empty 
+hollows that gaze sightlessly forward, giving the sentinel itself 
+a mixture of the beautiful and the macabre. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#60003
+sentinel UNIQUE_KRAYD eyeless female STONE~
+an eyeless, female stone sentinel~
+An eyeless, female stone sentinel watches the foyer blankly.~
+   This statue is almost twice the height of a typically-sized 
+woman, stretching a bit over ten feet into the air. The 
+stonework itself is impeccable, depicting a slender, robed figure 
+still possessing the flower of youth, her garment's hood pushed 
+back to expose full lips and a heart-shaped countenance. The 
+face is marred only by the two gaping voids where eyes should 
+have resided; the stone is carved out here, leaving a pair of 
+empty hollows that gaze sightlessly forward, giving the sentinel 
+itself a mixture of the beautiful and the macabre. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#60004
+bench UNIQUE_KRAYD sigil-etched austere midnight padding WOOD~
+an austere, sigil-etched bench with midnight padding~
+An austere bench with midnight padding sits here, etched over with sigils.~
+   This hardwood bench is plain but austere, constructed to look 
+upright and comfortable. Simple padding has been enveloped in 
+midnight black fabric. The wood itself has been etched to nearly 
+every inch with complex sigils. 
+~
+15 2101248 1
+2500 0 -1 0
+3500 0.000000
+0 3 0 32 0 0 1
+0.000000 0 0 0 32 0 0
+#60005
+table UNIQUE_KRAYD low sigil-etched black WOOD~
+a low, sigil-etched table with a black cloth~
+A low, sigil-etched table with a black cloth sits here off to one side.~
+   Standing not far from the ground this table has been fashioned 
+from a hard, dark wood then etched to nearly every inch with 
+lines of sigils. It is covered with a black tablecloth. 
+~
+15 4096 1
+25 0 -1 0
+3000 0.000000
+0 0 0 32 0 0 1
+0.000000 0 0 0 32 0 0
+#60006
+key UNIQUE_KRAYD small crimson METAL~
+a small crimson key~
+A small crimson key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#60007
+robe UNIQUE_KRAYD deep-cowled light heap black hood cotton sigil-stitched TEXTILE~
+a deep-cowled, sigil-stitched black robe~
+A light heap of black cotton lies here in a mass, a hood stitched with sigils.~
+~
+11 528384 1025
+0 0 0 0
+500 0.000000
+0 
+sigil-cowled~
+0 32 4616 0 1
+0.000000 0 0 0 4 0 0
+#60008
+mushrooms SAIBETH_UNIQUE VEGETATION purple glow~
+a large collection of purple glowing mushrooms~
+A colony of purple glowing mushrooms line the walls and ceiling.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#60009
+mushroom VEGETATION SAIBETH_UNIQUE light purple~
+a brightly glowing purple mushroom~
+A brightly glowing purple mushroom lies here.~
+Picked from a crop, this transparently skinned mushroom glows a bright purple and is bright enough to see by.
+~
+1 4096 1
+0 1 20 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#60010
+rug UNIQUE_KRAYD plain rock grey long TEXTILE~
+a plain rock-grey rug~
+A long plain rug of rock grey is spread out on the floor.~
+   This rug is nothing special, fashioned from plain wool the 
+color of grey rock. Its edges have been tightly sewn and thin 
+tassles come off the ends. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 7 0 0
+#60011
+stand UNIQUE_KRAYD torch pair sigil-etched rock STONE~
+a pair of sigil-etched rock torch stands~
+A pair of sigil-etched rock torch stands illuminate this gloomy foyer with dull orange light either side of the southern arch.~
+   These stands are fasioned from a dull grey rock and designed 
+to hold sputtering torches. They illuminate the southern portion 
+of this room amply, stood either side of the tall archway. 
+~
+1 4096 0
+0 1000000000 54 1
+300 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 30 0 0
+#60012
+key~
+a key~
+a small silver key~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#60013
+stalactites UNIQUE_KRAYD jagged black STONE~
+the jagged black stalactites~
+Jagged black stalactites hang from the top of this rock-hewn cavern, drips echoing in the abyss.~
+These stalactites are black and foreboding as they hang from overhanging tiers of the rock-hewn caverns here. Their drip constantly echoes throughout the abyss.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#60014
+statue UNIQUE_KRAYD eerily life-like grim-faced solidly-muscled stand OTHER~
+an eerily lifelike statue of a grim-faced, solidly-muscled man~
+Central to the chamber is an eerily lifelike statue of a grim-faced, solidly-muscled man on a black marble stand.~
+   This statue appears almost life-like in appearance, carven 
+presumably from obsidian at one time or another. Now, the statue 
+takes on an almost animate, debonair posture, cold eyes seeming 
+to follow those who watch it. Upon closer inspection one can see 
+the creases in his skin and the detail of his facial hair. The 
+man depicted is wearing a plain high-collared shirt and 
+tight-fitting trousers. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#60015
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+0 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#60050
+counter SAIBETH_60006_CASE NONE~
+an echo counter~
+An echo counter lies here.~
+~
+0 4198404 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#60016
+sigil SAIBETH_UNIQUE glow NONE~
+a number of glowing sigils~
+A collection of glowing sigils worked into the wall's stone are visible.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#60017
+hollow UNIQUE_KRAYD rock wall splashed $drabcolor STONE~
+a rock hollow in the wall splashed with $drabcolor paint~
+A rock hollow has been hewn from the wall in an alcove, splashed with $drabcolor paint.~
+   Like several others in the gloomy chamber, this hollow has 
+been hewn from the back wall of an alcove to serve as a 
+sufficient storage space. It has been splashed with $drabcolor 
+paint to differentiate it from the rest. 
+~
+15 35655680 0
+3000 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#60018
+armchair UNIQUE_SAIBETH $drabcolor wobbly cushions WOOD~
+a wobbly armchair with $drabcolor cushions~
+A wobbly armchair with $drabcolor cushions is tucked between two rock bulges in the wall.~
+   This armchair has been hastily fashioned from wood, the screws 
+entering the joins at awkward angles. On top of a rusting wire 
+frame a $drabcolor cushion has been set, as well as a taller one 
+against the wooden back. The ends of its arms are sewn with the 
+same material as the cushion and appear worn and dirty. 
+~
+15 35655680 1
+1000 0 0 0
+500 0.000000
+0 1 0 20 0 0 1
+0.000000 0 0 0 32 0 0
+#60019
+key UNIQUE_SAIBETH two engraved lashings STONE~
+a stone key with two engraved lashings~
+A stone key with two engraved lashings lies here on the floor~
+This simple key has been made from rock, engraved with four lashings.
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#60020
+bed UNIQUE_SAIBETH low wooden thin grey mattress WOOD~
+a low wooden bed with a thin grey mattress~
+A low wooden bed with a thin grey mattress is pushed against the corner.~
+   This plain wooden bed stands only about two feet from the 
+floor and has been fashioned simply from a coarse dark wood. 
+Slats of the same wood have been fitted between the ends to serve 
+as a frame for a simple grey mattress that is nothing special and 
+appears rather thin. It has been covered with rock grey linens. 
+~
+15 2101248 1
+3000 0 -1 0
+300 0.000000
+0 2 0 25 0 0 1
+0.000000 0 0 0 32 0 0
+#60021
+shelf UNIQUE_SAIBETH rough wooden WOOD~
+a rough wooden shelf~
+A rough wooden shelf has been bolted to the rock wall above the desk.~
+   Fashioned from plain, coarse wood, this shelf has two slats at 
+either end to stop books falling from the edges. It has been 
+bolted to the black rock wall above the desk in a corner. 
+~
+15 4096 0
+3000 0 -1 0
+300 0.000000
+0 0 0 25 0 0 1
+0.000000 0 0 0 32 0 0
+#60022
+desk UNIQUE_SAIBETH sigil-etched rough wooden chair WOOD~
+a sigil-etched rough wooden desk with a chair~
+A rough wooden desk has been pushed against a wall, sigils engraved on its surface.~
+   This is a plain desk fashioned from a rough, dark wood. It 
+has a small chair to accompany it and there are numerous sigils 
+etched over its surface in black. 
+~
+15 2101248 1
+100 0 -1 0
+300 0.000000
+0 1 0 25 0 0 1
+0.000000 0 0 0 32 0 0
+#60023
+key UNIQUE_SAIBETH_PRISON jet black several teeth METAL~
+a jet-black key with several teeth~
+A jet-black key with several teeth lies here on the floor.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#60024
+key UNIQUE_SAIBETH_JYSAIN long bronze scythe sigil METAL~
+a long bronze key with a scythe-sigil~
+A long bronze key with a scythe-sigil lies here on the floor.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#60025
+saibeth UNIQUE_SAIBETH board balt-pated black-robed youth OTHER~
+#5a bald-pated, black-robed youth#0~
+#5A bald-pated, black-robed youth with vacant eyes relays messages.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#60027
+object generic~
+the ondfsdf~
+Some careless admin has left a generic object here.~
+   This perfectly shaped little ring bears sigiled etching upon 
+it's surface. This ring glows with radiance. 
+~
+11 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

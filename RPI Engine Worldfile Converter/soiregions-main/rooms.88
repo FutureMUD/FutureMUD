@@ -1,0 +1,1289 @@
+#88000
+Base Room~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+88 67174408 0
+0
+P
+test~
+(null)~
+loadobj 340 1 97466 'brown'
+~
+S
+#88188
+Gondor to Angost Courier Holding Room~
+   If you are a PC and you are here, something has gone horribly, 
+horribly wrong! 
+~
+88 67174408 0
+0
+P
+xxxhold~
+(null)~
+if oexists(88188,88188)
+doitanyway -1
+else do
+if oexists(88190,88188)
+delay 1 xxxsendgarren
+else do
+if oexists(88189,88188)
+delay 1 xxxsendgondor
+~
+P
+xxxsendgarren~
+(null)~
+get 88190 88188
+atecho 43012 The double-doors open up to let in a courier from outside, who swiftly moves into the western hall. A few moments later, he returns and departs the longhouse without a word.
+trans 43022
+force -1 43022 drop all
+exmob 88188 43022
+~
+P
+xxxsendgondor~
+(null)~
+get 88189 88188
+atecho 3864 The door is unlocked from the other side and a courier steps in. He swiftly delivers what he is carrying with him and then departs from the house without a word.
+trans 3864
+force -1 3864 drop all
+exmob 88188 3864
+~
+S
+#88001
+Daffodil's Animal Programs~
+Test room for Daffie's Auto-Aging Animal Program.
+~
+88 67174408 0
+0
+S
+#88002
+Kitchen Installer~
+Kitchen Installer Room.
+~
+88 67174408 0
+0
+S
+#88003
+PA Tithe Distrubution~
+Contains programs for dividing and loading PA tithes.
+~
+88 67174408 0
+0
+S
+#88004
+Somewhere in the Pel-Anor Sphere~
+Pel-Anor Tithe Testing Site.
+~
+88 67436544 0
+0
+D0
+~
+~
+0 -1  0 88005
+S
+#88005
+Some Sort of Road Leading Towards A Farm~
+Pel-Anor Tithe Testing Site.
+~
+88 67436544 0
+0
+D2
+~
+~
+0 -1  0 88004
+S
+#88006
+Tithe Program - DO NOT TOUCH~
+Don't touch this room please!
+~
+88 67174408 0
+0
+S
+#88999
+Bangarang's Challenge~
+   Welcome, adventurer, to the cruelest, most agonizing gauntlet 
+an admin has ever devised (even if it is the only one!). Here 
+you can test your wits against the toughest puzzles that 
+Bangarang could come up in his boredom, but should you make it 
+out in one piece, you'll get an award or something. 
+   If you think you got what it takes to match the wits of an
+admin, then step right up. To begin your test, type, #6take challenge#0.
+~
+88 65544 0
+0
+P
+take~
+challenge~
+if haso(-1,88989)
+take 88989
+trans 88998
+force -1 -1 config lock
+atlook 88998
+vbr -
+vstr As you enter the room, the inner-workings of #2a combination lock#0 can be heard, drawing your attention.
+else do
+vstr You need a 'Bangarang's Challenge Token' to enter the First Challenge!
+trans 121
+atlook 121
+fi done
+~
+S
+#88998
+The Lock Room~
+   Completely devoid of anything that could be considered 
+decoration, this plain room is enclosed on all sides by stone 
+walls, the only apparent exit being a massive, steel-barred door 
+fixed with a very large, heavy-duty combination lock. From the 
+looks of it, many have attempted to break down the door, but only 
+a few nicks and scratches are all there is to show for the 
+effort. 
+   If you cannot figure out the combination and want to leave, just
+type #6leave room#0 and you'll be transported back to the Guest
+Lounge.
+~
+88 67174408 0
+0
+P
+leave~
+room~
+vbr -
+vstr Aw, really? Not even the first challenge? Okay.
+trans 121
+atlook 121
+~
+S
+#88200
+Global Tax Module Trigger Room~
+Do not modify/delete this room please.
+~
+88 67174408 0
+0
+S
+#88997
+The Dark Labyrinth~
+~
+88 67174408 0
+0
+D0
+~
+~
+0 -1  0 88997
+D1
+~
+~
+0 -1  0 88997
+D2
+~
+~
+0 -1  0 88997
+D3
+~
+~
+0 -1  0 88997
+S
+#88996
+Riddle Me This~
+A throne of stone stands alone in this enclosed chamber,
+positioned directly below an archaic three-tiered candle chandelier. 
+The dim light provided there casts a shadowy silhouette onto the
+smooth marble floors. A single bright red button has been fitted
+to the arm of the throne. 
+   When you are ready, type #6try me#0 to see if you can beat The
+Riddler. If you get stuck, type #6leave room#0 to go back to the
+guest lounge.
+~
+88 67174408 0
+0
+P
+try~
+me~
+force -1 -1 config riddler
+~
+S
+#88900
+The Dragon Hatchery~
+Placeholder for Dragon Wars pets and objects.
+~
+88 67174400 0
+0
+S
+#88007
+Mailbox Delivery Master Control~
+This room holds the outgoing mail to be delivered.
+~
+88 67174408 0
+0
+P
+test~
+this~
+info check room -1 char -1 inv 88046 cost
+vstr check is &(check)
+~
+S
+#88010
+Shadow Prog Test Room 1~
+   All is quiet in the forest, no birds or animals seeming to 
+venture out from their hiding places. Nearly completely hidden 
+beneath the growth of the woods, a section of blackened stones 
+dots a line; the last vestige of some long-destroyed foundation. 
+Broken off tree limbs, weathered from age lay upon the ground, 
+hindering travel and cracking when stepped upon. Numerous trees, 
+mostly silvery rowans, rise up high overhead, their slender 
+roots, occasionally unearthed, crisscrossing below. 
+~
+88 65536 0
+0
+D1
+~
+~
+0 -1  0 88011
+D2
+~
+~
+0 -1  0 88020
+S
+#88011
+Shadow Prog Test Room~
+   The forest seems to be alive with the activity of its 
+innumerable denizens, their chirps, squawks, and growls echoing 
+through the trees. Mud puddles lurk in more than one place, 
+spurting out bubbles from time to time. The earth underfoot is 
+dank and dark but covered in a loose blanket of debris, from dry 
+yellow needles, to shrivelled strips of rotten bark. Spruces are 
+especially common here, their long trunks wrapped in bushy, conic 
+cloaks of blue-green needles, their lowest boughs drooping 
+downward at man-height. 
+~
+88 65536 0
+0
+D1
+~
+~
+0 -1  0 88012
+D2
+~
+~
+0 -1  0 88021
+D3
+~
+~
+0 -1  0 88010
+S
+#88012
+Shadow Prog Test Room~
+   Up above, the sky can clearly be spied through the ceiling of 
+the woodland, webbed with limbs and branches. Branches gnarled 
+and twisted with age, a wizened culumalda tree stands a silent 
+vigil here. The landscape here undulates severely at times, 
+rising swiftly into rocky hillocks before plunging down into deep 
+gullies. The broad trunks of the surrounding wood give way here 
+to a small stand of lesser trees; cherry, hawthorn, and wild 
+mulberry among them. 
+~
+88 65536 0
+0
+D1
+~
+~
+0 -1  0 88013
+D2
+~
+~
+0 -1  0 88022
+D3
+~
+~
+0 -1  0 88011
+S
+#88013
+Shadow Prog Test Room~
+   Light seems to filter down to the forest floor lazily here, 
+the air still. Nearly completely hidden beneath the growth of 
+the woods, a section of blackened stones dots a line; the last 
+vestige of some long-destroyed foundation. Broken off tree 
+limbs, weathered from age lay upon the ground, hindering travel 
+and cracking when stepped upon. The lofty magnificence of the 
+trees here are marked by thick trunks of shedding bark from which 
+spring long slender branches which support needle-like leaves. 
+~
+88 65536 0
+0
+D1
+~
+~
+0 -1  0 88014
+D2
+~
+~
+0 -1  0 88023
+D3
+~
+~
+0 -1  0 88012
+S
+#88014
+Shadow Prog Test Room~
+   A subtle silence mutes the region, eerily devoid of the usual 
+noises from woodland fauna. Sickly grey fungus stipples the 
+surfaces of fallen trees here, spreading over the dying wood like 
+a death shroud. The ground is soft underfoot, somehow it seems 
+easier to sink into the dirt and soil than in other sections of 
+the woods. Numerous trees, mostly silvery rowans, rise up high 
+overhead, their slender roots, occasionally unearthed, 
+crisscrossing below. 
+~
+88 65536 0
+0
+D1
+~
+~
+0 -1  0 88015
+D2
+~
+~
+0 -1  0 88024
+D3
+~
+~
+0 -1  0 88013
+S
+#88015
+Shadow Prog Test Room~
+No Description Set.
+~
+88 65536 0
+0
+D1
+~
+~
+0 -1  0 88016
+D2
+~
+~
+0 -1  0 88025
+D3
+~
+~
+0 -1  0 88014
+S
+#88016
+Shadow Prog Test Room~
+No Description Set.
+~
+88 65536 0
+0
+D1
+~
+~
+0 -1  0 88017
+D2
+~
+~
+0 -1  0 88026
+D3
+~
+~
+0 -1  0 88015
+S
+#88017
+Shadow Prog Test Room~
+No Description Set.
+~
+88 65536 0
+0
+D1
+~
+~
+0 -1  0 88018
+D2
+~
+~
+0 -1  0 88027
+D3
+~
+~
+0 -1  0 88016
+S
+#88018
+Shadow Prog Test Room~
+No Description Set.
+~
+88 65536 0
+0
+D1
+~
+~
+0 -1  0 88019
+D2
+~
+~
+0 -1  0 88028
+D3
+~
+~
+0 -1  0 88017
+S
+#88019
+Shadow Prog Test Room~
+No Description Set.
+~
+88 65536 0
+0
+D2
+~
+~
+0 -1  0 88029
+D3
+~
+~
+0 -1  0 88018
+S
+#88020
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88010
+D1
+~
+~
+0 -1  0 88021
+D2
+~
+~
+0 -1  0 88030
+S
+#88021
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88011
+D1
+~
+~
+0 -1  0 88022
+D2
+~
+~
+0 -1  0 88031
+D3
+~
+~
+0 -1  0 88020
+S
+#88022
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88012
+D1
+~
+~
+0 -1  0 88023
+D2
+~
+~
+0 -1  0 88032
+D3
+~
+~
+0 -1  0 88021
+S
+#88023
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88013
+D1
+~
+~
+0 -1  0 88024
+D2
+~
+~
+0 -1  0 88033
+D3
+~
+~
+0 -1  0 88022
+S
+#88024
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88014
+D1
+~
+~
+0 -1  0 88025
+D2
+~
+~
+0 -1  0 88034
+D3
+~
+~
+0 -1  0 88023
+S
+#88025
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88015
+D1
+~
+~
+0 -1  0 88026
+D2
+~
+~
+0 -1  0 88035
+D3
+~
+~
+0 -1  0 88024
+S
+#88026
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88016
+D1
+~
+~
+0 -1  0 88027
+D2
+~
+~
+0 -1  0 88036
+D3
+~
+~
+0 -1  0 88025
+S
+#88027
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88017
+D1
+~
+~
+0 -1  0 88028
+D2
+~
+~
+0 -1  0 88037
+D3
+~
+~
+0 -1  0 88026
+S
+#88028
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88018
+D1
+~
+~
+0 -1  0 88029
+D2
+~
+~
+0 -1  0 88038
+D3
+~
+~
+0 -1  0 88027
+S
+#88029
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88019
+D2
+~
+~
+0 -1  0 88039
+D3
+~
+~
+0 -1  0 88028
+S
+#88030
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88020
+D1
+~
+~
+0 -1  0 88031
+D2
+~
+~
+0 -1  0 88040
+S
+#88031
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88021
+D1
+~
+~
+0 -1  0 88032
+D2
+~
+~
+0 -1  0 88041
+D3
+~
+~
+0 -1  0 88030
+S
+#88032
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88022
+D1
+~
+~
+0 -1  0 88033
+D2
+~
+~
+0 -1  0 88042
+D3
+~
+~
+0 -1  0 88031
+S
+#88033
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88023
+D1
+~
+~
+0 -1  0 88034
+D2
+~
+~
+0 -1  0 88043
+D3
+~
+~
+0 -1  0 88032
+S
+#88034
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88024
+D1
+~
+~
+0 -1  0 88035
+D2
+~
+~
+0 -1  0 88044
+D3
+~
+~
+0 -1  0 88033
+S
+#88035
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88025
+D1
+~
+~
+0 -1  0 88036
+D2
+~
+~
+0 -1  0 88045
+D3
+~
+~
+0 -1  0 88034
+S
+#88036
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88026
+D1
+~
+~
+0 -1  0 88037
+D2
+~
+~
+0 -1  0 88046
+D3
+~
+~
+0 -1  0 88035
+S
+#88037
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88027
+D1
+~
+~
+0 -1  0 88038
+D2
+~
+~
+0 -1  0 88047
+D3
+~
+~
+0 -1  0 88036
+S
+#88038
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88028
+D1
+~
+~
+0 -1  0 88039
+D2
+~
+~
+0 -1  0 88048
+D3
+~
+~
+0 -1  0 88037
+S
+#88039
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88029
+D2
+~
+~
+0 -1  0 88049
+D3
+~
+~
+0 -1  0 88038
+S
+#88040
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88030
+D1
+~
+~
+0 -1  0 88041
+D2
+~
+~
+0 -1  0 88054
+S
+#88041
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88031
+D1
+~
+~
+0 -1  0 88042
+D2
+~
+~
+0 -1  0 88051
+D3
+~
+~
+0 -1  0 88040
+S
+#88042
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88032
+D1
+~
+~
+0 -1  0 88043
+D2
+~
+~
+0 -1  0 88052
+D3
+~
+~
+0 -1  0 88041
+S
+#88043
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88033
+D1
+~
+~
+0 -1  0 88044
+D2
+~
+~
+0 -1  0 88053
+D3
+~
+~
+0 -1  0 88042
+S
+#88044
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88034
+D1
+~
+~
+0 -1  0 88045
+D2
+~
+~
+0 -1  0 88054
+D3
+~
+~
+0 -1  0 88043
+S
+#88045
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88035
+D1
+~
+~
+0 -1  0 88046
+D2
+~
+~
+0 -1  0 88055
+D3
+~
+~
+0 -1  0 88044
+S
+#88046
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88036
+D1
+~
+~
+0 -1  0 88047
+D2
+~
+~
+0 -1  0 88056
+D3
+~
+~
+0 -1  0 88045
+S
+#88047
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88037
+D1
+~
+~
+0 -1  0 88048
+D2
+~
+~
+0 -1  0 88057
+D3
+~
+~
+0 -1  0 88046
+S
+#88048
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88038
+D1
+~
+~
+0 -1  0 88049
+D2
+~
+~
+0 -1  0 88058
+D3
+~
+~
+0 -1  0 88047
+S
+#88049
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88039
+D2
+~
+~
+0 -1  0 88059
+D3
+~
+~
+0 -1  0 88048
+S
+#88050
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88040
+D1
+~
+~
+0 -1  0 88051
+S
+#88051
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88041
+D1
+~
+~
+0 -1  0 88052
+D3
+~
+~
+0 -1  0 88050
+S
+#88052
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88042
+D1
+~
+~
+0 -1  0 88053
+D3
+~
+~
+0 -1  0 88051
+S
+#88053
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88043
+D1
+~
+~
+0 -1  0 88054
+D3
+~
+~
+0 -1  0 88052
+S
+#88054
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88044
+D1
+~
+~
+0 -1  0 88055
+D3
+~
+~
+0 -1  0 88053
+S
+#88055
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88045
+D1
+~
+~
+0 -1  0 88056
+D3
+~
+~
+0 -1  0 88054
+S
+#88056
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88046
+D1
+~
+~
+0 -1  0 88057
+D3
+~
+~
+0 -1  0 88055
+S
+#88057
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88047
+D1
+~
+~
+0 -1  0 88058
+D3
+~
+~
+0 -1  0 88056
+S
+#88058
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88048
+D1
+~
+~
+0 -1  0 88059
+D3
+~
+~
+0 -1  0 88057
+S
+#88059
+New Room~
+No Description Set.
+~
+88 65536 0
+0
+D0
+~
+~
+0 -1  0 88049
+D3
+~
+~
+0 -1  0 88058
+S
+$~

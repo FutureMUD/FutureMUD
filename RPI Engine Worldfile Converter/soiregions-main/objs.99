@@ -1,0 +1,1865 @@
+#99000
+buffer OTHER~
+a skill buffer~
+A skill buffer is here.~
+~
+9 4096 9
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+A
+10024 -45
+#99001
+map parchment roughly-sketched UNIQUE_GALEMIR OTHER~
+a roughly-sketched map on plain parchment~
+A roughly-sketched map on plain parchment has been discarded here.~
+[This map has been roughly but meticulously sketched in charcoal     
+ pencil. The shapes are simple and not always in strict  
+ proportion, probably due to a lack of ability on the part of the
+ cartographer. The notations, however, show great skill and are
+ scribed in the Westron tongue, using Numenian-Tengwar sigils.]
+
+Catacombs Below Osgiliath, Northwest Quadrant I
+     _..._
+    |     |___bloodstains
+    |  O  |
+    |_____|
+       |
+       V
+     _____
+    |     |
+    |  O  |      ___ mushrooms;
+    |_   _|_____/      herbalist?
+  _ |     |     |
+ /  |           |
+ |  |_____|_   _|_____ _ ? _
+hand-dug; |     |     |     |
+recent    |     |           |
+          |_   _|_____|_..._|    __ upper half of stairwell
+             ?        |     | __/   recent; lower half original
+                      |  @  |       marble
+                      |_____|
+                         |
+                         V
+                       _____
+                      |     |
+                      |  @  |      ___ Library
+                      |_   _|_____/
+                      |     |     |
+   marble hallway --- |     |      ?   <-- chandelier?
+                 _____|_   _|_..._|
+                |     |     |     |
+                |                  ?
+                |_(_)_|_   _|_____|
+                  /      ?
+          hatch__/
+~
+12 4096 1
+0 0 0 0
+40 0.000000
+0 0 0 0 256 0 1
+0.000000 0 0 0 0 0 0
+#99002
+drawing UNIQUE_PAGASE pen-and-ink unframed PARCHMENT~
+an unframed pen-and-ink drawing~
+An unframed pen-and-ink drawing on a sheet of parchment lies here.~
+   An artistic, black line-drawing of a male figure resting in a 
+supine position on a large stone slab covers the surface of this 
+sheet of parchment. Great care and attention to detail has been 
+given to the rendering of the angular facial features and the 
+individual locks of short, curly hair covering the head of this 
+middle-aged man. His overall expression is slightly macabre 
+suggesting he may have met an unpleasant and untimely end. His 
+lifeless eyes are wide open, staring blankly at the viewer; his 
+lips are twisted into a pained grimace. The body itself is 
+unclothed save for a burial shroud that has been modestly draped 
+over the lower half of the corpse. Fine cross-hatching has been 
+used to effectively portray the play of light and shadow over the 
+figure and the stone slab upon which it rests. 
+
+
+A - Narie, 2470 
+~
+12 4096 1
+0 0 0 0
+20 0.000000
+0 0 0 0 256 0 1
+0.000000 0 0 0 0 0 0
+#99003
+drawing UNIQUE_PAGASE pen-and-ink grim unframed PARCHMENT~
+a grim pen-and-ink drawing~
+A grim, pen-and-ink drawing on an unframed parchment lies here.~
+   Rendered artfully across this page is a black line-drawing 
+portraying the severed head of a man. Great attention to detail 
+has been given to the depiction of his hair and facial features, 
+which are twisted and permanently frozen in a gruesome expression 
+of pain. His expressionless eyes stare blankly back at the 
+viewer. A long, pointed pike resting beside the severed head 
+adds to the grim tone of this sketch. A burial shroud has been 
+artfully draped over the stone slab, upon which the menacing pike 
+and severed head sit. Loose cross-hatching has been used to 
+suggest the play of light and shadow across the stone slab and 
+the macabre arrangement. 
+
+
+A - Cermie, 2470 
+~
+12 4096 1
+0 0 0 0
+15 0.000000
+0 0 0 0 256 0 1
+0.000000 0 0 0 0 0 0
+#99004
+key~
+a key~
+a small silver key~
+~
+18 12 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#99005
+ring black thread TEXTILE~
+a ring of black thread~
+A small circle of black thread lies here.~
+   A length of black thread, tied together at the ends to form a 
+small ring of a size that would appear to fit around a small 
+finger. 
+~
+8 4096 3
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#99006
+crowd commoners angry frightened OTHER~
+a crowd of angry and frightened commoners~
+Angry and frightened commoners have gathered in a crowd here.~
+   A large group of commoners, both men and women, adults and 
+children, have gathered in to a circular crowd here, voicing 
+their concerns and fears, looking uneasily towards the east and 
+west. Everyone carries large rucksacks upon their backs, 
+bristling with all manner of goods, and periodically some of the 
+group break off to walk down the besieged streets of Osgiliath. 
+Many hungry and desperate faces can be seen. 
+~
+12 0 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 4 10063 0 0 0 0
+#99007
+plant Greater Celandine dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Greater Celandine plant~
+A dried Greater Celandine plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant Greater 
+Celandine. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99008
+plant Groundsel dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Groundsel plant~
+A dried Groundsel plant has been discarded here.~
+   This is carefully dried, whole specimen of the plant 
+Groundsel. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99009
+plant Lady's Mantle dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Lady's Mantle plant~
+A dried Lady's Mantle plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant Lady's 
+Mantle. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99010
+plant Lucerne dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Lucerne plant~
+A dried Lucerne plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant Lucerne. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99011
+plant Meadowsweet dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Meadowsweet plant~
+A dried Meadowsweet plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant 
+Meadowsweet. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99012
+plant dog mercury small brown hairy flowers dried herb VEGETATION~
+a dried, small, hairy plant with small flowers~
+A dried, small, hairy plant with small flowers has been left here.~
+   This small and somewhat hairy plant has been painstakingly 
+dried to preserve the small flowers scattered among the toothed 
+and lanceolate leaves. Even dried as it is, the dog mercury 
+exudes a faint but highly unpleasant odor. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99013
+plant Shepherd's Purse dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Shepherd's Purse plant~
+A dried Shepherd's Purse plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant 
+Shepherd's Purse. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99014
+plant Tall Melilot dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Tall Melilot plant~
+A dried Tall Melilot plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant Tall 
+Melilot. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99015
+plant White Melilot dried plant herb herbalism_craft VEGETATION Orny1~
+a dried White Melilot plant~
+A dried White Melilot plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant White 
+Melilot. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99016
+herb Hedge Woundwort dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Hedge Woundwort plant~
+A dried Hedge Woundwort plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant Hedge 
+Woundwort. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99017
+herb Lesser Celandine dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Lesser Celandine plant~
+A dried Lesser Celandine plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant Lesser 
+Celandine. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99018
+herb Sweet Violet dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Sweet Violet plant~
+A dried Sweet Violet plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant Sweet 
+Violet. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+3.000000 0 0 0 0 0 0
+#99019
+plant silverweed creeping yellow flowers silvery herb herbalism_craft VEGETATION~
+a creeping plant with a few silvery leaves and yellow flowers~
+A creeping plant with a few silvery leaves and yellow flowers grows here.~
+   This creeping plant has a few upright stems which bear a scant 
+few long silvery leaves with distinct toothed margins. Small 
+bright yellow flowers, each with five petals and a reddish-golden 
+core grow upon the plant. Clearly it has been well picked over 
+and in order to survive needs some time to recuperate. 
+~
+31 4096 0
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+10.000000 12 96656 0 0 0 0
+#99020
+plant Stinging Nettle dried plant herb herbalism_craft VEGETATION Orny1~
+a dried Stinging Nettle plant~
+A dried Stinging Nettle plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant Stinging 
+Nettle. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99021
+plant White Nettle Deadnettle dried plant herb herbalism_craft VEGETATION Orny1~
+a dried White Nettle Deadnettle plant~
+A dried White Nettle Deadnettle plant has been discaded here.~
+   This is carefully dried, whole specimen of the plant White 
+Nettle Deadnettle. 
+~
+31 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 0 0 0 0 0 0
+#99107
+plant Greater Celandine drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Greater Celandine plant~
+A drying Greater Celandine plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant Greater 
+Celandine. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99007 0 0 0 0
+#99108
+plant Groundsel drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Groundsel plant~
+A drying Groundsel plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant 
+Groundsel. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99008 0 0 0 0
+#99109
+plant Lady's Mantle drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Lady's Mantle plant~
+A drying Lady's Mantle plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant Lady's 
+Mantle. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99009 0 0 0 0
+#99110
+plant Lucerne drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Lucerne plant~
+A drying Lucerne plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant Lucerne. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99010 0 0 0 0
+#99111
+plant Meadowsweet drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Meadowsweet plant~
+A drying Meadowsweet plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant 
+Meadowsweet. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99011 0 0 0 0
+#99112
+bush rose fine downy leaves pink flowers sparse soft herb plant herbalism_craft VEGETATION~
+a rosebush with fine, downy leaves and a sparse number of pink flowers~
+A rosebush with soft, fine, downy leaves and a sparse number of pink flowers grows here.~
+   This tall plant has long arching stems bearing slightly curved 
+thorns. Numerous leaves are borne, each leaftlets covered with a 
+fine and incredibly soft growth. Smooth, oval red hips grow 
+abundantly upon the bush. Much sparser are the large cups-shaped 
+flowers, with pink petals which have almost entirely been plucked 
+and will need to recover. 
+~
+31 4096 0
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 12 96621 0 0 0 0
+#99113
+plant Shepherd's Purse drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Shepherd's Purse plant~
+A drying Shepherd's Purse plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant 
+Shepherd's Purse. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99013 0 0 0 0
+#99114
+plant Tall Melilot drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Tall Melilot plant~
+A drying Tall Melilot plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant Tall 
+Melilot. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99014 0 0 0 0
+#99115
+plant White Melilot drying plant herb herbalism_craft VEGETATION Orny1~
+a drying White Melilot plant~
+A drying White Melilot plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant White 
+Melilot. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99015 0 0 0 0
+#99116
+herb Hedge Woundwort drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Hedge Woundwort plant~
+A drying Hedge Woundwort plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant Hedge 
+Woundwort. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99016 0 0 0 0
+#99117
+herb Lesser Celandine drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Lesser Celandine plant~
+A drying Lesser Celandine plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant Lesser 
+Celandine. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99017 0 0 0 0
+#99118
+herb Sweet Violet drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Sweet Violet plant~
+A drying Sweet Violet plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant Sweet 
+Violet. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+3.000000 168 99018 0 0 0 0
+#99119
+plant Silverweed Bread Butter drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Silverweed plant~
+A drying Silverweed plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant 
+Silverweed. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99019 0 0 0 0
+#99120
+plant Stinging Nettle drying plant herb herbalism_craft VEGETATION Orny1~
+a drying Stinging Nettle plant~
+A drying Stinging Nettle plant has been discaded here.~
+   This is carefully drying, whole specimen of the plant Stinging 
+Nettle. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99020 0 0 0 0
+#99121
+plant White Nettle Deadnettle drying plant herb herbalism_craft VEGETATION Orny1~
+a drying White Nettle Deadnettle plant~
+A drying White Nettle Deadnettle plant has been discarded here.~
+   This is carefully drying, whole specimen of the plant White 
+Nettle Deadnettle. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 99021 0 0 0 0
+#99022
+rose Rose dried red cup-shaped plant herb herbalism_craft VEGETATION Orny3~
+a pile of dried, red rose petals~
+A a pile of dried red rose petals lies here.~
+   This is a handful of dried, red rose petals. 
+~
+12 4198400 33554449
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+1.500000 0 0 0 0 0 0
+#99023
+platter meat roasted wooden tray general_craft OTHER OrnyB~
+a platter of roasted meat~
+A selection of roasted meats upon a wooden platter sit here.~
+   Looking upon this platter of goodies reveals a wonderful 
+assortment of cooked meats. Arranged upon half the platter is a 
+crescent of alternating slices of roast beef, lamb, pheasant and 
+venison. Piled up the other half of the platter are stacks of 
+pork, bacon, sausages and rabbit. The smell from this hearty 
+feast enriches the room. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 32 0 0
+#99024
+basket fresh fruit general_craft OTHER OrnyB~
+a basket of fresh fruits~
+A basket of fresh fruit sits here.~
+   Looking into this neatly lined basket reveals a cheery 
+assortment of plump, ripe fruits. The greens and yellows of the 
+top fruits contrast nicely with the reds and the oranges of the 
+stone fruits. The sweet and aromatic smell of ripening fruit 
+exudes from the this basket. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 0 0 0
+#99025
+platter roasted fried vegetables wooden tray general_craft OTHER OrnyB~
+a platter of fried and roasted vegetables~
+A selection of fried and roasted vegetables upon a wooden platter sit here.~
+   The smell of freshly cooked vegetables fills the air. Fried 
+leeks, onions and potatoes form the base of this artistically 
+arranged platter. Tender asparagus has been delicately arranged 
+upon the top of a pile of green vegetables and carrots, gently 
+boiled or roasted. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 32 0 0
+#99026
+basket wild fruits nuts general_craft OTHER OrnyB~
+a basket of wild berries and nuts~
+A basket of wild berries and nuts sits here.~
+   This basket has been filled with the fruits and nuts of the 
+forest. Juicy plump strawberries, raspberries, gooseberries and 
+blackberries nestle on top of a pile of mixed nuts. Walnuts, 
+almonds, hazelnuts and sweet chestnuts can be seen in the bottom 
+of the basket. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 0 0 0
+#99027
+basket fruit muffins general_craft OTHER OrnyB~
+a basket of fruit muffins~
+A basket of fruit muffins sits here.~
+   Filled to the very brim with fluffy golden muffins his basket 
+exudes the warm delicate smell of finely baked goods. Close 
+inspection of the contents reveals a wide variety of different 
+types of muffin. Strawberry, raspberry, wild red berry and 
+blackberry muffins. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 0 0 0
+#99028
+platter fruit pies wooden tray general_craft OTHER OrnyB~
+a platter of fruit pies~
+A selection of fruit pies upon a wooden platter sit here.~
+   This contents of this platter have been arranged in a circular 
+pattern with each different sort of pie slice alternating to 
+produce a colourful display. There are different sorts of apple 
+pie, cream pies, peach pies and all sorts. The whole platter 
+exudes the rich smell of cooked fruit and golden brown shortcrust 
+pastry. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 32 0 0
+#99029
+platter fruit cakes wooden tray general_craft OTHER OrnyB~
+a platter of fruit cakes~
+A selection of fruit cakes upon a wooden platter sit here.~
+   This brilliantly colourful platter has a wonderful selection 
+of cakes tastefully arranged to catch the eye. Every sort of 
+fruit imaginable tops each slice of delicately made cake. The 
+smell of the freshly baked cake wafts through the air. Each 
+slice combines the soft tender cake with the firm, fruity texture 
+of its toppings to enhance the taste buds. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 32 0 0
+#99030
+basket cookies general_craft OTHER OrnyB~
+a basket of cookies~
+A basket of cookies sits here.~
+   Gingerbread and sugar cookies form the stable of this 
+delightful basket of confectionary. Gently arranged on top are 
+the more delicate meringue and jam-filled cookies. Each cookie 
+has been lovingly crafted and baked to perfection. There is a 
+strong smell of ginger which rises out of the carefully lined 
+basket. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+60.000000 0 0 0 0 0 0
+#99033
+basket ripe figs general_craft OTHER Orny8~
+a basket of ripe figs~
+A basket of ripe figs sit here.~
+   This is a basket full of ripe figs. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+150.000000 0 0 0 0 0 0
+#99034
+basket quinces general_craft OTHER Orny8~
+a basket of quinces~
+A basket of quinces sit here.~
+   This is a basket full of quinces. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+88.000000 0 0 0 0 0 0
+#99031
+basket cherries general_craft OTHER Orny8~
+a basket of cherries~
+A basket of cherries sit here.~
+   This is a basket full of cherries. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+80.000000 0 0 0 0 0 0
+#99032
+basket tomatoes general_craft OTHER Orny8~
+a basket of luscious tomatoes~
+A basket of luscious tomatoes sits here.~
+   This is a basket full of tomatoes. 
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+68.400002 0 0 0 0 0 0
+#99035
+plot patch field soil fertilized barley OTHER farming_craft FIELD OrnyA~
+a patch of well fertilised soil~
+A plot of well fertilised soil, sown with barley.~
+   It is a square plot of barley, about the size one would expect 
+of a farmer operating alone. There are about eight furrowed rows 
+here, each one boasting a mound about every foot along its 
+length. The barley has only just been sown there is no activity 
+here yet. This patch of soil has recently been fertilised, some 
+weeds grow in patches. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 2880 99038 0 0 0 0
+#99036
+plot patch field soil fertilized turnip OTHER farming_craft FIELD~
+a patch of poorly-tended turnips~
+A field of poorly-tended turnips grows here.~
+   It is a square-shaped plot of land with poorly-tended turnips. 
+The plants are more widely spread out then usual, and have more 
+weeds growing between them. This yield will be less than 
+plentiful. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 2880 99039 0 0 0 0
+#99037
+plot patch field soil fertilized root vegetables OTHER farming_craft FIELD OrnyA~
+a patch of well fertilised soil~
+A plot of well fertilised soil, sown with root vegetables.~
+   It is a square plot of vegetables, about the size one would 
+expect of a farmer operating alone. There are about eight 
+furrowed rows here, each one boasting a mound about every foot 
+along its length. The vegetables have only just been sown there 
+is no activity here yet. This patch of soil has recently been 
+fertilised, some weeds grow in patches. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 2880 99040 0 0 0 0
+#99038
+plot patch field growing barley OTHER farming_craft FIELD OrnyA~
+a field growing with barley~
+A field growing with barley spreads out here.~
+   It is a square-shaped plot of land sown with barley. The 
+green plants are just poking their heads up out of the ground and 
+are getting established in the soil. Weeds are starting to grow 
+in patches amongst the young barley. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 96994 0 0 0 0
+#99039
+plot patch field growing rye OTHER farming_craft FIELD OrnyA~
+a field growing with rye~
+A field growing with rye spreads out here.~
+   It is a square-shaped plot of land sown with rye. The green 
+plants are just poking their heads up out of the ground and are 
+getting established in the soil. Weeds are starting to grow in 
+patches amongst the young rye. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 96994 0 0 0 0
+#99040
+plot patch field growing root vegetables OTHER farming_craft FIELD OrnyA~
+a field growing with root vegetables~
+A field growing with root vegetables spreads out here.~
+   It is a square plot of vegetables, about the size one would 
+expect of a farmer operating alone. There are eight furrowed 
+rows here, different roots vegetables grow in pairs of furrows 
+across the plot. The green plants are just poking their heads up 
+out of the ground and are getting established in the soil. Weeds 
+are starting to grow in patches amongst the young vegetables. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 96994 0 0 0 0
+#99041
+plot patch field spring barley OTHER farming_craft~
+a well-tended field of spring barley~
+A field of well-tended spring barley grows here.~
+   It is a square plot of spring barley, that has been 
+well-tended, waiting to be harvested. Tall golden stalks topped 
+with large healthy ergots of barley flourish upon this plot of 
+land. The field looks to be almost devoid of weeds. The yield 
+should be strong. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 99044 0 0 0 0
+#99042
+plot patch field mature spring rye farming_craft OTHER~
+a mature field of spring rye~
+A field of mature spring rye grows here.~
+   This field of spring rye has matured. Half the crop is no 
+longer fit for harvest. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 1440 96994 0 0 0 0
+#99043
+plot patch field tended spring root vegetable farming_craft OTHER~
+a well-tended field of spring root vegetables~
+A field of well tended spring root vegetables grows here.~
+   It is a square plot of spring root vegetables, well-tended and 
+growing strong, waiting for harvest. The field looks to be 
+almost devoid of weeds. The yield will be impressive. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 99046 0 0 0 0
+#99044
+plot patch field mature spring barley farming_craft OTHER~
+a field of mature spring barley~
+A field of mature spring barley grows here.~
+This field of spring barley has matured. Half the crop is no longer fit for harvest.
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 1440 96994 0 0 0 0
+#99045
+plot patch field spring rye OTHER farming_craft~
+a well-tended field of spring rye~
+A field of well-tended spring rye grows here.~
+   It is a square plot of spring rye, poorly-tended with wide 
+gaps between some stalks. Some of the stalks are drooping, and 
+there seems to be an excess of weeds. The yield will most likely 
+be smaller than normal. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 99042 0 0 0 0
+#99046
+plot patch field mature spring root vegetables farming_craft OTHER~
+a mature field of spring root vegetables~
+A field of mature spring root vegetables grows here.~
+   This field of spring root vegetables has matured. Half the 
+crop is no longer fit for harvest. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 1440 96994 0 0 0 0
+#99047
+plot patch field ripe barley OTHER farming_craft FIELD OrnyA~
+a well-tended field of barley~
+A field of well-tended barley grows here.~
+   It is a square plot of barley, well-tended and growing strong, 
+waiting for harvest. Tall golden stalks topped with large 
+healthy ergots of barley flourish upon this plot of land. The 
+field looks to be almost devoid of weeds. The yield will be 
+impressive. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 99050 0 0 0 0
+#99048
+plot patch field ripe rye OTHER farming_craft FIELD OrnyA~
+a well-tended field of rye~
+A field of well-tended rye grows here.~
+   It is a square plot of rye, well-tended and growing strong, 
+waiting for harvest. Tall stalks topped with large healthy 
+ergots of rye flourish upon this plot of land. The field looks 
+to be almost devoid of weeds. The yield will be impressive. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 99051 0 0 0 0
+#99049
+plot patch field root vegetables barley OTHER farming_craft FIELD OrnyA~
+a well-tended field of root vegetables~
+A field of well-tended root vegetables grows here.~
+   It is a square plot of root vegetables, well-tended and 
+growing strong, waiting for harvest. The rows are neat and the 
+plants flourish upon this plot of land. The field looks to be 
+almost devoid of weeds. The yield will be impressive. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 99052 0 0 0 0
+#99050
+plot patch field mature barley OTHER farming_craft FIELD OrnyA~
+a mature field of barley~
+A mature field of barley grows here.~
+   It is a square plot of barley, ready for harvesting. Tall 
+golden stalks topped with large healthy ergots of barley grow 
+upon this plot of land. The field looks to have been let go too 
+long and the barley is very mature. Many of the stalks are 
+browned and dry, some even bent or broken. The yield looks 
+fairly poor. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 1440 96994 0 0 0 0
+#99051
+plot patch field mature rye OTHER farming_craft FIELD OrnyA~
+a mature field of rye~
+A mature field of rye grows here.~
+   It is a square plot of rye, ready for harvesting. Tall golden 
+stalks topped with large healthy ergots of rye grow upon this 
+plot of land. The field looks to have been let go too long and 
+the rye is very mature. Many of the stalks are browned and dry, 
+some even bent or broken. The yield looks fairly poor. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 1440 96994 0 0 0 0
+#99052
+plot patch field root vegetables mature OTHER farming_craft FIELD OrnyA~
+a mature field of root vegetables~
+A mature field of root vegetables grows here.~
+   It is a square plot of root vegetables, ready for harvesting. 
+The field looks to have been let go too long and the vegetables 
+are very mature. The yield looks fairly poor. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 1440 96994 0 0 0 0
+#99053
+plot barley sown field farming_craft grain OTHER FIELD OrnyA~
+a sown plot of barley~
+A plot of land is here, recently sown with barley.~
+   It is a square plot of barley, about the size one would expect 
+of a farmer operating alone. There are about eight furrowed rows 
+here, each one boasting a mound about every foot along its 
+length. The barley has only just been sown there is no activity 
+here yet. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 96994 0 0 0 0
+#99054
+plot rye sown field farming_craft grain OTHER FIELD OrnyA~
+a sown plot of rye~
+A plot of land is here, recently sown with rye.~
+   It is a square plot of rye, about the size one would expect of 
+a farmer operating alone. There are about eight furrowed rows 
+here, each one boasting a mound about every foot along its 
+length. The rye has only just been sown there is no activity 
+here yet. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 96994 0 0 0 0
+#99055
+plot root vegetables sown field farming_craft grain OTHER FIELD OrnyA~
+a sown plot of root vegetables~
+A plot of land is here, recently sown with root vegetables.~
+   It is a square plot of root vegetables, about the size one 
+would expect of a farmer operating alone. There are about eight 
+furrowed rows here, each one boasting a mound about every foot 
+along its length. The root vegetables have only just been sown 
+there is no activity here yet. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 96994 0 0 0 0
+#99056
+plot barley sown field farming_craft grain OTHER FIELD OrnyA~
+a sown plot of spring barley~
+A field of spring barley grows here.~
+   It is a square plot of barley, about the size one would expect 
+of a farmer operating alone. There are about eight furrowed rows 
+here, each one boasting a mound about every foot along its 
+length. The barley seems to have taken hold quite well. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 96994 0 0 0 0
+#99057
+plot rye sown field farming_craft grain OTHER FIELD OrnyA~
+a sown plot of spring rye~
+A plot of land is here, growing strong with spring rye.~
+   It is a square plot of rye, about the size one would expect of 
+a farmer operating alone. There are about eight furrowed rows 
+here, each one boasting a mound about every foot along its 
+length. The rye seems to have taken hold quite well. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 3600 96994 0 0 0 0
+#99058
+plot root vegetables sown field farming_craft grain OTHER FIELD OrnyA~
+a sown plot of root vegetables~
+A plot of land is here, recently sown with root vegetables.~
+   It is a square plot of root vegetables, about the size one 
+would expect of a farmer operating alone. There are about eight 
+furrowed rows here, each one boasting a mound about every foot 
+along its length. The root vegetables have only just been sown 
+there is no activity here yet. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 30 134217728 0 1
+0.000000 720 99040 0 0 0 0
+#99059
+sack rye seed burlap farming_craft FOOD OTHER OrnyA~
+a sack of rye seeds~
+A sack full of rye seeds has been set down here.~
+   This is a burlap sack filled with rye seeds. 
+~
+19 4198400 1
+0 0 0 0
+1000 0.000000
+0 1 0 20 134217728 0 1
+36.000000 0 0 0 1 0 0
+#99060
+sack barley seed burlap farming_craft FOOD OTHER OrnyA~
+a sack of barley seeds~
+A sack full of barley seeds has been set down here.~
+   This is a burlap sack filled with barley seeds. 
+~
+19 4198400 1
+0 0 0 0
+1000 0.000000
+0 1 0 20 134217728 0 1
+36.000000 0 0 0 1 0 0
+#99061
+sack small carrot seed burlap farming_craft FOOD OTHER OrnyA~
+a small sack of carrot seeds~
+A small sack full of carrot seeds has been set down here.~
+   This is a small burlap sack filled with carrot seeds. 
+~
+19 4198400 1
+0 0 0 0
+1000 0.000000
+0 1 0 20 134217728 0 1
+9.000000 0 0 0 1 0 0
+#99062
+sack small parsnip seed burlap farming_craft FOOD OTHER OrnyA~
+a small sack of parsnip seeds~
+A small sack full of parsnip seeds has been set down here.~
+   This is a small burlap sack filled with parsnip seeds. 
+~
+19 4198400 1
+0 0 0 0
+1000 0.000000
+0 1 0 20 134217728 0 1
+9.000000 0 0 0 1 0 0
+#99063
+sack small onion seed burlap farming_craft FOOD OTHER OrnyA~
+a small sack of onion seeds~
+A small sack full of onion seeds has been set down here.~
+   This is a small burlap sack filled with onion seeds. 
+~
+19 4198400 1
+0 0 0 0
+1000 0.000000
+0 1 0 20 134217728 0 1
+9.000000 0 0 0 1 0 0
+#99064
+sack small leek seed burlap farming_craft FOOD OTHER OrnyA~
+a small sack of leek seeds~
+A small sack full of leek seeds has been set down here.~
+   This is a small burlap sack filled with leek seeds. 
+~
+19 4198400 1
+0 0 0 0
+1000 0.000000
+0 1 0 20 134217728 0 1
+9.000000 0 0 0 1 0 0
+#99065
+flour cup barley farming_craft FOOD OTHER OrnyA~
+a cup of barley flour~
+A cupful of barley flour has been left here.~
+   This finely milled flour is beige in colour. All told, 
+there's about a cupful here. 
+~
+24 4198400 1
+0 0 0 0
+110 0.000000
+0 1 0 20 134217984 0 1
+0.860000 0 0 0 0 0 0
+#99069
+bushel leeks FRUIT plant bushel sack farming_craft VEGETATION OrnyA~
+a bushel of leeks~
+A bushel of leeks is set here.~
+   The burlap sack is full of leeks. There are eight bunches to 
+each sack. 
+~
+24 4198400 1
+0 0 0 0
+1500 0.000000
+0 0 0 30 134217728 0 1
+16.000000 0 0 0 0 0 0
+#99066
+bushel carrots FRUIT plant bushel sack farming_craft VEGETATION OrnyA~
+a bushel of carrots~
+A bushel of carrots is set here.~
+   The burlap sack is full of carrots. There are eight bunches 
+to each sack. 
+~
+24 4198400 1
+0 0 0 0
+1500 0.000000
+0 0 0 30 134217728 0 1
+16.000000 0 0 0 0 0 0
+#99068
+bushel onions FRUIT plant bushel sack farming_craft VEGETATION OrnyA~
+a bushel of onions~
+A bushel of onions is set here.~
+   The burlap sack is full of onions. There are eight bunches to 
+each sack. 
+~
+24 4198400 1
+0 0 0 0
+1500 0.000000
+0 0 0 30 134217728 0 1
+16.000000 0 0 0 0 0 0
+#99067
+bushel parsnips FRUIT plant bushel sack farming_craft VEGETATION OrnyA~
+a bushel of parsnips~
+A bushel of parsnips is set here.~
+   The burlap sack is full of parsnips. There are eight bunches 
+to each sack. 
+~
+24 4198400 1
+0 0 0 0
+1500 0.000000
+0 0 0 30 134217728 0 1
+16.000000 0 0 0 0 0 0
+#99070
+parsnip gnarled farming_craft FOOD OTHER OrnyA~
+a gnarled parsnip~
+A long, gnarled parsnip with a greenish top lies here.~
+   This is a pale, carrot-like root vegetables. The parsnip is 
+slender and a little gnarled with a bright green top. 
+~
+19 4198400 1
+1 0 0 0
+3 0.000000
+0 3 0 20 134217728 0 1
+0.750000 0 0 0 0 0 0
+#99071
+leek long green farming_craft FOOD OTHER OrnyA~
+a long green leek~
+A long, green leek lies here.~
+   This is a long, green leek. The leek is slender and fresh. 
+There is little secondary growth at its end. 
+~
+19 4198400 1
+1 0 0 0
+3 0.000000
+0 3 0 20 134217728 0 1
+0.600000 0 0 0 0 0 0
+#99072
+leeks bunch long green farming_craft FOOD OTHER OrnyA~
+a bunch of leeks~
+A bunch of long, green leeks have been left here.~
+   These long, green leeks are slender and fresh. There is 
+little secondary growth at their ends. 
+~
+19 4198400 1
+3 0 0 0
+9 0.000000
+0 9 0 20 134217728 0 1
+2.000000 0 0 0 0 0 0
+#99073
+onions bunch large farming_craft FOOD OTHER OrnyA~
+a bunch of onions~
+A bunch of large onions have been left here.~
+   Roughly the size of a man's fist, these onions consist of 
+approximately a dozen white layers that narrow as one approaches 
+their centres. They are particularly spicy when eaten raw, and 
+induce a weeping effect that is intensified when coupled with the 
+strong scent produced when the onions are peeled or sliced. 
+~
+19 4198400 1
+3 0 0 0
+9 0.000000
+0 9 0 20 134217728 0 1
+2.000000 0 0 0 0 0 0
+#99074
+small paper ticket OTHER~
+a small paper ticket~
+A small paper ticket lies here.~
+   This small paper ticket has a crude sketch of the Alehouse on 
+it. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 0 4100 0 1
+5.000000 0 0 0 0 0 0
+#99075
+soot-stained clay jar cooking_craft OTHER~
+a soot-stained clay jar~
+A soot-stained clay jar.~
+   Fashioned of dense reddish clay, this jar lacks any 
+ornamentation. Its curved outer surface has been blackened by 
+exposure to countless fires. Pair of simple handles, just loops 
+near the rim of the jar, allow it to be maneuvered or plucked 
+from the heat more easily. 
+~
+12 4096 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 0 0 0
+#99999
+spinning etheric chaos OTHER~
+a spinning etheric ball of chaos~
+A spinning etheric ball of chaos hangs here.~
+This heart of SOI spins, creating the architecture and form
+beyond the thoughts of mortals. The Song of Eru and the Ainur
+send lines and color and shapes and physical reality to the
+world.
+~
+12 4608 1024
+0 0 0 0
+200 0.000000
+0 0 0 99999 0 0 1
+99999.000000 0 0 0 0 0 0
+#99076
+cloak hooded pzala_qsnork linen crimson scalpel unique_bloody_scalpel_clan TEXTILE~
+a hooded, crimson linen cloak with a scalpel shaped clasp~
+A hooded, crimson linen cloak with a scalpel shaped clasp is folded neatly here.~
+   This cloak as been tailored out of linen, dyed an even shade 
+of crimson. Practical in design, it feels netiher too thick, nor 
+too light and boasts a deep cowl. A detailed scalpel shaped 
+clasp made of bronze is set at the front of the cloak to hold it 
+in place. 
+~
+11 528384 1025
+0 0 0 0
+105 0.000000
+0 
+crimson-linen-cloaked~
+0 20 0 0 1
+140.000000 0 0 0 2 0 0
+#99077
+apple discovery fruit small bright scarlet farming_craft cooking_craft OTHER~
+a small, bright scarlet apple~
+A small, bright scarlet apple is here.~
+This small, round apple has a magnificent bright red scarlet-
+coloured skin. Its texture is very firm suggesting a crisp 
+taste.
+~
+19 4198400 1
+2 0 0 0
+40 0.000000
+0 2 0 20 5 0 1
+0.290000 0 0 0 0 0 0
+#99078
+apples bramley fruit shiny green farming_craft cooking_craft OTHER~
+a very large, shiny green apple~
+A very large, shiny green apple is here.~
+   This apple is large and possesses a rich shiny green skin. 
+The shape of this variety often irregular and seldom is it as 
+round as smaller apples. 
+~
+19 4198400 1
+2 0 0 0
+40 0.000000
+0 2 0 20 5 0 1
+0.570000 0 0 0 0 0 0
+#99998
+book RARE old large leatherbound LEATHER~
+an old, large leatherbound book~
+An old, large, leatherbound book rests here.~
+   Bound in what was once fine leather, the cover of this large 
+book has seen wear over the years, possibly even centuries. 
+Traces of gold leaf can still be found on the spine, but time has 
+long since made whatever title may have been on the book 
+illegible. A pair of brass hinges are set into the cover of the 
+book and can be used to latch it shut. Once shiny and bright, 
+the hinges are now heavily-scratched and dull, but still 
+functional. 
+~
+54 4096 1
+30 0 0 0
+500 0.000000
+0 0 0 40 65540 0 1
+1000.000000 0 0 0 0 0 0
+#99079
+apples gala fruit red flushed orange stripes farming_craft cooking_craft OTHER~
+a flushed orange-red apple with red stripes~
+A flushed orange-red apple with red stripes is here.~
+This small red apple has a distinctive orange flush and red 
+stripes upon its skin. A few russetted dots can be seen. The
+apple is firm textured and would probably be slightly crispy.
+~
+19 4096 1
+2 0 0 0
+40 0.000000
+0 2 0 20 4 0 1
+0.270000 0 0 0 0 0 0
+#99080
+apple bramley pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked bramley apple~
+A pastry-wrapped, baked bramley apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked 
+bramley apple; its center is filled with a spicy-sweet, gooey 
+syrup and ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99081
+apple gala pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked gala apple~
+A pastry-wrapped, baked gala apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked gala 
+apple; its center is filled with a spicy-sweet, gooey syrup and 
+ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99082
+apple cox fruit small autumnal-coloured farming_craft cooking_craft OTHER~
+a small, autumnal-coloured apple~
+A small, autumnal-coloured apple is here.~
+   This small, round apple possesses a colourful skins. The skin 
+shows an array of autumnal reds and yellows over green. 
+~
+19 4198400 1
+2 0 0 0
+40 0.000000
+0 2 0 20 4100 0 1
+0.530000 0 0 0 0 0 0
+#99083
+apple crispin fruit light green conical-shaped farming_craft cooking_craft OTHER~
+a light green, conical-shaped apple~
+A light green, conical-shaped apple is here.~
+   This apple is quite large and slightly conical in shape. It 
+is mostly a light green colour but parts of it are starting to 
+show tinges of yellow colouring. 
+~
+19 4198400 1
+2 0 0 0
+40 0.000000
+0 2 0 20 4100 0 1
+0.560000 0 0 0 0 0 0
+#99084
+apple pixie fruit small red stripes farming_craft cooking_craft OTHER~
+a small apple with red stripes~
+A small apple with red stripes is here.~
+   This small apple has an orange skin with a red flush. Red 
+stripes and russet patches are spread over the apple and are a 
+distinctive identifying feature. 
+~
+19 4198400 1
+2 0 0 0
+40 0.000000
+0 2 0 20 4100 0 1
+0.280000 0 0 0 0 0 0
+#99085
+apple beauty of pelargir fruit small orange red striping farming_craft cooking_craft OTHER~
+a small orange apple with red striping~
+A small orange apple with red striping is here.~
+   This small apple has an orange-red skin. It possesses red 
+stripes with gold or russet tinges in spots. 
+~
+19 4198400 1
+2 0 0 0
+40 0.000000
+0 2 0 20 4100 0 1
+0.310000 0 0 0 0 0 0
+#99086
+apple beauty of tirith fruit slightly flattened yellow blushed farming_craft cooking_craft OTHER~
+a slightly flattened, yellow-blushed apple~
+A slightly flattened, yellow-blushed apple is here.~
+   This apple is slightly flattened in shape with yellow skin, 
+skin having a pink-red tinged blush. Its flesh is a 
+creamy-white, tinged with pink. 
+~
+19 4198400 1
+2 0 0 0
+40 0.000000
+0 2 0 20 4100 0 1
+0.300000 0 0 0 0 0 0
+#99087
+apple russet fruit olive green russetted farming_craft cooking_craft OTHER~
+an olive green, russetted apple~
+An olive green, russetted apple is here.~
+   This small round apple is very firm and hard. Its skin is 
+thick and olive green-brown in colour showing intense and 
+distinctive russetting. 
+~
+19 4198400 1
+2 0 0 0
+40 0.000000
+0 2 0 20 4100 0 1
+0.300000 0 0 0 0 0 0
+#99088
+apples slightly bruised shiny glossy red farming_craft cooking_craft OTHER~
+a handful of glossy, red apples~
+A handful of slightly bruised, shiny, red apples is here.~
+   These small apples are a bright, shiny red. Only a few light 
+brown bruises mar their skin, and they appear ripe and delicious. 
+A thin stalk protrudes from each top, with a single green leaf 
+still attached to each apple. 
+~
+19 4198400 1
+6 0 0 0
+120 0.000000
+0 6 0 20 4100 0 1
+0.730000 0 0 0 0 0 0
+#99089
+apples green bushel sack VEGETATION~
+a bushel of green apples~
+A sack full of green apples is set here.~
+The burlap sack is full of apples, a bushel's worth, most of 
+them in good shape, with green skins and a few green leaves 
+visible on stems.
+~
+24 4198400 1
+0 0 0 0
+4200 0.000000
+0 0 0 30 4 0 1
+42.000000 0 0 0 0 0 0
+#99090
+apple pippin pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked pippin apple~
+A pastry-wrapped, baked pippin apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked 
+pippin apple; its center is filled with a spicy-sweet, gooey 
+syrup and ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99091
+apple cox pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked cox apple~
+A pastry-wrapped, baked cox apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked cox 
+apple; its center is filled with a spicy-sweet, gooey syrup and 
+ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99092
+apple crispin pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked crispin apple~
+A pastry-wrapped, baked crispin apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked 
+crispin apple; its center is filled with a spicy-sweet, gooey 
+syrup and ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99093
+apple discovery pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked discovery apple~
+A pastry-wrapped, baked discovery apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked 
+discovery apple; its center is filled with a spicy-sweet, gooey 
+syrup and ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99094
+apple russet pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked russet apple~
+A pastry-wrapped, baked russet apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked 
+russet apple; its center is filled with a spicy-sweet, gooey 
+syrup and ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99095
+apple pixie pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked pixie apple~
+A pastry-wrapped, baked pixie apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked pixie 
+apple; its center is filled with a spicy-sweet, gooey syrup and 
+ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99096
+apple beauty of pelargir pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked 'Beauty of Pelargir' apple~
+A pastry-wrapped, baked 'Beauty of Pelargir' apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked 
+'Beauty of Pelargir' apple; its center is filled with a 
+spicy-sweet, gooey syrup and ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99097
+apple beauty of minas tirith pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked 'Beauty of Minas Tirith' apple~
+A pastry-wrapped, baked 'Beauty of Minas Tirith' apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked 
+'Beauty of Minas Tirith' apple; its center is filled with a 
+spicy-sweet, gooey syrup and ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99098
+apple spicy pastry wrapped baked baking_craft OTHER~
+a pastry-wrapped, baked, spicy apple~
+A pastry-wrapped, baked, spicy apple sits here.~
+   A layer of flaky, golden-brown pastry encases this baked 
+apple; its center is filled with a spicy-sweet, gooey syrup and 
+ground walnuts. 
+~
+19 4096 1
+4 0 0 0
+25 0.000000
+0 3 0 30 16777216 0 1
+4.150000 0 0 0 0 0 0
+#99099
+cap ballcap maroon UNIQUE_DEACON TEXTILE~
+a maroon baseball cap~
+A maroon baseball cap embroidered with an old-english style G lies here.~
+   Upon closer inspection you see a tag in the back of the hat
+which reads 'New Era, Size 7 1/2'.  On the underside of the bill
+someone has written a small number '65' with a black marker.
+~
+11 4608 17
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#99100
+shorts baggy khaki cargo UNIQUE_DEACON TEXTILE~
+a pair of baggy, khaki cargo shorts~
+A pair of baggy, khaki cargo shorts have been left here.~
+   These shorts are well-worn and comfortable looking.  They are
+well made with a pair of cargo pockets on the side of each leg.
+~
+11 4104 33
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#99101
+sculpture wide marble battle EKKAIA STONE~
+a wide, sculpture of polished marble depicting a battle~
+A wide sculpture of polished marble depicting a battle is on display here.~
+   Made with the greatest of care and skill, this marble 
+sculpture is very large, near a dozen strides in each direction. 
+It holds nearly a dozen figures, the majority of them clearly 
+recognisable as soliders of Gondor. Each man has been etched 
+with its own character, one made to be a elderly veteran with a 
+grizzled face and notched armor, another looks to be no older 
+than twenty winters with a smooth youthful visage. The are all 
+stood at various points, one holding the banner of Gondor, 
+another with a sword raised to strike, a third running through a 
+twisted, horrible twisted creature. The rest are similiarly 
+posed, all of them stand in strong positions, proud and firm, 
+save one. A lone man hangs limp held, aloft by a soldier at 
+either side, his armor bears many rents and cuts, each one 
+painstakingly etched in to the mail of his armor. Around them 
+their brothers in arms hold back twisted creatures in ragged 
+clothes, each one baring a snarling grimmace, though each one 
+having been beaten back. Each of the figures is near-life sized 
+and no detail has been spared in their making, from the rings of 
+their mail to the notches on their blade. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#99102
+platter meat roasted northman wooden tray general_craft_northman OTHER OrnyB~
+a platter of roasted meat~
+A selection of roasted meats upon a wooden platter sit here.~
+   Looking upon this platter of goodies reveals a wonderful 
+assortment of cooked meats from the regions of the Northlands. 
+Arranged upon half of the platter is a crescent of alternating 
+slices of roast boar, pheasant, venison, wolf and rabbit. Piled 
+up on the other half of the platter are stacks of fried pork, 
+pork chops and sausages. The smell from this hearty feast 
+enriches the room. 
+~
+12 4096 1
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+100.000000 0 0 0 32 0 0
+#99103
+platter medium meat roasted northman wooden tray OTHER~
+a medium-sized platter of roasted meat~
+A generous selection of roasted meats upon a wooden platter sits here.~
+   Looking upon this platter of goodies reveals a wonderful 
+assortment of cooked meats from the regions of the Northlands. 
+Arranged upon half of the platter is a crescent of alternating 
+slices of roast boar, pheasant, venison, wolf and rabbit. Piled 
+up on the other half of the platter are stacks of fried pork, 
+pork chops and sausages. The smell from this hearty feast 
+enriches the room. 
+~
+12 4096 1
+0 0 0 0
+2000 0.000000
+0 0 0 0 0 0 1
+200.000000 0 0 0 32 0 0
+#99104
+platter large meat roasted northman wooden tray OTHER~
+a large platter of roasted meat~
+An extremely generous selection of roasted meats upon a wooden platter sits here.~
+   Looking upon this platter of goodies reveals a wonderful 
+assortment of cooked meats from the regions of the Northlands. 
+Arranged upon half of the platter is a crescent of alternating 
+slices of roast boar, pheasant, venison, wolf and rabbit. Piled 
+up on the other half of the platter are stacks of fried pork, 
+pork chops and sausages. The smell from this hearty feast 
+enriches the room. 
+~
+12 4096 1
+0 0 0 0
+3000 0.000000
+0 0 0 0 0 0 1
+300.000000 0 0 0 32 0 0
+#99105
+cake strawberry fresh BAKING_CRAFT OTHER~
+a fresh strawberry cake~
+A fresh strawberry cake sits here, giving off a sweet scent.~
+   This fresh, round yellowish cake has a crumbly, light 
+appearance, well-baked and assuredly delectable. Sliced 
+strawberries, covered in a coating of sugar and cream, lie 
+arranged in tiered circles on the top of the cake, their red and 
+white slices creating a flower-like pattern. Each slice of cake 
+will certainly get a good portion of the fruit. 
+~
+19 4194304 1
+21 0 0 0
+200 0.000000
+0 16 0 0 0 0 1
+35.000000 8640 90837 0 0 0 0
+#99106
+cake fresh slice strawberry straw berry BAKING_CRAFT OTHER~
+a slice of fresh strawberry cake~
+A slice of fresh strawberry cake its displayed here.~
+~
+19 4194304 1
+2 0 0 0
+105 0.000000
+0 2 0 30 16777216 0 1
+5.000000 8640 90837 0 0 0 0
+#99122
+sack seeds root vegetable OTHER~
+a sack of vegetable seeds~
+A sack full of vegetable seeds has been set down here.~
+   This is a burlap bag containing four smaller bags of carrot, 
+onion, leek and parsnip seeds. 
+~
+19 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 20 0 0 1
+36.000000 0 0 0 0 0 0
+#99123
+hammer excellent_quality metal_craft steel metalworking engraved fine Lalla METAL~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+41 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 18 0 0
+#99124
+bread berry oat loaf baking_Craft OTHER~
+a loaf of delicate berry oat bread~
+A loaf of delicate berry oat bread wafts forth its enticing aroma.~
+This hearty sized loaf of chewy golden-brown bread is flecked with
+bits of fruit and oats. Its light texture and mouthwatering
+aroma of berries and pears hint at the hand of a skilled baker.
+~
+19 4096 1
+12 0 0 0
+75 0.000000
+0 0 0 30 16781316 0 1
+5.120000 0 0 0 0 0 0
+#99125
+loaf slice berry oat bread delicate baking_craft OTHER~
+a slice of delicate berry oat bread~
+A slice of delicate berry oat bread waits here.~
+This thick slice of chewy golden-brown bread is speckled with the delicate texture of raspberries and pear, offset by the heartier oats. The fragrance is as mouthwatering as the sweet taste and hints to the mastery of the creator of the fine delicacy.
+~
+19 4096 1
+2 0 0 0
+300 0.000000
+0 0 0 30 16781316 0 1
+2.500000 0 0 0 0 0 0
+#99126
+plant Colicwort drying tiny petalless sprawling herb herbalism_craft VEGETATION~
+a tiny drying plant with petalless flowers~
+ a tiny drying plant with petalless flowers has been left here.~
+   A tiny but sprawling plant with short stalked leaves of three 
+segments is drying here. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 96752 0 0 0 0
+#99127
+plant crimson clover small pointed leaflets faded crimson flowers drying herb herbalism_craft VEGETATION~
+a small drying plant with pointed leaflets and faded crimson flowers~
+A small drying plant with pointed leaflets and faded crimson flowers lies here.~
+   This small plant has narrow pointed leaflets. This well-named 
+Crimson Clover has been painstakingly dried to maintain a hint of 
+the original crimson color on the cylindrical heads born on 
+slender upright stalks. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+0.100000 168 96779 0 0 0 0
+#99128
+plant dog mercury small hairy flowers drying herb VEGETATION~
+a drying, small, hairy plant with small flowers~
+A drying, small, hairy plant with small flowers is hung here.~
+   This small and somewhat hairy plant has been painstakingly 
+dried to preserve the small flowers scattered among the toothed 
+and lanceolate leaves. Even dried as it is, the dog mercury 
+exudes a faint but highly unpleasant odor. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.600000 168 99012 0 0 0 0
+#99129
+plant drying dog violet whole heart shaped flowers herb herbalism_craft VEGETATION~
+a drying plant with heart-shaped leaves and elegant flowers~
+A drying plant with heart-shaped leaves and elegant flowers is hung here.~
+   This small plant has leafy flowering stems and long-stalked, 
+heart-shaped leaves. It is carefully drying to preseve the 
+elegant flowers, each with five petals and a paler spur, a hint 
+of the original violet hue remaining. Unlike its cousin, the 
+sweet violet, the dog violet emits little odor; even less now 
+that it is hanging to dry. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+3.000000 168 96781 0 0 0 0
+#99130
+plant drying great burnet dark blood globular flower-heads herb herbalism_craft VEGETATION~
+a drying plant with globular flower-heads the color of dried blood~
+A drying plant with globular flower-heads the color of dried blood hangs here.~
+   The stems of this dried plant are upright and hairless, the 
+leaves composed of paired rows of leaflets. The distinctive 
+flower-heads that grown on the apices of the stems have been 
+carefully dried with the rest of the plant to preserve the once 
+crimson color; now the hue of dried blood. Painstaking care was 
+taken in the drying of this Great Burnet plant, evidenced by the 
+preservation. 
+~
+31 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 134217728 0 1
+4.000000 168 96780 0 0 0 0
+#99131
+bag stack burlap seedbag TEXTILE~
+a stack of empty seedbags~
+A stack of empty seedbags is set here.~
+This is a stack of about five empty burlap seedbags, ready for use by farmers. They are just large enough to hold seeds but not harvested crops.
+~
+47 4198400 1
+0 0 0 0
+125 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 0 0 0
+#99132
+slime slimy sticky ooze reeking VEGETATION~
+a slimy, sticky, reeking glob of ooze~
+A slimy, sticky, reeking glob of ooze is spread out here.~
+   This greenish-yellow glob of ooze sticks to anything it 
+touches, though it feels slippery at the same time. It is quite 
+ripe, smelling much like a pile of rotten fruit and vegetables 
+after being in the sun. The smell seems to linger in the 
+nostrils. 
+~
+12 4096 0
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#99133
+barrel ooze debris reeking WOOD~
+a barrel of reeking ooze and debris~
+A barrel filled with reeking ooze and debris stands here.~
+~
+12 4096 1
+0 0 0 0
+7500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

@@ -1,0 +1,55 @@
+#53000
+Base Room~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+53 65544 0
+0
+S
+#53001
+Atop a Cluster of Rubble~
+   The skeletal remains of the once-great Bele-Iant are scattered 
+about this section of the river, jutting upwards and holding 
+remnants of the once-great structure. This specific, precarious 
+little isle is the creation of some of those still-risen support 
+columns with other bits of debris clustered around their bases. 
+Wood, moss, and mud have all stuck together between two of these 
+large stone columns, the result being a rather ill-fated island. 
+The ground, where one to step on it, gives lightly and too much 
+weight would send the owner's foot shearing through and into the 
+water below. To both the east and the west, remains of the 
+bridge can be seen, as well as their respective shores. 
+~
+53 65536 1
+0
+D1
+~
+~
+0 -1  0 22114
+D3
+~
+~
+0 -1  0 22113
+S
+#53002
+At the Base of a Large Cliff~
+   The ruins of the once-grand Bele-Iant bridge lay to the north, 
+while this small section of river-bank is quasi-solid. The 
+ground beneath is mud and would stick heavily to the feet of any 
+trespassers, making progress through here an arduous affair. The 
+western wall of the cliff seems to be jagged enough that, 
+perhaps, one could manage to climb upwards. To the east, north, 
+and south, the River Anduin stretches on. 
+~
+53 65536 1
+0
+D0
+~
+~
+0 -1  0 22111
+D4
+~
+~
+0 -1  0 22428
+S
+$~

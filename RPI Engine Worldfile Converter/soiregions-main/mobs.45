@@ -1,0 +1,1778 @@
+#45000
+auto-create frog toad CAO_FROG~
+an auto-create frog~
+An auto-create frog is here, taking up space.~
+   This small creature is one of many of its species that call 
+this marshy area home, sneaking their way into homes and shops 
+uninvited in their constant quest searching out tasty small 
+insects to slap out of the air with a long tongue. Loud and 
+obnoxious, the constant croaks and other sounds leaving this 
+amphibian make it a sore sight as well as a burden on the ears. 
+~
+136314888 33554432 23 44 0 5d1+35 1d2+0 0 8 8 0 0 0 0 0
+91403 0 0 45000 0 0 24 0 0 0 1 0 0 0 8 0
+2 4 4 1 16 4 81 8
+268435456 0
+0 47 37 46 44 34 44 47 46 40
+37 38 43 42 33 47 43 40 40 45
+48 40 0 0 35 47 0 0 19 58
+0 0 65 0 0 20 25 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 42 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 65 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' caolafon-citizens~
+0 0 0
+#45001
+Thoruld healer broad straw man HEALER_CAO CRAEG_SHOP~
+a broad-shouldered straw-haired man~
+A broad-shouldered straw-haired man stands near the counter.~
+   This handsome young man has the straight, forward features of 
+the Northern peoples. His shoulder-length straw-colored hair, 
+wide broad shoulders, and tall stature speak proudly about his 
+Race. Clear greenish-blue eyes watch the shopfront carefully, in 
+between periods of laziness where he stands about the shop idly, 
+before being hen-pecked by the shopkeep to return to his guarding 
+duties or to attend or heal patients. 
+~
+1073741850 0 25 122 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 78 16
+0 0
+0 45 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 25 100 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' craeg_apoth 'member' caolafon-citizen~
+0 0 0
+#45002
+Kristin slender plaited blonde young woman CRAEG_SHOP~
+a slender, plaited-blonde young woman~
+A slender, plaited-blonde young woman bustles behind the counter.~
+   Tall and narrow of build, this woman has an air of purpose. 
+Her narrow nose flanked by high cheekbones highlights her 
+ice-blue eyes, her blonde hair plaited in a long row down her 
+back. Her fingers are dappled and stained brown by some sort of 
+juices. She seems in constant motion, straightening and fussing 
+about herself and her surroundings as she often shouts orders at 
+her lazy-acting companion nearby. 
+~
+16777226 0 22 122 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 78 16
+1 0
+45143 43138 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 45 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 50 0
+0 0 0 0 0 0 0 0 100 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' craeg_apoth 'member' caolafon-citizen~
+0 0 0
+#45003
+auto-create Marshwarden private CAO_MARSH~
+a formless Marsh Warden of Caolafon~
+A formless Marsh Warden of Caolafon patrols here.~
+   Fresh-faced, this figure is the visage of a soldier newly 
+recruited into the military. Being unhardened by the effects of 
+battle they still possess the look of a calm and soft face. Yet 
+they do bear a rigid discipline when performing their duties. 
+~
+4618 0 25 0 0 5d1+106 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 1 24 0 0 0 0 0 0 0 0 0
+16 16 16 2 16 16 81 16
+268435456 0
+0 50 36 43 38 50 49 33 41 32
+50 32 30 39 41 45 36 48 41 50
+34 44 40 0 53 53 0 0 16 64
+0 0 64 0 0 23 22 16 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 44 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' amdir_settler 'member' caolafon-citizen 'private' cao_marsh~
+0 0 0
+#45004
+auto-create Marshwarden plebe private CAO_MARSH~
+a formless Marsh Warden of Caolafon~
+A formless Marsh Warden of Caolafon patrols here.~
+   Fresh-faced, this figure is the visage of a soldier newly 
+recruited into the military. Being unhardened by the effects of 
+battle they still possess the look of a calm and soft face. Yet 
+they do bear a rigid discipline when performing their duties. 
+~
+4618 0 25 0 0 5d1+106 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 1 24 0 0 0 0 0 0 0 0 0
+16 16 16 2 16 16 81 16
+268435456 0
+0 46 49 40 35 34 30 49 46 50
+32 50 44 49 30 42 34 39 38 32
+32 47 37 0 53 46 0 0 16 68
+0 0 60 0 0 16 19 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 43 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' amdir_settler 'member' caolafon-citizen 'private' cao_marsh~
+0 0 0
+#45005
+auto-create Marshwarden elite private CAO_MARSH~
+a formless Marsh Warden of Caolafon~
+A formless Marsh Warden of Caolafon patrols here.~
+   Fresh-faced, this figure is the visage of a soldier newly 
+recruited into the military. Being unhardened by the effects of 
+battle they still possess the look of a calm and soft face. Yet 
+they do bear a rigid discipline when performing their duties. 
+~
+4618 0 25 0 0 5d1+106 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 1 24 0 0 0 0 0 0 0 0 0
+16 16 16 2 16 16 78 16
+268435456 0
+0 47 41 43 50 43 37 30 39 36
+32 33 50 45 34 38 41 43 38 30
+42 36 31 0 35 44 0 0 22 61
+0 0 61 0 0 17 21 24 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 69 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' amdir_settler 'member' caolafon-citizen 'private' cao_marsh~
+0 0 0
+#45006
+snake huge greenish brown slithering MARSH~
+a huge, greenish-brown slithering snake~
+A huge, greenish-brown snake slithers through the swamp here.~
+   Monstrously huge, this intricately-scaled snake dips in and 
+out of the swampy waters of its home. It is greenish-brown with 
+a double row of black oval spots on the back and smaller white 
+markings on the sides and its scaly skin glistens but is dry is 
+to the touch. The nostrils are on top of the snout, letting the 
+snake breathe easily when it is in the water. It smells with its 
+tongue and has few fangs, choosing instead to use its massive 
+thirty-five foot body to wrap around it's prey, constricting it 
+until it is dead and then eating the prey whole.
+~
+136323080 786436 25 58 2 5d1+150 3d2+0 0 8 8 1 0 0 0 0
+45022 0 0 97230 0 0 24 0 0 0 1 0 0 0 1310728 0
+25 7 10 1 15 25 77 20
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 50 0 0 30 25 0 0 0 100
+0 0 100 0 0 0 20 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 100
+100 100 100 0 100 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+96 86 0
+#45275
+Heikar Grimfist Cao_Marsh_Paymaster old blonde braids man stern-featured~
+a stern-featured old man~
+A stern-featured old man with blonde braids stands here grimly.~
+   A stern browed and strong jawed old man looks out at the world 
+with a fierceness that time seems to have been unable to dim. 
+His skin is pasty and looks to have been roughened by exposure to 
+the elements. Two blond braids corral his hair away from his 
+face and hang down his slightly bowed back. His hands are 
+scarred by many small white lines and appear quite nimble. 
+~
+4106 0 45 0 0 5d1+102 1d2+0 0 8 8 1 0 196608 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 78 16
+1 0
+0 45350 1.000000 1.000000 0.000000 0.000000 268435456
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 90 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 90 100
+0 0 90 0 0 0 90 90 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' cao_marsh~
+0 0 0
+#45123
+man goateed hatchet-nosed TRAVELLER_SHOPKEEPER_NPC~
+a hatchet-nosed, goateed man~
+A hatchet-nosed, goateed man stands behind the counter, helping customers.~
+   Dominating the rest of his face, this man's sharp, hatchet 
+like nose is quite prominent, the blue eyes on either side of it 
+taking second place. Covering his chin is a thick growth of 
+auburn whiskers, meticulously trimmed into a well kept goatee. 
+Slightly darker than his whiskers, reddish-brown hair is cut into 
+a utilitarian style, stopping short of his somewhat large ears. 
+Broad-shouldered and rangy, his limbs seem strong, though his 
+belly is covered in a layer of fat, giving him a bit of a barrel 
+like shape, the frame of one accustomed to heavy lifting but not 
+quick motion. 
+~
+10 0 8 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+45123 45358 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' traveller_shop~
+0 0 0
+#45371
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 0 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45372
+Vlad bulbous-nosed man shopkeep heterchromatic~
+a bulbous-nosed heterochromatic man~
+A bulbous-nosed heterochromatic man tends shop here.~
+   This man's quite large, reddened bulbous nose sits next to 
+small veiny patches of his wide cheeks. More unusual perhaps, 
+sit his mismatched eyes - one a soft, grass-green and the other a 
+rich, chocolate-brown. Despite or perhaps in light of his 
+appearance, this man more often than not has a wide, smiling 
+mouth, and a friendly disposition to customers and visitors. 
+~
+1050 0 20 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 78 16
+1 0
+45178 45372 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 512
+-1
+0 0 0 0 0 0 0 0 0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' borogil_furn~
+0 0 0
+#45007
+Pitto lanky blue honey shaggy boy gypsy~
+a honey-skinned shaggy-haired gypsy boy~
+A honey-skinned shaggy-haired gypsy boy hawkes wares here.~
+   This boy, certainly no older than ten, alternates between 
+standing and hawking wares, and sitting under the eave of the 
+vardo stationed in the yard. Honey-skinned with a rough-cut crop 
+of cordovan-colored hair, his shaggy coif covers his eyes a 
+majority of the time. On the rare occassion they peep out, they 
+display a rich sapphirean hue. Lanky and thin in structure, he 
+appears a high-wound and easily exciteable sort. His unusual 
+eclectric dress and foreign scent out this child as a gypsy. 
+~
+10 0 8 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+45141 43751 1.500000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 75 75 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 75 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45008
+auto-create Marshwarden sentry elite private CAO_MARSH~
+a formless Marsh Warden Sentry of Caolafon~
+A formless Marsh Warden Sentry of Caolafon stands as a sentry lookout here.~
+   Of Northman descent this person holds themselves in a 
+confident manner, looking like they have survived a battle or 
+two, and sport their scars proudly. 
+~
+4683 0 39 0 1 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+46 0 0 0 0 0 24 0 0 0 0 0 72 0 0 0
+17 16 17 1 16 16 81 16
+268435456 0
+0 65 61 65 66 78 71 79 76 79
+69 61 60 74 61 65 61 64 60 62
+74 67 64 0 69 61 0 0 51 69
+0 0 69 0 0 46 55 47 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 62 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' cao_marsh 'corporal' caolafon-citizen~
+0 0 0
+#45999
+Caolafon_Marshes Randomizer Wildlife Wirepuller~
+a snarky little Caolafon Marshlands Wildlife Wirepuller~
+A snarkly little Caolafon Marshlands wildlife wirepuller is here, gleefully pulling wires.~
+This is the echoer with the on_Hours trigger cue.
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45009
+heron bird graceful white hued bird stand perched leg~
+a graceful, white-hued bird~
+A graceful, white-hued bird stands here, perched on one leg.~
+   Rising to a grown mans knee, this large bird stalks the land 
+carefully. Starting with a pointed, orange beak and beady eyes 
+it stands alert and graceful. An 'S' shaped neck leads down to 
+an oval body, which is beset by long, folded wings. Its legs are 
+long, most often perched upon one over the other. Upon its neck, 
+downy hair of black and white falls. 
+~
+673185992 0 8 35 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+2062 0 0 97305 0 0 24 0 0 0 3 0 0 0 262282 0
+16 16 16 1 16 16 77 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+6 86 0
+#45010
+prog tigger boars head atmopshere~
+a prog trigger~
+A prog trigger sits here, triggering the atmosphere prog in the Boars head.~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45011
+Rana UNIQUE_PRAHLIUS wolfish mutt brown shaggy fur~
+a wolfish mutt, with brown shaggy fur~
+A wolfish mutt, with brown shaggy fur sniffs the ground here.~
+   It is easy to see at first glance that this mutt has a wide 
+branching family tree that encompasses a vast and varied 
+ancestry. With a wolf-like face with triangular ears, where one 
+of which has been almost entirely torn off, a long, scarred 
+snout, and feral turn of the eyes, it would appear predatory if 
+it didn't have to look through a sheet of thick hair that goes 
+partially over its eyes. If one looks close enough, one eye is 
+black while the other is a stunning shade of crystal blue. They 
+are intelligent and measuring and match the wary set of its 
+shoulders. Its legs are long and its flanks are well muscled and 
+protrude even from beneath its thick matt of brown fur. This dog 
+has a wild, feral look to it like so many other dogs left to 
+themselves to roam. 
+~
+134217738 0 4 40 0 5d1+40 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 12 1 0 0
+6 7 12 1 6 6 81 6
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 2 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' caolafon-citizen 'member' amdir_settler 'member' mt_citizens~
+0 0 0
+#45012
+Graehim horse auto-create warhorse xEotheod xNorthman xWAR~
+an auto-create Graehim warhorse~
+An auto-create Graehim warhorse whinies here.~
+   Standing around eighteen hands high, this well-bred horse 
+maintains a proud and dignified bearing, its muscled form with 
+feathered-forelock and thick hooves obviously designed for 
+warfare not the plow. Shiny, black intelligent eyes look about 
+its surroundings, though loud noise of sudden movement of rider 
+does little to displace the attention of this well-trained beast. 
+A shiny, full mane and tail, and a soft coat of well-brushed skin 
+give the powerful form of this animal a graceful air. 
+~
+134479882 0 22 47 0 5d1+145 1d4+0 0 8 8 0 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 70 0 0 0
+16 8 14 1 12 25 77 19
+268435456 0
+0 45 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 30 30 0 0 15 60
+0 0 0 0 0 50 18 15 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' amdir_settler 'member' cao_marsh 'member' mt_citizens 'member' caolafon-citizen~
+0 0 0
+#45013
+Eydis strawberry blonde ice-eyed woman CAILYN_CAO_BREW~
+an ice-eyed, strawberry-blonde middle-aged woman~
+An ice-eyed, strawberry-blonde middle-aged woman tends shop here.~
+   This strawberry-blonde young woman, barely past her teens 
+looks over the customers who visit this shop with her pale, 
+ice-blue colored eyes. She seems friendly, giving customers a 
+smile as they approach, which parts her lips to show her slightly 
+gapped front teeth, though her attitude seems to sour 
+considerably when approached by already sodden customers seeking 
+the wares she watches. Of moderate height and slightly muscled 
+tone, she gives the impression of being used to work. 
+~
+1034 0 8 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 78 16
+1 0
+45129 45416 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' cailyn_cao_brew~
+0 0 0
+#45175
+Ailsa young sun-colored blue-eyed woman CAO_COOKING_GOODS_SHOPKEEP~
+a young woman with sun-colored hair and blue eyes~
+A young woman with sun-colored hair and blue eyes stands behind the counter.~
+   Rather young in her adulthood, this woman is still a bit lanky 
+in her build. She has sun-colored hair which she keeps braided 
+around her ears. Her bright blue eyes shine from her tanned and 
+freckled face. She stands about average height for a Northern 
+lass and carries herself with an inner strength and fortitude 
+that comes from living a live in the harshness of the Burgs to 
+the north. Her smile, however, counters that firmness of her 
+jawline and lights the room when it appears on her face. 
+~
+26 0 15 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 78 16
+1 0
+45175 45422 3.000000 2.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 30
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45014
+dog mutt chubby flecked white fur xPOFGREYWING Wags~
+a chubby dog with flecked, white fur~
+A chubby dog with flecked, white fur is here.~
+   This dog's back reaches about to the height of the average 
+man's knee, placing his large head somewhere near the waist. He 
+looks very much like a mutt; a large lug of a dog who has an ear 
+flopped down over one brown eye, and then the other standing 
+straight up above the other. His fur, standing straight up, is 
+flecked with white and gray, giving him a rather dirty look, even 
+when he is clean. His body is round and healthy, tail long and 
+standing straight up, except for the curl on the very top. 
+~
+10 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' caolafon-citizen 'member' amdir_settler~
+0 0 0
+#45015
+Felwyr stallion wavy tailed blotchy grey coated PofAerdwynn~
+a wavy-tailed, blotchy-grey-coated young stallion~
+A wavy-tailed, blotchy-grey-coated young stallion stands here, proudly.~
+   Standing roughly at the height of a man's shoulder, this horse 
+maintains a proud and dignified facade. Its head is held high, 
+intelligent eyes glaring out into the distance, and a thick, 
+healthy-looking mane runs down the back of its neck. Its coat 
+appears well-cared-for, and a thick, knotted layer of muscle 
+ripples gracefully beneath its sleek skin. 
+~
+262154 0 20 61 0 5d1+102 1d5+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' caolafon-citizen 'member' amdir_settler~
+0 0 0
+#45016
+Flow bubbly well rounded teenage lass POFHOAR SHOPKEEP~
+a bubbly, well rounded teenage lass~
+A bubbly, well-rounded teenage lass twirls her hair behind the counter.~
+   Having just come in to womanhood this bubbly young lass has a 
+bright and cheery manner, from her generous smile to her wide, 
+curious eyes. Wavy hair falls in curled ringlets about her 
+shoulders, which in turn leads down to a generous womanly figure. 
+An unmistakeable bust, a slightly rounded belly and curved hips 
+lead down to long legs. 
+~
+1034 0 8 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+45423 45432 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' caolafon-citizen 'member' hoar_cao_fine~
+0 0 0
+#45017
+Rodia matron golden POFGRITCHEN GRITCHEN_GOODS_KEEPER~
+a lightly-tanned, golden-haired matron~
+A lightly-tanned, golden-haired matron tends shop here.~
+   This matronly woman of about middle age, has straight and 
+long, golden blonde hair, and bright blue eyes. She is of an 
+average height and a curvy figure. Her skin is soft and lightly 
+tanned, it appears that she is used to light physical labour from 
+the callouses upon her hands, standing ready to help customers 
+with their purchases. 
+~
+1050 0 8 122 0 5d1+80 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+45140 45431 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45147
+Lodur man tall blonde one-eyed~
+a tall, one-eyed man with blonde hair~
+A tall, one-eyed man with long blond hair oversees the storefront.~
+   Standing rather tall, this man is strong and well built, from 
+obvious years of hard labor. His single blue eye shines out from 
+his rugged and scarred face, giving way his jovial manner. He 
+has long blond hair which he routinely keeps pulled back in a 
+leather thong. 
+~
+1034 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+45147 45443 2.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 4211224
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 0 0 0 0 0 0
+40 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' winged_stallion~
+0 0 0
+#45156
+Robert artist Tielhard blond thin gangly man~
+a gangly blond-haired artist~
+A gangly, blond-haired artist stands before an easel musing.~
+   Thin and gangly, this man looks to be in his young adult 
+years. His long blond hair is tied haphazardly behind his head 
+and his bright blue eyes fill a face that is angled and thin. 
+His long limbs are accented by a wistful air of carefree 
+exuberance. Paint covers most of clothes most of the time and 
+sometimes even his face and hands. 
+~
+1050 0 8 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 78 16
+1 0
+45156 45987 3.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 0 0 0 0 0 0
+50 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45018
+Hank golden haired puppy pofdulvaeus~
+a golden-haired puppy~
+A golden-haired puppy frollicks here with its tongue lolling out.~
+The hair of this puppy is short and is the color of gold. The ears and paws of this puppy are white. The tail of the puppy hangs down loosely. The ears of the puppy flop over and provide cover for the inside of the ears. The nose of this puppy has white spots spread sparingly all over the snout. The dark eyes look out at those around him with curiosity.
+~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45019
+Hank gold haired dog white paws pofdulvaeus~
+a gold-haired dog with white paws~
+A gold-haired dog with white paws is here.~
+The hair of this dog is short and is the color of gold. The ears and paws of this dog are white. The tail of the dog curls up to touch the dog's back. The ears of the puppy are perked up in order to see the inside of the ears. The nose of this dog has white spots spread sparingly all over the snout. The dark eyes look out at those around him lazily. 
+~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45020
+Hank aged dog golden hair pofdulveaus~
+an aged dog with golden-hair~
+An aged dog with golden-hair is here.~
+The hair of this dog is short and is the color of a dark gold, almost brown. The ears and paws of this dog are a dirty white color nearly grey. The tail of the dog curls up to touch the dog's back. The ears of the dog are perked up in order to see the inside of the ears. The nose of this dog has grey spots spread sparingly all over the snout. The dark eyes look out at those around him with irritation.
+~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45021
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45022
+creamy white stallion Bregowyd POFVARISH~
+a creamy-white maned, white-coated stallion~
+A creamy-white maned, white-coated stallion snorts out his nose here.~
+Standing barely above the height of a common man's shoulder, this well-bred horse maintains a proud and dignified bearing, its muscled form with feathered-forelock obviously designed for warfare not the plow. Shiny, black intelligent eyes look about its surroundings, though loud noise of sudden movement of rider does little to displace the attention of this well-trained beast. A shiny, full mane and tail, and a soft coat of well-brushed skin give the powerful form of this animal a graceful air.
+~
+134479882 0 30 47 0 5d1+145 1d5+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 70 0 0 0
+18 8 8 1 15 18 77 18
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 65 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' amdir-settler 'member' caolafon-citizen~
+0 0 0
+#45023
+Pipor cat xForReodyn kitten tiny wildly fluffy grey~
+a tiny, wildly-fluffy grey kitten~
+A tiny, wildly-fluffy grey kitten plays here.~
+   This minuscule kitten seems little more than a ball of 
+storm-grey fur, dotted with a few small patches of creamy white. 
+Small, ivory feet serve to pad the small creature around, and an 
+ever-flicking bushy tail gives it a mischievous looking nature. 
+A ragged, white stripe runs from the top of his head to a tiny, 
+grey nose, where it pitters out into little flecks, accenting the 
+bases of long, pale whiskers. Large, bright blue eyes peer out 
+from beneath the masses of fluff, always wide and keen on their 
+surroundings. 
+~
+1048586 4 8 38 0 5d1+10 1d1+0 0 8 8 1 0 0 0 0
+0 0 0 97647 0 0 24 0 0 0 2 0 0 0 0 0
+2 4 2 1 8 6 39 14
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 1645
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+4320 45024 0
+#45024
+Pipor cat xForReodyn young fluffy grey small~
+a small, fluffy-grey-coated young cat~
+A smally, fluffy-grey-coated young cat plays here.~
+   This undersized young cat seems little more than a ball of 
+storm-grey fur, dotted with a few small patches of creamy white. 
+Small, ivory feet serve to pad the small creature around, and an 
+ever-flicking bushy tail gives it a mischievous looking nature. 
+A ragged, white stripe runs from the top of his head to a tiny, 
+grey nose, where it pitters out into little flecks, accenting the 
+bases of long, pale whiskers. Large, bright blue eyes peer out 
+from beneath the masses of fluff, always wide and keen on their 
+surroundings. 
+~
+1048586 4 8 38 0 5d1+10 1d1+0 0 8 8 1 0 0 0 0
+0 0 0 97647 0 0 24 0 0 0 2 0 0 0 0 0
+2 4 2 1 8 6 39 14
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 1645
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+17280 45025 0
+#45025
+Pipor cat xForReodyn small grey coated~
+a small, grey-coated cat~
+A small, grey-coated cat is here.~
+   This cat seems little more than a ball of storm-grey fur, 
+dotted with a few small patches of creamy white. Small, ivory 
+feet serve to pad the small creature around, and an ever-flicking 
+bushy tail gives it a mischievous looking nature. A ragged, 
+white stripe runs from the top of his head to a tiny, grey nose, 
+where it pitters out into little flecks, accenting the bases of 
+long, pale whiskers. Large, bright blue eyes peer out from 
+beneath the masses of slightly ragged fluff, always wide and keen 
+on their surroundings. 
+~
+1048586 4 8 38 0 5d1+10 1d1+0 0 8 8 1 0 0 0 0
+0 0 0 97647 0 0 24 0 0 0 2 0 0 0 0 0
+2 4 2 1 8 6 39 14
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 1645
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+86400 45026 0
+#45026
+Pipor cat xForReodyn old ragged grey~
+a small, ragged-grey-coated old cat~
+A small, ragged-grey-coated old cat grooms itself here.~
+   This aging cat seems little more than a ball of storm-grey 
+fur, dotted with a few small patches of creamy white. Small, 
+ivory feet serve to pad the small creature around, and an 
+ever-flicking bushy tail gives it a mischievous looking nature. 
+A ragged, white stripe runs from the top of his head to a tiny, 
+grey nose, where it pitters out into little flecks, accenting the 
+bases of long, pale whiskers. Large, bright blue eyes peer out 
+from beneath the masses of slightly ragged fluff, always wide and 
+keen on their surroundings. 
+~
+1048586 4 8 38 0 5d1+10 1d1+0 0 8 8 1 0 0 0 0
+0 0 0 97647 0 0 24 0 0 0 2 0 0 0 0 0
+2 4 2 1 8 6 39 14
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 1645
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45027
+Cari runty full-grown spotted mutt pofcaraneleth xnahar_npcx~
+a runty, full-grown spotted mutt~
+A runty, full-grown spotted mutt is here.~
+   This full-grown dog still looks more like a puppy, perhaps 
+because he's not much bigger than one; most likely the runt of 
+the litter. He has a slight limp to one of his back legs, only 
+particularly noticeable during moments of heightened excitement. 
+His long, floppy ears are brown, much like the rest of his short 
+coat, but a few splotchy white spots mar the otherwise uniform 
+color. One particularly big patch covers half his face, 
+emphasizing one large brown eye and one large blue one. His 
+eyebrows are particularly expressive, often shifting between 
+unbidden excitement and pensive thought in a matter of moments. 
+~
+10 0 8 40 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' amdir_settler 'member' mt_citizens 'member' caolafon-citizen~
+0 0 0
+#45028
+Anna CAO_LOREHOUSE mop headed teenaged girl OTHER~
+a mop-headed teenaged girl~
+A mop-headed teenaged girl idly watches the shop here.~
+   A young girl of about the age of sixteen summers or so. Her 
+brown hair is almot shockingly bushy, sticking out in all sorts 
+of directions. A quill rests haphazardly behind one ear. 
+~
+10 0 8 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 1 0 0
+16 16 16 1 16 16 78 16
+1 0
+45154 45470 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 80 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' cao_lore_shop~
+0 0 0
+#45029
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 8 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#45030
+Alagos slate grey coated stallion horse warhorse xpofTyriar xNauriel~
+a slate-grey coated stallion~
+A slate-grey coated stallion is here.~
+   Standing roughly at the height of a man's shoulder, this horse 
+maintains a proud and dignified facade. Its head is held high, 
+intelligent eyes glaring out into the distance, and a thick, 
+healthy-looking mane runs down the back of its neck. Its coat 
+appears well-cared-for, and a thick, knotted layer of muscle 
+ripples gracefully beneath its sleek skin. 
+~
+135532554 0 25 61 0 5d1+95 1d5+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+18 6 6 1 25 12 81 25
+0 0
+0 30 45 49 38 30 47 34 43 45
+43 35 33 44 50 36 36 31 42 31
+44 33 38 0 50 38 0 0 24 66
+0 0 60 0 0 50 24 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 42 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 66 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' house_nimrulai 'member' caolafon-citizen 'member' amdir_settler 'member' mt_citizens~
+0 0 0
+#45031
+Jara straight legged grey coated mare horse packhorse xpofTyriar xNauriel~
+a straight-legged, grey-coated mare~
+A straight-legged, grey-coated mare is here.~
+   Of average bulk and graceful tone, this creature's coat and
+mane are well-groomed and cut, hinting that it leads a life of
+domestication rather than one in the wilderness. Standing tall
+on four muscular legs, there is no hesitancy or fear detectable
+in this horse's posture, seemingly ready to spring into a flurry
+of action and motion at a moment's notice.
+~
+135528458 0 10 47 0 5d1+75 1d3+0 0 8 8 2 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+20 6 6 1 25 12 77 25
+0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' house_nimrulai 'member' caolafon-citizen 'member' amdir_settler~
+0 0 0
+#45032
+Toki stallion battle ebon horse POFVARISH~
+a battle-scarred, ebon-coated stallion~
+A battle-scarred, ebon-coated stallion stamps at the ground here.~
+   Standing around nineteen hands high, this well-bred warhorse 
+maintains a proud and dignified bearing, its muscled form with 
+feathered-forelock and thick hooves obviously designed for 
+warfare not the plow. Shiny, black intelligent eyes look about 
+its surroundings, though loud noise of sudden movement of rider 
+does little to displace the attention of this well-trained beast. 
+A shiny, full mane and tail, and a soft coat of well-brushed ebon 
+black hide give the powerful form of this animal a graceful air. 
+Battle scars crisscross this horse's flanks and chest, lending a 
+lifetime of experience to his appearance. 
+~
+134479882 0 30 47 0 5d1+145 1d5+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 0 0 0 0 0 0
+18 7 8 1 15 18 77 18
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 55 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' caolafon-citizen 'member' amdir_settler 'member' mt_citizens~
+0 0 0
+#45033
+Cefin Brimskr thoroughly hairy auburn haired man MW_CAO~
+a thoroughly hairy auburn haired man~
+A thoroughly hairy auburn haired man stands here.~
+   Hairy is the first and foremost word that comes to mind upon 
+spotting this man - his head, face, and the when visible nearly 
+every other part of his body is covered in the same curly auburn 
+coif. Undernearth his heavy beard a slightly crooked smile sits 
+during the man's often boisterous displays of emotion - good and 
+bad. Pale robin-egg blue eyes sit under his thick caterpillar 
+brow, though little else is visible of his facial features. Tall 
+and thickly built, the man seems rather solidly made. 
+~
+10 0 37 129 0 5d1+125 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 4 24 0 0 0 0 0 75 4 0 0
+16 16 16 5 16 16 81 16
+0 0
+0 16 0 50 0 0 0 0 0 75
+75 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' cao_mw_officers 'sergeant' cao_marsh 'member' caolafon-citizen~
+0 0 0
+#45034
+Howell slim honey bearded man xNahar_NPCx MW_CAO~
+a slim, honey-bearded man~
+A slim, honey-bearded man stands at attention here.~
+   Hair the color of wheat tops this man's head, generally kept 
+in a loose knot at the nape of his neck, otherwise ending just 
+below his shoulders in thick waves. Bushy brows and barely 
+visible lashes of a matching, light color top dark eyes that peer 
+out at the world keenly, framing either side of a sharp nose. 
+Fleshy lips are partially hidden behind the honey-colored beard 
+that covers his chin. He is tall, perhaps the one factor that 
+gives his body the appearance of being thick with muscle rather 
+than just overly large. 
+~
+10 0 32 122 0 5d1+130 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 4 24 0 0 0 0 0 0 3 0 0
+16 16 16 9 16 16 81 16
+0 0
+0 45 0 65 0 0 0 0 0 0
+0 0 0 65 0 0 65 0 0 60
+65 50 0 0 0 0 0 0 65 65
+0 0 65 0 0 65 0 45 50 50
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 65 0 0 68 0
+0 68 0 0 0 0 0 0 0 0
+30 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' cao_mw_officers 'sergeant' cao_marsh 'sergeant' caolafon-citizen~
+0 0 0
+#45035
+Gwenith CaoGranaryMerchant tall wheat-haired woman~
+a tall, wheat-haired woman~
+A tall, wheat-haired woman is present, marking down the rations delievered to the Granary on a slate board upon the wall.~
+Alternating between sitting on a small stool in front of the Granary building, or doing work around the building, this tall, wheat-haired woman carefully counts and collects the the rations brought in by citizens. A large black slate board sitting next to her stool shows hatch marks in columns, a simple yet effective method of keeping records. She has a small stack of coins at hand, offering a fair price for needed foodstuffs. 
+
+#6OOC: You can check HELP GRANARY to learn about syntax.#0 
+~
+10 0 22 122 0 5d1+87 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+10 18 20 1 14 11 78 13
+65536 0
+0 30 0 0 0 0 0 0 45 0
+0 0 0 0 0 0 0 0 0 0
+16 40 0 0 0 0 0 0 0 0
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 66 65 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'journeyman' cao_guild 'member' caolafon-citizen~
+0 0 0
+#45036
+auto-create riding horse northlands prototype~
+a riding horse prototype~
+A riding horse prototype stands here calmly, whickering.~
+   Of average bulk and graceful tone, this creature's coat and
+mane are well-groomed and cut, hinting that it leads a life of
+domestication rather than one in the wilderness. Standing tall
+on four muscular legs, there is no hesitancy or fear detectable
+in this horse's posture, seemingly ready to spring into a flurry
+of action and motion at a moment's notice.
+~
+134479882 0 25 47 0 5d1+130 1d4+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 70 0 0 0
+17 8 8 1 15 50 77 18
+268435456 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 65 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' amdir-settler 'member' caolafon-citizen~
+0 0 0
+#45037
+Dinnisbla Dinnis horse stallion strong back roan~
+a strong-backed, roan-colored stallion~
+A strong-backed, roan-colored stallion stands here, tail flicking.~
+   This proud stallion, young and bordering on fiery tempered 
+flicks his tail back and forth whenever he is steady, his sleek 
+featured head held erect and ears perk. Roan colored, this horse 
+has a short, glossy coat, with obvious signs of careful care and 
+regular brushing. A few speckles of white dot his rump, left 
+ear, and right forelock. Muscular with a strong back and 
+shoulders and large furry hooves, this horse obviously stems from 
+Graehim ancestry, carefully bred for war, rather than the plow. 
+~
+134479882 0 22 47 0 5d1+145 1d4+0 0 7 8 1 0 0 0 0
+0 0 0 0 0 8 24 0 0 0 0 0 0 0 0 0
+16 8 14 16 12 25 81 19
+0 0
+0 45 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 30 30 0 0 15 60
+0 0 0 0 0 100 20 15 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'captain' cao_marsh~
+0 0 0
+#45493
+Calvin pofALLISTER horse-drawn cart large massive draft~
+a large horse-drawn cart~
+A large wooden cart is here, pulled along by a massive draft horse.~
+   Intended for the transport of goods, this cart has been 
+fashioned from sturdy oak planking and has been reinforced with 
+thick iron bands for strength and durability. Made with double 
+axles of sanded wood, it bears four wood-spoked wheels. The 
+curvatures of the wooden wheels are wrapped in iron banding that 
+has been formed with light studding for traction in uncivilized 
+terrain. Its boxy shape left open at the top, twin railings have 
+been secured to either side, and between them, a large draft 
+horse, a mottled brown in color, has been hitched, providing 
+movement to this transport. Decently well groomed, the enormous 
+horse is obviously used for labor rather then riding, his body 
+stout and thickly muscled, with a plait-braided mane of dark 
+black sweeping over his right shoulder. A small bench has been 
+constructed towards the front of the cart, leaving space for a 
+driver and a companion to sit beside. 
+~
+278538 0 15 47 0 5d1+129 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+25 7 7 1 13 25 81 10
+0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' cao_guild 'member' mt_citizens 'member' caolafon-citizen 'member' amdir_settler~
+0 0 0
+#45038
+faerin overly large man imposing xpofarcholem~
+an overly large, imposing man~
+An overly large, imposing man looms here.~
+   This overly large man carries an imposing air about him, 
+standing tall enough that he would need to dip his head to most 
+doorways. Barrel chested with large broad shoulders. sinewy 
+muscles rippling across his body. His visage is gaunt, showing 
+weather weary lines of aged traveling. His heavily weathered and 
+tanned skin suggest a long life of traveling and exposure to the 
+raw elements. His hair is kept cut short, with speckled strands 
+of silver accenting his once youthfully dark brown hair in a salt 
+and pepper fashion. big bushy brows frame his aged pale blue 
+eyes. His hands are thick and calloused, the mark of a hard 
+laborious life. 
+~
+10 0 20 0 0 5d1+90 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 8 12 1 10 12 81 14
+0 0
+0 30 40 40 0 0 40 0 0 0
+0 0 0 0 0 0 0 0 30 0
+35 35 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' archolem_npc 'member' family_archard~
+0 0 0
+#45039
+Tom Thomas Carpenter husky young lad sun xnahar_npcx~
+a husky young lad with sun-bleached hair~
+A husky young lad tends the shop here, his hair sun-bleached.~
+   At first glance, this young boy looks like he should be the 
+size of a man almost twice his age. His husky stature moves with 
+deliberate and powerful motions, betraying a great deal of muscle 
+behind each mound of flesh. His sky-blue eyes are placed over 
+rounded, freckled cheeks and thick, blushed lips that will easily 
+curve in to a smile, betraying his youth. A sun-bleached crop of 
+hair is matted upon his head, stray locks occasionally falling in 
+to his eyes. 
+~
+1050 0 8 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 78 16
+1 0
+45140 45431 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' hawkestone_staff~
+0 0 0
+#45040
+Caraneleth Cara cinereous woman with red young woman ember seregon caren~
+a cinereous-eyed woman with red hair~
+A cinereous-eyed woman with red hair is here.~
+   This woman seems to use her abbreviated height to her 
+advantage, often carrying herself in a manner intended to attract 
+the least amount of attention, though it does not entirely 
+eclipse her proud posture. Her hair hangs below her shoulders 
+when unbound, and the color of it is just a few shades redder 
+than outright blonde. A few streaks of grey have begun to show 
+themselves already, unlikely brought on by age as she seems to be 
+only in her mid-twenties. Her eyes are the color of ashes, 
+surrounded by light lashes, and centered by a thin nose that 
+appears to have been broken at least once. Faint freckles 
+sprinkle the lines of her cheekbones, and her full lips are dark 
+in contrast with her skin, which is strikingly pale enough to be 
+notable without seeming sickly. The left side of her face is 
+marred by a light pattern of scarring, and similar patterns can 
+be seen on nearly every visible part of her skin. Her body is 
+compact, clearly feminine but overlaid with wiry musculature, 
+though there does seem to be a delicateness about her small 
+limbs. 
+~
+10 0 37 129 0 5d1+127 1d2+0 0 7 8 2 0 0 0 0
+0 0 0 0 0 2 24 0 0 0 0 0 65 0 0 0
+11 12 12 3 16 15 78 16
+0 0
+0 54 0 74 0 0 0 0 0 0
+0 0 0 0 0 0 57 0 0 0
+72 46 0 0 67 49 0 0 39 71
+0 0 71 0 0 34 35 36 13 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 59 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 65 0 49 63 0
+0 63 0 0 0 0 0 0 0 0
+42 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 65 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' house_courcel 'member' eradan_battalion 'member' cao_guild 'corporal' cao_marsh 'member' cao_gherdin 'member' battered_shield 'member' cao_lorehouse 'member' amdir_settler 'member' mt_citizens 'member' caolafon-citizen 'member' cao_ring_guardians~
+0 0 0
+#45041
+Aderyn weedy man narrow face xNahar_NPCx MW_CAO~
+a weedy man with a narrow face~
+A weedy man with a narrow face is here.~
+   Blond hair tops this mans head, cropped closely against his 
+skull. His eyes are a bit beady, but a bright crystal blue, set 
+evenly on either side of a rather large nose. His lips are thin 
+and bloodless, crudely split by an old scar that stretches from 
+his temple to the center of his chin. His teeth, when revealed, 
+are uneven and just a few short of a full set. His height could 
+be considered imposing, but his long, thin limbs merely give him 
+a stretched look. 
+~
+10 0 35 122 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 4 24 0 0 0 0 0 0 0 0 0
+16 16 16 5 16 16 78 16
+0 0
+0 16 0 0 0 0 0 0 0 65
+65 0 0 0 0 0 60 70 0 0
+60 40 0 0 0 0 0 0 0 0
+0 0 70 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 65 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' cao_mw_officers 'member' caolafon_citizen 'sergeant' cao_marsh~
+0 0 0
+#45042
+Deowyth stocky auburn haired man xNahar_NPCx MW_CAO~
+a stocky, auburn haired man~
+A stocky, auburn haired man is here.~
+   This man is of medium height, with broad shoulders and 
+lightly-muscled limbs. His auburn hair hangs to about 
+ear-length, bordering a face that is tanned and weathered, 
+bearing a number of scars. Laugh lines linger near the corners 
+of his dark brown eyes and narrow mouth. His gait is a bit 
+uneven, but his hands are notably steady in whatever tasks he 
+puts them to. 
+~
+10 0 35 129 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 4 24 0 0 0 0 0 0 0 0 0
+16 16 16 5 16 16 78 16
+0 0
+0 16 0 65 0 0 0 0 0 60
+0 0 0 0 0 0 65 70 0 0
+57 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 65 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' cao_marsh 'sergeant' cao_mw_officers 'member' caolafon_citizen~
+0 0 0
+#45043
+Dillian stout brutish brute pale fair man xNahar_NPCx MW_CAO~
+a stout and brutish fair-haired man~
+A pale skinned brute of a man is stood here.~
+   This man's features are stern and twisted by scarring and the 
+general idle, irritant demeanor often taken to his face. The 
+right half of his face is slack for the most part, and carries 
+severe burn scars. His right shoulder and the lower part of his 
+neck carries similar, if more severe looking, old burns. A few 
+licks of flame had licked over his bicep on that half. His frame 
+is stout, and thick, and weight is generally piled on, core to 
+limbs. Iron cords of muscle stand out in his neck, and strong, 
+sturdy legs support his mass. Starkly fair hair spills down from 
+his skull, held up in a half dozen or so braids. Thick calluses 
+are built upon each of his hands, under the fingers prominent, 
+but most of it in general just seems to be layered in tough skin. 
+~
+10 0 32 122 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 4 24 0 0 0 0 0 0 0 0 0
+16 16 16 5 16 16 78 16
+0 0
+0 16 0 0 65 0 0 0 0 0
+65 0 0 0 0 0 0 0 0 0
+60 40 0 0 0 0 0 0 0 0
+0 0 60 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 60 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' caolafon_citizen 'sergeant' cao_mw_officers 'sergeant' cao_marsh~
+0 0 0
+$~

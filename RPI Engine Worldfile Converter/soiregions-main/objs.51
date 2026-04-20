@@ -1,0 +1,4670 @@
+#51000
+construction stone bastion Eradan OTHER~
+construction on a Stone Building~
+The beginnings of a Stone Bastion~
+   Workmen and soldiers swarm over this site, slowly working on 
+the construction of a stone bastion. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 3600 8006 0 30 0 0
+#51001
+deed liegeman eradan_battalion OTHER~
+a Liegeman~
+The deed for a Battalion Liegeman~
+   Fashioned of quality iron and polished to a high sheen, this 
+plate gorget is clearly the work of an accomplished Master. 
+Precision crafted, layered plates provide for ease of movement 
+and soft deer hide lines the interior providing comfort for the 
+wearer. A small shield and moon, with two stars above them, are 
+artfully engraved in the steel plate on the right side of the 
+wearer's neck. 
+~
+61 4096 1
+51001 5 0 0
+100 0.000000
+0 0 0 0 0 0 1
+450.000000 0 0 0 0 0 0
+#51002
+deed footman eradan_battalion OTHER~
+a Footman~
+The deed for a Battalion Footman~
+   Purchasing this will arrange for the hiring and outfitting of 
+a new Footman. While he will be armored, he will still require 
+any weapons, bows, and appropriate sheaths, that you wish to 
+outfit him with. Once his year and a half term as a footman, he 
+will become an experienced Armsman 
+~
+61 4096 1
+51002 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+700.000000 0 0 0 0 0 0
+#51003
+deed armsman eradan_battalion OTHER~
+an Armsman~
+The Deed for a Battalion Man at Arms~
+   Purchasing this will arrange for the hiring and outfitting of 
+a new Armsman. While he will be armored, he will still require 
+any weapons, bows, and appropriate sheaths, that you wish to 
+outfit him with. 
+~
+61 4096 1
+51003 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1350.000000 0 0 0 0 0 0
+#51114
+tirith private armor package Battalion_Tirith_Private byPhear OTHER~
+a package of armor for Pel Tirith Privates~
+A large package of Pel Tirith Private armor lies here.~
+   A large burlap sack contains various armor items useable by the Pel Tirith.
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 30 0 0 1
+400.000000 0 0 0 0 0 0
+#51004
+rope aged braided rope TEXTILE~
+a length of aged, braided rope~
+a length of aged, braided rope~
+This piece of rope, cut from a hangman's noose, is stained with age.  Its once white and yellow sheen has been since tarnished with dirt, frays, and copper colored stains.  The scent of death and decay accompany its presence.
+~
+18 4096 2049
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#51005
+head severed head pointy ears OTHER~
+a severed head with pointed ears~
+a severed head with pointed ears~
+This head formerly belonged to an elf of unknown sex, the androgynous,  Fae qualities of their race making it impossible to distinguish.  Its flesh is a mottled grey, having been separated from its owner for some time.  Each eye is half open in a mockery of the life they once held and its mouth is agape enough to show a swollen, black tongue.  The hair is long, long enough to be tied to a warrior's belt as a trophy.
+~
+11 4096 262145
+0 0 0 0
+800 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51006
+crane LIFTUP wooden platform WOOD~
+a wooden crane with a lifted wooden platform~
+A wooden crane is built onto the ramparts here, a lifted wooden platform swaying gently in the air.~
+   Built sturdily from nails and timber, this crane has been 
+attached sturdily into the ramparts using a network of ropes. 
+Another such mess of rope extends downwards, over the edge, and 
+all around the wooden lift it supports. Currently, the lift is 
+up at rampart level. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51007
+crane LIFTDOWN wooden platform WOOD~
+a wooden crane with a lowered wooden platform~
+A wooden crane is built onto the ramparts here, its supported lift currently down on the ground below.~
+   Built sturdily from nails and timber, this crane has been 
+attached sturdily into the ramparts using a network of ropes. 
+Another such mess of rope extends downwards, over the edge, and 
+all around the wooden lift it supports. Currently, the lift is 
+down below. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51008
+lift rope WOOD~
+a wooden lift with ropes going upwards~
+A wooden lift with ropes going upwards to the ramparts is on the ground here.~
+   Put together with clever use of wood and nails, this lift is 
+currently extended down from the walls of the keep above, a 
+tangle of ropes supporting it and giving it the ability to be 
+hoisted back up to the ramparts. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51009
+Gears GARRISON-KEY set Simple METAL~
+a simple set of gears~
+A simple set of gears lie outside their machinery~
+   This simple set of pullies and gears set high on the wall 
+appear to be a critical link in the works of the chains that 
+stretch up from the gate, through eye-lits cut into the stone, 
+and into the winches within the guardhouse. 
+~
+18 135168 0
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#51010
+Direction xNorth xBatts OTHER~
+the north pointing mangonel~
+The mangonel is positioned to fire northwards.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51014
+Range xShort xBatts xmangonel OTHER~
+the mangonel is in the short range position~
+The mangonel is positioned to fire short distance.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51011
+Direction xEast xBatts OTHER~
+the east pointing mangonel~
+The mangonel is positioned to fire eastwards.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51012
+Direction xSouth xBatts OTHER~
+the south pointing mangonel~
+The mangonel is positioned to fire southwards.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51013
+Direction xWest xBatts OTHER~
+the west pointing mangonel~
+The mangonel is positioned to fire westwards.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51015
+Range xLong xBatts xMangonel OTHER~
+the mangonel is in the long range position~
+The mangonel is positioned to fire long distance.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51016
+trough empty SIEGECRAFT WOOD~
+an empty trough~
+An empty trough hangs out over the edge.~
+   Constructed of simple, weathered wood that has been nailed 
+together with copper spikes, this trough-like box hangs from the 
+battlements wall. A simple rope and lever system allows for the 
+box's bottom to be opened and dumped down onto any luckless 
+individuals below. The latch currently lies open, and the box 
+empty. 
+~
+12 4096 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51017
+filled trough stones SIEGECRAFT WOOD~
+a wooden trough filled with stones~
+A wooden trough hangs here, its confines filled with numerous rocks.~
+   Constructed of simple, weathered wood that has been nailed 
+together with copper spikes, this trough-like box hangs from the 
+battlements wall. A simple rope and lever system allows for the 
+box's front side to be opened, thereby dumping it's contents upon 
+any luckless individuals below. It is currently filled with 
+numerous rocks and stones, it's latch set into place and ready to 
+be released. 
+~
+12 4096 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51018
+stack rack rope lashed logs ramp SIEGECRAFT WOOD~
+a stack of rope-lashed logs~
+Logs are stacked atop a ramp sloping downward.~
+   Six logs have been stacked into a pyramid atop a simple 
+downward slanting ramp that hangs over the battlements side. Two 
+simple vertical slats are all that prevent them from crashing 
+down the ramp and crushing anything and anyone below. The two 
+slats have been cleverly connected by rope and pulley to a lever 
+set behind the cover of the ramparts - ready to be pulled. 
+~
+12 4096 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51019
+empty rack logs ramp SIEGECRAFT WOOD~
+an empty rack~
+An empty rack is perched here.~
+   A empty wooden ramp stands forlorn atop the battlements walls, 
+overlooking the gatehouse. Its spacious slats look capable of 
+holding several logs, were one inclined to fill it. A simple 
+gate at the end can be raised or lowered at will by means of a 
+rope stretching to the wall and tied off on a belaying pin. 
+~
+12 4096 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51020
+ARAPHOR_PLOT small engraved silver medallion METAL~
+a small, engraved silver medallion~
+A small, engraved silver medallion lies here.~
+   This medallion is made of old silver, the burnish and polish 
+completely gone. Its surface is engraved with a grinning mask, 
+two stilettoes piercing both eyes. Sigils can be seen above it, 
+but are too small to be seen by the naked eye. Apart from this, 
+little seems to be odd about it. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#51021
+PCAMRON Demandred signet ring silver dragon METAL~
+a silver dragon signet ring~
+A silver dragon signet ring lies here.~
+   Finely made, this ring is made of pure silver. Its thin 
+length is just the size for a man's forefinger, a strip of onyx 
+running its middle. Upon the top of the ring, boldly engraved, 
+is a dragon, claws outstretched as its body curls upon an 
+invisible wind. It is of exquisite make. 
+~
+11 4096 3
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 28 0 0
+#51022
+broken hilt generic sword WOOD~
+a broken sword hilt~
+A broken sword hilt lies here, ruined.~
+   This sword hilt was once attached to a blade, to tell by the 
+broken lacing. A small piece of the blade remains, potruding 
+like a stump. It is made of some kind of wood. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51023
+map pins board Map_Board OTHER~
+a large map full of pins, markings and stretched pieces of twine~
+A large map full of pins, markings and stretched pieces of twine is spread over the eastern wall.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51024
+garrison hack invisible simple OTHER~
+a simple, invisible garrison hack~
+A simple, invisible garrison hack used in an rprog to prevent mob cues from running on the BP.~
+~
+13 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51025
+cracks door DOOR_BASH_PROG Battalion OTHER~
+#6a crack in the door#0~
+#6A crack runs through the door.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51026
+an old rusted heavy key METAL~
+an old, heavy rusted key~
+An old, heavy rusted key lies here.~
+~
+18 4108 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#51027
+white wolf hair strand OTHER~
+a strand of white wolf hair~
+A strand of white wolf hair is here.~
+This patch of hair is a pure white in color, and seems to have come
+from a wolf gauging by the texture and the look of it. It isn't too
+large, but retains a lustrous white shine.
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51028
+wooden capstan OTHER~
+a wooden capstan~
+A wooden capstan is here~
+   This wooden instrument has a drum base with a wheel head from 
+which spokes extend out. Meant for hands to grip the spokes and 
+turn the wheel, the object is clearly meant to help wind and 
+unwind the chain attached to it. 
+~
+12 4096 0
+0 0 0 0
+2500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51029
+shortsword fang-hilted iron-cored pNERIN UNIQUE EXPERT METAL~
+a fang-hilted steel shortsword with an iron core~
+A fang-hilted steel shortsword made with an iron core lies here, forgotten.~
+   This shortsword's hilt has been crafted from a single long 
+fang, pure white in color and about a handsbreadth and a half. 
+Its surface has been wound with black leather strips, wrapping 
+around until it reaches the point, which is left naked to the 
+world. Strips of bronze have been attached to the fang, 
+reinforcing it and providing a stable support for the plain 
+bronze crossguard. This curves inwards away from the blade, made 
+of blued steel with an iron core. Carefully crafted, it extends 
+out dangerously for several handspans. Both edges are incredibly 
+sharp, ending in a point which curves lightly upwards and the 
+steel has been imprinted with a wolf's head at its base. 
+~
+5 135168 8193
+0 1 7 2
+400 0.000000
+4 0 0 0 0 0 1
+0.000000 0 0 0 18 0 0
+S
+100002
+#51030
+beam sturdy iron METAL~
+a sturdy iron beam~
+A sturdy iron beam extends from the wall to block the door~
+   This beam, quite heavy and constructed from iron, has been 
+flattened and reinforced. Several holes have been drilled 
+through its center along the length of the beam, apparently for 
+securing it to some surface. 
+~
+12 4096 0
+0 0 0 0
+50000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#51031
+gate wooden sturdy ford ITHILIEN_RIVER_FORD ITHILIEN WOOD~
+a sturdy wooden gate~
+#5A sturdy wooden gate guards the ford here.~
+   This gate has been fashioned of sturdy wood, two tall pillars 
+on either side providing the support for a durable-looking roof. 
+A reinforced wooden gate has been set between these pillars, 
+easily able to withstand some punishment. 
+~
+12 4096 0
+0 0 0 0
+90000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51032
+small brass key Battalion_Fellow_Five byPhear METAL~
+a small brass key etched with the numeral five~
+A small brass key, etched with the numeral five lies here.~
+   This small key is made of brass, and has the numeral five 
+etched into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#51033
+small brass key Battalion_Fellow_Four byPhear METAL~
+a small brass key etched with the numeral four~
+A small brass key, etched with the numeral four lies here.~
+   This small key is made of brass, and has the numeral four 
+etched into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#51034
+small brass key Battalion_Fellow_Three byPhear METAL~
+a small brass key etched with the numeral three~
+A small brass key, etched with the numeral three lies here.~
+   This small key is made of brass and has the numeral three 
+etched into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#51035
+small brass key Battalion_Fellow_Two byPhear METAL~
+a small brass key, etched with the numeral two~
+A small brass key, etched with the numeral two lies here.~
+   This small key is made of brass and has the numeral two etched 
+into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#51036
+small brass key Battalion_Fellow_One byPhear METAL~
+a small brass key, engraved with a numeral~
+A small brass key, etched with the numeral one lies here.~
+   This small key is made of brass and has the numeral one etched 
+into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#51037
+key~
+a key~
+a small silver key~
+~
+18 12 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51038
+small bronze key one etched Battalion_Officer_One byPhear METAL~
+a small bronze key etched with the numeral one~
+A small bronze key, etched with the numeral one lies here.~
+   This small key is made of bronze and has the numeral one 
+etched into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#51039
+small bronze key Battalion_Officer_Two byPhear METAL~
+a small bronze key etched with the numeral two~
+A small bronze key, etched with the numeral two lies here.~
+   This small key is made of bronze and has the numeral two 
+etched into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#51040
+small bronze key Battalion_Officer_Three byPhear METAL~
+a small bronze key etched with the numeral three~
+A small bronze key, etched with the numeral three lies here.~
+   This small key is made of bronze and has the numeral three 
+etched into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#51041
+small bronze key Battalion_Officer_Four byPhear METAL~
+a small bronze key etched with the numeral four~
+A small bronze key, etched with the numeral four lies here.~
+   This small key is made of bronze and has the numeral four 
+etched into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#51042
+small bronze key Battalion_Officer_Five byPhear METAL~
+a small bronze key etched with the numeral five~
+A small bronze key etched with the numeral five lies here~
+   This small key is made of bronze and has the numeral five 
+etched into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#51043
+small iron key Battalion_Armsman_Chest_One byPhear METAL~
+a small iron key etched with the numeral one~
+A small iron key etched with the numeral one lies here~
+   This small key is made of iron and has the numeral one etched 
+into its surface. 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+20.000000 0 0 0 17 0 0
+#51044
+small iron key Battalion_Armsman_Chest_Two byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral two lies here.~
+   This small key is made of iron and has the numeral two, etched into its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+20.000000 0 0 0 17 0 0
+#51045
+small iron key Battalion_Armsman_Chest_Three byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral three lies here.~
+   This small key is made of iron and has the numeral three, etched into its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+20.000000 0 0 0 17 0 0
+#51046
+small iron key Battalion_Armsman_Chest_Four byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral four lies here.~
+   This small key is made of iron and has the numeral four, etched into its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+20.000000 0 0 0 17 0 0
+#51047
+small iron key Battalion_Armsman_Chest_Five byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral five lies here.~
+   This small key is made of iron and has the numeral five, etched into its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+20.000000 0 0 0 17 0 0
+#51048
+large wooden foot locker Battalion_Footman_Locker_one byPhear WOOD~
+a large wooden foot locker~
+A large woodeen locker, etched with the numeral one sits here.~
+   This large wooden box has a hinged lid. The lid has the numeral one, carved into its surface.
+~
+15 4096 1
+10000 1 51058 0
+600 0.000000
+0 0 0 30 134217728 0 1
+120.000000 0 0 0 32 0 0
+#51049
+large wooden foot locker Battalion_Footman_Locker_Two byPhear WOOD~
+a large wooden foot locker~
+A large woodeen locker, etched with the numeral two sits here.~
+   This large wooden box has a hinged lid. The lid has the numeral two, carved into its surface.
+~
+15 4096 1
+10000 1 51059 0
+600 0.000000
+0 0 0 30 134217728 0 1
+120.000000 0 0 0 32 0 0
+#51050
+large wooden foot locker Battalion_Footman_Locker_Three byPhear WOOD~
+a large wooden foot locker~
+A large woodeen locker, etched with the numeral three sits here.~
+   This large wooden box has a hinged lid. The lid has the numeral three, carved into its surface.
+~
+15 4096 1
+10000 1 51060 0
+600 0.000000
+0 0 0 30 134217728 0 1
+120.000000 0 0 0 32 0 0
+#51051
+large wooden foot locker Battalion_Footman_Locker_Four byPhear WOOD~
+a large wooden foot locker~
+A large woodeen locker, etched with the numeral four sits here.~
+   This large wooden box has a hinged lid. The lid has the numeral four, carved into its surface.
+~
+15 4096 1
+10000 1 51061 0
+600 0.000000
+0 0 0 30 134217728 0 1
+120.000000 0 0 0 32 0 0
+#51052
+large wooden foot locker Battalion_Footman_Locker_Five byPhear WOOD~
+a large wooden foot locker~
+A large woodeen locker, etched with the numeral five sits here.~
+   This large wooden box has a hinged lid. The lid has the numeral five, carved into its surface.
+~
+15 4096 1
+10000 1 51062 0
+600 0.000000
+0 0 0 30 134217728 0 1
+120.000000 0 0 0 32 0 0
+#51053
+large wooden foot locker Battalion_Footman_Locker_Six byPhear WOOD~
+a large wooden foot locker~
+A large woodeen locker, etched with the numeral six sits here.~
+   This large wooden box has a hinged lid. The lid has the numeral six, carved into its surface.
+~
+15 4096 1
+10000 1 51063 0
+600 0.000000
+0 0 0 30 134217728 0 1
+120.000000 0 0 0 32 0 0
+#51054
+large wooden foot locker Battalion_Footman_Locker_Seven byPhear WOOD~
+a large wooden foot locker~
+A large woodeen locker, etched with the numeral seven sits here.~
+   This large wooden box has a hinged lid. The lid has the numeral seven, carved into its surface.
+~
+15 4096 1
+10000 1 51064 0
+600 0.000000
+0 0 0 30 134217728 0 1
+120.000000 0 0 0 32 0 0
+#51055
+large wooden foot locker Battalion_Footman_Locker_Eight byPhear WOOD~
+a large wooden foot locker~
+A large woodeen locker, etched with the numeral eight sits here.~
+   This large wooden box has a hinged lid. The lid has the numeral eight, carved into its surface.
+~
+15 4096 1
+10000 1 51065 0
+600 0.000000
+0 0 0 30 134217728 0 1
+120.000000 0 0 0 32 0 0
+#51056
+large wooden foot locker Battalion_Footman_Locker_Nine byPhear WOOD~
+a large wooden foot locker~
+A large woodeen locker, etched with the numeral nine sits here.~
+   This large wooden box has a hinged lid. The lid has the numeral nine, carved into its surface.
+~
+15 4096 1
+10000 1 51066 0
+600 0.000000
+0 0 0 30 134217728 0 1
+120.000000 0 0 0 32 0 0
+#51057
+large wooden foot locker Battalion_Footman_Locker_Ten byPhear WOOD~
+a large wooden foot locker~
+A large woodeen locker, etched with the numerals one zero sits here.~
+   This large wooden box has a hinged lid. The lid has the numerals one zero , carved into its surface.
+~
+15 4096 1
+10000 1 51067 0
+600 0.000000
+0 0 0 30 134217728 0 1
+120.000000 0 0 0 32 0 0
+#51058
+small iron key Battalion_Foot_One byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral one lies here.~
+   This small dull iron key has the numeral one, etched on its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+15.000000 0 0 0 17 0 0
+#51059
+small iron key Battalion_Foot_Two byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral two lies here.~
+   This small dull iron key has the numeral two, etched on its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+15.000000 0 0 0 17 0 0
+#51060
+small iron key Battalion_Foot_three byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral three lies here.~
+   This small dull iron key has the numeral three, etched on its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+15.000000 0 0 0 17 0 0
+#51061
+small iron key Battalion_Foot_Four byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral four lies here.~
+   This small dull iron key has the numeral four, etched on its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+15.000000 0 0 0 17 0 0
+#51062
+small iron key Battalion_Foot_Five byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral five lies here.~
+   This small dull iron key has the numeral five, etched on its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+15.000000 0 0 0 17 0 0
+#51063
+small iron key Battalion_Foot_Six byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral six lies here.~
+   This small dull iron key has the numeral six, etched on its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+15.000000 0 0 0 17 0 0
+#51064
+small iron key Battalion_Foot_Seven byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral seven lies here.~
+   This small dull iron key has the numeral seven, etched on its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+15.000000 0 0 0 17 0 0
+#51065
+small iron key Battalion_Foot_Eight byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral eight lies here.~
+   This small dull iron key has the numeral eight, etched on its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+15.000000 0 0 0 17 0 0
+#51066
+small iron key Battalion_Foot_Nine byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral nine lies here.~
+   This small dull iron key has the numeral nine, etched on its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+15.000000 0 0 0 17 0 0
+#51067
+small iron key Battalion_Foot_Ten byPhear METAL~
+a small iron key~
+A small iron key, etched with the numerals one zero lies here.~
+   This small dull iron key has the numeral two, etched on its surface.
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+15.000000 0 0 0 17 0 0
+#51068
+fine strand black wolf hair OTHER~
+a fine strand of black wolf hair~
+A fine strand of black wolf hair lies here.~
+   This short strand of black fur seems to have come from a wolf, 
+to tell by its texture and thickness. It is a pure black, as 
+dark as the night in the midst of a forest, and silky to the 
+touch. It smells faintly of the woods. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51069
+cedar chest iron lock Battalion_Armsman_Chest_One byPhear WOOD~
+a stout cedar chest with a sizeable lock~
+A stout cedar chest sits here, the numeral one nicely carved in to its lid.~
+   This stout cedar chest is bound in iron and is secured with a
+heavy lock. The lid has the numeral one, carved into its surface.
+~
+15 4096 1
+10000 1 51043 0
+1500 0.000000
+0 0 0 30 134217728 0 1
+150.000000 0 0 0 32 0 0
+#51070
+cedar chest iron lock Battalion_Armsman_Chest_Two byPhear WOOD~
+a stout cedar chest with a sizeable lock~
+A stout cedar chest sits here, the numeral two nicely carved in to its lid.~
+   This stout cedar chest is bound in iron and is secured with a
+heavy lock. The lid has the numeral two, carved into its surface.
+~
+15 4096 1
+10000 1 51044 0
+1500 0.000000
+0 0 0 30 134217728 0 1
+150.000000 0 0 0 32 0 0
+#51071
+cedar chest iron lock Battalion_Armsman_Chest_Three byPhear WOOD~
+a stout cedar chest with a sizeable lock~
+A stout cedar chest sits here, the numeral three nicely carved in to its lid.~
+   This stout cedar chest is bound in iron and is secured with a
+heavy lock. The lid has the numeral three, carved into its surface.
+~
+15 4096 1
+10000 1 51045 0
+1500 0.000000
+0 0 0 30 134217728 0 1
+150.000000 0 0 0 32 0 0
+#51072
+cedar chest iron lock Battalion_Armsman_Chest_Four byPhear WOOD~
+a stout cedar chest with a sizeable lock~
+A stout cedar chest sits here, the numeral four nicely carved in to its lid.~
+   This stout cedar chest is bound in iron and is secured with a
+heavy lock. The lid has the numeral four, carved into its surface.
+~
+15 4096 1
+10000 1 51046 0
+1500 0.000000
+0 0 0 30 134217728 0 1
+150.000000 0 0 0 32 0 0
+#51073
+cedar chest iron lock Battalion_Armsman_Chest_Five byPhear WOOD~
+a stout cedar chest with a sizeable lock~
+A stout cedar chest sits here, the numeral five nicely carved in to its lid.~
+   This stout cedar chest is bound in iron and is secured with a
+heavy lock. The lid has the numeral five, carved into its surface.
+~
+15 4096 1
+100000 1 51047 0
+1500 0.000000
+0 0 0 30 134217728 0 1
+150.000000 0 0 0 32 0 0
+#51074
+gorget fine steel plate ERADAN_CONSTABLE collar byPhear METAL~
+a polished steel plate collar~
+A polished fine steel plate gorget lies here.~
+    This gorget is wrought of fine, steel platemail. It is 
+both smooth and sturdy, and polished to a high sheen. Being 
+designed to protect the wearer's neck against the blows of an 
+assailant. Artfully engraved on the side of it, is the tiny
+likeness of a noon and shield.  
+~
+9 4096 5
+3 5 0 0
+450 0.000000
+0 0 0 30 548 0 1
+1600.000000 0 0 0 18 0 0
+A
+10025 -20
+A
+10024 -30
+A
+10037 -20
+#51075
+training receipt book small xBATTALION byPHEAR LEATHER~
+a small training book~
+A small leather-bound training book has been left here.~
+   This small book is bound in black leather and has a grey
+moon and shield tooled on the front cover. 
+~
+54 4096 1
+25 0 0 0
+500 0.000000
+0 0 0 0 513 0 1
+0.000000 0 0 0 14 0 0
+#51076
+cuirass steel lustrous grey moonshield UniqueEradan byPhear METAL~
+a fine, lustrous grey, steel cuirass~
+A fine, lustrous grey, steel cuirass bearing a Shield and Moon sits here.~
+   This magnificent armor is made of fine steel, masterly 
+tempered to a lustrous grey. It is beautifully crafted with 
+fluted steel plates, carefully layered to provide superlative 
+cover and protection. Set over the heart is a small Shield and 
+Moon, with the shield set in obsidian and the moon set in quartz. 
+Soft deer hide, seemless and slightly padded lines the interior 
+providing comfort for the wearer. The cuirass buckles at the 
+sides, its fit tailored to its wearer and exquisitely detailed 
+with gilt chasing at the shoulders and lower edge, and around the 
+inset of the shield and moon. 
+~
+9 4096 9
+3 5 0 0
+1200 0.000000
+0 0 0 35 4612 0 1
+4000.000000 0 0 0 18 0 0
+A
+10025 -5
+A
+10024 -10
+A
+10037 -5
+#51077
+gorget steel lustrous grey moonshield UniqueEradan byPhear METAL~
+a fine, lustrous grey, steel gorget~
+A fine, lustrous grey, steel gorget bearing a Shield and Moon sits here.~
+   Fashioned of fine steel and tempered in great heat to a 
+lustrous sheen, this plate gorget is clearly the work of an 
+accomplished Master. Long hours of heating, forming, and 
+tempering evident in each piece. Precision crafted, layered 
+plates provide for ease of movement and soft deer hide, seemless 
+and slightly padded lines the interior providing comfort for the 
+wearer. A small shield and moon are artfully engraved in the 
+steel plate on the right side of the wearer's neck exquisitely 
+detailed with gilt chasing. 
+~
+9 4096 5
+3 5 0 0
+450 0.000000
+0 0 0 35 4612 0 1
+1650.000000 0 0 0 18 0 0
+#51078
+vambraces steel lustrous grey moonshield UniqueEradan byPhear METAL~
+a pair of fine, lustrous grey, steel vambraces~
+A pair of fine, lustrous grey, steel vambraces have been laid here.~
+   Fashioned of fine steel and tempered in great heat to a 
+lustrous sheen, these vambraces are clearly the work of an 
+accomplished Master. Long hours of heating, forming, and 
+tempering evident in each piece. The upper steel cannons are 
+expertly connected between the shoulders and the articulated 
+elbow joints which provide for ease of movement with smoothly 
+curved, scalloped plates. The lower cannons then cover the lower 
+arms, fitting underneath the bracers for extra protection. The 
+edges of the elbow plates are exquisitely detailed with gilt 
+chasing and soft deer hide, seemless and slightly padded lines 
+the interior surfaces providing comfort for the wearer. 
+~
+9 4096 257
+3 5 0 0
+900 0.000000
+0 0 0 35 4612 0 1
+2900.000000 0 0 0 18 0 0
+A
+10025 -5
+A
+10024 -10
+A
+10037 -5
+#51079
+leggings steel lustrous grey moonshield UniqueEradan byPhear METAL~
+a pair of fine, lustrous grey, steel leggings~
+A pair of fine, lustrous grey, steel leggings have been laid here.~
+   Fashioned of fine steel and tempered in great heat to a 
+lustrous sheen, these leggings are clearly the work of an 
+accomplished Master. Long hours of heating, forming, and 
+tempering evident in each piece. Precision crafted, beautifully 
+fluted cuisses, articulated poleyn, and finely fluted greaves 
+have been expertly combined creating these fine leggings. The 
+edges of the knee plates are exquisitely detailed with gilt 
+chasing. Soft deer hide, seemless and slightly padded, line the 
+interior surfaces, providing comfort for the wearer. 
+~
+9 4096 33
+3 5 0 0
+1100 0.000000
+0 0 0 35 4612 0 1
+4000.000000 0 0 0 18 0 0
+A
+10025 -5
+A
+10024 -10
+A
+10037 -5
+#51080
+gauntlets steel lustrous grey moonshield UniqueEradan byPhear METAL~
+a pair of fine, lustrous grey, steel gauntlets~
+A pair of fine, lustrous grey, steel gauntlets bearing a Shield and Moon sit here.~
+   Heat-tempered, lustrous grey, steel plates have been 
+beautifully fluted and layered on a pair of black leather 
+gauntlets in such a manner as to provide superiour protection, 
+yet still enable a firm grip on weapons. These gauntlets are 
+well made and snug fitting but made to interlock with matching 
+bracers at the wrist, allowing for maximun range of movement. A 
+small shield and moon are artfully engraved in the steel plate 
+that covers the back of the hands, exquisitely detailed with gilt 
+chasing. 
+~
+9 4096 129
+3 5 0 0
+400 0.000000
+0 0 0 35 4612 0 1
+1200.000000 0 0 0 18 0 0
+#51081
+bracer steel lustrous grey moonshield UniqueEradan byPhear METAL~
+a fine, lustrous grey, steel bracer~
+A fine, lustrous grey, steel bracer bearing a Shield and Moon sits here.~
+   This bracer is made of two seperate lengths of curved, 
+heat-tempered, lustrous grey, steel. That pieces are masterly 
+attached on one side with small hinges, and secured on the other 
+side by a pin and loop. A small shield and moon has been 
+artfully engraved on the solid piece of steel that protects the 
+outside of the forearm, exquisitely detailed with gilt chasing. 
+The underside of the pieces are covered with a layer of soft deer 
+hide allowing these large bracers to be comfortably worn, while 
+adding a bit of extra protection. 
+~
+9 4096 4097
+3 5 0 0
+100 0.000000
+0 0 0 35 4612 0 1
+300.000000 0 0 0 18 0 0
+#51082
+boots sabatons steel lustrous grey moonshield UniqueEradan byPhear METAL~
+a pair of fine, lustrous grey, steel plated boots~
+A pair of fine, lustrous grey, steel plated boots have been set here.~
+   Heat-tempered, lustrous grey, steel plates have been 
+beautifully fluted and layered on a pair of black leather boots 
+in such a manner as to provide superiour protection, covering the 
+top of the foot and coming to a sharp point just past the toes. 
+Articulated joints of scalloped plates protect the ankles in such 
+a way as to not impede movement. Not particularly heavier than 
+regular boots they are more tightly fitted and leave no room for 
+even a boot knife to be slipped into them. 
+~
+9 4096 65
+3 5 0 0
+600 0.000000
+0 0 0 35 4612 0 1
+1600.000000 0 0 0 18 0 0
+A
+10025 -5
+A
+10024 -10
+A
+10037 -5
+#51083
+shield steel lustrous grey moonshield UniqueEradan byPhear METAL~
+a well-crafted, lustrous grey, steel tower shield~
+A well-crafted, lustrous grey, steel tower shield bearing a Shield and Moon sits here.~
+   This strong and sturdy tower shield is made of steel, 
+well-crafted and heat-tempered to a lustrous sheen. It is long 
+and rectangular in shape with strong, thick straps of leather on 
+the back for an easy, yet sturdy grip. It is curved slightly to 
+better deflect blows and offers reliable protection. Engraved 
+neatly but not in an overly-ornamental way is the Shield and Moon 
+of Lord Eradan, set at the right, top-hand corner of the shield. 
+~
+6 4096 8912897
+6 16 60 0
+1000 0.000000
+0 0 0 35 4612 0 1
+900.000000 0 0 0 18 0 0
+#51084
+helm great steel lustrous grey winged visored UniqueEradan byPhear METAL~
+a finely crafted, lustrous grey, winged great helm~
+A finely crafted, lustrous grey, winged great helm sits here.~
+   Fashioned of fine steel and tempered in great heat to a 
+lustrous sheen, this helm is clearly the work of an accomplished 
+Master. Long hours of heating, forming, and tempering evident in 
+its contruction. Beautifully shaped plates have been expertly 
+layered to form a helm that provides complete protection for its 
+wearer's head. Featured on the front is a sharply angled visor 
+with reinforced ridges and lined with small holes to allow ample 
+breathing. When lowered, the visor provides a narrow band of 
+visibility, the edges strengthened to provide more protection. 
+On each side, a prominent stylized dragon wing extents upwards 
+and swept to the back. The helm has been exquisitely detailed 
+with gilt chasing and the inside has been covered with a layer of 
+soft, padded deer hide providing some comfort while worn. 
+~
+9 4096 17
+3 5 0 0
+600 0.000000
+0 0 0 35 4612 0 1
+1500.000000 0 0 0 18 0 0
+A
+10029 -3
+A
+10032 -10
+A
+10028 -10
+#51085
+cloak billowing grey moonshield UniqueEradanGuard byPhear TEXTILE~
+a fine billowing, grey cloak with a moon and shield symbol~
+A fine billowing, grey cloak with a moon and shield symbol has been laid here.~
+   Sewn from thick wool, this billowing cloak envelopes wearer's 
+body, reaching down to below the ankles. Masterly made, it is 
+tough enough that its light grey form protects its wearer from 
+the worst of the elements, it also boasts a deep hood for even 
+more warmth and shielding. Fine, black linen lines the inside of 
+the garment, providing confort for the wearer. On the back of 
+this cloak a large black shield has been embroidered, the light 
+grey wool of the cloak showing through in the middle, making the 
+Shield Moon symbol of Lord Eradan. A clasp of gold at the throat 
+is shaped like a shield, and is skillfully engraved with a moon. 
+~
+11 528384 1025
+0 0 0 0
+200 0.000000
+0 
+grey-cloaked~
+0 35 4612 0 1
+900.000000 0 0 0 7 0 0
+#51086
+sword EXPERT_QUALITY UniqueEradan bastard-sword fine steel-bladed byPhear METAL~
+a balanced, fine, steel-bladed bastard-sword~
+A fine, steel-bladed bastard-sword lies here, glistening in the light.~
+   This strong and sturdy tower shield is made of steel, 
+well-crafted and heat- tempered to a lustrous sheen. It is long 
+and rectangular in shape with strong, thick straps of leather on 
+the back for an easy, yet sturdy grip. It is curved slightly to 
+better deflect blows and offers reliable protection. Engraved 
+neatly but not in an overly-ornamental way is the Shield and Moon 
+of Lord Eradan, set at the right, top-hand corner of the shield. 
+~
+5 4096 8193
+0 1 9 3
+300 0.000000
+4 0 0 35 4612 0 1
+844.000000 0 0 0 18 0 0
+#51087
+fauld tasset stylized steel lustrous grey moonshield UniqueEradan byPhear METAL~
+a finely crafted, lustrous grey, tasseted fauld~
+A finely crafted, lustrous grey, tasseted fauld has been cast here.~
+   Fashioned of fine steel and tempered in great heat to a 
+lustrous sheen, this waist piece is clearly the work of an 
+accomplished Master. Long hours of heating, forming, and 
+tempering evident in its contruction. Beautifully fluted plates 
+have been expertly layered to form an articulated girdle that 
+protects the waist and hips of the wearer. To protect the small 
+of the back, a culet of small, steel lames laid horizontally has 
+been added. Stylized, tempered steel tassets hang from the 
+fauld, forming a full kilt, adding protection for the upper legs 
+without hindering movement. The edges of the plates have been 
+exquisitely detailed with gilt chasing and the undersides of the 
+pieces are covered with a layer of soft deer hide providing some 
+comfort while worn. 
+~
+9 4096 2049
+3 5 0 0
+600 0.000000
+0 0 0 35 4612 0 1
+1000.000000 0 0 0 18 0 0
+A
+10024 -5
+A
+10025 -10
+A
+10037 -10
+#51088
+pauldron besagews stylized steel lustrous grey moonshield UniqueEradan byPhear METAL~
+a finely crafted, lustrous grey, pauldron~
+A finely crafted, lustrous grey, pauldron has been set here.~
+   Fashioned of fine steel and tempered in great heat to a 
+lustrous sheen, this pauldron is clearly the work of an 
+accomplished Master. Long hours of heating, forming, and 
+tempering evident in each piece. Precision crafted, beautifully 
+fluted and curved plates have been expertly layered to form an 
+articulated joint that protects the shoulder while allowing for 
+substantial freedom of movement. A circular, steel besagew, 
+stylized as a full moon and inlaid with polished quartz, has been 
+added to protect the wearer's underarm. The edges of the plates 
+have been exquisitely detailed with gilt chasing and the 
+undersides of the pieces are covered with a layer of soft deer 
+hide providing some comfort while worn. 
+~
+9 4096 134217729
+3 5 0 0
+300 0.000000
+0 0 0 35 4612 0 1
+500.000000 0 0 0 18 0 0
+A
+10024 -5
+A
+10025 -10
+A
+10037 -10
+#51089
+gorget steel polished master sgt moonshield UniqueEradan byPhear METAL~
+a fine, polished steel gorget~
+A fine, polished steel gorget bearing a shield, moon and four stars sits here.~
+   Fashioned of fine steel and polished to a high sheen, this 
+plate gorget is clearly the work of an accomplished Master. 
+Precision crafted, layered plates provide for ease of movement 
+and soft deer hide lines the interior providing comfort for the 
+wearer. A small shield and moon, with four stars above them, are 
+artfully engraved in the steel plate on the right side of the 
+wearer's neck. 
+~
+9 4096 5
+3 5 0 0
+300 0.000000
+0 0 0 35 4612 0 1
+500.000000 0 0 0 18 0 0
+A
+10024 -5
+A
+10025 -10
+A
+10037 -10
+#51090
+gorget sgt steel polished moonshield UniqueEradan byPhear METAL~
+a fine, polished steel gorget~
+A fine, polished steel gorget bearing a shield, moon and three stars sits here.~
+   Fashioned of fine steel and polished to a high sheen, this 
+plate gorget is clearly the work of an accomplished Master. 
+Precision crafted, layered plates provide for ease of movement 
+and soft deer hide lines the interior providing comfort for the 
+wearer. A small shield and moon, with three stars above them, 
+are artfully engraved in the steel plate on the right side of the 
+wearer's neck. 
+~
+9 4096 5
+3 5 0 0
+300 0.000000
+0 0 0 35 4612 0 1
+500.000000 0 0 0 18 0 0
+A
+10024 -5
+A
+10025 -10
+A
+10037 -10
+#51091
+gorget armsmen iron polished moonshield UniqueEradan byPhear METAL~
+a fine, polished iron plate gorget~
+A fine, polished iron plate gorget bearing a shield, moon and two stars sits here.~
+   Fashioned of quality iron and polished to a high sheen, this 
+plate gorget is clearly the work of an accomplished Master. 
+Precision crafted, layered plates provide for ease of movement 
+and soft deer hide lines the interior providing comfort for the 
+wearer. A small shield and moon, with two stars above them, are 
+artfully engraved in the steel plate on the right side of the 
+wearer's neck. 
+~
+9 4096 5
+2 5 0 0
+300 0.000000
+0 0 0 35 4612 0 1
+300.000000 0 0 0 17 0 0
+A
+10024 -5
+A
+10025 -10
+A
+10037 -10
+#51092
+gorget footmen iron polished moonshield UniqueEradan byPhear METAL~
+a fine, polished iron plate gorget~
+A fine, polished iron plate gorget bearing a shield, moon and one star sits here.~
+   Fashioned of quality iron and polished to a high sheen, this 
+plate gorget is clearly the work of an accomplished Master. 
+Precision crafted, layered plates provide for ease of movement 
+and soft deer hide lines the interior providing comfort for the 
+wearer. A small shield and moon, with one star above them, are 
+artfully engraved in the steel plate on the right side of the 
+wearer's neck. 
+~
+9 4096 5
+2 5 0 0
+300 0.000000
+0 0 0 35 4612 0 1
+300.000000 0 0 0 17 0 0
+A
+10024 -5
+A
+10025 -10
+A
+10037 -10
+#51093
+banner black moon shield ERADAN_BATTALION carried byPhear TEXTILE~
+a pole mounted, black banner bearing a grey moon~
+a black banner bearing a grey moon, mounted proudly on an oaken pole rests here.~
+This banner has the shape of a black shield with a grey
+full moon embroidered on it. It is securely mounted on
+a tall, well finished, oaken pole. An eloquent but a 
+rather simple device designed to be carried in by the 
+hands. 
+
+~
+12 4096 1
+0 0 0 0
+400 0.000000
+0 0 0 35 4612 0 1
+100.000000 0 0 0 7 0 0
+#51094
+cloak billowing grey moonshield dragon golden UniqueEradan byPhear TEXTILE~
+a fine billowing, grey cloak with a moon and shield symbol~
+A fine billowing, grey cloak with a moon and shield symbol has been laid here.~
+   Sewn from thick wool, this billowing cloak envelopes the 
+wearer's body, reaching down to below the ankles. Masterly made, 
+it is tough enough that its light grey form protects its wearer 
+from the worst of the elements, it also boasts a deep hood for 
+even more warmth and shielding. Fine, black linen lines the 
+inside of the garment, providing confort for the wearer. 
+Exquisitly embroidered on the left breast is a black shield with 
+a light grey moon, the symbol of Lord Eradan. A golden clasp, 
+skillfully engraved in the likeness of great dragon coiled 
+protectively about the great white tree of Gondor, inset with 
+white gold, is attached at the throat. 
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+grey-cloaked~
+0 35 4612 0 1
+900.000000 0 0 0 7 0 0
+#51095
+cloak sweeping black velvet gold moonshield UniqueEradanSeneschal byPhear TEXTILE~
+a sweeping, velvet cloak bearing a golden moon and shield clasp~
+A sweeping, velvet cloak bearing a golden moon and shield clasp has been laid here.~
+   This cloak is made of fine, luxurious velvet and dyed night 
+black. A deep hood, lined in soft linen, hangs some distance 
+down the back. The edges have been trimmed in jet black silk 
+cord. A clasp of gold at the throat is shaped like a shield, and 
+is skillfully engraved with a moon, marking it as the heraldry of 
+Lord Eradan, Lord of the Crossroads and Emyn Arnen. 
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+black-cloaked~
+0 30 4612 0 1
+700.000000 0 0 0 6 0 0
+#51096
+cloak sweeping grey velvet embroidered Master_healer_eradan byphear TEXTILE~
+a fine, sweeping, grey velvet cloak~
+A fine, sweeping cloak of platinum grey velvet with a leaf of kingsfoil  embroidered on it lies here.~
+   Voluminous and enveloping, this cloak has been expertly 
+fashioned from finely-finished velvet. It is dyed a lustrous
+platinum grey. A deep hood, lined in soft linen, hangs some 
+distance down the back. A striking golden clasp, shaped like 
+a moon, fastens it about the wearers neck. The clasp is 
+skillfully engraved with a black shield, marking it as the 
+heraldry of Lord Eradan, Lord of the Crossroads and Emyn Arnen. 
+Over the wearers heart, embroidered in a thick golden thread 
+is the likeness of a leaf of kingsfoil, denoting the wearer 
+as a master healer.
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+grey-cloaked~
+0 30 4612 0 1
+600.000000 0 0 0 7 0 0
+#51097
+cloak billowing grey wool silver moonshield UniqueEradanJourneyman byPhear TEXTILE~
+a billowing cloak of fine grey wool with a silver moon and shield clasp~
+A billowing cloak of fine grey wool with a silver moon and shield clasp has been laid here.~
+   Voluminous and enveloping, this cloak has been expertly 
+fashioned from finely-woven fine grey wool. A deep hood, lined 
+in soft linen, hangs some distance down the back. A striking 
+silver clasp, shaped like a shield, fastens it shut. The clasp 
+is skillfully engraved with a moon, marking it as the heraldry of 
+Lord Eradan, Lord of the Crossroads and Emyn Arnen. 
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+grey-cloaked~
+0 30 4612 0 1
+500.000000 0 0 0 3 0 0
+#51098
+cloak billowing grey wool bronze moonshield UniqueEradanApprentice byPhear TEXTILE~
+a billowing cloak of fine grey wool with a bronze moon and shield clasp~
+A billowing cloak of fine grey wool with a bronze moon and shield clasp has been laid here.~
+   Voluminous and enveloping, this cloak has been expertly 
+fashioned from finely-woven fine grey wool. A deep hood, lined 
+in soft linen, hangs some distance down the back. A striking 
+bronze clasp, shaped like a shield, fastens it shut. The clasp 
+is skillfully engraved with a moon, marking it as the heraldry of 
+Lord Eradan, Lord of the Crossroads and Emyn Arnen. 
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+grey-cloaked~
+0 30 4612 0 1
+400.000000 0 0 0 3 0 0
+#51099
+cloak billowing grey wool moonshield UniqueEradanStaff byPhear TEXTILE~
+a billowing cloak of fine grey wool, embroidered with a moon and shield~
+a billowing cloak of fine grey wool, embroidered with a moon and shield has been laid here.~
+   Voluminous and enveloping, this cloak has been expertly 
+fashioned from finely-woven fine grey wool. A deep hood, lined 
+in soft linen, hangs some distance down the back. A black shield 
+is skillfully embroidered on the left breast, the light grey wool 
+of the cloak showing through in the middle, forming the heraldry 
+of Lord Eradan, Lord of the Crossroads and Emyn Arnen. 
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+grey-cloaked~
+0 30 4612 0 1
+300.000000 0 0 0 3 0 0
+#51100
+cedar chest iron lock Battalion_Armsman_Chest_Six byPhear WOOD~
+a stout cedar chest with a sizeable lock marked number six~
+A stout cedar chest sits here, the numeral six nicely carved in to its lid.~
+~
+15 4096 1
+10000 1 51101 0
+1500 0.000000
+0 0 0 30 0 0 1
+150.000000 0 0 0 32 0 0
+#51101
+small iron key Battalion_Armsman_Chest_Six byPhear METAL~
+a small iron key~
+A small iron key, etched with the numeral six lies here.~
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 17 0 0
+#51102
+cloak billowing black velvet dragon golden dress UniqueEradan byPhear TEXTILE~
+a luxurious, billowing, cloak of black velvet with a golden clasp~
+A luxurious, billowing, black velvet cloak with an engraved golden clasp has been laid here.~
+   This billowing cloak envelopes the wearer's body, reaching 
+down to below the ankles. Masterly crafted, it is made of fine, 
+luxurious velvet that has been dyed a lustrous ebon black. A 
+deep hood, lined in soft linen, hangs some distance down the 
+back. A golden clasp, exquisitly engraved in the likeness of a 
+great drake bearing an obsidian shield emblazened with a full 
+moon, inset in quartz, coiled protectively about the great tree 
+of gondor, inset in white gold, is attached at the throat. 
+~
+11 528384 1025
+0 0 0 0
+300 0.000000
+0 
+black-cloaked~
+0 35 4612 0 1
+1200.000000 0 0 0 6 0 0
+#51103
+belt thick tooled black leather polished steel buckle UniqueEradan byPhear LEATHER~
+a thick, tooled, black leather belt with polished steel buckle~
+A thick, tooled, black leather belt with polished steel buckle has been laid here.~
+   Made from thick leather, this belt has been expertly tooled 
+with intricate designs and dyed a lustrous black. A buckle, made 
+of the finest steel and highly polished, has been affixed to the 
+belt. The buckle has been exquisitely detailed with gilt 
+chasing. 
+~
+11 4096 2049
+0 0 0 0
+100 0.000000
+0 0 0 35 4612 0 1
+700.000000 0 0 0 14 0 0
+#51104
+ring signet drake moon-and-shield gold UniqueEradan byPhear METAL~
+an embossed gold signet ring~
+A gold signet ring embossed with a moon-and-shield design lies here, glinting.~
+   This heavy signet ring has been crafted from a fine gold alloy 
+that shines dully in even the faintest of light. The gold band 
+is thick and rounded, fitting comfortably on the finger. Upon 
+the front of the ring, a flat face bearing the insignia of Lord 
+Eradan of the Crossroads and the Emyn Arnen, an obsidian shield 
+set within a diamond in the shape of a Full Moon. 
+~
+8 4096 2
+0 0 0 0
+6 0.000000
+0 0 0 35 4612 0 1
+1200.000000 0 0 0 28 0 0
+#51105
+banner standard black xERADAN_BATTALION grey moon shield TEXTILECRAFT byPhear METAL~
+a black and grey banner hanging from a long steel lance, bearing a shield within a moon~
+A black and grey banner, bearing a shield within a moon, hangs proudly from a long steel lance.~
+   This large banner has a design of a black shield contained 
+within a grey moon and is mounted to a long steel lance, which is 
+itself is proudly carried by the Lord's men. The Lance itself is 
+of a lustrous steel and exceedingly sharp. The banner flaps 
+proudly in the wind and even on still days the close embroidery 
+of silk and cotton combine to give this banner a valorous gleam. 
+~
+12 4096 1
+0 0 0 0
+800 0.000000
+0 0 0 35 4612 0 1
+1200.000000 0 0 0 7 0 0
+#51106
+hide warg dressed white huge xUniquePhear LEATHER~
+a huge, white, dressed warg hide~
+A huge, white, dressed warg hide has been laid here.~
+  A finely skinned and dressed hide of a huge pure white warg.
+~
+38 4096 1
+0 0 0 0
+700 0.000000
+0 0 0 0 544 0 1
+0.000000 0 0 0 14 0 0
+#51107
+ship large masted warship uniqueeradan byphear WOOD~
+a large warship~
+A large, tall masted warship is secured here.~
+   A large, tall masted ship constructed of heavy, seasoned
+timber. The construction of the vessel is quite remarkable, 
+solid and well cared for. The vessel has definitely been 
+for the task of making war, metal shields hung in strategic
+locations and boarding devices scattered about, ready to be 
+deployed. The crew itself, mirrors the appearance of the
+vessel, battle hardened and ready for war.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51108
+dagor accessory package Battalion_Dagor_Accessories byPhear OTHER~
+a package of accessories for Pel Dagor~
+A large package of Pel Dagor accessories lies here.~
+   A large burlap sack contains various items useable by the Pel Dagor.
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 30 512 0 1
+400.000000 0 0 0 0 0 0
+#51109
+dagor recruit armor package Battalion_Dagor_Recruit byPhear OTHER~
+a package of armor for Pel Dagor Recruits~
+A large package of armor for Pel Dagor Recruits lies here.~
+   A large burlap sack contains various armor items useable by the Pel Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+1000.000000 0 0 0 0 0 0
+#51110
+dagor private armor package Battalion_Dagor_Private byPhear OTHER~
+a package of armor for Pel Dagor Privates~
+A large package of armor for Pel Dagor Privates lies here.~
+   A large burlap sack contains various armor items useable by the Pel Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+1500.000000 0 0 0 0 0 0
+#51111
+dagor corporal armor package Battalion_Dagor_Corporal byPhear OTHER~
+a package of armor for Pel Dagor Corporals~
+A large package of armor for Pel Dagor Corporals lies here.~
+   A large burlap sack contains various armor items useable by the Pel Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+1700.000000 0 0 0 0 0 0
+#51112
+dagor sergeant armor package Battalion_Dagor_Sergeant byPhear OTHER~
+a package of armor for Pel Dagor Sergeants~
+A large package of armor for Pel Dagor Sergeants lies here.~
+   A large burlap sack contains various armor items useable by the Pel Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+1900.000000 0 0 0 0 0 0
+#51113
+tirith accessory package Battalion_Tirith_Accessory byPhear OTHER~
+a package of Pel Tirith accessories~
+A large package of Pel Tirith accessories lies here.~
+   A large burlap sack contains various leather items useable by the Pel Tirith.
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 30 512 0 1
+200.000000 0 0 0 0 0 0
+#51115
+tirith corporal armor package Battalion_Tirith_Corporal byPhear OTHER~
+a package of armor for Pel Tirith Corporals~
+A large package of armor for Pel Tirith Corporals lies here.~
+   A large burlap sack contains various armor items useable by the Pel Tirith.
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 30 512 0 1
+400.000000 0 0 0 0 0 0
+#51116
+tirith sergeant armor package Battalion_Tirith_Sergeant byPhear OTHER~
+a package of armor for Pel Tirith Sergeants~
+A large package of armor for Pel Tirith Sergeants lies here.~
+   A large burlap sack contains various armor items useable by the Pel Tirith.
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 30 512 0 1
+500.000000 0 0 0 0 0 0
+#51117
+tirith weapon package Battalion_Tirith_Weapon byPhear OTHER~
+a package of Pel Tirith weapons~
+A large package of Pel Tirith weapons lies here.~
+   A large burlap sack contains various weapons useable by the Pel Tirith.
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 30 512 0 1
+900.000000 0 0 0 0 0 0
+#51118
+ecthel horse package Battalion_Ecthel_Horse byPhear OTHER~
+a package of Pel Ecthel Barding~
+A large package of Pel Ecthel Barding lies here.~
+   A large burlap sack contains Barding useable by the Pel Tirith.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+4000.000000 0 0 0 0 0 0
+#51119
+ecthel accessory package Battalion_Ecthel_Accessories byPhear OTHER~
+a package of accessories for Pel Ecthel~
+A large package of Pel Ecthel accessories lies here.~
+   A large burlap sack contains various items useable by the Pel Ecthel.
+~
+12 4198400 1
+0 0 0 0
+1000 0.000000
+0 0 0 30 512 0 1
+400.000000 0 0 0 0 0 0
+#51120
+ecthel private armor package Battalion_Ecthel_Private byPhear OTHER~
+a package of armor for Pel Ecthel Privates~
+A large package of armor for Pel Ecthel Privates lies here.~
+   A large burlap sack contains various armor items useable by the Pel Ecthel.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+1500.000000 0 0 0 0 0 0
+#51121
+ecthel corporal armor package Battalion_Ecthel_Corporal byPhear OTHER~
+a package of armor for Pel Ecthel Corporals~
+A large package of armor for Pel Ecthel Corporals lies here.~
+   A large burlap sack contains various armor items useable by the Pel Ecthel.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+1700.000000 0 0 0 0 0 0
+#51122
+ecthel sergeant armor package Battalion_Ecthel_Sergeant byPhear OTHER~
+a package of armor for Pel Ecthel Sergeants~
+A large package of armor for Pel Ecthel Sergeants lies here.~
+   A large burlap sack contains various armor items useable by the Pel Ecthel.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+1900.000000 0 0 0 0 0 0
+#51123
+badge medal silver gold apple five blossom 2484_OSGILIATH-DEFENSE byConscript METAL~
+an etched, five-petaled blossom of silver and gold~
+An etched, five-petaled blossom of silver and gold lays here~
+   This medal is crafted of silver in the shape of an apple 
+blossom. At the center of the five petals is a circle of gold 
+pebbled with small round bumps. Upon the top petal has been 
+etched a representation of the city of Osgiliath, as it stood 
+before the Fall, the Dome of Stars whole and dominate, with the 
+date 2484 below. On the left uppermost petal is engraved the 
+image of a sword before a seven-pointed star. On the right is a 
+shield before a full moon. 
+~
+12 135168 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+200.000000 0 0 0 28 0 0
+#51124
+engraved polished bracer UNIQUE_BATT_OFFICER iron METAL~
+an engraved, polished iron bracer~
+A polished iron bracer with a tree engraved in it lies here.~
+    This bracer is quite sturdy and has been made of iron, 
+polished to a bright sheen, it's surface unmarred. Steel 
+buckles and leather straps allow the bracer to be strapped 
+to one's forearms near the wrists, providing considerable 
+protection. Upon the surface at the top of the forearm, 
+the bracer bears a deep engraving of the tree of Gondor. 
+~
+9 4096 4105
+2 3 0 0
+100 0.000000
+0 0 0 33 516 0 1
+80.000000 0 0 0 17 0 0
+#51125
+shining pair of steel plated sleeves Unique_Kegren METAL~
+a brilliantly shining pair of steel plated sleeves~
+A brilliantly shining pair of steel plated sleeves lay hear glinting in the ambient light.~
+   Forged by the hands of a master, these sleeves are composed of 
+steel and fashioned into the form of platemail. Bearing a high 
+shine, they glint brilliantly in the presence of light and 
+possess the air of being extremely durable against any form of 
+attack. Bearing no form of mark or symbol, these sleeves are 
+rather spartan, lacking all form of aesthetics, but they are 
+absolutely superior at allowing the wearer a stout defense. 
+~
+9 4096 257
+4 5 0 0
+1000 0.000000
+0 0 0 40 1048608 0 1
+3000.000000 0 0 0 18 0 0
+A
+10025 -20
+A
+10024 -30
+A
+10037 -20
+#51126
+emblazoned teardrop shield smoky steel Unique_Kegren METAL~
+an emblazoned, teardrop shield of smoky steel~
+An emblazoned, teardrop shield of smoky steel lays here awaiting its owner.~
+   Made of the highest quality steel, this teardrop shaped shield 
+was crafted by a masters hand. Its wider top tapers down to 
+protect both the torso and the leading leg all at the same time 
+while not obstructing the swing of a weapon. It is smaller and 
+yet wider than the traditional example of this shield and would 
+most likely be used by someone who is short and stout. 
+Emblazoned upon its face is a greataxe splitting a large keg 
+whose surface is etched with the word Aequitas in bold, runic 
+lettering. The smoky quality of the steel tends to absorb light 
+rather than reflect it. 
+~
+6 4096 8912897
+0 0 0 0
+800 0.000000
+0 0 0 40 1052704 0 1
+3000.000000 0 0 0 18 0 0
+A
+10020 10
+#51127
+RULES OF ENGAGEMENT help sign OTHER~
+an #6OOC#0 sign detailing the #2RULES OF ENGAGEMENT#0~
+An #6OOC#0 sign detailing the #2RULES OF ENGAGEMENT#0 is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51128
+ badge BATTALION_SIEGEMAN_MEDAL shiny bronze tower medallion METAL~
+a shiny, bronze tower medallion~
+a shiny bronze medallion lies here, shaped like a tower.~
+   Fashioned with care out of a thin, but high quality bronze metal, this 
+small and detailed token is instantly recognizable as the shape of a lone 
+stone tower, complete with ramparts and a single rectangular arrow slit. 
+Standing tall and proud, this tower depicted here looks strong and sturdy. 
+At its base, there is an inscription in the Numenian mode, readable only 
+by those who know the sigils: "SIEGEMAN". 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 20 517 0 1
+50.000000 0 0 0 16 0 0
+#51129
+ badge BATTALION_SIEGEMASTER_MEDAL shiny silver tower medallion METAL~
+a shiny, silver tower medallion~
+a shiny silver medallion lies here, shaped like a tower.~
+   Fashioned with care out of a thin, but high quality silver metal 
+and polished to a high shine, this small and detailed token is instantly 
+recognizable as the shape of a lone stone tower, complete with ramparts 
+and a single rectangular arrow slit. Standing tall and proud, this tower
+depicted here looks strong and sturdy. At its base, there is an inscription
+in the Numenian mode, readable only by those who know the 
+sigils: "SIEGEMASTER". 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+100.000000 0 0 0 28 0 0
+#51130
+ badge BATTALION_AIDESMAN_MEDAL shiny bronze leaf medallion METAL~
+a shiny, bronze leaf medallion~
+a shiny bronze medallion lies here, shaped like a leaf.~
+   Fashioned with care out of a thin, but high quality bronze metal, 
+this small and detailed token is instantly recognizable as the shape of 
+a single leaf. The heavily-stylized leaf is oval-shaped and curved slightly, 
+and the maker has taken care to etch out the different veins of the leaf 
+which cross its surface in the most detailed of fashions. Attached to 
+the stem is a rectangle of bronze bearing an inscription in the Numenian 
+mode, readable only by those who know the sigils: "AIDESMAN". 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+50.000000 0 0 0 16 0 0
+#51131
+ badge BATTALION_SENIOR_AIDESMAN_MEDAL polished silver leaf medallion METAL~
+a polished, silver leaf medallion~
+a polished silver medallion lies here, shaped like a leaf.~
+   Fashioned with care out of a thin, but high quality silver metal 
+and polished to a high shine, this small and detailed token is 
+instantly recognizable as the shape of a single leaf. The heavily-
+stylized leaf is oval-shaped and curved slightly, and the maker has 
+taken care to etch out the different veins of the leaf which cross 
+its surface in the most detailed of fashions. Attached to the stem 
+is a rectangle of silver bearing an inscription in the Numenian mode, 
+readable only by those who know the sigils: "SENIOR AIDESMAN". 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+100.000000 0 0 0 28 0 0
+#51132
+ badge PEL TIRITH_MEDAL bright silver token flowering tree METAL~
+ a bright silver token of a flowering tree ~
+a bright silver toke lies here, shaped like a flowering tree.~
+   Crafted of fine, polished silver and exhibiting a great attention 
+to detail, this small and intricate medal has been crafted to display 
+a broad and flowering tree with thick, strong branches and leaves too 
+numerous to count. At the base of the thick trunk, the ridges and 
+gnarls clearly evident, upon which this tree stands tall and proud, 
+is an inscription in the Numenian mode, readable only by those who 
+know the sigils: "PEL-TIRITH". 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+100.000000 0 0 0 28 0 0
+#51133
+badge token BATTALION_PEL-DAGOR_MEDAL bright silver blade  medallion METAL~
+a bright silver token of a blade and shield~
+a bright silver token of a blade across a shield lies here.~
+   Crafted of fine, polished silver and exhibiting a great attention 
+to detail, this small and intricate medal has been crafted to display 
+a broad tower shield, rectangular in shape and sturdy of make. A broad 
+moon is seen at the center of the shield, and across its breast lays a 
+thick blade, which tapers to a deadly point. Down the length of the 
+blade runs an inscription in the Numenian mode, readable only by those 
+who know the sigils: "PEL-DAGOR". 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+100.000000 0 0 0 28 0 0
+#51134
+ badge BATTALION_LORD's_AWARD platinum gold tree medal METAL~
+ a platinum and gold tree-shaped medal ~
+a platinum and gold medal lies here, shaped like a tree.~
+   Of obviously expert make and comprised mainly of precious platinum 
+that shines with unusual brightness in any available light, this medal 
+bears the shape of a proud tree. Its branches extend high and wide, 
+each one painstakingly and individually molded. Upon the trees center 
+is a shield cast in bright gold metal, layered upon which is a moon of 
+a deeper color gold. Numenian-Tengwar sigils sit at its base 
+reading: "HONOR - LOYALTY - COURAGE". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+200.000000 0 0 0 28 0 0
+#51135
+badge BATTALION_STAR_OF_VALOR bright gold star  medallion METAL~
+a bright gold medal depicting a four-pointed star~
+A bright gold medal shaped like a four-pointed star lies here.~
+   Of obviously expert make and comprised of precious gold metal that 
+shines pleasantly in any available light, this medal bears the simple 
+shape of a four-pointed star with each tip pointing off in the four 
+major compass directions. The center of the star extends out from the 
+plane of the medal, and resting at each point of the star is a many-
+pointed sunburst, also crafted in flawless gold. At the center of the 
+star is etched, with great care and skill, an inscription in the 
+Numenian mode, readable by all who know the sigils. It reads, quite 
+simply, "VALOR". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+150.000000 0 0 0 28 0 0
+#51136
+badge BATTALION_MEDAL_OF_MERIT bright silver fist medallion  METAL~
+a bright silver medal depicting a raised fist~
+A bright silver medal shaped like a raised fist lies here.~
+   Of obviously expert make and comprised of high-quality silver metal that 
+shines pleasantly in any available light, this medal bears the simple shape 
+of a fist, loosely-clenched and raised into the air triumphantly. The thumb 
+and four mailled fingers are carefully etched into the metal of the badge, 
+and upon the wrist there is a simple inscription. Written in the sigils of 
+the Numenian-Tengwar script, the word "MERIT" can be seen quite clearly. 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+100.000000 0 0 0 28 0 0
+#51137
+badge BATTALION_AIDSMAN'S_EXCELLENCE_MEDAL bright silver leaf medallion  METAL~
+a fine silver medal shaped like a leaf ~
+A fine silver medal shaped like a leaf lies here.~
+   This beautiful silver medal has been expertly molded into the shape of a 
+five-pointed leaf. In the background, behind this leaf, a representation of 
+a bundle of various herbs and wildflowers of varying shapes and sizes is 
+seen, each line and detail of the herbs, flowers, and leaves painstakingly 
+etched into the metal of this badge. 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+100.000000 0 0 0 28 0 0
+#51138
+badge BATTALION_AIDSMAN'S_HIGH_HONOR_MEDAL elegant gold leaf medallion  METAL~
+an elegant gold medal shaped like a leaf~
+An elegant golden medal shaped like a leaf lies here.~
+   This beautiful gold medal has been elegantly molded into the shape of a 
+five-pointed leaf. In the background, behind this leaf, a epresentation of a 
+bundle of various herbs and wildflowers of varying shapes and sizes is seen, 
+each line and detail of the herbs, flowers, and leaves painstakingly etched 
+into the metal of this badge. 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+150.000000 0 0 0 28 0 0
+#51139
+badge BATTALION_ ERADANS_MEDAL_OF_DISTINGUISHED_SERVICE flawless platinum tree moon medallion  METAL~
+a flawless platinum medal shaped like a tree with a rising moon~
+A flawless platinum medal shaped like a tree with a rising  moon lies here.~
+   Crafted from a fine platinum metal, lightweight and possessing a fierce 
+shine, this token has been formed into the shape of a broad and flowering 
+tree, covered in perfect leaves each masterfully recreated here. Rising just 
+above the tree in the background is a magnificent full moon, dominating the 
+scene. Just below the base of the tree, in an artful and flowing script of 
+sigils in the Numenian mode, reads the following: "DISTINGUISHED SERVICE". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+200.000000 0 0 0 28 0 0
+#51140
+badge BATTALION_HEART_OF_THE_SOLDIER_MEDAL thick bronze clasped hands METAL~
+a thick bronze badge of two clasped hands~
+A thick bronze badge shaped like two clasped hands lies here.~
+   Crafted from a thick and polished bronze, the metal of this badge has 
+been fashioned into the shape of two mailled hands clasping each other, 
+each grip finding the other's wrist and forearm in a firm grasp. Rather 
+simple in design, the medal is completed by two small inscriptions. Upon 
+one forearm, clearly and simply, in Numenian-Tengwar: "BROTHERHOOD", and 
+upon the other forearm, this inscription is found in the same mode: "HEART". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+50.000000 0 0 0 16 0 0
+#51141
+badge BATTALION_GOOD_CONDUCT_MEDAL simple bronze thick hammer METAL~
+a simple bronze badge of a thick-headed hammer~
+A simple bronze badge of a thick-headed hammer lies here.~
+   Crafted from a thick and polished bronze, the metal of this badge has 
+been fashioned into the shape of a thick-headed sledgehammer, durable, 
+sturdy, and dependable. The handle of the hammer is simple enough and 
+matches the overall simple appearance of this medallion. There is a small 
+inscription upon the head of the hammer, four sigils of the Numenian 
+mode: "DUTY". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+50.000000 0 0 0 16 0 0
+#51142
+badge BATTALION_ EXEMPLARY_ACHIEVEMENT_MEDAL circular bronze torch burning METAL~
+a circular bronze medal depicting a burning torch~
+A circular bronze medal depicting a burning torch lies here.~
+   Made from a weighty bronze, this medal has been crafted into a circular 
+form, its edges smooth. Within the center of its form can be seen the 
+depiction of a wood-handled torch burning brightly. Upon the top rounding 
+edge of the materials can be seen the word, "ACHIEVEMENT" etched in 
+Numenian-script. 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+50.000000 0 0 0 16 0 0
+#51143
+badge BATTALION_ SIEGE_OF_2482_MEDAL rectangular bronze fort siege 2482 METAL~
+a rectangular bronze medal, engraved with a fort and the date 2482~
+A rectangular bronze medal, engraved with the date 2482, lies here.~
+   Fashioned with care out of a thin, but high quality bronze metal, 
+rectangular medal is engraved with great skill and detail with a scene of a 
+large fort besieged by yrch. Soldiers on the wall stand poised with bows at 
+the draw. On the left edge, two men walk, crouched, toward a bridge in the 
+distance. The moon and shield of Lord Eradan are clear upon the tiny flag 
+flying above the fort. In the Numenian mode, the words "Siege of 2482 S.R." 
+are etched along the bottom edge.
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 516 0 1
+50.000000 0 0 0 16 0 0
+#51144
+trebuchet huge complex siege engine xtefall byphear OTHER~
+a huge, complex trebuchet~
+A huge, complex trebuchet stands ready here.~
+   Careful work has gone into this structure of timber and
+rope. Many moving parts stymie the casual observer.
+~
+12 4096 0
+0 0 0 0
+80000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51145
+flags pennant black several OTHER~
+several black pennant flags~
+Several black pennant flags have been hung here.~
+   Several pennant flags, all colored black, hang here strung 
+across the area and adding a somber feel to the atmosphere. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51146
+circle stone cairn structure unique_eradan_grave byphear STONE~
+a large, stone structure~
+A large, granite cairn surrounded by several tall stones covers the ground here.~
+    A ring of tall rocks, placed to form the shape of a shield, surround a central stone cairn. A thick granite stone door sits at the entrance to the cairn, it's surface deeply engraved with a moon and shield. A pool of fresh water sets off to the side, it's smooth surfacve reflecting the sky above it.
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51147
+tome brittle ash-grey leather-bound lostsage byphear LEATHER~
+a tome bound in grey leather~
+An old tome bound in ash-grey leather lies here.~
+The leather binding this tome speaks of a time long ago, and long forgotten. The covering is a faded ash-grey bearing several scratches and stains. Its corners are worn and appear to be fairly brittle. The pages of the tome seem intact and securely bound, though yellowed and aged as well. Save for the few stains, the cover is unadorned by any lettering or sigals. Wrapped snugly about the tome is a thin Silver thread, tied in a perfect bow over the center of the cover. 
+~
+54 536875008 1
+50 0 0 0
+500 0.000000
+0 0 0 40 0 0 1
+0.000000 0 0 0 14 0 0
+#51148
+DOCK_BOARD_ITHIL crippled soldier OTHER~
+a crippled soldier giving and taking messages~
+A crippled soldier gives and takes messages here.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51149
+ badge BATTALION_SIEGEMAN_MEDAL shiny bronze tower byphear medallion METAL~
+a shiny, bronze tower medallion~
+a shiny bronze medallion lies here, shaped like a tower.~
+Fashioned with care out of a thin, but high quality bronze metal, this small 
+and detailed token is instantly recognizable as the shape of a lone stone 
+tower, complete with ramparts and a single rectangular arrow slit. Standing 
+tall and proud, this tower depicted here looks strong and sturdy. At its 
+base, there is an inscription in the Numenian mode, readable only by those 
+who know the sigils: "SIEGEMAN". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 20 4096 0 1
+50.000000 0 0 0 28 0 0
+#51150
+ badge BATTALION_SIEGEMASTER_MEDAL shiny silver tower byphear medallion METAL~
+a shiny, silver tower medallion~
+A shiny silver medallion lies here, shaped like a tower.~
+Fashioned with care out of a thin, but high quality silver metal and 
+polished to a high shine, this small and detailed token is instantly 
+recognizable as the shape of a lone stone tower, complete with ramparts and 
+a single rectangular arrow slit. Standing tall and proud, this tower 
+depicted here looks strong and sturdy. At its base, there is an inscription 
+in the Numenian mode, readable only by those who know the sigils: 
+"SIEGEMASTER". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 35 4096 0 1
+100.000000 0 0 0 28 0 0
+#51151
+badge BATTALION_BANNERMAN ridged silver inlaid two golden banners beside tower medallion METAL~
+a ridged silver badge inlaid with two golden banners beside a tower~
+A ridged silver badge inlaid with two golden banners beside a tower lies here.~
+   Of the highest quality, this badge is somewhat weighty when 
+held in the palm. Its edges have been notched in V shaped 
+ridges, the tips of which look to be sharp to the touch. Within 
+its center is visible a finely detailed tower, its gate standing 
+firm before a few whisps of etched grass. On both sides of the 
+tower stand two golden banners, one displaying a silver tree, 
+while the other displays a silver moon and shield. 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+50.000000 0 0 0 28 0 0
+#51152
+ badge BATTALION_SENIOR_AIDESMAN_MEDAL polished silver leaf byphear medallion METAL~
+a polished, silver leaf medallion~
+A polished silver medallion lies here, shaped like a leaf.~
+Fashioned with care out of a thin, but high quality silver metal and 
+polished to a high shine, this small and detailed token is instantly 
+recognizable as the shape of a single leaf. The heavily-stylized leaf is 
+oval-shaped and curved slightly, and the maker has taken care to etch out 
+the different veins of the leaf which cross its surface in the most detailed 
+of fashions. Attached to the stem is a rectangle of silver bearing an 
+inscription in the Numenian mode, readable only by those who know the 
+sigils: "SENIOR AIDESMAN". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+100.000000 0 0 0 28 0 0
+#51153
+ badge PEL TIRITH_MEDAL bright silver token flowering tree byphear METAL~
+a bright silver token of a flowering tree~
+A bright silver token lies here, shaped like a flowering tree.~
+Crafted of fine, polished silver and exhibiting a great attention to detail, 
+this small and intricate medal has been crafted to display a broad and 
+flowering tree with thick, strong branches and leaves too numerous to count. 
+At the base of the thick trunk, the ridges and gnarls clearly evident, upon 
+which this tree stands tall and proud, is an inscription in the Numenian 
+mode, readable only by those who know the sigils: "PEL-TIRITH". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+100.000000 0 0 0 28 0 0
+#51154
+ token BATTALION_PEL-DAGOR_MEDAL bright silver blade byphear medallion METAL~
+a bright silver token of a blade and shield~
+a bright silver token of a blade across a shield lies here.~
+Crafted of fine, polished silver and exhibiting a great attention to detail, 
+this small and intricate medal has been crafted to display a broad tower 
+shield, rectangular in shape and sturdy of make. A broad moon is seen at the 
+center of the shield, and across its breast lays a thick blade, which tapers 
+to a deadly point. Down the length of the blade runs an inscription in the 
+Numenian mode, readable only by those who know the sigils: "PEL-DAGOR". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+100.000000 0 0 0 28 0 0
+#51155
+ badge BATTALION_LORD's_AWARD platinum gold tree byphear medal METAL~
+ a platinum and gold tree-shaped medal ~
+a platinum and gold medal lies here, shaped like a tree.~
+Of obviously expert make and comprised mainly of precious platinum that 
+shines with unusual brightness in any available light, this medal bears the 
+shape of a proud tree. Its branches extend high and wide, each one 
+painstakingly and individually molded. Upon the trees center is a shield 
+cast in bright gold metal, layered upon which is a moon of a deeper color 
+gold. Numenian-Tengwar sigils sit at its base reading: "HONOR - LOYALTY - 
+COURAGE". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 40 4096 0 1
+200.000000 0 0 0 28 0 0
+#51156
+badge BATTALION_STAR_OF_VALOR bright gold star byphear medallion METAL~
+a bright gold medal depicting a four-pointed star~
+A bright gold medal shaped like a four-pointed star lies here.~
+Of obviously expert make and comprised of precious gold metal that shines 
+pleasantly in any available light, this medal bears the simple shape of a 
+four-pointed star with each tip pointing off in the four major compass 
+directions. The center of the star extends out from the plane of the medal, 
+and resting at each point of the star is a many-pointed sunburst, also 
+crafted in flawless gold. At the center of the star is etched, with great 
+care and skill, an inscription in the Numenian mode, readable by all who 
+know the sigils. It reads, quite simply, "VALOR". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 35 4096 0 1
+150.000000 0 0 0 28 0 0
+#51157
+badge BATTALION_MEDAL_OF_MERIT bright silver fist byphear medallion  METAL~
+a bright silver medal depicting a raised fist~
+A bright silver medal shaped like a raised fist lies here.~
+Of obviously expert make and comprised of high-quality silver metal that 
+shines pleasantly in any available light, this medal bears the simple shape 
+of a fist, loosely-clenched and raised into the air triumphantly. The thumb 
+and four mailled fingers are carefully etched into the metal of the badge, 
+and upon the wrist there is a simple inscription. Written in the sigils of 
+the Numenian-Tengwar script, the word "MERIT" can be seen quite clearly. 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+50.000000 0 0 0 28 0 0
+#51158
+badge BATTALION_AIDSMAN'S_EXCELLENCE_MEDAL bright silver leaf byphear medallion  METAL~
+a fine silver medal shaped like a leaf ~
+A fine silver medal shaped like a leaf lies here.~
+This beautiful silver medal has been expertly molded into the shape of a 
+five-pointed leaf. In the background, behind this leaf, a representation of 
+a bundle of various herbs and wildflowers of varying shapes and sizes is 
+seen, each line and detail of the herbs, flowers, and leaves painstakingly 
+etched into the metal of this badge. 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+100.000000 0 0 0 28 0 0
+#51159
+badge BATTALION_AIDSMAN'S_HIGH_HONOR_MEDAL elegant gold leaf byphear medallion  METAL~
+an elegant gold medal shaped like a leaf~
+An elegant golden medal shaped like a leaf lies here.~
+   This beautiful gold medal has been elegantly molded into the 
+shape of a five-pointed leaf. In the background, behind this 
+leaf, a representation of a bundle of various herbs and 
+wildflowers of varying shapes and sizes is seen, each line and 
+detail of the herbs, flowers, and leaves painstakingly etched 
+into the metal of this badge. 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 35 4096 0 1
+150.000000 0 0 0 28 0 0
+#51160
+badge BATTALION_ ERADANS_MEDAL_OF_DISTINGUISHED_SERVICE flawless platinum tree moon byphear medallion  METAL~
+a flawless platinum medal shaped like a tree with a rising moon~
+A flawless platinum medal shaped like a tree with a rising moon lies here.~
+Crafted from a fine platinum metal, lightweight and possessing a fierce shine, this token has been formed into the shape of a broad and flowering tree, covered in perfect leaves each masterfully recreated here. Rising just above the tree in the background is a magnificent full moon, dominating the scene. Just below the base of the tree, in an artful and flowing script of sigils in the Numenian mode, reads the following: "DISTINGUISHED SERVICE". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 40 4096 0 1
+200.000000 0 0 0 28 0 0
+#51161
+BATTALION_HEART_OF_THE_SOLDIER_MEDAL thick bronze badge clasped hands byphear METAL~
+a thick bronze badge of two clasped hands~
+A thick bronze badge shaped like two clasped hands lies here.~
+Crafted from a thick and polished bronze, the metal of this badge has been 
+fashioned into the shape of two mailled hands clasping each other, each grip 
+finding the other's wrist and forearm in a firm grasp. Rather simple in 
+design, the medal is completed by two small inscriptions. Upon one forearm, 
+clearly and simply, in Numenian-Tengwar: "BROTHERHOOD", and upon the other 
+forearm, this inscription is found in the same mode: "HEART". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+50.000000 0 0 0 28 0 0
+#51162
+BATTALION_GOOD_CONDUCT_MEDAL simple bronze thick hammer byphear METAL~
+a simple bronze badge of a thick-headed hammer~
+A simple bronze badge of a thick-headed hammer lies here.~
+Crafted from a thick and polished bronze, the metal of this badge has been 
+fashioned into the shape of a thick-headed sledgehammer, durable, sturdy, 
+and dependable. The handle of the hammer is simple enough and matches the 
+overall simple appearance of this medallion. There is a small inscription 
+upon the head of the hammer, four sigils of the Numenian mode: "DUTY". 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+50.000000 0 0 0 28 0 0
+#51163
+BATTALION_ EXEMPLARY_ACHIEVEMENT_MEDAL circular bronze torch burning byphear METAL~
+a circular bronze medal depicting a burning torch~
+A circular bronze medal depicting a burning torch lies here.~
+Made from a weighty bronze, this medal has been crafted into a circular 
+form, its edges smooth. Within the center of its form can be seen the 
+depiction of a wood-handled torch burning brightly. Upon the top rounding 
+edge of the materials can be seen the word, "ACHIEVEMENT" etched in 
+Numenian-script. 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+50.000000 0 0 0 28 0 0
+#51164
+BATTALION_ SIEGE_OF_2482_MEDAL rectangular bronze fort siege 2482 byphear METAL~
+a rectangular bronze medal, engraved with a fort and the date 2482~
+A rectangular bronze medal, engraved with the date 2482, lies here.~
+   Fashioned with care out of a thin, but high quality bronze 
+metal, this rectangular medal is engraved with great skill and 
+detail with a scene of a large fort besieged by yrch. Soldiers 
+on the wall stand poised with bows at the draw. On the left 
+edge, two men walk, crouched, toward a bridge in the distance. 
+The moon and shield of Lord Eradan are clear upon the tiny flag 
+flying above the fort. In the Numenian mode, the words "Siege of 
+2482 S.R." are etched along the bottom edge. 
+~
+12 4198400 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+50.000000 0 0 0 28 0 0
+#51165
+badge BATTALION_MEDAL_OF_RECOGNITION tree silver moon rising byphear METAL~
+a polished silver medal shaped as a tree with a moon rising behind it~
+A polished silver medal depicting a leafy tree with a full moon rising behind it lies here.~
+Crafted from a simple silver metal, plain, but polished bright, this token 
+has been formed into the shape of a tree, covered in delicate leaves. Rising 
+just above the tree, creeping out from among the upper branches is the the 
+edge of a burnished raised circle representing a full moon. 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4096 0 1
+100.000000 0 0 0 28 0 0
+#51166
+ERAD_QM_PUBLIC clerk soldier hoary board OTHER~
+#5a hoary, busy clerk#0~
+#5A hoary, busy clerk is here, taking messages for the quartermaster#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51167
+badge Battalion_Fall_of_Tur_Edendur_Medal city engulfed flames byphear METAL~
+an exquisite, golden medal shaped as a shield with a burning city~
+An exquisite, golden medal in the likeness a walled city engulfed in flames has been laid here.~
+Of obviously expert make, this exquisite shield-shaped golden medal bears an incredibly detailed engraving of a walled city engulfed in flames. A broken tower rises above the city, flames rising from the ruins. In the foreground, armored soldiers stand around a flag bearing a moon and shield, weapons raised in celebration. Around the rim of the coin, etched with great care, is an inscription in Westron, in the Numenian mode, which proclaimes, "The Fall of Tur Edendor - 2483"
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 35 4096 0 1
+150.000000 0 0 0 28 0 0
+#51168
+Training_Aid_Board tall older soldier Jason byphear OTHER~
+a tall, older soldier~
+A tall, older soldier stands here tracking the training of the younger soldiers.~
+   A tall, eldar soldier, this man sports well cropped black 
+hair. His eyes are a dark blue and set symmetrically above an 
+average sized nose. 
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51169
+hauberk UNIQUE_ERADAN leather-wrapped chainmail moon METAL byConscript~
+a leather-wrapped, embossed hauberk of fine chainmail~
+A leather-wrapped, embossed hauberk of fine chainmail lies here~
+   Obviously a masterwork, this hauberk of fine steel chain has 
+been interwoven with thin strips of leather, and covered with a 
+layer of leather, dyed a mottled forest-green. It is light 
+weight, and soft and supple around the joints, while hardened 
+over the pectorals, and the shoulder blades. Holding the leather 
+tight against the wearer's body are a few straps down either side 
+of the torso. On the left breast, embossed and dyed with great 
+skill, is a black shield before a full moon of muted 
+silvery-grey. 
+~
+9 135168 9
+3 4 0 0
+900 0.000000
+0 0 0 33 0 0 1
+0.000000 0 0 0 28 0 0
+A
+10024 -2
+A
+10037 -5
+A
+10025 5
+#51170
+helm UNIQUE_ERADAN greathelm leather-covered METAL byHalfjack~
+a leather-covered, steel greathelm~
+a leather-covered, steel greathelm lies here~
+   The helmet is adapted from a steel greathelm, heavily padded 
+on the inside, and covered about the outside with a thin layer of 
+dark leather. Areas of discoloration about the leather help to 
+break up its shape, just as the leather helps to disrupt any 
+glare or glinting metal. A thick leather strap secures the cheek 
+guards close to the wearer's face, and hold the helmet securely 
+in place. 
+~
+9 659968 17
+3 5 0 0
+500 0.000000
+0 
+leathered-greathelmed~
+0 33 4132 0 1
+1550.000000 0 0 0 28 0 0
+A
+10028 -10
+A
+10032 -10
+A
+10029 -6
+#51171
+sleeves UNIQUE_ERADAN chainmail leather-wrapped leather wrapped METAL byHalfjack~
+a pair of leather-wrapped, fine chainmail sleeves~
+A pair of leather-wrapped, fine chainmail sleeves~
+   Fine and masterfully created steel chainmail forms the basis 
+for this pair of sleeves. Interwoven through each link are small 
+cords of leather, and placed over the chain are larger pieces of 
+mottled forest-green leather. The leather is hardened around the 
+upper arm and lower arm, to provide increased protection, and 
+supple about the shoulders, elbows and wrists to allow for 
+freedom of movement. Stamped into the bottom of the forearm of 
+each sleeve is an uncolored shield, set before a large moon. 
+~
+9 135168 257
+3 4 0 0
+1000 0.000000
+0 0 0 33 4132 0 1
+2450.000000 0 0 0 28 0 0
+A
+10037 -5
+A
+10025 5
+A
+10036 -10
+A
+10024 -10
+#51172
+gorget UNIQUE_ERADAN collar leather-wrapped chain byConscript METAL~
+a leather and chain collar of forest green~
+A leather and chain collar of forest green lies here~
+   This collar has been cleverly wrought of fine chainmail, with 
+strips of leather interwoven through the links. A thin, light 
+and supple piece of leather, dyed a mottled forest green is 
+wrapped about the collar, preventing any glint or glare, and 
+dampening any sound from the chain. On the left side of the 
+throat, is a tiny, exquisitely embossed and died representation 
+of a black shield before a muted silvery-grey moon. On the 
+right, engraved by a master's hand into the leather is an artful 
+series of swirls that coalesce into a depiction of the White Tree 
+of Gondor, dyed a subdued white. 
+~
+9 4096 5
+3 4 0 0
+100 0.000000
+0 0 0 33 0 0 1
+0.000000 0 0 0 28 0 0
+A
+10025 2
+A
+10024 -2
+A
+10037 -2
+#51173
+leggings UNIQUE_ERADAN leather-wrapped chainmail leggings METAL byHalfjack~
+a pair of leather-wrapped, fine chainmail leggings~
+A pair of leather-wrapped, fine chainmail leggings is here~
+   A masterfully crafted pair of chainmail leggings has small 
+strips of leather interwoven through each link, and is covered 
+with durable layer of mottled forest-green dyed leather. Around 
+the joints, the hips, knees and ankles, the leather is soft and 
+supple, allowing for freedom of movement, but around the upper 
+and lower legs, the leather is hardened to increase its 
+protection. Various dark leather straps allow the hardened 
+leather to be pulled tighter about the wearer's legs to secure 
+the leggings in place. 
+~
+9 135168 33
+3 4 0 0
+1000 0.000000
+0 0 0 33 4132 0 1
+2500.000000 0 0 0 28 0 0
+A
+10037 -5
+A
+10025 5
+A
+10024 -10
+A
+10036 -10
+#51174
+boots UNIQUE_ERADAN leather eathern-brown earthen LEATHER byHalfjack~
+a pair of earthen-brown leather boots~
+A pair of earthen-brown leather boots lay here~
+   Colored a deep and mottled earthen-brown, these thick leather 
+boots reach up to mid-calf. They bear thick soles, allowing for 
+comfortable movement, and are soft and supple around the ankle, 
+though hardened about the calf. Strung up the inside of the 
+calves are thick leather laces, with a strap coming all the way 
+about the calf. 
+~
+15 135168 65
+100 0 -1 0
+200 0.000000
+0 0 0 33 4132 0 1
+200.000000 0 0 0 14 0 0
+A
+10024 5
+A
+10025 5
+#51175
+gauntlets UNIQUE_ERADAN green leather byCONSCRIPT LEATHER~
+a pair of forest green leather gauntlets~
+A pair of forest green leather gauntlets has been laid here~
+   These fine gauntlets are made of sturdy leather, dyed a 
+mottled forest green. The masterful craftsmanship has rendered 
+them light but protective. Laces of the same color close the 
+underside along the forearms. 
+~
+9 4096 129
+3 1 1 0
+200 0.000000
+0 0 0 33 0 0 1
+0.000000 0 0 0 14 0 0
+#51176
+sheath UNIQUE_ERADAN forest green byCONSCRIPT LEATHER~
+a sheath of forest-green leather~
+A sheath of forest green leather lays here~
+   This long sheath is masterfully made of mottled forest green 
+leather and is sized to fit a longsword. The pointed tip is 
+capped with a thin piece of steel, brushed to reduce its 
+reflective properties. The same metal rims the mouth of the 
+sheath. Engraved into the top rim is an intricate representation 
+of the White Tree of Gondor. 
+~
+58 4096 262145
+800 0 0 0
+200 0.000000
+0 0 0 33 0 0 1
+0.000000 0 0 0 14 0 0
+#51177
+heater UNIQUE_ERADAN shield fine METAL byHalfjack~
+a leather-covered, embossed, steel heater shield~
+A leather-covered, embossed, steel heater shield lies here~
+   A large steel triangle forms the base of this shield. 
+Masterfully attached to the front of the shield is a fairly thick 
+piece of leather, dyed a mottled forest-green. Over the center 
+of the leather is an embossing in muted colors of a black shield 
+before a silvery-grey moon. Along the reverse, where the steel 
+is left bare, are straps that secure it to the bearer's hand, 
+wrist and forearm. 
+~
+6 135168 8912897
+6 16 40 0
+1000 0.000000
+0 0 0 33 0 0 1
+800.000000 0 0 0 28 0 0
+#51178
+longsword UNIQUE_ERADAN sleek watery steel sword engraved byConscript METAL~
+a sleek, engraved longsword of watery steel~
+A sleek, engraved longsword of watery steel has been left here~
+   Forged of fine steel and given a watery, bluish tint, this 
+longsword is obviously the work of a master smith. The edge is 
+honed to a keen sharpness, and a channel is cut in the heart of 
+the steel, the entire length of the blade. Along one side of the 
+blade are engraved graceful Numenian sigils which say 'Duty and 
+Honor' in the Sindarin tongue for those eyes that can read it. A 
+finely wrought chain is set around the grip, allowing a firm hold 
+to be kept on the piece. The hilt is tastefully decorated with 
+engraved patterns, but not ostentatious, and the pommel is a 
+solid round ball engraved with a shield before a full moon. 
+~
+5 536875008 8193
+0 1 9 3
+220 0.000000
+4 0 0 33 0 0 1
+0.000000 0 0 0 18 0 0
+S
+100003
+#51179
+quill UNIQUE_ERADAN swan exquisite gold tipped black plume by CONSCRIPT OTHER~
+an exquisite, gold-tipped quill crafted from a black swan feather~
+An exquisite, gold-tipped quill crafted from a black swan feather rests here~
+   The glistening black plume of this exquisitely crafted quill 
+contrasts beautifully with the gold filigree laid painstakingly 
+into the shaft. The well-made tip is also of gold, fitting 
+snugly onto the end of the swan feather, forming an altogether 
+splendid and dignified writing instrument. 
+~
+55 536875008 33554433
+0 0 0 0
+25 0.000000
+0 0 0 40 0 0 1
+0.000000 0 0 0 0 0 0
+#51180
+case UNIQUE_ERADAN viper golden lebethron thin byConscript WOOD~
+a thin, rectangular case of pale wood, inlaid with a golden viper~
+A thin, rectangular case of pale wood, inlaid with a golden viper sits here~
+   This quill case of pale lebethron wood is long and thin, the 
+lid attached with tiny golden hinges and a small latch, engraved 
+with graceful patterns. Sanded to be so smooth it feels soft to 
+the touch, the lightweight case is lined with white velvet. A 
+representation of a coiled viper has been inlaid into the lid in 
+pure gold, extraordinary care taken with the details. 
+~
+15 537006080 262145
+100 1 -1 0
+100 0.000000
+0 0 0 39 0 0 1
+1000.000000 0 0 0 32 0 0
+#51181
+case UNIQUE_ERADAN tree golden lebethron thin byCONSCRIPT WOOD~
+a thin, rectangular case of pale wood, inlaid with a golden tree~
+A thin, rectangular case of pale wood, inlaid with a golden tree sits here~
+This quill case of pale lebethron wood is long and thin, the 
+lid attached with tiny golden hinges and a small latch, engraved 
+with graceful patterns. Sanded to be so smooth it feels soft to 
+the touch, the lightweight case is lined with white velvet. A 
+representation of the White Tree of Gondor has been inlaid into the lid in 
+pure gold, extraordinary care taken with the details. 
+~
+15 537006080 262145
+100 1 -1 0
+100 0.000000
+0 0 0 0 0 0 1
+1000.000000 0 0 0 32 0 0
+#51182
+table UNIQUE_ERADAN large mahogany moon WOOD byHalfjack~
+a large mahogany table, emblazoned with a shield and moon~
+A large mahogany table, emblazoned with a shield and moon is here~
+   The rich and dark coloring of this wood has been brought to a 
+deep sheen through meticulous staining. Clearly the child of 
+intensive labor, this table is massive, and its workmanship 
+masterful. About the edges are intricately carved depictions of 
+a shield set before a moon. Placed in the center of the massive 
+table, is an exquisitely carved, and painstakingly colored large 
+black shield, with a huge silvery white moon behind it. At 
+either end sits a chair, each showing the same level of 
+craftsmanship, and bearing a smaller, yet similarly colored 
+version of the shield before the moon on their backrests. 
+~
+15 2232320 1
+25000 0 -1 0
+15000 0.000000
+0 2 0 0 4132 0 1
+1500.000000 0 0 0 32 0 0
+#51183
+tent UNIQUE_ERADAN pavilion black silk TEXTILE byHalfjack byConscript~
+a huge black silk pavilion tent~
+A huge black silk pavilion tent is here~
+   Layers of black silk make up the large and opulent walls of 
+this massive pavilion tent. Alternating designs of the White 
+Tree of Gondor and a large black shield set before a rising 
+silvery-white moon decorate the walls, each carefully sewn to 
+bear no differences or imperfections. From the top of the tent 
+flaps a dark grey triangular flag bearing a painstakingly 
+rendered large black shield set before the rising silvery-white 
+moon. At one end of the tent, a single large rectangular door 
+lies, leading into the tent. 
+~
+12 135168 0
+0 20 1 -1
+20000 0.000000
+0 99051 0 30 4132 0 1
+1250.000000 0 0 0 5 0 0
+#51184
+pendant UNIQUE_ERADAN gold tree charm white NECKLACE moon chain METAL byHalfjack~
+a moon and tree charm on a fine chain of white gold~
+A moon and tree charm on a fine chain of white gold is here~
+   Masterfully etched into the fine gold of the pendant is a 
+colored depiction of a white gold tree, recognizeable as the 
+White Tree of Gondor. Behind it is a silvery-white moon, rising 
+into the sky. Each stroke has been meticulously colored to fully 
+bring to life the illustration. The pendant itself hangs on a 
+white gold chain, painstakingly forged to perfection. 
+~
+8 135168 2097153
+0 0 0 0
+10 0.000000
+0 0 0 33 4132 0 1
+500.000000 0 0 0 0 0 0
+#51185
+mumak toy brown stuffed byCONSCRIPT TEXTILE~
+a stuffed mumak toy~
+A stuffed mumak toy stands here~
+   This large stuffed toy is made of sturdy grey wool. It stands 
+two feet high on four thick, round legs. Threads have been 
+fastened to the cloth all over the body to represent hairs, and 
+deep yellow buttons have been sewn on for eyes. Two long stuffed 
+cones of white cloth protrude from either side of the head, they 
+are firm enough to keep their shape, but not hard, and the tips 
+are rounded. A thin grey rope hangs from the rear of the toy, 
+ending in a tuft of thread. The ears are larger than the head, 
+and a long, round nose curves upward in front. 
+~
+12 4096 1
+0 0 0 0
+500 0.000000
+0 0 0 30 0 0 1
+300.000000 0 0 0 7 0 0
+#51186
+badge BATTALION_HARADRIM_TREATY_2483_MEDAL round golden byConscript METAL~
+a round golden medal depicting a viper and the White Tree~
+A round golden medal depicting a viper and the White Tree is here~
+   This circular golden medal is engraved with meticulous 
+attention to detail. Depicted side by side is a coiled viper and 
+the White Tree of Gondor. Beneath these two symbols is a 
+representation of a scimitar below a longsword, pointing in 
+opposite directions. Both the weapons have been rendered 
+masterfully, each bearing the symbol of their respective 
+countries at the center of the guard. Around the rim of the 
+medal is engraved in Numenian sigils and the Westron tongue, "The 
+year 2483 by Lord Boromoir's Reckoning - Peace in Ithilien". 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 0 4096 0 1
+200.000000 0 0 0 28 0 0
+#51187
+locker $color foot footlocker simple byConscript WOOD~
+a simple $color footlocker~
+A simple $color footlocker sits here~
+   This simple footlocker is a rectangular box made of wood and 
+has been painted $color. The lid is hinged, and a metal hasp 
+allows the use of a lock. 
+~
+15 33558528 1
+10000 1 51188 30
+1000 0.000000
+0 0 0 25 0 0 1
+80.000000 0 0 0 32 0 0
+#51188
+key OBJ_51187_lockerKEY iron byConscript METAL~
+a sturdy iron key~
+A sturdy iron key has been left here.~
+This is a small iron key, rather nondescript. 
+~
+18 33558528 1
+0 0 -1 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#51189
+cubby hole by-NIMROD WOOD~
+a small cubby hole~
+A small cubby hole is in the floor by the northern wall.~
+Nimrod's $color box sits here, ready for use.
+~
+15 4096 0
+1000 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#51190
+platter UNIQUE_ITHILIEN spider obsidian byConscript GLASS~
+an obsidian spider-shaped platter~
+An obsidian spider-shaped platter rests here~
+   A large piece of obsidian has been meticulously shaped to 
+resemble a malignant black spider. Its long legs branch out to 
+raise its pendulous belly, each a separate fragile extension, and 
+incredibly detailed with etchings to simulate hair. The bulbous 
+body, eighteen inches from tip to tip, has been flattened on the 
+top and rendered slightly concave to provide a dish-like 
+indentation. Rendered with astonishing detail, hundreds of eyes 
+glisten, reflecting the slightest light with baleful intensity. 
+~
+15 4104 1
+2000 0 -1 0
+1500 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#51191
+helm barbute ornate wing UNIQUE_PHEAR_PLOT Dagorlad steel seabird byCONSCRIPT METAL~
+an ornate winged-helm adorned with seabird etching~
+An ornate winged-helm adorned with seabird etching sits here~
+   The conical top of this helm comes to a gleaming point at the 
+center. A long noseguard extends between rounded eye holes, and 
+the cheek plates curve around so that they nearly meet. The 
+forehead of the helm is carved in the likeness of a fierce, 
+hook-beaked seabird. Two long wings, the midpoints of each 
+fastened to the helmet near the temple, flank either side of the 
+face, reaching several inches above the top of the helm. The 
+etching of the seabird and the of feathers in the wings show 
+meticulous attention to detail. The edge of the helm, around the 
+bottom of the back, up around the cheek plate, and around the 
+eyes down the nose guard is plated with gold in one long shining 
+rope. The tips of the wings are also gold-plated. The helm 
+shines, immaculate, with neither scratch nor effects of time 
+evident, though it is of a style that seems ancient. 
+~
+9 135176 17
+3 5 0 0
+500 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 18 0 0
+#51192
+cuirass UNIQUE_PHEAR_PLOT seabird steel Dagorlad byCONSCRIPT METAL~
+a seabird-etched steel cuirass~
+A seabird-etched steel cuirass has been set here~
+   Made of steel, with overlapping plates carefully riveted to 
+provide superlative protection, this cuirass consists of a 
+breastplate, backplate, fauld, and culet. At the sides, the 
+cuirass is fastened with ingenious buckles shaped like the head 
+of a seabird, and five-lamed pauldrons are strapped to the 
+shoulder area. The exquisite image of a seabird, wings rising up 
+to meet at the tips, is carved in magnificent detail upon the 
+breast, and chased with gold. The metal gleams as if newly 
+polished, showing no signs of damage from battle or time despite 
+its archaic design. 
+~
+9 135176 9
+3 5 0 0
+1500 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 18 0 0
+A
+10036 -10
+A
+10037 -10
+#51193
+vambrace UNIQUE_PHEAR_PLOT Dagorlad seabird steel byCONSCRIPT METAL~
+a pair of steal vambraces etched with seabirds~
+A pair of steal vambraces etched with seabirds lays here~
+   These polished steel vambraces are very well crafted. They 
+cover the arm from just above the wrist to the shoulder, with an 
+articulated joint at the elbow. About the wrists is laid an 
+intricate pattern of stylized seabirds in flight, inlaid with 
+very fine lines of gold. Despite their archaic style, these 
+vambraces shine as if newly polished, and they show no signs of 
+age or damage. 1 objects in world redefined. 
+~
+9 135176 257
+3 5 0 0
+700 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 18 0 0
+#51194
+Conscripts_board messy bulletin tasks OTHER~
+a messy bulletin board~
+A messy bulletin board holds lists of unfinished tasks~
+   These polished steel vambraces are very well crafted. They 
+cover the arm from just above the wrist to the shoulder, with an 
+articulated joint at the elbow. About the wrists is laid an 
+intricate pattern of knots and curls in very fine lines of gold. 
+Despite their archaic style, these vambraces shine as if newly 
+polished, and they show no signs of age or damage. 
+~
+22 4104 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51195
+leggings UNIQUE_PHEAR_PLOT Dagorlad steel byCONSCRIPT METAL~
+a pair of steel plate leggings with seabird buckles~
+An pair of plate leggings with seabird buckles has been left here~
+   These leggings are constructed of many steel plates securely 
+riveted together onto coverings that extend from the upper thigh 
+down to the calves, with a masterfully-articulated knee. They 
+buckle along the outside in several places with finely made steel 
+buckles, each resembling the head of a hook-beaked seabird. 
+Despite their archaic fashion, they shine as if recently 
+polished, and show no sign of damage from time or use. 
+~
+9 135176 33
+3 5 0 0
+700 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 18 0 0
+#51196
+helmet UNIQUE_HOBBIT round metal leather-covered  byConscript LEATHER METAL~
+a leather-covered metal helmet~
+A round, metal helmet lies here, covered with a layer of leather~
+   This helmet consists of a round piece of metal, padded on the 
+inside with quilted linen, and on the outside covered in brown, 
+thin leather designed to prevent the metal from glinting in the 
+contours to the wearer's head. It has a thick leather strap that 
+secures under the chin. sun. The helmet's true protection is in 
+its metal skullcap which 
+~
+9 135168 17
+2 5 0 0
+50 0.000000
+0 0 0 35 4 2 1
+200.000000 0 0 0 14 0 0
+#51197
+gorget UNIQUE_HOBBIT dark green leather thick PEL-TIRITH_GUARD lieutenant silver cross bar byCONSCRIPT LEATHER~
+a dark-green leather gorget riveted with a silver cross and bar~
+A dark green gorget of leather with a silver cross and bar is here.~
+   Apparently well-made and sturdily constructed, this leather 
+gorget rises to the underside of the wearer's chin, providing a 
+bit of protection. On the left side, easily visible on the 
+wearer's neck, is one silver-white star, carefully etched. 
+~
+9 537006080 5
+2 1 0 0
+5 0.000000
+0 0 0 29 4 2 1
+100.000000 0 0 0 14 0 0
+#51198
+hauberk UNIQUE_HOBBIT tree-bark-patterned courbouilli brown leather  byCONSCRIPT LEATHER~
+a tree-bark-patterned courbouilli hauberk~
+A brown leather hauberk is here, colored to match tree bark rests here.~
+   This thick leather courboulli hauberk has been artistically 
+dyed to match the colors and patterns of tree bark. As much a 
+work of art as it is functional, this armor serves to offer 
+lightweight protection to its wearer as well as camouflage while 
+in the wilds. It wraps around the wearer\\'s body snugly, and is 
+well padded on the inside to promote comfort and to turn away 
+penetrating blows. The leather softens as it moves closer to the 
+wearers hips and waist, allowing for freedom of movement. 
+~
+9 135168 9
+3 1 0 0
+125 0.000000
+0 0 0 33 8392708 2 1
+650.000000 0 0 0 14 0 0
+A
+10025 5
+A
+10024 5
+#51199
+vambraces UNIQUE_HOBBIT tree bark patterned courbouilli byCONSCRIPT LEATHER~
+a pair of tree-bark-patterned courbouilli vambraces~
+a pair of circular pieces of leather lie here.~
+   Made of supple leather, these vambraces were designed to cover 
+the wearer's arms from the shoulder down to the forearm in a snug 
+area as well as the upper arm, forearm, and a round cup to 
+protect the elbow, allowing for ease of movement and as much 
+protection as can be provided. The left vambrace appears to be 
+shorter than the other to allow the wearer a bracer for archery. 
+fit. Rigid courboulli leather has been riveted onto the shoulder 
+~
+9 135168 257
+3 1 0 0
+75 0.000000
+0 0 0 33 4 2 1
+450.000000 0 0 0 14 0 0
+A
+10025 5
+A
+10024 5
+#51200
+cloak UNIQUE_HOBBIT PEL-TIRITH_GUARD green forest hooded white Tree Gondor UNIQUE_PEL_TIRITH byCONSCRIPT TEXTILE~
+a forest green cloak displaying the White Tree~
+A dark-green cloak with a deep hood has been left here, the White Tree of Gondor marked upon its back.~
+   Sewn from thick wool, this cloak is designed to be a good 
+companion for any forager or huntsmen constantly on the move. 
+Tough enough so that its dark green form can protect its wearer 
+from the worse of the elements, it also holds a deep hood for 
+even more warmth and shielding. Upon the back of this cloak the 
+White Tree of Gondor has been sewn in with an off white 
+embroidery, the symbol of the Steward of Gondor. 
+~
+11 659456 1025
+0 0 0 0
+50 0.000000
+0 
+forest-green-cloaked~
+0 29 518 2 1
+200.000000 0 0 0 7 0 0
+#51201
+leggings UNIQUE_HOBBIT tree bark patterned courbouilli leggings leather byCONSCRIPT LEATHER~
+a pair of tree-bark-patterned courbouilli leggings~
+A pair of supple leather leggings is here, lined with rigid leather.~
+   Made of supple, tight-fitting leather, these leggings were 
+designed to ease the wearer's ability to travel. For protection, 
+two rigid courboulli skirt dyed in a bark pattern have been 
+riveted to the waist and along either leg to cover the thighs. 
+The same rigid leather has been riveted to the knee area and down 
+the shins. 
+~
+9 135168 33
+3 1 0 0
+150 0.000000
+0 0 0 33 4132 2 1
+750.000000 0 0 0 14 0 0
+A
+10025 5
+A
+10024 5
+#51202
+shield UNIQUE_HOBBIT dark green roundshield net covered byCONSCRIPT METAL~
+a dark green, net-covered shield~
+A dark green roundshield lies here, covered in netting.~
+   This small, iron banded roundshield has been painted a dull, 
+dark green colour and covered in netting. The netting allows for 
+leaves taken from the foliage to be inserted and held onto the 
+shield to enhance its camouflage. It is solidly fashioned and 
+clearly well crafted. In the center of the shield, a small white 
+tree has been painted. 
+~
+6 135168 8912897
+5 12 35 0
+600 0.000000
+0 0 0 32 4 0 1
+80.000000 0 0 0 28 0 0
+A
+10024 2
+A
+10025 2
+#51203
+bench UNIQUE_ADMIN workbench test byConscript METAL~
+a long, well-equipped workbench~
+A long, well-equipped workbench sits against the wall.~
+   The work area of this grey metal workbench is covered with 
+black anti-static matting. The shelf above the work surface is 
+lined with various electronic test equipment, all powered up, 
+displays bright in the cluttered lab. Tech manuals are scattered 
+haphazardly over the surfaces, schematics shoved in any opening 
+available. Some unrecognizable piece of equipment has been 
+violated, a card on an extender, test leads tangled and attached 
+to various points on the extended card and also inside the box, 
+then leading to the test equipment above. 
+~
+15 2232328 1
+10000 0 -1 0
+300 0.000000
+0 2 0 0 0 0 1
+0.000000 0 0 0 18 0 0
+#51204
+key iron black ERADAN_MASTER_SERGEANT byCONSCRIPT METAL~
+a small key of black iron~
+A small key of black iron has been left here.~
+   This small key of black iron is well cared-for but otherwise 
+nondescript. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#51205
+amulet UNIQUE-PHEARPLOT bronze edged carved rock crystal byConscript STONE~
+a bronze-edged amulet of carved rock crystal~
+An amulet of quartz lies here, rimmed in bronze.~
+   Linked on a small chain of bronze, this well-crafted pendant 
+hangs in the center of its wearer's chest. The pendant itself is 
+crafted from a flat, square piece of rock, carved from a larger 
+piece of quartz. The rock is flanked on all side with a bronze 
+rim, which gleams dully whenever light hits it. The piece is 
+well-crafted and sturdy, and it lends an air of sophistication to 
+its surroundings. 
+~
+8 4096 2097153
+2 0 0 0
+20 0.000000
+0 0 0 30 1028 0 1
+0.000000 0 0 0 0 0 0
+#51206
+pouch medicine UNIQUE-BATTS grey leather byConscript LEATHER~
+a grey leather medicine pouch~
+A grey leather medicine pouch has been discarded here.~
+   This large pouch, akin to a satchel in design, is fashioned of 
+supple grey which has been partitioned into sections to organize 
+medicinal materials. A strap allows it to be slung over the 
+shoulder, while loops on its back permit the owner to slide it 
+through a belt, albeit with some difficulty. Emblazoned in 
+silver thread on the grey leather, subtle but distinctive, are 
+the symbol of a moon and shield, designating the wearer as an 
+aidsman of Lord Eradan. A large flap at its front may be opened 
+to reveal its interior 
+~
+15 135168 8650753
+1000 0 -1 0
+15 0.000000
+0 0 0 30 4 0 1
+80.000000 0 0 0 14 0 0
+#51207
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+11 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51208
+cuirass VANGUARD_SGT plate iron sergeant ByConscript METAL~
+an iron cuirass bearing a white tree upon the breast~
+A tree-marked cuirass fashioned from thick iron has been left here.~
+   This piece of armor is of sound craftsmanship, made of two 
+solid pieces of sturdy iron, one plate in front and the other 
+covering the back. A representation of the White Tree of Gondor 
+has been cut from metal, painted white and riveted securely to 
+the breastplate. Above the heart is the impression of a shield 
+before a full moon. The two plates are held together by several 
+leather straps over the shoulder and along the sides, with 
+buckles to allow for adjustment. Banded pauldrons are an 
+integral part of the piece, extending out over the point of the 
+shoulder, and metal skirts flare over the hips. 
+~
+9 135168 9
+2 5 0 0
+1400 0.000000
+0 0 0 29 0 0 1
+1200.000000 0 0 0 17 0 0
+A
+10037 -20
+A
+10024 -25
+A
+10025 -25
+#51209
+stamp UNIQUE_ERADAN offset moon vanguard METAL~
+an offset metal stamp bearing a shield before a full moon~
+An offset metal stamp bearing a shield before a full moon lays here.~
+   A handle extends about a foot to the left of the head of this 
+stamp of tempered steel. One side of the durable head is flat 
+for pounding, the other bears a raised image of a shield before a 
+full moon. 
+~
+41 135168 1
+0 0 0 0
+1000 0.000000
+0 0 0 30 0 0 1
+1000.000000 0 0 0 18 0 0
+#51212
+cuirass plate VG_PRIVATE NOCHANGE_OVALS iron thin tree byConscript METAL~
+a thin iron cuirass marked with a white tree~
+A thin iron cuirass marked with a white tree lays here.~
+   This piece of armor is made of two solid pieces of 
+thinly-forged iron, one plate in front and the other covering the 
+back. A stylized representation of the White Tree of Gondor has 
+been cut from another piece of metal, painted white and riveted 
+securely to the breastplate. The two parts are held together by 
+several leather straps to allow for adjustment. Banded pauldrons 
+are an integral part of the piece, extending out over the point 
+of the shoulder, and metal skirts flare over the hips. Above the 
+heart is an impression of a shield before a full moon. 
+~
+9 135168 9
+0 5 3 0
+1500 0.000000
+0 0 0 25 0 0 1
+800.000000 0 0 0 17 0 0
+A
+10037 -20
+A
+10025 -25
+A
+10024 -25
+#51210
+cuirass VANGUARD_CPL plate iron corporal tree ByConscript METAL~
+an iron cuirass marked with a white tree~
+An iron cuirass marked with a white tree lays here.~
+   This piece of armor is of sound craftsmanship, made of two 
+solid pieces of sturdy iron, one plate in front and the other 
+covering the back. A representation of the White Tree of Gondor 
+has been cut from metal, painted white and riveted securely to 
+the breastplate. Above the heart is the impression of a shield 
+before a full moon. The two plates are held together by several 
+leather straps over the shoulder and along the sides, with 
+buckles to allow for adjustment. Banded pauldrons are an 
+integral part of the piece, extending out over the point of the 
+shoulder, and metal skirts flare over the hips. 
+~
+9 4096 9
+1 5 0 0
+1500 0.000000
+0 0 0 30 0 0 1
+1000.000000 0 0 0 17 0 0
+A
+10024 -25
+A
+10037 -20
+A
+10025 -25
+#51211
+cuirass VANGUARD_LT steel lieutenant tree byConscript METAL~
+a steel cuirass marked with a white tree~
+A steel cuirass marked with a white tree lays here.~
+   This piece of armor is of masterful craftsmanship, made of two 
+solid pieces of finely worked steel, one plate in front and the 
+other covering the back. A representation of the White Tree of 
+Gondor has been cut from another piece of metal, painted white 
+and riveted securely to the breastplate. Above the heart is the 
+impression of a shield before a full moon. The two plates are 
+held together by several leather straps over the shoulder and 
+along the sides, with buckles to allow for adjustment. Banded 
+pauldrons are an integral part of the piece, extending out over 
+the point of the shoulder, and metal skirts flare over the hips. 
+~
+9 135168 9
+3 5 0 0
+1000 0.000000
+0 0 0 33 0 0 1
+2500.000000 0 0 0 18 0 0
+A
+10037 -20
+A
+10024 -25
+A
+10025 -25
+#51213
+arrow practice dull byConscript WOOD~
+a dull wooden practice arrow~
+A dull wooden practice arrow lays here.~
+   This plain arrow is made of an ashwood shaft, with a small 
+leather pad on the blunted point. It is fletched with equally 
+plain feathers. 
+~
+7 4198400 1
+1 2 0 0
+10 0.000000
+3 1 0 30 0 0 1
+1.250000 0 0 0 0 0 0
+S
+100004
+#51214
+key AMDIR_MAIN byConscript grey steel METAL~
+a grey steel key~
+A grey steel key has been left here.~
+   This heavy key is made of shining steel. The head is etched 
+with a representation of an elm leaf on one side and the 
+moon-and-shield heraldry of Lord Eradan on the other. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 18 0 0
+#51215
+key Amdir_NGate iron heavy byConscript METAL~
+a heavy iron key~
+A heavy iron key has been left here.~
+   This heavy key is made of grey iron. The head is etched with 
+a representation of an elm leaf on one side and the 
+moon-and-shield heraldry of Lord Eradan on the other. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#51216
+shiny bronze ERADAN_AIDESMAN leaf medallion byHalfjack METAL~
+a shiny, bronze leaf medallion~
+A shiny, bronze leaf medallion lies here, glinting~
+   Fashioned with care out of a thin, but high quality bronze 
+metal, this small and detailed token is instantly recognizeable 
+as the shape of a single leaf. The heavily-stylised leaf is 
+oval-shaped and curved slightly, and the maker has taken care to 
+etch out the different veins of the leaf which cross its surface 
+in the most detailed of fashions. Attached to the stem is a 
+rectangle of bronze bearing an inscription in the Numenian mode, 
+readable only by those who know the sigils: "AIDESMAN". 
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+50.000000 0 0 0 16 0 0
+#51217
+polished silver ERADAN_SENIOR_AIDESMAN leaf medallion byHalfjack METAL~
+a polished, silver leaf medallion~
+A polished, silver leaf medallion lies here, glinting.~
+   Fashioned with care out of a thin, but high quality silver 
+metal and polished to a high shine, this small and detailed token 
+is instantly recognizeable as the shape of a single leaf. The 
+heavily-stylised leaf is oval-shaped and curved slightly, and the 
+maker has taken care to etch out the different veins of the leaf 
+which cross its surface in the most detailed of fashions. 
+Attached to the stem is a rectangle of silver bearing an 
+inscription in the Numenian mode, readable only by those who know 
+the sigils: "SENIOR AIDESMAN". 
+~
+8 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+75.000000 0 0 0 28 0 0
+#51218
+shiny bronze ERADAN_AIDESMAN leaf medallion byHalfjack METAL~
+a shiny, bronze leaf medallion~
+A shiny, bronze leaf medallion lies here, glinting.~
+~
+8 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+50.000000 0 0 0 16 0 0
+#51219
+fine silver ERADAN_AIDESMAN'S_EXCELLENCE medal shaped like a leaf byHalfjack METAL~
+a fine silver medal shaped like a leaf~
+A fine silver medal shaped like a leaf lies here, glinting.~
+   This beautiful silver medal has been expertly molded into the 
+shape of a five-pointed leaf. In the background, behind this 
+leaf, a representation of a bundle of various herbs and 
+wildflowers of varying shapes and sizes is seen, each line and 
+detail of the herbs, flowers, and leaves painstakingly etched 
+into the metal of this badge. 
+~
+8 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+75.000000 0 0 0 0 0 0
+#51220
+elegant gold ERADAN_AIDESMAN'S_HIGH_HONOR medal leaf byHalfjack METAL~
+an elegant gold medal shaped like a leaf~
+An elegant gold medal shaped like a leaf lies here, glinting~
+   This beautiful gold medal has been elegantly molded into the 
+shape of a five-pointed leaf. In the background, behind this 
+leaf, a epresentation of a bundle of various herbs and 
+wildflowers of varying shapes and sizes is seen, each line and 
+detail of the herbs, flowers, and leaves painstakingly etched 
+into the metal of this badge. 
+~
+8 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+100.000000 0 0 0 28 0 0
+#51221
+thick bronze ERADAN_HEART_OF_THE_SOLDIER badge clasped hands byHalfjack METAL~
+a thick bronze badge of two clasped hands~
+A thick bronze badge of two clasped hands lies here, glinting~
+   Crafted from a thick and polished bronze, the metal of this 
+badge has been fashioned into the shape of two mailled hands 
+clasping each other, each grip finding the other's wrist and 
+forearm in a firm grasp. Rather simple in design, the medal is 
+completed by two small inscriptions. Upon one forearm, clearly 
+and simply, in Numenian-Tengwar: "BROTHERHOOD", and upon the 
+other forearm, this inscription is found in the same mode: 
+"HEART". 
+~
+8 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+50.000000 0 0 0 16 0 0
+#51222
+circular bronze ERADAN_TRAINING_INSTRUCTOR pin engraved book crossed swords byHalfjack METAL~
+a circular bronze pin engraved with a book crossed by swords~
+A circular bronze pin engraved with a book crossed by swords lies here, glinting~
+   Shined to a fine polish and intricately engraved, this 
+circular pin is about two thumbs in width. Upon its flat surface 
+can be seen the image of an open tome with two crossing 
+longswords behind. Within the etched pages of the tome can be 
+read in Numenian sigils, KNOWLEDGE POWER STRENGTH, while below 
+the book in a rounding script are the sigils depicting the words, 
+Vanguard Instructor. 
+~
+8 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+50.000000 0 0 0 16 0 0
+#51223
+bright silver ERADAN_PEL_DAGOR token blade shield byHalfjack METAL~
+a bright silver token of a blade and shield~
+A bright silver token of a blade and shield lies here, glinting~
+   Crafted of fine, polished silver and exhibiting a great 
+attention to detail, this small and intricate medal has been 
+crafted to display a broad tower shield, rectangular in shape and 
+sturdy of make. A broad moon is seen at the center of the 
+shield, and across its breast lays a thick blade, which tapers to 
+a deadly point. Down the length of the blade runs an inscription 
+in the Numenian mode, readable only by those who know the sigils: 
+"PEL-DAGOR" 
+~
+8 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 4194816 0 1
+75.000000 0 0 0 0 0 0
+#51224
+bright silver ERADAN_PEL_ECTHEL token horse's head byHalfjack METAL~
+a bright silver token of a horse's head~
+A bright silver token of a horse's head lies here, glinting~
+   Crafted of fine, polished silver and exhibiting a great 
+attention to detail, this small and intricate medal has been 
+crafted to display the silouhette of a regal horse's head. The 
+beast's head has been clad in fine plate barding, ears extending 
+up into the sky and the long mane flowing out gently behind him. 
+In a curved arch near the horses thick neck is an inscription in 
+the Numenian mode, readable only by those who know its sigils: 
+"PEL-ECTHEL" 
+~
+8 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 4194816 0 1
+75.000000 0 0 0 28 0 0
+#51225
+bright silver ERADAN_PEL_TIRITH token flowering tree byHalfjack METAL~
+a bright silver token of a flowering tree~
+A bright silver token of a flowering tree lies here, glinting~
+   Crafted of fine, polished silver and exhibiting a great 
+attention to detail, this small and intricate medal has been 
+crafted to display a broad and flowering tree with thick, strong 
+branches and leaves too numerous to count. At the base of the 
+thick trunk, the ridges and gnarls clearly evident, upon which 
+this tree stands tall and proud, is an inscription in the 
+Numenian mode, readable only by those who know the sigils: 
+"PEL-TIRITH" 
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 30 4194816 0 1
+75.000000 0 0 0 28 0 0
+#51226
+corpse MAY_BE_REDESIGNATED Hedelon rugged bearded unkempt yConscript OTHER~
+the corpse of a rugged, bearded man with unkempt hair~
+The corpse of a rugged, bearded man with unkempt hair has been laid out.~
+   This is the corpse of a tall, statuesque man with unkempt 
+short hair the color of raven's feathers. The pale, 
+hearth-shaped face, covered with a thick black beard, shows signs 
+of hard living, and the light torso is packed with lean muscle. 
+The body has been cleaned and the wounds lovingly stitched 
+closed. The fine steel chainmail has been polished and repaired. 
+Over its shoulder is a fine, silver-chased black strap bearing a 
+shortbow. A fine, gold-buckled black leather belt is about the 
+waist, supporting a silvery green hip quiver and a black, 
+silver-cased sheath. The black boots, well polished, are calf 
+high, and bear silver buckles. At the throat is a crude leather 
+brooch, and a black woolen overcoat is over all. The pale hands 
+each bear a ring, one of simple ogld, one an elegant, vine-shaped 
+golden ring set with a ruby. The hands are wrapped around the 
+hilt of a sword. 
+~
+15 135168 1
+10000 0 -1 0
+20000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51228
+corpse Folco short maple fellow byConscript OTHER~
+the corpse of a short, maple-haired fellow~
+The corpse of a short, maple-haired fellow has been laid out.~
+   This is a small body, dressed in tree bark patterned 
+courboulli leather recently patched and cleaned, and a 
+forest-green cloak. At its throat is a gorget bearing a silver 
+cross and bar, and upon one of the fingers is borne a silver 
+signet ring. Curly locks the color of maple, frame the round, 
+pale face. The feet are bare, large, and rather hairy. The body 
+has been cleaned, the wounds stitched lovingly. 
+~
+15 135168 1
+10000 0 -1 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 1440 51232 0 0 0 0
+#51227
+corpse Swift Erynion ash grey dark byConscript OTHER~
+the corpse of an ash-grey-eyed, dark-haired man~
+The corpse of an ash-grey-eyed, dark-haired man has been laid out.~
+   This is the body of a tall, lean man, a tawny mane of dark 
+hair crowning his face. The skin, though pale in death, is 
+weatherworn and tanned. It is dressed in chain wrapped in 
+leather of forest green, and wears a cloak of the same color. At 
+its throat is a gorget bearing a silver cross and bar. Upon one 
+of the fingers that grasp the hilt of a sword is a silver signet 
+ring. 
+~
+15 4096 1
+10000 0 -1 0
+20000 0.000000
+0 0 0 0 0 0 1
+0.000000 1440 51230 0 0 0 0
+#51229
+skeleton Ronald forest slight green byConscript OTHER~
+a slight skeleton wrapped in a forest green cloak~
+A slight skeleton wrapped in a forest green cloak has been laid here.~
+   Long strands of greying, dusky hair cling to the skull of this 
+small skeleton and lay about on the floor and its clothing. It 
+is clad in courboulli armor pattered as tree-bark, and upon one 
+thin bone finger is a carved wooden ring. Upon its shoulders is 
+a faded old cloak of forest green, much mended. 
+~
+15 135168 1
+10000 0 -1 0
+3000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51230
+corpse Swift mouldering forest tall green byConscript OTHER~
+the mouldering corpse of a tall man in forest green~
+The mouldering corpse of a tall man in forest green lays here.~
+   The skin of this lean body has blacked and mouldered, the 
+strong smell of decay rising strongly from it. A tawny mane of 
+dark hair covers the head. It is dressed in chain wrapped in 
+leather of forest green, and at its throat is a gorget bearing a 
+silver cross and bar. The blackened fingers grip the hilt of a 
+sword, and one of them bears a silver signet ring. 
+~
+15 4096 1
+10000 0 -1 0
+20000 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 51231 0 0 0 0
+#51231
+skeleton Swift tall lean forest green byConscript OTHER~
+a tall, lean skeleton~
+A tall, lean skeleton dressed in forest green lays here.~
+   This is the skeleton of a tall, lean man. Strands of dark 
+hair lay about the skull. It is dressed in chain wrapped in 
+leather of forest green, and wears a cloak of the same color. At 
+its throat is a gorget bearing a silver cross and bar. Upon one 
+of the fingers that grasp the hilt of a sword is a silver signet 
+ring. 
+~
+15 4096 1
+10000 0 -1 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51232
+body Folco decaying hobbit armored byConscript OTHER~
+the decaying corpse of an armored hobbit~
+The decaying corpse of an armored hobbit has been laid here.~
+   This is a small body in an advanced state of decay, dressed in 
+tree bark patterned courboulli leather recently patched and 
+cleaned, and a forest-green cloak. At its throat is a gorget 
+bearing a silver cross and bar, and upon one of the fingers is 
+borne a silver signet ring. Curly locks the color of maple, 
+frame the sunken, blackened face. The feet are bare, large, and 
+rather hairy, the flesh shrunken inand shriveled. 
+~
+15 4096 1
+10000 0 -1 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 17280 51233 0 0 0 0
+#51233
+skeleton Folco tiny armored byConscript OTHER~
+a tiny armored skeleton~
+A tiny armored skeleton has been laid here.~
+   This is a very small skeleton, dressed in tree bark patterned 
+courboulli leather and a forest-green cloak. At its throat is a 
+gorget bearing a silver cross and bar, and upon one of the bony 
+fingers is borne a silver signet ring. A few curly hairs the 
+color of maple lay about the staring skull. The bony feet are 
+unshod, and seem overlarge for the body. 
+~
+15 4096 1
+10000 0 -1 0
+2500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51235
+soldiers guard twelve Gondorian byConscript OTHER~
+#5twelve Gondorian soldiers in formation#0~
+#5Twelve seasoned Gondorian soldiers stand silent vigil over the fallen.#0~
+   Twelve solemn soldiers in immaculately maintained armor stand 
+silent vigil before the cairn, their eyes roaming watchfully over 
+the mounds all about them that mark the final resting place of 
+their comrades. They each carry a spear and a black tower shield 
+that bears the White Tree of Gondor gleaming upon its face. A 
+black cloak edged with silver covers each man's back, and upon 
+easc shoulder is a polished guard showing crossed swords. 
+~
+12 135168 1
+0 0 0 0
+500000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51236
+helm VANGUARD_PRIVATE iron seabird etching byConscript METAL~
+an iron helm with seabird etching~
+An iron helm with seabird etchings has been left here.~
+   This weighty helm covers the head nearly completely. With its 
+thick cheekplates that barely leave room between them for the 
+mouth and nose, and long noseguard extends downward from the 
+forehead between the rounded openings for the eyes, it provides 
+very good protection. The bottom edge flares out slightly, and 
+the helm is lined with a woolen pad for the comfort of the 
+wearer. On each side, extending up from the cheekplates to the 
+pointed peak, is etched a spread seabird wing, and a symbol of a 
+shield before a full moon has been stamped upon the forehead. 
+~
+9 135168 17
+2 5 0 0
+400 0.000000
+0 0 0 30 4 0 1
+500.000000 0 0 0 17 0 0
+#51237
+helm VANGUARD_SERGEANT iron seabird etching byConscript METAL~
+a well-made iron helm with seabird etching~
+A well-made iron helm with seabird etching has been laid here.~
+   This well-made helm covers the head nearly completely. With 
+its thick cheekplates that barely leave room between them for the 
+mouth and nose, and long noseguard extends downward from the 
+forehead between the rounded openings for the eyes, it provides 
+very good protection. The bottom edge flares out slightly, and 
+the helm is lined with a woolen pad for the comfort of the 
+wearer. On each side, extending up from the cheekplates to the 
+pointed peak, is etched a spread seabird wing, and a symbol of a 
+shield before a full moon has been stamped upon the forehead. 
+~
+9 135168 17
+2 5 0 0
+400 0.000000
+0 0 0 35 0 0 1
+600.000000 0 0 0 17 0 0
+#51239
+helm VANGUARD_LT steel seabird etching byConscript METAL~
+a steel helm with seabird etching~
+A steel helm with seabird etching lays here, gleaming.'~
+   This masterfully-constructed steel helm covers the head nearly 
+completely. With its strong cheekplates that barely leave room 
+between them for the mouth and nose, and long noseguard extends 
+downward from the forehead between the rounded openings for the 
+eyes, it provides excellent protection. The bottom edge flares 
+out slightly, and the helm is lined with a linen pad for the 
+comfort of the wearer. On each side, extending up from the 
+cheekplates to the pointed peak, is etched a spread seabird wing, 
+and a symbol of a shield before a full moon has been stamped upon 
+the forehead. 
+~
+9 135168 17
+3 5 0 0
+300 0.000000
+0 0 0 35 0 0 1
+1000.000000 0 0 0 18 0 0
+#51240
+gorget plate VANGUARD_PVT_DONT_CHANGE_OVALS two stars byConscript METAL~
+a gorget of thin iron displaying two stars~
+A gorget of thin iron is here, bearing two silver-white stars~
+   This thin plate gorget rises to the underside of the wearer's 
+chin, providing decent protection. On the left side, easily 
+visible on the wearer's neck, are two silver-white stars, 
+carefully etched. On the inner surface of the gorget is stamped 
+a shield before a full moon. 
+~
+9 135168 5
+0 5 0 0
+300 0.000000
+0 0 0 29 0 0 1
+350.000000 0 0 0 17 0 0
+A
+10025 -2
+A
+10024 -2
+A
+10037 -2
+#51241
+gorget plate VANGUARD-CPL_DONT_CHANGE-OVALS corporal three stars byConscript METAL~
+an iron plate gorget bearing three stars~
+A circle of iron lies here, three stars visible.~
+   This plate gorget rises to the underside of the wearer's chin, 
+providing good protection despite being somewhat thin. On the 
+left side, easily visible on the wearer's neck, are three 
+silver-white stars, carefully etched. On the inner surface of 
+the gorget is stamped a shield before a full moon. 
+~
+9 135168 5
+2 5 0 0
+300 0.000000
+0 0 0 30 0 0 1
+350.000000 0 0 0 17 0 0
+A
+10025 -2
+A
+10024 -2
+A
+10037 -2
+#51242
+gorget plate VANGUARD_SGT_DONT_CHANGE_OVALS one crescent sergeant byConscript iron METAL~
+an iron plate gorget displaying one crescent~
+An iron plate gorget is here, bearing one silver-white crescent.~
+   This plate gorget rises to the underside of the wearer's chin, 
+providing good protection. On the left side, easily visible on 
+the wearer's neck, is one silver-white crescent, carefully 
+etched. On the inner surface of the gorget is stamped a shield 
+before a full moon. 
+~
+9 135168 5
+2 5 0 0
+300 0.000000
+0 0 0 30 0 0 1
+400.000000 0 0 0 17 0 0
+A
+10037 -2
+A
+10025 -2
+A
+10024 -2
+#51243
+gorget plate VANGUARD_MSGT_DONT_CHANGE_OVALS two crescents sergeant master byConscript iron METAL~
+an iron plate gorget displaying two crescents~
+An iron plate gorget is here, bearing two silver-white crescents.~
+   This plate gorget rises to the underside of the wearer's chin, 
+providing good protection. On the left side, easily visible on 
+the wearer's neck, are two silver-white crescents, carefully 
+etched. On the inner surface is stamped a shield before a full 
+moon. 
+~
+9 135168 5
+2 5 0 0
+300 0.000000
+0 0 0 30 0 0 1
+450.000000 0 0 0 17 0 0
+A
+10025 -2
+A
+10037 -2
+A
+10024 -2
+#51244
+UNIQUE_VALDYR spiky collar byvaldyr LEATHER~
+a spiky collar~
+A spiky collar lies on the ground here~
+   This thick, black leather collar bears several point spikes 
+encircling the entire piece. A small circle of shiny metal, 
+dangling from just below the collar, has the name Valdyr engraved 
+upon it. 
+~
+9 135168 5
+3 3 0 0
+700 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 14 0 0
+#51245
+gorget plate VANGUARD_LT three crescents lieutenant byConscript steel METAL~
+a steel plate gorget bearing three crescents~
+A gorget of steel plate lies here, bearing three silver-white crescents.~
+   This finely constructed gorget rises to the underside of the 
+wearer's chin, providing excellent protection. On the left side, 
+easily visible on the wearer's neck, are three silver-white 
+crescents carefully etched. On the inner surface, a shield 
+before a full moon has been stamped. 
+~
+9 135168 5
+3 5 0 0
+300 0.000000
+0 0 0 35 0 0 1
+600.000000 0 0 0 18 0 0
+A
+10025 -2
+A
+10037 -2
+A
+10024 -2
+#51246
+gauntlets plate VANGUARD_PVT_DONT_CHANGE_OVALS iron byConscript METAL~
+a pair of gauntlets formed of thin iron bands~
+A pair of gauntlets formed of thin iron bands has been left here.~
+   Forged of thin iron, these gauntlets are made in the banded 
+style, with several layers of overlapping iron that permit the 
+movement of the wearer's wrists. Each gauntlet covers from the 
+wrist to the knuckles, and each joint is hinged and riveted to 
+provide greater freedom of movement. Inside the cuff of each 
+gauntlet is stamped a shield before a full moon. 
+~
+9 135680 129
+0 5 0 0
+400 0.000000
+0 0 0 29 0 0 1
+225.000000 0 0 0 17 0 0
+A
+10001 4
+A
+10017 -25
+A
+10016 -25
+#51247
+gauntlets VANGUARD_MSGT iron byConscript METAL~
+a pair of iron gauntlets~
+A pair of shiny, iron gauntlets likes here.~
+   Forged of quality iron, these gauntlets are made in the banded 
+style, with several layers of overlapping iron that permit the 
+movement of the wearer's wrists. Each gauntlet covers from the 
+wrist to the knuckles, and each joint is hinged and riveted to 
+provide greater freedom of movement. Inside the cuff of each 
+gauntlet is stamped a shield before a full moon. 
+~
+9 135168 129
+2 5 0 0
+300 0.000000
+0 0 0 30 0 0 1
+600.000000 0 0 0 17 0 0
+A
+10001 4
+A
+10017 -25
+A
+10016 -25
+#51248
+swordbelt jet black VANGUARD_ONLY fine ornately tooled low slung leather belt byConscript LEATHER METAL~
+an ornately tooled swordbelt of jet black leather~
+An ornately tooled swordbelt of jet black leather lies here.~
+   This long, jet black leather belt has frogs on either side for 
+swords to hang from. The cut of the belt is designed so that the 
+swords hang low around the hips. The leather of the belt is 
+quite sturdy and thick, deeply embossed and colored with stamps 
+of the White Tree of Gondor. It is fastened by a blocky bronze 
+buckle that is stamped with an imprint of a shield before a full 
+moon. A small pouch is built into the belt just to the side of 
+the buckle, with a cleverly designed flap that opens quickly yet 
+can remain closed during arduous activities. 
+~
+15 135168 2049
+500 0 -1 0
+105 0.000000
+0 0 0 30 4096 0 1
+70.000000 0 0 0 14 0 0
+#51249
+leggings VANGUARD_PVT_DONT_CHANGE_OVALS iron plate byConscript METAL~
+a pair of plate and mail leggings~
+A pair of plate and mail leggings has been left here.~
+   These leggings are formed of slender links of chain. Curved 
+plates of thin iron are riveted to the chain to cover the thighs 
+and shins, and to cup the knees. The leggings have strong 
+leather straps at the top so that they may be buckled to a 
+breastplate. Inside the left thigh-plate has been stamped an 
+imprint of a shield before a full moon. 
+~
+9 135168 33
+0 5 0 0
+1200 0.000000
+0 0 0 29 0 0 1
+600.000000 0 0 0 0 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -10
+#51250
+leggings steel VANGUARD-MSGT-DONT-CHANGE-OVALS plate fine byConscript METAL~
+a fine pair of mail and plate leggings~
+A well-made pair of mail and plate leggings are set aside here.~
+   These well-made leggings are formed of links of steel chain. 
+Curved bands of thin steel are riveted to each other and to the 
+chain on the front of the thighs, and solid pieces of the same 
+light steel cover the shins and cup the knees. The leggings have 
+strong leather straps at the top so that they may be buckled to a 
+breastplate. Inside the top band has been stamped an imprint of 
+a shield before a full moon. 
+~
+9 135168 33
+3 5 0 0
+1100 0.000000
+0 0 0 33 0 0 1
+1600.000000 0 0 0 18 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -10
+#51251
+sleeves plate VANGUARD_PVT_DONT_CHANGE_OVALS mail byConscript METAL~
+a pair of plate and mail sleeves~
+A pair of plate and mail sleeves has been left here.~
+   These sleeves are formed of light links of iron chain. Curved 
+bands of thin iron are riveted to each other and to the chain on 
+the upper arms, and solid pieces of the same light iron cover the 
+forearms. The sleeves have strong leather straps at the top so 
+that they may be buckled to a cuirass. Inside the top band has 
+been stamped an imprint of a shield before a full moon. 
+~
+9 135168 257
+0 5 0 0
+1000 0.000000
+0 0 0 29 0 0 1
+600.000000 0 0 0 17 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -10
+#51252
+sleeves steel VANGUARD-MSGT-DONT-CHANGE-OVALS plate byConscript METAL~
+a pair of mail and plate sleeves~
+A pair of mail and plate sleeves is set here.~
+   These sleeves are formed of strong links of steel chain. 
+Curved bands of thin steel are riveted to each other and to the 
+chain on the upper arms, and solid pieces of the same light steel 
+cover the forearms. The sleeves have strong leather straps at 
+the top so that they may be buckled to a breastplate. Inside the 
+top band has been stamped an imprint of a shield before a full 
+moon. 
+~
+9 135168 257
+3 5 0 0
+900 0.000000
+0 0 0 33 0 0 1
+1000.000000 0 0 0 18 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -10
+#51253
+swordbelt VANGUARD_ONLY earthen brown fine ornately tooled low slung leather belt byConscript LEATHER METAL~
+an ornately tooled swordbelt of earthen brown leather~
+An ornately tooled swordbelt of earthen brown leather lies here.~
+   This long, earthen brown leather belt has frogs on either side 
+for swords to hang from. The cut of the belt is designed so that 
+the swords hang low around the hips. The leather of the belt is 
+quite sturdy and thick, deeply embossed with stamps of the White 
+Tree of Gondor. It is fastened by a blocky bronze buckle that is 
+stamped with an imprint of a shield before a full moon. The 
+metal of the buckle is brushed to dull its shine. A small pouch 
+is built into the belt just to the side of the buckle, with a 
+cleverly designed flap that opens quickly yet can remain closed 
+during arduous activities. 
+~
+15 135168 2049
+500 0 0 0
+105 0.000000
+0 0 0 30 0 0 1
+70.000000 0 0 0 14 0 0
+#51254
+scabbard VANGUARD_ONLY jet black embossed White Tree byConscript WOOD~
+a jet black scabbard embossed with the White Tree~
+A jet black scabbard embossed with the White Tree has been discarded here.~
+   Of sturdy construction, this jet black wooden scabbard is 
+covered in durable leather. Upon its outer face is proudly 
+embossed the White Tree. The bottom tip is covered with a thin 
+bronze layer, as is the rim of its mouth. Just under the rim, 
+the leather is stamped with the image of a shield before a full 
+moon. 
+~
+58 4096 262145
+800 0 0 0
+300 0.000000
+0 0 0 30 0 0 1
+60.000000 0 0 0 32 0 0
+#51255
+scabbard VANGUARD_ONLY earthen brown embossed White Tree byConscript WOOD~
+an earthen brown scabbard embossed with the White Tree~
+an earthen brown scabbard embossed with the White Tree has been discarded here~
+   Of sturdy construction, this wooden scabbard is covered in 
+durable leather that has been dyed an earthen brown. Upon its 
+outer face is proudly embossed the White Tree of Gondor, though 
+it is left the color of the leather. The bottom tip is covered 
+with another layer of thick leather, as is the rim of its mouth. 
+Just under the rim, the leather is stamped with the image of a 
+shield before a full moon. 
+~
+58 4096 262145
+800 0 0 0
+300 0.000000
+0 0 0 30 0 0 1
+60.000000 0 0 0 32 0 0
+#51256
+grave NEW_GRAVE mound rectangular freshly turned earth byConscript OTHER~
+a rectangular mound of freshly turned earth~
+A rectangular mound of freshly turned earth has been made here.~
+   Freshly turned earth has been piled in a rectangular shape 
+here, and the shapes left by the backs of shovels used to tamp it 
+into firmness are visible. It is about the length of a man, and 
+half as wide as it is long. 
+~
+12 135168 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 4320 51257 0 0 0 0
+#51257
+grave NOT_NEW_GRAVE mound rectangular eroding earth byConscript OTHER~
+an eroding, rectangular mound of earth~
+A rectangular mound of earth is eroding here.~
+   Worn by time and weather, this mound has become grown over 
+with grasses and other plant life. It is barely distinguishable 
+from the ground around it, but a careful observer can tell it is 
+about the length of a man, and half as wide as it is long. 
+~
+12 135168 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51258
+cape PEL-TIRITH simple forest green White Tree byConscript TEXTILE UNIQUE~
+a simple forest-green cape displaying the White Tree~
+A forest-green cape with the White Tree on it lies here.~
+Fashioned from a length or two of very simple wool, this cape
+billows down to the wearer's knees. At the neck, a few bright
+silver links keep the cape upon the shoulders of the wearer, and
+on the clasp, an intricately-wrought white-silver tree. On the back
+of the cape a white tree is beautifully embroidered beneath a
+crown of many pointed stars.
+~
+11 135168 1025
+0 0 0 0
+200 0.000000
+0 0 0 29 517 0 1
+150.000000 0 0 0 3 0 0
+#51234
+horse loader byConscript for Erinur's Horses whistle OTHER~
+a simple tin whistle~
+A simple tin whistle lays here, the initials 'EA' etched into it.~
+~
+35 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51238
+Battalion_Dagor_Clerk young clerk byConscript OTHER~
+#5a young quartermaster's clerk#0~
+#5A young clerk sits at a desk here, writing down columns of figures.#0~
+~
+22 135168 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+C
+strongroom_eradan~
+member~
+#51259
+cargo length rope netting byConscript OTHER~
+a length of rope netting~
+A length of heavy rope netting is rolled up here.~
+   This is a cargo net, many feet long, made of sturdy hemp rope 
+painstakingly woven in a manner that leaves wide spaces between 
+the ropes. 
+~
+12 4096 1
+0 0 0 0
+5000 0.000000
+0 0 0 29 0 0 1
+0.000000 0 0 0 7 0 0
+#51260
+cargo length rope netting byConscript OTHER~
+a length of rope netting~
+A heavy cargo net hangs against the wall, providing purchase for making one's way both upwards and downwards.~
+   This is a cargo net, many feet long, made of sturdy hemp rope 
+painstakingly woven in a manner that leaves wide spaces between 
+the ropes. 
+~
+12 135168 1
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51261
+cargo length rope netting byConscript OTHER~
+a length of rope netting~
+A heavy cargo net hangs down from above.~
+   This is a cargo net, many feet long, made of sturdy hemp rope 
+painstakingly woven in a manner that leaves wide spaces between 
+the ropes. 
+~
+12 135168 1
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#51262
+heart blackened PHEAR_PLOT blackened beating byConscript MEAT~
+a blackened, beating heart~
+A heart beats rhythmically, its flesh blackened.~
+   Except for being the color of a blackened bruise, this would 
+seem to be the healthy heart of a large man. It sits in a pool 
+of black, viscous liquid held by a platter shaped like a great 
+spider. It looks to be, horrifyingly, shockingly, impossibly 
+beating, drawing the foul-looking blood from the spider's legs 
+and feeding it to the roots of the black, twisted tree. 
+~
+8 135168 1
+0 0 0 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51263
+cap PEL-TIRITH forest green byConscript LEATHER~
+a forest green leather cap~
+A forest green leather cap lies on the ground.~
+   Made of plain forest-green leather, it doesn't cover much of 
+the head. Suitable for wearing just around town or for use as 
+part of one's armor outfit, its style is both plain and 
+effective. A very short brim in front shades the eyes, and it 
+slouches down over the brow. 
+~
+9 135168 17
+3 1 0 0
+200 0.000000
+0 0 0 0 0 0 1
+50.000000 0 0 0 14 0 0
+#51264
+gloves PEL-TIRITH archers fingerless pair missing fingers byConscript LEATHER~
+a pair of forest green archer's gloves~
+A pair of forest green gloves, missing some fingers, are set here.~
+   Made of supple leather, these gloves are well-sewn but lack 
+index and thumb fingers. They fit snugly, the forest green 
+leather comfortable in that way only kidskin can be, and each 
+stitch carefully made. 
+~
+11 135168 129
+0 0 0 0
+100 0.000000
+0 0 0 33 0 0 1
+76.000000 0 0 0 14 0 0
+A
+10016 2
+A
+10017 2
+#51265
+crystal PHEAR_PLOT clear beating red heart byConscript STONE~
+a clear crystal containing a beating heart~
+A red heart beats within a clear crystal.~
+   This is a short section section of smooth, multi-faceted 
+crystal. It is very clear and flawless. Embedded within the 
+crystal is a vivid red heart, which appears to be human despite 
+its miniature size. It seems to be beating inside its crystal 
+sheath. 
+~
+8 135176 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51266
+skull PHEAR_PLOT orc blackened tusked Khagdu byConscript OTHER~
+a blackened orkish skull~
+The blackened skull of a tusked orc floats in midair, imprisoned by tree branches.~
+   A large Orkish skull has been blackened by fire and time. A 
+pair of tusks jut up from the lower jaw, complementinf the full 
+set of teeth that yet remain intact. Large, ancient acorns are 
+jammed into the eye sockets, staring out. The skull is floating, 
+imprisoned by several twisted and tangled branches of a blackened 
+tree. 
+~
+8 135176 1
+0 0 0 0
+1000 0.000000
+0 0 0 25 0 0 1
+0.000000 0 0 0 0 0 0
+#51267
+tree PHEAR_PLOT bare limbed blackened byConscript WOOD~
+a bare-limbed, blackened tree~
+A bare-limbed, blackened tree sits upon a ledge.~
+   A bare-limbed, gnarled tree sits upon a ledge, with several 
+stout branches extending outwards. The tree is barkless and 
+leaveless, yet it lives. It has been blackened by fire and time, 
+though its strength does not seem to have weakened. Its roots 
+descend, spreading out in the confines of an obsidian platter 
+that lies on the ground, snaking close to the beating heart that 
+occupies the center of the platter. A blackend skull floats 
+imprisoned within several twisted and tangled limbs. Other 
+branches of the tree extend upwards, piercing the ceiling of the 
+chamber. 
+~
+29 135168 1
+0 0 0 0
+1000000 0.000000
+0 0 0 25 0 0 1
+0.000000 0 0 0 32 0 0
+#51268
+crystal PHEAR_PLOT dark large byConscript STONE~
+a large chunk of dark crystal~
+A large chunk of dark crystal sits within the jaws of the obsidian spider.~
+   About the size of a man's forearm, this chunk of crystal is 
+shaped in the likeness of the Spire itself. It sits within the 
+mandables of the spider-shaped obsidian platter. Periodically, a 
+small bolt of lightning crackles from the tip of the crystal. 
+The bolt arcs jaggedly to strike the beating heart, forcing it to 
+continue its labors. 
+~
+8 135176 1
+0 0 0 0
+2000 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#51269
+necklace PHEAR_PLOT dried threaded human eyeballs byConscript OTHER~
+a necklace of dried, threaded eyeballs~
+A necklace of dried, threaded eyeballs lies here.~
+   A number of severed eyeballs, all looking to have been taken 
+from several unlucky humans, have been appropriately dried, and 
+strung together on a thin cord of leather and made into a 
+gruesome necklace. A hole has been bored through each eyeball, 
+from one side to the other, with the cord threaded through, so 
+that the pupil of each can stare unseeingly outwards from the 
+wearer. One of the orbs is a bit larger than the other. 
+~
+8 135680 2097153
+0 0 0 0
+100 0.000000
+0 0 0 33 0 0 1
+0.000000 0 0 0 0 0 0
+#51271
+token GENERAL_PURPOSE byConscript invisible OTHER~
+an invisible GP token~
+An invisible GP token is here.~
+This is an invisible token for storing numbers in when needed.
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51270
+cap PEL-DAGOR hat knitted jet black wool white tree byconscript TEXTILE~
+a tree-embroidered knitted cap of jet black wool~
+A knitted cap of jet black wool, embroidered with a White Tree, lies here.~
+   This well-knitted cap is made of jet-black wool and is quite 
+warm, given the fine quality of the yarn. It covers the head 
+from crown to ears, with a turned up cuff upon which is sewn a 
+patch bearing an embroidered White Tree of Gondor. The rows of 
+knitting are quite tight, allowing for comfortable wear and 
+better insulation. 
+~
+11 4096 17
+0 0 0 0
+100 0.000000
+0 0 0 20 0 0 1
+30.000000 0 0 0 3 0 0
+#51272
+cap PEL-DAGOR officer hat knitted jet black wool gold band white tree byconscript TEXTILE~
+a tree-embroidered knitted cap of jet black wool, trimmed in thin gold rope~
+A knitted cap of jet black wool, embroidered with a White Tree and trimmed with a fine golden rope, lies here.~
+This well-knitted cap is made of jet-black wool and is quite 
+warm, given the fine quality of the yarn. It covers the head 
+from crown to ears, with a turned up cuff upon which is sewn a 
+patch bearing an embroidered White Tree of Gondor.  A fine golden rope encircles the cap at the bottom of the cuff.  The rows of 
+knitting are quite tight, allowing for comfortable wear and 
+better insulation. 
+~
+11 135168 17
+0 0 0 0
+100 0.000000
+0 0 0 20 0 0 1
+30.000000 0 0 0 3 0 0
+#51273
+bin OPROG_LABELS byConscript wooden WOOD~
+an unlabeled bin~
+An unlabeled wooden bin sits here.~
+Thick, unsanded wooden slats have been nailed firmly together 
+to make this bin. It is nearly waist-height on a man and twice 
+as wide. Small gaps exist between the slats, but they are still 
+close enough to keep most items contained with ease. It seems 
+more suited for heavy objects and looks as if it could take quite 
+a bit of punishment. An area has been sanded smooth on the top 
+slat for labeling. 
+ 
+ 
+You realize that you could make use of this item with the 
+following command: 
+'label bin', in this manner: label bin "pots and pans". 
+~
+15 4096 1
+30000 0 -1 0
+3000 0.000000
+0 0 0 0 0 0 1
+50.000000 0 0 0 32 0 0
+#51274
+sword UNIQUE_PHelluin bastard finely crafted EXPERT_QUALITY byConscript METAL~
+a finely crafted bastard sword~
+A finely crafted bastard sword has been left here.~
+   The ornate pommel of this finely crafted weapon is shaped like 
+a diamond, the design twirling up the long grip in a gentle curve 
+wrapped in black leather. The cross-guard is engraved and 
+noticeably crescent shaped. Unadorned, bright metal has been 
+made into a terrifying, shining blade which tapers into a razor 
+sharp leaf point. 
+~
+5 135168 8193
+1 2 7 4
+500 0.000000
+4 0 0 35 0 0 1
+4000.000000 0 0 0 18 0 0
+A
+10004 5
+#51275
+cloak GONDOR_NAVY_CPT black gold-trimmed White Tree byConscript TEXTILE~
+a black gold-trimmed cloak displaying the White Tree~
+A bundle of fine, gold-trimmed black wool has been left here.~
+   Fashioned from a length or two of fine wool, this cloak 
+billows down to the wearer's knees. At the neck, a few bright 
+gold links keep the cloak upon the shoulders of the wearer, and 
+on the clasp, an intricately-wrought white-gold tree is found. 
+On the back of the cloak, a beautifully embroidered white tree 
+blossoms like snow beneath a silver crown of many pointed stars. 
+The entire cloak has been trimmed in a thin band of gold thread. 
+~
+11 135168 1025
+0 0 0 0
+400 0.000000
+0 0 0 30 0 0 1
+500.000000 0 0 0 7 0 0
+#51276
+cargo ship Harad_Harlond civilian byConscript WOOD~
+a fat-bellied cargo ship~
+A fat-bellied cargo ship is tied to the south side of the dock, flying the Gondorian flag.~
+   Sitting deep in the water, this large wooden ship is tied to 
+the south side of the dock. She is manned by sailors wearing the 
+uniform of the Gondorian Navy, and flies the flag of Gondor atop 
+her mainmast. The furled sails are black, and from the 
+mizzenmast flies a pennant bearing the heraldry of Lord General 
+Eradan. 
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#51277
+badge BATTALION_END_BLIGHT_2485_Medal oval tree broken spire golden byConscript METAL~
+an oval medal of gold depicting a tree before a broken spire~
+An oval medal of gold depicting a tree before a broken spire is here.~
+   This medal is of gleaming gold, its intricate engravings 
+enameled with painstaking care. In the background stands a 
+broken black spire amidst a bleak landscape of barren trees, 
+though some bear a few small leaves and buds. Here and there on 
+the ground is painted a small flower. The White Tree of Gondor 
+stands before the spire, and around the edge of the medal are 
+engraved the words, 'The End of the Ithilien Blight - 2485' 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+200.000000 0 0 0 28 0 0
+#51278
+badge BATTALION_WEREWOLF_2486_Medal rectangular steel gleaming byConscript METAL~
+a rectangular medal of gleaming steel~
+A rectangular medal of gleaming steel lies here.~
+   This rectangular medal of gleaming steel shows six soldiers 
+marching, three each of Pel-Dagor and Pel-Tirith. Each soldier 
+holds a severed wolf's head in one hand and the shield of their 
+service in the other. At the bottom of the medal is etched 
+'Ithilien - 2486'. 
+~
+12 4329472 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+100.000000 0 0 0 18 0 0
+#51281
+tirith recruit armor package Battalion_Tirith_Recruit byKite OTHER~
+a package of armor for Pel Tirith Recruits~
+A large package of armor for Pel Tirith Recruits lies here.~
+A large burlap sack contains various armor items useable by the Pel Tirith.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+300.000000 0 0 0 0 0 0
+#51279
+gorget plate VANGUARD_RCT_DONT_CHANGE_OVALS one star byHalfjack METAL~
+a gorget of thin iron displaying one star~
+A gorget of thin iron is here, bearing one silver-white star~
+   This thin plate gorget rises to the underside of the wearer's 
+chin, providing decent protection. On the left side, easily 
+visible on the wearer's neck, is one silver-white star, carefully 
+etched. On the inner surface of the gorget is stamped a shield 
+before a full moon. 
+~
+9 135168 5
+0 5 0 0
+300 0.000000
+0 0 0 29 0 0 1
+350.000000 0 0 0 17 0 0
+#51280
+shield tower white tree steel VANGUARD METAL~
+a polished steel tower shield emblazoned with a White Tree~
+A polished steel tower shield emblazoned with a White Tree lies here.~
+   This strong and sturdy tower shield is made of steel, 
+well-crafted and polished to a near mirror-like sheen. It is 
+long and rectangular in shape with strong, thick straps of 
+leather on the back for an easy, yet sturdy grip. It is curved 
+slightly to better deflect blows and offers reliable protection. 
+The enamelled white tree on its front is surrounded by seven 
+stars, the symbol of Gondor, all blazoned proudly on the smooth 
+surface of the shield. 
+~
+6 4096 8912897
+6 16 60 0
+1000 0.000000
+0 0 0 0 8388612 0 1
+700.000000 0 0 0 18 0 0
+#51282
+shield studded tower iron white tree VANGUARD METAL~
+a studded, iron tower shield emblazoned with a White Tree~
+A studded, iron tower shield emblazoned with a White Tree lies here.~
+   This shield is made of several layers of iron pounded flat 
+into a very large rectangular shape about three or four feet in 
+height. Thick straps of leather have been attached onto the back 
+to provide a sturdy grip and iron studs are pounded into the 
+surface of the shield all around the edging. The enamelled white 
+tree on its front is surrounded by seven stars, the symbol of 
+Gondor, all blazoned proudly on the smooth surface of the shield. 
+~
+6 4096 8912897
+6 16 60 0
+1000 0.000000
+0 0 0 0 4 0 1
+300.000000 0 0 0 17 0 0
+#51283
+gorget chainmail captain DAGOR_VANGUARD METAL~
+a chainmail gorget engraved with a silver White Tree~
+A chainmail gorget, engraved with a silver White Tree, is here.~
+   Apparently well-made and sturdily constructed, this chainmail 
+gorget rises to the underside of the wearer's chin, providing 
+decent protection. On the left side, easily visible on the 
+wearer's neck, is one silver-white White Tree, carefully etched. 
+~
+9 4096 5
+2 4 0 0
+350 0.000000
+0 0 0 29 513 0 1
+250.000000 0 0 0 28 0 0
+#51284
+dagor private scale armor package byIcarus OTHER~
+a package of scale armor for Pel-Dagor Privates~
+A large package of scale armor for Pel-Dagor Privates lies here.~
+A large burlap sack contains various scale armor items useable by the Pel-Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+1775.000000 0 0 0 0 0 0
+#51285
+dagor corporal scale armor package byIcarus OTHER~
+a package of scale armor for Pel-Dagor Corporals~
+A large package of scale armor for Pel-Dagor Corporals lies here.~
+A large burlap sack contains various scale armor items useable by the Pel-Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+1775.000000 0 0 0 0 0 0
+#51286
+dagor sergeant scale armor package byIcarus OTHER~
+a package of scale armor for Pel-Dagor Sergeants~
+A large package of scale armor for Pel-Dagor Sergeants lies here.~
+A large burlap sack contains various scale armor items useable by the Pel-Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+1775.000000 0 0 0 0 0 0
+#56100
+corpse calegiar BySaladin RHUBARB_ONLY  OTHER~
+the corpse of a sturdily-built, midnight-haired man~
+The corpse of a sturdily-built, midnight-haired man has been left here~
+This is the corps of young man with pitch-black hair. Sharp
+features were accented by a pair of dark grey eyes, and a fair
+complexion. Of sturdy physique and little excess, this man's form 
+betrayed the signs of hard labor. Muscled arms end in lightly 
+calloused hands, and slender fingers. Long legs were capable of 
+holding him up to a height beyond the average Gondorian man.
+~
+12 0 1
+0 0 0 0
+18000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51287
+hastily constructed stockade OTHER~
+a burnt out stockade~
+A burnt out stockade is here.~
+This stockade has been burnt to the ground.
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51500
+deed wardog OTHER~
+#5a well-muscled wardog#0~
+The deed to #5a well-muscled wardog#0 is here, gathering dust.~
+   This deed offers purchase of a Gondorian stock wardog. 
+~
+61 4096 1
+51500 51500 0 0
+100 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 0 0 0
+#51288
+dagor enlisted armor package Army_Gondor byKite OTHER~
+a package of armor for enlisted Dagor~
+A large package of armor for enlisted Dagor lies here.~
+   A large burlap sack contains various armor items useable by the Pel Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+3700.000000 0 0 0 0 0 0
+#51289
+dagor officer armor package Army_Gondor byKite OTHER~
+a package of armor for Dagor officers~
+A large package of armor for Dagor officers lies here.~
+   A large burlap sack contains various armor items useable by the Pel Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+5355.000000 0 0 0 0 0 0
+#51290
+dagor enlisted equipment package Army_Gondor byKite OTHER~
+a package of equipment for enlisted Dagor~
+A package of equipment for enlisted Dagor lies here.~
+   A large burlap sack contains various armor items useable by the Pel Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+358.000000 0 0 0 0 0 0
+#51291
+dagor officer equipment package Army_Gondor byKite OTHER~
+a package of equipment for Dagor officers~
+A package of equipment for Dagor officers lies here.~
+   A large burlap sack contains various armor items useable by the Pel Dagor.
+~
+12 4198400 1
+0 0 0 0
+5000 0.000000
+0 0 0 30 512 0 1
+405.000000 0 0 0 0 0 0
+#51292
+coffin dormindle pine lumber DORMINDLE_FUNERAL_UNIQUE OTHER~
+an enscribed finely made, pine lumbered coffin~
+An enscribed finely made, pine lumbered coffin has been set here.~
+   This coffin has been made out of a fine pine lumber, knots 
+only interspersed here and there throughout the coffin. The wood 
+remains an unstained, unfinished colour in its natural state, 
+however it has been gone over with sandpaper, offering it a 
+generally smooth appearance and feel. The top and bottom have 
+been pressed together in a tongue and groove fashion allowing for 
+only a slight seam to be able to be viewed to the curious 
+onlooker, no nail holes visible upon it. The sides have been 
+erected in much the same fashion, however nail heads can be seen 
+where the sidewalls were mated to the bottom of the coffin.Having 
+been adorned with a number of carvings, the lid wits loosely atop 
+the base, awaiting the final nails to seal it. Along the bottom, 
+a sun has been carved into the wood, forming the background for 
+the word DORMINDLE to be raised in low relief from here. Within 
+the proper light, the White Tree can be seen glinting in bronze, 
+having been set into the wood by a large wire inlay that spans 
+the entire coffin. To those who carefully investigate the 
+coffin, a running wheat pattern has been carved into three sides 
+of the coffin: two opposite sides and bottom, creating an image 
+of chaff running along the border of the lid. Two rosettes in 
+the spot where the sides meet the shoulders offer a transition to 
+seven intertwined acanthus leaves that reach their way towards 
+the head of the coffin. Here, five swords have been carved away, 
+crossed in silent vigil very small atop the coffin. The while 
+carving, while venturing towards the grand in its design, seems 
+not have had a master hand turned to it. A few stray tool marks 
+are visible here and there, yet the overall appearance is crisp 
+and clean. 
+~
+12 0 1
+0 0 0 0
+3000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#51293
+frog Herbert mottled grey xpofMarv xNauriel OTHER~
+#5a mottled-grey frog#0~
+#5A mottled-grey frog hops around here.#0~
+   This small creature is one of many of its species that call 
+the marsh home. It is on a constant quest, searching out tasty 
+small insects to slap out of the air with a long tongue. Loud 
+and obnoxious, the constant croaks and other sounds leaving this 
+amphibian make it a sore sight as well as a burden on the ears. 
+~
+12 4096 25165841
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

@@ -1,0 +1,157 @@
+#16000
+fountain contaminated OTHER firefighting~
+a contaminated fountain~
+A small, contaminated fountain stands here, bubbling oily water.~
+  Once clear, cool water trickled out of a stone carved fish's mouth, 
+collecting in a shallow pool around the fountain's base. Now, either
+as effect of sorcery to the underground source, treason or simple 
+effect of siege engines, the water seeps oily, tepid and contaminated,
+completly unwholesome for consumption. Although still useable for
+washing, if the smell is bearable, or quenching fires, this fountain is
+no longer helpful to quench the thirst of any but the foulest of ork.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 20 0 0
+#16001
+bucket dirty water OTHER firefight~
+a bucket full of dirty water~
+A bucket full of dirty water has been left here.~
+   This simple bucket is full to the brim with oily, tepid water. 
+Although unsavory, this could be used to refresh someone, clean 
+an animal or douse a small fire. 
+~
+12 4198400 1
+0 0 0 0
+5860 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#16002
+timer delay rprog simple bymiburo OTHER~
+a simple delay timer~
+A simple delay timer set for 10 minutes is here.~
+   This simple delay timer looks to be used to keep an rprog from 
+twink echoing, and it morphs to nothing in ten minutes. 
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#16003
+Banhammer baleful fear death aura hawkes METAL~
+The Baleful Banhammer~
+The banhammer lies here, an aura of fear and death about it!~
+   The hammer is of a mighty size, forged of only the strongest 
+metals known to man, and several currently unknown, it radiates 
+an aura of death, fear and dispair in all that dare break any of 
+the rules of the hallow gamed, Shadows of Isildur. With a shaft 
+several feet long and a head composed of what many suspect is 
+pure and raw 'pwn', this weapon is truely fit for a god. 
+~
+5 135176 8658945
+0 200 1 7
+700 0.000000
+3 -4 0 0 4194304 0 1
+0.000000 0 0 0 18 0 0
+#16004
+Winstick stick win epic awesome hawkes WOOD~
+the win-stick of epic~
+The epic win-stick lies here, basking you all in a warm and happy glow.~
+   At first glance this innocent stick appears nothing more than 
+an actual stick, though on closer inspection it is clear to all 
+that this very stick is the mythical stick of WIN, the rare and 
+treasured stick that all crave. Only a few inches long with a 
+pointy end this simple twig can only be used by the chosen one of 
+the cult of win, for should another take up the legendary 
+win-stick, he would surely be smote in to a pile of dirty fail. 
+~
+5 135168 8193
+0 200 1 8
+700 0.000000
+0 -4 0 0 4194304 0 1
+0.000000 0 0 0 32 0 0
+#16005
+gas-mask gas mask tough rubber OTHER~
+a rough, black gasmask~
+A black gasmask has been left here, made of tough rubber.~
+   This mask has been fashioned out of an unknown, pale 
+bone-white substance. Although quite rigid when held in the 
+hand, it moulds itself perfectly to the wearer's face and moves 
+with each facial expression. It is fashioned in the likeness of 
+a grinning skull, with dark, hollow eyes and mouth, though no 
+features of the wearer can be seen through it. Only a true 
+Master of the Sith Order would wear this." 
+~
+11 528392 67108865
+0 0 0 0
+100 0.000000
+0 
+gas-masked~
+0 40 4194304 0 1
+0.000000 0 0 0 0 0 0
+#16006
+cap peaked stiff gold trim edged OTHER~
+a stiff, peaked cap edged with gold trim~
+A stiff, peaked cap edged with gold trim lies here.~
+~
+9 4104 17
+10 1 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#16008
+holster wide rigged LEATHER~
+a wide rigged holster~
+A wide rigged holster lies in a heap here.~
+   This device, made of some unknown metal from a galaxy far, far 
+away, is made to clip onto the user's belt and hold their 
+lightsaber. It is easy to use and one would be able to get their 
+lightsaber easily from this holder. 
+~
+58 4104 264193
+800 0 0 0
+200 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#16009
+pistol bolt large dull grey METAL~
+a heavy, dull-grey bolt pistol~
+A large pistol has been laid here, finished in dull grey~
+This gun is long and slender, its shape mostly resembling a
+slightly flattened cone, its surface a shiny, smooth chrome.
+It has a comfortable handgrip and trigger on its underside, and
+a laser scope is mounted on top of it. It has a second grip
+further up the barrel and an extendable bracket to butt up
+against the shoulder of the one wielding it. Painted on the
+side is the symbol of a jagged lightning bolt, above which is
+the cartridge into which its ammunition is loaded for firing.
+~
+58 4096 8658945
+3 2 100 18
+200 0.000000
+100 0 0 100 4194304 0 1
+0.000000 0 0 0 0 0 0
+#16010
+chainsword NO_LOAD UNIQUE_STAFF sword howling brutal edged METAL~
+a howling, brutal-edged chainsword~
+A chainsword lies here, it's internal workings howling.~
+~
+5 4096 270337
+0 950 1 3
+350 0.000000
+4 -35 0 99 0 0 1
+0.000000 0 0 0 0 0 0
+#16013
+never ending pile coconuts monumental unique_admin VEGETATION~
+a monumental, never-ending pile of coconuts~
+A monumental, never-ending pile of coconuts provides a bit of a trip hazard.~
+~
+19 4104 1
+6 0 0 0
+300 0.000000
+0 9999 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

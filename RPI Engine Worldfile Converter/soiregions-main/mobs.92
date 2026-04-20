@@ -1,0 +1,696 @@
+#92001
+AdamSmith tall bald guy~
+a tall bald guy~
+A tall bald guy named AdamSmith is standing behind a counter here.~
+This is his description.
+~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92002 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92101
+auto-create MerchantLocal1 formless merchantman~
+a formless traveling merchantman~
+a formless traveling merchantman is standing here.~
+(null)~
+8 0 25 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 134217733
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92101 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 35 48 40 46 37 32 48 44 37
+30 34 39 46 36 43 50 50 39 32
+40 31 0 0 34 42 0 0 25 64
+0 0 61 0 0 19 19 15 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 41 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 64 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92103
+Kelven MerchantLocal1 jovial round faced man peddler~
+a jovial, round faced man~
+A jovial, round faced man stands here before a wagon.~
+   Wider than he is taller, this man's form jiggles with every 
+bit of movement. His skin is weathered but quite flushed, 
+growing quite red about his jowls and cheeks. A smattering of 
+hair encircles his bald head, though a few thin threads of hair 
+sit astride his skull, braving the wind and sun. His hands are 
+calloused though well manicured, a delicate end to thin arms. He 
+commonly rests his hands above his profound belly. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92105
+Andarasc MerchantLocal2 rawboned straight backed man stance~
+a rawboned, straight-backed man~
+A man with a straight-backed stance and rawboned body watches the shop here~
+   Taller than the average, long arms hang from this man's broad 
+shoulders, matched by equally lengthy legs. Despite the almost 
+emaciated look of his body, bones clear in what joints are 
+exposed, he carries himself straight-backed and with an air of 
+pride. A long face is set beneath the fall of greasy black hair, 
+locks clumping around the face composed primarily of prominent 
+cheekbones. Beneath a heavy browline are a pair of deep murky 
+green eyes. From betwixt these, proceeding him, juts an 
+extremely hawkish nose. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mm_denizens 'member' mt_citizens~
+0 0 0
+#92107
+Esmeri MerchantLocal2 fit cat licked little woman~
+a fit, cat-licked little woman~
+A little young woman, fit in body with cat-licked hair, tends to the goods.~
+   Very short hair gives off the impression of someone who has 
+allowed their cat to lick their head, its color a pale, golden 
+strawberry blonde. The young woman that sports this crown is 
+rather small, shorter than average, with fit look about her. Not 
+delicate, almost boyish, with a strong and slightly athletic 
+frame. Big, sea green eyes look out from her face, flanking a 
+small and rounded nose above cupid's bow lips. She looks about 
+with an intent, alert expression, a certain confidence to her 
+demeanor. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mm_denizens 'member' mt_citizens~
+0 0 0
+#92109
+Beril MerchantLocal3 rotund ebony haired man~
+a rotund, ebony-haired man~
+A rotund, ebony-haired tends to the shop here.~
+   A pair of beady, deep brown eyes peer from deep within this 
+man's fleshy face; a large, bulbous nose serves to diminish their 
+already small size, while his thick lips seem to dominate the 
+entire lower portion of his bulging visage. Slick, ebony-black 
+hair is smoothly plastered over his scalp, arranged fastidiously 
+in such a way so as to disguise a quickly receding hairline. A 
+bulging neck flares out from beneath the rounded head, giving way 
+to an equally enormous set of shoulders - each stout arm 
+terminating with a set of large, ungaingly hands. The massive 
+girth of his waist is complemented by solid legs and equally 
+meaty feet. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92115
+Miran MerchantDistant1 cheery broad shouldered woman~
+a cheery, broad-shouldered woman~
+A jovial, round faced man stands here before a wagon.~
+   This middle-aged woman seems to have weathered the storms of 
+life with no small effect, though still retaining much of youth's 
+vigour. A profusion of dirty-blonde hair spills in curled 
+ringlets from her rounded head, a set of large, dull-blue eyes 
+sitting, perhaps a little too close, to her overly wide nose. 
+Her plump lips complement the general bulk of her figure; while 
+an ample bosom fills out an equally broad set of shoulders. Her 
+skin is rough and weathered, thick callouses lacing her expansive 
+palms. She bustles about her tasks with in an expressive flurry 
+of activity, cheerfully aiding customers in whatever questions or 
+queries they might have. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92117
+Erthal MerchantDistant2 savagely scarred wiry young man~
+a savagely scarred, wiry young man~
+A savagely scarred, wiry young man tends silently to the shop.~
+   A terrible catastrophe appears to have met with this young man 
+at some point in his life; his right ear has been shredded 
+horribly, only a small stump protruding from the side of his head 
+- offset by the rather prominent size of his remaining ear - 
+while a serious of gouges rake their way across his face, 
+narrowly missing both eyes. His nose appears to have been broken 
+on numerous occasions, as its rather cocked angle attests to. 
+Faded blond hair hangs in a thick, tangled mop from the crown of 
+a narrow and angular head, its ragged ends falling just short of 
+his eyes. Numerous lesser scars and the brown shade of his skin 
+suggest much time spent beneath in the outdoors; his entire frame 
+appears sinewy and compact, that of a man long used to strenuous 
+labour. He moves about his duties with abrupt, almost predatory 
+movements, and he can be seen to glance up sharply whenever some 
+new customer ventures forward. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92119
+Arishia MerchantDistant3 thin pale skinned lass ponytail girl woman~
+a thin, pale-skinned lass with a ponytail~
+A thin, pale-skinned lass helps customers.~
+   The frame of this young woman is quite slight, thin arms and 
+legs protruding from an equally gaunt, almost boyish, frame. Her 
+skin is of a fair shade, contrasting sharply with the dark shades 
+of her hair - pulled back into a tight ponytail, and further 
+accentuating the harsh, angular lines of her face. A thin nose 
+juts out a little too far from between a pair of grey eyes; her 
+pale lips seem at all times to be drawn into a tight line, while 
+her face terminates suddenly with a sharply defined chin. She 
+moves about with slightly clumsy and awkward motions, though 
+seeming cheerful enough as she lends help to any customer in 
+need. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92121
+Rodnier MerchantDistant4 massive barrel chested giant man~
+a massive, barrel-chested giant of a man~
+A massive, barrel-chested man strides about the shop.~
+   A thick, fiery red beard sprouts from this man's chin, 
+spilling out onto his chest and working its way up the sides of 
+his face in a tangled mat, though falling short of his closely 
+shorn scalp. His eyes, set close to the centre of his head, seem 
+to glare constantly - scarcely leaving room for an overly long 
+nose; while an equally large mouth sports a set of rotting and 
+crooked teeth. His head sits atop a short, thick neck, the 
+shoulders beneath of a truly impressive size, and fully 
+complemented by the breadth of his chest and the width of his 
+arms and legs. The skin of his hands is gnarled and hardened to 
+something not unlike the hide of some animal, innumerable scars 
+and burn-marks marring their cracked surface. He moves quickly 
+to help any customer in need, his boisterous voice easily heard 
+no matter how crowded the shop becomes. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92123
+Luvien MerchantDistant5 tall austerely featured woman~
+a tall, austerely featured woman~
+A tall, austere woman moves imperiously about the shop.~
+   Long, ebony-black hair has been pulled tightly back in a bun, 
+acutely accenting this woman's stern visage. High cheekbones, a 
+sharply defined nose, and pale - almost bloodless - lips dominate 
+her pallid features. Her eyes, of a hard, granite hue, stare 
+coldly into their surroundings; smiles, of which there are few to 
+be had, display white and perfect rows of teeth. Ivory-toned 
+skin is stretched taut across a tall frame; squared shoulders, a 
+flat chest and narrow hips complement the stern features of her 
+face. She sweeps imperiously about her merchant stall, dealing 
+with any customers in a coldly domineering - yet effective - 
+manner. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92125
+Rubico MerchantDistant6 stooped shriveled old man~
+a stooped, shriveled old man~
+A stooped, shriveled old man struts about the shop.~
+   What once might have been an average - or perhaps even tall - 
+frame has been warped and worn by the effects of age and time. A 
+thin wisp of downy hair still clings tenaciously to a wrinkled 
+scalp, the face beneath a mass of worn skin. Gnarled, 
+work-hardened hands bear the tales of many years, yet despite the 
+man's stooped figure, they remain deft and sure; a surprising 
+strength still retained from some time past. He moves about the 
+shop with short, elastic steps - belying the promise given in his 
+withered legs; a pair of piercingly keen green eyes still peer 
+out shrewdly from beneath crannied brows. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92127
+Evika MerchantDistant7 frail wizened old matron~
+a frail, wizened old matron~
+A frail, wizened old matron putters about the shop.~
+   Her back stooped as if by an invisible weight, this old woman 
+shows the care of countless years. A pair of sharp, coal-black 
+eyes peer from within the depths of her wrinkled face - that is, 
+when not obscured beneath a thin film of silvery-grey hair, a mop 
+of which dangles from her head in a untidy heap. Her gnarled 
+hands and bulbous knuckles quiver constantly when not put to some 
+use - calloused and toughened, they still seem to hold no small 
+strength, despite their obvious age. Wrinkled skin is pulled 
+tight over a gaunt frame, little or no fat to spare; she moves 
+slowly, walking about the stall with slow, shuffling steps as she 
+tends to her customers. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92129
+Ferik MerchantDistant8 reedy swarthy skinned lad~
+a reedy, swarthy-skinned lad~
+A reedy, swarthy skinned lad tends silently to customers.~
+   His rather awkward height, made even more noticeable by a 
+slight frame, gives this young man a certain ungainly quality. A 
+shock of untidy, dirty-brown hair sprouts from atop his head, 
+tumbling down and ending raggedly just below a pair of overlarge 
+and rather prominent ears. Dull brown eyes and an unexpressive 
+face stare placidly at the surrounding world; despite his obvious 
+youth, he appears to have seen a fair portion of labour - from 
+calloused and hardened hands, to the deep brown shade of his 
+skin. He moves quietly about the shop, helping any customers in 
+almost absolute silence. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92131
+Amrilya MerchantDistant9 short energetic young woman~
+a short, energetic young woman~
+A short, energetic young woman looks to the needs of customers.~
+   Of a shorter than average build, this young woman makes up for 
+her lack in height with an obvious show of energy. From a 
+profusion of blonde hair - scarcely held in check as it 
+constantly seeks to work its way into her eyes, or out of 
+whatever confining hold she has put on it - to her brightly lit, 
+sparkling blue eyes, she exudes a sense of constant motion. 
+Lightly browned skin and erect, squared shoulders speak of a 
+difficult lifestyle; her small hands are already calloused and 
+thickened with work, while her arms hold a sinewy strength 
+surprising for their size. She hurries frantically from one 
+customer to the next - and even when standing still, she still 
+fidgets idly; twirling a lock of hair, or shifting unceasingly 
+from one foot to the next. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#92111
+Narik ShipLocal1 short broad shouldered man~
+a short, broad shouldered man~
+A short, broad shouldered man attends to his goods.~
+   Short in stature but with stocky shoulders, this man could 
+almost be related to a dwarf. Scraggly hair running down to his 
+shoulders sits atop of his head in dire need of combing. Dark 
+circles round the lower part of his brown glazed-over eyes. A 
+small flat nose rests above a set of chapped lips that seemed to 
+be placed in a perpetual sneer, showing a few blackened and 
+missing teeth. His hands are rough and calloused, at odds with a 
+slight belly that straddles his thick hips and dumpy short legs. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mm_denizens 'member' mt_citizens~
+0 0 0
+#92113
+Josphine ShipLocal2 tall ponytailed woman~
+a tall, ponytailed woman~
+A tall, ponytailed woman stands by her pavilion.~
+   Standing at a rather tall height, this fair woman has the 
+looks of a traveler. Long brownish-blonde hair falls down her 
+back in a ponytail. Her build is slightly muscular, but still 
+has the fine form of any woman along with a small chest. Her 
+eyes were a light blue that sit atop a pert nose, and small set 
+of pink lips. Her skin is slightly worn from travel, like her 
+hands, not rough, but not soft either. Her legs are long and 
+extremely fit looking, accustomed to travel. 
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 5854 0 213274863
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+0 92103 1.000000 1.000000 1.200000 0.800000 0
+0.000000 0.000000 0 0.000000 0.000000 0 54529792
+-1
+9 0 0 6 39 54 25 27 36 48
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 60
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mm_denizens 'member' mt_citizens~
+0 0 0
+#92002
+EconoClock impish daemon clock metronome~
+an impish daemon~
+An impish daemon is here, idly regulating a metronome.~
+(null)~
+10 2 4 52 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+$~

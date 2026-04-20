@@ -1,0 +1,1266 @@
+#60000
+Base Room: Guild of Dark Protectorate.~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+60 65544 0
+0
+S
+#60001
+A Cramped Archway and Tunnel~
+   A narrow stone archway gives way to tunnel, the stone roughly 
+hewed leaving its surfaces rough and jagged. The floor, rough but 
+so jagged slopes gently downward and leads towards the south. A few, 
+thick cobwebs hang from the walls close to the southern end of the 
+passge. A slight feeling of apprehension hanging in the stale air.
+~
+60 67672 0
+0
+D2
+~
+~
+0 -1  0 60002
+P
+pass go enter touch~
+rock rocks tunnel basement wall~
+if clan(-1, saibeth)
+vstr You pass through the rocks...
+vbr -
+ostr %n walks through the rock wall unhindered.
+trans 66371
+atlook 66371
+else do
+if skill(Aura-Sight, 35)
+vstr An unseen force blocks your movement through the illusionary wall.
+else do
+vstr It's a solid rock wall!
+fi done
+fi done
+~
+P
+sense~
+rock rocks tunnel basement wall~
+if skill(Aura-Sight, 35)
+vstr In your mind's eye, one section of wall fades away to reveal a tunnel into a dark, grim room.
+else do
+vstr You don't see them here.
+fi done
+~
+S
+#60002
+A Cobwebbed Tunnel at an Arched Dead End~
+   Thick cobwebs line this roughly hewed tunnel, its walls and 
+ceiling jagged and threatening. The floor, just slightly smoother 
+than the rest of the surfaces slopes upwards ever so slightly 
+towards the north. A stone archway, sealed with an odd collection 
+of yellowed skulls and mortar, lies to the south. The many eyeless 
+skulls gazing forever outward, casting an ominious tension in the 
+stale air of the tunnel.
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60001
+D2
+~
+~
+0 -1  0 60003
+S
+#60003
+A Torchlit Underground Tunnel at an Arch~
+   Large steps, leading towards the south and sharply down have 
+been savagely cut in the stone here, thick cobwebs clinging to 
+the walls as the passage descends. A stone archway leads to the 
+north, flickering torches set in stone scones, burning on either 
+side. The walls of rough and jaged stone, a contrast of shadow 
+and a dull orange light. The stone floor is covered with an odd 
+collection of yellowed skulls and broken bits of aged mortar.
+~
+60 67174488 0
+0
+D0
+~
+~
+0 -1  0 60002
+D5
+~
+~
+0 -1  0 60004
+S
+#60004
+A Cobwebbed Underground Tunnel~
+   Thick cobwebs line this rough hewed tunnel, the walls and 
+ceiling jagged and foreboding. Sloping slightly to the south the 
+passage continues on. Large steps have been viciously cut in the 
+stone, climb sharply towards the north. A faint, flickering
+orange glow from up the stairs highlighting the numerous nooks
+and crannies created by the rough surfaces of the tunnel. Sections
+of the cobwebs glowing eerily, as they capture a flicker of the 
+light. 
+~
+60 65624 0
+0
+D2
+~
+~
+0 -1  0 60005
+D4
+~
+~
+0 -1  0 60003
+S
+#60005
+A Cobwebbed Underground Tunnel~
+   Hewed from the stone of the mountain, the walls of this 
+tunnel are jagged and rough. The floor, smooth in comparison 
+to the walls, slopes down to the south. The nooks and crannies 
+of the rough walls deep in shadow whilst the exposed surfaces 
+reflect the flickering, dull orange light fighting its way up 
+from the south. Thick cobwebs, some catching the light as well
+glow eerily.
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60004
+D5
+~
+~
+0 -1  0 60006
+S
+#60006
+At a Sigil-Inscribed Door at the End of a Sloping Underground Passage~
+   The slope of this balmy underground passage meets a door in 
+the rocky face to the south, a myriad of complex and twisting 
+sigils engraved upon it. Torches sputter eternally in their 
+sconces, casting a dull orange light over the passage and lending 
+the sigils a fiery glow. Above the door at each side sit a pair 
+of sentinel gargoyles - one leers with twisted lips and fearsome 
+eyes to the passage that stretches above and the other with 
+numerous piercings and spiked ears watches the ground at the 
+door. 
+~
+60 67174488 0
+0
+D2
+~
+sigil-etched-door~
+1 60012  100 60007
+D4
+~
+~
+0 -1  0 60005
+P
+approach activate open light~
+wall rock sigil rocks door~
+if clanrank(saibeth, corporal)
+vstr Under your firm mental guidance, you coax the door back into life. Its patterns begin to glow.
+ostr One by one, upon %n's approach of the southern wall, softly glowing sigils begin to light up on its surface.
+if oexist(60016, 60006)
+
+else do
+loadobj 60006 1 60016
+fi done
+else do
+vstr You are currently trapped here.
+fi done
+~
+P
+touch enter~
+sigil sigils glow glowing~
+if clan(-1, saibeth)
+if oexist(60016, 60006)
+vstr You place your hand on the rock face bearing the glowing sigils. With a grinding sound, a small passage opens up and admits you into a foyer.
+ostr %n lays their hand onto the glowing rock and with a low rumble, a passage admits them inside.
+vbr -
+trans 60007
+atlook 60007
+atecho 60007 Announced by a low rumbling sound, a figure emerges from the small passage in the northern door.
+else do
+vstr What good would that do?
+fi done
+else do
+vstr You place your hand upon the glowing rock.
+ostr %n places their hand upon the glowing rock.
+fi done
+~
+S
+#60007
+A Vaulted, Torchlit Foyer Stretching East to West~
+   This shadowy foyer is wide, stretching from east to west for 
+some distance - at either end black curtains are enveloped in 
+darkness. The high crimson vaults of the room are barely visible 
+but sloping support pillars are illuminated by sombre orange 
+torches that flicker eternally in their sconces. The floor is 
+well polished and the area immaculate and austere, lending the 
+myriad of sigils inscribed over nearly every surface an 
+impressive display. Besides echoed footsteps through these dark 
+chambers, the place is quiet and the atmosphere almost balmy. 
+   An archway gives leave to a pillared chamber to the south, 
+structured around an immense abyss in the ground. 
+~
+60 65880 0
+0
+D0
+~
+sigil-etched-door~
+1 60012  100 60006
+D1
+~
+black-curtain~
+1 -1  0 60008
+D2
+~
+~
+0 -1  0 60010
+D3
+~
+black-curtain~
+1 -1  0 60009
+P
+lock deactivate stop extinguish~
+sigil sigils lock door passage~
+if clanrank(saibeth, corporal)
+vstr By concentrating on the access passage, you manage to lock it down and stop all access.
+if oexist(60016, 60006)
+get 60016 60006
+atecho 60006 The sigils extinguish their glow.
+fi done
+fi done
+~
+S
+#60008
+A Thin Tunnel Through the Wet Rock~
+   This joining room is thin, cut from the black rock of the 
+earth. A musty smell lingers in the air and drips can be heard 
+beyond hollow gaps of the jacked rock walls, their surface almost 
+slimy with algae. Like a veil, a black curtain is drawn across 
+the western side of the passage, a heavy stone door to the east. 
+~
+60 67174489 0
+0
+D1
+~
+stone-door~
+1 -1  0 60024
+D3
+~
+black-curtain~
+1 -1  0 60007
+S
+#60009
+A Musty Room Enveloped in Shadow~
+   This tunnel is cast in shadow and is fairly meagre to look at 
+with its dull black walls and jagged outcrops. The path weaves a 
+little between bulges in the rock formation and behind carven 
+hollows water can be heard dripping in echoes. 
+   The air is musty here and a breeze frequently flutters the 
+black veil of a curtain in the east of the rock wall. 
+~
+60 65624 0
+0
+D1
+~
+black-curtain~
+1 -1  0 60007
+S
+#60010
+An Obsidian Pillared Chamber Around a Gaping Abyss in the Floor~
+   Two hemispherical alcoves partner this elaborate circular 
+chamber to the east and west, the walls and floor covered almost 
+at every inch with engraved black sigils. Smooth obsidian 
+pillars hold the domed roof with resilience, decorated themselves 
+with glaring gargoyles that watch in an almost animate way over 
+the chamber. Opening up in the centre is a gaping abyss, no 
+barriers to restrict access. The abyss begins to slope away with 
+the south portion of the chamber and a wide bridge gives way. 
+   A cramped stairwell hewn from the rock winds a path onto a 
+landing in the abyss below. 
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60007
+D2
+~
+~
+0 -1  0 60013
+D5
+~
+~
+0 -1  0 60016
+S
+#60011
+A Dingy Candlelit Common Area~
+   Hewn into a nearly circular cavern far beneath the surface, 
+this common area is cast mostly in shadow, lit only by candles 
+whose dull orange flicker isnt ample. The cavernous room is 
+musty and moss and slimy algae grow in places along the dark 
+black walls. The room is sectioned into two parts by a natural 
+jagged pillar of rock that thrusts through the floor and merges 
+with the shadowy ceiling. Some drab furniture has been scattered 
+around the room, even some rock tiers being used as benches. A 
+symbol mimicking the shape of a scythe has been engraved on the 
+western plank door. 
+~
+60 67174744 0
+0
+D3
+~
+scythe-engraved-door~
+1 -1  0 60041
+S
+#60012
+An Dripping Underground Shaft at a Door~
+   This deep underground tunnel has been cut through the 
+surrounding jagged black rock and winds its way from the south, a 
+harsh wind whistling nearly constantly throughout. Slime and 
+algae colour the moist walls in greens and browns, contrasting 
+with the dull black of the rock. The tunnel here comes to an end 
+and a heavy stone door has been made in the eastern wall. 
+~
+60 65624 0
+0
+D1
+~
+stone-door~
+1 -1  0 60042
+D2
+~
+~
+0 -1  0 60017
+S
+#60013
+A Wide Obsidian Bridge Over an Abyss~
+   Supported by its wide span and its short lenth, this finely 
+crafted bridge hangs above the maw of a perfectly dark abyss. 
+Besides the glossy obsidian masonry of the bridge, naught else 
+can be viewed over the edge or up into the air, no ceiling or 
+bottom in sight. The walls extend in a concave fashion from the 
+beginning of the sides of the bridge and quickly blend into the 
+pitch murk. This oppressive darkness has been modestly countered 
+by the setting up of slow burning torches every few feet, on 
+alternate sides. The flames weave and flicker as wind from the 
+surface whirls inside the tunnels - the light playing across the 
+bridge's smooth exterior and revealing tantalising glimpses of a 
+prestigious number of sigils and symbols. These normally 
+invisible ciphers shimmer independently to non-marked obsidian 
+even if no trace of carving is visible. The sheer number of 
+them, the majority fierce characters composed of thick lines, 
+hint at the incredible amount of work that has gone into the 
+construction of this indefatigable bridge. 
+~
+60 67436568 0
+0
+D0
+~
+~
+0 -1  0 60010
+D2
+~
+~
+0 -1  0 60014
+D5
+~
+~
+0 -1  0 60025
+S
+#60014
+A Wide Obsidian Bridge Over an Abyss~
+   Supported by its wide span and its short lenth, this finely 
+crafted bridge hangs above the maw of a perfectly dark abyss. 
+Besides the glossy obsidian masonry of the bridge, naught else 
+can be viewed over the edge or up into the air, no ceiling or 
+bottom in sight. Ever so very gradually, this half of the bridge 
+begins to ascend towards the heavy imposing double doors at its 
+highest end. The network of torches, the alternating torch to 
+light one's way every few feet, has its gap increase along with 
+the slope. This steadily reduces the brightness of the light as 
+the distance to the double doors lessens, while two large 
+braziers, one off to each side of the outward opening doors, burn 
+like beacons in the chill winds of the abyss. In furious 
+patterns, which strangely enough become more and more obvious in 
+the encroaching darkness of the bridge, are rows upon rows of 
+scattered sigils and symbols, some designs bordering on stylised 
+versions of ritual murder or the terrors which lurk beyond the 
+light. These images reflect dully in contrast to the well 
+polished obsidian worked bridge's surface. 
+~
+60 67436568 0
+0
+D0
+~
+~
+0 -1  0 60013
+D2
+~
+double-doors~
+1 -1  0 60015
+D5
+~
+~
+0 -1  0 60027
+S
+#60015
+A Majestic Obsidian Room Etched with Sigils~
+   While modest, this domed chamber makes up in majesty what it 
+lacks in size - a myriad of sigils have been etched over nearly 
+every inch of the walls, floor and vaulted dome ceiling. 
+Miniature alcoves have been hewn into the rock of this 
+subterranean room where candles illuminate the shadowy area in an 
+orange glow. The sigils, while ranging vastly in size, shape and 
+depth, are arranged in columns as if there was a natural order to 
+them. Central to the chamber is a slender obelisk hewn from 
+obsidian and polished fiercely; it rises right up to the very 
+centre of the domed ceiling and over its surface too are etched a 
+myriad of sigils.A draught blows nearly constantly through the 
+balmy underground here, the candles creating dancing shadows over 
+the crimson vaults and pillars of the room. 
+~
+60 67174424 0
+0
+D0
+~
+double-doors~
+1 -1  0 60014
+S
+#60016
+A Stone Landing Around a Chasm~
+   A subterranean draft blows through the gaping chasm that opens 
+out in the rock of the earth to the south, making torches sputter 
+in their sconces and cast shadows on the walls. The landing is 
+somewhat precarious, given its proximity to the edge of the abyss 
+around which this tier of rock is built. The surrounding walls 
+of black rock are mostly flat and circumnavigate the vast drafty 
+hole. A complex myriad of sigils has been etched nearly over 
+every inch of the surroundings, in neat lines and columns. A 
+number of doors and archways have been built into the rock. 
+~
+60 65624 0
+0
+D1
+~
+~
+0 -1  0 60031
+D2
+~
+~
+0 -1  0 60025
+D3
+~
+~
+0 -1  0 60032
+D4
+~
+~
+0 -1  0 60010
+S
+#60017
+A Musty Underground Shaft Through Black Rock~
+   This tunnel is cast in shadow and is fairly meagre to look at 
+with its dull black walls and jagged outcrops. The path weaves a 
+little between bulges in the rock formation and behind carven 
+hollows water can be heard dripping in echoes. 
+~
+60 67174488 0
+0
+D0
+~
+~
+0 -1  0 60012
+D2
+~
+~
+0 -1  0 60041
+S
+#60018
+A Torchlit Craggy Stairwell Penetrating the Earth~
+No Description Set.
+~
+60 65624 0
+0
+D5
+~
+~
+0 -1  0 60019
+S
+#60019
+A Craggy Stairwell Levels off to the North~
+No Description Set.
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60020
+D4
+~
+~
+0 -1  0 60018
+S
+#60020
+A Roughly-Hewn Chamber of Rock at Two Archways~
+Archways east/west.
+~
+60 65624 0
+0
+D2
+~
+~
+0 -1  0 60019
+D5
+~
+~
+0 -1  0 60021
+S
+#60021
+A Winding Torchlit Stairwell, Hewn from Rock~
+Null
+~
+60 65624 0
+0
+D4
+~
+~
+0 -1  0 60020
+D5
+~
+~
+0 -1  0 60022
+S
+#60022
+A Levelling Stairwell Shrouded in Shadow~
+No Description Set.
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60023
+D4
+~
+~
+0 -1  0 60021
+S
+#60023
+A Subterranean Rock Chamber at Archways~
+Archways east/west.
+~
+60 65624 0
+0
+D2
+~
+~
+0 -1  0 60022
+S
+#60024
+A Shadowy Circular Chamber with Crimson Vaults and Alcoves~
+   This subterranean chamber has been hewn from the black rock 
+underneath Tur Edendor into a circular opening and several 
+individual alcoves. In each hemispherical alcove at least two 
+rock shelves have been carved in tiers as well as a circular 
+hollow in the wall to store items. Bleary torches sit in their 
+sconces sputtering to lend the sombre and deadly quiet place an 
+orangey red glow. The ceiling has been vaulted with a rich red 
+wood in a complex lattice though it is only rarely visible in the 
+dark upper shadows of this musty chamber. A solid door has been 
+made from the black rock of the chamber in the western wall. 
+~
+60 65624 0
+0
+D3
+~
+stone-door~
+1 -1  0 60008
+S
+#60025
+Hurtling through an Inky Abyss!~
+   As the winds rip past you on your descent - you realise you're 
+about to be utterly engulfed by the darkness below. Now would be 
+the time to make amends... 
+~
+60 66648 0
+0
+D0
+~
+~
+0 -1  0 60016
+D1
+~
+~
+0 -1  0 60033
+D2
+~
+~
+0 -1  0 60027
+D3
+~
+~
+0 -1  0 60034
+D4
+~
+~
+0 -1  0 60013
+D5
+~
+~
+0 -1  0 60026
+S
+#60026
+Inky Black Darkness~
+   If you're conscious, you're either very lucky or very tough. 
+It's a shame all the luck or good health in the land won't spawn 
+the food and water you're going to need to survive. 
+~
+60 66648 14
+0
+D2
+~
+~
+0 -1  0 60028
+D4
+~
+~
+0 -1  0 60025
+S
+#60027
+Hurtling through an Inky Abyss!~
+   As the winds rip past you on your descent - you realise you're 
+about to be utterly engulfed by the darkness below. Now would be 
+the time to make amends... 
+~
+60 66648 0
+0
+D0
+~
+~
+0 -1  0 60025
+D1
+~
+~
+0 -1  0 60036
+D2
+~
+~
+0 -1  0 60038
+D3
+~
+~
+0 -1  0 60035
+D4
+~
+~
+0 -1  0 60014
+D5
+~
+~
+0 -1  0 60028
+S
+#60028
+Inky Black Darkness of a Cavern.~
+   If you're conscious, you're either very lucky or very tough. 
+It's a shame all the luck or good health in the land won't spawn 
+the food and water you're going to need to survive. 
+~
+60 66648 14
+0
+D0
+~
+~
+0 -1  0 60026
+D4
+~
+~
+0 -1  0 60027
+S
+#60031
+A Carved Landing Curving Around a Chasm~
+   Opening up off the side of the landing is a formidable abyss, 
+one holding firm against the underground winds washing over it. 
+The landing itself is a modest track cut from movement around the 
+centre pit and provides access to the lattice of thresholds and 
+arches that make up the outer walls. The rock has been cut away 
+smoothly, leaving no sharp edges or abrupt cracks on the 
+walkspace. Lit by a supporting set of torches, a matrix of 
+arcane sigils are flickeringly visible in the smoke choked 
+brightness of the slow burning wood. These symbols, skillfully 
+worn into the very rock itself, run in planned rows and columns, 
+covering every inch that reflects in the subterranean landscape. 
+~
+60 65624 0
+0
+D1
+~
+door~
+1 60024  90 60044
+D2
+~
+~
+0 -1  0 60033
+D3
+~
+~
+0 -1  0 60016
+S
+#60032
+A Thin Stone Landing Around a Drafty Chasm~
+   The vast abyss to the east and south of this thin stone 
+landing is eternally noticeable in its size and the draft that 
+constantly blows through the balmy air of this underground 
+network. There are no barriers to stop way into the inky depths 
+below. Thousands of sigils have been etched into the dark 
+natural rock of the walls in neat columns and lines and on the 
+doors that have been built into the surrounding walls. Torches 
+splutter in their sconces in the draft, shedding a dull orange 
+glow over the shadowy surroundings. 
+~
+60 65624 0
+0
+D1
+~
+~
+0 -1  0 60016
+D2
+~
+~
+0 -1  0 60034
+P
+touch~
+rock wall door rocks~
+if clan(-1, saibeth)
+vstr You place your hand upon the door and the world seems to shift around you.
+ostr %n places their hand onto the door and begins to fade away.
+trans 60055
+atlook 60055
+else do
+vstr You place your hand upon the door.
+ostr %n places their hand upon the door.
+fi done
+~
+S
+#60033
+Stone Landing at the Mercy Of A Deep Abyss~
+   Around the outside of the abyss in the centre of this 
+subterranean chamber is this very landing, a landing that emerges 
+from the surrounding rock wall as a precisely cut, if perhaps 
+thin, method of travelling to the relevant door or atrium hewn 
+also into the rockface. Given sconces, torches have been set up 
+and maintained to provide the necessary light for safe travel 
+along the landing but in the shifting gusts of wind from within 
+the abyss, their flames hack and wheeze their way through the 
+job. Woven into face of every surface is a network of austerely 
+drawn symbols and sigils and not one inch of visible rock is 
+exempt - the area is covered in these reflective marks. 
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60031
+D2
+~
+~
+0 -1  0 60036
+D3
+~
+~
+0 -1  0 60025
+S
+#60034
+A Thin Stone Landing Around an Inky Abyss~
+   A wide bridge looms over the abyss far above the stone landing 
+here, blocking out much vision of the hewn rock ceiling far even 
+above that. Around this thin landing there has been no effort 
+made to restrict access to the chasm that opens up like a gaping 
+mouth, a draft constantly making itself present to flicker the 
+dull orange torchlight in dancing shadows. The black rock walls 
+are etched in neat columns and lines with complex and awkward 
+sigils as well as the doors that are built into the surrounding 
+walls. 
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60032
+D1
+~
+~
+0 -1  0 60025
+D2
+~
+~
+0 -1  0 60035
+S
+#60035
+The Landing Curling Around The Centre Pit~
+   Around the outside of the abyss in the centre of this 
+subterranean chamber is this very landing, a landing that emerges 
+from the surrounding rock wall as a precisely cut, if perhaps 
+thin, method of travelling to the relevant door or atrium hewn 
+also into the rockface. Given sconces, torches have been set up 
+and maintained to provide the necessary light for safe travel 
+along the landing but in the shifting gusts of wind from within 
+the abyss, their flames hack and wheeze their way through the 
+job. Woven into face of every surface is a network of austerely 
+drawn symbols and sigils and not one inch of visible rock is 
+exempt - the area is covered in these reflective marks. 
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60034
+D1
+~
+~
+0 -1  0 60027
+D2
+~
+~
+0 -1  0 60037
+S
+#60036
+A Precarious Landing Circling the Abyss~
+   Although built with solid grounding from the rockface, this 
+landing that circles around as a bridge to carry one across the 
+circumference of the abyss is a little too thin to be perfectly 
+safe and requires constant vigilance of the edge at all times, 
+lest you have a death wish. Oily torches have been placed in 
+scones every few paces in order to light the way - they do that 
+just fine, but they also reveal the extreme multitudes of runes 
+and sigils drawn onto every exposed surface that catches the 
+light. These images are arranged in careful pattern, many 
+containing stylised people committing acts such as murder or 
+skinning. 
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60033
+D2
+~
+~
+0 -1  0 60039
+D3
+~
+~
+0 -1  0 60027
+S
+#60037
+Rocky Outcrop Circling An Abyss~
+   Opening up off the side of the landing is a formidable abyss, 
+one holding firm against the underground winds washing over it. 
+The landing itself is a modest track cut from movement around the 
+centre pit and provides access to the lattice of thresholds and 
+arches that make up the outer walls. The rock has been cut away 
+smoothly, leaving no sharp edges or abrupt cracks on the 
+walkspace. Lit by a supporting set of torches, a matrix of 
+arcane sigils are flickeringly visible in the smoke choked 
+brightness of the slow burning wood. These symbols, skillfully 
+worn into the very rock itself, run in planned rows and columns, 
+covering every inch that reflects in the subterranean landscape. 
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60035
+D1
+~
+~
+0 -1  0 60038
+S
+#60038
+Landing Before A Large Marked Door~
+   A subterranean draft blows through the gaping chasm that opens 
+out in the rock of the earth to the south, making torches sputter 
+in their sconces and cast shadows on the walls. The landing is 
+somewhat precarious, given its proximity to the edge of the abyss 
+around which this tier of rock is built. The surrounding walls 
+of black rock are mostly flat and circumnavigate the vast drafty 
+hole. A complex myriad of sigils has been etched nearly over 
+every inch of the surroundings, in neat lines and columns. A 
+number of doors and archways have been built into the rock, the 
+most impressive being a heavy wooden door, locked tight, and 
+marked by the firm symbol of a bisected triangle. 
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60027
+D1
+~
+~
+0 -1  0 60039
+D2
+~
+door~
+1 -1  0 60029
+D3
+~
+~
+0 -1  0 60037
+S
+#60039
+Rock Landing Leading Around a Deep Pit~
+   A wide bridge looms over the abyss far above the stone landing 
+here, blocking out much vision of the hewn rock ceiling far even 
+above that. Around this thin landing there has been no effort 
+made to restrict access to the chasm that opens up like a gaping 
+mouth, a draft constantly making itself present to flicker the 
+dull orange torchlight in dancing shadows. The black rock walls 
+are etched in neat columns and lines with complex and awkward 
+sigils as well as the doors that are built into the surrounding 
+walls. 
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60036
+D3
+~
+~
+0 -1  0 60038
+D5
+~
+~
+0 -1  0 60030
+S
+#60029
+A Modest Library~
+   Cut straight out of the surrounding rock, this room is 
+obviously a library for its number of shelves and tables. How 
+good of a library is up for debate - its collection of books is 
+austere and the majority of the shelf space is empty. The 
+majority of its current contents are all older books, beginning 
+to fall apart under the strain of their yellowing age. Posted up 
+on the wall, directly opposite the heavy wooden door, is a fine 
+portrait of a solidly-muscled, grim-faced man, either side 
+highlighted by a dim candle to draw attention towards it. 
+~
+60 65560 0
+0
+D0
+~
+door~
+1 -1  0 60038
+S
+#60051
+Freefall into the Darkness~
+   Stagnant wind whips across your body as you fall into the 
+deep, dark earth. 
+~
+60 66568 0
+0
+D4
+~
+~
+0 -1  0 66576
+D5
+~
+~
+0 -1  0 60052
+S
+#60052
+At the Bottom of a Shaft Climbing to the Surface~
+   Small dips in the floor are the recipient of the steady slimy 
+drips of water that has wound its way through dirt and stone 
+alike to collect in this tunnel. Above you, a shaft pulls away 
+to the surface but unfortunately, the walls have been cruelly 
+worn smooth and thus any escape attempt has been rendered 
+impossible. A tunnel opens up northwards, the perceptive will 
+note that the air becomes ever chillier as one approaches it. 
+~
+60 65608 0
+0
+D0
+~
+~
+0 -1  0 60053
+D4
+~
+~
+0 -1  0 60051
+P
+climb~
+up rock shaft wall~
+if clan(-1, saibeth)
+if skill(Climb, 30)
+vstr Confidently, you climb to the top of the tunnel, propelling yourself upwards with instinctive knowledge of grips and cracks in the rock.
+ostr %n climbs up through the darkness.
+trans 66576
+atlook 66576
+else do
+vstr You can't see a path to the top of the shaft.
+fi done
+else do
+vstr Too steep. You can't climb up.
+fi done
+~
+S
+#60053
+A Winding Turn Infested with Glowing Mushrooms~
+   The floor begins to gradually climb and the air filled with an 
+overpowering chill as you continue through the tunnel. Your eyes 
+begin to adjust as the ambient light level increases, a 
+blanketing wave of purple glowing little mushrooms cover the 
+walls and ceiling. Their skin is transparent, the glow coming 
+from within each stalk and cap and judging from the dry and 
+shrivelled husks littering the ground beneath the walls, it is 
+not an effect that lasts long when detached from their fungal 
+peers. The tunnel twists eastward now, into darkness. 
+~
+60 67174472 0
+0
+D1
+~
+~
+0 -1  0 60054
+D2
+~
+~
+0 -1  0 60052
+P
+pick take grab~
+mushroom~
+vstr You walk over to the walls and pick a mushroom, which continues to glow...
+give 60009
+if haso(-1,60009)
+force -1 60053 light mushroom
+else do
+force -1 60053 drop all
+force -1 60053 get light
+force -1 60053 light mushroom
+fi done
+~
+S
+#60054
+The Tunnel Sloping Upwards~
+   A strong purple glow is visible to the west and a strong blue 
+one to the east, but across this stretch of tunnel, there is no 
+ambient light to speak of. It is sloped upwards, towards the 
+blue light, and is a fair trek as the rocks underfoot are 
+slippery and loose. This, as well as the little rivers of water 
+that run down it, any movement up the gradient would thus need to 
+be slow and precise if there's to be any chance of surmounting 
+the climb. It is deathly cold here, painfully even, and the echo 
+of dripping water is a constant. 
+~
+60 65608 0
+0
+D1
+~
+~
+0 -1  0 60055
+D3
+~
+~
+0 -1  0 60053
+P
+e ea eas east~
+(null)~
+if clanrank(saibeth, private)
+ostr %n easily scales the gradient.
+doitanyway -1
+else do
+if clan(-1, saibeth)
+if skillcheck(Climb, 4d7)
+ostr With a large degree of focus, %n clambers up the slope successfully.
+doitanyway -1
+else do
+vstr Your footing slips on some wet stones and you fall back down the slope.
+ostr %n nearly makes it up the slope but slides back down when they slip on some loose rocks.
+fi done
+else do
+if skillcheck(Climb, 6d7)
+vstr Scrambling on your hands and knees, you make it to the top.
+ostr Scrambling on their hands and knees, %n makes it to the top.
+doitanyway -1
+else do
+vstr You scamper up the slope but are easily overcome by the haphazard rocks and slide back down, frustrated and wet.
+ostr %n scampers about halfway up but is eventually overcome by the slippery rocks and tumbles back down.
+fi done
+fi done
+fi done
+~
+S
+#60055
+End of Tunnel~
+   Coming to a head here, the tunnel rounds off as the sides 
+close in. Worn smooth by hand, its surface is covered in a 
+wealth of well drawn symbols that easily mirror light if any is 
+present. The floor is quite damp, with water apparently leaking 
+from miniscule cracks in the ceiling and trailing down the walls 
+to run wild and free down the slope westwards. In the middle of 
+the wall blocking movement east is a slight impression in the 
+stonework, cut roughly into the otherwise perfectly worked stone. 
+~
+60 67174472 0
+0
+D3
+~
+~
+0 -1  0 60054
+P
+touch~
+rocks wall end rock~
+if clan(-1,saibeth)
+vstr You lift a hand to the impression within the wall. Within an instant, the wall melts before you...
+ostr %n places their hand in the impression on the wall. Their form begins to blur and dissipate and after a moment, is totally gone.
+trans 60032
+atlook 60032
+else do
+vstr You lift a hand to the impression within the wall... and nothing happens.
+ostr %n places their hand in the impression on the wall... and nothing happens.
+fi done
+~
+S
+#60030
+A Hazardous Rock Shoot Through the Earth~
+   A hazardous rock shoot plummets down into the earth here, a 
+strange and awkward atmosphere engulfing the surroundings. Harsh 
+winds whip through the area, whistling loudly as they coarse up 
+and down this staircase hewn from black rock. The stairs are 
+awkwardly hewn and obviously barely used judging by the loose 
+rubble. Light wont do you any good here. 
+~
+60 65624 0
+0
+D4
+~
+~
+0 -1  0 60039
+D5
+~
+~
+0 -1  0 60040
+S
+#60040
+Treacherous Rock Stairwell Through an Inky Abyss~
+   Twisting and turning this rock shoot plummets steeply through 
+the black rock, its steps treacherous and uneven. An amount of 
+loose rubble lines the way, making the path even more difficult 
+for those who dare venture into this inky abyss. Light is of no 
+use here. 
+~
+60 65624 0
+0
+D1
+~
+~
+0 -1  0 60041
+D4
+~
+~
+0 -1  0 60030
+S
+#60041
+An Intersection of Slimy Rock Tunnels Through the Earth~
+   This narrow rock tunnel is thin, cut from the black of the 
+earth. A musty smell lingers in the air and drips can be heard 
+beyond hollow gaps of the jacked rock walls, their surface almost 
+slimy with algae. To the east is a simple plank door engraved 
+with a symbol that mimics a scythe in design. 
+~
+60 65624 0
+0
+D0
+~
+~
+0 -1  0 60017
+D1
+~
+scythe-engraved-door~
+1 -1  0 60011
+D3
+~
+~
+0 -1  0 60040
+S
+#60042
+A Low Earthen Room with Plank Supports~
+   This small room seems to have been cut mostly from soft earth 
+and soil though it is supported with wooden slats and planks to 
+quite a degree, covering most of the wall and floor areas - the 
+musty smell gives away the earthen surroundings. One or two 
+candles have been set in hollows in the wall but for the most 
+part, this underground room is enveloped in darkness. In the far 
+eastern corner of the room a ladder leads up to a square-shaped 
+board. 
+~
+60 67174488 0
+0
+D3
+~
+stone-door~
+1 -1  0 60012
+D5
+~
+iron-barred-door~
+1 60023  90 60043
+P
+push slide go~
+slat board wood~
+vstr #5You#0 climb the ladder towards a wooden board in the ceiling and push it aside, revealing a hole.
+ostr %n climbs the ladder and pushes a wooden board aside in the ceiling, revealing a hole.
+trans 66995
+atlook 66995
+vstr #5You#0 slide the board back into place.
+ostr %n climbs up through the hole in the rock floor and replaces the wooden board.
+fi done
+~
+S
+#60043
+A Dark, Cramped Pit in the Earth~
+   This pit has a distinctly earthy musk and water drips from the 
+high points to stagnant puddles on the cold floor. There is 
+little to be seen except rock and earthen walls and small opening 
+in the ceiling that is covered with an iron-barred door. Insects 
+make their home in cracks and holes in the walls and crawl 
+frequently across the floor. 
+~
+60 65868 0
+0
+D4
+~
+iron-barred-door~
+1 60023  90 60042
+S
+#60044
+A Shadowy Room Carved from Black Rock~
+   This modest room comes across as quite dingy with little light 
+from a handful of candles making shadows dance on the black rock 
+walls. It is roughly rectangular shaped and there has been 
+little effort to make the jagged walls decorative in any way at 
+all. Cobwebs cling in small curtains to the darker corners of 
+the room. There is a constant calm, sombre feeling that 
+dominates this subterranean chamber far beneath the surface yet a 
+cold breeze often whistles under the door. 
+~
+60 67174664 0
+0
+D3
+~
+door~
+1 60024  90 60031
+S
+$~

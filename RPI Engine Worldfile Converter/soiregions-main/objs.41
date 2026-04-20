@@ -1,0 +1,3512 @@
+#41655
+lantern rusted iron heavy METAL~
+a heavy, rusted-iron lantern~
+a heavy, rusted-iron lantern lies here, discarded~
+   Fashioned of sturdy iron, this lantern is bulky and cumbersome.  
+It is of a simple rectangular design and has become rusted with 
+age.  The small panes of glass that would have once encased the 
+flame are no longer present, but the lantern can easily be carried
+with the large circular handle that attaches to the lantern's body.
+~
+1 4096 1
+40 40 54 0
+300 0.000000
+0 0 0 20 0 0 1
+0.000000 0 0 0 17 0 0
+#41000
+rerebraces ARNORIAN_DUNADAN green faded well worn LEATHER~
+a well-worn pair of faded-green leather rerebraces~
+A well-worn pair of faded-green leather rerebraces lie here.~
+   Crafted from thick leather of a fine quality, these rerebraces 
+have obviously been worn-in and put to good use. The leather has 
+been dyed green and faded with use, though the original darker 
+color can be spotted in the wrinkles and folds. Two tubes of 
+thick leather cover the wearer from the upper arms to the elbows, 
+where articulated couters have been stitched. Regardless of the 
+worn-out look, these pieces of armor appear extremely effective 
+and sturdy enough to protect the wearer well. 
+~
+9 4096 257
+3 1 0 0
+100 0.000000
+0 0 0 30 0 0 1
+60.000000 0 0 0 14 0 0
+#41009
+murky ice-cold water LIQUID~
+#4Ice-cold murky water#0~
+#4The surface of ice-cold water stretches out here murky and uninviting.#0~
+~
+23 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41010
+cold clear water pool LIQUID~
+#4ice-cold underground pool of water#0~
+#4A wide pool of cold and clear water, fed by a small waterfall.#0~
+~
+23 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41011
+deep murky water pool LIQUID~
+#4a deep murky pool#0~
+#4A deep pool of dark and murky water lies here.#0~
+~
+23 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41012
+ball luminescant light underground CRAFT MEAT~
+a small ball of luminescent flesh~
+A round and small ball of flesh lies here glowing weakly.~
+   No bigger then it could be hidden in the palm of a young boy, 
+this ball of white-hued flesh is lit by an inner glow. Light is 
+spread from it weakly, but enough to cast a soft luminescence 
+across a smaller area. Enough to find ones way, but not to read 
+a parchment or a book comfortably. The removed organ is somewhat 
+slimly and warm to touch, the smell reminiscent of gutted fish. 
+~
+1 4104 1
+0 2 20 1
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 15 41013 0 0 0 0
+#41013
+ball dull slimy flesh rotting underground MEAT~
+a small ball of slimy flesh~
+A slimy small ball of dull grey flesh lies here smelling of decay.~
+   No bigger then it could be hidden in the palm of a young boy, 
+this ball of grayish hued flesh is rotting and its breaking up - 
+seeping a stinking clear fluid. The removed organ somewhat 
+slimly and cold to touch, smells of putrid fish. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 86 0 20 0 0
+#41014
+gathering group carelessly stacked boulder dwelling stone OTHER~
+a gathering of boulders~
+A group of carelessly stacked boulders form the shape of a spontaneous fort or dwelling here.~
+   Some large boulders put together by chance, nature or giant 
+hands form a disorderly stack. Where they lean against 
+each-other is formed a crude fort or dwelling by the dark-grey 
+rock - and there are signs of life here with scrawling cut on the 
+stones, perhaps marks made to indicate the passage of time. At a 
+few places the dwelling have large gaping jaws that leads inside 
+there have burned fires long ago, large patches of moist soot and 
+blackened rock tells a unmistakably simple tale. 
+~
+12 4104 0
+0 0 1 -1
+1500 0.000000
+0 41050 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#41015
+bones debris flotsam OTHER~
+shattered pieces of debris~
+A sparse collection of bones and debris.~
+   Shattered across the shore are pieces of bone, fragments of 
+metal, bones in abundance and some pieces of wood. Where these 
+abandoned bits come from is a mystery, but somewhere this vast 
+underground lake must be connected to the warm and sun-lit world 
+of the surface. Perhaps it would be possible to gather flotsam 
+in order to get some materials or some fire-wood in order to stay 
+alive down here. 
+~
+13 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41008
+longsword ancient ornamented GOOD_QUALITY steel-bladed MORIA sword METAL METAL~
+an ancient, ornamented longsword~
+An heavy longsword of ancient origins carrying worn-down ornamentation lies here.~
+   This sword is made up of a long and heavy blade, well-balanced 
+and forged from high-quality steel. The cross-guard and pommel 
+in bronze, the handle set with rough leather. None of the other 
+pieces are clearly of the same origin as the blade itself, it's 
+been scarred and sharpened over and over again over multiple 
+decades of use while the other pieces are freshly set. The 
+ornamentation on the blade have become faded by use and age. Its 
+barely possible to make out the symbol of a tree with stars, a 
+crown above it and some crossed tools laid over the middle. 
+~
+5 5120 8193
+0 1 8 3
+700 0.000000
+4 0 0 0 1052680 0 1
+800.000000 0 0 0 18 0 0
+S
+100003
+#41007
+beach-head fortification orkish OTHER~
+an orkish fortification on the beach~
+A fortification manned by black-bloods is set on the beach here to hold it as a stepping-stone for moving further into the western lands.~
+   This beach-head is a rugged improvisation made from broken 
+down palisades, boats being lifted ashore and using any building 
+material available - in this case mostly the corpses of men and 
+black-blood alike. The disgusting and shoddy work is 
+nevertheless effective as a defence against counter-attacks. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41001
+pickaxe rusty head METAL~
+a thoroughly rusty pickaxe head lodged halfway into a wall~
+A thoroughly rusty pickaxe head is lodged halfway into a nearby wall.~
+   This long, pointy piece of iron is lodged deep in the tunnel 
+wall, heavily pitted and completely covered in rust. Several 
+narrow cracks run along the stone, radiating outwards from it. 
+The barest remnants of a wooden handle, little more than rotten 
+splinters, are still visible where it meets the metal base of the 
+pickaxe head. 
+~
+12 4096 0
+0 0 0 0
+500 0.000000
+0 0 0 5 256 0 1
+0.000000 0 0 0 28 0 0
+#41002
+beam slanted decaying support WOOD~
+a slanted, decaying support beam~
+A decaying support beam leans against the wall.~
+   The top of this long, thick log is wedged against a tunnel 
+wall, the other end against the floor; it is slanted rather than 
+straight, its original position evident from the large gouge in 
+the ceiling. Parts of it of it have rotted away over time, 
+leaving jagged holes all along its length. 
+~
+12 4096 0
+0 0 0 0
+90000 0.000000
+0 0 0 10 256 0 1
+0.000000 0 0 0 32 0 0
+#41003
+design marking angular strange wall OTHER~
+an angular marking on the tunnel wall~
+A strange, angular design has been drawn on the tunnel wall.~
+   The wall seems to be marked with some sort of angular design, 
+its thick, blue-black lines drawn directly onto the stone. 
+Whatever ink or chalk was used to create the strange symbol, it 
+seems to be quite resistant to weathering; most of it is still 
+intact, despite a great deal of smearing around the edges. 
+~
+12 4096 0
+0 0 0 0
+1 0.000000
+0 0 0 20 256 0 1
+0.000000 0 0 0 0 0 0
+#41004
+pile jumbled pieces wood rusted metal OTHER~
+a jumble of wood and rusted metal pieces~
+A jumbled pile of wood and rusted metal pieces is here.~
+   These broken pieces of wood and rust-encrusted bits of metal 
+might have, at some point, been tools or spare parts, though now 
+their purpose can only be guessed at. Most are too pitted and 
+worn by time to tell their original form, let alone their 
+function. The relatively straight edges and regular shapes in 
+the pile indicate that many of them were probably same thing. 
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 5 256 0 1
+0.000000 0 0 0 28 0 0
+#41005
+beam cracked severely wooden WOOD~
+a severely cracked ceiling beam~
+A severely cracked wooden beam supports the ceiling.~
+   Set across the ceiling of the tunnel, this thick wooden beam 
+looks about ready to fall apart. A huge, jagged crack runs along 
+its entire length, and its surface is pitted and scarred where 
+chunks of it have rotted away. Despite all this, it appears to 
+have been in place for quite some time. 
+~
+12 4096 0
+0 0 0 0
+90000 0.000000
+0 0 0 10 256 0 1
+0.000000 0 0 0 32 0 0
+#41006
+pot copper old greenish patina nailed ceiling METAL~
+an old copper pot nailed to the ceiling~
+An old copper pot with a greenish patina is nailed to the ceiling.~
+   A small, round copper pot is directly overhead, a severely 
+rusted nail head protruding from its base where it has been 
+attached, upside-down, to the ceiling. Its surface is covered 
+entirely in a greenish patina, and the two handles at the sides 
+are missing their middle segments. 
+~
+12 4096 0
+0 0 0 0
+500 0.000000
+0 0 0 10 256 0 1
+0.000000 0 0 0 15 0 0
+#41700
+ladder rope frayed somewhat OTHER~
+an old rope ladder~
+An old, somewhat frayed rope ladder is hanging here.~
+   This ladder looks rather old, the somewhat frayed fibers an 
+indication of how long it has been hanging here. The two lengths 
+of thick rope on each side appear to to be secure, though the 
+crosswise pieces, attached by tight knots every few handspans, 
+are worn and in rather worse condition. 
+~
+12 4096 0
+0 0 0 0
+200 0.000000
+0 0 0 10 0 0 1
+0.000000 0 0 0 0 0 0
+#41020
+cart mine half-buried old rubble pile OTHER~
+an old, half-buried mine cart~
+An old mine cart is here, half buried under a pile of rubble.~
+   From the roughness of the cart's exterior, it appears to have 
+been here for quite some time. It is half-buried under a pile of 
+rubble, the broken stones having crushed it long ago. Its wheels 
+are barely recognizable, and the interior is filled in entirely 
+with rock and other debris. It seems unlikely that the vehicle 
+will ever be usable again, not to mention that freeing it would 
+almost certainly take a monumental effort. 
+~
+12 4096 0
+0 0 0 0
+60000 0.000000
+0 0 0 10 256 0 1
+0.000000 0 0 0 0 0 0
+#41604
+large rickety iron basket METAL~
+a large, rickety basket supported by pulleys~
+A large, rickety basket formed of iron is suspended here by a system of pulleys.~
+   Old and decrepit, this somewhat dilapidated basket has the 
+appearance of still managing service to a single passenger should
+the load be light enough. Rents and gashes mar the iron that forms
+the basket and the ancient ropes are partially frayed.  Still, this
+basket looks it could serve its purpose albeit in an adventurous
+fashion.
+~
+12 135168 0
+0 0 0 0
+25000 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 17 0 0
+#41742
+key brass heavy large METAL~
+a large, brass key~
+A heavy key made of brass is lying here discarded.~
+   Formed of unpolished brass, this key has a collection of rust
+and grime across its surface. The key is heavy from the amount of
+brass that was poured into the formation of this key. Because of 
+heavy amounts of metal, the key is also quite thick and awkward 
+for a key.
+~
+18 536875008 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#41740
+key thick bronze METAL~
+a thick, bronze key~
+A thick, bronze key has been left here.~
+   Made of thick bronze metal, this key is weighty and bulky. 
+The teeth of this key are thick pieces of metal and the ring 
+by which this key might be held is heavy and wide in order to
+prevent the potential of breaking.
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#41300
+runes stone STONE~
+a few rows of runes~
+A few rows of runes set in stone.~
+~
+18 4104 1
+0 0 0 0
+5000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#41301
+door stone flawlessly STONE~
+a flawlessly shaped door~
+A flawlessly shaped door has slid open here to reveal an opening.~
+   Made of crafters with unknown tools and forgotten skills, this 
+stone door rests on some kind of stone hinges and is flawless in 
+its make in ways that both borders on and surpasses into the 
+realm of myth and magic. It carries no visible lock or handle, 
+and its workings are a veiled secret. 
+~
+18 4104 0
+0 0 0 0
+100000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#41151
+skeleton dwarf bones crushed mangled small OTHER~
+a small, crushed and mangled skeleton~
+A crushed and mangled skeleton is lying here.~
+   Twisted and broken fragments of bone lie here, the crushed 
+pieces forming a nearly whole, if somewhat short and mangled 
+skeleton. The skull is covered in large cracks and has a jagged 
+hole on its left side. Most of its teeth have fallen out, and 
+nothing remains of the flesh, though some brown and decayed bits 
+of clothing still cling to the figure. All of the ribs appear to 
+have been pushed in toward the spine, the splintered segments 
+littering the ground nearby. 
+~
+12 4096 0
+0 0 0 0
+500 0.000000
+0 0 0 10 0 0 1
+0.000000 0 0 0 0 0 0
+#41152
+backpack decaying leather ragged LEATHER~
+decaying leather backpack~
+A ragged, decaying leather backpack is here.~
+   This backpack has surely seen better days, its torn straps and 
+ragged sides an indication of its age. The decaying leather 
+looks extremely fragile, as if it might disintegrate from the 
+merest touch. While it may once have been able to hold a 
+considerable amount, the bag is obviously beyond repair, the 
+loose threads and numerous holes preventing it from ever being 
+used again. 
+~
+12 4096 1
+0 0 0 0
+200 0.000000
+0 0 0 5 256 0 1
+0.000000 0 0 0 14 0 0
+#41016
+leggings moria leather plain pair UNIQUE armor LEATHER~
+a pair of plain leather leggings~
+A pair of plain leather leggings is lying here.~
+   This simple pair of leather leggings is drab brown in color, 
+the rough material crudely stitched together with thick black 
+thread. Although it looks somewhat stiff and rather plain, it is 
+easily wearable and relatively flexible. 
+~
+9 4096 33
+1 1 0 0
+600 0.000000
+0 0 0 20 0 0 1
+85.000000 0 0 0 14 0 0
+#41017
+vest moria leather plain drab UNIQUE armor LEATHER~
+a plain, drab leather vest~
+A plain, drab leather vest is lying here.~
+   This plain, simple vest has been crudely stitched together 
+with thick black thread. The drab brown leather appears to be 
+stiff and rough, although it is easily wearable and relatively 
+flexible. A row of round metal buttons runs down the front. 
+Though sleevless, the garment has been reinforced with strips of 
+extra material along the sides. 
+~
+9 4096 9
+1 1 0 0
+700 0.000000
+0 0 0 20 2048 0 1
+90.000000 0 0 0 14 0 0
+#41018
+sleeves moria leather drab plain UNIQUE armor LEATHER~
+a pair of drab leather sleeves~
+A pair of plain, drab leather sleeves is lying here.~
+   These drab brown leather sleeves are stiff and plain. They 
+have been crudely stitched together with thick black thread and 
+are reinforched with strips of rough material. Although simple 
+in appearance, they serve their function, providing some 
+protection for the wearer's arms. 
+~
+9 4096 257
+1 1 0 0
+500 0.000000
+0 0 0 15 2048 0 1
+45.000000 0 0 0 14 0 0
+#41739
+salvaged dull-steel steel greathelm METAL~
+a salvaged, dull-steel greathelm~
+A salvaged, dull-steel greathelm lies here in disuse.~
+~
+9 528384 17
+2 5 0 0
+700 0.000000
+0 
+dull-steel-helmed~
+0 0 0 0 1
+0.000000 0 0 0 18 0 0
+#41019
+rock bone pile fragments large yellowish scattered STONE~
+some yellowish bone fragments scattered around a large rock pile~
+Some yellowish bone fragments are scattered around a large rock pile.~
+   Piled floor-to-ceiling on one side, these broken stones look 
+as if they may block part of a collapsed tunnel, though it is 
+difficult to tell for sure. Above them, the stone is severely 
+cracked, and the nearby walls don't look very stable. Scattered 
+all around are yellowish fragments of broken bone, some of which 
+are partially buried beneath the debris. It is not clear what 
+creature they are from, for none are whole enough to identify. 
+~
+12 4096 0
+0 0 0 0
+50000 0.000000
+0 0 0 15 0 0 1
+0.000000 0 0 0 30 0 0
+#41021
+metal chunk rusted iron wedge-shaped METAL~
+a wedge-shaped chunk of rusted metal~
+A rusted chunk of iron is lying here.~
+   This long, wedge-shaped chunk of metal is covered in rust, its 
+narrowest end already crumbling away. The thickest side is oddly 
+rough and slightly twisted, indicating that this piece of iron 
+may have broken off of something else. 
+~
+12 4096 1
+0 0 0 0
+200 0.000000
+0 0 0 10 256 0 1
+0.000000 0 0 0 17 0 0
+#41022
+pickaxe broken rusty iron head METAL~
+a rusty pickaxe with a broken iron head~
+A rusty pickaxe with a broken iron head is lying here.~
+   This pickaxe looks quite old and is far too damaged to ever be 
+properly usable again. Its severely rusted iron head has broken 
+apart, and a rather large chunk of metal is missing from one 
+side. The wooden shaft, though worn and splintering, appears to 
+still be fairly solid despite the numerous large cracks that run 
+along its length. 
+~
+12 4096 8193
+0 1 4 0
+400 0.000000
+3 0 0 10 256 0 1
+0.000000 0 0 0 17 0 0
+#41738
+ruined-helmed greathelm helm ruined iron Moria METAL~
+a ruined iron greathelm~
+A ruined greathelm of iron lies here, forgotten.~
+   Battered and severely damaged, this greathelm was once formed
+to be a high-quality work. Now, hard years have worn upon it and
+made it into little more than useless junk that provides no sort
+of protection. The iron of this helm is rusted intensely, yet
+more still degrading the value and use of the greathelm.
+~
+9 528384 17
+1 5 0 0
+500 0.000000
+0 
+ruined-helmed~
+0 1 0 0 1
+5.000000 0 0 0 17 0 0
+#41710
+iron-spiked iron spiked raggedy fur boots pair LEATHER~
+a pair of iron-spiked, raggedy fur boots~
+a pair of iron-spiked, raggedy fur boots lies here in disuse.~
+   Whip-stitched together from tough leather and thick furs, 
+these boots are little more than formless bags that terminate
+half way up the wearer's calves. While heavy stitches were used
+in their making, they are undoubtedly kept together by the tough
+strips of leather that are wrapped all about each of them. A pair
+of buckles on each boot holds these strips of leather into place. 
+Upon each of these boots a series of vicious spikes have been
+added, allowing for a formidable set of functionable footwear.
+~
+9 135168 65
+1 1 0 0
+300 0.000000
+0 0 0 35 0 0 1
+10.000000 0 0 0 14 0 0
+#41711
+pair worn iron-spiked spiked gloves LEATHER~
+a pair of worn, iron-spiked gloves~
+A pair of worn, iron-spike gloves have been haphazardly set aside.~
+   Having seen better days, these thick, durable gloves of hide
+and fur are heavily worn in places. Stitched along the edges in
+a cross-hatch style of sewing, the heavy belts of leather that
+encircle the wrist and palm are essentially what keeps this pair
+of gloves intact. Atop each glove sits a single buckle of iron.
+In the construction of these gloves, spikes of iron have been
+put into place in key locations upon these gloves. Being in the
+areas above and below the knuckles as well as along the belts of
+leather.
+~
+9 4096 129
+1 1 0 0
+400 0.000000
+0 0 0 0 0 0 1
+10.000000 0 0 0 14 0 0
+A
+10001 5
+#41712
+ragged iron-spiked spiked fur vest LEATHER~
+a ragged, iron-spiked vest~
+A ragged vest bearing iron spikes lies here.~
+   Thick pelts of treated fur have been stitched together into
+a double-layered vest to offer protection from the elements as 
+well as from enemies, though the latter is mediocre at best. The
+stitch work is plainly visible in places and work of someone who
+is barely acceptable at best. The only thing seeming to keep 
+this vest together is a series of belts that criss-cross back 
+and forth over this vest before looping around the waist. Set 
+in rows and roughly two fingers apart, iron spikes have been 
+driven through the leather vest, allowing for extra protection.
+~
+9 135168 9
+1 1 0 0
+900 0.000000
+0 0 0 14 0 0 1
+45.000000 0 0 0 14 0 0
+#41500
+iron-banded banded troll-skull skull helmet LEATHER~
+an iron-banded, troll-skull helmet~
+An troll-skull helmet banded together by pieces of iron has been left here.~
+   Fashioned from the macabre skull of a fallen troll, this
+knobby, pale-yellow bone helmet has been worked haphazardly to
+fit tightly upon the head of the wearer albeit uncomfortable 
+despite a thin leather of leather padding. Able to peer out 
+from the cavernous eye sockets, the wearer is able to see while
+being protected by the cheek and upper jaw bones of this crude
+helmet. Adding additional protection to this helmet is the 
+iron bands that have been fitted to the helmet in order to hold
+it together.
+~
+9 528384 17
+1 1 0 0
+400 0.000000
+0 
+troll-skull~
+0 0 0 0 1
+20.000000 0 0 0 14 0 0
+#41023
+dagger UNIQUE_ADMIN palm broken METAL~
+a broken palm sized dagger~
+A broken palm sized dagger sits here.~
+   This once utilitarian short blade has broken. The hilt is 
+missing and what materials wrapped the hilt have rotted into a 
+mass of undefinable organics. The blade is almost completely 
+missing having broken near the hand gaurd. 
+~
+13 4608 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+0.500000 0 0 0 28 0 0
+#41024
+deep expansive firepit pit Ghash OTHER~
+a deep, expansive firepit~
+Carved crudely into the cavern floor is a deep, expansive firepit.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41025
+dark inferno GHASH OTHER~
+#1the dark inferno rising from an expansive fire-pit#0~
+#1A dark inferno rises from the depths of the stone fire-pit.#0~
+The massive inferno gives off powerful waves of heat.  It would shed far more illumination throughout the cavern if not for the blackness that rose from within.  A massive pillar of black fumes surges upwards, produced by whatever fuels the conflagration.  The fire-pit is crude, but a noteworthy feat due to its vastness.  A grown troll would be unable to climb out from its depths, and it could fit twenty of such.  Despite its immensity, the flames tower above the heads of all onlookers, meaning they rise at least twenty feet in height.  One need not be in close proximity to smell the putrid odor the burning fuel gives off, something only the darkest of breeds could abide with ease.
+~
+1 4096 0
+0 12 20 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41026
+fire-pit flames expansive GHASH OTHER~
+#1the flames of an expansive fire-pit#0~
+#1A large fire-pit burns here, taking up the center of the great cavern.#0~
+   Diminished in greatness, far less than its highest potential, 
+the flames of the fire-pit presently amount to naught but a 
+blanket of embers covering the floor of the hollowed out hole. 
+They glitter with an anger that tells of immense heat that could 
+still immolate anything placed within their reach, but if left 
+without fuel, sure to die in less than two days. 
+~
+1 4096 1
+0 0 54 1
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41027
+bowl thick acrid stew MEAT~
+a bowl of thick, acrid stew~
+A bowl of thick, acrid stew sits here.~
+   Served in a roughly carved stone bowl, this stew is thick and 
+has the unmistakable aroma of blood. Upon closer examination, a 
+few pieces of stringy, red meat can be seen floating throughout 
+the dark red liquid. To add to the sickening concoction, 
+assorted pieces of rubbery animal hide and fur can also be seen 
+within the stew, but to a much less quantity than the meat. 
+~
+19 4096 1
+5 0 0 0
+300 0.000000
+0 0 0 15 0 0 1
+4.000000 0 0 0 0 0 0
+#41028
+intestines string roasted MEAT~
+a string of roasted intestines~
+A string of roasted intestines curls here.~
+   About three feet in length, this stringy piece of charred meat 
+could be recognized as the intestines of some unfortunate 
+creature. It has been thoroughly cooked to a blackened hue and 
+seems to be very chewy. 
+~
+19 4096 1
+3 0 0 0
+300 0.000000
+0 0 0 15 0 0 1
+2.000000 0 0 0 20 0 0
+#41029
+flea tiny black bug insect OTHER~
+#5a tiny black flea#0~
+#5A tiny black flea#0 hops around here.~
+~
+19 4096 1
+1 0 0 0
+100 0.000000
+0 1 0 0 0 0 1
+0.000000 0 0 0 20 0 0
+#41030
+tribal war drums collection OTHER~
+a collection of tribal war-drums~
+A collection of tribal war-drums of various sizes are lashed together, occupying much of the space here.~
+   Lashed together so as to become one unit, the collection of 
+percussion instruments is comprised of over a dozen pieces. They 
+are all designed in like fashion, a crudely shaped shell with 
+some manner of skin tautly stretched over both ends that, when 
+struck, produces a deep resonance. Seemingly crude, they are 
+very durable and unlikely to be damaged in proper use. Arranged 
+in a crescent line from smallest to largest, the first of the 
+drums are no larger than a human head, and are apt to be played 
+for a quicker, less forceful rhythm, where as its largest 
+counterpart is rivals a full-grown troll in size, and must likely 
+be played by no less than that. There are three of these 
+gargantuan pieces, and when struck, their thunderous 
+reverberations would likely be heard for miles around. 
+Accompanying the set are "drum-sticks" of sufficient size for the 
+variously proportioned instruments, though they seem to be 
+nothing more than bones ranging from human to troll in kind. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41031
+leather wrapped bone OTHER~
+a leather-wrapped human bone~
+A human bone with leather wrapped around one end lies here.~
+   Likely once belonging to a long dead human, the "drumstick" is 
+a primitive creation. It consists of a bone, arm or leg makes 
+little difference, with a strip of leather wrapped tightly around 
+the end where it would have connected to a socket in its previous 
+owner's body. Now it is simple, functional, and easily replaced 
+should it be broken. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2 86 0 14 0 0
+#41032
+leather wrapped bone *MORPH ITEM* OTHER~
+a leather-wrapped human bone~
+A human bone with leather wrapped around one end lies here.~
+   Likely once belonging to a long dead human, the "drumstick" is 
+a primitive creation. It consists of a bone, arm or leg makes 
+little difference, with a strip of leather wrapped tightly around 
+the end where it would have connected to a socket in its previous 
+owner's body. Now it is simple, functional, and easily replaced 
+should it be broken. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 14 0 0
+#41033
+massive hide wrapped troll bone OTHER~
+a massive, hide-wrapped troll-bone~
+A massive, hide-wrapped troll-bone rests here.~
+   The sheer length of the bone instantly excludes any of the 
+human or goblin race from claiming past ownership, as it stands 
+almost as tall as the former, not to mention its diameter is that 
+of a grown man's calf. Around its end, a tight ball of some 
+hardened animal hide makes this a rather effective bludgeoning 
+instrument. 
+~
+12 4096 1
+0 0 0 0
+1500 0.000000
+0 0 0 0 0 0 1
+0.000000 2 86 0 0 0 0
+#41034
+*MORPH* massive hide wrapped troll bone OTHER~
+a massive, hide-wrapped troll-bone~
+A massive, hide-wrapped troll-bone rests here.~
+   The sheer length of the bone instantly excludes any of the 
+human or goblin race from claiming past ownership, as it stands 
+almost as tall as the former, not to mention its diameter is that 
+of a grown man's calf. Around its end, a tight ball of some 
+hardened animal hide makes this a rather effective bludgeoning 
+instrument. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#41035
+skeleton Dwarven yellowed cloven skull OTHER~
+a yellowed Dwarven skeleton with a cloven skull~
+A yellowed Dwarven skeleton with a cloven skull sits against the far western wall.~
+   Yellowed and brittle with age, this skeleton is clearly of 
+Dwarvish origin: short and quite stocky, with thick bones and 
+broad hands. Aside from the apparent degradation from time, the 
+skull of this ancient deceased dwarf has been cloven down the 
+middle, with peculiar scorch marks on either side of the gouge. 
+~
+15 4096 1
+10000 0 0 0
+2000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41036
+runes elegant silver eastern wall OTHER~
+some elegant silver runes~
+Some elegant silver runes have been scrawled over the eastern wall.~
+~
+53 4104 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41037
+key masterkey instrument shiny brass discs METAL~
+a shiny brass instrument of rotating discs~
+A shiny brass instrument of rotating discs rests here.~
+   One need but look at it to deduce that it the product of a 
+mind far beyond the mere realm of cunning. The brass instrument 
+maintains a glossy polish, pristine enough that it catches small 
+reflections on its surface. Shaped like a rod, its dimensions 
+are small, as long as a man's hand with a diameter no greater 
+than that of a walnut, making it unusually heavy for its size. 
+It is not a single piece, rather ten discs that rotate freely 
+around some unseen core and etched upon these are minute numerals 
+that only one learned in Angerthas-Moria could interpret. On one 
+end of the rod is an aperture of indeterminate depth, perhaps 
+where something is meant to be inserted, and on the other are a 
+four square "loops" that a mans fingers could fit through. 
+~
+12 4104 1
+0 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#41038
+chunk variable rock STONE~
+a chunk of stone~
+A chunk of stone lies here.~
+   This chunk of $stone is roughly fist-sized and rather hefty, 
+making it difficult to throw but otherwise quite passable as a 
+weapon of last resort. It is nicked and pocked and not smooth. 
+~
+5 4096 8193
+2 1 5 2
+300 0.000000
+3 1 0 10 2304 0 1
+0.000000 0 0 0 30 0 0
+#41231
+greaves ARNORIAN_DUNADAN green faded well worn LEATHER~
+a well-worn pair of faded-green leather greaves~
+A well-worn pair of faded-green leather greaves lies here.~
+   Crafted from thick leather of a fine quality, these greaves 
+have obviously been worn-in and put to good use. The leather has 
+been dyed green and faded with use, though the original darker 
+color can be spotted in the wrinkles and folds. Connected at the 
+top by only a cord, two tubes of thick leather cover the wearer 
+from the upper thighs to the knees, where articulated poleyns 
+have been stitched, and down to the shins. Regardless of the 
+worn-out look, these pieces of armor appear extremely effective 
+and sturdy enough to protect the wearer well. 
+~
+9 4096 33
+3 1 0 0
+100 0.000000
+0 0 0 30 0 0 1
+70.000000 0 0 0 14 0 0
+A
+10024 4
+A
+10025 4
+#41039
+deep fire-pit stone GHASH STONE~
+a deep fire-pit hollowed into the ground~
+A deep fire-pit has been carved out of the ground here.~
+   Sitting in the very center of the cavern, the fire-pit is the 
+most unnatural thing to be seen here. It was no slapstick 
+endeavor either, made apparent by the fact that it is so vast. 
+The bed of ash is far enough down that a grown troll would be 
+hard pressed to find a way out from the bottom. Perhaps twenty 
+feet in diameter, the pit does not occupy a vast space in the 
+underground vault, but certainly occupies the time of 
+simple-minded goblins with a draw to fire. Presently it is 
+unlit, and to kindle a flame worthy of so great a fire-pit would 
+require a large supply of fuel. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#41040
+MORIA_BAT_TOKEN slower pain OTHER~
+a MORIA_BAT_TOKEN for slower pain~
+A MORIA_BAT_TOKEN for slower pain is here.~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41041
+MORIA_BAT_TOKEN less pain OTHER~
+a MORIA_BAT_TOKEN for less pain~
+A MORIA_BAT_TOKEN for less pain is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41043
+MORIA_BAT_TOKEN slower pain OTHER~
+a MORIA_BAT_TOKEN for slower pain~
+A MORIA_BAT_TOKEN for slower pain is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41042
+mess RPROG_PRODUCT overwhelming stinking cloud fumes area cloud OTHER~
+an overwhelming cloud of stinking fumes~
+An overwhelming cloud of stinking fumes hangs over the cesspool.~
+~
+13 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 256 0 1
+0.000000 24 86 0 20 0 0
+#41044
+MORIA_BAT_RPROG token absent OTHER~
+a MORIA_BAT_RPROG token for absent bats~
+A MORIA_BAT_RPROG token for absent bats is here.~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 20 86 0 0 0 0
+#41045
+snorks invisible rprog marker OTHER~
+snorks invisible rprog marker~
+snorks invisible rprog marker is here, you shouldn't be able to see it.~
+~
+13 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2 86 0 0 0 0
+#41046
+MORIA_RANDOM_RPROG_TOKEN OTHER~
+a MORIA_RANDOM_RPROG_TOKEN~
+A MORIA_RANDOM_RPROG_TOKEN is here.~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41047
+MORIA_TOKEN_ allow SCARE BATS OTHER~
+a MORIA_TOKEN allow SCARE BATS~
+A MORIA_TOKEN allow SCARE BATS is here.~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41048
+torch crude wooden stick moria_rprog WOOD~
+a crude wooden torch~
+A stick of wood, a grimy rag wrapped around its tip, lies here.~
+~
+1 4104 1
+1 5 54 1
+200 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#41049
+blade SIMPLE_QUALITY ORKISH short hooked METAL~
+a short, hooked blade~
+A short, hooked blade has been left here.~
+   The heavy pommel and hooked blade of this slashing weapon look 
+to be intended to wielded in reverse with the hook held away from 
+the enemy along the forearm. It looks ideally suited for 
+hamstringing moves as well as catching an enemy's attack. 
+~
+5 4096 8193
+0 1 5 2
+100 0.000000
+4 0 0 30 16384 0 1
+20.000000 0 0 0 28 0 0
+#41050
+knife SIMPLE_QUALITY ORKISH thin bladed METAL~
+a thin-bladed knife~
+A thin-bladed knife lies here.~
+   The knife looks to have been created with fighting in mind. 
+Its well balanced blade is blackened as if by fire and the grip 
+is ridged to fit the hands of a small wielder. The cross guard 
+is heavy and bears a resemblance to a pair of bat wings. 
+~
+5 4096 8193
+0 1 5 2
+100 0.000000
+4 0 0 30 16384 0 1
+80.000000 0 0 0 28 0 0
+#41051
+axe ORKISH one handed elongated METAL~
+a one-handed, elongated axe~
+A one-handed axe has been set here, the blade crudely sharpened.~
+   This hand axe looks to be intended for one handed wielding. 
+The wooden haft is capped at one end by a pointed facetted pommel 
+with attempts to balance the wide, elongated heavy axe head. The 
+edges of the head taper to long ornamental extremes which look 
+intended to inflict nasty wounds. 
+~
+5 4096 8193
+0 1 8 3
+700 0.000000
+2 0 0 30 16384 0 1
+240.000000 0 0 0 28 0 0
+S
+100003
+#41052
+longsword SIMPLE_QUALITY ORKISH sword single edged lengthy METAL~
+a single-edged, lengthy longsword~
+A single-edged, lengthy longsword has been discarded here, forgotten.~
+   A heavily blackened, single-edged blade has been fashioned to 
+a simple grip. A thick cross guard is tarnished and broad, 
+looking to provide good protection to the wielder's hand. Though 
+crude, this longsword looks able to deliver impressive cuts and 
+thrusts. 
+~
+5 4096 8193
+0 1 7 3
+700 0.000000
+4 0 0 30 16384 0 1
+190.000000 0 0 0 28 0 0
+S
+100003
+#41053
+blade WTF_IS_THIS SIMPLE_QUALITY ORKISH giant curved batleth METAL~
+a giant curved blade~
+A giant curved blade has been left here.~
+   A moon shaped blade is wrapped in two places by thick leather 
+hand guards. The blade is sharpened at the tips remaining 
+blunted at the center which looks to have been designed for 
+parrying and blocking. The weapon itself looks complex, 
+obviously designed for a being well trained in its particulars. 
+~
+5 4096 8193
+0 2 5 4
+1400 0.000000
+4 0 0 30 16384 0 1
+350.000000 0 0 0 28 0 0
+#41054
+battleaxe GOOD_QUALITY ORKISH axe heavy twin bladed METAL~
+a heavy, twin-bladed battleaxe~
+A heavy-looking battleaxe with two blades has been set here, gathering dust.~
+   Two glaive-like blades have been affixed to either side of an 
+elm-wood shaft. The curved blades are heavily designed and 
+wickedly sharp. Iron straps fix the head to the shaft, which 
+have then been wrapped in a greasy, bloodied burlap cloth 
+material. 
+~
+5 4096 8193
+0 2 6 4
+1000 0.000000
+2 0 0 30 0 0 1
+380.000000 0 0 0 28 0 0
+#41055
+nail SIMPLE_QUALITY studded club ORKISH METAL~
+a nail-studded club~
+A nail-studded club has been left here.~
+   This mace is heavily designed looking to be able to withstand 
+prolonged battering. The head is comprised of four thick, blunt 
+curving sickles which radiate outward from a heavy handle. The 
+pommel is a heavy fanged skull. The whole piece looks to have 
+been blackened by fire. 
+~
+5 4096 8193
+0 1 7 6
+700 0.000000
+3 0 0 30 16384 0 1
+180.000000 0 0 0 28 0 0
+#41056
+club SIMPLE_QUALITY ORKISH nail studded METAL~
+a nail studded club~
+A nail studded club has been left here.~
+   Though basic this club looks well designed. An iron ball, 
+spiked by what look to be nails is attached to a conical shaft 
+which tapers into a secure wire wrapped handle. What subtlety 
+the design lacks is made up for in brutal efficiency. Leather 
+thongs dangle from the handle and look designed to affix the club 
+to a belt or looped to hang from the shoulder. 
+~
+5 4096 8658945
+0 1 7 6
+700 0.000000
+3 0 0 30 16384 0 1
+120.000000 0 0 0 28 0 0
+#41057
+warflail SIMPLE_QUALITY ORKISH flail brutally flanged METAL~
+a brutally-flanged warflail~
+A brutally-flanged ball and chain sits here.~
+   A heavy length of chain attaches a flanged ball to a long 
+thick handle. The handle is leather wrapped and finger grooved. 
+The leather is worn and stained. Capped at the bottom by a metal 
+ball, the whole device looks very unwieldy, though easily capable 
+of delivering devastating blows. 
+~
+5 4096 8193
+0 2 5 7
+1400 0.000000
+3 0 0 30 0 0 1
+300.000000 0 0 0 28 0 0
+#41058
+hammer ORKISH ominous SIMPLE_QUALITY METAL~
+an ominous hammer~
+An ominous hammer rests here.~
+   A metal shaft, measuring nearly four feet, supports a huge 
+block of blunt metal. The hammer head is a rough hexagon which 
+tapers toward the tips designed to focus the heavy blows to a 
+small area. The shaft is ornamented by geometric nodules carved 
+to resemble a series of screaming faces. 
+~
+5 4096 8193
+0 2 5 7
+1600 0.000000
+3 0 0 30 16384 0 1
+400.000000 0 0 0 28 0 0
+#41059
+dagger SIMPLE_QUALITY ORKISH wavy bladed METAL~
+a blackened, wavy-bladed dagger~
+A wavy-bladed dagger has been set here.~
+   A thick waving blade sprouts from a small hilt and has a deep 
+blood gutter carved into both sides. The grip is simple and 
+looks to hold the weapon in the wielder's hand with little regard 
+given to parrying. The weapon is blackened and reflects little 
+light. 
+~
+5 4096 8193
+0 1 5 8
+400 0.000000
+0 0 0 30 16384 0 1
+60.000000 0 0 0 28 0 0
+#41060
+dagger SIMPLE_QUALITY ORKISH wickedly adorned etched METAL~
+a wickedly-adorned, etched dagger~
+A wickedly-adorned dagger sits here.~
+   Looking more ceremonial than deadly, this dagger is crudely 
+etched with a latticework of spider webs along the pointed blunt 
+blade. The hilt is a series of curling segmented legs which 
+extend halfway up the blade. The grip is shaped like an 
+elongated thorax and capped with a bulbous metal abdomen shaped 
+pommel. 
+~
+5 4096 8193
+0 1 5 8
+300 0.000000
+0 0 0 30 16384 0 1
+130.000000 0 0 0 28 0 0
+#41061
+spear SIMPLE_QUALITY ORKISH slim light bladed thrusting METAL~
+a slim-bladed, light thrusting spear~
+A slim-bladed, light thrusting spear rests here, forgotten.~
+   A twisted wooden shaft supports a sharp pointed head of slim 
+metal. The design looks simple but extremely effective. At the 
+base of the spear head sprout ornamental fangs which are held in 
+place by the same dense leather thonging that holds the iron 
+blade in place. 
+~
+5 4096 8193
+0 1 7 9
+600 0.000000
+1 0 0 30 16384 0 1
+120.000000 0 0 0 28 0 0
+#41062
+spear SIMPLE_QUALITY ORKISH two tined blackened heavy METAL~
+a blackened, two-tined spear~
+A blackened, heavy, two-tined spear has been set here.~
+   Held in place by square headed nails the head of this spear 
+sprouts two stabbing tines. The blackened metal looks heavy and 
+durable. A thick long shaft supports the broad head and looks to 
+require two hands to wield properly. 
+~
+5 4096 8193
+0 2 5 10
+1200 0.000000
+0 0 0 30 16384 0 1
+170.000000 0 0 0 28 0 0
+A
+10021 2
+#41063
+spear TROLL_GOODORKISH gigantic black bladed METAL~
+a gigantic, black-bladed spear~
+A gigantic spear with a black blade sits flat on the ground here.~
+   Sporting a blade the size of a broadsword, this spear is 
+hafted by a thick long shaft. While primarily a thrusting weapon 
+the massive head looks able to deal a variety of damaging blows. 
+While likely slow to put into play the amount of damage promised 
+by it is formidable. 
+~
+5 4096 8193
+0 2 7 10
+1400 0.000000
+0 0 0 30 0 0 1
+350.000000 0 0 0 28 0 0
+#41111
+pendant UNIQUE_ADMIN_WIGGLE flat gold engraved phoenix METAL~
+a gold pendant engraved with the name PHOENIX~
+A flat, gold pendant lies upon the ground here.~
+   This flat, square piece of hammered gold has been suspended 
+from a thick leather cord, dyed a deep black. The pendant itself 
+has been engraved with the large name of 'PHOENIX', the letters 
+blackened to set further contrast to the word. 
+~
+8 4096 2097157
+0 0 0 0
+200 0.000000
+0 0 0 50 4194304 0 1
+275.000000 0 0 0 28 0 0
+#41064
+blade ORKISH enormous curving weapon_craft METAL~
+an enormous curving blade~
+An enormous curving blade has been left here.~
+   This curving blade is almost six feet long, blunted in the 
+center and sharpened on both ends. The metal is thick and sturdy 
+though unadorned. Running the length of the blade is a gutter 
+which adds to its overall strength. 
+~
+12 4096 1
+0 0 0 0
+800 0.000000
+0 0 0 20 16384 0 1
+100.000000 0 0 0 28 0 0
+#41065
+ruined metal greave junk METAL~
+a ruined metal greave~
+A ruined metal greave lies here, discarded upon the ground.~
+   Looking to have once been forged from a sturdy piece of bronze 
+this greave is several hand spans long. Black corrosion has 
+robbed the greave of its original beauty and deep pitting can be 
+discerned. 
+~
+12 4096 1
+0 0 0 0
+400 0.000000
+0 0 0 2 0 0 1
+2.000000 0 0 0 28 0 0
+#41066
+worn-out chest plate junk Moria METAL~
+a worn-out chest plate~
+Dropped and forgotten, this worn-out chest plate lies here upon the ground.~
+   Evidence of several heavy blows distort the faux musculature 
+design and a rent, at least a hand span wide, has pierced the 
+center of this chest piece. It appears to have been forged for 
+an individual of particularly broad torso. Any joints have fused 
+solid and corrosion obscures the interior and exterior surfaces. 
+~
+12 4096 1
+0 0 0 0
+500 0.000000
+0 0 0 3 0 0 1
+3.000000 0 0 0 28 0 0
+#41067
+chainmail tunic rusted junk Moria METAL~
+a rusted chainmail tunic~
+A rusted chainmail tunic has been left here.~
+   Woven of remarkably fine chain and then triple layered to form 
+a heavy shirt this tunic looks to have surrendered light weight 
+for protection. The fine mesh might once have moved more 
+silently than a less refined set. Rust has rendered this shirt a 
+discolored mass that threatens to disintegrate when ever 
+manipulated. 
+~
+12 4096 1
+0 0 0 0
+800 0.000000
+0 0 0 1 0 0 1
+5.000000 0 0 0 28 0 0
+#41068
+metal disc junk Moria METAL~
+a metal disc~
+A forgotten metal discs lies here upon the ground.~
+   Looking to have once protected a joint or seam in a larger 
+suit of plate this small armored disc fits in the palm of one 
+hand. The metal is thick and has largely resisted the rust and 
+passage of years that has rotted what leather straps might have 
+affixed it properly to the greater suit. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 5 0 0 1
+1.000000 0 0 0 28 0 0
+#41069
+archaic rusted helm junk Moria METAL~
+a rusted, archaic helm~
+An archaic helm of rusted metal lies upon the ground, forgotten.~
+   This helm, appearing to have been comprised of a bowl covering 
+the head and a cape of overlapping spade shaped scales, has long 
+since passed usability. The scales have rotted together and 
+fused into a solid mass. The helm itself looks to have suffered 
+a massive blow as it is almost completely dented in. 
+~
+12 4096 1
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 28 0 0
+#41070
+rusted-out codpiece old junk Moria METAL~
+a rusted-out codpiece~
+An old and rusted out codpiece has been left behind here.~
+A rather garish decoration and form of armor mimics the area 
+it was intended to protect. The metal cone of which is still 
+largely intact the rotted remnants of the leather support garment 
+tentatively attached by chain links. A patina of rust, red in 
+color, looks to be slowly consuming the device. 
+~
+12 4096 2049
+0 0 0 0
+300 0.000000
+0 0 0 0 0 0 1
+10.000000 0 0 0 28 0 0
+#41071
+crudely fashioned conical helm worn-out Moria junk METAL~
+a crudely fashioned, worn-out conical helm~
+Crudely fashioned and worn by time, this conical helm lies forgotten upon the ground.~
+   A single seam, folded over on itself, reinforced by rivets, 
+runs down the front of this conical helmet and offers a crude 
+aesthetic to the otherwise unadorned helm. In contrast to the 
+basic front the back of the head and the cheek guards look to 
+have been hammered to contour precisely the wearer. The metal 
+looks to have been compromised by the elements and the passage of 
+time. 
+~
+9 4096 17
+2 5 0 0
+300 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 28 0 0
+#41072
+ruined iron gauntlet junk Moria METAL~
+a ruined gauntlet of iron~
+Upon the ground lies a single, ruined gauntlet of iron.~
+   Looking to have once adorned the outside of a leather glove 
+several small articulated metal plates have been riveted 
+together. Each finger joint is represented, the backs of the 
+hands a single piece and several overlapping plates at the wrists 
+on this gauntlet. While the plates themselves look to have 
+weathered the passage of time the leather reinforcing has rotted 
+away and years of abuse have all but destroyed the joints. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+7.000000 0 0 0 17 0 0
+#41073
+crusty old sword hilt junk Moria WOOD~
+a crusty, old sword hilt~
+A crusted-over sword hilt lies here in disuse.~
+   This hilt is crusted and caked over with corrosion. It is 
+larger than normal and looks to have once provided excellent 
+protection for whatever hand once wielded its now absent blade. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+3.000000 0 0 0 32 0 0
+#41074
+hiltless broken knife blade junk Moria METAL~
+a broken, hiltless knife blade~
+A hiltless, broken knife blade has been discarded here, the tip missing from the metal.~
+   The blade of this knife, now snapped in half, was of one piece 
+with the main section of the handle. The metal looks to flare 
+where it was connected to a now absent hand guard. It appears as 
+if wood or bone at one time was attached to the handle to provide 
+a comfortable grip though that organic matter is now absent. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+3.000000 0 0 0 28 0 0
+#41075
+haftless mace head iron junk Moria METAL~
+a haftless mace head made of iron~
+A haftless mace head made of iron has been left here.~
+   pongy wood is all that remains of this mace head's haft. The 
+head itself is heavy and even bearing the evidence of many years 
+of disuse still appears to be well made. Without a serviceable 
+shaft it serves as little more than a rock. 
+~
+12 4096 1
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+6.000000 0 0 0 17 0 0
+#41076
+rusted axe head junk Moria METAL~
+a rusted axe head~
+A rusted axe head lies here, missing its haft.~
+   Broken down the center, this war axe looks to have once been 
+quite large and elaborately wrought. Intricate knot work can 
+still be discerned under the patina of rust that now covers it. 
+~
+12 4096 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 28 0 0
+#41077
+broken head halberd junk moria METAL~
+a broken head of a halberd~
+A halberd's broken head lies here.~
+   This vicious halberd, the head of which remains intact if 
+dulled by time, appears to be the weapon of a soldier. Long 
+lengths of metal strapping still connect it to its broken haft. 
+~
+12 4096 1
+0 0 0 0
+300 0.000000
+0 0 0 0 0 0 1
+8.000000 0 0 0 28 0 0
+#41078
+petrified block wood junk Moria WOOD~
+a petrified block of wood~
+A block of wood rests here, petrified.~
+   This block of petrified wood looks to have once been affix ed 
+to a massive handle by way of an empty bore drilled down its 
+center. Mighty were the hands that once wielded this now 
+discarded maul. 
+~
+12 4096 1
+0 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+4.000000 0 0 0 32 0 0
+#41079
+decrepit broken crossbow junk Moria WOOD~
+a decrepit, broken crossbow~
+A decrepit crossbow lies here, broken.~
+   The bow section of this crossbow is no longer attached to the 
+shoulder stock and trigger mechanism. The brass fittings have 
+corroded together and are a green spongy mass. An integral winch 
+at the butt is completely seized. 
+~
+12 4096 1
+0 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+7.000000 0 0 0 32 0 0
+#41080
+snapped iron broadsword junk Moria METAL~
+a snapped iron broadsword~
+An iron broadsword, its blade snapped off near the hilt lies here~
+   No more than a hand span of blade remains after the bent and 
+broken hilt of this sword. The handle, naked now, looks to have 
+once accommodated a hand and a half grip. The weight of the 
+piece, as well as the balance of the heavy pommel hint at the 
+size that this weapon might once have boasted. 
+~
+2 4096 1
+0 0 0 0
+300 0.000000
+0 0 0 0 0 0 1
+4.000000 0 0 0 17 0 0
+#41082
+rusty rusted shortsword broken shattered blade junk Moria METAL~
+a rusty shortsword with a shattered blade~
+A rusted shortsword with a broken blade lies here.~
+   Well made, if simple, the quality of this weapon is evident 
+despite the rust and abuse it now carries. The blade has 
+shattered down the fuller and is now no longer than a knife. The 
+pommel and cross-guard are of similar basic design. 
+~
+12 4096 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+4.000000 0 0 0 28 0 0
+#41081
+stone SUB_QUALITY cudgel Moria STONE~
+a stone cudgel~
+A stone cudgel lies here at rest.~
+   Looking to have been roughly carved from stone, this small 
+club, while crude, seems quite functional. Broad and heavy at 
+the tip this piece of stone tapers toward the end. A depression, 
+forming a handle, might once have been wrapped in leather. 
+~
+5 4096 1
+0 1 6 6
+700 0.000000
+3 0 0 10 0 0 1
+10.000000 0 0 0 30 0 0
+#41083
+axe SIMPLE_QUALITY square-headed iron METAL~
+a square-headed iron axe~
+A iron axe with a square shaped head lies here~
+   This axe is made solely of iron, both shaft and head. The 
+head is rather square in appearance, not having so much the usual 
+rounded edge as is common with axes. However the straight edge 
+looks keen, the several small nicks indicating it has been well 
+used but nonetheless a keen edge. There is no spike or any other 
+piece on the single-edged, solid axe blade. The iron itself is 
+dull grey, old, even with little hints of rust at places but 
+despite this it lays heavy in its wielder's hand. A thin but 
+strong length of leather has been wrapped around the iron shaft 
+to work as a handle and beneath it sits a heavy square piece of 
+once highly polished metal for counterweight. 
+~
+5 4096 8193
+2 1 7 3
+500 0.000000
+2 0 0 50 0 0 1
+750.000000 0 0 0 17 0 0
+S
+100003
+#41084
+thick iron spaulders scalemail hauberk METAL~
+a heavy iron scalemail hauberk with thick iron spaulders~
+A heavy scale hauberk with thick, square iron spaulders lies here.~
+   This hauberk is definitely on the heavier side. However each 
+scale seems meticulously crafted although somewhat square in 
+shape. Over the shoulders and moving a bit down the upper arms 
+are massive, thick iron spaulders, also somewhat square in shape. 
+The hauberk itself is very well made and the iron must be of the 
+finest quality. However it does not seem to have been used for a 
+while as little dots of rust have started to creep onto some of 
+the hard iron scales. 
+~
+9 4608 9
+3 3 0 0
+1500 0.000000
+0 0 0 50 0 0 1
+800.000000 0 0 0 17 0 0
+A
+10024 -10
+A
+10025 -5
+A
+10037 -20
+#41085
+crevice abandoned mineshaft xdwellingx xMoriax STONE~
+a crevice leading to an abandoned mineshaft~
+A crevice leading to an abandoned mineshaft is present here.~
+   This crevice in the tunnel walls seems to lead off into what 
+appears to be an abandoned mineshaft. It is narrow, and rough - 
+debris litters the tunnel floor nearby. 
+~
+12 4096 0
+0 0 0 0
+25000 0.000000
+0 99048 0 25 0 0 1
+1000.000000 0 0 0 0 0 0
+#41086
+board_bleedin rowdy gathering orcs OTHER~
+a rowdy gathering of orcs~
+A rowdy gathering of orcs dominate the southeastern corner.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41087
+key warped rusty iron xBLACKRENDxHALLx METAL~
+a warped, rusty iron key~
+A warped iron key lies here, speckled with rust.~
+   This iron key is rather hefty and large so far as keys 
+typically go, but appears to have warped over time. Its handle 
+is twisted almost in a complete spiral, and several of the keys 
+have begun to bend out of shape. Rust flecks the surface. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 25 0 0 1
+150.000000 0 0 0 17 0 0
+#41088
+board_blackrend mixture feral orcs spat gossip orders OTHER~
+a mixture of feral orcs~
+A mixture of feral orcs spat gossip and issues orders.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41089
+roughly hewn stone chair STONE~
+a roughly hewn, stone chair~
+A simple chair made out of roughly hewn rock stands here.~
+   Having once been a solid block of dark stone this chair has 
+been rather roughly hacked and cut into a simple piece of 
+furniture. Four solid legs keep the lightly smoothened seat up. 
+The back of the chair is completely solid, not smoothened but 
+instead craggy and uneven. This piece of furniture seems 
+functional at best, heavy and ugly. 
+~
+15 2101248 1
+3000 0 -1 0
+15000 0.000000
+0 1 0 10 0 0 1
+50.000000 0 0 0 0 0 0
+#41090
+fine made stone chair STONE~
+a finely made stone chair~
+A well-made, solid stone chair stands here.~
+   A simple yet very well-crafted stone chairs stands here. It 
+looks heavy and although made out of a solid block of dark stone 
+the four legs look slender, softly rounded. The seat looks 
+smooth and comfortable despite being made out of hard rock. A 
+carefully carved pattern of feral animals cover the back of the 
+chair, the corners lightly rounded which gives the piece of 
+furniture an almost elegant, slender look. 
+~
+15 2101248 1
+300 0 -1 0
+15000 0.000000
+0 1 0 0 0 0 1
+100.000000 0 0 0 0 0 0
+#41091
+massive rock throne STONE~
+a massive rock throne~
+A massive rock throne crowns the top of a flight of stairs in the easternmost wall. It stands high in the air with a dominating presence, looking down over the tomb below~
+   Made out of one massive piece of solid, black stone, this 
+throne stands twice the size of a large chair. It doesn't rest 
+on legs but instead the lower part of the stone has been kept 
+intact, even though it has been lightly smoothened and shaped. 
+The seat is wide, carefully carved and flattened to provide some 
+comfort. Its solid back is wide and very tall, rough, pointy 
+corners giving it a threatening appearance. The large armrests 
+and back are covered in various feral animal carvings. 
+~
+15 2101248 1
+500 0 -1 0
+30000 0.000000
+0 1 0 0 0 0 1
+200.000000 0 0 0 0 0 0
+#41092
+Solid looking table STONE~
+a solid looking stone table~
+A large, solid stone table stands here.~
+   This simple, yet solid, looking table is carved and hacked out 
+of dark stone. Four simple, roughly cut legs keep the unpolished 
+tabletop up. It is completely unadorned, made to be functional 
+and simple. Four equally simple stone chairs surround the large 
+piece of furniture. 
+~
+15 2101248 1
+50000 0 -1 0
+30000 0.000000
+0 4 0 30 0 0 1
+200.000000 0 0 0 0 0 0
+#41093
+stone drinking mug STONE~
+a stone, drinking mug~
+A simple, drinking mug made out of stone lies here.~
+   Made to hold liquid, this simple, unadorned stone mug 
+certainly would do the trick. It seems to have been rather 
+hastily hacked out of a piece of rock, with a rounded shape, a 
+flat bottom, it seems large enough to hold about half a pint of 
+liquid. 
+~
+17 4096 1
+4 0 0 0
+1000 0.000000
+0 0 0 20 0 0 1
+15.000000 0 0 0 0 0 0
+#41095
+large stone chest STONE~
+a large, stone chest~
+A large, heavy stone chest stands in a corner.~
+   The bottom of this large chest has been hacked out of one 
+solid piece of hard stone. It is a dark grey in color, the walls 
+fairly smooth on the inside while only roughly hacked at the 
+outside. The lid is made out of a separate block of stone, 
+roughly shaped to keep unwanted fingers out of the chest. A 
+simple iron lock has been fastened to the front of the chest and 
+bronze hinges make sure it can be opened and closed. 
+~
+15 4096 1
+40000 5 41742 20
+20000 0.000000
+0 0 0 20 0 0 1
+150.000000 0 0 0 0 0 0
+#41094
+simple stone bowl stone_craft STONE~
+a simple, stone bowl~
+A small bowl made out of stone lies here.~
+   This bowl seems to have been hacked and carved out of one 
+piece of rock. It is dark in color, heavy and rather roughly 
+shaped, function and simple, certainly not meant to please the 
+eye. 
+~
+17 4096 1
+6 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41096
+elegant well-made chest STONE~
+an elegant, well-made stone chest~
+A finely made, stone chest is here.~
+   A chest made out of high quality, black stone stands here. It 
+has been meticulously crafted, corners rounded, lid smoothened 
+and shaped. The chest is large and the finely made outside is 
+covered in smooth engravings, depicting several patterns but 
+nothing one could make out to be something particular. 
+~
+15 4096 1
+30000 0 -1 35
+20000 0.000000
+0 0 0 40 0 0 1
+0.000000 0 0 0 0 0 0
+#41097
+solid bin STONE~
+a solid, stone bin~
+A simple stone bin stands here.~
+   Rough edges make up this stone bin. Although not rectangular 
+in shape it isn't exactly circular either. Instead it's just 
+been hacked out of a block of stone, a hole drilled and the 
+bottom smoothened and here it stands, it has no lid. 
+~
+15 4096 1
+10000 0 -1 0
+12500 0.000000
+0 0 0 20 0 0 1
+80.000000 0 0 0 32 0 0
+#41098
+longsword SUB_QUALITY ORKISH single crude edged sword METAL~
+a crude, single-edged longsword~
+A crude orkish longsword with a single edge lies here.~
+   This longsword, forged from solid iron, is heavy and strong. 
+The single edge appears sharpened in a hurry, though it is 
+wickedly sharp. The hilt is spartan, and efficient at its sole 
+purpose-- to keep the blade off of the hand. A crudely-shaped 
+iron pommel is attached to the end, for balance. Overall, the 
+sword is crudely molded and hammered, cumbersome but deadly. 
+~
+5 4096 8193
+0 1 6 3
+700 0.000000
+4 0 0 10 18432 0 1
+60.000000 0 0 0 17 0 0
+S
+100003
+#41099
+rough crude ORKISH longsword blade single-edged METAL weapon_craft~
+a crude, single-edge swordblade~
+A black, crudely made swordblade with a single-edge lies here.~
+   A long, fairly straight blade lies here. It is crudely 
+hammered out of a solid piece of iron, briefly tempered and made 
+out of dark iron. The blade has a single edge, dull and with 
+pieces of slag stuck to it. 
+~
+41 4198400 1
+0 0 0 0
+200 0.000000
+0 0 0 0 256 0 1
+5.000000 0 0 0 17 0 0
+#41100
+rough loin cloth LEATHER black bone-studded~
+a black, bone-studded loincloth~
+A black, thick piece of leather with small, white studs lies here.~
+   This loincloth has been roughly cut out of a thick piece of 
+leather. Thick, pale white pieces of bone have been studded and 
+stitched into the black leather. It is a rather large piece of 
+leather, cut into a slightly triangular shape and reaching a 
+average sized man a bit further down then the knees. The 
+loincloth seems thick enough to actually provide some protection, 
+as long as the wearers bared legs are not hit. 
+~
+9 4096 33
+2 1 0 0
+200 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+A
+10 2
+#41101
+key~
+a small, iron, toothed key~
+A small, iron, toothed key lies here.~
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+A
+2 18
+#41102
+massive chunk granite large mine_obj Stonecraft STONE~
+a massive chunk of granite~
+A very large chunk of granite lies here.~
+   This large chunk of granite is roughly the size of half a 
+grown man. It is more or less square in size, perfect for making 
+larger items. 
+~
+21 4198400 1
+0 0 0 0
+30000 0.000000
+0 0 0 30 134217728 0 1
+30.000000 0 0 0 0 0 0
+A
+10 300
+#41103
+large craggy stone key MORIA Gothakra_Halls STONE~
+a large, craggy stone key~
+A large, craggy stone key lies here~
+   A large, simple key have been carved out of stone, it's edges 
+craggy and rough. 
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41104
+small rust iron key TENSHIN'S-KEY METAL~
+a small, rusty iron key~
+A small, rusty iron key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#41105
+small rusty iron key arms_armor shop METAL~
+a small, rusty iron key~
+A small, rusty iron key lies here.~
+   This is a small piece of rusted iron which have been shaped 
+into a simple key. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#41106
+large many toothed key TENSHIN-CELL METAL~
+a large, many-toothed key~
+A large, many-toothed key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#41107
+key greasy xDABLEEDINGFISTx cloth wrapped METAL~
+a greasy, cloth-wrapped key~
+A greasy, cloth-wrapped key has been set here.~
+   This small iron key has been wrapped with a greasy cloth, the 
+prong itself is notched with three perfect slits. 
+~
+18 4096 1
+2 0 0 0
+80 0.000000
+0 0 0 30 16384 0 1
+0.000000 0 0 0 17 0 0
+#41108
+large key marked flame TENSHIN-SHOP METAL~
+a large key marked with a flame~
+A large key marked with a flame lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#41109
+necklace toes ORKISH toes length wrinkled wrinkly dried threaded LEATHER cord~
+a length of cord threaded with dried, wrinkly toes~
+A length of cord threaded with dried, wrinkly toes has been set here, in a bundle.~
+~
+11 135680 2097153
+0 0 0 0
+30 0.000000
+0 0 0 20 16384 0 1
+0.000000 0 0 0 14 0 0
+#41110
+mace SUB_QUALITY poorly ORKISH constructed thick iron METAL~
+a poorly-constructed, thick iron mace~
+A poorly-constructed, thick iron mace has been set here, on its side.~
+   A thick iron bulb set on top of a wild-elm haft, this mace has 
+been poorly put together. The iron bands that hold the bulb to 
+the haft are weak and rattle loosely when disturbed. Although 
+his crude made appears to be almost utterly useless, it would 
+most definitely be of some use on the field. 
+~
+5 4096 8193
+0 1 6 6
+700 0.000000
+3 0 0 30 16384 0 1
+70.000000 0 0 0 28 0 0
+#41112
+flail SIMPLE_QUALITY flanged ORKISH darkened iron METAL~
+a flanged flail of darkened iron~
+A flanged flail of darkened iron rests here, chain tangled.~
+   Linked via a chunky metal chain, this one-handed flail appears 
+to be a deadly weapon of warfare. The ball itself is a rock 
+solid chunk of fire-blackened iron - which then attaches to the 
+chain which connects to a roughly sanded haft. A greasy length 
+of leather has been wrapped around the haft for grip and then 
+dyed a muddy brown in color. 
+~
+5 4096 8193
+0 1 7 6
+700 0.000000
+3 0 0 30 16384 0 1
+140.000000 0 0 0 28 0 0
+#41113
+club TROLL_GOOD war humongous wickedly barbed METAL~
+a humongous, wickedly-barbed war club~
+A humongous war club adorned with wicked barbs has been set here.~
+   Hewn from rock, this weapon has been carved into a large club. 
+Ten cruel looking barbs of iron protrude viciously from the 
+club's head, sporting lethal tips. Some unidentifiable hide has 
+been wrapped numerous times around the handle, partially covering 
+it's exterior and also ensuring a firm grip. A length of sinew 
+droops lifelessly from the butt end of the handle - the length 
+capable of being slung over the shoulder or hooked to a belt. 
+~
+5 4096 270337
+0 2 7 7
+3000 0.000000
+3 0 0 30 16384 0 1
+0.000000 0 0 0 28 0 0
+#41114
+warhammer square ORKISH SIMPLE_QUALITY headed iron heavy METAL~
+a square-headed, heavy iron warhammer~
+A square-headed warhammer of heavy black iron has been set here, on its head.~
+   A gigantic block of iron, the head of this warhammer is 
+surprisingly large if in comparison to the short haft. Crude 
+marks have been etched into the warhammers head, swirls and 
+sigils, scratched into the heavily blackened metal. The hardwood 
+haft has been painted black, and then completely wrapped in 
+uncured hide, ensuring a decent grip. 
+~
+5 4096 8193
+0 2 5 7
+1200 0.000000
+3 0 0 30 16384 0 1
+450.000000 0 0 0 28 0 0
+#41115
+scimitar SUB_QUALITY serrated ORKISH dusky iron METAL~
+a serrated, dusky iron scimitar~
+A serrated, dusky iron scimitar sits flat here, blade gloomy.~
+   Constructed poorly, this rattling iron scimiater has been fire 
+blackened to a deep shadowy hue. The blade's edge is brutally 
+notched, giving the weapon its fearsome apperance. attached to a 
+small, burlap-wrapped handle, it's obvious this sword is used for 
+offensive purposes, it lacks a crossguard, which leaves the hands 
+fully open to attack. 
+~
+5 4096 8193
+0 1 6 3
+600 0.000000
+4 0 0 20 16384 0 1
+90.000000 0 0 0 28 0 0
+S
+100003
+#41116
+key UNIQUE_BLACKREND_BOSS cloth swathed METAL~
+a cloth-swathed key~
+A rusting key is here, swathed in white cloth.~
+   This small rusting key has been wrapped in a stained white 
+cloth - it's reasoning unknown. The key itself has a flat handle 
+and three teeth. 
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41117
+jacket~
+a vest made out of fur and hides~
+a heavy leather jacket~
+~
+9 4108 9
+2 0 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41118
+cloth shoulder patch crudely-painted clenched fist CLENCHED_FIST_CLAN_ANGOST  TEXTILE~
+a shoulder patch bearing a crudely-painted clenched fist~
+A cloth shoulder patch bearing a crudely-painted clenched fist.~
+   Made out of a simple piece of shabby cloth this shoulder patch 
+ties around the upper arm. It is adorned with a hastily painted 
+picture of a black, clenched fist. 
+~
+11 4096 134217729
+0 0 0 0
+0 0.000000
+0 0 0 0 16384 0 1
+0.000000 0 0 0 0 0 0
+#41119
+tankard wooden WOOD~
+a wooden tankard~
+A simple, wooden tankard has been forgotten here.~
+   Hastily made but watertight, this tankard has a plain 
+incorporated handle and a sturdy, circular base. It is 
+unfinished and untreated, with a plain construction. 
+~
+17 4096 1
+15 15 580 580
+75 0.000000
+0 0 0 0 0 0 1
+0.500000 0 0 0 32 0 0
+#41120
+breastplate sigil ORKISH sturdy iron dark marked byKarkus METAL~
+a dark iron breastplate with sigil-marked pauldrons~
+A sturdy, dark iron breastplate has been settled down here, its pauldrons marked with sigil etchings.~
+   Built of two main components, a broad chest-piece and a 
+back-plate - this sturdy iron shell appears to have served a 
+healthy life of battle. The front is marred with scratches and 
+dents, while the back appears quite untouched and in prime 
+condition. Strategically placed straps secure this piece of 
+armor to the torso, imprisoning its wearer into a box of metal. 
+Two banded pauldrons sit high at the shoulder, their surfaces on 
+close inspection etched with ancient sigils which curl and swirl 
+in unique patterns. 
+~
+9 4096 9
+2 5 0 0
+1400 0.000000
+0 0 0 30 16384 0 1
+800.000000 0 0 0 28 0 0
+A
+10024 -12
+A
+10037 -15
+A
+10036 -15
+#41121
+skullcap flaring ORKISH dual cheek guards METAL byKarkus~
+a flaring skullcap with dual cheek guards~
+A flaring skullcap with dual cheek guards rests here, forgotten.~
+   Of simple design, this thick iron skullcap rolls down the side 
+of its wearers head, ending with a flaring ducktail. The iron 
+itself is severely blackened, covered with many scars which 
+crisscross across the surface in no particular order. Two large 
+cheek guards arc down in front of the cheeks, as well as a stumpy 
+noseguard - these two components being the only protection to an 
+exposed face. 
+~
+9 4096 17
+2 5 0 0
+700 0.000000
+0 0 0 30 16384 0 1
+700.000000 0 0 0 28 0 0
+A
+10032 -3
+#41122
+loincloth wolf ORKISH fur tangled wad LEATHER byKarkus~
+a wolf-fur loincloth~
+A wolf-hide loincloth lies here in a tangled wad.~
+   This primitive loincloth has been fashioned from numerous 
+pieces of wolf-hide stitched together with thick, sturdy thread. 
+It has been designed to sit high on hips at the waist in a sturdy 
+fashion. Two primary flaps, one in the front and one in the 
+back, along with strips of various lengths hang down over the 
+wearer's tender bits. It provides rudimentary protection to the 
+groin and buttock. 
+~
+9 4096 33
+1 1 0 0
+300 0.000000
+0 0 0 30 16384 0 1
+40.000000 0 0 0 14 0 0
+#41123
+head rope human ORKISH suspended segment byKarkus LEATHER~
+a human head, suspended by a segment of rope~
+A head on a rope has been abandoned here.~
+   Heavily deteriorated through time and weathering, upon this 
+head remains little of the pale flesh which once clinged to its 
+skull. From its appearance it would seem to be the head of a 
+young woman, who was decapitated just above the shoulders. Eyes 
+long missing, they have been replaced with a pair of blue-tinted 
+river stones, which have been rammed into place, apparently by a 
+hammer's strike. This has caused more than a few small cracks to 
+etch their way from the eye sockets and onto the main skull from 
+the extremely snug fit. Some patches of obsidian-black hair 
+remain upon the head, which has been delicately braided in all of 
+its length, and tied off at the end. The jaws of this head are 
+loosely secured to the skull by a series of bolts, which still 
+allow the jaw movement, while retaining its place upon the head. 
+Some of the teeth within the mouth of the disembodied person have 
+gone long missing, apparent signs of tooth decay upon the 
+remaining teeth. Two puncture holes are evident upon the skull, 
+allowing a segment of rope to be strung through, and secured to 
+the body of the wearer. While showing a lack of skill in its 
+construction, it would seem that the maker of this trophy has 
+taken considerable care of the head. 
+~
+11 4608 10485765
+0 0 0 0
+100 0.000000
+0 0 0 5 16384 0 1
+20.000000 0 0 0 14 0 0
+#41124
+greathelm horrific helm blade crowned METAL~
+a horrific, blade-crowned greathelm~
+A horrific, blade-crowned greathelm has been set here.~
+   Forged of darkened iron, this greathelm holds a dreadful 
+visage. Small, arched spikes ascend from the crown at multiple 
+points. Standing taller than these are four cruelly-sharp 
+blades, and a fifth, centered above the forehead, that towers 
+highest of all. From the angular eye-slits downward, the helm is 
+shaped like a pair of grasping boney claws with only a small 
+opening that exposes the wearer's lips between the grasping 
+talons. The iron descends towards the wearer's throat before 
+tapering to a pair of sharp points, protecting the jaw and neck 
+from attack. 
+~
+9 528384 17
+4 5 0 0
+700 0.000000
+0 
+bladed-greathelmed~
+0 30 0 0 1
+700.000000 0 0 0 28 0 0
+A
+10032 -10
+A
+10028 -10
+A
+10029 -10
+#41125
+spear shaft broken WOOD orkish staff~
+a broken spear-shaft~
+A spear-shaft lies here, the head broken off.~
+~
+5 4096 8193
+0 1 6 11
+300 0.000000
+3 1 0 0 0 0 1
+50.000000 0 0 0 32 0 0
+#41126
+carcass large ORKISH acidic spider raw MEAT byKarkus~
+a large, acidic spider carcass~
+A large spider carcass has been left here, emitting a noxious, acidic smell.~
+   This large spider carcass has been extracted from its tough 
+chitin exoskeleton, and the furry hide stripped away, leaving the 
+few meaty haunches visible, as well as the fangs and legs. The 
+head of the spider, and the venom sacs, have been damaged and 
+rendered useless in the skinning process. The carcass is very 
+large, and lies in a heap, emitting a noxious, acidic smell. 
+~
+19 4096 1
+6 0 0 0
+3500 0.000000
+0 5 0 30 33570816 0 1
+5.000000 146 5465 0 0 0 0
+#41127
+breeding nest orkin YRCHMINES OTHER~
+#5a healthy breeding nest of orkin#0~
+#5Pups and breeding bitches in a sprawling ork nest.#0~
+   This large area of rags and gnawed bones covers a roughly 
+circular area. Within it are small ork pups fighting with each 
+other, a few dead ork children decaying while rats gnaw at them. 
+Younger female orkin slap the pups into shape and sit with them 
+telling them of the history and legends of the tribe. Breeding 
+bitches squat over shallow pits lined with dark blood and rags. 
+The whole area stinks, dark vomit and excrement beginning to pile 
+up. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 41128 0 0 0 0
+#41128
+breeding next orkin dying infested YRCHMINES OTHER~
+#5an infested nest of dying orkin#0~
+#5Sick pups and starving breeding bitches squat in this infested nest.#0~
+   This large area of rags and gnawed bones covers a roughly 
+circular area. Within it small ork pups lay gasping for 
+sustenance, their bodies thin and weak. A few dead ork children 
+rot amonst huge piles of excrement and rotting meats. Younger 
+female orkin beg those who pass for food for the pups and scream 
+abuse at any who do not assist. Breeding bitches still squat 
+over shallow pits lined with dark blood and rags but they bare 
+their sharp teeth and fangs at any who approach without food. 
+The whole area stinks, dark vomit and excrement beginning to pile 
+up. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#41129
+adolescent orc long limbs head YRCHMINES OTHER~
+#5an adolescent orc with long limbs and a large head#0~
+#5An adolescent orc with a large head bullies pups in the nest.#0~
+   This adolescent orc has risen from the sprawling nest to be 
+larger than the pups around, which it bullies constantly and 
+abuses without mercy. Such strength is rewarded by larger meals 
+and a gang running around with it to beat on the smaller orcs. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 4320 41130 0 0 0 0
+#41130
+young mountain orc YRCHMINES OTHER~
+#5a young adult mountain orc#0~
+#5A young adult mountain orc looks eager to leave the nest.#0~
+   Staying near one edge of the nest, this orc is clearly of 
+mountain stock, bent and long-limbed and short. They are ready 
+to leave, as can be seen whenever a young orc cringes away from a 
+beating from the impatient creature. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41131
+key THE_IRON_ROD ORKISH three distinctive sharpened teeth METAL~
+an iron key with three distinctive, sharpened teeth~
+An iron key with three distinctive, sharpened teeth has been set down here, the handle flattened.~
+   Although small, this length of iron has been carved 
+intricately. The holding end is flat, like a coin. Three 
+distinctive, sharpened teeth protrude from the iron rod, used for 
+opening the lock mechanisms. 
+~
+18 4608 262145
+0 0 0 0
+50 0.000000
+0 0 0 30 16384 0 1
+0.000000 0 0 0 17 0 0
+#41132
+key xSawnCleaverx bloodied iron leather bound METAL~
+a bloodied, leather-bound iron key~
+A bloodied, leather-bound iron key rests on its flat side here.~
+   Made from iron, this small key has been pressed flat with 
+something large and powerful. The leather-bound handle is 
+splashed with blood, both crimson and black. 
+~
+18 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 30 16384 0 1
+0.000000 0 0 0 17 0 0
+#41133
+door rickety ORKISH old wooden WOOD~
+an old, rickety wooden door set on rusting hinges~
+An old, rickety wooden door is here.~
+   Simple in design, this poorly constructed door hangs 
+lifelessly. Sure signs of a hardened lifetime, scars mark the 
+untreated wood, rendered deep within it's surface. Two ancient, 
+rusted hinges hold this door to the wall. 
+~
+13 4608 0
+0 0 0 0
+700 0.000000
+0 0 0 10 16384 0 1
+0.000000 0 0 0 32 0 0
+#41134
+door splintered $drabcolor ORKISH WOOD round~
+a splintered, $drabcolor, rounded door leading into a cave~
+A splintered, round door splashed with $drabcolor paint is set in the cavern wall.~
+   This door is quite thick and secure-looking, round in shape 
+and fashioned of wooden boards bound together by studded iron 
+bands, the entire thing covered in a rough splash of $drabcolor 
+paint. Set in the walls of the caverns and caves. 
+~
+12 33558528 0
+0 0 0 0
+250000 0.000000
+0 0 0 20 16384 0 1
+0.000000 0 0 0 32 0 0
+#41135
+sign warning wooden ORKISH WOOD displaying spider crudely painted black~
+a small wooden sign painted with a crude spider~
+A small wooden sign rests here, displaying crudely painted black spider.~
+   Standing only several feet off the ground with it's pole 
+stabbed into the cold soil, this small sign has been crudely 
+made, and hastily put together but inexperienced hands. On the 
+surface of the sign, a crude black spider has been painted, and a 
+single slash of red paint runs straight across it. It is quite 
+clear that this is a sign of warning, rather than a sign of 
+welcoming. 
+~
+13 4608 0
+0 0 0 0
+250000 0.000000
+0 0 0 20 0 0 1
+0.000000 0 0 0 32 0 0
+#41136
+mace GOOD_QUALITY seasoned ORKISH eight flanged constructed blackened iron METAL~
+a seasoned, eight-flanged mace~
+An eight-flanged mace, constructed from blackened iron is here.~
+   Forged from blackened iron, this mace stands easily three and 
+a half feet in total length. This fierce design of weaponry 
+consists of two main components - a haft and a head. The haft is 
+old, scratched iron, blackened in fire to a thickened matt-black 
+finish. The head wicked in craftsmanship sports eight brutal, 
+razor-edged flanges which curl out like flames, ending in fine 
+points, each one of them. Soft, notably Orkish etchings have 
+been inscribed into the iron mace head, each marking significant 
+but barely noticeable due to a seasoned lifetime served in 
+battle. 
+~
+5 4096 8193
+1 1 8 6
+430 0.000000
+3 0 0 32 16384 0 1
+500.000000 0 0 0 28 0 0
+#41137
+boots iron toed ORKISH tough leather leathered pair LEATHER~
+a tough pair of leather, iron-toed boots~
+A pair of tough, leathered, iron-toed boots have been set here.~
+   This pair of boots is made from toughened, thick leather, and 
+features a wide strip of dusky iron over the toes. The heels are 
+hobnailed, and they fasten with laces up to mid-calf. While 
+heavy, they would offer both decent offense and protection. 
+~
+9 4608 65
+1 2 0 0
+290 0.000000
+0 0 0 32 16384 0 1
+70.000000 0 0 0 14 0 0
+#41138
+patch UNIQUE_BLACKREND shoulder stamped crudely painted black hand LEATHER~
+a patch stamped with a crudely-painted black hand~
+A shoulder patch rests here, a crude black hand stamped on one side.~
+   This folded patch of leather has been poorly treated, and then 
+dried to a crusty crisp. The patch has been dyed white, the 
+previous color unknown, weathered with age. Two seams of poor 
+stitching hold a thin strap, securing the item to it's wearers 
+arm securely. Stamped dead in the center is a flexed black hand, 
+its fingernails sharpened to a claw's tip. 
+~
+11 4608 134217729
+0 0 0 0
+1 0.000000
+0 0 0 23 0 0 1
+0.000000 0 0 0 14 0 0
+#41139
+key fist pGrutz xDABLEEDINGFISTx shaped iron handle METAL~
+an iron key with a fist-shaped handle~
+A key is here, handle shaped like a small, clenched fist.~
+   This thin but lengthy key has been constructed purely of 
+metal, recognizably iron. Two small prongs end at the shaft, 
+sticking down like bucked-teeth. The handle is shaped like a 
+small fist, comprised of five knuckles. 
+~
+18 4096 1
+0 0 0 0
+3 0.000000
+0 0 0 32 16384 0 1
+0.000000 0 0 0 28 0 0
+#41140
+roundshield UNIQUE_BLACKREND black shield hand painted saw edged METAL~
+a saw-edged, black-hand-painted roundshield~
+A saw-edged roundshield rests here, made from banded wood.~
+   Thick wooden boards makes up this offensive oriented round 
+shield, its size roughly two feet in diameter with a surface worn 
+smooth. Within a circle of rivets near the center of its 
+slightly convex shape is a stout iron spike, centered directly in 
+the middle of a black hand which has been crudely painted on the 
+front of the shield. Extra banding has been formed along its 
+outer rim, notched at an angle to create a saw like blade all 
+around its perimeter. 
+~
+6 135168 9175041
+5 12 35 0
+600 0.000000
+0 0 0 32 0 0 1
+0.000000 0 0 0 17 0 0
+#41141
+hand black ORKISH decaying wrinkled thong LEATHER~
+a wrinkled, decaying black hand strung on a thong~
+A decaying, wrinkled hand rests on the ground here, thong rumpled.~
+This small, wrinkled hand has been strung on a leather thong. The fingers are crusty and old, fingernails still attached and sharpened to a vicious tip. A brooding stench wafts from this particular item.
+~
+11 4096 18878465
+0 0 0 0
+30 0.000000
+0 0 0 10 16384 0 1
+0.000000 0 0 0 14 0 0
+#41142
+key xBLACKREND_PRISONx flat stone handled prong notched three METAL~
+a thin, flat-handled stone key~
+A thin, flat-handled stone key rests here, prong notched with three teeth.~
+   Made from stone, this small key has been carved to fit within 
+a specific lock. The handle is stone, worn down over time, 
+sprouting out a stalk-like prong, which has then been notched 
+with teeth. 
+~
+18 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 31 0 0 1
+0.000000 0 0 0 17 0 0
+#41143
+falchion black xBLACKRENDx xTHROQUx xHUULx recurved hand molded pommel METAL~
+a black, recurved falchion with a hand-molded pommel~
+A recurved falchion rests here, pommel molded to the shape of a hand.~
+   Crafted from crude iron, this falchion has been thickened and 
+blackened in fire. The tip of the blade is wickedly sharp, 
+arcing down with the same razor edge along it's blades complete 
+length. The handle has been wrapped in a cloth-like materials, 
+curled around and studded with iron rivets. The pommel, 
+blackened, is a skeletal hand, curling up over a pommel, 
+clenching it within its deathly grip. 
+~
+5 4096 8193
+1 1 8 3
+600 0.000000
+2 0 0 32 16384 0 1
+450.000000 0 0 0 28 0 0
+#41144
+statue dwarvish MINES old vandalized METAL~
+an old, vandalized dwarven statue~
+An old, vandalized dwarven statue has been set in stone, fixed to the wall.~
+   This old, scratched up statue rests with an eerie ease. The 
+statue, the carving of a dwarf, perhaps someone of relative 
+importance stands with his hands planted firmly on his hips. His 
+body, which was once defined in armor has been torn up, and 
+vandalized. Deep, jutting cracks run down his face and neck, 
+almost as if someone had attempt to tear it off. His boots are 
+untouched, firmly planted on the ground. 
+~
+13 4608 0
+0 0 0 0
+100000 0.000000
+0 0 0 32 1048576 0 1
+0.000000 0 0 0 28 0 0
+#41145
+cavity rock container wall METAL~
+a cavity in the rock~
+A cavity in the rock is set in the wall here.~
+   A simple hole dug into the rock allows items to be stored 
+inside. The sides and bottom are uneven, but the cavity widens 
+somewhat beyond its mouth, preventing the contents from rolling 
+out. While fairly roomy, the smaller opening is less obvious and 
+could easily be concealed. 
+~
+15 4608 0
+50000 0 -1 0
+300 0.000000
+0 0 0 0 16384 0 1
+0.000000 0 0 0 28 0 0
+#41146
+shortbow bone ORKISH light flexible OTHER~
+a light, flexible bone shortbow~
+A flexible length of bone lies here, strung with tight sinew.~
+   Crafted from a length of flexible bone, this shortbow is 
+utterly rudimentary and unimpressive to behold, but nonetheless 
+appears to be quite effective and skillfully made. Treated with 
+some unknown substance to retain its pliable quality, the smooth 
+bone is yellowed with age and use. A long strip of leather has 
+been wound repeatedly around the middle of the shaft to aid the 
+grip, and it is strung with a length of taut intestine. The bow 
+is extremely light. 
+~
+5 4608 8396801
+3 1 0 16
+390 0.000000
+1 0 0 32 0 0 1
+160.000000 0 0 0 0 0 0
+S
+100006
+#41147
+cudgel SUB_QUALITY craggy ORKISH stone OTHER~
+a craggy stone cudgel~
+A craggy stone cudgel rests here, wrapped in dingy leather.~
+   A naturally cone-shaped length of stone has been wrapped with 
+leather at one end to serve as a bludgeoning weapon. The surface 
+is craggy and uneven, and the sheer weight of the thick weapon is 
+enough to inflict significant damage. Such use has left it 
+chipped and worn in places. 
+~
+5 4096 8193
+0 1 5 5
+460 0.000000
+3 0 0 0 16384 0 1
+76.000000 0 0 0 0 0 0
+#41148
+arrow bone ORKISH short shafted OTHER~
+a short, bone-shafted arrow~
+A short, bone-shafted arrow lies here.~
+   A shaft of bone has been honed straight and relatively smooth, 
+providing a short but effective arrow. Wedged into a notch in 
+one end and lashed firmly in place is a sharp, pointed shard of 
+flint, and the fletching is a small, grey feather. Due to its 
+length, the arrow likely only suitable to nock on a shortbow. 
+~
+7 4198400 1
+1 6 0 0
+10 0.000000
+0 0 0 30 0 0 1
+1.800000 0 0 0 0 0 0
+S
+100004
+#41149
+longknife SIMPLE_QUALITY bone ORKISH long knife curving OTHER~
+a curving bone longknife~
+A long, curving bone knife lies here.~
+   A section of curving bone has been sanded smooth and sharpened 
+along one side, giving it a reasonable cutting edge. Shaped not 
+unlike a small scimitar, the implement is very light and easy to 
+carry, suitable both as a weapon and a tool for as long as the 
+edge will hold. A third of its length is wrapped in hide to 
+provide a secure grip. 
+~
+5 4096 8193
+0 1 5 2
+250 0.000000
+4 0 0 32 16384 0 1
+69.000000 0 0 0 0 0 0
+#41150
+canteen pewter ORKISH battered leather strap OTHER~
+a battered, leather-strapped pewter canteen~
+A battered pewter canteen with a leather strap sits here.~
+   Matte grey pewter has been shaped into a round canteen, 
+perfectly round and flat in the shape of a thick wheel. The 
+material is dented and scratched but retains its general shape 
+and staunchness, and a long leather strap allows it to be slung 
+over a shoulder or onto the back. The mouth is stoppered with a 
+bit of wood. 
+~
+17 4608 9175041
+10 0 -1 0
+110 0.000000
+0 0 0 32 16384 0 1
+23.000000 0 0 0 0 0 0
+#41153
+neckguard bone ORKISH scaled swarth leather overlapping scales OTHER~
+a bone-scaled neckguard~
+A swath of leather with overlapping bone scales lies here.~
+   A wide section of soft, worn leather has been sewn into a 
+gorget-shaped piece of apparel, donned over the head to lay 
+across the neck and upper chest of the wearer. Sewn into the 
+leather are overlapping pieces of flat bone, providing the main 
+protection of this armor, with the leather backing serving only 
+as a measure of comfort between the body and the coarse bone 
+plates. Many of the plates are scratched or broken in half, and 
+a few are missing entirely. 
+~
+9 4096 5
+2 2 0 0
+430 0.000000
+0 0 0 32 0 0 1
+130.000000 0 0 0 0 0 0
+#41154
+dagger SIMPLE_QUALITY bone ORKISH fire hardened sooty OTHER~
+a fire-hardened bone dagger~
+A sooty bone dagger lies here.~
+   A length of bone has been honed down to a slim, light dagger, 
+sharpened on both sides of the blade. The dagger has been 
+treated with fire to strengthen the material, leaving it a 
+smudged greyish-black hue, and the hilt is a simple extension of 
+the same piece wrapped in leather cord for a secure grip. It is 
+without guard or pommel. 
+~
+5 4608 270337
+0 1 5 8
+230 0.000000
+0 0 0 32 16384 0 1
+58.000000 0 0 0 0 0 0
+#41155
+spear SIMPLE_QUALITY bone ORKISH shortspear stout headed OTHER~
+a stout, bone-headed shortspear~
+A short spear with a bone head leans here.~
+   A shaft of sturdy wood has been equipped with a broad, 
+tapering bone spearhead. The bone is fairly sharp and has been 
+fire-hardened to add strength and durability, leaving it a sooty 
+black color. The wooden shaft appears to be rather old, but it 
+is in decent shape and somewhat heavy. Leather has been wound 
+around it in two places, ensuring a firm grip. 
+~
+5 4096 8193
+0 1 7 9
+430 0.000000
+1 0 0 32 16384 0 1
+120.000000 0 0 0 0 0 0
+#41156
+blade bone SUB_QUALITY ORKISH sharpened crude straight edged length OTHER~
+a crude, straight-edged bone blade~
+A sharpened length of bone lies here.~
+   A section of bone approximately the size of a human femur has 
+been sanded and sharpened into something resembling a shortsword. 
+The double-edged blade does not taper into a point but comes to 
+an abrupt end where the natural shape of the bone is swept 
+backwards into a spike. The opposite end is shaven into a plain 
+hilt. Wholly undecorated, this weapon is rudimentary and 
+primitive in the extreme, but could inflict significant damage 
+nonetheless. 
+~
+5 4096 8193
+0 1 4 2
+460 0.000000
+4 0 0 32 16384 0 1
+80.000000 0 0 0 0 0 0
+#41157
+pickaxe SUB_QUALITY iron ORKISH headed ancient rusting axe pick old OTHER~
+an ancient, iron-headed pickaxe~
+An old, rusting pickaxe sits on its head here.~
+   Seemingly archaic, this mining implement has seen extensive 
+use and has doubtlessly outlived its owner. The greyish wood of 
+its haft is worn smooth in places and porously brittle in others. 
+A sturdy iron head has been affixed to the top, one end sharpened 
+at its faintly curving tip and the other flaring into a flat, 
+shovel-like blade. The metal is rusted and tarnished, but it 
+would still function as a mining tool or even a weapon. 
+~
+5 4096 8193
+0 1 6 3
+540 0.000000
+2 0 0 32 16384 0 1
+60.000000 0 0 0 0 0 0
+S
+100003
+#41158
+club SUB_QUALITY bone ORKISH stout yellowed thighbone wrapped leather OTHER~
+a stout, yellowed bone club~
+A yellowed thighbone lies here, one end wrapped in leather.~
+   The thighbone of a larger humanoid has been cleaned and 
+smoothed, by wear or finish, and the bone is yellowed with age. 
+Leather has been wrapped around the bottom third, fraying in 
+places. The shape of the piece, with the bulbous stump at the 
+thicker end, gives it a general club shape and could easily be 
+used as such. 
+~
+5 4096 8193
+0 1 4 5
+430 0.000000
+3 0 0 32 16384 0 1
+60.000000 0 0 0 0 0 0
+#41159
+ragged leather patch crimson spider CRIMSON_ARMS TEXTILE~
+a black cloth armband depicting a crimson spider~
+A piece of cloth lies here crumpled, dyed red and black.~
+   Made from the scraps of ragged cloth, this armband is meant to 
+be worn around the arm or neck, and can be tied easily. Dyed 
+pitch black, this patch has a crudely-drawn red circle painted 
+over the ebon dye - with a set of twelve squiggly, crimson arms 
+that reach outwards to the borders of the cloth. 
+~
+11 135168 136314885
+0 0 0 0
+100 0.000000
+0 0 0 23 0 0 1
+0.000000 0 0 0 14 0 0
+#41160
+petrified forest MINES OTHER BySALADIN~
+a petrified forest~
+A petrified forest stretches here.~
+   What must have been a forest of lush trees now stands 
+petrified and dead, filling the area with gloomy, fragile boughs 
+of mineralized lengths. The trees stand solid in their frozen 
+state, rooted to the ground with roots that are more rock than 
+anything else. The bark has fused to the trees and does not 
+offer any sort of substrate for life. Despite this condition, it 
+is possible that someone might find branches and pieces that, 
+with some coaxing, might be used for fire. 
+~
+29 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41161
+small lanky orc board GUTTAHS-GUTTAHZ-BOARD OTHER~
+a small, lanky orc~
+A small, lanky orc passes messages here.~
+~
+22 4104 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41200
+Crimson_Arms_Board short warg cloak figure OTHER~
+#5a short, warg-fur-cloaked figure#0~
+#5A short, warg-fur-cloaked figure lingers here, relaying messages.#0~
+~
+22 4104 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+C
+crimson_arms~
+member~
+#41162
+shield massive hard oak iron banded WOOD OLOG TROLL~
+a massive, hard-oak and iron-banded shield~
+A massive, hard-oak and iron-banded shield lies here.~
+   This massive shield is rather misshapped upon sight, and oddly 
+enough holds the figure of a door; with a flat bottom side and a 
+pair of curved lines protruding downward and tapering to meet at 
+the top with a broad point. The once-door, now-shield has been 
+turned upside down and fastened with swathes of corroding iron 
+links, some of the binding has been hastefully covered with thin 
+strips of animal fur in an attempt for added comfort. The shield 
+is created from thick slabs of hard oak, which are banded 
+together by broad slabs of iron, those held together by deeply 
+planted iron bolts. This shield, which of a rather odd make, 
+seems to bee a relatively effective transformation into a 
+serviceable piece of armor, though it would only do good for 
+somebody of gigantic proportion and strength. 
+~
+6 135168 8912897
+6 16 60 0
+1000 0.000000
+0 0 0 34 0 0 1
+400.000000 0 0 0 32 0 0
+#41995
+METAL BYOWAIN KEY Smashed_pick thick iron for41224~
+a thick iron key~
+a thick iron key has been left here~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#41163
+FIGHTBOARD charred fightmaster NONE~
+#5a charred orc#0~
+#5A charred orc#0 bearing #2a sheet of torn parchment#0 takes down fight results here.~
+~
+22 4104 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41220
+fumeprog token1 OTHER~
+fume expansion token level1~
+Fume expansion token level1 is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41221
+fumeprog token2 OTHER~
+fume expansion token level2~
+Fume expansion token level2 is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41222
+fumeprog token3 OTHER~
+fume expansion token level3~
+Fume expansion token level3 is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41223
+fumeprog token4 OTHER~
+fume expansion token level4~
+Fume expansion token level4 is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41224
+fumeprog token5 OTHER~
+fume expansion token level5~
+Fume expansion token level5 is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41164
+PATCH azog Armband AZOGS_FIST TEXTILE~
+a boar-hide patch displaying a fist~
+a boar-hide patch displaying a fist has been left here~
+   A circle of thick, orange pigskin has been cut out of a hide, 
+and branded with a clenched fist. Rawhide has been threaded 
+through riveted holes in each corner, allowing the patch to be 
+worn on the arm. 
+~
+11 4198400 134217729
+0 0 0 0
+100 0.000000
+0 0 0 0 512 0 1
+15.000000 0 0 0 0 0 0
+#41165
+sign OOC explains rules OTHER~
+#6an OOC sign#0~
+#6OOC: This sign explains the rules we expect players to abide.~
+   When using this communal forge area, players are expected to 
+roleplay out the scene. The objects here that are takeable are 
+logged and should not be moved. If you manage to pick one up by 
+mistake, please drop it and leave it for other players to use. 
+Abide these rules and nothing will come of it - though be warned, 
+this area is logged. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41166
+key xSawnCleaverx backroom squashed bent iron key flat prong three METAL~
+a squashed, bent iron key~
+A flat iron key with a bent prong rests on the ground here, glinting.~
+   This thin key has been forged from cruddy old iron and bent 
+into the shape of a functional key. Its matching lock appears to 
+open via three teeth on the very end of the key. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#41167
+skin hide scaly ghost-white lizard LEATHER~
+a scaly, ghost-white lizard skin~
+A ghost-white lizard skin lays here drawing insects.~
+   Ghost white the skin of this lizard is covered in scales and 
+with part of the tail still attached. It's skin is rough to the 
+touch and thick. 
+~
+38 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 10 134219776 0 1
+2.000000 0 0 0 14 0 0
+#41168
+orc laborers AZOG_ENGINEER BLACKREND_ENGINEER mob rag clad dust covered orcs orc STONE~
+#5a mob of rag-clad, dust-covered orcs#0~
+#5Moving through the area, working stone, is a mob of rag-clad, dust-covered orc laborers.#0~
+   This mob of twenty or so laborer orc's huddle together, giving 
+meaning to the phrase 'safety in numbers'. Most of them are 
+rag-clad, others bearing crudely formed armor. Each worker 
+wields a stone hammer, either in their left or right hand. A 
+strong odor wafts from each orc. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41169
+hauberk UNIQUE_ASH_CIRCLE crude iron engraved ashen ring METAL~
+a crude iron hauberk engraved with an ashen ring~
+A crude iron hauberk engraved with an ashen ring has been set here.~
+   This leather-backed hauberk fits over the chest and back, 
+strapping on the sides with thick buckles. Chunky iron plates, 
+roughly beaten into wide strips, have been riveted in place to 
+add protection, but the workmanship is quick. The plates rattle 
+when worn, scraping against each other and making a generally 
+irritating racket. Crudely etched into the center of this chest 
+piece of a circle design - and filling that design is a hard, 
+ashen paste. 
+~
+9 4096 9
+1 5 0 0
+1500 0.000000
+0 0 0 28 16384 0 1
+800.000000 0 0 0 28 0 0
+A
+10037 -20
+A
+10025 -25
+A
+10024 -25
+#41170
+armguards UNIQUE_ASH_CIRCLE articulate crude thick iron ashen METAL~
+a pair of articulate, thick, crude iron armguards~
+A crude pair of armguards fashioned from iron and leather are here.~
+   Simply leather plated with iron, these armguards have been 
+quickly assembled. The iron plates themselves are very chunky 
+and thick, but rusted out and bearing the signs of wear-and-tear 
+- large rents and dents marring their surfaces. Two large 
+pauldrons have been attached to either shoulder, and on their 
+surface is a simple, but crudely engraved ring. 
+~
+9 4608 257
+1 5 0 0
+1200 0.000000
+0 0 0 28 16384 0 1
+600.000000 0 0 0 28 0 0
+A
+10024 -15
+A
+10025 -5
+A
+10037 -10
+#41171
+leg-plates UNIQUE_ASH_CIRCLE articulate crude thick iron ashen METAL~
+a pair of articulate, thick, crude iron leg-plates~
+A crude pair of iron leg-plates have been set down here.~
+   Simply leather plated with iron, these leg-plates have been 
+quickly assembled. The iron plates themselves are very chunky 
+and thick, but rusted out and bearing the signs of wear-and-tear 
+- large rents and dents marring their surfaces. Buckles of all 
+sizes and leather straps of all colors strap around the thighs 
+and calves - providing comfort, stability and protection. 
+~
+9 4096 33
+1 5 0 0
+1000 0.000000
+0 0 0 28 0 0 1
+600.000000 0 0 0 0 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -10
+#41172
+gauntlets UNIQUE_ASH_CIRCLE strapped crude thick iron ashen METAL~
+a pair of thick, crude, iron-strapped gauntlets~
+A pair of iron-strapped gauntlets lay flat here.~
+   Beaten strips of iron run in narrow straps across this pair of 
+gauntlets, riveted to a backing of leather. Little care has been 
+taken to preserve the manual dexterity of the wearer, as the 
+metal runs mitten-like from the back of the hand to the tips of 
+the fingers, allowing a grasping motion but little else. They 
+strap securely at the wrists with buckles. 
+~
+9 4608 129
+1 5 0 0
+400 0.000000
+0 0 0 28 16384 0 1
+225.000000 0 0 0 28 0 0
+A
+10001 4
+A
+10017 -25
+A
+10016 -25
+#41173
+gorget UNIQUE_ASH_CIRCLE articulate crude thick fashioned iron ashen METAL~
+an articulate, thick, crudely-fashioned iron gorget~
+A crudely-fashioned gorget of leather and plate is here.~
+   Simply leather plated with iron, this gorget has been quickly 
+assembled. The iron plates themselves are very chunky and thick, 
+but rusted out and bearing the signs of wear-and-tear - large 
+rents and dents marring their surfaces. 
+~
+9 4096 5
+1 5 0 0
+300 0.000000
+0 0 0 28 16384 0 1
+350.000000 0 0 0 28 0 0
+A
+10024 -2
+A
+10037 -2
+A
+10025 -2
+#41174
+sabotons UNIQUE_ASH_CIRCLE articulate crude overlapped thick iron ashen METAL~
+a pair of sabotons overlapped by thick, crude iron plates~
+A pair of sabotons rest here, overlapped with iron plates.~
+   This pair of armored sabotons is meant to be worn on the feet, 
+a hastily fashioned series of overlapping iron plates allowing 
+movement. Set on them are a series of razor-like blades, 
+including one at the toe of each boot that tapers to a cruel 
+spike. The iron itself is crude and poorly conditioned - but 
+still reflects a dim glow in the light. 
+~
+9 4096 65
+1 5 0 0
+405 0.000000
+0 0 0 28 16384 0 1
+225.000000 0 0 0 28 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -10
+#41175
+full-helm UNIQUE_ASH_CIRCLE blade crowned iron METAL~
+a crude, blade-crowned iron full-helm~
+Set on the ground here is a blade-crowned full-helm.~
+   Shape much similar to that of a bucket - this iron full helm 
+covers the entire face, enshrouding its wearer in total darkness 
+- concealing their face from outsiders view. Several large 
+rivets have been inserted to pivot a jaw-piece. The very top of 
+the helm is adorned by three individual blades - these blades 
+coming from the hairline all the way back down to the base of the 
+neck. This helmet overall appears sturdy and usable, but its 
+cruel features portray an imposing presence. 
+~
+9 528384 17
+1 5 0 0
+540 0.000000
+0 
+blade-crowned~
+0 28 16384 0 1
+750.000000 0 0 0 28 0 0
+A
+10025 -10
+A
+10024 -10
+A
+10032 -10
+A
+10028 -10
+#41176
+shield UNIQUE_BLACKREND bearing black hand square WOODEN~
+a square wooden shield bearing a black hand~
+A square wooden shield bearing a black hand has been left here.~
+   Made from splintered planks of weed, this square shield 
+supports itself by several riveted iron strips which run across 
+its forward facing surface. A back strap has also been fixed for 
+the wearer to attach to their forearm. Centered in the middle of 
+the shield's front, a crude black hand has been painted on - 
+fingers curling into a sharp claws. 
+~
+6 4608 9175041
+5 12 35 0
+600 0.000000
+0 0 0 28 16384 0 1
+0.000000 0 0 0 32 0 0
+#41177
+gorget UNIQUE_BLACKREND hide bulky marked white streak LEATHER~
+a bulky hide gorget marked with a white streak~
+A bulky hide gorget marked with a white streak has been left here.~
+   Bulky at the base, this stiff leather gorget supports itself 
+up by its staleness. The edges are crusty and worn, bearing the 
+marks of past abuse. The leather itself has been died black and 
+marked with one white steak. 
+~
+9 4096 5
+2 1 0 0
+270 0.000000
+0 0 0 28 16384 0 1
+0.000000 0 0 0 14 0 0
+#41178
+gorget UNIQUE_BLACKREND ringmail hide wrapped bearing two white streaks LEATHER~
+a hide-wrapped ringmail gorget bearing two white streaks~
+A hide-wrapped ringmail gorget bearing two white streaks has been left here.~
+   Simply rings sewn to hide, this ringmail gorget holds itself 
+up with a natural stiffness. The edges are worn and crusty, 
+bearing the marks of past abuse. Hide has been wrapped around 
+the outside of the ringmail, died black and marked with two white 
+streaks. 
+~
+9 4096 5
+2 2 0 0
+430 0.000000
+0 0 0 29 16384 0 1
+0.000000 0 0 0 14 0 0
+#41179
+gorget UNIQUE_BLACKREND chainmail gorget hide wrapped bearing three white streaks METAL~
+a hide-wrapped chainmail gorget bearing three white streaks~
+A hide-wrapped chainmail gorget bearing three white streaks has been left here.~
+   Small links of chainmail have been formed together to create 
+this gorget. The rings themselves are dusky and dull, some 
+missing, torn from their links and draping loosely. The collar 
+has then been wrapped around the outside with hide, died black 
+and marked with three white streaks. 
+~
+9 4096 5
+1 4 0 0
+650 0.000000
+0 0 0 28 16384 0 1
+0.000000 0 0 0 28 0 0
+#41180
+OTHER Construction Site Scaffold Ringed XXFORTXX~
+a scaffold-ringed construction site~
+At the start of the bridge, is a scaffold-ringed construction site.~
+   With a great pile of stone blocks beside it, this construction 
+site is definatly orkish in orgin. Crudely assembled scaffolding 
+allows the construction of walls to almost limitless height, 
+while an assortment of pulleys and small cranes allow the haulage 
+of materials. Dust hangs in a choking cloud around the site, and 
+the incessent banging of stone hammers fills the air. 
+~
+12 4096 0
+50 0 0 0
+90000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41181
+OTHER fort stone orkish xxFORTxx~
+a squat, spike-covered fort~
+Blocking the end of the bridge is a squat, spike-covered fort.~
+   Made from a heavy, dark stone, this squat fort blocks the 
+western end of the bridge. It is perhaps twenty feet high at 
+it's tallest point, the walls seemingly thick and well built. 
+Orkish in design, the builders have spared no thought for 
+asthetics, and it is dark and ugly, the stone roughly cut and 
+left with abrasive, jagged surfaces. A thick gate wrought of 
+rusty iron bars the way off the bridge, and as it is built right 
+to the edge of the chasm, makes it impossible for one to try and 
+walk around. The gate opens outwards and upwards, rising until 
+it lays flat, drawn up by thick chains when attatched. 
+~
+12 4096 0
+0 0 0 0
+99900 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41182
+orcfort program work done token OTHER~
+An invisible work-done token is here.~
+Some careless admin has left a generic object here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 96 86 0 0 0 0
+#41183
+TEXTILE blackrend patch armband xxBLACKRENDxx ~
+a leather armband displaying a black hand~
+a leather armband displaying a black hand has been left here~
+   Made from a thick strip of leather, this belt-sized piece of 
+leather is desgined to be worn around the bicep, and fastened 
+with rawhide loops. Displayed proudly on it, is a crudely dyed 
+black hand. 
+~
+47 4096 134217729
+2 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+30.000000 0 0 0 0 0 0
+#41184
+METAL xFESTERINGWOUNDx Blocky Iron Key~
+a blocky, iron key~
+A blocky, iron key has been left here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41185
+maille chainmail rings YRCH_ARMORER METAL iron  dark~
+a handful of yrch maille rings~
+A smattering of dark iron maille rings has been dropped here.~
+   This small pile of maille rings is evidently of yrch origin, 
+each of the small pieces of metal made of thick, rough iron, 
+turned into a circle yet to be closed. The base for chainmail, 
+many thousands of the single rings are knitted together to form 
+armor. 
+~
+12 4198400 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.300000 0 0 0 17 0 0
+#41186
+axe steel UNIQUE gem capped spike byKodiak METAL~
+an exquisite, gem-inlaid steel axe~
+An exquisite, gem-inlaid steel axe lies here.~
+   Thick leather cords are intertwined about the realtively stout 
+lumber handle of this weapon, each knot and twist adding into a 
+magnificent culmination of flowing design cast in grays, blacks, 
+and deep reds. Set upon the bottom of the shaft and acting as a 
+cap is an eight-edged metal spike, carved at the top with 
+finely-engraved markings before tapering down into a vicious 
+point. Its head is inlaid upon the sides with gems of deep blues 
+and greens, each chiseled expertly in between lines of single 
+sigils, its long edge arc'd in a shining steel half-crescent, a 
+curved spike cropping of behind its back. 
+~
+5 4104 8193
+2 1 9 3
+300 0.000000
+2 0 0 40 1052688 0 1
+3000.000000 0 0 0 0 0 0
+S
+100003
+#41187
+swathe deep slimy pools vivid algae muuck slime water bog OTHER~
+a swathe of deep, slimy black pools~
+A swathe of deep, slimy black pools settle here, carpeted by vivid algae.~
+   Yawning into the misty distance, these evil pools of muck
+bubble and gurgle with unseen current, eager to claim the life of
+the unwary that dare traverse them.
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41188
+weighty length albino crocodile croc skin LEATHER~
+a weighty length of albino crocodile skin~
+A bulky length of albino crocodile skin lies here.~
+   This is a long, wide strip of tough, scaled albino skin of
+a large cave crocodile. The scaled side is tough and dry, but
+pliant. The underside is slick and wet with fat and ichor.
+This trophy is quite heavy.
+~
+13 536875008 1
+0 0 0 0
+2000 0.000000
+0 0 0 0 2304 0 1
+20.000000 0 0 0 0 0 0
+#41189
+carcass croc crocodile albino raw MEAT~
+the raw carcass of an albino crocodile~
+The raw carcass of an albino crocodile lies here.~
+   This great bulk is the raw carcass of an albino cave crocodile,
+ready to be chopped and cooked, or eaten raw if the diner can
+stomach it.
+~
+19 4096 1
+40 0 0 0
+8000 0.000000
+0 10 0 30 167773280 0 1
+28.250000 600 86 0 0 0 0
+#41451
+carcass boar raw pork MEAT~
+a giant boar's raw carcass~
+A giant boar's raw carcass is here, drawing flies.~
+   This is the raw carcass of a giant cave boar, ready to be cooked
+or eaten.
+~
+19 4096 1
+20 0 0 0
+10000 0.000000
+0 4 0 30 167773280 0 1
+28.250000 600 86 0 0 0 0
+#41999
+key lumpy iron METAL~
+a lumpy, iron key~
+A lumpy, iron key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41998
+sign OOC wooden large WOOD~
+a large, #6wooden sign#0~
+#6An OOC sign floats here, beckoning you.#0~
+#3OOC:You can use this room to convert certain items into other objects needed for crafting. Please do not abuse it.
+#6Make bronze-buckles
+Make bronze-buttons
+Trade wings
+Make thread
+Squeeze oil
+Gather urine#0
+#3Type the keywords above to see what materials you need to create the finished products.#0
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41997
+mask face warpainted OTHER~
+a mask made of warpaint~
+A mask of facepaint, made from mushrooms.~
+~
+11 528384 67108864
+0 0 0 0
+1 0.000000
+0 
+~
+0 0 0 0 1
+0.000000 24 0 0 0 0 0
+#41996
+heavy iron key METAL~
+a heavy iron key~
+A heavy iron key lies here on the ground.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41994
+thin iron key METAL~
+a thin iron key~
+A thin iron key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41993
+arena prog token OTHER~
+an arena prog token~
+An arena prog token~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41992
+Arena token allowing up/down OTHER~
+Arena movement token~
+Arena movement token~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41991
+lever WOOD~
+a lever protruding from the wall~
+A lever protrudes from the wall near the northern doorway.~
+A large wooden lever protrudes from a slot in the wall near the northern doorway.
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41990
+large tiered stairs OTHER~
+a large set of tiered stairs~
+A large set of tiered stairs leads up to the stands.~
+   These stone stairs have been cleverly designed to extend and 
+retract from the wall of the pit. When extended they allow 
+spectators to sit and watch the fighting from up close. 
+~
+15 2101248 0
+50000 0 -1 0
+300 0.000000
+0 20 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41989
+moriagladiatorbulletinboard maimed legless orc OTHER~
+#5a maimed, legless orc#0~
+#5A maimed, legless orc#0 sits propped up in the corner.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41190
+hauberk UNIQUE_ASH_CIRCLE crude iron engraved ashen ring olog METAL~
+a crude iron hauberk engraved with an ashen ring~
+A crude iron hauberk engraved with an ashen ring has been set here.~
+   This leather-backed hauberk fits over the chest and back, 
+strapping on the sides with thick buckles. Chunky iron plates, 
+roughly beaten into wide strips, have been riveted in place to 
+add protection, but the workmanship is quick. The plates rattle 
+when worn, scraping against each other and making a generally 
+irritating racket. Crudely etched into the center of this chest 
+piece of a circle design - and filling that design is a hard, 
+ashen paste. 
+~
+9 4096 9
+2 5 0 0
+1500 0.000000
+0 0 0 28 16384 0 1
+800.000000 0 0 0 28 0 0
+A
+10037 -20
+A
+10025 -25
+A
+10024 -25
+#41191
+armguards UNIQUE_ASH_CIRCLE articulate crude thick iron ashen olog METAL~
+a pair of articulate, thick, crude iron armguards~
+A crude pair of armguards fashioned from iron and leather are here.~
+   Simply leather plated with iron, these armguards have been 
+quickly assembled. The iron plates themselves are very chunky 
+and thick, but rusted out and bearing the signs of wear-and-tear 
+- large rents and dents marring their surfaces. Two large 
+pauldrons have been attached to either shoulder, and on their 
+surface is a simple, but crudely engraved ring. 
+~
+9 4608 257
+0 5 0 0
+1200 0.000000
+0 0 0 28 16384 0 1
+600.000000 0 0 0 28 0 0
+A
+10024 -15
+A
+10025 -5
+A
+10037 -10
+#41192
+leg-plates UNIQUE_ASH_CIRCLE articulate crude thick iron ashen olog METAL~
+a pair of articulate, thick, crude iron leg-plates~
+A crude pair of iron leg-plates have been set down here.~
+   Simply leather plated with iron, these leg-plates have been 
+quickly assembled. The iron plates themselves are very chunky 
+and thick, but rusted out and bearing the signs of wear-and-tear 
+- large rents and dents marring their surfaces. Buckles of all 
+sizes and leather straps of all colors strap around the thighs 
+and calves - providing comfort, stability and protection. 
+~
+9 4096 33
+0 5 0 0
+1000 0.000000
+0 0 0 28 0 0 1
+600.000000 0 0 0 0 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -10
+#41193
+gauntlets UNIQUE_ASH_CIRCLE strapped crude thick iron ashen olog METAL~
+a pair of thick, crude, iron-strapped gauntlets~
+A pair of iron-strapped gauntlets lay flat here.~
+   Beaten strips of iron run in narrow straps across this pair of 
+gauntlets, riveted to a backing of leather. Little care has been 
+taken to preserve the manual dexterity of the wearer, as the 
+metal runs mitten-like from the back of the hand to the tips of 
+the fingers, allowing a grasping motion but little else. They 
+strap securely at the wrists with buckles. 
+~
+9 4608 129
+0 5 0 0
+400 0.000000
+0 0 0 28 16384 0 1
+225.000000 0 0 0 28 0 0
+A
+10001 4
+A
+10017 -25
+A
+10016 -25
+#41194
+gorget UNIQUE_ASH_CIRCLE articulate crude thick fashioned iron ashen olog METAL~
+an articulate, thick, crudely-fashioned iron gorget~
+A crudely-fashioned gorget of leather and plate is here.~
+   Simply leather plated with iron, this gorget has been quickly 
+assembled. The iron plates themselves are very chunky and thick, 
+but rusted out and bearing the signs of wear-and-tear - large 
+rents and dents marring their surfaces. 
+~
+9 4096 5
+0 5 0 0
+300 0.000000
+0 0 0 28 16384 0 1
+350.000000 0 0 0 28 0 0
+A
+10025 -2
+A
+10024 -2
+A
+10037 -2
+#41195
+sabotons UNIQUE_ASH_CIRCLE articulate crude overlapped thick iron ashen olog METAL~
+a pair of sabotons overlapped by thick, crude iron plates~
+A pair of sabotons rest here, overlapped with iron plates.~
+   This pair of armored sabotons is meant to be worn on the feet, 
+a hastily fashioned series of overlapping iron plates allowing 
+movement. Set on them are a series of razor-like blades, 
+including one at the toe of each boot that tapers to a cruel 
+spike. The iron itself is crude and poorly conditioned - but 
+still reflects a dim glow in the light. 
+~
+9 4096 65
+0 5 0 0
+450 0.000000
+0 0 0 28 16384 0 1
+225.000000 0 0 0 28 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -10
+#41988
+heavy iron key METAL~
+a heavy iron key~
+A heavy iron key lies here.~
+This small key is thick and heavy. It is made from wrought iron,
+and has been very crudely shaped.
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#41400
+coin moria_currency small tarnished tin Kroon METAL~
+1 Orkish Kroon~
+A small, tarnished tin coin rests here.~
+~
+20 4198400 0
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 20 0 0
+#45157
+key ribbon thin iron METAL CAO_CLOTHING_SHOP~
+a thin iron key tied with a ribbon~
+A thin iron key tied with a ribbon has been forgotten here.~
+~
+18 4096 1
+0 0 0 45157
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

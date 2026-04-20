@@ -1,0 +1,1142 @@
+#91000
+Craft Zone/Battle Playground~
+   This zone has been created for crafting items, and is 
+therefore completely empty of rooms. As such, it will also be a 
+battle playground for any administration who feels the need to 
+run practice RPTs. Since it is free of rooms that players can 
+get to in its entirety, it can be used for test battles, 
+practicing zone echoes, practicing animating PCs... anything 
+that should be needed. 
+~
+91 65544 0
+0
+S
+#91001
+Northwest Corner - Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D1
+~
+~
+0 -1  0 91002
+D2
+~
+~
+0 -1  0 91007
+S
+#91002
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D1
+~
+~
+0 -1  0 91003
+D2
+~
+~
+0 -1  0 91008
+D3
+~
+~
+0 -1  0 91001
+S
+#91003
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D1
+~
+~
+0 -1  0 91004
+D2
+~
+~
+0 -1  0 91009
+D3
+~
+~
+0 -1  0 91002
+S
+#91004
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D1
+~
+~
+0 -1  0 91005
+D2
+~
+~
+0 -1  0 91010
+D3
+~
+~
+0 -1  0 91003
+S
+#91005
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D1
+~
+~
+0 -1  0 91006
+D2
+~
+~
+0 -1  0 91011
+D3
+~
+~
+0 -1  0 91004
+S
+#91006
+Northeast Corner - Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D2
+~
+~
+0 -1  0 91012
+D3
+~
+~
+0 -1  0 91005
+S
+#91007
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91001
+D1
+~
+~
+0 -1  0 91008
+D2
+~
+~
+0 -1  0 91013
+S
+#91008
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 67174408 11
+0
+D0
+~
+~
+0 -1  0 91002
+D1
+~
+~
+0 -1  0 91009
+D2
+~
+~
+0 -1  0 91014
+D3
+~
+~
+0 -1  0 91007
+S
+#91009
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 67174408 11
+0
+D0
+~
+~
+0 -1  0 91003
+D1
+~
+~
+0 -1  0 91010
+D2
+~
+~
+0 -1  0 91015
+D3
+~
+~
+0 -1  0 91008
+S
+#91010
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91004
+D1
+~
+~
+0 -1  0 91011
+D2
+~
+~
+0 -1  0 91016
+D3
+~
+~
+0 -1  0 91009
+S
+#91011
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91005
+D1
+~
+~
+0 -1  0 91012
+D2
+~
+~
+0 -1  0 91017
+D3
+~
+~
+0 -1  0 91010
+S
+#91012
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91006
+D2
+~
+~
+0 -1  0 91018
+D3
+~
+~
+0 -1  0 91011
+S
+#91013
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91007
+D1
+~
+~
+0 -1  0 91014
+D2
+~
+~
+0 -1  0 91019
+S
+#91014
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91008
+D1
+~
+~
+0 -1  0 91015
+D2
+~
+~
+0 -1  0 91020
+D3
+~
+~
+0 -1  0 91013
+S
+#91015
+Northwest Center - Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91009
+D1
+~
+~
+0 -1  0 91016
+D2
+~
+~
+0 -1  0 91021
+D3
+~
+~
+0 -1  0 91014
+S
+#91016
+Northeast Center - Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91010
+D1
+~
+~
+0 -1  0 91017
+D2
+~
+~
+0 -1  0 91022
+D3
+~
+~
+0 -1  0 91015
+S
+#91017
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91011
+D1
+~
+~
+0 -1  0 91018
+D2
+~
+~
+0 -1  0 91023
+D3
+~
+~
+0 -1  0 91016
+S
+#91018
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91012
+D2
+~
+~
+0 -1  0 91024
+D3
+~
+~
+0 -1  0 91017
+S
+#91019
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91013
+D1
+~
+~
+0 -1  0 91020
+D2
+~
+~
+0 -1  0 91025
+S
+#91020
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91014
+D1
+~
+~
+0 -1  0 91021
+D2
+~
+~
+0 -1  0 91026
+D3
+~
+~
+0 -1  0 91019
+S
+#91021
+Southwest Center - Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91015
+D1
+~
+~
+0 -1  0 91022
+D2
+~
+~
+0 -1  0 91027
+D3
+~
+~
+0 -1  0 91020
+S
+#91022
+Southeast Center - Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91016
+D1
+~
+~
+0 -1  0 91023
+D2
+~
+~
+0 -1  0 91028
+D3
+~
+~
+0 -1  0 91021
+S
+#91023
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91017
+D1
+~
+~
+0 -1  0 91024
+D2
+~
+~
+0 -1  0 91029
+D3
+~
+~
+0 -1  0 91022
+S
+#91024
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91018
+D2
+~
+~
+0 -1  0 91030
+D3
+~
+~
+0 -1  0 91023
+S
+#91025
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91019
+D1
+~
+~
+0 -1  0 91026
+D2
+~
+~
+0 -1  0 91031
+S
+#91026
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91020
+D1
+~
+~
+0 -1  0 91027
+D2
+~
+~
+0 -1  0 91032
+D3
+~
+~
+0 -1  0 91025
+S
+#91027
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91021
+D1
+~
+~
+0 -1  0 91028
+D2
+~
+~
+0 -1  0 91033
+D3
+~
+~
+0 -1  0 91026
+S
+#91028
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91022
+D1
+~
+~
+0 -1  0 91029
+D2
+~
+~
+0 -1  0 91034
+D3
+~
+~
+0 -1  0 91027
+S
+#91029
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91023
+D1
+~
+~
+0 -1  0 91030
+D2
+~
+~
+0 -1  0 91035
+D3
+~
+~
+0 -1  0 91028
+S
+#91030
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91024
+D2
+~
+~
+0 -1  0 91036
+D3
+~
+~
+0 -1  0 91029
+S
+#91031
+Southwest Corner - Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91025
+D1
+~
+~
+0 -1  0 91032
+S
+#91032
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91026
+D1
+~
+~
+0 -1  0 91033
+D3
+~
+~
+0 -1  0 91031
+S
+#91033
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91027
+D1
+~
+~
+0 -1  0 91034
+D3
+~
+~
+0 -1  0 91032
+S
+#91034
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91028
+D1
+~
+~
+0 -1  0 91035
+D3
+~
+~
+0 -1  0 91033
+S
+#91035
+Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91029
+D1
+~
+~
+0 -1  0 91036
+D3
+~
+~
+0 -1  0 91034
+S
+#91036
+Southeast Corner - Battle Zone~
+Helpful commands:
+map - probably most important
+switch
+as
+weather set
+zecho <zonenumber> goes to the whole zone
+pecho <pcname> goes to one PC
+echo (goes to room)
+hit <pcname>
+kill <pcname>
+kill <pcname> !
+at <playername> blah
+~
+91 65536 0
+0
+D0
+~
+~
+0 -1  0 91030
+D3
+~
+~
+0 -1  0 91035
+S
+$~

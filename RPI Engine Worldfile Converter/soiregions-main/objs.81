@@ -1,0 +1,973 @@
+#81000
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+23 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81001
+River Harnen water fountain LIQUID~
+#4The Harnen River#8~
+#4The Harnen River flows briskly on its long journey to the sea.#8~
+   The Harnen briskly flows downstream. The river is wide and 
+swift. It meanders along from its long journey from the eastern 
+mountains to the sea in the far west. The water is cool and 
+pleasant to the touch. There are always water fowl out on the 
+water, and occasionally, fish can be seen flopping up and down. 
+Heavy foilage on each bank comes down directly to the water's 
+edge. 
+~
+23 4096 0
+-1 -1 4 0
+20000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81005
+key Fahad Jafari iron heavy METAL~
+a heavy, iron key~
+A heavy, iron key, with a long barrel is set here.~
+   This heavy key is made of sturdy iron. Scores and scars mar 
+its long barrel. Three large teeth jut out in uneven lengths. 
+~
+18 0 1
+0 0 0 0
+100 0.000000
+0 0 0 38 0 0 1
+35.000000 0 0 0 17 0 0
+#81002
+water pool fresh small seeps ground LIQUID~
+#4a small pool of fresh water~
+#4A small pool of fresh water muddies the ground~
+   A small pool of fresh water seeps to the surface from an 
+unknown underground source. 
+~
+23 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81003
+brook water narrow shallow brook LIQUID~
+#4a shallow brook#8~
+#4A narrow, fresh water brook babbles rapidly along.#8~
+   A narrow stream of clean, transparent, cool water babbles over 
+rocks worn by its passage over time. The brook is a thriving 
+source of life in the area, as can be evidenced by heavy layer of 
+mosses and grasses surrounding the quieter parts of the stream, 
+and by the small fish and insects visible wherever there is an 
+accumulation of still water. 
+~
+23 0 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81004
+pool large desert pool -Oasis-Haradwaith water LIQUID~
+#4a large pool of crystal clear water~
+#4A large pool of crystal clear water reflects the desert sky like a polished mirror.~
+   Crystal clear water, fed by unseen springs, reflects all in 
+its vision like a high, polished mirror of silver. Spanning over 
+an acre in size this pool runs deep and cool. Its sweet smell 
+wafts on the soft desert winds and refreshing the dry, searing 
+air of the vast sea of sand. It offers a haven of life in a 
+harsh desert bowl. 
+~
+23 0 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81006
+ferry approaching dock object OTHER~
+a large ferry~
+#2A large ferry is moored here.~
+   With a long sycamore planked deck, tarred and set securely a 
+top a dual hulled barge made of the same wood this ferry is large 
+enough to carry a caravan across the river. Its keel is flat and 
+as wide as the planked deck above. It glides across the water 
+almost effortlessly by two oarsmen, bearing long overlapped oars 
+on either side of the deck stroking the water with smooth 
+simultaneous rhythm. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81007
+sign OOC sign for Harnen Ferry  OTHER~
+#6an OOC sign#0~
+#6An OOC sign has been mounted to the dock here.~
+   The ferry leaves once every IC hour, per shore. You will need 
+fifty (50) tams, one hundred fifty (150) engren, or two hundred 
+(200) copper for you and your party to ride. Once the ferry 
+arrives, you only need to move in the direction (north or south) 
+and the coin will be withdrawn from your containers 
+automatically. 
+   
+   If you don't see the ferry present, simply wait for its 
+arrival in the next 15-20 minutes. 
+
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81008
+sign OOC HARNEN FERRY OTHER~
+#6An OOC sign has been mounted to rail here.~
+#6An OOC sign has been mounted to rail here.~
+   To travel #1north#8 the command is #1cast off#8. 
+
+
+   To travel #1south#8 the command is #1make way#8 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81009
+wagon broken wood rotting wilderness-prop qShadow WOOD~
+a broken and rotting wooden wagon~
+A wooden wagon, lays here broken and rotting in the soft loam.~
+   Once useful and plying the roads on its tasks, this wagon now 
+lays broken and rotting in the soft loam. The long bed lays flat 
+on the ground, weeds and tall grasses poke up from its underside. 
+The moss covered axels stick out at odd angles and the wheels lay 
+splintered and cracked. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 39 0 0 1
+0.000000 0 0 0 32 0 0
+#81010
+fence splintered moss rotting wood broken wilderness-prop qshadow WOOD~
+a broken and rotting stretch of fence~
+A splintered, moss covered, broken piece of fence lays half buried in the soft loam.~
+   Choked by viney weeds and tall grasses, this once useful fence 
+now lays rotting and broken by the side of the road. Thin rails 
+of wood lay shattered and splintered by weather and roadway 
+traffice. Rotted in spots the wood is grey and soft now, its 
+once sturdy pickets rendered worthless by time and man. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 39 0 0 1
+0.000000 0 0 0 32 0 0
+#81011
+farm house burned cinders ruins wilderness-prop qShadow WOOD~
+a burned out farm house~
+The ruins of a burned out farm house, scars the field.~
+   Nothing more than a pile of charred wood, this once proud farm 
+house lays destroyed. Weed choked and rotting, the huge wood 
+beams are black and splintering. An odd angled scorched half 
+threshold, still stands amid the rubble. Cinders and ash have 
+long since been carried away on the wind and any wood unscorched 
+wood salvaged by man over time. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 39 0 0 1
+0.000000 0 0 0 32 0 0
+#81012
+well broken stone moss covered wilderness-prop qshadow OTHER~
+a crumbling stone well~
+A dry well, its stone crumbling in on itself marks the land.~
+   Ravaged over time and neglect, this well is now dry and filled 
+with soil. Weeds and grasses fill its once shallow shaft. Its 
+smooth stones lay scattered around the crumbling base, moss 
+covered and forgotten. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 39 0 0 1
+0.000000 0 0 0 30 0 0
+#81013
+tree trunk grey decaying broken wilderness-prop qShadow WOOD~
+a decaying tree trunk~
+A broken tree trunk sprawls across the ground.~
+   Decayed beyong recognition this broken tree, is hollowed out 
+via time and insects. The hard wood is now soft and grey. Its 
+moss covered wood lies half buried in the soft loam. Its stump 
+long since covered by wind carried soil, weeds and grasses. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 32 0 0
+#81014
+wheel broken splintered shattered wood wagon cart wilderness-prop qshadow WOOD~
+a shattered wagon wheel~
+A shattered, moss covered wagon wheel lays here.~
+Shattered beyond use, this wagon wheel is covered in an assortment
+of mosses, and surrounded with splinters of wood shed from its
+own main frame. It is rotted and worthless, having lost all of
+whatever structural strength it once had.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 39 0 0 1
+0.000000 0 0 0 32 0 0
+#81015
+bones pile skull sun bleached horn bovine wilderness-prop qshadow OTHER~
+a half buried broken animal skull~
+A half buried skull marks the land.~
+   Bovine in appearance this skull is sun bleached. A long horn 
+juts out to the side of it's dome shaped skull. The snout pokes 
+downward into the earth. One huge circle of an eye socket keeps 
+silent watch across the plains, its twin burrowed the rich soil 
+in quiet rest. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 39 0 0 1
+0.000000 0 0 0 0 0 0
+#81016
+bones pile sun bleached wilderness-prop qShadow OTHER~
+a sun bleached pile of bones~
+A sun bleached pile of bones, lay half buried here.~
+   A pile of sun bleached bones lies here half buried in the soft 
+loam. Easily discernable as not human it is impossible to detect 
+the species. Too large and heavy to be a man the bones are 
+picked clean by predators and insects and long since forgotten. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 38 0 0 1
+0.000000 0 0 0 0 0 0
+#81017
+boulder moss covered stone big wilderness-prop qshadow OTHER~
+a moss covered boulder~
+A huge, moss-covered boulder lies in a shallow depression here.~
+   A huge, light-colored boulder lies here in a shallow 
+depression. Covered with moss and taller than the grasses that 
+surround it, its surface is smooth and but with deep scars and 
+chips marring it. It's rectangular shape is large enough to 
+block the winds and offer shelter from the weather. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 39 0 0 1
+0.000000 0 0 0 30 0 0
+#81018
+key heavy iron gaurd-shack-fahad-jafari METAL~
+a heavy iron key~
+A heavy iron key is tossed aside here.~
+   This key is made of heavy, iron. It is scarred and shows 
+heavy scratches along its barrel. Two large teeth show wear and 
+the eye is scored and worn. 
+~
+18 0 1
+0 0 0 0
+100 0.000000
+0 0 0 34 0 0 1
+35.000000 0 0 0 17 0 0
+#81020
+key black iron heavy poros bridge gate METAL~
+a thick, black iron key~
+A thick, black iron key is placed here.~
+   This is a heavy and thick black iron key. It is scared and 
+scored. 
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 35 0 0 1
+35.000000 0 0 0 17 0 0
+#81019
+hide pelt raw golden lion tawny mane LEATHER~
+a raw, golden lion pelt~
+A raw, golden lion pelt lies in a heap.~
+   This thick pelt appears to have been stripped from a desert 
+lion, the fur from the paws and most of the head is no longer 
+attached. The thick, black mane along the neck and head suggests 
+this was taken from a male lion. It is uncured and ready for 
+tanning. 
+~
+38 4096 1
+0 0 0 0
+800 0.000000
+0 0 0 0 0 0 1
+100.000000 0 0 0 14 0 0
+#81021
+staff shepherd wooden smooth mahogany WOOD~
+a long, smooth, mahogany staff~
+A long, smooth, mahogany staff is set here.~
+   Though it is only an inch or so in diameter, this long 
+mahogany staff is smooth and easy to grip. Each end is decorated 
+with small spiral carvings, which add some ornamentation to an 
+otherwise simple weapon. The staff is about six feet long, and 
+must be wielded two-handed. 
+~
+5 0 8193
+0 1 9 11
+200 0.000000
+3 0 0 35 0 0 1
+50.000000 0 0 0 32 0 0
+#81022
+token ceramic round painted $finecolor mumak CERAMIC~
+a large $finecolor ceramic token~
+Etched with a mumak, a $finecolor token is set here.~
+This large ceramic coin is about the size of a fig. An idealized carving
+of a mumak is on one side and an etching of a barge on the obtuse. It is
+cool to the touch and glazed a $finecolor. It is good for one passage
+in either direction across the Harnen by ferry.
+~
+39 0 1
+0 0 0 0
+100 0.000000
+0 0 0 39 0 0 1
+50.000000 0 0 0 0 0 0
+#81023
+key long ivory shepherd shack pSayid OTHER~
+a long ivory key~
+A long ivory key is set here.~
+   This key is made of ivory. It is aged, smooth and long. 
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 35 0 0 1
+35.000000 0 0 0 31 0 0
+#81024
+key shepherd shack pLuath ivory carved OTHER~
+a smooth ivory key~
+A smooth, ivory key rests here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 35 0 0 1
+35.000000 0 0 0 31 0 0
+#81025
+key ivory long slender carved OTHER~
+a long slender carved ivory key~
+A long, slender carved ivory key is here.~
+A long, slender carved ivory key.
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 39 0 0 1
+35.000000 0 0 0 0 0 0
+#81026
+key FJ_mining_company ravine METAL~
+a solid bronze key, marked with a pickaxe~
+A solid key, made of bronze and bearing a pickaxe mark, has been forgotten on the ground.~
+   Made of solid bronze, this key has been engraved with a 
+pickaxe. By its sheer size and weight, it must operate an 
+impressive lock. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#81027
+key ivory short carved OTHER~
+a heavily carved ivory key with a short barrel~
+A heavily carved ivory key with a short barrel is here.~
+This key has a short barrel and is heavily carved.
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+35.000000 0 0 0 0 0 0
+#81028
+key thick iron ISTARI'S STORAGE ROOM METAL~
+a thick iron key~
+A thick iron key is tossed here.~
+This key is made of iron and shows some rust.
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 36 0 0 1
+35.000000 0 0 0 0 0 0
+#81029
+table wood oak old WOOD~
+a old wooden table~
+a very old wooden table~
+This is a very old wooden table, scarred and beaten.
+~
+15 2101248 1
+100 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81030
+deed Kramatian hores War Horse Harad_Only OTHER~
+a hardy Kramatian War Horse~
+The deed to a hardy Kramatian War Horse~
+~
+61 0 1
+81012 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+2000.000000 0 0 0 0 0 0
+#81031
+key large iron Gyasi Trading Company METAL~
+a large iron key~
+A large iron key is tossed here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 36 0 0 1
+35.000000 0 0 0 0 0 0
+#81032
+key north cabin Gyasi trading post scarab handle ivory OTHER~
+a ivory key with a scarab carved handle~
+An ivory key with a scarab carved handle is tossed here~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 30 0 0 1
+30.000000 720 86 0 0 0 0
+#81033
+key south cabin Gyasi trading post scorpion handle ivory OTHER~
+an ivory key with a scorpion handle~
+An ivory key with a scorpion carved handle is tossed here~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 35 0 0 1
+30.000000 720 86 0 0 0 0
+#81034
+key east cabin Gyasi trading post lion handle ivory OTHER~
+an ivory key with a lion carved handle~
+An ivory key with a lion carved handle is tossed here~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 35 0 0 1
+30.000000 720 86 0 0 0 0
+#81035
+gyasi cabin rental timer scarab OTHER~
+a rental time keeper~
+A rental time keeper is keeping track of month's rent~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 86 0 0 0 0
+#81036
+gyasi cabin rental timer scorpion OTHER~
+a rental time keeper~
+A rental time keeper is keeping track of month's rent~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 86 0 0 0 0
+#81037
+gyasi cabin rental timer lion OTHER~
+a rental time keeper~
+A rental time keeper is keeping track of month's rent~
+~
+12 4 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 86 0 0 0 0
+#81038
+sign OOC Gyasi Cabin Rentals OTHER~
+#6an OOC Rental Sign#8~
+#6An OOC Rental Sign Hangs Here#8~
+   #6The Gyasi's have three cabins for rent at 30 tam each. The 
+Scarab, The Scorpion or The Lion. 
+
+To rent a cabin, simply type: 
+
+rent lion or rent scorpion or rent scarab 
+
+If the room is available then list the barkeep and buy the key. 
+The key will disappear after 30 IC days. You can just rent the 
+cabin. again and your belongings will still be there. #8 
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81039
+mirror full length cheval oval silver -Harad-Version METAL~
+a silver, full-length oval mirror~
+A full-length oval mirror stands here, its surface polished smooth.~
+   Fine silver work runs the length of this oval mirror, 
+depicting curls and twists with the occasional serpent, and a 
+scimitar at the top. The mirror's surface is fine and perfectly 
+reflective, without distortion or blemish. 
+~
+12 0 1
+0 0 0 0
+500 0.000000
+0 0 0 39 12288 0 1
+800.000000 0 0 0 28 0 0
+#81040
+scimitar GOOD_QUALITY long broad-bladed gleaming white blade METAL~
+a long, broad-bladed scimitar with a gleaming white blade~
+A long, broad-bladed scimitar has been left here, its blade gleaming in the light.~
+   This long scimitar has a rather broad blade, the metal curved 
+into a half-moon shape and made from a gleaming, heavily-polished 
+white blade that is quite long. The edge is wickedly sharp, able 
+to draw blood with the lightest touch of pressure. The handguard 
+is made of burnished bronze wrapped in leather cording to allow 
+for a more secure grip and this weapon is obviously quite a 
+danger in the hands of a skilled person. 
+~
+5 4096 270337
+0 1 8 3
+225 0.000000
+4 0 0 0 8192 0 1
+1000.000000 0 0 0 28 0 0
+S
+100003
+#81041
+tent grey emblazoned prancing black stallion pCurion TEXTILE~
+a grey tent with a prancing black stallion crest~
+A grey tent is here. It's sides emblazoned with a prancing black stallion.~
+~
+12 0 1
+100 0 1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81487
+Poros dock rickety wooden byMATUA WOOD~
+a rickety wooden dock~
+A rickety wooden dock juts out here, water lapping at its sides.~
+   This wooden dock juts out from the muddy shores here and into 
+the River Poros, wide timber beams holding it at just above 
+water-level. The construction looks quite questionable, some of 
+the horizontal boards, which you would walk on, at odd angles or 
+not there all together. Waves lap against the side of the dock, 
+making the timber glisten with water. It is wide enough for four 
+people to walk abreast, but any more than that would be dubious. 
+~
+12 135168 0
+0 0 0 0
+-100 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 32 0 0
+#81687
+TRIGGER_A OTHER byMATUA~
+an object for the purpose of an rprog~
+An object for the purpose of an rprog is here, but you can't see it.~
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 512 0 1
+0.000000 0 0 0 0 0 0
+#81688
+TRIGGER_B OTHER byMATUA~
+another object for the purpose of an rprog~
+Another object for the purpose of an rprog is here, but you can't see it.~
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 512 0 1
+0.000000 2880 81687 0 0 0 0
+#81042
+excavation HARADWAITH-VALLEY-OF-THE-DEAD work heavy OTHER~
+some heavy excavation~
+Some heavy excavation has been recently carried out into the ground here.~
+   The soil here has been recently disturbed in a large effort, a 
+long section of space cut away from the underbelly of the 
+Ithilien in this culmination of effort. The dark earth offers no 
+clues as to what may have caused this major excavation into the 
+ground. 
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 256 0 1
+0.000000 0 0 0 0 0 0
+#81043
+bird UNIQUE_PKHALFANI Iago stark white crimson crest OTHER~
+#5a stark, white bird with a crimson crest#0~
+#5A stark, white bird with a crimson crest hops around here.#0~
+   With a lean, sleek form, this bird's small body is roughly the 
+size of a man's hand. Its feathers are smooth and well-groomed 
+of a stark white color. And a long, fancy crest sits over its 
+head in plumes of deep crimson that arch up and collapse nearly 
+flat depending on its expressions. 
+~
+12 0 8392707
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81044
+carcass lion rotting rancid junk qShadow MEAT~
+a rotting lion carcass~
+A rotting lion carcass reeks here.~
+   A rotting lion carcass is here reeking and drawing insects. 
+~
+13 0 1
+0 0 0 0
+2000 0.000000
+0 0 0 1 0 0 1
+0.000000 7 86 0 0 0 0
+#81045
+door solid door rprog SALADIN WOOD~
+A solid rprog door to the west~
+A solid rprog door to the western entrance~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81046
+door solid door rprog SALADIN WOOD eastern~
+a solid rprog door to the east~
+A solid rprog door to the eastern entrance~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81047
+sarcophagus sandstone STONE~
+a sandstone sarcophagus~
+A sandstone sarcophagus rests here, carved arms crossed.~
+   Carved into the shape of a resting man, arms crossed over his 
+chest, this sarcophagus has been worked out of sandstone, the 
+sallow stone showing its age. The lid of the sarcophagus seems 
+to have been moved recently, resting ajar on the base, small 
+pieces of debris crumbling into the hollow below. 
+~
+15 4096 0
+5000 0 -1 0
+5000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81048
+tent striped goat-hair desert pRaheem qShadow LEATHER~
+a striped goat-hair desert tent~
+A goat-haired desert tent with wide red stripes is pitched here.~
+   With walls of finely woven goat-hair dyed in strips of white 
+and black, this three ridged tent provides space and shelter from 
+wind, sand or even occasional rain. Poles of thin wood provide 
+structure and seperate the tent into what appears to be three 
+different possible sections, while several woven ropes and pegs 
+keep the structure firmly rooted. Small ties along several of 
+poles suggest that many, if not all of the walls of the tent can 
+be rolled up out of place while keeping the roof intact. 
+~
+12 0 0
+0 0 0 0
+5000 0.000000
+0 0 0 39 8224 0 1
+700.000000 0 0 0 14 0 0
+#81049
+Rhinocerous old ragged stuffed pRaheem qShadow OTHER~
+an old and ragged stuffed rhinocerous~
+An old and ragged stuffed rhinocerous~
+   Showing obvious signs of a long and difficult life, this 
+stuffed Rhinocerous is nearly more patches and stitches than 
+original flesh. At one point in its early life, it appears to 
+have been intended as a replication of a oversized rhinocerous, 
+one with a fat belly, short legs and large single horn adorning 
+its snout, though these days the horn is chipped, the skin is 
+patched, and one leg is nearly absent of its stuffing. 
+~
+12 0 1
+0 0 0 0
+3000 0.000000
+0 0 0 39 0 0 1
+1000.000000 0 0 0 14 0 0
+#81050
+tent striped goat-hair desert $finecolor LEATHER~
+a stripped goat-hair desert tent~
+A goat-hair tent with wide $finecolor stripes is pitched here.~
+   With walls of finely woven goat-hair dyed in strips of 
+$finecolor and black, this three ridged tent provides space and 
+shelter from wind, sand or even occasional rain. Poles of thin 
+wood provide structure and seperate the tent into what appears to 
+be three different possible sections, while several woven ropes 
+and pegs keep the structure firmly rooted. Small ties along 
+several of poles suggest that many, if not all of the walls of 
+the tent can be rolled up out of place while keeping the roof 
+intact. 
+~
+12 33554432 0
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+700.000000 0 0 0 0 0 0
+#81051
+loin-cloth fig-leaf UNIQUE_ADMIN OTHER pile~
+a bright-green linen loin-cloth~
+A pile of fig leaves lies here, strung together.~
+~
+11 4096 2049
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81732
+key iron owl thick _KORISANTH METAL~
+a thick key with an owl-shaped handle~
+A thick key with an owl-shaped handle has been left here.~
+   This thick iron key is black and worn on the teeth. The 
+handle is thick and shaped like an owl perched on a limb. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#81737
+talon key slender silver _KORISANTH METAL~
+a slender silver key with a talon-shaped handle~
+Left lying here is a slender silver key shaped like a talon.~
+   Well-polished, this slender key sports a handle shaped like a 
+talon and intricately shaped teeth. Though quite thin it feels 
+very sturdy. 
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#81733
+river boat craft owl riverboat _KORISANTH WOOD~
+a sturdy riverboat with an owl figurehead~
+A sturdy riverboat with an owl figurehead is moored here.~
+   Securely moored here, this craft is small, no longer than 
+forty or fifty feet in length. The stern is bow with an ornate 
+owl figurehead whereas the rest of the craft remains unadorned. 
+Though not new, this craft is in good condition. The wood that 
+make up the hull and deck is sturdy-looking though stained from 
+life in the water. A house-like structure is built on the aft 
+side of this craft with several windows facing out to the port. 
+Resting high on the water, most of the craft is above the 
+waterline. 
+~
+12 4096 0
+0 0 0 0
+150000 0.000000
+0 0 0 30 0 0 1
+3000.000000 0 0 0 32 0 0
+#81734
+boat_tracker _KORISANTH _ARVIO WOOD~
+This is a tracker object used to track stats about the boat~
+This object is here to keep track of stats for this boat~
+~
+12 4100 0
+80032 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#81052
+vest desert-camouflaged cuirboulli xxAlsamt'Qatilxx LEATHER~
+a desert-camouflaged cuirboulli vest~
+A desert-camouflaged cuirboulli vest is here.~
+   This chest piece covers most of the upper torso, and is made 
+of high quality water-hardened leather. On either side a hole is 
+cut out for the arms to slip through, buckles attached to the 
+vest to allow sleeves to be affixed. Throughout the entirety of 
+this sturdy piece of leather are unpatterned mixtures of light 
+brown, tan, and cream colors. The blending of the colors, 
+however unconventional, seem to be placed quite purposefully. 
+~
+9 4096 9
+3 1 0 0
+500 0.000000
+0 0 0 35 8704 0 1
+0.000000 0 0 0 14 0 0
+A
+10024 2
+A
+10025 2
+#81053
+collar desert-camouflaged cuirboulli xxAlsamt'Qatilxx LEATHER~
+a desert-camouflaged cuirboulli collar~
+A desert-camouflaged cuirboulli collar is here.~
+   This water-hardened leather collar is designed to fit closely 
+around the neck and collarbone, two buckles affixed on the back 
+to allow adjusting for size. The leather itself has been dyed a 
+mixture of unpatterned tan, brown, and cream colors. 
+~
+9 4096 5
+3 1 0 0
+250 0.000000
+0 0 0 35 8704 0 1
+0.000000 0 0 0 14 0 0
+A
+10024 2
+A
+10025 2
+#81054
+leggings desert-camouflaged cuirboulli xxAlsamt'Qatilxx LEATHER~
+a pair of desert-camouflaged cuirboulli leggings~
+A pair of desert-camouflaged cuirboulli leggings are here.~
+   These cuirboulli leggings are made of high-quality supple 
+leather, their design allowing freedom in the knees and waist to 
+allow for better movement. In the center of the leggings is a 
+bronze cod-piece, dyed a light cream color with shades of tan and 
+brown on the top and bottom of it. Along the rest of the 
+leggings are unpatterned, yet seemingly purposeful designs of the 
+same tan, brown, and cream colors. 
+~
+9 4096 33
+3 1 0 0
+600 0.000000
+0 0 0 35 8704 0 1
+0.000000 0 0 0 14 0 0
+A
+10024 2
+A
+10025 2
+#81055
+sleeves desert-camouflaged cuirboulli xxAlsamt'Qatilxx LEATHER~
+a pair of desert-camouflaged cuirboulli sleeves~
+A pair of desert-camouflaged cuirboulli sleeves are here.~
+   These sleeves have been carefully shaped to allow freedom in 
+the elbows and shoulders, the leather hardened via water to allow 
+a decent form of protection. At the tops of them are buckles, 
+allowing them to be attached to a matching vest. The sleeves 
+have been dyed with seemingly random patterns of tans, browns, 
+and creams. 
+~
+9 4096 257
+3 1 0 0
+400 0.000000
+0 0 0 35 8704 0 1
+0.000000 0 0 0 14 0 0
+A
+10025 2
+A
+10024 2
+#81056
+boots desert-camouflaged calf-high xxAlsamt'Qatilxx LEATHER~
+a pair of desert-camouflaged, calf-high boots~
+A pair of desert-camouflaged, calf-high boots are here.~
+   This pair of lightweight, calf-high boots are made of soft, 
+supple leather, and lace firmly behind the calf with a piece of 
+sinew. The bottom of the boots is made to conform to the arc of 
+the foot, with grooves on the soles for better grip of the land. 
+The entirety of the leather is covered with randomly designed 
+patterns of tan, brown, and cream dyes. 
+~
+9 4096 65
+3 1 0 0
+200 0.000000
+0 0 0 35 8704 0 1
+0.000000 0 0 0 14 0 0
+A
+10036 5
+#81057
+gloves desert-camouflaged archer xxAlsamt'Qatilxx LEATHER~
+a pair of desert-camouflaged archer gloves~
+A pair of desert-camouflaged archer gloves are here.~
+   These lightweight leather gloves have been fashioned to both 
+offer protection and yet not hinder the dexterity of the wearer. 
+Each glove is long enough to reach mid-forearm on the wearer and 
+has been colored randomly with a mixture of tan, brown and cream 
+dyes, serving some purpose of camouflage. They lace along the 
+inside of the forearm with a single piece of dried sinew and are 
+missing the index and middle fingers. 
+~
+9 4096 129
+2 1 0 0
+100 0.000000
+0 0 0 35 8704 0 1
+0.000000 0 0 0 14 0 0
+A
+10017 2
+A
+10016 2
+#81058
+pauldron desert-camouflaged xxAlsamt'Qatilxx METAL~
+a desert-camouflaged pauldron~
+A desert-camouflaged pauldron is lying here.~
+   This bronze pauldron covers the upper arm and shoulder, 
+attaching itself to a piece of armor via buckles of the same 
+material. The entirety of it has been painted with tan, brown, 
+and cream colors, obviously to provide some sort of camouflage. 
+A striking cobra has been etched into the top part of the 
+pauldron, and is the only part left unpainted. 
+~
+9 4096 134217729
+1 5 0 0
+150 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 16 0 0
+#81059
+shortbow intricately etched desert-hued fine xxAlsamt'Qatilxx bow WOOD~
+an intricately etched, desert-hued shortbow~
+A fine shortbow etched and filled with black ink, the color of the desert, lies here on the ground.~
+   Sinuous, sleek and well-curved, this shortbow is a fine piece. 
+It has been gently etched with intricate, snaking and twisting 
+patterns into the wood and filled with a dark black ink of sorts. 
+The wood onto which they are painted is the color of the desert, 
+a mixture of tans, browns, and cremes. 
+~
+5 4096 8658945
+3 1 1 16
+250 0.000000
+2 0 0 35 8704 0 1
+0.000000 0 0 0 32 0 0
+S
+100006
+#81060
+buckler desert-camouflaged spiked xxAlsamt'Qatilxx METAL~
+a desert-camouflaged, spiked buckler~
+A spiked buckler is here, camouflaged with shades of the desert.~
+   This buckler is about two feet in diameter, and oval in 
+appearance. It's slightly bowled out, allowing room for the arm 
+to fasten comfortably to the backside via leather straps, and a 
+metal hand-grip is forged inbetween. The other side is 
+unadorned, save random yet seemingly purposeful shades of tan, 
+brown, and cream colors which provide a form of camouflage best 
+used in the desert. In the center of the shield is a spike, 
+which has been painted with the same colors. 
+~
+6 4096 9179137
+2 4 5 0
+300 0.000000
+0 0 0 35 8704 0 1
+0.000000 0 0 0 16 0 0
+A
+10025 2
+#81061
+belt desert-camouflaged utility packs xxAlsamt'Qatilxx LEATHER~
+a desert-camouflaged utility belt~
+A desert-camouflaged belt is here, with packs hanging on the sides.~
+   This thick leather belt has two large, closable packs on each 
+side of it, the packs and belt alike dyed several shades of 
+camouflage the color of the desert. 
+~
+15 4096 2049
+3000 1 -1 0
+250 0.000000
+0 0 0 35 0 0 1
+0.000000 0 0 0 14 0 0
+$~

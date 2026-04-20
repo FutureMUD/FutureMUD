@@ -1,0 +1,1303 @@
+#92000
+The Economic Zone~
+This is the Economy Zone.
+Zoning:
+ 
+#2Objects#0
+------------
+0   - 100 Counters
+101 - 200 Caravans / Tents
+201 - 220 Message Boards
+301 - 400 Trade Certificates
+900 +     Test 
+ 
+#2Rooms#0
+------------
+0   -  20 Clock Tickers
+101 - 200 Caravaners / Storerooms
+900 +     Test 
+ 
+#2Mobs#0
+------------
+0   -  20 Clock Ticker Mobs
+101 - 200 Caravaners
+900 +     Test
+~
+92 65544 0
+0
+S
+#92001
+Test Room, Test Shopkeep~
+No Description Set.
+~
+92 65536 0
+0
+D0
+~
+~
+0 -1  0 92002
+P
+test~
+markups~
+vstr Testing...
+force 92001 92001 mark parchment 1005
+~
+S
+#92002
+Test Shopkeep Storeroom~
+This is the test storeroom for shopkeep 92001, room 92001
+~
+92 268500992 0
+0
+D2
+~
+~
+0 -1  0 92001
+S
+#92101
+Back of a Traveling Merchant's Wagon~
+This is the storage room for a traveling merchant's wagon, 92101.
+~
+92 336134152 0
+0
+S
+#92103
+Back of a Local Peddler's Wagon~
+This is the storage room for a local peddler's wagon, 92103
+~
+92 336134152 0
+0
+P
+xload~
+xstock~
+set random 1d84
+vstr Random Set
+set random2 1d3
+if (random=84)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1017 
+fi done
+if (random2=2)
+loadobj -1 2 1017 
+fi done
+if (random2=3)
+loadobj -1 3 1017 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=83)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1018 
+fi done
+if (random2=2)
+loadobj -1 2 1018 
+fi done
+if (random2=3)
+loadobj -1 3 1018 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=82)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1019 
+fi done
+if (random2=2)
+loadobj -1 2 1019 
+fi done
+if (random2=3)
+loadobj -1 3 1019 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=81)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1020 
+fi done
+if (random2=2)
+loadobj -1 2 1020 
+fi done
+if (random2=3)
+loadobj -1 3 1020 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=80)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1022 
+fi done
+if (random2=2)
+loadobj -1 2 1022 
+fi done
+if (random2=3)
+loadobj -1 3 1022 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=79)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1021 
+fi done
+if (random2=2)
+loadobj -1 2 1021 
+fi done
+if (random2=3)
+loadobj -1 3 1021 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=78)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1026 
+fi done
+if (random2=2)
+loadobj -1 2 1026 
+fi done
+if (random2=3)
+loadobj -1 3 1026 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=77)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1027 
+fi done
+if (random2=2)
+loadobj -1 2 1027 
+fi done
+if (random2=3)
+loadobj -1 3 1027 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=76)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1030 
+fi done
+if (random2=2)
+loadobj -1 2 1030 
+fi done
+if (random2=3)
+loadobj -1 3 1030 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=75)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1036 
+fi done
+if (random2=2)
+loadobj -1 2 1036 
+fi done
+if (random2=3)
+loadobj -1 3 1036 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=74)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1037 
+fi done
+if (random2=2)
+loadobj -1 2 1037 
+fi done
+if (random2=3)
+loadobj -1 3 1037 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=73)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1038 
+fi done
+if (random2=2)
+loadobj -1 2 1038 
+fi done
+if (random2=3)
+loadobj -1 3 1038 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=72)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1041 
+fi done
+if (random2=2)
+loadobj -1 2 1041 
+fi done
+if (random2=3)
+loadobj -1 3 1041 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=71)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1061 
+fi done
+if (random2=2)
+loadobj -1 2 1061 
+fi done
+if (random2=3)
+loadobj -1 3 1061 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=70)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1062 
+fi done
+if (random2=2)
+loadobj -1 2 1062 
+fi done
+if (random2=3)
+loadobj -1 3 1062 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=69)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1063 
+fi done
+if (random2=2)
+loadobj -1 2 1063 
+fi done
+if (random2=3)
+loadobj -1 3 1063 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=68)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1064 
+fi done
+if (random2=2)
+loadobj -1 2 1064 
+fi done
+if (random2=3)
+loadobj -1 3 1064 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=67)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1080 
+fi done
+if (random2=2)
+loadobj -1 2 1080 
+fi done
+if (random2=3)
+loadobj -1 3 1080 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=66)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1080 
+fi done
+if (random2=2)
+loadobj -1 2 1080 
+fi done
+if (random2=3)
+loadobj -1 3 1080 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=65)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1088 
+fi done
+if (random2=2)
+loadobj -1 2 1088 
+fi done
+if (random2=3)
+loadobj -1 3 1088 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=64)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1091 
+fi done
+if (random2=2)
+loadobj -1 2 1091 
+fi done
+if (random2=3)
+loadobj -1 3 1091 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=63)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1162 
+fi done
+if (random2=2)
+loadobj -1 2 1162 
+fi done
+if (random2=3)
+loadobj -1 3 1162 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=62)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1408 
+fi done
+if (random2=2)
+loadobj -1 2 1408 
+fi done
+if (random2=3)
+loadobj -1 3 1408 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=61)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1553 
+fi done
+if (random2=2)
+loadobj -1 2 1553 
+fi done
+if (random2=3)
+loadobj -1 3 1553 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=60)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1562 
+fi done
+if (random2=2)
+loadobj -1 2 1562 
+fi done
+if (random2=3)
+loadobj -1 3 1562 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=59)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1661 
+fi done
+if (random2=2)
+loadobj -1 2 1661 
+fi done
+if (random2=3)
+loadobj -1 3 1661 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=58)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1674 
+fi done
+if (random2=2)
+loadobj -1 2 1674 
+fi done
+if (random2=3)
+loadobj -1 3 1674 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=57)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1677 
+fi done
+if (random2=2)
+loadobj -1 2 1677 
+fi done
+if (random2=3)
+loadobj -1 3 1677 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=56)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1708 
+fi done
+if (random2=2)
+loadobj -1 2 1708 
+fi done
+if (random2=3)
+loadobj -1 3 1708 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=55)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1709 
+fi done
+if (random2=2)
+loadobj -1 2 1709 
+fi done
+if (random2=3)
+loadobj -1 3 1709 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=54)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1710 
+fi done
+if (random2=2)
+loadobj -1 2 1710 
+fi done
+if (random2=3)
+loadobj -1 3 1710 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=53)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1711 
+fi done
+if (random2=2)
+loadobj -1 2 1711 
+fi done
+if (random2=3)
+loadobj -1 3 1711 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=52)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1752 
+fi done
+if (random2=2)
+loadobj -1 2 1752 
+fi done
+if (random2=3)
+loadobj -1 3 1752 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=51)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1758 
+fi done
+if (random2=2)
+loadobj -1 2 1758 
+fi done
+if (random2=3)
+loadobj -1 3 1758 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=50)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1766 
+fi done
+if (random2=2)
+loadobj -1 2 1766 
+fi done
+if (random2=3)
+loadobj -1 3 1766 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=49)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1767 
+fi done
+if (random2=2)
+loadobj -1 2 1767 
+fi done
+if (random2=3)
+loadobj -1 3 1767 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=48)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1783 
+fi done
+if (random2=2)
+loadobj -1 2 1783 
+fi done
+if (random2=3)
+loadobj -1 3 1783 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=47)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1800 
+fi done
+if (random2=2)
+loadobj -1 2 1800 
+fi done
+if (random2=3)
+loadobj -1 3 1800 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=46)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1819 
+fi done
+if (random2=2)
+loadobj -1 2 1819 
+fi done
+if (random2=3)
+loadobj -1 3 1819 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=45)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1834 
+fi done
+if (random2=2)
+loadobj -1 2 1834 
+fi done
+if (random2=3)
+loadobj -1 3 1834 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=44)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 1836 
+fi done
+if (random2=2)
+loadobj -1 2 1836 
+fi done
+if (random2=3)
+loadobj -1 3 1836 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=43)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2003 
+fi done
+if (random2=2)
+loadobj -1 2 2003 
+fi done
+if (random2=3)
+loadobj -1 3 2003 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=42)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2004 
+fi done
+if (random2=2)
+loadobj -1 2 2004 
+fi done
+if (random2=3)
+loadobj -1 3 2004 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=41)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2191 
+fi done
+if (random2=2)
+loadobj -1 2 2191 
+fi done
+if (random2=3)
+loadobj -1 3 2191 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=40)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2192 
+fi done
+if (random2=2)
+loadobj -1 2 2192 
+fi done
+if (random2=3)
+loadobj -1 3 2192 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=39)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2193 
+fi done
+if (random2=2)
+loadobj -1 2 2193 
+fi done
+if (random2=3)
+loadobj -1 3 2193 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=38)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2194 
+fi done
+if (random2=2)
+loadobj -1 2 2194 
+fi done
+if (random2=3)
+loadobj -1 3 2194 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=37)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2195 
+fi done
+if (random2=2)
+loadobj -1 2 2195 
+fi done
+if (random2=3)
+loadobj -1 3 2195 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=36)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2196 
+fi done
+if (random2=2)
+loadobj -1 2 2196 
+fi done
+if (random2=3)
+loadobj -1 3 2196 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=35)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2197 
+fi done
+if (random2=2)
+loadobj -1 2 2197 
+fi done
+if (random2=3)
+loadobj -1 3 2197 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=34)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2234 
+fi done
+if (random2=2)
+loadobj -1 2 2234 
+fi done
+if (random2=3)
+loadobj -1 3 2234 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=33)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2255 
+fi done
+if (random2=2)
+loadobj -1 2 2255 
+fi done
+if (random2=3)
+loadobj -1 3 2255 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=32)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2258 
+fi done
+if (random2=2)
+loadobj -1 2 2258 
+fi done
+if (random2=3)
+loadobj -1 3 2258 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=31)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2259 
+fi done
+if (random2=2)
+loadobj -1 2 2259 
+fi done
+if (random2=3)
+loadobj -1 3 2259 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=30)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2299 
+fi done
+if (random2=2)
+loadobj -1 2 2299 
+fi done
+if (random2=3)
+loadobj -1 3 2299 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=29)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 11301 
+fi done
+if (random2=2)
+loadobj -1 2 11301 
+fi done
+if (random2=3)
+loadobj -1 3 11301 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=28)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 11302 
+fi done
+if (random2=2)
+loadobj -1 2 11302 
+fi done
+if (random2=3)
+loadobj -1 3 11302 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=27)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 11307 
+fi done
+if (random2=2)
+loadobj -1 2 11307 
+fi done
+if (random2=3)
+loadobj -1 3 11307 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=26)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 11308 
+fi done
+if (random2=2)
+loadobj -1 2 11308 
+fi done
+if (random2=3)
+loadobj -1 3 11308 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=25)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 11309 
+fi done
+if (random2=2)
+loadobj -1 2 11309 
+fi done
+if (random2=3)
+loadobj -1 3 11309 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=24)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 11387 
+fi done
+if (random2=2)
+loadobj -1 2 11387 
+fi done
+if (random2=3)
+loadobj -1 3 11387 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=23)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 11388 
+fi done
+if (random2=2)
+loadobj -1 2 11388 
+fi done
+if (random2=3)
+loadobj -1 3 11388 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=22)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 133 
+fi done
+if (random2=2)
+loadobj -1 2 133 
+fi done
+if (random2=3)
+loadobj -1 3 133 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=21)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2328 
+fi done
+if (random2=2)
+loadobj -1 2 2328 
+fi done
+if (random2=3)
+loadobj -1 3 2328 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=20)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 2849 
+fi done
+if (random2=2)
+loadobj -1 2 2849 
+fi done
+if (random2=3)
+loadobj -1 3 2849 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=19)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 3150 
+fi done
+if (random2=2)
+loadobj -1 2 3150 
+fi done
+if (random2=3)
+loadobj -1 3 3150 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=18)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 3164 
+fi done
+if (random2=2)
+loadobj -1 2 3164 
+fi done
+if (random2=3)
+loadobj -1 3 3164 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=17)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 3194 
+fi done
+if (random2=2)
+loadobj -1 2 3194 
+fi done
+if (random2=3)
+loadobj -1 3 3194 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=16)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 3253 
+fi done
+if (random2=2)
+loadobj -1 2 3253 
+fi done
+if (random2=3)
+loadobj -1 3 3253 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=15)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 97005 
+fi done
+if (random2=2)
+loadobj -1 2 97005 
+fi done
+if (random2=3)
+loadobj -1 3 97005 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=14)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 97046 
+fi done
+if (random2=2)
+loadobj -1 2 97046 
+fi done
+if (random2=3)
+loadobj -1 3 97046 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=13)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 97089 
+fi done
+if (random2=2)
+loadobj -1 2 97089 
+fi done
+if (random2=3)
+loadobj -1 3 97089 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=12)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 97179 
+fi done
+if (random2=2)
+loadobj -1 2 97179 
+fi done
+if (random2=3)
+loadobj -1 3 97179 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=11)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 97304 
+fi done
+if (random2=2)
+loadobj -1 2 97304 
+fi done
+if (random2=3)
+loadobj -1 3 97304 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=10)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 97310 
+fi done
+if (random2=2)
+loadobj -1 2 97310 
+fi done
+if (random2=3)
+loadobj -1 3 97310 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=9)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 97362 
+fi done
+if (random2=2)
+loadobj -1 2 97362 
+fi done
+if (random2=3)
+loadobj -1 3 97362 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=8)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 97680 
+fi done
+if (random2=2)
+loadobj -1 2 97680 
+fi done
+if (random2=3)
+loadobj -1 3 97680 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=7)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 97785 
+fi done
+if (random2=2)
+loadobj -1 2 97785 
+fi done
+if (random2=3)
+loadobj -1 3 97785 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=6)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 97837 
+fi done
+if (random2=2)
+loadobj -1 2 97837 
+fi done
+if (random2=3)
+loadobj -1 3 97837 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=5)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 98034 
+fi done
+if (random2=2)
+loadobj -1 2 98034 
+fi done
+if (random2=3)
+loadobj -1 3 98034 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=4)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 98425 
+fi done
+if (random2=2)
+loadobj -1 2 98425 
+fi done
+if (random2=3)
+loadobj -1 3 98425 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=3)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 98445 
+fi done
+if (random2=2)
+loadobj -1 2 98445 
+fi done
+if (random2=3)
+loadobj -1 3 98445 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=2)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 98578 
+fi done
+if (random2=2)
+loadobj -1 2 98578 
+fi done
+if (random2=3)
+loadobj -1 3 98578 
+fi done
+loadobj -1 1 92006
+fi done
+if (random=1)
+vstr Loading an object
+if (random2=1)
+loadobj -1 1 98656 
+fi done
+if (random2=2)
+loadobj -1 2 98656 
+fi done
+if (random2=3)
+loadobj -1 3 98656 
+fi done
+loadobj -1 1 92006
+fi done
+~
+S
+#92105
+Back of a General Tradesman's Cart~
+This is the storage room for a general tradesman's cart, 92105.
+~
+92 67698696 0
+0
+S
+#92107
+Back of a Local Merchantman's Wagon~
+This is the storage room for a local merchantman, 92107.
+~
+92 67698696 0
+0
+S
+#92109
+Back of a Wagon Laden With Goods~
+This is the storage room for a wagon laden with goods, 92109.
+~
+92 67698696 0
+0
+S
+#92111
+The Hold of a Small Merchant Vessel~
+This is the storage room for a small merchant vessel, 92111.
+~
+92 67698696 0
+0
+S
+#92113
+The Hold of a Local Fishing Boat~
+This is the storage room for a local fishing boat, 92113.
+~
+92 67698696 0
+0
+S
+#92115
+Within a Wagon of a Twenty-Mule Caravan~
+This is the storage room for a twenty-mule caravan, 92115.
+~
+92 67698696 0
+0
+S
+#92117
+Within a Wagon of a Thirty-Mule Caravan~
+This is the storage room for a thirty-mule caravan, 92117.
+~
+92 67698696 0
+0
+S
+#92119
+Within the Wagon of a Band of Wandering Peddlers~
+This is the storage room for a band of wandering peddlers, 92119.
+~
+92 67698696 0
+0
+S
+#92121
+Within a Storage Wagon~
+This is the storage room for a wagon train, 92121.
+~
+92 67698696 0
+0
+S
+#92123
+A Storage Wagon Within a Heavily Laden Wagon Train~
+This is the storage room for a heavily laden wagon train, 92123.
+~
+92 67698696 0
+0
+S
+#92125
+The Wagon of a Band of Traveling Gypsies~
+This is the storage room for a band of wandering gypsies, 92125.
+~
+92 67698696 0
+0
+S
+#92127
+The Cart of a Traveling Merchant~
+This is the storage room for the cart of a traveling merchant, 92127.
+~
+92 67698696 0
+0
+S
+#92129
+A Storage Tent for a Band of Nomadic Travelers~
+This is the storage room for a band of nomadic travelers, 92129.
+~
+92 67698696 0
+0
+S
+#92131
+The Storage Tent for a Foreign Caravan~
+This is the storage room for a foreign caravan, 92131.
+~
+92 67698696 0
+0
+S
+#92133
+The Hold of a Small Merchant Vessel~
+This is the storage room of a small merchant vessel, 92133.
+~
+92 67698696 0
+0
+S
+#92135
+The Hold of a Foreign Schooner~
+This is the storage room of a foreign schooner, 92135.
+~
+92 67698696 0
+0
+S
+#92137
+The Hold of a Full Clipper Ship~
+This is the storage room for a full clipper ship, 92137.
+~
+92 67698696 0
+0
+S
+#92139
+The Hold of a Laden Galleon~
+This is the storage room for a laden galleon, 92139.
+~
+92 67698696 0
+0
+S
+#92901
+A Testing Trade Stop~
+This room is a testing room for a local trade stop.
+~
+92 65536 0
+0
+S
+$~

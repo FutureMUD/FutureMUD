@@ -1,0 +1,2855 @@
+#40000
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40228
+man ServantOfPCKatalynsFatherHawkAndDove SudosNPCSoAskHim old durable shaved Tinco Edhellond~
+a old durable man~
+A old and durable man with shaved head stands here.~
+   Prominent grey and white eyebrows lies above a pair of once 
+piercing iron-grey eyes that now is slightly watery with age, the 
+left one also catching a milky hue and surely impeding eyesight 
+for this old man. The chin have weakened and the skin hangs 
+softly on his skull marked with an armada of wrinkles. His head 
+and face are shaved and leaves his original hair color a mystery. 
+Broad shoulders, big hands and quite a lot of scars yields sign 
+of an active and violent life with time arms and legs have been 
+thinning and the shoulder sloping into those of an man on his 
+last decades of life - yet the back is still straight and have 
+not bent with the years. 
+~
+10 0 30 0 0 5d1+93 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+13 15 15 1 13 13 81 14
+0 0
+0 60 50 60 30 30 30 30 30 30
+30 30 30 40 30 30 45 50 30 34
+60 60 0 0 60 60 0 0 0 60
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+50 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#40175
+woman young Keiin nubile-bodied glabrous Moria Plot NPC~
+a glabrous young woman~
+A glabrous nubile-bodied young woman with stands here.~
+   Devoid from all visible hair this young woman have a shaved 
+head, removed eyebrows and displays an arranged or natural lack 
+of body hair. Her body is young and nubile of average length and 
+the skin-tone is the dark color of aged oak. The eyes are dark 
+and serious set under a rather low brow that carries a burned 
+mark that displays some sort of symbol or glyph with thin pale 
+lines of scar tissue in the center of her forehead. The nails 
+are long and reinforced with a dark-blue coating as is her face 
+painted with a few simple lines in blue and black. She carries 
+none other callouses and scars, a smooth body unfamiliar with 
+hardship. 
+~
+10 0 20 0 1 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 95 16
+0 0
+0 8 40 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 40 0 0 40 40 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 80 0 0 0 0 0 0
+0 0 0 0 0 0 60 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 80 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char~
+0 0 0
+#40001
+gandolf CASE_UNIQUE MORIA~
+a white wizard is standing here~
+you shall not pass says the white wizard~
+A old man tainted by his age he has white hair white robs and a sword called glamming ready to cut you up if you annoy him. Watch out!
+~
+10 0 50 0 50 5d1+129 4d25+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+25 16 16 1 25 25 77 16
+0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40002
+leech giant albino~
+a giant albino leech~
+A giant albino leech is here.~
+   This large, soft-skinned animal appears to be some sort of 
+aquatic, slug-like creature, possibly an enormous leech. Its 
+thick body is ghostly white and glistens with slime. A huge 
+mouth, round and concave, is attached to one end, the interior 
+fleshy and pale. Neither eyes not ears are visible, though there 
+are a series of faint, off-white striations down its back. 
+~
+8 4 20 36 0 5d1+75 2d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+10 10 10 1 10 10 81 10
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40003
+mass slimy huge clinging ceiling~
+a huge, slimy mass~
+A huge, slimy mass is clinging to the ceiling here.~
+   Long tendrils of what might be living matter hang down from 
+above, their searching tips swaying to and fro. A huge, slimy 
+mass clings to the ceiling, its dark, greenish-gray surface 
+pulsating and flexing. Whether this thing is a plant or animal 
+is difficult to tell, but from the rotten smell and the bits of 
+bone and flesh that are visible protruding from its oozing bulk, 
+it seems clear that whatever it may be, it is most certainly 
+predatory. 
+~
+40 786432 30 0 8 5d1+96 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 3 6 1 8 14 81 12
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 60 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40004
+mold putrid greenish-grey grey slime mold~
+a putrid, greenish-grey slime mold~
+A putrid, greenish-grey slime mold quivers here.~
+   This oozing, pulsating mass is some sort of creature, though 
+whether it is plant or animal is not readily apparent. Its slimy 
+skin glistens with moisture, the mottled greenish-grey surface 
+stretching and contracting as it moves. Though slow, there is a 
+certain purpose to its progress, as it sends out pseudopods to 
+search the terrain before it. Bits of dirt and debris stick to 
+it as it goes, and it leaves a putrid, rotten smell in its wake. 
+~
+8 0 25 0 2 5d1+114 1d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 4 4 1 4 20 81 6
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40005
+catfish large silvery-grey grey~
+a large silvery-grey catfish~
+A large silvery-grey catfish is here.~
+   The large, scaleless fish is long and sleek, its soft skin a 
+pale, almost silvery shade of grey. In contrast, its gills and 
+eyes are both a bright, vivid crimson. The fins that run the 
+length of its body are nearly translucent, and its wide, oval 
+mouth is outlined with pink veins. Two thin, tentacle-like 
+feelers are attached to the bottom of its chin, swaying and 
+flexing as the animal moves. 
+~
+134217736 0 4 0 1 5d1+63 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+3 3 3 1 10 3 81 8
+65536 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40006
+crayfish pale spindly-legged legged~
+a pale, spindly-legged crayfish~
+A pale, spindly-legged crayfish picks its way through the area.~
+   This pale, multi-legged creature appears to be some kind of 
+crayfish. Its segmented limbs are extremely long and thin, with 
+two tiny pincers attached to its front arms. A number of 
+antennae stretch out before it, at least twice the length of its 
+body. It has a flat, fan-like tail and a series of off-white 
+stripes along the edges of its carapace. A pair of beady yellow 
+eyes are set atop stalks on its head, and seem able to swivel 
+easily in almost all directions. 
+~
+134217736 0 4 0 1 5d1+63 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+3 3 3 1 10 3 81 10
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40007
+rodent hairless sleek gross~
+a sleek, hairless rodent~
+A sleek, hairless rodent twitches its nose here.~
+   This pale, hairless rodent has a sleek body covered in skin 
+that is nearly translucent. Blueish-purple veins are visible 
+along its length, and the shapes of muscles, especially around 
+its formidable, toothy jaws, stand out conspicuously. A thick, 
+worm-like tail drags on the ground behind it, the tip just 
+slightly darker than the rest of the animal. Its feet are tiny, 
+but possess sharp, curved claws. Though without whiskers, the 
+creature's nose twitches alertly. Its eyes are black and wide, 
+seeming overly large compared to the size of its head. 
+~
+8 0 4 0 0 5d1+63 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 98065 0 0 24 0 0 0 1 0 0 0 0 0
+3 3 3 1 6 3 81 8
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40008
+lizard ghost-white white~
+a ghost-white lizard~
+A ghost-white lizard clings to the ground here.~
+   This ghost-white lizard has a thick scaly body and a long 
+whip-like tail. A series of sharp, short spines runs along its 
+back, and its large feet have padded toes ending in curved claws. 
+Its narrow head is nearly eyeless, the tiny pale orbs seeming to 
+lack either color or irises. The animal's vivid blue tongue 
+regularly flicks the air, revealing the interior of its mouth, 
+which is filled with quite a lot of serrated teeth. 
+~
+136314888 0 20 54 1 5d1+50 1d2+0 0 8 8 0 0 0 0 0
+41167 0 0 42341 0 0 24 0 0 0 1 0 0 0 67633168 0
+6 3 4 1 12 10 81 12
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 9016 0 0 0 0
+0 0 0 0 0 0 0 0 0 9016
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 80 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+96 86 0
+#40009
+snakefish sinuous white~
+a sinuous white snakefish~
+A sinuous white snakefish rises up on its front fins here.~
+   This animal is long and fish-like, though its forked tongue 
+and glossy scales indicate that it may, perhaps, be a type of 
+snake. Its tail is a flat and wide, propelling it along with the 
+merest flick, and is shot through with pale pink veins. The rest 
+of its body is white and sinuous, with a thin, rippling dorsal 
+fin that is semi-translucent and spans the length of its back. 
+The head is narrow, with a rounded snout and gray, glazed-over 
+eyes that seem to have no pupils. 
+~
+2097449 0 40 54 0 5d1+20 1d6+0 0 8 8 0 0 0 0 0
+142 0 0 97230 0 0 24 0 0 0 1 0 0 0 0 0
+8 4 4 1 8 12 81 12
+0 0
+0 80 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 42 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40010
+auto-create orc sentinel~
+an auto-create neutral orc~
+an auto-create neutral orcs stands here.~
+Squat and broad of build, this orc stands hunched over with long
+arms reaching nearly to its knees. Slanted feral eyes and swart skin
+stretch over its form, held by thick bowed legs. This creature is powerfully built and marked with various scars, standing nearly a head shorter than the average human.
+~
+8 8388612 25 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 50 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40011
+skeletal orc black mangled flesh Rimkha~
+a skeletal orc with black mangled flesh~
+A skeletal orc stands hunched here, his black flesh mangled.~
+Standing slightly taller than the average orc, this creature is
+extremely emaciated and bony. His skeletal build is hunched over,
+lanky arms reaching past his knees and his legs bowed. Pitch black
+hide stretches tight over his scrawny bone structure, mangled and
+scarred wretchedly.
+~
+8 8388612 4 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 4 0
+16 16 16 1 16 16 81 16
+8388609 0
+0 0 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40012
+Tolga ZAAK WARCHIEF imposing orc rust red eye GOTHAKRAN~
+an imposing, rust-red-eyed orc~
+An imposing orc with rust-red eyes is here.~
+   Standing straighter than the average orc, this orc gives the 
+illusion of being fairly tall for one of his race. His chest and 
+shoulders are thick, and his ntire frame could be carved from a 
+stone. His body and face are covered in dark scar-- small nicks 
+and cuts cover everything from his thick, sloping brow to his 
+jutting chin. He has fangs jutting from his upper jaw, 
+protruding from his mouth and coming to a wicked point near his 
+jaw line. Topping off his appearance is a shock of wild, orange 
+hair, hacked haphazardly to keep out of his face. 
+~
+10 8388612 32 25 0 5d1+108 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 10 12 1 16 18 94 16
+0 0
+0 50 0 65 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+70 50 0 0 0 0 0 0 60 50
+0 0 50 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 58 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'commander' gothakra 'sergeant' azog_warhost 'commander' bd_gothakra~
+0 0 0
+#40013
+Grog GOTHAKRA-ZURUK large wide scarred orc GOTHAKRAN~
+a large, wide, and scarred orc~
+A large, wide, and scarred orc stands here.~
+(null)~
+10 8388612 31 25 0 5d1+111 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 12 12 1 16 19 94 11
+0 0
+0 45 0 0 0 0 0 62 0 0
+0 0 0 0 0 0 0 0 0 0
+50 52 0 0 0 0 0 0 40 40
+0 0 100 0 0 0 45 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 48 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' gothakra 'private' azog_warhost 'sergeant' bd_gothakra~
+0 0 0
+#40014
+Huul Blackrend Warchief orc narrow-eyed black BLACKREND~
+a black, narrow-eyed orc~
+A narrow-eyed orc, his skin a mottled black, stands here.~
+   This orc is not particular tall or burly, but stands for one 
+of his kind with an unsettling, vicious confidence. His eyes are 
+a dark yellow and slit narrowly; cat's eyes. He is as dark as 
+pitch, and though a few paler scars break the uniformity of his 
+skin's black colouring, they are surprisingly few and far 
+between. He is slightly bow-legged, with wide shoulders, and 
+thick hands. His hair is an off-gray, almost blue-toned, and 
+lies in short bristles on his skull. 
+~
+10 8388612 35 25 0 5d1+99 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 10 12 1 18 15 94 14
+0 0
+0 50 0 67 0 0 0 0 0 0
+70 0 0 50 0 0 0 0 34 0
+65 58 0 0 0 0 0 0 50 0
+0 0 50 0 0 0 45 45 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 56 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 45 0 0 0 0 0 0 0 0
+0 0 0 0 100 45 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'captain' blackrend 'sergeant' azog_warhost 'captain' huul_blackrend~
+0 0 0
+#40015
+Mob Dispenser HALLS_OF_MORIA~
+a Mob Dispenser for the Halls of Moria~
+A Mob Dispenser for the Halls of Moria stands here.~
+(null)~
+10 8388614 4 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40016
+Ruzejkh xDaSTINKPINKx bard skinny beady eyes orc serve~
+a skinny orc with beady eyes~
+A skinny orc paces back and forth behind a rickety bar, serving drinks.~
+   Ghastly head sculpted like a battle-worn helmet, this small 
+orc's skull is bubbly, displaying a fearsome collection of scars 
+that run horizontal and vertical at random. Blistered, 
+charcoal-black leathery skin is stretched across this orc entire 
+body, lacking in tension around its limbs, notably under the arms 
+and on the inside of its thighs. This figure is not large by any 
+measure, its arms lean in muscle; appear as skinny and rawboned, 
+a life of no intentional exercise. Thin ribs are visible through 
+the skin, poking out, much like its upper body which tapers into 
+a pigeon-chest. This orc has no eyebrows, but the wrinkles on 
+its forehead suggest a frown as a casual expression. Black rocks 
+are best to describe its alert eyes, beady and small, but equally 
+set in distance from two small slits in the middle of its face. 
+~
+1034 8388612 20 119 0 5d1+98 1d2+0 0 8 8 1 0 0 0 0
+3143 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 16 16 1 16 16 94 16
+1 1
+41425 41427 1.400000 0.600000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 33557264
+-1
+50 0 0 0 0 0 0 0 0 0
+0 40 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40017
+Second mob dispenser HALLS_OF_MORIA two~
+The Second Mob Dispenser for the Halls of Moria~
+The Second Mob Dispenser for the Halls of Moria stands here.~
+(null)~
+10 8388614 4 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40018
+Third mob dispenser HALLS_OF_MORIA three~
+Third Mob Dispenser for the Halls of Moria~
+The Third Mob Dispenser for the Halls of Moria stands here.~
+(null)~
+10 8388614 4 25 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40019
+Krumm troll warty gargantuan~
+a warty, gargantuan troll~
+Lurking here is a warty, gargantuan troll.~
+   Of moderate size, this troll looks like most of its kind. It 
+possesses an unkempt mat of hair upon the top of its skull, and 
+holds a blank stare on its face at most time. It is rotund at 
+the mid-section and has arms and legs like the trunks of trees. 
+~
+10 8388612 24 28 7 5d1+150 2d4+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+23 8 8 1 12 23 81 8
+0 0
+0 32 0 0 38 0 0 30 0 0
+48 0 0 0 0 0 0 0 0 0
+45 44 0 0 0 0 0 0 19 65
+0 0 57 0 0 0 21 16 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 36 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 65 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ash_circle 'member' moria_hordes~
+0 0 0
+#40020
+segmented vermilion larva~
+a segmented, vermilion larva~
+A segmented, vermilion larva crawls here, leaving a noxious trail.~
+   The length of a small orc's arm, this creature is a pudgy
+string of bulbous red segments, each irregular and quivering as
+it moves. It is marked with small black spots and a few wispy
+hairs, especially on the head, a tapered beak consisting chiefly
+of large, opaque, shining eyes and a mandibular mouth. The thing
+is sluggish even when startled and leaves a clear, odious slime
+on the ground where it crawls.
+~
+136314888 0 20 48 1 5d1+40 1d2+0 0 8 8 0 0 0 0 0
+40177 0 0 40165 0 0 24 0 0 0 1 0 0 0 67633168 0
+8 2 3 1 10 12 81 10
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' crimson_insects~
+1 40030 0
+#40022
+Yuknon fat humpbacked white-dreadlocked orc~
+a fat, humpbacked, white-dreadlocked orc~
+A pudgy orc with white-dreadlocks is hunched over here.~
+   This orc's spine has been twisted and curved, shortening him 
+and giving him an unnatural looking hump on his back. His face 
+is heavily-scarred and mutilated, providing evidence of battles 
+fought which settle proudly into his leering features. Long, 
+sloppy white-dreadlocks are tossed over much of his face, and his 
+neck croons against his deformation to allow him a view of his 
+surroundings. His eyes are smaller than those of most of his 
+kin, sunken into his sockets with the appearance of being little 
+more than two jet-black orbs. Still, there is sinewy and 
+animalistic muscle knotted around his limbs and extremities, 
+hidden at his torso by flabby folds of fat and scar-tissue. A 
+burn scar at his lips has permanently twisted half of his mouth 
+into a constant half-smirk; the lips themselves less of a set of 
+lips and more the fleshy remains of what once was. 
+~
+10 8388612 27 121 0 5d1+92 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 12 18 1 11 14 81 10
+0 0
+0 32 0 0 0 0 55 0 0 0
+0 0 0 47 0 0 0 0 0 0
+52 45 0 0 0 0 0 0 39 40
+0 0 43 0 0 0 36 42 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 37 0 0 42
+0 0 0 0 0 0 0 0 0 0
+0 0 38 0 0 0 0 40 0 0
+0 66 0 0 0 0 0 0 0 0
+0 0 0 0 66 22 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'commander' crimson_arms 'commander' yuknon_spider~
+0 0 0
+#40030
+mantis insect scythe crimson large scythe-limbed~
+a large, crimson, scythe-limbed insect~
+A large, crimson, scythe-limbed insect stalks here, long antennae twitching.~
+   As tall as a man and twice as long, this creature is an
+unsettling presence. A quartet of spindly legs carry it with
+surprising silence and a pair of bulbous, multifaceted eyes
+protrude in a kaleidoscopic glare. It is armored from its head
+to the end of its long abdomen by a hard, deep red carapace,
+leaving only its underbelly unprotected. Two limbs terminate in
+a barbed, scything appendage sheathed in that same crimson
+chitin. The creature is calm and impassive in its movements, but
+the heft and keen barbs of the scythed limbs suggest the
+potential for deadly action.
+~
+136315176 0 30 48 4 5d1+100 2d4+0 0 8 8 0 0 0 0 0
+97126 0 0 40166 0 0 24 0 0 0 2 33554432 0 0 67371026 0
+20 8 16 1 10 20 77 14
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' crimson_insects~
+0 0 0
+#40930
+mantis insect scythe crimson large scythe-limbed~
+a large, crimson, scythe-limbed insect~
+A large, crimson, scythe-limbed insect stalks here, long antennae twitching.~
+   As tall as a man and twice as long, this creature is an
+unsettling presence. A quartet of spindly legs carry it with
+surprising silence and a pair of bulbous, multifaceted eyes
+protrude in a kaleidoscopic glare. It is armored from its head
+to the end of its long abdomen by a hard, deep red carapace,
+leaving only its underbelly unprotected. Two limbs terminate in
+a barbed, scything appendage sheathed in that same crimson
+chitin. The creature is calm and impassive in its movements, but
+the heft and keen barbs of the scythed limbs suggest the
+potential for deadly action.
+~
+134218024 4 30 34 4 5d1+100 2d4+0 0 8 8 0 0 0 0 0
+40168 0 0 40166 0 0 24 0 0 0 2 33554432 0 0 67371026 0
+20 8 16 1 10 20 77 14
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' crimson_insects~
+96 86 0
+#40920
+segmented vermilion larva~
+a segmented, vermilion larva~
+A segmented, vermilion larva crawls here, leaving a noxious trail.~
+   The length of a small orc's arm, this creature is a pudgy
+string of bulbous red segments, each irregular and quivering as
+it moves. It is marked with small black spots and a few wispy
+hairs, especially on the head, a tapered beak consisting chiefly
+of large, opaque, shining eyes and a mandibular mouth. The thing
+is sluggish even when startled and leaves a clear, odious slime
+on the ground where it crawls.
+~
+136314888 4 20 34 1 5d1+40 1d2+0 0 8 8 0 0 0 0 0
+40177 0 0 40165 0 0 24 0 0 0 1 0 0 0 67633168 0
+8 2 3 1 10 12 81 10
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' crimson_insects~
+96 40930 0
+#40021
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 48 0 5d1+80 1d2+0 0 7 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40023
+mob new~
+a~
+(null)~
+(null)~
+10 2 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40025
+spawn trigger trigger-puller~
+a small flatworm~
+A small flatworm rests here on the ground.~
+(null)~
+10 2 4 0 100 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40024
+mutilated boar hulking cave tunnel swine~
+a mutilated, hulking wild boar~
+A mutilated, hulking wild boar is here, its thick flesh tumorous and quaking.~
+   This beast is girded by thick muscles and a thick hide, but
+something is wrong. Its flesh is pitted with several deep holes,
+and the area around these holes shudders and quakes. Its
+underbelly has likely been savaged, exposing the lurid rose of
+eviscerated swine bowels. The beast is frantic and frenzied but
+it is possessed of jerky movements that are erratic, ineffective
+and seemingly confusing to the animal itself.
+~
+136315176 4 30 36 4 5d1+100 2d4+0 0 8 8 0 0 0 0 0
+40170 0 0 40171 0 0 24 0 0 0 1 33554432 0 0 67371026 0
+20 8 16 1 10 20 77 14
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40026
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40027
+Nghrat UNIQUE_CRIMSON_ARMS maimed sallow orc~
+a maimed, sallow orc~
+A maimed, sallow orc is here.~
+   This orc has had his share of pain: his nose is missing its
+greater portion, the right hand has lost its index and pinky,
+and he walks with a pronounced limp. His skin is a pale and
+sallow beige, like thin paper stretched over the underbelly of
+a cave lizard.
+~
+1073741834 8388612 4 121 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+12 18 18 1 18 12 94 12
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 60 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' crimson_arms~
+0 0 0
+#40165
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40028
+larval_juggernaut creature monster tentacle draped~
+a larval juggernaut throbbing with rosaceous sinew~
+A juggernaut of a pulpy, throbbing larval-monster towers here.~
+   An gargantuan mass of muscle and tentacular feelers pulsates 
+here, its fleshy segmented body flush with power. A ribbed, 
+wormlike body of bright fuschia terminates in a fanged maw 
+seemingly too large for its owner. Teeth as large and cruel as 
+swords bristle in the stinking mouth, enmeshing eachother to 
+create a jagged nest. Sizzling, crimson bile drips continuously 
+from between the teeth, causing a powerful, wretched stink and a 
+hint of steam to dominate the air around this gigantic creature. 
+~
+10 4 32 36 7 5d1+400 4d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+20 7 14 1 16 24 81 18
+0 0
+0 65 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 25 25 0 0 0 0
+0 0 80 0 0 0 80 80 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 58 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 80 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 80 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40031
+WhiteShaman White-Shaman Brassk starkly white-skinned red-eyed orc byNom~
+a starkly white-skinned, red-eyed orc~
+A starkly white-skinned, red-eyed orc is present here.~
+The skin of this orc's face is very pale indeed, a very noticeable
+and pure white color. Dangling from his lips are many piercings,
+bones having been lodged there, all the same curved shape and
+acting as a bristly outer coating for his lower lip. His eyes'
+irises are a pure red, and the whites are very bloodshot. The
+orc is not very large, nor especially broad, but he carries
+himself with a noticeable confidence.
+~
+8 8388612 36 119 2 5d1+140 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 15 16 1 18 16 81 16
+0 0
+0 68 0 72 0 0 0 0 0 70
+0 0 0 0 0 0 0 0 67 0
+70 60 0 0 0 0 0 0 0 68
+0 68 68 0 0 0 0 0 0 70
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 69 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 68 68 0 0 0 0
+0 0 0 0 0 69 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40032
+variable Marked Brood orc for the Bone Face~
+a variable orc~
+A variable orc is here, descless.~
+The main notable feature of this orc is its face, which is a sharp
+white color, unlike the rest of its skin. It carries itself with
+some more confidence than the average beaten laborer, though is
+no larger or broader than those.
+~
+10 8388612 25 119 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 8 40 40 0 40 40 0 40 40
+0 0 0 0 0 0 0 0 50 0
+40 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40133
+variable Bleak Nest orc for the Bone Face~
+a variable orc~
+A variable orc is here, descless.~
+This orc bears a burn mark upon its face, covering the entire
+thing, and is fairly short and slender of build. It glances
+around with an evident nervousness, and carries itself in a low,
+cautious gait.
+~
+10 8388612 15 119 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 8 30 30 0 30 30 0 30 30
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40029
+mob new~
+a new mobile~
+(null)~
+(null)~
+10 8388612 4 119 0 5d1+90 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40033
+slender beady eyed orc doorguard boneface byNom~
+a slender, beady-eyed orc~
+A slender, beady-eyed orc stands by the door here.~
+This orc is small and weedy in build, neither tall nor powerfully
+built. His face is a sharp white color, bearing a blistered burn
+mark there. His eyes are beady, and a deep red in color, set into
+sunken eye-sockets upon a bony face. The orc is completely without
+hair, on both head and body, and his left ear appears mangled and
+crushed, scarred in the past.
+~
+10 8388612 30 119 1 5d1+98 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+0 0
+0 8 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+55 45 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' boneface~
+0 0 0
+#40050
+spider_guide crimson_arms xDREAMINGxRITUALx small barbed~
+a small, barbed spider~
+A small, barbed spider is upside down, hanging from the ceiling on a thin strand of webbing.~
+   This small, barbed spider seems to always watch its 
+surroundings with its many eyes. It cannot be longer than half 
+of a small finger, but seems to stick out in its surroundings 
+like a sore thumb for one reason or another. 
+~
+40 786436 50 32 100 5d1+100 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'leader' crimson_arms~
+0 0 0
+#40999
+grizzled rot fanged black-blood~
+a grizzled, rot-fanged black-blood~
+A grizzled, rot-fanged black-blood stands here.~
+   Short, squat and built like a stump, this black-blood carries 
+himself with an aggressive forward lean. His visage is 
+battle-torn, his flesh marked with any number of weapon wound 
+scars. His body is heavily muscled, covered in thick slabs of 
+hardened sinew. His eyes are yellow with pupils slit like a 
+snake's. He has a blunt, snub nose that turns upward so much it 
+could be considered a snout, and a mouth bristling with blackly 
+rotten, jaggedly broken teeth. 
+~
+10 8388612 39 121 0 5d1+98 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 13 9 1 17 16 95 15
+0 0
+0 67 66 63 70 66 70 60 66 66
+78 65 0 71 78 60 65 66 64 54
+61 61 0 0 62 63 0 0 50 61
+0 0 58 0 0 53 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 57 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 60 61 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ash_circle 'member' moria_dwellers~
+0 0 0
+#40307
+lean red eyed black orc~
+A lean, red-eyed, black orc~
+A black skinned orc stands here, red eyes searching its surroundings.~
+   Somewhat tall, for an uruk-kin, and wiry with lean muscle 
+along arms and legs, this dark black fleshed uruk seems 'young', 
+with fewer battle-scars than most older mountain orcs, though the 
+aggressive gleam in dim-red eyes is no duller for his apparent 
+youth. Strong teeth filed into points line thin-lipped mouth, 
+and a top-knot of greasy black hair sprouts from the back of his 
+head. 
+~
+10 8388612 39 25 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 13 9 1 17 16 95 15
+0 0
+0 67 66 63 70 66 70 60 66 78
+78 65 0 71 78 60 65 66 64 54
+61 61 0 0 62 63 0 0 50 61
+0 0 58 0 0 53 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 57 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 60 61 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ash_circle 'member' moria_dwellers~
+0 0 0
+#40034
+hollow eyed green haired female orc CULT OF ARALAK PLOT byNom~
+a hollow-eyed, green-haired female orc~
+A hollow-eyed, green-haired female orc stands here.~
+(null)~
+8 8388612 4 119 0 5d1+80 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40035
+a hunched mutilated figure CULTOFARALAKPLOT~
+a hunched, mutilated figure~
+A hunched, mutilated figure stands here, sigils carved in its face.~
+A series of sigils have been carved into the face of this humanoid
+figure, now unrecognisable. Its form is hunched forwards, and in
+the early stages of decay. Its lips are frequently parted, and just
+behind them, a chunk of blue-green stone is visible, a faint light
+shining from it.
+~
+268435466 41943044 20 64 0 5d1+80 2d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' cult_of_aralak~
+0 0 0
+#40666
+Yuknon fat humpbacked white-dreadlocked orc YuknonNPC~
+a fat, humpbacked, white-dreadlocked orc~
+A pudgy orc with white-dreadlocks is hunched over here.~
+   This orc's spine has been twisted and curved, shortening him 
+and giving him an unnatural looking hump on his back. His face 
+is heavily-scarred and mutilated, providing evidence of battles 
+fought which settle proudly into his leering features. Long, 
+sloppy white-dreadlocks are tossed over much of his face, and his 
+neck croons against his deformation to allow him a view of his 
+surroundings. His eyes are smaller than those of most of his 
+kin, sunken into his sockets with the appearance of being little 
+more than two jet-black orbs. Still, there is sinewy and 
+animalistic muscle knotted around his limbs and extremities, 
+hidden at his torso by flabby folds of fat and scar-tissue. A 
+burn scar at his lips has permanently twisted half of his mouth 
+into a constant half-smirk; the lips themselves less of a set of 
+lips and more the fleshy remains of what once was. 
+~
+10 8388612 30 121 0 5d1+92 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 45 4 0 0
+17 12 18 1 11 14 81 10
+0 0
+0 32 0 0 0 0 61 0 0 0
+0 59 0 50 0 0 0 0 0 0
+61 47 0 0 0 0 0 0 68 66
+0 0 68 0 0 66 36 42 0 0
+0 0 0 0 0 0 0 67 0 0
+0 70 0 41 0 0 65 0 0 42
+0 0 0 0 0 0 0 0 0 0
+0 0 65 0 0 0 0 68 0 0
+0 66 0 0 0 0 0 0 0 0
+0 0 0 0 66 66 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers 'commander' crimson_arms~
+0 0 0
+#40036
+variable Bleak Nest orc for the Bone Face NUMBER TWO~
+a variable orc~
+A variable orc is here, descless~
+This orc bears a burn mark upon its face, covering the entire
+thing, and is fairly short and slender of build. It glances
+around with an evident nervousness, and carries itself in a low,
+cautious gait.
+~
+10 8388612 25 119 0 5d1+100 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 8 50 50 0 50 50 0 50 50
+0 0 0 0 0 0 0 0 0 0
+40 40 0 0 0 0 0 0 40 0
+0 0 40 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40037
+badass badass massive barrel chested orc VHUGRAK~
+a massive, barrel-chested orc~
+A massive, barrel-chested orc looms here.~
+   The stygian-skinned orc before you is simply monstrous in 
+size, possessing cord-like muscles that ripple with every moment. 
+Dense mats of coarse hair cover his hefty chest and bulging 
+forearms. The bald pate of this creature bears no hair. His 
+forehead slopes considerably down into a protuberant brow, which 
+hangs heavily over pale white orbs with red cat-like pupils. A 
+squat nose with nostrils that flare out frames the center of his 
+face. Beneath it, black-chapped lips are set in a cruel line. A 
+lantern jaw dominates the lower portion of his face. 
+~
+8 8388612 42 121 4 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+22 9 15 1 18 16 94 17
+0 0
+0 50 0 75 84 0 55 0 0 0
+0 0 0 0 0 0 0 0 0 0
+83 66 0 0 0 0 0 0 45 50
+0 0 60 0 0 100 60 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 62 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 44 0 0 0 0 0 0 0 0
+0 0 0 0 61 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40038
+mutilated disfigured withering orc SACROFI~
+a mutilated and disfigured, withering orc~
+A mutilated and disfigured, withering orc is here.~
+   This orc is a horrific sight of torture and pain. His skin 
+has been torn in parts so deep that the bone is visible. Oozing 
+black blood creeps down his frame, an innumerable amount of small 
+wounds its source. He his without eyes, fresh blood and gore 
+evidence that they were recently lost. He has no hair, indeed he 
+has no scalp, the flesh having been mercilessly torn away. He is 
+a withering mess that is truly on deaths doorstep. 
+~
+8 8388612 4 121 -4 5d1+1 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+2 16 1 1 2 1 94 1
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+1 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 1 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40039
+LOW POWER VARIABLE ORC FOR THE SERPENT CULT~
+a new mobile~
+(null)~
+This orc is fairly small, and bears a slew of both ritual scarring around the face,
+and tattooing on arms and legs. It makes up for a small size with a great deal of ferocity.
+~
+42 8388612 15 121 0 5d1+100 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 8 30 30 30 30 30 30 0 30
+30 0 0 0 0 30 30 30 30 50
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' serpentcult~
+0 0 0
+#40040
+MEDIUM POWER VARIABLE ORC FOR THE SERPENT CULT~
+a new mobile~
+(null)~
+This orc is of average height, and bears a slew of both ritual scarring around the face,
+and tattooing on arms and legs. What it lacks in special presence and size, it makes up
+in a good deal of ferocity.
+~
+42 8388612 25 121 0 5d1+120 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+20 16 16 1 16 16 94 16
+268435456 0
+0 50 50 50 50 50 50 50 50 50
+50 0 0 0 0 50 50 50 50 70
+50 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' serpentcult~
+0 0 0
+#40041
+HIGH POWER VARIABLE ORC FOR THE SERPENT CULT~
+a new mobile~
+(null)~
+This orc is large, and bears a slew of both ritual scarring around the face,
+and tattooing on arms and legs. It combines its size with a great deal of
+ferocity to make for a lean and effective combatant.
+~
+42 8388612 35 121 0 5d1+140 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+24 16 16 1 16 16 94 16
+268435456 0
+0 70 70 70 70 70 70 70 70 70
+70 0 0 0 0 70 70 70 70 70
+70 70 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' serpentcult~
+0 0 0
+#40231
+gargantuan ice blue serpent hsharss SERPENTCULT byNom~
+a gargantuan, ice-blue serpent~
+A gargantuan, ice-blue serpent is situated here, several hundred feet long.~
+This serpent is truly enormous, as large as several buildings
+and strong enough to support itself reared up to full height 
+with ease. Its scales are about a foot wide each, firmly
+embedded into its flesh and clearly thick and resilient. It
+radiates cold from its very body, chilling the area around it
+and frosting water vapour from any nearby breaths. Its fangs
+are scaled along with it, nearly man-high in their own right,
+and viciously sharp. It has four in each jaw, and they are
+all the width of tree-trunks. Its eyes are beady by scale,
+but nevertheless enormous, a foot in diameter apiece, and a
+piercing yellow color. Flaps on each side of its head waft
+freely in the air, and a forked tongue is visible within its
+magnificent maw.
+~
+262154 4 35 58 7 5d1+400 5d3+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+30 20 20 1 20 40 94 25
+0 0
+0 70 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 100 0
+0 0 100 0 0 100 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40042
+orcs group bone-face-tribe face tribe dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom bftfirstswords~
+a group of scimitar-wielding Bone Face Tribe orcs~
+The first group of a dozen Bone Face Tribe scimitar-wielding orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40043
+soldier_ants_tactical ants group giant soldier DEEPS_EXPANSION byNom TACTICAL~
+a group of giant ants~
+A group of giant ants roam here.~
+These creatures are fearsome in size, easily man-high each one
+and covered in thick, chitinous armor to form a near-impenetrable shell. They
+have long, ferocious mandibles, riddled with spikes and barbs which recurve inwards,
+offering the creature a truly formidable bite. There are six individuals present in
+this group, each one mighty and potent in its own right.
+~
+10 0 40 48 0 5d1+500 3d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 80 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 100
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40044
+orcs group spider-marked-first-swords dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of spider-marked, scimitar-wielding orcs~
+The first group of a dozen scimitar-wielding, spider-marked orcs are assembled here.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40045
+orcs group Ash-Circle-first-swords Ash Circle dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Ash Circle orcs~
+The first group of a dozen scimitar-wielding Ash Circle orcs are assembled here.~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40046
+orcs group bone-face-tribe-second-swords face tribe dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Bone Face Tribe orcs~
+The second group of a dozen Bone Face Tribe scimitar-wielding orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40047
+orcs group bone-face-tribe-third-swords face tribe dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Bone Face Tribe orcs~
+The third group of a dozen Bone Face Tribe scimitar-wielding orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40048
+orcs group bone-face-tribe-fourth-swords face tribe dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Bone Face Tribe orcs~
+The fourth group of a dozen Bone Face Tribe scimitar-wielding orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40049
+orcs group bone-face-tribe-fifth-swords face tribe dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Bone Face Tribe orcs~
+The fifth group of a dozen Bone Face Tribe scimitar-wielding orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40051
+orcs group bone-face-tribe-seventh-swords face tribe dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Bone Face Tribe orcs~
+The seventh group of a dozen Bone Face Tribe scimitar-wielding orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40052
+orcs group bone-face-tribe-eighth-swords face tribe dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Bone Face Tribe orcs~
+The eighth group of a dozen Bone Face Tribe scimitar-wielding orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40053
+orcs group bone-face-tribe-ninth-swords face tribe dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Bone Face Tribe orcs~
+The ninth group of a dozen Bone Face Tribe scimitar-wielding orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40054
+orcs group bone-face-tribe-tenth-swords face tribe dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Bone Face Tribe orcs~
+The tenth group of a dozen Bone Face Tribe scimitar-wielding orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40055
+orcs group bone-face-tribe-sixth-swords face tribe dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Bone Face Tribe orcs~
+The sixth group of a dozen Bone Face Tribe scimitar-wielding orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40056
+orcs group spider-marked-second-swords dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of spider-marked, scimitar-wielding orcs~
+The second group of a dozen scimitar-wielding, spider-marked orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40057
+orcs group spider-marked-third-swords dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of spider-marked, scimitar-wielding orcs~
+The third group of a dozen scimitar-wielding, spider-marked orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40058
+orcs group spider-marked-fourth-swords dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of spider-marked, scimitar-wielding orcs~
+The fourth group of a dozen scimitar-wielding, spider-marked orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40059
+orcs group spider-marked-fifth-swords dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of spider-marked, scimitar-wielding orcs~
+The fifth group of a dozen scimitar-wielding, spider-marked orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40060
+orcs group spider-marked-sixth-swords dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of spider-marked, scimitar-wielding orcs~
+The sixth group of a dozen scimitar-wielding, spider-marked orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40061
+orcs group spider-marked-seventh-swords dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of spider-marked, scimitar-wielding orcs~
+The seventh group of a dozen scimitar-wielding, spider-marked orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40062
+orcs group spider-marked-eighth-swords dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of spider-marked, scimitar-wielding orcs~
+The eighth group of a dozen scimitar-wielding, spider-marked orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40063
+orcs group spider-marked-ninth-swords dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of spider-marked, scimitar-wielding orcs~
+The ninth group of a dozen scimitar-wielding, spider-marked orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40064
+orcs group spider-marked-tenth-swords dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of spider-marked, scimitar-wielding orcs~
+The tenth group of a dozen scimitar-wielding, spider-marked orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40065
+orcs group Ash-Circle-second-swords Ash Circle dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Ash Circle orcs~
+The second group of a dozen scimitar-wielding Ash Circle orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40066
+orcs group Ash-Circle-third-swords Ash Circle dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Ash Circle orcs~
+The third group of a dozen scimitar-wielding Ash Circle orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40067
+orcs group Ash-Circle-fourth-swords Ash Circle dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Ash Circle orcs~
+The fourth group of a dozen scimitar-wielding Ash Circle orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40068
+orcs group Ash-Circle-fifth-swords Ash Circle dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Ash Circle orcs~
+The fifth group of a dozen scimitar-wielding Ash Circle orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40069
+orcs group Ash-Circle-sixth-swords Ash Circle dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Ash Circle orcs~
+The sixth group of a dozen scimitar-wielding Ash Circle orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40070
+orcs group Ash-Circle-seventh-swords Ash Circle dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Ash Circle orcs~
+The seventh group of a dozen scimitar-wielding Ash Circle orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40071
+orcs group Ash-Circle-eighth-swords Ash Circle dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Ash Circle orcs~
+The eighth group of a dozen scimitar-wielding Ash Circle orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40072
+orcs group Ash-Circle-ninth-swords Ash Circle dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Ash Circle orcs~
+The ninth group of a dozen scimitar-wielding Ash Circle orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40073
+orcs group Ash-Circle-tenth-swords Ash Circle dozen scimitars swords shields DEEPS_EXPANSION TACTICAL byNom~
+a group of scimitar-wielding Ash Circle orcs~
+The tenth group of a dozen scimitar-wielding Ash Circle orcs are assembled here.~
+(null)~
+42 0 50 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 100 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+0 0 0
+#40074
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40500
+Variable orc for the Maker. Really crap. ByNom~
+A really, really crappy orc.~
+(null)~
+This orc is very pale indeed, dull eyes focused dead forwards with little
+more than a flicker of vitality and verve. They move slowly and with a
+very notable lack of strength, hardiness, or resilience. Their demeanour
+is shuffling, their gait stiff and ungainly, and their features relatively
+unbruised and smooth.
+~
+10 8388612 25 119 0 5d1+50 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+8 8 1 1 8 1 94 8
+268435456 0
+0 40 30 30 30 30 30 30 30 30
+30 39 31 45 44 50 30 30 30 41
+30 30 0 0 56 45 0 0 20 53
+0 0 63 0 0 24 24 23 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 69 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mordor_char 'member' ithil_orc 'member' the_maker~
+0 0 0
+#40075
+Tolash Bloodwatcher Dragon yrch giant great-helmed twisted bleeding byCeredir~
+a great-helmed, bleeding giant yrch~
+A great-helmed, bleeding giant yrch stands here, his form twisted.~
+   Large and wide, this corrupted creature is scarred heavily, 
+its twisted form covered with a number of stringy veins. Its 
+head, horrendously assymetrical in its shape, is entrapped within 
+a great helm forged of black steel, a crown-like masterpiece 
+bristling with sharp, thorn-like points. However, not all of 
+these thorns reach only outwards from the odd piece of armorment. 
+A great many long, sharp blades turn and point inward, cutting 
+and piercing this creature's mottled skin. A number of tiny 
+points are aimed straight into the hateful yellow eyes, drawing 
+blood with every movement, every blink of an eye, making this 
+yrch seem to weep blood. 
+~
+10 4 40 29 0 5d1+102 2d5+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+30 12 16 1 14 16 94 10
+0 0
+0 60 0 70 80 0 70 80 0 70
+80 0 0 0 0 0 0 0 0 0
+80 80 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 80 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 100
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'commander' hammers_crew 'commander' vadok_kraun 'member' mordor_char 'commander' ithil_orc 'commander' the_maker~
+0 0 0
+#40076
+THE MAKER SPIDERS - DO NOT USE FOR ANYTHING ELSE~
+a new mobile~
+(null)~
+(null)~
+262154 4 20 32 4 5d1+100 2d4+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+19 16 16 1 18 25 94 16
+268435456 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 50 50 0 0 0 100
+0 0 100 0 0 100 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 50 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ithil_orc 'member' the_maker~
+0 0 0
+#40077
+fleshy red tower byNom sporetower~
+a fleshy red tower~
+A tower of red flesh rises here, a few feet high.~
+This tower looks to be made of plant matter, moist and cool, rising
+a few feet into the air from the ground. It is securely planted in
+place, and appears to have no moving parts. A series of purple-pink
+flowers are situated near its top end, dark and sticky fluid visible
+within, with many spores attached. The entire structure of the thing
+is very unusual in appearance, with a thick layer of hardened chitin
+covering its outer extremity.
+~
+2097194 33554432 4 31 1 5d1+400 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 1 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40078
+small red sporeling dodgypotatoes byNom~
+a small red sporeling~
+A small, red sporeling mills about the tower here.~
+This tiny creature has been formed by rapid sporulation from
+the nearby tower, and fights viciously to defend its main body.
+It flails short, thick vines about its body, and uses chitinous
+teeth in a large mouth at the top of its frame to bite with. It
+is propelled from place to place by the action of these vines,
+and appears to just be whirling vines and a big mouth on a body.
+~
+2097194 33554432 20 31 0 5d1+40 2d3+0 0 8 8 0 0 0 0 0
+6377 0 0 98260 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40079
+small yellow sporeling sorghum byNom~
+a small yellow sporeling~
+A small, yellow sporeling mills about the tower here.~
+This tiny creature has been formed by rapid sporulation from
+the nearby tower, and fights viciously to defend its main body.
+It flails short, thick vines about its body, and uses chitinous
+teeth in a large mouth at the top of its frame to bite with. It
+is propelled from place to place by the action of these vines,
+and appears to just be whirling vines and a big mouth on a body.
+~
+2097194 0 20 0 0 5d1+102 2d3+0 0 8 8 0 0 0 0 0
+5271 0 0 98260 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40080
+small green sporeling berries byNom~
+a small green sporeling~
+A small, green sporeling mills about the tower here.~
+This tiny creature has been formed by rapid sporulation from
+the nearby tower, and fights viciously to defend its main body.
+It flails short, thick vines about its body, and uses chitinous
+teeth in a large mouth at the top of its frame to bite with. It
+is propelled from place to place by the action of these vines,
+and appears to just be whirling vines and a big mouth on a body.
+~
+2097194 33554432 20 31 0 5d1+40 2d3+0 0 8 8 0 0 0 0 0
+5265 0 0 98260 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40100
+bullish orc TIJAK~
+a bullish orc~
+A bullish orc is here.~
+   Burns and scars mar the bald head of this ashen creature. He 
+has a monobrow, which hangs above his big black eyes. A bulbous 
+nose bulges from the center of his face, a wart on the very tip 
+of it. Sallow, frog-like lips open up to reveal a mouth missing 
+half its teeth and the other half in various states of decay. 
+Thin cords of muscle ripple underneath his skin, giving his 
+otherwise average frame a menacing look. 
+~
+8 8388612 27 119 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 9 10 1 15 15 81 17
+0 0
+0 8 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 55 0 0 0
+55 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 55 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 60 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'commander' nicc~
+0 0 0
+#40200
+variable low power orc for Nommy~
+a low power orc~
+A low power orc is here.~
+   This orc anxiously looks at its surroundings, dull eyes 
+blankly staring out. It has a sinewy build, but it is no larger 
+than your typical orc. It carries itself poorly, ungainly 
+movements and a stiff gait marring its stride. 
+~
+10 8388612 20 119 0 5d1+70 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+15 13 13 1 13 13 94 13
+0 0
+0 30 30 40 30 30 30 30 0 20
+0 0 0 0 0 30 30 0 30 50
+30 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40201
+variable mid power orc for Nommy~
+a mid power orc~
+A mid power orc is here.~
+(null)~
+10 8388612 25 119 0 5d1+90 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 16 16 1 16 16 94 16
+0 0
+0 40 40 50 0 40 40 0 40 40
+0 0 0 0 0 0 50 0 50 0
+50 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 100 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#40081
+crimson arms variable spider byNom~
+crimson arms variable spider~
+(null)~
+(null)~
+10 4 25 32 5 5d1+60 1d6+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+20 8 8 1 16 20 94 16
+268435456 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+16 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 50 0 0 100 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' crimson_arms 'member' moria_dwellers~
+0 0 0
+$~

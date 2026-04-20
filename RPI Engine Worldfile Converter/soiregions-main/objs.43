@@ -1,0 +1,859 @@
+#43024
+crystals some off white VEGETATION~
+some off white crystals~
+Some off white crystals appear to have formed here.~
+   oset value 4 oset weight 0.50 oset invisible oset magic 
+~
+19 4096 1
+0 0 0 0
+50 0.000000
+0 0 0 0 0 0 1
+4.000000 0 0 0 0 0 0
+#43021
+key short-handled iron KEYED_TO_43021 METAL~
+a short-handled, iron key~
+A short-handled iron key lies here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#43016
+key wood-handled iron KEYED_TO_43016 METAL~
+a wood-handled, iron key~
+A wood-handled, iron key lies here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#43017
+key scratched iron KEYED_TO_43017 METAL~
+a scratched iron key~
+A scratched iron key lies here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#43022
+key thin-handled iron KEYED_TO_43022 METAL~
+a thin-handled, iron key~
+A thin-handled, iron key lies here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#43202
+tunic bySongweaver UNIQUE_RUSALKA_PLOT low-cut fur-lined OTHER~
+a fur-lined, low-cut tunic~
+A fur-lined, low-cut tunic is spread out here, on the ground.~
+This tunic is fringed with wolf fur and has a low cut around
+and below the neck. It is undyed and brown in hue.
+~
+12 135168 9
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43000
+chair NORTHMAN wooden high backed leathered grey WOOD~
+one of a set of wooden, high-backed, $color leathered chairs~
+A set of high-backed, wooden $color leathered chairs sit here.~
+   These four pine chairs are solid, yet relatively simple in 
+their design. Little flair has been added to them by their 
+maker, except for the splash of color added to the seat, made 
+from tanned hide and dyed $color, fastened with black cord. Four 
+squared blocks of wood provide the base for a rather comfortable, 
+high-backed chair. 
+~
+15 35655680 0
+5000 0 -1 0
+800 0.000000
+0 4 0 30 268435456 0 1
+0.000000 0 0 0 32 0 0
+#43001
+massive dull iron key DALEWATCH_TOWER_ENTRANCE METAL~
+a massive, dull iron key~
+A massive, dull iron key lies here.~
+   Made out of a large piece of iron, this key has a large handle 
+and big teeth. It looks heavy, the metal gleaming dully. 
+However the key looks fairly new, as if it has been forged 
+recently. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43002
+small thick iron key DALEWATCH_ARMORY METAL~
+a small, thick iron key~
+A small, thick iron key lies here.~
+   Made out of a small piece of iron, this key is thick with many 
+small teeth. It looks new, unused but sturdy. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43003
+slim iron key DALEWATCH_OFFICER_OFFICE METAL~
+a slim iron key~
+A slim iron key lies here.~
+   Made out of a small piece of iron this key is slim and rather 
+thing. The teeth are short and jagged. But the key looks new, 
+unused, recently forged. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43004
+massive bronze key narrow head DALEWATCH_RAMPART METAL~
+a massive bronze key with narrow head~
+A massive bronze key with a narrow head lies here.~
+   This key is made purely out of fine bronze. The key is long 
+and thick with a large, round handle. But the head narrows and 
+the teeth are small in comparison with the rest of the key, yet 
+it looks new and unused. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43005
+key simple black iron EARMHYDE_ARMORY METAL~
+a simple, black iron key~
+A simple, black iron key lies here.~
+   Made out of a simple piece of metal this key is unadorned and 
+undecorated. The metal has been blackened by fire yet the key 
+looks fairly new and unused. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43006
+key small bronze large handle EARMHYDE_OFFICE METAL~
+a small bronze key with a large handle~
+A small bronze key with a large handle lies here.~
+   This small key is made out of fine bronze. It has a large, 
+round handle but the teeth and head is small. But the key looks 
+new and unused. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43007
+key heavy dark iron DALEWATCH_PRISON METAL~
+a heavy, dark iron key~
+A heavy, dark iron key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43008
+Angost_Guild_Longhouse_Common_Board board guildsmen group OTHER~
+#5a couple of guildsmen#0~
+#5A couple of guildsmen sit here chatting.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43009
+key scratched iron BROWN_COTTAGE brown handle METAL~
+a scratched, iron key~
+A scratched, iron key with a brown handle lies here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#43011
+tournament_board gap toothed merry old gaffer OTHER~
+#5a gap-toothed, merry old gaffer#0~
+#5Listing the Tournament entries here is a gap-toothed merry old gaffer.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43010
+key red-handled iron METAL~
+an iron, red-handled key~
+An iron, red-handled key lies here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43012
+key iron black-handled METAL~
+an iron, black-handled key~
+An iron, black-handled key lies here.~
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43013
+calf cow WRANGLING brown small OTHER~
+#5a small white and brown calf#0~
+#5A small white and brown calf idly flicks its tail, mooing on occassion.#0~
+   Large black eyes look about from the face of this small cattle 
+calf, its large head oddly out of balance with its small body and 
+spindly limbs. A soft downy brown fur covers the skin of the 
+small calf, his legs and face contrasting in white patches. The 
+end of his wide nose and inside his upturned ears are bare of fur 
+and pink skinned. He moos loudly on occassion, often flicking 
+his tail from side to side and wandering about on a slightly 
+akward gait, his long legs out of proportion to his body. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 0 0 0
+#43014
+deed northern breycoat OTHER~
+a deed to own a Northern Breycoat pup~
+A deed to own a Northern Breycoat pup is folded over and on the ground.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+480.000000 0 0 0 0 0 0
+#43015
+deed rhovanion wuldane OTHER~
+a deed to own a Rhovanion Wuldane pup~
+A deed to own a Rhovanion Wuldane pup is folded over and on the ground.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+720.000000 0 0 0 0 0 0
+#43018
+deed rhovanion workhorse OTHER~
+a deed to own a Rhovanion Workhorse~
+A deed to own a Rhovanion Workhorse is folded over and on the ground.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+600.000000 0 0 0 0 0 0
+#43019
+deed xEOTHEOD_ROLE war horse Graehim OTHER~
+a deed to own a Graehim warhorse~
+A deed to own a Graehim warhorse is folded over on the ground.~
+~
+61 4096 1
+45012 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+800.000000 0 0 0 0 0 0
+#43020
+deed horse drawn cart OTHER~
+a deed to own a horse-drawn cart~
+A deed to own a horse-drawn cart is folded over and on the ground.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1320.000000 0 0 0 0 0 0
+#43023
+license shack and land OTHER~
+a license to own a shack~
+A license to own a shack and land lies on the ground.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+840.000000 0 0 0 0 0 0
+#43025
+license cottage and land OTHER~
+a license to own a two-room cottage~
+A license to own a two-room cottage and land lies on the ground.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1800.000000 0 0 0 0 0 0
+#43026
+license shop tent OTHER~
+a license to own and operate a tent-shop~
+A license to own and operate a tent-shop lies on the ground.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+1080.000000 0 0 0 0 0 0
+#43147
+key nicked iron WHITE_COTTAGE_43147 white handle METAL~
+a white-handled, nicked iron key~
+A white-handled, nicked iron key lies here.~
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#43027
+key scratched iron YELLOW_COTTAGE brown handle METAL~
+a scratched, iron key~
+A scratched, iron key with a yellow handle lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#43999
+NORTHLANDS_ADMIN_AUTO_EVENTS BOARD NEAL OTHER UNIQUE_ADMIN~
+#5the northlands event auto logger [N.E.A.L]#0~
+#5The northlands event auto logger [N.E.A.L] stands here.#0~
+~
+22 4104 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43666
+tome supple insignia crossed red lances book OTHER~
+a tome bearing the emblem of a pair of crossed, red lances~
+A tome bearing the emblem of a pair of crossed, red lances lies here.~
+   This tome is bound in supple, finely-crafted leather colored a 
+pure white. Inside are a set of thick, vellum sheets of 
+parchment. On the front cover of the tome is a raised embled 
+stitched into the leather; its insignia is the work of an expert 
+artisan, made of red-stained wood carved in the shape of two 
+crossed lances of war.
+~
+54 0 1
+15 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43156
+Cedric Olamer midnight haired blue eyed chubby limbed baby boy OTHER~
+#5a midnight-haired, blue-eyed baby boy#0~
+#5A midnight-haired baby boy with chubby limbs crawls around here.#0~
+   This baby boy is tiny, despite having thick, chubby arms and 
+legs, and a disproportionately large head. Thin rings of 
+midnight colored hair litter the baby's skull. Smooth, pink, 
+unblemished skin covers the child's pudgy frame. A pair of 
+alert, deep-blue-colored eyes sit over a wide, flat nose, between 
+freckle-dotted cheeks. His ears are rounded and a bit pinker 
+than the rest of his skin. Overall, the baby appears quite 
+healthy. 
+~
+12 135168 1
+0 0 0 0
+2000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43333
+Yo momma OTHER~
+yo momma~
+Yo momma so fat, she can't even fit in this vnum.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43028
+old angost echo token NONE~
+old angost echo token~
+an old angost echo token~
+~
+8 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43208
+OLD ANGOST echo TOKEN NONE~
+an old angost echo token~
+hee northernly echo~
+~
+8 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43029
+massive skull wyrm OTHER~
+the massive skull of a wyrm~
+The massive skull of a wyrm glowers here.~
+   This skull is similar in form to a snake or lizard but huge, 
+the size of a small horse-cart and almost as tall as a man is 
+high when resting on the ground. Pronounced nostril ridges rise 
+at the front of the snout, a gaping maw of pointed teeth grinning 
+below. Each of the teeth is a yellow-brown fang, big around as a 
+fence post and as long as sword, tapering to a still-sharp point. 
+The bone of the skull is ruddy and darkened, tempered by flame 
+and fire over its rounded shape, sharp ridges highlighted down 
+the rear of the skull towards where the spine once attached. 
+Deep, empty eye sockets stare outward, the hollow inside the 
+skull seen through their depths. 
+~
+18 4096 1
+0 0 0 0
+1200 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43030
+shack NORTHLANDS $color-painted byNYX WOOD~
+a $color-painted shack~
+A $color-painted shack sits here.~
+It is a $color-painted shack.
+~
+12 33558528 0
+0 0 1 -1
+1500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43176
+small rusty key MARLOWE nyx METAL~
+A small, rusty key~
+A small, rusty key sits here.~
+   This key is small and worn down by age and rust. It remains 
+functional despite its rough, textured metal. 
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43031
+slender unadorned arming sword Narluin TELDCALA METAL~
+A slender, unadorned arming sword~
+A slender, unadorned arming sword lies here.~
+   Rather plain in appearance, this sword is nonetheless composed 
+of a fine, glittering steel alloy, unmarred and undimmed in 
+lustre. The blade is slender and long, with a narrow fuller 
+running from the hilt nearly to the tip. Acutely pointed and 
+with a diamond cross-section, the sword seems designed for 
+thrusting as well as cutting. Gently upswept, a crescent 
+cross-guard protects the wielder's hand, while the grip is 
+wrapped in a supple, royal blue leather. A silvery, wheel pommel 
+adds balance to the blade, and indeed, when taken in hand, the 
+blade is surpassingly nimble and deft. Unadorned by inscription 
+or decoration, the true art of this blade is in its function, for 
+it is a weapon crafted for war by the hands of a master possessed 
+of skill beyond the hands of Men. 
+~
+5 4104 8193
+0 1 9 3
+700 0.000000
+1 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43032
+slender gleaming blue arming sword Narluin METAL~
+A slender arming sword gleaming with an icy-blue luster~
+A slender arming sword lies here, gleaming with a bright, blue light.~
+   Gleaming with a fierce, icy-blue light, this sword is composed 
+of a fine, glittering steel alloy, unmarred and undimmed in 
+lustre, the light suffusing the blade from center to edges. The 
+blade is slender and long, with a narrow fuller running from the 
+hilt nearly to the tip. Acutely pointed and with a diamond 
+cross-section, the sword seems designed for thrusting as well as 
+cutting. Gently upswept, a crescent cross-guard protects the 
+wielder's hand, while the grip is wrapped in a supple, royal blue 
+leather. A silvery, wheel pommel adds balance to the blade, and 
+indeed, when taken in hand, the blade is surpassingly nimble and 
+deft. Unadorned by inscription or decoration, the true art of 
+this blade is in its function, for it is a weapon crafted for war 
+by the hands of a master possessed of skill beyond the hands of 
+Men. 
+~
+5 4104 8193
+0 1 9 3
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43033
+exquisite silver crystal flute TELDCALA METAL~
+An exquisite, silver and crystal flute~
+An exquisite, silver and crystal flute has been put aside here.~
+   Composed of two sections, this flute is artful and delicate, 
+an exquisite testament to the prowess of the maker. Formed of 
+beautiful silver and capped by a faceted crystal, the two 
+sections slide together with such precision that it is difficult 
+to detect the seam between them. Several holes set in perfect 
+straightness perforate the body of the instrument, allowing the 
+player to form different notes. A closer look reveals that each 
+hole is rimmed with tiny, inset crystal, casting light off from 
+the flute and adding to its luster. However, the true beauty of 
+this instrument is in its music; when played, the voice of the 
+flute is a full expression of the mood of the player. Whether 
+rich and warm, or soft and haunting, the body and range of sound, 
+and the purity of that sound, which emits from the instrument is 
+likely unmatched by any other. 
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43034
+large dove hutch house bird tyghd WOOD~
+a large bird hutch~
+A large bird house stands here.~
+   This is a large bird house made mainly out of hickory and 
+pine. It stands upon a long metal pole about eight feet in the 
+air. A platform is placed within stepping distance, allowing an 
+average sized Man to plant their feet upon it and reach into the 
+actual house. There are three tiers to the hutch, with a divider 
+in each level, creating six seperate rooms, each allowed access 
+by a wooden archway. Numerous small dowels extend from it, 
+allowing a good number of birds to rest there in peace. On the 
+sides of the walls, there are metal grates that can slide back 
+and forth, big enough to allow any venturing human to reach 
+inside without causing too much disturbance. 
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43179
+worn old iron key METAL MEERIYA~
+a worn old, iron key~
+An iron key, worn with old age sits here.~
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43180
+petite cozy cottage MEERIYA WOOD~
+a petite, cozy little cottage~
+A petite, cozy little cottage sits within a clearing here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43184
+key brass bakery outpost_bakery METAL~
+a small brass key engraved with a loaf of bread~
+A small brass key has been left in the dirt here.~
+   This key is made of molded brass. Engraved onto the lip of 
+the key is a loaf of bread. The key has been polished to a high 
+shine. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#43035
+block butcher butchers wooden outpost_butcher table WOOD~
+a huge wooden butcher's block~
+A huge wooden butcher's block stands in the center of the room.~
+   Set on four huge squared legs, this large butcher's block can 
+hold any size huge beast. The wood has been treated and is water 
+and blood proof, though it has to be sanded and refinished 
+periodically to get rid of the cuts from the butcher's knives. 
+~
+15 2101248 0
+100000 0 -1 0
+5000 0.000000
+0 4 0 0 0 0 1
+1000.000000 0 0 0 32 0 0
+#43036
+counter butcher butcher's outpost_butcher WOOD~
+a long butcher's counter~
+A long butcher's counter runs the length of the shop.~
+   Carved from local wood, this butcher's counter has been 
+sanded, sealed and painted a bright white color. There are 
+sunken troughs for holding ice or snow that metal meat trays sit 
+upon. A curved glass window covers the meat trays, allowing for 
+patrons to browse the meat easily. There are many drawers on the 
+back side of the counter for extra storage. 
+~
+15 2101248 0
+100000 0 -1 0
+10000 0.000000
+0 6 0 0 0 0 1
+500.000000 0 0 0 32 0 0
+#43037
+thong leather $color hair LEATHER"~
+a $color leather hair thong~
+A $color leather hair thong has been left here.~
+   This thong is a plain strip of leather dyed $color and is used 
+to tie hair back. 
+~
+11 33558528 33554433
+0 0 0 0
+100 0.000000
+0 0 0 0 268435456 0 1
+5.000000 0 0 0 14 0 0
+#43300
+quiet grove RADAGAST NYX OTHER~
+a quiet grove~
+A small trail leads to quiet clearing lying undisturbed past the brush.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43038
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43700
+Marsh Wardens starving empty ration xCAO_GRANARY OTHER~
+#1Marsh Wardens report of empty rations#0~
+#1Marsh Wardens report of empty rations: Patrols will assuredly be interupted as the soldiers need time to buy supplies, more food is in dire need.#0~
+~
+12 4104 0
+0 0 0 0
+100 0.000000
+0 0 0 0 4194304 0 1
+0.000000 0 0 0 0 0 0
+#43702
+Marsh Wardens full xCAO_GRANARY OTHER~
+Marsh Wardens report full rations~
+Marsh Wardens report full rations: Patrols will be regular, with the well fed soldiers guarding the village and providing escorts for citizens as needed.~
+~
+12 4104 0
+0 0 0 0
+100 0.000000
+0 0 0 0 4194304 0 1
+0.000000 336 43701 0 0 0 0
+#43041
+deed earmhyde thrall private OTHER~
+An Earmhyde Thrall Private~
+An Earmhyde thrall private deed lies here.~
+~
+61 4096 1
+42086 42086 0 0
+100 0.000000
+0 0 0 0 0 0 1
+200.000000 0 0 0 0 0 0
+#43039
+fiskesuppe fish soup NORTHMAN cooking_craft OTHER~
+a bowl of tasty fiskesuppe~
+A bowl of tasty fiskesuppe sits here, awaiting consumption.~
+   This small bowl of soup smells heavily of salt and fish, with 
+many finely chopped bits of white-fish floating in the briny 
+broth. Small bits of vegetables and larger chunks of leeks, 
+carrots, and parsnips sit within the soup, accented by thin 
+boiled strings of egg and dotted with pepper. 
+~
+19 4096 1
+10 0 0 0
+50 0.000000
+0 4 0 0 419430400 0 1
+12.000000 0 0 0 0 0 0
+#43040
+xxxflour timer OUTPOST_BAKERS OTHER~
+Timer for flour prog for outpost bakers~
+A timer for the flour prog for outpost bakers is here~
+~
+12 4108 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#43042
+toy pickaxe wooden axe harmless WOOD~
+a toy pickaxe~
+A harmless, wooden toy pickaxe is here.~
+   This is a lightweight, toy-sized pickaxe, with the head and 
+handle alike carved in wood. One side of the head tapers to a 
+blunt, rounded point, while the other is flat, with a shape not 
+unlike that of a dull chisel. The handle is slender enough to 
+feel clumsy in an adult's hands, but would fit well in those of a 
+child. It is a toy of plain design, but one sturdily made. 
+~
+5 4096 16385
+2 1 1 3
+160 0.000000
+2 3 0 14 268435712 0 1
+6.000000 0 0 0 32 0 0
+S
+100003
+#43043
+Eothain able bodied wheat young board ANGOST_MILITIA OTHER~
+#5an able-bodied, wheat-haired young man#0~
+#5An able-bodied, wheat-haired young man passes on messages.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43044
+armband leather sigil iron ANGOST_MILITIA OTHER~
+an iron-sigil branded leather armband~
+An iron-sigil branded leather armband lies here abandoned.~
+   This armband is formed of some simple tanned but undyed 
+leather, large enough to reach around the upper arm. Plain, it 
+is adorned with iron metal snippets forming a single sigil in the 
+old Northern-Tengwar in a blocky, yet stylized form. 
+~
+11 0 134217729
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43045
+barding leather iron-studded dalewatch-only LEATHER~
+a set of leather barding with iron studs bearing a white eagle insignia~
+A set of barding is here, layered with iron studs, bearing a white eagle insignia.~
+   This set of leather barding has been dyed brown, unglossy in 
+nature to provide less glare from the sun or snow. The barding 
+is well-made of supple leather. All along the barding are 
+unpolished iron studs, adding to the overall protection of the 
+armor. The barding has been formed to fit over the mid-section 
+of the horse, and straps are attached to tighten underneath with 
+iron buckles. On the flank of the barding, stitched in thick 
+white thread, a white eagle has been sew, spreading it's wings in 
+flight. 
+~
+9 1052672 9
+3 1 0 0
+1200 0.000000
+0 0 0 35 0 0 1
+450.000000 48 43046 0 14 0 0
+#43046
+barding leather iron-studded dalewatch-only LEATHER~
+a set of leather barding with iron studs bearing a white eagle insignia~
+A set of barding is here, layered with iron studs, bearing a white eagle insignia.~
+   This set of leather barding has been dyed brown, unglossy in 
+nature to provide less glare from the sun or snow. The barding 
+is well-made of supple leather. All along the barding are 
+unpolished iron studs, adding to the overall protection of the 
+armor. The barding has been formed to fit over the mid-section 
+of the horse, and straps are attached to tighten underneath with 
+iron buckles. On the flank of the barding, stitched in thick 
+white thread, a white eagle has been sew, spreading it's wings in 
+flight. 
+~
+9 1052672 9
+3 1 0 0
+1200 0.000000
+0 0 0 35 0 0 1
+450.000000 2 43047 0 14 0 0
+#43047
+barding leather iron-studded dalewatch-only LEATHER~
+a set of leather barding with iron studs bearing a white eagle insignia~
+A set of barding is here, layered with iron studs, bearing a white eagle insignia.~
+   This set of leather barding has been dyed brown, unglossy in 
+nature to provide less glare from the sun or snow. The barding 
+is well-made of supple leather. All along the barding are 
+unpolished iron studs, adding to the overall protection of the 
+armor. The barding has been formed to fit over the mid-section 
+of the horse, and straps are attached to tighten underneath with 
+iron buckles. On the flank of the barding, stitched in thick 
+white thread, a white eagle has been sew, spreading it's wings in 
+flight. 
+~
+9 1052672 9
+3 1 0 0
+1200 0.000000
+0 0 0 35 0 0 1
+450.000000 0 0 0 14 0 0
+#43048
+toy spear blunt broad headed WOOD~
+a broad-headed, blunt toy spear~
+A harmless broad-headed, blunt toy spear is here.~
+   This small toy spear is made of stained wood. It is simply 
+though sturdily carved, with a broad, rounded head tapering to a 
+blunted point. The wood is perfectly smooth, with no protruding 
+splinters to catch in young flesh; the head's rounded design 
+seems similarly conceived to be safe for play. The toy's only 
+adornment is a small emblem of a spear and arrow, crossed to make 
+the shape of an 'X', carved into the shaft near the spearhead. 
+~
+5 4096 16385
+2 1 1 9
+160 0.000000
+2 3 0 14 268435712 0 1
+6.000000 0 0 0 32 0 0
+#43049
+smooth $color leather work glove LEATHER~
+a smooth $color leather work glove~
+A smooth $color leather work glove lies here, forgotten.~
+   Made from plain and unadorned $color leather, this glove's 
+seams are carefully stitched. It looks as if it was made to fit 
+snugly over the hand of its wearer, enabling them to work 
+unimpeded by bulkier hand protection. The cuff of the glove 
+extends to about one-third of the way up an average Man's 
+forearm, offering plenty of protection to the wrist area as well. 
+~
+11 33554432 4097
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+15.000000 0 0 0 14 0 0
+#43050
+markings henna red brown dark OTHER~
+some dark red-brown henna markings~
+some dark red-brown henna markings~
+~
+11 0 83890661
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#43332
+key iron etched fur CAOFURSHOPSTOCKGATE METAL~
+an iron key etched with a fur motif~
+An iron key lies here, its handle etched.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#43701
+Marsh Wardens dwindling hungry ration xCAO_GRANARY OTHER~
+#3Marsh Wardens report of dwindling rations#0~
+#3Marsh Wardens report of dwindling rations: Patrols may be interrupted for hunting or foraging if more food for rations is not provided soon.#0~
+~
+12 4104 0
+0 0 0 0
+100 0.000000
+0 0 0 0 4194304 0 1
+0.000000 336 43700 0 0 0 0
+$~

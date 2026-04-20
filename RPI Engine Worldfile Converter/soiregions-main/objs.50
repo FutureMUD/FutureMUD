@@ -1,0 +1,986 @@
+#50000
+greatsword gigantic rusted PROFICIENT METAL TROLL~
+a gigantic, rusted greatsword~
+A gigantic, greatsword has been left here, rust over the blade~
+   Too large to be gripped by the likes of a normal man, this 
+greatsword is a titanic specimen of its kind, nearly eight feet 
+tall in total. Its mammoth blade appears battered, rusty and of 
+poor quality, yet its slightly dull blade still seems as though 
+it would easily be capable of cleaving a man in two, were it 
+wielded by a hand strong enough to lift it. 
+~
+5 4096 8193
+0 2 6 4
+4000 0.000000
+4 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#50001
+torc necklace serpent DUNLENDING METAL wire twisted-wire silver iron~
+a twisted-wire, serpent headed torc~
+a twisted-wire, serpent headed torc has been cast aside~
+   This circular torc is made of thick silver and iron wire that 
+has been spun to form the body of the piece. It is meant to sit 
+around the base of the neck, with its opening facing front, a gap 
+between the ends. Due to its construction, it can be easily 
+stretched open and closed without stressing the metal too much. 
+It widens toward its back, tapering to either end. Each end is 
+widened slightly to accommodate the stylistic form of a serpents 
+head. 
+~
+8 4096 2097153
+3 5 0 0
+30 0.000000
+0 0 0 34 266240 0 1
+400.000000 0 0 0 17 0 0
+#50002
+flag large ITHILIEN_DOMINATION Culumalda tree stars beneath OTHER~
+a golden-red and white flag displaying a culumalda tree beneath a star~
+A golden-red and white flag displaying a culumalda tree beneath a star flies here.~
+Upon a long pole of smooth, unstained wood that has been thrust in 
+the ground hangs a golden-red and white flag displaying a culumalda 
+tree beneath a star.
+~
+12 4096 0
+0 0 0 0
+6500 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#50003
+flag large ITHILIEN_DOMINATION crossed swords stars black white OTHER~
+a large flag displaying a pair of crossed swords set between stars~
+A flag displaying a pair of crossed swords set between stars flies here.~
+Upon a long pole of smooth, unstained wood that has been thrust in 
+the ground hangs a black and white flag displaying a pair of crossed 
+swords set between stars.
+~
+12 4096 0
+0 0 0 0
+6500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50004
+flag large ITHILIEN_DOMINATION black grey moon OTHER~
+a flag displaying a black shield within a grey moon~
+A flag displaying a black shield within a grey moon flies here.~
+Upon a long pole of smooth, unstained wood that has been thrust in 
+the ground hangs a black and silver grey flag displaying a shield within 
+a grey moon
+~
+12 4096 0
+0 0 0 0
+6500 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#50005
+flag large ITHILIEN_DOMINATION half sun horizontal sword OTHER~
+a flag with a horizontal sword beneath a half sun~
+A flag with a horizontal sword beneath a half sun flies here.~
+Upon a long pole of smooth, unstained wood that has been thrust in 
+the ground hangs red and grey flag displaying a half Sun Below a 
+horizontal sword
+~
+12 4096 0
+0 0 0 0
+6500 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#50006
+flag large ITHILIEN_DOMINATION half sun horizontal sword OTHER~
+a flag with a horizontal sword above a half sun~
+A flag with a horizontal sword above a half sun flies here.~
+Upon a long pole of smooth, unstained wood that has been thrust in 
+the ground hangs gold and grey flag displaying a half sun above a 
+horizontal sword
+~
+12 4096 0
+0 0 0 0
+6500 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#50007
+flag large ITHILIEN_DOMINATION half blade curving bridge OTHER~
+a flag with a blade beneath a curving bridge~
+A flag with a blade beneath a curving bridge flies here.~
+Upon a long pole of smooth, unstained wood that has been thrust in 
+the ground hangs blue and grey flag displaying a black beneath a
+curving bridge
+~
+12 4096 0
+0 0 0 0
+6500 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#50008
+surcoat  ANDIR_BATTALION quilted culumalda tree beneath star TEXTILE~
+a tree-and-star embroided quilted surcoat~
+A surcoat of white, quilted leather, embroidered with a Culmalda tree beneath a star lies here~
+Made of light, quilted leather, this surcoat doesn't offer 
+much in the way of protection from the elements, mostly intended 
+to identify the wearer's affiliation. It is a long panel of 
+cloth that hangs down the front and back of the wearer, with a 
+hole in the middle for the head and neck to pass through. On the 
+front and back is appliqued the symbol of a culumalda tree beneath
+a star - the heraldry of Andir, Lord of Cormallen
+~
+11 4096 1025
+0 0 0 0
+105 0.000000
+0 0 0 30 0 0 1
+100.000000 0 0 0 7 0 0
+#50009
+surcoat  DALAMIR_BATTALION quilted crossed swords stars TEXTILE~
+a crossed swords-and-star embroided quilted surcoat~
+A surcoat of black, quilted leather, embroidered with crossed swords between a cluster of stars~
+Made of light, quilted leather, this surcoat doesn't offer 
+much in the way of protection from the elements, mostly intended 
+to identify the wearer's affiliation. It is a long panel of 
+cloth that hangs down the front and back of the wearer, with a 
+hole in the middle for the head and neck to pass through. On the 
+front and back is appliqued the symbol of crossed swords between 
+stars- the heraldry of Dalamir, Lord of the Cross-Roads
+~
+11 4096 1025
+0 0 0 0
+105 0.000000
+0 0 0 30 0 0 1
+100.000000 0 0 0 7 0 0
+#50010
+surcoat  GONDAEL_BATTALION quilted half sun below horizontal sword TEXTILE~
+an embroided quilted surcoat displaying a sword beneath a half-sun~
+A surcoat of black, quilted leather, embroidered with a sword beneath a half-sun~
+Made of light, quilted leather, this surcoat doesn't offer 
+much in the way of protection from the elements, mostly intended 
+to identify the wearer's affiliation. It is a long panel of 
+cloth that hangs down the front and back of the wearer, with a 
+hole in the middle for the head and neck to pass through. On the 
+front and back is appliqued the symbol of a half sun below a horizontal
+sword - the heraldry of Gondael, Lord of Dor-en-Dunmen
+~
+11 4096 1025
+0 0 0 0
+105 0.000000
+0 0 0 30 0 0 1
+100.000000 0 0 0 7 0 0
+#50011
+surcoat  DORELAS_BATTALION quilted half sun above horizontal sword TEXTILE~
+an embroided quilted surcoat displaying a sword above a half-sun~
+A surcoat of grey, quilted leather, embroidered with a sword above a half-sun.~
+Made of light, quilted leather, this surcoat doesn't offer 
+much in the way of protection from the elements, mostly intended 
+to identify the wearer's affiliation. It is a long panel of 
+cloth that hangs down the front and back of the wearer, with a 
+hole in the middle for the head and neck to pass through. On the 
+front and back is appliqued the symbol of a half sun above a horizontal
+sword - the heraldry of Dorelas, Lord of Dor-en-Rhunmen
+~
+11 4096 1025
+0 0 0 0
+105 0.000000
+0 0 0 30 0 0 1
+100.000000 0 0 0 7 0 0
+#50012
+surcoat  ORONDIR_BATTALION blade beneath curving bridge TEXTILE~
+an embroided quilted surcoat displaying blade beneath a curving bridge~
+A surcoat of grey, quilted leather, embroidered with a blade beneath a curving bridge~
+ade of light, quilted leather, this surcoat doesn't offer 
+much in the way of protection from the elements, mostly intended 
+to identify the wearer's affiliation. It is a long panel of 
+cloth that hangs down the front and back of the wearer, with a 
+hole in the middle for the head and neck to pass through. On the 
+front and back is appliqued the symbol of a blade beneath a curving
+bridge - the heraldry of Orondir, Lord of the Fords
+~
+11 4096 1025
+0 0 0 0
+105 0.000000
+0 0 0 30 0 0 1
+100.000000 0 0 0 7 0 0
+#50013
+shield broad WOOD ANDIR_BATTALION culumalda tree star golden-red white~
+a broad, culmalda-tree-emblazoned shield~
+A broad shield emblazoned with a culmalda tree beneath a star lies here.~
+Formed of oaken planks bound together with strips of bronze 
+and iron studs, this broad shield has been painted a plain white, 
+its center adorned with a culumalda tree beneath a star, the 
+heraldry of Andir, Lord of Cormallen. A pair straps upon the 
+shields backing allow for it to be easily strapped to one's arm 
+or back.
+~
+6 4096 8912897
+5 12 35 0
+600 0.000000
+0 0 0 32 0 0 1
+100.000000 0 0 0 32 0 0
+#50014
+shield broad WOOD GONDAEL_BATTALION half sun horizontal blade~
+a broad, shield bearing a half sun below a horizontal blade~
+A broad shield, emblazoned with a half sun below a horizontal blade lies here~
+Formed of oaken planks bound together with strips of bronze 
+and iron studs, this broad shield has been painted a plain white, 
+its center adorned with a half sun below a horizontal blade, the 
+heraldry of Gondael, Lord of Dor-en-Dunmen. A pair straps upon the 
+shields backing allow for it to be easily strapped to one's arm 
+or back.
+~
+6 4096 8912897
+5 12 35 0
+600 0.000000
+0 0 0 32 0 0 1
+100.000000 0 0 0 32 0 0
+#50015
+shield broad WOOD DORELAS_BATTALION half sun horizontal blade~
+a broad, shield bearing a half sun above a horizontal blade~
+A broad shield, emblazoned with a half sun above a horizontal blade lies here~
+Formed of oaken planks bound together with strips of bronze 
+and iron studs, this broad shield has been painted a plain white, 
+its center adorned with a half sun above a horizontal blade, the 
+heraldry of Dorelas, Lord of Dor-en-Rhunmen. A pair straps upon the 
+shields backing allow for it to be easily strapped to one's arm 
+or back.
+~
+6 4096 8912897
+5 12 35 0
+600 0.000000
+0 0 0 32 0 0 1
+100.000000 0 0 0 32 0 0
+#50016
+shield broad WOOD ORONDIR_BATTALION Blade curving bridge~
+a broad, bridge emblazoned shield~
+A broad shield, emblazoned with a blade beneath a curving bridge~
+Formed of oaken planks bound together with strips of bronze 
+and iron studs, this broad shield has been painted a plain white, 
+its center adorned with a blade beneath a curving bridge, the  
+heraldry of Orondir, Lord of the Fords. A pair straps upon the 
+shields backing allow for it to be easily strapped to one's arm 
+or back.
+~
+6 4096 8912897
+5 12 35 0
+600 0.000000
+0 0 0 32 0 0 1
+100.000000 0 0 0 32 0 0
+#50017
+shield broad DALAMIR_BATTALION crossed swords stars WOOD~
+a broad, crossed-swords emblazoned shield~
+A broad shield, emblazoned with crossed-swords between stars, lies here.~
+Formed of oaken planks bound together with strips of bronze 
+and iron studs, this broad shield has been painted a plain white, 
+its center adorned with crossed-swords between stars, the  
+heraldry of Dalamar, Lord of the Cross-roads. A pair straps upon the 
+shields backing allow for it to be easily strapped to one's arm 
+or back.
+~
+6 135168 8912897
+5 12 35 0
+600 0.000000
+0 0 0 32 516 0 1
+100.000000 0 0 0 32 0 0
+#50018
+pavilion tent white tree TEXTILE~
+a broad pavilion tent with a White Tree~
+A broad pavilion tent, emblazoned with a white tree, has been set up here.~
+   This pavilion tent serves as a semi-permanent shade fixture, 
+consisting of four poles, lined with silver, supporting a broad, 
+black silk canvas. An elaborate White Tree has been embroidered 
+into the materials, very expertly woven. The entire canvas is 
+bordered by long, silvery bead tassles that help keep away any 
+annoying insects. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#50019
+key MANSE_KEY 50033_key thick iron key METAL~
+a thick, iron key~
+A thick iron key has been discarded here.~
+   This iron key is solidly constructed and carries a neat 
+inscription of a mason's hammer. 
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#50020
+gauntlets chainmail iron glove METAL~
+a pair of chainmail gauntlets~
+a pair of chainmail gauntlets sits here~
+   These maille gloves have been formed by countless small rings 
+linked one to another, patterned into the shape of a human hand. 
+A bronze buckle at the wrist helps secure the gauntlet, while 
+several leather strips running along the links further ensure 
+grip and an even wear. 
+~
+9 4096 129
+2 4 0 0
+300 0.000000
+0 0 0 30 4096 0 1
+225.000000 0 0 0 17 0 0
+A
+10001 5
+A
+10017 -15
+A
+10016 -15
+#50021
+MASONS_BOARD_MANSE clerk crossed desk OTHER~
+a clerk sits at a desk relaying messages~
+A clerk sits at a crossed chisel-and-hammer-engraved desk relaying messages.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50022
+cocoon large white webbing TEXTILE~
+A man-shaped cocoon of pure white webbing~
+Hanging from the ceiling here are several large cocoons, composed of pure white webbing~
+~
+15 4104 0
+50000 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#50023
+shadowy bed opulence canopy torn OTHER~
+a shadowy bed of ruined opulence with a ruined, torn canopy~
+A shadowy bed of ruined opulence is here, covered in a myriad of thick spider webs, torn canopy hanging down~
+~
+15 2101256 0
+30000 0 -1 0
+300 0.000000
+0 2 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50024
+long-handled silver key METAL~
+a long-handled silver key~
+A silver key on a long handle lays on the ground here.~
+   Made of low-quality silver, this key sports an extended handle.
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#50025
+round-handled silver key METAL~
+a round-handled silver key~
+A silver key with a round handle lays on the ground here.~
+   Made of low-quality silver, this key sports a rounded handle.
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#50026
+square-handled silver key METAL~
+a square-handled silver key~
+A silver key with a square handle lays on the ground here.~
+   Made of low-quality silver, this key sports a squared handle.
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#50027
+stone chest timeworngray timeworn STONE~
+a timeworn chest of rough gray stone~
+A timeworn chest of rough gray stone is here, set atop the northern pedestal.~
+   This chest is composed of rather rough gray stone, the surface 
+harsh and abrasive to the touch. The massive stone lid operates 
+on low-quality brass hinges, the ancient objects squealing loudy 
+in protest whenever the lid is lifted. Overall, the stone chest 
+seems of rather crude, ancient design. 
+~
+15 4104 1
+2000 1 -1 0
+4500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#50028
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+8 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50029
+whores gaunt dark eyed women OTHER~
+a cluster of gaunt, dark-eyed women~
+Gaunt, shabbily dressed young women cluster here, dark rings about their eyes and a sick desperation to their movements.~
+   These women look haggard and gaunt, large, dark, rings under 
+their eyes and ribs clearly visible beneath their shabbily 
+dressed clothing that has none-the-less been styled to look 
+revealing. They meekly pester every passerby, offering him or 
+her various "services" in exchange for coin. Several of them can 
+be seen to discreetly smoke some substance or another from a pipe 
+whenever the crest helms of the Black Watch are not in sight. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 384 66227 0 0 0 0
+#50030
+key MALRED_STABLE heavy engraved horshoe coins iron METAL~
+An engraved, heavy iron key~
+A heavy iron key engraved with two coins and a horseshoe on the handle~
+  This heavy iron key has the engravings of two coins and a
+horseshoe on its handle. It is made of iron and is sturdily made.
+~
+18 4096 1
+0 0 0 0
+15 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 17 0 0
+#50031
+handful green glowing moss OTHER OTHER~
+a handful of green-glowing moss~
+A handful of green-glowing moss is here, growing along the walls.~
+~
+1 4096 1
+0 10 7287 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50300
+ferry boat east bank OTHER~
+a ferry tied to the east bank~
+The ferry is securely tied to the eastern docks.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50301
+ferry boat east OTHER~
+a ferry near the east bank~
+The ferry is near to the eastern bank.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50302
+ferry boat middle OTHER~
+a ferry halfway across the river~
+The ferry is halfway across the river.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50303
+ferry boat west OTHER~
+a ferry near the west bank~
+The ferry is near the western bank.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50304
+ferry boat east bank OTHER~
+a ferry tied to the west bank~
+The ferry is securely tied to the western docks.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50305
+ferry not here OTHER~
+an empty dock~
+The ferry is not at the dock.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50100
+OBSOLETE_NO_LOAD armband BATTALION grey bearing service badges TEXTILE~
+a grey armband bearing service badges~
+A grey armband bearing service badges lies discarded here.~
+   This armband is woven of sturdy, grey woolen cloth that is 
+evenly dyed. It is secured around the arm by a pair of dull 
+bronze buttons. Embroidered into the cloth is the design of an 
+ornate shield and moon. 
+~
+11 4096 134217729
+100 0 -1 0
+10 0.000000
+0 0 0 30 4194304 0 1
+10.000000 0 0 0 7 0 0
+#50101
+badge BATTALION_ONE_YEAR_SERVICE_MEDAL rectangular bronze METAL~
+a rectangular badge of bronze~
+A rectangular badge lies here, made of bronze.~
+   This badge is nothing more than a rectangular piece of bronze 
+metal with the edges rounded. A lightly-engraved symbol of a 
+shield within a full moon is set directly in the center. A 
+simple pin allows it to be attached to clothing. It represents 
+one year of service with Lord Eradan's Battalion. 
+~
+12 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 20 512 0 1
+0.000000 0 0 0 16 0 0
+#50102
+badge BATTALION_SIEGE_SURVIVOR_MEDAL silver shield METAL~
+a silver medal in the shape of a shield~
+A bright silver medal in the shape of a shield lies here.~
+   This shield-shaped medal has been made from polished silver, 
+and is of high quality. The glossy surface is etched with the 
+number '2478'. A pin upon the back allows it to be secured to an 
+article of clothing. This badge is given to those valiant 
+survivors of the second Siege of Osgiliath. 
+~
+12 135168 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+50.000000 0 0 0 28 0 0
+#50103
+badge medal elaborate STEWARD_MEDAL_OF_HONOR silver tree METAL~
+an elaborate silver tree-shaped medal~
+An elaborate medal in the shape of a tree lies here, silver glinting.~
+   This masterfully crafted and beautifully polished medal has 
+been carefully shaped into the form of the White Tree. The 
+high-quality silver has an almost astonishing level of detail, 
+and is quite obviously the product of many long hours of work by 
+the maker. This exquisite medal is awarded only by the Steward 
+himself for extreme honor and loyalty to Gondor, and is the 
+second highest honor that can bestowed upon any member of 
+Gondor's military. 
+~
+12 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 512 0 1
+250.000000 0 0 0 28 0 0
+#50104
+badge medal silver ERADAN_MEDAL_OF_HONOR METAL moon-shaped battalion~
+a silver medal in the shape of a full moon~
+A silver, moon-shaped medal lies here, glinting.~
+   This large and flashy silver medal has been wrought in the 
+shape of a full moon. The surface of the medal is highly 
+texturized, with many bumps, grooves, and shadows. It is given 
+to those of Lord Eradan's Battalion that have shown the highest 
+level of honor in their service. 
+~
+12 135168 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+150.000000 0 0 0 28 0 0
+#50105
+medal silver ASTIRIAN_MEDAL_OF_HONOR disc-shaped sword engraving METAL~
+a silver disc-shaped medal with a sword-and-star engraving~
+A round silver medal with a sword-and-star engraving lies here.~
+   This medal is in the shape of a convex circular disc, made of 
+brightly-burnished silver. Upon the disc, engraved sylishly, is 
+the symbol of the sword and star, the heraldry of Lord Astirian. 
+This tastefully-designed medal is given to those in Lord 
+Astirian's service who display the utmost sense of honor and 
+courage on their Lord's behalf. 
+~
+12 0 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+150.000000 0 0 0 28 0 0
+#50106
+badge medal bronze ERADAN_BATTALION_BADGE_OF_LOYALTY full moon METAL~
+a bronze medal in the shape of a full moon~
+A bronze, moon-shaped medal lies here.~
+   This bronze medal is crafted from dull bronze in the form of a 
+full moon. It is richly detailed and much attention has been 
+paid to its aesthetic qualities. This is Lord Eradan's Badge of 
+Loyalty, given only to those showing extreme loyalty and 
+dedication to their Lord. 
+~
+12 135168 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+50.000000 0 0 0 16 0 0
+#50107
+medal bronze ASTIRIAN_BADGE_OF_LOYALTY disc-shaped sword-and-star engraving METAL~
+a bronze, disc-shaped medal with a sword-and-star engraving~
+A bronze, disc-shaped medal with a sword-and-star engraving lies here.~
+   This bronze medal is crafted from dull bronze in a disc-shape, 
+the engraving of a sword-and-star upon its surface. It is 
+richly-detailed and much attention has been paid to its aesthetic 
+qualities. This is Lord Astirian's Badge of Loyalty, given only 
+to those showing extreme loyalty and dedication to their Lord. 
+~
+12 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 512 0 1
+50.000000 0 0 0 16 0 0
+#50162
+key heavy bronze-handled OSGI_MANSE_SWAREHOUSE_50163 OTHER~
+a heavy, bronze-handled key~
+A heavy, bronze-handled key lies here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+25.000000 0 0 0 0 0 0
+#50032
+key BATTALION_OSGI_EAST long-barreled thick iron METAL~
+a long-barreled thick iron key~
+A long-barreled key made of thick iron has been laid here.~
+   A long barreled, thick iron key. 
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#50033
+armor package ringmail OTHER~
+a package of ringmail armor~
+A package of ringmail armor lies here~
+   This simple bag contains a number of pieces of ringmail armor 
+packaged together for easy storage. 
+~
+12 4198400 1
+0 0 0 0
+2800 0.000000
+0 0 0 0 0 0 1
+970.000000 0 0 0 0 0 0
+#50034
+armor package scalemail OTHER~
+a package of scalemail armor~
+A package of scalemail armor lies here~
+   This simple bag contains a number of pieces of scale armor, 
+packaged together for easy storage. 
+~
+12 4198400 1
+0 0 0 0
+4000 0.000000
+0 0 0 0 0 0 1
+1775.000000 0 0 0 0 0 0
+#50035
+armor package chainmail OTHER~
+a package of chainmail armor~
+A package of chainmail armor lies here~
+   This simple bag contains a number of pieces of chainmail armor 
+packaged together for easy storage. 
+~
+12 4198400 1
+0 0 0 0
+3700 0.000000
+0 0 0 0 0 0 1
+2775.000000 0 0 0 0 0 0
+#50036
+armor package finely-wrought chainmail OTHER~
+a package of fine chainmail armor~
+A package of fine chainmail armor lies here~
+   This simple bag contains a number of pieces of finely-wrought 
+chainmail armor, packaged together for easy storage. 
+~
+12 4198400 1
+0 0 0 0
+2300 0.000000
+0 0 0 0 0 0 1
+2325.000000 0 0 0 0 0 0
+#50037
+shoes UNIQUE_STRUMMER strummer night black light leather TEXTILE~
+a pair of light, night-black leather shoes~
+A pair of light, night-black leather shoes lay here forgotten.~
+Considerable talent has gone into the making of these shoes. A
+subtle work of leather, these fine shoes are dyed a night black with
+a dark finish to prevent any light reflecting from them. The tops
+and sides are hard and durable, but starting from the point of the
+foot and continuing to the heel of the foot along the bottom of the
+shoe the leather has been reinforced by what seems to be velvet,
+giving the wearer a silent stop on any surface. Small grooves have
+been made in the velvet to provide grip, and the shoe itself is
+snug.
+~
+11 135168 65
+100 0 -1 0
+300 0.000000
+0 0 0 0 4 0 1
+0.000000 0 0 0 7 0 0
+A
+10024 4
+#50038
+belt knife sheath small leather LEATHER~
+a small leather knife sheath~
+A small leather knife sheath lies here.~
+This sheath is made of good quality leather, fashioned into a simple
+form designed for carrying knives and daggers. Small hooks allow it
+to be attached to one's belt. It bears no ornamentation, save for
+the simple black dye of the leather.
+~
+58 4096 262145
+300 0 0 0
+200 0.000000
+0 0 0 30 4 0 1
+20.000000 0 0 0 14 0 0
+#50177
+UNIQUE_PKEG DWARVISH-QUALITY brilliantly shinig pair platemail leggings steel METAL~
+a brilliantly shining pair of steel platemail leggings~
+a brilliantly shining pair of steel platemail leggings glint in the presence of light.~
+   Forged by the hands of a master, these leggings are composed 
+of steel and fashioned into the form of platemail. Bearing a 
+high shine, they glint brilliantly in the presence of light and 
+possess the air of being extremely durable against any form of 
+attack. Bearing no form of mark or symbol, these leggings are 
+rather spartan, lacking all form of aesthetics, but they are 
+absolutely superior at allowing the wearer a stout defense. 
+~
+9 4096 33
+4 5 0 0
+1000 0.000000
+0 0 0 75 1052768 0 1
+5000.000000 0 0 0 18 0 0
+A
+10025 -20
+A
+10024 -20
+A
+10037 -20
+#50178
+UNIQUE_PKEG DWARVISH-QUALITY pair shimmering steel sabatons METAL~
+a pair of shimmering sabatons over a pair of black boots~
+A pair of shimmering steel sabatons affixed to a set of boots, lies upon the ground, glinting in the presence of light.~
+   Brought to a high shine, this pair of sabatons has been 
+forge by the hands of a master. Now, the steel resides at rest
+upon a pair of black leather boots that would rise about to the
+knee of the wearer. Glistening in contrast to the black leather,
+the sabatons bright polish is given the great shimmer by the 
+difference. Although masterfully crafted, the sabatons do lack
+ornamentation, being composed simply of unengraved steel.
+~
+9 4096 65
+4 5 0 0
+300 0.000000
+0 0 0 75 0 0 1
+300.000000 0 0 0 18 0 0
+#50039
+badge medal silver ERADAN_MEDAL_OF_RECOGNITION shield byPhear METAL~
+a silver medal, shaped as a shield~
+A silver, etched, shield-shaped medal lies here.~
+   This silver medal is crafted from polished silver in the form of a full moon. A shield being supported by a soldier and a craftsman is finely etched on its face, richly detailed with great attention paid to its aesthetic qualities. This is Lord Eradan's Badge of Recognition, given to those that show selfless dedication and support to the Battalion. 
+~
+12 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 30 0 0 1
+100.000000 0 0 0 28 0 0
+#50179
+breastplate plate steel polished UNIQUE_CEOLWULF MASTER-QUALITY DWARVISH METAL~
+a breastplate of polished steel~
+A steel breastplate that has been brought to a high shine lies here upon the ground.~
+   Brought to a high sheen, this breastplate has been forged of
+steel and made into an excellent suit that would well protect
+the wearer of this armor. Unadorned by any ornamentation, this
+breastplate does sparkle with reflected light. Protecting both
+the back and the chest, this breastplate is padded with leather
+in order to add to its comfort.
+~
+9 4096 9
+3 5 0 0
+1000 0.000000
+0 0 0 40 1048608 0 1
+2200.000000 0 0 0 18 0 0
+A
+10036 -10
+A
+10037 -10
+#50180
+breastplate UNIQUE_PFIRKIN DWARVEN_QUALITY beautifully crafted articulated steel METAL~
+a beautifully-crafted, articulated steel breastplate~
+A beautifully-crafted, articulated steel breastplate has been left here.~
+   Burnished to a reflective sheen, this breastplate looks to 
+have been constructed with both a mastery of the craft and a love 
+of the piece. Of two pieces, the chest and abdominal plates 
+overlap and are hinged seamlessly to flex with the needs of the 
+wearer. They have been crafted to resemble the taut muscles 
+housed underneath. The edges are rounded at the neck and arms 
+for comfort. Pauldrons, attached by stout leather straps, are 
+shaped in the form of fiercely roaring dragon heads and protect 
+the wearer's shoulders. Stretching across the back are a series 
+of leather straps that carefully balance the weight of the piece. 
+~
+9 135168 9
+4 5 0 0
+800 0.000000
+0 0 0 40 1048608 0 1
+2200.000000 0 0 0 18 0 0
+A
+10024 -5
+A
+10037 -10
+A
+10025 -10
+A
+10036 -5
+#50042
+Battalion_board board young lad brown OTHER~
+#5a young, brown-haired lad passing messages#0~
+#5A young, brown-haired lad is taking names and passing messages here.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50040
+decayed head human osgi_ruins OTHER~
+a decayed human head~
+A decayed human head lays here on its side.~
+   This was once the head of a living, breathing citizen or 
+soldier of Osgiliath, though now it is impossible to recognise. 
+Almost devoid of features, rotten and chewed, this is more skull 
+than head now. Some remnants of hair cling on. 
+~
+12 0 1
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50041
+Osgi search marker Invisible OTHER~
+a 15 min RL timer~
+Should disappear after 15 RL mins~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 4 86 0 0 0 0
+#50181
+UNIQUE_PKEG DWARVEN_QUALITY sleeves plated steel METAL~
+a pair of plated steel sleeves~
+A pair of plated steel sleeves, glimmering brightly as they rest upon the ground.~
+   Brilliantly shimmering with the presence of light, these 
+plates of steel have been affixed to sleeves of thick leather. 
+Fashioned for short arms of stout girth, these sleeves would 
+provide a great protection. The leather provides comfort whereas 
+the steel provides a sturdy defense. The hinges on the elbows 
+offer strong protection while providing flexibility to the wearer 
+of these steel sleeves. 
+~
+9 4104 257
+4 5 5 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 18 0 0
+#50043
+ferry eradan large ship OTHER~
+a large ship with oars and sails~
+A large ship with oars and sails waits here to transport those on board to South Ithilien.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#50044
+timer ferry eradan OTHER~
+an invisible timer stopping mass attempts at producing mares~
+An invisible timer stopping mass attempts at producing mares.~
+   The soldiers here expect the ferry to be here in anything up 
+to a few days. They say that the sailors will arrive when the 
+ferry is going to leave within half a day. 
+~
+12 67108868 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 60 86 0 0 0 0
+#50045
+half day warning timer OTHER~
+an invisible timer stopping mass breeding mares working on a single nest~
+An invisible timer stopping mass breeding mares working on a single nest.~
+   These sailors always gather half a day before the ferry 
+departs. 
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 5 86 0 0 0 0
+#50046
+ferry departing OTHER~
+a ferry about to depart at any moment~
+The ferry is about to depart at any moment.~
+   Run and you might catch it in time! *enter ferry* 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 20 0 0
+#50050
+sword DO_NOT_LOAD byGremlin bastard gleaming METAL~
+a gleaming bastard sword~
+A gleaming bastard sword lies here~
+~
+5 4096 8193
+5 2 7 4
+700 0.000000
+4 0 0 0 0 0 1
+0.000000 0 0 0 18 0 0
+#50999
+helmet pink pixie studded jewel ADMIN ONLY Amandil METAL~
+a jewel-studded, steel pixie helmet~
+A jewel-studded, steel pixie helmet lays here cast away.~
+   This helmet was crafted by a true artisan. Scroll work of ivy 
+flows along either side. Jewels of various size and shape and 
+make cover the helm in a near random pattern. Along the bottom 
+there is leather that hangs down to secure it to the wearers 
+head. The top of the helm comes to a vicious point. 
+~
+9 4640 17
+4 4 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+A
+10025 15
+A
+10020 15
+A
+10048 15
+A
+10046 15
+#50047
+badge BATTALION gleaming bronze medal shaped bridge_siege 2490SR By_VAIRE METAL~
+a gleaming bronze medal shaped like a bridge~
+A gleaming bronze medal shaped like a bridge lies here.~
+This burnished bronze medal has been shined to a high gleam. Etched in
+the metal is the form of a stone bridge, the defense structures upon the
+top aflame. Crossing through the frame and across the medal are the
+minuscule rendered details of arrows. A small force of men are depicted at
+one side of the bridge, clustered in miniature form. At the base of the
+medal in Numenian-Tengwar, the date 2490 S.R. is etched. 
+~
+12 135168 1
+0 0 0 0
+100 0.000000
+0 0 0 0 512 0 1
+0.000000 0 0 0 16 0 0
+$~

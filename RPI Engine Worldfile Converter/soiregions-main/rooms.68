@@ -1,0 +1,353 @@
+#68000
+Base Room~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+68 65544 0
+0
+S
+#68001
+Within a Destroyed Barn~
+   This large barn looks to have seen much better days; its 
+straw-strewn floor has deep holes dug up, pooling with bloody 
+water, and its sides sag inwards, hardly able to support the 
+roof. Its large doors have been ripped off at the hinges, 
+leaving it open to the road outside, and rafters have been 
+smashed and litter the ground. 
+~
+68 67174680 0
+0
+D0
+~
+~
+0 -1  0 68013
+D2
+~
+~
+0 -1  0 68002
+S
+#68002
+Shattered Stalls and a Crushed Ladder~
+   These once were horse stalls, situated at the far back of what 
+used to be a barn - now they are shattered, splintery rubble 
+heaps, bits of twisted iron thrown in for good measure, and 
+soaked in gore. The smell of rot lingers heavily here, and a 
+converted stall to the east, also shattered and broken, is 
+littered with bones. A ladder, broken into many pieces, lies on 
+its side nearby. 
+~
+68 67174424 0
+0
+D0
+~
+~
+0 -1  0 68001
+S
+#68003
+Stall Coverted into a Holding Cell~
+   This stall has been converted rather hastily, but thoroughly, 
+into a holding cell for prisoners. The floor has been swept 
+clean of straw and is plain dirt, though a drip in the ceiling 
+allows it to churn to mud in one corner, and the thin wall of the 
+barn has been reinforced here several times over by thicker 
+wooden planks, making a break-out unlikely. The wooden stall 
+door has been rebuilt, taller and wider, and wire mesh, more 
+commonly called chicken wire among the villagers, covers much of 
+it, and stretches several feet past it, effectively cutting off 
+the small stall from any unwanted outside influence. 
+~
+68 67174664 0
+0
+S
+#68004
+Straw-Strewn Barn Loft~
+   The floor of this small loft has been strewn with straw and 
+has a thick, musty smell in the best of weather. From here one 
+can see to the north, and below, much of the barn and even go so 
+far as to catch a glimpse of the dirt road outside. A wooden 
+ladder leads down to the barn floor. 
+~
+68 67174664 0
+0
+D0
+~
+~
+0 -1  0 68005
+S
+#68005
+In the Air above the Barn Floor~
+   Small dust motes dance majestically in the air above the barn 
+floor, though at times are crushed by falling bodies - which in 
+turn fall unpleasantly to the ground below, which offers them no 
+cushioning for their fall. 
+~
+68 67175432 0
+0
+D0
+~
+~
+0 -1  0 68013
+D2
+~
+~
+0 -1  0 68004
+D5
+~
+~
+0 -1  0 68001
+S
+#68006
+A Few Colourful Stalls~
+   Set against the wooden wall of the battlements, several small 
+stalls have been constructed and stream with once colourful 
+banners, or bits of cloth, but have long since fallen into 
+disrepair. An old forge, rusted and broken, sits nearby - scrap 
+metal, bits of rust, and pieces of the forge itself clutter the 
+grassy dirt near it, under the cover of a canvas tarp. 
+~
+68 67174416 1
+0
+D2
+~
+~
+0 -1  0 68013
+D3
+~
+~
+0 -1  0 68007
+S
+#68007
+Village Green Near the Northern Wall~
+   This field, which sprouts out of the dusty village square to 
+the south and meanders northwards until it reaches the wall, is 
+more dirt than grass; packed hard in places but deceptively soft 
+in others, making the terrain treacherous. A few hay targets 
+have been set up against the northern battlements but otherwise 
+the place is barren, if open. 
+~
+68 67174404 1
+0
+D1
+~
+~
+0 -1  0 68006
+D2
+~
+~
+0 -1  0 68012
+S
+#68008
+Large, Wood-Panelled Entry Hall~
+   This hall looks to have once been quite cozy and comfortable, 
+with well-cut wooden panelling lining the walls and polished, 
+pinewood slats making up the floor of the building. Candle stick 
+holders have been bolted to the walls and, though the candles 
+themselves are gone and the iron tarnished, cast an air of 
+sophistication to the large room. That air, however, is soon 
+stale when one surveys the rest of the room: broken furniture has 
+been pushed against the far wall, the doors have been battered 
+and there are deep gouges in the wood panelled walls, where 
+swords have made a lasting impression. 
+~
+68 1140916488 0
+0
+D1
+~
+broken door~
+1 68021  0 68012
+D2
+~
+~
+0 -1  0 68010
+D3
+~
+~
+0 -1  0 68009
+S
+#68009
+Old Dining Hall~
+   This dining hall is a bit dusty, its tables battered and 
+aging. Torches have been set in the walls by means of iron hooks 
+and cast a yellow light about the area; otherwise this room is 
+rather barren. 
+~
+68 67174408 0
+0
+D1
+~
+~
+0 -1  0 68008
+S
+#68010
+Cluttered, Unorganized Sitting Room~
+   This sitting room is rather plain. Its wood-panelled walls 
+are scratched in places, and gouges in others, and bedraggled, 
+broken furniture sits lonesome in the center of the room with a 
+few scattered bedrolls and cots thrown down haphazardly near 
+them. A few hooks in the walls allow torches to light the room 
+and a moth-eaten rug has been thrown over the wood floor. 
+~
+68 67174664 0
+0
+D0
+~
+~
+0 -1  0 68008
+S
+#68011
+Ramshackle Village Path~
+   A ramshackle path cuts from the southern portcullis to deeper 
+north inside the tiny village, once cluttered by the livestock 
+and ox-carts of farmers bringing their harvest in from the 
+surrounding fields to sell, mill and slaughter but now completely 
+empty. Underfoot, the path is nothing more than packed dirt. A 
+thick ladder set against the western battlements allows one 
+access up to them. 
+~
+68 1140916240 1
+0
+D0
+~
+~
+0 -1  0 68012
+D2
+~
+sturdy-portcullis~
+3 -1  0 10923
+D4
+~
+~
+0 -1  0 10933
+S
+#68012
+Town Square of the Tiny Village~
+   The crooked path that cuts from south to east through this 
+tiny village enlargens here to a dusty town square, filled with 
+stray dogs, debris, and little else. The buildings in this 
+section of the village are slightly larger than those found 
+elsewhere, a run-down building fashioned from stone and painted 
+wood set to the west, clearly once the house of the lord of the 
+fiefdom. 
+~
+68 1140916240 1
+0
+D0
+~
+~
+0 -1  0 68007
+D1
+~
+~
+0 -1  0 68013
+D2
+~
+~
+0 -1  0 68011
+D3
+~
+broken door~
+1 68021  0 68008
+D4
+~
+~
+0 -1  0 12900
+S
+#68013
+Dirt Path Through the Walled Village~
+   This dirt path leads through the small stone and wooden houses 
+that have been constructed along it, or those that still remain 
+standing and mostly whole. Several of the buildings seem 
+uninhabited, though a number of brightly painted market stalls 
+are arranged directly north of the road, against the wall, and 
+offer basic services such as smithying and tinkering to the 
+populace. To the east, a rope-lashed portcullis lies, while to 
+the northeast a ladder is lain against the battlements. 
+~
+68 1140916240 1
+0
+D0
+~
+~
+0 -1  0 68006
+D1
+~
+sturdy-portcullis~
+3 -1  0 10926
+D2
+~
+~
+0 -1  0 68001
+D3
+~
+~
+0 -1  0 68012
+D4
+~
+~
+0 -1  0 10931
+S
+#68014
+Dimly Lit Sleeping Quarters~
+   This room is lined with several rows of wooden bunks and cots, 
+though careful observer would also notice the presence of even 
+bedrolls and mats strewn across the floor. Despite being dimly 
+lit by only a few sconces the room is comfy, and also boasts a 
+small window, which has been set into the northern wall. A cozy 
+river rock fireplace has been set against the western wall. 
+~
+68 67174664 0
+0
+D1
+~
+~
+0 -1  0 66734
+S
+#68015
+A Rickety Supply Shed~
+   The western end of the marshalling yard is covered in the same 
+hard packed dirt and leads to a crude open walled shelter that 
+backs up right against the compounds boundaries. Looking 
+something similar to the inside of a barn, shelves and racks have 
+been hammered into the walls and to one side crates and barrels 
+piled up. While this crude supply shed does offer some 
+protection from the elements, its reliability is questionable as 
+the roof itself is clearly holding its share of holes and shoddy 
+workmanship. 
+~
+68 67174408 0
+0
+D1
+~
+~
+0 -1  0 66736
+S
+#68016
+A Cramped Room Within the Lean-To~
+   This cramped room can barely hold three people, and only 
+really one comfortably. The floor is of dirt, packed down and 
+damp, and the low roof is at a slant, leaving more space to the 
+right of the room than the left. 
+~
+68 67174408 0
+0
+D5
+~
+~
+0 -1  0 68017
+S
+#68017
+A Tiny Larder~
+   This tiny larder has been dug out beneath the main room of the 
+lean-to and can only just barely hold a human body, standing 
+upright. Its main purpose, as it is slightly damp and cold, 
+seems to be holding food - or, alternatively, tools, hides, etc. 
+It is a storage cubby. 
+~
+68 65544 0
+0
+D4
+~
+~
+0 -1  0 68016
+S
+$~

@@ -1,0 +1,1154 @@
+#14000
+wyrm DRUADAN_TOMB black-scaled ridge-backed~
+a black-scaled, ridge-backed wyrm~
+A black-scaled, ridge-backed wyrm slithers here.~
+   This horrid creature resembles a great snake - wingless, and 
+shod in tough, black, scaly skin. Its body is sinewy and thick - 
+at least two feet in diameter at its widest point - and it seems 
+about twenty feet in length. Its wide, reptilian head is crowned 
+with many spikes of horn, and ends in an upturned nose. Its back 
+is ridged, and lined with serrated, overlapping scales that dully 
+reflect any ambient light. Its black lips hide a long row of 
+teeth, yellow-stained and wicked sharp. The scales of its 
+underbelly are worn from movement but appear resilient 
+nevertheless. Its narrow eyes, like shards of the blackest opal, 
+are dark and penetrating. Hot, rotten breath issues from its maw 
+whenever open. 
+~
+134217770 4 35 118 7 5d1+400 2d8+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+20 16 16 1 16 20 81 16
+0 0
+0 70 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 60 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' wyrmfolk~
+0 0 0
+#14001
+bear DRUADAN_UNIQUE monstrous red-eyed cave~
+a monstrous, red-eyed cave bear~
+A monstrous, red-eyed cave bear is hunched here.~
+   This old, adult cave bear is covered in glossy, night-black 
+fur, its coat rent in many places by wicked scars of a pale hue. 
+The snout of the bear is somewhat narrow in profile, lined by 
+mottled grey lips that froth with spittle, and housing ridges of 
+short, razor-like teeth. The bear's great hunched shoulders 
+support massive, muscle-bound limbs that end in wide paws, each 
+foot thickly padded, and bedecked with claws of a deadly 
+sharpness. The eyes of the bear are slender, and stained a 
+frightening crimson. 
+~
+136314922 4 30 34 1 5d1+200 2d5+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+16 16 16 1 16 17 81 16
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 40 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+192 86 0
+#14002
+wolf DRUADAN_FOREST slender-muzzled grey-furred timber~
+a slender-muzzled, grey-furred timber wolf~
+A slender-muzzled, grey-furred timber wolf prowls here.~
+   Narrowed yellow canines sprout from the slender muzzle of this 
+fully-grown male timber wolf, honed to a razor's sharpness. 
+Dusty grey-brown fur coats the creature's sinewy frame, growing 
+lighter in hue near the feet. Its large, splayed paws are 
+thickly padded and equipped with a set of keen claws. Amber eyes 
+adorn its head, glinting with a predatory glare. 
+~
+136315176 4 27 62 1 5d1+80 2d5+0 0 8 8 1 0 0 0 0
+2061 0 0 97045 0 0 24 0 0 0 1 0 0 0 2359300 0
+15 10 13 1 18 13 81 16
+0 0
+0 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 50 50 0 0 30 0
+0 0 40 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 40 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' moria_dwellers~
+24 86 0
+#14003
+bear DRUADAN_FOREST hulking black-lipped grizzly~
+a hulking, black-lipped grizzly bear~
+A hulking, black-lipped grizzly bear stalks the woodland here.~
+   This fully matured bear has reached a monstrous size. Though 
+it usually lumbers along at a gradual pace, its broad, 
+thickly-muscled haunches suggest a capability for deadly bursts 
+of speed. Its muscle-roped frame is wrapped in a coat of grizzly 
+brown fur, which glistens silver-grey from the right angle. 
+Thick, black lips curl about the base of the creature's 
+knife-like teeth, no less keen that the hooked claws that issue 
+from its great, flat paws. The back of the bear is bony and 
+ridged, its shoulders high. It seems to have a very aggressive 
+mien. 
+~
+136314920 4 25 34 1 5d1+140 2d6+0 0 8 8 1 0 0 0 0
+97581 0 0 97708 0 0 24 0 0 0 2 0 0 0 2359300 0
+20 12 12 1 12 18 81 12
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 30 0
+0 0 0 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+288 86 0
+#14004
+wirepuller DRUADAN_FOREST~
+a Druadan wirepuller~
+A Druadan wirepuller is here, gleefully pulling wires.~
+   This mob is used to trigger room programs in the Druadan 
+Dispersal Hub, Room 14150. 
+~
+2097162 2 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14005
+Imung brown blond man keeping watch area~
+a brown-eyed man with blond-hair~
+A man with blond-hair and brown eyes stands here, keeping watch over the area.~
+   The blond hair of this man has been cut off so that it stops 
+just before his eyebrows. The eyebrows are of the same color 
+that his hair is. The end of this man's nose has been cut off, 
+leaving only a scar to replace what used to be the tip of his 
+nose. A thin pair of lips rest beneath the man's nose, with a 
+single scar running down from one of the corners of his lips to 
+his chin. His build is muscular and shows signs of many years of 
+battle. 
+~
+10 0 20 0 0 5d1+114 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+19 5 12 1 10 20 81 10
+0 0
+0 30 0 30 0 0 0 0 0 0
+0 30 0 40 30 30 0 0 0 0
+30 30 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 100 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' house_nimrulai 'member' heren_carnatalion~
+0 0 0
+#14006
+wart-covered troll slate-gray Boolg~
+a wart-covered troll with slate-gray skin~
+A wart-covered troll with slate-gray skin looms here.~
+   Numerous knobs and protrusions sprout from the thick, gray 
+hide of this lumpish brute's limbs and head. Its heavy, sagging 
+arms are studded with wiry black hair and end in broad hands that 
+sport cracked and grimy nails. A fat-lipped, drooping mouth 
+scarcely conceals its wedge-shaped teeth and its knobby chin and 
+short, squat neck are often slick with saliva. The troll's eyes 
+are small, pinkish, and pig-like. 
+~
+10 8388612 35 28 7 5d1+300 1d7+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+24 8 16 1 15 24 81 10
+0 0
+0 64 0 0 70 0 0 70 0 0
+0 0 60 0 0 0 0 0 0 0
+74 56 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14007
+hunchbacked troll bow-legged Werkt~
+a hunchbacked, bow-legged troll~
+A hunchbacked, bow-legged troll lurks here.~
+   This lumbering troll's broad frame is so badly hunched as to 
+appear bent almost double. Its long, wart-pocked arms hang so 
+low to the ground that, when moving, it occasionally plants a 
+huge palm upon the earth as its tree-trunk legs work to keep the 
+brute upright. Chipped, yellow teeth jut from its massive jaw, 
+some pointing straight forward while others rise, tusk-like, to 
+point at the troll's bulbous nose. Dark, close-set eyes glare 
+out at the world from under a broad, shaggy brow. 
+~
+10 8388612 35 28 7 5d1+300 1d7+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+24 8 16 1 15 24 81 10
+0 0
+0 64 0 0 70 0 0 70 0 0
+0 0 60 0 0 0 0 0 0 0
+74 56 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14008
+wrinkled one-eyed troll Waarm~
+a wrinkled, one-eyed troll~
+A wrinkled, one-eyed troll stares about.~
+   A sickly, whitish cup of bone, surrounded by knots of puffy 
+gristle, mars the side of this broad troll's lopsided skull. Its 
+short, thick neck is twisted to one side, perhaps from long years 
+of peering forward with its one baleful looking, yellow-rimmed 
+eye. Huge, knobby knuckles sprouting coarse, black hair make 
+this brute's hands look almost like paws. A fat, shapeless 
+abdomen sags down toward the troll's knees. Its bulky frame is 
+held aloft on flat, splay-toed feet of great size. 
+~
+10 8388612 35 28 7 5d1+300 1d7+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+24 8 16 1 15 24 81 10
+0 0
+0 64 0 0 70 0 0 70 0 0
+0 0 60 0 0 0 0 0 0 0
+74 56 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14009
+flabby troll sagging jowls Baalga~
+a flabby troll with sagging jowls~
+A flabby troll with sagging jowls is here.~
+   Beneath scum-crusted, watery eyes, this troll's brownish-gray 
+flesh sags into a pair of moist, drooping jowls that completely 
+conceal its neck, hanging down onto its broad, shapeless breast. 
+The bulk of this creature's limbs no doubt conceal considerable 
+strength, but its arms, trunk, and bowed legs show no real 
+definition of any kind, swaddled as they are in folds of thick, 
+scabby hide. The yellowed nails of its hands are long, dense, 
+and wickedly sharp. 
+~
+10 8388612 35 28 7 5d1+400 1d7+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+25 8 16 1 15 24 81 10
+0 0
+0 64 0 0 70 0 0 70 0 0
+0 0 60 0 0 0 0 0 0 0
+74 56 0 0 30 35 0 0 0 0
+0 0 0 0 0 0 65 60 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14010
+auto-create hillman~
+a formless, auto-create hillman~
+A formless, auto-create hillman stands here.~
+   Beads, bits of bone, feathers, and blue-black tattoos mark the 
+faces, bellies, and arms of these wild-looking people. Their 
+skin tones range from a reddish-brown to a sallow, olive hue. 
+Their hard eyes are dark, as are the tangled and braided locks of 
+their hair and beards, save where age or old injuries have shot 
+through streaks of white or gray. Many have crooked limbs, 
+missing teeth, and ugly scars; testament to short, hard lives in 
+the wild. 
+~
+2097162 0 25 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 30 38 34 31 31 38 43 49 31
+50 44 42 40 39 41 41 47 35 44
+35 43 0 0 41 31 0 0 16 66
+0 0 59 0 0 15 22 19 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 69 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' ilgecygar~
+0 0 0
+#14263
+Barry gate guard milton golden haired man~
+a golden-haired man~
+A golden-haired man is here.~
+   Bearing themselves with rigid determination, this person is a 
+member of the Wardenry of Lord Astirian, a unit of guards 
+designed to ensure that the majestic landscape of the great of 
+human nations, Gondor, are kept safe from any hostile incursion 
+and those who would disregard the Steward's law or harm the 
+villeins they are sworn to protect. They stand guard at the 
+gatehouse, inspecting all who pass through. 
+~
+2097162 0 25 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 32 44 36 48 47 30 35 45 47
+42 39 37 44 41 34 30 50 41 40
+35 42 0 0 43 41 0 0 25 69
+0 0 62 0 0 16 18 18 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 32 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens 'member' hawk_and_dove 'member' wardenry_vips 'private' z3_astirian_wardens~
+0 0 0
+#14011
+Frank ostler wardenry compound_milton_14500 tall old grey haired man~
+a tall, old, grey-haired man~
+A tall, old, grey-haired man attends to the horses here.~
+   This tall old man is a veteran ostler by the name of Frank. 
+~
+10 0 17 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 65 0 0 0
+16 16 16 1 16 16 77 16
+8388609 0
+14500 14400 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 30 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 45 0 0 0 20 0 0 20 20
+0 0 80 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 20 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 20 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' hawk_and_dove 'commander' heledhnen_trade 'member' wardenry_vips 'member' z3_astirian_wardens 'member' lord 'member' pel_anorien 'member' peltirith~
+0 0 0
+#14012
+BROKEN DO NOT LOAD~
+a war charger with brick red skin~
+A war charger with brick red skin is here~
+   This handsome brick-red warhorse stands nineteen hands high, 
+pawing at the ground with great black hooves. Its front 
+shoulders are very broad, supported by powerfully muscled legs. 
+Its mane is black as coal, the shiny hair resting lightly on the 
+right side of its beefy neck. Deep midnight-black eyes gaze out 
+soulfully on the world, as its wide nostrils snuffle loudly and 
+its lips pull back, revealing strong, shiny teeth. The animal's 
+hindquarters are a solid mass of muscle, its long lustrous tail 
+whipping about idly as it waits here patiently. 
+~
+8 0 25 61 0 5d1+130 1d5+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 40 0 0 0 0 0 0 50 70
+0 0 50 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 50 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14013
+Airaman brick-red war horse charger~
+a war charger with brick red skin~
+A war charger with brick red skin is here~
+   This handsome brick-red warhorse stands nineteen hands high, 
+pawing at the ground with great black hooves. Its front 
+shoulders are very broad, supported by powerfully muscled legs. 
+Its mane is black as coal, the shiny hair resting lightly on the 
+right side of its beefy neck. Deep midnight-black eyes gaze out 
+soulfully on the world, as its wide nostrils snuffle loudly and 
+its lips pull back, revealing strong, shiny teeth. The animal's 
+hindquarters are a solid mass of muscle, its long lustrous tail 
+whipping about idly as it waits here patiently. 
+~
+262154 0 25 61 0 5d1+130 1d5+0 0 8 8 1 0 0 0 0
+98316 0 0 98313 0 0 24 0 0 0 1 0 0 0 0 0
+16 16 16 1 16 16 77 16
+0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+40 40 0 0 0 0 0 0 50 70
+0 0 50 0 0 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14014
+kitten soft-grey-furred POBELL tufty~
+a tiny, soft-grey-furred kitten~
+A tiny, soft-grey-furred kitten crouches here.~
+   This small kitten can easily fit into the palm of a large mans 
+hand. She a small, frail being, but her white whiskers tremble 
+something fierce quite often when something catches her 
+attention. Large, bright blue eyes sit wide and expressive upon 
+her fluffy face, while her tiny nose is a patch of pink amongst 
+the pale hues of her extremely fluffy fur. The soft grey of her 
+pelt is unbroken and pure, save for a single white ring at the 
+tip of her tail. The tips of her large ears have a large amount 
+of tufty upon them, giving the little creature an almost comical 
+appearance. 
+~
+2097162 4 4 38 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+5 16 10 1 20 10 77 17
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+8640 14015 0
+#14015
+cat young grey-furred POFBELL Tufty~
+a tiny, soft-grey-furred young cat~
+A tiny, soft-grey-furred young cat crouches here~
+   This young cat is somewhat smaller than the average, her paws 
+just a bit too big for her body. Her thick white whiskers 
+tremble something fierce quite often when something catches her 
+attention. Large, dark green eyes sit wide and expressive upon 
+her fluffy face, while her tiny nose is a patch of pink amongst 
+the pale hues of her extremely fluffy fur. The soft grey of her 
+fur is unbroken and pure, save for a single white ring at the tip 
+of her tail. The tips of her ears have a large amount of tuft 
+upon them, giving the little creature an almost comical 
+appearance. 
+~
+2097162 4 4 38 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+16 16 10 1 20 10 77 17
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+17280 14016 0
+#14016
+cat plush grey-furred POFBELL Tufty~
+a plush, soft-grey-furred cat~
+A plush, soft-grey-furred cat crouches here.~
+   This plush-furred cat is somewhat sleeker than the average 
+cat. Her thick white whiskers tremble something fierce quite 
+often when something catches her attention. Large, bright dark 
+green sit wide and expressive upon her, while her nose is a patch 
+of pink amongst the pale hues of her overly fluffy fur. The soft 
+grey of her pelt is unbroken and pure, save for a single white 
+ring at the tip of her tail and a faint streak of white that can 
+be seen over the bridge of her nose. The tips of her ears have a 
+large amount of tuft upon them, giving the creature an almost 
+comical appearance. 
+~
+2097162 4 4 38 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+10 16 10 1 20 10 77 17
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 20 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+17280 14017 0
+#14017
+cat old plush grey-furred POFBELL Tufty~
+a plush, soft-grey-furred old cat~
+A plush, soft-grey-furred old cat crouches here.~
+   The soft grey of this old cat's fur has several white patches 
+in some locations, while a ring of white sits over the tip of her 
+tail. Her whiskers are quite thick and bountiful, and the bridge 
+of her nose has a white streak on it similar to those that can be 
+found upon the rest of her body. Despite her old age, her fur is 
+still quite soft and plush. Large green grace her fluffy face 
+while the tips of her ears hold just a bit of tuft to them. 
+~
+2097162 4 4 38 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 2 0 0 0 0 0
+10 16 10 1 20 10 77 17
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 20 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14018
+Fingroth Silvan narrow-eyed brown elf~
+a narrow-eyed, brown haired elf~
+A narrow-eyed, brown haired elf lingers here.~
+   Locks of a walnut hue are bound back in a simple braid to 
+clear this male elf's face. His brow is high and descends with 
+perfect symmetry to meet narrow, almond-shaped eyes. The line of 
+his jaw is fine, if somewhat slender, and his lips too are 
+narrow, lending themselves readily to neither a smile nor a 
+frown. His shoulders, chest, and limbs are shapely and 
+well-proportioned, though in no wise bulky; the strength 
+suggested there is one of swift flexibility rather than brute 
+power. 
+~
+10 4 35 93 0 5d1+98 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 15 15 1 20 16 92 19
+0 0
+0 8 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 70 0 0
+35 65 0 0 0 0 0 0 80 80
+60 0 80 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 50 0 0 0
+0 0 0 0 0 85 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+60 0 85 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14019
+auto-create Anorien peltirith sentinel prototype~
+a formless Anorien peltirith sentinel prototype~
+A formless Anorien peltirith sentinel prototype is here, doing nothing.~
+   Bearing themselves with rigid determination, this person is a 
+member of the Wardenry of Lord Astirian, a unit of guards 
+designed to ensure that the majestic landscape of the great of 
+human nations, Gondor, are kept safe from any hostile incursion 
+and those who would disregard the Steward's law or harm the 
+villeins they are sworn to protect. Keen eyes scan the 
+surrounding countryside with absolute intensity as they stand 
+watch in their set place as designed by their superiors. 
+~
+42 0 25 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 32 50 32 37 45 36 33 50 43
+45 34 41 37 43 34 37 35 43 34
+31 38 0 0 56 33 0 0 17 69
+0 0 54 0 0 17 18 18 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 38 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' ithilien_battalion 'member' mt_citizens 'private' astirian_villeins 'private' rammasgate 'member' wardenry_vips 'private' z3_astirian_wardens~
+0 0 0
+#14020
+warg DRUADAN_VARIABLE fiesty prototype auto-create~
+a fiesty Druadan warg prototype~
+A fiesty Druadan warg prototype lurks here.~
+   This creature is a ferocious force of bulging muscle covered 
+in hideous and often scar-ravaged fur. Intelligent and 
+predatorial eyes peer out from a massive head from which its 
+wicked fangs are set into a devastating maw. Squat, powerful 
+limbs brace this foul creature, each armed with razor-sharp 
+claws. It prowls the land attentively seeking its prey, sinewy 
+form coiled and ready to attack at any moment. 
+~
+136315176 4 24 89 2 5d1+90 2d4+0 0 8 8 0 0 0 0 0
+90030 0 0 90029 0 0 24 0 0 0 1 0 0 0 67371008 0
+18 10 10 1 10 18 87 18
+268435456 0
+0 43 31 37 44 41 47 30 43 39
+42 47 32 41 41 40 48 36 40 35
+39 35 0 0 31 53 0 0 16 60
+0 0 55 0 0 21 17 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 39 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 60 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'commander' mordor_char 'member' wargpack~
+0 0 0
+#14021
+warg DRUADAN_VARIABLE ADOLESCENT prototype auto-create~
+an adolescent Druadan warg prototype~
+An adolescent Druadan warg prototype lurks here.~
+   This creature is an adolescent, of developing muscle covered 
+in hideous and mostly scar-free fur. Intelligent and 
+predatorial eyes peer out from a large head from which its 
+wicked fangs are set into a devastating maw. Squat, powerful 
+limbs brace this foul creature, each armed with razor-sharp 
+claws. It prowls the land attentively seeking its prey, sinewy 
+form coiled and ready to attack at any moment. This is clearly
+developing into an adult - if allowed.
+~
+136314920 4 25 89 2 5d1+50 2d3+0 0 8 8 0 0 0 0 0
+90030 0 0 90029 0 0 24 0 0 0 1 0 0 0 262144 0
+16 16 16 1 16 16 77 22
+268435456 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 100 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 70 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 80 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 40 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'commander' mordor_char 'member' wargpack~
+720 14020 0
+#14022
+warg small dark-furred cub XXXNESTXXX~
+a small, dark-furred warg cub~
+A small, dark-furred warg cub crouches here.~
+   Standing only half a foot tall, this warg cub appears to be a 
+couple months old at the most. Small, rounded ears stick out 
+from his head, and a pair of beady eyes look out at the world. 
+His tiny claws are needle-sharp. 
+~
+136314890 4 15 89 6 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 6 1 0 0
+8 13 15 1 14 14 77 16
+65536 0
+0 30 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 40 40 0 0 0 45
+0 0 30 0 0 0 10 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 5 0 100 0 0
+0 1 0 0 0 0 0 0 0 0
+0 0 0 0 1 1 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' wargpack~
+24 14021 0
+#14023
+warg xMOTHERWARG ferocious mottled-furred~
+a ferocious, mottled-furred warg~
+A ferocious, mottled-furred warg paces here.~
+   Powerful muscles ripple across the shoulderblades and haunches 
+of this large warg, standing as tall as a man. Her vise-like
+jaws open to reveal a set of yellowed teeth and razor-sharp, 
+blood-stained fangs. The fur of this beast is a mottled, 
+grey-brown hue, and crisscrossed with numerous scars. Glinting, 
+coal-black eyes look out at the world in a predatory fashion, and
+prowls almost protectively through here.
+~
+2098218 4 45 89 6 5d1+155 2d7+0 0 8 8 2 0 0 0 0
+90030 0 0 90029 0 0 10 0 0 0 1 0 60 5 0 0
+20 16 23 1 11 24 77 16
+0 0
+0 90 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 6 0 0 0 0 0 0 40
+0 0 40 0 0 0 15 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 75 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 64 0 100 0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 32 50 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' wargpack 'leader' south_warg~
+0 0 0
+#14310
+grimmfang UNIQUE_WARGHUNTER_PACKLEADER brutally scarred black furred warg~
+a brutally-scarred, black-furred warg~
+A hulking, brutally-scarred, black-furred warg is here.~
+   Matted, black fur covers the hulking frame of this powerfully 
+built warg. Standing easily as tall as a man at the shoulder, 
+his massive head bows down slightly lower, supported by a huge 
+neck and ends in a long muzzle filled with razor sharp fangs and 
+one long canine, the other is half its length, possible lost in 
+some ancient battle. A large, deep scar runs across the muzzle, 
+partially revealing gums and teeth on one side, and over an empty 
+left eye socket, ending in a tuft of hair where one of its ears 
+should be. Massive paws, as large as a man's head, top each of 
+his powerfully built legs. A short, stumpy tail completes this 
+monster of a beast. 
+~
+10 4 45 89 6 5d1+180 2d7+0 0 7 8 1 0 0 0 0
+90030 0 0 90029 0 0 24 0 0 0 1 0 60 0 0 0
+21 16 23 1 14 24 81 16
+0 0
+0 91 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 72
+0 0 100 0 0 0 70 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 75 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 64 0 100 0 0
+0 40 0 0 0 0 0 0 0 0
+0 0 0 0 0 70 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' wargpack~
+0 0 0
+#14024
+DRUADAN_FAITHFUL_AUTO_CREATE_SOLDIER elite~
+a formless soldier type~
+A formless soldier type is here.~
+   This gaunt-looking soldier observes their surroundings with 
+keen and wary eyes. They have an alertful watchfulness about 
+them at all times, never seeming completely at ease. Despite 
+their somewhat rustic, weather worn appearance, they hold 
+themselves with a proud air, and sense of purpose. Their hands 
+never stray far from their weaponry. 
+~
+522 0 30 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 12 12 1 16 16 81 16
+268435456 0
+0 60 55 60 55 50 60 50 55 60
+55 50 30 50 35 30 60 60 60 50
+60 55 0 0 60 60 50 0 50 61
+50 0 70 0 0 40 50 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 50 50 0
+0 60 45 0 0 0 0 30 0 0
+60 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+0 0 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' emyn-bear 'member' south_warg 'member' carnivore 'member' mt_citizens 'member' moria_dwellers~
+0 0 0
+#14025
+Gyrgak HILLMEN_LEADER grotesquely-scarred rat-faced man~
+a grotesquely-scarred, rat-faced man~
+A grotesquely-scarred, rat-faced man lingers here.~
+   Hideous is the only word that can be used to describe this man 
+at first glance. Scars travel their way all across every exposed 
+piece of skin. Upon further investigation, they appear to be of 
+a ritualistic nature, swirling and spiraling across his skin. 
+Long, dreadlocked dirty brown hair is matted upon his head, with 
+long stalks hanging down in front of his face. A big bushy beard 
+is also dreaded near the bottom and a mangled set of teeth are 
+set in dry, cracked lips. A long, sloping nose gives him a very 
+rat-faced appearance. His build is small, yet stocky, showing a 
+very firm base. 
+~
+10 4 33 113 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+14 16 13 1 18 19 81 14
+0 0
+0 50 55 65 67 0 0 0 0 0
+0 0 0 65 0 59 0 0 0 45
+60 56 0 0 70 70 0 0 52 100
+52 55 48 0 0 0 72 70 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 35 0
+35 100 45 0 0 0 0 0 0 0
+0 0 0 0 35 35 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' bomani 'member' mordor_char 'member' mt_citizens 'lieutenant' nebavla_tribe~
+0 0 0
+#14026
+Puath short rangy man thick shaggy eyebrows  hillman Gondor-Avalanche-RPT~
+a short, rangy man with thick, shaggy eyebrows~
+A short, rangy man with thick, shaggy eyebrows stands here.~
+Standing not even quite five feet tall, the only feature that
+really stands out at all is his thick, shaggy eyebrows. His
+eyes are a dark, chocolate brown, and his skin is tough and
+weather-worn. Thick, hairy arms end in equally thick, stubby
+fingers and his legs appear to be equally as muscled.
+~
+10 0 27 5 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 55 0 0 0
+50 16 0 0 45 50 0 0 0 0
+0 0 0 0 0 0 0 0 35 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14027
+Klina swarthy skinned hazel young woman hillman Gondor-Avalanche-RPT~
+a swarthy-skinned, hazel-eyed young woman~
+(null)~
+Of an average height, thick and curly auburn locks trail
+down the back of this woman's head, a bit unkempt in its
+keeping. Dark green eyes peak out from beneath this
+woman's thin eyebrows and constantly dart back and forth,
+staying alert of her surroundings. Her arms and legs are
+well-muscled and her fingers, perhaps a bit oddly in the
+contrast are long and tapered, the nails upon which are
+cracked and chipped.
+~
+10 0 27 5 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 55
+0 0 0 0 0 0 0 0 0 0
+50 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14028
+Tinth large hook nosed man large hillman Gondor-Avalanche-RPT~
+a large, hook-nosed man with large eyes~
+A large, hook-nosed man with large eyes stands here.~
+This large, bulky man is of average height, but of
+impressive girth. If it were not for his darker skin
+tones, he could possibly be mistaken for a dwarf. His
+arms bulge with muscles, while his massive gut hangs
+out over his waist, supported by a set of powerful legs.
+Matted, chestnut-brown hair drapes against his face,
+fixed with bone fetishes plaited into the mess. His
+eyes are black and uncharacteristically large.
+~
+10 0 32 5 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 65 0 0
+0 0 0 0 0 0 0 0 0 0
+60 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14029
+Rekal tall weathered man fierce dark brown hillman Gondor-Avalanche-RPT~
+a tall, weathered man, with fierce dark brown eyes~
+A tall, weathered man, with fierce dark brown eyes stands here.~
+This man's hawkish features lend to his stern
+appearance, his features cold and hard, looking like
+they could be carved from granite for all their
+expressiveness, or rather, the lack thereof. His
+appearance is neat and he is relatively well-groomed,
+his hair braided into plates with bone charms and
+hardly any stubble at all touches this man's face.
+He is well-muscled and walks with a confident stride.
+~
+10 0 27 5 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 16 0 0 0 0 0 0 0 55
+0 0 0 0 0 0 50 0 0 0
+55 16 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 16 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#14500
+Gahildir xFAITHFUL_TOLFINIUS_MT crooked toothed bulbous nosed man xELDRITCH~
+a crooked-toothed man with a sharp nose~
+A crooked-toothed, bulbous-nosed man is standing here loosely.~
+   This man is tall and skinny, with a narrow face and pointed 
+chin. A pair of blueish-grey eyes frame a sharp nose, his lips 
+thin and ears small. He has lengthy arms with slender fingered 
+hands that hang at his sides and stalkish legs that support his 
+body on two long feet. Strawish hair encircles the crown of his 
+head, which is bald. When revealed, one can notice his crooked 
+front teeth. 
+~
+10 0 35 124 1 5d1+120 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+18 15 15 1 15 12 81 14
+0 0
+0 50 0 65 0 70 0 0 70 0
+0 0 0 60 0 0 0 0 0 60
+60 65 0 0 60 60 70 70 0 0
+50 0 0 0 50 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 60 60
+60 100 60 0 0 0 0 0 0 0
+60 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+#14501
+Mindoron weathered man weather-beaten tangled black hair xKHAMUL xFaithful_xTolfinius_PA~
+a weathered man with tangled black hair~
+A weather-beaten man with tangled black hair stands here.~
+   Tall and lean, this man has clearly seen something of the 
+outdoors. His skin is lined and weather-beaten, though he is far 
+from old; the paleness of his skin is mostly masked by dirt, 
+though some half-hearted attempts appear to have been made at 
+washing his face, at least, for it has been smudged off the 
+cheeks and away from his eyes and mouth. His tangled black hair 
+falls past his shoulders, and seeing twigs or bits of leaves 
+entwined in it is no unusual occurrance, and his face shows the 
+evidence of several days without shaving. On either side of his 
+nose are set grey eyes with a sharp glint to them. 
+~
+10 0 35 1 1 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 72 2 0 0
+13 16 15 1 15 12 81 18
+0 0
+0 50 0 68 0 0 0 0 70 0
+0 0 0 40 0 0 0 60 0 65
+64 65 0 0 70 65 0 70 0 75
+50 0 80 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 60 60
+60 100 60 0 0 0 0 0 0 0
+60 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 76 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' mt_citizens~
+0 0 0
+$~

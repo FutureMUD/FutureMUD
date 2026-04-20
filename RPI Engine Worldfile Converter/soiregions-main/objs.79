@@ -1,0 +1,729 @@
+#79999
+Mordor mini-fort-base insignia OTHER~
+the insignia of Mordor~
+Flags, banners, totems, and other insignia of Mordor rise from the ground.~
+   Various flags and symbols of Mordor, and from various 
+factions, tribes, kingdoms and lands allied with the eastern 
+power, are arranged about the location, clearly marking it as 
+being under Mordor's power. 
+~
+12 0 0
+0 0 0 0
+2000000 0.000000
+0 0 0 0 0 0 1
+0.000000 2016 79979 0 0 0 0
+#79998
+Gondor mini-fort-base heraldry OTHER~
+the heraldry of Gondor~
+Heraldry of Gondor is proudly displayed here.~
+   The numerous flags and banners that add up to the heraldry of 
+Gondor has been erected here, each piece of fabric clean and well 
+designed with bold colours and symbols, aimed to strike fear in 
+the hearts of that western land's enemies, and instil courage in 
+its allies. 
+~
+12 0 0
+0 0 0 0
+2000000 0.000000
+0 0 0 0 0 0 1
+0.000000 2016 79979 0 0 0 0
+#79997
+community little refugees renegades OTHER~
+the little community of refugees and renegades~
+A little community of refugees and renegades gathers here.~
+   A little community of refugees and cast-aways of society has 
+gathered in this location, living in a few drab tents and tiny 
+shacks. Chickens and children scratch about in the dirt, making 
+a hardy living, while glum-faced adults do their daily chores of 
+washing clothes, mending, farming, cooking, and so on. 
+~
+12 0 0
+0 0 0 0
+2000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79996
+exterior undamaged OTHER~
+#6the fortified, undamaged exterior#0~
+#6The location here is protected by its fortified exterior.~
+   A series of defenses protects the location, ensuring that 
+those not friendly towards the people dwelling inside will have a 
+difficult time getting in without damaging the exterior 
+beforehand. 
+
+
+
+   #6OOC Note#0: Type #6enter location#0 to try and enter. If 
+the location is held by friendly forces, it will open for you. 
+If held by hostile forces, it will not. If held by no one, you 
+will enter unopposed. 
+~
+12 0 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79995
+exterior damaged OTHER~
+#6the breached exterior#0~
+#6The location's exterior is damaged and breached.~
+   A series of defenses may have once protected this location, 
+but now they are damaged and breached, allowing any who wish it 
+to pass through them and enter. Simply type, #6enter location#0. 
+~
+12 0 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 2016 79996 0 0 0 0
+#79994
+uninhabited mini-fort no one location OTHER~
+#6a location currently claimed by no one#0~
+#6This location is currently claimed by no one#0~
+   This location lacks any heraldry or insignia marking it as 
+belonging to one faction or the other. 
+#6OOC Note#0: You can claim tihs location to your side by typing 
+#6claim location#0, having a claim object in your hand, belonging 
+to an appropriate clan, and the exterior defenses of the location 
+being in good shape. Alternatively, this object will morph back 
+to its original Insigna in 30 real-life minutes. 
+~
+12 0 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 2 79999 0 0 0 0
+#79993
+too-recently counter mini-fort OTHER~
+too recently counter~
+This mini-fort has been taken too recently to sieze again.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 288 86 0 0 0 0
+#79992
+flag claim object mini-fort GOTHAKRA skull OTHER~
+a crude banner marked with a dirty grey skull~
+A crude banner marked with a dirty grey skull lies wrapped here.~
+   This banner consists of a crooked length of wood, attached 
+haphazardly at one end a off-white sheet of linen upon which a 
+dirty grey skull has been crudely painted. 
+~
+12 4096 1
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 0 0 0
+#79991
+banner crescent moon fine DERVISH mini fort OTHER~
+a fine banner displaying a crescent moon~
+A fine banner displaying a crescent moon lies here.~
+   This banner displays the crescent moon upon it, and the flag 
+of fine silk is attached to a long, sturdy hardwood shaft. The 
+workmanship of the flag is somewhat impressive, and it tends to 
+flap crisply in a brisk wind. 
+~
+12 4096 1
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 0 0 0
+#79990
+flag tattered red and black OTHER~
+a tattered, red and black, flag~
+A tattered flag, red and black, has been left here.~
+~
+12 0 1
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+750.000000 0 0 0 0 0 0
+#79989
+flag claim object banner mini-fort BARSKH CAGE cage red black OTHER~
+a crude black banner displaying a red cage~
+A long wooden pole with a black leather banner that shows in red paint a barrel-shaped cage.~
+   A sturdy cross runner in wood is set on a long pole, and holds 
+a black leather banner that has been fastened with bronze rivets. 
+Painted on the crude and torn black leather with red paint is a 
+large red barrel-shaped cage. The banner is decorated with bones 
+with various origins hanging from leather cords and a three foots 
+worth thin strip of chain mail. 
+~
+12 4096 1
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 0 0 0
+#79988
+flag black ERADAN_BATTALION grey moon shield TEXTILECRAFT~
+a black and grey flag, bearing a shield within a moon~
+A black and grey flag, bearing a shield within a moon, has been raised here.~
+   This large flag has a design of a black shield contained 
+within a grey moon, a rather simple device and instrument 
+designed to be plunged in to the ground somewhere. 
+~
+12 4096 1
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+500.000000 0 0 0 7 0 0
+#79987
+claimer FILLINBLANKS OTHER~
+a blank claimer~
+A blank claimer object lies here.~
+~
+12 0 1
+0 0 0 0
+400 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79986
+claimer independents OTHER~
+a claimer for independents~
+A claimer object for independents is here.~
+   Admin object, or for special people. 
+~
+12 0 1
+0 0 0 0
+50000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79985
+totems garish array burly orcs GOTHAKRA FLAG_OBJ OTHER~
+an array of garish totems, picked at by burly Orcs~
+An array of garish totems spread out amongst the surroundings here, skull-patched Orcs picking at them.~
+   Skull-patched Orcs on guard here seem to add pieces of sinew 
+and bone to the already garish structures which adorn the area in 
+a macabre display. Some totems are tall, wobbly, pieces of 
+rotten flesh slick on their surface for decoration, others stumpy 
+and clearly less effectual. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 2016 79979 0 0 0 0
+#79984
+banners Crescent Moon array series DERVISH FLAG_OBJ OTHER~
+a series of Crescent Moon banners~
+An array of Crescent Moon banners scatter the area, dusky individuals patrolling their edge.~
+   Dusky individuals perform their sentry duty beneath this tall 
+flags bearing the Crescent Moon. The odd fellow can be seen with 
+a roll of smokeleaf as he leans against a flagpole. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 2016 79979 0 0 0 0
+#79983
+blowfly-marked mercenaries OTHER ODULUNMINIFORT~
+the blowfly-marked mercenaries~
+Human and Orkish mercenaries loiter here, bearing the mark of the blowfly.~
+   Men and orcs of varying stature hang about here, many lounging 
+about smoking or drinking, while others patrol or gamble off to 
+one side, the rattle of dice and coin almost as constant as the 
+sounds of the wilderness about them. All bear, in some fashion 
+or another, the mark of the blowfly on their person. 
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 2016 79979 0 0 0 0
+#79982
+flag cage-marked orcs half-men series banners OTHER~
+cage-marked orcs and half-men about a series of banners~
+Cage-marked orcs and half-men roam about a series of crude banners here.~
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 2016 79979 0 0 0 0
+#79981
+flags MINI-FORT large ITHILIEN_DOMINATION black grey moon OTHER ~
+a series of flags displaying a black shield within a grey moon~
+A series of flags displaying a black shield within a grey moon fly here.~
+   Upon long poles of smooth, unstained wood that has been thrust 
+in the ground, hangs a series of black and silver grey flags, 
+each displaying a shield within a grey moon. 
+~
+12 0 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 2016 79979 0 0 0 0
+#79980
+flag FILLINBLANKS OTHER~
+a blank flag~
+A blank flag has been stuck here.~
+~
+12 0 0
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 2016 79979 0 0 0 0
+#79979
+individuals rugged burly bandits INDEPENDENT mini-fort OTHER~
+a collection of rugged, burly individuals~
+A band of rugged, burly individuals lurks about.~
+   A rugged collection of individuals, bandits, rogues, refugees 
+and rebels have taken it upon themselves to protect this location 
+for their own purposes, standing about in their makeshift suits 
+of armour under no flags or colours. 
+~
+12 0 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79974
+writ mob74 OTHER~
+a writ for mobile-object 74~
+A writ for mobile-object 74 lies here.~
+~
+61 0 1
+4026 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79973
+writ mob73 OTHER~
+a writ for mobile-object 73~
+A writ for mobile-object 73 lies here.~
+~
+61 0 1
+4023 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79972
+writ mob72 OTHER~
+a writ for mobile-object 72~
+A writ for mobile-object 72 lies here.~
+~
+61 0 1
+79220 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79971
+writ mob71 OTHER~
+a writ for mobile-object 71~
+A writ for mobile-object 71 lies here.~
+~
+61 0 1
+79221 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79970
+writ mob70 OTHER~
+a writ for mobile-object 70~
+A writ for mobile-object 70 lies here.~
+~
+61 0 1
+79222 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79969
+writ mob69 OTHER~
+a writ for mobile-object 69~
+A writ for mobile-object 69 lies here.~
+~
+61 0 1
+79223 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79968
+writ mob68 OTHER~
+a writ for mobile-object 68~
+A writ for mobile-object 68 lies here.~
+~
+61 0 1
+79224 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79967
+writ mob67 OTHER~
+a writ for mobile-object 67~
+A writ for mobile-object 67 lies here.~
+~
+61 0 1
+79225 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79966
+writ mob66 OTHER~
+a writ for mobile-object 66~
+A writ for mobile-object 66 lies here.~
+~
+61 0 1
+79228 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79965
+writ mob65 OTHER~
+a writ for mobile-object 65~
+A writ for mobile-object 65 lies here.~
+~
+61 0 1
+79227 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79964
+writ mob64 OTHER~
+a writ for mobile-object 64~
+A writ for mobile-object 64 lies here.~
+~
+61 0 1
+2013 989889 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79963
+writ mob63 OTHER~
+a writ for mobile-object 63~
+A writ for mobile-object 63 lies here.~
+~
+61 0 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79962
+writ mob62 OTHER~
+a writ for mobile-object 62~
+A writ for mobile-object 62 lies here.~
+~
+61 0 1
+94001 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79961
+writ mob61 OTHER~
+a writ for mobile-object 61~
+A writ for mobile-object 61 lies here.~
+~
+61 0 1
+94005 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#79958
+signal fire stack oil-doused timber OTHER~
+a stack of oil-doused timber~
+A stack of oil-doused timber sits here, ready to be ignited.~
+   Logs of firewood have been stacked atop one another, and 
+doused in oil, ready to be set aflame from a brazier than hangs 
+precarious atop of the structure. It looks as if it could send a 
+signal of smoke high in to the air, visible from hundreds of 
+miles away. 
+~
+12 0 0
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79957
+signal fire slab charred brazier OTHER~
+a charred slab below an unlit brazier~
+A charred slab lies here, sitting below an unlit brazier.~
+   This slab is charred and covered in ash, looking as if 
+something has been burned atop of it. Swinging above it, hanging 
+from a stout metal post, is an unlit brazier. It seems that 
+something is intended to be placed on the slab, and the brazier 
+set alight, perhaps to serve as a warning system. 
+~
+12 0 0
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 2016 79958 0 0 0 0
+#79956
+counter mini-fort time elasped since last fire OTHER~
+a counter~
+A counter is here, showing the time since the last signal fire.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 1 86 0 0 0 0
+#79955
+counter resource ready collect mini-fort OTHER~
+#6the resources waiting to be collected#0~
+#6There is a load of resources here, waiting to be collected.~
+   There is a bundle of resources here, having been gathered by 
+the soldiers stationed at this location in their off time. To 
+attempt to gather them up, type #6collect resources#0. 
+~
+12 0 0
+0 0 0 0
+0 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79954
+counter resources not yet ready OTHER~
+resources not yet ready counter~
+Resources here are not yet ready to gather.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 960 79955 0 0 0 0
+#79960
+sacks food supply mini-fort OTHER~
+an assembled stack of food sacks~
+A large stack of food sacks has been assembled here.~
+   Large sacks of food, looking like enough to feed a group of 
+soldiers for three months, has been assembled here, just waiting 
+to be received and eaten. 
+
+
+   #6OOC Note#0: Type #6resupply location#0 to feed your 
+soldiers. 
+~
+12 0 0
+0 0 0 0
+20000000 0.000000
+0 0 0 0 0 0 1
+0.000000 1460 86 0 0 0 0
+#79959
+sack food supply mini-fort burlap filled food OTHER~
+a large, heavy burlap sack stuffed with food~
+A large, heavy burlap sack stuffed with food lies here.~
+   This large burlap sack is rather heavy, stuffed as it is with 
+cheap food that will keep well. Dried cheese, hardened bread, 
+salted meat and skins of water make up but some of what the sack 
+contains, bound securely by cords of rope. The sack is perhaps 
+four feet in height, and at least a foot in width. 
+~
+12 0 1
+0 0 0 0
+7000 0.000000
+0 0 0 0 0 0 1
+15.000000 1460 86 0 0 0 0
+#79943
+uninhabited mini-fort no one location OTHER~
+#6a location currently claimed by no one#0~
+#6This location is currently claimed by no one.~
+   This location lacks any heraldry or insignia marking it as 
+belonging to one faction or the other. 
+#6OOC Note#0: You can claim tihs location to your side by typing 
+#6claim location#0, having a claim object in your hand, belonging 
+to an appropriate clan, and the exterior defenses of the location 
+being in good shape. Alternatively, this object will morph back 
+to its original Insigna in 30 real-life minutes. 
+~
+12 0 0
+0 0 0 0
+10000000 0.000000
+0 0 0 0 0 0 1
+0.000000 2 79998 0 0 0 0
+#79942
+uninhabited mini-fort location no one OTHER~
+#6a location currently claimed by no one#0~
+#6This location is currently claimed by no one.~
+   This location lacks any heraldry or insignia marking it as 
+belonging to one faction or the other. 
+#6OOC Note#0: You can claim tihs location to your side by typing 
+#6claim location#0, having a claim object in your hand, belonging 
+to an appropriate clan, and the exterior defenses of the location 
+eing in good shape. Alternatively, this object will morph back 
+to its original Insigna in 30 real-life minutes. 
+~
+12 0 0
+0 0 0 0
+10000000 0.000000
+0 0 0 0 0 0 1
+0.000000 2 79997 0 0 0 0
+#79941
+light_invis mini-fort unique OTHER~
+light from the defenses of the mini-fort~
+An invisible light is burning here.~
+~
+1 4 0
+2020 2020 54 1
+40000 0.000000
+0 0 0 0 0 0 1
+0.000000 2020 79941 0 0 0 0
+#79944
+watchtower log location OTHER~
+a log watchtower~
+A log watchtower rises here, a fence of felled trees blocking the pass.~
+   This watch tower stands barely taller than a man, it and the 
+shoulder-height fence surrounding it constructed out of split 
+logs. A pair of sturdy gates lead in and out of it, but it is 
+built such that anyone inside of the enclosure would have no 
+trouble defending the pass, or preventing anyone from crossing 
+here, if they so wished. 
+~
+12 0 0
+0 0 0 0
+999999900 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79000
+note OTHER~
+#6an OOC Note#0~
+#6An OOC Note says to type '#9#6exit room#0#6' to leave this place.~
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79940
+alarm token OTHER~
+#9#1alarm within the location#0~
+The location is alarmed.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79939
+exterior reinforced fortified undamaged OTHER~
+#6the reinforced, fortified, undamaged exterior#0~
+#6The location here is protected by its reinforced, fortified exterior.#0~
+   A series of defenses protects the location, ensuring that 
+those not friendly towards the people dwelling inside will have a 
+difficult time getting in without damaging the exterior 
+beforehand. 
+
+
+   #6OOC Note#0: Type #6enter location#0 to try and enter. If 
+the location is held by friendly forces, it will open for you. 
+If held by hostile forces, it will not. If held by no one, you 
+will enter unopposed. 
+~
+12 0 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79001
+flag standard black ERADAN_BATTALION grey moon shield TEXTILECRAFT~
+a black and grey flag hanging from a long pole, bearing a shield within a moon~
+A black and grey flag, bearing a shield within a moon, hangs proudly from a pole mounted to the wall here.~
+This large flag has a design of a black shield contained 
+within a grey moon and is mounted to a large iron pole, which
+is itself attached to a wall with large brackets. The flag
+flaps proudly in the wind and even on still days the close
+embroidery of silk and cotton combine to give this banner a
+valorous gleam.
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#79002
+key minifortgothakra crude iron OTHER~
+a crude iron key~
+A crude key of iron lies here.~
+   This key is rather simple and crude. It is forged of iron and 
+has a deep gouge along its handle; its teeth are blunt. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#79004
+table skull-based round wooden GOTHAKRA WOOD~
+a skull-based, round wooden table~
+A wooden table stands here, displaying a skull mosaic at its top.~
+   Standing upon a trio of wood-crafted claws, which are perched 
+atop a set of very real humanoid skulls, this table displays a 
+very commanding presence. Excluding the skulls at its base, this 
+table is extensively crafted out of sturdy oak wood, 
+fire-hardened, and shined to give it a sturdy look. Circling the 
+banister which arches from the base of the table, and works 
+upward to the top are a series of intricate depictions of battled 
+between men, beasts, and orc, all displaying gruesome detail, and 
+accurately depicting carnage of the battlefield. Topping this 
+table is a broad skull mosaic, which appeared to be white bone 
+wedged into the wood, and glazed over with a sealant to preserve 
+the work. 
+~
+15 4096 0
+25000 0 -1 0
+8000 0.000000
+0 0 0 25 16392 0 1
+250.000000 0 0 0 32 0 0
+#79005
+bones knuckle handful crudely carved ORKISH OTHER~
+a handful of crudely-carved knuckle bones~
+A handful of knuckle bones lie here, carved crudely.~
+   Five small knuckle-bones, each carved and chipped into a rough 
+square, lie here. Each flat surface has been carved with a 
+different symbol so that when the bones are thrown, they will 
+each land with a carving facing upward. The runes show on the 
+bone are a skull, a sun, a moon, a sword, and an eye. 
+~
+65 4198400 1
+5 0 0 0
+30 0.000000
+0 
+skull sun moon sword eye~
+0 15 16392 0 1
+15.000000 0 0 0 0 0 0
+#79006
+Studmuffin Doll Aussie Hairy Big Unique_pShammat OTHER~
+a rag studmuffin doll~
+A studmuffin doll made of rags lays here.~
+This doll looks like a tiny big hairy Aussie made of rags. Squeeze it for love.
+~
+8 4096 524289
+0 0 0 0
+100 0.000000
+0 0 0 100 0 0 1
+99999998430674944.000000 0 0 0 0 0 0
+#79003
+painprog wreckage pwnage OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#79007
+strap multi-looped shoulder strap LEATHER~
+a multi-looped leather shoulder strap~
+A brown leather quiver lies here.~
+~
+8 4096 8388609
+0 0 0 0
+200 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 0 0 0
+#79008
+wall palisade sturdy wooden iron-barred WOOD~
+a sturdy, iron-barred wooden palisade wall~
+A sturdy, iron-barred wooden palisade wall rises from the ground.~
+   Rising from the ground, obviously entrenched well below, this 
+section of palisade is iron-barred, the bands fitted around thick 
+shafts of wood. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 100 0 0 1
+0.000000 0 0 0 32 0 0
+$~

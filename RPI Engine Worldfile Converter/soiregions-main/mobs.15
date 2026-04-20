@@ -1,0 +1,517 @@
+#15000
+Daven warehouseentryguard crisp clean-shaven young man~
+a crisp, clean-shaven young man~
+A crisp, clean-shaven young man stands here at attention.~
+   This young man looks to be in his twenties, with short cut
+sandy brown hair and bright blue eyes. Clean shaven and well
+tended, his healthy and hale frame is carried with considerable
+grace and self-awareness. His eyes are constantly alert, 
+discretely watching everyone and everything that passes.
+~
+4106 0 30 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 10 1 16 16 81 16
+0 0
+0 60 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+45 45 0 0 0 0 0 0 0 50
+0 0 50 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' vanwarehouse~
+0 0 0
+#15001
+Kurt warehousestoresguard leathery square-jawed older man~
+a leathery, square-jawed older man~
+A leathery, square-jawed older man stands here, checking the supplies.~
+   Solid and sturdy, this older man is still obviously in fine
+physical form. His short-cut hair is nearly all grey, traced
+through with black. A myriad of lines and creases make their
+way across his leathered features but his demeanor is alert
+and precise despite the obvious enroachment of age.
+~
+4106 0 30 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 10 1 16 16 81 16
+0 0
+0 60 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 50 0
+0 0 60 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' steward_supply~
+0 0 0
+#15002
+'member' mm_denizens~
+an energetic middle-aged woman~
+A middle-aged woman, a bit rounded and obviously energetic, stands here.~
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' sadiranurse 'member' osgi_citizens~
+0 0 0
+#15003
+Camellia braided murky-eyed hair POFSADIRAGUARD~
+a braided, murky-eyed woman~
+A woman with braided hair and murky eyes stands here looking alert and watchful.~
+This is a tall woman with chestnut hair that is pulled back
+into a slick and precisely braided rope. Her strong features
+are filled with personality and she could never be considered
+a true beauty by most standards. Her nose perhaps is a little 
+too sharp, and her chin a little too bold. Sharp eyes linger 
+at the edge of a murky greenish brown hazel. Over it all, 
+this woman seem to be rather perceptive and efficient.
+~
+10 0 27 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 12 14 1 14 16 81 16
+0 0
+0 55 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+55 55 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' vanstore 'member' osgi_citizens 'member' vanwarehouse~
+0 0 0
+#15244
+carriage white oak gleaming white MALRED_CARRIAGE~
+a polished white oak carriage hitched to a gleaming white horse~
+A carriage made of polished white oak is here, hitched to a gleaming white horse.~
+   This elegant carriage is made entirely of well-turned white 
+oak, polished to a gleaming shine. All smooth curves and rounded 
+edges, it has been artfully embelished with silver filigree on 
+the sides and doors, the windows covered in ocean blue velvet 
+curtains. A set of polished silver racks along the top have room 
+for a considerable amount of luggage with a padded board and 
+curved linen cover for the driver allow it to be comfortably 
+driven in any weather. The wheels are set in a bowed well, 
+giving a bit of flexibility to the ride and likely absorbing the 
+worst of the bumps that it has to deal with. Pure white wood 
+with silver embelishments, the only other color in its decoration 
+is the use of ocean blue fabric on the curtains and coushins. 
+The horse it is hitched to is a high-stepping, fine formed animal 
+of pure white with a long, elegant mane in a silver-studded white 
+harness. 
+~
+278536 0 0 47 0 5d1+300 1d2+0 0 8 8 0 0 0 2 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 25 77 16
+0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 100 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'journeyman' malred~
+0 0 0
+#15004
+Stinky dog mutt flea-infested brown XCITYWORKERS_DOG~
+a flea-infested, brown-furred mutt~
+A brown-furred mutt infested with fleas stands here.~
+   Long hair falls over this dog's eyes, a toasty brown hinting 
+at the edges of blonde in color. Numerous fleas and other 
+parasites have taken home in this dog's plentiful hair. The true 
+lineage of this mutt is a mystery, it's appearance suggesting 
+most likely a combination of too many breeds over too much time. 
+~
+134217738 0 4 40 0 5d1+80 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+12 9 15 1 11 14 81 17
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' osgi_citizens 'member' osgi_cityworkers~
+0 0 0
+#15005
+Leroy skinny old man gout~
+a skinny old man~
+A skinny old man with a swelled foot sits by the fireplace here.~
+   This skinny old man is weathered and wrinkled like the surface 
+of a prune. His frame is hunched and bent, and clearly was much 
+taller once upon a time. He has a tendency to smile while 
+listening to conversations, showing all three of his teeth. He 
+moves spryly, but with a heavy limp in his right leg, and his 
+right foot is severely swollen. 
+~
+10 0 25 0 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+10 17 17 1 14 12 81 9
+1 0
+2518 11990 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'journeyman' mt_cityworkers~
+0 0 0
+#15006
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 24 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+268435456 0
+0 31 43 33 38 45 45 49 30 44
+35 35 48 45 35 39 46 49 41 33
+32 48 0 0 52 33 0 0 24 69
+0 0 50 0 0 16 25 21 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 32 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#15007
+Roval towering argent stallion~
+a towering, argent-coated stallion~
+A towering, argent-coated stallion stands here, waiting patiently.~
+   The massive form of this fine beast stands roughly at an 
+average man's eye level, long, muscular legs lending the stallion 
+a proud and dignified carriage. Intelligent, active, coal-black 
+eyes match the jet-black of its thick mane and tail. Its coat is 
+a bright and silvery white, the nostrils upon its long, lean face 
+matching the black of the coat near its hooves. The glowing 
+argent coat appears well-cared-for, and a thick, knotted layer of 
+muscle ripples gracefully beneath its sleek skin. 
+~
+262154 0 30 61 2 5d1+150 1d2+0 0 7 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 1 0 0 0 0 0
+18 6 7 1 17 25 81 20
+0 0
+0 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+35 0 31 0 0 100 0 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 100
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#15008
+vanstore mobile~
+a vanstore mobile~
+A vanstore mobile stands here waiting to be edited properly.~
+   This mobile looks very irate in the most undescriptive sort 
+of fashion. He bears the mark of a squid-head on the back of 
+his left hand.
+~
+4106 0 30 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 10 10 1 16 16 81 16
+0 0
+0 60 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 50 0
+0 0 60 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 50 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' vanstore~
+0 0 0
+#15009
+Aderil slim blue-eyed teenage boy~
+a slim, blue-eyed teenage boy~
+A slim, blue-eyed teenage boy is lazily loitering around here.~
+   The most prominent feature of this young boy in his early
+teens are his long and slender limbs. Along with his slim body
+one can get the impression that he is going to break apart any
+second. His hair is of tan color and even though it is cut short,
+it is in a rather messy state. The freckles that cover his cheeks
+and nose and his light-blue eyes give him a pleasant appearance.
+~
+26 0 15 0 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 62 1 0 0
+12 12 12 1 16 12 81 16
+1 0
+15301 11448 0.200000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 20 30 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 20
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 20 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 69 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' tirnenestel_leathers~
+0 0 0
+#15262
+Julien NPCBRENNA tall lithe man clothier~
+a tall, lithe man~
+A tall, lithe man directs sales.~
+   This adult man is tall and well-made, with wiry, lithe muscles
+and strong-looking shoulders. He walks with a pronounced limp, but
+he seems cheerful and is quick to assist people when needed. His
+blond hair is cropped close, and his green eyes are expressive
+and gentle.
+~
+10 0 4 0 0 5d1+102 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+1 0
+15262 11466 1.120000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 30 30
+0 0 30 0 20 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 20 0
+0 20 0 0 0 0 40 0 0 0
+0 0 0 0 0 0 0 0 0 20
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 30 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' brenna_booth~
+0 0 0
+#15010
+Isaac Olrein lad young dark haired OLREIN_SHOP~
+a young, dark-haired lad~
+A young, dark-haired lad attends the doors here.~
+   This lad stands just beneath the average height of a grown 
+man, having not yet finished growing yet. A thick, curly mop of 
+black hair stands atop his head, mussed and uncared for. 
+Steel-grey eyes peer out from between his locks of hair, set 
+about an average but slightly bulbuous nose. His skin is tanned 
+and calloused a bit and his cheeks and chin bear the spots of 
+acne common with one his age. His body is lightly muscled, lanky 
+and a little gangly in bearing. 
+~
+10 0 25 0 0 5d1+90 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 6 2 0 0
+13 16 13 1 16 12 81 16
+0 0
+0 50 0 50 0 0 0 0 50 0
+0 0 0 0 0 0 0 0 0 0
+50 50 40 30 0 20 0 0 50 50
+0 0 0 0 0 0 0 0 0 0
+0 0 0 10 0 0 0 0 0 0
+0 0 0 8 0 0 0 30 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' olrein_sons 'member' mt_citizens~
+0 0 0
+#15011
+Raen boy UNIQUE_PREINA_PALIATHOS blond milky green~
+a blond-haired, milky-green-eyed young boy~
+A blond-haired, milky-green-eyed young boy is here.~
+   This little boy is crowned with thin, smooth blond hair that 
+is cut cleanly at his jawline all the way around his head. His 
+face is is somewhat round, though not fat. His eyes have an 
+almond shape to them, their hue a milky green. The child has a 
+slight overbite, though it is not over pronounced. He is 
+somewhat tall for his age and is slender. 
+~
+10 0 4 0 0 5d1+69 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 41 1 0 0
+5 5 12 1 10 5 81 10
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 45 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#15012
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#15013
+girl UNIQUE_PAMELIA curly brown hair very young Alyson~
+a very young girl with curly, brown hair~
+A very young girl with curly, brown hair stands here.~
+   Cresting this young girl's head is a crown of soft, brown hair 
+that curls into gentle curlicues. Her face is flushed with a 
+meager amount of pink, adding warmth to the peachy tone of her 
+skin, and her eyes are a bright and shining jade green. Her 
+coral pink lips are small and she sports dimples on her cheeks 
+when she smiles. She explores her surroundings curiously and 
+with endless energy, and can often be seen running around. She 
+is still a bit chubby, indicating that this child is still quite 
+young, as if just emerging from her toddler years. 
+~
+10 0 9 0 0 5d1+96 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+9 17 16 1 15 14 81 16
+0 0
+0 19 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+27 22 0 0 0 30 0 0 30 62
+0 0 30 0 0 30 30 25 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 30 0 0 0 0 0 0 0 0
+10 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' kelbran_family~
+0 0 0
+$~

@@ -1,0 +1,153 @@
+#71000
+karif huge bearded hamfisted man zHARAD_SILVERMOON_MANSUR~
+a hamfisted, bearded man~
+A hamfisted, bearded man watches vigilently~
+Black hair, streaked with grey, is clipped close to his rather large 
+man's head. Heavy, black brows jut out over his deep, brow alert eyes. 
+A slab of a nose sits crooked upon his broad, swarthy face.  A thick, 
+grey-streaked beard covers his chin, and jaw. A course mustache curves
+around his beefy lips to meet the dense, beard on his chin. He is tall,
+thick necked and broad shouldered. He is sturdy of build and 
+straight-backed.
+~
+10 0 30 6 2 5d1+114 1d2+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 79 5 0 0
+18 16 16 1 16 20 95 16
+0 0
+0 60 60 60 60 60 60 60 60 60
+60 60 0 60 60 0 60 60 60 100
+60 60 0 0 60 60 0 0 0 100
+0 0 100 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 100
+100 100 100 0 0 0 0 0 0 0
+0 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' mordor_char 'corporal' silvermoon 'corporal' abdul-matin~
+0 0 0
+#71001
+orc variable gang orc Mizar~
+a variable gang orc for Mizar~
+A variable gang orc for Mizar stands here.~
+  This beefy orc is heavily muscled, but their true height is 
+concealed by their constant stoop, lumbering by with their burly 
+hands swinging next to their knees. Thick, greasy hair covers 
+their head, and no small amount of the rest of their body, the 
+orc smelling like sweat and rotting meat. Their gazes look 
+suspiciously past their craggy facial features, eyes lingering on 
+anything out of the ordinary.
+#0
+<worn on head>           #2a thin iron skullcap#0
+<worn on body>           #2a crude wolf-hide vest#0
+<about upper right arm>  #2a poorly dyed, gray bandana#0
+<worn about waist>       #2a piece of hemp rope#0
+<worn on legs>           #2crude, uncured wolf-hide leggings#0
+<worn on feet>           #2a pair of rough, oily boots#0
+~
+4169 8388612 25 25 3 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 2097664 0 0 68157440 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 37 34 43 38 49 42 46 30 36
+43 50 46 44 41 47 50 48 35 48
+41 32 33 0 35 37 0 0 17 63
+0 0 58 0 0 20 24 17 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 68 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' gang_two~
+0 0 0
+#71002
+goblin variable gang orc Mizar~
+a variable gang snaga for Mizar~
+A variable gang snaga for Mizar stands here.~
+   This goblin looks considerably underfed, and has apparently 
+lived an even harsher life than the norm in Minas Morgul. 
+Slinking cautiously along, its eyes are alert and wary, and it 
+often pauses to sniff the air. A powerful stench rises from its 
+body, the sickening miasma of one that wallows constantly in the 
+filth that it is covered in from head to toe.
+#0
+<worn on head>           #2a thin iron skullcap#0
+<worn on body>           #2a crude wolf-hide vest#0
+<about upper right arm>  #2a poorly dyed, gray bandana#0
+<worn about waist>       #2a piece of hemp rope#0
+<worn on legs>           #2crude, uncured wolf-hide leggings#0
+<worn on feet>           #2a pair of rough, oily boots#0
+~
+4169 8388612 24 24 3 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 2097664 0 0 68157440 0
+16 16 16 1 16 16 94 16
+268435456 0
+0 48 36 31 45 38 49 40 47 48
+37 34 31 46 32 36 38 44 41 48
+41 35 40 0 54 58 0 0 16 62
+0 0 68 0 0 18 23 20 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 44 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 20 0 0 0 0 0 0 0 0
+0 0 0 0 68 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' gang_two~
+0 0 0
+#71003
+Rilgi orkish whore heavily-rouged brothelshopkeep~
+a heavily-rouged orkish whore~
+An orkish whore, her face heavily rouged, stands here.~
+   It is apparent that this orkish female is getting on in her 
+years. Her skin is lined with wrinkles wherever it isn't 
+scarred, and her frame is hunched over. What little hair she has 
+is greasy, and a small amount of it is wrapped back in a 
+ponytail. Her red eyes contain a deadness to them, and sit 
+sunken deep into her skull. She has no eyebrows or teeth, 
+instead she has a low-set brow and soft, blackened gums. Her 
+figure is far from its pride -- her skin is loose and hangs in 
+flaps, and her tits and ass are flabby. Overall, she looks to be 
+fed just enough to keep her from being emaciated. 
+~
+10 8388612 20 25 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 94 16
+1 2
+71054 71062 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 30 0 0 0 40 40 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 40 40
+0 0 34 0 45 0 0 40 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 60 20 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 45 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'corporal' gang_two~
+0 0 0
+$~

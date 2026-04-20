@@ -1,0 +1,49 @@
+#82000
+rprog_trigger_82017 granite block OTHER~
+a granite block~
+A granite block juts out of the wall here at an odd angle.~
+   This fist sized block of granite sticks out of the wall here, 
+jutting upwards at an odd angle. It is relatively free of dust 
+and debris, unlike the rest of the room, and seems entirely out 
+of place amongst the surrounding well laid stonework. 
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#82100
+key drug storeroom harad underground 96821 small black OTHER~
+a small black key~
+A small black key has been left here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#82019
+Underground_gaol_key scorpion carved black key OTHER~
+a scorpion-carved black key~
+A scorpion-carved black key has been left here.~
+   This key has been carved from ivory and somehow turned black, 
+whether by dye or other means it is hard to tell. The ivory has 
+been carved to resemble a scorpion, with its tail forming the 
+blade of the key with the head and claws forming a handle. 
+~
+18 135168 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#82017
+82017 timer secret door OTHER~
+a timer chit~
+A timer chit sits here, timing.~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

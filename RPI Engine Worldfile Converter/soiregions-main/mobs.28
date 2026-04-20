@@ -1,0 +1,38 @@
+#28001
+Jhovair bald-headed, braided-beard man GUARD_POFAER HEREN~
+a bald-headed, braided-beard man~
+A bald-headed, braided-beard man stands here.~
+   Towering over most men, this man's broad shoulders and thick 
+neck define his entire build as one of corded, sinewy muscle 
+tissue. His head is shaven completely bald and kept free of any 
+hair growth; in contrast to his face which bears a well-groomed, 
+blonde beard that is kept in a pair of thick braids. His flesh 
+although a fair milky tone has a warm rosy hue that borders just 
+under the surface of his cheeks and hands. His cobalt eyes are 
+shadowed and seem smaller then normal under the pronounced bone 
+structure of his browline and the pair of thick blonde eyebrows. 
+His thick corded legs, most often, make his gait seem clumsy and 
+slow. 
+~
+10 0 32 0 0 5d1+102 1d5+0 0 8 8 1 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+17 11 13 1 14 16 81 15
+0 0
+0 50 0 60 60 0 0 0 0 0
+62 0 0 0 0 0 0 0 65 0
+45 45 38 0 0 0 0 0 0 40
+0 0 40 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 45 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'sergeant' house_nimrulai 'member' heren_carnatalion~
+0 0 0
+$~

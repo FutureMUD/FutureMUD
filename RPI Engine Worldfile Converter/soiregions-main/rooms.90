@@ -1,0 +1,72 @@
+#90000
+Base Room~
+   Objects that are used in or produced by crafts go here; 
+overflow from z98. 
+~
+90 1073807368 0
+0
+S
+#90041
+A Narrow Hallway~
+   This hallway is rather short and narrow, leading from the 
+archway south a small ways only to provide access to a 
+plain-looking door to the east as well as one to the north. The 
+walls have been freshly-painted a light peach in color and a 
+small lamp has been affixed to the wall to provide a constant, 
+dim light. 
+~
+90 67174408 0
+0
+D0
+~
+door~
+1 -1  0 90042
+D1
+~
+door~
+1 -1  0 90043
+D2
+~
+~
+0 -1  0 99039
+S
+#90042
+A Modest Bedroom~
+   The four walls of this modest bedroom have been 
+freshly-painted a peachy hue. The hardwood planks which make up 
+the floor are somewhat worn yet still sturdy. Occupying the 
+western wall is a sizable window curtained by ivory linens while 
+to the south, a door leads out into the narrow hallway. A hook 
+has been set into the wall, allowing for a lantern or lamp to be 
+hung. 
+~
+90 1073807624 0
+0
+D2
+~
+door~
+1 -1  0 90041
+P
+open close adjust~
+windows curtains~
+vstr You walk over to the window and adjust the curtains.
+ostr $n walks over to the window and adjusts its curtains.
+rftog indoors 99042
+~
+S
+#90043
+A Small Bedroom~
+   Mildly-worn hardwood planks make of the floor of this small 
+bedroom, the walls freshly-painted a peachy hue. It is plain in 
+design but capable of bearing a few pieces of furniture. It has 
+no window, instead relying upon a lantern set upon the wall to 
+provide lighting in this comfortable room. 
+~
+90 65800 0
+0
+D3
+~
+door~
+1 -1  0 90041
+S
+$~

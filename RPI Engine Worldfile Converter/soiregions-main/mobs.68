@@ -1,0 +1,66 @@
+#68001
+mob new~
+a new mobile~
+(null)~
+(null)~
+8 0 4 0 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+#68002
+Gimra man brutish bug-eyed VILLAGExJAILER~
+a brutish, bug-eyed man~
+A brutish, bug-eyed man stands here.~
+   This beefy man has a brutish air about him: his arms are 
+thick, corded with muscle, and his legs are bowed out, also 
+thickly fleshed. He is rather short, lending him a squat, 
+frog-like appearance that his bug eyes do little to play down, 
+and he is utterly and completely bald; though this does not keep 
+him from growing a thick, red beard. 
+#0
+<worn on head>           #2a thin iron skullcap#0
+<worn on body>           #2a heavy ring vest#0
+<worn about body>        #2a thick, red woolen cloak embroidered with a black blowfly#0
+<worn about waist>       #2a piece of hemp rope#0
+<worn on legs>           #2a pair of thick, stiff leather pants#0
+<worn on feet>           #2a pair of rough, oily boots#0
+~
+67108874 0 22 94 2 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 68003 0 68003 0 24 0 0 0 0 0 0 0 0 68003
+16 16 16 1 16 16 95 16
+0 0
+0 35 0 0 0 0 45 0 0 0
+0 0 0 0 0 0 0 0 0 0
+35 35 0 0 0 0 0 0 40 40
+0 0 40 0 0 0 0 10 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 35 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 10 0 10 0 0
+0 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+~
+0 0 0
+$~

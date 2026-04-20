@@ -1,0 +1,1429 @@
+#94000
+Base Room for Bounty Hunting Gear~
+   Never touch anything with a vnum of 94--- unless Zapata has 
+told you so. This zone is set up to work his wonky yet marvelous 
+system of automatically generated bounties for Tur Edendor. 
+~
+94 1073807368 0
+0
+S
+#94997
+Bounty-Hunting Program Room~
+   This is where the Bounty-Master is loaded, and runs special 
+programs from. 
+~
+94 1140916252 0
+0
+P
+hard~
+bounty~
+force 94000 66134 emote points a thick finger down at *ledger, looking up with a vicious grin.
+set random 1d10
+if (random=1)
+put 94110 66134
+force 94000 94999 H A
+else do
+if (random=2)
+put 94111 66134
+force 94000 94999 H B
+else do
+if (random=3)
+put 94112 66134
+force 94000 94999 H C
+else do
+if (random=4)
+put 94113 66134
+force 94000 94999 H D
+else do
+if (random=5)
+put 94114 66134
+force 94000 94999 H E
+else do
+if (random=6)
+put 94115 66134
+force 94000 94999 S A
+else do
+if (random=7)
+put 94116 66134
+force 94000 94999 S B
+else do
+if (random=8)
+put 94117 66134
+force 94000 94999 S C
+else do
+if (random=9)
+put 94118 66134
+force 94000 94999 S D
+else do
+put 94119 66134
+force 94000 94999 S E
+fi do
+fi do
+fi do
+fi do
+fi do
+fi do
+fi do
+fi do
+fi do
+~
+P
+gap~
+gap~
+set random 1d4
+if (random=1)
+put 94120 66134
+force 94000 94999 L one
+else do
+if (random=2)
+put 94121 66134
+force 94000 94999 L two
+else do
+if (random=3)
+put 94122 66134
+force 94000 94999 L three
+else do
+put 94123 66134
+force 94000 94999 L four
+fi done
+fi done
+fi done
+fi done
+~
+S
+#94998
+Easy Mob Set-Up Room~
+   As the title says. 
+~
+94 1140916252 0
+0
+S
+#94999
+Hard-Mob Set-up Room~
+   As the title says. 
+~
+94 1140916252 0
+0
+P
+H~
+A~
+put 66901 94999
+put 66900 94999
+force 94000 94999 get coin
+force 94000 94999 get coin
+force 94000 94999 buy sGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 junk coin
+put 6019 94999
+put 2092 94999
+put 3082 94999
+put 1045 94999
+put 1000 94999
+put 1000 94999
+put 97153 94999
+put 97153 94999
+force 94000 94999 command all get quality
+force 94000 94999 command all wield quality
+force 94000 94999 command all get shield
+put 1001 94999
+put 1001 94999
+force 94000 94999 command all get dagger
+force 94000 94999 command all wield dagger
+force 94000 94997 gap gap
+~
+P
+gap~
+gap~
+set random 1d4
+if (random=3)
+put 94120 66134
+force 94000 94999 L one
+else do
+if (random=2)
+put 94121 66134
+force 94000 94999 L two
+else do
+if (random=1)
+put 94122 66134
+force 94000 94999 L three
+else do
+put 94123 66134
+force 94000 94999 L four
+fi done
+fi done
+fi done
+fi done
+~
+P
+L~
+one~
+set random 1d10
+if (random=9)
+put 94200 9221
+exit 94999 n 94200
+else do
+if (random=8)
+put 94200 9224
+exit 94999 n 94201
+else do
+if (random=7)
+put 94200 9004
+exit 94999 n 94202
+else do
+if (random=6)
+put 94200 9008
+exit 94999 n 94203
+else do
+if (random=5)
+put 94200 9012
+exit 94999 n 94204
+else do
+if (random=4)
+put 94200 9015
+exit 94999 n 94205
+else do
+if (random=3)
+put 94200 9018
+exit 94999 n 94206
+else do
+if (random=2)
+put 94200 9021
+exit 94999 n 94207
+else do
+if (random=1)
+put 94200 9024
+exit 94999 n 94208
+else do
+put 94200 9027
+exit 94999 n 94209
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+force 94000 94999 command all north
+force 94000 66134 recount hard-bounty
+~
+P
+L~
+two~
+set random 1d10
+if (random=9)
+put 94300 4011
+exit 94999 n 94300
+else do
+if (random=8)
+put 94300 4159
+exit 94999 n 94301
+else do
+if (random=7)
+put 94300 4298
+exit 94999 n 94302
+else do
+if (random=6)
+put 94300 4131
+exit 94999 n 94303
+else do
+if (random=5)
+put 94300 4197
+exit 94999 n 94304
+else do
+if (random=4)
+put 94300 4368
+exit 94999 n 94305
+else do
+if (random=3)
+put 94300 4257
+exit 94999 n 94306
+else do
+if (random=2)
+put 94300 4178
+exit 94999 n 94307
+else do
+if (random=1)
+put 94300 4343
+exit 94999 n 94308
+else do
+put 94300 4395
+exit 94999 n 94309
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+force 94000 94999 command all north
+force 94000 66134 recount hard-bounty
+~
+P
+L~
+three~
+set random 1d10
+if (random=9)
+put 94300 12581
+exit 94999 n 94400
+else do
+if (random=8)
+put 94300 12592
+exit 94999 n 94401
+else do
+if (random=7)
+put 94300 12522
+exit 94999 n 94402
+else do
+if (random=6)
+put 94300 12586
+exit 94999 n 94403
+else do
+if (random=5)
+put 94300 12334
+exit 94999 n 94404
+else do
+if (random=4)
+put 94300 12328
+exit 94999 n 94405
+else do
+if (random=3)
+put 94300 12388
+exit 94999 n 94406
+else do
+if (random=2)
+put 94300 12412
+exit 94999 n 94407
+else do
+if (random=1)
+put 94300 12062
+exit 94999 n 94408
+else do
+put 94300 4295
+exit 94999 n 94409
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+force 94000 94999 command all north
+force 94000 66134 recount hard-bounty
+~
+P
+L~
+four~
+set random 1d10
+if (random=9)
+put 94300 10784
+exit 94999 n 94500
+else do
+if (random=8)
+put 94300 10877
+exit 94999 n 94501
+else do
+if (random=7)
+put 94300 10904
+exit 94999 n 94502
+else do
+if (random=6)
+put 94300 10898
+exit 94999 n 94503
+else do
+if (random=5)
+put 94300 10406
+exit 94999 n 94504
+else do
+if (random=4)
+put 94300 10323
+exit 94999 n 94505
+else do
+if (random=3)
+put 94300 10283
+exit 94999 n 94506
+else do
+if (random=2)
+put 94300 10297
+exit 94999 n 94507
+else do
+if (random=1)
+put 94300 10118
+exit 94999 n 94508
+else do
+put 94300 10085
+exit 94999 n 94509
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+fi done
+force 94000 94999 command all north
+force 94000 66134 recount hard-bounty
+~
+P
+H~
+B~
+put 66901 94999
+force 94000 94999 get coin
+force 94000 94999 buy sHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 junk coin
+put 6049 94999
+put 6049 94999
+put 6059 94999
+put 6059 94999
+put 1818 94999
+put 1818 94999
+force 94000 94999 command all get quality
+force 94000 94999 command all wield quality
+force 94000 94999 command all get shield
+force 94000 94997 gap gap
+
+~
+P
+H~
+C~
+put 66901 94999
+put 66900 94999
+force 94000 94999 get coin
+force 94000 94999 get coin
+force 94000 94999 buy sGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 junk coin
+put 5097 94999
+put 1045 94999
+put 1046 94999
+put 98198 94999
+put 1046 94999
+put 98198 94999
+force 94000 94999 command all get quality
+force 94000 94999 command all wield quality
+put 97153 94999
+put 97153 94999
+put 98510 94999
+put 98510 94999
+force 94000 94999 command all get shield
+force 94000 94999 command all get longknife
+force 94000 94999 command all wield longknife
+force 94000 94997 gap gap
+~
+P
+H~
+D~
+put 66901 94999
+force 94000 94999 get coin
+force 94000 94999 buy sGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 junk coin
+put 5097 94999
+put 1045 94999
+put 1046 94999
+put 98198 94999
+put 1046 94999
+force 94000 94999 command all get quality
+force 94000 94999 command all wield quality
+put 97153 94999
+put 97153 94999
+put 2283 94999
+put 5044 94999
+force 94000 94999 command all get shield
+force 94000 94999 command all get knife
+force 94000 94999 command all wield knife
+force 94000 94997 gap gap
+~
+P
+H~
+E~
+put 66901 94999
+force 94000 94999 get coin
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sHalOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sHalOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 junk coin
+put 5097 94999
+put 5096 94999
+put 6005 94999
+put 3082 94999
+put 6006 94999
+force 94000 94999 command all get quality
+force 94000 94999 command all wield quality
+put 97153 94999
+put 97153 94999
+put 97153 94999
+force 94000 94999 command all get shield
+force 94000 94997 gap gap
+~
+P
+S~
+A~
+put 66901 94999
+put 66900 94999
+force 94000 94999 get coin
+force 94000 94999 get coin
+force 94000 94999 buy sGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGonBan "Chummer"
+force 94000 94999 accept
+force 94000 94999 junk coin
+put 6019 94999
+put 2092 94999
+put 3082 94999
+put 1045 94999
+put 1000 94999
+put 1000 94999
+put 97153 94999
+put 97153 94999
+force 94000 94999 command all get quality
+force 94000 94999 command all wield quality
+force 94000 94999 command all get shield
+put 1001 94999
+put 1001 94999
+force 94000 94999 command all get dagger
+force 94000 94999 command all wield dagger
+force 94000 94997 gap gap
+~
+P
+S~
+B~
+put 66901 94999
+put 66900 94999
+put 66900 94999
+force 94000 94999 get coin
+force 94000 94999 get coin
+force 94000 94999 buy sHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wHarTri "Chummer"
+force 94000 94999 accept
+force 94000 94999 junk coin
+put 6049 94999
+put 6059 94999
+put 6049 94999
+put 6059 94999
+put 1260 94999
+put 5076 94999
+put 6007 94999
+put 1818 94999
+put 1818 94999
+put 1818 94999
+put 1818 94999
+put 1818 94999
+force 94000 94999 command all get quality
+force 94000 94999 command all wield quality
+force 94000 94999 command all get shield
+force 94000 94997 gap gap
+~
+P
+S~
+C~
+put 66901 94999
+put 66900 94999
+put 66900 94999
+put 66900 94999
+force 94000 94999 get coin
+force 94000 94999 get coin
+force 94000 94999 buy sWar "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sWar "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sWar "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sWar "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sGob "Chummer"
+force 94000 94999 accept
+put 1045 94999
+put 98198 94999
+put 1046 94999
+put 98198 94999
+force 94000 94999 command all get quality
+force 94000 94999 command all wield quality
+put 97153 94999
+put 97153 94999
+put 5044 94999
+force 94000 94999 command all get shield
+force 94000 94999 command all get longknife
+force 94000 94999 command all wield longknife
+force 94000 94997 gap gap
+~
+P
+S~
+D~
+put 66901 94999
+put 66900 94999
+put 66900 94999
+force 94000 94999 get coin
+force 94000 94999 get coin
+force 94000 94999 buy sTroll "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sGob "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sHalOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sOrc "Chummer"
+force 94000 94999 accept
+put 5097 94999
+put 6005 94999
+put 3082 94999
+put 6014 94999
+put 5004 94999
+put 6006 94999
+force 94000 94999 command all get quality
+force 94000 94999 command all wield quality
+put 97153 94999
+put 97153 94999
+put 97153 94999
+put 5044 94999
+force 94000 94999 command all get shield
+force 94000 94999 command all get longknife
+force 94000 94999 command all wield longknife
+force 94000 94997 gap gap
+~
+P
+S~
+E~
+put 66901 94999
+put 66900 94999
+put 66900 94999
+force 94000 94999 get coin
+force 94000 94999 get coin
+force 94000 94999 buy sOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy sOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 buy wOrc "Chummer"
+force 94000 94999 accept
+force 94000 94999 junk coin
+put 5380 94999
+put 5363 94999
+put 5212 94999
+put 5097 94999
+put 6032 94999
+put 97540 94999
+put 5457 94999
+force 94000 94999 command all get quality
+force 94000 94999 command all wield quality
+put 97153 94999
+put 97153 94999
+put 97153 94999
+put 97153 94999
+force 94000 94999 command all get shield
+force 94000 94997 gap gap
+~
+S
+#94200
+Dry, Cobweb Covered Cave~
+   This dry cave looks to have been naturally formed in the 
+bleak, black mountain range about the lands of Mordor, but 
+whatever water was responsible seems long gone. Cobwebs cover 
+ever stone and wall here, a number of small, black spiders 
+visible crawling their way through the sticky mazes, often to 
+trapped flies and other small insects. A narrow cave opening is 
+set in the southern end of the cavern, opening out to a bleak 
+mountain side. 
+~
+94 67174408 0
+0
+D2
+~
+~
+0 -1  0 9221
+S
+#94201
+Dry, Cobweb Covered Cave~
+   This dry cave looks to have been naturally formed in the 
+bleak, black mountain range about the lands of Mordor, but 
+whatever water was responsible seems long gone. Cobwebs cover 
+ever stone and wall here, a number of small, black spiders 
+visible crawling their way through the sticky mazes, often to 
+trapped flies and other small insects. A narrow cave opening is 
+set in the southern end of the cavern, opening out to a bleak 
+mountain side. 
+~
+94 67174408 0
+0
+D2
+~
+~
+0 -1  0 9224
+S
+#94202
+Dry, Cobweb Covered Cave~
+   This dry cave looks to have been naturally formed in the 
+bleak, black mountain range about the lands of Mordor, but 
+whatever water was responsible seems long gone. Cobwebs cover 
+every stone and wall here, a number of small, black spiders 
+visible crawling their way through the sticky mazes, often to 
+trapped flies and other small insects. A narrow cave opening is 
+set in the southern end of the cavern, opening out to a bleak 
+mountain side. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 9004
+S
+#94203
+Dry, Cobweb Covered Cave~
+   This dry cave looks to have been naturally formed in the 
+bleak, black mountain range about the lands of Mordor, but 
+whatever water was responsible seems long gone. Cobwebs cover 
+ever stone and wall here, a number of small, black spiders 
+visible crawling their way through the sticky mazes, often to 
+trapped flies and other small insects. A narrow cave opening is 
+set in the southern end of the cavern, opening out to a bleak 
+mountain side. 
+~
+94 67174408 0
+0
+D2
+~
+~
+0 -1  0 9008
+S
+#94204
+Dry, Cobweb Covered Cave~
+   This dry cave looks to have been naturally formed in the 
+bleak, black mountain range about the lands of Mordor, but 
+whatever water was responsible seems long gone. Cobwebs cover 
+ever stone and wall here, a number of small, black spiders 
+visible crawling their way through the sticky mazes, often to 
+trapped flies and other small insects. A narrow cave opening is 
+set in the southern end of the cavern, opening out to a bleak 
+mountain side. 
+~
+94 67174408 0
+0
+D2
+~
+~
+0 -1  0 9012
+S
+#94205
+Dry, Cobweb Covered Cave~
+   This dry cave looks to have been naturally formed in the 
+bleak, black mountain range about the lands of Mordor, but 
+whatever water was responsible seems long gone. Cobwebs cover 
+ever stone and wall here, a number of small, black spiders 
+visible crawling their way through the sticky mazes, often to 
+trapped flies and other small insects. A narrow cave opening is 
+set in the southern end of the cavern, opening out to a bleak 
+mountain side. 
+~
+94 67174408 0
+0
+D2
+~
+~
+0 -1  0 9015
+S
+#94206
+Dry, Cobweb Covered Cave~
+   This dry cave looks to have been naturally formed in the 
+bleak, black mountain range about the lands of Mordor, but 
+whatever water was responsible seems long gone. Cobwebs cover 
+ever stone and wall here, a number of small, black spiders 
+visible crawling their way through the sticky mazes, often to 
+trapped flies and other small insects. A narrow cave opening is 
+set in the southern end of the cavern, opening out to a bleak 
+mountain side. 
+~
+94 67174408 0
+0
+D2
+~
+~
+0 -1  0 9018
+S
+#94207
+Dry, Cobweb Covered Cave~
+   This dry cave looks to have been naturally formed in the 
+bleak, black mountain range about the lands of Mordor, but 
+whatever water was responsible seems long gone. Cobwebs cover 
+ever stone and wall here, a number of small, black spiders 
+visible crawling their way through the sticky mazes, often to 
+trapped flies and other small insects. A narrow cave opening is 
+set in the southern end of the cavern, opening out to a bleak 
+mountain side. 
+~
+94 67174408 0
+0
+S
+#94208
+Dry, Cobweb Covered Cave~
+   This dry cave looks to have been naturally formed in the 
+bleak, black mountain range about the lands of Mordor, but 
+whatever water was responsible seems long gone. Cobwebs cover 
+ever stone and wall here, a number of small, black spiders 
+visible crawling their way through the sticky mazes, often to 
+trapped flies and other small insects. A narrow cave opening is 
+set in the southern end of the cavern, opening out to a bleak 
+mountain side. 
+~
+94 67174408 0
+0
+D2
+~
+~
+0 -1  0 9024
+S
+#94209
+Dry, Cobweb Covered Cave~
+   This dry cave looks to have been naturally formed in the 
+bleak, black mountain range about the lands of Mordor, but 
+whatever water was responsible seems long gone. Cobwebs cover 
+ever stone and wall here, a number of small, black spiders 
+visible crawling their way through the sticky mazes, often to 
+trapped flies and other small insects. A narrow cave opening is 
+set in the southern end of the cavern, opening out to a bleak 
+mountain side. 
+~
+94 67174408 0
+0
+D2
+~
+~
+0 -1  0 9027
+S
+#94996
+Store Room for Bounty Hunting~
+As the name says.
+~
+94 1342242816 0
+0
+S
+#94300
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 4011
+S
+#94301
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 4159
+S
+#94302
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 4298
+S
+#94303
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 4131
+S
+#94304
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 4197
+S
+#94305
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 4368
+S
+#94306
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 4256
+S
+#94307
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 4178
+S
+#94308
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 4
+0
+D2
+~
+~
+0 -1  0 4343
+S
+#94309
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 4395
+S
+#94400
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 12581
+S
+#94401
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 12592
+S
+#94402
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 12522
+S
+#94403
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 12586
+S
+#94404
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 12334
+S
+#94405
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 12328
+S
+#94406
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 12388
+S
+#94407
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 12412
+S
+#94408
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 12062
+S
+#94409
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 4295
+S
+#94500
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 10784
+S
+#94501
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 10877
+S
+#94502
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 10904
+S
+#94503
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 10898
+S
+#94504
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 10406
+S
+#94505
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 10323
+S
+#94506
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 10283
+S
+#94507
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 10297
+S
+#94508
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 10118
+S
+#94509
+Within a Circle of Crude Tents~
+   Four tents have been clustered about to form this circle, the 
+centre occupied by a firepit dug in to the ground and lined with 
+rocks. Half the tents are formed from rough animals hides hacked 
+off the previous owner and draped over a twisted wooden log, the 
+other half being lean-tos of woven leaves and sticks, all 
+worthless safe for the rudimentary shelter they provide. From 
+the soot on the ground and the coals in the fire pit, it looks as 
+if this little encampment has been inhabited but recently. 
+~
+94 1140916232 0
+0
+D2
+~
+~
+0 -1  0 10085
+S
+$~

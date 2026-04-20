@@ -1,0 +1,2235 @@
+#88188
+oprog bySongweaver invisible courier counter OTHER~
+an invisible courier counter~
+An invisible courier counter lies here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 672 86 0 0 0 0
+#88189
+oprog bySongweaver message token heren carnatalion OTHER~
+an invisible heren carnatalion message token~
+An invisible Heren Carnatalion message token is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88190
+oprog bySongweaver invisible SOS message token OTHER~
+an invisible SOS message token~
+An invisible SOS message token is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88000
+Travel Program Gondor-Moria DO_NOT_REMOVE OTHER~
+Travel prog tester~
+Moria-Gondor Travel Program - DO NOT REMOVE!~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88001
+Instance Moria Travel WARG OTHER~
+A Moria Travel Prog Instance~
+A Moria Travel Prog Instance lies here, filled with WARGS!~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88002
+Instance Moria Travel WOLF OTHER~
+A Moria Travel Prog Instance~
+A Moria Travel Prog Instance lies here, filled with WOLVES!~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88100
+Travel Circuit Object OTHER~
+Travel Circuit Configuration Object~
+Some careless admin has left a generic object here.~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88003
+ATMOSPHERE_WOODLAND_TRIGGER OPROG STICK WOOD CRACK OTHER~
+an atmospheric oprog awaits triggering here [stepping on a stick echo]~
+An atmospheric oprog awaits triggering here. #6[stepping on a stick echo]#0~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88004
+water pool small OPROG_UNIQUE LIQUID~
+#4a small pool of water#0~
+#4A small pool of water lies here.#0~
+~
+23 4096 0
+4 4 4 0
+100 0.000000
+0 0 0 30 0 0 1
+0.000000 24 86 0 0 0 0
+#88005
+dart red flighted iron tipped OTHER~
+a red-flighted, iron-tipped dart~
+A red-flighted, iron-tipped dart lies here.~
+   Carved from fine ash wood with a sharp iron tip and red-dyed 
+flights this dart is well-made and balanced.
+ 
+Type #6throw dart#0 with a dartboard in the room to play.
+~
+5 268439552 1
+0 1 2 8
+10 0.000000
+0 2 0 30 0 0 1
+5.000000 0 0 0 0 0 0
+#88006
+dart blue flighted iron tipped OTHER~
+a blue-flighted, iron-tipped dart~
+A blue-flighted, iron-tipped dart lies here.~
+   Carved from fine ash wood with a sharp iron tip and blue-dyed 
+flights this dart is well-made and balanced.
+ 
+Type #6throw dart#0 with a dartboard in the room to play.
+~
+5 4096 1
+0 1 2 8
+10 0.000000
+0 2 0 30 0 0 1
+5.000000 0 0 0 0 0 0
+#88007
+dartboard corked five ringed OTHER~
+a corked, five-ringed dartboard~
+~
+   Tightly packed cork makes up the bulk of this board, painted in
+alternating black and white rings with a bright red center. Numbers
+are marked to denote the value of each ring and a tiny iron loop
+is centered at the top for hanging.
+ 
+Type #6reset dartboard#0 to removed all the darts and reset the
+score.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88008
+player1 xxUNPLACED red plastic battleship UNIQUE_ADMIN OTHER~
+#1a red plastic battleship#6 [#5Player 1#2]~
+#1A red plastic battleship#0 piece lies here #6[#5Player 1#6]#0.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88009
+player1 XXPLACED red plastic battleship UNIQUE_ADMIN OTHER~
+player 1 - placed battleship~
+player 1 - placed battleship hides here, storing data.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88010
+player2 xxUNPLACED navy blue plastic battleship UNIQUE_ADMIN OTHER~
+#4a blue plastic battleship#6 [#5Player 2#6]#0~
+#4A blue plastic battleship#0 piece lies here #6[#5Player 2#6]#0.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88011
+player2 XXPLACED blue plastic battleship UNIQUE_ADMIN OTHER~
+player 2 - placed battleship~
+player 2 - placed battleship hides here, storing data.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88012
+song1 xxtest xxsong OTHER MUSICIANS_MPROG~
+Oooh, I Had My Blonde Beauty~
+Oooh, I Had My Blonde Beauty is playing here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88013
+music description MUSICIANS_MPROG OTHER~
+a music describing object~
+A music describing object is not doing its job here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88015
+song3 xxtest xxsong OTHER MUSICIANS_MPROG~
+What is In A Name 3~
+What is In A Name 3 is playing here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+15.000000 0 0 0 0 0 0
+#88016
+song4 xxtest xxsong OTHER MUSICIANS_MPROG~
+What is In A Name 4~
+What is In A Name 4 is playing here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 0 0 0
+#88017
+song5 xxtest xxsong OTHER MUSICIANS_MPROG~
+What is In A Name 5~
+What is In A Name 5 is playing here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+25.000000 0 0 0 0 0 0
+#88014
+song2 xxtest xxsong OTHER MUSICIANS_MPROG~
+What is In A Name 2~
+What is In A Name 2 is playing here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88018
+OTHER AnimalComp CompOne Dog Black~
+an animal component for a dog (black, CompOne)~
+black~
+~
+9 4100 129
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88019
+OTHER AnimalComp CompTwo Dog Puppy~
+an animal component for a dog (puppy, CompTwo)~
+puppy~
+~
+9 4100 5
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88020
+OTHER AnimalComp CompThree Dog Blue-Eyes~
+an animal component for a dog (blue-eyes, CompThree)~
+blue-eyes~
+~
+9 4100 33554433
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88030
+token METAL~
+black~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88031
+token METAL~
+brown~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88032
+token METAL~
+golden~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88033
+token METAL~
+puppy~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88034
+token METAL~
+dog~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88035
+token METAL~
+old dog~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88036
+token METAL~
+blue-eyes~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88037
+token METAL~
+brown-eyes~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88038
+token METAL~
+green-eyes~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88039
+token METAL~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88029
+token METAL~
+failure~
+Some careless admin has left a generic object here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#88028
+Token BG-1 OTHER~
+Blowgun -1~
+A token for Blowgun -1~
+~
+11 4096 5
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+A
+10014 -1
+#88021
+kit weapon various assessment implements OTHER~
+a kit containing various weapon assessment implements~
+A kit containing various weapon assessment implements lies here.~
+Filled with all manner of items that can be used to measure,
+weigh, and test their effectiveness.
+~
+12 4096 1
+0 0 0 0
+500 0.000000
+0 0 0 30 0 0 1
+500.000000 0 0 0 0 0 0
+#88500
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88501
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88502
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88503
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88504
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88505
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88506
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88507
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88508
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88509
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88510
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88511
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88512
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88513
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88514
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88515
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88516
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88517
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88518
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88519
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88520
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88521
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88522
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88523
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88524
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88525
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88526
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88527
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88528
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88529
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88530
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88531
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88532
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88533
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88534
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88535
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88536
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88537
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88538
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88539
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88540
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88541
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88542
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88543
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88544
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88545
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88546
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88547
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88548
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88549
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88550
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88551
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88552
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88553
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88554
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88555
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88556
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88557
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88558
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88559
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88560
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88561
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88562
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88563
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88564
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88565
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88566
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88567
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88568
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88569
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88570
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88571
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88572
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88573
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88574
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88575
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88576
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88577
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88578
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88579
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88580
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88581
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88582
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88583
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88584
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88585
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88586
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88587
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88588
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88589
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88590
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88591
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88592
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88593
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88594
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88595
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88596
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88597
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88598
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88599
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88600
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88022
+counter PELANOR_TAX tax value file OTHER~
+a tax value file~
+A tax value file for the PA sphere is here.~
+~
+12 135172 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88023
+counter PELANOR_TITHE admin if check file OTHER~
+an admin if check file~
+An admin if check file for the PA sphere is here.~
+~
+12 135172 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88024
+notice PELANOR_TAX license vellum parchment tax OTHER~
+a tax payment notice~
+A vellum parchment bearing a tax payment reminder has been posted here.~
+   A sturdy vellum parchment bears notice that the owner of this 
+property hereby owes their yearly taxes, and must pay it promptly 
+or risk eviction. The seal of Greathouse Astirian has been 
+pressed onto the bottom of this notice. 
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88025
+pa_tithe PELANOR_TAX board tax record keeper short stature long nose records OTHER~
+#5a short record-keeper#0~
+#5A long-nosed record-keeper of short stature#0 is here, maintaining #2the Pel-Anor Sphere Tax Records.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88026
+wand removal OTHER~
+a wand of removal~
+A wand of removal has been left here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88027
+strip token OTHER~
+a strip token~
+Some sort of token is here.~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88040
+installer PELANOR_TAX entrance package OTHER~
+a package~
+A package containing the program for entering Pel-Anor properties is here.~
+~
+12 135172 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88041
+wand PELANOR_TAX_YEAR_CHANGER oaken admin OTHER~
+an oaken wand~
+A wand of oak has been left here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88042
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88050
+file GLOBAL_TAX_MODULE_FILE tax OTHER~
+a tax file~
+A tax file is here.~
+~
+20 135172 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88051
+file GLOBAL_TAX_MODULE_FILE entrance OTHER~
+an entrance file~
+An entrance file is here.~
+~
+20 135172 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88052
+file GLOBAL_TAX_MODULE_FILE clan OTHER~
+a clan file~
+A clan file is here.~
+~
+20 135172 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88053
+file GLOBAL_TAX_MODULE_FILE distribution OTHER~
+a distribution file~
+A distribution file is here.~
+~
+20 135172 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88999
+gauntlet bangarang's challenge entrance UNIQUE_ADMIN OTHER~
+Gauntlet Challenge Checker~
+Gauntlet Challenge Checker lies here, meaning somone entered.~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#88989
+Token Bangarang Gauntlet Challenge UNIQUE_ADMIN OTHER~
+Bangarang's Challenge token~
+Bangarang's Challenge token lies here, impossibly.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88998
+lock combination UNIQUE_ADMIN BANGARANG_GAUNTLET OTHER~
+a combination lock~
+A combination lock is here, blocking your way.~
+This heavy-duty lock is securely locked to the door, preventing
+further progress through Bangarang's Challenge. Upon closer
+examination one would find 3 scrolling wheels with the
+numbers 0-9 on them. Perhaps with a bit of effort one may
+be able to figure out the combination!
+ 
+You need to type '#6set (first/second/third) <number>#0'.
+ 
+Example: #6set first 7#0 sets the first wheel on 7.
+  
+Type #6check lock#0 to see what it looks like.
+ 
+Type #6test lock#0 to see if you've solved the puzzle!
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88043
+earmhyde automatic equipper NORTHLANDS UNIQUE_ADMIN OTHER~
+the earmhyde equipper~
+The earmhyde equipper lies here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88044
+token earmhyde trade pre-game UNIQUE_ADMIN OTHER~
+an earmhyde trade token~
+An earmhyde trade token lies here.~
+~
+12 4198400 1
+0 0 0 0
+100 0.000000
+0 0 0 0 4194304 0 1
+0.000000 720 86 0 0 0 0
+#88200
+DATAOBJECTONE GLOBAL_TAX_MODULE file info OTHER~
+a file labeled DATAOBJECTONE~
+A Global Tax Module file labeled DATAOBJECTONE is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88201
+DATAOBJECTTWO GLOBAL_TAX_MODULE file info OTHER~
+stands behind a stove, cooking.~
+A Global Tax Module file labeled DATAOBJECTTWO is here.~
+~
+12 536875012 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88202
+DATAOBJECTTHREE GLOBAL_TAX_MODULE file info OTHER~
+a file labeled DATAOBJECTTHREE~
+A Global Tax Module file labeled DATAOBJECTTHREE is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88203
+HANDLEROBJECTONE GLOBAL_TAX_MODULE file info OTHER~
+a file labeled HANDLEROBJECTONE~
+A Global Tax Module file labeled HANDLEROBJECTONE is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88204
+HANDLEROBJECTTWO GLOBAL_TAX_MODULE file info OTHER~
+a file labeled HANDLEROBJECTTWO~
+A Global Tax Module file labeled HANDLEROBJECTTWO is here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88045
+booster military background skill configurator 2 3 RPP UNIQUE_ADMIN OTHER~
+a military background skill booster configurator~
+A military background skill booster configurator lies here, impossibly.~
+unselected unselected unselected unselected unselected
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88221
+deck cards playing UNIQUE_ADMIN BANGARANG OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88888
+screwdriver sonic sleek blue-lit UNIQUE_ADMIN OTHER~
+a sleek, blue-lit sonic screwdriver~
+A sleek, blue-lit sonic screwdriver lies here.~
+~
+1 4104 8193
+9999 9999 54 0
+1 0.000000
+1 0 0 100 4194304 0 1
+100000.000000 0 0 0 0 0 0
+#88800
+ring UNIQUE_ADMIN Bangarang Wind light blue gold bearing planeteer stone METAL~
+a gold ring bearing a #Elight blue#0#2 stone~
+A gold ring bearing a #Elight blue#0#2 stone lies here.~
+~
+12 4104 3
+0 0 0 0
+1 0.000000
+0 0 0 100 0 0 1
+10000.000000 0 0 0 0 0 0
+#88801
+ring UNIQUE_ADMIN Fearghus green gold bearing ecovillain stone METAL~
+a gold ring bearing a #Agreen#0 #2stone#0~
+A gold ring bearing a #Agreen#0 #2stone lies here.#0~
+~
+12 4104 3
+0 0 0 0
+1 0.000000
+0 0 0 100 4194304 0 1
+10000.000000 0 0 0 0 0 0
+#88802
+ring UNIQUE_ADMIN Nyx Radiation bright yellow gold bearing ecovillain stone METAL~
+a gold ring bearing a #Bbright yellow#0#2 stone~
+A gold ring bearing a #Bbright yellow#0#2 stone lies here.~
+~
+12 4104 3
+0 0 0 0
+1 0.000000
+0 0 0 100 4194304 0 1
+10000.000000 0 0 0 0 0 0
+#88803
+ring UNIQUE_ADMIN Johan Toxic bright green gold bearing ecovillain stone METAL~
+a gold ring bearing a #Abright green#0#2 stone~
+A gold ring bearing a #Abright green#0#2 stone lies here.~
+~
+12 4104 3
+0 0 0 0
+1 0.000000
+0 0 0 100 4194304 0 1
+10000.000000 0 0 0 0 0 0
+#88804
+ring UNIQUE_ADMIN Anomaly Smog cyan gold bearing ecovillain stone METAL~
+a gold ring bearing a #6cyan#0#2 stone~
+A gold ring bearing a #6cyan#0#2 stone lies here.~
+~
+12 4104 3
+0 0 0 0
+1 0.000000
+0 0 0 100 4194304 0 1
+10000.000000 0 0 0 0 0 0
+#88805
+ring UNIQUE_ADMIN Kodiak Earth brown gold bearing planeteer stone METAL~
+a gold ring bearing a #3brown#2 stone~
+A gold ring bearing a #3brown#2 stone lies here.~
+~
+12 4104 3
+0 0 0 0
+1 0.000000
+0 0 0 100 4194304 0 1
+10000.000000 0 0 0 0 0 0
+#88806
+ring UNIQUE_ADMIN Frigga Water ocean blue gold bearing planeteer stone METAL~
+a gold ring bearing a #Cocean blue#0#2 stone~
+A gold ring bearing a #Cocean blue#0#2 stone lies here.~
+~
+12 4104 3
+0 0 0 0
+1 0.000000
+0 0 0 100 4194304 0 1
+10000.000000 0 0 0 0 0 0
+#88807
+ring UNIQUE_ADMIN Hulk fire bright red gold bearing planeteer stone METAL~
+a gold ring bearing a #9bright red#0#2 stone~
+A gold ring bearing a #9bright red#0#2 stone lies here.~
+~
+12 4104 3
+0 0 0 0
+1 0.000000
+0 0 0 100 4194304 0 1
+10000.000000 0 0 0 0 0 0
+#88808
+ring UNIQUE_ADMIN Songweaver Hate dark red gold bearing ecovillain stone METAL~
+a gold ring bearing a #1dark red#0#2 stone~
+A gold ring bearing a #1dark red#0#2 stone lies here.~
+~
+12 4104 3
+0 0 0 0
+1 0.000000
+0 0 0 100 4194304 0 1
+10000.000000 0 0 0 0 0 0
+#88809
+ring UNIQUE_ADMIN Phoenix Heart bright pink gold bearing planeteer stone METAL~
+a gold ring bearing a #Dbright pink#0#2 stone~
+A gold ring bearing a #Dbright pink#0#2 stone lies here.~
+~
+12 4104 3
+0 0 0 0
+1 0.000000
+0 0 0 100 4194304 0 1
+10000.000000 0 0 0 0 0 0
+#88810
+path sweeping devastation area ruins UNIQUE_ADMIN BANGARANG WIND planteer OTHER~
+a sweeping path of devastation~
+A sweeping path of devastation leaves the area in ruins.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88997
+labyrinth master control UNIQUE_ADMIN BANGARANG_CHALLENGE OTHER~
+labyrinth master control~
+The labyrinth master control is here, controlling~
+~
+12 4108 0
+0 0 0 0
+100 0.000000
+0 0 0 0 4194304 0 1
+0.000000 0 0 0 0 0 0
+#88996
+Riddler Math UNIQUE_ADMIN BANGARANG_CHALLENGE OTHER~
+The Math Riddler Challenge Counter~
+The Math Riddler Challenge Counter lies here, counting.~
+~
+12 4108 0
+0 0 0 0
+100 0.000000
+0 0 0 0 4194304 0 1
+0.000000 0 0 0 0 0 0
+#88777
+horn hunting knotwork engraved large OTHER~
+a knotwork-engraved, large hunting horn~
+A knotwork-engraved, large hunting horn lies here, over its leather strap.~
+   The overall make of this horn is to provide a sturdy object. 
+Made out of a fairly good sized cow horn, half white and black, 
+the horn itself has bronze on each end with bronze rings. The 
+ring at the narrower end of the horn extends just a little beyond 
+the device to serve as a mouthpiece. At the wider end, however, 
+the bronze has been etched with an intricate knotwork design that 
+depicts Anor rising over a vast mountain-range. A leather strap 
+has been connected to the simple bronze rings so that the device 
+can easily be worn over the shoulder, or attached to a belt. 
+~
+11 0 8650753
+0 0 0 0
+105 0.000000
+0 0 0 0 0 0 1
+30.000000 0 0 0 0 0 0
+#88900
+Egg Dragon UNIQUE_ADMIN ByBangarang fully developed OTHER~
+a fully-developed dragon egg~
+A fully-developed dragon egg is here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 4194304 0 1
+0.000000 0 0 0 0 0 0
+#88046
+outbox Mail Postoffice ByBangarang OTHER~
+an unconfigured mail outbox~
+An unconfigured mail outbox lies here, where it shouldn't be.~
+~
+15 4096 1
+20000 0 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88300
+necklace UNIQUE_ADMIN Hawkes iron cross leather string METAL~
+an iron cross on a black leather cord~
+Some careless admin has left their iron cross necklace here.~
+   Hanging from a black leather cord is a shiny iron cross. The 
+edges of the cross flair outwards and it has been painted black 
+on one side, leaving a thin line of silver along the edge to 
+accent the cross. In the center of the cross is etched a small 
+hawk's eye and it is filled with crushed diamonds, making it 
+glisten brightly against the darker cross. 
+~
+12 4104 2097157
+0 0 0 0
+100 0.000000
+0 0 0 0 4194336 0 1
+0.000000 0 0 0 28 0 0
+#88301
+rent agreement rental room1 fox-lily PARCHMENT~
+a rental agreement for Room no.1~
+A rental agreement for room no.1 in the Fox & Lily has been left here.~
+   This is a rental agreement for Room no.1 at the Fox & Lily 
+Inn. #6Enter One#0 to enter your room while holding this 
+agreement. 
+~
+53 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+25.000000 840 88302 0 32 0 0
+#88302
+expired rent agreement renal room1 fox-lily PARCHMENT~
+an expired renal agreement for Room no.1~
+An expired rental agreement for room no.1 in the Fox & Lily has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 32 0 0
+#88303
+rent timer room1 fox-lily PARCHMENT~
+rent timer for room1 of the Fox and Lily~
+A rent timer for room1 of the Fox and Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88319
+rented room timer room1 fox-lily PARCHMENT~
+Room ONE Rented timer object~
+Room One RENTED timer for the Fox & Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 88303 0 0 0 0
+#88325
+Legolin-admin admin board work OTHER~
+Legolin's work board~
+A bulletin board with notes on Legolin's work hangs on the wall.~
+   A variety of notes and schematics and maps are tacked to the 
+board. 
+~
+22 4104 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88304
+rent agreement rental room2 fox-lily PARCHMENT~
+a rental agreement for Room no.2~
+A rental agreement for room no.2 in the Fox & Lily has been left here.~
+   This is a rental agreement for Room no.2 at the Fox & Lily 
+Inn. #6Enter Two#0 to enter your room while holding this 
+agreement. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+25.000000 840 88305 0 32 0 0
+#88305
+expired rent agreement renal room2 fox-lily PARCHMENT~
+an expired rental agreement for Room no.2~
+An expired rental agreement for room no.2 in the Fox & Lily has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#88306
+rent timer room2 fox-lily PARCHMENT~
+rent timer for room2 of the Fox and Lily~
+A rent timer for room2 of the Fox and Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88320
+rented room timer room2 fox-lily PARCHMENT~
+Room TWO rented timer object~
+Room Two RENTED timer for the Fox & Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 88306 0 0 0 0
+#88309
+rent timer room3 fox-lily PARCHMENT~
+rent timer for room3 of the Fox and Lily~
+A rent timer for room3 of the Fox and Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88312
+rent timer room4 fox-lily PARCHMENT~
+rent timer for room4 of the Fox and Lily~
+A rent timer for room4 of the Fox and Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88315
+rent timer room5 fox-lily PARCHMENT~
+rent timer for room5 of the Fox and Lily~
+A rent timer for room5 of the Fox and Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88318
+rent timer room6 fox-lily PARCHMENT~
+rent timer for room6 of the Fox and Lily~
+A rent timer for room6 of the Fox and Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88307
+rent agreement rental room3 fox-lily PARCHMENT~
+a rental agreement for Room no.3~
+A rental agreement for room no.3 in the Fox & Lily has been left here.~
+This is a rental agreement for Room no.3 at the Fox & Lily
+Inn. #6Enter Three#0 to enter your room while holding this
+agreement.
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+25.000000 840 88308 0 32 0 0
+#88308
+expired rent agreement rental room3 fox-lily PARCHMENT~
+an expired rental agreement for Room no.3~
+An expired rental agreement for room no.3 in the Fox & Lily has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#88321
+rented room timer room3 fox-lily PARCHMENT~
+Room THREE rented timer object~
+Room Three RENTED timer for the Fox & Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 88309 0 0 0 0
+#88310
+rent agreement rental room4 fox-lily PARCHMENT~
+a rental agreement for Room no.4~
+A rental agreement for room no.4 in the Fox & Lily has been left here.~
+   This is a rental agreement for Room no.4 at the Fox & Lily 
+Inn. #6Enter Four#0 to enter your room while holding this 
+agreement. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+50.000000 840 88311 0 32 0 0
+#88313
+rent agreement rental room5 fox-lily PARCHMENT~
+a rental agreement for Room no.5~
+A rental agreement for room no.5 in the Fox & Lily has been left here.~
+   This is a rental agreement for Room no.5 at the Fox & Lily 
+Inn. #6Enter Five#0 to enter your room while holding this 
+agreement. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+50.000000 840 88314 0 32 0 0
+#88316
+rent agreement rental room6 fox-lily PARCHMENT~
+a rental agreement for Room no.6~
+A rental agreement for room no.6 in the Fox & Lily has been left here.~
+   This is a rental agreement for Room no.6 at the Fox & Lily 
+Inn. #6Enter Six#0 to enter your room while holding this 
+agreement. 
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+75.000000 840 88317 0 32 0 0
+#88311
+expired rent agreement rental room4 fox-lily PARCHMENT~
+an expired rental agreement for Room no.4~
+An expired rental agreement for room no.4 in the Fox & Lily has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#88314
+expired rent agreement rental room5 fox-lily PARCHMENT~
+an expired rental agreement for Room no.5~
+An expired rental agreement for room no.5 in the Fox & Lily has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#88317
+expired rent agreement rental room6 fox-lily PARCHMENT~
+an expired rental agreement for Room no.6~
+An expired rental agreement for room no.6 in the Fox & Lily has been left here.~
+~
+53 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 744 86 0 0 0 0
+#88322
+rented room timer room4 fox-lily PARCHMENT~
+Room FOUR rented timer object~
+Room Four RENTED timer for the Fox & Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 88312 0 0 0 0
+#88323
+rented room timer room5 fox-lily PARCHMENT~
+Room FIVE rented timer object~
+Room Five RENTED timer for the Fox & Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 88315 0 0 0 0
+#88324
+rented room timer room6 fox-lily PARCHMENT~
+Room SIX rented timer object~
+Room Six RENTED timer for the Fox & Lily is here.~
+~
+53 4108 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 1464 88318 0 0 0 0
+#88299
+bob lily-rent-guy-board bald chubby man OTHER~
+#5a bald, chubby man#0~
+#5A bald, chubby man sits behind a desk, handling room vacancies.~
+This man handles renting of rooms at the Gilded Lily. To see the rooms available for rent, simply #2SHOW ROOMS#0.
+~
+22 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88047
+fire burning field_brazier_fire OTHER~
+#1a large fire burning in a brazier#0~
+#1A large fire burns brightly within the brazier.#0~
+~
+1 4096 0
+384 384 54 1
+50000 0.000000
+0 0 0 0 0 0 1
+0.000000 384 86 0 0 0 0
+#88048
+fountain BY_VAIRE ADMIN_NO_LOAD pristine fountain engravings STONE~
+a pristine fountain with beautiful carvings~
+A pristine fountain with beautiful carvings stands here.~
+A prisinte fountain rises from the ground here, in
+the center, a small statue of a conch is raised upon
+a small pedestal, water pouring from the mouth of the
+conch and sending small ripples throughout the fountain.
+Along the outside of the basin is a scene dedicated to
+the might and wisdom and Ulmo, the scene flowing smoothly
+along the outside of the basin.
+~
+23 4096 0
+26 500 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88049
+board BY_VAIRE ADMIN_NO_LOAD Sirin golden blonde lass brown eyes pigtails OTHER~
+#5a short, brown-eyed woman with golden pigtails#0~
+#5A short, brown-eyed woman with golden pigtails stands here, gossiping.#0~
+~
+22 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#88054
+armband BATTALION grey bearing service badges TEXTILE~
+a grey armband bearing service badges~
+A grey armband bearing service badges lies discarded here.~
+   This armband is woven of sturdy, grey woolen cloth that is 
+evenly dyed. It is secured around the arm by a pair of dull 
+bronze buttons. Embroidered into the cloth is the design of an 
+ornate shield and moon. 
+~
+11 4096 134217729
+100 5 -1 0
+10 0.000000
+0 0 0 30 4194304 0 1
+10.000000 0 0 0 7 0 0
+#88055
+By_vaire armband BATTALION grey bearing service TEXTILE~
+a grey armband bearing service badges~
+A grey armband bearing service badges lies discarded here.~
+#1You can see how to interact with this armband with #6help armband#0.
+This armband is woven of sturdy, grey woolen cloth that is 
+evenly dyed. It is secured around the arm by a pair of dull 
+bronze buttons. Embroidered into the cloth is the design of an 
+ornate shield and moon. Attached are the following medals:
+~
+11 4096 134217729
+100 5 -1 0
+10 0.000000
+0 0 0 30 4194304 0 1
+10.000000 0 0 0 7 0 0
+#88056
+test body armor OTHER~
+a piece of testing armor~
+A piece of testing armor sit here~
+   This thick, leather hauberk is of a simple design, tanned
+a deep, rich brown. Falling to lower-thigh, it provides good
+protection for both torso and hips. It buttons down the front
+with utilitarian bronze buttons.
+~
+9 4096 9
+3 5 1 0
+750 0.000000
+0 0 0 29 4 0 1
+120.000000 0 0 0 14 0 0
+$~

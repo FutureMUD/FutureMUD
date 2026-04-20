@@ -1,0 +1,152 @@
+#82000
+Mahadji SCORPION_FENCE wiry greasy-haired Harad youth shopkeep~
+a greasy-haired, wiry youth~
+A wiry, greasy haired Harad tends to the storefront here.~
+   This man is tall and wiry, his height seeming out of 
+proportion to his lanky frame. His skin eyes and hair are of a 
+dark tone, the latter emphasized by a glistening, greasy looking 
+substance used to slick back the jet-black locks. His face is 
+relatively non-descript except for pock-marked acne scars lining 
+his jawline where an older man might have a beard. He looks 
+about the shop with wary, almond shaped eyes and everything in 
+his demenour suggests he is a cautious person. 
+~
+154 0 4 6 0 5d1+102 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 80 16
+1 3
+82014 82018 1.300000 0.420000 1.200000 0.900000 544
+2.200000 1.000000 4096 0.000000 0.000000 0 50331648
+1896 97884 1465 5247 97061 97706 1600 2727 1449 1827 1470 -1
+6 9 12 15 54 57 4 34 58 5
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+50 50 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 40 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+100 100 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' fahad_jafari 'member' scorpions~
+0 0 0
+#82019
+Sala'an SCORPION_GAOLMAN burly dark-skinned man~
+a burly, dark-skinned man~
+A burly, dark-skinned man stands here, scowling.~
+   Skin the colour of forged bronze this man is larger than most 
+of his race by a considerable amount. He stands easily a half a 
+foot above most men in height and his shoulders are wide and 
+muscular, this build following across his whole body. With a 
+barrel chest, lantern jaw and constant scowl he is certainly an 
+intimidating specimen of a man, his dark eyes always moving about 
+alertly. 
+~
+67108875 0 27 6 0 5d1+111 1d2+0 0 8 8 1 0 0 0 0
+0 0 82020 0 82021 0 24 0 0 0 0 0 0 0 0 82020
+19 10 10 1 17 19 80 17
+0 0
+0 30 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 30 0 0 0
+35 40 0 0 0 0 0 0 0 100
+0 0 100 0 0 0 100 100 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 30 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 100 100
+100 100 100 0 0 100 0 100 0 100
+100 100 100 100 100 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' fahad_jafari 'sergeant' scorpions~
+0 0 0
+#82100
+Tanjara Scorpion_drug_dealer ebon-locked almond-eyed wispy lass shopkeep~
+a wispy, ebon-locked lass~
+An ebon-locked, almond-eyed, wispy lass tends to the storefront here.~
+   This young woman stands at an average height for one of her 
+race, a race which is characterized by her tanned skin, 
+ebony-black hair and almond-shaped, brown eyes. She has a rather 
+gaunt appearance, her cheeks sunken in below high cheekbones. 
+Her eyes are framed with the darkest of khol, adding to this 
+gaunt appearance. Her frame adds to the emaciated look, her arms 
+are naught but bone and skin and her legs seem very much the same 
+when seen. Her yellowed, misshapen teeth are revealed if she 
+smiles, which is not often. She smells of a sweet oil and her 
+hands are covered in small white flakes. 
+~
+154 0 4 6 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 80 16
+1 3
+82100 96821 2.000000 0.500000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 16777216
+66060 6228 12018 12016 169 -1
+12 29 31 0 0 0 0 0 0 0
+0 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 8 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 8 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 100
+100 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 100 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'member' scorpions 'member' fahad_jafari~
+0 0 0
+#82001
+Malik'Saydir raven-haired ebon-skinned hue night~
+a raven-haired, ebon-skinned man~
+A raven-haired man with skin the hue of night towers here.~
+   Curly, raven black hair cascades from atop this man's head, 
+falling in waves past his shoulder-blades, almost reaching the 
+small of his back. His face, which has been covered in scars, 
+could once have been handsome though now age and sun have 
+deteriorated it. His eyes, sitting in almond-shaped sockets 
+either side of a crooked nose, are of a deep black color and they 
+seem to always be roaming when open. A full beard which has been 
+shaped into a tidy point resides on his strong jaw-line, the 
+raven dark hair flecked with grey. This man is of an imposing 
+stature, reaching well above the average height for his race, 
+with muscle framing his entire body. His skin is of the darkest 
+hue, almost a bluish-black tone and every visible inch is covered 
+in spiralling tattoos, the curving designs often branching off 
+into their own twists and turns. 
+~
+8 0 32 6 0 5d1+99 1d2+0 0 8 8 0 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 4 0 0
+18 10 9 1 17 15 81 17
+0 0
+0 60 0 60 50 60 60 50 60 60
+50 0 0 50 0 0 50 60 65 50
+65 60 0 0 50 50 0 0 55 100
+0 0 100 0 0 0 40 50 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 55 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 50 0 0 0 0
+59 59 0 0 0 0 0 0 0 0
+0 0 0 0 0 59 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'lieutenant' kaffir'sayfah 'lieutenant' scorpions 'member' fahad_jafari~
+0 0 0
+$~

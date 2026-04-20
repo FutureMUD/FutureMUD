@@ -1,0 +1,268 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\act.movement.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:act.movement.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\structs.h||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:structs.h||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\act.informative.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:act.informative.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\act.comm.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:act.comm.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\commerce.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:commerce.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\utils.h||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:utils.h||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\hash.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:hash.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\olc.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:olc.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\object_damage.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:object_damage.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\objects.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:objects.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\protos.h||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:protos.h||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\roomprogs.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:roomprogs.cpp||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\User Data\\OneDrive\\Old SOI Code\\src\\object_damage.h||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:object_damage.h||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 199,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "structs.h",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\structs.h",
+              "RelativeDocumentMoniker": "structs.h",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\structs.h",
+              "RelativeToolTip": "structs.h",
+              "ViewState": "AQIAABwHAAAAAAAAAAAwwDAHAAAYAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-07-27T13:36:26.44Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "act.movement.cpp",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\act.movement.cpp",
+              "RelativeDocumentMoniker": "act.movement.cpp",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\act.movement.cpp",
+              "RelativeToolTip": "act.movement.cpp",
+              "ViewState": "AQIAAFcbAAAAAAAAAADwv24bAAAWAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-07-27T13:22:52.297Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{6f870990-7380-58d8-93cb-aaaa2fc8daad}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{29f1b603-e85c-5c80-b19d-69b433108653}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{5a4e9529-b6a0-46b5-be4f-0f0b239bc0eb}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{a80febb4-e7e0-4147-b476-21aaf2453969}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{004be353-6879-467c-9d1e-9ac23cdf6d49}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "act.comm.cpp",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\act.comm.cpp",
+              "RelativeDocumentMoniker": "act.comm.cpp",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\act.comm.cpp",
+              "RelativeToolTip": "act.comm.cpp",
+              "ViewState": "AQIAAKkLAAAAAAAAAAD4v7sLAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2023-04-28T04:38:16.816Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "utils.h",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\utils.h",
+              "RelativeDocumentMoniker": "utils.h",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\utils.h",
+              "RelativeToolTip": "utils.h",
+              "ViewState": "AQIAAG4AAAAAAAAAAAAUwIAAAAAIAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2023-04-28T03:27:38.204Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "hash.cpp",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\hash.cpp",
+              "RelativeDocumentMoniker": "hash.cpp",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\hash.cpp",
+              "RelativeToolTip": "hash.cpp",
+              "ViewState": "AQIAAMEAAAAAAAAAAAAUwNMAAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2023-04-28T03:27:03.58Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "roomprogs.cpp",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\roomprogs.cpp",
+              "RelativeDocumentMoniker": "roomprogs.cpp",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\roomprogs.cpp",
+              "RelativeToolTip": "roomprogs.cpp",
+              "ViewState": "AQIAACUXAAAAAAAAAAAUwDcXAAAeAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2023-04-28T03:25:25.345Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "object_damage.cpp",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\object_damage.cpp",
+              "RelativeDocumentMoniker": "object_damage.cpp",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\object_damage.cpp",
+              "RelativeToolTip": "object_damage.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAUwCIBAAAKAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2023-04-28T03:22:43.641Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "protos.h",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\protos.h",
+              "RelativeDocumentMoniker": "protos.h",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\protos.h",
+              "RelativeToolTip": "protos.h",
+              "ViewState": "AQIAAEYDAAAAAAAAAAAUwFgDAAAEAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2023-04-27T14:16:28.707Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "objects.cpp",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\objects.cpp",
+              "RelativeDocumentMoniker": "objects.cpp",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\objects.cpp",
+              "RelativeToolTip": "objects.cpp",
+              "ViewState": "AQIAAIcaAAAAAAAAAAAUwJkaAAA1AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2023-04-27T14:16:02.493Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "olc.cpp",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\olc.cpp",
+              "RelativeDocumentMoniker": "olc.cpp",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\olc.cpp",
+              "RelativeToolTip": "olc.cpp",
+              "ViewState": "AQIAALwBAAAAAAAAAAAAAJEAAAAMAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2023-04-27T14:04:47.992Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "act.informative.cpp",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\act.informative.cpp",
+              "RelativeDocumentMoniker": "act.informative.cpp",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\act.informative.cpp",
+              "RelativeToolTip": "act.informative.cpp",
+              "ViewState": "AQIAAPokAAAAAAAAAAAwwNMkAAApAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2023-04-28T01:29:34.443Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "object_damage.h",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\object_damage.h",
+              "RelativeDocumentMoniker": "object_damage.h",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\object_damage.h",
+              "RelativeToolTip": "object_damage.h",
+              "ViewState": "AQIAAIYAAAAAAAAAAAAAAJYAAAAYAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2023-04-28T03:22:50.113Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "commerce.cpp",
+              "DocumentMoniker": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\commerce.cpp",
+              "RelativeDocumentMoniker": "commerce.cpp",
+              "ToolTip": "E:\\User Data\\OneDrive\\Old SOI Code\\src\\commerce.cpp",
+              "RelativeToolTip": "commerce.cpp",
+              "ViewState": "AQIAAPYDAAAAAAAAAAAAAAcEAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2023-04-28T01:29:41.026Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

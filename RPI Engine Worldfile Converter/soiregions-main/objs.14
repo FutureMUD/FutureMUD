@@ -1,0 +1,843 @@
+#14000
+vest tight-fitting unornamented deerskin WOSE LEATHER~
+a tight-fitting, unornamented deerskin vest~
+A tight-fitting vest of unornamented deerskin lies here.~
+   Designed to fit snugly about its wearer, this pale-grey 
+leather vest is made of soft, supple deerskin. It lacks 
+ornamentation and decoration, still bearing the mottled, undyed 
+coverings of the animal it came from. 
+~
+9 4096 9
+2 1 2 2
+750 0.000000
+0 0 0 29 512 0 1
+260.000000 0 0 0 14 0 0
+#14001
+leggings tight-fitting unornamented deerskin WOSE LEATHER~
+a pair of tight-fitting, unornamented deerskin leggings~
+A pair of tight-fitting deerskin leggings lie here.~
+   Fitting snugly about its wearer's legs, this pair of pale-grey 
+leggings is made of soft, supple deerskin. It lacks 
+ornamentation and decoration, still bearing the mottled, undyed 
+coverings of the animal it came from. 
+~
+9 4096 33
+2 1 0 0
+600 0.000000
+0 0 0 29 512 0 1
+160.000000 0 0 0 14 0 0
+#14002
+sleeves tight-fitting unornamented deerskin WOSE LEATHER~
+a pair of tight-fitting, unornamented deerskin sleeves~
+A pair of tight-fitting deerskin sleeves lie here.~
+   Fitting snugly about its wearer's arms, these pale-grey 
+sleeves are made of soft, supple deerskin. They lack 
+ornamentation and decoration, still bearing the mottled, undyed 
+coverings of the animal they came from. 
+~
+9 4096 257
+2 1 0 0
+500 0.000000
+0 0 0 29 512 0 1
+100.000000 0 0 0 14 0 0
+#14003
+spear SIMPLE_QUALITY shortspear ash-shafted flint-tipped head WOSE WOOD~
+an ash-shafted, flint-tipped shortspear~
+An ash-shafted shortspear with a head of flint lies here.~
+   A long piece of ash has been painstakingly smoothed and sanded 
+into the shaft of this shortspear, standing at about 
+three-and-a-half feet tall. At the edge, nocked into the wood 
+and fastened with strips of tanned leather, is a jagged, serrated 
+head made of grey flint. The spear is unornamented and 
+undecorated, lending it a utalitarian feel. 
+~
+5 4096 8193
+0 1 7 9
+135 0.000000
+1 0 0 40 512 0 1
+160.000000 0 0 0 32 0 0
+#14004
+javelin SUB_QUALITY short flint-tipped WOSE WOOD~
+a short, flint-tipped javelin~
+A short javelin with a flint tip lies here.~
+   Made of smooth, sanded ash, this javelin is about two and a 
+half feet long. At the end, nocked into the wood and lashed 
+secure with strips of tanned leather, is a shard of jagged, 
+serrated flint. The javelin is unadorned and undecorated. 
+~
+5 268570624 8193
+0 1 6 3
+100 0.000000
+0 0 0 40 0 0 1
+70.000000 0 0 0 32 0 0
+#14005
+basket woven-reeds shoulder WOOD~
+a woven-reed shoulder basket~
+A shoulder basket of woven reeds lies here, forgotten.~
+   Made of woven reeds and stalks of wood, this basket has been 
+made for obvious utalitarian purposes. It is undecorated in all 
+respects, the pale-tan reeds remaining their natural hue. 
+Affixed to the bottom and top of the basket is a strip of greyish 
+leather, allowing it to be slung over the shoulder. 
+~
+15 4096 8388609
+1000 0 -1 0
+155 0.000000
+0 0 0 38 0 0 1
+45.000000 0 0 0 32 0 0
+#14006
+pukel-man vfDRUADAN_FOREST strange intricate carving towering looming STONE~
+a strange, intricate carving in a tree~
+An intricate, strange carving in a tree looms over the road.~
+   Extremely intricate and well-carved, this bas-relief sculpture 
+shows several twisted, wretched-looking humanoid faces, contorted 
+into groaning and moaning shapes. The entire carving spans from 
+waist-height on the average man to well over six feet up. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#14007
+pukel-man vfDRUADAN_FOREST hulking stone humanoid sour disposition looming carved STONE~
+a hulking stone humanoid with a sour disposition~
+A carved stone humanoid with a sour disposition looms here.~
+   Made of a single, solid towering spire of granite, this 
+humanoid carving is roughly the height of two and a half men. 
+Its smoothly-sanded face glares outward, lifeless sunken sockets 
+lurking beneath a sloped, glowering brow. An over-large nose 
+juts out, hawkish and sharply-pointed, from its angular face. It 
+sits on the forest floor, leaning against a towering oak tree, 
+one foot curled underneath the other outstretched granite leg. 
+Though inanimate, the fact that the monolithic statue grips a 
+giant stone club tightly in its right hand would warrant a second 
+look from all but the least superstituous of people. 
+
+<wielded in right hand>     #2a massive stone club#0
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#14008
+pukel-man vfDRUADAN_FOREST haunting weathered carving trunk tree WOOD~
+a weathered, haunting carving on a tree trunk~
+A haunting carving is etched into a tree trunk here, weathered and old.~
+   Carved out of the trunk of a tree, this haunting depiction of 
+a humanoid is enough to give all but the least superstitious of 
+peoples a nervous feeling. Roughly man height, the dead trunk of 
+the tree has been stripped of bark and carved into a human-like 
+shape. The shape, however, is warped and contorted, with its 
+arms and legs wretchedly twisted into excruciating angles. The 
+head is set low into the torso, its lifeless eyes wide open and 
+its mouth twisted agape in agony. The entire carving is 
+extremely weathered and old, perhaps as old as the tree itself. 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#14009
+echo timer DRUADAN_FOREST OTHER~
+a druadan echo timer~
+A druadan echo timer is here, ticking away.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 4 86 0 0 0 0
+#14010
+shirt ELVISH exquisite grey silvery silk TEXTILE~
+an exquisite silvery-grey silk shirt~
+A grey silken shirt has been left here.~
+   The soft grey of this silk shirt only helps to add to the gleam
+coming from its mirror-like surface. Spun of the finest thread, its
+surface is smooth and perfectly sewn with tiny, even little stitches.
+A scrolling embroidered pattern is carefully sewn on its upper sleeves
+and collar, matching the scrollwork down the front opening that dances
+along the buttons. It fits close to the body, but is light and airy,
+with an ethereal and regal appearance.
+~
+11 0 9
+0 0 0 0
+50 0.000000
+0 0 0 33 528420 0 1
+1200.000000 0 0 0 5 0 0
+#14011
+Barberry FRUIT TREE shrub yellow red plant herb herbalism_craft VEGETATION Orny5~
+a shrub with cup-shaped yellow flowers~
+A shrub with cup-shaped yellow flowers grows here.~
+   This small shrub has rich green spatulate shaped leaves, small
+cup-shaped yellow flowers. The plant possesses distinctive sausage-shaped
+fruits which hang in red clusters from the plant.
+~
+29 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 4320 86 0 0 0 0
+#14012
+stem Barberry STEM brittle woody ash bark plant herb herbalism_craft VEGETATION Orny4~
+a brittle, ash-colored stem~
+A brittle, ash-colored stem lies here.~
+   This tall stem has thin ash-coloured bark and a white pith. The stem
+is around six feet in length, slightly grooved and very brittle.
+~
+31 4198400 1
+0 0 0 0
+10 0.000000
+0 0 0 30 1028 0 1
+2.000000 0 0 0 32 0 0
+#14013
+Bayberries FRUIT berry barberry berries red sausage-shaped herbalism_craft cooking_craft FOOD OTHER Orny8~
+a cluster of red, sausage-shaped berries~
+A cluster of red, sausage-shaped berries is set here.~
+   These bright red berries are about half an inch long, oblong and 
+slightly curved, essentially sausage-shaped.
+~
+31 4198400 1
+0 0 0 0
+20 0.000000
+0 0 0 30 5120 0 1
+0.760000 0 0 0 0 0 0
+#14014
+key ROGUES_DOCKS corroded iron tarnished worn METAL~
+a corroded iron key~
+A corroded iron key sits here, tarnished and worn.~
+~
+18 4096 1
+0 0 0 0
+20 0.000000
+0 0 0 20 0 0 1
+0.000000 0 0 0 17 0 0
+#14020
+bone jawbone hanging piece OTHER~
+a piece of bone hanging from a branch~
+There is a piece of bone here, hanging from a branch high above.~
+   Hanging from a high branch, perhaps some twenty feet above the 
+ground, is the lower jawbone of some sort of carnivorous animal, 
+tied to the tree with a long piece of string. It is stark white 
+against the foliage, and is devoid of flesh. The teeth appear to 
+be sharp and pointed, though it is difficult to tell from this 
+distance just what sort of animal they came from. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 20 256 0 1
+0.000000 0 0 0 0 0 0
+#14021
+boulder moss-covered large STONE~
+a large, moss-covered boulder~
+Resting here is a large, moss-covered boulder.~
+   A thick carpet of soft green moss covers the top and most of 
+one side of this large, almost circular boulder. The dark gray 
+stone that is visible is worn and cracked, the surface rougher 
+where it meets the ground. Although half as high as the average 
+man, the upper portion of the rock is relatively flat and wide, 
+and seems easily scalable. 
+~
+12 4096 0
+0 0 0 0
+10000 0.000000
+0 0 0 21 256 0 1
+0.000000 0 0 0 30 0 0
+#14022
+ruins overgrown remnants ruined building OTHER~
+the overgrown remnants of a ruined building~
+The overgrown remnants of a ruined building are here.~
+   Little more than the crumbling stone foundation of this 
+building is left, having apparently been abandoned quite some 
+ago. The ruined structure is overgrown with grass and weeds, its 
+walls long gone and its purpose lost to the wind and weather. An 
+uneven outline is visible in the ground, roughly defining where 
+rooms once were. 
+~
+12 4096 0
+0 0 0 0
+100000 0.000000
+0 0 0 19 256 0 1
+0.010000 0 0 0 0 0 0
+#14023
+ruins overgrown remnants abandoned building OTHER~
+the overgrown remnants of an abandoned building~
+The overgrown remnants of an abandoned building are here.~
+   This was once a building, perhaps some sort of cabin, but time 
+and the elements have taken their toll on it, and now all that's 
+left are a few partially-collapsed walls and a crumbling stone 
+foundation. The entire structure is overgrown with weeds, making 
+it difficult to tell where rooms once were. The logs used in its 
+construction have mostly rotted away, some of them still visible 
+beneath the thick vegetation. There is no sign of a roof, or of 
+the people who abandoned this place. 
+~
+12 4096 0
+0 0 0 0
+100000 0.000000
+0 0 0 19 256 0 1
+0.010000 0 0 0 0 0 0
+#14024
+carving odd markings trunk tree OTHER~
+an odd carving in the trunk of a tree~
+Some odd markings have been carved into the trunk of a nearby tree.~
+   Carved into the trunk of a nearby tree, at about head height, 
+are some rather odd markings. It looks, possibly, like some sort 
+of lettering, though the deep, jagged lines could just as easily 
+be the sign of a failed attempt at target-practice with a very 
+sharp blade. 
+~
+12 4096 0
+0 0 0 0
+1 0.000000
+0 0 0 10 256 0 1
+0.000000 0 0 0 0 0 0
+#14025
+pool muddy large water OTHER~
+a pool of muddy water~
+A large pool filled with muddy water is here.~
+   There is a large depression in the ground here, filled with 
+muddy water. The liquid is thick and dark, making it impossible 
+to see how deep this hole really is. The sides are extremely 
+slippery, the wet soil around it soft and strangely free of 
+plants. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14015
+barn abandoned dilapidated OTHER~
+an abandoned, dilapidated barn~
+An abandoned, dilapidated barn sits in the midst of the fields here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14016
+mound pile great stony sloped rubble OTHER~
+a great, sloped mound of stony rubble~
+A great mound of stony rubble slopes upward at one end of the room here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14017
+throne craked grey limestone solid OTHER~
+a cracked throne of grey limestone~
+A cracked throne has been carved out of the solid limestone of the western tomb wall, facing eastward.~
+   This high-backed seat emerges from the limestone of the 
+western wall, dusty and grey. Though fused to the tomb wall 
+behind, the throne is cracked near the base, and seems to sag in 
+the middle. The throne is plain and undecorated. 
+~
+15 2101248 1
+2000 0 -1 0
+100 0.000000
+0 1 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14018
+coffin OTHER~
+a heavy, rectangular coffin of grey stone~
+A heavy, rectangular coffin of grey stone sits in the centre of the tomb.~
+   This great rectangular coffin of stone seems anchored to the 
+stone floor beneath. Its wide, squared edges are capable of 
+supporting a massive flat lid. Apart from a series of now 
+irrecognizable figures on the coffin's side, the container is 
+without decoration or embellishment. One edge of the lip of the 
+coffin is heavily chipped, suggesting that someone has attempted 
+to obtain entry at some point in the distant past. 
+~
+15 4096 0
+50000 5 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14019
+lid heavy stone coffin OTHER~
+a heavy stone coffin lid~
+A heavy stone coffin lid lies here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#14026
+skeleton yellow-boned human OTHER~
+a yellow-boned human skeleton~
+A yellow-boned human skeleton lies slumped here.~
+~
+15 4096 1
+5000 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14027
+skeleton wasted human fractured skull OTHER~
+a wasted human skeleton with a fractured skull~
+A wasted human skeleton with a fractured skull lies here.~
+~
+15 4096 0
+5000 0 -1 0
+1000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14028
+sword UNIQUE_DRUADAN_TOMB arming notched tarnished silver hilt METAL~
+a notched arming sword with a tarnished silver hilt~
+A notched arming sword with a hilt of tarnished silver has been strewn here.~
+   This broad-bladed, one-handed arming sword has seen better 
+days. The metal of the blade proper is spotted with dull stains, 
+its edges notched from use. The simple, straight hilt has been 
+fashioned of silver, tarnished and dull - a length of sinew that 
+was wrapped about the handle lies dry and tattered now, eaten 
+away with age. A round, heavy pommel at the sword's end acts as 
+a counterweight to balance its swing. 
+~
+5 4096 8193
+0 1 8 3
+300 0.000000
+4 0 0 0 0 0 1
+330.000000 0 0 0 28 0 0
+#14029
+shield UNIQUE_DRUADAN_TOMB rectangular ceremonial warped iron METAL~
+a rectangular, ceremonial shield of warped iron~
+A rectangular, ceremonial shield of warped iron lies here.~
+   This long, rectangular shield seems to have been fashioned for 
+ceremonial use. The shield is a thin sheet of solid iron - it 
+appears to have been struck near one side where it is slightly 
+but noticeably warped. About the edge, a motif of solid bars has 
+been etched into the metal. A thick iron boss has been bolted to 
+the shield's centre, surrounded by a patterned ring of etchings, 
+similar to those about the rim. 
+~
+6 4096 1
+0 0 0 0
+700 0.000000
+0 0 0 0 0 0 1
+375.000000 0 0 0 17 0 0
+#14030
+pendant UNIQUE_DRUADAN_TOMB old amber rusted chain METAL~
+an old amber pendant on a rusted chain~
+An old amber pendant on a rusted chain lies here.~
+   An oval-shaped amber cabochon is strung onto a worn, iron 
+chain string. The stone is golden-brown colored, clear with a 
+few natural occlusions and flaws, of very high quality. It is 
+caught in a cage pendant setting with bails on top that let it 
+slide freely along its chain. The chain itself is slightly 
+rusted. The image of a star has been pressed into the hard amber 
+cabochon. 
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+125.000000 0 0 0 28 0 0
+#14031
+book UNIQUE_DRUADAN_TOMB thick bound blood-smeared LEATHER~
+a thick book bound in blood-smeared leather~
+A thick book bound in blood-smeared leather lies here.~
+~
+54 4096 1
+30 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 14 0 0
+#14032
+marker wyrm-climb OTHER~
+a wyrm-climb marker~
+A wyrm-climb marker is here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14033
+marker wyrm-dead OTHER~
+a wyrm-dead marker~
+A wyrm-dead marker is here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14034
+turret AMON_DIN DRUADAN_FOREST square eagle-chiseled black granite STONE~
+a square, eagle-chiseled turret of black granite~
+A square, eagle-chiseled turret of black granite crests the hilltop here.~
+   This broad turret has been carved from the bulk of the same 
+spur of granite that lies beneath it, its square edges weathered 
+but undoubtedly firm. Though not particularly great in height, 
+the sheer walls of the low tower are insurmountable from below, 
+and, save a few narrow slits recessed into its upper lengths, no 
+points of entry appear to have been bored into it. The turret's 
+walls are grooved to imitate the look of brick, and are capped 
+with high crenellation. Four great stone eagles, spread-winged 
+and majestic, have been chiselled into the rock beneath the upper 
+edge of each wall, each pointing in a different cardinal 
+direction. Occasionally, a bit of movement can be spied at the 
+turret's crown, though it is impossible to get a clear sight of 
+the top from this point of view. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#14035
+turret EILENACH DRUADAN_FOREST square eagle-chiseled grey gneiss STONE~
+a square, eagle-chiseled turret of grey gneiss~
+A square, eagle-chiseled turret of grey gneiss crests the hilltop here.~
+   This broad turret has been carved from the bulk of the same 
+slab of gneiss that lies beneath it, its square edges weathered 
+but undoubtedly firm. Though not particularly great in height, 
+the sheer walls of the low tower are insurmountable from below, 
+and, save a few narrow slits recessed into its upper lengths, no 
+points of entry appear to have been bored into it. The turret's 
+walls are grooved to imitate the look of brick, and are capped 
+with high crenellation. Four great stone eagles, spread-winged 
+and majestic, have been chiselled into the rock beneath the upper 
+edge of each wall, each pointing in a different cardinal 
+direction. Occasionally, a bit of movement can be spied at the 
+turret's crown, though it is impossible to get a clear sight of 
+the top from this point of view. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#14036
+creek DRUADAN_FOREST bubbling LIQUID~
+#6a bubbling creek#0~
+#6A bubbling creek slopes down the landscape, running south to north.#0~
+~
+23 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14037
+creek DRUADAN_FOREST bubbling LIQUID~
+#6a bubbling creek#0~
+#6A bubbling creek empties into the pool of muddy water here.~
+~
+23 4096 0
+-1 -1 4 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14038
+key DRUADAN_SECRETSLUMS roughly-etched black iron key twine METAL~
+a roughly-etched, black iron key on a length of twine~
+A roughly-etched key of black iron lies here, strung with a length of twine.~
+   This ugly, weighty key is fashioned of solid iron, blackened 
+with soot. Its long stem ends in a hoop, through which a frayed 
+length of twine has been strung. Figures of Tengwar script in 
+the Numenian mode have been etched roughly into one side of the 
+key, spelling: 
+
+
+   'M.T. | J.W.' 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 20 0 0 1
+0.000000 0 0 0 17 0 0
+#14039
+skeleton DRUADAN_CAVERN twisted human OTHER~
+a twisted human skeleton with a cracked skull~
+A twisted human skeleton lies near the edge of the pool in the cavern here, its skull cracked.~
+   This humanoid skeleton is nothing but a collection of bleak 
+bones, some still bound in sinew. The remnants of tattered 
+clothes drape its scanty form, which is twisted in an awkward 
+position. Bony hands lied curled before it, clutching at the 
+empty air. A deep crack runs along the back of its bare skull. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14040
+helm barbute DRUADAN_TOMB antique silver-engraved METAL~
+an antique, silver-engraved barbute helm~
+An antique barbute helm of iron lies here, engraved with silver etchings.~
+   This formidable helm of thick iron has seen better days. The 
+panels of bolted iron that form its distinct, T-shaped visor are 
+tarnished and timeworn. Deep engravings mark the dome and 
+profile of the helmet, depicting high mountain ranges and wide 
+woodlands. The base of the helm is wrapped in a border of 
+archaic sigils, vaguely reminiscent of runic Cirth script. The 
+etchings are dusted in silver, now spotted and devoid of their 
+former lustre. 
+~
+9 4096 17
+1 5 0 0
+300 0.000000
+0 0 0 10 0 0 1
+525.000000 0 0 0 28 0 0
+#14041
+blood DRUADAN_TOMB smear floor OTHER~
+#1smears of dried blood#0~
+#1The floor of the tomb is marked with smears of dried blood.#0~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14042
+inscriptions DRUADAN_TOMB series strange runic OTHER~
+a series of strange runic inscriptions~
+A series of strange runic inscriptions line the walls of the antechamber.~
+   Strange sigils of some ancient mode line the walls of the 
+chamber here. They appear to have been meticulously engraved 
+with a fine chisel. The antique runes that comprise the 
+inscriptions are worn and faded in many places. They seem 
+primitive, and to anyone with a working knowledge of scripts, 
+would resemble ancient Cirth. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14043
+counter DRUADAN_QUARRY_PLOT dig OTHER~
+a dig counter~
+A dig counter lies here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14044
+archway parchment DRUADAN_MILTON_GATE OTHER~
+a wooden archway~
+A wooden archway is here.~
+~
+53 4096 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14045
+scabbard DRUADAN_TOMB elaborate gold-plated METAL~
+an elaborate, gold-plated scabbard~
+An elaborate, gold-plated scabbard lies here.~
+   This scabbard, fit for holding a sword of middling size, is 
+finely and elaborately crafted. The frame itself is fashioned of 
+a light wood, unadorned on the inside. The outward surface of 
+the scabbard is bolted with many overlapping plates of gold, 
+which appear somewhat dull, having lost their former lustre with 
+age. Many detailed carvings have been carefully worked into the 
+ancient metal, illustrating marvelous scenes of torch-lit caverns 
+and rocky cliffs. The scabbard appears to have been unused, and, 
+though clearly old, is in a remarkably pristine condition. 
+~
+58 4096 262145
+500 0 0 0
+100 0.000000
+0 0 0 30 0 0 1
+1500.000000 0 0 0 28 0 0
+#14046
+key large bronze discarded OTHER~
+a large bronze key~
+A large bronze key has been discarded here.~
+   This key is made of a thick bronze that has had three teeth 
+molded into it to fit inside of the lock. The handle of the key 
+is long enough for a hand to wrap around easily and a hole molded 
+into one end so that it can be slipped onto a keyring. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#14047
+Heren_Carnatalion board young boy blond OTHER~
+#5a blond-haired young boy#0~
+#5A blond-haired young boy#0, stands here taking messages.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 15 0 0 1
+50.000000 0 0 0 0 0 0
+#14192
+key bronze leaf-green MILTON_GATEHOUSE OTHER~
+a heavy bronze key with a leaf-green handle~
+A heavy bronze key with a leaf-green handle lies here~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14301
+key heavy iron leaf-green MILTON_GATEHOUSE_ARMORY OTHER~
+a heavy iron key with a leaf-green handle~
+A heavy iron key with a leaf-green handle is here~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14048
+milton_gatehouse short beady man board OTHER~
+#5a short beady man taking messages#0~
+#5A short, beady man taking messages stands here.#0~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14049
+axe crescent blade finely sharpened POF_LREC_HC METAL~
+a finely-sharpened double-headed axe~
+A one-handed axe with two crescent blades lays here.~
+   This axe, clearly designed for the use of one hand, has a long 
+handle, perhaps a little bit bigger then a grown man's forearm. 
+Crafted from wood, it still manages to retain a incredibly 
+well-balanced weight to it. Darkly dyed leather has been tied 
+around the handle, offering a superior grip. While clean and 
+polished, there are obvious nicks in it from what one would 
+assume to be years of use. It leads up to a double 
+crescent-headed axehead, forged from steel. The flat has an 
+engraving of a bear, up on it's hind paws as though threatening 
+an intruder, while the blade itself is incredibly sharp, a clear 
+sign of care despite the apparent age of the weapon. 
+~
+5 0 8193
+0 1 8 3
+325 0.000000
+2 0 0 40 0 0 1
+450.000000 0 0 0 28 0 0
+S
+100003
+#14050
+configuration mob random OTHER~
+a random mob configuration object~
+~
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14051
+ladder RPROG_OBJECT tall wooden position WOOD~
+a tall, wooden ladder set into position~
+A tall, wooden ladder has been set into position here.~
+This ladder is about four times the height of an average man, 
+and constructed sturdily of lengths of wood lashed together by 
+rope. 
+It has been set into position.
+~
+41 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14052
+leggings ELVISH embroidered silvery-grey silk TEXTILE~
+a pair of embroidered, silvery-grey silk leggings~
+A pair of embroidered, silvery-grey silk leggings lie here.~
+   Made of lustrous silvery-grey silk, these leggings are light 
+and sewn to fit snugly to the wearer's legs. Delicate 
+leaf-details have been embroidered along the hem and down the 
+legs in gold thread, and the hue of the leggings seems to change 
+with the light. 
+~
+11 4096 33
+0 0 0 0
+50 0.000000
+0 0 0 50 0 0 1
+1200.000000 0 0 0 0 0 0
+#14053
+cabin BEACON_GUARDHOUSE_BYEONWE small sturdy OTHER~
+a small, sturdy cabin~
+Nestled within the evergreen sea is a small, sturdily-built cabin encircled by a stone fence.~
+   This small cabin had been sturdily-constructed from a number 
+of thick pine logs. Evidence of skilled hands having compiled 
+this building are apparent, from the wood-cutting to the perfect 
+symmetry of its sides and angles. Though not a great work of 
+aesthetics, this cabin is clearly capable of weathering the 
+passing of time and is set on a solid foundation. Entry is 
+possible from the northern face through an imposing oaken door 
+braced with iron and windows peer out, barricaded with thick oak 
+shutters, to the north, east, and west. It is surrounded by a 
+thick stone fence which is approximately five feet in height. 
+Within the stone barrier is a small, enclosed stable that sits on 
+the cabin's eastern side. 
+~
+12 536875008 0
+0 0 0 0
+400000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14054
+key EILENACH_GUARDHOUSE_14283 heavy iron METAL~
+a heavy iron key~
+A long, heavy iron key lies abandoned here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14055
+bog DRUADAN_OPROG_BYEONWE large treacherous peat putrid murky pools OTHER~
+#6a large, treacherous peat bog littered with putrid, murky pools#0~
+The earth here has been transformed into #6a large, treacherous peat bog littered with putrid, murky pools#0.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14056
+visa_board tall barrel-chested squire OTHER~
+#5a tall, barrel-chested Squire#0~
+#5A barrel-chested Squire#0 is here, holding #2a long sheet of parchment#0.~
+~
+22 4096 1
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#14057
+ooc_sign travel OTHER~
+#6an OOC sign about travel~
+#6An OOC sign about travel is floating midair here.~
+   Type #6HAIL GATE#0 to pass in and out of Milton. Each time 
+that you do, the Wardenry will take note of your description, so 
+do not abuse this. This should be used if you have business in 
+the Milton, Druadan, or are traveling northwards. If you are 
+leaving Milton to head to the caravan route and have paid for a 
+travel voucher, hold the voucher in your hand before typing 
+#6HAIL GATE#0 to be escorted safely to the beginning of the 
+route. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

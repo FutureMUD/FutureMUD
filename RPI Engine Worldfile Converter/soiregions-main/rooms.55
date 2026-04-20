@@ -1,0 +1,3779 @@
+#55000
+A Waterfall~
+   The river tumbles over a collection of water smoothed boulders 
+and stones on it's way into the plains to the south. The fall of 
+twenty feet happens gradually, the water breaking and gathering 
+into a few large pools before spilling over to the next tiers of 
+stone along the way down. Several trees line the banks of the 
+river here, casting shade over the waterfall and allowing a 
+dusting of moss to grow on the boulders. 
+~
+55 33619976 17
+0
+D2
+~
+~
+0 -1  0 55001
+D3
+~
+~
+0 -1  0 55055
+S
+#55001
+The Anduin River~
+Build a forest here!
+~
+55 33619968 17
+0
+D0
+~
+~
+0 -1  0 55000
+D1
+~
+~
+0 -1  0 55002
+D2
+~
+~
+0 -1  0 55178
+S
+#55002
+The Anduin River~
+No Description Set.
+~
+55 33619968 17
+0
+D0
+~
+~
+0 -1  0 55055
+D1
+~
+~
+0 -1  0 55003
+D2
+~
+~
+0 -1  0 55001
+D3
+~
+~
+0 -1  0 55001
+S
+#55003
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55004
+D2
+~
+~
+0 -1  0 55034
+D3
+~
+~
+0 -1  0 55168
+S
+#55004
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55017
+D1
+~
+~
+0 -1  0 55005
+D2
+~
+~
+0 -1  0 55035
+D3
+~
+~
+0 -1  0 55003
+S
+#55005
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55006
+D2
+~
+~
+0 -1  0 55036
+D3
+~
+~
+0 -1  0 55004
+S
+#55006
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55007
+D2
+~
+~
+0 -1  0 55037
+D3
+~
+~
+0 -1  0 55005
+S
+#55007
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55008
+D2
+~
+~
+0 -1  0 55038
+D3
+~
+~
+0 -1  0 55006
+S
+#55008
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55009
+D2
+~
+~
+0 -1  0 55039
+D3
+~
+~
+0 -1  0 55007
+S
+#55009
+New Room~
+No Description Set.
+~
+55 65536 17
+0
+D1
+~
+~
+0 -1  0 55010
+D2
+~
+~
+0 -1  0 55040
+D3
+~
+~
+0 -1  0 55008
+S
+#55010
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55011
+D2
+~
+~
+0 -1  0 55041
+D3
+~
+~
+0 -1  0 55009
+S
+#55011
+New Room~
+No Description Set.
+~
+55 33619968 17
+0
+D1
+~
+~
+0 -1  0 55010
+D3
+~
+~
+0 -1  0 55012
+S
+#55012
+New Room~
+No Description Set.
+~
+55 33619968 17
+0
+D1
+~
+~
+0 -1  0 55011
+D3
+~
+~
+0 -1  0 55013
+S
+#55013
+In the Anduin River~
+   Here the heath land along the river has pulled back, the 
+flowing Anduin cutting deep into the soft, grassy land as it 
+continues along its meandering path towards the northeast. Here 
+the riverbed tips lower, increasing the challenge of staying 
+afloat to any attempting to swim along its currents. Thick 
+rushes and several tall, water-fed trees dot the shoreline, 
+providing homes for a multitude of small creatures. 
+~
+55 33619968 17
+0
+D1
+~
+~
+0 -1  0 55012
+D3
+~
+~
+0 -1  0 55014
+S
+#55014
+Rush-Filled River's Edge~
+   The frequent honking and calling of river birds fill this area 
+with their renting sound, the thick rushes and cattails along the 
+river bank home to many a small creature. Here the tufting green 
+grass and small shrubby bushes sit along the flowing river, the 
+splashes and jumps of small silvery fish and tiny frogs visible 
+on close inspection. Several large rocks clog up the river's 
+flow, their weathered grey surface clouding over with moss. 
+~
+55 33619968 9
+0
+D1
+~
+~
+0 -1  0 55013
+D3
+~
+~
+0 -1  0 55015
+S
+#55015
+River's Edge Along the Anduin~
+   Thick patches of soft olive-green grass stretches from the 
+river bank towards the south. Dipping low towards the Anduin, 
+the land ends in a sharp, abrupt cut off at the water's edge. 
+The path of stepping stones leading across the river towards the 
+south provide little help from this side. Marshy land where the 
+Anduin over spills its banks lies to the east and west, more lush 
+green field leading into the visible distance northwards. 
+~
+55 33619968 9
+0
+D1
+~
+~
+0 -1  0 55014
+D3
+~
+~
+0 -1  0 55016
+S
+#55016
+New Room~
+No Description Set.
+~
+55 65536 9
+0
+D1
+~
+~
+0 -1  0 55015
+D3
+~
+~
+0 -1  0 55017
+S
+#55017
+At an Intersection of Two Rivers~
+   The waters of the Limlight flow into the Anduin here. Towards 
+the southeast the riverbed rises, the shallow water flowing 
+towards a manmade ford composed of rocks and earth. On this side 
+of the ford, the flow of the Limlight is held up by the ford and 
+gathers into a deep pool. The blockage causes turbulence in the 
+water here, white peaks swirling and frothing as they lap against 
+the ford and carry away debris. To the west, upriver, the 
+Limlight stretches onward toward it's source in Fangorn Forest. 
+~
+55 33619968 17
+0
+D1
+~
+~
+0 -1  0 55016
+D2
+~
+~
+0 -1  0 55004
+D3
+~
+~
+0 -1  0 55018
+D5
+~
+~
+0 -1  0 55051
+S
+#55018
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55017
+D2
+~
+~
+0 -1  0 55049
+D3
+~
+~
+0 -1  0 55017
+S
+#55019
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55020
+D2
+~
+~
+0 -1  0 55050
+D3
+~
+~
+0 -1  0 55018
+S
+#55020
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55021
+D2
+~
+~
+0 -1  0 55051
+D3
+~
+~
+0 -1  0 55019
+S
+#55021
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55022
+D2
+~
+~
+0 -1  0 55052
+D3
+~
+~
+0 -1  0 55020
+S
+#55022
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55023
+D2
+~
+~
+0 -1  0 55053
+D3
+~
+~
+0 -1  0 55021
+S
+#55023
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55024
+D2
+~
+~
+0 -1  0 55054
+D3
+~
+~
+0 -1  0 55022
+S
+#55024
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55025
+D2
+~
+~
+0 -1  0 55055
+D3
+~
+~
+0 -1  0 55023
+S
+#55025
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55026
+D2
+~
+~
+0 -1  0 55056
+D3
+~
+~
+0 -1  0 55024
+S
+#55026
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55027
+D2
+~
+~
+0 -1  0 55057
+D3
+~
+~
+0 -1  0 55025
+S
+#55027
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55056
+D1
+~
+~
+0 -1  0 55028
+D2
+~
+~
+0 -1  0 55058
+D3
+~
+~
+0 -1  0 55026
+S
+#55028
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55029
+D2
+~
+~
+0 -1  0 55059
+D3
+~
+~
+0 -1  0 55027
+S
+#55029
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55030
+D2
+~
+~
+0 -1  0 55060
+D3
+~
+~
+0 -1  0 55028
+S
+#55039
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55008
+D1
+~
+~
+0 -1  0 55040
+D2
+~
+~
+0 -1  0 55072
+D3
+~
+~
+0 -1  0 55038
+S
+#55030
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55031
+D2
+~
+~
+0 -1  0 55061
+D3
+~
+~
+0 -1  0 55029
+S
+#55031
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D2
+~
+~
+0 -1  0 55062
+D3
+~
+~
+0 -1  0 55030
+S
+#55032
+New Room~
+No Description Set.
+~
+55 65536 6
+0
+D0
+~
+~
+0 -1  0 55001
+D1
+~
+~
+0 -1  0 55033
+D2
+~
+~
+0 -1  0 55065
+S
+#55033
+New Room~
+No Description Set.
+~
+55 65536 6
+0
+D0
+~
+~
+0 -1  0 55002
+D1
+~
+~
+0 -1  0 55034
+D2
+~
+~
+0 -1  0 55066
+D3
+~
+~
+0 -1  0 55032
+S
+#55034
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55003
+D1
+~
+~
+0 -1  0 55035
+D2
+~
+~
+0 -1  0 55067
+D3
+~
+~
+0 -1  0 55033
+S
+#55035
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55004
+D1
+~
+~
+0 -1  0 55036
+D2
+~
+~
+0 -1  0 55068
+D3
+~
+~
+0 -1  0 55034
+S
+#55036
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55005
+D1
+~
+~
+0 -1  0 55037
+D2
+~
+~
+0 -1  0 55069
+D3
+~
+~
+0 -1  0 55035
+S
+#55037
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55006
+D1
+~
+~
+0 -1  0 55038
+D2
+~
+~
+0 -1  0 55070
+D3
+~
+~
+0 -1  0 55036
+S
+#55038
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55007
+D1
+~
+~
+0 -1  0 55039
+D2
+~
+~
+0 -1  0 55071
+D3
+~
+~
+0 -1  0 55037
+S
+#55040
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55009
+D1
+~
+~
+0 -1  0 55041
+D3
+~
+~
+0 -1  0 55039
+S
+#55041
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55010
+D1
+~
+~
+0 -1  0 55042
+D2
+~
+~
+0 -1  0 55074
+D3
+~
+~
+0 -1  0 55040
+S
+#55042
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55011
+D1
+~
+~
+0 -1  0 55043
+D2
+~
+~
+0 -1  0 55075
+D3
+~
+~
+0 -1  0 55041
+S
+#55043
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55012
+D1
+~
+~
+0 -1  0 55044
+D2
+~
+~
+0 -1  0 55076
+D3
+~
+~
+0 -1  0 55042
+S
+#55044
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55013
+D1
+~
+~
+0 -1  0 55045
+D2
+~
+~
+0 -1  0 55077
+D3
+~
+~
+0 -1  0 55043
+S
+#55045
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55014
+D1
+~
+~
+0 -1  0 55046
+D2
+~
+~
+0 -1  0 55078
+D3
+~
+~
+0 -1  0 55044
+S
+#55046
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55015
+D1
+~
+~
+0 -1  0 55047
+D2
+~
+~
+0 -1  0 55079
+D3
+~
+~
+0 -1  0 55045
+S
+#55047
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55016
+D1
+~
+~
+0 -1  0 55048
+D2
+~
+~
+0 -1  0 55080
+D3
+~
+~
+0 -1  0 55046
+S
+#55048
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55017
+D1
+~
+~
+0 -1  0 55049
+D2
+~
+~
+0 -1  0 55081
+D3
+~
+~
+0 -1  0 55047
+S
+#55049
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55018
+D1
+~
+~
+0 -1  0 55050
+D2
+~
+~
+0 -1  0 55082
+D3
+~
+~
+0 -1  0 55048
+S
+#55050
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55019
+D2
+~
+~
+0 -1  0 55083
+D3
+~
+~
+0 -1  0 55049
+S
+#55051
+New Room~
+No Description Set.
+~
+55 65536 20
+0
+D4
+~
+~
+0 -1  0 55017
+S
+#55052
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55021
+D1
+~
+~
+0 -1  0 55053
+D2
+~
+~
+0 -1  0 55085
+S
+#55053
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55022
+D1
+~
+~
+0 -1  0 55054
+D2
+~
+~
+0 -1  0 55086
+D3
+~
+~
+0 -1  0 55052
+S
+#55054
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55023
+D1
+~
+~
+0 -1  0 55055
+D2
+~
+~
+0 -1  0 55087
+D3
+~
+~
+0 -1  0 55053
+S
+#55055
+Along the Western Bank of the Anduin~
+   The Anduin River flows to the southwest here, cutting through 
+the plains. The grasslands stretch as far as the eye can see 
+toward the west. The knee-high grass is home to a multitude of 
+creatures, which can be heard rustling through the brush at 
+times. Scattered throughout the grasslands are small, brushy 
+trees and various weeds which break up the monotony of the 
+plains. The muddy banks of the river are crisscrossed with 
+tracks left by the animals that come here to drink. 
+~
+55 33619968 4
+0
+D1
+~
+~
+0 -1  0 55000
+D2
+~
+~
+0 -1  0 55002
+D3
+~
+~
+0 -1  0 55056
+S
+#55056
+Grassy Plains~
+   To the east the Anduin River can be seen, snaking through the 
+plains on its way to intersect the Limlight to the southwest. 
+Here, the plains are thick with grass and other vegetation, 
+stretching out to the west. A wide variety of scrub, weeds and 
+small, stunted trees are scattered through the fields of grass. 
+Even in the absence of wind, the knee-high grass seems to be in 
+constant motion, and the rustling of small animals scuttling 
+about can be heard. Insects leap about and fly from plant to 
+plant during the day, filling the air with the sounds of their 
+industry. 
+~
+55 33619968 4
+0
+D1
+~
+~
+0 -1  0 55055
+D2
+~
+~
+0 -1  0 55027
+D3
+~
+~
+0 -1  0 55059
+S
+#55057
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55058
+D2
+~
+~
+0 -1  0 55090
+D3
+~
+~
+0 -1  0 55056
+S
+#55058
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55059
+D2
+~
+~
+0 -1  0 55091
+D3
+~
+~
+0 -1  0 55057
+S
+#55059
+Flat Grassy Plains~
+   Various shades of green grass dominate the fields, dotted with 
+woody brown bushes and the occasional patch of small white 
+flowers. Zephyrs often race over this open grassland, with few 
+trees to break the force of the frequent gales. The plains 
+continue westward as far as the eye can see, but to the south and 
+east a river can just barely be made out. Here, a shelf of stone 
+has been exposed by the winds and offers a stretch of land bare 
+of vegetation. The exposed stone is not very large, perhaps only 
+large enough for a small group to camp upon, and in fact, a small 
+depression in the stone is charred and blackened, as though it 
+had been used as a natural fire pit. 
+~
+55 33619968 4
+0
+D1
+~
+~
+0 -1  0 55056
+D2
+~
+~
+0 -1  0 55058
+D3
+~
+~
+0 -1  0 55060
+S
+#55060
+A Large Muddy Pool~
+   A plain of verdant, knee-deep grass stretches endlessly to the 
+west. This stretch of it has been taken over by wildflowers, a 
+riotous sea of color that nearly obscures the grass. Off in the 
+distance to the south, the Anduin River can be seen, making it's 
+way to the southwest. A small stand of trees grow here, at the 
+edge of a large pool of muddy water. The ground around the pool 
+is bare of grass and rife with churned tracks of the various 
+animals that come here to drink. 
+~
+55 33619968 4
+0
+D1
+~
+~
+0 -1  0 55059
+D2
+~
+~
+0 -1  0 55061
+D3
+~
+~
+0 -1  0 55063
+S
+#55061
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55060
+D1
+~
+~
+0 -1  0 55062
+D2
+~
+~
+0 -1  0 55094
+D3
+~
+~
+0 -1  0 55060
+S
+#55062
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55063
+D2
+~
+~
+0 -1  0 55095
+D3
+~
+~
+0 -1  0 55061
+S
+#55063
+A Vast Plain~
+   Patches of different grasses make this area of veldt a canvas 
+of colors, ranging from silvery blue-grey to a deep verdant 
+green. A variety of bushy scrub and flowering weeds are 
+scattered throughout the grasslands, along with the occasional 
+stunted tree, too short to offer shade to anything but the 
+smallest of animals. The knee-high grass is home to many small 
+animals and insects, which can nearly always be heard scuttling 
+and shuffling through the brush. A glimpse of the Anduin can be 
+seen to the south, where it stretches to the southwest on it's 
+way to meet the Limlight. 
+~
+55 33619968 4
+0
+D1
+~
+~
+0 -1  0 55060
+D2
+~
+~
+0 -1  0 55062
+D3
+~
+~
+0 -1  0 55064
+S
+#55064
+An Expanse of Grasslands~
+   Various shades of green grass dominate this meadow, dotted 
+with woody brown bushes and the occasional patch of small white 
+flowers. The grass here is shorter than surrounding areas and 
+many hoof prints can be seen on the ground as though this part of 
+the grasslands has been heavily grazed by some sort of herd 
+animal. The most striking feature of this part of the plains is 
+a large tree that has sprung up and grown wide, casting a large 
+shadow with it's far-reaching limbs. 
+~
+55 33619968 4
+0
+D1
+~
+~
+0 -1  0 55063
+D2
+~
+~
+0 -1  0 55057
+D3
+~
+~
+0 -1  0 55068
+E
+tree~
+   This large oak tree looks to be nearly thirty feet tall and 
+it's limbs stretch widely, casting a large shadow. As one of the 
+few good-sized trees in the plains, it has become home to a large 
+number of birds and their nests can be seen cluttering it's 
+branches. 
+~
+S
+#55065
+New Room~
+No Description Set.
+~
+55 65536 6
+0
+D0
+~
+~
+0 -1  0 55032
+D1
+~
+~
+0 -1  0 55066
+D2
+~
+~
+0 -1  0 55064
+S
+#55066
+New Room~
+No Description Set.
+~
+55 65536 6
+0
+D0
+~
+~
+0 -1  0 55033
+D1
+~
+~
+0 -1  0 55067
+D2
+~
+~
+0 -1  0 55099
+D3
+~
+~
+0 -1  0 55065
+S
+#55067
+New Room~
+No Description Set.
+~
+55 65536 6
+0
+D0
+~
+~
+0 -1  0 55068
+D2
+~
+~
+0 -1  0 55100
+D3
+~
+~
+0 -1  0 55066
+S
+#55068
+Endless Plains~
+   A sea of knee-high grass stretches out as far as the eye can 
+see to the north and west, while to the southeast the Anduin can 
+just barely be seen, snaking away to the south. The wind rustles 
+through the grass and brush, causing a gentle susurration. 
+Multitudes of grasshoppers and other insects inhabit the plains, 
+launching themselves in clouds of whirring wings at the passing 
+of man or beast, while birds hunt the fields, feeding on the 
+insects. 
+~
+55 33619968 4
+0
+D2
+~
+~
+0 -1  0 55067
+D3
+~
+~
+0 -1  0 55069
+S
+#55069
+Amidst a Vast Plain~
+   The plains seem to go on forever, with no end in sight. The 
+only visible break in the scenery is the river, far to the south. 
+A tract of tall, thin-stalked grasses wave in the breeze, a dry, 
+rustling sound filling the area, while the occasional chirps and 
+whistles betray the small flock of birds living amongst the 
+greenery. The plains appear mostly flat, with only a few rolling 
+hills to be seen. One of these hills can be seen in the 
+distance, to the southwest. 
+~
+55 33619968 4
+0
+D1
+~
+~
+0 -1  0 55068
+D2
+~
+~
+0 -1  0 55070
+D3
+~
+~
+0 -1  0 55074
+S
+#55070
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55069
+D1
+~
+~
+0 -1  0 55071
+D2
+~
+~
+0 -1  0 55103
+D3
+~
+~
+0 -1  0 55073
+S
+#55071
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55038
+D1
+~
+~
+0 -1  0 55072
+D2
+~
+~
+0 -1  0 55104
+D3
+~
+~
+0 -1  0 55070
+S
+#55072
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55073
+D1
+~
+~
+0 -1  0 55073
+D2
+~
+~
+0 -1  0 55105
+D3
+~
+~
+0 -1  0 55071
+S
+#55073
+A Vast Field North of a Meeting of Rivers~
+   A meeting of two rivers can be seen amidst the tall grasses of 
+this field a fair distance to the south. The soil here is 
+fertile and moist, providing the multitude of colorful flora that 
+erupts randomly through the grass in the warmer months a rich 
+base. The air here is always full of sounds of wildlife, whether 
+it be bees buzzing, birds chirping, or the crashing union of the 
+two rivers in the southern horizon. 
+~
+55 33619968 4
+0
+D0
+~
+~
+0 -1  0 55074
+D1
+~
+~
+0 -1  0 55070
+D2
+~
+~
+0 -1  0 55072
+D3
+~
+~
+0 -1  0 55090
+S
+#55074
+A Scattering of Burrows~
+   Patches of different grasses make this stretch of the plains a 
+canvas of colors, ranging from silvery blue-grey to a deep 
+verdant green. The fields continue endlessly to the north and 
+west, and to the south a river can be made out in the distance. 
+Under several small woody shrubs scattered haphazardly across the 
+field, small and half-concealed burrow holes mark this otherwise 
+clear grassy field, home to some small meadow mammals that 
+scamper back and forth across the field, their small brown bodies 
+often momentarily visible amidst the thick green grass. A tall 
+hill rises to the southwest, overlooking the plains. 
+~
+55 33619968 4
+0
+D1
+~
+~
+0 -1  0 55069
+D2
+~
+~
+0 -1  0 55073
+D3
+~
+~
+0 -1  0 55075
+E
+reformat~
+These burrows are small and dug at a slight angle, causing the holes to slope downward into the ground. Small mounds of earth and pebbles are piled up just outside of each.
+~
+E
+burrows~
+   These burrows are small and dug at a slight angle, causing the 
+holes to slope downward into the ground. Small mounds of earth 
+and pebbles are piled up just outside of each. 
+~
+S
+#55075
+New Room~
+No Description Set.
+~
+55 33619968 4
+0
+D1
+~
+~
+0 -1  0 55074
+D2
+~
+~
+0 -1  0 55090
+D3
+~
+~
+0 -1  0 55080
+S
+#55076
+A Steep Hill Overlooking a Vast Field~
+   This large, grassy mound overlooks a great extent of the 
+fields below. At the very peak of the rise, the Limlight can be 
+seen curling about through the landscape to meet the Anduin to 
+the east. A calm and serene peace hangs over this area, despite 
+the harsh winds that sometimes whip through the air. At the base 
+of the soft hill is a single, knotty, gnarled-limb willow, 
+hanging and drooping in age like a guardian before the climb. 
+~
+55 33619968 7
+0
+D0
+~
+~
+0 -1  0 55043
+D2
+~
+~
+0 -1  0 55109
+D3
+~
+~
+0 -1  0 55079
+D5
+~
+~
+0 -1  0 55090
+S
+#55077
+A Wide Field Before the Meeting of Two Rivers~
+   Here, the great expanse of long-grassed fields reach a 
+confluence of the Limlight and the Anduin. The dense prairie 
+fauna leads to a sandy bank, setting a serene scene dotted with 
+cattails and some wooden debris before the meeting of the two 
+rivers. The Limlight, flowing and curling from the far off 
+forest to the northwest lazily slugs into the rapid-flowing 
+waters of the northerly straying Anduin. 
+~
+55 33619968 4
+0
+D0
+~
+~
+0 -1  0 55090
+D1
+~
+~
+0 -1  0 55078
+D3
+~
+~
+0 -1  0 55078
+S
+#55078
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55045
+D1
+~
+~
+0 -1  0 55077
+D2
+~
+~
+0 -1  0 55111
+D3
+~
+~
+0 -1  0 55077
+S
+#55079
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55046
+D1
+~
+~
+0 -1  0 55076
+D2
+~
+~
+0 -1  0 55112
+D3
+~
+~
+0 -1  0 55078
+S
+#55080
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55047
+D1
+~
+~
+0 -1  0 55075
+D2
+~
+~
+0 -1  0 55113
+D3
+~
+~
+0 -1  0 55079
+S
+#55081
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55048
+D1
+~
+~
+0 -1  0 55082
+D2
+~
+~
+0 -1  0 55114
+D3
+~
+~
+0 -1  0 55080
+S
+#55082
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55049
+D1
+~
+~
+0 -1  0 55083
+D2
+~
+~
+0 -1  0 55116
+D3
+~
+~
+0 -1  0 55081
+S
+#55083
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55050
+D1
+~
+~
+0 -1  0 55084
+D2
+~
+~
+0 -1  0 55117
+D3
+~
+~
+0 -1  0 55082
+S
+#55084
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55085
+D2
+~
+~
+0 -1  0 55118
+D3
+~
+~
+0 -1  0 55083
+S
+#55085
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55052
+D1
+~
+~
+0 -1  0 55086
+D2
+~
+~
+0 -1  0 55119
+D3
+~
+~
+0 -1  0 55084
+S
+#55086
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55053
+D1
+~
+~
+0 -1  0 55087
+D2
+~
+~
+0 -1  0 55120
+D3
+~
+~
+0 -1  0 55085
+S
+#55087
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55054
+D1
+~
+~
+0 -1  0 55088
+D2
+~
+~
+0 -1  0 55121
+D3
+~
+~
+0 -1  0 55086
+S
+#55088
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55055
+D1
+~
+~
+0 -1  0 55089
+D2
+~
+~
+0 -1  0 55122
+D3
+~
+~
+0 -1  0 55087
+S
+#55089
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55056
+D2
+~
+~
+0 -1  0 55123
+D3
+~
+~
+0 -1  0 55088
+S
+#55090
+At the Base of a Steep Hill~
+   Past a dense, wild orchard of crooked trees warped by time, an 
+imposing, green hill lies to the north. The field leading to the 
+climb, and an old willow in the distance, is dotted with foliage 
+and wildlife. Yellow wildflowers are abundant during times of 
+warmth, masking the grass with its radiant, golden blanket. 
+~
+55 33619968 4
+0
+D0
+~
+~
+0 -1  0 55075
+D1
+~
+~
+0 -1  0 55073
+D2
+~
+~
+0 -1  0 55077
+D4
+~
+~
+0 -1  0 55076
+S
+#55091
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55058
+D1
+~
+~
+0 -1  0 55092
+D2
+~
+~
+0 -1  0 55125
+S
+#55092
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55093
+D2
+~
+~
+0 -1  0 55126
+D3
+~
+~
+0 -1  0 55091
+S
+#55093
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55092
+D3
+~
+~
+0 -1  0 55157
+S
+#55094
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55061
+D1
+~
+~
+0 -1  0 55095
+D2
+~
+~
+0 -1  0 55128
+D3
+~
+~
+0 -1  0 55093
+S
+#55095
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55062
+D1
+~
+~
+0 -1  0 55096
+D2
+~
+~
+0 -1  0 55129
+D3
+~
+~
+0 -1  0 55094
+S
+#55096
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55097
+D2
+~
+~
+0 -1  0 55130
+D3
+~
+~
+0 -1  0 55095
+S
+#55097
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55098
+D2
+~
+~
+0 -1  0 55131
+D3
+~
+~
+0 -1  0 55096
+S
+#55098
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D2
+~
+~
+0 -1  0 55132
+D3
+~
+~
+0 -1  0 55097
+S
+#55099
+New Room~
+No Description Set.
+~
+55 65536 6
+0
+D0
+~
+~
+0 -1  0 55066
+D1
+~
+~
+0 -1  0 55100
+D2
+~
+~
+0 -1  0 55133
+D3
+~
+~
+0 -1  0 55064
+S
+#55100
+New Room~
+No Description Set.
+~
+55 65536 6
+0
+D0
+~
+~
+0 -1  0 55067
+D1
+~
+~
+0 -1  0 55101
+D2
+~
+~
+0 -1  0 55134
+D3
+~
+~
+0 -1  0 55099
+S
+#55101
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55102
+D2
+~
+~
+0 -1  0 55135
+D3
+~
+~
+0 -1  0 55100
+S
+#55102
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55103
+D2
+~
+~
+0 -1  0 55136
+D3
+~
+~
+0 -1  0 55101
+S
+#55103
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55070
+D1
+~
+~
+0 -1  0 55104
+D2
+~
+~
+0 -1  0 55137
+D3
+~
+~
+0 -1  0 55102
+S
+#55104
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55071
+D1
+~
+~
+0 -1  0 55105
+D2
+~
+~
+0 -1  0 55138
+D3
+~
+~
+0 -1  0 55103
+S
+#55105
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55072
+D1
+~
+~
+0 -1  0 55106
+D2
+~
+~
+0 -1  0 55139
+D3
+~
+~
+0 -1  0 55104
+S
+#55106
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55107
+D2
+~
+~
+0 -1  0 55140
+D3
+~
+~
+0 -1  0 55105
+S
+#55107
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55074
+D1
+~
+~
+0 -1  0 55108
+D2
+~
+~
+0 -1  0 55141
+D3
+~
+~
+0 -1  0 55106
+S
+#55108
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55109
+D2
+~
+~
+0 -1  0 55142
+D3
+~
+~
+0 -1  0 55107
+S
+#55109
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55076
+D1
+~
+~
+0 -1  0 55110
+D2
+~
+~
+0 -1  0 55143
+D3
+~
+~
+0 -1  0 55108
+S
+#55110
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55111
+D2
+~
+~
+0 -1  0 55144
+D3
+~
+~
+0 -1  0 55109
+S
+#55111
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55078
+D1
+~
+~
+0 -1  0 55112
+D2
+~
+~
+0 -1  0 55145
+D3
+~
+~
+0 -1  0 55110
+S
+#55112
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55079
+D1
+~
+~
+0 -1  0 55113
+D2
+~
+~
+0 -1  0 55146
+D3
+~
+~
+0 -1  0 55111
+S
+#55113
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55080
+D1
+~
+~
+0 -1  0 55114
+D2
+~
+~
+0 -1  0 55147
+D3
+~
+~
+0 -1  0 55112
+S
+#55114
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55081
+D1
+~
+~
+0 -1  0 55116
+D2
+~
+~
+0 -1  0 55148
+D3
+~
+~
+0 -1  0 55113
+S
+#55115
+New Room~
+No Description Set.
+~
+55 65536 6
+0
+D1
+~
+~
+0 -1  0 55133
+S
+#55116
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55082
+D1
+~
+~
+0 -1  0 55117
+D2
+~
+~
+0 -1  0 55149
+D3
+~
+~
+0 -1  0 55114
+S
+#55117
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55083
+D1
+~
+~
+0 -1  0 55118
+D2
+~
+~
+0 -1  0 55150
+D3
+~
+~
+0 -1  0 55116
+S
+#55118
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55084
+D1
+~
+~
+0 -1  0 55119
+D2
+~
+~
+0 -1  0 55151
+D3
+~
+~
+0 -1  0 55117
+S
+#55119
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55085
+D1
+~
+~
+0 -1  0 55120
+D2
+~
+~
+0 -1  0 55152
+D3
+~
+~
+0 -1  0 55118
+S
+#55120
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55086
+D1
+~
+~
+0 -1  0 55121
+D2
+~
+~
+0 -1  0 55153
+D3
+~
+~
+0 -1  0 55119
+S
+#55121
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55087
+D1
+~
+~
+0 -1  0 55122
+D2
+~
+~
+0 -1  0 55154
+D3
+~
+~
+0 -1  0 55120
+S
+#55122
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55088
+D1
+~
+~
+0 -1  0 55123
+D2
+~
+~
+0 -1  0 55155
+D3
+~
+~
+0 -1  0 55121
+S
+#55123
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55089
+D1
+~
+~
+0 -1  0 55124
+D2
+~
+~
+0 -1  0 55156
+D3
+~
+~
+0 -1  0 55122
+S
+#55124
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D1
+~
+~
+0 -1  0 55125
+D2
+~
+~
+0 -1  0 55157
+D3
+~
+~
+0 -1  0 55123
+S
+#55125
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55091
+D1
+~
+~
+0 -1  0 55126
+D2
+~
+~
+0 -1  0 55158
+D3
+~
+~
+0 -1  0 55124
+S
+#55126
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55092
+D1
+~
+~
+0 -1  0 55127
+D2
+~
+~
+0 -1  0 55159
+D3
+~
+~
+0 -1  0 55125
+S
+#55127
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55093
+D1
+~
+~
+0 -1  0 55128
+D2
+~
+~
+0 -1  0 55160
+D3
+~
+~
+0 -1  0 55126
+S
+#55128
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55094
+D1
+~
+~
+0 -1  0 55129
+D2
+~
+~
+0 -1  0 55161
+D3
+~
+~
+0 -1  0 55127
+S
+#55129
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55095
+D1
+~
+~
+0 -1  0 55130
+D2
+~
+~
+0 -1  0 55162
+D3
+~
+~
+0 -1  0 55128
+S
+#55130
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55096
+D1
+~
+~
+0 -1  0 55131
+D2
+~
+~
+0 -1  0 55163
+D3
+~
+~
+0 -1  0 55129
+S
+#55131
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55097
+D1
+~
+~
+0 -1  0 55132
+D2
+~
+~
+0 -1  0 55164
+D3
+~
+~
+0 -1  0 55130
+S
+#55132
+New Room~
+No Description Set.
+~
+55 65536 4
+0
+D0
+~
+~
+0 -1  0 55098
+D2
+~
+~
+0 -1  0 55165
+D3
+~
+~
+0 -1  0 55131
+S
+#55133
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55099
+D1
+~
+~
+0 -1  0 55134
+D3
+~
+~
+0 -1  0 55115
+S
+#55134
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55100
+D1
+~
+~
+0 -1  0 55135
+D3
+~
+~
+0 -1  0 55133
+S
+#55135
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55101
+D1
+~
+~
+0 -1  0 55136
+D3
+~
+~
+0 -1  0 55134
+S
+#55136
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55102
+D1
+~
+~
+0 -1  0 55137
+D3
+~
+~
+0 -1  0 55135
+S
+#55137
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55103
+D1
+~
+~
+0 -1  0 55138
+D3
+~
+~
+0 -1  0 55136
+S
+#55138
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55104
+D1
+~
+~
+0 -1  0 55139
+D3
+~
+~
+0 -1  0 55137
+S
+#55139
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55105
+D1
+~
+~
+0 -1  0 55140
+D3
+~
+~
+0 -1  0 55138
+S
+#55140
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55106
+D1
+~
+~
+0 -1  0 55141
+D3
+~
+~
+0 -1  0 55139
+S
+#55141
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55107
+D1
+~
+~
+0 -1  0 55142
+D3
+~
+~
+0 -1  0 55140
+S
+#55142
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55108
+D1
+~
+~
+0 -1  0 55143
+D3
+~
+~
+0 -1  0 55141
+S
+#55143
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55109
+D1
+~
+~
+0 -1  0 55144
+D3
+~
+~
+0 -1  0 55142
+S
+#55144
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55110
+D1
+~
+~
+0 -1  0 55145
+D3
+~
+~
+0 -1  0 55143
+S
+#55145
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55111
+D1
+~
+~
+0 -1  0 55146
+D3
+~
+~
+0 -1  0 55144
+S
+#55146
+Between Caravan Road and Darkened Wood~
+   The soft green hills towards the north end in a short brush 
+and wildflower covered field that rolls into the dark, foreboding 
+forest stretching endlessly towards the south. Leading from the 
+more established dirt road towards the north, several stretches 
+of flattened and crushed grasses revealing places where travelers 
+frequently meander off the pathway and move through this meadow. 
+The chirps of many thrush birds fill the area with chatter. 
+~
+55 33619968 3
+0
+D2
+~
+~
+0 -1  0 55160
+S
+#55147
+South of the Dusty Caravan Road~
+   Tufting green and light brown grasses make up what is left of 
+this field. Large ruts from wagon wheels, and clobbering by 
+beasts of burden from passengers along the northern road has 
+churned most of this field into barren dusty mush. The large, 
+knotty stump of a large tree, long since felled sits amidst the 
+field its flat surface carved with many sigils and the occasional 
+dirty drawing. Wooden and cloth debris dropped by travelers, and 
+various other broken bric-a-brac lies strewn amidst the grass. 
+~
+55 33619968 3
+0
+D0
+~
+~
+0 -1  0 55113
+D1
+~
+~
+0 -1  0 55148
+E
+stump~
+   This tall, knotted tree stump sits about four foot by six 
+foot, jutting out of the ground by thick twisted roots. Little 
+attention was seemingly given to how the tree was felled, the 
+surface of the stump roughly and unevenly cut. The only remnant 
+of foliage of any size left on this otherwise churned up field 
+turned road. Sigils of various tongues carved into the surface 
+haphazardly, next to several obscene, yet creative carvings. 
+~
+S
+#55148
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55114
+D1
+~
+~
+0 -1  0 55149
+D3
+~
+~
+0 -1  0 55147
+S
+#55149
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55116
+D1
+~
+~
+0 -1  0 55150
+D3
+~
+~
+0 -1  0 55148
+S
+#55150
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55117
+D1
+~
+~
+0 -1  0 55151
+D3
+~
+~
+0 -1  0 55149
+S
+#55151
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55118
+D1
+~
+~
+0 -1  0 55152
+D3
+~
+~
+0 -1  0 55150
+S
+#55152
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55119
+D1
+~
+~
+0 -1  0 55153
+D3
+~
+~
+0 -1  0 55151
+S
+#55153
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55120
+D1
+~
+~
+0 -1  0 55154
+D3
+~
+~
+0 -1  0 55152
+S
+#55154
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55121
+D1
+~
+~
+0 -1  0 55155
+D3
+~
+~
+0 -1  0 55153
+S
+#55155
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55122
+D1
+~
+~
+0 -1  0 55156
+D3
+~
+~
+0 -1  0 55154
+S
+#55156
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55123
+D1
+~
+~
+0 -1  0 55157
+D3
+~
+~
+0 -1  0 55155
+S
+#55157
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55124
+D1
+~
+~
+0 -1  0 55158
+D3
+~
+~
+0 -1  0 55156
+S
+#55158
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55125
+D1
+~
+~
+0 -1  0 55159
+D3
+~
+~
+0 -1  0 55157
+S
+#55159
+New Room~
+No Description Set.
+~
+55 65536 9
+0
+D0
+~
+~
+0 -1  0 55126
+D1
+~
+~
+0 -1  0 55160
+D3
+~
+~
+0 -1  0 55158
+S
+#55160
+River's Edge Along the Anduin~
+   Thick patches of soft olive-green grass stretches from the 
+river bank towards the south. Dipping low towards the Anduin, 
+the land ends in a sharp, abrupt cut off at the water's edge. 
+The path of stepping stones leading across the river towards the 
+south provide little help from this side. Marshy land where the 
+Anduin over spills its banks lies to the east and west, more lush 
+green field leading into the visible distance northwards. 
+~
+55 33619968 4
+0
+D0
+~
+~
+0 -1  0 55146
+D1
+~
+~
+0 -1  0 55161
+D3
+~
+~
+0 -1  0 55159
+S
+#55161
+A Muddy Track Covered Riverbed~
+   Water from the Anduin spills often onto the low lying grass 
+here during its highest rises, creating a swampy and muddy mess. 
+Tufts of odd white weeds grow in between the thin roots of the 
+low lying grass, the thin foliage providing little barricade 
+against the flowing water. In several spots, the grass is 
+completely missing, soft brown mud overtaking large patches. 
+Abundant animal prints from several creatures about hint it at 
+the variety of life about the riverbed. 
+~
+55 65536 9
+0
+D0
+~
+~
+0 -1  0 55128
+D1
+~
+~
+0 -1  0 55162
+D3
+~
+~
+0 -1  0 55160
+S
+#55162
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55129
+D1
+~
+~
+0 -1  0 55163
+D3
+~
+~
+0 -1  0 55161
+S
+#55163
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55130
+D1
+~
+~
+0 -1  0 55164
+D3
+~
+~
+0 -1  0 55162
+S
+#55164
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55131
+D1
+~
+~
+0 -1  0 55165
+D3
+~
+~
+0 -1  0 55163
+S
+#55165
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55132
+D1
+~
+~
+0 -1  0 55166
+D3
+~
+~
+0 -1  0 55164
+S
+#55166
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D3
+~
+~
+0 -1  0 55165
+S
+#55169
+The End of a Trail at Fangorn Forest ~
+No Description Set.
+~
+55 33619968 3
+0
+D2
+~
+~
+0 -1  0 55168
+S
+#55168
+Entering Fangorn Forest~
+No Description Set.
+~
+55 33619968 6
+0
+D0
+~
+~
+0 -1  0 55169
+D1
+~
+~
+0 -1  0 55003
+D2
+~
+~
+0 -1  0 55167
+D3
+~
+~
+0 -1  0 55183
+S
+#55167
+Under a Canopy of Twisted Boughs~
+No Description Set.
+~
+55 33619968 5
+0
+D0
+~
+~
+0 -1  0 55168
+D2
+~
+~
+0 -1  0 55002
+D3
+~
+~
+0 -1  0 55182
+S
+#55178
+Entwood Before the Limlight~
+No Description Set.
+~
+55 33619968 9
+0
+D0
+~
+~
+0 -1  0 55001
+S
+#55186
+A Spot of Twisted Trees~
+No Description Set.
+~
+55 65536 0
+0
+D1
+~
+~
+0 -1  0 55185
+D2
+~
+~
+0 -1  0 55187
+S
+#55185
+On the Edge of the Entwood~
+No Description Set.
+~
+55 33619968 3
+0
+D1
+~
+~
+0 -1  0 42315
+D2
+~
+~
+0 -1  0 55184
+D3
+~
+~
+0 -1  0 55186
+S
+#55187
+New Room~
+No Description Set.
+~
+55 33619968 5
+0
+D0
+~
+~
+0 -1  0 55186
+D1
+~
+~
+0 -1  0 55184
+S
+#55184
+New Room~
+No Description Set.
+~
+55 33619968 6
+0
+D0
+~
+~
+0 -1  0 55185
+D1
+~
+~
+0 -1  0 55169
+D2
+~
+~
+0 -1  0 55183
+D3
+~
+~
+0 -1  0 55187
+S
+#55183
+Amongst an Oaken Copse~
+No Description Set.
+~
+55 33619968 5
+0
+D0
+~
+~
+0 -1  0 55184
+D1
+~
+~
+0 -1  0 55168
+D2
+~
+~
+0 -1  0 55182
+D3
+~
+~
+0 -1  0 55188
+S
+#55188
+Impassible Edge of Beech Stand~
+No Description Set.
+~
+55 33619968 6
+0
+D0
+~
+~
+0 -1  0 55187
+D1
+~
+~
+0 -1  0 55183
+D2
+~
+~
+0 -1  0 55189
+S
+#55182
+A Darkened Willow Thicket~
+No Description Set.
+~
+55 65536 6
+0
+D0
+~
+~
+0 -1  0 55183
+D1
+~
+~
+0 -1  0 55167
+D3
+~
+~
+0 -1  0 55189
+S
+#55189
+New Room~
+No Description Set.
+~
+55 65536 0
+0
+D0
+~
+~
+0 -1  0 55188
+D1
+~
+~
+0 -1  0 55182
+S
+#55555
+The North Ithilien Orc and Balchoth Mcopy Rooms~
+Use these rooms to keep mobs on the PP and mcopy them.
+~
+55 65536 6
+0
+D1
+~
+~
+0 -1  0 55556
+S
+#55556
+A Room To Test Mobs~
+Test out your mobs here.
+~
+55 65536 6
+0
+D3
+~
+~
+0 -1  0 55555
+S
+$~

@@ -1,0 +1,468 @@
+#70000
+Base Room: Orkish Warrens~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+70 65536 7
+0
+S
+#70001
+New Room~
+No Description Set.
+~
+70 67174400 0
+0
+D0
+~
+~
+0 -1  0 70003
+D2
+~
+~
+0 -1  0 70002
+S
+#70002
+New Room~
+No Description Set.
+~
+70 67174656 4
+0
+D0
+~
+~
+0 -1  0 70001
+D2
+~
+~
+0 -1  0 70003
+S
+#70003
+New Room~
+No Description Set.
+~
+70 67174400 0
+0
+D0
+~
+~
+0 -1  0 70002
+D2
+~
+~
+0 -1  0 70001
+S
+#70004
+A Roughly Dug Stone Stair~
+   Wide stone stairs lead steeply upward here, the lips worn 
+smooth, probably by lack of care on the parts of their creators. 
+The air grows thicker as one descends, and a heavy darkness fills 
+the corridor. It is fairly quiet here, the occasional distant 
+screech or shuffling echoing through the tunnels. The passage 
+continues to the south, the floor smoothed to allow ease of 
+movement. 
+~
+70 1075905032 0
+0
+D2
+~
+~
+0 -1  0 70005
+D4
+~
+~
+0 -1  0 66027
+S
+#70005
+A Wide, Dark Underground Tunnel~
+   Fairly featureless, this tunnel is dark, angling through the 
+solid stone of the mountain as it heads from north to south. The 
+ceiling is high enough to walk unobstructed, and the air is hot, 
+stuffy, and laden with unpleasant scents. The atmosphere 
+thickens to the south, and the darkness almost seems palpable 
+there. 
+~
+70 1075905032 0
+0
+D0
+~
+~
+0 -1  0 70004
+D2
+~
+~
+0 -1  0 70006
+S
+#70006
+A Curved, Dingy Stone Passage~
+   This passage curves, the soot-blackened walls fading in dingy 
+darkness to the eye. Some care has been taken to level the 
+floor, and the walls are cut from stone and smoothed, although 
+the marks of tools become more evident as the tunnel curves to 
+the east. A few low holes have been dug into the side of the 
+passage, no doubt housing for the denizens of these caverns. 
+Strewn across the ground can be seen stone shards and dust, 
+remains of mining or stone working. 
+~
+70 1075905032 0
+0
+D0
+~
+~
+0 -1  0 70005
+D1
+~
+~
+0 -1  0 70008
+D3
+~
+~
+0 -1  0 70007
+S
+#70007
+Crude And Hastily Built Tunnels~
+   With much brute force and fire have the warrens been expanded, 
+scorching marks of flame visible on the sharp and broken stones. 
+A section of tunnels broken up which left crude and sharp, uneven 
+walls and a floor covered in stone shards that is a nightmare to 
+an unprotected foot. In the west there is a heavily reinforced 
+door set in a deep stone socket. 
+~
+70 2163208 0
+0
+D1
+~
+~
+0 -1  0 70006
+D3
+~
+broken door~
+1 -1  0 66753
+S
+#70008
+A Fume-Choked Tunnel Intersection~
+   The sound of water is heard faintly here, the source a trickle 
+of filthy water that runs down the corner of the intersection and 
+vanishes into a narrow crack in the floor. Visibility is poor, 
+sulfurous fumes mixing with sooty smoke to create a miasma of 
+barely-breathable air. There is little of interest here 
+otherwise, save the continuance of passageways that lead west, 
+east, and south. 
+~
+70 1075905032 0
+0
+D1
+~
+~
+0 -1  0 70016
+D2
+~
+~
+0 -1  0 70009
+D3
+~
+~
+0 -1  0 70006
+S
+#70009
+A Low, Stifling Tunnel~
+   Heavy with fumes and smoke, this tunnel is cut into solid 
+stone. Various dim warren-holes and burrows line the walls, 
+covered mostly by thin wooden doors or mangy curtains. The 
+ceiling in the area is low, barely five feet in height, and no 
+lights are present. The footing is rather treacherous in any 
+case, as a thin haze of smoke curls as it settles amidst the 
+craggy rock. 
+~
+70 1075905032 0
+0
+D0
+~
+~
+0 -1  0 70008
+D2
+~
+~
+0 -1  0 70010
+S
+#70010
+A Sharp, Angular, Underground Turn North of an Orkish Tavern~
+   This wide tunnel makes a very sharp turn here, the stone walls 
+ending abruptly at a ragged section of wall to the south and 
+continuing on eastward. At several points on the rough section 
+of wall issue forth steam. These hot, sulfurous fumes leak 
+slowly out, filling the air with a heavy and stifling scent. A 
+haze hangs over the area, particularly the floor, where a layer 
+of foggy wisps collect. To the south, the entranceway to a 
+tavern fashioned out of a wooden shack built on top of the cave 
+walls is wide open, dim lit coming from within. 
+~
+70 2163208 0
+0
+D0
+~
+~
+0 -1  0 70009
+D1
+~
+~
+0 -1  0 70011
+P
+enter go walk approach~
+waterhole bar south tavern cave~
+vstr You enter the southern tavern.
+ostr $n enters the southern tavern.
+trans 66096
+atlook 66096
+ostr $n enters from the outside.
+~
+S
+#70011
+A Stuffy, Curving Tunnel Branching Off to the South~
+   A wavering curve marks the path of this tunnel, the walls 
+zagging this way and that as they lead through solid stone. 
+Along the way, they open at points into small caves and burrows, 
+from which issue forth rancid smells that taint the already heavy 
+air. The scent of sulfur mixes into this heavy odor, creating a 
+very stuffy atmosphere. The floor is mostly even, however, and 
+seems to become much more so as the tunnel leads to the south. 
+To the east and west, the passage is much rougher. A large, 
+bulging mount of rock has a narrow, rickety wooden staircase 
+leading up to it, the stone walls painted with crude faces. 
+~
+70 1075905032 0
+0
+D1
+~
+~
+0 -1  0 70013
+D2
+~
+~
+0 -1  0 70012
+D3
+~
+~
+1 -1  0 70010
+S
+#70012
+A Small, Filthy Cave-Market Before an Orkish Tavern~
+   The atmosphere in this cavern is cluttered, filthy, and loud. 
+Decrepit shanties, stalls, tents, and structures line every 
+available wall and pillar. Some are abandoned, but many house 
+merchants, tinkers, or repairmen of varying description wander 
+around. Little of value seems present here, however, most 
+services seem aimed at the meager needs of those who dwell in 
+these dark pits. Perched on a shelf of stone at the end of the 
+cave stands a haphazard wooden building, its eastern door thrown 
+wide open and looking to be a tavern of some sorts. 
+~
+70 1075905036 0
+0
+D0
+~
+~
+0 -1  0 70011
+P
+enter go walk approach~
+waterhole bar west tavern cave~
+vstr You enter the south-western tavern.
+ostr $n enters the south-western tavern.
+trans 66096
+atlook 66096
+ostr $n enters from the outside.
+~
+P
+enter~
+drugden cavern~
+if clan(-1, privileged)
+vstr You go to enter the drugden, but realise you wouldn't be caught dead there... and being caught dead is quite likely what's happen if you try. Maybe come back when you've got someone of a more local bent to help you.
+else do
+if clan(-1, gang_one)
+vstr You check over your shoulder, and slowly, warily approach a dark, dank, secluded cavern populated by orcs.
+ostr $n slowly, warily approaches a dark, dank, secluded cavern populated by orcs, gesturing for those behind $m to follow.
+trans_group -1 66053 66980
+ostr $n enters from the outside, along with a number other junkies and dealers.
+*** Press return to continue - 'q' to quit *** 
+[Slumorc sneaking in from the north.]
+*** Press return to continue - 'q' to quit *** 
+else do
+if clan(-1, gang_two)
+vstr You check over your shoulder, and slowly, warily approach a dark, dank, secluded cavern populated by orcs.
+ostr $n slowly, warily approaches a dark, dank, secluded cavern populated by orcs, gesturing for those behind $m to follow.
+trans_group -1 66053 66980
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+if clan(-1, gang_three)
+vstr You check over your shoulder, and slowly, warily approach a dark, dank, secluded cavern populated by orcs.
+ostr $n slowly, warily approaches a dark, dank, secluded cavern populated by orcs, gesturing for those behind $m to follow.
+trans_group -1 66053 66980
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+vstr This place looks far too shady, too dangerous, and too derelict for you to risk your life by entering. Best find a local to help you if you still want to go there.
+fi done
+fi done
+fi done
+fi done
+~
+S
+#70013
+A Broad, Hastily Dug Tunnel Intersection~
+   Apparently dug from solid stone at a quick pace, the marred 
+walls of this intersection dotted here and there with small, 
+circular doors or warren-burrows covered with mangy hides. The 
+air is heavy with stench, the dismal surroundings continuing as 
+the passage zags to the east, and leads north and west as well. 
+~
+70 1075905032 0
+0
+D0
+~
+~
+0 -1  0 70015
+D1
+~
+~
+0 -1  0 70014
+D3
+~
+~
+0 -1  0 70011
+S
+#70014
+A Zig-Zagging Warren Shaft~
+   Cutting a jagged path through the solid mountain rock, this 
+passage is lined heavily with a series of burrows, tent-houses, 
+lean-tos, and warren holes. A staggering smell wafts from the 
+slick goo that coats the floor. The ceiling is low, with plenty 
+of crags and fissures to trick the eye amidst the darkness of the 
+tunnel. The passage loops back on itself in a sharp turn at the 
+end, leaving the only point of exit to the west. 
+~
+70 2163208 0
+0
+D3
+~
+~
+0 -1  0 70013
+S
+#70015
+A Roughly Hacked Stone Tunnel~
+   Roughly hacked stone walls, pitted and lined with warrens, run 
+along this tunnel. The air is heavy with the smells of 
+habitation, most of which are foul enough to choke the lungs. 
+The floor is pebbly and rough, and sounds occasionally echo 
+through the area from distant fights, squabbles, or other unknown 
+happenings. The darkness is heavy here as the tunnel leads north 
+and south. 
+~
+70 1075905032 0
+0
+D0
+~
+~
+0 -1  0 67144
+D2
+~
+~
+0 -1  0 70013
+S
+#70016
+A Hazy, Soot-Choked Passageway~
+   A hole leading off the side of this passageway is apparently 
+home to some smelting or forging operation, as hot smoke and soot 
+billows forth in occasional puffs from within. This does very 
+little good for the air here, which is already uncomfortably warm 
+and strangely still. Now and then, however, a noticable pressure 
+difference is created as the smoke is sucked toward the east, 
+where an almost constant, dull moan of moving air is heard. In 
+this direction, the walls and floor seem to take on a more 
+natural appearance, as opposed to the south, where the marks of 
+tools can be seen in the stone. 
+~
+70 1075905288 0
+0
+D0
+~
+red-door~
+1 70000  75 70018
+D1
+~
+~
+0 -1  0 71045
+D3
+~
+~
+0 -1  0 70008
+P
+enter go walk~
+cave~
+if oexist(66985, 66047)
+if clan(-1, privileged)
+vstr You go to enter the drugden, but realise you wouldn't be caught dead there... and being caught dead is quite likely what's happen if you try. Maybe come back when you've got someone of a more local bent to help you.
+else do
+if clan(-1, gang_one)
+vstr You check over your shoulder, and slowly, warily approach a cave crudely hacked in to the tunnels.
+ostr $n slowly, warily approaches a cave crudely hacked in to the tunnels, gesturing for those behind $m to follow.
+trans_group -1 66047 66983
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+if clan(-1, gang_two)
+vstr You check over your shoulder, and slowly, warily approach a cave crudely hacked in to the tunnels.
+ostr $n slowly, warily approaches a cave crudely hacked in to the tunnels, gesturing for those behind $m to follow.
+trans_group -1 66047 66983
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+if clan(-1, gang_three)
+vstr You check over your shoulder, and slowly, warily approach a cave crudely hacked in to the tunnels.
+ostr $n slowly, warily approaches a cave crudely hacked in to the tunnels, gesturing for those behind $m to follow.
+trans_group -1 66047 66983
+ostr $n enters from the outside, along with a number other junkies and dealers.
+else do
+vstr This place looks far too shady, too dangerous, and too derelict for you to risk your life by entering. Best find a local to help you if you still want to go there.
+fi done
+fi done
+fi done
+else do
+vstr There is no drugden to enter here.
+fi done
+~
+P
+(null)~
+(null)~
+(null)~
+S
+#70017
+Olop's Gang - Distribution Room~
+No Description Set.
+~
+70 65536 0
+0
+D2
+~
+~
+0 -1  0 70012
+D3
+~
+~
+0 -1  0 70005
+S
+#70018
+A Stinking Hovel~
+   This room is no more then a stinking hovel, with walls 
+haphazardly made up of rocks and hard packed-in dirt that often 
+crumbles off to the rocky floor below in small patches. A foul 
+stench seems to pervade the air at all times and does not seem to 
+leave, as the air is completely still with no where to go. The 
+small hovel fits no more then a handful of individuals, affording 
+little room in the damp, persistently dark place. The only exit 
+is a crude door painted a stained-purple, leading out into the 
+tunnels of the under warrens. 
+~
+70 65800 0
+0
+D2
+~
+red-door~
+1 70000  75 70016
+S
+$~

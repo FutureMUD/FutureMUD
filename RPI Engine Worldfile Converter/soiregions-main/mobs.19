@@ -1,0 +1,37 @@
+#19300
+isabel black haired grey eyed woman middle age HOUSE_COURCEL_GUARD~
+A black haired, grey eyed woman of middle years~
+A stately woman of middle years, with black hair and grey eyes is here tending to the gardens.~
+   This woman stands at an average height for one of dunedain 
+blood. Her black hair and sharp grey eyes accent her pale flesh 
+beautifully. She appears to be of middling years and yet she 
+remains a vision to behold. She keeps her hair pulled back away 
+from her face and her form has taken on the curves of womanhood 
+well. 
+~
+10 0 30 0 0 5d1+102 1d2+0 0 8 8 2 0 0 0 0
+0 0 0 0 0 0 24 0 0 0 0 0 0 0 0 0
+16 16 16 1 16 16 81 16
+8388609 0
+19301 0 1.000000 1.000000 0.000000 0.000000 0
+0.000000 0.000000 0 0.000000 0.000000 0 0
+-1
+0 0 0 0 0 0 0 0 0 0
+0 8 60 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+8 60 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 60 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 100 0 0 0 0 0 0 0 0
+100 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 100 60 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0
+'private' house_courcel 'member' fox_lily_staff~
+0 0 0
+$~

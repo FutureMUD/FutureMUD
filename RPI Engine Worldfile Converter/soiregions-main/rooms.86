@@ -1,0 +1,35 @@
+#86000
+Base Room~
+  This is a base room for an undeveloped area. Ensure you are building 
+in the right Zone!
+~
+86 67174408 0
+0
+D0
+~
+door~
+1 -1  0 86002
+S
+#86001
+Backroom Test~
+This is a test for postal progs.
+~
+86 67174400 0
+0
+D3
+~
+~
+0 -1  0 86000
+S
+#86002
+The Backroom~
+This is the backroom for the post office.
+~
+86 67174400 0
+0
+D2
+~
+door~
+1 -1  0 86000
+S
+$~

@@ -1,0 +1,93 @@
+skip to main  | skip to sidebar
+The Coder's View of SoI
+
+A witty, yet insightful view of SOI from the eyes of the Coding team.
+Tuesday, July 28, 2009
+Strongholds
+So here's the deal with strongholds. First and foremost, the current idea for strongholds stemmed from the old siege weapons. While wonderful, they truly didn't have an impact on the game world or any fight in which they were used. Strongholds (originally called minifort resources) is an effort to create a strategy game within the world of SOI. To give the player a feeling a value and importance in each and every fight. Kite always gives the same example when talking about this, and it's a good one so I'll use it as well. The Fall of Osgiliath was [SPOILER ALERT] scripted. -Nothing- the players did affected it's outcome at all. Rubbish I know right? We don't want this anymore, so Kite wrote a huge scope/idea document about it. I had the unfortunate pleasure of reading the entire thing. It was written back when SoI didn't have a code team. In fact, it didn't even have a coder. It was going to be done completely with progs. This idea was scrapped in lieu of code and Grommit began his work. Shortly into it though, RL got a hold of him and he had to step down. I was then given the task to complete this project by the deadline of June 19th. I had begun collaborating with VM on the project when Case returned to our programming team. I'll be the first to admit that she has way more experience and knowledge then I do when it comes to programming, and she requested the stronghold project. I gave it to her. She stepped down from the team for reasons I will not get into in this post and we again did not have stronghold code. It was at this point we knew we'd never reach the deadline. Shortly after all this, stability became the main focus and Strongholds got pushed to progs once again. In the hands of Bangarang, and you all know the story there. It's why you are reading this in the first place. It is now once again in the coders hands and we -are- going to finish it as soon as physically possible. We are striving for excellence here. I promise that the delay will be well worth the wait. Please be patient with us, Strongholds are coming...
+
+I stand corrected. Thank you Case, for your comment and your hard work. Well, since he is lead now we will just wait on his word whether or not we shall continue to work forward with our own version.
+
+- Vader
+at 11:00 PM
+Labels: Vader
+4 comments:
+
+Case said...
+
+    I offered the Stronghold code to Valarauka after sleeping on my decision not to do so, and never heard anything back about that.
+    July 29, 2009 10:47 PM 
+Kithrater said...
+
+    "So here's the deal with strongholds. First and foremost, the current idea for strongholds stemmed from the old siege weapons. While wonderful, they truly didn't have an impact on the game world or any fight in which they were used."
+
+    Incorrect.
+
+    The current idea for strongholds, what little I know about it, seems to have been taken directly from the previous idea of Strongholds, the lovingly titled Ithilien Domination mode I and other admins worked on. These did have a very visible impact on the gameworld: inept Gondor handling led the Siege of Osgiliath to happen earlier, and a lot more viciously, than may have occured if they didn't get their ass kicked. Players worked for weeks in advanced, Morgul completely turned itself on its head in order to become siege-efficient, Gondor struggled valiantly. There were a few 20 vs 20 almost-entirely PvP fights. Players made a difference.
+
+    "The Fall of Osgiliath was [SPOILER ALERT] scripted. -Nothing- the players did affected it's outcome at all."
+
+    Incorrect - to a point.
+
+    The Fall was scripted, but it was scripted like a Choose Your Own Adventure - players could decide to do certain things, which would influence how things ended up later. During the Fall, there were a number of goals, checkpoints, milestones etc. that if the players did them, certain events would happen, or would happen sooner, or later, or not happen at all. Of course, the problem with a one-off event, is you never get to see the way things may have turned out if you did them another way. But, players can rest secure knowing that they may have done things differently, and it may have had different effects.
+
+    "Blah blah blah... code is hard... people quit..."
+
+    I threw mini-forts together in a week. I threw the original Stronghold system together in a couple of months. For both of those, I didn't use mprogs, didn't use oprogs, used a very old system of r-progs, and a very old set of crafts. No mobile cues either.
+
+    If I could build not one, but two location-based assault systems that encourage strategic gameplay, without any of the above, then you can do it using code.
+    August 1, 2009 5:15 AM 
+SoICodeMonkey said...
+
+    Lol. To quote Kite "The current siegecraft craftset creates objects that have no bearing on the gameworld except to look good and to be backed up with static progs. For example, palisades do nothing without staff work to block an exit...Battering rams can be built and used with crafts to create damage to a wall. But the wall must be loaded by staff and the damage is meaningless unless backed up by old minifort code that was ambitious but a nightmare of bugs and petitions.
+
+    We did have miniforts giving resources, but they were pretty unimaginative. No attempt was made to aim certain rewards at certain strongholds based on location, general surrounding opportunities, etc. I want strategy as well as tactics in SOI...
+
+    The current siege weapons are entirely useless. Ballista, mangonels, you name it – all useless. Anyone picking up a ballista right now realises very quickly that they were better off picking up the ammo and throwing it."
+
+    I also quoted Kite on the fall being scripted. He was on staff around that time so I trust he knows what he's talking about. And choose your own adventure books are still books that were written for you, not ones you get to write.
+
+    Yes, people quit, but I don't think code is hard. I never said we couldn't do it, just that things happened that delayed the project deadline. It's being done with code and it's looking good so far.
+    August 1, 2009 5:55 AM 
+Kithrater said...
+
+    "I also quoted Kite on the fall being scripted. He was on staff around that time so I trust he knows what he's talking about."
+
+    Kite wasn't on staff at time of the Fall, at least according to his account creation date. If he was, then it was a recent thing. I, however, definitely was on staff: I was the guy running the Fall. So, you may as well quote me. You can trust I know what I'm talking about. I'm the reason there's something to be talking about at all. Here's a quote I prepared earlier, just for you: "Vadar doesn't know what he's talking about."
+
+    "And choose your own adventure books are still books that were written for you, not ones you get to write."
+
+    When you come up with a way that lets players decide intimately the exact nature of what's going to happen in a massive, week-long event involving hundreds of PCs and tens of thousands of mobiles, maybe you'll be someone worth quoting.
+
+    Until then, you better look at getting that Stronghold code finished first.
+
+    "[what Kite quotes]"
+
+    Again, battering rams, mangonels, walls, all were of great importance for the First Stronghold system. You also had things like out-and-out capapults, punnets of tossing rocks, boiling oil, and more. Ballistas were something I made specifically for the Fall, linked to a certain objective in it.
+
+    Yes, mini-forts were buggy, but they still worked. That staff made them obsolete by removing T/E, and haven't been able to copy-paste them in to the Northlands, has little to do with me.
+    August 1, 2009 6:16 AM 
+
+Post a Comment
+
+Newer Post Older Post Home
+Subscribe to: Post Comments (Atom)
+Time Stamps
+Time stamps will be edited to keep oldest posts first. Easier reading.
+Questions or Comments?
+Post them here, PM the coding team, or email SoICodeMonkey@gmail.com
+The Vault
+
+    * ▼ 2009 (6)
+          o ▼ July (6)
+                + Boom.
+                + Boom?
+                + Strongholds
+                + Strongholds mk2 and a Personal Perspective
+                + Canon
+                + Canon -revised-
+
+ 
+Message of the Day
+I'm not perfect, neither are you. Remember that, and show understanding and mercy.
+

@@ -1,0 +1,3126 @@
+#22000
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+10 0 1
+0 1 3118 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22001
+key BATTALION_BRIDGE heavy steel weathered stone handle METAL~
+a heavy steel key with a weathered stone handle~
+A heavy steel key lies here, its handle fashioned of weathered stone.~
+~
+18 0 1
+0 0 0 0
+40 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 18 0 0
+#22002
+tower BATTALION sturdy wooden alley bridge WOOD~
+a sturdy wooden tower~
+#5A sturdy wooden tower stands sentinel before the bridge, reinforcing the area.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22003
+key BATTALION_WAREHOUSE wooden-handled notched steel METAL~
+a notched, wooden-handled steel key~
+A wooden-handled steel key lies here, its surface notched.~
+~
+18 0 1
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 18 0 0
+#22004
+key BATTALION_ENTRANCE slender moon chased handle METAL~
+a slender key with a moon-and-shield chased handle~
+A slender key lies here, its metal handle chased with the image of a full moon and shield.~
+~
+18 0 1
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#22005
+key BATTALION_ARMORY weighty blackened iron METAL~
+a weighty key of blackened iron~
+A weighty key of blackened iron lies here.~
+~
+18 0 1
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#22006
+key BATTALION_SARGE_BARRACKS notched steel tarnished bronze handle METAL~
+a notched steel key with a tarnished bronze handle~
+A notched steel key with a tarnished bronze handle lies here.~
+~
+18 0 1
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 16 0 0
+#22007
+key BATTALION_CONST_BARRACKS notched steel polished silver handle METAL~
+a notched steel key with a polished silver handle~
+A notched steel key with a polished silver handle lies here.~
+~
+18 0 1
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 18 0 0
+#22008
+surcoat ERADAN_BATTALION black quilted moon embroidered TEXTILE~
+a black, moon-and-shield embroidered quilted surcoat~
+A surcoat of black, quilted leather, embroidered with a moon and shield symbol lies here.~
+   Made of light, quilted leather, this surcoat doesn't offer 
+much in the way of protection from the elements, mostly intended 
+to identify the wearer's affiliation. It is a long panel of 
+cloth that hangs down the front and back of the wearer, with a 
+hole in the middle for the head and neck to pass through. On the 
+front and back is appliqued the symbol of a dark shield within a 
+grey Full Moon - the heraldry of Eradan, Lord of the Emyn Arnen. 
+~
+11 135168 1025
+0 0 0 0
+150 0.000000
+0 0 0 30 0 0 1
+100.000000 0 0 0 7 0 0
+#22009
+surcoat FINE_ERADAN_BATTALION velvet embroidered moon TEXTILE~
+a sweeping, velvet surcoat embroidered with a moon and shield~
+A sweeping surcoat of black velvet, embroidered with a moon and shield, lies here.~
+   Fashioned of fine black velvet, this long surcoat, designed to 
+be draped over the wearer's head and shoulders, is sewn with a 
+fine grey trim. On the back and front, central to the rest of 
+the coat, the symbol of a black shield within a grey Full Moon 
+has been embroidered - the heraldry of Eradan, Lord of the Emyn 
+Arnen. 
+~
+11 4096 1025
+0 0 0 0
+150 0.000000
+0 0 0 35 0 0 1
+300.000000 0 0 0 6 0 0
+#22010
+key BATTALION_DUNGEON large many-toothed rusted iron METAL~
+a large, many-toothed key of rusted iron~
+A large, many-toothed key of rusted iron lies here.~
+~
+18 0 1
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#22011
+key BATTALION_MAIN black-stone-handled grey iron METAL~
+a black-stone-handled, grey iron key~
+A black-stone-handled, grey iron key lies here.~
+~
+18 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#22012
+Battalions_Board clean-cut soldier OTHER~
+#5a clean-cut young soldier#0~
+#5A clean-cut young soldier talks with some off-duty soldiers about the latest news.#0~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22013
+Battalions_Special_board young messenger OTHER~
+a young messenger~
+A young messenger is here, dispensing orders from Lord Eradan and his retainers.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22014
+Battalions_QM_board attentive aide OTHER~
+an attentive aide~
+An attentive Quartermaster aide is here, taking orders and requests.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22015
+Battalions_newbie_board youthful aide OTHER~
+a youthful aide~
+A youthful aide is here, with a list of names.~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22106
+shield broad WOOD BATTALION moon grey~
+a broad, moon-emblazoned shield~
+A broad shield emblazoned with a grey moon lies here.~
+   Formed of oaken planks bound together with strips of bronze 
+and iron studs, this broad shield has been painted a plain black, 
+its center adorned with a grey Full Moon, the heraldry of Eradan, 
+Lord of Emyn Arnen. A pair straps upon the shields backing allow 
+for it to be easily strapped to one's arm or back. 
+~
+6 135168 8912897
+5 12 35 0
+600 0.000000
+0 0 0 32 516 0 1
+100.000000 0 0 0 32 0 0
+#22016
+saddle BATTALION heavy, high-backed war saddle leather LEATHER~
+a heavy, high-backed war saddle~
+A heavy, high-backed war saddle has been left on the ground~
+   This finely-crafted saddle has been fashioned of thick, 
+durable leather and dyed the deepest of blacks. With a high 
+front and back, the saddle is ideal for keeping a fighting man 
+mounted, while the pommel provides a location to hang sword or 
+reins. An open cup attached to one of the easily adjustable iron 
+stirrups offers an easy place to rest a lance while riding. 
+While the saddle is oiled and appears well taken care of, it 
+never-the less displays scratches and signs of heavy use. Upon 
+each side of the saddle, the Grey Moon emblem of Lord Eradan has 
+been emblazoned in silver. 
+~
+11 1052672 524289
+0 0 0 0
+2000 0.000000
+0 0 0 32 4 0 1
+600.000000 0 0 0 14 0 0
+#22017
+lance long blunted dulled jousting spear practice METAL~
+a long, blunted jousting lance~
+A long, blunted jousting lance has been cast aside.~
+   This lance is quite long - easily twelve feet - and is made of 
+relatively light, soft wood. The end is blunted rather than 
+sharpened - though the whole lance tapers off in a conical 
+fashion. At the end held by the jouster, the handle has a 
+leather strap so that it can be securely fastened to the hand for 
+better grip. 
+~
+5 4096 8193
+0 1 3 10
+600 0.000000
+3 0 0 32 134250496 0 1
+47.000000 0 0 0 28 0 0
+A
+10010 -4
+#22018
+scabbard $color embossed White Tree WOOD~
+a $color scabbard embossed with the White Tree~
+A $color scabbard embossed with the White Tree has been discarded here~
+   Of sturdy construction, this wooden scabbard is covered in 
+durable leather, appearing often scratched but well kept. Upon 
+its outer face is proudly embossed the White Tree. 
+~
+58 570429440 262145
+800 0 0 0
+300 0.000000
+0 0 0 30 4 0 1
+40.000000 0 0 0 32 0 0
+#22019
+caparison UNIQUE_BATTALION ERADAN black linen marked TEXTILE~
+a black caparison marked with a shield and moon~
+A black caparison lies here, crumpled and abandoned.~
+   Designed to be worn over a horse's barding but under its 
+saddle, this caparison has been made from thick black linen, 
+rather coarse in texture and rather weighty. Upon its surface in 
+gray embroidery the Shield and Moon of Lord Eradan has been sewn 
+all along the caparison, spaced evenly apart but occurring all 
+throughout the black linen. 
+~
+11 1052672 1025
+0 0 0 0
+225 0.000000
+0 0 0 30 1 0 1
+200.000000 0 0 0 2 0 0
+#22020
+leggings plate fine engraved blackened pair tree METAL~
+a fine pair of blackened, engraved plate leggings~
+a pair of blackened, engraved plate leggings have been cast aside~
+   These leggings have been formed from several sleek, solid iron 
+plates molded to fit around the legs. Forged of dark iron and 
+blackened to a deep ebony hue, they appear to be the work of a 
+master hand, its curves well capable of deflecting or absorbing 
+heavy blows. Intricate scrollwork adorns the front of the 
+leggings, artfully surrounding an engraving of the White Tree of 
+Gondor. 
+~
+9 4096 33
+2 5 0 0
+700 0.000000
+0 0 0 35 4164 0 1
+1400.000000 0 0 0 28 0 0
+A
+10024 -20
+A
+10025 3
+A
+10036 -10
+A
+10037 -10
+#22021
+vambraces blackened engraved metal platemail METAL~
+a pair of blackened, engraved metal vambraces~
+a pair of blackened, engraved metal vambraces have been left here~
+   Skillfully forged from blackened iron, these articulated 
+vambraces encase the upper and lower arm, with a hinge and cop 
+carefully formed to allow movement at the elbow. On the inside, 
+sweat-stained leather provides some padding and comfort of wear 
+to the piece, while dull iron buckles secure them to the arm. On 
+each of forearms, the White Tree of Gondor stands out, artfully 
+engraved into the polished black. 
+~
+9 4096 257
+3 5 0 0
+700 0.000000
+0 0 0 33 4164 0 1
+1400.000000 0 0 0 28 0 0
+A
+10024 -3
+A
+10025 3
+#22022
+gorget blackened engraved platemail METAL~
+a blackened, engraved metal gorget~
+a blackened, engraved metal gorget has toppled to the floor~
+   Wrought of dark iron, the plates of this gorget have been 
+further tinted a deep ebony hue through a process of blackening. 
+Starting at the top of the neck, this gorget travels down to 
+about mid-chest, a series of pins and hooks allow attachment to a 
+breastplate, is blackened plate designed to effectively guard the 
+flesh beneath. Engraved by a master's hand into the armor is an 
+artful series of swirls that coalesce into a depiction of the 
+White Tree of Gondor. 
+~
+9 4096 5
+2 5 0 0
+500 0.000000
+0 0 0 0 4101 0 1
+600.000000 0 0 0 28 0 0
+#22023
+key BATTALION_WALL heavy black metal METAL~
+a heavy key of forged black metal~
+a heavy key of forged black metal is here~
+~
+18 536875008 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#22206
+surcoat UNIQUE_SINDBAR azure emblemed sunburst falcon TEXTILE~
+an azure surcoat with a sunburst and falcon emblem~
+An azure surcoat with a sunburst and falcon emblem lays here.~
+   Sewn of sturdy wool, this surcoat falls in folds from the 
+shoulders of the wearer. The greater body of the surcoat is dyed 
+a pristine, azure blue with the notable exception of a pair of 
+triangular panels on each side of the garment. Stabbing upwards 
+to hip level, the triangles are formed of inset, red wool, adding 
+flow and shape to the form of the garment. Likewise, the lower 
+hem and collar of the surcoat are trimmed with red wool. 
+Featured prominently upon the left breast, standing out in 
+contrast to the azure colour below, is a many-speared red 
+sunburst, rays flaring outwards a handswith. Upon the red sun is 
+a spread-winged, azure falcon, completing the emblem of House 
+Sindbar. 
+~
+11 4096 1025
+0 0 0 0
+150 0.000000
+0 0 0 35 4100 0 1
+300.000000 0 0 0 7 0 0
+#22024
+pendant UNIQUE_PFEARUIN star crescent moon METAL~
+a star and crescent moon pendant~
+A pendant with a star and crescent moon has been forgotten here, glinting.~
+   This oval pendant is crafted out of what seems to be a flat, 
+polished obsidian coin. A star and crescent moon have been set 
+into the obsidian coin, both made of a dark red gemstone, 
+possibly a ruby, that glimmers in the light. The pendant is 
+attached to a thin, solid chain which holds an obsidian hue. 
+~
+8 4096 2097153
+0 0 0 0
+40 0.000000
+0 0 0 0 524292 0 1
+1200.000000 0 0 0 28 0 0
+#22025
+sleeves UNIQUE_PFEARUIN mail gold-hued ELVEN_QUALITY METAL~
+a pair of gold-hued mail sleeves~
+A pair of gold-hued mail sleeves have been left here.~
+   Crafted flawlessly out of what seems to be lightweight steel, 
+these sleeves provide solid protection to the arms. Though the 
+chainlinks have been meshed closely together, these sleeves allow 
+easy movement despite the glimmering gold tint that has been 
+applied. 
+~
+9 4096 257
+4 4 0 0
+600 0.000000
+0 0 0 32 528384 0 1
+1000.000000 0 0 0 28 0 0
+A
+10036 -10
+A
+10037 -10
+#22026
+gorget UNIQUE_PFEARUIN mail golden-hued ELVISH_QUALITY METAL~
+a gold-hued mail gorget~
+A gold-tinted mail gorget has been abandoned here, glinting.~
+   Flawlessly crafted out of what seems to be lightweight steel, 
+this gorget covers the neck and down slightly over the shoulders. 
+Tinted a glimmering gold color, this gorget is still quite light 
+without sacrificing any maneuverability nor protection. 
+~
+9 4096 5
+5 4 0 0
+350 0.000000
+0 0 0 32 528384 0 1
+800.000000 0 0 0 28 0 0
+A
+10024 -5
+A
+10025 -5
+#22027
+cloak UNIQUE_PFEARUIN smoky grey ELVEN_QUALITY TEXTILE~
+an airy, smoky-grey cloak~
+An airy, smoky-grey cloak has been left here, folded over itself.~
+   Weaved masterfully from a dark, multi-colored thread, this 
+cloak takes on a smoky-grey color, that seems to blend with 
+nearby shadows. The cloak clasps weightlessly and comfortable 
+over the wearer's shoulders by a light golden-hued leaf-shaped 
+clasp. The hood which has been sewn onto the cloak is broad and 
+deep, but firm to allow adjustment to the wearer's comfort. 
+~
+11 528896 1025
+0 0 0 0
+400 0.000000
+0 
+smoky-grey hooded~
+0 0 528384 0 1
+900.000000 0 0 0 7 0 0
+#22028
+timer invisible BATTALION_PAY OTHER~
+an invisible timer~
+An invisible timer ticks here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 22029 0 0 0 0
+#22029
+hefty man timer BATTALION_PAY OTHER~
+#5a hefty man#0~
+#5A hefty man stands here, waiting to transfer the Battalion pay.#0~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22030
+token wooden simple coin engraved WOOD BANK_TOKEN~
+a simple wooden token~
+A simple wooden token with a small coin engraved has been dropped here.~
+   This small, simple wooden circular token has a carving of a 
+small, ridged coin. By itself, this token bears no value. 
+~
+65 4096 1
+0 0 0 0
+1 0.000000
+0 
+~
+0 0 131072 0 1
+50.000000 0 0 0 32 0 0
+#22031
+token tin tree engraved BANK_TOKEN METAL~
+a flat, engraved tin token~
+A flat, engraved tin token has been forgotten here.~
+   Nothing but a disc of cheap thin, with a hammer-made engraving 
+of a tree, this token probably serves as a symbol of some kind. 
+By itself, it lacks any value. 
+~
+65 4096 1
+0 0 0 0
+1 0.000000
+0 
+~
+0 0 131072 0 1
+200.000000 0 0 0 20 0 0
+#22032
+token iron hexagon engraved BANK_TOKEN METAL~
+a small, engraved iron token~
+A small token made of iron, engraved with an hexagon, has been discarded here.~
+   A solid yet thin piece of rectangular metal, this token has an 
+engraving of an hexagon on both of its faces. Possibly used as 
+some sort of symbol, this token bears no value on itself. 
+~
+65 4096 1
+0 0 0 0
+1 0.000000
+0 
+~
+0 0 131072 0 1
+1000.000000 0 0 0 17 0 0
+#22033
+retainer tall fair looted gear BATT_LOOT OTHER~
+#5a tall, fair-eyed retainer#0~
+#5A tall, fair-eyed retainer is here, waiting a shipment of looted gear.~
+   Tall and fair-eyed, this man is here on a comission from Lord 
+Eradan, to gather the loot gained by the men of the battalion. 
+His livery has the colors of his Lord and he seems to be slightly 
+bored at the wait. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22034
+timer battalion BATTALION_LOOT RPROG OTHER~
+a battalion loot timer~
+A Battalion loot timer ticks invisibly here.~
+~
+12 4100 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2160 22033 0 0 0 0
+#22035
+object generic~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+8 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22036
+necklace UNIQUE_CLOTHWRIGHT_JOURNEYMAN fine necklace displaying spindle thread METAL~
+a fine necklace displaying a spindle and thread~
+A fine necklace displaying a spindle and thread is here.~
+   This fine, well-crafted necklace artistically displays the presence
+of a spindle and thread embossed on a circle of silver. Care has been
+taken to render them realistically. Though not exceptionally ornate,
+it is still a pleasing piece of jewelry even by high standards. The
+silver pendant is strung on a cord of black silk that is smooth and
+soft to the touch.
+~
+8 4096 2097153
+0 0 0 0
+25 0.000000
+0 0 0 30 36 0 1
+0.000000 0 0 0 28 0 0
+#22301
+armband UNIQUE_AMARTH_DAE green star embroidered TEXTILE~
+a green, star-embroidered armband~
+A green, star embroidered armband lies here.~
+   Fashioned out of sturdy green wool, this armband is designed 
+to fasten around the arm with a closure in the back. If properly 
+worn, a many-rayed star is visible to all who look. This 
+embroidered star is half black, and half silver, showing clearly 
+upon the green cloth. 
+~
+11 4096 134217729
+0 0 0 0
+10 0.000000
+0 0 0 23 4194308 0 1
+18.000000 0 0 0 7 0 0
+#22037
+stick ugly arucard WOOD~
+an ugly stick~
+An ugly stick of smiting is here, forgotten and lost by Arucard.~
+   This long, wooden stick reeks of ugliness. Any, save the 
+all-powerful Arucard, who touch its horrifying surace are 
+immediately transformed into a horrifying, ugly creature. After 
+each use of the ugly stick, the wielder must cry "Shazaam! You 
+got beat with an ugly stick!" 
+~
+5 4104 8193
+0 15 1 6
+700 0.000000
+3 -1000 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22038
+delicate silver cloak clasp full moon shield coin QARTERMASTER_ERADAN UNIQUE METAL~
+a delicate silver cloak clasp engraved with a coin~
+A delicate silver cloak clasp has been discarded here, engraved with a coin, depicting a full moon on a shield~
+   A delicate cloak clasp of fine silver depicts a full moon on a 
+shield within an engraving of a coin. The shield is polished to 
+near mirror finish, the moon a brushed silver, giving it the 
+illusion of being white. On the bottom, just offset to the right 
+is a set of small gold wings, overlapping each other and expertly 
+detailed. 
+~
+8 4096 2097153
+0 0 0 0
+10 0.000000
+0 0 0 40 516 0 1
+200.000000 0 0 0 28 0 0
+#22039
+OSG_westgatemessage messenger OTHER~
+#5a Wardenry messenger stands here ready#0~
+#5A Wardenry messenger stands here ready to send a message.#0~
+   This messenger of Lord Astirian is ready to send word to all 
+in Osgiliath that someone waits at the gate. 
+   OOC: Use "#3send messenger#0" to alert those in the city you 
+are here. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22040
+ring ERADAN_BATTALION_SERGEANT signet moon-and-shield silver METAL~
+an embossed silver signet ring~
+A silver signet ring embossed with a moon-and-shield design lies here, glinting.~
+   This small trinket has been cast from fine silver and lacks 
+any flaws or blemishes. It has been polished to an almost 
+mirror-shine. The front of the ring bears a flat surface that 
+has been embossed with a design of a shield within a Full Moon. 
+This signet ring is simple, but it is well crafted and pleasing 
+to look at. 
+~
+8 4096 3
+0 0 0 0
+5 0.000000
+0 0 0 30 0 0 1
+200.000000 0 0 0 28 0 0
+#22041
+ring ERADAN_BATTALION_CONSTABLE signet moon-and-shield gold METAL~
+an embossed gold signet ring~
+A gold signet ring embossed with a moon-and-shield design lies here, glinting~
+   This heavy signet ring has been crafted from a fine gold alloy 
+that shines dully in even the faintest of light. The gold band 
+is thick and rounded, fitting comfortably on the finger. Upon 
+the front of the ring, a flat face bearing the insignia of Lord 
+Eradan of the Emyn Arnen--a shield set within a Full Moon. 
+~
+8 4096 3
+0 0 0 0
+5 0.000000
+0 0 0 35 0 0 1
+450.000000 0 0 0 28 0 0
+#22042
+Eradan_QM_Board clerk OTHER~
+a busy Quartermaster clerk~
+A busy Quartermaster clerk keeps accounts here.~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22043
+ooc sign Lent_22408 OTHER~
+an OOC sign is here~
+An OOC sign is here.~
+Please redeem your tokens by selling them to the paymaster.
+All you need to do is treat this as if it was a normal shop,
+so use value or sell. Selling the token will result in you
+receiving the money in exchange for the token.
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22044
+battle-ready statue soldier STONE~
+a statue of a poised warrior~
+A statue of a battle-ready soldier is here, shield raised to the east.~
+   This person - frozen in flawless marble - is poised for 
+battle. Grasped firmly in its right hand is a longsword, and in 
+the other a roundshield is held defensively. The soldier's 
+stance is sustained with difficulty; gashes, cuts and slashes mar 
+its armor - yet the figure stands dauntlessly. A seemingly 
+easterly storm is throwing and tossing its cloak about in a 
+violent flurry of fabric. The warrior's hair is worn loose and 
+several locks are visible under a helmet with a long nose guard. 
+
+A bronze plaque is attached to the base of the statue. 
+~
+8 4096 0
+0 0 0 0
+50000 0.000000
+0 0 0 0 0 0 1
+5000.000000 0 0 0 30 0 0
+#22045
+crude orkish camp Zogbosh OTHER~
+a crude, chaotic orkish camp~
+A crude, chaotic orkish camp is spread out here.~
+   This camp has been hastily erected, rough, torn tents making 
+up the majority of it. They are laid seemingly at random, with 
+little care to defensibility or organization. Large fire pits 
+line the perimeter of this camp. Orcs, goblins, Uruk-Hai and 
+even a troll or two are visible moving through the camp. 
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 22046 0 0 0 0
+#22046
+organized orkish camp Zogbosh morph1 OTHER~
+a well-organized, defended orkish camp~
+A well-organized orkish camp is spread out here, sentries visible around it.~
+   This camp is made up of rough, torn tents set up in a careful 
+array of rings, one within the other, culminating at a final, 
+large tent in the middle. Between each tent is a firepit, its 
+edged ringed with stone, weapons ready in nearby racks. Sentries 
+are present at each firepit, keeping a vigilant eye to the 
+outside. 
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 720 22047 0 0 0 0
+#22047
+wooden-walled compound orkish Zogbosh camp morph2 OTHER~
+a wooden-walled compound~
+A wooden-walled compound is set here, banners at each corner.~
+This compound is the result of a large amount of effort, its
+perimeter large. Wooden walls, about the height of a troll, protect
+those within from danger. A single small gate has been carved out
+of the palisade. Coming from within are the sounds of a large
+force, metal clanking against metal, voices shouting in a gutteral
+language. Sentries man the gate, their orcish forms straight
+against the wooden stakes of the wall.
+~
+12 135168 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22048
+granite huge block rock stone granitemine_obj mine_obj STONE~
+a huge block of granite~
+A huge block of granite rests here.~
+   This extremely large block of granite is easily as tall and 
+wide as the average Gondorian man, three feet or more in 
+thickness. It is heavy and cumbersome to move. 
+~
+21 4096 1
+0 0 0 0
+150000 0.000000
+0 0 0 0 134217728 0 1
+500.000000 0 0 0 30 0 0
+#22049
+group working laborers clear pathway OSGI_INVASION STONE~
+a group of working laborers~
+Laborers swarm over the rubble here, clearing it.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 360 22050 0 30 0 0
+#22050
+group waiting laborers morph OSGI_INVASION STONE~
+a waiting group of laborers~
+Laborers have finished clearing a path here, and await the signal to make it into a road.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22051
+wooden bar key WOOD~
+a wooden bar~
+A wooden bar is set against the wall here.~
+~
+18 4096 1
+0 0 0 0
+200 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22052
+wooden planks strapped bridge OTHER~
+a narrow bridge formed of strapped together planks~
+A narrow bridge formed of strapped-together planks lays here ready to be used.~
+   A series of sturdy planks are strapped and nailed together to 
+form a narrow bridge. These planks are barely wide enough for 
+two men abreast. Sturdily strapped together with rope, it can be 
+secured on either side of a gap by a simple L-shaped downward 
+facing slat which slots over the wood or stone work. 
+~
+12 0 1
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22053
+ruined rotten shelf OSGI_ATMOSPHERE WOOD~
+a ruined, rotten shelf~
+A ruined, rotten shelf lays here, rusty nails potruding from the back.~
+This old, rotten shelf has fallen from where it once lay, rusty nails
+potruding from the back. The front of it is bent and dented, seeming
+to have been harmed in the fall from its previous resting place.
+~
+39 4096 1
+0 0 0 0
+500 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22054
+fallen rust-hinged door OSGILIATH_ATMOSPHERE WOOD~
+a fallen, rust-hinged door~
+A rust-hinged, rotten door lays here, fallen from its frame.~
+This poor door seems to have been vaulted out of its doorframe, to
+take into account the bent, rusted metal hinged still clinging
+desperately to its sides. It is made of old wood, still sturdy, yet
+grimy.
+~
+12 4096 1
+0 0 0 0
+3000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22055
+battering ram skeletons OSGILIATH_ATMOSPHERE WOOD~
+a battering ram surrounded by skeletons~
+A rotten battering ram lies here, surrounded by a heap of skeletons.~
+   Laying here is a battering ram, its wood long turned to rot, 
+woodlice crawling all over its length. A rusted metal head in 
+the shape of a crown, spikes pointed outwards, caps one end of 
+the ram. Around it are strewn skeletons, rusted armor and 
+weapons rendering them into faded memories. Orc fangs are 
+visible among some of the heads. 
+~
+12 4096 0
+0 0 0 0
+40000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22056
+column pillar stone STONE~
+A large broken stone pillar~
+A large stone pillar has been broken and fallen to the ground here~
+  This pillar has a cracked and worn look to it. Dust covers 
+it as it lays on the ground. The base has jagged splinters,
+showing where the great force that broke it originated. Large
+chips and chunks mar the base of this pillar as it rests on its
+side.
+~
+2 4096 0
+0 0 0 0
+20000 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 30 0 0
+#22057
+mangonel rusting splintered WOOD~
+a splintered and rusting mangonel~
+A splintered and rusting mangonel lies here, collapsed.~
+   This piece was clearly once a mangonel. Its iron framework 
+has now rusted with spotty red and brown and the wood has begun 
+to rot and splinter. 
+~
+0 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 32 0 0
+#22058
+flag shredded old stained moon shield TEXTILE~
+a shredded flag once bearing a moon and shield~
+An old, stained flag lies here in shreds, once bearing a moon and shield.~
+~
+0 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 30 0 0 1
+0.000000 0 0 0 7 0 0
+#22059
+ruined bridge burnt OSGILIATH_SIEGE ARAPHOR WOOD~
+a ruined, burnt bridge~
+A ruined, burnt bridge lies in ashes here, its span nowhere to be seen.~
+This bridge appears to have been burned out of existence, what is
+left being the supports upon land, charred and burnt nearly to ash.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22060
+volunteers recruits1 cityfolk NEED_TRAIN1 OTHER~
+#4a disorganised group of city volunteers#0~
+#4A disorganised group of city volunteers, recently signed up to the army, mill around here.#0~
+   Young men and women, as well as old veterans, stand around 
+talking and whispering. Some stand proud, others seems scared. 
+They speak of having just signed up to the armies of Gondor, 
+ready to start training then march eastwards to fight the enemies 
+of their lands and peoples. Disorganised and still wearing their 
+city clothes, they wait for orders. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22061
+volunteers recruits1 villeins NEED_TRAIN1 OTHER~
+#4a disorganised group of villein volunteers#0~
+#4A disorganised group of villein volunteers, responding to their Oath, mill around here.#0~
+   Young men and women, as well as old veterans, stand around 
+talking and whispering. Some stand proud, others seems scared. 
+They speak of having just signed up to Lord Astirian's Wardenry, 
+ready to start training to fight the enemies of their lands and 
+peoples should they invade Pel-Anorien. Disorganised and still 
+wearing their working clothes, they wait for orders and mutter 
+about fields, game and work not done. 
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22062
+pavilion tent sword star astirian TEXTILE~
+a broad pavilion tent with sword and star markings~
+A broad pavilion tent, emblazoned with a sword and star, has been set up here.~
+   This pavilion tent serves as a semi-permanent shade fixture, 
+consisting of four poles, the heavy linen fabric dyed evenly a 
+leaf green in color. Appliqued in bright white fabric upon the 
+tent is the clear design of a sword and star, marking the emblem 
+of Lord Astirian's Wardenry. The entire canvas is bordered by 
+long, silvery bead tassles that help keep away any annoying 
+insects. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#22063
+ready training unit NEED_TRAIN2 OTHER~
+#4a group of villeins ready for training#0~
+#4A group of villeins are assembled here ready for training to commence.#0~
+   Young men and women, as well as old veterans, stand around 
+talking and whispering. Some stand proud, others seems scared. 
+They speak of having just signed up to Lord Astirian's Wardenry, 
+ready to start training to fight the enemies of their lands and 
+peoples should they invade Pel-Anorien. Still wearing their 
+working clothes, they stand together and await orders. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22064
+group long poles villeins3 OTHER~
+#4a group of villeins carrying long poles#0~
+#4A group of villeins carrying long poles marching up and down.#0~
+After swearing their Oath afresh and being gathered into a unit of about thirty villeins, these farmers, hunters, husbands, wives, sons and daughters, are trying to learn how to march and hold long poles imitating spears and polearms. They stumble often or knock poles against each other as they try and perfect putting one foot in front of the other in formation.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 72 22065 0 0 0 0
+#22065
+formation standing ready villeins4 OTHER~
+#4a formation of villeins carrying long poles#0~
+#4A formation of villeins carrying long poles have finished marching training.#0~
+After swearing their Oath afresh and being gathered into a unit of about thirty villeins, these farmers, hunters, husbands, wives, sons and daughters, have completed learning how to march and hold long poles imitating spears and polearms. They stand in formation, awaiting further training.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22066
+formation resting villeins5 OTHER~
+#4a formation of villeins resting#0~
+#4A formation of villeins carrying long poles rest here before attempting any more marching.#0~
+After swearing their Oath afresh and being gathered into a unit of about thirty villeins, these farmers, hunters, husbands, wives, sons and daughters, rest after a hard day of training with little to show for it. They will try again tomorrow.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 22063 0 20 0 0
+#22067
+group spear villeins6 OTHER~
+#4a group of thirty spear-wielding villeins#0~
+#4A group of thirty villeins work on attacking and defending with spears and polearms.#0~
+After trying successfully to learn the basics of how to march and hold long poles imitating spears and polearms, these thirty villeins now try to learn how to attack and defend, lunging and standing together in a line, fall back as one - and repeating. Day and night they work.
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 72 22068 0 0 0 0
+#22068
+formation spears villeins7 OTHER~
+#4a formation of spear-ready villeins#0~
+#4A formation of spear-ready villeins stand waiting after successful spear and polearm training.#0~
+After these thirty villeins were guided and cajoled into learning how to attack and defend, lunge and stand together in a line, fall back as one - and repeating day and night - they have rested in triumph. Now they are ready to continue with their next lessons.
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22069
+formation resting villeins8 OTHER~
+#4a formation of villeins resting#0~
+#4A formation of villeins rest here before attempting any more spearwork.#0~
+After trying to learn the basics of how to learn how to attack and defend with spears and polearms, these thirty villeins rest after a hard day of training with little to show for it. They will try again tomorrow.
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 22065 0 20 0 0
+#22070
+group organized wooden villeins9 OTHER~
+#4an organised group practising with wooden swords#0~
+#4A group of thirty villeins work on attacking and defending with wooden swords and shields.#0~
+After trying successfully to learn the basics of polearms and spears, these thirty villeins now try to learn how to attack and defend with wooden swords.
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 72 22071 0 32 0 0
+#22071
+ sword ready villeins10 OTHER~
+#4a formation of sword-ready villeins#0~
+#4A formation of villeins stand waiting after successful sword training.~
+After these thirty villeins were guided and tutored into learning how to attack and defend, lunge and fight side by side with sword and shield they have rested here now in triumph. Now they are ready to continue with their next lessons.
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22072
+formation resting villeins11 OTHER~
+#4a formation of villeins resting#0~
+#4A formation of villeins rest here before attempting any more swordwork.#0~
+After trying to learn the basics of how to learn how to attack and defend with swords and shields, these thirty villeins rest after a hard day of training with little to show for it. They will try again tomorrow.
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 22068 0 20 0 0
+#22073
+group archery range shortbows villeins12 OTHER~
+#4an organised group practising with shortbows#0~
+#4A group of thirty villeins stand practising at the archery range.#0~
+After successfully learning the basics of swords and shields, these thirty villeins now try their hand at archery.
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 72 22074 0 0 0 0
+#22074
+ bow ready villeins13 OTHER~
+#4a group of bow-ready villeins#0~
+#4A group of bow-ready villeins stand waiting after successful archery training.#0~
+After these thirty villeins were guided and tutored in the ways of archery and the shortbow, they have rested here now in triumph. Now they are ready to continue.
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22075
+band resting villeins14 OTHER~
+#4a band of villeins resting#0~
+#4A band of villeins rest here before attempting any more archery.#0~
+After trying to learn the basics of how to learn how to use a shortbow, these thirty villeins rest after a hard day of training with little to show for it. They will try again tomorrow.
+~
+12 4194304 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 22068 0 20 0 0
+#22076
+huge granite block rollers OTHER~
+a huge granite block balanced on log rollers~
+A huge granite block balanced on log rollers.~
+This usually very static block is sat atop four large logs
+and is being moved from one place to another. You think that
+the entire process could last no longer than one hour before
+the logs gave in.
+~
+12 0 1
+0 0 0 0
+10000 0.000000
+0 0 0 0 0 0 1
+0.000000 1 22048 0 0 0 0
+#22077
+crane winches MASON_SIEGE_CAFTS OTHER~
+a large crane with winches and hardened supports~
+A large crane with winches and hardened supports is secured in place, winches and ropes hanging from it.~
+   This T-shaped wooden and iron-banded structure is made with 
+strength in mind - cross-supports and steel pins hold in place 
+the winch arms and double-wrapped rope lashings. Using pulleys 
+and counter-weights, great loads can be lifted free of the ground 
+and shifted along the length of the top arms of the crane, which 
+towers three times the height of a normal man and easily six 
+times in length. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22078
+combat ready villein archers FIN_TRNING OTHER~
+#4a group of thirty combat-ready villein archers#0~
+#4A group of thirty combat-ready villein archers stand ready, dressed in leather armor.#0~
+   An unlikely assortment of leather-clad men and women of Lord 
+Astirian's fiefdom are assembled here, ready with bows, quivers 
+and supplies. They are ready to move and respond to the orders 
+of the Wardenry. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22079
+group long poles volunteers OTHER~
+#4a group of city volunteers carrying long poles#0~
+#4A group of city volunteers carrying long poles marching up and down.#0~
+   After signing up to the war and being gathered into a unit of 
+about thirty volunteers, these brave husbands, wives, sons and 
+daughters, are trying to learn how to march and hold long poles 
+imitating spears and polearms. They stumble often or knock poles 
+against each other as they try and perfect putting one foot in 
+front of the other in formation. 
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 72 22080 0 0 0 0
+#22080
+formation finished volunteers OTHER~
+#4a formation of city volunteers carrying long poles#0~
+#4A formation of city volunteers carrying long poles have finished marching training.#0~
+This brave group of husbands, wives, sons and daughters, have completed learning how to march and hold long poles imitating spears and polearms. They stand in formation, awaiting further training.
+~
+12 4198400 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22081
+formation resting city volunteers5 OTHER~
+#4a formation of city volunteers resting#0~
+#4A formation of city volunteers carrying long poles rest here before attempting any more marching.#0~
+After signing up to the war and being gathered into a unit of about thirty city volunteers, this brave group of husbands, wives, sons and daughters, rest after a hard day of training with little to show for it. They will try again tomorrow.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 22060 0 20 0 0
+#22085
+group organized wooden city volunteers9 OTHER~
+#4an organised group practising with wooden swords or crossbows#0~
+#4A group of thirty city volunteers work with wooden swords or crossbows.#0~
+   After trying successfully to learn the basics of polearms and 
+spears, these thirty city volunteers now try to learn how to 
+attack and defend with wooden swords, or the use of the crossbow, 
+firing at hay targets lined up against the city wall. 
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 72 22086 0 32 0 0
+#22086
+trained formation city volunteers OTHER~
+#4a trained formation of city volunteers#0~
+#4A group of thirty city volunteers trained and ready.#0~
+After basic training, these volunteers await their equipment, including armor, weapons, food and bandages.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22087
+formation resting city volunteers11 OTHER~
+#4a formation of city volunteers resting#0~
+#4A formation of city volunteers rest here before attempting any more swordwork.#0~
+After trying to learn the basics of how to learn how to attack and defend with swords and shields, these thirty city volunteers rest after a hard day of training with little to show for it. They will try again tomorrow.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 22083 0 20 0 0
+#22082
+group spear city volunteers6 OTHER~
+#4a group of thirty spear-wielding city volunteers#0~
+#4A group of thirty city volunteers work on attacking and defending with spears and polearms.#0~
+After trying successfully to learn the basics of how to march and hold long poles imitating spears and polearms, these thirty city volunteers now try to learn how to attack and defend, lunging and standing together in a line, fall back as one - and repeating. Day and night they work.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 72 22083 0 0 0 0
+#22083
+formation spears city volunteers7 OTHER~
+#4a formation of spear-ready city volunteers#0~
+#4A formation of spear-ready city volunteers stand waiting after successful spear and polearm training.#0~
+After these thirty city volunteers were guided and cajoled into learning how to attack and defend, lunge and stand together in a line, fall back as one - and repeating day and night - they have rested in triumph. Now they are ready to continue with their next lessons.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22084
+formation resting city volunteers8 OTHER~
+#4a formation of city volunteers resting#0~
+#4A formation of city volunteers rest here before attempting any more spearwork.#0~
+After trying to learn the basics of how to learn how to attack and defend with spears and polearms, these thirty city volunteers rest after a hard day of training with little to show for it. They will try again tomorrow.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 22080 0 20 0 0
+#22088
+ready city volunteers OTHER~
+#4a formation of equipped city volunteers#0~
+#4A group of thirty city volunteers, fully equipped and ready to march stand ready.#0~
+After being equipped, these volunteers are trained, equipped and eager to begin their march, or so their military escorts tell them.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22089
+large crate supplies city vol_train_supp OTHER~
+a large crate of supplies for the city volunteers~
+A large crate sits here, laden with armor, weapons, food, equipment and bandages.~
+Thanks to the generosity of the citizens of Minas Tirith supplementing the missing items, this supply crate is ready to assign to a group of trained volunteers.
+~
+12 4198400 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22090
+combat ready villein infantry FIN_TRNING OTHER~
+#5a group of thirty combat-ready villein infantry~
+#5A group of thirty combat-ready villein infantry stand ready, with ringmail and spears.~
+   An unlikely assortment of ringmail-clad men and women of Lord 
+Astirian's fiefdom are assembled here, ready with spears, swords 
+and supplies. They are ready to move and respond to the orders 
+of the Wardenry. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22092
+long heavy rope bridge OTHER~
+a long, heavy rope bridge~
+A heavy rope bridge, grappling hooks at both ends, lays in a pile here.~
+   This rope bridge consists of wooden rungs lashed together with 
+rope and nails to two very thick and long ropes - akin to ship 
+rigging. A third rope runs above these, offering a way of 
+pulling across any length spanned. Either end of the cumbersome 
+and heavy rope bridge is a grappling hook. A small release rope 
+stretches the length of the contraption, presumably placed so 
+that a strong tug releases the hooks from whatever they are 
+attached to. 
+~
+12 0 1
+0 0 0 0
+15000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22093
+long heavy rope bridge spanning gap OTHER~
+a long, heavy rope bridge spanning the gap~
+A heavy rope bridge spands the large gap here, grappling hooks secured at both ends.~
+   This rope bridge consists of wooden rungs lashed together with 
+a single thick hand-rope stretching above them. It sways and 
+creaks as it spans the large gap here. Grappling hooks secure it 
+at both ends. 
+~
+12 0 0
+0 0 0 0
+6000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22091
+hanging length rope netting OTHER~
+a length of rope netting~
+A length of rope netting hangs here offering foot and handholds.~
+   This wide and long section of rope netting offers a slow but 
+easy climb up or down. 
+~
+12 4096 1
+0 0 0 0
+5000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#22094
+eradan thirty archers OTHER~
+#5a formation of thirty archers of Lord Eradan#0~
+#5Thirty of Lord Eradan's Battalion archers are lined up here.#0~
+   Equipped in studded leathers and bows, these trained archers 
+of Lord Eradan are ready for action, equipped in the grey moon 
+and black shield insignia. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22095
+eradan thirty infantry OTHER~
+#5a formation of thirty infantry of Lord Eradan#0~
+#5Thirty of Lord Eradan's Battalion infantry stand guard here.#0~
+   Equipped in ring and scale, carrying heavy shields, these 
+trained infantry of Lord Eradan are ready for action, equipped in 
+the grey moon and black shield insignia. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22096
+eradan thirty infantry OTHER~
+a supply dump for Lord Eradan's troops~
+Several of Lord Eradan's soldiers guard a small supply dump here.~
+   Five of Lord Eradan's infantry stand guard around a dozen 
+crates and barrels. Arrows, bolts, food and medical equipment 
+are stacked neatly here. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22097
+eradan office vnpc OTHER~
+#5an officer of Lord Eradan relaying orders#0~
+#5One of Lord Eradan's officers keeps command of the nearby soldiers.#0~
+   An officer of Lord Eradan issues orders and sends runners back 
+and forth from here, commanding the soldiers near them and 
+keeping order. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22098
+sixty city volunteers ranked OTHER~
+#5three ranks of volunteer spearmen stand ready#0~
+#5Three ranks of volunteer spearmen stand ready here.#0~
+   Sixty Minas Tirith volunteers stand ready, assembled in three 
+ranks. They hold polearms and spears, many also bearing swords 
+and small wooden shields. Equipped with ringmail armor and 
+ill-fitting helms, these men and women of Gondor seem a mixture 
+of nervous, excited and terrified. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22099
+pillar ruined white STONE OSGIWRECK~
+a ruined white stone pillar~
+A ruined white stone pillar has fallen here.~
+   This huge white pillar was once fluted and classical-looking.
+Now it is rubble, fallen down across the way and cracked in many
+places. Where it broke, near its top, it is jagged and sharp.
+~
+13 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22100
+statue crumbling white STONE warrior OSGIWRECK~
+a crumbling white statue of a warrior~
+A crumbling white statue of a warrior has fallen here.~
+   This once-beautiful statue of a warrior from ancient times
+has fallen and cracked in several places. One arm is missing,
+as is the head. The shield the warrior bore is cracked in half,
+and whatever decoration it once bore, whatever mark of arms, is
+long gone. The white marble is pitted and grown in places with
+weeds.
+~
+13 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22101
+fountain broken white STONE OSGIWRECK~
+a broken white stone fountain~
+A broken white stone fountain is overgrown with algae.~
+   Once elegant and pristine, this carved white marble fountain 
+long ago was broken and destroyed. No water flows through it 
+now, and with the muck and algae growing all over the fountain, 
+if there were, nobody in his right mind would drink it. A statue 
+in the middle of the fountain, that of a young woman with a 
+basket of flowers, is also broken in many pieces. Her face is 
+smashed and defaced cruelly. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22102
+skeleton PTROLL hulking enormous OTHER OSGIWRECK~
+a hulking, enormous skeleton~
+A hulking, enormous skeleton is scattered here.~
+   This horribly deformed and huge skeleton is many times the size
+of a man. It is scattered all over, many of the bones easily
+larger around than a man's leg, and many gnawed at and broken.
+The skull is a true horror, huge and marked by enormous brow-
+ridges, and fangs that protrude cruelly.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22103
+statue troll huge petrified STONE swing OSGIWRECK~
+a huge troll statue~
+A huge troll statue is frozen in a perpetual swing.~
+   This absolutely enormous statue is made of grey granite, rough
+to the touch. It is of a huge troll, frozen forever as it takes
+a swing. Whatever it wielded is long broken off, as is the arm
+itself past the elbow. It holds in its other hand a human head
+by the hair, somehow not broken by time and weather. The troll's
+expression is truly hideous, its fangs bared in a snarl and its
+face devoid of all thought or introspection.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22104
+rubble white STONE huge pile litters rock OSGIWRECK~
+a huge pile of white stone rubble~
+A huge pile of white stone rubble litters the area.~
+   Massive building blocks and various bits of masonry have fallen
+to the ground here, long ago. The dust is settled, but the stone rubble
+looks curiously unsettled still. Any one of the pieces of rubble would
+take several people to move.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22105
+pile charred timbers rubble STONE OSGIWRECK~
+a pile of charred timbers and rubble~
+A pile of charred timbers and rubble is here.~
+   Scorched wooden timbers lay strewn in a broad pile, mixed in 
+with the charred and blackened remains of a stone structure. 
+Full chunks of fluted columns and crenelated have been 
+unceremoniously heaped together, standing above the height of a 
+grown man. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22107
+barricade felled timbers STONE OSGIWRECK~
+a barricade of stones and felled timbers~
+A barricade of stone and felled timbers has been erected here.~
+   Blackened wooden beams have been lashed together in a crude 
+barricade, supported and braced by piles of rock and rubble. 
+Broken-hafted arrows pepper both sides of the timbers while the 
+tops of the rafters are notched from edged weapons. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22108
+Pile blackened rock STONE OSGIWRECK~
+a pile of blackened rock and stone~
+A pile of blackened rock and stone lay here.~
+   Charred stone, rock and chunks of granite buildings lay here 
+in massive heaps, appearing to have been deliberately, but 
+hastily piled together. Standing above the height of a grown 
+man, the fortification offers some protection from arrows, but 
+could be easily scaled and climbed on top of. Charred stone, 
+rock and chunks of granite buildings lay here in massive heaps, 
+appearing to have been deliberately, but hastily piled together. 
+Standing above the height of a grown man, the fortification 
+offers some protection from arrows, but could be easily scaled 
+and climbed on top of. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22109
+barricade damaged furniture WOOD OSGIWRECK~
+a barricade of damaged furniture~
+A barricade of damaged furniture has been erected here.~
+   This barricade consists of burnt, hacked and damaged cabinets 
+and tables, haphazardly piled together. A few doors have been 
+lashed to one side of the fortification, supported by the charred 
+planks and timbers of what once was the inside of a residence. A 
+few arrows stick out of the discarded furnishings at various 
+angles. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22110
+defaced statue STONE OSGIWRECK~
+a defaced statue~
+A defaced statue stands here.~
+   Once a proud statue of a king of Gondor standing in a 
+triumphant pose, the figure now stands chipped and battered on 
+its sculptured marble base. The head and arms have been broken 
+off fairly recently, and the stone arms lay discarded at the base 
+of the statue. The head is nowhere to be found. A foul and 
+greasy substance has been smeared across the statue. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22111
+shattered statue man STONE OSGIWRECK~
+a shattered statue of a man~
+A shattered statue of a man is here.~
+   Only the shins and feet remain of this once-proud statue, the 
+boots firmly emplaced on the marble base. White chips and 
+fragments surround the remains of the figure, scattered around in 
+a wide swath. The base of the statue has been defiled with a 
+stinking, fetid smelling fluid, the liquid long since dried and 
+caked on. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22112
+crumbled rock walls remains STONE OSGIWRECK~
+crumbled rock walls~
+The crumbled remains of rock walls stand here.~
+   The remains of this toppled rock-work wall lay piled together, 
+small portions still erect. The rubble is blackened and charred 
+from a scorching fire, the stones coated with soot and ash. 
+Burnt timbers and wooden planks lie at odd angles, the bits and 
+pieces propped up against the stone. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22113
+battered remains gate rock wall STONE OSGIWRECK~
+the battered remains of a gate~
+The battered remains of a gate and rock wall are here.~
+   Stone pillars and an archway are all that remain standing of 
+this rock-work gate, edges of the granite stone walls blackened 
+and singed with soot. Once finely crafted old-oak doors are 
+battered and splintered, hanging perilously from their top 
+hinges. Bits of weeds and vegetation grow from the cracks on the 
+exterior of the wall, leaves lifted towards the sky. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#22114
+debris wall OSGI_RUINS WOOD~
+a wall of debris~
+A wall of debris rises up high here.~
+This wall of debris is made up of large and small chunks of stone,
+pieces of burnt, charred or cracked timber, rusting metal of unidentifiable
+nature and other such evidence of ruin. It rises up high, very high.
+~
+12 4096 0
+0 0 0 0
+900000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22115
+large mound rubble debris OSGI_RUINS OTHER~
+a large mound of debris and rubble~
+A large mound of debris and rubble is strewn across the path here.~
+Rubble, charred timber, ruined stones, pieces of furniture and other
+such debris makes up this rather large pile.
+~
+12 4096 0
+0 0 0 0
+9000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22116
+group skeletons fallen KITE_EVIL_PLOT OTHER~
+a group of skeletons~
+A group of skeletons lies here, bits of rusted armor on their forms.~
+   Ancient crumbling skeletons of humans are sprawled here, 
+tossed together in an enormous pile, many broken and useless, 
+though some seem to be more recent. Yellowed bones intermingle, 
+their deaths violent and harsh by the look of the way they are 
+sprawled. Some crumbling armour that falls to pieces when 
+touched show signs of the White Tree of Gondor or the stars of 
+the Steward of that place. Others seem to be of recent Haradrim 
+descent judging by the moons on the crushed and useless shields 
+or helms. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22117
+table mahogany ornate cloven split destroyed NUM00091 UNIQUE_OSGIL OSGI_WRECK WOOD~
+a cloven mahogany council table~
+A long, mahogany table lays in the center of the room, split in two.~
+   Extending through most of the room's center, this once 
+majestic mahogany table has been cloven cleanly in two, the cut 
+edges singed by an intense heat. Each half of the table lays in 
+ruin, crumpled and battered, the formerly polished wood now 
+splintered and crushed by massive blows. Pieces of wood from the 
+table lay strewn throughout the chambers. 
+~
+18 4096 0
+500000 1 -1 0
+50000 0.000000
+0 0 0 20 0 0 1
+0.000000 0 0 0 32 0 0
+#22118
+chairs destroyed ivory wooden OSGI_WRECK UNIQUE_OSGIL NUM00091 WOOD~
+destroyed padded ivory chairs~
+The scattered remains of padded ivory chairs are strewn around the room.~
+   Bits and pieces of once-fine stained and polished wooden 
+chairs are scattered about, the wreckage strewn outwards towards 
+the corners of the room. Several chairs appear to have been 
+thrown with great force against a wall, while others have had 
+their ivory cushions torn apart, the stuffing haven fallen in 
+drifts around the chairbacks. A few chairs stand untouched to 
+one side, set in a nervous line, one felled over. Every piece of 
+the chairs bears a slightly singed edge. 
+~
+12 4096 0
+0 0 0 0
+45000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22119
+forlorn toy rabbit blood stained bloodstained OTHER OTHER~
+a blood-stained and rather dilapidated rabbit toy~
+A rather forlorn toy rabbit is here, bloodstains marring its fur.~
+   This rather hard-used rabbit toy gives off a particularly 
+forlorn aura, with its stained coat and black button-eyes. The 
+fur, legitimate rabbit fur, is coated over in several places with 
+a series of black stains, causing the fur to clump together and 
+having dried hard. To one with expertise or knowledge, these 
+stains would be recognizable as blood. Thread whiskers protrude 
+from the toy rabbit's muzzle, drooping limply. Atop the rabbit's 
+small brow someone has sewn, with intimate care, the word 
+'Narthanwen' onto it. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22120
+group fifty Eradan soldiers xIthilien_hold byPhear OTHER~
+a group of fifty soldiers~
+A group of fifty soldiers stand here vigilantly.~
+   Their brightly polished shields set in a wall, each man 
+stands, kneels, squats or sits behind his own shield, black 
+surcoats bearing a black shield before a silvery grey moon. 
+Their weapons lay at the ready, and their tense, vigilent faces 
+underscore their warlike posture 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22121
+group two hundred soldiers Dalamir EASTERN_FORT_SIEGE OTHER~
+a mass of two hundred soldiers~
+A mass of two hundred soldiers stand at the ready here.~
+Crossed swords set between stars fly high in the midst of this
+mass of soldiers, the banners overlooking the two hundred which
+stand at the ready here, their shields planted in a wall facing
+the east and their postures tense, waiting. An officer, distinguishable
+by the quality of the armor he bears, slowly walks among his men,
+pausing often with his gaze to the east.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22122
+intense battle soldiers EASTERN_FORT_SIEGE OTHER~
+a furious battle~
+A furious battle rages here, Orkin and Men shouting and fighting.~
+The screams and din of battle rage all around you, metal clashing
+with the screech of agonized despair. Bodies lay where they have
+been struck down, the ground blood-stained to the point where it is
+impossible to move without seeing a spot of coppery red. A rotting
+smell, as of a latrine and old eggs, wafts throughout the area.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22123
+group ork fifty ZOGBOSH EASTERN_FORT_SIEGE OTHER~
+a group of fifty orkin~
+A group of fifty orkin is here, standing ready.~
+Orkin of all types mix here, their low snarls accompanying the
+eager manner in which they gaze west. Armor and weapons at the ready,
+they appear to be waiting for very little to unleash their rage
+upon a hapless victim.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22124
+mass two hundred orkin Zogbosh EASTERN_FORT_SIEGE OTHER~
+a mass of two hundred orkin~
+A mass of two hundred orkin stand at the ready here.~
+Ranks upon ranks of orkin are massed here, the clanking of armor
+accompanying any movement within the ranks. Banners rise high,
+various signs upon their tattered lengths. They stand, ready and
+apparently eager, facing the west.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22560
+cemetery fenced graveyard OTHER~
+the cemetery~
+A fenced cemetery lies in the shadow of the stone wall to the east.~
+   This graveyard rests in the shadow of Osgiliath's city walls. 
+Many headstones are visible within, covering many graves. A 
+wrought-iron fence encloses the graveyard, with an archway over a 
+gap in the fencing allowing entrance. 
+~
+12 4096 0
+0 0 0 0
+0 0.000000
+0 0 0 100 4194304 0 1
+0.000000 0 0 0 0 0 0
+#22125
+barricade hastily constructed OSGILIATH_SIEGE WOOD~
+a hastily-constructed barricade~
+A hastily-constructed barricade has been erected here, barring the path onwards.~
+This barricade, made of sturdy logs nailed together and attached firmly
+to the ground, appears to have been hastily constructed. However, it
+does provide the wanted effect, that of barring the way.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22126
+camp Uruk temporary OSGILIATH_SIEGE OTHER~
+a quickly-made camp~
+A quickly-made camp is spread out here, great numbers of Yrcs of various types throughout it.~
+A large group of Yrcs of all kinds are within this camp of pitched
+tents and campfires. Weapons lay at the ready, and the entire camp
+appears ready to go to war.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22127
+pikes long row OSGILIATH_SIEGE WOOD~
+a long row of pikes~
+A long row of pikes stand at the ready here.~
+   This array of thick wooden shafts, their diameter that of a 
+grown man's arm, have been lashed together with thick hemp rope. 
+Several layers of pikes bristle out towards one side of the 
+formation, their tips carved into sinister points and fire 
+hardened. Everything has been braced together at the base by 
+cross pieces of rough-hewn wood. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22128
+bodies pile dead OSGI_WRECK OSGILIATH_SIEGE OTHER~
+a pile of dead bodies~
+A pile of dead bodies lay here.~
+   This heap of the dead lay in a thick pile, arms and legs 
+splayed akimbo. Mostly consisting of man and orc, the bloated 
+carcasses have been heaped with a few dead horses and warg. A 
+large swarm of flies orbit the pile, alighting on the 
+still-staring figures still clad in their armor. The pile reeks 
+of death and blood. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22129
+dead collection pile orderly arranged heap OSGI_WRECK OSGILIATH_SIEGE OTHER~
+a collection of dead, orderly arranged~
+A collection of dead is here, orderly arranged in a row.~
+   The battle-scarred corpses of yrc and man lay unceremoniously 
+stacked like cordwood, the bloated figures piled several deep 
+here. A vile stench of death and blood rises from the pile and 
+flies swarm around the mass. The dead have been stripped of 
+their belongings, the naked bodies covered with congealed filth 
+and liquid. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22130
+horse carcass bloated OSGI_WRECK OSGILIATH_SIEGE OTHER~
+a bloated horse carcass~
+The bloated carcass of a horse lies here.~
+   Terror has forever been frozen onto the eyes of this dead 
+horse, eyes bulging and tongue lolling out to one side. The 
+carcass is hugely bloated and a stench rises from the form. 
+Swarms of flies cover the head and mouth and more hover where it 
+was wounded. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22131
+carcass bloated OSGI_WRECK OSGILIATH_SIEGE OTHER~
+a bloated carcass~
+A carcass lay here, puffy and bloated.~
+   Mouth agape and its eyes still staring up into space, this 
+bloated humanoid corpse lay here. Flies hover over the body, 
+some crawling over the armor and clothing, while others attend to 
+the puffy, blackened-purple skin. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22132
+charred remains humanoid OSGI_WRECK OSGILIATH_SIEGE OTHER~
+the charred remains of a humanoid~
+The charred remains of a humanoid lay here, curled into a fetal position.~
+   The body of this humanoid has been burned beyond recognition, 
+the bones and flesh burned severely enough that its race and 
+species remains unknown. The body is crumpled into a fetal 
+position and a sinister reek of charred flesh and hair permeates 
+the air around it. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22133
+remains blackened burned snaga OSGI_WRECK OSGILIATH_SIEGE OTHER~
+the blackened remains of several snaga~
+The blackened remains of several snaga lay here.~
+   Their hands curled in their final agony, these charred corpses 
+were once a troop of several snaga. Bodies burned horribly, they 
+lay huddled together, flesh melted and scorched. The stink of 
+burning death fills the air beside them. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22134
+bodies piles mutilated ooh_thats_nasty OSGI_WRECK OSGILIATH_SIEGE OTHER~
+piles of mutilated bodies~
+A gruesome pile of mutilated bodies lay here.~
+   Their bodies horribly mutilated, these dead men lay heaped in 
+a gruesome pile. No single body stands untouched in this pile. 
+Several of the dead bear missing limbs and heads - all appear to 
+have tooth-marked chunks of flesh torn from them. A fetid odor 
+rises from the mound of body parts. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22135
+catapult frame charred battered OSGI_WRECK OSGILIATH_SIEGE OTHER~
+the charred frame of a catapult~
+The charred and battered frame of a catapult is here.~
+   The hulk of this wooden catapult lay in a pile of charred 
+rubble, its throwing arm and basket torn off and tossed aside. A 
+few of the wooden wheels are missing, the remaining discs 
+blackened by fire. Several arrows jut from the damaged, burnt 
+frame. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22136
+trebuchet frame damaged OSGI_WRECK OSGILIATH_SIEGE WOOD~
+the damaged frame of a trebuchet~
+The damaged frame of a trebuchet is here.~
+   The throwing arm and counterweight of this trebuchet are 
+relatively untouched, though they sit within the damaged wreckage 
+of its frame. The trusses and a-frame of the siege machine have 
+been pulled and hacked apart near the pivot point, drawn to the 
+ground by the ropes still tied around them. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22137
+ballista tipped damaged OSGI_WRECK OSGILIATH_SIEGE WOOD~
+a tipped and damaged ballista~
+A damaged ballista lay here, tipped over.~
+   Knocked from its base and its bow cracked, the remaining 
+pieces of this wooden ballista lay mostly intact. A few arrows 
+stick out from its frame and some of the bracing bears notches 
+from edged weapons. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22138
+trash looted pile disorderly OSGI_WRECK OSGILIATH_SIEGE OTHER~
+a disorderly pile of looted trash~
+A disorderly pile of trash lay strewn across the area.~
+   Items from nearby buildings have been heaped into this mass of 
+trash, with much of the valuables of the refuse picked through. 
+All that remains is discarded junk and filth. A malodorous 
+stench wafts from places deep within the heap. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22139
+tower siege burnt OSGI_WRECK OSGILIATH_SIEGE OTHER~
+a burnt siege tower~
+The great hulk of a burnt siege tower stands here.~
+   The towering charred hulk of this tower sits like a blackened 
+monument, most of its frame burned and gutted by a great fire. 
+The massive support timbers still stand on their base, but all of 
+the leathers and fabric shielding the outside has been burnt 
+away. Little remains of the stairs and ladder within the 
+wreckage. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22140
+target-marker mangonel-barrage OSGILIATH_SIEGE OTHER~
+a target marker from the mangonel barrage~
+A target marker from the mangonel barrage is here.~
+~
+12 4198404 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22141
+mangonel OSGILIATH_SIEGE wooden massive readied WOOD~
+a massive wooden mangonel~
+A massive wooden mangonel stands at the ready here, dwarfing everything around it.~
+   Constructed of massive timbers spanning a few dozen feet in 
+length, this gigantic mangonel is a wonder of engineering. A 
+deep leather bucket hangs from the end of the firing arm, able to 
+hold large amounts of small rocks. Two mammoth braided ropes 
+have been strapped to the front of this siege engine, knotted 
+near the ends for pulling. Wooden wheels that dwarf a horse have 
+been mounted on each corner of the unit. 
+~
+12 4096 0
+0 0 0 0
+90000 0.000000
+0 0 0 0 0 0 1
+2000.000000 0 0 0 32 0 0
+#22142
+grappling hook grapple OSGILIATH_SIEGE hangs OTHER~
+a hanging grappling hook~
+A grappling hook hangs from the walls here.~
+Made from hemp rope and an iron hook, this grappling hook has been set and now dangles, able to be climbed.
+~
+12 4096 0
+0 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22143
+burning mangonel massive OSGILIATH_SIEGE OTHER~
+a massive burning mangonel~
+A massive mangonel burns quickly here.~
+   The massive mangonel here slowly takes up flame, every passing 
+moment allowing the fire to spread further and further along the 
+vulnerable wood and sinew of the construction. A thin black 
+smoke rises off the hardwood frame of the mangonel as it 
+continues to burn. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22144
+mangonel parts frame OSGILIATH_SIEGE WOOD.~
+parts and pieces for a massive mangonel~
+A large array of parts and pieces for a massive mangonel are stacked here.~
+   A pile of massive timbers, rope and wheels sits here, stacked 
+in a semi-orderly pile. A deep leather bucket stands to one 
+side, near the side of a large firing arm. Two mammoth braided 
+ropes are set in a coil beside other pieces of framework. 
+~
+12 4096 0
+0 0 0 0
+80000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22145
+necklace silver silver-framed flat protection pendant ELFISH METAL~
+a silver-framed moonstone pendant~
+A silver-framed, flat moonstone pendant on a silver chain is left here.~
+   This slice of moonstone is framed in silver and hangs on a 
+simple silver chain. On one facing of it is the etching of a 
+flowing river, above it lay seven stars, three to the left, three 
+to the right and one larger one at the top. On the back of it 
+the same seven stars appear. Under the seven stars on the back 
+is a few gentle runes that been elegantly executed on the stones 
+surface. The veins of the moonstone glows feintly, barely 
+visible to the eye except in total darkness. 
+~
+8 4096 2097153
+0 0 0 0
+3 0.000000
+0 0 0 0 524324 0 1
+100.000000 0 0 0 28 0 0
+A
+10025 1
+#22146
+cart charred broken bent OTHER~
+a charred and broken cart~
+A charred and bent cart lays here broken.~
+Once this cart displayed its wares proudly.  Now it is little
+more than a burned-out hulk of wood, broken yet recognizable.
+~
+12 4096 1
+0 0 0 0
+1500 0.000000
+0 0 0 0 256 0 1
+0.000000 0 0 0 0 0 0
+#22147
+tent burned melted ruined charred canvas poles OTHER~
+a burned and ruined tent~
+A burned and ruined tent is crumbled here.~
+   This tent once stood tall and garishly colored. Now, it's 
+poles are burned beyond use. The once colorful canvas is 
+charred, singed beyond recognition. The canvas crumbles to ashes 
+if touched. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22148
+Manse_Eradan_Board tall polite soldier OTHER~
+#5a tall, polite soldier#0~
+#5A tall, polite soldier talks with soldiers about the latest news.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+C
+eradan_battalion~
+member~
+#22149
+Manse_officer_board one legged sergeant OTHER~
+#5a one-legged sergeant passing messages between officers#0~
+#5A one-legged sergeant is passing messages between officers here.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+C
+eradan_vet~
+member~
+#22150
+glass eye rage toned UNIQUEXDElARAN feline pupiled GLASS~
+a rage-toned, feline-pupiled glass eye~
+A rage-toned, feline-pupiled glass eye lays here.~
+Inserted in place of the lacking of a real eye, this glass eye would be inserted into the flesh of the wearer's face in the hole left behind. It is obviously high quality work, the glass smooth and flawless. However, what truly makes this glass eye a work of art is the way that the glass, and the ruby, has been instilled into the midst of it. The glass in the middle of the eye has been faceted, directly behind a small, ruby crystal. Whenever the light would shine into the eye, it would hit the ruby and then the glass behind it, before refracting back out--casting the illusion that red light is spilling through the feline pupil detailed on the front.
+~
+11 4096 67108865
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22900
+cloth LIEGE1_BATTALION_PAY_TICKET linen black tree embellished TEXTILE~
+a black linen cloth embellished with a white tree #1(NOT DUE)#0~
+A black linen cloth embellished with a white tree lies here.~
+   This black rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. #1THIS PAYDAY IS NOT YET READY TO CLAIM#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22901 0 2 0 0
+#22901
+cloth LIEGE2_BATTALION_PAY_TICKET linen black tree hash embellished TEXTILE~
+a black linen cloth embellished with a white tree and a single hash #1(1 Month DUE)#0~
+A black linen cloth embellished with a white tree and a single hash mark lies here.~
+   This black rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. A single hash mark lies beneath the tree. #1(1 
+Month DUE)#0. 
+~
+65 4096 1
+0 0 0 0
+5 0.000000
+0 
+~
+0 25 131072 0 1
+15.000000 720 22902 0 2 0 0
+#22902
+cloth LIEGE3_BATTALION_PAY_TICKET linen black tree hash embellished TEXTILE~
+a black linen cloth embellished with a white tree and two hashes #1(2 Months DUE)#0~
+A black linen cloth embellished with a white tree and two hash marks lies here.~
+   This black rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. Two hash marks lay beneath the tree. #1(2 
+Months DUE)#0. 
+~
+65 4096 1
+0 0 0 0
+5 0.000000
+0 
+~
+0 25 131072 0 1
+30.000000 720 22903 0 2 0 0
+#22903
+cloth LIEGE4_BATTALION_PAY_TICKET linen black tree hash embellished TEXTILE~
+a black linen cloth embellished with a white tree and three hashes #1(3 Months DUE)#0~
+A black linen cloth embellished with a white tree and three hash marks lies here.~
+   This black rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. Three hash marks lay beneath the tree. #1(3 
+Months DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 0 0 0 2 0 0
+#22904
+cloth FOOT1_BATTALION_PAY_TICKET linen blue tree embellished TEXTILE~
+a blue linen cloth embellished with a white tree #1(NOT DUE)#0~
+A blue linen cloth embellished with a white tree lies here.~
+   This blue rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. #1THIS PAYDAY IS NOT YET READY TO CLAIM#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22905 0 2 0 0
+#22905
+cloth FOOT2_BATTALION_PAY_TICKET linen blue tree hash embellished TEXTILE~
+a blue linen cloth embellished with a white tree and a single hash #1(1 Month DUE)#0~
+A blue linen cloth embellished with a white tree and a single hash mark lies here.~
+   This blue rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. A single hash mark lies beneath the tree. #1(1 
+Month DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22906 0 2 0 0
+#22906
+cloth FOOT3_BATTALION_PAY_TICKET linen blue tree hash embellished TEXTILE~
+a blue linen cloth embellished with a white tree and two hashes #1(2 Months DUE)#0~
+A blue linen cloth embellished with a white tree and two hash marks lies here.~
+   This blue rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. Two hash marks lay beneath the tree. #1(2 
+Months DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22907 0 2 0 0
+#22907
+cloth FOOT4_BATTALION_PAY_TICKET linen blue tree hash embellished TEXTILE~
+a blue linen cloth embellished with a white tree and three hashes #1(3 Months DUE)#0~
+A blue linen cloth embellished with a white tree and three hash marks lies here.~
+   This blue rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. Three hash marks lay beneath the tree. #1(3 
+Months DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 0 0 0 2 0 0
+#22908
+cloth ARM1_BATTALION_PAY_TICKET linen green tree embellished TEXTILE~
+a green linen cloth embellished with a white tree #1(NOT DUE)#0~
+A green linen cloth embellished with a white tree lies here.~
+   This green rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. #1THIS PAYDAY IS NOT YET READY TO CLAIM#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22909 0 2 0 0
+#22909
+cloth ARM2_BATTALION_PAY_TICKET linen green tree hash embellished TEXTILE~
+a green linen cloth embellished with a white tree and a single hash #1(1 Month DUE)#0~
+A green linen cloth embellished with a white tree and a single hash mark lies here.~
+   This green rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. A single hash mark lies beneath the tree. #1(1 
+Month DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22910 0 2 0 0
+#22910
+cloth ARM3_BATTALION_PAY_TICKET linen green tree hash embellished TEXTILE~
+a green linen cloth embellished with a white tree and two hashes #1(2 Months DUE)#0~
+A green linen cloth embellished with a white tree and two hash marks lies here.~
+   This green rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. Two hash marks lay beneath the tree. #1(2 
+Months DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22911 0 2 0 0
+#22911
+cloth ARM4_BATTALION_PAY_TICKET linen green tree hash embellished TEXTILE~
+a green linen cloth embellished with a white tree and three hashes #1(3 Months DUE)#0~
+A green linen cloth embellished with a white tree and three hash marks lies here.~
+   This green rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. Three hash marks lay beneath the tree. #1(3 
+Months DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 0 0 0 2 0 0
+#22912
+cloth SERGEANT1_BATTALION_PAY_TICKET linen grey tree embellished TEXTILE~
+a grey linen cloth embellished with a white tree #1(NOT DUE)#0~
+A grey linen cloth embellished with a white tree lies here.~
+   This grey rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. #1THIS PAYDAY IS NOT YET READY TO CLAIM#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22913 0 2 0 0
+#22913
+cloth SERGEANT2_BATTALION_PAY_TICKET linen grey tree hash embellished TEXTILE~
+a grey linen cloth embellished with a white tree and a single hash #1(1 Month DUE)#0~
+A grey linen cloth embellished with a white tree and a single hash mark lies here.~
+   This grey rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. A single hash mark lies beneath the tree. #1(1 
+Month DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22914 0 2 0 0
+#22914
+cloth SERGEANT3_BATTALION_PAY_TICKET linen grey tree hash embellished TEXTILE~
+a grey linen cloth embellished with a white tree and two hashes #1(2 Months DUE)#0~
+A grey linen cloth embellished with a white tree and two hash marks lies here.~
+   This grey rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. Two hash marks lay beneath the tree. #1(2 
+Months DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22915 0 2 0 0
+#22915
+cloth SERGEANT4_BATTALION_PAY_TICKET linen grey tree hash embellished TEXTILE~
+a grey linen cloth embellished with a white tree and three hashes #1(3 Months DUE)#0~
+A grey linen cloth embellished with a white tree and three hash marks lies here.~
+   This grey rectangular swath of cloth bears a depiction of the 
+white tree of Gondor. A functional running stitch has been sewn 
+around the edges, finishing the ticket in a manner suitable to 
+prevent fraying. Three hash marks lay beneath the tree. #1(3 
+Months DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 0 0 0 2 0 0
+#22916
+cloth CONSTABLE1_BATTALION_PAY_TICKET linen light-grey tree embellished TEXTILE~
+a light-grey linen cloth embellished with a white tree #1(NOT DUE)#0~
+A light-grey linen cloth embellished with a white tree lies here.~
+   This light-grey rectangular swath of cloth bears a depiction 
+of the white tree of Gondor. A functional running stitch has 
+been sewn around the edges, finishing the ticket in a manner 
+suitable to prevent fraying. #1THIS PAYDAY IS NOT YET READY TO 
+CLAIM#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22917 0 2 0 0
+#22917
+cloth CONSTABLE2_BATTALION_PAY_TICKET linen light-grey tree hash embellished TEXTILE~
+a light-grey linen cloth embellished with a white tree and a single hash #1(1 Month DUE)#0~
+A light-grey linen cloth embellished with a white tree and a single hash mark lies here.~
+   This light-grey rectangular swath of cloth bears a depiction 
+of the white tree of Gondor. A functional running stitch has 
+been sewn around the edges, finishing the ticket in a manner 
+suitable to prevent fraying. A single hash mark lies beneath the 
+tree. #1(1 Month DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22918 0 2 0 0
+#22918
+cloth CONSTABLE3_BATTALION_PAY_TICKET linen light-grey tree hash embellished TEXTILE~
+a light-grey linen cloth embellished with a white tree and two hashes #1(2 Months DUE)#0~
+A light-grey linen cloth embellished with a white tree and two hash marks lies here.~
+   This light-grey rectangular swath of cloth bears a depiction 
+of the white tree of Gondor. A functional running stitch has 
+been sewn around the edges, finishing the ticket in a manner 
+suitable to prevent fraying. Two hash marks lay beneath the 
+tree. #1(2 Months DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 720 22919 0 2 0 0
+#22919
+cloth CONSTABLE4_BATTALION_PAY_TICKET linen light-grey tree hash embellished TEXTILE~
+a light-grey linen cloth embellished with a white tree and three hashes #1(3 Months DUE)#0~
+A light-grey linen cloth embellished with a white tree and three hash marks lies here.~
+   This light-grey rectangular swath of cloth bears a depiction 
+of the white tree of Gondor. A functional running stitch has 
+been sewn around the edges, finishing the ticket in a manner 
+suitable to prevent fraying. Three hash marks lay beneath the 
+tree. #1(3 Months DUE)#0. 
+~
+12 4096 1
+0 0 0 0
+5 0.000000
+0 0 0 25 0 0 1
+0.000000 0 0 0 2 0 0
+#22151
+box warehouse inventory OTHER~
+a warehouse inventory box~
+A box labelled 'Warehouse Inventory' is here.~
+   Neatly fashioned of cherrywood, this box is designed to carry 
+parchments and correspondence. A small silver plaque on the 
+front has "Warehouse Inventory" scribed in neat Numenian-Tengwar. 
+Hinges at the box's rear help the lid fold closed, a latch is 
+used to secure it. 
+~
+15 4096 1
+2500 1 -1 0
+100 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 0 0 0
+#22152
+box infirmary receipts OTHER~
+an infirmary receipts box~
+A box labelled 'Infirmary Receipts' is here.~
+   Neatly fashioned of cherrywood, this box is designed to carry 
+parchments and correspondence. A small silver plaque on the 
+front has "Infirmary Receipts" scribed in neat Numenian-Tengwar. 
+Hinges at the box's rear help the lid fold closed, a latch is 
+used to secure it. 
+~
+15 4096 1
+2500 1 -1 0
+100 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 0 0 0
+#22153
+box kitchen inventory OTHER~
+a kitchen inventory box~
+A box labelled 'Kitchen Inventory' is here.~
+   Neatly fashioned of cherrywood, this box is designed to carry 
+parchments and correspondence. A small silver plaque on the 
+front has "Kitchen Inventory" scribed in neat Numenian-Tengwar. 
+Hinges at the box's rear help the lid fold closed, a latch is 
+used to secure it. 
+~
+15 4096 1
+25 1 -1 0
+100 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 0 0 0
+#22154
+box infirmary inventory OTHER~
+an infirmary inventory box~
+A box labelled 'Infirmary Inventory' lies here.~
+   Neatly fashioned of cherrywood, this box is designed to carry 
+parchments and correspondence. A small silver plaque on the 
+front has "Infirmary Inventory" scribed in neat Numenian-Tengwar. 
+Hinges at the box's rear help the lid fold closed, a latch is 
+used to secure it. 
+~
+15 4096 1
+2500 1 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22155
+box kitchen receipts OTHER~
+a kitchen receipts box~
+A box labelled 'kitchen receipts' is here.~
+   Neatly fashioned of cherrywood, this box is designed to carry 
+parchments and correspondence. A small silver plaque on the 
+front has "Kitchen Receipts" scribed in neat Numenian-Tengwar. 
+Hinges at the box's rear help the lid fold closed, a latch is 
+used to secure it. 
+~
+15 4096 1
+2500 1 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 0 0 0
+#22156
+box warehouse receipts OTHER~
+a warehouse receipts box~
+A box labelled 'Warehouse Receipts' is here.~
+   Neatly fashioned of cherrywood, this box is designed to carry 
+parchments and correspondence. A small silver plaque on the 
+front has "Warehouse Receipts" scribed in neat Numenian-Tengwar. 
+Hinges at the box's rear help the lid fold closed, a latch is 
+used to secure it. 
+~
+15 4096 1
+2500 1 -1 0
+300 0.000000
+0 0 0 0 0 0 1
+5.000000 0 0 0 0 0 0
+#22157
+medal silver UNIQUE_2479COMPETITION silver simple fist METAL~
+a silver medal with a simple fist~
+A silver medal engraved with a simple fist lies here.~
+   Simple in design and craft, this silver medal shines brightly. 
+The metal has been shaped into a simple representation of a man's 
+fist. Etched carefully at the wrist are four digits, '2479', the 
+sigils flowing gently and gracefully. Affixed to the back of 
+this medal is a simple pin, allowing the badge to be affixed to 
+an article of clothing. 
+~
+11 4096 10485761
+0 0 0 0
+15 0.000000
+0 0 0 0 516 0 1
+150.000000 0 0 0 28 0 0
+#22158
+medal UNIQUE_2479COMPETITION silver shining small bow METAL~
+a silver medal with a small bow~
+A shining, silver medal engraved with a small bow lies here.~
+   Simple in design and craft, this silver medal shines brightly. 
+The metal has been shaped into the thin shape of a longbow. 
+Etched carefully upon the grip are four digits, '2479', the 
+sigils flowing gently and gracefully. Affixed to the back of the 
+back of this medal is a simple pin, allowing the badge to be 
+affixed to an article of clothing. 
+~
+11 4096 10485761
+0 0 0 0
+15 0.000000
+0 0 0 0 516 0 1
+150.000000 0 0 0 28 0 0
+#22159
+ram battering covered massive OTHER~
+a massive, covered battering ram~
+#5A massive, covered battering ram rises up here.~
+   A hardened, oak battering ram, the pointed head covered with a 
+layer of thick iron is suspended by two heavy chains attached to 
+a heavy beam mounted above. The head of a huge, iron pick is 
+firmly bound to the oak ram, re-inforcing the iron clad head. 
+The heavy beam is supported by several stout timbers forming an 
+A-Frame-shaped structure. The sides of the structure have been 
+covered with lumber that has been in-turn covered in hides while 
+the front and back of the structure are open-ended, allowing the 
+men inside to swing the ram the full length of the chains by 
+pulling on the rope attaced to the backend, exerting a temendous 
+force when swung forward. 
+~
+12 4096 1
+0 0 0 0
+40000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22160
+bombs tar bundle bagged OTHER~
+a bundle of bagged tar bombs~
+A bundle of bagged tar bombs has been left here.~
+   This bundle is made of a large, burlap sack over a small cask. 
+Inside the cask are bottles of tar bombs with rocks to add weight 
+to the entire device. It is a crude but dangerous weapon. 
+~
+12 135168 1
+0 0 0 0
+800 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22161
+gorget chainmail silver Master_Sergeant ERADAN METAL~
+a chainmail gorget displaying a silver moon and shield~
+A fine gorget is here, bearing a silver moon and shield engraving.~
+   Apparently well-made and sturdily constructed, this chainmail 
+gorget rises to the underside of the wearer's chin, providing 
+decent protection. On the left side, easily visible on the 
+wearer's neck, is a silver moon and shield, carefully etched. 
+~
+9 0 5
+2 4 0 0
+350 0.000000
+0 0 0 30 513 0 1
+250.000000 0 0 0 28 0 0
+#22920
+Battalion pay invisible object Hack OTHER~
+a ready payday~
+A payday is ready to be collected here.~
+~
+12 4100 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 24 86 0 0 0 0
+#22162
+bottom tower ITHILIEN_CONQUEST third section wooden WOOD~
+a wide, wooden tower section~
+#5A wide wooden structure, the bottom section of a wooden tower sits here.~
+   This section of a wooden structure is slightly larger then
+the other two and is mounted on large wooden wheels. Lengths of
+heavy ropes have been attached to facilitate the harnessing of
+horses to the structure. This structure appears to be the bottom
+bottom section of a tall tapered wooden structure. The structure
+is enclosed in wooden planks on three sides, the front side 
+covered in hides. The open side has a wide ladder reaching the
+height of the structure.
+~
+12 4096 0
+0 0 0 0
+30000 0.000000
+0 0 0 0 134217728 0 1
+0.000000 0 0 0 32 0 0
+#22163
+middle tower ITHILIEN_CONQUEST second section wooden WOOD~
+a fair sized section of a wooden tower~
+#5A fair sized section, the middle of a tall wooden tower sits here.~
+   This section of a tall structure is slightly smaller than 
+bottom piece. It too, is mounted on large wooden wheels with
+lengths of heavy rope attached to facilitate the harnessing of
+horses. This structure appears to be the middle section of a
+tall tapered wooden structure that is enclosed in wooden planks
+on three sides with the front side covered in hides. The open
+side has a wide ladder reaching the height of the structure.
+~
+12 4096 0
+0 0 0 0
+27500 0.000000
+0 0 0 0 134217728 0 1
+0.000000 0 0 0 32 0 0
+#22164
+top tower ITHILIEN_CONQUEST first section wooden WOOD~
+a smaller sized section of a wooden tower~
+#5A smaller sized section, the top of a wooden tower sits here.~
+   This section of a tall structure is fairly narrow, it has a
+roofed platform on its top. A section on the front side is 
+hinged at the bottom and looks like it can be lowered, forming
+a wide walkway. This structure is enclosed in wooden planks on
+three sides, the front side covered in hides. Lengths of heavy 
+ropes have been attached to facilitate the harnessing of horses
+to the structure.
+~
+12 4096 0
+0 0 0 0
+25000 0.000000
+0 0 0 0 134217728 0 1
+0.000000 0 0 0 32 0 0
+#22165
+mangonel ITHILIEN_CONQUEST small wooden modified WOOD~
+an unloaded, modified wooden mangonel~
+#5A small modified wooden mangonel sits here, unloaded and unwound.~
+   This wood and hide mangonel is a little longer than dozen 
+paces and is the result of a great deal of painstaking work and
+care, the hardwood construction sanded smooth. The forward end 
+end of the mangonel has a small hutch constructed upon it,
+housing the long throwing arm that runs the length of the frame.
+A hide-covered heavy iron shield that has been re-shaped to hold
+a fairly large object is firmly attached to the end of the arm.
+Currently, the mangonel is neither wound or loaded, and a set of
+four large wheels attached to it. 
+~
+12 4096 0
+0 0 0 0
+9000 0.000000
+0 0 0 0 134217728 0 1
+500.000000 0 0 0 32 0 0
+#22166
+tower BATTALION sturdy wooden breach WOOD~
+a sturdy wooden tower~
+A sturdy wooden tower has been raised here~
+   Fashioned of sturdy pine planks, this tower rises on stout
+log legs. It offers a commanding view of the surrounding area.
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22167
+mock covered battering ram XUNIQUEBATTTRAINING wooden OTHER~
+a mock, covered battering ram~
+#5A mock-up of a massive covered battering ram has been built here~
+This large, wooden structure is steeped roofed and open
+on both ends. Several heavy logs have been driven into the ground
+at angles so that they meet at the top. These logs then provide
+support for another heavy log from which several lengths of heavy
+chain have been hung.Attached to the chains is a heavy, fire
+hardened battering ram. The ram has had a number of iron rods embedded
+in its length, each with enough room for a man to stand at. There
+are four rods on each side of the ram. And, the sides of the 
+have been covered with rough lumber.
+~
+12 4096 1
+0 0 0 0
+40000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22168
+mock tower wooden siege XUNIQUEBATTTRAINING wooden OTHER~
+a shortened siege tower~
+#5A mock-up of a siege tower has been built here.~
+   This short wooden tower has a ladder that leads upwards
+to a roofed archers platform. Beneath this platform there is a 
+hinged panel that can be lowered with chain to form a bridge. The
+tower has been constructed with heavy timbers and rough lumber.
+There is a metal crank on the wall of the tower that can be used 
+to lower or raise the hinged panel.
+~
+12 4096 1
+0 0 0 0
+30000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22170
+small bag delivery wardenry_postbag TEXTILE~
+a small bag marked for delivery to the Wardenry~
+Lying here is a small bag marked for delivery to the Wardenry.~
+   This bag can be filled with small items and bags. It is the 
+size of a small satchel and looks hardy enough to survive long 
+journeys. 
+~
+15 4096 1
+2000 0 3513 4
+40 0.000000
+20 10 0 1294 0 0 1
+2.000000 0 0 0 7 0 0
+#22250
+scroll leave pass LEAVE_PASS_SOLDIERS_ERAD TEXTILE~
+a scroll bearing permission for leave to Minas Tirith~
+A scroll bearing permission for leave to Minas Tirith has been discarded here.~
+   This scroll is enscribed with a message allowing passage 
+through Osgiliath for the soldiers of Lord Eradan only. 
+~
+12 0 1
+0 0 0 0
+5 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#22169
+simple necklace Tree wooden WOOD~
+a simple necklace bearing a wooden Tree~
+A simple necklace bearing a wooden Tree lies here.~
+This thin necklace, the thread little more than a thin piece of
+sturdy cotton dyed black, would fit most people comfortably. At the
+apex of the curve, a small wooden symbol of the Tree, hand-carved
+out of what appears to be yew wood, is attached to the string by
+strong sailor's knots. It is a very simple affair, and looks worn at
+that.
+~
+12 4096 2097157
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22171
+pendant bymercenary emerald necklace silver METAL~
+an elegant, emerald set silver necklace with a large pendant~
+An emerald pendant on a necklace and silver framing sits here.~
+   This elegant and beautifully crafted necklace has brilliantly 
+cut green emeralds leading up in size from small to large to the 
+center of the necklace. Sections of bright silver hold each 
+emerald securely in place with the next in line to give this 
+piece of jewelry a certain style. Perhaps the most eye-catching 
+part of this necklace is the pendant itself: a wonderfully cut 
+emerald in the shape of a dew drop. The largest of the gems, 
+this translucent stone is of obvious high quality. 
+~
+11 4096 2097153
+0 0 0 0
+100 0.000000
+0 0 0 38 4096 0 1
+2100.000000 0 0 0 28 0 0
+#22172
+bowl UNIQUE_NOUSE bymercenary oval silver-lined copper METAL~
+an oval shaped, silver-lined bowl~
+An oval, silver-lined bowl made of copper sits here filled with aromatic water.~
+   This oval shaped wash-bowl is made of a bright copper with a 
+brilliant silver lining. Adding adornment is an almost 
+coin-print pattern around the outside of the bowl. Filled with 
+crystal clear water and a small handful of rose petals, this is 
+obviously a stylish piece and made by an expert hand. 
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 30 4132 0 1
+1200.000000 0 0 0 28 0 0
+#22429
+smugg_osgi_board well tanned bulky man bald board OTHER~
+#5a well-tanned, bulky man with a bald head#0~
+#5A well-tanned, bulky man with a bald head passes messages.#0~
+~
+22 0 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22173
+haradrim fifty Southron archers OTHER~
+#5an array of fifty Southron archers~
+#5An array of fifty Southron archers are positioned here.#0~
+   Equipped in sandy-hued leathers and sturdy bows, fifty trained 
+Southron men and women are ready for action, equipment emblazoned 
+with the insignia of the Reflected Moon clan, and the ground in 
+front of them embedded with stakes and arrows. 
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22174
+haradrim formation fifty Southron light infantry skirmishers OTHER~
+#5a formation of fifty Southron skirmishers~
+#5A formation of fifty Southron skirmishers are on guard here.~
+   Equipped in leathers and light brigandine, carrying spears and 
+light shields, these trained Southrons serve as light infantry 
+skirmishers. They are ready for battle, equipment emblazoned 
+with the insignia of the Reflected Moon clan. 
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22175
+haradrim supply dump Southron troops OTHER~
+a supply dump for Southron troops~
+Southron soldiers guard a small supply dump here.~
+   Five Southron infantry soldiers stand guard around a dozen 
+crates and barrels. Arrows, bolts, food, and other supplies have 
+all been arranged and stacked neatly. 
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22176
+haradrim formation fifty heavy Southron infantry OTHER~
+#5a formation of fifty Southron heavy infantry#0~
+#5A formation of fifty Southron heavy infantry is assembled here.#0~
+   Shields arrayed in a wall, each of these Southron men and 
+women is equipped for war, armed with shields and a variety of 
+melee weapons. There are fifty of these soldiers, ready for 
+action, and their heavy equipment is emblazoned with the insignia 
+of the Reflected Moon clan.
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22177
+haradrim troop two hundred Southron soldiers OTHER~
+#5a troop of two hundred Southron soldiers#0~
+#5A troop of two hundred Southron soldiers are arrayed here at the ready.#0~
+   Theirs shields ready and weapons in hands, each of these two 
+hundred Southron soldiers are battle ready, standing vigilant and 
+at arms. Their equipment has been emblazoned with the insignia 
+of the Reflected Moon clan. 
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22178
+haradrim officer Southron vnpc OTHER~
+#5a Southron officer giving orders#0~
+#5A Southron officer is here, giving commands to nearby soldiers to relay.#0~
+   A Southron officer stands here, issuing orders and sending 
+runners to relay those commands to nearby soldiers and 
+formations. 
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22179
+haradrim disorganized camp southrons OTHER~
+a disorganized camp of Southrons~
+A disorganized camp of Southron soldiers is spread out here.~
+   This camp is hardly off the ground, with a variety of conical 
+tents set in the middle, and a rough outline of trenchs and logs 
+making up the perimeter. Fire pits are intermingled throughout 
+the camp and along the perimeter, and haradrim soldiers are 
+visable moving throughout the camp. 
+~
+12 135168 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 720 22180 0 0 0 0
+#22180
+haradrim defended organized camp Southrons morhp1 OTHER~
+a defended, organized camp of Southrons~
+An organized camp of Southron soldiers is spread out here, sentries posted about it.~
+   This camp is comprised of conical tents set up in a careful 
+array of rings, one within the other, culminating at a final 
+large tent in the middle. Between each tent is a firepit, its 
+edged ringed with stone, weapons ready in nearby racks. Sentries 
+are present at each firepit, keeping a vigilant eye to the 
+outside. Banners flying the insignia of the Reflected Moon clan 
+can be seen in the camp. 
+~
+12 135168 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 720 22181 0 0 0 0
+#22181
+haradrim large fortified camp Southron soldiers morph2 OTHER~
+a large, fortified camp of Southron soldiers~
+A fortfied camp of Southrons is set here, sentry towers posted along its walled perimeter.~
+   This compound is the result of a large amount of effort, its 
+perimeter large. Wooden walls, about the height of a troll, 
+protect those within from danger. A single small gate has been 
+carved out of the palisade. Coming from within are the sounds of 
+a large force, metal clanking against metal, voices shouting in a 
+foreign tongue. Sentries man the gate, their tall forms straight 
+against the wooden stakes of the wall. Banners flying the 
+insignia of the Reflected Moon clan are set about the camp. 
+~
+12 135168 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#22182
+haradrim troop fifty Southron cavalry OTHER~
+#5 a troop of fifty Southron cavalry~
+#5A troop of fifty Southron cavalry are positioned here.~
+   Equipped in brigandine and lamellar scale, riding large 
+Kramatian horses, the members of this troop of cavalry are battle 
+ready, wielding long spears, sharp scimitars, and light round 
+shields. They fly a banner depicting the insignia of the 
+Reflected Moon clan. 
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22183
+orcish motley assembly fifty archers OTHER~
+#5a motley assembly of fifty orcish archers~
+#5A motley assembly of fifty orcish archers have arrayed themselves here.~
+This motley gathering of orcish archers are shod in a variety
+of shoddy leathers and rags, wielding a variety of missile
+launchers ranging from crossbows, to longbows, to javelins
+and slings.
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22184
+orcish rough group fifty light infantry soldiers OTHER~
+#5a rough group of fifty orcish light infantry soldiers~
+#5A rough group of fifty orcish light infantry soldiers prowl and hold their ground here.~
+   Equipped in shoddy armour, most in leather with odd exception 
+in metal, these fifty orcs are mostly of a lesser ilk, backed up 
+with the odd brute of Mordorian blood. They carry a variety of 
+crude weaponry, from broad scimitars, spears, to tools such as 
+scythes and flails. 
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22185
+orcish menacing troop fifty uruk hai warriors OTHER~
+#5a menacing troop of fifty uruk-hai warriors~
+#5A menacing troop of fifty uruk-hai warriors prowl and hold their ground here.~
+   Armed in heavy, pitted iron plate and thick full helms, with a 
+variety of brutal weaponry such as pikes, battleaxes, large 
+ball-and-chains and broadswords. Some carry shields, while 
+others use both hands to engage their enemy. All fifty of their 
+number are eager for battle, and would carry it out with a brutal 
+efficiency. 
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22186
+orcish pack twenty five wargriders OTHER~
+#5a pack of twenty-five orcish wargriders~
+#5A pack of twenty-five orcish wargriders prowl about the area in a loose formation.~
+   Equipped in brigandine and lamellar scale, riding large 
+Kramatian horses, the members of this troop of cavalry are battle 
+ready, wielding long spears, sharp scimitars, and light round 
+shields. They fly a banner depicting the insignia of the 
+Reflected Moon clan. 
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22187
+orcish brutish orc officers vnpc OTHER~
+#5a brutish orc officer giving orders~
+#5An especially brutish orc barks out orders and commands to nearby orcish soldiers to relay.~
+   An especially brutish orc looms here, barking out commands 
+viciously to nearby orcish soldiers, pointing swift runners to 
+relay commands to other units with snarls as well. 
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22188
+orcish supply dump troops OTHER~
+a suppy dump for orcish troops~
+A crude supply dump is guarded by orcish troops here.~
+   Five orcish infantry soldiers stand guard around a dozen 
+crates and barrels. Arrows, bolts, food, and other supplies have 
+all been arranged and stacked haphazardly. 
+~
+12 4096 0
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22189
+orcish lumbering troop fifteen war trolls OTHER~
+#5a lumbering troop of fifteen war-trolls~
+#5A lumbering troop of fifteen war-troll patrol the grounds here slowly.~
+   Each of these massive trolls on their own are an intimidating 
+sight, yet the fifteen of them are enough to put most to flight. 
+These trolls are bred and trained for war, their thick protective 
+hide still scarred in places. Some bear crude spiked helms with 
+thick metal chains wrapping their bodies, while others are 
+helmless with thick sheets of metal hung on their fronts and 
+backs as crude breastplates. They carry huge picks, clubs, and 
+other crude implements for crushing their enemies. 
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22190
+orcish siege catapult twenty five sappers OTHER~
+#5a siege catapult manned by twenty-five orcish sappers~
+#5A siege catapult has been set up here, twenty-five orcish sappers surrounding it to ensure the weapon remains in working order.~
+   Constructed of wood and sinew rope, these catapult is an 
+effective display of orcish siege weaponry. It has the 
+capability to hurl a large boulder a distance, causing extreme 
+destructive force. Twenty five orcish sappers, mostly naked and 
+armed with small daggers and knives, man the weapon, seemlingly 
+trained in its use. 
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22191
+orcish looming troop eleven war trolls OTHER~
+#5a looming troop of eleven war-trolls~
+#5A looming troop of eleven war-trolls patrol the grounds here slowly.~
+   Each of these massive trolls on their own are an intimidating 
+sight, yet the eleven of them are enough to put most to flight
+These trolls are bred and trained for war, their thick protective 
+hide still scarred in places. Some bear crude spiked helms with 
+thick metal chains wrapping their bodies, while others are 
+helmless with thick sheets of metal hung on their fronts and 
+backs as crude breastplates. They carry huge picks, clubs, and 
+other crude implements for crushing their enemies.
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#22192
+orcish swift pack six wargs OTHER~
+#5a swift pack of six wargs~
+#5A swift pack of six wargs sniff at the air and prowl the area.~
+   Each of these swift wargs are menacing and shaggy-furred. 
+They move with an able grace that contrasts with their ferocious, 
+bulky bodies. They are unbridled, with no trappings save for the 
+lead hulking beast, which has a collar with a fang hanging from 
+it. 
+~
+12 4096 1
+0 0 0 0
+1000000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+$~

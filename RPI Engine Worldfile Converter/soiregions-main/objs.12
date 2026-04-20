@@ -1,0 +1,1059 @@
+#12000
+rock large cairn black moss STONE~
+a large, moss-encrusted rock~
+A large, moss-encrusted rock rises from the dank ground in the centre of the isle.~
+   This monolith of dark, igneous rock lurches from the soggy 
+ground at a slight angle, leaning towards the south-east as it 
+climbs from the soft terrain of this tiny island. A thick layer 
+of grey, flaking moss covers the lower half of this rock, rough 
+to the touch, whilest a number of skeletal plants cluster about 
+its base. A small hole is noticeable at the south-eastern base 
+of the pillar, perhaps just large enough for one to squeeze 
+through. 
+~
+12 4096 0
+0 0 0 0
+43436400 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#12001
+necklace scrimshaw beads engraved OTHER~
+a necklace of engraved scrimshaw beads~
+A small bundle of off-white beads lies here.~
+   A thin, heavily tarnished silver chin of crude workmanship 
+threads through a series of a dozen large spherical beads 
+fashioned from scrimshaw. The smooth surface of the beads is 
+broken only by the simple engravings of stylized waves - while 
+the design is plain, the meticulous and precise detail of which 
+the countless repetition of the symbol occurs in. The cumulative 
+effect is quite aesthetic, and the piece is rather prominent in 
+size. 
+~
+8 4096 2097153
+10 0 0 0
+25 0.000000
+0 0 0 30 4224 0 1
+500.000000 0 0 0 0 0 0
+#12002
+fluid, a dark, aromatic liquid LIQUID~
+filled with a dark, aromatic liquid~
+~
+~
+50 4096 1
+8 -1 -1 0
+16 0.000000
+0 0 0 0 0 0 1
+1.000000 0 0 0 0 0 0
+#12003
+flask battered iron small METAL~
+a small, battered, iron flask~
+A small iron flask, rather beaten and battered, lies here.~
+   Small enough to fit comfortably in one's hand, this flask has 
+been through some heavy use and adverse conditions, if the 
+battered, scratched and bent iron metal that forms it is any 
+indication. Roughly rectangular in shape, a small metal cap sits 
+securely upon the mouthpiece of the flask. 
+~
+17 4096 1
+10 10 12002 0
+200 0.000000
+0 0 0 0 0 0 1
+15.000000 0 0 0 17 0 0
+#12004
+statue unique_swamp towering weed-wrapped hunched figure tombstone STONE~
+a towering, weed-wrapped statue of a hunched figure~
+A towering statue of a hunched figure lurches from the midst of the isle, wrapped in dark weeds.~
+   Lurching at a slight angle from the boggy land of the isolated 
+isle, this towering statue still extends above the heads of all 
+but the tallest of men. A thick layer of dark weeds has wrapped 
+itself about the figure of the statue, obscuring all the shape of 
+a hunched figure perched over some unknown object. Towards the 
+base of the statue, the weeds loosen their tenacious hold, 
+glimpses of a dull, white stone visible, pocked with many marks 
+and colonies of moss. On the eastward side of the figure, just 
+above the damp ground, a faint inscription can be seen past the 
+moss and weeds. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 4224 0 1
+0.000000 0 0 0 30 0 0
+#12005
+inscription unique_swamp statue OTHER~
+an eroded inscription on the base of the statue~
+An eroded inscription lies at the very base of the statue.~
+~
+53 4096 0
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12006
+petrified-trolls swamp_unique five_troll_stand trolls moss weeds figures stone STONE~
+one of the petrified, moss-shrouded trolls~
+Five looming figures of stone, shrouded in moss and lashed with weeds, rise up from the dark soil of the trail.~
+   Towering well over the heads of the tallest of men, these five 
+massive figures of stone are arranged in a rough semi-circle 
+about the trail, the gaps between them allowing one to easily 
+pass through them in order to progress further along the path. A 
+closer examination of the moss-shrouded, weed-lashed statues 
+reveals decidedly troll like features carved into the stone, each 
+one fashioned that its massive fists are raised back, as if to 
+strike some target on the ground between them. The detail of the 
+work is nothing less than astonishing, with every foul pore and 
+jagged, broken tooth masterfully depicted on the snarling mouths 
+of the brutish trolls. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#12007
+pillar SWAMP_UNIQUE pitted crude stone STONE~
+a pitted stone pillar~
+A pitted stone pillar rises up a short distance from the crude, masonry scattered about its base.~
+   Square cut stone, a dusty grey in hue, rises up several feet
+from the firm ground of the trail leading through the swamp. 
+There is little adornment about the structure, instead simply 
+being of solid build. The stone surface of the pillar is heavily 
+pitted, and vines and moss grow freely about it. Loose blocks, 
+the same stone as they which the pillar has been fashioned from, 
+lay about the base, choked in weeds and fungi. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#12008
+willow tree massive gnarled SWAMP_UNIQUE WOOD~
+a massive, gnarled willow~
+A massive, gnarled willow dominates the island, branches drooping down over the thick roots that run rampant over the ground.~
+   This willow tree is as ancient as they come, its wood hard as 
+steel and of a dusky, brown color. Moss and lichen grow freely 
+along it, and the occasional insect can be seen to crawl across 
+its massive frame, yet the tree seems to have survived such pests 
+with little bending or bowing. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#12009
+fence heath_unique low uneven stone piled STONE~
+a low, uneven fence of piled stones~
+A low, uneven fence of piles stones runs a short distance from north to south, a narrow gap set near the centre.~
+   This rough fence has been formed of simple stones piled atop 
+one another, the structure seemingly held in place by the thick 
+weeds that snake between each stone. It is curiously low, coming 
+only to the knees of an average sized man, the bottom stones 
+somewhat covered by the soft earth of the heathland. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#12010
+foundation heath_unique stone structure rocks lichen inhabited TEXTILE~
+a structure of lichen-inhabited stone~
+A low structure, an uneven surface of lichen-inhabited rocks, rises up from the tall grass of a hillock here.~
+   Emerging from the tall, uncut grass that roams across much of 
+the heathland here is a large surface of stones, somewhat flat 
+yet with many uneven rocks jutting out or missing, their place 
+taken by wildly growing weeds. Between every crack in this stone 
+foundation is a thick wedge of lichen, a dull green bordering 
+upon grey in colour. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#12011
+cottage heath_unique sunken roof missing slanted OTHER~
+a slanted, sunken cottage~
+Sunken into the soft ground of the heathland here is a slanted cottage, the roof missing.~
+   The stone walls of this cottage have sunk to some degree 
+beneath the surface of the boggy ground here, the eastern wall in 
+particularly covered in scraggly vegetation. The roof is long 
+gone, rotted wooden slates set across the length of the building. 
+An opening set low to the ground allows those determined enough 
+to squeeze inside. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12012
+barn heath_unique lopsided tree partially ruined OTHER~
+a partially ruined, lopsided barn~
+A lopsided barn lurches from the ground here, a massive tree collapsed onto the lower end.~
+   Large enough to have once stored many livestock and crops, 
+this somewhat ruined barn is of little more use. A massive tree 
+has smashed through the lower end of the structure, shattering 
+the roof and tilting the building upwards. The doorway lies open 
+at the northern, upwards end, and a short climb is required to 
+enter the remains of the barn. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12013
+rock heath_unique dark igneous carvings STONE~
+a dark, igneous rock covered in carvings~
+A towering rock lurches forth from the boggy wetlands here, its surface free of lichen or moss and instead covered in spiralling carvings.~
+   Of dark igneous type, this rock towers over the heads of men, 
+perhaps even trolls, as it lurches from the boggy ground here. A 
+series of small bushes grow about it, but none seem too large, 
+the ground about it of soft dirt instead of the usual knee-high 
+grass of the heathland. Intricate carvings of spiraling swirls 
+of no particular shape or pattern adorn the rock, the work only 
+covering the lower half of the monolith. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#12014
+tree weeping willow large WOOD~
+a large weeping willow tree~
+A large weeping willow tree is here.~
+   This large tree is clearly quite old, with a solid but
+slender trunk. Hundreds of branches sprout from the trunk,
+all weighed down by many slim little green leaves that give
+the tree a distinctly weepy appearance. Some of the leaves
+actually brush the ground, the branches are so long.
+~
+12 4096 0
+0 0 0 0
+120000 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#12015
+mushrooms SWAMP_UNIQUE RITUAL_CRAFT red-capped patch thick OTHER~
+a thick patch of red-capped mushrooms~
+Red-capped mushrooms grow about the swamp here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12016
+mushrooms SWAMP_UNIQUE RITUAL_CRAFT red-capped handful VEGETATION~
+a handful of red-capped mushrooms~
+A handful of red-capped mushrooms have been left here.~
+~
+19 4096 1
+6 0 0 0
+100 0.000000
+0 6 0 0 134218752 0 1
+1.500000 0 0 0 0 0 0
+#12017
+mushrooms SWAMP_UNIQUE RITUAL_CRAFT red-capped growth small OTHER~
+a light growth of red-capped mushrooms~
+The odd mushroom or two grows about the swamp here.~
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 54 12015 0 0 0 0
+#12018
+powder RITUAL_CRAFT red and white speckled pinch OTHER~
+a pinch of white and red speckled powder~
+A small pile of red and white powder sits here.~
+~
+12 4198400 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+17.000000 0 0 0 0 0 0
+#12456
+bones scattered mounds OTHER~
+mounds of scattered bones~
+Mounds of scattered bones lie strewn about the cavern.~
+   Strewn about the cavern are many small mounds of various 
+bones. Some of the bones clearly belonged to animals, while 
+others appear to have belonged to something humanoid. Many of 
+the bones still have rotting bits of flesh attached, and there 
+are patches of fur and the occasional feather mixed into the 
+piles. 
+~
+15 4096 0
+15000 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12457
+spaulder UNIQUE spiked iron rusty METAL~
+a rusty, spiked iron spaulder~
+A rusty, spiked iron spaulder lies here.~
+   Made from five iron plates, this spaulder is designed to 
+provide protection to the shoulder and upper arm. A set of two 
+large spikes are set in the plate that would cover the top of the 
+shoulder, though one spike has been broken off at the half way 
+point. Much of the surface is covered in rust, but some detail 
+work is visible. A dragon's head, partially covered by rust has 
+been engraved into the shoulder plate, and it is positioned so 
+that the spikes appear to be its horns. 
+~
+9 4096 8388609
+2 5 0 0
+500 0.000000
+0 0 0 20 0 0 1
+0.000000 0 0 0 17 0 0
+#12800
+vest silver onyx brigandine leather LEATHER~
+a silver-lined onyx brigandine vest~
+A silver-lined onyx brigandine vest lays here.~
+~
+9 4104 9
+2 3 3 3
+1000 0.000000
+0 0 0 0 16 0 1
+650.000000 0 0 0 14 0 0
+#12801
+plum stained fiddle gold WOOD CASIMIRO_OBJ~
+a plum-red stained fiddle with golden accents~
+A plum-red stained fiddle with golden accents is propped up here.~
+   The top of this fiddle is of excellent selected lebethron with 
+fine even grains. The back is of one piece quarter-cut birds-eye 
+maple having a medium regular figure slanting slightly downward 
+from left to right. The varnish is of a rich plum-red color. 
+Several golden pegs hold tight the strings that run down the 
+neck, easily adjusting the pitch. This violin to be an 
+outstanding specimen of a masters work and in excellent 
+preservation. 
+~
+18 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+3500.000000 0 0 0 32 0 0
+#12802
+helm blackened lazurite encrusted helm greathelm METAL~
+a blackened lazurite-encrusted helm~
+A blackened lazurite-encrusted helm lies abandoned here.~
+   Fashioned of blackened, tempered steel, this large greathelm 
+solidly encompasses the entire head, with only a narrow, serrated 
+slit providing some limited vision for its porter. Half a dozen 
+polished wavy-blue lazurite ribs have been expertly embedded 
+along either side of the helmet. Combined with the lazurite and 
+the vicious V-shaped slit, the pointed metallic chin allows for a 
+particularly imposing armored visage. 
+~
+9 528384 17
+3 3 0 0
+700 0.000000
+0 
+lazurite-encrusted-helmed~
+0 40 0 0 1
+1000.000000 0 0 0 28 0 0
+#12803
+bow long gold-capped WOOD~
+a long gold-capped fiddle bow~
+A long gold-capped fiddle bow lays here.~
+This long thin fiddle bow is constructed of a thin rigid piece of 
+lebethron stained plum-red. The ends are capped in gold along with
+the frog, which holds tight several white stallion hairs. 
+~
+0 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#12019
+half-eaten mass flesh MEAT~
+a half-eaten mass of flesh~
+A half-eaten mass lies here, oozing fluids.~
+   This mound of meat appears to have once been perhaps a large 
+cat or dog. Completely free of skin, it oozes fluids, and pieces 
+of bone and meat can be seen jutting out. It appears that 
+someone, or something, has found this appetizing, as there are 
+clear chunks missing entirely from the grotesque mass. 
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12020
+half-eaten dog flea corpse MEAT~
+the half-eaten corpse of a flea-infested, long-haired mutt~
+The half-eaten corpse of a flea-infested, long-haired mutt lies here.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12021
+half-eaten corpse slick grey rat MEAT~
+the half-eaten corpse of a slick, grey rat~
+The half-eaten corpse of a slick, grey rat lies here, oozing fluids.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12022
+key heavy toothed three-toothed CULT_OF_MORGOTH_PRESBYTERY METAL~
+a heavy, three-toothed key~
+A heavy, three-toothed key is here~
+This is a large key, with three big heavy teeth. 
+~
+18 4096 1
+0 0 0 0
+35 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#12023
+key brass fine CULT_OF_MORGOTH_OFFICES METAL~
+a fine brass key~
+A fine brass key has been left here.~
+It's a tiny key, finely worked, and made of brass
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#12024
+key platinum ruby-inlaid CULT_OF_MORGOTH_HEAD_OFFICE METAL~
+a ruby-inlaid platinum key~
+A ruby-inlaid platinum key has been left here.~
+   It's a platinum key, the head of which has been inlaid with a 
+ruby. 
+~
+18 4096 1
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#12025
+tiara gold delicate CULT_OF_MORGOTH METAL~
+a delicate gold tiara~
+A delicate gold tiara has been discarded here.~
+   This tiara, made of interlaced woven gold, is quite delicate 
+and fine. The main pattern that seems to repeat itself in the 
+gold weaving is that of the quatrefoil. 
+~
+11 135168 17
+0 0 0 0
+100 0.000000
+0 0 0 35 0 0 1
+5000.000000 0 0 0 28 0 0
+#12026
+key iron small OBJECT_1639 METAL~
+a small iron key~
+A small iron key is here.~
+   This key is small, with a double head, and made of iron. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 20 0 0 1
+0.000000 0 0 0 17 0 0
+#12027
+kerchief ash-grey mark bull lioness CULT_OF_MORGOTH TEXTILE~
+an ash-grey kerchief with the mark of a bull and lioness~
+An ash-grey kerchief has been discarded here.~
+   This square of cloth, perhaps two feet by two feet in size, is 
+dyed an ashen grey. It can be worn on the head as a headscarf, 
+over the face, obscuring the wearer's identity...perhaps tied to 
+the arm, ankle or wrist. On each of the edges, a small rendering 
+in stitches has been made - a bull on the right hand corners when 
+held up the right way, and a lioness on the left hand ones. 
+~
+11 528384 218107905
+0 0 0 0
+10 0.000000
+0 
+grey-kerchiefed~
+0 10 0 0 1
+0.000000 0 0 0 7 0 0
+#12028
+key tarnished sleek-black CULT_OF_MORGOTH SEEKERS_CLANHALL_ARMORY METAL~
+a tarnished, sleek-black key~
+A tarnished, sleek-black key lies here.~
+~
+18 4096 1
+0 0 0 0
+20 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 28 0 0
+#12029
+key thick-cylindrical iron CULT_OF_MORGOTH SEEKERS_CLANHALL_ARMORY METAL~
+a thick-cylindrical key of iron~
+A thick-cylindrical key of iron lies here.~
+~
+18 4096 1
+0 0 0 0
+20 0.000000
+0 0 0 10 0 0 1
+0.000000 0 0 0 17 0 0
+#12030
+key limber key tinted storm grey CULT_OF_MORGOTH SEEKERS_CLANHALL_ARMORY METAL~
+a limber key tinted storm grey~
+A limber key tinted storm grey lies here.~
+~
+18 4096 1
+0 0 0 0
+20 0.000000
+0 0 0 10 0 0 1
+0.000000 0 0 0 20 0 0
+#12031
+key crimson-hued stubby metal CULT_OF_MORGOTH SEEKERS_CLANHALL_ARMORY METAL~
+a crimson-hued, stubby metal key~
+A crimson-hued, stubby metal key lies here.~
+~
+18 4096 1
+0 0 0 0
+20 0.000000
+0 0 0 10 0 0 1
+0.000000 0 0 0 28 0 0
+#12032
+key scratched iron CULT_OF_MORGOTH SEEKERS_CLANHALL METAL~
+a scratched, iron key~
+A scratched, iron key lies here.~
+~
+18 4096 1
+0 0 0 0
+20 0.000000
+0 0 0 10 0 0 1
+0.000000 0 0 0 17 0 0
+#12804
+crystal blue masterfully cut STONE~
+a masterfully cut blue crystal~
+A glinting blue crystal lays here on the ground sparkling from passing light.~
+   Shaped into a delicate point at either end, the blue color of 
+this crystal is light near the top, fading into a deeper blue 
+near the center, then lightening again as it fades into the 
+thinner bottom point. The rest of the crystal is carefully 
+formed into a cylinder to join the two points, the delicate 
+etches from the jeweler's tools evident on the side. It spans 
+about four inches from tip to tip. 
+~
+8 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 40 0 0 1
+1000.000000 0 0 0 30 0 0
+#12033
+com_heavies_board kaals group board happenings chat OTHER~
+#5a group of Kaals#0~
+#5A group of Kaals stand about, chatting about the current happenings.#0~
+~
+22 4096 0
+0 0 1 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12805
+horn hunting horse mounted horn plaque WOOD~
+a mounted, large, horse-carved hunting horn~
+A mounted, large, horse-carved hunting horn hangs here upon the wall.~
+   Mounted upon a lebethron plaque is a large hunting horn. This 
+horn has been fashioned from a long, smooth ivory horn. 
+Greyish-yellow in colour, its surface has been well polished, and 
+intricately carved with the image of a horse, frozen in 
+mid-stride. A length of cord tied to its ends allows the horn to 
+be worn over the shoulder. Under the horn on a bronze plaque, 
+marked in Numenian-Tengwar sigils is, "In Rememberance of Guusal, 
+may he rest in peace." 
+~
+8 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#12806
+ebon scaled serpentine mask LEATHER~
+an ebon-scaled, serpentine mask~
+A mask lies here, ebon scales creating a serpent-like visage.~
+   An oddity of craftsmanship, this mask has been crafted out of 
+the best materials. Akin to a snake's visage, it has been 
+systematically covered in thin oyster shells and ebon 
+mother-of-pearl. Carefully, thin slits have been cut and molded, 
+to create otherworldly, slanted eyes. Large canine teeth are 
+expertly set into the mouth, and display somewhat of a snarl. A 
+upraised ridge of what looks to be bone forms an oversized brow, 
+complimenting the ominous glare of serpentine eyes. 
+~
+11 528384 67108865
+0 0 0 0
+100 0.000000
+0 
+serpent-masked~
+0 0 0 0 1
+0.000000 0 0 0 14 0 0
+#12830
+cloak voluminous ebon cloak hooded cowl TEXTILE UNIQUE_CASI~
+a voluminous ebon cloak with a deep cowl~
+A heap of dark ebon cloth lies here.~
+~
+11 528392 1025
+10000 0 -1 0
+300 0.000000
+0 
+ebon-cloaked~
+0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#12034
+quest_board OTHER~
+a quest board~
+The quest board is here.~
+~
+22 0 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12035
+firstStep OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2 12036 0 0 0 0
+#12036
+secondStep OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 2 12037 0 0 0 0
+#12037
+thirdStep OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 48 12038 0 0 0 0
+#12038
+phaseFour OTHER~
+a generic object~
+Some careless admin has left a generic object here.~
+~
+12 4 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12039
+table ornate oak end winding designs four legs WOOD~
+an ornate oak end table~
+An ornate oak end table with winding designs stands on four legs.~
+   Carved from a rich, dark-colored oak, this end table has
+been well-crafted. It stands on four sturdy legs, each with
+winding designs from top to bottom and ending in a claw foot.
+Similar designs have been etched onto the surface of the end
+table, running along the edges of all four sides.
+~
+15 2101248 0
+10000 0 0 0
+1000 0.000000
+0 0 0 0 0 0 1
+225.000000 0 0 0 32 0 0
+#12040
+Sebben Ulara blonde haired azure eyed toddler POFCAMI POFKAHR OTHER~
+#5a blonde haired, azure eyed toddler#0~
+#5A blonde haired, azure eyed toddler is here.#0~
+   A blonde haired, azure eyed toddler has a well proportioned 
+body of average size and weight. Her hair is short and soft. 
+Her rosy cheeks bear dimples and her upper left arm has a 
+birthmark of a blueberry sized, black dot. 
+~
+15 2101248 1
+3000 0 0 0
+700 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12703
+black, Iron, Key METAL~
+A plain, black iron key~
+A plain, black iron key lies here forgotten~
+~
+18 4104 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#12736
+key~
+a key~
+a small silver key~
+~
+18 12 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12041
+key~
+a key~
+a small silver key~
+~
+18 12 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12042
+tower collapsed lichen encrusted ruins circular STONE~
+the collapsed, lichen-encrusted ruins of a circular tower~
+The collapsed, lichen-encrusted ruins of a circular tower lay here, half sunken into the wet ground of the island.~
+~
+12 4096 1
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#12043
+massively slashed rotted robe caked blood TEXTILE~
+a massively-slashed, rotted robe covered in caked blood~
+A massively-slashed, rotted robe covered in caked blood lays here.~
+   The original color of this robe is lost in the stains of filth 
+and blood that cover its entire surface. While several large 
+gashes are rent in it in various places, it is the huge, gaping 
+slash mark over the chest that draws the attention. The entire 
+front of this ancient robe is covered in dried, caked blood 
+barely decipherable from the other black stains of dirt that 
+cover it. The hem, sleeves, and other fringe pieces of the item 
+are frayed to threads, the entire item looking nigh ready to 
+disintegrate from age and overuse. 
+~
+11 4608 1033
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 7 0 0
+#12044
+brooch blood filth smeared gold brooch tome OTHER~
+a blood- and filth-smeared gold brooch bearing an open tome~
+A blood- and filth-smeared gold brooch bearing an open tome lays here.~
+   Once an item of supreme craftsmanship, the glimmer of this 
+gold brooch has been subdued by the caked blood that covers its 
+emblem and the general black filth, mud, and blood that seems to 
+have settled on it. Dangling from the chain of the brooch is an 
+open tome, barely decipherable at all beneath the corruption and 
+defilement. The intricate metalwork that once depicted the 
+fanned-out pages and tiny writing has, however, been finally worn 
+away by age and harsh surroundings. 
+~
+11 4096 2097153
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12045
+cuirass Unique armor lobstered cuirass of bladed iron qShadow pGrutz METAL~
+a lobstered cuirass of bladed iron~
+A thick cuirass of lobstered-plates lies here~
+   This heavy cuirass is masterfully crafted of a half-dozen 
+bands of thick, bladed iron that wrap horizontally around the 
+chest and back of the wearer. They are arranged to slide over 
+each other easily, giving a solid wall of protection. On the 
+shoulders sit a pair of thick, barb-lined pauldrons, and the 
+inside of the breastplate is lined with sweat stained fur and 
+leather, to give some added degree of protection from the blunt 
+force of attacks. The entire array as been fire-blackened and 
+secured with thick bolts, making it a formidable example of 
+yrkish armor. 
+~
+9 0 9
+2 3 0 0
+1000 0.000000
+0 0 0 39 8 0 1
+700.000000 0 0 0 17 0 0
+A
+10025 -5
+A
+10024 -15
+A
+10037 -15
+A
+10036 -15
+#12046
+tree GOTHAKRA_CAVES broken trunk massive WOOD~
+a massive broken tree-trunk~
+A massive broken tree-trunk lies across the trail here.~
+   This tree has grown old and died and in some landslide fallen 
+down the ravine and across the trail. Passing it is difficult 
+but not impossible. The tree-trunk has few branches left on it 
+and those that remain are broken and dead. 
+~
+12 0 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 32 0 0
+#12047
+key GOTHAKRA_CAVES sturdy iron METAL~
+a sturdy iron key~
+A sturdy iron key has been left here.~
+   This key is relatively unremarkable apart from being quite 
+old. It has been made of good quality iron and its surface is 
+now pitted with age. 
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 17 0 0
+#12048
+key GOTHAKRA_CAVES large stone black STONE~
+a large, black stone key~
+A large, black stone key lies here.~
+   This key is unremarkable except for being crafted of solid 
+black rock. The skill that has made it is reasonably impressive, 
+and it has survived the years very well. It is quite heavy. 
+~
+18 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 30 0 0
+#12049
+parchment EXPIRED visitors visa OTHER~
+#2An #1Expired#2 Visa bearing the Offical Seal of the Fahad'Jafari Registrar#8~
+#2An #1Expired#2 Visa bearing the Offical Seal of the Fahad'Jafari Registrar is set here.#8~
+   This is an offical document and bears the seal of The 
+Fahad'Jafari Registrar. The parchment is finely crafted and the 
+ink is a rich black. The handwriting is beautiful with 
+flourishes and embellishment. It is noted as Visitor's Visa, 
+#1EXPIRED.#8 
+~
+12 0 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12050
+key small brass muffin xxSnorkMadeForRM11585 METAL~
+a small brass key with a muffin shaped handle~
+A small brass key has been left here.~
+   This small key constructed from a single piece of brass sports 
+a muffin shaped handle and three small tines on the business end. 
+It appears well made all the more so for its diminutive size. It 
+appears ideally suited for smaller hands to manipulate. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#12051
+crack rock wall byCeredir STONE~
+a crack in the rock~
+A crack in the rock has been widened by some digging.~
+   A narrow crack running through the cliff wall has been widened 
+just enough for an ordinary humanoid to pass through. 
+~
+12 4096 0
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12052
+embroidered deep blue sleeveless silk dress POFLUCIUN TEXTILE~
+an embroidered deep blue sleeveless silk dress~
+An embroidered deep blue sleeveless silk dress lies here in a crumpled ball.~
+   The well-structured bodice of this dress is simply adorned 
+with the vertical seams concealing the bone stays, except for the 
+front panel which is the color of pale grey and is embroidered 
+with the image of curling vines and budding flowers. Lacing down 
+the back provide the wearer the ability to adjust the fit. 
+Flowing out from under the bottom of the bodice is a simple skirt 
+of lustrous deep blue silk. Continuing the theme from above, a 
+gradually widening band descends to the floor where the skirt 
+flares out in and elegant line. 
+~
+11 4608 9
+0 0 0 0
+100 0.000000
+0 0 0 30 4096 0 1
+1800.000000 0 0 0 5 0 0
+#12053
+snow white brocade silk dress airy skirt POFLUCIUN TEXTILE~
+a snow white brocade silk dress with and airy skirt~
+A snow white brocade silk dress with and airy skirt lies here in a crumpled ball.~
+   This snow white gown's bodice, made from a lustrous 
+medium-weight silk, the surface of which is adorned with a 
+delicate mix of flowing design and decorative beading. Light 
+boning provides structure, with lacing down the back that allows 
+the dress to be fitted exactly. In contrast, the skirt of this 
+dress is made of the finest, nearly transparent silk. Layer upon 
+layer of this airy fabric fill out the skirt, creating shimmering 
+effect when in motion. 
+~
+11 4608 9
+0 0 0 0
+100 0.000000
+0 0 0 30 4096 0 1
+1200.000000 0 0 0 5 0 0
+#12054
+armband white bearing circle torch POFLUCIEN TEXTILE~
+a white armband bearing a circle and torch~
+A white armband bearing a circle and torch has been discarded here.~
+   This simple linen armband has ties at either end to be easily 
+secured. In the center of one side the image of a lit torch 
+enclosed in a circle has been sewn. 
+~
+11 4608 134217729
+0 0 0 0
+35 0.000000
+0 0 0 0 36 0 1
+12.000000 0 0 0 2 0 0
+#12055
+mask snake black POFLUCIUN TEXTILE~
+a snake adorned black mask~
+A snake adorned black mask has been left here.~
+   This simple cloth shroud has been dyed a plain black and 
+covers the entire head. Round holes have been left for the eyes 
+and ties have been used to adjust the fit in the back. Sewn to 
+the forehead is the likeness of green snake. 
+~
+11 528896 67108865
+0 0 0 0
+20 0.000000
+0 
+snake-masked~
+0 20 0 0 1
+45.000000 0 0 0 7 0 0
+#12056
+dress simple red black fine cotton POFLUCIUN by_Nauriel TEXTILE~
+a simple red and black fine cotton dress~
+A simple red and black fine cotton dress lies here.~
+   Made from layers of fine, lustrous cotton; this dress is 
+simple, but beautifully made. Predominately black and accented 
+in deep red, the dress is modestly cut, the skirt stopping just 
+shy of the ground, and long sleeves culminating in a wide cuff of 
+red at the wrist. Laced down the front with black silk, an 
+under-layer of red can seen. A gold buckled belt defines the 
+waist. 
+~
+11 4096 9
+0 0 0 0
+100 0.000000
+0 0 0 0 4096 0 1
+800.000000 0 0 0 4 0 0
+#12057
+dress pale green short waisted cotton POFLUCIUN by_Nauriel TEXTILE~
+a pale green, short-waisted cotton dress~
+A pale green, short-waisted cotton dress lies here.~
+   This dress has made from soft, light weight cotton. What 
+little ornamentation the dress has can be found in the gathering 
+of material at the end of it's short cap sleeves, and around the 
+square neckline. The waist has been left short allowing the 
+dress to flow freely to the ankle, allowing a comfortable fit for 
+nearly all shapes and sizes. 
+~
+11 4096 9
+0 0 0 0
+100 0.000000
+0 0 0 0 0 0 1
+160.000000 0 0 0 4 0 0
+#12060
+key small brass muffin xxSnorkMadeForRM11585 METAL~
+a small brass key with a strawberry shaped handle~
+A small brass key has been left here.~
+   This small key constructed from a single piece of brass sports 
+a strawberry shaped handle and three small tines on the business 
+end. It appears well made all the more so for its diminutive 
+size. It appears ideally suited for smaller hands to manipulate. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 19 0 0
+#12071
+key MT_SHELTER_11506 dark iron small METAL~
+a small dark iron cupped hands key~
+A small dark iron cupped hands key has been left here.~
+   This key is rather small and made of dark iron. The handle 
+has been made to resemble cupped hands. 
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 17 0 0
+#12073
+key MT_SHELTER_MAINROOM burnished iron METAL~
+a burnished iron tree shaped key~
+A burnished iron key has been left here.~
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 17 0 0
+#12072
+key MT_SHELTER_MAINROOM burnished iron METAL~
+a burnished iron key~
+A burnished iron key has been left here.~
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 17 0 0
+#12070
+key MT_SHELTER_MAINROOM burnished iron METAL~
+a burnished iron key~
+A burnished iron key has been left here.~
+~
+18 4096 1
+0 0 0 0
+1 0.000000
+0 0 0 0 0 0 1
+20.000000 0 0 0 17 0 0
+#12061
+key wooden triangular vfSHELTER vf11427 OTHER~
+a boxed shaped iron key~
+A boxed shaped iron key has been left here.~
+~
+18 4096 1
+0 0 0 0
+10 0.000000
+0 0 0 0 0 0 1
+0.000000 0 0 0 0 0 0
+#12058
+cloak slate grey woolen sword wolf skull embroidered cloak POF_VARISH TEXTILE~
+a wolf skull embroidered, slate grey sword cloak~
+A wolf skull embroidered, slate grey sword cloak lies here in a heap.~
+   This cloak is made of sturdy wool and dyed storm grey. 
+Falling from shoulders to knees, this cloak covers only one 
+shoulder to maintain warmth while freeing the sword arm in case 
+of a fight. It has been decorated with the skull of a wolf, 
+embroidered with black silk thread. The edges are trimmed in the 
+same color silk cord. A simple silver clasp keeps the cloak 
+secure. 
+~
+11 4608 1025
+0 0 0 0
+400 0.000000
+0 0 0 30 0 0 1
+750.000000 0 0 0 0 0 0
+$~

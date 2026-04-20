@@ -141,6 +141,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\Adjacencies_and_Items.md = Design Documents\Adjacencies_and_Items.md
 		Design Documents\AI_Storyteller_Design.md = Design Documents\AI_Storyteller_Design.md
 		Design Documents\AI_Storyteller_Implementation_Plan.md = Design Documents\AI_Storyteller_Implementation_Plan.md
+		Design Documents\Autobuilder_Builder_How_To.md = Design Documents\Autobuilder_Builder_How_To.md
+		Design Documents\Autobuilder_Seeder_Implementation_Guide.md = Design Documents\Autobuilder_Seeder_Implementation_Guide.md
+		Design Documents\Autobuilder_System_Implementation.md = Design Documents\Autobuilder_System_Implementation.md
 		Design Documents\Automation_End_To_End_Test_Scenarios.md = Design Documents\Automation_End_To_End_Test_Scenarios.md
 		Design Documents\Celestial_System_Overview.md = Design Documents\Celestial_System_Overview.md
 		Design Documents\Celestial_System_Seeder.md = Design Documents\Celestial_System_Seeder.md
@@ -184,6 +187,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\Natural_Ranged_Attacks_Design.md = Design Documents\Natural_Ranged_Attacks_Design.md
 		Design Documents\Natural_Ranged_Attacks_Implementation_Plan.md = Design Documents\Natural_Ranged_Attacks_Implementation_Plan.md
 		Design Documents\NPC_AI_and_Group_AI_Runtime.md = Design Documents\NPC_AI_and_Group_AI_Runtime.md
+		Design Documents\Patch_Notes_Authoring_Guide.md = Design Documents\Patch_Notes_Authoring_Guide.md
 		Design Documents\Seeder_and_Gaps.md = Design Documents\Seeder_and_Gaps.md
 	EndProjectSection
 EndProject

@@ -28,6 +28,13 @@ The health system is not seeded from only one place.
 ### Verified current state
 `CombatSeeder` is the stock source for combat message catalogues, weapon types, attack suites, combat strategies, and the stock unarmed and ranged move families that other seeders build upon.
 
+Combat balance is now also a shared seeder concern:
+
+- `HumanSeeder` asks once for `combat-balance-profile`
+- the answer is recorded through the shared `SeederChoice` flow
+- `CombatSeeder`, `AnimalSeeder`, `MythicalAnimalSeeder`, and `RobotSeeder` reuse that recorded answer instead of re-asking it
+- stock reruns rewrite stock-owned named formulas in place rather than seeding duplicate attacks, races, or armour types
+
 The seeder now treats message style as a shared concern instead of duplicating punctuation and join rules inline. A single internal helper normalizes how `Compact`, `Sentences`, and `Sparse` styles:
 
 - terminate seeded attack strings
@@ -57,7 +64,15 @@ The stock live weapon suites are now seeded with clearer chassis expectations:
 Training weapons remain intentionally weaker mirrors of the live suites. In stock seeding that now means lower damage bands and no extra move-category breadth over the corresponding live family, not a promise that every training motion is less accurate in isolation.
 
 ### Damage-band calibration
-The stock weapon damage tiers are still seeded as shared expressions rather than per-attack bespoke formulas. Their current calibration is intentionally anchored to the stock human severity thresholds:
+The stock weapon damage tiers are still seeded as shared expressions rather than per-attack bespoke formulas. Their current calibration is intentionally anchored to the stock human severity thresholds.
+
+Current profile behavior:
+
+- `stock` keeps the existing static / partial / random damage-choice flow and seeds the older shared weapon and unarmed formulas
+- `combat-rebalance` suppresses that randomness question and rewrites the same named shared damage expressions with lower deterministic coefficients calibrated around the rebalance human anatomy tables
+- neither profile changes the stock attack catalogue or combat-message catalogue identity
+
+The stock-path calibration remains intentionally anchored to the stock human severity thresholds:
 
 - a standard-quality weapon in static mode with nominal strength keeps `Terrible` and `Bad` hits below the severe bands
 - `Poor` and `Normal` hits land in the ordinary combat wound bands
@@ -77,6 +92,7 @@ The stock animal seeding path is now organized around:
 - a smaller core builder layer that still handles EF creation of bodies, organs, bones, attacks, liquids, and drugs
 - race-specific ethnicity-dependent description progs are generated only after the owning race and ethnicities have been saved, so seeded progs always reference persistent IDs
 - all three stock non-human health strategies are now seeded every time (`Non-Human HP`, `Non-Human HP Plus`, and `Non-Human Full Model`), while the selected answer only controls which one becomes the default for races created in that run
+- the seeder now also reuses the shared `combat-balance-profile` answer from `HumanSeeder`, so stock versus combat-rebalance bodypart HP, hit chances, natural armour, and damage expressions are chosen without another prompt
 
 ### Stock body and race coverage
 The stock seeder now covers a broader set of body families than the earlier animal pass.
@@ -149,13 +165,14 @@ Venom attacks are now kept more clearly separate from pure damage moves. The sto
 
 The seeder currently:
 
-- reuses the shared non-human seeder questionnaire so builders answer the same health-model and combat-message prompts they already see for stock animals
+- reuses the shared non-human seeder questionnaire so builders answer the same health-model and combat-message prompts they already see for stock animals, while reading the already-recorded combat-balance profile from `HumanSeeder` instead of re-asking it
 - requires the human and animal body and characteristic infrastructure before installation, so mythic races inherit compatible corpse models, breathing setup, attacks, and body semantics
 - resolves its selected default non-human strategy through the same canonical strategy-name mapping used by `AnimalSeeder`, so the stock animal and mythic packages no longer drift on `HP Plus` versus `Full Model` naming
 - now includes the older fantasy-only races such as eastern dragons, pegacorns, myconids, and plantfolk, so the separate `FantasySeeder` is no longer needed
 - installs incrementally, skipping any already-present mythic race entries instead of treating partial overlap as a fatal blocker
 - resolves duplicate bodypart aliases deterministically while composing hybrid bodies or reusing partially seeded bodies, so reruns no longer fail while building limb and parent-part lookups
 - seeds at least one clinch-capable and one non-clinch natural attack for every mythic race, including previously attackless sapient forms such as myconids, plantfolk, owlkin, and avian people, with template and unit-test coverage rather than live seeder hard-fails
+- reruns refresh stock mythic combat tuning in place from the humanoid or animal reference bodies rather than seeding duplicate race copies for the rebalance profile
 
 ### Body reuse strategy
 The package prefers to reuse existing stock bodies wherever that does not require a major compromise.
@@ -200,6 +217,7 @@ The seeder currently:
 - constrains all robot races to neuter-only except for the cyborg/mechanical-human line, which continues to inherit the human gender matrix
 - keeps every robot race on at least one clinch-usable and one non-clinch natural attack through template and unit-test coverage, and corrects utility-frame attack clones that were previously copied from non-combat smash-only donors
 - skips already-present bodies, races, strategies, and procedures so the package can be safely re-run on worlds that already imported part of the catalogue
+- reads the shared `combat-balance-profile` answer and uses it to choose stock versus combat-rebalance bodypart durability, hit chances, sever formulas, and robot natural-armour definitions without asking another combat-balance question
 
 ### Body reuse strategy
 The package prefers to reuse existing stock body semantics wherever that preserves compatibility.

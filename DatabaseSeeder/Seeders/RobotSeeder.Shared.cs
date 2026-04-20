@@ -153,44 +153,16 @@ public partial class RobotSeeder
 
 		_robotFrameArmour = EnsureArmourDefinition(
 			"Robot Frame Armour",
-			BuildNaturalArmourDefinition(
-				RobotFrameTransforms(),
-				type => RobotNaturalDissipateExpression(type, "damage", 0.18, 0.15, 0.75),
-				type => RobotNaturalDissipateExpression(type, "pain", 0.18, 0.15, 0.75),
-				type => RobotNaturalDissipateExpression(type, "stun", 0.18, 0.15, 0.75),
-				type => RobotFrameDamageAbsorbExpression(type, "damage"),
-				type => RobotFrameDamageAbsorbExpression(type, "pain"),
-				type => RobotNaturalStunAbsorbExpression(type, "stun")));
+			BuildRobotFrameArmourDefinition());
 		_robotPlatingArmour = EnsureArmourDefinition(
 			"Robot Natural Armour",
-			BuildNaturalArmourDefinition(
-				RobotPlatingTransforms(),
-				type => RobotNaturalDissipateExpression(type, "damage", 0.45, 0.28, 1.0),
-				type => RobotNaturalDissipateExpression(type, "pain", 0.45, 0.28, 1.0),
-				type => RobotNaturalDissipateExpression(type, "stun", 0.45, 0.28, 1.0),
-				type => RobotPlatingDamageAbsorbExpression(type, "damage", false),
-				type => RobotPlatingDamageAbsorbExpression(type, "pain", false),
-				type => RobotNaturalStunAbsorbExpression(type, "stun")));
+			BuildRobotPlatingArmourDefinition(light: false));
 		_robotLightPlatingArmour = EnsureArmourDefinition(
 			"Robot Light Armour",
-			BuildNaturalArmourDefinition(
-				RobotPlatingTransforms(),
-				type => RobotNaturalDissipateExpression(type, "damage", 0.28, 0.18, 0.85),
-				type => RobotNaturalDissipateExpression(type, "pain", 0.28, 0.18, 0.85),
-				type => RobotNaturalDissipateExpression(type, "stun", 0.28, 0.18, 0.85),
-				type => RobotPlatingDamageAbsorbExpression(type, "damage", true),
-				type => RobotPlatingDamageAbsorbExpression(type, "pain", true),
-				type => RobotNaturalStunAbsorbExpression(type, "stun")));
+			BuildRobotPlatingArmourDefinition(light: true));
 		_robotInternalArmour = EnsureArmourDefinition(
 			"Robot Internal Armour",
-			BuildNaturalArmourDefinition(
-				RobotFrameTransforms(),
-				type => RobotNaturalDissipateExpression(type, "damage", 0.1, 0.08, 0.6),
-				type => RobotNaturalDissipateExpression(type, "pain", 0.1, 0.08, 0.6),
-				type => RobotNaturalDissipateExpression(type, "stun", 0.1, 0.08, 0.6),
-				type => RobotInternalDamageAbsorbExpression(type, "damage"),
-				type => RobotInternalDamageAbsorbExpression(type, "pain"),
-				type => RobotNaturalStunAbsorbExpression(type, "stun")));
+			BuildRobotInternalArmourDefinition());
 
         _robotHumanoidCorpse = EnsureCorpseClone("Robot Humanoid Wreck", _organicHumanCorpse, "wrecked humanoid robot");
         _robotAnimalCorpse = EnsureCorpseClone("Robot Chassis Wreck", _organicAnimalCorpse, "wrecked robot");

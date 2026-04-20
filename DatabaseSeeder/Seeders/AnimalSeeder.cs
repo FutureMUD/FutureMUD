@@ -243,9 +243,23 @@ public partial class AnimalSeeder : IDatabaseSeeder
     {
         context.Database.BeginTransaction();
         _context = context;
+        _questionAnswers = CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
+        _questionAnswers = CombatSeederMessageStyleHelper.MergeQuestionAnswersWithRecordedChoice(context, _questionAnswers);
+        _combatBalanceProfile = CombatBalanceProfileHelper.GetSelectedProfile(context, _questionAnswers);
         bool hasMissingDisfigurementTemplates = HasMissingAnimalDisfigurementTemplates(_context);
         if (_context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
         {
+            ResetSeeder();
+            _healthTrait = context.TraitDefinitions
+                .Where(x => x.Type == 1)
+                .AsEnumerable()
+                .First(x => x.Name.In("Constitution", "Body", "Physique", "Endurance", "Hardiness", "Stamina"));
+            _strengthTrait = context.TraitDefinitions
+                .Where(x => x.Type == 1)
+                .AsEnumerable()
+                .First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
+            RefreshExistingAnimalCombatBalance();
+
             if (hasMissingDisfigurementTemplates)
             {
                 SeedExistingAnimalDisfigurementTemplates();
@@ -253,8 +267,8 @@ public partial class AnimalSeeder : IDatabaseSeeder
 
             context.Database.CommitTransaction();
             return hasMissingDisfigurementTemplates
-                ? "Installed additional animal disfigurement templates."
-                : "Animal prototypes are already installed.";
+                ? "Updated the animal combat balance profile and installed additional animal disfigurement templates."
+                : "Updated the animal combat balance profile.";
         }
 
         Console.WriteLine("Performing initial setup...");
@@ -262,7 +276,6 @@ public partial class AnimalSeeder : IDatabaseSeeder
         ResetSeeder();
         SetupCorpseModel();
         SeedCombatStrategies();
-        _questionAnswers = CombatSeederMessageStyleHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
         _sever = _questionAnswers.ContainsKey("sever") && _questionAnswers["sever"].ToLowerInvariant().In("yes", "y");
 
         bool firsttime = _context.TraitExpressions.All(x => x.Name != "Non-Human Max HP Formula");
@@ -1657,24 +1670,15 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
     private void SetupAttacks(bool firstTime)
     {
+        IReadOnlyDictionary<string, string> damageExpressions = BuildAnimalDamageExpressions();
         if (!firstTime)
         {
-            string randomPortion = "";
-            switch (_questionAnswers["random"].ToLowerInvariant())
-            {
-                case "partial":
-                    randomPortion = " * rand(0.7,1.0)";
-                    break;
-                case "random":
-                    randomPortion = " * rand(0.2,1.0)";
-                    break;
-            }
-
             TraitExpression GetOrCreateExpression(string name, string expression)
             {
                 TraitExpression? existing = _context.TraitExpressions.FirstOrDefault(x => x.Name == name);
                 if (existing is not null)
                 {
+                    existing.Expression = expression;
                     return existing;
                 }
 
@@ -1689,15 +1693,26 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             }
 
             TraitExpression peckDamage = GetOrCreateExpression("Animal Peck Damage",
-                $"0.45 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}");
+                damageExpressions["Animal Peck Damage"]);
             TraitExpression talonDamage = GetOrCreateExpression("Animal Talon Damage",
-                $"0.8 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}");
+                damageExpressions["Animal Talon Damage"]);
             TraitExpression mandibleDamage = GetOrCreateExpression("Animal Mandible Damage",
-                $"0.35 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}");
+                damageExpressions["Animal Mandible Damage"]);
             TraitExpression ramDamage = GetOrCreateExpression("Animal Ram Damage",
-                $"0.9 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}");
+                damageExpressions["Animal Ram Damage"]);
+            GetOrCreateExpression("Small Animal Bite Damage", damageExpressions["Small Animal Bite Damage"]);
+            GetOrCreateExpression("Fish Bite Damage", damageExpressions["Fish Bite Damage"]);
+            GetOrCreateExpression("Herbivorous Animal Bite Damage",
+                damageExpressions["Herbivorous Animal Bite Damage"]);
+            GetOrCreateExpression("Carnivorous Animal Bite Damage",
+                damageExpressions["Carnivorous Animal Bite Damage"]);
+            GetOrCreateExpression("Shark Bite Damage", damageExpressions["Shark Bite Damage"]);
+            GetOrCreateExpression("Animal Claw Damage", damageExpressions["Animal Claw Damage"]);
+            GetOrCreateExpression("Animal Smash Damage", damageExpressions["Animal Smash Damage"]);
+            GetOrCreateExpression("Animal Coup De Grace Damage",
+                damageExpressions["Animal Coup De Grace Damage"]);
             _snakeBiteDamage = GetOrCreateExpression("Snake Bite Damage",
-                $"0.5 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1){randomPortion}");
+                damageExpressions["Snake Bite Damage"]);
 
             _attacks["carnivorebite"] = _context.WeaponAttacks.First(x => x.Name == "Carnivore Bite");
             _attacks["carnivoresmashbite"] = _context.WeaponAttacks.First(x => x.Name == "Carnivore Smash Bite");
@@ -1819,24 +1834,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
         }
         else
         {
-            string randomPortion = "";
-            switch (_questionAnswers["random"].ToLowerInvariant())
-            {
-                case "static":
-                    randomPortion = "";
-                    break;
-                case "partial":
-                    randomPortion = " * rand(0.7,1.0)";
-                    break;
-                case "random":
-                    randomPortion = " * rand(0.2,1.0)";
-                    break;
-            }
-
             TraitExpression smallBite = new()
             {
                 Name = "Small Animal Bite Damage",
-                Expression = $"0.5 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Small Animal Bite Damage"]
             };
             _context.TraitExpressions.Add(smallBite);
             _context.SaveChanges();
@@ -1844,7 +1845,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression fishBite = new()
             {
                 Name = "Fish Bite Damage",
-                Expression = $"0.5 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Fish Bite Damage"]
             };
             _context.TraitExpressions.Add(fishBite);
             _context.SaveChanges();
@@ -1852,7 +1853,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression herbivoreBite = new()
             {
                 Name = "Herbivorous Animal Bite Damage",
-                Expression = $"0.5 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Herbivorous Animal Bite Damage"]
             };
             _context.TraitExpressions.Add(herbivoreBite);
             _context.SaveChanges();
@@ -1860,7 +1861,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression carnivoreBite = new()
             {
                 Name = "Carnivorous Animal Bite Damage",
-                Expression = $"1.0 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Carnivorous Animal Bite Damage"]
             };
             _context.TraitExpressions.Add(carnivoreBite);
             _context.SaveChanges();
@@ -1868,7 +1869,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression sharkBite = new()
             {
                 Name = "Shark Bite Damage",
-                Expression = $"1.0 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Shark Bite Damage"]
             };
             _context.TraitExpressions.Add(sharkBite);
             _context.SaveChanges();
@@ -1876,7 +1877,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression clawDamage = new()
             {
                 Name = "Animal Claw Damage",
-                Expression = $"1.0 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Animal Claw Damage"]
             };
             _context.TraitExpressions.Add(clawDamage);
             _context.SaveChanges();
@@ -1884,7 +1885,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression peckDamage = new()
             {
                 Name = "Animal Peck Damage",
-                Expression = $"0.45 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Animal Peck Damage"]
             };
             _context.TraitExpressions.Add(peckDamage);
             _context.SaveChanges();
@@ -1892,7 +1893,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression talonDamage = new()
             {
                 Name = "Animal Talon Damage",
-                Expression = $"0.8 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Animal Talon Damage"]
             };
             _context.TraitExpressions.Add(talonDamage);
             _context.SaveChanges();
@@ -1900,7 +1901,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression mandibleDamage = new()
             {
                 Name = "Animal Mandible Damage",
-                Expression = $"0.35 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Animal Mandible Damage"]
             };
             _context.TraitExpressions.Add(mandibleDamage);
             _context.SaveChanges();
@@ -1908,7 +1909,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression ramDamage = new()
             {
                 Name = "Animal Ram Damage",
-                Expression = $"0.9 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Animal Ram Damage"]
             };
             _context.TraitExpressions.Add(ramDamage);
             _context.SaveChanges();
@@ -1916,7 +1917,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression smashDamage = new()
             {
                 Name = "Animal Smash Damage",
-                Expression = $"0.8 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Animal Smash Damage"]
             };
             _context.TraitExpressions.Add(smashDamage);
             _context.SaveChanges();
@@ -1924,7 +1925,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             TraitExpression coupDamage = new()
             {
                 Name = "Animal Coup De Grace Damage",
-                Expression = $"1.5 * str:{_strengthTrait.Id} * quality * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Animal Coup De Grace Damage"]
             };
             _context.TraitExpressions.Add(coupDamage);
             _context.SaveChanges();
@@ -1932,7 +1933,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             _snakeBiteDamage = new TraitExpression
             {
                 Name = "Snake Bite Damage",
-                Expression = $"0.5 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1){randomPortion}"
+                Expression = damageExpressions["Snake Bite Damage"]
             };
             _context.TraitExpressions.Add(_snakeBiteDamage);
             _context.SaveChanges();
@@ -3935,7 +3936,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             CanClimb = canClimb,
             CanSwim = true,
             MinimumSleepingPosition = 4,
-            BodypartHealthMultiplier = bodypartHealth,
+            BodypartHealthMultiplier = ResolveAnimalRaceHealthMultiplier(raceTemplate, size, bodypartHealth),
             BodypartSizeModifier = 0,
             TemperatureRangeCeiling = 40,
             TemperatureRangeFloor = 0,
@@ -3944,6 +3945,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             BiteWeight = 1000,
             EatCorpseEmoteText = "",
             RaceUsesStamina = true,
+            NaturalArmourType = _naturalArmour,
             NaturalArmourQuality = 2,
             SweatLiquid = sweat,
             SweatRateInLitresPerMinute = 0.8,
@@ -4120,23 +4122,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 	private void SetupArmourTypes()
 	{
-		_naturalArmour = new ArmourType
-		{
-			Name = "Non-Human Natural Armour",
-			MinimumPenetrationDegree = 1,
-			BaseDifficultyDegrees = 0,
-			StackedDifficultyDegrees = 0,
-			Definition = BuildNaturalArmourDefinition(
-				RelaxedAnimalFleshDamageTransforms(),
-				type => AnimalNaturalDissipateExpression(type, "damage"),
-				type => AnimalNaturalDissipateExpression(type, "pain"),
-				type => AnimalNaturalDissipateExpression(type, "stun"),
-				type => AnimalNaturalDamageAbsorbExpression(type, "damage"),
-				type => AnimalNaturalDamageAbsorbExpression(type, "pain"),
-				type => AnimalNaturalStunAbsorbExpression(type, "stun"))
-		};
-        _context.ArmourTypes.Add(_naturalArmour);
-        _context.SaveChanges();
+		ConfigureAnimalNaturalArmours();
 
         _organArmour = new ArmourType
         {
@@ -7570,8 +7556,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             DamageModifier = damageMultiplier,
 			PainModifier = painMultiplier,
 			StunModifier = stunMultiplier,
-			MaxLife = hitPoints,
+			MaxLife = ResolveAnimalBodypartLife(alias, size, hitPoints),
 			SeveredThreshold = _sever ? NormalizeAnimalSeverThreshold(alias, severThreshold, size) : -1,
+			SeverFormula = ResolveAnimalSeverFormula(alias, size),
 			IsCore = isCore,
 			IsVital = isVital,
 			Significant = isSignificant,
@@ -7581,7 +7568,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             ImplantSpaceOccupied = implantSpaceOccupied,
             Size = (int)size,
             DisplayOrder = displayOrder,
-            RelativeHitChance = GetAnimalRelativeHitChance(body, alias, hitChance),
+            RelativeHitChance = ResolveAnimalRelativeHitChance(body, alias, type, size, hitChance),
             DefaultMaterial = _cachedMaterials[material],
             ArmourType = _naturalArmour
         };
@@ -8953,12 +8940,19 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             }
 
             CharacterCombatSetting setting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey);
-            if (race.DefaultCombatSettingId == setting.Id)
+            double expectedHealthMultiplier =
+                ResolveAnimalRaceHealthMultiplier(template, template.Size, template.BodypartHealthMultiplier);
+            bool needsUpdate = race.DefaultCombatSettingId != setting.Id ||
+                               race.NaturalArmourTypeId != _naturalArmour?.Id ||
+                               Math.Abs(race.BodypartHealthMultiplier - expectedHealthMultiplier) > 0.0001;
+            if (!needsUpdate)
             {
                 continue;
             }
 
             race.DefaultCombatSetting = setting;
+            race.NaturalArmourType = _naturalArmour;
+            race.BodypartHealthMultiplier = expectedHealthMultiplier;
         }
 
         _context.SaveChanges();

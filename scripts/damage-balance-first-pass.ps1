@@ -1,3 +1,8 @@
+param(
+	[string]$BaselineProfile = 'stock',
+	[string]$ComparisonProfile = 'combat-rebalance'
+)
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
@@ -99,7 +104,8 @@ $armourFamiliesAfter = @{
 
 $snapshots = @{
 	Before = [pscustomobject]@{
-		Name = 'Before'
+		Key = 'Before'
+		Label = $BaselineProfile
 		FractureBands = $percentageBandsBefore
 		ArmourFamilies = $armourFamiliesBefore
 		RacialArmour = [pscustomobject]@{ Name = 'Human Natural Armour'; Kind = 'OldNatural'; Quality = $naturalArmourQuality; Material = $null; Transforms = $genericTransforms }
@@ -108,7 +114,8 @@ $snapshots = @{
 		BoneArmour = [pscustomobject]@{ Name = 'Human Natural Bone Armour'; Kind = 'Bone'; Quality = $naturalArmourQuality; Transforms = $genericTransforms }
 	}
 	After = [pscustomobject]@{
-		Name = 'After'
+		Key = 'After'
+		Label = $ComparisonProfile
 		FractureBands = $percentageBandsAfter
 		ArmourFamilies = $armourFamiliesAfter
 		RacialArmour = [pscustomobject]@{ Name = 'Human Racial Tissue Armour'; Kind = 'RacialTissue'; Quality = $naturalArmourQuality; Material = $null; Transforms = $relaxedFleshTransforms }
@@ -389,8 +396,8 @@ function Apply-NaturalLayer {
 }
 
 function Get-SeverThreshold {
-	param($target, [string]$snapshotName)
-	if ($snapshotName -eq 'Before') { return $target.SeverThresholdBefore }
+	param($target, [string]$snapshotKey)
+	if ($snapshotKey -eq 'Before') { return $target.SeverThresholdBefore }
 	return $target.SeverThresholdAfter
 }
 
@@ -465,7 +472,7 @@ function Invoke-Scenario {
 	$internalPacket = if ($null -eq $bodyResult) { $null } else { $bodyResult.PassThrough }
 	$outerSeverity = if ($null -eq $outerWoundPacket) { 'None' } else { Get-AbsoluteSeverity $outerWoundPacket.Amount }
 
-	$severThreshold = Get-SeverThreshold -target $target -snapshotName $snapshot.Name
+	$severThreshold = Get-SeverThreshold -target $target -snapshotKey $snapshot.Key
 	$severed = $false
 	if ($severThreshold -gt 0 -and $null -ne $outerWoundPacket -and (Can-SeverDamageType $outerWoundPacket.Type)) {
 		$severed = $outerWoundPacket.Amount -ge $severThreshold
@@ -566,31 +573,32 @@ $beforeMetrics = Get-SummaryMetrics -snapshot $snapshots.Before
 $afterMetrics = Get-SummaryMetrics -snapshot $snapshots.After
 
 $lines = New-Object System.Collections.Generic.List[string]
-$lines.Add('# Damage Balance First Pass Validation')
+$lines.Add('# Human Combat Balance Profile Validation')
 $lines.Add('')
-$lines.Add(('Strength {0}, item quality {1}, natural-armour quality {2}, static damage mode.' -f $strength, $quality, $naturalArmourQuality))
+$lines.Add(('Strength {0}, item quality {1}, natural-armour quality {2}. Comparing profiles `{3}` and `{4}`.' -f $strength, $quality, $naturalArmourQuality, $BaselineProfile, $ComparisonProfile))
 $lines.Add('Assumptions: chainmail is worn over heavy clothing, the helmeted head case uses a `Platemail` family helmet, and stochastic internal rolls are reported as chances rather than sampled.')
 $lines.Add('')
 $lines.Add('## Scenario Comparisons')
 $lines.Add('')
 
-foreach ($scenario in $scenarioResults) {
+	foreach ($scenario in $scenarioResults) {
 	$lines.Add("### $($scenario.Scenario)")
 	$lines.Add('')
-	$lines.Add('| Snapshot | Raw | Post Worn | Post Racial | Outer Wound | Inward Packet | Wound Severity | Fracture / Internal | Sever |')
+	$lines.Add('| Profile | Raw | Post Worn | Post Racial | Outer Wound | Inward Packet | Wound Severity | Fracture / Internal | Sever |')
 	$lines.Add('| --- | ---: | --- | --- | ---: | --- | --- | --- | --- |')
 	foreach ($label in @('Before', 'After')) {
 		$result = $scenario.$label
+		$profileLabel = $snapshots[$label].Label
 		$severText = if ($result.SeverThreshold -gt 0) {
 			if ($result.Severed) { 'Yes' } else { 'No' }
 		} else {
 			'N/A'
 		}
-		$lines.Add(('| {0} | {1:N2} | {2} | {3} | {4:N2} | {5} | {6} | {7} | {8} |' -f $label, $result.RawDamage, (Format-Packet $result.PostWornPacket), (Format-Packet $result.PostRacialPacket), $result.BodyOuterDamage, (Format-Packet $result.InternalPacket), $result.OuterSeverity, (Format-InternalSummary $result), $severText))
+		$lines.Add(('| {0} | {1:N2} | {2} | {3} | {4:N2} | {5} | {6} | {7} | {8} |' -f $profileLabel, $result.RawDamage, (Format-Packet $result.PostWornPacket), (Format-Packet $result.PostRacialPacket), $result.BodyOuterDamage, (Format-Packet $result.InternalPacket), $result.OuterSeverity, (Format-InternalSummary $result), $severText))
 	}
 	$lines.Add('')
-	$lines.Add(('Worn-layer detail, before: {0}' -f (Format-WornSummary $scenario.Before)))
-	$lines.Add(('Worn-layer detail, after: {0}' -f (Format-WornSummary $scenario.After)))
+	$lines.Add(('Worn-layer detail, {0}: {1}' -f $BaselineProfile, (Format-WornSummary $scenario.Before)))
+	$lines.Add(('Worn-layer detail, {0}: {1}' -f $ComparisonProfile, (Format-WornSummary $scenario.After)))
 	$lines.Add('')
 }
 
@@ -603,12 +611,12 @@ $spearMailAfter = ($scenarioResults | Where-Object { $_.Scenario -eq 'Spear 1-Ha
 
 $lines.Add('## Behavioural Shift Summary')
 $lines.Add('')
-$lines.Add(('- Major-limb sever checks in the `Longsword -> upper arm` degree sweep moved from {0}/6 before to {1}/6 after.' -f $beforeMetrics.MajorSeverCount, $afterMetrics.MajorSeverCount))
-$lines.Add(('- Sword outer wounds at `Severe+` in the same sweep moved from {0}/6 before to {1}/6 after.' -f $beforeMetrics.SwordSevereCount, $afterMetrics.SwordSevereCount))
-$lines.Add(('- Deterministic `Warhammer -> shin` fractures at `Moderate+` moved from {0}/6 before to {1}/6 after.' -f $beforeMetrics.FractureModerateCount, $afterMetrics.FractureModerateCount))
-$lines.Add(('- Unhelmeted forehead strikes now pass {0:N2} inward before the skull instead of {1:N2}, and the frontal-cranial fracture read shifts from {2} to {3}.' -f $headAfter.InternalPacket.Amount, $headBefore.InternalPacket.Amount, $headBefore.Bone.FractureSeverity, $headAfter.Bone.FractureSeverity))
-$lines.Add(('- Helmeted forehead strikes still protect strongly, but plate now leaks {0:N2} inward pre-skull instead of {1:N2}.' -f $helmetAfter.InternalPacket.Amount, $helmetBefore.InternalPacket.Amount))
-$lines.Add(('- `Spear -> chainmail + heavy clothing` still strips a lot of damage, but the inward packet increases from {0} to {1}, which is the intended less-binary top-end result.' -f (Format-Packet $spearMailBefore.InternalPacket), (Format-Packet $spearMailAfter.InternalPacket)))
+$lines.Add(('- Major-limb sever checks in the `Longsword -> upper arm` degree sweep move from {0}/6 in `{1}` to {2}/6 in `{3}`.' -f $beforeMetrics.MajorSeverCount, $BaselineProfile, $afterMetrics.MajorSeverCount, $ComparisonProfile))
+$lines.Add(('- Sword outer wounds at `Severe+` in the same sweep move from {0}/6 in `{1}` to {2}/6 in `{3}`.' -f $beforeMetrics.SwordSevereCount, $BaselineProfile, $afterMetrics.SwordSevereCount, $ComparisonProfile))
+$lines.Add(('- Deterministic `Warhammer -> shin` fractures at `Moderate+` move from {0}/6 in `{1}` to {2}/6 in `{3}`.' -f $beforeMetrics.FractureModerateCount, $BaselineProfile, $afterMetrics.FractureModerateCount, $ComparisonProfile))
+$lines.Add(('- Unhelmeted forehead strikes pass {0:N2} inward before the skull in `{1}` instead of {2:N2} in `{3}`, and the frontal-cranial fracture read shifts from {4} to {5}.' -f $headAfter.InternalPacket.Amount, $ComparisonProfile, $headBefore.InternalPacket.Amount, $BaselineProfile, $headBefore.Bone.FractureSeverity, $headAfter.Bone.FractureSeverity))
+$lines.Add(('- Helmeted forehead strikes still protect strongly, but plate leaks {0:N2} inward pre-skull in `{1}` instead of {2:N2} in `{3}`.' -f $helmetAfter.InternalPacket.Amount, $ComparisonProfile, $helmetBefore.InternalPacket.Amount, $BaselineProfile))
+$lines.Add(('- `Spear -> chainmail + heavy clothing` still strips a lot of damage, but the inward packet increases from {0} in `{1}` to {2} in `{3}`, which is the intended less-binary top-end result.' -f (Format-Packet $spearMailBefore.InternalPacket), $BaselineProfile, (Format-Packet $spearMailAfter.InternalPacket), $ComparisonProfile))
 $lines.Add('')
 $lines.Add('## Notes')
 $lines.Add('')

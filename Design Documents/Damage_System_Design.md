@@ -1,7 +1,7 @@
 # FutureMUD Damage System Design
 
 ## Purpose
-This document describes the current stock-human damage pipeline after the April 2026 seeder first-pass balance pass. It is a current-state reference for seeded formulas, static tuning, and the runtime order that consumes them.
+This document describes the current stock damage pipeline after the April 2026 combat-balance profile work. It is a current-state reference for seeded formulas, profile-specific tuning, and the runtime order that consumes them.
 
 Primary source files:
 
@@ -14,10 +14,27 @@ Primary source files:
 - `MudSharpCore/Health/Strategies/BrainHitpointsStrategy.cs`
 - `MudSharpCore/Health/Strategies/ComplexLivingHealthStrategy.cs`
 
+## Combat Balance Profiles
+Stock combat content now supports two seeder-selected balance profiles:
+
+- `stock`
+- `combat-rebalance`
+
+`HumanSeeder` is the only seeder that asks the question. The answer is recorded through the shared `SeederChoice` path and then reused by `CombatSeeder`, `AnimalSeeder`, `MythicalAnimalSeeder`, and `RobotSeeder` without prompting again.
+
+Current seeder behavior:
+
+- reruns update stock-owned named records in place rather than creating duplicate races, attack suites, or armour types
+- combat message style remains a separate shared concern and is still reused regardless of balance profile
+- the stock profile still exposes the legacy damage-randomness question
+- the combat-rebalance profile suppresses that randomness question and instead seeds RimWorld-style bodypart HP, hit chance, armour formulas, and shared damage expressions directly
+
+Unless a section explicitly calls out both paths, the numerical tables below describe the `combat-rebalance` profile because that is where the seeded values now differ most materially from the legacy stock formulas.
+
 ## Core Runtime Order
 For ordinary external stock-human hits, the runtime order is:
 
-`attack damage -> worn armour -> racial natural armour -> bodypart natural armour -> bone routing -> bone natural armour -> organ routing -> wound creation -> severity interpretation -> sever check`
+`attack damage -> worn armour -> racial natural armour -> bodypart natural armour -> bone routing -> bone natural armour -> organ routing -> wound creation -> severity interpretation -> sever formula / threshold check`
 
 Important runtime details:
 
@@ -65,31 +82,25 @@ These were tightened so meaningful fractures read serious earlier:
 Only `BoneFracture` uses percentage severity interpretation in the stock organic pipeline.
 
 ## Severing
-Severing still requires all of the following:
+Severing now has two runtime paths, both evaluated after the struck-bodypart wound packet has been created:
 
-- the bodypart is severable
-- the final struck-bodypart wound packet meets the modified sever threshold
-- the final damage type can sever
+- Formula path: if `damage.Bodypart.SeverFormula` is present, `BodyBiology` evaluates it through `ExpressionEngine` with `damage` and numeric `damagetype` parameters. A result of `>= 1` severs the part; `< 1` does not.
+- Legacy path: if no sever formula is present, severing still requires a severable bodypart, the final struck-bodypart packet meeting the modified sever threshold, and a damage type that `CanSever()`.
 
-Runtime sever threshold:
+Legacy runtime sever threshold:
 
 - `bodypart.SeveredThreshold * Race.BodypartHealthMultiplier`
 
-Stock human `BodypartHealthMultiplier` remains `1`, so seeded thresholds are the live thresholds.
-
 ### Current stock-human sever policy
 
-| Category | Target threshold | Examples |
-| --- | ---: | --- |
-| Major severables | `27` | neck, throat, upper arms, forearms, wrists, thighs, knees, shins, calves, ankles, heels, feet |
-| Minor severables | `18` | hands, eyes, ears, temples, penis, testicles |
-| Tiny severables | `12` | thumbs, fingers, toes |
-| Non-severables | `-1` | torso surfaces, most face flesh, nipples, tongue, many organ-protection surfaces |
-
-This aligns stock human severing with one-hit wound labels rather than the old `100`-point major-limb thresholds.
+- `stock` keeps the legacy numeric-threshold-only path.
+- `combat-rebalance` keeps threshold-driven severing for larger limbs in severity-aligned ranges, but uses probabilistic sever formulas for smaller externals such as fingers, toes, ears, eyes, hands, and feet.
+- stock human `BodypartHealthMultiplier` remains `1`, so human thresholds and sever formulas are not additionally scaled at runtime.
 
 ## Human Natural Armour Stack
 Stock humans now use three separate flesh-armour identities plus unchanged bone armour.
+
+Both balance profiles seed the same armour identities. The `stock` profile keeps the older deterministic attenuation formulas, while `combat-rebalance` rewrites those named armour types in place with stochastic stop / partial-pass / full-pass style formulas.
 
 ### Race-level settings
 
@@ -227,7 +238,8 @@ Families intentionally left unchanged in this pass:
 
 - ballistic vest families
 - stab-vest families
-- weapon damage formulas
+
+The `combat-rebalance` profile does additionally overwrite the shared stock weapon and unarmed damage expressions, but it keeps the existing named attack catalogue and combat-message catalogue intact.
 
 ## Non-Human Stock Notes
 
@@ -275,7 +287,7 @@ Ordinary seeded animals still do not get a separate race-level natural-armour la
 
 `attack damage -> bodypart natural armour -> bone routing -> bone natural armour -> organ routing`
 
-`Non-Human Natural Armour` was adjusted so that:
+Under `combat-rebalance`, `Non-Human Natural Armour` is rewritten in place so that:
 
 - cut and pierce hits pass more meaningful damage inward
 - blunt hits still attenuate more than edges and points, but less than before
@@ -303,13 +315,11 @@ Current non-human natural-armour pass-through:
 - other damage: `damage * 0.80`
 
 ### Animal sever policy
-Animal bodypart sever thresholds are still authored per body, but the shared seeder now caps positive thresholds down into severity-aligned ranges instead of leaving many stock parts at `50-100`:
+Animal severing is now profile-aware:
 
-- tiny severables cap to `12`
-- very small and explicit minor appendages cap to `18`
-- other positive severables cap to `27`
-
-This cap only lowers existing positive sever thresholds; it does not make non-severable parts severable.
+- `stock` continues to use legacy numeric thresholds
+- `combat-rebalance` leaves many major parts on thresholds but adds probabilistic sever formulas to minor appendages, tails, and wings where the seeded body family calls for it
+- size and bodypart role now also feed the seeded bodypart HP and hit-chance values for stock animal bodies
 
 ## Mythical Race Armour Inheritance
 Seeded mythical races now follow the stock model they are actually built from:
@@ -323,6 +333,8 @@ That removes the old accidental double-layering on animal-default mythics, where
 - cloned animal bodyparts that already had `Non-Human Natural Armour`
 
 Humanoid-default mythics still inherit the human racial/bodypart/cranial split through their cloned humanoid body parts plus human-style racial tissue.
+
+Under `combat-rebalance`, reruns also refresh mythic bodyparts in place from their reference humanoid or animal bodies so the profile's HP, hit-chance, armour, and sever-formula tuning propagates without seeding duplicate races.
 
 ## Mythical Offensive and Durability Scaling
 Seeded mythical races no longer use the shared `_alwaysZero` racial attribute prog.
@@ -375,16 +387,14 @@ Robot plating now:
 - stays stronger against edges than against heavy crushing or determined penetration
 
 ### Robot sever policy
-Custom robot bodyparts now use the same first-pass cap logic as the animal sweep:
+Robot severing is also profile-aware:
 
-- tiny parts cap to `12`
-- eyes, sensors, antennae, and similar minor externals cap to `18`
-- larger positive severables cap to `27`
-
-This mostly matters for custom robot chassis parts such as sensor pods, wheels, tracks, and attachments, because humanoid-derived robot bodies already inherit the updated humanoid sever thresholds.
+- `stock` continues to use legacy numeric thresholds
+- `combat-rebalance` adds sever formulas for sensors, antennae, wheels, tracks, wings, and mandibles while leaving other parts on the legacy path
+- robot bodypart HP, hit chance, and race `BodypartHealthMultiplier` now scale from chassis size in the rebalance profile
 
 ## Anatomy Highlights Used In Validation
-These seeded stock-human internals matter most for the first-pass validation set:
+These seeded stock-human internals matter most for the profile-validation set:
 
 | External target | Deterministic internal relation |
 | --- | --- |
@@ -394,7 +404,7 @@ These seeded stock-human internals matter most for the first-pass validation set
 | `forehead` | `frontal cranial bone` at `100%`, `140` max life, covers `brain` at `100%` |
 
 ## Current Balance Read
-The seeded first-pass outcomes now line up with the intended human-facing read:
+The seeded combat-rebalance outcomes now line up with the intended human-facing read:
 
 - major-limb severing can happen at approximately `Grievous` outer wound levels
 - smaller severables are tuned down from the old `100`-point regime
@@ -402,15 +412,17 @@ The seeded first-pass outcomes now line up with the intended human-facing read:
 - racial natural armour is now a light baseline instead of a second full flesh gate
 - unhelmeted head protection is driven more by skull fracture and skull pass-through than by scalp attenuation alone
 - heavy armour still protects strongly, but chain and plate leak more meaningful damage packets than before
+- stock and combat-rebalance continue to share the same named attack suites and combat-message catalogues, so the main behavioural change is in formulas and body durability rather than in content identity
 
 ## Known Boundaries
 This pass intentionally leaves these areas alone:
 
-- attack and weapon damage formulas
+- attack catalogue identities and combat-message formatting surfaces
 - layered routing architecture
 - dissipate/absorb algorithm
 - bone HP, organ HP, organ cover, and bone cover
 - ordinary wound absolute severity bands
+- consciousness, movement, breathing, and the other downstream health-state rules outside the damage-routing and anatomy-tuning surfaces
 
 Second-pass candidates:
 

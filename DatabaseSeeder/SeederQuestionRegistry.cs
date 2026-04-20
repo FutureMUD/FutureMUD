@@ -54,6 +54,11 @@ public static class SeederQuestionRegistry
                 SharedAnswerKey: "nonhuman-health-model",
                 AutoReuseLastAnswer: true
             ),
+            [BuildKey(nameof(HumanSeeder), "balance")] = new(
+                SharedAnswerKey: CombatBalanceProfileHelper.SharedAnswerKey,
+                DefaultAnswerResolver: (context, _) => CombatBalanceProfileHelper.GetRecordedChoice(context),
+                AutoReuseLastAnswer: true
+            ),
             [BuildKey(nameof(HumanSeeder), "model")] = new(
                 SharedAnswerKey: "human-health-model",
                 AutoReuseLastAnswer: true

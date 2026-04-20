@@ -48,7 +48,7 @@ There are three options that you can choose for randomness:
 #BRandom#F: In this option damage can be 20-100% of the maximum. This means outcomes will vary wildly.
 
 Which option do you want to use for random results in your non-human damage formulas? ",
-                (context, answers) => true,
+                (context, answers) => !CombatBalanceProfileHelper.UsesCombatRebalance(context, answers),
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("static", "partial", "random"),

@@ -104,7 +104,9 @@ public partial class RobotSeeder : IDatabaseSeeder
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
         _context = context;
-        LoadSharedData();
+        IReadOnlyDictionary<string, string> effectiveAnswers =
+            CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
+        LoadSharedData(effectiveAnswers);
         RefreshToolTags();
 
         RobotSeedSummary summary = new();
@@ -203,8 +205,9 @@ public partial class RobotSeeder : IDatabaseSeeder
                context.CorpseModels.Any(x => x.Name == "Organic Animal Corpse");
     }
 
-    private void LoadSharedData()
+    private void LoadSharedData(IReadOnlyDictionary<string, string> answers)
     {
+        _combatBalanceProfile = CombatBalanceProfileHelper.GetSelectedProfile(_context, answers);
         _humanRace = _context.Races.First(x => x.Name == "Human");
         _humanoidRace = _context.Races.First(x => x.Name == "Humanoid");
         _humanoidBody = _context.BodyProtos.First(x => x.Name == "Humanoid");

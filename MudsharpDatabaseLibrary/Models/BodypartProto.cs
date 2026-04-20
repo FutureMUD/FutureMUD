@@ -39,6 +39,7 @@ namespace MudSharp.Models
         public int? DisplayOrder { get; set; }
         public int MaxLife { get; set; }
         public int SeveredThreshold { get; set; }
+        public string SeverFormula { get; set; }
         public double PainModifier { get; set; }
         public double BleedModifier { get; set; }
         public int RelativeHitChance { get; set; }

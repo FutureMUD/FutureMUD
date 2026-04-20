@@ -113,7 +113,7 @@ public partial class RobotSeeder
                     TemperatureRangeFloor = -50,
                     TemperatureRangeCeiling = 120,
                     BodypartSizeModifier = 0,
-                    BodypartHealthMultiplier = 1.15,
+                    BodypartHealthMultiplier = ResolveRobotHealthMultiplier(template.Size, 1.15),
                     BreathingModel = "simple",
                     BreathingVolumeExpression = "0",
                     HoldBreathLengthExpression = "999999",
@@ -156,6 +156,7 @@ public partial class RobotSeeder
 
 				race.NaturalArmourMaterial = _chassisAlloy;
 				race.NaturalArmourQuality = 4;
+				race.BodypartHealthMultiplier = ResolveRobotHealthMultiplier(template.Size, 1.15);
 			}
 
             CopyRaceAttributes(race);

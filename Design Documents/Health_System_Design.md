@@ -1,7 +1,7 @@
 # FutureMUD Health System Design
 
 ## Purpose
-This document describes the current state of the FutureMUD health system as implemented in the repository on 2026-03-11. It is a runtime and gameplay reference, not a forward-looking redesign.
+This document describes the current state of the FutureMUD health system as implemented in the repository after the April 2026 combat-balance profile work. It is a runtime and gameplay reference, not a forward-looking redesign.
 
 The intended audience is:
 
@@ -37,7 +37,7 @@ This design makes health heavily simulation-oriented. The system cares about whe
 ## Subsystem Map
 | Subsystem | Core runtime types | Player or admin surface | Stock seeded defaults |
 | --- | --- | --- | --- |
-| Bodies and anatomy | `IBody`, race bodypart and organ definitions, `Body`, `BodyBiology` | Character health, wound visibility, organ function, death, severing | Seeded mainly in `HumanSeeder`, `AnimalSeeder`, and `RobotSeeder` |
+| Bodies and anatomy | `IBody`, race bodypart and organ definitions, `Body`, `BodyBiology` | Character health, wound visibility, organ function, death, severing, sever formulas | Seeded mainly in `HumanSeeder`, `AnimalSeeder`, `MythicalAnimalSeeder`, and `RobotSeeder` |
 | Health strategies | `IHealthStrategy`, strategy classes in `MudSharpCore/Health/Strategies` | Governs damage conversion, severity, prompts, healing, status | `BrainHitpoints`, `ComplexLiving`, `Robot`, `BrainConstruct`, and `GameItem` all have stock seeded entries |
 | Wounds | `IWound`, `SimpleOrganicWound`, `BoneFracture`, `RobotWound` | `wounds`, `wound`, treatment commands, healing ticks | Organic, fracture, and robot play are all now stock reachable |
 | Infections | `IInfection`, `Infection`, `SimpleInfection`, `InfectiousInfection`, `NecroticInfection`, `FungalInfection`, `Gangrene` | Wound tags, infection progression, antibiotics, antifungal handling, spread, and tissue damage | No broad content seeding beyond whatever wounds and treatments enable |
@@ -95,6 +95,7 @@ The health system is partly data-driven and partly hard-coded.
 Builders and administrators currently configure or consume health through:
 
 - Race data and seeder-created anatomy, blood, breathing, and corpse definitions.
+- Bodypart prototypes, including optional sever formulas that override the legacy numeric sever threshold when present.
 - Editable health strategies through `healthstrategy` / `hs`, including `types`, `typehelp`, `edit new <type> <name>`, and `clone`.
 - Editable drugs and their vectors, intensities, and effect payloads.
 - Surgical procedures, their phases, knowledges, checks, inventory plans, and progs.
@@ -110,8 +111,23 @@ Another important current-state fact is that robot health is no longer only a do
 
 Combat balance in stock content is also tied back to these health thresholds rather than tuned in isolation. The shared damage tiers seeded by `CombatSeeder` are calibrated so that a standard-quality weapon at nominal strength produces ordinary hits in the routine wound bands, while dedicated finishing moves remain exceptional relative to the stock severity ranges used by the default human strategies.
 
+Another important current-state fact is that combat-facing anatomy tuning is now a shared stock-world choice rather than a separate question in every combat seeder. `HumanSeeder` asks once for `combat-balance-profile`, records the answer through the shared `SeederChoice` flow, and later `CombatSeeder`, `AnimalSeeder`, `MythicalAnimalSeeder`, and `RobotSeeder` reuse that answer automatically.
+
+Current balance-profile behavior:
+
+- `stock` keeps the older FutureMUD combat formulas and still asks the legacy damage-randomness question where relevant
+- `combat-rebalance` suppresses that randomness question and rewrites stock-owned bodypart HP, hit chances, natural armour formulas, and shared damage expressions in place while keeping the same named attack and combat-message catalogues
+- reruns refresh stock-owned rows for the selected profile instead of seeding duplicate races, bodies, or attack suites
+
 ## Tuning Surfaces
 The current runtime exposes health tuning in two different ways, depending on where the behavior lives.
+
+Bodypart severing now spans both of those modes:
+
+- the legacy path still uses the stored numeric sever threshold
+- builders can instead set `severformula <expression>` on a bodypart prototype
+- when a sever formula is present, runtime evaluation receives `damage` and numeric `damagetype` parameters and a result of `>= 1` severs the part
+- clearing the formula returns the bodypart to the legacy threshold path
 
 ### Health strategy properties
 Direct tuning numbers inside `IHealthStrategy` implementations are now treated as optional strategy properties loaded from the `HealthStrategies.Definition` XML.

@@ -27,6 +27,22 @@ public partial class HumanSeeder : IDatabaseSeeder
         new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
             Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
         {
+            ("balance", @"#DCombat Balance#F
+
+Which combat balance profile should the stock combat seeders use for this world?
+
+#Bstock#F - keep the traditional FutureMUD balance defaults and the existing damage-randomness choice
+#Bcombat-rebalance#F - use the RimWorld-inspired combat rebalance profile for stock humans, animals, mythics, robots, armour, and attack formulas
+
+Your choice: ",
+                (context, answers) => true,
+                (text, context) =>
+                {
+                    return (text.EqualToAny("stock", "combat-rebalance", "combat rebalance", "combatrebalance",
+                               "rebalance", "rebalanced"),
+                        "Please answer stock or combat-rebalance.");
+                }
+            ),
             ("model", @"#DHealth Model#F
 
 Which health model should humans use by default? This can be overriden for individual NPCs (so you can make HP-based mooks even if you use the full medical system) but the choice you make here will be applied to all player characters.
@@ -178,12 +194,14 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
         _context = context;
-        _questionAnswers = questionAnswers;
+        _questionAnswers = CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
+        _combatBalanceProfile = CombatBalanceProfileHelper.GetSelectedProfile(context, _questionAnswers);
         _context.Database.BeginTransaction();
         bool hasMissingDisfigurementTemplates = HasMissingHumanDisfigurementTemplates(_context);
 
         if (_context.Races.Any(x => x.Name == "Humanoid"))
         {
+            RefreshExistingHumanCombatBalance();
             BodyProto? existingOrganicBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Organic Humanoid");
             if (hasMissingDisfigurementTemplates && existingOrganicBody is not null)
             {
@@ -192,8 +210,8 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
 
             _context.Database.CommitTransaction();
             return hasMissingDisfigurementTemplates
-                ? "Installed additional human disfigurement templates."
-                : "Human seeder content is already installed.";
+                ? "Updated the human combat balance profile and installed additional human disfigurement templates."
+                : "Updated the human combat balance profile.";
         }
 
         // Start by determining the appropriate health strategy

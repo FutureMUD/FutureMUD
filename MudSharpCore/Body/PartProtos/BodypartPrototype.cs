@@ -11,6 +11,7 @@ using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
+using ExpressionEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
         DamageModifier = proto.DamageModifier;
         StunModifier = proto.StunModifier;
         SeveredThreshold = proto.SeveredThreshold;
+        SeverFormula = proto.SeverFormula;
         MaxLife = (uint)proto.MaxLife;
         RelativeHitChance = proto.RelativeHitChance;
         DefaultMaterial = Gameworld.Materials.Get(proto.DefaultMaterialId);
@@ -74,6 +76,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
         DamageModifier = rhs.DamageModifier;
         StunModifier = rhs.StunModifier;
         SeveredThreshold = rhs.SeveredThreshold;
+        SeverFormula = rhs.SeverFormula;
         MaxLife = rhs.MaxLife;
         RelativeHitChance = rhs.RelativeHitChance;
         IsCore = rhs.IsCore;
@@ -115,6 +118,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
             DamageModifier = DamageModifier,
             StunModifier = StunModifier,
             SeveredThreshold = SeveredThreshold,
+            SeverFormula = SeverFormula,
             MaxLife = (int)MaxLife,
             RelativeHitChance = (int)RelativeHitChance,
             DefaultMaterialId = DefaultMaterial?.Id ?? 0,
@@ -174,6 +178,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
         dbitem.DamageModifier = DamageModifier;
         dbitem.StunModifier = StunModifier;
         dbitem.SeveredThreshold = SeveredThreshold;
+        dbitem.SeverFormula = SeverFormula;
         dbitem.MaxLife = (int)MaxLife;
         dbitem.RelativeHitChance = (int)RelativeHitChance;
         dbitem.DefaultMaterialId = DefaultMaterial?.Id ?? 0;
@@ -212,9 +217,13 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
         );
         sb.AppendLineColumns((uint)builder.LineFormatLength, 3,
             $"Max Damage: {MaxLife.ToString("N0", builder).Colour(Telnet.Green)}",
-            $"Sever Threshold: {SeveredThreshold.ToString("N0", builder).Colour(Telnet.Green)}",
+            $"Sever Threshold: {(string.IsNullOrWhiteSpace(SeverFormula) ? SeveredThreshold.ToString("N0", builder).Colour(Telnet.Green) : "Formula".Colour(Telnet.Cyan))}",
             $"Bleed Mod: {BleedModifier.ToString("P2", builder).Colour(Telnet.Green)}"
         );
+        if (!string.IsNullOrWhiteSpace(SeverFormula))
+        {
+            sb.AppendLine($"Sever Formula: {SeverFormula.ColourCommand()}");
+        }
         sb.AppendLineColumns((uint)builder.LineFormatLength, 3,
             $"Relative Hit: {RelativeHitChance.ToString("N0", builder).Colour(Telnet.Green)}",
             $"Vital?: {IsVital.ToString(builder).Colour(Telnet.Green)}",
@@ -260,6 +269,10 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
                 return BuildingCommandLife(builder, command);
             case "sever":
                 return BuildingCommandSever(builder, command);
+            case "severformula":
+            case "sever_formula":
+            case "sever-formula":
+                return BuildingCommandSeverFormula(builder, command);
             case "bleed":
                 return BuildingCommandBleed(builder, command);
             case "hit":
@@ -630,6 +643,40 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
         return true;
     }
 
+    private bool BuildingCommandSeverFormula(ICharacter builder, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            builder.OutputHandler.Send(
+                "What sever formula do you want to use? Use clear to go back to the legacy numeric sever threshold.");
+            return false;
+        }
+
+        if (command.Peek().EqualToAny("clear", "none", "delete"))
+        {
+            SeverFormula = null;
+            Changed = true;
+            builder.OutputHandler.Send(
+                "This bodypart will now use the legacy numeric sever threshold when determining whether it severs.");
+            return true;
+        }
+
+        string formula = command.SafeRemainingArgument;
+        IExpression expression = new Expression(formula);
+        if (expression.HasErrors())
+        {
+            builder.OutputHandler.Send(
+                $"That is not a valid sever formula:\n{expression.Error.ColourError()}");
+            return false;
+        }
+
+        SeverFormula = formula;
+        Changed = true;
+        builder.OutputHandler.Send(
+            $"This bodypart will now use the sever formula {SeverFormula.ColourCommand()}.");
+        return true;
+    }
+
     private bool BuildingCommandLife(ICharacter builder, StringStack command)
     {
         if (command.IsFinished)
@@ -862,6 +909,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
 	#3stun <multiplier>#0 - sets the stun multiplier
 	#3life <amount>#0 - sets the max life of this bodypart
 	#3sever <amount>#0 - sets the threshold for severing
+	#3severformula <formula>#0 - sets a formula that decides whether the part severs
 	#3bleed <multiplier>#0 - sets the bleed modifier
 	#3hit <chances>#0 - sets the hit chances for this bodypart
 	#3vital#0 - toggles whether this is a vital part
@@ -996,6 +1044,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
     protected readonly List<IOrganProto> _organs = new();
     protected readonly List<IBone> _bones = new();
     public int SeveredThreshold { get; protected set; }
+    public string? SeverFormula { get; protected set; }
     public Alignment Alignment { get; protected set; }
 
     public Orientation Orientation { get; protected set; }
@@ -1014,7 +1063,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
 
     public Material Material { get; protected set; }
 
-    public bool CanSever => SeveredThreshold > 0;
+    public bool CanSever => SeveredThreshold > 0 || !string.IsNullOrWhiteSpace(SeverFormula);
 
     public uint MaxLife { get; protected set; }
 

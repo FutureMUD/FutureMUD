@@ -79,8 +79,8 @@ There are three options that you can choose for randomness:
 #BStatic#F: In this option (which was used in LabMUD) base damage is static. A hit with the same quality weapon, the same strength and the same attack/defense result will lead to the same damage
 #BPartial#F: In this option 30% of the damage will be random - this adds a little bit of uncertainty and variety but still makes hits /largely/ a function of relative success
 #BRandom#F: In this option damage can be 20-100% of the maximum. This means outcomes will vary wildly.
-
-Which option do you want to use for random results in your weapon damage formulas?", (context, answers) => true,
+Which option do you want to use for random results in your weapon damage formulas?",
+                (context, answers) => !CombatBalanceProfileHelper.UsesCombatRebalance(context, answers),
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("static", "partial", "random"),
@@ -141,42 +141,215 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
     public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
     {
+        IReadOnlyDictionary<string, string> effectiveAnswers =
+            CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
+        effectiveAnswers = CombatSeederMessageStyleHelper.MergeQuestionAnswersWithRecordedChoice(context, effectiveAnswers);
+
         context.Database.BeginTransaction();
-        IReadOnlyDictionary<string, TraitDefinition> skills = SeedCoreData(context, questionAnswers);
-
-        if (questionAnswers["installunarmed"].EqualToAny("yes", "y"))
+        if (context.WeaponAttacks.Any())
         {
-            SeedDataUnarmed(context, questionAnswers, skills);
+            string updateSummary = RefreshExistingCombatSeederContent(context, effectiveAnswers);
+            context.Database.CommitTransaction();
+            return updateSummary;
         }
 
-        if (questionAnswers["installweapons"].EqualToAny("yes", "y"))
+        IReadOnlyDictionary<string, TraitDefinition> skills = SeedCoreData(context, effectiveAnswers);
+
+        if (effectiveAnswers["installunarmed"].EqualToAny("yes", "y"))
         {
-            SeedDataWeapons(context, questionAnswers, skills);
+            SeedDataUnarmed(context, effectiveAnswers, skills);
         }
 
-        if (questionAnswers["installranged"].EqualToAny("yes", "y"))
+        if (effectiveAnswers["installweapons"].EqualToAny("yes", "y"))
         {
-            SeedDataRanged(context, questionAnswers, skills);
+            SeedDataWeapons(context, effectiveAnswers, skills);
         }
 
-        if (questionAnswers["installmuskets"].EqualToAny("yes", "y"))
+        if (effectiveAnswers["installranged"].EqualToAny("yes", "y"))
         {
-            SeedDataMuskets(context, questionAnswers);
+            SeedDataRanged(context, effectiveAnswers, skills);
         }
 
-        if (questionAnswers["installguns"].EqualToAny("yes", "y"))
+        if (effectiveAnswers["installmuskets"].EqualToAny("yes", "y"))
         {
-            SeedDataGuns(context, questionAnswers);
+            SeedDataMuskets(context, effectiveAnswers);
         }
 
-        if (questionAnswers["installarmour"].EqualToAny("yes", "y"))
+        if (effectiveAnswers["installguns"].EqualToAny("yes", "y"))
         {
-            SeedArmourTypes(context, questionAnswers);
+            SeedDataGuns(context, effectiveAnswers);
+        }
+
+        if (effectiveAnswers["installarmour"].EqualToAny("yes", "y"))
+        {
+            SeedArmourTypes(context, effectiveAnswers);
         }
 
         context.Database.CommitTransaction();
 
         return "The operation completed successfully.";
+    }
+
+    private string RefreshExistingCombatSeederContent(FuturemudDatabaseContext context,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        int updatedExpressionCount = 0;
+        if (questionAnswers["installweapons"].EqualToAny("yes", "y"))
+        {
+            TraitDefinition strength = GetStrengthAttribute(context);
+            foreach (KeyValuePair<string, string> formula in BuildWeaponDamageExpressions(strength.Id, questionAnswers))
+            {
+                UpsertTraitExpression(context, formula.Key, formula.Value);
+                updatedExpressionCount++;
+            }
+        }
+
+        if (questionAnswers["installunarmed"].EqualToAny("yes", "y"))
+        {
+            TraitDefinition strength = GetStrengthAttribute(context);
+            foreach (KeyValuePair<string, string> formula in BuildUnarmedDamageExpressions(strength.Id, questionAnswers))
+            {
+                UpsertTraitExpression(context, formula.Key, formula.Value);
+                updatedExpressionCount++;
+            }
+        }
+
+        context.SaveChanges();
+        return updatedExpressionCount > 0
+            ? $"Updated {updatedExpressionCount} stock combat damage expressions for the selected balance profile."
+            : "Combat content already exists. No stock damage expressions were selected for update.";
+    }
+
+    private static TraitDefinition GetStrengthAttribute(FuturemudDatabaseContext context)
+    {
+        Dictionary<string, TraitDefinition> attributes = context.TraitDefinitions
+            .Where(x => x.Type == 1 || x.Type == 3)
+            .ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+        return attributes.GetValueOrDefault("Strength") ??
+               attributes.GetValueOrDefault("Physique") ??
+               attributes["Body"];
+    }
+
+    private static string ResolveDamageRandomness(IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        return CombatBalanceProfileHelper.Parse(questionAnswers.GetValueOrDefault(CombatBalanceProfileHelper.QuestionId)) ==
+               CombatBalanceProfile.CombatRebalance
+            ? "rebalance"
+            : questionAnswers["random"].ToLowerInvariant();
+    }
+
+    private static IReadOnlyDictionary<string, string> BuildWeaponDamageExpressions(long strengthId,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        if (CombatBalanceProfileHelper.Parse(questionAnswers.GetValueOrDefault(CombatBalanceProfileHelper.QuestionId)) ==
+            CombatBalanceProfile.CombatRebalance)
+        {
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Weapon Damage - Training"] = "max(1,8-quality)",
+                ["Weapon Damage - Terrible"] = $"max(1,0.08 * (str:{strengthId} * quality) * sqrt(degree+1))",
+                ["Weapon Damage - Bad"] = $"max(1,0.12 * (str:{strengthId} * quality) * sqrt(degree+1))",
+                ["Weapon Damage - Poor"] = $"max(1,0.17 * (str:{strengthId} * quality) * sqrt(degree+1))",
+                ["Weapon Damage - Normal"] = $"max(1,0.22 * (str:{strengthId} * quality) * sqrt(degree+1))",
+                ["Weapon Damage - Good"] = $"max(1,0.28 * (str:{strengthId} * quality) * sqrt(degree+1))",
+                ["Weapon Damage - Very Good"] = $"max(1,0.32 * (str:{strengthId} * quality) * sqrt(degree+1))",
+                ["Weapon Damage - Great"] = $"max(1,0.36 * (str:{strengthId} * quality) * sqrt(degree+1))",
+                ["Weapon Damage - Coup de Grace"] = $"max(1,0.60 * str:{strengthId} * quality * sqrt(degree+1))"
+            };
+        }
+
+        string randomPortion = "";
+        double startingMultiplier = 1.0;
+        switch (ResolveDamageRandomness(questionAnswers))
+        {
+            case "static":
+                startingMultiplier = 0.6;
+                break;
+            case "partial":
+                randomPortion = " * rand(0.7,1.0)";
+                startingMultiplier = 0.705882;
+                break;
+            case "random":
+                randomPortion = " * rand(0.2,1.0)";
+                break;
+        }
+
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Weapon Damage - Training"] = $"max(1,10-quality){randomPortion}",
+            ["Weapon Damage - Terrible"] =
+                $"max(1,{0.1 * startingMultiplier} * (str:{strengthId} * quality) * sqrt(degree+1){randomPortion})",
+            ["Weapon Damage - Bad"] =
+                $"max(1,{0.2 * startingMultiplier} * (str:{strengthId} * quality) * sqrt(degree+1){randomPortion})",
+            ["Weapon Damage - Poor"] =
+                $"max(1,{0.25 * startingMultiplier} * (str:{strengthId} * quality) * sqrt(degree+1){randomPortion})",
+            ["Weapon Damage - Normal"] =
+                $"max(1,{0.3 * startingMultiplier} * (str:{strengthId} * quality) * sqrt(degree+1){randomPortion})",
+            ["Weapon Damage - Good"] =
+                $"max(1,{0.4 * startingMultiplier} * (str:{strengthId} * quality) * sqrt(degree+1){randomPortion})",
+            ["Weapon Damage - Very Good"] =
+                $"max(1,{0.45 * startingMultiplier} * (str:{strengthId} * quality) * sqrt(degree+1){randomPortion})",
+            ["Weapon Damage - Great"] =
+                $"max(1,{0.5 * startingMultiplier} * (str:{strengthId} * quality) * sqrt(degree+1){randomPortion})",
+            ["Weapon Damage - Coup de Grace"] =
+                $"max(1,{1.0 * startingMultiplier} * str:{strengthId} * quality * sqrt(degree+1){randomPortion})"
+        };
+    }
+
+    private static IReadOnlyDictionary<string, string> BuildUnarmedDamageExpressions(long strengthId,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        if (CombatBalanceProfileHelper.Parse(questionAnswers.GetValueOrDefault(CombatBalanceProfileHelper.QuestionId)) ==
+            CombatBalanceProfile.CombatRebalance)
+        {
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Unarmed Damage - Terrible"] = $"0.15 * (str:{strengthId} + (2 * quality)) * sqrt(degree+1)",
+                ["Unarmed Damage - Bad"] = $"0.30 * (str:{strengthId} + (2 * quality)) * sqrt(degree+1)",
+                ["Unarmed Damage - Normal"] = $"0.45 * (str:{strengthId} + (2 * quality)) * sqrt(degree+1)",
+                ["Unarmed Damage - Good"] = $"0.60 * (str:{strengthId} + (2 * quality)) * sqrt(degree+1)",
+                ["Unarmed Damage - Great"] = $"0.75 * (str:{strengthId} + (2 * quality)) * sqrt(degree+1)"
+            };
+        }
+
+        string randomPortion = "";
+        switch (ResolveDamageRandomness(questionAnswers))
+        {
+            case "partial":
+                randomPortion = " * rand(0.7,1.0)";
+                break;
+            case "random":
+                randomPortion = " * rand(0.2,1.0)";
+                break;
+        }
+
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Unarmed Damage - Terrible"] = $"0.33333 * (str:{strengthId} + (2 * quality)) * sqrt(degree+1){randomPortion}",
+            ["Unarmed Damage - Bad"] = $"0.66666 * (str:{strengthId} + (2 * quality)) * sqrt(degree+1){randomPortion}",
+            ["Unarmed Damage - Normal"] = $"1.0 * (str:{strengthId} + (2 * quality)) * sqrt(degree+1){randomPortion}",
+            ["Unarmed Damage - Good"] = $"1.25 * (str:{strengthId} + (2 * quality)) * sqrt(degree+1){randomPortion}",
+            ["Unarmed Damage - Great"] = $"1.5 * (str:{strengthId} + (2 * quality)) * sqrt(degree+1){randomPortion}"
+        };
+    }
+
+    private static TraitExpression UpsertTraitExpression(FuturemudDatabaseContext context, string name, string expression)
+    {
+        TraitExpression? existing = context.TraitExpressions.FirstOrDefault(x => x.Name == name);
+        if (existing is not null)
+        {
+            existing.Expression = expression;
+            return existing;
+        }
+
+        TraitExpression created = new()
+        {
+            Name = name,
+            Expression = expression
+        };
+        context.TraitExpressions.Add(created);
+        context.SaveChanges();
+        return created;
     }
 
     private string ArmourDissipateModifier(DamageType type, double power, IEnumerable<DamageType> strongTypes,
@@ -3045,97 +3218,25 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         string skilloption = questionAnswers["skilloption"].ToLowerInvariant();
 
         SeedCombatMessageStyle messageStyle = CombatSeederMessageStyleHelper.Parse(questionAnswers["messagestyle"]);
-
-        string randomPortion = "";
-        double startingmultiplier = 1.0;
-        switch (questionAnswers["random"].ToLowerInvariant())
-        {
-            case "static":
-                randomPortion = "";
-                startingmultiplier = 0.6;
-                break;
-            case "partial":
-                randomPortion = " * rand(0.7,1.0)";
-                startingmultiplier = 0.705882;
-                break;
-            case "random":
-                randomPortion = " * rand(0.2,1.0)";
-                startingmultiplier = 1.0;
-                break;
-        }
-
-        TraitExpression trainingDamage = new()
-        {
-            Name = "Weapon Damage - Training",
-            Expression = $"max(1,10-quality){randomPortion}"
-        };
-        context.TraitExpressions.Add(trainingDamage);
-        context.SaveChanges();
-
-        TraitExpression terribleDamage = new()
-        {
-            Name = "Weapon Damage - Terrible",
-            Expression =
-                $"max(1,{0.1 * startingmultiplier} * (str:{strength.Id} * quality) * sqrt(degree+1){randomPortion})"
-        };
-        context.TraitExpressions.Add(terribleDamage);
-        context.SaveChanges();
-        TraitExpression badDamage = new()
-        {
-            Name = "Weapon Damage - Bad",
-            Expression =
-                $"max(1,{0.2 * startingmultiplier} * (str:{strength.Id} * quality) * sqrt(degree+1){randomPortion})"
-        };
-        context.TraitExpressions.Add(badDamage);
-        context.SaveChanges();
-        TraitExpression poorDamage = new()
-        {
-            Name = "Weapon Damage - Poor",
-            Expression =
-                $"max(1,{0.25 * startingmultiplier} * (str:{strength.Id} * quality) * sqrt(degree+1){randomPortion})"
-        };
-        context.TraitExpressions.Add(poorDamage);
-        context.SaveChanges();
-        TraitExpression normalDamage = new()
-        {
-            Name = "Weapon Damage - Normal",
-            Expression =
-                $"max(1,{0.3 * startingmultiplier} * (str:{strength.Id} * quality) * sqrt(degree+1){randomPortion})"
-        };
-        context.TraitExpressions.Add(normalDamage);
-        context.SaveChanges();
-        TraitExpression goodDamage = new()
-        {
-            Name = "Weapon Damage - Good",
-            Expression =
-                $"max(1,{0.4 * startingmultiplier} * (str:{strength.Id} * quality) * sqrt(degree+1){randomPortion})"
-        };
-        context.TraitExpressions.Add(goodDamage);
-        context.SaveChanges();
-        TraitExpression veryGoodDamage = new()
-        {
-            Name = "Weapon Damage - Very Good",
-            Expression =
-                $"max(1,{0.45 * startingmultiplier} * (str:{strength.Id} * quality) * sqrt(degree+1){randomPortion})"
-        };
-        context.TraitExpressions.Add(veryGoodDamage);
-        context.SaveChanges();
-        TraitExpression greatDamage = new()
-        {
-            Name = "Weapon Damage - Great",
-            Expression =
-                $"max(1,{0.5 * startingmultiplier} * (str:{strength.Id} * quality) * sqrt(degree+1){randomPortion})"
-        };
-        context.TraitExpressions.Add(greatDamage);
-        context.SaveChanges();
-        TraitExpression coupdegraceDamage = new()
-        {
-            Name = "Weapon Damage - Coup de Grace",
-            Expression =
-                $"max(1,{1.0 * startingmultiplier} * str:{strength.Id} * quality * sqrt(degree+1){randomPortion})"
-        };
-        context.TraitExpressions.Add(coupdegraceDamage);
-        context.SaveChanges();
+        IReadOnlyDictionary<string, string> damageExpressions = BuildWeaponDamageExpressions(strength.Id, questionAnswers);
+        TraitExpression trainingDamage = UpsertTraitExpression(context, "Weapon Damage - Training",
+            damageExpressions["Weapon Damage - Training"]);
+        TraitExpression terribleDamage = UpsertTraitExpression(context, "Weapon Damage - Terrible",
+            damageExpressions["Weapon Damage - Terrible"]);
+        TraitExpression badDamage = UpsertTraitExpression(context, "Weapon Damage - Bad",
+            damageExpressions["Weapon Damage - Bad"]);
+        TraitExpression poorDamage = UpsertTraitExpression(context, "Weapon Damage - Poor",
+            damageExpressions["Weapon Damage - Poor"]);
+        TraitExpression normalDamage = UpsertTraitExpression(context, "Weapon Damage - Normal",
+            damageExpressions["Weapon Damage - Normal"]);
+        TraitExpression goodDamage = UpsertTraitExpression(context, "Weapon Damage - Good",
+            damageExpressions["Weapon Damage - Good"]);
+        TraitExpression veryGoodDamage = UpsertTraitExpression(context, "Weapon Damage - Very Good",
+            damageExpressions["Weapon Damage - Very Good"]);
+        TraitExpression greatDamage = UpsertTraitExpression(context, "Weapon Damage - Great",
+            damageExpressions["Weapon Damage - Great"]);
+        TraitExpression coupdegraceDamage = UpsertTraitExpression(context, "Weapon Damage - Coup de Grace",
+            damageExpressions["Weapon Damage - Coup de Grace"]);
 
         void AddAttack(string name, BuiltInCombatMoveType moveType, MeleeWeaponVerb verb, Difficulty attacker,
             Difficulty dodge, Difficulty parry, Difficulty block, Alignment alignment, Orientation orientation,
@@ -7668,55 +7769,17 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                 break;
         }
 
-        string randomPortion = "";
-        switch (questionAnswers["random"].ToLowerInvariant())
-        {
-            case "static":
-                randomPortion = "";
-                break;
-            case "partial":
-                randomPortion = " * rand(0.7,1.0)";
-                break;
-            case "random":
-                randomPortion = " * rand(0.2,1.0)";
-                break;
-        }
-
-        TraitExpression terribleDamage = new()
-        {
-            Name = "Unarmed Damage - Terrible",
-            Expression = $"0.33333 * (str:{strength.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
-        };
-        context.TraitExpressions.Add(terribleDamage);
-        context.SaveChanges();
-        TraitExpression badDamage = new()
-        {
-            Name = "Unarmed Damage - Bad",
-            Expression = $"0.66666 * (str:{strength.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
-        };
-        context.TraitExpressions.Add(badDamage);
-        context.SaveChanges();
-        TraitExpression normalDamage = new()
-        {
-            Name = "Unarmed Damage - Normal",
-            Expression = $"1.0 * (str:{strength.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
-        };
-        context.TraitExpressions.Add(normalDamage);
-        context.SaveChanges();
-        TraitExpression goodDamage = new()
-        {
-            Name = "Unarmed Damage - Good",
-            Expression = $"1.25 * (str:{strength.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
-        };
-        context.TraitExpressions.Add(goodDamage);
-        context.SaveChanges();
-        TraitExpression greatDamage = new()
-        {
-            Name = "Unarmed Damage - Great",
-            Expression = $"1.5 * (str:{strength.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}"
-        };
-        context.TraitExpressions.Add(greatDamage);
-        context.SaveChanges();
+        IReadOnlyDictionary<string, string> damageExpressions = BuildUnarmedDamageExpressions(strength.Id, questionAnswers);
+        TraitExpression terribleDamage = UpsertTraitExpression(context, "Unarmed Damage - Terrible",
+            damageExpressions["Unarmed Damage - Terrible"]);
+        TraitExpression badDamage = UpsertTraitExpression(context, "Unarmed Damage - Bad",
+            damageExpressions["Unarmed Damage - Bad"]);
+        TraitExpression normalDamage = UpsertTraitExpression(context, "Unarmed Damage - Normal",
+            damageExpressions["Unarmed Damage - Normal"]);
+        TraitExpression goodDamage = UpsertTraitExpression(context, "Unarmed Damage - Good",
+            damageExpressions["Unarmed Damage - Good"]);
+        TraitExpression greatDamage = UpsertTraitExpression(context, "Unarmed Damage - Great",
+            damageExpressions["Unarmed Damage - Great"]);
 
         void AddAttack(string name, BuiltInCombatMoveType moveType, MeleeWeaponVerb verb, Difficulty attacker,
             Difficulty dodge, Difficulty parry, Difficulty block, Alignment alignment, Orientation orientation,

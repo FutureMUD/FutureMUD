@@ -1,3 +1,8 @@
+param(
+	[string]$BaselineProfile = 'stock',
+	[string]$ComparisonProfile = 'combat-rebalance'
+)
+
 $ErrorActionPreference = "Stop"
 
 $baseAttribute = 11.5
@@ -101,16 +106,24 @@ $results = foreach ($creature in $creatures) {
 	}
 }
 
-Write-Host "# Non-Human Attribute and Bodypart Scale Validation"
+Write-Host "# Non-Human Attribute and Bodypart Profile Validation"
 Write-Host ""
-Write-Host "Assumptions: average base attribute 11.5 from 3d6+1, degree 5, deterministic attack expressions, bodypart scale approximated as (100 + Constitution) * BodypartHealthMultiplier."
+Write-Host "Assumptions: average base attribute 11.5 from 3d6+1, degree 5, deterministic attack expressions, bodypart scale approximated as (100 + Constitution) * BodypartHealthMultiplier. Comparing profiles '$BaselineProfile' and '$ComparisonProfile'."
 Write-Host ""
 
 foreach ($group in "Animal", "Mythic") {
 	Write-Host "## $group"
 	$results |
 		Where-Object Group -eq $group |
-		Format-Table Name, Attack, AvgStrengthBefore, AvgStrengthAfter, DamageBefore, DamageAfter, BodypartScaleBefore, BodypartScaleAfter -AutoSize
+		Select-Object Name,
+			Attack,
+			@{ Name = "$BaselineProfile Strength"; Expression = { $_.AvgStrengthBefore } },
+			@{ Name = "$ComparisonProfile Strength"; Expression = { $_.AvgStrengthAfter } },
+			@{ Name = "$BaselineProfile Damage"; Expression = { $_.DamageBefore } },
+			@{ Name = "$ComparisonProfile Damage"; Expression = { $_.DamageAfter } },
+			@{ Name = "$BaselineProfile HP Scale"; Expression = { $_.BodypartScaleBefore } },
+			@{ Name = "$ComparisonProfile HP Scale"; Expression = { $_.BodypartScaleAfter } } |
+		Format-Table -AutoSize
 	Write-Host ""
 }
 
@@ -120,9 +133,9 @@ $dragon = $results | Where-Object Name -eq "Dragon"
 $wolf = $results | Where-Object Name -eq "Wolf"
 
 Write-Host "## Headline checks"
-Write-Host ("Mouse average bite damage: before {0}, after {1}" -f $mouse.DamageBefore, $mouse.DamageAfter)
-Write-Host ("Wolf average bite damage: before {0}, after {1}" -f $wolf.DamageBefore, $wolf.DamageAfter)
-Write-Host ("Hippo average bite damage: before {0}, after {1}" -f $hippo.DamageBefore, $hippo.DamageAfter)
-Write-Host ("Dragon average bite damage: before {0}, after {1}" -f $dragon.DamageBefore, $dragon.DamageAfter)
-Write-Host ("Hippo vs mouse damage ratio after pass: {0}x" -f [Math]::Round($hippo.DamageAfter / $mouse.DamageAfter, 1))
-Write-Host ("Dragon vs mouse damage ratio after pass: {0}x" -f [Math]::Round($dragon.DamageAfter / $mouse.DamageAfter, 1))
+Write-Host ("Mouse average bite damage: {0} {1}, {2} {3}" -f $BaselineProfile, $mouse.DamageBefore, $ComparisonProfile, $mouse.DamageAfter)
+Write-Host ("Wolf average bite damage: {0} {1}, {2} {3}" -f $BaselineProfile, $wolf.DamageBefore, $ComparisonProfile, $wolf.DamageAfter)
+Write-Host ("Hippo average bite damage: {0} {1}, {2} {3}" -f $BaselineProfile, $hippo.DamageBefore, $ComparisonProfile, $hippo.DamageAfter)
+Write-Host ("Dragon average bite damage: {0} {1}, {2} {3}" -f $BaselineProfile, $dragon.DamageBefore, $ComparisonProfile, $dragon.DamageAfter)
+Write-Host ("Hippo vs mouse damage ratio in {0}: {1}x" -f $ComparisonProfile, [Math]::Round($hippo.DamageAfter / $mouse.DamageAfter, 1))
+Write-Host ("Dragon vs mouse damage ratio in {0}: {1}x" -f $ComparisonProfile, [Math]::Round($dragon.DamageAfter / $mouse.DamageAfter, 1))

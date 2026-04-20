@@ -1,3 +1,8 @@
+param(
+	[string]$BaselineProfile = 'stock',
+	[string]$ComparisonProfile = 'combat-rebalance'
+)
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
@@ -102,42 +107,48 @@ $materials = @{
 
 $snapshots = @{
 	AnimalBefore = [pscustomobject]@{
-		Name = 'AnimalBefore'
+		Key = 'AnimalBefore'
+		Label = $BaselineProfile
 		FractureBands = $percentageBandsBefore
 		RacialArmour = $null
 		BodyArmour = [pscustomobject]@{ Name = 'Non-Human Natural Armour'; Kind = 'OldNatural'; Quality = $naturalArmourQuality; Transforms = $genericTransforms }
 		BoneArmour = [pscustomobject]@{ Name = 'Non-Human Natural Bone Armour'; Kind = 'Bone'; Quality = $naturalArmourQuality; Transforms = $genericTransforms }
 	}
 	AnimalAfter = [pscustomobject]@{
-		Name = 'AnimalAfter'
+		Key = 'AnimalAfter'
+		Label = $ComparisonProfile
 		FractureBands = $percentageBandsAfter
 		RacialArmour = $null
 		BodyArmour = [pscustomobject]@{ Name = 'Non-Human Natural Armour'; Kind = 'AnimalFlesh'; Quality = $naturalArmourQuality; Transforms = $relaxedFleshTransforms }
 		BoneArmour = [pscustomobject]@{ Name = 'Non-Human Natural Bone Armour'; Kind = 'Bone'; Quality = $naturalArmourQuality; Transforms = $genericTransforms }
 	}
 	GriffinBefore = [pscustomobject]@{
-		Name = 'GriffinBefore'
+		Key = 'GriffinBefore'
+		Label = $BaselineProfile
 		FractureBands = $percentageBandsBefore
 		RacialArmour = [pscustomobject]@{ Name = 'Mythic Animal Race Armour'; Kind = 'OldNatural'; Quality = $naturalArmourQuality; Transforms = $genericTransforms }
 		BodyArmour = [pscustomobject]@{ Name = 'Non-Human Natural Armour'; Kind = 'OldNatural'; Quality = $naturalArmourQuality; Transforms = $genericTransforms }
 		BoneArmour = [pscustomobject]@{ Name = 'Non-Human Natural Bone Armour'; Kind = 'Bone'; Quality = $naturalArmourQuality; Transforms = $genericTransforms }
 	}
 	GriffinAfter = [pscustomobject]@{
-		Name = 'GriffinAfter'
+		Key = 'GriffinAfter'
+		Label = $ComparisonProfile
 		FractureBands = $percentageBandsAfter
 		RacialArmour = $null
 		BodyArmour = [pscustomobject]@{ Name = 'Non-Human Natural Armour'; Kind = 'AnimalFlesh'; Quality = $naturalArmourQuality; Transforms = $relaxedFleshTransforms }
 		BoneArmour = [pscustomobject]@{ Name = 'Non-Human Natural Bone Armour'; Kind = 'Bone'; Quality = $naturalArmourQuality; Transforms = $genericTransforms }
 	}
 	RobotBefore = [pscustomobject]@{
-		Name = 'RobotBefore'
+		Key = 'RobotBefore'
+		Label = $BaselineProfile
 		FractureBands = $percentageBandsBefore
 		RacialArmour = [pscustomobject]@{ Name = 'Robot Natural Armour'; Kind = 'OldNatural'; Quality = $robotNaturalArmourQuality; Transforms = $genericTransforms }
 		BodyArmour = [pscustomobject]@{ Name = 'Robot Natural Armour'; Kind = 'OldNatural'; Quality = $robotNaturalArmourQuality; Transforms = $genericTransforms }
 		BodyLightArmour = [pscustomobject]@{ Name = 'Robot Light Armour'; Kind = 'OldNatural'; Quality = $robotNaturalArmourQuality; Transforms = $genericTransforms }
 	}
 	RobotAfter = [pscustomobject]@{
-		Name = 'RobotAfter'
+		Key = 'RobotAfter'
+		Label = $ComparisonProfile
 		FractureBands = $percentageBandsAfter
 		RacialArmour = [pscustomobject]@{ Name = 'Robot Frame Armour'; Kind = 'RobotFrame'; Quality = $robotNaturalArmourQuality; Transforms = $relaxedFleshTransforms }
 		BodyArmour = [pscustomobject]@{ Name = 'Robot Natural Armour'; Kind = 'RobotPlating'; Quality = $robotNaturalArmourQuality; Transforms = $robotPlatingTransforms }
@@ -431,9 +442,9 @@ $results = foreach ($scenario in $scenarios) {
 }
 
 $lines = New-Object System.Collections.Generic.List[string]
-$lines.Add('# Non-Human Damage Balance First Pass Validation')
+$lines.Add('# Non-Human Combat Balance Profile Validation')
 $lines.Add('')
-$lines.Add(('Strength {0}, item quality {1}, natural-armour quality {2}, robot natural-armour quality {3}.' -f $strength, $quality, $naturalArmourQuality, $robotNaturalArmourQuality))
+$lines.Add(('Strength {0}, item quality {1}, natural-armour quality {2}, robot natural-armour quality {3}. Comparing profiles `{4}` and `{5}`.' -f $strength, $quality, $naturalArmourQuality, $robotNaturalArmourQuality, $BaselineProfile, $ComparisonProfile))
 $lines.Add('Assumptions: representative stock attack families, seeded static-mode formulas, and chassis-alloy validation yields aligned to the robot seeder plating baseline.')
 $lines.Add('')
 $lines.Add('## Scenario Comparisons')
@@ -442,13 +453,14 @@ $lines.Add('')
 foreach ($result in $results) {
 	$lines.Add("### $($result.Name)")
 	$lines.Add('')
-	$lines.Add('| Snapshot | Raw | Post Racial | Outer Wound | Inward Packet | Wound Severity | Fracture | Sever |')
+	$lines.Add('| Profile | Raw | Post Racial | Outer Wound | Inward Packet | Wound Severity | Fracture | Sever |')
 	$lines.Add('| --- | ---: | --- | ---: | --- | --- | --- | --- |')
 	foreach ($label in @('Before', 'After')) {
 		$current = $result.$label
+		$profileLabel = if ($label -eq 'Before') { $BaselineProfile } else { $ComparisonProfile }
 		$fracture = if ($null -eq $current.Bone) { 'n/a' } else { '{0} ({1:P2})' -f $current.Bone.FractureSeverity, $current.Bone.FractureRatio }
 		$sever = if ($current.SeverThreshold -gt 0) { if ($current.Severed) { 'Yes' } else { 'No' } } else { 'N/A' }
-		$lines.Add(('| {0} | {1:N2} | {2} | {3:N2} | {4} | {5} | {6} | {7} |' -f $label, $current.RawDamage, (Format-Packet $current.PostRacial), $current.OuterDamage, (Format-Packet $current.Internal), $current.OuterSeverity, $fracture, $sever))
+		$lines.Add(('| {0} | {1:N2} | {2} | {3:N2} | {4} | {5} | {6} | {7} |' -f $profileLabel, $current.RawDamage, (Format-Packet $current.PostRacial), $current.OuterDamage, (Format-Packet $current.Internal), $current.OuterSeverity, $fracture, $sever))
 	}
 	$lines.Add('')
 }
@@ -461,11 +473,11 @@ $robotSensor = ($results | Where-Object Name -eq 'Axe -> robot utility sensor po
 
 $lines.Add('## Behavioural Shift Summary')
 $lines.Add('')
-$lines.Add(('- `Quadruped foreleg` severing moves from threshold `{0}` / outcome `{1}` to threshold `{2}` / outcome `{3}` at the same stock hit.' -f $animalForeleg.Before.SeverThreshold, $animalForeleg.Before.Severed, $animalForeleg.After.SeverThreshold, $animalForeleg.After.Severed))
-$lines.Add(('- `Quadruped head` inward packet rises from {0} to {1}, and the skull fracture read shifts from {2} to {3}.' -f (Format-Packet $animalHead.Before.Internal), (Format-Packet $animalHead.After.Internal), $animalHead.Before.Bone.FractureSeverity, $animalHead.After.Bone.FractureSeverity))
-$lines.Add(('- `Griffin wing` no longer gets the extra mythical race-level non-human armour layer; the inward packet rises from {0} to {1}, and the sever threshold drops from `{2}` to `{3}`.' -f (Format-Packet $griffinWing.Before.Internal), (Format-Packet $griffinWing.After.Internal), $griffinWing.Before.SeverThreshold, $griffinWing.After.SeverThreshold))
-$lines.Add(('- `Robot upper arm` still protects better than flesh, but the race-plus-bodypart stack leaks {0} inward after the pass instead of {1}, which is the intended less-binary result.' -f (Format-Packet $robotArm.After.Internal), (Format-Packet $robotArm.Before.Internal)))
-$lines.Add(('- `Robot sensor pod` severing shifts from a stock threshold of `{0}` to `{1}`, and the same axe hit now lands as `{2}` instead of `{3}`.' -f $robotSensor.Before.SeverThreshold, $robotSensor.After.SeverThreshold, $robotSensor.After.OuterSeverity, $robotSensor.Before.OuterSeverity))
+$lines.Add(('- `Quadruped foreleg` severing moves from threshold `{0}` / outcome `{1}` in `{2}` to threshold `{3}` / outcome `{4}` in `{5}` at the same stock hit.' -f $animalForeleg.Before.SeverThreshold, $animalForeleg.Before.Severed, $BaselineProfile, $animalForeleg.After.SeverThreshold, $animalForeleg.After.Severed, $ComparisonProfile))
+$lines.Add(('- `Quadruped head` inward packet rises from {0} in `{1}` to {2} in `{3}`, and the skull fracture read shifts from {4} to {5}.' -f (Format-Packet $animalHead.Before.Internal), $BaselineProfile, (Format-Packet $animalHead.After.Internal), $ComparisonProfile, $animalHead.Before.Bone.FractureSeverity, $animalHead.After.Bone.FractureSeverity))
+$lines.Add(('- `Griffin wing` no longer gets the extra mythical race-level non-human armour layer; the inward packet rises from {0} in `{1}` to {2} in `{3}`, and the sever threshold drops from `{4}` to `{5}`.' -f (Format-Packet $griffinWing.Before.Internal), $BaselineProfile, (Format-Packet $griffinWing.After.Internal), $ComparisonProfile, $griffinWing.Before.SeverThreshold, $griffinWing.After.SeverThreshold))
+$lines.Add(('- `Robot upper arm` still protects better than flesh, but the race-plus-bodypart stack leaks {0} inward in `{1}` instead of {2} in `{3}`, which is the intended less-binary result.' -f (Format-Packet $robotArm.After.Internal), $ComparisonProfile, (Format-Packet $robotArm.Before.Internal), $BaselineProfile))
+$lines.Add(('- `Robot sensor pod` severing shifts from a threshold of `{0}` in `{1}` to `{2}` in `{3}`, and the same axe hit now lands as `{4}` instead of `{5}`.' -f $robotSensor.Before.SeverThreshold, $BaselineProfile, $robotSensor.After.SeverThreshold, $ComparisonProfile, $robotSensor.After.OuterSeverity, $robotSensor.Before.OuterSeverity))
 $lines.Add('')
 $lines.Add('## Notes')
 $lines.Add('')

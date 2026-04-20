@@ -291,7 +291,7 @@ public partial class HumanSeeder
             DamageModifier = damageMultiplier,
             PainModifier = painMultiplier,
             StunModifier = stunMultiplier,
-            MaxLife = hitPoints,
+            MaxLife = ResolveHumanMaxLife(alias, hitPoints),
             SeveredThreshold = _questionAnswers["sever"].EqualToAny("y", "yes") ? severThreshold : -1,
             IsCore = isCore,
             IsVital = isVital,
@@ -302,9 +302,10 @@ public partial class HumanSeeder
             ImplantSpaceOccupied = implantSpaceOccupied,
             Size = (int)size,
             DisplayOrder = displayOrder,
-            RelativeHitChance = GetHumanRelativeHitChance(alias, hitChance),
+            RelativeHitChance = ResolveHumanRelativeHitChance(alias, hitChance),
             DefaultMaterial = material,
-            ArmourType = GetDefaultNaturalArmour(alias)
+            ArmourType = GetDefaultNaturalArmour(alias),
+            SeverFormula = ResolveHumanSeverFormula(alias)
         };
 
         if (type == BodypartTypeEnum.Grabbing)
@@ -371,163 +372,7 @@ public partial class HumanSeeder
     {
         #region Natural Armour Types
 
-        _racialNaturalArmour = new ArmourType
-        {
-            Name = "Human Racial Tissue Armour",
-            MinimumPenetrationDegree = 1,
-            BaseDifficultyDegrees = 0,
-            StackedDifficultyDegrees = 0,
-            Definition = BuildNaturalArmourDefinition(
-                RelaxedFleshDamageTransforms(),
-                HumanRacialTissueDamageDissipateExpression,
-                damageType => HumanSharedFleshDissipateExpression(damageType, "pain"),
-                damageType => HumanSharedFleshDissipateExpression(damageType, "stun"),
-                HumanRacialTissueDamageAbsorbExpression,
-                damageType => HumanCurrentFleshDamageAbsorbExpression(damageType, "pain"),
-                damageType => HumanCurrentFleshStunAbsorbExpression(damageType, "stun"))
-        };
-        _context.ArmourTypes.Add(_racialNaturalArmour);
-
-        _bodypartNaturalArmour = new ArmourType
-        {
-            Name = "Human Natural Flesh Armour",
-            MinimumPenetrationDegree = 1,
-            BaseDifficultyDegrees = 0,
-            StackedDifficultyDegrees = 0,
-            Definition = BuildNaturalArmourDefinition(
-                RelaxedFleshDamageTransforms(),
-                damageType => HumanSharedFleshDissipateExpression(damageType, "damage"),
-                damageType => HumanSharedFleshDissipateExpression(damageType, "pain"),
-                damageType => HumanSharedFleshDissipateExpression(damageType, "stun"),
-                damageType => HumanCurrentFleshDamageAbsorbExpression(damageType, "damage"),
-                damageType => HumanCurrentFleshDamageAbsorbExpression(damageType, "pain"),
-                damageType => HumanCurrentFleshStunAbsorbExpression(damageType, "stun"))
-        };
-        _context.ArmourTypes.Add(_bodypartNaturalArmour);
-
-        _cranialNaturalArmour = new ArmourType
-        {
-            Name = "Human Cranial Flesh Armour",
-            MinimumPenetrationDegree = 1,
-            BaseDifficultyDegrees = 0,
-            StackedDifficultyDegrees = 0,
-            Definition = BuildNaturalArmourDefinition(
-                RelaxedFleshDamageTransforms(),
-                damageType => HumanSharedFleshDissipateExpression(damageType, "damage"),
-                damageType => HumanSharedFleshDissipateExpression(damageType, "pain"),
-                damageType => HumanSharedFleshDissipateExpression(damageType, "stun"),
-                HumanCranialFleshDamageAbsorbExpression,
-                damageType => HumanCurrentFleshDamageAbsorbExpression(damageType, "pain"),
-                damageType => HumanCurrentFleshStunAbsorbExpression(damageType, "stun"))
-        };
-        _context.ArmourTypes.Add(_cranialNaturalArmour);
-
-        _organArmour = new ArmourType
-        {
-            Name = "Human Natural Organ Armour",
-            MinimumPenetrationDegree = 1,
-            BaseDifficultyDegrees = 0,
-            StackedDifficultyDegrees = 0,
-            Definition = @"<ArmourType>
-
-	<!-- 
-	
-		Dissipate expressions are applied before the item/part takes damage. 
-		If they reduce the damage to zero, it neither suffers nor passes on any damage. 
-		
-		Parameters: 
-		* damage, pain or stun (as appropriate) = the raw damage/pain/stun suffered
-		* quality = the quality of the armour, rated 0 (Abysmal) to 11 (Legendary)
-		* angle = the angle in radians of the attack (e.g. 1.5708rad = 90 degrees)
-		* density = the density in kg/m3 of the material that the armour is made from
-		* electrical = the electrical conductivity of the material that the armour is made from (1/ohm metres)
-		* thermal = the thermal conductivity of the material that the armour is made from (watts per meter3 per kelvin)
-		* organic = if the material that the armour is made from is organic (1 for true, 0 for false)
-		* strength = either ImpactYield or ShearYield of the armour material depending on the damage type, in Pascals.
-		
-		Hint: 25000 can be considered ""base"" ShearYield and 10000 can be considered ""base"" ImpactYield
-	-->
-	<DissipateExpressions>
-		<Expression damagetype=""0"">damage-(1.0*quality)</Expression>         <!-- Slashing -->
-		<Expression damagetype=""1"">damage-(1.0*quality)</Expression>         <!-- Chopping -->  
-		<Expression damagetype=""2"">damage-(1.0*quality)</Expression>         <!-- Crushing -->  
-		<Expression damagetype=""3"">damage-(1.0*quality)</Expression>         <!-- Piercing -->  
-		<Expression damagetype=""4"">damage*1.15-(1.0*quality)</Expression>    <!-- Ballistic -->  
-		<Expression damagetype=""5"">damage-(1.0*quality)</Expression>    	 <!-- Burning -->
-		<Expression damagetype=""6"">damage-(1.0*quality)</Expression>         <!-- Freezing -->
-		<Expression damagetype=""7"">damage-(1.0*quality)</Expression>         <!-- Chemical -->
-		<Expression damagetype=""8"">damage*1.15-(1.0*quality)</Expression>    <!-- Shockwave -->
-		<Expression damagetype=""9"">damage-(1.0*quality)</Expression>         <!-- Bite -->
-		<Expression damagetype=""10"">damage-(1.0*quality)</Expression>        <!-- Claw -->
-		<Expression damagetype=""11"">damage-(1.0*quality)</Expression>        <!-- Electrical -->
-		<Expression damagetype=""12"">damage-(quality*0.75)</Expression>       <!-- Hypoxia -->
-		<Expression damagetype=""13"">damage-(quality*0.75)</Expression>       <!-- Cellular -->
-		<Expression damagetype=""14"">damage-(1.0*quality)</Expression>        <!-- Sonic -->
-		<Expression damagetype=""15"">damage-(1.0*quality)</Expression>        <!-- Shearing --> 
-		<Expression damagetype=""16"">damage-(1.0*quality)</Expression>        <!-- ArmourPiercing -->
-		<Expression damagetype=""17"">damage-(1.0*quality)</Expression>        <!-- Wrenching -->
-		<Expression damagetype=""18"">damage*1.15-(1.0*quality)</Expression>   <!-- Shrapnel -->   
-		<Expression damagetype=""19"">damage-(1.0*quality)</Expression>        <!-- Necrotic -->   
-		<Expression damagetype=""20"">damage-(1.0*quality)</Expression>        <!-- Falling -->   
-		<Expression damagetype=""21"">damage-(1.0*quality)</Expression>        <!-- Eldritch -->   
-		<Expression damagetype=""22"">damage-(1.0*quality)</Expression>        <!-- Arcane -->   
-	</DissipateExpressions>  
-	<DissipateExpressionsPain>
-		<Expression damagetype=""0"">pain-(1.0*quality)</Expression>         <!-- Slashing -->
-		<Expression damagetype=""1"">pain-(1.0*quality)</Expression>         <!-- Chopping -->  
-		<Expression damagetype=""2"">pain-(1.0*quality)</Expression>         <!-- Crushing -->  
-		<Expression damagetype=""3"">pain-(1.0*quality)</Expression>         <!-- Piercing -->  
-		<Expression damagetype=""4"">pain*1.15-(1.0*quality)</Expression>    <!-- Ballistic -->  
-		<Expression damagetype=""5"">pain-(1.0*quality)</Expression>    	 <!-- Burning -->
-		<Expression damagetype=""6"">pain-(1.0*quality)</Expression>         <!-- Freezing -->
-		<Expression damagetype=""7"">pain-(1.0*quality)</Expression>         <!-- Chemical -->
-		<Expression damagetype=""8"">pain*1.15-(1.0*quality)</Expression>    <!-- Shockwave -->
-		<Expression damagetype=""9"">pain-(1.0*quality)</Expression>         <!-- Bite -->
-		<Expression damagetype=""10"">pain-(1.0*quality)</Expression>        <!-- Claw -->
-		<Expression damagetype=""11"">pain-(1.0*quality)</Expression>        <!-- Electrical -->
-		<Expression damagetype=""12"">pain-(quality*0.75)</Expression>       <!-- Hypoxia -->
-		<Expression damagetype=""13"">pain-(quality*0.75)</Expression>       <!-- Cellular -->
-		<Expression damagetype=""14"">pain-(1.0*quality)</Expression>        <!-- Sonic -->
-		<Expression damagetype=""15"">pain-(1.0*quality)</Expression>        <!-- Shearing --> 
-		<Expression damagetype=""16"">pain-(1.0*quality)</Expression>        <!-- ArmourPiercing -->
-		<Expression damagetype=""17"">pain-(1.0*quality)</Expression>        <!-- Wrenching -->
-		<Expression damagetype=""18"">pain*1.15-(1.0*quality)</Expression>   <!-- Shrapnel -->   
-		<Expression damagetype=""19"">pain-(1.0*quality)</Expression>        <!-- Necrotic -->   
-		<Expression damagetype=""20"">pain-(1.0*quality)</Expression>        <!-- Falling -->   
-		<Expression damagetype=""21"">pain-(1.0*quality)</Expression>        <!-- Eldritch -->   
-		<Expression damagetype=""22"">pain-(1.0*quality)</Expression>        <!-- Arcane -->   
-	</DissipateExpressionsPain>  
-	<DissipateExpressionsStun>
-		<Expression damagetype=""0"">stun-(1.0*quality)</Expression>         <!-- Slashing -->
-		<Expression damagetype=""1"">stun-(1.0*quality)</Expression>         <!-- Chopping -->  
-		<Expression damagetype=""2"">stun-(1.0*quality)</Expression>         <!-- Crushing -->  
-		<Expression damagetype=""3"">stun-(1.0*quality)</Expression>         <!-- Piercing -->  
-		<Expression damagetype=""4"">stun*1.15-(1.0*quality)</Expression>    <!-- Ballistic -->  
-		<Expression damagetype=""5"">stun-(1.0*quality)</Expression>    	 <!-- Burning -->
-		<Expression damagetype=""6"">stun-(1.0*quality)</Expression>         <!-- Freezing -->
-		<Expression damagetype=""7"">stun-(1.0*quality)</Expression>         <!-- Chemical -->
-		<Expression damagetype=""8"">stun*1.15-(1.0*quality)</Expression>    <!-- Shockwave -->
-		<Expression damagetype=""9"">stun-(1.0*quality)</Expression>         <!-- Bite -->
-		<Expression damagetype=""10"">stun-(1.0*quality)</Expression>        <!-- Claw -->
-		<Expression damagetype=""11"">stun-(1.0*quality)</Expression>        <!-- Electrical -->
-		<Expression damagetype=""12"">stun-(quality*0.75)</Expression>       <!-- Hypoxia -->
-		<Expression damagetype=""13"">stun-(quality*0.75)</Expression>       <!-- Cellular -->
-		<Expression damagetype=""14"">stun-(1.0*quality)</Expression>        <!-- Sonic -->
-		<Expression damagetype=""15"">stun-(1.0*quality)</Expression>        <!-- Shearing --> 
-		<Expression damagetype=""16"">stun-(1.0*quality)</Expression>        <!-- ArmourPiercing -->
-		<Expression damagetype=""17"">stun-(1.0*quality)</Expression>        <!-- Wrenching -->
-		<Expression damagetype=""18"">stun*1.15-(1.0*quality)</Expression>   <!-- Shrapnel -->   
-		<Expression damagetype=""19"">stun-(1.0*quality)</Expression>        <!-- Necrotic -->   
-		<Expression damagetype=""20"">stun-(1.0*quality)</Expression>        <!-- Falling -->   
-		<Expression damagetype=""21"">stun-(1.0*quality)</Expression>        <!-- Eldritch -->   
-		<Expression damagetype=""22"">stun-(1.0*quality)</Expression>        <!-- Arcane -->    
-	</DissipateExpressionsStun>  
-	
-	<!-- Note: Organ Damage is final - there's no ""lower layer"" to pass on to, therefore there is no need for Absorb expressions -->
- </ArmourType>"
-        };
-        _context.ArmourTypes.Add(_organArmour);
-        _context.SaveChanges();
+        ConfigureHumanNaturalArmours();
 
         #endregion
 

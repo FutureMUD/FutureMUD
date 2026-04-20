@@ -92,6 +92,8 @@ namespace MudSharp.Body
 
         int SeveredThreshold { get; }
 
+        string? SeverFormula { get; }
+
         bool Significant { get; }
 
         [NotNull]

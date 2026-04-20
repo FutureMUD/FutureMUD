@@ -24,6 +24,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Work.Projects.Impacts;
+using ExpressionEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1024,8 +1025,7 @@ public partial class Body
             }
 
 
-            if (damage.Bodypart.CanSever && damage.DamageAmount >= Race.ModifiedSeverthreshold(damage.Bodypart) &&
-                damage.DamageType.CanSever())
+            if (ShouldSever(damage))
             {
                 severedPart = damage.Bodypart;
                 damage = new Damage(damage) { Bodypart = damage.Bodypart.UpstreamConnection };
@@ -1052,6 +1052,23 @@ public partial class Body
 
         wounds.AddRange(newWounds);
         return wounds;
+    }
+
+    private bool ShouldSever(IDamage damage)
+    {
+        if (damage.Bodypart is null || !damage.Bodypart.CanSever)
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(damage.Bodypart.SeverFormula))
+        {
+            IExpression expression = new Expression(damage.Bodypart.SeverFormula);
+            return expression.EvaluateDoubleWith(("damage", damage.DamageAmount), ("damagetype", (int)damage.DamageType)) >= 1.0;
+        }
+
+        return damage.DamageAmount >= Race.ModifiedSeverthreshold(damage.Bodypart) &&
+               damage.DamageType.CanSever();
     }
 
     private bool CheckOrganDamageSpecific(KeyValuePair<IOrganProto, BodypartInternalInfo> organInfo,

@@ -99,16 +99,18 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
     {
         _context = context;
         _context.Database.BeginTransaction();
-        LoadSharedSeederData(questionAnswers);
+        IReadOnlyDictionary<string, string> effectiveAnswers =
+            CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
+        LoadSharedSeederData(effectiveAnswers);
         bool hasMissingDisfigurementTemplates = HasMissingMythicalDisfigurementTemplates(_context);
         List<MythicalRaceTemplate> templatesToSeed = Templates.Values
             .Where(template => !_context.Races.Any(x => x.Name == template.Name))
             .ToList();
         if (templatesToSeed.Count == 0 && !hasMissingDisfigurementTemplates)
         {
-            ApplyDefaultCombatSettingsToSeededRaces();
+            RefreshExistingMythicalCombatBalance();
             _context.Database.CommitTransaction();
-            return "Mythical races are already installed.";
+            return "Mythical races are already installed and their combat balance profile has been refreshed.";
         }
 
         Dictionary<string, BodyProto> bodyLookup = BuildBodyCatalogue(Templates.Values);
@@ -119,7 +121,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         }
 
         SeedMythicalDisfigurementTemplates(bodyLookup);
-        ApplyDefaultCombatSettingsToSeededRaces();
+        RefreshExistingMythicalCombatBalance();
         _context.SaveChanges();
         _context.Database.CommitTransaction();
         int skippedCount = Templates.Count - templatesToSeed.Count;
@@ -203,6 +205,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
     private void LoadSharedSeederData(IReadOnlyDictionary<string, string> answers)
     {
+        _combatBalanceProfile = CombatBalanceProfileHelper.GetSelectedProfile(_context, answers);
         _humanRace = _context.Races.First(x => x.Name == "Human");
         _organicHumanoidRace = _context.Races.First(x => x.Name == "Organic Humanoid");
         _organicHumanoidBody = _context.BodyProtos.First(x => x.Name == "Organic Humanoid");
@@ -226,7 +229,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
                                        _context.PopulationBloodModels.FirstOrDefault();
         _personWordDefinition = _context.CharacteristicDefinitions.First(x => x.Name == "Person Word");
 		_humanoidNaturalArmour = _context.ArmourTypes.FirstOrDefault(x => x.Name == "Human Racial Tissue Armour");
-		_animalNaturalArmour = null;
+		_animalNaturalArmour = _context.ArmourTypes.FirstOrDefault(x => x.Name == "Non-Human Natural Armour");
         _nextBodyProtoId = _context.BodyProtos.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
 
         _healthTrait = _context.TraitDefinitions
@@ -1013,15 +1016,18 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			CharacterCombatSetting setting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, template.CombatStrategyKey);
 			bool usesHumanoidDefaults = template.HumanoidVariety ||
 			                          (template.CanUseWeapons && template.BodyKey.EqualTo("Organic Humanoid"));
-			ArmourType? expectedArmour = usesHumanoidDefaults ? _humanoidNaturalArmour : null;
+			ArmourType? expectedArmour = usesHumanoidDefaults ? _humanoidNaturalArmour : _animalNaturalArmour;
+            double expectedHealthMultiplier = ResolveMythicalHealthMultiplier(template);
 			if (race.DefaultCombatSettingId == setting.Id &&
-			    race.NaturalArmourTypeId == expectedArmour?.Id)
+			    race.NaturalArmourTypeId == expectedArmour?.Id &&
+                Math.Abs(race.BodypartHealthMultiplier - expectedHealthMultiplier) < 0.0001)
 			{
 				continue;
 			}
 
 			race.DefaultCombatSetting = setting;
 			race.NaturalArmourType = expectedArmour;
+            race.BodypartHealthMultiplier = expectedHealthMultiplier;
 		}
 
         _context.SaveChanges();

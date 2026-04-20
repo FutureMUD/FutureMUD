@@ -159,6 +159,12 @@ This project contains the long-running climate and weather regression checks use
 - The interface IPerceiver is used as a base for a small number of things that can see echoes and perceive things around them, such as characters and items. It extends IPerceivable.
 - When creating text for an IEmote, refer to [Emote System](./Design Documents/Emote System.md)
 
+## Text Markup Reference
+- [Emote System](./Design%20Documents/Emote%20System.md)
+- [Character Description System](./Design%20Documents/Character_Description_System.md)
+- [Human Seeder Description Patterns](./Design%20Documents/Human_Seeder_Description_Patterns.md)
+- [Room Description Markup](./Design%20Documents/Room_Description_Markup.md)
+
 ## Style Preferences and Internal Helper Conventions
 - Always prefer to present numbers, times, dates and the like using localised formatting where you know the IPerceiver the message is being presented to. Conventionally an IPerceiver passed to a method for this reason is called a `voyeur`. 
 - IPerceivers are IFormatProviders and so can be passed into functions like ToString in the same way as CultureInfo objects.

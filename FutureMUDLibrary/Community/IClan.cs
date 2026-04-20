@@ -66,6 +66,21 @@ namespace MudSharp.Community
         void SetPaygrade(IClanMembership membership, IPaygrade newPaygrade);
         void RemoveMembership(IClanMembership membership);
         void DismissAppointment(IClanMembership membership, IAppointment appointment);
+        void Show(ICharacter actor, StringStack command);
+        void ShowMembers(ICharacter actor);
+        string DescribeElections(ICharacter actor);
+        void ShowElectionHistory(ICharacter actor, StringStack command);
+        void Nominate(ICharacter actor, StringStack command);
+        void WithdrawNomination(ICharacter actor, StringStack command);
+        void Vote(ICharacter actor, StringStack command);
+        void Appoint(ICharacter actor, StringStack command);
+        void Dismiss(ICharacter actor, StringStack command);
+        void SubmitControl(ICharacter actor, StringStack command);
+        void ReleaseControl(ICharacter actor, StringStack command);
+        void TransferControl(ICharacter actor, StringStack command);
+        void SetControllingAppointment(ICharacter actor, StringStack command);
+        void AppointExternal(ICharacter actor, StringStack command);
+        void DismissExternal(ICharacter actor, StringStack command);
 
         bool FreePosition(IAppointment appointment);
         bool FreePosition(IAppointment appointment, IClan liegeClan);

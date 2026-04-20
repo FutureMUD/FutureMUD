@@ -202,7 +202,7 @@ public class Election : SaveableItem, IElection
                     continue;
                 }
 
-                ICharacter? ch = Gameworld.Actors.Get(member.Id);
+                ICharacter? ch = Gameworld.Actors.Get(member.MemberId);
                 ch?.OutputHandler.Send(
                     $"Your term as {Appointment.Title(ch).ColourValue()} in {Appointment.Clan.FullName.ColourName()} has ended.");
                 member.Appointments.Remove(Appointment);
@@ -218,7 +218,7 @@ public class Election : SaveableItem, IElection
 
                 victor.Appointments.Add(Appointment);
                 victor.Changed = true;
-                ICharacter? ch = Gameworld.Actors.Get(victor.Id);
+                ICharacter? ch = Gameworld.Actors.Get(victor.MemberId);
                 ch?.OutputHandler.Send(
                     $"Your term as {Appointment.Title(ch).ColourValue()} in {Appointment.Clan.FullName.ColourName()} has begun.");
             }
@@ -320,7 +320,7 @@ public class Election : SaveableItem, IElection
         if (now >= NominationStartDate)
         {
             string echo =
-                $"An election has begun for the position of {Appointment.Name.ColourValue()} in {Appointment.Clan.FullName.ColourName()}.\nThe nomination period will last for {Appointment.VotingPeriod.Describe().ColourValue()}, after which voting will commence.";
+                $"An election has begun for the position of {Appointment.Name.ColourValue()} in {Appointment.Clan.FullName.ColourName()}.\nThe nomination period will last for {Appointment.NominationPeriod.Describe().ColourValue()}, after which voting will commence.";
             Gameworld.SystemMessage(echo,
                 ch => ch.ClanMemberships.Any(x =>
                     x.Clan == Appointment.Clan && x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders)));
@@ -506,7 +506,7 @@ public class Election : SaveableItem, IElection
                                 : null ??
                                   actor.Dubs
                                        .FirstOrDefault(x =>
-                                           x.TargetType == "Character" && x.TargetId == nominee.Id &&
+                                           x.TargetType == "Character" && x.TargetId == nominee.MemberId &&
                                            !x.WasIdentityConcealed)?.LastDescription.ColourCharacter();
                             if (!string.IsNullOrEmpty(desc))
                             {

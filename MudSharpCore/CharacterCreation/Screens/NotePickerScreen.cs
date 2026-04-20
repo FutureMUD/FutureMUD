@@ -120,7 +120,7 @@ public class NotePickerScreenStoryboard : ChargenScreenStoryboard
             name,
             prog
         });
-        throw new NotImplementedException();
+        return true;
     }
 
     private void CancelAddNote(IOutputHandler handler, object[] args)

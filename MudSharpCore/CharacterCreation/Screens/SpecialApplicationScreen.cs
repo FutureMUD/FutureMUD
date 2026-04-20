@@ -63,7 +63,7 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
         sb.Append(ShowHeader(voyeur));
         sb.AppendLine();
         sb.AppendLine(
-            "This screen allows people to select whether they are making a regular application (rules apply), a short application (skip some complex decisions) or a special application (rules relaxed). You can set up other decisions in chargen to check the IsSpecialApplication property of the chargen to otherwise ignore restrictions - the seeder sets things up like this to begin with."
+            "This screen allows people to select whether they are making a regular application, a simple application, or a special application. Builders can use the chargen FutureProg properties for simple and special applications to loosen restrictions, unlock extra options, or waive costs elsewhere in chargen."
                 .Wrap(voyeur.InnerLineFormatLength).ColourCommand());
         sb.AppendLine();
         IChargenResource resource = Gameworld.ChargenResources.Get(Gameworld.GetStaticLong("SpecialApplicationResource"));
@@ -100,12 +100,9 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
                     if (storyboard.AutomaticallyDoShortApplicationForAccountFirst)
                     {
                         Chargen.ApplicationType = ApplicationType.Simple;
+                        Chargen.IsSpecialApplication = false;
+                        State = ChargenScreenState.Complete;
                     }
-                    else
-                    {
-                        Chargen.ApplicationType = ApplicationType.Special;
-                    }
-                    State = ChargenScreenState.Complete;
                 }
             }
             // TODO - automatically complete if account is banned from submitting special applications
@@ -134,21 +131,25 @@ Please enter your choice. Type {"simple".ColourCommand()}, {"normal".ColourComma
 
             State = ChargenScreenState.Complete;
 
-            if ("short".StartsWith(command, StringComparison.InvariantCultureIgnoreCase))
+            if ("simple".StartsWith(command, StringComparison.InvariantCultureIgnoreCase) ||
+                "short".StartsWith(command, StringComparison.InvariantCultureIgnoreCase))
             {
                 Chargen.ApplicationType = ApplicationType.Simple;
+                Chargen.IsSpecialApplication = false;
                 return "\n\nThis application is now a simple application.";
             }
 
             if ("normal".StartsWith(command, StringComparison.InvariantCultureIgnoreCase))
             {
                 Chargen.ApplicationType = ApplicationType.Normal;
+                Chargen.IsSpecialApplication = false;
                 return "\n\nThis application is now a normal application.";
             }
 
             if ("special".StartsWith(command, StringComparison.InvariantCultureIgnoreCase))
             {
                 Chargen.ApplicationType = ApplicationType.Special;
+                Chargen.IsSpecialApplication = true;
                 return "\n\nThis application is now a special application.";
             }
 

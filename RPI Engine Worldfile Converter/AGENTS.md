@@ -19,12 +19,12 @@ Implemented or actively in progress:
 
 - item parsing and conversion
 - clan parsing and conversion
+- room parsing and conversion
 - JSON export for converted data
 - dry-run and execute import paths for converter-driven database import
 
 Planned future conversion targets:
 
-- rooms
 - NPCs
 - crafts
 - shops
@@ -115,6 +115,7 @@ When changing converter behavior, keep the relevant mapping notes up to date:
 
 - `RpiItemConversionMapping.md`
 - `RpiClanConversionMapping.md`
+- `RpiRoomConversionMapping.md`
 
 If future room, NPC, craft, or shop converters are added, add matching mapping documents for them as part of the same work.
 

@@ -33,6 +33,7 @@ internal sealed record ConverterCliOptions(
 	string ClanSourceFile,
 	string? OutputPath,
 	string? ConnectionString,
+	string? ZoneTemplate,
 	bool Execute,
 	bool UseBaseline);
 
@@ -44,6 +45,11 @@ internal sealed record ItemBaselineLoadResult(
 internal sealed record ClanBaselineLoadResult(
 	FuturemudDatabaseContext? Context,
 	FutureMudClanBaselineCatalog? Catalog,
+	string Status);
+
+internal sealed record RoomBaselineLoadResult(
+	FuturemudDatabaseContext? Context,
+	FutureMudRoomBaselineCatalog? Catalog,
 	string Status);
 
 internal static class Program
@@ -64,9 +70,17 @@ internal static class Program
 				return 1;
 			}
 
-			return IsItemCommand(options.Command)
-				? await RunItemCommand(options)
-				: await RunClanCommand(options);
+			if (IsItemCommand(options.Command))
+			{
+				return await RunItemCommand(options);
+			}
+
+			if (IsClanCommand(options.Command))
+			{
+				return await RunClanCommand(options);
+			}
+
+			return await RunRoomCommand(options);
 		}
 		catch (ArgumentException ex)
 		{
@@ -156,6 +170,40 @@ internal static class Program
 			"analyze-clans" => await RunAnalyzeClans(sourceDocument, conversion, summary, validationIssues),
 			"export-clans" => await RunExportClans(options, sourceDocument, conversion, validationIssues, summary),
 			"apply-clans" => RunApplyClans(options, conversion.ConvertedClans, baseline.Context!, baseline.Catalog!, summary),
+			_ => 1,
+		};
+	}
+
+	private static async Task<int> RunRoomCommand(ConverterCliOptions options)
+	{
+		if (!Directory.Exists(options.RegionsDirectory))
+		{
+			Console.Error.WriteLine($"Could not find regions directory '{options.RegionsDirectory}'.");
+			return 1;
+		}
+
+		var parser = new RpiRoomWorldfileParser();
+		var corpus = parser.ParseDirectory(options.RegionsDirectory);
+		var baseline = LoadRoomBaseline(options);
+		using var baselineContext = baseline.Context;
+		if (options.Command == "apply-rooms" && baseline.Catalog is null)
+		{
+			Console.Error.WriteLine($"Unable to load the FutureMUD room baseline: {baseline.Status}");
+			return 3;
+		}
+
+		var transformer = new FutureMudRoomTransformer();
+		var conversion = transformer.Convert(corpus.Rooms);
+		var validationIssues = baseline.Catalog is not null
+			? FutureMudRoomValidation.Validate(baseline.Catalog, conversion, options.ZoneTemplate)
+			: Array.Empty<FutureMudRoomValidationIssue>();
+		var summary = BuildRoomAnalysisSummary(corpus, conversion, validationIssues, baseline.Status);
+
+		return options.Command switch
+		{
+			"analyze-rooms" => await RunAnalyzeRooms(summary, corpus, conversion, validationIssues),
+			"export-rooms" => await RunExportRooms(options, corpus, conversion, validationIssues, summary),
+			"apply-rooms" => await RunApplyRooms(options, conversion, baseline.Context!, baseline.Catalog!, summary),
 			_ => 1,
 		};
 	}
@@ -403,6 +451,164 @@ internal static class Program
 		return 0;
 	}
 
+	private static async Task<int> RunAnalyzeRooms(
+		RoomAnalysisSummary summary,
+		RpiParsedRoomCorpus corpus,
+		RoomConversionResult conversion,
+		IReadOnlyList<FutureMudRoomValidationIssue> validationIssues)
+	{
+		Console.WriteLine($"Parsed room blocks: {summary.ParsedRoomCount:N0} of {summary.TotalBlockCount:N0}");
+		Console.WriteLine($"Parse failures: {summary.FailureCount:N0}");
+		Console.WriteLine($"Parse warnings: {summary.ParseWarningCount:N0}");
+		Console.WriteLine($"Xerox rooms resolved: {summary.XeroxResolvedCount:N0}");
+		Console.WriteLine($"Hidden exits: {summary.HiddenExitCount:N0}");
+		Console.WriteLine($"Trapped exits: {summary.TrappedExitCount:N0}");
+		Console.WriteLine($"Climb exits: {summary.ClimbExitCount:N0}");
+		Console.WriteLine($"Fall exits: {summary.FallExitCount:N0}");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		Console.WriteLine();
+
+		PrintDictionary("Per-sector totals", summary.PerSectorCounts);
+		Console.WriteLine();
+		PrintDictionary("Per-terrain totals", summary.PerTerrainCounts);
+		Console.WriteLine();
+		PrintDictionary("Per-zone totals", summary.PerZoneCounts);
+
+		if (summary.WarningCodeCounts.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Warning codes", summary.WarningCodeCounts);
+		}
+
+		PrintMissingDependencies(summary.MissingDependencyCounts, validationIssues.Count);
+
+		if (corpus.Failures.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample parse failures:");
+			foreach (var failure in corpus.Failures.Take(10))
+			{
+				Console.WriteLine($"- {Path.GetFileName(failure.SourceFile)} {failure.Header}: {failure.Message}");
+			}
+		}
+
+		var zoneWarnings = conversion.Zones.SelectMany(x => x.Warnings.Select(y => $"{x.ZoneName}: {y.Message}")).Take(15).ToList();
+		if (zoneWarnings.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Zone warnings:");
+			foreach (var warning in zoneWarnings)
+			{
+				Console.WriteLine($"- {warning}");
+			}
+		}
+
+		if (validationIssues.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample validation issues:");
+			foreach (var issue in validationIssues.Take(20))
+			{
+				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+			}
+		}
+
+		await Task.CompletedTask;
+		return 0;
+	}
+
+	private static async Task<int> RunExportRooms(
+		ConverterCliOptions options,
+		RpiParsedRoomCorpus corpus,
+		RoomConversionResult conversion,
+		IReadOnlyList<FutureMudRoomValidationIssue> validationIssues,
+		RoomAnalysisSummary summary)
+	{
+		var outputPath = ResolveOutputPath(options.OutputPath, "rpi-rooms-export.json");
+		var auditPath = ResolveSidecarAuditPath(outputPath);
+		var convertedBySourceKey = conversion.Rooms.ToDictionary(x => x.SourceKey, StringComparer.OrdinalIgnoreCase);
+		var export = new RoomExportReport(
+			DateTime.UtcNow,
+			options.RegionsDirectory,
+			summary,
+			corpus.Failures,
+			validationIssues,
+			conversion.Zones,
+			corpus.Rooms
+				.OrderBy(x => x.Zone)
+				.ThenBy(x => x.Vnum)
+				.Select(x => new ConverterExportRoom(x, convertedBySourceKey[x.SourceKey]))
+				.ToList());
+		var audit = BuildRoomLogicalAudit(conversion);
+
+		await using (var stream = File.Create(outputPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, export, JsonOptions);
+		}
+
+		await using (var stream = File.Create(auditPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, audit, JsonOptions);
+		}
+
+		Console.WriteLine($"Wrote {export.Rooms.Count:N0} converted room records to {outputPath}");
+		Console.WriteLine($"Wrote logical room audit to {auditPath}");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		return 0;
+	}
+
+	private static async Task<int> RunApplyRooms(
+		ConverterCliOptions options,
+		RoomConversionResult conversion,
+		FuturemudDatabaseContext context,
+		FutureMudRoomBaselineCatalog baseline,
+		RoomAnalysisSummary summary)
+	{
+		var importer = new FutureMudRoomImporter(context, baseline, options.ZoneTemplate);
+		var result = importer.Apply(conversion, options.Execute);
+		var fatalErrors = result.Issues.Count(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase));
+		var auditPath = ResolveOutputPath(
+			options.OutputPath,
+			options.Execute ? "rpi-rooms-apply-audit.json" : "rpi-rooms-dry-run-audit.json");
+
+		await using (var stream = File.Create(auditPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, result.Audit, JsonOptions);
+		}
+
+		Console.WriteLine(options.Execute ? "Apply mode: execute" : "Apply mode: dry-run");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		Console.WriteLine($"Defaults: {result.Audit.DefaultsDescription}");
+		Console.WriteLine($"Validation issues: {result.Issues.Count:N0} total, {fatalErrors:N0} error(s)");
+		Console.WriteLine($"Existing zone groups skipped: {result.SkippedExistingZoneCount:N0}");
+		Console.WriteLine($"Audit output: {auditPath}");
+
+		if (options.Execute)
+		{
+			Console.WriteLine($"Inserted zones: {result.InsertedZoneCount:N0}");
+			Console.WriteLine($"Inserted rooms/cells/overlays: {result.InsertedRoomCount:N0}");
+			Console.WriteLine($"Inserted exits: {result.InsertedExitCount:N0}");
+		}
+
+		if (result.Issues.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample validation issues:");
+			foreach (var issue in result.Issues.Take(20))
+			{
+				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+			}
+		}
+
+		if (fatalErrors > 0)
+		{
+			Console.Error.WriteLine("Apply did not proceed because required baseline dependencies were missing.");
+			return 2;
+		}
+
+		return 0;
+	}
+
 	private static ConverterAnalysisSummary BuildItemAnalysisSummary(
 		RpiParsedCorpus corpus,
 		IReadOnlyList<ConvertedItemDefinition> converted,
@@ -445,6 +651,71 @@ internal static class Program
 			ToSortedCounts(allWarnings.GroupBy(x => x.Code)),
 			conversion.UnresolvedAliasCounts,
 			ToSortedCounts(validationIssues.GroupBy(x => x.Message)));
+	}
+
+	private static RoomAnalysisSummary BuildRoomAnalysisSummary(
+		RpiParsedRoomCorpus corpus,
+		RoomConversionResult conversion,
+		IReadOnlyList<FutureMudRoomValidationIssue> validationIssues,
+		string baselineStatus)
+	{
+		var allWarnings = conversion.Rooms
+			.SelectMany(x => x.Warnings)
+			.Concat(conversion.Exits.SelectMany(x => x.Warnings))
+			.Concat(conversion.Zones.SelectMany(x => x.Warnings));
+
+		return new RoomAnalysisSummary(
+			corpus.Rooms.Count + corpus.Failures.Count,
+			corpus.Rooms.Count,
+			corpus.Failures.Count,
+			corpus.Rooms.Sum(x => x.ParseWarnings.Count),
+			baselineStatus,
+			conversion.Rooms.Count(x => x.XeroxResolved && x.XeroxSourceVnum is not null),
+			conversion.Exits.Sum(x => Convert.ToInt32(x.Side1.Hidden) + Convert.ToInt32(x.Side2.Hidden)),
+			conversion.Exits.Sum(x => Convert.ToInt32(x.Side1.Trapped) + Convert.ToInt32(x.Side2.Trapped)),
+			conversion.Exits.Count(x => x.IsClimbExit),
+			conversion.Exits.Count(x => x.FallFromRoomVnum is not null),
+			ToSortedCounts(corpus.Rooms.GroupBy(x => x.SectorType.ToString())),
+			ToSortedCounts(conversion.Rooms.GroupBy(x => x.TerrainName)),
+			conversion.Zones
+				.GroupBy(x => x.ZoneName, StringComparer.OrdinalIgnoreCase)
+				.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
+				.ToDictionary(x => x.Key, x => x.Sum(y => y.Rooms.Count), StringComparer.OrdinalIgnoreCase),
+			ToSortedCounts(allWarnings.GroupBy(x => x.Code)),
+			ToSortedCounts(validationIssues.GroupBy(x => x.Message)));
+	}
+
+	private static RoomExportAuditReport BuildRoomLogicalAudit(RoomConversionResult conversion)
+	{
+		var exitsByRoom = conversion.Exits
+			.SelectMany(x => new[]
+			{
+				(roomVnum: x.RoomVnum1, exitKey: x.ExitKey),
+				(roomVnum: x.RoomVnum2, exitKey: x.ExitKey),
+			})
+			.GroupBy(x => x.roomVnum)
+			.ToDictionary(
+				x => x.Key,
+				x => (IReadOnlyList<string>)x.Select(y => y.exitKey).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(y => y, StringComparer.OrdinalIgnoreCase).ToList());
+
+		return new RoomExportAuditReport(
+			DateTime.UtcNow,
+			conversion.Rooms
+				.OrderBy(x => x.SourceZone)
+				.ThenBy(x => x.Vnum)
+				.Select(x => new RoomLogicalAuditEntry(
+					x.SourceKey,
+					x.Vnum,
+					x.ZoneGroupKey,
+					x.ZoneName,
+					x.OverlayPackageName,
+					x.Coordinates,
+					exitsByRoom.TryGetValue(x.Vnum, out var exitKeys) ? exitKeys : Array.Empty<string>()))
+				.ToList(),
+			conversion.Exits
+				.Select(x => x.ExitKey)
+				.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+				.ToList());
 	}
 
 	private static IReadOnlyDictionary<string, int> ToSortedCounts<T>(IEnumerable<IGrouping<string, T>> groups)
@@ -544,6 +815,32 @@ internal static class Program
 		}
 	}
 
+	private static RoomBaselineLoadResult LoadRoomBaseline(ConverterCliOptions options)
+	{
+		if (!options.UseBaseline)
+		{
+			return new RoomBaselineLoadResult(null, null, "Skipped baseline validation by request.");
+		}
+
+		FuturemudDatabaseContext? context = null;
+		try
+		{
+			context = new FuturemudDatabaseContext();
+			if (!string.IsNullOrWhiteSpace(options.ConnectionString))
+			{
+				context.ConnectionString = options.ConnectionString;
+			}
+
+			var catalog = FutureMudRoomBaselineCatalog.Load(context);
+			return new RoomBaselineLoadResult(context, catalog, "Loaded room baseline from FutureMUD.");
+		}
+		catch (Exception ex)
+		{
+			context?.Dispose();
+			return new RoomBaselineLoadResult(null, null, ex.Message);
+		}
+	}
+
 	private static ConverterCliOptions? ParseOptions(string[] args)
 	{
 		if (args.Length == 0 || args[0] is "--help" or "-h" or "help")
@@ -553,7 +850,7 @@ internal static class Program
 		}
 
 		var command = args[0];
-		if (!IsItemCommand(command) && !IsClanCommand(command))
+		if (!IsItemCommand(command) && !IsClanCommand(command) && !IsRoomCommand(command))
 		{
 			throw new ArgumentException($"Unknown command '{command}'.");
 		}
@@ -562,6 +859,7 @@ internal static class Program
 		string? clanSource = null;
 		string? output = null;
 		string? connectionString = null;
+		string? zoneTemplate = null;
 		var execute = false;
 		var useBaseline = true;
 
@@ -582,6 +880,9 @@ internal static class Program
 				case "--connection-string":
 					connectionString = ReadOptionValue(args, ref i, args[i]);
 					break;
+				case "--zone-template":
+					zoneTemplate = ReadOptionValue(args, ref i, "--zone-template");
+					break;
 				case "--execute":
 					execute = true;
 					break;
@@ -593,7 +894,7 @@ internal static class Program
 			}
 		}
 
-		if ((command == "apply-items" || command == "apply-clans") && !useBaseline)
+		if ((command == "apply-items" || command == "apply-clans" || command == "apply-rooms") && !useBaseline)
 		{
 			throw new ArgumentException($"{command} requires a seeded FutureMUD baseline and cannot be run with --skip-baseline.");
 		}
@@ -604,6 +905,7 @@ internal static class Program
 			ResolveClanSourceFile(clanSource),
 			output,
 			connectionString,
+			zoneTemplate,
 			execute,
 			useBaseline);
 	}
@@ -616,6 +918,11 @@ internal static class Program
 	private static bool IsClanCommand(string command)
 	{
 		return command is "analyze-clans" or "export-clans" or "apply-clans";
+	}
+
+	private static bool IsRoomCommand(string command)
+	{
+		return command is "analyze-rooms" or "export-rooms" or "apply-rooms";
 	}
 
 	private static string ReadOptionValue(string[] args, ref int index, string optionName)
@@ -678,6 +985,13 @@ internal static class Program
 		return Path.GetFullPath(configuredOutput ?? Path.Combine(Directory.GetCurrentDirectory(), fallbackFileName));
 	}
 
+	private static string ResolveSidecarAuditPath(string outputPath)
+	{
+		var directory = Path.GetDirectoryName(outputPath) ?? Directory.GetCurrentDirectory();
+		var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(outputPath);
+		return Path.Combine(directory, $"{fileNameWithoutExtension}.audit.json");
+	}
+
 	private static void PrintUsage()
 	{
 		Console.WriteLine("RPI Engine Worldfile Converter");
@@ -689,10 +1003,14 @@ internal static class Program
 		Console.WriteLine("  analyze-clans [--root <regions-dir>] [--clan-source <clan.cpp>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  export-clans [--root <regions-dir>] [--clan-source <clan.cpp>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  apply-clans [--root <regions-dir>] [--clan-source <clan.cpp>] [--db-connection <connection-string>] [--execute]");
+		Console.WriteLine("  analyze-rooms [--root <regions-dir>] [--db-connection <connection-string>] [--skip-baseline]");
+		Console.WriteLine("  export-rooms [--root <regions-dir>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
+		Console.WriteLine("  apply-rooms [--root <regions-dir>] [--output <audit-json>] [--zone-template <zone>] [--db-connection <connection-string>] [--execute]");
 		Console.WriteLine();
 		Console.WriteLine("Notes:");
-		Console.WriteLine("  apply-items and apply-clans default to dry-run mode unless --execute is supplied.");
+		Console.WriteLine("  apply-items, apply-clans, and apply-rooms default to dry-run mode unless --execute is supplied.");
 		Console.WriteLine("  The default regions directory is the bundled soiregions-main corpus.");
 		Console.WriteLine("  The default clan source is the bundled Old SOI Code/src/clan.cpp file.");
+		Console.WriteLine("  apply-rooms recommends --zone-template so new zones inherit seeded shard/timezone/weather defaults.");
 	}
 }

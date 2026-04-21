@@ -182,6 +182,7 @@ public static class FutureMudCraftValidation
 					definition.SourceKey,
 					"warning",
 					"Craft is deferred in this pass and will be skipped by apply-crafts."));
+				continue;
 			}
 
 			if (definition.PrimaryCheck is not null &&
@@ -248,8 +249,7 @@ public static class FutureMudCraftValidation
 					continue;
 				}
 
-				if (!string.IsNullOrWhiteSpace(clanRequirement.RankName) &&
-				    !clan.RankIds.ContainsKey(clanRequirement.RankName))
+				if (!CanSatisfyClanRequirement(clan, clanRequirement.RankName))
 				{
 					issues.Add(new FutureMudCraftValidationIssue(
 						definition.SourceKey,
@@ -305,6 +305,22 @@ public static class FutureMudCraftValidation
 		}
 
 		return issues;
+	}
+
+	private static bool CanSatisfyClanRequirement(FutureMudCraftClanReference clan, string? rankName)
+	{
+		if (string.IsNullOrWhiteSpace(rankName))
+		{
+			return true;
+		}
+
+		if (clan.RankIds.ContainsKey(rankName))
+		{
+			return true;
+		}
+
+		return rankName.Equals("member", StringComparison.OrdinalIgnoreCase) ||
+		       rankName.Equals("membership", StringComparison.OrdinalIgnoreCase);
 	}
 
 	private static void ValidateItemReference(
@@ -851,12 +867,17 @@ public sealed class FutureMudCraftImporter
 			.Select(x =>
 			{
 				var clan = _baseline.ClansByAlias[x.CanonicalAlias];
-				if (!string.IsNullOrWhiteSpace(x.RankName) && clan.RankIds.TryGetValue(x.RankName, out var rankId))
+				if (TryResolveClanRequirement(clan, x.RankName, out var rankId, out var fallbackToAnyMembership))
 				{
+					if (fallbackToAnyMembership)
+					{
+						return $"IsClanMember(@ch, ToClan({clan.ClanId.ToString(SystemCultureInfo.InvariantCulture)}))";
+					}
+
 					return $"IsClanMember(@ch, ToClan({clan.ClanId.ToString(SystemCultureInfo.InvariantCulture)}), ToRank({rankId.ToString(SystemCultureInfo.InvariantCulture)}))";
 				}
 
-				return $"IsClanMember(@ch, ToClan({clan.ClanId.ToString(SystemCultureInfo.InvariantCulture)}))";
+				return "false";
 			})
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.ToList();
@@ -945,6 +966,36 @@ public sealed class FutureMudCraftImporter
 		}
 
 		return lines;
+	}
+
+	private static bool TryResolveClanRequirement(
+		FutureMudCraftClanReference clan,
+		string? rankName,
+		out long rankId,
+		out bool fallbackToAnyMembership)
+	{
+		rankId = 0;
+		fallbackToAnyMembership = false;
+
+		if (string.IsNullOrWhiteSpace(rankName))
+		{
+			fallbackToAnyMembership = true;
+			return true;
+		}
+
+		if (clan.RankIds.TryGetValue(rankName, out rankId))
+		{
+			return true;
+		}
+
+		if (rankName.Equals("member", StringComparison.OrdinalIgnoreCase) ||
+		    rankName.Equals("membership", StringComparison.OrdinalIgnoreCase))
+		{
+			fallbackToAnyMembership = true;
+			return true;
+		}
+
+		return false;
 	}
 
 	private static IEnumerable<string> BuildConditionalBlock(string condition, string? whyText)

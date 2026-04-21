@@ -148,12 +148,35 @@ public class RpiCraftConversionTests
 					{
 						["trusted"] = 1,
 					}),
+				["Bakers"] = new FutureMudCraftClanReference(
+					2,
+					"Bakers",
+					new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)
+					{
+						["Apprentice"] = 10,
+						["Journeyman"] = 11,
+						["Master"] = 12,
+					}),
 			},
 			ImportedItemsBySourceVnum = BuildImportedItemCatalog(),
 			FutureProgIds = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase),
 		};
 
-		var issues = FutureMudCraftValidation.Validate(baseline, conversion.Crafts);
+		var guildMemberFallbackCraft = conversion.Crafts.Single(x => x.CraftNumber == 1) with
+		{
+			SourceKey = "fixture/guild-member#999",
+			Constraints = conversion.Crafts.Single(x => x.CraftNumber == 1).Constraints with
+			{
+				ClanRequirements =
+				[
+					new ConvertedCraftClanRequirement("Bakers", "Bakers", "member", Array.Empty<string>())
+				]
+			}
+		};
+
+		var issues = FutureMudCraftValidation.Validate(
+			baseline,
+			conversion.Crafts.Append(guildMemberFallbackCraft));
 
 		Assert.IsFalse(issues.Any(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase)));
 		Assert.IsTrue(issues.Any(x => x.SourceKey == conversion.Crafts.Single(y => y.CraftNumber == 3).SourceKey &&

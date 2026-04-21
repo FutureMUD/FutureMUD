@@ -543,8 +543,8 @@ public static class FutureMudNpcValidation
 				{
 					issues.Add(new FutureMudNpcValidationIssue(
 						definition.SourceKey,
-						"error",
-						$"Missing skill or language trait '{trait.TraitName}'."));
+						"warning",
+						$"Missing optional skill or language trait '{trait.TraitName}'. It will be preserved as provenance but not imported as a live trait."));
 					continue;
 				}
 
@@ -552,8 +552,8 @@ public static class FutureMudNpcValidation
 				{
 					issues.Add(new FutureMudNpcValidationIssue(
 						definition.SourceKey,
-						"error",
-						$"No accent is available for language trait '{trait.TraitName}'."));
+						"warning",
+						$"No accent is available for language trait '{trait.TraitName}'. The language trait will import without an accent."));
 				}
 			}
 

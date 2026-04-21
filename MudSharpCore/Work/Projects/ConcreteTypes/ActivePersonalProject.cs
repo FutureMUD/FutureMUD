@@ -41,10 +41,9 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
 
     private bool CheckForProjectCompletion(bool alreadyWorkingOnProject)
     {
-        if (_labourProgress.All(x => x.Value >= x.Key.TotalProgressRequired) &&
-            _materialProgress.All(x => x.Value >= x.Key.QuantityRequired))
+        if (AreCurrentPhaseCompletionRequirementsMet())
         {
-            foreach (IProjectAction action in CurrentPhase.CompletionActions)
+            foreach (IProjectAction action in OrderedCompletionActions())
             {
                 action.CompleteAction(this);
             }
@@ -54,6 +53,13 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
                                                             1);
             if (nextPhase != null)
             {
+                var ownerWasWorkingOnThisProject = alreadyWorkingOnProject;
+                _activeLabour.Clear();
+                if (CharacterOwner.CurrentProject.Project == this)
+                {
+                    CharacterOwner.CurrentProject = (null, null);
+                }
+
                 CurrentPhase = nextPhase;
                 _labourProgress.Clear();
                 _materialProgress.Clear();
@@ -66,7 +72,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
 
                 IProjectLabourRequirement newLabour =
                     CurrentPhase.LabourRequirements.FirstOrDefault(x => x.CharacterIsQualified(CharacterOwner));
-                if (alreadyWorkingOnProject && newLabour != null)
+                if (ownerWasWorkingOnThisProject && newLabour != null)
                 {
                     _activeLabour.Add((CharacterOwner, newLabour));
                     CharacterOwner.CurrentProject = (this, newLabour);
@@ -160,10 +166,11 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
         sb.Append(" - ");
         sb.Append(
             $"{CurrentPhase.LabourRequirements.Sum(x => x.HoursRemaining(this)).ToString("N2", actor).ColourValue()} hours of work remain");
-        if (CurrentPhase.MaterialRequirements.Any())
+        var mandatoryMaterialCompletion = MandatoryMaterialCompletionRatio();
+        if (mandatoryMaterialCompletion.HasValue)
         {
             sb.Append(
-                $", materials {(CurrentPhase.MaterialRequirements.Where(x => x.IsMandatoryForProjectCompletion).Sum(x => MaterialProgress[x]) / CurrentPhase.MaterialRequirements.Where(x => x.IsMandatoryForProjectCompletion).Sum(x => x.QuantityRequired)).ToString("P0", actor).ColourValue()} complete");
+                $", materials {mandatoryMaterialCompletion.Value.ToString("P0", actor).ColourValue()} complete");
         }
 
         return sb.ToString();

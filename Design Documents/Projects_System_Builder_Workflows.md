@@ -207,11 +207,9 @@ If both are missing, the labour requirement cannot be submitted.
 `supervision` exposes:
 - `project set phase <phase> labour <labour> multiplier <percent>`
 
-Current implementation warning:
-- the multiplier is editable in game
-- it is not currently persisted correctly across reloads
-
-Treat supervision labour as something that must be tested carefully after a reboot or fresh load.
+Current compatibility note:
+- the multiplier now persists correctly
+- older supervision definitions that were saved before this fix load missing multiplier data as `100%`
 
 ### 5. Add labour impacts
 Use:
@@ -234,10 +232,6 @@ Impact hours control when the effect begins after the worker has remained on the
 | `healing` | Modifies healing checks, healing rate, and infection chance | `bonus`, `multiplier`, `infection` |
 | `job` | Adds ongoing-job performance effort each project tick | `expression` |
 | `cap` | Modifies a trait cap | `trait`, `bonus` |
-
-Builder warning for `healing`:
-- the current implementation has inconsistencies in how infection settings are edited and consumed
-- treat it as a current quirk and verify behavior in play before relying on it
 
 ### 6. Add material requirements
 Use:
@@ -277,10 +271,8 @@ Use:
 | `skilluse` | Grants free checks against a trait when the phase completes | `trait`, `checks`, `difficulty` |
 
 Current implementation warning:
-- `sort` is saved and shown to builders
-- action execution is not currently sorted by that value at runtime
-
-Do not assume the numeric sort order changes execution order unless the runtime is updated to consume it.
+- actions execute in ascending `sort` order
+- ties fall back to stable id order
 
 ## Compact Type Keyword Reference
 ### Project families
@@ -342,9 +334,8 @@ The same applies after some phase transitions, especially for local projects, wh
 ### Queueing is not working
 That is expected. `project queue` is currently a stub and is not implemented.
 
-### Multiple mandatory requirements are behaving strangely
-Current implementation warning:
-- phase completion currently tracks only populated labour and material progress entries
-- untouched requirements may not reliably block completion until they have received progress
-
-For now, test multi-requirement projects in play rather than assuming the current implementation enforces every authored requirement exactly as intended.
+### Multiple requirements are behaving differently than expected
+Current completion rules are:
+- only mandatory labour requirements block phase completion
+- only mandatory material requirements block phase completion
+- optional labour and optional material requirements can still exist, but they do not stop the phase from advancing

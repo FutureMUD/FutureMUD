@@ -61,7 +61,7 @@ These are implemented by `ActiveProject.RegisterFutureProgCompiler()` and return
 | --- | --- | --- |
 | `simple` | `SimpleProjectLabour` | Ordinary progress-producing labour |
 | `endless` | `EndlessProjectLabour` | Labour that never completes and contributes no direct phase progress |
-| `supervision` | `SupervisionProjectLabour` | Labour that contributes no direct progress and instead multiplies other workers' output |
+| `supervision` | `SupervisionProjectLabour` | Labour that contributes no direct progress, multiplies other workers' output, and is always treated as non-mandatory |
 
 ### Material requirement types
 | Builder keyword | Runtime type | Purpose |
@@ -207,9 +207,10 @@ The standard labour check driving progress is `CheckType.ProjectLabourCheck`.
 
 ### Phase transition and finish behavior
 When a phase is considered complete:
-- each `IProjectAction` in `CurrentPhase.CompletionActions` is executed
+- each `IProjectAction` in `CurrentPhase.CompletionActions` is executed in ascending `SortOrder` and then id order
 - the active project either advances to the next phase or finishes entirely
 - labour and material progress dictionaries are cleared for the new phase
+- only mandatory labour and material requirements gate phase completion
 
 The two active-project families behave differently:
 - personal projects may automatically rejoin the owner to the first qualified labour in the new phase if they were already working when the phase flipped
@@ -309,6 +310,8 @@ Project labour impacts currently feed into:
 - `BodyBiology` for healing rate and healing bonus modifiers
 - `SimpleOrganicWound` for infection chance
 
+Healing-impact minimum-hours gating is now applied consistently to infection chance in the same way it is already applied to healing-rate and healing-check modifiers.
+
 The free skill-check action uses `CheckType.ProjectSkillUseAction`.
 
 ## Extending the System
@@ -339,7 +342,7 @@ Start in `FutureMUDLibrary` if the new feature needs a new public contract. Conc
 1. Prefer inheriting from `BaseAction`.
 2. Implement subtype persistence, builder commands, submit validation, and `CompleteAction`.
 3. Register create/load keywords in `ProjectFactory`.
-4. If action ordering matters, do not assume `SortOrder` already enforces it. Either consume `SortOrder` explicitly or document the current behavior.
+4. If action ordering matters, preserve the current ascending `SortOrder` behavior or deliberately document any change.
 
 ### Adding a new impact type
 1. Prefer inheriting from `BaseImpact`.
@@ -363,12 +366,6 @@ For every new family member, the expected minimum implementation work is:
 - `project queue` is currently stubbed and only replies with `Coming soon.`
 - Local-project cancellation policy is currently hardcoded to owner-or-admin in `LocalProject.CanCancelProject`; there is a `TODO - configurable` comment rather than a content-driven rule.
 - `CurrentProjectHours` resets whenever `Character.CurrentProject` changes, including normal leave/join transitions between labour roles and projects.
-- Phase completion currently checks `_labourProgress.All(...)` and `_materialProgress.All(...)` on the populated progress dictionaries rather than iterating the authoritative requirement lists. Untouched requirements may therefore fail to block completion if they never received a progress entry.
-- `ProjectAction.SortOrder` is persisted and builder-editable, but phase completion currently executes `CurrentPhase.CompletionActions` in collection order without sorting by `SortOrder`.
-- `SupervisionProjectLabour.MultiplierForOtherLabours` has subtype behavior and builder editing, but no subtype-specific XML save/load implementation. In practice the multiplier is not persisted reliably across reloads.
-- `HealingImpact` currently has multiple inconsistencies:
-  - the `infection` builder command writes to `HealingCheckBonus` instead of `InfectionChanceMultiplier`
-  - the player-facing infection text is derived from the healing-rate multiplier rather than the infection multiplier
-  - infection chance consumption in `SimpleOrganicWound` does not filter impacts through `Applies(actor)`, so minimum-hours gating is not applied consistently there
+- Older supervision labour definitions that predate multiplier persistence may have no saved multiplier value. Those now load with a safe default of `100%` rather than preserving the prior broken zero-multiplier behavior.
 - `JobEffortImpact` is created from the builder keyword `job`, but its concrete type stores and loads using the runtime type string `JobEffort`. Treat the builder keyword list in `ProjectFactory` as the source of truth for authoring.
 - Starting a project does not auto-join labour. A project may be active, visible in `projects`, and still have nobody currently working on any labour requirement.

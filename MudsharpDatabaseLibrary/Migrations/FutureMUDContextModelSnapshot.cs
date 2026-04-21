@@ -4080,6 +4080,9 @@ namespace MudSharp.Migrations
                     b.Property<long?>("CurrentProjectLabourId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<double>("CurrentProjectProjectHours")
+                        .HasColumnType("double");
+
                     b.Property<long?>("CurrentScriptId")
                         .HasColumnType("bigint(20)");
 
@@ -13422,6 +13425,47 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_ProjectLabourImpacts_ProjectLabourRequirements_idx");
 
                     b.ToTable("ProjectLabourImpacts");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ProjectLabourQueue", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ActiveProjectId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("ProjectLabourRequirementId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("QueueOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime>("QueuedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActiveProjectId")
+                        .HasDatabaseName("FK_ProjectLabourQueues_ActiveProjects_idx");
+
+                    b.HasIndex("CharacterId")
+                        .HasDatabaseName("FK_ProjectLabourQueues_Characters_idx");
+
+                    b.HasIndex("ProjectLabourRequirementId")
+                        .HasDatabaseName("FK_ProjectLabourQueues_ProjectLabourRequirements_idx");
+
+                    b.HasIndex("CharacterId", "QueueOrder")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ProjectLabourQueues_Character_QueueOrder");
+
+                    b.ToTable("ProjectLabourQueues");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ProjectLabourRequirement", b =>
@@ -23708,6 +23752,36 @@ namespace MudSharp.Migrations
                     b.Navigation("ProjectLabourRequirement");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.ProjectLabourQueue", b =>
+                {
+                    b.HasOne("MudSharp.Models.ActiveProject", "ActiveProject")
+                        .WithMany("ProjectLabourQueues")
+                        .HasForeignKey("ActiveProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ProjectLabourQueues_ActiveProjects");
+
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany("ProjectLabourQueues")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ProjectLabourQueues_Characters");
+
+                    b.HasOne("MudSharp.Models.ProjectLabourRequirement", "ProjectLabourRequirement")
+                        .WithMany("ProjectLabourQueues")
+                        .HasForeignKey("ProjectLabourRequirementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ProjectLabourQueues_ProjectLabourRequirements");
+
+                    b.Navigation("ActiveProject");
+
+                    b.Navigation("Character");
+
+                    b.Navigation("ProjectLabourRequirement");
+                });
+
             modelBuilder.Entity("MudSharp.Models.ProjectLabourRequirement", b =>
                 {
                     b.HasOne("MudSharp.Models.ProjectPhase", "ProjectPhase")
@@ -25652,6 +25726,8 @@ namespace MudSharp.Migrations
                     b.Navigation("ActiveProjectMaterials");
 
                     b.Navigation("Characters");
+
+                    b.Navigation("ProjectLabourQueues");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Appointment", b =>
@@ -26067,6 +26143,8 @@ namespace MudSharp.Migrations
                     b.Navigation("Patrols");
 
                     b.Navigation("PerceiverMerits");
+
+                    b.Navigation("ProjectLabourQueues");
 
                     b.Navigation("ScriptedEvents");
 
@@ -26964,6 +27042,8 @@ namespace MudSharp.Migrations
                     b.Navigation("Characters");
 
                     b.Navigation("ProjectLabourImpacts");
+
+                    b.Navigation("ProjectLabourQueues");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ProjectMaterialRequirement", b =>

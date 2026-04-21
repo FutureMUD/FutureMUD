@@ -265,6 +265,46 @@ Caster-side effect authoring is:
 - `magic spell set castereffect remove <##>`
 - `magic spell set castereffect <##> ...`
 
+### Phase 1 standalone status and room primitives
+The Phase 1 parity slice adds a new family of spell effects, but it does not do so through one generic enum-driven status template.
+
+Builder-visible status and cleanup tokens are discrete effect types:
+
+- `silence` / `removesilence`
+- `sleep` / `removesleep`
+- `fear` / `removefear`
+- `paralysis` / `removeparalysis`
+- `flying` / `removeflying`
+- `waterbreathing` / `removewaterbreathing`
+- `poison` / `removepoison`
+- `disease` / `removedisease`
+- `curse` / `removecurse`
+- `detectinvisible` / `removedetectinvisible`
+- `detectethereal` / `removedetectethereal`
+- `detectmagick` / `removedetectmagick`
+- `infravision` / `removeinfravision`
+- `comprehendlanguage` / `removecomprehendlanguage`
+
+Key runtime semantics:
+
+- `teleport` now advertises compatibility with `room` / `rooms` triggers and continues to self-teleport the caster to an `ICell`. `teleporttarget` is unchanged.
+- `silence` blocks vocal speech through communication strategies but does not block telepathy or other non-vocal channels.
+- `sleep` forces `Sleep()` on apply and only stops blocking wakefulness when the last magical sleep effect is removed.
+- `fear` forces flee mode in combat while active.
+- `paralysis` uses the forced-paralysis health hook.
+- `flying` extends the normal flight checks without forcing a flying position state.
+- `waterbreathing` extends breathing logic by granting additional breathable fluids.
+- `poison` and `disease` create spell-owned payloads with origin metadata, and the matching removal effects only clear matching payloads created by those spell effects.
+- `detectmagick`, `detectinvisible`, `detectethereal`, and `infravision` rely on additive `IEffect.PerceptionGranting` support rather than replacing a target's base perception flags.
+- `detectmagick` also exposes active magical auras from ordinary character, item, and room description flows whenever the perceiver can sense magic.
+- `comprehendlanguage` bypasses language comprehension checks, but not illiteracy or unknown-script gating.
+
+Other Phase 1 primitives:
+
+- `magicresourcedelta` works against any `IHaveMagicResource` target and relies on the holder's normal clamping rules.
+- `spellarmour` reuses the shared `MagicArmourConfiguration` model so spell armour and power armour stay in sync.
+- `roomflag` / `removeroomflag` is the early room-state primitive for `peaceful`, `nodream`, `alarm`, `darkness`, and `wardtag`.
+
 ### Material workflow
 Material requirements are authored through the spell's inventory plan:
 
@@ -390,37 +430,69 @@ Important implementation note:
 | `blindness` | `BlindnessEffect` | Applies blindness |
 | `boost` | `TraitBoostEffect` | Boosts a trait |
 | `changecharacteristic` | `ChangeCharacteristicEffect` | Changes a characteristic |
+| `comprehendlanguage` | `ComprehendLanguageEffect` | Grants broad spoken and written language comprehension without overriding literacy or script limits |
 | `createitem` | `CreateItemEffect` | Creates an item |
 | `createliquid` | `CreateLiquidEffect` | Creates a liquid |
 | `createnpc` | `CreateNPCEffect` | Creates an NPC |
+| `curse` | `CurseEffect` | Applies a spell-owned curse effect |
 | `damage` | `DamageEffect` | Deals damage |
 | `deafness` | `DeafnessEffect` | Applies deafness |
+| `detectethereal` | `DetectEtherealEffect` | Grants ethereal visual and sensing perception |
+| `detectinvisible` | `DetectInvisibleEffect` | Grants magical vision that can pierce ordinary invisibility |
+| `detectmagick` | `DetectMagickEffect` | Grants magical sensing and visible aura readouts in ordinary descriptions |
+| `disease` | `DiseaseEffect` | Applies a configurable spell-owned systemic infection |
 | `executeprog` | `ExecuteProgEffect` | Executes a supporting prog |
 | `exitbarrier` | `ExitBarrierEffect` | Applies a persistent magical barrier to a targeted exit |
 | `forcedexitmovement` | `ForcedExitMovementEffect` | Forces a targeted character through the trigger-supplied `exit` when movement is legal |
+| `fear` | `FearEffect` | Applies magical fear that enforces flee behaviour in combat |
+| `flying` | `FlyingEffect` | Grants flight eligibility through the normal movement checks |
 | `glow` | `GlowEffect` | Applies glow or light-style effect |
 | `heal` | `HealEffect` | Heals damage |
 | `healingrate` | `HealingRateSpellEffect` | Alters healing rate |
+| `infravision` | `InfravisionEffect` | Grants infrared vision and a darkness difficulty floor |
 | `invisibility` | `InvisibilityEffect` | Applies invisibility |
+| `magicresourcedelta` | `MagicResourceDeltaEffect` | Adds or removes a configured magic resource from a character, item, or room |
 | `mend` | `MendEffect` | Mends damage or wear |
 | `needdelta` | `NeedDeltaEffect` | Changes a need immediately |
 | `needrate` | `NeedRateSpellEffect` | Alters need rate |
 | `pacifism` | `PacifismSpellEffect` | Applies pacifism |
 | `personalward` | `PersonalWardEffect` | Applies a school-based personal ward that can fail or reflect matching incoming or outgoing magic |
+| `paralysis` | `ParalysisEffect` | Applies magical paralysis through the forced-paralysis hook |
+| `poison` | `PoisonEffect` | Applies a configurable spell-owned drug payload |
 | `rage` | `RageSpellEffect` | Applies rage |
 | `relocate` | `RelocateEffect` | Relocates a target |
+| `removecomprehendlanguage` | `RemoveComprehendLanguageEffect` | Removes magical language-comprehension effects |
+| `removecurse` | `RemoveCurseEffect` | Removes matching magical curse effects |
+| `removedetectethereal` | `RemoveDetectEtherealEffect` | Removes magical ethereal perception effects |
+| `removedetectinvisible` | `RemoveDetectInvisibleEffect` | Removes magical detect-invisible effects |
+| `removedetectmagick` | `RemoveDetectMagickEffect` | Removes magical detect-magick effects |
+| `removedisease` | `RemoveDiseaseEffect` | Removes a matching spell-owned disease payload |
+| `removefear` | `RemoveFearEffect` | Removes magical fear effects |
+| `removeflying` | `RemoveFlyingEffect` | Removes magical flight-granting effects |
+| `removeinfravision` | `RemoveInfravisionEffect` | Removes magical infravision effects |
+| `removeparalysis` | `RemoveParalysisEffect` | Removes magical paralysis effects |
+| `removepoison` | `RemovePoisonEffect` | Removes a matching spell-owned poison payload |
+| `removeroomflag` | `RemoveRoomFlagEffect` | Removes a configured magical room flag |
+| `removesilence` | `RemoveSilenceEffect` | Removes magical silence effects |
+| `removesleep` | `RemoveSleepEffect` | Removes magical sleep effects |
+| `removewaterbreathing` | `RemoveWaterBreathingEffect` | Removes magical water-breathing effects |
 | `resurrect` | `ResurrectionEffect` | Resurrects a target |
+| `roomflag` | `RoomFlagEffect` | Applies a configured magical room flag such as peaceful, no-dream, alarm, darkness, or ward tags |
 | `roomatmosphere` | `RoomAtmosphereEffect` | Alters room atmosphere |
 | `roomlight` | `RoomLightEffect` | Alters room light |
 | `roomward` | `RoomWardEffect` | Applies a school-based room ward that can fail or reflect matching incoming or outgoing magic |
 | `roomtemperature` | `RoomTemperatureEffect` | Alters room temperature |
 | `selfdamage` | `SelfDamageEffect` | Damages the caster |
+| `silence` | `SilenceEffect` | Applies vocal silence without blocking telepathy |
+| `sleep` | `SleepEffect` | Forces magical sleep |
+| `spellarmour` | `SpellArmourEffect` | Applies spell-owned magical armour using the shared armour configuration |
 | `staminadelta` | `StaminaDeltaSpellEffect` | Changes stamina immediately |
 | `staminaexpendrate` | `StaminaExpenditureSpellEffect` | Alters stamina expenditure rate |
 | `staminaregenrate` | `StaminaRegenRateSpellEffect` | Alters stamina regeneration rate |
 | `telepathy` | `TelepathySpellEffect` | Applies telepathic linkage |
-| `teleport` | `TeleportEffect` | Teleports the caster or target |
+| `teleport` | `TeleportEffect` | Teleports the caster to a room or cell target |
 | `teleporttarget` | `TeleportTargetEffect` | Teleports a target selected by the spell |
+| `waterbreathing` | `WaterBreathingEffect` | Grants additional breathable fluids |
 | `weatherchange` | `WeatherChangeEffect` | Changes weather |
 | `weatherchangefreeze` | `WeatherChangeFreezeEffect` | Changes and freezes weather state |
 | `weatherfreeze` | `WeatherFreezeEffect` | Freezes weather state |
@@ -453,6 +525,7 @@ Reflection is intentionally narrow:
 - Readiness validation is a major part of spell authoring. If a spell is incomplete, it will show a builder error rather than quietly misbehaving.
 - Caster effects are separate from ordinary effects and apply to the caster after the target-side application path.
 - Target-side spell application now checks room and personal wards after the casting emote and before any target-side effect is applied.
+- Status-style spell effects are not currently modelled as one generic "status enum" template. The builder-visible Phase 1 statuses are intentionally separate effect types so XML shape, help text, and runtime semantics can differ cleanly per effect.
 
 ## Related Reading
 - [Magic System Overview](./Magic_System_Overview.md)

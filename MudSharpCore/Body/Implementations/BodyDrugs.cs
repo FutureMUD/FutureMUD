@@ -63,15 +63,37 @@ public partial class Body
 
     public void Dose(IDrug drug, DrugVector vector, double grams)
     {
+        Dose(drug, vector, grams, null);
+    }
+
+    public void Dose(IDrug drug, DrugVector vector, double grams, object originator)
+    {
         DrugsChanged = true;
-        DrugDosage latent = _latentDrugDosages.FirstOrDefault(x => x.Drug == drug && x.OriginalVector == vector);
+        DrugDosage latent = _latentDrugDosages.FirstOrDefault(x =>
+            x.Drug == drug &&
+            x.OriginalVector == vector &&
+            Equals(x.Originator, originator));
         if (latent == null)
         {
-            latent = new DrugDosage { Drug = drug, OriginalVector = vector };
+            latent = new DrugDosage { Drug = drug, OriginalVector = vector, Originator = originator };
             _latentDrugDosages.Add(latent);
         }
 
         latent.Grams += grams;
+        CheckDrugTick();
+    }
+
+    public void RemoveDrugDosages(Predicate<DrugDosage> predicate)
+    {
+        int removed = _activeDrugDosages.RemoveAll(predicate);
+        removed += _latentDrugDosages.RemoveAll(predicate);
+        if (removed <= 0)
+        {
+            return;
+        }
+
+        DrugsChanged = true;
+        ApplyDrugEffects();
         CheckDrugTick();
     }
 
@@ -148,10 +170,17 @@ public partial class Body
                     break;
             }
 
-            DrugDosage activeDose = _activeDrugDosages.FirstOrDefault(x => x.Drug == drug.Drug);
+            DrugDosage activeDose = _activeDrugDosages.FirstOrDefault(x =>
+                x.Drug == drug.Drug &&
+                Equals(x.Originator, drug.Originator));
             if (activeDose == null)
             {
-                activeDose = new DrugDosage { Drug = drug.Drug, OriginalVector = DrugVector.Injected };
+                activeDose = new DrugDosage
+                {
+                    Drug = drug.Drug,
+                    OriginalVector = DrugVector.Injected,
+                    Originator = drug.Originator
+                };
                 _activeDrugDosages.Add(activeDose);
             }
 

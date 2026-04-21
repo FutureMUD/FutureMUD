@@ -437,7 +437,13 @@ namespace MudSharp.Character
         IEnumerable<IPersonalProject> PersonalProjects { get; }
         (IActiveProject Project, IProjectLabourRequirement Labour) CurrentProject { get; set; }
         double CurrentProjectHours { get; set; }
+        double CurrentProjectProjectHours { get; set; }
+        IEnumerable<IProjectLabourQueueEntry> ProjectLabourQueue { get; }
         void AddPersonalProject(IActiveProject project);
         void RemovePersonalProject(IActiveProject project);
+        IProjectLabourQueueEntry QueueProjectLabour(IActiveProject project, IProjectLabourRequirement labour);
+        bool RemoveProjectQueueEntry(int position);
+        void ClearProjectQueue();
+        bool TryJoinQueuedProjectLabour();
     }
 }

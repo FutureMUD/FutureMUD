@@ -37,15 +37,21 @@ public class PersonalProject : Project
         actor.AddPersonalProject(project);
     }
 
-    public override bool CanCancelProject(ICharacter actor, IActiveProject local)
+    protected override string WhyCannotCancelProjectInvariant(ICharacter actor, IActiveProject local)
     {
-        if (actor.ActiveJobs.Any(x => x.ActiveProject?.ProjectDefinition == this))
+        if (Gameworld.ActiveJobs.Any(x => !x.IsJobComplete && x.ActiveProject == local))
         {
-            return false;
+            return "You cannot cancel that personal project while an active job still depends on it.";
         }
 
-        // Personal Projects can otherwise always be cancelled
-        return true;
+        return string.Empty;
+    }
+
+    protected override string WhyCannotCancelProjectFallback(ICharacter actor, IActiveProject local)
+    {
+        return actor == local.CharacterOwner
+            ? string.Empty
+            : "Only the owner of that personal project can cancel it.";
     }
 
     public override string ShowToPlayer(ICharacter actor)
@@ -100,6 +106,10 @@ public class PersonalProject : Project
             $"CanInitiateProg: {CanInitiateProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine(
             $"WhyCannotInitiateProg: {WhyCannotInitiateProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
+        sb.AppendLine(
+            $"CanCancelProg: {CanCancelProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
+        sb.AppendLine(
+            $"WhyCannotCancelProg: {WhyCannotCancelProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine($"Appear in Job List: {AppearInJobsList.ToColouredString()}");
         sb.AppendLine($"Tagline: {Tagline}");
         sb.AppendLine("Phases".GetLineWithTitle(actor.LineFormatLength, actor.Account.UseUnicode, Telnet.Cyan,

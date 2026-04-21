@@ -242,6 +242,11 @@ public partial class Character
             return false;
         }
 
+        if (CombinedEffectsOfType<IFearEffect>().Any(x => x.Applies()))
+        {
+            CombatStrategyMode = CombatStrategyMode.Flee;
+        }
+
         if (CombatTarget == null && Combat.Combatants.All(x => x.CombatTarget != this))
         {
             MeleeRange = false;
@@ -279,6 +284,11 @@ public partial class Character
             {
                 return false;
             }
+        }
+
+        if (CombinedEffectsOfType<IFearEffect>().Any(x => x.Applies()))
+        {
+            CombatStrategyMode = CombatStrategyMode.Flee;
         }
 
         return true;

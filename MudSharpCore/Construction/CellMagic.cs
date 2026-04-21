@@ -96,7 +96,8 @@ public partial class Cell : IHaveMagicResource
     public void AddResource(IMagicResource resource, double amount)
     {
         _magicResourceAmounts[resource] += amount;
-        _magicResourceAmounts[resource] = Math.Min(_magicResourceAmounts[resource], resource.ResourceCap(this));
+        _magicResourceAmounts[resource] = Math.Max(0.0,
+            Math.Min(_magicResourceAmounts[resource], resource.ResourceCap(this)));
         ResourcesChanged = true;
     }
 

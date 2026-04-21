@@ -1026,6 +1026,12 @@ For example:
             return;
         }
 
+        if (actor.EffectsOfType<ISleepEffect>().Any() && !actor.IsAdministrator())
+        {
+            actor.Send("A magical slumber holds you fast.");
+            return;
+        }
+
         string playerEmote = new StringStack(input.RemoveFirstWord()).PopParentheses();
         PlayerEmote emote = new(playerEmote, actor);
         if (!emote.Valid)

@@ -42,9 +42,9 @@ public class JobEffortImpact : BaseImpact, ILabourImpactActionAtTick
     /// <inheritdoc />
     protected override XElement SaveDefinition()
     {
-        return new XElement("Impact",
+        return SaveDefinitionWithHoursReference(new XElement("Impact",
             new XElement("Expression", new XCData(EffortPerTickExpressionString ?? "variable / 10"))
-        );
+        ));
     }
 
     /// <inheritdoc />

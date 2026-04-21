@@ -3,6 +3,7 @@ using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 namespace MudSharp.Work.Projects.LabourRequirements;
 
@@ -11,15 +12,25 @@ public class SupervisionProjectLabour : ProjectLabourBase
     public SupervisionProjectLabour(Models.ProjectLabourRequirement labour, IFuturemud gameworld) : base(labour,
         gameworld)
     {
+        XElement root = XElement.Parse(labour.Definition);
+        MultiplierForOtherLabours =
+            double.TryParse(root.Element("MultiplierForOtherLabours")?.Value, out var value) ? value : 1.0;
+        IsMandatoryForProjectCompletion = false;
     }
 
     public SupervisionProjectLabour(ProjectLabourBase rhs, IProjectPhase newPhase) : base(rhs, newPhase, "supervision")
     {
+        MultiplierForOtherLabours = rhs is SupervisionProjectLabour supervision
+            ? supervision.MultiplierForOtherLabours
+            : 1.0;
+        IsMandatoryForProjectCompletion = false;
     }
 
     public SupervisionProjectLabour(IFuturemud gameworld, IProjectPhase phase, string name) : base(gameworld, phase,
         "supervision", name)
     {
+        MultiplierForOtherLabours = 1.0;
+        IsMandatoryForProjectCompletion = false;
     }
 
     public override IProjectLabourRequirement Duplicate(IProjectPhase newPhase)
@@ -50,6 +61,13 @@ public class SupervisionProjectLabour : ProjectLabourBase
     public override double HoursRemaining(IActiveProject project)
     {
         return double.PositiveInfinity;
+    }
+
+    protected override XElement SaveDefinition()
+    {
+        var root = base.SaveDefinition();
+        root.Add(new XElement("MultiplierForOtherLabours", MultiplierForOtherLabours));
+        return root;
     }
 
     public override string Show(ICharacter actor)
@@ -102,7 +120,7 @@ public class SupervisionProjectLabour : ProjectLabourBase
         switch (command.PopSpeech().ToLowerInvariant())
         {
             case "mandatory":
-                actor.OutputHandler.Send("Supervisory labours area always non-mandatory.");
+                actor.OutputHandler.Send("Supervisory labours are always non-mandatory.");
                 return false;
             case "multiplier":
             case "mult":

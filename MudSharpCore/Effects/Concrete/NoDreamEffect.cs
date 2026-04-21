@@ -33,6 +33,13 @@ public class NoDreamEffect : Effect, INoDreamEffect
             return;
         }
 
+        if (ownerCharacter.Location?.EffectsOfType<INoDreamEffect>().Any() == true)
+        {
+            ownerCharacter.AddEffect(new NoDreamEffect(Owner), TimeSpan.FromSeconds(60));
+            Owner.RemoveEffect(this);
+            return;
+        }
+
         ICheck dreamCheck = Gameworld.GetCheck(CheckType.DreamCheck);
         CheckOutcome result = dreamCheck.Check(ownerCharacter, Difficulty.Normal);
         if (result.IsPass())

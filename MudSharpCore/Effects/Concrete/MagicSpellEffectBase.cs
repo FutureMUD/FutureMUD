@@ -35,5 +35,10 @@ public abstract class MagicSpellEffectBase : Effect, IMagicSpellEffect
 
     public sealed override bool SavingEffect => false;
 
+    public override void RemovalEffect()
+    {
+        ParentEffect?.RemoveSpellEffect(this);
+    }
+
     #endregion
 }

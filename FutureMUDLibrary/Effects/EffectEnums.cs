@@ -60,6 +60,8 @@ namespace MudSharp.Effects
         SenseDivine = 0x40000,
         AudibleLowFreq = 0x80000,
         AudibleHighFreq = 0x100000,
+        VisualEthereal = 0x200000,
+        SenseEthereal = 0x400000,
 
         #region Special Values
 
@@ -70,9 +72,9 @@ namespace MudSharp.Effects
             VisualLight | VisualMicrowave | VisualInfrared | VisualUltraviolet | VisualRadio | VisualXRay |
             VisualGammaRay | VisualUltrasonic,
 
-        AllVisual = MundaneVisual | VisualMagical | VisualPsychic | VisualDivine,
+        AllVisual = MundaneVisual | VisualMagical | VisualPsychic | VisualDivine | VisualEthereal,
 
-        AllSense = SenseMundane | SenseMagical | SensePsychic | SenseDivine,
+        AllSense = SenseMundane | SenseMagical | SensePsychic | SenseDivine | SenseEthereal,
 
         All = long.MaxValue
 

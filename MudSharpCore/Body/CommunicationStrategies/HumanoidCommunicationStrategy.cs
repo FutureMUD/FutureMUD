@@ -25,6 +25,13 @@ namespace MudSharp.Body.CommunicationStrategies;
 
 public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 {
+    protected static bool IsSilenced(IBody body)
+    {
+        return body.CombinedEffectsOfType<ISilencedEffect>().Any(x => x.Applies());
+    }
+
+    protected static string SilenceReason => "A magical silence prevents you from speaking.";
+
     protected HumanoidCommunicationStrategy()
     {
     }
@@ -91,6 +98,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             return $"You are mute and cannot speak.";
         }
 
+        if (IsSilenced(body))
+        {
+            return SilenceReason;
+        }
+
         throw new ApplicationException();
     }
 
@@ -139,7 +151,12 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             return false;
         }
 
-        return !body.Actor.Merits.OfType<IMuteMerit>().Any(x => x.Applies(body.Actor));
+        if (body.Actor.Merits.OfType<IMuteMerit>().Any(x => x.Applies(body.Actor)))
+        {
+            return false;
+        }
+
+        return !IsSilenced(body);
     }
 
     public virtual bool CanVocalise(IBody body, AudioVolume volume)
@@ -200,6 +217,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         if (body.Actor.Merits.OfType<IMuteMerit>().Any(x => x.Applies(body.Actor)))
         {
             return body.Actor.Merits.OfType<IMuteMerit>().First(x => x.Applies(body.Actor)).LanguageOptions;
+        }
+
+        if (IsSilenced(body))
+        {
+            return PermitLanguageOptions.LanguageIsMuffling;
         }
 
         return PermitLanguageOptions.PermitLanguage;

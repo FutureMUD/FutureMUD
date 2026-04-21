@@ -389,6 +389,52 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_ActiveProjects_Projects");
             });
 
+            modelBuilder.Entity<ProjectLabourQueue>(entity =>
+            {
+                entity.HasIndex(e => e.ActiveProjectId)
+                    .HasDatabaseName("FK_ProjectLabourQueues_ActiveProjects_idx");
+
+                entity.HasIndex(e => e.CharacterId)
+                    .HasDatabaseName("FK_ProjectLabourQueues_Characters_idx");
+
+                entity.HasIndex(e => new { e.CharacterId, e.QueueOrder })
+                    .HasDatabaseName("IX_ProjectLabourQueues_Character_QueueOrder")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.ProjectLabourRequirementId)
+                    .HasDatabaseName("FK_ProjectLabourQueues_ProjectLabourRequirements_idx");
+
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.ActiveProjectId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.ProjectLabourRequirementId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.QueueOrder).HasColumnType("int(11)");
+
+                entity.Property(e => e.QueuedAt).HasColumnType("datetime");
+
+                entity.HasOne(d => d.ActiveProject)
+                    .WithMany(p => p.ProjectLabourQueues)
+                    .HasForeignKey(d => d.ActiveProjectId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_ProjectLabourQueues_ActiveProjects");
+
+                entity.HasOne(d => d.Character)
+                    .WithMany(p => p.ProjectLabourQueues)
+                    .HasForeignKey(d => d.CharacterId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_ProjectLabourQueues_Characters");
+
+                entity.HasOne(d => d.ProjectLabourRequirement)
+                    .WithMany(p => p.ProjectLabourQueues)
+                    .HasForeignKey(d => d.ProjectLabourRequirementId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_ProjectLabourQueues_ProjectLabourRequirements");
+            });
+
             modelBuilder.Entity<Ally>(entity =>
             {
                 entity.HasKey(e => new { e.CharacterId, e.AllyId })
@@ -2878,6 +2924,8 @@ namespace MudSharp.Database
                 entity.Property(e => e.CurrentProjectId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.CurrentProjectLabourId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CurrentProjectProjectHours).HasColumnType("double");
 
                 entity.Property(e => e.CurrentScriptId).HasColumnType("bigint(20)");
 

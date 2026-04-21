@@ -22,7 +22,9 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 - `Needs engine work` means the current magic surface is missing a required trigger, target type, spell effect, power type, or interception hook.
 - Existing powers count as valid coverage even when Armageddon exposed the original ability as a spell. If you want strict `cast`-spell parity rather than "same subsystem can do it", several defensive entries would slide from `Native now` to `Needs engine work`.
 - A handful of Armageddon entries are under-specified in the dump (`Daylight`, `Empower`, `Drown`, `Cause Disease`, `Acid Spray`, some passive psionics). I counted those conservatively unless the name clearly maps to an existing FutureMUD primitive.
-- Important current-state caveat: the current `teleport` spell effect is effectively miswired. `MudSharpCore/Magic/SpellEffects/TeleportEffect.cs` only advertises compatibility with `character` triggers but actually expects an `ICell` target. I therefore counted teleport-style caster movement as `Builder+Prog now` unless that small bug is fixed.
+- Status update as of 2026-04-21: the Phase 1 implementation slice from this report has now shipped. `teleport` accepts `room` / `rooms` triggers, the reusable Phase 1 statuses are implemented as standalone spell-effect templates with matching removals, `MagicResourceDeltaEffect`, `SpellArmourEffect`, and `roomflag` / `removeroomflag` are live, and the underlying runtime hooks for additive perception grants, selective poison or disease cleanup, and early room flags are in place.
+
+> Note: the top-line parity counts in this report predate the Phase 1 implementation work. If exact current counts are needed, rerun the family-by-family classification pass. The implementation-plan and primitive-gap sections below reflect the current runtime state.
 
 ## Executive Summary
 
@@ -72,51 +74,50 @@ The current system already has good coverage for:
 
 ### 1. Reusable status application and removal
 
-This is the single biggest easy-win cluster.
+This was the biggest easy-win cluster, and it is now the main area where the current runtime moved forward.
 
-Missing reusable states include:
+Phase 1 shipped standalone spell-effect templates and matching standalone removal templates for:
 
-- `silence`
-- `sleep`
-- `fear` / forced flee
-- `paralysis` / frozen
-- `flying`
+- `silence` / `removesilence`
+- `sleep` / `removesleep`
+- `fear` / `removefear`
+- `paralysis` / `removeparalysis`
+- `flying` / `removeflying`
+- `waterbreathing` / `removewaterbreathing`
+- `poison` / `removepoison`
+- `disease` / `removedisease`
+- `curse` / `removecurse`
+- `detectinvisible` / `removedetectinvisible`
+- `detectethereal` / `removedetectethereal`
+- `detectmagick` / `removedetectmagick`
+- `infravision` / `removeinfravision`
+- `comprehendlanguage` / `removecomprehendlanguage`
+
+These are intentionally separate builder-visible types rather than a single enum-driven status template. `poison` and `disease` are also spell-owned payloads with origin metadata so matching removers only clear the payload created by the configured spell effect.
+
+The remaining gap inside this primitive family is now the unimplemented edge set rather than the basic reusable states:
+
 - `feather fall`
-- `water breathing`
-- `poison`
-- `disease`
-- `curse`
-- `detect magick`
 - `detect poison`
-- `detect invisible`
-- `detect ethereal`
-- `infravision` / enhanced dark vision
-- `tongues` / `allspeak`
 - `insomnia`
-
-Missing reusable cleanses include:
-
 - cure blindness
-- cure poison
-- cure disease
-- remove curse
-- dispel invisibility
-- dispel ethereal
 - general dispel / effect shortening
-
-This one family unlocks or materially improves a very large share of the remaining inventory.
 
 ### 2. Magic and psionic resource delta effects
 
-Armageddon uses mana-like and psionic-resource drains in several places. FutureMUD currently has stamina and need deltas, but no first-class "modify magical resource pool" spell effect.
+Armageddon uses mana-like and psionic-resource drains in several places.
 
-Blocked or only partially covered entries include:
+Phase 1 shipped `MagicResourceDeltaEffect`, which works against the existing `IHaveMagicResource` abstraction and clamps character, item, and room resources to `[0, cap]`.
+
+This unlocks the generic primitive needed for:
 
 - `Feeblemind`
 - `Aura Drain`
 - `Dragon Drain`
 - `Psionic Drain`
 - parts of `Mindwipe`
+
+The remaining work here is mostly spell-specific packaging and parity details rather than the absence of a first-class resource delta effect.
 
 ### 3. Exit and direction targeting
 
@@ -250,27 +251,25 @@ This blocks:
 
 ### Phase 1: Easy Wins
 
+Status: completed on 2026-04-21.
+
 These are the changes with the best "entries unlocked per unit of work" ratio.
 
 1. Fix the current teleport spell-effect mismatch.
-   - `TeleportEffect` should either accept `room` triggers or be split into a self-teleport and target-teleport pair.
-   - This immediately makes `Teleport` and `Relocate` cleaner and lowers the implementation cost of later gate-style spells.
+   - Completed by updating `TeleportEffect` compatibility to `room` / `rooms` so it now lines up with its `ICell` target handling.
 
-2. Add a generic timed-status spell effect family plus a generic status-removal family.
-   - Start with `silence`, `sleep`, `fear`, `paralysis`, `flying`, `waterbreathing`, `poison`, `disease`, `curse`, `detectinvisible`, `detectethereal`, `detectmagick`, `infravision`, and `comprehendlanguage`.
-   - Add matching cleanse or dispel effects.
-   - This unlocks a very large set of basic Armageddon staples without bespoke code per spell.
+2. Add reusable Phase 1 statuses and removals.
+   - Completed with standalone builder-visible spell-effect templates and standalone runtime effects for `silence`, `sleep`, `fear`, `paralysis`, `flying`, `waterbreathing`, `poison`, `disease`, `curse`, `detectinvisible`, `detectethereal`, `detectmagick`, `infravision`, and `comprehendlanguage`, plus the matching `remove...` spell effects.
+   - This was implemented as discrete effect types rather than a single generic status enum so builder help, XML shape, and runtime semantics can stay explicit per status.
 
 3. Add `MagicResourceDeltaEffect`.
-   - This should work against the existing FutureMUD magic-resource abstraction rather than inventing a hard-coded mana field.
-   - This unlocks the resource-drain half of `Feeblemind`, `Aura Drain`, `Dragon Drain`, and `Psionic Drain`.
+   - Completed against the existing magic-resource abstraction, with resource mutations clamped to the holder's valid range.
 
-4. Add a spell-effect equivalent of the current `MagicArmourPower`, or let spells invoke that reusable armour behavior.
-   - This keeps protective effects in the ordinary spell authoring pipeline instead of forcing each one to become a bespoke power.
-   - It also makes builder-side parity with `Armor`, `Sanctuary`, `Invulnerability`, and the elemental armour suite cleaner.
+4. Add a spell-effect equivalent of the current `MagicArmourPower`.
+   - Completed by extracting `MagicArmourConfiguration` and using it from both `MagicArmourPower` and the new `SpellArmourEffect`.
 
 5. Add a generic "room flag" effect and matching removal/dispel support.
-   - This is the shortest path for `Alarm`, `Restful Shade`, `Create Darkness`, and the early versions of room wards.
+   - Completed with `roomflag` / `removeroomflag` for `peaceful`, `nodream`, `alarm`, `darkness`, and `wardtag`.
 
 ### Phase 2: Medium-Difficulty Primitives
 
@@ -347,7 +346,7 @@ These are the parity items with the most engine-level uncertainty.
    - `Cathexis`
    - These are only partly magic-system problems. They also require a clean model for "relationship to the land", elemental planes, and any clan- or tribe-keyed psionic identity mechanics.
 
-## Recommended First Shipping Slice
+## Recommended Next Shipping Slice
 
 The current runtime already includes exit targeting, summon-style remote targeting, and generic room or personal wards. If the goal is to maximise "Armageddon-feeling parity" quickly from here, I would ship in this order:
 

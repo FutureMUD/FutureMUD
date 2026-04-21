@@ -17,6 +17,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Projects;
+using MudSharp.Work.Projects.ConcreteTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -519,8 +520,20 @@ The full list of filters for craft list is below:
         {
             sb.AppendLine(
                 $"You are currently working on {actor.CurrentProject.Labour.Name.ColourValue()} from the {actor.CurrentProject.Project.Name.Colour(Telnet.Cyan)} project [#{actor.CurrentProject.Project.Id.ToString("N0", actor)}].");
+            sb.AppendLine(
+                $"Continuity: labour {actor.CurrentProjectHours.ToString("N2", actor).ColourValue()} hours, project {actor.CurrentProjectProjectHours.ToString("N2", actor).ColourValue()} hours.");
             List<(ILabourImpact x, double)> impacts = actor.CurrentProject.Labour.LabourImpacts.Select(x =>
-                (x, x.Applies(actor) ? 0.0 : x.MinimumHoursForImpactToKickIn - actor.CurrentProjectHours)).ToList();
+            {
+                var currentHours = x.HoursReference == ProjectImpactHoursReference.Project
+                    ? actor.CurrentProjectProjectHours
+                    : actor.CurrentProjectHours;
+                return (
+                    x,
+                    x.Applies(actor)
+                        ? 0.0
+                        : Math.Max(0.0, x.MinimumHoursForImpactToKickIn - currentHours)
+                );
+            }).ToList();
             if (impacts.Any())
             {
                 sb.AppendLine();
@@ -531,7 +544,7 @@ The full list of filters for craft list is below:
                     if (hours > 0.0)
                     {
                         sb.AppendLine(
-                            $"\t{impact.DescriptionForProjectsCommand.SubstituteANSIColour()} {$"[in {hours.ToString("N2", actor)}hrs]".ColourError()}");
+                            $"\t{impact.DescriptionForProjectsCommand.SubstituteANSIColour()} {$"[{impact.HoursReference.DescribeEnum()} continuity, {hours.ToString("N2", actor)}hrs remaining]".ColourError()}");
                         continue;
                     }
 
@@ -550,7 +563,7 @@ The full list of filters for craft list is below:
 
 You can only work on one project at a time, but you're always working on it, even when you're offline. In this manner, it differs from crafts in that it represents what you're doing ""off screen"". 
 
-Some projects, particularly personal projects, have ""impacts"" that have some effect on you. Many of these impacts require you to be working on the same project for some period of time before they kick in, so changing between projects too often is not advisable.
+Some projects, particularly personal projects, have ""impacts"" that have some effect on you. Depending on the impact, the minimum-hours gate may be based on your current labour role or your continuity on the overall active project.
 
 You can use the following player options with this command:
 
@@ -559,6 +572,10 @@ You can use the following player options with this command:
 	#3start <name>#0 - starts a new project
 	#3join <project>#0 - joins an active project
 	#3quit <project>#0 - quits an active project you are working on
+	#3queue#0 - shows your queued project labour assignments
+	#3queue <project> [<labour>]#0 - queues a project labour assignment for when you are next idle
+	#3queue remove <index>#0 - removes a queued assignment
+	#3queue clear#0 - clears your queued assignments
 	#3cancel <project>#0 - cancels an active project
 	#3supply <project> <req>#0 - supplies material for a particular material requirement
 	#3preview <project> <req>#0 - shows you what material you would submit if you did #3project supply#0
@@ -586,7 +603,7 @@ Note: See the closely related #3projects#0 command for information about your cu
 
 You can only work on one project at a time, but you're always working on it, even when you're offline. In this manner, it differs from crafts in that it represents what you're doing ""off screen"". 
 
-Some projects, particularly personal projects, have ""impacts"" that have some effect on you. Many of these impacts require you to be working on the same project for some period of time before they kick in, so changing between projects too often is not advisable.
+Some projects, particularly personal projects, have ""impacts"" that have some effect on you. Depending on the impact, the minimum-hours gate may be based on your current labour role or your continuity on the overall active project.
 
 You can use the following options with this command:
 
@@ -595,6 +612,10 @@ You can use the following options with this command:
 	#3start <name>#0 - starts a new project
 	#3join <project>#0 - joins an active project
 	#3quit <project>#0 - quits an active project you are working on
+	#3queue#0 - shows your queued project labour assignments
+	#3queue <project> [<labour>]#0 - queues a project labour assignment for when you are next idle
+	#3queue remove <index>#0 - removes a queued assignment
+	#3queue clear#0 - clears your queued assignments
 	#3cancel <project>#0 - cancels an active project
 	#3supply <project> <req>#0 - supplies material for a particular material requirement
 	#3preview <project> <req>#0 - shows you what material you would submit if you did #3project supply#0
@@ -734,9 +755,10 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        if (!project.ProjectDefinition.CanCancelProject(actor, project))
+        var why = project.ProjectDefinition.WhyCannotCancelProject(actor, project);
+        if (!string.IsNullOrEmpty(why))
         {
-            actor.OutputHandler.Send("You are not allowed to cancel that project.");
+            actor.OutputHandler.Send(why);
             return;
         }
 
@@ -746,9 +768,10 @@ Note: See the closely related #3projects#0 command for information about your cu
         {
             AcceptAction = text =>
             {
-                if (!project.ProjectDefinition.CanCancelProject(actor, project))
+                var whyCannot = project.ProjectDefinition.WhyCannotCancelProject(actor, project);
+                if (!string.IsNullOrEmpty(whyCannot))
                 {
-                    actor.OutputHandler.Send("You are not allowed to cancel that project.");
+                    actor.OutputHandler.Send(whyCannot);
                     return;
                 }
 
@@ -918,7 +941,39 @@ Note: See the closely related #3projects#0 command for information about your cu
 
     private static void ProjectQueue(ICharacter actor, StringStack ss)
     {
-        actor.OutputHandler.Send("Coming soon.");
+        if (ss.IsFinished)
+        {
+            ShowProjectQueue(actor);
+            return;
+        }
+
+        switch (ss.PeekSpeech().ToLowerInvariant())
+        {
+            case "show":
+            case "list":
+                ss.PopSpeech();
+                ShowProjectQueue(actor);
+                return;
+            case "clear":
+                ss.PopSpeech();
+                ProjectQueueClear(actor);
+                return;
+            case "remove":
+            case "delete":
+            case "rem":
+            case "del":
+                ss.PopSpeech();
+                ProjectQueueRemove(actor, ss);
+                return;
+            case "?":
+            case "help":
+                actor.OutputHandler.Send(
+                    "The syntax is PROJECT QUEUE, PROJECT QUEUE <project> [<labour>], PROJECT QUEUE REMOVE <index>, or PROJECT QUEUE CLEAR.");
+                return;
+            default:
+                ProjectQueueAdd(actor, ss);
+                return;
+        }
     }
 
     private static void ProjectJoin(ICharacter actor, StringStack ss)
@@ -1015,6 +1070,149 @@ Note: See the closely related #3projects#0 command for information about your cu
         }
 
         project.Leave(actor);
+        actor.TryJoinQueuedProjectLabour();
+    }
+
+    private static void ShowProjectQueue(ICharacter actor)
+    {
+        var queue = actor.ProjectLabourQueue
+            .OfType<ProjectLabourQueueEntry>()
+            .OrderBy(x => x.QueueOrder)
+            .ToList();
+        if (!queue.Any())
+        {
+            actor.OutputHandler.Send("You do not currently have any queued project labour assignments.");
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            StringUtilities.GetTextTable(
+                queue.Select(x => new[]
+                {
+                    x.QueueOrder.ToString("N0", actor),
+                    x.Project?.Name ?? $"Project #{x.ProjectId.ToString("N0", actor)}",
+                    x.Labour?.Name ?? $"Labour #{x.LabourId.ToString("N0", actor)}",
+                    x.Status.DescribeEnum(),
+                    x.QueuedAt.ToString("g", actor)
+                }),
+                new[] { "#", "Project", "Labour", "Status", "Queued" },
+                actor.LineFormatLength,
+                colour: Telnet.Green,
+                unicodeTable: actor.Account.UseUnicode)
+        );
+    }
+
+    private static void ProjectQueueClear(ICharacter actor)
+    {
+        if (!actor.ProjectLabourQueue.Any())
+        {
+            actor.OutputHandler.Send("You do not currently have any queued project labour assignments.");
+            return;
+        }
+
+        actor.ClearProjectQueue();
+        actor.OutputHandler.Send("You clear all your queued project labour assignments.");
+    }
+
+    private static void ProjectQueueRemove(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which queue position do you want to remove?");
+            return;
+        }
+
+        if (!int.TryParse(ss.PopSpeech(), out var position) || position < 1)
+        {
+            actor.OutputHandler.Send("You must specify a valid positive queue position.");
+            return;
+        }
+
+        if (!actor.RemoveProjectQueueEntry(position))
+        {
+            actor.OutputHandler.Send("There is no queued project labour assignment in that position.");
+            return;
+        }
+
+        actor.OutputHandler.Send($"You remove queue entry #{position.ToString("N0", actor).ColourValue()}.");
+    }
+
+    private static void ProjectQueueAdd(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            ShowProjectQueue(actor);
+            return;
+        }
+
+        List<IActiveProject> projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+        IActiveProject project = projects.GetByIdOrName(ss.PopSpeech());
+        if (project == null)
+        {
+            actor.OutputHandler.Send("You are not aware of any such project.");
+            return;
+        }
+
+        IProjectLabourRequirement labour = null;
+        if (ss.IsFinished)
+        {
+            List<IProjectLabourRequirement> potentiallyQueueable = project.CurrentPhase.LabourRequirements
+                .Where(x => x.CharacterIsQualified(actor))
+                .ToList();
+            if (potentiallyQueueable.Count == 0)
+            {
+                actor.OutputHandler.Send(
+                    "You are not qualified to queue any of the labour requirements for that project.");
+                return;
+            }
+
+            if (potentiallyQueueable.Count > 1)
+            {
+                actor.OutputHandler.Send(
+                    $"You are qualified for more than one of the labour requirements for that project, so you must specify which one you want to queue. Your options are {potentiallyQueueable.Select(x => x.Name.ColourValue()).ListToString()}.");
+                return;
+            }
+
+            labour = potentiallyQueueable.Single();
+        }
+        else
+        {
+            string labourText = ss.PopSpeech();
+            labour = project.CurrentPhase.LabourRequirements.FirstOrDefault(x => x.Name.EqualTo(labourText)) ??
+                     project.CurrentPhase.LabourRequirements.FirstOrDefault(x =>
+                         x.Name.StartsWith(labourText, StringComparison.InvariantCultureIgnoreCase));
+            if (labour == null)
+            {
+                actor.OutputHandler.Send(
+                    "The current phase of that project does not have any such labour requirement.");
+                return;
+            }
+
+            if (!labour.CharacterIsQualified(actor))
+            {
+                actor.OutputHandler.Send(
+                    $"You are not qualified to do the {labour.Name.ColourValue()} labour requirement for that project.");
+                return;
+            }
+        }
+
+        var existing = actor.ProjectLabourQueue
+            .OfType<ProjectLabourQueueEntry>()
+            .FirstOrDefault(x => x.ProjectId == project.Id && x.LabourId == labour.Id);
+        if (existing != null)
+        {
+            actor.OutputHandler.Send(
+                $"You already have {labour.Name.ColourValue()} on {project.Name.ColourName()} queued at position #{existing.QueueOrder.ToString("N0", actor).ColourValue()}.");
+            return;
+        }
+
+        var entry = actor.QueueProjectLabour(project, labour);
+        actor.OutputHandler.Send(
+            $"You queue {labour.Name.ColourValue()} on {project.Name.ColourName()} at position #{entry.QueueOrder.ToString("N0", actor).ColourValue()}. It is currently {entry.Status.DescribeEnum().ColourValue()}.");
+        if (actor.CurrentProject.Project == null)
+        {
+            actor.TryJoinQueuedProjectLabour();
+        }
     }
 
     private static void ProjectStart(ICharacter actor, StringStack ss)

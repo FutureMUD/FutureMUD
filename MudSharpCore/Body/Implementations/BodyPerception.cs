@@ -21,6 +21,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.Movement;
+using MudSharp.Magic;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
@@ -514,6 +515,12 @@ public partial class Body
                       .Aggregate(text,
                           (current, component) =>
                               $"{current}\n\t{component.GetAdditionalText(voyeur, true)}");
+
+        string auraText = MagicPerceptionUtilities.DescribeMagicAuras(voyeur, Effects.Concat(Actor.Effects));
+        if (!string.IsNullOrEmpty(auraText))
+        {
+            text = $"{text}\n\t{auraText.Replace("\n", "\n\t")}";
+        }
 
         return text.NormaliseSpacing().ProperSentences().Wrap(voyeur.InnerLineFormatLength);
     }

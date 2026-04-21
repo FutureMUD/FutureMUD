@@ -43,10 +43,10 @@ public class TraitCapImpact : BaseImpact, ILabourImpactTraitCaps
 
     protected override XElement SaveDefinition()
     {
-        return new XElement("Impact",
+        return SaveDefinitionWithHoursReference(new XElement("Impact",
             new XElement("Trait", Trait?.Id ?? 0),
             new XElement("TraitChange", TraitCapChange)
-        );
+        ));
     }
 
     public override ILabourImpact Duplicate(IProjectLabourRequirement requirement)

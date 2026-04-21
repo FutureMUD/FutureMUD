@@ -1481,6 +1481,8 @@ public partial class Character : PerceiverItem, ICharacter
 
         dbitem.CurrentProjectId = CurrentProject.Project?.Id;
         dbitem.CurrentProjectLabourId = CurrentProject.Labour?.Id;
+        dbitem.CurrentProjectHours = CurrentProjectHours;
+        dbitem.CurrentProjectProjectHours = CurrentProjectProjectHours;
         FMDB.Context.Characters.Add(dbitem);
         return dbitem;
     }
@@ -1766,6 +1768,10 @@ public partial class Character : PerceiverItem, ICharacter
 
         List<IDarksightMerit> merits = Merits.OfType<IDarksightMerit>().Where(x => x.Applies(this)).ToList();
         difficulty = difficulty.Lowest(merits.Select(x => x.MinimumEffectiveDifficulty).ToArray());
+        difficulty = difficulty.Lowest(CombinedEffectsOfType<IDarksightEffect>()
+            .Where(x => x.Applies())
+            .Select(x => x.MinimumEffectiveDifficulty)
+            .ToArray());
         return difficulty;
     }
 

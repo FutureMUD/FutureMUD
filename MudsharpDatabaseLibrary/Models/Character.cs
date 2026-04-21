@@ -39,6 +39,7 @@ public partial class Character
         WritingsAuthor = new HashSet<Writing>();
         WritingsTrueAuthor = new HashSet<Writing>();
         Patrols = new HashSet<Patrol>();
+        ProjectLabourQueues = new HashSet<ProjectLabourQueue>();
         GPTMessages = new HashSet<GPTMessage>();
         ScriptedEvents = new HashSet<ScriptedEvent>();
         Tracks = new HashSet<Track>();
@@ -93,6 +94,7 @@ public partial class Character
     public long? CurrentProjectLabourId { get; set; }
     public long? CurrentProjectId { get; set; }
     public double CurrentProjectHours { get; set; }
+    public double CurrentProjectProjectHours { get; set; }
     public string NameInfo { get; set; }
     public int RoomLayer { get; set; }
     public bool NoMercy { get; set; }
@@ -114,6 +116,7 @@ public partial class Character
     public virtual Guest Guest { get; set; }
     public virtual ICollection<ActiveProject> ActiveProjects { get; set; }
     public virtual ICollection<ActiveJob> ActiveJobs { get; set; }
+    public virtual ICollection<ProjectLabourQueue> ProjectLabourQueues { get; set; }
     public virtual ICollection<Ally> AlliesAlly { get; set; }
     public virtual ICollection<Ally> AlliesCharacter { get; set; }
     public virtual ICollection<CharacterCombatSetting> CharacterCombatSettings { get; set; }

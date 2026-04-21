@@ -29,19 +29,34 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 
     public override void Cancel(ICharacter actor)
     {
+        var locationCharacters = Location?.Characters.ToList() ?? new List<ICharacter>();
         actor.OutputHandler.Handle(new EmoteOutput(new Emote(
             $"@ cancel|cancels the {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project.", actor, actor)));
         ProjectDefinition.OnCancelProg?.Execute(this);
+        ClearWorkersFromProject();
         Location.RemoveProject(this);
         Delete();
+        TryJoinQueuedProjectLabourFor(locationCharacters);
+    }
+
+    private void ClearWorkersFromProject()
+    {
+        foreach ((ICharacter character, _) in _activeLabour.ToList())
+        {
+            if (character.CurrentProject.Project == this)
+            {
+                character.CurrentProject = (null, null);
+            }
+        }
+
+        _activeLabour.Clear();
     }
 
     private bool CheckForProjectCompletion()
     {
-        if (_labourProgress.All(x => x.Value >= x.Key.TotalProgressRequired) &&
-            _materialProgress.All(x => x.Value >= x.Key.QuantityRequired))
+        if (AreCurrentPhaseCompletionRequirementsMet())
         {
-            foreach (IProjectAction action in CurrentPhase.CompletionActions)
+            foreach (IProjectAction action in OrderedCompletionActions())
             {
                 action.CompleteAction(this);
             }
@@ -54,19 +69,22 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
                 CurrentPhase = nextPhase;
                 _labourProgress.Clear();
                 _materialProgress.Clear();
-                _activeLabour.Clear();
+                ClearWorkersFromProject();
                 Changed = true;
                 Location.Handle(
                     $"The {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project has entered the {CurrentPhase.Name.ColourBold(Telnet.White)} phase.");
-                // TODO - queueing multiple jobs
+                TryJoinQueuedProjectLabourFor(Location.Characters.ToList());
                 return true;
             }
 
+            var locationCharacters = Location.Characters.ToList();
             Location.Handle(
                 $"The {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project has been completed.");
             ProjectDefinition.OnFinishProg?.Execute(this);
+            ClearWorkersFromProject();
             Location.RemoveProject(this);
             Delete();
+            TryJoinQueuedProjectLabourFor(locationCharacters);
             return true;
         }
 
@@ -90,7 +108,13 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
             }
 
             _activeLabour.RemoveAll(x => x.Labour == labour);
-            return CheckForProjectCompletion();
+            var changedProjectState = CheckForProjectCompletion();
+            if (!changedProjectState)
+            {
+                TryJoinQueuedProjectLabourFor(Location.Characters.ToList());
+            }
+
+            return changedProjectState;
         }
 
         return false;
@@ -127,6 +151,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
         actor.OutputHandler.Handle(new EmoteOutput(new Emote(
             $"@ stop|stops all work on the {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project.", actor,
             actor)));
+        TryJoinQueuedProjectLabourFor(Location.Characters.Where(x => x != actor).ToList());
     }
 
     protected override void DatabaseInsert(MudSharp.Models.ActiveProject project)
@@ -146,10 +171,11 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
         sb.Append(" - ");
         sb.Append(
             $"{CurrentPhase.LabourRequirements.Sum(x => x.HoursRemaining(this)).ToString("N2", actor).ColourValue()} hours of work remain");
-        if (CurrentPhase.MaterialRequirements.Any())
+        var mandatoryMaterialCompletion = MandatoryMaterialCompletionRatio();
+        if (mandatoryMaterialCompletion.HasValue)
         {
             sb.Append(
-                $", materials {(CurrentPhase.MaterialRequirements.Where(x => x.IsMandatoryForProjectCompletion).Sum(x => MaterialProgress[x]) / CurrentPhase.MaterialRequirements.Where(x => x.IsMandatoryForProjectCompletion).Sum(x => x.QuantityRequired)).ToString("P0", actor).ColourValue()} complete");
+                $", materials {mandatoryMaterialCompletion.Value.ToString("P0", actor).ColourValue()} complete");
         }
 
         return sb.ToString();

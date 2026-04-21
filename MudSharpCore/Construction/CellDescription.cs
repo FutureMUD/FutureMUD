@@ -7,6 +7,7 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Magic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -456,6 +457,23 @@ public partial class Cell
                 descSubSB.Append(" ");
                 descSubSB.AppendLine(effect.GetAdditionalText(voyeur, colour));
             }
+        }
+
+        string auraText = MagicPerceptionUtilities.DescribeMagicAuras(voyeur, Effects);
+        if (!string.IsNullOrEmpty(auraText))
+        {
+            if (!addedAdditionalLines)
+            {
+                addedAdditionalLines = true;
+                descSubSB.AppendLine();
+            }
+
+            if (character?.Account.TabRoomDescriptions == true)
+            {
+                descSubSB.Append("\t");
+            }
+
+            descSubSB.AppendLine(auraText.Replace("\n", $"\n{(character?.Account.TabRoomDescriptions == true ? "\t" : "")}"));
         }
 
         IShop shop = null;

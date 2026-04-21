@@ -27,6 +27,7 @@ namespace MudSharp.Health
         public IDrug Drug { get; init; }
         public double Grams { get; set; }
         public DrugVector OriginalVector { get; init; }
+        public object Originator { get; init; }
     }
 
     public abstract class DrugAdditionalInfo

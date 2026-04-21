@@ -21,12 +21,12 @@ Implemented or actively in progress:
 - clan parsing and conversion
 - room parsing and conversion
 - craft parsing and conversion
+- NPC parsing and conversion
 - JSON export for converted data
 - dry-run and execute import paths for converter-driven database import
 
 Planned future conversion targets:
 
-- NPCs
 - shops
 - skills
 - cultures or culture overlays where needed
@@ -49,6 +49,7 @@ The expected baseline is that the user has run all of the following seeders:
   - with Middle-earth options selected
 - `Celestial Seeder`
   - with sun and moon selected
+- `Weather Seeder`
 - `Skill Package Seeder`
   - note: a dedicated Middle-earth skills package may be desirable in future
 - `Human Seeder`
@@ -125,8 +126,9 @@ When changing converter behavior, keep the relevant mapping notes up to date:
 - `RpiClanConversionMapping.md`
 - `RpiCraftConversionMapping.md`
 - `RpiRoomConversionMapping.md`
+- `RpiNpcConversionMapping.md`
 
-If future room, NPC, craft, or shop converters are added, add matching mapping documents for them as part of the same work.
+If future converter passes are added, add matching mapping documents for them as part of the same work.
 
 If the baseline seeder assumptions change, update this file in the same task.
 

@@ -58,6 +58,11 @@ internal sealed record RoomBaselineLoadResult(
 	FutureMudRoomBaselineCatalog? Catalog,
 	string Status);
 
+internal sealed record NpcBaselineLoadResult(
+	FuturemudDatabaseContext? Context,
+	FutureMudNpcBaselineCatalog? Catalog,
+	string Status);
+
 internal static class Program
 {
 	private static readonly JsonSerializerOptions JsonOptions = new()
@@ -89,6 +94,11 @@ internal static class Program
 			if (IsCraftCommand(options.Command))
 			{
 				return await RunCraftCommand(options);
+			}
+
+			if (IsNpcCommand(options.Command))
+			{
+				return await RunNpcCommand(options);
 			}
 
 			return await RunRoomCommand(options);
@@ -261,6 +271,46 @@ internal static class Program
 			"analyze-crafts" => await RunAnalyzeCrafts(summary, craftCorpus, conversion, validationIssues),
 			"export-crafts" => await RunExportCrafts(options, craftCorpus, conversion, validationIssues, summary),
 			"apply-crafts" => await RunApplyCrafts(options, conversion.Crafts, baseline.Context!, baseline.Catalog!, summary),
+			_ => 1,
+		};
+	}
+
+	private static async Task<int> RunNpcCommand(ConverterCliOptions options)
+	{
+		if (!Directory.Exists(options.RegionsDirectory))
+		{
+			Console.Error.WriteLine($"Could not find regions directory '{options.RegionsDirectory}'.");
+			return 1;
+		}
+
+		var roomParser = new RpiRoomWorldfileParser();
+		var roomCorpus = roomParser.ParseDirectory(options.RegionsDirectory);
+		var roomTransformer = new FutureMudRoomTransformer();
+		var roomConversion = roomTransformer.Convert(roomCorpus.Rooms);
+		var zoneEvidence = FutureMudNpcTransformer.BuildZoneEvidence(roomConversion);
+
+		var parser = new RpiNpcWorldfileParser();
+		var corpus = parser.ParseDirectory(options.RegionsDirectory);
+		var baseline = LoadNpcBaseline(options);
+		using var baselineContext = baseline.Context;
+		if (options.Command == "apply-npcs" && baseline.Catalog is null)
+		{
+			Console.Error.WriteLine($"Unable to load the FutureMUD NPC baseline: {baseline.Status}");
+			return 3;
+		}
+
+		var transformer = new FutureMudNpcTransformer(zoneEvidence);
+		var conversion = transformer.Convert(corpus.Npcs);
+		var validationIssues = baseline.Catalog is not null
+			? FutureMudNpcValidation.Validate(baseline.Catalog, conversion.Npcs)
+			: Array.Empty<FutureMudNpcValidationIssue>();
+		var summary = BuildNpcAnalysisSummary(corpus, conversion, validationIssues, baseline.Status);
+
+		return options.Command switch
+		{
+			"analyze-npcs" => await RunAnalyzeNpcs(summary, corpus, conversion, validationIssues),
+			"export-npcs" => await RunExportNpcs(options, corpus, conversion, validationIssues, summary),
+			"apply-npcs" => await RunApplyNpcs(options, conversion.Npcs, baseline.Context!, baseline.Catalog!, summary),
 			_ => 1,
 		};
 	}
@@ -633,6 +683,80 @@ internal static class Program
 		return 0;
 	}
 
+	private static async Task<int> RunAnalyzeNpcs(
+		NpcAnalysisSummary summary,
+		RpiParsedNpcCorpus corpus,
+		NpcConversionResult conversion,
+		IReadOnlyList<FutureMudNpcValidationIssue> validationIssues)
+	{
+		Console.WriteLine($"Parsed mob blocks: {summary.ParsedMobCount:N0} of {summary.TotalMobCount:N0}");
+		Console.WriteLine($"Parse failures: {summary.FailureCount:N0}");
+		Console.WriteLine($"Parse warnings: {summary.ParseWarningCount:N0}");
+		Console.WriteLine($"Simple templates: {summary.SimpleTemplateCount:N0}");
+		Console.WriteLine($"Variable templates: {summary.VariableTemplateCount:N0}");
+		Console.WriteLine($"Deferred templates: {summary.DeferredTemplateCount:N0}");
+		Console.WriteLine($"Resolved races: {summary.ResolvedRaceCount:N0}");
+		Console.WriteLine($"Resolved ethnicities: {summary.ResolvedEthnicityCount:N0}");
+		Console.WriteLine($"Resolved cultures: {summary.ResolvedCultureCount:N0}");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		Console.WriteLine();
+
+		PrintDictionary("Classification totals", summary.ClassificationCounts);
+		Console.WriteLine();
+		PrintDictionary("Per-status totals", summary.StatusCounts);
+		Console.WriteLine();
+		PrintDictionary("Feature totals", summary.FeatureCounts);
+
+		if (conversion.DeferredReasonCounts.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Deferred reasons", conversion.DeferredReasonCounts);
+		}
+
+		if (summary.WarningCodeCounts.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Warning codes", summary.WarningCodeCounts);
+		}
+
+		PrintMissingDependencies(summary.MissingDependencyCounts, validationIssues.Count);
+
+		if (conversion.UnresolvedRaceCounts.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Unresolved race zones", conversion.UnresolvedRaceCounts);
+		}
+
+		if (conversion.UnresolvedCultureCounts.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Unresolved culture zones", conversion.UnresolvedCultureCounts);
+		}
+
+		if (corpus.Failures.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample parse failures:");
+			foreach (var failure in corpus.Failures.Take(10))
+			{
+				Console.WriteLine($"- {Path.GetFileName(failure.SourceFile)} {failure.Header}: {failure.Message}");
+			}
+		}
+
+		if (validationIssues.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample validation issues:");
+			foreach (var issue in validationIssues.Take(20))
+			{
+				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+			}
+		}
+
+		await Task.CompletedTask;
+		return 0;
+	}
+
 	private static async Task<int> RunExportRooms(
 		ConverterCliOptions options,
 		RpiParsedRoomCorpus corpus,
@@ -708,6 +832,45 @@ internal static class Program
 
 		Console.WriteLine($"Wrote {export.Crafts.Count:N0} converted craft records to {outputPath}");
 		Console.WriteLine($"Wrote craft audit to {auditPath}");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		return 0;
+	}
+
+	private static async Task<int> RunExportNpcs(
+		ConverterCliOptions options,
+		RpiParsedNpcCorpus corpus,
+		NpcConversionResult conversion,
+		IReadOnlyList<FutureMudNpcValidationIssue> validationIssues,
+		NpcAnalysisSummary summary)
+	{
+		var outputPath = ResolveOutputPath(options.OutputPath, "rpi-npcs-export.json");
+		var auditPath = ResolveSidecarAuditPath(outputPath);
+		var convertedBySourceKey = conversion.Npcs.ToDictionary(x => x.SourceKey, StringComparer.OrdinalIgnoreCase);
+		var export = new NpcExportReport(
+			DateTime.UtcNow,
+			options.RegionsDirectory,
+			summary,
+			corpus.Failures,
+			validationIssues,
+			corpus.Npcs
+				.OrderBy(x => x.Zone)
+				.ThenBy(x => x.Vnum)
+				.Select(x => new ConverterExportNpc(x, convertedBySourceKey[x.SourceKey]))
+				.ToList());
+		var audit = BuildNpcExportAudit(conversion);
+
+		await using (var stream = File.Create(outputPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, export, JsonOptions);
+		}
+
+		await using (var stream = File.Create(auditPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, audit, JsonOptions);
+		}
+
+		Console.WriteLine($"Wrote {export.Npcs.Count:N0} converted NPC records to {outputPath}");
+		Console.WriteLine($"Wrote NPC audit to {auditPath}");
 		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
 		return 0;
 	}
@@ -796,6 +959,57 @@ internal static class Program
 			Console.WriteLine($"Inserted crafts: {result.InsertedCount:N0}");
 			Console.WriteLine($"Created tags: {result.CreatedTagCount:N0}");
 			Console.WriteLine($"Created FutureProgs: {result.CreatedProgCount:N0}");
+		}
+
+		if (result.Issues.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample validation issues:");
+			foreach (var issue in result.Issues.Take(20))
+			{
+				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+			}
+		}
+
+		if (fatalErrors > 0)
+		{
+			Console.Error.WriteLine("Apply did not proceed because required baseline dependencies were missing.");
+			return 2;
+		}
+
+		return 0;
+	}
+
+	private static async Task<int> RunApplyNpcs(
+		ConverterCliOptions options,
+		IReadOnlyList<ConvertedNpcDefinition> converted,
+		FuturemudDatabaseContext context,
+		FutureMudNpcBaselineCatalog baseline,
+		NpcAnalysisSummary summary)
+	{
+		var importer = new FutureMudNpcImporter(context, baseline);
+		var result = importer.Apply(converted, options.Execute);
+		var fatalErrors = result.Issues.Count(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase));
+		var auditPath = ResolveOutputPath(
+			options.OutputPath,
+			options.Execute ? "rpi-npcs-apply-audit.json" : "rpi-npcs-dry-run-audit.json");
+
+		await using (var stream = File.Create(auditPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, result.Audit, JsonOptions);
+		}
+
+		Console.WriteLine(options.Execute ? "Apply mode: execute" : "Apply mode: dry-run");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		Console.WriteLine($"Validation issues: {result.Issues.Count:N0} total, {fatalErrors:N0} error(s)");
+		Console.WriteLine($"Existing imports skipped: {result.SkippedExistingCount:N0}");
+		Console.WriteLine($"Deferred NPCs skipped: {result.SkippedDeferredCount:N0}");
+		Console.WriteLine($"Invalid NPCs skipped: {result.SkippedInvalidCount:N0}");
+		Console.WriteLine($"Audit output: {auditPath}");
+
+		if (options.Execute)
+		{
+			Console.WriteLine($"Inserted NPC templates: {result.InsertedCount:N0}");
 		}
 
 		if (result.Issues.Count > 0)
@@ -932,6 +1146,42 @@ internal static class Program
 			ToSortedCounts(validationIssues.GroupBy(x => x.Message)));
 	}
 
+	private static NpcAnalysisSummary BuildNpcAnalysisSummary(
+		RpiParsedNpcCorpus corpus,
+		NpcConversionResult conversion,
+		IReadOnlyList<FutureMudNpcValidationIssue> validationIssues,
+		string baselineStatus)
+	{
+		return new NpcAnalysisSummary(
+			corpus.Npcs.Count + corpus.Failures.Count,
+			corpus.Npcs.Count,
+			corpus.Failures.Count,
+			corpus.Npcs.Sum(x => x.ParseWarnings.Count),
+			baselineStatus,
+			conversion.Npcs.Count(x => x.TemplateKind == NpcTemplateKind.Simple),
+			conversion.Npcs.Count(x => x.TemplateKind == NpcTemplateKind.Variable),
+			conversion.Npcs.Count(x => x.Status == NpcConversionStatus.Deferred),
+			conversion.Npcs.Count(x => !string.IsNullOrWhiteSpace(x.RaceName)),
+			conversion.Npcs.Count(x => !string.IsNullOrWhiteSpace(x.EthnicityName)),
+			conversion.Npcs.Count(x => !string.IsNullOrWhiteSpace(x.CultureName)),
+			ToSortedCounts(conversion.Npcs.GroupBy(x => x.Classification.ToString())),
+			ToSortedCounts(conversion.Npcs.GroupBy(x => x.Status.ToString())),
+			new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+			{
+				["npcs-with-ai"] = conversion.Npcs.Count(x => x.ArtificialIntelligenceNames.Count > 0),
+				["npcs-with-clans"] = conversion.Npcs.Count(x => x.HasClanMemberships),
+				["npcs-with-memory"] = conversion.Npcs.Count(x => (((RpiNpcActFlags)x.RawActFlags) & RpiNpcActFlags.Memory) != 0),
+				["npcs-with-morph"] = conversion.Npcs.Count(x => x.HasMorphData),
+				["npcs-with-shops"] = conversion.Npcs.Count(x => x.HasShopData),
+				["npcs-with-source-name"] = conversion.Npcs.Count(x => x.UsesSourceDerivedName),
+				["npcs-with-venom"] = conversion.Npcs.Count(x => x.HasVenomData),
+				["npcs-with-vehicles"] = conversion.Npcs.Count(x => x.DeferredBehaviorFlags.Contains("vehicle", StringComparer.OrdinalIgnoreCase)),
+				["npcs-with-wildlife"] = conversion.Npcs.Count(x => (((RpiNpcActFlags)x.RawActFlags) & RpiNpcActFlags.Wildlife) != 0),
+			},
+			ToSortedCounts(conversion.Npcs.SelectMany(x => x.Warnings).GroupBy(x => x.Code)),
+			ToSortedCounts(validationIssues.GroupBy(x => x.Message)));
+	}
+
 	private static RoomExportAuditReport BuildRoomLogicalAudit(RoomConversionResult conversion)
 	{
 		var exitsByRoom = conversion.Exits
@@ -980,6 +1230,32 @@ internal static class Program
 					x.Warnings.Select(y => y.Code).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(y => y, StringComparer.OrdinalIgnoreCase).ToList()))
 				.ToList(),
 			conversion.GeneratedTags);
+	}
+
+	private static NpcExportAuditReport BuildNpcExportAudit(NpcConversionResult conversion)
+	{
+		return new NpcExportAuditReport(
+			DateTime.UtcNow,
+			conversion.Npcs
+				.OrderBy(x => x.Zone)
+				.ThenBy(x => x.Vnum)
+				.Select(x => new NpcExportAuditEntry(
+					x.SourceKey,
+					x.Vnum,
+					x.Status,
+					x.TemplateKind,
+					x.Classification,
+					x.TemplateName,
+					x.RaceName,
+					x.EthnicityName,
+					x.CultureName,
+					x.ArtificialIntelligenceNames,
+					x.Warnings
+						.Select(y => y.Code)
+						.Distinct(StringComparer.OrdinalIgnoreCase)
+						.OrderBy(y => y, StringComparer.OrdinalIgnoreCase)
+						.ToList()))
+				.ToList());
 	}
 
 	private static IReadOnlyDictionary<string, int> ToSortedCounts<T>(IEnumerable<IGrouping<string, T>> groups)
@@ -1131,6 +1407,32 @@ internal static class Program
 		}
 	}
 
+	private static NpcBaselineLoadResult LoadNpcBaseline(ConverterCliOptions options)
+	{
+		if (!options.UseBaseline)
+		{
+			return new NpcBaselineLoadResult(null, null, "Skipped baseline validation by request.");
+		}
+
+		FuturemudDatabaseContext? context = null;
+		try
+		{
+			context = new FuturemudDatabaseContext();
+			if (!string.IsNullOrWhiteSpace(options.ConnectionString))
+			{
+				context.ConnectionString = options.ConnectionString;
+			}
+
+			var catalog = FutureMudNpcBaselineCatalog.Load(context);
+			return new NpcBaselineLoadResult(context, catalog, "Loaded NPC baseline from FutureMUD.");
+		}
+		catch (Exception ex)
+		{
+			context?.Dispose();
+			return new NpcBaselineLoadResult(null, null, ex.Message);
+		}
+	}
+
 	private static ConverterCliOptions? ParseOptions(string[] args)
 	{
 		if (args.Length == 0 || args[0] is "--help" or "-h" or "help")
@@ -1140,7 +1442,7 @@ internal static class Program
 		}
 
 		var command = args[0];
-		if (!IsItemCommand(command) && !IsClanCommand(command) && !IsCraftCommand(command) && !IsRoomCommand(command))
+		if (!IsItemCommand(command) && !IsClanCommand(command) && !IsCraftCommand(command) && !IsRoomCommand(command) && !IsNpcCommand(command))
 		{
 			throw new ArgumentException($"Unknown command '{command}'.");
 		}
@@ -1188,7 +1490,7 @@ internal static class Program
 			}
 		}
 
-		if ((command == "apply-items" || command == "apply-clans" || command == "apply-crafts" || command == "apply-rooms") && !useBaseline)
+		if ((command == "apply-items" || command == "apply-clans" || command == "apply-crafts" || command == "apply-rooms" || command == "apply-npcs") && !useBaseline)
 		{
 			throw new ArgumentException($"{command} requires a seeded FutureMUD baseline and cannot be run with --skip-baseline.");
 		}
@@ -1225,6 +1527,11 @@ internal static class Program
 	private static bool IsRoomCommand(string command)
 	{
 		return command is "analyze-rooms" or "export-rooms" or "apply-rooms";
+	}
+
+	private static bool IsNpcCommand(string command)
+	{
+		return command is "analyze-npcs" or "export-npcs" or "apply-npcs";
 	}
 
 	private static string ReadOptionValue(string[] args, ref int index, string optionName)
@@ -1337,9 +1644,12 @@ internal static class Program
 		Console.WriteLine("  analyze-rooms [--root <regions-dir>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  export-rooms [--root <regions-dir>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  apply-rooms [--root <regions-dir>] [--output <audit-json>] [--zone-template <zone>] [--db-connection <connection-string>] [--execute]");
+		Console.WriteLine("  analyze-npcs [--root <regions-dir>] [--db-connection <connection-string>] [--skip-baseline]");
+		Console.WriteLine("  export-npcs [--root <regions-dir>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
+		Console.WriteLine("  apply-npcs [--root <regions-dir>] [--output <audit-json>] [--db-connection <connection-string>] [--execute]");
 		Console.WriteLine();
 		Console.WriteLine("Notes:");
-		Console.WriteLine("  apply-items, apply-clans, apply-crafts, and apply-rooms default to dry-run mode unless --execute is supplied.");
+		Console.WriteLine("  apply-items, apply-clans, apply-crafts, apply-rooms, and apply-npcs default to dry-run mode unless --execute is supplied.");
 		Console.WriteLine("  The default regions directory is the bundled soiregions-main corpus.");
 		Console.WriteLine("  The default clan source is the bundled Old SOI Code/src/clan.cpp file.");
 		Console.WriteLine("  The default craft source is the bundled soiregions-main/crafts.txt file.");

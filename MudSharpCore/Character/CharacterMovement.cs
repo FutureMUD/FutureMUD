@@ -207,16 +207,25 @@ public partial class Character
         }
     }
 
-    public override (bool Success, IEmoteOutput FailureOutput) CanCross(ICellExit exit)
-    {
-        if (EffectHandler.AffectedBy<IImmwalkEffect>() || RidingMount?.AffectedBy<IImmwalkEffect>() == true)
-        {
-            return (true, null);
-        }
+	public override (bool Success, IEmoteOutput FailureOutput) CanCross(ICellExit exit)
+	{
+		if (EffectHandler.AffectedBy<IImmwalkEffect>() || RidingMount?.AffectedBy<IImmwalkEffect>() == true)
+		{
+			return (true, null);
+		}
 
-        if (exit.Exit.Door?.IsOpen == false)
-        {
-            return (false,
+		if (exit.Exit.EffectsOfType<IExitBarrierEffect>().FirstOrDefault() is not null)
+		{
+			return (false,
+				new EmoteOutput(
+					new Emote($"@ stop|stops at the exit to {exit.OutboundDirectionDescription} because a magical barrier blocks the way.",
+						this, this),
+					flags: OutputFlags.SuppressObscured));
+		}
+
+		if (exit.Exit.Door?.IsOpen == false)
+		{
+			return (false,
                 new EmoteOutput(new Emote("@ stop|stops at $0 because it is closed.", this, exit.Exit.Door.Parent),
                     flags: OutputFlags.SuppressObscured));
         }

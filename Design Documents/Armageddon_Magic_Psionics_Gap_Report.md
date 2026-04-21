@@ -28,30 +28,31 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 
 | Inventory | Native now | Builder+Prog now | Needs engine work |
 | --- | ---: | ---: | ---: |
-| Magic (152) | 32 | 48 | 72 |
-| Psionics (37) | 9 | 8 | 20 |
-| Total (189) | 41 | 56 | 92 |
+| Magic (152) | 43 | 49 | 60 |
+| Psionics (37) | 10 | 8 | 19 |
+| Total (189) | 53 | 57 | 79 |
 
 Key takeaways:
 
-- `97 / 189` Armageddon entries are reachable today if we allow ordinary FutureProg and prototype scaffolding.
+- `110 / 189` Armageddon entries are reachable today if we allow ordinary FutureProg and prototype scaffolding.
 - The current system is already strong at direct damage, healing, stamina/need adjustment, item or liquid conjuration, NPC summoning, invisibility, telepathy, and self-only magical armour.
-- The biggest parity blockers are reusable status effects, status removal, exit-or-direction targeting, room or character anti-magic wards, item/corpse enchantment, magic-resource drain, and "dual body" mechanics like possession or shadow projection.
+- Phase 2 now closes three medium-difficulty primitive gaps: local exit targeting, prog-resolved summon-style remote targeting, and reusable room or personal wards with shared spell and power interception.
+- The biggest parity blockers are reusable status effects, status removal, item/corpse enchantment, magic-resource drain, richer portal or anchor topology, coercive psionics, and "dual body" mechanics like possession or shadow projection.
 - Psionics are only partially covered today. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, and direct mental attacks, but most coercion, concealment, remote eavesdropping, and passive-traffic powers still need new runtime support.
 
 ## Family Summary
 
 | Family | Native now | Builder+Prog now | Needs engine work | Main blocker theme |
 | --- | ---: | ---: | ---: | --- |
-| Fire | 4 | 6 | 9 | Detection, dispels, object wards, burning-over-time |
-| Water | 10 | 7 | 7 | Poison/disease lifecycle, silence, water-breathing |
-| Earth / Stone | 6 | 8 | 8 | Sleep, burrow rooms, delayed callbacks, item destruction |
-| Wind | 3 | 10 | 10 | World-target movement, flying, exit walls, shove effects |
+| Fire | 5 | 6 | 8 | Detection, dispels, object wards, burning-over-time |
+| Water | 11 | 7 | 6 | Poison/disease lifecycle, silence, water-breathing |
+| Earth / Stone | 7 | 8 | 7 | Sleep, burrow rooms, delayed callbacks, item destruction |
+| Wind | 5 | 11 | 7 | Flying, long-range forced movement, detection or cleanse effects |
 | Shadow | 3 | 5 | 9 | Ethereal state, anti-curse cleanses, fear, projection |
 | Lightning | 5 | 7 | 3 | Sleep immunity, paralysis, tracked footprint effects |
-| Void | 0 | 5 | 23 | Anti-magic, portals, possession, item/corpse enchantment |
+| Void | 6 | 5 | 17 | Portals, possession, item/corpse enchantment, resource drain |
 | Unspecified / incomplete magic | 1 | 0 | 3 | Source material is incomplete |
-| Psionics | 9 | 8 | 20 | Command-forcing, concealment, room wards, passive traffic |
+| Psionics | 10 | 8 | 19 | Command-forcing, concealment, passive traffic, identity masking |
 
 ## Where FutureMUD Is Already Strong
 
@@ -62,6 +63,9 @@ The current system already has good coverage for:
 - conjuration through `createitem`, `createliquid`, and `createnpc`
 - core telepathy through `connectmind`, `mindlook`, `mindaudit`, `mindexpel`, `mindsay`, `mindbroadcast`, and `sense`
 - self-only visible protective magic through `armour`
+- local exit-targeted barriers and shove-style movement through `exitbarrier` and `forcedexitmovement`
+- school-based room and personal wards through `roomward` and `personalward`
+- prog-resolved remote character or item targeting for summon-style spells through `progcharacter`, `progitem`, `progcharacterroom`, and `progitemroom`
 - room ambience changes through `roomlight`, `roomtemperature`, `roomatmosphere`, and weather effects
 
 ## Main Gaps By Primitive
@@ -116,9 +120,18 @@ Blocked or only partially covered entries include:
 
 ### 3. Exit and direction targeting
 
-Armageddon has a lot of "choose an exit" or "force movement through an exit" magic. Current FutureMUD spell triggers do not expose an exit or direction target.
+Status: implemented in the current runtime.
 
-This blocks or complicates:
+FutureMUD now has:
+
+- `exit`
+- `characterexit`
+- `exitbarrier`
+- `forcedexitmovement`
+
+That cleanly covers the common "choose a local exit", "put a wall on that exit", and "shove the target through that exit" patterns.
+
+This now unlocks:
 
 - `Wall Of Fire`
 - `Wall Of Thorns`
@@ -126,25 +139,50 @@ This blocks or complicates:
 - `Wall Of Wind`
 - `Blade Barrier`
 - `Repel`
-- the shove rider on `Sandstorm`
+
+Remaining limitation:
+
+- there is still no first-class `OpenOrClosedExitImpact` primitive, so exit state mutation beyond blocking passage still needs bespoke work
 
 ### 4. World-target movement and swap effects
 
-The current trigger set is good at self, same-room character, room, room-via-prog, and character-plus-room. It is weak at "pick a remote character anywhere meaningful and then move them, pull them, or swap with them".
+Status: partially implemented in the current runtime.
 
-This blocks or complicates:
+The current trigger set now includes:
+
+- `progcharacter`
+- `progitem`
+- `progcharacterroom`
+- `progitemroom`
+
+These close the cleanest summon-style gap by letting a spell resolve a remote character or item through a prog and, when needed, also provide a prog-resolved room for existing room-parameter spell effects such as `teleporttarget`.
+
+This now unlocks or materially improves:
 
 - `Summon`
-- `Hands Of Wind`
-- `Transference`
 - parts of `Travel Gate`
 - parts of `Portal`
 
+This still blocks or complicates:
+
+- `Hands Of Wind` if it needs more than "move target to chosen room" semantics
+- `Transference`
+- persistent paired-gate or anchor topology for `Travel Gate` and `Portal`
+
 ### 5. Room wards and anti-magic / anti-psionics interception
 
-FutureMUD can currently cast spells into rooms, but it does not yet have a reusable interception layer for "magic of school X is blocked here" or "incoming psionics reflect or fail while this ward stands".
+Status: implemented in the current runtime.
 
-This blocks:
+FutureMUD now has generic `roomward` and `personalward` spell effects backed by shared interception hooks that both spells and targeted powers consult.
+
+Current coverage includes:
+
+- school-based matching with optional child-school inclusion
+- `incoming`, `outgoing`, or `both` coverage
+- `fail` or `reflect` modes
+- optional custom progs
+
+This now unlocks:
 
 - `Psionic Suppression`
 - `Shield Of Nilaz`
@@ -152,6 +190,10 @@ This blocks:
 - `Turn Element`
 - `Elemental Fog`
 - `Dome`
+
+Remaining limitation:
+
+- wards are school-based rather than freeform tag-based, so future item- or rune-specific anti-magic still wants a deeper enchantment layer
 
 ### 6. Item and corpse enchantment as first-class spell targets
 
@@ -235,13 +277,14 @@ These are the changes with the best "entries unlocked per unit of work" ratio.
 These are the next-best return once the basic statuses exist.
 
 1. Add exit-or-direction targeting.
-   - New trigger or target type for `exit` / `direction`.
-   - New spell effects for `ExitBarrier`, `ForcedExitMovement`, and maybe `OpenOrClosedExitImpact`.
+   - Completed in the current runtime.
+   - FutureMUD now has `exit`, `characterexit`, `exitbarrier`, and `forcedexitmovement`.
    - This unlocks all wall spells plus `Repel`.
 
 2. Add better remote targeting.
-   - A trigger that can resolve a world target character or item through a prog, not just a room.
-   - This is the cleanest path for `Summon`, `Hands Of Wind`, `Transference`, richer gate logic, and some messenger or stalker variants.
+   - Partially completed in the current runtime.
+   - FutureMUD now has prog-resolved character and item triggers, plus prog-resolved room parameters for summon-style spells.
+   - This is now the cleanest path for `Summon` and the room-targeted portions of richer gate logic, but not yet full swap or portal-topology behavior.
 
 3. Add first-class item enchantment and item damage effects.
    - `EnchantItemEffect`
@@ -250,7 +293,7 @@ These are the next-best return once the basic statuses exist.
    - This unlocks `Glyph`, `Mark`, `Vampiric Blade`, `Rot Items`, `Shatter`, and a cleaner path for corpse magic.
 
 4. Add room wards and personal ward effects with interception hooks.
-   - This should be generic by school or tag, not hard-coded to a single elemental family.
+   - Completed in the current runtime as school-based wards with shared spell and power interception hooks.
    - This unlocks `Forbid Elements`, `Turn Element`, `Shield Of Nilaz`, `Elemental Fog`, and `Dome`.
 
 5. Add a command-safe psionic coercion framework.
@@ -306,44 +349,43 @@ These are the parity items with the most engine-level uncertainty.
 
 ## Recommended First Shipping Slice
 
-If the goal is to maximise "Armageddon-feeling parity" quickly, I would ship in this order:
+The current runtime already includes exit targeting, summon-style remote targeting, and generic room or personal wards. If the goal is to maximise "Armageddon-feeling parity" quickly from here, I would ship in this order:
 
 1. Teleport fix plus generic status application/removal.
 2. Magic-resource deltas.
 3. A reusable armour spell effect.
-4. Exit targeting plus forced movement.
-5. Item enchantment and corpse-tagging.
-6. Room wards and anti-magic interception.
-7. Psionic command/control framework.
-8. Projection, possession, and portal topology.
+4. Item enchantment and corpse-tagging.
+5. Psionic command/control framework.
+6. Projection, possession, and portal topology.
+7. Deeper anchor or marked-destination gate work.
 
-That order gets the broadest number of iconic elemental spells online before tackling the truly knotty psionic and void-magic mechanics.
+That order gets the broadest number of iconic elemental spells online before tackling the truly knotty psionic and void-magic mechanics that still lack a shared engine answer.
 
 ## Appendix: Classification By Family
 
 ### Fire
 
-- Native now: `Fireball`, `Flamestrike`, `Demonfire`, `Fire Armor`
+- Native now: `Fireball`, `Flamestrike`, `Demonfire`, `Fire Armor`, `Wall Of Fire`
 - Builder+Prog now: `Rain Of Fire`, `Ball Of Light`, `Pyrotechnics`, `Parch`, `Fire Jambiya`, `Fire Seed`
-- Needs engine work: `Detect Magick`, `Dispel Magick`, `Empower`, `Glyph`, `Tongues`, `Firebreather`, `Wall Of Fire`, `Daylight`, `Immolate`
+- Needs engine work: `Detect Magick`, `Dispel Magick`, `Empower`, `Glyph`, `Tongues`, `Firebreather`, `Daylight`, `Immolate`
 
 ### Water
 
-- Native now: `Create Water`, `Heal`, `Sanctuary`, `Calm`, `Invulnerability`, `Deafness`, `Health Drain`, `Create Wine`, `Intoxication`, `Sober`
+- Native now: `Create Water`, `Heal`, `Sanctuary`, `Calm`, `Invulnerability`, `Deafness`, `Health Drain`, `Create Wine`, `Intoxication`, `Sober`, `Wall Of Thorns`
 - Builder+Prog now: `Oasis`, `Determine Relationship`, `Thunder`, `Wither`, `Mirage`, `Shield Of Mist`, `Healing Mud`
-- Needs engine work: `Detect Poison`, `Poison`, `Cure Poison`, `Silence`, `Wall Of Thorns`, `Cure Disease`, `Breathe Water`
+- Needs engine work: `Detect Poison`, `Poison`, `Cure Poison`, `Silence`, `Cure Disease`, `Breathe Water`
 
 ### Earth / Stone
 
-- Native now: `Armor`, `Earthquake`, `Strength`, `Weaken`, `Fury`, `Repair Item`
+- Native now: `Armor`, `Earthquake`, `Strength`, `Weaken`, `Fury`, `Repair Item`, `Wall Of Sand`
 - Builder+Prog now: `Create Food`, `Sand Jambiya`, `Stone Skin`, `Show The Path`, `Mount`, `Godspeed`, `Sand Shelter`, `Golem`
-- Needs engine work: `Sleep`, `Burrow`, `Feeblemind`, `Wall Of Sand`, `Rewind`, `Alarm`, `Sand Statue`, `Shatter`
+- Needs engine work: `Sleep`, `Burrow`, `Feeblemind`, `Rewind`, `Alarm`, `Sand Statue`, `Shatter`
 
 ### Wind
 
-- Native now: `Invisibility`, `Wind Armor`, `Wind Fist`
-- Builder+Prog now: `Teleport`, `Relocate`, `Sandstorm`, `Banishment`, `Guardian`, `Stalker`, `Delusion`, `Shield Of Wind`, `Messenger`, `Create Rune`
-- Needs engine work: `Detect Invisible`, `Summon`, `Levitate`, `Hands Of Wind`, `Transference`, `Fly`, `Feather Fall`, `Repel`, `Wall Of Wind`, `Dispel Invisibility`
+- Native now: `Invisibility`, `Wind Armor`, `Wind Fist`, `Repel`, `Wall Of Wind`
+- Builder+Prog now: `Teleport`, `Relocate`, `Sandstorm`, `Banishment`, `Guardian`, `Stalker`, `Delusion`, `Shield Of Wind`, `Messenger`, `Create Rune`, `Summon`
+- Needs engine work: `Detect Invisible`, `Levitate`, `Hands Of Wind`, `Transference`, `Fly`, `Feather Fall`, `Dispel Invisibility`
 
 ### Shadow
 
@@ -359,9 +401,9 @@ That order gets the broadest number of iconic elemental spells online before tac
 
 ### Void
 
-- Native now: none
+- Native now: `Psionic Suppression`, `Shield Of Nilaz`, `Forbid Elements`, `Turn Element`, `Elemental Fog`, `Blade Barrier`
 - Builder+Prog now: `Gate`, `Pseudo Death`, `Dragon Bane`, `Portable Hole`, `Phantasm`
-- Needs engine work: `Animate Dead`, `Mark`, `Psionic Suppression`, `Dragon Drain`, `Charm Person`, `Shield Of Nilaz`, `Solace`, `Aura Drain`, `Travel Gate`, `Forbid Elements`, `Turn Element`, `Elemental Fog`, `Planeshift`, `Possess Corpse`, `Portal`, `Identify`, `Blade Barrier`, `Psionic Drain`, `Disembody`, `Rot Items`, `Vampiric Blade`, `Dead Speak`, `Recite`
+- Needs engine work: `Animate Dead`, `Mark`, `Dragon Drain`, `Charm Person`, `Solace`, `Aura Drain`, `Travel Gate`, `Planeshift`, `Possess Corpse`, `Portal`, `Identify`, `Psionic Drain`, `Disembody`, `Rot Items`, `Vampiric Blade`, `Dead Speak`, `Recite`
 
 ### Unspecified / Incomplete Magic
 
@@ -371,6 +413,6 @@ That order gets the broadest number of iconic elemental spells online before tac
 
 ### Psionics
 
-- Native now: `Contact`, `Barrier`, `Locate`, `Probe`, `Expel`, `Sense Presence`, `Mindblast`, `Mesmerize`, `Rejuvenate`
+- Native now: `Contact`, `Barrier`, `Locate`, `Probe`, `Expel`, `Sense Presence`, `Mindblast`, `Mesmerize`, `Rejuvenate`, `Dome`
 - Builder+Prog now: `Empathy`, `Masquerade`, `Illusion`, `Disorient`, `Clairvoyance`, `Imitate`, `Project`, `Vanish`
-- Needs engine work: `Trace`, `Cathexis`, `Allspeak`, `Mindwipe`, `Shadowwalk`, `Hear`, `Control`, `Compel`, `Conceal`, `Dome`, `Clairaudience`, `Suggest`, `Babble`, `Coerce`, `Magicksense`, `Thoughtsense`, `Beast Affinity`, `Wild Contact`, `Wild Barrier`, `Immersion`
+- Needs engine work: `Trace`, `Cathexis`, `Allspeak`, `Mindwipe`, `Shadowwalk`, `Hear`, `Control`, `Compel`, `Conceal`, `Clairaudience`, `Suggest`, `Babble`, `Coerce`, `Magicksense`, `Thoughtsense`, `Beast Affinity`, `Wild Contact`, `Wild Barrier`, `Immersion`

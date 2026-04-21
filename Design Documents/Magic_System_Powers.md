@@ -36,6 +36,7 @@ Important files and contracts are:
 - contract: `FutureMUDLibrary/Magic/IMagicPower.cs`
 - runtime base: `MudSharpCore/Magic/Powers/MagicPowerBase.cs`
 - runtime factory: `MudSharpCore/Magic/Powers/MagicPowerFactory.cs`
+- shared interdiction helper: `MudSharpCore/Magic/MagicInterdictionHelper.cs`
 - player dispatch: `MudSharpCore/Commands/Modules/MagicModule.cs`
 - character aggregation: `MudSharpCore/Character/CharacterMagic.cs`
 
@@ -80,6 +81,17 @@ It currently handles:
 - `IsPsionic`, which switches the crime category from unlawful magic to unlawful psionics
 
 This means most new power work should build on `MagicPowerBase` rather than reimplementing the whole editing and cost framework.
+
+### Wards and interdiction
+Targeted powers now consult the same ward/interdiction layer used by spells.
+
+In current runtime behavior:
+
+- `MagicPowerBase` target acquisition filters out targets blocked by matching room or personal wards
+- custom target-gathering powers such as `SensePower` and `ConnectMindPower` also consult the shared interdiction helper
+- this means school-based room and personal wards can block magical and psionic powers as well as spells
+
+Unlike spells, powers do not currently use ward reflection retargeting. Their target acquisition path simply treats interdicted targets as invalid.
 
 ### How power types are loaded
 `MagicPowerFactory` uses reflection to find `IMagicPower` implementers in the executing assembly and call their static `RegisterLoader` method.
@@ -221,6 +233,7 @@ These matter to developers extending the subsystem, but they are not standalone 
 - Capability-granted inherent powers are a first-class runtime path and are the main inspected content linkage for powers.
 - Power definitions are polymorphic and XML-backed, so database seeding must match the runtime class exactly.
 - If a power type grows mostly into editable composition rather than unique runtime logic, it may be a better fit as a spell instead of as a new power class.
+- Room and personal wards are authored as spell effects, but targeted powers and psionic sensing flows still respect them through the shared interdiction helper.
 
 ## Related Reading
 - [Magic System Overview](./Magic_System_Overview.md)

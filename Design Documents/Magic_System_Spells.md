@@ -24,6 +24,7 @@ A spell is a persisted runtime object that combines:
 - a school
 - a known-spell prog
 - a trigger
+- optional trigger-supplied additional parameters
 - target-facing spell effects
 - optional caster-only spell effects
 - casting cost expressions per resource
@@ -89,7 +90,7 @@ If the trigger can fail to yield a target and at least one effect requires one, 
 
 This is one of the readiness rules checked before the spell is considered game-ready.
 
-### 6. Casting check and resist check
+### 6. Casting check
 Spells use:
 
 - `CheckType.CastSpellCheck` for the caster
@@ -105,9 +106,37 @@ The spell can specify:
 
 If the casting outcome is below the threshold, the fail-casting emote is shown and the spell does not proceed.
 
+### 7. Casting emote and committed costs
+Once the spell passes its casting threshold, the runtime:
+
+- spends its normal costs
+- executes its material-consumption plan
+- applies any lockouts
+- emits the normal casting emote
+
+This remains true even if a downstream ward blocks the spell from taking hold on a target.
+
+### 8. Interdiction and reflection
+Before target-side spell effects are applied, `MagicSpell.CastSpell` now consults the shared interdiction layer.
+
+Current interdiction sources are:
+
+- room wards
+- personal wards
+
+These wards match by school, optionally include child schools, and can be further gated by a custom prog.
+
+Current behavior is:
+
+- `fail` wards block the target-side spell application
+- `reflect` wards only retarget ordinary `character` spells back at the caster
+- non-character-targeted invokes downgrade `reflect` to `fail`
+- self-targeted character casts do not reflect back onto the same caster; they also downgrade to `fail`
+
+### 9. Resist check
 If a resisting target beats the caster's result, the target-resisted emote is shown and the spell does not apply to that target.
 
-### 7. Emotes and output flags
+### 10. Emotes and output flags
 Spells support:
 
 - casting emote
@@ -119,12 +148,12 @@ Spells support:
 
 These are central to spell readiness. A spell without a required casting emote is not ready for game.
 
-### 8. Duration calculation
+### 11. Duration calculation
 If any applied effect is not instantaneous, the spell needs an effect-duration expression.
 
 That expression can use variables derived from the casting result, including success degrees and chosen power.
 
-### 9. Effect and caster-effect application
+### 12. Effect and caster-effect application
 Spells maintain two effect lists:
 
 - `SpellEffects`
@@ -138,14 +167,19 @@ At cast time:
 
 If all effects are instantaneous, the parent effect is not retained.
 
-### 10. Exclusivity and lockouts
+Some effects now also rely on trigger-supplied additional parameters:
+
+- `exit` from the `exit` and `characterexit` triggers
+- `room` from the `progcharacterroom` and `progitemroom` triggers
+
+### 13. Exclusivity and lockouts
 Spells can enforce:
 
 - an `ExclusiveDelay`, which blocks all spell casting for a time
 - a `NonExclusiveDelay`, which blocks same-school spells for a time
 - exclusive applied effects, which replace prior parent effects from the same spell instead of stacking
 
-### 11. Ready-for-game validation
+### 14. Ready-for-game validation
 `MagicSpell.ReadyForGame` verifies that the spell has enough data to function safely.
 
 Current readiness checks include:
@@ -209,6 +243,14 @@ Trigger authoring is:
 - `magic spell set trigger set ...`
 
 The spell object delegates subtype editing back into the selected trigger instance.
+
+### Trigger-supplied additional parameters
+Triggers can attach named `SpellAdditionalParameter` values to the cast so spell effects can consume extra context without changing the primary target type.
+
+Current shared names are:
+
+- `exit` from `exit` and `characterexit`, carrying the chosen `ICellExit`
+- `room` from `progcharacterroom` and `progitemroom`, carrying the prog-resolved `ICell`
 
 ### Effect workflow
 Target-side effect authoring is:
@@ -317,6 +359,7 @@ Important implementation note:
 - Use triggers to own invocation and targeting rules.
 - Use spell effects to own the applied result.
 - Keep trigger target types and effect compatibility aligned.
+- If an effect needs trigger-side context such as an exit or remote room, prefer a named `SpellAdditionalParameter` instead of overloading the main target.
 - Prefer adding a new spell effect over a new spell type when the behavior is "existing cast flow, new result."
 - Prefer adding a new trigger over a new spell effect when the behavior is "new invocation or targeting pattern."
 
@@ -324,12 +367,18 @@ Important implementation note:
 | Token | Class | Summary |
 | --- | --- | --- |
 | `character` | `CastingTriggerCharacter` | Casts at a character target in the same room |
+| `characterexit` | `CastingTriggerCharacterExit` | Casts at a same-room character plus a local exit and supplies the chosen `exit` parameter |
 | `characterprogroom` | `CastingTriggerCharacterProgRoom` | Casts at a character with prog-driven room targeting |
 | `charactervicinity` | `CastingTriggerCharacterVicinity` | Casts at characters in a character's vicinity |
 | `corpse` | `CastingTriggerCorpse` | Casts at a corpse target |
+| `exit` | `CastingTriggerExit` | Casts at a local exit or direction and supplies the chosen `exit` parameter |
 | `item` | `CastingTriggerItem` | Casts at an item target |
 | `localitem` | `CastingTriggerLocalItem` | Casts at a local item target |
 | `party` | `CastingTriggerParty` | Casts across party members |
+| `progcharacter` | `CastingTriggerProgCharacter` | Casts at a world character target resolved by a FutureProg |
+| `progcharacterroom` | `CastingTriggerProgCharacterRoom` | Casts at a prog-resolved character and also supplies a prog-resolved `room` parameter |
+| `progitem` | `CastingTriggerProgItem` | Casts at a world item target resolved by a FutureProg |
+| `progitemroom` | `CastingTriggerProgItemRoom` | Casts at a prog-resolved item and also supplies a prog-resolved `room` parameter |
 | `progroom` | `CastingTriggerProgRoom` | Casts using a prog-driven room rule |
 | `room` | `CastingTriggerRoom` | Casts at the room or cell |
 | `self` | `CastingTriggerSelf` | Casts on the caster |
@@ -347,6 +396,8 @@ Important implementation note:
 | `damage` | `DamageEffect` | Deals damage |
 | `deafness` | `DeafnessEffect` | Applies deafness |
 | `executeprog` | `ExecuteProgEffect` | Executes a supporting prog |
+| `exitbarrier` | `ExitBarrierEffect` | Applies a persistent magical barrier to a targeted exit |
+| `forcedexitmovement` | `ForcedExitMovementEffect` | Forces a targeted character through the trigger-supplied `exit` when movement is legal |
 | `glow` | `GlowEffect` | Applies glow or light-style effect |
 | `heal` | `HealEffect` | Heals damage |
 | `healingrate` | `HealingRateSpellEffect` | Alters healing rate |
@@ -355,11 +406,13 @@ Important implementation note:
 | `needdelta` | `NeedDeltaEffect` | Changes a need immediately |
 | `needrate` | `NeedRateSpellEffect` | Alters need rate |
 | `pacifism` | `PacifismSpellEffect` | Applies pacifism |
+| `personalward` | `PersonalWardEffect` | Applies a school-based personal ward that can fail or reflect matching incoming or outgoing magic |
 | `rage` | `RageSpellEffect` | Applies rage |
 | `relocate` | `RelocateEffect` | Relocates a target |
 | `resurrect` | `ResurrectionEffect` | Resurrects a target |
 | `roomatmosphere` | `RoomAtmosphereEffect` | Alters room atmosphere |
 | `roomlight` | `RoomLightEffect` | Alters room light |
+| `roomward` | `RoomWardEffect` | Applies a school-based room ward that can fail or reflect matching incoming or outgoing magic |
 | `roomtemperature` | `RoomTemperatureEffect` | Alters room temperature |
 | `selfdamage` | `SelfDamageEffect` | Damages the caster |
 | `staminadelta` | `StaminaDeltaSpellEffect` | Changes stamina immediately |
@@ -373,11 +426,33 @@ Important implementation note:
 | `weatherfreeze` | `WeatherFreezeEffect` | Freezes weather state |
 | `weight` | `WeightSpellEffect` | Alters weight |
 
+## Ward Effects
+`roomward` and `personalward` are the reusable spell-authored interdiction primitives.
+
+Both support these builder commands:
+
+- `school <school>`
+- `mode fail|reflect`
+- `coverage incoming|outgoing|both`
+- `subschools`
+- `prog <prog>|none`
+
+The optional custom prog can use either of these signatures:
+
+- `(character source, perceivable owner) -> bool`
+- `(character source, perceivable owner, magicschool school) -> bool`
+
+Reflection is intentionally narrow:
+
+- only ordinary `character` spell casts retarget back to the caster
+- all other spell target types downgrade `reflect` to `fail`
+
 ## Important Current-State Notes
 - Spells are more builder-composable than powers, but they still rely on registered C# trigger and effect implementations.
 - The trigger/effect registries are the extension point; there is no fully script-defined spell-effect system.
 - Readiness validation is a major part of spell authoring. If a spell is incomplete, it will show a builder error rather than quietly misbehaving.
 - Caster effects are separate from ordinary effects and apply to the caster after the target-side application path.
+- Target-side spell application now checks room and personal wards after the casting emote and before any target-side effect is applied.
 
 ## Related Reading
 - [Magic System Overview](./Magic_System_Overview.md)

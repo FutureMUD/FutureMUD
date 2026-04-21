@@ -1427,29 +1427,32 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
         magician.OutputHandler.Handle(new EmoteOutput(new Emote(CastingEmote, magician, magician, target),
             flags: CastingEmoteFlags));
-        TimeSpan duration = TimeSpan.Zero;
-        if (EffectDurationExpression is not null)
-        {
-            EffectDurationExpression.Formula.Parameters["degrees"] = result[CastingDifficulty].CheckDegrees();
-            EffectDurationExpression.Formula.Parameters["success"] = result[CastingDifficulty].SuccessDegrees();
+		TimeSpan duration = TimeSpan.Zero;
+		if (EffectDurationExpression is not null)
+		{
+			EffectDurationExpression.Formula.Parameters["degrees"] = result[CastingDifficulty].CheckDegrees();
+			EffectDurationExpression.Formula.Parameters["success"] = result[CastingDifficulty].SuccessDegrees();
             EffectDurationExpression.Formula.Parameters["power"] = (int)power;
             duration =
                 TimeSpan.FromSeconds(
-                    EffectDurationExpression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellDuration));
-        }
+					EffectDurationExpression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellDuration));
+		}
 
-        OpposedOutcome outcome = new(result[CastingDifficulty], Outcome.NotTested);
+		OpposedOutcome baseOutcome = new(result[CastingDifficulty].Outcome, Outcome.NotTested);
+		bool allowReflection = Trigger.TargetTypes == "character";
 
-        void ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects)
-        {
-            MagicSpellParent head = new(effectTarget, this, magician);
-            foreach (IMagicSpellEffectTemplate effect in effects)
-            {
-                IMagicSpellEffect child = effect.GetOrApplyEffect(magician, effectTarget, outcome.Degree, power, head, additionalParameters);
-                if (child == null)
-                {
-                    continue;
-                }
+		void ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
+			OpposedOutcomeDegree effectOutcome)
+		{
+			MagicSpellParent head = new(effectTarget, this, magician);
+			foreach (IMagicSpellEffectTemplate effect in effects)
+			{
+				IMagicSpellEffect child =
+					effect.GetOrApplyEffect(magician, effectTarget, effectOutcome, power, head, additionalParameters);
+				if (child == null)
+				{
+					continue;
+				}
 
                 effectTarget.AddEffect(child);
                 head.AddSpellEffect(child);
@@ -1462,87 +1465,117 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
             // It's possible that all of the spell effects were instantaneous, in which case do not apply the effect
             if (head.SpellEffects.Any())
-            {
-                effectTarget.AddEffect(head, duration);
-            }
-        }
+			{
+				effectTarget.AddEffect(head, duration);
+			}
+		}
 
-        if (target is PerceivableGroup pg)
-        {
-            foreach (IPerceivable individual in pg.Members)
-            {
-                outcome = new OpposedOutcome(result[CastingDifficulty], Outcome.NotTested);
-                if (OpposedTrait is not null && individual is ICharacter tch)
-                {
-                    Dictionary<Difficulty, CheckOutcome> resist =
-                        resistCheck.CheckAgainstAllDifficulties(tch, OpposedDifficulty ?? Difficulty.Normal, OpposedTrait,
-                            magician);
-                    outcome = new OpposedOutcome(result, resist, CastingDifficulty, OpposedDifficulty.Value);
-                    if (outcome.Outcome == OpposedOutcomeDirection.Opponent)
-                    {
-                        if (!string.IsNullOrEmpty(TargetResistedEmote))
-                        {
-                            tch.OutputHandler.Handle(new EmoteOutput(
-                                new Emote(TargetResistedEmote, magician, magician, tch), flags: TargetEmoteFlags));
-                        }
+		void EchoInterdiction(IPerceivable originalTarget, MagicInterdictionResult interdiction, bool reflected)
+		{
+			magician.OutputHandler.Send(
+				reflected
+					? $"A ward on {interdiction.Owner.HowSeen(magician, flags: PerceiveIgnoreFlags.IgnoreCanSee)} reflects your spell back on you."
+					: $"A ward on {interdiction.Owner.HowSeen(magician, flags: PerceiveIgnoreFlags.IgnoreCanSee)} blocks your spell.");
 
-                        continue;
-                    }
-                }
+			if (originalTarget is not ICharacter targetCharacter || targetCharacter == magician)
+			{
+				return;
+			}
 
-                if (!string.IsNullOrEmpty(TargetEmote))
-                {
-                    individual.OutputHandler.Handle(new EmoteOutput(
-                        new Emote(TargetEmote, magician, magician, individual), flags: TargetEmoteFlags));
-                }
+			if (!ReferenceEquals(interdiction.Owner, targetCharacter))
+			{
+				return;
+			}
 
-                ApplySpellEffect(individual, _spellEffects);
-            }
-        }
-        else if (target is ICharacter tch && tch != magician)
-        {
-            if (OpposedTrait is not null)
-            {
-                Dictionary<Difficulty, CheckOutcome> resist =
-                    resistCheck.CheckAgainstAllDifficulties(tch, OpposedDifficulty ?? Difficulty.Normal, OpposedTrait,
-                        magician);
-                outcome = new OpposedOutcome(result, resist, CastingDifficulty, OpposedDifficulty.Value);
-                if (outcome.Outcome == OpposedOutcomeDirection.Opponent)
-                {
-                    if (!string.IsNullOrEmpty(TargetResistedEmote))
-                    {
-                        tch.OutputHandler.Handle(new EmoteOutput(
-                            new Emote(TargetResistedEmote, magician, magician, tch), flags: TargetEmoteFlags));
-                    }
+			targetCharacter.OutputHandler.Send(
+				reflected
+					? "Your ward reflects the magic back at its source."
+					: "Your ward turns the magic aside.");
+		}
 
-                    return;
-                }
-            }
+		bool TargetResisted(IPerceivable spellTarget, out OpposedOutcome outcome, bool reflected = false)
+		{
+			outcome = baseOutcome;
+			if (OpposedTrait is null || spellTarget is not ICharacter tch || (tch == magician && !reflected))
+			{
+				return false;
+			}
 
-            if (!string.IsNullOrEmpty(TargetEmote))
-            {
-                tch.OutputHandler.Handle(new EmoteOutput(new Emote(TargetEmote, magician, magician, tch),
-                    flags: TargetEmoteFlags));
-            }
+			Dictionary<Difficulty, CheckOutcome> resist =
+				resistCheck.CheckAgainstAllDifficulties(tch, OpposedDifficulty ?? Difficulty.Normal, OpposedTrait, magician);
+			outcome = new OpposedOutcome(result, resist, CastingDifficulty, OpposedDifficulty ?? Difficulty.Normal);
+			if (outcome.Outcome != OpposedOutcomeDirection.Opponent)
+			{
+				return false;
+			}
 
-            ApplySpellEffect(target, _spellEffects);
-        }
-        else if (target is not null)
-        {
-            if (!string.IsNullOrEmpty(TargetEmote))
-            {
-                target.OutputHandler.Handle(new EmoteOutput(new Emote(TargetEmote, magician, magician, target),
-                    flags: TargetEmoteFlags));
-            }
+			if (!string.IsNullOrEmpty(TargetResistedEmote))
+			{
+				tch.OutputHandler.Handle(new EmoteOutput(
+					new Emote(TargetResistedEmote, magician, magician, tch), flags: TargetEmoteFlags));
+			}
 
-            ApplySpellEffect(target, _spellEffects);
-        }
+			return true;
+		}
 
-        if (_casterSpellEffects.Any())
-        {
-            ApplySpellEffect(magician, _casterSpellEffects);
-        }
-    }
+		bool ProcessSpellTarget(IPerceivable originalTarget, bool mayReflect)
+		{
+			MagicInterdictionResult? interdiction =
+				MagicInterdictionHelper.GetInterdiction(magician, originalTarget, School, mayReflect, additionalParameters);
+			bool reflected = interdiction?.Mode == MagicInterdictionMode.Reflect && originalTarget is ICharacter &&
+			                 originalTarget != magician;
+			IPerceivable actualTarget = reflected ? magician : originalTarget;
+
+			if (interdiction is not null && !reflected)
+			{
+				EchoInterdiction(originalTarget, interdiction, false);
+				return false;
+			}
+
+			if (TargetResisted(actualTarget, out OpposedOutcome outcome, reflected))
+			{
+				return true;
+			}
+
+			if (interdiction is not null)
+			{
+				EchoInterdiction(originalTarget, interdiction, true);
+			}
+
+			if (!string.IsNullOrEmpty(TargetEmote))
+			{
+				actualTarget.OutputHandler.Handle(new EmoteOutput(
+					new Emote(TargetEmote, magician, magician, actualTarget), flags: TargetEmoteFlags));
+			}
+
+			ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree);
+			return false;
+		}
+
+		if (target is PerceivableGroup pg)
+		{
+			foreach (IPerceivable individual in pg.Members)
+			{
+				ProcessSpellTarget(individual, false);
+			}
+		}
+		else if (target is ICharacter tch && tch != magician)
+		{
+			if (ProcessSpellTarget(tch, allowReflection))
+			{
+				return;
+			}
+		}
+		else if (target is not null)
+		{
+			ProcessSpellTarget(target, false);
+		}
+
+		if (_casterSpellEffects.Any())
+		{
+			ApplySpellEffect(magician, _casterSpellEffects, OpposedOutcomeDegree.None);
+		}
+	}
 
     public bool ReadyForGame =>
         Trigger != null &&

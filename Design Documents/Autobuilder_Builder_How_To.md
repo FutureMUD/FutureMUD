@@ -5,12 +5,15 @@
 There are now two different stock autobuilder layers:
 
 - Core seeding gives you shape templates such as `Rectangle`, `Terrain Rectangle`, and `Feature Rectangle`.
-- Useful seeding gives you terrain-aware room templates such as `Seeded Terrain Baseline` and `Seeded Terrain Random Description`.
+- Useful seeding gives you the wilderness grouped starter package:
+  - room template: `Seeded Terrain Wilderness Grouped Description`
+  - area template: `Seeded Terrain Wilderness Grouped Features`
+  - supporting terrain feature tags for the seeded catalogue
 
 The intended pairing is:
 
-- core area template for topology
-- useful room template for immediate terrain-matched description text
+- core area template plus useful room template when you want to drive topology manually
+- useful wilderness area template plus useful wilderness room template when you want stock terrain-aware feature tagging and prose layering out of the box
 
 ## Basic Workflow
 
@@ -82,10 +85,16 @@ For terrain-aware rectangles, the usual shape is:
 cell new "Terrain Rectangle" <height> <width> <room template> <terrain mask>
 ```
 
+For the seeded wilderness package, the stock all-in-one shape is:
+
+```text
+cell new "Seeded Terrain Wilderness Grouped Features" <height> <width> <room template> <terrain mask>
+```
+
 Example:
 
 ```text
-cell new "Terrain Rectangle" 5 7 "Seeded Terrain Random Description" 12,12,12,15,15,15,15,12,12,12,15,15,15,15,0,0,12,12,12,15,15,0,0,12,12,12,15,15,18,18,18,12,12,12,15,18
+cell new "Seeded Terrain Wilderness Grouped Features" 5 7 "Seeded Terrain Wilderness Grouped Description" 12,12,12,15,15,15,15,12,12,12,15,15,15,15,0,0,12,12,12,15,15,0,0,12,12,12,15,15,18,18,18,12,12,12,15,18
 ```
 
 That will:
@@ -93,7 +102,8 @@ That will:
 - create the cells
 - assign each cell the painted terrain
 - link orthogonal exits
-- ask the room template to generate names and descriptions
+- generate wilderness feature tags for each room, including road topology where relevant
+- ask the room template to generate names and descriptions from those tags
 
 If you want diagonal exits too, use the diagonals variant.
 
@@ -103,26 +113,26 @@ If you want diagonal exits too, use the diagonals variant.
 
 Use:
 
-- area template: `Terrain Rectangle`
-- room template: `Seeded Terrain Baseline`
+- area template: `Seeded Terrain Wilderness Grouped Features`
+- room template: `Seeded Terrain Wilderness Grouped Description`
 
-This gives predictable terrain-specific names and descriptions with no manual prose required.
+This gives you two guaranteed physical prose layers per room, plus optional sensory/resource/road detail with no manual prose required.
 
-### Fast terrain bootstrap with variation
+### Manual terrain bootstrap with the stock room prose
 
 Use:
 
 - area template: `Terrain Rectangle`
-- room template: `Seeded Terrain Random Description`
+- room template: `Seeded Terrain Wilderness Grouped Description`
 
-This is the best default when you want generated rooms to feel less repetitive from the start.
+This is useful when you want the seeded wilderness prose but prefer to supply feature tags some other way.
 
 ### Manual feature-tag control
 
 Use:
 
 - area template: `Feature Rectangle`
-- room template: `Seeded Terrain Random Description` or a custom random room template
+- room template: `Seeded Terrain Wilderness Grouped Description` or a custom random room template
 
 `Feature Rectangle` takes an extra feature mask argument after the terrain mask. Each cell's features are separated with `|`, and cells are still separated with commas.
 
@@ -175,7 +185,7 @@ Common subtype-specific edits include:
 ## Good Practical Defaults
 
 - Start with core stock area templates. They are stable and simple.
-- Start with the Useful seeded room templates if you want immediate usable prose.
+- Start with the Useful seeded wilderness area+room pair if you want immediate usable terrain-matched prose.
 - Clone the stock templates before making game-specific heavy edits.
 - Keep the Useful templates as a fallback reference, even if you later write more tailored ones.
 
@@ -185,4 +195,5 @@ Common subtype-specific edits include:
 - Supplying a mask with the wrong number of entries.
 - Forgetting that `0` in a terrain mask means no room at that coordinate.
 - Expecting feature-based variation from a room template when the chosen area template does not provide any tags.
+- Using road prose tags like `Trail` or `Dirt Road` for direction-aware sentences instead of topology tags such as `Trail Straight` or `Dirt Road Bend`.
 - Editing the core shape templates when you really wanted to customise only the descriptive room template.

@@ -129,7 +129,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("autobuilder",
-                "Do you want to install a starter autobuilder package for the stock terrain catalogue? This adds terrain-aware room templates with preset baseline and random descriptions so builders can immediately generate rooms that match the seeded terrains, especially when paired with the core area-shape templates and Terrain Planner.\n\nPlease answer #3yes#f or #3no#f: ",
+                "Do you want to install the wilderness grouped autobuilder package for the stock terrain catalogue? This adds a terrain-aware grouped random-description room template, a random-features area template, and supporting terrain feature tags so builders can immediately generate wilderness-heavy areas that match the seeded terrains, especially when paired with Terrain Planner.\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => context.Terrains.Count() > 1 &&
                                         ClassifyAutobuilderPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>

@@ -172,8 +172,8 @@ public static class SeederMetadataRegistry
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any())
                 ],
                 RerunSummary: "This package can be rerun to install missing stock kickstart content without duplicating its tracked packages.",
-                UpdateSummary: "Current reruns primarily install missing stock records rather than repairing edited ones.",
-                OwnershipSummary: "Kickstart now owns stock items, AI, builder tags, ranged covers, hints, and dream content; core terrain foundations are seeded separately."
+                UpdateSummary: "Reruns also refresh the stock wilderness autobuilder room template, area template, and supporting terrain-feature tags by stable names.",
+                OwnershipSummary: "Kickstart now owns stock items, AI, helper tags, the wilderness autobuilder room+area starter package, ranged covers, hints, and dream content; core terrain foundations are seeded separately."
             ),
             nameof(AIStorytellerSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,

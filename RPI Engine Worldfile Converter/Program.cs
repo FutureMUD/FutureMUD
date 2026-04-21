@@ -30,14 +30,20 @@ public sealed record ConverterExportReport(
 internal sealed record ConverterCliOptions(
 	string Command,
 	string RegionsDirectory,
+	string ClanSourceFile,
 	string? OutputPath,
 	string? ConnectionString,
 	bool Execute,
 	bool UseBaseline);
 
-internal sealed record BaselineLoadResult(
+internal sealed record ItemBaselineLoadResult(
 	FuturemudDatabaseContext? Context,
 	FutureMudBaselineCatalog? Catalog,
+	string Status);
+
+internal sealed record ClanBaselineLoadResult(
+	FuturemudDatabaseContext? Context,
+	FutureMudClanBaselineCatalog? Catalog,
 	string Status);
 
 internal static class Program
@@ -58,37 +64,9 @@ internal static class Program
 				return 1;
 			}
 
-			if (!Directory.Exists(options.RegionsDirectory))
-			{
-				Console.Error.WriteLine($"Could not find regions directory '{options.RegionsDirectory}'.");
-				return 1;
-			}
-
-			var parser = new RpiWorldfileParser();
-			var corpus = parser.ParseDirectory(options.RegionsDirectory);
-
-			var baseline = LoadBaseline(options);
-			using var baselineContext = baseline.Context;
-			if (options.Command == "apply-items" && baseline.Catalog is null)
-			{
-				Console.Error.WriteLine($"Unable to load the FutureMUD baseline catalog: {baseline.Status}");
-				return 3;
-			}
-
-			var transformer = new FutureMUDItemTransformer(baseline.Catalog);
-			var converted = transformer.Convert(corpus.Items);
-			var validationIssues = baseline.Catalog is not null
-				? FutureMudItemValidation.Validate(baseline.Catalog, converted)
-				: Array.Empty<FutureMudValidationIssue>();
-			var summary = BuildAnalysisSummary(corpus, converted, validationIssues, baseline.Status);
-
-			return options.Command switch
-			{
-				"analyze-items" => await RunAnalyze(summary, corpus, validationIssues),
-				"export-items" => await RunExport(options, corpus, converted, validationIssues, summary),
-				"apply-items" => RunApply(options, converted, baseline.Context!, baseline.Catalog!, summary),
-				_ => 1
-			};
+			return IsItemCommand(options.Command)
+				? await RunItemCommand(options)
+				: await RunClanCommand(options);
 		}
 		catch (ArgumentException ex)
 		{
@@ -103,7 +81,86 @@ internal static class Program
 		}
 	}
 
-	private static async Task<int> RunAnalyze(
+	private static async Task<int> RunItemCommand(ConverterCliOptions options)
+	{
+		if (!Directory.Exists(options.RegionsDirectory))
+		{
+			Console.Error.WriteLine($"Could not find regions directory '{options.RegionsDirectory}'.");
+			return 1;
+		}
+
+		var parser = new RpiWorldfileParser();
+		var corpus = parser.ParseDirectory(options.RegionsDirectory);
+		var baseline = LoadItemBaseline(options);
+		using var baselineContext = baseline.Context;
+		if (options.Command == "apply-items" && baseline.Catalog is null)
+		{
+			Console.Error.WriteLine($"Unable to load the FutureMUD baseline catalog: {baseline.Status}");
+			return 3;
+		}
+
+		var transformer = new FutureMUDItemTransformer(baseline.Catalog);
+		var converted = transformer.Convert(corpus.Items);
+		var validationIssues = baseline.Catalog is not null
+			? FutureMudItemValidation.Validate(baseline.Catalog, converted)
+			: Array.Empty<FutureMudValidationIssue>();
+		var summary = BuildItemAnalysisSummary(corpus, converted, validationIssues, baseline.Status);
+
+		return options.Command switch
+		{
+			"analyze-items" => await RunAnalyzeItems(summary, corpus, validationIssues),
+			"export-items" => await RunExportItems(options, corpus, converted, validationIssues, summary),
+			"apply-items" => RunApplyItems(options, converted, baseline.Context!, baseline.Catalog!, summary),
+			_ => 1,
+		};
+	}
+
+	private static async Task<int> RunClanCommand(ConverterCliOptions options)
+	{
+		if (!Directory.Exists(options.RegionsDirectory))
+		{
+			Console.Error.WriteLine($"Could not find regions directory '{options.RegionsDirectory}'.");
+			return 1;
+		}
+
+		if (!File.Exists(options.ClanSourceFile))
+		{
+			Console.Error.WriteLine($"Could not find clan source file '{options.ClanSourceFile}'.");
+			return 1;
+		}
+
+		var sourceParser = new RpiClanSourceParser();
+		var sourceDocument = sourceParser.Parse(options.ClanSourceFile);
+		var itemParser = new RpiWorldfileParser();
+		var itemCorpus = itemParser.ParseDirectory(options.RegionsDirectory);
+		var scanner = new RpiClanRegionReferenceScanner();
+		var references = scanner.Scan(options.RegionsDirectory, sourceDocument, itemCorpus.Items);
+
+		var baseline = LoadClanBaseline(options);
+		using var baselineContext = baseline.Context;
+		if (options.Command == "apply-clans" && baseline.Catalog is null)
+		{
+			Console.Error.WriteLine($"Unable to load the FutureMUD clan baseline: {baseline.Status}");
+			return 3;
+		}
+
+		var transformer = new FutureMudClanTransformer();
+		var conversion = transformer.Convert(sourceDocument, references);
+		var validationIssues = baseline.Catalog is not null
+			? FutureMudClanValidation.Validate(baseline.Catalog, conversion.ConvertedClans)
+			: Array.Empty<FutureMudClanValidationIssue>();
+		var summary = BuildClanAnalysisSummary(sourceDocument, conversion, validationIssues, baseline.Status);
+
+		return options.Command switch
+		{
+			"analyze-clans" => await RunAnalyzeClans(sourceDocument, conversion, summary, validationIssues),
+			"export-clans" => await RunExportClans(options, sourceDocument, conversion, validationIssues, summary),
+			"apply-clans" => RunApplyClans(options, conversion.ConvertedClans, baseline.Context!, baseline.Catalog!, summary),
+			_ => 1,
+		};
+	}
+
+	private static async Task<int> RunAnalyzeItems(
 		ConverterAnalysisSummary summary,
 		RpiParsedCorpus corpus,
 		IReadOnlyList<FutureMudValidationIssue> validationIssues)
@@ -124,16 +181,7 @@ internal static class Program
 			PrintDictionary("Warning codes", summary.WarningCodeCounts);
 		}
 
-		if (summary.MissingDependencyCounts.Count > 0)
-		{
-			Console.WriteLine();
-			PrintDictionary("Missing dependencies", summary.MissingDependencyCounts);
-		}
-		else if (validationIssues.Count == 0)
-		{
-			Console.WriteLine();
-			Console.WriteLine("Missing dependencies: none reported");
-		}
+		PrintMissingDependencies(summary.MissingDependencyCounts, validationIssues.Count);
 
 		if (corpus.Failures.Count > 0)
 		{
@@ -145,21 +193,12 @@ internal static class Program
 			}
 		}
 
-		if (validationIssues.Count > 0)
-		{
-			Console.WriteLine();
-			Console.WriteLine("Sample validation issues:");
-			foreach (var issue in validationIssues.Take(15))
-			{
-				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
-			}
-		}
-
+		PrintItemValidationIssues(validationIssues);
 		await Task.CompletedTask;
 		return 0;
 	}
 
-	private static async Task<int> RunExport(
+	private static async Task<int> RunExportItems(
 		ConverterCliOptions options,
 		RpiParsedCorpus corpus,
 		IReadOnlyList<ConvertedItemDefinition> converted,
@@ -188,7 +227,7 @@ internal static class Program
 		return 0;
 	}
 
-	private static int RunApply(
+	private static int RunApplyItems(
 		ConverterCliOptions options,
 		IReadOnlyList<ConvertedItemDefinition> converted,
 		FuturemudDatabaseContext context,
@@ -228,7 +267,143 @@ internal static class Program
 		return 0;
 	}
 
-	private static ConverterAnalysisSummary BuildAnalysisSummary(
+	private static async Task<int> RunAnalyzeClans(
+		RpiClanSourceDocument sourceDocument,
+		ClanConversionResult conversion,
+		ClanAnalysisSummary summary,
+		IReadOnlyList<FutureMudClanValidationIssue> validationIssues)
+	{
+		Console.WriteLine($"Clan source file: {sourceDocument.SourceFile}");
+		Console.WriteLine($"Source clans: {summary.SourceClanCount:N0}");
+		Console.WriteLine($"Imported clans: {summary.ImportedClanCount:N0}");
+		Console.WriteLine($"Imported ranks: {summary.ImportedRankCount:N0}");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		Console.WriteLine();
+
+		PrintDictionary("Per-clan rank totals", summary.PerClanRankCounts);
+		Console.WriteLine();
+		PrintDictionary("Per-path totals", summary.PerPathCounts);
+		Console.WriteLine();
+		PrintDictionary("Per-slot totals", summary.PerSlotCounts);
+
+		if (summary.WarningCodeCounts.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Warning codes", summary.WarningCodeCounts);
+		}
+
+		PrintMissingDependencies(summary.MissingDependencyCounts, validationIssues.Count);
+
+		if (sourceDocument.ParseWarnings.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Parse warnings:");
+			foreach (var warning in sourceDocument.ParseWarnings.Take(15))
+			{
+				Console.WriteLine($"- {warning}");
+			}
+		}
+
+		if (summary.UnresolvedAliasCounts.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Unresolved aliases", summary.UnresolvedAliasCounts);
+		}
+
+		if (validationIssues.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample validation issues:");
+			foreach (var issue in validationIssues.Take(15))
+			{
+				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+			}
+		}
+
+		if (conversion.ConvertedClans.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample imported clans:");
+			foreach (var clan in conversion.ConvertedClans.Take(10))
+			{
+				Console.WriteLine($"- {clan.FullName} ({clan.CanonicalAlias}) => {clan.Ranks.Count:N0} rank(s)");
+			}
+		}
+
+		await Task.CompletedTask;
+		return 0;
+	}
+
+	private static async Task<int> RunExportClans(
+		ConverterCliOptions options,
+		RpiClanSourceDocument sourceDocument,
+		ClanConversionResult conversion,
+		IReadOnlyList<FutureMudClanValidationIssue> validationIssues,
+		ClanAnalysisSummary summary)
+	{
+		var outputPath = ResolveOutputPath(options.OutputPath, "rpi-clans-export.json");
+		var convertedBySourceKey = conversion.ConvertedClans.ToDictionary(x => x.SourceKey, StringComparer.OrdinalIgnoreCase);
+		var export = new ClanExportReport(
+			DateTime.UtcNow,
+			sourceDocument.SourceFile,
+			options.RegionsDirectory,
+			summary,
+			sourceDocument.ParseWarnings,
+			validationIssues,
+			conversion.SourceClans
+				.OrderBy(x => x.FullName, StringComparer.OrdinalIgnoreCase)
+				.Select(x => new ConverterExportClan(x, convertedBySourceKey[x.SourceKey]))
+				.ToList());
+
+		await using var stream = File.Create(outputPath);
+		await JsonSerializer.SerializeAsync(stream, export, JsonOptions);
+
+		Console.WriteLine($"Wrote {export.Clans.Count:N0} converted clan records to {outputPath}");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		return 0;
+	}
+
+	private static int RunApplyClans(
+		ConverterCliOptions options,
+		IReadOnlyList<ConvertedClanDefinition> converted,
+		FuturemudDatabaseContext context,
+		FutureMudClanBaselineCatalog baseline,
+		ClanAnalysisSummary summary)
+	{
+		var importer = new FutureMudClanImporter(context, baseline);
+		var result = importer.Apply(converted, options.Execute);
+		var fatalErrors = result.Issues.Count(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase));
+
+		Console.WriteLine(options.Execute ? "Apply mode: execute" : "Apply mode: dry-run");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		Console.WriteLine($"Validation issues: {result.Issues.Count:N0} total, {fatalErrors:N0} error(s)");
+		Console.WriteLine($"Existing imports skipped: {result.SkippedExistingCount:N0}");
+
+		if (options.Execute)
+		{
+			Console.WriteLine($"Inserted clans: {result.InsertedCount:N0}");
+		}
+
+		if (result.Issues.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample validation issues:");
+			foreach (var issue in result.Issues.Take(20))
+			{
+				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+			}
+		}
+
+		if (fatalErrors > 0)
+		{
+			Console.Error.WriteLine("Apply did not proceed because required baseline dependencies were missing.");
+			return 2;
+		}
+
+		return 0;
+	}
+
+	private static ConverterAnalysisSummary BuildItemAnalysisSummary(
 		RpiParsedCorpus corpus,
 		IReadOnlyList<ConvertedItemDefinition> converted,
 		IReadOnlyList<FutureMudValidationIssue> validationIssues,
@@ -243,6 +418,32 @@ internal static class Program
 			ToSortedCounts(corpus.Items.GroupBy(x => x.ItemType.ToString())),
 			ToSortedCounts(converted.GroupBy(x => x.Status.ToString())),
 			ToSortedCounts(converted.SelectMany(x => x.Warnings).GroupBy(x => x.Code)),
+			ToSortedCounts(validationIssues.GroupBy(x => x.Message)));
+	}
+
+	private static ClanAnalysisSummary BuildClanAnalysisSummary(
+		RpiClanSourceDocument sourceDocument,
+		ClanConversionResult conversion,
+		IReadOnlyList<FutureMudClanValidationIssue> validationIssues,
+		string baselineStatus)
+	{
+		var allWarnings = conversion.ConvertedClans
+			.SelectMany(x => x.Warnings)
+			.Concat(conversion.ConvertedClans.SelectMany(x => x.Ranks).SelectMany(x => x.Warnings));
+
+		return new ClanAnalysisSummary(
+			sourceDocument.SourceFile,
+			conversion.SourceClans.Count,
+			conversion.ConvertedClans.Count,
+			conversion.ConvertedClans.Sum(x => x.Ranks.Count),
+			baselineStatus,
+			conversion.ConvertedClans
+				.OrderBy(x => x.FullName, StringComparer.OrdinalIgnoreCase)
+				.ToDictionary(x => x.FullName, x => x.Ranks.Count, StringComparer.OrdinalIgnoreCase),
+			ToSortedCounts(conversion.ConvertedClans.SelectMany(x => x.Ranks).GroupBy(x => x.Path.ToString())),
+			ToSortedCounts(conversion.ConvertedClans.SelectMany(x => x.Ranks).GroupBy(x => x.Slot.ToString())),
+			ToSortedCounts(allWarnings.GroupBy(x => x.Code)),
+			conversion.UnresolvedAliasCounts,
 			ToSortedCounts(validationIssues.GroupBy(x => x.Message)));
 	}
 
@@ -262,11 +463,40 @@ internal static class Program
 		}
 	}
 
-	private static BaselineLoadResult LoadBaseline(ConverterCliOptions options)
+	private static void PrintMissingDependencies(IReadOnlyDictionary<string, int> missingDependencies, int validationIssueCount)
+	{
+		if (missingDependencies.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Missing dependencies", missingDependencies);
+		}
+		else if (validationIssueCount == 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Missing dependencies: none reported");
+		}
+	}
+
+	private static void PrintItemValidationIssues(IReadOnlyList<FutureMudValidationIssue> validationIssues)
+	{
+		if (validationIssues.Count == 0)
+		{
+			return;
+		}
+
+		Console.WriteLine();
+		Console.WriteLine("Sample validation issues:");
+		foreach (var issue in validationIssues.Take(15))
+		{
+			Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+		}
+	}
+
+	private static ItemBaselineLoadResult LoadItemBaseline(ConverterCliOptions options)
 	{
 		if (!options.UseBaseline)
 		{
-			return new BaselineLoadResult(null, null, "Skipped baseline validation by request.");
+			return new ItemBaselineLoadResult(null, null, "Skipped baseline validation by request.");
 		}
 
 		FuturemudDatabaseContext? context = null;
@@ -279,12 +509,38 @@ internal static class Program
 			}
 
 			var catalog = FutureMudBaselineCatalog.Load(context);
-			return new BaselineLoadResult(context, catalog, "Loaded baseline catalog from FutureMUD.");
+			return new ItemBaselineLoadResult(context, catalog, "Loaded baseline catalog from FutureMUD.");
 		}
 		catch (Exception ex)
 		{
 			context?.Dispose();
-			return new BaselineLoadResult(null, null, ex.Message);
+			return new ItemBaselineLoadResult(null, null, ex.Message);
+		}
+	}
+
+	private static ClanBaselineLoadResult LoadClanBaseline(ConverterCliOptions options)
+	{
+		if (!options.UseBaseline)
+		{
+			return new ClanBaselineLoadResult(null, null, "Skipped baseline validation by request.");
+		}
+
+		FuturemudDatabaseContext? context = null;
+		try
+		{
+			context = new FuturemudDatabaseContext();
+			if (!string.IsNullOrWhiteSpace(options.ConnectionString))
+			{
+				context.ConnectionString = options.ConnectionString;
+			}
+
+			var catalog = FutureMudClanBaselineCatalog.Load(context);
+			return new ClanBaselineLoadResult(context, catalog, "Loaded clan baseline from FutureMUD.");
+		}
+		catch (Exception ex)
+		{
+			context?.Dispose();
+			return new ClanBaselineLoadResult(null, null, ex.Message);
 		}
 	}
 
@@ -297,12 +553,13 @@ internal static class Program
 		}
 
 		var command = args[0];
-		if (command is not ("analyze-items" or "export-items" or "apply-items"))
+		if (!IsItemCommand(command) && !IsClanCommand(command))
 		{
 			throw new ArgumentException($"Unknown command '{command}'.");
 		}
 
 		string? root = null;
+		string? clanSource = null;
 		string? output = null;
 		string? connectionString = null;
 		var execute = false;
@@ -314,6 +571,9 @@ internal static class Program
 			{
 				case "--root":
 					root = ReadOptionValue(args, ref i, "--root");
+					break;
+				case "--clan-source":
+					clanSource = ReadOptionValue(args, ref i, "--clan-source");
 					break;
 				case "--output":
 					output = ReadOptionValue(args, ref i, "--output");
@@ -333,18 +593,29 @@ internal static class Program
 			}
 		}
 
-		if (command == "apply-items" && !useBaseline)
+		if ((command == "apply-items" || command == "apply-clans") && !useBaseline)
 		{
-			throw new ArgumentException("apply-items requires a seeded FutureMUD baseline and cannot be run with --skip-baseline.");
+			throw new ArgumentException($"{command} requires a seeded FutureMUD baseline and cannot be run with --skip-baseline.");
 		}
 
 		return new ConverterCliOptions(
 			command,
 			ResolveRegionsDirectory(root),
+			ResolveClanSourceFile(clanSource),
 			output,
 			connectionString,
 			execute,
 			useBaseline);
+	}
+
+	private static bool IsItemCommand(string command)
+	{
+		return command is "analyze-items" or "export-items" or "apply-items";
+	}
+
+	private static bool IsClanCommand(string command)
+	{
+		return command is "analyze-clans" or "export-clans" or "apply-clans";
 	}
 
 	private static string ReadOptionValue(string[] args, ref int index, string optionName)
@@ -371,13 +642,35 @@ internal static class Program
 			Path.Combine(Directory.GetCurrentDirectory(), "RPI Engine Worldfile Converter", "soiregions-main"),
 			Path.Combine(AppContext.BaseDirectory, "soiregions-main"),
 			Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "soiregions-main"),
-			Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "RPI Engine Worldfile Converter", "soiregions-main")
+			Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "RPI Engine Worldfile Converter", "soiregions-main"),
 		}
 			.Select(Path.GetFullPath)
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.ToList();
 
 		return candidates.FirstOrDefault(Directory.Exists) ?? candidates[0];
+	}
+
+	private static string ResolveClanSourceFile(string? configuredSource)
+	{
+		if (!string.IsNullOrWhiteSpace(configuredSource))
+		{
+			return Path.GetFullPath(configuredSource);
+		}
+
+		var candidates = new[]
+		{
+			Path.Combine(Directory.GetCurrentDirectory(), "Old SOI Code", "src", "clan.cpp"),
+			Path.Combine(Directory.GetCurrentDirectory(), "RPI Engine Worldfile Converter", "Old SOI Code", "src", "clan.cpp"),
+			Path.Combine(AppContext.BaseDirectory, "Old SOI Code", "src", "clan.cpp"),
+			Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Old SOI Code", "src", "clan.cpp"),
+			Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "RPI Engine Worldfile Converter", "Old SOI Code", "src", "clan.cpp"),
+		}
+			.Select(Path.GetFullPath)
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		return candidates.FirstOrDefault(File.Exists) ?? candidates[0];
 	}
 
 	private static string ResolveOutputPath(string? configuredOutput, string fallbackFileName)
@@ -393,9 +686,13 @@ internal static class Program
 		Console.WriteLine("  analyze-items [--root <regions-dir>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  export-items [--root <regions-dir>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  apply-items [--root <regions-dir>] [--db-connection <connection-string>] [--execute]");
+		Console.WriteLine("  analyze-clans [--root <regions-dir>] [--clan-source <clan.cpp>] [--db-connection <connection-string>] [--skip-baseline]");
+		Console.WriteLine("  export-clans [--root <regions-dir>] [--clan-source <clan.cpp>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
+		Console.WriteLine("  apply-clans [--root <regions-dir>] [--clan-source <clan.cpp>] [--db-connection <connection-string>] [--execute]");
 		Console.WriteLine();
 		Console.WriteLine("Notes:");
-		Console.WriteLine("  apply-items defaults to dry-run mode unless --execute is supplied.");
+		Console.WriteLine("  apply-items and apply-clans default to dry-run mode unless --execute is supplied.");
 		Console.WriteLine("  The default regions directory is the bundled soiregions-main corpus.");
+		Console.WriteLine("  The default clan source is the bundled Old SOI Code/src/clan.cpp file.");
 	}
 }

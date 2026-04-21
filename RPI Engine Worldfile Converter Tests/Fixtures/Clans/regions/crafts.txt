@@ -1,0 +1,2 @@
+if clan(-1,com-priests)
+if clan(-1,ithilien_battalion)

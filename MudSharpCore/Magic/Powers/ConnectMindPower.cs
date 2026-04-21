@@ -327,13 +327,14 @@ public class ConnectMindPower : SustainedMagicPower
         }
 
         ICharacter target;
-        if (command.Peek().EqualTo("last"))
-        {
-            List<MindConnectedToEffect> potentialTargets = actor.EffectsOfType<MindConnectedToEffect>().Where(x =>
-                actor.EffectsOfType<ConnectMindEffect>().All(y => y.TargetCharacter != x.CharacterOwner)).ToList();
-            List<MindConnectedToEffect> eligable = potentialTargets
-                           .Where(x => CanInvokePowerProg?.ExecuteBool(actor, x.OriginatorCharacter) != false &&
-                                       TargetIsInRange(actor, x.OriginatorCharacter, PowerDistance)).ToList();
+		if (command.Peek().EqualTo("last"))
+		{
+			List<MindConnectedToEffect> potentialTargets = actor.EffectsOfType<MindConnectedToEffect>().Where(x =>
+				actor.EffectsOfType<ConnectMindEffect>().All(y => y.TargetCharacter != x.CharacterOwner)).ToList();
+			List<MindConnectedToEffect> eligable = potentialTargets
+			               .Where(x => CanInvokePowerProg?.ExecuteBool(actor, x.OriginatorCharacter) != false &&
+			                           TargetIsInRange(actor, x.OriginatorCharacter, PowerDistance) &&
+			                           MagicInterdictionHelper.GetInterdiction(actor, x.OriginatorCharacter, School, false) is null).ToList();
             if (eligable.Any())
             {
                 target = eligable.First().OriginatorCharacter;
@@ -391,15 +392,22 @@ public class ConnectMindPower : SustainedMagicPower
             return;
         }
 
-        if (!TargetIsInRange(actor, target, PowerDistance))
-        {
-            actor.OutputHandler.Send(
-                $"You cannot locate {target.HowSeen(actor, type: Form.Shape.DescriptionType.Possessive, flags: PerceiveIgnoreFlags.IgnoreDark)} mind right now.");
-            return;
-        }
+		if (!TargetIsInRange(actor, target, PowerDistance))
+		{
+			actor.OutputHandler.Send(
+				$"You cannot locate {target.HowSeen(actor, type: Form.Shape.DescriptionType.Possessive, flags: PerceiveIgnoreFlags.IgnoreDark)} mind right now.");
+			return;
+		}
 
-        if (CanInvokePowerProg.ExecuteBool(actor, target))
-        {
+		if (MagicInterdictionHelper.GetInterdiction(actor, target, School, false) is { } interdiction)
+		{
+			actor.OutputHandler.Send(
+				$"A ward on {interdiction.Owner.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} prevents your power from reaching {GetAppropriateHowSeen(target, actor)}.");
+			return;
+		}
+
+		if (CanInvokePowerProg.ExecuteBool(actor, target))
+		{
             actor.OutputHandler.Send(string.Format(
                 WhyCantInvokePowerProg.Execute(actor, target)?.ToString() ??
                 "You cannot connect your mind with {0}.", GetAppropriateHowSeen(target, actor)));

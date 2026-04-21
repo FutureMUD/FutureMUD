@@ -136,148 +136,154 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         return $"Magic Power {Id} - {Name}";
     }
 
-    public IEnumerable<ICharacter> AcquireAllValidTargets(ICharacter actor, MagicPowerDistance distance)
-    {
-        List<ICharacter> targets = new();
-        switch (distance)
-        {
-            case MagicPowerDistance.AnyConnectedMind:
-                targets.AddRange(
-                    actor.CombinedEffectsOfType<ConnectMindEffect>()
-                         .Where(x => x.School == School)
-                         .Select(x => x.TargetCharacter)
-                         .Where(x => TargetFilterFunction(actor, x)));
-                break;
-            case MagicPowerDistance.AnyConnectedMindOrConnectedTo:
-                targets.AddRange(
-                    actor.CombinedEffectsOfType<ConnectMindEffect>().Where(x => x.School == School)
-                         .Select(x => x.TargetCharacter)
-                         .Concat(actor.CombinedEffectsOfType<MindConnectedToEffect>().Where(x => x.School == School)
-                                      .Select(x => x.OriginatorCharacter))
-                         .Where(x => TargetFilterFunction(actor, x)));
-                break;
-            case MagicPowerDistance.SameLocationOnly:
-                targets.AddRange(actor.Location.Characters.Except(actor).Where(x => TargetFilterFunction(actor, x)));
-                break;
-            case MagicPowerDistance.AdjacentLocationsOnly:
-                targets.AddRange(actor.Location.Characters
-                                      .Except(actor)
-                                      .Concat(actor.Location.ExitsFor(actor).Select(x => x.Destination)
-                                                   .SelectMany(x => x.Characters))
-                                      .Where(x => TargetFilterFunction(actor, x)));
-                break;
-            case MagicPowerDistance.SameAreaOnly:
-                if (!actor.Location.Areas.Any())
-                {
+	public IEnumerable<ICharacter> AcquireAllValidTargets(ICharacter actor, MagicPowerDistance distance)
+	{
+		List<ICharacter> targets = new();
+		switch (distance)
+		{
+			case MagicPowerDistance.AnyConnectedMind:
+				targets.AddRange(
+					actor.CombinedEffectsOfType<ConnectMindEffect>()
+					     .Where(x => x.School == School)
+					     .Select(x => x.TargetCharacter)
+					     .Where(x => TargetIsValid(actor, x)));
+				break;
+			case MagicPowerDistance.AnyConnectedMindOrConnectedTo:
+				targets.AddRange(
+					actor.CombinedEffectsOfType<ConnectMindEffect>().Where(x => x.School == School)
+					     .Select(x => x.TargetCharacter)
+					     .Concat(actor.CombinedEffectsOfType<MindConnectedToEffect>().Where(x => x.School == School)
+					                  .Select(x => x.OriginatorCharacter))
+					     .Where(x => TargetIsValid(actor, x)));
+				break;
+			case MagicPowerDistance.SameLocationOnly:
+				targets.AddRange(actor.Location.Characters.Except(actor).Where(x => TargetIsValid(actor, x)));
+				break;
+			case MagicPowerDistance.AdjacentLocationsOnly:
+				targets.AddRange(actor.Location.Characters
+				                      .Except(actor)
+				                      .Concat(actor.Location.ExitsFor(actor).Select(x => x.Destination)
+				                                   .SelectMany(x => x.Characters))
+				                      .Where(x => TargetIsValid(actor, x)));
+				break;
+			case MagicPowerDistance.SameAreaOnly:
+				if (!actor.Location.Areas.Any())
+				{
                     goto case MagicPowerDistance.AdjacentLocationsOnly;
                 }
 
-                targets.AddRange(actor.Location.Areas
-                                      .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
-                                      .Except(actor)
-                                      .Where(x => TargetFilterFunction(actor, x)));
-                break;
-            case MagicPowerDistance.SameZoneOnly:
-                targets.AddRange(actor.Location.Zone.Cells
-                                      .SelectMany(x => x.Characters)
-                                      .Except(actor)
-                                      .Where(x => TargetFilterFunction(actor, x)));
-                break;
-            case MagicPowerDistance.SameShardOnly:
-                targets.AddRange(actor.Location.Shard.Cells
-                                      .SelectMany(x => x.Characters)
-                                      .Except(actor)
-                                      .Where(x => TargetFilterFunction(actor, x)));
-                break;
-            case MagicPowerDistance.SamePlaneOnly:
-                // TODO when planes are implemented
-                goto case MagicPowerDistance.SameShardOnly;
-            case MagicPowerDistance.SeenTargetOnly:
-                targets.AddRange(actor.SeenTargets
-                                      .OfType<ICharacter>()
-                                      .Concat(actor.Location.Characters)
-                                      .Except(actor)
-                                      .Where(x => TargetFilterFunction(actor, x)));
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+				targets.AddRange(actor.Location.Areas
+				                      .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
+				                      .Except(actor)
+				                      .Where(x => TargetIsValid(actor, x)));
+				break;
+			case MagicPowerDistance.SameZoneOnly:
+				targets.AddRange(actor.Location.Zone.Cells
+				                      .SelectMany(x => x.Characters)
+				                      .Except(actor)
+				                      .Where(x => TargetIsValid(actor, x)));
+				break;
+			case MagicPowerDistance.SameShardOnly:
+				targets.AddRange(actor.Location.Shard.Cells
+				                      .SelectMany(x => x.Characters)
+				                      .Except(actor)
+				                      .Where(x => TargetIsValid(actor, x)));
+				break;
+			case MagicPowerDistance.SamePlaneOnly:
+				// TODO when planes are implemented
+				goto case MagicPowerDistance.SameShardOnly;
+			case MagicPowerDistance.SeenTargetOnly:
+				targets.AddRange(actor.SeenTargets
+				                      .OfType<ICharacter>()
+				                      .Concat(actor.Location.Characters)
+				                      .Except(actor)
+				                      .Where(x => TargetIsValid(actor, x)));
+				break;
+			default:
+				throw new ArgumentOutOfRangeException();
+		}
 
         return targets;
     }
 
-    public ICharacter AcquireTarget(ICharacter owner, string targetText, MagicPowerDistance distance)
-    {
-        switch (distance)
-        {
-            case MagicPowerDistance.AnyConnectedMind:
-                return owner.CombinedEffectsOfType<ConnectMindEffect>()
-                            .Where(x => x.School == School)
-                            .Select(x => x.TargetCharacter)
-                            .Where(x => TargetFilterFunction(owner, x))
-                            .GetFromItemListByKeyword(targetText, owner);
-            case MagicPowerDistance.AnyConnectedMindOrConnectedTo:
-                return owner.CombinedEffectsOfType<ConnectMindEffect>().Where(x => x.School == School)
-                            .Select(x => x.TargetCharacter)
-                            .Concat(owner.CombinedEffectsOfType<MindConnectedToEffect>().Where(x => x.School == School)
-                                         .Select(x => x.OriginatorCharacter))
-                            .Where(x => TargetFilterFunction(owner, x))
-                            .GetFromItemListByKeyword(targetText, owner);
-            case MagicPowerDistance.SameLocationOnly:
-                return owner.Location.Characters
-                            .Where(x => TargetFilterFunction(owner, x))
-                            .GetFromItemListByKeyword(targetText, owner);
-            case MagicPowerDistance.AdjacentLocationsOnly:
-                return owner.Location.Characters
-                            .Except(owner)
-                            .Concat(owner.Location.ExitsFor(owner).Select(x => x.Destination)
-                                         .SelectMany(x => x.Characters))
-                            .Where(x => TargetFilterFunction(owner, x))
-                            .GetFromItemListByKeyword(targetText, owner);
-            case MagicPowerDistance.SameAreaOnly:
-                return owner.Location.Areas.Any()
-                    ? owner.Location.Areas
-                           .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
-                           .Except(owner)
-                           .Where(x => TargetFilterFunction(owner, x))
-                           .GetFromItemListByKeyword(targetText, owner)
-                    : owner.Location.Characters
-                           .Where(x => TargetFilterFunction(owner, x))
-                           .GetFromItemListByKeyword(targetText, owner);
-            case MagicPowerDistance.SameZoneOnly:
-                return owner.Location.Zone.Cells
-                            .SelectMany(x => x.Characters)
-                            .Except(owner)
-                            .Where(x => TargetFilterFunction(owner, x))
-                            .GetFromItemListByKeyword(targetText, owner);
-            case MagicPowerDistance.SameShardOnly:
-                return owner.Location.Shard.Cells
-                            .SelectMany(x => x.Characters)
-                            .Except(owner)
-                            .Where(x => TargetFilterFunction(owner, x))
-                            .GetFromItemListByKeyword(targetText, owner);
-            case MagicPowerDistance.SamePlaneOnly:
-                // TODO
-                return Gameworld.Shards
-                                .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
-                                .Except(owner)
-                                .Where(x => TargetFilterFunction(owner, x))
-                                .GetFromItemListByKeyword(targetText, owner);
-            case MagicPowerDistance.SeenTargetOnly:
-                return owner.SeenTargets
-                            .OfType<ICharacter>()
-                            .Concat(owner.Location.Characters)
-                            .Except(owner)
-                            .Where(x => TargetFilterFunction(owner, x)).GetFromItemListByKeyword(targetText, owner);
-        }
+	public ICharacter AcquireTarget(ICharacter owner, string targetText, MagicPowerDistance distance)
+	{
+		switch (distance)
+		{
+			case MagicPowerDistance.AnyConnectedMind:
+				return owner.CombinedEffectsOfType<ConnectMindEffect>()
+				            .Where(x => x.School == School)
+				            .Select(x => x.TargetCharacter)
+				            .Where(x => TargetIsValid(owner, x))
+				            .GetFromItemListByKeyword(targetText, owner);
+			case MagicPowerDistance.AnyConnectedMindOrConnectedTo:
+				return owner.CombinedEffectsOfType<ConnectMindEffect>().Where(x => x.School == School)
+				            .Select(x => x.TargetCharacter)
+				            .Concat(owner.CombinedEffectsOfType<MindConnectedToEffect>().Where(x => x.School == School)
+				                         .Select(x => x.OriginatorCharacter))
+				            .Where(x => TargetIsValid(owner, x))
+				            .GetFromItemListByKeyword(targetText, owner);
+			case MagicPowerDistance.SameLocationOnly:
+				return owner.Location.Characters
+				            .Where(x => TargetIsValid(owner, x))
+				            .GetFromItemListByKeyword(targetText, owner);
+			case MagicPowerDistance.AdjacentLocationsOnly:
+				return owner.Location.Characters
+				            .Except(owner)
+				            .Concat(owner.Location.ExitsFor(owner).Select(x => x.Destination)
+				                         .SelectMany(x => x.Characters))
+				            .Where(x => TargetIsValid(owner, x))
+				            .GetFromItemListByKeyword(targetText, owner);
+			case MagicPowerDistance.SameAreaOnly:
+				return owner.Location.Areas.Any()
+					? owner.Location.Areas
+					       .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
+					       .Except(owner)
+					       .Where(x => TargetIsValid(owner, x))
+					       .GetFromItemListByKeyword(targetText, owner)
+					: owner.Location.Characters
+					       .Where(x => TargetIsValid(owner, x))
+					       .GetFromItemListByKeyword(targetText, owner);
+			case MagicPowerDistance.SameZoneOnly:
+				return owner.Location.Zone.Cells
+				            .SelectMany(x => x.Characters)
+				            .Except(owner)
+				            .Where(x => TargetIsValid(owner, x))
+				            .GetFromItemListByKeyword(targetText, owner);
+			case MagicPowerDistance.SameShardOnly:
+				return owner.Location.Shard.Cells
+				            .SelectMany(x => x.Characters)
+				            .Except(owner)
+				            .Where(x => TargetIsValid(owner, x))
+				            .GetFromItemListByKeyword(targetText, owner);
+			case MagicPowerDistance.SamePlaneOnly:
+				// TODO
+				return Gameworld.Shards
+				                .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
+				                .Except(owner)
+				                .Where(x => TargetIsValid(owner, x))
+				                .GetFromItemListByKeyword(targetText, owner);
+			case MagicPowerDistance.SeenTargetOnly:
+				return owner.SeenTargets
+				            .OfType<ICharacter>()
+				            .Concat(owner.Location.Characters)
+				            .Except(owner)
+				            .Where(x => TargetIsValid(owner, x)).GetFromItemListByKeyword(targetText, owner);
+		}
 
         throw new ApplicationException("Unknown MagicPowerDistance in MagicPowerBase.AcquireTarget");
     }
 
-    protected virtual bool TargetFilterFunction(ICharacter owner, ICharacter target)
-    {
-        return true;
-    }
+	protected virtual bool TargetFilterFunction(ICharacter owner, ICharacter target)
+	{
+		return true;
+	}
+
+	protected virtual bool TargetIsValid(ICharacter owner, ICharacter target)
+	{
+		return TargetFilterFunction(owner, target) &&
+		       MagicInterdictionHelper.GetInterdiction(owner, target, School, false) is null;
+	}
 
     public bool TargetIsInRange(ICharacter owner, ICharacter target, MagicPowerDistance distance)
     {

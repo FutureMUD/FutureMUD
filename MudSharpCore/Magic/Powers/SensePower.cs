@@ -455,11 +455,12 @@ public class SensePower : MagicPowerBase
         ICheck check = Gameworld.GetCheck(CheckType.MagicSensePower);
         Dictionary<Difficulty, CheckOutcome> results = check.CheckAgainstAllDifficulties(actor, Difficulty.Normal, SkillCheckTrait);
 
-        List<(IPerceivable Target, ICell Location, RoomLayer Layer)> final = targets
-                    .Distinct()
-                    .Where(x => SenseTargetFilterProg.Execute<bool?>(x.Target) == true)
-                    .Where(x => results[TargetDifficultyProg.ExecuteString(x.Target).ParseEnumWithDefault(Difficulty.Normal)] >= MinimumSuccessThreshold)
-                    .ToList();
+		List<(IPerceivable Target, ICell Location, RoomLayer Layer)> final = targets
+		            .Distinct()
+		            .Where(x => SenseTargetFilterProg.Execute<bool?>(x.Target) == true)
+		            .Where(x => MagicInterdictionHelper.GetInterdiction(actor, x.Target, School, false) is null)
+		            .Where(x => results[TargetDifficultyProg.ExecuteString(x.Target).ParseEnumWithDefault(Difficulty.Normal)] >= MinimumSuccessThreshold)
+		            .ToList();
 
         if (!final.Any())
         {

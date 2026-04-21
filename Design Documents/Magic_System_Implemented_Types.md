@@ -62,12 +62,18 @@ It is intended for:
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
 | `character` | `CastingTriggerCharacter` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacter.cs` via `SpellTriggerFactory` | Yes | Casts at a character target in the same room |
+| `characterexit` | `CastingTriggerCharacterExit` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacterExit.cs` via `SpellTriggerFactory` | Yes | Casts at a same-room character plus a local exit, exposing the chosen `ICellExit` as an additional `exit` parameter |
 | `characterprogroom` | `CastingTriggerCharacterProgRoom` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacterProgRoom.cs` via `SpellTriggerFactory` | Yes | Casts at a character with prog-driven room targeting |
 | `charactervicinity` | `CastingTriggerCharacterVicinity` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacterVicinity.cs` via `SpellTriggerFactory` | Yes | Casts at characters in a character's vicinity |
 | `corpse` | `CastingTriggerCorpse` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerCorpse.cs` via `SpellTriggerFactory` | Yes | Casts at a corpse target |
+| `exit` | `CastingTriggerExit` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerExit.cs` via `SpellTriggerFactory` | Yes | Casts at a local exit or direction, targeting the shared `IExit` while also supplying the chosen `ICellExit` as an additional `exit` parameter |
 | `item` | `CastingTriggerItem` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerItem.cs` via `SpellTriggerFactory` | Yes | Casts at an item target |
 | `localitem` | `CastingTriggerLocalItem` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerLocalItem.cs` via `SpellTriggerFactory` | Yes | Casts at a local item target |
 | `party` | `CastingTriggerParty` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerParty.cs` via `SpellTriggerFactory` | Yes | Casts across party members |
+| `progcharacter` | `CastingTriggerProgCharacter` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerProgCharacter.cs` via `SpellTriggerFactory` | Yes | Casts at a world character target resolved by a FutureProg |
+| `progcharacterroom` | `CastingTriggerProgCharacterRoom` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerProgCharacterRoom.cs` via `SpellTriggerFactory` | Yes | Casts at a prog-resolved character and also supplies a prog-resolved room as an additional `room` parameter |
+| `progitem` | `CastingTriggerProgItem` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerProgItem.cs` via `SpellTriggerFactory` | Yes | Casts at a world item target resolved by a FutureProg |
+| `progitemroom` | `CastingTriggerProgItemRoom` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerProgItemRoom.cs` via `SpellTriggerFactory` | Yes | Casts at a prog-resolved item and also supplies a prog-resolved room as an additional `room` parameter |
 | `progroom` | `CastingTriggerProgRoom` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerProgRoom.cs` via `SpellTriggerFactory` | Yes | Casts using a prog-driven room rule |
 | `room` | `CastingTriggerRoom` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerRoom.cs` via `SpellTriggerFactory` | Yes | Casts at the room or cell |
 | `self` | `CastingTriggerSelf` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerSelf.cs` via `SpellTriggerFactory` | Yes | Casts on the caster |
@@ -92,6 +98,8 @@ It is intended for:
 | `detectmagick` | `DetectMagickEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Grants magical sensing and exposes detectable magical auras in normal descriptions |
 | `disease` | `DiseaseEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs` via `SpellEffectFactory` | Yes | Applies a configurable spell-owned systemic infection payload |
 | `executeprog` | `ExecuteProgEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/ExecuteProgEffect.cs` via `SpellEffectFactory` | Yes | Executes a supporting prog |
+| `exitbarrier` | `ExitBarrierEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs` via `SpellEffectFactory` | Yes | Applies a persistent magical barrier to a targeted shared `IExit` so crossing that exit can be blocked |
+| `forcedexitmovement` | `ForcedExitMovementEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/ForcedExitMovementEffect.cs` via `SpellEffectFactory` | Yes | Forces a targeted character through the trigger-supplied `exit` when movement and crossing checks allow it |
 | `fear` | `FearEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies magical fear that forces flee behaviour in combat |
 | `flying` | `FlyingEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Grants the ability to use existing flight movement checks |
 | `glow` | `GlowEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/GlowEffect.cs` via `SpellEffectFactory` | Yes | Applies glow |
@@ -104,6 +112,7 @@ It is intended for:
 | `needdelta` | `NeedDeltaEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/NeedDeltaEffect.cs` via `SpellEffectFactory` | Yes | Changes a need immediately |
 | `needrate` | `NeedRateSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/NeedRateSpellEffect.cs` via `SpellEffectFactory` | Yes | Alters need rate |
 | `pacifism` | `PacifismSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PacifismSpellEffect.cs` via `SpellEffectFactory` | Yes | Applies pacifism |
+| `personalward` | `PersonalWardEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PersonalWardEffect.cs` via `SpellEffectFactory` | Yes | Applies a school-based personal ward that can fail or reflect matching incoming or outgoing magic |
 | `paralysis` | `ParalysisEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies forced paralysis through the health effect system |
 | `poison` | `PoisonEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs` via `SpellEffectFactory` | Yes | Applies a configurable spell-owned drug payload |
 | `rage` | `RageSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RageSpellEffect.cs` via `SpellEffectFactory` | Yes | Applies rage |
@@ -127,6 +136,7 @@ It is intended for:
 | `roomflag` | `RoomFlagEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RoomFlagEffect.cs` via `SpellEffectFactory` | Yes | Applies a configured magical room flag such as peaceful, no-dream, alarm, darkness, or ward tags |
 | `roomatmosphere` | `RoomAtmosphereEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RoomAtmosphereEffect.cs` via `SpellEffectFactory` | Yes | Alters room atmosphere |
 | `roomlight` | `RoomLightEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs` via `SpellEffectFactory` | Yes | Alters room light |
+| `roomward` | `RoomWardEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RoomWardEffect.cs` via `SpellEffectFactory` | Yes | Applies a school-based room ward that can fail or reflect matching incoming or outgoing magic |
 | `roomtemperature` | `RoomTemperatureEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RoomTemperatureEffect.cs` via `SpellEffectFactory` | Yes | Alters room temperature |
 | `selfdamage` | `SelfDamageEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/SelfDamageEffect.cs` via `SpellEffectFactory` | Yes | Damages the caster |
 | `silence` | `SilenceEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies vocal silence without blocking telepathy |
@@ -144,8 +154,18 @@ It is intended for:
 | `weatherfreeze` | `WeatherFreezeEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/WeatherFreezeEffect.cs` via `SpellEffectFactory` | Yes | Freezes weather state |
 | `weight` | `WeightSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/WeightSpellEffect.cs` via `SpellEffectFactory` | Yes | Alters weight |
 
+## Interdiction Support Types
+
+| Token or API | Class or interface | Role |
+| --- | --- | --- |
+| `incoming`, `outgoing`, `both` | `MagicInterdictionCoverage` | Ward coverage enum that decides whether an interdiction catches incoming magic, outgoing magic, or both |
+| `fail`, `reflect` | `MagicInterdictionMode` | Ward mode enum that decides whether a matching invocation fizzles or reflects where the runtime supports reflection |
+| n/a | `IMagicInterdictionEffect` | Shared runtime contract used by room and personal wards so spells and powers can consult the same interception rules |
+| n/a | `IExitBarrierEffect` | Shared runtime contract used by movement logic so magical exit barriers can block `Character.CanCross` |
+
 ## Notes
 - Schools are first-class records rather than subtype-driven types, so they are documented in the overview and backbone docs rather than listed here as a type family.
 - Powers, triggers, and spell effects are all current-state inventories of registered runtime implementations.
 - Builder-creatable means the inspected builder workflow can create an instance of the type directly, not merely load or edit one.
+- Trigger-supplied additional parameters currently include `exit` for local-exit casts and `room` for prog-resolved remote-room casts.
 - Phase 1 spell support also introduced additive `IEffect.PerceptionGranting`, spell-runtime query interfaces such as `ISilencedEffect`, `ISleepEffect`, `IFearEffect`, `IFlightEffect`, `IAdditionalBreathableFluidEffect`, `IDarksightEffect`, `IComprehendLanguageEffect`, and `ICurseEffect`, plus shared `MagicArmourConfiguration` for power and spell armour parity.

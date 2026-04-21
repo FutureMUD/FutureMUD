@@ -64,11 +64,11 @@ public class EconomySeeder : IDatabaseSeeder
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .ToArray();
 
-    private static readonly IReadOnlySet<string> StockCombinationFamilyExamples =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "Medicine",
-            "Writing Materials",
+	private static readonly IReadOnlySet<string> StockCombinationFamilyExamples =
+		new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"Medicine",
+			"Writing Materials",
             "Clothing",
             "Intoxicants",
             "Household Goods",
@@ -76,9 +76,87 @@ public class EconomySeeder : IDatabaseSeeder
             "Entertainment",
             "Personal Services",
             "Communications",
-            "Military Goods",
-            "Professional Tools"
-        };
+			"Military Goods",
+			"Professional Tools"
+		};
+
+	private static readonly IReadOnlyDictionary<string, IReadOnlyList<(string CategoryName, decimal Weight)>> StockCombinationCategoryWeights =
+		new Dictionary<string, IReadOnlyList<(string CategoryName, decimal Weight)>>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Medicine"] =
+			[
+				("Simple Medicine", 0.55m),
+				("Standard Medicine", 0.30m),
+				("High-Quality Medicine", 0.15m)
+			],
+			["Writing Materials"] =
+			[
+				("Wax Tablets", 0.15m),
+				("Parchment", 0.35m),
+				("Paper", 0.30m),
+				("Ink", 0.20m)
+			],
+			["Clothing"] =
+			[
+				("Simple Clothing", 0.55m),
+				("Standard Clothing", 0.30m),
+				("Luxury Clothing", 0.15m)
+			],
+			["Intoxicants"] =
+			[
+				("Beer", 0.65m),
+				("Wine", 0.35m)
+			],
+			["Household Goods"] =
+			[
+				("Simple Wares", 0.20m),
+				("Standard Wares", 0.15m),
+				("Simple Furniture", 0.18m),
+				("Standard Furniture", 0.15m),
+				("Luxury Furniture", 0.10m),
+				("Standard Decorations", 0.12m),
+				("Luxury Decorations", 0.10m)
+			],
+			["Hospitality"] =
+			[
+				("Standard Lodging", 0.70m),
+				("Luxury Lodging", 0.30m)
+			],
+			["Entertainment"] =
+			[
+				("Cheap Entertainment", 0.50m),
+				("Standard Entertainment", 0.35m),
+				("Luxury Entertainment", 0.15m)
+			],
+			["Personal Services"] =
+			[
+				("Bathing Services", 0.35m),
+				("Domestic Services", 0.30m),
+				("Barbering", 0.20m),
+				("Laundry Services", 0.15m)
+			],
+			["Communications"] =
+			[
+				("Messenger Services", 0.30m),
+				("Courier Services", 0.30m),
+				("Postal Services", 0.25m),
+				("Printed News", 0.15m)
+			],
+			["Military Goods"] =
+			[
+				("Weapons", 0.35m),
+				("Armour", 0.25m),
+				("Ammunition", 0.25m),
+				("Military Uniforms", 0.15m)
+			],
+			["Professional Tools"] =
+			[
+				("Primitive Tools", 0.25m),
+				("Simple Tools", 0.30m),
+				("Standard Tools", 0.30m),
+				("High-Quality Tools", 0.15m)
+			]
+		};
 
     private static readonly IReadOnlyList<EraDefinition> EraDefinitions =
     [
@@ -1653,12 +1731,15 @@ It is intended to be additive across eras and safe to rerun to restore or refres
                 continue;
             }
 
-            MarketCategory category = result[tag.Id];
-            category.Description =
-                $"{CategoryPrefix}: seeded aggregate {tag.Name} basket priced as an equal-weight combination of {string.Join(", ", componentCategories.Select(x => x.Name))}.";
-            category.MarketCategoryType = 1;
-            category.CombinationCategories = SaveCombinationCategories(componentCategories.Select(x => x.Id));
-        }
+			IReadOnlyList<(MarketCategory Category, decimal Weight)> weightedComponents =
+				GetStockCombinationComponents(tag.Name, componentCategories);
+
+			MarketCategory category = result[tag.Id];
+			category.Description =
+				$"{CategoryPrefix}: seeded aggregate {tag.Name} basket priced as a weighted combination of {DescribeCombinationComponents(weightedComponents)}.";
+			category.MarketCategoryType = 1;
+			category.CombinationCategories = SaveCombinationCategories(weightedComponents);
+		}
 
         return result;
     }
@@ -2370,13 +2451,57 @@ It is intended to be additive across eras and safe to rerun to restore or refres
                 new XAttribute("expenditure", need.BaseExpenditure.ToString(CultureInfo.InvariantCulture))))).ToString();
     }
 
-    private static string SaveCombinationCategories(IEnumerable<long> categoryIds)
-    {
-        return new XElement("Components",
-            categoryIds.Select(categoryId => new XElement("Component",
-                new XAttribute("category", categoryId),
-                new XAttribute("weight", 1.0m.ToString(CultureInfo.InvariantCulture))))).ToString();
-    }
+	private static IReadOnlyList<(MarketCategory Category, decimal Weight)> GetStockCombinationComponents(
+		string familyName,
+		IEnumerable<MarketCategory> componentCategories)
+	{
+		if (!StockCombinationCategoryWeights.TryGetValue(familyName, out IReadOnlyList<(string CategoryName, decimal Weight)>? definitions))
+		{
+			throw new InvalidOperationException($"No stock combination category weights are defined for {familyName}.");
+		}
+
+		Dictionary<string, MarketCategory> categoriesByName =
+			componentCategories.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+		List<string> missingCategoryNames = definitions
+			.Select(x => x.CategoryName)
+			.Where(x => !categoriesByName.ContainsKey(x))
+			.OrderBy(x => x)
+			.ToList();
+		if (missingCategoryNames.Any())
+		{
+			throw new InvalidOperationException(
+				$"The stock combination category {familyName} is missing weighted child categories: {missingCategoryNames.ListToString()}.");
+		}
+
+		List<string> unexpectedCategoryNames = categoriesByName.Keys
+			.Where(x => definitions.All(y => !y.CategoryName.Equals(x, StringComparison.OrdinalIgnoreCase)))
+			.OrderBy(x => x)
+			.ToList();
+		if (unexpectedCategoryNames.Any())
+		{
+			throw new InvalidOperationException(
+				$"The stock combination category {familyName} has no seeded weights for direct child categories: {unexpectedCategoryNames.ListToString()}.");
+		}
+
+		return definitions
+			.Select(x => (Category: categoriesByName[x.CategoryName], Weight: x.Weight))
+			.ToList();
+	}
+
+	private static string DescribeCombinationComponents(IEnumerable<(MarketCategory Category, decimal Weight)> components)
+	{
+		return components
+			.Select(x => $"{x.Category.Name} ({x.Weight.ToString("P0", CultureInfo.InvariantCulture)})")
+			.ListToString();
+	}
+
+	private static string SaveCombinationCategories(IEnumerable<(MarketCategory Category, decimal Weight)> components)
+	{
+		return new XElement("Components",
+			components.Select(component => new XElement("Component",
+				new XAttribute("category", component.Category.Id),
+				new XAttribute("weight", component.Weight.ToString(CultureInfo.InvariantCulture))))).ToString();
+	}
 
     private static string SaveStressPoints(IEnumerable<StressPointValue> stressPoints)
     {

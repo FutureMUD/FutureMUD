@@ -1,5 +1,7 @@
 ﻿using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Effects;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
@@ -127,6 +129,11 @@ namespace MudSharp.Communication.Language
 
             if (perceiver.IsSelf(Origin) || perceiver.IsSelf(Proxy) ||
                 ((perceiver as ICharacter)?.IsAdministrator() == true))
+            {
+                return (LanguagePerceptionResult.Success, 0.0, 0.0);
+            }
+
+            if ((perceiver as IHaveEffects)?.EffectsOfType<IComprehendLanguageEffect>().Any(x => x.Applies()) == true)
             {
                 return (LanguagePerceptionResult.Success, 0.0, 0.0);
             }

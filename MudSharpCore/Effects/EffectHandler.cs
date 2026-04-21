@@ -190,7 +190,12 @@ public class EffectHandler : IEffectHandler
 
     public PerceptionTypes GetPerception(PerceptionTypes type)
     {
-        return _effects.Where(x => x.Applies()).Aggregate(type, (prev, effect) => prev & ~effect.PerceptionDenying);
+        List<IEffect> effects = _effects.Where(x => x.Applies()).ToList();
+        PerceptionTypes granting = effects.Aggregate(PerceptionTypes.None,
+            (current, effect) => current | effect.PerceptionGranting);
+        PerceptionTypes denying = effects.Aggregate(PerceptionTypes.None,
+            (current, effect) => current | effect.PerceptionDenying);
+        return (type | granting) & ~denying;
     }
 
     public bool HiddenFromPerception(PerceptionTypes type, PerceiveIgnoreFlags

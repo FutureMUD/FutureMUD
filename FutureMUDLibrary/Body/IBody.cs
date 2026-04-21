@@ -105,6 +105,8 @@ namespace MudSharp.Body
         void AddInfection(IInfection infection);
         void RemoveInfection(IInfection infection);
         void Dose(IDrug drug, DrugVector vector, double grams);
+        void Dose(IDrug drug, DrugVector vector, double grams, object originator);
+        void RemoveDrugDosages(Predicate<DrugDosage> predicate);
         void CheckDrugTick();
         void Sober();
         string DebugInfo();

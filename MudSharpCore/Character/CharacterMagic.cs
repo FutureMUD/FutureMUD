@@ -190,7 +190,8 @@ public partial class Character : IMagicUser
     {
         double old = _magicResourceAmounts[resource];
         _magicResourceAmounts[resource] += amount;
-        _magicResourceAmounts[resource] = Math.Min(_magicResourceAmounts[resource], resource.ResourceCap(this));
+        _magicResourceAmounts[resource] = Math.Max(0.0,
+            Math.Min(_magicResourceAmounts[resource], resource.ResourceCap(this)));
         if (old != _magicResourceAmounts[resource])
         {
             ResourcesChanged = true;

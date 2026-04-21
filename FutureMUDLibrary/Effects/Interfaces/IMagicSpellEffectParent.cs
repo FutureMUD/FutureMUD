@@ -15,5 +15,6 @@ namespace MudSharp.Effects.Interfaces
         IEnumerable<IMagicSpellEffect> SpellEffects { get; }
 
         void AddSpellEffect(IMagicSpellEffect effect);
+        void RemoveSpellEffect(IMagicSpellEffect effect);
     }
 }

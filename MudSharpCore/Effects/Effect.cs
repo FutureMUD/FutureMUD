@@ -190,6 +190,8 @@ public abstract partial class Effect : FrameworkItem, IEffect
         return false;
     }
 
+    public virtual PerceptionTypes PerceptionGranting => PerceptionTypes.None;
+
     public virtual PerceptionTypes PerceptionDenying => PerceptionTypes.None;
 
     public virtual PerceptionTypes Obscuring => PerceptionTypes.None;

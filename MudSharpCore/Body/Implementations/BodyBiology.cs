@@ -1594,7 +1594,7 @@ public partial class Body
             return result;
         }
 
-        return EffectsOfType<IForceParalysisEffect>().Any(x => x.Applies() && x.ShouldParalyse)
+        return CombinedEffectsOfType<IForceParalysisEffect>().Any(x => x.Applies() && x.ShouldParalyse)
             ? HealthTickResult.Paralyzed
             : result;
     }

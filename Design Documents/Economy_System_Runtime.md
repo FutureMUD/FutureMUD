@@ -193,6 +193,7 @@ The current model works roughly like this:
 - a market owns categories and active influences
 - market influences adjust prices through typed impact data, which now includes supply pressure, demand pressure, and flat percentage price pressure
 - if an influence targets a combination category, the impact is expanded through that category's normalized component weights until it reaches standalone leaf categories
+- builder-facing `show` output for market influences and market influence templates now includes a leaf-expansion preview for any combination-targeted impacts, listing the normalized weight and redistributed supply, demand, and flat-price effect for each leaf category
 - market influences and influence templates can also target specific market populations with additive and multiplicative income-factor adjustments
 - market populations define spending needs, base income, savings reserves, savings caps, stress thresholds, and a hysteresis / flicker threshold for stress-point demotion
 - shoppers choose shops and items using FutureProg-driven selection rules

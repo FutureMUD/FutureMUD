@@ -459,12 +459,12 @@ In the market price formula, you can use the following variables:
 			             .Where(x => x.Applies(null, now))
 			             .SelectMany(x => x.MarketImpacts))
 		{
-			foreach (var expanded in ExpandImpactToLeafCategories(impact))
+			foreach (var expanded in MarketImpactExpansion.ExpandImpactToLeafCategories(impact))
 			{
-				if (!lookup.TryGetValue(expanded.MarketCategory.Id, out var list))
+				if (!lookup.TryGetValue(expanded.LeafCategory.Id, out var list))
 				{
 					list = [];
-					lookup[expanded.MarketCategory.Id] = list;
+					lookup[expanded.LeafCategory.Id] = list;
 				}
 
 				list.Add(expanded);
@@ -472,97 +472,6 @@ In the market price formula, you can use the following variables:
 		}
 
 		return lookup.ToDictionary(x => x.Key, x => (IReadOnlyCollection<ExpandedMarketImpact>)x.Value);
-	}
-
-	private IEnumerable<ExpandedMarketImpact> ExpandImpactToLeafCategories(MarketImpact impact)
-	{
-		foreach (var component in ExpandCategoryToLeafWeights(impact.MarketCategory))
-		{
-			yield return new ExpandedMarketImpact(
-				component.MarketCategory,
-				impact.SupplyImpact * (double)component.Weight,
-				impact.DemandImpact * (double)component.Weight,
-				impact.FlatPriceImpact * (double)component.Weight);
-		}
-	}
-
-	private IReadOnlyCollection<MarketCategoryComponent> ExpandCategoryToLeafWeights(IMarketCategory category)
-	{
-		Dictionary<long, MarketCategoryComponent> results = [];
-		ExpandCategoryToLeafWeights(category, 1.0m, [], results);
-		return results.Values.ToList();
-	}
-
-	private void ExpandCategoryToLeafWeights(IMarketCategory category, decimal weight, HashSet<long> visiting,
-		Dictionary<long, MarketCategoryComponent> results)
-	{
-		if (weight <= 0.0m)
-		{
-			return;
-		}
-
-		if (!visiting.Add(category.Id))
-		{
-			return;
-		}
-
-		try
-		{
-			var normalizedComponents = GetNormalizedComponents(category);
-			if (category.CategoryType != MarketCategoryType.Combination || normalizedComponents.Count == 0)
-			{
-				if (results.TryGetValue(category.Id, out var existing))
-				{
-					results[category.Id] = existing with { Weight = existing.Weight + weight };
-				}
-				else
-				{
-					results[category.Id] = new MarketCategoryComponent
-					{
-						MarketCategory = category,
-						Weight = weight
-					};
-				}
-
-				return;
-			}
-
-			foreach (var component in normalizedComponents)
-			{
-				ExpandCategoryToLeafWeights(component.MarketCategory, weight * component.Weight, visiting, results);
-			}
-		}
-		finally
-		{
-			visiting.Remove(category.Id);
-		}
-	}
-
-	private static IReadOnlyCollection<MarketCategoryComponent> GetNormalizedComponents(IMarketCategory category)
-	{
-		if (category.CategoryType != MarketCategoryType.Combination)
-		{
-			return [];
-		}
-
-		var validComponents = category.CombinationComponents
-		                              .Where(x => x.Weight > 0.0m && x.MarketCategory is not null &&
-		                                          x.MarketCategory.Id != category.Id)
-		                              .ToList();
-		if (!validComponents.Any())
-		{
-			return [];
-		}
-
-		var totalWeight = validComponents.Sum(x => x.Weight);
-		if (totalWeight <= 0.0m)
-		{
-			return [];
-		}
-
-		return validComponents
-		      .Select(x => x with { Weight = x.Weight / totalWeight })
-		      .ToList();
 	}
 
 	private CategoryPricingSnapshot GetCategoryPricingSnapshot(IMarketCategory category, HashSet<long> visiting)
@@ -599,7 +508,7 @@ In the market price formula, you can use the following variables:
 
 	private CategoryPricingSnapshot BuildCombinationPricingSnapshot(IMarketCategory category, HashSet<long> visiting)
 	{
-		var components = GetNormalizedComponents(category);
+		var components = MarketImpactExpansion.GetNormalizedComponents(category);
 		if (!components.Any())
 		{
 			return DefaultPricingSnapshot;
@@ -810,9 +719,6 @@ In the market price formula, you can use the following variables:
 	}
 
 	#endregion
-
-	private sealed record ExpandedMarketImpact(IMarketCategory MarketCategory, double SupplyImpact, double DemandImpact,
-		double FlatPriceImpact);
 
 	private sealed record CategoryPricingSnapshot(double Supply, double Demand, decimal FlatPriceAdjustment,
 		decimal PriceMultiplier);

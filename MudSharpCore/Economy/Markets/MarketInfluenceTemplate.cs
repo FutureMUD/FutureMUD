@@ -449,6 +449,15 @@ public class MarketInfluenceTemplate : SaveableItem, IMarketInfluenceTemplate
 				$"\t{impact.MarketCategory.Name.ColourName()}: Supply {impact.SupplyImpact.ToBonusString()}, Demand {impact.DemandImpact.ToBonusString()}, Flat Price {impact.FlatPriceImpact.ToBonusString()}");
 		}
 
+		var impactPreview = MarketImpactExpansion.DescribeCombinationImpactPreview(_marketImpacts, actor);
+		if (!string.IsNullOrEmpty(impactPreview))
+		{
+			sb.AppendLine();
+			sb.AppendLine("Leaf Expansion Preview:");
+			sb.AppendLine();
+			sb.Append(impactPreview);
+		}
+
 		if (_populationIncomeImpacts.Any())
 		{
 			sb.AppendLine();

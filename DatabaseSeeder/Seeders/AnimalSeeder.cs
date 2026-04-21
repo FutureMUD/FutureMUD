@@ -258,6 +258,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 .Where(x => x.Type == 1)
                 .AsEnumerable()
                 .First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
+            bool hasMissingCatalogue = HasMissingAnimalCatalogue(_context);
             RefreshExistingAnimalCombatBalance();
 
             if (hasMissingDisfigurementTemplates)
@@ -265,7 +266,22 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 SeedExistingAnimalDisfigurementTemplates();
             }
 
+            if (hasMissingCatalogue)
+            {
+                BackfillAnimalCatalogue();
+            }
+
             context.Database.CommitTransaction();
+            if (hasMissingCatalogue && hasMissingDisfigurementTemplates)
+            {
+                return "Updated the animal combat balance profile, backfilled missing animal catalogue content, and installed additional animal disfigurement templates.";
+            }
+
+            if (hasMissingCatalogue)
+            {
+                return "Updated the animal combat balance profile and backfilled missing animal catalogue content.";
+            }
+
             return hasMissingDisfigurementTemplates
                 ? "Updated the animal combat balance profile and installed additional animal disfigurement templates."
                 : "Updated the animal combat balance profile.";
@@ -664,8 +680,46 @@ public partial class AnimalSeeder : IDatabaseSeeder
         context.BodyProtos.Add(wingedInsectBody);
         context.SaveChanges();
 
+        BodyProto beetleBody = new()
+        {
+            Id = nextId++,
+            CountsAs = insectBody,
+            Name = "Beetle",
+            ConsiderString = "",
+            WielderDescriptionSingle = "mandible",
+            WielderDescriptionPlural = "mandibles",
+            StaminaRecoveryProgId = staminaRecoveryProg.Id,
+            MinimumLegsToStand = 6,
+            MinimumWingsToFly = 2,
+            LegDescriptionPlural = "legs",
+            LegDescriptionSingular = "leg",
+            WearSizeParameter = wearSize
+        };
+        context.BodyProtos.Add(beetleBody);
+        context.SaveChanges();
+
+        BodyProto centipedeBody = new()
+        {
+            Id = nextId++,
+            CountsAs = insectBody,
+            Name = "Centipede",
+            ConsiderString = "",
+            WielderDescriptionSingle = "mandible",
+            WielderDescriptionPlural = "mandibles",
+            StaminaRecoveryProgId = staminaRecoveryProg.Id,
+            MinimumLegsToStand = 8,
+            MinimumWingsToFly = 2,
+            LegDescriptionPlural = "legs",
+            LegDescriptionSingular = "leg",
+            WearSizeParameter = wearSize
+        };
+        context.BodyProtos.Add(centipedeBody);
+        context.SaveChanges();
+
         SeedInsectoid(insectBody);
         SeedWingedInsectoid(wingedInsectBody);
+        SeedBeetle(insectBody, beetleBody);
+        SeedCentipede(centipedeBody);
 
         BodyProto arachnidBody = new()
         {
@@ -762,6 +816,8 @@ public partial class AnimalSeeder : IDatabaseSeeder
         CloneBodyPositionsAndSpeeds(crabBody, malacostracanBody);
         CloneBodyPositionsAndSpeeds(insectBody, arachnidBody);
         CloneBodyPositionsAndSpeeds(insectBody, scorpionBody);
+        CloneBodyPositionsAndSpeeds(insectBody, beetleBody);
+        CloneBodyPositionsAndSpeeds(insectBody, centipedeBody);
         CloneBodyPositionsAndSpeeds(toedQuadruped, reptilianBody);
         CloneBodyPositionsAndSpeeds(toedQuadruped, anuranBody);
         ApplyDefaultCombatSettingsToSeededRaces();
@@ -780,7 +836,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
 
         if (context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
         {
-            return HasMissingAnimalDisfigurementTemplates(context)
+            return HasMissingAnimalDisfigurementTemplates(context) || HasMissingAnimalCatalogue(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }
@@ -789,6 +845,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
     }
     private void ResetSeeder()
     {
+        _attacks.Clear();
         _cachedBodyparts.Clear();
         _cachedBodypartUpstreams.Clear();
         _cachedLimbs.Clear();
@@ -796,6 +853,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
         _cachedBones.Clear();
         _cachedMaterials.Clear();
         _cachedShapes.Clear();
+        _hwModels.Clear();
         _sever = false;
         _breathableAir = _context.Gases.First();
         // TODO - make these optional
@@ -1197,17 +1255,21 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
     private void AddHWModel(string name, double meanHeight, double stddevheight, double meanbmi, double stddevbmi)
     {
-        HeightWeightModel hwModel = new()
+        HeightWeightModel hwModel = _context.HeightWeightModels.FirstOrDefault(x => x.Name == name) ?? new HeightWeightModel
         {
-            Name = name,
-            MeanHeight = meanHeight,
-            MeanBmi = meanbmi,
-            StddevHeight = stddevheight,
-            StddevBmi = stddevbmi,
-            Bmimultiplier = 0.1
+            Name = name
         };
-        _context.Add(hwModel);
-        _hwModels.Add(name, hwModel);
+        hwModel.MeanHeight = meanHeight;
+        hwModel.MeanBmi = meanbmi;
+        hwModel.StddevHeight = stddevheight;
+        hwModel.StddevBmi = stddevbmi;
+        hwModel.Bmimultiplier = 0.1;
+        if (hwModel.Id == 0)
+        {
+            _context.Add(hwModel);
+        }
+
+        _hwModels[name] = hwModel;
         _context.SaveChanges();
     }
 
@@ -2000,6 +2062,49 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 _context.SaveChanges();
             }
 
+            Liquid? animalAcid = _context.Liquids.FirstOrDefault(x => x.Name == "animal acid");
+            if (animalAcid is null)
+            {
+                animalAcid = new Liquid
+                {
+                    Name = "animal acid",
+                    Description = "acid",
+                    LongDescription = "a smoking, yellow-green acidic slurry",
+                    TasteText = "It is searingly sour and painfully caustic.",
+                    VagueTasteText = "It tastes painfully caustic.",
+                    SmellText = "It smells sharp, mineral and corrosive enough to sting the sinuses.",
+                    VagueSmellText = "It smells harsh and corrosive.",
+                    TasteIntensity = 120,
+                    SmellIntensity = 80,
+                    AlcoholLitresPerLitre = 0,
+                    WaterLitresPerLitre = 0.7,
+                    FoodSatiatedHoursPerLitre = 0,
+                    DrinkSatiatedHoursPerLitre = 0,
+                    Viscosity = 1.1,
+                    Density = 1.05,
+                    Organic = true,
+                    ThermalConductivity = 0.609,
+                    ElectricalConductivity = 0.005,
+                    SpecificHeatCapacity = 4181,
+                    FreezingPoint = -8,
+                    BoilingPoint = 108,
+                    DisplayColour = "bold yellow",
+                    DampDescription = "It is hissing with acid",
+                    WetDescription = "It is slick with burning acid",
+                    DrenchedDescription = "It is drenched in corrosive acid",
+                    DampShortDescription = "(acid-splashed)",
+                    WetShortDescription = "(acid-burned)",
+                    DrenchedShortDescription = "(acid-drenched)",
+                    SolventId = defaultWater.Id,
+                    CountAsId = defaultWater.Id,
+                    SolventVolumeRatio = 1,
+                    InjectionConsequence = (int)LiquidInjectionConsequence.Deadly,
+                    ResidueVolumePercentage = 0.05
+                };
+                _context.Liquids.Add(animalAcid);
+                _context.SaveChanges();
+            }
+
             string RangedAttackData(int rangeInRooms, RangedScatterType scatterType)
             {
                 return new XElement("Data",
@@ -2288,6 +2393,13 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                     $"@ rear|rears back and spit|spits a foul gobbet at $1{attackAddendum}", DamageType.Chemical,
                     intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
                     additionalInfo: SpitAttackData(1, RangedScatterType.Arcing, animalSpittle.Id, 0.025));
+            _attacks["acidspit"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Acid Spit") ??
+                AddAttack("Acid Spit", BuiltInCombatMoveType.SpitNaturalAttack,
+                    MeleeWeaponVerb.Blast, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+                    Alignment.Front, Orientation.High, 3.0, 1.0, mandibleShape, mandibleDamage,
+                    $"@ rear|rears up and spit|spits a hissing jet of acid at $1{attackAddendum}", DamageType.Chemical,
+                    intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Disadvantage,
+                    additionalInfo: SpitAttackData(2, RangedScatterType.Arcing, animalAcid.Id, 0.04));
             _attacks["dragonfirebreath"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Dragonfire Breath") ??
                 AddAttack("Dragonfire Breath", BuiltInCombatMoveType.BreathWeaponAttack,
                     MeleeWeaponVerb.Blast, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
@@ -7271,11 +7383,27 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
     private void AddRacialBodypartUsage(string bodypart, string usage, Race race)
     {
+        BodypartProto? part = _cachedBodyparts.TryGetValue(bodypart, out BodypartProto? cachedPart)
+            ? cachedPart
+            : SeederBodyUtilities.FindBodypartOnBodyOrAncestors(_context, race.BaseBody, bodypart);
+        if (part is null)
+        {
+            return;
+        }
+
+        if (_context.RacesAdditionalBodyparts.Any(x =>
+                x.RaceId == race.Id &&
+                x.BodypartId == part.Id &&
+                x.Usage == usage))
+        {
+            return;
+        }
+
         _context.RacesAdditionalBodyparts.Add(new RacesAdditionalBodyparts
         {
             Race = race,
             Usage = usage,
-            Bodypart = _cachedBodyparts[bodypart]
+            Bodypart = part
         });
     }
 
@@ -7294,6 +7422,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             "Cephalopod" => GetCephalopodRelativeHitChance(alias, fallback),
             "Jellyfish" => GetJellyfishRelativeHitChance(alias, fallback),
             "Insectoid" or "Winged Insectoid" => GetInsectoidRelativeHitChance(alias, fallback),
+            "Beetle" => GetInsectoidRelativeHitChance(alias, fallback),
+            "Centipede" => GetCentipedeRelativeHitChance(alias, fallback),
             _ => fallback
         };
     }
@@ -7358,6 +7488,24 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             "rfclaw" or "lfclaw" or "rrclaw" or "lrclaw" => 3,
             "rrdewclaw" or "lrdewclaw" => 1,
             _ => GetQuadrupedRelativeHitChance(alias, fallback)
+        };
+    }
+
+    private static int GetCentipedeRelativeHitChance(string alias, int fallback)
+    {
+        return alias switch
+        {
+            "thorax" => 70,
+            "midbody" => 80,
+            "hindbody" => 70,
+            "tail" => 18,
+            "head" => 28,
+            "mandibles" => 8,
+            "reye" or "leye" => 3,
+            "rantenna" or "lantenna" => 2,
+            _ when alias.StartsWith("rleg", System.StringComparison.OrdinalIgnoreCase) ||
+                   alias.StartsWith("lleg", System.StringComparison.OrdinalIgnoreCase) => 14,
+            _ => GetInsectoidRelativeHitChance(alias, fallback)
         };
     }
 

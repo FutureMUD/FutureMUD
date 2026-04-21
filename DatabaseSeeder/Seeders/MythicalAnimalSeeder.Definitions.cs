@@ -404,6 +404,75 @@ public partial class MythicalAnimalSeeder
                 bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Swooper"
             ),
+            ["Warg"] = BeastRace(
+                "Warg",
+                "Toed Quadruped",
+                SizeCategory.Large,
+                "Large Canid",
+                GreatBeast(),
+                "Wargs are oversized, wolf-like predators bred toward savagery, endurance and a frightening, almost deliberate malice.",
+                "Wargs usually occupy the role of war-beasts and terror-hounds, creatures associated with raiders, dark hunts and borderland fear rather than with any tame place in ordinary husbandry.",
+                Variants(
+                    ("a long-fanged warg",
+                        "This huge canid carries the rangy, killing build of a wolf pushed beyond any natural limit, with long fangs, dense muscle and a stare full of ugly purpose."),
+                    ("a battle-scarred warg",
+                        "This brutal wolf-beast looks bred for pursuit and slaughter, its broad paws, heavy shoulders and predatory focus making it feel more like a campaign than an animal.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Good, "mouth"),
+                    Attack("Bite", ItemQuality.Standard, "mouth"),
+                    Attack("Claw Swipe", ItemQuality.Standard, "rfpaw", "lfpaw", "rrpaw", "lrpaw")
+                ],
+                attributeProfile: Stats(6, 5, 2, 0),
+                bodypartHealthMultiplier: 1.6,
+                combatStrategyKey: "Beast Skirmisher"
+            ),
+            ["Dire-Wolf"] = BeastRace(
+                "Dire-Wolf",
+                "Toed Quadruped",
+                SizeCategory.VeryLarge,
+                "Large Canid",
+                GreatBeast(),
+                "Dire-wolves are colossal wolf-beasts, broader, heavier and markedly more dangerous than even wargs.",
+                "Dire-wolves fill the mythic niche of winter pack-lords and devastating pursuit predators, the sort of beasts that turn tracks, howls and dark tree lines into immediate threats.",
+                Variants(
+                    ("a hulking dire-wolf",
+                        "This immense wolf-beast has a chest like a battering ram and a head heavy with killing jaws, every part of it scaled toward overpowering prey by force."),
+                    ("a frost-maned dire-wolf",
+                        "This monstrous canid looks like a wolf reimagined as a siege animal, with great paws, savage jaws and the mass to bowl lesser creatures over outright.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.VeryGood, "mouth"),
+                    Attack("Bite", ItemQuality.Good, "mouth"),
+                    Attack("Claw Swipe", ItemQuality.Standard, "rfpaw", "lfpaw", "rrpaw", "lrpaw")
+                ],
+                attributeProfile: Stats(8, 7, 2, 0),
+                bodypartHealthMultiplier: 1.95,
+                combatStrategyKey: "Beast Brawler"
+            ),
+            ["Dire-Bear"] = BeastRace(
+                "Dire-Bear",
+                "Toed Quadruped",
+                SizeCategory.VeryLarge,
+                "Bear",
+                GreatBeast(),
+                "Dire-bears are towering ursine horrors of immense mass, deep fur and ruinous claw strength.",
+                "Dire-bears usually stand in myth as ancient den-lords, forest tyrants and unstoppable wilderness threats whose mere presence can empty roads, camps and frontier holdings.",
+                Variants(
+                    ("a mountain-sized dire-bear",
+                        "This gigantic bear looms like a moving wall of fur and shoulder power, its paws broad enough to break bone and its jaws built for finishing what the claws begin."),
+                    ("a scar-heavy dire-bear",
+                        "This monstrous bear wears old scars beneath its thick coat, its vast frame and crushing forelimbs making it look less like an animal than a mobile disaster.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.VeryGood, "mouth"),
+                    Attack("Bite", ItemQuality.Good, "mouth"),
+                    Attack("Claw Swipe", ItemQuality.VeryGood, "rfpaw", "lfpaw", "rrpaw", "lrpaw")
+                ],
+                attributeProfile: Stats(10, 9, 0, -1),
+                bodypartHealthMultiplier: 2.2,
+                combatStrategyKey: "Beast Behemoth"
+            ),
             ["Minotaur"] = HumanoidRace(
                 "Minotaur",
                 "Horned Humanoid",
@@ -633,6 +702,96 @@ public partial class MythicalAnimalSeeder
                 attributeProfile: Stats(0, 0, 3, 1),
                 bodypartHealthMultiplier: 0.7,
                 combatStrategyKey: "Beast Swooper"
+            ),
+            ["Giant Beetle"] = BeastRace(
+                "Giant Beetle",
+                "Beetle",
+                SizeCategory.Large,
+                "Giant Insect",
+                GreatBeast(),
+                "Giant beetles are heavily armoured insects enlarged to the scale of mounts or siege vermin, with crushing mandibles and hard chitin plates.",
+                "Giant beetles commonly fill the role of living battering creatures, dungeon vermin or uncanny beasts of burden, valued and feared for the same brute resilience that makes them hard to kill.",
+                Variants(
+                    ("a plate-backed giant beetle",
+                        "This enormous beetle moves beneath a gleaming shell of layered chitin, its weighty body and crushing mandibles making every step feel deliberate and dangerous."),
+                    ("a horned giant beetle",
+                        "This outsized insect looks more like a walking cuirass than a living thing, its hard shell and snapping mouthparts suggesting endurance first and aggression second.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Good, "mandibles"),
+                    Attack("Bite", ItemQuality.Standard, "mandibles")
+                ],
+                attributeProfile: Stats(5, 6, 0, -2),
+                bodypartHealthMultiplier: 1.8,
+                combatStrategyKey: "Beast Behemoth"
+            ),
+            ["Giant Mantis"] = BeastRace(
+                "Giant Mantis",
+                "Insectoid",
+                SizeCategory.Large,
+                "Giant Insect",
+                GreatBeast(),
+                "Giant mantises are towering predatory insects whose grasping forelegs and triangular heads make them look like ambush made flesh.",
+                "Giant mantises usually occupy the niche of patient killer-beasts and temple-garden horrors, creatures remembered for stillness, sudden violence and an unnerving impression of intent.",
+                Variants(
+                    ("a scythe-limbed giant mantis",
+                        "This massive mantis stands high on its rear legs with grasping forelimbs folded close, its narrow head and poised body radiating murderous patience."),
+                    ("a leaf-green giant mantis",
+                        "This towering insect looks all angles and restraint until it moves, the hooked forelegs and predatory posture promising a frighteningly fast strike.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Standard, "mandibles"),
+                    Attack("Bite", ItemQuality.Standard, "mandibles"),
+                    Attack("Claw Swipe", ItemQuality.Good, "rleg1", "lleg1")
+                ],
+                attributeProfile: Stats(6, 5, 4, 1),
+                bodypartHealthMultiplier: 1.6,
+                combatStrategyKey: "Beast Skirmisher"
+            ),
+            ["Giant Centipede"] = BeastRace(
+                "Giant Centipede",
+                "Centipede",
+                SizeCategory.Large,
+                "Giant Centipede",
+                GreatBeast(),
+                "Giant centipedes are long, many-legged horrors with rippling segmented bodies and venomous-looking mandibles large enough to tear flesh.",
+                "Giant centipedes fill the role of burrowing terror and ruin-crawler, the sort of subterranean menace that turns cracks, culverts and cellar dark into things worth fearing.",
+                Variants(
+                    ("a rippling giant centipede",
+                        "This massive centipede moves in an unnerving wave of chitin and legs, its segmented body carrying it forward with horrible, tireless purpose."),
+                    ("a tunnel-bred giant centipede",
+                        "This elongated arthropod looks engineered for narrow dark places, with countless legs, twitching antennae and murderous mouthparts leading the way.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Good, "mandibles"),
+                    Attack("Bite", ItemQuality.Standard, "mandibles")
+                ],
+                attributeProfile: Stats(7, 6, 3, 0),
+                bodypartHealthMultiplier: 1.7,
+                combatStrategyKey: "Beast Clincher"
+            ),
+            ["Ankheg"] = BeastRace(
+                "Ankheg",
+                "Centipede",
+                SizeCategory.VeryLarge,
+                "Giant Centipede",
+                GreatBeast(),
+                "Ankhegs are immense burrowing arthropods with powerful mandibles and corrosive acid they can spit at prey or intruders.",
+                "Ankhegs usually occupy the niche of siege vermin and subterranean apex predators, monstrous tunnelers whose acid and sudden eruptions make farmland, roads and fortifications feel insecure.",
+                Variants(
+                    ("an acid-spitting ankheg",
+                        "This gigantic burrowing horror heaves its segmented body forward behind huge mandibles, every plate of chitin suggesting digging strength and violent resilience."),
+                    ("a trench-bursting ankheg",
+                        "This massive arthropod looks made to erupt from below in a shower of soil and venom, its twitching antennae and oversized mandibles preceding a hiss of acid.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.VeryGood, "mandibles"),
+                    Attack("Bite", ItemQuality.Good, "mandibles"),
+                    Attack("Acid Spit", ItemQuality.Good, "mandibles")
+                ],
+                attributeProfile: Stats(9, 8, 1, -2),
+                bodypartHealthMultiplier: 2.0,
+                combatStrategyKey: "Beast Artillery"
             ),
             ["Hippocamp"] = BeastRace(
                 "Hippocamp",
@@ -876,6 +1035,9 @@ public partial class MythicalAnimalSeeder
             "Griffin",
             "Hippogriff",
             "Ungulate",
+            "Insectoid",
+            "Beetle",
+            "Centipede",
             "Horned Humanoid",
             "Eastern Dragon",
             "Naga",
@@ -905,6 +1067,7 @@ public partial class MythicalAnimalSeeder
             "Wing Buffet",
             "Tail Spike",
             "Herbivore Bite",
+            "Acid Spit",
             "Jab",
             "Elbow"
         };
@@ -920,6 +1083,7 @@ public partial class MythicalAnimalSeeder
             "Talon Strike",
             "Wing Buffet",
             "Tail Spike",
+            "Acid Spit",
             "Jab"
         };
         HashSet<string> clinchAttackNames = new(StringComparer.OrdinalIgnoreCase)
@@ -930,9 +1094,9 @@ public partial class MythicalAnimalSeeder
             "Elbow"
         };
 
-        if (Templates.Count != 22)
+        if (Templates.Count != 29)
         {
-            issues.Add($"Expected 22 mythical race templates but found {Templates.Count}.");
+            issues.Add($"Expected 29 mythical race templates but found {Templates.Count}.");
         }
 
         foreach ((string? name, MythicalRaceTemplate? template) in Templates)

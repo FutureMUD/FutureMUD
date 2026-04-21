@@ -48,12 +48,18 @@ public partial class AnimalSeeder
                 "Its antennae and purposeful gait make it look wholly given over to work.",
                 "It hurries with the single-minded discipline of a colony creature.",
                 "nest tunnel and colony mound"));
-        yield return Insect("Beetle", "Insectoid", SizeCategory.VerySmall, 0.1, "Insect", "bombardier-beetle",
+        yield return Insect("Beetle", "Beetle", SizeCategory.VerySmall, 0.1, "Insect", "bombardier-beetle",
             InsectPack("a beetle grub", "a young beetle", "a beetle",
                 "It is armoured and compact, the body protected by hard shell and jointed legs.",
                 "Its casing makes it seem more like a moving seed or stone than a vulnerable animal.",
                 "It trundles with patient little determination.",
                 "leaf litter, bark and rotten wood"));
+        yield return Insect("Centipede", "Centipede", SizeCategory.VerySmall, 0.12, "Centipede", "insect-mandible",
+            InsectPack("a centipede hatchling", "a young centipede", "a centipede",
+                "It is long, low and many-legged, with a segmented body and restless venomous mandibles.",
+                "Its rippling gait and twitching antennae make it look like a line of bad intentions given chitin.",
+                "It scuttles in a smooth, unnerving rush that never seems to stop.",
+                "stone crack, leaf litter and damp rot"));
         yield return Insect("Mantis", "Insectoid", SizeCategory.Small, 0.2, "Insect", "insect-mandible",
             InsectPack("a mantis nymph", "a young mantis", "a mantis",
                 "It is narrow-bodied and green-limbed, with a triangular head and folded grasping forelegs.",

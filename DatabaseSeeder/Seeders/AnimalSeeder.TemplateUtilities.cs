@@ -69,6 +69,9 @@ public partial class AnimalSeeder
             ["Walrus"] = Model("Walrus", 250, 12.5, 135, 13.5),
             ["Insect"] = Model("Insect", 10, 0.5, 18, 1.8),
             ["Winged Insect"] = Model("Winged Insect", 12, 0.6, 16, 1.6),
+            ["Giant Insect"] = Model("Giant Insect", 120, 6.0, 40, 4.0),
+            ["Centipede"] = Model("Centipede", 25, 1.25, 15, 1.5),
+            ["Giant Centipede"] = Model("Giant Centipede", 220, 11.0, 24, 2.4),
             ["Arachnid"] = Model("Arachnid", 12, 0.6, 12, 1.2),
             ["Scorpion"] = Model("Scorpion", 15, 0.75, 14, 1.4),
             ["Reptilian"] = Model("Reptilian", 45, 2.25, 24, 2.4),
@@ -185,6 +188,22 @@ public partial class AnimalSeeder
                 ["brain", "heart", "gut", "spiracles"],
                 [],
                 ["Torso", "Head", "Right Wing", "Left Wing"]
+            ),
+            ["beetle"] = new(
+                "beetle",
+                AnimalBoneExpectation.Forbidden,
+                ["thorax", "head", "abdomen", "mandibles", "rleg1", "lleg3"],
+                ["brain", "heart", "gut", "spiracles"],
+                [],
+                ["Torso", "Head", "Right Leg 1", "Left Leg 3"]
+            ),
+            ["centipede"] = new(
+                "centipede",
+                AnimalBoneExpectation.Forbidden,
+                ["thorax", "head", "midbody", "hindbody", "tail", "mandibles", "rleg1", "lleg6"],
+                ["brain", "heart", "gut", "spiracles"],
+                [],
+                ["Torso", "Head", "Tail", "Right Leg 1", "Left Leg 6"]
             ),
             ["arachnid"] = new(
                 "arachnid",

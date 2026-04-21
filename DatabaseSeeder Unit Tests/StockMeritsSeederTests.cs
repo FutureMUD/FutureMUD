@@ -144,8 +144,9 @@ public class StockMeritsSeederTests
             int.Parse(XElement.Parse(x.Definition).Attribute("verb")?.Value ?? "-1") == (int)verb);
     }
 
-    private static void SeedPrerequisites(FuturemudDatabaseContext context)
+    private static void SeedPrerequisites(FuturemudDatabaseContext context, params string[] omittedTraitNames)
     {
+        HashSet<string> omittedTraits = new(omittedTraitNames, StringComparer.OrdinalIgnoreCase);
         SeedAccount(context);
         context.FutureProgs.Add(CreateProg(1, "AlwaysTrue", ProgVariableTypes.Boolean, "return true"));
         context.Races.Add(new Race
@@ -174,6 +175,13 @@ public class StockMeritsSeederTests
             CreateTraitDefinition(2, "Constitution", "attribute", 0),
             CreateTraitDefinition(3, "Perception", "attribute", 0),
             CreateTraitDefinition(4, "Willpower", "attribute", 0));
+        foreach (TraitDefinition trait in context.TraitDefinitions.Local.ToList())
+        {
+            if (omittedTraits.Contains(trait.Name))
+            {
+                context.TraitDefinitions.Remove(trait);
+            }
+        }
 
         BodyProto body = CreateBodyProto(1, "Humanoid");
         context.BodyProtos.Add(body);
@@ -246,6 +254,20 @@ public class StockMeritsSeederTests
         {
             Assert.AreEqual(1, context.FutureProgs.Count(x => x.FunctionName == progName), $"Expected a single helper prog named {progName}.");
         }
+    }
+
+    [TestMethod]
+    public void SeedData_MissingPerceptionAttribute_SkipsInapplicableTraitMeritAndStillCountsAsInstalled()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedPrerequisites(context, "Perception");
+        StockMeritsSeeder seeder = new();
+
+        seeder.SeedData(context, new Dictionary<string, string>());
+
+        Assert.IsFalse(context.Merits.Any(x => x.Name == "Keen-Eyed"));
+        Assert.IsTrue(context.Merits.Any(x => x.Name == "Weak-Willed"));
+        Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
     }
 
     [TestMethod]

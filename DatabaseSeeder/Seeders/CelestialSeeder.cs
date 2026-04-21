@@ -1,6 +1,7 @@
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Models;
+using MudSharp.TimeAndDate.Date;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -128,7 +129,7 @@ What epoch date do you want to use?",
             (context, answers) => AnswerIsYes(answers, "installmoon"),
             (answer, context) => (true, string.Empty)),
         ("moonepoch",
-            @"What epoch date should be used for the moon? This is a date that is known to be a full moon. For Earth, you could use 21/jan/2000.",
+            @"What epoch date should be used for the moon? This is a date that is known to be a full moon. For the stock Earth moon package, the suggested default is the 21st day of the year in the calendar you selected.",
             (context, answers) => AnswerIsYes(answers, "installmoon"),
             ValidateDate),
         ("installgasgiantmoon",
@@ -144,7 +145,7 @@ What epoch date do you want to use?",
             (context, answers) => AnswerIsYes(answers, "installgasgiantmoon"),
             ValidateDate),
         ("gasgiantmoonepoch",
-            @"What epoch date should be used for Ganymede? This should be a date that is known to be a full Ganymede as seen from Jupiter.",
+            @"What epoch date should be used for Ganymede? This should be a date that is known to be a full Ganymede as seen from Jupiter. The stock package uses an epoch-aligned default at the start of the selected calendar year.",
             (context, answers) => AnswerIsYes(answers, "installgasgiantmoon"),
             ValidateDate)
     ];
@@ -240,7 +241,8 @@ What epoch date do you want to use?",
             "You must now enter a valid date for the 'epoch' of your Earth-facing sun.",
             "Generally you'll want this to be whatever date is equivalent to the 1st of the first month in your calendar, in the same year that your game's current date uses.",
             "A sensible stock default for this package is the first day of the first month.",
-            1);
+            1,
+            example => $"For this calendar, a start-of-year example would look like {example}.");
     }
 
     internal static ConsoleQuestionDisplay ResolveMoonEpochDisplay(FuturemudDatabaseContext context,
@@ -251,9 +253,10 @@ What epoch date do you want to use?",
             answers,
             "mooncalendar",
             "What epoch date should be used for the moon?",
-            "This should be a date that is known to be a full moon in the calendar you selected.",
-            "The stock Earth moon package uses day 21 of the first month as its known full-moon reference.",
-            21);
+            "This should be a date that is known to be a full moon in the calendar you selected. For the stock Earth moon package, that reference point is the 21st day of the year rather than simply the 21st day of the first month.",
+            "A sensible stock default for this package is the 21st day of the year in your selected calendar.",
+            21,
+            example => $"For this calendar, the 21st day of the year would be written as {example}.");
     }
 
     internal static ConsoleQuestionDisplay ResolveGasGiantSunEpochDisplay(FuturemudDatabaseContext context,
@@ -266,7 +269,8 @@ What epoch date do you want to use?",
             "What epoch date should be used for the Jupiter-facing Sun?",
             "This should be the start-of-year epoch for your chosen calendar.",
             "A sensible stock default for this package is the first day of the first month.",
-            1);
+            1,
+            example => $"For this calendar, a start-of-year example would look like {example}.");
     }
 
     internal static ConsoleQuestionDisplay ResolveGasGiantMoonEpochDisplay(FuturemudDatabaseContext context,
@@ -277,9 +281,10 @@ What epoch date do you want to use?",
             answers,
             "gasgiantcalendar",
             "What epoch date should be used for Ganymede?",
-            "This is the stock epoch-aligned reference date used by the seeded Jupiter/Ganymede package.",
+            "This should be a date that is known to be a full Ganymede as seen from Jupiter. The seeded package uses an epoch-aligned reference at the start of the selected calendar year.",
             "The seeded default uses the first day of the first month so the package lines up with the authored epoch constants.",
-            1);
+            1,
+            example => $"For this calendar, an epoch-aligned example would look like {example}.");
     }
 
     private static bool AnswerIsYes(IReadOnlyDictionary<string, string> answers, string key)
@@ -302,9 +307,14 @@ What epoch date do you want to use?",
     private static string? ResolveEpochDefault(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> answers,
         string calendarAnswerKey,
-        int day)
+        int dayOfYear)
     {
-        return TryGetCalendarDateFormat(context, answers, calendarAnswerKey, day, out string? formattedDate)
+        if (!TryGetCalendarPromptInfo(context, answers, calendarAnswerKey, out CalendarPromptInfo? info))
+        {
+            return null;
+        }
+
+        return TryFormatCalendarDayOfYear(info, dayOfYear, info.CurrentYear, out string? formattedDate)
             ? formattedDate
             : null;
     }
@@ -316,7 +326,8 @@ What epoch date do you want to use?",
         string heading,
         string guidance,
         string stockDefaultExplanation,
-        int defaultDay)
+        int defaultDayOfYear,
+        Func<string, string> exampleTextFactory)
     {
         if (!TryGetCalendarPromptInfo(context, answers, calendarAnswerKey, out CalendarPromptInfo? info))
         {
@@ -329,13 +340,12 @@ Please enter the epoch date using the format of the calendar you selected.",
                 null);
         }
 
-        string monthExample = FormatCalendarDate(info, 1, info.FirstMonthAlias, "year");
-        string moonExample = FormatCalendarDate(info, 21, info.FirstMonthAlias, "year");
-        string? defaultAnswer = ResolveEpochDefault(context, answers, calendarAnswerKey, defaultDay);
-
-        string exampleText = defaultDay == 21
-            ? $"For this calendar, a first-month full-moon style example would look like {moonExample}."
-            : $"For this calendar, a start-of-year example would look like {monthExample}.";
+        string? defaultAnswer = TryFormatCalendarDayOfYear(info, defaultDayOfYear, info.CurrentYear, out string? formattedDefault)
+            ? formattedDefault
+            : null;
+        string exampleText = TryFormatCalendarDayOfYear(info, defaultDayOfYear, "year", out string? formattedExample)
+            ? exampleTextFactory(formattedExample!)
+            : "Please enter the epoch date using the format of the calendar you selected.";
 
         return new ConsoleQuestionDisplay(
             $@"{heading}
@@ -348,16 +358,27 @@ The selected calendar is {info.CalendarName}.
             defaultAnswer);
     }
 
-    private static bool TryGetCalendarDateFormat(FuturemudDatabaseContext context,
-        IReadOnlyDictionary<string, string> answers,
-        string calendarAnswerKey,
-        int day,
+    private static bool TryFormatCalendarDayOfYear(CalendarPromptInfo info,
+        int dayOfYear,
+        string year,
         out string? formattedDate)
     {
-        if (TryGetCalendarPromptInfo(context, answers, calendarAnswerKey, out CalendarPromptInfo? info))
+        if (dayOfYear < 1)
         {
-            formattedDate = FormatCalendarDate(info, day, info.FirstMonthAlias, info.CurrentYear);
-            return true;
+            formattedDate = null;
+            return false;
+        }
+
+        int remainingDays = dayOfYear;
+        foreach (Month month in info.Months)
+        {
+            if (remainingDays <= month.Days)
+            {
+                formattedDate = FormatCalendarDate(info.Calendar, remainingDays, month.Alias, year);
+                return true;
+            }
+
+            remainingDays -= month.Days;
         }
 
         formattedDate = null;
@@ -379,10 +400,6 @@ The selected calendar is {info.CalendarName}.
         }
 
         XElement definition = XElement.Parse(calendar.Definition);
-        string firstMonthAlias = definition.Descendants("month")
-                                 .Select(x => x.Element("alias")?.Value)
-                                 .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x)) ??
-                             "january";
         string calendarName = definition.Element("fullname")?.Value ??
                            definition.Element("shortname")?.Value ??
                            definition.Element("alias")?.Value ??
@@ -399,8 +416,61 @@ The selected calendar is {info.CalendarName}.
             return false;
         }
 
-        info = new CalendarPromptInfo(calendar, calendarName, firstMonthAlias, calendar.Date, parts[yearIndex]);
+        if (!int.TryParse(parts[yearIndex], NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture,
+                out int currentYear) ||
+            !TryLoadCalendarMonths(definition, currentYear, out List<Month> months))
+        {
+            return false;
+        }
+
+        info = new CalendarPromptInfo(calendar, calendarName, parts[yearIndex], months);
         return true;
+    }
+
+    private static bool TryLoadCalendarMonths(XElement definition, int currentYear, out List<Month> months)
+    {
+        months = new List<Month>();
+        try
+        {
+            XElement? monthsElement = definition.Element("months");
+            if (monthsElement?.HasElements != true)
+            {
+                return false;
+            }
+
+            months.AddRange(monthsElement.Elements("month")
+                .Select(element =>
+                {
+                    MonthDefinition monthDefinition = new();
+                    monthDefinition.LoadFromXml(element);
+                    return new Month(monthDefinition, currentYear);
+                }));
+
+            XElement? intercalariesElement = definition.Element("intercalarymonths");
+            if (intercalariesElement?.HasElements == true)
+            {
+                months.AddRange(intercalariesElement.Elements("intercalarymonth")
+                    .Select(element =>
+                    {
+                        IntercalaryMonth intercalaryMonth = new();
+                        intercalaryMonth.LoadFromXml(element);
+                        return intercalaryMonth;
+                    })
+                    .Where(x => x.Rule.IsIntercalaryYear(currentYear))
+                    .Select(x => new Month(x.Month, currentYear)));
+            }
+
+            months = months
+                .OrderBy(x => x.NominalOrder)
+                .ToList();
+
+            return months.Count > 0;
+        }
+        catch
+        {
+            months = new List<Month>();
+            return false;
+        }
     }
 
     internal static string FormatCalendarDate(Calendar calendar, int day, string monthAlias, string year)
@@ -425,11 +495,6 @@ The selected calendar is {info.CalendarName}.
         rendered[dayIndex] = day.ToString($"D{Math.Max(2, parts[dayIndex].Length)}", System.Globalization.CultureInfo.InvariantCulture);
         rendered[monthIndex] = monthAlias;
         return $"{rendered[0]}{separators[0]}{rendered[1]}{separators[1]}{rendered[2]}";
-    }
-
-    private static string FormatCalendarDate(CalendarPromptInfo info, int day, string monthAlias, string year)
-    {
-        return FormatCalendarDate(info.Calendar, day, monthAlias, year);
     }
 
     private static List<string> SplitDateParts(string value)
@@ -480,9 +545,8 @@ The selected calendar is {info.CalendarName}.
     private sealed record CalendarPromptInfo(
         Calendar Calendar,
         string CalendarName,
-        string FirstMonthAlias,
-        string CurrentDate,
-        string CurrentYear);
+        string CurrentYear,
+        IReadOnlyList<Month> Months);
 
     private static (bool Success, string error) ValidateCalendar(string answer, FuturemudDatabaseContext context)
     {

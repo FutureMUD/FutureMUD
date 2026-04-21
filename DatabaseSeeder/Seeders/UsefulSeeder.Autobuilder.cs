@@ -55,8 +55,9 @@ public partial class UsefulSeeder
 	private void SeedTerrainAutobuilderCore(FuturemudDatabaseContext context, ICollection<string> errors)
 	{
 		List<Terrain> terrains = context.Terrains
-			.Where(x => !string.Equals(x.Name, "Void", StringComparison.OrdinalIgnoreCase))
 			.OrderBy(x => x.Id)
+			.AsEnumerable()
+			.Where(x => !string.Equals(x.Name, "Void", StringComparison.OrdinalIgnoreCase))
 			.ToList();
 		if (!terrains.Any())
 		{

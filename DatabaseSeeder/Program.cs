@@ -17,6 +17,35 @@ internal class Program
 {
     private static readonly IDatabaseUpgradeCoordinator UpgradeCoordinator = new DatabaseUpgradeCoordinator();
     private static string? ConnectionString { get; set; }
+    private static bool IsInteractiveConsole => !(Console.IsInputRedirected || Console.IsOutputRedirected || Console.IsErrorRedirected);
+
+    private static void SafeClear()
+    {
+        if (!IsInteractiveConsole)
+        {
+            return;
+        }
+
+        try
+        {
+            Console.Clear();
+        }
+        catch
+        {
+            // Some redirected or hosted consoles do not support clearing.
+        }
+    }
+
+    private static void WaitForReturnToMenu()
+    {
+        if (IsInteractiveConsole)
+        {
+            Console.ReadKey();
+            return;
+        }
+
+        Console.ReadLine();
+    }
 
     private static void Main(string[] args)
     {
@@ -55,14 +84,14 @@ designed to be used when the MUD is newly installed.
 From time to time new updates to the seeder may bring content for those who have 
 already got an established game, in this case these packages will be clearly 
 marked. You should backup your database before using this tool in that scenario 
-just in case.
+        just in case.
 
 Please press enter to begin.".WriteLineConsole();
         Console.ReadLine();
-        Console.Clear();
+        SafeClear();
 #if DEBUG
         ConnectionString =
-            "server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;";
+            "server=localhost;port=3307;database=rpi_engine;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
 #else
 		Console.WriteLine("Please enter the connection string for your database: ");
 		Console.Write("This is very likely to be in the following format: ");
@@ -440,7 +469,7 @@ The exception details were as follows:
         string errorMessage = string.Empty;
         while (true)
         {
-            Console.Clear();
+            SafeClear();
             Console.WriteLine("Loading seeders...");
             Type iType = typeof(IDatabaseSeeder);
             List<IDatabaseSeeder> seeders = Assembly
@@ -472,7 +501,7 @@ The exception details were as follows:
                     .ThenBy(x => x.Seeder.Name)
                     .ToList();
 
-                Console.Clear();
+                SafeClear();
                 ConsoleLayoutHelper.WriteWrapped("Please enter the number of the package you wish to import, or QUIT to exit: ");
                 Console.WriteLine();
                 foreach ((IDatabaseSeeder Seeder, SeederAssessment Assessment) assessedSeeder in assessedSeeders)
@@ -517,11 +546,11 @@ The exception details were as follows:
 
     private static void ShowSeeder(IDatabaseSeeder seeder)
     {
-        Console.Clear();
+        SafeClear();
         Console.WriteLine("Loading package...");
         using FuturemudDatabaseContext context = CreateContext(useLazyLoading: true);
         SeederAssessment assessment = seeder.AssessSeedData(context);
-        Console.Clear();
+        SafeClear();
         $"Package: #A{seeder.Name}#F\nTagline: #A{seeder.Tagline}\n\n#3{seeder.FullDescription.Wrap(90, "\t")}#F\n"
             .WriteLineConsole();
 
@@ -580,7 +609,7 @@ The exception details were as follows:
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
                 Console.WriteLine("Press any key to return to main menu.");
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.ReadKey();
+                WaitForReturnToMenu();
                 return;
             }
 
@@ -616,7 +645,7 @@ The exception details were as follows:
                     if (question.AutoReuseLastAnswer)
                     {
                         answers[question.Id] = rememberedAnswer;
-                        Console.Clear();
+                        SafeClear();
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         topline.WriteLineConsole();
                         Console.ForegroundColor = ConsoleColor.White;
@@ -636,7 +665,7 @@ The exception details were as follows:
 
             while (true)
             {
-                Console.Clear();
+                SafeClear();
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 topline.WriteLineConsole();
                 Console.ForegroundColor = ConsoleColor.White;
@@ -697,7 +726,7 @@ The exception details were as follows:
             }
         }
 
-        Console.Clear();
+        SafeClear();
         $"Applying the data from the #2{seeder.Name}#F seeder...".WriteLineConsole();
         string result = seeder.SeedData(context, answers);
         Console.WriteLine(result);

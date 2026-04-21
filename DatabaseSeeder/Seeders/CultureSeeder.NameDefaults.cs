@@ -68,9 +68,6 @@ public partial class CultureSeeder
 			["North African"] = ("Morrocan", "Morrocan")
 		};
 
-	private static readonly IReadOnlyDictionary<string, (string Male, string Female)> ModernEthnicityNameCultureMappings =
-		CreateModernEthnicityNameCultureMappings();
-
 	private static readonly IReadOnlyList<string> FallbackGivenNames =
 		["Alex", "Sam", "Jamie", "Jordan", "Morgan", "Casey", "Riley", "Taylor"];
 
@@ -130,7 +127,7 @@ public partial class CultureSeeder
 
 	private void ApplyModernEthnicityNameCultureMappings()
 	{
-		ApplyEthnicityNameCultureMappings(ModernEthnicityNameCultureMappings);
+		ApplyEthnicityNameCultureMappings(CreateModernEthnicityNameCultureMappings());
 	}
 
 	private void EnsureFallbackRandomNameProfiles()

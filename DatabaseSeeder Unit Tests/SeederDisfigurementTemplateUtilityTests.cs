@@ -350,6 +350,45 @@ public class SeederDisfigurementTemplateUtilityTests
 	}
 
 	[TestMethod]
+	public void SeedTemplates_MultipleTattooDefinitions_AllocateDistinctTemplateIdsBeforeSave()
+	{
+		using var context = BuildContext();
+		var body = SeedMinimalBodyContext(context);
+		context.Colours.Add(new Colour
+		{
+			Id = 80,
+			Name = "Black",
+			Fancy = "black"
+		});
+		context.SaveChanges();
+
+		var definitions = new[]
+		{
+			new SeederTattooTemplateDefinition(
+				"Anchor",
+				"an anchor tattoo",
+				"A neatly inked anchor marks the skin.",
+				InkColours: new Dictionary<string, double> { ["Black"] = 1.0 }),
+			new SeederTattooTemplateDefinition(
+				"Rose",
+				"a rose tattoo",
+				"A rose blooms in black ink on the skin.",
+				InkColours: new Dictionary<string, double> { ["Black"] = 1.0 })
+		};
+
+		SeederDisfigurementTemplateUtilities.SeedTemplates(context, body, tattooDefinitions: definitions);
+
+		var templates = context.DisfigurementTemplates
+			.OrderBy(x => x.Name)
+			.ToList();
+		Assert.AreEqual(2, templates.Count);
+		CollectionAssert.AreEquivalent(
+			new long[] { 1L, 2L },
+			templates.Select(x => x.Id).ToArray(),
+			"New disfigurement templates should receive unique ids even before the context is saved.");
+	}
+
+	[TestMethod]
 	public void HumanSeeder_TattooTemplates_DefineDirectSkillBandsAndRuntimeWritingDefaults()
 	{
 		Assert.IsTrue(HumanSeeder.TattooTemplatesForTesting.Count > 0,

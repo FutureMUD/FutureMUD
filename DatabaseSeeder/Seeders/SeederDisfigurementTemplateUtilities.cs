@@ -192,11 +192,23 @@ internal static class SeederDisfigurementTemplateUtilities
 		var editableItem = CreateEditableItem(context);
 		template = new MudSharp.Models.DisfigurementTemplate
 		{
+			Id = GetNextDisfigurementTemplateId(context),
 			RevisionNumber = 0,
 			EditableItem = editableItem
 		};
 		context.DisfigurementTemplates.Add(template);
 		return template;
+	}
+
+	private static long GetNextDisfigurementTemplateId(FuturemudDatabaseContext context)
+	{
+		var localMax = context.DisfigurementTemplates.Local.Any()
+			? context.DisfigurementTemplates.Local.Max(x => x.Id)
+			: 0L;
+		var persistedMax = context.DisfigurementTemplates.Any()
+			? context.DisfigurementTemplates.Max(x => x.Id)
+			: 0L;
+		return Math.Max(localMax, persistedMax) + 1L;
 	}
 
 	private static EditableItem CreateEditableItem(FuturemudDatabaseContext context)

@@ -1,0 +1,124 @@
+================================================================================
+
+			 ______     _                 ___  ____   _______ 
+			 |  ___|   | |                |  \/  | | | |  _  \
+			 | |_ _   _| |_ _   _ _ __ ___| .  . | | | | | | |
+			 |  _| | | | __| | | | '__/ _ \ |\/| | | | | | | |
+			 | | | |_| | |_| |_| | | |  __/ |  | | |_| | |/ / 
+			 \_|  \__,_|\__|\__,_|_|  \___\_|  |_/\___/|___/  
+                                                 
+================================================================================
+
+Welcome to the FutureMUD Database Seeder v2.3.0
+
+This tool will import pre-generated data into your FutureMUD database. It is 
+designed to be used when the MUD is newly installed.
+
+From time to time new updates to the seeder may bring content for those who have 
+already got an established game, in this case these packages will be clearly 
+marked. You should backup your database before using this tool in that scenario 
+        just in case.
+
+Please press enter to begin.
+[AUTO] begin => <ENTER>
+Ensuring that Database migrations are applied...
+Database is up to date.
+Loading seeders...
+Please enter the number of the package you wish to import, or QUIT to exit: 
+[AUTO] menu#1 => 4
+
+1) [Economy             ] [Ready   ] Installs a stock economic zone shell, market categories,
+                                     influences, populations and shoppers
+2) [Merits and Flaws    ] [Ready   ] Stock merits, flaws, and helper progs for character creation
+3) [AI Storyteller Starter Pack] [Ready   ] Adds one complete AI storyteller example package
+4) [Health Seeder       ] [Ready   ] Sets up surgeries, drugs, and medical starter content
+5) [Animal Seeder       ] [Ready   ] Installs body types for animals
+6) [Weather Seeder      ] [Ready   ] Sets up Weather and Seasons
+7) [Items               ] [Ready   ] A starter collection of items and crafts
+8) [Law Seeder          ] [Ready   ] Sets up Legal Enforcement, Laws, and some related AI.
+9) [Human Seeder        ] [Update  ] Adds a human race and associated data to the game
+10) [Culture Seeder      ] [Update  ] Add Name Cultures, Random Names and optionally culture packs
+11) [Kickstart           ] [Update  ] A collection of useful stock items, AI, tags, covers and
+                                      helpers
+12) [Celestial Seeder    ] [Additive] Sets up Suns, Moons, etc
+13) [Currency            ] [Additive] Set up a currency (or currencies) for your game
+14) [Core                ] [Current ] Should be the first package that all MUDs import except for
+                                      very advanced users in specific circumstances
+15) [Time Seeder         ] [Current ] Sets up Calendars and Clocks
+16) [Attributes          ] [Current ] Sets up attributes for your game
+17) [Skill Examples      ] [Current ] Sets up templates and examples for skills
+18) [Skill Package       ] [Current ] Sets up a complete package of skills
+19) [Clans               ] [Current ] Set up a few common clan templates
+20) [Combat              ] [Current ] Attacks, Echoes, Weapon Types and all the fun stuff
+21) [Character Creation  ] [Current ] Sets up Character Creation and Guest Logins
+22) [Arena               ] [Blocked ] Installs an example combat arena with gladiator, boxing,
+                                      wrestling, champion, and animal formats.
+23) [Mythical Animal Seeder] [Blocked ] Installs a catalogue of mythic beasts and hybrid folk
+24) [Robot Seeder        ] [Blocked ] Installs robotic races, chassis bodies, and robot maintenance
+                                      content
+
+Your choice: Loading package...
+Package: Health Seeder
+Tagline: Sets up surgeries, drugs, and medical starter content
+
+	Installs a release-ready medical starter set for the selected tech level, including
+	human surgery, a broader drug catalogue, and basic veterinary procedures for stock
+	mammal bodies when those bodies are available.
+
+Status: Ready
+This package is ready to install.
+
+Reruns reuse stock medical knowledges, procedures, phases, and drugs by stable names.
+
+Do you want to install this package?
+[AUTO] install-package => yes
+Please type yes or no: 
+
+???????????????????????????????????????????????????????
+? Initial Setup questions for the Health Seeder seeder ?
+???????????????????????????????????????????????????????
+
+What should be the rough equivalent tech level of the surgeries, drugs and the like that
+[AUTO] techlevel => pre-modern
+you would like to install?
+
+  primitive - no replantation, transplantation, resection or implants
+  pre-modern - no replantation, transplantation or implants
+  modern - all surgical procedures
+
+Please answer primitive, pre-modern, or modern: 
+
+> Applying the data from the Health Seeder seeder...
+Successfully set up Health Modules.
+Press any key to return to main menu.
+[AUTO] return-to-menu => <ENTER>
+Loading seeders...
+Please enter the number of the package you wish to import, or QUIT to exit: 
+[AUTO] menu#2 => QUIT
+
+1) [Economy             ] [Ready   ] Installs a stock economic zone shell, market categories,
+                                     influences, populations and shoppers
+2) [Merits and Flaws    ] [Ready   ] Stock merits, flaws, and helper progs for character creation
+3) [AI Storyteller Starter Pack] [Ready   ] Adds one complete AI storyteller example package
+4) [Animal Seeder       ] [Ready   ] Installs body types for animals
+5) [Weather Seeder      ] [Ready   ] Sets up Weather and Seasons
+6) [Items               ] [Ready   ] A starter collection of items and crafts
+7) [Law Seeder          ] [Ready   ] Sets up Legal Enforcement, Laws, and some related AI.
+8) [Human Seeder        ] [Update  ] Adds a human race and associated data to the game
+9) [Culture Seeder      ] [Update  ] Add Name Cultures, Random Names and optionally culture packs
+10) [Kickstart           ] [Update  ] A collection of useful stock items, AI, tags, covers and
+                                      helpers
+11) [Celestial Seeder    ] [Additive] Sets up Suns, Moons, etc
+12) [Currency            ] [Additive] Set up a currency (or currencies) for your game
+13) [Core                ] [Current ] Should be the first package that all MUDs import except for
+                                      very advanced users in specific circumstances
+14) [Time Seeder         ] [Current ] Sets up Calendars and Clocks
+15) [Attributes          ] [Current ] Sets up attributes for your game
+16) [Skill Examples      ] [Current ] Sets up templates and examples for skills
+17) [Skill Package       ] [Current ] Sets up a complete package of skills
+18) [Clans               ] [Current ] Set up a few common clan templates
+19) [Combat              ] [Current ] Attacks, Echoes, Weapon Types and all the fun stuff
+20) [Character Creation  ] [Current ] Sets up Character Creation and Guest Logins
+21) [Health Seeder       ] [Current ] Sets up surgeries, drugs, and medical starter content
+22) [Arena               ] [Blocked ] Installs an example combat arena with gladiator, boxing,
+                                      wrestling, champion, and animal formats.

@@ -1,0 +1,220 @@
+================================================================================
+
+			 ______     _                 ___  ____   _______ 
+			 |  ___|   | |                |  \/  | | | |  _  \
+			 | |_ _   _| |_ _   _ _ __ ___| .  . | | | | | | |
+			 |  _| | | | __| | | | '__/ _ \ |\/| | | | | | | |
+			 | | | |_| | |_| |_| | | |  __/ |  | | |_| | |/ / 
+			 \_|  \__,_|\__|\__,_|_|  \___\_|  |_/\___/|___/  
+                                                 
+================================================================================
+
+Welcome to the FutureMUD Database Seeder v2.3.0
+
+This tool will import pre-generated data into your FutureMUD database. It is 
+designed to be used when the MUD is newly installed.
+
+From time to time new updates to the seeder may bring content for those who have 
+already got an established game, in this case these packages will be clearly 
+marked. You should backup your database before using this tool in that scenario 
+        just in case.
+
+Please press enter to begin.
+[AUTO] begin => <ENTER>
+Ensuring that Database migrations are applied...
+Database is up to date.
+Loading seeders...
+Please enter the number of the package you wish to import, or QUIT to exit: 
+[AUTO] menu#1 => 3
+
+1) [Clans               ] [Ready   ] Set up a few common clan templates
+2) [Merits and Flaws    ] [Ready   ] Stock merits, flaws, and helper progs for character creation
+3) [Kickstart           ] [Ready   ] A collection of useful stock items, AI, tags, covers and
+                                     helpers
+4) [AI Storyteller Starter Pack] [Ready   ] Adds one complete AI storyteller example package
+5) [Animal Seeder       ] [Ready   ] Installs body types for animals
+6) [Weather Seeder      ] [Ready   ] Sets up Weather and Seasons
+7) [Law Seeder          ] [Ready   ] Sets up Legal Enforcement, Laws, and some related AI.
+8) [Human Seeder        ] [Update  ] Adds a human race and associated data to the game
+9) [Culture Seeder      ] [Update  ] Add Name Cultures, Random Names and optionally culture packs
+10) [Celestial Seeder    ] [Additive] Sets up Suns, Moons, etc
+11) [Currency            ] [Additive] Set up a currency (or currencies) for your game
+12) [Core                ] [Current ] Should be the first package that all MUDs import except for
+                                      very advanced users in specific circumstances
+13) [Time Seeder         ] [Current ] Sets up Calendars and Clocks
+14) [Attributes          ] [Current ] Sets up attributes for your game
+15) [Skill Examples      ] [Current ] Sets up templates and examples for skills
+16) [Skill Package       ] [Current ] Sets up a complete package of skills
+17) [Combat              ] [Current ] Attacks, Echoes, Weapon Types and all the fun stuff
+18) [Character Creation  ] [Current ] Sets up Character Creation and Guest Logins
+19) [Economy             ] [Blocked ] Installs a stock economic zone shell, market categories,
+                                      influences, populations and shoppers
+20) [Arena               ] [Blocked ] Installs an example combat arena with gladiator, boxing,
+                                      wrestling, champion, and animal formats.
+21) [Health Seeder       ] [Blocked ] Sets up surgeries, drugs, and medical starter content
+22) [Mythical Animal Seeder] [Blocked ] Installs a catalogue of mythic beasts and hybrid folk
+23) [Robot Seeder        ] [Blocked ] Installs robotic races, chassis bodies, and robot maintenance
+                                      content
+24) [Items               ] [Blocked ] A starter collection of items and crafts
+
+Your choice: Loading package...
+Package: Kickstart
+Tagline: A collection of useful stock items, AI, tags, covers and helpers
+
+	This package gives options for a bunch of things that are not absolutely essential and
+	that you might want to implement differently, but that I have already gone to the effort
+	of having set up and think you might like to use.
+	
+	This includes things like useful game item components, AI templates, helper tags, ranged
+	covers, newbie hints and other building helpers.
+	
+	Inside the package there are a few numbered "Core Item Packages". The reason for
+	this is that there have been updates to the useful seeder since its first release, and
+	these sub-packages were for earlier adopters to update their existing MUDs with. I
+	recommend that you install all of the Core Item Packages as they are appropriate for any
+	MUD in nearly any setting.
+
+Status: Ready
+This package is ready to install.
+
+Kickstart now owns stock items, AI, builder tags, ranged covers, hints, and dream content; core
+terrain foundations are seeded separately.
+This package can be rerun to install missing stock kickstart content without duplicating its
+tracked packages.
+
+Do you want to install this package?
+[AUTO] install-package => yes
+Please type yes or no: 
+
+???????????????????????????????????????????????????
+? Initial Setup questions for the Kickstart seeder ?
+???????????????????????????????????????????????????
+
+Do you want to install the stock AI example package? This includes repeatable command,
+[AUTO] ai => yes
+combat, scavenging and wandering examples, plus the newer arena, arboreal, den-builder
+and lair-scavenger samples.
+
+Please answer yes or no: 
+
+> ???????????????????????????????????????????????????
+? Initial Setup questions for the Kickstart seeder ?
+???????????????????????????????????????????????????
+
+Do you want to install a collection of simple ranged covers?
+[AUTO] covers => yes
+
+Please answer yes or no: 
+
+> ???????????????????????????????????????????????????
+? Initial Setup questions for the Kickstart seeder ?
+???????????????????????????????????????????????????
+
+Item Package 1
+
+Do you want to include a package of standard item definitions, which includes some
+[AUTO] items => yes
+commonly used item component types, including a wide selection of containers, liquid
+containers, doors, locks, keys, basic writing implements, insulation for clothing,
+components that let worn clothing hide or change characteristics (wigs, coloured
+contacts, etc), components that correct for myopia flaws, as well as identity obscurers
+(hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further
+writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs,
+dice, torches and lanterns, repair kits, water sources and smokeable tobacco.
+
+Shall we install this package? Please answer yes or no: 
+
+> ???????????????????????????????????????????????????
+? Initial Setup questions for the Kickstart seeder ?
+???????????????????????????????????????????????????
+
+Do you want to install some common modern setting item component types like batteries,
+[AUTO] modernitems => no
+chargers, power plugs, powered lights, radios, electric heaters and coolers, fireplaces,
+campfires, grid creators, telephones, liquid grids and fuel generators?
+
+Please answer yes or no: 
+
+> ???????????????????????????????????????????????????
+? Initial Setup questions for the Kickstart seeder ?
+???????????????????????????????????????????????????
+
+Do you want to install pre-made tags for use with items, crafts and projects? The main
+[AUTO] tags => yes
+reason not to do this is if you are planning on an implementation that substantially
+differs from the one that comes with this seeder.
+
+Please answer yes or no: 
+
+> ???????????????????????????????????????????????????
+? Initial Setup questions for the Kickstart seeder ?
+???????????????????????????????????????????????????
+
+Do you want to install a starter autobuilder package for the stock terrain catalogue?
+[AUTO] autobuilder => yes
+This adds terrain-aware room templates with preset baseline and random descriptions so
+builders can immediately generate rooms that match the seeded terrains, especially when
+paired with the core area-shape templates and Terrain Planner.
+
+Please answer yes or no: 
+
+> ???????????????????????????????????????????????????
+? Initial Setup questions for the Kickstart seeder ?
+???????????????????????????????????????????????????
+
+Do you want to install some newbie hints that will instruct new users about the key
+[AUTO] hints => yes
+commands and engine concepts that they need to know?
+
+Please answer yes or no: 
+
+> ???????????????????????????????????????????????????
+? Initial Setup questions for the Kickstart seeder ?
+???????????????????????????????????????????????????
+
+Do you want to install some dream templates?
+[AUTO] dreams => no
+
+Please answer yes or no: 
+
+> Applying the data from the Kickstart seeder...
+The operation completed with the following errors or warnings:
+
+Detected that ranged covers were already installed. Did not seed any covers.
+Press any key to return to main menu.
+[AUTO] return-to-menu => <ENTER>
+Loading seeders...
+Please enter the number of the package you wish to import, or QUIT to exit: 
+[AUTO] menu#2 => QUIT
+
+1) [Economy             ] [Ready   ] Installs a stock economic zone shell, market categories,
+                                     influences, populations and shoppers
+2) [Clans               ] [Ready   ] Set up a few common clan templates
+3) [Merits and Flaws    ] [Ready   ] Stock merits, flaws, and helper progs for character creation
+4) [AI Storyteller Starter Pack] [Ready   ] Adds one complete AI storyteller example package
+5) [Health Seeder       ] [Ready   ] Sets up surgeries, drugs, and medical starter content
+6) [Animal Seeder       ] [Ready   ] Installs body types for animals
+7) [Weather Seeder      ] [Ready   ] Sets up Weather and Seasons
+8) [Items               ] [Ready   ] A starter collection of items and crafts
+9) [Law Seeder          ] [Ready   ] Sets up Legal Enforcement, Laws, and some related AI.
+10) [Human Seeder        ] [Update  ] Adds a human race and associated data to the game
+11) [Culture Seeder      ] [Update  ] Add Name Cultures, Random Names and optionally culture packs
+12) [Kickstart           ] [Update  ] A collection of useful stock items, AI, tags, covers and
+                                      helpers
+13) [Celestial Seeder    ] [Additive] Sets up Suns, Moons, etc
+14) [Currency            ] [Additive] Set up a currency (or currencies) for your game
+15) [Core                ] [Current ] Should be the first package that all MUDs import except for
+                                      very advanced users in specific circumstances
+16) [Time Seeder         ] [Current ] Sets up Calendars and Clocks
+17) [Attributes          ] [Current ] Sets up attributes for your game
+18) [Skill Examples      ] [Current ] Sets up templates and examples for skills
+19) [Skill Package       ] [Current ] Sets up a complete package of skills
+20) [Combat              ] [Current ] Attacks, Echoes, Weapon Types and all the fun stuff
+21) [Character Creation  ] [Current ] Sets up Character Creation and Guest Logins
+22) [Arena               ] [Blocked ] Installs an example combat arena with gladiator, boxing,
+                                      wrestling, champion, and animal formats.
+23) [Mythical Animal Seeder] [Blocked ] Installs a catalogue of mythic beasts and hybrid folk
+24) [Robot Seeder        ] [Blocked ] Installs robotic races, chassis bodies, and robot maintenance
+                                      content
+
+Your choice: 

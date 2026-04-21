@@ -1,0 +1,106 @@
+================================================================================
+
+			 ______     _                 ___  ____   _______ 
+			 |  ___|   | |                |  \/  | | | |  _  \
+			 | |_ _   _| |_ _   _ _ __ ___| .  . | | | | | | |
+			 |  _| | | | __| | | | '__/ _ \ |\/| | | | | | | |
+			 | | | |_| | |_| |_| | | |  __/ |  | | |_| | |/ / 
+			 \_|  \__,_|\__|\__,_|_|  \___\_|  |_/\___/|___/  
+                                                 
+================================================================================
+
+Welcome to the FutureMUD Database Seeder v2.3.0
+
+This tool will import pre-generated data into your FutureMUD database. It is 
+designed to be used when the MUD is newly installed.
+
+From time to time new updates to the seeder may bring content for those who have 
+already got an established game, in this case these packages will be clearly 
+marked. You should backup your database before using this tool in that scenario 
+        just in case.
+
+Please press enter to begin.
+[AUTO] begin => <ENTER>
+Ensuring that Database migrations are applied...
+Database is up to date.
+Loading seeders...
+Please enter the number of the package you wish to import, or QUIT to exit: 
+[AUTO] menu#1 => 2
+
+1) [Economy             ] [Ready   ] Installs a stock economic zone shell, market categories,
+                                     influences, populations and shoppers
+2) [Clans               ] [Ready   ] Set up a few common clan templates
+3) [Merits and Flaws    ] [Ready   ] Stock merits, flaws, and helper progs for character creation
+4) [AI Storyteller Starter Pack] [Ready   ] Adds one complete AI storyteller example package
+5) [Health Seeder       ] [Ready   ] Sets up surgeries, drugs, and medical starter content
+6) [Animal Seeder       ] [Ready   ] Installs body types for animals
+7) [Weather Seeder      ] [Ready   ] Sets up Weather and Seasons
+8) [Items               ] [Ready   ] A starter collection of items and crafts
+9) [Law Seeder          ] [Ready   ] Sets up Legal Enforcement, Laws, and some related AI.
+10) [Human Seeder        ] [Update  ] Adds a human race and associated data to the game
+11) [Culture Seeder      ] [Update  ] Add Name Cultures, Random Names and optionally culture packs
+12) [Kickstart           ] [Update  ] A collection of useful stock items, AI, tags, covers and
+                                      helpers
+13) [Celestial Seeder    ] [Additive] Sets up Suns, Moons, etc
+14) [Currency            ] [Additive] Set up a currency (or currencies) for your game
+15) [Core                ] [Current ] Should be the first package that all MUDs import except for
+                                      very advanced users in specific circumstances
+16) [Time Seeder         ] [Current ] Sets up Calendars and Clocks
+17) [Attributes          ] [Current ] Sets up attributes for your game
+18) [Skill Examples      ] [Current ] Sets up templates and examples for skills
+19) [Skill Package       ] [Current ] Sets up a complete package of skills
+20) [Combat              ] [Current ] Attacks, Echoes, Weapon Types and all the fun stuff
+21) [Character Creation  ] [Current ] Sets up Character Creation and Guest Logins
+22) [Arena               ] [Blocked ] Installs an example combat arena with gladiator, boxing,
+                                      wrestling, champion, and animal formats.
+23) [Mythical Animal Seeder] [Blocked ] Installs a catalogue of mythic beasts and hybrid folk
+24) [Robot Seeder        ] [Blocked ] Installs robotic races, chassis bodies, and robot maintenance
+                                      content
+
+Your choice: Loading package...
+Package: Clans
+Tagline: Set up a few common clan templates
+
+	This seeder will run you through selecting a few clan templates that you might like to
+	use either directly or as inspiration for how to set up your own clans.
+	
+	Even if you don't choose to use these clans directly as templates, they can be useful in
+	showing you what is possible and how you can potentially set up your own clans; you can
+	always disable players from choosing them as templates or delete them later.
+	
+	The core seeder, time seeder and currency seeder are all prerequisites for this package.
+	
+	This package can be run multiple times as I add more options.
+
+Status: Ready
+This package is ready to install.
+
+Designed as an additive package for installing more stock clan templates.
+
+Do you want to install this package?
+[AUTO] install-package => yes
+Please type yes or no: 
+
+Applying the data from the Clans seeder...
+Created 20 new clans.
+Press any key to return to main menu.
+[AUTO] return-to-menu => <ENTER>
+Loading seeders...
+Please enter the number of the package you wish to import, or QUIT to exit: 
+[AUTO] menu#2 => QUIT
+
+1) [Economy             ] [Ready   ] Installs a stock economic zone shell, market categories,
+                                     influences, populations and shoppers
+2) [Merits and Flaws    ] [Ready   ] Stock merits, flaws, and helper progs for character creation
+3) [AI Storyteller Starter Pack] [Ready   ] Adds one complete AI storyteller example package
+4) [Health Seeder       ] [Ready   ] Sets up surgeries, drugs, and medical starter content
+5) [Animal Seeder       ] [Ready   ] Installs body types for animals
+6) [Weather Seeder      ] [Ready   ] Sets up Weather and Seasons
+7) [Items               ] [Ready   ] A starter collection of items and crafts
+8) [Law Seeder          ] [Ready   ] Sets up Legal Enforcement, Laws, and some related AI.
+9) [Human Seeder        ] [Update  ] Adds a human race and associated data to the game
+10) [Culture Seeder      ] [Update  ] Add Name Cultures, Random Names and optionally culture packs
+11) [Kickstart           ] [Update  ] A collection of useful stock items, AI, tags, covers and
+                                      helpers
+12) [Celestial Seeder    ] [Additive] Sets up Suns, Moons, etc
+13) [Currency            ] [Additive] Set up a currency (or currencies) for your game

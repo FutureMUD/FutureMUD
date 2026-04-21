@@ -75,10 +75,11 @@ public class LocalProject : Project
         Gameworld.Add(project);
     }
 
-    public override bool CanCancelProject(ICharacter actor, IActiveProject local)
+    protected override string WhyCannotCancelProjectFallback(ICharacter actor, IActiveProject local)
     {
-        // TODO - configurable
-        return actor == local.CharacterOwner || actor.IsAdministrator();
+        return actor == local.CharacterOwner
+            ? string.Empty
+            : "Only the owner of that local project can cancel it.";
     }
 
     protected override XElement SaveDefinition(XElement baseDefinition)
@@ -103,6 +104,10 @@ public class LocalProject : Project
             $"CanInitiateProg: {CanInitiateProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine(
             $"WhyCannotInitiateProg: {WhyCannotInitiateProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
+        sb.AppendLine(
+            $"CanCancelProg: {CanCancelProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
+        sb.AppendLine(
+            $"WhyCannotCancelProg: {WhyCannotCancelProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine($"Tagline: {Tagline}");
         sb.AppendLine("Phases".GetLineWithTitle(actor.LineFormatLength, actor.Account.UseUnicode, Telnet.Cyan,
             Telnet.BoldYellow));

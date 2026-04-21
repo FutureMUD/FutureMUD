@@ -134,6 +134,42 @@ public abstract class Project : EditableItem, IProject
                     $"Project definition {Id} specified a OnCancelProg that does not accept only a single project as a parameter.");
             }
         }
+
+        CanCancelProg = long.TryParse(root.Element("CanCancelProg")?.Value ?? "0", out value)
+            ? Gameworld.FutureProgs.Get(value)
+            : Gameworld.FutureProgs.GetByName(root.Element("CanCancelProg")?.Value);
+        if (CanCancelProg != null)
+        {
+            if (!CanCancelProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
+            {
+                throw new ApplicationException(
+                    $"Project definition {Id} specified a CanCancelProg that does not return a boolean.");
+            }
+
+            if (!CanCancelProg.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Project }))
+            {
+                throw new ApplicationException(
+                    $"Project definition {Id} specified a CanCancelProg that does not accept a character and a project as parameters.");
+            }
+        }
+
+        WhyCannotCancelProg = long.TryParse(root.Element("WhyCannotCancelProg")?.Value ?? "0", out value)
+            ? Gameworld.FutureProgs.Get(value)
+            : Gameworld.FutureProgs.GetByName(root.Element("WhyCannotCancelProg")?.Value);
+        if (WhyCannotCancelProg != null)
+        {
+            if (!WhyCannotCancelProg.ReturnType.CompatibleWith(ProgVariableTypes.Text))
+            {
+                throw new ApplicationException(
+                    $"Project definition {Id} specified a WhyCannotCancelProg that does not return text.");
+            }
+
+            if (!WhyCannotCancelProg.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Project }))
+            {
+                throw new ApplicationException(
+                    $"Project definition {Id} specified a WhyCannotCancelProg that does not accept a character and a project as parameters.");
+            }
+        }
     }
 
     protected Project(IAccount originator, string type) : base(originator)
@@ -179,7 +215,9 @@ public abstract class Project : EditableItem, IProject
             new XElement("WhyCannotInitiateProg", WhyCannotInitiateProg?.Id ?? 0),
             new XElement("OnStartProg", OnStartProg?.Id ?? 0),
             new XElement("OnFinishProg", OnFinishProg?.Id ?? 0),
-            new XElement("OnCancelProg", OnCancelProg?.Id ?? 0)
+            new XElement("OnCancelProg", OnCancelProg?.Id ?? 0),
+            new XElement("CanCancelProg", CanCancelProg?.Id ?? 0),
+            new XElement("WhyCannotCancelProg", WhyCannotCancelProg?.Id ?? 0)
         ));
     }
 
@@ -192,6 +230,8 @@ public abstract class Project : EditableItem, IProject
     public IFutureProg WhyCannotInitiateProg { get; protected set; }
 
     public IFutureProg OnStartProg { get; protected set; }
+    public IFutureProg CanCancelProg { get; protected set; }
+    public IFutureProg WhyCannotCancelProg { get; protected set; }
     public IFutureProg OnCancelProg { get; protected set; }
     public IFutureProg OnFinishProg { get; protected set; }
     public bool AppearInJobsList { get; protected set; }
@@ -231,7 +271,49 @@ public abstract class Project : EditableItem, IProject
 
     public abstract void InitiateProject(ICharacter actor);
 
-    public abstract bool CanCancelProject(ICharacter actor, IActiveProject local);
+    public bool CanCancelProject(ICharacter actor, IActiveProject local)
+    {
+        return string.IsNullOrEmpty(WhyCannotCancelProject(actor, local));
+    }
+
+    public string WhyCannotCancelProject(ICharacter actor, IActiveProject local)
+    {
+        if (local == null || local.ProjectDefinition != this)
+        {
+            return "You are not allowed to cancel that project.";
+        }
+
+        var invariantFailure = WhyCannotCancelProjectInvariant(actor, local);
+        if (!string.IsNullOrEmpty(invariantFailure))
+        {
+            return invariantFailure;
+        }
+
+        if (actor.IsAdministrator())
+        {
+            return string.Empty;
+        }
+
+        if (CanCancelProg != null)
+        {
+            if (CanCancelProg.Execute<bool?>(actor, local) == true)
+            {
+                return string.Empty;
+            }
+
+            return WhyCannotCancelProg?.Execute<string>(actor, local) ??
+                   "You are not allowed to cancel that project.";
+        }
+
+        return WhyCannotCancelProjectFallback(actor, local);
+    }
+
+    protected virtual string WhyCannotCancelProjectInvariant(ICharacter actor, IActiveProject local)
+    {
+        return string.Empty;
+    }
+
+    protected abstract string WhyCannotCancelProjectFallback(ICharacter actor, IActiveProject local);
 
     private readonly List<IProjectPhase> _phases = new();
     public IEnumerable<IProjectPhase> Phases => _phases;
@@ -249,6 +331,10 @@ public abstract class Project : EditableItem, IProject
 	#3finish clear#0 - clears the OnFinishProg
 	#3cancel <prog>#0 - sets the OnCancelProg
 	#3cancel clear#0 - clears the OnCancelProg
+	#3cancancel <prog>#0 - sets the CanCancelProg
+	#3cancancel clear#0 - clears the CanCancelProg
+	#3whycancel <prog>#0 - sets the WhyCannotCancelProg
+	#3whycancel clear#0 - clears the WhyCannotCancelProg
 
 Editing Phases:
 
@@ -337,6 +423,24 @@ Editing Actions:
             case "cancel":
             case "oncancel":
                 return BuildingCommandOnCancelProg(actor, command);
+            case "cancancel":
+            case "can cancel":
+            case "can_cancel":
+            case "cancelcan":
+            case "cancel can":
+            case "cancel_can":
+            case "cancancelprog":
+            case "cancelprog":
+            case "cancel prog":
+            case "cancel_prog":
+                return BuildingCommandCanCancel(actor, command);
+            case "whycancel":
+            case "why cancel":
+            case "why_cancel":
+            case "whycancelprog":
+            case "why cancelprog":
+            case "why_cancelprog":
+                return BuildingCommandWhyCannotCancel(actor, command);
             case "can":
             case "caninitiate":
             case "initiate":
@@ -370,6 +474,98 @@ Editing Actions:
 
         actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
         return false;
+    }
+
+    private bool BuildingCommandCanCancel(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                "You must either specify a prog or use 'clear' to remove the existing one.");
+            return false;
+        }
+
+        if (command.Peek().EqualToAny("clear", "none", "delete", "remove"))
+        {
+            CanCancelProg = null;
+            Changed = true;
+            actor.OutputHandler.Send("This project will now use its legacy cancellation rules.");
+            return true;
+        }
+
+        IFutureProg prog = long.TryParse(command.PopSpeech(), out long value)
+            ? actor.Gameworld.FutureProgs.Get(value)
+            : actor.Gameworld.FutureProgs.GetByName(command.Last);
+        if (prog == null)
+        {
+            actor.OutputHandler.Send("There is no such prog.");
+            return false;
+        }
+
+        if (prog.ReturnType != ProgVariableTypes.Boolean)
+        {
+            actor.OutputHandler.Send("The CanCancelProg must return a boolean value.");
+            return false;
+        }
+
+        if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Project }))
+        {
+            actor.OutputHandler.Send(
+                "The CanCancelProg must be compatible with a character and a project parameter.");
+            return false;
+        }
+
+        CanCancelProg = prog;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This project will now use the {prog.MXPClickableFunctionNameWithId()} prog to determine whether a character can cancel an active project instance.");
+        return true;
+    }
+
+    private bool BuildingCommandWhyCannotCancel(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                "You must either specify a prog or use 'clear' to remove the existing one.");
+            return false;
+        }
+
+        if (command.Peek().EqualToAny("clear", "none", "delete", "remove"))
+        {
+            WhyCannotCancelProg = null;
+            Changed = true;
+            actor.OutputHandler.Send("This project will no longer have a custom cancellation error prog.");
+            return true;
+        }
+
+        IFutureProg prog = long.TryParse(command.PopSpeech(), out long value)
+            ? actor.Gameworld.FutureProgs.Get(value)
+            : actor.Gameworld.FutureProgs.GetByName(command.Last);
+        if (prog == null)
+        {
+            actor.OutputHandler.Send("There is no such prog.");
+            return false;
+        }
+
+        if (prog.ReturnType != ProgVariableTypes.Text)
+        {
+            actor.OutputHandler.Send("The WhyCannotCancelProg must return a text value.");
+            return false;
+        }
+
+        if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Project }))
+        {
+            actor.OutputHandler.Send(
+                "The WhyCannotCancelProg must be compatible with a character and a project parameter.");
+            return false;
+        }
+
+        WhyCannotCancelProg = prog;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This project will now use the {prog.MXPClickableFunctionNameWithId()} prog to explain failed cancellation attempts.");
+        return true;
     }
 
     private bool BuildingCommandOnStartProg(ICharacter actor, StringStack command)

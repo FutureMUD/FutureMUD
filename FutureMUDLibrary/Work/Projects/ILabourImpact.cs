@@ -3,13 +3,14 @@ using MudSharp.Framework;
 
 namespace MudSharp.Work.Projects
 {
-    public interface ILabourImpact : IFrameworkItem
-    {
-        string DescriptionForProjectsCommand { get; }
+	public interface ILabourImpact : IFrameworkItem
+	{
+		string DescriptionForProjectsCommand { get; }
+		ProjectImpactHoursReference HoursReference { get; }
 
-        void Delete();
-        ILabourImpact Duplicate(IProjectLabourRequirement requirement);
-        bool BuildingCommand(ICharacter actor, StringStack command, IProjectLabourRequirement requirement);
+		void Delete();
+		ILabourImpact Duplicate(IProjectLabourRequirement requirement);
+		bool BuildingCommand(ICharacter actor, StringStack command, IProjectLabourRequirement requirement);
         (bool Truth, string Error) CanSubmit();
         string Show(ICharacter actor);
         string ShowFull(ICharacter actor);

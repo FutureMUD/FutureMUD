@@ -32,11 +32,11 @@ public class HealingImpact : BaseImpact, ILabourImpactHealing
 
     protected override XElement SaveDefinition()
     {
-        return new XElement("Impact",
+        return SaveDefinitionWithHoursReference(new XElement("Impact",
             new XElement("HealingCheckBonus", HealingCheckBonus),
             new XElement("HealingRateMultiplier", HealingRateMultiplier),
             new XElement("InfectionChanceMultiplier", InfectionChanceMultiplier)
-        );
+        ));
     }
 
     public override ILabourImpact Duplicate(IProjectLabourRequirement requirement)

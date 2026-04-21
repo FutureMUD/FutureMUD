@@ -35,7 +35,8 @@ The system is composed from five layers:
 - `IProjectLabourRequirement` owns qualification logic, hourly progress, worker caps, mandatory status, hours remaining, builder commands, submit validation, and the attached labour impacts.
 - `IProjectMaterialRequirement` owns item matching, supply logic, preview logic, quantity description, inventory-plan generation, builder commands, and submit validation.
 - `IProjectAction` owns phase-completion side effects plus builder commands, duplication, and submit validation.
-- `ILabourImpact` owns builder editing, duplication, apply gating via minimum hours, and presentation for the `projects` command.
+- `ILabourImpact` owns builder editing, duplication, apply gating via minimum hours, minimum-hours scope, and presentation for the `projects` command.
+- `IProjectLabourQueueEntry` owns a queued project labour assignment, its queue order, queued timestamp, and readiness state.
 
 ### Project FutureProg surface
 Active projects register `ProgVariableTypes.Project` and currently expose these dot references:
@@ -141,6 +142,8 @@ Factory registration currently lives entirely in `ProjectFactory`, which is the 
 - `AppearInProjectListProg`
 - `CanInitiateProg`
 - `WhyCannotInitiateProg`
+- optional `CanCancelProg`
+- optional `WhyCannotCancelProg`
 - optional `OnStartProg`
 - optional `OnFinishProg`
 - optional `OnCancelProg`
@@ -177,6 +180,24 @@ This means the system models:
 - many active projects existing at once
 - exactly one currently selected labour role per character
 
+### Queueing next labour
+`project queue` is now implemented as a conservative character-owned FIFO queue.
+
+The shipped behavior is:
+- queue entries target an existing active project plus one current-phase labour requirement
+- queue entries are evaluated only when the character is idle
+- only the first queued entry is considered at a time
+- blocked entries stay queued with a status such as `Waiting For Slot`, `Waiting For Qualification`, or `Waiting For Location`
+- stale entries are removed automatically if the project disappears or the labour is no longer in the current phase
+
+Queue activation is re-evaluated when it matters, including:
+- after `project quit`
+- after labour completion clears the worker's active role
+- after a project finishes or is cancelled
+- after a local-project slot opens
+- on login
+- when an idle character enters a cell
+
 ### Material supply
 Material supply is driven by `IProjectMaterialRequirement.GetPlanForCharacter`.
 
@@ -196,7 +217,7 @@ The current tick path is:
 2. Each active project runs `DoProjectsTick()`.
 3. Every active labour entry contributes progress using `HourlyProgress(actor) * ProjectProgressMultiplier`.
 4. Supervision-style multipliers are folded in through `ProgressMultiplierForOtherLabourPerPercentageComplete`.
-5. After progress, each worker gains `CurrentProjectHours += ProjectProgressMultiplier`.
+5. After progress, each worker gains both `CurrentProjectHours += ProjectProgressMultiplier` and `CurrentProjectProjectHours += ProjectProgressMultiplier`.
 6. Any `ILabourImpactActionAtTick` impacts execute.
 
 The default static settings currently include:
@@ -223,12 +244,17 @@ When the last phase completes:
 
 ### Cancellation
 Cancellation rules are delegated to the template definition:
-- personal projects currently block cancellation if any active job references that same project definition as its job-linked project
-- local projects currently allow cancellation only by the project owner or an administrator
+- hard engine invariants run first
+- administrators bypass builder-authored cancel rules, but not hard invariants
+- optional `CanCancelProg(character, project)` and `WhyCannotCancelProg(character, project)` can author content-driven policy
+- if no cancel progs are set, both personal and local projects fall back to owner-only cancellation
 
 When cancellation succeeds:
 - `OnCancelProg(project)` executes
 - the runtime active project is destroyed
+
+The current hard invariant is:
+- a personal project cannot be cancelled while any unfinished active job still references that exact active project instance
 
 ## Persistence and Revisioning
 ### Builder content
@@ -259,6 +285,8 @@ Character-side links are stored through:
 - `Character.CurrentProjectId`
 - `Character.CurrentProjectLabourId`
 - `Character.CurrentProjectHours`
+- `Character.CurrentProjectProjectHours`
+- `ProjectLabourQueue`
 - the character's `ActiveProjects` collection for owned personal projects
 
 Local projects persist their owning cell id.
@@ -272,6 +300,7 @@ These commands cover:
 - catalogue browsing
 - initiation
 - joining and leaving labour
+- queueing next labour
 - cancellation
 - material preview and supply
 - admin list/show/edit/set/review flows
@@ -281,6 +310,8 @@ These commands cover:
 - `PersonalProjects`
 - `CurrentProject`
 - `CurrentProjectHours`
+- `CurrentProjectProjectHours`
+- `ProjectLabourQueue`
 
 Multiple subsystems consume `CurrentProject` directly, so project work is not isolated inside the work namespace.
 
@@ -310,6 +341,10 @@ Project labour impacts currently feed into:
 - `BodyBiology` for healing rate and healing bonus modifiers
 - `SimpleOrganicWound` for infection chance
 
+Each impact now chooses whether its minimum-hours gate is measured against:
+- labour continuity through `CurrentProjectHours`
+- project continuity through `CurrentProjectProjectHours`
+
 Healing-impact minimum-hours gating is now applied consistently to infection chance in the same way it is already applied to healing-rate and healing-check modifiers.
 
 The free skill-check action uses `CheckType.ProjectSkillUseAction`.
@@ -321,7 +356,7 @@ Start in `FutureMUDLibrary` if the new feature needs a new public contract. Conc
 1. Add or extend the public interface if the type needs new public surface.
 2. Implement the template subclass of `Project`.
 3. Implement the active runtime subclass of `ActiveProject`.
-4. Implement load, create, `SaveDefinition`, `Show`, `ShowToPlayer`, `InitiateProject`, `CanCancelProject`, and `LoadActiveProject`.
+4. Implement load, create, `SaveDefinition`, `Show`, `ShowToPlayer`, `InitiateProject`, the cancellation fallback or invariant hooks, and `LoadActiveProject`.
 5. Register the new builder keyword in `ProjectFactory.CreateProject`, `LoadProject`, and `ValidProjectTypes`.
 6. Wire any extra runtime containers similar to personal-project character registration or local-project cell registration.
 
@@ -363,9 +398,8 @@ For every new family member, the expected minimum implementation work is:
 - any required integration consumers
 
 ## Known Quirks And Edge Cases
-- `project queue` is currently stubbed and only replies with `Coming soon.`
-- Local-project cancellation policy is currently hardcoded to owner-or-admin in `LocalProject.CanCancelProject`; there is a `TODO - configurable` comment rather than a content-driven rule.
-- `CurrentProjectHours` resets whenever `Character.CurrentProject` changes, including normal leave/join transitions between labour roles and projects.
+- Queue entries are intentionally current-phase-only. If a local project advances phase, old queued labour entries for the previous phase become stale and are removed rather than being remapped.
+- For backwards compatibility, characters loaded from worlds that predate `CurrentProjectProjectHours` bootstrap that value from `CurrentProjectHours` if they are already assigned to a current project.
 - Older supervision labour definitions that predate multiplier persistence may have no saved multiplier value. Those now load with a safe default of `100%` rather than preserving the prior broken zero-multiplier behavior.
 - `JobEffortImpact` is created from the builder keyword `job`, but its concrete type stores and loads using the runtime type string `JobEffort`. Treat the builder keyword list in `ProjectFactory` as the source of truth for authoring.
 - Starting a project does not auto-join labour. A project may be active, visible in `projects`, and still have nobody currently working on any labour requirement.

@@ -29,12 +29,14 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 
     public override void Cancel(ICharacter actor)
     {
+        var locationCharacters = Location?.Characters.ToList() ?? new List<ICharacter>();
         actor.OutputHandler.Handle(new EmoteOutput(new Emote(
             $"@ cancel|cancels the {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project.", actor, actor)));
         ProjectDefinition.OnCancelProg?.Execute(this);
         ClearWorkersFromProject();
         Location.RemoveProject(this);
         Delete();
+        TryJoinQueuedProjectLabourFor(locationCharacters);
     }
 
     private void ClearWorkersFromProject()
@@ -71,16 +73,18 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
                 Changed = true;
                 Location.Handle(
                     $"The {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project has entered the {CurrentPhase.Name.ColourBold(Telnet.White)} phase.");
-                // TODO - queueing multiple jobs
+                TryJoinQueuedProjectLabourFor(Location.Characters.ToList());
                 return true;
             }
 
+            var locationCharacters = Location.Characters.ToList();
             Location.Handle(
                 $"The {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project has been completed.");
             ProjectDefinition.OnFinishProg?.Execute(this);
             ClearWorkersFromProject();
             Location.RemoveProject(this);
             Delete();
+            TryJoinQueuedProjectLabourFor(locationCharacters);
             return true;
         }
 
@@ -104,7 +108,13 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
             }
 
             _activeLabour.RemoveAll(x => x.Labour == labour);
-            return CheckForProjectCompletion();
+            var changedProjectState = CheckForProjectCompletion();
+            if (!changedProjectState)
+            {
+                TryJoinQueuedProjectLabourFor(Location.Characters.ToList());
+            }
+
+            return changedProjectState;
         }
 
         return false;
@@ -141,6 +151,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
         actor.OutputHandler.Handle(new EmoteOutput(new Emote(
             $"@ stop|stops all work on the {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project.", actor,
             actor)));
+        TryJoinQueuedProjectLabourFor(Location.Characters.Where(x => x != actor).ToList());
     }
 
     protected override void DatabaseInsert(MudSharp.Models.ActiveProject project)

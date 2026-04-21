@@ -37,6 +37,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
         ProjectDefinition.OnCancelProg?.Execute(this);
         CharacterOwner.RemovePersonalProject(this);
         Delete();
+        CharacterOwner.TryJoinQueuedProjectLabour();
     }
 
     private bool CheckForProjectCompletion(bool alreadyWorkingOnProject)
@@ -83,6 +84,11 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
                     }
                 }
 
+                if (CharacterOwner.CurrentProject.Project == null)
+                {
+                    CharacterOwner.TryJoinQueuedProjectLabour();
+                }
+
                 return true;
             }
 
@@ -95,6 +101,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
             ProjectDefinition.OnFinishProg?.Execute(this);
             CharacterOwner.RemovePersonalProject(this);
             Delete();
+            CharacterOwner.TryJoinQueuedProjectLabour();
             return true;
         }
 
@@ -116,7 +123,13 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
 
             CharacterOwner.CurrentProject = (null, null);
             _activeLabour.Clear();
-            return CheckForProjectCompletion(true);
+            var changedProjectState = CheckForProjectCompletion(true);
+            if (!changedProjectState)
+            {
+                CharacterOwner.TryJoinQueuedProjectLabour();
+            }
+
+            return changedProjectState;
         }
 
         return false;

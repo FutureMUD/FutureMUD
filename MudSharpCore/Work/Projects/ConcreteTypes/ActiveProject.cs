@@ -175,6 +175,17 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
             .ThenBy(x => x.Id);
     }
 
+    protected void TryJoinQueuedProjectLabourFor(IEnumerable<ICharacter> characters)
+    {
+        foreach (var character in characters
+                     .Where(x => x != null)
+                     .Distinct()
+                     .Where(x => x.CurrentProject.Project == null))
+        {
+            character.TryJoinQueuedProjectLabour();
+        }
+    }
+
     protected double? MandatoryMaterialCompletionRatio()
     {
         var mandatoryMaterials = CurrentPhase.MaterialRequirements
@@ -306,6 +317,7 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
         foreach ((ICharacter Character, IProjectLabourRequirement Labour) labour in ActiveLabour)
         {
             labour.Character.CurrentProjectHours += 1.0 * multiplier;
+            labour.Character.CurrentProjectProjectHours += 1.0 * multiplier;
             foreach (ILabourImpactActionAtTick impact in labour.Labour.LabourImpacts.OfType<ILabourImpactActionAtTick>())
             {
                 impact.DoAction(labour.Character, this, labour.Labour);

@@ -23,6 +23,7 @@ Use `projects` to see:
 - your active personal projects
 - active local projects in your current cell
 - the labour role you are currently working on, if any
+- both labour-continuity hours and project-continuity hours for your current assignment
 - any labour impacts attached to that role, including how many hours remain before gated impacts kick in
 
 This is the fastest way to confirm the live state after starting, joining, supplying, or cancelling a project.
@@ -61,6 +62,7 @@ Current behavior:
 Use `project quit <project>` to stop working on that active project.
 
 This does not cancel the active project. It only removes your current labour assignment from it.
+If your queue has a ready next assignment, the engine immediately tries to join it after you quit.
 
 ### `project details <project>`
 Use `project details <project>` to inspect the live active project in its current phase.
@@ -91,11 +93,24 @@ With a requirement argument, it:
 Use `project cancel` to destroy an active project.
 
 Current rules:
-- personal projects usually can be cancelled, except when an active job depends on that project definition
-- local projects can currently only be cancelled by the owner or an administrator
+- a personal project cannot be cancelled while an unfinished active job still depends on that exact active project instance
+- administrators bypass builder-authored cancellation progs, but not the active-job invariant
+- if no custom cancel progs are configured, both personal and local projects fall back to owner-only cancellation
 
 ### `project queue`
-This command exists in the player command surface but is currently not implemented. It only replies with `Coming soon.`
+Use `project queue` to manage what labour role you want to auto-join next.
+
+Current syntax:
+- `project queue`
+- `project queue <project> [labour]`
+- `project queue remove <index>`
+- `project queue clear`
+
+Current behavior:
+- entries only target the active project's current phase
+- only the first queued entry is considered when you become idle
+- blocked entries remain queued and show statuses such as `Waiting For Slot`, `Waiting For Qualification`, or `Waiting For Location`
+- stale entries are removed automatically when the project disappears or the queued labour is no longer part of the current phase
 
 ## Admin And Revision Workflow
 ### List and inspect definitions
@@ -149,6 +164,10 @@ Optional hooks are:
 - `project set start <prog>`
 - `project set finish <prog>`
 - `project set cancel <prog>`
+- `project set cancancel <prog>`
+- `project set cancancel clear`
+- `project set whycancel <prog>`
+- `project set whycancel clear`
 
 Required signatures:
 - `appear`: returns boolean, takes one `character`
@@ -157,6 +176,8 @@ Required signatures:
 - `start`: takes one `project`
 - `finish`: takes one `project`
 - `cancel`: takes one `project`
+- `cancancel`: returns boolean, takes `character, project`
+- `whycancel`: returns text, takes `character, project`
 
 ### 3. Build the phase structure
 Use:
@@ -222,8 +243,9 @@ Shared impact settings:
 - `project set phase <phase> labour <labour> impact <impact> name <name>`
 - `project set phase <phase> labour <labour> impact <impact> description <description>`
 - `project set phase <phase> labour <labour> impact <impact> hours <hours>`
+- `project set phase <phase> labour <labour> impact <impact> scope labour|project`
 
-Impact hours control when the effect begins after the worker has remained on the same current labour role long enough.
+Impact hours control when the effect begins. `scope labour` keys off continuity on the exact current labour role; `scope project` keys off continuity on the current active project even if the worker changes labour roles inside that project.
 
 ### Impact type reference
 | Keyword | What it does in play | Common extra commands |
@@ -312,7 +334,7 @@ Check:
 - whether the named labour is part of the current phase
 
 ### Personal-project cancellation fails
-Current behavior blocks cancellation when an active ongoing job depends on that project definition. This is how job-linked personal projects avoid being cancelled out from under employment logic.
+Current behavior blocks cancellation when an unfinished active ongoing job depends on that exact active personal-project instance. If you have also configured `cancancel` / `whycancel`, those run only after this hard engine invariant.
 
 ### Material supply is choosing the "wrong" item
 `project preview` and `project supply` use the requirement's inventory plan and then take the first feasible target it scouts.
@@ -332,7 +354,12 @@ Remember:
 The same applies after some phase transitions, especially for local projects, which clear active labour and require workers to join again.
 
 ### Queueing is not working
-That is expected. `project queue` is currently a stub and is not implemented.
+Check:
+- the queued labour is still part of the active project's current phase
+- you are idle; the queue does not activate while you already have a `CurrentProject`
+- for local projects, you are in the same cell when the queue entry reaches the front
+- the queued labour still has a free worker slot
+- you still qualify for that labour
 
 ### Multiple requirements are behaving differently than expected
 Current completion rules are:

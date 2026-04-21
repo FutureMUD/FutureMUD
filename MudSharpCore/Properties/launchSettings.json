@@ -70,6 +70,10 @@
     "The Crew": {
       "commandName": "Project",
       "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=thecrew;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "RPI Engine": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3307;database=rpi_engine;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     }
   }
 }

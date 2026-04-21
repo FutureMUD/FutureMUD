@@ -8,7 +8,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Anthropic.SDK" Version="5.8.0" />
-		<PackageReference Include="MailKit" Version="4.14.1" />
+		<PackageReference Include="MailKit" Version="4.16.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
 		<PackageReference Include="Moq" Version="4.20.70" />
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />

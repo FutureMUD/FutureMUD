@@ -3,6 +3,7 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
+using System;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -19,6 +20,12 @@ public abstract class BaseImpact : SaveableItem, ILabourImpact
         DescriptionForProjectsCommand = impact.Description;
         MinimumHoursForImpactToKickIn = impact.MinimumHoursForImpactToKickIn;
         _typeName = impact.Type;
+        XElement root = XElement.Parse(impact.Definition);
+        HoursReference =
+            Enum.TryParse<ProjectImpactHoursReference>(root.Element("HoursReference")?.Value ?? string.Empty, true,
+                out var reference)
+                ? reference
+                : ProjectImpactHoursReference.Labour;
     }
 
     protected BaseImpact(BaseImpact rhs, IProjectLabourRequirement newLabour, string type)
@@ -35,6 +42,7 @@ public abstract class BaseImpact : SaveableItem, ILabourImpact
 
         DescriptionForProjectsCommand = rhs.DescriptionForProjectsCommand;
         MinimumHoursForImpactToKickIn = rhs.MinimumHoursForImpactToKickIn;
+        HoursReference = rhs.HoursReference;
         _typeName = type;
         using (new FMDB())
         {
@@ -57,6 +65,7 @@ public abstract class BaseImpact : SaveableItem, ILabourImpact
         _name = requirement.LabourImpacts.Select(x => x.Name).NameOrAppendNumberToName(name);
         _typeName = type;
         DescriptionForProjectsCommand = "#3Impacting on your character in an undescribed way#0";
+        HoursReference = ProjectImpactHoursReference.Labour;
         using (new FMDB())
         {
             ProjectLabourImpact dbitem = new();
@@ -72,10 +81,17 @@ public abstract class BaseImpact : SaveableItem, ILabourImpact
     }
 
     protected abstract XElement SaveDefinition();
+    protected XElement SaveDefinitionWithHoursReference(XElement root)
+    {
+        root.Add(new XElement("HoursReference", HoursReference.DescribeEnum()));
+        return root;
+    }
+
     private string _typeName;
     public string DescriptionForProjectsCommand { get; protected set; }
 
     public double MinimumHoursForImpactToKickIn { get; protected set; }
+    public ProjectImpactHoursReference HoursReference { get; protected set; }
 
     public void Delete()
     {
@@ -101,7 +117,8 @@ public abstract class BaseImpact : SaveableItem, ILabourImpact
 	#3show#0 - view detailed information about this impact
 	#3name <name>#0 - rename this impact
 	#3description <description>#0 - sets the description
-	#3hours <hours>#0 - hours before this impact kicks in";
+	#3hours <hours>#0 - hours before this impact kicks in
+	#3scope labour|project#0 - whether the hours are measured on the current labour role or the overall project";
 
     public virtual bool BuildingCommand(ICharacter actor, StringStack command, IProjectLabourRequirement requirement)
     {
@@ -120,6 +137,12 @@ public abstract class BaseImpact : SaveableItem, ILabourImpact
             case "minimum hours":
             case "minimum_hours":
                 return BuildingCommandMinimumHours(actor, command);
+            case "scope":
+            case "reference":
+            case "hourscope":
+            case "hour scope":
+            case "hour_scope":
+                return BuildingCommandHoursScope(actor, command);
             case "show":
                 actor.OutputHandler.Send(Show(actor));
                 return true;
@@ -127,6 +150,29 @@ public abstract class BaseImpact : SaveableItem, ILabourImpact
 
         actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
         return false;
+    }
+
+    private bool BuildingCommandHoursScope(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"Which hours scope should this impact use? Valid values are {Enum.GetNames(typeof(ProjectImpactHoursReference)).Select(x => x.ColourCommand()).ListToString()}.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum<ProjectImpactHoursReference>(out var value))
+        {
+            actor.OutputHandler.Send(
+                $"That is not a valid hours scope. Valid values are {Enum.GetNames(typeof(ProjectImpactHoursReference)).Select(x => x.ColourCommand()).ListToString()}.");
+            return false;
+        }
+
+        HoursReference = value;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This impact will now use {HoursReference.DescribeEnum().ColourValue()} continuity hours for its minimum-hours gate.");
+        return true;
     }
 
     private bool BuildingCommandMinimumHours(ICharacter actor, StringStack command)
@@ -190,7 +236,9 @@ public abstract class BaseImpact : SaveableItem, ILabourImpact
 
     public bool Applies(ICharacter actor)
     {
-        return actor.CurrentProjectHours >= MinimumHoursForImpactToKickIn;
+        return (HoursReference == ProjectImpactHoursReference.Project
+                   ? actor.CurrentProjectProjectHours
+                   : actor.CurrentProjectHours) >= MinimumHoursForImpactToKickIn;
     }
 
     public virtual (bool Truth, string Error) CanSubmit()
@@ -205,6 +253,7 @@ public abstract class BaseImpact : SaveableItem, ILabourImpact
         sb.AppendLine($"Type: {_typeName.ColourValue()}");
         sb.AppendLine($"Description: {DescriptionForProjectsCommand.SubstituteANSIColour()}");
         sb.AppendLine($"Minimum Hours: {MinimumHoursForImpactToKickIn.ToString("N2", actor).ColourValue()}");
+        sb.AppendLine($"Hours Scope: {HoursReference.DescribeEnum().ColourValue()}");
         return sb.ToString();
     }
 

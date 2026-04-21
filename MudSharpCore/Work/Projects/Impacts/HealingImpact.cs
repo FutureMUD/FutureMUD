@@ -32,11 +32,11 @@ public class HealingImpact : BaseImpact, ILabourImpactHealing
 
     protected override XElement SaveDefinition()
     {
-        return new XElement("Impact",
+        return SaveDefinitionWithHoursReference(new XElement("Impact",
             new XElement("HealingCheckBonus", HealingCheckBonus),
             new XElement("HealingRateMultiplier", HealingRateMultiplier),
             new XElement("InfectionChanceMultiplier", InfectionChanceMultiplier)
-        );
+        ));
     }
 
     public override ILabourImpact Duplicate(IProjectLabourRequirement requirement)
@@ -63,7 +63,7 @@ public class HealingImpact : BaseImpact, ILabourImpactHealing
     public override string ShowToPlayer(ICharacter actor)
     {
         return
-            $"A {(HealingCheckBonus >= 0.0 ? "bonus" : "penalty")} to healing checks, a {(HealingRateMultiplier >= 1.0 ? "bonus" : "penalty")} to healing rate and a {(HealingRateMultiplier >= 1.0 ? "bonus" : "penalty")} to infection chance";
+            $"A {(HealingCheckBonus >= 0.0 ? "bonus" : "penalty")} to healing checks, a {(HealingRateMultiplier >= 1.0 ? "bonus" : "penalty")} to healing rate and a {(InfectionChanceMultiplier <= 1.0 ? "reduction" : "increase")} to infection chance";
     }
 
     protected override string HelpText => $@"{base.HelpText}
@@ -121,7 +121,7 @@ public class HealingImpact : BaseImpact, ILabourImpactHealing
             return false;
         }
 
-        HealingCheckBonus = value;
+        InfectionChanceMultiplier = value;
         Changed = true;
         actor.OutputHandler.Send(
             $"This impact will now give a multiplier to infection chance of {value.ToString("P2", actor).ColourValue()}.");

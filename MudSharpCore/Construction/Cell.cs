@@ -683,6 +683,10 @@ public partial class Cell : Location, IDisposable, ICell
         }
 
         CheckFallExitStatus();
+        if (movingCharacter.CurrentProject.Project == null)
+        {
+            movingCharacter.TryJoinQueuedProjectLabour();
+        }
     }
 
     private RoomLayer HandleEnterLayers(ICharacter movingCharacter)

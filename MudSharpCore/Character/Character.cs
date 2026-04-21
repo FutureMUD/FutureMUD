@@ -1481,6 +1481,8 @@ public partial class Character : PerceiverItem, ICharacter
 
         dbitem.CurrentProjectId = CurrentProject.Project?.Id;
         dbitem.CurrentProjectLabourId = CurrentProject.Labour?.Id;
+        dbitem.CurrentProjectHours = CurrentProjectHours;
+        dbitem.CurrentProjectProjectHours = CurrentProjectProjectHours;
         FMDB.Context.Characters.Add(dbitem);
         return dbitem;
     }

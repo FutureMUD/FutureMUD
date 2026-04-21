@@ -54,11 +54,11 @@ public class TraitImpact : BaseImpact, ILabourImpactTraits
 
     protected override XElement SaveDefinition()
     {
-        return new XElement("Impact",
+        return SaveDefinitionWithHoursReference(new XElement("Impact",
             new XElement("Trait", Trait?.Id ?? 0),
             new XElement("TraitChange", TraitChange),
             new XElement("TraitBonusContext", (int)TraitBonusContext)
-        );
+        ));
     }
 
     public override ILabourImpact Duplicate(IProjectLabourRequirement requirement)

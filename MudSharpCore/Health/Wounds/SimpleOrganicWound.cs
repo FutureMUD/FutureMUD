@@ -1787,7 +1787,8 @@ public class SimpleOrganicWound : PerceivedItem, IWound
         double chance = Gameworld.GetStaticDouble("BaseInfectionChance");
         chance *= GetInfectionChanceDamageMultiplier();
 
-        chance *= ch.CurrentProject.Labour?.LabourImpacts.OfType<ILabourImpactHealing>()
+        chance *= ch.CurrentProject.Labour?.LabourImpacts.Where(x => x.Applies(ch))
+                    .OfType<ILabourImpactHealing>()
                     .Aggregate(1.0, (sum, x) => sum * x.InfectionChanceMultiplier) ?? 1.0;
         chance *= terrain.InfectionMultiplier;
 

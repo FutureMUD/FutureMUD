@@ -10,6 +10,7 @@ namespace MudSharp.Models
             ActiveProjectLabours = new HashSet<ActiveProjectLabour>();
             Characters = new HashSet<Character>();
             ProjectLabourImpacts = new HashSet<ProjectLabourImpact>();
+            ProjectLabourQueues = new HashSet<ProjectLabourQueue>();
         }
 
         public long Id { get; set; }
@@ -25,5 +26,6 @@ namespace MudSharp.Models
         public virtual ICollection<ActiveProjectLabour> ActiveProjectLabours { get; set; }
         public virtual ICollection<Character> Characters { get; set; }
         public virtual ICollection<ProjectLabourImpact> ProjectLabourImpacts { get; set; }
+        public virtual ICollection<ProjectLabourQueue> ProjectLabourQueues { get; set; }
     }
 }

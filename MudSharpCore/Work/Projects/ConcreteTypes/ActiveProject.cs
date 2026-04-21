@@ -148,6 +148,63 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 
     public abstract void Leave(ICharacter actor);
 
+    protected bool AreMandatoryLabourRequirementsComplete()
+    {
+        return CurrentPhase.LabourRequirements
+            .Where(x => x.IsMandatoryForProjectCompletion)
+            .All(x => LabourProgress[x] >= x.TotalProgressRequired);
+    }
+
+    protected bool AreMandatoryMaterialRequirementsComplete()
+    {
+        return CurrentPhase.MaterialRequirements
+            .Where(x => x.IsMandatoryForProjectCompletion)
+            .All(x => MaterialProgress[x] >= x.QuantityRequired);
+    }
+
+    protected bool AreCurrentPhaseCompletionRequirementsMet()
+    {
+        return AreMandatoryLabourRequirementsComplete() &&
+               AreMandatoryMaterialRequirementsComplete();
+    }
+
+    protected IEnumerable<IProjectAction> OrderedCompletionActions()
+    {
+        return CurrentPhase.CompletionActions
+            .OrderBy(x => x.SortOrder)
+            .ThenBy(x => x.Id);
+    }
+
+    protected void TryJoinQueuedProjectLabourFor(IEnumerable<ICharacter> characters)
+    {
+        foreach (var character in characters
+                     .Where(x => x != null)
+                     .Distinct()
+                     .Where(x => x.CurrentProject.Project == null))
+        {
+            character.TryJoinQueuedProjectLabour();
+        }
+    }
+
+    protected double? MandatoryMaterialCompletionRatio()
+    {
+        var mandatoryMaterials = CurrentPhase.MaterialRequirements
+            .Where(x => x.IsMandatoryForProjectCompletion)
+            .ToList();
+        if (!mandatoryMaterials.Any())
+        {
+            return null;
+        }
+
+        var totalRequired = mandatoryMaterials.Sum(x => x.QuantityRequired);
+        if (totalRequired <= 0.0)
+        {
+            return null;
+        }
+
+        return mandatoryMaterials.Sum(x => MaterialProgress[x]) / totalRequired;
+    }
+
     public sealed override void Save()
     {
         Models.ActiveProject dbitem = FMDB.Context.ActiveProjects.Find(Id);
@@ -260,6 +317,7 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
         foreach ((ICharacter Character, IProjectLabourRequirement Labour) labour in ActiveLabour)
         {
             labour.Character.CurrentProjectHours += 1.0 * multiplier;
+            labour.Character.CurrentProjectProjectHours += 1.0 * multiplier;
             foreach (ILabourImpactActionAtTick impact in labour.Labour.LabourImpacts.OfType<ILabourImpactActionAtTick>())
             {
                 impact.DoAction(labour.Character, this, labour.Labour);

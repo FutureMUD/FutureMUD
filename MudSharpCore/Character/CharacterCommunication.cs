@@ -280,6 +280,11 @@ public partial class Character
 
     public ITraitDefinition LanguageForReadCheck(IWriting writing)
     {
+        if (EffectsOfType<IComprehendLanguageEffect>().Any(x => x.Applies()))
+        {
+            return writing.Language.LinkedTrait;
+        }
+
         if (Languages.Contains(writing.Language))
         {
             return writing.Language.LinkedTrait;
@@ -306,6 +311,11 @@ public partial class Character
             return false;
         }
 
+        if (EffectsOfType<IComprehendLanguageEffect>().Any(x => x.Applies()))
+        {
+            return true;
+        }
+
         Difficulty difficulty = WritingDifficulty(writing);
         CheckOutcome result = Gameworld.GetCheck(CheckType.WritingComprehendCheck).Check(this, difficulty, LanguageForReadCheck(writing));
         if (result.IsFail())
@@ -326,6 +336,11 @@ public partial class Character
         if (!Scripts.Contains(writing.Script))
         {
             return "You cannot read that because you are unfamiliar with the script in which it is written.";
+        }
+
+        if (EffectsOfType<IComprehendLanguageEffect>().Any(x => x.Applies()))
+        {
+            return string.Empty;
         }
 
         if (!Languages.Contains(writing.Language))
@@ -362,6 +377,11 @@ public partial class Character
 
     public bool CanIdentifyLanguage(ILanguage language)
     {
+        if (EffectsOfType<IComprehendLanguageEffect>().Any(x => x.Applies()))
+        {
+            return true;
+        }
+
         return
             Languages.Contains(language) ||
             Languages.Any(x => x.MutualIntelligability(language) != Difficulty.Impossible);

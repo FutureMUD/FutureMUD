@@ -31,6 +31,11 @@ public class RobotCommunicationStrategy : HumanoidCommunicationStrategy, IBodyCo
             return $"You are mute and cannot speak.";
         }
 
+        if (IsSilenced(body))
+        {
+            return SilenceReason;
+        }
+
         throw new ApplicationException();
     }
 
@@ -46,7 +51,7 @@ public class RobotCommunicationStrategy : HumanoidCommunicationStrategy, IBodyCo
             return false;
         }
 
-        return true;
+        return !IsSilenced(body);
     }
 
     public override bool CanVocalise(IBody body, AudioVolume volume)
@@ -76,6 +81,11 @@ public class RobotCommunicationStrategy : HumanoidCommunicationStrategy, IBodyCo
         if (body.Actor.Merits.OfType<IMuteMerit>().Any(x => x.Applies(body.Actor)))
         {
             return body.Actor.Merits.OfType<IMuteMerit>().First(x => x.Applies(body.Actor)).LanguageOptions;
+        }
+
+        if (IsSilenced(body))
+        {
+            return PermitLanguageOptions.LanguageIsBuzzing;
         }
 
         if (!CanVocalise(body, volume))

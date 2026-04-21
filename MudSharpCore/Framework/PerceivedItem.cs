@@ -711,8 +711,14 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public virtual bool HandleEvent(EventType type, params dynamic[] arguments)
     {
+        bool truth = false;
+        foreach (IHandleEventsEffect effect in EffectsOfType<IHandleEventsEffect>().ToList())
+        {
+            truth |= effect.HandleEvent(type, arguments);
+        }
+
         // Hooks cannot have exclusive "right to fire". Even if one hook handles the event, we want others to keep handling it.
-        return _hookedFunctions[type].Select(x => x(type, arguments)).Any(x => x);
+        return truth || _hookedFunctions[type].Select(x => x(type, arguments)).Any(x => x);
     }
 
     public virtual bool HandlesEvent(params EventType[] types)

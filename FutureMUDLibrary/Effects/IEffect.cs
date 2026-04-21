@@ -15,11 +15,12 @@ namespace MudSharp.Effects
         IPerceivable Owner { get; }
         bool SavingEffect { get; }
         IEnumerable<string> Blocks { get; }
-        bool CanBeStoppedByPlayer { get; }
+		bool CanBeStoppedByPlayer { get; }
 
-        PerceptionTypes PerceptionDenying { get; }
-        PerceptionTypes Obscuring { get; }
-        IFutureProg ApplicabilityProg { get; set; }
+		PerceptionTypes PerceptionGranting { get; }
+		PerceptionTypes PerceptionDenying { get; }
+		PerceptionTypes Obscuring { get; }
+		IFutureProg ApplicabilityProg { get; set; }
         bool Applies();
         bool Applies(object target);
         bool Applies(object target, object thirdparty);

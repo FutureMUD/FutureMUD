@@ -56,23 +56,11 @@ public class MagicArmourPower : SustainedMagicPower
     new XElement("EndVerb", EndVerb),
     new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
     new XElement("SkillCheckTrait", SkillCheckTrait.Id),
-    new XElement("ArmourAppliesProg", ArmourAppliesProg.Id),
     new XElement("EmoteText", new XCData(EmoteText)),
     new XElement("FailEmoteText", new XCData(FailEmoteText)),
-    new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText)),
-    new XElement("Quality", (int)Quality),
-    new XElement("ArmourType", ArmourType?.Id ?? 0L),
-    new XElement("ArmourMaterial", ArmourMaterial?.Id ?? 0L),
-    new XElement("FullDescriptionAddendum", new XCData(FullDescriptionAddendum)),
-    new XElement("CanBeObscuredByInventory", ArmourCanBeObscuredByInventory),
-    new XElement("MaximumDamageAbsorbed", new XCData(MaximumDamageAbsorbed.OriginalFormulaText)),
-    new XElement("BodypartShapes",
-        from shape in _coveredShapes
-        select new XElement("Shape",
-            shape.Id
-        )
-                )
+    new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText))
         );
+        ArmourConfiguration.SaveToXml(definition);
         AddBaseDefinition(definition);
         SaveSustainedDefinition(definition);
         return definition;
@@ -88,6 +76,7 @@ public class MagicArmourPower : SustainedMagicPower
         SkillCheckDifficulty = Difficulty.VeryEasy;
         MinimumSuccessThreshold = Outcome.Fail;
         ConcentrationPointsToSustain = 1.0;
+        ArmourConfiguration = new MagicArmourConfiguration(Gameworld);
         ArmourAppliesProg = Gameworld.AlwaysTrueProg;
         Quality = ItemQuality.Standard;
         ArmourType = Gameworld.ArmourTypes.First();
@@ -117,21 +106,6 @@ public class MagicArmourPower : SustainedMagicPower
         }
 
         EmoteText = element.Value;
-
-        element = root.Element("BodypartShapes");
-        if (element != null)
-        {
-            foreach (XElement sub in element.Elements())
-            {
-                IBodypartShape shape = long.TryParse(sub.Value, out long idvalue)
-                    ? Gameworld.BodypartShapes.Get(idvalue)
-                    : Gameworld.BodypartShapes.GetByName(sub.Value);
-                if (shape != null)
-                {
-                    _coveredShapes.Add(shape);
-                }
-            }
-        }
 
         element = root.Element("FailEmoteText");
         if (element == null)
@@ -177,33 +151,7 @@ public class MagicArmourPower : SustainedMagicPower
         }
 
         MinimumSuccessThreshold = (Outcome)int.Parse(element.Value);
-
-        element = root.Element("ArmourAppliesProg");
-        if (element == null)
-        {
-            throw new ApplicationException(
-                $"There was no ArmourAppliesProg in the definition XML for power {Id} ({Name}).");
-        }
-
-        ArmourAppliesProg = long.TryParse(element.Value, out long value)
-            ? Gameworld.FutureProgs.Get(value)
-            : Gameworld.FutureProgs.GetByName(element.Value);
-
-        Quality = (ItemQuality)int.Parse(root.Element("Quality")?.Value ?? "0");
-        ArmourType = (long.TryParse(root.Element("ArmourType")?.Value ?? "0", out value)
-                         ? Gameworld.ArmourTypes.Get(value)
-                         : Gameworld.ArmourTypes.GetByName(root.Element("ArmourType")?.Value ?? "")) ??
-                     throw new ApplicationException($"Invalid armour type in MagicArmourPower #{Id} ({Name})")
-            ;
-        ArmourMaterial = (long.TryParse(root.Element("ArmourMaterial")?.Value ?? "0", out value)
-                             ? Gameworld.Materials.Get(value) as ISolid
-                             : Gameworld.Materials.GetByName(root.Element("ArmourMaterial")?.Value ?? "") as ISolid
-                         ) ??
-                         throw new ApplicationException(
-                             $"Invalid armour material in MagicArmourPower #{Id} ({Name})");
-        FullDescriptionAddendum = root.Element("FullDescriptionAddendum")?.Value ?? string.Empty;
-        ArmourCanBeObscuredByInventory = bool.Parse(root.Element("CanBeObscuredByInventory")?.Value ?? "false");
-        MaximumDamageAbsorbed = new TraitExpression(root.Element("MaximumDamageAbsorbed")?.Value ?? "0", Gameworld);
+        ArmourConfiguration = new MagicArmourConfiguration(root, Gameworld);
     }
 
     #region Overrides of MagicPowerBase
@@ -263,32 +211,54 @@ public class MagicArmourPower : SustainedMagicPower
     public Difficulty SkillCheckDifficulty { get; protected set; }
     public ITraitDefinition SkillCheckTrait { get; protected set; }
     public Outcome MinimumSuccessThreshold { get; protected set; }
-    public IArmourType ArmourType { get; protected set; }
-    public ItemQuality Quality { get; protected set; }
-    public ISolid ArmourMaterial { get; protected set; }
+    public MagicArmourConfiguration ArmourConfiguration { get; protected set; }
+    public IArmourType ArmourType
+    {
+        get => ArmourConfiguration.ArmourType;
+        protected set => ArmourConfiguration.ArmourType = value;
+    }
+    public ItemQuality Quality
+    {
+        get => ArmourConfiguration.Quality;
+        protected set => ArmourConfiguration.Quality = value;
+    }
+    public ISolid ArmourMaterial
+    {
+        get => ArmourConfiguration.ArmourMaterial;
+        protected set => ArmourConfiguration.ArmourMaterial = value;
+    }
     public string BeginVerb { get; protected set; }
     public string EndVerb { get; protected set; }
 
-    public IFutureProg ArmourAppliesProg { get; protected set; }
+    public IFutureProg ArmourAppliesProg
+    {
+        get => ArmourConfiguration.ArmourAppliesProg;
+        protected set => ArmourConfiguration.ArmourAppliesProg = value;
+    }
 
-    public ITraitExpression MaximumDamageAbsorbed { get; protected set; }
+    public ITraitExpression MaximumDamageAbsorbed
+    {
+        get => ArmourConfiguration.MaximumDamageAbsorbed;
+        protected set => ArmourConfiguration.MaximumDamageAbsorbed = value;
+    }
 
     public override IEnumerable<string> Verbs => new[] { BeginVerb, EndVerb };
 
-    private readonly HashSet<IBodypartShape> _coveredShapes = new();
-
     public bool AppliesToBodypart(IBodypart bodypart)
     {
-        if (!_coveredShapes.Any())
-        {
-            return true;
-        }
-
-        return _coveredShapes.Contains(bodypart.Shape);
+        return ArmourConfiguration.AppliesToBodypart(bodypart);
     }
 
-    public string FullDescriptionAddendum { get; protected set; }
-    public bool ArmourCanBeObscuredByInventory { get; protected set; }
+    public string FullDescriptionAddendum
+    {
+        get => ArmourConfiguration.FullDescriptionAddendum;
+        protected set => ArmourConfiguration.FullDescriptionAddendum = value;
+    }
+    public bool ArmourCanBeObscuredByInventory
+    {
+        get => ArmourConfiguration.ArmourCanBeObscuredByInventory;
+        protected set => ArmourConfiguration.ArmourCanBeObscuredByInventory = value;
+    }
 
     /// <inheritdoc />
     protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
@@ -305,7 +275,7 @@ public class MagicArmourPower : SustainedMagicPower
         sb.AppendLine($"Armour Material: {ArmourMaterial.Name.ColourValue()}");
         sb.AppendLine($"Can Be Obscured By Inventory: {ArmourCanBeObscuredByInventory.ToColouredString()}");
         sb.AppendLine($"Full Desc Addendum: {FullDescriptionAddendum.SubstituteANSIColour()}");
-        sb.AppendLine($"Covered Shapes: {(_coveredShapes.Any() ? _coveredShapes.Select(x => x.Name.ColourValue()).ListToString() : "All".ColourValue())}");
+        sb.AppendLine($"Covered Shapes: {(ArmourConfiguration.CoveredShapes.Any() ? ArmourConfiguration.CoveredShapes.Select(x => x.Name.ColourValue()).ListToString() : "All".ColourValue())}");
         sb.AppendLine();
         sb.AppendLine("Emotes:");
         sb.AppendLine();
@@ -409,7 +379,7 @@ public class MagicArmourPower : SustainedMagicPower
         if (command.SafeRemainingArgument.EqualTo("all"))
         {
             actor.OutputHandler.Send("This armour now applies to all bodyparts of the owner.");
-            _coveredShapes.Clear();
+            ArmourConfiguration.CoveredShapes.Clear();
             Changed = true;
             return true;
         }
@@ -422,13 +392,13 @@ public class MagicArmourPower : SustainedMagicPower
         }
 
         Changed = true;
-        if (_coveredShapes.Remove(shape))
+        if (ArmourConfiguration.CoveredShapes.Remove(shape))
         {
             actor.OutputHandler.Send($"This armour no longer covers {shape.Name.ColourValue()} bodypart shapes.");
         }
         else
         {
-            _coveredShapes.Add(shape);
+            ArmourConfiguration.CoveredShapes.Add(shape);
             actor.OutputHandler.Send($"This armour now covers {shape.Name.ColourValue()} bodypart shapes.");
         }
 

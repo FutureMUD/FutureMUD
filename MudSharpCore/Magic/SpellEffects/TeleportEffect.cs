@@ -74,8 +74,8 @@ public class TeleportEffect : IMagicSpellEffectTemplate
     {
         switch (types)
         {
-            case "character":
-            case "characters":
+            case "room":
+            case "rooms":
                 return true;
             default:
                 return false;

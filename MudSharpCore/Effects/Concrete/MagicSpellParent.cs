@@ -15,6 +15,8 @@ namespace MudSharp.Effects.Concrete;
 
 public class MagicSpellParent : Effect, IMagicSpellEffectParent
 {
+    private bool _removingSpellEffects;
+
     public static void InitialiseEffectType()
     {
         RegisterFactory("MagicSpellParent", (effect, owner) => new MagicSpellParent(effect, owner));
@@ -66,10 +68,13 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 
     public override void RemovalEffect()
     {
-        foreach (IMagicSpellEffect effect in _spellEffects)
+        _removingSpellEffects = true;
+        foreach (IMagicSpellEffect effect in _spellEffects.ToList())
         {
             Owner.RemoveEffect(effect, true);
         }
+        _spellEffects.Clear();
+        _removingSpellEffects = false;
     }
 
     #endregion
@@ -103,6 +108,15 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
     public void AddSpellEffect(IMagicSpellEffect effect)
     {
         _spellEffects.Add(effect);
+    }
+
+    public void RemoveSpellEffect(IMagicSpellEffect effect)
+    {
+        _spellEffects.Remove(effect);
+        if (!_removingSpellEffects && !_spellEffects.Any())
+        {
+            Owner.RemoveEffect(this);
+        }
     }
 
     public IEnumerable<IMagicSpellEffect> SpellEffects => _spellEffects;

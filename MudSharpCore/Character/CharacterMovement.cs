@@ -1610,6 +1610,11 @@ public partial class Character
             return (false, "You are already flying.");
         }
 
+        if (CombinedEffectsOfType<IFlightEffect>().Any(x => x.Applies()))
+        {
+            return (true, string.Empty);
+        }
+
         if (CombinedEffectsOfType<IImmwalkEffect>().Any())
         {
             return (true, string.Empty);

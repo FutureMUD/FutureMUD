@@ -1925,6 +1925,12 @@ The syntax is simply #3flee#0 to toggle it on, and the same again to return to y
 
         if (actor.CombatStrategyMode == CombatStrategyMode.Flee)
         {
+            if (actor.CombinedEffectsOfType<IFearEffect>().Any(x => x.Applies()))
+            {
+                actor.Send("You are too afraid to stop trying to flee.");
+                return;
+            }
+
             CombatStrategyMode mode = actor.MeleeRange
                     ? actor.CombatSettings.PreferredMeleeMode
                     : actor.CombatSettings.PreferredRangedMode;

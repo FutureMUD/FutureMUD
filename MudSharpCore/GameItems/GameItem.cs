@@ -35,6 +35,7 @@ using MudSharp.PerceptionEngine.Handlers;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.Magic;
 using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
@@ -660,6 +661,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
                                                           .Aggregate(text,
                                                               (current, component) =>
                                                                   $"{current}\n\t{component.GetAdditionalText(voyeur, true)}");
+
+        string auraText = MagicPerceptionUtilities.DescribeMagicAuras(voyeur, Effects);
+        if (!string.IsNullOrEmpty(auraText))
+        {
+            text = $"{text}\n\t{auraText.Replace("\n", "\n\t")}";
+        }
 
         return _components.Any(x => x.WrapFullDescription) ? text.Wrap(voyeur.InnerLineFormatLength) : text;
     }

@@ -32,7 +32,10 @@ public class LungBreather : IBreathingStrategy
             return false;
         }
 
-        if (!body.Race.BreathableFluids.Contains(BreathingFluid(body)))
+        IFluid breathingFluid = BreathingFluid(body);
+        bool additionalBreathing = body.CombinedEffectsOfType<IAdditionalBreathableFluidEffect>()
+            .Any(x => x.Applies() && x.AppliesToFluid(breathingFluid));
+        if (!body.Race.BreathableFluids.Contains(breathingFluid) && !additionalBreathing)
         {
             return false;
         }

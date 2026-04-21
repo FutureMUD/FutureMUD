@@ -9,6 +9,71 @@ namespace RPI_Engine_Worldfile_Converter;
 public sealed class FutureMudNpcTransformer
 {
 	private static readonly Regex NonLettersRegex = new("[^A-Za-z]+", RegexOptions.Compiled);
+	private static readonly IReadOnlyList<(string RaceName, string[] Needles)> SpecificAnimalRaceLexicalMap =
+	[
+		("Crow", [" crow "]),
+		("Raven", [" raven "]),
+		("Eagle", [" eagle "]),
+		("Hawk", [" hawk "]),
+		("Falcon", [" falcon "]),
+		("Owl", [" owl "]),
+		("Vulture", [" vulture "]),
+		("Seagull", [" seagull ", " gull "]),
+		("Duck", [" duck ", " drake ", " duckling "]),
+		("Goose", [" goose ", " geese ", " gosling "]),
+		("Swan", [" swan ", " cygnet "]),
+		("Chicken", [" chicken ", " rooster ", " hen ", " chick "]),
+		("Turkey", [" turkey ", " gobbling "]),
+		("Pheasant", [" pheasant "]),
+		("Quail", [" quail "]),
+		("Pigeon", [" pigeon ", " dove ", " cooing "]),
+		("Parrot", [" parrot "]),
+		("Sparrow", [" songbird ", " sparrow ", " chirping "]),
+		("Robin", [" robin "]),
+		("Wren", [" wren "]),
+		("Kingfisher", [" kingfisher "]),
+		("Woodpecker", [" woodpecker "]),
+		("Stork", [" stork "]),
+		("Heron", [" heron "]),
+		("Crane", [" crane "]),
+		("Flamingo", [" flamingo "]),
+		("Pelican", [" pelican "]),
+		("Ibis", [" ibis "]),
+		("Albatross", [" albatross "]),
+		("Penguin", [" penguin "]),
+		("Ostrich", [" ostrich "]),
+		("Emu", [" emu "]),
+		("Peacock", [" peacock ", " peafowl "]),
+		("Cat", [" cat ", " tomcat ", " kitten "]),
+		("Tiger", [" tiger ", " tigress "]),
+		("Fox", [" fox ", " vixen "]),
+		("Rabbit", [" rabbit ", " bunny "]),
+		("Hare", [" hare "]),
+		("Deer", [" deer ", " stag ", " doe ", " fawn "]),
+		("Pig", [" pig ", " sow ", " piglet "]),
+		("Boar", [" boar "]),
+		("Sheep", [" sheep ", " ewe ", " ram ", " lamb "]),
+		("Goat", [" goat ", " kid goat "]),
+		("Cow", [" cow ", " bull ", " calf ", " cattle "]),
+		("Crab", [" crab "]),
+	];
+	private static readonly HashSet<string> BestialCultureRaceNames =
+	[
+		"Wolf",
+		"Horse",
+		"Bird",
+		"Rat",
+		"Spider",
+		"Giant Spider",
+		"Warg",
+		"Mule",
+		"Donkey",
+		"Dog",
+		"Cat",
+		"Snake",
+		"Boar",
+		.. SpecificAnimalRaceLexicalMap.Select(x => x.RaceName)
+	];
 
 	private readonly IReadOnlyDictionary<int, (string GroupKey, string ZoneName)> _zoneEvidence;
 
@@ -520,11 +585,13 @@ public sealed class FutureMudNpcTransformer
 	private static readonly IReadOnlyDictionary<string, string> TraitAliasMap =
 		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 		{
+			["Brawling"] = "Brawl",
 			["Small-Blade"] = "Small Blade",
 			["Double-Handed"] = "Double Handed",
 			["Sole-Wield"] = "Sole Wield",
 			["Shield-Use"] = "Shield Use",
 			["Hunting-bow"] = "Hunting Bow",
+			["Warbow"] = "Longbow",
 			["Danger-Sense"] = "Danger Sense",
 			["Psychic-Bolt"] = "Psychic Bolt",
 			["Aura-Sight"] = "Aura Sight",
@@ -540,8 +607,10 @@ public sealed class FutureMudNpcTransformer
 		string zoneName,
 		ICollection<NpcConversionWarning> warnings)
 	{
-		var text = $" {npc.Keywords} {npc.ShortDescription} {npc.LongDescription} {npc.FullDescription} {zoneName} "
+		var sourceText = $" {npc.Keywords} {npc.ShortDescription} {npc.LongDescription} {npc.FullDescription} ";
+		var text = $"{sourceText} {zoneName} "
 			.ToLowerInvariant();
+		var subjectText = sourceText.ToLowerInvariant();
 
 		if (npc.ActFlags.HasFlag(RpiNpcActFlags.Vehicle))
 		{
@@ -571,6 +640,16 @@ public sealed class FutureMudNpcTransformer
 		if (ContainsAny(text, "hill troll"))
 		{
 			return new RaceResolution("Troll", "Hill Troll", "Resolved from hill troll lexical cue.", true);
+		}
+
+		var specificAnimalRace = ResolveSpecificAnimalRace(subjectText);
+		if (specificAnimalRace is not null)
+		{
+			return new RaceResolution(
+				specificAnimalRace,
+				specificAnimalRace,
+				$"Resolved from {specificAnimalRace} lexical cue.",
+				true);
 		}
 
 		if (ContainsAny(text, "giant spider"))
@@ -603,9 +682,9 @@ public sealed class FutureMudNpcTransformer
 			return new RaceResolution("Horse", "Horse", "Resolved from horse lexical cue.", true);
 		}
 
-		if (ContainsAny(text, " bird ", " raven ", " crow ", " eagle ", " hawk "))
+		if (ContainsAny(text, " bird "))
 		{
-			return new RaceResolution("Bird", "Bird", "Resolved from bird lexical cue.", true);
+			return new RaceResolution("Crow", "Crow", "Resolved generic bird race conservatively to Crow.", true);
 		}
 
 		if (ContainsAny(text, " rat ", " rodent "))
@@ -699,6 +778,55 @@ public sealed class FutureMudNpcTransformer
 		if (ContainsAny(text, "gondor", " gondorian ", "ithilien", "minas tirith", "osgiliath", "pelargir", "dol amroth"))
 		{
 			return new RaceResolution("Human", "Gondorian", "Resolved from Gondorian lexical cue.", true);
+		}
+
+		switch (npc.LegacyRaceId)
+		{
+			case 1:
+			case 2:
+				return new RaceResolution(
+					"Human",
+					DetermineDefaultHumanEthnicity(zoneName, text),
+					$"Resolved human race conservatively from legacy race id {npc.LegacyRaceId}.",
+					true);
+			case 4:
+				return new RaceResolution("Troll", "Cave Troll", "Resolved from legacy cave troll race id.", true);
+			case 5:
+				return new RaceResolution("Elf", "Noldor", "Resolved from legacy Noldor race id.", true);
+			case 6:
+				return new RaceResolution("Elf", "Sindar", "Resolved from legacy Sindar race id.", true);
+			case 7:
+				return new RaceResolution("Troll", "Hill Troll", "Resolved from legacy hill troll race id.", true);
+			case 10:
+				return new RaceResolution("Spider", "Spider", "Resolved giant spider legacy race id onto seeded Spider race.", true);
+			case 12:
+			case 13:
+				return new RaceResolution("Horse", "Horse", "Resolved from legacy horse race id.", true);
+			case 14:
+				return new RaceResolution("Crow", "Crow", "Resolved generic bird legacy race id conservatively to Crow.", true);
+			case 15:
+			case 21:
+				return new RaceResolution("Warg", null, "Resolved from legacy warg race id.", true);
+			case 17:
+				return new RaceResolution("Hobbit", "Harfoot", "Resolved from legacy hobbit race id.", true);
+			case 18:
+				return new RaceResolution("Dwarf", null, "Resolved from legacy dwarf race id.", true);
+			case 19:
+				return new RaceResolution("Mule", "Mule", "Resolved from legacy mule race id.", true);
+			case 20:
+				return new RaceResolution("Donkey", "Donkey", "Resolved from legacy donkey race id.", true);
+			case 22:
+				return new RaceResolution("Dog", "Dog", "Resolved from legacy dog race id.", true);
+			case 23:
+				return new RaceResolution("Cat", "Cat", "Resolved from legacy cat race id.", true);
+			case 25:
+				return new RaceResolution("Boar", "Boar", "Resolved from legacy boar race id.", true);
+			case 26:
+				return new RaceResolution("Orc", "Uruk", "Resolved from legacy uruk race id.", true);
+			case 27:
+				return new RaceResolution("Human", "Haradrim", "Resolved from legacy Harad human race id.", true);
+			case 28:
+				return new RaceResolution("Human", "Easterling", "Resolved from legacy Easterling human race id.", true);
 		}
 
 		if (npc.LegacyRaceId == 0 ||
@@ -836,6 +964,22 @@ public sealed class FutureMudNpcTransformer
 			}
 		}
 
+		if (race.RaceName.Equals("Hobbit", StringComparison.OrdinalIgnoreCase))
+		{
+			var loweredZone = zoneName.ToLowerInvariant();
+			if (ContainsAny(loweredZone, "bree"))
+			{
+				return new CultureResolution("Bree Hobbit", "Resolved hobbit culture from Bree zone cue.");
+			}
+
+			if (ContainsAny(loweredZone, "rhovanion", "anduin", "mirkwood"))
+			{
+				return new CultureResolution("Rhovanion Hobbit", "Resolved hobbit culture from Wilderland zone cue.");
+			}
+
+			return new CultureResolution("Shire Hobbit", "Resolved hobbit culture conservatively to Shire Hobbit.");
+		}
+
 		if (race.RaceName.Equals("Orc", StringComparison.OrdinalIgnoreCase))
 		{
 			var loweredZone = zoneName.ToLowerInvariant();
@@ -865,7 +1009,7 @@ public sealed class FutureMudNpcTransformer
 			}
 		}
 
-		if (race.RaceName is "Wolf" or "Horse" or "Bird" or "Rat" or "Spider" or "Giant Spider" or "Warg")
+		if (BestialCultureRaceNames.Contains(race.RaceName))
 		{
 			return new CultureResolution("Animal", "Resolved bestial culture from seeded Animal baseline.");
 		}
@@ -884,6 +1028,19 @@ public sealed class FutureMudNpcTransformer
 	private static bool ContainsAny(string haystack, params string[] needles)
 	{
 		return needles.Any(needle => haystack.Contains(needle, StringComparison.OrdinalIgnoreCase));
+	}
+
+	private static string? ResolveSpecificAnimalRace(string sourceText)
+	{
+		foreach (var (raceName, needles) in SpecificAnimalRaceLexicalMap)
+		{
+			if (ContainsAny(sourceText, needles))
+			{
+				return raceName;
+			}
+		}
+
+		return null;
 	}
 
 	private static IReadOnlyDictionary<string, int> ToSortedCounts<T>(IEnumerable<IGrouping<string, T>> groups)

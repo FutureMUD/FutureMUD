@@ -61,6 +61,9 @@ public sealed class FutureMudClanTransformer
 		var importedCanonicalAliases = sourceDocument.HeaderEntries
 			.Select(x => ResolveCanonicalRule(x.Alias).CanonicalAlias)
 			.Concat(AliasOnlyClans.Select(x => ResolveCanonicalRule(x).CanonicalAlias))
+			.Concat(references.ReferencesByAlias
+				.Where(x => x.Value.ObservedSlots.Any(y => y.IsImportable()))
+				.Select(x => ResolveCanonicalRule(x.Key).CanonicalAlias))
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
 			.ToList();
@@ -71,6 +74,8 @@ public sealed class FutureMudClanTransformer
 			var rule = ResolveCanonicalRule(canonicalAlias);
 			var aliases = sourceDocument.AliasSources.Keys
 				.Where(x => ResolveCanonicalRule(x).CanonicalAlias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase))
+				.Concat(references.ReferencesByAlias.Keys
+					.Where(x => ResolveCanonicalRule(x).CanonicalAlias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase)))
 				.Concat(rule.LegacyAliases)
 				.Append(canonicalAlias)
 				.Distinct(StringComparer.OrdinalIgnoreCase)
@@ -92,12 +97,18 @@ public sealed class FutureMudClanTransformer
 				warnings.Add($"Fell back to a title-cased full name for alias '{canonicalAlias}'.");
 			}
 
+			var hasSourceCodeAlias = aliases.Any(sourceDocument.AliasSources.ContainsKey);
+			if (headerEntry is null && !hasSourceCodeAlias)
+			{
+				warnings.Add($"Synthesized clan '{canonicalAlias}' from structured worldfile references.");
+			}
+
 			var aliasRecords = aliases
 				.Select(alias => new RpiClanAliasRecord(
 					alias,
 					alias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase),
 					!alias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase),
-					DetermineAliasSource(alias, canonicalAlias, headerEntry, sourceDocument)))
+					DetermineAliasSource(alias, canonicalAlias, headerEntry, sourceDocument, references)))
 				.ToList();
 
 			var displayNamesBySlot = MergeSlotValues(aliases, sourceDocument, useDisplayNames: true);
@@ -329,7 +340,8 @@ public sealed class FutureMudClanTransformer
 		string alias,
 		string canonicalAlias,
 		RpiClanHeaderEntry? headerEntry,
-		RpiClanSourceDocument sourceDocument)
+		RpiClanSourceDocument sourceDocument,
+		RpiClanReferenceIndex references)
 	{
 		if (alias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase))
 		{
@@ -341,7 +353,17 @@ public sealed class FutureMudClanTransformer
 			return "header-table";
 		}
 
-		return sourceDocument.AliasSources.ContainsKey(alias) ? "source-code" : "normalization-rule";
+		if (sourceDocument.AliasSources.ContainsKey(alias))
+		{
+			return "source-code";
+		}
+
+		if (references.ReferencesByAlias.ContainsKey(alias))
+		{
+			return "worldfile-reference";
+		}
+
+		return "normalization-rule";
 	}
 
 	private static string? DiscoverFullName(string canonicalAlias, RpiClanReferenceIndex references)

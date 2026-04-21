@@ -593,13 +593,20 @@ public sealed class FutureMudRoomTransformer
 			return string.Empty;
 		}
 
-		var match = BaseRoomRegex.Match(name.Trim());
+		var trimmed = name.Trim();
+		if (trimmed.Equals("Base Room", StringComparison.OrdinalIgnoreCase) ||
+		    trimmed.Equals("Baseroom", StringComparison.OrdinalIgnoreCase))
+		{
+			return string.Empty;
+		}
+
+		var match = BaseRoomRegex.Match(trimmed);
 		if (match.Success)
 		{
 			return match.Groups["name"].Value.Trim();
 		}
 
-		return name.Trim();
+		return trimmed;
 	}
 
 	private static string DetermineTerrain(

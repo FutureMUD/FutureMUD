@@ -1,0 +1,5255 @@
+{
+  "GeneratedUtc": "2026-04-21T13:37:55.1435496Z",
+  "SourceFile": "C:\\Users\\luker\\.codex\\worktrees\\3b86\\FutureMUD\\RPI Engine Worldfile Converter\\Old SOI Code\\src\\clan.cpp",
+  "RegionsDirectory": "C:\\Users\\luker\\.codex\\worktrees\\3b86\\FutureMUD\\RPI Engine Worldfile Converter\\soiregions-main",
+  "Analysis": {
+    "SourceFile": "C:\\Users\\luker\\.codex\\worktrees\\3b86\\FutureMUD\\RPI Engine Worldfile Converter\\Old SOI Code\\src\\clan.cpp",
+    "SourceClanCount": 19,
+    "ImportedClanCount": 19,
+    "ImportedRankCount": 134,
+    "BaselineStatus": "Skipped baseline validation by request.",
+    "PerClanRankCounts": {
+      "Astirian Villeins": 8,
+      "Baakath-Morgul": 5,
+      "Cult of Morgoth": 9,
+      "Eastern Vanguard": 8,
+      "Eradan Battalion": 7,
+      "Gothakra Warband": 6,
+      "Hawk and Dove": 4,
+      "Ithilien Battalion": 7,
+      "Malred Family": 7,
+      "Minas Morgul": 10,
+      "Minas Tirith Guard": 8,
+      "Nebavla Dunlendings": 9,
+      "Osgiliath City Watch": 7,
+      "Rangers of the Ithilien": 4,
+      "Rogues\u0027 Fellowship": 5,
+      "Seekers": 8,
+      "Shadow Cult": 8,
+      "Sindbar Family": 2,
+      "The Twisted Eye of Khagdu": 12
+    },
+    "PerPathCounts": {
+      "Common": 18,
+      "Guild": 10,
+      "Military": 106
+    },
+    "PerSlotCounts": {
+      "Apprentice": 3,
+      "Captain": 16,
+      "Commander": 9,
+      "Corporal": 16,
+      "General": 5,
+      "Journeyman": 3,
+      "Lieutenant": 15,
+      "Master": 4,
+      "Membership": 18,
+      "Private": 18,
+      "Recruit": 11,
+      "Sergeant": 16
+    },
+    "WarningCodeCounts": {
+      "alternate-rank-names": 7
+    },
+    "UnresolvedAliasCounts": {
+      "mt_citizens": 523,
+      "osgi_citizens": 208,
+      "moria_dwellers": 188,
+      "jewelers": 141,
+      "fahad_jafari": 133,
+      "clothwrights": 123,
+      "healers": 118,
+      "caolafon-citizen": 116,
+      "amdir_settler": 112,
+      "outpost_citizens": 111,
+      "apothecarists": 101,
+      "z3_astirian_wardens": 85,
+      "sages": 81,
+      "haradaic_embassy": 80,
+      "witchking_horde": 80,
+      "masons": 77,
+      "silvermoon": 73,
+      "abdul-matin": 71,
+      "leatherwrights": 71,
+      "cao_marsh": 69,
+      "mt_lower_class": 68,
+      "weaponsmiths": 62,
+      "heren_carnatalion": 61,
+      "hostelers": 60,
+      "woodwrights": 60,
+      "armorsmiths": 59,
+      "mordor_slavers": 53,
+      "strongroom_eradan": 53,
+      "cabal_seamstress": 52,
+      "eradan_vet": 46,
+      "fox_lily_staff": 44,
+      "bakers": 42,
+      "vadok_kraun": 42,
+      "cao_guild": 41,
+      "mt_upper_class": 39,
+      "balchoth_vanguard": 38,
+      "black_watch": 37,
+      "morgul": 36,
+      "rough_element": 33,
+      "house_nimrulai": 30,
+      "pel_anorien": 30,
+      "dalewatch": 28,
+      "mt_both_class": 28,
+      "tirithguard_11": 28,
+      "cartel_morvolok": 27,
+      "mtc_council": 27,
+      "outpost_guilds": 27,
+      "engineers": 26,
+      "gang_two": 26,
+      "privileged": 26,
+      "tirithguard_3": 26,
+      "gang_one": 25,
+      "wargpack": 25,
+      "lord": 24,
+      "crimson_arms": 23,
+      "drugpushers": 23,
+      "gang_three": 23,
+      "mt_citizen": 23,
+      "cobra": 22,
+      "safehouse": 22,
+      "fellow_family": 20,
+      "flophouse": 20,
+      "tirith_roads": 20,
+      "burkes_back": 19,
+      "egthela_arena": 19,
+      "groupg": 19,
+      "hd_officers": 19,
+      "innkeeps": 19,
+      "pel_ecthel_mounts": 19,
+      "shadow_keep": 19,
+      "abwatch": 18,
+      "azog_warhost": 18,
+      "cabal_armorer": 18,
+      "crabangador": 18,
+      "earmhyde": 18,
+      "uruk-hai": 18,
+      "armorers": 17,
+      "blackwatch": 17,
+      "wardenry_vips": 17,
+      "bar_caged": 16,
+      "sarnev_enclave": 16,
+      "street-traders": 16,
+      "undead_magic": 16,
+      "arenawargs": 15,
+      "dare_org": 15,
+      "militaryrecruits": 15,
+      "ralan-salvage": 15,
+      "bounty": 14,
+      "buroda": 14,
+      "fighting_pit": 14,
+      "ilgecygar": 14,
+      "com-priests": 13,
+      "ithil_citizen": 13,
+      "mini-fort-neutral": 13,
+      "minion_ww_ithil": 13,
+      "moria_pack": 13,
+      "naya_fam": 13,
+      "pel_pelennor": 13,
+      "ravine": 13,
+      "watchers": 13,
+      "abominations": 12,
+      "ash_circle": 12,
+      "house_courcel": 12,
+      "mt_shelter": 12,
+      "osgmerchant_fed": 12,
+      "saibeth": 12,
+      "scribes": 12,
+      "south_warg": 12,
+      "carnivores": 11,
+      "celeban": 11,
+      "emyn-bear": 11,
+      "fahad-jafari": 11,
+      "goldencat": 11,
+      "gondor_council": 11,
+      "groupf": 11,
+      "mens_clothing": 11,
+      "odulun-brothel": 11,
+      "osgi_passage": 11,
+      "peltirith": 11,
+      "tecouncil": 11,
+      "tirithjailhouse": 11,
+      "wizcafe_staff": 11,
+      "battered_shield": 10,
+      "ironsmiths": 10,
+      "moria_hordes": 10,
+      "mt_blades": 10,
+      "slum_gang": 10,
+      "blackrend": 9,
+      "cabal-leathercraft": 9,
+      "carnivore": 9,
+      "cutlers": 9,
+      "field-cobra": 9,
+      "glad_mast": 9,
+      "gypsies": 9,
+      "ithilien_brigands": 9,
+      "marchwardens": 9,
+      "pel_pelenor": 9,
+      "slum_mercs": 9,
+      "thames_vineyard": 9,
+      "tirnenestel_leathers": 9,
+      "wayside_tavern": 9,
+      "amdir_gaol": 8,
+      "cobra_enforcers": 8,
+      "edendor_legion": 8,
+      "endalion_cadre": 8,
+      "eradan_quartermaster": 8,
+      "gcspar": 8,
+      "horticulturist": 8,
+      "kajire_keep": 8,
+      "metalsmiths": 8,
+      "mt_jewel": 8,
+      "prison_camp": 8,
+      "riverwatch": 8,
+      "sak_manor": 8,
+      "singrave-mercs": 8,
+      "warsheep": 8,
+      "agase_guard": 7,
+      "amdir_tavern": 7,
+      "app_fellow": 7,
+      "asma_keep": 7,
+      "astirian_retinue": 7,
+      "butcher_shop": 7,
+      "cabal_apothecary": 7,
+      "cao_mw_officers": 7,
+      "garret_family": 7,
+      "gondor_embassy": 7,
+      "horticulturists": 7,
+      "marisa_hathaway": 7,
+      "mt_citycouncil": 7,
+      "mt_stall_5": 7,
+      "osgimerc": 7,
+      "ostlers": 7,
+      "reflected_moon_officers": 7,
+      "rentir_brothers_company": 7,
+      "servantsofthesteward": 7,
+      "shahuri_keep": 7,
+      "skull_crush": 7,
+      "sun_clinic": 7,
+      "white_stag": 7,
+      "abdul_matin": 6,
+      "apothecaries": 6,
+      "ap_leather": 6,
+      "azhir_org": 6,
+      "bandits": 6,
+      "barrowwight": 6,
+      "bloodhood": 6,
+      "bloodring": 6,
+      "bomani": 6,
+      "boneface": 6,
+      "borogil_npcs": 6,
+      "cabal_jeweler": 6,
+      "cooks": 6,
+      "cult": 6,
+      "erinur_npc": 6,
+      "fj_bathhouse": 6,
+      "gladiators": 6,
+      "gyasi_keep": 6,
+      "heledhnen_trade": 6,
+      "heoldin_cao_fur": 6,
+      "huul_blackrend": 6,
+      "kelbran_family": 6,
+      "kemosiri_menagerie": 6,
+      "lodge": 6,
+      "meadhall_workers": 6,
+      "MetalsmithsFellow": 6,
+      "mineguard": 6,
+      "ravens_sinister": 6,
+      "saklithan": 6,
+      "sauron": 6,
+      "serpentcult": 6,
+      "si_mit": 6,
+      "slashas": 6,
+      "slavers": 6,
+      "stone_acorn": 6,
+      "tirith_citizens": 6,
+      "valdans_thugs": 6,
+      "volensby_family": 6,
+      "warren_gang": 6,
+      "wolfpack": 6,
+      "xash_keep": 6,
+      "zarek_keep": 6,
+      "abomination": 5,
+      "birnam_steeds": 5,
+      "black_lotus": 5,
+      "brenna_booth": 5,
+      "brothel_staff": 5,
+      "burkes_shop": 5,
+      "cami_npcs": 5,
+      "cladimir": 5,
+      "disease_warg": 5,
+      "fed_guard": 5,
+      "giant_insects": 5,
+      "glad_moria": 5,
+      "hawkestone_staff": 5,
+      "house_odulun": 5,
+      "ithil_orc": 5,
+      "malred_steeds": 5,
+      "marketeer": 5,
+      "melchinepi": 5,
+      "menkins": 5,
+      "military_trainers": 5,
+      "mordor_clan": 5,
+      "nith_farmers": 5,
+      "orc_slaughter_clan": 5,
+      "osgbakery": 5,
+      "osgi_council": 5,
+      "panther_claw": 5,
+      "ravens_estates": 5,
+      "ravens_guard": 5,
+      "rynd_permaith_restricted": 5,
+      "snarling_wuldane": 5,
+      "swamplife": 5,
+      "swillhole": 5,
+      "alehouse_brewery": 4,
+      "alehouse_cookery": 4,
+      "arry_npcs": 4,
+      "asinius_npc": 4,
+      "azuredragon": 4,
+      "bd_gothakra": 4,
+      "blackdice": 4,
+      "boarshead_staff": 4,
+      "bw_servant": 4,
+      "cao_butcher": 4,
+      "cao_gherdin": 4,
+      "cassia_pet": 4,
+      "city_fellows": 4,
+      "corsairs": 4,
+      "craeg_apoth": 4,
+      "crimson_insects": 4,
+      "dambeth_family": 4,
+      "dockworkers": 4,
+      "drifting_lily": 4,
+      "droxent": 4,
+      "eradan_lab": 4,
+      "fahad_slummers": 4,
+      "faruq_keep": 4,
+      "field_cobra": 4,
+      "foamingcask": 4,
+      "forkens_farm": 4,
+      "galvorn_steeds": 4,
+      "gilded_den": 4,
+      "hammerofkhoin": 4,
+      "harad_smugglers": 4,
+      "herenyand": 4,
+      "herunan-estate": 4,
+      "ithil_dirnaith": 4,
+      "korisanth_keep": 4,
+      "lynx_family": 4,
+      "miluda_pup": 4,
+      "mineworker": 4,
+      "mt_block_stock_barrel": 4,
+      "mt_cityworkers": 4,
+      "mt_clever_cut_butcher": 4,
+      "muhtafah_keep": 4,
+      "nith_militia": 4,
+      "northern_holdfast": 4,
+      "olde_forge": 4,
+      "osgi_lycaeum": 4,
+      "outpost_miners": 4,
+      "potters": 4,
+      "rammasgate": 4,
+      "redcloak": 4,
+      "sahtur_keep": 4,
+      "sanctuary_employees": 4,
+      "scorpions": 4,
+      "shaded": 4,
+      "spidaz": 4,
+      "splint-bar": 4,
+      "steward_supply": 4,
+      "strange_brew": 4,
+      "syeira_npc": 4,
+      "terrick_farm": 4,
+      "thornhill_farm": 4,
+      "tirith_foot": 4,
+      "vanstore": 4,
+      "vardan_npc": 4,
+      "varranis": 4,
+      "waterwrights": 4,
+      "abdul-matin-door": 3,
+      "al_nahyan_nursery": 3,
+      "amdir-settler": 3,
+      "anakari_shop": 3,
+      "angost_militia": 3,
+      "arelion_camp": 3,
+      "armsofosgiliath": 3,
+      "arradoc_watch": 3,
+      "artists": 3,
+      "axe": 3,
+      "baan_shop": 3,
+      "bells": 3,
+      "black_raven": 3,
+      "borogil_furn": 3,
+      "brennas_threads": 3,
+      "cadreamontheryn": 3,
+      "caera_org": 3,
+      "caolafon_citizen": 3,
+      "cao_bakery": 3,
+      "cao_lorehouse": 3,
+      "cao_lore_shop": 3,
+      "com_heavies": 3,
+      "coopers": 3,
+      "drowning_corsair": 3,
+      "dulrah": 3,
+      "eastern-garrison": 3,
+      "eastern_vanguard": 3,
+      "fath_razin_keep": 3,
+      "galvorn_house": 3,
+      "goblin_sappers": 3,
+      "goldsmiths": 3,
+      "gondorian_nobles": 3,
+      "gowan_steeds": 3,
+      "haradwaith_lions": 3,
+      "house_usulini": 3,
+      "imri_eastbane": 3,
+      "ithil_settlement": 3,
+      "jahedi_keep": 3,
+      "lil_npcs": 3,
+      "locksmiths": 3,
+      "mm_elite": 3,
+      "morgash": 3,
+      "mt_stall_10": 3,
+      "mt_stall_14": 3,
+      "mt_stall_2": 3,
+      "mt_stall_7": 3,
+      "nix_pets": 3,
+      "olrein_sons": 3,
+      "osgi_citizen": 3,
+      "outpost_bakery": 3,
+      "outpost_butcher": 3,
+      "outpost_healer_shop": 3,
+      "outpost_hunters": 3,
+      "perfumers": 3,
+      "ratmuk_rat": 3,
+      "saveck_shop": 3,
+      "scorched_hand": 3,
+      "sewer_doll": 3,
+      "silver_linings": 3,
+      "spears_thrust": 3,
+      "stonewrights": 3,
+      "streetrat": 3,
+      "student_sanctuary": 3,
+      "tarek_keep": 3,
+      "tasharni_shop": 3,
+      "teldenmor": 3,
+      "theneworder": 3,
+      "the_maker": 3,
+      "tirith_horse": 3,
+      "toalla-keep": 3,
+      "twistedface": 3,
+      "vadok_kraun_allies": 3,
+      "vanwarehouse": 3,
+      "villein_stall_2": 3,
+      "wardog": 3,
+      "warg_head": 3,
+      "winged_stallion_clothing": 3,
+      "wizard_den": 3,
+      "yusinafah_keep": 3,
+      "zahirah_org": 3,
+      "ahmar_aksar": 2,
+      "aleck_kitten": 2,
+      "algarina": 2,
+      "alixandria": 2,
+      "altair_npc": 2,
+      "alveena_door": 2,
+      "amdir": 2,
+      "amdir_chow": 2,
+      "amdir_settlers": 2,
+      "amdir_warehouse": 2,
+      "anakari_steeds": 2,
+      "annoncitizen": 2,
+      "annonworkers": 2,
+      "ant_bathouse": 2,
+      "arhzan_npc": 2,
+      "armorsuppliers": 2,
+      "ashtellis_mansion": 2,
+      "astirian_mining": 2,
+      "azogs_fist": 2,
+      "banned_battered_shield": 2,
+      "banned_gilded_lily": 2,
+      "banned_mead_hall": 2,
+      "banned_mt": 2,
+      "barrow-wight": 2,
+      "bashgruk": 2,
+      "bellidar_pet": 2,
+      "bjorn_npcs": 2,
+      "black-market": 2,
+      "bloated_goblin": 2,
+      "bn_gateguard": 2,
+      "borogil_heledhnen": 2,
+      "butcher_store": 2,
+      "cabal": 2,
+      "cabal_woodwright": 2,
+      "cailyn_cao_brew": 2,
+      "cairandros": 2,
+      "callumsteed": 2,
+      "candlemakers": 2,
+      "cao_mw_translate": 2,
+      "cao_ring_guardians": 2,
+      "carida_pets": 2,
+      "ceolwulfnpc": 2,
+      "champions_gym": 2,
+      "citadelguard": 2,
+      "citizens": 2,
+      "citizen_amdir": 2,
+      "cordwrights": 2,
+      "daomiean_delight": 2,
+      "daomiean_storeroom": 2,
+      "dauntless_compound": 2,
+      "daven_kitten": 2,
+      "diamond_dust": 2,
+      "dirk_keep": 2,
+      "dwellers_of_moria": 2,
+      "east_vanguard": 2,
+      "elantfarm": 2,
+      "elves_lorien": 2,
+      "endelmar": 2,
+      "enforcer": 2,
+      "enosh_steeds": 2,
+      "eorun_horse": 2,
+      "eradan_fellows": 2,
+      "eradan_veteran": 2,
+      "erinur_horse": 2,
+      "eshin-patrol": 2,
+      "eustice_mount": 2,
+      "exlanpet": 2,
+      "fifthcircle": 2,
+      "gcbrothel": 2,
+      "glassmakers": 2,
+      "goats": 2,
+      "goldcatosg": 2,
+      "hammers_crew": 2,
+      "handd_home": 2,
+      "harad-caravaners": 2,
+      "harlond_docks": 2,
+      "harmony_cottage": 2,
+      "hedelon_pet": 2,
+      "hoar_cao_fine": 2,
+      "humanslaves": 2,
+      "isteth_family": 2,
+      "ithilien_battalions": 2,
+      "ithilien_citizen": 2,
+      "ithil_citizens": 2,
+      "ithil_patrol": 2,
+      "ith_farmer": 2,
+      "jaarid_keep": 2,
+      "junk_pile": 2,
+      "khaiat": 2,
+      "kusel_keep": 2,
+      "laddy_keepers": 2,
+      "lantern": 2,
+      "leather_shop": 2,
+      "library_egthela": 2,
+      "limpers_den": 2,
+      "magic_wights": 2,
+      "mail_tirith": 2,
+      "mavery_steeds": 2,
+      "mm_denizen": 2,
+      "mm_mongrels": 2,
+      "mm_slaves": 2,
+      "mm_slums": 2,
+      "montsho_akrab": 2,
+      "mordor_character": 2,
+      "mordor_slaver": 2,
+      "moria_horde": 2,
+      "moria_inhabitants": 2,
+      "mshais_wonders": 2,
+      "mt_citzens": 2,
+      "mt_ratcatchers": 2,
+      "mt_shopfront_1": 2,
+      "mt_shop_6": 2,
+      "mt_shop_8": 2,
+      "mt_stall_11": 2,
+      "mt_stall_12": 2,
+      "mt_stall_3": 2,
+      "mt_stall_4": 2,
+      "mt_stall_9": 2,
+      "musaad_keep": 2,
+      "nadilith": 2,
+      "oasis": 2,
+      "osgi_cityworkers": 2,
+      "osgi_citzens": 2,
+      "osgi_ratcatchers": 2,
+      "outpost_blacksmith_shop": 2,
+      "outpost_farmers": 2,
+      "outpost_outsider": 2,
+      "outpost_stables": 2,
+      "outpost_timberwrights": 2,
+      "outpost_wood_shop": 2,
+      "pawnshop": 2,
+      "petrich_group": 2,
+      "ralte_weaponsmith_shop": 2,
+      "raven_guard": 2,
+      "readmanu_bears": 2,
+      "reflected_moon_treasury": 2,
+      "roach": 2,
+      "rose": 2,
+      "ruinallon": 2,
+      "shallowbrook": 2,
+      "shatt_knee": 2,
+      "singrave": 2,
+      "slasha": 2,
+      "spinning_sands": 2,
+      "squids": 2,
+      "staff_only": 2,
+      "street_traders": 2,
+      "sweet_escapes": 2,
+      "taergarol_kitten": 2,
+      "tirnens_traders": 2,
+      "turningleaf_org": 2,
+      "umbar_traders": 2,
+      "villein_stall_1": 2,
+      "villein_stall_3": 2,
+      "villein_stall_4": 2,
+      "warden_jillie": 2,
+      "warden_valan": 2,
+      "wardog_stable": 2,
+      "wentic_npc": 2,
+      "white_city_furrier": 2,
+      "white_rose": 2,
+      "wights_org": 2,
+      "wildlife": 2,
+      "willow": 2,
+      "witchking_horse": 2,
+      "wotd_pregame": 2,
+      "wyrmfolk": 2,
+      "yvitori_shop": 2,
+      "zajar_metalworks": 2,
+      "aeola_clan": 1,
+      "aetus_keep": 1,
+      "aglarina": 1,
+      "aht_npc": 1,
+      "ah_nahyan_nursery": 1,
+      "ainonwe_mount": 1,
+      "ainyn_steeds": 1,
+      "airon_family": 1,
+      "akhra_org": 1,
+      "al-farran": 1,
+      "alehouse_kitten": 1,
+      "alerts": 1,
+      "amar_npcs": 1,
+      "amdir_enforcer": 1,
+      "angiek_horse": 1,
+      "annon": 1,
+      "anor_blue_mining": 1,
+      "aranin_bandit": 1,
+      "aranin_bandits": 1,
+      "arathand_steed": 1,
+      "archolem_npc": 1,
+      "arkdean_cabal": 1,
+      "ash_circle_tribe": 1,
+      "asrian_keep": 1,
+      "astirian_staff": 1,
+      "baakath_morgul": 1,
+      "banned_boarshead": 1,
+      "barahir_band": 1,
+      "barskh_cage": 1,
+      "bar_cage": 1,
+      "bcs": 1,
+      "black-watch": 1,
+      "blackblood": 1,
+      "blackmarketdocks": 1,
+      "blackrends_band": 1,
+      "blood": 1,
+      "bloody_scalpel": 1,
+      "brendis_farm": 1,
+      "brewers": 1,
+      "brotherhood": 1,
+      "buorda-dawar": 1,
+      "buroda-dawar": 1,
+      "caek_farm": 1,
+      "caera_keep": 1,
+      "caihana_clothing": 1,
+      "camyra_npc": 1,
+      "caohilhammer": 1,
+      "caolafon-citizens": 1,
+      "caolaforn-citizen": 1,
+      "captain": 1,
+      "caravaner": 1,
+      "carmen_npc": 1,
+      "cartel_cartel_morvolok": 1,
+      "carvedoak": 1,
+      "cask_guest": 1,
+      "celerdain_apartment": 1,
+      "cerul_mounts": 1,
+      "chandlers": 1,
+      "clanspace": 1,
+      "coach_tavern": 1,
+      "cobra_enforcer": 1,
+      "commander": 1,
+      "copper_serpents": 1,
+      "cult_of_aralak": 1,
+      "curion_keep": 1,
+      "dalamirmen": 1,
+      "dalamir_vet": 1,
+      "dambeth_npc": 1,
+      "darach_horse": 1,
+      "dark_terror": 1,
+      "darmir_farm": 1,
+      "dinen_npc": 1,
+      "diorguard": 1,
+      "doorwardens": 1,
+      "dughaspawn": 1,
+      "dwellers": 1,
+      "dwellersof": 1,
+      "eastvanguar": 1,
+      "ebon_wolves": 1,
+      "edendor_mine": 1,
+      "egthela_servant": 1,
+      "egthela_slaves": 1,
+      "elrar_booth": 1,
+      "embroiderers": 1,
+      "enith_pet": 1,
+      "eodain_mount": 1,
+      "eorun_mounts": 1,
+      "eoven_npcs": 1,
+      "eradan_bat": 1,
+      "eradan_battalions": 1,
+      "eradan_leatherwright": 1,
+      "eradan_smith": 1,
+      "eradan_woodwright": 1,
+      "erensamir_mob": 1,
+      "erynion_npc": 1,
+      "fahad": 1,
+      "fahad_slummer": 1,
+      "family_archard": 1,
+      "fearuin_mount": 1,
+      "fellowship_family": 1,
+      "festering_wound": 1,
+      "floura_keep": 1,
+      "forodrenhenfam": 1,
+      "fortuitousfox": 1,
+      "fox_lily_stafff": 1,
+      "garid_guard": 1,
+      "ghashmasonry": 1,
+      "glaneryn_weald_workshop": 1,
+      "goldenarms": 1,
+      "gorc_keep": 1,
+      "gothraka": 1,
+      "great_market_glass": 1,
+      "grey_will": 1,
+      "gruln_horse": 1,
+      "grutz_command_clan": 1,
+      "haele_npcs": 1,
+      "harad_embassy": 1,
+      "haran": 1,
+      "harbinger": 1,
+      "harlequin": 1,
+      "harlequins": 1,
+      "harun_pet": 1,
+      "hasah_keeper": 1,
+      "HC_Stall": 1,
+      "hdguard": 1,
+      "hd_wardogs": 1,
+      "heledhen_trade": 1,
+      "herunan_estate": 1,
+      "honeyedhand": 1,
+      "horticulturist_shop": 1,
+      "husam_keep": 1,
+      "idris_keep": 1,
+      "ioan_pet": 1,
+      "ironingot": 1,
+      "ithilien_bat": 1,
+      "ithilin_rangers": 1,
+      "javul_keep": 1,
+      "jewellers": 1,
+      "jonin_mounts": 1,
+      "jukka": 1,
+      "kaffir-keep": 1,
+      "kai_pets": 1,
+      "kargorak": 1,
+      "kegssen_family": 1,
+      "kennels": 1,
+      "keshel_npc": 1,
+      "keshel_pet": 1,
+      "khalfani_keep": 1,
+      "kingsguard": 1,
+      "kreesha_animals": 1,
+      "lampwrights": 1,
+      "legion_admin": 1,
+      "lieutenant": 1,
+      "linduial_shop": 1,
+      "lissys_bakery": 1,
+      "loch_keep": 1,
+      "lodge_prisoners": 1,
+      "lomibith": 1,
+      "luciun_npc": 1,
+      "lumber_camp": 1,
+      "lyrena_pets": 1,
+      "madeup": 1,
+      "mail_mt": 1,
+      "malikasad_manor": 1,
+      "malredsupport": 1,
+      "malred_guard": 1,
+      "markateer": 1,
+      "mason": 1,
+      "matissa_npc": 1,
+      "mavery": 1,
+      "medi_plants": 1,
+      "melchin_epi": 1,
+      "mercantylerguild": 1,
+      "milonara": 1,
+      "minas_tirith": 1,
+      "mineworkers": 1,
+      "minuial_mount": 1,
+      "mm_citizens": 1,
+      "mordor_denizens": 1,
+      "mord_char": 1,
+      "morgath": 1,
+      "moria_brigands": 1,
+      "moria_orc_spawn": 1,
+      "mt-peasant": 1,
+      "mt_barus": 1,
+      "mt_bootleggers": 1,
+      "mt_council": 1,
+      "mt_noble": 1,
+      "mt_shop": 1,
+      "mt_shop_4": 1,
+      "mt_shop_7": 1,
+      "mt_slum": 1,
+      "mt_stall_1": 1,
+      "mt_stall_13": 1,
+      "mt_stall_6": 1,
+      "mt_stall_8": 1,
+      "mt_tavern": 1,
+      "mt_theater": 1,
+      "mt_theatre": 1,
+      "mt_upperclass": 1,
+      "m_t_theatre": 1,
+      "nadilith-bodyguard": 1,
+      "naiseen_npc": 1,
+      "naketh": 1,
+      "narodar_pet": 1,
+      "narzil_keep": 1,
+      "nashirah_keep": 1,
+      "nell_npc": 1,
+      "nicc": 1,
+      "nida_keep": 1,
+      "nuwor_shop": 1,
+      "oddvar_family": 1,
+      "odulun": 1,
+      "odulun-bodyguard": 1,
+      "olamerfam": 1,
+      "olric_horse": 1,
+      "operatives": 1,
+      "orcslaves": 1,
+      "orc_rovers": 1,
+      "osgi_citizensmember": 1,
+      "osgsanc": 1,
+      "outpost_citizen": 1,
+      "outpost_clothier": 1,
+      "outpost_glass_shop": 1,
+      "outpost_guild": 1,
+      "outpost_leather_shop": 1,
+      "outpost_wights": 1,
+      "pel-ecthel-mounts": 1,
+      "pelennor_log": 1,
+      "plaza_apartments": 1,
+      "priviledged": 1,
+      "privileged_gladiator": 1,
+      "raban_keep": 1,
+      "radiantswan": 1,
+      "rakhan_pup": 1,
+      "raldir_kitten": 1,
+      "raven": 1,
+      "ra_keep": 1,
+      "redgar_family": 1,
+      "reds_academy": 1,
+      "red_hand": 1,
+      "reflected_moon_barracks": 1,
+      "remove": 1,
+      "re_pets": 1,
+      "rhubarb_ninja": 1,
+      "ricgard_beast": 1,
+      "river_rat_tavern": 1,
+      "rook_pawn_shop": 1,
+      "rose_of_gondor": 1,
+      "roy_guard": 1,
+      "sadiranurse": 1,
+      "saelthorn_npc": 1,
+      "sak_guard": 1,
+      "salmandier_keep": 1,
+      "samira-pet": 1,
+      "samira_family": 1,
+      "samira_pet": 1,
+      "sasha-keep": 1,
+      "sasha_keep": 1,
+      "saw_and_cleaver_butchery": 1,
+      "scaurusbeholden": 1,
+      "scorpions_den": 1,
+      "sendu-keep": 1,
+      "sendu_keep": 1,
+      "sergha_followers": 1,
+      "serpent": 1,
+      "shadow-fang": 1,
+      "sharhoern_mounts": 1,
+      "shariah_keep": 1,
+      "sheepflock1": 1,
+      "shield_renters": 1,
+      "siegecrafter": 1,
+      "silver_saddle": 1,
+      "sithis_npc": 1,
+      "sixthcircle": 1,
+      "skjorvi_npc": 1,
+      "snaah_keep": 1,
+      "solmund_pets": 1,
+      "solvson_family": 1,
+      "sooty_scorpions": 1,
+      "spear_thrust": 1,
+      "spiders": 1,
+      "standstone": 1,
+      "steelswans": 1,
+      "suli_pet": 1,
+      "talic_pet": 1,
+      "talikja_manor": 1,
+      "talon-fahad": 1,
+      "talon_fahad": 1,
+      "talon_silvermoon": 1,
+      "tarius_mouse": 1,
+      "terendil_leatherworker_shop": 1,
+      "te_char": 1,
+      "te_ravens": 1,
+      "theoldguesthouse": 1,
+      "thewatchersofthevale": 1,
+      "the_unseen": 1,
+      "thiam_fam": 1,
+      "tiernanmounts": 1,
+      "tinden_fam": 1,
+      "torin-rabbit": 1,
+      "torin_pets": 1,
+      "tork_warg": 1,
+      "traveller_shop": 1,
+      "tritih_roads": 1,
+      "tyrion_pup": 1,
+      "vacc_midnight_fog": 1,
+      "valewatch": 1,
+      "vang_dogs": 1,
+      "vang_dogs1": 1,
+      "van_npc": 1,
+      "variable": 1,
+      "villein_assembly": 1,
+      "villein_stall_10": 1,
+      "villein_stall_11": 1,
+      "villein_stall_12": 1,
+      "villein_stall_14": 1,
+      "villein_stall_5": 1,
+      "villein_stall_6": 1,
+      "villein_stall_7": 1,
+      "villein_stall_8": 1,
+      "villein_stall_9": 1,
+      "viridity_blades": 1,
+      "wadi_mining": 1,
+      "warden_blair": 1,
+      "warden_cyrvili": 1,
+      "warden_iola": 1,
+      "warden_kamard": 1,
+      "wardogs": 1,
+      "waywardwind": 1,
+      "westmansweed": 1,
+      "whitestag_farm": 1,
+      "winged_stallion": 1,
+      "witchkinghorde": 1,
+      "witchkings_horde": 1,
+      "withchking_horde": 1,
+      "yuknon_spider": 1,
+      "yusinafah_pet": 1,
+      "zagiri_keep": 1,
+      "zahira_org": 1,
+      "zelthar": 1,
+      "zombie_clan": 1,
+      "zyphen_booth": 1,
+      "zyphen_steeds": 1
+    },
+    "MissingDependencyCounts": {}
+  },
+  "ParseWarnings": [],
+  "ValidationIssues": [],
+  "Clans": [
+    {
+      "Source": {
+        "CanonicalAlias": "astirian_villeins",
+        "FullName": "Astirian Villeins",
+        "GroupId": 12865,
+        "Aliases": [
+          {
+            "Alias": "astirian_villeins",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {},
+        "SynonymsBySlot": {
+          "Membership": [
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Private": [
+            "Private"
+          ],
+          "Corporal": [
+            "Corporal"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "astirian_villeins"
+      },
+      "Converted": {
+        "CanonicalAlias": "astirian_villeins",
+        "FullName": "Astirian Villeins",
+        "GroupId": 12865,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Recruit",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Recruit"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Private",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Private"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Corporal",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Corporal"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Sergeant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Sergeant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Lieutenant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Lieutenant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Captain",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Captain"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Commander",
+            "Path": "Military",
+            "Order": 7,
+            "Name": "Commander",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Commander"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "astirian_villeins"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "baakath-morgul",
+        "FullName": "Baakath-Morgul",
+        "GroupId": 4903,
+        "Aliases": [
+          {
+            "Alias": "baakath-morgul",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {},
+        "SynonymsBySlot": {
+          "Membership": [
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Private": [
+            "Private"
+          ],
+          "Corporal": [
+            "Corporal"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "baakath-morgul"
+      },
+      "Converted": {
+        "CanonicalAlias": "baakath-morgul",
+        "FullName": "Baakath-Morgul",
+        "GroupId": 4903,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Private",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Private"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Sergeant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Sergeant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Lieutenant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Lieutenant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Captain",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Captain"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "baakath-morgul"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "com",
+        "FullName": "Cult of Morgoth",
+        "GroupId": 11864,
+        "Aliases": [
+          {
+            "Alias": "com",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {
+          "Recruit": [
+            "Kaal"
+          ],
+          "Private": [
+            "Rukh-Kaal"
+          ],
+          "Corporal": [
+            "Rukh"
+          ],
+          "Sergeant": [
+            "Mith",
+            "Mik"
+          ],
+          "Lieutenant": [
+            "Amme",
+            "Atto"
+          ],
+          "Captain": [
+            "Barun"
+          ],
+          "General": [
+            "Nalo-Barun"
+          ],
+          "Commander": [
+            "Daur-Phazan"
+          ]
+        },
+        "SynonymsBySlot": {
+          "Recruit": [
+            "recruit",
+            "snaga",
+            "snaga-uruk",
+            "initiate",
+            "kaal",
+            "squire",
+            "push-khur",
+            "roenucht",
+            "liegeman"
+          ],
+          "Private": [
+            "private",
+            "acolyte",
+            "ohtar",
+            "uruk",
+            "high-snaga",
+            "rukh-kaal",
+            "apprentice-seeker-knight",
+            "khur",
+            "heggurach",
+            "footman"
+          ],
+          "Corporal": [
+            "corporal",
+            "roquen",
+            "dark-priest",
+            "puruk",
+            "zuruk",
+            "rukh",
+            "seeker-knight",
+            "gur",
+            "rhyfelwr",
+            "armsman"
+          ],
+          "Sergeant": [
+            "sergeant",
+            "zaak",
+            "high-puruk",
+            "dread-minister",
+            "mik",
+            "mith",
+            "knight-lieutenant",
+            "gurash",
+            "cloumaggen"
+          ],
+          "Lieutenant": [
+            "lieutenant",
+            "constable",
+            "overlord",
+            "puruk-zuul",
+            "ba\u0027zaak",
+            "amme",
+            "atto",
+            "knight-captain",
+            "jomaa"
+          ],
+          "Captain": [
+            "captain",
+            "barun",
+            "barun-an-Nalo",
+            "knight-general",
+            "gurashul",
+            "clowgos",
+            "lord"
+          ],
+          "General": [
+            "general",
+            "marshall",
+            "nalo-barun",
+            "knight-commander",
+            "rhi",
+            "bughrak"
+          ],
+          "Commander": [
+            "commander",
+            "daur-phazan",
+            "knight-grand-cross",
+            "duumul-bughrak",
+            "Jarl"
+          ],
+          "Membership": [
+            "Membership"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "com"
+      },
+      "Converted": {
+        "CanonicalAlias": "com",
+        "FullName": "Cult of Morgoth",
+        "GroupId": 11864,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Kaal",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "recruit",
+              "snaga",
+              "snaga-uruk",
+              "initiate",
+              "kaal",
+              "squire",
+              "push-khur",
+              "roenucht",
+              "liegeman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Rukh-Kaal",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "private",
+              "acolyte",
+              "ohtar",
+              "uruk",
+              "high-snaga",
+              "rukh-kaal",
+              "apprentice-seeker-knight",
+              "khur",
+              "heggurach",
+              "footman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Rukh",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "corporal",
+              "roquen",
+              "dark-priest",
+              "puruk",
+              "zuruk",
+              "rukh",
+              "seeker-knight",
+              "gur",
+              "rhyfelwr",
+              "armsman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Mith",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [
+              "Mik"
+            ],
+            "Synonyms": [
+              "sergeant",
+              "zaak",
+              "high-puruk",
+              "dread-minister",
+              "mik",
+              "mith",
+              "knight-lieutenant",
+              "gurash",
+              "cloumaggen"
+            ],
+            "Warnings": [
+              {
+                "Code": "alternate-rank-names",
+                "Message": "Preserved alternate source rank names for Sergeant: Mik."
+              }
+            ]
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Amme",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [
+              "Atto"
+            ],
+            "Synonyms": [
+              "lieutenant",
+              "constable",
+              "overlord",
+              "puruk-zuul",
+              "ba\u0027zaak",
+              "amme",
+              "atto",
+              "knight-captain",
+              "jomaa"
+            ],
+            "Warnings": [
+              {
+                "Code": "alternate-rank-names",
+                "Message": "Preserved alternate source rank names for Lieutenant: Atto."
+              }
+            ]
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Barun",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "captain",
+              "barun",
+              "barun-an-Nalo",
+              "knight-general",
+              "gurashul",
+              "clowgos",
+              "lord"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "General",
+            "Path": "Military",
+            "Order": 7,
+            "Name": "Nalo-Barun",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "general",
+              "marshall",
+              "nalo-barun",
+              "knight-commander",
+              "rhi",
+              "bughrak"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Commander",
+            "Path": "Military",
+            "Order": 8,
+            "Name": "Daur-Phazan",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "commander",
+              "daur-phazan",
+              "knight-grand-cross",
+              "duumul-bughrak",
+              "Jarl"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "com"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "eastvanguard",
+        "FullName": "Eastern Vanguard",
+        "GroupId": 7250,
+        "Aliases": [
+          {
+            "Alias": "eastvanguard",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {},
+        "SynonymsBySlot": {
+          "Membership": [
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Private": [
+            "Private"
+          ],
+          "Corporal": [
+            "Corporal"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "eastvanguard"
+      },
+      "Converted": {
+        "CanonicalAlias": "eastvanguard",
+        "FullName": "Eastern Vanguard",
+        "GroupId": 7250,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Recruit",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Recruit"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Private",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Private"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Corporal",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Corporal"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Sergeant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Sergeant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Lieutenant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Lieutenant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Captain",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Captain"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Commander",
+            "Path": "Military",
+            "Order": 7,
+            "Name": "Commander",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Commander"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "eastvanguard"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "eradan_battalion",
+        "FullName": "Eradan Battalion",
+        "GroupId": null,
+        "Aliases": [
+          {
+            "Alias": "eradan_battalion",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {
+          "Recruit": [
+            "Liegeman"
+          ],
+          "Private": [
+            "Footman"
+          ],
+          "Corporal": [
+            "Armsman"
+          ],
+          "Lieutenant": [
+            "Constable"
+          ],
+          "Captain": [
+            "Lord"
+          ]
+        },
+        "SynonymsBySlot": {
+          "Recruit": [
+            "recruit",
+            "snaga",
+            "snaga-uruk",
+            "initiate",
+            "kaal",
+            "squire",
+            "push-khur",
+            "roenucht",
+            "liegeman"
+          ],
+          "Private": [
+            "private",
+            "acolyte",
+            "ohtar",
+            "uruk",
+            "high-snaga",
+            "rukh-kaal",
+            "apprentice-seeker-knight",
+            "khur",
+            "heggurach",
+            "footman"
+          ],
+          "Corporal": [
+            "corporal",
+            "roquen",
+            "dark-priest",
+            "puruk",
+            "zuruk",
+            "rukh",
+            "seeker-knight",
+            "gur",
+            "rhyfelwr",
+            "armsman"
+          ],
+          "Lieutenant": [
+            "lieutenant",
+            "constable",
+            "overlord",
+            "puruk-zuul",
+            "ba\u0027zaak",
+            "amme",
+            "atto",
+            "knight-captain",
+            "jomaa"
+          ],
+          "Captain": [
+            "captain",
+            "barun",
+            "barun-an-Nalo",
+            "knight-general",
+            "gurashul",
+            "clowgos",
+            "lord"
+          ],
+          "Membership": [
+            "Membership"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "eradan_battalion"
+      },
+      "Converted": {
+        "CanonicalAlias": "eradan_battalion",
+        "FullName": "Eradan Battalion",
+        "GroupId": null,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Liegeman",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "recruit",
+              "snaga",
+              "snaga-uruk",
+              "initiate",
+              "kaal",
+              "squire",
+              "push-khur",
+              "roenucht",
+              "liegeman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Footman",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "private",
+              "acolyte",
+              "ohtar",
+              "uruk",
+              "high-snaga",
+              "rukh-kaal",
+              "apprentice-seeker-knight",
+              "khur",
+              "heggurach",
+              "footman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Armsman",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "corporal",
+              "roquen",
+              "dark-priest",
+              "puruk",
+              "zuruk",
+              "rukh",
+              "seeker-knight",
+              "gur",
+              "rhyfelwr",
+              "armsman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Sergeant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Sergeant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Constable",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "lieutenant",
+              "constable",
+              "overlord",
+              "puruk-zuul",
+              "ba\u0027zaak",
+              "amme",
+              "atto",
+              "knight-captain",
+              "jomaa"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Lord",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "captain",
+              "barun",
+              "barun-an-Nalo",
+              "knight-general",
+              "gurashul",
+              "clowgos",
+              "lord"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "eradan_battalion"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "gothakra",
+        "FullName": "Gothakra Warband",
+        "GroupId": 3899,
+        "Aliases": [
+          {
+            "Alias": "gothakra",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {
+          "Recruit": [
+            "Snaga Uruk",
+            "Snaga"
+          ],
+          "Private": [
+            "Uruk",
+            "High Snaga"
+          ],
+          "Corporal": [
+            "Zuruk",
+            "Puruk"
+          ],
+          "Sergeant": [
+            "Zaak",
+            "High Puruk"
+          ],
+          "Lieutenant": [
+            "Ba\u0027Zaak",
+            "Puruk-Zuul"
+          ]
+        },
+        "SynonymsBySlot": {
+          "Recruit": [
+            "recruit",
+            "snaga",
+            "snaga-uruk",
+            "initiate",
+            "kaal",
+            "squire",
+            "push-khur",
+            "roenucht",
+            "liegeman",
+            "Snaga Uruk"
+          ],
+          "Private": [
+            "private",
+            "acolyte",
+            "ohtar",
+            "uruk",
+            "high-snaga",
+            "rukh-kaal",
+            "apprentice-seeker-knight",
+            "khur",
+            "heggurach",
+            "footman",
+            "High Snaga"
+          ],
+          "Corporal": [
+            "corporal",
+            "roquen",
+            "dark-priest",
+            "puruk",
+            "zuruk",
+            "rukh",
+            "seeker-knight",
+            "gur",
+            "rhyfelwr",
+            "armsman"
+          ],
+          "Sergeant": [
+            "sergeant",
+            "zaak",
+            "high-puruk",
+            "dread-minister",
+            "mik",
+            "mith",
+            "knight-lieutenant",
+            "gurash",
+            "cloumaggen",
+            "High Puruk"
+          ],
+          "Lieutenant": [
+            "lieutenant",
+            "constable",
+            "overlord",
+            "puruk-zuul",
+            "ba\u0027zaak",
+            "amme",
+            "atto",
+            "knight-captain",
+            "jomaa"
+          ],
+          "Membership": [
+            "Membership"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "gothakra"
+      },
+      "Converted": {
+        "CanonicalAlias": "gothakra",
+        "FullName": "Gothakra Warband",
+        "GroupId": 3899,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Snaga Uruk",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [
+              "Snaga"
+            ],
+            "Synonyms": [
+              "recruit",
+              "snaga",
+              "snaga-uruk",
+              "initiate",
+              "kaal",
+              "squire",
+              "push-khur",
+              "roenucht",
+              "liegeman",
+              "Snaga Uruk"
+            ],
+            "Warnings": [
+              {
+                "Code": "alternate-rank-names",
+                "Message": "Preserved alternate source rank names for Recruit: Snaga."
+              }
+            ]
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Uruk",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [
+              "High Snaga"
+            ],
+            "Synonyms": [
+              "private",
+              "acolyte",
+              "ohtar",
+              "uruk",
+              "high-snaga",
+              "rukh-kaal",
+              "apprentice-seeker-knight",
+              "khur",
+              "heggurach",
+              "footman",
+              "High Snaga"
+            ],
+            "Warnings": [
+              {
+                "Code": "alternate-rank-names",
+                "Message": "Preserved alternate source rank names for Private: High Snaga."
+              }
+            ]
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Zuruk",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [
+              "Puruk"
+            ],
+            "Synonyms": [
+              "corporal",
+              "roquen",
+              "dark-priest",
+              "puruk",
+              "zuruk",
+              "rukh",
+              "seeker-knight",
+              "gur",
+              "rhyfelwr",
+              "armsman"
+            ],
+            "Warnings": [
+              {
+                "Code": "alternate-rank-names",
+                "Message": "Preserved alternate source rank names for Corporal: Puruk."
+              }
+            ]
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Zaak",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [
+              "High Puruk"
+            ],
+            "Synonyms": [
+              "sergeant",
+              "zaak",
+              "high-puruk",
+              "dread-minister",
+              "mik",
+              "mith",
+              "knight-lieutenant",
+              "gurash",
+              "cloumaggen",
+              "High Puruk"
+            ],
+            "Warnings": [
+              {
+                "Code": "alternate-rank-names",
+                "Message": "Preserved alternate source rank names for Sergeant: High Puruk."
+              }
+            ]
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Ba\u0027Zaak",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [
+              "Puruk-Zuul"
+            ],
+            "Synonyms": [
+              "lieutenant",
+              "constable",
+              "overlord",
+              "puruk-zuul",
+              "ba\u0027zaak",
+              "amme",
+              "atto",
+              "knight-captain",
+              "jomaa"
+            ],
+            "Warnings": [
+              {
+                "Code": "alternate-rank-names",
+                "Message": "Preserved alternate source rank names for Lieutenant: Puruk-Zuul."
+              }
+            ]
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "gothakra"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "hawk_dove_2",
+        "FullName": "Hawk and Dove",
+        "GroupId": 14181,
+        "Aliases": [
+          {
+            "Alias": "hawk_dove_2",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          },
+          {
+            "Alias": "hawk_and_dove",
+            "IsCanonical": false,
+            "IsLegacy": true,
+            "Source": "normalization-rule"
+          }
+        ],
+        "DisplayNamesBySlot": {},
+        "SynonymsBySlot": {
+          "Membership": [
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Private": [
+            "Private"
+          ],
+          "Corporal": [
+            "Corporal"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "hawk_dove_2"
+      },
+      "Converted": {
+        "CanonicalAlias": "hawk_dove_2",
+        "FullName": "Hawk and Dove",
+        "GroupId": 14181,
+        "LegacyAliases": [
+          "hawk_and_dove"
+        ],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Private",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Private"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Corporal",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Corporal"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Commander",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Commander",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Commander"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "hawk_dove_2"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "ithilien_battalion",
+        "FullName": "Ithilien Battalion",
+        "GroupId": 11723,
+        "Aliases": [
+          {
+            "Alias": "ithilien_battalion",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {
+          "Recruit": [
+            "Liegeman"
+          ],
+          "Private": [
+            "Footman"
+          ],
+          "Corporal": [
+            "Armsman"
+          ],
+          "Lieutenant": [
+            "Constable"
+          ],
+          "Captain": [
+            "Lord"
+          ]
+        },
+        "SynonymsBySlot": {
+          "Recruit": [
+            "recruit",
+            "snaga",
+            "snaga-uruk",
+            "initiate",
+            "kaal",
+            "squire",
+            "push-khur",
+            "roenucht",
+            "liegeman"
+          ],
+          "Private": [
+            "private",
+            "acolyte",
+            "ohtar",
+            "uruk",
+            "high-snaga",
+            "rukh-kaal",
+            "apprentice-seeker-knight",
+            "khur",
+            "heggurach",
+            "footman"
+          ],
+          "Corporal": [
+            "corporal",
+            "roquen",
+            "dark-priest",
+            "puruk",
+            "zuruk",
+            "rukh",
+            "seeker-knight",
+            "gur",
+            "rhyfelwr",
+            "armsman"
+          ],
+          "Lieutenant": [
+            "lieutenant",
+            "constable",
+            "overlord",
+            "puruk-zuul",
+            "ba\u0027zaak",
+            "amme",
+            "atto",
+            "knight-captain",
+            "jomaa"
+          ],
+          "Captain": [
+            "captain",
+            "barun",
+            "barun-an-Nalo",
+            "knight-general",
+            "gurashul",
+            "clowgos",
+            "lord"
+          ],
+          "Membership": [
+            "Membership"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "ithilien_battalion"
+      },
+      "Converted": {
+        "CanonicalAlias": "ithilien_battalion",
+        "FullName": "Ithilien Battalion",
+        "GroupId": 11723,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Liegeman",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "recruit",
+              "snaga",
+              "snaga-uruk",
+              "initiate",
+              "kaal",
+              "squire",
+              "push-khur",
+              "roenucht",
+              "liegeman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Footman",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "private",
+              "acolyte",
+              "ohtar",
+              "uruk",
+              "high-snaga",
+              "rukh-kaal",
+              "apprentice-seeker-knight",
+              "khur",
+              "heggurach",
+              "footman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Armsman",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "corporal",
+              "roquen",
+              "dark-priest",
+              "puruk",
+              "zuruk",
+              "rukh",
+              "seeker-knight",
+              "gur",
+              "rhyfelwr",
+              "armsman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Sergeant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Sergeant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Constable",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "lieutenant",
+              "constable",
+              "overlord",
+              "puruk-zuul",
+              "ba\u0027zaak",
+              "amme",
+              "atto",
+              "knight-captain",
+              "jomaa"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Lord",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "captain",
+              "barun",
+              "barun-an-Nalo",
+              "knight-general",
+              "gurashul",
+              "clowgos",
+              "lord"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "ithilien_battalion"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "malred",
+        "FullName": "Malred Family",
+        "GroupId": 2008,
+        "Aliases": [
+          {
+            "Alias": "malred",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          },
+          {
+            "Alias": "housemalred",
+            "IsCanonical": false,
+            "IsLegacy": true,
+            "Source": "header-table"
+          }
+        ],
+        "DisplayNamesBySlot": {},
+        "SynonymsBySlot": {
+          "Membership": [
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Private": [
+            "Private"
+          ],
+          "Corporal": [
+            "Corporal"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "malred"
+      },
+      "Converted": {
+        "CanonicalAlias": "malred",
+        "FullName": "Malred Family",
+        "GroupId": 2008,
+        "LegacyAliases": [
+          "housemalred"
+        ],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Private",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Private"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Corporal",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Corporal"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Captain",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Captain"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Apprentice",
+            "Path": "Guild",
+            "Order": 4,
+            "Name": "Apprentice",
+            "RankPath": "Guild",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Apprentice"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Journeyman",
+            "Path": "Guild",
+            "Order": 5,
+            "Name": "Journeyman",
+            "RankPath": "Guild",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Journeyman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Master",
+            "Path": "Guild",
+            "Order": 6,
+            "Name": "Master",
+            "RankPath": "Guild",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Master"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "malred"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "mordor_char",
+        "FullName": "Minas Morgul",
+        "GroupId": 1487,
+        "Aliases": [
+          {
+            "Alias": "mordor_char",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          },
+          {
+            "Alias": "mm_denizens",
+            "IsCanonical": false,
+            "IsLegacy": true,
+            "Source": "header-table"
+          }
+        ],
+        "DisplayNamesBySlot": {
+          "Membership": [
+            "Freeman"
+          ],
+          "Apprentice": [
+            "Kadar-Lai"
+          ],
+          "Journeyman": [
+            "Khor"
+          ],
+          "Master": [
+            "Black Watchman"
+          ]
+        },
+        "SynonymsBySlot": {
+          "Membership": [
+            "Freeman",
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Private": [
+            "Private"
+          ],
+          "Corporal": [
+            "Corporal"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Kadar-Lai",
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Khor",
+            "Journeyman"
+          ],
+          "Master": [
+            "Black Watchman",
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "mordor_char"
+      },
+      "Converted": {
+        "CanonicalAlias": "mordor_char",
+        "FullName": "Minas Morgul",
+        "GroupId": 1487,
+        "LegacyAliases": [
+          "mm_denizens"
+        ],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Freeman",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Freeman",
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Private",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Private"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Corporal",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Corporal"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Sergeant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Sergeant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Lieutenant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Lieutenant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Captain",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Captain"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Commander",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Commander",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Commander"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Apprentice",
+            "Path": "Guild",
+            "Order": 7,
+            "Name": "Kadar-Lai",
+            "RankPath": "Guild",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Kadar-Lai",
+              "Apprentice"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Journeyman",
+            "Path": "Guild",
+            "Order": 8,
+            "Name": "Khor",
+            "RankPath": "Guild",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Khor",
+              "Journeyman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Master",
+            "Path": "Guild",
+            "Order": 9,
+            "Name": "Black Watchman",
+            "RankPath": "Guild",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Black Watchman",
+              "Master"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "mordor_char"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "tirithguard",
+        "FullName": "Minas Tirith Guard",
+        "GroupId": null,
+        "Aliases": [
+          {
+            "Alias": "tirithguard",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {
+          "Private": [
+            "Ohtar"
+          ],
+          "Corporal": [
+            "Roquen"
+          ],
+          "Lieutenant": [
+            "Constable"
+          ],
+          "General": [
+            "Marshall"
+          ]
+        },
+        "SynonymsBySlot": {
+          "Private": [
+            "private",
+            "acolyte",
+            "ohtar",
+            "uruk",
+            "high-snaga",
+            "rukh-kaal",
+            "apprentice-seeker-knight",
+            "khur",
+            "heggurach",
+            "footman"
+          ],
+          "Corporal": [
+            "corporal",
+            "roquen",
+            "dark-priest",
+            "puruk",
+            "zuruk",
+            "rukh",
+            "seeker-knight",
+            "gur",
+            "rhyfelwr",
+            "armsman"
+          ],
+          "Lieutenant": [
+            "lieutenant",
+            "constable",
+            "overlord",
+            "puruk-zuul",
+            "ba\u0027zaak",
+            "amme",
+            "atto",
+            "knight-captain",
+            "jomaa"
+          ],
+          "General": [
+            "general",
+            "marshall",
+            "nalo-barun",
+            "knight-commander",
+            "rhi",
+            "bughrak"
+          ],
+          "Membership": [
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "tirithguard"
+      },
+      "Converted": {
+        "CanonicalAlias": "tirithguard",
+        "FullName": "Minas Tirith Guard",
+        "GroupId": null,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Recruit",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Recruit"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Ohtar",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "private",
+              "acolyte",
+              "ohtar",
+              "uruk",
+              "high-snaga",
+              "rukh-kaal",
+              "apprentice-seeker-knight",
+              "khur",
+              "heggurach",
+              "footman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Roquen",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "corporal",
+              "roquen",
+              "dark-priest",
+              "puruk",
+              "zuruk",
+              "rukh",
+              "seeker-knight",
+              "gur",
+              "rhyfelwr",
+              "armsman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Sergeant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Sergeant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Constable",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "lieutenant",
+              "constable",
+              "overlord",
+              "puruk-zuul",
+              "ba\u0027zaak",
+              "amme",
+              "atto",
+              "knight-captain",
+              "jomaa"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Captain",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Captain"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "General",
+            "Path": "Military",
+            "Order": 7,
+            "Name": "Marshall",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "general",
+              "marshall",
+              "nalo-barun",
+              "knight-commander",
+              "rhi",
+              "bughrak"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "tirithguard"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "nebavla_tribe",
+        "FullName": "Nebavla Dunlendings",
+        "GroupId": 14121,
+        "Aliases": [
+          {
+            "Alias": "nebavla_tribe",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {
+          "Recruit": [
+            "Roenucht"
+          ],
+          "Private": [
+            "Heggurach"
+          ],
+          "Corporal": [
+            "Rhyfelwr"
+          ],
+          "Sergeant": [
+            "Cloumaggen"
+          ],
+          "Lieutenant": [
+            "Jomaa"
+          ],
+          "Captain": [
+            "Clowgos"
+          ],
+          "General": [
+            "Rhi"
+          ],
+          "Commander": [
+            "Jarl"
+          ]
+        },
+        "SynonymsBySlot": {
+          "Recruit": [
+            "recruit",
+            "snaga",
+            "snaga-uruk",
+            "initiate",
+            "kaal",
+            "squire",
+            "push-khur",
+            "roenucht",
+            "liegeman"
+          ],
+          "Private": [
+            "private",
+            "acolyte",
+            "ohtar",
+            "uruk",
+            "high-snaga",
+            "rukh-kaal",
+            "apprentice-seeker-knight",
+            "khur",
+            "heggurach",
+            "footman"
+          ],
+          "Corporal": [
+            "corporal",
+            "roquen",
+            "dark-priest",
+            "puruk",
+            "zuruk",
+            "rukh",
+            "seeker-knight",
+            "gur",
+            "rhyfelwr",
+            "armsman"
+          ],
+          "Sergeant": [
+            "sergeant",
+            "zaak",
+            "high-puruk",
+            "dread-minister",
+            "mik",
+            "mith",
+            "knight-lieutenant",
+            "gurash",
+            "cloumaggen"
+          ],
+          "Lieutenant": [
+            "lieutenant",
+            "constable",
+            "overlord",
+            "puruk-zuul",
+            "ba\u0027zaak",
+            "amme",
+            "atto",
+            "knight-captain",
+            "jomaa"
+          ],
+          "Captain": [
+            "captain",
+            "barun",
+            "barun-an-Nalo",
+            "knight-general",
+            "gurashul",
+            "clowgos",
+            "lord"
+          ],
+          "General": [
+            "general",
+            "marshall",
+            "nalo-barun",
+            "knight-commander",
+            "rhi",
+            "bughrak"
+          ],
+          "Commander": [
+            "commander",
+            "daur-phazan",
+            "knight-grand-cross",
+            "duumul-bughrak",
+            "Jarl"
+          ],
+          "Membership": [
+            "Membership"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "nebavla_tribe"
+      },
+      "Converted": {
+        "CanonicalAlias": "nebavla_tribe",
+        "FullName": "Nebavla Dunlendings",
+        "GroupId": 14121,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Roenucht",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "recruit",
+              "snaga",
+              "snaga-uruk",
+              "initiate",
+              "kaal",
+              "squire",
+              "push-khur",
+              "roenucht",
+              "liegeman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Heggurach",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "private",
+              "acolyte",
+              "ohtar",
+              "uruk",
+              "high-snaga",
+              "rukh-kaal",
+              "apprentice-seeker-knight",
+              "khur",
+              "heggurach",
+              "footman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Rhyfelwr",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "corporal",
+              "roquen",
+              "dark-priest",
+              "puruk",
+              "zuruk",
+              "rukh",
+              "seeker-knight",
+              "gur",
+              "rhyfelwr",
+              "armsman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Cloumaggen",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "sergeant",
+              "zaak",
+              "high-puruk",
+              "dread-minister",
+              "mik",
+              "mith",
+              "knight-lieutenant",
+              "gurash",
+              "cloumaggen"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Jomaa",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "lieutenant",
+              "constable",
+              "overlord",
+              "puruk-zuul",
+              "ba\u0027zaak",
+              "amme",
+              "atto",
+              "knight-captain",
+              "jomaa"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Clowgos",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "captain",
+              "barun",
+              "barun-an-Nalo",
+              "knight-general",
+              "gurashul",
+              "clowgos",
+              "lord"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "General",
+            "Path": "Military",
+            "Order": 7,
+            "Name": "Rhi",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "general",
+              "marshall",
+              "nalo-barun",
+              "knight-commander",
+              "rhi",
+              "bughrak"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Commander",
+            "Path": "Military",
+            "Order": 8,
+            "Name": "Jarl",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "commander",
+              "daur-phazan",
+              "knight-grand-cross",
+              "duumul-bughrak",
+              "Jarl"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "nebavla_tribe"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "osgi_watch",
+        "FullName": "Osgiliath City Watch",
+        "GroupId": 1736,
+        "Aliases": [
+          {
+            "Alias": "osgi_watch",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {},
+        "SynonymsBySlot": {
+          "Membership": [
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Private": [
+            "Private"
+          ],
+          "Corporal": [
+            "Corporal"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "osgi_watch"
+      },
+      "Converted": {
+        "CanonicalAlias": "osgi_watch",
+        "FullName": "Osgiliath City Watch",
+        "GroupId": 1736,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Private",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Private"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Corporal",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Corporal"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Sergeant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Sergeant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Lieutenant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Lieutenant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Captain",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Captain"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Commander",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Commander",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Commander"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "osgi_watch"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "ithilien_rangers",
+        "FullName": "Rangers of the Ithilien",
+        "GroupId": 8494,
+        "Aliases": [
+          {
+            "Alias": "ithilien_rangers",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {},
+        "SynonymsBySlot": {
+          "Membership": [
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Private": [
+            "Private"
+          ],
+          "Corporal": [
+            "Corporal"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "ithilien_rangers"
+      },
+      "Converted": {
+        "CanonicalAlias": "ithilien_rangers",
+        "FullName": "Rangers of the Ithilien",
+        "GroupId": 8494,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Private",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Private"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Sergeant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Sergeant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Captain",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Captain"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "ithilien_rangers"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "rogues",
+        "FullName": "Rogues\u0027 Fellowship",
+        "GroupId": 4174,
+        "Aliases": [
+          {
+            "Alias": "rogues",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          },
+          {
+            "Alias": "rouges",
+            "IsCanonical": false,
+            "IsLegacy": true,
+            "Source": "normalization-rule"
+          }
+        ],
+        "DisplayNamesBySlot": {},
+        "SynonymsBySlot": {
+          "Membership": [
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Private": [
+            "Private"
+          ],
+          "Corporal": [
+            "Corporal"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "rogues"
+      },
+      "Converted": {
+        "CanonicalAlias": "rogues",
+        "FullName": "Rogues\u0027 Fellowship",
+        "GroupId": 4174,
+        "LegacyAliases": [
+          "rouges"
+        ],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Private",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Private"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Corporal",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Corporal"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Sergeant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Sergeant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Captain",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Captain"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "rogues"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "seekers",
+        "FullName": "Seekers",
+        "GroupId": null,
+        "Aliases": [
+          {
+            "Alias": "seekers",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {
+          "Recruit": [
+            "Squire"
+          ],
+          "Private": [
+            "Apprentice Seeker-Knight"
+          ],
+          "Corporal": [
+            "Seeker-Knight"
+          ],
+          "Sergeant": [
+            "Knight-Lieutenant"
+          ],
+          "Lieutenant": [
+            "Knight-Captain"
+          ],
+          "Captain": [
+            "Knight-General"
+          ],
+          "General": [
+            "Knight-Commander"
+          ],
+          "Commander": [
+            "Knight-Grand-Cross"
+          ]
+        },
+        "SynonymsBySlot": {
+          "Recruit": [
+            "recruit",
+            "snaga",
+            "snaga-uruk",
+            "initiate",
+            "kaal",
+            "squire",
+            "push-khur",
+            "roenucht",
+            "liegeman"
+          ],
+          "Private": [
+            "private",
+            "acolyte",
+            "ohtar",
+            "uruk",
+            "high-snaga",
+            "rukh-kaal",
+            "apprentice-seeker-knight",
+            "khur",
+            "heggurach",
+            "footman",
+            "Apprentice Seeker-Knight"
+          ],
+          "Corporal": [
+            "corporal",
+            "roquen",
+            "dark-priest",
+            "puruk",
+            "zuruk",
+            "rukh",
+            "seeker-knight",
+            "gur",
+            "rhyfelwr",
+            "armsman"
+          ],
+          "Sergeant": [
+            "sergeant",
+            "zaak",
+            "high-puruk",
+            "dread-minister",
+            "mik",
+            "mith",
+            "knight-lieutenant",
+            "gurash",
+            "cloumaggen"
+          ],
+          "Lieutenant": [
+            "lieutenant",
+            "constable",
+            "overlord",
+            "puruk-zuul",
+            "ba\u0027zaak",
+            "amme",
+            "atto",
+            "knight-captain",
+            "jomaa"
+          ],
+          "Captain": [
+            "captain",
+            "barun",
+            "barun-an-Nalo",
+            "knight-general",
+            "gurashul",
+            "clowgos",
+            "lord"
+          ],
+          "General": [
+            "general",
+            "marshall",
+            "nalo-barun",
+            "knight-commander",
+            "rhi",
+            "bughrak"
+          ],
+          "Commander": [
+            "commander",
+            "daur-phazan",
+            "knight-grand-cross",
+            "duumul-bughrak",
+            "Jarl"
+          ],
+          "Membership": [
+            "Membership"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "seekers"
+      },
+      "Converted": {
+        "CanonicalAlias": "seekers",
+        "FullName": "Seekers",
+        "GroupId": null,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 0,
+            "Name": "Squire",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "recruit",
+              "snaga",
+              "snaga-uruk",
+              "initiate",
+              "kaal",
+              "squire",
+              "push-khur",
+              "roenucht",
+              "liegeman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Apprentice Seeker-Knight",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "private",
+              "acolyte",
+              "ohtar",
+              "uruk",
+              "high-snaga",
+              "rukh-kaal",
+              "apprentice-seeker-knight",
+              "khur",
+              "heggurach",
+              "footman",
+              "Apprentice Seeker-Knight"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Seeker-Knight",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "corporal",
+              "roquen",
+              "dark-priest",
+              "puruk",
+              "zuruk",
+              "rukh",
+              "seeker-knight",
+              "gur",
+              "rhyfelwr",
+              "armsman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Knight-Lieutenant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "sergeant",
+              "zaak",
+              "high-puruk",
+              "dread-minister",
+              "mik",
+              "mith",
+              "knight-lieutenant",
+              "gurash",
+              "cloumaggen"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Knight-Captain",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "lieutenant",
+              "constable",
+              "overlord",
+              "puruk-zuul",
+              "ba\u0027zaak",
+              "amme",
+              "atto",
+              "knight-captain",
+              "jomaa"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Knight-General",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "captain",
+              "barun",
+              "barun-an-Nalo",
+              "knight-general",
+              "gurashul",
+              "clowgos",
+              "lord"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "General",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Knight-Commander",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "general",
+              "marshall",
+              "nalo-barun",
+              "knight-commander",
+              "rhi",
+              "bughrak"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Commander",
+            "Path": "Military",
+            "Order": 7,
+            "Name": "Knight-Grand-Cross",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "commander",
+              "daur-phazan",
+              "knight-grand-cross",
+              "duumul-bughrak",
+              "Jarl"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "seekers"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "shadow-cult",
+        "FullName": "Shadow Cult",
+        "GroupId": null,
+        "Aliases": [
+          {
+            "Alias": "shadow-cult",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {
+          "Recruit": [
+            "Initiate"
+          ],
+          "Private": [
+            "Acolyte"
+          ],
+          "Corporal": [
+            "Dark Priest"
+          ],
+          "Sergeant": [
+            "Dread Minister"
+          ],
+          "Lieutenant": [
+            "Overlord"
+          ],
+          "Captain": [
+            "Barun An-Nalo"
+          ]
+        },
+        "SynonymsBySlot": {
+          "Recruit": [
+            "recruit",
+            "snaga",
+            "snaga-uruk",
+            "initiate",
+            "kaal",
+            "squire",
+            "push-khur",
+            "roenucht",
+            "liegeman"
+          ],
+          "Private": [
+            "private",
+            "acolyte",
+            "ohtar",
+            "uruk",
+            "high-snaga",
+            "rukh-kaal",
+            "apprentice-seeker-knight",
+            "khur",
+            "heggurach",
+            "footman"
+          ],
+          "Corporal": [
+            "corporal",
+            "roquen",
+            "dark-priest",
+            "puruk",
+            "zuruk",
+            "rukh",
+            "seeker-knight",
+            "gur",
+            "rhyfelwr",
+            "armsman",
+            "Dark Priest"
+          ],
+          "Sergeant": [
+            "sergeant",
+            "zaak",
+            "high-puruk",
+            "dread-minister",
+            "mik",
+            "mith",
+            "knight-lieutenant",
+            "gurash",
+            "cloumaggen",
+            "Dread Minister"
+          ],
+          "Lieutenant": [
+            "lieutenant",
+            "constable",
+            "overlord",
+            "puruk-zuul",
+            "ba\u0027zaak",
+            "amme",
+            "atto",
+            "knight-captain",
+            "jomaa"
+          ],
+          "Captain": [
+            "captain",
+            "barun",
+            "barun-an-Nalo",
+            "knight-general",
+            "gurashul",
+            "clowgos",
+            "lord",
+            "Barun An-Nalo"
+          ],
+          "Membership": [
+            "Membership"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "shadow-cult"
+      },
+      "Converted": {
+        "CanonicalAlias": "shadow-cult",
+        "FullName": "Shadow Cult",
+        "GroupId": null,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Initiate",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "recruit",
+              "snaga",
+              "snaga-uruk",
+              "initiate",
+              "kaal",
+              "squire",
+              "push-khur",
+              "roenucht",
+              "liegeman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Acolyte",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "private",
+              "acolyte",
+              "ohtar",
+              "uruk",
+              "high-snaga",
+              "rukh-kaal",
+              "apprentice-seeker-knight",
+              "khur",
+              "heggurach",
+              "footman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Dark Priest",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "corporal",
+              "roquen",
+              "dark-priest",
+              "puruk",
+              "zuruk",
+              "rukh",
+              "seeker-knight",
+              "gur",
+              "rhyfelwr",
+              "armsman",
+              "Dark Priest"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Dread Minister",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "sergeant",
+              "zaak",
+              "high-puruk",
+              "dread-minister",
+              "mik",
+              "mith",
+              "knight-lieutenant",
+              "gurash",
+              "cloumaggen",
+              "Dread Minister"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Overlord",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "lieutenant",
+              "constable",
+              "overlord",
+              "puruk-zuul",
+              "ba\u0027zaak",
+              "amme",
+              "atto",
+              "knight-captain",
+              "jomaa"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Barun An-Nalo",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "captain",
+              "barun",
+              "barun-an-Nalo",
+              "knight-general",
+              "gurashul",
+              "clowgos",
+              "lord",
+              "Barun An-Nalo"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Master",
+            "Path": "Guild",
+            "Order": 7,
+            "Name": "Master",
+            "RankPath": "Guild",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Master"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "shadow-cult"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "sindbar",
+        "FullName": "Sindbar Family",
+        "GroupId": 12013,
+        "Aliases": [
+          {
+            "Alias": "sindbar",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {},
+        "SynonymsBySlot": {
+          "Membership": [
+            "Membership"
+          ],
+          "Recruit": [
+            "Recruit"
+          ],
+          "Private": [
+            "Private"
+          ],
+          "Corporal": [
+            "Corporal"
+          ],
+          "Sergeant": [
+            "Sergeant"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Captain": [
+            "Captain"
+          ],
+          "General": [
+            "General"
+          ],
+          "Commander": [
+            "Commander"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ],
+          "Journeyman": [
+            "Journeyman"
+          ],
+          "Master": [
+            "Master"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "sindbar"
+      },
+      "Converted": {
+        "CanonicalAlias": "sindbar",
+        "FullName": "Sindbar Family",
+        "GroupId": 12013,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Lieutenant",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Lieutenant"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "sindbar"
+      }
+    },
+    {
+      "Source": {
+        "CanonicalAlias": "khagdu",
+        "FullName": "The Twisted Eye of Khagdu",
+        "GroupId": 8026,
+        "Aliases": [
+          {
+            "Alias": "khagdu",
+            "IsCanonical": true,
+            "IsLegacy": false,
+            "Source": "canonical"
+          }
+        ],
+        "DisplayNamesBySlot": {
+          "Recruit": [
+            "Push-Khur"
+          ],
+          "Private": [
+            "Khur"
+          ],
+          "Corporal": [
+            "Gur"
+          ],
+          "Sergeant": [
+            "Gurash"
+          ],
+          "Captain": [
+            "Gurashul"
+          ],
+          "General": [
+            "Bughrak"
+          ],
+          "Commander": [
+            "Duumul-Bughrak"
+          ],
+          "Journeyman": [
+            "Yameg"
+          ],
+          "Master": [
+            "Yameg-Khur"
+          ]
+        },
+        "SynonymsBySlot": {
+          "Recruit": [
+            "recruit",
+            "snaga",
+            "snaga-uruk",
+            "initiate",
+            "kaal",
+            "squire",
+            "push-khur",
+            "roenucht",
+            "liegeman"
+          ],
+          "Private": [
+            "private",
+            "acolyte",
+            "ohtar",
+            "uruk",
+            "high-snaga",
+            "rukh-kaal",
+            "apprentice-seeker-knight",
+            "khur",
+            "heggurach",
+            "footman"
+          ],
+          "Corporal": [
+            "corporal",
+            "roquen",
+            "dark-priest",
+            "puruk",
+            "zuruk",
+            "rukh",
+            "seeker-knight",
+            "gur",
+            "rhyfelwr",
+            "armsman"
+          ],
+          "Sergeant": [
+            "sergeant",
+            "zaak",
+            "high-puruk",
+            "dread-minister",
+            "mik",
+            "mith",
+            "knight-lieutenant",
+            "gurash",
+            "cloumaggen"
+          ],
+          "Captain": [
+            "captain",
+            "barun",
+            "barun-an-Nalo",
+            "knight-general",
+            "gurashul",
+            "clowgos",
+            "lord"
+          ],
+          "General": [
+            "general",
+            "marshall",
+            "nalo-barun",
+            "knight-commander",
+            "rhi",
+            "bughrak"
+          ],
+          "Commander": [
+            "commander",
+            "daur-phazan",
+            "knight-grand-cross",
+            "duumul-bughrak",
+            "Jarl"
+          ],
+          "Journeyman": [
+            "journeyman",
+            "yameg"
+          ],
+          "Master": [
+            "master",
+            "yameg-khur"
+          ],
+          "Membership": [
+            "Membership"
+          ],
+          "Lieutenant": [
+            "Lieutenant"
+          ],
+          "Apprentice": [
+            "Apprentice"
+          ]
+        },
+        "Warnings": [],
+        "SourceKey": "khagdu"
+      },
+      "Converted": {
+        "CanonicalAlias": "khagdu",
+        "FullName": "The Twisted Eye of Khagdu",
+        "GroupId": 8026,
+        "LegacyAliases": [],
+        "Ranks": [
+          {
+            "Slot": "Membership",
+            "Path": "Common",
+            "Order": 0,
+            "Name": "Membership",
+            "RankPath": "Common",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Membership"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Recruit",
+            "Path": "Military",
+            "Order": 1,
+            "Name": "Push-Khur",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "recruit",
+              "snaga",
+              "snaga-uruk",
+              "initiate",
+              "kaal",
+              "squire",
+              "push-khur",
+              "roenucht",
+              "liegeman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Private",
+            "Path": "Military",
+            "Order": 2,
+            "Name": "Khur",
+            "RankPath": "Military",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "private",
+              "acolyte",
+              "ohtar",
+              "uruk",
+              "high-snaga",
+              "rukh-kaal",
+              "apprentice-seeker-knight",
+              "khur",
+              "heggurach",
+              "footman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Corporal",
+            "Path": "Military",
+            "Order": 3,
+            "Name": "Gur",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "corporal",
+              "roquen",
+              "dark-priest",
+              "puruk",
+              "zuruk",
+              "rukh",
+              "seeker-knight",
+              "gur",
+              "rhyfelwr",
+              "armsman"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Sergeant",
+            "Path": "Military",
+            "Order": 4,
+            "Name": "Gurash",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "sergeant",
+              "zaak",
+              "high-puruk",
+              "dread-minister",
+              "mik",
+              "mith",
+              "knight-lieutenant",
+              "gurash",
+              "cloumaggen"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Lieutenant",
+            "Path": "Military",
+            "Order": 5,
+            "Name": "Lieutenant",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Lieutenant"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Captain",
+            "Path": "Military",
+            "Order": 6,
+            "Name": "Gurashul",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "captain",
+              "barun",
+              "barun-an-Nalo",
+              "knight-general",
+              "gurashul",
+              "clowgos",
+              "lord"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "General",
+            "Path": "Military",
+            "Order": 7,
+            "Name": "Bughrak",
+            "RankPath": "Military",
+            "Privileges": 8413197,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "general",
+              "marshall",
+              "nalo-barun",
+              "knight-commander",
+              "rhi",
+              "bughrak"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Commander",
+            "Path": "Military",
+            "Order": 8,
+            "Name": "Duumul-Bughrak",
+            "RankPath": "Military",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "commander",
+              "daur-phazan",
+              "knight-grand-cross",
+              "duumul-bughrak",
+              "Jarl"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Apprentice",
+            "Path": "Guild",
+            "Order": 9,
+            "Name": "Apprentice",
+            "RankPath": "Guild",
+            "Privileges": 8413184,
+            "UsesCustomName": false,
+            "AlternateNames": [],
+            "Synonyms": [
+              "Apprentice"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Journeyman",
+            "Path": "Guild",
+            "Order": 10,
+            "Name": "Yameg",
+            "RankPath": "Guild",
+            "Privileges": 8413184,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "journeyman",
+              "yameg"
+            ],
+            "Warnings": []
+          },
+          {
+            "Slot": "Master",
+            "Path": "Guild",
+            "Order": 11,
+            "Name": "Yameg-Khur",
+            "RankPath": "Guild",
+            "Privileges": 9223372036854775807,
+            "UsesCustomName": true,
+            "AlternateNames": [],
+            "Synonyms": [
+              "master",
+              "yameg-khur"
+            ],
+            "Warnings": []
+          }
+        ],
+        "Warnings": [],
+        "SourceKey": "khagdu"
+      }
+    }
+  ]
+}

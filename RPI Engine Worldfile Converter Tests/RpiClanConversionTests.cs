@@ -111,6 +111,12 @@ public class RpiClanConversionTests
 		var hawkAndDove = converted["hawk_dove_2"];
 		CollectionAssert.Contains(hawkAndDove.LegacyAliases.ToList(), "hawk_and_dove");
 
+		var healers = converted["healers"];
+		Assert.AreEqual("Healers", healers.FullName);
+		CollectionAssert.AreEquivalent(
+			new[] { RpiClanRankSlot.Apprentice },
+			healers.Ranks.Select(x => x.Slot).ToArray());
+
 		var sergeant = ithilien.Ranks.Single(x => x.Slot == RpiClanRankSlot.Sergeant);
 		var captain = ithilien.Ranks.Single(x => x.Slot == RpiClanRankSlot.Captain);
 		var membership = mordor.Ranks.Single(x => x.Slot == RpiClanRankSlot.Membership);

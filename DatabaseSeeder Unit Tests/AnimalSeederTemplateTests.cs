@@ -1,8 +1,14 @@
+#nullable enable
+
+using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Combat;
+using MudSharp.Database;
 using MudSharp.Health;
 using MudSharp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,6 +17,165 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AnimalSeederTemplateTests
 {
+    private static FuturemudDatabaseContext BuildContext()
+    {
+        DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        return new FuturemudDatabaseContext(options);
+    }
+
+    private static FuturemudDatabaseContext BuildExpandedAnimalCatalogueContext(
+        bool includeBeetleBody = true,
+        bool includeCentipedeBody = true,
+        bool includeAcidSpit = true,
+        string? omittedRaceName = null,
+        bool beetleOnCorrectBody = true)
+    {
+        FuturemudDatabaseContext context = BuildContext();
+        long nextBodyId = 1;
+        long nextRaceId = 1;
+        Dictionary<string, BodyProto> bodies = new(StringComparer.OrdinalIgnoreCase);
+
+        void AddBody(string name)
+        {
+            if (bodies.ContainsKey(name))
+            {
+                return;
+            }
+
+            BodyProto body = new()
+            {
+                Id = nextBodyId++,
+                Name = name,
+                ConsiderString = string.Empty,
+                WielderDescriptionSingle = "mouth",
+                WielderDescriptionPlural = "mouths",
+                WearSizeParameterId = 1,
+                MinimumLegsToStand = 4,
+                MinimumWingsToFly = 0,
+                LegDescriptionSingular = "leg",
+                LegDescriptionPlural = "legs",
+                NameForTracking = name
+            };
+            bodies[name] = body;
+            context.BodyProtos.Add(body);
+        }
+
+        AddBody("Humanoid");
+        AddBody("Quadruped Base");
+
+        foreach (string bodyKey in AnimalSeeder.RaceTemplatesForTesting.Values
+                     .Select(x => x.BodyKey)
+                     .Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            if ((!includeBeetleBody && bodyKey == "Beetle") ||
+                (!includeCentipedeBody && bodyKey == "Centipede"))
+            {
+                continue;
+            }
+
+            AddBody(bodyKey);
+        }
+
+        context.NameCultures.Add(new NameCulture
+        {
+            Name = "Simple",
+            Definition = "<NameCulture />"
+        });
+
+        foreach (string modelName in AnimalSeeder.HeightWeightTemplatesForTesting.Keys)
+        {
+            context.HeightWeightModels.Add(new HeightWeightModel
+            {
+                Name = modelName,
+                MeanHeight = 100,
+                MeanBmi = 20,
+                StddevHeight = 10,
+                StddevBmi = 2,
+                Bmimultiplier = 1.0
+            });
+        }
+
+        if (includeAcidSpit)
+        {
+            context.WeaponAttacks.Add(new MudSharp.Models.WeaponAttack
+            {
+                Name = "Acid Spit",
+                AdditionalInfo = string.Empty,
+                RequiredPositionStateIds = string.Empty
+            });
+        }
+
+        BodyProto fallbackBody = bodies.TryGetValue("Insectoid", out BodyProto? insectoidBody)
+            ? insectoidBody
+            : bodies["Quadruped Base"];
+
+        foreach ((string raceName, AnimalSeeder.AnimalRaceTemplate template) in AnimalSeeder.RaceTemplatesForTesting)
+        {
+            if (string.Equals(raceName, omittedRaceName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            BodyProto baseBody = raceName == "Beetle" && !beetleOnCorrectBody
+                ? fallbackBody
+                : bodies.GetValueOrDefault(template.BodyKey, fallbackBody);
+
+            context.Races.Add(new Race
+            {
+                Id = nextRaceId++,
+                Name = raceName,
+                Description = $"{raceName} test race",
+                BaseBodyId = baseBody.Id,
+                AllowedGenders = "1 2 3 4",
+                AttributeBonusProgId = 1,
+                AttributeTotalCap = 1,
+                IndividualAttributeCap = 1,
+                DiceExpression = "1",
+                IlluminationPerceptionMultiplier = 1.0,
+                CorpseModelId = 1,
+                DefaultHealthStrategyId = 1,
+                CanUseWeapons = false,
+                CanAttack = true,
+                CanDefend = true,
+                NeedsToBreathe = true,
+                BreathingModel = "simple",
+                SizeStanding = 1,
+                SizeProne = 1,
+                SizeSitting = 1,
+                CommunicationStrategyType = "humanoid",
+                DefaultHandedness = 1,
+                HandednessOptions = "1",
+                MaximumDragWeightExpression = "1",
+                MaximumLiftWeightExpression = "1",
+                RaceUsesStamina = true,
+                CanEatCorpses = false,
+                BiteWeight = 1.0,
+                EatCorpseEmoteText = string.Empty,
+                CanEatMaterialsOptIn = false,
+                TemperatureRangeFloor = 0,
+                TemperatureRangeCeiling = 40,
+                BodypartSizeModifier = 0,
+                BodypartHealthMultiplier = 1.0,
+                BreathingVolumeExpression = "1",
+                HoldBreathLengthExpression = "1",
+                CanClimb = false,
+                CanSwim = true,
+                MinimumSleepingPosition = 1,
+                ChildAge = 1,
+                YouthAge = 2,
+                YoungAdultAge = 3,
+                AdultAge = 4,
+                ElderAge = 5,
+                VenerableAge = 6
+            });
+        }
+
+        context.SaveChanges();
+        return context;
+    }
+
     private static int ParagraphCount(string text)
     {
         return text
@@ -37,6 +202,21 @@ public class AnimalSeederTemplateTests
         Assert.IsTrue(
             rhino.AdditionalBodypartUsages!.Any(x => x.BodypartAlias == "horn" && x.Usage == "general"),
             "Rhinocerous should expose the shared horn usage.");
+    }
+
+    [TestMethod]
+    public void RaceTemplatesForTesting_ExpandedCatalogueEntries_UseExpectedBodyAssignments()
+    {
+        Assert.AreEqual("Beetle", AnimalSeeder.RaceTemplatesForTesting["Beetle"].BodyKey,
+            "Beetles should now use their dedicated beetle body.");
+        Assert.AreEqual("Centipede", AnimalSeeder.RaceTemplatesForTesting["Centipede"].BodyKey,
+            "Centipedes should use the dedicated centipede body.");
+        Assert.AreEqual("Insectoid", AnimalSeeder.RaceTemplatesForTesting["Mantis"].BodyKey,
+            "Mantises should continue to use the shared insectoid body.");
+        Assert.AreEqual("Ungulate", AnimalSeeder.RaceTemplatesForTesting["Mammoth"].BodyKey,
+            "Mammoths should reuse the ungulate body.");
+        Assert.AreEqual("Toed Quadruped", AnimalSeeder.RaceTemplatesForTesting["Sabretooth Tiger"].BodyKey,
+            "Sabretooth tigers should reuse the toed quadruped body.");
     }
 
     [TestMethod]
@@ -149,6 +329,25 @@ public class AnimalSeederTemplateTests
     }
 
     [TestMethod]
+    public void BodyAuditProfilesAndHeightWeightTemplatesForTesting_ExpandedCatalogueEntries_ArePresent()
+    {
+        CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Centipede");
+        CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Giant Centipede");
+        CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Giant Insect");
+
+        AnimalSeeder.AnimalBodyAuditProfile beetle = AnimalSeeder.BodyAuditProfilesForTesting["beetle"];
+        CollectionAssert.Contains(beetle.RequiredBodyparts.ToList(), "mandibles");
+        Assert.AreEqual(AnimalSeeder.AnimalBoneExpectation.Forbidden, beetle.BoneExpectation,
+            "Beetles should continue to forbid bones.");
+
+        AnimalSeeder.AnimalBodyAuditProfile centipede = AnimalSeeder.BodyAuditProfilesForTesting["centipede"];
+        CollectionAssert.Contains(centipede.RequiredBodyparts.ToList(), "midbody");
+        CollectionAssert.Contains(centipede.RequiredLimbs.ToList(), "Left Leg 6");
+        Assert.AreEqual(AnimalSeeder.AnimalBoneExpectation.Forbidden, centipede.BoneExpectation,
+            "Centipedes should forbid bones.");
+    }
+
+    [TestMethod]
     public void RaceTemplatesForTesting_DefaultDisfigurementHooks_AreEmptyByDefault()
     {
         Assert.IsTrue(
@@ -198,5 +397,35 @@ public class AnimalSeederTemplateTests
         {
             Assert.IsTrue(profile.Effects.Count > 0, $"Venom profile {profile.Key} should have at least one effect.");
         }
+    }
+
+    [TestMethod]
+    public void ShouldSeedData_ExistingCatalogueMissingExpandedBodiesOrRace_ReturnsExtraPackagesAvailable()
+    {
+        using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext(
+            includeBeetleBody: false,
+            includeCentipedeBody: false,
+            omittedRaceName: "Mammoth");
+
+        Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, new AnimalSeeder().ShouldSeedData(context),
+            "Rerunnable animal seeders should advertise the expanded catalogue when beetle and centipede bodies or new races are missing.");
+    }
+
+    [TestMethod]
+    public void ShouldSeedData_ExistingCatalogueWithBeetleStillUsingInsectoid_ReturnsExtraPackagesAvailable()
+    {
+        using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext(beetleOnCorrectBody: false);
+
+        Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, new AnimalSeeder().ShouldSeedData(context),
+            "A legacy beetle race that still points at the insectoid body should trigger the rerun path.");
+    }
+
+    [TestMethod]
+    public void ShouldSeedData_ExpandedCatalogueAlreadyPresent_ReturnsMayAlreadyBeInstalled()
+    {
+        using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext();
+
+        Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, new AnimalSeeder().ShouldSeedData(context),
+            "Once the expanded animal catalogue is present, the seeder should stop advertising extra stock content.");
     }
 }

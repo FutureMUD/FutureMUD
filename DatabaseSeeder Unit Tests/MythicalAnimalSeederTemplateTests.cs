@@ -35,6 +35,13 @@ public class MythicalAnimalSeederTemplateTests
     }
 
     [TestMethod]
+    public void TemplatesForTesting_ExpandedCatalogue_HasTwentyNineEntries()
+    {
+        Assert.AreEqual(29, MythicalAnimalSeeder.TemplatesForTesting.Count,
+            "The mythical catalogue should now include the seven additional beast templates.");
+    }
+
+    [TestMethod]
     public void BuildBodypartAliasLookup_DuplicateAliases_GroupsAndOrdersDeterministically()
     {
         BodypartProto[] parts = new[]
@@ -524,6 +531,20 @@ public class MythicalAnimalSeederTemplateTests
             "Myconids should share the stock humanoid body for equipment and surgery compatibility.");
         Assert.AreEqual("Ungulate", MythicalAnimalSeeder.TemplatesForTesting["Pegacorn"].BodyKey,
             "Pegacorns should reuse the ungulate body that already supports horns and wings.");
+        Assert.AreEqual("Toed Quadruped", MythicalAnimalSeeder.TemplatesForTesting["Warg"].BodyKey,
+            "Wargs should reuse the stock canid-compatible quadruped body.");
+        Assert.AreEqual("Toed Quadruped", MythicalAnimalSeeder.TemplatesForTesting["Dire-Wolf"].BodyKey,
+            "Dire-wolves should reuse the stock canid-compatible quadruped body.");
+        Assert.AreEqual("Toed Quadruped", MythicalAnimalSeeder.TemplatesForTesting["Dire-Bear"].BodyKey,
+            "Dire-bears should reuse the stock bear-compatible quadruped body.");
+        Assert.AreEqual("Beetle", MythicalAnimalSeeder.TemplatesForTesting["Giant Beetle"].BodyKey,
+            "Giant beetles should use the dedicated beetle body.");
+        Assert.AreEqual("Insectoid", MythicalAnimalSeeder.TemplatesForTesting["Giant Mantis"].BodyKey,
+            "Giant mantises should continue to use the shared insectoid body.");
+        Assert.AreEqual("Centipede", MythicalAnimalSeeder.TemplatesForTesting["Giant Centipede"].BodyKey,
+            "Giant centipedes should use the dedicated centipede body.");
+        Assert.AreEqual("Centipede", MythicalAnimalSeeder.TemplatesForTesting["Ankheg"].BodyKey,
+            "Ankhegs should use the dedicated centipede body.");
     }
 
     [TestMethod]
@@ -534,6 +555,13 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Unicorn"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Basilisk"].CombatStrategyKey);
         Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Wyvern"].CombatStrategyKey);
+        Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Warg"].CombatStrategyKey);
+        Assert.AreEqual("Beast Brawler", MythicalAnimalSeeder.TemplatesForTesting["Dire-Wolf"].CombatStrategyKey);
+        Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Dire-Bear"].CombatStrategyKey);
+        Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Giant Beetle"].CombatStrategyKey);
+        Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Giant Mantis"].CombatStrategyKey);
+        Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Giant Centipede"].CombatStrategyKey);
+        Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Ankheg"].CombatStrategyKey);
         Assert.AreEqual("Melee (Auto)", MythicalAnimalSeeder.TemplatesForTesting["Centaur"].CombatStrategyKey);
     }
 
@@ -617,6 +645,30 @@ public class MythicalAnimalSeederTemplateTests
             new[] { "Beak Peck", "Beak Bite", "Talon Strike" },
             phoenix.Attacks.Select(x => x.AttackName).ToArray(),
             "Phoenixes should keep the avian peck, clinch beak strike, and talon loadout.");
+
+        MythicalAnimalSeeder.MythicalRaceTemplate ankheg = MythicalAnimalSeeder.TemplatesForTesting["Ankheg"];
+        CollectionAssert.Contains(ankheg.Attacks.Select(x => x.AttackName).ToList(), "Acid Spit");
+        CollectionAssert.AreEquivalent(
+            new[] { "mandibles" },
+            ankheg.Attacks
+                .Where(x => x.AttackName == "Acid Spit")
+                .SelectMany(x => x.BodypartAliases)
+                .Distinct()
+                .ToArray(),
+            "Ankhegs should deliver acid spit through their mandibles.");
+    }
+
+    [TestMethod]
+    public void TemplatesForTesting_Warg_RemainsBestialAndNonPlayable()
+    {
+        MythicalAnimalSeeder.MythicalRaceTemplate warg = MythicalAnimalSeeder.TemplatesForTesting["Warg"];
+
+        Assert.IsFalse(warg.HumanoidVariety,
+            "Wargs should remain bestial rather than reusing humanoid variety handling.");
+        Assert.IsFalse(warg.Playable,
+            "Wargs should remain non-playable stock mythic beasts.");
+        Assert.IsFalse(warg.CanUseWeapons,
+            "Wargs should not be able to use weapons.");
     }
 
     [TestMethod]

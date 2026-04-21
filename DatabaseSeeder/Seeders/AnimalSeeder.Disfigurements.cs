@@ -74,6 +74,8 @@ public partial class AnimalSeeder
         AddBody("Vermiform", "Vermiform");
         AddBody("Insectoid", "Insectoid");
         AddBody("Winged Insectoid", "Winged Insectoid");
+        AddBody("Beetle", "Beetle");
+        AddBody("Centipede", "Centipede");
         AddBody("Arachnid", "Arachnid");
         AddBody("Scorpion", "Scorpion");
         AddBody("Reptilian", "Reptilian");

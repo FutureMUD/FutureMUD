@@ -165,6 +165,14 @@ public partial class AnimalSeeder
                 "It moves with the silent certainty of a predator that expects the world to part before it.",
                 "thick jungle, swamp and broken forest"),
             "Tigers");
+        yield return Mammal("Sabretooth Tiger", "Sabretoothed", "Toed Quadruped", SizeCategory.Large, 1.5, "Big Felid",
+            "standard-mammal", "big-cat",
+            MammalPack("a sabretooth cub", "a young male sabretooth", "a young female sabretooth", "a male sabretooth", "a female sabretooth",
+                "It is a hulking great cat, deep in the chest and powerful through the shoulders, with elongated upper fangs that dominate its face.",
+                "Its forequarters are built for grappling impact rather than speed alone, and the paired sabres give it a terrifying silhouette.",
+                "It carries itself with the confidence of a predator that ends struggles up close and violently.",
+                "cold steppe, broken woodland and glacial plain"),
+            "Sabretooth tigers", bloodProfile: "feline", combatStrategyKey: "Beast Brawler");
         yield return Mammal("Cheetah", "Cheetah", "Toed Quadruped", SizeCategory.Small, 0.8, "Big Felid",
             "standard-mammal", "wolfpack",
             MammalPack("a cheetah cub", "a young male cheetah", "a young female cheetah", "a male cheetah", "a female cheetah",
@@ -412,6 +420,14 @@ public partial class AnimalSeeder
                 "It moves with slow certainty, each step suggesting immense restrained force.",
                 "savannah, forest edge and watering place"),
             "Elephants", usages: tuskedGeneral, combatStrategyKey: "Beast Behemoth");
+        yield return Mammal("Mammoth", "Mammothine", "Ungulate", SizeCategory.VeryLarge, 2.2, "Pachyderm",
+            "elephant", "elephant",
+            MammalPack("a mammoth calf", "a young bull mammoth", "a young cow mammoth", "a bull mammoth", "a cow mammoth",
+                "It is immense and shaggy, its towering frame wrapped in long coarse hair above pillar-like legs.",
+                "Its domed skull, humped shoulders and sweeping tusks make it look like winter itself learned to charge.",
+                "It moves with heavy, deliberate momentum, each stride carrying the patient force of an age-old giant.",
+                "tundra, glacial plain and cold steppe"),
+            "Mammoths", usages: tuskedGeneral, combatStrategyKey: "Beast Behemoth");
         yield return Mammal("Giraffe", "Giraffine", "Ungulate", SizeCategory.VeryLarge, 1.0, "Large Ungulate",
             "large-hooved", "herbivore-charge",
             MammalPack("a giraffe calf", "a young bull giraffe", "a young cow giraffe", "a bull giraffe", "a cow giraffe",

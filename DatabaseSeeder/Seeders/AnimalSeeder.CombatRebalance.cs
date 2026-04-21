@@ -296,7 +296,9 @@ public partial class AnimalSeeder
 			         "Cephalopod",
 			         "Jellyfish",
 			         "Insectoid",
-			         "Winged Insectoid"
+			         "Winged Insectoid",
+			         "Beetle",
+			         "Centipede"
 		         })
 		{
 			BodyProto? body = _context.BodyProtos.FirstOrDefault(x => x.Name == bodyName);

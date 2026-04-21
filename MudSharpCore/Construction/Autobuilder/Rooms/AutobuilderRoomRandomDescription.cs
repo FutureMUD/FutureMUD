@@ -179,31 +179,8 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 
         if (!deferDescription)
         {
-            List<(string Name, string Text)> texts = new();
-            int random = Convert.ToInt32(expression.Evaluate());
-            List<IAutobuilderRandomDescriptionElement> validElements = RandomDescriptionElements
-                                .Where(x => x.Applies(specifiedTerrain ?? info.DefaultTerrain, tags)).ToList();
-            List<IAutobuilderRandomDescriptionElement> mandatoryElements = validElements.Where(x => x.MandatoryIfValid).OrderBy(x => x.MandatoryPosition)
-                                                 .ToList();
-            foreach (IAutobuilderRandomDescriptionElement mandatory in mandatoryElements)
-            {
-                validElements.Remove(mandatory);
-                texts.Add(mandatory.TextForTags(specifiedTerrain ?? info.DefaultTerrain, tags));
-                random--;
-            }
-
-            while (random > 0)
-            {
-                if (!validElements.Any())
-                {
-                    break;
-                }
-
-                IAutobuilderRandomDescriptionElement element = validElements.GetWeightedRandom(x => x.Weight);
-                validElements.Remove(element);
-                texts.Add(element.TextForTags(specifiedTerrain ?? info.DefaultTerrain, tags));
-                random--;
-            }
+            List<(string Name, string Text)> texts =
+                GetRandomDescriptionTexts(specifiedTerrain ?? info.DefaultTerrain, tags, expression);
 
             overlay.CellName = string
                                .Format(
@@ -236,25 +213,10 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
     {
         IEditableCellOverlay overlay = (IEditableCellOverlay)cell.CurrentOverlay;
         ITerrain terrain = overlay.Terrain;
-        List<(string Name, string Text)> texts = new();
         (AutobuilderRoomInfo info, Expression expression) = terrain != null && TerrainInfos.ContainsKey(terrain)
             ? TerrainInfos[terrain]
             : (DefaultInfo, NumberOfRandomElements);
-        int random = Convert.ToInt32(expression.Evaluate());
-        List<IAutobuilderRandomDescriptionElement> validElements = RandomDescriptionElements
-                            .Where(x => x.Applies(terrain, tags)).ToList();
-        while (random > 0)
-        {
-            if (!validElements.Any())
-            {
-                break;
-            }
-
-            IAutobuilderRandomDescriptionElement element = validElements.GetWeightedRandom(x => x.Weight);
-            texts.Add(element.TextForTags(terrain, tags));
-            validElements.Remove(element);
-            random--;
-        }
+        List<(string Name, string Text)> texts = GetRandomDescriptionTexts(terrain, tags, expression);
 
         overlay.CellName = string
                            .Format(
@@ -278,6 +240,42 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 
 		overlay.CellDescription = sb.ToString();
 		ApplyTagsToCell(cell, tags);
+	}
+
+	private List<(string Name, string Text)> GetRandomDescriptionTexts(ITerrain terrain, IEnumerable<string> tags,
+		Expression expression)
+	{
+		List<(string Name, string Text)> texts = new();
+		int random = Convert.ToInt32(expression.Evaluate());
+		List<IAutobuilderRandomDescriptionElement> validElements = RandomDescriptionElements
+			.Where(x => x.Applies(terrain, tags))
+			.ToList();
+		List<IAutobuilderRandomDescriptionElement> mandatoryElements = validElements
+			.Where(x => x.MandatoryIfValid)
+			.OrderBy(x => x.MandatoryPosition)
+			.ToList();
+
+		foreach (IAutobuilderRandomDescriptionElement mandatory in mandatoryElements)
+		{
+			validElements.Remove(mandatory);
+			texts.Add(mandatory.TextForTags(terrain, tags));
+			random--;
+		}
+
+		while (random > 0)
+		{
+			if (!validElements.Any())
+			{
+				break;
+			}
+
+			IAutobuilderRandomDescriptionElement element = validElements.GetWeightedRandom(x => x.Weight);
+			validElements.Remove(element);
+			texts.Add(element.TextForTags(terrain, tags));
+			random--;
+		}
+
+		return texts;
 	}
 
     protected override string SubtypeHelpText => @"

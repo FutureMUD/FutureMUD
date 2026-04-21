@@ -18,6 +18,34 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class UsefulSeederAutobuilderTests
 {
+	private static readonly string[] LegacyAutobuilderTemplateNames =
+	[
+		"Seeded Terrain Baseline",
+		"Seeded Terrain Random Description"
+	];
+
+	private static readonly string[] BaseRoadTags =
+	[
+		"Animal Trail",
+		"Trail",
+		"Dirt Road",
+		"Compacted Dirt Road",
+		"Gravel Road",
+		"Cobblestone Road",
+		"Asphalt Road"
+	];
+
+	private static readonly string[] SupportedRoadBaseFeatures =
+	[
+		"Animal Trail",
+		"Trail",
+		"Dirt Road",
+		"Compacted Dirt Road",
+		"Gravel Road",
+		"Cobblestone Road",
+		"Asphalt Road"
+	];
+
 	private static FuturemudDatabaseContext BuildContext()
 	{
 		DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -130,34 +158,46 @@ public class UsefulSeederAutobuilderTests
 		return XElement.Parse(context.AutobuilderRoomTemplates.Single(x => x.Name == templateName).Definition);
 	}
 
+	private static XElement GetAreaTemplateDefinition(FuturemudDatabaseContext context, string templateName)
+	{
+		return XElement.Parse(context.AutobuilderAreaTemplates.Single(x => x.Name == templateName).Definition);
+	}
+
+	private static IEnumerable<string> SplitTags(string? tags)
+	{
+		return (tags ?? string.Empty)
+			.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+	}
+
+	private static IEnumerable<string> GetFeatureNames(XElement group)
+	{
+		return group.Element("Features")?
+			.Elements("Feature")
+			.Select(x => x.Element("Name")?.Value ?? string.Empty)
+			.Where(x => !string.IsNullOrWhiteSpace(x)) ?? Enumerable.Empty<string>();
+	}
+
 	[TestMethod]
 	public void ClassifyAutobuilderPackagePresence_NonePartialAndFull_ReturnExpectedStates()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
+		SeedTerrainFoundations(context);
+		UsefulSeeder seeder = new();
 
 		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, UsefulSeeder.ClassifyAutobuilderPackagePresence(context));
 
 		context.AutobuilderRoomTemplates.Add(new AutobuilderRoomTemplate
 		{
-			Id = 1,
-			Name = UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.First(),
-			TemplateType = "room by terrain",
+			Id = 100000,
+			Name = UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single(),
+			TemplateType = "room random description",
 			Definition = "<Template />"
 		});
 		context.SaveChanges();
 
 		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, UsefulSeeder.ClassifyAutobuilderPackagePresence(context));
 
-		context.AutobuilderRoomTemplates.RemoveRange(context.AutobuilderRoomTemplates.ToList());
-		context.AutobuilderRoomTemplates.AddRange(
-			UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Select((name, index) => new AutobuilderRoomTemplate
-			{
-				Id = index + 1,
-				Name = name,
-				TemplateType = index == 0 ? "room by terrain" : "room random description",
-				Definition = "<Template />"
-			}));
-		context.SaveChanges();
+		seeder.SeedTerrainAutobuilderForTesting(context);
 
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyAutobuilderPackagePresence(context));
 	}
@@ -176,13 +216,25 @@ public class UsefulSeederAutobuilderTests
 
 		Assert.IsTrue(question.Filter(context, new Dictionary<string, string>()));
 
+		context.AutobuilderRoomTemplates.Add(new AutobuilderRoomTemplate
+		{
+			Id = 100001,
+			Name = UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single(),
+			TemplateType = "room random description",
+			Definition = "<Template />"
+		});
+		context.SaveChanges();
+
+		Assert.IsTrue(question.Filter(context, new Dictionary<string, string>()),
+			"Partial autobuilder installs should still offer the question so reruns can repair the package.");
+
 		seeder.SeedTerrainAutobuilderForTesting(context);
 
 		Assert.IsFalse(question.Filter(context, new Dictionary<string, string>()));
 	}
 
 	[TestMethod]
-	public void SeedData_AutobuilderOnlyAnswers_InstallsStockTerrainAwareRoomTemplates()
+	public void SeedData_AutobuilderOnlyAnswers_InstallsWildernessGroupedAutobuilderPackage()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
 		SeedAccount(context);
@@ -190,6 +242,8 @@ public class UsefulSeederAutobuilderTests
 		UsefulSeeder seeder = new();
 
 		string result = seeder.SeedData(context, BuildAutobuilderOnlyAnswers());
+		string roomTemplateName = UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single();
+		string areaTemplateName = UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting.Single();
 
 		Assert.AreEqual("The operation completed successfully.", result);
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyAutobuilderPackagePresence(context));
@@ -200,40 +254,136 @@ public class UsefulSeederAutobuilderTests
 				$"Expected a single autobuilder template named {name}.");
 		}
 
-		XElement baseline = GetTemplateDefinition(context, "Seeded Terrain Baseline");
-		XElement random = GetTemplateDefinition(context, "Seeded Terrain Random Description");
+		foreach (string name in UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting)
+		{
+			Assert.AreEqual(1, context.AutobuilderAreaTemplates.Count(x => x.Name == name),
+				$"Expected a single autobuilder area template named {name}.");
+		}
+
+		foreach (string name in UsefulSeeder.StockAutobuilderTagNamesForTesting)
+		{
+			Assert.AreEqual(1, context.Tags.Count(x => x.Name == name),
+				$"Expected the wilderness autobuilder tag {name} to be seeded exactly once.");
+		}
+
+		foreach (string legacyName in LegacyAutobuilderTemplateNames)
+		{
+			Assert.AreEqual(0, context.AutobuilderRoomTemplates.Count(x => x.Name == legacyName),
+				$"Legacy starter template {legacyName} should not be newly installed by the replacement package.");
+		}
+
+		XElement roomTemplate = GetTemplateDefinition(context, roomTemplateName);
+		XElement areaTemplate = GetAreaTemplateDefinition(context, areaTemplateName);
 		List<Terrain> nonVoidTerrains = context.Terrains
 			.Where(x => !string.Equals(x.Name, "Void", StringComparison.OrdinalIgnoreCase))
 			.ToList();
+		List<XElement> descriptionGroups = roomTemplate.Element("Descriptions")!.Elements("Description").ToList();
+		List<XElement> roadDescriptions = roomTemplate
+			.Descendants("Description")
+			.Where(x => string.Equals((string?)x.Attribute("type"), "road", StringComparison.OrdinalIgnoreCase))
+			.ToList();
+		List<XElement> areaGroups = areaTemplate.Element("Groups")!.Elements("Group").ToList();
+		List<XElement> uniformGroups = areaGroups
+			.Where(x => string.Equals((string?)x.Attribute("type"), "uniform", StringComparison.OrdinalIgnoreCase))
+			.ToList();
+		List<XElement> simpleGroups = areaGroups
+			.Where(x => string.Equals((string?)x.Attribute("type"), "simple", StringComparison.OrdinalIgnoreCase))
+			.ToList();
+		List<XElement> roadGroups = areaGroups
+			.Where(x => string.Equals((string?)x.Attribute("type"), "road", StringComparison.OrdinalIgnoreCase))
+			.ToList();
 
-		Assert.AreEqual("room by terrain", context.AutobuilderRoomTemplates.Single(x => x.Name == "Seeded Terrain Baseline").TemplateType);
-		Assert.AreEqual("room random description", context.AutobuilderRoomTemplates.Single(x => x.Name == "Seeded Terrain Random Description").TemplateType);
-		Assert.AreEqual(nonVoidTerrains.Count - 1, baseline.Element("Terrains")!.Elements("Terrain").Count());
-		Assert.AreEqual(nonVoidTerrains.Count - 1, random.Element("Terrains")!.Elements("Terrain").Count());
-		Assert.IsTrue(random.Element("Descriptions")!.Elements("Description").Any());
-		Assert.AreEqual("2+1d2", random.Element("Default")!.Element("NumberOfRandomElements")!.Value);
-		Assert.IsTrue(random.Element("Terrains")!.Elements("Terrain").All(x => x.Element("NumberOfRandomElements") != null));
-		Assert.IsFalse(random
+		Assert.AreEqual("room random description", context.AutobuilderRoomTemplates.Single(x => x.Name == roomTemplateName).TemplateType);
+		Assert.AreEqual("room by terrain random features", context.AutobuilderAreaTemplates.Single(x => x.Name == areaTemplateName).TemplateType);
+		Assert.AreEqual(nonVoidTerrains.Count - 1, roomTemplate.Element("Terrains")!.Elements("Terrain").Count());
+		Assert.AreEqual("2+1d2", roomTemplate.Element("Default")!.Element("NumberOfRandomElements")!.Value);
+		Assert.IsTrue(roomTemplate.Element("Terrains")!.Elements("Terrain").All(x => x.Element("NumberOfRandomElements") != null));
+		Assert.IsTrue(descriptionGroups.Any(), "The wilderness room template should seed description groups.");
+		Assert.IsTrue(descriptionGroups.Any(x => string.Equals((string?)x.Attribute("mandatory"), "true", StringComparison.OrdinalIgnoreCase) &&
+		                                       string.Equals((string?)x.Attribute("fixedposition"), "1", StringComparison.OrdinalIgnoreCase)),
+			"Primary physical description groups should be mandatory and fixed in the first sentence position.");
+		Assert.IsTrue(descriptionGroups.Any(x => string.Equals((string?)x.Attribute("mandatory"), "true", StringComparison.OrdinalIgnoreCase) &&
+		                                       string.Equals((string?)x.Attribute("fixedposition"), "2", StringComparison.OrdinalIgnoreCase)),
+			"Secondary physical description groups should be mandatory and fixed in the second sentence position.");
+		Assert.IsTrue(descriptionGroups
+			.Where(x => string.Equals((string?)x.Attribute("mandatory"), "true", StringComparison.OrdinalIgnoreCase) &&
+			            string.Equals((string?)x.Attribute("fixedposition"), "1", StringComparison.OrdinalIgnoreCase))
+			.All(x => x.Elements("Description")
+				.All(y => SplitTags(y.Element("Tags")?.Value).Contains("Physical Primary"))));
+		Assert.IsTrue(descriptionGroups
+			.Where(x => string.Equals((string?)x.Attribute("mandatory"), "true", StringComparison.OrdinalIgnoreCase) &&
+			            string.Equals((string?)x.Attribute("fixedposition"), "2", StringComparison.OrdinalIgnoreCase))
+			.All(x => x.Elements("Description")
+				.All(y => SplitTags(y.Element("Tags")?.Value).Contains("Physical Secondary"))));
+		Assert.IsTrue(roadDescriptions.Any(), "The wilderness room template should contain road-aware descriptions.");
+		Assert.IsFalse(roadDescriptions.Any(x =>
+			BaseRoadTags.Contains(SplitTags(x.Element("Tags")?.Value).FirstOrDefault() ?? string.Empty,
+				StringComparer.OrdinalIgnoreCase)),
+			"Road descriptions should only be keyed to topology tags that supply direction substitutions.");
+
+		Assert.IsTrue(uniformGroups.Any(x => GetFeatureNames(x).Contains("Physical Primary")),
+			"The area template should add a uniform primary-layer marker tag.");
+		Assert.IsTrue(uniformGroups.Any(x => GetFeatureNames(x).Contains("Physical Secondary")),
+			"The area template should add a uniform secondary-layer marker tag.");
+		Assert.IsTrue(uniformGroups.Any(x => GetFeatureNames(x).Contains("Worn Furnishings")),
+			"The area template should include the primary physical feature pool.");
+		Assert.IsTrue(uniformGroups.Any(x => GetFeatureNames(x).Contains("Recent Cleaning")),
+			"The area template should include the secondary physical feature pool.");
+		Assert.IsTrue(simpleGroups.Any(x =>
+			double.TryParse(x.Element("MinimumFeatureDensity")?.Value, out double min) &&
+			double.TryParse(x.Element("MaximumFeatureDensity")?.Value, out double max) &&
+			Math.Abs(min - 0.35) < 0.0001 &&
+			Math.Abs(max - 0.65) < 0.0001),
+			"The area template should include an optional sound feature density group.");
+		Assert.IsTrue(simpleGroups.Any(x =>
+			double.TryParse(x.Element("MinimumFeatureDensity")?.Value, out double min) &&
+			double.TryParse(x.Element("MaximumFeatureDensity")?.Value, out double max) &&
+			Math.Abs(min - 0.25) < 0.0001 &&
+			Math.Abs(max - 0.55) < 0.0001),
+			"The area template should include an optional smell feature density group.");
+		Assert.IsTrue(simpleGroups.Any(x =>
+			double.TryParse(x.Element("MinimumFeatureDensity")?.Value, out double min) &&
+			double.TryParse(x.Element("MaximumFeatureDensity")?.Value, out double max) &&
+			Math.Abs(min - 0.08) < 0.0001 &&
+			Math.Abs(max - 0.18) < 0.0001),
+			"The area template should include an optional resource feature density group.");
+		CollectionAssert.AreEquivalent(
+			SupportedRoadBaseFeatures,
+			roadGroups.Select(x => x.Element("BaseFeature")!.Value).ToArray(),
+			"The area template should seed all supported stock road topology groups.");
+		Assert.IsFalse(roomTemplate
 			.Descendants("DefaultTerrain")
 			.Any(x => x.Value == "1"),
 			"Void terrain should not be part of the seeded autobuilder package.");
 	}
 
 	[TestMethod]
-	public void SeedTerrainAutobuilderForTesting_RerunRepairsTemplatesWithoutDuplicates()
+	public void SeedTerrainAutobuilderForTesting_RerunRepairsTemplatesTagsAndPreservesLegacyTemplates()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
 		SeedAccount(context);
 		SeedTerrainFoundations(context);
 		UsefulSeeder seeder = new();
+		string roomTemplateName = UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single();
+		string areaTemplateName = UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting.Single();
+
+		context.AutobuilderRoomTemplates.AddRange(
+			LegacyAutobuilderTemplateNames.Select((name, index) => new AutobuilderRoomTemplate
+			{
+				Id = 200000 + index,
+				Name = name,
+				TemplateType = name == "Seeded Terrain Baseline" ? "room by terrain" : "room random description",
+				Definition = "<Template />"
+			}));
+		context.SaveChanges();
 
 		seeder.SeedTerrainAutobuilderForTesting(context);
 
-		AutobuilderRoomTemplate randomTemplate =
-			context.AutobuilderRoomTemplates.Single(x => x.Name == "Seeded Terrain Random Description");
-		randomTemplate.Definition = "<Template><Descriptions /></Template>";
-		context.AutobuilderRoomTemplates.Remove(
-			context.AutobuilderRoomTemplates.Single(x => x.Name == "Seeded Terrain Baseline"));
+		context.AutobuilderRoomTemplates.Single(x => x.Name == roomTemplateName).Definition =
+			"<Template><Descriptions /></Template>";
+		context.AutobuilderAreaTemplates.Remove(
+			context.AutobuilderAreaTemplates.Single(x => x.Name == areaTemplateName));
+		context.Tags.Remove(context.Tags.Single(x => x.Name == UsefulSeeder.StockAutobuilderTagNamesForTesting.Last()));
 		context.SaveChanges();
 
 		seeder.SeedTerrainAutobuilderForTesting(context);
@@ -244,8 +394,29 @@ public class UsefulSeederAutobuilderTests
 				$"Expected rerun to preserve exactly one autobuilder template named {name}.");
 		}
 
-		XElement repairedRandom = GetTemplateDefinition(context, "Seeded Terrain Random Description");
-		Assert.IsTrue(repairedRandom.Element("Descriptions")!.Elements("Description").Any());
-		Assert.IsTrue(repairedRandom.Element("Terrains")!.Elements("Terrain").All(x => x.Element("NumberOfRandomElements") != null));
+		foreach (string name in UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting)
+		{
+			Assert.AreEqual(1, context.AutobuilderAreaTemplates.Count(x => x.Name == name),
+				$"Expected rerun to preserve exactly one autobuilder area template named {name}.");
+		}
+
+		foreach (string name in UsefulSeeder.StockAutobuilderTagNamesForTesting)
+		{
+			Assert.AreEqual(1, context.Tags.Count(x => x.Name == name),
+				$"Expected rerun to restore missing autobuilder tag {name} without duplication.");
+		}
+
+		foreach (string legacyName in LegacyAutobuilderTemplateNames)
+		{
+			Assert.AreEqual(1, context.AutobuilderRoomTemplates.Count(x => x.Name == legacyName),
+				$"Legacy template {legacyName} should remain untouched by wilderness autobuilder reruns.");
+		}
+
+		XElement repairedRoom = GetTemplateDefinition(context, roomTemplateName);
+		XElement repairedArea = GetAreaTemplateDefinition(context, areaTemplateName);
+		Assert.IsTrue(repairedRoom.Element("Descriptions")!.Elements("Description").Any());
+		Assert.IsTrue(repairedRoom.Element("Terrains")!.Elements("Terrain").All(x => x.Element("NumberOfRandomElements") != null));
+		Assert.IsTrue(repairedArea.Element("Groups")!.Elements("Group").Any(),
+			"Rerun should rebuild the wilderness area template definition if it was deleted.");
 	}
 }

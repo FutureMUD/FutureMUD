@@ -133,7 +133,9 @@ Elements can be:
 - fixed to a sentence position
 - weighted relative to siblings
 
-Road elements are special because they interpret one tag as `tag=directions` and expand `$directions`, `$thedirections`, and `$dashdirections` tokens.
+`CreateRoom(...)` and `RedescribeRoom(...)` both use the same mandatory/fixed-position selection rules, so area-generated feature tags can reliably enforce ordered prose layers.
+
+Road elements are special because they interpret one tag as `tag=directions` and expand `$directions`, `$thedirections`, and `$dashdirections` tokens. In practice that means seeded road prose must key off topology tags such as `Trail Straight`, `Trail Bend`, or `Dirt Road Tee`, not a plain base tag like `Trail`.
 
 ## Feature Propagation
 
@@ -150,6 +152,8 @@ Feature groups currently include:
 
 Those features become string tags passed into the room template. If `ApplyAutobuilderTagsAsFrameworkTags` is on, matching framework tags are also written to the cells themselves.
 
+The stock wilderness package also uses internal marker tags such as `Physical Primary` and `Physical Secondary` so its mandatory first and second prose layers remain stable even when the same descriptive feature name is reused in different terrain domains.
+
 ## Seeder Split: Core vs Useful
 
 The seeder intentionally divides responsibilities.
@@ -165,17 +169,18 @@ These are about geometry and workflow, not rich stock prose.
 
 ### `UsefulSeeder`
 
-Useful seeding now owns the descriptive bootstrap package:
+Useful seeding now owns the wilderness descriptive bootstrap package:
 
-- `Seeded Terrain Baseline`
-- `Seeded Terrain Random Description`
+- room template: `Seeded Terrain Wilderness Grouped Description`
+- area template: `Seeded Terrain Wilderness Grouped Features`
+- the supporting wilderness terrain feature tag hierarchy
 
-These templates are built from the seeded terrain catalogue and are meant to be usable immediately with the core area templates and the Terrain Planner.
+These templates are built from the seeded terrain catalogue and are meant to be usable immediately with either the core area templates or the stock wilderness area template, plus Terrain Planner.
 
 That split matches the intended product model:
 
 - Core package: shape first, manual description later
-- Useful package: ready-to-use terrain-matched starter prose
+- Useful package: ready-to-use terrain-matched wilderness prose and feature generation
 
 ## Terrain Planner Role
 
@@ -217,4 +222,4 @@ When adding a new autobuilder type:
 - XML definitions are versionless and must stay backwards-compatible.
 - Terrain Planner creates terrain masks only; feature masks are still textual/manual unless a custom tool is added.
 - Tag-driven description variation only matters when the chosen area template actually supplies tags.
-- The seeded Useful autobuilder package currently focuses on room templates, not additional stock area templates.
+- The stock wilderness package assumes the seeded terrain catalogue and its `Terrain` tag root already exist before the Useful autobuilder package is installed.

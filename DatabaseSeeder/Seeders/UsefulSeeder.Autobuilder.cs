@@ -15,17 +15,36 @@ public partial class UsefulSeeder
 {
 	private static readonly string[] StockAutobuilderRoomTemplateNames =
 	[
-		"Seeded Terrain Baseline",
-		"Seeded Terrain Random Description"
+		WildernessGroupedTerrainRandomDescriptionTemplateName
+	];
+
+	private static readonly string[] StockAutobuilderAreaTemplateNames =
+	[
+		WildernessGroupedTerrainRandomFeaturesAreaTemplateName
 	];
 
 	internal static IReadOnlyCollection<string> StockAutobuilderRoomTemplateNamesForTesting =>
 		StockAutobuilderRoomTemplateNames;
 
+	internal static IReadOnlyCollection<string> StockAutobuilderAreaTemplateNamesForTesting =>
+		StockAutobuilderAreaTemplateNames;
+
+	internal static IReadOnlyCollection<string> StockAutobuilderTagNamesForTesting =>
+		WildernessGroupedTerrainAutobuilderTagDefinitions.Select(x => x.Name).ToArray();
+
 	internal static ShouldSeedResult ClassifyAutobuilderPackagePresence(FuturemudDatabaseContext context)
 	{
-		return SeederRepeatabilityHelper.ClassifyByPresence(
-			StockAutobuilderRoomTemplateNames.Select(name => context.AutobuilderRoomTemplates.Any(x => x.Name == name)));
+		List<bool> packageChecks =
+		[
+			.. StockAutobuilderRoomTemplateNames
+				.Select(name => context.AutobuilderRoomTemplates.Any(x => x.Name == name)),
+			.. StockAutobuilderAreaTemplateNames
+				.Select(name => context.AutobuilderAreaTemplates.Any(x => x.Name == name)),
+			.. WildernessGroupedTerrainAutobuilderTagDefinitions
+				.Select(definition => context.Tags.Any(x => x.Name == definition.Name))
+		];
+
+		return SeederRepeatabilityHelper.ClassifyByPresence(packageChecks);
 	}
 
 	internal void SeedTerrainAutobuilderForTesting(FuturemudDatabaseContext context)
@@ -42,236 +61,53 @@ public partial class UsefulSeeder
 		if (!terrains.Any())
 		{
 			errors.Add(
-				"Could not seed the terrain autobuilder room templates because no terrains are installed yet. Run the terrain foundations seeding first.");
+				"Could not seed the wilderness autobuilder starter package because no terrains are installed yet. Run the terrain foundations seeding first.");
 			return;
 		}
 
-		Dictionary<long, HashSet<string>> terrainTags = BuildTerrainTagLookup(context, terrains);
-		foreach (AutobuilderRoomTemplateSeedDefinition roomTemplate in BuildStockAutobuilderRoomTemplates(terrains, terrainTags))
+		EnsureWildernessTerrainAutobuilderTags(context);
+
+		foreach (AutobuilderRoomTemplateSeedDefinition roomTemplate in
+		         BuildWildernessGroupedTerrainAutobuilderRoomTemplates(terrains))
 		{
 			EnsureAutobuilderRoomTemplate(context, roomTemplate);
+		}
+
+		foreach (AutobuilderAreaTemplateSeedDefinition areaTemplate in
+		         BuildWildernessGroupedTerrainAutobuilderAreaTemplates(terrains))
+		{
+			EnsureAutobuilderAreaTemplate(context, areaTemplate);
 		}
 
 		context.SaveChanges();
 	}
 
-	private static IReadOnlyList<AutobuilderRoomTemplateSeedDefinition> BuildStockAutobuilderRoomTemplates(
-		IReadOnlyCollection<Terrain> terrains,
-		IReadOnlyDictionary<long, HashSet<string>> terrainTags)
+	private static void EnsureWildernessTerrainAutobuilderTags(FuturemudDatabaseContext context)
 	{
-		Terrain defaultTerrain = terrains.FirstOrDefault(x => x.DefaultTerrain) ?? terrains.OrderBy(x => x.Id).First();
-		List<XElement> roomInfos = terrains
-			.Select(x => CreateRoomInfoElement(x, x.Name, BuildSeededTerrainBaseDescription(x, terrainTags[x.Id])))
-			.ToList();
-		XElement defaultInfo = roomInfos.First(x => long.Parse(x.Element("DefaultTerrain")!.Value) == defaultTerrain.Id);
-		List<XElement> overrides = roomInfos
-			.Where(x => long.Parse(x.Element("DefaultTerrain")!.Value) != defaultTerrain.Id)
-			.ToList();
+		DictionaryWithDefault<string, Tag> tags =
+			context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
 
-		return
-		[
-			new AutobuilderRoomTemplateSeedDefinition(
-				"Seeded Terrain Baseline",
-				"room by terrain",
-				CreateRoomByTerrainTemplateDefinition(
-					"Terrain-aware baseline descriptions for the stock seeded terrain catalogue.",
-					defaultInfo,
-					overrides,
-					applyTagsAsFrameworkTags: true
-				)
-			),
-			new AutobuilderRoomTemplateSeedDefinition(
-				"Seeded Terrain Random Description",
-				"room random description",
-				CreateRandomDescriptionRoomTemplateDefinition(
-					"Terrain-aware random descriptions layered on top of the stock seeded terrain catalogue.",
-					defaultInfo,
-					overrides,
-					BuildStockRandomDescriptionElements(terrains, terrainTags),
-					defaultRandomElementExpression: "2+1d2",
-					applyTagsAsFrameworkTags: true
-				)
-			)
-		];
-	}
-
-	private static IEnumerable<XElement> BuildStockRandomDescriptionElements(
-		IReadOnlyCollection<Terrain> terrains,
-		IReadOnlyDictionary<long, HashSet<string>> terrainTags)
-	{
-		List<XElement> elements = new();
-		List<Terrain> outdoorsTerrains = terrains.Where(IsOutdoorsTerrain).ToList();
-		List<Terrain> indoorsTerrains = terrains.Except(outdoorsTerrains).ToList();
-		List<Terrain> urbanTerrains = GetTerrainsByTag(terrains, terrainTags, "Urban");
-		List<Terrain> ruralTerrains = GetTerrainsByTag(terrains, terrainTags, "Rural");
-		List<Terrain> publicTerrains = GetTerrainsByTag(terrains, terrainTags, "Public");
-		List<Terrain> privateTerrains = GetTerrainsByTag(terrains, terrainTags, "Private");
-		List<Terrain> commercialTerrains = GetTerrainsByTag(terrains, terrainTags, "Commercial");
-		List<Terrain> residentialTerrains = GetTerrainsByTag(terrains, terrainTags, "Residential");
-		List<Terrain> administrativeTerrains = GetTerrainsByTag(terrains, terrainTags, "Administrative");
-		List<Terrain> industrialTerrains = GetTerrainsByTag(terrains, terrainTags, "Industrial");
-		List<Terrain> terrestrialTerrains = GetTerrainsByTag(terrains, terrainTags, "Terrestrial");
-		List<Terrain> aquaticTerrains = GetTerrainsByTag(terrains, terrainTags, "Aquatic");
-		List<Terrain> littoralTerrains = GetTerrainsByTag(terrains, terrainTags, "Littoral");
-		List<Terrain> riparianTerrains = GetTerrainsByTag(terrains, terrainTags, "Riparian");
-		List<Terrain> wetlandTerrains = GetTerrainsByTag(terrains, terrainTags, "Wetland");
-		List<Terrain> aridTerrains = GetTerrainsByTag(terrains, terrainTags, "Arid");
-		List<Terrain> glacialTerrains = GetTerrainsByTag(terrains, terrainTags, "Glacial");
-		List<Terrain> volcanicTerrains = GetTerrainsByTag(terrains, terrainTags, "Volcanic");
-		List<Terrain> lunarTerrains = GetTerrainsByTag(terrains, terrainTags, "Lunar");
-		List<Terrain> spaceTerrains = GetTerrainsByTag(terrains, terrainTags, "Space");
-		List<Terrain> vacuumTerrains = GetTerrainsByTag(terrains, terrainTags, "Vacuum");
-		List<Terrain> diggableTerrains = GetTerrainsByTag(terrains, terrainTags, "Diggable Soil");
-		List<Terrain> sandTerrains = GetTerrainsByTag(terrains, terrainTags, "Foragable Sand");
-		List<Terrain> clayTerrains = GetTerrainsByTag(terrains, terrainTags, "Foragable Clay");
-		List<Terrain> woodedTerrains = terrains.Where(x =>
-			x.TerrainBehaviourMode.Contains("trees", StringComparison.OrdinalIgnoreCase)).ToList();
-		List<Terrain> caveTerrains = terrains.Where(x =>
-			x.TerrainBehaviourMode.Contains("cave", StringComparison.OrdinalIgnoreCase)).ToList();
-		List<Terrain> roadTerrains = terrains.Where(x =>
-				x.Name.Contains("Road", StringComparison.OrdinalIgnoreCase) ||
-				x.Name.Contains("Street", StringComparison.OrdinalIgnoreCase) ||
-				x.Name.Contains("Trail", StringComparison.OrdinalIgnoreCase) ||
-				x.Name.Contains("Alley", StringComparison.OrdinalIgnoreCase))
-			.ToList();
-
-		AddElementIfAny(elements,
-			"Open exposure leaves the location at the mercy of the wider environment.",
-			outdoorsTerrains);
-		AddElementIfAny(elements,
-			"Weather, light, and distant sound from the surrounding area reach this spot with little resistance.",
-			outdoorsTerrains);
-		AddElementIfAny(elements,
-			"Nearby walls and overhead structure keep the space feeling enclosed.",
-			indoorsTerrains);
-		AddElementIfAny(elements,
-			"The surrounding construction contains sound and movement, giving the area a more sheltered feel.",
-			indoorsTerrains);
-		AddElementIfAny(elements,
-			"Worked surfaces and maintained edges give the place an unmistakably urban character.",
-			urbanTerrains);
-		AddElementIfAny(elements,
-			"Scuffs, repairs, and habitual traffic show in the way the space has been worn down over time.",
-			urbanTerrains);
-		AddElementIfAny(elements,
-			"Domestic details hint at private lives carried on nearby.",
-			residentialTerrains);
-		AddElementIfAny(elements,
-			"The layout suggests exchange, visitors, and repeated daily traffic.",
-			commercialTerrains);
-		AddElementIfAny(elements,
-			"Orderly lines and formal fittings lend the location an official air.",
-			administrativeTerrains);
-		AddElementIfAny(elements,
-			"Heavy-duty materials and stubborn residue hint at hard use and regular labour.",
-			industrialTerrains);
-		AddElementIfAny(elements,
-			"Practical construction and rougher boundaries give the area a distinctly rural feel.",
-			ruralTerrains);
-		AddElementIfAny(elements,
-			"The place feels meant to be shared or passed through rather than held privately.",
-			publicTerrains);
-		AddElementIfAny(elements,
-			"The arrangement of the space suggests ownership, oversight, or restricted use.",
-			privateTerrains);
-		AddElementIfAny(elements,
-			"Natural growth and uneven ground keep the place feeling more grown than built.",
-			terrestrialTerrains);
-		AddElementIfAny(elements,
-			"Overhead growth filters the light through leaves, limbs, or tangled branches.",
-			woodedTerrains);
-		AddElementIfAny(elements,
-			"Vegetation crowds in enough to break sightlines and soften the edges of the terrain.",
-			woodedTerrains);
-		AddElementIfAny(elements,
-			"Moisture, motion, and the persistent presence of water dominate the immediate surroundings.",
-			aquaticTerrains);
-		AddElementIfAny(elements,
-			"Debris, spray, or shifting shoreline traces mark the meeting of land and water.",
-			littoralTerrains);
-		AddElementIfAny(elements,
-			"Nearby flowing water leaves the ground damp and the air lively.",
-			riparianTerrains);
-		AddElementIfAny(elements,
-			"Soft footing and trapped water make the terrain feel uncertain underfoot.",
-			wetlandTerrains);
-		AddElementIfAny(elements,
-			"Dry grit and bleached surfaces suggest long heat and very little moisture.",
-			aridTerrains);
-		AddElementIfAny(elements,
-			"Cold brightness and hard frozen surfaces give the area a stark clarity.",
-			glacialTerrains);
-		AddElementIfAny(elements,
-			"Dark stone, ash, or scorched textures lend the ground a volcanic harshness.",
-			volcanicTerrains);
-		AddElementIfAny(elements,
-			"Stone presses close enough here to swallow light and soften distant sounds.",
-			caveTerrains);
-		AddElementIfAny(elements,
-			"The landscape feels exposed and alien, stripped back to stone, dust, and stark sky.",
-			lunarTerrains);
-		AddElementIfAny(elements,
-			"The surrounding void makes even nearby features feel isolated and remote.",
-			spaceTerrains);
-		AddElementIfAny(elements,
-			"The lack of atmosphere leaves the area exposed in a way few environments ever are.",
-			vacuumTerrains);
-		AddElementIfAny(elements,
-			"The ground looks loose enough to be worked, disturbed, or marked by recent activity.",
-			diggableTerrains);
-		AddElementIfAny(elements,
-			"Loose sand shifts with the smallest disturbance and refuses to keep a clean edge for long.",
-			sandTerrains);
-		AddElementIfAny(elements,
-			"Heavier clay and damp earth lend the ground a dense, stubborn texture.",
-			clayTerrains);
-		AddElementIfAny(elements,
-			"The terrain carries the clear suggestion of travel and repeated passage.",
-			roadTerrains);
-		AddElementIfAny(elements,
-			"Repeated movement has worn a clearer route through the surrounding terrain.",
-			roadTerrains,
-			weight: 75.0);
-
-		return elements;
-	}
-
-	private static Dictionary<long, HashSet<string>> BuildTerrainTagLookup(FuturemudDatabaseContext context,
-		IEnumerable<Terrain> terrains)
-	{
-		Dictionary<long, string> tagsById = context.Tags.ToDictionary(x => x.Id, x => x.Name);
-		Dictionary<long, HashSet<string>> result = new();
-		foreach (Terrain terrain in terrains)
+		foreach ((string name, string parent) in WildernessGroupedTerrainAutobuilderTagDefinitions)
 		{
-			HashSet<string> tags = new(StringComparer.OrdinalIgnoreCase);
-			if (!string.IsNullOrWhiteSpace(terrain.TagInformation))
-			{
-				foreach (string value in terrain.TagInformation.Split(',',
-					         StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-				{
-					if (long.TryParse(value, out long tagId) && tagsById.TryGetValue(tagId, out string? tagName))
-					{
-						tags.Add(tagName);
-					}
-				}
-			}
+			EnsureAutobuilderTag(context, tags, name, parent);
+		}
+	}
 
-			result[terrain.Id] = tags;
+	private static void EnsureAutobuilderTag(FuturemudDatabaseContext context,
+		DictionaryWithDefault<string, Tag> tags, string name, string parent)
+	{
+		if (tags.Any(x => x.Key.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
+		{
+			return;
 		}
 
-		return result;
-	}
-
-	private static List<Terrain> GetTerrainsByTag(IEnumerable<Terrain> terrains,
-		IReadOnlyDictionary<long, HashSet<string>> terrainTags, string tag)
-	{
-		return terrains.Where(x => terrainTags[x.Id].Contains(tag)).ToList();
-	}
-
-	private static bool IsOutdoorsTerrain(Terrain terrain)
-	{
-		return (CellOutdoorsType)terrain.DefaultCellOutdoorsType is CellOutdoorsType.Outdoors or
-			CellOutdoorsType.IndoorsClimateExposed;
+		Tag tag = new()
+		{
+			Name = name,
+			Parent = string.IsNullOrEmpty(parent) ? null : tags[parent]
+		};
+		tags[name] = tag;
+		context.Tags.Add(tag);
 	}
 
 	private static string BuildSeededTerrainBaseDescription(Terrain terrain, IReadOnlyCollection<string> tags)

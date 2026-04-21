@@ -1,0 +1,60 @@
+[CRAFTS]
+craft woodworking subcraft spear command carve
+flags: hidden
+sectors: woods
+seasons: spring
+weather: clear
+opening: 40
+race: 17
+clans: "trusted" "Rangers"
+followers: 2
+ic_delay: 10
+fail_delay: 5
+fail: You ruin the work.
+phase
+1st: You begin carving a spear.
+3rd: @ works at carving a spear.
+1stfail: You botch the carving.
+skill: woodcraft vs. 3d10
+attr: dex vs. 2d8
+t: 30
+cost: moves 12 hits 3
+1: (used 1002)
+2: (held 1008)
+3: (in-room 1006)
+4: (produced 1005)
+Fail 1: (produced 1002)
+end
+
+craft smithing subcraft knife_set command forge
+start_key: 1
+end_key: 2
+phase
+1st: You begin forging.
+3rd: @ works at the forge.
+skill: metalcraft vs. 4d12
+t: 40
+1: (used 2000 2001)
+2: (produced 3000 3001)
+end
+
+craft hunting subcraft bait command prepare
+failobjs: 1005 1004
+failmobs: 9001
+phase
+1st: You prepare bait.
+3rd: @ prepares bait.
+mob: 9002 aggressive
+t: 15
+1: (give x2 1005)
+end
+
+craft mystery subcraft unknown command improvise
+phase
+3rd: @ does something odd.
+skill: mysteryskill vs. 2d10
+t: 10
+1: (used 7777 7778)
+2: (produced 1006)
+end
+[END]

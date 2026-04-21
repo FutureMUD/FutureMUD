@@ -31,6 +31,7 @@ internal sealed record ConverterCliOptions(
 	string Command,
 	string RegionsDirectory,
 	string ClanSourceFile,
+	string CraftSourceFile,
 	string? OutputPath,
 	string? ConnectionString,
 	string? ZoneTemplate,
@@ -45,6 +46,11 @@ internal sealed record ItemBaselineLoadResult(
 internal sealed record ClanBaselineLoadResult(
 	FuturemudDatabaseContext? Context,
 	FutureMudClanBaselineCatalog? Catalog,
+	string Status);
+
+internal sealed record CraftBaselineLoadResult(
+	FuturemudDatabaseContext? Context,
+	FutureMudCraftBaselineCatalog? Catalog,
 	string Status);
 
 internal sealed record RoomBaselineLoadResult(
@@ -78,6 +84,11 @@ internal static class Program
 			if (IsClanCommand(options.Command))
 			{
 				return await RunClanCommand(options);
+			}
+
+			if (IsCraftCommand(options.Command))
+			{
+				return await RunCraftCommand(options);
 			}
 
 			return await RunRoomCommand(options);
@@ -204,6 +215,52 @@ internal static class Program
 			"analyze-rooms" => await RunAnalyzeRooms(summary, corpus, conversion, validationIssues),
 			"export-rooms" => await RunExportRooms(options, corpus, conversion, validationIssues, summary),
 			"apply-rooms" => await RunApplyRooms(options, conversion, baseline.Context!, baseline.Catalog!, summary),
+			_ => 1,
+		};
+	}
+
+	private static async Task<int> RunCraftCommand(ConverterCliOptions options)
+	{
+		if (!Directory.Exists(options.RegionsDirectory))
+		{
+			Console.Error.WriteLine($"Could not find regions directory '{options.RegionsDirectory}'.");
+			return 1;
+		}
+
+		if (!File.Exists(options.CraftSourceFile))
+		{
+			Console.Error.WriteLine($"Could not find craft source file '{options.CraftSourceFile}'.");
+			return 1;
+		}
+
+		var itemParser = new RpiWorldfileParser();
+		var itemCorpus = itemParser.ParseDirectory(options.RegionsDirectory);
+		var itemTransformer = new FutureMUDItemTransformer();
+		var convertedItems = itemTransformer.Convert(itemCorpus.Items);
+
+		var craftParser = new RpiCraftParser();
+		var craftCorpus = craftParser.ParseFile(options.CraftSourceFile);
+
+		var baseline = LoadCraftBaseline(options);
+		using var baselineContext = baseline.Context;
+		if (options.Command == "apply-crafts" && baseline.Catalog is null)
+		{
+			Console.Error.WriteLine($"Unable to load the FutureMUD craft baseline: {baseline.Status}");
+			return 3;
+		}
+
+		var transformer = new FutureMudCraftTransformer(convertedItems);
+		var conversion = transformer.Convert(craftCorpus.Crafts);
+		var validationIssues = baseline.Catalog is not null
+			? FutureMudCraftValidation.Validate(baseline.Catalog, conversion.Crafts)
+			: Array.Empty<FutureMudCraftValidationIssue>();
+		var summary = BuildCraftAnalysisSummary(craftCorpus, conversion, validationIssues, baseline.Status);
+
+		return options.Command switch
+		{
+			"analyze-crafts" => await RunAnalyzeCrafts(summary, craftCorpus, conversion, validationIssues),
+			"export-crafts" => await RunExportCrafts(options, craftCorpus, conversion, validationIssues, summary),
+			"apply-crafts" => await RunApplyCrafts(options, conversion.Crafts, baseline.Context!, baseline.Catalog!, summary),
 			_ => 1,
 		};
 	}
@@ -517,6 +574,65 @@ internal static class Program
 		return 0;
 	}
 
+	private static async Task<int> RunAnalyzeCrafts(
+		CraftAnalysisSummary summary,
+		RpiCraftCorpus corpus,
+		CraftConversionResult conversion,
+		IReadOnlyList<FutureMudCraftValidationIssue> validationIssues)
+	{
+		Console.WriteLine($"Parsed craft blocks: {summary.ParsedCraftCount:N0} of {summary.TotalCraftCount:N0}");
+		Console.WriteLine($"Parse failures: {summary.FailureCount:N0}");
+		Console.WriteLine($"Parse warnings: {summary.ParseWarningCount:N0}");
+		Console.WriteLine($"Total phases: {summary.TotalPhaseCount:N0}");
+		Console.WriteLine($"Keyed crafts: {summary.KeyedCraftCount:N0}");
+		Console.WriteLine($"Multi-check crafts: {summary.MultiCheckCount:N0}");
+		Console.WriteLine($"Generated tags: {summary.GeneratedTagCount:N0}");
+		Console.WriteLine($"Deferred crafts: {summary.DeferredCraftCount:N0}");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		Console.WriteLine();
+
+		PrintDictionary("Per-status totals", summary.PerStatusCounts);
+		Console.WriteLine();
+		PrintDictionary("Feature totals", summary.FeatureCounts);
+
+		if (conversion.DeferredReasonCounts.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Deferred reasons", conversion.DeferredReasonCounts);
+		}
+
+		if (summary.WarningCodeCounts.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Warning codes", summary.WarningCodeCounts);
+		}
+
+		PrintMissingDependencies(summary.MissingDependencyCounts, validationIssues.Count);
+
+		if (corpus.Failures.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample parse failures:");
+			foreach (var failure in corpus.Failures.Take(10))
+			{
+				Console.WriteLine($"- {Path.GetFileName(failure.SourceFile)} {failure.Header}: {failure.Message}");
+			}
+		}
+
+		if (validationIssues.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample validation issues:");
+			foreach (var issue in validationIssues.Take(20))
+			{
+				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+			}
+		}
+
+		await Task.CompletedTask;
+		return 0;
+	}
+
 	private static async Task<int> RunExportRooms(
 		ConverterCliOptions options,
 		RpiParsedRoomCorpus corpus,
@@ -557,6 +673,45 @@ internal static class Program
 		return 0;
 	}
 
+	private static async Task<int> RunExportCrafts(
+		ConverterCliOptions options,
+		RpiCraftCorpus corpus,
+		CraftConversionResult conversion,
+		IReadOnlyList<FutureMudCraftValidationIssue> validationIssues,
+		CraftAnalysisSummary summary)
+	{
+		var outputPath = ResolveOutputPath(options.OutputPath, "rpi-crafts-export.json");
+		var auditPath = ResolveSidecarAuditPath(outputPath);
+		var convertedBySourceKey = conversion.Crafts.ToDictionary(x => x.SourceKey, StringComparer.OrdinalIgnoreCase);
+		var export = new CraftExportReport(
+			DateTime.UtcNow,
+			options.CraftSourceFile,
+			options.RegionsDirectory,
+			summary,
+			corpus.Failures,
+			validationIssues,
+			corpus.Crafts
+				.OrderBy(x => x.CraftNumber)
+				.Select(x => new ConverterExportCraft(x, convertedBySourceKey[x.SourceKey]))
+				.ToList());
+		var audit = BuildCraftExportAudit(conversion);
+
+		await using (var stream = File.Create(outputPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, export, JsonOptions);
+		}
+
+		await using (var stream = File.Create(auditPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, audit, JsonOptions);
+		}
+
+		Console.WriteLine($"Wrote {export.Crafts.Count:N0} converted craft records to {outputPath}");
+		Console.WriteLine($"Wrote craft audit to {auditPath}");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		return 0;
+	}
+
 	private static async Task<int> RunApplyRooms(
 		ConverterCliOptions options,
 		RoomConversionResult conversion,
@@ -588,6 +743,59 @@ internal static class Program
 			Console.WriteLine($"Inserted zones: {result.InsertedZoneCount:N0}");
 			Console.WriteLine($"Inserted rooms/cells/overlays: {result.InsertedRoomCount:N0}");
 			Console.WriteLine($"Inserted exits: {result.InsertedExitCount:N0}");
+		}
+
+		if (result.Issues.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample validation issues:");
+			foreach (var issue in result.Issues.Take(20))
+			{
+				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+			}
+		}
+
+		if (fatalErrors > 0)
+		{
+			Console.Error.WriteLine("Apply did not proceed because required baseline dependencies were missing.");
+			return 2;
+		}
+
+		return 0;
+	}
+
+	private static async Task<int> RunApplyCrafts(
+		ConverterCliOptions options,
+		IReadOnlyList<ConvertedCraftDefinition> converted,
+		FuturemudDatabaseContext context,
+		FutureMudCraftBaselineCatalog baseline,
+		CraftAnalysisSummary summary)
+	{
+		var importer = new FutureMudCraftImporter(context, baseline);
+		var result = importer.Apply(converted, options.Execute);
+		var fatalErrors = result.Issues.Count(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase));
+		var auditPath = ResolveOutputPath(
+			options.OutputPath,
+			options.Execute ? "rpi-crafts-apply-audit.json" : "rpi-crafts-dry-run-audit.json");
+
+		await using (var stream = File.Create(auditPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, result.Audit, JsonOptions);
+		}
+
+		Console.WriteLine(options.Execute ? "Apply mode: execute" : "Apply mode: dry-run");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		Console.WriteLine($"Validation issues: {result.Issues.Count:N0} total, {fatalErrors:N0} error(s)");
+		Console.WriteLine($"Existing imports skipped: {result.SkippedExistingCount:N0}");
+		Console.WriteLine($"Deferred crafts skipped: {result.SkippedDeferredCount:N0}");
+		Console.WriteLine($"Invalid crafts skipped: {result.SkippedInvalidCount:N0}");
+		Console.WriteLine($"Audit output: {auditPath}");
+
+		if (options.Execute)
+		{
+			Console.WriteLine($"Inserted crafts: {result.InsertedCount:N0}");
+			Console.WriteLine($"Created tags: {result.CreatedTagCount:N0}");
+			Console.WriteLine($"Created FutureProgs: {result.CreatedProgCount:N0}");
 		}
 
 		if (result.Issues.Count > 0)
@@ -685,6 +893,45 @@ internal static class Program
 			ToSortedCounts(validationIssues.GroupBy(x => x.Message)));
 	}
 
+	private static CraftAnalysisSummary BuildCraftAnalysisSummary(
+		RpiCraftCorpus corpus,
+		CraftConversionResult conversion,
+		IReadOnlyList<FutureMudCraftValidationIssue> validationIssues,
+		string baselineStatus)
+	{
+		return new CraftAnalysisSummary(
+			corpus.Crafts.Count + corpus.Failures.Count,
+			corpus.Crafts.Count,
+			corpus.Failures.Count,
+			corpus.Crafts.Sum(x => x.ParseWarnings.Count),
+			corpus.Crafts.Sum(x => x.Phases.Count),
+			corpus.Crafts.Count(x => x.VariantLink.StartKey is not null && x.VariantLink.EndKey is not null),
+			corpus.Crafts.Count(x =>
+				x.Phases.Count(y => y.SkillCheck is not null || y.AttributeCheck is not null) > 1),
+			conversion.GeneratedTags.Count,
+			conversion.Crafts.Count(x => x.Status == CraftConversionStatus.Deferred),
+			baselineStatus,
+			ToSortedCounts(conversion.Crafts.GroupBy(x => x.Status.ToString())),
+			new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+			{
+				["crafts-with-clan-requirements"] = corpus.Crafts.Count(x => x.Constraints.ClanRequirements.Count > 0),
+				["crafts-with-failmobs"] = corpus.Crafts.Count(x => x.FailMobVnums.Count > 0),
+				["crafts-with-failobjs"] = corpus.Crafts.Count(x => x.FailObjectVnums.Count > 0),
+				["crafts-with-followers"] = corpus.Crafts.Count(x => x.Constraints.FollowersRequired > 0),
+				["crafts-with-generated-progs"] = conversion.Crafts.Count(x => x.FutureProgPlans.Count > 0),
+				["crafts-with-generated-tags"] = conversion.Crafts.Count(x => x.GeneratedTags.Count > 0),
+				["crafts-with-give-output"] = conversion.Crafts.Count(x => x.Products.Any(y => y.LegacyGiveOutput)),
+				["crafts-with-hit-cost"] = corpus.Crafts.Count(x => x.Phases.Any(y => (y.Cost?.Hits ?? 0) > 0)),
+				["crafts-with-mob-outputs"] = corpus.Crafts.Count(x => x.FailMobVnums.Count > 0 || x.Phases.Any(y => y.LoadMobVnum is not null)),
+				["crafts-with-opening-requirements"] = corpus.Crafts.Count(x => x.Constraints.OpeningSkillIds.Count > 0),
+				["crafts-with-race-requirements"] = corpus.Crafts.Count(x => x.Constraints.RaceIds.Count > 0),
+				["crafts-with-season-requirements"] = corpus.Crafts.Count(x => x.Constraints.Seasons.Count > 0),
+				["crafts-with-weather-requirements"] = corpus.Crafts.Count(x => x.Constraints.WeatherStates.Count > 0),
+			},
+			ToSortedCounts(conversion.Crafts.SelectMany(x => x.Warnings).GroupBy(x => x.Code)),
+			ToSortedCounts(validationIssues.GroupBy(x => x.Message)));
+	}
+
 	private static RoomExportAuditReport BuildRoomLogicalAudit(RoomConversionResult conversion)
 	{
 		var exitsByRoom = conversion.Exits
@@ -716,6 +963,23 @@ internal static class Program
 				.Select(x => x.ExitKey)
 				.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
 				.ToList());
+	}
+
+	private static CraftExportAuditReport BuildCraftExportAudit(CraftConversionResult conversion)
+	{
+		return new CraftExportAuditReport(
+			DateTime.UtcNow,
+			conversion.Crafts
+				.OrderBy(x => x.CraftNumber)
+				.Select(x => new CraftExportAuditEntry(
+					x.SourceKey,
+					x.CraftNumber,
+					x.Status,
+					x.GeneratedTags.Select(y => y.TagName).OrderBy(y => y, StringComparer.OrdinalIgnoreCase).ToList(),
+					x.FutureProgPlans.Select(y => y.FunctionName).OrderBy(y => y, StringComparer.OrdinalIgnoreCase).ToList(),
+					x.Warnings.Select(y => y.Code).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(y => y, StringComparer.OrdinalIgnoreCase).ToList()))
+				.ToList(),
+			conversion.GeneratedTags);
 	}
 
 	private static IReadOnlyDictionary<string, int> ToSortedCounts<T>(IEnumerable<IGrouping<string, T>> groups)
@@ -815,6 +1079,32 @@ internal static class Program
 		}
 	}
 
+	private static CraftBaselineLoadResult LoadCraftBaseline(ConverterCliOptions options)
+	{
+		if (!options.UseBaseline)
+		{
+			return new CraftBaselineLoadResult(null, null, "Skipped baseline validation by request.");
+		}
+
+		FuturemudDatabaseContext? context = null;
+		try
+		{
+			context = new FuturemudDatabaseContext();
+			if (!string.IsNullOrWhiteSpace(options.ConnectionString))
+			{
+				context.ConnectionString = options.ConnectionString;
+			}
+
+			var catalog = FutureMudCraftBaselineCatalog.Load(context);
+			return new CraftBaselineLoadResult(context, catalog, "Loaded craft baseline from FutureMUD.");
+		}
+		catch (Exception ex)
+		{
+			context?.Dispose();
+			return new CraftBaselineLoadResult(null, null, ex.Message);
+		}
+	}
+
 	private static RoomBaselineLoadResult LoadRoomBaseline(ConverterCliOptions options)
 	{
 		if (!options.UseBaseline)
@@ -850,13 +1140,14 @@ internal static class Program
 		}
 
 		var command = args[0];
-		if (!IsItemCommand(command) && !IsClanCommand(command) && !IsRoomCommand(command))
+		if (!IsItemCommand(command) && !IsClanCommand(command) && !IsCraftCommand(command) && !IsRoomCommand(command))
 		{
 			throw new ArgumentException($"Unknown command '{command}'.");
 		}
 
 		string? root = null;
 		string? clanSource = null;
+		string? craftSource = null;
 		string? output = null;
 		string? connectionString = null;
 		string? zoneTemplate = null;
@@ -872,6 +1163,9 @@ internal static class Program
 					break;
 				case "--clan-source":
 					clanSource = ReadOptionValue(args, ref i, "--clan-source");
+					break;
+				case "--craft-source":
+					craftSource = ReadOptionValue(args, ref i, "--craft-source");
 					break;
 				case "--output":
 					output = ReadOptionValue(args, ref i, "--output");
@@ -894,15 +1188,18 @@ internal static class Program
 			}
 		}
 
-		if ((command == "apply-items" || command == "apply-clans" || command == "apply-rooms") && !useBaseline)
+		if ((command == "apply-items" || command == "apply-clans" || command == "apply-crafts" || command == "apply-rooms") && !useBaseline)
 		{
 			throw new ArgumentException($"{command} requires a seeded FutureMUD baseline and cannot be run with --skip-baseline.");
 		}
 
+		var regionsDirectory = ResolveRegionsDirectory(root);
+
 		return new ConverterCliOptions(
 			command,
-			ResolveRegionsDirectory(root),
+			regionsDirectory,
 			ResolveClanSourceFile(clanSource),
+			ResolveCraftSourceFile(craftSource, regionsDirectory),
 			output,
 			connectionString,
 			zoneTemplate,
@@ -918,6 +1215,11 @@ internal static class Program
 	private static bool IsClanCommand(string command)
 	{
 		return command is "analyze-clans" or "export-clans" or "apply-clans";
+	}
+
+	private static bool IsCraftCommand(string command)
+	{
+		return command is "analyze-crafts" or "export-crafts" or "apply-crafts";
 	}
 
 	private static bool IsRoomCommand(string command)
@@ -980,6 +1282,32 @@ internal static class Program
 		return candidates.FirstOrDefault(File.Exists) ?? candidates[0];
 	}
 
+	private static string ResolveCraftSourceFile(string? configuredSource, string regionsDirectory)
+	{
+		if (!string.IsNullOrWhiteSpace(configuredSource))
+		{
+			return Path.GetFullPath(configuredSource);
+		}
+
+		var candidates = new[]
+		{
+			Path.Combine(regionsDirectory, "crafts.txt"),
+			Path.Combine(Directory.GetCurrentDirectory(), "crafts.txt"),
+			Path.Combine(Directory.GetCurrentDirectory(), "soiregions-main", "crafts.txt"),
+			Path.Combine(Directory.GetCurrentDirectory(), "RPI Engine Worldfile Converter", "soiregions-main", "crafts.txt"),
+			Path.Combine(AppContext.BaseDirectory, "crafts.txt"),
+			Path.Combine(AppContext.BaseDirectory, "soiregions-main", "crafts.txt"),
+			Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "crafts.txt"),
+			Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "soiregions-main", "crafts.txt"),
+			Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "RPI Engine Worldfile Converter", "soiregions-main", "crafts.txt"),
+		}
+			.Select(Path.GetFullPath)
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		return candidates.FirstOrDefault(File.Exists) ?? candidates[0];
+	}
+
 	private static string ResolveOutputPath(string? configuredOutput, string fallbackFileName)
 	{
 		return Path.GetFullPath(configuredOutput ?? Path.Combine(Directory.GetCurrentDirectory(), fallbackFileName));
@@ -1003,14 +1331,18 @@ internal static class Program
 		Console.WriteLine("  analyze-clans [--root <regions-dir>] [--clan-source <clan.cpp>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  export-clans [--root <regions-dir>] [--clan-source <clan.cpp>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  apply-clans [--root <regions-dir>] [--clan-source <clan.cpp>] [--db-connection <connection-string>] [--execute]");
+		Console.WriteLine("  analyze-crafts [--root <regions-dir>] [--craft-source <crafts.txt>] [--db-connection <connection-string>] [--skip-baseline]");
+		Console.WriteLine("  export-crafts [--root <regions-dir>] [--craft-source <crafts.txt>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
+		Console.WriteLine("  apply-crafts [--root <regions-dir>] [--craft-source <crafts.txt>] [--output <audit-json>] [--db-connection <connection-string>] [--execute]");
 		Console.WriteLine("  analyze-rooms [--root <regions-dir>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  export-rooms [--root <regions-dir>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  apply-rooms [--root <regions-dir>] [--output <audit-json>] [--zone-template <zone>] [--db-connection <connection-string>] [--execute]");
 		Console.WriteLine();
 		Console.WriteLine("Notes:");
-		Console.WriteLine("  apply-items, apply-clans, and apply-rooms default to dry-run mode unless --execute is supplied.");
+		Console.WriteLine("  apply-items, apply-clans, apply-crafts, and apply-rooms default to dry-run mode unless --execute is supplied.");
 		Console.WriteLine("  The default regions directory is the bundled soiregions-main corpus.");
 		Console.WriteLine("  The default clan source is the bundled Old SOI Code/src/clan.cpp file.");
+		Console.WriteLine("  The default craft source is the bundled soiregions-main/crafts.txt file.");
 		Console.WriteLine("  apply-rooms recommends --zone-template so new zones inherit seeded shard/timezone/weather defaults.");
 	}
 }

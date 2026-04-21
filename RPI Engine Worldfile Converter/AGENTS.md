@@ -20,13 +20,13 @@ Implemented or actively in progress:
 - item parsing and conversion
 - clan parsing and conversion
 - room parsing and conversion
+- craft parsing and conversion
 - JSON export for converted data
 - dry-run and execute import paths for converter-driven database import
 
 Planned future conversion targets:
 
 - NPCs
-- crafts
 - shops
 - skills
 - cultures or culture overlays where needed
@@ -99,6 +99,14 @@ If converter behavior depends on how a legacy worldfile value should be interpre
 - Do not import legacy systems that are intentionally out of scope for the current pass.
   - Example: clan forums, paygrades, appointments, and external controls are intentionally excluded right now.
 
+Craft-specific limitations in the current pass:
+
+- follower, season, weather, terrain, race, clan, and opening-skill constraints should be expressed as generated FutureProgs rather than hand-authored runtime logic
+- `cost hits`, `ic_delay`, and `fail_delay` are preserved as provenance or warnings only
+- `give` outputs currently import as normal room-drop craft products with audit warnings
+- mobile outputs (`mob`, `failmobs`) remain deferred until NPC prototype import exists
+- keyed output variants currently prefer import-safe product selection over perfect legacy parity; keep the mapping document updated if that behavior changes
+
 ## Import Philosophy
 
 The goal is not perfect one-to-one recreation. The goal is the best functional reconstruction that fits FutureMUD cleanly and minimizes manual rebuilding effort.
@@ -115,6 +123,7 @@ When changing converter behavior, keep the relevant mapping notes up to date:
 
 - `RpiItemConversionMapping.md`
 - `RpiClanConversionMapping.md`
+- `RpiCraftConversionMapping.md`
 - `RpiRoomConversionMapping.md`
 
 If future room, NPC, craft, or shop converters are added, add matching mapping documents for them as part of the same work.

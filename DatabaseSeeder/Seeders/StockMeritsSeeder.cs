@@ -191,11 +191,13 @@ public class StockMeritsSeeder : IDatabaseSeeder
         new("Sturdy Frame", "Multi Trait Bonus", MeritType.Merit,
             context => MultiTraitMerit(context, 1.0, ["Strength", "Constitution"],
                 "You are naturally stronger and hardier than average.",
-                "$0 have|has a sturdy frame.")),
+                "$0 have|has a sturdy frame."),
+            ["Strength", "Constitution"]),
         new("Frail Frame", "Multi Trait Bonus", MeritType.Flaw,
             context => MultiTraitMerit(context, -1.0, ["Strength", "Constitution"],
                 "You are lighter-framed and less robust than average.",
-                "$0 have|has a frail frame.")),
+                "$0 have|has a frail frame."),
+            ["Strength", "Constitution"]),
 
         new("Mute", "Mute", MeritType.Flaw,
             context => MuteMerit(context, PermitLanguageOptions.LanguageIsMuffling,
@@ -389,11 +391,13 @@ public class StockMeritsSeeder : IDatabaseSeeder
         new("Keen-Eyed", "Specific Trait Bonus", MeritType.Merit,
             context => SpecificTraitMerit(context, "Perception", 1.0,
                 "You pick up details other people often miss.",
-                "$0 are|is keen-eyed.")),
+                "$0 are|is keen-eyed."),
+            ["Perception"]),
         new("Weak-Willed", "Specific Trait Bonus", MeritType.Flaw,
             context => SpecificTraitMerit(context, "Willpower", -1.0,
                 "You find it harder than most people to hold firm under pressure.",
-                "$0 are|is weak-willed.")),
+                "$0 are|is weak-willed."),
+            ["Willpower"]),
 
         new("Tidy Surgeon", "Surgery Finalisation", MeritType.Merit,
             context => SurgeryMerit(context, 2,
@@ -475,9 +479,12 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
             return ShouldSeedResult.PrerequisitesNotMet;
         }
 
+        StockMeritContext stockContext = new(context, 0);
         return SeederRepeatabilityHelper.ClassifyByPresence(
             HelperProgNames.Select(name => context.FutureProgs.Any(x => x.FunctionName == name))
-                .Concat(StockMerits.Select(merit => context.Merits.Any(x => x.Name == merit.Name))));
+                .Concat(StockMerits
+                    .Where(merit => merit.IsApplicable(stockContext))
+                    .Select(merit => context.Merits.Any(x => x.Name == merit.Name))));
     }
 
     private static bool HasMeritSelectionStoryboard(FuturemudDatabaseContext context)
@@ -594,6 +601,17 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
     private static void EnsureCharacterMerit(FuturemudDatabaseContext context, StockMeritBlueprint blueprint,
         StockMeritContext stockContext)
     {
+        if (!blueprint.IsApplicable(stockContext))
+        {
+            return;
+        }
+
+        XElement? definition = blueprint.Definition(stockContext);
+        if (definition is null)
+        {
+            return;
+        }
+
         Merit merit = SeederRepeatabilityHelper.EnsureNamedEntity(
             context.Merits,
             blueprint.Name,
@@ -610,7 +628,7 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
         merit.MeritType = (int)blueprint.MeritType;
         merit.MeritScope = (int)MeritScope.Character;
         merit.ParentId = null;
-        merit.Definition = blueprint.Definition(stockContext).ToString();
+        merit.Definition = definition.ToString();
     }
 
     private static XElement SimpleMerit(StockMeritContext context, string blurb, string description,
@@ -706,13 +724,24 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
                 checkTypes.Select(check => new XElement("Check", new XAttribute("type", (int)check)))));
     }
 
-    private static XElement MultiTraitMerit(StockMeritContext context, double bonus, IEnumerable<string> traitNames,
+    private static XElement? MultiTraitMerit(StockMeritContext context, double bonus, IEnumerable<string> traitNames,
         string blurb, string description, long? applicabilityProgId = null, params TraitBonusContext[] contexts)
     {
+        List<long> traitIds = new();
+        foreach (string traitName in traitNames)
+        {
+            if (!context.TryTrait(traitName, out long traitId))
+            {
+                return null;
+            }
+
+            traitIds.Add(traitId);
+        }
+
         return MeritRoot(context, blurb, description, applicabilityProgId,
             new XAttribute("bonus", bonus),
             new XElement("Traits",
-                traitNames.Select(traitName => new XElement("Trait", new XAttribute("id", context.Trait(traitName))))),
+                traitIds.Select(traitId => new XElement("Trait", new XAttribute("id", traitId)))),
             new XElement("Contexts",
                 contexts.Distinct().Select(item => new XElement("Context", (int)item))));
     }
@@ -827,12 +856,17 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
                 speeds.Select(speed => new XElement("Speed", new XAttribute("id", context.MoveSpeed(speed))))));
     }
 
-    private static XElement SpecificTraitMerit(StockMeritContext context, string traitName, double bonus, string blurb,
+    private static XElement? SpecificTraitMerit(StockMeritContext context, string traitName, double bonus, string blurb,
         string description, long? applicabilityProgId = null, params TraitBonusContext[] contexts)
     {
+        if (!context.TryTrait(traitName, out long traitId))
+        {
+            return null;
+        }
+
         return MeritRoot(context, blurb, description, applicabilityProgId,
             new XAttribute("bonus", bonus),
-            new XAttribute("trait", context.Trait(traitName)),
+            new XAttribute("trait", traitId),
             new XElement("Contexts",
                 contexts.Distinct().Select(item => new XElement("Context", (int)item))));
     }
@@ -884,7 +918,14 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
         string Name,
         string Type,
         MeritType MeritType,
-        Func<StockMeritContext, XElement> Definition);
+        Func<StockMeritContext, XElement?> Definition,
+        IReadOnlyCollection<string>? RequiredTraits = null)
+    {
+        public bool IsApplicable(StockMeritContext context)
+        {
+            return RequiredTraits?.All(context.HasTrait) != false;
+        }
+    }
 
     private sealed class StockMeritContext
     {
@@ -910,6 +951,26 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
             return _context.TraitDefinitions.AsEnumerable()
                 .First(x => x.Name.Equals(traitName, StringComparison.OrdinalIgnoreCase))
                 .Id;
+        }
+
+        public bool HasTrait(string traitName)
+        {
+            return _context.TraitDefinitions.AsEnumerable()
+                .Any(x => x.Name.Equals(traitName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public bool TryTrait(string traitName, out long traitId)
+        {
+            TraitDefinition? trait = _context.TraitDefinitions.AsEnumerable()
+                .FirstOrDefault(x => x.Name.Equals(traitName, StringComparison.OrdinalIgnoreCase));
+            if (trait is null)
+            {
+                traitId = 0;
+                return false;
+            }
+
+            traitId = trait.Id;
+            return true;
         }
 
         public long MoveSpeed(string aliasOrName)

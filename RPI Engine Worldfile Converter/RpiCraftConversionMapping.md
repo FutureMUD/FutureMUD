@@ -80,6 +80,20 @@ The converter generates FutureProg plans for:
 - clan and clan-rank requirements
 - follower-count requirements
 
+Clan-rank handling has one deliberate compatibility fallback:
+
+- if a craft requires clan rank `member` or `membership` but the imported FutureMUD clan only exposes guild-path or military-path ranks, the converter treats that as an any-membership requirement rather than failing the craft
+
+This is primarily to support legacy guild-style aliases where the archived data mixes `member` checks with clans that effectively use `Apprentice` / `Journeyman` / `Master` rank ladders.
+
+Legacy race constraints are normalized onto seeded FutureMUD race names rather than preserved as ethnicity-like subraces. Examples:
+
+- `Beorian Human`, `Marachian Human`, `Haladin Human`, `Harad Human`, `Easterling Human` -> `Human`
+- `Noldo Elf`, `Sinda Elf`, `Avar Elf` -> `Elf`
+- `Cave Troll`, `Hill Troll` -> `Troll`
+- `Giant Spider` -> `Spider`
+- `Warhorse` -> `Horse`
+
 Current sector mapping is intentionally conservative:
 
 - `inside` -> `Hall`

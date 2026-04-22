@@ -366,20 +366,20 @@ public sealed class FutureMudCraftTransformer
 	private static readonly IReadOnlyDictionary<string, string> LegacyRaceNames =
 		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 		{
-			["0"] = "Beorian Human",
-			["1"] = "Marachian Human",
-			["2"] = "Haladin Human",
+			["0"] = "Human",
+			["1"] = "Human",
+			["2"] = "Human",
 			["3"] = "Orc",
-			["4"] = "Cave Troll",
-			["5"] = "Noldo Elf",
-			["6"] = "Sinda Elf",
-			["7"] = "Hill Troll",
-			["8"] = "Avar Elf",
+			["4"] = "Troll",
+			["5"] = "Elf",
+			["6"] = "Elf",
+			["7"] = "Troll",
+			["8"] = "Elf",
 			["9"] = "Wolf",
-			["10"] = "Giant Spider",
+			["10"] = "Spider",
 			["11"] = "Wraith",
 			["12"] = "Horse",
-			["13"] = "Warhorse",
+			["13"] = "Horse",
 			["14"] = "Bird",
 			["15"] = "Wolfspawn",
 			["16"] = "Ent",
@@ -393,8 +393,8 @@ public sealed class FutureMudCraftTransformer
 			["24"] = "Snake",
 			["25"] = "Boar",
 			["26"] = "Uruk",
-			["27"] = "Harad Human",
-			["28"] = "Easterling Human",
+			["27"] = "Human",
+			["28"] = "Human",
 		};
 
 	private static readonly IReadOnlyDictionary<string, NormalisedClanRule> CanonicalClanRules =

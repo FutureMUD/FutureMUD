@@ -47,6 +47,19 @@ Alias-only clans imported even without header-table rows:
 - `tirithguard` => `Minas Tirith Guard`
 - `eradan_battalion` => `Eradan Battalion`
 
+Reference-backed clans are also imported when they appear in structured worldfile clan/rank references with at least one importable observed slot, even if they are absent from `clan.cpp`.
+
+Examples:
+
+- profession guilds such as `healers`, `apothecarists`, and `horticulturist`
+- civic or organizational aliases that only survive in worldfile references
+
+These inferred clans:
+
+- use the observed alias as the canonical alias unless an explicit normalization rule applies
+- use a title-cased alias as the full name unless a better authoritative name is available
+- preserve a source warning noting that the clan was synthesized from structured worldfile references
+
 If a clan has no authoritative table name and no explicit normalization rule, the converter falls back to a title-cased alias.
 
 ## Rank Lattice
@@ -85,6 +98,12 @@ For each clan path, the importer uses the following rules:
 4. If the path has no custom names at all, import only the slots actually observed in region references.
 
 This preserves the RPI behavior where missing higher custom names implied that those higher ranks were not used for that clan.
+
+For reference-backed inferred clans with no `clan.cpp` source metadata, this rule is what drives the entire rank shape. In practice that means:
+
+- craft guild aliases with observed `Apprentice`/`Journeyman`/`Master` references import as guild-path clans
+- aliases only observed with `Membership` import as membership-only clans
+- aliases only observed on military slots import as military-path clans using generic slot names
 
 Mixed-path clans are supported. In practice this matters especially for:
 
@@ -152,5 +171,7 @@ This includes intentionally unimported references such as:
 - `tirithguard_3`
 - `tirithguard_11`
 - `com-priests`
+
+Presence-only references with no importable observed rank slot remain unresolved by design unless they are explicitly covered by a normalization rule or a future pass promotes them to first-class imported clans.
 
 The unresolved list is intended as an audit queue for follow-up passes rather than a hard failure condition.

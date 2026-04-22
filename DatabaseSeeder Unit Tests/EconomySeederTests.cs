@@ -25,11 +25,11 @@ public class EconomySeederTests
     private const string StandardScale = "Standard";
     private const string HelperProgPrefix = "EconomySeeder";
     private const string ExternalTemplatePrefix = "EconomySeeder External ";
-    private static readonly IReadOnlySet<string> StockCombinationFamilies =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "Medicine",
-            "Writing Materials",
+	private static readonly IReadOnlySet<string> StockCombinationFamilies =
+		new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"Medicine",
+			"Writing Materials",
             "Clothing",
             "Intoxicants",
             "Household Goods",
@@ -37,9 +37,87 @@ public class EconomySeederTests
             "Entertainment",
             "Personal Services",
             "Communications",
-            "Military Goods",
-            "Professional Tools"
-        };
+			"Military Goods",
+			"Professional Tools"
+		};
+
+	private static readonly IReadOnlyDictionary<string, IReadOnlyList<(string CategoryName, decimal Weight)>> StockCombinationWeights =
+		new Dictionary<string, IReadOnlyList<(string CategoryName, decimal Weight)>>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Medicine"] =
+			[
+				("Simple Medicine", 0.55m),
+				("Standard Medicine", 0.30m),
+				("High-Quality Medicine", 0.15m)
+			],
+			["Writing Materials"] =
+			[
+				("Wax Tablets", 0.15m),
+				("Parchment", 0.35m),
+				("Paper", 0.30m),
+				("Ink", 0.20m)
+			],
+			["Clothing"] =
+			[
+				("Simple Clothing", 0.55m),
+				("Standard Clothing", 0.30m),
+				("Luxury Clothing", 0.15m)
+			],
+			["Intoxicants"] =
+			[
+				("Beer", 0.65m),
+				("Wine", 0.35m)
+			],
+			["Household Goods"] =
+			[
+				("Simple Wares", 0.20m),
+				("Standard Wares", 0.15m),
+				("Simple Furniture", 0.18m),
+				("Standard Furniture", 0.15m),
+				("Luxury Furniture", 0.10m),
+				("Standard Decorations", 0.12m),
+				("Luxury Decorations", 0.10m)
+			],
+			["Hospitality"] =
+			[
+				("Standard Lodging", 0.70m),
+				("Luxury Lodging", 0.30m)
+			],
+			["Entertainment"] =
+			[
+				("Cheap Entertainment", 0.50m),
+				("Standard Entertainment", 0.35m),
+				("Luxury Entertainment", 0.15m)
+			],
+			["Personal Services"] =
+			[
+				("Bathing Services", 0.35m),
+				("Domestic Services", 0.30m),
+				("Barbering", 0.20m),
+				("Laundry Services", 0.15m)
+			],
+			["Communications"] =
+			[
+				("Messenger Services", 0.30m),
+				("Courier Services", 0.30m),
+				("Postal Services", 0.25m),
+				("Printed News", 0.15m)
+			],
+			["Military Goods"] =
+			[
+				("Weapons", 0.35m),
+				("Armour", 0.25m),
+				("Ammunition", 0.25m),
+				("Military Uniforms", 0.15m)
+			],
+			["Professional Tools"] =
+			[
+				("Primitive Tools", 0.25m),
+				("Simple Tools", 0.30m),
+				("Standard Tools", 0.30m),
+				("High-Quality Tools", 0.15m)
+			]
+		};
 
     private static readonly IReadOnlyDictionary<string, string[]> FamilyTags =
         new Dictionary<string, string[]>
@@ -365,13 +443,22 @@ public class EconomySeederTests
         }
     }
 
-    private static List<long> GetCombinationComponentIds(MarketCategory category)
-    {
-        return XElement.Parse(category.CombinationCategories ?? "<Components />")
-            .Elements("Component")
-            .Select(x => long.Parse(x.Attribute("category")!.Value, CultureInfo.InvariantCulture))
-            .ToList();
-    }
+	private static List<long> GetCombinationComponentIds(MarketCategory category)
+	{
+		return GetCombinationComponents(category)
+			.Select(x => x.CategoryId)
+			.ToList();
+	}
+
+	private static List<(long CategoryId, decimal Weight)> GetCombinationComponents(MarketCategory category)
+	{
+		return XElement.Parse(category.CombinationCategories ?? "<Components />")
+			.Elements("Component")
+			.Select(x => (
+				CategoryId: long.Parse(x.Attribute("category")!.Value, CultureInfo.InvariantCulture),
+				Weight: decimal.Parse(x.Attribute("weight")!.Value, CultureInfo.InvariantCulture)))
+			.ToList();
+	}
 
     private static List<XElement> GetPopulationIncomeImpacts(MarketInfluenceTemplate template)
     {
@@ -551,23 +638,39 @@ public class EconomySeederTests
             .AsEnumerable()
             .ToDictionary(x => x.Id);
 
-        foreach ((string familyName, string[] leafNames) in FamilyTags
-                     .Where(x => StockCombinationFamilies.Contains(x.Key)))
-        {
-            MarketCategory familyCategory = context.MarketCategories.Single(x => x.Name == familyName);
-            Assert.AreEqual(1, familyCategory.MarketCategoryType, $"{familyName} should seed as a combination category example.");
+		foreach ((string familyName, string[] leafNames) in FamilyTags
+				     .Where(x => StockCombinationFamilies.Contains(x.Key)))
+		{
+			MarketCategory familyCategory = context.MarketCategories.Single(x => x.Name == familyName);
+			Assert.AreEqual(1, familyCategory.MarketCategoryType, $"{familyName} should seed as a combination category example.");
 
-            List<string> componentNames = GetCombinationComponentIds(familyCategory)
-                .Select(id => categoriesById[id].Name)
-                .OrderBy(x => x)
-                .ToList();
-            CollectionAssert.AreEquivalent(leafNames, componentNames, $"{familyName} should be composed of its direct seeded child categories.");
+			List<(long CategoryId, decimal Weight)> components = GetCombinationComponents(familyCategory);
+			List<string> componentNames = components
+				.Select(x => categoriesById[x.CategoryId].Name)
+				.OrderBy(x => x)
+				.ToList();
+			CollectionAssert.AreEquivalent(leafNames, componentNames, $"{familyName} should be composed of its direct seeded child categories.");
 
-            foreach (XElement component in XElement.Parse(familyCategory.CombinationCategories).Elements("Component"))
-            {
-                Assert.AreEqual(1.0m, decimal.Parse(component.Attribute("weight")!.Value, CultureInfo.InvariantCulture), $"{familyName} should seed equal-weight component examples.");
-            }
-        }
+			Dictionary<string, decimal> actualWeightsByName = components.ToDictionary(
+				x => categoriesById[x.CategoryId].Name,
+				x => x.Weight,
+				StringComparer.OrdinalIgnoreCase);
+			Assert.AreEqual(
+				StockCombinationWeights[familyName].Count,
+				actualWeightsByName.Count,
+				$"{familyName} should seed the expected number of weighted components.");
+			foreach ((string categoryName, decimal expectedWeight) in StockCombinationWeights[familyName])
+			{
+				Assert.AreEqual(
+					expectedWeight,
+					actualWeightsByName[categoryName],
+					$"{familyName} should seed {categoryName} with its expected component weight.");
+			}
+
+			Assert.IsTrue(
+				actualWeightsByName.Values.Distinct().Count() > 1,
+				$"{familyName} should seed non-equal component weights.");
+		}
 
         foreach (string familyName in new[] { "Nourishment", "Domestic Heating", "Luxury Drinks", "Transportation" })
         {

@@ -34,7 +34,7 @@ Most economy content is authored as world data, not hard-coded content. The engi
 The current stock seeder path now covers two useful starting points:
 
 - `CurrencySeeder` for currencies, divisions, coins, and parsing/description patterns
-- `EconomySeeder` for a template economic zone shell, one market, market categories derived from `UsefulSeeder` market tags, seeded combination-category examples for setting-agnostic family baskets, stock influence templates, broader era-specific populations including priestly and monastic households, and matching `SimpleShopper` records
+- `EconomySeeder` for a template economic zone shell, one market, market categories derived from `UsefulSeeder` market tags, seeded weighted combination-category examples for setting-agnostic family baskets, stock influence templates, broader era-specific populations including priestly and monastic households, and matching `SimpleShopper` records
 
 ## Minimum Viable Economy Setup
 The current runtime supports a lot of optional depth, but the minimum viable path is smaller.

@@ -1058,6 +1058,11 @@ internal static class Program
 		var allWarnings = conversion.ConvertedClans
 			.SelectMany(x => x.Warnings)
 			.Concat(conversion.ConvertedClans.SelectMany(x => x.Ranks).SelectMany(x => x.Warnings));
+		var duplicatedFullNames = conversion.ConvertedClans
+			.GroupBy(x => x.FullName, StringComparer.OrdinalIgnoreCase)
+			.Where(x => x.Count() > 1)
+			.Select(x => x.Key)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
 		return new ClanAnalysisSummary(
 			sourceDocument.SourceFile,
@@ -1067,7 +1072,13 @@ internal static class Program
 			baselineStatus,
 			conversion.ConvertedClans
 				.OrderBy(x => x.FullName, StringComparer.OrdinalIgnoreCase)
-				.ToDictionary(x => x.FullName, x => x.Ranks.Count, StringComparer.OrdinalIgnoreCase),
+				.ThenBy(x => x.CanonicalAlias, StringComparer.OrdinalIgnoreCase)
+				.ToDictionary(
+					x => duplicatedFullNames.Contains(x.FullName)
+						? $"{x.FullName} ({x.CanonicalAlias})"
+						: x.FullName,
+					x => x.Ranks.Count,
+					StringComparer.OrdinalIgnoreCase),
 			ToSortedCounts(conversion.ConvertedClans.SelectMany(x => x.Ranks).GroupBy(x => x.Path.ToString())),
 			ToSortedCounts(conversion.ConvertedClans.SelectMany(x => x.Ranks).GroupBy(x => x.Slot.ToString())),
 			ToSortedCounts(allWarnings.GroupBy(x => x.Code)),

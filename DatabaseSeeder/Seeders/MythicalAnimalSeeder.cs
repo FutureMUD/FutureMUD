@@ -63,6 +63,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
     private BodyProto _toedQuadrupedBody = null!;
     private BodyProto _avianBody = null!;
     private BodyProto _insectoidBody = null!;
+    private BodyProto _arachnidBody = null!;
     private BodyProto _beetleBody = null!;
     private BodyProto _centipedeBody = null!;
     private BodyProto _vermiformBody = null!;
@@ -172,6 +173,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             "Toed Quadruped",
             "Avian",
             "Insectoid",
+            "Arachnid",
             "Beetle",
             "Centipede",
             "Vermiform",
@@ -197,12 +199,16 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             "All Frames",
             "Person Word"
         };
+        HashSet<string> requiredHeightWeightModels = Templates.Values
+            .SelectMany(x => new[] { x.MaleHeightWeightModel, x.FemaleHeightWeightModel })
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         return requiredBodies.All(body => context.BodyProtos.Any(x => x.Name == body)) &&
                requiredRaces.All(race => context.Races.Any(x => x.Name == race)) &&
                requiredProfiles.All(profile =>
                    context.CharacteristicProfiles.Any(x => x.Name == profile) ||
                    context.CharacteristicDefinitions.Any(x => x.Name == profile)) &&
+               requiredHeightWeightModels.All(model => context.HeightWeightModels.Any(x => x.Name == model)) &&
                context.WeaponAttacks.Any(x => x.Name == "Acid Spit") &&
                context.CorpseModels.Any(x => x.Name == "Organic Human Corpse") &&
                context.CorpseModels.Any(x => x.Name == "Organic Animal Corpse") &&
@@ -221,6 +227,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         _toedQuadrupedBody = _context.BodyProtos.First(x => x.Name == "Toed Quadruped");
         _avianBody = _context.BodyProtos.First(x => x.Name == "Avian");
         _insectoidBody = _context.BodyProtos.First(x => x.Name == "Insectoid");
+        _arachnidBody = _context.BodyProtos.First(x => x.Name == "Arachnid");
         _beetleBody = _context.BodyProtos.First(x => x.Name == "Beetle");
         _centipedeBody = _context.BodyProtos.First(x => x.Name == "Centipede");
         _vermiformBody = _context.BodyProtos.First(x => x.Name == "Vermiform");
@@ -274,9 +281,12 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         AddBaseBody("Ungulate", _ungulateBody);
         AddBaseBody("Avian", _avianBody);
         AddBaseBody("Insectoid", _insectoidBody);
+        AddBaseBody("Arachnid", _arachnidBody);
         AddBaseBody("Beetle", _beetleBody);
         AddBaseBody("Centipede", _centipedeBody);
+        AddBaseBody("Vermiform", _vermiformBody);
         AddBaseBody("Serpentine", _serpentineBody);
+        AddBaseBody("Scorpion", _scorpionBody);
 
         if (requiredBodyKeys.Contains("Horned Humanoid"))
         {

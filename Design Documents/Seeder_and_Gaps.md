@@ -100,6 +100,7 @@ The stock seeder now covers a broader set of body families than the earlier anim
 Current seeded morphology groups include:
 
 - hoofed and toed quadruped mammals
+- expanded stock hoofed and small-mammal families such as camels, elk, reindeer, stoats, polecats, minks, and shrews
 - avians
 - serpents
 - fish, sharks, pinnipeds, and cetaceans
@@ -107,7 +108,7 @@ Current seeded morphology groups include:
 - cephalopods and jellyfish
 - winged and non-winged insects
 - arachnids and scorpions
-- starter reptilian and anuran bodies for lizards, geckos, iguanas, chelonians, crocodilians, frogs, and toads
+- starter reptilian and anuran bodies for lizards, geckos, skinks, iguanas, monitor lizards, chelonians, crocodilians, frogs, and toads
 
 ### Stock prose coverage
 The stock animal catalogue now seeds richer presentation prose alongside its anatomical content.
@@ -168,7 +169,7 @@ The seeder currently:
 - reuses the shared non-human seeder questionnaire so builders answer the same health-model and combat-message prompts they already see for stock animals, while reading the already-recorded combat-balance profile from `HumanSeeder` instead of re-asking it
 - requires the human and animal body and characteristic infrastructure before installation, so mythic races inherit compatible corpse models, breathing setup, attacks, and body semantics
 - resolves its selected default non-human strategy through the same canonical strategy-name mapping used by `AnimalSeeder`, so the stock animal and mythic packages no longer drift on `HP Plus` versus `Full Model` naming
-- now includes the older fantasy-only races such as eastern dragons, pegacorns, myconids, and plantfolk, so the separate `FantasySeeder` is no longer needed
+- now includes the older fantasy-only races such as eastern dragons, pegacorns, myconids, plantfolk, ents, dryads, giant arthropods, and giant worm-beasts, so the separate `FantasySeeder` is no longer needed
 - installs incrementally, skipping any already-present mythic race entries instead of treating partial overlap as a fatal blocker
 - resolves duplicate bodypart aliases deterministically while composing hybrid bodies or reusing partially seeded bodies, so reruns no longer fail while building limb and parent-part lookups
 - seeds at least one clinch-capable and one non-clinch natural attack for every mythic race, including previously attackless sapient forms such as myconids, plantfolk, owlkin, and avian people, with template and unit-test coverage rather than live seeder hard-fails
@@ -180,10 +181,12 @@ The package prefers to reuse existing stock bodies wherever that does not requir
 Current reuse patterns include:
 
 - direct reuse of stock `Organic Humanoid`, `Ungulate`, `Toed Quadruped`, `Avian`, and `Serpentine` bodies for races that fit those shapes closely
+- direct reuse of the stock `Insectoid`, `Arachnid`, and `Scorpion` bodies for giant ants, giant spiders, giant scorpions, and similar arthropod myths
+- direct reuse of the stock `Vermiform` body for giant and colossal worm-beasts
 - dedicated hybrid bodies for centaurs, merfolk, naga, griffins, hippogriffs, manticores, wyverns, hippocamps, and winged or horned humanoids
 - humanoid-form hybrids now keep `CountsAs` links back to `Organic Humanoid` and layer only their extra anatomy plus explicit inherited-part removals, so stock humanoid wear profiles and bodypart group describers continue to apply without duplicating the humanoid catalogue per variant
 - direct bodypart-group describers now match inherited override parts via `CountsAs`, which keeps humanoid descriptive grouping intact even when a child body swaps in robot or mythic override parts
-- humanoid-parent races for minotaurs, naga, merfolk, selkies, owlkin, avian people, and centaurs so they can leverage the same characteristic and description ecosystem as humans
+- humanoid-parent races for minotaurs, naga, merfolk, selkies, dryads, owlkin, avian people, and centaurs so they can leverage the same characteristic and description ecosystem as humans
 
 ### Variation and chargen implications
 The humanoid-form mythic races now seed an ethnicity with human-style characteristic coverage rather than only a flat animal description.
@@ -200,7 +203,7 @@ That includes reuse of stock profiles such as:
 - frames
 - race-specific person-word profiles
 
-Humanoid-form mythic races now also keep race-specific stock overlay description variants. That means centaurs, naga, merfolk, selkies, owlkin, avian people, and similar hybrids still benefit from the broader humanoid characteristic system, but their seeded short and full descriptions now explicitly foreground the mythic anatomy of the race instead of reading like generic organic-humanoid text.
+Humanoid-form mythic races now also keep race-specific stock overlay description variants. That means centaurs, naga, merfolk, selkies, dryads, owlkin, avian people, and similar hybrids still benefit from the broader humanoid characteristic system, but their seeded short and full descriptions now explicitly foreground the mythic anatomy of the race instead of reading like generic organic-humanoid text.
 
 ## Robot Seeder Coverage
 ### Verified current state

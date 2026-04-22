@@ -725,6 +725,28 @@ public partial class MythicalAnimalSeeder
                 bodypartHealthMultiplier: 1.8,
                 combatStrategyKey: "Beast Behemoth"
             ),
+            ["Giant Ant"] = BeastRace(
+                "Giant Ant",
+                "Insectoid",
+                SizeCategory.Large,
+                "Giant Insect",
+                GreatBeast(),
+                "Giant ants are outsized eusocial insects with chitinous bodies, crushing mandibles and the relentless purpose of a colony made monstrous.",
+                "Giant ants commonly fill the niche of hive-tunnel vermin, uncanny labour-beasts and living siege pests, creatures whose discipline and numbers can make even simple burrows feel militarised.",
+                Variants(
+                    ("an iron-jawed giant ant",
+                        "This enormous ant looks built around work and violence in equal measure, its segmented body and oversized mandibles giving every movement a blunt sense of purpose."),
+                    ("a tunnel-bred giant ant",
+                        "This giant insect advances with the tireless determination of a colony thing enlarged beyond reason, antennae twitching above crushing jaws and a hard, purposeful frame.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Good, "mandibles"),
+                    Attack("Bite", ItemQuality.Standard, "mandibles")
+                ],
+                attributeProfile: Stats(6, 6, 2, -2),
+                bodypartHealthMultiplier: 1.7,
+                combatStrategyKey: "Beast Clincher"
+            ),
             ["Giant Mantis"] = BeastRace(
                 "Giant Mantis",
                 "Insectoid",
@@ -748,6 +770,57 @@ public partial class MythicalAnimalSeeder
                 bodypartHealthMultiplier: 1.6,
                 combatStrategyKey: "Beast Skirmisher"
             ),
+            ["Giant Spider"] = BeastRace(
+                "Giant Spider",
+                "Arachnid",
+                SizeCategory.Large,
+                "Giant Arachnid",
+                GreatBeast(),
+                "Giant spiders are monstrous web-spinners with long stabbing legs, clustered eyes and fangs large enough to punch through armour gaps.",
+                "Giant spiders commonly fill the niche of ambush horrors and lair-predators, creatures that turn ruins, caverns and forest canopies into places people cross only with dread.",
+                Variants(
+                    ("a web-dark giant spider",
+                        "This towering spider crouches low on long, stabbing legs, its swollen abdomen, clustered eyes and heavy fangs making it look built for patience and sudden murder."),
+                    ("a ruin-haunting giant spider",
+                        "This immense arachnid holds itself with unnerving stillness until it shifts, every pedipalp twitch and fang-glint suggesting venom, silk and a trap already laid.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Good, "rfang", "lfang"),
+                    Attack("Bite", ItemQuality.Standard, "rfang", "lfang"),
+                    Attack("Claw Swipe", ItemQuality.Standard, "rclaw", "lclaw")
+                ],
+                attributeProfile: Stats(6, 5, 5, 1),
+                bodypartHealthMultiplier: 1.6,
+                canClimb: true,
+                combatStrategyKey: "Beast Skirmisher"
+            ),
+            ["Giant Scorpion"] = BeastRace(
+                "Giant Scorpion",
+                "Scorpion",
+                SizeCategory.Large,
+                "Giant Scorpion",
+                GreatBeast(),
+                "Giant scorpions are armoured arachnid horrors with grasping pedipalps and a venom-laden tail arched high above the body.",
+                "Giant scorpions usually occupy the niche of desert apex vermin and ruin-haunters, monstrous ambush predators whose claws and tail make even open ground feel like a kill zone.",
+                Variants(
+                    ("a barbed giant scorpion",
+                        "This massive scorpion creeps low beneath a hard shell, its heavy claws spread wide while a barbed tail hangs over the carapace like a drawn spear."),
+                    ("a ruin-stalking giant scorpion",
+                        "This outsized arachnid moves with deliberate menace, every click of claw and slow lift of the stinger promising a violent, venomous end.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Standard, "rfang", "lfang"),
+                    Attack("Bite", ItemQuality.Standard, "rfang", "lfang"),
+                    Attack("Claw Swipe", ItemQuality.Good, "rclaw", "lclaw"),
+                    Attack("Tail Spike", ItemQuality.Good, "stinger")
+                ],
+                [
+                    Usage("stinger", "general")
+                ],
+                attributeProfile: Stats(7, 7, 3, -1),
+                bodypartHealthMultiplier: 1.8,
+                combatStrategyKey: "Beast Brawler"
+            ),
             ["Giant Centipede"] = BeastRace(
                 "Giant Centipede",
                 "Centipede",
@@ -769,6 +842,54 @@ public partial class MythicalAnimalSeeder
                 attributeProfile: Stats(7, 6, 3, 0),
                 bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Clincher"
+            ),
+            ["Giant Worm"] = BeastRace(
+                "Giant Worm",
+                "Vermiform",
+                SizeCategory.Large,
+                "Giant Worm",
+                GreatBeast(),
+                "Giant worms are immense burrowers of ringed flesh and grinding mouths, built to tunnel through earth and swallow prey whole.",
+                "Giant worms fill the role of chthonic hazard and living natural disaster, the sort of subterranean terror that makes roads, farms and city foundations feel provisional at best.",
+                Variants(
+                    ("a burrowing giant worm",
+                        "This enormous segmented worm pushes forward with dreadful muscular certainty, its ringed body and grinding mouth suggesting hunger without pause or pity."),
+                    ("a tunnel-slick giant worm",
+                        "This colossal annelid looks made for dark soil and collapsing galleries, every flex of its body promising ruin, suffocation and a very short struggle.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Good, "mouth"),
+                    Attack("Bite", ItemQuality.Standard, "mouth"),
+                    Attack("Tail Slap", ItemQuality.Standard, "tail")
+                ],
+                attributeProfile: Stats(8, 9, -2, -3),
+                bodypartHealthMultiplier: 1.9,
+                canSwim: false,
+                combatStrategyKey: "Beast Clincher"
+            ),
+            ["Colossal Worm"] = BeastRace(
+                "Colossal Worm",
+                "Vermiform",
+                SizeCategory.VeryLarge,
+                "Colossal Worm",
+                GreatBeast(),
+                "Colossal worms are vast subterranean predators whose tunnel-boring bulk and circular jaws make them feel more like moving geology than living flesh.",
+                "Colossal worms occupy the mythic niche of land-swallowing behemoths and siege-breaking burrowers, creatures large enough to turn settlement and battlefield alike into unstable ground.",
+                Variants(
+                    ("a land-swallowing colossal worm",
+                        "This monstrous worm is all ringed mass and abyssal appetite, a subterranean behemoth whose circling maw and heaving body make the earth around it feel unsafe."),
+                    ("a deep-bred colossal worm",
+                        "This impossible annelid looks less like an animal than a tunnel given hunger, its endless-seeming body flexing with the slow, dreadful power of something that has never needed to hurry.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.VeryGood, "mouth"),
+                    Attack("Bite", ItemQuality.Good, "mouth"),
+                    Attack("Tail Slap", ItemQuality.Good, "tail")
+                ],
+                attributeProfile: Stats(12, 12, -3, -4),
+                bodypartHealthMultiplier: 2.5,
+                canSwim: false,
+                combatStrategyKey: "Beast Behemoth"
             ),
             ["Ankheg"] = BeastRace(
                 "Ankheg",
@@ -886,6 +1007,60 @@ public partial class MythicalAnimalSeeder
                 ],
                 attributeProfile: Stats(2, 4, -1, -2),
                 bodypartHealthMultiplier: 1.2,
+                combatStrategyKey: "Melee (Auto)"
+            ),
+            ["Ent"] = SapientRace(
+                "Ent",
+                "Organic Humanoid",
+                SizeCategory.Large,
+                "Large Ungulate",
+                "Large Ungulate",
+                LongLivedHumanoid(),
+                "Ents are towering treefolk of bark, root and living wood whose movements feel ponderous only until they decide to act.",
+                "Ents usually fill the role of ancient wardens, forest shepherds and patient but terrifying avengers, beings whose scale and age make most mortal concerns seem brief and hurried.",
+                Variants(
+                    ("a bark-armoured ent",
+                        "This towering tree-being has a humanoid silhouette only in the loosest sense, its trunk-like limbs, root-heavy stance and rough bark hide making it look like a walking elder tree."),
+                    ("a root-footed ent",
+                        "This great plant person moves with slow deliberate power, every branch-like arm and knot-work limb suggesting an age measured in seasons rather than years.")
+                ),
+                [
+                    Attack("Jab", ItemQuality.Standard, "rhand", "lhand"),
+                    Attack("Elbow", ItemQuality.Bad, "relbow", "lelbow")
+                ],
+                attributeProfile: Stats(5, 8, -2, -2),
+                bodypartHealthMultiplier: 1.6,
+                canSwim: false,
+                additionalCharacteristics:
+                [
+                    Characteristic("Bark Tone", "oak-brown", "ash-grey", "birch-pale", "yew-dark"),
+                    Characteristic("Leaf Hue", "deep green", "silver-green", "gold", "rust red")
+                ],
+                combatStrategyKey: "Melee (Auto)"
+            ),
+            ["Dryad"] = HumanoidRace(
+                "Dryad",
+                "Organic Humanoid",
+                SizeCategory.Normal,
+                "Human Male",
+                "Human Female",
+                LongLivedHumanoid(),
+                "Dryads are graceful tree-spirits whose forms remain recognisably humanoid while still carrying the living marks of bark, bloom and leaf.",
+                "Dryads usually occupy the niche of grove-keepers, emissaries of old forests and alluring but dangerous spirits of place, balancing beauty, patience and a fierce protectiveness toward their homes.",
+                [
+                    Attack("Jab", ItemQuality.Bad, "rhand", "lhand"),
+                    Attack("Elbow", ItemQuality.Bad, "relbow", "lelbow")
+                ],
+                ["dryad"],
+                overlayDescriptionVariants: Variants(
+                    ("a blossom-haired dryad", "This dryad carries a largely humanoid form, but bark-soft skin, leaf-wrought hair and a faint scent of living wood mark the figure unmistakably as a spirit of the grove."),
+                    ("a leaf-veiled dryad", "This dryad moves like a person taught by branches and wind, every line of the figure softened by petals, bark-grain and the quiet poise of old trees.")
+                ),
+                attributeProfile: Stats(0, 1, 1, 1),
+                bodypartHealthMultiplier: 1.0,
+                canClimb: true,
+                canSwim: false,
+                facialHairProfile: "No_Facial_Hair",
                 combatStrategyKey: "Melee (Auto)"
             ),
             ["Owlkin"] = HumanoidRace(
@@ -1036,8 +1211,10 @@ public partial class MythicalAnimalSeeder
             "Hippogriff",
             "Ungulate",
             "Insectoid",
+            "Arachnid",
             "Beetle",
             "Centipede",
+            "Vermiform",
             "Horned Humanoid",
             "Eastern Dragon",
             "Naga",
@@ -1047,6 +1224,7 @@ public partial class MythicalAnimalSeeder
             "Avian",
             "Serpentine",
             "Hippocamp",
+            "Scorpion",
             "Organic Humanoid",
             "Winged Humanoid",
             "Centaur"
@@ -1094,9 +1272,9 @@ public partial class MythicalAnimalSeeder
             "Elbow"
         };
 
-        if (Templates.Count != 29)
+        if (Templates.Count != 36)
         {
-            issues.Add($"Expected 29 mythical race templates but found {Templates.Count}.");
+            issues.Add($"Expected 36 mythical race templates but found {Templates.Count}.");
         }
 
         foreach ((string? name, MythicalRaceTemplate? template) in Templates)

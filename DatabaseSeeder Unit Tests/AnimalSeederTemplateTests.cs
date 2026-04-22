@@ -220,6 +220,38 @@ public class AnimalSeederTemplateTests
     }
 
     [TestMethod]
+    public void RaceTemplatesForTesting_RequestedAdditionalAnimals_UseExpectedBodiesAndSpecialUsages()
+    {
+        Assert.AreEqual("Ungulate", AnimalSeeder.RaceTemplatesForTesting["Camel"].BodyKey,
+            "Camels should reuse the ungulate body.");
+        Assert.AreEqual("Beast Artillery", AnimalSeeder.RaceTemplatesForTesting["Camel"].CombatStrategyKey,
+            "Camels should use the camelid spit-oriented combat strategy.");
+
+        Assert.AreEqual("Ungulate", AnimalSeeder.RaceTemplatesForTesting["Elk"].BodyKey,
+            "Elk should reuse the ungulate body.");
+        Assert.AreEqual("Ungulate", AnimalSeeder.RaceTemplatesForTesting["Reindeer"].BodyKey,
+            "Reindeer should reuse the ungulate body.");
+        Assert.IsTrue(
+            AnimalSeeder.RaceTemplatesForTesting["Reindeer"].AdditionalBodypartUsages?.Any(x =>
+                x.BodypartAlias == "rantler" && x.Usage == "general") == true,
+            "Reindeer should expose antlers for both sexes.");
+
+        Assert.AreEqual("Toed Quadruped", AnimalSeeder.RaceTemplatesForTesting["Stoat"].BodyKey,
+            "Stoats should reuse the toed quadruped body.");
+        Assert.AreEqual("Toed Quadruped", AnimalSeeder.RaceTemplatesForTesting["Polecat"].BodyKey,
+            "Polecats should reuse the toed quadruped body.");
+        Assert.AreEqual("Toed Quadruped", AnimalSeeder.RaceTemplatesForTesting["Mink"].BodyKey,
+            "Minks should reuse the toed quadruped body.");
+        Assert.AreEqual("Toed Quadruped", AnimalSeeder.RaceTemplatesForTesting["Shrew"].BodyKey,
+            "Shrews should reuse the toed quadruped body.");
+
+        Assert.AreEqual("Reptilian", AnimalSeeder.RaceTemplatesForTesting["Skink"].BodyKey,
+            "Skinks should reuse the reptilian body.");
+        Assert.AreEqual("Reptilian", AnimalSeeder.RaceTemplatesForTesting["Monitor Lizard"].BodyKey,
+            "Monitor lizards should reuse the reptilian body.");
+    }
+
+    [TestMethod]
     public void RaceTemplatesForTesting_CombatStrategyKeys_MapRepresentativeAnimalsToExpectedStyles()
     {
         Assert.AreEqual("Beast Coward", AnimalSeeder.RaceTemplatesForTesting["Rabbit"].CombatStrategyKey);
@@ -334,6 +366,10 @@ public class AnimalSeederTemplateTests
         CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Centipede");
         CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Giant Centipede");
         CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Giant Insect");
+        CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Giant Arachnid");
+        CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Giant Scorpion");
+        CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Giant Worm");
+        CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Colossal Worm");
 
         AnimalSeeder.AnimalBodyAuditProfile beetle = AnimalSeeder.BodyAuditProfilesForTesting["beetle"];
         CollectionAssert.Contains(beetle.RequiredBodyparts.ToList(), "mandibles");

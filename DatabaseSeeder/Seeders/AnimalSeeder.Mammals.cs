@@ -61,6 +61,8 @@ public partial class AnimalSeeder
         { new("udder", "female"), new("rhorn", "male"), new("lhorn", "male") };
         List<AnimalBodypartUsageTemplate> antlered = new()
         { new("udder", "female"), new("rantler", "male"), new("lantler", "male") };
+        List<AnimalBodypartUsageTemplate> antleredGeneral = new()
+        { new("udder", "female"), new("rantler", "general"), new("lantler", "general") };
         List<AnimalBodypartUsageTemplate> tuskedMale = new()
         { new("rtusk", "male"), new("ltusk", "male") };
         List<AnimalBodypartUsageTemplate> tuskedGeneral = new()
@@ -229,6 +231,22 @@ public partial class AnimalSeeder
                 "It has the placid bulk of an animal that can still become terrifyingly violent when pressed.",
                 "swamp, taiga and cold forest"),
             "Moose", usages: antlered, combatStrategyKey: "Beast Behemoth");
+        yield return Mammal("Elk", "Elk", "Ungulate", SizeCategory.Large, 1.3, "Large Ungulate",
+            "large-hooved", "antlered-herbivore",
+            MammalPack("an elk calf", "a young bull elk", "a young cow elk", "a bull elk", "a cow elk",
+                "It is tall-shouldered and deep-bodied, with a dark neck and long legs built for covering country.",
+                "Its broad muzzle and sweeping antlers give it the look of a grazer that can still become dangerous in an instant.",
+                "It holds itself with a rangy, watchful calm more suited to open woodland than close pens.",
+                "mountain meadow, open forest and cold grassland"),
+            "Elk", usages: antlered, combatStrategyKey: "Beast Behemoth");
+        yield return Mammal("Reindeer", "Reindeer", "Ungulate", SizeCategory.Large, 1.1, "Large Ungulate",
+            "stock-mammal", "antlered-herbivore",
+            MammalPack("a reindeer calf", "a young bull reindeer", "a young cow reindeer", "a bull reindeer", "a cow reindeer",
+                "It is compact and shaggy-coated, with broad hooves and a thick neck built for cold country.",
+                "Its muzzle is blunt and furred, and even its antlers look shaped by hard seasons and long migration.",
+                "It moves with steady endurance, as though distance and weather were ordinary inconveniences.",
+                "tundra, lichen plain and northern woodland"),
+            "Reindeer", usages: antleredGeneral, combatStrategyKey: "Beast Behemoth");
         yield return Mammal("Pig", "Porcine", "Ungulate", SizeCategory.Normal, 1.0, "Small Ungulate",
             "stock-mammal", "herbivore-charge",
             MammalPack("a piglet", "a young boar", "a young sow", "a boar", "a sow",
@@ -285,6 +303,14 @@ public partial class AnimalSeeder
                 "It moves with quiet delicacy and herd-bred caution.",
                 "cool pasture and upland meadow"),
             "Alpacas", usages: udder, combatStrategyKey: "Beast Artillery");
+        yield return Mammal("Camel", "Camelid", "Ungulate", SizeCategory.Large, 1.2, "Horse",
+            "large-hooved", "camelid-spitter",
+            MammalPack("a camel calf", "a young bull camel", "a young cow camel", "a bull camel", "a cow camel",
+                "It is high-backed and long-legged, with broad padded feet, long lashes and a heavy-lipped muzzle.",
+                "Its deep chest and swaying hump make the whole frame look engineered for thirst, distance and bad terrain.",
+                "It carries itself with patient hauteur and the stubborn composure of an animal that expects the world to be hot and difficult.",
+                "desert caravan, dry steppe and stony waste"),
+            "Camels", usages: udder, combatStrategyKey: "Beast Artillery");
         yield return Mammal("Bear", "Ursine", "Toed Quadruped", SizeCategory.Large, 1.4, "Bear",
             "large-hooved", "bear",
             MammalPack("a bear cub", "a young male bear", "a young female bear", "a male bear", "a female bear",
@@ -332,6 +358,14 @@ public partial class AnimalSeeder
                 "It moves in quick, snaking bursts full of mischief and predatory interest.",
                 "burrows, barns and cramped passages"),
             combatStrategyKey: "Beast Skirmisher");
+        yield return Mammal("Stoat", "Stoat", "Toed Quadruped", SizeCategory.VerySmall, 0.15, "Mustelid",
+            "standard-mammal", "small-predator",
+            MammalPack("a stoat kit", "a young male stoat", "a young female stoat", "a male stoat", "a female stoat",
+                "It is slim, fine-boned and bright-eyed, with a narrow muzzle and a tail tipped in black.",
+                "Its little body is made for darting into holes after prey, and in cold regions its coat can pale almost to white.",
+                "It twitches with predatory focus despite its size, every movement fast and exact.",
+                "hedgerow, stone wall and snowy field"),
+            "Stoats", combatStrategyKey: "Beast Skirmisher");
         yield return Mammal("Weasel", "Weasel", "Toed Quadruped", SizeCategory.VerySmall, 0.2, "Mustelid",
             "standard-mammal", "small-predator",
             MammalPack("a weasel kit", "a young male weasel", "a young female weasel", "a male weasel", "a female weasel",
@@ -340,6 +374,30 @@ public partial class AnimalSeeder
                 "It gives the impression of restless, purposeful violence in miniature.",
                 "hedgerow, burrow and rough grass"),
             "Weasels", combatStrategyKey: "Beast Skirmisher");
+        yield return Mammal("Polecat", "Polecat", "Toed Quadruped", SizeCategory.VerySmall, 0.25, "Mustelid",
+            "standard-mammal", "small-predator",
+            MammalPack("a polecat kit", "a young male polecat", "a young female polecat", "a male polecat", "a female polecat",
+                "It is long-bodied and dark-masked, with coarse fur and a low, flexible frame.",
+                "Its face is pointed and expressive, and the whole animal has the musky look of something that would rather bite than be cornered.",
+                "It moves in low, sinuous bursts that make every tunnel and hedge-line look like cover.",
+                "hedgebank, rough pasture and ruin"),
+            "Polecats", combatStrategyKey: "Beast Skirmisher");
+        yield return Mammal("Mink", "Mink", "Toed Quadruped", SizeCategory.VerySmall, 0.25, "Mustelid",
+            "standard-mammal", "small-predator",
+            MammalPack("a mink kit", "a young male mink", "a young female mink", "a male mink", "a female mink",
+                "It is sleek and dark-furred, with a supple body, neat ears and bright, hard eyes.",
+                "Its long tail and slightly webbed feet hint at a hunter equally comfortable on bank or in water.",
+                "It gives off the quiet intent of a predator that has never needed to be large to be dangerous.",
+                "riverbank, marsh edge and reed-choked pool"),
+            "Minks", combatStrategyKey: "Beast Skirmisher");
+        yield return Mammal("Shrew", "Shrew", "Toed Quadruped", SizeCategory.Tiny, 0.1, "Small Rodent",
+            "tiny-fast", "small-predator",
+            MammalPack("a shrew pup", "a young male shrew", "a young female shrew", "a male shrew", "a female shrew",
+                "It is tiny and sharp-snouted, with velvety fur and a body that seems perpetually in motion.",
+                "Its needle teeth and frantic little paws make it look far too fierce for something so small.",
+                "It lives at a pitch of constant hunger and nervous violence, never still for long.",
+                "leaf litter, root tangle and damp grass"),
+            "Shrews", combatStrategyKey: "Beast Skirmisher");
         yield return Mammal("Badger", "Badger", "Toed Quadruped", SizeCategory.Small, 0.8, "Mustelid",
             "standard-mammal", "small-predator",
             MammalPack("a badger cub", "a young boar badger", "a young sow badger", "a boar badger", "a sow badger",

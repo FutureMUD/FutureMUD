@@ -35,10 +35,10 @@ public class MythicalAnimalSeederTemplateTests
     }
 
     [TestMethod]
-    public void TemplatesForTesting_ExpandedCatalogue_HasTwentyNineEntries()
+    public void TemplatesForTesting_ExpandedCatalogue_HasThirtySixEntries()
     {
-        Assert.AreEqual(29, MythicalAnimalSeeder.TemplatesForTesting.Count,
-            "The mythical catalogue should now include the seven additional beast templates.");
+        Assert.AreEqual(36, MythicalAnimalSeeder.TemplatesForTesting.Count,
+            "The mythical catalogue should now include the worm-beasts, tree-spirits, and giant arthropod additions.");
     }
 
     [TestMethod]
@@ -539,12 +539,26 @@ public class MythicalAnimalSeederTemplateTests
             "Dire-bears should reuse the stock bear-compatible quadruped body.");
         Assert.AreEqual("Beetle", MythicalAnimalSeeder.TemplatesForTesting["Giant Beetle"].BodyKey,
             "Giant beetles should use the dedicated beetle body.");
+        Assert.AreEqual("Insectoid", MythicalAnimalSeeder.TemplatesForTesting["Giant Ant"].BodyKey,
+            "Giant ants should reuse the shared insectoid body.");
         Assert.AreEqual("Insectoid", MythicalAnimalSeeder.TemplatesForTesting["Giant Mantis"].BodyKey,
             "Giant mantises should continue to use the shared insectoid body.");
+        Assert.AreEqual("Arachnid", MythicalAnimalSeeder.TemplatesForTesting["Giant Spider"].BodyKey,
+            "Giant spiders should use the shared arachnid body.");
+        Assert.AreEqual("Scorpion", MythicalAnimalSeeder.TemplatesForTesting["Giant Scorpion"].BodyKey,
+            "Giant scorpions should use the dedicated scorpion body.");
         Assert.AreEqual("Centipede", MythicalAnimalSeeder.TemplatesForTesting["Giant Centipede"].BodyKey,
             "Giant centipedes should use the dedicated centipede body.");
         Assert.AreEqual("Centipede", MythicalAnimalSeeder.TemplatesForTesting["Ankheg"].BodyKey,
             "Ankhegs should use the dedicated centipede body.");
+        Assert.AreEqual("Vermiform", MythicalAnimalSeeder.TemplatesForTesting["Giant Worm"].BodyKey,
+            "Giant worms should reuse the stock vermiform body.");
+        Assert.AreEqual("Vermiform", MythicalAnimalSeeder.TemplatesForTesting["Colossal Worm"].BodyKey,
+            "Colossal worms should reuse the stock vermiform body.");
+        Assert.AreEqual("Organic Humanoid", MythicalAnimalSeeder.TemplatesForTesting["Ent"].BodyKey,
+            "Ents should reuse the stock organic humanoid body.");
+        Assert.AreEqual("Organic Humanoid", MythicalAnimalSeeder.TemplatesForTesting["Dryad"].BodyKey,
+            "Dryads should reuse the stock organic humanoid body.");
     }
 
     [TestMethod]
@@ -559,7 +573,10 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("Beast Brawler", MythicalAnimalSeeder.TemplatesForTesting["Dire-Wolf"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Dire-Bear"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Giant Beetle"].CombatStrategyKey);
+        Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Giant Ant"].CombatStrategyKey);
         Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Giant Mantis"].CombatStrategyKey);
+        Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Giant Spider"].CombatStrategyKey);
+        Assert.AreEqual("Beast Brawler", MythicalAnimalSeeder.TemplatesForTesting["Giant Scorpion"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Giant Centipede"].CombatStrategyKey);
         Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Ankheg"].CombatStrategyKey);
         Assert.AreEqual("Melee (Auto)", MythicalAnimalSeeder.TemplatesForTesting["Centaur"].CombatStrategyKey);
@@ -580,6 +597,7 @@ public class MythicalAnimalSeederTemplateTests
                 "Naga",
                 "Mermaid",
                 "Selkie",
+                "Dryad",
                 "Owlkin",
                 "Avian Person",
                 "Centaur"
@@ -604,6 +622,11 @@ public class MythicalAnimalSeederTemplateTests
         Assert.IsTrue(
             myconid.AdditionalCharacteristics?.Any(x => x.DefinitionName == "Fungus Colour") == true,
             "Myconids should keep their legacy fungus colour characteristic.");
+
+        MythicalAnimalSeeder.MythicalRaceTemplate ent = MythicalAnimalSeeder.TemplatesForTesting["Ent"];
+        Assert.IsTrue(
+            ent.AdditionalCharacteristics?.Any(x => x.DefinitionName == "Bark Tone") == true,
+            "Ents should expose their bark-tone characteristic.");
 
         MythicalAnimalSeeder.MythicalRaceTemplate dragon = MythicalAnimalSeeder.TemplatesForTesting["Dragon"];
         Assert.IsTrue(
@@ -656,6 +679,17 @@ public class MythicalAnimalSeederTemplateTests
                 .Distinct()
                 .ToArray(),
             "Ankhegs should deliver acid spit through their mandibles.");
+
+        MythicalAnimalSeeder.MythicalRaceTemplate giantScorpion = MythicalAnimalSeeder.TemplatesForTesting["Giant Scorpion"];
+        CollectionAssert.Contains(giantScorpion.Attacks.Select(x => x.AttackName).ToList(), "Tail Spike");
+        CollectionAssert.AreEquivalent(
+            new[] { "stinger" },
+            giantScorpion.Attacks
+                .Where(x => x.AttackName == "Tail Spike")
+                .SelectMany(x => x.BodypartAliases)
+                .Distinct()
+                .ToArray(),
+            "Giant scorpions should deliver their tail spike through the stinger bodypart.");
     }
 
     [TestMethod]

@@ -53,12 +53,24 @@ public partial class AnimalSeeder
                 "Its toes look oddly adept at gripping stone and wall alike.",
                 "It seems made for sudden darting movement and impossible perches.",
                 "warm wall, tree trunk and night garden"));
+        yield return Reptile("Skink", "Reptilian", SizeCategory.VerySmall, 0.12, "Reptilian", "reptile", "reptile",
+            ReptilePack("a hatchling skink", "a young skink", "a skink",
+                "It is smooth-scaled and glossy, with a narrow wedge of a head and a quick, shining body.",
+                "Its tiny limbs and glassy scales make it look like something poured from bronze and taught to run.",
+                "It flickers between cover and sunlight in nervous bursts of speed.",
+                "leaf litter, warm stone and dry scrub"));
         yield return Reptile("Iguana", "Reptilian", SizeCategory.Small, 0.4, "Reptilian", "reptile", "reptile",
             ReptilePack("a hatchling iguana", "a young iguana", "an iguana",
                 "It is long and scaled, with a dewlap at the throat and a ridged crest along the back.",
                 "Its tail and claws suggest a powerful climber with no wish to be handled.",
                 "It has the sleepy arrogance of a sunning reptile entirely confident in its own indifference.",
                 "branch, warm rock and humid woodland"));
+        yield return Reptile("Monitor Lizard", "Reptilian", SizeCategory.Small, 0.7, "Reptilian", "reptile", "reptile",
+            ReptilePack("a hatchling monitor lizard", "a young monitor lizard", "a monitor lizard",
+                "It is long-necked and powerfully built, with a muscular tail and a head that looks all teeth and suspicion.",
+                "Its claws and heavy body suggest a reptile equally capable of digging, climbing and tearing at prey.",
+                "It moves with deliberate confidence, as though it expects smaller creatures to yield the path.",
+                "river margin, dry woodland and broken rock"));
         yield return Reptile("Turtle", "Reptilian", SizeCategory.Small, 0.5, "Chelonian", "chelonian", "reptile",
             ReptilePack("a hatchling turtle", "a young turtle", "a turtle",
                 "It is shell-backed and deliberate, with a broad body housed beneath a domed carapace.",

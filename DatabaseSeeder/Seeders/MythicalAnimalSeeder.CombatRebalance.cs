@@ -124,8 +124,20 @@ public partial class MythicalAnimalSeeder
 				break;
 			case "Insectoid":
 				yield return _insectoidBody;
+				yield return _arachnidBody;
+				yield return _scorpionBody;
 				yield return _beetleBody;
 				yield return _centipedeBody;
+				break;
+			case "Arachnid":
+				yield return _arachnidBody;
+				yield return _scorpionBody;
+				yield return _insectoidBody;
+				yield return _centipedeBody;
+				break;
+			case "Vermiform":
+				yield return _vermiformBody;
+				yield return _serpentineBody;
 				break;
 			case "Beetle":
 				yield return _beetleBody;
@@ -136,6 +148,12 @@ public partial class MythicalAnimalSeeder
 				yield return _centipedeBody;
 				yield return _insectoidBody;
 				yield return _beetleBody;
+				break;
+			case "Scorpion":
+				yield return _scorpionBody;
+				yield return _arachnidBody;
+				yield return _insectoidBody;
+				yield return _centipedeBody;
 				break;
 			case "Eastern Dragon":
 			case "Griffin":
@@ -162,6 +180,7 @@ public partial class MythicalAnimalSeeder
 				yield return _ungulateBody;
 				yield return _avianBody;
 				yield return _insectoidBody;
+				yield return _arachnidBody;
 				yield return _beetleBody;
 				yield return _centipedeBody;
 				yield return _vermiformBody;

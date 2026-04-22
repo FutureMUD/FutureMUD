@@ -9,6 +9,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Health;
+using MudSharp.Health.Breathing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -376,52 +377,58 @@ public partial class Body
 			InstallProsthetic(prosthetic);
 		}
 
-		RecalculatePartsAndOrgans();
-		RecalculateItemHelpers();
-
-		foreach (var wornPlan in plan.WornItems)
+		ExecuteWithSuppressedHealthFeedback(() =>
 		{
-			if (wornPlan.IsRestraint)
+			RecalculatePartsAndOrgans();
+			RecalculateItemHelpers();
+
+			foreach (var wornPlan in plan.WornItems)
 			{
-				ApplyTransferredRestraint(wornPlan.Item, wornPlan.Profile);
-				continue;
+				if (wornPlan.IsRestraint)
+				{
+					ApplyTransferredRestraint(wornPlan.Item, wornPlan.Profile);
+					continue;
+				}
+
+				var holdable = wornPlan.Item.GetItemType<IHoldable>();
+				if (holdable is not null)
+				{
+					holdable.HeldBy = null;
+				}
+
+				if (!LoadtimeWear(wornPlan.Item, wornPlan.Profile))
+				{
+					DropTransferredItem(wornPlan.Item);
+				}
 			}
 
-			var holdable = wornPlan.Item.GetItemType<IHoldable>();
-			if (holdable is not null)
+			foreach (var wieldPlan in plan.WieldedItems)
 			{
-				holdable.HeldBy = null;
+				wieldPlan.Item.Get(this);
+				if (!LoadtimeWield(wieldPlan.Item, wieldPlan.Flags))
+				{
+					DropTransferredItem(wieldPlan.Item);
+				}
 			}
 
-			if (!LoadtimeWear(wornPlan.Item, wornPlan.Profile))
+			foreach (var heldItem in plan.HeldItems)
 			{
-				DropTransferredItem(wornPlan.Item);
+				heldItem.Get(this);
+				if (!LoadtimeGet(heldItem))
+				{
+					DropTransferredItem(heldItem);
+				}
 			}
-		}
 
-		foreach (var wieldPlan in plan.WieldedItems)
-		{
-			wieldPlan.Item.Get(this);
-			if (!LoadtimeWield(wieldPlan.Item, wieldPlan.Flags))
-			{
-				DropTransferredItem(wieldPlan.Item);
-			}
-		}
-
-		foreach (var heldItem in plan.HeldItems)
-		{
-			heldItem.Get(this);
-			if (!LoadtimeGet(heldItem))
-			{
-				DropTransferredItem(heldItem);
-			}
-		}
-
-		ApplyTransferredEffects(plan);
-		ReevaluateLimbAndPartDamageEffects();
-		CheckDrugTick();
-		CheckHealthStatus();
-		CheckConsequences();
+			ApplyTransferredEffects(plan);
+			ScheduleCachedEffects();
+			StartStaminaTick();
+			StartHealthTick(true);
+			ReevaluateLimbAndPartDamageEffects();
+			CheckDrugTick();
+			CheckHealthStatus();
+			CheckConsequences();
+		});
 
 		source.ResetDormantFormState();
 	}
@@ -611,6 +618,11 @@ public partial class Body
 
 	private void ResetDormantFormState()
 	{
+		EndStaminaTick(true);
+		EndDrugTick();
+		EndHealthTick();
+		CacheScheduledEffects();
+		_breathingStrategy = new NonBreather();
 		ClearTransferableEffects();
 		ClearDirectInventoryState();
 		ClearImplantsAndProsthetics();
@@ -633,8 +645,11 @@ public partial class Body
 		CurrentExertion = ExertionLevel.Rest;
 		LongtermExertion = ExertionLevel.Rest;
 		StaminaChanged = true;
-		CheckDrugTick();
-		CheckHealthStatus();
+		ExecuteWithSuppressedHealthFeedback(() =>
+		{
+			CalculateOrganFunctions(true);
+			ReevaluateLimbAndPartDamageEffects();
+		});
 		Changed = true;
 	}
 }

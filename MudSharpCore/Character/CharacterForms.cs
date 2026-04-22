@@ -400,10 +400,10 @@ public partial class Character
 		try
 		{
 			PrepareForBodySwitch();
-			oldBody.SuspendForCharacter();
 			Body = newBody;
 			newBody.ActivateForCharacter();
 			newBody.ApplySwitchPlan(switchPlan);
+			oldBody.SuspendForCharacter();
 			_handedness = Body.Handedness;
 			_gender = Body.Gender;
 			PostProcessBodySwitch();

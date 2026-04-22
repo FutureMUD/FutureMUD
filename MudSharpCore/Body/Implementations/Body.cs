@@ -486,10 +486,16 @@ public partial class Body : PerceiverItem, IBody
     public void ActivateForCharacter()
     {
         Controller = Actor?.CharacterController;
+        _breathingStrategy = Race.BreathingStrategy;
     }
 
     public void SuspendForCharacter()
     {
+        EndStaminaTick(true);
+        EndDrugTick();
+        EndHealthTick();
+        CacheScheduledEffects();
+        _breathingStrategy = new NonBreather();
         Controller = null;
     }
 

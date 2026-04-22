@@ -39,6 +39,7 @@ public partial class Body
     public event WoundEvent OnRemoveWound;
 
     private IHealthStrategy _healthStrategy = null;
+    private int _suppressHealthFeedbackDepth;
 
     private readonly List<IInfection> _partInfections = new();
     private readonly List<IWound> _wounds = new();
@@ -134,6 +135,21 @@ public partial class Body
         CheckBodypartDamage();
         CalculateOrganFunctions();
     }
+
+    internal void ExecuteWithSuppressedHealthFeedback(Action action)
+    {
+        _suppressHealthFeedbackDepth++;
+        try
+        {
+            action();
+        }
+        finally
+        {
+            _suppressHealthFeedbackDepth--;
+        }
+    }
+
+    private bool SuppressHealthFeedback => _suppressHealthFeedbackDepth > 0;
 
     public IEnumerable<IWound> GetWoundsForLimb(ILimb limb)
     {
@@ -341,7 +357,7 @@ public partial class Body
                 {
                     _cachedOrganFunctionsByOrgan[organ] = 0.0;
                     _cachedOrganFunctionsByType[organ.GetType()] = 0.0;
-                    if (!initialCalculation)
+                    if (!initialCalculation && !SuppressHealthFeedback)
                     {
                         organ.HandleChangedOrganFunction(this, oldCached[organ], 0.0);
                     }
@@ -358,7 +374,7 @@ public partial class Body
                     effectBonuses[organ].Sum();
             _cachedOrganFunctionsByOrgan[organ] = bonus;
             _cachedOrganFunctionsByType[organ.GetType()] += bonus;
-            if (!initialCalculation)
+            if (!initialCalculation && !SuppressHealthFeedback)
             {
                 organ.HandleChangedOrganFunction(this, oldCached[organ], bonus);
             }
@@ -1609,12 +1625,18 @@ public partial class Body
                     Actor.State &= ~CharacterState.Unconscious;
                     if (Actor.State.HasFlag(CharacterState.Sleeping))
                     {
-                        Actor.OutputHandler.Send(Gameworld.GetStaticString("ComeToSleepingStillParalysedEcho"));
+                        if (!SuppressHealthFeedback)
+                        {
+                            Actor.OutputHandler.Send(Gameworld.GetStaticString("ComeToSleepingStillParalysedEcho"));
+                        }
                     }
                     else
                     {
-                        Actor.OutputHandler.Handle(
-                            new EmoteOutput(new Emote(Gameworld.GetStaticString("ComeToStillParalysedEcho"), Actor)));
+                        if (!SuppressHealthFeedback)
+                        {
+                            Actor.OutputHandler.Handle(
+                                new EmoteOutput(new Emote(Gameworld.GetStaticString("ComeToStillParalysedEcho"), Actor)));
+                        }
                     }
                 }
 
@@ -1624,9 +1646,12 @@ public partial class Body
                 }
 
                 Actor.State |= CharacterState.Paralysed;
-                Actor.OutputHandler.Send("");
-                Actor.OutputHandler.Handle(
-                    new EmoteOutput(new Emote(Gameworld.GetStaticString("ParalysedEcho"), Actor)));
+                if (!SuppressHealthFeedback)
+                {
+                    Actor.OutputHandler.Send("");
+                    Actor.OutputHandler.Handle(
+                        new EmoteOutput(new Emote(Gameworld.GetStaticString("ParalysedEcho"), Actor)));
+                }
                 break;
             case HealthTickResult.Dead:
                 if (Actor.State.HasFlag(CharacterState.Dead))
@@ -1643,8 +1668,11 @@ public partial class Body
                 }
 
                 Actor.State |= CharacterState.Unconscious;
-                Actor.OutputHandler.Handle(new EmoteOutput(new Emote(Gameworld.GetStaticString("FallUnconsciousEcho"),
-                    Actor)));
+                if (!SuppressHealthFeedback)
+                {
+                    Actor.OutputHandler.Handle(new EmoteOutput(new Emote(Gameworld.GetStaticString("FallUnconsciousEcho"),
+                        Actor)));
+                }
                 if (Actor.PositionState.Upright)
                 {
                     Actor.DoFallOffHorse();
@@ -1688,7 +1716,10 @@ public partial class Body
                 }
 
                 Actor.State |= CharacterState.Unconscious;
-                Actor.OutputHandler.Handle(new EmoteOutput(new Emote(Gameworld.GetStaticString("PassOutEcho"), Actor)));
+                if (!SuppressHealthFeedback)
+                {
+                    Actor.OutputHandler.Handle(new EmoteOutput(new Emote(Gameworld.GetStaticString("PassOutEcho"), Actor)));
+                }
                 if (Actor.PositionState.Upright)
                 {
                     if (Actor.RidingMount is null)
@@ -1713,8 +1744,11 @@ public partial class Body
             case HealthTickResult.None:
                 if (Actor.State.HasFlag(CharacterState.Paralysed))
                 {
-                    Actor.OutputHandler.Handle(
-                        new EmoteOutput(new Emote(Gameworld.GetStaticString("NoLongerParalysedEcho"), Actor)));
+                    if (!SuppressHealthFeedback)
+                    {
+                        Actor.OutputHandler.Handle(
+                            new EmoteOutput(new Emote(Gameworld.GetStaticString("NoLongerParalysedEcho"), Actor)));
+                    }
                     Actor.State &= ~CharacterState.Paralysed;
                 }
 
@@ -1723,12 +1757,18 @@ public partial class Body
                     Actor.State &= ~CharacterState.Unconscious;
                     if (Actor.State.HasFlag(CharacterState.Sleeping))
                     {
-                        Actor.OutputHandler.Send(Gameworld.GetStaticString("ComeToSleepingEcho"));
+                        if (!SuppressHealthFeedback)
+                        {
+                            Actor.OutputHandler.Send(Gameworld.GetStaticString("ComeToSleepingEcho"));
+                        }
                         return;
                     }
 
-                    Actor.OutputHandler.Handle(
-                        new EmoteOutput(new Emote(Gameworld.GetStaticString("ComeToEcho"), Actor)));
+                    if (!SuppressHealthFeedback)
+                    {
+                        Actor.OutputHandler.Handle(
+                            new EmoteOutput(new Emote(Gameworld.GetStaticString("ComeToEcho"), Actor)));
+                    }
                 }
 
                 break;

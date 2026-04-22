@@ -2,6 +2,7 @@
 using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
+using MudSharp.Body.Traits;
 using MudSharp.Character.Heritage;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
@@ -62,6 +63,15 @@ namespace MudSharp.Character
         Any = int.MaxValue
     }
 
+    public enum BodySwitchIntent
+    {
+        Voluntary = 0,
+        Scripted = 1,
+        Forced = 2
+    }
+
+    public delegate void CurrentBodyChangedEvent(ICharacter actor, IBody oldBody, IBody newBody);
+
     public interface ICollect
     {
         IEnumerable<IGameItem> Inventory { get; }
@@ -103,6 +113,17 @@ namespace MudSharp.Character
     {
         IBody Body { get; }
         Alignment Handedness { get; }
+    }
+
+    public interface ICharacterForm
+    {
+        IBody Body { get; }
+        string Alias { get; set; }
+        int SortOrder { get; set; }
+        bool AllowVoluntarySwitch { get; set; }
+        IFutureProg CanVoluntarilySwitchProg { get; set; }
+        IFutureProg WhyCannotVoluntarilySwitchProg { get; set; }
+        bool CanSwitchVoluntarily(ICharacter character, out string whyNot);
     }
 
     public interface ICommunicate
@@ -322,6 +343,10 @@ namespace MudSharp.Character
         IHaveOutfits, ISwim, IFly, IClimb, IHavePersonalProjects, ITarget, ICanBeEmployed, IMountable
     {
         ICharacterController CharacterController { get; }
+        IEnumerable<ICharacterForm> Forms { get; }
+        IEnumerable<IBody> Bodies { get; }
+        IEnumerable<ITrait> CharacterTraits { get; }
+        IBody CurrentBody { get; }
         bool TryToDetermineIdentity(ICharacter observer);
         ICorpse Corpse { get; set; }
         bool IsGuest { get; }
@@ -353,6 +378,7 @@ namespace MudSharp.Character
         double TrackingAbilityOlfactory { get; }
         bool BriefRoomDescs { get; set; }
         event PerceivableEvent OnStateChanged;
+        event CurrentBodyChangedEvent CurrentBodyChanged;
         bool IsAdministrator(PermissionLevel level = PermissionLevel.JuniorAdmin);
         void ChangePermissionLevel(PermissionLevel newLevel);
 
@@ -399,6 +425,8 @@ namespace MudSharp.Character
         string DebugInfo();
         void SetNoControllerTags(string text);
         void SetGender(Gender gender);
+        bool CanSwitchBody(IBody target, BodySwitchIntent intent, out string whyNot);
+        bool SwitchToBody(IBody target, BodySwitchIntent intent);
 
         ICharacterTemplate GetCharacterTemplate();
 

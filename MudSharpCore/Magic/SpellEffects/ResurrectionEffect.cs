@@ -144,12 +144,12 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
 
         if (HealWounds)
         {
-            corpse.OriginalCharacter.Body.CureAllWounds();
+            corpse.Body.CureAllWounds();
         }
 
         if (RestoreSevers)
         {
-            corpse.OriginalCharacter.Body.RestoreAllBodypartsOrgansAndBones();
+            corpse.Body.RestoreAllBodypartsOrgansAndBones();
         }
 
         corpse.OriginalCharacter.Resurrect(caster.Location);

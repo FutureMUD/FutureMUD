@@ -47,7 +47,8 @@ public class BodypartGameItemComponentProto : GameItemComponentProto
                 "When trying to create a severed bodypart, there was no bodypart component on the bodypart prototype.");
         }
 
-        severedItem.OriginalCharacterId = character.Id;
+        severedItem.OriginalCharacter = character;
+        severedItem.OriginalBody = character.Body;
         severedItem.Parts = parts;
         severedItem.Implants = implants;
         severedItem.Bones = bones;

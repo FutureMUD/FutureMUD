@@ -43,6 +43,7 @@ public class CorpseGameItemComponentProto : GameItemComponentProto
         }
 
         corpseItem.OriginalCharacter = character;
+        corpseItem.OriginalBody = character.Body;
         corpseItem.Model = character.Race.CorpseModel;
         corpseItem.Parent.RoomLayer = character.RoomLayer;
         corpseItem.Changed = true;

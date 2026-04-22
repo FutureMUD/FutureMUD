@@ -1153,6 +1153,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Gender).HasColumnType("smallint(6)");
 
+                entity.Property(e => e.DominantHandAlignment)
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'3'");
+
                 entity.Property(e => e.HeldBreathLength).HasColumnType("int(11)");
 
                 entity.Property(e => e.Position).HasColumnType("bigint(20)");
@@ -1203,6 +1207,63 @@ namespace MudSharp.Database
                     .WithMany(p => p.BodiesShortDescriptionPattern)
                     .HasForeignKey(d => d.ShortDescriptionPatternId)
                     .HasConstraintName("FK_Bodies_EntityDescriptionPatterns_Short");
+            });
+
+            modelBuilder.Entity<CharacterBody>(entity =>
+            {
+                entity.HasKey(e => new { e.CharacterId, e.BodyId })
+                    .HasName("PRIMARY");
+
+                entity.HasIndex(e => e.BodyId)
+                    .HasDatabaseName("FK_CharacterBodies_Bodies_idx");
+
+                entity.HasIndex(e => e.CanVoluntarilySwitchProgId)
+                    .HasDatabaseName("FK_CharacterBodies_CanVoluntarilySwitchProg_idx");
+
+                entity.HasIndex(e => e.WhyCannotVoluntarilySwitchProgId)
+                    .HasDatabaseName("FK_CharacterBodies_WhyCannotVoluntarilySwitchProg_idx");
+
+                entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.BodyId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.Alias)
+                    .IsRequired()
+                    .HasColumnType("varchar(255)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.SortOrder).HasColumnType("int(11)");
+
+                entity.Property(e => e.AllowVoluntarySwitch)
+                    .HasColumnType("bit(1)")
+                    .HasDefaultValueSql("b'0'");
+
+                entity.Property(e => e.CanVoluntarilySwitchProgId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.WhyCannotVoluntarilySwitchProgId).HasColumnType("bigint(20)");
+
+                entity.HasOne(d => d.Body)
+                    .WithMany(p => p.CharacterBodies)
+                    .HasForeignKey(d => d.BodyId)
+                    .HasConstraintName("FK_CharacterBodies_Bodies");
+
+                entity.HasOne(d => d.Character)
+                    .WithMany(p => p.CharacterBodies)
+                    .HasForeignKey(d => d.CharacterId)
+                    .HasConstraintName("FK_CharacterBodies_Characters");
+
+                entity.HasOne(d => d.CanVoluntarilySwitchProg)
+                    .WithMany()
+                    .HasForeignKey(d => d.CanVoluntarilySwitchProgId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_CharacterBodies_CanVoluntarilySwitchProg");
+
+                entity.HasOne(d => d.WhyCannotVoluntarilySwitchProg)
+                    .WithMany()
+                    .HasForeignKey(d => d.WhyCannotVoluntarilySwitchProgId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_CharacterBodies_WhyCannotVoluntarilySwitchProg");
             });
 
             modelBuilder.Entity<BodyDrugDose>(entity =>

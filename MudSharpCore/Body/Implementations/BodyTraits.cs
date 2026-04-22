@@ -21,6 +21,11 @@ public partial class Body
 
     public double TraitValue(ITraitDefinition definition, TraitBonusContext context = TraitBonusContext.None)
     {
+        if (definition.OwnerScope == TraitOwnerScope.Character)
+        {
+            return Actor.TraitValue(definition, context);
+        }
+
         ITrait trait = _traits.FirstOrDefault(x => x.Definition == definition);
         double baseValue = trait?.Value ?? 0.0;
         baseValue +=
@@ -51,6 +56,11 @@ public partial class Body
 
     public bool AddTrait(ITraitDefinition trait, double value)
     {
+        if (trait.OwnerScope == TraitOwnerScope.Character)
+        {
+            return Actor.AddTrait(trait, value);
+        }
+
         if (_traits.Any(x => x.Definition == trait))
         {
             return false;
@@ -69,6 +79,11 @@ public partial class Body
 
     public bool RemoveTrait(ITraitDefinition trait)
     {
+        if (trait.OwnerScope == TraitOwnerScope.Character)
+        {
+            return Actor.RemoveTrait(trait);
+        }
+
         if (_traits.All(x => x.Definition != trait))
         {
             return false;
@@ -97,6 +112,11 @@ public partial class Body
 
     public bool SetTraitValue(ITraitDefinition trait, double value)
     {
+        if (trait.OwnerScope == TraitOwnerScope.Character)
+        {
+            return Actor.SetTraitValue(trait, value);
+        }
+
         ITrait bodyTrait = _traits.FirstOrDefault(x => x.Definition == trait);
         if (bodyTrait == null)
         {
@@ -111,6 +131,11 @@ public partial class Body
 
     public double TraitRawValue(ITraitDefinition trait)
     {
+        if (trait.OwnerScope == TraitOwnerScope.Character)
+        {
+            return Actor.TraitRawValue(trait);
+        }
+
         return _traits.FirstOrDefault(x => x.Definition == trait)?.Value ?? 0.0;
     }
 
@@ -135,11 +160,21 @@ public partial class Body
 
     public bool HasTrait(ITraitDefinition trait)
     {
+        if (trait.OwnerScope == TraitOwnerScope.Character)
+        {
+            return Actor.HasTrait(trait);
+        }
+
         return _traits.Any(x => x.Definition == trait);
     }
 
     public ITrait GetTrait(ITraitDefinition definition)
     {
+        if (definition.OwnerScope == TraitOwnerScope.Character)
+        {
+            return Actor.GetTrait(definition);
+        }
+
         return _traits.FirstOrDefault(x => x.Definition == definition);
     }
 
@@ -148,11 +183,11 @@ public partial class Body
         return trait.Decorator.Decorate(GetTrait(trait));
     }
 
-    public IEnumerable<ITrait> Traits => _traits;
+    public IEnumerable<ITrait> Traits => _traits.Concat(Actor?.CharacterTraits ?? Enumerable.Empty<ITrait>());
 
     public IEnumerable<ITrait> TraitsOfType(TraitType type)
     {
-        return _traits.Where(x => x.Definition.TraitType == type);
+        return Traits.Where(x => x.Definition.TraitType == type);
     }
 
     #endregion

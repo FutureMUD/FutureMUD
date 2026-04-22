@@ -335,7 +335,7 @@ public partial class Body : IHaveNeeds, IEat
             witness.HandleEvent(EventType.CharacterEatWitness, Actor, witness, corpse.Parent, bites, bitesLeft);
         }
 
-        if (corpse.RemainingEdibleWeight <= 0.0 && Actor.SizeStanding - corpse.OriginalCharacter.SizeStanding >= 3)
+        if (corpse.RemainingEdibleWeight <= 0.0 && Actor.SizeStanding - corpse.Body.SizeStanding >= 3)
         {
             corpse.Parent.Delete();
         }
@@ -383,7 +383,7 @@ public partial class Body : IHaveNeeds, IEat
             witness.HandleEvent(EventType.CharacterEatWitness, Actor, witness, bodypart.Parent, bites, bitesLeft);
         }
 
-        if (bodypart.RemainingEdibleWeight <= 0.0 && Actor.SizeStanding - bodypart.OriginalCharacter.SizeStanding >= 2)
+        if (bodypart.RemainingEdibleWeight <= 0.0 && Actor.SizeStanding - bodypart.OriginalBody.SizeStanding >= 2)
         {
             bodypart.Parent.Delete();
         }

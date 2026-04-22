@@ -39,6 +39,7 @@ namespace MudSharp.Body
         IBodyPrototype Prototype { get; }
 
         ICharacter Actor { get; set; }
+        Alignment Handedness { get; set; }
 
         IController Controller { get; }
 
@@ -98,6 +99,9 @@ namespace MudSharp.Body
         /// </summary>
         /// <returns></returns>
         void Quit();
+        void ActivateForCharacter();
+        void SuspendForCharacter();
+        void DestroyBody();
 
         string GetConsiderString(IPerceiver voyeur);
         string GetPositionDescription(IPerceiver voyeur, bool proper, bool colour, PerceiveIgnoreFlags flags);

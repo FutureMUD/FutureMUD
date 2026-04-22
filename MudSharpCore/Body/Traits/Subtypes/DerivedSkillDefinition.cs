@@ -17,6 +17,7 @@ public class DerivedSkillDefinition : DerivedTraitDefinition, ISkillDefinition
 {
     public DerivedSkillDefinition(Models.TraitDefinition trait, IFuturemud game) : base(trait, game)
     {
+        OwnerScope = TraitOwnerScope.Character;
     }
 
     #region Overrides of SaveableItem
@@ -27,6 +28,7 @@ public class DerivedSkillDefinition : DerivedTraitDefinition, ISkillDefinition
         dbitem.Name = Name;
         dbitem.TraitGroup = Group;
         dbitem.Type = (int)TraitType;
+        dbitem.OwnerScope = (int)TraitOwnerScope.Character;
         dbitem.DerivedType = 0;
         dbitem.Alias = string.Empty;
         dbitem.AvailabilityProgId = AvailabilityProg.Id;

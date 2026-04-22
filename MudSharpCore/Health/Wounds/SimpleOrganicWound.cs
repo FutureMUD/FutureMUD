@@ -195,6 +195,9 @@ public class SimpleOrganicWound : PerceivedItem, IWound
             Wound dbitem = FMDB.Context.Wounds.Find(Id);
             if (dbitem != null)
             {
+                dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+                dbitem.GameItemId = (Parent as IGameItem)?.Id;
+                dbitem.BodypartProtoId = Bodypart?.Id;
                 dbitem.CurrentDamage = _currentDamage;
                 dbitem.OriginalDamage = OriginalDamage;
                 dbitem.CurrentPain = _currentPain;
@@ -721,6 +724,15 @@ public class SimpleOrganicWound : PerceivedItem, IWound
         }
 
         _parent = newOwner;
+    }
+
+    public void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart)
+    {
+        _parent = newOwner;
+        _bodypart = newBodypart;
+        SeveredBodypart = newSeveredBodypart;
+        _infection?.RemapTo((newOwner as ICharacter)?.Body, this, newBodypart);
+        Changed = true;
     }
 
     public void SufferAdditionalDamage(IDamage damage)

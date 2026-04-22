@@ -409,6 +409,9 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
             Wound dbitem = FMDB.Context.Wounds.Find(Id);
             if (dbitem != null)
             {
+                dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+                dbitem.GameItemId = (Parent as IGameItem)?.Id;
+                dbitem.BodypartProtoId = Bodypart?.Id;
                 dbitem.CurrentDamage = CurrentDamage;
                 dbitem.OriginalDamage = OriginalDamage;
                 dbitem.CurrentPain = _currentPain;
@@ -507,6 +510,15 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         }
 
         _parent = newOwner as ICharacter;
+    }
+
+    public void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart)
+    {
+        _parent = newOwner as ICharacter;
+        Bodypart = newBodypart;
+        SeveredBodypart = newSeveredBodypart;
+        Infection?.RemapTo(_parent?.Body, this, newBodypart);
+        Changed = true;
     }
 
     private IBodypart _bodypart;

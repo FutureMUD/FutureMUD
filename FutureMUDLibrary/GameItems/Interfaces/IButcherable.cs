@@ -11,6 +11,8 @@ namespace MudSharp.GameItems.Interfaces
     public interface IButcherable : IGameItemComponent
     {
         ICharacter OriginalCharacter { get; }
+        long OriginalBodyId { get; }
+        IBody OriginalBody { get; }
         DecayState Decay { get; }
         IEnumerable<IBodypart> Parts { get; }
 

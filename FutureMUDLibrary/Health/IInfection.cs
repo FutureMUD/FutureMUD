@@ -43,6 +43,7 @@ namespace MudSharp.Health
         void Spread(Outcome outcome);
         bool InfectionHealed();
         void Delete();
+        void RemapTo(IBody newOwner, IWound newWound, IBodypart newBodypart);
         string WoundTag(WoundExaminationType examType, Outcome outcome);
 
         bool InfectionIsDamaging();

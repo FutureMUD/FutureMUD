@@ -256,7 +256,7 @@ public class ReplantationProcedure : BodypartSpecificSurgicalProcedure
             return false;
         }
 
-        if (severItem.OriginalCharacter.Body.Prototype != patient.Body.Prototype)
+        if (severItem.OriginalBody.Prototype != patient.Body.Prototype)
         {
             return false;
         }
@@ -299,7 +299,7 @@ public class ReplantationProcedure : BodypartSpecificSurgicalProcedure
             return $"{item.HowSeen(surgeon, true)} is not a severed bodypart and so cannot be replanted.";
         }
 
-        if (severItem.OriginalCharacter.Body.Prototype != patient.Body.Prototype)
+        if (severItem.OriginalBody.Prototype != patient.Body.Prototype)
         {
             return
                 $"{item.HowSeen(surgeon, true)} is too biologically incompatible with {patient.HowSeen(surgeon)}.";

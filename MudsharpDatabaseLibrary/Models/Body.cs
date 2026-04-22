@@ -13,6 +13,7 @@ namespace MudSharp.Models
             BodiesImplants = new HashSet<BodiesImplants>();
             BodiesProsthetics = new HashSet<BodiesProsthetics>();
             BodiesSeveredParts = new HashSet<BodiesSeveredParts>();
+            CharacterBodies = new HashSet<CharacterBody>();
             Characteristics = new HashSet<Characteristic>();
             Characters = new HashSet<Character>();
             HooksPerceivables = new HashSet<HooksPerceivable>();
@@ -34,6 +35,7 @@ namespace MudSharp.Models
         public long EthnicityId { get; set; }
         public long? BloodtypeId { get; set; }
         public short Gender { get; set; }
+        public int DominantHandAlignment { get; set; }
         public string ShortDescription { get; set; }
         public string FullDescription { get; set; }
         public long? ShortDescriptionPatternId { get; set; }
@@ -55,6 +57,7 @@ namespace MudSharp.Models
         public virtual ICollection<BodiesImplants> BodiesImplants { get; set; }
         public virtual ICollection<BodiesProsthetics> BodiesProsthetics { get; set; }
         public virtual ICollection<BodiesSeveredParts> BodiesSeveredParts { get; set; }
+        public virtual ICollection<CharacterBody> CharacterBodies { get; set; }
         public virtual ICollection<Characteristic> Characteristics { get; set; }
         public virtual ICollection<Character> Characters { get; set; }
         public virtual ICollection<HooksPerceivable> HooksPerceivables { get; set; }

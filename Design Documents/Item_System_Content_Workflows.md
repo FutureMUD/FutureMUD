@@ -196,6 +196,11 @@ That flag exists for content that should only enter the world through controlled
 - bodyparts
 - currency-style special cases
 
+For corpses and severed bodyparts, the controlled runtime path is also responsible for capturing source-body identity.
+- creation should record both the original character and the specific body instance that produced the remains
+- any later gameplay that inspects anatomy, wounds, inventory, or surgery compatibility on those remains should resolve through that stored source body, not through the character's current body
+- this matters now that characters can own multiple dormant forms and switch between them
+
 If a newly added component sets this flag, developers should verify the restriction is intentional and documented.
 
 ## Revision and Update Workflows

@@ -93,6 +93,9 @@ public class HealingSimpleWound : PerceivedItem, IWound
     public override void Save()
     {
         Wound dbitem = FMDB.Context.Wounds.Find(Id);
+        dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+        dbitem.GameItemId = (Parent as IGameItem)?.Id;
+        dbitem.BodypartProtoId = Bodypart?.Id;
         dbitem.CurrentDamage = CurrentDamage;
         dbitem.OriginalDamage = OriginalDamage;
         dbitem.LodgedItem = FMDB.Context.GameItems.Find(Lodged?.Id);
@@ -422,6 +425,14 @@ public class HealingSimpleWound : PerceivedItem, IWound
         }
 
         _parent = newOwner;
+    }
+
+    public void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart)
+    {
+        _parent = newOwner;
+        _bodypart = newBodypart;
+        SeveredBodypart = newSeveredBodypart;
+        Changed = true;
     }
 
     public bool UseDamagePercentageSeverities => false;

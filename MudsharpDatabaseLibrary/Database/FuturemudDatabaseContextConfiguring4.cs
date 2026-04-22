@@ -1293,6 +1293,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.LearnableProgId).HasColumnType("bigint(20)");
 
+                entity.Property(e => e.OwnerScope)
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnType("varchar(255)")
@@ -1340,6 +1344,29 @@ namespace MudSharp.Database
                     .HasForeignKey(d => d.TeachableProgId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_TraitDefinitions_TeachableProg");
+            });
+
+            modelBuilder.Entity<CharacterTrait>(entity =>
+            {
+                entity.HasKey(e => new { e.CharacterId, e.TraitDefinitionId })
+                    .HasName("PRIMARY");
+
+                entity.HasIndex(e => e.TraitDefinitionId)
+                    .HasDatabaseName("FK_CharacterTraits_TraitDefinitions");
+
+                entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.TraitDefinitionId).HasColumnType("bigint(20)");
+
+                entity.HasOne(d => d.Character)
+                    .WithMany(p => p.CharacterTraits)
+                    .HasForeignKey(d => d.CharacterId)
+                    .HasConstraintName("FK_CharacterTraits_Characters");
+
+                entity.HasOne(d => d.TraitDefinition)
+                    .WithMany(p => p.CharacterTraits)
+                    .HasForeignKey(d => d.TraitDefinitionId)
+                    .HasConstraintName("FK_CharacterTraits_TraitDefinitions");
             });
 
             modelBuilder.Entity<TraitDefinitionsChargenResources>(entity =>

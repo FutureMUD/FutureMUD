@@ -15,6 +15,7 @@ public class DerivedAttributeDefinition : DerivedTraitDefinition, IAttributeDefi
 {
     public DerivedAttributeDefinition(Models.TraitDefinition trait, IFuturemud game) : base(trait, game)
     {
+        OwnerScope = TraitOwnerScope.Body;
         Alias = trait.Alias;
         ChargenBlurb = trait.ChargenBlurb;
         DisplayAsSubAttribute = trait.DisplayAsSubAttribute;
@@ -25,6 +26,7 @@ public class DerivedAttributeDefinition : DerivedTraitDefinition, IAttributeDefi
 
     public DerivedAttributeDefinition(IFuturemud gameworld, string name, string alias) : base(gameworld)
     {
+        OwnerScope = TraitOwnerScope.Body;
         _name = name;
         Alias = alias;
         DisplayAsSubAttribute = false;
@@ -41,6 +43,7 @@ public class DerivedAttributeDefinition : DerivedTraitDefinition, IAttributeDefi
 
     protected DerivedAttributeDefinition(DerivedAttributeDefinition rhs, string name, string alias) : base(rhs.Gameworld)
     {
+        OwnerScope = TraitOwnerScope.Body;
         _name = name;
         Alias = alias;
         DisplayAsSubAttribute = rhs.DisplayAsSubAttribute;
@@ -74,6 +77,7 @@ public class DerivedAttributeDefinition : DerivedTraitDefinition, IAttributeDefi
             {
                 Name = Name,
                 Type = (int)Traits.TraitType.Attribute,
+                OwnerScope = (int)TraitOwnerScope.Body,
                 DecoratorId = Decorator.Id,
                 TraitGroup = Group,
                 DerivedType = 0,
@@ -114,6 +118,7 @@ public class DerivedAttributeDefinition : DerivedTraitDefinition, IAttributeDefi
         dbitem.Name = Name;
         dbitem.TraitGroup = Group;
         dbitem.Type = (int)TraitType;
+        dbitem.OwnerScope = (int)TraitOwnerScope.Body;
         dbitem.DerivedType = 0;
         dbitem.Alias = Alias;
         dbitem.TeachDifficulty = (int)Difficulty.Impossible;

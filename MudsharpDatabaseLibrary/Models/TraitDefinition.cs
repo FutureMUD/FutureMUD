@@ -15,6 +15,7 @@ namespace MudSharp.Models
             RangedWeaponTypesFireTrait = new HashSet<RangedWeaponTypes>();
             RangedWeaponTypesOperateTrait = new HashSet<RangedWeaponTypes>();
             ShieldTypes = new HashSet<ShieldType>();
+            CharacterTraits = new HashSet<CharacterTrait>();
             TraitDefinitionsChargenResources = new HashSet<TraitDefinitionsChargenResources>();
             TraitExpressionParameters = new HashSet<TraitExpressionParameters>();
             Traits = new HashSet<Trait>();
@@ -26,6 +27,7 @@ namespace MudSharp.Models
         public long Id { get; set; }
         public string Name { get; set; }
         public int Type { get; set; }
+        public int OwnerScope { get; set; }
         public long DecoratorId { get; set; }
         public string TraitGroup { get; set; }
         public int DerivedType { get; set; }
@@ -58,6 +60,7 @@ namespace MudSharp.Models
         public virtual ICollection<RangedWeaponTypes> RangedWeaponTypesFireTrait { get; set; }
         public virtual ICollection<RangedWeaponTypes> RangedWeaponTypesOperateTrait { get; set; }
         public virtual ICollection<ShieldType> ShieldTypes { get; set; }
+        public virtual ICollection<CharacterTrait> CharacterTraits { get; set; }
         public virtual ICollection<TraitDefinitionsChargenResources> TraitDefinitionsChargenResources { get; set; }
         public virtual ICollection<TraitExpressionParameters> TraitExpressionParameters { get; set; }
         public virtual ICollection<Trait> Traits { get; set; }

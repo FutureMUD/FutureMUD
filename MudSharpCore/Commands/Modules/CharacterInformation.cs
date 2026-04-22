@@ -4,6 +4,8 @@ using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Decorators;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
+using MudSharp.Accounts;
 using MudSharp.Communication.Language;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
@@ -17,6 +19,8 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Health;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -2014,11 +2018,39 @@ You can use the following options with this command:
 	#3body#0 - show all your bodyparts
 	#3body limbs#0 - show which limbs you have
 	#3body <limb>#0 - shows only bodyparts on the specified limb
-	#3body <target>#0 - for admins only, shows another person's bodyparts", AutoHelp.HelpArg)]
+	#3body <target>#0 - for admins only, shows another person's bodyparts
+
+Implementors can also use:
+
+	#3body addform <character> <race> [<ethnicity>] [<gender>]#0 - adds a dormant alternate form
+	#3body formset <character> <form> alias <alias>#0 - changes a form alias
+	#3body formset <character> <form> allow [true|false]#0 - toggles or sets voluntary switching
+	#3body formset <character> <form> canprog <prog>|clear#0 - sets or clears the voluntary-eligibility prog
+	#3body formset <character> <form> whycantprog <prog>|clear#0 - sets or clears the denial-message prog
+	#3body switch <character> <form>#0 - forcibly switches the character into that form", AutoHelp.HelpArg)]
     protected static void Body(ICharacter actor, string command)
     {
-        ICharacter target = actor;
         StringStack ss = new(command.RemoveFirstWord());
+        if (!ss.IsFinished && actor.IsAdministrator(PermissionLevel.Founder))
+        {
+            switch (ss.PeekSpeech().ToLowerInvariant())
+            {
+                case "addform":
+                    ss.PopSpeech();
+                    BodyAddForm(actor, ss);
+                    return;
+                case "formset":
+                    ss.PopSpeech();
+                    BodyFormSet(actor, ss);
+                    return;
+                case "switch":
+                    ss.PopSpeech();
+                    BodySwitch(actor, ss);
+                    return;
+            }
+        }
+
+        ICharacter target = actor;
         ILimb limb = null;
         StringBuilder sb = new();
         if (!ss.IsFinished)
@@ -2141,6 +2173,361 @@ You can use the following options with this command:
         }
 
         actor.Send(sb.ToString());
+    }
+
+    private const string FormCommandHelp = @"This command shows your available forms and allows voluntary switching between them.
+
+You can use the following options with this command:
+
+	#3form#0 - lists all of your forms
+	#3form <alias|id>#0 - attempts to switch to the selected form";
+
+    [PlayerCommand("Form", "form")]
+    [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("form", FormCommandHelp, AutoHelp.HelpArg)]
+    protected static void Form(ICharacter actor, string command)
+    {
+        StringStack ss = new(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            ShowForms(actor, actor);
+            return;
+        }
+
+        ICharacterForm form = ResolveForm(actor, ss.SafeRemainingArgument);
+        if (form is null)
+        {
+            actor.OutputHandler.Send("You do not have any form identified by that alias or id.");
+            return;
+        }
+
+        if (!actor.CanSwitchBody(form.Body, BodySwitchIntent.Voluntary, out var whyNot))
+        {
+            actor.OutputHandler.Send(whyNot);
+            return;
+        }
+
+        if (!actor.SwitchToBody(form.Body, BodySwitchIntent.Voluntary))
+        {
+            actor.OutputHandler.Send("You were not able to switch forms.");
+            return;
+        }
+
+        actor.OutputHandler.Send($"You switch into your {form.Alias.ColourName()} form.");
+    }
+
+    private static void ShowForms(ICharacter actor, ICharacter target)
+    {
+        var rows = new List<List<string>>();
+        foreach (var form in target.Forms.OrderBy(x => x.SortOrder).ThenBy(x => x.Alias))
+        {
+            string availability;
+            if (form.Body == target.CurrentBody)
+            {
+                availability = "Current".ColourName();
+            }
+            else if (target.CanSwitchBody(form.Body, BodySwitchIntent.Voluntary, out _))
+            {
+                availability = "Yes".Colour(Telnet.Green);
+            }
+            else
+            {
+                availability = "No".Colour(Telnet.Red);
+            }
+
+            rows.Add(
+            [
+                form.Body == target.CurrentBody ? "*" : "",
+                form.Body.Id.ToString("N0", actor),
+                form.Alias.ColourName(),
+                form.Body.Race.Name.ColourValue(),
+                form.Body.Ethnicity.Name.ColourValue(),
+                form.Body.Gender.Name.ColourValue(),
+                form.AllowVoluntarySwitch.ToColouredString(),
+                availability
+            ]);
+        }
+
+        actor.OutputHandler.Send(
+            $"{(target == actor ? "Your" : target.HowSeen(actor, true, DescriptionType.Possessive))} forms:\n\n" +
+            StringUtilities.GetTextTable(
+                rows,
+                new[] { "", "Id", "Alias", "Race", "Ethnicity", "Gender", "Voluntary", "Available" },
+                actor
+            ));
+    }
+
+    private static ICharacterForm ResolveForm(ICharacter character, string text)
+    {
+        if (long.TryParse(text, out var value))
+        {
+            return character.Forms.FirstOrDefault(x => x.Body.Id == value);
+        }
+
+        return character.Forms.FirstOrDefault(x => x.Alias.EqualTo(text));
+    }
+
+    private static bool TryParseBooleanChoice(string text, out bool value)
+    {
+        switch (text.ToLowerInvariant())
+        {
+            case "true":
+            case "yes":
+            case "on":
+            case "allow":
+            case "enabled":
+                value = true;
+                return true;
+            case "false":
+            case "no":
+            case "off":
+            case "deny":
+            case "disabled":
+                value = false;
+                return true;
+            default:
+                value = false;
+                return false;
+        }
+    }
+
+    private static void BodyAddForm(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which character do you want to add a form to?");
+            return;
+        }
+
+        ICharacter target = actor.TargetActor(ss.PopSpeech());
+        if (target is not MudSharp.Character.Character concreteTarget)
+        {
+            actor.OutputHandler.Send("You do not see any such character.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which race do you want to use for the new form?");
+            return;
+        }
+
+        IRace race = actor.Gameworld.Races.GetByIdOrName(ss.PopSpeech());
+        if (race is null)
+        {
+            actor.OutputHandler.Send("There is no such race.");
+            return;
+        }
+
+        IEthnicity ethnicity = null;
+        Gender? gender = null;
+        if (!ss.IsFinished)
+        {
+            var text = ss.PopSpeech();
+            if (text.TryParseEnum<Gender>(out Gender parsedGender))
+            {
+                gender = parsedGender;
+            }
+            else
+            {
+                ethnicity = actor.Gameworld.Ethnicities.GetByIdOrName(text);
+                if (ethnicity is null)
+                {
+                    actor.OutputHandler.Send("There is no such ethnicity.");
+                    return;
+                }
+
+                if (!ss.IsFinished)
+                {
+                    if (!ss.PopSpeech().TryParseEnum<Gender>(out parsedGender))
+                    {
+                        actor.OutputHandler.Send("That is not a valid gender.");
+                        return;
+                    }
+
+                    gender = parsedGender;
+                }
+            }
+        }
+
+        if (!concreteTarget.TryAddForm(race, ethnicity, gender, out var form, out var whyNot))
+        {
+            actor.OutputHandler.Send(whyNot);
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"You add the {form.Alias.ColourName()} form to {concreteTarget.HowSeen(actor, true)}.");
+    }
+
+    private static void BodyFormSet(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which character's form do you want to edit?");
+            return;
+        }
+
+        ICharacter target = actor.TargetActor(ss.PopSpeech());
+        if (target is not MudSharp.Character.Character concreteTarget)
+        {
+            actor.OutputHandler.Send("You do not see any such character.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which form do you want to edit?");
+            return;
+        }
+
+        ICharacterForm form = ResolveForm(concreteTarget, ss.PopSpeech());
+        if (form is null)
+        {
+            actor.OutputHandler.Send("They do not have any such form.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("You must specify whether to set alias, allow, canprog or whycantprog.");
+            return;
+        }
+
+        switch (ss.PopSpeech().ToLowerInvariant())
+        {
+            case "alias":
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("What alias do you want to set for that form?");
+                    return;
+                }
+
+                if (!concreteTarget.TrySetFormAlias(form, ss.SafeRemainingArgument, out var aliasWhyNot))
+                {
+                    actor.OutputHandler.Send(aliasWhyNot);
+                    return;
+                }
+
+                actor.OutputHandler.Send($"That form is now known as {form.Alias.ColourName()}.");
+                return;
+
+            case "allow":
+                bool allow = !form.AllowVoluntarySwitch;
+                if (!ss.IsFinished && !TryParseBooleanChoice(ss.SafeRemainingArgument, out allow))
+                {
+                    actor.OutputHandler.Send("You must specify true or false if you provide an explicit value.");
+                    return;
+                }
+
+                form.AllowVoluntarySwitch = allow;
+                concreteTarget.Changed = true;
+                actor.OutputHandler.Send(
+                    $"That form will {form.AllowVoluntarySwitch.NowNoLonger()} permit voluntary switching.");
+                return;
+
+            case "canprog":
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("Which prog should control whether that form can be voluntarily used?");
+                    return;
+                }
+
+                if (ss.SafeRemainingArgument.EqualToAny("clear", "none"))
+                {
+                    form.CanVoluntarilySwitchProg = null;
+                    concreteTarget.Changed = true;
+                    actor.OutputHandler.Send("That form no longer has a voluntary-switch eligibility prog.");
+                    return;
+                }
+
+                IFutureProg canProg = new ProgLookupFromBuilderInput(actor, ss.SafeRemainingArgument,
+                    ProgVariableTypes.Boolean, [ProgVariableTypes.Character]).LookupProg();
+                if (canProg is null)
+                {
+                    return;
+                }
+
+                form.CanVoluntarilySwitchProg = canProg;
+                concreteTarget.Changed = true;
+                actor.OutputHandler.Send(
+                    $"That form will now use the {canProg.MXPClickableFunctionName()} prog to decide whether voluntary switching is allowed.");
+                return;
+
+            case "whycantprog":
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("Which prog should supply the denial message for voluntary switching?");
+                    return;
+                }
+
+                if (ss.SafeRemainingArgument.EqualToAny("clear", "none"))
+                {
+                    form.WhyCannotVoluntarilySwitchProg = null;
+                    concreteTarget.Changed = true;
+                    actor.OutputHandler.Send("That form no longer has a denial-message prog.");
+                    return;
+                }
+
+                IFutureProg whyCantProg = new ProgLookupFromBuilderInput(actor, ss.SafeRemainingArgument,
+                    ProgVariableTypes.Text, [ProgVariableTypes.Character]).LookupProg();
+                if (whyCantProg is null)
+                {
+                    return;
+                }
+
+                form.WhyCannotVoluntarilySwitchProg = whyCantProg;
+                concreteTarget.Changed = true;
+                actor.OutputHandler.Send(
+                    $"That form will now use the {whyCantProg.MXPClickableFunctionName()} prog for voluntary-switch denial messages.");
+                return;
+        }
+
+        actor.OutputHandler.Send("You must specify alias, allow, canprog or whycantprog.");
+    }
+
+    private static void BodySwitch(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which character do you want to force into another form?");
+            return;
+        }
+
+        ICharacter target = actor.TargetActor(ss.PopSpeech());
+        if (target is not MudSharp.Character.Character concreteTarget)
+        {
+            actor.OutputHandler.Send("You do not see any such character.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which form do you want them to switch into?");
+            return;
+        }
+
+        ICharacterForm form = ResolveForm(concreteTarget, ss.SafeRemainingArgument);
+        if (form is null)
+        {
+            actor.OutputHandler.Send("They do not have any such form.");
+            return;
+        }
+
+        if (!concreteTarget.CanSwitchBody(form.Body, BodySwitchIntent.Forced, out var whyNot))
+        {
+            actor.OutputHandler.Send(whyNot);
+            return;
+        }
+
+        if (!concreteTarget.SwitchToBody(form.Body, BodySwitchIntent.Forced))
+        {
+            actor.OutputHandler.Send("The form switch failed.");
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"You force {concreteTarget.HowSeen(actor, true)} into the {form.Alias.ColourName()} form.");
     }
 
     [PlayerCommand("Uncovered", "uncovered")]

@@ -81,7 +81,7 @@ public class NonDecayingCorpseModel : CorpseModel
     #region ICorpseModel Members
 
     public override string Describe(DescriptionType type, DecayState state, ICharacter originalCharacter,
-        IPerceiver voyeur, double eatenPercentage)
+        IBody originalBody, IPerceiver voyeur, double eatenPercentage)
     {
         switch (type)
         {
@@ -95,7 +95,7 @@ public class NonDecayingCorpseModel : CorpseModel
                              .Append(EatenDescription(eatenPercentage).ConcatIfNotEmpty("\n\n"));
             case DescriptionType.Contents:
                 return
-                    $"{Describe(DescriptionType.Full, state, originalCharacter, voyeur, eatenPercentage)}\n\n{EatenDescription(eatenPercentage).ConcatIfNotEmpty("\n\n")}{originalCharacter.Body.GetInventoryString(voyeur)}";
+                    $"{Describe(DescriptionType.Full, state, originalCharacter, originalBody, voyeur, eatenPercentage)}\n\n{EatenDescription(eatenPercentage).ConcatIfNotEmpty("\n\n")}{originalBody.GetInventoryString(voyeur)}";
             default:
                 throw new NotSupportedException("Invalid DescriptionType in NonDecayingCorpseModel.Describe");
         }
@@ -103,9 +103,9 @@ public class NonDecayingCorpseModel : CorpseModel
 
 
     public override string DescribeSevered(DescriptionType type, DecayState state, ICharacter originalCharacter,
-        IPerceiver voyeur, ISeveredBodypart part, double eatenPercentage)
+        IBody originalBody, IPerceiver voyeur, ISeveredBodypart part, double eatenPercentage)
     {
-        return string.Format(SeveredBodypartDescription, originalCharacter.Body.DescribeBodypartGroup(part.Parts),
+        return string.Format(SeveredBodypartDescription, originalBody.DescribeBodypartGroup(part.Parts),
             originalCharacter.Race.Name.ToLowerInvariant());
     }
 

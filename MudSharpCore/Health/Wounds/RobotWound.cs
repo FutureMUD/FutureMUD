@@ -180,6 +180,24 @@ public class RobotWound : PerceivedItem, IWound
 
     public override string FrameworkItemType => "Wound";
 
+    public override void Save()
+    {
+        Wound dbitem = FMDB.Context.Wounds.Find(Id);
+        if (dbitem != null)
+        {
+            dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+            dbitem.GameItemId = (Parent as IGameItem)?.Id;
+            dbitem.BodypartProtoId = Bodypart?.Id;
+            dbitem.CurrentDamage = CurrentDamage;
+            dbitem.OriginalDamage = OriginalDamage;
+            dbitem.CurrentStun = CurrentStun;
+            dbitem.LodgedItem = FMDB.Context.GameItems.Find(Lodged?.Id);
+            dbitem.ExtraInformation = SaveExtras();
+        }
+
+        base.Save();
+    }
+
     public void SetNewOwner(IHaveWounds newOwner)
     {
         using (new FMDB())
@@ -196,6 +214,14 @@ public class RobotWound : PerceivedItem, IWound
         }
 
         _parent = newOwner;
+    }
+
+    public void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart)
+    {
+        _parent = newOwner;
+        _bodypart = newBodypart;
+        SeveredBodypart = newSeveredBodypart;
+        Changed = true;
     }
 
     public bool UseDamagePercentageSeverities => false;

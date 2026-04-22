@@ -2,7 +2,9 @@
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character.Heritage;
+using MudSharp.Communication.Language;
 using MudSharp.Database;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -11,6 +13,7 @@ using MudSharp.Models;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.Work.Projects.Impacts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -214,29 +217,112 @@ public partial class Character
 
     #region IHaveTraits Members
 
+    private readonly List<ITrait> _characterTraits = new();
+
     public bool AddTrait(ITraitDefinition trait, double value)
     {
-        return Body.AddTrait(trait, value);
+        if (trait.OwnerScope == TraitOwnerScope.Body)
+        {
+            return Body.AddTrait(trait, value);
+        }
+
+        if (_characterTraits.Any(x => x.Definition == trait))
+        {
+            return false;
+        }
+
+        _characterTraits.Add(trait.NewTrait(this, value));
+        Changed = true;
+		foreach (ILanguage language in Gameworld.Languages.Where(x => x.LinkedTrait == trait))
+		{
+			LearnLanguage(language);
+			LearnAccent(language.DefaultLearnerAccent, Difficulty.Automatic);
+		}
+
+        return true;
     }
 
     public bool RemoveTrait(ITraitDefinition trait)
     {
-        return Body.RemoveTrait(trait);
+        if (trait.OwnerScope == TraitOwnerScope.Body)
+        {
+            return Body.RemoveTrait(trait);
+        }
+
+        if (_characterTraits.All(x => x.Definition != trait))
+        {
+            return false;
+        }
+
+        _characterTraits.RemoveAll(x => x.Definition == trait);
+        Changed = true;
+        foreach (ILanguage language in Languages.Where(x => x.LinkedTrait == trait).ToList())
+        {
+            ForgetLanguage(language);
+        }
+
+        using (new FMDB())
+        {
+            Gameworld.SaveManager.Flush();
+            Models.CharacterTrait dbtrait = FMDB.Context.CharacterTraits.Find(Id, trait.Id);
+            if (dbtrait != null)
+            {
+                FMDB.Context.CharacterTraits.Remove(dbtrait);
+                FMDB.Context.SaveChanges();
+            }
+        }
+
+        return true;
     }
 
     public bool SetTraitValue(ITraitDefinition trait, double value)
     {
-        return Body.SetTraitValue(trait, value);
+        if (trait.OwnerScope == TraitOwnerScope.Body)
+        {
+            return Body.SetTraitValue(trait, value);
+        }
+
+        ITrait characterTrait = _characterTraits.FirstOrDefault(x => x.Definition == trait);
+        if (characterTrait == null)
+        {
+            AddTrait(trait, value);
+            return true;
+        }
+
+        characterTrait.Value = value;
+        Changed = true;
+        return true;
     }
 
     public double TraitValue(ITraitDefinition trait, TraitBonusContext context = TraitBonusContext.None)
     {
-        return Body.TraitValue(trait, context);
+        if (trait.OwnerScope == TraitOwnerScope.Body)
+        {
+            return Body.TraitValue(trait, context);
+        }
+
+        ITrait characterTrait = _characterTraits.FirstOrDefault(x => x.Definition == trait);
+        double baseValue = characterTrait?.Value ?? 0.0;
+        baseValue +=
+            Merits.OfType<ITraitBonusMerit>().Where(x => x.Applies(this))
+                  .Sum(x => x.BonusForTrait(trait, context));
+        baseValue +=
+            EffectsOfType<ITraitBonusEffect>()
+                .Where(x => x.Applies(this))
+                .Where(x => x.AppliesToTrait(characterTrait))
+                .Sum(x => x.GetBonus(characterTrait));
+        baseValue += Body.ExternalItems.SelectNotNull(x => x.GetItemType<IChangeTraitsInInventory>())
+                              .Sum(x => x.BonusForTrait(trait, context));
+        baseValue += CurrentProject.Labour?.LabourImpacts.Where(x => x.Applies(this))
+                         .OfType<ILabourImpactTraits>().Sum(x => x.EffectOnTrait(characterTrait, context)) ?? 0.0;
+        return baseValue;
     }
 
     public double TraitRawValue(ITraitDefinition trait)
     {
-        return Body.TraitRawValue(trait);
+        return trait.OwnerScope == TraitOwnerScope.Body
+            ? Body.TraitRawValue(trait)
+            : _characterTraits.FirstOrDefault(x => x.Definition == trait)?.Value ?? 0.0;
     }
 
     public double TraitMaxValue(ITraitDefinition trait)
@@ -251,12 +337,16 @@ public partial class Character
 
     public bool HasTrait(ITraitDefinition trait)
     {
-        return Body.HasTrait(trait);
+        return trait.OwnerScope == TraitOwnerScope.Body
+            ? Body.HasTrait(trait)
+            : _characterTraits.Any(x => x.Definition == trait);
     }
 
     public ITrait GetTrait(ITraitDefinition definition)
     {
-        return Body.GetTrait(definition);
+        return definition.OwnerScope == TraitOwnerScope.Body
+            ? Body.GetTrait(definition)
+            : _characterTraits.FirstOrDefault(x => x.Definition == definition);
     }
 
     public IEnumerable<ITrait> Traits => Body.Traits;
@@ -268,7 +358,7 @@ public partial class Character
 
     public IEnumerable<ITrait> TraitsOfType(TraitType type)
     {
-        return Body.TraitsOfType(type);
+        return Traits.Where(x => x.Definition.TraitType == type);
     }
 
     #endregion IHaveTraits Members

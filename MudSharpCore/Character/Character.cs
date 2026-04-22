@@ -133,6 +133,9 @@ public partial class Character : PerceiverItem, ICharacter
         _dubs = new List<IDub>();
 
         Body = new Body.Implementations.Body(gameworld, this, template);
+        Body.Handedness = _handedness;
+        InitialiseDefaultForm(Body);
+        InitialiseCharacterTraitsFromTemplate(template);
 
         NeedsModel = NeedsModelFactory.LoadNeedsModel(CharacterCreation.Chargen.NeedsModelProg != null
             ? (string)CharacterCreation.Chargen.NeedsModelProg.Execute(template)
@@ -279,9 +282,14 @@ public partial class Character : PerceiverItem, ICharacter
         _currentAccent = _accents.Select(x => x.Key).FirstOrDefault(x => x.Language == _currentLanguage);
 
         // Initialise Traits
-        foreach (ITrait trait in Body.Traits)
+        foreach (ITrait trait in Body.Traits.Where(x => x.Definition.OwnerScope == TraitOwnerScope.Body))
         {
             trait.Initialise(Body);
+        }
+
+        foreach (ITrait trait in _characterTraits)
+        {
+            trait.Initialise(this);
         }
 
         Body.RecalculatePartsAndOrgans(); // Sometimes character merits can change these after the body already sets them
@@ -430,7 +438,23 @@ public partial class Character : PerceiverItem, ICharacter
 
     public bool BriefRoomDescs { get; set; }
 
-    public Alignment Handedness { get; set; }
+    public Alignment Handedness
+    {
+        get => Body?.Handedness ?? _handedness;
+        set
+        {
+            _handedness = value;
+            if (Body != null)
+            {
+                Body.Handedness = value;
+            }
+
+            if (!_noSave)
+            {
+                Changed = true;
+            }
+        }
+    }
 
     public override SizeCategory Size => Body.CurrentContextualSize(SizeContext.None);
 
@@ -558,6 +582,7 @@ public partial class Character : PerceiverItem, ICharacter
         dbchar.CurrencyId = Currency?.Id;
         dbchar.Gender = (short)Gender.Enum;
         dbchar.DominantHandAlignment = (int)Handedness;
+        dbchar.BodyId = Body.Id;
         dbchar.RoomBrief = BriefRoomDescs;
         dbchar.CombatBrief = BriefCombatMode;
         dbchar.NoMercy = NoMercy;
@@ -649,6 +674,8 @@ public partial class Character : PerceiverItem, ICharacter
 
             HooksChanged = false;
         }
+
+        SaveForms(dbchar);
 
         Changed = false;
     }
@@ -1359,6 +1386,7 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         Body.SetIDFromDatabase(item.Body);
+        _handedness = Body.Handedness;
         foreach (ICharacterKnowledge ck in CharacterKnowledges)
         {
             ck.SetId(item.CharacterKnowledges.First(x => x.KnowledgeId == ck.Knowledge.Id).Id);
@@ -1392,6 +1420,9 @@ public partial class Character : PerceiverItem, ICharacter
             EffectData = SaveEffects().ToString(),
             CurrentCombatSettingId = CombatSettings?.Id
         };
+
+        InsertInitialForms(dbitem);
+        InsertInitialCharacterTraits(dbitem);
 
         foreach (IHook hook in _installedHooks)
         {
@@ -1556,7 +1587,7 @@ public partial class Character : PerceiverItem, ICharacter
         LoadNames(character);
 
         _roomLayer = (RoomLayer)character.RoomLayer;
-        Handedness = (Alignment)character.DominantHandAlignment;
+        _handedness = (Alignment)character.DominantHandAlignment;
 
         Culture = Gameworld.Cultures.Get(character.CultureId);
         Birthday = Gameworld.Calendars.Get(character.BirthdayCalendarId).GetDate(character.BirthdayDate);
@@ -1581,7 +1612,8 @@ public partial class Character : PerceiverItem, ICharacter
             _merits.Add(Gameworld.Merits.Get(merit.MeritId));
         }
 
-        Body = new Body.Implementations.Body(character.Body, Gameworld, this);
+        LoadForms(character);
+        LoadCharacterTraits(character);
         LoadPosition(character.PositionId, character.PositionModifier, character.PositionEmote,
             character.PositionTargetId, character.PositionTargetType);
         if (character.CharactersChargenRoles.Any())
@@ -2762,7 +2794,7 @@ public partial class Character : PerceiverItem, ICharacter
             SelectedFullDesc = Body.GetRawDescriptions.FullDescription,
             SelectedSdesc = Body.GetRawDescriptions.ShortDescription,
             SelectedGender = Gender.Enum,
-            SkillValues = (from skill in Traits.OfType<ISkill>() select (skill.Definition, skill.RawValue))
+            SkillValues = (from skill in _characterTraits.OfType<ISkill>() select (skill.Definition, skill.RawValue))
                 .ToList(),
             SelectedAttributes =
                 (from attribute in Traits.OfType<IAttribute>()

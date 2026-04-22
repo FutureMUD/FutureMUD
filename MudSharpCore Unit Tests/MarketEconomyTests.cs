@@ -1,6 +1,8 @@
 using Expression = ExpressionEngine.Expression;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Accounts;
+using MudSharp.Character;
 using MudSharp.Economy;
 using MudSharp.Economy.Markets;
 using MudSharp.Framework;
@@ -10,6 +12,7 @@ using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -180,6 +183,124 @@ public class MarketEconomyTests
 		Assert.AreEqual(1.17, market.NetDemand(stapleFood.Object), 0.0001);
 		Assert.AreEqual(0.068m, decimal.Round(market.FlatPriceAdjustmentForCategory(stapleFood.Object), 3));
 		Assert.AreEqual(1.068m, decimal.Round(market.PriceMultiplierForCategory(stapleFood.Object), 3));
+	}
+
+	[TestMethod]
+	public void ExpandImpactToLeafCategories_NestedCombinationTarget_UsesNormalizedLeafEffects()
+	{
+		var wheat = CreateCategory(1L, "Wheat");
+		var oliveOil = CreateCategory(2L, "Olive Oil");
+		var stapleFood = CreateCategory(3L, "Staple Food", MarketCategoryType.Combination,
+			[
+				new MarketCategoryComponent
+				{
+					MarketCategory = wheat.Object,
+					Weight = 8.0m
+				},
+				new MarketCategoryComponent
+				{
+					MarketCategory = oliveOil.Object,
+					Weight = 2.0m
+				}
+			]);
+		var feastFoods = CreateCategory(4L, "Feast Foods", MarketCategoryType.Combination,
+			[
+				new MarketCategoryComponent
+				{
+					MarketCategory = stapleFood.Object,
+					Weight = 5.0m
+				},
+				new MarketCategoryComponent
+				{
+					MarketCategory = oliveOil.Object,
+					Weight = 5.0m
+				}
+			]);
+
+		var expanded = MarketImpactExpansion.ExpandImpactToLeafCategories(new MarketImpact
+		{
+			MarketCategory = feastFoods.Object,
+			SupplyImpact = 0.10,
+			DemandImpact = 0.20,
+			FlatPriceImpact = 0.05
+		})
+			.OrderBy(x => x.LeafCategory.Id)
+			.ToList();
+
+		Assert.AreEqual(2, expanded.Count);
+		Assert.AreSame(feastFoods.Object, expanded[0].SourceCategory);
+		Assert.AreSame(wheat.Object, expanded[0].LeafCategory);
+		Assert.AreEqual(0.40m, expanded[0].NormalizedWeight);
+		Assert.AreEqual(0.04, expanded[0].SupplyImpact, 0.0001);
+		Assert.AreEqual(0.08, expanded[0].DemandImpact, 0.0001);
+		Assert.AreEqual(0.02, expanded[0].FlatPriceImpact, 0.0001);
+		Assert.AreSame(feastFoods.Object, expanded[1].SourceCategory);
+		Assert.AreSame(oliveOil.Object, expanded[1].LeafCategory);
+		Assert.AreEqual(0.60m, expanded[1].NormalizedWeight);
+		Assert.AreEqual(0.06, expanded[1].SupplyImpact, 0.0001);
+		Assert.AreEqual(0.12, expanded[1].DemandImpact, 0.0001);
+		Assert.AreEqual(0.03, expanded[1].FlatPriceImpact, 0.0001);
+	}
+
+	[TestMethod]
+	public void MarketInfluenceShow_CombinationImpact_AddsLeafExpansionPreview()
+	{
+		var actor = CreateFormattingActor();
+		var wheat = CreateCategory(1L, "Wheat");
+		var oliveOil = CreateCategory(2L, "Olive Oil");
+		var stapleFood = CreateCategory(3L, "Staple Food", MarketCategoryType.Combination,
+			[
+				new MarketCategoryComponent
+				{
+					MarketCategory = wheat.Object,
+					Weight = 8.0m
+				},
+				new MarketCategoryComponent
+				{
+					MarketCategory = oliveOil.Object,
+					Weight = 2.0m
+				}
+			]);
+		var market = new Mock<IMarket>();
+		market.SetupGet(x => x.Id).Returns(7L);
+		market.SetupGet(x => x.Name).Returns("Riverlands Exchange");
+
+		var influence = (MarketInfluence)RuntimeHelpers.GetUninitializedObject(typeof(MarketInfluence));
+		SetField(influence, "_id", 9L);
+		SetField(influence, "_name", "Harvest Failure");
+		SetAutoProperty(influence, nameof(MarketInfluence.Market), market.Object);
+		SetAutoProperty(influence, nameof(MarketInfluence.MarketInfluenceTemplate), null!);
+		SetAutoProperty(influence, nameof(MarketInfluence.Description), "desc");
+		SetAutoProperty(influence, nameof(MarketInfluence.AppliesFrom), MudDateTime.Never);
+		SetField(influence, "_appliesUntil", null!);
+		SetField(influence, "_marketImpacts",
+			new List<MarketImpact>
+			{
+				new()
+				{
+					MarketCategory = stapleFood.Object,
+					SupplyImpact = 0.50,
+					DemandImpact = 0.25,
+					FlatPriceImpact = 0.10
+				}
+			});
+		SetField(influence, "_populationIncomeImpacts", new List<MarketPopulationIncomeImpact>());
+		SetAutoProperty(influence, nameof(MarketInfluence.CharacterKnowsAboutInfluenceProg), null!);
+
+		var show = influence.Show(actor.Object).StripANSIColour();
+
+		StringAssert.Contains(show, "Leaf Expansion Preview:");
+		StringAssert.Contains(show, "Staple Food");
+		StringAssert.Contains(show, "Wheat");
+		StringAssert.Contains(show, "Olive Oil");
+		StringAssert.Contains(show, "80.00 %");
+		StringAssert.Contains(show, "20.00 %");
+		StringAssert.Contains(show, "+40.00%");
+		StringAssert.Contains(show, "+20.00%");
+		StringAssert.Contains(show, "+8.00%");
+		StringAssert.Contains(show, "+10.00%");
+		StringAssert.Contains(show, "+5.00%");
+		StringAssert.Contains(show, "+2.00%");
 	}
 
 	[TestMethod]
@@ -645,6 +766,23 @@ public class MarketEconomyTests
 		category.Setup(x => x.BelongsToCategory(It.IsAny<IGameItemProto>()))
 		        .Returns<IGameItemProto>(proto => belongsToProto?.Invoke(proto) ?? false);
 		return category;
+	}
+
+	private static Mock<ICharacter> CreateFormattingActor()
+	{
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.Culture).Returns(CultureInfo.InvariantCulture);
+		account.SetupGet(x => x.LineFormatLength).Returns(160);
+		account.SetupGet(x => x.InnerLineFormatLength).Returns(120);
+		account.SetupGet(x => x.UseUnicode).Returns(false);
+
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Account).Returns(account.Object);
+		actor.SetupGet(x => x.LineFormatLength).Returns(160);
+		actor.SetupGet(x => x.InnerLineFormatLength).Returns(120);
+		actor.Setup(x => x.GetFormat(It.IsAny<Type>()))
+			.Returns<Type>(type => CultureInfo.InvariantCulture.GetFormat(type));
+		return actor;
 	}
 
 	private static void InitialiseField(object target, string fieldName)

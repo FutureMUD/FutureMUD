@@ -8,10 +8,10 @@ namespace MudSharp.Migrations
     public partial class Phase1MultiBodyForms : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.AddColumn<int>(
-                name: "OwnerScope",
+		protected override void Up(MigrationBuilder migrationBuilder)
+		{
+			migrationBuilder.AddColumn<int>(
+				name: "OwnerScope",
                 table: "TraitDefinitions",
                 type: "int(11)",
                 nullable: false,
@@ -109,11 +109,46 @@ namespace MudSharp.Migrations
                 table: "CharacterBodies",
                 column: "WhyCannotVoluntarilySwitchProgId");
 
-            migrationBuilder.CreateIndex(
-                name: "FK_CharacterTraits_TraitDefinitions",
-                table: "CharacterTraits",
-                column: "TraitDefinitionId");
-        }
+			migrationBuilder.CreateIndex(
+				name: "FK_CharacterTraits_TraitDefinitions",
+				table: "CharacterTraits",
+				column: "TraitDefinitionId");
+
+			migrationBuilder.Sql(@"
+UPDATE TraitDefinitions
+SET OwnerScope = 1
+WHERE Type IN (0, 2, 4);");
+
+			migrationBuilder.Sql(@"
+INSERT IGNORE INTO CharacterTraits (CharacterId, TraitDefinitionId, Value, AdditionalValue)
+SELECT c.Id,
+	   t.TraitDefinitionId,
+	   t.Value,
+	   t.AdditionalValue
+FROM Characters c
+INNER JOIN Traits t ON t.BodyId = c.BodyId
+INNER JOIN TraitDefinitions td ON td.Id = t.TraitDefinitionId
+WHERE td.OwnerScope = 1;");
+
+			migrationBuilder.Sql(@"
+UPDATE Bodies b
+INNER JOIN Characters c ON c.BodyId = b.Id
+SET b.DominantHandAlignment = c.DominantHandAlignment;");
+
+			migrationBuilder.Sql(@"
+INSERT IGNORE INTO CharacterBodies
+	(CharacterId, BodyId, Alias, SortOrder, AllowVoluntarySwitch, CanVoluntarilySwitchProgId, WhyCannotVoluntarilySwitchProgId)
+SELECT c.Id,
+	   c.BodyId,
+	   COALESCE(bp.Name, CONCAT('Body ', c.BodyId)),
+	   0,
+	   b'1',
+	   NULL,
+	   NULL
+FROM Characters c
+INNER JOIN Bodies b ON b.Id = c.BodyId
+LEFT JOIN BodyProtos bp ON bp.Id = b.BodyPrototypeId;");
+		}
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -419,6 +419,15 @@ public class AnimalSeederTemplateTests
     }
 
     [TestMethod]
+    public void AvianCoreWingAliasesForTesting_BirdsRequireBothWingRootsAndFlightSurfaces()
+    {
+        CollectionAssert.AreEquivalent(
+            new[] { "rwingbase", "lwingbase", "rwing", "lwing" },
+            AnimalSeeder.AvianCoreWingAliasesForTesting.ToArray(),
+            "Avian stock bodies should treat both wing roots and both wings as mandatory core anatomy.");
+    }
+
+    [TestMethod]
     public void VenomProfilesForTesting_SeededProfiles_HaveExpectedEffects()
     {
         AnimalSeeder.AnimalVenomProfileTemplate neurotoxic = AnimalSeeder.VenomProfilesForTesting["neurotoxic"];

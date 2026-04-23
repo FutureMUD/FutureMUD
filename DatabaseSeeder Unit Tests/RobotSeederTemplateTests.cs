@@ -263,6 +263,13 @@ public class RobotSeederTemplateTests
     }
 
     [TestMethod]
+    public void NonBreathingModelForTesting_RobotsUseExplicitNonBreatherStrategy()
+    {
+        Assert.AreEqual("non-breather", RobotSeeder.NonBreathingModelForTesting,
+            "Robot races should persist the dedicated non-breather model rather than a placeholder lung-breather string.");
+    }
+
+    [TestMethod]
     public void CustomLimbMembershipsForTesting_DerivedRobotBodies_MapExpectedAssemblies()
     {
         CollectionAssert.AreEquivalent(

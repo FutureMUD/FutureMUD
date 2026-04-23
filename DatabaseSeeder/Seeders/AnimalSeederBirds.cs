@@ -188,16 +188,16 @@ public partial class AnimalSeeder
 
         AddBodypart(avianProto, "rwingbase", "right wing base", "wing base", BodypartTypeEnum.BonyDrapeable, "uback",
             Alignment.FrontRight, Orientation.High, 40, -1, 100, order++, "Flesh", SizeCategory.Normal,
-            "Right Wing", true, isCore: false);
+            "Right Wing", true, isCore: true);
         AddBodypart(avianProto, "lwingbase", "left wing base", "wing base", BodypartTypeEnum.BonyDrapeable, "uback",
             Alignment.FrontLeft, Orientation.High, 40, -1, 100, order++, "Flesh", SizeCategory.Normal, "Left Wing",
-            true, isCore: false);
+            true, isCore: true);
         AddBodypart(avianProto, "rwing", "right wing", "wing", BodypartTypeEnum.Wing, "rwingbase",
             Alignment.FrontRight, Orientation.High, 40, 50, 100, order++, "Flesh", SizeCategory.Normal,
-            "Right Wing", true, isCore: false);
+            "Right Wing", true, isCore: true);
         AddBodypart(avianProto, "lwing", "left wing", "wing", BodypartTypeEnum.Wing, "lwingbase",
             Alignment.FrontLeft, Orientation.High, 40, 50, 100, order++, "Flesh", SizeCategory.Normal, "Left Wing",
-            true, isCore: false);
+            true, isCore: true);
 
         #endregion
 

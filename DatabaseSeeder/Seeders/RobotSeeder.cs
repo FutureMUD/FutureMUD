@@ -44,6 +44,7 @@ public partial class RobotSeeder : IDatabaseSeeder
         "Winged Robot",
         "Jet Robot"
     };
+    private const string NonBreatherBreathingModel = "non-breather";
 
     private readonly Dictionary<string, Tag> _tags = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, MudSharp.Models.Knowledge> _knowledges = new(StringComparer.OrdinalIgnoreCase);
@@ -81,6 +82,8 @@ public partial class RobotSeeder : IDatabaseSeeder
     private FutureProg _robotStaminaRecoveryProg = null!;
     private HealthStrategy _robotArticulatedStrategy = null!;
     private HealthStrategy _robotUtilityStrategy = null!;
+
+    internal static string NonBreathingModelForTesting => NonBreatherBreathingModel;
 
     private sealed class RobotSeedSummary
     {

@@ -79,6 +79,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
     private CorpseModel _humanoidCorpse = null!;
     private CorpseModel _animalCorpse = null!;
     private Liquid _blood = null!;
+    private Liquid _saltWater = null!;
+    private Liquid _brackishWater = null!;
     private Liquid? _sweat;
     private Gas _breathableAir = null!;
     private PopulationBloodModel? _defaultPopulationBloodModel;
@@ -86,6 +88,13 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
     private ArmourType? _humanoidNaturalArmour;
     private ArmourType? _animalNaturalArmour;
     private long _nextBodyProtoId;
+    private static readonly string[] WingAliases =
+    [
+        "rwingbase",
+        "lwingbase",
+        "rwing",
+        "lwing"
+    ];
 
     public IEnumerable<(string Id, string Question,
         Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
@@ -110,20 +119,21 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         List<MythicalRaceTemplate> templatesToSeed = Templates.Values
             .Where(template => !_context.Races.Any(x => x.Name == template.Name))
             .ToList();
+        Dictionary<string, BodyProto> bodyLookup = BuildBodyCatalogue(Templates.Values);
+        RefreshExistingMythicalRaceDefaults();
         if (templatesToSeed.Count == 0 && !hasMissingDisfigurementTemplates)
         {
             RefreshExistingMythicalCombatBalance();
             _context.Database.CommitTransaction();
-            return "Mythical races are already installed and their combat balance profile has been refreshed.";
+            return "Mythical races are already installed and their breathing, mobility, and combat balance profiles have been refreshed.";
         }
-
-        Dictionary<string, BodyProto> bodyLookup = BuildBodyCatalogue(Templates.Values);
 
         foreach (MythicalRaceTemplate template in templatesToSeed)
         {
             SeedRace(template, bodyLookup[template.BodyKey]);
         }
 
+        RefreshExistingMythicalRaceDefaults();
         SeedMythicalDisfigurementTemplates(bodyLookup);
         RefreshExistingMythicalCombatBalance();
         _context.SaveChanges();
@@ -240,6 +250,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         _humanoidCorpse = _context.CorpseModels.First(x => x.Name == "Organic Human Corpse");
         _animalCorpse = _context.CorpseModels.First(x => x.Name == "Organic Animal Corpse");
         _blood = _context.Liquids.First(x => x.Name == "blood");
+        _saltWater = _context.Liquids.First(x => x.Name == "salt water");
+        _brackishWater = _context.Liquids.First(x => x.Name == "brackish water");
         _sweat = _context.Liquids.FirstOrDefault(x => x.Name == "sweat");
         _breathableAir = _context.Gases.AsEnumerable().First(x => x.Name.Contains("Breathable Atmosphere", StringComparison.OrdinalIgnoreCase));
         _defaultPopulationBloodModel = _humanRace.Ethnicities.FirstOrDefault()?.PopulationBloodModel ??
@@ -348,13 +360,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
     private BodyProto GetOrCreateBody(string name, Func<BodyProto> factory)
     {
-        BodyProto? existingBody = _context.BodyProtos.FirstOrDefault(x => x.Name == name);
-        if (existingBody is not null)
-        {
-            return existingBody;
-        }
-
-        BodyProto body = factory();
+        BodyProto body = _context.BodyProtos.FirstOrDefault(x => x.Name == name) ?? factory();
+        RefreshCustomBodyCapabilities(body);
         RepairAndValidateCustomBody(body);
         return body;
     }
@@ -865,16 +872,199 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             .FirstOrDefault();
     }
 
+    private enum MythicalBreathingProfile
+    {
+        SimpleAir,
+        PartlessAir,
+        MarineAmphibious
+    }
+
+    private static MythicalBreathingProfile GetBreathingProfile(MythicalRaceTemplate template)
+    {
+        if (template.Name.EqualToAny("Mermaid", "Hippocamp"))
+        {
+            return MythicalBreathingProfile.MarineAmphibious;
+        }
+
+        if (template.Name.EqualToAny("Myconid", "Plantfolk", "Ent", "Dryad") ||
+            template.BodyKey.EqualToAny("Insectoid", "Arachnid", "Beetle", "Centipede", "Scorpion"))
+        {
+            return MythicalBreathingProfile.PartlessAir;
+        }
+
+        return MythicalBreathingProfile.SimpleAir;
+    }
+
+    internal static string GetBreathingProfileNameForTesting(string raceName)
+    {
+        return GetBreathingProfile(Templates[raceName]) switch
+        {
+            MythicalBreathingProfile.SimpleAir => "simple-air",
+            MythicalBreathingProfile.PartlessAir => "partless-air",
+            MythicalBreathingProfile.MarineAmphibious => "marine-amphibious",
+            _ => "simple-air"
+        };
+    }
+
+    internal static IReadOnlyList<string> GetHybridMovementAliasesForTesting(string bodyName)
+    {
+        return bodyName switch
+        {
+            "Naga" => ["slither", "slowslither", "quickslither"],
+            "Mermaid" => ["flop"],
+            "Centaur" => ["stalk", "amble", "pace", "trot", "gallop"],
+            "Eastern Dragon" => ["slowfly", "fly", "franticfly"],
+            _ => []
+        };
+    }
+
+    private void RefreshCustomBodyCapabilities(BodyProto body)
+    {
+        switch (body.Name)
+        {
+            case "Winged Humanoid":
+                PromoteCoreBodyparts(body, WingAliases);
+                AddFlyMovement(body);
+                break;
+            case "Naga":
+                AddSerpentineMovement(body);
+                AddSwimMovement(body);
+                break;
+            case "Eastern Dragon":
+                body.MinimumWingsToFly = 0;
+                AddFlyMovement(body);
+                break;
+            case "Mermaid":
+                AddFishGroundMovement(body);
+                AddSwimMovement(body);
+                break;
+            case "Centaur":
+                AddQuadrupedMovement(body);
+                break;
+            case "Griffin":
+            case "Hippogriff":
+            case "Manticore":
+            case "Wyvern":
+                PromoteCoreBodyparts(body, WingAliases);
+                AddFlyMovement(body);
+                break;
+            case "Hippocamp":
+                AddSwimMovement(body);
+                break;
+        }
+    }
+
+    private void RefreshExistingMythicalRaceDefaults()
+    {
+        foreach (MythicalRaceTemplate template in Templates.Values)
+        {
+            Race? race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
+            if (race is null)
+            {
+                continue;
+            }
+
+            race.CanClimb = template.CanClimb;
+            race.CanSwim = template.CanSwim;
+            race.MinimumSleepingPosition = 4;
+            ApplyBreathingProfile(race, GetBreathingProfile(template));
+        }
+
+        _context.SaveChanges();
+    }
+
+    private void ApplyBreathingProfile(Race race, MythicalBreathingProfile profile)
+    {
+        _context.RacesBreathableGases.RemoveRange(_context.RacesBreathableGases.Where(x => x.RaceId == race.Id).ToList());
+        _context.RacesBreathableLiquids.RemoveRange(_context.RacesBreathableLiquids.Where(x => x.RaceId == race.Id).ToList());
+
+        race.NeedsToBreathe = true;
+        race.BreathingVolumeExpression = "7";
+        race.HoldBreathLengthExpression = $"90+(5*con:{_healthTrait.Id})";
+
+        _context.RacesBreathableGases.Add(new RacesBreathableGases
+        {
+            Race = race,
+            Gas = _breathableAir,
+            Multiplier = 1.0
+        });
+
+        switch (profile)
+        {
+            case MythicalBreathingProfile.SimpleAir:
+                race.BreathingModel = "simple";
+                break;
+            case MythicalBreathingProfile.PartlessAir:
+                race.BreathingModel = "partless";
+                break;
+            case MythicalBreathingProfile.MarineAmphibious:
+                race.BreathingModel = "partless";
+                _context.RacesBreathableLiquids.Add(new RacesBreathableLiquids
+                {
+                    Race = race,
+                    Liquid = _saltWater,
+                    Multiplier = 1.0
+                });
+                _context.RacesBreathableLiquids.Add(new RacesBreathableLiquids
+                {
+                    Race = race,
+                    Liquid = _brackishWater,
+                    Multiplier = 0.5
+                });
+                break;
+        }
+    }
+
+    private void PromoteCoreBodyparts(BodyProto body, params string[] aliases)
+    {
+        bool dirty = false;
+        foreach (BodypartProto bodypart in _context.BodypartProtos
+                     .Where(x => x.BodyId == body.Id && aliases.Contains(x.Name))
+                     .ToList())
+        {
+            if (bodypart.IsCore)
+            {
+                continue;
+            }
+
+            bodypart.IsCore = true;
+            dirty = true;
+        }
+
+        if (dirty)
+        {
+            _context.SaveChanges();
+        }
+    }
+
     private void AddFlyMovement(BodyProto body)
     {
         EnsurePosition(body, 18);
-        CloneSpeedAliases(_avianBody, body, "fly", "franticfly");
+        CloneSpeedAliases(_avianBody, body, "slowfly", "fly", "franticfly");
     }
 
     private void AddSwimMovement(BodyProto body)
     {
         EnsurePosition(body, 16);
         CloneSpeedAliases(_piscineBody, body, "swim", "slowswim", "quickswim");
+    }
+
+    private void AddFishGroundMovement(BodyProto body)
+    {
+        EnsurePosition(body, 6);
+        CloneSpeedAliases(_piscineBody, body, "flop");
+    }
+
+    private void AddSerpentineMovement(BodyProto body)
+    {
+        EnsurePosition(body, 1);
+        CloneSpeedAliasesToPosition(_serpentineBody, body, 1, "slither", "slowslither", "quickslither");
+    }
+
+    private void AddQuadrupedMovement(BodyProto body)
+    {
+        EnsurePosition(body, 1);
+        CloneSpeedAliases(_quadrupedBody, body, "stalk", "amble", "pace", "trot", "gallop");
     }
 
     private void EnsurePosition(BodyProto body, int positionId)
@@ -893,6 +1083,12 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
     }
 
     private void CloneSpeedAliases(BodyProto source, BodyProto target, params string[] aliases)
+    {
+        CloneSpeedAliasesToPosition(source, target, null, aliases);
+    }
+
+    private void CloneSpeedAliasesToPosition(BodyProto source, BodyProto target, int? positionIdOverride,
+        params string[] aliases)
     {
         HashSet<string> existingAliases = _context.MoveSpeeds
             .Where(x => x.BodyProtoId == target.Id)
@@ -914,7 +1110,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             {
                 Id = nextId++,
                 BodyProto = target,
-                PositionId = speed.PositionId,
+                PositionId = positionIdOverride ?? speed.PositionId,
                 Alias = speed.Alias,
                 FirstPersonVerb = speed.FirstPersonVerb,
                 ThirdPersonVerb = speed.ThirdPersonVerb,
@@ -1005,13 +1201,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
                 IsHealthAttribute = attribute.TraitGroup == "Physical"
             });
         }
-
-        _context.RacesBreathableGases.Add(new RacesBreathableGases
-        {
-            Race = race,
-            Gas = _breathableAir,
-            Multiplier = 1.0
-        });
+        ApplyBreathingProfile(race, GetBreathingProfile(template));
 
         Ethnicity ethnicity = SeedEthnicity(race, template);
         SeedAdditionalCharacteristics(race, ethnicity, template);

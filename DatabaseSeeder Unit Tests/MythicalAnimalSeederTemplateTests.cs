@@ -612,6 +612,38 @@ public class MythicalAnimalSeederTemplateTests
     }
 
     [TestMethod]
+    public void BreathingProfileNameForTesting_KeyMythicFamilies_UseExpectedModels()
+    {
+        Assert.AreEqual("simple-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Dragon"));
+        Assert.AreEqual("marine-amphibious", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Mermaid"));
+        Assert.AreEqual("marine-amphibious", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Hippocamp"));
+        Assert.AreEqual("partless-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Giant Spider"));
+        Assert.AreEqual("partless-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Ent"));
+        Assert.AreEqual("partless-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Dryad"));
+    }
+
+    [TestMethod]
+    public void HybridMovementAliasesForTesting_KeyBodies_ExposeExpectedTraversalModes()
+    {
+        CollectionAssert.AreEquivalent(
+            new[] { "slither", "slowslither", "quickslither" },
+            MythicalAnimalSeeder.GetHybridMovementAliasesForTesting("Naga").ToArray(),
+            "Naga should expose serpentine travel speeds.");
+        CollectionAssert.AreEquivalent(
+            new[] { "flop" },
+            MythicalAnimalSeeder.GetHybridMovementAliasesForTesting("Mermaid").ToArray(),
+            "Merfolk should keep a land fallback movement mode in addition to swimming.");
+        CollectionAssert.AreEquivalent(
+            new[] { "stalk", "amble", "pace", "trot", "gallop" },
+            MythicalAnimalSeeder.GetHybridMovementAliasesForTesting("Centaur").ToArray(),
+            "Centaurs should inherit quadruped gait options rather than only humanoid walking verbs.");
+        CollectionAssert.AreEquivalent(
+            new[] { "slowfly", "fly", "franticfly" },
+            MythicalAnimalSeeder.GetHybridMovementAliasesForTesting("Eastern Dragon").ToArray(),
+            "Eastern dragons should retain a dedicated flight profile even without physical wings.");
+    }
+
+    [TestMethod]
     public void TemplatesForTesting_LegacyFantasyRaces_KeepExpectedSapienceAndCharacteristics()
     {
         MythicalAnimalSeeder.MythicalRaceTemplate myconid = MythicalAnimalSeeder.TemplatesForTesting["Myconid"];

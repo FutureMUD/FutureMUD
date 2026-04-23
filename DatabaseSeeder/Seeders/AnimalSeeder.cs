@@ -48,6 +48,13 @@ public partial class AnimalSeeder : IDatabaseSeeder
         new(StringComparer.OrdinalIgnoreCase);
 
     private readonly List<Liquid> _freshWaters = new();
+    private static readonly string[] AvianCoreWingAliases =
+    [
+        "rwingbase",
+        "lwingbase",
+        "rwing",
+        "lwing"
+    ];
 
     private readonly Dictionary<string, HeightWeightModel> _hwModels = new(StringComparer.OrdinalIgnoreCase);
 
@@ -78,6 +85,8 @@ public partial class AnimalSeeder : IDatabaseSeeder
 	private readonly Stopwatch _stopwatch = new();
 	private TraitDefinition _strengthTrait;
 	private Liquid _sweatLiquid;
+
+    internal static IReadOnlyList<string> AvianCoreWingAliasesForTesting => AvianCoreWingAliases;
 
 	private static readonly string[] AnimalMinorSeverKeywords =
 	[
@@ -258,6 +267,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 .Where(x => x.Type == 1)
                 .AsEnumerable()
                 .First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
+            RefreshExistingAnimalBaseBodies();
             bool hasMissingCatalogue = HasMissingAnimalCatalogue(_context);
             RefreshExistingAnimalCombatBalance();
 

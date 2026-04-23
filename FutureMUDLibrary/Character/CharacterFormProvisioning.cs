@@ -12,6 +12,21 @@ public enum CharacterFormSourceType
 	Prog = 2
 }
 
+public enum ForcedTransformationPriorityBand
+{
+	MeritOrIntrinsic = 0,
+	DrugOrChemical = 1,
+	SpellOrPower = 2,
+	AdminForced = 3
+}
+
+public enum ForcedTransformationRecheckCadence
+{
+	None = 0,
+	FuzzyHour = 1,
+	FuzzyMinute = 2
+}
+
 public interface ICharacterFormSource
 {
 	CharacterFormSourceType SourceType { get; }

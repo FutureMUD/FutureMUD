@@ -7,4 +7,8 @@ namespace MudSharp.RPG.Merits.Interfaces;
 public interface IAdditionalBodyFormMerit : ICharacterMerit
 {
 	ICharacterFormSpecification FormSpecification { get; }
+	bool AutoTransformWhenApplicable { get; }
+	ForcedTransformationPriorityBand ForcedTransformationPriorityBand { get; }
+	int ForcedTransformationPriorityOffset { get; }
+	ForcedTransformationRecheckCadence ApplicabilityRecheckCadence { get; }
 }

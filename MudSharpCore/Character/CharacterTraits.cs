@@ -138,14 +138,16 @@ public partial class Character
             return false;
         }
 
-        _merits.Add(merit);
-        if (merit is IAdditionalBodyFormMerit bodyFormMerit)
-        {
-            EnsureProvisionedFormFromMerit(bodyFormMerit);
-        }
+		_merits.Add(merit);
+		if (merit is IAdditionalBodyFormMerit bodyFormMerit)
+		{
+			EnsureProvisionedFormFromMerit(bodyFormMerit);
+			RefreshForcedTransformationHeartbeatRegistration();
+			ReevaluateForcedBodyTransformation();
+		}
 
-        MeritsChanged = true;
-        return true;
+		MeritsChanged = true;
+		return true;
     }
 
     public bool RemoveMerit(IMerit merit)
@@ -153,12 +155,18 @@ public partial class Character
         if (merit == null || !_merits.Contains(merit))
         {
             return false;
-        }
+		}
 
-        _merits.Remove(merit);
-        MeritsChanged = true;
-        return true;
-    }
+		_merits.Remove(merit);
+		if (merit is IAdditionalBodyFormMerit)
+		{
+			RefreshForcedTransformationHeartbeatRegistration();
+			ReevaluateForcedBodyTransformation();
+		}
+
+		MeritsChanged = true;
+		return true;
+	}
 
     #endregion
 

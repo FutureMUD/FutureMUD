@@ -87,6 +87,8 @@ public class BodyFormProvisioningTests
 		Assert.IsTrue(info.BuilderHelp.Contains("echo"));
 		Assert.IsTrue(info.BuilderHelp.Contains("sdescpattern"));
 		Assert.IsTrue(info.BuilderHelp.Contains("fdescpattern"));
+		Assert.IsTrue(info.BuilderHelp.Contains("priorityband"));
+		Assert.IsTrue(info.BuilderHelp.Contains("priorityoffset"));
 		Assert.IsTrue(info.MatchingTriggers.Any());
 	}
 
@@ -101,7 +103,10 @@ public class BodyFormProvisioningTests
 			x.HelpText.Contains("visibleprog") &&
 			x.HelpText.Contains("echo") &&
 			x.HelpText.Contains("sdescpattern") &&
-			x.HelpText.Contains("fdescpattern")));
+			x.HelpText.Contains("fdescpattern") &&
+			x.HelpText.Contains("autotransform") &&
+			x.HelpText.Contains("priorityband") &&
+			x.HelpText.Contains("recheck")));
 	}
 
 	[TestMethod]

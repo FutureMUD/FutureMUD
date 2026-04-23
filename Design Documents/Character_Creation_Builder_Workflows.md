@@ -115,13 +115,24 @@ Builder expectations for this merit family are:
 
 - the merit defines first-creation defaults for the provisioned form
 - it can specify race, ethnicity, gender, alias, sort order, trauma mode, voluntary-switch rules, an owner-visibility prog, an optional transformation echo, and optional short/full description patterns
+- it can optionally force the character into that form whenever the merit applies
+- forced merit transforms have a configurable priority band, priority offset, and fuzzy applicability recheck cadence
 - the owning character keeps the provisioned body cached even if the merit is later removed or temporarily unavailable
 - re-adding the same merit reuses the cached sourced form instead of generating duplicates
-- the merit itself provisions access only; it does not force an immediate switch into that form
+- the merit still provisions the reusable body even when automatic transformation is disabled
 
 If you omit the form's short or full description pattern, the runtime will try to assign a random valid pattern for the provisioned form on first creation. If no valid pattern exists, it falls back to generic stored description text instead.
 
 Use the owner-visibility prog when you want a form to exist for later scripted use without being openly listed to the player yet, such as hidden lycanthropy or drug/spell-gated transformations.
+
+Recommended builder pattern for lycanthropy-style content:
+
+- use the merit's normal `applicabilityprog` for the moon, curse, drug, or other condition
+- set `autotransform true`
+- set `priorityband merit`
+- set `recheck hour` for slow world-state conditions such as lunar cycles, or `recheck minute` for shorter lived scripted gates
+
+If multiple mandatory sources overlap, the engine resolves them by priority band first, so a spell-configured sheep form can temporarily override a full-moon merit form and then drop back to the merit form when the spell expires.
 
 ## Safe Rerun Expectations
 Rerunning `ChargenSeeder` is intended to repair missing stock pieces, not to be the primary builder workflow for changen redesigns.

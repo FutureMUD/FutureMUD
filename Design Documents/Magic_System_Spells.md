@@ -314,12 +314,14 @@ It does not create a one-off temporary shell every cast. Instead it:
 - ensures a cached alternate form exists for the target character, creating it on first use if necessary
 - applies only first-creation defaults from the spell definition for race, ethnicity, gender, alias, sort order, trauma mode, voluntary-switch settings, visibility prog, transformation echo, and body-specific description patterns
 - reuses the same provisioned form on later casts with the same spell id plus `FormKey`
-- switches the target into that form with scripted switching rules
-- stores the previous body id in the applied child effect so expiry can attempt to revert cleanly
+- contributes a mandatory transformation demand into the character's shared forced-transformation resolver
+- uses configurable priority band and priority offset values so overlapping spell, merit, and future forced sources resolve consistently
+- preserves the character's baseline free form while any mandatory demand is active so expiry can revert through stacked transformations cleanly
 
-Current revert behavior on spell expiry is:
+Current revert behavior when spell-driven transform effects end is:
 
-- first try the remembered prior form
+- if another forced demand still wins, the character moves into that other demand's form
+- otherwise first try the saved baseline form from before the first mandatory transformation began
 - if that form is gone or no longer structurally valid, try the first other owned form that passes scripted switch validation
 - if no fallback works, leave the current form in place and emit a staff-facing system warning
 
@@ -330,6 +332,7 @@ Important builder implications:
 - later admin or FutureProg edits to that form's transformation echo and description patterns also remain authoritative
 - hidden forms stay hidden from the owner's `form` list unless they are the current form
 - spell expiry does not delete the cached form; the spell source only provisions and reuses it
+- overlapping forced sources are resolved centrally in this default order: merit or intrinsic, drug or chemical, spell or power, admin forced
 - if no explicit short or full description pattern is supplied, the runtime tries to pick a random valid pattern for the target form and only falls back to generic text when no valid pattern exists
 - switching emits the form's configured transformation echo after the new body has been stabilised; `default` uses the `DefaultFormTransformationEcho` static string and a blank echo suppresses the emote entirely
 - switch activation intentionally delays normal health and consequence feedback until organ functions and positioning have been recalculated, preventing transient `can't breathe` or `tumble to the ground` noise during valid transformations
@@ -350,6 +353,8 @@ The `transformform` builder effect currently supports:
 - `visibleprog <prog>|clear`
 - `sdescpattern <pattern>|random|clear`
 - `fdescpattern <pattern>|random|clear`
+- `priorityband <merit|drug|spell|admin>`
+- `priorityoffset <number>`
 
 ### Material workflow
 Material requirements are authored through the spell's inventory plan:

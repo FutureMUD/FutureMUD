@@ -27,6 +27,10 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 	private IFutureProg? _canSeeFormProg;
 	private IEntityDescriptionPattern? _shortDescriptionPattern;
 	private IEntityDescriptionPattern? _fullDescriptionPattern;
+	private bool _autoTransformWhenApplicable;
+	private ForcedTransformationPriorityBand _forcedTransformationPriorityBand = ForcedTransformationPriorityBand.MeritOrIntrinsic;
+	private int _forcedTransformationPriorityOffset;
+	private ForcedTransformationRecheckCadence _applicabilityRecheckCadence = ForcedTransformationRecheckCadence.FuzzyHour;
 
 	public static void RegisterMeritInitialiser()
 	{
@@ -81,6 +85,18 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 		_canSeeFormProg = gameworld.FutureProgs.Get(long.Parse(definition.Element("CanSeeFormProg")?.Value ?? "0"));
 		_shortDescriptionPattern = gameworld.EntityDescriptionPatterns.Get(long.Parse(definition.Element("ShortDescriptionPattern")?.Value ?? "0"));
 		_fullDescriptionPattern = gameworld.EntityDescriptionPatterns.Get(long.Parse(definition.Element("FullDescriptionPattern")?.Value ?? "0"));
+		_autoTransformWhenApplicable = bool.TryParse(definition.Element("AutoTransformWhenApplicable")?.Value, out var autoTransform) &&
+		                               autoTransform;
+		if (int.TryParse(definition.Element("ForcedTransformationPriorityBand")?.Value, out var priorityBand))
+		{
+			_forcedTransformationPriorityBand = (ForcedTransformationPriorityBand)priorityBand;
+		}
+
+		_ = int.TryParse(definition.Element("ForcedTransformationPriorityOffset")?.Value, out _forcedTransformationPriorityOffset);
+		if (int.TryParse(definition.Element("ApplicabilityRecheckCadence")?.Value, out var cadence))
+		{
+			_applicabilityRecheckCadence = (ForcedTransformationRecheckCadence)cadence;
+		}
 	}
 
 	private AdditionalBodyFormMerit(IFuturemud gameworld, string name)
@@ -108,6 +124,10 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 		ShortDescriptionPattern = _shortDescriptionPattern,
 		FullDescriptionPattern = _fullDescriptionPattern
 	};
+	public bool AutoTransformWhenApplicable => _autoTransformWhenApplicable;
+	public ForcedTransformationPriorityBand ForcedTransformationPriorityBand => _forcedTransformationPriorityBand;
+	public int ForcedTransformationPriorityOffset => _forcedTransformationPriorityOffset;
+	public ForcedTransformationRecheckCadence ApplicabilityRecheckCadence => _applicabilityRecheckCadence;
 
 	protected override XElement SaveSubtypeDefinition(XElement root)
 	{
@@ -131,7 +151,11 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 			new XElement("WhyCannotVoluntarilySwitchProg", _whyCannotVoluntarilySwitchProg?.Id ?? 0L),
 			new XElement("CanSeeFormProg", _canSeeFormProg?.Id ?? 0L),
 			new XElement("ShortDescriptionPattern", _shortDescriptionPattern?.Id ?? 0L),
-			new XElement("FullDescriptionPattern", _fullDescriptionPattern?.Id ?? 0L)
+			new XElement("FullDescriptionPattern", _fullDescriptionPattern?.Id ?? 0L),
+			new XElement("AutoTransformWhenApplicable", _autoTransformWhenApplicable),
+			new XElement("ForcedTransformationPriorityBand", (int)_forcedTransformationPriorityBand),
+			new XElement("ForcedTransformationPriorityOffset", _forcedTransformationPriorityOffset),
+			new XElement("ApplicabilityRecheckCadence", (int)_applicabilityRecheckCadence)
 		);
 		return root;
 	}
@@ -156,6 +180,10 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 		sb.AppendLine($"Visibility Prog: {_canSeeFormProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Initial Short Description Pattern: {_shortDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}");
 		sb.AppendLine($"Initial Full Description Pattern: {_fullDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}");
+		sb.AppendLine($"Auto-Transform When Applicable: {_autoTransformWhenApplicable.ToColouredString()}");
+		sb.AppendLine($"Forced Transformation Priority Band: {_forcedTransformationPriorityBand.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Forced Transformation Priority Offset: {_forcedTransformationPriorityOffset.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Applicability Recheck Cadence: {_applicabilityRecheckCadence.DescribeEnum().ColourValue()}");
 	}
 
 	protected override string SubtypeHelp => $@"{base.SubtypeHelp}
@@ -171,7 +199,11 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 	#3whycantprog <prog>|clear#0 - sets or clears the initial voluntary denial-message prog
 	#3visibleprog <prog>|clear#0 - sets or clears the initial visibility prog
 	#3sdescpattern <pattern>|random|clear#0 - sets or auto-randomises the initial short description pattern
-	#3fdescpattern <pattern>|random|clear#0 - sets or auto-randomises the initial full description pattern";
+	#3fdescpattern <pattern>|random|clear#0 - sets or auto-randomises the initial full description pattern
+	#3autotransform [true|false]#0 - toggles or sets whether applicability should force the character into this form
+	#3priorityband <merit|drug|spell|admin>#0 - sets the forced-transformation priority band
+	#3priorityoffset <number>#0 - sets the forced-transformation priority offset within the band
+	#3recheck <none|hour|minute>#0 - sets the fuzzy cadence for rechecking applicability while the character is online";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -211,6 +243,18 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 			case "descpattern":
 			case "fulldescpattern":
 				return BuildingCommandDescriptionPattern(actor, command, EntityDescriptionType.FullDescription);
+			case "autotransform":
+				return BuildingCommandAutoTransform(actor, command);
+			case "priorityband":
+			case "forcepriorityband":
+				return BuildingCommandPriorityBand(actor, command);
+			case "priorityoffset":
+			case "forcepriorityoffset":
+				return BuildingCommandPriorityOffset(actor, command);
+			case "recheck":
+			case "cadence":
+			case "applicabilityrecheck":
+				return BuildingCommandRecheck(actor, command);
 		}
 
 		return base.BuildingCommand(actor, command.GetUndo());
@@ -576,5 +620,158 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 		Changed = true;
 		actor.OutputHandler.Send($"This merit will now use the {label} pattern {pattern.Pattern.ColourCommand()} when provisioning its form.");
 		return true;
+	}
+
+	private bool BuildingCommandAutoTransform(ICharacter actor, StringStack command)
+	{
+		var autoTransform = !_autoTransformWhenApplicable;
+		if (!command.IsFinished)
+		{
+			switch (command.SafeRemainingArgument.ToLowerInvariant())
+			{
+				case "true":
+				case "yes":
+				case "on":
+				case "enabled":
+				case "force":
+					autoTransform = true;
+					break;
+				case "false":
+				case "no":
+				case "off":
+				case "disabled":
+					autoTransform = false;
+					break;
+				default:
+					actor.OutputHandler.Send("You must specify true or false if you provide an explicit value.");
+					return false;
+			}
+		}
+
+		_autoTransformWhenApplicable = autoTransform;
+		Changed = true;
+		actor.OutputHandler.Send(_autoTransformWhenApplicable
+			? "This merit will now force the character into its provisioned form whenever it applies."
+			: "This merit will no longer force an automatic transformation when it applies.");
+		return true;
+	}
+
+	private bool BuildingCommandPriorityBand(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify merit, drug, spell or admin.");
+			return false;
+		}
+
+		if (!TryParsePriorityBand(command.SafeRemainingArgument, out var band))
+		{
+			actor.OutputHandler.Send("You must specify merit, drug, spell or admin.");
+			return false;
+		}
+
+		_forcedTransformationPriorityBand = band;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This merit will now use the {_forcedTransformationPriorityBand.DescribeEnum().ColourValue()} forced-transformation priority band.");
+		return true;
+	}
+
+	private bool BuildingCommandPriorityOffset(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How large should the forced-transformation priority offset be?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var offset))
+		{
+			actor.OutputHandler.Send("That is not a valid priority offset.");
+			return false;
+		}
+
+		_forcedTransformationPriorityOffset = offset;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This merit will now use a forced-transformation priority offset of {_forcedTransformationPriorityOffset.ToString("N0", actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandRecheck(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify none, hour or minute.");
+			return false;
+		}
+
+		if (!TryParseRecheckCadence(command.SafeRemainingArgument, out var cadence))
+		{
+			actor.OutputHandler.Send("You must specify none, hour or minute.");
+			return false;
+		}
+
+		_applicabilityRecheckCadence = cadence;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This merit will now use the {_applicabilityRecheckCadence.DescribeEnum().ColourValue()} applicability recheck cadence.");
+		return true;
+	}
+
+	private static bool TryParsePriorityBand(string text, out ForcedTransformationPriorityBand band)
+	{
+		switch (text.ToLowerInvariant())
+		{
+			case "merit":
+			case "intrinsic":
+			case "meritorintrinsic":
+			case "intrinsicormerit":
+				band = ForcedTransformationPriorityBand.MeritOrIntrinsic;
+				return true;
+			case "drug":
+			case "chemical":
+			case "drugorchemical":
+				band = ForcedTransformationPriorityBand.DrugOrChemical;
+				return true;
+			case "spell":
+			case "power":
+			case "spellorpower":
+				band = ForcedTransformationPriorityBand.SpellOrPower;
+				return true;
+			case "admin":
+			case "forced":
+			case "adminforced":
+				band = ForcedTransformationPriorityBand.AdminForced;
+				return true;
+			default:
+				band = default;
+				return false;
+		}
+	}
+
+	private static bool TryParseRecheckCadence(string text, out ForcedTransformationRecheckCadence cadence)
+	{
+		switch (text.ToLowerInvariant())
+		{
+			case "none":
+			case "off":
+			case "never":
+				cadence = ForcedTransformationRecheckCadence.None;
+				return true;
+			case "hour":
+			case "hourly":
+			case "fuzzyhour":
+				cadence = ForcedTransformationRecheckCadence.FuzzyHour;
+				return true;
+			case "minute":
+			case "minutely":
+			case "fuzzyminute":
+				cadence = ForcedTransformationRecheckCadence.FuzzyMinute;
+				return true;
+			default:
+				cadence = default;
+				return false;
+		}
 	}
 }

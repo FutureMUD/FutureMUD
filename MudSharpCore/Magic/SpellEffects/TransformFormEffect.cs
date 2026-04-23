@@ -29,6 +29,8 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 	private IFutureProg? _canSeeFormProg;
 	private IEntityDescriptionPattern? _shortDescriptionPattern;
 	private IEntityDescriptionPattern? _fullDescriptionPattern;
+	private ForcedTransformationPriorityBand _priorityBand = ForcedTransformationPriorityBand.SpellOrPower;
+	private int _priorityOffset;
 
 	public static void RegisterFactory()
 	{
@@ -62,7 +64,9 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 			new XElement("WhyCannotVoluntarilySwitchProg", 0L),
 			new XElement("CanSeeFormProg", 0L),
 			new XElement("ShortDescriptionPattern", 0L),
-			new XElement("FullDescriptionPattern", 0L)
+			new XElement("FullDescriptionPattern", 0L),
+			new XElement("PriorityBand", (int)ForcedTransformationPriorityBand.SpellOrPower),
+			new XElement("PriorityOffset", 0)
 		), spell), string.Empty);
 	}
 
@@ -104,6 +108,12 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 		_canSeeFormProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanSeeFormProg")?.Value ?? "0"));
 		_shortDescriptionPattern = Gameworld.EntityDescriptionPatterns.Get(long.Parse(root.Element("ShortDescriptionPattern")?.Value ?? "0"));
 		_fullDescriptionPattern = Gameworld.EntityDescriptionPatterns.Get(long.Parse(root.Element("FullDescriptionPattern")?.Value ?? "0"));
+		if (int.TryParse(root.Element("PriorityBand")?.Value, out var priorityBand))
+		{
+			_priorityBand = (ForcedTransformationPriorityBand)priorityBand;
+		}
+
+		_ = int.TryParse(root.Element("PriorityOffset")?.Value, out _priorityOffset);
 	}
 
 	public IFuturemud Gameworld => Spell.Gameworld;
@@ -151,7 +161,9 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 			new XElement("WhyCannotVoluntarilySwitchProg", _whyCannotVoluntarilySwitchProg?.Id ?? 0L),
 			new XElement("CanSeeFormProg", _canSeeFormProg?.Id ?? 0L),
 			new XElement("ShortDescriptionPattern", _shortDescriptionPattern?.Id ?? 0L),
-			new XElement("FullDescriptionPattern", _fullDescriptionPattern?.Id ?? 0L)
+			new XElement("FullDescriptionPattern", _fullDescriptionPattern?.Id ?? 0L),
+			new XElement("PriorityBand", (int)_priorityBand),
+			new XElement("PriorityOffset", _priorityOffset)
 		);
 	}
 
@@ -187,17 +199,8 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 		var priorBodyId = recipient.EffectsOfType<SpellTransformFormEffect>()
 		                          .FirstOrDefault(x => x.Spell == Spell && x.FormKey.EqualTo(FormKey))
 		                          ?.PriorBodyId ?? recipient.CurrentBody.Id;
-		if (recipient.CurrentBody != form.Body &&
-		    !recipient.SwitchToBody(form.Body, BodySwitchIntent.Scripted))
-		{
-			Gameworld.SystemMessage(
-				$"Spell #{Spell.Id.ToString("N0")} could not switch character #{recipient.Id.ToString("N0")} into form '{FormKey}'.",
-				true
-			);
-			return null;
-		}
-
-		return new SpellTransformFormEffect(recipient, parent, FormKey, form.Body.Id, priorBodyId);
+		return new SpellTransformFormEffect(recipient, parent, FormKey, form.Body.Id, priorBodyId, _priorityBand,
+			_priorityOffset);
 	}
 
 	public IMagicSpellEffectTemplate Clone()
@@ -220,7 +223,9 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 	#3whycantprog <prog>|clear#0 - sets or clears the initial voluntary denial-message prog
 	#3visibleprog <prog>|clear#0 - sets or clears the initial visibility prog
 	#3sdescpattern <pattern>|random|clear#0 - sets or auto-randomises the initial short description pattern
-	#3fdescpattern <pattern>|random|clear#0 - sets or auto-randomises the initial full description pattern";
+	#3fdescpattern <pattern>|random|clear#0 - sets or auto-randomises the initial full description pattern
+	#3priorityband <merit|drug|spell|admin>#0 - sets the forced-transformation priority band
+	#3priorityoffset <number>#0 - sets the forced-transformation priority offset within the band";
 
 	public string Show(ICharacter actor)
 	{
@@ -230,7 +235,7 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 				null => "Default".ColourValue(),
 				"" => "Suppressed".ColourError(),
 				_ => _transformationEcho.ColourCommand()
-			})}, Voluntary {_allowVoluntarySwitch.ToColouredString()}, CanProg {_canVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}, WhyCant {_whyCannotVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}, Visible {_canSeeFormProg?.MXPClickableFunctionName() ?? "None".ColourError()}, SDesc {_shortDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}, FDesc {_fullDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}";
+			})}, Voluntary {_allowVoluntarySwitch.ToColouredString()}, CanProg {_canVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}, WhyCant {_whyCannotVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}, Visible {_canSeeFormProg?.MXPClickableFunctionName() ?? "None".ColourError()}, Priority {_priorityBand.DescribeEnum().ColourValue()} {_priorityOffset.ToString("+#;-#;0", actor).ColourValue()}, SDesc {_shortDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}, FDesc {_fullDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}";
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -273,6 +278,12 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 			case "descpattern":
 			case "fulldescpattern":
 				return BuildingCommandDescriptionPattern(actor, command, EntityDescriptionType.FullDescription);
+			case "priorityband":
+			case "forcepriorityband":
+				return BuildingCommandPriorityBand(actor, command);
+			case "priorityoffset":
+			case "forcepriorityoffset":
+				return BuildingCommandPriorityOffset(actor, command);
 		}
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
@@ -653,5 +664,78 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 		Spell.Changed = true;
 		actor.OutputHandler.Send($"This effect will now use the {label} pattern {pattern.Pattern.ColourCommand()} when provisioning its form.");
 		return true;
+	}
+
+	private bool BuildingCommandPriorityBand(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify merit, drug, spell or admin.");
+			return false;
+		}
+
+		if (!TryParsePriorityBand(command.SafeRemainingArgument, out var band))
+		{
+			actor.OutputHandler.Send("You must specify merit, drug, spell or admin.");
+			return false;
+		}
+
+		_priorityBand = band;
+		Spell.Changed = true;
+		actor.OutputHandler.Send(
+			$"This effect will now use the {_priorityBand.DescribeEnum().ColourValue()} forced-transformation priority band.");
+		return true;
+	}
+
+	private bool BuildingCommandPriorityOffset(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How large should the forced-transformation priority offset be?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var offset))
+		{
+			actor.OutputHandler.Send("That is not a valid priority offset.");
+			return false;
+		}
+
+		_priorityOffset = offset;
+		Spell.Changed = true;
+		actor.OutputHandler.Send(
+			$"This effect will now use a forced-transformation priority offset of {_priorityOffset.ToString("N0", actor).ColourValue()}.");
+		return true;
+	}
+
+	private static bool TryParsePriorityBand(string text, out ForcedTransformationPriorityBand band)
+	{
+		switch (text.ToLowerInvariant())
+		{
+			case "merit":
+			case "intrinsic":
+			case "meritorintrinsic":
+			case "intrinsicormerit":
+				band = ForcedTransformationPriorityBand.MeritOrIntrinsic;
+				return true;
+			case "drug":
+			case "chemical":
+			case "drugorchemical":
+				band = ForcedTransformationPriorityBand.DrugOrChemical;
+				return true;
+			case "spell":
+			case "power":
+			case "spellorpower":
+				band = ForcedTransformationPriorityBand.SpellOrPower;
+				return true;
+			case "admin":
+			case "forced":
+			case "adminforced":
+				band = ForcedTransformationPriorityBand.AdminForced;
+				return true;
+			default:
+				band = default;
+				return false;
+		}
 	}
 }

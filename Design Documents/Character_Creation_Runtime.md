@@ -113,7 +113,8 @@ Runtime behavior is:
 - if the character already has a sourced form mapping for that merit, the existing body is reused
 - if no sourced mapping exists, the runtime first tries to adopt exactly one existing matching form before creating a new dormant body
 - removing and later re-adding the merit reuses the cached form rather than deleting and recreating it
-- merit provisioning alone does not auto-switch the character into the form
+- the merit can optionally auto-transform the character into the form whenever the merit becomes applicable
+- auto-transforming merits reuse the merit's normal `ApplicabilityProg` as the condition source and reevaluate on login, movement, merit changes, and an optional fuzzy heartbeat cadence
 
 The merit's first-creation defaults can specify:
 
@@ -130,9 +131,25 @@ The merit's first-creation defaults can specify:
 - initial short-description pattern
 - initial full-description pattern
 
+The merit's ongoing forced-transformation behavior can additionally specify:
+
+- whether applicability should force a transformation
+- forced-transformation priority band
+- forced-transformation priority offset
+- applicability recheck cadence for online characters
+
 If no explicit short or full description pattern is supplied, the runtime tries to choose a random valid pattern for the target race/body configuration and only falls back to generic text when no valid pattern exists.
 
 After a form exists, its per-character metadata is authoritative. Editing that form later through admin tools or FutureProg mutators does not get overwritten by the originating merit, including later edits to visibility, voluntary-switch rules, transformation echo, or description patterns.
+
+When more than one forced transformation source is active at the same time, the runtime resolves them centrally by priority band, then priority offset, then source recency or id tie-breakers. The stock precedence order is:
+
+- merit or intrinsic
+- drug or chemical
+- spell or power
+- admin forced
+
+While any mandatory transformation is active, the runtime keeps a saved baseline body id so it can revert through intermediate spell and merit layers cleanly when the higher-priority source ends.
 
 ## Review and Submission
 Once an application is submitted:

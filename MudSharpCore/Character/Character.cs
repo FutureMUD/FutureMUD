@@ -94,6 +94,7 @@ public partial class Character : PerceiverItem, ICharacter
         LastMinutesUpdate = LoginDateTime;
         _dbTotalMinutesPlayed = character.TotalMinutesPlayed;
         LoadEffects(XElement.Parse(character.EffectData.IfNullOrWhiteSpace("<Effects/>")));
+        RefreshForcedTransformationHeartbeatRegistration();
 
         Body.TotalBloodVolumeLitres = TotalBloodVolume(this);
         if (Body.CurrentBloodVolumeLitres <= 0 && !State.HasFlag(CharacterState.Dead))
@@ -247,6 +248,7 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         EnsureProvisionedFormsFromMerits();
+        RefreshForcedTransformationHeartbeatRegistration();
 
         foreach (IKnowledge knowledge in template.SelectedKnowledges)
         {
@@ -557,6 +559,10 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         CheckAllTargets();
+        if (AutoTransformingBodyFormMerits().Any())
+        {
+            ReevaluateForcedBodyTransformation();
+        }
     }
 
     public override void Save()
@@ -2338,6 +2344,7 @@ public partial class Character : PerceiverItem, ICharacter
         CacheScheduledEffects();
         Gameworld.EffectScheduler.Destroy(this, true);
         Gameworld.Scheduler.Destroy(this);
+        ClearForcedTransformationHeartbeatRegistration();
         Body.Quit();
 
         Gameworld.HeartbeatManager.TenSecondHeartbeat -= NeedsHeartbeat;
@@ -2366,6 +2373,8 @@ public partial class Character : PerceiverItem, ICharacter
         StartNeedsHeartbeat();
         RemoveAllEffects(x => x.IsEffectType<LinkdeadLogout>());
         Body.Login();
+        RefreshForcedTransformationHeartbeatRegistration();
+        ReevaluateForcedBodyTransformation();
         if (PositionTarget?.TargetedBy.Contains(this) == false)
         {
             if (!PositionTarget.CanBePositionedAgainst(PositionState, PositionModifier))

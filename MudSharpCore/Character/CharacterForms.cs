@@ -996,9 +996,18 @@ public partial class Character
 			return false;
 		}
 
-		if (intent == BodySwitchIntent.Voluntary && !form.CanSwitchVoluntarily(this, out whyNot))
+		if (intent == BodySwitchIntent.Voluntary)
 		{
-			return false;
+			if (TryGetCurrentForcedTransformationTarget(out var forcedTarget) && forcedTarget != target)
+			{
+				whyNot = "You cannot voluntarily switch forms while a mandatory transformation is overriding your form.";
+				return false;
+			}
+
+			if (!form.CanSwitchVoluntarily(this, out whyNot))
+			{
+				return false;
+			}
 		}
 
 		var currentBody = Body as MudSharp.Body.Implementations.Body;

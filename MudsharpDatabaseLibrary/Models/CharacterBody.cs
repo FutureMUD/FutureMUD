@@ -10,10 +10,12 @@ namespace MudSharp.Models
         public bool AllowVoluntarySwitch { get; set; }
         public long? CanVoluntarilySwitchProgId { get; set; }
         public long? WhyCannotVoluntarilySwitchProgId { get; set; }
+        public long? CanSeeFormProgId { get; set; }
 
         public virtual Body Body { get; set; }
         public virtual Character Character { get; set; }
         public virtual FutureProg CanVoluntarilySwitchProg { get; set; }
         public virtual FutureProg WhyCannotVoluntarilySwitchProg { get; set; }
+        public virtual FutureProg CanSeeFormProg { get; set; }
     }
 }

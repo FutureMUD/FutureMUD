@@ -12,6 +12,7 @@ using MudSharp.GameItems.Inventory;
 using MudSharp.Character;
 using MudSharp.Health;
 using MudSharp.Health.Breathing;
+using MudSharp.Health.Wounds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -557,6 +558,7 @@ public partial class Body
 			ClearDirectInventoryState();
 			TotalBloodVolumeLitres = MudSharp.Character.Character.TotalBloodVolume(Actor);
 			BaseLiverAlcoholRemovalKilogramsPerHour = MudSharp.Character.Character.LiverFunction(Actor);
+			SanitizeIncompatibleHealthState(true);
 		}
 
 		MaximumStamina = MudSharp.Character.Character.MaximumStaminaFor(Actor);
@@ -638,6 +640,107 @@ public partial class Body
 		});
 
 		source.ResetDormantFormState(plan.TraumaMode);
+	}
+
+	internal void SanitizeIncompatibleHealthState(bool restoreLostFluids = false)
+	{
+		var removedAny = false;
+		var removedBleedSource = false;
+
+		foreach (var wound in _wounds.ToList())
+		{
+			if (WoundCompatibleWithHealthStrategy(wound))
+			{
+				continue;
+			}
+
+			removedAny = true;
+			removedBleedSource |= wound.BleedStatus == BleedStatus.Bleeding;
+			removedBleedSource |= wound.Infection is not null;
+			wound.Delete();
+			_wounds.Remove(wound);
+		}
+
+		if (!HealthStrategySupportsOrganicTrauma())
+		{
+			foreach (var infection in _partInfections.ToList())
+			{
+				removedAny = true;
+				removedBleedSource = true;
+				infection.Delete();
+				_partInfections.Remove(infection);
+			}
+
+			foreach (var effect in EffectsOfType<InternalBleeding>().ToList())
+			{
+				removedAny = true;
+				removedBleedSource |= effect.BloodlossPerTick > 0.0 || effect.BloodlossTotal > 0.0;
+				RemoveEffect(effect, true);
+			}
+
+			foreach (var effect in EffectsOfType<AntisepticProtection>().ToList())
+			{
+				removedAny = true;
+				RemoveEffect(effect, true);
+			}
+
+			foreach (var effect in EffectsOfType<AntiInflammatoryTreatment>().ToList())
+			{
+				removedAny = true;
+				RemoveEffect(effect, true);
+			}
+
+			foreach (var effect in EffectsOfType<ReplantedBodypartsEffect>().ToList())
+			{
+				removedAny = true;
+				RemoveEffect(effect, true);
+			}
+		}
+
+		if (restoreLostFluids &&
+		    removedBleedSource &&
+		    TotalBloodVolumeLitres > 0.0 &&
+		    !HasAnyCompatibleBleedSources())
+		{
+			_currentBloodVolumeLitres = TotalBloodVolumeLitres;
+			Changed = true;
+		}
+
+		if (!removedAny)
+		{
+			return;
+		}
+
+		ExecuteWithSuppressedHealthFeedback(() =>
+		{
+			RecalculatePartsAndOrgans();
+			RecalculateItemHelpers();
+			ReevaluateLimbAndPartDamageEffects();
+		});
+		Changed = true;
+	}
+
+	private bool HealthStrategySupportsOrganicTrauma()
+	{
+		return HealthStrategy.HealthStateModel == HealthStateModel.Organic;
+	}
+
+	private bool WoundCompatibleWithHealthStrategy(IWound wound)
+	{
+		return HealthStrategy.HealthStateModel switch
+		{
+			HealthStateModel.Organic => wound is SimpleOrganicWound or HealingSimpleWound or BoneFracture,
+			HealthStateModel.Robot => wound is RobotWound,
+			HealthStateModel.Construct => wound is SimpleWound,
+			HealthStateModel.GameItem => wound is SimpleWound,
+			_ => false
+		};
+	}
+
+	private bool HasAnyCompatibleBleedSources()
+	{
+		return _wounds.Any(x => WoundCompatibleWithHealthStrategy(x) && x.BleedStatus == BleedStatus.Bleeding) ||
+		       EffectsOfType<InternalBleeding>().Any(x => x.BloodlossPerTick > 0.0);
 	}
 
 	private void ApplyTransferredRestraint(IGameItem item, IWearProfile profile)

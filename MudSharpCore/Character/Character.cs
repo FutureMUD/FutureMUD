@@ -102,6 +102,7 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         Body.BaseLiverAlcoholRemovalKilogramsPerHour = LiverFunction(this);
+        (Body as MudSharp.Body.Implementations.Body)?.SanitizeIncompatibleHealthState(true);
         InitialiseStamina();
         LoadHooks(character.HooksPerceivables, "Character");
     }
@@ -244,6 +245,8 @@ public partial class Character : PerceiverItem, ICharacter
                 _merits.Add(included);
             }
         }
+
+        EnsureProvisionedFormsFromMerits();
 
         foreach (IKnowledge knowledge in template.SelectedKnowledges)
         {
@@ -1614,6 +1617,7 @@ public partial class Character : PerceiverItem, ICharacter
 
         LoadForms(character);
         LoadCharacterTraits(character);
+        EnsureProvisionedFormsFromMerits();
         LoadPosition(character.PositionId, character.PositionModifier, character.PositionEmote,
             character.PositionTargetId, character.PositionTargetType);
         if (character.CharactersChargenRoles.Any())

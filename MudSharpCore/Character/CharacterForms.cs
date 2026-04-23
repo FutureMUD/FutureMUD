@@ -12,6 +12,7 @@ using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.NPC.Templates;
+using MudSharp.RPG.Merits.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,8 +22,39 @@ namespace MudSharp.Character;
 public partial class Character
 {
 	private readonly List<ICharacterForm> _forms = new();
+	private readonly List<CharacterFormSourceMapping> _formSources = new();
 	private bool _isSwitchingBodies;
 	private Alignment _handedness;
+
+	private sealed class CharacterFormSourceMapping
+	{
+		public CharacterFormSourceMapping(CharacterFormSourceType sourceType, long sourceId, string sourceKey, IBody body)
+		{
+			SourceType = sourceType;
+			SourceId = sourceId;
+			SourceKey = sourceKey ?? string.Empty;
+			Body = body;
+		}
+
+		public CharacterFormSourceType SourceType { get; init; }
+		public long SourceId { get; init; }
+		public string SourceKey { get; init; }
+		public IBody Body { get; set; }
+
+		public bool Matches(ICharacterFormSource source)
+		{
+			return SourceType == source.SourceType &&
+			       SourceId == source.SourceId &&
+			       SourceKey.EqualTo(source.SourceKey ?? string.Empty);
+		}
+
+		public bool Matches(MudSharp.Models.CharacterBodySource source)
+		{
+			return SourceType == (CharacterFormSourceType)source.SourceType &&
+			       SourceId == source.SourceId &&
+			       SourceKey.EqualTo(source.SourceKey ?? string.Empty);
+		}
+	}
 
 	public IEnumerable<ICharacterForm> Forms => _forms.OrderBy(x => x.SortOrder).ThenBy(x => x.Alias);
 	public IEnumerable<IBody> Bodies => Forms.Select(x => x.Body).Distinct();
@@ -42,6 +74,7 @@ public partial class Character
 	private void InitialiseDefaultForm(IBody body)
 	{
 		_forms.Clear();
+		_formSources.Clear();
 		_forms.Add(DefaultFormFor(body));
 	}
 
@@ -80,7 +113,9 @@ public partial class Character
 	private void LoadForms(MudSharp.Models.Character character)
 	{
 		_forms.Clear();
+		_formSources.Clear();
 		Body = new Body.Implementations.Body(character.Body, Gameworld, this);
+		(Body as Body.Implementations.Body)?.SanitizeIncompatibleHealthState();
 		var bodies = new Dictionary<long, IBody>
 		{
 			{ Body.Id, Body }
@@ -91,10 +126,33 @@ public partial class Character
 			if (!bodies.TryGetValue(form.BodyId, out var body))
 			{
 				body = new Body.Implementations.Body(form.Body, Gameworld, this);
+				(body as Body.Implementations.Body)?.SanitizeIncompatibleHealthState();
 				bodies[body.Id] = body;
 			}
 
 			_forms.Add(new CharacterForm(form, body, Gameworld));
+		}
+
+		foreach (var source in character.CharacterBodySources)
+		{
+			if (!bodies.TryGetValue(source.BodyId, out var body))
+			{
+				body = new Body.Implementations.Body(source.Body, Gameworld, this);
+				(body as Body.Implementations.Body)?.SanitizeIncompatibleHealthState();
+				bodies[body.Id] = body;
+			}
+
+			if (_forms.All(x => x.Body != body))
+			{
+				_forms.Add(DefaultFormFor(body));
+			}
+
+			_formSources.Add(new CharacterFormSourceMapping(
+				(CharacterFormSourceType)source.SourceType,
+				source.SourceId,
+				source.SourceKey,
+				body
+			));
 		}
 
 		if (_forms.All(x => x.Body != Body))
@@ -122,6 +180,14 @@ public partial class Character
 			FMDB.Context.RemoveRange(removedForms);
 		}
 
+		var removedSources = dbchar.CharacterBodySources
+			.Where(x => _formSources.All(y => !y.Matches(x) || y.Body.Id != x.BodyId))
+			.ToList();
+		if (removedSources.Any())
+		{
+			FMDB.Context.RemoveRange(removedSources);
+		}
+
 		foreach (var form in _forms)
 		{
 			var dbform = dbchar.CharacterBodies.FirstOrDefault(x => x.BodyId == form.Body.Id);
@@ -141,6 +207,25 @@ public partial class Character
 			dbform.AllowVoluntarySwitch = form.AllowVoluntarySwitch;
 			dbform.CanVoluntarilySwitchProgId = form.CanVoluntarilySwitchProg?.Id;
 			dbform.WhyCannotVoluntarilySwitchProgId = form.WhyCannotVoluntarilySwitchProg?.Id;
+			dbform.CanSeeFormProgId = form.CanSeeFormProg?.Id;
+		}
+
+		foreach (var source in _formSources)
+		{
+			var dbsource = dbchar.CharacterBodySources.FirstOrDefault(x => source.Matches(x));
+			if (dbsource == null)
+			{
+				dbsource = new MudSharp.Models.CharacterBodySource
+				{
+					Character = dbchar,
+					SourceType = (int)source.SourceType,
+					SourceId = source.SourceId,
+					SourceKey = source.SourceKey
+				};
+				dbchar.CharacterBodySources.Add(dbsource);
+			}
+
+			dbsource.BodyId = source.Body.Id;
 		}
 	}
 
@@ -162,7 +247,20 @@ public partial class Character
 				TraumaMode = (int)form.TraumaMode,
 				AllowVoluntarySwitch = form.AllowVoluntarySwitch,
 				CanVoluntarilySwitchProgId = form.CanVoluntarilySwitchProg?.Id,
-				WhyCannotVoluntarilySwitchProgId = form.WhyCannotVoluntarilySwitchProg?.Id
+				WhyCannotVoluntarilySwitchProgId = form.WhyCannotVoluntarilySwitchProg?.Id,
+				CanSeeFormProgId = form.CanSeeFormProg?.Id
+			});
+		}
+
+		foreach (var source in _formSources)
+		{
+			dbitem.CharacterBodySources.Add(new MudSharp.Models.CharacterBodySource
+			{
+				Character = dbitem,
+				Body = source.Body == Body ? dbitem.Body : FMDB.Context.Bodies.Find(source.Body.Id),
+				SourceType = (int)source.SourceType,
+				SourceId = source.SourceId,
+				SourceKey = source.SourceKey
 			});
 		}
 	}
@@ -188,14 +286,31 @@ public partial class Character
 		return _forms.FirstOrDefault(x => x.Body == target);
 	}
 
-	internal ICharacterForm ResolveForm(string text)
+	private static ICharacterForm ResolveForm(IEnumerable<ICharacterForm> forms, string text)
 	{
 		if (long.TryParse(text, out var value))
 		{
-			return _forms.FirstOrDefault(x => x.Body.Id == value);
+			return forms.FirstOrDefault(x => x.Body.Id == value);
 		}
 
-		return _forms.FirstOrDefault(x => x.Alias.EqualTo(text));
+		return forms.FirstOrDefault(x => x.Alias.EqualTo(text));
+	}
+
+	internal ICharacterForm ResolveForm(string text)
+	{
+		return ResolveForm(_forms, text);
+	}
+
+	internal IEnumerable<ICharacterForm> VisibleFormsFor(ICharacter viewer)
+	{
+		return _forms.Where(x => x.Body == CurrentBody || x.CanSee(viewer))
+		             .OrderBy(x => x.SortOrder)
+		             .ThenBy(x => x.Alias);
+	}
+
+	internal ICharacterForm ResolveVisibleForm(ICharacter viewer, string text)
+	{
+		return ResolveForm(VisibleFormsFor(viewer), text);
 	}
 
 	private bool AliasInUse(string alias, ICharacterForm except = null)
@@ -246,17 +361,141 @@ public partial class Character
 		return true;
 	}
 
-	internal bool TryAddForm(IRace race, IEthnicity ethnicity, Gender? gender, out ICharacterForm form,
+	internal bool TrySetFormSortOrder(ICharacterForm form, int sortOrder, out string whyNot)
+	{
+		if (form is null)
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		form.SortOrder = sortOrder;
+		Changed = true;
+		whyNot = string.Empty;
+		return true;
+	}
+
+	internal bool TrySetFormTraumaMode(ICharacterForm form, BodySwitchTraumaMode traumaMode, out string whyNot)
+	{
+		if (form is null)
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		form.TraumaMode = traumaMode;
+		Changed = true;
+		whyNot = string.Empty;
+		return true;
+	}
+
+	internal bool TrySetFormAllowVoluntary(ICharacterForm form, bool allowVoluntary, out string whyNot)
+	{
+		if (form is null)
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		form.AllowVoluntarySwitch = allowVoluntary;
+		Changed = true;
+		whyNot = string.Empty;
+		return true;
+	}
+
+	internal bool TrySetFormVisibilityProg(ICharacterForm form, IFutureProg prog, out string whyNot)
+	{
+		if (form is null)
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		form.CanSeeFormProg = prog;
+		Changed = true;
+		whyNot = string.Empty;
+		return true;
+	}
+
+	internal bool TrySetFormCanSwitchProg(ICharacterForm form, IFutureProg prog, out string whyNot)
+	{
+		if (form is null)
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		form.CanVoluntarilySwitchProg = prog;
+		Changed = true;
+		whyNot = string.Empty;
+		return true;
+	}
+
+	internal bool TrySetFormWhyCantProg(ICharacterForm form, IFutureProg prog, out string whyNot)
+	{
+		if (form is null)
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		form.WhyCannotVoluntarilySwitchProg = prog;
+		Changed = true;
+		whyNot = string.Empty;
+		return true;
+	}
+
+	internal bool TryClearFormVisibilityProg(ICharacterForm form, out string whyNot)
+	{
+		return TrySetFormVisibilityProg(form, null, out whyNot);
+	}
+
+	internal bool TryClearFormCanSwitchProg(ICharacterForm form, out string whyNot)
+	{
+		return TrySetFormCanSwitchProg(form, null, out whyNot);
+	}
+
+	internal bool TryClearFormWhyCantProg(ICharacterForm form, out string whyNot)
+	{
+		return TrySetFormWhyCantProg(form, null, out whyNot);
+	}
+
+	private CharacterFormSourceMapping GetFormSource(ICharacterFormSource source)
+	{
+		return _formSources.FirstOrDefault(x => x.Matches(source));
+	}
+
+	private void SetFormSource(IBody body, ICharacterFormSource source)
+	{
+		var existing = GetFormSource(source);
+		if (existing == null)
+		{
+			_formSources.Add(new CharacterFormSourceMapping(source.SourceType, source.SourceId, source.SourceKey, body));
+		}
+		else
+		{
+			existing.Body = body;
+		}
+
+		Changed = true;
+	}
+
+	private bool TryNormaliseFormSpecification(ICharacterFormSpecification specification, out IRace race,
+		out IEthnicity ethnicity, out Gender selectedGender, out string desiredAlias, out int desiredSortOrder,
 		out string whyNot)
 	{
-		form = null;
+		race = specification?.Race;
+		ethnicity = null;
+		selectedGender = default;
+		desiredAlias = string.Empty;
+		desiredSortOrder = 0;
 		if (race is null)
 		{
 			whyNot = "There is no such race.";
 			return false;
 		}
 
-		var selectedGender = gender ?? Gender.Enum;
+		selectedGender = specification.Gender ?? Gender.Enum;
 		if (!race.AllowedGenders.Contains(selectedGender))
 		{
 			selectedGender = race.AllowedGenders.FirstOrDefault();
@@ -267,9 +506,10 @@ public partial class Character
 			}
 		}
 
-		ethnicity ??= race.SameRace(Ethnicity?.ParentRace)
+		var targetRace = race;
+		ethnicity = specification.Ethnicity ?? (targetRace.SameRace(Ethnicity?.ParentRace)
 			? Ethnicity
-			: Gameworld.Ethnicities.FirstOrDefault(x => race.SameRace(x.ParentRace));
+			: Gameworld.Ethnicities.FirstOrDefault(x => targetRace.SameRace(x.ParentRace)));
 		if (ethnicity is null)
 		{
 			whyNot = "That race does not have any compatible ethnicity to use for an alternate form.";
@@ -282,10 +522,39 @@ public partial class Character
 			return false;
 		}
 
+		desiredAlias = specification.Alias;
+		if (string.IsNullOrWhiteSpace(desiredAlias))
+		{
+			desiredAlias = race.Name;
+		}
+
+		desiredSortOrder = specification.SortOrder ??
+		                   (_forms.Select(x => x.SortOrder).DefaultIfEmpty(-1).Max() + 1);
+		whyNot = string.Empty;
+		return true;
+	}
+
+	private ICharacterForm TryFindMatchingExistingForm(IRace race, IEthnicity ethnicity, Gender gender, string alias)
+	{
+		return _forms.Where(x => x.Alias.EqualTo(alias))
+		             .Where(x => x.Body.Race.SameRace(race))
+		             .Where(x => x.Body.Ethnicity == ethnicity)
+		             .Where(x => x.Body.Gender.Enum == gender)
+		             .Take(2)
+		             .ToList() switch
+		             {
+			             [var form] => form,
+			             _ => null
+		             };
+	}
+
+	private bool TryCreateForm(ICharacterFormSpecification specification, IRace race, IEthnicity ethnicity,
+		Gender gender, string desiredAlias, int desiredSortOrder, out ICharacterForm form, out string whyNot)
+	{
 		var baseTemplate = GetCharacterTemplate();
 		var template = baseTemplate as SimpleCharacterTemplate ?? new SimpleCharacterTemplate(baseTemplate.SaveToXml(), Gameworld);
 		var handedness = race.HandednessOptions.Contains(template.Handedness) ? template.Handedness : race.DefaultHandedness;
-		var selectedCharacteristics = race.Characteristics(selectedGender)
+		var selectedCharacteristics = race.Characteristics(gender)
 		                                 .Select(x => (
 			                                 x,
 			                                 template.SelectedCharacteristics.FirstOrDefault(y => y.Item1 == x).Item2 ??
@@ -300,7 +569,7 @@ public partial class Character
 		{
 			SelectedRace = race,
 			SelectedEthnicity = ethnicity,
-			SelectedGender = selectedGender,
+			SelectedGender = gender,
 			SelectedCharacteristics = selectedCharacteristics,
 			SelectedAttributes = selectedAttributes,
 			Handedness = handedness,
@@ -321,16 +590,110 @@ public partial class Character
 			Gameworld.SaveManager.Flush();
 		}
 
-		var newForm = new CharacterForm(newBody, GetNextAvailableAlias(race.Name), _forms.Select(x => x.SortOrder).DefaultIfEmpty().Max() + 1)
+		var newForm = new CharacterForm(newBody, GetNextAvailableAlias(desiredAlias), desiredSortOrder)
 		{
-			TraumaMode = BodySwitchTraumaMode.Automatic,
-			AllowVoluntarySwitch = false
+			TraumaMode = specification.TraumaMode,
+			AllowVoluntarySwitch = specification.AllowVoluntarySwitch,
+			CanVoluntarilySwitchProg = specification.CanVoluntarilySwitchProg,
+			WhyCannotVoluntarilySwitchProg = specification.WhyCannotVoluntarilySwitchProg,
+			CanSeeFormProg = specification.CanSeeFormProg
 		};
 		_forms.Add(newForm);
 		Changed = true;
 		form = newForm;
 		whyNot = string.Empty;
 		return true;
+	}
+
+	internal bool TryAddForm(IRace race, IEthnicity ethnicity, Gender? gender, out ICharacterForm form,
+		out string whyNot)
+	{
+		var specification = new CharacterFormSpecification
+		{
+			Race = race,
+			Ethnicity = ethnicity,
+			Gender = gender,
+			Alias = race?.Name,
+			SortOrder = _forms.Select(x => x.SortOrder).DefaultIfEmpty(-1).Max() + 1,
+			TraumaMode = BodySwitchTraumaMode.Automatic,
+			AllowVoluntarySwitch = false
+		};
+		if (!TryNormaliseFormSpecification(specification, out race, out ethnicity, out var selectedGender,
+			    out var desiredAlias, out var desiredSortOrder, out whyNot))
+		{
+			form = null;
+			return false;
+		}
+
+		return TryCreateForm(specification, race, ethnicity, selectedGender, desiredAlias, desiredSortOrder, out form,
+			out whyNot);
+	}
+
+	public bool EnsureForm(ICharacterFormSpecification specification, ICharacterFormSource source, out ICharacterForm form,
+		out string whyNot)
+	{
+		form = null;
+		if (!TryNormaliseFormSpecification(specification, out var race, out var ethnicity, out var selectedGender,
+			    out var desiredAlias, out var desiredSortOrder, out whyNot))
+		{
+			return false;
+		}
+
+		var sourced = GetFormSource(source);
+		if (sourced != null)
+		{
+			form = GetForm(sourced.Body);
+			if (form == null)
+			{
+				form = DefaultFormFor(sourced.Body);
+				_forms.Add(form);
+				Changed = true;
+			}
+
+			whyNot = string.Empty;
+			return true;
+		}
+
+		form = TryFindMatchingExistingForm(race, ethnicity, selectedGender, desiredAlias);
+		if (form != null)
+		{
+			SetFormSource(form.Body, source);
+			whyNot = string.Empty;
+			return true;
+		}
+
+		if (!TryCreateForm(specification, race, ethnicity, selectedGender, desiredAlias, desiredSortOrder, out form,
+			    out whyNot))
+		{
+			return false;
+		}
+
+		SetFormSource(form.Body, source);
+		return true;
+	}
+
+	private void EnsureProvisionedFormFromMerit(IAdditionalBodyFormMerit merit)
+	{
+		if (EnsureForm(merit.FormSpecification,
+			    new CharacterFormSource(CharacterFormSourceType.Merit, merit.Id),
+			    out _,
+			    out _))
+		{
+			return;
+		}
+
+		Gameworld.SystemMessage(
+			$"Character #{Id.ToString("N0")} could not ensure merit-provided form from merit #{merit.Id.ToString("N0")}.",
+			true
+		);
+	}
+
+	private void EnsureProvisionedFormsFromMerits()
+	{
+		foreach (var merit in _merits.OfType<IAdditionalBodyFormMerit>())
+		{
+			EnsureProvisionedFormFromMerit(merit);
+		}
 	}
 
 	private BodySwitchTraumaMode GetEffectiveTraumaMode(ICharacterForm form, IBody target)

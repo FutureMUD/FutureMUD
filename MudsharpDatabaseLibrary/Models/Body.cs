@@ -14,6 +14,7 @@ namespace MudSharp.Models
             BodiesProsthetics = new HashSet<BodiesProsthetics>();
             BodiesSeveredParts = new HashSet<BodiesSeveredParts>();
             CharacterBodies = new HashSet<CharacterBody>();
+            CharacterBodySources = new HashSet<CharacterBodySource>();
             Characteristics = new HashSet<Characteristic>();
             Characters = new HashSet<Character>();
             HooksPerceivables = new HashSet<HooksPerceivable>();
@@ -58,6 +59,7 @@ namespace MudSharp.Models
         public virtual ICollection<BodiesProsthetics> BodiesProsthetics { get; set; }
         public virtual ICollection<BodiesSeveredParts> BodiesSeveredParts { get; set; }
         public virtual ICollection<CharacterBody> CharacterBodies { get; set; }
+        public virtual ICollection<CharacterBodySource> CharacterBodySources { get; set; }
         public virtual ICollection<Characteristic> Characteristics { get; set; }
         public virtual ICollection<Character> Characters { get; set; }
         public virtual ICollection<HooksPerceivable> HooksPerceivables { get; set; }

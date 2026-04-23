@@ -2028,6 +2028,7 @@ Implementors can also use:
 	#3body formset <character> <form> allow [true|false]#0 - toggles or sets voluntary switching
 	#3body formset <character> <form> canprog <prog>|clear#0 - sets or clears the voluntary-eligibility prog
 	#3body formset <character> <form> whycantprog <prog>|clear#0 - sets or clears the denial-message prog
+	#3body formset <character> <form> visibleprog <prog>|clear#0 - sets or clears the owner-visibility prog
 	#3body switch <character> <form>#0 - forcibly switches the character into that form", AutoHelp.HelpArg)]
     protected static void Body(ICharacter actor, string command)
     {
@@ -2195,10 +2196,10 @@ You can use the following options with this command:
             return;
         }
 
-        ICharacterForm form = ResolveForm(actor, ss.SafeRemainingArgument);
-        if (form is null)
-        {
-            actor.OutputHandler.Send("You do not have any form identified by that alias or id.");
+		ICharacterForm form = ResolveVisibleForm(actor, ss.SafeRemainingArgument);
+		if (form is null)
+		{
+			actor.OutputHandler.Send("You do not have any form identified by that alias or id.");
             return;
         }
 
@@ -2217,12 +2218,15 @@ You can use the following options with this command:
         actor.OutputHandler.Send($"You switch into your {form.Alias.ColourName()} form.");
     }
 
-    private static void ShowForms(ICharacter actor, ICharacter target)
-    {
-        var rows = new List<List<string>>();
-        foreach (var form in target.Forms.OrderBy(x => x.SortOrder).ThenBy(x => x.Alias))
-        {
-            string availability;
+	private static void ShowForms(ICharacter actor, ICharacter target)
+	{
+		var rows = new List<List<string>>();
+		foreach (var form in target.Forms
+		                           .Where(x => x.Body == target.CurrentBody || x.CanSee(actor))
+		                           .OrderBy(x => x.SortOrder)
+		                           .ThenBy(x => x.Alias))
+		{
+			string availability;
             if (form.Body == target.CurrentBody)
             {
                 availability = "Current".ColourName();
@@ -2259,15 +2263,31 @@ You can use the following options with this command:
             ));
     }
 
-    private static ICharacterForm ResolveForm(ICharacter character, string text)
-    {
-        if (long.TryParse(text, out var value))
-        {
-            return character.Forms.FirstOrDefault(x => x.Body.Id == value);
-        }
+	private static ICharacterForm ResolveVisibleForm(ICharacter character, string text)
+	{
+		if (character is MudSharp.Character.Character concreteCharacter)
+		{
+			return concreteCharacter.ResolveVisibleForm(character, text);
+		}
 
-        return character.Forms.FirstOrDefault(x => x.Alias.EqualTo(text));
-    }
+		var visibleForms = character.Forms.Where(x => x.Body == character.CurrentBody || x.CanSee(character));
+		if (long.TryParse(text, out var value))
+		{
+			return visibleForms.FirstOrDefault(x => x.Body.Id == value);
+		}
+
+		return visibleForms.FirstOrDefault(x => x.Alias.EqualTo(text));
+	}
+
+	private static ICharacterForm ResolveForm(ICharacter character, string text)
+	{
+		if (long.TryParse(text, out var value))
+		{
+			return character.Forms.FirstOrDefault(x => x.Body.Id == value);
+		}
+
+		return character.Forms.FirstOrDefault(x => x.Alias.EqualTo(text));
+	}
 
     private static bool TryParseBooleanChoice(string text, out bool value)
     {
@@ -2413,7 +2433,7 @@ You can use the following options with this command:
 
         if (ss.IsFinished)
         {
-            actor.OutputHandler.Send("You must specify whether to set alias, trauma, allow, canprog or whycantprog.");
+            ShowAdminForm(actor, concreteTarget, form);
             return;
         }
 
@@ -2449,8 +2469,12 @@ You can use the following options with this command:
                     return;
                 }
 
-                form.TraumaMode = traumaMode;
-                concreteTarget.Changed = true;
+                if (!concreteTarget.TrySetFormTraumaMode(form, traumaMode, out var traumaWhyNot))
+                {
+                    actor.OutputHandler.Send(traumaWhyNot);
+                    return;
+                }
+
                 actor.OutputHandler.Send(
                     $"That form will now use {form.TraumaMode.DescribeEnum().ColourValue()} trauma handling when switching.");
                 return;
@@ -2463,8 +2487,12 @@ You can use the following options with this command:
                     return;
                 }
 
-                form.AllowVoluntarySwitch = allow;
-                concreteTarget.Changed = true;
+                if (!concreteTarget.TrySetFormAllowVoluntary(form, allow, out var allowWhyNot))
+                {
+                    actor.OutputHandler.Send(allowWhyNot);
+                    return;
+                }
+
                 actor.OutputHandler.Send(
                     $"That form will {form.AllowVoluntarySwitch.NowNoLonger()} permit voluntary switching.");
                 return;
@@ -2478,8 +2506,12 @@ You can use the following options with this command:
 
                 if (ss.SafeRemainingArgument.EqualToAny("clear", "none"))
                 {
-                    form.CanVoluntarilySwitchProg = null;
-                    concreteTarget.Changed = true;
+                    if (!concreteTarget.TryClearFormCanSwitchProg(form, out var clearCanWhyNot))
+                    {
+                        actor.OutputHandler.Send(clearCanWhyNot);
+                        return;
+                    }
+
                     actor.OutputHandler.Send("That form no longer has a voluntary-switch eligibility prog.");
                     return;
                 }
@@ -2491,8 +2523,12 @@ You can use the following options with this command:
                     return;
                 }
 
-                form.CanVoluntarilySwitchProg = canProg;
-                concreteTarget.Changed = true;
+                if (!concreteTarget.TrySetFormCanSwitchProg(form, canProg, out var canWhyNot))
+                {
+                    actor.OutputHandler.Send(canWhyNot);
+                    return;
+                }
+
                 actor.OutputHandler.Send(
                     $"That form will now use the {canProg.MXPClickableFunctionName()} prog to decide whether voluntary switching is allowed.");
                 return;
@@ -2506,8 +2542,12 @@ You can use the following options with this command:
 
                 if (ss.SafeRemainingArgument.EqualToAny("clear", "none"))
                 {
-                    form.WhyCannotVoluntarilySwitchProg = null;
-                    concreteTarget.Changed = true;
+                    if (!concreteTarget.TryClearFormWhyCantProg(form, out var clearWhyCantWhyNot))
+                    {
+                        actor.OutputHandler.Send(clearWhyCantWhyNot);
+                        return;
+                    }
+
                     actor.OutputHandler.Send("That form no longer has a denial-message prog.");
                     return;
                 }
@@ -2519,14 +2559,73 @@ You can use the following options with this command:
                     return;
                 }
 
-                form.WhyCannotVoluntarilySwitchProg = whyCantProg;
-                concreteTarget.Changed = true;
+                if (!concreteTarget.TrySetFormWhyCantProg(form, whyCantProg, out var whyCantWhyNot))
+                {
+                    actor.OutputHandler.Send(whyCantWhyNot);
+                    return;
+                }
+
                 actor.OutputHandler.Send(
                     $"That form will now use the {whyCantProg.MXPClickableFunctionName()} prog for voluntary-switch denial messages.");
                 return;
+
+            case "visibleprog":
+            case "visibilityprog":
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("Which prog should control whether the owner can see that form?");
+                    return;
+                }
+
+                if (ss.SafeRemainingArgument.EqualToAny("clear", "none"))
+                {
+                    if (!concreteTarget.TryClearFormVisibilityProg(form, out var clearVisibleWhyNot))
+                    {
+                        actor.OutputHandler.Send(clearVisibleWhyNot);
+                        return;
+                    }
+
+                    actor.OutputHandler.Send("That form no longer has a visibility prog.");
+                    return;
+                }
+
+                IFutureProg visibleProg = new ProgLookupFromBuilderInput(actor, ss.SafeRemainingArgument,
+                    ProgVariableTypes.Boolean, [ProgVariableTypes.Character]).LookupProg();
+                if (visibleProg is null)
+                {
+                    return;
+                }
+
+                if (!concreteTarget.TrySetFormVisibilityProg(form, visibleProg, out var visibleWhyNot))
+                {
+                    actor.OutputHandler.Send(visibleWhyNot);
+                    return;
+                }
+
+                actor.OutputHandler.Send(
+                    $"That form will now use the {visibleProg.MXPClickableFunctionName()} prog to decide whether its owner can see it.");
+                return;
         }
 
-        actor.OutputHandler.Send("You must specify alias, trauma, allow, canprog or whycantprog.");
+        actor.OutputHandler.Send("You must specify alias, trauma, allow, canprog, whycantprog or visibleprog.");
+    }
+
+    private static void ShowAdminForm(ICharacter actor, ICharacter target, ICharacterForm form)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"Form {form.Alias.ColourName()} for {target.HowSeen(actor, true)}");
+        sb.AppendLine();
+        sb.AppendLine($"Body Id: {form.Body.Id.ToString("N0", actor).ColourValue()}");
+        sb.AppendLine($"Race: {form.Body.Race.Name.ColourName()}");
+        sb.AppendLine($"Ethnicity: {form.Body.Ethnicity.Name.ColourName()}");
+        sb.AppendLine($"Gender: {form.Body.Gender.Name.ColourValue()}");
+        sb.AppendLine($"Sort Order: {form.SortOrder.ToString("N0", actor).ColourValue()}");
+        sb.AppendLine($"Trauma Mode: {form.TraumaMode.DescribeEnum().ColourValue()}");
+        sb.AppendLine($"Allow Voluntary Switch: {form.AllowVoluntarySwitch.ToColouredString()}");
+        sb.AppendLine($"Can Switch Prog: {form.CanVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Why-Cant Prog: {form.WhyCannotVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Visibility Prog: {form.CanSeeFormProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        actor.OutputHandler.Send(sb.ToString());
     }
 
     private static void BodySwitch(ICharacter actor, StringStack ss)

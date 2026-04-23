@@ -103,6 +103,32 @@ Practical implications:
 - selected attributes and skill values present as traits for downstream logic
 - FutureProg and runtime systems can interrogate chargen selections before a character exists in the world proper
 
+### Merit-provided alternate forms
+The chargen-selected merit list can now provision reusable alternate body forms through coded merits such as `Additional Body Form`.
+
+Runtime behavior is:
+
+- the merit contributes a first-creation `ICharacterFormSpecification`
+- on character materialisation, character load, and live `AddMerit`, the runtime ensures the specified form exists
+- if the character already has a sourced form mapping for that merit, the existing body is reused
+- if no sourced mapping exists, the runtime first tries to adopt exactly one existing matching form before creating a new dormant body
+- removing and later re-adding the merit reuses the cached form rather than deleting and recreating it
+- merit provisioning alone does not auto-switch the character into the form
+
+The merit's first-creation defaults can specify:
+
+- race
+- optional ethnicity
+- optional gender
+- initial alias
+- initial sort order
+- initial trauma mode
+- initial voluntary-switch toggle
+- initial voluntary can-switch and why-cant progs
+- initial owner-visibility prog
+
+After a form exists, its per-character metadata is authoritative. Editing that form later through admin tools or FutureProg mutators does not get overwritten by the originating merit.
+
 ## Review and Submission
 Once an application is submitted:
 - the current XML snapshot is stored in the database

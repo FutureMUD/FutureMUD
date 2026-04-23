@@ -24,6 +24,7 @@ public class CharacterForm : ICharacterForm
 		AllowVoluntarySwitch = form.AllowVoluntarySwitch;
 		CanVoluntarilySwitchProg = gameworld.FutureProgs.Get(form.CanVoluntarilySwitchProgId ?? 0);
 		WhyCannotVoluntarilySwitchProg = gameworld.FutureProgs.Get(form.WhyCannotVoluntarilySwitchProgId ?? 0);
+		CanSeeFormProg = gameworld.FutureProgs.Get(form.CanSeeFormProgId ?? 0);
 	}
 
 	public IBody Body { get; }
@@ -33,6 +34,12 @@ public class CharacterForm : ICharacterForm
 	public bool AllowVoluntarySwitch { get; set; }
 	public IFutureProg CanVoluntarilySwitchProg { get; set; }
 	public IFutureProg WhyCannotVoluntarilySwitchProg { get; set; }
+	public IFutureProg CanSeeFormProg { get; set; }
+
+	public bool CanSee(ICharacter character)
+	{
+		return CanSeeFormProg?.ExecuteBool(character) ?? true;
+	}
 
 	public bool CanSwitchVoluntarily(ICharacter character, out string whyNot)
 	{

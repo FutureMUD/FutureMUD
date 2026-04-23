@@ -108,6 +108,19 @@ The chargen scaffold becomes much more useful after running related seeders:
 
 Without those follow-up packages, many chargen screens will still exist but have little or no meaningful content to present.
 
+## Merit-Driven Alternate Forms
+If you want chargen or racial selection to grant a reusable transformation body, use a coded merit such as `Additional Body Form` rather than an ad hoc spell-only workflow.
+
+Builder expectations for this merit family are:
+
+- the merit defines first-creation defaults for the provisioned form
+- it can specify race, ethnicity, gender, alias, sort order, trauma mode, voluntary-switch rules, and an owner-visibility prog
+- the owning character keeps the provisioned body cached even if the merit is later removed or temporarily unavailable
+- re-adding the same merit reuses the cached sourced form instead of generating duplicates
+- the merit itself provisions access only; it does not force an immediate switch into that form
+
+Use the owner-visibility prog when you want a form to exist for later scripted use without being openly listed to the player yet, such as hidden lycanthropy or drug/spell-gated transformations.
+
 ## Safe Rerun Expectations
 Rerunning `ChargenSeeder` is intended to repair missing stock pieces, not to be the primary builder workflow for changen redesigns.
 

@@ -139,6 +139,11 @@ public partial class Character
         }
 
         _merits.Add(merit);
+        if (merit is IAdditionalBodyFormMerit bodyFormMerit)
+        {
+            EnsureProvisionedFormFromMerit(bodyFormMerit);
+        }
+
         MeritsChanged = true;
         return true;
     }

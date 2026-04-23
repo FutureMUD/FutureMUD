@@ -131,6 +131,8 @@ namespace MudSharp.Character
         bool AllowVoluntarySwitch { get; set; }
         IFutureProg CanVoluntarilySwitchProg { get; set; }
         IFutureProg WhyCannotVoluntarilySwitchProg { get; set; }
+        IFutureProg CanSeeFormProg { get; set; }
+        bool CanSee(ICharacter character);
         bool CanSwitchVoluntarily(ICharacter character, out string whyNot);
     }
 
@@ -435,6 +437,8 @@ namespace MudSharp.Character
         void SetGender(Gender gender);
         bool CanSwitchBody(IBody target, BodySwitchIntent intent, out string whyNot);
         bool SwitchToBody(IBody target, BodySwitchIntent intent);
+        bool EnsureForm(ICharacterFormSpecification specification, ICharacterFormSource source, out ICharacterForm form,
+            out string whyNot);
 
         ICharacterTemplate GetCharacterTemplate();
 

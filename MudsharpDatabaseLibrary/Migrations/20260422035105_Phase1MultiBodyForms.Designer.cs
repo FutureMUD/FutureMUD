@@ -4346,11 +4346,6 @@ namespace MudSharp.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("int(11)");
 
-                    b.Property<int>("TraumaMode")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int(11)")
-                        .HasDefaultValueSql("'0'");
-
                     b.Property<long?>("WhyCannotVoluntarilySwitchProgId")
                         .HasColumnType("bigint(20)");
 

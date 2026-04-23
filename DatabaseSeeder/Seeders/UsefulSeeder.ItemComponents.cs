@@ -2,11 +2,13 @@
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Database;
+using MudSharp.Form.Audio;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Models;
@@ -151,6 +153,18 @@ public partial class UsefulSeeder
         context.SaveChanges();
     }
 
+    internal void SeedGeneralCoverageForTesting(FuturemudDatabaseContext context)
+    {
+        _context = context;
+        PrepareItemProtoCache(context);
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+        SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
+        SeedSmokeables(context, now, dbaccount, ref nextId);
+        context.SaveChanges();
+    }
+
     private void SeedModernItems(FuturemudDatabaseContext context, ICollection<string> errors)
     {
         DateTime now = DateTime.UtcNow;
@@ -159,6 +173,15 @@ public partial class UsefulSeeder
         string mainsSocketType = context.StaticConfigurations
             .FirstOrDefault(x => x.SettingName == "DefaultPowerSocketType")
             ?.Definition ?? "NEMA 5-15";
+        string gasSocketType = context.StaticConfigurations
+            .FirstOrDefault(x => x.SettingName == "DefaultGasSocketType")
+            ?.Definition ?? "BSP 5mm";
+        string externalVenousConnector = context.StaticConfigurations
+            .FirstOrDefault(x => x.SettingName == "DefaultExternalOrganVenousConnector")
+            ?.Definition ?? "2-LargeVenousCatheter";
+        string externalArterialConnector = context.StaticConfigurations
+            .FirstOrDefault(x => x.SettingName == "DefaultExternalOrganArterialConnector")
+            ?.Definition ?? "2-LargeArterialCatheter";
         Tag? fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
 
         GameItemComponentProto CreateModernComponent(string type, string name, string description, XElement definition)
@@ -322,6 +345,59 @@ public partial class UsefulSeeder
                     new XElement("Wattage", wattage)));
         }
 
+        XElement ConnectorsElement(params ConnectorType[] connectors)
+        {
+            return new XElement("Connectors",
+                from connector in connectors
+                select new XElement("Connection",
+                    new XAttribute("gender", (short)connector.Gender),
+                    new XAttribute("type", connector.ConnectionType),
+                    new XAttribute("powered", connector.Powered)
+                ));
+        }
+
+        XElement PoweredMachineDefinition(double wattage, double wattageDiscount, bool switchable,
+            bool useMountHostPowerSource, string powerOnEmote, string powerOffEmote, params object[] extraElements)
+        {
+            return new XElement("Definition",
+                new XElement("Wattage", wattage),
+                new XElement("WattageDiscount", wattageDiscount),
+                new XElement("Switchable", switchable),
+                new XElement("UseMountHostPowerSource", useMountHostPowerSource),
+                new XElement("PowerOnEmote", new XCData(powerOnEmote)),
+                new XElement("PowerOffEmote", new XCData(powerOffEmote)),
+                new XElement("OnPoweredProg", 0),
+                new XElement("OnUnpoweredProg", 0),
+                extraElements);
+        }
+
+        Gas? FindGas(params string[] candidates)
+        {
+            return context.Gases.AsEnumerable()
+                       .FirstOrDefault(x => candidates.Any(candidate =>
+                           x.Name.Equals(candidate, StringComparison.OrdinalIgnoreCase))) ??
+                   context.Gases.AsEnumerable()
+                       .FirstOrDefault(x => candidates.Any(candidate =>
+                           x.Name.Contains(candidate, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        BodyProto? FindHumanoidExternalOrganBody()
+        {
+            return context.BodyProtos.FirstOrDefault(x => x.Name == "Organic Humanoid") ??
+                   context.BodyProtos.FirstOrDefault(x => x.Name == "Humanoid");
+        }
+
+        List<BodypartProto> FindExternalOrgans(BodyProto body, params BodypartTypeEnum[] organTypes)
+        {
+            HashSet<int> desiredTypes = organTypes.Select(x => (int)x).ToHashSet();
+            return context.BodypartProtos
+                .Where(x => x.BodyId == body.Id)
+                .Where(x => x.IsOrgan != 0)
+                .Where(x => desiredTypes.Contains(x.BodypartType))
+                .OrderBy(x => x.Id)
+                .ToList();
+        }
+
         string SanitizeComponentName(string text)
         {
             return new string(text
@@ -347,6 +423,20 @@ public partial class UsefulSeeder
         CreateBattery("ButtonCell", 0.18, 0.01, true);
         CreateBattery("CarBattery", 480.0, 20.0, false);
         CreateBattery("CarBattery", 420.0, 15.0, true);
+        CreateModernComponent("Battery", "Battery_LiIon_Cell",
+            "Turns an item into a rechargeable lithium-ion cell battery.",
+            new XElement("Definition",
+                new XElement("BatteryType", new XCData("Li-Ion")),
+                new XElement("BaseWattHours", 12.0),
+                new XElement("WattHoursPerQuality", 1.2),
+                new XElement("Rechargable", true)));
+        CreateModernComponent("Battery", "Battery_LiIon_Pack",
+            "Turns an item into a rechargeable lithium-ion battery pack for larger electronics.",
+            new XElement("Definition",
+                new XElement("BatteryType", new XCData("Li-Ion")),
+                new XElement("BaseWattHours", 60.0),
+                new XElement("WattHoursPerQuality", 6.0),
+                new XElement("Rechargable", true)));
 
         CreateBatteryPowered("ButtonCell", 1, true);
         CreateBatteryPowered("ButtonCell", 2, true);
@@ -370,6 +460,28 @@ public partial class UsefulSeeder
         CreateBatteryPowered("D", 4, true);
         CreateBatteryPowered("D", 6, true);
         CreateBatteryPowered("CarBattery", 1, true, false, "in");
+        CreateModernComponent("BatteryPowered", "BatteryPowered_1xLiIon",
+            "Turns an item into a single-cell lithium-ion battery powered device.",
+            new XElement("Definition",
+                new XElement("BatteryType", "Li-Ion"),
+                new XElement("BatteryQuantity", 1),
+                new XElement("BatteriesInSeries", true),
+                new XElement("ChargeWattage", 30.0),
+                new XElement("Transparent", false),
+                new XElement("ContentsPreposition", "in"),
+                ConnectorsElement(
+                    new ConnectorType(Gender.Female, "USB-C", true))));
+        CreateModernComponent("BatteryPowered", "BatteryPowered_2xLiIon",
+            "Turns an item into a dual-cell lithium-ion battery powered device.",
+            new XElement("Definition",
+                new XElement("BatteryType", "Li-Ion"),
+                new XElement("BatteryQuantity", 2),
+                new XElement("BatteriesInSeries", true),
+                new XElement("ChargeWattage", 65.0),
+                new XElement("Transparent", false),
+                new XElement("ContentsPreposition", "in"),
+                ConnectorsElement(
+                    new ConnectorType(Gender.Female, "USB-C", true))));
 
         CreateBatteryCharger("ButtonCell", 2, 1.0, 0.82);
         CreateBatteryCharger("9V", 2, 8.0, 0.85);
@@ -383,6 +495,24 @@ public partial class UsefulSeeder
         CreateBatteryCharger("C", 4, 30.0, 0.87, false);
         CreateBatteryCharger("D", 4, 50.0, 0.86, false);
         CreateBatteryCharger("CarBattery", 1, 180.0, 0.84, false, "Workshop");
+        CreateModernComponent("BatteryCharger", "BatteryCharger_LiIon_Single",
+            "Turns an item into a single-bay lithium-ion battery charger.",
+            new XElement("Definition",
+                new XElement("BatteryType", "Li-Ion"),
+                new XElement("BatteryQuantity", 1),
+                new XElement("Wattage", 45.0),
+                new XElement("Efficiency", 0.92),
+                new XElement("ContentsPreposition", "in"),
+                new XElement("Transparent", false)));
+        CreateModernComponent("BatteryCharger", "BatteryCharger_LiIon_Quad",
+            "Turns an item into a four-bay lithium-ion battery charger.",
+            new XElement("Definition",
+                new XElement("BatteryType", "Li-Ion"),
+                new XElement("BatteryQuantity", 4),
+                new XElement("Wattage", 180.0),
+                new XElement("Efficiency", 0.94),
+                new XElement("ContentsPreposition", "in"),
+                new XElement("Transparent", false)));
 
         CreateModernComponent("Connectable", "Connectable_Male_To_MainsPlug",
             "Turns an item into a male connection to a standard mains plug.",
@@ -409,6 +539,46 @@ public partial class UsefulSeeder
         {
             CreatePowerSupply(wattage);
         }
+
+        foreach ((string Name, int Count, string Description) outlet in new[]
+                 {
+                     ("ElectricGridOutlet_Single", 1, "Turns an item into a single-socket electrical grid outlet."),
+                     ("ElectricGridOutlet_Double", 2, "Turns an item into a double-socket electrical grid outlet."),
+                     ("ElectricGridOutlet_Quad", 4, "Turns an item into a quad-socket electrical grid outlet.")
+                 })
+        {
+            CreateModernComponent("ElectricGridOutlet", outlet.Name, outlet.Description,
+                new XElement("Definition",
+                    ConnectorsElement(
+                        Enumerable.Range(0, outlet.Count)
+                            .Select(_ => new ConnectorType(Gender.Female, mainsSocketType, true))
+                            .ToArray())));
+        }
+
+        CreateModernComponent("GridPowerSupply", "GridPowerSupply_Standard",
+            "Turns an item into a standard grid power tap for ordinary appliances.",
+            new XElement("Definition",
+                new XElement("Wattage", 240.0)));
+        CreateModernComponent("GridPowerSupply", "GridPowerSupply_HighDraw",
+            "Turns an item into a high-draw grid power tap for heavier equipment.",
+            new XElement("Definition",
+                new XElement("Wattage", 2400.0)));
+        CreateModernComponent("UnlimitedGenerator", "UnlimitedGenerator_SetPiece",
+            "Turns an item into a set-piece generator that provides a large stable power feed.",
+            new XElement("Definition",
+                new XElement("SwitchOnEmote", new XCData("@ thrum|thrums to life and begin|begins feeding power.")),
+                new XElement("SwitchOffEmote", new XCData("@ wind|winds down and stop|stops feeding power.")),
+                new XElement("WattageProvided", 5000.0),
+                new XElement("SwitchOnProg", 0),
+                new XElement("SwitchOffProg", 0)));
+        CreateModernComponent("UnlimitedGenerator", "UnlimitedGenerator_Admin",
+            "Turns an item into an effectively unlimited administrative power source.",
+            new XElement("Definition",
+                new XElement("SwitchOnEmote", new XCData("@ surge|surges with inexhaustible power.")),
+                new XElement("SwitchOffEmote", new XCData("@ fall|falls quiet as its impossible power feed ceases.")),
+                new XElement("WattageProvided", 1000000.0),
+                new XElement("SwitchOnProg", 0),
+                new XElement("SwitchOffProg", 0)));
 
         CreateModernComponent("ElectricLight", "ElectricLight_Low",
             "Turns an item into a low power electric light source.",
@@ -509,6 +679,498 @@ public partial class UsefulSeeder
             "Turns an item into a standard telephone.",
             ConnectorDefinition(
                 new ConnectorType(Gender.Male, "TelephoneLine", true)));
+        CreateModernComponent("CellularPhone", "CellularPhone_Standard",
+            "Turns an item into a standard mobile phone that relies on cell tower coverage.",
+            new XElement("Definition",
+                new XElement("Wattage", 2.0),
+                new XElement("RingEmote", new XCData("@ chirp|chirps insistently.")),
+                new XElement("TransmitPremote", new XCData("@ speak|speaks into $1 and say|says")),
+                new XElement("RingVolume", (int)AudioVolume.Decent)));
+        CreateModernComponent("CellularPhone", "CellularPhone_Smartphone",
+            "Turns an item into a smartphone-style cellular handset.",
+            new XElement("Definition",
+                new XElement("Wattage", 4.0),
+                new XElement("RingEmote", new XCData("@ vibrate|vibrates and play|plays a gentle chime.")),
+                new XElement("TransmitPremote", new XCData("@ speak|speaks into $1 and say|says")),
+                new XElement("RingVolume", (int)AudioVolume.Quiet)));
+        CreateModernComponent("CellPhoneTower", "CellPhoneTower_Local",
+            "Turns an item into a local cellular tower that serves its surrounding zone.",
+            new XElement("Definition",
+                new XElement("Wattage", 250.0)));
+        CreateModernComponent("CellPhoneTower", "CellPhoneTower_Regional",
+            "Turns an item into a higher-power regional cellular tower.",
+            new XElement("Definition",
+                new XElement("Wattage", 1200.0)));
+        CreateModernComponent("AnsweringMachine", "AnsweringMachine_Standard",
+            "Turns an item into a daisy-chain answering machine with a standard ring delay.",
+            new XElement("Definition",
+                new XElement("Wattage", 6.0),
+                new XElement("RingEmote", new XCData("@ ring|rings insistently.")),
+                new XElement("TransmitPremote", new XCData("@ speak|speaks into $1 and say|says")),
+                new XElement("RingVolume", (int)AudioVolume.Loud),
+                new XElement("DefaultAutoAnswerRings", 4),
+                ConnectorsElement(
+                    new ConnectorType(Gender.Male, "TelephoneLine", true),
+                    new ConnectorType(Gender.Female, "TelephoneLine", true))));
+        CreateModernComponent("Tape", "Tape_Cassette30",
+            "Turns an item into a standard thirty-minute cassette tape.",
+            new XElement("Definition",
+                new XElement("CapacityMs", (long)TimeSpan.FromMinutes(30).TotalMilliseconds)));
+        CreateModernComponent("Tape", "Tape_Microcassette10",
+            "Turns an item into a compact ten-minute microcassette.",
+            new XElement("Definition",
+                new XElement("CapacityMs", (long)TimeSpan.FromMinutes(10).TotalMilliseconds)));
+
+        GameItemComponentProto computerHostPersonal = CreateModernComponent("Computer Host", "ComputerHost_Personal",
+            "Turns an item into a personal computer host with modest internal storage.",
+            PoweredMachineDefinition(120.0, 12.0, true, false,
+                "@ hum|hums to life as it boots.",
+                "@ click|clicks down and goes dark.",
+                new XElement("StorageCapacityInBytes", 1_048_576L),
+                new XElement("StoragePorts", 2),
+                new XElement("TerminalPorts", 1),
+                new XElement("NetworkPorts", 1)));
+        CreateModernComponent("Computer Host", "ComputerHost_Server",
+            "Turns an item into a larger server-style computer host.",
+            PoweredMachineDefinition(420.0, 20.0, true, false,
+                "@ thrum|thrums steadily as the server rack powers up.",
+                "@ wind|winds down in a descending fan whine.",
+                new XElement("StorageCapacityInBytes", 16_777_216L),
+                new XElement("StoragePorts", 8),
+                new XElement("TerminalPorts", 8),
+                new XElement("NetworkPorts", 4)));
+        CreateModernComponent("Computer Storage", "ComputerStorage_Portable",
+            "Turns an item into portable removable computer storage.",
+            new XElement("Definition",
+                new XElement("StorageCapacityInBytes", 4_194_304L)));
+        CreateModernComponent("Computer Storage", "ComputerStorage_Fixed",
+            "Turns an item into higher-capacity fixed computer storage.",
+            new XElement("Definition",
+                new XElement("StorageCapacityInBytes", 67_108_864L)));
+        CreateModernComponent("Computer Terminal", "ComputerTerminal_Desk",
+            "Turns an item into a standard desk terminal for a computer host.",
+            PoweredMachineDefinition(85.0, 8.0, true, false,
+                "@ flicker|flickers to life as the screen powers on.",
+                "@ dim|dims to black as it powers off."));
+        CreateModernComponent("Computer Terminal", "ComputerTerminal_Kiosk",
+            "Turns an item into a public kiosk terminal.",
+            PoweredMachineDefinition(140.0, 12.0, false, false,
+                "@ wake|wakes with a bright status screen.",
+                "@ blank|blanks out as power is lost."));
+        CreateModernComponent("Network Adapter", "NetworkAdapter_Wired",
+            "Turns an item into a wired network adapter for a computer host.",
+            PoweredMachineDefinition(18.0, 2.0, true, true,
+                "@ blink|blinks as the network adapter comes online.",
+                "@ dim|dims as the network adapter drops offline.",
+                new XElement("PreferredNetworkAddress", new XCData(string.Empty)),
+                new XElement("PublicNetworkEnabled", true),
+                new XElement("ExchangeSubnetId", new XCData(string.Empty)),
+                new XElement("VpnNetworkIds")));
+        CreateModernComponent("Network Switch", "NetworkSwitch_4Port",
+            "Turns an item into a compact four-port network switch.",
+            PoweredMachineDefinition(15.0, 1.5, true, false,
+                "@ blink|blinks as the switch powers up.",
+                "@ dim|dims as the switch powers down.",
+                new XElement("PortCount", 4)));
+        CreateModernComponent("Network Switch", "NetworkSwitch_8Port",
+            "Turns an item into a standard eight-port network switch.",
+            PoweredMachineDefinition(25.0, 2.5, true, false,
+                "@ blink|blinks as the switch powers up.",
+                "@ dim|dims as the switch powers down.",
+                new XElement("PortCount", 8)));
+        CreateModernComponent("Wireless Modem", "WirelessModem_Local",
+            "Turns an item into a cellular-backed wireless modem for a computer host.",
+            PoweredMachineDefinition(8.0, 1.0, true, true,
+                "@ blink|blinks as the modem starts searching for a network.",
+                "@ dim|dims and loses its signal.",
+                new XElement("PreferredNetworkAddress", new XCData(string.Empty)),
+                new XElement("PublicNetworkEnabled", true),
+                new XElement("ExchangeSubnetId", new XCData(string.Empty)),
+                new XElement("VpnNetworkIds")));
+
+        GameItemComponentProto automationHousingPanel = CreateModernComponent("Automation Housing",
+            "AutomationHousing_Panel",
+            "Turns an item into a compact lockable automation service panel.",
+            new XElement("Definition",
+                new XAttribute("Weight", 25_000),
+                new XAttribute("MaxSize", (int)SizeCategory.Small),
+                new XAttribute("Preposition", "in"),
+                new XAttribute("Transparent", false),
+                new XElement("ForceDifficulty", (int)Difficulty.Hard),
+                new XElement("PickDifficulty", (int)Difficulty.Normal),
+                new XElement("LockEmote", new XCData("@ lock|locks $1$?2| with $2||$.")),
+                new XElement("UnlockEmote", new XCData("@ unlock|unlocks $1$?2| with $2||$.")),
+                new XElement("LockEmoteNoActor", new XCData("@ click|clicks shut.")),
+                new XElement("UnlockEmoteNoActor", new XCData("@ click|clicks open.")),
+                new XElement("LockType", "Cam Lock"),
+                new XElement("AllowCableSegments", true),
+                new XElement("AllowMountableModules", true),
+                new XElement("AllowSignalItems", true)));
+        CreateModernComponent("Automation Housing", "AutomationHousing_JunctionBox",
+            "Turns an item into a larger junction box style automation housing.",
+            new XElement("Definition",
+                new XAttribute("Weight", 80_000),
+                new XAttribute("MaxSize", (int)SizeCategory.Normal),
+                new XAttribute("Preposition", "in"),
+                new XAttribute("Transparent", false),
+                new XElement("ForceDifficulty", (int)Difficulty.VeryHard),
+                new XElement("PickDifficulty", (int)Difficulty.Hard),
+                new XElement("LockEmote", new XCData("@ secure|secures $1$?2| with $2||$.")),
+                new XElement("UnlockEmote", new XCData("@ release|releases $1$?2| with $2||$.")),
+                new XElement("LockEmoteNoActor", new XCData("@ thunk|thunks shut.")),
+                new XElement("UnlockEmoteNoActor", new XCData("@ clunk|clunks open.")),
+                new XElement("LockType", "Panel Lock"),
+                new XElement("AllowCableSegments", true),
+                new XElement("AllowMountableModules", true),
+                new XElement("AllowSignalItems", true)));
+        CreateModernComponent("Automation Mount Host", "AutomationMountHost_2Bay",
+            "Turns an item into an automation mount host with two module bays.",
+            new XElement("Definition",
+                new XElement("Bays",
+                    new XElement("Bay",
+                        new XAttribute("name", "bay1"),
+                        new XAttribute("mounttype", "Microcontroller")),
+                    new XElement("Bay",
+                        new XAttribute("name", "bay2"),
+                        new XAttribute("mounttype", "Microcontroller"))),
+                new XElement("AccessPanelPrototypeId", automationHousingPanel.Id),
+                new XElement("AccessPanelPrototypeName", new XCData(automationHousingPanel.Name))));
+        CreateModernComponent("Automation Mount Host", "AutomationMountHost_4Bay",
+            "Turns an item into an automation mount host with four module bays.",
+            new XElement("Definition",
+                new XElement("Bays",
+                    new XElement("Bay",
+                        new XAttribute("name", "bay1"),
+                        new XAttribute("mounttype", "Microcontroller")),
+                    new XElement("Bay",
+                        new XAttribute("name", "bay2"),
+                        new XAttribute("mounttype", "Microcontroller")),
+                    new XElement("Bay",
+                        new XAttribute("name", "bay3"),
+                        new XAttribute("mounttype", "Microcontroller")),
+                    new XElement("Bay",
+                        new XAttribute("name", "bay4"),
+                        new XAttribute("mounttype", "Microcontroller"))),
+                new XElement("AccessPanelPrototypeId", automationHousingPanel.Id),
+                new XElement("AccessPanelPrototypeName", new XCData(automationHousingPanel.Name))));
+        CreateModernComponent("Signal Cable Segment", "SignalCableSegment_Standard",
+            "Turns an item into a standard one-hop signal cable segment.",
+            new XElement("Definition"));
+        CreateModernComponent("File Signal Generator", "FileSignalGenerator_Text",
+            "Turns an item into a file-backed signal generator for text-authored automation values.",
+            PoweredMachineDefinition(40.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down.",
+                new XElement("SignalFileName", new XCData("signal.txt")),
+                new XElement("InitialFileContents", new XCData("0")),
+                new XElement("FileCapacityInBytes", 4096L),
+                new XElement("PubliclyAccessibleByDefault", false)));
+        CreateModernComponent("Push Button", "PushButton_Doorbell",
+            "Turns an item into a push-button style trigger such as a doorbell or request button.",
+            new XElement("Definition",
+                new XElement("Keyword", new XCData("doorbell")),
+                new XElement("SignalValue", 1.0),
+                new XElement("SignalDurationSeconds", 2.0),
+                new XElement("PressEmote", new XCData("@ press|presses $1."))));
+        GameItemComponentProto toggleSwitchWall = CreateModernComponent("Toggle Switch", "ToggleSwitch_Wall",
+            "Turns an item into a wall-mounted toggle switch.",
+            new XElement("Definition",
+                new XElement("OnValue", 1.0),
+                new XElement("OffValue", 0.0),
+                new XElement("InitiallyOn", false)));
+        GameItemComponentProto motionSensorRoom = CreateModernComponent("Motion Sensor", "MotionSensor_Room",
+            "Turns an item into a general indoor motion sensor.",
+            PoweredMachineDefinition(40.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down.",
+                new XElement("SignalValue", 1.0),
+                new XElement("SignalDurationSeconds", 5.0),
+                new XElement("MinimumSize", (int)SizeCategory.Small),
+                new XElement("DetectionMode", 0)));
+        GameItemComponentProto motionSensorPerimeter = CreateModernComponent("Motion Sensor", "MotionSensor_Perimeter",
+            "Turns an item into a perimeter motion sensor focused on arrivals.",
+            PoweredMachineDefinition(55.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down.",
+                new XElement("SignalValue", 1.0),
+                new XElement("SignalDurationSeconds", 12.0),
+                new XElement("MinimumSize", (int)SizeCategory.Normal),
+                new XElement("DetectionMode", 2)));
+        GameItemComponentProto lightSensorDaylight = CreateModernComponent("Light Sensor", "LightSensor_Daylight",
+            "Turns an item into a powered ambient light sensor.",
+            PoweredMachineDefinition(25.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down."));
+        CreateModernComponent("Rain Sensor", "RainSensor_Outdoor",
+            "Turns an item into a powered outdoor rain sensor.",
+            PoweredMachineDefinition(25.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down."));
+        CreateModernComponent("Temperature Sensor", "TemperatureSensor_Thermostat",
+            "Turns an item into a powered ambient temperature sensor.",
+            PoweredMachineDefinition(25.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down."));
+        GameItemComponentProto timerSensorRepeating = CreateModernComponent("Timer Sensor", "TimerSensor_Repeating",
+            "Turns an item into a repeating timer sensor for periodic automation.",
+            PoweredMachineDefinition(20.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down.",
+                new XElement("ActiveValue", 1.0),
+                new XElement("InactiveValue", 0.0),
+                new XElement("ActiveDurationSeconds", 5.0),
+                new XElement("InactiveDurationSeconds", 55.0),
+                new XElement("StartActive", false)));
+        GameItemComponentProto keypad4Digit = CreateModernComponent("Keypad", "Keypad_4Digit",
+            "Turns an item into a four-digit access keypad.",
+            PoweredMachineDefinition(35.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down.",
+                new XElement("Code", new XCData("1234")),
+                new XElement("SignalValue", 1.0),
+                new XElement("SignalDurationSeconds", 2.0),
+                new XElement("EntryEmote", new XCData("@ tap|taps digits into $1"))));
+        CreateModernComponent("Keypad", "Keypad_6Digit",
+            "Turns an item into a six-digit security keypad.",
+            PoweredMachineDefinition(35.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down.",
+                new XElement("Code", new XCData("246810")),
+                new XElement("SignalValue", 1.0),
+                new XElement("SignalDurationSeconds", 2.0),
+                new XElement("EntryEmote", new XCData("@ tap|taps digits into $1"))));
+        CreateModernComponent("Signal Light", "SignalLight_Indicator",
+            "Turns an item into a small indicator light driven by a switch or controller.",
+            new XElement("Definition",
+                new XElement("IlluminationProvided", 60.0),
+                new XElement("SourceComponentId", toggleSwitchWall.Id),
+                new XElement("SourceComponentName", new XCData(toggleSwitchWall.Name)),
+                new XElement("SourceEndpointKey", new XCData("signal")),
+                new XElement("ActivationThreshold", 0.5),
+                new XElement("LitWhenAboveThreshold", true),
+                new XElement("LightOnEmote", new XCData("@ light|lights up.")),
+                new XElement("LightOffEmote", new XCData("@ go|goes dark."))));
+        CreateModernComponent("Signal Light", "SignalLight_Beacon",
+            "Turns an item into a repeating signal beacon driven by a timer.",
+            new XElement("Definition",
+                new XElement("IlluminationProvided", 220.0),
+                new XElement("SourceComponentId", timerSensorRepeating.Id),
+                new XElement("SourceComponentName", new XCData(timerSensorRepeating.Name)),
+                new XElement("SourceEndpointKey", new XCData("signal")),
+                new XElement("ActivationThreshold", 0.5),
+                new XElement("LitWhenAboveThreshold", true),
+                new XElement("LightOnEmote", new XCData("@ flash|flashes brightly.")),
+                new XElement("LightOffEmote", new XCData("@ dim|dims."))));
+        CreateModernComponent("Relay Switch", "RelaySwitch_Inline",
+            "Turns an item into a signal-driven inline relay switch.",
+            new XElement("Definition",
+                new XElement("Wattage", 5.0),
+                new XElement("SourceComponentId", toggleSwitchWall.Id),
+                new XElement("SourceComponentName", new XCData(toggleSwitchWall.Name)),
+                new XElement("SourceEndpointKey", new XCData("signal")),
+                new XElement("ActivationThreshold", 0.5),
+                new XElement("ClosedWhenAboveThreshold", true)));
+        CreateModernComponent("Alarm Siren", "AlarmSiren_Indoor",
+            "Turns an item into an indoor alarm siren driven by a motion sensor.",
+            PoweredMachineDefinition(60.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down.",
+                new XElement("SourceComponentId", motionSensorRoom.Id),
+                new XElement("SourceComponentName", new XCData(motionSensorRoom.Name)),
+                new XElement("SourceEndpointKey", new XCData("signal")),
+                new XElement("ActivationThreshold", 0.5),
+                new XElement("SoundWhenAboveThreshold", true),
+                new XElement("AlarmVolume", (int)AudioVolume.VeryLoud),
+                new XElement("AlarmEmote", new XCData("@ blare|blares with a piercing alarm tone."))));
+        CreateModernComponent("Alarm Siren", "AlarmSiren_Outdoor",
+            "Turns an item into an outdoor perimeter alarm siren.",
+            PoweredMachineDefinition(120.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down.",
+                new XElement("SourceComponentId", motionSensorPerimeter.Id),
+                new XElement("SourceComponentName", new XCData(motionSensorPerimeter.Name)),
+                new XElement("SourceEndpointKey", new XCData("signal")),
+                new XElement("ActivationThreshold", 0.5),
+                new XElement("SoundWhenAboveThreshold", true),
+                new XElement("AlarmVolume", (int)AudioVolume.DangerouslyLoud),
+                new XElement("AlarmEmote", new XCData("@ wail|wails across the area with a shrill alarm."))));
+        CreateModernComponent("Electronic Door", "ElectronicDoor_AutoSlide",
+            "Turns an item into a motion-triggered automatic sliding door.",
+            new XElement("Definition",
+                new XAttribute("SeeThrough", false),
+                new XAttribute("CanFireThrough", false),
+                new XElement("InstalledExitDescription", "automatic door"),
+                new XElement("CanBeOpenedByPlayers", false),
+                new XElement("Uninstall",
+                    new XAttribute("CanPlayersUninstall", false),
+                    new XAttribute("UninstallDifficultyHingeSide", (int)Difficulty.Impossible),
+                    new XAttribute("UninstallDifficultyNotHingeSide", (int)Difficulty.Impossible),
+                    new XAttribute("UninstallTrait", 0)),
+                new XElement("Smash",
+                    new XAttribute("CanPlayersSmash", false),
+                    new XAttribute("SmashDifficulty", (int)Difficulty.Impossible)),
+                new XElement("SourceComponentId", motionSensorRoom.Id),
+                new XElement("SourceComponentName", new XCData(motionSensorRoom.Name)),
+                new XElement("SourceEndpointKey", new XCData("signal")),
+                new XElement("ActivationThreshold", 0.5),
+                new XElement("OpenWhenAboveThreshold", true),
+                new XElement("OpenEmoteNoActor", new XCData("@ slide|slides open.")),
+                new XElement("CloseEmoteNoActor", new XCData("@ slide|slides closed."))));
+        CreateModernComponent("Electronic Lock", "ElectronicLock_Maglock",
+            "Turns an item into a magnetic lock released by a keypad signal.",
+            new XElement("Definition",
+                new XElement("ForceDifficulty", (int)Difficulty.ExtremelyHard),
+                new XElement("PickDifficulty", (int)Difficulty.Impossible),
+                new XElement("LockEmoteNoActor", new XCData("@ lock|locks with a solid magnetic thunk.")),
+                new XElement("UnlockEmoteNoActor", new XCData("@ unlock|unlocks with a sharp magnetic click.")),
+                new XElement("LockEmoteOtherSide", new XCData("@ hear|hears the maglock engage on $1.")),
+                new XElement("UnlockEmoteOtherSide", new XCData("@ hear|hears the maglock release on $1.")),
+                new XElement("LockType", "Maglock"),
+                new XElement("SourceComponentId", keypad4Digit.Id),
+                new XElement("SourceComponentName", new XCData(keypad4Digit.Name)),
+                new XElement("SourceEndpointKey", new XCData("signal")),
+                new XElement("ActivationThreshold", 0.5),
+                new XElement("LockWhenAboveThreshold", false)));
+        CreateModernComponent("Microcontroller", "Microcontroller_Basic",
+            "Turns an item into a simple programmable microcontroller with a daylight input example.",
+            PoweredMachineDefinition(20.0, 0.0, true, true,
+                "@ hum|hums briefly as it powers on",
+                "@ shudder|shudders as it powers down.",
+                new XElement("Input",
+                    new XAttribute("variable", "daylight"),
+                    new XAttribute("sourceid", lightSensorDaylight.Id),
+                    new XAttribute("source", lightSensorDaylight.Name),
+                    new XAttribute("endpoint", "signal")),
+                new XElement("LogicText", new XCData("return @daylight"))));
+
+        CreateModernComponent("GasContainer", "GasContainer_OxygenSmall",
+            "Turns an item into a small oxygen cylinder.",
+            new XElement("Definition",
+                new XElement("MaximumGasCapacity", 450.0),
+                new XElement("ShowGasLevels", true),
+                ConnectorsElement(new ConnectorType(Gender.Female, gasSocketType, false))));
+        CreateModernComponent("GasContainer", "GasContainer_OxygenLarge",
+            "Turns an item into a larger oxygen cylinder.",
+            new XElement("Definition",
+                new XElement("MaximumGasCapacity", 1800.0),
+                new XElement("ShowGasLevels", true),
+                ConnectorsElement(new ConnectorType(Gender.Female, gasSocketType, false))));
+        CreateModernComponent("GasContainer", "GasContainer_Anaesthetic",
+            "Turns an item into a gas cylinder suitable for anaesthetic or specialist breathing mixes.",
+            new XElement("Definition",
+                new XElement("MaximumGasCapacity", 900.0),
+                new XElement("ShowGasLevels", true),
+                ConnectorsElement(new ConnectorType(Gender.Female, gasSocketType, false))));
+        CreateModernComponent("Rebreather", "Rebreather_Standard",
+            "Turns an item into a standard rebreather or breathing mask connection.",
+            new XElement("Definition",
+                new XElement("WaterTight", false),
+                new XElement("Connection",
+                    new XAttribute("gender", (short)Gender.Male),
+                    new XAttribute("type", gasSocketType),
+                    new XAttribute("powered", false))));
+        CreateModernComponent("Rebreather", "Rebreather_Watertight",
+            "Turns an item into a watertight rebreather or dive mask connection.",
+            new XElement("Definition",
+                new XElement("WaterTight", true),
+                new XElement("Connection",
+                    new XAttribute("gender", (short)Gender.Male),
+                    new XAttribute("type", gasSocketType),
+                    new XAttribute("powered", false))));
+        CreateModernComponent("ExternalInhaler", "ExternalInhaler_Medical",
+            "Turns an item into an external inhaler that accepts metered-dose canisters.",
+            new XElement("Definition",
+                new XElement("GasPerPuff", 0.25),
+                new XElement("CanisterType", "MeteredDose"),
+                new XElement("Connector",
+                    new XAttribute("gender", (short)Gender.Female),
+                    new XAttribute("type", "inhaler"),
+                    new XAttribute("powered", false))));
+
+        Gas? bronchodilatorGas = FindGas("Bronchodilator");
+        Gas? anaestheticGas = FindGas("General Anaesthetic", "Anaesthetic", "Ether Anaesthetic");
+        if (bronchodilatorGas is not null)
+        {
+            CreateModernComponent("InhalerGasCanister", "InhalerGasCanister_Bronchodilator",
+                "Turns an item into a metered-dose bronchodilator inhaler canister.",
+                new XElement("Definition",
+                    new XElement("CanisterType", "MeteredDose"),
+                    new XElement("InitialGas", bronchodilatorGas.Id)));
+            CreateModernComponent("IntegratedInhaler", "IntegratedInhaler_Emergency",
+                "Turns an item into a self-contained emergency bronchodilator inhaler.",
+                new XElement("Definition",
+                    new XElement("GasPerPuff", 0.25),
+                    new XElement("InitialGas", bronchodilatorGas.Id)));
+        }
+
+        if (anaestheticGas is not null)
+        {
+            CreateModernComponent("InhalerGasCanister", "InhalerGasCanister_Anaesthetic",
+                "Turns an item into a metered-dose anaesthetic inhaler canister.",
+                new XElement("Definition",
+                    new XElement("CanisterType", "MeteredDose"),
+                    new XElement("InitialGas", anaestheticGas.Id)));
+        }
+
+        CreateModernComponent("Defibrillator", "Defibrillator_AED",
+            "Turns an item into an automated external defibrillator.",
+            new XElement("Definition",
+                new XElement("WattagePerShock", 6000.0),
+                new XElement("DefibrillationEmote",
+                    new XCData("$0 place|places $2's pads against $1's chest and deliver|delivers a controlled shock."))));
+        CreateModernComponent("Defibrillator", "Defibrillator_Clinical",
+            "Turns an item into a clinical defibrillator with a stronger discharge.",
+            new XElement("Definition",
+                new XElement("WattagePerShock", 15000.0),
+                new XElement("DefibrillationEmote",
+                    new XCData("$0 charge|charges $2 and then press|presses the paddles to $1's chest, delivering a hard shock."))));
+
+        BodyProto? externalOrganBody = FindHumanoidExternalOrganBody();
+        if (externalOrganBody is not null)
+        {
+            List<BodypartProto> heartLungOrgans = FindExternalOrgans(externalOrganBody, BodypartTypeEnum.Heart, BodypartTypeEnum.Lung);
+            bool hasHeart = heartLungOrgans.Any(x => x.BodypartType == (int)BodypartTypeEnum.Heart);
+            bool hasLung = heartLungOrgans.Any(x => x.BodypartType == (int)BodypartTypeEnum.Lung);
+            if (hasHeart && hasLung)
+            {
+                CreateModernComponent("ExternalOrgan", "ExternalOrgan_HeartLungSupport_Human",
+                    "Turns an item into an external heart-lung support machine for humanoids.",
+                    new XElement("Definition",
+                        new XElement("Body", externalOrganBody.Id),
+                        new XElement("OxygenatesBlood", true),
+                        new XElement("Addendum", new XCData("It hums steadily while circulating and oxygenating blood.")),
+                        new XElement("VenousConnection", externalVenousConnector),
+                        new XElement("ArterialConnection", externalArterialConnector),
+                        new XElement("BasePowerConsumptionInWatts", 650.0),
+                        new XElement("PowerConsumptionDiscountPerQuality", 30.0),
+                        new XElement("SwitchOnEmote", new XCData("@ rumble|rumbles to life as pumps and oxygenators come online.")),
+                        new XElement("SwitchOffEmote", new XCData("@ wind|winds down as the circulation system powers off.")),
+                        new XElement("Organs",
+                            from organ in heartLungOrgans
+                            select new XElement("Organ", organ.Id))));
+            }
+
+            List<BodypartProto> kidneyOrgans = FindExternalOrgans(externalOrganBody, BodypartTypeEnum.Kidney);
+            if (kidneyOrgans.Count > 0)
+            {
+                CreateModernComponent("ExternalOrgan", "ExternalOrgan_Dialysis_Human",
+                    "Turns an item into a humanoid dialysis support machine.",
+                    new XElement("Definition",
+                        new XElement("Body", externalOrganBody.Id),
+                        new XElement("OxygenatesBlood", false),
+                        new XElement("Addendum", new XCData("It cycles blood through a filtration assembly.")),
+                        new XElement("VenousConnection", externalVenousConnector),
+                        new XElement("ArterialConnection", externalArterialConnector),
+                        new XElement("BasePowerConsumptionInWatts", 320.0),
+                        new XElement("PowerConsumptionDiscountPerQuality", 18.0),
+                        new XElement("SwitchOnEmote", new XCData("@ hum|hums to life as filtration pumps begin cycling.")),
+                        new XElement("SwitchOffEmote", new XCData("@ slow|slows and falls silent as filtration stops.")),
+                        new XElement("Organs",
+                            from organ in kidneyOrgans
+                            select new XElement("Organ", organ.Id))));
+            }
+        }
+
         CreateModernComponent("ElectricGridFeeder", "ElectricGridFeeder_Standard",
             "Turns an item into a feeder for the electrical grid.",
             ConnectorDefinition(
@@ -5637,6 +6299,21 @@ public partial class UsefulSeeder
             new XElement("Definition",
                 new XElement("MaximumUsers", 4),
                 new XElement("EffortMultiplier", 2.5)));
+        AddExtraComponent("DragAid", "DragAid_Stretcher",
+            "Turns an item into a stretcher or litter for coordinated casualty dragging.",
+            new XElement("Definition",
+                new XElement("MaximumUsers", 4),
+                new XElement("EffortMultiplier", 3.0)));
+        AddExtraComponent("DragAid", "DragAid_Sled",
+            "Turns an item into a hauling sled or skid.",
+            new XElement("Definition",
+                new XElement("MaximumUsers", 2),
+                new XElement("EffortMultiplier", 2.0)));
+        AddExtraComponent("DragAid", "DragAid_Travois",
+            "Turns an item into a travois-style drag aid for rough travel.",
+            new XElement("Definition",
+                new XElement("MaximumUsers", 2),
+                new XElement("EffortMultiplier", 2.25)));
 
         AddExtraComponent("WaterSource", "WaterSource_Canteen",
             "Turns an item into a transparent closable refill-on-toggle canteen.",
@@ -5738,6 +6415,20 @@ public partial class UsefulSeeder
                 new XElement("TreatmentType", 3),
                 new XElement("TreatmentType", 4),
                 new XElement("TreatmentType", 11)));
+        AddExtraComponent("Treatment", "Treatment_AntiInflammatory_Single",
+            "Turns the item into a single-use anti-inflammatory treatment example.",
+            new XElement("Definition",
+                new XElement("MaximumUses", 1),
+                new XElement("Refillable", false),
+                new XElement("DifficultyStages", 0),
+                new XElement("TreatmentType", (int)TreatmentType.AntiInflammatory)));
+        AddExtraComponent("Treatment", "Treatment_AntiInflammatory_Kit",
+            "Turns the item into a refillable anti-inflammatory treatment kit.",
+            new XElement("Definition",
+                new XElement("MaximumUses", 12),
+                new XElement("Refillable", true),
+                new XElement("DifficultyStages", 2),
+                new XElement("TreatmentType", (int)TreatmentType.AntiInflammatory)));
 
         BodyProto? prostheticBody = context.BodyProtos.FirstOrDefault(x => x.Name == "Organic Humanoid") ??
                             context.BodyProtos.FirstOrDefault(x => x.Name == "Humanoid");
@@ -5794,6 +6485,20 @@ public partial class UsefulSeeder
                     new XElement("TimeZone", defaultTimeZone.Id),
                     new XElement("PlayersCanSetTime", true),
                     new XElement("TimeDisplayString", "$h:$m:$s $t")));
+            AddExtraComponent("TimePiece", "TimePiece_PocketWatch",
+                "Turns an item into a pocket watch style timepiece.",
+                new XElement("Definition",
+                    new XElement("Clock", primaryClock.Id),
+                    new XElement("TimeZone", defaultTimeZone.Id),
+                    new XElement("PlayersCanSetTime", false),
+                    new XElement("TimeDisplayString", "$j:$m $i")));
+            AddExtraComponent("TimePiece", "TimePiece_WallClock",
+                "Turns an item into a fixed wall clock style timepiece.",
+                new XElement("Definition",
+                    new XElement("Clock", primaryClock.Id),
+                    new XElement("TimeZone", defaultTimeZone.Id),
+                    new XElement("PlayersCanSetTime", false),
+                    new XElement("TimeDisplayString", "$h:$m")));
         }
 
         nextId = currentId;
@@ -5805,7 +6510,7 @@ public partial class UsefulSeeder
     {
         #region Smokeables
 
-        GameItemComponentProto component;
+        long currentId = nextId;
         bool saveChangesRequired = false;
         string characterTypeDefinition = ProgVariableTypes.Character.ToStorageString();
         if (!context.VariableDefinitions.Any(x => x.OwnerTypeDefinition == characterTypeDefinition && x.Property == "nicotineuntil"))
@@ -5862,36 +6567,50 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
         {
             context.SaveChanges();
         }
-        component = new GameItemComponentProto
+        GameItemComponentProto CreateSmokeable(string name, string description, int secondsOfFuel, int secondsPerDrag,
+            int secondsOfEffectPerSecondOfFuel, string playerDescription, string roomDescription)
         {
-            Id = nextId++,
-            RevisionNumber = 0,
-            EditableItem = new EditableItem
-            {
-                RevisionNumber = 0,
-                RevisionStatus = 4,
-                BuilderAccountId = dbaccount.Id,
-                BuilderDate = now,
-                BuilderComment = "Auto-generated by the system",
-                ReviewerAccountId = dbaccount.Id,
-                ReviewerComment = "Auto-generated by the system",
-                ReviewerDate = now
-            },
-            Type = "Smokeable",
-            Name = "Cigarette",
-            Description = "Turns an item into a smokeable tobacco cigarette",
-            Definition = @$"<Definition>
-   <SecondsOfFuel>600</SecondsOfFuel>
-   <SecondsPerDrag>10</SecondsPerDrag>
-   <SecondsOfEffectPerSecondOfFuel>5</SecondsOfEffectPerSecondOfFuel>
-   <OnDragProg>{smokeProg.Id}</OnDragProg>
-   <PlayerDescriptionEffectString>The lingering, acrid smell of tobacco clings to this individual.</PlayerDescriptionEffectString>
-   <RoomDescriptionEffectString>The lingering, acrid smell of tobacco hangs in the air here.</RoomDescriptionEffectString>
-   <Drug>0</Drug>
-   <GramsPerDrag>0</GramsPerDrag>
- </Definition>"
-        };
-        AddGameItemComponent(context, component);
+            return CreateComponent(context, ref currentId, dbaccount, now, "Smokeable", name, description,
+                new XElement("Definition",
+                    new XElement("SecondsOfFuel", secondsOfFuel),
+                    new XElement("SecondsPerDrag", secondsPerDrag),
+                    new XElement("SecondsOfEffectPerSecondOfFuel", secondsOfEffectPerSecondOfFuel),
+                    new XElement("OnDragProg", smokeProg.Id),
+                    new XElement("PlayerDescriptionEffectString", new XCData(playerDescription)),
+                    new XElement("RoomDescriptionEffectString", new XCData(roomDescription)),
+                    new XElement("Drug", 0),
+                    new XElement("GramsPerDrag", 0)).ToString());
+        }
+
+        CreateSmokeable("Cigarette",
+            "Turns an item into a smokeable tobacco cigarette.",
+            600,
+            10,
+            5,
+            "The lingering, acrid smell of tobacco clings to this individual.",
+            "The lingering, acrid smell of tobacco hangs in the air here.");
+        CreateSmokeable("Smokeable_Cigar",
+            "Turns an item into a longer-burning smokeable tobacco cigar.",
+            5400,
+            60,
+            5,
+            "The rich, heavy smell of cigar smoke clings to this individual.",
+            "The rich, heavy smell of cigar smoke hangs in the air here.");
+        CreateSmokeable("Smokeable_Cigarillo",
+            "Turns an item into a compact smokeable cigarillo.",
+            1800,
+            30,
+            5,
+            "A sweet, lingering cigarillo scent clings to this individual.",
+            "A sweet, lingering cigarillo scent hangs in the air here.");
+        CreateSmokeable("Smokeable_PipeBowl",
+            "Turns an item into a prepared bowl of pipe tobacco for smoking.",
+            3600,
+            45,
+            5,
+            "The warm, aromatic smell of pipe smoke clings to this individual.",
+            "The warm, aromatic smell of pipe smoke hangs in the air here.");
+        nextId = currentId;
         #endregion
         context.SaveChanges();
     }

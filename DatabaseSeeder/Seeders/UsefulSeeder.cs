@@ -49,7 +49,11 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "Container_Table",
         "Insulation_Minor",
         "Destroyable_Misc",
-        "Torch_Infinite"
+        "Torch_Infinite",
+        "Smokeable_Cigar",
+        "DragAid_Stretcher",
+        "Treatment_AntiInflammatory_Single",
+        "TimePiece_PocketWatch"
     ];
 
     private static readonly string[] StockModernItemMarkers =
@@ -72,10 +76,20 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "LiquidConsumingProp_Standard",
         "LiquidConsumingProp_Basin",
         "BatteryPowered_LaptopStyle",
+        "Battery_LiIon_Cell",
+        "ElectricGridOutlet_Double",
+        "GridPowerSupply_Standard",
+        "UnlimitedGenerator_SetPiece",
         "PowerSocket_Mains_Double",
         "PowerSupply_60W",
         "ElectricLight_Medium",
         "HandheldRadio_Standard",
+        "CellularPhone_Standard",
+        "ComputerHost_Personal",
+        "AutomationHousing_Panel",
+        "SignalCableSegment_Standard",
+        "GasContainer_OxygenSmall",
+        "Defibrillator_AED",
         "ElectricHeaterCooler_SpaceHeater",
         "ElectricHeaterCooler_PortableCooler",
         "ConsumableHeaterCooler_SmallFire",
@@ -108,14 +122,14 @@ public partial class UsefulSeeder : IDatabaseSeeder
                         if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("items",
-                "#DItem Package 1#F\n\nDo you want to include a package of standard item definitions, which includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources and smokeable tobacco.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
+                "#DItem Package 1#F\n\nDo you want to include a package of standard item definitions, which includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources, smokeable tobacco, drag aids and timepieces.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
                 (context, questions) => true,
                 (answer, context) =>
                 {
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("modernitems",
-                "Do you want to install some common modern setting item component types like batteries, chargers, power plugs, powered lights, radios, electric heaters and coolers, fireplaces, campfires, grid creators, telephones, liquid grids and fuel generators?\n\nPlease answer #3yes#f or #3no#f: ",
+                "Do you want to install some common modern setting item component types like batteries, chargers, power plugs, powered lights, radios, electrical outlets and generators, telephones and cellular devices, computer and automation components, breathing and emergency medical gear, electric heaters and coolers, fireplaces, campfires, grid creators, liquid grids and fuel generators?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => ClassifyModernPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
                 {
@@ -240,8 +254,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
         List<ShouldSeedResult> packageStates =
         [
             ClassifyAiPackagePresence(context),
-            SeederRepeatabilityHelper.ClassifyByPresence(
-                StockItemMarkers.Select(marker => context.GameItemComponentProtos.Any(x => x.Name == marker))),
+            ClassifyItemPackagePresence(context),
             ClassifyModernPackagePresence(context),
             context.Tags.Any(x => x.Name == "Functions")
                 ? ShouldSeedResult.MayAlreadyBeInstalled
@@ -280,7 +293,14 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     }
 
     internal static IReadOnlyCollection<string> StockAiExampleNamesForTesting => StockAiExampleNames;
+    internal static IReadOnlyCollection<string> StockItemMarkersForTesting => StockItemMarkers;
     internal static IReadOnlyCollection<string> StockModernItemMarkersForTesting => StockModernItemMarkers;
+
+    internal static ShouldSeedResult ClassifyItemPackagePresence(FuturemudDatabaseContext context)
+    {
+        return SeederRepeatabilityHelper.ClassifyByPresence(
+            StockItemMarkers.Select(name => context.GameItemComponentProtos.Any(x => x.Name == name)));
+    }
 
     internal static ShouldSeedResult ClassifyModernPackagePresence(FuturemudDatabaseContext context)
     {

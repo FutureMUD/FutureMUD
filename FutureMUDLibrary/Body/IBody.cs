@@ -33,9 +33,15 @@ namespace MudSharp.Body
         void LoadInventory(MudSharp.Models.Body body);
         bool InventoryChanged { get; set; }
         IEnumerable<IEntityDescriptionPattern> EntityDescriptionPatterns { get; }
+        IEntityDescriptionPattern ShortDescriptionPattern { get; }
+        IEntityDescriptionPattern FullDescriptionPattern { get; }
         (string ShortDescription, string FullDescription) GetRawDescriptions { get; }
         void SetFullDescription(string description);
         void SetShortDescription(string description);
+        void SetFullDescriptionPattern(IEntityDescriptionPattern pattern);
+        void SetShortDescriptionPattern(IEntityDescriptionPattern pattern);
+        void ClearFullDescriptionPattern();
+        void ClearShortDescriptionPattern();
         IBodyPrototype Prototype { get; }
 
         ICharacter Actor { get; set; }

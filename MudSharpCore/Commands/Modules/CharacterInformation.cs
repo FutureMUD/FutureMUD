@@ -2025,10 +2025,13 @@ Implementors can also use:
 	#3body addform <character> <race> [<ethnicity>] [<gender>]#0 - adds a dormant alternate form
 	#3body formset <character> <form> alias <alias>#0 - changes a form alias
 	#3body formset <character> <form> trauma <auto|transfer|stash>#0 - sets how health state behaves on switch
+	#3body formset <character> <form> echo <text>|default|none#0 - sets, defaults or suppresses the transformation echo
 	#3body formset <character> <form> allow [true|false]#0 - toggles or sets voluntary switching
 	#3body formset <character> <form> canprog <prog>|clear#0 - sets or clears the voluntary-eligibility prog
 	#3body formset <character> <form> whycantprog <prog>|clear#0 - sets or clears the denial-message prog
 	#3body formset <character> <form> visibleprog <prog>|clear#0 - sets or clears the owner-visibility prog
+	#3body formset <character> <form> sdescpattern <pattern>|random|clear#0 - sets, randomises or clears the short description pattern
+	#3body formset <character> <form> fdescpattern <pattern>|random|clear#0 - sets, randomises or clears the full description pattern
 	#3body switch <character> <form>#0 - forcibly switches the character into that form", AutoHelp.HelpArg)]
     protected static void Body(ICharacter actor, string command)
     {
@@ -2214,8 +2217,6 @@ You can use the following options with this command:
             actor.OutputHandler.Send("You were not able to switch forms.");
             return;
         }
-
-        actor.OutputHandler.Send($"You switch into your {form.Alias.ColourName()} form.");
     }
 
 	private static void ShowForms(ICharacter actor, ICharacter target)
@@ -2332,6 +2333,13 @@ You can use the following options with this command:
                 mode = BodySwitchTraumaMode.Automatic;
                 return false;
         }
+    }
+
+    private static string DescribePattern(IEntityDescriptionPattern pattern)
+    {
+        return pattern is null
+            ? "None".ColourError()
+            : $"#{pattern.Id.ToString("N0")} {pattern.Pattern.ColourCommand()}";
     }
 
     private static void BodyAddForm(ICharacter actor, StringStack ss)
@@ -2479,6 +2487,35 @@ You can use the following options with this command:
                     $"That form will now use {form.TraumaMode.DescribeEnum().ColourValue()} trauma handling when switching.");
                 return;
 
+            case "echo":
+            case "transformecho":
+            case "transformationecho":
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("What transformation echo should that form use, or should it be defaulted or suppressed?");
+                    return;
+                }
+
+                var echoText = ss.SafeRemainingArgument;
+                string? transformationEcho = echoText.EqualToAny("clear", "default")
+                    ? null
+                    : echoText.EqualToAny("none", "suppress", "blank")
+                        ? string.Empty
+                        : echoText;
+                if (!concreteTarget.TrySetFormTransformationEcho(form, transformationEcho, out var echoWhyNot))
+                {
+                    actor.OutputHandler.Send(echoWhyNot);
+                    return;
+                }
+
+                actor.OutputHandler.Send(form.TransformationEcho switch
+                {
+                    null => "That form will now use the default transformation echo.",
+                    "" => "That form will no longer emit a transformation echo.",
+                    _ => $"That form will now echo {form.TransformationEcho.ColourCommand()} when it transforms."
+                });
+                return;
+
             case "allow":
                 bool allow = !form.AllowVoluntarySwitch;
                 if (!ss.IsFinished && !TryParseBooleanChoice(ss.SafeRemainingArgument, out allow))
@@ -2605,9 +2642,114 @@ You can use the following options with this command:
                 actor.OutputHandler.Send(
                     $"That form will now use the {visibleProg.MXPClickableFunctionName()} prog to decide whether its owner can see it.");
                 return;
+
+            case "sdescpattern":
+            case "shortdescpattern":
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("Which short description pattern should that form use, or should it be randomised or cleared?");
+                    return;
+                }
+
+                if (ss.SafeRemainingArgument.EqualToAny("random", "auto"))
+                {
+                    if (!concreteTarget.TryRandomiseFormDescriptionPattern(form, EntityDescriptionType.ShortDescription,
+                            out var randomSdescWhyNot))
+                    {
+                        actor.OutputHandler.Send(randomSdescWhyNot);
+                        return;
+                    }
+
+                    actor.OutputHandler.Send(
+                        $"That form now uses the short description pattern {DescribePattern(form.Body.ShortDescriptionPattern)}.");
+                    return;
+                }
+
+                if (ss.SafeRemainingArgument.EqualToAny("clear", "none"))
+                {
+                    if (!concreteTarget.TryClearFormDescriptionPattern(form, EntityDescriptionType.ShortDescription,
+                            out var clearSdescWhyNot))
+                    {
+                        actor.OutputHandler.Send(clearSdescWhyNot);
+                        return;
+                    }
+
+                    actor.OutputHandler.Send("That form no longer uses a short description pattern.");
+                    return;
+                }
+
+                var shortPattern = actor.Gameworld.EntityDescriptionPatterns.GetByIdOrName(ss.SafeRemainingArgument);
+                if (shortPattern is null || shortPattern.Type != EntityDescriptionType.ShortDescription)
+                {
+                    actor.OutputHandler.Send("There is no such short description pattern.");
+                    return;
+                }
+
+                if (!concreteTarget.TrySetFormDescriptionPattern(form, shortPattern, out var sdescWhyNot))
+                {
+                    actor.OutputHandler.Send(sdescWhyNot);
+                    return;
+                }
+
+                actor.OutputHandler.Send(
+                    $"That form now uses the short description pattern {DescribePattern(form.Body.ShortDescriptionPattern)}.");
+                return;
+
+            case "fdescpattern":
+            case "descpattern":
+            case "fulldescpattern":
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("Which full description pattern should that form use, or should it be randomised or cleared?");
+                    return;
+                }
+
+                if (ss.SafeRemainingArgument.EqualToAny("random", "auto"))
+                {
+                    if (!concreteTarget.TryRandomiseFormDescriptionPattern(form, EntityDescriptionType.FullDescription,
+                            out var randomFdescWhyNot))
+                    {
+                        actor.OutputHandler.Send(randomFdescWhyNot);
+                        return;
+                    }
+
+                    actor.OutputHandler.Send(
+                        $"That form now uses the full description pattern {DescribePattern(form.Body.FullDescriptionPattern)}.");
+                    return;
+                }
+
+                if (ss.SafeRemainingArgument.EqualToAny("clear", "none"))
+                {
+                    if (!concreteTarget.TryClearFormDescriptionPattern(form, EntityDescriptionType.FullDescription,
+                            out var clearFdescWhyNot))
+                    {
+                        actor.OutputHandler.Send(clearFdescWhyNot);
+                        return;
+                    }
+
+                    actor.OutputHandler.Send("That form no longer uses a full description pattern.");
+                    return;
+                }
+
+                var fullPattern = actor.Gameworld.EntityDescriptionPatterns.GetByIdOrName(ss.SafeRemainingArgument);
+                if (fullPattern is null || fullPattern.Type != EntityDescriptionType.FullDescription)
+                {
+                    actor.OutputHandler.Send("There is no such full description pattern.");
+                    return;
+                }
+
+                if (!concreteTarget.TrySetFormDescriptionPattern(form, fullPattern, out var fdescWhyNot))
+                {
+                    actor.OutputHandler.Send(fdescWhyNot);
+                    return;
+                }
+
+                actor.OutputHandler.Send(
+                    $"That form now uses the full description pattern {DescribePattern(form.Body.FullDescriptionPattern)}.");
+                return;
         }
 
-        actor.OutputHandler.Send("You must specify alias, trauma, allow, canprog, whycantprog or visibleprog.");
+        actor.OutputHandler.Send("You must specify alias, trauma, echo, allow, canprog, whycantprog, visibleprog, sdescpattern or fdescpattern.");
     }
 
     private static void ShowAdminForm(ICharacter actor, ICharacter target, ICharacterForm form)
@@ -2621,10 +2763,18 @@ You can use the following options with this command:
         sb.AppendLine($"Gender: {form.Body.Gender.Name.ColourValue()}");
         sb.AppendLine($"Sort Order: {form.SortOrder.ToString("N0", actor).ColourValue()}");
         sb.AppendLine($"Trauma Mode: {form.TraumaMode.DescribeEnum().ColourValue()}");
+        sb.AppendLine($"Transformation Echo: {form.TransformationEcho switch
+        {
+            null => $"Default ({actor.Gameworld.GetStaticString("DefaultFormTransformationEcho").ColourCommand()})",
+            "" => "Suppressed".ColourError(),
+            _ => form.TransformationEcho.ColourCommand()
+        }}");
         sb.AppendLine($"Allow Voluntary Switch: {form.AllowVoluntarySwitch.ToColouredString()}");
         sb.AppendLine($"Can Switch Prog: {form.CanVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Why-Cant Prog: {form.WhyCannotVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Visibility Prog: {form.CanSeeFormProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Short Description Pattern: {DescribePattern(form.Body.ShortDescriptionPattern)}");
+        sb.AppendLine($"Full Description Pattern: {DescribePattern(form.Body.FullDescriptionPattern)}");
         actor.OutputHandler.Send(sb.ToString());
     }
 

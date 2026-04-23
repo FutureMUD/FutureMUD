@@ -126,8 +126,13 @@ The merit's first-creation defaults can specify:
 - initial voluntary-switch toggle
 - initial voluntary can-switch and why-cant progs
 - initial owner-visibility prog
+- initial transformation echo
+- initial short-description pattern
+- initial full-description pattern
 
-After a form exists, its per-character metadata is authoritative. Editing that form later through admin tools or FutureProg mutators does not get overwritten by the originating merit.
+If no explicit short or full description pattern is supplied, the runtime tries to choose a random valid pattern for the target race/body configuration and only falls back to generic text when no valid pattern exists.
+
+After a form exists, its per-character metadata is authoritative. Editing that form later through admin tools or FutureProg mutators does not get overwritten by the originating merit, including later edits to visibility, voluntary-switch rules, transformation echo, or description patterns.
 
 ## Review and Submission
 Once an application is submitted:

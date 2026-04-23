@@ -114,10 +114,12 @@ If you want chargen or racial selection to grant a reusable transformation body,
 Builder expectations for this merit family are:
 
 - the merit defines first-creation defaults for the provisioned form
-- it can specify race, ethnicity, gender, alias, sort order, trauma mode, voluntary-switch rules, and an owner-visibility prog
+- it can specify race, ethnicity, gender, alias, sort order, trauma mode, voluntary-switch rules, an owner-visibility prog, an optional transformation echo, and optional short/full description patterns
 - the owning character keeps the provisioned body cached even if the merit is later removed or temporarily unavailable
 - re-adding the same merit reuses the cached sourced form instead of generating duplicates
 - the merit itself provisions access only; it does not force an immediate switch into that form
+
+If you omit the form's short or full description pattern, the runtime will try to assign a random valid pattern for the provisioned form on first creation. If no valid pattern exists, it falls back to generic stored description text instead.
 
 Use the owner-visibility prog when you want a form to exist for later scripted use without being openly listed to the player yet, such as hidden lycanthropy or drug/spell-gated transformations.
 

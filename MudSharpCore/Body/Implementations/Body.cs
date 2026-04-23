@@ -241,6 +241,9 @@ public partial class Body : PerceiverItem, IBody
         }
     }
 
+    public IEntityDescriptionPattern ShortDescriptionPattern => _shortDescriptionPattern;
+    public IEntityDescriptionPattern FullDescriptionPattern => _fullDescriptionPattern;
+
     public static void RegisterPerceivableType(IFuturemud gameworld)
     {
         gameworld.RegisterPerceivableType("Body",
@@ -260,6 +263,40 @@ public partial class Body : PerceiverItem, IBody
     public void SetShortDescription(string description)
     {
         _shortDescription = description;
+        _shortDescriptionPattern = null;
+        Changed = true;
+    }
+
+    public void SetFullDescriptionPattern(IEntityDescriptionPattern pattern)
+    {
+        _fullDescriptionPattern = pattern;
+        if (pattern != null)
+        {
+            _fullDescription = pattern.Pattern;
+        }
+
+        Changed = true;
+    }
+
+    public void SetShortDescriptionPattern(IEntityDescriptionPattern pattern)
+    {
+        _shortDescriptionPattern = pattern;
+        if (pattern != null)
+        {
+            _shortDescription = pattern.Pattern;
+        }
+
+        Changed = true;
+    }
+
+    public void ClearFullDescriptionPattern()
+    {
+        _fullDescriptionPattern = null;
+        Changed = true;
+    }
+
+    public void ClearShortDescriptionPattern()
+    {
         _shortDescriptionPattern = null;
         Changed = true;
     }

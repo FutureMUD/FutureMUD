@@ -128,6 +128,7 @@ namespace MudSharp.Character
         string Alias { get; set; }
         int SortOrder { get; set; }
         BodySwitchTraumaMode TraumaMode { get; set; }
+        string TransformationEcho { get; set; }
         bool AllowVoluntarySwitch { get; set; }
         IFutureProg CanVoluntarilySwitchProg { get; set; }
         IFutureProg WhyCannotVoluntarilySwitchProg { get; set; }

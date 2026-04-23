@@ -312,7 +312,7 @@ It does not create a one-off temporary shell every cast. Instead it:
 
 - resolves a stable `FormKey`
 - ensures a cached alternate form exists for the target character, creating it on first use if necessary
-- applies only first-creation defaults from the spell definition for race, ethnicity, gender, alias, sort order, trauma mode, voluntary-switch settings, and visibility prog
+- applies only first-creation defaults from the spell definition for race, ethnicity, gender, alias, sort order, trauma mode, voluntary-switch settings, visibility prog, transformation echo, and body-specific description patterns
 - reuses the same provisioned form on later casts with the same spell id plus `FormKey`
 - switches the target into that form with scripted switching rules
 - stores the previous body id in the applied child effect so expiry can attempt to revert cleanly
@@ -327,8 +327,12 @@ Important builder implications:
 
 - creation defaults apply only the first time a keyed form is created
 - later admin or FutureProg edits to that form's alias, trauma mode, visibility, or voluntary rules remain authoritative
+- later admin or FutureProg edits to that form's transformation echo and description patterns also remain authoritative
 - hidden forms stay hidden from the owner's `form` list unless they are the current form
 - spell expiry does not delete the cached form; the spell source only provisions and reuses it
+- if no explicit short or full description pattern is supplied, the runtime tries to pick a random valid pattern for the target form and only falls back to generic text when no valid pattern exists
+- switching emits the form's configured transformation echo after the new body has been stabilised; `default` uses the `DefaultFormTransformationEcho` static string and a blank echo suppresses the emote entirely
+- switch activation intentionally delays normal health and consequence feedback until organ functions and positioning have been recalculated, preventing transient `can't breathe` or `tumble to the ground` noise during valid transformations
 
 The `transformform` builder effect currently supports:
 
@@ -339,10 +343,13 @@ The `transformform` builder effect currently supports:
 - `alias <text>|clear`
 - `sort <number>|clear`
 - `trauma <auto|transfer|stash>`
+- `echo <text>|default|none`
 - `allow [true|false]`
 - `canprog <prog>|clear`
 - `whycantprog <prog>|clear`
 - `visibleprog <prog>|clear`
+- `sdescpattern <pattern>|random|clear`
+- `fdescpattern <pattern>|random|clear`
 
 ### Material workflow
 Material requirements are authored through the spell's inventory plan:

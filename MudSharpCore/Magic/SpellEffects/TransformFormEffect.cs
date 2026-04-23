@@ -22,10 +22,13 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 	private string? _alias;
 	private int? _sortOrder;
 	private BodySwitchTraumaMode _traumaMode = BodySwitchTraumaMode.Automatic;
+	private string? _transformationEcho;
 	private bool _allowVoluntarySwitch;
 	private IFutureProg? _canVoluntarilySwitchProg;
 	private IFutureProg? _whyCannotVoluntarilySwitchProg;
 	private IFutureProg? _canSeeFormProg;
+	private IEntityDescriptionPattern? _shortDescriptionPattern;
+	private IEntityDescriptionPattern? _fullDescriptionPattern;
 
 	public static void RegisterFactory()
 	{
@@ -53,10 +56,13 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 			new XElement("Alias", $"{defaultRace.Name} form"),
 			new XElement("SortOrder", string.Empty),
 			new XElement("TraumaMode", (int)BodySwitchTraumaMode.Automatic),
+			new XElement("TransformationEcho", new XAttribute("mode", "default"), string.Empty),
 			new XElement("AllowVoluntarySwitch", false),
 			new XElement("CanVoluntarilySwitchProg", 0L),
 			new XElement("WhyCannotVoluntarilySwitchProg", 0L),
-			new XElement("CanSeeFormProg", 0L)
+			new XElement("CanSeeFormProg", 0L),
+			new XElement("ShortDescriptionPattern", 0L),
+			new XElement("FullDescriptionPattern", 0L)
 		), spell), string.Empty);
 	}
 
@@ -82,10 +88,22 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 			_traumaMode = (BodySwitchTraumaMode)traumaMode;
 		}
 
+		_transformationEcho = root.Element("TransformationEcho")?.Attribute("mode")?.Value switch
+		{
+			"none" => string.Empty,
+			_ => root.Element("TransformationEcho")?.Value
+		};
+		if (_transformationEcho == string.Empty &&
+		    root.Element("TransformationEcho")?.Attribute("mode")?.Value != "none")
+		{
+			_transformationEcho = null;
+		}
 		_allowVoluntarySwitch = bool.TryParse(root.Element("AllowVoluntarySwitch")?.Value, out var allow) && allow;
 		_canVoluntarilySwitchProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanVoluntarilySwitchProg")?.Value ?? "0"));
 		_whyCannotVoluntarilySwitchProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotVoluntarilySwitchProg")?.Value ?? "0"));
 		_canSeeFormProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanSeeFormProg")?.Value ?? "0"));
+		_shortDescriptionPattern = Gameworld.EntityDescriptionPatterns.Get(long.Parse(root.Element("ShortDescriptionPattern")?.Value ?? "0"));
+		_fullDescriptionPattern = Gameworld.EntityDescriptionPatterns.Get(long.Parse(root.Element("FullDescriptionPattern")?.Value ?? "0"));
 	}
 
 	public IFuturemud Gameworld => Spell.Gameworld;
@@ -100,10 +118,13 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 		Alias = _alias,
 		SortOrder = _sortOrder,
 		TraumaMode = _traumaMode,
+		TransformationEcho = _transformationEcho,
 		AllowVoluntarySwitch = _allowVoluntarySwitch,
 		CanVoluntarilySwitchProg = _canVoluntarilySwitchProg,
 		WhyCannotVoluntarilySwitchProg = _whyCannotVoluntarilySwitchProg,
-		CanSeeFormProg = _canSeeFormProg
+		CanSeeFormProg = _canSeeFormProg,
+		ShortDescriptionPattern = _shortDescriptionPattern,
+		FullDescriptionPattern = _fullDescriptionPattern
 	};
 
 	public XElement SaveToXml()
@@ -117,10 +138,20 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 			new XElement("Alias", _alias ?? string.Empty),
 			new XElement("SortOrder", _sortOrder?.ToString() ?? string.Empty),
 			new XElement("TraumaMode", (int)_traumaMode),
+			new XElement("TransformationEcho",
+				new XAttribute("mode", _transformationEcho switch
+				{
+					null => "default",
+					"" => "none",
+					_ => "custom"
+				}),
+				_transformationEcho ?? string.Empty),
 			new XElement("AllowVoluntarySwitch", _allowVoluntarySwitch),
 			new XElement("CanVoluntarilySwitchProg", _canVoluntarilySwitchProg?.Id ?? 0L),
 			new XElement("WhyCannotVoluntarilySwitchProg", _whyCannotVoluntarilySwitchProg?.Id ?? 0L),
-			new XElement("CanSeeFormProg", _canSeeFormProg?.Id ?? 0L)
+			new XElement("CanSeeFormProg", _canSeeFormProg?.Id ?? 0L),
+			new XElement("ShortDescriptionPattern", _shortDescriptionPattern?.Id ?? 0L),
+			new XElement("FullDescriptionPattern", _fullDescriptionPattern?.Id ?? 0L)
 		);
 	}
 
@@ -183,15 +214,23 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 	#3alias <text>|clear#0 - sets or clears the initial alias
 	#3sort <number>|clear#0 - sets or clears the initial sort order
 	#3trauma <auto|transfer|stash>#0 - sets the initial trauma mode
+	#3echo <text>|default|none#0 - sets, defaults or suppresses the transformation echo
 	#3allow [true|false]#0 - toggles or sets the initial voluntary-switch flag
 	#3canprog <prog>|clear#0 - sets or clears the initial voluntary eligibility prog
 	#3whycantprog <prog>|clear#0 - sets or clears the initial voluntary denial-message prog
-	#3visibleprog <prog>|clear#0 - sets or clears the initial visibility prog";
+	#3visibleprog <prog>|clear#0 - sets or clears the initial visibility prog
+	#3sdescpattern <pattern>|random|clear#0 - sets or auto-randomises the initial short description pattern
+	#3fdescpattern <pattern>|random|clear#0 - sets or auto-randomises the initial full description pattern";
 
 	public string Show(ICharacter actor)
 	{
 		return
-			$"TransformForm [{FormKey.ColourCommand()}] Race {_race?.Name.ColourName() ?? "None".ColourError()}, Ethnicity {_ethnicity?.Name.ColourName() ?? "Auto".ColourValue()}, Gender {_gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()}, Alias {(_alias ?? "auto").ColourCommand()}, Trauma {_traumaMode.DescribeEnum().ColourValue()}, Voluntary {_allowVoluntarySwitch.ToColouredString()}, CanProg {_canVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}, WhyCant {_whyCannotVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}, Visible {_canSeeFormProg?.MXPClickableFunctionName() ?? "None".ColourError()}";
+			$"TransformForm [{FormKey.ColourCommand()}] Race {_race?.Name.ColourName() ?? "None".ColourError()}, Ethnicity {_ethnicity?.Name.ColourName() ?? "Auto".ColourValue()}, Gender {_gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()}, Alias {(_alias ?? "auto").ColourCommand()}, Trauma {_traumaMode.DescribeEnum().ColourValue()}, Echo {(_transformationEcho switch
+			{
+				null => "Default".ColourValue(),
+				"" => "Suppressed".ColourError(),
+				_ => _transformationEcho.ColourCommand()
+			})}, Voluntary {_allowVoluntarySwitch.ToColouredString()}, CanProg {_canVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}, WhyCant {_whyCannotVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}, Visible {_canSeeFormProg?.MXPClickableFunctionName() ?? "None".ColourError()}, SDesc {_shortDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}, FDesc {_fullDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}";
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -214,6 +253,10 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 			case "trauma":
 			case "traumamode":
 				return BuildingCommandTrauma(actor, command);
+			case "echo":
+			case "transformecho":
+			case "transformationecho":
+				return BuildingCommandEcho(actor, command);
 			case "allow":
 				return BuildingCommandAllow(actor, command);
 			case "canprog":
@@ -223,6 +266,13 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 			case "visibleprog":
 			case "visibilityprog":
 				return BuildingCommandVisibleProg(actor, command);
+			case "sdescpattern":
+			case "shortdescpattern":
+				return BuildingCommandDescriptionPattern(actor, command, EntityDescriptionType.ShortDescription);
+			case "fdescpattern":
+			case "descpattern":
+			case "fulldescpattern":
+				return BuildingCommandDescriptionPattern(actor, command, EntityDescriptionType.FullDescription);
 		}
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
@@ -413,6 +463,30 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 		return true;
 	}
 
+	private bool BuildingCommandEcho(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What transformation echo should this effect use, or should it be defaulted or suppressed?");
+			return false;
+		}
+
+		var text = command.SafeRemainingArgument;
+		_transformationEcho = text.EqualToAny("clear", "default")
+			? null
+			: text.EqualToAny("none", "suppress", "blank")
+				? string.Empty
+				: text;
+		Spell.Changed = true;
+		actor.OutputHandler.Send(_transformationEcho switch
+		{
+			null => "This effect will now use the default transformation echo.",
+			"" => "This effect will now suppress transformation echoes.",
+			_ => $"This effect will now use {_transformationEcho.ColourCommand()} as its transformation echo."
+		});
+		return true;
+	}
+
 	private bool BuildingCommandAllow(ICharacter actor, StringStack command)
 	{
 		var allow = !_allowVoluntarySwitch;
@@ -530,6 +604,54 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 		_canSeeFormProg = prog;
 		Spell.Changed = true;
 		actor.OutputHandler.Send($"This effect will now use the {prog.MXPClickableFunctionName()} prog to decide whether the form is visible.");
+		return true;
+	}
+
+	private bool BuildingCommandDescriptionPattern(ICharacter actor, StringStack command, EntityDescriptionType type)
+	{
+		var label = type == EntityDescriptionType.ShortDescription ? "short description" : "full description";
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which {label} pattern should this effect use, or should it be auto-randomised?");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("clear", "none", "auto", "random"))
+		{
+			switch (type)
+			{
+				case EntityDescriptionType.ShortDescription:
+					_shortDescriptionPattern = null;
+					break;
+				case EntityDescriptionType.FullDescription:
+					_fullDescriptionPattern = null;
+					break;
+			}
+
+			Spell.Changed = true;
+			actor.OutputHandler.Send($"This effect will now auto-select a valid {label} pattern when its form is first created.");
+			return true;
+		}
+
+		var pattern = Gameworld.EntityDescriptionPatterns.GetByIdOrName(command.SafeRemainingArgument);
+		if (pattern is null || pattern.Type != type)
+		{
+			actor.OutputHandler.Send($"There is no such {label} pattern.");
+			return false;
+		}
+
+		switch (type)
+		{
+			case EntityDescriptionType.ShortDescription:
+				_shortDescriptionPattern = pattern;
+				break;
+			case EntityDescriptionType.FullDescription:
+				_fullDescriptionPattern = pattern;
+				break;
+		}
+
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This effect will now use the {label} pattern {pattern.Pattern.ColourCommand()} when provisioning its form.");
 		return true;
 	}
 }

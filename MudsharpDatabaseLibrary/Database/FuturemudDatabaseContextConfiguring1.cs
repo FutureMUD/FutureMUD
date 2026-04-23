@@ -1242,6 +1242,11 @@ namespace MudSharp.Database
                     .HasColumnType("int(11)")
                     .HasDefaultValueSql("'0'");
 
+                entity.Property(e => e.TransformationEcho)
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.Property(e => e.AllowVoluntarySwitch)
                     .HasColumnType("bit(1)")
                     .HasDefaultValueSql("b'0'");

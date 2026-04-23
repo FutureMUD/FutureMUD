@@ -21,6 +21,7 @@ public class CharacterForm : ICharacterForm
 		Alias = form.Alias;
 		SortOrder = form.SortOrder;
 		TraumaMode = (BodySwitchTraumaMode)form.TraumaMode;
+		TransformationEcho = form.TransformationEcho;
 		AllowVoluntarySwitch = form.AllowVoluntarySwitch;
 		CanVoluntarilySwitchProg = gameworld.FutureProgs.Get(form.CanVoluntarilySwitchProgId ?? 0);
 		WhyCannotVoluntarilySwitchProg = gameworld.FutureProgs.Get(form.WhyCannotVoluntarilySwitchProgId ?? 0);
@@ -31,6 +32,7 @@ public class CharacterForm : ICharacterForm
 	public string Alias { get; set; }
 	public int SortOrder { get; set; }
 	public BodySwitchTraumaMode TraumaMode { get; set; }
+	public string? TransformationEcho { get; set; }
 	public bool AllowVoluntarySwitch { get; set; }
 	public IFutureProg CanVoluntarilySwitchProg { get; set; }
 	public IFutureProg WhyCannotVoluntarilySwitchProg { get; set; }

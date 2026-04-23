@@ -7,6 +7,7 @@ namespace MudSharp.Models
         public string Alias { get; set; }
         public int SortOrder { get; set; }
         public int TraumaMode { get; set; }
+        public string TransformationEcho { get; set; }
         public bool AllowVoluntarySwitch { get; set; }
         public long? CanVoluntarilySwitchProgId { get; set; }
         public long? WhyCannotVoluntarilySwitchProgId { get; set; }

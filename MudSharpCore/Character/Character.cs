@@ -2767,45 +2767,7 @@ public partial class Character : PerceiverItem, ICharacter
 
     public ICharacterTemplate GetCharacterTemplate()
     {
-        List<IAccent> accents = _accents.Where(x => x.Value <= Difficulty.Trivial).Select(x => x.Key).Distinct().ToList();
-        foreach (ILanguage language in Languages)
-        {
-            if (accents.All(x => x.Language != language))
-            {
-                accents.Add(_accents.Where(x => x.Key.Language == language).FirstMin(x => x.Value).Key ??
-                            language.DefaultLearnerAccent);
-            }
-        }
-
-        return new SimpleCharacterTemplate
-        {
-            Handedness = Handedness,
-            MissingBodyparts = Body.SeveredRoots.ToList(),
-            SelectedAccents = accents,
-            SelectedKnowledges = Knowledges.ToList(),
-            SelectedCharacteristics = Body.CharacteristicDefinitions
-                                          .Select(x => (x, Body.GetCharacteristic(x, this))).ToList(),
-            SelectedMerits = Merits.OfType<ICharacterMerit>().ToList(),
-            SelectedRoles = Roles.ToList(),
-            SelectedWeight = Weight,
-            SelectedHeight = Height,
-            SelectedName = PersonalName,
-            SelectedCulture = Culture,
-            SelectedEthnicity = Ethnicity,
-            SelectedRace = Race,
-            SelectedBirthday = Birthday,
-            SelectedEntityDescriptionPatterns = Body.EntityDescriptionPatterns.ToList(),
-            SelectedFullDesc = Body.GetRawDescriptions.FullDescription,
-            SelectedSdesc = Body.GetRawDescriptions.ShortDescription,
-            SelectedGender = Gender.Enum,
-            SkillValues = (from skill in _characterTraits.OfType<ISkill>() select (skill.Definition, skill.RawValue))
-                .ToList(),
-            SelectedAttributes =
-                (from attribute in Traits.OfType<IAttribute>()
-                 select TraitFactory.LoadAttribute(attribute.AttributeDefinition, Body, attribute.RawValue))
-                .ToList<ITrait>(),
-            Gameworld = Gameworld
-        };
+        return GetCharacterTemplateForBody(Body);
     }
 
     #endregion

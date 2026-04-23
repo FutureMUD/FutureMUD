@@ -6,12 +6,18 @@ using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
 using MudSharp.Database;
+using MudSharp.Communication.Language;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.NPC.Templates;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.RPG.Checks;
+using MudSharp.RPG.Merits;
 using MudSharp.RPG.Merits.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -61,6 +67,136 @@ public partial class Character
 	public IEnumerable<ITrait> CharacterTraits => _characterTraits;
 	public IBody CurrentBody => Body;
 	public event CurrentBodyChangedEvent CurrentBodyChanged;
+
+	private SimpleCharacterTemplate GetCharacterTemplateForBody(IBody body)
+	{
+		List<IAccent> accents = _accents.Where(x => x.Value <= Difficulty.Trivial).Select(x => x.Key).Distinct().ToList();
+		foreach (var language in Languages)
+		{
+			if (accents.All(x => x.Language != language))
+			{
+				accents.Add(_accents.Where(x => x.Key.Language == language).FirstMin(x => x.Value).Key ??
+				            language.DefaultLearnerAccent);
+			}
+		}
+
+		return new SimpleCharacterTemplate
+		{
+			Handedness = body.Handedness,
+			MissingBodyparts = body.SeveredRoots.ToList(),
+			SelectedAccents = accents,
+			SelectedKnowledges = Knowledges.ToList(),
+			SelectedCharacteristics = body.CharacteristicDefinitions
+			                             .Select(x => (x, body.GetCharacteristic(x, this))).ToList(),
+			SelectedMerits = Merits.OfType<ICharacterMerit>().ToList(),
+			SelectedRoles = Roles.ToList(),
+			SelectedWeight = body.Weight,
+			SelectedHeight = body.Height,
+			SelectedName = PersonalName,
+			SelectedCulture = Culture,
+			SelectedEthnicity = body.Ethnicity,
+			SelectedRace = body.Race,
+			SelectedBirthday = Birthday,
+			SelectedEntityDescriptionPatterns = body.EntityDescriptionPatterns.ToList(),
+			SelectedFullDesc = body.GetRawDescriptions.FullDescription,
+			SelectedSdesc = body.GetRawDescriptions.ShortDescription,
+			SelectedGender = body.Gender.Enum,
+			SkillValues = (from skill in _characterTraits.OfType<ISkill>() select (skill.Definition, skill.RawValue))
+				.ToList(),
+			SelectedAttributes = (from attribute in body.Traits.OfType<IAttribute>()
+				select TraitFactory.LoadAttribute(attribute.AttributeDefinition, body, attribute.RawValue))
+				.ToList<ITrait>(),
+			Gameworld = Gameworld
+		};
+	}
+
+	private IEntityDescriptionPattern GetRandomValidDescriptionPattern(ICharacterTemplate template,
+		EntityDescriptionType type)
+	{
+		return Gameworld.EntityDescriptionPatterns
+		                .Where(x => x.Type == type)
+		                .Where(x => x.IsValidSelection(template))
+		                .GetWeightedRandom(x => x.RelativeWeight);
+	}
+
+	private static string DefaultDescriptionFallback(IRace race, EntityDescriptionType type)
+	{
+		return type switch
+		{
+			EntityDescriptionType.ShortDescription => $"a {race.Name.ToLowerInvariant()}",
+			EntityDescriptionType.FullDescription => "You cannot tell anything special or unique about it.",
+			_ => string.Empty
+		};
+	}
+
+	private bool TryApplyDescriptionPatternsToTemplate(SimpleCharacterTemplate template,
+		ICharacterFormSpecification specification, out string whyNot)
+	{
+		var shortPattern = specification.ShortDescriptionPattern;
+		if (shortPattern is not null &&
+		    (shortPattern.Type != EntityDescriptionType.ShortDescription || !shortPattern.IsValidSelection(template)))
+		{
+			whyNot = "That short description pattern is not valid for the selected form.";
+			return false;
+		}
+
+		var fullPattern = specification.FullDescriptionPattern;
+		if (fullPattern is not null &&
+		    (fullPattern.Type != EntityDescriptionType.FullDescription || !fullPattern.IsValidSelection(template)))
+		{
+			whyNot = "That full description pattern is not valid for the selected form.";
+			return false;
+		}
+
+		shortPattern ??= GetRandomValidDescriptionPattern(template, EntityDescriptionType.ShortDescription);
+		fullPattern ??= GetRandomValidDescriptionPattern(template, EntityDescriptionType.FullDescription);
+
+		template.SelectedEntityDescriptionPatterns.RemoveAll(x => x.Type == EntityDescriptionType.ShortDescription);
+		template.SelectedEntityDescriptionPatterns.RemoveAll(x => x.Type == EntityDescriptionType.FullDescription);
+		if (shortPattern is not null)
+		{
+			template.SelectedEntityDescriptionPatterns.Add(shortPattern);
+			template.SelectedSdesc = shortPattern.Pattern;
+		}
+		else
+		{
+			template.SelectedSdesc = DefaultDescriptionFallback(template.SelectedRace, EntityDescriptionType.ShortDescription);
+		}
+
+		if (fullPattern is not null)
+		{
+			template.SelectedEntityDescriptionPatterns.Add(fullPattern);
+			template.SelectedFullDesc = fullPattern.Pattern;
+		}
+		else
+		{
+			template.SelectedFullDesc = DefaultDescriptionFallback(template.SelectedRace, EntityDescriptionType.FullDescription);
+		}
+
+		whyNot = string.Empty;
+		return true;
+	}
+
+	private string DescribeTransformationEcho(ICharacterForm form)
+	{
+		return form.TransformationEcho switch
+		{
+			null => $"Default ({Gameworld.GetStaticString("DefaultFormTransformationEcho").ColourCommand()})",
+			"" => "Suppressed".ColourError(),
+			_ => form.TransformationEcho.ColourCommand()
+		};
+	}
+
+	private void EmitTransformationEcho(ICharacterForm form, IBody oldBody, IBody newBody)
+	{
+		var echo = form.TransformationEcho ?? Gameworld.GetStaticString("DefaultFormTransformationEcho");
+		if (string.IsNullOrWhiteSpace(echo))
+		{
+			return;
+		}
+
+		OutputHandler.Handle(new EmoteOutput(new Emote(echo, this, oldBody, newBody)));
+	}
 
 	private CharacterForm DefaultFormFor(IBody body)
 	{
@@ -204,6 +340,7 @@ public partial class Character
 			dbform.Alias = form.Alias;
 			dbform.SortOrder = form.SortOrder;
 			dbform.TraumaMode = (int)form.TraumaMode;
+			dbform.TransformationEcho = form.TransformationEcho;
 			dbform.AllowVoluntarySwitch = form.AllowVoluntarySwitch;
 			dbform.CanVoluntarilySwitchProgId = form.CanVoluntarilySwitchProg?.Id;
 			dbform.WhyCannotVoluntarilySwitchProgId = form.WhyCannotVoluntarilySwitchProg?.Id;
@@ -245,6 +382,7 @@ public partial class Character
 				Alias = form.Alias,
 				SortOrder = form.SortOrder,
 				TraumaMode = (int)form.TraumaMode,
+				TransformationEcho = form.TransformationEcho,
 				AllowVoluntarySwitch = form.AllowVoluntarySwitch,
 				CanVoluntarilySwitchProgId = form.CanVoluntarilySwitchProg?.Id,
 				WhyCannotVoluntarilySwitchProgId = form.WhyCannotVoluntarilySwitchProg?.Id,
@@ -389,6 +527,20 @@ public partial class Character
 		return true;
 	}
 
+	internal bool TrySetFormTransformationEcho(ICharacterForm form, string? transformationEcho, out string whyNot)
+	{
+		if (form is null)
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		form.TransformationEcho = transformationEcho;
+		Changed = true;
+		whyNot = string.Empty;
+		return true;
+	}
+
 	internal bool TrySetFormAllowVoluntary(ICharacterForm form, bool allowVoluntary, out string whyNot)
 	{
 		if (form is null)
@@ -458,6 +610,91 @@ public partial class Character
 	internal bool TryClearFormWhyCantProg(ICharacterForm form, out string whyNot)
 	{
 		return TrySetFormWhyCantProg(form, null, out whyNot);
+	}
+
+	internal bool TrySetFormDescriptionPattern(ICharacterForm form, IEntityDescriptionPattern pattern,
+		out string whyNot)
+	{
+		if (form is null)
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		if (pattern is null)
+		{
+			whyNot = "There is no such entity description pattern.";
+			return false;
+		}
+
+		var template = GetCharacterTemplateForBody(form.Body);
+		if (!pattern.IsValidSelection(template))
+		{
+			whyNot = $"That {pattern.Type.Describe().ToLowerInvariant()} pattern is not valid for that form.";
+			return false;
+		}
+
+		switch (pattern.Type)
+		{
+			case EntityDescriptionType.ShortDescription:
+				form.Body.SetShortDescriptionPattern(pattern);
+				break;
+			case EntityDescriptionType.FullDescription:
+				form.Body.SetFullDescriptionPattern(pattern);
+				break;
+			default:
+				whyNot = "That pattern type is not supported.";
+				return false;
+		}
+
+		Changed = true;
+		whyNot = string.Empty;
+		return true;
+	}
+
+	internal bool TryRandomiseFormDescriptionPattern(ICharacterForm form, EntityDescriptionType type, out string whyNot)
+	{
+		if (form is null)
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		var template = GetCharacterTemplateForBody(form.Body);
+		var pattern = GetRandomValidDescriptionPattern(template, type);
+		if (pattern is null)
+		{
+			whyNot = $"There are no valid {type.Describe().ToLowerInvariant()} patterns for that form.";
+			return false;
+		}
+
+		return TrySetFormDescriptionPattern(form, pattern, out whyNot);
+	}
+
+	internal bool TryClearFormDescriptionPattern(ICharacterForm form, EntityDescriptionType type, out string whyNot)
+	{
+		if (form is null)
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		switch (type)
+		{
+			case EntityDescriptionType.ShortDescription:
+				form.Body.ClearShortDescriptionPattern();
+				break;
+			case EntityDescriptionType.FullDescription:
+				form.Body.ClearFullDescriptionPattern();
+				break;
+			default:
+				whyNot = "That pattern type is not supported.";
+				return false;
+		}
+
+		Changed = true;
+		whyNot = string.Empty;
+		return true;
 	}
 
 	private CharacterFormSourceMapping GetFormSource(ICharacterFormSource source)
@@ -570,6 +807,7 @@ public partial class Character
 			SelectedRace = race,
 			SelectedEthnicity = ethnicity,
 			SelectedGender = gender,
+			SelectedEntityDescriptionPatterns = new List<IEntityDescriptionPattern>(template.SelectedEntityDescriptionPatterns),
 			SelectedCharacteristics = selectedCharacteristics,
 			SelectedAttributes = selectedAttributes,
 			Handedness = handedness,
@@ -580,6 +818,12 @@ public partial class Character
 			SelectedProstheses = [],
 			HealthStrategy = race.DefaultHealthStrategy
 		};
+
+		if (!TryApplyDescriptionPatternsToTemplate(newTemplate, specification, out whyNot))
+		{
+			form = null;
+			return false;
+		}
 
 		var newBody = new Body.Implementations.Body(Gameworld, this, newTemplate);
 		newBody.SuspendForCharacter();
@@ -593,6 +837,7 @@ public partial class Character
 		var newForm = new CharacterForm(newBody, GetNextAvailableAlias(desiredAlias), desiredSortOrder)
 		{
 			TraumaMode = specification.TraumaMode,
+			TransformationEcho = specification.TransformationEcho,
 			AllowVoluntarySwitch = specification.AllowVoluntarySwitch,
 			CanVoluntarilySwitchProg = specification.CanVoluntarilySwitchProg,
 			WhyCannotVoluntarilySwitchProg = specification.WhyCannotVoluntarilySwitchProg,
@@ -792,6 +1037,8 @@ public partial class Character
 			_handedness = Body.Handedness;
 			_gender = Body.Gender;
 			PostProcessBodySwitch();
+			newBody.FinaliseSwitchActivation();
+			EmitTransformationEcho(form, oldBody, Body);
 			CurrentBodyChanged?.Invoke(this, oldBody, Body);
 			Changed = true;
 			return true;

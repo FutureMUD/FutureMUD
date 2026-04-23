@@ -84,6 +84,9 @@ public class BodyFormProvisioningTests
 		var info = SpellEffectFactory.BuilderInfoForType("transformform");
 		Assert.IsTrue(info.BuilderHelp.Contains("visibleprog"));
 		Assert.IsTrue(info.BuilderHelp.Contains("formkey"));
+		Assert.IsTrue(info.BuilderHelp.Contains("echo"));
+		Assert.IsTrue(info.BuilderHelp.Contains("sdescpattern"));
+		Assert.IsTrue(info.BuilderHelp.Contains("fdescpattern"));
 		Assert.IsTrue(info.MatchingTriggers.Any());
 	}
 
@@ -95,7 +98,10 @@ public class BodyFormProvisioningTests
 		Assert.IsTrue(MeritFactory.Types.Contains("Additional Body Form"));
 		Assert.IsTrue(MeritFactory.TypeHelps.Any(x =>
 			x.Type == "Additional Body Form" &&
-			x.HelpText.Contains("visibleprog")));
+			x.HelpText.Contains("visibleprog") &&
+			x.HelpText.Contains("echo") &&
+			x.HelpText.Contains("sdescpattern") &&
+			x.HelpText.Contains("fdescpattern")));
 	}
 
 	[TestMethod]
@@ -109,6 +115,14 @@ public class BodyFormProvisioningTests
 		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "setformalias"));
 		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "setformsortorder"));
 		Assert.AreEqual(4, infos.Count(x => x.FunctionName == "setformtraumamode"));
+		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "setformtransformationecho"));
+		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "clearformtransformationecho"));
+		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "setformshortdescriptionpattern"));
+		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "randomiseformshortdescriptionpattern"));
+		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "clearformshortdescriptionpattern"));
+		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "setformfulldescriptionpattern"));
+		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "randomiseformfulldescriptionpattern"));
+		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "clearformfulldescriptionpattern"));
 		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "setformallowvoluntary"));
 		Assert.AreEqual(4, infos.Count(x => x.FunctionName == "setformvisibilityprog"));
 		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "clearformvisibilityprog"));

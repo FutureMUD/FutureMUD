@@ -630,16 +630,24 @@ public partial class Body
 				ApplyTransferredEffects(plan);
 			}
 
-			ScheduleCachedEffects();
-			StartStaminaTick();
-			StartHealthTick(true);
+			CalculateOrganFunctions(true);
 			ReevaluateLimbAndPartDamageEffects();
-			CheckDrugTick();
-			CheckHealthStatus();
-			CheckConsequences();
 		});
 
 		source.ResetDormantFormState(plan.TraumaMode);
+	}
+
+	internal void FinaliseSwitchActivation()
+	{
+		ScheduleCachedEffects();
+		StartHealthTick(true);
+		ExecuteWithSuppressedHealthFeedback(() =>
+		{
+			CheckDrugTick();
+			CheckHealthStatus();
+		});
+		CheckConsequences();
+		StartStaminaTick();
 	}
 
 	internal void SanitizeIncompatibleHealthState(bool restoreLostFluids = false)

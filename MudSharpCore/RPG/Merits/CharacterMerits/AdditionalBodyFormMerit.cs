@@ -20,10 +20,13 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 	private string? _alias;
 	private int? _sortOrder;
 	private BodySwitchTraumaMode _traumaMode = BodySwitchTraumaMode.Automatic;
+	private string? _transformationEcho;
 	private bool _allowVoluntarySwitch;
 	private IFutureProg? _canVoluntarilySwitchProg;
 	private IFutureProg? _whyCannotVoluntarilySwitchProg;
 	private IFutureProg? _canSeeFormProg;
+	private IEntityDescriptionPattern? _shortDescriptionPattern;
+	private IEntityDescriptionPattern? _fullDescriptionPattern;
 
 	public static void RegisterMeritInitialiser()
 	{
@@ -62,10 +65,22 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 			_traumaMode = (BodySwitchTraumaMode)traumaMode;
 		}
 
+		_transformationEcho = definition.Element("TransformationEcho")?.Attribute("mode")?.Value switch
+		{
+			"none" => string.Empty,
+			_ => definition.Element("TransformationEcho")?.Value
+		};
+		if (_transformationEcho == string.Empty &&
+		    definition.Element("TransformationEcho")?.Attribute("mode")?.Value != "none")
+		{
+			_transformationEcho = null;
+		}
 		_allowVoluntarySwitch = bool.TryParse(definition.Element("AllowVoluntarySwitch")?.Value, out var allow) && allow;
 		_canVoluntarilySwitchProg = gameworld.FutureProgs.Get(long.Parse(definition.Element("CanVoluntarilySwitchProg")?.Value ?? "0"));
 		_whyCannotVoluntarilySwitchProg = gameworld.FutureProgs.Get(long.Parse(definition.Element("WhyCannotVoluntarilySwitchProg")?.Value ?? "0"));
 		_canSeeFormProg = gameworld.FutureProgs.Get(long.Parse(definition.Element("CanSeeFormProg")?.Value ?? "0"));
+		_shortDescriptionPattern = gameworld.EntityDescriptionPatterns.Get(long.Parse(definition.Element("ShortDescriptionPattern")?.Value ?? "0"));
+		_fullDescriptionPattern = gameworld.EntityDescriptionPatterns.Get(long.Parse(definition.Element("FullDescriptionPattern")?.Value ?? "0"));
 	}
 
 	private AdditionalBodyFormMerit(IFuturemud gameworld, string name)
@@ -85,10 +100,13 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 		Alias = _alias,
 		SortOrder = _sortOrder,
 		TraumaMode = _traumaMode,
+		TransformationEcho = _transformationEcho,
 		AllowVoluntarySwitch = _allowVoluntarySwitch,
 		CanVoluntarilySwitchProg = _canVoluntarilySwitchProg,
 		WhyCannotVoluntarilySwitchProg = _whyCannotVoluntarilySwitchProg,
-		CanSeeFormProg = _canSeeFormProg
+		CanSeeFormProg = _canSeeFormProg,
+		ShortDescriptionPattern = _shortDescriptionPattern,
+		FullDescriptionPattern = _fullDescriptionPattern
 	};
 
 	protected override XElement SaveSubtypeDefinition(XElement root)
@@ -100,10 +118,20 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 			new XElement("Alias", _alias ?? string.Empty),
 			new XElement("SortOrder", _sortOrder?.ToString() ?? string.Empty),
 			new XElement("TraumaMode", (int)_traumaMode),
+			new XElement("TransformationEcho",
+				new XAttribute("mode", _transformationEcho switch
+				{
+					null => "default",
+					"" => "none",
+					_ => "custom"
+				}),
+				_transformationEcho ?? string.Empty),
 			new XElement("AllowVoluntarySwitch", _allowVoluntarySwitch),
 			new XElement("CanVoluntarilySwitchProg", _canVoluntarilySwitchProg?.Id ?? 0L),
 			new XElement("WhyCannotVoluntarilySwitchProg", _whyCannotVoluntarilySwitchProg?.Id ?? 0L),
-			new XElement("CanSeeFormProg", _canSeeFormProg?.Id ?? 0L)
+			new XElement("CanSeeFormProg", _canSeeFormProg?.Id ?? 0L),
+			new XElement("ShortDescriptionPattern", _shortDescriptionPattern?.Id ?? 0L),
+			new XElement("FullDescriptionPattern", _fullDescriptionPattern?.Id ?? 0L)
 		);
 		return root;
 	}
@@ -116,10 +144,18 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 		sb.AppendLine($"Initial Alias: {(_alias ?? "auto").ColourCommand()}");
 		sb.AppendLine($"Initial Sort Order: {_sortOrder?.ToString("N0", actor).ColourValue() ?? "append".ColourValue()}");
 		sb.AppendLine($"Initial Trauma Mode: {_traumaMode.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Initial Transformation Echo: {_transformationEcho switch
+		{
+			null => "Default".ColourValue(),
+			"" => "Suppressed".ColourError(),
+			_ => _transformationEcho.ColourCommand()
+		}}");
 		sb.AppendLine($"Allow Voluntary Switching: {_allowVoluntarySwitch.ToColouredString()}");
 		sb.AppendLine($"Voluntary Can Prog: {_canVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Voluntary Why-Cant Prog: {_whyCannotVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Visibility Prog: {_canSeeFormProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Initial Short Description Pattern: {_shortDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}");
+		sb.AppendLine($"Initial Full Description Pattern: {_fullDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}");
 	}
 
 	protected override string SubtypeHelp => $@"{base.SubtypeHelp}
@@ -129,10 +165,13 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 	#3alias <text>|clear#0 - sets or clears the initial alias for the provisioned form
 	#3sort <number>|clear#0 - sets or clears the initial sort order for the provisioned form
 	#3trauma <auto|transfer|stash>#0 - sets the initial trauma handling mode
+	#3echo <text>|default|none#0 - sets, defaults or suppresses the transformation echo
 	#3allow [true|false]#0 - toggles or sets whether the form initially permits voluntary switching
 	#3canprog <prog>|clear#0 - sets or clears the initial voluntary eligibility prog
 	#3whycantprog <prog>|clear#0 - sets or clears the initial voluntary denial-message prog
-	#3visibleprog <prog>|clear#0 - sets or clears the initial visibility prog";
+	#3visibleprog <prog>|clear#0 - sets or clears the initial visibility prog
+	#3sdescpattern <pattern>|random|clear#0 - sets or auto-randomises the initial short description pattern
+	#3fdescpattern <pattern>|random|clear#0 - sets or auto-randomises the initial full description pattern";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -152,6 +191,10 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 			case "trauma":
 			case "traumamode":
 				return BuildingCommandTrauma(actor, command);
+			case "echo":
+			case "transformecho":
+			case "transformationecho":
+				return BuildingCommandEcho(actor, command);
 			case "allow":
 				return BuildingCommandAllow(actor, command);
 			case "canprog":
@@ -161,6 +204,13 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 			case "visibleprog":
 			case "visibilityprog":
 				return BuildingCommandVisibleProg(actor, command);
+			case "sdescpattern":
+			case "shortdescpattern":
+				return BuildingCommandDescriptionPattern(actor, command, EntityDescriptionType.ShortDescription);
+			case "fdescpattern":
+			case "descpattern":
+			case "fulldescpattern":
+				return BuildingCommandDescriptionPattern(actor, command, EntityDescriptionType.FullDescription);
 		}
 
 		return base.BuildingCommand(actor, command.GetUndo());
@@ -336,6 +386,30 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 		return true;
 	}
 
+	private bool BuildingCommandEcho(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What transformation echo should this merit use, or should it be defaulted or suppressed?");
+			return false;
+		}
+
+		var text = command.SafeRemainingArgument;
+		_transformationEcho = text.EqualToAny("clear", "default")
+			? null
+			: text.EqualToAny("none", "suppress", "blank")
+				? string.Empty
+				: text;
+		Changed = true;
+		actor.OutputHandler.Send(_transformationEcho switch
+		{
+			null => "This merit will now use the default transformation echo.",
+			"" => "This merit will now suppress transformation echoes.",
+			_ => $"This merit will now use {_transformationEcho.ColourCommand()} as its transformation echo."
+		});
+		return true;
+	}
+
 	private bool BuildingCommandAllow(ICharacter actor, StringStack command)
 	{
 		var allow = !_allowVoluntarySwitch;
@@ -453,6 +527,54 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 		_canSeeFormProg = prog;
 		Changed = true;
 		actor.OutputHandler.Send($"This merit will now use the {prog.MXPClickableFunctionName()} prog to decide whether the form is visible.");
+		return true;
+	}
+
+	private bool BuildingCommandDescriptionPattern(ICharacter actor, StringStack command, EntityDescriptionType type)
+	{
+		var label = type == EntityDescriptionType.ShortDescription ? "short description" : "full description";
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which {label} pattern should this merit use, or should it be auto-randomised?");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("clear", "none", "auto", "random"))
+		{
+			switch (type)
+			{
+				case EntityDescriptionType.ShortDescription:
+					_shortDescriptionPattern = null;
+					break;
+				case EntityDescriptionType.FullDescription:
+					_fullDescriptionPattern = null;
+					break;
+			}
+
+			Changed = true;
+			actor.OutputHandler.Send($"This merit will now auto-select a valid {label} pattern when its form is first created.");
+			return true;
+		}
+
+		var pattern = Gameworld.EntityDescriptionPatterns.GetByIdOrName(command.SafeRemainingArgument);
+		if (pattern is null || pattern.Type != type)
+		{
+			actor.OutputHandler.Send($"There is no such {label} pattern.");
+			return false;
+		}
+
+		switch (type)
+		{
+			case EntityDescriptionType.ShortDescription:
+				_shortDescriptionPattern = pattern;
+				break;
+			case EntityDescriptionType.FullDescription:
+				_fullDescriptionPattern = pattern;
+				break;
+		}
+
+		Changed = true;
+		actor.OutputHandler.Send($"This merit will now use the {label} pattern {pattern.Pattern.ColourCommand()} when provisioning its form.");
 		return true;
 	}
 }

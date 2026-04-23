@@ -31,6 +31,14 @@ namespace MudSharp.Health
         GameItem
     }
 
+    public enum HealthStateModel
+    {
+        Organic = 0,
+        Robot = 1,
+        Construct = 2,
+        GameItem = 3
+    }
+
     public enum BodyTemperatureStatus
     {
         CriticalHypothermia,
@@ -64,9 +72,11 @@ namespace MudSharp.Health
     {
         string HealthStrategyType { get; }
         HealthStrategyOwnerType OwnerType { get; }
+        HealthStateModel HealthStateModel { get; }
         bool KidneyFunctionActive { get; }
         bool RequiresSpinalCord { get; }
         IHealthStrategy Clone(string name);
+        bool CanTransferBodyStateTo(IHealthStrategy other);
         IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart);
         WoundSeverity GetSeverityFor(IWound wound, IHaveWounds owner);
         WoundSeverity GetSeverity(double damage);

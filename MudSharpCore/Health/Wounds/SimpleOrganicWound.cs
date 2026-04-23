@@ -43,11 +43,13 @@ public class SimpleOrganicWound : PerceivedItem, IWound
     private string _damageDescription;
 
     private IInfection _infection;
+    private IBody _ownerBody;
 
-    public SimpleOrganicWound(IHaveWounds parent, Wound wound, IFuturemud gameworld)
+    public SimpleOrganicWound(IHaveWounds parent, Wound wound, IFuturemud gameworld, IBody ownerBody = null)
     {
         Gameworld = gameworld;
         _parent = parent;
+        _ownerBody = ownerBody ?? (parent as ICharacter)?.Body;
         LoadFromDb(wound);
         //LoadEffects(wound.Effects);
     }
@@ -98,7 +100,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
         }
 
         IOrganProto organ = Bodypart as IOrganProto;
-        IBody body = CharacterParent.Body;
+        IBody body = _ownerBody ?? CharacterParent.Body;
         InternalBleeding effect = body.EffectsOfType<InternalBleeding>().FirstOrDefault(x => x.Organ == organ);
         if (effect == null)
         {
@@ -120,11 +122,12 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
         Gameworld = gameworld;
         _parent = owner ?? throw new ArgumentNullException(nameof(owner));
+        _ownerBody = owner.Body;
         DamageType = damageType;
         _currentDamage = Math.Max(0.0,
-            Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
+            Math.Min(damage * bodypart.DamageModifier, (_ownerBody ?? CharacterParent.Body).HitpointsForBodypart(bodypart)));
         _originalDamage = Math.Max(0.0,
-            Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
+            Math.Min(damage * bodypart.DamageModifier, (_ownerBody ?? CharacterParent.Body).HitpointsForBodypart(bodypart)));
         _currentPain = IsNecroticDamage ? 0.0 : Math.Max(0.0, pain * bodypart.PainModifier);
         _currentStun = IsNecroticDamage ? 0.0 : Math.Max(0.0, stun * bodypart.StunModifier);
         Bodypart = bodypart;
@@ -195,7 +198,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
             Wound dbitem = FMDB.Context.Wounds.Find(Id);
             if (dbitem != null)
             {
-                dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+                dbitem.BodyId = _ownerBody?.Id;
                 dbitem.GameItemId = (Parent as IGameItem)?.Id;
                 dbitem.BodypartProtoId = Bodypart?.Id;
                 dbitem.CurrentDamage = _currentDamage;
@@ -524,7 +527,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
         Wound dbitem = new();
         FMDB.Context.Wounds.Add(dbitem);
         dbitem.WoundType = "SimpleOrganic";
-        dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+        dbitem.BodyId = _ownerBody?.Id;
         dbitem.GameItemId = (Parent as IGameItem)?.Id;
         dbitem.OriginalDamage = OriginalDamage;
         dbitem.CurrentDamage = _currentDamage;
@@ -678,12 +681,12 @@ public class SimpleOrganicWound : PerceivedItem, IWound
                 conditions.Add($"{Infection.VirulenceDifficulty.DescribeColoured()} {Infection.InfectionType.DescribeEnum().Colour(Telnet.BoldGreen)} ({Infection.Intensity.ToStringP2Colour()}|{Infection.Immunity.ToStringP2Colour()})");
             }
 
-            if (CharacterParent.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
+            if ((_ownerBody ?? CharacterParent.Body).AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
             {
                 conditions.Add("Antiseptic".Colour(Telnet.Yellow));
             }
 
-            if (CharacterParent.Body.AffectedBy<AntiInflammatoryTreatment>(Bodypart))
+            if ((_ownerBody ?? CharacterParent.Body).AffectedBy<AntiInflammatoryTreatment>(Bodypart))
             {
                 conditions.Add("Anti-Inflammatory".Colour(Telnet.BoldGreen));
             }
@@ -718,20 +721,22 @@ public class SimpleOrganicWound : PerceivedItem, IWound
                 return;
             }
 
-            dbwound.BodyId = (newOwner as ICharacter)?.Body.Id;
+            dbwound.BodyId = (newOwner as IGameItem)?.Id is null ? (_ownerBody ?? (newOwner as ICharacter)?.Body)?.Id : null;
             dbwound.GameItemId = (newOwner as IGameItem)?.Id;
             FMDB.Context.SaveChanges();
         }
 
         _parent = newOwner;
+        _ownerBody = newOwner as ICharacter != null ? (newOwner as ICharacter)?.Body : null;
     }
 
     public void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart)
     {
         _parent = newOwner;
+        _ownerBody = (newOwner as ICharacter)?.Body;
         _bodypart = newBodypart;
         SeveredBodypart = newSeveredBodypart;
-        _infection?.RemapTo((newOwner as ICharacter)?.Body, this, newBodypart);
+        _infection?.RemapTo(_ownerBody, this, newBodypart);
         Changed = true;
     }
 

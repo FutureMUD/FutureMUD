@@ -119,6 +119,7 @@ public abstract class BaseHealthStrategy : SaveableItem, IHealthStrategy
 
     public abstract string HealthStrategyType { get; }
     public abstract HealthStrategyOwnerType OwnerType { get; }
+    public abstract HealthStateModel HealthStateModel { get; }
     public abstract IHealthStrategy Clone(string name);
 
     public string HelpInfo => BuildBuilderHelp(SubtypeBuilderHelpText);
@@ -1028,6 +1029,11 @@ public abstract class BaseHealthStrategy : SaveableItem, IHealthStrategy
     #region IHealthStrategy Members
 
     public virtual bool RequiresSpinalCord => true;
+
+    public virtual bool CanTransferBodyStateTo(IHealthStrategy other)
+    {
+        return other is not null && other.HealthStateModel == HealthStateModel;
+    }
 
     public virtual BodyTemperatureStatus CurrentTemperatureStatus(IHaveWounds owner)
     {

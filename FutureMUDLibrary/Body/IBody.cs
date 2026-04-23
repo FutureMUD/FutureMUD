@@ -52,7 +52,7 @@ namespace MudSharp.Body
         double TotalBloodVolumeLitres { get; set; }
         ILiquid BloodLiquid { get; }
         IBloodtype Bloodtype { get; }
-        double BaseLiverAlcoholRemovalKilogramsPerHour { get; set; }
+		double BaseLiverAlcoholRemovalKilogramsPerHour { get; set; }
         double LiverAlcoholRemovalKilogramsPerHour { get; }
         double WaterLossLitresPerHour { get; }
         double CaloricConsumptionPerHour { get; }

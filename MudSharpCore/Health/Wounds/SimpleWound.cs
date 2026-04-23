@@ -22,10 +22,13 @@ namespace MudSharp.Health.Wounds;
 /// </summary>
 public class SimpleWound : PerceivedItem, IWound
 {
-    public SimpleWound(IHaveWounds parent, Wound wound, IFuturemud gameworld)
+    private IBody _ownerBody;
+
+    public SimpleWound(IHaveWounds parent, Wound wound, IFuturemud gameworld, IBody ownerBody = null)
     {
         Gameworld = gameworld;
         _parent = parent;
+        _ownerBody = ownerBody ?? (parent as ICharacter)?.Body;
         LoadFromDb(wound);
         //LoadEffects(wound.Effects);
         _internal = !(_bodypart == null || _bodypart is IExternalBodypart);
@@ -46,6 +49,7 @@ public class SimpleWound : PerceivedItem, IWound
 #endif
         Gameworld = gameworld;
         _parent = owner;
+        _ownerBody = (owner as ICharacter)?.Body;
         _originalDamage = Math.Max(0.0, damage);
         _currentDamage = Math.Max(0.0, damage);
         DamageType = damageType;
@@ -73,7 +77,7 @@ public class SimpleWound : PerceivedItem, IWound
     public override void Save()
     {
         Wound dbitem = FMDB.Context.Wounds.Find(Id);
-        dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+        dbitem.BodyId = _ownerBody?.Id;
         dbitem.GameItemId = (Parent as IGameItem)?.Id;
         dbitem.BodypartProtoId = Bodypart?.Id;
         dbitem.CurrentDamage = CurrentDamage;
@@ -201,7 +205,7 @@ public class SimpleWound : PerceivedItem, IWound
         Wound dbitem = new();
         FMDB.Context.Wounds.Add(dbitem);
         dbitem.WoundType = "Simple";
-        dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+        dbitem.BodyId = _ownerBody?.Id;
         dbitem.GameItemId = (Parent as IGameItem)?.Id;
         dbitem.OriginalDamage = OriginalDamage;
         dbitem.CurrentDamage = _currentDamage;
@@ -252,17 +256,19 @@ public class SimpleWound : PerceivedItem, IWound
                 return;
             }
 
-            dbwound.BodyId = (newOwner as ICharacter)?.Body.Id;
+            dbwound.BodyId = (newOwner as ICharacter)?.Body?.Id;
             dbwound.GameItemId = (newOwner as IGameItem)?.Id;
             FMDB.Context.SaveChanges();
         }
 
         _parent = newOwner;
+        _ownerBody = (newOwner as ICharacter)?.Body;
     }
 
     public void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart)
     {
         _parent = newOwner;
+        _ownerBody = (newOwner as ICharacter)?.Body;
         _bodypart = newBodypart;
         SeveredBodypart = newSeveredBodypart;
         Changed = true;

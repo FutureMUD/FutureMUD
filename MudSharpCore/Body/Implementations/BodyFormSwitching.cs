@@ -9,6 +9,7 @@ using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
+using MudSharp.Character;
 using MudSharp.Health;
 using MudSharp.Health.Breathing;
 using System;
@@ -23,6 +24,7 @@ public partial class Body
 	{
 		public required Body Source { get; init; }
 		public required Body Target { get; init; }
+		public required BodySwitchTraumaMode TraumaMode { get; init; }
 		public Dictionary<IBodypart, IBodypart> PartMappings { get; } = new();
 		public List<(IWound Wound, IBodypart TargetPart, IBodypart? TargetSeveredPart)> Wounds { get; init; } = new();
 		public List<(IInfection Infection, IBodypart TargetPart)> PartInfections { get; init; } = new();
@@ -40,7 +42,8 @@ public partial class Body
 		public List<(ReplantedBodypartsEffect Effect, IBodypart TargetPart, TimeSpan Duration)> ReplantedEffects { get; init; } = new();
 	}
 
-	internal bool TryPrepareSwitchFrom(Body source, out BodySwitchPlan? plan, out string whyNot)
+	internal bool TryPrepareSwitchFrom(Body source, BodySwitchTraumaMode traumaMode, out BodySwitchPlan? plan,
+		out string whyNot)
 	{
 		plan = null;
 		if (source.Actor != Actor)
@@ -49,8 +52,22 @@ public partial class Body
 			return false;
 		}
 
-		if (DirectItems.Any() || _implants.Any() || _prosthetics.Any() || _wounds.Any() || _partInfections.Any() ||
-		    _severedRoots.Any() || _tattoos.Any() || _scars.Any())
+		var effectiveTraumaMode = traumaMode == BodySwitchTraumaMode.Automatic
+			? source.HealthStrategy.CanTransferBodyStateTo(HealthStrategy) &&
+			  HealthStrategy.CanTransferBodyStateTo(source.HealthStrategy)
+				? BodySwitchTraumaMode.Transfer
+				: BodySwitchTraumaMode.Stash
+			: traumaMode;
+
+		if (DirectItems.Any())
+		{
+			whyNot = "That form is not a dormant shell and cannot be used for a phase 1 form switch.";
+			return false;
+		}
+
+		if (effectiveTraumaMode == BodySwitchTraumaMode.Transfer &&
+		    (_implants.Any() || _prosthetics.Any() || _wounds.Any() || _partInfections.Any() ||
+		     _severedRoots.Any() || _tattoos.Any() || _scars.Any()))
 		{
 			whyNot = "That form is not a dormant shell and cannot be used for a phase 1 form switch.";
 			return false;
@@ -235,8 +252,14 @@ public partial class Body
 		var switchPlan = new BodySwitchPlan
 		{
 			Source = source,
-			Target = this
+			Target = this,
+			TraumaMode = effectiveTraumaMode
 		};
+
+		if (effectiveTraumaMode == BodySwitchTraumaMode.Stash)
+		{
+			goto PrepareInventory;
+		}
 
 		foreach (var severedRoot in source._severedRoots)
 		{
@@ -339,6 +362,8 @@ public partial class Body
 			switchPlan.Prosthetics.Add(prosthetic);
 		}
 
+	PrepareInventory:
+
 		foreach (var group in source._wornItems
 		                            .GroupBy(x => x.Item)
 		                            .Select(x => (Item: x.Key, Profile: x.Key.GetItemType<IWearable>()?.CurrentProfile))
@@ -382,61 +407,66 @@ public partial class Body
 			switchPlan.HeldItems.Add(item);
 		}
 
-		foreach (var effect in source.EffectsOfType<AntisepticProtection>().ToList())
+		if (effectiveTraumaMode == BodySwitchTraumaMode.Transfer)
 		{
-			var targetPart = MapBodypart(effect.Bodypart, true);
-			if (targetPart is null)
+			foreach (var effect in source.EffectsOfType<AntisepticProtection>().ToList())
 			{
-				whyNot = $"An antiseptic treatment on your {effect.Bodypart.FullDescription()} cannot be mapped to that form.";
-				return false;
+				var targetPart = MapBodypart(effect.Bodypart, true);
+				if (targetPart is null)
+				{
+					whyNot =
+						$"An antiseptic treatment on your {effect.Bodypart.FullDescription()} cannot be mapped to that form.";
+					return false;
+				}
+
+				switchPlan.AntisepticEffects.Add((effect, targetPart, source.ScheduledDuration(effect)));
 			}
 
-			switchPlan.AntisepticEffects.Add((effect, targetPart, source.ScheduledDuration(effect)));
-		}
-
-		foreach (var effect in source.EffectsOfType<AntiInflammatoryTreatment>().ToList())
-		{
-			var targetPart = MapBodypart(effect.Bodypart, true);
-			if (targetPart is null)
+			foreach (var effect in source.EffectsOfType<AntiInflammatoryTreatment>().ToList())
 			{
-				whyNot = $"An anti-inflammatory treatment on your {effect.Bodypart.FullDescription()} cannot be mapped to that form.";
-				return false;
+				var targetPart = MapBodypart(effect.Bodypart, true);
+				if (targetPart is null)
+				{
+					whyNot =
+						$"An anti-inflammatory treatment on your {effect.Bodypart.FullDescription()} cannot be mapped to that form.";
+					return false;
+				}
+
+				switchPlan.AntiInflammatoryEffects.Add((effect, targetPart, source.ScheduledDuration(effect)));
 			}
 
-			switchPlan.AntiInflammatoryEffects.Add((effect, targetPart, source.ScheduledDuration(effect)));
-		}
-
-		foreach (var effect in source.EffectsOfType<InternalBleeding>().ToList())
-		{
-			var targetPart = MapBodypart(effect.Organ, true);
-			if (targetPart is not IOrganProto)
+			foreach (var effect in source.EffectsOfType<InternalBleeding>().ToList())
 			{
-				whyNot = $"Internal bleeding affecting your {effect.Organ.FullDescription()} cannot be mapped to that form.";
-				return false;
+				var targetPart = MapBodypart(effect.Organ, true);
+				if (targetPart is not IOrganProto)
+				{
+					whyNot = $"Internal bleeding affecting your {effect.Organ.FullDescription()} cannot be mapped to that form.";
+					return false;
+				}
+
+				switchPlan.InternalBleedingEffects.Add((effect, targetPart, source.ScheduledDuration(effect)));
 			}
 
-			switchPlan.InternalBleedingEffects.Add((effect, targetPart, source.ScheduledDuration(effect)));
-		}
-
-		foreach (var effect in source.EffectsOfType<ReplantedBodypartsEffect>().ToList())
-		{
-			var targetPart = MapBodypart(effect.Bodypart);
-			if (targetPart is null)
+			foreach (var effect in source.EffectsOfType<ReplantedBodypartsEffect>().ToList())
 			{
-				whyNot = $"Your replanted {effect.Bodypart.FullDescription()} cannot be mapped to that form.";
-				return false;
+				var targetPart = MapBodypart(effect.Bodypart);
+				if (targetPart is null)
+				{
+					whyNot = $"Your replanted {effect.Bodypart.FullDescription()} cannot be mapped to that form.";
+					return false;
+				}
+
+				switchPlan.ReplantedEffects.Add((effect, targetPart, source.ScheduledDuration(effect)));
 			}
 
-			switchPlan.ReplantedEffects.Add((effect, targetPart, source.ScheduledDuration(effect)));
-		}
-
-		foreach (var mapping in strictMappings
-			         .Concat(relaxedMappings)
-			         .GroupBy(x => x.Key)
-			         .Select(x => x.Last())
-			         .Where(x => x.Value is not null))
-		{
-			switchPlan.PartMappings[mapping.Key] = mapping.Value!;
+			foreach (var mapping in strictMappings
+				         .Concat(relaxedMappings)
+				         .GroupBy(x => x.Key)
+				         .Select(x => x.Last())
+				         .Where(x => x.Value is not null))
+			{
+				switchPlan.PartMappings[mapping.Key] = mapping.Value!;
+			}
 		}
 
 		plan = switchPlan;
@@ -448,72 +478,87 @@ public partial class Body
 	{
 		var source = plan.Source;
 
-		source.ClearTransferableEffects();
-		ClearTransferableEffects();
-		source.ClearDirectInventoryState();
-		source.ClearImplantsAndProsthetics();
-		ClearImplantsAndProsthetics();
+		var transferTrauma = plan.TraumaMode == BodySwitchTraumaMode.Transfer;
 
-		_wounds.Clear();
-		_partInfections.Clear();
-		_scars.Clear();
-		_tattoos.Clear();
-		_severedRoots.Clear();
-
-		foreach (var severedRoot in plan.SeveredRoots)
+		if (transferTrauma)
 		{
-			_severedRoots.Add(severedRoot);
+			source.ClearTransferableEffects();
+			ClearTransferableEffects();
+			source.ClearDirectInventoryState();
+			source.ClearImplantsAndProsthetics();
+			ClearImplantsAndProsthetics();
+
+			_wounds.Clear();
+			_partInfections.Clear();
+			_scars.Clear();
+			_tattoos.Clear();
+			_severedRoots.Clear();
+
+			foreach (var severedRoot in plan.SeveredRoots)
+			{
+				_severedRoots.Add(severedRoot);
+			}
+
+			foreach (var woundPlan in plan.Wounds)
+			{
+				woundPlan.Wound.RemapTo(Actor, woundPlan.TargetPart, woundPlan.TargetSeveredPart);
+				_wounds.Add(woundPlan.Wound);
+			}
+
+			foreach (var infectionPlan in plan.PartInfections)
+			{
+				infectionPlan.Infection.RemapTo(this, null!, infectionPlan.TargetPart);
+				_partInfections.Add(infectionPlan.Infection);
+			}
+
+			foreach (var scarPlan in plan.Scars)
+			{
+				var root = scarPlan.Scar.SaveToXml();
+				root.Element("Bodypart")!.Value = scarPlan.TargetPart.Id.ToString();
+				_scars.Add(new Scar(root, Gameworld, Actor.Race));
+			}
+
+			foreach (var tattooPlan in plan.Tattoos)
+			{
+				var root = tattooPlan.Tattoo.SaveToXml();
+				root.Element("Bodypart")!.Value = tattooPlan.TargetPart.Id.ToString();
+				_tattoos.Add(new Tattoo(root, Gameworld));
+			}
+
+			_activeDrugDosages.Clear();
+			_activeDrugDosages.AddRange(source._activeDrugDosages.Select(x => new DrugDosage
+			{
+				Drug = x.Drug,
+				Grams = x.Grams,
+				OriginalVector = x.OriginalVector,
+				Originator = x.Originator
+			}));
+			_latentDrugDosages.Clear();
+			_latentDrugDosages.AddRange(source._latentDrugDosages.Select(x => new DrugDosage
+			{
+				Drug = x.Drug,
+				Grams = x.Grams,
+				OriginalVector = x.OriginalVector,
+				Originator = x.Originator
+			}));
+			DrugsChanged = true;
+
+			Bloodtype = source.Bloodtype;
+			TotalBloodVolumeLitres = MudSharp.Character.Character.TotalBloodVolume(Actor);
+			BaseLiverAlcoholRemovalKilogramsPerHour = MudSharp.Character.Character.LiverFunction(Actor);
+			_currentBloodVolumeLitres = Math.Min(source._currentBloodVolumeLitres, TotalBloodVolumeLitres);
+			HeldBreathTime = source.HeldBreathTime;
+		}
+		else
+		{
+			source.ClearRestraintEffects();
+			ClearRestraintEffects();
+			source.ClearDirectInventoryState();
+			ClearDirectInventoryState();
+			TotalBloodVolumeLitres = MudSharp.Character.Character.TotalBloodVolume(Actor);
+			BaseLiverAlcoholRemovalKilogramsPerHour = MudSharp.Character.Character.LiverFunction(Actor);
 		}
 
-		foreach (var woundPlan in plan.Wounds)
-		{
-			woundPlan.Wound.RemapTo(Actor, woundPlan.TargetPart, woundPlan.TargetSeveredPart);
-			_wounds.Add(woundPlan.Wound);
-		}
-
-		foreach (var infectionPlan in plan.PartInfections)
-		{
-			infectionPlan.Infection.RemapTo(this, null!, infectionPlan.TargetPart);
-			_partInfections.Add(infectionPlan.Infection);
-		}
-
-		foreach (var scarPlan in plan.Scars)
-		{
-			var root = scarPlan.Scar.SaveToXml();
-			root.Element("Bodypart")!.Value = scarPlan.TargetPart.Id.ToString();
-			_scars.Add(new Scar(root, Gameworld, Actor.Race));
-		}
-
-		foreach (var tattooPlan in plan.Tattoos)
-		{
-			var root = tattooPlan.Tattoo.SaveToXml();
-			root.Element("Bodypart")!.Value = tattooPlan.TargetPart.Id.ToString();
-			_tattoos.Add(new Tattoo(root, Gameworld));
-		}
-
-		_activeDrugDosages.Clear();
-		_activeDrugDosages.AddRange(source._activeDrugDosages.Select(x => new DrugDosage
-		{
-			Drug = x.Drug,
-			Grams = x.Grams,
-			OriginalVector = x.OriginalVector,
-			Originator = x.Originator
-		}));
-		_latentDrugDosages.Clear();
-		_latentDrugDosages.AddRange(source._latentDrugDosages.Select(x => new DrugDosage
-		{
-			Drug = x.Drug,
-			Grams = x.Grams,
-			OriginalVector = x.OriginalVector,
-			Originator = x.Originator
-		}));
-		DrugsChanged = true;
-
-		Bloodtype = source.Bloodtype;
-		TotalBloodVolumeLitres = MudSharp.Character.Character.TotalBloodVolume(Actor);
-		BaseLiverAlcoholRemovalKilogramsPerHour = MudSharp.Character.Character.LiverFunction(Actor);
-		_currentBloodVolumeLitres = Math.Min(source._currentBloodVolumeLitres, TotalBloodVolumeLitres);
-		HeldBreathTime = source.HeldBreathTime;
 		MaximumStamina = MudSharp.Character.Character.MaximumStaminaFor(Actor);
 		_currentStamina = Math.Min(source.CurrentStamina, MaximumStamina);
 		CurrentExertion = source.CurrentExertion;
@@ -521,15 +566,18 @@ public partial class Body
 		StaminaChanged = true;
 		Changed = true;
 
-		foreach (var implantPlan in plan.Implants)
+		if (transferTrauma)
 		{
-			implantPlan.Implant.TargetBodypart = implantPlan.TargetPart;
-			InstallImplant(implantPlan.Implant);
-		}
+			foreach (var implantPlan in plan.Implants)
+			{
+				implantPlan.Implant.TargetBodypart = implantPlan.TargetPart;
+				InstallImplant(implantPlan.Implant);
+			}
 
-		foreach (var prosthetic in plan.Prosthetics)
-		{
-			InstallProsthetic(prosthetic);
+			foreach (var prosthetic in plan.Prosthetics)
+			{
+				InstallProsthetic(prosthetic);
+			}
 		}
 
 		ExecuteWithSuppressedHealthFeedback(() =>
@@ -575,7 +623,11 @@ public partial class Body
 				}
 			}
 
-			ApplyTransferredEffects(plan);
+			if (transferTrauma)
+			{
+				ApplyTransferredEffects(plan);
+			}
+
 			ScheduleCachedEffects();
 			StartStaminaTick();
 			StartHealthTick(true);
@@ -585,7 +637,7 @@ public partial class Body
 			CheckConsequences();
 		});
 
-		source.ResetDormantFormState();
+		source.ResetDormantFormState(plan.TraumaMode);
 	}
 
 	private void ApplyTransferredRestraint(IGameItem item, IWearProfile profile)
@@ -681,6 +733,11 @@ public partial class Body
 			RemoveEffect(effect, true);
 		}
 
+		ClearRestraintEffects();
+	}
+
+	private void ClearRestraintEffects()
+	{
 		foreach (var effect in EffectsOfType<RestraintEffect>().ToList())
 		{
 			RemoveEffect(effect, true);
@@ -771,40 +828,53 @@ public partial class Body
 		Location?.Insert(item);
 	}
 
-	private void ResetDormantFormState()
+	private void ResetDormantFormState(BodySwitchTraumaMode traumaMode)
 	{
 		EndStaminaTick(true);
 		EndDrugTick();
 		EndHealthTick();
 		CacheScheduledEffects();
 		_breathingStrategy = new NonBreather();
-		ClearTransferableEffects();
-		ClearDirectInventoryState();
-		ClearImplantsAndProsthetics();
-		_wounds.Clear();
-		_partInfections.Clear();
-		_scars.Clear();
-		_tattoos.Clear();
-		_severedRoots.Clear();
-		_activeDrugDosages.Clear();
-		_latentDrugDosages.Clear();
-		DrugsChanged = true;
-		RecalculatePartsAndOrgans();
-		ReevaluateLimbAndPartDamageEffects();
-		TotalBloodVolumeLitres = MudSharp.Character.Character.TotalBloodVolume(Actor);
-		BaseLiverAlcoholRemovalKilogramsPerHour = MudSharp.Character.Character.LiverFunction(Actor);
-		_currentBloodVolumeLitres = TotalBloodVolumeLitres;
-		HeldBreathTime = TimeSpan.Zero;
-		MaximumStamina = MudSharp.Character.Character.MaximumStaminaFor(Actor);
-		_currentStamina = MaximumStamina;
-		CurrentExertion = ExertionLevel.Rest;
-		LongtermExertion = ExertionLevel.Rest;
-		StaminaChanged = true;
-		ExecuteWithSuppressedHealthFeedback(() =>
+		if (traumaMode == BodySwitchTraumaMode.Transfer)
 		{
-			CalculateOrganFunctions(true);
+			ClearTransferableEffects();
+		}
+		else
+		{
+			ClearRestraintEffects();
+		}
+
+		ClearDirectInventoryState();
+
+		if (traumaMode == BodySwitchTraumaMode.Transfer)
+		{
+			ClearImplantsAndProsthetics();
+			_wounds.Clear();
+			_partInfections.Clear();
+			_scars.Clear();
+			_tattoos.Clear();
+			_severedRoots.Clear();
+			_activeDrugDosages.Clear();
+			_latentDrugDosages.Clear();
+			DrugsChanged = true;
+			RecalculatePartsAndOrgans();
 			ReevaluateLimbAndPartDamageEffects();
-		});
+			TotalBloodVolumeLitres = MudSharp.Character.Character.TotalBloodVolume(Actor);
+			BaseLiverAlcoholRemovalKilogramsPerHour = MudSharp.Character.Character.LiverFunction(Actor);
+			_currentBloodVolumeLitres = TotalBloodVolumeLitres;
+			HeldBreathTime = TimeSpan.Zero;
+			MaximumStamina = MudSharp.Character.Character.MaximumStaminaFor(Actor);
+			_currentStamina = MaximumStamina;
+			CurrentExertion = ExertionLevel.Rest;
+			LongtermExertion = ExertionLevel.Rest;
+			StaminaChanged = true;
+			ExecuteWithSuppressedHealthFeedback(() =>
+			{
+				CalculateOrganFunctions(true);
+				ReevaluateLimbAndPartDamageEffects();
+			});
+		}
+
 		Changed = true;
 	}
 }

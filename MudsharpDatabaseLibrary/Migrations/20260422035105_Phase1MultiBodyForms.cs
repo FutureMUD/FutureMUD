@@ -33,6 +33,7 @@ namespace MudSharp.Migrations
                     Alias = table.Column<string>(type: "varchar(255)", nullable: false, collation: "utf8_general_ci")
                         .Annotation("MySql:CharSet", "utf8"),
                     SortOrder = table.Column<int>(type: "int(11)", nullable: false),
+                    TraumaMode = table.Column<int>(type: "int(11)", nullable: false, defaultValueSql: "'0'"),
                     AllowVoluntarySwitch = table.Column<ulong>(type: "bit(1)", nullable: false, defaultValueSql: "b'0'"),
                     CanVoluntarilySwitchProgId = table.Column<long>(type: "bigint(20)", nullable: true),
                     WhyCannotVoluntarilySwitchProgId = table.Column<long>(type: "bigint(20)", nullable: true)
@@ -137,10 +138,11 @@ SET b.DominantHandAlignment = c.DominantHandAlignment;");
 
 			migrationBuilder.Sql(@"
 INSERT IGNORE INTO CharacterBodies
-	(CharacterId, BodyId, Alias, SortOrder, AllowVoluntarySwitch, CanVoluntarilySwitchProgId, WhyCannotVoluntarilySwitchProgId)
+	(CharacterId, BodyId, Alias, SortOrder, TraumaMode, AllowVoluntarySwitch, CanVoluntarilySwitchProgId, WhyCannotVoluntarilySwitchProgId)
 SELECT c.Id,
 	   c.BodyId,
 	   COALESCE(bp.Name, CONCAT('Body ', c.BodyId)),
+	   0,
 	   0,
 	   b'1',
 	   NULL,

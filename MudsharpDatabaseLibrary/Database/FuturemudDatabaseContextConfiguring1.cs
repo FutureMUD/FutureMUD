@@ -1235,6 +1235,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.SortOrder).HasColumnType("int(11)");
 
+                entity.Property(e => e.TraumaMode)
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
                 entity.Property(e => e.AllowVoluntarySwitch)
                     .HasColumnType("bit(1)")
                     .HasDefaultValueSql("b'0'");

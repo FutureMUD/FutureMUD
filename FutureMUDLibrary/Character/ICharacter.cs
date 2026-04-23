@@ -70,6 +70,13 @@ namespace MudSharp.Character
         Forced = 2
     }
 
+    public enum BodySwitchTraumaMode
+    {
+        Automatic = 0,
+        Transfer = 1,
+        Stash = 2
+    }
+
     public delegate void CurrentBodyChangedEvent(ICharacter actor, IBody oldBody, IBody newBody);
 
     public interface ICollect
@@ -120,6 +127,7 @@ namespace MudSharp.Character
         IBody Body { get; }
         string Alias { get; set; }
         int SortOrder { get; set; }
+        BodySwitchTraumaMode TraumaMode { get; set; }
         bool AllowVoluntarySwitch { get; set; }
         IFutureProg CanVoluntarilySwitchProg { get; set; }
         IFutureProg WhyCannotVoluntarilySwitchProg { get; set; }

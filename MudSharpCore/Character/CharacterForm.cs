@@ -12,6 +12,7 @@ public class CharacterForm : ICharacterForm
 		Body = body;
 		Alias = alias;
 		SortOrder = sortOrder;
+		TraumaMode = BodySwitchTraumaMode.Automatic;
 	}
 
 	public CharacterForm(MudSharp.Models.CharacterBody form, IBody body, IFuturemud gameworld)
@@ -19,6 +20,7 @@ public class CharacterForm : ICharacterForm
 		Body = body;
 		Alias = form.Alias;
 		SortOrder = form.SortOrder;
+		TraumaMode = (BodySwitchTraumaMode)form.TraumaMode;
 		AllowVoluntarySwitch = form.AllowVoluntarySwitch;
 		CanVoluntarilySwitchProg = gameworld.FutureProgs.Get(form.CanVoluntarilySwitchProgId ?? 0);
 		WhyCannotVoluntarilySwitchProg = gameworld.FutureProgs.Get(form.WhyCannotVoluntarilySwitchProgId ?? 0);
@@ -27,6 +29,7 @@ public class CharacterForm : ICharacterForm
 	public IBody Body { get; }
 	public string Alias { get; set; }
 	public int SortOrder { get; set; }
+	public BodySwitchTraumaMode TraumaMode { get; set; }
 	public bool AllowVoluntarySwitch { get; set; }
 	public IFutureProg CanVoluntarilySwitchProg { get; set; }
 	public IFutureProg WhyCannotVoluntarilySwitchProg { get; set; }

@@ -34,6 +34,7 @@ public partial class Character
 	{
 		return new CharacterForm(body, body.Prototype.Name)
 		{
+			TraumaMode = BodySwitchTraumaMode.Automatic,
 			AllowVoluntarySwitch = true
 		};
 	}
@@ -136,6 +137,7 @@ public partial class Character
 
 			dbform.Alias = form.Alias;
 			dbform.SortOrder = form.SortOrder;
+			dbform.TraumaMode = (int)form.TraumaMode;
 			dbform.AllowVoluntarySwitch = form.AllowVoluntarySwitch;
 			dbform.CanVoluntarilySwitchProgId = form.CanVoluntarilySwitchProg?.Id;
 			dbform.WhyCannotVoluntarilySwitchProgId = form.WhyCannotVoluntarilySwitchProg?.Id;
@@ -157,6 +159,7 @@ public partial class Character
 				Body = form.Body == Body ? dbitem.Body : FMDB.Context.Bodies.Find(form.Body.Id),
 				Alias = form.Alias,
 				SortOrder = form.SortOrder,
+				TraumaMode = (int)form.TraumaMode,
 				AllowVoluntarySwitch = form.AllowVoluntarySwitch,
 				CanVoluntarilySwitchProgId = form.CanVoluntarilySwitchProg?.Id,
 				WhyCannotVoluntarilySwitchProgId = form.WhyCannotVoluntarilySwitchProg?.Id
@@ -320,6 +323,7 @@ public partial class Character
 
 		var newForm = new CharacterForm(newBody, GetNextAvailableAlias(race.Name), _forms.Select(x => x.SortOrder).DefaultIfEmpty().Max() + 1)
 		{
+			TraumaMode = BodySwitchTraumaMode.Automatic,
 			AllowVoluntarySwitch = false
 		};
 		_forms.Add(newForm);
@@ -327,6 +331,22 @@ public partial class Character
 		form = newForm;
 		whyNot = string.Empty;
 		return true;
+	}
+
+	private BodySwitchTraumaMode GetEffectiveTraumaMode(ICharacterForm form, IBody target)
+	{
+		if (form.TraumaMode != BodySwitchTraumaMode.Automatic)
+		{
+			return form.TraumaMode;
+		}
+
+		if (Body?.HealthStrategy?.CanTransferBodyStateTo(target?.HealthStrategy) == true &&
+		    target?.HealthStrategy?.CanTransferBodyStateTo(Body.HealthStrategy) == true)
+		{
+			return BodySwitchTraumaMode.Transfer;
+		}
+
+		return BodySwitchTraumaMode.Stash;
 	}
 
 	public bool CanSwitchBody(IBody target, BodySwitchIntent intent, out string whyNot)
@@ -375,8 +395,10 @@ public partial class Character
 
 		var currentBody = Body as MudSharp.Body.Implementations.Body;
 		var targetBody = target as MudSharp.Body.Implementations.Body;
+		var traumaMode = GetEffectiveTraumaMode(form, target);
 		var switchReason = string.Empty;
-		if (currentBody is null || targetBody is null || !targetBody.TryPrepareSwitchFrom(currentBody, out _, out switchReason))
+		if (currentBody is null || targetBody is null ||
+		    !targetBody.TryPrepareSwitchFrom(currentBody, traumaMode, out _, out switchReason))
 		{
 			whyNot = switchReason ?? "That form cannot be used for switching right now.";
 			return false;
@@ -391,7 +413,8 @@ public partial class Character
 		if (!CanSwitchBody(target, intent, out _) ||
 		    Body is not MudSharp.Body.Implementations.Body oldBody ||
 		    target is not MudSharp.Body.Implementations.Body newBody ||
-		    !newBody.TryPrepareSwitchFrom(oldBody, out var switchPlan, out _))
+		    GetForm(target) is not { } form ||
+		    !newBody.TryPrepareSwitchFrom(oldBody, GetEffectiveTraumaMode(form, target), out var switchPlan, out _))
 		{
 			return false;
 		}
@@ -403,7 +426,6 @@ public partial class Character
 			Body = newBody;
 			newBody.ActivateForCharacter();
 			newBody.ApplySwitchPlan(switchPlan);
-			oldBody.SuspendForCharacter();
 			_handedness = Body.Handedness;
 			_gender = Body.Gender;
 			PostProcessBodySwitch();

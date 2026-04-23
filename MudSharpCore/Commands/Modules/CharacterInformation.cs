@@ -2024,6 +2024,7 @@ Implementors can also use:
 
 	#3body addform <character> <race> [<ethnicity>] [<gender>]#0 - adds a dormant alternate form
 	#3body formset <character> <form> alias <alias>#0 - changes a form alias
+	#3body formset <character> <form> trauma <auto|transfer|stash>#0 - sets how health state behaves on switch
 	#3body formset <character> <form> allow [true|false]#0 - toggles or sets voluntary switching
 	#3body formset <character> <form> canprog <prog>|clear#0 - sets or clears the voluntary-eligibility prog
 	#3body formset <character> <form> whycantprog <prog>|clear#0 - sets or clears the denial-message prog
@@ -2243,6 +2244,7 @@ You can use the following options with this command:
                 form.Body.Race.Name.ColourValue(),
                 form.Body.Ethnicity.Name.ColourValue(),
                 form.Body.Gender.Name.ColourValue(),
+                form.TraumaMode.DescribeEnum().ColourValue(),
                 form.AllowVoluntarySwitch.ToColouredString(),
                 availability
             ]);
@@ -2252,7 +2254,7 @@ You can use the following options with this command:
             $"{(target == actor ? "Your" : target.HowSeen(actor, true, DescriptionType.Possessive))} forms:\n\n" +
             StringUtilities.GetTextTable(
                 rows,
-                new[] { "", "Id", "Alias", "Race", "Ethnicity", "Gender", "Voluntary", "Available" },
+                new[] { "", "Id", "Alias", "Race", "Ethnicity", "Gender", "Trauma", "Voluntary", "Available" },
                 actor
             ));
     }
@@ -2287,6 +2289,27 @@ You can use the following options with this command:
                 return true;
             default:
                 value = false;
+                return false;
+        }
+    }
+
+    private static bool TryParseTraumaModeChoice(string text, out BodySwitchTraumaMode mode)
+    {
+        switch (text.ToLowerInvariant())
+        {
+            case "auto":
+            case "automatic":
+                mode = BodySwitchTraumaMode.Automatic;
+                return true;
+            case "transfer":
+                mode = BodySwitchTraumaMode.Transfer;
+                return true;
+            case "stash":
+            case "stasis":
+                mode = BodySwitchTraumaMode.Stash;
+                return true;
+            default:
+                mode = BodySwitchTraumaMode.Automatic;
                 return false;
         }
     }
@@ -2390,7 +2413,7 @@ You can use the following options with this command:
 
         if (ss.IsFinished)
         {
-            actor.OutputHandler.Send("You must specify whether to set alias, allow, canprog or whycantprog.");
+            actor.OutputHandler.Send("You must specify whether to set alias, trauma, allow, canprog or whycantprog.");
             return;
         }
 
@@ -2410,6 +2433,26 @@ You can use the following options with this command:
                 }
 
                 actor.OutputHandler.Send($"That form is now known as {form.Alias.ColourName()}.");
+                return;
+
+            case "trauma":
+            case "traumamode":
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("You must specify auto, transfer or stash.");
+                    return;
+                }
+
+                if (!TryParseTraumaModeChoice(ss.SafeRemainingArgument, out var traumaMode))
+                {
+                    actor.OutputHandler.Send("You must specify auto, transfer or stash.");
+                    return;
+                }
+
+                form.TraumaMode = traumaMode;
+                concreteTarget.Changed = true;
+                actor.OutputHandler.Send(
+                    $"That form will now use {form.TraumaMode.DescribeEnum().ColourValue()} trauma handling when switching.");
                 return;
 
             case "allow":
@@ -2483,7 +2526,7 @@ You can use the following options with this command:
                 return;
         }
 
-        actor.OutputHandler.Send("You must specify alias, allow, canprog or whycantprog.");
+        actor.OutputHandler.Send("You must specify alias, trauma, allow, canprog or whycantprog.");
     }
 
     private static void BodySwitch(ICharacter actor, StringStack ss)

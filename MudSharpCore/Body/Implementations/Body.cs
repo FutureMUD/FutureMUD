@@ -696,7 +696,7 @@ public partial class Body : PerceiverItem, IBody
 
         foreach (Wound wound in body.Wounds.ToList())
         {
-            IWound newWound = WoundFactory.LoadWound(wound, Actor, Gameworld);
+            IWound newWound = WoundFactory.LoadWound(wound, Actor, Gameworld, this);
             _wounds.Add(newWound);
             if (wound.Infections.Any())
             {

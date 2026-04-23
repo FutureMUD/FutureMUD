@@ -26,10 +26,13 @@ namespace MudSharp.Health.Wounds;
 
 public class RobotWound : PerceivedItem, IWound
 {
-    public RobotWound(IHaveWounds owner, Models.Wound wound, IFuturemud gameworld)
+    private IBody _ownerBody;
+
+    public RobotWound(IHaveWounds owner, Models.Wound wound, IFuturemud gameworld, IBody ownerBody = null)
     {
         Gameworld = gameworld;
         _parent = owner;
+        _ownerBody = ownerBody ?? (owner as ICharacter)?.Body;
         LoadFromDb(wound);
     }
 
@@ -43,10 +46,11 @@ public class RobotWound : PerceivedItem, IWound
 
         Gameworld = gameworld;
         _parent = owner ?? throw new ArgumentNullException(nameof(owner));
+        _ownerBody = owner as ICharacter != null ? (owner as ICharacter)?.Body : null;
         _currentDamage = Math.Max(0.0,
-            Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
+            Math.Min(damage * bodypart.DamageModifier, (_ownerBody ?? CharacterParent.Body).HitpointsForBodypart(bodypart)));
         _originalDamage = Math.Max(0.0,
-            Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
+            Math.Min(damage * bodypart.DamageModifier, (_ownerBody ?? CharacterParent.Body).HitpointsForBodypart(bodypart)));
         _currentStun = Math.Max(0.0, stun * bodypart.StunModifier);
         DamageType = damageType;
         Bodypart = bodypart;
@@ -114,7 +118,7 @@ public class RobotWound : PerceivedItem, IWound
         Wound dbitem = new();
         FMDB.Context.Wounds.Add(dbitem);
         dbitem.WoundType = "Robot";
-        dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+        dbitem.BodyId = _ownerBody?.Id;
         dbitem.GameItemId = (Parent as IGameItem)?.Id;
         dbitem.OriginalDamage = OriginalDamage;
         dbitem.CurrentDamage = CurrentDamage;
@@ -185,7 +189,7 @@ public class RobotWound : PerceivedItem, IWound
         Wound dbitem = FMDB.Context.Wounds.Find(Id);
         if (dbitem != null)
         {
-            dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+            dbitem.BodyId = _ownerBody?.Id;
             dbitem.GameItemId = (Parent as IGameItem)?.Id;
             dbitem.BodypartProtoId = Bodypart?.Id;
             dbitem.CurrentDamage = CurrentDamage;
@@ -208,17 +212,19 @@ public class RobotWound : PerceivedItem, IWound
                 return;
             }
 
-            dbwound.BodyId = (newOwner as ICharacter)?.Body.Id;
+            dbwound.BodyId = (newOwner as ICharacter)?.Body?.Id;
             dbwound.GameItemId = (newOwner as IGameItem)?.Id;
             FMDB.Context.SaveChanges();
         }
 
         _parent = newOwner;
+        _ownerBody = (newOwner as ICharacter)?.Body;
     }
 
     public void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart)
     {
         _parent = newOwner;
+        _ownerBody = (newOwner as ICharacter)?.Body;
         _bodypart = newBodypart;
         SeveredBodypart = newSeveredBodypart;
         Changed = true;

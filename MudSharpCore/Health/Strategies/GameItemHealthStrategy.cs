@@ -14,6 +14,8 @@ namespace MudSharp.Health.Strategies;
 
 public class GameItemHealthStrategy : BaseHealthStrategy
 {
+    public override HealthStateModel HealthStateModel => HealthStateModel.GameItem;
+
     private const string TypeBlurb =
         "A game item damage model that relies on destroyable item maximum damage and shared severity logic.";
 

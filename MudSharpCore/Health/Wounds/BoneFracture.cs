@@ -36,6 +36,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 {
     private static bool DefaultsHaveBeenSetup;
     public static Dictionary<BoneFractureStage, double> StageBaseLengths { get; } = new();
+    private IBody _ownerBody;
 
     public static void SetupDefaults(IFuturemud gameworld)
     {
@@ -57,9 +58,10 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         }
     }
 
-    public BoneFracture(IHaveWounds parent, Wound wound, IFuturemud gameworld) : this(gameworld)
+    public BoneFracture(IHaveWounds parent, Wound wound, IFuturemud gameworld, IBody ownerBody = null) : this(gameworld)
     {
         _parent = parent as ICharacter;
+        _ownerBody = ownerBody ?? (parent as ICharacter)?.Body;
         LoadFromDb(wound);
     }
 
@@ -68,8 +70,9 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         ICharacter actorOrigin) : this(gameworld)
     {
         _parent = (ICharacter)owner ?? throw new ArgumentNullException(nameof(owner));
-        CurrentDamage = Math.Min(damage * bodypart.DamageModifier, _parent.Body.HitpointsForBodypart(bodypart));
-        OriginalDamage = Math.Min(damage * bodypart.DamageModifier, _parent.Body.HitpointsForBodypart(bodypart));
+        _ownerBody = _parent.Body;
+        CurrentDamage = Math.Min(damage * bodypart.DamageModifier, _ownerBody.HitpointsForBodypart(bodypart));
+        OriginalDamage = Math.Min(damage * bodypart.DamageModifier, _ownerBody.HitpointsForBodypart(bodypart));
         CurrentPain = pain * bodypart.PainModifier;
         CurrentStun = stun * bodypart.StunModifier;
         DamageType = damageType;
@@ -373,7 +376,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         Wound dbitem = new();
         FMDB.Context.Wounds.Add(dbitem);
         dbitem.WoundType = "BoneFracture";
-        dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+        dbitem.BodyId = _ownerBody?.Id;
         dbitem.GameItemId = (Parent as IGameItem)?.Id;
         dbitem.OriginalDamage = OriginalDamage;
         dbitem.CurrentDamage = CurrentDamage;
@@ -409,7 +412,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
             Wound dbitem = FMDB.Context.Wounds.Find(Id);
             if (dbitem != null)
             {
-                dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+                dbitem.BodyId = _ownerBody?.Id;
                 dbitem.GameItemId = (Parent as IGameItem)?.Id;
                 dbitem.BodypartProtoId = Bodypart?.Id;
                 dbitem.CurrentDamage = CurrentDamage;
@@ -504,20 +507,22 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
                 return;
             }
 
-            dbwound.BodyId = (newOwner as ICharacter)?.Body.Id;
+            dbwound.BodyId = (newOwner as ICharacter)?.Body?.Id;
             dbwound.GameItemId = (newOwner as IGameItem)?.Id;
             FMDB.Context.SaveChanges();
         }
 
         _parent = newOwner as ICharacter;
+        _ownerBody = _parent?.Body;
     }
 
     public void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart)
     {
         _parent = newOwner as ICharacter;
+        _ownerBody = _parent?.Body;
         Bodypart = newBodypart;
         SeveredBodypart = newSeveredBodypart;
-        Infection?.RemapTo(_parent?.Body, this, newBodypart);
+        Infection?.RemapTo(_ownerBody, this, newBodypart);
         Changed = true;
     }
 
@@ -1017,7 +1022,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
                     }
 
                     CurrentDamage = Parent.GetSeverityFloor(Severity.StageDown(testOutcome.SuccessDegrees()), true) *
-                                    _parent.Body.HitpointsForBodypart(Bone);
+                                    (_ownerBody ?? _parent?.Body).HitpointsForBodypart(Bone);
                     _currentPain = Math.Min(_currentPain, CurrentDamage);
                     CurrentStun = Math.Min(CurrentStun, CurrentDamage);
 
@@ -1062,7 +1067,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
                         return;
                     }
 
-                    AntiInflammatoryTreatment.ApplyOrUpdate(_parent.Body, Bodypart,
+                    AntiInflammatoryTreatment.ApplyOrUpdate(_ownerBody ?? _parent?.Body, Bodypart,
                         Math.Max(Gameworld.GetStaticDouble("AntiInflammatoryMinimumPainMultiplier"),
                             1.0 - strength * Gameworld.GetStaticDouble("AntiInflammatoryPainMultiplierReductionPerStrength")),
                         Math.Max(Gameworld.GetStaticDouble("AntiInflammatoryMinimumFlatReduction"),
@@ -1266,7 +1271,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
             return false;
         }
 
-        return _parent.Body.EffectsOfType<IAntisepticTreatmentEffect>().All(x => x.Bodypart != Bodypart);
+        return (_ownerBody ?? _parent?.Body).EffectsOfType<IAntisepticTreatmentEffect>().All(x => x.Bodypart != Bodypart);
     }
 
     private double GetInfectionChanceDamageMultiplier()
@@ -1356,7 +1361,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         }
 #endif
         Infection = Infections.Infection.LoadNewInfection(terrain.PrimaryInfection, virulence,
-            Gameworld.GetStaticDouble("BaseInfectionInitialIntensity"), _parent.Body, this, Bodypart,
+            Gameworld.GetStaticDouble("BaseInfectionInitialIntensity"), _ownerBody ?? _parent?.Body, this, Bodypart,
             terrain.InfectionMultiplier);
         Changed = true;
 #if DEBUG

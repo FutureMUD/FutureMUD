@@ -260,12 +260,12 @@ Fully operational games do not strictly require arenas, but worlds that use stru
 ### Items, Item Components, and Crafting Scaffolds
 Fully operational games need generic props, tools, consumables, components, and at least some crafting scaffolding so core loops are usable.
 
-- `Current State`: `UsefulSeeder` and `ItemSeeder` provide a large stock item and component baseline, and `ItemSeederCrafting` shows that the item seeder already touches crafting-adjacent support. The item runtime itself is much broader and heavily builder-driven.
-- `Runtime Breadth vs Seeder Breadth`: the engine supports a very large item-component catalogue, revisioned prototypes, skins, groups, telecoms, implants, thermal sources, and rich crafting/project systems that the seeder only samples.
+- `Current State`: `UsefulSeeder` and `ItemSeeder` provide a large stock item and component baseline, and `ItemSeederCrafting` shows that the item seeder already touches crafting-adjacent support. `UsefulSeeder` now also covers a broader modern template slice with lithium battery ecosystems, grid outlets and generators, cellular and answering-machine endpoints, computer and network starter components, signal automation and security examples, gas containers, rebreathers, inhalers, defibrillators, and conditional external-organ support machines.
+- `Runtime Breadth vs Seeder Breadth`: the engine still supports a much larger item-component catalogue, revisioned prototypes, skins, groups, implants, finished merchandise families, and rich crafting/project systems than stock seeding provides. Even after the modern UsefulSeeder expansion, food presets, fax-machine ecosystems, breathing-filter cartridge families, and many profession-specific item lines remain intentionally unseeded.
 - `Seeder Fit`: `Strong`
 - `Template Strategy`: generic item and component libraries by tech level, plus example craft packs
 - `Recommended Seeder Scope`: `Template Library`
-- `Notes / Risks`: stock generic toolkits belong in the seeder. Full merchandise catalogues, bespoke shop stock, and complete profession trees do not. Crafting should focus on sample patterns and reusable primitives, not exhaustive content.
+- `Notes / Risks`: stock generic toolkits belong in the seeder. Full merchandise catalogues, bespoke shop stock, and complete profession trees do not. Crafting should focus on sample patterns and reusable primitives, not exhaustive content. The remaining skipped modern gaps are mostly the families that need companion consumable or stock-item ecosystems to feel complete, such as food, fax supplies, and breathing-filter consumables.
 
 ### NPC AI and Group AI
 Fully operational games benefit from reusable AI definitions and group behaviours so builders are not starting every NPC ecosystem from zero.

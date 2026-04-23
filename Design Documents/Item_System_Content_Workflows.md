@@ -55,6 +55,20 @@ Signal-automation examples now include:
 - `comp edit new relayswitch`
 - `comp edit new alarmsiren`
 
+Power, telecom, and modern medical examples also include:
+- `comp edit new electricgridoutlet`
+- `comp edit new gridpowersupply`
+- `comp edit new unlimitedgenerator`
+- `comp edit new gascontainer`
+- `comp edit new rebreather`
+- `comp edit new externalinhaler`
+- `comp edit new inhalergascanister`
+- `comp edit new integratedinhaler`
+- `comp edit new defibrillator`
+- `comp edit new externalorgan`
+
+`UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. This pass still intentionally leaves food presets, fax-machine examples, and breathing-filter cartridge ecosystems to later dedicated content passes.
+
 This goes through `GameItemComponentManager`, so failure here often means:
 - the type was not registered
 - the builder loader name is wrong
@@ -187,6 +201,13 @@ For the current signal-automation slice, also validate:
 - whether abject failure on electrical work produces the intended shock echo and electrical damage
 - whether switched-on mounted powered machines recover host-derived power after reboot or late topology initialisation without requiring a manual off/on cycle
 - whether motion sensors ignore administrator movement when the mover is using `IImmwalkEffect`
+
+For the current modern breathing and emergency-medicine slice, also validate:
+- whether `gascontainer` and `rebreather` connector genders and socket types match the intended gas-line ecosystem
+- whether `externalinhaler` and `inhalergascanister` agree on canister type, and whether gas-bearing presets only exist when the required stock gas was seeded
+- whether `integratedinhaler` starts with the intended gas and consumes the expected amount per puff
+- whether `defibrillator` power draw and shock emotes match the intended medical tier
+- whether `externalorgan` presets only exist when the target body and organ set are present, and whether their venous and arterial connector types match the expected cannula ecosystem
 
 ### Manual load restrictions
 Some components set `PreventManualLoad`, and item prototypes surface that through `PreventManualLoad`.

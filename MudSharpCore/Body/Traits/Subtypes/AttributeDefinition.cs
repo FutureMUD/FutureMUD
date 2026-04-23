@@ -18,6 +18,7 @@ public class AttributeDefinition : TraitDefinition, IAttributeDefinition
     public AttributeDefinition(MudSharp.Models.TraitDefinition trait, IFuturemud game)
         : base(trait, game)
     {
+        OwnerScope = TraitOwnerScope.Body;
         _maxValue = 50;
         ChargenBlurb = trait.ChargenBlurb;
         Alias = trait.Alias;
@@ -29,6 +30,7 @@ public class AttributeDefinition : TraitDefinition, IAttributeDefinition
 
     public AttributeDefinition(IFuturemud gameworld, string name, string alias) : base(gameworld)
     {
+        OwnerScope = TraitOwnerScope.Body;
         _name = name;
         Alias = alias;
         DisplayAsSubAttribute = false;
@@ -45,6 +47,7 @@ public class AttributeDefinition : TraitDefinition, IAttributeDefinition
 
     protected AttributeDefinition(AttributeDefinition rhs, string name, string alias) : base(rhs.Gameworld)
     {
+        OwnerScope = TraitOwnerScope.Body;
         _name = name;
         Alias = alias;
         DisplayAsSubAttribute = rhs.DisplayAsSubAttribute;
@@ -67,6 +70,7 @@ public class AttributeDefinition : TraitDefinition, IAttributeDefinition
             {
                 Name = Name,
                 Type = (int)Traits.TraitType.Attribute,
+                OwnerScope = (int)TraitOwnerScope.Body,
                 DecoratorId = Decorator.Id,
                 TraitGroup = Group,
                 DerivedType = 0,
@@ -112,6 +116,7 @@ public class AttributeDefinition : TraitDefinition, IAttributeDefinition
         dbitem.Name = Name;
         dbitem.TraitGroup = Group;
         dbitem.Type = (int)TraitType;
+        dbitem.OwnerScope = (int)TraitOwnerScope.Body;
         dbitem.DerivedType = 0;
         dbitem.Alias = Alias;
         dbitem.TeachDifficulty = (int)Difficulty.Impossible;

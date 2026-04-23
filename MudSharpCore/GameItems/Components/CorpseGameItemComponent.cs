@@ -35,7 +35,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         return true;
     }
 
-    public override bool WarnBeforePurge => OriginalCharacter.Body.AllItems.Any();
+    public override bool WarnBeforePurge => OriginalBody.AllItems.Any();
 
     public override IGameItemComponentProto Prototype => _prototype;
 
@@ -60,19 +60,19 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             return "a corpse";
         }
 
-        return Model.Describe(type, Decay, OriginalCharacter, voyeur,
-                   EatenWeight / (Model.EdiblePercentage * OriginalCharacter.Weight)) +
+        return Model.Describe(type, Decay, OriginalCharacter, OriginalBody, voyeur,
+                   EatenWeight / (Model.EdiblePercentage * OriginalBody.Weight)) +
                (Skinned && type == DescriptionType.Short ? " (Skinned)".Colour(Telnet.Red) : "");
     }
 
-    public override double ComponentWeight => OriginalCharacter.Weight + OriginalCharacter.Body.ExternalItems.Sum(x => x.Weight) +
-                OriginalCharacter.Body.Implants.Sum(x => x.Parent.Weight) +
-                OriginalCharacter.Body.Prosthetics.Sum(x => x.Parent.Weight) - EatenWeight;
+    public override double ComponentWeight => OriginalBody.Weight + OriginalBody.ExternalItems.Sum(x => x.Weight) +
+                OriginalBody.Implants.Sum(x => x.Parent.Weight) +
+                OriginalBody.Prosthetics.Sum(x => x.Parent.Weight) - EatenWeight;
 
     public override double ComponentBuoyancy(double fluidDensity)
     {
-        return (fluidDensity - 1.01) * (OriginalCharacter.Weight - EatenWeight) +
-               OriginalCharacter.Body.AllItems.Sum(x => x.Buoyancy(fluidDensity));
+        return (fluidDensity - 1.01) * (OriginalBody.Weight - EatenWeight) +
+               OriginalBody.AllItems.Sum(x => x.Buoyancy(fluidDensity));
     }
 
     public override bool OverridesMaterial => OverridenMaterial != null;
@@ -94,6 +94,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
     {
         return new XElement("Definition",
             new XElement("OriginalCharacter", _originalCharacterId),
+            new XElement("OriginalBody", _originalBodyId),
             new XElement("Model", Model?.Id ?? 0),
             new XElement("DecayPoints", DecayPoints),
             new XElement("DecayState", (int)Decay),
@@ -105,6 +106,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
     private void LoadFromXml(XElement definition)
     {
         _originalCharacterId = long.Parse(definition.Element("OriginalCharacter").Value);
+        _originalBodyId = long.Parse(definition.Element("OriginalBody")?.Value ?? "0");
         Model = Gameworld.CorpseModels.Get(long.Parse(definition.Element("Model").Value));
         DecayPoints = double.Parse(definition.Element("DecayPoints").Value);
         Decay = (DecayState)int.Parse(definition.Element("DecayState").Value);
@@ -144,6 +146,8 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         _prototype = rhs._prototype;
         _originalCharacterId = rhs._originalCharacterId;
         _originalCharacter = rhs._originalCharacter;
+        _originalBodyId = rhs._originalBodyId;
+        _originalBody = rhs._originalBody;
         Model = rhs.Model;
         Decay = rhs.Decay;
         DecayPoints = rhs.DecayPoints;
@@ -184,7 +188,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         // If a corpse is deleted and its owner is still dead (i.e. hasn't been resurrected), delete the inventory
         if (OriginalCharacter.Status == CharacterStatus.Deceased)
         {
-            foreach (IGameItem item in OriginalCharacter.Body.ExternalItems.ToList())
+            foreach (IGameItem item in OriginalBody.ExternalItems.ToList())
             {
                 item.Delete();
             }
@@ -199,9 +203,9 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     public override bool Take(IGameItem item)
     {
-        if (OriginalCharacter.Body.ExternalItems.Contains(item))
+        if (OriginalBody.ExternalItems.Contains(item))
         {
-            OriginalCharacter.Body.Take(item);
+            OriginalBody.Take(item);
             return true;
         }
 
@@ -214,6 +218,8 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     private long _originalCharacterId;
     private ICharacter _originalCharacter;
+    private long _originalBodyId;
+    private IBody _originalBody;
 
     private double _eatenWeight;
 
@@ -227,12 +233,20 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         }
     }
 
-    public double RemainingEdibleWeight => OriginalCharacter.Weight * Model.EdiblePercentage - EatenWeight;
+    public double RemainingEdibleWeight => OriginalBody.Weight * Model.EdiblePercentage - EatenWeight;
 
-    private void LoadOriginalCharacter(bool viaSaveManager)
+    private void LoadOriginalReferences(bool viaSaveManager)
     {
         _originalCharacter = Gameworld.TryGetCharacter(_originalCharacterId, true);
-        _originalCharacter.Corpse = this;
+        _originalCharacter?.Corpse = this;
+        _originalBody = Gameworld.Bodies.Get(_originalBodyId) ??
+                        _originalCharacter?.Bodies.FirstOrDefault(x => x.Id == _originalBodyId);
+        if (_originalBody == null && _originalCharacter != null)
+        {
+            _originalBody = _originalCharacter.Body;
+            _originalBodyId = _originalBody.Id;
+        }
+
         if (!viaSaveManager)
         {
             Gameworld.SaveManager.AbortLazyLoad(this);
@@ -245,7 +259,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         {
             if (_originalCharacter == null)
             {
-                LoadOriginalCharacter(false);
+                LoadOriginalReferences(false);
             }
 
             return _originalCharacter;
@@ -254,6 +268,31 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         {
             _originalCharacter = value;
             _originalCharacterId = value?.Id ?? 0;
+            if (_originalBody == null && value != null)
+            {
+                OriginalBody = value.Body;
+            }
+            Changed = true;
+        }
+    }
+
+    public long OriginalBodyId => _originalBodyId;
+
+    public IBody OriginalBody
+    {
+        get
+        {
+            if (_originalBody == null)
+            {
+                LoadOriginalReferences(false);
+            }
+
+            return _originalBody;
+        }
+        set
+        {
+            _originalBody = value;
+            _originalBodyId = value?.Id ?? 0;
             Changed = true;
         }
     }
@@ -307,7 +346,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         }
     }
 
-    public IEnumerable<IBodypart> Parts => OriginalCharacter.Body.Bodyparts;
+    public IEnumerable<IBodypart> Parts => OriginalBody.Bodyparts;
 
     private readonly List<string> _butcheredSubcategories = new();
     public IEnumerable<string> ButcheredSubcategories => _butcheredSubcategories;
@@ -354,7 +393,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         {
             double damageRatio =
                 Parent.Wounds.Where(x => product.RequiredBodyparts.Contains(x.Bodypart)).Sum(x => x.CurrentDamage) /
-                product.RequiredBodyparts.Sum(x => OriginalCharacter.Body.HitpointsForBodypart(x));
+                product.RequiredBodyparts.Sum(x => OriginalBody.HitpointsForBodypart(x));
             if (double.IsNaN(damageRatio))
             {
                 damageRatio = 1.0;
@@ -377,9 +416,9 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
             foreach (IBodypart part in product.RequiredBodyparts)
             {
-                foreach (IGameItem item in OriginalCharacter.Body.AllItemsAtOrDownstreamOfPart(part).ToList())
+                foreach (IGameItem item in OriginalBody.AllItemsAtOrDownstreamOfPart(part).ToList())
                 {
-                    OriginalCharacter.Body.Take(item);
+                    OriginalBody.Take(item);
                     butcher.Location.Insert(item);
                 }
             }
@@ -398,9 +437,9 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             return false;
         }
 
-        foreach (IGameItem item in OriginalCharacter.Body.AllItems.ToList())
+        foreach (IGameItem item in OriginalBody.AllItems.ToList())
         {
-            OriginalCharacter.Body.Take(item);
+            OriginalBody.Take(item);
             butcher.Location.Insert(item);
         }
 
@@ -440,7 +479,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         {
             double damageRatio =
                 Parent.Wounds.Where(x => product.RequiredBodyparts.Contains(x.Bodypart)).Sum(x => x.CurrentDamage) /
-                product.RequiredBodyparts.Sum(x => OriginalCharacter.Body.HitpointsForBodypart(x));
+                product.RequiredBodyparts.Sum(x => OriginalBody.HitpointsForBodypart(x));
             if (double.IsNaN(damageRatio))
             {
                 damageRatio = 1.0;
@@ -470,94 +509,94 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     void ILazyLoadDuringIdleTime.DoLoad()
     {
-        LoadOriginalCharacter(true);
+        LoadOriginalReferences(true);
     }
 
-    IBody IHaveABody.Body => OriginalCharacter.Body;
+    IBody IHaveABody.Body => OriginalBody;
 
     double IHaveWeight.Weight
     {
-        set => OriginalCharacter.Body.Weight = value;
-        get => OriginalCharacter.Body.Weight;
+        set => OriginalBody.Weight = value;
+        get => OriginalBody.Weight;
     }
 
     double IHaveHeight.Height
     {
-        set => OriginalCharacter.Body.Height = value;
-        get => OriginalCharacter.Body.Height;
+        set => OriginalBody.Height = value;
+        get => OriginalBody.Height;
     }
 
-    Alignment IHaveABody.Handedness => OriginalCharacter.Handedness;
+    Alignment IHaveABody.Handedness => OriginalBody.Handedness;
     #endregion
 
     #region IOverrideItemWoundBehaviour Implementation
 
-    public IHealthStrategy HealthStrategy => OriginalCharacter.HealthStrategy;
-    public IEnumerable<IWound> Wounds => OriginalCharacter.Wounds;
+    public IHealthStrategy HealthStrategy => OriginalBody.HealthStrategy;
+    public IEnumerable<IWound> Wounds => OriginalBody.Wounds;
 
     public IEnumerable<IWound> VisibleWounds(IPerceiver voyeur, WoundExaminationType examinationType)
     {
-        return OriginalCharacter.VisibleWounds(voyeur, examinationType);
+        return OriginalBody.VisibleWounds(voyeur, examinationType);
     }
 
     public IEnumerable<IWound> SufferDamage(IDamage damage)
     {
-        return OriginalCharacter.SufferDamage(damage);
+        return OriginalBody.SufferDamage(damage);
     }
 
     public IEnumerable<IWound> PassiveSufferDamage(IDamage damage)
     {
-        return OriginalCharacter.PassiveSufferDamage(damage);
+        return OriginalBody.PassiveSufferDamage(damage);
     }
 
     public IEnumerable<IWound> PassiveSufferDamage(IExplosiveDamage damage, Proximity proximity, Facing facing)
     {
-        return OriginalCharacter.PassiveSufferDamage(damage, proximity, facing);
+        return OriginalBody.PassiveSufferDamage(damage, proximity, facing);
     }
 
     public void ProcessPassiveWound(IWound wound)
     {
-        OriginalCharacter.ProcessPassiveWound(wound);
+        OriginalBody.ProcessPassiveWound(wound);
     }
 
     public WoundSeverity GetSeverityFor(IWound wound)
     {
-        return OriginalCharacter.GetSeverityFor(wound);
+        return OriginalBody.GetSeverityFor(wound);
     }
 
     public double GetSeverityFloor(WoundSeverity severity, bool usePercentageModel = false)
     {
-        return OriginalCharacter.GetSeverityFloor(severity, usePercentageModel);
+        return OriginalBody.GetSeverityFloor(severity, usePercentageModel);
     }
 
     public void EvaluateWounds()
     {
-        OriginalCharacter.EvaluateWounds();
+        OriginalBody.EvaluateWounds();
     }
 
     public void CureAllWounds()
     {
-        OriginalCharacter.CureAllWounds();
+        OriginalBody.CureAllWounds();
     }
 
     public void StartHealthTick(bool initial = false)
     {
-        OriginalCharacter.StartHealthTick(initial);
+        OriginalBody.StartHealthTick(initial);
     }
 
     public void EndHealthTick()
     {
-        OriginalCharacter.EndHealthTick();
+        OriginalBody.EndHealthTick();
     }
 
     public void AddWound(IWound wound)
     {
-        OriginalCharacter.AddWound(wound);
+        OriginalBody.AddWound(wound);
     }
 
     public void AddWounds(IEnumerable<IWound> wounds)
     {
-        OriginalCharacter.AddWounds(wounds);
+        OriginalBody.AddWounds(wounds);
     }
 
     #endregion

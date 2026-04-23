@@ -17,6 +17,12 @@ namespace MudSharp.Body.Traits
         TheoreticalSkill = 4
     }
 
+    public enum TraitOwnerScope
+    {
+        Body = 0,
+        Character = 1
+    }
+
     public interface ITraitDefinition : IEditableItem, IProgVariable
     {
         /// <summary>
@@ -28,6 +34,7 @@ namespace MudSharp.Body.Traits
         ///     Defines which sub-group of traits this definition belongs in
         /// </summary>
         TraitType TraitType { get; }
+        TraitOwnerScope OwnerScope { get; }
 
         /// <summary>
         ///     Defines a default Decorator used to display the values of this trait

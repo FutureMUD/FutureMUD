@@ -25,6 +25,8 @@ namespace MudSharp.Health.Strategies;
 
 public class RobotHealthStrategy : BaseHealthStrategy
 {
+    public override HealthStateModel HealthStateModel => HealthStateModel.Robot;
+
     private static readonly TraitExpressionBuilderField<RobotHealthStrategy>[] TraitExpressionFields =
     [
         new("MaximumHitPointsExpression", ["maxhp", "maximumhitpointsexpression"], "Maximum Hit Points Expression",

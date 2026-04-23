@@ -65,6 +65,7 @@ public partial class Body : PerceiverItem, IBody
         Ethnicity = template.SelectedEthnicity;
         Prototype = template.SelectedRace.BaseBody;
         Gender = Gendering.Get(template.SelectedGender);
+        Handedness = template.Handedness;
         _shortDescription = template.SelectedSdesc;
         _fullDescription = template.SelectedFullDesc;
         _shortDescriptionPattern =
@@ -105,11 +106,6 @@ public partial class Body : PerceiverItem, IBody
                      !template.SelectedAttributes.Select(y => y.Definition).Contains(x)))
         {
             _traits.Add(TraitFactory.LoadAttribute(attribute, this, 10.0));
-        }
-
-        foreach ((ITraitDefinition, double) skill in template.SkillValues)
-        {
-            _traits.Add(TraitFactory.LoadSkill((ISkillDefinition)skill.Item1, this, skill.Item2));
         }
 
         foreach ((ICharacteristicDefinition, ICharacteristicValue) characteristic in template.SelectedCharacteristics)
@@ -213,6 +209,7 @@ public partial class Body : PerceiverItem, IBody
     public IBodyPrototype Prototype { get; protected set; }
 
     public ICharacter Actor { get; set; }
+    public Alignment Handedness { get; set; }
 
     public IController Controller { get; protected set; }
 
@@ -244,10 +241,13 @@ public partial class Body : PerceiverItem, IBody
         }
     }
 
+    public IEntityDescriptionPattern ShortDescriptionPattern => _shortDescriptionPattern;
+    public IEntityDescriptionPattern FullDescriptionPattern => _fullDescriptionPattern;
+
     public static void RegisterPerceivableType(IFuturemud gameworld)
     {
         gameworld.RegisterPerceivableType("Body",
-            id => gameworld.Characters.FirstOrDefault(x => x.Body.Id == id)?.Body);
+            id => gameworld.Characters.SelectMany(x => x.Bodies).FirstOrDefault(x => x.Id == id));
     }
 
     public (string ShortDescription, string FullDescription) GetRawDescriptions =>
@@ -263,6 +263,40 @@ public partial class Body : PerceiverItem, IBody
     public void SetShortDescription(string description)
     {
         _shortDescription = description;
+        _shortDescriptionPattern = null;
+        Changed = true;
+    }
+
+    public void SetFullDescriptionPattern(IEntityDescriptionPattern pattern)
+    {
+        _fullDescriptionPattern = pattern;
+        if (pattern != null)
+        {
+            _fullDescription = pattern.Pattern;
+        }
+
+        Changed = true;
+    }
+
+    public void SetShortDescriptionPattern(IEntityDescriptionPattern pattern)
+    {
+        _shortDescriptionPattern = pattern;
+        if (pattern != null)
+        {
+            _shortDescription = pattern.Pattern;
+        }
+
+        Changed = true;
+    }
+
+    public void ClearFullDescriptionPattern()
+    {
+        _fullDescriptionPattern = null;
+        Changed = true;
+    }
+
+    public void ClearShortDescriptionPattern()
+    {
         _shortDescriptionPattern = null;
         Changed = true;
     }
@@ -322,6 +356,7 @@ public partial class Body : PerceiverItem, IBody
             Weight = Weight,
             RaceId = Race.Id,
             Gender = (short)Gender.Enum,
+            DominantHandAlignment = (int)Handedness,
             EthnicityId = Ethnicity.Id,
             BodyPrototypeId = Prototype.Id,
             Position = PositionState.Id,
@@ -340,7 +375,7 @@ public partial class Body : PerceiverItem, IBody
             dbitem.BodiesSeveredParts.Add(new BodiesSeveredParts { Bodies = dbitem, BodypartProtoId = item.Id });
         }
 
-        foreach (ITrait trait in Traits)
+        foreach (ITrait trait in _traits)
         {
             Models.Trait dbtrait = new();
             FMDB.Context.Traits.Add(dbtrait);
@@ -483,6 +518,27 @@ public partial class Body : PerceiverItem, IBody
     public void Register(IController controller)
     {
         Controller = controller;
+    }
+
+    public void ActivateForCharacter()
+    {
+        Controller = Actor?.CharacterController;
+        _breathingStrategy = Race.BreathingStrategy;
+    }
+
+    public void SuspendForCharacter()
+    {
+        EndStaminaTick(true);
+        EndDrugTick();
+        EndHealthTick();
+        CacheScheduledEffects();
+        _breathingStrategy = new NonBreather();
+        Controller = null;
+    }
+
+    public void DestroyBody()
+    {
+        Quit();
     }
 
     public override void Register(IOutputHandler handler)
@@ -634,10 +690,12 @@ public partial class Body : PerceiverItem, IBody
         _fullDescriptionPattern = Gameworld.EntityDescriptionPatterns.Get(body.FullDescriptionPatternId ?? 0);
         Bloodtype = Gameworld.Bloodtypes.Get(body.BloodtypeId ?? 0);
         Gender = Gendering.Get((Gender)body.Gender);
+        Handedness = (Alignment)body.DominantHandAlignment;
         _id = body.Id;
         IdInitialised = true;
         _height = body.Height;
         _weight = body.Weight;
+        PositionState = MudSharp.Body.Position.PositionState.GetState(body.Position);
 
         foreach (Characteristic characteristic in body.Characteristics)
         {
@@ -650,12 +708,18 @@ public partial class Body : PerceiverItem, IBody
             _merits.Add(Gameworld.Merits.Get(merit.MeritId));
         }
 
-        foreach (Models.Trait trait in body.Traits.Where(x => x.TraitDefinition.Type == (int)TraitType.Attribute).ToList())
+        foreach (Models.Trait trait in body.Traits
+                                           .Where(x => x.TraitDefinition.OwnerScope == (int)TraitOwnerScope.Body)
+                                           .Where(x => x.TraitDefinition.Type == (int)TraitType.Attribute)
+                                           .ToList())
         {
             _traits.Add(TraitDefinition.LoadTrait(trait, Gameworld, this));
         }
 
-        foreach (Models.Trait trait in body.Traits.Where(x => x.TraitDefinition.Type != (int)TraitType.Attribute).ToList())
+        foreach (Models.Trait trait in body.Traits
+                                           .Where(x => x.TraitDefinition.OwnerScope == (int)TraitOwnerScope.Body)
+                                           .Where(x => x.TraitDefinition.Type != (int)TraitType.Attribute)
+                                           .ToList())
         {
             _traits.Add(TraitDefinition.LoadTrait(trait, Gameworld, this));
         }
@@ -669,7 +733,7 @@ public partial class Body : PerceiverItem, IBody
 
         foreach (Wound wound in body.Wounds.ToList())
         {
-            IWound newWound = WoundFactory.LoadWound(wound, Actor, Gameworld);
+            IWound newWound = WoundFactory.LoadWound(wound, Actor, Gameworld, this);
             _wounds.Add(newWound);
             if (wound.Infections.Any())
             {
@@ -801,6 +865,7 @@ public partial class Body : PerceiverItem, IBody
             dbentity.ShortDescriptionPatternId = _shortDescriptionPattern?.Id;
             dbentity.HeldBreathLength = (int)HeldBreathTime.TotalSeconds;
             dbentity.Gender = (short)Gender.Enum;
+            dbentity.DominantHandAlignment = (int)Handedness;
             dbentity.HealthStrategyId = HealthStrategy?.Id;
 
             if (InventoryChanged)

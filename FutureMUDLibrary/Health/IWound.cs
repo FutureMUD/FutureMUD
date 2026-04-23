@@ -149,6 +149,7 @@ namespace MudSharp.Health
         Difficulty ConcentrationDifficulty { get; }
         void SufferAdditionalDamage(IDamage damage);
         void SetNewOwner(IHaveWounds newOwner);
+        void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart);
         string TextForAdminWoundsCommand { get; }
         string WoundTypeDescription { get; }
     }

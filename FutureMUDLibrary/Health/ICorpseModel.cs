@@ -1,4 +1,5 @@
-﻿using MudSharp.Character;
+using MudSharp.Body;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
@@ -12,10 +13,11 @@ namespace MudSharp.Health
         bool CreateCorpse { get; }
         bool RetainItems { get; }
         string Description { get; }
-        string Describe(DescriptionType type, DecayState state, ICharacter originalCharacter, IPerceiver voyeur, double eatenPercentage);
+        string Describe(DescriptionType type, DecayState state, ICharacter originalCharacter, IBody originalBody,
+            IPerceiver voyeur, double eatenPercentage);
 
-        string DescribeSevered(DescriptionType type, DecayState state, ICharacter originalCharacter, IPerceiver voyeur,
-            ISeveredBodypart part, double eatenPercentage);
+        string DescribeSevered(DescriptionType type, DecayState state, ICharacter originalCharacter, IBody originalBody,
+            IPerceiver voyeur, ISeveredBodypart part, double eatenPercentage);
 
         double DecayRate(ITerrain terrain);
         DecayState GetDecayState(double decayPoints);

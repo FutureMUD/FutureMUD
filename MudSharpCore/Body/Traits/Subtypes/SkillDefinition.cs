@@ -20,6 +20,7 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
     public SkillDefinition(MudSharp.Models.TraitDefinition trait, IFuturemud game)
         : base(trait, game)
     {
+        OwnerScope = TraitOwnerScope.Character;
         Improver = (trait.ImproverId.HasValue
             ? game.ImprovementModels.Get(trait.ImproverId.Value)
             : game.ImprovementModels.FirstOrDefault(x => x is NonImproving)) ?? new NonImproving();
@@ -47,6 +48,7 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
         dbitem.Name = Name;
         dbitem.TraitGroup = Group;
         dbitem.Type = (int)TraitType;
+        dbitem.OwnerScope = (int)TraitOwnerScope.Character;
         dbitem.DerivedType = 0;
         dbitem.Alias = string.Empty;
         dbitem.AvailabilityProgId = AvailabilityProg.Id;

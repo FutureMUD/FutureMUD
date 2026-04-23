@@ -375,6 +375,11 @@ Components can influence these transitions through:
 
 Container-style components are a good example: they often need to decide what happens to contents or locks when the parent item morphs or dies.
 
+Read-only generated remains components such as `Corpse` and `Bodypart` now also pin themselves to the source body that created them.
+- they still remember the originating character for identity-facing workflows such as resurrection, morgue ownership, and FutureProg lookups
+- they also persist the specific source `Body` id so anatomy, inventory, carried implants, wound routing, and surgery compatibility continue to reflect the form that actually died or was severed
+- later character form switches must not cause old corpses or severed parts to silently change shape, wearability, butchery yields, or transplant eligibility
+
 ## Real Example: Container
 `ContainerGameItemComponentProto` is a representative example of a typical editable component proto:
 - stores builder-editable values like weight limit, max size, transparency, and preposition

@@ -24,11 +24,13 @@ public class HealingSimpleWound : PerceivedItem, IWound
 {
     private SurgicalProcedureType? _scarSurgicalProcedureType;
     private int _scarSurgeryCheckDegrees;
+    private IBody _ownerBody;
 
-    public HealingSimpleWound(IHaveWounds parent, Wound wound, IFuturemud gameworld)
+    public HealingSimpleWound(IHaveWounds parent, Wound wound, IFuturemud gameworld, IBody ownerBody = null)
     {
         Gameworld = gameworld;
         _parent = parent;
+        _ownerBody = ownerBody ?? (parent as ICharacter)?.Body;
         LoadFromDb(wound);
         //LoadEffects(wound.Effects);
         _internal = !(_bodypart == null || _bodypart is IExternalBodypart);
@@ -49,8 +51,9 @@ public class HealingSimpleWound : PerceivedItem, IWound
 #endif
         Gameworld = gameworld;
         _parent = owner;
+        _ownerBody = (owner as ICharacter)?.Body;
         _currentDamage = Math.Max(0.0,
-            Math.Min(damage * bodypart.DamageModifier, CharacterParent.Body.HitpointsForBodypart(bodypart)));
+            Math.Min(damage * bodypart.DamageModifier, (_ownerBody ?? CharacterParent.Body).HitpointsForBodypart(bodypart)));
         _originalDamage = _currentDamage;
         DamageType = damageType;
         _bodypart = bodypart;
@@ -93,6 +96,9 @@ public class HealingSimpleWound : PerceivedItem, IWound
     public override void Save()
     {
         Wound dbitem = FMDB.Context.Wounds.Find(Id);
+        dbitem.BodyId = _ownerBody?.Id;
+        dbitem.GameItemId = (Parent as IGameItem)?.Id;
+        dbitem.BodypartProtoId = Bodypart?.Id;
         dbitem.CurrentDamage = CurrentDamage;
         dbitem.OriginalDamage = OriginalDamage;
         dbitem.LodgedItem = FMDB.Context.GameItems.Find(Lodged?.Id);
@@ -355,7 +361,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
         Wound dbitem = new();
         FMDB.Context.Wounds.Add(dbitem);
         dbitem.WoundType = "HealingSimple";
-        dbitem.BodyId = (Parent as ICharacter)?.Body.Id;
+        dbitem.BodyId = _ownerBody?.Id;
         dbitem.GameItemId = (Parent as IGameItem)?.Id;
         dbitem.OriginalDamage = OriginalDamage;
         dbitem.CurrentDamage = _currentDamage;
@@ -416,12 +422,22 @@ public class HealingSimpleWound : PerceivedItem, IWound
                 return;
             }
 
-            dbwound.BodyId = (newOwner as ICharacter)?.Body.Id;
+            dbwound.BodyId = (newOwner as ICharacter)?.Body?.Id;
             dbwound.GameItemId = (newOwner as IGameItem)?.Id;
             FMDB.Context.SaveChanges();
         }
 
         _parent = newOwner;
+        _ownerBody = (newOwner as ICharacter)?.Body;
+    }
+
+    public void RemapTo(IHaveWounds newOwner, IBodypart newBodypart, IBodypart newSeveredBodypart)
+    {
+        _parent = newOwner;
+        _ownerBody = (newOwner as ICharacter)?.Body;
+        _bodypart = newBodypart;
+        SeveredBodypart = newSeveredBodypart;
+        Changed = true;
     }
 
     public bool UseDamagePercentageSeverities => false;

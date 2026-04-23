@@ -15,6 +15,7 @@ It covers:
 - short, possessive, long, and full character descriptions
 - the precedence rules between custom text, selected patterns, disguises, obscurers, and runtime addenda
 - the generic description-pattern grammar used by sdescs and fdescs
+- how alternate body forms can carry their own selected short/full description patterns
 
 Human-seeder specifics live in [Human Seeder Description Patterns](./Human_Seeder_Description_Patterns.md).
 
@@ -117,6 +118,19 @@ Current runtime prefers the selected pattern text when present:
 - full descriptions use `_fullDescriptionPattern?.Pattern ?? _fullDescription`
 
 That makes pattern selection the effective canonical source once a pattern is chosen.
+
+## Alternate Body Forms
+
+Multi-body characters do not share one global sdesc/fdesc pattern selection. Each body form owns its own selected short and full description patterns plus the raw stored description text associated with those patterns.
+
+Practical consequences:
+
+- switching forms changes the active description-pattern set because the active body changes
+- admin form editing and form-related FutureProg mutators can set, clear, or randomise the active body's short/full patterns independently of other forms
+- merit- and spell-provisioned forms can specify first-creation short/full description patterns
+- when a new form is created without explicit short/full patterns, the runtime attempts to pick a random valid pattern for that form template and only falls back to generic stored text if no valid pattern exists
+
+This avoids alternate forms inheriting invalid human-centric description patterns when their race or anatomy changes dramatically.
 
 ## Obscurers and Disguises
 

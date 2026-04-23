@@ -1916,10 +1916,10 @@ public partial class Body
                 return false;
             }
 
-            return CanDrop(item, 1) && containerAsCorpse.OriginalCharacter.Body.CanWear(item, wprof);
+            return CanDrop(item, 1) && containerAsCorpse.Body.CanWear(item, wprof);
         }
 
-        return CanDrop(item, 1) && containerAsCorpse.OriginalCharacter.Body.CanWear(item);
+        return CanDrop(item, 1) && containerAsCorpse.Body.CanWear(item);
     }
 
     public string WhyCannotPut(IGameItem item, IGameItem container, string profile)
@@ -1941,11 +1941,11 @@ public partial class Body
             return $"{item.HowSeen(Actor, true)} is not something that can be worn.";
         }
 
-        ICharacter originalChar = containerAsCorpse.OriginalCharacter;
+        IBody corpseBody = containerAsCorpse.Body;
 
         if (!CanDrop(item, 1))
         {
-            switch (originalChar.Body.HoldLocs.WhyCannotDrop(item))
+            switch (corpseBody.HoldLocs.WhyCannotDrop(item))
             {
                 case WhyCannotDropReason.Unknown:
                 default:
@@ -1967,10 +1967,10 @@ public partial class Body
 
 
         switch (wprof == null
-                    ? containerAsCorpse.OriginalCharacter.Body.WearLocs.WhyCannotDrape(item,
-                        containerAsCorpse.OriginalCharacter.Body)
-                    : containerAsCorpse.OriginalCharacter.Body.WearLocs.WhyCannotDrape(item, wprof,
-                        containerAsCorpse.OriginalCharacter.Body))
+                    ? containerAsCorpse.Body.WearLocs.WhyCannotDrape(item,
+                        containerAsCorpse.Body)
+                    : containerAsCorpse.Body.WearLocs.WhyCannotDrape(item, wprof,
+                        containerAsCorpse.Body))
         {
             case WhyCannotDrapeReason.NotIDrapeable:
                 return $"{item.HowSeen(Actor, true)} is not something that can be worn.";
@@ -2000,7 +2000,7 @@ public partial class Body
             return;
         }
 
-        ICharacter target = container.GetItemType<ICorpse>().OriginalCharacter;
+        IBody targetBody = container.GetItemType<ICorpse>().Body;
 
         _heldItems.RemoveAll(x => x.Item1 == item);
         _wieldedItems.RemoveAll(x => x.Item1 == item);
@@ -2014,11 +2014,11 @@ public partial class Body
         InventoryChanged = true;
         if (string.IsNullOrEmpty(profile))
         {
-            target.Body.Wear(item, null, true);
+            targetBody.Wear(item, null, true);
         }
         else
         {
-            target.Body.Wear(item, profile, null, true);
+            targetBody.Wear(item, profile, null, true);
         }
     }
 
@@ -2181,7 +2181,7 @@ public partial class Body
     public bool CanGive(IGameItem item, ICorpse target, int quantity = 0)
     {
         return CanDrop(item, quantity) &&
-               target.OriginalCharacter.Body.CanGet(quantity == 0 ? item : item.PeekSplit(quantity), 0);
+               target.Body.CanGet(quantity == 0 ? item : item.PeekSplit(quantity), 0);
     }
 
     public string WhyCannotGive(IGameItem item, ICorpse target, int quantity = 0)
@@ -2192,21 +2192,21 @@ public partial class Body
             return "You cannot give that away.";
         }
 
-        switch (target.OriginalCharacter.Body.HoldLocs.WhyCannotGrab(dummy, target.OriginalCharacter.Body))
+        switch (target.Body.HoldLocs.WhyCannotGrab(dummy, target.Body))
         {
             case WhyCannotGrabReason.HandsFull:
                 return target.Parent.HowSeen(this, true) + " has no free " +
-                       target.OriginalCharacter.Body.WielderDescriptionPlural + " to accept " + dummy.HowSeen(this) +
+                       target.Body.WielderDescriptionPlural + " to accept " + dummy.HowSeen(this) +
                        ".";
             case WhyCannotGrabReason.HandsTooDamaged:
                 return target.Parent.HowSeen(this, true, DescriptionType.Possessive) + " " +
-                       target.OriginalCharacter.Body.WielderDescriptionPlural + " are too damaged to accept " +
+                       target.Body.WielderDescriptionPlural + " are too damaged to accept " +
                        dummy.HowSeen(this) + ".";
             case WhyCannotGrabReason.InventoryFull:
                 return target.Parent.HowSeen(this, true) + " cannot hold " + dummy.HowSeen(this) + ".";
             case WhyCannotGrabReason.NoFreeUndamagedHands:
                 return target.Parent.HowSeen(this, true) + " has no free, undamaged " +
-                       target.OriginalCharacter.Body.WielderDescriptionPlural + " to accept " + dummy.HowSeen(this) +
+                       target.Body.WielderDescriptionPlural + " to accept " + dummy.HowSeen(this) +
                        ".";
             default:
                 return target.Parent.HowSeen(this, true) + " cannot hold " + dummy.HowSeen(this) + ".";
@@ -2228,15 +2228,15 @@ public partial class Body
         {
             givenItem = item;
             Take(item);
-            target.OriginalCharacter.Body.Get(item.Get(target.OriginalCharacter.Body), silent: true);
+            target.Body.Get(item.Get(target.Body), silent: true);
             output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, item, target.Parent),
                 flags: OutputFlags.SuppressObscured);
         }
         else
         {
-            IGameItem newItem = item.Get(target.OriginalCharacter.Body, quantity);
+            IGameItem newItem = item.Get(target.Body, quantity);
             givenItem = newItem;
-            target.OriginalCharacter.Body.Get(newItem, silent: true);
+            target.Body.Get(newItem, silent: true);
             output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, newItem, target.Parent),
                 flags: OutputFlags.SuppressObscured);
         }
@@ -2244,7 +2244,7 @@ public partial class Body
         output.Append(playerEmote);
         OutputHandler.Handle(output);
         InventoryChanged = true;
-        target.OriginalCharacter.Body.InventoryChanged = true;
+        target.Body.InventoryChanged = true;
         OnInventoryChange?.Invoke(wasWielded ? InventoryState.Wielded : InventoryState.Held, InventoryState.Dropped,
             givenItem);
         givenItem.InvokeInventoryChange(wasWielded ? InventoryState.Wielded : InventoryState.Held,
@@ -3968,7 +3968,7 @@ public partial class Body
                        .Select(x =>
                            Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
             true);
-        return CanGive(tempItem, target.OriginalCharacter.Body);
+        return CanGive(tempItem, target.Body);
     }
 
     public string WhyCannotGive(ICurrency currency, ICorpse target, decimal amount, bool exact)
@@ -3994,7 +3994,7 @@ public partial class Body
                        .Select(x =>
                            Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
             true);
-        return WhyCannotGive(tempItem, target.OriginalCharacter.Body);
+        return WhyCannotGive(tempItem, target.Body);
     }
 
     public void Give(ICurrency currency, ICorpse target, decimal amount, bool exact, IEmote playerEmote = null)

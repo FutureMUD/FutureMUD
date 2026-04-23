@@ -34,11 +34,27 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
         Decorator = game.TraitDecorators.Get(trait.DecoratorId);
         Hidden = trait.Hidden ?? false;
         BranchMultiplier = trait.BranchMultiplier;
+        OwnerScope = ((TraitType)trait.Type) switch
+        {
+            TraitType.Attribute => TraitOwnerScope.Body,
+            TraitType.DerivedAttribute => TraitOwnerScope.Body,
+            TraitType.Skill => trait.OwnerScope == (int)TraitOwnerScope.Body
+                ? TraitOwnerScope.Character
+                : (TraitOwnerScope)trait.OwnerScope,
+            TraitType.DerivedSkill => trait.OwnerScope == (int)TraitOwnerScope.Body
+                ? TraitOwnerScope.Character
+                : (TraitOwnerScope)trait.OwnerScope,
+            TraitType.TheoreticalSkill => trait.OwnerScope == (int)TraitOwnerScope.Body
+                ? TraitOwnerScope.Character
+                : (TraitOwnerScope)trait.OwnerScope,
+            _ => (TraitOwnerScope)trait.OwnerScope
+        };
     }
 
     public virtual bool ImprovesWithUse => false;
     public string Group { get; protected set; }
     public abstract TraitType TraitType { get; }
+    public TraitOwnerScope OwnerScope { get; protected set; }
     public virtual double MaxValue => _maxValue;
 
     public virtual string MaxValueString => _maxValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -96,18 +112,40 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 
         using (new FMDB())
         {
-            Models.Trait trait = FMDB.Context.Traits.Find(owner.Id, Id);
-            if (trait == null)
+            if (OwnerScope == TraitOwnerScope.Character && owner is ICharacter)
             {
-                trait = new Models.Trait();
-                FMDB.Context.Traits.Add(trait);
+                Models.CharacterTrait trait = FMDB.Context.CharacterTraits.Find(ownerId, Id);
+                if (trait == null)
+                {
+                    trait = new Models.CharacterTrait();
+                    FMDB.Context.CharacterTraits.Add(trait);
+                }
+
+                trait.Value = value;
+                trait.CharacterId = ownerId;
+                trait.TraitDefinitionId = Id;
+                FMDB.Context.SaveChanges();
+                return LoadTrait(new Models.Trait
+                {
+                    BodyId = ownerId,
+                    TraitDefinitionId = Id,
+                    Value = trait.Value,
+                    AdditionalValue = trait.AdditionalValue
+                }, owner);
             }
 
-            trait.Value = value;
-            trait.BodyId = ownerId;
-            trait.TraitDefinitionId = Id;
+            Models.Trait bodyTrait = FMDB.Context.Traits.Find(owner.Id, Id);
+            if (bodyTrait == null)
+            {
+                bodyTrait = new Models.Trait();
+                FMDB.Context.Traits.Add(bodyTrait);
+            }
+
+            bodyTrait.Value = value;
+            bodyTrait.BodyId = ownerId;
+            bodyTrait.TraitDefinitionId = Id;
             FMDB.Context.SaveChanges();
-            return LoadTrait(trait, owner);
+            return LoadTrait(bodyTrait, owner);
         }
     }
 

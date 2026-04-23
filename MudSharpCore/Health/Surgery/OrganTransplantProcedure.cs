@@ -250,7 +250,7 @@ public class OrganTransplantProcedure : BodypartSpecificSurgicalProcedure
             return false;
         }
 
-        if (severItem.OriginalCharacter.Body.Prototype != patient.Body.Prototype)
+        if (severItem.OriginalBody.Prototype != patient.Body.Prototype)
         {
             return false;
         }
@@ -300,7 +300,7 @@ public class OrganTransplantProcedure : BodypartSpecificSurgicalProcedure
             return $"This procedure is not designed to transplant {organ.FullDescription().Pluralise()}.";
         }
 
-        if (severItem.OriginalCharacter.Body.Prototype != patient.Body.Prototype)
+        if (severItem.OriginalBody.Prototype != patient.Body.Prototype)
         {
             return
                 $"{item.HowSeen(surgeon, true)} is too biologically incompatible with {patient.HowSeen(surgeon)}.";

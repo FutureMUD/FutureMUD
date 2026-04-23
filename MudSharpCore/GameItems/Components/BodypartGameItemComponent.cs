@@ -73,7 +73,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             return "a severed bodypart";
         }
 
-        return Model.DescribeSevered(type, Decay, OriginalCharacter, voyeur, this,
+        return Model.DescribeSevered(type, Decay, OriginalCharacter, OriginalBody, voyeur, this,
             EatenWeight / (Model.EdiblePercentage * BodypartWeight));
     }
 
@@ -105,6 +105,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
     {
         return new XElement("Definition",
             new XElement("OriginalCharacterId", OriginalCharacterId),
+            new XElement("OriginalBodyId", OriginalBodyId),
             new XElement("Model", Model?.Id ?? 0),
             new XElement("DecayPoints", DecayPoints),
             new XElement("DecayState", (int)Decay),
@@ -139,6 +140,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
     private void LoadFromXml(XElement definition)
     {
         OriginalCharacterId = long.Parse(definition.Element("OriginalCharacterId").Value);
+        _originalBodyId = long.Parse(definition.Element("OriginalBodyId")?.Value ?? "0");
 
         Model = Gameworld.CorpseModels.Get(long.Parse(definition.Element("Model").Value));
         DecayPoints = double.Parse(definition.Element("DecayPoints").Value);
@@ -224,12 +226,16 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         _implants = rhs._implants.ToList();
         Wounds = rhs.Wounds.ToList();
         Tattoos = rhs.Tattoos.ToList();
+        OriginalCharacterId = rhs.OriginalCharacterId;
+        _originalCharacter = rhs._originalCharacter;
+        _originalBodyId = rhs._originalBodyId;
+        _originalBody = rhs._originalBody;
     }
 
     private void SetupBodypartWeight()
     {
-        _bodypartWeight = OriginalCharacter.Weight * _parts.Sum(x => x.RelativeHitChance) /
-                          (OriginalCharacter.Body.Bodyparts.Sum(x => x.RelativeHitChance) +
+        _bodypartWeight = OriginalBody.Weight * _parts.Sum(x => x.RelativeHitChance) /
+                          (OriginalBody.Bodyparts.Sum(x => x.RelativeHitChance) +
                            _parts.Sum(x => x.RelativeHitChance)) +
                           Wounds.Sum(x => x.Lodged?.Weight ?? 0.0);
     }
@@ -550,11 +556,21 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public long OriginalCharacterId { get; set; }
     private ICharacter _originalCharacter;
+    private long _originalBodyId;
+    private IBody _originalBody;
     private List<long> _woundIDs = new();
 
-    private void LoadOriginalCharacter(bool viaSaveManager)
+    private void LoadOriginalReferences(bool viaSaveManager)
     {
         _originalCharacter = Gameworld.TryGetCharacter(OriginalCharacterId, true);
+        _originalBody = Gameworld.Bodies.Get(_originalBodyId) ??
+                        _originalCharacter?.Bodies.FirstOrDefault(x => x.Id == _originalBodyId);
+        if (_originalBody == null && _originalCharacter != null)
+        {
+            _originalBody = _originalCharacter.Body;
+            _originalBodyId = _originalBody.Id;
+        }
+
         if (!viaSaveManager)
         {
             Gameworld.SaveManager.AbortLazyLoad(this);
@@ -565,7 +581,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             using (new FMDB())
             {
                 List<Models.Wound> wounds = FMDB.Context.Wounds.Where(x => _woundIDs.Contains(x.Id)).ToList();
-                _wounds.AddRange(wounds.Select(x => WoundFactory.LoadWound(x, OriginalCharacter, Gameworld)));
+                _wounds.AddRange(wounds.Select(x => WoundFactory.LoadWound(x, Parent, Gameworld)));
             }
 
             _woundIDs.Clear();
@@ -578,7 +594,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         {
             if (_originalCharacter == null)
             {
-                LoadOriginalCharacter(false);
+                LoadOriginalReferences(false);
             }
 
             return _originalCharacter;
@@ -587,13 +603,38 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         {
             _originalCharacter = value;
             OriginalCharacterId = value?.Id ?? 0;
+            if (_originalBody == null && value != null)
+            {
+                OriginalBody = value.Body;
+            }
+            Changed = true;
+        }
+    }
+
+    public long OriginalBodyId => _originalBodyId;
+
+    public IBody OriginalBody
+    {
+        get
+        {
+            if (_originalBody == null)
+            {
+                LoadOriginalReferences(false);
+            }
+
+            return _originalBody;
+        }
+        set
+        {
+            _originalBody = value;
+            _originalBodyId = value?.Id ?? 0;
             Changed = true;
         }
     }
 
     void ILazyLoadDuringIdleTime.DoLoad()
     {
-        LoadOriginalCharacter(true);
+        LoadOriginalReferences(true);
     }
 
     public ICorpseModel Model { get; set; }
@@ -677,7 +718,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         {
             double damageRatio =
                 Parent.Wounds.Where(x => product.RequiredBodyparts.Contains(x.Bodypart)).Sum(x => x.CurrentDamage) /
-                product.RequiredBodyparts.Sum(x => OriginalCharacter.Body.HitpointsForBodypart(x));
+                product.RequiredBodyparts.Sum(x => OriginalBody.HitpointsForBodypart(x));
             if (double.IsNaN(damageRatio))
             {
                 damageRatio = 1.0;
@@ -698,7 +739,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
                 LoadItem(item.NormalProto, item.NormalQuantity);
             }
 
-            List<IBodypart> affectedParts = OriginalCharacter.Body.Bodyparts
+            List<IBodypart> affectedParts = OriginalBody.Bodyparts
                                                  .Where(x => product.RequiredBodyparts.Any(y =>
                                                      x.DownstreamOfPart(x) || y == x)).ToList();
 

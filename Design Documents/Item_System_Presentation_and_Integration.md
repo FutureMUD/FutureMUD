@@ -136,6 +136,11 @@ This means item features often have consequences for:
 - breathing
 - body-state modelling
 
+Generated remains are a special integration point:
+- corpse and severed-bodypart components preserve the source body that created them
+- presentation and medical logic should read anatomy and inventory from that stored source body rather than `OriginalCharacter.Body`
+- this keeps corpse descriptions, butchery, replantation, transplants, resurrection clean-up, and similar workflows stable even if the character later changes form
+
 ### Magic integration
 Items also integrate with magic through:
 - item-owned effects and magic resources

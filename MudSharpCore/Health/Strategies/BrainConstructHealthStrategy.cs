@@ -16,6 +16,8 @@ namespace MudSharp.Health.Strategies;
 
 public class BrainConstructHealthStrategy : BaseHealthStrategy
 {
+    public override HealthStateModel HealthStateModel => HealthStateModel.Construct;
+
     private static readonly TraitExpressionBuilderField<BrainConstructHealthStrategy>[] TraitExpressionFields =
     [
         new("MaximumHitPointsExpression", ["maxhp", "maximumhitpointsexpression"], "Maximum Hit Points Expression",

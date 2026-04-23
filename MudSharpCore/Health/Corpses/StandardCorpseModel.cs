@@ -271,8 +271,8 @@ public class StandardCorpseModel : CorpseModel
         CorpseModelFactory.RegisterCorpseModelType("Standard", (model, game) => new StandardCorpseModel(model, game));
     }
 
-    protected string ReplaceDescriptionVariables(string description, ICharacter originalCharacter, IPerceiver voyeur,
-        DecayState state, double eatenPercentage, IEnumerable<IWound> wounds)
+    protected string ReplaceDescriptionVariables(string description, ICharacter originalCharacter, IBody originalBody,
+        IPerceiver voyeur, DecayState state, double eatenPercentage, IEnumerable<IWound> wounds)
     {
         description = DescriptionRegex.Replace(description, m =>
         {
@@ -296,23 +296,23 @@ public class StandardCorpseModel : CorpseModel
                     }
 
                     return wounds.Any()
-                        ? $"{Describe(DescriptionType.Short, state, originalCharacter, voyeur, eatenPercentage).ColourObject()} has {woundDescs}."
+                        ? $"{Describe(DescriptionType.Short, state, originalCharacter, originalBody, voyeur, eatenPercentage).ColourObject()} has {woundDescs}."
                             .Wrap(voyeur.InnerLineFormatLength)
-                        : $"{Describe(DescriptionType.Short, state, originalCharacter, voyeur, eatenPercentage).ColourObject()} has no visible wounds.";
+                        : $"{Describe(DescriptionType.Short, state, originalCharacter, originalBody, voyeur, eatenPercentage).ColourObject()} has no visible wounds.";
                 case "inv":
-                    return originalCharacter.Body.GetInventoryString(voyeur);
+                    return originalBody.GetInventoryString(voyeur);
                 case "csdesc":
-                    return Describe(DescriptionType.Short, state, originalCharacter, voyeur, eatenPercentage)
+                    return Describe(DescriptionType.Short, state, originalCharacter, originalBody, voyeur, eatenPercentage)
                         .ColourObject();
                 case "sdesc":
                     return originalCharacter.HowSeen(voyeur, colour: false,
                         flags: PerceiveIgnoreFlags.IgnoreSelf |
                                PerceiveIgnoreFlags.IgnoreCorpse);
                 case "height":
-                    return originalCharacter.Gameworld.UnitManager.Describe(originalCharacter.Height,
+                    return originalCharacter.Gameworld.UnitManager.Describe(originalBody.Height,
                         UnitType.Length, voyeur);
                 case "weight":
-                    return originalCharacter.Gameworld.UnitManager.Describe(originalCharacter.Weight,
+                    return originalCharacter.Gameworld.UnitManager.Describe(originalBody.Weight,
                         UnitType.Mass, voyeur);
                 case "desc":
                     return originalCharacter.HowSeen(voyeur, type: DescriptionType.Full, colour: false);
@@ -343,22 +343,22 @@ public class StandardCorpseModel : CorpseModel
     }
 
     public override string Describe(DescriptionType type, DecayState state, ICharacter originalCharacter,
-        IPerceiver voyeur, double eatenPercentage)
+        IBody originalBody, IPerceiver voyeur, double eatenPercentage)
     {
         return
-            ReplaceDescriptionVariables(DecayStringsDictionary[type][state], originalCharacter, voyeur, state,
-                    eatenPercentage, originalCharacter.VisibleWounds(voyeur, WoundExaminationType.Look).ToList())
+            ReplaceDescriptionVariables(DecayStringsDictionary[type][state], originalCharacter, originalBody, voyeur, state,
+                    eatenPercentage, originalBody.VisibleWounds(voyeur, WoundExaminationType.Look).ToList())
                 .ProperSentences();
     }
 
     public override string DescribeSevered(DescriptionType type, DecayState state, ICharacter originalCharacter,
-        IPerceiver voyeur,
+        IBody originalBody, IPerceiver voyeur,
         ISeveredBodypart part, double eatenPercentage)
     {
         return
             ReplaceDescriptionVariables(string.Format(PartDecayStrings[state],
-                    originalCharacter.Body.DescribeBodypartGroup(part.Parts),
-                    originalCharacter.Race.Name.ToLowerInvariant()), originalCharacter, voyeur, state, eatenPercentage,
+                    originalBody.DescribeBodypartGroup(part.Parts),
+                    originalCharacter.Race.Name.ToLowerInvariant()), originalCharacter, originalBody, voyeur, state, eatenPercentage,
                 part.Wounds);
     }
 

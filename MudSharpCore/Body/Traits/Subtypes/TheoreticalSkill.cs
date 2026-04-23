@@ -77,6 +77,27 @@ public class TheoreticalSkill : Trait
             return;
         }
 
+        if (Definition.OwnerScope == TraitOwnerScope.Character && Owner is MudSharp.Character.ICharacter)
+        {
+            Models.CharacterTrait dbcharactertrait = FMDB.Context.CharacterTraits.Find(_owner.Id, Definition.Id);
+            if (dbcharactertrait is null)
+            {
+                dbcharactertrait = new Models.CharacterTrait
+                {
+                    CharacterId = Owner.Id,
+                    TraitDefinitionId = Definition.Id,
+                    Value = 0.0,
+                    AdditionalValue = 0.0
+                };
+                FMDB.Context.CharacterTraits.Add(dbcharactertrait);
+            }
+
+            dbcharactertrait.Value = PracticalValue;
+            dbcharactertrait.AdditionalValue = TheoreticalValue;
+            Changed = false;
+            return;
+        }
+
         Models.Trait dbtrait = FMDB.Context.Traits.Find(_owner.Id, Definition.Id);
         if (dbtrait is null)
         {

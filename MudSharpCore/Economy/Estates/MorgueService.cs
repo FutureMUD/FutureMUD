@@ -59,7 +59,7 @@ public static class MorgueService
 
         if (estate != null)
         {
-            List<IGameItem> items = corpse.OriginalCharacter.Body.ExternalItems.ToList();
+            List<IGameItem> items = corpse.Body.ExternalItems.ToList();
             List<IGameItem> strippedItems = new();
             foreach (IGameItem item in items)
             {

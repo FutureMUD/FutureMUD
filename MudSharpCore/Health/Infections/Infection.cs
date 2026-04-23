@@ -71,6 +71,9 @@ public abstract class Infection : LateInitialisingItem, IInfection
         Models.Infection dbitem = FMDB.Context.Infections.Find(Id);
         if (dbitem != null)
         {
+            dbitem.OwnerId = Owner.Id;
+            dbitem.BodypartId = Bodypart?.Id;
+            dbitem.Wound = FMDB.Context.Wounds.Find(Wound?.Id ?? 0);
             dbitem.Virulence = (int)VirulenceDifficulty;
             dbitem.VirulenceMultiplier = Virulence;
             dbitem.Intensity = Intensity;
@@ -84,6 +87,14 @@ public abstract class Infection : LateInitialisingItem, IInfection
     public abstract InfectionStage InfectionStage { get; set; }
     public IWound Wound { get; set; }
     public IBodypart Bodypart { get; set; }
+
+    public void RemapTo(IBody newOwner, IWound newWound, IBodypart newBodypart)
+    {
+        Owner = newOwner;
+        Wound = newWound;
+        Bodypart = newBodypart;
+        Changed = true;
+    }
 
     public double Intensity
     {

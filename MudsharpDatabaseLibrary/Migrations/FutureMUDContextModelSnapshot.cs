@@ -2819,6 +2819,11 @@ namespace MudSharp.Migrations
                     b.Property<double>("CurrentStamina")
                         .HasColumnType("double");
 
+                    b.Property<int>("DominantHandAlignment")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValueSql("'3'");
+
                     b.Property<string>("EffectData")
                         .IsRequired()
                         .HasColumnType("mediumtext")
@@ -4312,6 +4317,96 @@ namespace MudSharp.Migrations
                     b.ToTable("Characters_Accents", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterBody", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("BodyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Alias")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Alias"), "utf8");
+
+                    b.Property<ulong>("AllowVoluntarySwitch")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValueSql("b'0'");
+
+                    b.Property<long?>("CanSeeFormProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CanVoluntarilySwitchProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("TransformationEcho")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("TransformationEcho"), "utf8");
+
+                    b.Property<int>("TraumaMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValueSql("'0'");
+
+                    b.Property<long?>("WhyCannotVoluntarilySwitchProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("CharacterId", "BodyId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("BodyId")
+                        .HasDatabaseName("FK_CharacterBodies_Bodies_idx");
+
+                    b.HasIndex("CanSeeFormProgId")
+                        .HasDatabaseName("FK_CharacterBodies_CanSeeFormProg_idx");
+
+                    b.HasIndex("CanVoluntarilySwitchProgId")
+                        .HasDatabaseName("FK_CharacterBodies_CanVoluntarilySwitchProg_idx");
+
+                    b.HasIndex("WhyCannotVoluntarilySwitchProgId")
+                        .HasDatabaseName("FK_CharacterBodies_WhyCannotVoluntarilySwitchProg_idx");
+
+                    b.ToTable("CharacterBodies");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterBodySource", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("SourceType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("SourceId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("SourceKey")
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SourceKey"), "utf8");
+
+                    b.Property<long>("BodyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("CharacterId", "SourceType", "SourceId", "SourceKey")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("BodyId")
+                        .HasDatabaseName("FK_CharacterBodySources_Bodies_idx");
+
+                    b.ToTable("CharacterBodySources");
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterCombatSetting", b =>
                 {
                     b.Property<long>("Id")
@@ -4811,6 +4906,29 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_CharacterLog_Characters_idx");
 
                     b.ToTable("CharacterLog", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterTrait", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("TraitDefinitionId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double>("AdditionalValue")
+                        .HasColumnType("double");
+
+                    b.Property<double>("Value")
+                        .HasColumnType("double");
+
+                    b.HasKey("CharacterId", "TraitDefinitionId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("TraitDefinitionId")
+                        .HasDatabaseName("FK_CharacterTraits_TraitDefinitions");
+
+                    b.ToTable("CharacterTraits");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Characteristic", b =>
@@ -16709,6 +16827,11 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
+                    b.Property<int>("OwnerScope")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValueSql("'0'");
+
                     b.Property<ulong>("ShowInAttributeCommand")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit(1)")
@@ -19945,6 +20068,72 @@ namespace MudSharp.Migrations
                     b.Navigation("Character");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterBody", b =>
+                {
+                    b.HasOne("MudSharp.Models.Body", "Body")
+                        .WithMany("CharacterBodies")
+                        .HasForeignKey("BodyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterBodies_Bodies");
+
+                    b.HasOne("MudSharp.Models.FutureProg", "CanSeeFormProg")
+                        .WithMany()
+                        .HasForeignKey("CanSeeFormProgId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_CharacterBodies_CanSeeFormProg");
+
+                    b.HasOne("MudSharp.Models.FutureProg", "CanVoluntarilySwitchProg")
+                        .WithMany()
+                        .HasForeignKey("CanVoluntarilySwitchProgId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_CharacterBodies_CanVoluntarilySwitchProg");
+
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany("CharacterBodies")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterBodies_Characters");
+
+                    b.HasOne("MudSharp.Models.FutureProg", "WhyCannotVoluntarilySwitchProg")
+                        .WithMany()
+                        .HasForeignKey("WhyCannotVoluntarilySwitchProgId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_CharacterBodies_WhyCannotVoluntarilySwitchProg");
+
+                    b.Navigation("Body");
+
+                    b.Navigation("CanSeeFormProg");
+
+                    b.Navigation("CanVoluntarilySwitchProg");
+
+                    b.Navigation("Character");
+
+                    b.Navigation("WhyCannotVoluntarilySwitchProg");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterBodySource", b =>
+                {
+                    b.HasOne("MudSharp.Models.Body", "Body")
+                        .WithMany("CharacterBodySources")
+                        .HasForeignKey("BodyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterBodySources_Bodies");
+
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany("CharacterBodySources")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterBodySources_Characters");
+
+                    b.Navigation("Body");
+
+                    b.Navigation("Character");
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterCombatSetting", b =>
                 {
                     b.HasOne("MudSharp.Models.FutureProg", "AvailabilityProg")
@@ -20076,6 +20265,27 @@ namespace MudSharp.Migrations
                     b.Navigation("Cell");
 
                     b.Navigation("Character");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterTrait", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany("CharacterTraits")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterTraits_Characters");
+
+                    b.HasOne("MudSharp.Models.TraitDefinition", "TraitDefinition")
+                        .WithMany("CharacterTraits")
+                        .HasForeignKey("TraitDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterTraits_TraitDefinitions");
+
+                    b.Navigation("Character");
+
+                    b.Navigation("TraitDefinition");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Characteristic", b =>
@@ -25902,6 +26112,10 @@ namespace MudSharp.Migrations
 
                     b.Navigation("BodiesSeveredParts");
 
+                    b.Navigation("CharacterBodies");
+
+                    b.Navigation("CharacterBodySources");
+
                     b.Navigation("Characteristics");
 
                     b.Navigation("Characters");
@@ -26088,6 +26302,10 @@ namespace MudSharp.Migrations
 
                     b.Navigation("AlliesCharacter");
 
+                    b.Navigation("CharacterBodies");
+
+                    b.Navigation("CharacterBodySources");
+
                     b.Navigation("CharacterCombatSettings");
 
                     b.Navigation("CharacterComputerExecutables");
@@ -26097,6 +26315,8 @@ namespace MudSharp.Migrations
                     b.Navigation("CharacterKnowledges");
 
                     b.Navigation("CharacterLog");
+
+                    b.Navigation("CharacterTraits");
 
                     b.Navigation("CharactersAccents");
 
@@ -27285,6 +27505,8 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.TraitDefinition", b =>
                 {
+                    b.Navigation("CharacterTraits");
+
                     b.Navigation("ChargenRolesTraits");
 
                     b.Navigation("Crafts");

@@ -129,12 +129,15 @@ namespace MudSharp.Database
         public virtual DbSet<ChannelIgnorer> ChannelIgnorers { get; set; }
         public virtual DbSet<Channel> Channels { get; set; }
         public virtual DbSet<CharacterCombatSetting> CharacterCombatSettings { get; set; }
+        public virtual DbSet<CharacterBody> CharacterBodies { get; set; }
+        public virtual DbSet<CharacterBodySource> CharacterBodySources { get; set; }
         public virtual DbSet<CharacterComputerExecutable> CharacterComputerExecutables { get; set; }
         public virtual DbSet<CharacterComputerExecutableParameter> CharacterComputerExecutableParameters { get; set; }
         public virtual DbSet<CharacterComputerProgramProcess> CharacterComputerProgramProcesses { get; set; }
         public virtual DbSet<CharacterIntroTemplate> CharacterIntroTemplates { get; set; }
         public virtual DbSet<CharacterKnowledge> CharacterKnowledges { get; set; }
         public virtual DbSet<CharacterLog> CharacterLogs { get; set; }
+        public virtual DbSet<CharacterTrait> CharacterTraits { get; set; }
         public virtual DbSet<CharacteristicDefinition> CharacteristicDefinitions { get; set; }
         public virtual DbSet<CharacteristicProfile> CharacteristicProfiles { get; set; }
         public virtual DbSet<CharacteristicValue> CharacteristicValues { get; set; }

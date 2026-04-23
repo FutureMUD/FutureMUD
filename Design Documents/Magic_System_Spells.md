@@ -305,6 +305,57 @@ Other Phase 1 primitives:
 - `spellarmour` reuses the shared `MagicArmourConfiguration` model so spell armour and power armour stay in sync.
 - `roomflag` / `removeroomflag` is the early room-state primitive for `peaceful`, `nodream`, `alarm`, `darkness`, and `wardtag`.
 
+### Phase 1.5 form provisioning and spell-driven transformation
+The `transformform` spell effect is the body-form provisioning bridge for magic content.
+
+It does not create a one-off temporary shell every cast. Instead it:
+
+- resolves a stable `FormKey`
+- ensures a cached alternate form exists for the target character, creating it on first use if necessary
+- applies only first-creation defaults from the spell definition for race, ethnicity, gender, alias, sort order, trauma mode, voluntary-switch settings, visibility prog, transformation echo, and body-specific description patterns
+- reuses the same provisioned form on later casts with the same spell id plus `FormKey`
+- contributes a mandatory transformation demand into the character's shared forced-transformation resolver
+- uses configurable priority band and priority offset values so overlapping spell, merit, and future forced sources resolve consistently
+- preserves the character's baseline free form while any mandatory demand is active so expiry can revert through stacked transformations cleanly
+
+Current revert behavior when spell-driven transform effects end is:
+
+- if another forced demand still wins, the character moves into that other demand's form
+- otherwise first try the saved baseline form from before the first mandatory transformation began
+- if that form is gone or no longer structurally valid, try the first other owned form that passes scripted switch validation
+- if no fallback works, leave the current form in place and emit a staff-facing system warning
+
+Important builder implications:
+
+- creation defaults apply only the first time a keyed form is created
+- later admin or FutureProg edits to that form's alias, trauma mode, visibility, or voluntary rules remain authoritative
+- later admin or FutureProg edits to that form's transformation echo and description patterns also remain authoritative
+- hidden forms stay hidden from the owner's `form` list unless they are the current form
+- spell expiry does not delete the cached form; the spell source only provisions and reuses it
+- overlapping forced sources are resolved centrally in this default order: merit or intrinsic, drug or chemical, spell or power, admin forced
+- if no explicit short or full description pattern is supplied, the runtime tries to pick a random valid pattern for the target form and only falls back to generic text when no valid pattern exists
+- switching emits the form's configured transformation echo after the new body has been stabilised; `default` uses the `DefaultFormTransformationEcho` static string and a blank echo suppresses the emote entirely
+- switch activation intentionally delays normal health and consequence feedback until organ functions and positioning have been recalculated, preventing transient `can't breathe` or `tumble to the ground` noise during valid transformations
+
+The `transformform` builder effect currently supports:
+
+- `formkey <text>`
+- `race <which>`
+- `ethnicity <which>|clear`
+- `gender <which>|clear`
+- `alias <text>|clear`
+- `sort <number>|clear`
+- `trauma <auto|transfer|stash>`
+- `echo <text>|default|none`
+- `allow [true|false]`
+- `canprog <prog>|clear`
+- `whycantprog <prog>|clear`
+- `visibleprog <prog>|clear`
+- `sdescpattern <pattern>|random|clear`
+- `fdescpattern <pattern>|random|clear`
+- `priorityband <merit|drug|spell|admin>`
+- `priorityoffset <number>`
+
 ### Material workflow
 Material requirements are authored through the spell's inventory plan:
 
@@ -402,6 +453,7 @@ Important implementation note:
 - If an effect needs trigger-side context such as an exit or remote room, prefer a named `SpellAdditionalParameter` instead of overloading the main target.
 - Prefer adding a new spell effect over a new spell type when the behavior is "existing cast flow, new result."
 - Prefer adding a new trigger over a new spell effect when the behavior is "new invocation or targeting pattern."
+- If a spell effect provisions an alternate form, use a stable `FormKey` and treat spell XML as first-creation defaults rather than ongoing authoritative metadata.
 
 ## Current Implemented Trigger Types
 | Token | Class | Summary |

@@ -94,6 +94,7 @@ public partial class Character : PerceiverItem, ICharacter
         LastMinutesUpdate = LoginDateTime;
         _dbTotalMinutesPlayed = character.TotalMinutesPlayed;
         LoadEffects(XElement.Parse(character.EffectData.IfNullOrWhiteSpace("<Effects/>")));
+        RefreshForcedTransformationHeartbeatRegistration();
 
         Body.TotalBloodVolumeLitres = TotalBloodVolume(this);
         if (Body.CurrentBloodVolumeLitres <= 0 && !State.HasFlag(CharacterState.Dead))
@@ -102,6 +103,7 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         Body.BaseLiverAlcoholRemovalKilogramsPerHour = LiverFunction(this);
+        (Body as MudSharp.Body.Implementations.Body)?.SanitizeIncompatibleHealthState(true);
         InitialiseStamina();
         LoadHooks(character.HooksPerceivables, "Character");
     }
@@ -133,6 +135,9 @@ public partial class Character : PerceiverItem, ICharacter
         _dubs = new List<IDub>();
 
         Body = new Body.Implementations.Body(gameworld, this, template);
+        Body.Handedness = _handedness;
+        InitialiseDefaultForm(Body);
+        InitialiseCharacterTraitsFromTemplate(template);
 
         NeedsModel = NeedsModelFactory.LoadNeedsModel(CharacterCreation.Chargen.NeedsModelProg != null
             ? (string)CharacterCreation.Chargen.NeedsModelProg.Execute(template)
@@ -242,6 +247,9 @@ public partial class Character : PerceiverItem, ICharacter
             }
         }
 
+        EnsureProvisionedFormsFromMerits();
+        RefreshForcedTransformationHeartbeatRegistration();
+
         foreach (IKnowledge knowledge in template.SelectedKnowledges)
         {
             _characterKnowledges.Add(new RPG.Knowledge.CharacterKnowledge(this, knowledge, "Chargen"));
@@ -279,9 +287,14 @@ public partial class Character : PerceiverItem, ICharacter
         _currentAccent = _accents.Select(x => x.Key).FirstOrDefault(x => x.Language == _currentLanguage);
 
         // Initialise Traits
-        foreach (ITrait trait in Body.Traits)
+        foreach (ITrait trait in Body.Traits.Where(x => x.Definition.OwnerScope == TraitOwnerScope.Body))
         {
             trait.Initialise(Body);
+        }
+
+        foreach (ITrait trait in _characterTraits)
+        {
+            trait.Initialise(this);
         }
 
         Body.RecalculatePartsAndOrgans(); // Sometimes character merits can change these after the body already sets them
@@ -430,7 +443,23 @@ public partial class Character : PerceiverItem, ICharacter
 
     public bool BriefRoomDescs { get; set; }
 
-    public Alignment Handedness { get; set; }
+    public Alignment Handedness
+    {
+        get => Body?.Handedness ?? _handedness;
+        set
+        {
+            _handedness = value;
+            if (Body != null)
+            {
+                Body.Handedness = value;
+            }
+
+            if (!_noSave)
+            {
+                Changed = true;
+            }
+        }
+    }
 
     public override SizeCategory Size => Body.CurrentContextualSize(SizeContext.None);
 
@@ -530,6 +559,10 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         CheckAllTargets();
+        if (AutoTransformingBodyFormMerits().Any())
+        {
+            ReevaluateForcedBodyTransformation();
+        }
     }
 
     public override void Save()
@@ -558,6 +591,7 @@ public partial class Character : PerceiverItem, ICharacter
         dbchar.CurrencyId = Currency?.Id;
         dbchar.Gender = (short)Gender.Enum;
         dbchar.DominantHandAlignment = (int)Handedness;
+        dbchar.BodyId = Body.Id;
         dbchar.RoomBrief = BriefRoomDescs;
         dbchar.CombatBrief = BriefCombatMode;
         dbchar.NoMercy = NoMercy;
@@ -649,6 +683,8 @@ public partial class Character : PerceiverItem, ICharacter
 
             HooksChanged = false;
         }
+
+        SaveForms(dbchar);
 
         Changed = false;
     }
@@ -1359,6 +1395,7 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         Body.SetIDFromDatabase(item.Body);
+        _handedness = Body.Handedness;
         foreach (ICharacterKnowledge ck in CharacterKnowledges)
         {
             ck.SetId(item.CharacterKnowledges.First(x => x.KnowledgeId == ck.Knowledge.Id).Id);
@@ -1392,6 +1429,9 @@ public partial class Character : PerceiverItem, ICharacter
             EffectData = SaveEffects().ToString(),
             CurrentCombatSettingId = CombatSettings?.Id
         };
+
+        InsertInitialForms(dbitem);
+        InsertInitialCharacterTraits(dbitem);
 
         foreach (IHook hook in _installedHooks)
         {
@@ -1556,7 +1596,7 @@ public partial class Character : PerceiverItem, ICharacter
         LoadNames(character);
 
         _roomLayer = (RoomLayer)character.RoomLayer;
-        Handedness = (Alignment)character.DominantHandAlignment;
+        _handedness = (Alignment)character.DominantHandAlignment;
 
         Culture = Gameworld.Cultures.Get(character.CultureId);
         Birthday = Gameworld.Calendars.Get(character.BirthdayCalendarId).GetDate(character.BirthdayDate);
@@ -1581,7 +1621,9 @@ public partial class Character : PerceiverItem, ICharacter
             _merits.Add(Gameworld.Merits.Get(merit.MeritId));
         }
 
-        Body = new Body.Implementations.Body(character.Body, Gameworld, this);
+        LoadForms(character);
+        LoadCharacterTraits(character);
+        EnsureProvisionedFormsFromMerits();
         LoadPosition(character.PositionId, character.PositionModifier, character.PositionEmote,
             character.PositionTargetId, character.PositionTargetType);
         if (character.CharactersChargenRoles.Any())
@@ -2302,6 +2344,7 @@ public partial class Character : PerceiverItem, ICharacter
         CacheScheduledEffects();
         Gameworld.EffectScheduler.Destroy(this, true);
         Gameworld.Scheduler.Destroy(this);
+        ClearForcedTransformationHeartbeatRegistration();
         Body.Quit();
 
         Gameworld.HeartbeatManager.TenSecondHeartbeat -= NeedsHeartbeat;
@@ -2330,6 +2373,8 @@ public partial class Character : PerceiverItem, ICharacter
         StartNeedsHeartbeat();
         RemoveAllEffects(x => x.IsEffectType<LinkdeadLogout>());
         Body.Login();
+        RefreshForcedTransformationHeartbeatRegistration();
+        ReevaluateForcedBodyTransformation();
         if (PositionTarget?.TargetedBy.Contains(this) == false)
         {
             if (!PositionTarget.CanBePositionedAgainst(PositionState, PositionModifier))
@@ -2731,45 +2776,7 @@ public partial class Character : PerceiverItem, ICharacter
 
     public ICharacterTemplate GetCharacterTemplate()
     {
-        List<IAccent> accents = _accents.Where(x => x.Value <= Difficulty.Trivial).Select(x => x.Key).Distinct().ToList();
-        foreach (ILanguage language in Languages)
-        {
-            if (accents.All(x => x.Language != language))
-            {
-                accents.Add(_accents.Where(x => x.Key.Language == language).FirstMin(x => x.Value).Key ??
-                            language.DefaultLearnerAccent);
-            }
-        }
-
-        return new SimpleCharacterTemplate
-        {
-            Handedness = Handedness,
-            MissingBodyparts = Body.SeveredRoots.ToList(),
-            SelectedAccents = accents,
-            SelectedKnowledges = Knowledges.ToList(),
-            SelectedCharacteristics = Body.CharacteristicDefinitions
-                                          .Select(x => (x, Body.GetCharacteristic(x, this))).ToList(),
-            SelectedMerits = Merits.OfType<ICharacterMerit>().ToList(),
-            SelectedRoles = Roles.ToList(),
-            SelectedWeight = Weight,
-            SelectedHeight = Height,
-            SelectedName = PersonalName,
-            SelectedCulture = Culture,
-            SelectedEthnicity = Ethnicity,
-            SelectedRace = Race,
-            SelectedBirthday = Birthday,
-            SelectedEntityDescriptionPatterns = Body.EntityDescriptionPatterns.ToList(),
-            SelectedFullDesc = Body.GetRawDescriptions.FullDescription,
-            SelectedSdesc = Body.GetRawDescriptions.ShortDescription,
-            SelectedGender = Gender.Enum,
-            SkillValues = (from skill in Traits.OfType<ISkill>() select (skill.Definition, skill.RawValue))
-                .ToList(),
-            SelectedAttributes =
-                (from attribute in Traits.OfType<IAttribute>()
-                 select TraitFactory.LoadAttribute(attribute.AttributeDefinition, Body, attribute.RawValue))
-                .ToList<ITrait>(),
-            Gameworld = Gameworld
-        };
+        return GetCharacterTemplateForBody(Body);
     }
 
     #endregion

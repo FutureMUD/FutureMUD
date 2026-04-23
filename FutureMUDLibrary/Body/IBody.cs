@@ -33,12 +33,19 @@ namespace MudSharp.Body
         void LoadInventory(MudSharp.Models.Body body);
         bool InventoryChanged { get; set; }
         IEnumerable<IEntityDescriptionPattern> EntityDescriptionPatterns { get; }
+        IEntityDescriptionPattern ShortDescriptionPattern { get; }
+        IEntityDescriptionPattern FullDescriptionPattern { get; }
         (string ShortDescription, string FullDescription) GetRawDescriptions { get; }
         void SetFullDescription(string description);
         void SetShortDescription(string description);
+        void SetFullDescriptionPattern(IEntityDescriptionPattern pattern);
+        void SetShortDescriptionPattern(IEntityDescriptionPattern pattern);
+        void ClearFullDescriptionPattern();
+        void ClearShortDescriptionPattern();
         IBodyPrototype Prototype { get; }
 
         ICharacter Actor { get; set; }
+        Alignment Handedness { get; set; }
 
         IController Controller { get; }
 
@@ -51,7 +58,7 @@ namespace MudSharp.Body
         double TotalBloodVolumeLitres { get; set; }
         ILiquid BloodLiquid { get; }
         IBloodtype Bloodtype { get; }
-        double BaseLiverAlcoholRemovalKilogramsPerHour { get; set; }
+		double BaseLiverAlcoholRemovalKilogramsPerHour { get; set; }
         double LiverAlcoholRemovalKilogramsPerHour { get; }
         double WaterLossLitresPerHour { get; }
         double CaloricConsumptionPerHour { get; }
@@ -98,6 +105,9 @@ namespace MudSharp.Body
         /// </summary>
         /// <returns></returns>
         void Quit();
+        void ActivateForCharacter();
+        void SuspendForCharacter();
+        void DestroyBody();
 
         string GetConsiderString(IPerceiver voyeur);
         string GetPositionDescription(IPerceiver voyeur, bool proper, bool colour, PerceiveIgnoreFlags flags);

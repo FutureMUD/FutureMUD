@@ -26,6 +26,8 @@ namespace MudSharp.Health.Strategies;
 
 public class SimpleLivingHealthStrategy : BaseHealthStrategy
 {
+    public override HealthStateModel HealthStateModel => HealthStateModel.Organic;
+
     private static readonly TraitExpressionBuilderField<SimpleLivingHealthStrategy>[] TraitExpressionFields =
     [
         new("MaximumHitPointsExpression", ["maxhp", "maximumhitpointsexpression"], "Maximum Hit Points Expression",

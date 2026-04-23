@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Body.Disfigurements;
+using MudSharp.Body.PartProtos;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
@@ -55,29 +56,179 @@ public partial class Body
 			return false;
 		}
 
-		var computedMappings = new Dictionary<IBodypart, IBodypart?>();
+		var strictMappings = new Dictionary<IBodypart, IBodypart?>();
+		var relaxedMappings = new Dictionary<IBodypart, IBodypart?>();
 
-		IBodypart? MapBodypart(IBodypart? sourcePart)
+		IBodypart? MapBodypartStrict(IBodypart sourcePart)
+		{
+			return Prototype.AllBodypartsBonesAndOrgans.FirstOrDefault(x => x.CountsAs(sourcePart)) ??
+			       Prototype.AllBodypartsBonesAndOrgans.FirstOrDefault(x => x.Id == sourcePart.Id) ??
+			       Prototype.AllBodypartsBonesAndOrgans.FirstOrDefault(x =>
+				       x.BodypartType == sourcePart.BodypartType &&
+				       x.Alignment == sourcePart.Alignment &&
+				       x.Orientation == sourcePart.Orientation &&
+				       x.Shape.Id == sourcePart.Shape.Id);
+		}
+
+		static int GetEquivalentTypeScore(IBodypart sourcePart, IBodypart targetPart)
+		{
+			if (sourcePart.BodypartType == targetPart.BodypartType)
+			{
+				return 1200;
+			}
+
+			return (sourcePart.BodypartType, targetPart.BodypartType) switch
+			{
+				(BodypartTypeEnum.Brain, BodypartTypeEnum.PositronicBrain) => 1100,
+				(BodypartTypeEnum.PositronicBrain, BodypartTypeEnum.Brain) => 1100,
+				(BodypartTypeEnum.Brain, BodypartTypeEnum.SensorArray) => 800,
+				(BodypartTypeEnum.PositronicBrain, BodypartTypeEnum.SensorArray) => 750,
+				(BodypartTypeEnum.SensorArray, BodypartTypeEnum.Brain) => 700,
+				(BodypartTypeEnum.SensorArray, BodypartTypeEnum.PositronicBrain) => 750,
+				(BodypartTypeEnum.Eye, BodypartTypeEnum.SensorArray) => 1000,
+				(BodypartTypeEnum.Ear, BodypartTypeEnum.SensorArray) => 1000,
+				(BodypartTypeEnum.SensorArray, BodypartTypeEnum.Eye) => 900,
+				(BodypartTypeEnum.SensorArray, BodypartTypeEnum.Ear) => 900,
+				(BodypartTypeEnum.Heart, BodypartTypeEnum.PowerCore) => 1100,
+				(BodypartTypeEnum.PowerCore, BodypartTypeEnum.Heart) => 1100,
+				(BodypartTypeEnum.Mouth, BodypartTypeEnum.SpeechSynthesizer) => 900,
+				(BodypartTypeEnum.Tongue, BodypartTypeEnum.SpeechSynthesizer) => 900,
+				(BodypartTypeEnum.Esophagus, BodypartTypeEnum.SpeechSynthesizer) => 750,
+				(BodypartTypeEnum.Trachea, BodypartTypeEnum.SpeechSynthesizer) => 750,
+				(BodypartTypeEnum.SpeechSynthesizer, BodypartTypeEnum.Mouth) => 750,
+				(BodypartTypeEnum.SpeechSynthesizer, BodypartTypeEnum.Tongue) => 750,
+				(BodypartTypeEnum.SpeechSynthesizer, BodypartTypeEnum.Esophagus) => 650,
+				(BodypartTypeEnum.SpeechSynthesizer, BodypartTypeEnum.Trachea) => 650,
+				(BodypartTypeEnum.Lung, BodypartTypeEnum.Blowhole) => 700,
+				(BodypartTypeEnum.Lung, BodypartTypeEnum.Gill) => 700,
+				(BodypartTypeEnum.Gill, BodypartTypeEnum.Lung) => 700,
+				(BodypartTypeEnum.Blowhole, BodypartTypeEnum.Lung) => 700,
+				(BodypartTypeEnum.Trachea, BodypartTypeEnum.Blowhole) => 650,
+				(BodypartTypeEnum.Trachea, BodypartTypeEnum.Gill) => 650,
+				(BodypartTypeEnum.Blowhole, BodypartTypeEnum.Trachea) => 650,
+				(BodypartTypeEnum.Gill, BodypartTypeEnum.Trachea) => 650,
+				_ => 0
+			};
+		}
+
+		int ScoreFallbackBodypart(IBodypart sourcePart, IBodypart targetPart, IBodypart? mappedUpstream)
+		{
+			var score = GetEquivalentTypeScore(sourcePart, targetPart);
+
+			if (sourcePart.BodypartType.IsBone() == targetPart.BodypartType.IsBone())
+			{
+				score += 350;
+			}
+
+			if (sourcePart.BodypartType.IsOrgan() == targetPart.BodypartType.IsOrgan())
+			{
+				score += 350;
+			}
+
+			if (sourcePart.Alignment == targetPart.Alignment)
+			{
+				score += 250;
+			}
+
+			if (sourcePart.Orientation == targetPart.Orientation)
+			{
+				score += 250;
+			}
+
+			if (sourcePart.Shape.Id == targetPart.Shape.Id)
+			{
+				score += 150;
+			}
+
+			if (sourcePart.Size == targetPart.Size)
+			{
+				score += 75;
+			}
+
+			if (sourcePart.IsCore == targetPart.IsCore)
+			{
+				score += 200;
+			}
+
+			if (sourcePart.IsVital == targetPart.IsVital)
+			{
+				score += 250;
+			}
+
+			if (sourcePart.Significant == targetPart.Significant)
+			{
+				score += 75;
+			}
+
+			if (mappedUpstream is not null)
+			{
+				if (targetPart == mappedUpstream)
+				{
+					score += 500;
+				}
+				else if (targetPart.DownstreamOfPart(mappedUpstream))
+				{
+					score += 425;
+				}
+			}
+
+			return score;
+		}
+
+		IBodypart? FindFallbackBodypart(IBodypart sourcePart)
+		{
+			var candidates = Prototype.AllBodypartsBonesAndOrgans.AsEnumerable();
+			if (sourcePart.BodypartType.IsBone())
+			{
+				var boneCandidates = candidates.Where(x => x.BodypartType.IsBone()).ToList();
+				if (boneCandidates.Any())
+				{
+					candidates = boneCandidates;
+				}
+			}
+			else if (sourcePart.BodypartType.IsOrgan())
+			{
+				var organCandidates = candidates.Where(x => x.BodypartType.IsOrgan()).ToList();
+				if (organCandidates.Any())
+				{
+					candidates = organCandidates;
+				}
+			}
+
+			var mappedUpstream = sourcePart.UpstreamConnection is not null
+				? MapBodypart(sourcePart.UpstreamConnection, true)
+				: null;
+
+			return candidates
+				.Select(x => (Part: x, Score: ScoreFallbackBodypart(sourcePart, x, mappedUpstream)))
+				.OrderByDescending(x => x.Score)
+				.ThenByDescending(x => x.Part.IsVital)
+				.ThenByDescending(x => x.Part.IsCore)
+				.ThenByDescending(x => x.Part.RelativeHitChance)
+				.Select(x => x.Part)
+				.FirstOrDefault();
+		}
+
+		IBodypart? MapBodypart(IBodypart? sourcePart, bool allowFallback = false)
 		{
 			if (sourcePart is null)
 			{
 				return null;
 			}
 
-			if (computedMappings.TryGetValue(sourcePart, out var existing))
+			var cache = allowFallback ? relaxedMappings : strictMappings;
+			if (cache.TryGetValue(sourcePart, out var existing))
 			{
 				return existing;
 			}
 
-			var targetPart = Prototype.AllBodypartsBonesAndOrgans.FirstOrDefault(x => x.CountsAs(sourcePart)) ??
-			                 Prototype.AllBodypartsBonesAndOrgans.FirstOrDefault(x => x.Id == sourcePart.Id) ??
-			                 Prototype.AllBodypartsBonesAndOrgans.FirstOrDefault(x =>
-				                 x.BodypartType == sourcePart.BodypartType &&
-				                 x.Alignment == sourcePart.Alignment &&
-				                 x.Orientation == sourcePart.Orientation &&
-				                 x.Shape.Id == sourcePart.Shape.Id);
+			var targetPart = MapBodypartStrict(sourcePart);
+			if (targetPart is null && allowFallback)
+			{
+				targetPart = FindFallbackBodypart(sourcePart);
+			}
 
-			computedMappings[sourcePart] = targetPart;
+			cache[sourcePart] = targetPart;
 			return targetPart;
 		}
 
@@ -101,7 +252,7 @@ public partial class Body
 
 		foreach (var wound in source._wounds)
 		{
-			var targetPart = MapBodypart(wound.Bodypart);
+			var targetPart = MapBodypart(wound.Bodypart, true);
 			if (targetPart is null)
 			{
 				whyNot = $"The wound on your {wound.Bodypart?.FullDescription() ?? "body"} has no matching location on that form.";
@@ -124,7 +275,7 @@ public partial class Body
 
 		foreach (var infection in source._partInfections)
 		{
-			var targetPart = MapBodypart(infection.Bodypart);
+			var targetPart = MapBodypart(infection.Bodypart, true);
 			if (targetPart is null)
 			{
 				whyNot = $"The infection affecting your {infection.Bodypart?.FullDescription() ?? "body"} has no matching location on that form.";
@@ -136,7 +287,7 @@ public partial class Body
 
 		foreach (var scar in source._scars)
 		{
-			var targetPart = MapBodypart(scar.Bodypart);
+			var targetPart = MapBodypart(scar.Bodypart, true);
 			if (targetPart is null)
 			{
 				whyNot = $"The scar on your {scar.Bodypart.FullDescription()} has no matching location on that form.";
@@ -148,7 +299,7 @@ public partial class Body
 
 		foreach (var tattoo in source._tattoos)
 		{
-			var targetPart = MapBodypart(tattoo.Bodypart);
+			var targetPart = MapBodypart(tattoo.Bodypart, true);
 			if (targetPart is null)
 			{
 				whyNot = $"The tattoo on your {tattoo.Bodypart.FullDescription()} has no matching location on that form.";
@@ -233,7 +384,7 @@ public partial class Body
 
 		foreach (var effect in source.EffectsOfType<AntisepticProtection>().ToList())
 		{
-			var targetPart = MapBodypart(effect.Bodypart);
+			var targetPart = MapBodypart(effect.Bodypart, true);
 			if (targetPart is null)
 			{
 				whyNot = $"An antiseptic treatment on your {effect.Bodypart.FullDescription()} cannot be mapped to that form.";
@@ -245,7 +396,7 @@ public partial class Body
 
 		foreach (var effect in source.EffectsOfType<AntiInflammatoryTreatment>().ToList())
 		{
-			var targetPart = MapBodypart(effect.Bodypart);
+			var targetPart = MapBodypart(effect.Bodypart, true);
 			if (targetPart is null)
 			{
 				whyNot = $"An anti-inflammatory treatment on your {effect.Bodypart.FullDescription()} cannot be mapped to that form.";
@@ -257,7 +408,7 @@ public partial class Body
 
 		foreach (var effect in source.EffectsOfType<InternalBleeding>().ToList())
 		{
-			var targetPart = MapBodypart(effect.Organ);
+			var targetPart = MapBodypart(effect.Organ, true);
 			if (targetPart is not IOrganProto)
 			{
 				whyNot = $"Internal bleeding affecting your {effect.Organ.FullDescription()} cannot be mapped to that form.";
@@ -279,7 +430,11 @@ public partial class Body
 			switchPlan.ReplantedEffects.Add((effect, targetPart, source.ScheduledDuration(effect)));
 		}
 
-		foreach (var mapping in computedMappings.Where(x => x.Value is not null))
+		foreach (var mapping in strictMappings
+			         .Concat(relaxedMappings)
+			         .GroupBy(x => x.Key)
+			         .Select(x => x.Last())
+			         .Where(x => x.Value is not null))
 		{
 			switchPlan.PartMappings[mapping.Key] = mapping.Value!;
 		}

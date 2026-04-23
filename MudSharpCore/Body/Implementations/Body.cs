@@ -658,6 +658,7 @@ public partial class Body : PerceiverItem, IBody
         IdInitialised = true;
         _height = body.Height;
         _weight = body.Weight;
+        PositionState = MudSharp.Body.Position.PositionState.GetState(body.Position);
 
         foreach (Characteristic characteristic in body.Characteristics)
         {

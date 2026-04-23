@@ -285,6 +285,8 @@ public partial class Body
 
     public void StaminaTenSecondHeartbeat()
     {
+        var positionState = PositionState ?? PositionUndefined.Instance;
+
         if (CurrentStamina < MaximumStamina)
         {
             double regen = Convert.ToDouble(Prototype.StaminaRecoveryProg.Execute(Actor));
@@ -321,7 +323,7 @@ public partial class Body
             {
                 staminaExertion = ExertionLevel.Sleep;
             }
-            else if (PositionState.CompareTo(PositionSitting.Instance) != PositionHeightComparison.Higher)
+            else if (positionState.CompareTo(PositionSitting.Instance) != PositionHeightComparison.Higher)
             {
                 staminaExertion = ExertionLevel.Rest;
             }
@@ -338,12 +340,12 @@ public partial class Body
             LongtermExertion = CurrentExertion;
         }
 
-        if (Location.IsSwimmingLayer(RoomLayer) && PositionState != PositionFlying.Instance)
+        if (Location.IsSwimmingLayer(RoomLayer) && positionState != PositionFlying.Instance)
         {
             Actor.DoSwimHeartbeat();
         }
 
-        if (PositionState == PositionFlying.Instance)
+        if (positionState == PositionFlying.Instance)
         {
             Actor.DoFlyHeartbeat();
         }

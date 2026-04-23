@@ -46,6 +46,7 @@ public partial class AnimalSeeder
 	{
 		SetupHeightWeightModels();
 		SetupAttacks(false);
+		RefreshExistingAnimalBaseBodies();
 
 		Dictionary<string, BodyProto> bodyLookup = EnsureBackfillAnimalBodies();
 		MigrateBeetleRace(bodyLookup["Beetle"]);
@@ -59,6 +60,34 @@ public partial class AnimalSeeder
 		}
 
 		ApplyDefaultCombatSettingsToSeededRaces();
+	}
+
+	private void RefreshExistingAnimalBaseBodies()
+	{
+		BodyProto? avianBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Avian");
+		if (avianBody is null)
+		{
+			return;
+		}
+
+		bool dirty = false;
+		foreach (BodypartProto bodypart in _context.BodypartProtos
+			         .Where(x => x.BodyId == avianBody.Id && AvianCoreWingAliases.Contains(x.Name))
+			         .ToList())
+		{
+			if (bodypart.IsCore)
+			{
+				continue;
+			}
+
+			bodypart.IsCore = true;
+			dirty = true;
+		}
+
+		if (dirty)
+		{
+			_context.SaveChanges();
+		}
 	}
 
 	private Dictionary<string, BodyProto> EnsureBackfillAnimalBodies()

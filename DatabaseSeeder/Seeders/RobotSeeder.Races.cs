@@ -91,7 +91,7 @@ public partial class RobotSeeder
                     CanDefend = true,
 					NaturalArmourType = _robotFrameArmour,
 					NaturalArmourMaterial = _chassisAlloy,
-					NaturalArmourQuality = 4,
+                    NaturalArmourQuality = 4,
                     BloodLiquid = _context.Liquids.First(x => x.Name == template.BloodLiquidName),
                     NeedsToBreathe = false,
                     SweatLiquid = null,
@@ -114,7 +114,7 @@ public partial class RobotSeeder
                     TemperatureRangeCeiling = 120,
                     BodypartSizeModifier = 0,
                     BodypartHealthMultiplier = ResolveRobotHealthMultiplier(template.Size, 1.15),
-                    BreathingModel = "simple",
+                    BreathingModel = NonBreatherBreathingModel,
                     BreathingVolumeExpression = "0",
                     HoldBreathLengthExpression = "999999",
                     CanClimb = template.CanClimb,
@@ -141,23 +141,26 @@ public partial class RobotSeeder
                 _context.SaveChanges();
                 summary.RacesAdded++;
             }
-			else
-			{
-				CharacterCombatSetting defaultCombatSetting = CombatStrategySeederHelper.EnsureCombatStrategy(_context, CombatStrategyFor(template));
-				if (race.DefaultCombatSettingId != defaultCombatSetting.Id)
-				{
-					race.DefaultCombatSetting = defaultCombatSetting;
-				}
+            else
+            {
+                CharacterCombatSetting defaultCombatSetting =
+                    CombatStrategySeederHelper.EnsureCombatStrategy(_context, CombatStrategyFor(template));
+                if (race.DefaultCombatSettingId != defaultCombatSetting.Id)
+                {
+                    race.DefaultCombatSetting = defaultCombatSetting;
+                }
 
-				if (race.NaturalArmourTypeId != _robotFrameArmour.Id)
-				{
-					race.NaturalArmourType = _robotFrameArmour;
-				}
+                if (race.NaturalArmourTypeId != _robotFrameArmour.Id)
+                {
+                    race.NaturalArmourType = _robotFrameArmour;
+                }
 
-				race.NaturalArmourMaterial = _chassisAlloy;
-				race.NaturalArmourQuality = 4;
-				race.BodypartHealthMultiplier = ResolveRobotHealthMultiplier(template.Size, 1.15);
-			}
+                race.NaturalArmourMaterial = _chassisAlloy;
+                race.NaturalArmourQuality = 4;
+                race.BodypartHealthMultiplier = ResolveRobotHealthMultiplier(template.Size, 1.15);
+            }
+
+            ApplyNonBreatherSettings(race);
 
             CopyRaceAttributes(race);
             if (template.UsesHumanoidCharacteristics)
@@ -174,6 +177,17 @@ public partial class RobotSeeder
             SeedRacialBodypartUsages(race, template);
             SeedNaturalAttacks(race, template);
         }
+    }
+
+    private void ApplyNonBreatherSettings(Race race)
+    {
+        race.NeedsToBreathe = false;
+        race.BreathingModel = NonBreatherBreathingModel;
+        race.BreathingVolumeExpression = "0";
+        race.HoldBreathLengthExpression = "999999";
+
+        _context.RacesBreathableGases.RemoveRange(_context.RacesBreathableGases.Where(x => x.RaceId == race.Id).ToList());
+        _context.RacesBreathableLiquids.RemoveRange(_context.RacesBreathableLiquids.Where(x => x.RaceId == race.Id).ToList());
     }
 
     private void CopyRaceAttributes(Race race)

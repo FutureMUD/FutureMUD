@@ -17,6 +17,32 @@ public class ChangingNeedsModelBaseTests
     }
 
     [TestMethod]
+    public void CalculateOversatiationLevel_UsesRacialFoodLimit()
+    {
+        Assert.AreEqual(0.0, ChangingNeedsModelBase.CalculateOversatiationLevel(540.0, 720.0), 1e-6);
+        Assert.AreEqual(60.0, ChangingNeedsModelBase.CalculateOversatiationLevel(600.0, 720.0), 1e-6);
+    }
+
+    [TestMethod]
+    public void GetHungerStatus_ScalesThresholdsWithFoodLimit()
+    {
+        Assert.AreEqual(NeedsResult.AbsolutelyStuffed, ChangingNeedsModelBase.GetHungerStatus(540.0, 720.0));
+        Assert.AreEqual(NeedsResult.Full, ChangingNeedsModelBase.GetHungerStatus(360.0, 720.0));
+        Assert.AreEqual(NeedsResult.Peckish, ChangingNeedsModelBase.GetHungerStatus(180.0, 720.0));
+        Assert.AreEqual(NeedsResult.Hungry, ChangingNeedsModelBase.GetHungerStatus(0.1, 720.0));
+        Assert.AreEqual(NeedsResult.Starving, ChangingNeedsModelBase.GetHungerStatus(0.0, 720.0));
+    }
+
+    [TestMethod]
+    public void GetThirstStatus_ScalesThresholdsWithDrinkLimit()
+    {
+        Assert.AreEqual(NeedsResult.Sated, ChangingNeedsModelBase.GetThirstStatus(180.0, 240.0));
+        Assert.AreEqual(NeedsResult.NotThirsty, ChangingNeedsModelBase.GetThirstStatus(120.0, 240.0));
+        Assert.AreEqual(NeedsResult.Thirsty, ChangingNeedsModelBase.GetThirstStatus(0.1, 240.0));
+        Assert.AreEqual(NeedsResult.Parched, ChangingNeedsModelBase.GetThirstStatus(0.0, 240.0));
+    }
+
+    [TestMethod]
     public void PositiveSatiationRecoverDeficitBeforeCreatingExcess()
     {
         double result = ChangingNeedsModelBase.ApplySatiationReserveFromFulfiller(-3.0, 8.0, 8.0);

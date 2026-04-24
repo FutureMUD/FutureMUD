@@ -1,5 +1,6 @@
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
@@ -16,6 +17,10 @@ public abstract class ChangingNeedsModelBase : INeedsModel
     protected double RealSecondsToInGameSeconds => StaticRealSecondsToInGameSeconds;
 
     public ICharacter Owner { get; init; }
+    protected double FoodSatiationLimit => GetEffectiveFoodSatiationLimit(
+        Owner?.Race?.MaximumFoodSatiatedHours ?? RacialSatiationDefaults.MaximumFoodSatiatedHours);
+    protected double DrinkSatiationLimit => GetEffectiveDrinkSatiationLimit(
+        Owner?.Race?.MaximumDrinkSatiatedHours ?? RacialSatiationDefaults.MaximumDrinkSatiatedHours);
 
     #region INeedsModel Members
 
@@ -35,12 +40,14 @@ public abstract class ChangingNeedsModelBase : INeedsModel
         FoodSatiatedHours += satiationDelta;
         DrinkSatiatedHours += thirstDelta;
         SatiationReserve =
-            ApplySatiationReserveFromFulfiller(SatiationReserve, previousFoodSatiatedHours, satiationDelta);
+            ApplySatiationReserveFromFulfiller(SatiationReserve, previousFoodSatiatedHours, satiationDelta,
+                FoodSatiationLimit);
         if (!ignoreDelays && fulfiller.AlcoholLitres > 0.0)
         {
             AlcoholLitres += fulfiller.AlcoholLitres * 0.25 * drunkMult;
             TimeSpan timespan = TimeSpan.FromMinutes(Math.Max(1.0,
-                15.0 * (1.0 + FoodSatiatedHours / 12.0) * RealSecondsToInGameSeconds));
+                15.0 * (1.0 + FoodSatiatedHours / GetFoodAbsolutelyStuffedThreshold(FoodSatiationLimit)) *
+                RealSecondsToInGameSeconds));
             Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
                 new NeedFulfiller
                 {
@@ -73,24 +80,28 @@ public abstract class ChangingNeedsModelBase : INeedsModel
 
     protected void NormaliseValues()
     {
-        if (FoodSatiatedHours > 16)
+        double foodLimit = FoodSatiationLimit;
+        if (FoodSatiatedHours > foodLimit)
         {
-            FoodSatiatedHours = 16;
+            FoodSatiatedHours = foodLimit;
         }
 
-        if (FoodSatiatedHours < -4)
+        double foodMinimum = -0.25 * foodLimit;
+        if (FoodSatiatedHours < foodMinimum)
         {
-            FoodSatiatedHours = -4;
+            FoodSatiatedHours = foodMinimum;
         }
 
-        if (DrinkSatiatedHours > 8)
+        double drinkLimit = DrinkSatiationLimit;
+        if (DrinkSatiatedHours > drinkLimit)
         {
-            DrinkSatiatedHours = 8;
+            DrinkSatiatedHours = drinkLimit;
         }
 
-        if (DrinkSatiatedHours < -4)
+        double drinkMinimum = -0.5 * drinkLimit;
+        if (DrinkSatiatedHours < drinkMinimum)
         {
-            DrinkSatiatedHours = -4;
+            DrinkSatiatedHours = drinkMinimum;
         }
 
         if (AlcoholLitres < 0)
@@ -262,13 +273,80 @@ public abstract class ChangingNeedsModelBase : INeedsModel
         return Math.Max(0.0, -foodSatiatedHours);
     }
 
-    internal static double CalculateOversatiationLevel(double foodSatiatedHours)
+    internal static double GetEffectiveFoodSatiationLimit(double configuredLimit)
     {
-        return Math.Max(0.0, foodSatiatedHours - 12.0);
+        return GetEffectiveSatiationLimit(configuredLimit, RacialSatiationDefaults.MaximumFoodSatiatedHours);
+    }
+
+    internal static double GetEffectiveDrinkSatiationLimit(double configuredLimit)
+    {
+        return GetEffectiveSatiationLimit(configuredLimit, RacialSatiationDefaults.MaximumDrinkSatiatedHours);
+    }
+
+    private static double GetEffectiveSatiationLimit(double configuredLimit, double fallbackLimit)
+    {
+        if (double.IsNaN(configuredLimit) || double.IsInfinity(configuredLimit) || configuredLimit <= 0.0)
+        {
+            return fallbackLimit;
+        }
+
+        return configuredLimit;
+    }
+
+    internal static double GetFoodAbsolutelyStuffedThreshold(double maximumFoodSatiatedHours =
+        RacialSatiationDefaults.MaximumFoodSatiatedHours)
+    {
+        return GetEffectiveFoodSatiationLimit(maximumFoodSatiatedHours) * 0.75;
+    }
+
+    internal static NeedsResult GetHungerStatus(double foodSatiatedHours,
+        double maximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours)
+    {
+        double foodLimit = GetEffectiveFoodSatiationLimit(maximumFoodSatiatedHours);
+        if (foodSatiatedHours >= foodLimit * 0.75)
+        {
+            return NeedsResult.AbsolutelyStuffed;
+        }
+
+        if (foodSatiatedHours >= foodLimit * 0.5)
+        {
+            return NeedsResult.Full;
+        }
+
+        if (foodSatiatedHours >= foodLimit * 0.25)
+        {
+            return NeedsResult.Peckish;
+        }
+
+        return foodSatiatedHours > 0.0 ? NeedsResult.Hungry : NeedsResult.Starving;
+    }
+
+    internal static NeedsResult GetThirstStatus(double drinkSatiatedHours,
+        double maximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours)
+    {
+        double drinkLimit = GetEffectiveDrinkSatiationLimit(maximumDrinkSatiatedHours);
+        if (drinkSatiatedHours >= drinkLimit * 0.75)
+        {
+            return NeedsResult.Sated;
+        }
+
+        if (drinkSatiatedHours >= drinkLimit * 0.5)
+        {
+            return NeedsResult.NotThirsty;
+        }
+
+        return drinkSatiatedHours > 0.0 ? NeedsResult.Thirsty : NeedsResult.Parched;
+    }
+
+    internal static double CalculateOversatiationLevel(double foodSatiatedHours,
+        double maximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours)
+    {
+        return Math.Max(0.0, foodSatiatedHours - GetFoodAbsolutelyStuffedThreshold(maximumFoodSatiatedHours));
     }
 
     internal static double ApplySatiationReserveFromFulfiller(double currentReserve, double previousFoodSatiatedHours,
-        double satiationDelta)
+        double satiationDelta,
+        double maximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours)
     {
         if (satiationDelta <= 0.0)
         {
@@ -288,8 +366,9 @@ public abstract class ChangingNeedsModelBase : INeedsModel
             return currentReserve;
         }
 
-        double oversatiationBefore = CalculateOversatiationLevel(previousFoodSatiatedHours);
-        double oversatiationAfter = CalculateOversatiationLevel(previousFoodSatiatedHours + originalSatiationDelta);
+        double oversatiationBefore = CalculateOversatiationLevel(previousFoodSatiatedHours, maximumFoodSatiatedHours);
+        double oversatiationAfter =
+            CalculateOversatiationLevel(previousFoodSatiatedHours + originalSatiationDelta, maximumFoodSatiatedHours);
         double oversatiationGain = Math.Max(0.0, oversatiationAfter - oversatiationBefore);
         if (oversatiationGain <= 0.0)
         {
@@ -347,43 +426,8 @@ public abstract class ChangingNeedsModelBase : INeedsModel
         get
         {
             NeedsResult result = NeedsResult.None;
-            if (FoodSatiatedHours >= 12)
-            {
-                result |= NeedsResult.AbsolutelyStuffed;
-            }
-            else if (FoodSatiatedHours >= 8)
-            {
-                result |= NeedsResult.Full;
-            }
-            else if (FoodSatiatedHours >= 4)
-            {
-                result |= NeedsResult.Peckish;
-            }
-            else if (FoodSatiatedHours > 0)
-            {
-                result |= NeedsResult.Hungry;
-            }
-            else
-            {
-                result |= NeedsResult.Starving;
-            }
-
-            if (DrinkSatiatedHours >= 6)
-            {
-                result |= NeedsResult.Sated;
-            }
-            else if (DrinkSatiatedHours >= 4)
-            {
-                result |= NeedsResult.NotThirsty;
-            }
-            else if (DrinkSatiatedHours > 0)
-            {
-                result |= NeedsResult.Thirsty;
-            }
-            else
-            {
-                result |= NeedsResult.Parched;
-            }
+            result |= GetHungerStatus(FoodSatiatedHours, FoodSatiationLimit);
+            result |= GetThirstStatus(DrinkSatiatedHours, DrinkSatiationLimit);
 
             double bac = 10.0 * AlcoholLitres / Owner.Body.CurrentBloodVolumeLitres;
             if (bac >= 0.25)
@@ -443,7 +487,7 @@ public abstract class ChangingNeedsModelBase : INeedsModel
 
     public double StarvationLevel => CalculateStarvationLevel(FoodSatiatedHours);
 
-    public double OversatiationLevel => CalculateOversatiationLevel(FoodSatiatedHours);
+    public double OversatiationLevel => CalculateOversatiationLevel(FoodSatiatedHours, FoodSatiationLimit);
 
     public double SatiationExcess => Math.Max(0.0, SatiationReserve);
 

@@ -19,22 +19,26 @@ namespace MudSharp.Body.Needs
         Starving = 1 << 0,
 
         /// <summary>
-        ///     This result occurs when food satiation changes and the character is hungry afterwards (hours of satiation 0 - 2)
+        ///     This result occurs when food satiation changes and the character is hungry afterwards (positive hours below
+        ///     one quarter of the race's food satiation limit)
         /// </summary>
         Hungry = 1 << 1,
 
         /// <summary>
-        ///     This result occurs when food satiation changes and the character is peckish afterwards (hours of satiation 2 - 4)
+        ///     This result occurs when food satiation changes and the character is peckish afterwards (one quarter to one half
+        ///     of the race's food satiation limit)
         /// </summary>
         Peckish = 1 << 2,
 
         /// <summary>
-        ///     This result occurs when food satiation changes and the character is full afterwards (hours of satiation 4 - 8)
+        ///     This result occurs when food satiation changes and the character is full afterwards (one half to three quarters
+        ///     of the race's food satiation limit)
         /// </summary>
         Full = 1 << 3,
 
         /// <summary>
-        ///     This result occurs when food satiation changes and the character is stuffed afterwards (hours of satiation 8+)
+        ///     This result occurs when food satiation changes and the character is stuffed afterwards (at least three quarters
+        ///     of the race's food satiation limit)
         /// </summary>
         AbsolutelyStuffed = 1 << 4,
 
@@ -45,18 +49,20 @@ namespace MudSharp.Body.Needs
         Parched = 1 << 5,
 
         /// <summary>
-        ///     This result occurs when drink satiation changes and the character is thirsty afterwards (hours of satiation 0 - 2)
+        ///     This result occurs when drink satiation changes and the character is thirsty afterwards (positive hours below
+        ///     one half of the race's drink satiation limit)
         /// </summary>
         Thirsty = 1 << 6,
 
         /// <summary>
-        ///     This result occurs when drink satiation changes and the character is not thirsty afterwards (hours of satiation 2 -
-        ///     4)
+        ///     This result occurs when drink satiation changes and the character is not thirsty afterwards (one half to three
+        ///     quarters of the race's drink satiation limit)
         /// </summary>
         NotThirsty = 1 << 7,
 
         /// <summary>
-        ///     This result occurs when drink satiation changes and the character is not thirsty afterwards (hours of satiation 4+)
+        ///     This result occurs when drink satiation changes and the character is sated afterwards (at least three quarters
+        ///     of the race's drink satiation limit)
         /// </summary>
         Sated = 1 << 8,
 

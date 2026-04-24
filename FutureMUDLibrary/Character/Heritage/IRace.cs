@@ -24,6 +24,12 @@ using System.Collections.Generic;
 
 namespace MudSharp.Character.Heritage
 {
+    public static class RacialSatiationDefaults
+    {
+        public const double MaximumFoodSatiatedHours = 16.0;
+        public const double MaximumDrinkSatiatedHours = 8.0;
+    }
+
     public interface IRace : IEditableItem, IProgVariable, IHaveContextualSizeCategory, IHavePositionalSizes
     {
         string Description { get; }
@@ -222,6 +228,8 @@ namespace MudSharp.Character.Heritage
         IRace Clone(string newName);
         double HungerRate { get; }
         double ThirstRate { get; }
+        double MaximumFoodSatiatedHours { get; }
+        double MaximumDrinkSatiatedHours { get; }
         double TrackIntensityVisual { get; }
         double TrackIntensityOlfactory { get; }
         double TrackingAbilityVisual { get; }

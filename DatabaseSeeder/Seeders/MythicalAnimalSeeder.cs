@@ -1198,7 +1198,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
                 Race = race,
                 Attribute = attribute,
                 IsHealthAttribute = attribute.TraitGroup == "Physical",
-                AttributeBonus = GetMythicalAttributeBonus(attribute, template)
+                AttributeBonus = GetMythicalAttributeBonus(attribute, template),
+                DiceExpression = GetMythicalAttributeDiceExpression(attribute, template)
             });
         }
         ApplyBreathingProfile(race, GetBreathingProfile(template));
@@ -1242,6 +1243,46 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			race.NaturalArmourType = expectedArmour;
             race.BodypartHealthMultiplier = expectedHealthMultiplier;
 		}
+
+        _context.SaveChanges();
+        ApplyDefaultAttributeAlterationsToSeededRaces();
+    }
+
+    private void ApplyDefaultAttributeAlterationsToSeededRaces()
+    {
+        List<TraitDefinition> attributes = _context.TraitDefinitions
+            .Where(x => x.Type == (int)TraitType.Attribute || x.Type == (int)TraitType.DerivedAttribute)
+            .ToList();
+        foreach (MythicalRaceTemplate template in Templates.Values)
+        {
+            Race? race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
+            if (race is null)
+            {
+                continue;
+            }
+
+            foreach (TraitDefinition attribute in attributes)
+            {
+                RacesAttributes? alteration = _context.RacesAttributes
+                    .FirstOrDefault(x => x.RaceId == race.Id && x.AttributeId == attribute.Id);
+                if (alteration is null)
+                {
+                    _context.RacesAttributes.Add(new RacesAttributes
+                    {
+                        Race = race,
+                        Attribute = attribute,
+                        IsHealthAttribute = attribute.TraitGroup == "Physical",
+                        AttributeBonus = GetMythicalAttributeBonus(attribute, template),
+                        DiceExpression = GetMythicalAttributeDiceExpression(attribute, template)
+                    });
+                    continue;
+                }
+
+                alteration.IsHealthAttribute = attribute.TraitGroup == "Physical";
+                alteration.AttributeBonus = GetMythicalAttributeBonus(attribute, template);
+                alteration.DiceExpression = GetMythicalAttributeDiceExpression(attribute, template);
+            }
+        }
 
         _context.SaveChanges();
     }

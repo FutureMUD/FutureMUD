@@ -10,7 +10,14 @@ internal sealed record NonHumanAttributeProfile(
 	int StrengthBonus,
 	int ConstitutionBonus,
 	int AgilityBonus,
-	int DexterityBonus)
+	int DexterityBonus,
+	int WillpowerBonus = 0,
+	int PerceptionBonus = 0,
+	int AuraBonus = 0,
+	string? IntelligenceDiceExpression = null,
+	string? WillpowerDiceExpression = null,
+	string? PerceptionDiceExpression = null,
+	string? AuraDiceExpression = null)
 {
 	public NonHumanAttributeProfile Add(NonHumanAttributeProfile other)
 	{
@@ -18,7 +25,14 @@ internal sealed record NonHumanAttributeProfile(
 			StrengthBonus + other.StrengthBonus,
 			ConstitutionBonus + other.ConstitutionBonus,
 			AgilityBonus + other.AgilityBonus,
-			DexterityBonus + other.DexterityBonus
+			DexterityBonus + other.DexterityBonus,
+			WillpowerBonus + other.WillpowerBonus,
+			PerceptionBonus + other.PerceptionBonus,
+			AuraBonus + other.AuraBonus,
+			other.IntelligenceDiceExpression ?? IntelligenceDiceExpression,
+			other.WillpowerDiceExpression ?? WillpowerDiceExpression,
+			other.PerceptionDiceExpression ?? PerceptionDiceExpression,
+			other.AuraDiceExpression ?? AuraDiceExpression
 		);
 	}
 
@@ -28,7 +42,14 @@ internal sealed record NonHumanAttributeProfile(
 			Math.Clamp(StrengthBonus, minimum, maximum),
 			Math.Clamp(ConstitutionBonus, minimum, maximum),
 			Math.Clamp(AgilityBonus, minimum, maximum),
-			Math.Clamp(DexterityBonus, minimum, maximum)
+			Math.Clamp(DexterityBonus, minimum, maximum),
+			Math.Clamp(WillpowerBonus, minimum, maximum),
+			Math.Clamp(PerceptionBonus, minimum, maximum),
+			Math.Clamp(AuraBonus, minimum, maximum),
+			IntelligenceDiceExpression,
+			WillpowerDiceExpression,
+			PerceptionDiceExpression,
+			AuraDiceExpression
 		);
 	}
 }
@@ -63,6 +84,33 @@ internal static class NonHumanAttributeScalingHelper
 	private static readonly HashSet<string> DexterityNames = new(StringComparer.OrdinalIgnoreCase)
 	{
 		"Dexterity"
+	};
+
+	private static readonly HashSet<string> IntelligenceNames = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"Intelligence",
+		"Mind"
+	};
+
+	private static readonly HashSet<string> WillpowerNames = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"Willpower",
+		"Will",
+		"Resolve",
+		"Grit"
+	};
+
+	private static readonly HashSet<string> PerceptionNames = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"Perception",
+		"Awareness"
+	};
+
+	private static readonly HashSet<string> AuraNames = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"Aura",
+		"Luck",
+		"Spirit"
 	};
 
 	internal static int GetAttributeBonus(TraitDefinition attribute, NonHumanAttributeProfile profile)
@@ -100,6 +148,46 @@ internal static class NonHumanAttributeScalingHelper
 			return profile.DexterityBonus;
 		}
 
+		if (WillpowerNames.Contains(attributeName))
+		{
+			return profile.WillpowerBonus;
+		}
+
+		if (PerceptionNames.Contains(attributeName))
+		{
+			return profile.PerceptionBonus;
+		}
+
+		if (AuraNames.Contains(attributeName))
+		{
+			return profile.AuraBonus;
+		}
+
 		return 0;
+	}
+
+	internal static string? GetAttributeDiceExpression(TraitDefinition attribute, NonHumanAttributeProfile profile)
+	{
+		if (IntelligenceNames.Contains(attribute.Name))
+		{
+			return profile.IntelligenceDiceExpression;
+		}
+
+		if (WillpowerNames.Contains(attribute.Name))
+		{
+			return profile.WillpowerDiceExpression;
+		}
+
+		if (PerceptionNames.Contains(attribute.Name))
+		{
+			return profile.PerceptionDiceExpression;
+		}
+
+		if (AuraNames.Contains(attribute.Name))
+		{
+			return profile.AuraDiceExpression;
+		}
+
+		return null;
 	}
 }

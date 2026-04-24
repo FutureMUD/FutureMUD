@@ -4097,7 +4097,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 Race = race,
                 Attribute = attribute,
                 IsHealthAttribute = attribute.TraitGroup == "Physical",
-                AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, attributeProfile)
+                AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, attributeProfile),
+                DiceExpression = NonHumanAttributeScalingHelper.GetAttributeDiceExpression(attribute, attributeProfile)
             });
         }
 
@@ -9122,6 +9123,47 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             race.DefaultCombatSetting = setting;
             race.NaturalArmourType = _naturalArmour;
             race.BodypartHealthMultiplier = expectedHealthMultiplier;
+        }
+
+        _context.SaveChanges();
+        ApplyDefaultAttributeAlterationsToSeededRaces();
+    }
+
+    private void ApplyDefaultAttributeAlterationsToSeededRaces()
+    {
+        List<TraitDefinition> attributes = _context.TraitDefinitions
+            .Where(x => x.Type == (int)TraitType.Attribute || x.Type == (int)TraitType.DerivedAttribute)
+            .ToList();
+        foreach (AnimalRaceTemplate template in RaceTemplates.Values)
+        {
+            Race? race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
+            if (race is null)
+            {
+                continue;
+            }
+
+            NonHumanAttributeProfile profile = GetAnimalAttributeProfile(template);
+            foreach (TraitDefinition attribute in attributes)
+            {
+                RacesAttributes? alteration = _context.RacesAttributes
+                    .FirstOrDefault(x => x.RaceId == race.Id && x.AttributeId == attribute.Id);
+                if (alteration is null)
+                {
+                    _context.RacesAttributes.Add(new RacesAttributes
+                    {
+                        Race = race,
+                        Attribute = attribute,
+                        IsHealthAttribute = attribute.TraitGroup == "Physical",
+                        AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile),
+                        DiceExpression = NonHumanAttributeScalingHelper.GetAttributeDiceExpression(attribute, profile)
+                    });
+                    continue;
+                }
+
+                alteration.IsHealthAttribute = attribute.TraitGroup == "Physical";
+                alteration.AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile);
+                alteration.DiceExpression = NonHumanAttributeScalingHelper.GetAttributeDiceExpression(attribute, profile);
+            }
         }
 
         _context.SaveChanges();

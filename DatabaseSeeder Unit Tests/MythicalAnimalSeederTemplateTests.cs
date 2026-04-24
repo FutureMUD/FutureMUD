@@ -585,30 +585,41 @@ public class MythicalAnimalSeederTemplateTests
     [TestMethod]
     public void TemplatesForTesting_SecondPassAttributeProfiles_ReflectMythicBodyPlans()
     {
-        Assert.AreEqual(new NonHumanAttributeProfile(12, 11, 0, -2),
-            MythicalAnimalSeeder.TemplatesForTesting["Dragon"].AttributeProfile,
+        static void AssertProfile(string raceName, int strength, int constitution, int agility, int dexterity,
+            int willpower, int perception, int aura, string intelligenceDice, string auraDice, string message)
+        {
+            NonHumanAttributeProfile profile = MythicalAnimalSeeder.TemplatesForTesting[raceName].AttributeProfile;
+            Assert.AreEqual(strength, profile.StrengthBonus, $"{raceName} strength bonus");
+            Assert.AreEqual(constitution, profile.ConstitutionBonus, $"{raceName} constitution bonus");
+            Assert.AreEqual(agility, profile.AgilityBonus, $"{raceName} agility bonus");
+            Assert.AreEqual(dexterity, profile.DexterityBonus, $"{raceName} dexterity bonus");
+            Assert.AreEqual(willpower, profile.WillpowerBonus, $"{raceName} willpower bonus");
+            Assert.AreEqual(perception, profile.PerceptionBonus, $"{raceName} perception bonus");
+            Assert.AreEqual(aura, profile.AuraBonus, $"{raceName} aura bonus");
+            Assert.AreEqual(intelligenceDice, profile.IntelligenceDiceExpression, $"{raceName} intelligence dice");
+            Assert.AreEqual(auraDice, profile.AuraDiceExpression, message);
+        }
+
+        AssertProfile("Dragon", 12, 11, 0, -2, 6, 3, 5, null, null,
             "True dragons should remain the top brute-force mythic baseline.");
-        Assert.AreEqual(new NonHumanAttributeProfile(10, 9, 2, 0),
-            MythicalAnimalSeeder.TemplatesForTesting["Eastern Dragon"].AttributeProfile,
+        AssertProfile("Eastern Dragon", 10, 9, 2, 0, 6, 3, 5, null, null,
             "Eastern dragons should be less blocky and more sinuous than western dragons.");
-        Assert.AreEqual(new NonHumanAttributeProfile(6, 5, 4, 1),
-            MythicalAnimalSeeder.TemplatesForTesting["Unicorn"].AttributeProfile,
+        AssertProfile("Unicorn", 6, 5, 4, 1, 4, 3, 5, null, null,
             "Unicorns should read as powerful but unusually graceful equines.");
-        Assert.AreEqual(new NonHumanAttributeProfile(5, 4, 5, 1),
-            MythicalAnimalSeeder.TemplatesForTesting["Pegasus"].AttributeProfile,
+        AssertProfile("Pegasus", 5, 4, 5, 1, 2, 3, 3, "2d3", null,
             "Pegasi should be driven more by flight athletics than raw mass.");
-        Assert.AreEqual(new NonHumanAttributeProfile(2, 2, 5, 3),
-            MythicalAnimalSeeder.TemplatesForTesting["Phoenix"].AttributeProfile,
+        AssertProfile("Phoenix", 2, 2, 5, 3, 4, 4, 6, "2d3", null,
             "Phoenixes should be high-agility aerial threats rather than heavy bruisers.");
-        Assert.AreEqual(new NonHumanAttributeProfile(7, 9, -3, -3),
-            MythicalAnimalSeeder.TemplatesForTesting["Ent"].AttributeProfile,
+        AssertProfile("Ent", 7, 9, -3, -3, 5, 1, 4, null, null,
             "Ents should be massively strong and durable but ponderous.");
-        Assert.AreEqual(new NonHumanAttributeProfile(-1, 1, 2, 2),
-            MythicalAnimalSeeder.TemplatesForTesting["Dryad"].AttributeProfile,
+        AssertProfile("Dryad", -1, 1, 2, 2, 2, 2, 5, null, null,
             "Dryads should favour grace and finesse over raw strength.");
-        Assert.AreEqual(new NonHumanAttributeProfile(6, 5, 2, 0),
-            MythicalAnimalSeeder.TemplatesForTesting["Centaur"].AttributeProfile,
+        AssertProfile("Centaur", 6, 5, 2, 0, 2, 1, 0, null, null,
             "Centaurs should preserve horse-body strength while gaining open-country mobility.");
+        AssertProfile("Giant Ant", 6, 6, 2, -2, 3, 1, 0, "2d3", "1d2",
+            "Giant insects should remain animal-minded and spiritually minimal.");
+        AssertProfile("Basilisk", 5, 6, 2, 0, 4, 2, 2, "2d3", null,
+            "Magical animal-minded monsters should keep low intelligence without suppressing supernatural aura.");
     }
 
     [TestMethod]

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using RevisionStatus = MudSharp.Framework.Revision.RevisionStatus;
 
 namespace MudSharp_Unit_Tests;
 
@@ -124,6 +125,48 @@ public class CoreDataSeederTerrainTests
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
+    private static ForagableProfile AddCustomForageProfile(FuturemudDatabaseContext context, string name)
+    {
+        long profileId = context.ForagableProfiles
+            .Select(x => x.Id)
+            .AsEnumerable()
+            .DefaultIfEmpty(0L)
+            .Max() + 1L;
+        ForagableProfile profile = new()
+        {
+            Id = profileId,
+            RevisionNumber = 0,
+            Name = name,
+            EditableItem = new EditableItem
+            {
+                RevisionNumber = 0,
+                RevisionStatus = (int)RevisionStatus.Current,
+                BuilderAccountId = 0,
+                BuilderDate = DateTime.UtcNow,
+                BuilderComment = "Test custom forage profile"
+            }
+        };
+        context.ForagableProfiles.Add(profile);
+        context.ForagableProfilesMaximumYields.Add(new ForagableProfilesMaximumYields
+        {
+            ForagableProfile = profile,
+            ForagableProfileId = profile.Id,
+            ForagableProfileRevisionNumber = profile.RevisionNumber,
+            ForageType = "custom",
+            Yield = 10.0
+        });
+        context.ForagableProfilesHourlyYieldGains.Add(new ForagableProfilesHourlyYieldGains
+        {
+            ForagableProfile = profile,
+            ForagableProfileId = profile.Id,
+            ForagableProfileRevisionNumber = profile.RevisionNumber,
+            ForageType = "custom",
+            Yield = 1.0
+        });
+        context.SaveChanges();
+        return profile;
+    }
+
     [TestMethod]
     public void SeedTerrainFoundationsForTesting_SeedsTerrainTagsAndCatalogue()
     {
@@ -148,6 +191,9 @@ public class CoreDataSeederTerrainTests
         using FuturemudDatabaseContext context = BuildContext();
 
         SeedTerrainFoundations(context);
+        int initialForageProfileCount = context.ForagableProfiles.Count();
+        int initialMaximumYieldCount = context.ForagableProfilesMaximumYields.Count();
+        int initialHourlyYieldCount = context.ForagableProfilesHourlyYieldGains.Count();
         CoreDataSeeder.SeedTerrainFoundationsForTesting(context);
 
         foreach (string tagName in CoreDataSeeder.StockTerrainTagNamesForTesting)
@@ -158,6 +204,16 @@ public class CoreDataSeederTerrainTests
         foreach (string? terrainName in new[] { "Residence", "Urban Street", "Ocean", "River" })
         {
             Assert.AreEqual(1, context.Terrains.Count(x => x.Name == terrainName), $"Expected rerun to preserve a single terrain named {terrainName}.");
+        }
+
+        Assert.AreEqual(initialForageProfileCount, context.ForagableProfiles.Count());
+        Assert.AreEqual(initialMaximumYieldCount, context.ForagableProfilesMaximumYields.Count());
+        Assert.AreEqual(initialHourlyYieldCount, context.ForagableProfilesHourlyYieldGains.Count());
+
+        foreach (string terrainName in CoreDataSeeder.StockTerrainForageProfileTerrainNamesForTesting)
+        {
+            Assert.AreEqual(1, context.ForagableProfiles.Count(x => x.Name == $"{terrainName} Stock Forage"),
+                $"Expected rerun to preserve a single stock forage profile for {terrainName}.");
         }
     }
 
@@ -221,5 +277,129 @@ public class CoreDataSeederTerrainTests
             Assert.IsTrue(context.Terrains.Any(x => x.Name == terrainName),
                 $"Expected terrain {terrainName} to be present in the stock catalogue.");
         }
+    }
+
+    [TestMethod]
+    public void SeedTerrainFoundationsForTesting_SeedsStockForageProfilesForAppropriateTerrains()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+
+        SeedTerrainFoundations(context);
+
+        foreach (string yieldType in new[]
+                 {
+                     "grass", "shrubs", "low-trees", "high-trees", "tubers", "roots", "seeds", "fruit", "nuts",
+                     "herbs", "flowers", "moss", "lichen", "mushrooms", "reeds-rushes", "aquatic-plants",
+                     "sea-grass", "algae", "plankton", "insects", "grubs-worms", "crustaceans", "shellfish",
+                     "molluscs", "tiny-fish", "leaves-detritus", "vines", "branches-brushwood", "deadwood",
+                     "mature-trees", "pebbles", "rocks", "boulders", "sand", "clay", "shells", "coral", "ice",
+                     "trash", "discarded-food"
+                 })
+        {
+            Assert.IsTrue(CoreDataSeeder.StockTerrainForageYieldTypesForTesting.Contains(yieldType),
+                $"Expected stock forage yield type {yieldType} to be used by at least one terrain.");
+        }
+
+        foreach (string terrainName in CoreDataSeeder.StockTerrainForageProfileTerrainNamesForTesting)
+        {
+            Terrain terrain = context.Terrains.Single(x => x.Name == terrainName);
+            Assert.AreNotEqual(0, terrain.ForagableProfileId,
+                $"Expected terrain {terrainName} to have a default forage profile.");
+
+            ForagableProfile profile = context.ForagableProfiles.Single(x => x.Id == terrain.ForagableProfileId);
+            EditableItem editableItem = context.EditableItems.Single(x => x.Id == profile.EditableItemId);
+            List<ForagableProfilesMaximumYields> maximums = context.ForagableProfilesMaximumYields
+                .Where(x => x.ForagableProfileId == profile.Id &&
+                            x.ForagableProfileRevisionNumber == profile.RevisionNumber)
+                .ToList();
+            List<ForagableProfilesHourlyYieldGains> hourly = context.ForagableProfilesHourlyYieldGains
+                .Where(x => x.ForagableProfileId == profile.Id &&
+                            x.ForagableProfileRevisionNumber == profile.RevisionNumber)
+                .ToList();
+
+            Assert.AreEqual($"{terrainName} Stock Forage", profile.Name);
+            Assert.AreEqual((int)RevisionStatus.Current, editableItem.RevisionStatus);
+            Assert.AreEqual(0, context.ForagableProfilesForagables.Count(x =>
+                x.ForagableProfileId == profile.Id &&
+                x.ForagableProfileRevisionNumber == profile.RevisionNumber));
+            Assert.IsTrue(maximums.Any(), $"Expected terrain {terrainName} to have stock forage yields.");
+            Assert.AreEqual(maximums.Count, hourly.Count);
+            Assert.IsTrue(maximums.All(x => x.Yield > 0.0));
+            Assert.IsTrue(hourly.All(x => x.Yield > 0.0));
+            CollectionAssert.AreEquivalent(
+                maximums.Select(x => x.ForageType).ToArray(),
+                hourly.Select(x => x.ForageType).ToArray());
+            CollectionAssert.IsSubsetOf(
+                CoreDataSeeder.StockTerrainForageYieldTypesByTerrainForTesting[terrainName].ToArray(),
+                maximums.Select(x => x.ForageType).ToArray(),
+                $"Expected terrain {terrainName} to contain all of its declared forage yield types.");
+        }
+    }
+
+    [TestMethod]
+    public void SeedTerrainFoundationsForTesting_SeedsRepresentativeTerrainForageYieldsAndLeavesBarrenTerrainEmpty()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+
+        SeedTerrainFoundations(context);
+
+        void AssertTerrainHasYields(string terrainName, params string[] yields)
+        {
+            Terrain terrain = context.Terrains.Single(x => x.Name == terrainName);
+            ForagableProfile profile = context.ForagableProfiles.Single(x => x.Id == terrain.ForagableProfileId);
+            HashSet<string> profileYields = context.ForagableProfilesMaximumYields
+                .Where(x => x.ForagableProfileId == profile.Id &&
+                            x.ForagableProfileRevisionNumber == profile.RevisionNumber)
+                .Select(x => x.ForageType)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string yield in yields)
+            {
+                Assert.IsTrue(profileYields.Contains(yield),
+                    $"Expected terrain {terrainName} to contain the {yield} forage yield.");
+            }
+        }
+
+        AssertTerrainHasYields("Grasslands", "grass", "insects", "seeds");
+        AssertTerrainHasYields("Boreal Forest", "high-trees", "mature-trees", "branches-brushwood", "mushrooms");
+        AssertTerrainHasYields("Ocean", "plankton", "algae", "tiny-fish");
+        AssertTerrainHasYields("Coral Reef", "coral", "shellfish", "tiny-fish");
+        AssertTerrainHasYields("Garbage Dump", "trash", "discarded-food", "grubs-worms");
+        AssertTerrainHasYields("Cave", "mushrooms", "rocks", "insects");
+
+        foreach (string terrainName in new[]
+                 {
+                     "Residence", "Bedroom", "Kitchen", "Indoor Pool", "Moon Surface", "Lunar Mare",
+                     "Asteroid Surface", "Orbital Space", "Interstellar Space", "Intergalactic Space"
+                 })
+        {
+            Assert.AreEqual(0, context.Terrains.Single(x => x.Name == terrainName).ForagableProfileId,
+                $"Expected terrain {terrainName} to remain without a stock forage profile.");
+        }
+    }
+
+    [TestMethod]
+    public void SeedTerrainFoundationsForTesting_RerunPreservesCustomProfileAssignmentsAndRepairsInvalidAssignments()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+
+        SeedTerrainFoundations(context);
+        ForagableProfile customProfile = AddCustomForageProfile(context, "Builder Custom Forage");
+        Terrain grasslands = context.Terrains.Single(x => x.Name == "Grasslands");
+        Terrain ocean = context.Terrains.Single(x => x.Name == "Ocean");
+
+        grasslands.ForagableProfileId = customProfile.Id;
+        ocean.ForagableProfileId = 999999L;
+        context.SaveChanges();
+
+        CoreDataSeeder.SeedTerrainFoundationsForTesting(context);
+
+        Assert.AreEqual(customProfile.Id, context.Terrains.Single(x => x.Name == "Grasslands").ForagableProfileId,
+            "Expected rerun to preserve terrain assignments to a valid custom forage profile.");
+
+        Terrain repairedOcean = context.Terrains.Single(x => x.Name == "Ocean");
+        ForagableProfile oceanStockProfile = context.ForagableProfiles.Single(x => x.Name == "Ocean Stock Forage");
+        Assert.AreEqual(oceanStockProfile.Id, repairedOcean.ForagableProfileId,
+            "Expected rerun to repair terrain assignments that point at no current forage profile.");
     }
 }

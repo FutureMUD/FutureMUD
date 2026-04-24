@@ -15,6 +15,19 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class HumanSeeder : IDatabaseSeeder
 {
+	private static readonly (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) HumanBaselineSatiationLimits =
+		SatiationLimitSeederHelper.MaximumLimitsForCadence(12.0, 6.0);
+
+	internal static (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) HumanBaselineSatiationLimitsForTesting =>
+		HumanBaselineSatiationLimits;
+
+	private static readonly string[] HumanSatiationRaceNames =
+	[
+		"Humanoid",
+		"Organic Humanoid",
+		"Human"
+	];
+
     private FuturemudDatabaseContext _context;
     private HeightWeightModel _humanFemaleHWModel;
 
@@ -202,6 +215,7 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
         if (_context.Races.Any(x => x.Name == "Humanoid"))
         {
             RefreshExistingHumanCombatBalance();
+			bool updatedSatiationLimits = RefreshExistingHumanSatiationLimits();
             BodyProto? existingOrganicBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Organic Humanoid");
             if (hasMissingDisfigurementTemplates && existingOrganicBody is not null)
             {
@@ -209,9 +223,19 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
             }
 
             _context.Database.CommitTransaction();
-            return hasMissingDisfigurementTemplates
-                ? "Updated the human combat balance profile and installed additional human disfigurement templates."
-                : "Updated the human combat balance profile.";
+			if (hasMissingDisfigurementTemplates && updatedSatiationLimits)
+			{
+				return "Updated the human combat balance profile, refreshed human satiation limits, and installed additional human disfigurement templates.";
+			}
+
+			if (hasMissingDisfigurementTemplates)
+			{
+				return "Updated the human combat balance profile and installed additional human disfigurement templates.";
+			}
+
+			return updatedSatiationLimits
+				? "Updated the human combat balance profile and refreshed human satiation limits."
+				: "Updated the human combat balance profile.";
         }
 
         // Start by determining the appropriate health strategy
@@ -764,13 +788,45 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 
         if (context.Races.Any(x => x.Name == "Humanoid"))
         {
-            return HasMissingHumanDisfigurementTemplates(context)
+            return HasMissingHumanDisfigurementTemplates(context) || HasHumanSatiationLimitUpdates(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }
 
         return ShouldSeedResult.ReadyToInstall;
     }
+
+	private static bool HasHumanSatiationLimitUpdates(FuturemudDatabaseContext context)
+	{
+		return HumanSatiationRaceNames
+			.Select(name => context.Races.FirstOrDefault(x => x.Name == name))
+			.OfType<Race>()
+			.Any(race => !SatiationLimitSeederHelper.MatchesLimits(
+				race,
+				HumanBaselineSatiationLimits.MaximumFoodSatiatedHours,
+				HumanBaselineSatiationLimits.MaximumDrinkSatiatedHours));
+	}
+
+	private bool RefreshExistingHumanSatiationLimits()
+	{
+		bool dirty = false;
+		foreach (Race race in HumanSatiationRaceNames
+			         .Select(name => _context.Races.FirstOrDefault(x => x.Name == name))
+			         .OfType<Race>())
+		{
+			dirty |= SatiationLimitSeederHelper.ApplyLimits(
+				race,
+				HumanBaselineSatiationLimits.MaximumFoodSatiatedHours,
+				HumanBaselineSatiationLimits.MaximumDrinkSatiatedHours);
+		}
+
+		if (dirty)
+		{
+			_context.SaveChanges();
+		}
+
+		return dirty;
+	}
 
     public int SortOrder => 50;
     public string Name => "Human Seeder";
@@ -1764,6 +1820,8 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
             BiteWeight = 1000,
             EatCorpseEmoteText = "",
             RaceUsesStamina = true,
+			MaximumFoodSatiatedHours = HumanBaselineSatiationLimits.MaximumFoodSatiatedHours,
+			MaximumDrinkSatiatedHours = HumanBaselineSatiationLimits.MaximumDrinkSatiatedHours,
             NaturalArmourQuality = 2,
             NaturalArmourType = _racialNaturalArmour,
             SweatLiquid = sweat,
@@ -1821,6 +1879,8 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
             BiteWeight = 1000,
             EatCorpseEmoteText = "",
             RaceUsesStamina = true,
+			MaximumFoodSatiatedHours = HumanBaselineSatiationLimits.MaximumFoodSatiatedHours,
+			MaximumDrinkSatiatedHours = HumanBaselineSatiationLimits.MaximumDrinkSatiatedHours,
             NaturalArmourQuality = 2,
             NaturalArmourType = _racialNaturalArmour,
             SweatLiquid = sweat,
@@ -1883,6 +1943,8 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
             BiteWeight = 1000,
             EatCorpseEmoteText = "",
             RaceUsesStamina = true,
+			MaximumFoodSatiatedHours = HumanBaselineSatiationLimits.MaximumFoodSatiatedHours,
+			MaximumDrinkSatiatedHours = HumanBaselineSatiationLimits.MaximumDrinkSatiatedHours,
             NaturalArmourQuality = 2,
             NaturalArmourType = _racialNaturalArmour,
             SweatLiquid = sweat,

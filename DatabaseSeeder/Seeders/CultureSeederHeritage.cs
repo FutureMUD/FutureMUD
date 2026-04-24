@@ -9,11 +9,25 @@ using System.Linq;
 using System.Xml.Linq;
 
 using MudSharp.Body.Traits;
+using MudSharp.Database;
 
 namespace DatabaseSeeder.Seeders;
 
 public partial class CultureSeeder
 {
+	private static readonly IReadOnlyDictionary<string, (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours)> CultureRaceSatiationLimits =
+		new Dictionary<string, (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours)>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Elf"] = SatiationLimitSeederHelper.MaximumLimitsForCadence(24.0, 12.0),
+			["Hobbit"] = SatiationLimitSeederHelper.MaximumLimitsForCadence(8.0, 5.0),
+			["Dwarf"] = SatiationLimitSeederHelper.MaximumLimitsForCadence(18.0, 9.0),
+			["Orc"] = SatiationLimitSeederHelper.MaximumLimitsForCadence(8.0, 5.0),
+			["Troll"] = SatiationLimitSeederHelper.MaximumLimitsForCadence(6.0, 4.0)
+		};
+
+	internal static IReadOnlyDictionary<string, (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours)> CultureRaceSatiationLimitsForTesting =>
+		CultureRaceSatiationLimits;
+
     private readonly Dictionary<string, FutureProg> _cultureProgs =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -27,6 +41,40 @@ public partial class CultureSeeder
         new(StringComparer.OrdinalIgnoreCase);
 
     private readonly Dictionary<string, Race> _races = new(StringComparer.OrdinalIgnoreCase);
+
+	private static bool HasCultureRaceSatiationLimitUpdates(FuturemudDatabaseContext context)
+	{
+		return CultureRaceSatiationLimits
+			.Select(x => (Race: context.Races.FirstOrDefault(race => race.Name == x.Key), Limits: x.Value))
+			.Any(x => x.Race is not null &&
+			          !SatiationLimitSeederHelper.MatchesLimits(
+				          x.Race,
+				          x.Limits.MaximumFoodSatiatedHours,
+				          x.Limits.MaximumDrinkSatiatedHours));
+	}
+
+	private void RefreshExistingCultureRaceSatiationLimits()
+	{
+		bool dirty = false;
+		foreach ((string raceName, (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) limits) in CultureRaceSatiationLimits)
+		{
+			Race? race = _context.Races.FirstOrDefault(x => x.Name == raceName);
+			if (race is null)
+			{
+				continue;
+			}
+
+			dirty |= SatiationLimitSeederHelper.ApplyLimits(
+				race,
+				limits.MaximumFoodSatiatedHours,
+				limits.MaximumDrinkSatiatedHours);
+		}
+
+		if (dirty)
+		{
+			_context.SaveChanges();
+		}
+	}
 
     internal static IReadOnlyDictionary<string, NonHumanAttributeProfile> CultureRaceAttributeProfilesForTesting =>
         CultureRaceAttributeProfiles;
@@ -2965,7 +3013,9 @@ Elves are divided into several different clans, each with their own distinct cul
             NaturalArmourMaterial = humanoid.NaturalArmourMaterial,
             NaturalArmourType = humanoid.NaturalArmourType,
             RaceButcheryProfile = null,
-            SweatLiquid = elfSweat
+            SweatLiquid = elfSweat,
+			MaximumFoodSatiatedHours = CultureRaceSatiationLimits["Elf"].MaximumFoodSatiatedHours,
+			MaximumDrinkSatiatedHours = CultureRaceSatiationLimits["Elf"].MaximumDrinkSatiatedHours
         };
         _context.Races.Add(elfRace);
         AddRaceAttributeAlterations(elfRace, CultureRaceAttributeProfiles["Elf"]);
@@ -3632,7 +3682,9 @@ Hobbits are divided into several different clans, each with its own distinct cul
             NaturalArmourMaterial = humanoid.NaturalArmourMaterial,
             NaturalArmourType = humanoid.NaturalArmourType,
             RaceButcheryProfile = null,
-            SweatLiquid = hobbitSweat
+            SweatLiquid = hobbitSweat,
+			MaximumFoodSatiatedHours = CultureRaceSatiationLimits["Hobbit"].MaximumFoodSatiatedHours,
+			MaximumDrinkSatiatedHours = CultureRaceSatiationLimits["Hobbit"].MaximumDrinkSatiatedHours
         };
         _context.Races.Add(hobbitRace);
         AddRaceAttributeAlterations(hobbitRace, CultureRaceAttributeProfiles["Hobbit"]);
@@ -3993,7 +4045,9 @@ Dwarves are divided into several different clans, each with its own distinct cul
             NaturalArmourMaterial = humanoid.NaturalArmourMaterial,
             NaturalArmourType = humanoid.NaturalArmourType,
             RaceButcheryProfile = null,
-            SweatLiquid = dwarfSweat
+            SweatLiquid = dwarfSweat,
+			MaximumFoodSatiatedHours = CultureRaceSatiationLimits["Dwarf"].MaximumFoodSatiatedHours,
+			MaximumDrinkSatiatedHours = CultureRaceSatiationLimits["Dwarf"].MaximumDrinkSatiatedHours
         };
         _context.Races.Add(dwarfRace);
         AddRaceAttributeAlterations(dwarfRace, CultureRaceAttributeProfiles["Dwarf"]);
@@ -4403,7 +4457,9 @@ Orcish cultural practices are centered around warfare and domination. Orcs are c
             NaturalArmourMaterial = humanoid.NaturalArmourMaterial,
             NaturalArmourType = humanoid.NaturalArmourType,
             RaceButcheryProfile = null,
-            SweatLiquid = orcSweat
+            SweatLiquid = orcSweat,
+			MaximumFoodSatiatedHours = CultureRaceSatiationLimits["Orc"].MaximumFoodSatiatedHours,
+			MaximumDrinkSatiatedHours = CultureRaceSatiationLimits["Orc"].MaximumDrinkSatiatedHours
         };
         _context.Races.Add(orcRace);
         AddRaceAttributeAlterations(orcRace, CultureRaceAttributeProfiles["Orc"]);
@@ -4747,7 +4803,9 @@ Trolls are primarily scavengers and predators, and will eat anything they can ca
             NaturalArmourMaterial = humanoid.NaturalArmourMaterial,
             NaturalArmourType = humanoid.NaturalArmourType,
             RaceButcheryProfile = null,
-            SweatLiquid = trollSweat
+            SweatLiquid = trollSweat,
+			MaximumFoodSatiatedHours = CultureRaceSatiationLimits["Troll"].MaximumFoodSatiatedHours,
+			MaximumDrinkSatiatedHours = CultureRaceSatiationLimits["Troll"].MaximumDrinkSatiatedHours
         };
         _context.Races.Add(trollRace);
         AddRaceAttributeAlterations(trollRace, CultureRaceAttributeProfiles["Troll"]);

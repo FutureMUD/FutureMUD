@@ -27,6 +27,18 @@ public class MythicalAnimalSeederTemplateTests
         return new FuturemudDatabaseContext(options);
     }
 
+    private static void AssertSatiationCadence(
+        (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) limits,
+        double expectedFoodHours,
+        double expectedDrinkHours)
+    {
+        const double thresholdFraction = 0.75;
+        Assert.AreEqual(expectedFoodHours / thresholdFraction, limits.MaximumFoodSatiatedHours, 0.0001,
+            "Food satiation maxima should preserve the intended cadence before starvation.");
+        Assert.AreEqual(expectedDrinkHours / thresholdFraction, limits.MaximumDrinkSatiatedHours, 0.0001,
+            "Drink satiation maxima should preserve the intended cadence before becoming parched.");
+    }
+
     [TestMethod]
     public void ValidateTemplateCatalogForTesting_CurrentCatalog_HasNoIssues()
     {
@@ -649,6 +661,47 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("partless-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Giant Spider"));
         Assert.AreEqual("partless-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Ent"));
         Assert.AreEqual("partless-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Dryad"));
+    }
+
+    [TestMethod]
+    public void TemplatesForTesting_RepresentativeMythicalRaces_UseExpectedSatiationCadences()
+    {
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Dragon"]),
+            720.0,
+            168.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Warg"]),
+            12.0,
+            8.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Basilisk"]),
+            720.0,
+            168.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Mermaid"]),
+            24.0,
+            48.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Giant Spider"]),
+            336.0,
+            168.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Colossal Worm"]),
+            720.0,
+            336.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Ent"]),
+            720.0,
+            168.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Dryad"]),
+            72.0,
+            48.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Centaur"]),
+            12.0,
+            8.0);
     }
 
     [TestMethod]

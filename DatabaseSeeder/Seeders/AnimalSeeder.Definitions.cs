@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Body;
+using MudSharp.Character.Heritage;
 using MudSharp.Combat;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
@@ -154,7 +155,9 @@ public partial class AnimalSeeder
         string? BodyAuditKey = null,
         IReadOnlyList<AnimalBodypartUsageTemplate>? AdditionalBodypartUsages = null,
         string CombatStrategyKey = "Beast Brawler",
-        IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null
+        IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null,
+		double MaximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours,
+		double MaximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours
     );
 
     internal static IReadOnlyDictionary<string, AnimalAgeProfileTemplate> AgeProfilesForTesting => AgeProfiles;
@@ -205,4 +208,10 @@ public partial class AnimalSeeder
         new ReadOnlyDictionary<string, AnimalRaceTemplate>(
             BuildRaceTemplates()
         );
+
+	internal static (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) GetAnimalSatiationLimitsForTesting(
+		AnimalRaceTemplate template)
+	{
+		return (template.MaximumFoodSatiatedHours, template.MaximumDrinkSatiatedHours);
+	}
 }

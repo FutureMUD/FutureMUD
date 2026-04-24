@@ -2,6 +2,7 @@ using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
+using MudSharp.GameItems;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
@@ -51,6 +52,64 @@ public class MythicalAnimalSeederTemplateTests
     {
         Assert.AreEqual(36, MythicalAnimalSeeder.TemplatesForTesting.Count,
             "The mythical catalogue should now include the worm-beasts, tree-spirits, and giant arthropod additions.");
+    }
+
+    [TestMethod]
+    public void TemplatesForTesting_StockDiets_UseSeededTerrainYieldTypes()
+    {
+        HashSet<string> stockTerrainYields = CoreDataSeeder.StockTerrainForageYieldTypesForTesting
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string raceName in MythicalAnimalSeeder.TemplatesForTesting.Keys)
+        {
+            IReadOnlyCollection<string> edibleYields = MythicalAnimalSeeder.GetEdibleYieldTypesForTesting(raceName);
+            Assert.IsTrue(edibleYields.Count > 0, $"{raceName} should have at least one stock edible forage yield.");
+            CollectionAssert.IsSubsetOf(edibleYields.ToArray(), stockTerrainYields.ToArray(),
+                $"{raceName} should only reference forage yields seeded by CoreDataSeeder.Terrain.");
+        }
+    }
+
+    [TestMethod]
+    public void TemplatesForTesting_RepresentativeDiets_MatchRacePhysiology()
+    {
+        CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Dragon").ToArray(), "tiny-fish",
+            "Dragons should have stock small-prey forage options.");
+        CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Unicorn").ToArray(), "grass",
+            "Unicorns should graze like other equine herbivores.");
+        CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Mermaid").ToArray(), "tiny-fish",
+            "Merfolk should have aquatic animal forage available.");
+        CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Myconid").ToArray(), "mushrooms",
+            "Myconids should eat fungal forage.");
+        CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Plantfolk").ToArray(), "aquatic-plants",
+            "Plantfolk should use the broader plant-matter forage profile.");
+
+        Assert.IsTrue(MythicalAnimalSeeder.CanEatCorpsesForTesting("Dragon"),
+            "Apex carnivorous mythic beasts should be corpse eaters.");
+        Assert.IsTrue(MythicalAnimalSeeder.CanEatCorpsesForTesting("Giant Spider"),
+            "Giant predatory arthropods should be corpse eaters.");
+        Assert.IsFalse(MythicalAnimalSeeder.CanEatCorpsesForTesting("Unicorn"),
+            "Herbivorous mythic beasts should not be corpse eaters.");
+    }
+
+    [TestMethod]
+    public void MythicalDietMath_PerBiteSatiation_StaysBelowNeedCaps()
+    {
+        foreach ((string Race, SizeCategory Size) in new[]
+                 {
+                     ("Dragon", SizeCategory.VeryLarge),
+                     ("Giant Ant", SizeCategory.Normal),
+                     ("Unicorn", SizeCategory.Large),
+                     ("Myconid", SizeCategory.Normal)
+                 })
+        {
+            double biteYield = NonHumanForageDietSeederHelper.ForageYieldPerBiteForTesting(Size);
+            foreach (StockForageYieldEdibility yield in NonHumanForageDietSeederHelper.GetYieldEdibilitiesForTesting(
+                         MythicalAnimalSeeder.GetDietProfilesForTesting(Race), Size))
+            {
+                Assert.IsTrue(yield.HungerMultiplier * biteYield <= NonHumanForageDietSeederHelper.MaximumFoodSatiationHours,
+                    $"{Race} should not be able to exceed maximum satiation from one bite of {yield.YieldType}.");
+            }
+        }
     }
 
     [TestMethod]

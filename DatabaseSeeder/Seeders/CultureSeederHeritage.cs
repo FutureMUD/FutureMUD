@@ -34,11 +34,11 @@ public partial class CultureSeeder
     private static readonly IReadOnlyDictionary<string, NonHumanAttributeProfile> CultureRaceAttributeProfiles =
         new Dictionary<string, NonHumanAttributeProfile>(StringComparer.OrdinalIgnoreCase)
         {
-            ["Elf"] = new(-1, 0, 2, 3),
-            ["Hobbit"] = new(-3, 2, 1, 2),
-            ["Dwarf"] = new(2, 4, -1, 0),
-            ["Orc"] = new(3, 2, 0, -1),
-            ["Troll"] = new(9, 8, -3, -4)
+            ["Elf"] = new(-1, 0, 2, 3, PerceptionBonus: 2, AuraBonus: 1),
+            ["Hobbit"] = new(-3, 2, 1, 2, WillpowerBonus: 1, AuraBonus: 1),
+            ["Dwarf"] = new(2, 4, -1, 0, WillpowerBonus: 3),
+            ["Orc"] = new(3, 2, 0, -1, WillpowerBonus: 2, PerceptionBonus: 1, AuraBonus: -1),
+            ["Troll"] = new(9, 8, -3, -4, WillpowerBonus: 4, PerceptionBonus: -1, AuraBonus: -2)
         };
 
     public void AddEthnicity(Race race, string name, string group, string bloodGroup,
@@ -54,18 +54,24 @@ public partial class CultureSeeder
                      .Where(x => x.Type == (int)TraitType.Attribute || x.Type == (int)TraitType.DerivedAttribute)
                      .ToList())
         {
-            if (_context.RacesAttributes.Any(x => x.Race == race && x.Attribute == attribute))
+            RacesAttributes? alteration = _context.RacesAttributes
+                .FirstOrDefault(x => x.RaceId == race.Id && x.AttributeId == attribute.Id);
+            if (alteration is null)
             {
+                _context.RacesAttributes.Add(new RacesAttributes
+                {
+                    Race = race,
+                    Attribute = attribute,
+                    IsHealthAttribute = attribute.TraitGroup == "Physical",
+                    AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile),
+                    DiceExpression = NonHumanAttributeScalingHelper.GetAttributeDiceExpression(attribute, profile)
+                });
                 continue;
             }
 
-            _context.RacesAttributes.Add(new RacesAttributes
-            {
-                Race = race,
-                Attribute = attribute,
-                IsHealthAttribute = attribute.TraitGroup == "Physical",
-                AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile)
-            });
+            alteration.IsHealthAttribute = attribute.TraitGroup == "Physical";
+            alteration.AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile);
+            alteration.DiceExpression = NonHumanAttributeScalingHelper.GetAttributeDiceExpression(attribute, profile);
         }
     }
 

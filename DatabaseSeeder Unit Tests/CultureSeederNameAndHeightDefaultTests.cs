@@ -26,13 +26,19 @@ public class CultureSeederNameAndHeightDefaultTests
 		IReadOnlyDictionary<string, NonHumanAttributeProfile> profiles =
 			CultureSeeder.CultureRaceAttributeProfilesForTesting;
 
-		Assert.AreEqual(new NonHumanAttributeProfile(-1, 0, 2, 3), profiles["Elf"]);
-		Assert.AreEqual(new NonHumanAttributeProfile(-3, 2, 1, 2), profiles["Hobbit"]);
-		Assert.AreEqual(new NonHumanAttributeProfile(2, 4, -1, 0), profiles["Dwarf"]);
-		Assert.AreEqual(new NonHumanAttributeProfile(3, 2, 0, -1), profiles["Orc"]);
-		Assert.AreEqual(new NonHumanAttributeProfile(9, 8, -3, -4), profiles["Troll"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(-1, 0, 2, 3, PerceptionBonus: 2, AuraBonus: 1),
+			profiles["Elf"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(-3, 2, 1, 2, WillpowerBonus: 1, AuraBonus: 1),
+			profiles["Hobbit"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(2, 4, -1, 0, WillpowerBonus: 3), profiles["Dwarf"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(3, 2, 0, -1, WillpowerBonus: 2, PerceptionBonus: 1,
+			AuraBonus: -1), profiles["Orc"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(9, 8, -3, -4, WillpowerBonus: 4, PerceptionBonus: -1,
+			AuraBonus: -2), profiles["Troll"]);
 		Assert.IsTrue(profiles["Troll"].StrengthBonus > profiles["Orc"].StrengthBonus);
 		Assert.IsTrue(profiles["Elf"].DexterityBonus > profiles["Dwarf"].DexterityBonus);
+		Assert.IsTrue(profiles["Dwarf"].WillpowerBonus > profiles["Elf"].WillpowerBonus);
+		Assert.IsTrue(profiles["Elf"].PerceptionBonus > profiles["Dwarf"].PerceptionBonus);
 	}
 
 	[TestMethod]

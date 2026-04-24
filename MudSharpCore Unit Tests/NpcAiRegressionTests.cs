@@ -5,6 +5,7 @@ using Moq;
 using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Body.Needs;
+using MudSharp.Celestial;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction;
@@ -19,14 +20,17 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Health;
+using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.RPG.Checks;
+using MudSharp.Work.Crafts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 
 namespace MudSharp_Unit_Tests;
 
@@ -38,6 +42,56 @@ public class NpcAiRegressionTests
         ConstructorInfo? ctor = typeof(T).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
         Assert.IsNotNull(ctor, $"Could not find a private parameterless constructor for {typeof(T).Name}.");
         return (T)ctor.Invoke(null);
+    }
+
+    private static Mock<IFutureProg> MockProg(long id)
+    {
+        Mock<IFutureProg> prog = new();
+        prog.SetupGet(x => x.Id).Returns(id);
+        prog.SetupGet(x => x.Name).Returns($"Prog {id}");
+        return prog;
+    }
+
+    private static AnimalAI LoadAnimalAIFromDefinition(string definition)
+    {
+        Mock<IFutureProg> alwaysTrue = MockProg(1);
+        Mock<IFutureProg> alwaysFalse = MockProg(2);
+        Mock<IFutureProg> alwaysOne = MockProg(3);
+
+        Mock<IUneditableAll<IFutureProg>> futureProgs = new();
+        futureProgs.Setup(x => x.Get(It.IsAny<long>()))
+                   .Returns((long id) => id switch
+                   {
+                       1 => alwaysTrue.Object,
+                       2 => alwaysFalse.Object,
+                       3 => alwaysOne.Object,
+                       _ => null
+                   });
+
+        Mock<IUneditableRevisableAll<ICraft>> crafts = new();
+        crafts.Setup(x => x.Get(It.IsAny<long>())).Returns((ICraft)null!);
+
+        Mock<IFuturemud> gameworld = new();
+        gameworld.SetupGet(x => x.AlwaysTrueProg).Returns(alwaysTrue.Object);
+        gameworld.SetupGet(x => x.AlwaysFalseProg).Returns(alwaysFalse.Object);
+        gameworld.SetupGet(x => x.AlwaysOneProg).Returns(alwaysOne.Object);
+        gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
+        gameworld.SetupGet(x => x.Crafts).Returns(crafts.Object);
+
+        ArtificialIntelligence model = new()
+        {
+            Id = 1,
+            Name = "test animal",
+            Type = "Animal",
+            Definition = definition
+        };
+        ConstructorInfo? ctor = typeof(AnimalAI).GetConstructor(
+            BindingFlags.Instance | BindingFlags.NonPublic,
+            null,
+            new[] { typeof(ArtificialIntelligence), typeof(IFuturemud) },
+            null);
+        Assert.IsNotNull(ctor, "Could not find the AnimalAI database-load constructor.");
+        return (AnimalAI)ctor.Invoke(new object[] { model, gameworld.Object });
     }
 
     [TestMethod]
@@ -167,38 +221,234 @@ public class NpcAiRegressionTests
     {
         AggressivePatherAI aggressivePather = CreatePrivateParameterless<AggressivePatherAI>();
         TrackingAggressorAI trackingAggressor = CreatePrivateParameterless<TrackingAggressorAI>();
-        TerritorialPredatorAI territorialPredator = CreatePrivateParameterless<TerritorialPredatorAI>();
-        DenningPredatorAI denningPredator = CreatePrivateParameterless<DenningPredatorAI>();
-        TerritorialForagerAI territorialForager = CreatePrivateParameterless<TerritorialForagerAI>();
-        DenningForagerAI denningForager = CreatePrivateParameterless<DenningForagerAI>();
+        AnimalAI animal = CreatePrivateParameterless<AnimalAI>();
 
         Assert.IsTrue(aggressivePather.HandlesEvent(EventType.CharacterEnterCellWitness));
         Assert.IsTrue(trackingAggressor.HandlesEvent(EventType.CharacterEnterCellWitness));
-        Assert.IsTrue(territorialPredator.HandlesEvent(EventType.CharacterEnterCellWitness));
-        Assert.IsTrue(denningPredator.HandlesEvent(EventType.CharacterEnterCellWitness));
-        Assert.IsTrue(denningPredator.HandlesEvent(EventType.CharacterDiesWitness));
-        Assert.IsTrue(territorialForager.HandlesEvent(EventType.TenSecondTick));
-        Assert.IsTrue(denningForager.HandlesEvent(EventType.TenSecondTick));
+        Assert.IsTrue(animal.HandlesEvent(EventType.CharacterEnterCellWitness));
+        Assert.IsTrue(animal.HandlesEvent(EventType.CharacterDiesWitness));
+        Assert.IsTrue(animal.HandlesEvent(EventType.TenSecondTick));
     }
 
     [TestMethod]
-    public void PredatorAiTypes_HandleFoodResumeEvents()
+    public void AnimalAI_HandlesFoodResumeAndMaintenanceEvents()
     {
-        HungryAggressorAI hungryAggressor = CreatePrivateParameterless<HungryAggressorAI>();
-        TerritorialPredatorAI territorialPredator = CreatePrivateParameterless<TerritorialPredatorAI>();
-        DenningPredatorAI denningPredator = CreatePrivateParameterless<DenningPredatorAI>();
-        TerritorialForagerAI territorialForager = CreatePrivateParameterless<TerritorialForagerAI>();
-        DenningForagerAI denningForager = CreatePrivateParameterless<DenningForagerAI>();
+        AnimalAI animal = CreatePrivateParameterless<AnimalAI>();
 
-        Assert.IsTrue(hungryAggressor.HandlesEvent(EventType.CharacterEnterCellFinish));
-        Assert.IsTrue(hungryAggressor.HandlesEvent(EventType.LeaveCombat));
-        Assert.IsTrue(territorialPredator.HandlesEvent(EventType.CharacterEnterCellFinish));
-        Assert.IsTrue(territorialPredator.HandlesEvent(EventType.LeaveCombat));
-        Assert.IsTrue(denningPredator.HandlesEvent(EventType.LeaveCombat));
-        Assert.IsTrue(territorialForager.HandlesEvent(EventType.CharacterEnterCellFinish));
-        Assert.IsTrue(territorialForager.HandlesEvent(EventType.LeaveCombat));
-        Assert.IsTrue(denningForager.HandlesEvent(EventType.CharacterEnterCellFinish));
-        Assert.IsTrue(denningForager.HandlesEvent(EventType.LeaveCombat));
+        Assert.IsTrue(animal.HandlesEvent(EventType.CharacterEnterCellFinish));
+        Assert.IsTrue(animal.HandlesEvent(EventType.LeaveCombat));
+        Assert.IsTrue(animal.HandlesEvent(EventType.MinuteTick));
+        Assert.IsTrue(animal.HandlesEvent(EventType.NPCOnGameLoadFinished));
+    }
+
+    [TestMethod]
+    public void AnimalAI_ValidateConfiguration_RejectsInvalidSlotCombinations()
+    {
+        (bool ready, _) = AnimalAI.ValidateConfiguration(
+            AnimalHomeStrategyType.Denning,
+            AnimalFeedingStrategyType.DenPredator,
+            AnimalThreatStrategyType.HungryPredator);
+        Assert.IsTrue(ready);
+
+        (ready, _) = AnimalAI.ValidateConfiguration(
+            AnimalHomeStrategyType.None,
+            AnimalFeedingStrategyType.DenPredator,
+            AnimalThreatStrategyType.Passive);
+        Assert.IsFalse(ready);
+
+        (ready, _) = AnimalAI.ValidateConfiguration(
+            AnimalHomeStrategyType.Territorial,
+            AnimalFeedingStrategyType.Forager,
+            AnimalThreatStrategyType.HungryPredator);
+        Assert.IsFalse(ready);
+
+        (ready, _) = AnimalAI.ValidateConfiguration(
+            AnimalHomeStrategyType.None,
+            AnimalFeedingStrategyType.Scavenger,
+            AnimalThreatStrategyType.Passive,
+            AnimalMovementStrategyType.Ground,
+            AnimalRefugeStrategyType.Sky,
+            AnimalActivityStrategyType.Always,
+            Enum.GetValues<TimeOfDay>());
+        Assert.IsFalse(ready);
+
+        (ready, _) = AnimalAI.ValidateConfiguration(
+            AnimalHomeStrategyType.None,
+            AnimalFeedingStrategyType.Opportunist,
+            AnimalThreatStrategyType.Passive,
+            AnimalMovementStrategyType.Fly,
+            AnimalRefugeStrategyType.Sky,
+            AnimalActivityStrategyType.Always,
+            Enum.GetValues<TimeOfDay>());
+        Assert.IsTrue(ready);
+
+        (ready, _) = AnimalAI.ValidateConfiguration(
+            AnimalHomeStrategyType.None,
+            AnimalFeedingStrategyType.Forager,
+            AnimalThreatStrategyType.Passive,
+            AnimalMovementStrategyType.Arboreal,
+            AnimalRefugeStrategyType.Trees,
+            AnimalActivityStrategyType.Custom,
+            Array.Empty<TimeOfDay>());
+        Assert.IsFalse(ready);
+    }
+
+    [TestMethod]
+    public void AnimalAI_SerializesAndLoadsSlotConfiguration()
+    {
+        AnimalAI animal = LoadAnimalAIFromDefinition("""
+            <Definition>
+              <Movement type="Fly">
+                <Range>37</Range>
+                <WanderChancePerMinute>0.25</WanderChancePerMinute>
+                <WanderEmote>takes wing.</WanderEmote>
+                <MovementEnabledProg>1</MovementEnabledProg>
+                <MovementCellProg>1</MovementCellProg>
+                <AllowDescentProg>2</AllowDescentProg>
+                <TargetFlyingLayer>InAir</TargetFlyingLayer>
+                <TargetRestingLayer>HighInTrees</TargetRestingLayer>
+                <PreferredTreeLayer>HighInTrees</PreferredTreeLayer>
+                <SecondaryTreeLayer>InTrees</SecondaryTreeLayer>
+              </Movement>
+              <Home type="Denning">
+                <SuitableTerritoryProg>1</SuitableTerritoryProg>
+                <DesiredTerritorySizeProg>3</DesiredTerritorySizeProg>
+                <WillShareTerritory>true</WillShareTerritory>
+                <WillShareTerritoryWithOtherRaces>false</WillShareTerritoryWithOtherRaces>
+                <BurrowCraftId>0</BurrowCraftId>
+                <BurrowSiteProg>1</BurrowSiteProg>
+                <BuildEnabledProg>1</BuildEnabledProg>
+                <HomeLocationProg>0</HomeLocationProg>
+                <AnchorItemProg>0</AnchorItemProg>
+              </Home>
+              <Feeding type="DenPredator">
+                <WillAttackProg>1</WillAttackProg>
+                <EngageDelayDiceExpression>500+1d500</EngageDelayDiceExpression>
+                <EngageEmote>stalks $1.</EngageEmote>
+              </Feeding>
+              <Water enabled="true" />
+              <Threat type="HungryPredator" />
+              <Awareness type="Skittish">
+                <ThreatProg>2</ThreatProg>
+                <AvoidCellProg>2</AvoidCellProg>
+                <Range>6</Range>
+                <MemoryMinutes>12</MemoryMinutes>
+              </Awareness>
+              <Refuge type="Sky">
+                <Layer>InAir</Layer>
+                <CellProg>2</CellProg>
+                <ReturnSeconds>45</ReturnSeconds>
+              </Refuge>
+              <Activity type="Custom">
+                <SleepEnabled>true</SleepEnabled>
+                <RestEmote>settles down.</RestEmote>
+                <ActiveTime>Dawn</ActiveTime>
+                <ActiveTime>Dusk</ActiveTime>
+              </Activity>
+              <OpenDoors>true</OpenDoors>
+              <UseKeys>false</UseKeys>
+              <SmashLockedDoors>false</SmashLockedDoors>
+              <CloseDoorsBehind>true</CloseDoorsBehind>
+              <UseDoorguards>false</UseDoorguards>
+              <MoveEvenIfObstructionInWay>true</MoveEvenIfObstructionInWay>
+            </Definition>
+            """);
+
+        Assert.AreEqual(AnimalMovementStrategyType.Fly, animal.MovementStrategy);
+        Assert.AreEqual(AnimalHomeStrategyType.Denning, animal.HomeStrategy);
+        Assert.AreEqual(AnimalFeedingStrategyType.DenPredator, animal.FeedingStrategy);
+        Assert.AreEqual(AnimalThreatStrategyType.HungryPredator, animal.ThreatStrategy);
+        Assert.AreEqual(AnimalAwarenessStrategyType.Skittish, animal.AwarenessStrategy);
+        Assert.AreEqual(AnimalRefugeStrategyType.Sky, animal.RefugeStrategy);
+        Assert.AreEqual(AnimalActivityStrategyType.Custom, animal.ActivityStrategy);
+        Assert.IsTrue(animal.WaterEnabled);
+        Assert.AreEqual(37, animal.MovementRange);
+        Assert.AreEqual(6, animal.AwarenessRange);
+        Assert.AreEqual(12, animal.AwarenessMemoryMinutes);
+        Assert.AreEqual(RoomLayer.InAir, animal.RefugeLayer);
+        Assert.AreEqual(45, animal.RefugeReturnSeconds);
+        CollectionAssert.AreEquivalent(new[] { TimeOfDay.Dawn, TimeOfDay.Dusk }, animal.ActiveTimesOfDay.ToArray());
+        Assert.IsTrue(animal.ActivitySleepEnabled);
+        Assert.IsTrue(animal.IsReadyToBeUsed);
+
+        var saved = animal.SaveDefinition();
+        Assert.AreEqual("Fly", saved.Element("Movement")?.Attribute("type")?.Value);
+        Assert.AreEqual("Denning", saved.Element("Home")?.Attribute("type")?.Value);
+        Assert.AreEqual("DenPredator", saved.Element("Feeding")?.Attribute("type")?.Value);
+        Assert.AreEqual("true", saved.Element("Water")?.Attribute("enabled")?.Value);
+        Assert.AreEqual("HungryPredator", saved.Element("Threat")?.Attribute("type")?.Value);
+        Assert.AreEqual("Skittish", saved.Element("Awareness")?.Attribute("type")?.Value);
+        Assert.AreEqual("Sky", saved.Element("Refuge")?.Attribute("type")?.Value);
+        Assert.AreEqual("Custom", saved.Element("Activity")?.Attribute("type")?.Value);
+        Assert.AreEqual("12", saved.Element("Awareness")?.Element("MemoryMinutes")?.Value);
+        Assert.AreEqual("InAir", saved.Element("Refuge")?.Element("Layer")?.Value);
+        CollectionAssert.AreEquivalent(new[] { "Dawn", "Dusk" }, saved.Element("Activity")?.Elements("ActiveTime").Select(x => x.Value).ToArray());
+    }
+
+    [TestMethod]
+    public void AnimalAI_SerializesNewFeedingValues()
+    {
+        AnimalAI scavenger = LoadAnimalAIFromDefinition("""
+            <Definition>
+              <Feeding type="Scavenger" />
+            </Definition>
+            """);
+        AnimalAI opportunist = LoadAnimalAIFromDefinition("""
+            <Definition>
+              <Feeding type="Opportunist" />
+            </Definition>
+            """);
+
+        Assert.AreEqual(AnimalFeedingStrategyType.Scavenger, scavenger.FeedingStrategy);
+        Assert.AreEqual("Scavenger", scavenger.SaveDefinition().Element("Feeding")?.Attribute("type")?.Value);
+        Assert.AreEqual(AnimalFeedingStrategyType.Opportunist, opportunist.FeedingStrategy);
+        Assert.AreEqual("Opportunist", opportunist.SaveDefinition().Element("Feeding")?.Attribute("type")?.Value);
+    }
+
+    [TestMethod]
+    public void NpcKnownThreatLocationsEffect_PersistsAndExpiresThreatMemory()
+    {
+        Mock<IFutureProg> applicabilityProg = MockProg(0);
+        Mock<IUneditableAll<IFutureProg>> futureProgs = new();
+        futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns(applicabilityProg.Object);
+
+        Mock<ICell> oldCell = new();
+        oldCell.SetupGet(x => x.Id).Returns(11L);
+        Mock<ICell> recentCell = new();
+        recentCell.SetupGet(x => x.Id).Returns(22L);
+
+        Mock<IUneditableAll<ICell>> cells = new();
+        cells.Setup(x => x.Get(11L)).Returns(oldCell.Object);
+        cells.Setup(x => x.Get(22L)).Returns(recentCell.Object);
+
+        Mock<IFuturemud> gameworld = new();
+        gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
+        gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+
+        Mock<ICharacter> owner = new();
+        owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+
+        XElement root = XElement.Parse($"""
+            <Effect>
+              <ApplicabilityProg>0</ApplicabilityProg>
+              <Type>NpcKnownThreatLocations</Type>
+              <Effect>
+                <Cell id="11" utc="{DateTime.UtcNow.AddMinutes(-30):O}" />
+                <Cell id="22" utc="{DateTime.UtcNow.AddMinutes(-5):O}" />
+              </Effect>
+            </Effect>
+            """);
+
+        NpcKnownThreatLocationsEffect effect = new(root, owner.Object);
+        List<ICell> known = effect.KnownThreatLocations(TimeSpan.FromMinutes(10)).ToList();
+
+        CollectionAssert.AreEqual(new[] { recentCell.Object }, known);
+        Assert.IsTrue(effect.Knows(recentCell.Object, TimeSpan.FromMinutes(10)));
+        Assert.IsFalse(effect.Knows(oldCell.Object, TimeSpan.FromMinutes(10)));
+
+        string xml = effect.SaveToXml(new Dictionary<IEffect, TimeSpan>()).ToString();
+        StringAssert.Contains(xml, "id=\"22\"");
+        Assert.IsFalse(xml.Contains("id=\"11\"", StringComparison.Ordinal));
     }
 
     [TestMethod]

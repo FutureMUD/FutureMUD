@@ -4379,6 +4379,44 @@ You can use the following syntax with this command:
     }
     #endregion
 
+    #region Planes
+
+    public const string PlaneHelpText = @"The #3plane#0 command is used to edit metaphysical planes used by corporeality and perception.
+
+You can use the following syntax with this command:
+
+	#3plane list#0 - lists all planes
+	#3plane edit <which>#0 - begins editing a plane
+	#3plane edit new <name>#0 - creates a new plane
+	#3plane create <name>#0 - creates a new plane
+	#3plane close#0 - stops editing a plane
+	#3plane show <which>#0 - views a plane
+	#3plane show#0 - views your currently editing plane
+	#3plane set name <name>#0 - renames the plane
+	#3plane set aliases <aliases>#0 - sets aliases
+	#3plane set desc <description>#0 - sets the description
+	#3plane set order <number>#0 - sets display order
+	#3plane set default#0 - makes this the default plane";
+
+    [PlayerCommand("Plane", "plane")]
+    [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("Plane", PlaneHelpText, AutoHelp.HelpArgOrNoArg)]
+    protected static void Plane(ICharacter actor, string input)
+    {
+        var ss = new StringStack(input.RemoveFirstWord());
+        if (ss.PeekSpeech().EqualTo("create"))
+        {
+            ss.PopSpeech();
+            GenericBuildingCommand(actor, new StringStack($"new {ss.SafeRemainingArgument}"),
+                EditableItemHelper.PlaneHelper);
+            return;
+        }
+
+        GenericBuildingCommand(actor, ss, EditableItemHelper.PlaneHelper);
+    }
+
+    #endregion
+
     #region Hearing Profiles
 
     public const string HearingProfileHelpText = @"The #3hearprof#0 command is used to edit hearing profiles used by the perception system.

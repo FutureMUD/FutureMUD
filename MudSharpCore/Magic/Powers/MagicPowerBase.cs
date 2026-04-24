@@ -6,6 +6,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
+using MudSharp.Planes;
 using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
@@ -190,8 +191,12 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 				                      .Where(x => TargetIsValid(actor, x)));
 				break;
 			case MagicPowerDistance.SamePlaneOnly:
-				// TODO when planes are implemented
-				goto case MagicPowerDistance.SameShardOnly;
+				targets.AddRange(actor.Location.Shard.Cells
+				                      .SelectMany(x => x.Characters)
+				                      .Except(actor)
+				                      .Where(x => actor.SharesPlaneWith(x))
+				                      .Where(x => TargetIsValid(actor, x)));
+				break;
 			case MagicPowerDistance.SeenTargetOnly:
 				targets.AddRange(actor.SeenTargets
 				                      .OfType<ICharacter>()
@@ -257,12 +262,12 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 				            .Where(x => TargetIsValid(owner, x))
 				            .GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SamePlaneOnly:
-				// TODO
-				return Gameworld.Shards
-				                .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
-				                .Except(owner)
-				                .Where(x => TargetIsValid(owner, x))
-				                .GetFromItemListByKeyword(targetText, owner);
+				return owner.Location.Shard.Cells
+				            .SelectMany(x => x.Characters)
+				            .Except(owner)
+				            .Where(x => owner.SharesPlaneWith(x))
+				            .Where(x => TargetIsValid(owner, x))
+				            .GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SeenTargetOnly:
 				return owner.SeenTargets
 				            .OfType<ICharacter>()
@@ -308,7 +313,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
             case MagicPowerDistance.SameShardOnly:
                 return owner.Location.Shard == target.Location.Shard;
             case MagicPowerDistance.SamePlaneOnly:
-                return true; // TODO
+                return owner.SharesPlaneWith(target);
             case MagicPowerDistance.SeenTargetOnly:
                 return owner.SeenTargets.Concat(owner.Location.Characters.Except(owner).Where(x => owner.CanSee(x)))
                             .Contains(target);

@@ -225,6 +225,55 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 		return seededHearingProfiles;
 	}
 
+	internal static Plane SeedDefaultPlane(FuturemudDatabaseContext context)
+	{
+		var existing = context.Planes
+		                      .OrderBy(x => x.DisplayOrder)
+		                      .ThenBy(x => x.Id)
+		                      .ToList();
+		var prime = existing.FirstOrDefault(x => x.Name.Equals("Prime Material", StringComparison.InvariantCultureIgnoreCase));
+		if (prime is null)
+		{
+			prime = new Plane
+			{
+				Name = "Prime Material",
+				Alias = "prime material mundane physical",
+				Description = "The default material plane where ordinary physical existence takes place.",
+				DisplayOrder = 0,
+				IsDefault = !existing.Any(x => x.IsDefault)
+			};
+			context.Planes.Add(prime);
+			context.SaveChanges();
+			return prime;
+		}
+
+		var changed = false;
+		if (string.IsNullOrWhiteSpace(prime.Alias))
+		{
+			prime.Alias = "prime material mundane physical";
+			changed = true;
+		}
+
+		if (string.IsNullOrWhiteSpace(prime.Description))
+		{
+			prime.Description = "The default material plane where ordinary physical existence takes place.";
+			changed = true;
+		}
+
+		if (!existing.Any(x => x.IsDefault))
+		{
+			prime.IsDefault = true;
+			changed = true;
+		}
+
+		if (changed)
+		{
+			context.SaveChanges();
+		}
+
+		return prime;
+	}
+
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
 		DateTime now = DateTime.UtcNow;
@@ -257,6 +306,8 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 		context.Accounts.Add(dbaccount);
 
         SeedCulturesAndTimezoneInfos(context);
+
+		SeedDefaultPlane(context);
 
         // Default Boards
         context.Boards.Add(new Board { Name = "Deaths", ShowOnLogin = true });

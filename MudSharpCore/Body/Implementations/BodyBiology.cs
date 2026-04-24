@@ -21,6 +21,7 @@ using MudSharp.Logging;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Planes;
 using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Work.Projects.Impacts;
@@ -1821,7 +1822,7 @@ public partial class Body
     private IBreathingStrategy _breathingStrategy;
     private TimeSpan _heldBreathTime;
 
-    public bool NeedsToBreathe => !Actor.IsAdministrator() && _breathingStrategy.NeedsToBreathe;
+    public bool NeedsToBreathe => !Actor.IsAdministrator() && !this.SuspendsPhysicalContact() && _breathingStrategy.NeedsToBreathe;
     public bool IsBreathing => _breathingStrategy.IsBreathing(this);
 
     public IBreathingStrategy BreathingStrategy => _breathingStrategy;
@@ -1856,7 +1857,7 @@ public partial class Body
     public double HeldBreathPercentage =>
         Math.Max(0.0, 1.0 - HeldBreathTime.TotalSeconds / Race.HoldBreathLength(this).TotalSeconds);
 
-    public bool CanBreathe => _breathingStrategy.CanBreathe(this);
+    public bool CanBreathe => this.SuspendsPhysicalContact() || _breathingStrategy.CanBreathe(this);
 
     public IFluid BreathingFluid => _breathingStrategy.BreathingFluid(this);
 

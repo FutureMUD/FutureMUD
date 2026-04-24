@@ -28,12 +28,6 @@ using GameItem = MudSharp.Models.GameItem;
 
 namespace MudSharp.Framework;
 
-// TODO - this shouldn't be here?
-public class Plane : KeywordedItem
-{
-    public override string FrameworkItemType => "Plane";
-}
-
 public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivable
 {
     //private bool _effectsChanged;

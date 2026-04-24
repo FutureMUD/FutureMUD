@@ -284,6 +284,8 @@ Builder-visible status and cleanup tokens are discrete effect types:
 - `detectmagick` / `removedetectmagick`
 - `infravision` / `removeinfravision`
 - `comprehendlanguage` / `removecomprehendlanguage`
+- `planarstate` / `removeplanarstate`
+- `planeshift`
 
 Key runtime semantics:
 
@@ -298,6 +300,7 @@ Key runtime semantics:
 - `detectmagick`, `detectinvisible`, `detectethereal`, and `infravision` rely on additive `IEffect.PerceptionGranting` support rather than replacing a target's base perception flags.
 - `detectmagick` also exposes active magical auras from ordinary character, item, and room description flows whenever the perceiver can sense magic.
 - `comprehendlanguage` bypasses language comprehension checks, but not illiteracy or unknown-script gating.
+- `planarstate` and `planeshift` apply spell-owned planar presence overlays through the corporeality system. `removeplanarstate` clears saved and spell-owned planar overlays from the target.
 
 Other Phase 1 primitives:
 
@@ -509,6 +512,8 @@ Important implementation note:
 | `needrate` | `NeedRateSpellEffect` | Alters need rate |
 | `pacifism` | `PacifismSpellEffect` | Applies pacifism |
 | `personalward` | `PersonalWardEffect` | Applies a school-based personal ward that can fail or reflect matching incoming or outgoing magic |
+| `planarstate` | `PlanarStateSpellEffect` | Applies a corporeal or noncorporeal planar overlay to the target |
+| `planeshift` | `PlanarStateSpellEffect` | Moves the target into a configured corporeal or noncorporeal planar state |
 | `paralysis` | `ParalysisEffect` | Applies magical paralysis through the forced-paralysis hook |
 | `poison` | `PoisonEffect` | Applies a configurable spell-owned drug payload |
 | `rage` | `RageSpellEffect` | Applies rage |
@@ -523,6 +528,7 @@ Important implementation note:
 | `removeflying` | `RemoveFlyingEffect` | Removes magical flight-granting effects |
 | `removeinfravision` | `RemoveInfravisionEffect` | Removes magical infravision effects |
 | `removeparalysis` | `RemoveParalysisEffect` | Removes magical paralysis effects |
+| `removeplanarstate` | `RemovePlanarStateSpellEffect` | Removes spell-owned and saved planar-state overlays |
 | `removepoison` | `RemovePoisonEffect` | Removes a matching spell-owned poison payload |
 | `removeroomflag` | `RemoveRoomFlagEffect` | Removes a configured magical room flag |
 | `removesilence` | `RemoveSilenceEffect` | Removes magical silence effects |

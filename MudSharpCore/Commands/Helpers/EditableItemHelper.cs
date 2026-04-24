@@ -36,6 +36,7 @@ using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
 using MudSharp.RPG.Hints;
@@ -2753,6 +2754,70 @@ public partial class EditableItemHelper
         DefaultCommandHelp = BuilderModule.HeightWeightModelHelp,
 
         GetEditHeader = item => $"Height/Weight Model #{item.Id:N0} ({item.Name})"
+    };
+
+    public static EditableItemHelper PlaneHelper { get; } = new()
+    {
+        ItemName = "Plane",
+        ItemNamePlural = "Planes",
+        SetEditableItemAction = (actor, item) =>
+        {
+            actor.RemoveAllEffects<BuilderEditingEffect<IPlane>>();
+            if (item == null)
+            {
+                return;
+            }
+
+            actor.AddEffect(new BuilderEditingEffect<IPlane>(actor) { EditingItem = (IPlane)item });
+        },
+        GetEditableItemFunc = actor => actor.CombinedEffectsOfType<BuilderEditingEffect<IPlane>>().FirstOrDefault()?.EditingItem,
+        GetAllEditableItems = actor => actor.Gameworld.Planes.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Id).ToList(),
+        GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.Planes.Get(id),
+        GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.Planes.GetByIdOrName(input),
+        AddItemToGameWorldAction = item => item.Gameworld.Add((IPlane)item),
+        CastToType = typeof(IPlane),
+        EditableNewAction = (actor, input) =>
+        {
+            if (input.IsFinished)
+            {
+                actor.OutputHandler.Send("What name do you want to give to the new plane?");
+                return;
+            }
+
+            string name = input.SafeRemainingArgument.TitleCase();
+            if (actor.Gameworld.Planes.Any(x => x.Name.EqualTo(name)))
+            {
+                actor.OutputHandler.Send($"There is already a plane called {name.ColourName()}.");
+                return;
+            }
+
+            var plane = new MudSharp.Planes.Plane(actor.Gameworld, name);
+            actor.Gameworld.Add(plane);
+            actor.RemoveAllEffects<BuilderEditingEffect<IPlane>>();
+            actor.AddEffect(new BuilderEditingEffect<IPlane>(actor) { EditingItem = plane });
+            actor.OutputHandler.Send($"You create a new plane called {name.ColourName()}, which you are now editing.");
+        },
+        GetListTableHeaderFunc = character => new List<string> { "Id", "Name", "Default?", "Order", "Aliases" },
+        GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IPlane>()
+                                                          orderby proto.DisplayOrder, proto.Id
+                                                          select new List<string>
+                                                          {
+                                                              proto.Id.ToString("N0", character),
+                                                              proto.Name,
+                                                              proto.IsDefault.ToColouredString(),
+                                                              proto.DisplayOrder.ToString("N0", character),
+                                                              proto.Aliases.ListToString()
+                                                          },
+        CustomSearch = (protos, keyword, gameworld) =>
+            protos.OfType<IPlane>()
+                  .Where(x =>
+                      x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+                      x.Aliases.Any(y => y.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)) ||
+                      x.Description.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
+                  .Cast<IEditableItem>()
+                  .ToList(),
+        DefaultCommandHelp = BuilderModule.PlaneHelpText,
+        GetEditHeader = item => $"Plane #{item.Id:N0} ({item.Name})"
     };
 
     public static EditableItemHelper HearingProfileHelper { get; } = new()

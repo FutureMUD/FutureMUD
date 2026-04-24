@@ -50,6 +50,8 @@ This design makes health heavily simulation-oriented. The system cares about whe
 | Health-adjacent items | Cannula, IV, rebreather, defibrillator, implant, prosthetic, external organ components | Emergency care, surgery, organ replacement, breathing support | Low-tech items are seeded broadly; higher-tech components are mostly runtime-only |
 | Effects | Concrete effects in `MudSharpCore/Effects/Concrete` | Long-running actions, temporary modifiers, organ stabilization, drug overlays | Many are runtime glue rather than directly seeded content |
 
+Planar corporeality is a cross-cutting modifier rather than a health strategy. When a resolved planar state suspends physical contact, ordinary breathing need, drowning pressure, falling consequences, and mundane environmental contact are suspended before the usual health ticks create consequences. This allows ghosts, spirits, and temporary noncorporeal powers to opt out of physical-world physiology without special-casing every race.
+
 ## End-to-End Flow
 ### 1. Baseline definition
 Characters start from race data. That data chooses the body prototype, blood model, corpse model, breathing model, whether the race needs to breathe, and a default health strategy.

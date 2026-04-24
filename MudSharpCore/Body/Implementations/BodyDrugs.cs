@@ -7,6 +7,7 @@ using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.Magic;
 using MudSharp.Models;
+using MudSharp.Planes;
 using MudSharp.RPG.Merits.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -242,6 +243,8 @@ public partial class Body
         DoubleCounter<IMagicCapability> magicCapabilities = new();
         DoubleCounter<BodypartTypeEnum> damagedOrgans = new();
         DoubleCounter<BodypartTypeEnum> organFunctionMods = new();
+        PlanarStateAdditionalInfo planarStateInfo = null;
+        double planarStateIntensity = 0.0;
         List<ISpecificDrugResistanceMerit> specificMerits = Actor.Merits.OfType<ISpecificDrugResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
         foreach ((IDrug drug, double grams) in drugIntensities)
         {
@@ -297,6 +300,16 @@ public partial class Body
                     foreach (BodypartTypeEnum organ in drug.AdditionalInfoFor<OrganFunctionAdditionalInfo>(DrugType.OrganFunction).OrganTypes)
                     {
                         organFunctionMods[organ] += drug.IntensityForType(drugEffect) * adjustedgrams;
+                    }
+                }
+
+                if (drugEffect == DrugType.PlanarState)
+                {
+                    var intensity = drug.IntensityForType(drugEffect) * adjustedgrams;
+                    if (intensity > planarStateIntensity)
+                    {
+                        planarStateIntensity = intensity;
+                        planarStateInfo = drug.AdditionalInfoFor<PlanarStateAdditionalInfo>(DrugType.PlanarState);
                     }
                 }
 
@@ -589,6 +602,35 @@ public partial class Body
                                                       (Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001));
                         break;
                     }
+                case DrugType.PlanarState:
+                    {
+                        if (planarStateInfo is null || effect.Value - neutralisingEffects.ValueOrDefault(effect.Key) <= 0.0)
+                        {
+                            break;
+                        }
+
+                        var plane = Gameworld.Planes.Get(planarStateInfo.PlaneId) ?? Gameworld.DefaultPlane;
+                        if (plane is null)
+                        {
+                            break;
+                        }
+
+                        var definition = planarStateInfo.State.EqualToAny("corporeal", "manifest", "manifested")
+                            ? PlanarPresenceDefinition.Manifested(plane)
+                            : PlanarPresenceDefinition.NonCorporeal(plane, planarStateInfo.VisibleToDefaultPlane);
+                        var planarEffect = EffectsOfType<DrugInducedPlanarStateEffect>().FirstOrDefault();
+                        if (planarEffect is null)
+                        {
+                            planarEffect = new DrugInducedPlanarStateEffect(this, definition);
+                            EffectHandler.AddEffect(planarEffect);
+                        }
+                        else
+                        {
+                            planarEffect.UpdateDefinition(definition);
+                        }
+
+                        break;
+                    }
             }
         }
 
@@ -677,6 +719,12 @@ public partial class Body
             neutralisingEffects.ValueOrDefault(DrugType.VisionImpairment) <= 0.0)
         {
             EffectHandler.RemoveAllEffects<VisionImpairmentDrugEffect>(fireRemovalAction: true);
+        }
+
+        if (effectIntensities.ValueOrDefault(DrugType.PlanarState) -
+            neutralisingEffects.ValueOrDefault(DrugType.PlanarState) <= 0.0)
+        {
+            EffectHandler.RemoveAllEffects<DrugInducedPlanarStateEffect>(fireRemovalAction: true);
         }
 
         if (!applicableCapabilities.Any())

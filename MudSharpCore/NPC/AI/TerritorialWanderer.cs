@@ -223,12 +223,12 @@ public class TerritorialWanderer : PathingAIBase
     {
     }
 
-    private TerritorialWanderer()
+    protected TerritorialWanderer()
     {
 
     }
 
-    private TerritorialWanderer(IFuturemud gameworld, string name) : base(gameworld, name, "TerritorialWanderer")
+    protected TerritorialWanderer(IFuturemud gameworld, string name, string type = "TerritorialWanderer") : base(gameworld, name, type)
     {
         SuitableTerritoryProg = Gameworld.AlwaysTrueProg;
         DesiredTerritorySizeProg = Gameworld.AlwaysOneProg;
@@ -236,7 +236,10 @@ public class TerritorialWanderer : PathingAIBase
         WanderChancePerMinute = 0.33;
         WillShareTerritory = false;
         WillShareTerritoryWithOtherRaces = true;
-        DatabaseInitialise();
+        if (type == "TerritorialWanderer")
+        {
+            DatabaseInitialise();
+        }
     }
 
     #region Overrides of PathingAIBase

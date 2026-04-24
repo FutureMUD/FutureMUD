@@ -438,6 +438,7 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 | --- | --- | --- | --- |
 | `AggressivePatherAI` | Yes | Prog-target pathing AI that hunts for attack targets and engages with delay/emote support | Aggressive classification |
 | `AggressorAI` | Yes | Simple immediate aggression against prog-selected targets | Aggressive classification |
+| `AnimalAI` | Yes | Compositional animal AI with configurable movement, home, feeding, water, threat, awareness, refuge, and activity strategy slots | Replaces the branch-only solo predator and forager classes; stores configuration in one AI XML payload and per-NPC water/threat memories in effects |
 | `ArborealWandererAI` | Yes | Tree-dwelling movement AI that prefers arboreal layers and only descends when explicitly allowed | Built on `PathingAIBase` plus multi-layer pathing |
 | `ArenaParticipantAI` | Yes | Arena-aware combat AI that handles preparation, ambush options, and opponent-only targeting inside arena events | Keeps arena rules out of the general aggressor family |
 | `CombatEndAI` | Yes | Controls truce acceptance and post-incapacitation combat ending behavior | Reactive combat cleanup layer |
@@ -471,11 +472,17 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 ### Reading the Current AI Set
 The current AI roster clusters into a few families:
 
-- aggression and combat: `AggressorAI`, `AggressivePatherAI`, `SemiAggressiveAI`, `TrackingAggressorAI`, `ArenaParticipantAI`, `CombatEndAI`, `RescuerAI`, `SparPartnerAI`
-- movement and territory: `WandererAI`, `FlyingWanderer`, `PathToLocationAI`, `TerritorialWanderer`, `ArborealWandererAI`
+- aggression and combat: `AggressorAI`, `AnimalAI`, `AggressivePatherAI`, `SemiAggressiveAI`, `TrackingAggressorAI`, `ArenaParticipantAI`, `CombatEndAI`, `RescuerAI`, `SparPartnerAI`
+- movement and territory: `WandererAI`, `FlyingWanderer`, `PathToLocationAI`, `TerritorialWanderer`, `AnimalAI`, `ArborealWandererAI`
 - service/content roles: `DoorguardAI`, `ShopkeeperAI`, `LawyerAI`, `JudgeAI`, `EnforcerAI`, `MountAI`, `CommandableAI`
 - ambience and lightweight reactions: `IdleEmoterAI`, `ReactAI`, `StealthAI`, `SelfCareAI`
-- animal/specialized behavior: `WildAnimalHerdAI`, `ScavengeAI`, `DenBuilderAI`, `LairScavengerAI`
+- animal/specialized behavior: `AnimalAI`, `WildAnimalHerdAI`, `ScavengeAI`, `DenBuilderAI`, `LairScavengerAI`
+
+`AnimalAI` exposes named strategy slots to builders: `movement` (`ground`, `swim`, `fly`, `arboreal`), `home` (`none`, `territorial`, `denning`), `feeding` (`none`, `predator`, `denpredator`, `forager`, `scavenger`, `opportunist`), `water` (`on`, `off`), `threat` (`passive`, `flee`, `defend`, `hungrypredator`), `awareness` (`none`, `wary`, `wimpy`, `skittish`, `guarding`), `refuge` (`none`, `home`, `den`, `trees`, `sky`, `water`, `prog`), and `activity` (`always`, `diurnal`, `nocturnal`, `crepuscular`, `custom`). Slot-specific builder commands configure movement range and layers, territory progs, den or burrow progs and craft, predator attack progs, engagement timing, awareness threat/avoidance progs, refuge layers/cell progs, activity windows, and movement filters. `show` reports the slots together with readiness, and validation rejects impossible combinations such as `feeding denpredator` without `home denning`, `refuge sky` without flying movement, or custom activity with no active times.
+
+The `AnimalAI` water slot uses `NpcKnownWaterLocationsEffect` to persist water memories on each NPC. The awareness slot similarly uses `NpcKnownThreatLocationsEffect` to remember recently seen threat cells with expiry. When animals see a drinkable local liquid source they remember that cell. When thirsty, they try to drink locally before eating, hunting, foraging, returning home, or building; pathing variants first attempt remembered water cells and then search nearby cells for a new drinkable liquid source. If a remembered water cell is dry when visited, the NPC forgets that location. Wary, wimpy, and skittish animals consult current threats, avoid-cell progs, and remembered threat locations before survival needs.
+
+The `AnimalAI` feeding, refuge, activity, and home slots cover the former branch-only solo predator and forager behavior plus basic solitary animal instincts. Predator variants eat local edible corpses before hunting and only choose edible prey when using hungry-predator threat behavior. Den predators claim killed prey, drag the corpse back to the den, and resume fighting if attacked while dragging or eating. Forager variants eat direct edible yields first and use `FORAGE` when eligible forageables exist. Scavengers eat corpses, severed bodyparts, and edible items without hunting; opportunists combine scavenging and foraging without adding predator attacks. Denning animals return to their home cell when fed and watered, and can optionally create a burrow through the configured craft. Refuge and activity settings allow patterns such as wimpy animals retreating to a configured safe place, skittish arboreal animals returning to tree layers, and flyers returning to sky layers once thirst and hunger are satisfied.
 
 ## Group AI Catalogue
 ### Current Group Types

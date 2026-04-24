@@ -1330,36 +1330,6 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 
         #endregion region
 
-        #region Progs
-
-        FutureProg attributeBonusProg = new()
-        {
-            FunctionName = "HumanAttributeBonus",
-            FunctionComment =
-                "This prog is called for each attribute for humans at chargen time and the resulting value is applied as a modifier to that attribute.",
-            Category = "Character",
-            Subcategory = "Race",
-            ReturnType = 2,
-            AcceptsAnyParameters = false,
-            StaticType = 0,
-            FunctionText =
-                @"// Replace this below example with your specific modifiers
-if (@trait.Name == ""Example"")
-  return 2
-end if
-return 0"
-        };
-        attributeBonusProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = attributeBonusProg,
-            ParameterName = "trait",
-            ParameterIndex = 0,
-            ParameterType = 16384
-        });
-        _context.FutureProgs.Add(attributeBonusProg);
-
-        #endregion
-
         #region Blood Models
 
         BloodModel bloodModel = new()
@@ -1759,7 +1729,6 @@ return 0"
                 "The base humanoid race. This race should never be the final race of something; it is designed to be a base race for other humanoids.",
             BaseBody = baseBody,
             AllowedGenders = "2 3",
-            AttributeBonusProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysZero"),
             AttributeTotalCap = _context.TraitDefinitions.Count(x => x.Type == 1) * 12,
             IndividualAttributeCap = 20,
             DiceExpression = "3d6+1",
@@ -1817,7 +1786,6 @@ return 0"
                 "The base organic humanoid race. This race should never be the final race of something; it is designed to be a base race for other organic humanoids.",
             BaseBody = baseBody,
             AllowedGenders = "2 3",
-            AttributeBonusProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysZero"),
             AttributeTotalCap = _context.TraitDefinitions.Count(x => x.Type == 1) * 12,
             IndividualAttributeCap = 20,
             DiceExpression = "3d6+1",
@@ -1880,7 +1848,6 @@ return 0"
                 "In the reckonings of most worlds, humans are the youngest of the common races, late to arrive on the world scene and short-lived in comparison to dwarves, elves, and dragons. Perhaps it is because of their shorter lives that they strive to achieve as much as they can in the years they are given. Or maybe they feel they have something to prove to the elder races, and that’s why they build their mighty empires on the foundation of conquest and trade. Whatever drives them, humans are the innovators, the achievers, and the pioneers of the worlds.",
             BaseBody = organicBody,
             AllowedGenders = useNonBinary ? "2 3 4" : "2 3",
-            AttributeBonusProg = attributeBonusProg,
             AttributeTotalCap = _context.TraitDefinitions.Count(x => x.Type == 1) * 12,
             IndividualAttributeCap = 20,
             DiceExpression = "3d6+1",
@@ -1943,7 +1910,8 @@ return 0"
             {
                 Race = organicHumanoidRace,
                 Attribute = attribute,
-                IsHealthAttribute = attribute.TraitGroup == "Physical"
+                IsHealthAttribute = attribute.TraitGroup == "Physical",
+                AttributeBonus = 0.0
             });
         }
 

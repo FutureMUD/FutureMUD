@@ -286,7 +286,7 @@ public partial class AnimalSeeder
                 "Its beard, angular skull and sweeping horns give it a stubbornly self-possessed look.",
                 "It looks happiest when climbing where other animals should not.",
                 "crags, rough pasture and broken hills"),
-            "Goats", usages: hornedFemale, combatStrategyKey: "Beast Behemoth");
+            "Goats", usages: hornedFemale, combatStrategyKey: "Beast Skirmisher");
         yield return Mammal("Llama", "Llama", "Ungulate", SizeCategory.Normal, 1.0, "Large Ungulate",
             "stock-mammal", "camelid-spitter",
             MammalPack("a cria", "a young male llama", "a young female llama", "a male llama", "a female llama",
@@ -421,7 +421,7 @@ public partial class AnimalSeeder
                 "Its calm eyes and sweeping ribs speak of a lifetime spent grazing and ruminating.",
                 "It has the placid, heavy patience of domestic stock.",
                 "pasture, open field and cattle yard"),
-            "Cows", bloodProfile: "bovine", usages: hornedFemale, combatStrategyKey: "Beast Behemoth");
+            "Cows", bloodProfile: "bovine", usages: hornedFemale, combatStrategyKey: "Beast Coward");
         yield return Mammal("Ox", "Ox", "Ungulate", SizeCategory.Large, 1.7, "Large Ungulate",
             "stock-mammal", "bovid",
             MammalPack("a calf", "a young bull", "a young cow", "an ox", "a cow",
@@ -429,7 +429,7 @@ public partial class AnimalSeeder
                 "Its sheer frame suggests hauling power rather than speed or elegance.",
                 "It stands with the settled endurance of a working beast.",
                 "field, road and draft yard"),
-            "Oxen", usages: hornedFemale, combatStrategyKey: "Beast Behemoth");
+            "Oxen", usages: hornedFemale, combatStrategyKey: "Beast Brawler");
         yield return Mammal("Bison", "Bison", "Ungulate", SizeCategory.Large, 1.5, "Large Ungulate",
             "stock-mammal", "bovid",
             MammalPack("a bison calf", "a young bull bison", "a young cow bison", "a bull bison", "a cow bison",
@@ -453,7 +453,7 @@ public partial class AnimalSeeder
                 "Its long face, lively ears and large dark eyes give it an intelligent, responsive look.",
                 "It carries itself with a mixture of high-strung energy and practiced athleticism.",
                 "plain, pasture and stable"),
-            "Horse", canClimb: false, bloodProfile: "equine", usages: udder, combatStrategyKey: "Beast Behemoth");
+            "Horse", canClimb: false, bloodProfile: "equine", usages: udder, combatStrategyKey: "Beast Skirmisher");
         yield return Mammal("Rhinocerous", "Ceratorhine", "Ungulate", SizeCategory.Large, 1.5, "Pachyderm",
             "large-hooved", "rhino",
             MammalPack("a rhino calf", "a young bull rhino", "a young cow rhino", "a bull rhino", "a cow rhino",
@@ -493,6 +493,6 @@ public partial class AnimalSeeder
                 "Its small horn-like ossicones and impossibly elevated head give it a peculiar dignity.",
                 "It lopes rather than walks, with an awkward grace all its own.",
                 "dry savannah and scattered acacia country"),
-            combatStrategyKey: "Beast Behemoth");
+            combatStrategyKey: "Beast Skirmisher");
     }
 }

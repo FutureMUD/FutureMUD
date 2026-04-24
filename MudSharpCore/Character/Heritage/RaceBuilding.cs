@@ -72,11 +72,12 @@ public partial class Race
 	#3variable promote <characteristic>#0 - pushes a characteristic up to the parent race
 	#3variable demote <characteristic>#0 - pushes a characteristic down to all child races (and remove from this)
 	#3attribute <which>#0 - toggles this race having the specified attribute
+	#3attribute bonus <which> <amount>#0 - sets a racial lookup-time bonus for an attribute
+	#3attribute dice <which> <dice|default>#0 - overrides the default chargen dice expression for an attribute
 	#3attribute promote <which>#0 - pushes this attribute up to the parent race
 	#3attribute demote <which>#0 - pushes this attribute down to all child races (and remove from this)
 	#3roll <dice>#0 - the dice roll expression (#6xdy+z#0) for attributes for this race
 	#3cap <number>#0 - the total cap on the sum of attributes for this race
-	#3bonusprog <which>#0 - sets the prog that controls attribute bonuses
 	#3corpse <model>#0 - changes the corpse model of the race
 	#3health <model>#0 - changes the health mode of the race
 	#3perception <%>#0 - sets the light-percetion multiplier of the race (higher is better)
@@ -243,7 +244,7 @@ public partial class Race
             case "bonusprog":
             case "attributeprog":
             case "attrbonusprog":
-                return BuildingCommandAttributeBonusProg(actor, command);
+                return BuildingCommandObsoleteAttributeBonusProg(actor);
             case "caneatcorpses":
             case "eatcorpses":
             case "caneatcorpse":
@@ -1226,31 +1227,11 @@ public partial class Race
         return true;
     }
 
-    private bool BuildingCommandAttributeBonusProg(ICharacter actor, StringStack command)
+    private bool BuildingCommandObsoleteAttributeBonusProg(ICharacter actor)
     {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which prog should be used to determine the attribute bonuses for this race?");
-            return false;
-        }
-
-        IFutureProg prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-            ProgVariableTypes.Number,
-            [
-                [ProgVariableTypes.Trait],
-                [ProgVariableTypes.Trait, ProgVariableTypes.Chargen]
-            ]
-            ).LookupProg();
-        if (prog is null)
-        {
-            return false;
-        }
-
-        AttributeBonusProg = prog;
-        Changed = true;
         actor.OutputHandler.Send(
-            $"This race now uses the {prog.MXPClickableFunctionName()} prog to determine its attribute bonuses.");
-        return true;
+            $"Racial attribute bonuses are now configured directly on the race. Use {"attribute bonus <attribute> <amount>".ColourCommand()} instead.");
+        return false;
     }
 
     private bool BuildingCommandAttributeCap(ICharacter actor, StringStack command)
@@ -1300,12 +1281,21 @@ public partial class Race
             return false;
         }
 
-        switch (command.SafeRemainingArgument.ToLowerInvariant().CollapseString())
+        switch (command.PeekSpeech().ToLowerInvariant().CollapseString())
         {
             case "promote":
+                command.PopSpeech();
                 return BuildingCommandAttributePromote(actor, command);
             case "demote":
+                command.PopSpeech();
                 return BuildingCommandAttributeDemote(actor, command);
+            case "bonus":
+                command.PopSpeech();
+                return BuildingCommandAttributeBonus(actor, command);
+            case "dice":
+            case "roll":
+                command.PopSpeech();
+                return BuildingCommandAttributeDice(actor, command);
         }
 
         IAttributeDefinition attribute = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument) as IAttributeDefinition;
@@ -1317,25 +1307,36 @@ public partial class Race
 
         if (!_attributes.Contains(attribute))
         {
-            _attributes.Add(attribute);
+            var alreadyInherited = ParentRace?.Attributes.Contains(attribute) == true;
+            EnsureOwnAttributeAlteration(attribute);
             Changed = true;
-            actor.OutputHandler.Send(
-                $"This race now has the {attribute.Name.ColourName()} attribute. All existing characters have been given a value of {10.ToString("N0", actor).ColourValue()} in this attribute.");
-            RecalculateCharactersBecauseOfRaceChange();
+            actor.OutputHandler.Send(alreadyInherited
+                ? $"This race now has its own local settings for the inherited {attribute.Name.ColourName()} attribute."
+                : $"This race now has the {attribute.Name.ColourName()} attribute. All existing characters have been given a value of {10.ToString("N0", actor).ColourValue()} in this attribute.");
+            if (!alreadyInherited)
+            {
+                RecalculateCharactersBecauseOfRaceChange();
+            }
             return true;
         }
 
-        actor.OutputHandler.Send(
-            $"Are you sure you want to remove the {attribute.Name.ColourName()} attribute from the {Name.ColourName()} race? This will irrevocably remove the existing value of this attribute from all existing characters.\n{Accept.StandardAcceptPhrasing}");
+        var remainsInherited = ParentRace?.Attributes.Contains(attribute) == true;
+        actor.OutputHandler.Send(remainsInherited
+            ? $"Are you sure you want to remove the local settings for the inherited {attribute.Name.ColourName()} attribute from the {Name.ColourName()} race?\n{Accept.StandardAcceptPhrasing}"
+            : $"Are you sure you want to remove the {attribute.Name.ColourName()} attribute from the {Name.ColourName()} race? This will irrevocably remove the existing value of this attribute from all existing characters.\n{Accept.StandardAcceptPhrasing}");
         actor.AddEffect(new Accept(actor, new GenericProposal
         {
             AcceptAction = text =>
             {
-                _attributes.Remove(attribute);
+                RemoveAttribute(attribute);
                 Changed = true;
-                RecalculateCharactersBecauseOfRaceChange();
-                actor.OutputHandler.Send(
-                    $"You remove the {attribute.Name.ColourName()} attribute from the {Name.ColourName()} race.");
+                if (!remainsInherited)
+                {
+                    RecalculateCharactersBecauseOfRaceChange();
+                }
+                actor.OutputHandler.Send(remainsInherited
+                    ? $"You remove the local settings for the inherited {attribute.Name.ColourName()} attribute from the {Name.ColourName()} race."
+                    : $"You remove the {attribute.Name.ColourName()} attribute from the {Name.ColourName()} race.");
             },
             RejectAction = text =>
             {
@@ -1350,7 +1351,96 @@ public partial class Race
             Keywords = new List<string> { "attribute", "remove", attribute.Name.ToLowerInvariant() },
             DescriptionString =
                 $"Removing the {attribute.Name.ColourName()} attribute from the {Name.ColourName()} race"
-        }));
+        })); 
+        return true;
+    }
+
+    private bool BuildingCommandAttributeBonus(ICharacter actor, StringStack command)
+    {
+        if (command.CountRemainingArguments() < 2)
+        {
+            actor.OutputHandler.Send(
+                $"Which attribute do you want to set a racial bonus for, and what bonus should it have? The syntax is {"attribute bonus <attribute> <amount>".ColourCommand()}.");
+            return false;
+        }
+
+        var text = command.SafeRemainingArgument;
+        var lastSpace = text.LastIndexOf(' ');
+        if (lastSpace <= 0 || !double.TryParse(text[(lastSpace + 1)..], out var value))
+        {
+            actor.OutputHandler.Send(
+                $"You must enter a valid numeric bonus after the attribute name, e.g. {"attribute bonus strength 2".ColourCommand()}.");
+            return false;
+        }
+
+        var attributeText = text[..lastSpace];
+        if (Gameworld.Traits.GetByIdOrName(attributeText) is not IAttributeDefinition attribute)
+        {
+            actor.OutputHandler.Send("There is no such attribute like that.");
+            return false;
+        }
+
+        var alreadyHadAttribute = Attributes.Contains(attribute);
+        var alteration = EnsureOwnAttributeAlteration(attribute);
+        alteration.Bonus = value;
+        Changed = true;
+        if (!alreadyHadAttribute)
+        {
+            RecalculateCharactersBecauseOfRaceChange();
+        }
+
+        actor.OutputHandler.Send(
+            $"This race now applies a {value.ToString("N2", actor).ColourValue()} racial bonus to {attribute.Name.ColourName()} at lookup time.");
+        return true;
+    }
+
+    private bool BuildingCommandAttributeDice(ICharacter actor, StringStack command)
+    {
+        if (command.CountRemainingArguments() < 2)
+        {
+            actor.OutputHandler.Send(
+                $"Which attribute do you want to set a dice override for, and what dice expression should it use? The syntax is {"attribute dice <attribute> <dice|default>".ColourCommand()}.");
+            return false;
+        }
+
+        var text = command.SafeRemainingArgument;
+        var lastSpace = text.LastIndexOf(' ');
+        if (lastSpace <= 0)
+        {
+            actor.OutputHandler.Send(
+                $"You must enter a valid dice expression after the attribute name, e.g. {"attribute dice strength 1d10+25".ColourCommand()}.");
+            return false;
+        }
+
+        var attributeText = text[..lastSpace];
+        var diceText = text[(lastSpace + 1)..];
+        if (Gameworld.Traits.GetByIdOrName(attributeText) is not IAttributeDefinition attribute)
+        {
+            actor.OutputHandler.Send("There is no such attribute like that.");
+            return false;
+        }
+
+        var alteration = EnsureOwnAttributeAlteration(attribute);
+        if (diceText.EqualTo("default") || diceText.EqualTo("none") || diceText.EqualTo("clear"))
+        {
+            alteration.DiceExpression = null;
+            Changed = true;
+            actor.OutputHandler.Send(
+                $"The {attribute.Name.ColourName()} attribute now uses this race's default attribute dice expression of {DiceExpression.ColourCommand()}.");
+            return true;
+        }
+
+        if (!Dice.IsDiceExpression(diceText))
+        {
+            actor.OutputHandler.Send(
+                $"The text {diceText.ColourCommand()} is not a valid dice expression.");
+            return false;
+        }
+
+        alteration.DiceExpression = diceText;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"The {attribute.Name.ColourName()} attribute now rolls {diceText.ColourCommand()} for this race instead of the default {DiceExpression.ColourCommand()}.");
         return true;
     }
 
@@ -1376,12 +1466,14 @@ public partial class Race
             return false;
         }
 
+        var bonus = AttributeBonus(attribute);
+        var diceExpression = AttributeDiceExpression(attribute);
         foreach (IRace child in children)
         {
-            child.AddAttributeFromDemotion(attribute);
+            child.AddAttributeFromDemotion(attribute, bonus, diceExpression);
         }
 
-        _attributes.Remove(attribute);
+        RemoveAttribute(attribute);
         Changed = true;
         actor.OutputHandler.Send(
             $"The {attribute.Name.ColourName()} attribute has now been demoted to being on all of the child races.");
@@ -1411,11 +1503,13 @@ public partial class Race
             return false;
         }
 
-        _attributes.Remove(attribute);
+        var bonus = AttributeBonus(attribute);
+        var diceExpression = AttributeDiceExpression(attribute);
+        RemoveAttribute(attribute);
         Changed = true;
         actor.OutputHandler.Send(
             $"You push the {attribute.Name.ColourName()} attribute up to the parent race. Those without the attribute will start with a new value of {10.ToString("N0", actor).ColourValue()}.");
-        ParentRace.AddAttributeFromPromotion(attribute);
+        ParentRace.AddAttributeFromPromotion(attribute, bonus, diceExpression);
         return true;
     }
 
@@ -2327,6 +2421,11 @@ public partial class Race
                         {
                             _attributes.Add(attribute);
                         }
+
+                        var alteration = EnsureAttributeAlteration(attribute);
+                        alteration.Bonus = ParentRace.AttributeBonus(attribute);
+                        var diceExpression = ParentRace.AttributeDiceExpression(attribute);
+                        alteration.DiceExpression = diceExpression.EqualTo(DiceExpression) ? null : diceExpression;
                     }
 
                     foreach ((Gender Gender, Form.Characteristics.ICharacteristicDefinition Definition) characteristic in ParentRace.GenderedCharacteristics)
@@ -2668,22 +2767,29 @@ public partial class Race
             $"Attribute Cap: {IndividualAttributeCap.ToString("N0", actor).Colour(Telnet.Green)}",
             $"Total Cap: {AttributeTotalCap.ToString("N0", actor).Colour(Telnet.Green)}"
         );
-        sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
-            $"Bonus Prog: {(AttributeBonusProg == null ? "None".Colour(Telnet.Red) : string.Format("{0} (#{1:N0})".FluentTagMXP("send", $"href='show futureprog {AttributeBonusProg.Id}'"), AttributeBonusProg.FunctionName, AttributeBonusProg.Id))}",
-            $"",
-            ""
-        );
         sb.AppendLine();
-        foreach (IAttributeDefinition attribute in Attributes)
-        {
-            if (!_attributes.Contains(attribute))
+        sb.AppendLine(StringUtilities.GetTextTable(
+            from attribute in Attributes.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+            let local = _attributes.Contains(attribute)
+            select new List<string>
             {
-                sb.AppendLine($"\t{attribute.Name.ColourName()} {"(From Parent)".Colour(Telnet.BoldMagenta)}");
-                continue;
-            }
-
-            sb.AppendLine($"\t{attribute.Name.ColourName()}");
-        }
+                attribute.Name,
+                AttributeBonus(attribute).ToString("N2", actor),
+                AttributeDiceExpression(attribute),
+                HealthTraits.Contains(attribute).ToColouredString(),
+                local ? "Local" : "Parent"
+            },
+            new List<string>
+            {
+                "Attribute",
+                "Bonus",
+                "Dice",
+                "Health?",
+                "Source"
+            },
+            actor,
+            Telnet.Green
+        ));
 
         sb.AppendLine();
         sb.AppendLine("Nourishment".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));

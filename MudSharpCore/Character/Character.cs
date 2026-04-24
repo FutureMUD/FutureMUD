@@ -1159,7 +1159,7 @@ public partial class Character : PerceiverItem, ICharacter
             sb.AppendLine($"Project: {"None".ColourError()}");
         }
         sb.AppendLine();
-        sb.AppendLine($"Stats: {TraitsOfType(TraitType.Attribute).Select(x => $"{x.Definition.Name.ColourName()} [{x.Value.ToString("N0", voyeur).ColourValue()}]").ListToString(separator: " ", conjunction: "")}");
+        sb.AppendLine($"Stats: {TraitsOfType(TraitType.Attribute).Select(x => $"{x.Definition.Name.ColourName()} [{TraitValue(x.Definition).ToString("N0", voyeur).ColourValue()}]").ListToString(separator: " ", conjunction: "")}");
         sb.AppendLine();
         sb.AppendLine($"Skills:");
         sb.AppendLine();

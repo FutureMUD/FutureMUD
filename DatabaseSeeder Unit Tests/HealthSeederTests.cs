@@ -77,7 +77,6 @@ public class HealthSeederTests
             Description = "Organic Humanoid test race",
             BaseBodyId = 0,
             AllowedGenders = "Male Female Neuter NonBinary",
-            AttributeBonusProgId = 0,
             DiceExpression = "1d100",
             CorpseModelId = 0,
             DefaultHealthStrategyId = 0,

@@ -29,7 +29,6 @@ namespace MudSharp.Models
         public long BaseBodyId { get; set; }
         public string AllowedGenders { get; set; }
         public long? ParentRaceId { get; set; }
-        public long AttributeBonusProgId { get; set; }
         public int AttributeTotalCap { get; set; }
         public int IndividualAttributeCap { get; set; }
         public string DiceExpression { get; set; }
@@ -95,7 +94,6 @@ namespace MudSharp.Models
         public virtual HeightWeightModel DefaultHeightWeightModelFemale { get; set; }
         public virtual HeightWeightModel DefaultHeightWeightModelNeuter { get; set; }
         public virtual HeightWeightModel DefaultHeightWeightModelNonBinary { get; set; }
-        public virtual FutureProg AttributeBonusProg { get; set; }
         public virtual FutureProg AvailabilityProg { get; set; }
         public virtual BodyProto BaseBody { get; set; }
         public virtual Liquid BloodLiquid { get; set; }

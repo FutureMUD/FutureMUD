@@ -1127,7 +1127,6 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
     {
         bool usesHumanoidDefaults = template.HumanoidVariety ||
                                   (template.CanUseWeapons && template.BodyKey.EqualTo("Organic Humanoid"));
-        FutureProg attributeBonusProg = CreateMythicalAttributeBonusProg(template);
         Race race = new()
         {
             Name = template.Name,
@@ -1135,7 +1134,6 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             BaseBody = body,
             AllowedGenders = usesHumanoidDefaults ? _organicHumanoidRace.AllowedGenders : "2 3",
             ParentRace = template.HumanoidVariety ? _organicHumanoidRace : null,
-            AttributeBonusProg = attributeBonusProg,
             AttributeTotalCap = _context.TraitDefinitions.Count(x => x.Type == (int)TraitType.Attribute) * 12,
             IndividualAttributeCap = 20,
             DiceExpression = "3d6+1",
@@ -1192,13 +1190,15 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         _context.Races.Add(race);
         _context.SaveChanges();
 
-        foreach (TraitDefinition? attribute in _context.TraitDefinitions.Where(x => x.Type == (int)TraitType.Attribute))
+        foreach (TraitDefinition? attribute in _context.TraitDefinitions
+                     .Where(x => x.Type == (int)TraitType.Attribute || x.Type == (int)TraitType.DerivedAttribute))
         {
             _context.RacesAttributes.Add(new RacesAttributes
             {
                 Race = race,
                 Attribute = attribute,
-                IsHealthAttribute = attribute.TraitGroup == "Physical"
+                IsHealthAttribute = attribute.TraitGroup == "Physical",
+                AttributeBonus = GetMythicalAttributeBonus(attribute, template)
             });
         }
         ApplyBreathingProfile(race, GetBreathingProfile(template));

@@ -4,7 +4,7 @@
 This pass focused specifically on seeded animal and mythical race physical scaling.
 
 ### Animals
-- Ordinary animals no longer seed an all-zero racial attribute bonus prog.
+- Ordinary animals now seed row-backed racial attribute bonuses instead of an all-zero creation-time bonus prog.
 - `AnimalSeeder` now builds racial physical bonuses from:
 - `SizeCategory`
 - attack-loadout role
@@ -12,11 +12,36 @@ This pass focused specifically on seeded animal and mythical race physical scali
 - Selected species also get small explicit overrides where the generic rule would undersell or oversell them.
 
 ### Mythics
-- Mythical races no longer use `_alwaysZero` for `AttributeBonusProg`.
+- Mythical races now seed row-backed racial attribute bonuses instead of `_alwaysZero` creation-time prog wiring.
 - `MythicalRaceTemplate` now carries:
 - an explicit `NonHumanAttributeProfile`
 - an explicit `BodypartHealthMultiplier`
 - `SeedRace` now applies both directly to the seeded race.
+
+### 2026 row-backed race attribute update
+- Racial attribute alterations now live on `Races_Attributes` as `AttributeBonus` plus an optional per-attribute `DiceExpression`.
+- Runtime lookup applies the race bonus from the active body at trait lookup time instead of adding it to the stored chargen or NPC attribute value.
+- Missing race-attribute rows, or rows without a specific bonus, are treated as zero-bonus legacy data.
+
+### 2026 second-pass seeded bonus tuning
+- Herbivore loadouts now reserve more of their profile for mobility or charge identity instead of pushing almost everything into strength and constitution.
+- Explicit animal outliers were moved into species profiles rather than broadening whole loadouts:
+  - `Cheetah`: `Strength -1`, `Constitution -1`, `Agility +4`, `Dexterity +2`
+  - `Horse`: `Strength +7`, `Constitution +8`, `Agility +2`, `Dexterity -1`
+  - `Cow`: `Strength +7`, `Constitution +8`, `Agility -1`, `Dexterity -2`
+  - `Giraffe`: `Strength +9`, `Constitution +8`, `Agility +1`, `Dexterity -3`
+  - `Ostrich`: `Strength +3`, `Constitution +2`, `Agility +4`, `Dexterity -1`
+  - `Deer`: `Strength +2`, `Constitution +1`, `Agility +2`, `Dexterity -1`
+- Large but non-aggressive animals such as cows, horses, giraffes, goats, emus, and ostriches now use less relentlessly aggressive default combat strategies while keeping credible damage if cornered.
+- Mythic profiles were split more sharply by body plan:
+  - `Unicorn`: `Strength +6`, `Constitution +5`, `Agility +4`, `Dexterity +1`
+  - `Pegasus`: `Strength +5`, `Constitution +4`, `Agility +5`, `Dexterity +1`
+  - `Eastern Dragon`: `Strength +10`, `Constitution +9`, `Agility +2`, `Dexterity +0`
+  - `Phoenix`: `Strength +2`, `Constitution +2`, `Agility +5`, `Dexterity +3`
+  - `Ent`: `Strength +7`, `Constitution +9`, `Agility -3`, `Dexterity -3`
+  - `Dryad`: `Strength -1`, `Constitution +1`, `Agility +2`, `Dexterity +2`
+  - `Centaur`: `Strength +6`, `Constitution +5`, `Agility +2`, `Dexterity +0`
+- `Dragonfire Breath` now uses a dedicated `Dragonfire Breath Damage` expression keyed to quality and degree, not the attacker's raw strength. Physical dragon strength still matters for bites, claws, horns, and tail strikes, but breath damage is no longer inflated simply because the same race is physically massive.
 
 ## Why it changed
 The old seeding model flattened almost all non-human physical attributes.
@@ -75,8 +100,7 @@ The strongest comparison from the deterministic run:
 - existing ordinary animal `BodypartHealthMultiplier` values, except that they now contribute to attribute-derived durability more meaningfully
 - ordinary wound severity bands
 
-## Second-pass considerations
-- Review whether some herbivores should gain more explicit agility or charge-specialisation rather than mostly scaling through strength and constitution.
-- Check whether a few large but non-aggressive animals should have lower default combat aggression despite now having more believable damage if forced to fight.
-- Consider whether some mythical attacks such as `Dragonfire Breath` should get an explicit second-pass review independent of physical strength scaling.
+## Follow-up considerations after the second pass
+- Keep an eye on broad bovid and pachyderm outcomes during playtest; they now split domestic, wild, and giant examples more clearly, but still share some loadout DNA.
+- Review whether the dedicated `Dragonfire Breath Damage` expression wants separate western dragon, eastern dragon, and wyvern variants once breath attacks have real combat logs behind them.
 - If future testing shows outliers, move more animals from heuristic scaling into explicit per-species profiles rather than inflating the general tables.

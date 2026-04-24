@@ -129,7 +129,6 @@ public class AnimalSeederTemplateTests
                 Description = $"{raceName} test race",
                 BaseBodyId = baseBody.Id,
                 AllowedGenders = "1 2 3 4",
-                AttributeBonusProgId = 1,
                 AttributeTotalCap = 1,
                 IndividualAttributeCap = 1,
                 DiceExpression = "1",
@@ -256,10 +255,37 @@ public class AnimalSeederTemplateTests
     {
         Assert.AreEqual("Beast Coward", AnimalSeeder.RaceTemplatesForTesting["Rabbit"].CombatStrategyKey);
         Assert.AreEqual("Beast Skirmisher", AnimalSeeder.RaceTemplatesForTesting["Cheetah"].CombatStrategyKey);
+        Assert.AreEqual("Beast Skirmisher", AnimalSeeder.RaceTemplatesForTesting["Horse"].CombatStrategyKey);
+        Assert.AreEqual("Beast Coward", AnimalSeeder.RaceTemplatesForTesting["Cow"].CombatStrategyKey);
+        Assert.AreEqual("Beast Skirmisher", AnimalSeeder.RaceTemplatesForTesting["Giraffe"].CombatStrategyKey);
+        Assert.AreEqual("Beast Skirmisher", AnimalSeeder.RaceTemplatesForTesting["Ostrich"].CombatStrategyKey);
         Assert.AreEqual("Beast Artillery", AnimalSeeder.RaceTemplatesForTesting["Llama"].CombatStrategyKey);
         Assert.AreEqual("Beast Swooper", AnimalSeeder.RaceTemplatesForTesting["Eagle"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", AnimalSeeder.RaceTemplatesForTesting["Python"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", AnimalSeeder.RaceTemplatesForTesting["Elephant"].CombatStrategyKey);
+    }
+
+    [TestMethod]
+    public void RaceTemplatesForTesting_SecondPassAttributeProfiles_AdjustOutliers()
+    {
+        Assert.AreEqual(new NonHumanAttributeProfile(-1, -1, 4, 2),
+            AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Cheetah"]),
+            "Cheetahs should read as high-agility pursuit cats rather than generic heavy predators.");
+        Assert.AreEqual(new NonHumanAttributeProfile(7, 8, 2, -1),
+            AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Horse"]),
+            "Horses should keep large-animal power while adding athletic mobility.");
+        Assert.AreEqual(new NonHumanAttributeProfile(7, 8, -1, -2),
+            AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Cow"]),
+            "Cows should be durable stock animals without inheriting apex-behemoth combat assumptions.");
+        Assert.AreEqual(new NonHumanAttributeProfile(9, 8, 1, -3),
+            AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Giraffe"]),
+            "Giraffes should be dangerous by reach and size without becoming generic slow tanks.");
+        Assert.AreEqual(new NonHumanAttributeProfile(3, 2, 4, -1),
+            AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Ostrich"]),
+            "Ostriches should be fast, kicking flightless birds.");
+        Assert.AreEqual(new NonHumanAttributeProfile(2, 1, 2, -1),
+            AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Deer"]),
+            "Deer should favour flight and agility over brute herbivore scaling.");
     }
 
     [TestMethod]
@@ -305,6 +331,28 @@ public class AnimalSeederTemplateTests
             "Baleen whales should have a head ram attack.");
         Assert.IsTrue(whaleLoadout.AliasAttacks?.Any(x => x.AttackKey == "tailslap") == true,
             "Baleen whales should have a tail slap attack.");
+    }
+
+    [TestMethod]
+    public void NonHumanAttributeScalingHelper_AlternateAttributeModelNames_MapToProfileBonuses()
+    {
+        NonHumanAttributeProfile profile = new(4, 2, -1, -2);
+
+        static TraitDefinition Attribute(string name)
+        {
+            return new TraitDefinition
+            {
+                Name = name
+            };
+        }
+
+        Assert.AreEqual(4, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Strength"), profile));
+        Assert.AreEqual(2, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Endurance"), profile));
+        Assert.AreEqual(3, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Body"), profile));
+        Assert.AreEqual(3, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Physique"), profile));
+        Assert.AreEqual(-1, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Agility"), profile));
+        Assert.AreEqual(-2, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Dexterity"), profile));
+        Assert.AreEqual(0, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Willpower"), profile));
     }
 
     [TestMethod]

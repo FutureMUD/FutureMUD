@@ -1605,9 +1605,6 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<Race>(entity =>
             {
-                entity.HasIndex(e => e.AttributeBonusProgId)
-                    .HasDatabaseName("FK_Races_AttributeBonusProg");
-
                 entity.HasIndex(e => e.AvailabilityProgId)
                     .HasDatabaseName("FK_Races_AvailabilityProg");
 
@@ -1652,8 +1649,6 @@ namespace MudSharp.Database
                     .HasColumnType("varchar(255)")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
-
-                entity.Property(e => e.AttributeBonusProgId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.AttributeTotalCap).HasColumnType("int(11)");
 
@@ -1879,13 +1874,6 @@ namespace MudSharp.Database
                     .HasForeignKey(d => d.DefaultHeightWeightModelNonBinaryId)
                     .HasConstraintName("FK_Races_HeightWeightModelsNonBinary");
 
-
-                entity.HasOne(d => d.AttributeBonusProg)
-                    .WithMany(p => p.RacesAttributeBonusProg)
-                    .HasForeignKey(d => d.AttributeBonusProgId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Races_AttributeBonusProg");
-
                 entity.HasOne(d => d.AvailabilityProg)
                     .WithMany(p => p.RacesAvailabilityProg)
                     .HasForeignKey(d => d.AvailabilityProgId)
@@ -2036,6 +2024,14 @@ namespace MudSharp.Database
                 entity.Property(e => e.RaceId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.AttributeId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.AttributeBonus).HasColumnType("double");
+
+                entity.Property(e => e.DiceExpression)
+                    .HasMaxLength(255)
+                    .HasColumnType("varchar(255)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
 
                 entity.Property(e => e.IsHealthAttribute)
                     .HasColumnType("bit(1)")

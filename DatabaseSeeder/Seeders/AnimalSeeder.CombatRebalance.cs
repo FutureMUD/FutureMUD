@@ -34,6 +34,7 @@ public partial class AnimalSeeder
 				["Animal Mandible Damage"] = $"0.24 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
 				["Animal Ram Damage"] = $"0.48 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
 				["Animal Smash Damage"] = $"0.44 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1)",
+				["Dragonfire Breath Damage"] = "0.44 * (24 + (3 * quality)) * sqrt(degree+1)",
 				["Animal Coup De Grace Damage"] = $"0.90 * str:{_strengthTrait.Id} * quality * sqrt(degree+1)",
 				["Snake Bite Damage"] = $"0.30 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1)"
 			};
@@ -63,6 +64,7 @@ public partial class AnimalSeeder
 			["Animal Mandible Damage"] = $"0.35 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}",
 			["Animal Ram Damage"] = $"0.9 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}",
 			["Animal Smash Damage"] = $"0.8 * (str:{_strengthTrait.Id} + (2 * quality)) * sqrt(degree+1){randomPortion}",
+			["Dragonfire Breath Damage"] = $"0.65 * (24 + (3 * quality)) * sqrt(degree+1){randomPortion}",
 			["Animal Coup De Grace Damage"] = $"1.5 * str:{_strengthTrait.Id} * quality * sqrt(degree+1){randomPortion}",
 			["Snake Bite Damage"] = $"0.5 * (str:{_strengthTrait.Id} + (3 * quality)) * sqrt(degree+1){randomPortion}"
 		};
@@ -282,6 +284,8 @@ public partial class AnimalSeeder
 			EnsureAnimalDamageExpression(formula.Key, formula.Value);
 		}
 
+		RefreshDragonfireBreathDamageExpression(expressions);
+
 		foreach (string bodyName in new[]
 		         {
 			         "Quadruped Base",
@@ -320,5 +324,21 @@ public partial class AnimalSeeder
 
 		ApplyDefaultCombatSettingsToSeededRaces();
 		_context.SaveChanges();
+	}
+
+	private void RefreshDragonfireBreathDamageExpression(IReadOnlyDictionary<string, string> expressions)
+	{
+		TraitExpression dragonfireDamage = EnsureAnimalDamageExpression(
+			"Dragonfire Breath Damage",
+			expressions["Dragonfire Breath Damage"]);
+		WeaponAttack? dragonfire = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Dragonfire Breath");
+		if (dragonfire is null)
+		{
+			return;
+		}
+
+		dragonfire.DamageExpression = dragonfireDamage;
+		dragonfire.PainExpression = dragonfireDamage;
+		dragonfire.StunExpression = dragonfireDamage;
 	}
 }

@@ -3,8 +3,6 @@
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -67,24 +65,12 @@ internal static class NonHumanAttributeScalingHelper
 		"Dexterity"
 	};
 
-	internal static string BuildAttributeBonusProgText(IEnumerable<TraitDefinition> attributes, NonHumanAttributeProfile profile)
+	internal static int GetAttributeBonus(TraitDefinition attribute, NonHumanAttributeProfile profile)
 	{
 		var physicalHybridBonus = (int)Math.Round(
 			(profile.StrengthBonus + profile.ConstitutionBonus) / 2.0,
 			MidpointRounding.AwayFromZero);
-
-		var sb = new StringBuilder();
-		sb.AppendLine("switch (@trait.Name)");
-
-		foreach (var attribute in attributes.OrderBy(x => x.Id))
-		{
-			sb.AppendLine($"  case (\"{attribute.Name}\")");
-			sb.AppendLine($"    return {GetAttributeBonus(attribute.Name, profile, physicalHybridBonus)}");
-		}
-
-		sb.AppendLine("end switch");
-		sb.AppendLine("return 0");
-		return sb.ToString();
+		return GetAttributeBonus(attribute.Name, profile, physicalHybridBonus);
 	}
 
 	private static int GetAttributeBonus(string attributeName, NonHumanAttributeProfile profile, int physicalHybridBonus)

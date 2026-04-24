@@ -14094,9 +14094,6 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("AllowedGenders"), "utf8");
 
-                    b.Property<long>("AttributeBonusProgId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<int>("AttributeTotalCap")
                         .HasColumnType("int(11)");
 
@@ -14400,9 +14397,6 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AttributeBonusProgId")
-                        .HasDatabaseName("FK_Races_AttributeBonusProg");
-
                     b.HasIndex("AvailabilityProgId")
                         .HasDatabaseName("FK_Races_AvailabilityProg");
 
@@ -14694,6 +14688,16 @@ namespace MudSharp.Migrations
 
                     b.Property<long>("AttributeId")
                         .HasColumnType("bigint(20)");
+
+                    b.Property<double>("AttributeBonus")
+                        .HasColumnType("double");
+
+                    b.Property<string>("DiceExpression")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DiceExpression"), "utf8");
 
                     b.Property<ulong>("IsHealthAttribute")
                         .ValueGeneratedOnAdd()
@@ -24183,12 +24187,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Race", b =>
                 {
-                    b.HasOne("MudSharp.Models.FutureProg", "AttributeBonusProg")
-                        .WithMany("RacesAttributeBonusProg")
-                        .HasForeignKey("AttributeBonusProgId")
-                        .IsRequired()
-                        .HasConstraintName("FK_Races_AttributeBonusProg");
-
                     b.HasOne("MudSharp.Models.FutureProg", "AvailabilityProg")
                         .WithMany("RacesAvailabilityProg")
                         .HasForeignKey("AvailabilityProgId")
@@ -24278,8 +24276,6 @@ namespace MudSharp.Migrations
                         .HasForeignKey("SweatLiquidId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Races_Liqiuds_Sweat");
-
-                    b.Navigation("AttributeBonusProg");
 
                     b.Navigation("AvailabilityProg");
 
@@ -26862,8 +26858,6 @@ namespace MudSharp.Migrations
                     b.Navigation("RaceButcheryProfilesCanButcherProg");
 
                     b.Navigation("RaceButcheryProfilesWhyCannotButcherProg");
-
-                    b.Navigation("RacesAttributeBonusProg");
 
                     b.Navigation("RacesAvailabilityProg");
 

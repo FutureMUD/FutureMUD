@@ -103,7 +103,6 @@ public partial class Race : SaveableItem, IRace
         {
             DiceExpression = ParentRace.DiceExpression;
             _allowedGenders.AddRange(ParentRace.AllowedGenders);
-            AttributeBonusProg = ParentRace.AttributeBonusProg;
             AttributeTotalCap = ParentRace.AttributeTotalCap;
             IndividualAttributeCap = ParentRace.IndividualAttributeCap;
             IlluminationPerceptionMultiplier = ParentRace.IlluminationPerceptionMultiplier;
@@ -202,8 +201,11 @@ public partial class Race : SaveableItem, IRace
             DiceExpression = "3d6";
             _allowedGenders.Add(Gender.Male);
             _allowedGenders.Add(Gender.Female);
-            AttributeBonusProg = Gameworld.FutureProgs.GetByName("AlwaysZero");
             _attributes.AddRange(Gameworld.Traits.OfType<IAttributeDefinition>());
+            foreach (var attribute in _attributes)
+            {
+                EnsureAttributeAlteration(attribute);
+            }
             AttributeTotalCap = _attributes.Count * 13;
             IndividualAttributeCap = 18;
             IlluminationPerceptionMultiplier = 1.0;
@@ -274,7 +276,6 @@ public partial class Race : SaveableItem, IRace
                 BaseBodyId = BaseBody.Id,
                 AllowedGenders = _allowedGenders.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" "),
                 ParentRaceId = ParentRace?.Id,
-                AttributeBonusProgId = AttributeBonusProg.Id,
                 AttributeTotalCap = AttributeTotalCap,
                 IndividualAttributeCap = IndividualAttributeCap,
                 DiceExpression = DiceExpression,
@@ -338,6 +339,17 @@ public partial class Race : SaveableItem, IRace
                     _defaultHeightWeightModels.ValueOrDefault(Gender.NonBinary, null)?.Id
             };
             FMDB.Context.Races.Add(dbitem);
+            foreach (IAttributeDefinition item in _attributes)
+            {
+                dbitem.RacesAttributes.Add(new RacesAttributes
+                {
+                    Race = dbitem,
+                    AttributeId = item.Id,
+                    IsHealthAttribute = _healthTraits.Contains(item),
+                    AttributeBonus = LocalAttributeBonus(item),
+                    DiceExpression = LocalAttributeDiceExpression(item)
+                });
+            }
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
         }
@@ -353,7 +365,6 @@ public partial class Race : SaveableItem, IRace
         DiceExpression = race.DiceExpression;
         AttributeTotalCap = race.AttributeTotalCap;
         IndividualAttributeCap = race.IndividualAttributeCap;
-        AttributeBonusProg = gameworld.FutureProgs.Get(race.AttributeBonusProgId);
         IlluminationPerceptionMultiplier = race.IlluminationPerceptionMultiplier;
         AvailabilityProg = gameworld.FutureProgs.Get(race.AvailabilityProgId ?? 0);
         CorpseModel = gameworld.CorpseModels.Get(race.CorpseModelId);
@@ -435,6 +446,9 @@ public partial class Race : SaveableItem, IRace
         {
             IAttributeDefinition attribute = (IAttributeDefinition)gameworld.Traits.Get(item.AttributeId);
             _attributes.Add(attribute);
+            var alteration = EnsureAttributeAlteration(attribute);
+            alteration.Bonus = item.AttributeBonus;
+            alteration.DiceExpression = item.DiceExpression;
             if (item.IsHealthAttribute)
             {
                 _healthTraits.Add(attribute);
@@ -600,7 +614,6 @@ public partial class Race : SaveableItem, IRace
         AvailabilityProg = rhs.AvailabilityProg;
         Description = rhs.Description;
         DiceExpression = rhs.DiceExpression;
-        AttributeBonusProg = rhs.AttributeBonusProg;
         AttributeTotalCap = rhs.AttributeTotalCap;
         IndividualAttributeCap = rhs.IndividualAttributeCap;
         IlluminationPerceptionMultiplier = rhs.IlluminationPerceptionMultiplier;
@@ -694,6 +707,12 @@ public partial class Race : SaveableItem, IRace
         }
 
         _attributes.AddRange(rhs._attributes);
+        foreach (var attribute in _attributes)
+        {
+            var alteration = EnsureAttributeAlteration(attribute);
+            alteration.Bonus = rhs.LocalAttributeBonus(attribute);
+            alteration.DiceExpression = rhs.LocalAttributeDiceExpression(attribute);
+        }
         _baseCharacteristics.AddRange(rhs._baseCharacteristics);
         _maleOnlyAdditions.AddRange(rhs._maleOnlyAdditions);
         _femaleOnlyAdditions.AddRange(rhs._femaleOnlyAdditions);
@@ -722,7 +741,6 @@ public partial class Race : SaveableItem, IRace
                 BaseBodyId = BaseBody.Id,
                 AllowedGenders = _allowedGenders.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" "),
                 ParentRaceId = ParentRace?.Id,
-                AttributeBonusProgId = AttributeBonusProg.Id,
                 AttributeTotalCap = AttributeTotalCap,
                 IndividualAttributeCap = IndividualAttributeCap,
                 DiceExpression = DiceExpression,
@@ -862,7 +880,9 @@ public partial class Race : SaveableItem, IRace
                 {
                     Race = dbitem,
                     AttributeId = item.Id,
-                    IsHealthAttribute = _healthTraits.Contains(item)
+                    IsHealthAttribute = _healthTraits.Contains(item),
+                    AttributeBonus = LocalAttributeBonus(item),
+                    DiceExpression = LocalAttributeDiceExpression(item)
                 });
             }
 
@@ -1146,7 +1166,6 @@ public partial class Race : SaveableItem, IRace
         dbitem.BaseBodyId = BaseBody.Id;
         dbitem.AllowedGenders = _allowedGenders.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" ");
         dbitem.ParentRaceId = ParentRace?.Id;
-        dbitem.AttributeBonusProgId = AttributeBonusProg.Id;
         dbitem.AttributeTotalCap = AttributeTotalCap;
         dbitem.IndividualAttributeCap = IndividualAttributeCap;
         dbitem.DiceExpression = DiceExpression;
@@ -1288,7 +1307,9 @@ public partial class Race : SaveableItem, IRace
             {
                 Race = dbitem,
                 AttributeId = item.Id,
-                IsHealthAttribute = _healthTraits.Contains(item)
+                IsHealthAttribute = _healthTraits.Contains(item),
+                AttributeBonus = LocalAttributeBonus(item),
+                DiceExpression = LocalAttributeDiceExpression(item)
             });
         }
 
@@ -1524,18 +1545,97 @@ public partial class Race : SaveableItem, IRace
     public bool CanClimb { get; }
     public bool CanSwim { get; }
 
+    private sealed class RacialAttributeAlteration
+    {
+        public double Bonus { get; set; }
+        public string DiceExpression { get; set; }
+    }
+
     private readonly List<IAttributeDefinition> _attributes = new();
+
+    private readonly Dictionary<IAttributeDefinition, RacialAttributeAlteration> _attributeAlterations = new();
 
     public IEnumerable<IAttributeDefinition> Attributes =>
         ParentRace?.Attributes.Concat(_attributes).Distinct() ?? _attributes;
-
-    public IFutureProg AttributeBonusProg { get; protected set; }
 
     public int AttributeTotalCap { get; protected set; }
 
     public int IndividualAttributeCap { get; protected set; }
 
     public string DiceExpression { get; protected set; }
+
+    private RacialAttributeAlteration EnsureAttributeAlteration(IAttributeDefinition definition)
+    {
+        if (_attributeAlterations.TryGetValue(definition, out var alteration))
+        {
+            return alteration;
+        }
+
+        alteration = new RacialAttributeAlteration();
+        _attributeAlterations[definition] = alteration;
+        return alteration;
+    }
+
+    private double LocalAttributeBonus(IAttributeDefinition definition)
+    {
+        return _attributeAlterations.TryGetValue(definition, out var alteration) ? alteration.Bonus : 0.0;
+    }
+
+    private string LocalAttributeDiceExpression(IAttributeDefinition definition)
+    {
+        return _attributeAlterations.TryGetValue(definition, out var alteration) ? alteration.DiceExpression : null;
+    }
+
+    private RacialAttributeAlteration EnsureOwnAttributeAlteration(IAttributeDefinition definition)
+    {
+        if (!_attributes.Contains(definition))
+        {
+            var inheritedBonus = ParentRace?.Attributes.Contains(definition) == true
+                ? ParentRace.AttributeBonus(definition)
+                : 0.0;
+            var inheritedDice = ParentRace?.Attributes.Contains(definition) == true
+                ? ParentRace.AttributeDiceExpression(definition)
+                : DiceExpression;
+            if (ParentRace is not null && inheritedDice.EqualTo(ParentRace.DiceExpression))
+            {
+                inheritedDice = DiceExpression;
+            }
+
+            _attributes.Add(definition);
+            var inheritedAlteration = EnsureAttributeAlteration(definition);
+            inheritedAlteration.Bonus = inheritedBonus;
+            inheritedAlteration.DiceExpression = inheritedDice?.EqualTo(DiceExpression) == true ? null : inheritedDice;
+            return inheritedAlteration;
+        }
+
+        return EnsureAttributeAlteration(definition);
+    }
+
+    public double AttributeBonus(IAttributeDefinition definition)
+    {
+        if (_attributeAlterations.TryGetValue(definition, out var alteration))
+        {
+            return alteration.Bonus;
+        }
+
+        return ParentRace?.Attributes.Contains(definition) == true ? ParentRace.AttributeBonus(definition) : 0.0;
+    }
+
+    public string AttributeDiceExpression(IAttributeDefinition definition)
+    {
+        if (_attributeAlterations.TryGetValue(definition, out var alteration))
+        {
+            return string.IsNullOrWhiteSpace(alteration.DiceExpression) ? DiceExpression : alteration.DiceExpression;
+        }
+
+        if (ParentRace?.Attributes.Contains(definition) != true)
+        {
+            return DiceExpression;
+        }
+
+        var parentExpression = ParentRace.AttributeDiceExpression(definition);
+        return parentExpression.EqualTo(ParentRace.DiceExpression) ? DiceExpression : parentExpression;
+    }
 
     public double IlluminationPerceptionMultiplier { get; protected set; }
 
@@ -1898,22 +1998,30 @@ public partial class Race : SaveableItem, IRace
         return ParentRace?.DefaultHeightWeightModel(gender);
     }
 
-    public void AddAttributeFromPromotion(IAttributeDefinition definition)
+    public void AddAttributeFromPromotion(IAttributeDefinition definition, double bonus = 0.0, string diceExpression = null)
     {
         _attributes.Add(definition);
+        var alteration = EnsureAttributeAlteration(definition);
+        alteration.Bonus = bonus;
+        alteration.DiceExpression = diceExpression?.EqualTo(DiceExpression) == true ? null : diceExpression;
         Changed = true;
         RecalculateCharactersBecauseOfRaceChange();
     }
 
-    public void AddAttributeFromDemotion(IAttributeDefinition definition)
+    public void AddAttributeFromDemotion(IAttributeDefinition definition, double bonus = 0.0, string diceExpression = null)
     {
         _attributes.Add(definition);
+        var alteration = EnsureAttributeAlteration(definition);
+        alteration.Bonus = bonus;
+        alteration.DiceExpression = diceExpression?.EqualTo(DiceExpression) == true ? null : diceExpression;
         Changed = true;
     }
 
     public void RemoveAttribute(IAttributeDefinition definition)
     {
         _attributes.Remove(definition);
+        _attributeAlterations.Remove(definition);
+        _healthTraits.Remove(definition);
         Changed = true;
     }
 

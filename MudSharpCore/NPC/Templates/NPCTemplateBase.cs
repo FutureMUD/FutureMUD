@@ -1,5 +1,8 @@
 ﻿using MudSharp.Accounts;
+using MudSharp.Body.Traits;
+using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -300,6 +303,30 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
             results.Add(Dice.Roll(diceExpression));
         }
 
+        BalanceRandomStats(results, totalCap, individualCap);
+        results.Sort();
+        results.Reverse();
+        return results;
+    }
+
+    protected static List<int> RollRandomStats(IReadOnlyList<IAttributeDefinition> attributes, IRace race,
+        int totalCap, int individualCap)
+    {
+        List<string> diceExpressions = attributes
+            .Select(race.AttributeDiceExpression)
+            .ToList();
+        if (diceExpressions.Distinct(StringComparer.InvariantCultureIgnoreCase).Count() == 1)
+        {
+            return RollRandomStats(attributes.Count, totalCap, individualCap, diceExpressions[0]);
+        }
+
+        List<int> results = diceExpressions.Select(Dice.Roll).ToList();
+        BalanceRandomStats(results, totalCap, individualCap);
+        return results;
+    }
+
+    private static void BalanceRandomStats(List<int> results, int totalCap, int individualCap)
+    {
         int difference = totalCap - results.Sum();
         if (difference < 0)
         {
@@ -331,10 +358,6 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
             whichStat = Constants.Random.Next(0, results.Count);
             results[whichStat] += 1;
         }
-
-        results.Sort();
-        results.Reverse();
-        return results;
     }
 
     #region INPCTemplate Members

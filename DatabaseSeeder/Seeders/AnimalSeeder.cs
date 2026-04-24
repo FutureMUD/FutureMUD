@@ -1783,6 +1783,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             GetOrCreateExpression("Animal Smash Damage", damageExpressions["Animal Smash Damage"]);
             GetOrCreateExpression("Animal Coup De Grace Damage",
                 damageExpressions["Animal Coup De Grace Damage"]);
+            RefreshDragonfireBreathDamageExpression(damageExpressions);
             _snakeBiteDamage = GetOrCreateExpression("Snake Bite Damage",
                 damageExpressions["Snake Bite Damage"]);
 
@@ -1992,6 +1993,14 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 Expression = damageExpressions["Animal Smash Damage"]
             };
             _context.TraitExpressions.Add(smashDamage);
+            _context.SaveChanges();
+
+            TraitExpression dragonfireDamage = new()
+            {
+                Name = "Dragonfire Breath Damage",
+                Expression = damageExpressions["Dragonfire Breath Damage"]
+            };
+            _context.TraitExpressions.Add(dragonfireDamage);
             _context.SaveChanges();
 
             TraitExpression coupDamage = new()
@@ -2413,7 +2422,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             _attacks["dragonfirebreath"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Dragonfire Breath") ??
                 AddAttack("Dragonfire Breath", BuiltInCombatMoveType.BreathWeaponAttack,
                     MeleeWeaponVerb.Blast, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
-                    Alignment.Front, Orientation.High, 10.0, 1.6, mouthshape, smashDamage,
+                    Alignment.Front, Orientation.High, 10.0, 1.6, mouthshape, dragonfireDamage,
                     $"@ rear|rears up and unleash|unleashes a roaring cone of dragonfire at $1{attackAddendum}", DamageType.Burning,
                     intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Burning | CombatMoveIntentions.Hard | CombatMoveIntentions.Slow,
                     additionalInfo: BreathAttackData(2, RangedScatterType.Light, 3, 2, 0.35, "Dragonfire", 0.45, 0.35, 0.1, 2.5, 0.2, 0.05, true));
@@ -3867,11 +3876,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             }
         }
 
-        FutureProg attributeBonusProg = CreateAnimalAttributeBonusProg(
-            name,
-            raceTemplate is not null
-                ? GetAnimalAttributeProfile(raceTemplate)
-                : new NonHumanAttributeProfile(0, 0, 0, 0));
+        NonHumanAttributeProfile attributeProfile = raceTemplate is not null
+            ? GetAnimalAttributeProfile(raceTemplate)
+            : new NonHumanAttributeProfile(0, 0, 0, 0);
 
         Material driedBlood = new()
         {
@@ -4030,7 +4037,6 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                             : description,
             BaseBody = body,
             AllowedGenders = "2 3",
-            AttributeBonusProg = attributeBonusProg,
             AttributeTotalCap = _context.TraitDefinitions.Count(x => x.Type == 1) * 12,
             IndividualAttributeCap = 20,
             DiceExpression = "3d6+1",
@@ -4087,7 +4093,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
         foreach (TraitDefinition attribute in _attributes)
         {
             _context.RacesAttributes.Add(new RacesAttributes
-            { Race = race, Attribute = attribute, IsHealthAttribute = attribute.TraitGroup == "Physical" });
+            {
+                Race = race,
+                Attribute = attribute,
+                IsHealthAttribute = attribute.TraitGroup == "Physical",
+                AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, attributeProfile)
+            });
         }
 
         CreateEthnicitiesForRace(race);

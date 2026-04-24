@@ -49,7 +49,7 @@ public class RobotSeederTemplateTests
         };
     }
 
-    private static Race CreateRace(long id, string name, long baseBodyId, long corpseModelId, long attributeBonusProgId)
+    private static Race CreateRace(long id, string name, long baseBodyId, long corpseModelId)
     {
         return new Race
         {
@@ -58,7 +58,6 @@ public class RobotSeederTemplateTests
             Description = $"{name} test race",
             BaseBodyId = baseBodyId,
             AllowedGenders = "Male Female Neuter NonBinary",
-            AttributeBonusProgId = attributeBonusProgId,
             DiceExpression = "1d100",
             CorpseModelId = corpseModelId,
             DefaultHealthStrategyId = 1,
@@ -160,6 +159,29 @@ public class RobotSeederTemplateTests
         Assert.AreEqual("Construct Skirmisher", RobotSeeder.TemplatesForTesting["Roomba Robot"].CombatStrategyKey);
         Assert.AreEqual("Construct Brawler", RobotSeeder.TemplatesForTesting["Robot Dog"].CombatStrategyKey);
         Assert.AreEqual("Construct Skirmisher", RobotSeeder.TemplatesForTesting["Robot Cockroach"].CombatStrategyKey);
+    }
+
+    [TestMethod]
+    public void TemplatesForTesting_SecondPassAttributeProfiles_DifferentiateRobotChassis()
+    {
+        Assert.AreEqual(new NonHumanAttributeProfile(6, 5, -1, -2),
+            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Pneumatic Hammer Robot"]),
+            "Hammer robots should be strong and shock-resistant but clumsy.");
+        Assert.AreEqual(new NonHumanAttributeProfile(3, 2, 2, 2),
+            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Sword-Hand Robot"]),
+            "Sword-hand robots should favour articulated attack precision.");
+        Assert.AreEqual(new NonHumanAttributeProfile(1, 1, 3, 1),
+            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Winged Robot"]),
+            "Winged robots should trade raw frame mass for aerial agility.");
+        Assert.AreEqual(new NonHumanAttributeProfile(4, 5, -2, -2),
+            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Tracked Robot"]),
+            "Tracked humanoid robots should be sturdy and forceful rather than nimble.");
+        Assert.AreEqual(new NonHumanAttributeProfile(-4, 1, 2, 0),
+            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Roomba Robot"]),
+            "Roombas should be weak maintenance drones with modest evasive mobility.");
+        Assert.AreEqual(new NonHumanAttributeProfile(-4, 3, 4, 1),
+            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Robot Cockroach"]),
+            "Robot cockroaches should be small, fast and surprisingly hard-wearing for their scale.");
     }
 
     [TestMethod]
@@ -409,8 +431,8 @@ public class RobotSeederTemplateTests
             Definition = "<Definition />"
         });
         context.Races.AddRange(
-            CreateRace(1, "Human", 1, 1, 1),
-            CreateRace(2, "Humanoid", 1, 2, 1));
+            CreateRace(1, "Human", 1, 1),
+            CreateRace(2, "Humanoid", 1, 2));
         context.CharacteristicDefinitions.AddRange(
             CreateCharacteristicDefinition(1, "All Eye Colours"),
             CreateCharacteristicDefinition(2, "All Eye Shapes"),

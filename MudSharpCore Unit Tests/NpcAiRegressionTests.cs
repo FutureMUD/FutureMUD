@@ -4,14 +4,20 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Arenas;
 using MudSharp.Body;
+using MudSharp.Body.Needs;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
+using MudSharp.Form.Material;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.Movement;
 using MudSharp.NPC;
@@ -161,9 +167,78 @@ public class NpcAiRegressionTests
     {
         AggressivePatherAI aggressivePather = CreatePrivateParameterless<AggressivePatherAI>();
         TrackingAggressorAI trackingAggressor = CreatePrivateParameterless<TrackingAggressorAI>();
+        TerritorialPredatorAI territorialPredator = CreatePrivateParameterless<TerritorialPredatorAI>();
+        DenningPredatorAI denningPredator = CreatePrivateParameterless<DenningPredatorAI>();
 
         Assert.IsTrue(aggressivePather.HandlesEvent(EventType.CharacterEnterCellWitness));
         Assert.IsTrue(trackingAggressor.HandlesEvent(EventType.CharacterEnterCellWitness));
+        Assert.IsTrue(territorialPredator.HandlesEvent(EventType.CharacterEnterCellWitness));
+        Assert.IsTrue(denningPredator.HandlesEvent(EventType.CharacterEnterCellWitness));
+        Assert.IsTrue(denningPredator.HandlesEvent(EventType.CharacterDiesWitness));
+    }
+
+    [TestMethod]
+    public void PredatorAIHelpers_IsHungry_UsesNeedModelHungerStatus()
+    {
+        Mock<INeedsModel> hungryNeeds = new();
+        hungryNeeds.SetupGet(x => x.Status).Returns(NeedsResult.Hungry);
+        Mock<ICharacter> hungryCharacter = new();
+        hungryCharacter.SetupGet(x => x.NeedsModel).Returns(hungryNeeds.Object);
+
+        Mock<INeedsModel> fullNeeds = new();
+        fullNeeds.SetupGet(x => x.Status).Returns(NeedsResult.Full);
+        Mock<ICharacter> fullCharacter = new();
+        fullCharacter.SetupGet(x => x.NeedsModel).Returns(fullNeeds.Object);
+
+        Assert.IsTrue(PredatorAIHelpers.IsHungry(hungryCharacter.Object));
+        Assert.IsFalse(PredatorAIHelpers.IsHungry(fullCharacter.Object));
+    }
+
+    [TestMethod]
+    public void PredatorAIHelpers_CouldEatAfterKilling_RequiresEdibleCorpseMaterial()
+    {
+        Mock<ISolid> corpseMaterial = new();
+        Mock<ICorpseModel> corpseModel = new();
+        corpseModel.SetupGet(x => x.CreateCorpse).Returns(true);
+        corpseModel.Setup(x => x.CorpseMaterial(0.0)).Returns(corpseMaterial.Object);
+
+        Mock<IRace> predatorRace = new();
+        predatorRace.SetupGet(x => x.CanEatCorpses).Returns(true);
+        predatorRace.Setup(x => x.CanEatCorpseMaterial(corpseMaterial.Object)).Returns(true);
+        Mock<IRace> targetRace = new();
+        targetRace.SetupGet(x => x.CorpseModel).Returns(corpseModel.Object);
+
+        Mock<ICharacter> predator = new();
+        predator.SetupGet(x => x.Race).Returns(predatorRace.Object);
+        Mock<ICharacter> target = new();
+        target.SetupGet(x => x.Race).Returns(targetRace.Object);
+
+        Assert.IsTrue(PredatorAIHelpers.CouldEatAfterKilling(predator.Object, target.Object));
+
+        predatorRace.Setup(x => x.CanEatCorpseMaterial(corpseMaterial.Object)).Returns(false);
+
+        Assert.IsFalse(PredatorAIHelpers.CouldEatAfterKilling(predator.Object, target.Object));
+    }
+
+    [TestMethod]
+    public void NpcBurrowFoodEffect_SaveToXml_PersistsPendingVictimAndFoodItem()
+    {
+        Mock<IFuturemud> gameworld = new();
+        Mock<ICharacter> owner = new();
+        owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+        Mock<ICharacter> victim = new();
+        victim.SetupGet(x => x.Id).Returns(12L);
+        Mock<IGameItem> food = new();
+        food.SetupGet(x => x.Id).Returns(34L);
+
+        NpcBurrowFoodEffect effect = new(owner.Object);
+        effect.SetPendingVictim(victim.Object);
+        effect.SetFoodItem(food.Object);
+
+        string xml = effect.SaveToXml(new Dictionary<IEffect, TimeSpan>()).ToString();
+
+        StringAssert.Contains(xml, "PendingVictimId=\"12\"");
+        StringAssert.Contains(xml, "FoodItemId=\"34\"");
     }
 
     [TestMethod]

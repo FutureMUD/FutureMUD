@@ -1,13 +1,11 @@
 ﻿using MudSharp.Character;
 using MudSharp.Database;
-using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
-using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using System;
 using System.Collections.Generic;
@@ -25,7 +23,7 @@ public class AggressorAI : ArtificialIntelligenceBase
         LoadFromXml(XElement.Parse(ai.Definition));
     }
 
-    private AggressorAI(IFuturemud gameworld, string name) : base(gameworld, name, "Aggressor")
+    protected AggressorAI(IFuturemud gameworld, string name, string type = "Aggressor") : base(gameworld, name, type)
     {
         WillAttackProg = Gameworld.AlwaysFalseProg;
         EngageDelayDiceExpression = "1000+1d1000";
@@ -33,7 +31,7 @@ public class AggressorAI : ArtificialIntelligenceBase
         DatabaseInitialise();
     }
 
-    private AggressorAI()
+    protected AggressorAI()
     {
 
     }
@@ -77,7 +75,8 @@ public class AggressorAI : ArtificialIntelligenceBase
             return false;
         }
 
-        if (ch.Combat != null && ch.CombatTarget is ICharacter ctch && WillAttack(ch, ctch))
+        if (ch.Combat != null && ch.CombatTarget is ICharacter ctch &&
+            PredatorAIHelpers.WillAttack(ch, ctch, WillAttackProg, false))
         {
             return false;
         }
@@ -155,102 +154,10 @@ public class AggressorAI : ArtificialIntelligenceBase
         return false;
     }
 
-    private void EngageTarget(ICharacter ch, IPerceiver tp)
+    public virtual bool CheckForAttack(ICharacter aggressor, ICharacter target)
     {
-        if (ch.State.HasFlag(CharacterState.Dead) || ch.Corpse != null)
-        {
-            return;
-        }
-
-        if (tp is ICharacter tch && tch.State.HasFlag(CharacterState.Dead))
-        {
-            return;
-        }
-
-        if (!ch.CanEngage(tp))
-        {
-            return;
-        }
-
-        if (!string.IsNullOrWhiteSpace(EngageEmote))
-        {
-            ch.OutputHandler.Handle(new EmoteOutput(new Emote(EngageEmote, ch, ch, tp)));
-        }
-
-        ch.Engage(tp, ch.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
-                        .Where(x => x.IsReadied || x.CanReady(ch)).Select(x => (int)x.WeaponType.DefaultRangeInRooms)
-                        .DefaultIfEmpty(-1).Max() > 0);
-    }
-
-    public bool CheckForAttack(ICharacter aggressor, ICharacter target)
-    {
-        if (!WillAttack(aggressor, target))
-        {
-            return false;
-        }
-
-        aggressor.AddEffect(
-            new BlockingDelayedAction(aggressor, perceiver => { EngageTarget(aggressor, target); },
-                "preparing to engage in combat", new[] { "general", "combat-engage", "movement" }, null),
-            TimeSpan.FromMilliseconds(Dice.Roll(EngageDelayDiceExpression)));
-
-        return true;
-    }
-
-    private bool WillAttack(ICharacter aggressor, ICharacter target)
-    {
-        if (aggressor.State.HasFlag(CharacterState.Dead) || aggressor.State.HasFlag(CharacterState.Stasis))
-        {
-            return false;
-        }
-
-        if (aggressor.Combat != null)
-        {
-            return false;
-        }
-
-        if (aggressor == target)
-        {
-            return false;
-        }
-
-        if (!CharacterState.Able.HasFlag(aggressor.State))
-        {
-            return false;
-        }
-
-        if (!aggressor.CanSee(target))
-        {
-            return false;
-        }
-
-        if (!(WillAttackProg.ExecuteBool(aggressor, target)))
-        {
-            return false;
-        }
-
-        if (aggressor.CombatTarget != target && !aggressor.CanEngage(target))
-        {
-            return false;
-        }
-
-        if (aggressor.Effects.Any(x => x.IsBlockingEffect("combat-engage")) ||
-            aggressor.Effects.Any(x => x.IsBlockingEffect("general")))
-        {
-            return false;
-        }
-
-        if (!aggressor.CombatSettings.AttackCriticallyInjured && target.HealthStrategy.IsCriticallyInjured(target))
-        {
-            return false;
-        }
-
-        if (!aggressor.CombatSettings.AttackHelpless && target.State.IsDisabled())
-        {
-            return false;
-        }
-
-        return true;
+        return PredatorAIHelpers.CheckForAttack(aggressor, target, WillAttackProg, EngageDelayDiceExpression,
+            EngageEmote, false);
     }
 
     /// <inheritdoc />

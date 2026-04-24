@@ -216,6 +216,13 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
         {
             RefreshExistingHumanCombatBalance();
 			bool updatedSatiationLimits = RefreshExistingHumanSatiationLimits();
+			bool updatedWearProfiles = false;
+			BodyProto? existingBaseBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Humanoid");
+			if (existingBaseBody is not null)
+			{
+				updatedWearProfiles = RefreshExistingHumanWearProfiles(existingBaseBody);
+			}
+
             BodyProto? existingOrganicBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Organic Humanoid");
             if (hasMissingDisfigurementTemplates && existingOrganicBody is not null)
             {
@@ -223,19 +230,23 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
             }
 
             _context.Database.CommitTransaction();
-			if (hasMissingDisfigurementTemplates && updatedSatiationLimits)
+			List<string> updates = ["updated the human combat balance profile"];
+			if (updatedSatiationLimits)
 			{
-				return "Updated the human combat balance profile, refreshed human satiation limits, and installed additional human disfigurement templates.";
+				updates.Add("refreshed human satiation limits");
 			}
 
 			if (hasMissingDisfigurementTemplates)
 			{
-				return "Updated the human combat balance profile and installed additional human disfigurement templates.";
+				updates.Add("installed additional human disfigurement templates");
 			}
 
-			return updatedSatiationLimits
-				? "Updated the human combat balance profile and refreshed human satiation limits."
-				: "Updated the human combat balance profile.";
+			if (updatedWearProfiles)
+			{
+				updates.Add("installed or repaired human wear profiles");
+			}
+
+			return $"{updates.ListToString().ProperSentences()}.";
         }
 
         // Start by determining the appropriate health strategy
@@ -788,7 +799,8 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 
         if (context.Races.Any(x => x.Name == "Humanoid"))
         {
-            return HasMissingHumanDisfigurementTemplates(context) || HasHumanSatiationLimitUpdates(context)
+            return HasMissingHumanDisfigurementTemplates(context) || HasHumanSatiationLimitUpdates(context) ||
+                   HasMissingHumanWearProfiles(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }

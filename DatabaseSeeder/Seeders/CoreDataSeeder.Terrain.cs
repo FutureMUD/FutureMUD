@@ -10,11 +10,21 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using RevisionStatus = MudSharp.Framework.Revision.RevisionStatus;
 
 namespace DatabaseSeeder.Seeders;
 
 public partial class CoreDataSeeder
 {
+	private sealed record StockForageYield(string YieldType, double MaximumYield, double HourlyRecovery);
+
+	private sealed record StockTerrainForageProfileDefinition(
+		string TerrainName,
+		IReadOnlyCollection<StockForageYield> Yields)
+	{
+		public string ProfileName => $"{TerrainName} Stock Forage";
+	}
+
     private static readonly (string Name, string Parent)[] StockTerrainTagDefinitions =
     [
         ("Terrain", ""),
@@ -48,6 +58,608 @@ public partial class CoreDataSeeder
 
     internal static IReadOnlyCollection<string> StockTerrainTagNamesForTesting =>
         StockTerrainTagDefinitions.Select(x => x.Name).ToArray();
+
+	private static readonly IReadOnlyDictionary<string, StockTerrainForageProfileDefinition>
+		StockTerrainForageProfileDefinitions = BuildStockTerrainForageProfileDefinitions();
+
+	internal static IReadOnlyCollection<string> StockTerrainForageProfileTerrainNamesForTesting =>
+		StockTerrainForageProfileDefinitions.Keys.OrderBy(x => x).ToArray();
+
+	internal static IReadOnlyCollection<string> StockTerrainForageYieldTypesForTesting =>
+		StockTerrainForageProfileDefinitions.Values
+			.SelectMany(x => x.Yields)
+			.Select(x => x.YieldType)
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.OrderBy(x => x)
+			.ToArray();
+
+	internal static IReadOnlyDictionary<string, IReadOnlyCollection<string>>
+		StockTerrainForageYieldTypesByTerrainForTesting =>
+		StockTerrainForageProfileDefinitions.ToDictionary(
+			x => x.Key,
+			x => (IReadOnlyCollection<string>)x.Value.Yields.Select(y => y.YieldType).ToArray(),
+			StringComparer.OrdinalIgnoreCase);
+
+	private static IReadOnlyDictionary<string, StockTerrainForageProfileDefinition>
+		BuildStockTerrainForageProfileDefinitions()
+	{
+		static StockForageYield Yield(string type, double maximum, double hourly) => new(type, maximum, hourly);
+
+		static StockForageYield[] Combine(params StockForageYield[][] groups)
+		{
+			return groups
+				.SelectMany(x => x)
+				.GroupBy(x => x.YieldType, StringComparer.OrdinalIgnoreCase)
+				.Select(x => x.Last())
+				.ToArray();
+		}
+
+		StockForageYield[] urbanScavenge =
+		[
+			Yield("trash", 25.0, 1.0),
+			Yield("discarded-food", 10.0, 0.5),
+			Yield("insects", 20.0, 2.0),
+			Yield("pebbles", 20.0, 0.05)
+		];
+
+		StockForageYield[] urbanNatural =
+		[
+			Yield("grass", 100.0, 7.0),
+			Yield("shrubs", 45.0, 3.0),
+			Yield("low-trees", 35.0, 1.5),
+			Yield("high-trees", 20.0, 0.5),
+			Yield("roots", 25.0, 1.0),
+			Yield("seeds", 35.0, 2.0),
+			Yield("fruit", 20.0, 1.0),
+			Yield("herbs", 25.0, 2.0),
+			Yield("flowers", 35.0, 3.0),
+			Yield("insects", 50.0, 5.0),
+			Yield("grubs-worms", 25.0, 2.0),
+			Yield("leaves-detritus", 55.0, 4.0),
+			Yield("branches-brushwood", 25.0, 0.5),
+			Yield("pebbles", 25.0, 0.05)
+		];
+
+		StockForageYield[] lawnLike =
+		[
+			Yield("grass", 130.0, 9.0),
+			Yield("herbs", 20.0, 2.0),
+			Yield("flowers", 25.0, 2.0),
+			Yield("seeds", 30.0, 2.5),
+			Yield("insects", 45.0, 4.0),
+			Yield("grubs-worms", 20.0, 1.5),
+			Yield("pebbles", 20.0, 0.05)
+		];
+
+		StockForageYield[] garbage =
+		[
+			Yield("trash", 220.0, 5.0),
+			Yield("discarded-food", 120.0, 4.0),
+			Yield("insects", 140.0, 8.0),
+			Yield("grubs-worms", 90.0, 5.0),
+			Yield("leaves-detritus", 80.0, 4.0),
+			Yield("pebbles", 45.0, 0.05),
+			Yield("rocks", 30.0, 0.02)
+		];
+
+		StockForageYield[] ruralRoadEdge =
+		[
+			Yield("grass", 55.0, 4.0),
+			Yield("shrubs", 25.0, 1.5),
+			Yield("herbs", 15.0, 1.0),
+			Yield("seeds", 20.0, 1.5),
+			Yield("insects", 35.0, 3.0),
+			Yield("grubs-worms", 15.0, 1.0),
+			Yield("leaves-detritus", 25.0, 1.5),
+			Yield("pebbles", 45.0, 0.05),
+			Yield("rocks", 20.0, 0.02),
+			Yield("trash", 8.0, 0.3),
+			Yield("discarded-food", 4.0, 0.2)
+		];
+
+		StockForageYield[] gravelRoadEdge =
+		[
+			Yield("grass", 30.0, 2.0),
+			Yield("shrubs", 15.0, 0.8),
+			Yield("insects", 25.0, 2.0),
+			Yield("pebbles", 85.0, 0.05),
+			Yield("rocks", 45.0, 0.02),
+			Yield("trash", 6.0, 0.2)
+		];
+
+		StockForageYield[] openGrassland =
+		[
+			Yield("grass", 150.0, 8.0),
+			Yield("shrubs", 30.0, 2.0),
+			Yield("tubers", 25.0, 1.0),
+			Yield("roots", 30.0, 1.5),
+			Yield("seeds", 45.0, 3.0),
+			Yield("herbs", 40.0, 3.0),
+			Yield("flowers", 25.0, 2.0),
+			Yield("insects", 60.0, 5.0),
+			Yield("grubs-worms", 30.0, 2.0),
+			Yield("leaves-detritus", 35.0, 2.0),
+			Yield("pebbles", 30.0, 0.05)
+		];
+
+		StockForageYield[] richGrassland =
+		[
+			Yield("grass", 210.0, 10.0),
+			Yield("shrubs", 45.0, 2.5),
+			Yield("tubers", 35.0, 1.5),
+			Yield("roots", 45.0, 2.0),
+			Yield("seeds", 60.0, 4.0),
+			Yield("herbs", 55.0, 4.0),
+			Yield("flowers", 45.0, 3.5),
+			Yield("insects", 90.0, 7.0),
+			Yield("grubs-worms", 55.0, 3.5),
+			Yield("leaves-detritus", 55.0, 3.0),
+			Yield("pebbles", 25.0, 0.05)
+		];
+
+		StockForageYield[] savannah =
+		[
+			Yield("grass", 135.0, 7.0),
+			Yield("shrubs", 45.0, 2.0),
+			Yield("low-trees", 45.0, 1.5),
+			Yield("high-trees", 15.0, 0.4),
+			Yield("roots", 30.0, 1.5),
+			Yield("seeds", 40.0, 2.5),
+			Yield("fruit", 20.0, 0.8),
+			Yield("insects", 70.0, 5.0),
+			Yield("grubs-worms", 30.0, 2.0),
+			Yield("leaves-detritus", 40.0, 2.0),
+			Yield("branches-brushwood", 20.0, 0.3),
+			Yield("pebbles", 35.0, 0.05)
+		];
+
+		StockForageYield[] scrub =
+		[
+			Yield("grass", 65.0, 4.0),
+			Yield("shrubs", 115.0, 4.0),
+			Yield("low-trees", 30.0, 1.0),
+			Yield("tubers", 35.0, 1.2),
+			Yield("roots", 45.0, 1.5),
+			Yield("seeds", 40.0, 2.0),
+			Yield("herbs", 35.0, 2.0),
+			Yield("flowers", 25.0, 1.8),
+			Yield("insects", 65.0, 4.0),
+			Yield("grubs-worms", 25.0, 1.5),
+			Yield("leaves-detritus", 45.0, 2.0),
+			Yield("branches-brushwood", 35.0, 0.5),
+			Yield("pebbles", 35.0, 0.05)
+		];
+
+		StockForageYield[] tundra =
+		[
+			Yield("grass", 35.0, 2.0),
+			Yield("shrubs", 30.0, 1.2),
+			Yield("roots", 20.0, 0.8),
+			Yield("moss", 90.0, 4.0),
+			Yield("lichen", 100.0, 4.0),
+			Yield("insects", 35.0, 2.5),
+			Yield("leaves-detritus", 20.0, 1.0),
+			Yield("pebbles", 45.0, 0.05),
+			Yield("rocks", 35.0, 0.02)
+		];
+
+		StockForageYield[] sparseArid =
+		[
+			Yield("grass", 20.0, 1.0),
+			Yield("shrubs", 35.0, 1.2),
+			Yield("tubers", 15.0, 0.5),
+			Yield("roots", 25.0, 0.8),
+			Yield("seeds", 20.0, 0.8),
+			Yield("lichen", 20.0, 0.8),
+			Yield("insects", 35.0, 2.0),
+			Yield("pebbles", 60.0, 0.05),
+			Yield("rocks", 55.0, 0.02),
+			Yield("sand", 85.0, 0.05)
+		];
+
+		StockForageYield[] upland =
+		[
+			Yield("grass", 75.0, 4.0),
+			Yield("shrubs", 60.0, 2.5),
+			Yield("low-trees", 30.0, 1.0),
+			Yield("tubers", 25.0, 0.8),
+			Yield("roots", 35.0, 1.2),
+			Yield("herbs", 35.0, 2.0),
+			Yield("flowers", 25.0, 1.5),
+			Yield("insects", 55.0, 4.0),
+			Yield("moss", 35.0, 1.5),
+			Yield("lichen", 35.0, 1.5),
+			Yield("branches-brushwood", 20.0, 0.4),
+			Yield("pebbles", 75.0, 0.05),
+			Yield("rocks", 75.0, 0.02),
+			Yield("boulders", 35.0, 0.01)
+		];
+
+		StockForageYield[] rocky =
+		[
+			Yield("grass", 25.0, 1.0),
+			Yield("shrubs", 30.0, 1.0),
+			Yield("moss", 25.0, 1.0),
+			Yield("lichen", 40.0, 1.5),
+			Yield("insects", 35.0, 2.0),
+			Yield("pebbles", 120.0, 0.05),
+			Yield("rocks", 140.0, 0.02),
+			Yield("boulders", 80.0, 0.01)
+		];
+
+		StockForageYield[] valley =
+		[
+			Yield("grass", 140.0, 8.0),
+			Yield("shrubs", 80.0, 4.0),
+			Yield("low-trees", 65.0, 2.0),
+			Yield("high-trees", 55.0, 1.0),
+			Yield("tubers", 45.0, 1.5),
+			Yield("roots", 55.0, 2.0),
+			Yield("seeds", 55.0, 3.0),
+			Yield("fruit", 35.0, 1.5),
+			Yield("nuts", 30.0, 1.0),
+			Yield("herbs", 55.0, 4.0),
+			Yield("flowers", 40.0, 3.0),
+			Yield("mushrooms", 35.0, 2.0),
+			Yield("insects", 85.0, 6.0),
+			Yield("grubs-worms", 45.0, 3.0),
+			Yield("leaves-detritus", 80.0, 5.0),
+			Yield("branches-brushwood", 45.0, 0.8),
+			Yield("deadwood", 35.0, 0.3),
+			Yield("pebbles", 45.0, 0.05)
+		];
+
+		StockForageYield[] forest =
+		[
+			Yield("grass", 45.0, 3.0),
+			Yield("shrubs", 95.0, 4.0),
+			Yield("low-trees", 100.0, 2.5),
+			Yield("high-trees", 180.0, 1.5),
+			Yield("mature-trees", 70.0, 0.05),
+			Yield("roots", 45.0, 1.5),
+			Yield("seeds", 65.0, 3.0),
+			Yield("fruit", 45.0, 2.0),
+			Yield("nuts", 55.0, 1.5),
+			Yield("herbs", 35.0, 2.5),
+			Yield("flowers", 25.0, 2.0),
+			Yield("moss", 55.0, 3.0),
+			Yield("lichen", 45.0, 2.0),
+			Yield("mushrooms", 75.0, 4.0),
+			Yield("insects", 105.0, 7.0),
+			Yield("grubs-worms", 65.0, 4.0),
+			Yield("leaves-detritus", 160.0, 8.0),
+			Yield("vines", 35.0, 1.0),
+			Yield("branches-brushwood", 85.0, 1.0),
+			Yield("deadwood", 65.0, 0.4),
+			Yield("pebbles", 35.0, 0.05)
+		];
+
+		StockForageYield[] rainforest =
+		[
+			Yield("grass", 35.0, 3.0),
+			Yield("shrubs", 120.0, 6.0),
+			Yield("low-trees", 140.0, 4.0),
+			Yield("high-trees", 240.0, 2.5),
+			Yield("mature-trees", 90.0, 0.06),
+			Yield("roots", 65.0, 2.5),
+			Yield("seeds", 85.0, 5.0),
+			Yield("fruit", 95.0, 5.0),
+			Yield("nuts", 45.0, 2.0),
+			Yield("herbs", 60.0, 4.0),
+			Yield("flowers", 55.0, 4.0),
+			Yield("moss", 90.0, 5.0),
+			Yield("lichen", 55.0, 3.0),
+			Yield("mushrooms", 115.0, 6.0),
+			Yield("insects", 160.0, 10.0),
+			Yield("grubs-worms", 90.0, 6.0),
+			Yield("leaves-detritus", 220.0, 10.0),
+			Yield("vines", 120.0, 4.0),
+			Yield("branches-brushwood", 95.0, 1.2),
+			Yield("deadwood", 80.0, 0.5),
+			Yield("pebbles", 35.0, 0.05)
+		];
+
+		StockForageYield[] orchard =
+		[
+			Yield("grass", 75.0, 5.0),
+			Yield("shrubs", 30.0, 1.5),
+			Yield("low-trees", 90.0, 2.5),
+			Yield("high-trees", 45.0, 1.0),
+			Yield("mature-trees", 30.0, 0.05),
+			Yield("roots", 30.0, 1.0),
+			Yield("seeds", 45.0, 3.0),
+			Yield("fruit", 160.0, 6.0),
+			Yield("flowers", 60.0, 4.0),
+			Yield("insects", 90.0, 6.0),
+			Yield("leaves-detritus", 60.0, 4.0),
+			Yield("branches-brushwood", 40.0, 0.7),
+			Yield("deadwood", 25.0, 0.2),
+			Yield("pebbles", 25.0, 0.05)
+		];
+
+		StockForageYield[] wetland =
+		[
+			Yield("grass", 70.0, 5.0),
+			Yield("shrubs", 55.0, 3.0),
+			Yield("roots", 60.0, 2.5),
+			Yield("tubers", 45.0, 1.8),
+			Yield("reeds-rushes", 150.0, 8.0),
+			Yield("aquatic-plants", 120.0, 7.0),
+			Yield("algae", 80.0, 6.0),
+			Yield("insects", 150.0, 10.0),
+			Yield("grubs-worms", 75.0, 5.0),
+			Yield("crustaceans", 35.0, 2.0),
+			Yield("tiny-fish", 50.0, 3.0),
+			Yield("leaves-detritus", 120.0, 7.0),
+			Yield("branches-brushwood", 35.0, 0.6),
+			Yield("clay", 80.0, 0.05),
+			Yield("pebbles", 25.0, 0.05)
+		];
+
+		StockForageYield[] wetlandForest =
+		[
+			Yield("grass", 50.0, 4.0),
+			Yield("shrubs", 85.0, 4.0),
+			Yield("low-trees", 90.0, 3.0),
+			Yield("high-trees", 120.0, 1.5),
+			Yield("mature-trees", 55.0, 0.05),
+			Yield("roots", 80.0, 3.0),
+			Yield("reeds-rushes", 110.0, 7.0),
+			Yield("aquatic-plants", 100.0, 7.0),
+			Yield("algae", 80.0, 6.0),
+			Yield("mushrooms", 70.0, 4.0),
+			Yield("insects", 160.0, 10.0),
+			Yield("grubs-worms", 90.0, 6.0),
+			Yield("crustaceans", 45.0, 2.5),
+			Yield("tiny-fish", 50.0, 3.0),
+			Yield("leaves-detritus", 170.0, 8.0),
+			Yield("vines", 65.0, 2.0),
+			Yield("branches-brushwood", 70.0, 0.8),
+			Yield("deadwood", 60.0, 0.4),
+			Yield("clay", 80.0, 0.05)
+		];
+
+		StockForageYield[] oasis =
+		[
+			Yield("grass", 130.0, 8.0),
+			Yield("shrubs", 75.0, 4.0),
+			Yield("low-trees", 60.0, 2.0),
+			Yield("high-trees", 35.0, 1.0),
+			Yield("roots", 55.0, 2.0),
+			Yield("seeds", 45.0, 3.0),
+			Yield("fruit", 50.0, 2.5),
+			Yield("herbs", 45.0, 3.0),
+			Yield("flowers", 35.0, 2.5),
+			Yield("reeds-rushes", 70.0, 5.0),
+			Yield("aquatic-plants", 55.0, 4.0),
+			Yield("algae", 35.0, 3.0),
+			Yield("insects", 100.0, 7.0),
+			Yield("tiny-fish", 25.0, 1.5),
+			Yield("leaves-detritus", 65.0, 4.0),
+			Yield("branches-brushwood", 35.0, 0.5),
+			Yield("sand", 55.0, 0.05),
+			Yield("pebbles", 35.0, 0.05)
+		];
+
+		StockForageYield[] volcanic =
+		[
+			Yield("grass", 20.0, 1.0),
+			Yield("shrubs", 25.0, 1.0),
+			Yield("moss", 25.0, 1.2),
+			Yield("lichen", 45.0, 1.5),
+			Yield("insects", 25.0, 1.5),
+			Yield("pebbles", 100.0, 0.05),
+			Yield("rocks", 140.0, 0.02),
+			Yield("boulders", 90.0, 0.01)
+		];
+
+		StockForageYield[] ice =
+		[
+			Yield("moss", 15.0, 0.8),
+			Yield("lichen", 35.0, 1.2),
+			Yield("ice", 180.0, 0.5),
+			Yield("pebbles", 35.0, 0.05),
+			Yield("rocks", 45.0, 0.02),
+			Yield("boulders", 30.0, 0.01)
+		];
+
+		StockForageYield[] cave =
+		[
+			Yield("mushrooms", 80.0, 4.0),
+			Yield("moss", 45.0, 2.0),
+			Yield("lichen", 35.0, 1.5),
+			Yield("insects", 75.0, 5.0),
+			Yield("grubs-worms", 65.0, 4.0),
+			Yield("leaves-detritus", 25.0, 1.5),
+			Yield("pebbles", 70.0, 0.05),
+			Yield("rocks", 95.0, 0.02),
+			Yield("boulders", 45.0, 0.01),
+			Yield("clay", 45.0, 0.05)
+		];
+
+		StockForageYield[] caveWater =
+		[
+			Yield("mushrooms", 50.0, 3.0),
+			Yield("algae", 80.0, 5.0),
+			Yield("aquatic-plants", 45.0, 3.0),
+			Yield("tiny-fish", 35.0, 2.0),
+			Yield("crustaceans", 40.0, 2.0),
+			Yield("insects", 45.0, 3.0),
+			Yield("grubs-worms", 35.0, 2.0),
+			Yield("pebbles", 60.0, 0.05),
+			Yield("rocks", 75.0, 0.02),
+			Yield("clay", 55.0, 0.05)
+		];
+
+		StockForageYield[] shore =
+		[
+			Yield("grass", 35.0, 2.0),
+			Yield("shrubs", 25.0, 1.0),
+			Yield("sea-grass", 45.0, 3.0),
+			Yield("algae", 70.0, 5.0),
+			Yield("insects", 55.0, 4.0),
+			Yield("crustaceans", 60.0, 3.0),
+			Yield("shellfish", 45.0, 1.5),
+			Yield("molluscs", 40.0, 1.5),
+			Yield("tiny-fish", 45.0, 3.0),
+			Yield("shells", 60.0, 0.05),
+			Yield("sand", 120.0, 0.05),
+			Yield("pebbles", 60.0, 0.05),
+			Yield("trash", 10.0, 0.3)
+		];
+
+		StockForageYield[] rockyShore =
+		[
+			Yield("algae", 90.0, 5.0),
+			Yield("sea-grass", 30.0, 2.0),
+			Yield("crustaceans", 75.0, 3.5),
+			Yield("shellfish", 75.0, 2.0),
+			Yield("molluscs", 70.0, 2.0),
+			Yield("tiny-fish", 40.0, 2.5),
+			Yield("shells", 50.0, 0.05),
+			Yield("pebbles", 80.0, 0.05),
+			Yield("rocks", 120.0, 0.02),
+			Yield("boulders", 60.0, 0.01),
+			Yield("trash", 8.0, 0.3)
+		];
+
+		StockForageYield[] freshwaterEdge =
+		[
+			Yield("grass", 80.0, 5.0),
+			Yield("shrubs", 55.0, 3.0),
+			Yield("roots", 45.0, 2.0),
+			Yield("reeds-rushes", 95.0, 6.0),
+			Yield("aquatic-plants", 85.0, 6.0),
+			Yield("algae", 55.0, 4.0),
+			Yield("insects", 100.0, 7.0),
+			Yield("grubs-worms", 45.0, 3.0),
+			Yield("crustaceans", 35.0, 2.0),
+			Yield("tiny-fish", 60.0, 3.5),
+			Yield("leaves-detritus", 65.0, 4.0),
+			Yield("clay", 65.0, 0.05),
+			Yield("sand", 55.0, 0.05),
+			Yield("pebbles", 45.0, 0.05)
+		];
+
+		StockForageYield[] saltwater =
+		[
+			Yield("sea-grass", 75.0, 5.0),
+			Yield("algae", 120.0, 8.0),
+			Yield("plankton", 150.0, 10.0),
+			Yield("crustaceans", 70.0, 3.5),
+			Yield("shellfish", 55.0, 2.0),
+			Yield("molluscs", 50.0, 2.0),
+			Yield("tiny-fish", 120.0, 6.0),
+			Yield("shells", 45.0, 0.05),
+			Yield("sand", 60.0, 0.05)
+		];
+
+		StockForageYield[] openOcean =
+		[
+			Yield("algae", 80.0, 6.0),
+			Yield("plankton", 220.0, 10.0),
+			Yield("crustaceans", 65.0, 3.0),
+			Yield("tiny-fish", 135.0, 6.0)
+		];
+
+		StockForageYield[] reef =
+		[
+			Yield("sea-grass", 55.0, 4.0),
+			Yield("algae", 145.0, 8.0),
+			Yield("plankton", 170.0, 10.0),
+			Yield("crustaceans", 100.0, 4.0),
+			Yield("shellfish", 100.0, 3.0),
+			Yield("molluscs", 90.0, 3.0),
+			Yield("tiny-fish", 160.0, 7.0),
+			Yield("coral", 100.0, 0.2),
+			Yield("shells", 60.0, 0.05),
+			Yield("sand", 40.0, 0.05)
+		];
+
+		StockForageYield[] freshwater =
+		[
+			Yield("reeds-rushes", 45.0, 3.0),
+			Yield("aquatic-plants", 105.0, 7.0),
+			Yield("algae", 95.0, 7.0),
+			Yield("plankton", 115.0, 8.0),
+			Yield("insects", 65.0, 5.0),
+			Yield("crustaceans", 45.0, 2.5),
+			Yield("tiny-fish", 100.0, 5.0),
+			Yield("clay", 50.0, 0.05),
+			Yield("sand", 45.0, 0.05)
+		];
+
+		var definitions =
+			new Dictionary<string, StockTerrainForageProfileDefinition>(StringComparer.OrdinalIgnoreCase);
+
+		void Add(IEnumerable<string> terrains, params StockForageYield[][] yieldGroups)
+		{
+			foreach (var terrain in terrains)
+			{
+				if (definitions.ContainsKey(terrain))
+				{
+					throw new InvalidOperationException($"The stock terrain forage profile for {terrain} is defined more than once.");
+				}
+
+				definitions[terrain] = new StockTerrainForageProfileDefinition(terrain, Combine(yieldGroups));
+			}
+		}
+
+		Add(["Rooftop", "Ghetto Street", "Slum Street", "Poor Street", "Urban Street", "Suburban Street",
+			"Wealthy Street", "Marketplace", "Courtyard", "Forum", "Public Square", "Outdoor Mall", "Alleyway",
+			"Battlement", "Asphalt Road"], urbanScavenge);
+		Add(["Park", "Garden"], urbanNatural, urbanScavenge);
+		Add(["Lawn", "Showground"], lawnLike, urbanScavenge);
+		Add(["Garbage Dump", "Midden Heap"], garbage);
+		Add(["Village Street", "Rural Street", "Animal Trail", "Trail", "Dirt Road"], ruralRoadEdge);
+		Add(["Compacted Dirt Road", "Gravel Road", "Cobblestone Road"], gravelRoadEdge);
+
+		Add(["Grasslands", "Steppe", "Shortgrass Prairie", "Pasture"], openGrassland);
+		Add(["Tallgrass Prairie", "Meadow", "Field"], richGrassland);
+		Add(["Savannah"], savannah);
+		Add(["Shrublands", "Heath", "Chaparral"], scrub);
+		Add(["Tundra"], tundra);
+		Add(["Flood Plain"], richGrassland, freshwaterEdge);
+		Add(["Badlands", "Salt Flat"], sparseArid);
+
+		Add(["Hills", "Foothills", "Mound", "Drumlin", "Butte", "Kuppe", "Mesa", "Canyon", "Knoll", "Moor",
+			"Tell", "Plateau", "Mountainside", "Mountain Pass"], upland);
+		Add(["Dunes"], sparseArid, [Yield("sand", 140.0, 0.05)]);
+		Add(["Escarpment", "Scree Slope", "Talus Field", "Mountain Ridge", "Cliff Face", "Cliff Edge"], rocky);
+		Add(["Valley", "Vale", "Dell", "Glen", "Strath", "Combe", "Ravine", "Gorge", "Gully"], valley);
+
+		Add(["Boreal Forest", "Broadleaf Forest", "Temperate Coniferous Forest"], forest);
+		Add(["Temperate Rainforest", "Tropical Rainforest"], rainforest);
+		Add(["Bramble"], scrub, [Yield("vines", 90.0, 3.0), Yield("fruit", 55.0, 3.0)]);
+		Add(["Plantation Forest", "Grove", "Woodland"], forest);
+		Add(["Orchard"], orchard);
+
+		Add(["Bog", "Fen", "Marsh", "Salt Marsh", "Wetland"], wetland);
+		Add(["Mangrove Swamp", "Swamp Forest", "Tropical Freshwater Swamp", "Temperate Freshwater Swamp"], wetlandForest);
+
+		Add(["Sandy Desert", "Rocky Desert"], sparseArid);
+		Add(["Coastal Desert"], sparseArid, shore);
+		Add(["Oasis"], oasis);
+		Add(["Volcanic Plain", "Caldera", "Crater"], volcanic);
+		Add(["Lava Field"], rocky, [Yield("lichen", 20.0, 0.8)]);
+		Add(["Glacier", "Ice Field"], ice);
+		Add(["Snowfield"], tundra, [Yield("ice", 90.0, 0.3)]);
+
+		Add(["Cave Entrance"], cave, [Yield("shrubs", 20.0, 1.0), Yield("roots", 25.0, 1.0)]);
+		Add(["Grotto", "Cave", "Cavern"], cave);
+		Add(["Cave Pool", "Underground Water"], caveWater);
+
+		Add(["Sandy Beach"], shore);
+		Add(["Rocky Beach", "Beachrock"], rockyShore);
+		Add(["Riverbank", "Lake Shore", "Mudflat"], freshwaterEdge);
+		Add(["Ocean Shallows", "Ocean Surf", "Cove", "Tide Pool", "Shoal"], saltwater);
+		Add(["Ocean", "Bay", "Sound", "Deep Ocean"], openOcean);
+		Add(["Lagoon", "Estuary"], saltwater, freshwater);
+		Add(["Coral Reef", "Reef"], reef);
+		Add(["Shallow River", "River", "Deep River", "Shallow Lake", "Lake", "Deep Lake"], freshwater);
+
+		return definitions;
+	}
 
     internal static void SeedTerrainFoundationsForTesting(FuturemudDatabaseContext context)
     {
@@ -88,12 +700,176 @@ public partial class CoreDataSeeder
         context.Tags.Add(tag);
     }
 
+	private static void SeedStockTerrainForageProfiles(FuturemudDatabaseContext context)
+	{
+		var installedTerrainNames = context.Terrains
+			.Select(x => x.Name)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		if (!installedTerrainNames.Any())
+		{
+			return;
+		}
+
+		var builderAccountId = context.Accounts
+			.OrderBy(x => x.Id)
+			.Select(x => x.Id)
+			.FirstOrDefault();
+		var now = DateTime.UtcNow;
+		var nextForageProfileId = context.ForagableProfiles
+			.Select(x => x.Id)
+			.AsEnumerable()
+			.DefaultIfEmpty(0L)
+			.Max() + 1L;
+		var stockProfiles = new Dictionary<string, ForagableProfile>(StringComparer.OrdinalIgnoreCase);
+
+		foreach (var definition in StockTerrainForageProfileDefinitions.Values
+			         .Where(x => installedTerrainNames.Contains(x.TerrainName)))
+		{
+			var profile = EnsureStockTerrainForageProfile(
+				context,
+				definition,
+				builderAccountId,
+				now,
+				ref nextForageProfileId);
+			stockProfiles[definition.TerrainName] = profile;
+		}
+
+		context.SaveChanges();
+
+		var validForageProfileIds =
+			(from profile in context.ForagableProfiles
+			 join editable in context.EditableItems on profile.EditableItemId equals editable.Id
+			 where editable.RevisionStatus == (int)RevisionStatus.Current
+			 select profile.Id)
+			.ToHashSet();
+
+		foreach (var definition in StockTerrainForageProfileDefinitions.Values)
+		{
+			if (!stockProfiles.TryGetValue(definition.TerrainName, out var profile))
+			{
+				continue;
+			}
+
+			var terrain = context.Terrains.FirstOrDefault(x =>
+				x.Name.Equals(definition.TerrainName, StringComparison.OrdinalIgnoreCase));
+			if (terrain is null ||
+			    (terrain.ForagableProfileId != 0L && validForageProfileIds.Contains(terrain.ForagableProfileId)))
+			{
+				continue;
+			}
+
+			terrain.ForagableProfileId = profile.Id;
+		}
+
+		context.SaveChanges();
+	}
+
+	private static ForagableProfile EnsureStockTerrainForageProfile(
+		FuturemudDatabaseContext context,
+		StockTerrainForageProfileDefinition definition,
+		long builderAccountId,
+		DateTime now,
+		ref long nextForageProfileId)
+	{
+		var profile = context.ForagableProfiles
+			.OrderBy(x => x.Id)
+			.ThenBy(x => x.RevisionNumber)
+			.FirstOrDefault(x => x.Name == definition.ProfileName);
+
+		if (profile is null)
+		{
+			profile = new ForagableProfile
+			{
+				Id = nextForageProfileId++,
+				RevisionNumber = 0,
+				Name = definition.ProfileName,
+				EditableItem = new EditableItem
+				{
+					RevisionNumber = 0,
+					RevisionStatus = (int)RevisionStatus.Current,
+					BuilderAccountId = builderAccountId,
+					ReviewerAccountId = builderAccountId == 0L ? null : builderAccountId,
+					BuilderDate = now,
+					ReviewerDate = now,
+					BuilderComment = "Auto-generated by the system",
+					ReviewerComment = "Auto-generated by the system"
+				}
+			};
+			context.ForagableProfiles.Add(profile);
+		}
+		else
+		{
+			profile.Name = definition.ProfileName;
+			var editableItem = profile.EditableItem ?? context.EditableItems.Find(profile.EditableItemId);
+			if (editableItem is null)
+			{
+				editableItem = new EditableItem
+				{
+					RevisionNumber = profile.RevisionNumber,
+					BuilderAccountId = builderAccountId,
+					BuilderDate = now,
+					BuilderComment = "Auto-generated by the system"
+				};
+				context.EditableItems.Add(editableItem);
+				profile.EditableItem = editableItem;
+			}
+
+			editableItem.RevisionNumber = profile.RevisionNumber;
+			editableItem.RevisionStatus = (int)RevisionStatus.Current;
+			editableItem.ReviewerAccountId = builderAccountId == 0L ? null : builderAccountId;
+			editableItem.ReviewerDate ??= now;
+			editableItem.BuilderComment ??= "Auto-generated by the system";
+			editableItem.ReviewerComment ??= "Auto-generated by the system";
+		}
+
+		var existingForagables = context.ForagableProfilesForagables
+			.Where(x => x.ForagableProfileId == profile.Id &&
+			            x.ForagableProfileRevisionNumber == profile.RevisionNumber)
+			.ToList();
+		context.ForagableProfilesForagables.RemoveRange(existingForagables);
+
+		var existingMaximums = context.ForagableProfilesMaximumYields
+			.Where(x => x.ForagableProfileId == profile.Id &&
+			            x.ForagableProfileRevisionNumber == profile.RevisionNumber)
+			.ToList();
+		context.ForagableProfilesMaximumYields.RemoveRange(existingMaximums);
+
+		var existingHourly = context.ForagableProfilesHourlyYieldGains
+			.Where(x => x.ForagableProfileId == profile.Id &&
+			            x.ForagableProfileRevisionNumber == profile.RevisionNumber)
+			.ToList();
+		context.ForagableProfilesHourlyYieldGains.RemoveRange(existingHourly);
+
+		foreach (var forageYield in definition.Yields)
+		{
+			context.ForagableProfilesMaximumYields.Add(new ForagableProfilesMaximumYields
+			{
+				ForagableProfile = profile,
+				ForagableProfileId = profile.Id,
+				ForagableProfileRevisionNumber = profile.RevisionNumber,
+				ForageType = forageYield.YieldType,
+				Yield = forageYield.MaximumYield
+			});
+			context.ForagableProfilesHourlyYieldGains.Add(new ForagableProfilesHourlyYieldGains
+			{
+				ForagableProfile = profile,
+				ForagableProfileId = profile.Id,
+				ForagableProfileRevisionNumber = profile.RevisionNumber,
+				ForageType = forageYield.YieldType,
+				Yield = forageYield.HourlyRecovery
+			});
+		}
+
+		return profile;
+	}
+
     internal static void SeedStockTerrainCatalogue(FuturemudDatabaseContext context, DictionaryWithDefault<string, Tag> tagLookup,
         ICollection<string>? errors = null)
     {
         if (context.Terrains.Count() > 1)
         {
-            errors?.Add("Terrains were already installed, so did not add any new data.");
+			SeedStockTerrainForageProfiles(context);
+			errors?.Add("Terrains were already installed, so did not add any new terrain data. Missing stock forage profiles were repaired or backfilled where safe.");
             return;
         }
 
@@ -101,7 +877,7 @@ public partial class CoreDataSeeder
 
         void AddTerrain(string name, string behaviour, double movementRate, double staminaCost,
             Difficulty hideDifficulty, Difficulty spotDifficulty, string? atmosphere, CellOutdoorsType outdoorsType,
-            Color editorColour, string editorText = null, bool isdefault = false, IEnumerable<string>? tags = null)
+            Color editorColour, string? editorText = null, bool isdefault = false, IEnumerable<string>? tags = null)
         {
             context.Terrains.Add(new Terrain
             {
@@ -123,7 +899,7 @@ public partial class CoreDataSeeder
                 TerrainEditorText = editorText,
                 DefaultCellOutdoorsType = (int)outdoorsType,
                 TagInformation = tags is not null ?
-                    tags.SelectNotNull(x => tagLookup[x]?.Id.ToString("F0")).ListToCommaSeparatedValues() :
+                    tags.SelectNotNull(x => x is null ? null : tagLookup[x]?.Id.ToString("F0")).ListToCommaSeparatedValues() :
                     ""
             });
             context.SaveChanges();
@@ -540,6 +1316,8 @@ public partial class CoreDataSeeder
             CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"]);
 
         #endregion
+
+		SeedStockTerrainForageProfiles(context);
 
         #region Autobuilders
 

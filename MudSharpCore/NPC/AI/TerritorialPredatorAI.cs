@@ -1,4 +1,6 @@
 using MudSharp.Character;
+using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -204,6 +206,11 @@ public class TerritorialPredatorAI : TerritorialWanderer
 			return false;
 		}
 
+		if (NpcSurvivalAIHelpers.IsThirsty(ch))
+		{
+			return false;
+		}
+
 		if (ch.Combat != null && ch.CombatTarget is ICharacter ctch &&
 		    PredatorAIHelpers.WillAttack(ch, ctch, WillAttackProg, true))
 		{
@@ -262,6 +269,16 @@ public class TerritorialPredatorAI : TerritorialWanderer
 					return false;
 				}
 
+				if (NpcSurvivalAIHelpers.TryDrinkIfThirsty(ch))
+				{
+					return true;
+				}
+
+				if (NpcSurvivalAIHelpers.IsThirsty(ch))
+				{
+					return false;
+				}
+
 				if (PredatorAIHelpers.EatLocalCorpseIfHungry(ch))
 				{
 					return true;
@@ -274,6 +291,16 @@ public class TerritorialPredatorAI : TerritorialWanderer
 				if (ch.State.IsDead() || ch.State.IsInStatis())
 				{
 					return false;
+				}
+
+				if (NpcSurvivalAIHelpers.TryDrinkIfThirsty(ch))
+				{
+					return true;
+				}
+
+				if (NpcSurvivalAIHelpers.IsThirsty(ch))
+				{
+					break;
 				}
 
 				if (PredatorAIHelpers.EatLocalCorpseIfHungry(ch))
@@ -289,6 +316,16 @@ public class TerritorialPredatorAI : TerritorialWanderer
 					return false;
 				}
 
+				if (NpcSurvivalAIHelpers.TryDrinkIfThirsty(ch))
+				{
+					return true;
+				}
+
+				if (NpcSurvivalAIHelpers.IsThirsty(ch))
+				{
+					return false;
+				}
+
 				if (PredatorAIHelpers.EatLocalCorpseIfHungry(ch))
 				{
 					return true;
@@ -298,6 +335,31 @@ public class TerritorialPredatorAI : TerritorialWanderer
 		}
 
 		return base.HandleEvent(type, arguments);
+	}
+
+	protected override bool WouldMove(ICharacter ch)
+	{
+		if (NpcSurvivalAIHelpers.IsThirsty(ch) && !NpcSurvivalAIHelpers.HasLocalWaterSource(ch))
+		{
+			return true;
+		}
+
+		return base.WouldMove(ch);
+	}
+
+	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+	{
+		if (NpcSurvivalAIHelpers.IsThirsty(ch) && !NpcSurvivalAIHelpers.HasLocalWaterSource(ch))
+		{
+			(ICell? target, IEnumerable<ICellExit> path) =
+				NpcSurvivalAIHelpers.GetPathToWater(ch, GetSuitabilityFunction(ch));
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
+		}
+
+		return base.GetPath(ch);
 	}
 
 	public override bool HandlesEvent(params EventType[] types)

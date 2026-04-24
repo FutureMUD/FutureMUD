@@ -297,6 +297,16 @@ public class DenningPredatorAI : TerritorialPredatorAI
 			return false;
 		}
 
+		if (NpcSurvivalAIHelpers.TryDrinkIfThirsty(ch))
+		{
+			return true;
+		}
+
+		if (NpcSurvivalAIHelpers.IsThirsty(ch) && NpcBurrowFoodEffect.Get(ch)?.HasAnyTarget != true)
+		{
+			return base.HandleEvent(type, arguments);
+		}
+
 		if (NpcBurrowFoodEffect.Get(ch)?.HasAnyTarget == true)
 		{
 			switch (type)
@@ -588,6 +598,11 @@ public class DenningPredatorAI : TerritorialPredatorAI
 			return true;
 		}
 
+		if (NpcSurvivalAIHelpers.IsThirsty(ch) && !NpcSurvivalAIHelpers.HasLocalWaterSource(ch))
+		{
+			return true;
+		}
+
 		if (PredatorAIHelpers.IsHungry(ch))
 		{
 			return base.WouldMove(ch);
@@ -630,6 +645,16 @@ public class DenningPredatorAI : TerritorialPredatorAI
 			}
 
 			return (null, Enumerable.Empty<ICellExit>());
+		}
+
+		if (NpcSurvivalAIHelpers.IsThirsty(ch) && !NpcSurvivalAIHelpers.HasLocalWaterSource(ch))
+		{
+			(ICell? waterTarget, IEnumerable<ICellExit> waterPath) =
+				NpcSurvivalAIHelpers.GetPathToWater(ch, GetSuitabilityFunction(ch));
+			if (waterTarget is not null && waterPath.Any())
+			{
+				return (waterTarget, waterPath);
+			}
 		}
 
 		if (PredatorAIHelpers.IsHungry(ch))

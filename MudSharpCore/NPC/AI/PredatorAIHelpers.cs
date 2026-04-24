@@ -100,7 +100,9 @@ internal static class PredatorAIHelpers
 			return false;
 		}
 
-		if (requireHungryPredator && (!IsHungry(aggressor) || !CouldEatAfterKilling(aggressor, target)))
+		if (requireHungryPredator &&
+		    (NpcSurvivalAIHelpers.IsThirsty(aggressor) || !IsHungry(aggressor) ||
+		     !CouldEatAfterKilling(aggressor, target)))
 		{
 			return false;
 		}

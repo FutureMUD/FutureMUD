@@ -443,12 +443,12 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 | `CombatEndAI` | Yes | Controls truce acceptance and post-incapacitation combat ending behavior | Reactive combat cleanup layer |
 | `CommandableAI` | Yes | Lets players command NPCs subject to prog checks and banned-command rules | Good for guards, servants, followers |
 | `DenBuilderAI` | Yes | Craft-backed den or nest builder that claims a home cell and can defend it | Uses persisted per-NPC home/anchor state |
-| `DenningForagerAI` | Yes | Hungry territorial forager that eats local food, direct forage yields, or uses `FORAGE` for edible forageables, then returns to a remembered den and can optionally build one | Uses persisted per-NPC home/anchor state |
-| `DenningPredatorAI` | Yes | Hungry territorial predator that returns to a remembered home cell when sated, can optionally craft a burrow there, and hauls killed prey back to the den before eating; combat interrupts hauling until the fight ends | Uses persisted per-NPC home/anchor/food state |
+| `DenningForagerAI` | Yes | Hungry or thirsty territorial forager that drinks first, remembers water, eats local food, direct forage yields, or uses `FORAGE` for edible forageables, then returns to a remembered den and can optionally build one | Uses persisted per-NPC home/anchor/water state |
+| `DenningPredatorAI` | Yes | Hungry or thirsty territorial predator that drinks first, remembers water, returns to a remembered home cell when sated, can optionally craft a burrow there, and hauls killed prey back to the den before eating; combat interrupts hauling until the fight ends | Uses persisted per-NPC home/anchor/food/water state |
 | `DoorguardAI` | Yes | Manages NPCs who respond to knocks, open/close doors, and enforce door access rules | Strongly tied to doors and command timing |
 | `EnforcerAI` | Yes | Legal-authority AI that identifies and reacts to wanted criminals | Heavy legal-system integration |
 | `FlyingWanderer` | Yes | Movement AI for flying creatures that wander through valid rooms/layers | Movement-focused specialization |
-| `HungryAggressorAI` | Yes | Aggressor variant that only attacks while hungry, only chooses targets whose corpses it can eat, and eats local edible corpses before hunting | Aggressive classification |
+| `HungryAggressorAI` | Yes | Aggressor variant that drinks first when thirsty, only attacks while hungry and not thirsty, only chooses targets whose corpses it can eat, and eats local edible corpses before hunting | Aggressive classification; remembers local water but does not path |
 | `IdleEmoterAI` | Yes | Periodic idle-emote generator | Lightweight ambience AI |
 | `JudgeAI` | Yes | Courtroom/legal progression AI built on top of `EnforcerAI` | Specialized judicial behavior |
 | `LawyerAI` | Yes | Pathing/hiring/court-participation AI for lawyers | Legal-service specialization |
@@ -463,8 +463,8 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 | `ShopkeeperAI` | Yes | Shop staff behavior, buyer reaction, and restocking response | Shop-system integration |
 | `SparPartnerAI` | Yes | Accepts or refuses spar invitations and engages accordingly | Training/combat-social niche |
 | `StealthAI` | Yes | Hiding/sneaking cadence and stealth posture behavior | Tick-driven stealth utility |
-| `TerritorialForagerAI` | Yes | Hungry territorial forager that searches territory and nearby cells for local food, edible forage yields, or edible forageables it can gather with `FORAGE` | Territory movement plus foraging |
-| `TerritorialPredatorAI` | Yes | Hungry predator that combines edible-prey aggression with `TerritorialWanderer` territory claiming and wandering, and eats local edible corpses before hunting | Aggressive classification plus territory movement |
+| `TerritorialForagerAI` | Yes | Hungry or thirsty territorial forager that drinks first, paths to remembered water before searching for local food, edible forage yields, or edible forageables it can gather with `FORAGE` | Territory movement plus foraging and water memory |
+| `TerritorialPredatorAI` | Yes | Hungry or thirsty predator that combines edible-prey aggression with `TerritorialWanderer`, drinks first, paths to remembered water before hunting, and eats local edible corpses before attacking | Aggressive classification plus territory movement and water memory |
 | `TerritorialWanderer` | Yes | Territory-seeking and territory-maintaining wanderer AI | Also used by spawner open-territory placement |
 | `TrackingAggressorAI` | Yes | Aggression AI that can track enemies over distance | Aggressive classification and pathing-heavy |
 | `WandererAI` | Yes | Core wandering AI for non-flying movers | General-purpose locomotion package |
@@ -481,6 +481,8 @@ The current AI roster clusters into a few families:
 - service/content roles: `DoorguardAI`, `ShopkeeperAI`, `LawyerAI`, `JudgeAI`, `EnforcerAI`, `MountAI`, `CommandableAI`
 - ambience and lightweight reactions: `IdleEmoterAI`, `ReactAI`, `StealthAI`, `SelfCareAI`
 - animal/specialized behavior: `WildAnimalHerdAI`, `ScavengeAI`, `DenBuilderAI`, `LairScavengerAI`, `TerritorialForagerAI`, `DenningForagerAI`
+
+Solo predator and forager AIs use `NpcKnownWaterLocationsEffect` to persist water memories on each NPC. When they see a drinkable local liquid source they remember that cell. When thirsty, they try to drink locally before eating, hunting, foraging, returning home, or building; pathing variants first attempt remembered water cells and then search nearby cells for a new drinkable liquid source. If a remembered water cell is dry when visited, the NPC forgets that location.
 
 ## Group AI Catalogue
 ### Current Group Types

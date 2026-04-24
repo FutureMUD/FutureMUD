@@ -42,6 +42,16 @@ public class HungryAggressorAI : AggressorAI
 			case EventType.CharacterEnterCellFinish:
 			case EventType.LeaveCombat:
 				ICharacter ch = (ICharacter)arguments[0];
+				if (NpcSurvivalAIHelpers.TryDrinkIfThirsty(ch))
+				{
+					return true;
+				}
+
+				if (NpcSurvivalAIHelpers.IsThirsty(ch))
+				{
+					return false;
+				}
+
 				if (PredatorAIHelpers.EatLocalCorpseIfHungry(ch))
 				{
 					return true;
@@ -50,6 +60,16 @@ public class HungryAggressorAI : AggressorAI
 				break;
 			case EventType.CharacterEnterCellWitness:
 				ch = (ICharacter)arguments[3];
+				if (NpcSurvivalAIHelpers.TryDrinkIfThirsty(ch))
+				{
+					return true;
+				}
+
+				if (NpcSurvivalAIHelpers.IsThirsty(ch))
+				{
+					return false;
+				}
+
 				if (PredatorAIHelpers.EatLocalCorpseIfHungry(ch))
 				{
 					return true;

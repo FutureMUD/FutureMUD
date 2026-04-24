@@ -283,6 +283,16 @@ public class DenningForagerAI : TerritorialForagerAI
 			return false;
 		}
 
+		if (NpcSurvivalAIHelpers.TryDrinkIfThirsty(ch))
+		{
+			return true;
+		}
+
+		if (NpcSurvivalAIHelpers.IsThirsty(ch))
+		{
+			return base.HandleEvent(type, arguments);
+		}
+
 		if (!ForagerAIHelpers.IsHungry(ch))
 		{
 			switch (type)
@@ -416,6 +426,11 @@ public class DenningForagerAI : TerritorialForagerAI
 
 	protected override bool WouldMove(ICharacter ch)
 	{
+		if (NpcSurvivalAIHelpers.IsThirsty(ch) && !NpcSurvivalAIHelpers.HasLocalWaterSource(ch))
+		{
+			return true;
+		}
+
 		if (ForagerAIHelpers.IsHungry(ch))
 		{
 			return base.WouldMove(ch);
@@ -433,6 +448,16 @@ public class DenningForagerAI : TerritorialForagerAI
 
 	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
+		if (NpcSurvivalAIHelpers.IsThirsty(ch) && !NpcSurvivalAIHelpers.HasLocalWaterSource(ch))
+		{
+			(ICell? waterTarget, IEnumerable<ICellExit> waterPath) =
+				NpcSurvivalAIHelpers.GetPathToWater(ch, GetSuitabilityFunction(ch));
+			if (waterTarget is not null && waterPath.Any())
+			{
+				return (waterTarget, waterPath);
+			}
+		}
+
 		if (ForagerAIHelpers.IsHungry(ch))
 		{
 			return base.GetPath(ch);

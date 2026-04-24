@@ -68,6 +68,16 @@ public class TerritorialForagerAI : TerritorialWanderer
 
 	protected virtual bool EvaluateForageLifecycle(ICharacter character)
 	{
+		if (NpcSurvivalAIHelpers.TryDrinkIfThirsty(character))
+		{
+			return true;
+		}
+
+		if (NpcSurvivalAIHelpers.IsThirsty(character))
+		{
+			return false;
+		}
+
 		return ForagerAIHelpers.TrySatisfyHunger(character);
 	}
 
@@ -115,6 +125,11 @@ public class TerritorialForagerAI : TerritorialWanderer
 
 	protected override bool WouldMove(ICharacter ch)
 	{
+		if (NpcSurvivalAIHelpers.IsThirsty(ch) && !NpcSurvivalAIHelpers.HasLocalWaterSource(ch))
+		{
+			return true;
+		}
+
 		if (ForagerAIHelpers.IsHungry(ch) &&
 		    !ForagerAIHelpers.HasFoodOpportunity(ch, ch.Location))
 		{
@@ -126,6 +141,16 @@ public class TerritorialForagerAI : TerritorialWanderer
 
 	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
+		if (NpcSurvivalAIHelpers.IsThirsty(ch) && !NpcSurvivalAIHelpers.HasLocalWaterSource(ch))
+		{
+			(ICell? waterTarget, IEnumerable<ICellExit> waterPath) =
+				NpcSurvivalAIHelpers.GetPathToWater(ch, GetSuitabilityFunction(ch));
+			if (waterTarget is not null && waterPath.Any())
+			{
+				return (waterTarget, waterPath);
+			}
+		}
+
 		if (ForagerAIHelpers.IsHungry(ch) &&
 		    !ForagerAIHelpers.HasFoodOpportunity(ch, ch.Location))
 		{

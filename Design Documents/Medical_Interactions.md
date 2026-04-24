@@ -234,6 +234,7 @@ Adrenaline and paralysis are transient overlays derived from active dosage total
 | `OrganFunction` | Implemented |
 | `VisionImpairment` | Implemented |
 | `ThermalImbalance` | Implemented |
+| `PlanarState` | Implemented through a drug-driven planar corporeality overlay |
 | `Adrenaline` | Implemented through adrenaline rush, heart-support, thermal, and cardiac-stress effects |
 | `Paralysis` | Implemented through a drug-driven forced-paralysis effect |
 
@@ -250,6 +251,7 @@ Adrenaline and paralysis are transient overlays derived from active dosage total
 - configure specific-drug neutralization targets
 - configure healing-rate modifiers
 - configure organ-function targets
+- configure planar corporeality state and plane
 
 This is a mature builder-facing surface, and the stock seeding now exercises it with a wider catalogue of herbal remedies, pre-modern compounds, and modern pharmaceuticals.
 

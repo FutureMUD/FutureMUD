@@ -189,23 +189,31 @@ public partial class RobotSeeder
         _context.RacesBreathableLiquids.RemoveRange(_context.RacesBreathableLiquids.Where(x => x.RaceId == race.Id).ToList());
     }
 
+    private const string RobotAuraDiceExpression = "0";
+
+    private static readonly NonHumanAttributeProfile RobotMentalBaseline =
+        new(0, 0, 0, 0,
+            WillpowerBonus: 8,
+            PerceptionBonus: 2,
+            AuraDiceExpression: RobotAuraDiceExpression);
+
     private static readonly IReadOnlyDictionary<string, NonHumanAttributeProfile> RobotSpecificProfiles =
         new Dictionary<string, NonHumanAttributeProfile>(StringComparer.OrdinalIgnoreCase)
         {
-            ["Spider Crawler Robot"] = new(0, 1, 2, 0),
-            ["Circular Saw Robot"] = new(2, 1, 0, 1),
-            ["Pneumatic Hammer Robot"] = new(4, 3, -1, -2),
-            ["Sword-Hand Robot"] = new(1, 0, 2, 2),
-            ["Winged Robot"] = new(-1, -1, 3, 1),
-            ["Jet Robot"] = new(0, -1, 4, 0),
-            ["Mandible Robot"] = new(2, 1, 0, -1),
-            ["Wheeled Robot"] = new(-1, 0, 2, 0),
-            ["Tracked Robot"] = new(2, 3, -2, -2),
-            ["Cyborg"] = new(-1, -1, 1, 1),
-            ["Roomba Robot"] = new(-3, 1, 1, 0),
-            ["Tracked Utility Robot"] = new(0, 3, -1, -1),
-            ["Robot Dog"] = new(1, 1, 2, 0),
-            ["Robot Cockroach"] = new(-3, 3, 3, 1)
+            ["Spider Crawler Robot"] = new(0, 1, 2, 0, WillpowerBonus: 1, PerceptionBonus: 2),
+            ["Circular Saw Robot"] = new(2, 1, 0, 1, WillpowerBonus: 1, PerceptionBonus: 1),
+            ["Pneumatic Hammer Robot"] = new(4, 3, -1, -2, WillpowerBonus: 2),
+            ["Sword-Hand Robot"] = new(1, 0, 2, 2, WillpowerBonus: 1, PerceptionBonus: 1),
+            ["Winged Robot"] = new(-1, -1, 3, 1, PerceptionBonus: 2),
+            ["Jet Robot"] = new(0, -1, 4, 0, PerceptionBonus: 2),
+            ["Mandible Robot"] = new(2, 1, 0, -1, WillpowerBonus: 1, PerceptionBonus: 1),
+            ["Wheeled Robot"] = new(-1, 0, 2, 0, PerceptionBonus: 1),
+            ["Tracked Robot"] = new(2, 3, -2, -2, WillpowerBonus: 2),
+            ["Cyborg"] = new(-1, -1, 1, 1, PerceptionBonus: 1),
+            ["Roomba Robot"] = new(-3, 1, 1, 0, PerceptionBonus: -1),
+            ["Tracked Utility Robot"] = new(0, 3, -1, -1, WillpowerBonus: 1),
+            ["Robot Dog"] = new(1, 1, 2, 0, WillpowerBonus: 1, PerceptionBonus: 2),
+            ["Robot Cockroach"] = new(-3, 3, 3, 1, WillpowerBonus: 1, PerceptionBonus: 3)
         };
 
     internal static NonHumanAttributeProfile GetRobotAttributeProfileForTesting(RobotRaceTemplate template)
@@ -215,7 +223,7 @@ public partial class RobotSeeder
 
     private static NonHumanAttributeProfile GetRobotAttributeProfile(RobotRaceTemplate template)
     {
-        NonHumanAttributeProfile profile = template.Size switch
+        NonHumanAttributeProfile profile = RobotMentalBaseline.Add(template.Size switch
         {
             SizeCategory.Nanoscopic => new(-10, -8, 4, 3),
             SizeCategory.Microscopic => new(-9, -7, 4, 3),
@@ -231,7 +239,7 @@ public partial class RobotSeeder
             SizeCategory.Gigantic => new(18, 14, -5, -5),
             SizeCategory.Titanic => new(20, 16, -6, -6),
             _ => new(2, 2, 0, 0)
-        };
+        });
 
         if (RobotSpecificProfiles.TryGetValue(template.Name, out var specificProfile))
         {
@@ -251,20 +259,28 @@ public partial class RobotSeeder
                      .Where(x => x.Type == (int)TraitType.Attribute || x.Type == (int)TraitType.DerivedAttribute)
                      .ToList())
         {
-            if (_context.RacesAttributes.Any(x => x.RaceId == race.Id && x.AttributeId == attribute.Id))
+            humanAttributes.TryGetValue(attribute.Id, out RacesAttributes? humanAttribute);
+            var attributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile);
+            var diceExpression = NonHumanAttributeScalingHelper.GetAttributeDiceExpression(attribute, profile) ??
+                                 humanAttribute?.DiceExpression;
+            RacesAttributes? alteration = _context.RacesAttributes
+                .FirstOrDefault(x => x.RaceId == race.Id && x.AttributeId == attribute.Id);
+            if (alteration is null)
             {
+                _context.RacesAttributes.Add(new RacesAttributes
+                {
+                    Race = race,
+                    Attribute = attribute,
+                    IsHealthAttribute = humanAttribute?.IsHealthAttribute ?? false,
+                    AttributeBonus = attributeBonus,
+                    DiceExpression = diceExpression
+                });
                 continue;
             }
 
-            _context.RacesAttributes.Add(new RacesAttributes
-            {
-                Race = race,
-                Attribute = attribute,
-                IsHealthAttribute = humanAttributes.TryGetValue(attribute.Id, out RacesAttributes? humanAttribute) &&
-                                    humanAttribute.IsHealthAttribute,
-                AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile),
-                DiceExpression = humanAttribute?.DiceExpression
-            });
+            alteration.IsHealthAttribute = humanAttribute?.IsHealthAttribute ?? false;
+            alteration.AttributeBonus = attributeBonus;
+            alteration.DiceExpression = diceExpression;
         }
 
         _context.SaveChanges();

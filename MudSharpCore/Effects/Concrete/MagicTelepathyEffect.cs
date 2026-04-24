@@ -4,6 +4,7 @@ using MudSharp.Framework;
 using MudSharp.Magic;
 using MudSharp.Magic.Powers;
 using MudSharp.Models;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
@@ -99,7 +100,11 @@ public class MagicTelepathyEffect : ConcentrationConsumingEffect, IMagicEffect, 
 
                 break;
             case MagicPowerDistance.SamePlaneOnly:
-                // TODO - currently just always true
+                if (!CharacterOwner.SharesPlaneWith(tch))
+                {
+                    return false;
+                }
+
                 break;
         }
 

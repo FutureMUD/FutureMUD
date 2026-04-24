@@ -15,6 +15,7 @@ using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits.Interfaces;
@@ -418,6 +419,11 @@ public partial class Character
             return false;
         }
 
+        if (!this.CanInteractPlanar((IPerceivable)target, PlanarInteractionKind.Combat))
+        {
+            return false;
+        }
+
         if (Location.EffectsOfType<IPeacefulEffect>().Any(x => x.Applies(this, target)))
         {
             return false;
@@ -468,6 +474,11 @@ public partial class Character
         if (target == CombatTarget)
         {
             return $"You are already engaged with {target.HowSeen(this)}.";
+        }
+
+        if (!this.CanInteractPlanar((IPerceivable)target, PlanarInteractionKind.Combat, out var planarMessage))
+        {
+            return planarMessage;
         }
 
         if (Location.EffectsOfType<IPeacefulEffect>().Any(x => x.Applies(this, target)))

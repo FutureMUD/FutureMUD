@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Body;
+using MudSharp.Character.Heritage;
 using MudSharp.Form.Characteristics;
 using MudSharp.GameItems;
 using System;
@@ -63,7 +64,9 @@ public partial class MythicalAnimalSeeder
         IReadOnlyList<MythicalCharacteristicTemplate>? AdditionalCharacteristics = null,
         IReadOnlyList<StockDescriptionVariant>? OverlayDescriptionVariants = null,
         string CombatStrategyKey = "Beast Brawler",
-        IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null
+        IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null,
+		double MaximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours,
+		double MaximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours
     );
 
     internal static IReadOnlyDictionary<string, MythicalRaceTemplate> TemplatesForTesting => Templates;
@@ -110,9 +113,50 @@ public partial class MythicalAnimalSeeder
             return new(name, values);
         }
 
-        static NonHumanAttributeProfile Stats(int strength, int constitution, int agility, int dexterity)
+        static NonHumanAttributeProfile Stats(
+            int strength,
+            int constitution,
+            int agility,
+            int dexterity,
+            int willpower = 0,
+            int perception = 0,
+            int aura = 0,
+            string? intelligenceDiceExpression = null,
+            string? auraDiceExpression = null)
         {
-            return new(strength, constitution, agility, dexterity);
+            return new(
+                strength,
+                constitution,
+                agility,
+                dexterity,
+                willpower,
+                perception,
+                aura,
+                intelligenceDiceExpression,
+                AuraDiceExpression: auraDiceExpression);
+        }
+
+        static NonHumanAttributeProfile BestialStats(
+            int strength,
+            int constitution,
+            int agility,
+            int dexterity,
+            int willpower,
+            int perception,
+            int aura = 0,
+            string intelligenceDiceExpression = "2d3",
+            string? auraDiceExpression = "1d2")
+        {
+            return Stats(
+                strength,
+                constitution,
+                agility,
+                dexterity,
+                willpower,
+                perception,
+                aura,
+                intelligenceDiceExpression,
+                auraDiceExpression);
         }
 
         static IReadOnlyList<StockDescriptionVariant> Variants(
@@ -258,7 +302,7 @@ public partial class MythicalAnimalSeeder
                     );
         }
 
-        return new Dictionary<string, MythicalRaceTemplate>(StringComparer.OrdinalIgnoreCase)
+        Dictionary<string, MythicalRaceTemplate> templates = new(StringComparer.OrdinalIgnoreCase)
         {
             ["Dragon"] = BeastRace(
                 "Dragon",
@@ -291,7 +335,7 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
-                attributeProfile: Stats(12, 11, 0, -2),
+                attributeProfile: Stats(12, 11, 0, -2, willpower: 6, perception: 3, aura: 5),
                 bodypartHealthMultiplier: 2.4,
                 additionalCharacteristics:
                 [
@@ -320,7 +364,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Tail Slap", ItemQuality.Standard, "ltail"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
-                attributeProfile: Stats(7, 6, 3, 1),
+                attributeProfile: BestialStats(7, 6, 3, 1, willpower: 3, perception: 4),
                 bodypartHealthMultiplier: 1.6,
                 combatStrategyKey: "Beast Swooper"
             ),
@@ -344,7 +388,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
-                attributeProfile: Stats(6, 5, 3, 1),
+                attributeProfile: BestialStats(6, 5, 3, 1, willpower: 2, perception: 3),
                 bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Swooper"
             ),
@@ -370,7 +414,7 @@ public partial class MythicalAnimalSeeder
                 [
                     Usage("horn", "general")
                 ],
-                attributeProfile: Stats(6, 5, 4, 1),
+                attributeProfile: Stats(6, 5, 4, 1, willpower: 4, perception: 3, aura: 5),
                 bodypartHealthMultiplier: 1.6,
                 combatStrategyKey: "Beast Skirmisher"
             ),
@@ -400,7 +444,7 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
-                attributeProfile: Stats(5, 4, 5, 1),
+                attributeProfile: Stats(5, 4, 5, 1, willpower: 2, perception: 3, aura: 3, intelligenceDiceExpression: "2d3"),
                 bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Swooper"
             ),
@@ -423,7 +467,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Standard, "mouth"),
                     Attack("Claw Swipe", ItemQuality.Standard, "rfpaw", "lfpaw", "rrpaw", "lrpaw")
                 ],
-                attributeProfile: Stats(6, 5, 2, 0),
+                attributeProfile: BestialStats(6, 5, 2, 0, willpower: 4, perception: 3),
                 bodypartHealthMultiplier: 1.6,
                 combatStrategyKey: "Beast Skirmisher"
             ),
@@ -446,7 +490,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Good, "mouth"),
                     Attack("Claw Swipe", ItemQuality.Standard, "rfpaw", "lfpaw", "rrpaw", "lrpaw")
                 ],
-                attributeProfile: Stats(8, 7, 2, 0),
+                attributeProfile: BestialStats(8, 7, 2, 0, willpower: 4, perception: 3),
                 bodypartHealthMultiplier: 1.95,
                 combatStrategyKey: "Beast Brawler"
             ),
@@ -469,7 +513,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Good, "mouth"),
                     Attack("Claw Swipe", ItemQuality.VeryGood, "rfpaw", "lfpaw", "rrpaw", "lrpaw")
                 ],
-                attributeProfile: Stats(10, 9, 0, -1),
+                attributeProfile: BestialStats(10, 9, 0, -1, willpower: 5, perception: 2),
                 bodypartHealthMultiplier: 2.2,
                 combatStrategyKey: "Beast Behemoth"
             ),
@@ -496,7 +540,7 @@ public partial class MythicalAnimalSeeder
                     Usage("rhorn", "general"),
                     Usage("lhorn", "general")
                 ],
-                attributeProfile: Stats(6, 5, -1, -1),
+                attributeProfile: Stats(6, 5, -1, -1, willpower: 3, aura: -1),
                 bodypartHealthMultiplier: 1.2
             ),
             ["Eastern Dragon"] = BeastRace(
@@ -520,7 +564,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Claw Swipe", ItemQuality.Great, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
                     Attack("Tail Slap", ItemQuality.Good, "ltail")
                 ],
-                attributeProfile: Stats(10, 9, 2, 0),
+                attributeProfile: Stats(10, 9, 2, 0, willpower: 6, perception: 3, aura: 5),
                 bodypartHealthMultiplier: 2.3,
                 additionalCharacteristics:
                 [
@@ -547,7 +591,7 @@ public partial class MythicalAnimalSeeder
                     ("a coiled naga", "This naga presents a recognisably humanoid upper torso above a long serpentine lower body, the whole figure poised in smooth, deliberate coils."),
                     ("a serpent-bodied naga", "This naga's human-like arms and shoulders rise from a scaled, sinuous body whose coiling strength and low centre of gravity suggest sudden violence.")
                 ),
-                attributeProfile: Stats(1, 3, 2, 1),
+                attributeProfile: Stats(1, 3, 2, 1, willpower: 2, perception: 2, aura: 2),
                 bodypartHealthMultiplier: 1.15,
                 canClimb: true,
                 combatStrategyKey: "Melee (Auto)"
@@ -571,7 +615,7 @@ public partial class MythicalAnimalSeeder
                     ("a fin-tailed merfolk", "This merfolk body combines a humanoid upper torso with a powerful scaled tail, built more for darting turns and long swims than for any life on land."),
                     ("a sea-borne merfolk", "This merfolk's shoulders and arms are recognisably person-like, but the gleam of scales and the muscular sweep of the tail place them firmly in the water's domain.")
                 ),
-                attributeProfile: Stats(0, 1, 2, 1),
+                attributeProfile: Stats(0, 1, 2, 1, willpower: 1, perception: 2, aura: 1),
                 bodypartHealthMultiplier: 1.0,
                 combatStrategyKey: "Melee (Auto)"
             ),
@@ -604,7 +648,7 @@ public partial class MythicalAnimalSeeder
                     Usage("lwing", "general"),
                     Usage("stinger", "general")
                 ],
-                attributeProfile: Stats(8, 6, 3, 0),
+                attributeProfile: BestialStats(8, 6, 3, 0, willpower: 4, perception: 3, aura: 1),
                 bodypartHealthMultiplier: 1.8,
                 combatStrategyKey: "Beast Artillery"
             ),
@@ -630,7 +674,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Tail Slap", ItemQuality.Standard, "tail"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
-                attributeProfile: Stats(8, 6, 3, 0),
+                attributeProfile: BestialStats(8, 6, 3, 0, willpower: 4, perception: 3, aura: 1),
                 bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Artillery"
             ),
@@ -653,7 +697,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Beak Bite", ItemQuality.Standard, "beak"),
                     Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons")
                 ],
-                attributeProfile: Stats(2, 2, 5, 3),
+                attributeProfile: Stats(2, 2, 5, 3, willpower: 4, perception: 4, aura: 6, intelligenceDiceExpression: "2d3"),
                 bodypartHealthMultiplier: 1.1,
                 combatStrategyKey: "Beast Swooper"
             ),
@@ -676,7 +720,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Standard, "mouth"),
                     Attack("Tail Slap", ItemQuality.Standard, "tail")
                 ],
-                attributeProfile: Stats(5, 6, 2, 0),
+                attributeProfile: BestialStats(5, 6, 2, 0, willpower: 4, perception: 2, aura: 2, auraDiceExpression: null),
                 bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Clincher"
             ),
@@ -699,7 +743,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Beak Bite", ItemQuality.Terrible, "beak"),
                     Attack("Talon Strike", ItemQuality.Standard, "rtalons", "ltalons")
                 ],
-                attributeProfile: Stats(0, 0, 3, 1),
+                attributeProfile: BestialStats(0, 0, 3, 1, willpower: 1, perception: 2, aura: 1),
                 bodypartHealthMultiplier: 0.7,
                 combatStrategyKey: "Beast Swooper"
             ),
@@ -721,7 +765,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Carnivore Bite", ItemQuality.Good, "mandibles"),
                     Attack("Bite", ItemQuality.Standard, "mandibles")
                 ],
-                attributeProfile: Stats(5, 6, 0, -2),
+                attributeProfile: BestialStats(5, 6, 0, -2, willpower: 2, perception: 0),
                 bodypartHealthMultiplier: 1.8,
                 combatStrategyKey: "Beast Behemoth"
             ),
@@ -743,7 +787,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Carnivore Bite", ItemQuality.Good, "mandibles"),
                     Attack("Bite", ItemQuality.Standard, "mandibles")
                 ],
-                attributeProfile: Stats(6, 6, 2, -2),
+                attributeProfile: BestialStats(6, 6, 2, -2, willpower: 3, perception: 1),
                 bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Clincher"
             ),
@@ -766,7 +810,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Standard, "mandibles"),
                     Attack("Claw Swipe", ItemQuality.Good, "rleg1", "lleg1")
                 ],
-                attributeProfile: Stats(6, 5, 4, 1),
+                attributeProfile: BestialStats(6, 5, 4, 1, willpower: 2, perception: 2),
                 bodypartHealthMultiplier: 1.6,
                 combatStrategyKey: "Beast Skirmisher"
             ),
@@ -789,7 +833,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Standard, "rfang", "lfang"),
                     Attack("Claw Swipe", ItemQuality.Standard, "rclaw", "lclaw")
                 ],
-                attributeProfile: Stats(6, 5, 5, 1),
+                attributeProfile: BestialStats(6, 5, 5, 1, willpower: 2, perception: 2),
                 bodypartHealthMultiplier: 1.6,
                 canClimb: true,
                 combatStrategyKey: "Beast Skirmisher"
@@ -817,7 +861,7 @@ public partial class MythicalAnimalSeeder
                 [
                     Usage("stinger", "general")
                 ],
-                attributeProfile: Stats(7, 7, 3, -1),
+                attributeProfile: BestialStats(7, 7, 3, -1, willpower: 3, perception: 1),
                 bodypartHealthMultiplier: 1.8,
                 combatStrategyKey: "Beast Brawler"
             ),
@@ -839,7 +883,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Carnivore Bite", ItemQuality.Good, "mandibles"),
                     Attack("Bite", ItemQuality.Standard, "mandibles")
                 ],
-                attributeProfile: Stats(7, 6, 3, 0),
+                attributeProfile: BestialStats(7, 6, 3, 0, willpower: 2, perception: 1),
                 bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Clincher"
             ),
@@ -862,7 +906,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Standard, "mouth"),
                     Attack("Tail Slap", ItemQuality.Standard, "tail")
                 ],
-                attributeProfile: Stats(8, 9, -2, -3),
+                attributeProfile: BestialStats(8, 9, -2, -3, willpower: 4, perception: 0),
                 bodypartHealthMultiplier: 1.9,
                 canSwim: false,
                 combatStrategyKey: "Beast Clincher"
@@ -886,7 +930,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Good, "mouth"),
                     Attack("Tail Slap", ItemQuality.Good, "tail")
                 ],
-                attributeProfile: Stats(12, 12, -3, -4),
+                attributeProfile: BestialStats(12, 12, -3, -4, willpower: 5, perception: 0),
                 bodypartHealthMultiplier: 2.5,
                 canSwim: false,
                 combatStrategyKey: "Beast Behemoth"
@@ -910,7 +954,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Good, "mandibles"),
                     Attack("Acid Spit", ItemQuality.Good, "mandibles")
                 ],
-                attributeProfile: Stats(9, 8, 1, -2),
+                attributeProfile: BestialStats(9, 8, 1, -2, willpower: 4, perception: 1, aura: 1),
                 bodypartHealthMultiplier: 2.0,
                 combatStrategyKey: "Beast Artillery"
             ),
@@ -933,7 +977,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Hoof Stomp", ItemQuality.Standard, "rfhoof", "lfhoof"),
                     Attack("Tail Slap", ItemQuality.Good, "caudalfin")
                 ],
-                attributeProfile: Stats(6, 5, 3, 0),
+                attributeProfile: Stats(6, 5, 3, 0, willpower: 2, perception: 2, aura: 3, intelligenceDiceExpression: "2d3"),
                 bodypartHealthMultiplier: 1.6,
                 combatStrategyKey: "Beast Skirmisher"
             ),
@@ -955,7 +999,7 @@ public partial class MythicalAnimalSeeder
                     ("a seal-blooded selkie", "This selkie has a recognisably humanoid frame softened by an aquatic grace, the race's seal-blooded heritage evident in the smooth lines and sea-going poise."),
                     ("a sea-graceful selkie", "This selkie carries themself with the easy balance of someone more at home on wave-washed rock and in cold surf than on dry inland roads.")
                 ),
-                attributeProfile: Stats(0, 1, 2, 1),
+                attributeProfile: Stats(0, 1, 2, 1, willpower: 1, perception: 2, aura: 2),
                 bodypartHealthMultiplier: 1.0,
                 combatStrategyKey: "Melee (Auto)"
             ),
@@ -982,7 +1026,7 @@ public partial class MythicalAnimalSeeder
                 [
                     Characteristic("Fungus Colour", "white", "brown", "red", "purple")
                 ],
-                attributeProfile: Stats(-1, 3, -1, -2),
+                attributeProfile: Stats(-1, 3, -1, -2, willpower: 2, aura: 2),
                 bodypartHealthMultiplier: 1.1,
                 combatStrategyKey: "Melee (Auto)"
             ),
@@ -1005,7 +1049,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Jab", ItemQuality.Bad, "rhand", "lhand"),
                     Attack("Elbow", ItemQuality.Bad, "relbow", "lelbow")
                 ],
-                attributeProfile: Stats(2, 4, -1, -2),
+                attributeProfile: Stats(2, 4, -1, -2, willpower: 2, aura: 2),
                 bodypartHealthMultiplier: 1.2,
                 combatStrategyKey: "Melee (Auto)"
             ),
@@ -1028,7 +1072,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Jab", ItemQuality.Standard, "rhand", "lhand"),
                     Attack("Elbow", ItemQuality.Bad, "relbow", "lelbow")
                 ],
-                attributeProfile: Stats(7, 9, -3, -3),
+                attributeProfile: Stats(7, 9, -3, -3, willpower: 5, perception: 1, aura: 4),
                 bodypartHealthMultiplier: 1.6,
                 canSwim: false,
                 additionalCharacteristics:
@@ -1056,7 +1100,7 @@ public partial class MythicalAnimalSeeder
                     ("a blossom-haired dryad", "This dryad carries a largely humanoid form, but bark-soft skin, leaf-wrought hair and a faint scent of living wood mark the figure unmistakably as a spirit of the grove."),
                     ("a leaf-veiled dryad", "This dryad moves like a person taught by branches and wind, every line of the figure softened by petals, bark-grain and the quiet poise of old trees.")
                 ),
-                attributeProfile: Stats(-1, 1, 2, 2),
+                attributeProfile: Stats(-1, 1, 2, 2, willpower: 2, perception: 2, aura: 5),
                 bodypartHealthMultiplier: 1.0,
                 canClimb: true,
                 canSwim: false,
@@ -1087,7 +1131,7 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
-                attributeProfile: Stats(-1, 0, 2, 2),
+                attributeProfile: Stats(-1, 0, 2, 2, willpower: 1, perception: 3, aura: 1),
                 bodypartHealthMultiplier: 1.0,
                 canClimb: true,
                 facialHairProfile: "No_Facial_Hair",
@@ -1117,7 +1161,7 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
-                attributeProfile: Stats(-1, 0, 2, 2),
+                attributeProfile: Stats(-1, 0, 2, 2, willpower: 1, perception: 3, aura: 1),
                 bodypartHealthMultiplier: 1.0,
                 canClimb: true,
                 facialHairProfile: "No_Facial_Hair",
@@ -1142,7 +1186,7 @@ public partial class MythicalAnimalSeeder
                     ("a deep-chested centaur", "This centaur combines a humanoid torso and arms with a powerful equine lower body, making the whole figure look fast, stable and difficult to dislodge."),
                     ("a long-striding centaur", "This centaur's human upper body rises from a broad horse-frame whose musculature and stance suggest endurance, mobility and hard impact.")
                 ),
-                attributeProfile: Stats(6, 5, 2, 0),
+                attributeProfile: Stats(6, 5, 2, 0, willpower: 2, perception: 1),
                 bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Melee (Auto)"
             ),
@@ -1172,12 +1216,68 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
-                attributeProfile: Stats(7, 6, 4, 1),
+                attributeProfile: Stats(7, 6, 4, 1, willpower: 4, perception: 3, aura: 6, intelligenceDiceExpression: "2d3"),
                 bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Swooper"
             )
         };
+
+		return templates
+			.Select(x => ApplyMythicalSatiationLimits(x.Value))
+			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
     }
+
+	private static MythicalRaceTemplate ApplyMythicalSatiationLimits(MythicalRaceTemplate template)
+	{
+		(double foodHours, double drinkHours) = GetMythicalSatiationCadence(template);
+		(double maximumFood, double maximumDrink) =
+			SatiationLimitSeederHelper.MaximumLimitsForCadence(foodHours, drinkHours);
+		return template with
+		{
+			MaximumFoodSatiatedHours = maximumFood,
+			MaximumDrinkSatiatedHours = maximumDrink
+		};
+	}
+
+	private static (double FoodHours, double DrinkHours) GetMythicalSatiationCadence(MythicalRaceTemplate template)
+	{
+		return template.Name switch
+		{
+			"Dragon" or "Eastern Dragon" => (720.0, 168.0),
+			"Griffin" or "Hippogriff" or "Pegasus" or "Pegacorn" => (24.0, 12.0),
+			"Unicorn" => (48.0, 24.0),
+			"Warg" => (12.0, 8.0),
+			"Dire-Wolf" => (18.0, 8.0),
+			"Dire-Bear" => (96.0, 36.0),
+			"Minotaur" => (10.0, 6.0),
+			"Naga" or "Basilisk" or "Cockatrice" => (720.0, 168.0),
+			"Mermaid" or "Selkie" or "Hippocamp" => (24.0, 48.0),
+			"Manticore" => (16.0, 8.0),
+			"Wyvern" => (168.0, 72.0),
+			"Phoenix" => (48.0, 24.0),
+			"Giant Beetle" or "Giant Ant" or "Giant Mantis" => (72.0, 24.0),
+			"Giant Spider" => (336.0, 168.0),
+			"Giant Scorpion" => (720.0, 336.0),
+			"Giant Centipede" or "Ankheg" => (168.0, 72.0),
+			"Giant Worm" => (336.0, 168.0),
+			"Colossal Worm" => (720.0, 336.0),
+			"Myconid" => (168.0, 72.0),
+			"Plantfolk" => (96.0, 48.0),
+			"Ent" => (720.0, 168.0),
+			"Dryad" => (72.0, 48.0),
+			"Owlkin" or "Avian Person" => (10.0, 6.0),
+			"Centaur" => (12.0, 8.0),
+			_ when template.HumanoidVariety => (12.0, 6.0),
+			_ when template.Size >= SizeCategory.Large => (24.0, 12.0),
+			_ => (12.0, 6.0)
+		};
+	}
+
+	internal static (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) GetMythicalSatiationLimitsForTesting(
+		MythicalRaceTemplate template)
+	{
+		return (template.MaximumFoodSatiatedHours, template.MaximumDrinkSatiatedHours);
+	}
 
     internal static string BuildRaceDescriptionForTesting(MythicalRaceTemplate template)
     {

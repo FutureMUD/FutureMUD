@@ -22,6 +22,8 @@ Important responsibilities include:
 
 In practice, `GameItem` is the orchestration layer. Components provide most specialised behaviour, while `GameItem` coordinates persistence, description composition, movement, inventory state, wound handling, and world integration.
 
+Planar presence is resolved at the item level before component-specific physical interaction. A visible but non-interactable item can still appear in descriptions or be speech/observation targeted where commands allow it, while inventory and manipulation checks can reject it through `CanInteractPlanar`.
+
 ### `IGameItemProto`
 `IGameItemProto` is the revisioned prototype for creating items.
 
@@ -35,8 +37,11 @@ It owns the reusable definition of:
 - morph and destroyed-item setup
 - on-load progs
 - skin permissions and visibility flags
+- default `PlanarData` for corporeality and metaphysical visibility
 
 Prototype methods like `CreateNew(...)` instantiate a `GameItem`, create one runtime component per attached component prototype, apply variable initialisation, and execute on-load progs.
+
+If `PlanarData` is null or invalid, the item prototype resolves as ordinary Prime Material corporeal matter. Builders can use the item prototype `planar` command to make special items present on another plane, visible-only to another plane, or fully noncorporeal.
 
 ### `IGameItemComponent`
 `IGameItemComponent` is the runtime slice of behaviour attached to a live item.

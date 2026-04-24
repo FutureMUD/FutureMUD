@@ -164,23 +164,32 @@ public class RobotSeederTemplateTests
     [TestMethod]
     public void TemplatesForTesting_SecondPassAttributeProfiles_DifferentiateRobotChassis()
     {
-        Assert.AreEqual(new NonHumanAttributeProfile(6, 5, -1, -2),
-            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Pneumatic Hammer Robot"]),
+        static void AssertProfile(string raceName, int strength, int constitution, int agility, int dexterity,
+            int willpower, int perception, string message)
+        {
+            NonHumanAttributeProfile profile =
+                RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting[raceName]);
+            Assert.AreEqual(strength, profile.StrengthBonus, $"{raceName} strength bonus");
+            Assert.AreEqual(constitution, profile.ConstitutionBonus, $"{raceName} constitution bonus");
+            Assert.AreEqual(agility, profile.AgilityBonus, $"{raceName} agility bonus");
+            Assert.AreEqual(dexterity, profile.DexterityBonus, $"{raceName} dexterity bonus");
+            Assert.AreEqual(willpower, profile.WillpowerBonus, $"{raceName} willpower bonus");
+            Assert.AreEqual(perception, profile.PerceptionBonus, $"{raceName} perception bonus");
+            Assert.AreEqual("0", profile.AuraDiceExpression, $"{raceName} aura dice");
+            Assert.IsNull(profile.IntelligenceDiceExpression, message);
+        }
+
+        AssertProfile("Pneumatic Hammer Robot", 6, 5, -1, -2, 10, 2,
             "Hammer robots should be strong and shock-resistant but clumsy.");
-        Assert.AreEqual(new NonHumanAttributeProfile(3, 2, 2, 2),
-            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Sword-Hand Robot"]),
+        AssertProfile("Sword-Hand Robot", 3, 2, 2, 2, 9, 3,
             "Sword-hand robots should favour articulated attack precision.");
-        Assert.AreEqual(new NonHumanAttributeProfile(1, 1, 3, 1),
-            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Winged Robot"]),
+        AssertProfile("Winged Robot", 1, 1, 3, 1, 8, 4,
             "Winged robots should trade raw frame mass for aerial agility.");
-        Assert.AreEqual(new NonHumanAttributeProfile(4, 5, -2, -2),
-            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Tracked Robot"]),
+        AssertProfile("Tracked Robot", 4, 5, -2, -2, 10, 2,
             "Tracked humanoid robots should be sturdy and forceful rather than nimble.");
-        Assert.AreEqual(new NonHumanAttributeProfile(-4, 1, 2, 0),
-            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Roomba Robot"]),
+        AssertProfile("Roomba Robot", -4, 1, 2, 0, 8, 1,
             "Roombas should be weak maintenance drones with modest evasive mobility.");
-        Assert.AreEqual(new NonHumanAttributeProfile(-4, 3, 4, 1),
-            RobotSeeder.GetRobotAttributeProfileForTesting(RobotSeeder.TemplatesForTesting["Robot Cockroach"]),
+        AssertProfile("Robot Cockroach", -4, 3, 4, 1, 9, 5,
             "Robot cockroaches should be small, fast and surprisingly hard-wearing for their scale.");
     }
 

@@ -25,6 +25,7 @@ using MudSharp.NPC;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
 using MudSharp.Work.Foraging;
@@ -735,6 +736,82 @@ The syntax for this command is as follows:
     protected static void Stop(ICharacter actor, string input)
     {
         actor.Stop(false);
+    }
+
+    [PlayerCommand("Manifest", "manifest")]
+    [RequiredCharacterState(CharacterState.Conscious)]
+    protected static void Manifest(ICharacter actor, string input)
+    {
+        ChangePlanarManifestation(actor, true);
+    }
+
+    [PlayerCommand("Dissipate", "dissipate")]
+    [RequiredCharacterState(CharacterState.Conscious)]
+    protected static void Dissipate(ICharacter actor, string input)
+    {
+        ChangePlanarManifestation(actor, false);
+    }
+
+    private static void ChangePlanarManifestation(ICharacter actor, bool manifest)
+    {
+        if (manifest && !actor.SuspendsPhysicalContact())
+        {
+            actor.OutputHandler.Send("You are already manifested.");
+            return;
+        }
+
+        var planarEffects = actor.CombinedEffectsOfType<PlanarStateEffect>().ToList();
+        var activeManifestation = planarEffects
+            .OrderByDescending(x => x.PlanarPriority)
+            .FirstOrDefault(x =>
+                x.PlanarPresenceDefinition.TransitionProfile.EqualTo("manifested") &&
+                x.PlanarPresenceDefinition.PlayerCanDissipate);
+        if (!manifest && activeManifestation is not null)
+        {
+            actor.RemoveEffect(activeManifestation, true);
+            actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ grow|grows translucent and less anchored to the physical world.", actor)));
+            return;
+        }
+
+        if (!manifest && actor.SuspendsPhysicalContact())
+        {
+            actor.OutputHandler.Send("You are already dissipated.");
+            return;
+        }
+
+        var effect = planarEffects
+            .OrderByDescending(x => x.PlanarPriority)
+            .FirstOrDefault(x => manifest
+                ? x.PlanarPresenceDefinition.PlayerCanManifest
+                : x.PlanarPresenceDefinition.PlayerCanDissipate);
+        var merit = actor.Merits
+                         .OfType<IPlanarOverlayMerit>()
+                         .Where(x => x.Applies(actor))
+                         .OrderByDescending(x => x.PlanarPriority)
+                         .FirstOrDefault(x => manifest
+                             ? x.PlanarPresenceDefinition.PlayerCanManifest
+                             : x.PlanarPresenceDefinition.PlayerCanDissipate);
+        var definition = effect?.PlanarPresenceDefinition ?? merit?.PlanarPresenceDefinition;
+        if (definition is null)
+        {
+            actor.OutputHandler.Send(manifest
+                ? "You do not have any planar state that lets you manifest."
+                : "You do not have any planar state that lets you dissipate.");
+            return;
+        }
+
+        if (manifest)
+        {
+            var plane = actor.Gameworld.DefaultPlane;
+            actor.AddEffect(new PlanarStateEffect(actor, PlanarPresenceDefinition.Manifested(plane), 10000, true));
+            actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ become|becomes more solid and present.", actor)));
+            return;
+        }
+
+        var targetPlane = actor.Gameworld.Planes.Get(definition.PresencePlaneIds.FirstOrDefault()) ??
+                          actor.Gameworld.DefaultPlane;
+        actor.AddEffect(new PlanarStateEffect(actor, PlanarPresenceDefinition.NonCorporeal(targetPlane), 10000, true));
+        actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ grow|grows translucent and less anchored to the physical world.", actor)));
     }
 
     [PlayerCommand("Landmarks", "landmarks")]

@@ -11,6 +11,7 @@ using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
 using System;
@@ -425,6 +426,35 @@ public class StockMeritsSeeder : IDatabaseSeeder
             context => WillToLiveMerit(context, -0.03, -0.03, 1.25,
                 "When the worst happens, you have less reserve to cling on than most people do.",
                 "$0 have|has a fading spark.")),
+
+        new("Always Astral", "Planar State", MeritType.Merit,
+            context => PlanarStateMerit(context, AstralPlanarState(context, perceivesPrime: true, canManifest: false,
+                    visibleToPrime: false),
+                "Your natural state is anchored on the astral plane.",
+                "$0 exist|exists on the astral plane.")),
+        new("Astral Manifestation", "Planar State", MeritType.Merit,
+            context => PlanarStateMerit(context, AstralPlanarState(context, perceivesPrime: true, canManifest: true,
+                    visibleToPrime: false),
+                "You are astral by nature, but can manifest physically on the prime material plane.",
+                "$0 can manifest from the astral plane.")),
+        new("Astral Ignorant of Prime Material", "Planar State", MeritType.Merit,
+            context => PlanarStateMerit(context, AstralPlanarState(context, perceivesPrime: false, canManifest: false,
+                    visibleToPrime: false),
+                "You are entirely astral and do not naturally perceive the prime material plane.",
+                "$0 exist|exists only to astral perception.")),
+        new("Astral Visual Manifestation", "Planar State", MeritType.Merit,
+            context => PlanarStateMerit(context, AstralPlanarState(context, perceivesPrime: true, canManifest: false,
+                    visibleToPrime: true),
+                "You are astral but visibly manifested to the prime material plane.",
+                "$0 appear|appears as a visible astral presence.")),
+        new("Astral Sight", "Planar State", MeritType.Merit,
+            context => PlanarStateMerit(context, PrimeWithAstralSightPlanarState(context),
+                "You are prime material but can perceive astral presences.",
+                "$0 can perceive the astral plane.")),
+        new("Dual Natured", "Planar State", MeritType.Merit,
+            context => PlanarStateMerit(context, DualNaturedPlanarState(context),
+                "You are simultaneously present on the prime material and astral planes.",
+                "$0 are|is dual-natured across the prime material and astral planes.")),
     ];
 
     public bool SafeToRunMoreThanOnce => true;
@@ -441,7 +471,7 @@ public class StockMeritsSeeder : IDatabaseSeeder
 
 The catalogue is designed to be mode-neutral. It does not switch chargen between MeritPicker and QuirkPicker, and it does not assign any chargen-resource costs by default. Builders can later price or rebalance these merits however they like.
 
-The included examples emphasise conditional terrain- and darkness-based merits, wilderness and city affinities, rested and stamina ladders, and a broad spread of the practical character-merit types supported by the engine.";
+The included examples emphasise conditional terrain- and darkness-based merits, wilderness and city affinities, rested and stamina ladders, reusable astral/dual-natured planar states, and a broad spread of the practical character-merit types supported by the engine.";
 
     internal static IReadOnlyCollection<string> HelperProgNamesForTesting => HelperProgNames;
     internal static IReadOnlyCollection<string> StockMeritNamesForTesting => StockMerits.Select(x => x.Name).ToArray();
@@ -450,6 +480,7 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
     {
         FutureProg alwaysTrue = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
         SeedHelperProgs(context);
+        CoreDataSeeder.SeedDefaultPlanes(context);
         context.SaveChanges();
 
         StockMeritContext stockContext = new(context, alwaysTrue.Id);
@@ -894,6 +925,94 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
             new XAttribute("hypoxia", hypoxia));
     }
 
+    private static XElement PlanarStateMerit(StockMeritContext context, PlanarPresenceDefinition definition,
+        string blurb, string description, int priority = 0, bool overridesBase = true)
+    {
+        return MeritRoot(context, blurb, description,
+            definition.SaveToXml(),
+            new XElement("PlanarPriority", priority),
+            new XElement("OverridesBase", overridesBase));
+    }
+
+    private static PlanarPresenceDefinition AstralPlanarState(StockMeritContext context, bool perceivesPrime,
+        bool canManifest, bool visibleToPrime)
+    {
+        long prime = context.Plane("Prime Material");
+        long astral = context.Plane("Astral Plane");
+        long[] astralOnly = [astral];
+        long[] visiblePlanes = visibleToPrime ? [astral, prime] : astralOnly;
+        long[] perceivesPlanes = perceivesPrime ? [astral, prime] : astralOnly;
+
+        return new PlanarPresenceDefinition(
+            astralOnly,
+            visiblePlanes,
+            perceivesPlanes,
+            PlanarInteractionMap(astralOnly, astralOnly),
+            true,
+            false,
+            true,
+            false,
+            true,
+            canManifest,
+            canManifest,
+            canManifest ? "astral-manifestable" : "astral");
+    }
+
+    private static PlanarPresenceDefinition PrimeWithAstralSightPlanarState(StockMeritContext context)
+    {
+        long prime = context.Plane("Prime Material");
+        long astral = context.Plane("Astral Plane");
+        long[] primeOnly = [prime];
+
+        return new PlanarPresenceDefinition(
+            primeOnly,
+            primeOnly,
+            [prime, astral],
+            PlanarInteractionMap(primeOnly, primeOnly),
+            false,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            "prime-astral-sight");
+    }
+
+    private static PlanarPresenceDefinition DualNaturedPlanarState(StockMeritContext context)
+    {
+        long prime = context.Plane("Prime Material");
+        long astral = context.Plane("Astral Plane");
+        long[] planes = [prime, astral];
+
+        return new PlanarPresenceDefinition(
+            planes,
+            planes,
+            planes,
+            PlanarInteractionMap(planes, planes),
+            false,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            "dual-natured");
+    }
+
+    private static IDictionary<PlanarInteractionKind, IEnumerable<long>> PlanarInteractionMap(
+        IEnumerable<long> nonPhysicalPlanes, IEnumerable<long> physicalPlanes)
+    {
+        long[] nonPhysical = nonPhysicalPlanes.ToArray();
+        long[] physical = physicalPlanes.ToArray();
+        return Enum.GetValues<PlanarInteractionKind>()
+            .ToDictionary(
+                kind => kind,
+                kind => kind is PlanarInteractionKind.Observe or PlanarInteractionKind.Hear or PlanarInteractionKind.Speak
+                    ? (IEnumerable<long>)nonPhysical
+                    : physical);
+    }
+
     private static XElement MeritRoot(StockMeritContext context, string blurb, string description,
         params object[] content)
     {
@@ -971,6 +1090,13 @@ The included examples emphasise conditional terrain- and darkness-based merits, 
 
             traitId = trait.Id;
             return true;
+        }
+
+        public long Plane(string planeName)
+        {
+            return _context.Planes.AsEnumerable()
+                .First(x => x.Name.Equals(planeName, StringComparison.OrdinalIgnoreCase))
+                .Id;
         }
 
         public long MoveSpeed(string aliasOrName)

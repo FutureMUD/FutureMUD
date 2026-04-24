@@ -9,12 +9,13 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Magic;
 using MudSharp.PerceptionEngine;
+using MudSharp.Planes;
 using System;
 using System.Collections.Generic;
 
 namespace MudSharp.GameItems
 {
-    public interface IGameItem : IMortalPerceiver, IHaveMagicResource, IHaveCharacteristics, IHaveTags, IHaveABody,
+    public interface IGameItem : IMortalPerceiver, IHaveMagicResource, IHaveCharacteristics, IHaveTags, IHaveABody, IHavePlanarPresence,
         IEquatable<IGameItem>
     {
         IEnumerable<IGameItemComponent> Components { get; }

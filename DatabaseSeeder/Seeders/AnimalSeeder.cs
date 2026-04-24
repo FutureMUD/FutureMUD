@@ -4107,6 +4107,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             HoldBreathLengthExpression = $"90+(5*con:{_healthTrait.Id})",
             MaximumLiftWeightExpression = $"str:{_strengthTrait.Id}*10000",
             MaximumDragWeightExpression = $"str:{_strengthTrait.Id}*40000",
+			MaximumFoodSatiatedHours = raceTemplate?.MaximumFoodSatiatedHours ?? SatiationLimitSeederHelper.MaximumFoodHoursForCadence(12.0),
+			MaximumDrinkSatiatedHours = raceTemplate?.MaximumDrinkSatiatedHours ?? SatiationLimitSeederHelper.MaximumDrinkHoursForCadence(6.0),
             DefaultHeightWeightModelMale = _hwModels[hwMale],
             DefaultHeightWeightModelNeuter = _hwModels[hwMale],
             DefaultHeightWeightModelFemale = _hwModels[hwFemale],
@@ -4121,7 +4123,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 Race = race,
                 Attribute = attribute,
                 IsHealthAttribute = attribute.TraitGroup == "Physical",
-                AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, attributeProfile)
+                AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, attributeProfile),
+                DiceExpression = NonHumanAttributeScalingHelper.GetAttributeDiceExpression(attribute, attributeProfile)
             });
         }
 
@@ -9142,7 +9145,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 ResolveAnimalRaceHealthMultiplier(template, template.Size, template.BodypartHealthMultiplier);
             bool needsUpdate = race.DefaultCombatSettingId != setting.Id ||
                                race.NaturalArmourTypeId != _naturalArmour?.Id ||
-                               Math.Abs(race.BodypartHealthMultiplier - expectedHealthMultiplier) > 0.0001;
+                               Math.Abs(race.BodypartHealthMultiplier - expectedHealthMultiplier) > 0.0001 ||
+							   !SatiationLimitSeederHelper.MatchesLimits(
+								   race,
+								   template.MaximumFoodSatiatedHours,
+								   template.MaximumDrinkSatiatedHours);
             if (!needsUpdate)
             {
                 continue;
@@ -9151,6 +9158,51 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             race.DefaultCombatSetting = setting;
             race.NaturalArmourType = _naturalArmour;
             race.BodypartHealthMultiplier = expectedHealthMultiplier;
+			SatiationLimitSeederHelper.ApplyLimits(
+				race,
+				template.MaximumFoodSatiatedHours,
+				template.MaximumDrinkSatiatedHours);
+        }
+
+        _context.SaveChanges();
+        ApplyDefaultAttributeAlterationsToSeededRaces();
+    }
+
+    private void ApplyDefaultAttributeAlterationsToSeededRaces()
+    {
+        List<TraitDefinition> attributes = _context.TraitDefinitions
+            .Where(x => x.Type == (int)TraitType.Attribute || x.Type == (int)TraitType.DerivedAttribute)
+            .ToList();
+        foreach (AnimalRaceTemplate template in RaceTemplates.Values)
+        {
+            Race? race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
+            if (race is null)
+            {
+                continue;
+            }
+
+            NonHumanAttributeProfile profile = GetAnimalAttributeProfile(template);
+            foreach (TraitDefinition attribute in attributes)
+            {
+                RacesAttributes? alteration = _context.RacesAttributes
+                    .FirstOrDefault(x => x.RaceId == race.Id && x.AttributeId == attribute.Id);
+                if (alteration is null)
+                {
+                    _context.RacesAttributes.Add(new RacesAttributes
+                    {
+                        Race = race,
+                        Attribute = attribute,
+                        IsHealthAttribute = attribute.TraitGroup == "Physical",
+                        AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile),
+                        DiceExpression = NonHumanAttributeScalingHelper.GetAttributeDiceExpression(attribute, profile)
+                    });
+                    continue;
+                }
+
+                alteration.IsHealthAttribute = attribute.TraitGroup == "Physical";
+                alteration.AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile);
+                alteration.DiceExpression = NonHumanAttributeScalingHelper.GetAttributeDiceExpression(attribute, profile);
+            }
         }
 
         _context.SaveChanges();

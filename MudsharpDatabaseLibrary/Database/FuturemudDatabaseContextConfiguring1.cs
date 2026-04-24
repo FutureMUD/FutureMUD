@@ -1526,6 +1526,11 @@ namespace MudSharp.Database
                       .HasCharSet("utf8")
                       .UseCollation("utf8_general_ci");
 
+                entity.Property(e => e.PlanarData)
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.Property(e => e.StaminaRecoveryProgId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.WearSizeParameterId).HasColumnType("bigint(20)");

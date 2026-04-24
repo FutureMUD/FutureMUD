@@ -3128,6 +3128,11 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.OnDestroyedGameItemProtoId).HasColumnType("bigint(20)");
 
+                entity.Property(e => e.PlanarData)
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.Property(e => e.ReadOnly)
                     .HasColumnType("bit(1)")
                     .HasDefaultValueSql("b'0'");

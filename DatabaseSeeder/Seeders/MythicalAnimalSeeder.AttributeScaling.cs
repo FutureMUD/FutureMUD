@@ -10,4 +10,9 @@ public partial class MythicalAnimalSeeder
 	{
 		return NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, template.AttributeProfile);
 	}
+
+	private static string? GetMythicalAttributeDiceExpression(TraitDefinition attribute, MythicalRaceTemplate template)
+	{
+		return NonHumanAttributeScalingHelper.GetAttributeDiceExpression(attribute, template.AttributeProfile);
+	}
 }

@@ -26,13 +26,38 @@ public class CultureSeederNameAndHeightDefaultTests
 		IReadOnlyDictionary<string, NonHumanAttributeProfile> profiles =
 			CultureSeeder.CultureRaceAttributeProfilesForTesting;
 
-		Assert.AreEqual(new NonHumanAttributeProfile(-1, 0, 2, 3), profiles["Elf"]);
-		Assert.AreEqual(new NonHumanAttributeProfile(-3, 2, 1, 2), profiles["Hobbit"]);
-		Assert.AreEqual(new NonHumanAttributeProfile(2, 4, -1, 0), profiles["Dwarf"]);
-		Assert.AreEqual(new NonHumanAttributeProfile(3, 2, 0, -1), profiles["Orc"]);
-		Assert.AreEqual(new NonHumanAttributeProfile(9, 8, -3, -4), profiles["Troll"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(-1, 0, 2, 3, PerceptionBonus: 2, AuraBonus: 1),
+			profiles["Elf"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(-3, 2, 1, 2, WillpowerBonus: 1, AuraBonus: 1),
+			profiles["Hobbit"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(2, 4, -1, 0, WillpowerBonus: 3), profiles["Dwarf"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(3, 2, 0, -1, WillpowerBonus: 2, PerceptionBonus: 1,
+			AuraBonus: -1), profiles["Orc"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(9, 8, -3, -4, WillpowerBonus: 4, PerceptionBonus: -1,
+			AuraBonus: -2), profiles["Troll"]);
 		Assert.IsTrue(profiles["Troll"].StrengthBonus > profiles["Orc"].StrengthBonus);
 		Assert.IsTrue(profiles["Elf"].DexterityBonus > profiles["Dwarf"].DexterityBonus);
+		Assert.IsTrue(profiles["Dwarf"].WillpowerBonus > profiles["Elf"].WillpowerBonus);
+		Assert.IsTrue(profiles["Elf"].PerceptionBonus > profiles["Dwarf"].PerceptionBonus);
+	}
+
+	[TestMethod]
+	public void CultureRaceSatiationLimitsForTesting_FantasyDefaults_UseExpectedCadences()
+	{
+		IReadOnlyDictionary<string, (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours)> limits =
+			CultureSeeder.CultureRaceSatiationLimitsForTesting;
+
+		AssertSatiationCadence(limits["Elf"], 24.0, 12.0);
+		AssertSatiationCadence(limits["Hobbit"], 8.0, 5.0);
+		AssertSatiationCadence(limits["Dwarf"], 18.0, 9.0);
+		AssertSatiationCadence(limits["Orc"], 8.0, 5.0);
+		AssertSatiationCadence(limits["Troll"], 6.0, 4.0);
+	}
+
+	[TestMethod]
+	public void HumanBaselineSatiationLimitsForTesting_PreservesEstablishedGameplayCadence()
+	{
+		AssertSatiationCadence(HumanSeeder.HumanBaselineSatiationLimitsForTesting, 12.0, 6.0);
 	}
 
 	[TestMethod]
@@ -264,6 +289,18 @@ public class CultureSeederNameAndHeightDefaultTests
 			.UseInMemoryDatabase(Guid.NewGuid().ToString())
 			.Options;
 		return new FuturemudDatabaseContext(options);
+	}
+
+	private static void AssertSatiationCadence(
+		(double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) limits,
+		double expectedFoodHours,
+		double expectedDrinkHours)
+	{
+		const double thresholdFraction = 0.75;
+		Assert.AreEqual(expectedFoodHours / thresholdFraction, limits.MaximumFoodSatiatedHours, 0.0001,
+			"Food satiation maxima should preserve the intended cadence before starvation.");
+		Assert.AreEqual(expectedDrinkHours / thresholdFraction, limits.MaximumDrinkSatiatedHours, 0.0001,
+			"Drink satiation maxima should preserve the intended cadence before becoming parched.");
 	}
 
 	private static void RunSimpleNameSeeding(CultureSeeder seeder, FuturemudDatabaseContext context)

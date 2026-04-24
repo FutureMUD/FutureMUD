@@ -6,12 +6,13 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.Health;
+using MudSharp.Planes;
 using System;
 using System.Collections.Generic;
 
 namespace MudSharp.GameItems
 {
-    public interface IGameItemProto : IEditableRevisableItem, IHaveTags
+    public interface IGameItemProto : IEditableRevisableItem, IHaveTags, IHavePlanarPresence
     {
         IHealthStrategy HealthStrategy { get; }
         string ShortDescription { get; }

@@ -345,6 +345,7 @@ namespace MudSharp.Database
         public virtual DbSet<PlayerActivitySnapshot> PlayerActivitySnapshots { get; set; }
         public virtual DbSet<PopulationBloodModel> PopulationBloodModels { get; set; }
         public virtual DbSet<PopulationBloodModelsBloodtype> PopulationBloodModelsBloodtypes { get; set; }
+        public virtual DbSet<Plane> Planes { get; set; }
         public virtual DbSet<ProgSchedule> ProgSchedules { get; set; }
         public virtual DbSet<ProjectAction> ProjectActions { get; set; }
         public virtual DbSet<ProjectLabourImpact> ProjectLabourImpacts { get; set; }

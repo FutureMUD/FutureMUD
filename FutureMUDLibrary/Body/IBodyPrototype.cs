@@ -6,6 +6,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.Movement;
+using MudSharp.Planes;
 using MudSharp.Strategies.BodyStratagies;
 using System.Collections.Generic;
 
@@ -19,7 +20,7 @@ namespace MudSharp.Body
         Extra
     }
 
-    public interface IBodyPrototype : IFrameworkItem, IHaveFuturemud
+    public interface IBodyPrototype : IFrameworkItem, IHaveFuturemud, IHavePlanarPresence
     {
         IBodyPrototype Parent { get; }
         IBodyCommunicationStrategy Communications { get; }

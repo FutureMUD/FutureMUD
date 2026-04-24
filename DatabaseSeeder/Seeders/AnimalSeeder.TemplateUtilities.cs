@@ -2,6 +2,7 @@
 
 using MudSharp.Body;
 using MudSharp.Combat;
+using MudSharp.GameItems;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,85 @@ public partial class AnimalSeeder
             .Concat(GetInsectRaceTemplates())
             .Concat(GetArachnidRaceTemplates())
             .Concat(GetReptileAmphibianRaceTemplates())
+			.Select(ApplyAnimalSatiationLimits)
             .ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
     }
+
+	private static AnimalRaceTemplate ApplyAnimalSatiationLimits(AnimalRaceTemplate template)
+	{
+		(double foodHours, double drinkHours) = GetAnimalSatiationCadence(template);
+		(double maximumFood, double maximumDrink) =
+			SatiationLimitSeederHelper.MaximumLimitsForCadence(foodHours, drinkHours);
+		return template with
+		{
+			MaximumFoodSatiatedHours = maximumFood,
+			MaximumDrinkSatiatedHours = maximumDrink
+		};
+	}
+
+	private static (double FoodHours, double DrinkHours) GetAnimalSatiationCadence(AnimalRaceTemplate template)
+	{
+		return template.Name switch
+		{
+			"Mouse" or "Shrew" or "Hamster" => (2.0, 2.0),
+			"Rat" or "Guinea Pig" => (4.0, 3.0),
+			"Rabbit" or "Hare" => (4.0, 3.0),
+			"Ferret" or "Stoat" or "Weasel" or "Polecat" or "Mink" => (6.0, 4.0),
+			"Beaver" or "Otter" => (8.0, 12.0),
+			"Cat" or "Fox" or "Jackal" => (12.0, 6.0),
+			"Dog" or "Coyote" or "Hyena" => (16.0, 8.0),
+			"Wolf" or "Lion" or "Tiger" or "Sabretooth Tiger" or "Cheetah" or "Leopard" or "Panther" or "Jaguar" => (24.0, 12.0),
+			"Bear" => (72.0, 24.0),
+			"Pig" or "Boar" or "Warthog" => (12.0, 6.0),
+			"Sheep" or "Goat" or "Deer" or "Moose" or "Elk" or "Reindeer" or "Cow" or "Ox" or "Bison" or "Buffalo" or "Horse" => (10.0, 6.0),
+			"Llama" or "Alpaca" => (18.0, 24.0),
+			"Camel" => (48.0, 168.0),
+			"Rhinocerous" or "Elephant" or "Mammoth" => (24.0, 12.0),
+			"Hippopotamus" => (12.0, 4.0),
+			"Giraffe" => (14.0, 24.0),
+			"Sparrow" or "Finch" or "Robin" or "Wren" or "Swallow" => (2.0, 2.0),
+			"Pigeon" or "Parrot" or "Quail" or "Duck" or "Grouse" or "Pheasant" or "Chicken" or "Seagull" or "Crow" or "Raven" or "Woodpecker" or "Kingfisher" => (6.0, 4.0),
+			"Goose" or "Swan" or "Turkey" or "Heron" or "Crane" or "Flamingo" or "Peacock" or "Ibis" or "Pelican" or "Stork" or "Penguin" => (10.0, 8.0),
+			"Albatross" => (18.0, 16.0),
+			"Emu" or "Ostrich" or "Moa" => (12.0, 8.0),
+			"Vulture" => (72.0, 12.0),
+			"Hawk" or "Eagle" or "Falcon" or "Owl" => (24.0, 8.0),
+			"Python" or "Tree Python" or "Boa" or "Anaconda" or "Cobra" or "Adder" or "Rattlesnake" or "Viper" or "Mamba" or "Coral Snake" or "Moccasin" => (720.0, 168.0),
+			"Lizard" or "Gecko" or "Skink" => (168.0, 72.0),
+			"Iguana" or "Monitor Lizard" => (336.0, 96.0),
+			"Turtle" => (720.0, 336.0),
+			"Tortoise" => (1440.0, 720.0),
+			"Crocodile" or "Alligator" => (720.0, 240.0),
+			"Frog" or "Toad" => (48.0, 12.0),
+			"Shark" => (168.0, 72.0),
+			"Dolphin" or "Porpoise" or "Orca" => (48.0, 48.0),
+			"Baleen Whale" or "Toothed Whale" => (336.0, 168.0),
+			"Sea Lion" or "Seal" or "Walrus" => (24.0, 24.0),
+			"Small Crab" or "Shrimp" or "Prawn" or "Crayfish" => (24.0, 24.0),
+			"Crab" or "Giant Crab" or "Lobster" => (48.0, 36.0),
+			"Jellyfish" => (24.0, 48.0),
+			"Octopus" or "Squid" => (48.0, 36.0),
+			"Giant Squid" => (168.0, 72.0),
+			"Ant" or "Bee" or "Butterfly" or "Moth" or "Grasshopper" or "Cockroach" => (24.0, 12.0),
+			"Dragonfly" or "Wasp" or "Hornet" => (18.0, 8.0),
+			"Beetle" or "Mantis" or "Centipede" => (72.0, 24.0),
+			"Spider" => (336.0, 168.0),
+			"Tarantula" => (720.0, 336.0),
+			"Scorpion" => (720.0, 336.0),
+			_ when template.BodyKey is "Piscine" => template.Size >= SizeCategory.Normal ? (72.0, 48.0) : (24.0, 24.0),
+			_ when template.BodyKey is "Serpentine" => (720.0, 168.0),
+			_ when template.BodyKey is "Reptilian" or "Chelonian" or "Crocodilian" => (336.0, 96.0),
+			_ when template.BodyKey is "Anuran" => (48.0, 12.0),
+			_ when template.BodyKey.Contains("Insectoid", StringComparison.OrdinalIgnoreCase) => (24.0, 12.0),
+			_ when template.BodyKey is "Arachnid" or "Scorpion" => (336.0, 168.0),
+			_ when template.BodyKey is "Decapod" or "Malacostracan" or "Cephalopod" or "Jellyfish" => (48.0, 36.0),
+			_ when template.BodyKey is "Cetacean" => (168.0, 96.0),
+			_ when template.BodyKey is "Pinniped" => (24.0, 24.0),
+			_ => template.Size <= SizeCategory.VerySmall ? (6.0, 4.0) :
+				template.Size >= SizeCategory.Large ? (24.0, 12.0) :
+				(12.0, 6.0)
+		};
+	}
 
     private static Dictionary<string, AnimalHeightWeightTemplate> BuildHeightWeightTemplates()
     {

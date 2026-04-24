@@ -58,6 +58,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Handlers;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Planes;
 using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
@@ -1236,6 +1237,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         _shards.Add(shard);
     }
 
+    public void Add(IPlane plane)
+    {
+        _planes.Add(plane);
+    }
+
     public void Add(IArtificialIntelligence ai)
     {
         _AIs.Add(ai);
@@ -2217,6 +2223,12 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IShard plane)
     {
         _shards.Remove(plane);
+        DestroyListeners(plane);
+    }
+
+    public void Destroy(IPlane plane)
+    {
+        _planes.Remove(plane);
         DestroyListeners(plane);
     }
 

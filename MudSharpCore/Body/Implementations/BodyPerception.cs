@@ -23,6 +23,7 @@ using MudSharp.Health;
 using MudSharp.Movement;
 using MudSharp.Magic;
 using MudSharp.PerceptionEngine;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits.Interfaces;
@@ -220,6 +221,11 @@ public partial class Body
             {
                 return false;
             }
+        }
+
+        if (!Actor.CanPerceivePlanar(thing, flags))
+        {
+            return false;
         }
 
         return thing.HiddenFromPerception(Actor,

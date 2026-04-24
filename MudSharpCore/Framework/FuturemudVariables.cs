@@ -54,6 +54,7 @@ using MudSharp.NPC.AI;
 using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Light;
+using MudSharp.Planes;
 using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
@@ -215,6 +216,7 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IProperty> _properties = new();
     private readonly All<IPatrol> _patrols = new();
     private readonly All<IPopulationBloodModel> _populationBloodModels = new();
+    private readonly All<IPlane> _planes = new();
     private readonly All<IProgSchedule> _progSchedules = new();
     private readonly All<IRace> _races = new();
     private readonly All<IRangedCover> _rangedCovers = new();
@@ -480,6 +482,10 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableAll<IPatrol> Patrols => _patrols;
 
     public IUneditableAll<IPopulationBloodModel> PopulationBloodModels => _populationBloodModels;
+
+    public IUneditableAll<IPlane> Planes => _planes;
+
+    public IPlane DefaultPlane => _planes.FirstOrDefault(x => x.IsDefault) ?? _planes.FirstOrDefault();
 
     public IUneditableAll<IProgSchedule> ProgSchedules => _progSchedules;
 

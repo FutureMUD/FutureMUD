@@ -168,13 +168,25 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
         if (Templates.Keys.All(name => context.Races.Any(x => x.Name == name)))
         {
-            return HasMissingMythicalDisfigurementTemplates(context) || HasMissingMythicalDietSettings(context)
+            return HasMissingMythicalDisfigurementTemplates(context) ||
+                   HasMythicalSatiationLimitUpdates(context) ||
+                   HasMissingMythicalDietSettings(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }
 
         return ShouldSeedResult.ReadyToInstall;
     }
+
+	private static bool HasMythicalSatiationLimitUpdates(FuturemudDatabaseContext context)
+	{
+		return Templates.Values.Any(template =>
+			context.Races.FirstOrDefault(x => x.Name == template.Name) is { } race &&
+			!SatiationLimitSeederHelper.MatchesLimits(
+				race,
+				template.MaximumFoodSatiatedHours,
+				template.MaximumDrinkSatiatedHours));
+	}
 
     private static bool HasPrerequisites(FuturemudDatabaseContext context)
     {
@@ -970,6 +982,10 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             race.CanClimb = template.CanClimb;
             race.CanSwim = template.CanSwim;
             race.MinimumSleepingPosition = 4;
+			SatiationLimitSeederHelper.ApplyLimits(
+				race,
+				template.MaximumFoodSatiatedHours,
+				template.MaximumDrinkSatiatedHours);
             ApplyBreathingProfile(race, GetBreathingProfile(template));
             ApplyMythicalDietSettings(race, template);
         }
@@ -1184,6 +1200,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             HoldBreathLengthExpression = $"90+(5*con:{_healthTrait.Id})",
             MaximumLiftWeightExpression = $"str:{_strengthTrait.Id}*10000",
             MaximumDragWeightExpression = $"str:{_strengthTrait.Id}*40000",
+			MaximumFoodSatiatedHours = template.MaximumFoodSatiatedHours,
+			MaximumDrinkSatiatedHours = template.MaximumDrinkSatiatedHours,
             DefaultHeightWeightModelMale = _context.HeightWeightModels.First(x => x.Name == template.MaleHeightWeightModel),
 			DefaultHeightWeightModelFemale = _context.HeightWeightModels.First(x => x.Name == template.FemaleHeightWeightModel),
 			DefaultHeightWeightModelNeuter = _context.HeightWeightModels.First(x => x.Name == template.MaleHeightWeightModel),
@@ -1202,7 +1220,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
                 Race = race,
                 Attribute = attribute,
                 IsHealthAttribute = attribute.TraitGroup == "Physical",
-                AttributeBonus = GetMythicalAttributeBonus(attribute, template)
+                AttributeBonus = GetMythicalAttributeBonus(attribute, template),
+                DiceExpression = GetMythicalAttributeDiceExpression(attribute, template)
             });
         }
         ApplyBreathingProfile(race, GetBreathingProfile(template));
@@ -1247,6 +1266,46 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 			race.NaturalArmourType = expectedArmour;
             race.BodypartHealthMultiplier = expectedHealthMultiplier;
 		}
+
+        _context.SaveChanges();
+        ApplyDefaultAttributeAlterationsToSeededRaces();
+    }
+
+    private void ApplyDefaultAttributeAlterationsToSeededRaces()
+    {
+        List<TraitDefinition> attributes = _context.TraitDefinitions
+            .Where(x => x.Type == (int)TraitType.Attribute || x.Type == (int)TraitType.DerivedAttribute)
+            .ToList();
+        foreach (MythicalRaceTemplate template in Templates.Values)
+        {
+            Race? race = _context.Races.FirstOrDefault(x => x.Name == template.Name);
+            if (race is null)
+            {
+                continue;
+            }
+
+            foreach (TraitDefinition attribute in attributes)
+            {
+                RacesAttributes? alteration = _context.RacesAttributes
+                    .FirstOrDefault(x => x.RaceId == race.Id && x.AttributeId == attribute.Id);
+                if (alteration is null)
+                {
+                    _context.RacesAttributes.Add(new RacesAttributes
+                    {
+                        Race = race,
+                        Attribute = attribute,
+                        IsHealthAttribute = attribute.TraitGroup == "Physical",
+                        AttributeBonus = GetMythicalAttributeBonus(attribute, template),
+                        DiceExpression = GetMythicalAttributeDiceExpression(attribute, template)
+                    });
+                    continue;
+                }
+
+                alteration.IsHealthAttribute = attribute.TraitGroup == "Physical";
+                alteration.AttributeBonus = GetMythicalAttributeBonus(attribute, template);
+                alteration.DiceExpression = GetMythicalAttributeDiceExpression(attribute, template);
+            }
+        }
 
         _context.SaveChanges();
     }

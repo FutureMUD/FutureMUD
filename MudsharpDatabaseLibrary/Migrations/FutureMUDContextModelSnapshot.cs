@@ -2994,6 +2994,12 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("NameForTracking"), "utf8");
 
+                    b.Property<string>("PlanarData")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PlanarData"), "utf8");
+
                     b.Property<long?>("StaminaRecoveryProgId")
                         .HasColumnType("bigint(20)");
 
@@ -9652,6 +9658,12 @@ namespace MudSharp.Migrations
                         .HasColumnType("bit(1)")
                         .HasDefaultValueSql("b'0'");
 
+                    b.Property<string>("PlanarData")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PlanarData"), "utf8");
+
                     b.Property<bool>("PreserveRegisterVariables")
                         .HasColumnType("tinyint(1)");
 
@@ -13258,6 +13270,63 @@ namespace MudSharp.Migrations
                     b.ToTable("PerceiverMerits");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.Plane", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Alias")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(500)")
+                        .HasDefaultValueSql("''")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Alias"), "utf8");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<ulong>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValueSql("b'0'");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<string>("RoomDescriptionAddendum")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RoomDescriptionAddendum"), "utf8");
+
+                    b.Property<string>("RoomNameFormat")
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RoomNameFormat"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("Planes");
+                });
+
             modelBuilder.Entity("MudSharp.Models.PlayerActivitySnapshot", b =>
                 {
                     b.Property<long>("Id")
@@ -14279,6 +14348,16 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("MaximumDragWeightExpression"), "utf8");
+
+                    b.Property<double>("MaximumDrinkSatiatedHours")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(8.0);
+
+                    b.Property<double>("MaximumFoodSatiatedHours")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(16.0);
 
                     b.Property<string>("MaximumLiftWeightExpression")
                         .IsRequired()

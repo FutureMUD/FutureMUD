@@ -97,6 +97,15 @@ namespace MudSharp.Health
         public override string DatabaseString => OrganTypes.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" ");
     }
 
+    public class PlanarStateAdditionalInfo : DrugAdditionalInfo
+    {
+        public required string State { get; set; }
+        public required long PlaneId { get; set; }
+        public required bool VisibleToDefaultPlane { get; set; }
+
+        public override string DatabaseString => $"{State} {PlaneId} {VisibleToDefaultPlane}";
+    }
+
     public interface IDrug : IEditableItem, IProgVariable
     {
         DrugVector DrugVectors { get; }

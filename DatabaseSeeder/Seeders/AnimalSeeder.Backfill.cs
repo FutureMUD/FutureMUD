@@ -33,6 +33,16 @@ public partial class AnimalSeeder
 			return true;
 		}
 
+		if (RaceTemplates.Values.Any(template =>
+			    context.Races.FirstOrDefault(x => x.Name == template.Name) is { } race &&
+			    !SatiationLimitSeederHelper.MatchesLimits(
+				    race,
+				    template.MaximumFoodSatiatedHours,
+				    template.MaximumDrinkSatiatedHours)))
+		{
+			return true;
+		}
+
 		Race? beetleRace = context.Races.FirstOrDefault(x => x.Name == "Beetle");
 		if (beetleRace is not null && context.BodyProtos.FirstOrDefault(x => x.Id == beetleRace.BaseBodyId)?.Name != "Beetle")
 		{

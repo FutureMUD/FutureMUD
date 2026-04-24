@@ -27,6 +27,7 @@
         void LoadChargenResources();
         void LoadHeightWeightModels();
         void LoadHearingProfiles();
+        void LoadPlanes();
         void LoadEthnicities();
         void LoadCultures();
         void LoadNameCultures();

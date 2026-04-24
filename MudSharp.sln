@@ -141,6 +141,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\Adjacencies_and_Items.md = Design Documents\Adjacencies_and_Items.md
 		Design Documents\AI_Storyteller_Design.md = Design Documents\AI_Storyteller_Design.md
 		Design Documents\AI_Storyteller_Implementation_Plan.md = Design Documents\AI_Storyteller_Implementation_Plan.md
+		Design Documents\Armageddon_Magic_Psionics_Gap_Report.md = Design Documents\Armageddon_Magic_Psionics_Gap_Report.md
 		Design Documents\Autobuilder_Builder_How_To.md = Design Documents\Autobuilder_Builder_How_To.md
 		Design Documents\Autobuilder_Seeder_Implementation_Guide.md = Design Documents\Autobuilder_Seeder_Implementation_Guide.md
 		Design Documents\Autobuilder_System_Implementation.md = Design Documents\Autobuilder_System_Implementation.md
@@ -152,10 +153,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\Celestial_Type_PlanetFromMoon.md = Design Documents\Celestial_Type_PlanetFromMoon.md
 		Design Documents\Celestial_Type_Sun.md = Design Documents\Celestial_Type_Sun.md
 		Design Documents\Celestial_Type_SunFromPlanetaryMoon.md = Design Documents\Celestial_Type_SunFromPlanetaryMoon.md
+		Design Documents\Character_Creation_Builder_Workflows.md = Design Documents\Character_Creation_Builder_Workflows.md
+		Design Documents\Character_Creation_Documentation_Index.md = Design Documents\Character_Creation_Documentation_Index.md
+		Design Documents\Character_Creation_Runtime.md = Design Documents\Character_Creation_Runtime.md
+		Design Documents\Character_Creation_Seeder.md = Design Documents\Character_Creation_Seeder.md
+		Design Documents\Character_Description_System.md = Design Documents\Character_Description_System.md
+		Design Documents\Clan_Command_Surface_and_Permissions.md = Design Documents\Clan_Command_Surface_and_Permissions.md
+		Design Documents\Clan_Elections_and_External_Control.md = Design Documents\Clan_Elections_and_External_Control.md
 		Design Documents\Combat_Arenas_Design.md = Design Documents\Combat_Arenas_Design.md
 		Design Documents\Combat_Arenas_Implementation_Plan.md = Design Documents\Combat_Arenas_Implementation_Plan.md
 		Design Documents\Combat_Settings_Defaults_Design.md = Design Documents\Combat_Settings_Defaults_Design.md
 		Design Documents\Core_Runtime.md = Design Documents\Core_Runtime.md
+		Design Documents\Crafting_System_Builder_Workflows.md = Design Documents\Crafting_System_Builder_Workflows.md
+		Design Documents\Crafting_System_Overview.md = Design Documents\Crafting_System_Overview.md
+		Design Documents\Crafting_System_Runtime_and_Extensibility.md = Design Documents\Crafting_System_Runtime_and_Extensibility.md
 		Design Documents\Damage_Balance_Animal_Mythic_Attribute_Scaling_Report.md = Design Documents\Damage_Balance_Animal_Mythic_Attribute_Scaling_Report.md
 		Design Documents\Damage_Balance_First_Pass_Report.md = Design Documents\Damage_Balance_First_Pass_Report.md
 		Design Documents\Damage_Balance_NonHuman_First_Pass_Report.md = Design Documents\Damage_Balance_NonHuman_First_Pass_Report.md
@@ -173,6 +184,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\FutureMUD_Computer_Programs_Concept_Design.md = Design Documents\FutureMUD_Computer_Programs_Concept_Design.md
 		Design Documents\FutureProg_Type_System.md = Design Documents\FutureProg_Type_System.md
 		Design Documents\Health_System_Design.md = Design Documents\Health_System_Design.md
+		Design Documents\Human_Seeder_Description_Patterns.md = Design Documents\Human_Seeder_Description_Patterns.md
 		Design Documents\Item_System_Component_Authoring.md = Design Documents\Item_System_Component_Authoring.md
 		Design Documents\Item_System_Content_Workflows.md = Design Documents\Item_System_Content_Workflows.md
 		Design Documents\Item_System_Overview.md = Design Documents\Item_System_Overview.md
@@ -188,6 +200,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\Natural_Ranged_Attacks_Implementation_Plan.md = Design Documents\Natural_Ranged_Attacks_Implementation_Plan.md
 		Design Documents\NPC_AI_and_Group_AI_Runtime.md = Design Documents\NPC_AI_and_Group_AI_Runtime.md
 		Design Documents\Patch_Notes_Authoring_Guide.md = Design Documents\Patch_Notes_Authoring_Guide.md
+		Design Documents\Projects_System_Builder_Workflows.md = Design Documents\Projects_System_Builder_Workflows.md
+		Design Documents\Projects_System_Overview.md = Design Documents\Projects_System_Overview.md
+		Design Documents\Room_Description_Markup.md = Design Documents\Room_Description_Markup.md
 		Design Documents\Seeder_and_Gaps.md = Design Documents\Seeder_and_Gaps.md
 	EndProjectSection
 EndProject
@@ -1237,8 +1252,8 @@ Global
 		{6CC81E07-F4B8-405A-854C-D460A89B18D5} = {EC75D277-E25F-4978-B153-195DDB185097}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {44978E47-2FA8-4EBE-B4A5-74B49FDA01E5}
 		BuildVersion_StartDate = 2000/1/1
+		SolutionGuid = {44978E47-2FA8-4EBE-B4A5-74B49FDA01E5}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = MudSharp.vsmdi

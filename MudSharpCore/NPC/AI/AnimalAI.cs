@@ -30,7 +30,8 @@ public enum AnimalMovementStrategyType
 	Ground,
 	Swim,
 	Fly,
-	Arboreal
+	Arboreal,
+	Amphibious
 }
 
 public enum AnimalHomeStrategyType
@@ -47,7 +48,17 @@ public enum AnimalFeedingStrategyType
 	DenPredator,
 	Forager,
 	Scavenger,
-	Opportunist
+	Opportunist,
+	Omnivore,
+	DenOmnivore
+}
+
+public enum AnimalWaterStrategyType
+{
+	Off,
+	Drink,
+	Immerse,
+	Surface
 }
 
 public enum AnimalThreatStrategyType
@@ -98,14 +109,17 @@ public class AnimalAI : PathingAIBase
 	public AnimalMovementStrategyType MovementStrategy { get; private set; }
 	public AnimalHomeStrategyType HomeStrategy { get; private set; }
 	public AnimalFeedingStrategyType FeedingStrategy { get; private set; }
+	public AnimalWaterStrategyType WaterStrategy { get; private set; }
 	public AnimalThreatStrategyType ThreatStrategy { get; private set; }
 	public AnimalAwarenessStrategyType AwarenessStrategy { get; private set; }
 	public AnimalRefugeStrategyType RefugeStrategy { get; private set; }
 	public AnimalActivityStrategyType ActivityStrategy { get; private set; }
-	public bool WaterEnabled { get; private set; }
+	public bool WaterEnabled => WaterStrategy != AnimalWaterStrategyType.Off;
 
 	public IFutureProg MovementEnabledProg { get; private set; } = null!;
 	public IFutureProg MovementCellProg { get; private set; } = null!;
+	public IFutureProg AmphibiousLandCellProg { get; private set; } = null!;
+	public IFutureProg AmphibiousWaterCellProg { get; private set; } = null!;
 	public IFutureProg AllowDescentProg { get; private set; } = null!;
 	public IFutureProg SuitableTerritoryProg { get; private set; } = null!;
 	public IFutureProg DesiredTerritorySizeProg { get; private set; } = null!;
@@ -115,6 +129,11 @@ public class AnimalAI : PathingAIBase
 	public IFutureProg AwarenessThreatProg { get; private set; } = null!;
 	public IFutureProg AwarenessAvoidCellProg { get; private set; } = null!;
 	public IFutureProg RefugeCellProg { get; private set; } = null!;
+	public IFutureProg ShelterNeededProg { get; private set; } = null!;
+	public IFutureProg ShelterCellProg { get; private set; } = null!;
+	public IFutureProg SeasonalCellProg { get; private set; } = null!;
+	public IFutureProg NestSiteProg { get; private set; } = null!;
+	public IFutureProg ProtectProg { get; private set; } = null!;
 	public IFutureProg? HomeLocationProg { get; private set; }
 	public IFutureProg? AnchorItemProg { get; private set; }
 	public ICraft? BurrowCraft { get; private set; }
@@ -122,6 +141,7 @@ public class AnimalAI : PathingAIBase
 	private readonly List<TimeOfDay> _activeTimesOfDay = new();
 
 	public int MovementRange { get; private set; }
+	public double AmphibiousWaterBias { get; private set; }
 	public double WanderChancePerMinute { get; private set; }
 	public string WanderEmote { get; private set; } = string.Empty;
 	public string EngageDelayDiceExpression { get; private set; } = "1000+1d1000";
@@ -136,6 +156,10 @@ public class AnimalAI : PathingAIBase
 	public RoomLayer RefugeLayer { get; private set; }
 	public bool ActivitySleepEnabled { get; private set; }
 	public string ActivityRestEmote { get; private set; } = string.Empty;
+	public bool EcologyShelterEnabled { get; private set; }
+	public bool EcologySeasonalEnabled { get; private set; }
+	public bool EcologyNestingEnabled { get; private set; }
+	public bool EcologyParentingEnabled { get; private set; }
 	public bool WillShareTerritory { get; private set; }
 	public bool WillShareTerritoryWithOtherRaces { get; private set; }
 	public IEnumerable<TimeOfDay> ActiveTimesOfDay => _activeTimesOfDay;
@@ -171,12 +195,13 @@ public class AnimalAI : PathingAIBase
 		MovementStrategy = AnimalMovementStrategyType.Ground;
 		HomeStrategy = AnimalHomeStrategyType.None;
 		FeedingStrategy = AnimalFeedingStrategyType.None;
+		WaterStrategy = AnimalWaterStrategyType.Drink;
 		ThreatStrategy = AnimalThreatStrategyType.Passive;
 		AwarenessStrategy = AnimalAwarenessStrategyType.None;
 		RefugeStrategy = AnimalRefugeStrategyType.None;
 		ActivityStrategy = AnimalActivityStrategyType.Always;
-		WaterEnabled = true;
 		MovementRange = DefaultGroundRange;
+		AmphibiousWaterBias = 0.50;
 		WanderChancePerMinute = 0.33;
 		WanderEmote = string.Empty;
 		EngageDelayDiceExpression = "1000+1d1000";
@@ -191,6 +216,10 @@ public class AnimalAI : PathingAIBase
 		RefugeLayer = RoomLayer.HighInTrees;
 		ActivitySleepEnabled = false;
 		ActivityRestEmote = string.Empty;
+		EcologyShelterEnabled = false;
+		EcologySeasonalEnabled = false;
+		EcologyNestingEnabled = false;
+		EcologyParentingEnabled = false;
 		_activeTimesOfDay.Clear();
 		_activeTimesOfDay.AddRange(Enum.GetValues<TimeOfDay>());
 		WillShareTerritory = false;
@@ -200,6 +229,8 @@ public class AnimalAI : PathingAIBase
 		{
 			MovementEnabledProg = Gameworld.AlwaysTrueProg;
 			MovementCellProg = Gameworld.AlwaysTrueProg;
+			AmphibiousLandCellProg = Gameworld.AlwaysTrueProg;
+			AmphibiousWaterCellProg = Gameworld.AlwaysTrueProg;
 			AllowDescentProg = Gameworld.AlwaysFalseProg;
 			SuitableTerritoryProg = Gameworld.AlwaysTrueProg;
 			DesiredTerritorySizeProg = Gameworld.AlwaysOneProg;
@@ -209,6 +240,11 @@ public class AnimalAI : PathingAIBase
 			AwarenessThreatProg = Gameworld.AlwaysFalseProg;
 			AwarenessAvoidCellProg = Gameworld.AlwaysFalseProg;
 			RefugeCellProg = Gameworld.AlwaysFalseProg;
+			ShelterNeededProg = Gameworld.AlwaysFalseProg;
+			ShelterCellProg = Gameworld.AlwaysFalseProg;
+			SeasonalCellProg = Gameworld.AlwaysFalseProg;
+			NestSiteProg = Gameworld.AlwaysFalseProg;
+			ProtectProg = Gameworld.AlwaysFalseProg;
 		}
 	}
 
@@ -220,6 +256,7 @@ public class AnimalAI : PathingAIBase
 		XElement movement = root.Element("Movement") ?? new XElement("Movement");
 		MovementStrategy = ParseEnum(movement.Attribute("type")?.Value, AnimalMovementStrategyType.Ground);
 		MovementRange = int.Parse(movement.Element("Range")?.Value ?? DefaultRangeFor(MovementStrategy).ToString());
+		AmphibiousWaterBias = double.Parse(movement.Element("AmphibiousWaterBias")?.Value ?? "0.5");
 		WanderChancePerMinute = double.Parse(movement.Element("WanderChancePerMinute")?.Value ?? "0.33");
 		WanderEmote = movement.Element("WanderEmote")?.Value ?? string.Empty;
 		TargetFlyingLayer = ParseEnum(movement.Element("TargetFlyingLayer")?.Value, RoomLayer.InAir);
@@ -231,6 +268,12 @@ public class AnimalAI : PathingAIBase
 			Gameworld.AlwaysTrueProg;
 		MovementCellProg =
 			Gameworld.FutureProgs.Get(long.Parse(movement.Element("MovementCellProg")?.Value ?? "0")) ??
+			Gameworld.AlwaysTrueProg;
+		AmphibiousLandCellProg =
+			Gameworld.FutureProgs.Get(long.Parse(movement.Element("AmphibiousLandCellProg")?.Value ?? "0")) ??
+			Gameworld.AlwaysTrueProg;
+		AmphibiousWaterCellProg =
+			Gameworld.FutureProgs.Get(long.Parse(movement.Element("AmphibiousWaterCellProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysTrueProg;
 		AllowDescentProg =
 			Gameworld.FutureProgs.Get(long.Parse(movement.Element("AllowDescentProg")?.Value ?? "0")) ??
@@ -269,7 +312,11 @@ public class AnimalAI : PathingAIBase
 		EngageEmote = feeding.Element("EngageEmote")?.Value ?? string.Empty;
 
 		XElement water = root.Element("Water") ?? new XElement("Water");
-		WaterEnabled = bool.Parse(water.Attribute("enabled")?.Value ?? "true");
+		WaterStrategy = water.Attribute("type") is XAttribute waterType
+			? ParseEnum(waterType.Value, AnimalWaterStrategyType.Drink)
+			: bool.Parse(water.Attribute("enabled")?.Value ?? "true")
+				? AnimalWaterStrategyType.Drink
+				: AnimalWaterStrategyType.Off;
 
 		XElement threat = root.Element("Threat") ?? new XElement("Threat");
 		ThreatStrategy = ParseEnum(threat.Attribute("type")?.Value, AnimalThreatStrategyType.Passive);
@@ -298,6 +345,27 @@ public class AnimalAI : PathingAIBase
 		ActivitySleepEnabled = bool.Parse(activity.Element("SleepEnabled")?.Value ?? "false");
 		ActivityRestEmote = activity.Element("RestEmote")?.Value ?? string.Empty;
 		LoadActiveTimes(activity);
+
+		XElement ecology = root.Element("Ecology") ?? new XElement("Ecology");
+		EcologyShelterEnabled = bool.Parse(ecology.Element("ShelterEnabled")?.Value ?? "false");
+		EcologySeasonalEnabled = bool.Parse(ecology.Element("SeasonalEnabled")?.Value ?? "false");
+		EcologyNestingEnabled = bool.Parse(ecology.Element("NestingEnabled")?.Value ?? "false");
+		EcologyParentingEnabled = bool.Parse(ecology.Element("ParentingEnabled")?.Value ?? "false");
+		ShelterNeededProg =
+			Gameworld.FutureProgs.Get(long.Parse(ecology.Element("ShelterNeededProg")?.Value ?? "0")) ??
+			Gameworld.AlwaysFalseProg;
+		ShelterCellProg =
+			Gameworld.FutureProgs.Get(long.Parse(ecology.Element("ShelterCellProg")?.Value ?? "0")) ??
+			Gameworld.AlwaysFalseProg;
+		SeasonalCellProg =
+			Gameworld.FutureProgs.Get(long.Parse(ecology.Element("SeasonalCellProg")?.Value ?? "0")) ??
+			Gameworld.AlwaysFalseProg;
+		NestSiteProg =
+			Gameworld.FutureProgs.Get(long.Parse(ecology.Element("NestSiteProg")?.Value ?? "0")) ??
+			Gameworld.AlwaysFalseProg;
+		ProtectProg =
+			Gameworld.FutureProgs.Get(long.Parse(ecology.Element("ProtectProg")?.Value ?? "0")) ??
+			Gameworld.AlwaysFalseProg;
 	}
 
 	protected override string SaveToXml()
@@ -311,10 +379,13 @@ public class AnimalAI : PathingAIBase
 			new XElement("Movement",
 				new XAttribute("type", MovementStrategy),
 				new XElement("Range", MovementRange),
+				new XElement("AmphibiousWaterBias", AmphibiousWaterBias),
 				new XElement("WanderChancePerMinute", WanderChancePerMinute),
 				new XElement("WanderEmote", new XCData(WanderEmote)),
 				new XElement("MovementEnabledProg", MovementEnabledProg?.Id ?? 0),
 				new XElement("MovementCellProg", MovementCellProg?.Id ?? 0),
+				new XElement("AmphibiousLandCellProg", AmphibiousLandCellProg?.Id ?? 0),
+				new XElement("AmphibiousWaterCellProg", AmphibiousWaterCellProg?.Id ?? 0),
 				new XElement("AllowDescentProg", AllowDescentProg?.Id ?? 0),
 				new XElement("TargetFlyingLayer", TargetFlyingLayer),
 				new XElement("TargetRestingLayer", TargetRestingLayer),
@@ -336,7 +407,7 @@ public class AnimalAI : PathingAIBase
 				new XElement("WillAttackProg", WillAttackProg?.Id ?? 0),
 				new XElement("EngageDelayDiceExpression", new XCData(EngageDelayDiceExpression)),
 				new XElement("EngageEmote", new XCData(EngageEmote))),
-			new XElement("Water", new XAttribute("enabled", WaterEnabled)),
+			new XElement("Water", new XAttribute("type", WaterStrategy)),
 			new XElement("Threat", new XAttribute("type", ThreatStrategy)),
 			new XElement("Awareness",
 				new XAttribute("type", AwarenessStrategy),
@@ -354,6 +425,16 @@ public class AnimalAI : PathingAIBase
 				new XElement("SleepEnabled", ActivitySleepEnabled),
 				new XElement("RestEmote", new XCData(ActivityRestEmote)),
 				_activeTimesOfDay.Select(x => new XElement("ActiveTime", x))),
+			new XElement("Ecology",
+				new XElement("ShelterEnabled", EcologyShelterEnabled),
+				new XElement("SeasonalEnabled", EcologySeasonalEnabled),
+				new XElement("NestingEnabled", EcologyNestingEnabled),
+				new XElement("ParentingEnabled", EcologyParentingEnabled),
+				new XElement("ShelterNeededProg", ShelterNeededProg?.Id ?? 0),
+				new XElement("ShelterCellProg", ShelterCellProg?.Id ?? 0),
+				new XElement("SeasonalCellProg", SeasonalCellProg?.Id ?? 0),
+				new XElement("NestSiteProg", NestSiteProg?.Id ?? 0),
+				new XElement("ProtectProg", ProtectProg?.Id ?? 0)),
 			new XElement("OpenDoors", OpenDoors),
 			new XElement("UseKeys", UseKeys),
 			new XElement("SmashLockedDoors", SmashLockedDoors),
@@ -379,13 +460,35 @@ public class AnimalAI : PathingAIBase
 		AnimalActivityStrategyType activity,
 		IEnumerable<TimeOfDay> activeTimes)
 	{
-		if (feeding == AnimalFeedingStrategyType.DenPredator && home != AnimalHomeStrategyType.Denning)
+		return ValidateConfiguration(home, feeding, threat, movement, refuge, activity, activeTimes,
+			AnimalWaterStrategyType.Drink, false, AnimalAwarenessStrategyType.None, false, false, false, false);
+	}
+
+	internal static (bool Ready, string Reason) ValidateConfiguration(
+		AnimalHomeStrategyType home,
+		AnimalFeedingStrategyType feeding,
+		AnimalThreatStrategyType threat,
+		AnimalMovementStrategyType movement,
+		AnimalRefugeStrategyType refuge,
+		AnimalActivityStrategyType activity,
+		IEnumerable<TimeOfDay> activeTimes,
+		AnimalWaterStrategyType water,
+		bool hasWaterCellProg,
+		AnimalAwarenessStrategyType awareness,
+		bool ecologyNesting,
+		bool hasNestSiteProg,
+		bool ecologyParenting,
+		bool hasProtectProg)
+	{
+		if (feeding.In(AnimalFeedingStrategyType.DenPredator, AnimalFeedingStrategyType.DenOmnivore) &&
+		    home != AnimalHomeStrategyType.Denning)
 		{
-			return (false, "den-predator feeding requires denning home behavior");
+			return (false, "den feeding requires denning home behavior");
 		}
 
 		if (threat == AnimalThreatStrategyType.HungryPredator &&
-		    !feeding.In(AnimalFeedingStrategyType.Predator, AnimalFeedingStrategyType.DenPredator))
+		    !feeding.In(AnimalFeedingStrategyType.Predator, AnimalFeedingStrategyType.DenPredator,
+			    AnimalFeedingStrategyType.Omnivore, AnimalFeedingStrategyType.DenOmnivore))
 		{
 			return (false, "hungry-predator threat behavior requires predator feeding behavior");
 		}
@@ -410,13 +513,33 @@ public class AnimalAI : PathingAIBase
 			return (false, "custom activity requires at least one active time of day");
 		}
 
+		if (water.In(AnimalWaterStrategyType.Immerse, AnimalWaterStrategyType.Surface) &&
+		    !movement.In(AnimalMovementStrategyType.Swim, AnimalMovementStrategyType.Amphibious) &&
+		    !hasWaterCellProg)
+		{
+			return (false, "immersion or surface water behavior requires swim, amphibious, or water-cell movement support");
+		}
+
+		if (ecologyNesting && home != AnimalHomeStrategyType.Denning && !hasNestSiteProg)
+		{
+			return (false, "nesting ecology requires denning home behavior or a nest-site prog");
+		}
+
+		if (ecologyParenting && awareness != AnimalAwarenessStrategyType.Guarding && !hasProtectProg)
+		{
+			return (false, "parenting ecology requires guarding awareness or a protect prog");
+		}
+
 		return (true, string.Empty);
 	}
 
 	private (bool Ready, string Reason) GetReadiness()
 	{
 		return ValidateConfiguration(HomeStrategy, FeedingStrategy, ThreatStrategy, MovementStrategy,
-			RefugeStrategy, ActivityStrategy, _activeTimesOfDay);
+			RefugeStrategy, ActivityStrategy, _activeTimesOfDay, WaterStrategy,
+			!ReferenceEquals(AmphibiousWaterCellProg, Gameworld.AlwaysFalseProg),
+			AwarenessStrategy, EcologyNestingEnabled, !ReferenceEquals(NestSiteProg, Gameworld.AlwaysFalseProg),
+			EcologyParentingEnabled, !ReferenceEquals(ProtectProg, Gameworld.AlwaysFalseProg));
 	}
 
 	private static TEnum ParseEnum<TEnum>(string? text, TEnum fallback) where TEnum : struct
@@ -433,6 +556,7 @@ public class AnimalAI : PathingAIBase
 			AnimalMovementStrategyType.Swim => DefaultSwimRange,
 			AnimalMovementStrategyType.Fly => DefaultFlyRange,
 			AnimalMovementStrategyType.Arboreal => DefaultArborealRange,
+			AnimalMovementStrategyType.Amphibious => DefaultSwimRange,
 			_ => DefaultGroundRange
 		};
 	}
@@ -473,6 +597,7 @@ public class AnimalAI : PathingAIBase
 		AnimalMovementStrategyType.Swim => SwimmingMovementStrategy.Instance,
 		AnimalMovementStrategyType.Fly => FlyingMovementStrategy.Instance,
 		AnimalMovementStrategyType.Arboreal => ArborealMovementStrategy.Instance,
+		AnimalMovementStrategyType.Amphibious => AmphibiousMovementStrategy.Instance,
 		_ => GroundMovementStrategy.Instance
 	};
 
@@ -490,12 +615,18 @@ public class AnimalAI : PathingAIBase
 		AnimalFeedingStrategyType.Forager => ForagerFeedingStrategy.Instance,
 		AnimalFeedingStrategyType.Scavenger => ScavengerFeedingStrategy.Instance,
 		AnimalFeedingStrategyType.Opportunist => OpportunistFeedingStrategy.Instance,
+		AnimalFeedingStrategyType.Omnivore => OmnivoreFeedingStrategy.Instance,
+		AnimalFeedingStrategyType.DenOmnivore => DenOmnivoreFeedingStrategy.Instance,
 		_ => NoFeedingStrategy.Instance
 	};
 
-	private IAnimalWaterStrategy WaterStrategyHandler => WaterEnabled
-		? EnabledWaterStrategy.Instance
-		: DisabledWaterStrategy.Instance;
+	private IAnimalWaterStrategy WaterStrategyHandler => WaterStrategy switch
+	{
+		AnimalWaterStrategyType.Drink => DrinkWaterStrategy.Instance,
+		AnimalWaterStrategyType.Immerse => ImmersionWaterStrategy.Instance,
+		AnimalWaterStrategyType.Surface => SurfaceWaterStrategy.Instance,
+		_ => DisabledWaterStrategy.Instance
+	};
 
 	private IAnimalThreatStrategy ThreatStrategyHandler => ThreatStrategy switch
 	{
@@ -538,8 +669,11 @@ public class AnimalAI : PathingAIBase
 		sb.AppendLine("Animal Strategies".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Movement: {MovementStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Movement Range: {MovementRange.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Amphibious Water Bias: {AmphibiousWaterBias.ToString("P2", actor).ColourValue()}");
 		sb.AppendLine($"Movement Enabled Prog: {MovementEnabledProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Movement Cell Prog: {MovementCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Amphibious Land Cell Prog: {AmphibiousLandCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Amphibious Water Cell Prog: {AmphibiousWaterCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Wander Chance: {WanderChancePerMinute.ToString("P2", actor).ColourValue()} per minute");
 		sb.AppendLine($"Wander Emote: {WanderEmote.ColourCommand()}");
 		sb.AppendLine($"Flying Layer: {TargetFlyingLayer.DescribeEnum().ColourValue()}");
@@ -560,7 +694,7 @@ public class AnimalAI : PathingAIBase
 		sb.AppendLine($"Anchor Item Prog: {AnchorItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine();
 		sb.AppendLine($"Feeding: {FeedingStrategy.DescribeEnum().ColourName()}");
-		sb.AppendLine($"Water: {(WaterEnabled ? "enabled" : "disabled").ColourValue()}");
+		sb.AppendLine($"Water: {WaterStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Threat: {ThreatStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Attack Prog: {WillAttackProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Engage Delay: {EngageDelayDiceExpression.ColourValue()} milliseconds");
@@ -581,15 +715,28 @@ public class AnimalAI : PathingAIBase
 		sb.AppendLine($"Active Times: {_activeTimesOfDay.Select(x => x.DescribeEnum().ColourName()).ListToString()}");
 		sb.AppendLine($"Sleep When Inactive: {ActivitySleepEnabled.ToColouredString()}");
 		sb.AppendLine($"Rest Emote: {ActivityRestEmote.ColourCommand()}");
+		sb.AppendLine();
+		sb.AppendLine($"Ecology Shelter: {EcologyShelterEnabled.ToColouredString()}");
+		sb.AppendLine($"Ecology Seasonal: {EcologySeasonalEnabled.ToColouredString()}");
+		sb.AppendLine($"Ecology Nesting: {EcologyNestingEnabled.ToColouredString()}");
+		sb.AppendLine($"Ecology Parenting: {EcologyParentingEnabled.ToColouredString()}");
+		sb.AppendLine($"Shelter Needed Prog: {ShelterNeededProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Shelter Cell Prog: {ShelterCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Seasonal Cell Prog: {SeasonalCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Nest Site Prog: {NestSiteProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Protect Prog: {ProtectProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		return sb.ToString();
 	}
 
 	protected override string TypeHelpText => $@"{base.TypeHelpText}
-	#3movement ground|swim|fly|arboreal#0 - sets the movement strategy
+	#3movement ground|swim|fly|arboreal|amphibious#0 - sets the movement strategy
 	#3movement range <number>#0 - sets the path search range
+	#3movement waterbias <0-100>#0 - sets amphibious ambient water preference
 	#3movement chance <%>#0 - sets the ambient movement chance per minute
 	#3movement enabled <prog>#0 - sets whether ambient movement is enabled
 	#3movement room <prog>#0 - sets which cells can be ambient movement targets
+	#3movement landprog <prog>#0 - sets amphibious land cells
+	#3movement waterprog <prog>#0 - sets amphibious water cells
 	#3movement flying <layer>#0 - sets the flying travel layer
 	#3movement resting <layer>#0 - sets the final/resting layer for flyers
 	#3movement preferred <layer>#0 - sets the preferred tree layer
@@ -606,11 +753,11 @@ public class AnimalAI : PathingAIBase
 	#3home location <prog|clear>#0 - sets fallback home location
 	#3home enabled <prog>#0 - sets whether burrow building is active
 	#3home anchor <prog|clear>#0 - sets burrow anchor detection
-	#3feeding none|predator|denpredator|forager|scavenger|opportunist#0 - sets feeding behavior
+	#3feeding none|predator|denpredator|forager|scavenger|opportunist|omnivore|denomnivore#0 - sets feeding behavior
 	#3feeding attackprog <prog>#0 - sets predator target selection
 	#3feeding delay <dice>#0 - sets predator attack delay
 	#3feeding emote <text|clear>#0 - sets predator engage emote
-	#3water on|off#0 - toggles thirst and water-memory behavior
+	#3water off|drink|immerse|surface#0 - sets thirst and water-memory behavior
 	#3threat passive|flee|defend|hungrypredator#0 - sets threat behavior
 	#3awareness none|wary|wimpy|skittish|guarding#0 - sets non-combat awareness behavior
 	#3awareness threat <prog>#0 - sets the character filter for disliked or feared targets
@@ -624,7 +771,13 @@ public class AnimalAI : PathingAIBase
 	#3activity always|diurnal|nocturnal|crepuscular|custom#0 - sets active periods
 	#3activity active <timeofday...>#0 - sets active times for custom activity
 	#3activity sleep on|off#0 - toggles sleeping while inactive at refuge
-	#3activity restemote <text|clear>#0 - sets an optional rest emote";
+	#3activity restemote <text|clear>#0 - sets an optional rest emote
+	#3ecology shelter|seasonal|nesting|parenting on|off#0 - toggles ecology behaviors
+	#3ecology shelterneeded <prog>#0 - sets when shelter is required
+	#3ecology sheltercell <prog>#0 - sets valid shelter cells
+	#3ecology seasonalcell <prog>#0 - sets valid seasonal range cells
+	#3ecology nestsite <prog>#0 - sets valid nest cells
+	#3ecology protect <prog>#0 - sets protected young or friends";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -648,6 +801,8 @@ public class AnimalAI : PathingAIBase
 				return BuildingCommandRefuge(actor, command);
 			case "activity":
 				return BuildingCommandActivity(actor, command);
+			case "ecology":
+				return BuildingCommandEcology(actor, command);
 		}
 
 		return base.BuildingCommand(actor, command.GetUndo());
@@ -668,8 +823,15 @@ public class AnimalAI : PathingAIBase
 			case "tree":
 			case "trees":
 				return SetMovementStrategy(actor, AnimalMovementStrategyType.Arboreal);
+			case "amphibious":
+			case "amphibian":
+				return SetMovementStrategy(actor, AnimalMovementStrategyType.Amphibious);
 			case "range":
 				return BuildingCommandMovementRange(actor, command);
+			case "waterbias":
+			case "water":
+			case "bias":
+				return BuildingCommandMovementWaterBias(actor, command);
 			case "chance":
 				return BuildingCommandMovementChance(actor, command);
 			case "enabled":
@@ -680,6 +842,12 @@ public class AnimalAI : PathingAIBase
 			case "cell":
 			case "cellprog":
 				return BuildingCommandMovementCellProg(actor, command);
+			case "landprog":
+			case "land":
+				return BuildingCommandAmphibiousCellProg(actor, command, x => AmphibiousLandCellProg = x, "land");
+			case "waterprog":
+			case "watercell":
+				return BuildingCommandAmphibiousCellProg(actor, command, x => AmphibiousWaterCellProg = x, "water");
 			case "flying":
 			case "flyinglayer":
 				return BuildingCommandLayer(actor, command, x => TargetFlyingLayer = x, "flying travel");
@@ -742,6 +910,20 @@ public class AnimalAI : PathingAIBase
 		return true;
 	}
 
+	private bool BuildingCommandMovementWaterBias(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !TerritorialWanderer.TryParseWanderChance(command.SafeRemainingArgument, out double value))
+		{
+			actor.OutputHandler.Send("You must specify a percentage between 0% and 100%.");
+			return false;
+		}
+
+		AmphibiousWaterBias = value;
+		Changed = true;
+		actor.OutputHandler.Send($"Amphibious ambient movement will now prefer water {value.ToString("P2", actor).ColourValue()} of the time.");
+		return true;
+	}
+
 	private bool BuildingCommandMovementEnabledProg(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -760,6 +942,33 @@ public class AnimalAI : PathingAIBase
 		MovementEnabledProg = prog;
 		Changed = true;
 		actor.OutputHandler.Send($"This animal AI will now use {prog.MXPClickableFunctionName()} to control ambient movement.");
+		return true;
+	}
+
+	private bool BuildingCommandAmphibiousCellProg(ICharacter actor, StringStack command, Action<IFutureProg> setter, string label)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which prog should evaluate amphibious {label} cells?");
+			return false;
+		}
+
+		IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Boolean,
+			new[]
+			{
+				new List<ProgVariableTypes> { ProgVariableTypes.Character, ProgVariableTypes.Location },
+				new List<ProgVariableTypes> { ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Location },
+				new List<ProgVariableTypes> { ProgVariableTypes.Location }
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		setter(prog);
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will now use {prog.MXPClickableFunctionName()} for amphibious {label} cells.");
 		return true;
 	}
 
@@ -1130,6 +1339,11 @@ public class AnimalAI : PathingAIBase
 				return SetFeedingStrategy(actor, AnimalFeedingStrategyType.Scavenger);
 			case "opportunist":
 				return SetFeedingStrategy(actor, AnimalFeedingStrategyType.Opportunist);
+			case "omnivore":
+				return SetFeedingStrategy(actor, AnimalFeedingStrategyType.Omnivore);
+			case "denomnivore":
+			case "den-omnivore":
+				return SetFeedingStrategy(actor, AnimalFeedingStrategyType.DenOmnivore);
 			case "attackprog":
 			case "attack":
 				return BuildingCommandAttackProg(actor, command);
@@ -1148,7 +1362,8 @@ public class AnimalAI : PathingAIBase
 	private bool SetFeedingStrategy(ICharacter actor, AnimalFeedingStrategyType strategy)
 	{
 		FeedingStrategy = strategy;
-		if (strategy.In(AnimalFeedingStrategyType.Predator, AnimalFeedingStrategyType.DenPredator) &&
+		if (strategy.In(AnimalFeedingStrategyType.Predator, AnimalFeedingStrategyType.DenPredator,
+			    AnimalFeedingStrategyType.Omnivore, AnimalFeedingStrategyType.DenOmnivore) &&
 		    ThreatStrategy == AnimalThreatStrategyType.Passive)
 		{
 			ThreatStrategy = AnimalThreatStrategyType.HungryPredator;
@@ -1229,7 +1444,9 @@ public class AnimalAI : PathingAIBase
 	{
 		if (command.IsFinished)
 		{
-			WaterEnabled = !WaterEnabled;
+			WaterStrategy = WaterStrategy == AnimalWaterStrategyType.Off
+				? AnimalWaterStrategyType.Drink
+				: AnimalWaterStrategyType.Off;
 		}
 		else
 		{
@@ -1238,21 +1455,32 @@ public class AnimalAI : PathingAIBase
 				case "on":
 				case "yes":
 				case "true":
-					WaterEnabled = true;
+				case "drink":
+				case "drinking":
+					WaterStrategy = AnimalWaterStrategyType.Drink;
 					break;
 				case "off":
 				case "no":
 				case "false":
-					WaterEnabled = false;
+					WaterStrategy = AnimalWaterStrategyType.Off;
+					break;
+				case "immerse":
+				case "immersion":
+				case "absorb":
+					WaterStrategy = AnimalWaterStrategyType.Immerse;
+					break;
+				case "surface":
+				case "surfacing":
+					WaterStrategy = AnimalWaterStrategyType.Surface;
 					break;
 				default:
-					actor.OutputHandler.Send("You must specify either #3on#0 or #3off#0.".SubstituteANSIColour());
+					actor.OutputHandler.Send("You must specify #3off#0, #3drink#0, #3immerse#0, or #3surface#0.".SubstituteANSIColour());
 					return false;
 			}
 		}
 
 		Changed = true;
-		actor.OutputHandler.Send($"This animal AI will {WaterEnabled.NowNoLonger()} care about thirst and remembered water sources.");
+		actor.OutputHandler.Send($"This animal AI will now use {WaterStrategy.DescribeEnum().ColourName()} water behavior.");
 		return true;
 	}
 
@@ -1672,6 +1900,129 @@ public class AnimalAI : PathingAIBase
 		return true;
 	}
 
+	private bool BuildingCommandEcology(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "shelter":
+				return BuildingCommandEcologyToggle(actor, command, value => EcologyShelterEnabled = value, "shelter");
+			case "seasonal":
+			case "season":
+				return BuildingCommandEcologyToggle(actor, command, value => EcologySeasonalEnabled = value, "seasonal range");
+			case "nesting":
+			case "nest":
+				return BuildingCommandEcologyToggle(actor, command, value => EcologyNestingEnabled = value, "nesting");
+			case "parenting":
+			case "parent":
+				return BuildingCommandEcologyToggle(actor, command, value => EcologyParentingEnabled = value, "parenting");
+			case "shelterneeded":
+			case "needsshelter":
+				return BuildingCommandEcologyProg(actor, command, value => ShelterNeededProg = value,
+					"when shelter is needed", ProgVariableTypes.Boolean,
+					new[] { ProgVariableTypes.Character });
+			case "sheltercell":
+			case "shelterprog":
+				return BuildingCommandEcologyCellProg(actor, command, value => ShelterCellProg = value, "shelter cells");
+			case "seasonalcell":
+			case "seasonalprog":
+			case "seasoncell":
+				return BuildingCommandEcologyCellProg(actor, command, value => SeasonalCellProg = value, "seasonal range cells");
+			case "nestsite":
+			case "nestprog":
+				return BuildingCommandEcologyCellProg(actor, command, value => NestSiteProg = value, "nest sites");
+			case "protect":
+			case "protectprog":
+				return BuildingCommandEcologyProg(actor, command, value => ProtectProg = value,
+					"protected young or friends", ProgVariableTypes.Boolean,
+					new[] { ProgVariableTypes.Character, ProgVariableTypes.Character });
+		}
+
+		actor.OutputHandler.Send(TypeHelpText.SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandEcologyToggle(ICharacter actor, StringStack command, Action<bool> setter, string label)
+	{
+		bool value;
+		if (command.IsFinished)
+		{
+			value = true;
+		}
+		else
+		{
+			switch (command.PopForSwitch())
+			{
+				case "on":
+				case "yes":
+				case "true":
+					value = true;
+					break;
+				case "off":
+				case "no":
+				case "false":
+					value = false;
+					break;
+				default:
+					actor.OutputHandler.Send("You must specify either #3on#0 or #3off#0.".SubstituteANSIColour());
+					return false;
+			}
+		}
+
+		setter(value);
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will {value.NowNoLonger()} use {label} ecology.");
+		return true;
+	}
+
+	private bool BuildingCommandEcologyCellProg(ICharacter actor, StringStack command, Action<IFutureProg> setter, string label)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which prog should identify {label}?");
+			return false;
+		}
+
+		IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Boolean,
+			new[]
+			{
+				new List<ProgVariableTypes> { ProgVariableTypes.Character, ProgVariableTypes.Location },
+				new List<ProgVariableTypes> { ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Location },
+				new List<ProgVariableTypes> { ProgVariableTypes.Location }
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		setter(prog);
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will now use {prog.MXPClickableFunctionName()} to identify {label}.");
+		return true;
+	}
+
+	private bool BuildingCommandEcologyProg(ICharacter actor, StringStack command, Action<IFutureProg> setter,
+		string label, ProgVariableTypes returnType, IEnumerable<ProgVariableTypes> parameters)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which prog should identify {label}?");
+			return false;
+		}
+
+		IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			returnType, parameters).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		setter(prog);
+		Changed = true;
+		actor.OutputHandler.Send($"This animal AI will now use {prog.MXPClickableFunctionName()} for {label}.");
+		return true;
+	}
+
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
 		ICharacter? ch = CharacterForEvent(type, arguments);
@@ -1711,6 +2062,11 @@ public class AnimalAI : PathingAIBase
 					return true;
 				}
 
+				if (EvaluateEcology(ch))
+				{
+					return true;
+				}
+
 				if (type == EventType.TenSecondTick && TryThreatResponse(ch, null))
 				{
 					return true;
@@ -1728,6 +2084,7 @@ public class AnimalAI : PathingAIBase
 				}
 
 				if (EvaluateImmediateNeedsAndFeeding(ch) ||
+				    EvaluateEcology(ch) ||
 				    EvaluateActivity(ch))
 				{
 					return true;
@@ -1743,6 +2100,11 @@ public class AnimalAI : PathingAIBase
 				}
 
 				if (EvaluateImmediateNeedsAndFeeding(ch))
+				{
+					return true;
+				}
+
+				if (EvaluateEcology(ch))
 				{
 					return true;
 				}
@@ -2012,7 +2374,10 @@ public class AnimalAI : PathingAIBase
 			AnimalRefugeStrategyType.Trees => ArborealWandererAI.CellSupportsTreeLayers(character, character.Location) &&
 			                                  character.RoomLayer.In(RoomLayer.InTrees, RoomLayer.HighInTrees),
 			AnimalRefugeStrategyType.Sky => character.RoomLayer == RefugeLayer,
-			AnimalRefugeStrategyType.Water => NpcSurvivalAIHelpers.HasLocalWaterSource(character),
+			AnimalRefugeStrategyType.Water => WaterStrategy == AnimalWaterStrategyType.Drink
+				? NpcSurvivalAIHelpers.HasLocalWaterSource(character)
+				: NpcSurvivalAIHelpers.HasAquaticWaterSource(character, character.Location,
+					WaterStrategy == AnimalWaterStrategyType.Surface),
 			AnimalRefugeStrategyType.Prog => RefugeCellProg.ExecuteBool(false, character, character.Location),
 			_ => true
 		};
@@ -2063,6 +2428,168 @@ public class AnimalAI : PathingAIBase
 		}
 
 		return TrySleepAtRefuge(character);
+	}
+
+	private bool EvaluateEcology(ICharacter character)
+	{
+		if (character.Combat is not null ||
+		    character.Movement is not null ||
+		    character.Effects.Any(x => x.IsBlockingEffect("general") || x.IsBlockingEffect("movement")))
+		{
+			return false;
+		}
+
+		if (TryParentalGuard(character))
+		{
+			return true;
+		}
+
+		if (!SurvivalNeedsSatisfied(character) || !EcologyWouldMove(character))
+		{
+			return false;
+		}
+
+		if (EcologyNestingEnabled && HomeStrategy == AnimalHomeStrategyType.Denning && IsAtNest(character))
+		{
+			EvaluateBurrowLifecycle(character);
+			return true;
+		}
+
+		CheckPathingEffect(character, true);
+		return true;
+	}
+
+	private bool EcologyWouldMove(ICharacter character)
+	{
+		if (!SurvivalNeedsSatisfied(character))
+		{
+			return false;
+		}
+
+		return EcologyShelterEnabled && ShelterNeededProg.ExecuteBool(false, character) && !IsAtEcologyCell(character, ShelterCellProg) ||
+		       EcologySeasonalEnabled && !IsAtEcologyCell(character, SeasonalCellProg) ||
+		       EcologyNestingEnabled && !IsAtNest(character);
+	}
+
+	private (ICell? Target, IEnumerable<ICellExit> Path) GetEcologyPath(ICharacter character)
+	{
+		if (EcologyShelterEnabled &&
+		    ShelterNeededProg.ExecuteBool(false, character) &&
+		    !IsAtEcologyCell(character, ShelterCellProg))
+		{
+			return GetEcologyCellPath(character, ShelterCellProg);
+		}
+
+		if (EcologySeasonalEnabled && !IsAtEcologyCell(character, SeasonalCellProg))
+		{
+			return GetEcologyCellPath(character, SeasonalCellProg);
+		}
+
+		if (EcologyNestingEnabled && !IsAtNest(character))
+		{
+			return GetNestPath(character);
+		}
+
+		return (null, Enumerable.Empty<ICellExit>());
+	}
+
+	private bool IsAtEcologyCell(ICharacter character, IFutureProg cellProg)
+	{
+		return cellProg.ExecuteBool(false, character, character.Location, character.Location);
+	}
+
+	private (ICell? Target, IEnumerable<ICellExit> Path) GetEcologyCellPath(ICharacter character, IFutureProg cellProg)
+	{
+		Tuple<IPerceivable, IEnumerable<ICellExit>> targetPath = character.AcquireTargetAndPath(
+			x => x is ICell cell && cellProg.ExecuteBool(false, character, cell, character.Location),
+			DefaultNeedRange,
+			GetAnimalSuitabilityFunction(character));
+		return targetPath.Item1 is ICell target && targetPath.Item2.Any()
+			? (target, targetPath.Item2)
+			: (null, Enumerable.Empty<ICellExit>());
+	}
+
+	private bool IsAtNest(ICharacter character)
+	{
+		NpcHomeBaseEffect home = ResolveHomeBase(character);
+		if (home.HomeCell is not null)
+		{
+			return ReferenceEquals(home.HomeCell, character.Location);
+		}
+
+		if (NestSiteProg.ExecuteBool(false, character, character.Location, character.Location))
+		{
+			home.SetHomeCell(character.Location);
+			return true;
+		}
+
+		return false;
+	}
+
+	private (ICell? Target, IEnumerable<ICellExit> Path) GetNestPath(ICharacter character)
+	{
+		NpcHomeBaseEffect home = ResolveHomeBase(character);
+		if (home.HomeCell is not null)
+		{
+			List<ICellExit> homePath = character.PathBetween(home.HomeCell, DefaultNeedRange,
+				GetAnimalSuitabilityFunction(character)).ToList();
+			return homePath.Any()
+				? (home.HomeCell, homePath)
+				: (null, Enumerable.Empty<ICellExit>());
+		}
+
+		return GetEcologyCellPath(character, NestSiteProg);
+	}
+
+	private bool TryParentalGuard(ICharacter character)
+	{
+		if (!EcologyParentingEnabled)
+		{
+			return false;
+		}
+
+		List<ICharacter> protectedTargets = VisibleEcologyCharacters(character)
+		                                    .Where(x => ProtectProg.ExecuteBool(false, character, x))
+		                                    .ToList();
+		if (!protectedTargets.Any())
+		{
+			return false;
+		}
+
+		foreach (ICharacter threat in VisibleEcologyCharacters(character).Except(protectedTargets).Shuffle())
+		{
+			if (ReferenceEquals(threat, character) ||
+			    !IsParentingThreat(character, threat))
+			{
+				continue;
+			}
+
+			if (PredatorAIHelpers.CheckForAttack(character, threat, WillAttackProg,
+				    EngageDelayDiceExpression, EngageEmote, false))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private IEnumerable<ICharacter> VisibleEcologyCharacters(ICharacter character)
+	{
+		return character.Location
+		                .LayerCharacters(character.RoomLayer)
+		                .Concat(AwarenessRange > 0
+			                ? character.Location.CellsInVicinity((uint)AwarenessRange, true, true)
+			                           .SelectMany(x => x.Characters)
+			                : Enumerable.Empty<ICharacter>())
+		                .Where(x => !ReferenceEquals(x, character) && character.CanSee(x))
+		                .Distinct();
+	}
+
+	private bool IsParentingThreat(ICharacter character, ICharacter target)
+	{
+		return AwarenessThreatProg.ExecuteBool(false, character, target) ||
+		       WillAttackProg.ExecuteBool(false, character, target);
 	}
 
 	private bool TrySleepAtRefuge(ICharacter character)
@@ -2139,7 +2666,7 @@ public class AnimalAI : PathingAIBase
 
 	private void HandleWitnessedDeath(ICharacter character, ICharacter victim)
 	{
-		if (FeedingStrategy != AnimalFeedingStrategyType.DenPredator)
+		if (!FeedingStrategy.In(AnimalFeedingStrategyType.DenPredator, AnimalFeedingStrategyType.DenOmnivore))
 		{
 			return;
 		}
@@ -2455,6 +2982,11 @@ public class AnimalAI : PathingAIBase
 			return true;
 		}
 
+		if (EcologyWouldMove(ch))
+		{
+			return true;
+		}
+
 		if (ShouldReturnToRefuge(ch))
 		{
 			return true;
@@ -2494,6 +3026,12 @@ public class AnimalAI : PathingAIBase
 		}
 
 		(target, path) = FeedingStrategyHandler.GetPath(this, ch);
+		if (target is not null && path.Any())
+		{
+			return (target, path);
+		}
+
+		(target, path) = GetEcologyPath(ch);
 		if (target is not null && path.Any())
 		{
 			return (target, path);
@@ -2579,6 +3117,23 @@ public class AnimalAI : PathingAIBase
 			}
 
 			return GetForagerFoodPath(ch);
+		}
+
+		if (FeedingStrategy.In(AnimalFeedingStrategyType.Omnivore, AnimalFeedingStrategyType.DenOmnivore))
+		{
+			(ICell? target, IEnumerable<ICellExit> path) = GetScavengerFoodPath(ch);
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
+
+			(target, path) = GetForagerFoodPath(ch);
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
+
+			return GetPredatorFoodPath(ch);
 		}
 
 		return (null, Enumerable.Empty<ICellExit>());
@@ -2803,9 +3358,9 @@ public class AnimalAI : PathingAIBase
 		}
 	}
 
-	private sealed class EnabledWaterStrategy : IAnimalWaterStrategy
+	private sealed class DrinkWaterStrategy : IAnimalWaterStrategy
 	{
-		public static EnabledWaterStrategy Instance { get; } = new();
+		public static DrinkWaterStrategy Instance { get; } = new();
 
 		public bool IsThirsty(AnimalAI ai, ICharacter character)
 		{
@@ -2828,6 +3383,64 @@ public class AnimalAI : PathingAIBase
 			return WouldMove(ai, character)
 				? NpcSurvivalAIHelpers.GetPathToWater(character, ai.GetAnimalSuitabilityFunction(character),
 					DefaultNeedRange)
+				: (null, Enumerable.Empty<ICellExit>());
+		}
+	}
+
+	private sealed class ImmersionWaterStrategy : IAnimalWaterStrategy
+	{
+		public static ImmersionWaterStrategy Instance { get; } = new();
+
+		public bool IsThirsty(AnimalAI ai, ICharacter character)
+		{
+			return NpcSurvivalAIHelpers.IsThirsty(character);
+		}
+
+		public bool TrySatisfyImmediateNeed(AnimalAI ai, ICharacter character)
+		{
+			return NpcSurvivalAIHelpers.TryHydrateFromAquaticEnvironmentIfThirsty(character, false);
+		}
+
+		public bool WouldMove(AnimalAI ai, ICharacter character)
+		{
+			return NpcSurvivalAIHelpers.IsThirsty(character) &&
+			       !NpcSurvivalAIHelpers.HasAquaticWaterSource(character, character.Location, false);
+		}
+
+		public (ICell? Target, IEnumerable<ICellExit> Path) GetPath(AnimalAI ai, ICharacter character)
+		{
+			return WouldMove(ai, character)
+				? NpcSurvivalAIHelpers.GetPathToAquaticWater(character, ai.GetAnimalSuitabilityFunction(character),
+					DefaultNeedRange, false)
+				: (null, Enumerable.Empty<ICellExit>());
+		}
+	}
+
+	private sealed class SurfaceWaterStrategy : IAnimalWaterStrategy
+	{
+		public static SurfaceWaterStrategy Instance { get; } = new();
+
+		public bool IsThirsty(AnimalAI ai, ICharacter character)
+		{
+			return NpcSurvivalAIHelpers.IsThirsty(character);
+		}
+
+		public bool TrySatisfyImmediateNeed(AnimalAI ai, ICharacter character)
+		{
+			return NpcSurvivalAIHelpers.TryHydrateFromAquaticEnvironmentIfThirsty(character, true);
+		}
+
+		public bool WouldMove(AnimalAI ai, ICharacter character)
+		{
+			return NpcSurvivalAIHelpers.IsThirsty(character) &&
+			       !NpcSurvivalAIHelpers.HasAquaticWaterSource(character, character.Location, true);
+		}
+
+		public (ICell? Target, IEnumerable<ICellExit> Path) GetPath(AnimalAI ai, ICharacter character)
+		{
+			return WouldMove(ai, character)
+				? NpcSurvivalAIHelpers.GetPathToAquaticWater(character, ai.GetAnimalSuitabilityFunction(character),
+					DefaultNeedRange, true)
 				: (null, Enumerable.Empty<ICellExit>());
 		}
 	}
@@ -2905,9 +3518,24 @@ public class AnimalAI : PathingAIBase
 
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetPath(AnimalAI ai, ICharacter character)
 		{
-			return WouldMove(ai, character)
-				? ai.GetFoodPath(character)
-				: (null, Enumerable.Empty<ICellExit>());
+			if (!WouldMove(ai, character))
+			{
+				return (null, Enumerable.Empty<ICellExit>());
+			}
+
+			(ICell? target, IEnumerable<ICellExit> path) = ai.GetScavengerFoodPath(character);
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
+
+			(target, path) = ai.GetForagerFoodPath(character);
+			if (target is not null && path.Any())
+			{
+				return (target, path);
+			}
+
+			return ai.GetPredatorFoodPath(character);
 		}
 
 		public void HandleWitnessedDeath(AnimalAI ai, ICharacter character, ICharacter victim)
@@ -3071,6 +3699,93 @@ public class AnimalAI : PathingAIBase
 
 		public void HandleWitnessedDeath(AnimalAI ai, ICharacter character, ICharacter victim)
 		{
+		}
+	}
+
+	private sealed class OmnivoreFeedingStrategy : IAnimalFeedingStrategy
+	{
+		public static OmnivoreFeedingStrategy Instance { get; } = new();
+
+		public bool IsHungry(AnimalAI ai, ICharacter character)
+		{
+			return ForagerAIHelpers.IsHungry(character) || PredatorAIHelpers.IsHungry(character);
+		}
+
+		public bool TrySatisfyImmediateNeed(AnimalAI ai, ICharacter character)
+		{
+			return ai.TryEatLocalScavengerFood(character) ||
+			       ForagerAIHelpers.TrySatisfyHunger(character) ||
+			       PredatorAIHelpers.EatLocalCorpseIfHungry(character);
+		}
+
+		public bool HasLocalFoodOpportunity(AnimalAI ai, ICharacter character)
+		{
+			return ai.HasScavengerFoodOpportunity(character, character.Location) ||
+			       ForagerAIHelpers.HasFoodOpportunity(character, character.Location) ||
+			       PredatorFeedingStrategy.Instance.HasLocalFoodOpportunity(ai, character);
+		}
+
+		public bool WouldMove(AnimalAI ai, ICharacter character)
+		{
+			return IsHungry(ai, character) && !HasLocalFoodOpportunity(ai, character);
+		}
+
+		public (ICell? Target, IEnumerable<ICellExit> Path) GetPath(AnimalAI ai, ICharacter character)
+		{
+			return WouldMove(ai, character)
+				? ai.GetFoodPath(character)
+				: (null, Enumerable.Empty<ICellExit>());
+		}
+
+		public void HandleWitnessedDeath(AnimalAI ai, ICharacter character, ICharacter victim)
+		{
+		}
+	}
+
+	private sealed class DenOmnivoreFeedingStrategy : IAnimalFeedingStrategy
+	{
+		public static DenOmnivoreFeedingStrategy Instance { get; } = new();
+
+		public bool IsHungry(AnimalAI ai, ICharacter character)
+		{
+			return OmnivoreFeedingStrategy.Instance.IsHungry(ai, character);
+		}
+
+		public bool TrySatisfyImmediateNeed(AnimalAI ai, ICharacter character)
+		{
+			if (NpcBurrowFoodEffect.Get(character)?.HasAnyTarget == true)
+			{
+				ai.EvaluateBurrowFoodLifecycle(character);
+				return true;
+			}
+
+			return OmnivoreFeedingStrategy.Instance.TrySatisfyImmediateNeed(ai, character);
+		}
+
+		public bool HasLocalFoodOpportunity(AnimalAI ai, ICharacter character)
+		{
+			return OmnivoreFeedingStrategy.Instance.HasLocalFoodOpportunity(ai, character);
+		}
+
+		public bool WouldMove(AnimalAI ai, ICharacter character)
+		{
+			return NpcBurrowFoodEffect.Get(character)?.HasAnyTarget == true ||
+			       OmnivoreFeedingStrategy.Instance.WouldMove(ai, character);
+		}
+
+		public (ICell? Target, IEnumerable<ICellExit> Path) GetPath(AnimalAI ai, ICharacter character)
+		{
+			if (NpcBurrowFoodEffect.Get(character)?.HasAnyTarget == true)
+			{
+				return ai.GetBurrowFoodPath(character);
+			}
+
+			return OmnivoreFeedingStrategy.Instance.GetPath(ai, character);
+		}
+
+		public void HandleWitnessedDeath(AnimalAI ai, ICharacter character, ICharacter victim)
+		{
+			ai.HandleWitnessedDeath(character, victim);
 		}
 	}
 
@@ -3530,8 +4245,11 @@ public class AnimalAI : PathingAIBase
 
 		public (ICell? Target, IEnumerable<ICellExit> Path) GetPath(AnimalAI ai, ICharacter character)
 		{
-			return NpcSurvivalAIHelpers.GetPathToWater(character, ai.GetAnimalSuitabilityFunction(character),
-				DefaultNeedRange);
+			return ai.WaterStrategy == AnimalWaterStrategyType.Drink
+				? NpcSurvivalAIHelpers.GetPathToWater(character, ai.GetAnimalSuitabilityFunction(character),
+					DefaultNeedRange)
+				: NpcSurvivalAIHelpers.GetPathToAquaticWater(character, ai.GetAnimalSuitabilityFunction(character),
+					DefaultNeedRange, ai.WaterStrategy == AnimalWaterStrategyType.Surface);
 		}
 	}
 
@@ -3647,13 +4365,10 @@ public class AnimalAI : PathingAIBase
 
 		public FollowingPath CreatePathingEffect(AnimalAI ai, ICharacter character, IEnumerable<ICellExit> path)
 		{
-			return new FollowingMultiLayerPath(character, path, character.RoomLayer, character.RoomLayer);
-		}
-
-		private static bool CellSupportsSwimming(ICharacter character, ICell cell)
-		{
-			return cell.IsSwimmingLayer(character.RoomLayer) ||
-			       cell.Terrain(character)?.TerrainLayers.Any(cell.IsSwimmingLayer) == true;
+			RoomLayer targetLayer = ai.WaterStrategy == AnimalWaterStrategyType.Surface
+				? RoomLayer.GroundLevel
+				: character.RoomLayer;
+			return new FollowingMultiLayerPath(character, path, targetLayer, targetLayer);
 		}
 	}
 
@@ -3760,6 +4475,57 @@ public class AnimalAI : PathingAIBase
 
 			return RoomLayer.GroundLevel;
 		}
+	}
+
+	private sealed class AmphibiousMovementStrategy : IAnimalMovementStrategy
+	{
+		public static AmphibiousMovementStrategy Instance { get; } = new();
+
+		public bool CellMatches(AnimalAI ai, ICharacter character, ICell cell)
+		{
+			if (!ai.MovementCellProg.ExecuteBool(false, character, cell, character.Location))
+			{
+				return false;
+			}
+
+			return CellSupportsSwimming(character, cell)
+				? ai.AmphibiousWaterCellProg.ExecuteBool(false, character, cell, character.Location)
+				: ai.AmphibiousLandCellProg.ExecuteBool(false, character, cell, character.Location);
+		}
+
+		public (ICell? Target, IEnumerable<ICellExit> Path) GetAmbientPath(AnimalAI ai, ICharacter character)
+		{
+			bool preferWater = RandomUtilities.DoubleRandom(0.0, 1.0) <= ai.AmphibiousWaterBias;
+			(ICell? target, IEnumerable<ICellExit> path) = GetWeightedAmbientPath(ai, character,
+				(_, ch, cell) => CellMatches(ai, ch, cell) && CellSupportsSwimming(ch, cell) == preferWater);
+			if (target is not null)
+			{
+				return (target, path);
+			}
+
+			return GetWeightedAmbientPath(ai, character, CellMatches);
+		}
+
+		public FollowingPath CreatePathingEffect(AnimalAI ai, ICharacter character, IEnumerable<ICellExit> path)
+		{
+			ICell? destination = path.LastOrDefault()?.Destination;
+			RoomLayer targetLayer = destination is not null && CellSupportsSwimming(character, destination)
+				? ai.WaterStrategy == AnimalWaterStrategyType.Surface ? RoomLayer.GroundLevel : character.RoomLayer
+				: RoomLayer.GroundLevel;
+			return new FollowingMultiLayerPath(character, path, targetLayer, targetLayer);
+		}
+	}
+
+	internal static bool CellSupportsSwimming(ICharacter character, ICell cell)
+	{
+		return cell.IsSwimmingLayer(character.RoomLayer) ||
+		       cell.Terrain(character)?.TerrainLayers.Any(cell.IsSwimmingLayer) == true;
+	}
+
+	internal static bool CellSupportsSurfaceWater(ICharacter character, ICell cell)
+	{
+		return CellSupportsSwimming(character, cell) &&
+		       cell.Terrain(character)?.TerrainLayers.Any(x => !x.IsUnderwater()) == true;
 	}
 
 	private static (ICell? Target, IEnumerable<ICellExit> Path) GetWeightedAmbientPath(

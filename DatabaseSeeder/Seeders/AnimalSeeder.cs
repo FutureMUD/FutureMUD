@@ -269,6 +269,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 .First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
             RefreshExistingAnimalBaseBodies();
             bool hasMissingCatalogue = HasMissingAnimalCatalogue(_context);
+            bool hasMissingAnimalAiTemplates = HasMissingAnimalAIStockTemplates(_context);
             bool hasMissingDietSettings = HasMissingAnimalDietSettings(_context);
             RefreshExistingAnimalCombatBalance();
 
@@ -282,41 +283,36 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 BackfillAnimalCatalogue();
             }
 
+            if (hasMissingAnimalAiTemplates)
+            RefreshExistingAnimalDietSettings();
+            {
+                SeedAnimalAIStockTemplates();
+            }
+
             RefreshExistingAnimalDietSettings();
             context.Database.CommitTransaction();
-            if (hasMissingCatalogue && hasMissingDisfigurementTemplates && hasMissingDietSettings)
-            {
-                return "Updated the animal combat balance profile, backfilled missing animal catalogue content, installed additional animal disfigurement templates, and refreshed stock animal diet settings.";
-            }
-
-            if (hasMissingCatalogue && hasMissingDisfigurementTemplates)
-            {
-                return "Updated the animal combat balance profile, backfilled missing animal catalogue content, and installed additional animal disfigurement templates.";
-            }
-
-            if (hasMissingCatalogue && hasMissingDietSettings)
-            {
-                return "Updated the animal combat balance profile, backfilled missing animal catalogue content, and refreshed stock animal diet settings.";
-            }
-
+            List<string> updates = ["Updated the animal combat balance profile"];
             if (hasMissingCatalogue)
             {
-                return "Updated the animal combat balance profile and backfilled missing animal catalogue content.";
+                updates.Add("backfilled missing animal catalogue content");
             }
 
-            if (hasMissingDisfigurementTemplates && hasMissingDietSettings)
+            if (hasMissingDisfigurementTemplates)
             {
-                return "Updated the animal combat balance profile, installed additional animal disfigurement templates, and refreshed stock animal diet settings.";
+                updates.Add("installed additional animal disfigurement templates");
+            }
+
+            if (hasMissingAnimalAiTemplates)
+            {
+                updates.Add("installed stock animal AI templates");
             }
 
             if (hasMissingDietSettings)
             {
-                return "Updated the animal combat balance profile and refreshed stock animal diet settings.";
+                updates.Add("refreshed stock animal diet settings");
             }
 
-            return hasMissingDisfigurementTemplates
-                ? "Updated the animal combat balance profile and installed additional animal disfigurement templates."
-                : "Updated the animal combat balance profile.";
+            return $"{string.Join(", ", updates)}.";
         }
 
         Console.WriteLine("Performing initial setup...");
@@ -853,10 +849,11 @@ public partial class AnimalSeeder : IDatabaseSeeder
         CloneBodyPositionsAndSpeeds(toedQuadruped, reptilianBody);
         CloneBodyPositionsAndSpeeds(toedQuadruped, anuranBody);
         ApplyDefaultCombatSettingsToSeededRaces();
+        SeedAnimalAIStockTemplates();
 
         context.Database.CommitTransaction();
 
-        return "Successfully installed animal prototypes";
+        return "Successfully installed animal prototypes and stock animal AI templates.";
     }
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
@@ -870,6 +867,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
         {
             return HasMissingAnimalDisfigurementTemplates(context) ||
                    HasMissingAnimalCatalogue(context) ||
+                   HasMissingAnimalAIStockTemplates(context) ||
                    HasMissingAnimalDietSettings(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;

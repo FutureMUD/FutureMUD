@@ -116,19 +116,21 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
         LoadSharedSeederData(effectiveAnswers);
         bool hasMissingDisfigurementTemplates = HasMissingMythicalDisfigurementTemplates(_context);
+        bool hasMissingAnimalAiTemplates = HasMissingMythicalAnimalAIStockTemplates(_context);
         bool hasMissingDietSettings = HasMissingMythicalDietSettings(_context);
         List<MythicalRaceTemplate> templatesToSeed = Templates.Values
             .Where(template => !_context.Races.Any(x => x.Name == template.Name))
             .ToList();
         Dictionary<string, BodyProto> bodyLookup = BuildBodyCatalogue(Templates.Values);
         RefreshExistingMythicalRaceDefaults();
-        if (templatesToSeed.Count == 0 && !hasMissingDisfigurementTemplates)
+        if (templatesToSeed.Count == 0 &&
+            !hasMissingDisfigurementTemplates &&
+            !hasMissingAnimalAiTemplates &&
+            !hasMissingDietSettings)
         {
             RefreshExistingMythicalCombatBalance();
             _context.Database.CommitTransaction();
-            return hasMissingDietSettings
-                ? "Mythical races are already installed and their breathing, mobility, diet, and combat balance profiles have been refreshed."
-                : "Mythical races are already installed and their breathing, mobility, and combat balance profiles have been refreshed.";
+            return "Mythical races are already installed and their breathing, mobility, diet, and combat balance profiles have been refreshed.";
         }
 
         foreach (MythicalRaceTemplate template in templatesToSeed)
@@ -137,26 +139,46 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         }
 
         RefreshExistingMythicalRaceDefaults();
-        SeedMythicalDisfigurementTemplates(bodyLookup);
+        if (templatesToSeed.Count > 0 || hasMissingDisfigurementTemplates)
+        {
+            SeedMythicalDisfigurementTemplates(bodyLookup);
+        }
+
         RefreshExistingMythicalCombatBalance();
+        if (hasMissingAnimalAiTemplates)
+        {
+            SeedMythicalAnimalAIStockTemplates();
+        }
+
         _context.SaveChanges();
         _context.Database.CommitTransaction();
         int skippedCount = Templates.Count - templatesToSeed.Count;
-        if (templatesToSeed.Count == 0)
-        {
-            return "Installed additional mythical disfigurement templates.";
-        }
+
+        List<string> updates = templatesToSeed.Count == 0
+            ? []
+            : [$"Successfully installed {templatesToSeed.Count} mythical races"];
 
         if (hasMissingDisfigurementTemplates)
         {
-            return skippedCount > 0
-                ? $"Successfully installed {templatesToSeed.Count} mythical races, updated disfigurement templates, and skipped {skippedCount} that already existed."
-                : $"Successfully installed {templatesToSeed.Count} mythical races and updated disfigurement templates.";
+            updates.Add("updated disfigurement templates");
         }
 
-        return skippedCount > 0
-            ? $"Successfully installed {templatesToSeed.Count} mythical races and skipped {skippedCount} that already existed."
-            : "Successfully installed mythical races.";
+        if (hasMissingAnimalAiTemplates)
+        {
+            updates.Add("installed stock mythical animal AI templates");
+        }
+
+        if (hasMissingDietSettings)
+        {
+            updates.Add("refreshed stock mythical diet settings");
+        }
+
+        if (templatesToSeed.Count > 0 && skippedCount > 0)
+        {
+            updates.Add($"skipped {skippedCount} that already existed");
+        }
+
+        return $"{string.Join(", ", updates)}.";
     }
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
@@ -170,6 +192,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         {
             return HasMissingMythicalDisfigurementTemplates(context) ||
                    HasMythicalSatiationLimitUpdates(context) ||
+                   HasMissingMythicalAnimalAIStockTemplates(context) ||
                    HasMissingMythicalDietSettings(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;

@@ -5,6 +5,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using System;
@@ -64,6 +65,13 @@ internal static class NpcSurvivalAIHelpers
 		return LocalDrinkableLiquids(character, cell, false).Any();
 	}
 
+	public static bool HasAquaticWaterSource(ICharacter character, ICell cell, bool requireSurface)
+	{
+		return requireSurface
+			? AnimalAI.CellSupportsSurfaceWater(character, cell)
+			: AnimalAI.CellSupportsSwimming(character, cell);
+	}
+
 	public static bool TryDrinkIfThirsty(ICharacter character)
 	{
 		if (IsBusy(character) || !IsThirsty(character))
@@ -94,6 +102,45 @@ internal static class NpcSurvivalAIHelpers
 		}
 	}
 
+	public static bool TryHydrateFromAquaticEnvironmentIfThirsty(ICharacter character, bool requireSurface)
+	{
+		if (IsBusy(character) || !IsThirsty(character))
+		{
+			RememberCurrentAquaticWaterIfPresent(character, requireSurface);
+			return false;
+		}
+
+		if (!HasAquaticWaterSource(character, character.Location, requireSurface))
+		{
+			NpcKnownWaterLocationsEffect.Get(character)?.Forget(character.Location);
+			return false;
+		}
+
+		IFluid? fluid = character.Location.Terrain(character)?.WaterFluid;
+		if (fluid is not ILiquid liquid)
+		{
+			NpcKnownWaterLocationsEffect.Get(character)?.Forget(character.Location);
+			return false;
+		}
+
+		double amount = DrinkAmount(character);
+		character.Body.FulfilNeeds(new NeedFulfiller
+		{
+			ThirstPoints = Math.Max(amount * liquid.DrinkSatiatedHoursPerLitre, amount),
+			WaterLitres = Math.Max(amount * liquid.WaterLitresPerLitre, amount)
+		}, true);
+		NpcKnownWaterLocationsEffect.GetOrCreate(character).Remember(character.Location);
+		return true;
+	}
+
+	public static void RememberCurrentAquaticWaterIfPresent(ICharacter character, bool requireSurface)
+	{
+		if (HasAquaticWaterSource(character, character.Location, requireSurface))
+		{
+			NpcKnownWaterLocationsEffect.GetOrCreate(character).Remember(character.Location);
+		}
+	}
+
 	public static (ICell? Target, IEnumerable<ICellExit> Path) GetPathToWater(
 		ICharacter character,
 		Func<ICellExit, bool> suitabilityFunction,
@@ -114,6 +161,36 @@ internal static class NpcSurvivalAIHelpers
 
 		Tuple<IPerceivable, IEnumerable<ICellExit>> targetPath = character.AcquireTargetAndPath(
 			x => x is ICell cell && HasWaterSource(character, cell),
+			(uint)range,
+			suitabilityFunction);
+		return targetPath.Item1 is ICell target && targetPath.Item2.Any()
+			? (target, targetPath.Item2)
+			: (null, Enumerable.Empty<ICellExit>());
+	}
+
+	public static (ICell? Target, IEnumerable<ICellExit> Path) GetPathToAquaticWater(
+		ICharacter character,
+		Func<ICellExit, bool> suitabilityFunction,
+		int range = DefaultWaterSearchRange,
+		bool requireSurface = false)
+	{
+		NpcKnownWaterLocationsEffect? knownWater = NpcKnownWaterLocationsEffect.Get(character);
+		if (knownWater is not null)
+		{
+			foreach (ICell cell in knownWater.KnownWaterLocations.Where(x =>
+				         !ReferenceEquals(x, character.Location) &&
+				         HasAquaticWaterSource(character, x, requireSurface)))
+			{
+				List<ICellExit> path = character.PathBetween(cell, (uint)range, suitabilityFunction).ToList();
+				if (path.Any())
+				{
+					return (cell, path);
+				}
+			}
+		}
+
+		Tuple<IPerceivable, IEnumerable<ICellExit>> targetPath = character.AcquireTargetAndPath(
+			x => x is ICell cell && HasAquaticWaterSource(character, cell, requireSurface),
 			(uint)range,
 			suitabilityFunction);
 		return targetPath.Item1 is ICell target && targetPath.Item2.Any()

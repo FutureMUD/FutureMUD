@@ -5,13 +5,18 @@ using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Combat;
+using MudSharp.Celestial;
 using MudSharp.Database;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
+using MudSharp.NPC.AI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Xml.Linq;
 
 namespace MudSharp_Unit_Tests;
 
@@ -24,6 +29,54 @@ public class AnimalSeederTemplateTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         return new FuturemudDatabaseContext(options);
+    }
+
+    private static MudSharp.Models.FutureProg CreateAnimalAiProg(long id, string name, ProgVariableTypes returnType, string text)
+    {
+        return new MudSharp.Models.FutureProg
+        {
+            Id = id,
+            FunctionName = name,
+            FunctionComment = $"{name} test prog",
+            FunctionText = text,
+            ReturnType = (long)returnType,
+            Category = "Tests",
+            Subcategory = "AnimalAI",
+            Public = true,
+            AcceptsAnyParameters = true,
+            StaticType = (int)FutureProgStaticType.FullyStatic
+        };
+    }
+
+    private static void SeedAnimalAiPrerequisiteProgs(FuturemudDatabaseContext context)
+    {
+        context.FutureProgs.AddRange(
+            CreateAnimalAiProg(1, "AlwaysTrue", ProgVariableTypes.Boolean, "return true"),
+            CreateAnimalAiProg(2, "AlwaysFalse", ProgVariableTypes.Boolean, "return false"),
+            CreateAnimalAiProg(3, "AlwaysOne", ProgVariableTypes.Number, "return 1"));
+        context.SaveChanges();
+    }
+
+    private static IReadOnlyList<TimeOfDay> ActiveTimesFor(AnimalActivityStrategyType activity, XElement root)
+    {
+        List<TimeOfDay> activeTimes = root.Element("Activity")?.Elements("ActiveTime")
+            .Select(x => x.Value)
+            .Where(x => Enum.TryParse(x, true, out TimeOfDay _))
+            .Select(x => Enum.Parse<TimeOfDay>(x, true))
+            .ToList() ?? new List<TimeOfDay>();
+
+        if (activeTimes.Count > 0)
+        {
+            return activeTimes;
+        }
+
+        return activity switch
+        {
+            AnimalActivityStrategyType.Diurnal => [TimeOfDay.Dawn, TimeOfDay.Morning, TimeOfDay.Afternoon],
+            AnimalActivityStrategyType.Nocturnal => [TimeOfDay.Dusk, TimeOfDay.Night],
+            AnimalActivityStrategyType.Crepuscular => [TimeOfDay.Dawn, TimeOfDay.Dusk],
+            _ => Enum.GetValues<TimeOfDay>()
+        };
     }
 
     private static FuturemudDatabaseContext BuildExpandedAnimalCatalogueContext(
@@ -237,6 +290,138 @@ public class AnimalSeederTemplateTests
     {
         IReadOnlyList<string> issues = AnimalSeeder.ValidateTemplateCatalogForTesting();
         Assert.AreEqual(0, issues.Count, string.Join("\n", issues));
+    }
+
+    [TestMethod]
+    public void AnimalAIRecommendations_CoverEverySeededAnimalRace()
+    {
+        IReadOnlyDictionary<string, string> recommendations = AnimalSeeder.AnimalAIRecommendationsForTesting;
+        List<string> expectedRaceNames = AnimalSeeder.RaceTemplatesForTesting.Keys
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        List<string> actualRaceNames = recommendations.Keys
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        List<string> missing = expectedRaceNames.Except(actualRaceNames, StringComparer.OrdinalIgnoreCase).ToList();
+        List<string> extra = actualRaceNames.Except(expectedRaceNames, StringComparer.OrdinalIgnoreCase).ToList();
+
+        Assert.AreEqual(0, missing.Count + extra.Count,
+            $"Missing AnimalAI recommendations: {string.Join(", ", missing)}; extra recommendations: {string.Join(", ", extra)}");
+
+        CollectionAssert.AreEqual(expectedRaceNames, actualRaceNames,
+            "Every stock animal race should have exactly one recommended individual AnimalAI template.");
+
+        HashSet<string> knownTemplateNames = AnimalSeeder.StockAnimalAITemplatesForTesting
+            .Select(x => x.Name)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (string templateName in recommendations.Values.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            Assert.IsTrue(knownTemplateNames.Contains(templateName),
+                $"Animal AI recommendation {templateName} must point to a seeded template.");
+        }
+    }
+
+    [TestMethod]
+    public void StockAnimalAITemplates_AllDefinitionsUseValidAnimalSlotCombinations()
+    {
+        foreach (AnimalAIStockTemplateDefinition template in AnimalSeeder.StockAnimalAITemplatesForTesting)
+        {
+            XElement root = XElement.Parse(template.BuildDefinition(1, 2, 3));
+            AnimalHomeStrategyType home =
+                Enum.Parse<AnimalHomeStrategyType>(root.Element("Home")!.Attribute("type")!.Value);
+            AnimalFeedingStrategyType feeding =
+                Enum.Parse<AnimalFeedingStrategyType>(root.Element("Feeding")!.Attribute("type")!.Value);
+            AnimalThreatStrategyType threat =
+                Enum.Parse<AnimalThreatStrategyType>(root.Element("Threat")!.Attribute("type")!.Value);
+            AnimalMovementStrategyType movement =
+                Enum.Parse<AnimalMovementStrategyType>(root.Element("Movement")!.Attribute("type")!.Value);
+            AnimalRefugeStrategyType refuge =
+                Enum.Parse<AnimalRefugeStrategyType>(root.Element("Refuge")!.Attribute("type")!.Value);
+            AnimalActivityStrategyType activity =
+                Enum.Parse<AnimalActivityStrategyType>(root.Element("Activity")!.Attribute("type")!.Value);
+            XElement water = root.Element("Water")!;
+            AnimalWaterStrategyType waterStrategy = water.Attribute("type") is XAttribute waterType
+                ? Enum.Parse<AnimalWaterStrategyType>(waterType.Value)
+                : bool.Parse(water.Attribute("enabled")?.Value ?? "true")
+                    ? AnimalWaterStrategyType.Drink
+                    : AnimalWaterStrategyType.Off;
+            XElement ecology = root.Element("Ecology") ?? new XElement("Ecology");
+            bool ecologyNesting = bool.Parse(ecology.Element("NestingEnabled")?.Value ?? "false");
+            bool ecologyParenting = bool.Parse(ecology.Element("ParentingEnabled")?.Value ?? "false");
+            bool hasWaterCellProg = long.Parse(root.Element("Movement")?.Element("AmphibiousWaterCellProg")?.Value ?? "0") > 0;
+            bool hasNestSiteProg = long.Parse(ecology.Element("NestSiteProg")?.Value ?? "0") > 0;
+            bool hasProtectProg = long.Parse(ecology.Element("ProtectProg")?.Value ?? "0") > 0;
+            AnimalAwarenessStrategyType awareness =
+                Enum.Parse<AnimalAwarenessStrategyType>(root.Element("Awareness")!.Attribute("type")!.Value);
+
+            MethodInfo validateMethod = typeof(AnimalAI).GetMethod("ValidateConfiguration",
+                BindingFlags.Static | BindingFlags.NonPublic,
+                null,
+                [
+                    typeof(AnimalHomeStrategyType),
+                    typeof(AnimalFeedingStrategyType),
+                    typeof(AnimalThreatStrategyType),
+                    typeof(AnimalMovementStrategyType),
+                    typeof(AnimalRefugeStrategyType),
+                    typeof(AnimalActivityStrategyType),
+                    typeof(IEnumerable<TimeOfDay>),
+                    typeof(AnimalWaterStrategyType),
+                    typeof(bool),
+                    typeof(AnimalAwarenessStrategyType),
+                    typeof(bool),
+                    typeof(bool),
+                    typeof(bool),
+                    typeof(bool)
+                ],
+                null)!;
+            Assert.IsNotNull(validateMethod, "AnimalAI should expose its slot validation helper.");
+
+            var result = ((bool Ready, string Reason))validateMethod.Invoke(null,
+            [
+                home,
+                feeding,
+                threat,
+                movement,
+                refuge,
+                activity,
+                ActiveTimesFor(activity, root),
+                waterStrategy,
+                hasWaterCellProg,
+                awareness,
+                ecologyNesting,
+                hasNestSiteProg,
+                ecologyParenting,
+                hasProtectProg
+            ])!;
+
+            Assert.IsTrue(result.Ready, $"{template.Name} should be a valid AnimalAI template: {result.Reason}");
+        }
+    }
+
+    [TestMethod]
+    public void SeedAnimalAIStockTemplates_RerunRestoresMissingTemplatesWithoutDuplicates()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedAnimalAiPrerequisiteProgs(context);
+
+        AnimalSeeder.SeedAnimalAIStockTemplatesForTesting(context);
+        Assert.AreEqual(AnimalSeeder.StockAnimalAITemplateNamesForTesting.Count,
+            context.ArtificialIntelligences.Count(),
+            "Animal seeder should install one AI row per stock animal recommendation template.");
+
+        ArtificialIntelligence removed = context.ArtificialIntelligences
+            .First(x => x.Name == AnimalSeeder.StockAnimalAITemplateNamesForTesting.First());
+        context.ArtificialIntelligences.Remove(removed);
+        context.SaveChanges();
+
+        AnimalSeeder.SeedAnimalAIStockTemplatesForTesting(context);
+
+        foreach (string name in AnimalSeeder.StockAnimalAITemplateNamesForTesting)
+        {
+            ArtificialIntelligence ai = context.ArtificialIntelligences.Single(x => x.Name == name);
+            Assert.AreEqual("Animal", ai.Type);
+            Assert.AreEqual("Definition", XElement.Parse(ai.Definition).Name.LocalName);
+        }
     }
 
     [TestMethod]
@@ -791,8 +976,19 @@ public class AnimalSeederTemplateTests
     public void ShouldSeedData_ExpandedCatalogueAlreadyPresent_ReturnsMayAlreadyBeInstalled()
     {
         using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext(includeDietSettings: true);
+        SeedAnimalAiPrerequisiteProgs(context);
+        AnimalSeeder.SeedAnimalAIStockTemplatesForTesting(context);
 
         Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, new AnimalSeeder().ShouldSeedData(context),
             "Once the expanded animal catalogue is present, the seeder should stop advertising extra stock content.");
+    }
+
+    [TestMethod]
+    public void ShouldSeedData_ExistingCatalogueMissingStockAnimalAI_ReturnsExtraPackagesAvailable()
+    {
+        using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext();
+
+        Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, new AnimalSeeder().ShouldSeedData(context),
+            "Existing animal catalogues should advertise rerun stock when the individual AnimalAI examples are missing.");
     }
 }

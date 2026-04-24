@@ -3,7 +3,6 @@
 using MudSharp.Body.Traits;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using System.Collections.Generic;
@@ -77,7 +76,6 @@ public partial class RobotSeeder
                     ParentRace = template.ParentRaceName is null
                         ? null
                         : _context.Races.FirstOrDefault(x => x.Name == template.ParentRaceName),
-                    AttributeBonusProg = _humanRace.AttributeBonusProg,
                     AttributeTotalCap = _humanRace.AttributeTotalCap,
                     IndividualAttributeCap = _humanRace.IndividualAttributeCap,
                     DiceExpression = _humanRace.DiceExpression,
@@ -162,7 +160,7 @@ public partial class RobotSeeder
 
             ApplyNonBreatherSettings(race);
 
-            CopyRaceAttributes(race);
+            CopyRaceAttributes(race, template);
             if (template.UsesHumanoidCharacteristics)
             {
                 CopyHumanAdditionalCharacteristics(race);
@@ -190,13 +188,36 @@ public partial class RobotSeeder
         _context.RacesBreathableLiquids.RemoveRange(_context.RacesBreathableLiquids.Where(x => x.RaceId == race.Id).ToList());
     }
 
-    private void CopyRaceAttributes(Race race)
+    private static NonHumanAttributeProfile GetRobotAttributeProfile(RobotRaceTemplate template)
     {
-        Dictionary<long, bool> humanHealthAttributes = _context.RacesAttributes
+        NonHumanAttributeProfile profile = template.Size switch
+        {
+            SizeCategory.Nanoscopic => new(-10, -8, 4, 3),
+            SizeCategory.Microscopic => new(-9, -7, 4, 3),
+            SizeCategory.Miniscule => new(-8, -6, 3, 2),
+            SizeCategory.Tiny => new(-6, -4, 2, 1),
+            SizeCategory.VerySmall => new(-4, -2, 1, 1),
+            SizeCategory.Small => new(-1, 0, 1, 0),
+            SizeCategory.Normal => new(2, 2, 0, 0),
+            SizeCategory.Large => new(5, 5, -1, -1),
+            SizeCategory.VeryLarge => new(8, 8, -2, -2),
+            SizeCategory.Huge => new(12, 10, -3, -3),
+            SizeCategory.Enormous => new(15, 12, -4, -4),
+            SizeCategory.Gigantic => new(18, 14, -5, -5),
+            SizeCategory.Titanic => new(20, 16, -6, -6),
+            _ => new(2, 2, 0, 0)
+        };
+        return profile.Clamp(-10, 20);
+    }
+
+    private void CopyRaceAttributes(Race race, RobotRaceTemplate template)
+    {
+        Dictionary<long, RacesAttributes> humanAttributes = _context.RacesAttributes
             .Where(x => x.RaceId == _humanRace.Id)
-            .ToDictionary(x => x.AttributeId, x => x.IsHealthAttribute);
+            .ToDictionary(x => x.AttributeId);
+        var profile = GetRobotAttributeProfile(template);
         foreach (TraitDefinition? attribute in _context.TraitDefinitions
-                     .Where(x => x.Type == (int)TraitType.Attribute)
+                     .Where(x => x.Type == (int)TraitType.Attribute || x.Type == (int)TraitType.DerivedAttribute)
                      .ToList())
         {
             if (_context.RacesAttributes.Any(x => x.RaceId == race.Id && x.AttributeId == attribute.Id))
@@ -208,7 +229,10 @@ public partial class RobotSeeder
             {
                 Race = race,
                 Attribute = attribute,
-                IsHealthAttribute = humanHealthAttributes.GetValueOrDefault(attribute.Id)
+                IsHealthAttribute = humanAttributes.TryGetValue(attribute.Id, out RacesAttributes? humanAttribute) &&
+                                    humanAttribute.IsHealthAttribute,
+                AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile),
+                DiceExpression = humanAttribute?.DiceExpression
             });
         }
 

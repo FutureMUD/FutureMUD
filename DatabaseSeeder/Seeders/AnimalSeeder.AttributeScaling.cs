@@ -1,8 +1,6 @@
 #nullable enable
 
 using MudSharp.Body.Traits;
-using MudSharp.Framework;
-using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using System;
@@ -136,32 +134,4 @@ public partial class AnimalSeeder
 		return new(strengthBonus, constitutionBonus, 0, 0);
 	}
 
-	private FutureProg CreateAnimalAttributeBonusProg(string raceName, NonHumanAttributeProfile profile)
-	{
-		var progText = NonHumanAttributeScalingHelper.BuildAttributeBonusProgText(
-			_context.TraitDefinitions.Where(x => x.Type == (int)TraitType.Attribute),
-			profile);
-
-		var attributeBonusProg = new FutureProg
-		{
-			FunctionName = $"{raceName.CollapseString()}AttributeBonus",
-			FunctionComment = $"Racial attribute bonuses for the {raceName} race",
-			AcceptsAnyParameters = false,
-			Category = "Character",
-			Subcategory = "Attributes",
-			ReturnType = (long)ProgVariableTypes.Number,
-			FunctionText = progText
-		};
-
-		attributeBonusProg.FutureProgsParameters.Add(new FutureProgsParameter
-		{
-			FutureProg = attributeBonusProg,
-			ParameterIndex = 0,
-			ParameterName = "trait",
-			ParameterType = (long)ProgVariableTypes.Trait
-		});
-
-		_context.FutureProgs.Add(attributeBonusProg);
-		return attributeBonusProg;
-	}
 }

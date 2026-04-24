@@ -47,7 +47,6 @@ namespace MudSharp.Models
             ProgSchedules = new HashSet<ProgSchedule>();
             RaceButcheryProfilesCanButcherProg = new HashSet<RaceButcheryProfile>();
             RaceButcheryProfilesWhyCannotButcherProg = new HashSet<RaceButcheryProfile>();
-            RacesAttributeBonusProg = new HashSet<Race>();
             RacesAvailabilityProg = new HashSet<Race>();
             RanksAbbreviations = new HashSet<RanksAbbreviations>();
             RanksTitles = new HashSet<RanksTitle>();
@@ -128,7 +127,6 @@ namespace MudSharp.Models
         public virtual ICollection<ProgSchedule> ProgSchedules { get; set; }
         public virtual ICollection<RaceButcheryProfile> RaceButcheryProfilesCanButcherProg { get; set; }
         public virtual ICollection<RaceButcheryProfile> RaceButcheryProfilesWhyCannotButcherProg { get; set; }
-        public virtual ICollection<Race> RacesAttributeBonusProg { get; set; }
         public virtual ICollection<Race> RacesAvailabilityProg { get; set; }
         public virtual ICollection<RanksAbbreviations> RanksAbbreviations { get; set; }
         public virtual ICollection<RanksTitle> RanksTitles { get; set; }

@@ -49,7 +49,7 @@ public class RobotSeederTemplateTests
         };
     }
 
-    private static Race CreateRace(long id, string name, long baseBodyId, long corpseModelId, long attributeBonusProgId)
+    private static Race CreateRace(long id, string name, long baseBodyId, long corpseModelId)
     {
         return new Race
         {
@@ -58,7 +58,6 @@ public class RobotSeederTemplateTests
             Description = $"{name} test race",
             BaseBodyId = baseBodyId,
             AllowedGenders = "Male Female Neuter NonBinary",
-            AttributeBonusProgId = attributeBonusProgId,
             DiceExpression = "1d100",
             CorpseModelId = corpseModelId,
             DefaultHealthStrategyId = 1,
@@ -409,8 +408,8 @@ public class RobotSeederTemplateTests
             Definition = "<Definition />"
         });
         context.Races.AddRange(
-            CreateRace(1, "Human", 1, 1, 1),
-            CreateRace(2, "Humanoid", 1, 2, 1));
+            CreateRace(1, "Human", 1, 1),
+            CreateRace(2, "Humanoid", 1, 2));
         context.CharacteristicDefinitions.AddRange(
             CreateCharacteristicDefinition(1, "All Eye Colours"),
             CreateCharacteristicDefinition(2, "All Eye Shapes"),

@@ -412,9 +412,6 @@ public class VariableNPCTemplate : NPCTemplateBase
         Gender rolledGender = _genderChances.GetWeightedRandom();
         (double, double) rolledHeightWeight = _heightWeightModels[rolledGender].GetRandomHeightWeight();
         int rolledAge = Constants.Random.Next(_minimumAge, _maximumAge + 1);
-        List<int> statrolls = RollRandomStats(_race.Attributes.Count(),
-            _attributeTotal ?? _race.AttributeTotalCap, _race.IndividualAttributeCap,
-            _race.DiceExpression);
         List<IAttributeDefinition> attributeOrder =
             _race.Attributes.OrderBy(
                      x =>
@@ -422,9 +419,10 @@ public class VariableNPCTemplate : NPCTemplateBase
                              ? _priorityAttributeDefinitions.IndexOf(x)
                              : Dice.Roll("1d100+100"))
                  .ToList();
+        List<int> statrolls = RollRandomStats(attributeOrder, _race,
+            _attributeTotal ?? _race.AttributeTotalCap, _race.IndividualAttributeCap);
         List<ITrait> assignedStats = attributeOrder.Select(x => TraitFactory.LoadAttribute(x, null,
-                                              statrolls[attributeOrder.IndexOf(x)] +
-                                              Convert.ToDouble(_race.AttributeBonusProg.Execute(x, this))))
+                                              statrolls[attributeOrder.IndexOf(x)]))
                                           .ToList<ITrait>();
         List<(ITraitDefinition Trait, double)> rolledSkills = _skillTemplates.Where(x => Constants.Random.NextDouble() <= x.Chance)
                                           .Select(y => (y.Trait,

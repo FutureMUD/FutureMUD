@@ -168,12 +168,11 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
     {
         int totalNonFreeBoosts = 0;
         int remainingFreeBoosts = (int)FreeBoostsProg.ExecuteDouble(chargen);
-        foreach (ITrait attribute in chargen.SelectedAttributes)
-        {
-            int boosts =
-                (int)Math.Round(
-                    attribute.RawValue - AttributeBaseValueProg.ExecuteDouble(chargen, attribute.Definition) -
-                    chargen.SelectedRace.AttributeBonusProg.ExecuteDouble(attribute.Definition, chargen), 0);
+            foreach (ITrait attribute in chargen.SelectedAttributes)
+            {
+                int boosts =
+                    (int)Math.Round(
+                    attribute.RawValue - AttributeBaseValueProg.ExecuteDouble(chargen, attribute.Definition), 0);
             int nonFreeBoosts = Math.Max(0,
                 boosts - (int)(MaximumFreeBoostsProg?.ExecuteDouble(chargen, attribute.Definition) ?? 0.0));
             totalNonFreeBoosts += nonFreeBoosts;
@@ -230,8 +229,7 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
             foreach (IAttributeDefinition attribute in _baseValues.Keys)
             {
                 selectedAttributes.Add(TraitFactory.LoadAttribute(attribute, null,
-                    _baseValues[attribute] + _numberOfBoosts[attribute] +
-                    Chargen.SelectedRace.AttributeBonusProg.ExecuteDouble(attribute, Chargen)));
+                    _baseValues[attribute] + _numberOfBoosts[attribute]));
             }
 
             Chargen.SelectedAttributes = selectedAttributes;
@@ -252,7 +250,7 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
             foreach (IAttributeDefinition attribute in _baseValues.Keys.OrderBy(x => x.Name))
             {
                 double current = _baseValues[attribute] + _numberOfBoosts[attribute] +
-                              Chargen.SelectedRace.AttributeBonusProg.ExecuteDouble(attribute, Chargen);
+                                 Chargen.SelectedRace.AttributeBonus(attribute);
                 string boostString = "";
                 if (_numberOfBoosts[attribute] > 0)
                 {

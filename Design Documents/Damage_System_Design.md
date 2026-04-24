@@ -244,7 +244,7 @@ The `combat-rebalance` profile does additionally overwrite the shared stock weap
 ## Non-Human Stock Notes
 
 ### Animal offensive and durability scaling
-Seeded ordinary animals no longer use an all-zero racial attribute bonus prog.
+Seeded ordinary animals now use row-backed racial attribute bonuses rather than a creation-time bonus prog.
 
 Current stock animal scaling is now authored in three layers:
 
@@ -337,13 +337,13 @@ Humanoid-default mythics still inherit the human racial/bodypart/cranial split t
 Under `combat-rebalance`, reruns also refresh mythic bodyparts in place from their reference humanoid or animal bodies so the profile's HP, hit-chance, armour, and sever-formula tuning propagates without seeding duplicate races.
 
 ## Mythical Offensive and Durability Scaling
-Seeded mythical races no longer use the shared `_alwaysZero` racial attribute prog.
+Seeded mythical races now use row-backed racial attribute bonuses rather than the old shared all-zero prog.
 
 Current stock mythical tuning is explicit per race:
 
 - every mythic race now carries a seeded `NonHumanAttributeProfile`
 - every mythic race now carries an intentional `BodypartHealthMultiplier`
-- `SeedRace` turns that profile into the race's actual `AttributeBonusProg`
+- `SeedRace` turns that profile into per-attribute `Races_Attributes.AttributeBonus` rows
 
 This means mythical catalogue entries now have distinct physical ceilings instead of sharing the same baseline:
 

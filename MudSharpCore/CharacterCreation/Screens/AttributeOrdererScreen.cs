@@ -206,14 +206,28 @@ public class AttributeOrdererScreenStoryboard : ChargenScreenStoryboard
                 selectedAttributes.Add(attribute);
             }
 
-            List<int> stats = RollRandomStats(split.Length, Chargen.SelectedRace.AttributeTotalCap,
-                Chargen.SelectedRace.IndividualAttributeCap, Chargen.SelectedRace.DiceExpression);
+            List<int> stats = RollRandomStats(selectedAttributes, Chargen.SelectedRace.AttributeTotalCap,
+                Chargen.SelectedRace.IndividualAttributeCap);
             Chargen.SelectedAttributes = selectedAttributes.Select(x =>
-                TraitFactory.LoadAttribute(x, null, stats[selectedAttributes.IndexOf(x)] +
-                                                    Convert.ToDouble(Chargen.SelectedRace.AttributeBonusProg.Execute(x, Chargen))
-                )).ToList<ITrait>();
+                TraitFactory.LoadAttribute(x, null, stats[selectedAttributes.IndexOf(x)])
+                ).ToList<ITrait>();
             State = ChargenScreenState.Complete;
             return "\n";
+        }
+
+        private List<int> RollRandomStats(IReadOnlyList<IAttributeDefinition> attributes, int totalCap, int individualCap)
+        {
+            List<string> diceExpressions = attributes
+                .Select(x => Chargen.SelectedRace.AttributeDiceExpression(x))
+                .ToList();
+            if (diceExpressions.Distinct(StringComparer.InvariantCultureIgnoreCase).Count() == 1)
+            {
+                return RollRandomStats(attributes.Count, totalCap, individualCap, diceExpressions[0]);
+            }
+
+            List<int> results = diceExpressions.Select(Dice.Roll).ToList();
+            BalanceRandomStats(results, totalCap, individualCap);
+            return results;
         }
 
         private List<int> RollRandomStats(int numberOfStats, int totalCap, int individualCap, string diceExpression)
@@ -224,6 +238,14 @@ public class AttributeOrdererScreenStoryboard : ChargenScreenStoryboard
                 results.Add(Dice.Roll(diceExpression));
             }
 
+            BalanceRandomStats(results, totalCap, individualCap);
+            results.Sort();
+            results.Reverse();
+            return results;
+        }
+
+        private void BalanceRandomStats(List<int> results, int totalCap, int individualCap)
+        {
             int difference = totalCap - results.Sum();
             if (difference < 0)
             {
@@ -255,10 +277,6 @@ public class AttributeOrdererScreenStoryboard : ChargenScreenStoryboard
                 whichStat = Constants.Random.Next(0, results.Count);
                 results[whichStat] = results[whichStat] + 1;
             }
-
-            results.Sort();
-            results.Reverse();
-            return results;
         }
     }
 

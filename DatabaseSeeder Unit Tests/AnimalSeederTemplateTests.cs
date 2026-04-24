@@ -129,7 +129,6 @@ public class AnimalSeederTemplateTests
                 Description = $"{raceName} test race",
                 BaseBodyId = baseBody.Id,
                 AllowedGenders = "1 2 3 4",
-                AttributeBonusProgId = 1,
                 AttributeTotalCap = 1,
                 IndividualAttributeCap = 1,
                 DiceExpression = "1",
@@ -305,6 +304,28 @@ public class AnimalSeederTemplateTests
             "Baleen whales should have a head ram attack.");
         Assert.IsTrue(whaleLoadout.AliasAttacks?.Any(x => x.AttackKey == "tailslap") == true,
             "Baleen whales should have a tail slap attack.");
+    }
+
+    [TestMethod]
+    public void NonHumanAttributeScalingHelper_AlternateAttributeModelNames_MapToProfileBonuses()
+    {
+        NonHumanAttributeProfile profile = new(4, 2, -1, -2);
+
+        static TraitDefinition Attribute(string name)
+        {
+            return new TraitDefinition
+            {
+                Name = name
+            };
+        }
+
+        Assert.AreEqual(4, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Strength"), profile));
+        Assert.AreEqual(2, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Endurance"), profile));
+        Assert.AreEqual(3, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Body"), profile));
+        Assert.AreEqual(3, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Physique"), profile));
+        Assert.AreEqual(-1, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Agility"), profile));
+        Assert.AreEqual(-2, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Dexterity"), profile));
+        Assert.AreEqual(0, NonHumanAttributeScalingHelper.GetAttributeBonus(Attribute("Willpower"), profile));
     }
 
     [TestMethod]

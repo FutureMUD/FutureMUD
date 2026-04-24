@@ -1,4 +1,5 @@
 ﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Communication.Language;
 using MudSharp.Database;
 using MudSharp.Effects.Interfaces;
@@ -28,6 +29,11 @@ public partial class Body
 
         ITrait trait = _traits.FirstOrDefault(x => x.Definition == definition);
         double baseValue = trait?.Value ?? 0.0;
+        if (definition is IAttributeDefinition attribute)
+        {
+            baseValue += Race?.AttributeBonus(attribute) ?? 0.0;
+        }
+
         baseValue +=
             Merits.OfType<ITraitBonusMerit>().Where(x => x.Applies(Actor))
                   .Sum(x => x.BonusForTrait(definition, context));

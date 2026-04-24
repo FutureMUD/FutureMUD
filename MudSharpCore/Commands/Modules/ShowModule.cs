@@ -1758,19 +1758,12 @@ public class ShowModule : Module<ICharacter>
                 $"Armour Quality: {race.NaturalArmourQuality.Describe().Colour(Telnet.Green)}"
             }
             .ArrangeStringsOntoLines(3U, (uint)actor.LineFormatLength));
-        sb.AppendLine($"Attributes: {race.Attributes.Select(x => x.Name.Colour(Telnet.Green)).ListToString()}");
+        sb.AppendLine($"Attributes: {race.Attributes.Select(x => $"{x.Name.Colour(Telnet.Green)} ({race.AttributeBonus(x).ToString("N2", actor).ColourValue()}, {race.AttributeDiceExpression(x).ColourCommand()})").ListToString()}");
         sb.AppendLine(new[]
             {
                 $"Attribute Roll: {race.DiceExpression.Colour(Telnet.Green)}",
                 $"Attribute Cap: {race.IndividualAttributeCap.ToString("N0", actor).Colour(Telnet.Green)}",
                 $"Total Cap: {race.AttributeTotalCap.ToString("N0", actor).Colour(Telnet.Green)}"
-            }
-            .ArrangeStringsOntoLines(3U, (uint)actor.LineFormatLength));
-        sb.AppendLine(new[]
-            {
-                $"Bonus Prog: {(race.AttributeBonusProg == null ? "None".Colour(Telnet.Red) : string.Format("{0} (#{1:N0})".FluentTagMXP("send", $"href='show futureprog {race.AttributeBonusProg.Id}'"), race.AttributeBonusProg.FunctionName, race.AttributeBonusProg.Id))}",
-                "",
-                ""
             }
             .ArrangeStringsOntoLines(3U, (uint)actor.LineFormatLength));
         sb.AppendLine(new[]

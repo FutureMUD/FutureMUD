@@ -105,7 +105,6 @@ public class ChargenSeederTests
 			Description = "Human test race",
 			BaseBodyId = 1,
 			AllowedGenders = "Male Female Neuter NonBinary",
-			AttributeBonusProgId = 1,
 			DiceExpression = "1d100",
 			CorpseModelId = 0,
 			DefaultHealthStrategyId = 0,

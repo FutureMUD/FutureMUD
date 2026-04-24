@@ -3867,11 +3867,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             }
         }
 
-        FutureProg attributeBonusProg = CreateAnimalAttributeBonusProg(
-            name,
-            raceTemplate is not null
-                ? GetAnimalAttributeProfile(raceTemplate)
-                : new NonHumanAttributeProfile(0, 0, 0, 0));
+        NonHumanAttributeProfile attributeProfile = raceTemplate is not null
+            ? GetAnimalAttributeProfile(raceTemplate)
+            : new NonHumanAttributeProfile(0, 0, 0, 0);
 
         Material driedBlood = new()
         {
@@ -4030,7 +4028,6 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                             : description,
             BaseBody = body,
             AllowedGenders = "2 3",
-            AttributeBonusProg = attributeBonusProg,
             AttributeTotalCap = _context.TraitDefinitions.Count(x => x.Type == 1) * 12,
             IndividualAttributeCap = 20,
             DiceExpression = "3d6+1",
@@ -4087,7 +4084,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
         foreach (TraitDefinition attribute in _attributes)
         {
             _context.RacesAttributes.Add(new RacesAttributes
-            { Race = race, Attribute = attribute, IsHealthAttribute = attribute.TraitGroup == "Physical" });
+            {
+                Race = race,
+                Attribute = attribute,
+                IsHealthAttribute = attribute.TraitGroup == "Physical",
+                AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, attributeProfile)
+            });
         }
 
         CreateEthnicitiesForRace(race);

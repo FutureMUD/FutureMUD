@@ -1218,11 +1218,10 @@ public class SimpleNPCTemplate : NPCTemplateBase
             return false;
         }
 
-        List<int> statrolls = RollRandomStats(SelectedRace.Attributes.Count(),
-            SelectedRace.AttributeTotalCap, SelectedRace.IndividualAttributeCap,
-            SelectedRace.DiceExpression);
         SelectedAttributes.Clear();
         List<IAttributeDefinition> attributeOrder = SelectedRace.Attributes.Shuffle().ToList();
+        List<int> statrolls = RollRandomStats(attributeOrder, SelectedRace,
+            SelectedRace.AttributeTotalCap, SelectedRace.IndividualAttributeCap);
         for (int i = 0; i < attributeOrder.Count; i++)
         {
             SelectedAttributes.Add(TraitFactory.LoadAttribute(attributeOrder[i], null, statrolls[i]));

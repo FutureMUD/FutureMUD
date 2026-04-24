@@ -55,11 +55,13 @@ namespace MudSharp.Character.Heritage
         IEnumerable<Gender> AllowedGenders { get; }
 
         IEnumerable<IAttributeDefinition> Attributes { get; }
-        void AddAttributeFromPromotion(IAttributeDefinition definition);
-        void AddAttributeFromDemotion(IAttributeDefinition definition);
+        void AddAttributeFromPromotion(IAttributeDefinition definition, double bonus = 0.0, string diceExpression = null);
+        void AddAttributeFromDemotion(IAttributeDefinition definition, double bonus = 0.0, string diceExpression = null);
         void RemoveAttribute(IAttributeDefinition definition);
 
-        IFutureProg AttributeBonusProg { get; }
+        double AttributeBonus(IAttributeDefinition definition);
+
+        string AttributeDiceExpression(IAttributeDefinition definition);
 
         string DiceExpression { get; }
 

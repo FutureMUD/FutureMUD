@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
+using MudSharp.Body.Traits;
+
 namespace DatabaseSeeder.Seeders;
 
 public partial class CultureSeeder
@@ -31,6 +33,27 @@ public partial class CultureSeeder
         string description = "")
     {
         EnsureEthnicity(race, name, group, bloodGroup, tempFloor, tempCeiling, subgroup, available, description);
+    }
+
+    private void AddRaceAttributeAlterations(Race race, NonHumanAttributeProfile profile)
+    {
+        foreach (TraitDefinition attribute in _context.TraitDefinitions
+                     .Where(x => x.Type == (int)TraitType.Attribute || x.Type == (int)TraitType.DerivedAttribute)
+                     .ToList())
+        {
+            if (_context.RacesAttributes.Any(x => x.Race == race && x.Attribute == attribute))
+            {
+                continue;
+            }
+
+            _context.RacesAttributes.Add(new RacesAttributes
+            {
+                Race = race,
+                Attribute = attribute,
+                IsHealthAttribute = attribute.TraitGroup == "Physical",
+                AttributeBonus = NonHumanAttributeScalingHelper.GetAttributeBonus(attribute, profile)
+            });
+        }
     }
 
     public void AddEthnicityVariable(string ethnicity, string feature, string profile)
@@ -2869,31 +2892,6 @@ return true"
             ParameterName = "ch"
         });
         _context.FutureProgs.Add(canSelectElfProg);
-        FutureProg elfAttributeProg = new()
-        {
-            FunctionName = "ElfBonusAttributes",
-            Category = "Character",
-            Subcategory = "Attributes",
-            FunctionComment =
-                "This prog is called for each attribute for elves at chargen time and the resulting value is applied as a modifier to that attribute.",
-            ReturnType = (long)ProgVariableTypes.Number,
-            StaticType = 0,
-            FunctionText = @"// You might consider a switch on attributes like so:
-//
-// switch (@trait.Name)
-//   case (""Dexterity"")
-//     return 2
-// end switch
-return 0"
-        };
-        elfAttributeProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = elfAttributeProg,
-            ParameterName = "trait",
-            ParameterIndex = 0,
-            ParameterType = 16384
-        });
-        _context.FutureProgs.Add(elfAttributeProg);
         _context.SaveChanges();
 
         (Liquid? elfBlood, Liquid? elfSweat, Material? driedElfBlood, Material? driedElfSweat) = CreateBloodAndSweat("Elven");
@@ -2947,7 +2945,6 @@ Elves are divided into several different clans, each with their own distinct cul
             AdultAge = 200,
             ElderAge = 1000,
             VenerableAge = 3000,
-            AttributeBonusProg = elfAttributeProg,
             AvailabilityProg = canSelectElfProg,
             BaseBody = body,
             BloodLiquid = elfBlood,
@@ -2958,6 +2955,7 @@ Elves are divided into several different clans, each with their own distinct cul
             SweatLiquid = elfSweat
         };
         _context.Races.Add(elfRace);
+        AddRaceAttributeAlterations(elfRace, new NonHumanAttributeProfile(-1, -1, 2, 2));
 
         HeightWeightModel elfMaleHWModel = new()
         {
@@ -3559,31 +3557,6 @@ return true"
             ParameterName = "ch"
         });
         _context.FutureProgs.Add(canSelectHobbitProg);
-        FutureProg hobbitAttributeProg = new()
-        {
-            FunctionName = "HobbitBonusAttributes",
-            Category = "Character",
-            Subcategory = "Attributes",
-            FunctionComment =
-                "This prog is called for each attribute for hobbits at chargen time and the resulting value is applied as a modifier to that attribute.",
-            ReturnType = (long)ProgVariableTypes.Number,
-            StaticType = 0,
-            FunctionText = @"// You might consider a switch on attributes like so:
-//
-// switch (@trait.Name)
-//   case (""Dexterity"")
-//     return 2
-// end switch
-return 0"
-        };
-        hobbitAttributeProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = hobbitAttributeProg,
-            ParameterName = "trait",
-            ParameterIndex = 0,
-            ParameterType = 16384
-        });
-        _context.FutureProgs.Add(hobbitAttributeProg);
         _context.SaveChanges();
 
         (Liquid? hobbitBlood, Liquid? hobbitSweat, Material _, Material _) = CreateBloodAndSweat("Hobbit");
@@ -3639,7 +3612,6 @@ Hobbits are divided into several different clans, each with its own distinct cul
             AdultAge = 30,
             ElderAge = 70,
             VenerableAge = 100,
-            AttributeBonusProg = hobbitAttributeProg,
             AvailabilityProg = canSelectHobbitProg,
             BaseBody = body,
             BloodLiquid = hobbitBlood,
@@ -3650,6 +3622,7 @@ Hobbits are divided into several different clans, each with its own distinct cul
             SweatLiquid = hobbitSweat
         };
         _context.Races.Add(hobbitRace);
+        AddRaceAttributeAlterations(hobbitRace, new NonHumanAttributeProfile(-2, 1, 0, 1));
         HeightWeightModel hobbitMaleHWModel = new()
         {
             Name = "Hobbit Male",
@@ -3945,31 +3918,6 @@ return true"
             ParameterName = "ch"
         });
         _context.FutureProgs.Add(canSelectDwarfProg);
-        FutureProg dwarfAttributeProg = new()
-        {
-            FunctionName = "DwarfBonusAttributes",
-            Category = "Character",
-            Subcategory = "Attributes",
-            FunctionComment =
-                "This prog is called for each attribute for dwarves at chargen time and the resulting value is applied as a modifier to that attribute.",
-            ReturnType = (long)ProgVariableTypes.Number,
-            StaticType = 0,
-            FunctionText = @"// You might consider a switch on attributes like so:
-//
-// switch (@trait.Name)
-//   case (""Strength"")
-//     return 2
-// end switch
-return 0"
-        };
-        dwarfAttributeProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = dwarfAttributeProg,
-            ParameterName = "trait",
-            ParameterIndex = 0,
-            ParameterType = 16384
-        });
-        _context.FutureProgs.Add(dwarfAttributeProg);
         _context.SaveChanges();
 
         (Liquid? dwarfBlood, Liquid? dwarfSweat, Material _, Material _) = CreateBloodAndSweat("Dwarf");
@@ -4025,7 +3973,6 @@ Dwarves are divided into several different clans, each with its own distinct cul
             AdultAge = 75,
             ElderAge = 200,
             VenerableAge = 300,
-            AttributeBonusProg = dwarfAttributeProg,
             AvailabilityProg = canSelectDwarfProg,
             BaseBody = body,
             BloodLiquid = dwarfBlood,
@@ -4036,6 +3983,7 @@ Dwarves are divided into several different clans, each with its own distinct cul
             SweatLiquid = dwarfSweat
         };
         _context.Races.Add(dwarfRace);
+        AddRaceAttributeAlterations(dwarfRace, new NonHumanAttributeProfile(2, 3, -1, 0));
         HeightWeightModel dwarfMaleHWModel = new()
         {
             Name = "Dwarf Male",
@@ -4380,31 +4328,6 @@ return true"
             ParameterName = "ch"
         });
         _context.FutureProgs.Add(canSelectOrcProg);
-        FutureProg orcAttributeProg = new()
-        {
-            FunctionName = "OrcBonusAttributes",
-            Category = "Character",
-            Subcategory = "Attributes",
-            FunctionComment =
-                "This prog is called for each attribute for orcs at chargen time and the resulting value is applied as a modifier to that attribute.",
-            ReturnType = (long)ProgVariableTypes.Number,
-            StaticType = 0,
-            FunctionText = @"// You might consider a switch on attributes like so:
-//
-// switch (@trait.Name)
-//   case (""Strength"")
-//     return 2
-// end switch
-return 0"
-        };
-        orcAttributeProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = orcAttributeProg,
-            ParameterName = "trait",
-            ParameterIndex = 0,
-            ParameterType = 16384
-        });
-        _context.FutureProgs.Add(orcAttributeProg);
         _context.SaveChanges();
 
         (Liquid? orcBlood, Liquid? orcSweat, Material _, Material _) = CreateBloodAndSweat("Orc");
@@ -4460,7 +4383,6 @@ Orcish cultural practices are centered around warfare and domination. Orcs are c
             AdultAge = 22,
             ElderAge = 40,
             VenerableAge = 60,
-            AttributeBonusProg = orcAttributeProg,
             AvailabilityProg = canSelectOrcProg,
             BaseBody = body,
             BloodLiquid = orcBlood,
@@ -4471,6 +4393,7 @@ Orcish cultural practices are centered around warfare and domination. Orcs are c
             SweatLiquid = orcSweat
         };
         _context.Races.Add(orcRace);
+        AddRaceAttributeAlterations(orcRace, new NonHumanAttributeProfile(2, 1, 0, -1));
         HeightWeightModel orcMaleHWModel = new()
         {
             Name = "Orc Male",
@@ -4749,31 +4672,6 @@ return true"
             ParameterName = "ch"
         });
         _context.FutureProgs.Add(canSelectTrollProg);
-        FutureProg trollAttributeProg = new()
-        {
-            FunctionName = "TrollBonusAttributes",
-            Category = "Character",
-            Subcategory = "Attributes",
-            FunctionComment =
-                "This prog is called for each attribute for trolls at chargen time and the resulting value is applied as a modifier to that attribute.",
-            ReturnType = (long)ProgVariableTypes.Number,
-            StaticType = 0,
-            FunctionText = @"// You might consider a switch on attributes like so:
-//
-// switch (@trait.Name)
-//   case (""Strength"")
-//     return 2
-// end switch
-return 0"
-        };
-        trollAttributeProg.FutureProgsParameters.Add(new FutureProgsParameter
-        {
-            FutureProg = trollAttributeProg,
-            ParameterName = "trait",
-            ParameterIndex = 0,
-            ParameterType = 16384
-        });
-        _context.FutureProgs.Add(trollAttributeProg);
         _context.SaveChanges();
 
         (Liquid? trollBlood, Liquid? trollSweat, Material _, Material _) = CreateBloodAndSweat("Troll");
@@ -4829,7 +4727,6 @@ Trolls are primarily scavengers and predators, and will eat anything they can ca
             AdultAge = 22,
             ElderAge = 40,
             VenerableAge = 60,
-            AttributeBonusProg = trollAttributeProg,
             AvailabilityProg = canSelectTrollProg,
             BaseBody = body,
             BloodLiquid = trollBlood,
@@ -4840,6 +4737,7 @@ Trolls are primarily scavengers and predators, and will eat anything they can ca
             SweatLiquid = trollSweat
         };
         _context.Races.Add(trollRace);
+        AddRaceAttributeAlterations(trollRace, new NonHumanAttributeProfile(8, 7, -3, -3));
         HeightWeightModel trollMaleHWModel = new()
         {
             Name = "Troll Male",

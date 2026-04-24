@@ -4,7 +4,7 @@
 This pass focused specifically on seeded animal and mythical race physical scaling.
 
 ### Animals
-- Ordinary animals no longer seed an all-zero racial attribute bonus prog.
+- Ordinary animals now seed row-backed racial attribute bonuses instead of an all-zero creation-time bonus prog.
 - `AnimalSeeder` now builds racial physical bonuses from:
 - `SizeCategory`
 - attack-loadout role
@@ -12,11 +12,16 @@ This pass focused specifically on seeded animal and mythical race physical scali
 - Selected species also get small explicit overrides where the generic rule would undersell or oversell them.
 
 ### Mythics
-- Mythical races no longer use `_alwaysZero` for `AttributeBonusProg`.
+- Mythical races now seed row-backed racial attribute bonuses instead of `_alwaysZero` creation-time prog wiring.
 - `MythicalRaceTemplate` now carries:
 - an explicit `NonHumanAttributeProfile`
 - an explicit `BodypartHealthMultiplier`
 - `SeedRace` now applies both directly to the seeded race.
+
+### 2026 row-backed race attribute update
+- Racial attribute alterations now live on `Races_Attributes` as `AttributeBonus` plus an optional per-attribute `DiceExpression`.
+- Runtime lookup applies the race bonus from the active body at trait lookup time instead of adding it to the stored chargen or NPC attribute value.
+- Missing race-attribute rows, or rows without a specific bonus, are treated as zero-bonus legacy data.
 
 ## Why it changed
 The old seeding model flattened almost all non-human physical attributes.

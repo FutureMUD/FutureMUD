@@ -344,7 +344,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
-                attributeProfile: Stats(6, 5, 2, 0),
+                attributeProfile: Stats(6, 5, 3, 1),
                 bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Swooper"
             ),
@@ -370,9 +370,9 @@ public partial class MythicalAnimalSeeder
                 [
                     Usage("horn", "general")
                 ],
-                attributeProfile: Stats(7, 6, 2, 0),
+                attributeProfile: Stats(6, 5, 4, 1),
                 bodypartHealthMultiplier: 1.6,
-                combatStrategyKey: "Beast Behemoth"
+                combatStrategyKey: "Beast Skirmisher"
             ),
             ["Pegasus"] = BeastRace(
                 "Pegasus",
@@ -400,7 +400,7 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
-                attributeProfile: Stats(6, 5, 3, 0),
+                attributeProfile: Stats(5, 4, 5, 1),
                 bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Swooper"
             ),
@@ -496,7 +496,7 @@ public partial class MythicalAnimalSeeder
                     Usage("rhorn", "general"),
                     Usage("lhorn", "general")
                 ],
-                attributeProfile: Stats(5, 4, -1, -1),
+                attributeProfile: Stats(6, 5, -1, -1),
                 bodypartHealthMultiplier: 1.2
             ),
             ["Eastern Dragon"] = BeastRace(
@@ -520,7 +520,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Claw Swipe", ItemQuality.Great, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
                     Attack("Tail Slap", ItemQuality.Good, "ltail")
                 ],
-                attributeProfile: Stats(11, 10, 1, -1),
+                attributeProfile: Stats(10, 9, 2, 0),
                 bodypartHealthMultiplier: 2.3,
                 additionalCharacteristics:
                 [
@@ -547,7 +547,7 @@ public partial class MythicalAnimalSeeder
                     ("a coiled naga", "This naga presents a recognisably humanoid upper torso above a long serpentine lower body, the whole figure poised in smooth, deliberate coils."),
                     ("a serpent-bodied naga", "This naga's human-like arms and shoulders rise from a scaled, sinuous body whose coiling strength and low centre of gravity suggest sudden violence.")
                 ),
-                attributeProfile: Stats(1, 2, 1, 1),
+                attributeProfile: Stats(1, 3, 2, 1),
                 bodypartHealthMultiplier: 1.15,
                 canClimb: true,
                 combatStrategyKey: "Melee (Auto)"
@@ -571,7 +571,7 @@ public partial class MythicalAnimalSeeder
                     ("a fin-tailed merfolk", "This merfolk body combines a humanoid upper torso with a powerful scaled tail, built more for darting turns and long swims than for any life on land."),
                     ("a sea-borne merfolk", "This merfolk's shoulders and arms are recognisably person-like, but the gleam of scales and the muscular sweep of the tail place them firmly in the water's domain.")
                 ),
-                attributeProfile: Stats(0, 1, 1, 1),
+                attributeProfile: Stats(0, 1, 2, 1),
                 bodypartHealthMultiplier: 1.0,
                 combatStrategyKey: "Melee (Auto)"
             ),
@@ -604,7 +604,7 @@ public partial class MythicalAnimalSeeder
                     Usage("lwing", "general"),
                     Usage("stinger", "general")
                 ],
-                attributeProfile: Stats(8, 6, 2, 0),
+                attributeProfile: Stats(8, 6, 3, 0),
                 bodypartHealthMultiplier: 1.8,
                 combatStrategyKey: "Beast Artillery"
             ),
@@ -630,7 +630,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Tail Slap", ItemQuality.Standard, "tail"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
-                attributeProfile: Stats(8, 6, 2, 0),
+                attributeProfile: Stats(8, 6, 3, 0),
                 bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Artillery"
             ),
@@ -653,7 +653,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Beak Bite", ItemQuality.Standard, "beak"),
                     Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons")
                 ],
-                attributeProfile: Stats(3, 3, 4, 2),
+                attributeProfile: Stats(2, 2, 5, 3),
                 bodypartHealthMultiplier: 1.1,
                 combatStrategyKey: "Beast Swooper"
             ),
@@ -676,7 +676,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Standard, "mouth"),
                     Attack("Tail Slap", ItemQuality.Standard, "tail")
                 ],
-                attributeProfile: Stats(6, 6, 1, 0),
+                attributeProfile: Stats(5, 6, 2, 0),
                 bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Clincher"
             ),
@@ -933,9 +933,9 @@ public partial class MythicalAnimalSeeder
                     Attack("Hoof Stomp", ItemQuality.Standard, "rfhoof", "lfhoof"),
                     Attack("Tail Slap", ItemQuality.Good, "caudalfin")
                 ],
-                attributeProfile: Stats(7, 6, 1, -1),
+                attributeProfile: Stats(6, 5, 3, 0),
                 bodypartHealthMultiplier: 1.6,
-                combatStrategyKey: "Beast Behemoth"
+                combatStrategyKey: "Beast Skirmisher"
             ),
             ["Selkie"] = HumanoidRace(
                 "Selkie",
@@ -955,7 +955,7 @@ public partial class MythicalAnimalSeeder
                     ("a seal-blooded selkie", "This selkie has a recognisably humanoid frame softened by an aquatic grace, the race's seal-blooded heritage evident in the smooth lines and sea-going poise."),
                     ("a sea-graceful selkie", "This selkie carries themself with the easy balance of someone more at home on wave-washed rock and in cold surf than on dry inland roads.")
                 ),
-                attributeProfile: Stats(0, 1, 1, 0),
+                attributeProfile: Stats(0, 1, 2, 1),
                 bodypartHealthMultiplier: 1.0,
                 combatStrategyKey: "Melee (Auto)"
             ),
@@ -982,7 +982,7 @@ public partial class MythicalAnimalSeeder
                 [
                     Characteristic("Fungus Colour", "white", "brown", "red", "purple")
                 ],
-                attributeProfile: Stats(-1, 2, -1, -2),
+                attributeProfile: Stats(-1, 3, -1, -2),
                 bodypartHealthMultiplier: 1.1,
                 combatStrategyKey: "Melee (Auto)"
             ),
@@ -1028,7 +1028,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Jab", ItemQuality.Standard, "rhand", "lhand"),
                     Attack("Elbow", ItemQuality.Bad, "relbow", "lelbow")
                 ],
-                attributeProfile: Stats(5, 8, -2, -2),
+                attributeProfile: Stats(7, 9, -3, -3),
                 bodypartHealthMultiplier: 1.6,
                 canSwim: false,
                 additionalCharacteristics:
@@ -1056,7 +1056,7 @@ public partial class MythicalAnimalSeeder
                     ("a blossom-haired dryad", "This dryad carries a largely humanoid form, but bark-soft skin, leaf-wrought hair and a faint scent of living wood mark the figure unmistakably as a spirit of the grove."),
                     ("a leaf-veiled dryad", "This dryad moves like a person taught by branches and wind, every line of the figure softened by petals, bark-grain and the quiet poise of old trees.")
                 ),
-                attributeProfile: Stats(0, 1, 1, 1),
+                attributeProfile: Stats(-1, 1, 2, 2),
                 bodypartHealthMultiplier: 1.0,
                 canClimb: true,
                 canSwim: false,
@@ -1087,7 +1087,7 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
-                attributeProfile: Stats(0, 0, 1, 1),
+                attributeProfile: Stats(-1, 0, 2, 2),
                 bodypartHealthMultiplier: 1.0,
                 canClimb: true,
                 facialHairProfile: "No_Facial_Hair",
@@ -1117,7 +1117,7 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
-                attributeProfile: Stats(0, 0, 1, 1),
+                attributeProfile: Stats(-1, 0, 2, 2),
                 bodypartHealthMultiplier: 1.0,
                 canClimb: true,
                 facialHairProfile: "No_Facial_Hair",
@@ -1142,7 +1142,7 @@ public partial class MythicalAnimalSeeder
                     ("a deep-chested centaur", "This centaur combines a humanoid torso and arms with a powerful equine lower body, making the whole figure look fast, stable and difficult to dislodge."),
                     ("a long-striding centaur", "This centaur's human upper body rises from a broad horse-frame whose musculature and stance suggest endurance, mobility and hard impact.")
                 ),
-                attributeProfile: Stats(6, 5, 1, 0),
+                attributeProfile: Stats(6, 5, 2, 0),
                 bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Melee (Auto)"
             ),
@@ -1172,7 +1172,7 @@ public partial class MythicalAnimalSeeder
                     Usage("rwing", "general"),
                     Usage("lwing", "general")
                 ],
-                attributeProfile: Stats(8, 7, 2, 0),
+                attributeProfile: Stats(7, 6, 4, 1),
                 bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Swooper"
             )

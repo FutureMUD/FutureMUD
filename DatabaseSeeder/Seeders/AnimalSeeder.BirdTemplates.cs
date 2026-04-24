@@ -205,14 +205,14 @@ public partial class AnimalSeeder
                 "Its narrow head and powerful thighs make it look built for speed over rough ground.",
                 "It seems more likely to outrun danger than to rise above it.",
                 "scrubland and open plain"),
-            combatStrategyKey: "Beast Behemoth");
+            combatStrategyKey: "Beast Skirmisher");
         yield return Bird("Ostrich", SizeCategory.Normal, 0.8, "Flightless Bird", "bird-flightless",
             BirdPack("an ostrich chick", "a young ostrich", "an ostrich",
                 "It is huge, long-necked and massively legged, its body topped by soft black-and-white plumage.",
                 "Its feet and legs are terrifyingly strong for any creature willing to stand in kicking distance.",
                 "It carries itself with wary hauteur and tremendous athletic tension.",
                 "savannah and dry open plain"),
-            combatStrategyKey: "Beast Behemoth");
+            combatStrategyKey: "Beast Skirmisher");
         yield return Bird("Moa", SizeCategory.Normal, 0.8, "Flightless Bird", "bird-flightless",
             BirdPack("a moa chick", "a young moa", "a moa",
                 "It is immense and heavy-bodied, with stout legs and a thick neck.",

@@ -566,7 +566,7 @@ public class MythicalAnimalSeederTemplateTests
     {
         Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Dragon"].CombatStrategyKey);
         Assert.AreEqual("Beast Swooper", MythicalAnimalSeeder.TemplatesForTesting["Griffin"].CombatStrategyKey);
-        Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Unicorn"].CombatStrategyKey);
+        Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Unicorn"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Basilisk"].CombatStrategyKey);
         Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Wyvern"].CombatStrategyKey);
         Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Warg"].CombatStrategyKey);
@@ -580,6 +580,35 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Giant Centipede"].CombatStrategyKey);
         Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Ankheg"].CombatStrategyKey);
         Assert.AreEqual("Melee (Auto)", MythicalAnimalSeeder.TemplatesForTesting["Centaur"].CombatStrategyKey);
+    }
+
+    [TestMethod]
+    public void TemplatesForTesting_SecondPassAttributeProfiles_ReflectMythicBodyPlans()
+    {
+        Assert.AreEqual(new NonHumanAttributeProfile(12, 11, 0, -2),
+            MythicalAnimalSeeder.TemplatesForTesting["Dragon"].AttributeProfile,
+            "True dragons should remain the top brute-force mythic baseline.");
+        Assert.AreEqual(new NonHumanAttributeProfile(10, 9, 2, 0),
+            MythicalAnimalSeeder.TemplatesForTesting["Eastern Dragon"].AttributeProfile,
+            "Eastern dragons should be less blocky and more sinuous than western dragons.");
+        Assert.AreEqual(new NonHumanAttributeProfile(6, 5, 4, 1),
+            MythicalAnimalSeeder.TemplatesForTesting["Unicorn"].AttributeProfile,
+            "Unicorns should read as powerful but unusually graceful equines.");
+        Assert.AreEqual(new NonHumanAttributeProfile(5, 4, 5, 1),
+            MythicalAnimalSeeder.TemplatesForTesting["Pegasus"].AttributeProfile,
+            "Pegasi should be driven more by flight athletics than raw mass.");
+        Assert.AreEqual(new NonHumanAttributeProfile(2, 2, 5, 3),
+            MythicalAnimalSeeder.TemplatesForTesting["Phoenix"].AttributeProfile,
+            "Phoenixes should be high-agility aerial threats rather than heavy bruisers.");
+        Assert.AreEqual(new NonHumanAttributeProfile(7, 9, -3, -3),
+            MythicalAnimalSeeder.TemplatesForTesting["Ent"].AttributeProfile,
+            "Ents should be massively strong and durable but ponderous.");
+        Assert.AreEqual(new NonHumanAttributeProfile(-1, 1, 2, 2),
+            MythicalAnimalSeeder.TemplatesForTesting["Dryad"].AttributeProfile,
+            "Dryads should favour grace and finesse over raw strength.");
+        Assert.AreEqual(new NonHumanAttributeProfile(6, 5, 2, 0),
+            MythicalAnimalSeeder.TemplatesForTesting["Centaur"].AttributeProfile,
+            "Centaurs should preserve horse-body strength while gaining open-country mobility.");
     }
 
     [TestMethod]

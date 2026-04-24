@@ -21,6 +21,21 @@ namespace MudSharp_Unit_Tests;
 public class CultureSeederNameAndHeightDefaultTests
 {
 	[TestMethod]
+	public void CultureRaceAttributeProfilesForTesting_SecondPassFantasyDefaults_AreDistinct()
+	{
+		IReadOnlyDictionary<string, NonHumanAttributeProfile> profiles =
+			CultureSeeder.CultureRaceAttributeProfilesForTesting;
+
+		Assert.AreEqual(new NonHumanAttributeProfile(-1, 0, 2, 3), profiles["Elf"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(-3, 2, 1, 2), profiles["Hobbit"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(2, 4, -1, 0), profiles["Dwarf"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(3, 2, 0, -1), profiles["Orc"]);
+		Assert.AreEqual(new NonHumanAttributeProfile(9, 8, -3, -4), profiles["Troll"]);
+		Assert.IsTrue(profiles["Troll"].StrengthBonus > profiles["Orc"].StrengthBonus);
+		Assert.IsTrue(profiles["Elf"].DexterityBonus > profiles["Dwarf"].DexterityBonus);
+	}
+
+	[TestMethod]
 	public void CultureSeeder_FallbackProfiles_MakeBaseNameCulturesReadyAndRemainRerunnable()
 	{
 		using FuturemudDatabaseContext context = BuildContext();

@@ -5,6 +5,7 @@ using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -188,6 +189,30 @@ public partial class RobotSeeder
         _context.RacesBreathableLiquids.RemoveRange(_context.RacesBreathableLiquids.Where(x => x.RaceId == race.Id).ToList());
     }
 
+    private static readonly IReadOnlyDictionary<string, NonHumanAttributeProfile> RobotSpecificProfiles =
+        new Dictionary<string, NonHumanAttributeProfile>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Spider Crawler Robot"] = new(0, 1, 2, 0),
+            ["Circular Saw Robot"] = new(2, 1, 0, 1),
+            ["Pneumatic Hammer Robot"] = new(4, 3, -1, -2),
+            ["Sword-Hand Robot"] = new(1, 0, 2, 2),
+            ["Winged Robot"] = new(-1, -1, 3, 1),
+            ["Jet Robot"] = new(0, -1, 4, 0),
+            ["Mandible Robot"] = new(2, 1, 0, -1),
+            ["Wheeled Robot"] = new(-1, 0, 2, 0),
+            ["Tracked Robot"] = new(2, 3, -2, -2),
+            ["Cyborg"] = new(-1, -1, 1, 1),
+            ["Roomba Robot"] = new(-3, 1, 1, 0),
+            ["Tracked Utility Robot"] = new(0, 3, -1, -1),
+            ["Robot Dog"] = new(1, 1, 2, 0),
+            ["Robot Cockroach"] = new(-3, 3, 3, 1)
+        };
+
+    internal static NonHumanAttributeProfile GetRobotAttributeProfileForTesting(RobotRaceTemplate template)
+    {
+        return GetRobotAttributeProfile(template);
+    }
+
     private static NonHumanAttributeProfile GetRobotAttributeProfile(RobotRaceTemplate template)
     {
         NonHumanAttributeProfile profile = template.Size switch
@@ -207,6 +232,12 @@ public partial class RobotSeeder
             SizeCategory.Titanic => new(20, 16, -6, -6),
             _ => new(2, 2, 0, 0)
         };
+
+        if (RobotSpecificProfiles.TryGetValue(template.Name, out var specificProfile))
+        {
+            profile = profile.Add(specificProfile);
+        }
+
         return profile.Clamp(-10, 20);
     }
 

@@ -46,6 +46,22 @@ The work stayed in seeder and static-data authoring. It did not change the runti
   - eyes / sensors / antennae / similar minor externals cap to `18`
   - larger positive severables cap to `27`
 
+### 2026 second-pass race attribute tuning
+
+- Robot racial attribute bonuses are no longer size-only. Chassis role now adjusts the size baseline:
+  - `Pneumatic Hammer Robot`: `Strength +6`, `Constitution +5`, `Agility -1`, `Dexterity -2`
+  - `Sword-Hand Robot`: `Strength +3`, `Constitution +2`, `Agility +2`, `Dexterity +2`
+  - `Winged Robot`: `Strength +1`, `Constitution +1`, `Agility +3`, `Dexterity +1`
+  - `Tracked Robot`: `Strength +4`, `Constitution +5`, `Agility -2`, `Dexterity -2`
+  - `Roomba Robot`: `Strength -4`, `Constitution +1`, `Agility +2`, `Dexterity +0`
+  - `Robot Cockroach`: `Strength -4`, `Constitution +3`, `Agility +4`, `Dexterity +1`
+- Culture-specific fantasy races now have explicit row-backed defaults rather than inline one-off calls:
+  - `Elf`: `Strength -1`, `Constitution +0`, `Agility +2`, `Dexterity +3`
+  - `Hobbit`: `Strength -3`, `Constitution +2`, `Agility +1`, `Dexterity +2`
+  - `Dwarf`: `Strength +2`, `Constitution +4`, `Agility -1`, `Dexterity +0`
+  - `Orc`: `Strength +3`, `Constitution +2`, `Agility +0`, `Dexterity -1`
+  - `Troll`: `Strength +9`, `Constitution +8`, `Agility -3`, `Dexterity -4`
+
 ## Validation Snapshot
 Validation used [nonhuman-damage-balance-first-pass.ps1](/C:/Users/luker/OneDrive/source/repos/FutureMUD/scripts/nonhuman-damage-balance-first-pass.ps1), which applies deterministic seeded formulas in static mode.
 

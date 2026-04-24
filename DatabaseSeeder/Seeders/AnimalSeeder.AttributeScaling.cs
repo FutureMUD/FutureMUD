@@ -22,12 +22,12 @@ public partial class AnimalSeeder
 			["wolfpack"] = new(3, 2, 1, 1),
 			["big-cat"] = new(4, 3, 2, 1),
 			["bear"] = new(5, 5, -1, -1),
-			["goat"] = new(1, 2, 0, -1),
-			["herbivore-charge"] = new(3, 4, -1, -1),
-			["tusked-herbivore"] = new(4, 4, -1, -1),
-			["camelid-spitter"] = new(1, 2, 0, 0),
-			["antlered-herbivore"] = new(2, 3, 0, -1),
-			["bovid"] = new(2, 3, -1, -1),
+			["goat"] = new(1, 1, 1, 0),
+			["herbivore-charge"] = new(3, 3, 1, -1),
+			["tusked-herbivore"] = new(5, 4, 0, -1),
+			["camelid-spitter"] = new(1, 1, 1, 0),
+			["antlered-herbivore"] = new(2, 2, 1, -1),
+			["bovid"] = new(3, 3, 0, -1),
 			["hippo"] = new(5, 5, -2, -2),
 			["rhino"] = new(6, 5, -2, -2),
 			["elephant"] = new(7, 7, -2, -2),
@@ -45,7 +45,7 @@ public partial class AnimalSeeder
 			["bird-small"] = new(-2, -2, 3, 2),
 			["bird-fowl"] = new(-1, -1, 1, 0),
 			["bird-raptor"] = new(1, 0, 3, 2),
-			["bird-flightless"] = new(1, 2, 1, -1),
+			["bird-flightless"] = new(2, 2, 2, -1),
 			["serpent-constrictor"] = new(2, 4, 0, -1),
 			["serpent-neurotoxic"] = new(1, 0, 2, 1),
 			["serpent-hemotoxic"] = new(1, 0, 2, 1),
@@ -76,7 +76,16 @@ public partial class AnimalSeeder
 			["Lion"] = new(2, 1, 0, 0),
 			["Tiger"] = new(3, 2, 0, 0),
 			["Sabretooth Tiger"] = new(4, 3, -1, -1),
+			["Cheetah"] = new(-3, -2, 2, 0),
+			["Leopard"] = new(0, 0, 1, 0),
+			["Panther"] = new(0, 0, 1, 0),
+			["Jaguar"] = new(1, 1, 0, -1),
+			["Deer"] = new(-1, -1, 1, 0),
 			["Bear"] = new(2, 2, -1, -1),
+			["Sheep"] = new(-2, -1, 0, 0),
+			["Horse"] = new(-1, -1, 2, 1),
+			["Cow"] = new(-1, -1, 0, 0),
+			["Giraffe"] = new(-1, -2, 2, 0),
 			["Moose"] = new(2, 2, -1, -1),
 			["Rhinocerous"] = new(2, 2, -1, -1),
 			["Hippopotamus"] = new(3, 3, -1, -1),
@@ -88,10 +97,18 @@ public partial class AnimalSeeder
 			["Baleen Whale"] = new(1, 3, -1, -1),
 			["Giant Squid"] = new(2, 1, 0, 0),
 			["Crocodile"] = new(2, 2, 0, -1),
-			["Alligator"] = new(1, 1, 0, -1)
+			["Alligator"] = new(1, 1, 0, -1),
+			["Emu"] = new(-1, -1, 2, 0),
+			["Ostrich"] = new(0, 0, 2, 0),
+			["Moa"] = new(2, 2, 0, -1)
 		};
 
-	private NonHumanAttributeProfile GetAnimalAttributeProfile(AnimalRaceTemplate template)
+	internal static NonHumanAttributeProfile GetAnimalAttributeProfileForTesting(AnimalRaceTemplate template)
+	{
+		return GetAnimalAttributeProfile(template);
+	}
+
+	private static NonHumanAttributeProfile GetAnimalAttributeProfile(AnimalRaceTemplate template)
 	{
 		var profile = GetAnimalSizeProfile(template.Size)
 			.Add(GetAnimalBodypartHealthProfile(template.BodypartHealthMultiplier));

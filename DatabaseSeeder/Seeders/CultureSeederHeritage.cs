@@ -28,6 +28,19 @@ public partial class CultureSeeder
 
     private readonly Dictionary<string, Race> _races = new(StringComparer.OrdinalIgnoreCase);
 
+    internal static IReadOnlyDictionary<string, NonHumanAttributeProfile> CultureRaceAttributeProfilesForTesting =>
+        CultureRaceAttributeProfiles;
+
+    private static readonly IReadOnlyDictionary<string, NonHumanAttributeProfile> CultureRaceAttributeProfiles =
+        new Dictionary<string, NonHumanAttributeProfile>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Elf"] = new(-1, 0, 2, 3),
+            ["Hobbit"] = new(-3, 2, 1, 2),
+            ["Dwarf"] = new(2, 4, -1, 0),
+            ["Orc"] = new(3, 2, 0, -1),
+            ["Troll"] = new(9, 8, -3, -4)
+        };
+
     public void AddEthnicity(Race race, string name, string group, string bloodGroup,
         double tempFloor = 0.0, double tempCeiling = 0.0, string subgroup = "", FutureProg? available = null,
         string description = "")
@@ -2955,7 +2968,7 @@ Elves are divided into several different clans, each with their own distinct cul
             SweatLiquid = elfSweat
         };
         _context.Races.Add(elfRace);
-        AddRaceAttributeAlterations(elfRace, new NonHumanAttributeProfile(-1, -1, 2, 2));
+        AddRaceAttributeAlterations(elfRace, CultureRaceAttributeProfiles["Elf"]);
 
         HeightWeightModel elfMaleHWModel = new()
         {
@@ -3622,7 +3635,7 @@ Hobbits are divided into several different clans, each with its own distinct cul
             SweatLiquid = hobbitSweat
         };
         _context.Races.Add(hobbitRace);
-        AddRaceAttributeAlterations(hobbitRace, new NonHumanAttributeProfile(-2, 1, 0, 1));
+        AddRaceAttributeAlterations(hobbitRace, CultureRaceAttributeProfiles["Hobbit"]);
         HeightWeightModel hobbitMaleHWModel = new()
         {
             Name = "Hobbit Male",
@@ -3983,7 +3996,7 @@ Dwarves are divided into several different clans, each with its own distinct cul
             SweatLiquid = dwarfSweat
         };
         _context.Races.Add(dwarfRace);
-        AddRaceAttributeAlterations(dwarfRace, new NonHumanAttributeProfile(2, 3, -1, 0));
+        AddRaceAttributeAlterations(dwarfRace, CultureRaceAttributeProfiles["Dwarf"]);
         HeightWeightModel dwarfMaleHWModel = new()
         {
             Name = "Dwarf Male",
@@ -4393,7 +4406,7 @@ Orcish cultural practices are centered around warfare and domination. Orcs are c
             SweatLiquid = orcSweat
         };
         _context.Races.Add(orcRace);
-        AddRaceAttributeAlterations(orcRace, new NonHumanAttributeProfile(2, 1, 0, -1));
+        AddRaceAttributeAlterations(orcRace, CultureRaceAttributeProfiles["Orc"]);
         HeightWeightModel orcMaleHWModel = new()
         {
             Name = "Orc Male",
@@ -4737,7 +4750,7 @@ Trolls are primarily scavengers and predators, and will eat anything they can ca
             SweatLiquid = trollSweat
         };
         _context.Races.Add(trollRace);
-        AddRaceAttributeAlterations(trollRace, new NonHumanAttributeProfile(8, 7, -3, -3));
+        AddRaceAttributeAlterations(trollRace, CultureRaceAttributeProfiles["Troll"]);
         HeightWeightModel trollMaleHWModel = new()
         {
             Name = "Troll Male",

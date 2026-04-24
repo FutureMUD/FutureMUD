@@ -269,6 +269,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 .First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
             RefreshExistingAnimalBaseBodies();
             bool hasMissingCatalogue = HasMissingAnimalCatalogue(_context);
+            bool hasMissingDietSettings = HasMissingAnimalDietSettings(_context);
             RefreshExistingAnimalCombatBalance();
 
             if (hasMissingDisfigurementTemplates)
@@ -281,15 +282,36 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 BackfillAnimalCatalogue();
             }
 
+            RefreshExistingAnimalDietSettings();
             context.Database.CommitTransaction();
+            if (hasMissingCatalogue && hasMissingDisfigurementTemplates && hasMissingDietSettings)
+            {
+                return "Updated the animal combat balance profile, backfilled missing animal catalogue content, installed additional animal disfigurement templates, and refreshed stock animal diet settings.";
+            }
+
             if (hasMissingCatalogue && hasMissingDisfigurementTemplates)
             {
                 return "Updated the animal combat balance profile, backfilled missing animal catalogue content, and installed additional animal disfigurement templates.";
             }
 
+            if (hasMissingCatalogue && hasMissingDietSettings)
+            {
+                return "Updated the animal combat balance profile, backfilled missing animal catalogue content, and refreshed stock animal diet settings.";
+            }
+
             if (hasMissingCatalogue)
             {
                 return "Updated the animal combat balance profile and backfilled missing animal catalogue content.";
+            }
+
+            if (hasMissingDisfigurementTemplates && hasMissingDietSettings)
+            {
+                return "Updated the animal combat balance profile, installed additional animal disfigurement templates, and refreshed stock animal diet settings.";
+            }
+
+            if (hasMissingDietSettings)
+            {
+                return "Updated the animal combat balance profile and refreshed stock animal diet settings.";
             }
 
             return hasMissingDisfigurementTemplates
@@ -846,7 +868,9 @@ public partial class AnimalSeeder : IDatabaseSeeder
 
         if (context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
         {
-            return HasMissingAnimalDisfigurementTemplates(context) || HasMissingAnimalCatalogue(context)
+            return HasMissingAnimalDisfigurementTemplates(context) ||
+                   HasMissingAnimalCatalogue(context) ||
+                   HasMissingAnimalDietSettings(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }
@@ -4190,6 +4214,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 });
                 race.BreathingModel = "gills";
                 break;
+        }
+
+        if (raceTemplate is not null)
+        {
+            ApplyAnimalDietSettings(race, raceTemplate);
         }
 
         if (raceTemplate?.AdditionalBodypartUsages is not null)

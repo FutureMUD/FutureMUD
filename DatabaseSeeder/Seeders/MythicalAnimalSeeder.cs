@@ -116,6 +116,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
         LoadSharedSeederData(effectiveAnswers);
         bool hasMissingDisfigurementTemplates = HasMissingMythicalDisfigurementTemplates(_context);
+        bool hasMissingDietSettings = HasMissingMythicalDietSettings(_context);
         List<MythicalRaceTemplate> templatesToSeed = Templates.Values
             .Where(template => !_context.Races.Any(x => x.Name == template.Name))
             .ToList();
@@ -125,7 +126,9 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         {
             RefreshExistingMythicalCombatBalance();
             _context.Database.CommitTransaction();
-            return "Mythical races are already installed and their breathing, mobility, and combat balance profiles have been refreshed.";
+            return hasMissingDietSettings
+                ? "Mythical races are already installed and their breathing, mobility, diet, and combat balance profiles have been refreshed."
+                : "Mythical races are already installed and their breathing, mobility, and combat balance profiles have been refreshed.";
         }
 
         foreach (MythicalRaceTemplate template in templatesToSeed)
@@ -165,7 +168,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
         if (Templates.Keys.All(name => context.Races.Any(x => x.Name == name)))
         {
-            return HasMissingMythicalDisfigurementTemplates(context)
+            return HasMissingMythicalDisfigurementTemplates(context) || HasMissingMythicalDietSettings(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }
@@ -968,6 +971,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             race.CanSwim = template.CanSwim;
             race.MinimumSleepingPosition = 4;
             ApplyBreathingProfile(race, GetBreathingProfile(template));
+            ApplyMythicalDietSettings(race, template);
         }
 
         _context.SaveChanges();
@@ -1202,6 +1206,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             });
         }
         ApplyBreathingProfile(race, GetBreathingProfile(template));
+        ApplyMythicalDietSettings(race, template);
 
         Ethnicity ethnicity = SeedEthnicity(race, template);
         SeedAdditionalCharacteristics(race, ethnicity, template);

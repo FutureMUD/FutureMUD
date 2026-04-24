@@ -1,9 +1,11 @@
 #nullable enable
 using MudSharp.Body.Needs;
+using MudSharp.Body.Position;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
@@ -33,6 +35,46 @@ internal static class PredatorAIHelpers
 		}
 
 		return predator.Race.CanEatCorpseMaterial(target.Race.CorpseModel.CorpseMaterial(0.0));
+	}
+
+	public static ICorpse? FindLocalEdibleCorpse(ICharacter predator)
+	{
+		if (!predator.Race.CanEatCorpses)
+		{
+			return null;
+		}
+
+		return predator.Location.LayerGameItems(predator.RoomLayer)
+		               .SelectMany(x => x.ShallowAccessibleItems(predator))
+		               .SelectNotNull(x => x.GetItemType<ICorpse>())
+		               .Where(x => predator.CanEat(x, predator.Race.BiteWeight).Success)
+		               .GetRandomElement();
+	}
+
+	public static bool EatLocalCorpseIfHungry(ICharacter predator)
+	{
+		if (predator.State.HasFlag(CharacterState.Dead) ||
+		    predator.State.HasFlag(CharacterState.Stasis) ||
+		    predator.Combat is not null ||
+		    predator.Movement is not null ||
+		    !CharacterState.Able.HasFlag(predator.State) ||
+		    !IsHungry(predator) ||
+		    predator.Effects.Any(x => x.IsBlockingEffect("combat-engage") || x.IsBlockingEffect("general")))
+		{
+			return false;
+		}
+
+		ICorpse? corpse = FindLocalEdibleCorpse(predator);
+		if (corpse is null)
+		{
+			return false;
+		}
+
+		predator.SetTarget(corpse.Parent);
+		predator.SetModifier(PositionModifier.None);
+		predator.SetEmote(null);
+		predator.Eat(corpse, predator.Race.BiteWeight, null);
+		return true;
 	}
 
 	public static bool WillAttack(ICharacter aggressor, ICharacter target, IFutureProg willAttackProg,

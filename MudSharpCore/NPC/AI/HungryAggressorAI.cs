@@ -1,4 +1,5 @@
 using MudSharp.Character;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Models;
 using System.Text;
@@ -33,10 +34,52 @@ public class HungryAggressorAI : AggressorAI
 			EngageEmote, true);
 	}
 
+	public override bool HandleEvent(EventType type, params dynamic[] arguments)
+	{
+		switch (type)
+		{
+			case EventType.TenSecondTick:
+			case EventType.CharacterEnterCellFinish:
+			case EventType.LeaveCombat:
+				ICharacter ch = (ICharacter)arguments[0];
+				if (PredatorAIHelpers.EatLocalCorpseIfHungry(ch))
+				{
+					return true;
+				}
+
+				break;
+			case EventType.CharacterEnterCellWitness:
+				ch = (ICharacter)arguments[3];
+				if (PredatorAIHelpers.EatLocalCorpseIfHungry(ch))
+				{
+					return true;
+				}
+
+				break;
+		}
+
+		return base.HandleEvent(type, arguments);
+	}
+
+	public override bool HandlesEvent(params EventType[] types)
+	{
+		foreach (EventType type in types)
+		{
+			switch (type)
+			{
+				case EventType.CharacterEnterCellFinish:
+				case EventType.LeaveCombat:
+					return true;
+			}
+		}
+
+		return base.HandlesEvent(types);
+	}
+
 	public override string Show(ICharacter actor)
 	{
 		StringBuilder sb = new(base.Show(actor));
-		sb.AppendLine("Predation: Only attacks while hungry, and only targets edible corpses.");
+		sb.AppendLine("Predation: Only attacks while hungry, only targets edible corpses, and eats local corpses before hunting.");
 		return sb.ToString();
 	}
 }

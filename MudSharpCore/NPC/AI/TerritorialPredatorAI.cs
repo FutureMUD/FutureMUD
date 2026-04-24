@@ -84,7 +84,7 @@ public class TerritorialPredatorAI : TerritorialWanderer
 		sb.AppendLine($"Will Attack Prog: {WillAttackProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Engage Delay: {EngageDelayDiceExpression.ColourValue()} milliseconds");
 		sb.AppendLine($"Engage Emote: {EngageEmote?.ColourCommand() ?? ""}");
-		sb.AppendLine("Predation: Only attacks while hungry, and only targets edible corpses.");
+		sb.AppendLine("Predation: Only attacks while hungry, only targets edible corpses, and eats local corpses before hunting.");
 		return sb.ToString();
 	}
 
@@ -262,12 +262,36 @@ public class TerritorialPredatorAI : TerritorialWanderer
 					return false;
 				}
 
+				if (PredatorAIHelpers.EatLocalCorpseIfHungry(ch))
+				{
+					return true;
+				}
+
 				return CheckAllTargetsForAttack(ch);
+			case EventType.CharacterEnterCellFinish:
+			case EventType.LeaveCombat:
+				ch = (ICharacter)arguments[0];
+				if (ch.State.IsDead() || ch.State.IsInStatis())
+				{
+					return false;
+				}
+
+				if (PredatorAIHelpers.EatLocalCorpseIfHungry(ch))
+				{
+					return true;
+				}
+
+				break;
 			case EventType.CharacterEnterCellWitness:
 				ch = (ICharacter)arguments[3];
 				if (ch.State.IsDead() || ch.State.IsInStatis())
 				{
 					return false;
+				}
+
+				if (PredatorAIHelpers.EatLocalCorpseIfHungry(ch))
+				{
+					return true;
 				}
 
 				return CheckForAttack(ch, (ICharacter)arguments[0]);
@@ -283,6 +307,8 @@ public class TerritorialPredatorAI : TerritorialWanderer
 			switch (type)
 			{
 				case EventType.CharacterEnterCellWitness:
+				case EventType.CharacterEnterCellFinish:
+				case EventType.LeaveCombat:
 				case EventType.TenSecondTick:
 					return true;
 			}

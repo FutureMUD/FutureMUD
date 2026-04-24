@@ -178,6 +178,20 @@ public class NpcAiRegressionTests
     }
 
     [TestMethod]
+    public void PredatorAiTypes_HandleFoodResumeEvents()
+    {
+        HungryAggressorAI hungryAggressor = CreatePrivateParameterless<HungryAggressorAI>();
+        TerritorialPredatorAI territorialPredator = CreatePrivateParameterless<TerritorialPredatorAI>();
+        DenningPredatorAI denningPredator = CreatePrivateParameterless<DenningPredatorAI>();
+
+        Assert.IsTrue(hungryAggressor.HandlesEvent(EventType.CharacterEnterCellFinish));
+        Assert.IsTrue(hungryAggressor.HandlesEvent(EventType.LeaveCombat));
+        Assert.IsTrue(territorialPredator.HandlesEvent(EventType.CharacterEnterCellFinish));
+        Assert.IsTrue(territorialPredator.HandlesEvent(EventType.LeaveCombat));
+        Assert.IsTrue(denningPredator.HandlesEvent(EventType.LeaveCombat));
+    }
+
+    [TestMethod]
     public void PredatorAIHelpers_IsHungry_UsesNeedModelHungerStatus()
     {
         Mock<INeedsModel> hungryNeeds = new();

@@ -443,11 +443,11 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 | `CombatEndAI` | Yes | Controls truce acceptance and post-incapacitation combat ending behavior | Reactive combat cleanup layer |
 | `CommandableAI` | Yes | Lets players command NPCs subject to prog checks and banned-command rules | Good for guards, servants, followers |
 | `DenBuilderAI` | Yes | Craft-backed den or nest builder that claims a home cell and can defend it | Uses persisted per-NPC home/anchor state |
-| `DenningPredatorAI` | Yes | Hungry territorial predator that returns to a remembered home cell when sated, can optionally craft a burrow there, and hauls killed prey back to the den before eating | Uses persisted per-NPC home/anchor/food state |
+| `DenningPredatorAI` | Yes | Hungry territorial predator that returns to a remembered home cell when sated, can optionally craft a burrow there, and hauls killed prey back to the den before eating; combat interrupts hauling until the fight ends | Uses persisted per-NPC home/anchor/food state |
 | `DoorguardAI` | Yes | Manages NPCs who respond to knocks, open/close doors, and enforce door access rules | Strongly tied to doors and command timing |
 | `EnforcerAI` | Yes | Legal-authority AI that identifies and reacts to wanted criminals | Heavy legal-system integration |
 | `FlyingWanderer` | Yes | Movement AI for flying creatures that wander through valid rooms/layers | Movement-focused specialization |
-| `HungryAggressorAI` | Yes | Aggressor variant that only attacks while hungry and only chooses targets whose corpses it can eat | Aggressive classification |
+| `HungryAggressorAI` | Yes | Aggressor variant that only attacks while hungry, only chooses targets whose corpses it can eat, and eats local edible corpses before hunting | Aggressive classification |
 | `IdleEmoterAI` | Yes | Periodic idle-emote generator | Lightweight ambience AI |
 | `JudgeAI` | Yes | Courtroom/legal progression AI built on top of `EnforcerAI` | Specialized judicial behavior |
 | `LawyerAI` | Yes | Pathing/hiring/court-participation AI for lawyers | Legal-service specialization |
@@ -462,7 +462,7 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 | `ShopkeeperAI` | Yes | Shop staff behavior, buyer reaction, and restocking response | Shop-system integration |
 | `SparPartnerAI` | Yes | Accepts or refuses spar invitations and engages accordingly | Training/combat-social niche |
 | `StealthAI` | Yes | Hiding/sneaking cadence and stealth posture behavior | Tick-driven stealth utility |
-| `TerritorialPredatorAI` | Yes | Hungry predator that combines edible-prey aggression with `TerritorialWanderer` territory claiming and wandering | Aggressive classification plus territory movement |
+| `TerritorialPredatorAI` | Yes | Hungry predator that combines edible-prey aggression with `TerritorialWanderer` territory claiming and wandering, and eats local edible corpses before hunting | Aggressive classification plus territory movement |
 | `TerritorialWanderer` | Yes | Territory-seeking and territory-maintaining wanderer AI | Also used by spawner open-territory placement |
 | `TrackingAggressorAI` | Yes | Aggression AI that can track enemies over distance | Aggressive classification and pathing-heavy |
 | `WandererAI` | Yes | Core wandering AI for non-flying movers | General-purpose locomotion package |

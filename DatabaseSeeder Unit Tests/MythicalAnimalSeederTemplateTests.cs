@@ -2,10 +2,12 @@ using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
+using MudSharp.FutureProg;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace MudSharp_Unit_Tests;
 
@@ -25,6 +27,32 @@ public class MythicalAnimalSeederTemplateTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         return new FuturemudDatabaseContext(options);
+    }
+
+    private static MudSharp.Models.FutureProg CreateAnimalAiProg(long id, string name, ProgVariableTypes returnType, string text)
+    {
+        return new MudSharp.Models.FutureProg
+        {
+            Id = id,
+            FunctionName = name,
+            FunctionComment = $"{name} test prog",
+            FunctionText = text,
+            ReturnType = (long)returnType,
+            Category = "Tests",
+            Subcategory = "MythicalAnimalAI",
+            Public = true,
+            AcceptsAnyParameters = true,
+            StaticType = (int)FutureProgStaticType.FullyStatic
+        };
+    }
+
+    private static void SeedAnimalAiPrerequisiteProgs(FuturemudDatabaseContext context)
+    {
+        context.FutureProgs.AddRange(
+            CreateAnimalAiProg(1, "AlwaysTrue", ProgVariableTypes.Boolean, "return true"),
+            CreateAnimalAiProg(2, "AlwaysFalse", ProgVariableTypes.Boolean, "return false"),
+            CreateAnimalAiProg(3, "AlwaysOne", ProgVariableTypes.Number, "return 1"));
+        context.SaveChanges();
     }
 
     private static void AssertSatiationCadence(
@@ -51,6 +79,57 @@ public class MythicalAnimalSeederTemplateTests
     {
         Assert.AreEqual(36, MythicalAnimalSeeder.TemplatesForTesting.Count,
             "The mythical catalogue should now include the worm-beasts, tree-spirits, and giant arthropod additions.");
+    }
+
+    [TestMethod]
+    public void MythicalAnimalAIRecommendations_CoverEverySeededMythicalRace()
+    {
+        IReadOnlyDictionary<string, string> recommendations =
+            MythicalAnimalSeeder.MythicalAnimalAIRecommendationsForTesting;
+        List<string> expectedRaceNames = MythicalAnimalSeeder.TemplatesForTesting.Keys
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        List<string> actualRaceNames = recommendations.Keys
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        CollectionAssert.AreEqual(expectedRaceNames, actualRaceNames,
+            "Every stock mythical race should have exactly one recommended individual AnimalAI template.");
+
+        HashSet<string> knownTemplateNames = AnimalSeeder.StockAnimalAITemplatesForTesting
+            .Select(x => x.Name)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (string templateName in recommendations.Values.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            Assert.IsTrue(knownTemplateNames.Contains(templateName),
+                $"Mythical animal AI recommendation {templateName} must point to a seeded template.");
+        }
+    }
+
+    [TestMethod]
+    public void SeedMythicalAnimalAIStockTemplates_RerunRestoresMissingTemplatesWithoutDuplicates()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedAnimalAiPrerequisiteProgs(context);
+
+        MythicalAnimalSeeder.SeedMythicalAnimalAIStockTemplatesForTesting(context);
+        Assert.AreEqual(MythicalAnimalSeeder.StockMythicalAnimalAITemplateNamesForTesting.Count,
+            context.ArtificialIntelligences.Count(),
+            "Mythical animal seeder should install one AI row per stock mythical recommendation template.");
+
+        ArtificialIntelligence removed = context.ArtificialIntelligences
+            .First(x => x.Name == MythicalAnimalSeeder.StockMythicalAnimalAITemplateNamesForTesting.First());
+        context.ArtificialIntelligences.Remove(removed);
+        context.SaveChanges();
+
+        MythicalAnimalSeeder.SeedMythicalAnimalAIStockTemplatesForTesting(context);
+
+        foreach (string name in MythicalAnimalSeeder.StockMythicalAnimalAITemplateNamesForTesting)
+        {
+            ArtificialIntelligence ai = context.ArtificialIntelligences.Single(x => x.Name == name);
+            Assert.AreEqual("Animal", ai.Type);
+            Assert.AreEqual("Definition", XElement.Parse(ai.Definition).Name.LocalName);
+        }
     }
 
     [TestMethod]

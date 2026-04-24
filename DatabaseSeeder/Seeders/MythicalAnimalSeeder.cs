@@ -116,12 +116,13 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             CombatBalanceProfileHelper.MergeQuestionAnswersWithRecordedChoice(context, questionAnswers);
         LoadSharedSeederData(effectiveAnswers);
         bool hasMissingDisfigurementTemplates = HasMissingMythicalDisfigurementTemplates(_context);
+        bool hasMissingAnimalAiTemplates = HasMissingMythicalAnimalAIStockTemplates(_context);
         List<MythicalRaceTemplate> templatesToSeed = Templates.Values
             .Where(template => !_context.Races.Any(x => x.Name == template.Name))
             .ToList();
         Dictionary<string, BodyProto> bodyLookup = BuildBodyCatalogue(Templates.Values);
         RefreshExistingMythicalRaceDefaults();
-        if (templatesToSeed.Count == 0 && !hasMissingDisfigurementTemplates)
+        if (templatesToSeed.Count == 0 && !hasMissingDisfigurementTemplates && !hasMissingAnimalAiTemplates)
         {
             RefreshExistingMythicalCombatBalance();
             _context.Database.CommitTransaction();
@@ -134,26 +135,45 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         }
 
         RefreshExistingMythicalRaceDefaults();
-        SeedMythicalDisfigurementTemplates(bodyLookup);
+        if (templatesToSeed.Count > 0 || hasMissingDisfigurementTemplates)
+        {
+            SeedMythicalDisfigurementTemplates(bodyLookup);
+        }
+
         RefreshExistingMythicalCombatBalance();
+        SeedMythicalAnimalAIStockTemplates();
         _context.SaveChanges();
         _context.Database.CommitTransaction();
         int skippedCount = Templates.Count - templatesToSeed.Count;
         if (templatesToSeed.Count == 0)
         {
-            return "Installed additional mythical disfigurement templates.";
+            if (hasMissingDisfigurementTemplates && hasMissingAnimalAiTemplates)
+            {
+                return "Installed additional mythical disfigurement templates and stock mythical animal AI templates.";
+            }
+
+            return hasMissingAnimalAiTemplates
+                ? "Installed stock mythical animal AI templates."
+                : "Installed additional mythical disfigurement templates.";
         }
 
+        List<string> updates = [$"Successfully installed {templatesToSeed.Count} mythical races"];
         if (hasMissingDisfigurementTemplates)
         {
-            return skippedCount > 0
-                ? $"Successfully installed {templatesToSeed.Count} mythical races, updated disfigurement templates, and skipped {skippedCount} that already existed."
-                : $"Successfully installed {templatesToSeed.Count} mythical races and updated disfigurement templates.";
+            updates.Add("updated disfigurement templates");
         }
 
-        return skippedCount > 0
-            ? $"Successfully installed {templatesToSeed.Count} mythical races and skipped {skippedCount} that already existed."
-            : "Successfully installed mythical races.";
+        if (hasMissingAnimalAiTemplates)
+        {
+            updates.Add("installed stock mythical animal AI templates");
+        }
+
+        if (skippedCount > 0)
+        {
+            updates.Add($"skipped {skippedCount} that already existed");
+        }
+
+        return $"{string.Join(", ", updates)}.";
     }
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
@@ -165,7 +185,9 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 
         if (Templates.Keys.All(name => context.Races.Any(x => x.Name == name)))
         {
-            return HasMissingMythicalDisfigurementTemplates(context) || HasMythicalSatiationLimitUpdates(context)
+            return HasMissingMythicalDisfigurementTemplates(context) ||
+                   HasMythicalSatiationLimitUpdates(context) ||
+                   HasMissingMythicalAnimalAIStockTemplates(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }

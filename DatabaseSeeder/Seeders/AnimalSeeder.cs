@@ -269,6 +269,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 .First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
             RefreshExistingAnimalBaseBodies();
             bool hasMissingCatalogue = HasMissingAnimalCatalogue(_context);
+            bool hasMissingAnimalAiTemplates = HasMissingAnimalAIStockTemplates(_context);
             RefreshExistingAnimalCombatBalance();
 
             if (hasMissingDisfigurementTemplates)
@@ -281,20 +282,29 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 BackfillAnimalCatalogue();
             }
 
-            context.Database.CommitTransaction();
-            if (hasMissingCatalogue && hasMissingDisfigurementTemplates)
+            if (hasMissingAnimalAiTemplates)
             {
-                return "Updated the animal combat balance profile, backfilled missing animal catalogue content, and installed additional animal disfigurement templates.";
+                SeedAnimalAIStockTemplates();
             }
 
+            context.Database.CommitTransaction();
+            List<string> updates = ["Updated the animal combat balance profile"];
             if (hasMissingCatalogue)
             {
-                return "Updated the animal combat balance profile and backfilled missing animal catalogue content.";
+                updates.Add("backfilled missing animal catalogue content");
             }
 
-            return hasMissingDisfigurementTemplates
-                ? "Updated the animal combat balance profile and installed additional animal disfigurement templates."
-                : "Updated the animal combat balance profile.";
+            if (hasMissingDisfigurementTemplates)
+            {
+                updates.Add("installed additional animal disfigurement templates");
+            }
+
+            if (hasMissingAnimalAiTemplates)
+            {
+                updates.Add("installed stock animal AI templates");
+            }
+
+            return $"{string.Join(", ", updates)}.";
         }
 
         Console.WriteLine("Performing initial setup...");
@@ -831,10 +841,11 @@ public partial class AnimalSeeder : IDatabaseSeeder
         CloneBodyPositionsAndSpeeds(toedQuadruped, reptilianBody);
         CloneBodyPositionsAndSpeeds(toedQuadruped, anuranBody);
         ApplyDefaultCombatSettingsToSeededRaces();
+        SeedAnimalAIStockTemplates();
 
         context.Database.CommitTransaction();
 
-        return "Successfully installed animal prototypes";
+        return "Successfully installed animal prototypes and stock animal AI templates.";
     }
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
@@ -846,7 +857,9 @@ public partial class AnimalSeeder : IDatabaseSeeder
 
         if (context.BodyProtos.Any(x => x.Name == "Quadruped Base"))
         {
-            return HasMissingAnimalDisfigurementTemplates(context) || HasMissingAnimalCatalogue(context)
+            return HasMissingAnimalDisfigurementTemplates(context) ||
+                   HasMissingAnimalCatalogue(context) ||
+                   HasMissingAnimalAIStockTemplates(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }

@@ -484,6 +484,22 @@ The `AnimalAI` water slot uses `NpcKnownWaterLocationsEffect` to persist water m
 
 The `AnimalAI` feeding, refuge, activity, and home slots cover the former branch-only solo predator and forager behavior plus basic solitary animal instincts. Predator variants eat local edible corpses before hunting and only choose edible prey when using hungry-predator threat behavior. Den predators claim killed prey, drag the corpse back to the den, and resume fighting if attacked while dragging or eating. Forager variants eat direct edible yields first and use `FORAGE` when eligible forageables exist. Scavengers eat corpses, severed bodyparts, and edible items without hunting; opportunists combine scavenging and foraging without adding predator attacks. Denning animals return to their home cell when fed and watered, and can optionally create a burrow through the configured craft. Refuge and activity settings allow patterns such as wimpy animals retreating to a configured safe place, skittish arboreal animals returning to tree layers, and flyers returning to sky layers once thirst and hunger are satisfied.
 
+### Stock Individual Animal AI Templates
+`AnimalSeeder` and `MythicalAnimalSeeder` seed repeatable, builder-clonable individual `Animal` AI definitions. These rows are examples only: they are not group AI templates and they are not automatically attached to races or NPC templates. The seeders maintain an inventory mapping every stock animal race and mythical animal race to one recommended individual template so future catalogue additions must choose a behavior before the tests pass.
+
+The stock template set is deliberately grouped rather than one row per race. It includes small skittish foragers, burrowing foragers, territorial grazers, large defensive grazers, opportunist omnivores, scavengers, territorial predators, denning predators, burrowing ambush predators, arboreal foragers, arboreal predators, skittish birds, raptors, eternal flyers, flying scavengers, swimming foragers, swimming predators, swimming scavengers, plantlike foragers, mythic guardians, passive sapient placeholders, and large mythic flying predators.
+
+The current stock inventory covers 136 normal animal races and 36 mythical animal races. Aquatic templates currently disable the water slot because `AnimalAI` thirst handling looks for drinkable local liquid sources rather than treating immersion or gill-breathing water as hydration. Sapient mythical folk use a passive placeholder because social, occupational, conversational, legal, or faction behavior should be composed with more specific non-animal AIs.
+
+Remaining behavior gaps for the seeded roster:
+
+- true amphibious movement that can prefer water for some needs and land for others in one AI
+- true omnivore hunting that combines predator hunting with foraging, beyond the current non-hunting opportunist mode
+- species-specific prey, fear, and territory filters beyond broad stock `AlwaysTrue` or `AlwaysFalse` starter progs
+- seasonal migration, weather sheltering, nesting cycles, breeding, parenting, and pack tactics as first-class individual strategies
+- group-level herd, flock, school, colony, and pack coordination, which still belongs in Group AI rather than these individual templates
+- aquatic thirst semantics for fish, cetaceans, crustaceans, amphibians, and other creatures that live in or absorb water differently
+
 ## Group AI Catalogue
 ### Current Group Types
 Current builder-registered group AI types live under `MudSharpCore/NPC/AI/Groups/GroupTypes`.

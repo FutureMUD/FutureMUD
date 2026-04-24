@@ -36,6 +36,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.Magic;
+using MudSharp.Planes;
 using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
@@ -1849,6 +1850,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
     public ItemQuality RawQuality => _quality;
 
     public IGameItemProto Prototype { get; protected set; }
+    public PlanarPresenceDefinition BasePlanarPresence => Prototype.BasePlanarPresence;
 
     /// <summary>
     /// Creates a new item that is a copy of this item, including similar copies of all contained items

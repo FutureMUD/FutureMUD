@@ -29,6 +29,7 @@ using MudSharp.Health.Breathing;
 using MudSharp.Magic;
 using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Merits;
@@ -351,7 +352,7 @@ namespace MudSharp.Character
         IHaveCulture, IHaveRace, IPerceivableHaveCharacteristics, IHaveCurrency, IHaveCommunity, IHaveRoles, IHaveNeeds,
         IEat, IHaveStamina, IHaveKnowledges, IEquatable<ICharacter>, IPerformSurgery, IBreathe, IHaveContextualSizeCategory,
         IHaveAllies, IUseTools, IStyleCharacterCharacteristics, ISleep, IMagicUser, IHaveMagicResource, IHavePositionalSizes,
-        IHaveOutfits, ISwim, IFly, IClimb, IHavePersonalProjects, ITarget, ICanBeEmployed, IMountable
+        IHaveOutfits, ISwim, IFly, IClimb, IHavePersonalProjects, ITarget, ICanBeEmployed, IMountable, IHavePlanarPresence
     {
         ICharacterController CharacterController { get; }
         IEnumerable<ICharacterForm> Forms { get; }

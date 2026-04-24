@@ -52,6 +52,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Handlers;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Law;
@@ -76,6 +77,7 @@ namespace MudSharp.Character;
 public partial class Character : PerceiverItem, ICharacter
 {
     private IPersonalName _currentName;
+    public PlanarPresenceDefinition BasePlanarPresence => Body.BasePlanarPresence;
 
     public Character(MudSharp.Models.Character character, IFuturemud gameworld, bool temporary = false)
         : base(character.Id)
@@ -2744,8 +2746,18 @@ public partial class Character : PerceiverItem, ICharacter
 
     public (bool Truth, string Message) CanManipulateItem(IGameItem item)
     {
+        if (!this.CanInteractPlanar(item, PlanarInteractionKind.Inventory, out var planarMessage))
+        {
+            return (false, planarMessage);
+        }
+
         if (item.InInventoryOf != null && item.InInventoryOf != Body)
         {
+            if (!this.CanInteractPlanar(item.InInventoryOf.Actor, PlanarInteractionKind.Inventory, out planarMessage))
+            {
+                return (false, planarMessage);
+            }
+
             if (!item.InInventoryOf.Actor.WillingToPermitInventoryManipulation(this))
             {
                 return (false,

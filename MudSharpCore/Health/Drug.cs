@@ -7,6 +7,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Magic;
+using MudSharp.Planes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -181,6 +182,16 @@ public class Drug : SaveableItem, IDrug
                                         .Cast<BodypartTypeEnum>()
                                         .ToList()
                 };
+            case DrugType.PlanarState:
+                {
+                    var parts = (extra ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    return new PlanarStateAdditionalInfo
+                    {
+                        State = parts.ElementAtOrDefault(0) ?? "noncorporeal",
+                        PlaneId = long.TryParse(parts.ElementAtOrDefault(1), out var planeId) ? planeId : 0,
+                        VisibleToDefaultPlane = bool.TryParse(parts.ElementAtOrDefault(2), out var visible) && visible
+                    };
+                }
             case DrugType.NeutraliseSpecificDrug:
                 return new NeutraliseSpecificDrugAdditionalInfo()
                 {
@@ -208,6 +219,7 @@ The following options require a matching intensity for the type before using the
 	#3type magic <which>#0 - toggles a specific magic capability effect
 	#3type neutralise <type>#0 - toggles neutralising a drug type
 	#3type neutralisespecific <drug>#0 - toggles neutralising a specific drug
+	#3type planar <corporeal|noncorporeal> [plane] [visible]#0 - configures planar state
 	#3type healingrate <rate%> <difficulty%> - sets healing rate / difficulty bonuses";
 
     /// <inheritdoc />
@@ -259,9 +271,65 @@ The following options require a matching intensity for the type before using the
                 return BuildingCommandDamage(actor, command);
             case "organfunction":
                 return BuildingCommandOrganFunction(actor, command);
+            case "planar":
+            case "plane":
+            case "corporeality":
+                return BuildingCommandPlanar(actor, command);
             default:
                 return false;
         }
+    }
+
+    private bool BuildingCommandPlanar(ICharacter actor, StringStack command)
+    {
+        if (!DrugTypeMulipliers.ContainsKey(DrugType.PlanarState))
+        {
+            actor.OutputHandler.Send("This drug does not contain a planar state effect intensity. You must set that first.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Do you want this drug to apply a corporeal or noncorporeal state?");
+            return false;
+        }
+
+        var state = command.PopSpeech().ToLowerInvariant();
+        if (!state.EqualToAny("corporeal", "manifest", "manifested", "noncorporeal", "incorporeal", "dissipate", "dissipated"))
+        {
+            actor.OutputHandler.Send("The planar state must be corporeal or noncorporeal.");
+            return false;
+        }
+
+        var plane = actor.Gameworld.DefaultPlane;
+        var visible = false;
+        while (!command.IsFinished)
+        {
+            var token = command.PopSpeech();
+            if (token.EqualToAny("visible", "seen", "manifest"))
+            {
+                visible = true;
+                continue;
+            }
+
+            plane = actor.Gameworld.Planes.GetByIdOrName(token);
+            if (plane is null)
+            {
+                actor.OutputHandler.Send($"There is no plane identified by {token.ColourCommand()}.");
+                return false;
+            }
+        }
+
+        DrugTypeMulipliers[DrugType.PlanarState] = (DrugTypeMulipliers[DrugType.PlanarState].Multiplier,
+            new PlanarStateAdditionalInfo
+            {
+                State = state,
+                PlaneId = plane?.Id ?? 0,
+                VisibleToDefaultPlane = visible
+            });
+        Changed = true;
+        actor.OutputHandler.Send($"This drug now applies a {state.ColourValue()} planar state on {(plane?.Name ?? "the default plane").ColourName()}.");
+        return true;
     }
 
     private bool BuildingCommandDamage(ICharacter actor, StringStack command)
@@ -546,6 +614,14 @@ The following options require a matching intensity for the type before using the
                 case DrugType.MagicAbility:
                     DrugTypeMulipliers[type] = (value, new MagicAbilityAdditionalInfo { MagicCapabilityIds = [] });
                     break;
+                case DrugType.PlanarState:
+                    DrugTypeMulipliers[type] = (value, new PlanarStateAdditionalInfo
+                    {
+                        State = "noncorporeal",
+                        PlaneId = Gameworld.DefaultPlane?.Id ?? 0,
+                        VisibleToDefaultPlane = false
+                    });
+                    break;
                 default:
                     DrugTypeMulipliers[type] = (value, null);
                     break;
@@ -714,6 +790,10 @@ The following options require a matching intensity for the type before using the
                 case DrugType.OrganFunction:
                     sb.AppendLine($" - {((OrganFunctionAdditionalInfo)effect.Value.ExtraInfo).OrganTypes.ListToColouredString()}");
                     break;
+                case DrugType.PlanarState:
+                    PlanarStateAdditionalInfo planar = (PlanarStateAdditionalInfo)effect.Value.ExtraInfo;
+                    sb.AppendLine($" - {planar.State.ColourValue()} on {(Gameworld.Planes.Get(planar.PlaneId)?.Name ?? "default").ColourName()}{(planar.VisibleToDefaultPlane ? ", visible to default plane".ColourCommand() : string.Empty)}");
+                    break;
                 default:
                     sb.AppendLine();
                     break;
@@ -754,6 +834,10 @@ The following options require a matching intensity for the type before using the
                 return $"VisionImpairment @ {IntensityForType(type).ToString("N4", voyeur)}";
             case DrugType.ThermalImbalance:
                 return $"ThermalImbalance @ {IntensityForType(type).ToString("N4", voyeur)}";
+            case DrugType.PlanarState:
+                PlanarStateAdditionalInfo planar = AdditionalInfoFor<PlanarStateAdditionalInfo>(DrugType.PlanarState);
+                return
+                    $"PlanarState {planar.State} on {Gameworld.Planes.Get(planar.PlaneId)?.Name ?? "default"} @ {IntensityForType(type).ToString("N4", voyeur)}";
         }
 
         return $"{type.DescribeEnum()} @ {IntensityForType(type).ToString("N4", voyeur)}";

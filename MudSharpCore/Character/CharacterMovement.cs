@@ -23,6 +23,7 @@ using MudSharp.NPC.AI.Groups;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.CharacterMerits;
 using MudSharp.RPG.Merits.Interfaces;
@@ -214,7 +215,7 @@ public partial class Character
 			return (true, null);
 		}
 
-		if (exit.Exit.EffectsOfType<IExitBarrierEffect>().FirstOrDefault() is not null)
+		if (exit.Exit.EffectsOfType<IExitBarrierEffect>().FirstOrDefault() is not null && !this.CanCrossMagicalBarriersPlanar())
 		{
 			return (false,
 				new EmoteOutput(
@@ -223,7 +224,7 @@ public partial class Character
 					flags: OutputFlags.SuppressObscured));
 		}
 
-		if (exit.Exit.Door?.IsOpen == false)
+		if (exit.Exit.Door?.IsOpen == false && !this.CanCrossClosedDoorsPlanar())
 		{
 			return (false,
                 new EmoteOutput(new Emote("@ stop|stops at $0 because it is closed.", this, exit.Exit.Door.Parent),
@@ -1333,6 +1334,11 @@ public partial class Character
         }
 
         if (EffectHandler.AffectedBy<IImmwalkEffect>())
+        {
+            return false;
+        }
+
+        if (this.SuspendsPhysicalContact())
         {
             return false;
         }

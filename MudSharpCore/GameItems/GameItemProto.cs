@@ -18,6 +18,7 @@ using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.OpenAI;
 using MudSharp.PerceptionEngine;
+using MudSharp.Planes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +52,8 @@ public class GameItemProto : EditableItem, IGameItemProto
                 Size = (int)SizeCategory.Normal,
                 Weight = 1.0,
                 IsHiddenFromPlayers = false,
-                PreserveRegisterVariables = false
+                PreserveRegisterVariables = false,
+                PlanarData = PlanarPresenceDefinition.DefaultMaterial(gameworld).SaveToXml().ToString()
             };
             dbproto.MaterialId = 0;
             dbproto.ReadOnly = isReadOnly;
@@ -100,6 +102,7 @@ public class GameItemProto : EditableItem, IGameItemProto
     public bool PreventManualLoad => Components.Any(x => x.PreventManualLoad);
 
     public bool PreserveRegisterVariables { get; private set; }
+    public PlanarPresenceDefinition BasePlanarPresence { get; private set; }
 
     private readonly
         List<(IFutureProg Prog, string? ShortDescription, string? FullDescription, string? FullDescriptionAddendum)>
@@ -146,6 +149,7 @@ public class GameItemProto : EditableItem, IGameItemProto
         sb.AppendLine($"Prevent Manual Load: {PreventManualLoad.ToColouredString()}");
         sb.AppendLine($"Permit Player Skins: {PermitPlayerSkins.ToColouredString()}");
         sb.AppendLine($"Hidden From Players: {IsHiddenFromPlayers.ToColouredString()}");
+        sb.AppendLine($"Planar Presence: {BasePlanarPresence.Describe(Gameworld).ColourValue()}");
         sb.AppendLine($"Item Group: {(ItemGroup is null ? "Default".ColourCommand() : $"{ItemGroup.Name.ColourValue()} ({ItemGroup.Id.ToString("N0", actor)})".ColourValue())}");
         if (_onDestroyedGameItemProto != 0)
         {
@@ -428,7 +432,8 @@ public class GameItemProto : EditableItem, IGameItemProto
                 HighPriority = HighPriority,
                 CostInBaseCurrency = CostInBaseCurrency,
                 IsHiddenFromPlayers = IsHiddenFromPlayers,
-                PreserveRegisterVariables = PreserveRegisterVariables
+                PreserveRegisterVariables = PreserveRegisterVariables,
+                PlanarData = BasePlanarPresence.SaveToXml().ToString()
             };
 
             foreach (ITag tag in Tags)
@@ -532,7 +537,8 @@ public class GameItemProto : EditableItem, IGameItemProto
                 HealthStrategyId = HealthStrategy?.Id,
                 CostInBaseCurrency = CostInBaseCurrency,
                 IsHiddenFromPlayers = IsHiddenFromPlayers,
-                PreserveRegisterVariables = PreserveRegisterVariables
+                PreserveRegisterVariables = PreserveRegisterVariables,
+                PlanarData = BasePlanarPresence.SaveToXml().ToString()
             };
 
             foreach (ITag tag in Tags)
@@ -650,6 +656,7 @@ public class GameItemProto : EditableItem, IGameItemProto
         CostInBaseCurrency = proto.CostInBaseCurrency;
         IsHiddenFromPlayers = proto.IsHiddenFromPlayers;
         PreserveRegisterVariables = proto.PreserveRegisterVariables;
+        BasePlanarPresence = PlanarPresenceDefinition.FromXml(proto.PlanarData, Gameworld);
         _onDestroyedGameItemProto = proto.OnDestroyedGameItemProtoId ?? 0;
         _healthStrategy = Gameworld.HealthStrategies.Get(proto.HealthStrategyId ?? 0) ??
                           Gameworld.HealthStrategies.FirstOrDefault(
@@ -715,6 +722,7 @@ public class GameItemProto : EditableItem, IGameItemProto
             dbproto.CostInBaseCurrency = CostInBaseCurrency;
             dbproto.IsHiddenFromPlayers = IsHiddenFromPlayers;
             dbproto.PreserveRegisterVariables = PreserveRegisterVariables;
+            dbproto.PlanarData = BasePlanarPresence.SaveToXml().ToString();
             dbproto.OnDestroyedGameItemProtoId = _onDestroyedGameItemProto != 0
                 ? _onDestroyedGameItemProto
                 : default;
@@ -1070,6 +1078,10 @@ public class GameItemProto : EditableItem, IGameItemProto
             case "preservevariables":
             case "preserveregistervariables":
                 return BuildingCommandPreserveRegisterVariable(actor);
+            case "plane":
+            case "planar":
+            case "corporeality":
+                return BuildingCommandPlanar(actor, command);
             default:
                 actor.OutputHandler.Send(@"You can use the following options with the ITEM SET command:
 
@@ -1094,6 +1106,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 	#3onload <prog>#0 - toggles a particular prog to run when the item is loaded
 	#3canskin#0 - toggles whether players can make skins for this item
 	#3preserve#0 - toggles preserving register variables on morph or destroyed item loading
+	#3planar default|corporeal|noncorporeal|xml ...#0 - sets the item prototype's planar defaults
 	#3register <variable name> <default value>#0 - sets a default value for a register variable for this item
 	#3register delete <variable name>#0 - deletes a default value for a register variable
 	#3morph <item##|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.
@@ -1116,6 +1129,72 @@ public class GameItemProto : EditableItem, IGameItemProto
 	#3extra <which##> clear addendum#0 - clears the addendum text for the full description".SubstituteANSIColour());
                 return true;
         }
+    }
+
+    private bool BuildingCommandPlanar(ICharacter actor, StringStack command)
+    {
+        switch (command.PopSpeech().ToLowerInvariant())
+        {
+            case "default":
+            case "clear":
+            case "prime":
+                BasePlanarPresence = PlanarPresenceDefinition.DefaultMaterial(Gameworld);
+                Changed = true;
+                actor.OutputHandler.Send($"This item prototype will now use default {Gameworld.DefaultPlane.Name.ColourName()} corporeality.");
+                return true;
+            case "corporeal":
+                {
+                    IPlane plane = command.IsFinished ? Gameworld.DefaultPlane : Gameworld.Planes.GetByIdOrName(command.SafeRemainingArgument);
+                    if (plane is null)
+                    {
+                        actor.OutputHandler.Send("There is no such plane.");
+                        return false;
+                    }
+
+                    BasePlanarPresence = PlanarPresenceDefinition.DefaultMaterial(plane.Id);
+                    Changed = true;
+                    actor.OutputHandler.Send($"This item prototype is now corporeal on {plane.Name.ColourName()}.");
+                    return true;
+                }
+            case "noncorporeal":
+            case "incorporeal":
+                {
+                    var token = command.IsFinished ? string.Empty : command.PopSpeech();
+                    var visibleToDefault = command.SafeRemainingArgument.EqualToAny("visible", "manifest", "seen", "visibletodefault");
+                    IPlane plane = string.IsNullOrWhiteSpace(token)
+                        ? Gameworld.DefaultPlane
+                        : Gameworld.Planes.GetByIdOrName(token);
+                    if (plane is null)
+                    {
+                        actor.OutputHandler.Send("There is no such plane.");
+                        return false;
+                    }
+
+                    BasePlanarPresence = PlanarPresenceDefinition.NonCorporeal(plane, visibleToDefault);
+                    Changed = true;
+                    actor.OutputHandler.Send($"This item prototype is now non-corporeal on {plane.Name.ColourName()}.");
+                    return true;
+                }
+            case "xml":
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send("What XML planar definition do you want to use?");
+                    return false;
+                }
+
+                BasePlanarPresence = PlanarPresenceDefinition.FromXml(command.SafeRemainingArgument, Gameworld);
+                Changed = true;
+                actor.OutputHandler.Send("You set the planar definition from XML.");
+                return true;
+        }
+
+        actor.OutputHandler.Send(@"You can use:
+
+	#3planar default#0 - restores ordinary default corporeality
+	#3planar corporeal [plane]#0 - makes this prototype corporeal on a plane
+	#3planar noncorporeal [plane] [visible]#0 - makes this prototype non-corporeal
+	#3planar xml <xml>#0 - sets a raw planar XML definition".SubstituteANSIColour());
+        return false;
     }
 
     private bool BuildingCommandPreserveRegisterVariable(ICharacter actor)

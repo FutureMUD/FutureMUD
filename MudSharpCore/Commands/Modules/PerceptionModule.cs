@@ -22,6 +22,7 @@ using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using System;
@@ -174,6 +175,12 @@ The syntax is simply #3survey#0.", AutoHelp.HelpArg)]
             : "It is not permitted to quit in this location.".Colour(Telnet.Red));
         ITerrain terrain = actor.Location.Terrain(actor);
         sb.AppendLine($"The terrain here is {terrain.Name.TitleCase().ColourForegroundCustom(terrain.TerrainANSIColour)}.");
+        var currentPlane = actor.CurrentPlane();
+        if (currentPlane is not null)
+        {
+            sb.AppendLine($"Your current plane is {currentPlane.Name.ColourName()}.");
+        }
+
         if (actor.IsAdministrator())
         {
             sb.AppendLineFormat(actor, "This room is in zone {0} (#{1:N0})",

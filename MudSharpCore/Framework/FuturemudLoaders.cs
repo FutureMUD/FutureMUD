@@ -60,6 +60,7 @@ using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Light;
+using MudSharp.Planes;
 using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Hints;
@@ -136,6 +137,7 @@ using WeaponType = MudSharp.Combat.WeaponType;
 using WearableSize = MudSharp.GameItems.Inventory.Size.WearableSize;
 using WearProfile = MudSharp.GameItems.Inventory.WearProfile;
 using Zone = MudSharp.Construction.Zone;
+using Plane = MudSharp.Planes.Plane;
 
 namespace MudSharp.Framework;
 
@@ -258,6 +260,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
             game.LoadStaticValues(); // Definitely call this before all other Loader methods as it caches values that many of them look up later.
             LogManager = new LogManager(this); // Should go as early as possible after LoadStaticValues
+            game.LoadPlanes();
             game.LoadAuthorityGroups();
             game.LoadChargenResources();
 
@@ -3093,6 +3096,56 @@ For information on the syntax to use in emotes (such as those included in bracke
 
         int count = profiles.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 Hearing Profile{1}.", count, count == 1 ? "" : "s");
+    }
+
+    void IFuturemudLoader.LoadPlanes()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Planes#0...");
+#if DEBUG
+        Stopwatch sw = new();
+        sw.Start();
+#endif
+        List<Models.Plane> planes = FMDB.Context.Planes
+                                         .AsNoTracking()
+                                         .OrderBy(x => x.DisplayOrder)
+                                         .ThenBy(x => x.Id)
+                                         .ToList();
+
+        if (!planes.Any())
+        {
+            Models.Plane prime = new()
+            {
+                Name = "Prime Material",
+                Alias = "prime material mundane physical",
+                Description = "The ordinary physical plane of the game world.",
+                RoomDescriptionAddendum = null,
+                RoomNameFormat = null,
+                DisplayOrder = 0,
+                IsDefault = true
+            };
+            FMDB.Context.Planes.Add(prime);
+            FMDB.Context.SaveChanges();
+            planes.Add(prime);
+        }
+
+        if (!planes.Any(x => x.IsDefault))
+        {
+            planes[0].IsDefault = true;
+            FMDB.Context.Planes.Find(planes[0].Id).IsDefault = true;
+            FMDB.Context.SaveChanges();
+        }
+
+        foreach (Models.Plane plane in planes)
+        {
+            _planes.Add(new Plane(plane, this));
+        }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+
+        int count = planes.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0}#0 Plane{1}.", count, count == 1 ? "" : "s");
     }
 
     void IFuturemudLoader.LoadLanguageDifficultyModels()

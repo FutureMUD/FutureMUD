@@ -20,6 +20,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.Health;
 using MudSharp.Movement;
+using MudSharp.Planes;
 using MudSharp.RPG.Merits;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace MudSharp.Body
 {
     public partial interface IBody : IInventory, IHaveBodyparts, IEditableNameData,
         ILanguagePerceiver, IPerceivableHaveCharacteristics, IManipulator, IHaveRace, IHavePhysicalDimensions, IHaveNeeds, IEat,
-        IHaveStamina, IMortal, IMortalPerceiver, IHaveMerits, ILateInitialisingItem, IBreathe, IHaveContextualSizeCategory, IHavePositionalSizes, ITarget
+        IHaveStamina, IMortal, IMortalPerceiver, IHaveMerits, ILateInitialisingItem, IBreathe, IHaveContextualSizeCategory, IHavePositionalSizes, ITarget, IHavePlanarPresence
     {
         void LoadInventory(MudSharp.Models.Body body);
         bool InventoryChanged { get; set; }

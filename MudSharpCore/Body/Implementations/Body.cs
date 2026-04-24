@@ -34,6 +34,7 @@ using MudSharp.Health.Breathing;
 using MudSharp.Health.Infections;
 using MudSharp.Models;
 using MudSharp.Movement;
+using MudSharp.Planes;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Merits;
 using MudSharp.RPG.Merits.CharacterMerits;
@@ -207,6 +208,7 @@ public partial class Body : PerceiverItem, IBody
     public override string FrameworkItemType => "Body";
 
     public IBodyPrototype Prototype { get; protected set; }
+    public PlanarPresenceDefinition BasePlanarPresence => Prototype.BasePlanarPresence;
 
     public ICharacter Actor { get; set; }
     public Alignment Handedness { get; set; }

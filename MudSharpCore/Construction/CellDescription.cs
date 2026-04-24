@@ -8,6 +8,7 @@ using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Magic;
+using MudSharp.Planes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -315,6 +316,7 @@ public partial class Cell
                     : "Somewhere";
                 output = overlay.Terrain.RoomNameForLayer(output,
                     flags.HasFlag(PerceiveIgnoreFlags.IgnoreLayers) ? RoomLayer.GroundLevel : voyeur?.RoomLayer ?? RoomLayer.GroundLevel);
+                output = RoomNameForPlane(output, voyeur, flags);
                 output = SubstituteDescriptionVariables(output, voyeur, flags);
                 return colour ? output.ColourRoom() : output;
             case DescriptionType.Long:
@@ -611,6 +613,8 @@ public partial class Cell
             descSubSB.AppendLine($"You can use the MORGUE command here.".ColourIncludingReset(Telnet.Yellow));
         }
 
+        AppendPlaneRoomDescriptionAddendum(descSubSB, character, voyeur, flags, ref addedAdditionalLines);
+
         if (Characters.Any(x => x.AffectedBy<OnTrial>()))
         {
             descSubSB.AppendLine("There is a trial taking place here. You can use the TRIAL command to see details.".ColourIncludingReset(Telnet.BoldOrange));
@@ -618,6 +622,57 @@ public partial class Cell
 
         sb.Append(descSubSB.ToString().Wrap(character.Account.InnerLineFormatLength));
         return sb.ToString().Wrap(character?.Account.LineFormatLength ?? 120);
+    }
+
+    private string RoomNameForPlane(string baseRoomName, IPerceiver voyeur, PerceiveIgnoreFlags flags)
+    {
+        if (flags.HasFlag(PerceiveIgnoreFlags.IgnorePlanes) || voyeur is null)
+        {
+            return baseRoomName;
+        }
+
+        var plane = ((IPerceivable)voyeur).CurrentPlane();
+        if (plane is null || string.IsNullOrWhiteSpace(plane.RoomNameFormat))
+        {
+            return baseRoomName;
+        }
+
+        try
+        {
+            return string.Format(plane.RoomNameFormat, baseRoomName);
+        }
+        catch (FormatException)
+        {
+            return baseRoomName;
+        }
+    }
+
+    private void AppendPlaneRoomDescriptionAddendum(StringBuilder descSubSB, ICharacter character, IPerceiver voyeur,
+        PerceiveIgnoreFlags flags, ref bool addedAdditionalLines)
+    {
+        if (flags.HasFlag(PerceiveIgnoreFlags.IgnorePlanes) || voyeur is null)
+        {
+            return;
+        }
+
+        var plane = ((IPerceivable)voyeur).CurrentPlane();
+        if (plane is null || string.IsNullOrWhiteSpace(plane.RoomDescriptionAddendum))
+        {
+            return;
+        }
+
+        if (!addedAdditionalLines)
+        {
+            addedAdditionalLines = true;
+            descSubSB.AppendLine();
+        }
+
+        if (character?.Account.TabRoomDescriptions == true)
+        {
+            descSubSB.Append("\t");
+        }
+
+        descSubSB.AppendLine(plane.RoomDescriptionAddendum.SubstituteANSIColour());
     }
 
     public string ProcessedFullDescription(IPerceiver voyeur, PerceiveIgnoreFlags flags, ICellOverlay overlay)

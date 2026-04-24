@@ -11,6 +11,7 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.Models;
 using MudSharp.Movement;
+using MudSharp.Planes;
 using MudSharp.Strategies.BodyStratagies;
 using System;
 using System.Collections.Generic;
@@ -81,6 +82,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
         _id = proto.Id;
         _name = proto.Name;
         NameForTracking = proto.NameForTracking ?? _name;
+        BasePlanarPresence = PlanarPresenceDefinition.FromXml(proto.PlanarData, Gameworld);
 
         StaminaRecoveryProg = Gameworld.FutureProgs.Get(proto.StaminaRecoveryProgId ?? 0);
 
@@ -427,6 +429,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
     public override void Save()
     {
         BodyProto dbitem = FMDB.Context.BodyProtos.Find(Id);
+        dbitem.PlanarData = BasePlanarPresence.SaveToXml().ToString();
 
         // For now, only save the things that change
         FMDB.Context.BodyProtosPositions.RemoveRange(dbitem.BodyProtosPositions);
@@ -446,6 +449,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 
     public IEnumerable<IBodypart> FemaleOnlyAdditions => _femaleOnlyAdditions;
     public IEnumerable<IBodypart> MaleOnlyAdditions => _maleOnlyAdditions;
+    public PlanarPresenceDefinition BasePlanarPresence { get; private set; }
 
     private void InitialiseLimbs()
     {
@@ -516,6 +520,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
         sb.AppendLine($"Grasping Parts: {WielderDescriptionSingular.ColourValue()} / {WielderDescriptionPlural.ColourValue()}");
         sb.AppendLine($"Standing Limbs: {LegDescriptionSingular.ColourValue()} / {LegDescriptionPlural.ColourValue()}");
         sb.AppendLine($"Default Smashing Part: {DefaultDoorSmashingPart?.Name.ColourValue() ?? "None".ColourError()}");
+        sb.AppendLine($"Planar Presence: {BasePlanarPresence.Describe(Gameworld).ColourValue()}");
         sb.AppendLine();
         sb.AppendLine("Positions".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
         sb.AppendLine();

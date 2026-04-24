@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using ProgVariableTypes = MudSharp.FutureProg.ProgVariableTypes;
+using PlanarInteractionKind = MudSharp.Planes.PlanarInteractionKind;
 
 namespace MudSharp_Unit_Tests;
 
@@ -144,6 +145,13 @@ public class StockMeritsSeederTests
             int.Parse(XElement.Parse(x.Definition).Attribute("verb")?.Value ?? "-1") == (int)verb);
     }
 
+    private static bool PlanarElementContains(XElement? element, long planeId)
+    {
+        return element?
+            .Elements("Plane")
+            .Any(x => long.Parse(x.Attribute("id")?.Value ?? "0") == planeId) == true;
+    }
+
     private static void SeedPrerequisites(FuturemudDatabaseContext context, params string[] omittedTraitNames)
     {
         HashSet<string> omittedTraits = new(omittedTraitNames, StringComparer.OrdinalIgnoreCase);
@@ -253,6 +261,55 @@ public class StockMeritsSeederTests
         {
             Assert.AreEqual(1, context.FutureProgs.Count(x => x.FunctionName == progName), $"Expected a single helper prog named {progName}.");
         }
+    }
+
+    [TestMethod]
+    public void SeedData_SeedsReusablePlanarPlanesAndMerits()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedPrerequisites(context);
+        StockMeritsSeeder seeder = new();
+
+        seeder.SeedData(context, new Dictionary<string, string>());
+
+        Plane prime = context.Planes.Single(x => x.Name == "Prime Material");
+        Plane astral = context.Planes.Single(x => x.Name == "Astral Plane");
+        Assert.IsTrue(prime.IsDefault);
+        Assert.AreEqual("Astral Plane {0}", astral.RoomNameFormat);
+        Assert.IsFalse(string.IsNullOrWhiteSpace(astral.RoomDescriptionAddendum));
+        foreach (string meritName in new[]
+                 {
+                     "Always Astral",
+                     "Astral Manifestation",
+                     "Astral Ignorant of Prime Material",
+                     "Astral Visual Manifestation",
+                     "Astral Sight",
+                     "Dual Natured"
+                 })
+        {
+            Assert.IsTrue(context.Merits.Any(x => x.Name == meritName && x.Type == "Planar State"),
+                $"Expected stock planar merit {meritName}.");
+        }
+
+        XElement visualRoot = XElement.Parse(context.Merits.Single(x => x.Name == "Astral Visual Manifestation").Definition);
+        XElement visualPlanarData = visualRoot.Element("PlanarData")!;
+        Assert.IsTrue(PlanarElementContains(visualPlanarData.Element("VisibleTo"), prime.Id));
+        Assert.IsTrue(PlanarElementContains(visualPlanarData.Element("VisibleTo"), astral.Id));
+        XElement visualPhysical = visualPlanarData.Element("Interactions")!
+                                                  .Elements("Interaction")
+                                                  .Single(x => x.Attribute("kind")?.Value == PlanarInteractionKind.Physical.ToString());
+        Assert.IsFalse(PlanarElementContains(visualPhysical, prime.Id));
+        Assert.IsTrue(PlanarElementContains(visualPhysical, astral.Id));
+
+        XElement dualRoot = XElement.Parse(context.Merits.Single(x => x.Name == "Dual Natured").Definition);
+        XElement dualPlanarData = dualRoot.Element("PlanarData")!;
+        Assert.IsTrue(PlanarElementContains(dualPlanarData.Element("Presence"), prime.Id));
+        Assert.IsTrue(PlanarElementContains(dualPlanarData.Element("Presence"), astral.Id));
+        XElement dualPhysical = dualPlanarData.Element("Interactions")!
+                                              .Elements("Interaction")
+                                              .Single(x => x.Attribute("kind")?.Value == PlanarInteractionKind.Physical.ToString());
+        Assert.IsTrue(PlanarElementContains(dualPhysical, prime.Id));
+        Assert.IsTrue(PlanarElementContains(dualPhysical, astral.Id));
     }
 
     [TestMethod]

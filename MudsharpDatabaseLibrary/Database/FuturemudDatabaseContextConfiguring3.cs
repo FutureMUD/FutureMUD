@@ -892,6 +892,49 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_PopulationBloodModels_Bloodtypes_PopulationBloodModels");
             });
 
+            modelBuilder.Entity<Plane>(entity =>
+            {
+                entity.HasKey(e => e.Id)
+                    .HasName("PRIMARY");
+
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnType("varchar(200)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.Alias)
+                    .IsRequired()
+                    .HasColumnType("varchar(500)")
+                    .HasDefaultValueSql("''")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.RoomDescriptionAddendum)
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.RoomNameFormat)
+                    .HasColumnType("varchar(500)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.DisplayOrder).HasColumnType("int(11)");
+
+                entity.Property(e => e.IsDefault)
+                    .HasColumnType("bit(1)")
+                    .HasDefaultValueSql("b'0'");
+            });
+
             modelBuilder.Entity<ProgSchedule>(entity =>
             {
                 entity.HasIndex(e => e.FutureProgId)

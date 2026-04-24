@@ -21,5 +21,6 @@
         VisionImpairment = 17,
         ThermalImbalance = 18,
         Antifungal = 19,
+        PlanarState = 20,
     }
 }

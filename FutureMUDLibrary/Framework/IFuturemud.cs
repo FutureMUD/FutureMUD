@@ -59,6 +59,7 @@ using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Light;
+using MudSharp.Planes;
 using MudSharp.RPG.AIStorytellers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
@@ -231,6 +232,8 @@ namespace MudSharp.Framework
         IUneditableAll<INPCSpawner> NPCSpawners { get; }
         IUneditableAll<IPatrol> Patrols { get; }
         IUneditableAll<IPopulationBloodModel> PopulationBloodModels { get; }
+        IUneditableAll<IPlane> Planes { get; }
+        IPlane DefaultPlane { get; }
         IUneditableAll<IProgSchedule> ProgSchedules { get; }
         IUneditableRevisableAll<IProject> Projects { get; }
         IUneditableAll<IActiveProject> ActiveProjects { get; }
@@ -460,6 +463,7 @@ namespace MudSharp.Framework
         void Add(ICharacterIntroTemplate template);
         void Add(ICraft craft);
         void Add(IPopulationBloodModel model);
+        void Add(IPlane plane);
         void Add(IBloodtype type);
         void Add(IBloodtypeAntigen antigen);
         void Add(IBloodModel model);
@@ -592,6 +596,7 @@ namespace MudSharp.Framework
         void Destroy(ICharacterIntroTemplate template);
         void Destroy(ICraft craft);
         void Destroy(IPopulationBloodModel model);
+        void Destroy(IPlane plane);
         void Destroy(IBloodtype type);
         void Destroy(IBloodtypeAntigen antigen);
         void Destroy(IBloodModel model);

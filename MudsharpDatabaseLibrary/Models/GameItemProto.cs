@@ -41,6 +41,7 @@ namespace MudSharp.Models
         public decimal CostInBaseCurrency { get; set; }
         public bool IsHiddenFromPlayers { get; set; }
         public bool PreserveRegisterVariables { get; set; }
+        public string PlanarData { get; set; }
 
         public virtual EditableItem EditableItem { get; set; }
         public virtual ItemGroup ItemGroup { get; set; }

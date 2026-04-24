@@ -10,6 +10,7 @@ using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
@@ -358,7 +359,13 @@ public class SensePower : MagicPowerBase
                             actor.Location.Shard.GameItems.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
                         break;
                     case MagicPowerDistance.SamePlaneOnly:
-                        goto case MagicPowerDistance.SameShardOnly;
+                        targets.AddRange(
+                            actor.Location.Shard.Characters.Where(actor.SharesPlaneWith)
+                                 .Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
+                        targets.AddRange(
+                            actor.Location.Shard.GameItems.Where(actor.SharesPlaneWith)
+                                 .Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
+                        break;
                 }
 
                 break;
@@ -402,7 +409,10 @@ public class SensePower : MagicPowerBase
                             actor.Location.Shard.Characters.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
                         break;
                     case MagicPowerDistance.SamePlaneOnly:
-                        goto case MagicPowerDistance.SameShardOnly;
+                        targets.AddRange(
+                            actor.Location.Shard.Characters.Where(actor.SharesPlaneWith)
+                                 .Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
+                        break;
                 }
 
                 break;
@@ -446,7 +456,10 @@ public class SensePower : MagicPowerBase
                             actor.Location.Shard.GameItems.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
                         break;
                     case MagicPowerDistance.SamePlaneOnly:
-                        goto case MagicPowerDistance.SameShardOnly;
+                        targets.AddRange(
+                            actor.Location.Shard.GameItems.Where(actor.SharesPlaneWith)
+                                 .Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
+                        break;
                 }
 
                 break;

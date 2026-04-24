@@ -24,6 +24,7 @@ namespace MudSharp.Framework
         IgnoreLoadThings = 2048, // Being called at a time when you do not want to lazy load anything,
         IgnoreLiquidsAndFlags = 4096,
         IgnorePositionInformationForLongDesc = 8192,
-        TrueDescription = IgnoreSelf | IgnoreCanSee | IgnoreDisguises | IgnoreNamesSetting | IgnoreCorpse
+        IgnorePlanes = 16384,
+        TrueDescription = IgnoreSelf | IgnoreCanSee | IgnoreDisguises | IgnoreNamesSetting | IgnoreCorpse | IgnorePlanes
     }
 }

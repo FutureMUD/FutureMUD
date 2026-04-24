@@ -1669,6 +1669,8 @@ namespace MudSharp.Database
                 entity.Property(e => e.HungerRate).HasColumnType("double").HasDefaultValue(1.0);
 
                 entity.Property(e => e.ThirstRate).HasColumnType("double").HasDefaultValue(1.0);
+                entity.Property(e => e.MaximumFoodSatiatedHours).HasColumnType("double").HasDefaultValue(16.0);
+                entity.Property(e => e.MaximumDrinkSatiatedHours).HasColumnType("double").HasDefaultValue(8.0);
                 entity.Property(e => e.TrackIntensityVisual).HasColumnType("double").HasDefaultValue(1.0);
                 entity.Property(e => e.TrackIntensityOlfactory).HasColumnType("double").HasDefaultValue(1.0);
                 entity.Property(e => e.TrackingAbilityVisual).HasColumnType("double").HasDefaultValue(1.0);

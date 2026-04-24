@@ -113,6 +113,8 @@ public partial class Race : SaveableItem, IRace
             CorpseModel = ParentRace.CorpseModel;
             HungerRate = ParentRace.HungerRate;
             ThirstRate = ParentRace.ThirstRate;
+            MaximumFoodSatiatedHours = ParentRace.MaximumFoodSatiatedHours;
+            MaximumDrinkSatiatedHours = ParentRace.MaximumDrinkSatiatedHours;
             TrackIntensityOlfactory = ParentRace.TrackIntensityOlfactory;
             TrackIntensityVisual = ParentRace.TrackIntensityVisual;
             TrackingAbilityVisual = ParentRace.TrackingAbilityVisual;
@@ -216,6 +218,8 @@ public partial class Race : SaveableItem, IRace
             CorpseModel = Gameworld.CorpseModels.First();
             HungerRate = 1.0;
             ThirstRate = 1.0;
+            MaximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours;
+            MaximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours;
             TrackIntensityOlfactory = 1.0;
             TrackIntensityVisual = 1.0;
             TrackingAbilityVisual = 1.0;
@@ -300,6 +304,8 @@ public partial class Race : SaveableItem, IRace
                 SizeSitting = (int)SizeSitting,
                 HungerRate = HungerRate,
                 ThirstRate = ThirstRate,
+                MaximumFoodSatiatedHours = MaximumFoodSatiatedHours,
+                MaximumDrinkSatiatedHours = MaximumDrinkSatiatedHours,
                 TrackIntensityOlfactory = TrackIntensityOlfactory,
                 TrackIntensityVisual = TrackIntensityVisual,
                 TrackingAbilityOlfactory = TrackingAbilityOlfactory,
@@ -374,6 +380,8 @@ public partial class Race : SaveableItem, IRace
         ButcheryProfile = gameworld.RaceButcheryProfiles.Get(race.RaceButcheryProfileId ?? 0L);
         HungerRate = race.HungerRate;
         ThirstRate = race.ThirstRate;
+        MaximumFoodSatiatedHours = race.MaximumFoodSatiatedHours;
+        MaximumDrinkSatiatedHours = race.MaximumDrinkSatiatedHours;
         TrackIntensityOlfactory = race.TrackIntensityOlfactory;
         TrackIntensityVisual = race.TrackIntensityVisual;
         TrackingAbilityOlfactory = race.TrackingAbilityOlfactory;
@@ -624,6 +632,8 @@ public partial class Race : SaveableItem, IRace
         CorpseModel = rhs.CorpseModel;
         HungerRate = rhs.HungerRate;
         ThirstRate = rhs.ThirstRate;
+        MaximumFoodSatiatedHours = rhs.MaximumFoodSatiatedHours;
+        MaximumDrinkSatiatedHours = rhs.MaximumDrinkSatiatedHours;
         TrackIntensityOlfactory = rhs.TrackIntensityOlfactory;
         TrackIntensityVisual = rhs.TrackIntensityVisual;
         TrackingAbilityOlfactory = rhs.TrackingAbilityOlfactory;
@@ -765,6 +775,8 @@ public partial class Race : SaveableItem, IRace
                 SizeSitting = (int)SizeSitting,
                 HungerRate = HungerRate,
                 ThirstRate = ThirstRate,
+                MaximumFoodSatiatedHours = MaximumFoodSatiatedHours,
+                MaximumDrinkSatiatedHours = MaximumDrinkSatiatedHours,
                 CommunicationStrategyType = CommunicationStrategy.Name,
                 DefaultHandedness = (int)DefaultHandedness,
                 HandednessOptions = HandednessOptions.Select(x => ((int)x).ToString("F0"))
@@ -1182,6 +1194,8 @@ public partial class Race : SaveableItem, IRace
         dbitem.NaturalArmourMaterialId = NaturalArmourMaterial?.Id;
         dbitem.HungerRate = HungerRate;
         dbitem.ThirstRate = ThirstRate;
+        dbitem.MaximumFoodSatiatedHours = MaximumFoodSatiatedHours;
+        dbitem.MaximumDrinkSatiatedHours = MaximumDrinkSatiatedHours;
         dbitem.TrackIntensityOlfactory = TrackIntensityOlfactory;
         dbitem.TrackIntensityVisual = TrackIntensityVisual;
         dbitem.TrackingAbilityOlfactory = TrackingAbilityOlfactory;
@@ -1869,6 +1883,8 @@ public partial class Race : SaveableItem, IRace
 
     public double HungerRate { get; set; }
     public double ThirstRate { get; set; }
+    public double MaximumFoodSatiatedHours { get; set; }
+    public double MaximumDrinkSatiatedHours { get; set; }
     public double TrackIntensityVisual { get; set; }
     public double TrackIntensityOlfactory { get; set; }
     public double TrackingAbilityVisual { get; set; }

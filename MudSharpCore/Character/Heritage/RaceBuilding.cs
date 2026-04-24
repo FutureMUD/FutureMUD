@@ -108,6 +108,8 @@ public partial class Race
 
 	#3hunger <%>#0 - sets a percentage multiplier to base rate at which they will get hungry
 	#3thirst <%>#0 - sets a percentage multiplier to base rate at which they will get thirsty
+	#3hungerlimit <hours>#0 - sets the maximum hours of hunger satiation this race can store
+	#3thirstlimit <hours>#0 - sets the maximum hours of thirst satiation this race can store
 	#3caneatcorpses#0 - toggles the race being able to eat corpses directly (without butchering)
 	#3biteweight <weight>#0 - sets the amount of corpse weight eaten per bite
 	#3material add <material>#0 - adds a material definition for corpse-eating
@@ -160,9 +162,23 @@ public partial class Race
             case "hungry":
             case "hunger":
                 return BuildingCommandHunger(actor, command);
+            case "hungerlimit":
+            case "hungercap":
+            case "foodlimit":
+            case "foodcap":
+            case "maxhunger":
+            case "maxfood":
+                return BuildingCommandHungerLimit(actor, command);
             case "thirst":
             case "thirsty":
                 return BuildingCommandThirst(actor, command);
+            case "thirstlimit":
+            case "thirstcap":
+            case "drinklimit":
+            case "drinkcap":
+            case "maxthirst":
+            case "maxdrink":
+                return BuildingCommandThirstLimit(actor, command);
             case "corpse":
             case "corpsemodel":
                 return BuildingCommandCorpseModel(actor, command);
@@ -511,6 +527,23 @@ public partial class Race
         return true;
     }
 
+    private bool BuildingCommandThirstLimit(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished ||
+            !double.TryParse(command.SafeRemainingArgument, actor.Account.Culture, out double value) ||
+            value <= 0.0)
+        {
+            actor.OutputHandler.Send("You must enter a valid number of hours greater than zero.");
+            return false;
+        }
+
+        MaximumDrinkSatiatedHours = value;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This race can now store up to {value.ToString("N2", actor).ColourValue()} hours of thirst satiation, with sated at {(value * 0.75).ToString("N2", actor).ColourValue()} hours and not thirsty at {(value * 0.5).ToString("N2", actor).ColourValue()} hours.");
+        return true;
+    }
+
     private bool BuildingCommandHunger(ICharacter actor, StringStack command)
     {
         if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out double value))
@@ -522,6 +555,23 @@ public partial class Race
         HungerRate = value;
         Changed = true;
         actor.OutputHandler.Send($"This race will now get hungry at a {value.ToString("P2").ColourValue()} rate compared to baseline.");
+        return true;
+    }
+
+    private bool BuildingCommandHungerLimit(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished ||
+            !double.TryParse(command.SafeRemainingArgument, actor.Account.Culture, out double value) ||
+            value <= 0.0)
+        {
+            actor.OutputHandler.Send("You must enter a valid number of hours greater than zero.");
+            return false;
+        }
+
+        MaximumFoodSatiatedHours = value;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This race can now store up to {value.ToString("N2", actor).ColourValue()} hours of hunger satiation, with absolutely stuffed at {(value * 0.75).ToString("N2", actor).ColourValue()} hours, full at {(value * 0.5).ToString("N2", actor).ColourValue()} hours, and peckish at {(value * 0.25).ToString("N2", actor).ColourValue()} hours.");
         return true;
     }
 
@@ -2797,6 +2847,11 @@ public partial class Race
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
             $"Hunger Rate: {HungerRate.ToString("P2", actor).ColourValue()}",
             $"Thirst Rate: {ThirstRate.ToString("P2", actor).ColourValue()}",
+            ""
+        );
+        sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+            $"Hunger Limit: {MaximumFoodSatiatedHours.ToString("N2", actor).ColourValue()} hours",
+            $"Thirst Limit: {MaximumDrinkSatiatedHours.ToString("N2", actor).ColourValue()} hours",
             ""
         );
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,

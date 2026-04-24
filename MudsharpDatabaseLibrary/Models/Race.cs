@@ -85,6 +85,8 @@ namespace MudSharp.Models
 
         public double HungerRate { get; set; }
         public double ThirstRate { get; set; }
+        public double MaximumFoodSatiatedHours { get; set; }
+        public double MaximumDrinkSatiatedHours { get; set; }
         public double TrackIntensityVisual { get; set; }
         public double TrackIntensityOlfactory { get; set; }
         public double TrackingAbilityVisual { get; set; }

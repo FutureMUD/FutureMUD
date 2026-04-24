@@ -19,13 +19,14 @@ public class ActiveNeedsModel : ChangingNeedsModelBase
         AlcoholLitres = dbcharacter.AlcoholLitres;
         WaterLitres = dbcharacter.WaterLitres;
         SatiationReserve = dbcharacter.SatiationReserve;
+        NormaliseValues();
     }
 
     public ActiveNeedsModel(ICharacter character)
     {
         Owner = character;
-        DrinkSatiatedHours = 24;
-        FoodSatiatedHours = 24;
+        DrinkSatiatedHours = DrinkSatiationLimit;
+        FoodSatiatedHours = FoodSatiationLimit;
         AlcoholLitres = 0;
         WaterLitres = 3.0;
         SatiationReserve = 0.0;
@@ -66,6 +67,7 @@ public class ActiveNeedsModel : ChangingNeedsModelBase
             SpendSatiationReserve(satiationUse * exertionMultiplier, false);
         }
 
+        NormaliseValues();
         NeedsChanged(oldStatus, true, true, false);
     }
 }

@@ -13,8 +13,8 @@ public class PassiveNeedsModel : ChangingNeedsModelBase
         Owner = character;
         AlcoholLitres = 0.0;
         WaterLitres = 0.0;
-        FoodSatiatedHours = 16.0;
-        DrinkSatiatedHours = 8.0;
+        FoodSatiatedHours = FoodSatiationLimit;
+        DrinkSatiatedHours = DrinkSatiationLimit;
         SatiationReserve = 0.0;
     }
 

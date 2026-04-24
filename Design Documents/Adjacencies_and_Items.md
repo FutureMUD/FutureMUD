@@ -46,6 +46,8 @@ Needs are separated from wounds but still participate in health because they alt
 
 `INeedsModel` is the contract that controls ongoing hunger, thirst, alcohol, water, and related fulfillment or decay behavior.
 
+Race data controls both the rate and capacity of hunger and thirst. `HungerRate` and `ThirstRate` multiply the active heartbeat decay speed, while `MaximumFoodSatiatedHours` and `MaximumDrinkSatiatedHours` cap how many positive satiation hours a character of that race can store. The player-facing labels scale from these caps: food becomes peckish/full/absolutely stuffed at 25/50/75% of the food limit, and drink becomes not thirsty/sated at 50/75% of the drink limit. Builders edit these through the race-building `hunger`, `thirst`, `hungerlimit`, and `thirstlimit` options.
+
 ### Needs model families
 | Needs model | Current behavior | Current stock usage |
 | --- | --- | --- |

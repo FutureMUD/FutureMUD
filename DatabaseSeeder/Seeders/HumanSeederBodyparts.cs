@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
+using MudSharp.Database;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -32,6 +33,762 @@ public partial class HumanSeeder
 
     private Material _spongyBone;
     private Material _visceraMaterial;
+
+	private enum StockHumanWearProfileType
+	{
+		Direct,
+		Shape
+	}
+
+	private sealed record StockHumanWearProfileLocation(
+		string Location,
+		int Count,
+		bool Mandatory,
+		bool NoArmour,
+		bool Transparent,
+		bool PreventsRemoval,
+		bool HidesSevered);
+
+	private sealed record StockHumanWearProfileDefinition(
+		string Name,
+		string WearStringInventory,
+		string WearAction1st,
+		string WearAction3rd,
+		string WearAffix,
+		string Description,
+		bool RequireContainerIsEmpty,
+		bool Bulky,
+		StockHumanWearProfileType Type,
+		IReadOnlyList<StockHumanWearProfileLocation> Locations);
+
+	private static StockHumanWearProfileLocation Loc(string location, bool mandatory, bool noArmour,
+		bool transparent, bool preventsRemoval, bool hidesSevered)
+	{
+		return new StockHumanWearProfileLocation(location, 1, mandatory, noArmour, transparent, preventsRemoval,
+			hidesSevered);
+	}
+
+	private static StockHumanWearProfileLocation ShapeLoc(string shape, int count, bool mandatory, bool noArmour,
+		bool transparent, bool preventsRemoval, bool hidesSevered)
+	{
+		return new StockHumanWearProfileLocation(shape, count, mandatory, noArmour, transparent, preventsRemoval,
+			hidesSevered);
+	}
+
+	private static StockHumanWearProfileDefinition StockDirectWearProfile(string name, string wearInv,
+		string wear1st, string wear3rd, string wearAffix, string description, bool requireContainerIsEmpty,
+		bool bulky, params StockHumanWearProfileLocation[] locations)
+	{
+		return new StockHumanWearProfileDefinition(name, wearInv, wear1st, wear3rd, wearAffix, description,
+			requireContainerIsEmpty, bulky, StockHumanWearProfileType.Direct, locations);
+	}
+
+	private static StockHumanWearProfileDefinition StockShapeWearProfile(string name, string wearInv,
+		string wear1st, string wear3rd, string wearAffix, string description, bool requireContainerIsEmpty,
+		bool bulky, params StockHumanWearProfileLocation[] locations)
+	{
+		return new StockHumanWearProfileDefinition(name, wearInv, wear1st, wear3rd, wearAffix, description,
+			requireContainerIsEmpty, bulky, StockHumanWearProfileType.Shape, locations);
+	}
+
+	private static readonly StockHumanWearProfileDefinition[] AdditionalHumanWearProfiles =
+	[
+		StockDirectWearProfile("Headband", "worn on", "put", "puts", "on",
+			"Worn as a band around the forehead and temples", false, false,
+			Loc("forehead", true, false, false, true, false),
+			Loc("rtemple", true, false, false, true, false),
+			Loc("ltemple", true, false, false, true, false)),
+		StockDirectWearProfile("Turban", "worn on", "put", "puts", "on",
+			"Worn as wrapped headcloth covering the scalp, back of head and forehead", false, false,
+			Loc("scalp", true, false, false, true, false),
+			Loc("bhead", true, false, false, true, false),
+			Loc("forehead", true, false, false, true, false),
+			Loc("rtemple", false, false, false, true, false),
+			Loc("ltemple", false, false, false, true, false)),
+		StockDirectWearProfile("Veil", "worn over", "put", "puts", "on",
+			"Worn as a sheer veil over the face while leaving features visible", false, false,
+			Loc("face", true, false, true, true, false),
+			Loc("forehead", true, false, true, true, false),
+			Loc("rcheek", true, false, true, true, false),
+			Loc("lcheek", true, false, true, true, false),
+			Loc("nose", false, false, true, true, false),
+			Loc("mouth", false, false, true, true, false),
+			Loc("chin", false, false, true, true, false),
+			Loc("reyesocket", false, false, true, true, false),
+			Loc("leyesocket", false, false, true, true, false)),
+		StockDirectWearProfile("Blindfold", "worn over", "tie", "ties", "on",
+			"Worn as an opaque covering across the eyes", false, false,
+			Loc("reyesocket", true, false, false, true, true),
+			Loc("leyesocket", true, false, false, true, true),
+			Loc("reye", false, false, false, true, true),
+			Loc("leye", false, false, false, true, true),
+			Loc("rbrow", false, false, false, true, false),
+			Loc("lbrow", false, false, false, true, false)),
+		StockDirectWearProfile("Gag", "worn in", "put", "puts", "in",
+			"Worn as a gag secured in or over the mouth", false, false,
+			Loc("mouth", true, false, false, true, true),
+			Loc("tongue", false, false, false, true, true),
+			Loc("chin", false, false, false, true, false),
+			Loc("rcheek", false, false, false, true, false),
+			Loc("lcheek", false, false, false, true, false)),
+		StockDirectWearProfile("Long Coat", "worn on", "put", "puts", "on",
+			"Worn as a long coat covering the torso, arms and upper legs", false, true,
+			Loc("lback", true, false, false, true, false),
+			Loc("uback", true, false, false, true, false),
+			Loc("belly", true, false, false, true, false),
+			Loc("abdomen", true, false, false, true, false),
+			Loc("rbreast", true, false, false, true, false),
+			Loc("lbreast", true, false, false, true, false),
+			Loc("rnipple", false, false, false, true, true),
+			Loc("lnipple", false, false, false, true, true),
+			Loc("rshoulder", true, false, false, true, false),
+			Loc("lshoulder", true, false, false, true, false),
+			Loc("rupperarm", false, false, false, true, false),
+			Loc("lupperarm", false, false, false, true, false),
+			Loc("relbow", false, false, false, true, false),
+			Loc("lelbow", false, false, false, true, false),
+			Loc("rforearm", false, false, false, true, false),
+			Loc("lforearm", false, false, false, true, false),
+			Loc("rbuttock", false, false, false, false, false),
+			Loc("lbuttock", false, false, false, false, false),
+			Loc("rthigh", false, false, false, false, false),
+			Loc("lthigh", false, false, false, false, false),
+			Loc("rthighback", false, false, false, false, false),
+			Loc("lthighback", false, false, false, false, false)),
+		StockDirectWearProfile("Robe", "worn on", "slip", "slips", "on",
+			"Worn as a loose robe covering the torso, arms and legs", false, true,
+			Loc("lback", true, false, false, true, false),
+			Loc("uback", true, false, false, true, false),
+			Loc("belly", true, false, false, true, false),
+			Loc("abdomen", true, false, false, true, false),
+			Loc("rbreast", true, false, false, true, false),
+			Loc("lbreast", true, false, false, true, false),
+			Loc("rnipple", false, false, false, true, true),
+			Loc("lnipple", false, false, false, true, true),
+			Loc("rshoulder", true, false, false, true, false),
+			Loc("lshoulder", true, false, false, true, false),
+			Loc("rupperarm", false, false, false, true, false),
+			Loc("lupperarm", false, false, false, true, false),
+			Loc("relbow", false, false, false, true, false),
+			Loc("lelbow", false, false, false, true, false),
+			Loc("rforearm", false, false, false, true, false),
+			Loc("lforearm", false, false, false, true, false),
+			Loc("groin", true, false, false, false, false),
+			Loc("penis", false, false, false, false, true),
+			Loc("testicles", false, false, false, false, true),
+			Loc("rhip", true, false, false, false, false),
+			Loc("lhip", true, false, false, false, false),
+			Loc("rbuttock", false, false, false, false, false),
+			Loc("lbuttock", false, false, false, false, false),
+			Loc("rthigh", false, false, false, false, false),
+			Loc("lthigh", false, false, false, false, false),
+			Loc("rthighback", false, false, false, false, false),
+			Loc("lthighback", false, false, false, false, false)),
+		StockDirectWearProfile("Tabard", "worn over", "put", "puts", "on",
+			"Worn as a sleeveless tabard over the chest and back", false, false,
+			Loc("rshoulder", true, false, false, true, false),
+			Loc("lshoulder", true, false, false, true, false),
+			Loc("rbreast", true, false, false, true, false),
+			Loc("lbreast", true, false, false, true, false),
+			Loc("rnipple", false, false, false, true, true),
+			Loc("lnipple", false, false, false, true, true),
+			Loc("abdomen", true, false, false, true, false),
+			Loc("belly", true, false, false, true, false),
+			Loc("uback", true, false, false, true, false),
+			Loc("lback", true, false, false, true, false)),
+		StockDirectWearProfile("Apron", "worn over", "tie", "ties", "on",
+			"Worn as an apron covering the front of the torso and upper legs", false, false,
+			Loc("throat", false, false, true, true, false),
+			Loc("rbreast", false, false, false, false, false),
+			Loc("lbreast", false, false, false, false, false),
+			Loc("rnipple", false, false, false, false, true),
+			Loc("lnipple", false, false, false, false, true),
+			Loc("abdomen", true, false, false, false, false),
+			Loc("belly", true, false, false, false, false),
+			Loc("groin", false, false, false, false, false),
+			Loc("rthigh", false, false, false, false, false),
+			Loc("lthigh", false, false, false, false, false)),
+		StockDirectWearProfile("Poncho", "worn over", "pull", "pulls", "on",
+			"Worn as a poncho draped over the shoulders, chest, back and upper arms", false, true,
+			Loc("neck", true, false, false, true, false),
+			Loc("bneck", true, false, false, true, false),
+			Loc("rshoulder", true, false, false, true, false),
+			Loc("lshoulder", true, false, false, true, false),
+			Loc("rbreast", true, false, false, false, false),
+			Loc("lbreast", true, false, false, false, false),
+			Loc("rnipple", false, false, false, false, true),
+			Loc("lnipple", false, false, false, false, true),
+			Loc("abdomen", false, false, false, false, false),
+			Loc("uback", true, false, false, false, false),
+			Loc("lback", false, false, false, false, false),
+			Loc("rupperarm", false, false, false, false, false),
+			Loc("lupperarm", false, false, false, false, false)),
+		StockDirectWearProfile("Leggings", "worn on", "slip", "slips", "on",
+			"Worn as close-fitting legwear from waist to ankles, leaving the feet bare", false, false,
+			Loc("groin", true, false, false, true, false),
+			Loc("rhip", true, false, false, true, false),
+			Loc("lhip", true, false, false, true, false),
+			Loc("penis", false, false, false, true, true),
+			Loc("testicles", false, false, false, true, true),
+			Loc("rbuttock", true, false, false, true, false),
+			Loc("lbuttock", true, false, false, true, false),
+			Loc("rthigh", true, false, false, true, false),
+			Loc("lthigh", true, false, false, true, false),
+			Loc("rthighback", true, false, false, true, false),
+			Loc("lthighback", true, false, false, true, false),
+			Loc("rknee", true, false, false, true, false),
+			Loc("lknee", true, false, false, true, false),
+			Loc("rkneeback", true, false, false, true, false),
+			Loc("lkneeback", true, false, false, true, false),
+			Loc("rshin", true, false, false, true, false),
+			Loc("lshin", true, false, false, true, false),
+			Loc("rcalf", true, false, false, true, false),
+			Loc("lcalf", true, false, false, true, false),
+			Loc("rankle", false, false, false, true, false),
+			Loc("lankle", false, false, false, true, false)),
+		StockDirectWearProfile("Tights", "worn on", "slip", "slips", "on",
+			"Worn as close-fitting legwear covering the legs and feet", false, false,
+			Loc("groin", true, false, false, true, false),
+			Loc("rhip", true, false, false, true, false),
+			Loc("lhip", true, false, false, true, false),
+			Loc("penis", false, false, false, true, true),
+			Loc("testicles", false, false, false, true, true),
+			Loc("rbuttock", true, false, false, true, false),
+			Loc("lbuttock", true, false, false, true, false),
+			Loc("rthigh", true, false, false, true, false),
+			Loc("lthigh", true, false, false, true, false),
+			Loc("rthighback", true, false, false, true, false),
+			Loc("lthighback", true, false, false, true, false),
+			Loc("rknee", true, false, false, true, false),
+			Loc("lknee", true, false, false, true, false),
+			Loc("rkneeback", true, false, false, true, false),
+			Loc("lkneeback", true, false, false, true, false),
+			Loc("rshin", true, false, false, true, false),
+			Loc("lshin", true, false, false, true, false),
+			Loc("rcalf", true, false, false, true, false),
+			Loc("lcalf", true, false, false, true, false),
+			Loc("rankle", true, false, false, true, false),
+			Loc("lankle", true, false, false, true, false),
+			Loc("rfoot", true, false, false, true, false),
+			Loc("lfoot", true, false, false, true, false),
+			Loc("rbigtoe", false, false, false, true, true),
+			Loc("lbigtoe", false, false, false, true, true),
+			Loc("rindextoe", false, false, false, true, true),
+			Loc("lindextoe", false, false, false, true, true),
+			Loc("rmiddletoe", false, false, false, true, true),
+			Loc("lmiddletoe", false, false, false, true, true),
+			Loc("rringtoe", false, false, false, true, true),
+			Loc("lringtoe", false, false, false, true, true),
+			Loc("rpinkytoe", false, false, false, true, true),
+			Loc("lpinkytoe", false, false, false, true, true)),
+		StockDirectWearProfile("Loincloth", "worn on", "tie", "ties", "on",
+			"Worn as a loincloth covering the groin and hanging from the hips", false, false,
+			Loc("groin", true, false, false, true, false),
+			Loc("rhip", true, false, true, true, false),
+			Loc("lhip", true, false, true, true, false),
+			Loc("penis", false, false, false, true, true),
+			Loc("testicles", false, false, false, true, true),
+			Loc("rbuttock", false, false, false, false, false),
+			Loc("lbuttock", false, false, false, false, false)),
+		StockDirectWearProfile("Fingerless Gloves", "worn on", "put", "puts", "on",
+			"Worn as gloves covering the hands and wrists while leaving fingers exposed", false, true,
+			Loc("rhand", true, false, false, true, false),
+			Loc("lhand", true, false, false, true, false),
+			Loc("rwrist", true, false, false, true, false),
+			Loc("lwrist", true, false, false, true, false)),
+		StockDirectWearProfile("Mittens", "worn on", "put", "puts", "on",
+			"Worn as mittens covering the hands, thumbs and fingers", false, true,
+			Loc("rhand", true, false, false, true, false),
+			Loc("lhand", true, false, false, true, false),
+			Loc("rthumb", false, false, false, true, true),
+			Loc("lthumb", false, false, false, true, true),
+			Loc("rindexfinger", false, false, false, true, true),
+			Loc("lindexfinger", false, false, false, true, true),
+			Loc("rmiddlefinger", false, false, false, true, true),
+			Loc("lmiddlefinger", false, false, false, true, true),
+			Loc("rringfinger", false, false, false, true, true),
+			Loc("lringfinger", false, false, false, true, true),
+			Loc("rpinkyfinger", false, false, false, true, true),
+			Loc("lpinkyfinger", false, false, false, true, true)),
+		StockDirectWearProfile("Backplate", "worn on", "put", "puts", "on",
+			"Worn as a backplate covering the upper and lower back", false, true,
+			Loc("uback", true, false, false, true, false),
+			Loc("lback", true, false, false, true, false),
+			Loc("rshoulderblade", true, false, false, true, false),
+			Loc("lshoulderblade", true, false, false, true, false)),
+		StockDirectWearProfile("Sabatons", "worn on", "put", "puts", "on",
+			"Worn as armoured foot protection covering the feet and toes", false, true,
+			Loc("rfoot", true, false, false, true, false),
+			Loc("lfoot", true, false, false, true, false),
+			Loc("rheel", false, false, false, true, false),
+			Loc("lheel", false, false, false, true, false),
+			Loc("rbigtoe", false, false, false, true, true),
+			Loc("lbigtoe", false, false, false, true, true),
+			Loc("rindextoe", false, false, false, true, true),
+			Loc("lindextoe", false, false, false, true, true),
+			Loc("rmiddletoe", false, false, false, true, true),
+			Loc("lmiddletoe", false, false, false, true, true),
+			Loc("rringtoe", false, false, false, true, true),
+			Loc("lringtoe", false, false, false, true, true),
+			Loc("rpinkytoe", false, false, false, true, true),
+			Loc("lpinkytoe", false, false, false, true, true)),
+		StockShapeWearProfile("Sash", "worn across", "put", "puts", "on",
+			"Worn as a decorative sash crossing from one shoulder to the opposite hip", false, false,
+			ShapeLoc("shoulder", 1, true, false, true, true, false),
+			ShapeLoc("breast", 1, false, false, true, true, false),
+			ShapeLoc("hip", 1, true, false, true, true, false)),
+		StockShapeWearProfile("Bandolier", "slung across", "sling", "slings", "on",
+			"Slung as a bandolier across one shoulder and the torso", false, false,
+			ShapeLoc("shoulder", 1, true, false, true, true, false),
+			ShapeLoc("breast", 1, false, false, true, true, false),
+			ShapeLoc("hip", 1, false, false, true, true, false)),
+		StockShapeWearProfile("Armlet", "worn on", "put", "puts", "on", "Worn as a single armlet on an upper arm",
+			false, false,
+			ShapeLoc("upper arm", 1, true, false, true, true, false)),
+		StockShapeWearProfile("Toe Ring", "worn on", "put", "puts", "on", "Worn as a ring on a toe", false, false,
+			ShapeLoc("toe", 1, true, false, true, true, false))
+	];
+
+	internal static int HumanWearProfileBaselineCountForTesting => 130;
+
+	internal static int HumanWearProfileExpansionCountForTesting => AdditionalHumanWearProfiles.Length;
+
+	internal static IReadOnlyList<string> AdditionalHumanWearProfileNamesForTesting =>
+		AdditionalHumanWearProfiles.Select(x => x.Name).ToArray();
+
+	internal static IReadOnlyList<(string Name, string Type, IReadOnlyList<(string Location, int Count)> Locations)>
+		AdditionalHumanWearProfileDefinitionsForTesting =>
+		AdditionalHumanWearProfiles
+			.Select(x => (
+				x.Name,
+				x.Type == StockHumanWearProfileType.Direct ? "Direct" : "Shape",
+				(IReadOnlyList<(string Location, int Count)>)x.Locations
+				                                               .Select(y => (y.Location, y.Count))
+				                                               .ToArray()))
+			.ToArray();
+
+	internal static IReadOnlyList<string> ValidateAdditionalHumanWearProfilesForTesting()
+	{
+		List<string> issues = new();
+		HashSet<string> names = new(StringComparer.OrdinalIgnoreCase);
+		int minimum = (int)Math.Ceiling(HumanWearProfileBaselineCountForTesting * 0.10);
+		int maximum = (int)Math.Floor(HumanWearProfileBaselineCountForTesting * 0.20);
+		if (AdditionalHumanWearProfiles.Length < minimum || AdditionalHumanWearProfiles.Length > maximum)
+		{
+			issues.Add(
+				$"Expansion count {AdditionalHumanWearProfiles.Length} is outside the requested {minimum}-{maximum} range.");
+		}
+
+		foreach (StockHumanWearProfileDefinition definition in AdditionalHumanWearProfiles)
+		{
+			if (string.IsNullOrWhiteSpace(definition.Name))
+			{
+				issues.Add("A wear profile has a blank name.");
+			}
+
+			if (!names.Add(definition.Name))
+			{
+				issues.Add($"Duplicate additional wear profile name {definition.Name}.");
+			}
+
+			if (definition.Locations.Count == 0)
+			{
+				issues.Add($"{definition.Name} has no wear locations.");
+			}
+
+			foreach (StockHumanWearProfileLocation location in definition.Locations)
+			{
+				if (string.IsNullOrWhiteSpace(location.Location))
+				{
+					issues.Add($"{definition.Name} has a blank wear location.");
+				}
+
+				if (location.Count < 1)
+				{
+					issues.Add($"{definition.Name} has an invalid count for {location.Location}.");
+				}
+
+				if (definition.Type == StockHumanWearProfileType.Direct && location.Count != 1)
+				{
+					issues.Add($"{definition.Name} direct location {location.Location} should use a count of 1.");
+				}
+			}
+		}
+
+		return issues;
+	}
+
+	private static string WearComponentName(string profileName)
+	{
+		return $"Wear_{profileName.Replace(' ', '_')}";
+	}
+
+	private static string BuildWearlocProfileXml(StockHumanWearProfileDefinition definition)
+	{
+		if (definition.Type == StockHumanWearProfileType.Direct)
+		{
+			return new XElement("Profiles",
+				from location in definition.Locations
+				select new XElement("Profile",
+					new XAttribute("Bodypart", location.Location),
+					new XAttribute("Transparent", location.Transparent),
+					new XAttribute("NoArmour", location.NoArmour),
+					new XAttribute("PreventsRemoval", location.PreventsRemoval),
+					new XAttribute("Mandatory", location.Mandatory),
+					new XAttribute("HidesSevered", location.HidesSevered)
+				)
+			).ToString();
+		}
+
+		return new XElement("Profiles",
+			from location in definition.Locations
+			select new XElement("Shape",
+				new XAttribute("ShapeId", location.Location),
+				new XAttribute("Count", location.Count),
+				new XAttribute("Transparent", location.Transparent),
+				new XAttribute("NoArmour", location.NoArmour),
+				new XAttribute("PreventsRemoval", location.PreventsRemoval),
+				new XAttribute("Mandatory", location.Mandatory),
+				new XAttribute("HidesSevered", location.HidesSevered)
+			)
+		).ToString();
+	}
+
+	private List<(WearProfile Profile, bool Bulky)> AddMissingHumanWearProfiles(BodyProto baseHumanoid,
+		IEnumerable<StockHumanWearProfileDefinition> definitions)
+	{
+		HashSet<string> existingNames = _context.WearProfiles
+		                                        .Where(x => x.BodyPrototypeId == baseHumanoid.Id)
+		                                        .Select(x => x.Name)
+		                                        .AsEnumerable()
+		                                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+		long nextId = _context.WearProfiles
+		                      .Select(x => x.Id)
+		                      .AsEnumerable()
+		                      .DefaultIfEmpty(0L)
+		                      .Max() + 1;
+		List<(WearProfile Profile, bool Bulky)> addedProfiles = new();
+
+		foreach (StockHumanWearProfileDefinition definition in definitions)
+		{
+			if (!existingNames.Add(definition.Name))
+			{
+				continue;
+			}
+
+			WearProfile profile = new()
+			{
+				Id = nextId++,
+				BodyPrototypeId = baseHumanoid.Id,
+				Name = definition.Name,
+				WearStringInventory = definition.WearStringInventory,
+				WearAction1st = definition.WearAction1st,
+				WearAction3rd = definition.WearAction3rd,
+				WearAffix = definition.WearAffix,
+				Description = definition.Description,
+				RequireContainerIsEmpty = definition.RequireContainerIsEmpty,
+				Type = definition.Type == StockHumanWearProfileType.Direct ? "Direct" : "Shape",
+				WearlocProfiles = BuildWearlocProfileXml(definition)
+			};
+			_context.WearProfiles.Add(profile);
+			addedProfiles.Add((profile, definition.Bulky));
+		}
+
+		if (addedProfiles.Count == 0)
+		{
+			return addedProfiles;
+		}
+
+		_context.SaveChanges();
+		AddWearableComponentProtosForProfiles(addedProfiles);
+		_context.SaveChanges();
+		return addedProfiles;
+	}
+
+	private void AddWearableComponentProtosForProfiles(IReadOnlyList<(WearProfile Profile, bool Bulky)> profiles)
+	{
+		if (profiles.Count == 0)
+		{
+			return;
+		}
+
+		DateTime now = DateTime.UtcNow;
+		Account dbaccount = _context.Accounts.First();
+		long id = _context.GameItemComponentProtos
+		                  .Select(x => x.Id)
+		                  .AsEnumerable()
+		                  .DefaultIfEmpty(0L)
+		                  .Max() + 1;
+		HashSet<string> existingComponentNames = _context.GameItemComponentProtos
+		                                                 .Select(x => x.Name)
+		                                                 .AsEnumerable()
+		                                                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+		foreach ((WearProfile profile, bool bulky) in profiles)
+		{
+			string componentName = WearComponentName(profile.Name);
+			if (!existingComponentNames.Add(componentName))
+			{
+				continue;
+			}
+
+			GameItemComponentProto component = new()
+			{
+				Id = id++,
+				RevisionNumber = 0,
+				Name = componentName,
+				Description = $"Permits the item to be worn in the {profile.Name} wear configuration",
+				Type = "Wearable",
+				Definition =
+					$"<Definition DisplayInventoryWhenWorn=\"true\" Bulky=\"{bulky}\"><Profiles Default=\"{profile.Id}\"><Profile>{profile.Id}</Profile></Profiles></Definition>"
+			};
+			component.EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			};
+			_context.GameItemComponentProtos.Add(component);
+		}
+	}
+
+	private bool RefreshExistingHumanWearProfiles(BodyProto baseHumanoid)
+	{
+		bool repaired = RepairExistingHumanWearProfileAccuracy(baseHumanoid);
+		bool added = AddMissingHumanWearProfiles(baseHumanoid, AdditionalHumanWearProfiles).Count > 0;
+		if (repaired && !added)
+		{
+			_context.SaveChanges();
+		}
+
+		return repaired || added;
+	}
+
+	private static bool HasMissingHumanWearProfiles(FuturemudDatabaseContext context)
+	{
+		BodyProto? baseHumanoid = context.BodyProtos.FirstOrDefault(x => x.Name == "Humanoid");
+		if (baseHumanoid is null)
+		{
+			return false;
+		}
+
+		HashSet<string> existingNames = context.WearProfiles
+		                                      .Where(x => x.BodyPrototypeId == baseHumanoid.Id)
+		                                      .Select(x => x.Name)
+		                                      .AsEnumerable()
+		                                      .ToHashSet(StringComparer.OrdinalIgnoreCase);
+		return AdditionalHumanWearProfiles.Any(x => !existingNames.Contains(x.Name));
+	}
+
+	private bool RepairExistingHumanWearProfileAccuracy(BodyProto baseHumanoid)
+	{
+		Dictionary<string, WearProfile> profiles = _context.WearProfiles
+		                                                   .Where(x => x.BodyPrototypeId == baseHumanoid.Id)
+		                                                   .AsEnumerable()
+		                                                   .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+		                                                   .ToDictionary(x => x.Key, x => x.First(),
+			                                                   StringComparer.OrdinalIgnoreCase);
+		bool dirty = false;
+
+		if (profiles.TryGetValue("Eyes", out WearProfile? eyes))
+		{
+			dirty |= SetWearlocAttribute(eyes, "Profile", "Bodypart", "reye", "Transparent", "True");
+			dirty |= SetWearlocAttribute(eyes, "Profile", "Bodypart", "leye", "Transparent", "True");
+		}
+
+		string[] piercingProfiles =
+		[
+			"Earrings",
+			"Nose Ring",
+			"Earring",
+			"Brow Ring",
+			"Lip Ring",
+			"Nipple Ring",
+			"Penis Ring",
+			"Bellybutton Ring",
+			"Tongue Ring"
+		];
+		foreach (string profileName in piercingProfiles)
+		{
+			if (profiles.TryGetValue(profileName, out WearProfile? profile))
+			{
+				dirty |= SetWearAction(profile, "put", "puts", "in");
+			}
+		}
+
+		if (profiles.TryGetValue("Lip Ring", out WearProfile? lipRing))
+		{
+			dirty |= SetDescription(lipRing, "Inserted into a lip piercing");
+			StockHumanWearProfileDefinition lipRingDefinition = StockShapeWearProfile("Lip Ring", "worn in",
+				"put", "puts", "in", "Inserted into a lip piercing", false, false,
+				ShapeLoc("mouth", 1, true, false, true, true, false));
+			dirty |= SetWearlocXml(lipRing, "Shape", BuildWearlocProfileXml(lipRingDefinition));
+		}
+
+		if (profiles.TryGetValue("Plackart", out WearProfile? plackart) &&
+		    (plackart.Description.Equals("Worn as a plackart covering the back",
+			     StringComparison.OrdinalIgnoreCase) ||
+		     !plackart.WearlocProfiles.Contains("Bodypart=\"belly\"", StringComparison.OrdinalIgnoreCase)))
+		{
+			StockHumanWearProfileDefinition plackartDefinition = StockDirectWearProfile("Plackart", "worn on",
+				"put", "puts", "on", "Worn as a plackart reinforcing the lower front torso", false, true,
+				Loc("belly", true, false, false, true, false),
+				Loc("abdomen", true, false, false, true, false),
+				Loc("rbreast", false, false, false, true, false),
+				Loc("lbreast", false, false, false, true, false));
+			dirty |= SetDescription(plackart, plackartDefinition.Description);
+			dirty |= SetWearlocXml(plackart, "Direct", BuildWearlocProfileXml(plackartDefinition));
+		}
+
+		string[] coveredTesticleProfiles =
+		[
+			"Bodysuit",
+			"Bodysuit Thong",
+			"Backless Bodysuit",
+			"Briefs",
+			"Shorts",
+			"Capris",
+			"Trousers",
+			"Thong",
+			"Skirt",
+			"Short Skirt",
+			"Long Skirt",
+			"Mini Skirt",
+			"Dress",
+			"Gown",
+			"Strapless Dress",
+			"Strapless Gown",
+			"Backless Dress",
+			"Backless Gown",
+			"Sleeveless Dress",
+			"Sleeveless Gown",
+			"Long-Sleeved Dress",
+			"Long-Sleeved Gown",
+			"Chausses"
+		];
+		foreach (string profileName in coveredTesticleProfiles)
+		{
+			if (profiles.TryGetValue(profileName, out WearProfile? profile))
+			{
+				dirty |= SetWearlocAttribute(profile, "Profile", "Bodypart", "testicles", "Transparent", "False");
+			}
+		}
+
+		string[] pairedSeverProfiles =
+		[
+			"Tunic",
+			"Breastplate",
+			"Doublet",
+			"Jerkin",
+			"Cuirass",
+			"Faulded Cuirass",
+			"Culeted Cuirass",
+			"Hauberk",
+			"Haubergeon",
+			"Spaulders",
+			"Pauldrons"
+		];
+		foreach (string profileName in pairedSeverProfiles)
+		{
+			if (profiles.TryGetValue(profileName, out WearProfile? profile))
+			{
+				dirty |= SetWearlocAttribute(profile, "Profile", "Bodypart", "rnipple", "HidesSevered", "True");
+				dirty |= SetWearlocAttribute(profile, "Profile", "Bodypart", "rshoulder", "HidesSevered", "False");
+			}
+		}
+
+		return dirty;
+	}
+
+	private static bool SetWearAction(WearProfile profile, string wear1st, string wear3rd, string wearAffix)
+	{
+		bool dirty = false;
+		if (!profile.WearAction1st.Equals(wear1st, StringComparison.Ordinal))
+		{
+			profile.WearAction1st = wear1st;
+			dirty = true;
+		}
+
+		if (!profile.WearAction3rd.Equals(wear3rd, StringComparison.Ordinal))
+		{
+			profile.WearAction3rd = wear3rd;
+			dirty = true;
+		}
+
+		if (!profile.WearAffix.Equals(wearAffix, StringComparison.Ordinal))
+		{
+			profile.WearAffix = wearAffix;
+			dirty = true;
+		}
+
+		return dirty;
+	}
+
+	private static bool SetDescription(WearProfile profile, string description)
+	{
+		if (profile.Description.Equals(description, StringComparison.Ordinal))
+		{
+			return false;
+		}
+
+		profile.Description = description;
+		return true;
+	}
+
+	private static bool SetWearlocXml(WearProfile profile, string type, string xml)
+	{
+		bool dirty = false;
+		if (!profile.Type.Equals(type, StringComparison.Ordinal))
+		{
+			profile.Type = type;
+			dirty = true;
+		}
+
+		if (!profile.WearlocProfiles.Equals(xml, StringComparison.Ordinal))
+		{
+			profile.WearlocProfiles = xml;
+			dirty = true;
+		}
+
+		return dirty;
+	}
+
+	private static bool SetWearlocAttribute(WearProfile profile, string elementName, string selectorAttribute,
+		string selectorValue, string targetAttribute, string targetValue)
+	{
+		XElement root;
+		try
+		{
+			root = XElement.Parse(profile.WearlocProfiles);
+		}
+		catch
+		{
+			return false;
+		}
+
+		XElement? element = root.Elements(elementName)
+		                        .FirstOrDefault(x => x.Attribute(selectorAttribute)?.Value.Equals(selectorValue,
+			                        StringComparison.OrdinalIgnoreCase) == true);
+		if (element is null)
+		{
+			return false;
+		}
+
+		XAttribute? attribute = element.Attribute(targetAttribute);
+		if (attribute?.Value.Equals(targetValue, StringComparison.OrdinalIgnoreCase) == true)
+		{
+			return false;
+		}
+
+		element.SetAttributeValue(targetAttribute, targetValue);
+		profile.WearlocProfiles = root.ToString();
+		return true;
+	}
 
     private static int GetHumanRelativeHitChance(string alias, int fallback)
     {
@@ -2357,9 +3114,9 @@ public partial class HumanSeeder
         );
         AddWearProfileDirect("Eyes", "worn in", "slip", "slips", "in", "Worn in the eyes (e.g. contact lenses)", false,
             false,
-            ("reye", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+            ("reye", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false),
-            ("leye", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+            ("leye", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false)
         );
         AddWearProfileDirect("Sack Hood", "worn over", "put", "puts", "on",
@@ -2860,7 +3617,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
@@ -2901,7 +3658,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("lback", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
@@ -2938,7 +3695,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
@@ -3218,11 +3975,11 @@ public partial class HumanSeeder
             ("lbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
+                HidesSevered: true),
             ("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -3420,7 +4177,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
@@ -3436,7 +4193,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
@@ -3461,7 +4218,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
@@ -3493,7 +4250,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
@@ -3565,7 +4322,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true)
         );
         AddWearProfileDirect("Shoes", "worn on", "put", "puts", "on", "Worn on the feet as shoes", false, true,
@@ -3970,7 +4727,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4003,7 +4760,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4028,7 +4785,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4069,7 +4826,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4086,7 +4843,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4147,7 +4904,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4216,7 +4973,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4265,7 +5022,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4322,7 +5079,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4371,7 +5128,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4428,7 +5185,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4485,7 +5242,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4550,7 +5307,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -4619,7 +5376,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: false,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: false,
                 HidesSevered: false),
@@ -5187,23 +5944,24 @@ public partial class HumanSeeder
             ("lbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
+                HidesSevered: true),
             ("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false)
 
          );
-        AddWearProfileDirect("Plackart", "worn on", "put", "puts", "on", "Worn as a plackart covering the back", false, true,
-            ("lback", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+        AddWearProfileDirect("Plackart", "worn on", "put", "puts", "on",
+            "Worn as a plackart reinforcing the lower front torso", false, true,
+            ("belly", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
-            ("uback", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+            ("abdomen", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
-            ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+            ("rbreast", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
-            ("lshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+            ("lbreast", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false)
         );
         AddWearProfileDirect("Doublet", "worn on", "put", "puts", "on", "Worn as a doublet", false, true,
@@ -5220,11 +5978,11 @@ public partial class HumanSeeder
             ("lbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
+                HidesSevered: true),
             ("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5264,11 +6022,11 @@ public partial class HumanSeeder
             ("lbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
+                HidesSevered: true),
             ("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5304,11 +6062,11 @@ public partial class HumanSeeder
             ("lbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
+                HidesSevered: true),
             ("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5331,11 +6089,11 @@ public partial class HumanSeeder
             ("lbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
+                HidesSevered: true),
             ("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5362,11 +6120,11 @@ public partial class HumanSeeder
             ("lbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
+                HidesSevered: true),
             ("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5396,11 +6154,11 @@ public partial class HumanSeeder
             ("lbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
+                HidesSevered: true),
             ("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5456,11 +6214,11 @@ public partial class HumanSeeder
             ("lbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
+                HidesSevered: true),
             ("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5557,7 +6315,7 @@ public partial class HumanSeeder
         );
         AddWearProfileDirect("Spaulders", "worn on", "put", "puts", "on", "Armour for the shoulders", false, true,
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5568,7 +6326,7 @@ public partial class HumanSeeder
         AddWearProfileDirect("Pauldrons", "worn on", "put", "puts", "on",
             "Armour for the shoulders that also covers the upper arm", false, true,
             ("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
+                HidesSevered: false),
             ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
             ("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5668,7 +6426,7 @@ public partial class HumanSeeder
                 HidesSevered: false),
             ("penis", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
-            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("testicles", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: true),
             ("rbuttock", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false),
@@ -5773,7 +6531,7 @@ public partial class HumanSeeder
             false,
             ("shoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
                 HidesSevered: false));
-        AddWearProfileShape("Earrings", "worn in", "put", "puts", "on",
+        AddWearProfileShape("Earrings", "worn in", "put", "puts", "in",
             "A pair of earrings inserted into an ear piercing", false, false,
             ("ear", 2, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false));
@@ -5781,35 +6539,35 @@ public partial class HumanSeeder
             false,
             ("finger", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false));
-        AddWearProfileShape("Nose Ring", "worn in", "put", "puts", "on", "Inserted into a nose piercing", false,
+        AddWearProfileShape("Nose Ring", "worn in", "put", "puts", "in", "Inserted into a nose piercing", false,
             false,
             ("nose", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false));
-        AddWearProfileShape("Earring", "worn in", "put", "puts", "on", "A single earring inserted into an ear piercing",
+        AddWearProfileShape("Earring", "worn in", "put", "puts", "in", "A single earring inserted into an ear piercing",
             false, false,
             ("ear", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false));
-        AddWearProfileShape("Brow Ring", "worn in", "put", "puts", "on", "Inserted into a brow piercing", false,
+        AddWearProfileShape("Brow Ring", "worn in", "put", "puts", "in", "Inserted into a brow piercing", false,
             false,
             ("eyebrow", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false));
-        AddWearProfileShape("Lip Ring", "worn in", "put", "puts", "on", "Inserted into a brow piercing", false,
+        AddWearProfileShape("Lip Ring", "worn in", "put", "puts", "in", "Inserted into a lip piercing", false,
             false,
-            ("eyebrow", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("mouth", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false));
-        AddWearProfileShape("Nipple Ring", "worn in", "put", "puts", "on", "Inserted into a nipple piercing", false,
+        AddWearProfileShape("Nipple Ring", "worn in", "put", "puts", "in", "Inserted into a nipple piercing", false,
             false,
             ("nipple", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false));
-        AddWearProfileShape("Penis Ring", "worn in", "put", "puts", "on", "Inserted into a penis piercing", false,
+        AddWearProfileShape("Penis Ring", "worn in", "put", "puts", "in", "Inserted into a penis piercing", false,
             false,
             ("penis", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false));
-        AddWearProfileShape("Bellybutton Ring", "worn in", "put", "puts", "on", "Inserted into a bellybutton piercing",
+        AddWearProfileShape("Bellybutton Ring", "worn in", "put", "puts", "in", "Inserted into a bellybutton piercing",
             false, false,
             ("belly", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false));
-        AddWearProfileShape("Tongue Ring", "worn in", "put", "puts", "on", "Inserted into a tongue piercing", false,
+        AddWearProfileShape("Tongue Ring", "worn in", "put", "puts", "in", "Inserted into a tongue piercing", false,
             false,
             ("tongue", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
                 HidesSevered: false));
@@ -5870,7 +6628,7 @@ public partial class HumanSeeder
             {
                 Id = id++,
                 RevisionNumber = 0,
-                Name = $"Wear_{profile.Name.Replace(' ', '_')}",
+                Name = WearComponentName(profile.Name),
                 Description = $"Permits the item to be worn in the {profile.Name} wear configuration",
                 Type = "Wearable",
                 Definition =
@@ -5889,6 +6647,8 @@ public partial class HumanSeeder
             };
             _context.GameItemComponentProtos.Add(component);
         }
+
+        AddMissingHumanWearProfiles(baseHumanoid, AdditionalHumanWearProfiles);
 
         #endregion
 

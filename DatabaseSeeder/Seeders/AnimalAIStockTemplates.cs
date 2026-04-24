@@ -14,6 +14,13 @@ namespace DatabaseSeeder.Seeders;
 
 internal static class AnimalAIStockTemplates
 {
+	private const string AnyPreyProgName = "StockAnimalAIAnyEdiblePrey";
+	private const string AvoidPeopleProgName = "StockAnimalAIAvoidPeople";
+	private const string AquaticCellProgName = "StockAnimalAIAquaticCell";
+	private const string AmphibiousCellProgName = "StockAnimalAIAmphibiousCell";
+	private const string ShelterCellProgName = "StockAnimalAIShelterCell";
+	private const string NestSiteProgName = "StockAnimalAINestSite";
+
 	public const string SmallSkittishForager = "AnimalSmallSkittishForager";
 	public const string BurrowingForager = "AnimalBurrowingForager";
 	public const string TerritorialGrazer = "AnimalTerritorialGrazer";
@@ -32,6 +39,14 @@ internal static class AnimalAIStockTemplates
 	public const string SwimmingForager = "AnimalSwimmingForager";
 	public const string SwimmingPredator = "AnimalSwimmingPredator";
 	public const string SwimmingScavenger = "AnimalSwimmingScavenger";
+	public const string AmphibiousForager = "AnimalAmphibiousForager";
+	public const string AmphibiousPredator = "AnimalAmphibiousPredator";
+	public const string HuntingOmnivore = "AnimalHuntingOmnivore";
+	public const string DenningOmnivore = "AnimalDenningOmnivore";
+	public const string SurfaceSwimmingPredator = "AnimalSurfaceSwimmingPredator";
+	public const string ShelteringGrazer = "AnimalShelteringGrazer";
+	public const string NestingBird = "AnimalNestingBird";
+	public const string ParentalDefender = "AnimalParentalDefender";
 	public const string PlantlikeForager = "AnimalPlantlikeForager";
 	public const string MythicGuardian = "AnimalMythicGuardian";
 	public const string SapientPassive = "AnimalSapientPassive";
@@ -117,6 +132,40 @@ internal static class AnimalAIStockTemplates
 			Activity = "Always",
 			MovementRange = 14,
 			AwarenessRange = 5
+		},
+		new()
+		{
+			Name = HuntingOmnivore,
+			Description = "True omnivores that scavenge and forage first, then hunt edible prey when still hungry.",
+			Movement = "Ground",
+			Home = "Territorial",
+			Feeding = "Omnivore",
+			Threat = "HungryPredator",
+			Awareness = "Wary",
+			Refuge = "Home",
+			Activity = "Crepuscular",
+			MovementRange = 18,
+			AwarenessRange = 6,
+			WillAttackAnyEdibleTarget = true,
+			EngageDelayDiceExpression = "1d700+900",
+			EngageEmote = "@ advance|advances warily towards $1."
+		},
+		new()
+		{
+			Name = DenningOmnivore,
+			Description = "Denning omnivores that forage or scavenge first and drag hunted kills home.",
+			Movement = "Ground",
+			Home = "Denning",
+			Feeding = "DenOmnivore",
+			Threat = "HungryPredator",
+			Awareness = "Wary",
+			Refuge = "Den",
+			Activity = "Crepuscular",
+			MovementRange = 16,
+			AwarenessRange = 6,
+			WillAttackAnyEdibleTarget = true,
+			EngageDelayDiceExpression = "1d700+900",
+			EngageEmote = "@ lumber|lumbers towards $1."
 		},
 		new()
 		{
@@ -304,7 +353,7 @@ internal static class AnimalAIStockTemplates
 			Movement = "Swim",
 			Home = "None",
 			Feeding = "Forager",
-			WaterEnabled = false,
+			Water = "Immerse",
 			Threat = "Flee",
 			Awareness = "Wary",
 			Refuge = "Water",
@@ -319,7 +368,7 @@ internal static class AnimalAIStockTemplates
 			Movement = "Swim",
 			Home = "Territorial",
 			Feeding = "Predator",
-			WaterEnabled = false,
+			Water = "Immerse",
 			Threat = "HungryPredator",
 			Awareness = "Wary",
 			Refuge = "Water",
@@ -337,13 +386,120 @@ internal static class AnimalAIStockTemplates
 			Movement = "Swim",
 			Home = "None",
 			Feeding = "Scavenger",
-			WaterEnabled = false,
+			Water = "Immerse",
 			Threat = "Defend",
 			Awareness = "Wary",
 			Refuge = "Water",
 			Activity = "Always",
 			MovementRange = 18,
 			AwarenessRange = 4
+		},
+		new()
+		{
+			Name = AmphibiousForager,
+			Description = "Amphibious foragers that split ambient movement between land and water.",
+			Movement = "Amphibious",
+			Home = "None",
+			Feeding = "Forager",
+			Water = "Immerse",
+			Threat = "Flee",
+			Awareness = "Wary",
+			Refuge = "Water",
+			Activity = "Crepuscular",
+			MovementRange = 16,
+			WaterBias = 0.65,
+			AwarenessRange = 4
+		},
+		new()
+		{
+			Name = AmphibiousPredator,
+			Description = "Amphibious predators that move between banks and water to hunt.",
+			Movement = "Amphibious",
+			Home = "Territorial",
+			Feeding = "Predator",
+			Water = "Surface",
+			Threat = "HungryPredator",
+			Awareness = "Wary",
+			Refuge = "Water",
+			Activity = "Crepuscular",
+			MovementRange = 20,
+			WaterBias = 0.70,
+			AwarenessRange = 6,
+			WillAttackAnyEdibleTarget = true,
+			EngageDelayDiceExpression = "1d600+700",
+			EngageEmote = "@ snap|snaps towards $1 from the waterline."
+		},
+		new()
+		{
+			Name = SurfaceSwimmingPredator,
+			Description = "Air-breathing aquatic predators that prefer surface water when thirsty or travelling.",
+			Movement = "Swim",
+			Home = "Territorial",
+			Feeding = "Predator",
+			Water = "Surface",
+			Threat = "HungryPredator",
+			Awareness = "Wary",
+			Refuge = "Water",
+			Activity = "Always",
+			MovementRange = 28,
+			AwarenessRange = 6,
+			WillAttackAnyEdibleTarget = true,
+			EngageDelayDiceExpression = "1d500+600",
+			EngageEmote = "@ surface|surfaces and surges towards $1."
+		},
+		new()
+		{
+			Name = ShelteringGrazer,
+			Description = "Grazers with a builder-configurable shelter instinct for weather or other unsafe conditions.",
+			Movement = "Ground",
+			Home = "Territorial",
+			Feeding = "Forager",
+			Threat = "Flee",
+			Awareness = "Wary",
+			Refuge = "Home",
+			Activity = "Diurnal",
+			MovementRange = 16,
+			AwarenessRange = 5,
+			EcologyShelter = true,
+			WillShareTerritory = true,
+			WillShareTerritoryWithOtherRaces = false
+		},
+		new()
+		{
+			Name = NestingBird,
+			Description = "Birds and reptiles that return to a configured nest site when fed and watered.",
+			Movement = "Arboreal",
+			Home = "Denning",
+			Feeding = "Forager",
+			Threat = "Flee",
+			Awareness = "Skittish",
+			Refuge = "Trees",
+			Activity = "Diurnal",
+			MovementRange = 14,
+			AwarenessRange = 6,
+			AllowDescent = true,
+			AwarenessThreatsAreAnyCharacter = true,
+			RefugeLayer = "HighInTrees",
+			PreferredTreeLayer = "HighInTrees",
+			SecondaryTreeLayer = "InTrees",
+			EcologyNesting = true
+		},
+		new()
+		{
+			Name = ParentalDefender,
+			Description = "Defensive animals that can guard builder-selected young, mates or friends.",
+			Movement = "Ground",
+			Home = "Territorial",
+			Feeding = "Forager",
+			Threat = "Defend",
+			Awareness = "Guarding",
+			Refuge = "Home",
+			Activity = "Diurnal",
+			MovementRange = 16,
+			AwarenessRange = 6,
+			EcologyParenting = true,
+			WillShareTerritory = true,
+			WillShareTerritoryWithOtherRaces = false
 		},
 		new()
 		{
@@ -419,8 +575,8 @@ internal static class AnimalAIStockTemplates
 		BuildRecommendations(
 			(SmallSkittishForager, "small skittish ground forager",
 			[
-				"Mouse", "Guinea Pig", "Hamster", "Hare", "Shrew", "Frog", "Toad", "Lizard", "Gecko",
-				"Skink", "Grasshopper", "Finch", "Robin", "Sparrow", "Wren", "Quail"
+				"Mouse", "Guinea Pig", "Hamster", "Hare", "Shrew", "Lizard", "Gecko", "Skink",
+				"Grasshopper"
 			]),
 			(BurrowingForager, "burrow or retreat-oriented forager",
 			[
@@ -428,17 +584,31 @@ internal static class AnimalAIStockTemplates
 			]),
 			(TerritorialGrazer, "ordinary territorial grazer",
 			[
-				"Alpaca", "Camel", "Cow", "Deer", "Elk", "Giraffe", "Goat", "Horse", "Llama", "Ox",
-				"Reindeer", "Sheep"
+				"Cow", "Elk", "Giraffe", "Goat", "Horse", "Llama", "Ox"
 			]),
 			(LargeDefensiveGrazer, "large defensive grazer or browser",
 			[
-				"Bison", "Boar", "Buffalo", "Elephant", "Emu", "Goose", "Hippopotamus", "Mammoth", "Moa",
-				"Moose", "Ostrich", "Rhinocerous", "Swan", "Warthog"
+				"Bison", "Buffalo", "Mammoth", "Moose", "Rhinocerous", "Warthog"
 			]),
 			(OpportunistOmnivore, "opportunistic omnivore or light scavenger",
 			[
-				"Ant", "Beetle", "Cat", "Coyote", "Dog", "Hyena", "Jackal", "Pig", "Rat"
+				"Ant", "Beetle"
+			]),
+			(HuntingOmnivore, "hunting omnivore",
+			[
+				"Bear", "Boar", "Coyote", "Dog", "Hyena", "Jackal", "Pig", "Rat"
+			]),
+			(ShelteringGrazer, "weather-sensitive or sheltering grazer",
+			[
+				"Alpaca", "Camel", "Deer", "Reindeer", "Sheep"
+			]),
+			(ParentalDefender, "parental or defensive large animal",
+			[
+				"Elephant", "Emu", "Goose", "Moa", "Ostrich", "Swan"
+			]),
+			(AmphibiousForager, "amphibious forager",
+			[
+				"Frog", "Hippopotamus", "Toad", "Turtle"
 			]),
 			(NocturnalScavenger, "cautious scavenger",
 			[
@@ -446,13 +616,13 @@ internal static class AnimalAIStockTemplates
 			]),
 			(TerritorialPredator, "ground predator",
 			[
-				"Adder", "Anaconda", "Boa", "Centipede", "Cheetah", "Cobra", "Coral Snake", "Jaguar",
+				"Adder", "Anaconda", "Boa", "Cat", "Centipede", "Cheetah", "Cobra", "Coral Snake", "Jaguar",
 				"Leopard", "Lion", "Mamba", "Mantis", "Moccasin", "Monitor Lizard", "Panther", "Python",
 				"Rattlesnake", "Sabretooth Tiger", "Tiger", "Viper", "Wolf"
 			]),
 			(DenningPredator, "denning predator or mustelid-like hunter",
 			[
-				"Badger", "Bear", "Ferret", "Fox", "Mink", "Polecat", "Stoat", "Weasel", "Wolverine"
+				"Badger", "Ferret", "Fox", "Mink", "Polecat", "Stoat", "Weasel", "Wolverine"
 			]),
 			(BurrowingAmbushPredator, "burrowing or low-wandering ambush predator",
 			[
@@ -468,8 +638,12 @@ internal static class AnimalAIStockTemplates
 			]),
 			(SkittishBird, "skittish ground-feeding bird",
 			[
-				"Chicken", "Crane", "Duck", "Flamingo", "Grouse", "Heron", "Ibis", "Peacock", "Pelican",
-				"Pheasant", "Pigeon", "Stork", "Turkey"
+				"Crane", "Flamingo", "Heron", "Ibis", "Peacock", "Pelican", "Stork"
+			]),
+			(NestingBird, "nesting bird or small reptile",
+			[
+				"Chicken", "Duck", "Finch", "Grouse", "Pheasant", "Pigeon", "Quail", "Robin", "Sparrow",
+				"Turkey", "Wren"
 			]),
 			(Raptor, "flying predator",
 			[
@@ -486,13 +660,19 @@ internal static class AnimalAIStockTemplates
 			(SwimmingForager, "aquatic forager or filter-feeder",
 			[
 				"Anchovy", "Baleen Whale", "Carp", "Herring", "Koi", "Mackerel", "Pilchard", "Salmon",
-				"Sardine", "Turtle", "Walrus"
+				"Sardine"
 			]),
 			(SwimmingPredator, "aquatic predator",
 			[
-				"Alligator", "Cod", "Crocodile", "Dolphin", "Giant Squid", "Haddock", "Octopus", "Orca",
-				"Otter", "Penguin", "Perch", "Pollock", "Porpoise", "Sea Lion", "Seal", "Shark", "Squid",
-				"Toothed Whale", "Tuna"
+				"Cod", "Giant Squid", "Haddock", "Octopus", "Perch", "Pollock", "Shark", "Squid", "Tuna"
+			]),
+			(AmphibiousPredator, "amphibious predator",
+			[
+				"Alligator", "Crocodile", "Otter", "Penguin"
+			]),
+			(SurfaceSwimmingPredator, "surface-breathing aquatic predator",
+			[
+				"Dolphin", "Orca", "Porpoise", "Sea Lion", "Seal", "Toothed Whale", "Walrus"
 			]),
 			(SwimmingScavenger, "aquatic scavenger",
 			[
@@ -516,7 +696,11 @@ internal static class AnimalAIStockTemplates
 			]),
 			(DenningPredator, "denning mythic predator",
 			[
-				"Dire-Bear", "Dire-Wolf", "Warg"
+				"Dire-Wolf", "Warg"
+			]),
+			(DenningOmnivore, "denning mythic omnivore",
+			[
+				"Dire-Bear"
 			]),
 			(TerritorialPredator, "territorial mythic predator",
 			[
@@ -530,7 +714,7 @@ internal static class AnimalAIStockTemplates
 			[
 				"Giant Beetle"
 			]),
-			(OpportunistOmnivore, "opportunistic colony or omnivore beast",
+			(HuntingOmnivore, "opportunistic colony or omnivore beast",
 			[
 				"Giant Ant"
 			]),
@@ -588,6 +772,8 @@ internal static class AnimalAIStockTemplates
 
 	internal static void SeedTemplates(FuturemudDatabaseContext context, IEnumerable<string> templateNames)
 	{
+		EnsureSupportProgs(context);
+
 		long alwaysTrueId = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue").Id;
 		long alwaysFalseId = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse").Id;
 		long alwaysOneId = context.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysOne")?.Id ?? 0;
@@ -618,6 +804,93 @@ internal static class AnimalAIStockTemplates
 		context.SaveChanges();
 	}
 
+	private static void EnsureSupportProgs(FuturemudDatabaseContext context)
+	{
+		SeederRepeatabilityHelper.EnsureProg(
+			context,
+			AnyPreyProgName,
+			"Animal AI",
+			"Stock Filters",
+			ProgVariableTypes.Boolean,
+			"Builder-clonable starter predator filter for stock AnimalAI templates.",
+			"return true;",
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Character, "animal"),
+			(ProgVariableTypes.Character, "target"));
+
+		SeederRepeatabilityHelper.EnsureProg(
+			context,
+			AvoidPeopleProgName,
+			"Animal AI",
+			"Stock Filters",
+			ProgVariableTypes.Boolean,
+			"Builder-clonable starter threat filter for animals that avoid non-animal characters.",
+			"return not isanimal(@target);",
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Character, "animal"),
+			(ProgVariableTypes.Character, "target"));
+
+		SeederRepeatabilityHelper.EnsureProg(
+			context,
+			AquaticCellProgName,
+			"Animal AI",
+			"Stock Filters",
+			ProgVariableTypes.Boolean,
+			"Builder-clonable starter cell filter for aquatic AnimalAI movement.",
+			"return isunderwater(@cell, \"Underwater\");",
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Character, "animal"),
+			(ProgVariableTypes.Location, "cell"));
+
+		SeederRepeatabilityHelper.EnsureProg(
+			context,
+			AmphibiousCellProgName,
+			"Animal AI",
+			"Stock Filters",
+			ProgVariableTypes.Boolean,
+			"Builder-clonable starter cell filter for amphibious AnimalAI movement.",
+			"return true;",
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Character, "animal"),
+			(ProgVariableTypes.Location, "cell"));
+
+		SeederRepeatabilityHelper.EnsureProg(
+			context,
+			ShelterCellProgName,
+			"Animal AI",
+			"Stock Filters",
+			ProgVariableTypes.Boolean,
+			"Builder-clonable starter cell filter for sheltered AnimalAI behaviour.",
+			"return true;",
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Character, "animal"),
+			(ProgVariableTypes.Location, "cell"));
+
+		SeederRepeatabilityHelper.EnsureProg(
+			context,
+			NestSiteProgName,
+			"Animal AI",
+			"Stock Filters",
+			ProgVariableTypes.Boolean,
+			"Builder-clonable starter cell filter for nesting AnimalAI behaviour.",
+			"return true;",
+			false,
+			false,
+			FutureProgStaticType.NotStatic,
+			(ProgVariableTypes.Character, "animal"),
+			(ProgVariableTypes.Location, "cell"));
+	}
+
 	private static IReadOnlyList<AnimalAIRaceRecommendation> BuildRecommendations(
 		params (string TemplateName, string Rationale, string[] Races)[] groups)
 	{
@@ -646,8 +919,10 @@ internal sealed class AnimalAIStockTemplateDefinition
 	public required string Awareness { get; init; }
 	public required string Refuge { get; init; }
 	public required string Activity { get; init; }
+	public string Water { get; init; } = string.Empty;
 	public bool WaterEnabled { get; init; } = true;
 	public int MovementRange { get; init; } = 10;
+	public double WaterBias { get; init; } = 0.50;
 	public double WanderChancePerMinute { get; init; } = 0.33;
 	public bool AllowDescent { get; init; }
 	public string TargetFlyingLayer { get; init; } = "InAir";
@@ -666,22 +941,32 @@ internal sealed class AnimalAIStockTemplateDefinition
 	public int RefugeReturnSeconds { get; init; } = 60;
 	public bool ActivitySleepEnabled { get; init; }
 	public string ActivityRestEmote { get; init; } = string.Empty;
+	public bool EcologyShelter { get; init; }
+	public bool EcologySeasonal { get; init; }
+	public bool EcologyNesting { get; init; }
+	public bool EcologyParenting { get; init; }
 
 	public string BuildDefinition(long alwaysTrueId, long alwaysFalseId, long alwaysOneId)
 	{
 		long attackProgId = WillAttackAnyEdibleTarget ? alwaysTrueId : alwaysFalseId;
 		long awarenessThreatProgId = AwarenessThreatsAreAnyCharacter ? alwaysTrueId : alwaysFalseId;
 		long descentProgId = AllowDescent ? alwaysTrueId : alwaysFalseId;
+		string waterMode = string.IsNullOrWhiteSpace(Water)
+			? WaterEnabled ? "Drink" : "Off"
+			: Water;
 
 		return new XElement("Definition",
 			new XComment(Description),
 			new XElement("Movement",
 				new XAttribute("type", Movement),
 				new XElement("Range", MovementRange),
+				new XElement("AmphibiousWaterBias", WaterBias),
 				new XElement("WanderChancePerMinute", WanderChancePerMinute),
 				new XElement("WanderEmote", new XCData(string.Empty)),
 				new XElement("MovementEnabledProg", alwaysTrueId),
 				new XElement("MovementCellProg", alwaysTrueId),
+				new XElement("AmphibiousLandCellProg", alwaysTrueId),
+				new XElement("AmphibiousWaterCellProg", alwaysTrueId),
 				new XElement("AllowDescentProg", descentProgId),
 				new XElement("TargetFlyingLayer", TargetFlyingLayer),
 				new XElement("TargetRestingLayer", TargetRestingLayer),
@@ -703,7 +988,7 @@ internal sealed class AnimalAIStockTemplateDefinition
 				new XElement("WillAttackProg", attackProgId),
 				new XElement("EngageDelayDiceExpression", new XCData(EngageDelayDiceExpression)),
 				new XElement("EngageEmote", new XCData(EngageEmote))),
-			new XElement("Water", new XAttribute("enabled", WaterEnabled)),
+			new XElement("Water", new XAttribute("type", waterMode)),
 			new XElement("Threat", new XAttribute("type", Threat)),
 			new XElement("Awareness",
 				new XAttribute("type", Awareness),
@@ -720,6 +1005,16 @@ internal sealed class AnimalAIStockTemplateDefinition
 				new XAttribute("type", Activity),
 				new XElement("SleepEnabled", ActivitySleepEnabled),
 				new XElement("RestEmote", new XCData(ActivityRestEmote))),
+			new XElement("Ecology",
+				new XElement("ShelterEnabled", EcologyShelter),
+				new XElement("SeasonalEnabled", EcologySeasonal),
+				new XElement("NestingEnabled", EcologyNesting),
+				new XElement("ParentingEnabled", EcologyParenting),
+				new XElement("ShelterNeededProg", EcologyShelter ? alwaysTrueId : alwaysFalseId),
+				new XElement("ShelterCellProg", EcologyShelter ? alwaysTrueId : alwaysFalseId),
+				new XElement("SeasonalCellProg", EcologySeasonal ? alwaysTrueId : alwaysFalseId),
+				new XElement("NestSiteProg", EcologyNesting ? alwaysTrueId : alwaysFalseId),
+				new XElement("ProtectProg", EcologyParenting ? alwaysTrueId : alwaysFalseId)),
 			new XElement("OpenDoors", false),
 			new XElement("UseKeys", false),
 			new XElement("SmashLockedDoors", false),

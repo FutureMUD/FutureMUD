@@ -275,7 +275,7 @@ Fully operational games benefit from reusable AI definitions and group behaviour
 - `Seeder Fit`: `Strong` for individual animal template packs; `Possible` for broader general AI and group AI packs
 - `Template Strategy`: reusable behaviour packs, not full live NPC populations
 - `Recommended Seeder Scope`: `Template Library`
-- `Notes / Risks`: generic AIs such as guards, passive townsfolk, predators, herd animals, patrol groups, and shopkeepers are good stock candidates. Named NPC templates, spawn populations, and map-tied patrol routes should remain builder-authored. Current animal AI gaps include true amphibious movement, hunting omnivores that also forage, aquatic thirst semantics, and first-class seasonal or breeding behaviours.
+- `Notes / Risks`: generic AIs such as guards, passive townsfolk, predators, herd animals, patrol groups, and shopkeepers are good stock candidates. Named NPC templates, spawn populations, and map-tied patrol routes should remain builder-authored. The current individual animal package now covers amphibious movement, hunting omnivores, aquatic hydration modes, sheltering, seasonal-range helpers, nesting helpers, and simple parental guarding. The remaining gaps are species-specific filter/prog tuning, full breeding or migration calendars, group-level coordination, and sapient-social behavior.
 
 ### Magic
 Fully operational magic-enabled games need a full dependency chain of schools, capabilities, resources, regenerators, powers, spells, and the merits or items that expose them.

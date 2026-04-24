@@ -291,6 +291,40 @@ public class NpcAiRegressionTests
             AnimalActivityStrategyType.Custom,
             Array.Empty<TimeOfDay>());
         Assert.IsFalse(ready);
+
+        (ready, _) = AnimalAI.ValidateConfiguration(
+            AnimalHomeStrategyType.Denning,
+            AnimalFeedingStrategyType.DenOmnivore,
+            AnimalThreatStrategyType.HungryPredator,
+            AnimalMovementStrategyType.Amphibious,
+            AnimalRefugeStrategyType.Water,
+            AnimalActivityStrategyType.Always,
+            Enum.GetValues<TimeOfDay>(),
+            AnimalWaterStrategyType.Surface,
+            false,
+            AnimalAwarenessStrategyType.Wary,
+            true,
+            true,
+            false,
+            false);
+        Assert.IsTrue(ready);
+
+        (ready, _) = AnimalAI.ValidateConfiguration(
+            AnimalHomeStrategyType.None,
+            AnimalFeedingStrategyType.DenOmnivore,
+            AnimalThreatStrategyType.HungryPredator,
+            AnimalMovementStrategyType.Ground,
+            AnimalRefugeStrategyType.None,
+            AnimalActivityStrategyType.Always,
+            Enum.GetValues<TimeOfDay>(),
+            AnimalWaterStrategyType.Surface,
+            false,
+            AnimalAwarenessStrategyType.None,
+            true,
+            false,
+            true,
+            false);
+        Assert.IsFalse(ready);
     }
 
     [TestMethod]
@@ -362,6 +396,7 @@ public class NpcAiRegressionTests
         Assert.AreEqual(AnimalRefugeStrategyType.Sky, animal.RefugeStrategy);
         Assert.AreEqual(AnimalActivityStrategyType.Custom, animal.ActivityStrategy);
         Assert.IsTrue(animal.WaterEnabled);
+        Assert.AreEqual(AnimalWaterStrategyType.Drink, animal.WaterStrategy);
         Assert.AreEqual(37, animal.MovementRange);
         Assert.AreEqual(6, animal.AwarenessRange);
         Assert.AreEqual(12, animal.AwarenessMemoryMinutes);
@@ -375,7 +410,7 @@ public class NpcAiRegressionTests
         Assert.AreEqual("Fly", saved.Element("Movement")?.Attribute("type")?.Value);
         Assert.AreEqual("Denning", saved.Element("Home")?.Attribute("type")?.Value);
         Assert.AreEqual("DenPredator", saved.Element("Feeding")?.Attribute("type")?.Value);
-        Assert.AreEqual("true", saved.Element("Water")?.Attribute("enabled")?.Value);
+        Assert.AreEqual("Drink", saved.Element("Water")?.Attribute("type")?.Value);
         Assert.AreEqual("HungryPredator", saved.Element("Threat")?.Attribute("type")?.Value);
         Assert.AreEqual("Skittish", saved.Element("Awareness")?.Attribute("type")?.Value);
         Assert.AreEqual("Sky", saved.Element("Refuge")?.Attribute("type")?.Value);
@@ -386,7 +421,7 @@ public class NpcAiRegressionTests
     }
 
     [TestMethod]
-    public void AnimalAI_SerializesNewFeedingValues()
+    public void AnimalAI_SerializesAmphibiousWaterEcologyAndNewFeedingValues()
     {
         AnimalAI scavenger = LoadAnimalAIFromDefinition("""
             <Definition>
@@ -398,11 +433,53 @@ public class NpcAiRegressionTests
               <Feeding type="Opportunist" />
             </Definition>
             """);
+        AnimalAI omnivore = LoadAnimalAIFromDefinition("""
+            <Definition>
+              <Movement type="Amphibious">
+                <Range>19</Range>
+                <AmphibiousWaterBias>0.75</AmphibiousWaterBias>
+                <AmphibiousLandCellProg>1</AmphibiousLandCellProg>
+                <AmphibiousWaterCellProg>1</AmphibiousWaterCellProg>
+              </Movement>
+              <Home type="Denning" />
+              <Feeding type="DenOmnivore" />
+              <Water type="Surface" />
+              <Threat type="HungryPredator" />
+              <Awareness type="Guarding" />
+              <Refuge type="Water" />
+              <Ecology>
+                <ShelterEnabled>true</ShelterEnabled>
+                <SeasonalEnabled>true</SeasonalEnabled>
+                <NestingEnabled>true</NestingEnabled>
+                <ParentingEnabled>true</ParentingEnabled>
+                <ShelterNeededProg>1</ShelterNeededProg>
+                <ShelterCellProg>1</ShelterCellProg>
+                <SeasonalCellProg>1</SeasonalCellProg>
+                <NestSiteProg>1</NestSiteProg>
+                <ProtectProg>1</ProtectProg>
+              </Ecology>
+            </Definition>
+            """);
 
         Assert.AreEqual(AnimalFeedingStrategyType.Scavenger, scavenger.FeedingStrategy);
         Assert.AreEqual("Scavenger", scavenger.SaveDefinition().Element("Feeding")?.Attribute("type")?.Value);
         Assert.AreEqual(AnimalFeedingStrategyType.Opportunist, opportunist.FeedingStrategy);
         Assert.AreEqual("Opportunist", opportunist.SaveDefinition().Element("Feeding")?.Attribute("type")?.Value);
+        Assert.AreEqual(AnimalMovementStrategyType.Amphibious, omnivore.MovementStrategy);
+        Assert.AreEqual(AnimalFeedingStrategyType.DenOmnivore, omnivore.FeedingStrategy);
+        Assert.AreEqual(AnimalWaterStrategyType.Surface, omnivore.WaterStrategy);
+        Assert.AreEqual(0.75, omnivore.AmphibiousWaterBias, 0.0001);
+        Assert.IsTrue(omnivore.EcologyShelterEnabled);
+        Assert.IsTrue(omnivore.EcologySeasonalEnabled);
+        Assert.IsTrue(omnivore.EcologyNestingEnabled);
+        Assert.IsTrue(omnivore.EcologyParentingEnabled);
+
+        XElement saved = omnivore.SaveDefinition();
+        Assert.AreEqual("Amphibious", saved.Element("Movement")?.Attribute("type")?.Value);
+        Assert.AreEqual("0.75", saved.Element("Movement")?.Element("AmphibiousWaterBias")?.Value);
+        Assert.AreEqual("DenOmnivore", saved.Element("Feeding")?.Attribute("type")?.Value);
+        Assert.AreEqual("Surface", saved.Element("Water")?.Attribute("type")?.Value);
+        Assert.AreEqual("true", saved.Element("Ecology")?.Element("NestingEnabled")?.Value);
     }
 
     [TestMethod]
@@ -466,6 +543,73 @@ public class NpcAiRegressionTests
 
         Assert.IsTrue(PredatorAIHelpers.IsHungry(hungryCharacter.Object));
         Assert.IsFalse(PredatorAIHelpers.IsHungry(fullCharacter.Object));
+    }
+
+    [TestMethod]
+    public void AnimalAI_CellSupportsSurfaceWater_RequiresWaterAndSurfaceLayer()
+    {
+        Mock<ICharacter> character = new();
+        character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+
+        Mock<ITerrain> surfaceTerrain = new();
+        surfaceTerrain.SetupGet(x => x.TerrainLayers).Returns(new[] { RoomLayer.GroundLevel, RoomLayer.Underwater });
+        Mock<ICell> surfaceWater = new();
+        surfaceWater.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
+        surfaceWater.Setup(x => x.Terrain(character.Object)).Returns(surfaceTerrain.Object);
+
+        Mock<ITerrain> deepTerrain = new();
+        deepTerrain.SetupGet(x => x.TerrainLayers).Returns(new[] { RoomLayer.Underwater, RoomLayer.DeepUnderwater });
+        Mock<ICell> deepWater = new();
+        deepWater.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
+        deepWater.Setup(x => x.Terrain(character.Object)).Returns(deepTerrain.Object);
+
+        Assert.IsTrue(AnimalAI.CellSupportsSurfaceWater(character.Object, surfaceWater.Object));
+        Assert.IsFalse(AnimalAI.CellSupportsSurfaceWater(character.Object, deepWater.Object));
+    }
+
+    [TestMethod]
+    public void NpcSurvivalAIHelpers_TryHydrateFromAquaticEnvironment_UsesTerrainWater()
+    {
+        Mock<INeedsModel> needs = new();
+        needs.SetupGet(x => x.Status).Returns(NeedsResult.Thirsty);
+
+        Mock<ILiquid> water = new();
+        water.SetupGet(x => x.DrinkSatiatedHoursPerLitre).Returns(2.0);
+        water.SetupGet(x => x.WaterLitresPerLitre).Returns(1.0);
+
+        Mock<ITerrain> terrain = new();
+        terrain.SetupGet(x => x.TerrainLayers).Returns(new[] { RoomLayer.GroundLevel, RoomLayer.Underwater });
+        terrain.SetupGet(x => x.WaterFluid).Returns(water.Object);
+
+        Mock<ICell> location = new();
+        location.SetupGet(x => x.Id).Returns(100L);
+        location.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
+        location.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
+
+        Mock<IBody> body = new();
+        body.Setup(x => x.FulfilNeeds(
+                It.Is<INeedFulfiller>(f => f.ThirstPoints > 0.0 && f.WaterLitres > 0.0),
+                true))
+            .Returns(NeedsResult.NotThirsty)
+            .Verifiable();
+
+        Mock<IFuturemud> gameworld = new();
+        gameworld.Setup(x => x.GetStaticDouble("DefaultAnimalDrinkAmount")).Returns(1.0);
+
+        Mock<ICharacter> character = new();
+        character.SetupGet(x => x.State).Returns(CharacterState.Awake);
+        character.SetupGet(x => x.NeedsModel).Returns(needs.Object);
+        character.SetupGet(x => x.Location).Returns(location.Object);
+        character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+        character.SetupGet(x => x.Body).Returns(body.Object);
+        character.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+        character.SetupGet(x => x.Effects).Returns(Array.Empty<IEffect>());
+        character.Setup(x => x.CombinedEffectsOfType<NpcKnownWaterLocationsEffect>())
+                 .Returns(Array.Empty<NpcKnownWaterLocationsEffect>());
+
+        Assert.IsTrue(NpcSurvivalAIHelpers.TryHydrateFromAquaticEnvironmentIfThirsty(character.Object, true));
+        body.Verify();
+        character.Verify(x => x.AddEffect(It.IsAny<NpcKnownWaterLocationsEffect>()), Times.Once);
     }
 
     [TestMethod]

@@ -303,6 +303,20 @@ public class AnimalSeederTemplateTests
                 Enum.Parse<AnimalRefugeStrategyType>(root.Element("Refuge")!.Attribute("type")!.Value);
             AnimalActivityStrategyType activity =
                 Enum.Parse<AnimalActivityStrategyType>(root.Element("Activity")!.Attribute("type")!.Value);
+            XElement water = root.Element("Water")!;
+            AnimalWaterStrategyType waterStrategy = water.Attribute("type") is XAttribute waterType
+                ? Enum.Parse<AnimalWaterStrategyType>(waterType.Value)
+                : bool.Parse(water.Attribute("enabled")?.Value ?? "true")
+                    ? AnimalWaterStrategyType.Drink
+                    : AnimalWaterStrategyType.Off;
+            XElement ecology = root.Element("Ecology") ?? new XElement("Ecology");
+            bool ecologyNesting = bool.Parse(ecology.Element("NestingEnabled")?.Value ?? "false");
+            bool ecologyParenting = bool.Parse(ecology.Element("ParentingEnabled")?.Value ?? "false");
+            bool hasWaterCellProg = long.Parse(root.Element("Movement")?.Element("AmphibiousWaterCellProg")?.Value ?? "0") > 0;
+            bool hasNestSiteProg = long.Parse(ecology.Element("NestSiteProg")?.Value ?? "0") > 0;
+            bool hasProtectProg = long.Parse(ecology.Element("ProtectProg")?.Value ?? "0") > 0;
+            AnimalAwarenessStrategyType awareness =
+                Enum.Parse<AnimalAwarenessStrategyType>(root.Element("Awareness")!.Attribute("type")!.Value);
 
             MethodInfo validateMethod = typeof(AnimalAI).GetMethod("ValidateConfiguration",
                 BindingFlags.Static | BindingFlags.NonPublic,
@@ -314,7 +328,14 @@ public class AnimalSeederTemplateTests
                     typeof(AnimalMovementStrategyType),
                     typeof(AnimalRefugeStrategyType),
                     typeof(AnimalActivityStrategyType),
-                    typeof(IEnumerable<TimeOfDay>)
+                    typeof(IEnumerable<TimeOfDay>),
+                    typeof(AnimalWaterStrategyType),
+                    typeof(bool),
+                    typeof(AnimalAwarenessStrategyType),
+                    typeof(bool),
+                    typeof(bool),
+                    typeof(bool),
+                    typeof(bool)
                 ],
                 null)!;
             Assert.IsNotNull(validateMethod, "AnimalAI should expose its slot validation helper.");
@@ -327,7 +348,14 @@ public class AnimalSeederTemplateTests
                 movement,
                 refuge,
                 activity,
-                ActiveTimesFor(activity, root)
+                ActiveTimesFor(activity, root),
+                waterStrategy,
+                hasWaterCellProg,
+                awareness,
+                ecologyNesting,
+                hasNestSiteProg,
+                ecologyParenting,
+                hasProtectProg
             ])!;
 
             Assert.IsTrue(result.Ready, $"{template.Name} should be a valid AnimalAI template: {result.Reason}");

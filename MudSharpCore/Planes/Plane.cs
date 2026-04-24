@@ -14,6 +14,8 @@ public class Plane : SavableKeywordedItem, IPlane
 {
 	private readonly List<string> _aliases = new();
 	private string _description;
+	private string _roomDescriptionAddendum;
+	private string _roomNameFormat;
 	private int _displayOrder;
 	private bool _isDefault;
 
@@ -23,6 +25,8 @@ public class Plane : SavableKeywordedItem, IPlane
 		_id = plane.Id;
 		_name = plane.Name;
 		_description = plane.Description;
+		_roomDescriptionAddendum = plane.RoomDescriptionAddendum;
+		_roomNameFormat = plane.RoomNameFormat;
 		_displayOrder = plane.DisplayOrder;
 		_isDefault = plane.IsDefault;
 		_aliases.AddRange((plane.Alias ?? string.Empty).Split(' ', System.StringSplitOptions.RemoveEmptyEntries));
@@ -45,6 +49,8 @@ public class Plane : SavableKeywordedItem, IPlane
 				Name = _name,
 				Alias = _aliases.ListToString(separator: " ", conjunction: ""),
 				Description = _description,
+				RoomDescriptionAddendum = _roomDescriptionAddendum,
+				RoomNameFormat = _roomNameFormat,
 				DisplayOrder = _displayOrder,
 				IsDefault = _isDefault
 			};
@@ -60,6 +66,8 @@ public class Plane : SavableKeywordedItem, IPlane
 	public IEnumerable<string> Aliases => _aliases;
 	public IEnumerable<string> Names => _aliases.Append(Name);
 	public string Description => _description;
+	public string RoomDescriptionAddendum => _roomDescriptionAddendum;
+	public string RoomNameFormat => _roomNameFormat;
 	public int DisplayOrder => _displayOrder;
 	public bool IsDefault => _isDefault;
 
@@ -71,6 +79,8 @@ public class Plane : SavableKeywordedItem, IPlane
 			dbitem.Name = Name;
 			dbitem.Alias = _aliases.ListToString(separator: " ", conjunction: "");
 			dbitem.Description = _description;
+			dbitem.RoomDescriptionAddendum = _roomDescriptionAddendum;
+			dbitem.RoomNameFormat = _roomNameFormat;
 			dbitem.DisplayOrder = _displayOrder;
 			dbitem.IsDefault = _isDefault;
 			FMDB.Context.SaveChanges();
@@ -86,10 +96,17 @@ public class Plane : SavableKeywordedItem, IPlane
 		sb.AppendLine($"Default: {IsDefault.ToColouredString()}");
 		sb.AppendLine($"Display Order: {DisplayOrder.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Aliases: {Aliases.Select(x => x.ColourCommand()).DefaultIfEmpty("None".ColourError()).ListToString()}");
+		sb.AppendLine($"Room Name Format: {(string.IsNullOrWhiteSpace(RoomNameFormat) ? "None".ColourError() : RoomNameFormat.ColourCommand())}");
 		sb.AppendLine();
 		sb.AppendLine("Description:");
 		sb.AppendLine();
 		sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t"));
+		sb.AppendLine();
+		sb.AppendLine("Room Description Addendum:");
+		sb.AppendLine();
+		sb.AppendLine(string.IsNullOrWhiteSpace(RoomDescriptionAddendum)
+			? "\tNone".ColourError()
+			: RoomDescriptionAddendum.Wrap(actor.InnerLineFormatLength, "\t"));
 		return sb.ToString();
 	}
 
@@ -107,6 +124,16 @@ public class Plane : SavableKeywordedItem, IPlane
 			case "description":
 			case "desc":
 				return BuildingCommandDescription(actor, command);
+			case "addendum":
+			case "roomdesc":
+			case "roomdescription":
+			case "roomdescriptionaddendum":
+				return BuildingCommandRoomDescriptionAddendum(actor, command);
+			case "roomname":
+			case "roomnameformat":
+			case "nameformat":
+			case "format":
+				return BuildingCommandRoomNameFormat(actor, command);
 			case "order":
 			case "display":
 			case "displayorder":
@@ -120,6 +147,8 @@ public class Plane : SavableKeywordedItem, IPlane
 	#3name <name>#0 - renames this plane
 	#3aliases <alias list>#0 - sets the aliases for this plane
 	#3description <description>#0 - sets the builder description
+	#3addendum <text|none>#0 - sets or clears room description addendum text
+	#3roomname <format|none>#0 - sets or clears the room name format, e.g. #3Astral Plane {0}#0
 	#3order <number>#0 - sets the display order
 	#3default#0 - makes this the default plane".SubstituteANSIColour());
 		return false;
@@ -174,6 +203,69 @@ public class Plane : SavableKeywordedItem, IPlane
 		_description = command.SafeRemainingArgument.ProperSentences().Fullstop();
 		Changed = true;
 		actor.OutputHandler.Send($"You set the description of {Name.ColourName()}.");
+		return true;
+	}
+
+	private bool BuildingCommandRoomDescriptionAddendum(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What room description addendum should this plane show? Use none to clear it.");
+			return false;
+		}
+
+		var text = command.SafeRemainingArgument;
+		if (text.EqualToAny("none", "clear", "remove", "delete", "blank"))
+		{
+			_roomDescriptionAddendum = null;
+			Changed = true;
+			actor.OutputHandler.Send($"{Name.ColourName()} will no longer add text to room descriptions.");
+			return true;
+		}
+
+		_roomDescriptionAddendum = text.Fullstop();
+		Changed = true;
+		actor.OutputHandler.Send($"{Name.ColourName()} will now add that text to room descriptions.");
+		return true;
+	}
+
+	private bool BuildingCommandRoomNameFormat(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What room name format should this plane use? Use none to clear it. The format must include {0}.");
+			return false;
+		}
+
+		var format = command.SafeRemainingArgument;
+		if (format.EqualToAny("none", "clear", "remove", "delete", "blank"))
+		{
+			_roomNameFormat = null;
+			Changed = true;
+			actor.OutputHandler.Send($"{Name.ColourName()} will no longer alter room names.");
+			return true;
+		}
+
+		if (!format.Contains("{0}", StringComparison.Ordinal))
+		{
+			actor.OutputHandler.Send("Room name formats must include {0}, which is replaced with the normal room name.");
+			return false;
+		}
+
+		string example;
+		try
+		{
+			example = string.Format(format, "A Test Room");
+		}
+		catch (FormatException)
+		{
+			actor.OutputHandler.Send("That is not a valid string format. Use {0} where the normal room name should appear.");
+			return false;
+		}
+
+		_roomNameFormat = format;
+		Changed = true;
+		actor.OutputHandler.Send($"{Name.ColourName()} will now show room names like {example.ColourRoom()}.");
 		return true;
 	}
 

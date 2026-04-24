@@ -918,6 +918,16 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
+                entity.Property(e => e.RoomDescriptionAddendum)
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.RoomNameFormat)
+                    .HasColumnType("varchar(500)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.Property(e => e.DisplayOrder).HasColumnType("int(11)");
 
                 entity.Property(e => e.IsDefault)

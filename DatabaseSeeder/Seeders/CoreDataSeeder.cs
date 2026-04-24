@@ -225,53 +225,96 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 		return seededHearingProfiles;
 	}
 
-	internal static Plane SeedDefaultPlane(FuturemudDatabaseContext context)
+	internal static IReadOnlyDictionary<string, Plane> SeedDefaultPlanes(FuturemudDatabaseContext context)
 	{
 		var existing = context.Planes
 		                      .OrderBy(x => x.DisplayOrder)
 		                      .ThenBy(x => x.Id)
 		                      .ToList();
-		var prime = existing.FirstOrDefault(x => x.Name.Equals("Prime Material", StringComparison.InvariantCultureIgnoreCase));
-		if (prime is null)
+		var prime = EnsurePlane(
+			context,
+			existing,
+			"Prime Material",
+			"prime material mundane physical",
+			"The default material plane where ordinary physical existence takes place.",
+			0,
+			true,
+			null,
+			null);
+		var astral = EnsurePlane(
+			context,
+			existing,
+			"Astral Plane",
+			"astral spirit spiritual ethereal",
+			"A metaphysical plane of spirit, thought and astral presence.",
+			10,
+			false,
+			"The astral plane overlays this place; the material world seems distant and translucent.",
+			"Astral Plane {0}");
+
+		context.SaveChanges();
+		return new Dictionary<string, Plane>(StringComparer.OrdinalIgnoreCase)
 		{
-			prime = new Plane
+			{ prime.Name, prime },
+			{ astral.Name, astral }
+		};
+	}
+
+	internal static Plane SeedDefaultPlane(FuturemudDatabaseContext context)
+	{
+		return SeedDefaultPlanes(context)["Prime Material"];
+	}
+
+	private static Plane EnsurePlane(FuturemudDatabaseContext context, List<Plane> existing, string name, string aliases,
+		string description, int displayOrder, bool defaultIfNoDefault, string? roomDescriptionAddendum,
+		string? roomNameFormat)
+	{
+		var plane = existing.FirstOrDefault(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+		if (plane is null)
+		{
+			plane = new Plane
 			{
-				Name = "Prime Material",
-				Alias = "prime material mundane physical",
-				Description = "The default material plane where ordinary physical existence takes place.",
-				DisplayOrder = 0,
-				IsDefault = !existing.Any(x => x.IsDefault)
+				Name = name,
+				Alias = aliases,
+				Description = description,
+				DisplayOrder = displayOrder,
+				IsDefault = defaultIfNoDefault && !existing.Any(x => x.IsDefault),
+				RoomDescriptionAddendum = roomDescriptionAddendum,
+				RoomNameFormat = roomNameFormat
 			};
-			context.Planes.Add(prime);
-			context.SaveChanges();
-			return prime;
+			context.Planes.Add(plane);
+			existing.Add(plane);
+			return plane;
 		}
 
-		var changed = false;
-		if (string.IsNullOrWhiteSpace(prime.Alias))
+		if (string.IsNullOrWhiteSpace(plane.Alias))
 		{
-			prime.Alias = "prime material mundane physical";
-			changed = true;
+			plane.Alias = aliases;
 		}
 
-		if (string.IsNullOrWhiteSpace(prime.Description))
+		if (string.IsNullOrWhiteSpace(plane.Description))
 		{
-			prime.Description = "The default material plane where ordinary physical existence takes place.";
-			changed = true;
+			plane.Description = description;
 		}
 
-		if (!existing.Any(x => x.IsDefault))
+		if (defaultIfNoDefault && !existing.Any(x => x.IsDefault))
 		{
-			prime.IsDefault = true;
-			changed = true;
+			plane.IsDefault = true;
 		}
 
-		if (changed)
+		if (!string.IsNullOrWhiteSpace(roomDescriptionAddendum) &&
+		    string.IsNullOrWhiteSpace(plane.RoomDescriptionAddendum))
 		{
-			context.SaveChanges();
+			plane.RoomDescriptionAddendum = roomDescriptionAddendum;
 		}
 
-		return prime;
+		if (!string.IsNullOrWhiteSpace(roomNameFormat) &&
+		    string.IsNullOrWhiteSpace(plane.RoomNameFormat))
+		{
+			plane.RoomNameFormat = roomNameFormat;
+		}
+
+		return plane;
 	}
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
@@ -307,7 +350,7 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 
         SeedCulturesAndTimezoneInfos(context);
 
-		SeedDefaultPlane(context);
+		SeedDefaultPlanes(context);
 
         // Default Boards
         context.Boards.Add(new Board { Name = "Deaths", ShowOnLogin = true });

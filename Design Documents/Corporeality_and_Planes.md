@@ -7,7 +7,7 @@ The default behaviour is intentionally conservative. Existing worlds, bodies, an
 
 ## Core Concepts
 ### Plane
-`IPlane` is first-class world data loaded into `IFuturemud.Planes`. A plane has a name, aliases, description, display order, and an `IsDefault` flag. The core seeder and runtime loader ensure there is at least one default plane named `Prime Material`.
+`IPlane` is first-class world data loaded into `IFuturemud.Planes`. A plane has a name, aliases, description, display order, an `IsDefault` flag, optional room-description addendum text, and an optional room-name format. The core seeder and runtime loader ensure there is at least one default plane named `Prime Material`.
 
 Builders manage planes with:
 
@@ -17,6 +17,13 @@ Builders manage planes with:
 - `plane set <field> <value>`
 
 The default plane is used by fallback material presence and by content that does not specify an explicit plane.
+
+The optional room presentation fields let a plane alter how ordinary cells are shown without duplicating room content. `RoomNameFormat` is a string format where `{0}` is replaced with the normal layer-adjusted room name, for example `Astral Plane {0}`. `RoomDescriptionAddendum` is appended with other coded room-description cues, such as shop and bank notices. Null or blank values leave room names and room descriptions unchanged.
+
+The stock core data now includes:
+
+- `Prime Material`, the default plane, with no extra room-name or room-description presentation.
+- `Astral Plane`, with the stock room-name format `Astral Plane {0}` and an astral room-description addendum.
 
 ### Planar Presence
 `PlanarPresenceDefinition` is the XML-backed authored model stored on body prototypes, item prototypes, and overlay effects. It records:
@@ -66,6 +73,15 @@ Body prototype XML is loaded through the same shared parser and is intended for 
 Spell-owned planar changes use `SpellPlanarStateEffect` underneath a `MagicSpellParent`, so they expire and save with the spell effect stack rather than becoming ordinary permanent state.
 
 Permanent character states can also come from the `Planar State` merit. Drug-driven temporary states use `DrugType.PlanarState`, which applies a non-saving drug-induced planar overlay while the drug intensity remains active.
+
+The stock merits package seeds reusable planar-state merits for builders to assign to races, roles, or chargen choices:
+
+- `Always Astral`
+- `Astral Manifestation`
+- `Astral Ignorant of Prime Material`
+- `Astral Visual Manifestation`
+- `Astral Sight`
+- `Dual Natured`
 
 ### Admin And Debug
 Staff can inspect or force state with:
@@ -118,6 +134,8 @@ Drugs support `PlanarState` as a drug type. Builders set its intensity with the 
 
 Sight-based targeting still resolves visible-only targets. This is deliberate so commands such as `tell`, `whisperto`, and other speech or observation commands can use visible spirits even when physical interaction would fail.
 
+`survey` reports the perceiver's current plane. If a perceiver is present on more than one plane, the default plane is treated as the current presentation plane when present; otherwise the lowest display-order presence plane is used.
+
 ### Physical Interaction
 High-traffic physical paths call `CanInteractPlanar` with the relevant interaction kind. Combat engagement, item manipulation, inventory intervention, medical action, and movement barriers are separated so future content can allow one kind without allowing all physical access.
 
@@ -151,7 +169,7 @@ If a transition does not propagate inventory, the body gently ejects direct held
 | Area | Runtime surface |
 | --- | --- |
 | Shared contracts | `FutureMUDLibrary/Planes` |
-| Persistence | `Planes`, `BodyProtos.PlanarData`, `GameItemProtos.PlanarData` |
+| Persistence | `Planes`, `Planes.RoomDescriptionAddendum`, `Planes.RoomNameFormat`, `BodyProtos.PlanarData`, `GameItemProtos.PlanarData` |
 | Runtime data | `MudSharpCore/Planes/Plane`, `PlanarStateEffect`, `SpellPlanarStateEffect`, `PlanarStateMerit`, `DrugInducedPlanarStateEffect` |
 | Loading | `FuturemudLoaders.LoadPlanes()` before other world systems depend on defaults |
 | Perception | `BodyPerception.CanSee`, `PerceiveIgnoreFlags.IgnorePlanes` |

@@ -76,6 +76,22 @@ public static class PlanarPresenceExtensions
 		return actor.GetPlanarPresence().SharesPlaneWith(target.GetPlanarPresence());
 	}
 
+	public static IPlane CurrentPlane(this IPerceivable perceivable)
+	{
+		var presencePlaneIds = perceivable.GetPlanarPresence().PresencePlaneIds;
+		var defaultPlane = perceivable.Gameworld.DefaultPlane;
+		if (defaultPlane is not null && presencePlaneIds.Contains(defaultPlane.Id))
+		{
+			return defaultPlane;
+		}
+
+		return perceivable.Gameworld.Planes
+		                  .Where(x => presencePlaneIds.Contains(x.Id))
+		                  .OrderBy(x => x.DisplayOrder)
+		                  .ThenBy(x => x.Id)
+		                  .FirstOrDefault() ?? defaultPlane;
+	}
+
 	public static bool SuspendsPhysicalContact(this IPerceivable perceivable)
 	{
 		return perceivable.GetPlanarPresence().SuspendsPhysicalContact;

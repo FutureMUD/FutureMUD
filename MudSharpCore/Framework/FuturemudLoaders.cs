@@ -3118,6 +3118,8 @@ For information on the syntax to use in emotes (such as those included in bracke
                 Name = "Prime Material",
                 Alias = "prime material mundane physical",
                 Description = "The ordinary physical plane of the game world.",
+                RoomDescriptionAddendum = null,
+                RoomNameFormat = null,
                 DisplayOrder = 0,
                 IsDefault = true
             };

@@ -270,6 +270,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
             RefreshExistingAnimalBaseBodies();
             bool hasMissingCatalogue = HasMissingAnimalCatalogue(_context);
             bool hasMissingAnimalAiTemplates = HasMissingAnimalAIStockTemplates(_context);
+            bool hasMissingDietSettings = HasMissingAnimalDietSettings(_context);
             RefreshExistingAnimalCombatBalance();
 
             if (hasMissingDisfigurementTemplates)
@@ -283,10 +284,12 @@ public partial class AnimalSeeder : IDatabaseSeeder
             }
 
             if (hasMissingAnimalAiTemplates)
+            RefreshExistingAnimalDietSettings();
             {
                 SeedAnimalAIStockTemplates();
             }
 
+            RefreshExistingAnimalDietSettings();
             context.Database.CommitTransaction();
             List<string> updates = ["Updated the animal combat balance profile"];
             if (hasMissingCatalogue)
@@ -302,6 +305,11 @@ public partial class AnimalSeeder : IDatabaseSeeder
             if (hasMissingAnimalAiTemplates)
             {
                 updates.Add("installed stock animal AI templates");
+            }
+
+            if (hasMissingDietSettings)
+            {
+                updates.Add("refreshed stock animal diet settings");
             }
 
             return $"{string.Join(", ", updates)}.";
@@ -859,7 +867,8 @@ public partial class AnimalSeeder : IDatabaseSeeder
         {
             return HasMissingAnimalDisfigurementTemplates(context) ||
                    HasMissingAnimalCatalogue(context) ||
-                   HasMissingAnimalAIStockTemplates(context)
+                   HasMissingAnimalAIStockTemplates(context) ||
+                   HasMissingAnimalDietSettings(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }
@@ -4206,6 +4215,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 });
                 race.BreathingModel = "gills";
                 break;
+        }
+
+        if (raceTemplate is not null)
+        {
+            ApplyAnimalDietSettings(race, raceTemplate);
         }
 
         if (raceTemplate?.AdditionalBodypartUsages is not null)

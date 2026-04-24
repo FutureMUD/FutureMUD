@@ -8,6 +8,7 @@ using MudSharp.Combat;
 using MudSharp.Celestial;
 using MudSharp.Database;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.NPC.AI;
@@ -83,7 +84,8 @@ public class AnimalSeederTemplateTests
         bool includeCentipedeBody = true,
         bool includeAcidSpit = true,
         string? omittedRaceName = null,
-        bool beetleOnCorrectBody = true)
+        bool beetleOnCorrectBody = true,
+        bool includeDietSettings = false)
     {
         FuturemudDatabaseContext context = BuildContext();
         long nextBodyId = 1;
@@ -227,6 +229,40 @@ public class AnimalSeederTemplateTests
         }
 
         context.SaveChanges();
+
+        if (includeDietSettings)
+        {
+            long nextMaterialId = 1;
+            foreach (string materialName in NonHumanForageDietSeederHelper.StockCorpseMaterialNamesForTesting)
+            {
+                context.Materials.Add(new Material
+                {
+                    Id = nextMaterialId++,
+                    Name = materialName,
+                    MaterialDescription = materialName
+                });
+            }
+
+            context.SaveChanges();
+
+            foreach ((string raceName, AnimalSeeder.AnimalRaceTemplate template) in AnimalSeeder.RaceTemplatesForTesting)
+            {
+                Race? race = context.Races.FirstOrDefault(x => x.Name == raceName);
+                if (race is null)
+                {
+                    continue;
+                }
+
+                NonHumanForageDietSeederHelper.ApplyDiet(
+                    context,
+                    race,
+                    template.Size,
+                    AnimalSeeder.GetDietProfilesForTesting(raceName));
+            }
+
+            context.SaveChanges();
+        }
+
         return context;
     }
 
@@ -400,6 +436,135 @@ public class AnimalSeederTemplateTests
         Assert.IsTrue(
             rhino.AdditionalBodypartUsages!.Any(x => x.BodypartAlias == "horn" && x.Usage == "general"),
             "Rhinocerous should expose the shared horn usage.");
+    }
+
+    [TestMethod]
+    public void RaceTemplatesForTesting_StockDiets_UseSeededTerrainYieldTypes()
+    {
+        HashSet<string> stockTerrainYields = CoreDataSeeder.StockTerrainForageYieldTypesForTesting
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string raceName in AnimalSeeder.RaceTemplatesForTesting.Keys)
+        {
+            IReadOnlyCollection<string> edibleYields = AnimalSeeder.GetEdibleYieldTypesForTesting(raceName);
+            Assert.IsTrue(edibleYields.Count > 0, $"{raceName} should have at least one stock edible forage yield.");
+            CollectionAssert.IsSubsetOf(edibleYields.ToArray(), stockTerrainYields.ToArray(),
+                $"{raceName} should only reference forage yields seeded by CoreDataSeeder.Terrain.");
+        }
+    }
+
+    [TestMethod]
+    public void RaceTemplatesForTesting_RepresentativeDiets_MatchRacePhysiology()
+    {
+        CollectionAssert.Contains(AnimalSeeder.GetEdibleYieldTypesForTesting("Cow").ToArray(), "grass",
+            "Cattle should be able to graze grass yields.");
+        CollectionAssert.Contains(AnimalSeeder.GetEdibleYieldTypesForTesting("Giraffe").ToArray(), "high-trees",
+            "Giraffes should be able to browse tall tree forage.");
+        CollectionAssert.Contains(AnimalSeeder.GetEdibleYieldTypesForTesting("Wolf").ToArray(), "tiny-fish",
+            "Predators should have small-prey forage options where the stock terrain provides them.");
+        CollectionAssert.Contains(AnimalSeeder.GetEdibleYieldTypesForTesting("Baleen Whale").ToArray(), "plankton",
+            "Filter-feeding whales should eat plankton yields.");
+
+        Assert.IsFalse(AnimalSeeder.CanEatCorpsesForTesting("Cow"), "Herbivores should not be corpse eaters.");
+        Assert.IsTrue(AnimalSeeder.CanEatCorpsesForTesting("Wolf"), "Carnivores should be corpse eaters.");
+        Assert.IsTrue(AnimalSeeder.CanEatCorpsesForTesting("Vulture"), "Scavenger carnivores should be corpse eaters.");
+        Assert.IsFalse(AnimalSeeder.CanEatCorpsesForTesting("Frog"), "Insectivores that feed on live prey should not be blanket corpse eaters.");
+    }
+
+    [TestMethod]
+    public void ApplyDiet_Carnivore_AddsForageRowsCorpseSettingsAndPreservesCustomYields()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        Race wolf = new()
+        {
+            Id = 1,
+            Name = "Wolf",
+            Description = "Wolf test race",
+            AllowedGenders = "1 2 3 4",
+            AttributeTotalCap = 1,
+            IndividualAttributeCap = 1,
+            DiceExpression = "1",
+            IlluminationPerceptionMultiplier = 1.0,
+            CommunicationStrategyType = "humanoid",
+            DefaultHandedness = 1,
+            HandednessOptions = "1",
+            MaximumDragWeightExpression = "1",
+            MaximumLiftWeightExpression = "1",
+            RaceUsesStamina = true,
+            BiteWeight = 1000,
+            CanEatCorpses = false,
+            EatCorpseEmoteText = string.Empty,
+            CanEatMaterialsOptIn = false,
+            BreathingVolumeExpression = "1",
+            HoldBreathLengthExpression = "1"
+        };
+        context.Races.Add(wolf);
+
+        long nextMaterialId = 1;
+        foreach (string materialName in NonHumanForageDietSeederHelper.StockCorpseMaterialNamesForTesting)
+        {
+            context.Materials.Add(new Material
+            {
+                Id = nextMaterialId++,
+                Name = materialName,
+                MaterialDescription = materialName
+            });
+        }
+
+        context.RaceEdibleForagableYields.Add(new RaceEdibleForagableYields
+        {
+            Race = wolf,
+            RaceId = wolf.Id,
+            YieldType = "builder-custom",
+            BiteYield = 99.0,
+            HungerPerYield = 1.0,
+            EatEmote = "@ eat|eats {0}the custom yield."
+        });
+        context.SaveChanges();
+
+        NonHumanForageDietSeederHelper.ApplyDiet(
+            context,
+            wolf,
+            SizeCategory.Normal,
+            AnimalSeeder.GetDietProfilesForTesting("Wolf"));
+        context.SaveChanges();
+
+        HashSet<string> wolfYields = context.RaceEdibleForagableYields
+            .Where(x => x.RaceId == wolf.Id)
+            .Select(x => x.YieldType)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        CollectionAssert.Contains(wolfYields.ToArray(), "tiny-fish");
+        CollectionAssert.Contains(wolfYields.ToArray(), "builder-custom",
+            "Stock diet refreshes should not remove builder-defined custom forage yields.");
+        Assert.IsTrue(wolf.CanEatCorpses);
+        Assert.AreEqual(
+            NonHumanForageDietSeederHelper.CorpseBiteWeightForTesting(SizeCategory.Normal),
+            wolf.BiteWeight);
+        Assert.AreEqual(
+            NonHumanForageDietSeederHelper.StockCorpseMaterialNamesForTesting.Count,
+            context.RacesEdibleMaterials.Count(x => x.RaceId == wolf.Id));
+    }
+
+    [TestMethod]
+    public void StockDietMath_PerBiteSatiation_StaysBelowNeedCaps()
+    {
+        foreach ((string Race, SizeCategory Size) in new[]
+                 {
+                     ("Mouse", SizeCategory.Tiny),
+                     ("Wolf", SizeCategory.Normal),
+                     ("Elephant", SizeCategory.VeryLarge),
+                     ("Baleen Whale", SizeCategory.VeryLarge)
+                 })
+        {
+            double biteYield = NonHumanForageDietSeederHelper.ForageYieldPerBiteForTesting(Size);
+            foreach (StockForageYieldEdibility yield in NonHumanForageDietSeederHelper.GetYieldEdibilitiesForTesting(
+                         AnimalSeeder.GetDietProfilesForTesting(Race), Size))
+            {
+                Assert.IsTrue(yield.HungerMultiplier * biteYield <= NonHumanForageDietSeederHelper.MaximumFoodSatiationHours,
+                    $"{Race} should not be able to exceed maximum satiation from one bite of {yield.YieldType}.");
+            }
+        }
     }
 
     [TestMethod]
@@ -810,7 +975,7 @@ public class AnimalSeederTemplateTests
     [TestMethod]
     public void ShouldSeedData_ExpandedCatalogueAlreadyPresent_ReturnsMayAlreadyBeInstalled()
     {
-        using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext();
+        using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext(includeDietSettings: true);
         SeedAnimalAiPrerequisiteProgs(context);
         AnimalSeeder.SeedAnimalAIStockTemplatesForTesting(context);
 

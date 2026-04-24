@@ -169,12 +169,16 @@ public class NpcAiRegressionTests
         TrackingAggressorAI trackingAggressor = CreatePrivateParameterless<TrackingAggressorAI>();
         TerritorialPredatorAI territorialPredator = CreatePrivateParameterless<TerritorialPredatorAI>();
         DenningPredatorAI denningPredator = CreatePrivateParameterless<DenningPredatorAI>();
+        TerritorialForagerAI territorialForager = CreatePrivateParameterless<TerritorialForagerAI>();
+        DenningForagerAI denningForager = CreatePrivateParameterless<DenningForagerAI>();
 
         Assert.IsTrue(aggressivePather.HandlesEvent(EventType.CharacterEnterCellWitness));
         Assert.IsTrue(trackingAggressor.HandlesEvent(EventType.CharacterEnterCellWitness));
         Assert.IsTrue(territorialPredator.HandlesEvent(EventType.CharacterEnterCellWitness));
         Assert.IsTrue(denningPredator.HandlesEvent(EventType.CharacterEnterCellWitness));
         Assert.IsTrue(denningPredator.HandlesEvent(EventType.CharacterDiesWitness));
+        Assert.IsTrue(territorialForager.HandlesEvent(EventType.TenSecondTick));
+        Assert.IsTrue(denningForager.HandlesEvent(EventType.TenSecondTick));
     }
 
     [TestMethod]
@@ -183,12 +187,18 @@ public class NpcAiRegressionTests
         HungryAggressorAI hungryAggressor = CreatePrivateParameterless<HungryAggressorAI>();
         TerritorialPredatorAI territorialPredator = CreatePrivateParameterless<TerritorialPredatorAI>();
         DenningPredatorAI denningPredator = CreatePrivateParameterless<DenningPredatorAI>();
+        TerritorialForagerAI territorialForager = CreatePrivateParameterless<TerritorialForagerAI>();
+        DenningForagerAI denningForager = CreatePrivateParameterless<DenningForagerAI>();
 
         Assert.IsTrue(hungryAggressor.HandlesEvent(EventType.CharacterEnterCellFinish));
         Assert.IsTrue(hungryAggressor.HandlesEvent(EventType.LeaveCombat));
         Assert.IsTrue(territorialPredator.HandlesEvent(EventType.CharacterEnterCellFinish));
         Assert.IsTrue(territorialPredator.HandlesEvent(EventType.LeaveCombat));
         Assert.IsTrue(denningPredator.HandlesEvent(EventType.LeaveCombat));
+        Assert.IsTrue(territorialForager.HandlesEvent(EventType.CharacterEnterCellFinish));
+        Assert.IsTrue(territorialForager.HandlesEvent(EventType.LeaveCombat));
+        Assert.IsTrue(denningForager.HandlesEvent(EventType.CharacterEnterCellFinish));
+        Assert.IsTrue(denningForager.HandlesEvent(EventType.LeaveCombat));
     }
 
     [TestMethod]

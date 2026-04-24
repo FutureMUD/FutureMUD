@@ -443,6 +443,7 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 | `CombatEndAI` | Yes | Controls truce acceptance and post-incapacitation combat ending behavior | Reactive combat cleanup layer |
 | `CommandableAI` | Yes | Lets players command NPCs subject to prog checks and banned-command rules | Good for guards, servants, followers |
 | `DenBuilderAI` | Yes | Craft-backed den or nest builder that claims a home cell and can defend it | Uses persisted per-NPC home/anchor state |
+| `DenningForagerAI` | Yes | Hungry territorial forager that eats local food, direct forage yields, or uses `FORAGE` for edible forageables, then returns to a remembered den and can optionally build one | Uses persisted per-NPC home/anchor state |
 | `DenningPredatorAI` | Yes | Hungry territorial predator that returns to a remembered home cell when sated, can optionally craft a burrow there, and hauls killed prey back to the den before eating; combat interrupts hauling until the fight ends | Uses persisted per-NPC home/anchor/food state |
 | `DoorguardAI` | Yes | Manages NPCs who respond to knocks, open/close doors, and enforce door access rules | Strongly tied to doors and command timing |
 | `EnforcerAI` | Yes | Legal-authority AI that identifies and reacts to wanted criminals | Heavy legal-system integration |
@@ -462,6 +463,7 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 | `ShopkeeperAI` | Yes | Shop staff behavior, buyer reaction, and restocking response | Shop-system integration |
 | `SparPartnerAI` | Yes | Accepts or refuses spar invitations and engages accordingly | Training/combat-social niche |
 | `StealthAI` | Yes | Hiding/sneaking cadence and stealth posture behavior | Tick-driven stealth utility |
+| `TerritorialForagerAI` | Yes | Hungry territorial forager that searches territory and nearby cells for local food, edible forage yields, or edible forageables it can gather with `FORAGE` | Territory movement plus foraging |
 | `TerritorialPredatorAI` | Yes | Hungry predator that combines edible-prey aggression with `TerritorialWanderer` territory claiming and wandering, and eats local edible corpses before hunting | Aggressive classification plus territory movement |
 | `TerritorialWanderer` | Yes | Territory-seeking and territory-maintaining wanderer AI | Also used by spawner open-territory placement |
 | `TrackingAggressorAI` | Yes | Aggression AI that can track enemies over distance | Aggressive classification and pathing-heavy |
@@ -475,10 +477,10 @@ The table below covers every current concrete AI file in `MudSharpCore/NPC/AI`.
 The current AI roster clusters into a few families:
 
 - aggression and combat: `AggressorAI`, `HungryAggressorAI`, `TerritorialPredatorAI`, `DenningPredatorAI`, `AggressivePatherAI`, `SemiAggressiveAI`, `TrackingAggressorAI`, `ArenaParticipantAI`, `CombatEndAI`, `RescuerAI`, `SparPartnerAI`
-- movement and territory: `WandererAI`, `FlyingWanderer`, `PathToLocationAI`, `TerritorialWanderer`, `TerritorialPredatorAI`, `DenningPredatorAI`, `ArborealWandererAI`
+- movement and territory: `WandererAI`, `FlyingWanderer`, `PathToLocationAI`, `TerritorialWanderer`, `TerritorialPredatorAI`, `DenningPredatorAI`, `TerritorialForagerAI`, `DenningForagerAI`, `ArborealWandererAI`
 - service/content roles: `DoorguardAI`, `ShopkeeperAI`, `LawyerAI`, `JudgeAI`, `EnforcerAI`, `MountAI`, `CommandableAI`
 - ambience and lightweight reactions: `IdleEmoterAI`, `ReactAI`, `StealthAI`, `SelfCareAI`
-- animal/specialized behavior: `WildAnimalHerdAI`, `ScavengeAI`, `DenBuilderAI`, `LairScavengerAI`
+- animal/specialized behavior: `WildAnimalHerdAI`, `ScavengeAI`, `DenBuilderAI`, `LairScavengerAI`, `TerritorialForagerAI`, `DenningForagerAI`
 
 ## Group AI Catalogue
 ### Current Group Types

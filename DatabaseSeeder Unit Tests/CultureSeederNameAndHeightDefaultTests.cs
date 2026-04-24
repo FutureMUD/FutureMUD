@@ -42,6 +42,25 @@ public class CultureSeederNameAndHeightDefaultTests
 	}
 
 	[TestMethod]
+	public void CultureRaceSatiationLimitsForTesting_FantasyDefaults_UseExpectedCadences()
+	{
+		IReadOnlyDictionary<string, (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours)> limits =
+			CultureSeeder.CultureRaceSatiationLimitsForTesting;
+
+		AssertSatiationCadence(limits["Elf"], 24.0, 12.0);
+		AssertSatiationCadence(limits["Hobbit"], 8.0, 5.0);
+		AssertSatiationCadence(limits["Dwarf"], 18.0, 9.0);
+		AssertSatiationCadence(limits["Orc"], 8.0, 5.0);
+		AssertSatiationCadence(limits["Troll"], 6.0, 4.0);
+	}
+
+	[TestMethod]
+	public void HumanBaselineSatiationLimitsForTesting_PreservesEstablishedGameplayCadence()
+	{
+		AssertSatiationCadence(HumanSeeder.HumanBaselineSatiationLimitsForTesting, 12.0, 6.0);
+	}
+
+	[TestMethod]
 	public void CultureSeeder_FallbackProfiles_MakeBaseNameCulturesReadyAndRemainRerunnable()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -270,6 +289,18 @@ public class CultureSeederNameAndHeightDefaultTests
 			.UseInMemoryDatabase(Guid.NewGuid().ToString())
 			.Options;
 		return new FuturemudDatabaseContext(options);
+	}
+
+	private static void AssertSatiationCadence(
+		(double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) limits,
+		double expectedFoodHours,
+		double expectedDrinkHours)
+	{
+		const double thresholdFraction = 0.75;
+		Assert.AreEqual(expectedFoodHours / thresholdFraction, limits.MaximumFoodSatiatedHours, 0.0001,
+			"Food satiation maxima should preserve the intended cadence before starvation.");
+		Assert.AreEqual(expectedDrinkHours / thresholdFraction, limits.MaximumDrinkSatiatedHours, 0.0001,
+			"Drink satiation maxima should preserve the intended cadence before becoming parched.");
 	}
 
 	private static void RunSimpleNameSeeding(CultureSeeder seeder, FuturemudDatabaseContext context)

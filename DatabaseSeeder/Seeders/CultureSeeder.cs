@@ -70,6 +70,7 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => true,
 			SeedCulturePacks(context, questionAnswers);
 		}
 
+		RefreshExistingCultureRaceSatiationLimits();
 		EnsureFallbackRandomNameProfiles();
 
 		context.Database.CommitTransaction();
@@ -88,13 +89,20 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => true,
             return ShouldSeedResult.PrerequisitesNotMet;
         }
 
-        return SeederRepeatabilityHelper.ClassifyByPresence(
+        ShouldSeedResult repeatability = SeederRepeatabilityHelper.ClassifyByPresence(
             StockNameCultureMarkers.Select(marker => context.NameCultures.Any(x => x.Name == marker))
                 .Concat(StockRandomProfileMarkers.Select(marker => context.RandomNameProfiles.Any(x => x.Name == marker)))
                 .Concat(StockCulturePackageMarkers.Select(marker =>
                     context.Languages.Any(x => x.Name == marker) ||
                     context.Ethnicities.Any(x => x.Name == marker) ||
                     context.Cultures.Any(x => x.Name == marker))));
+		if (repeatability == ShouldSeedResult.MayAlreadyBeInstalled &&
+		    HasCultureRaceSatiationLimitUpdates(context))
+		{
+			return ShouldSeedResult.ExtraPackagesAvailable;
+		}
+
+		return repeatability;
     }
 
     public int SortOrder => 101;

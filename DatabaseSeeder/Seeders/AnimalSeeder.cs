@@ -4083,6 +4083,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             HoldBreathLengthExpression = $"90+(5*con:{_healthTrait.Id})",
             MaximumLiftWeightExpression = $"str:{_strengthTrait.Id}*10000",
             MaximumDragWeightExpression = $"str:{_strengthTrait.Id}*40000",
+			MaximumFoodSatiatedHours = raceTemplate?.MaximumFoodSatiatedHours ?? SatiationLimitSeederHelper.MaximumFoodHoursForCadence(12.0),
+			MaximumDrinkSatiatedHours = raceTemplate?.MaximumDrinkSatiatedHours ?? SatiationLimitSeederHelper.MaximumDrinkHoursForCadence(6.0),
             DefaultHeightWeightModelMale = _hwModels[hwMale],
             DefaultHeightWeightModelNeuter = _hwModels[hwMale],
             DefaultHeightWeightModelFemale = _hwModels[hwFemale],
@@ -9114,7 +9116,11 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 ResolveAnimalRaceHealthMultiplier(template, template.Size, template.BodypartHealthMultiplier);
             bool needsUpdate = race.DefaultCombatSettingId != setting.Id ||
                                race.NaturalArmourTypeId != _naturalArmour?.Id ||
-                               Math.Abs(race.BodypartHealthMultiplier - expectedHealthMultiplier) > 0.0001;
+                               Math.Abs(race.BodypartHealthMultiplier - expectedHealthMultiplier) > 0.0001 ||
+							   !SatiationLimitSeederHelper.MatchesLimits(
+								   race,
+								   template.MaximumFoodSatiatedHours,
+								   template.MaximumDrinkSatiatedHours);
             if (!needsUpdate)
             {
                 continue;
@@ -9123,6 +9129,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             race.DefaultCombatSetting = setting;
             race.NaturalArmourType = _naturalArmour;
             race.BodypartHealthMultiplier = expectedHealthMultiplier;
+			SatiationLimitSeederHelper.ApplyLimits(
+				race,
+				template.MaximumFoodSatiatedHours,
+				template.MaximumDrinkSatiatedHours);
         }
 
         _context.SaveChanges();

@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Body;
+using MudSharp.Character.Heritage;
 using MudSharp.Form.Characteristics;
 using MudSharp.GameItems;
 using System;
@@ -63,7 +64,9 @@ public partial class MythicalAnimalSeeder
         IReadOnlyList<MythicalCharacteristicTemplate>? AdditionalCharacteristics = null,
         IReadOnlyList<StockDescriptionVariant>? OverlayDescriptionVariants = null,
         string CombatStrategyKey = "Beast Brawler",
-        IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null
+        IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null,
+		double MaximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours,
+		double MaximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours
     );
 
     internal static IReadOnlyDictionary<string, MythicalRaceTemplate> TemplatesForTesting => Templates;
@@ -299,7 +302,7 @@ public partial class MythicalAnimalSeeder
                     );
         }
 
-        return new Dictionary<string, MythicalRaceTemplate>(StringComparer.OrdinalIgnoreCase)
+        Dictionary<string, MythicalRaceTemplate> templates = new(StringComparer.OrdinalIgnoreCase)
         {
             ["Dragon"] = BeastRace(
                 "Dragon",
@@ -1218,7 +1221,63 @@ public partial class MythicalAnimalSeeder
                 combatStrategyKey: "Beast Swooper"
             )
         };
+
+		return templates
+			.Select(x => ApplyMythicalSatiationLimits(x.Value))
+			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
     }
+
+	private static MythicalRaceTemplate ApplyMythicalSatiationLimits(MythicalRaceTemplate template)
+	{
+		(double foodHours, double drinkHours) = GetMythicalSatiationCadence(template);
+		(double maximumFood, double maximumDrink) =
+			SatiationLimitSeederHelper.MaximumLimitsForCadence(foodHours, drinkHours);
+		return template with
+		{
+			MaximumFoodSatiatedHours = maximumFood,
+			MaximumDrinkSatiatedHours = maximumDrink
+		};
+	}
+
+	private static (double FoodHours, double DrinkHours) GetMythicalSatiationCadence(MythicalRaceTemplate template)
+	{
+		return template.Name switch
+		{
+			"Dragon" or "Eastern Dragon" => (720.0, 168.0),
+			"Griffin" or "Hippogriff" or "Pegasus" or "Pegacorn" => (24.0, 12.0),
+			"Unicorn" => (48.0, 24.0),
+			"Warg" => (12.0, 8.0),
+			"Dire-Wolf" => (18.0, 8.0),
+			"Dire-Bear" => (96.0, 36.0),
+			"Minotaur" => (10.0, 6.0),
+			"Naga" or "Basilisk" or "Cockatrice" => (720.0, 168.0),
+			"Mermaid" or "Selkie" or "Hippocamp" => (24.0, 48.0),
+			"Manticore" => (16.0, 8.0),
+			"Wyvern" => (168.0, 72.0),
+			"Phoenix" => (48.0, 24.0),
+			"Giant Beetle" or "Giant Ant" or "Giant Mantis" => (72.0, 24.0),
+			"Giant Spider" => (336.0, 168.0),
+			"Giant Scorpion" => (720.0, 336.0),
+			"Giant Centipede" or "Ankheg" => (168.0, 72.0),
+			"Giant Worm" => (336.0, 168.0),
+			"Colossal Worm" => (720.0, 336.0),
+			"Myconid" => (168.0, 72.0),
+			"Plantfolk" => (96.0, 48.0),
+			"Ent" => (720.0, 168.0),
+			"Dryad" => (72.0, 48.0),
+			"Owlkin" or "Avian Person" => (10.0, 6.0),
+			"Centaur" => (12.0, 8.0),
+			_ when template.HumanoidVariety => (12.0, 6.0),
+			_ when template.Size >= SizeCategory.Large => (24.0, 12.0),
+			_ => (12.0, 6.0)
+		};
+	}
+
+	internal static (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) GetMythicalSatiationLimitsForTesting(
+		MythicalRaceTemplate template)
+	{
+		return (template.MaximumFoodSatiatedHours, template.MaximumDrinkSatiatedHours);
+	}
 
     internal static string BuildRaceDescriptionForTesting(MythicalRaceTemplate template)
     {

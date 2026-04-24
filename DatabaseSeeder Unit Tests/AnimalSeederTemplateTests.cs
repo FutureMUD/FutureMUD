@@ -159,6 +159,8 @@ public class AnimalSeederTemplateTests
                 BodypartHealthMultiplier = 1.0,
                 BreathingVolumeExpression = "1",
                 HoldBreathLengthExpression = "1",
+                MaximumFoodSatiatedHours = template.MaximumFoodSatiatedHours,
+                MaximumDrinkSatiatedHours = template.MaximumDrinkSatiatedHours,
                 CanClimb = false,
                 CanSwim = true,
                 MinimumSleepingPosition = 1,
@@ -180,6 +182,18 @@ public class AnimalSeederTemplateTests
         return text
             .Split(["\r\n\r\n", "\n\n"], System.StringSplitOptions.RemoveEmptyEntries)
             .Length;
+    }
+
+    private static void AssertSatiationCadence(
+        (double MaximumFoodSatiatedHours, double MaximumDrinkSatiatedHours) limits,
+        double expectedFoodHours,
+        double expectedDrinkHours)
+    {
+        const double thresholdFraction = 0.75;
+        Assert.AreEqual(expectedFoodHours / thresholdFraction, limits.MaximumFoodSatiatedHours, 0.0001,
+            "Food satiation maxima should preserve the intended cadence before starvation.");
+        Assert.AreEqual(expectedDrinkHours / thresholdFraction, limits.MaximumDrinkSatiatedHours, 0.0001,
+            "Drink satiation maxima should preserve the intended cadence before becoming parched.");
     }
 
     [TestMethod]
@@ -263,6 +277,51 @@ public class AnimalSeederTemplateTests
         Assert.AreEqual("Beast Swooper", AnimalSeeder.RaceTemplatesForTesting["Eagle"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", AnimalSeeder.RaceTemplatesForTesting["Python"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", AnimalSeeder.RaceTemplatesForTesting["Elephant"].CombatStrategyKey);
+    }
+
+    [TestMethod]
+    public void RaceTemplatesForTesting_RepresentativeAnimals_UseExpectedSatiationCadences()
+    {
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Mouse"]),
+            2.0,
+            2.0);
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Camel"]),
+            48.0,
+            168.0);
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Tortoise"]),
+            1440.0,
+            720.0);
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Python"]),
+            720.0,
+            168.0);
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Frog"]),
+            48.0,
+            12.0);
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Sparrow"]),
+            2.0,
+            2.0);
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Eagle"]),
+            24.0,
+            8.0);
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Shark"]),
+            168.0,
+            72.0);
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Baleen Whale"]),
+            336.0,
+            168.0);
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Spider"]),
+            336.0,
+            168.0);
     }
 
     [TestMethod]
@@ -548,6 +607,19 @@ public class AnimalSeederTemplateTests
 
         Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, new AnimalSeeder().ShouldSeedData(context),
             "A legacy beetle race that still points at the insectoid body should trigger the rerun path.");
+    }
+
+    [TestMethod]
+    public void ShouldSeedData_ExistingCatalogueWithLegacySatiationLimits_ReturnsExtraPackagesAvailable()
+    {
+        using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext();
+        Race camel = context.Races.Single(x => x.Name == "Camel");
+        camel.MaximumFoodSatiatedHours = 16.0;
+        camel.MaximumDrinkSatiatedHours = 8.0;
+        context.SaveChanges();
+
+        Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, new AnimalSeeder().ShouldSeedData(context),
+            "Legacy animal races using baseline satiation limits should trigger the rerun repair path.");
     }
 
     [TestMethod]

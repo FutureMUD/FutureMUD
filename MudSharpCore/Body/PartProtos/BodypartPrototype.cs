@@ -19,6 +19,9 @@ using System.Text;
 using BodypartShape = MudSharp.Form.Shape.BodypartShape;
 using Material = MudSharp.Form.Material.Material;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Body.PartProtos;
 
 public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem, IBodypart

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -22,6 +22,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -819,7 +821,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         return 0;
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         throw new NotSupportedException("You cannot put things into severed bodyparts.");
     }
@@ -854,7 +856,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             : WhyCannotGetContainerReason.NotContainer;
     }
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();

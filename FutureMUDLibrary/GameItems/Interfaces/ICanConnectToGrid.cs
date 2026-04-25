@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#nullable enable annotations
+
 namespace MudSharp.GameItems.Interfaces
 {
     public interface ICanConnectToGrid : IGameItemComponent
     {
         string GridType { get; }
-        IGrid Grid { get; set; }
+        IGrid? Grid { get; set; }
     }
 }

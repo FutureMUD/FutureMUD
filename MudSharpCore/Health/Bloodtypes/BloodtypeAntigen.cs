@@ -36,7 +36,7 @@ public class BloodtypeAntigen : SaveableItem, IBloodtypeAntigen
 
     public override void Save()
     {
-        Models.BloodtypeAntigen? dbitem = FMDB.Context.BloodtypeAntigens.Find(Id);
+        Models.BloodtypeAntigen dbitem = FMDB.Context.BloodtypeAntigens.Find(Id)!;
         dbitem.Name = Name;
         Changed = false;
     }

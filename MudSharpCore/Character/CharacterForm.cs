@@ -34,9 +34,9 @@ public class CharacterForm : ICharacterForm
 	public BodySwitchTraumaMode TraumaMode { get; set; }
 	public string? TransformationEcho { get; set; }
 	public bool AllowVoluntarySwitch { get; set; }
-	public IFutureProg CanVoluntarilySwitchProg { get; set; }
-	public IFutureProg WhyCannotVoluntarilySwitchProg { get; set; }
-	public IFutureProg CanSeeFormProg { get; set; }
+	public IFutureProg? CanVoluntarilySwitchProg { get; set; }
+	public IFutureProg? WhyCannotVoluntarilySwitchProg { get; set; }
+	public IFutureProg? CanSeeFormProg { get; set; }
 
 	public bool CanSee(ICharacter character)
 	{

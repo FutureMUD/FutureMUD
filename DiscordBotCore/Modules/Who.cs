@@ -28,7 +28,7 @@ public class Who : BaseCommandModule
             OnResponseAction = HandleMudResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"who {request.RequestId}");
+        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"who {request.RequestId}");
     }
 
     private async Task HandleMudResponse(string text, CommandContext context)

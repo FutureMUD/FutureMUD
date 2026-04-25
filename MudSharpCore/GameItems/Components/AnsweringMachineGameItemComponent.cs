@@ -285,7 +285,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         return true;
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         return FreeConnections.Any() &&
                other.FreeConnections.Any() &&
@@ -293,7 +293,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
                other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         ConnectorType? connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
@@ -315,7 +315,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {
@@ -1631,7 +1631,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         return _tapeItem == null && item.GetItemType<IAudioStorageTape>() != null;
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         _tapeItem = item;
         item.ContainedIn = Parent;
@@ -1673,7 +1673,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         return _tapeItem == null ? 1 : 0;
     }
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         if (_tapeItem == null)
         {

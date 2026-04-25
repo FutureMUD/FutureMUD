@@ -18,9 +18,10 @@ public class AdditionalBodypartMerit : CharacterMeritBase, IAdditionalBodypartsM
     public AdditionalBodypartMerit(Models.Merit merit, IFuturemud gameworld) : base(merit, gameworld)
     {
         XElement definition = XElement.Parse(merit.Definition);
-        foreach (XElement element in definition.Element("AddedBodyparts").Elements())
+        foreach (XElement element in definition.Element("AddedBodyparts")!.Elements())
         {
-            IBodypart? bodypart = Gameworld.BodypartPrototypes.Get(long.Parse(element.Attribute("bodypart").Value));
+            IBodypart bodypart = Gameworld.BodypartPrototypes.Get(long.Parse(element.Attribute("bodypart")!.Value)) ??
+                throw new ApplicationException("Invalid bodypart in AdditionalBodypartMerit");
             string? genderValue = element.Attribute("gender")?.Value;
             Gender? gender = default;
             if (!string.IsNullOrEmpty(genderValue))
@@ -33,7 +34,7 @@ public class AdditionalBodypartMerit : CharacterMeritBase, IAdditionalBodypartsM
                 gender = parsedGender;
             }
 
-            IRace race = null;
+            IRace? race = null;
             string? raceValue = element.Attribute("race")?.Value;
             if (!string.IsNullOrEmpty(raceValue))
             {
@@ -45,9 +46,10 @@ public class AdditionalBodypartMerit : CharacterMeritBase, IAdditionalBodypartsM
             _addedBodyparts.Add((bodypart, gender, race));
         }
 
-        foreach (XElement element in definition.Element("RemovedBodyparts").Elements())
+        foreach (XElement element in definition.Element("RemovedBodyparts")!.Elements())
         {
-            IBodypart? bodypart = Gameworld.BodypartPrototypes.Get(long.Parse(element.Attribute("bodypart").Value));
+            IBodypart bodypart = Gameworld.BodypartPrototypes.Get(long.Parse(element.Attribute("bodypart")!.Value)) ??
+                throw new ApplicationException("Invalid bodypart in AdditionalBodypartMerit");
             string? genderValue = element.Attribute("gender")?.Value;
             Gender? gender = default;
             if (!string.IsNullOrEmpty(genderValue))
@@ -60,7 +62,7 @@ public class AdditionalBodypartMerit : CharacterMeritBase, IAdditionalBodypartsM
                 gender = parsedGender;
             }
 
-            IRace race = null;
+            IRace? race = null;
             string? raceValue = element.Attribute("race")?.Value;
             if (!string.IsNullOrEmpty(raceValue))
             {

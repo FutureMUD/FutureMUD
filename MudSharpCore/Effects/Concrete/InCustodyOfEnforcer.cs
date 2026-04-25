@@ -39,7 +39,7 @@ public class InCustodyOfEnforcer : Effect, IEffect
 
     public ICharacter CharacterOwner => (ICharacter)Owner;
 
-    public ILegalAuthority LegalAuthority { get; set; }
+    public ILegalAuthority LegalAuthority { get; set; } = null!;
 
     public void SubscribeEvents()
     {
@@ -110,9 +110,9 @@ public class InCustodyOfEnforcer : Effect, IEffect
 
     protected InCustodyOfEnforcer(XElement effect, IPerceivable owner) : base(effect, owner)
     {
-        XElement? root = effect.Element("Effect");
-        _enforcerId = long.Parse(root.Element("Enforcer").Value);
-        LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("Authority").Value));
+        XElement root = effect.Element("Effect")!;
+        _enforcerId = long.Parse(root.Element("Enforcer")!.Value);
+        LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("Authority")!.Value))!;
         SubscribeEvents();
     }
 

@@ -1,4 +1,6 @@
-﻿using MudSharp.Body.Position;
+#nullable enable annotations
+
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.CharacterCreation;
@@ -566,7 +568,7 @@ public class TerritorialWanderer : PathingAIBase
     }
 
     /// <inheritdoc />
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         Territory territoryEffect = ch.CombinedEffectsOfType<Territory>().FirstOrDefault();
         if (territoryEffect is null)

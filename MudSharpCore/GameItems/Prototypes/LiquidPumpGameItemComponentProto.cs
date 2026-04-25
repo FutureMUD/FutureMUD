@@ -68,7 +68,7 @@ public class LiquidPumpGameItemComponentProto : GameItemComponentProto, IConnect
         ).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new LiquidPumpGameItemComponent(this, parent, temporary);
     }

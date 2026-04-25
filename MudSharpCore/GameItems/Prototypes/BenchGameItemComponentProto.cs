@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Combat;
@@ -8,6 +8,8 @@ using MudSharp.GameItems.Components;
 using MudSharp.PerceptionEngine;
 using System;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -130,7 +132,7 @@ public class BenchGameItemComponentProto : GameItemComponentProto
         );
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new BenchGameItemComponent(this, parent, temporary);
     }

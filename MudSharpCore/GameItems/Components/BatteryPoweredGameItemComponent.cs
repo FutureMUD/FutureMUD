@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Form.Shape;
@@ -13,6 +13,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+
+#nullable enable
+#nullable disable warnings
 
 namespace MudSharp.GameItems.Components;
 
@@ -629,7 +632,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
         return true;
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any() || !other.FreeConnections.Any())
         {
@@ -640,7 +643,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
                other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         ConnectorType connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
@@ -663,7 +666,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {
@@ -790,14 +793,15 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
         return _prototype.BatteryQuantity - _contents.Sum(x => x.Quantity);
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         if (_contents.Contains(item))
         {
 #if DEBUG
             throw new ApplicationException("Item duplication in container.");
-#endif
+#else
             return;
+#endif
         }
 
         if (allowMerge)
@@ -920,7 +924,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
         return false;
     }
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();

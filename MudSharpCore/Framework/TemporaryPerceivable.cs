@@ -71,22 +71,28 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
         // Do nothing
     }
 
+    #pragma warning disable CS0067 // Temporary perceivables are null-object stand-ins for perception APIs.
     public event EventHandler InvalidPositionTargets;
+    #pragma warning restore CS0067
 
     public virtual Proximity GetProximity(IPerceivable thing)
     {
         return Proximity.Unapproximable;
     }
 
+    #pragma warning disable CS0067 // Temporary perceivables never participate in lifecycle events.
     public event PerceivableEvent OnQuit;
     public event PerceivableEvent OnDeleted;
+    #pragma warning restore CS0067
 
     public Gendering Gender => Gendering.Get(Form.Shape.Gender.Indeterminate);
 
     public abstract ICell Location { get; }
 
+    #pragma warning disable CS0067 // Temporary perceivables do not move through real locations.
     public event LocatableEvent OnLocationChanged;
     public event LocatableEvent OnLocationChangedIntentionally;
+    #pragma warning restore CS0067
 
     public abstract bool ColocatedWith(IPerceivable otherThing);
 
@@ -284,7 +290,9 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
         return false;
     }
 
+    #pragma warning disable CS0067 // Temporary perceivables have fixed positional behaviour.
     public event PerceivableEvent OnPositionChanged;
+    #pragma warning restore CS0067
 
     public IOutputHandler OutputHandler { get; } = new NonPlayerOutputHandler();
 

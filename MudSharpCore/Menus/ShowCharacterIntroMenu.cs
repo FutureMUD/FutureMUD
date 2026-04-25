@@ -84,10 +84,7 @@ public class ShowCharacterIntroMenu : CharacterLoginMenu
         }
 
         OutputHandler.Send($"Type {"BEGIN".ColourCommand()} to enter the gameworld with your new character.");
-        _introHasFinished = true;
     }
-
-    private bool _introHasFinished;
 
     public override int Timeout => 3600000;
     public override string Prompt => "\n";

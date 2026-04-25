@@ -408,7 +408,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
         return (int)((_prototype.PaperWeightCapacity - _contents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         if (_contents.Contains(item))
         {
@@ -536,7 +536,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
         return base.SwapInPlace(existingItem, newItem);
     }
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         ICell? location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
@@ -643,7 +643,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
 
     public IEnumerable<ILock> Locks => _locks;
 
-    public bool InstallLock(ILock theLock, ICharacter actor = null)
+    public bool InstallLock(ILock theLock, ICharacter? actor = null)
     {
         _locks.Add(theLock);
         if (_noSave)
@@ -771,7 +771,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
         IContainer? newItemContainer = newItem?.GetItemType<IContainer>();
         if (newItemContainer != null)
         {
-            IOpenable newItemOpenable = newItem.GetItemType<IOpenable>();
+            IOpenable? newItemOpenable = newItem!.GetItemType<IOpenable>();
             if (newItemOpenable != null)
             {
                 if (IsOpen)
@@ -821,7 +821,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
             _contents.Clear();
         }
 
-        return base.HandleDieOrMorph(newItem, location);
+        return base.HandleDieOrMorph(newItem!, location!);
     }
 
     private void TryPrintPendingFaxes()

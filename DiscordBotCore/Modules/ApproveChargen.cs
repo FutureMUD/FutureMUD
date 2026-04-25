@@ -53,7 +53,7 @@ public class ApproveChargen : BaseCommandModule
             OnResponseAction = HandleMudResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"approvechargen {request.RequestId} {which} {accountid} {comment}");
+        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"approvechargen {request.RequestId} {which} {accountid} {comment}");
     }
 
     private async Task HandleMudResponse(string text, CommandContext context)

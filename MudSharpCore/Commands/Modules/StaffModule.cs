@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using MudSharp.Accounts;
@@ -64,6 +64,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Account = MudSharp.Accounts.Account;
 using TimeZoneInfo = System.TimeZoneInfo;
+
+#nullable enable annotations
 
 namespace MudSharp.Commands.Modules;
 
@@ -2518,7 +2520,7 @@ The following options are available:
         string toPath = System.IO.Path.GetFullPath(string.IsNullOrEmpty(root) ? "Binaries" : System.IO.Path.Combine(root, "Binaries"));
         if (!Directory.Exists(toPath))
         {
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
+            if (!OperatingSystem.IsWindows())
             {
                 Directory.CreateDirectory(toPath, UnixFileMode.UserWrite | UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.SetUser | UnixFileMode.SetGroup | UnixFileMode.GroupExecute | UnixFileMode.GroupRead | UnixFileMode.GroupWrite);
             }
@@ -3050,7 +3052,7 @@ You can use the following subcommands with the grid command:
         }
     }
 
-    private static void GridConnect(ICharacter actor, StringStack ss)
+    private static void GridConnect(ICharacter? actor, StringStack ss)
     {
         if (ss.IsFinished)
         {

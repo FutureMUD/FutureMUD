@@ -20,6 +20,9 @@ using System.Linq;
 using System.Xml.Linq;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.NPC.Templates;
 
 public abstract class NPCTemplateBase : EditableItem, INPCTemplate

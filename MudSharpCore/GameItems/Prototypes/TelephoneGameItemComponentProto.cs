@@ -20,8 +20,8 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
 {
     public override string TypeDescription => "Telephone";
     public double Wattage { get; set; }
-    public string RingEmote { get; set; }
-    public string TransmitPremote { get; set; }
+    public string RingEmote { get; set; } = null!;
+    public string TransmitPremote { get; set; } = null!;
     public AudioVolume RingVolume { get; set; }
     public List<ConnectorType> Connections { get; } = [];
     IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
@@ -97,7 +97,7 @@ public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnecta
         ).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new TelephoneGameItemComponent(this, parent, temporary);
     }

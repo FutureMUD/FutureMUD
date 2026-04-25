@@ -150,7 +150,7 @@ In most cases you'd only need to edit the #6bits|bit|b#0 portion of the above to
             Regex regex = new(abbrev, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
             _patterns.Add(regex);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             actor.OutputHandler.Send("The regex you specified was not valid.");
             return false;
@@ -214,7 +214,7 @@ In most cases you'd only need to edit the #6bits|bit|b#0 portion of the above to
             Regex regex = new(abbrev, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
             _patterns[value - 1] = regex;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             actor.OutputHandler.Send("The regex you specified was not valid.");
             return false;

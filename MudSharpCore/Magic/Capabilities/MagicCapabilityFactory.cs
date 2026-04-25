@@ -8,6 +8,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Magic.Capabilities;
 
 public static class MagicCapabilityFactory

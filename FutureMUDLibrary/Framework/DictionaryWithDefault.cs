@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace MudSharp.Framework;
 
 public static class DictionaryWithDefaultExtensions
@@ -56,6 +58,7 @@ public static class DictionaryWithDefaultExtensions
 /// <typeparam name="TKey">The dictionary's key type</typeparam>
 /// <typeparam name="TValue">The dictionary's value type</typeparam>
 public class DictionaryWithDefault<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
+    where TKey : notnull
 {
     private IDictionary<TKey, TValue> _dictionary;
 
@@ -64,7 +67,7 @@ public class DictionaryWithDefault<TKey, TValue> : IDictionary<TKey, TValue>, IR
         _dictionary = new Dictionary<TKey, TValue>();
     }
 
-    public DictionaryWithDefault(IEqualityComparer<TKey> comparer)
+    public DictionaryWithDefault(IEqualityComparer<TKey>? comparer)
     {
         _dictionary = comparer is not null ?
             new Dictionary<TKey, TValue>(comparer) :
@@ -93,7 +96,11 @@ public class DictionaryWithDefault<TKey, TValue> : IDictionary<TKey, TValue>, IR
 
     public TValue this[TKey key]
     {
-        get => _dictionary.TryGetValue(key, out TValue value) ? value : default; set => _dictionary[key] = value;
+        get
+        {
+            return _dictionary.TryGetValue(key, out TValue? value) ? value! : default!;
+        }
+        set => _dictionary[key] = value;
     }
 
     public ICollection<TKey> Keys => _dictionary.Keys;

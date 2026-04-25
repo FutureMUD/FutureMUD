@@ -14,6 +14,9 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.GameItems.Components;
 
 public class LockingDoorGameItemComponent : DoorGameItemComponentBase, ILock

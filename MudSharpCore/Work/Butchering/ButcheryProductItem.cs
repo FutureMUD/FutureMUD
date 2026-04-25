@@ -96,7 +96,7 @@ public class ButcheryProductItem : SaveableItem, IButcheryProductItem
     /// <inheritdoc />
     public override void Save()
     {
-        ButcheryProductItems? dbitem = FMDB.Context.ButcheryProductItems.Find(Id);
+        ButcheryProductItems dbitem = FMDB.Context.ButcheryProductItems.Find(Id)!;
         dbitem.NormalQuantity = NormalQuantity;
         dbitem.DamagedQuantity = DamagedQuantity;
         dbitem.NormalProtoId = _normalProtoId;

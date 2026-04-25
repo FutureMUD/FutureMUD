@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Character.Name;
@@ -24,6 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
+#nullable enable annotations
 
 namespace MudSharp.Body.Implementations;
 
@@ -320,7 +322,7 @@ public partial class Body
         return locsAndHands.Any(x => x.Hands == 1) || locsAndHands.Count > 1;
     }
 
-    public bool CanWield(IGameItem item, IWield specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None)
+    public bool CanWield(IGameItem item, IWield? specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
         IWieldable wieldable = item.GetItemType<IWieldable>();
         if (wieldable is null)
@@ -448,7 +450,7 @@ public partial class Body
         return $"You cannot stop wielding {item.HowSeen(this)}";
     }
 
-    public string WhyCannotWield(IGameItem item, IWield specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None)
+    public string WhyCannotWield(IGameItem item, IWield? specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
         if (!flags.HasFlag(ItemCanWieldFlags.RequireTwoHands) &&
             specificHand?.CanWield(item, this) != IWieldItemWieldResult.Success &&
@@ -487,7 +489,7 @@ public partial class Body
             $"You can't wield {item.HowSeen(Actor)} specifically in your {specificHand.FullDescription()} at the moment.";
     }
 
-    public bool Wield(IGameItem item, IWield specificHand, IEmote playerEmote = null, bool silent = false,
+    public bool Wield(IGameItem item, IWield? specificHand, IEmote? playerEmote = null, bool silent = false,
         ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
         if (specificHand == null)
@@ -573,7 +575,7 @@ public partial class Body
         return true;
     }
 
-    public bool Wield(IGameItem item, IEmote playerEmote = null, bool silent = false,
+    public bool Wield(IGameItem item, IEmote? playerEmote = null, bool silent = false,
         ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
         if (!CanWield(item, flags))
@@ -633,7 +635,7 @@ public partial class Body
         return true;
     }
 
-    public bool Unwield(IGameItem item, IEmote playerEmote = null, bool silent = false)
+    public bool Unwield(IGameItem item, IEmote? playerEmote = null, bool silent = false)
     {
         Tuple<IGameItem, IWield> heldLocation = _wieldedItems.FirstOrDefault(x => x.Item1 == item);
         _wieldedItems.RemoveAll(x => x.Item1 == item);
@@ -814,7 +816,7 @@ public partial class Body
         return specificHand == null ? WhyCannotWield(item, flags) : WhyCannotWield(item, specificHand, flags);
     }
 
-    public bool Draw(IGameItem item, IWield specificHand, IEmote playerEmote = null,
+    public bool Draw(IGameItem item, IWield specificHand, IEmote? playerEmote = null,
         OutputFlags additionalFlags = OutputFlags.Normal, bool silent = false,
         ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
@@ -1096,7 +1098,7 @@ public partial class Body
         throw new NotSupportedException("Got to the end of WhyCannotSheathe");
     }
 
-    public bool Sheathe(IGameItem item, IGameItem sheath, IEmote playerEmote = null,
+    public bool Sheathe(IGameItem item, IGameItem sheath, IEmote? playerEmote = null,
         OutputFlags additionalFlags = OutputFlags.Normal, bool silent = false)
     {
         if (!CanSheathe(item, sheath))
@@ -1532,7 +1534,7 @@ public partial class Body
         return true;
     }
 
-    public void Get(IGameItem item, int quantity = 0, IEmote playerEmote = null, bool silent = false,
+    public void Get(IGameItem item, int quantity = 0, IEmote? playerEmote = null, bool silent = false,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
         if (!CanGet(item, quantity, ignoreFlags))
@@ -1635,7 +1637,7 @@ public partial class Body
         CheckConsequences();
     }
 
-    public void Get(IGameItem item, IGameItem containerItem, int quantity = 0, IEmote playerEmote = null,
+    public void Get(IGameItem item, IGameItem containerItem, int quantity = 0, IEmote? playerEmote = null,
         bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
         if (!CanGet(item, containerItem, quantity, ignoreFlags))
@@ -1710,7 +1712,7 @@ public partial class Body
             $"{"<held in " + DescribeBodypartGroup(locs) + ">",-35}";
     }
 
-    public bool CanPut(IGameItem item, IGameItem container, ICharacter containerOwner, int quantity,
+    public bool CanPut(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity,
         bool allowLesserAmounts)
     {
         if (Actor.RidingMount != null)
@@ -1729,7 +1731,7 @@ public partial class Body
             !item.PreventsMovement();
     }
 
-    public string WhyCannotPut(IGameItem item, IGameItem container, ICharacter containerOwner, int quantity,
+    public string WhyCannotPut(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity,
         bool allowLesserAmounts)
     {
         if (Actor.RidingMount != null)
@@ -1790,8 +1792,8 @@ public partial class Body
         }
     }
 
-    public void Put(IGameItem item, IGameItem container, ICharacter containerOwner, int quantity = 0,
-        IEmote playerEmote = null,
+    public void Put(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity = 0,
+        IEmote? playerEmote = null,
         bool silent = false, bool allowLesserAmounts = true)
     {
         if (container.IsItemType<ICorpse>())
@@ -1991,7 +1993,7 @@ public partial class Body
         }
     }
 
-    public void Put(IGameItem item, IGameItem container, string profile, IEmote playerEmote = null,
+    public void Put(IGameItem item, IGameItem container, string profile, IEmote? playerEmote = null,
         bool silent = false)
     {
         if (!CanPut(item, container, profile))
@@ -2034,7 +2036,7 @@ public partial class Body
         return "You cannot drop " + item.HowSeen(this);
     }
 
-    public void Drop(IGameItem item, int quantity = 0, bool newStack = false, IEmote playerEmote = null,
+    public void Drop(IGameItem item, int quantity = 0, bool newStack = false, IEmote? playerEmote = null,
         bool silent = false)
     {
         if (!CanDrop(item, quantity) && !silent)
@@ -2125,7 +2127,7 @@ public partial class Body
         }
     }
 
-    public void Give(IGameItem item, IBody target, int quantity = 0, IEmote playerEmote = null)
+    public void Give(IGameItem item, IBody target, int quantity = 0, IEmote? playerEmote = null)
     {
         if (!CanGive(item, target, quantity))
         {
@@ -2213,7 +2215,7 @@ public partial class Body
         }
     }
 
-    public void Give(IGameItem item, ICorpse target, int quantity = 0, IEmote playerEmote = null)
+    public void Give(IGameItem item, ICorpse target, int quantity = 0, IEmote? playerEmote = null)
     {
         if (!CanGive(item, target, quantity))
         {
@@ -2763,7 +2765,7 @@ public partial class Body
     }
 
     public void Restrain(IGameItem item, IWearProfile profile, ICharacter restrainer, IGameItem targetItem,
-        IEmote emote = null,
+        IEmote? emote = null,
         bool silent = false)
     {
         if (!silent && restrainer != null)
@@ -2804,7 +2806,7 @@ public partial class Body
         return true;
     }
 
-    public void Wear(IGameItem item, IWearProfile profile, IEmote playerEmote = null, bool silent = false)
+    public void Wear(IGameItem item, IWearProfile profile, IEmote? playerEmote = null, bool silent = false)
     {
         if (!CanWear(item, profile))
         {
@@ -2977,7 +2979,7 @@ public partial class Body
         throw new ApplicationException("Unknown WhyCannotDress reason");
     }
 
-    public bool Dress(IGameItem item, ICharacter dresser, IWearProfile profile = null, IEmote emote = null)
+    public bool Dress(IGameItem item, ICharacter dresser, IWearProfile profile = null, IEmote? emote = null)
     {
         IWearProfile tempProfile = profile ?? WhichProfile(item) ?? item.GetItemType<IWearable>()?.DefaultProfile;
 
@@ -3646,7 +3648,7 @@ public partial class Body
         return WhyCannotGet(tempItem, container, 0, ItemCanGetIgnore.IgnoreInContainer);
     }
 
-    public void Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact, IEmote playerEmote = null,
+    public void Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact, IEmote? playerEmote = null,
         bool silent = false)
     {
         if (!CanGet(currency, containerItem, amount, exact))
@@ -3680,7 +3682,7 @@ public partial class Body
         Get(newItem, containerItem, playerEmote: playerEmote, silent: silent);
     }
 
-    public void Get(ICurrency currency, decimal amount, bool exact, IEmote playerEmote = null, bool silent = false)
+    public void Get(ICurrency currency, decimal amount, bool exact, IEmote? playerEmote = null, bool silent = false)
     {
         if (!CanGet(currency, amount, exact))
         {
@@ -3708,7 +3710,7 @@ public partial class Body
         Get(newItem, playerEmote: playerEmote, silent: silent);
     }
 
-    public bool CanPut(ICurrency currency, IGameItem container, ICharacter containerOwner, decimal amount, bool exact)
+    public bool CanPut(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact)
     {
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
@@ -3732,7 +3734,7 @@ public partial class Body
         return CanPut(tempItem, container, containerOwner, 0, false);
     }
 
-    public string WhyCannotPut(ICurrency currency, IGameItem container, ICharacter containerOwner, decimal amount,
+    public string WhyCannotPut(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount,
         bool exact)
     {
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()), amount);
@@ -3759,8 +3761,8 @@ public partial class Body
         return WhyCannotPut(tempItem, container, containerOwner, 0, false);
     }
 
-    public void Put(ICurrency currency, IGameItem container, ICharacter containerOwner, decimal amount, bool exact,
-        IEmote playerEmote = null,
+    public void Put(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact,
+        IEmote? playerEmote = null,
         bool silent = false)
     {
         if (!CanPut(currency, container, containerOwner, amount, exact))
@@ -3839,7 +3841,7 @@ public partial class Body
         return WhyCannotDrop(tempItem, 0);
     }
 
-    public void Drop(ICurrency currency, decimal amount, bool exact, bool newStack = false, IEmote playerEmote = null,
+    public void Drop(ICurrency currency, decimal amount, bool exact, bool newStack = false, IEmote? playerEmote = null,
         bool silent = false)
     {
         if (!CanDrop(currency, amount, exact))
@@ -3919,7 +3921,7 @@ public partial class Body
         return WhyCannotGive(tempItem, target);
     }
 
-    public void Give(ICurrency currency, IBody target, decimal amount, bool exact, IEmote playerEmote = null)
+    public void Give(ICurrency currency, IBody target, decimal amount, bool exact, IEmote? playerEmote = null)
     {
         if (!CanGive(currency, target, amount, exact))
         {
@@ -3997,7 +3999,7 @@ public partial class Body
         return WhyCannotGive(tempItem, target.Body);
     }
 
-    public void Give(ICurrency currency, ICorpse target, decimal amount, bool exact, IEmote playerEmote = null)
+    public void Give(ICurrency currency, ICorpse target, decimal amount, bool exact, IEmote? playerEmote = null)
     {
         if (!CanGive(currency, target, amount, exact))
         {
@@ -4052,13 +4054,13 @@ public partial class Body
         throw new NotImplementedException();
     }
 
-    public void GetByWeight(IGameItem item, double weight, IEmote playerEmote = null, bool silent = false,
+    public void GetByWeight(IGameItem item, double weight, IEmote? playerEmote = null, bool silent = false,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
         throw new NotImplementedException();
     }
 
-    public void GetByWeight(IGameItem item, IGameItem container, double weight, IEmote playerEmote = null,
+    public void GetByWeight(IGameItem item, IGameItem container, double weight, IEmote? playerEmote = null,
         bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
         throw new NotImplementedException();

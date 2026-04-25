@@ -44,9 +44,9 @@ internal static class PredatorAIHelpers
 			return null;
 		}
 
-		return predator.Location.LayerGameItems(predator.RoomLayer)
+		return predator.Location!.LayerGameItems(predator.RoomLayer)
 		               .SelectMany(x => x.ShallowAccessibleItems(predator))
-		               .SelectNotNull(x => x.GetItemType<ICorpse>())
+		               .SelectNotNull(x => x!.GetItemType<ICorpse>())
 		               .Where(x => predator.CanEat(x, predator.Race.BiteWeight).Success)
 		               .GetRandomElement();
 	}
@@ -163,7 +163,7 @@ internal static class PredatorAIHelpers
 			ch.OutputHandler.Handle(new EmoteOutput(new Emote(engageEmote, ch, ch, tp)));
 		}
 
-		ch.Engage(tp, ch.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+		ch.Engage(tp, ch.Body!.WieldedItems.SelectNotNull(x => x!.GetItemType<IRangedWeapon>())
 					 .Where(x => x.IsReadied || x.CanReady(ch))
 					 .Select(x => (int)x.WeaponType.DefaultRangeInRooms)
 					 .DefaultIfEmpty(-1)

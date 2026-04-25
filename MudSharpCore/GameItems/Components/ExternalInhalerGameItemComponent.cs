@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
+#nullable enable annotations
+
 namespace MudSharp.GameItems.Components;
 
 public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IConnectable
@@ -89,7 +91,7 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
         return true;
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (ConnectedItem != null)
         {
@@ -115,7 +117,7 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
         return other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         if (!CanConnect(actor, other))
         {
@@ -159,7 +161,7 @@ public class ExternalInhalerGameItemComponent : GameItemComponent, IPuffable, IC
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (ConnectedItem != null)
         {

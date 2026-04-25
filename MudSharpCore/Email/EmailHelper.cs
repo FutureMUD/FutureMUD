@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -115,9 +114,6 @@ public class EmailHelper
         _username = element.Attribute("Username").Value;
         _password = element.Attribute("Password").Value;
 
-        ServicePointManager.ServerCertificateValidationCallback =
-            delegate { return true; };
-
         return true;
     }
 
@@ -155,7 +151,7 @@ public class EmailHelper
     {
 #if DEBUG
         return;
-#endif
+#else
         if (string.IsNullOrWhiteSpace(email))
         {
             return;
@@ -180,6 +176,7 @@ public class EmailHelper
             };
             _messageQueue.Enqueue(new QueuedMessage(message, 0));
         }
+#endif
     }
 
     public void ProcessEmails()
@@ -187,7 +184,7 @@ public class EmailHelper
 #if DEBUG
         // Don't process emails on debug
         return;
-#endif
+#else
         lock (_messageQueue)
         {
             if (_messageQueue.Count <= 0)
@@ -199,6 +196,7 @@ public class EmailHelper
         using SmtpClient client = new();
         try
         {
+            client.ServerCertificateValidationCallback = delegate { return true; };
             client.Connect(_host, _port, _ssl);
             if (!_defaultCredentials)
             {
@@ -302,6 +300,7 @@ public class EmailHelper
         }
 
         client.Disconnect(true);
+#endif
     }
 
     public void StartEmailThread()

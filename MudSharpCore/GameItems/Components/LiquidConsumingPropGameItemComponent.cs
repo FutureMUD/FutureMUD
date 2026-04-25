@@ -385,8 +385,10 @@ public class LiquidConsumingPropGameItemComponent : GameItemComponent, ILiquidCo
     public void Close()
     {
     }
+    #pragma warning disable CS0067 // Liquid-consuming props satisfy IOpenable but do not raise open/close events.
     public event OpenableEvent? OnOpen;
     public event OpenableEvent? OnClose;
+    #pragma warning restore CS0067
 
     public override bool DescriptionDecorator(DescriptionType type)
     {
@@ -460,7 +462,7 @@ public class LiquidConsumingPropGameItemComponent : GameItemComponent, ILiquidCo
         return true;
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any() || !other.FreeConnections.Any())
         {
@@ -471,7 +473,7 @@ public class LiquidConsumingPropGameItemComponent : GameItemComponent, ILiquidCo
                other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         ConnectorType? connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
@@ -493,7 +495,7 @@ public class LiquidConsumingPropGameItemComponent : GameItemComponent, ILiquidCo
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {

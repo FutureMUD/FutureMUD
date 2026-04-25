@@ -1,6 +1,9 @@
 using MudSharp.Framework;
 using System;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Climate;
 
 internal static class WeatherClimateUtilities

@@ -47,7 +47,7 @@ public class ConsumableHeaterCoolerGameItemComponentProto : ThermalSourceGameIte
             new XElement("FuelExpendedEcho", new XCData(FuelExpendedEcho)))).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new ConsumableHeaterCoolerGameItemComponent(this, parent, temporary);
     }

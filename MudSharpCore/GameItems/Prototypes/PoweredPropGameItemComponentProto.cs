@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -13,6 +13,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -52,7 +54,7 @@ public class PoweredPropGameItemComponentProto : PoweredMachineBaseGameItemCompo
 
     #region Component Instance Initialising Functions
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new PoweredPropGameItemComponent(this, parent, temporary);
     }
@@ -89,7 +91,7 @@ public class PoweredPropGameItemComponentProto : PoweredMachineBaseGameItemCompo
 
     #region Building Commands
 
-    private const string BuildingHelpText =
+    private new const string BuildingHelpText =
         "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\twattage <watts> - set power usage\n\tdiscount <watts> - a wattage discount per quality\n\tswitchable - toggles whether players can switch this on\n\tonemote <emote> - sets the emote when powered on. Use $0 for the machine.\n\toffemote <emote> - sets the emote when powered down. Use $0 for the machine.\n\tonprog <prog> - sets a prog to execute when the machine is powered on\n\toffprog <prog> - sets a prog to execute when the machine is powered down\n\ttenprog <prog> - sets a prog to execute every 10 seconds when on";
 
     public override string ShowBuildingHelp => BuildingHelpText;

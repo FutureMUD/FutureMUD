@@ -218,7 +218,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 		return base.WhyCannotSubmit();
 	}
 
-	public new static void RegisterComponentInitialiser(GameItemComponentManager manager)
+	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
 	{
 		manager.AddBuilderLoader("alarmsiren", true,
 			(gameworld, account) => new AlarmSirenGameItemComponentProto(gameworld, account));
@@ -232,7 +232,7 @@ public class AlarmSirenGameItemComponentProto : PoweredMachineBaseGameItemCompon
 			CombinedBuildingHelpText);
 	}
 
-	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
 	{
 		return new AlarmSirenGameItemComponent(this, parent, temporary);
 	}

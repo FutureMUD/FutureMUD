@@ -31,7 +31,7 @@ public class ProgProduct : BaseProduct
     protected ProgProduct(CraftProduct product, ICraft craft, IFuturemud gameworld) : base(product, craft, gameworld)
     {
         XElement root = XElement.Parse(product.Definition);
-        ItemProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ItemProg").Value));
+        ItemProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ItemProg")!.Value))!;
     }
 
     protected ProgProduct(ICraft craft, IFuturemud gameworld, bool failproduct) : base(craft, gameworld, failproduct)

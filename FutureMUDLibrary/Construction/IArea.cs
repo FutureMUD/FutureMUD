@@ -16,7 +16,7 @@ namespace MudSharp.Construction
     public interface IArea : ILocation, IProgVariable
     {
         IEnumerable<IRoom> Rooms { get; }
-        IEnumerable<ICell> Cells { get; }
+        new IEnumerable<ICell> Cells { get; }
         IEnumerable<IZone> Zones { get; }
         TimeOfDay CurrentTimeOfDay { get; }
     }

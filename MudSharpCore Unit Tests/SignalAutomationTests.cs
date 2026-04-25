@@ -569,7 +569,7 @@ return @togglevalue");
 		var hostItem = CreateBasicItem(gameworld.Object, 402L, "Security Door", hostLocation.Object);
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
-		hostItem.Setup(x => x.GetItemType<IProducePower>()).Returns((IProducePower?)null);
+		hostItem.Setup(x => x.GetItemType<IProducePower>()).Returns((IProducePower)null!);
 		hostItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns(Array.Empty<IProducePower>());
 
 		var attachedGeneratorItem = CreateBasicItem(gameworld.Object, 403L, "Unlimited Generator", hostLocation.Object);
@@ -746,7 +746,7 @@ return @togglevalue");
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
 		hostItem.SetupGet(x => x.AttachedAndConnectedItems).Returns(() => attachedItems);
-		hostItem.Setup(x => x.GetItemType<IProducePower>()).Returns((IProducePower?)null);
+		hostItem.Setup(x => x.GetItemType<IProducePower>()).Returns((IProducePower)null!);
 		hostItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns(Array.Empty<IProducePower>());
 
 		var host = new AutomationMountHostGameItemComponent(
@@ -1279,7 +1279,7 @@ return @togglevalue");
 		var currentLocations = Array.Empty<ICell>();
 		var doorItem = CreateBasicItem(gameworld.Object, 9062L, "Electronic Door");
 		doorItem.SetupGet(x => x.TrueLocations).Returns(() => currentLocations);
-		doorItem.SetupGet(x => x.Location).Returns(() => currentLocations.FirstOrDefault());
+		doorItem.SetupGet(x => x.Location).Returns(() => currentLocations.FirstOrDefault()!);
 		doorItem.SetupGet(x => x.AttachedAndConnectedItems).Returns(Array.Empty<IGameItem>());
 
 		var sourceItem = CreateBasicItem(gameworld.Object, 9063L, "Airlock Controller Module", sharedCell.Object);
@@ -1484,7 +1484,7 @@ return @togglevalue");
 		cableItem.SetupGet(x => x.Components).Returns([cable]);
 		sharedCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([sensorItem.Object, cableItem.Object]);
 		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
-			.Returns((long id, bool _) => id == sensorItem.Object.Id ? sensorItem.Object : null);
+			.Returns((long id, bool _) => id == sensorItem.Object.Id ? sensorItem.Object : null!);
 
 		var exit = new Mock<IExit>();
 		exit.SetupGet(x => x.Id).Returns(9095L);
@@ -1540,8 +1540,8 @@ return @togglevalue");
 		gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
 		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
 		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
-			.Returns((long id, bool _) => itemList.FirstOrDefault(x => x.Id == id));
-		futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns((MudSharp.FutureProg.IFutureProg?)null);
+			.Returns((long id, bool _) => itemList.FirstOrDefault(x => x.Id == id)!);
+		futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns((MudSharp.FutureProg.IFutureProg)null!);
 		unitManager.SetupGet(x => x.BaseTemperatureToCelcius).Returns(1.0);
 		return gameworld;
 	}
@@ -1557,7 +1557,7 @@ return @togglevalue");
 		cell.Setup(x => x.CurrentIllumination(It.IsAny<IPerceiver>())).Returns(0.0);
 		cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(0.0);
 		cell.Setup(x => x.OutdoorsType(It.IsAny<IPerceiver>())).Returns(CellOutdoorsType.Outdoors);
-		cell.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns((IWeatherEvent?)null);
+		cell.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns((IWeatherEvent)null!);
 		return cell;
 	}
 
@@ -1568,7 +1568,7 @@ return @togglevalue");
 		item.SetupGet(x => x.Name).Returns(name);
 		item.SetupGet(x => x.Gameworld).Returns(gameworld);
 		item.SetupGet(x => x.TrueLocations).Returns(trueLocations);
-		item.SetupGet(x => x.Location).Returns(() => trueLocations.FirstOrDefault());
+		item.SetupGet(x => x.Location).Returns(() => trueLocations.FirstOrDefault()!);
 		item.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		item.SetupGet(x => x.Components).Returns(Array.Empty<IGameItemComponent>());
 		item.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),

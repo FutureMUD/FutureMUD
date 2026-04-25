@@ -6,6 +6,7 @@ using MudSharp.Framework.Save;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Merits.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,10 @@ public class PopulationBloodModel : SaveableItem, IPopulationBloodModel
         _name = model.Name;
         foreach (PopulationBloodModelsBloodtype? type in model.PopulationBloodModelsBloodtypes)
         {
-            _bloodTypes.Add((gameworld.Bloodtypes.Get(type.BloodtypeId), type.Weight));
+            if (gameworld.Bloodtypes.Get(type.BloodtypeId) is { } bloodtype)
+            {
+                _bloodTypes.Add((bloodtype, type.Weight));
+            }
         }
 
         if (_bloodTypes.Any())
@@ -52,9 +56,14 @@ public class PopulationBloodModel : SaveableItem, IPopulationBloodModel
     public override void Save()
     {
         Models.PopulationBloodModel? dbitem = FMDB.Context.PopulationBloodModels.Find(Id);
+        if (dbitem is null)
+        {
+            throw new InvalidOperationException($"Population blood model {Id:N0} no longer exists in the database.");
+        }
+
         dbitem.Name = Name;
         FMDB.Context.PopulationBloodModelsBloodtypes.RemoveRange(dbitem.PopulationBloodModelsBloodtypes);
-        foreach ((IBloodtype? bloodtype, double weight) in _bloodTypes)
+        foreach ((IBloodtype bloodtype, double weight) in _bloodTypes)
         {
             dbitem.PopulationBloodModelsBloodtypes.Add(new MudSharp.Models.PopulationBloodModelsBloodtype
             {

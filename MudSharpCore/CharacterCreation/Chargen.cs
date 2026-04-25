@@ -41,6 +41,9 @@ using System.Xml.Linq;
 using Account = MudSharp.Models.Account;
 using Attribute = MudSharp.Body.Traits.Subtypes.Attribute;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.CharacterCreation;
 
 public partial class Chargen : FrameworkItem, IChargen

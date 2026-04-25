@@ -696,7 +696,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         };
     }
 
-    public new static void RegisterFutureProgCompiler()
+    public static void RegisterFutureProgCompiler()
     {
         ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.BankAccount, DotReferenceHandler(),
             DotReferenceHelp());

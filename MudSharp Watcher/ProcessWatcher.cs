@@ -17,7 +17,7 @@ namespace MudSharp_Watcher
         public event EventHandler? MudStoppedBooting;
         public event EventHandler? MudStarted;
 
-        private string _databaseString;
+        private string _databaseString = string.Empty;
         public void SetDatbaseString(string text)
         {
             _databaseString = text;

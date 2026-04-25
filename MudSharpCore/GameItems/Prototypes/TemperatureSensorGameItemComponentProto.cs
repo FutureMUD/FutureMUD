@@ -63,7 +63,7 @@ public class TemperatureSensorGameItemComponentProto : PoweredMachineBaseGameIte
 			CombinedBuildingHelpText);
 	}
 
-	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
 	{
 		return new TemperatureSensorGameItemComponent(this, parent, temporary);
 	}

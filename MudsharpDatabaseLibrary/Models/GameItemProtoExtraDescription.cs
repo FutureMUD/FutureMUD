@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace MudSharp.Models
 {
     public class GameItemProtoExtraDescription
@@ -21,7 +23,7 @@ namespace MudSharp.Models
         public string? FullDescriptionAddendum { get; set; }
         public int Priority { get; set; }
 
-        public virtual GameItemProto GameItemProto { get; set; }
-        public virtual FutureProg ApplicabilityProg { get; set; }
+        public virtual GameItemProto GameItemProto { get; set; } = null!;
+        public virtual FutureProg ApplicabilityProg { get; set; } = null!;
     }
 }

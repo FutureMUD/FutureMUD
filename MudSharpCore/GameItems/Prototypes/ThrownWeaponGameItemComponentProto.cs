@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Framework;
@@ -8,6 +8,8 @@ using MudSharp.GameItems.Components;
 using MudSharp.PerceptionEngine;
 using System.Linq;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -30,7 +32,7 @@ public class ThrownWeaponGameItemComponentProto : GameItemComponentProto
 #nullable enable
     public IFutureProg? CanWieldProg { get; private set; }
     public IFutureProg? WhyCannotWieldProg { get; private set; }
-#nullable restore
+#nullable disable warnings
     public override string TypeDescription => "ThrownWeapon";
 
     protected override void LoadFromXml(XElement root)
@@ -96,7 +98,7 @@ public class ThrownWeaponGameItemComponentProto : GameItemComponentProto
         );
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new ThrownWeaponGameItemComponent(this, parent, temporary);
     }

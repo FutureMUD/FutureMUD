@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Framework;
@@ -7,6 +7,8 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems.Components;
 using MudSharp.PerceptionEngine;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -26,7 +28,7 @@ public class MeleeWeaponGameItemComponentProto : GameItemComponentProto
 #nullable enable
     public IFutureProg? CanWieldProg { get; private set; }
     public IFutureProg? WhyCannotWieldProg { get; private set; }
-#nullable restore
+#nullable disable warnings
 
     public override string TypeDescription => "MeleeWeapon";
 
@@ -85,7 +87,7 @@ public class MeleeWeaponGameItemComponentProto : GameItemComponentProto
         );
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new MeleeWeaponGameItemComponent(this, parent, temporary);
     }

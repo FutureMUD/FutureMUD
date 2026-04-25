@@ -23,6 +23,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Character;
 
 public partial class Character

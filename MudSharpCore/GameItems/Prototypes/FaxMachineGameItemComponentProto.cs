@@ -51,7 +51,7 @@ public class FaxMachineGameItemComponentProto : TelephoneGameItemComponentProto
         return root.ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new FaxMachineGameItemComponent(this, parent, temporary);
     }
@@ -61,7 +61,7 @@ public class FaxMachineGameItemComponentProto : TelephoneGameItemComponentProto
         return new FaxMachineGameItemComponent(component, this, parent);
     }
 
-    public static void RegisterComponentInitialiser(GameItemComponentManager manager)
+    public new static void RegisterComponentInitialiser(GameItemComponentManager manager)
     {
         manager.AddBuilderLoader("faxmachine", true,
             (gameworld, account) => new FaxMachineGameItemComponentProto(gameworld, account));

@@ -15,7 +15,7 @@ namespace MudSharp.Commands
 
     public interface ICommandHelpInfo : IHelpInformation
     {
-        string HelpName { get; }
+        new string HelpName { get; }
         string DefaultHelp { get; }
         string AdminHelp { get; }
         AutoHelp AutoHelpSetting { get; }

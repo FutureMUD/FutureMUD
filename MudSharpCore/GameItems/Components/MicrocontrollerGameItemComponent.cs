@@ -465,7 +465,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		return false;
 	}
 
-	public bool CanConnect(ICharacter actor, IConnectable other)
+	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
 		if (_mountedHost is not null || !other.FreeConnections.Any())
 		{
@@ -475,7 +475,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		return other.FreeConnections.Any(x => x.CompatibleWith(MountConnector)) && other.CanBeConnectedTo(this);
 	}
 
-	public void Connect(ICharacter actor, IConnectable other)
+	public void Connect(ICharacter? actor, IConnectable other)
 	{
 		_mountedHost = other;
 		other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(MountConnector)));
@@ -504,7 +504,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		Changed = true;
 	}
 
-	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
 		if (_mountedHost is not null)
 		{

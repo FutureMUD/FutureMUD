@@ -110,7 +110,7 @@ public class NetworkSwitchGameItemComponentProto : PoweredMachineBaseGameItemCom
 			CombinedBuildingHelpText);
 	}
 
-	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
 	{
 		return new NetworkSwitchGameItemComponent(this, parent, temporary);
 	}

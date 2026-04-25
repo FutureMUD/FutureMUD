@@ -46,7 +46,7 @@ public class SolidFuelHeaterCoolerGameItemComponentProto : SwitchableThermalSour
             new XElement("SecondsPerUnitWeight", SecondsPerUnitWeight))).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new SolidFuelHeaterCoolerGameItemComponent(this, parent, temporary);
     }

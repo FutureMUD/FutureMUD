@@ -197,7 +197,7 @@ public class FuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGameItem
         return true;
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (_connectedItems.Any() || !other.FreeConnections.Any(x => x.CompatibleWith(_prototype.Connector)) || !other.CanBeConnectedTo(this))
         {
@@ -209,7 +209,7 @@ public class FuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGameItem
             : other.Parent.GetItemType<IGasSupply>() is not null;
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         if (!CanConnect(actor, other))
         {
@@ -230,7 +230,7 @@ public class FuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGameItem
         }
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (_connectedItems.Any())
         {

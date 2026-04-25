@@ -1,4 +1,6 @@
-﻿using MudSharp.Body.Position;
+#nullable enable annotations
+
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Character.Name;
@@ -89,7 +91,7 @@ internal class FlyingWanderer : PathingAIBase
     protected RoomLayer TargetFlyingLayer;
     protected RoomLayer TargetRestingLayer;
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         IEnumerable<(ICell Cell, int Distance)> vicinity = ch.CellsAndDistancesInVicinity(10,
             GetSuitabilityFunction(ch, true),

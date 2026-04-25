@@ -143,32 +143,32 @@ namespace MudSharp.Framework;
 
 public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposable
 {
-    protected List<ICharacterCommandTree> _actorCommandTrees = new();
-    protected List<IPlayerConnection> _connections = new();
-    public IServer Server { get; protected set; }
-    public IScheduler Scheduler { get; protected set; }
-    public IArenaLifecycleService ArenaLifecycleService { get; protected set; }
-    public IArenaScheduler ArenaScheduler { get; protected set; }
-    public IArenaObservationService ArenaObservationService { get; protected set; }
-    public IArenaFinanceService ArenaFinanceService { get; protected set; }
-    public IArenaBettingService ArenaBettingService { get; protected set; }
-    public IArenaRatingsService ArenaRatingsService { get; protected set; }
-    public IArenaNpcService ArenaNpcService { get; protected set; }
-    public IArenaParticipationService ArenaParticipationService { get; protected set; }
-    public IArenaCommandService ArenaCommandService { get; protected set; }
-    public IEffectScheduler EffectScheduler { get; protected set; }
-    public ISaveManager SaveManager { get; protected set; }
-    public IGameItemComponentManager GameItemComponentManager { get; protected set; }
-    public IClockManager ClockManager { get; protected set; }
-    public IUnitManager UnitManager { get; protected set; }
-    public IHeartbeatManager HeartbeatManager { get; protected set; }
-    public IComputerExecutionService ComputerExecutionService { get; protected set; }
-    public IComputerHelpService ComputerHelpService { get; protected set; }
-    public IComputerNetworkIdentityService ComputerNetworkIdentityService { get; protected set; }
-    public IComputerNetworkTunnelService ComputerNetworkTunnelService { get; protected set; }
-    public IComputerBoardService ComputerBoardService { get; protected set; }
-    public IComputerMailService ComputerMailService { get; protected set; }
-    public IComputerFileTransferService ComputerFileTransferService { get; protected set; }
+    private List<ICharacterCommandTree> _actorCommandTrees = new();
+    private List<IPlayerConnection> _connections = new();
+    public IServer Server { get; private set; }
+    public IScheduler Scheduler { get; private set; }
+    public IArenaLifecycleService ArenaLifecycleService { get; private set; }
+    public IArenaScheduler ArenaScheduler { get; private set; }
+    public IArenaObservationService ArenaObservationService { get; private set; }
+    public IArenaFinanceService ArenaFinanceService { get; private set; }
+    public IArenaBettingService ArenaBettingService { get; private set; }
+    public IArenaRatingsService ArenaRatingsService { get; private set; }
+    public IArenaNpcService ArenaNpcService { get; private set; }
+    public IArenaParticipationService ArenaParticipationService { get; private set; }
+    public IArenaCommandService ArenaCommandService { get; private set; }
+    public IEffectScheduler EffectScheduler { get; private set; }
+    public ISaveManager SaveManager { get; private set; }
+    public IGameItemComponentManager GameItemComponentManager { get; private set; }
+    public IClockManager ClockManager { get; private set; }
+    public IUnitManager UnitManager { get; private set; }
+    public IHeartbeatManager HeartbeatManager { get; private set; }
+    public IComputerExecutionService ComputerExecutionService { get; private set; }
+    public IComputerHelpService ComputerHelpService { get; private set; }
+    public IComputerNetworkIdentityService ComputerNetworkIdentityService { get; private set; }
+    public IComputerNetworkTunnelService ComputerNetworkTunnelService { get; private set; }
+    public IComputerBoardService ComputerBoardService { get; private set; }
+    public IComputerMailService ComputerMailService { get; private set; }
+    public IComputerFileTransferService ComputerFileTransferService { get; private set; }
     public IEnumerable<IPlayerConnection> Connections => _connections;
 
     void IFuturemudLoader.LoadFromDatabase()
@@ -4138,7 +4138,6 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Start();
 #endif
         _bootTimeCachedGameItems = new Dictionary<long, GameItem>();
-        int i = 0;
         IOrderedQueryable<GameItem> query = FMDB.Context.GameItems
                         .Include(x => x.WoundsGameItem)
                         .Include(x => x.GameItemComponents)

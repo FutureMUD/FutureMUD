@@ -4,6 +4,9 @@ using MudSharp.Magic;
 using MudSharp.Effects.Interfaces;
 using System.Xml.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
 public class SpellRoomWardEffect : MagicInterdictionSpellEffectBase

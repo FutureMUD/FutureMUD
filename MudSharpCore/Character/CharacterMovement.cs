@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
@@ -30,6 +30,8 @@ using MudSharp.RPG.Merits.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.Character;
 
@@ -546,7 +548,7 @@ public partial class Character
         DoFallDamage(0.5);
     }
 
-    public bool Move(ICellExit exit, IEmote emote = null, bool ignoreSafeMovement = false)
+    public bool Move(ICellExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         if (Movement != null)
         {
@@ -1217,7 +1219,7 @@ public partial class Character
         return false;
     }
 
-    public bool Move(CardinalDirection direction, IEmote emote = null, bool ignoreSafeMovement = false)
+    public bool Move(CardinalDirection direction, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         ICellExit exit = Location.GetExit(direction, this);
         if (exit == null || !Body.CanSee(Location, exit))
@@ -1229,7 +1231,7 @@ public partial class Character
         return Move(exit, emote, ignoreSafeMovement);
     }
 
-    public bool Move(string cmd, string target, IEmote emote = null, bool ignoreSafeMovement = false)
+    public bool Move(string cmd, string target, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         return TryMove(cmd, target, emote, ignoreSafeMovement, out _);
     }

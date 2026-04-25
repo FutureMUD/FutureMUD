@@ -27,7 +27,7 @@ namespace MudSharp.GameItems
         ItemQuality RawQuality { get; }
 
         IGameItemProto Prototype { get; }
-        SizeCategory Size { get; }
+        new SizeCategory Size { get; }
         ISolid Material { get; set; }
         double Buoyancy(double fluidDensity);
         IGameItemGroup ItemGroup { get; }

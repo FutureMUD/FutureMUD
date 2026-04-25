@@ -499,8 +499,10 @@ It is best described as {PuddleDescription(LiquidMixture.TotalVolume).A_An()} co
         {
         }
 
+        #pragma warning disable CS0067 // Puddles satisfy IOpenable but do not raise open/close events.
         public event OpenableEvent OnOpen;
         public event OpenableEvent OnClose;
+        #pragma warning restore CS0067
         #endregion
 
     }

@@ -7,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.GameItems.Inventory;
 
 /// <summary>

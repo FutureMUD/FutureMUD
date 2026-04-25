@@ -1,4 +1,6 @@
-﻿using MudSharp.Construction.Grids;
+#nullable enable annotations
+
+using MudSharp.Construction.Grids;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
@@ -197,7 +199,7 @@ public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower
 
     string ICanConnectToGrid.GridType => "Electrical";
 
-    IGrid ICanConnectToGrid.Grid
+    IGrid? ICanConnectToGrid.Grid
     {
         get => ElectricalGrid;
         set => ElectricalGrid = value as IElectricalGrid;

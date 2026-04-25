@@ -19,7 +19,9 @@ namespace MudSharp.Body.Traits
             return false;
         }
 
+        #pragma warning disable CS0067 // Temporary traits satisfy ITrait but never emit value-change notifications.
         public event EventHandler<TraitChangedEventArgs> TraitValueChanged;
+        #pragma warning restore CS0067
 
         public void Initialise(IHaveTraits owner)
         {

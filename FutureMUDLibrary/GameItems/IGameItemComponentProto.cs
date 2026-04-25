@@ -1,5 +1,7 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Framework.Revision;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems
 {
@@ -11,9 +13,9 @@ namespace MudSharp.GameItems
         /// <summary>
         ///     If true, the specified component is read-only and cannot be changed by the user
         /// </summary>
-        bool ReadOnly { get; }
+        new bool ReadOnly { get; }
 
-        IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false);
+        IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false);
         IGameItemComponent LoadComponent(MudSharp.Models.GameItemComponent component, IGameItem parent);
         string ComponentDescriptionOLC(ICharacter actor);
 

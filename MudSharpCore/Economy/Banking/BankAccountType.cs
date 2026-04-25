@@ -1182,7 +1182,7 @@ public class BankAccountType : SaveableItem, IBankAccountType
         };
     }
 
-    public new static void RegisterFutureProgCompiler()
+    public static void RegisterFutureProgCompiler()
     {
         ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.BankAccountType,
             DotReferenceHandler(), DotReferenceHelp());

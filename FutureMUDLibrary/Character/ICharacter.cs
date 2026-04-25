@@ -38,6 +38,8 @@ using MudSharp.Work.Projects;
 using System;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace MudSharp.Character
 {
     [Flags]
@@ -129,11 +131,11 @@ namespace MudSharp.Character
         string Alias { get; set; }
         int SortOrder { get; set; }
         BodySwitchTraumaMode TraumaMode { get; set; }
-        string TransformationEcho { get; set; }
+        string? TransformationEcho { get; set; }
         bool AllowVoluntarySwitch { get; set; }
-        IFutureProg CanVoluntarilySwitchProg { get; set; }
-        IFutureProg WhyCannotVoluntarilySwitchProg { get; set; }
-        IFutureProg CanSeeFormProg { get; set; }
+        IFutureProg? CanVoluntarilySwitchProg { get; set; }
+        IFutureProg? WhyCannotVoluntarilySwitchProg { get; set; }
+        IFutureProg? CanSeeFormProg { get; set; }
         bool CanSee(ICharacter character);
         bool CanSwitchVoluntarily(ICharacter character, out string whyNot);
     }
@@ -141,14 +143,14 @@ namespace MudSharp.Character
     public interface ICommunicate
     {
         void Emote(string emote, bool permitSpeech = true, OutputFlags additionalConditions = OutputFlags.Normal);
-        void Say(IPerceivable target, string message, IEmote emote = null);
-        void Talk(IPerceivable target, string message, IEmote emote = null);
-        void Whisper(IPerceivable target, string message, IEmote emote = null);
-        void Shout(IPerceivable target, string message, IEmote emote = null);
-        void LoudSay(IPerceivable target, string message, IEmote emote = null);
-        void Yell(IPerceivable target, string message, IEmote emote = null);
-        void Sing(IPerceivable target, string message, IEmote emote = null);
-        void Transmit(IGameItem target, string message, IEmote emote = null);
+        void Say(IPerceivable target, string message, IEmote? emote = null);
+        void Talk(IPerceivable target, string message, IEmote? emote = null);
+        void Whisper(IPerceivable target, string message, IEmote? emote = null);
+        void Shout(IPerceivable target, string message, IEmote? emote = null);
+        void LoudSay(IPerceivable target, string message, IEmote? emote = null);
+        void Yell(IPerceivable target, string message, IEmote? emote = null);
+        void Sing(IPerceivable target, string message, IEmote? emote = null);
+        void Transmit(IGameItem target, string message, IEmote? emote = null);
     }
 
     public interface IPerformSurgery
@@ -158,7 +160,7 @@ namespace MudSharp.Character
 
     public interface ISentient : IHaveABody
     {
-        bool Think(string thought, IEmote emote = null);
+        bool Think(string thought, IEmote? emote = null);
         bool Feel(string feeling);
     }
 
@@ -170,21 +172,21 @@ namespace MudSharp.Character
 
     public interface IEat
     {
-        bool Eat(IEdible edible, IContainer container, ITable table, double bites, IEmote playerEmote);
+        bool Eat(IEdible edible, IContainer? container, ITable? table, double bites, IEmote? playerEmote);
         bool SilentEat(IEdible edible, double bites);
-        bool CanEat(IEdible edible, IContainer container, ITable table, double bites);
-        bool Drink(ILiquidContainer container, ITable table, double quantity, IEmote playerEmote);
+        bool CanEat(IEdible edible, IContainer? container, ITable? table, double bites);
+        bool Drink(ILiquidContainer container, ITable? table, double quantity, IEmote? playerEmote);
         bool SilentDrink(ILiquidContainer container, double amount);
-        bool CanDrink(ILiquidContainer container, ITable table, double quantity);
-        bool Swallow(ISwallowable swallowable, IContainer container, ITable table, IEmote playerEmote);
+        bool CanDrink(ILiquidContainer container, ITable? table, double quantity);
+        bool Swallow(ISwallowable swallowable, IContainer? container, ITable? table, IEmote? playerEmote);
         bool SilentSwallow(ISwallowable swallowable);
-        bool CanSwallow(ISwallowable swallowable, IContainer container, ITable table);
+        bool CanSwallow(ISwallowable swallowable, IContainer? container, ITable? table);
         (bool Success, string ErrorMessage) CanEat(ICorpse corpse, double bites);
         (bool Success, string ErrorMessage) CanEat(ISeveredBodypart bodypart, double bites);
         (bool Success, string ErrorMessage) CanEat(string foragableYield, double bites);
-        (bool Success, string ErrorMessage) Eat(ICorpse corpse, double bites, IEmote playerEmote);
-        (bool Success, string ErrorMessage) Eat(ISeveredBodypart bodypart, double bites, IEmote playerEmote);
-        (bool Success, string ErrorMessage) Eat(string foragableYield, double bites, IEmote playerEmote);
+        (bool Success, string ErrorMessage) Eat(ICorpse corpse, double bites, IEmote? playerEmote);
+        (bool Success, string ErrorMessage) Eat(ISeveredBodypart bodypart, double bites, IEmote? playerEmote);
+        (bool Success, string ErrorMessage) Eat(string foragableYield, double bites, IEmote? playerEmote);
     }
 
     public interface IMortal
@@ -211,8 +213,8 @@ namespace MudSharp.Character
 
     public interface ISleep
     {
-        void Awaken(IEmote emote = null);
-        void Sleep(IEmote emote = null);
+        void Awaken(IEmote? emote = null);
+        void Sleep(IEmote? emote = null);
     }
 
     public interface IUseTools
@@ -250,8 +252,8 @@ namespace MudSharp.Character
         /// <param name="playerEmote"></param>
         /// <param name="playerPmote"></param>
         /// <param name="ignorePositionTargetChangeRestrictions"></param>
-        void MovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,
-            IEmote playerEmote, IEmote playerPmote, bool ignorePositionTargetChangeRestrictions = false, bool ignoreMovement = false);
+        void MovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable? target,
+            IEmote? playerEmote, IEmote? playerPmote, bool ignorePositionTargetChangeRestrictions = false, bool ignoreMovement = false);
 
         /// <summary>
         ///     Instructs the IBody to move to the new position, respecting existing targets and modifiers.
@@ -259,7 +261,7 @@ namespace MudSharp.Character
         /// <param name="whichPosition">The position to adopt</param>
         /// <param name="playerEmote"></param>
         /// <param name="playerPmote"></param>
-        void MovePosition(IPositionState whichPosition, IEmote playerEmote, IEmote playerPmote);
+        void MovePosition(IPositionState whichPosition, IEmote? playerEmote, IEmote? playerPmote);
 
         void ResetPositionTarget(IEmote playerEmote, IEmote playerPmote);
 
@@ -305,8 +307,8 @@ namespace MudSharp.Character
 
         (bool Truth, string Error) CanAscend();
         (bool Truth, string Error) CanDive();
-        void Ascend(IEmote actionEmote = null);
-        void Dive(IEmote actionEmote = null);
+        void Ascend(IEmote? actionEmote = null);
+        void Dive(IEmote? actionEmote = null);
     }
 
     public interface IFly
@@ -314,13 +316,13 @@ namespace MudSharp.Character
         void DoFlyHeartbeat();
         double FlyStaminaCost();
         (bool Truth, string Error) CanFly();
-        void Fly(IEmote actionEmote = null);
+        void Fly(IEmote? actionEmote = null);
         (bool Truth, string Error) CanAscend();
         (bool Truth, string Error) CanDive();
-        void Ascend(IEmote actionEmote = null);
-        void Dive(IEmote actionEmote = null);
+        void Ascend(IEmote? actionEmote = null);
+        void Dive(IEmote? actionEmote = null);
         (bool Truth, string Error) CanLand();
-        void Land(IEmote actionEmote = null);
+        void Land(IEmote? actionEmote = null);
         void CheckCanFly();
     }
 
@@ -329,8 +331,8 @@ namespace MudSharp.Character
         TimeSpan ClimbDelay { get; }
         (bool Truth, string Error) CanClimbUp();
         (bool Truth, string Error) CanClimbDown();
-        void ClimbUp(IEmote actionEmote = null);
-        void ClimbDown(IEmote actionEmote = null);
+        void ClimbUp(IEmote? actionEmote = null);
+        void ClimbDown(IEmote? actionEmote = null);
 
         /// <summary>
         /// Called when the climber is actually trying to move. Takes stamina, sends echoes, checks, can potentially fall. If false, climber didn't progress.
@@ -423,8 +425,8 @@ namespace MudSharp.Character
             string followerEchoArrive = "@ enters the area.",
             string followerEchoSelf = "");
 
-        void EditorMode(Action<string, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, double characterLengthMultiplier = 1.0, string recallText = null, EditorOptions options = EditorOptions.None, object[] suppliedArguments = null);
-        void EditorModeMulti(Action<IEnumerable<string>, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, IEnumerable<string> editorTexts, double characterLengthMultiplier = 1.0, string recallText = null, EditorOptions options = EditorOptions.None, object[] suppliedArguments = null);
+        void EditorMode(Action<string, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, double characterLengthMultiplier = 1.0, string? recallText = null, EditorOptions options = EditorOptions.None, object[]? suppliedArguments = null);
+        void EditorModeMulti(Action<IEnumerable<string>, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, IEnumerable<string> editorTexts, double characterLengthMultiplier = 1.0, string? recallText = null, EditorOptions options = EditorOptions.None, object[]? suppliedArguments = null);
 
         string GetConsiderString(IPerceiver voyeur);
 

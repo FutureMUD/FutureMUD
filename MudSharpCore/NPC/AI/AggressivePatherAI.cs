@@ -1,4 +1,6 @@
-﻿using MudSharp.Character;
+#nullable enable annotations
+
+using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -280,7 +282,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
         RegisterAIBuilderInformation("aggressivepather", (gameworld, name) => new AggressivePatherAI(gameworld, name), new AggressivePatherAI().HelpText);
     }
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         if (ch.Effects.Any(x => x.IsBlockingEffect("movement")))
         {

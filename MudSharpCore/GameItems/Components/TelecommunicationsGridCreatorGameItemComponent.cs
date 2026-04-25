@@ -24,7 +24,7 @@ public class TelecommunicationsGridCreatorGameItemComponent : GameItemComponent
         _prototype = (TelecommunicationsGridCreatorGameItemComponentProto)newProto;
     }
 
-    public ITelecommunicationsGrid Grid { get; protected set; }
+    public ITelecommunicationsGrid Grid { get; protected set; } = null!;
 
     public TelecommunicationsGridCreatorGameItemComponent(TelecommunicationsGridCreatorGameItemComponentProto proto,
         IGameItem parent, ICharacter? loader, bool temporary = false) : base(parent, proto, temporary)

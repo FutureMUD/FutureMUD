@@ -66,10 +66,10 @@ internal static class ForagerAIHelpers
 		}
 
 		IEdible? edible = character.Body.HeldOrWieldedItems
-		                           .SelectNotNull(x => x.GetItemType<IEdible>())
-		                           .Concat(character.Location.LayerGameItems(character.RoomLayer)
+		                           .SelectNotNull(x => x!.GetItemType<IEdible>())
+		                           .Concat(character.Location!.LayerGameItems(character.RoomLayer)
 		                                            .SelectMany(x => x.ShallowAccessibleItems(character))
-		                                            .SelectNotNull(x => x.GetItemType<IEdible>()))
+		                                            .SelectNotNull(x => x!.GetItemType<IEdible>()))
 		                           .Where(x => character.CanEat(x, x.Parent.ContainedIn?.GetItemType<IContainer>(), null, 1.0))
 		                           .GetRandomElement();
 		if (edible is null)

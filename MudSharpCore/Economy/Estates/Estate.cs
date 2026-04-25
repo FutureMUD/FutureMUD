@@ -61,11 +61,6 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
             return estate;
         }
 
-        static bool AssetMatches(IEstateAsset asset, IFrameworkItem target)
-        {
-            return asset.Asset.FrameworkItemEquals(target.Id, target.FrameworkItemType);
-        }
-
         static bool ClaimMatches(IEstateClaim claim, IFrameworkItem claimant, decimal amount, string reason,
             bool isSecured, IFrameworkItem targetItem)
         {

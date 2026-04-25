@@ -16,6 +16,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Character.Heritage;
 
 public class Ethnicity : SaveableItem, IEthnicity

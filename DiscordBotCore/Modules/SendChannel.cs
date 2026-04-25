@@ -36,7 +36,7 @@ public class SendChannel : BaseCommandModule
             OnResponseAction = HandleMudResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"sendchannel {request.RequestId} \"{registration.MudAccountName}\" \"{channel}\" {message}");
+        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"sendchannel {request.RequestId} \"{registration.MudAccountName}\" \"{channel}\" {message}");
     }
 
     private async Task HandleMudResponse(string text, CommandContext context)

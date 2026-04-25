@@ -179,7 +179,7 @@ public class FileSignalGeneratorGameItemComponentProto : PoweredMachineBaseGameI
 			CombinedBuildingHelpText);
 	}
 
-	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
 	{
 		return new FileSignalGeneratorGameItemComponent(this, parent, temporary);
 	}

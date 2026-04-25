@@ -58,7 +58,7 @@ public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IC
         ).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new GridLiquidSourceGameItemComponent(this, parent, temporary);
     }

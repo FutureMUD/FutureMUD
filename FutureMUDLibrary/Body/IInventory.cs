@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Economy.Currency;
 using MudSharp.Form.Material;
@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
+#nullable enable annotations
 
 namespace MudSharp.Body
 {
@@ -149,7 +151,7 @@ namespace MudSharp.Body
 
         ILookup<IWear, int> WornItemCounts { get; }
 
-        void Restrain(IGameItem item, IWearProfile profile, ICharacter restrainer, IGameItem targetItem, IEmote emote = null, bool silent = false);
+        void Restrain(IGameItem item, IWearProfile profile, ICharacter restrainer, IGameItem targetItem, IEmote? emote = null, bool silent = false);
 
         /// <summary>
         ///     Whether or not the specified item can be worn, in any of its configurations.
@@ -196,7 +198,7 @@ namespace MudSharp.Body
 
         string WhyCannotDress(IGameItem item, ICharacter dresser, IWearProfile profile = null);
 
-        bool Dress(IGameItem item, ICharacter dresser, IWearProfile profile = null, IEmote emote = null);
+        bool Dress(IGameItem item, ICharacter dresser, IWearProfile profile = null, IEmote? emote = null);
 
         IWearProfile WhichProfile(IGameItem item);
 
@@ -241,7 +243,7 @@ namespace MudSharp.Body
         /// <param name="playerEmote"></param>
         /// <param name="silent"></param>
         /// <returns>True if successfully wore</returns>
-        void Wear(IGameItem item, IEmote playerEmote = null, bool silent = false);
+        void Wear(IGameItem item, IEmote? playerEmote = null, bool silent = false);
 
         /// <summary>
         ///     Wears, the specified item in the specified profile.
@@ -251,9 +253,9 @@ namespace MudSharp.Body
         /// <param name="playerEmote"></param>
         /// <param name="silent"></param>
         /// <returns>True if successfully wore</returns>
-        void Wear(IGameItem item, IWearProfile profile, IEmote playerEmote = null, bool silent = false);
+        void Wear(IGameItem item, IWearProfile profile, IEmote? playerEmote = null, bool silent = false);
 
-        void Wear(IGameItem item, string profile, IEmote playerEmote = null, bool silent = false);
+        void Wear(IGameItem item, string profile, IEmote? playerEmote = null, bool silent = false);
 
         #endregion
 
@@ -270,14 +272,14 @@ namespace MudSharp.Body
 
         string WhyCannotDraw(IGameItem item, IWield specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
 
-        bool Draw(IGameItem item, IWield specificHand, IEmote playerEmote = null,
+        bool Draw(IGameItem item, IWield specificHand, IEmote? playerEmote = null,
             OutputFlags additionalFlags = OutputFlags.Normal, bool silent = false, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
 
         bool CanSheathe(IGameItem item, IGameItem sheath);
 
         string WhyCannotSheathe(IGameItem item, IGameItem sheath);
 
-        bool Sheathe(IGameItem item, IGameItem sheath, IEmote playerEmote = null,
+        bool Sheathe(IGameItem item, IGameItem sheath, IEmote? playerEmote = null,
             OutputFlags additionalFlags = OutputFlags.Normal, bool silent = false);
 
         /// <summary>
@@ -287,7 +289,7 @@ namespace MudSharp.Body
         /// <returns>True if the item can be wielded</returns>
         bool CanWield(IGameItem item, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
 
-        bool CanWield(IGameItem item, IWield specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
+        bool CanWield(IGameItem item, IWield? specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
 
         /// <summary>
         ///     Returns an error message as to why a particular item cannot be wielded.
@@ -297,7 +299,7 @@ namespace MudSharp.Body
         /// <returns>The error message</returns>
         string WhyCannotWield(IGameItem item, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
 
-        string WhyCannotWield(IGameItem item, IWield specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
+        string WhyCannotWield(IGameItem item, IWield? specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
 
         /// <summary>
         ///     Whether or not the specified item can be unwielded.
@@ -320,9 +322,9 @@ namespace MudSharp.Body
         /// <param name="playerEmote"></param>
         /// <param name="silent"></param>
         /// <returns>True if the item was wielded</returns>
-        bool Wield(IGameItem item, IEmote playerEmote = null, bool silent = false, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
+        bool Wield(IGameItem item, IEmote? playerEmote = null, bool silent = false, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
 
-        bool Wield(IGameItem item, IWield specificHand, IEmote playerEmote = null, bool silent = false, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
+        bool Wield(IGameItem item, IWield? specificHand, IEmote? playerEmote = null, bool silent = false, ItemCanWieldFlags flags = ItemCanWieldFlags.None);
 
         /// <summary>
         ///     Unwields the specified item
@@ -331,7 +333,7 @@ namespace MudSharp.Body
         /// <param name="playerEmote"></param>
         /// <param name="silent"></param>
         /// <returns>True if the item was unwielded</returns>
-        bool Unwield(IGameItem item, IEmote playerEmote = null, bool silent = false);
+        bool Unwield(IGameItem item, IEmote? playerEmote = null, bool silent = false);
 
         bool CanBeDisarmed(IGameItem item, ICharacter disarmer);
 
@@ -392,31 +394,31 @@ namespace MudSharp.Body
         /// <param name="playerEmote"></param>
         /// <param name="silent"></param>
         /// <returns>True if the grab succeeded</returns>
-        void Get(IGameItem item, int quantity = 0, IEmote playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
+        void Get(IGameItem item, int quantity = 0, IEmote? playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
 
-        void Get(IGameItem item, IGameItem containerItem, int quantity = 0, IEmote playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
+        void Get(IGameItem item, IGameItem containerItem, int quantity = 0, IEmote? playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
 
-        void Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact, IEmote playerEmote = null,
+        void Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact, IEmote? playerEmote = null,
             bool silent = false);
 
-        void Get(ICurrency currency, decimal amount, bool exact, IEmote playerEmote = null, bool silent = false);
+        void Get(ICurrency currency, decimal amount, bool exact, IEmote? playerEmote = null, bool silent = false);
 
-        void GetByWeight(IGameItem item, double weight, IEmote playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
+        void GetByWeight(IGameItem item, double weight, IEmote? playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
 
-        void GetByWeight(IGameItem item, IGameItem container, double weight, IEmote playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
+        void GetByWeight(IGameItem item, IGameItem container, double weight, IEmote? playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
 
 
-        bool CanPut(IGameItem item, IGameItem container, ICharacter containerOwner, int quantity, bool allowLesserAmounts);
+        bool CanPut(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity, bool allowLesserAmounts);
 
-        bool CanPut(ICurrency currency, IGameItem container, ICharacter containerOwner, decimal amount, bool exact);
+        bool CanPut(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact);
 
-        string WhyCannotPut(IGameItem item, IGameItem container, ICharacter containerOwner, int quantity, bool allowLesserAmounts);
+        string WhyCannotPut(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity, bool allowLesserAmounts);
 
-        string WhyCannotPut(ICurrency currency, IGameItem container, ICharacter containerOwner, decimal amount, bool exact);
+        string WhyCannotPut(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact);
 
-        void Put(IGameItem item, IGameItem container, ICharacter containerOwner, int quantity = 0, IEmote playerEmote = null, bool silent = false, bool allowLesserAmounts = true);
+        void Put(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity = 0, IEmote? playerEmote = null, bool silent = false, bool allowLesserAmounts = true);
 
-        void Put(ICurrency currency, IGameItem container, ICharacter containerOwner, decimal amount, bool exact, IEmote playerEmote = null,
+        void Put(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact, IEmote? playerEmote = null,
             bool silent = false);
 
         bool CanDrop(IGameItem item, int quantity);
@@ -458,9 +460,9 @@ namespace MudSharp.Body
         /// <param name="playerEmote"></param>
         /// <param name="silent"></param>
         /// <returns>True if the item was dropped</returns>
-        void Drop(IGameItem item, int quantity = 0, bool newStack = false, IEmote playerEmote = null, bool silent = false);
+        void Drop(IGameItem item, int quantity = 0, bool newStack = false, IEmote? playerEmote = null, bool silent = false);
 
-        void Drop(ICurrency currency, decimal amount, bool exact, bool newStack = false, IEmote playerEmote = null,
+        void Drop(ICurrency currency, decimal amount, bool exact, bool newStack = false, IEmote? playerEmote = null,
             bool silent = false);
 
         bool CanGive(IGameItem item, IBody target, int quantity = 0);
@@ -471,9 +473,9 @@ namespace MudSharp.Body
 
         string WhyCannotGive(ICurrency currency, IBody target, decimal amount, bool exact);
 
-        void Give(IGameItem item, IBody target, int quantity = 0, IEmote playerEmote = null);
+        void Give(IGameItem item, IBody target, int quantity = 0, IEmote? playerEmote = null);
 
-        void Give(ICurrency currency, IBody target, decimal amount, bool exact, IEmote playerEmote = null);
+        void Give(ICurrency currency, IBody target, decimal amount, bool exact, IEmote? playerEmote = null);
 
         bool CanGive(IGameItem item, ICorpse target, int quantity = 0);
 
@@ -483,9 +485,9 @@ namespace MudSharp.Body
 
         string WhyCannotGive(ICurrency currency, ICorpse target, decimal amount, bool exact);
 
-        void Give(IGameItem item, ICorpse target, int quantity = 0, IEmote playerEmote = null);
+        void Give(IGameItem item, ICorpse target, int quantity = 0, IEmote? playerEmote = null);
 
-        void Give(ICurrency currency, ICorpse target, decimal amount, bool exact, IEmote playerEmote = null);
+        void Give(ICurrency currency, ICorpse target, decimal amount, bool exact, IEmote? playerEmote = null);
 
         IEnumerable<IGrab> FreeHands { get; }
 

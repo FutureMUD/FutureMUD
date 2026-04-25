@@ -1,4 +1,6 @@
-﻿using MudSharp.Character;
+#nullable enable annotations
+
+using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.Construction;
@@ -601,9 +603,9 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return false;
         }
 
-        (ICell target, IEnumerable<ICellExit> pathEnumerables) = GetPath(ch);
+        (ICell? target, IEnumerable<ICellExit> pathEnumerables) = GetPath(ch);
         List<ICellExit> path = pathEnumerables.ToList();
-        if (!path.Any())
+        if (target is null || !path.Any())
         {
             return false;
         }
@@ -629,7 +631,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         path.FollowPathAction();
     }
 
-    protected abstract (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch);
+    protected abstract (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch);
 
     protected virtual bool WouldMove(ICharacter ch)
     {

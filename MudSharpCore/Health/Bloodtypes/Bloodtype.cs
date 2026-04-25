@@ -39,7 +39,7 @@ public class Bloodtype : SaveableItem, IBloodtype
 
     public override void Save()
     {
-        Models.Bloodtype? dbitem = FMDB.Context.Bloodtypes.Find(Id);
+        Models.Bloodtype dbitem = FMDB.Context.Bloodtypes.Find(Id)!;
         dbitem.Name = Name;
         FMDB.Context.BloodtypesBloodtypeAntigens.RemoveRange(dbitem.BloodtypesBloodtypeAntigens);
         foreach (IBloodtypeAntigen antigen in _antigens)

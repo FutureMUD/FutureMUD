@@ -305,7 +305,9 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 	}
 
 	public event DoorEvent? OnRemovedFromExit;
+	#pragma warning disable CS0067 // Doors expose the interface event even when this component has no dynamic fire-through changes.
 	public event DoorEvent? OnChangeCanFireThrough;
+	#pragma warning restore CS0067
 
 	public DoorState State
 	{

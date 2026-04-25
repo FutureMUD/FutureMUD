@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.FutureProg.Functions.Characters;
 
 internal class TraitBonusFunction : BuiltInFunction

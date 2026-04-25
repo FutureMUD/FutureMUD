@@ -361,7 +361,7 @@ public class LairScavengerAI : PathingAIBase
         return true;
     }
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         NpcHomeBaseEffect home = ResolveHomeBase(ch);
         if (GetScavengedItems(ch, WillScavengeItemProg).Any())

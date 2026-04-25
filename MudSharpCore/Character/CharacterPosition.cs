@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
@@ -16,6 +16,8 @@ using MudSharp.ThirdPartyCode;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.Character;
 
@@ -157,8 +159,8 @@ public partial class Character
         PositionHasChanged();
     }
 
-    public void MovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,
-            IEmote playerEmote, IEmote playerPmote, bool ignoreMovementRestrictions = false, bool ignoreMovement = false)
+    public void MovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable? target,
+            IEmote? playerEmote, IEmote? playerPmote, bool ignoreMovementRestrictions = false, bool ignoreMovement = false)
     {
         if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
         {
@@ -221,7 +223,7 @@ public partial class Character
         PositionHasChanged();
     }
 
-    public void MovePosition(IPositionState whichPosition, IEmote playerEmote, IEmote playerPmote)
+    public void MovePosition(IPositionState whichPosition, IEmote? playerEmote, IEmote? playerPmote)
     {
         if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
         {
@@ -551,7 +553,7 @@ public partial class Character
         return "You cannot take that position.";
     }
 
-    public void Awaken(IEmote emote = null)
+    public void Awaken(IEmote? emote = null)
     {
         State |= CharacterState.Awake;
         State &= ~CharacterState.Sleeping;
@@ -577,7 +579,7 @@ public partial class Character
         }
     }
 
-    public void Sleep(IEmote emote = null)
+    public void Sleep(IEmote? emote = null)
     {
         CheckOutcome result = Gameworld.GetCheck(CheckType.GoToSleepCheck).Check(this, Difficulty.Normal);
         // TODO - difficulty based on tiredness?

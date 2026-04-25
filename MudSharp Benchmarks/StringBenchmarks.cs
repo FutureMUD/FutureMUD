@@ -22,7 +22,7 @@ public class JsonEscapeBenchmarks
     [Benchmark]
     public string Efficient()
     {
-        return SampleText.EscapeForJson();
+        return SampleText.EscapeForJson() ?? string.Empty;
     }
 }
 
@@ -61,7 +61,7 @@ You are standing."
     ];
 
     [ParamsSource(nameof(SantiseTexts))]
-    public string SanitiseText { get; set; }
+    public string SanitiseText { get; set; } = string.Empty;
 
     //[Benchmark]
     //public string Original() => SanitiseText.ConvertToLatin1();
@@ -78,7 +78,7 @@ You are standing."
 public class MxpBenchmarks
 {
     [ParamsSource(nameof(MxpSupports))]
-    public MXPSupport MxpSupport { get; set; }
+    public MXPSupport MxpSupport { get; set; } = new();
 
     public IEnumerable<MXPSupport> MxpSupports => new[]
     {
@@ -87,7 +87,7 @@ public class MxpBenchmarks
     };
 
     [ParamsSource(nameof(DirtyStrings))]
-    public string DirtyString { get; set; }
+    public string DirtyString { get; set; } = string.Empty;
 
     public IEnumerable<string> DirtyStrings => new[]{
         "\x1B[32mAn example item with big shiny lights\x1B[0m is here, doing a whole bunch of Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",

@@ -474,7 +474,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
         void AddArmourType(string name, int penetration, int baseDifficulty, int stackedDifficulty, double powerDamage,
             double powerPain, double powerStun, IEnumerable<DamageType> strongTypes, IEnumerable<DamageType> weakTypes,
-            IEnumerable<DamageType> zeroTypes, IEnumerable<DamageType> superTypes = null)
+			IEnumerable<DamageType> zeroTypes, IEnumerable<DamageType>? superTypes = null)
         {
             if (superTypes == null)
             {
@@ -1398,7 +1398,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         }
         else
         {
-            pistols = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Pistols");
+			pistols = context.TraitDefinitions.First(x => x.Name == "Pistols");
         }
 
         RangedWeaponTypes ranged = new()
@@ -2032,7 +2032,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         }
         else
         {
-            pistols = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Pistols");
+			pistols = context.TraitDefinitions.First(x => x.Name == "Pistols");
         }
 
         RangedWeaponTypes ranged = new()
@@ -3244,7 +3244,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             DamageType damageType = DamageType.Crushing, double weighting = 100,
             CombatMoveIntentions intentions =
                 CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill,
-            string additionalInfo = null, AttackHandednessOptions handedness = AttackHandednessOptions.Any)
+			string? additionalInfo = null, AttackHandednessOptions handedness = AttackHandednessOptions.Any)
         {
             WeaponAttack attack = new()
             {
@@ -3864,10 +3864,10 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         };
         context.WeaponTypes.Add(improvised);
         context.SaveChanges();
-        context.StaticConfigurations.Find("DefaultBowMeleeWeaponType").Definition = improvised.Id.ToString();
-        context.StaticConfigurations.Find("DefaultCrossbowMeleeWeaponType").Definition = improvised.Id.ToString();
-        context.StaticConfigurations.Find("DefaultGunMeleeWeaponType").Definition = improvised.Id.ToString();
-        context.StaticConfigurations.Find("DefaultMusketMeleeWeaponType").Definition = improvised.Id.ToString();
+		context.StaticConfigurations.Find("DefaultBowMeleeWeaponType")!.Definition = improvised.Id.ToString();
+		context.StaticConfigurations.Find("DefaultCrossbowMeleeWeaponType")!.Definition = improvised.Id.ToString();
+		context.StaticConfigurations.Find("DefaultGunMeleeWeaponType")!.Definition = improvised.Id.ToString();
+		context.StaticConfigurations.Find("DefaultMusketMeleeWeaponType")!.Definition = improvised.Id.ToString();
 
         CreateWeaponComponent(improvised);
 
@@ -7786,7 +7786,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             double stamina, double relativeSpeed, BodypartShape shape, TraitExpression damage, string attackMessage,
             DamageType damageType = DamageType.Crushing, double weighting = 100,
             CombatMoveIntentions intentions = CombatMoveIntentions.Attack | CombatMoveIntentions.Wound,
-            string additionalInfo = null)
+			string? additionalInfo = null)
         {
             WeaponAttack attack = new()
             {

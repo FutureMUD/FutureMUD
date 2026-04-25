@@ -128,7 +128,7 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase
 			return true;
 		}
 
-		IBodypartShape shape = Gameworld.BodypartShapes.GetByIdOrName(command.SafeRemainingArgument);
+		IBodypartShape? shape = Gameworld.BodypartShapes.GetByIdOrName(command.SafeRemainingArgument);
 		if (shape is null)
 		{
 			actor.OutputHandler.Send($"There is no shape identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
@@ -166,7 +166,7 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase
 			return false;
 		}
 
-		IFutureProg prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
+		IFutureProg? prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
 			[
 				[ProgVariableTypes.Character],
 				[ProgVariableTypes.Character, ProgVariableTypes.Character]
@@ -192,7 +192,7 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase
 			return false;
 		}
 
-		IArmourType type = Gameworld.ArmourTypes.GetByIdOrName(command.SafeRemainingArgument);
+		IArmourType? type = Gameworld.ArmourTypes.GetByIdOrName(command.SafeRemainingArgument);
 		if (type is null)
 		{
 			actor.OutputHandler.Send($"There is no such armour type identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
@@ -213,7 +213,7 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase
 			return false;
 		}
 
-		ISolid material = Gameworld.Materials.GetByIdOrName(command.SafeRemainingArgument);
+		ISolid? material = Gameworld.Materials.GetByIdOrName(command.SafeRemainingArgument);
 		if (material is null)
 		{
 			actor.OutputHandler.Send($"There is no such material identified by the text {command.SafeRemainingArgument.ColourCommand()}.");

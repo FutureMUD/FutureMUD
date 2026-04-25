@@ -179,7 +179,7 @@ public class CellPhoneTowerGameItemComponent : GameItemComponent, ICellPhoneTowe
 
     string ICanConnectToGrid.GridType => "Telecommunications";
 
-    IGrid ICanConnectToGrid.Grid
+    IGrid? ICanConnectToGrid.Grid
     {
         get => TelecommunicationsGrid;
         set => TelecommunicationsGrid = value as ITelecommunicationsGrid;

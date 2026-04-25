@@ -25,7 +25,7 @@ public partial class ItemSeeder
 {
     private void CreateProgs()
     {
-        foreach (FutureProg prog in _context.FutureProgs)
+		foreach (FutureProg prog in _context!.FutureProgs)
         {
             _progs[prog.FunctionName] = prog;
         }
@@ -236,7 +236,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             Definition = definition,
             InputType = typename
         };
-        _context.CraftInputs.Add(input);
+		_context!.CraftInputs.Add(input);
         return input;
     }
 
@@ -276,7 +276,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             DesiredState = (int)state,
             Definition = definition
         };
-        _context.CraftTools.Add(tool);
+		_context!.CraftTools.Add(tool);
         return tool;
     }
 
@@ -290,7 +290,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 
     private Regex BloodTypingProductRegex = new(@"test (?:(?<litres>\d*\.*\d+) litres?)*\s*(?:(?<millilitres>\d+) millilitres?)* of (?<liquid>.+) \(\$i(?<input>\d+)\) against the (?<model>.+) blood model", RegexOptions.IgnoreCase);
 
-    private CraftProduct ConvertToProduct(Craft craft, string text, bool isFailProduct, int? materialDefiningInputIndex = null)
+    private CraftProduct? ConvertToProduct(Craft craft, string text, bool isFailProduct, int? materialDefiningInputIndex = null)
     {
         Match match = ConversionRegex.Match(text);
         string definition, typename = match.Groups["type"].Value;
@@ -339,7 +339,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
                 input = craft.CraftInputs.ElementAt(int.Parse(innerMatch.Groups["input"].Value) - 1);
                 definition = new XElement("Definition",
                     new XElement("WhichInputId", input.Id),
-                    new XElement("BloodModel", _context.BloodModels.First(x => x.Name == innerMatch.Groups["model"].Value).Id)
+					new XElement("BloodModel", _context!.BloodModels.First(x => x.Name == innerMatch.Groups["model"].Value).Id)
                 ).ToString();
                 break;
             case "unusedinput":
@@ -369,7 +369,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         };
     }
 
-    private MudSharp.Models.Craft AddCraft(string name, string category, string blurb, string action, string itemsdesc, string appearProg, string? canUseProg, string? whyCantProg, string? onFinishProg, MudSharp.Models.TraitDefinition trait, Difficulty difficulty, Outcome threshold, int freeChecks, int failPhase, bool interrupatable, IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)> productMaterialInputIndexes = null, List<(int Product, int Input)> failProductMaterialInputIndexes = null)
+    private MudSharp.Models.Craft? AddCraft(string name, string category, string blurb, string action, string itemsdesc, string appearProg, string? canUseProg, string? whyCantProg, string? onFinishProg, MudSharp.Models.TraitDefinition trait, Difficulty difficulty, Outcome threshold, int freeChecks, int failPhase, bool interrupatable, IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)>? productMaterialInputIndexes = null, List<(int Product, int Input)>? failProductMaterialInputIndexes = null)
     {
         if (!InputsAreValid(inputs, tools, products, failProducts))
         {
@@ -412,7 +412,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             ToolQualityWeighting = 1.0,
             IsPracticalCheck = true
         };
-        _context.Crafts.Add(dbitem);
+		_context!.Crafts.Add(dbitem);
         int i = 1;
         foreach ((int Seconds, string Echo, string FailEcho) phase in phases)
         {
@@ -547,7 +547,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         {
             Match match = ConversionRegex.Match(item);
             Match toolMatch = ToolRegex.Match(match.Groups["details"].Value);
-            string definition, typename = match.Groups["type"].Value;
+            string typename = match.Groups["type"].Value;
             switch (typename.ToLowerInvariant())
             {
                 case "tagtool":
@@ -564,7 +564,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         foreach (string item in products)
         {
             Match match = ConversionRegex.Match(item);
-            string definition, typename = match.Groups["type"].Value;
+            string typename = match.Groups["type"].Value;
             Match innerMatch;
             switch (typename.ToLowerInvariant())
             {
@@ -590,7 +590,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         foreach (string item in failproducts)
         {
             Match match = ConversionRegex.Match(item);
-            string definition, typename = match.Groups["type"].Value;
+            string typename = match.Groups["type"].Value;
             Match innerMatch;
             switch (typename.ToLowerInvariant())
             {
@@ -619,7 +619,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
     private void SeedCrafts()
     {
         // Reset nextID
-        _nextId = _context.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
+		_nextId = _context!.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
 
         AddCraft("sew padded vest", "Armorcrafting", "sew a padded cloth vest", "sewing a padded vest", "a padded vest armormaking event", "HasTailoring", null, null, null, _traits["Tailoring"] ?? _traits["Tailor"] ?? _traits.First().Value, Difficulty.Normal, Outcome.MinorFail, 5, 6, false, [(35, "$0 lay|lays out $i1 and begin|begins to divide it into three pieces - one large, and two smaller sheets, cutting away with $t2. Additionally, when that is done, $0 pick|picks up $t1 and thread|threads $i2 through the needle eye.", "$0 lay|lays out $i1 and begin|begins to divide it into three pieces - one large, and two smaller sheets, cutting away with $t2. Additionally, when that is done, $0 pick|picks up $t1 and thread|threads $i2 through the needle eye."), (30, "$0 set|sets aside the smaller pieces of cloth for the moment, focusing on the larger sheet. $0 further cut|cuts that larger piece into two more pieces, and then sew|sews those pieces together to form a rough sort of case.", "$0 set|sets aside the smaller pieces of cloth for the moment, focusing on the larger sheet. $0 further cut|cuts that larger piece into two more pieces, and then sew|sews those pieces together to form a rough sort of case."), (35, "$0 liberally stuff|stuffs that cloth case with $i3 until it is almost stiff and inflexible, then sew|sews it shut with $t1 to create a padded tube with a hole for someone's head, and two smaller holes for someone's arms.", "$0 liberally stuff|stuffs that cloth case with $i3 until it is almost stiff and inflexible, then sew|sews it shut with $t1 to create a padded tube with a hole for someone's head, and two smaller holes for someone's arms."), (40, "$0 turn|turns to the smaller sheets of cloth, cutting, sewing and padding these sheets until they are amply padded cloth tubes.", "$0 turn|turns to the smaller sheets of cloth, cutting, sewing and padding these sheets until they are amply padded cloth tubes."), (40, "$0 finally begin|begins to sew the padded sleeves to the shoulder arm-holes of the vest, using $i2 to tightly fix them in place.", "$0 finally begin|begins to sew the padded sleeves to the shoulder arm-holes of the vest, using $i2 to tightly fix them in place."), (40, "$0 hold|holds up $p1, checking the piece over critically before setting it aside.", "Unfortunately, shoddy craftsmanship means that $0 end|ends up shredding the terrible vest for $f1.")], ["CommodityTag - 1 kilogram 500 grams of a material tagged as Fabric", "Tag - 1x an item with the Thread tag", "Tag - 50x an item with the Padding tag"], ["TagTool - Held - an item with the Sewing Needle tag", "TagTool - Held - an item with the Scissors tag"], ["SimpleProduct - 1x a padded @material gambeson with long sleeves (#274)"], ["UnusedInput - 45.00% of 50x an item with the Padding tag ($i3)"], [(1, 1)]);
         AddCraft("sew padded cap", "Armorcrafting", "sew a padded cloth cap", "sewing a padded cap", "a padded cap armormaking event", "HasTailoring", null, null, null, _traits["Tailoring"] ?? _traits["Tailor"] ?? _traits.First().Value, Difficulty.Normal, Outcome.MinorFail, 5, 5, false, [(35, "$0 lay|lays out $i1 and begin|begins to divide it into two smaller pieces, cutting with $t2.", "$0 lay|lays out $i1 and begin|begins to divide it into two smaller pieces, cutting with $t2."), (30, "$0 set|sets aside the pattern-shaped pieces of cloth for a moment and instead reach|reaches for $t1 and $i2, threading the end of the thread through the needle.", "$0 set|sets aside the pattern-shaped pieces of cloth for a moment and instead reach|reaches for $t1 and $i2, threading the end of the thread through the needle."), (35, "$0 begin|begins to stitch the two smaller pieces of cloth together, leaving the bowl-shaped case open at one end.", "$0 begin|begins to stitch the two smaller pieces of cloth together, leaving the bowl-shaped case open at one end."), (40, "$0 begin|begins to stuff the case full of $i3 until it is stiff and firmly padded, then stitch|stitches the opening shut.", "$0 begin|begins to stuff the case full of $i3 until it is stiff and firmly padded, then stitch|stitches the opening shut."), (40, "$0 hold|holds up $p1, checking the piece over critically before setting it aside.", "Unfortunately, shoddy craftsmanship means that $0 end|ends up shredding the terrible cap for $f1.")], ["CommodityTag - 500 grams of a material tagged as Fabric", "Tag - 1x an item with the Thread tag", "Tag - 20x an item with the Padding tag"], ["TagTool - Held - an item with the Sewing Needle tag", "TagTool - Held - an item with the Scissors tag"], ["SimpleProduct - 1x a padded @material arming cap (#275)"], ["UnusedInput - 45.00% of 50x an item with the Padding tag ($i3)"], [(1, 1)]);

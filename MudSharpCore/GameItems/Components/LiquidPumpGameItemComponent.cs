@@ -357,7 +357,7 @@ public class LiquidPumpGameItemComponent : GameItemComponent, IConnectable, ICon
         return true;
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any() || !other.FreeConnections.Any())
         {
@@ -368,7 +368,7 @@ public class LiquidPumpGameItemComponent : GameItemComponent, IConnectable, ICon
                other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         ConnectorType? connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
@@ -392,7 +392,7 @@ public class LiquidPumpGameItemComponent : GameItemComponent, IConnectable, ICon
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {
@@ -458,10 +458,18 @@ public class LiquidPumpGameItemComponent : GameItemComponent, IConnectable, ICon
     }
 
     private ILiquidContainer? Source =>
-        ConnectedItems.FirstOrDefault(x => x.Item1.Gender == Gender.Female).Item2?.Parent.GetItemType<ILiquidContainer>();
+        ConnectedItems
+            .Where(x => x.Item1.Gender == Gender.Female)
+            .Select(x => x.Item2)
+            .FirstOrDefault()
+            ?.Parent.GetItemType<ILiquidContainer>();
 
     private ILiquidContainer? Sink =>
-        ConnectedItems.FirstOrDefault(x => x.Item1.Gender == Gender.Male).Item2?.Parent.GetItemType<ILiquidContainer>();
+        ConnectedItems
+            .Where(x => x.Item1.Gender == Gender.Male)
+            .Select(x => x.Item2)
+            .FirstOrDefault()
+            ?.Parent.GetItemType<ILiquidContainer>();
 
     private void Parent_OnConnected(IConnectable other, ConnectorType type)
     {

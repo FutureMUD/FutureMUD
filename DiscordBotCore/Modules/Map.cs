@@ -37,7 +37,7 @@ public class Map : BaseCommandModule
             OnResponseAction = HandleMudResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated)
+        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated)
             .SendTcpCommand($"map {request.RequestId} {registration.MudAccountId} {cellId}");
     }
 

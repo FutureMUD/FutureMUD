@@ -1,4 +1,6 @@
-﻿using MudSharp.Body;
+#nullable enable annotations
+
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
@@ -464,7 +466,7 @@ public class LanternGameItemComponent : GameItemComponent, ILiquidContainer, ILo
     private readonly List<ILock> _locks = new();
     public IEnumerable<ILock> Locks => _locks;
 
-    public bool InstallLock(ILock theLock, ICharacter actor = null)
+    public bool InstallLock(ILock theLock, ICharacter? actor = null)
     {
         _locks.Add(theLock);
         if (_noSave)

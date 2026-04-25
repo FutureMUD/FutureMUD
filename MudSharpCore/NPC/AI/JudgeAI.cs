@@ -26,7 +26,7 @@ namespace MudSharp.NPC.AI;
 
 public class JudgeAI : EnforcerAI
 {
-    public static void RegisterLoader()
+    public new static void RegisterLoader()
     {
         RegisterAIType("Judge", (ai, gameworld) => new JudgeAI(ai, gameworld));
         RegisterAIBuilderInformation("judge", (gameworld, name) => new JudgeAI(gameworld, name), new JudgeAI().HelpText);

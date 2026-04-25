@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -125,7 +127,7 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
         return false; // Attachable connectables can never be the target of connections
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (_connectedItem != null)
         {
@@ -140,7 +142,7 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
         return other.FreeConnections.Any(x => x.CompatibleWith(_prototype.Connector)) && other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         _connectedItem = other;
         other.RawConnect(this, other.FreeConnections.First(x => x.CompatibleWith(_prototype.Connector)));
@@ -167,7 +169,7 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (_connectedItem != null)
         {

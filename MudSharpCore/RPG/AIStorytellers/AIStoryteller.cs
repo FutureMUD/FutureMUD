@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 
 #pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+#nullable enable
 
 namespace MudSharp.RPG.AIStorytellers;
 
@@ -195,10 +196,10 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
     public bool SubscribeTo10mHeartbeat { get; private set; }
     public bool SubscribeTo30mHeartbeat { get; private set; }
     public bool SubscribeToHourHeartbeat { get; private set; }
-    public IFutureProg HeartbeatStatus5mProg { get; private set; }
-    public IFutureProg HeartbeatStatus10mProg { get; private set; }
-    public IFutureProg HeartbeatStatus30mProg { get; private set; }
-    public IFutureProg HeartbeatStatus1hProg { get; private set; }
+    public IFutureProg? HeartbeatStatus5mProg { get; private set; }
+    public IFutureProg? HeartbeatStatus10mProg { get; private set; }
+    public IFutureProg? HeartbeatStatus30mProg { get; private set; }
+    public IFutureProg? HeartbeatStatus1hProg { get; private set; }
     public List<AIStorytellerCustomToolCall> CustomToolCalls { get; } = [];
     public List<AIStorytellerCustomToolCall> CustomToolCallsEchoOnly { get; } = [];
     public bool IsPaused { get; private set; }
@@ -207,7 +208,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
     public ResponseReasoningEffortLevel TimeReasoningEffort { get; private set; }
     public ResponseReasoningEffortLevel AttentionClassifierReasoningEffort { get; private set; }
     public IAIStorytellerSurveillanceStrategy SurveillanceStrategy { get; private set; }
-    public IFutureProg CustomPlayerInformationProg { get; private set; }
+    public IFutureProg? CustomPlayerInformationProg { get; private set; }
 
     private readonly List<ICell> _subscribedCells = [];
     private readonly List<IAIStorytellerCharacterMemory> _characterMemories = [];
@@ -507,7 +508,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
         {
             case "5m":
                 sb.AppendLine("Heartbeat type: five minute.");
-                string text = HeartbeatStatus5mProg?.ExecuteString(this);
+                string? text = HeartbeatStatus5mProg?.ExecuteString(this);
                 if (!string.IsNullOrWhiteSpace(text))
                 {
                     sb.AppendLine(text);
@@ -703,7 +704,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
             using (new FMDB())
             {
                 Gameworld.SaveManager.Flush();
-                Models.AIStoryteller dbitem = FMDB.Context.AIStorytellers.Find(Id);
+                Models.AIStoryteller? dbitem = FMDB.Context.AIStorytellers.Find(Id);
                 if (dbitem != null)
                 {
                     FMDB.Context.AIStorytellers.Remove(dbitem);
@@ -721,7 +722,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
     public override void Save()
     {
         Changed = false;
-        Models.AIStoryteller dbitem = FMDB.Context.AIStorytellers.Find(Id);
+        Models.AIStoryteller? dbitem = FMDB.Context.AIStorytellers.Find(Id);
         if (dbitem is null)
         {
             return;

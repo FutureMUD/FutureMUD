@@ -200,7 +200,7 @@ public class Zone : Location, IEditableZone
 
     private IWeatherController _weather;
 
-    public IWeatherController WeatherController
+    public override IWeatherController WeatherController
     {
         get => _weather;
         set

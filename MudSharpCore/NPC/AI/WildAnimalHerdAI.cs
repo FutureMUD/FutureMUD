@@ -1,4 +1,6 @@
-﻿using MudSharp.Body.Needs;
+#nullable enable annotations
+
+using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Celestial;
@@ -1974,7 +1976,7 @@ public class WildAnimalHerdAI : PathingAIBase
         });
     }
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         // This AI always supplies its own paths through other means
         return (null, Enumerable.Empty<ICellExit>());

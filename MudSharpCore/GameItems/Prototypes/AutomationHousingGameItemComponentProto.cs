@@ -116,7 +116,7 @@ Lock (No Actor): {LockEmoteNoActor.ColourCommand()}
 Unlock (No Actor): {UnlockEmoteNoActor.ColourCommand()}";
 	}
 
-	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
+	public new static void RegisterComponentInitialiser(GameItemComponentManager manager)
 	{
 		manager.AddBuilderLoader("automationhousing", true,
 			(gameworld, account) => new AutomationHousingGameItemComponentProto(gameworld, account));
@@ -134,7 +134,7 @@ Unlock (No Actor): {UnlockEmoteNoActor.ColourCommand()}";
 			CombinedBuildingHelpText);
 	}
 
-	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
 	{
 		return new AutomationHousingGameItemComponent(this, parent, temporary);
 	}

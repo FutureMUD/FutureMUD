@@ -33,7 +33,7 @@ public class OnTrial : Effect, IEffect
 {
     private DateTime _lastTrialAction;
 
-    public ILegalAuthority LegalAuthority { get; set; }
+    public ILegalAuthority LegalAuthority { get; set; } = null!;
 
     public DateTime LastTrialAction
     {
@@ -58,7 +58,7 @@ public class OnTrial : Effect, IEffect
     }
 
     private readonly List<ICrime> _crimes;
-    public Queue<ICrime> CrimeQueue { get; private set; }
+    public Queue<ICrime> CrimeQueue { get; private set; } = null!;
 
     public void ResetCrimeQueue()
     {
@@ -236,29 +236,29 @@ public class OnTrial : Effect, IEffect
     protected OnTrial(XElement effect, IPerceivable owner) : base(effect, owner)
     {
         XElement? root = effect.Element("Effect");
-        LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
-        _lastTrialAction = DateTime.Parse(root.Element("LastTrialAction").Value, null,
+        LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root!.Element("LegalAuthority")!.Value))!;
+        _lastTrialAction = DateTime.Parse(root.Element("LastTrialAction")!.Value, null,
             System.Globalization.DateTimeStyles.RoundtripKind);
         _crimes = [];
-        foreach (XElement item in root.Element("Crimes").Elements())
+        foreach (XElement item in root.Element("Crimes")!.Elements())
         {
-            ICrime? crime = Gameworld.Crimes.Get(long.Parse(item.Attribute("id").Value));
+            ICrime? crime = Gameworld.Crimes.Get(long.Parse(item.Attribute("id")!.Value));
             if (crime is null)
             {
                 continue;
             }
             _crimes.Add(crime);
-            _pleas[crime] = bool.Parse(item.Attribute("plea").Value);
+            _pleas[crime] = bool.Parse(item.Attribute("plea")!.Value);
             Dictionary<Difficulty, CheckOutcome> defenseOutcome = new();
-            foreach (XElement result in item.Element("Defense").Elements())
+            foreach (XElement result in item.Element("Defense")!.Elements())
             {
-                defenseOutcome[(Difficulty)int.Parse(result.Attribute("difficulty").Value)] = CheckOutcome.SimpleOutcome(CheckType.DefendLegalCase, (Outcome)int.Parse(result.Attribute("outcome").Value));
+                defenseOutcome[(Difficulty)int.Parse(result.Attribute("difficulty")!.Value)] = CheckOutcome.SimpleOutcome(CheckType.DefendLegalCase, (Outcome)int.Parse(result.Attribute("outcome")!.Value));
             }
             _crimeDefenseCases[crime] = defenseOutcome;
             Dictionary<Difficulty, CheckOutcome> prosecutionOutcome = new();
-            foreach (XElement result in item.Element("Prosecution").Elements())
+            foreach (XElement result in item.Element("Prosecution")!.Elements())
             {
-                prosecutionOutcome[(Difficulty)int.Parse(result.Attribute("difficulty").Value)] = CheckOutcome.SimpleOutcome(CheckType.ProsecuteLegalCase, (Outcome)int.Parse(result.Attribute("outcome").Value));
+                prosecutionOutcome[(Difficulty)int.Parse(result.Attribute("difficulty")!.Value)] = CheckOutcome.SimpleOutcome(CheckType.ProsecuteLegalCase, (Outcome)int.Parse(result.Attribute("outcome")!.Value));
             }
             _crimeProsecutionCases[crime] = prosecutionOutcome;
         }

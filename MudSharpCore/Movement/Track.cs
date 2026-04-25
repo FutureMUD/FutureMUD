@@ -252,7 +252,7 @@ public class Track : LateInitialisingItem, ITrack
     /// <inheritdoc />
     public ExertionLevel ExertionLevel { get; set; }
 
-    private string _mudDateTimeText;
+    private string _mudDateTimeText = null!;
     private MudDateTime? _mudDateTime;
 
     /// <inheritdoc />

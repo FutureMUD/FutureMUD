@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualBasic;
+using Microsoft.VisualBasic;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -19,6 +19,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components
 {
@@ -154,14 +156,15 @@ namespace MudSharp.GameItems.Components
             return (int)((_prototype.WeightLimit - _contents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
         }
 
-        public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+        public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
         {
             if (_contents.Contains(item))
             {
 #if DEBUG
                 throw new ApplicationException("Item duplication in container.");
-#endif
+#else
                 return;
+#endif
             }
 
             if (allowMerge)
@@ -244,7 +247,7 @@ namespace MudSharp.GameItems.Components
 
         public bool Transparent => _prototype.Transparent;
 
-        public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+        public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
         {
             ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
             List<IGameItem> contents = Contents.ToList();
@@ -376,7 +379,7 @@ namespace MudSharp.GameItems.Components
         private readonly List<ILock> _locks = new();
         public IEnumerable<ILock> Locks => _locks;
 
-        public bool InstallLock(ILock theLock, ICharacter actor = null)
+        public bool InstallLock(ILock theLock, ICharacter? actor = null)
         {
             _locks.Add(theLock);
             if (_noSave)

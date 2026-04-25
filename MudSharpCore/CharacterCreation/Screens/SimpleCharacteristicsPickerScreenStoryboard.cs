@@ -135,7 +135,7 @@ public class SimpleCharacteristicsPickerScreenStoryboard : ChargenScreenStoryboa
         private readonly Dictionary<ICharacteristicDefinition, ICharacteristicValue> SelectedCharacteristics =
             new();
 
-        private readonly SimpleCharacteristicsPickerScreenStoryboard _storyboard;
+        private readonly new SimpleCharacteristicsPickerScreenStoryboard _storyboard;
 
         private IEnumerable<ICharacteristicValue> _shownValues;
         private ICharacteristicDefinition _selectedDefinition = null;

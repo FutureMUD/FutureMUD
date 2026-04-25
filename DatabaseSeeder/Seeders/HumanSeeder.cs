@@ -28,11 +28,11 @@ public partial class HumanSeeder : IDatabaseSeeder
 		"Human"
 	];
 
-    private FuturemudDatabaseContext _context;
-    private HeightWeightModel _humanFemaleHWModel;
+    private FuturemudDatabaseContext _context = null!;
+    private HeightWeightModel _humanFemaleHWModel = null!;
 
-    private HeightWeightModel _humanMaleHWModel;
-    private IReadOnlyDictionary<string, string> _questionAnswers;
+    private HeightWeightModel _humanMaleHWModel = null!;
+    private IReadOnlyDictionary<string, string> _questionAnswers = null!;
 
     public IEnumerable<(string Id, string Question,
         Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
@@ -257,9 +257,9 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
             .Where(x => x.Type == 1)
             .AsEnumerable()
             .First(x => x.Name.In("Constitution", "Body", "Physique", "Endurance", "Hardiness", "Stamina"));
-        _context.StaticConfigurations.Find("DefaultHoldBreathExpression").Definition = $"90+(5*con:{healthTrait.Id})";
-        _context.StaticConfigurations.Find("DefaultBreatheVolumeExpression").Definition =
-            $"max(2,7-(0.15*con:{healthTrait.Id}))";
+		_context.StaticConfigurations.Find("DefaultHoldBreathExpression")!.Definition = $"90+(5*con:{healthTrait.Id})";
+		_context.StaticConfigurations.Find("DefaultBreatheVolumeExpression")!.Definition =
+			$"max(2,7-(0.15*con:{healthTrait.Id}))";
         TraitExpression hpExpression = new()
         {
             Name = "Human Max HP Formula",
@@ -282,10 +282,10 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
             .Where(x => x.Type == 1)
             .AsEnumerable()
             .First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
-        _context.StaticConfigurations.Find("DefaultDragWeightExpression").Definition =
-                $"str:{strengthTrait.Id} * 2500000";
-        _context.StaticConfigurations.Find("DefaultLiftWeightExpression").Definition =
-                $"str:{strengthTrait.Id} * 1000000";
+		_context.StaticConfigurations.Find("DefaultDragWeightExpression")!.Definition =
+				$"str:{strengthTrait.Id} * 2500000";
+		_context.StaticConfigurations.Find("DefaultLiftWeightExpression")!.Definition =
+				$"str:{strengthTrait.Id} * 1000000";
         _context.SaveChanges();
 
         HealthStrategy hpStrategy = new()
@@ -514,9 +514,9 @@ end if"
 
         _context.SaveChanges();
 
-        _context.StaticConfigurations.Find("MaximumNumberOfAliasProg").Definition = maximumAliasesProg.Id.ToString();
-        _context.StaticConfigurations.Find("TotalBloodVolumeProg").Definition = bloodVolumeProg.Id.ToString();
-        _context.StaticConfigurations.Find("LiverFunctionProg").Definition = liverFunctionProg.Id.ToString();
+		_context.StaticConfigurations.Find("MaximumNumberOfAliasProg")!.Definition = maximumAliasesProg.Id.ToString();
+		_context.StaticConfigurations.Find("TotalBloodVolumeProg")!.Definition = bloodVolumeProg.Id.ToString();
+		_context.StaticConfigurations.Find("LiverFunctionProg")!.Definition = liverFunctionProg.Id.ToString();
         _context.StaticConfigurations.Add(new StaticConfiguration
         { SettingName = "ChargenNeedsModelProg", Definition = chargenNeedsProg.Id.ToString() });
 

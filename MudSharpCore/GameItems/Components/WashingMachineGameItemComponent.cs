@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
@@ -18,6 +18,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -847,14 +849,15 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
         return (int)((_prototype.WeightCapacity - _laundryContents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         if (_laundryContents.Contains(item))
         {
 #if DEBUG
             throw new ApplicationException("Item duplication in container.");
-#endif
+#else
             return;
+#endif
         }
 
         if (allowMerge)
@@ -935,7 +938,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
             : WhyCannotGetContainerReason.NotContainer;
     }
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
@@ -1117,7 +1120,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
     private readonly List<ILock> _locks = new();
     public IEnumerable<ILock> Locks => _locks;
 
-    public bool InstallLock(ILock theLock, ICharacter actor = null)
+    public bool InstallLock(ILock theLock, ICharacter? actor = null)
     {
         _locks.Add(theLock);
         if (_noSave)

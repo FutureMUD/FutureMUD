@@ -228,7 +228,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
                 tag = matchedtags.Single();
 
-                ITag secondTag = null;
+                ITag? secondTag = null;
                 if (!command.IsFinished)
                 {
                     matchedtags = actor.Gameworld.Tags.FindMatchingTags(command.SafeRemainingArgument);

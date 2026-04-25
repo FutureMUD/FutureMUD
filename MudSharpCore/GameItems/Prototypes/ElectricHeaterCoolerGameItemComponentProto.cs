@@ -39,7 +39,7 @@ public class ElectricHeaterCoolerGameItemComponentProto : SwitchableThermalSourc
             new XElement("Wattage", Wattage))).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new ElectricHeaterCoolerGameItemComponent(this, parent, temporary);
     }

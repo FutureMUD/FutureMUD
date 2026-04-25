@@ -58,33 +58,31 @@ public partial class AnimalSeeder : IDatabaseSeeder
 
     private readonly Dictionary<string, HeightWeightModel> _hwModels = new(StringComparer.OrdinalIgnoreCase);
 
-    private FutureProg _alwaysFalse;
-    private FutureProg _alwaysTrue;
-    private IEnumerable<TraitDefinition> _attributes;
-    private Liquid _bloodLiquid;
-    private ArmourType _boneArmour;
+    private FutureProg _alwaysFalse = null!;
+    private FutureProg _alwaysTrue = null!;
+    private IEnumerable<TraitDefinition> _attributes = null!;
+    private Liquid _bloodLiquid = null!;
+    private ArmourType _boneArmour = null!;
 
-    private Liquid _brackishWater;
+    private Liquid _brackishWater = null!;
 
-    private Gas _breathableAir;
-    private FuturemudDatabaseContext _context;
+    private Gas _breathableAir = null!;
+    private FuturemudDatabaseContext _context = null!;
 
-    private CorpseModel _defaultCorpseModel;
-    private TraitDefinition _dexterityTrait;
-    private HealthStrategy _healthStrategy;
-    private TraitDefinition _healthTrait;
-    private TraitDefinition _intelligenceTrait;
+    private CorpseModel _defaultCorpseModel = null!;
+    private HealthStrategy _healthStrategy = null!;
+    private TraitDefinition _healthTrait = null!;
 
-    private ArmourType _naturalArmour;
-    private ArmourType _organArmour;
-    private IReadOnlyDictionary<string, string> _questionAnswers;
-    private Liquid _saltWater;
+    private ArmourType _naturalArmour = null!;
+    private ArmourType _organArmour = null!;
+    private IReadOnlyDictionary<string, string> _questionAnswers = null!;
+    private Liquid _saltWater = null!;
 	private bool _sever;
-	private TraitExpression _snakeBiteDamage;
+	private TraitExpression _snakeBiteDamage = null!;
 
 	private readonly Stopwatch _stopwatch = new();
-	private TraitDefinition _strengthTrait;
-	private Liquid _sweatLiquid;
+	private TraitDefinition _strengthTrait = null!;
+	private Liquid _sweatLiquid = null!;
 
     internal static IReadOnlyList<string> AvianCoreWingAliasesForTesting => AvianCoreWingAliases;
 
@@ -900,10 +898,10 @@ public partial class AnimalSeeder : IDatabaseSeeder
         _freshWaters.Add(_context.Liquids.First(x => x.Name == "tap water"));
         _freshWaters.Add(_context.Liquids.First(x => x.Name == "rain water"));
         _freshWaters.Add(_context.Liquids.First(x => x.Name == "water"));
-        _bloodLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "blood");
-        if (_bloodLiquid is null)
-        {
-            Material driedBlood = new()
+			var bloodLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "blood");
+			if (bloodLiquid is null)
+			{
+				Material driedBlood = new()
             {
                 Name = "dried Blood",
                 MaterialDescription = "dried blood",
@@ -965,15 +963,16 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 InjectionConsequence = (int)LiquidInjectionConsequence.BloodReplacement,
                 ResidueVolumePercentage = 0.05,
                 DriedResidue = driedBlood
-            };
-            _context.Liquids.Add(blood);
-            _bloodLiquid = blood;
-        }
+				};
+				_context.Liquids.Add(blood);
+				bloodLiquid = blood;
+			}
+			_bloodLiquid = bloodLiquid;
 
-        _sweatLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "sweat");
-        if (_sweatLiquid is null)
-        {
-            Material driedSweat = new()
+			var sweatLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "sweat");
+			if (sweatLiquid is null)
+			{
+				Material driedSweat = new()
             {
                 Name = "dried Sweat",
                 MaterialDescription = "dried sweat",
@@ -1035,10 +1034,11 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 InjectionConsequence = (int)LiquidInjectionConsequence.Harmful,
                 ResidueVolumePercentage = 0.05,
                 DriedResidue = driedSweat
-            };
-            _context.Liquids.Add(sweat);
-            _sweatLiquid = sweat;
-        }
+				};
+				_context.Liquids.Add(sweat);
+				sweatLiquid = sweat;
+			}
+			_sweatLiquid = sweatLiquid;
 
         _alwaysFalse = _context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse");
         _alwaysTrue = _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
@@ -1415,7 +1415,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
         BodypartShape shape, TraitExpression damage, string attackMessage,
         DamageType damageType = DamageType.Crushing, double weighting = 100,
         CombatMoveIntentions intentions = CombatMoveIntentions.Attack | CombatMoveIntentions.Wound,
-        string additionalInfo = null)
+		string? additionalInfo = null)
     {
         string formattedAttackMessage = CombatSeederMessageStyleHelper.FormatAttackMessage(
             attackMessage,
@@ -3969,7 +3969,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
         };
         _context.Liquids.Add(bloodLiquid);
 
-        Liquid sweat = null;
+		Liquid? sweat = null;
         if (sweats)
         {
             Material driedSweat = new()

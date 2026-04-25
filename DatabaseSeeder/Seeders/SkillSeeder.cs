@@ -449,7 +449,7 @@ Again, the choices you make here can be fixed later so don't stress it too great
         List<string> skills = questionAnswers["exampleskill"].Split(',', StringSplitOptions.RemoveEmptyEntries)
             .Select(x => x.Trim().TitleCase()).ToList();
 
-        TraitExpression languageCap = null;
+		TraitExpression? languageCap = null;
         Dictionary<string, TraitExpression> skillsCaps = new();
         switch (questionAnswers["skillcapmodel"].ToLowerInvariant())
         {

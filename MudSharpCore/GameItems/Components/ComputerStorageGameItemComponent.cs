@@ -114,7 +114,7 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
-	public string Name => Parent.Name;
+	public override string Name => Parent.Name;
 	public long FileOwnerId => Parent.Id;
 	public long? OwnerCharacterId => null;
 	public long? OwnerHostItemId => null;
@@ -300,14 +300,14 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 		return other is IComputerHost;
 	}
 
-	public bool CanConnect(ICharacter actor, IConnectable other)
+	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
 		return _connectedHost is null &&
 		       other is IComputerHost &&
 		       other.FreeConnections.Any(x => x.CompatibleWith(ComputerConnectionTypes.StoragePlug));
 	}
 
-	public void Connect(ICharacter actor, IConnectable other)
+	public void Connect(ICharacter? actor, IConnectable other)
 	{
 		if (!CanConnect(actor, other))
 		{
@@ -332,7 +332,7 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 		RebindProcessesToCurrentHost();
 	}
 
-	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
 		return _connectedHost is not null
 			? $"{Parent.HowSeen(actor)} is already mounted to another computer host."

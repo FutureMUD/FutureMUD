@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -10,6 +10,8 @@ using MudSharp.PerceptionEngine;
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -151,7 +153,7 @@ public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, ICo
             Connector.ConnectionType.Colour(Telnet.Green));
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new ExternalInhalerGameItemComponent(this, parent, temporary);
     }

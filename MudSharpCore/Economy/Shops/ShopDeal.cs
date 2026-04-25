@@ -142,6 +142,11 @@ public class ShopDeal : LateInitialisingItem, IShopDeal
     public override void Save()
     {
         Models.ShopDeal? dbitem = FMDB.Context.ShopDeals.Find(Id);
+        if (dbitem is null)
+        {
+            throw new InvalidOperationException($"Shop deal {Id:N0} no longer exists in the database.");
+        }
+
         dbitem.ShopId = Shop.Id;
         dbitem.Name = Name;
         dbitem.DealType = (int)DealType;

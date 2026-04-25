@@ -219,6 +219,11 @@ public abstract class ActiveJobBase : SaveableItem, IActiveJob, ILazyLoadDuringI
     public override void Save()
     {
         ActiveJob? dbitem = FMDB.Context.ActiveJobs.Find(Id);
+        if (dbitem is null)
+        {
+            throw new InvalidOperationException($"Active job {Id:N0} no longer exists in the database.");
+        }
+
         dbitem.IsJobComplete = IsJobComplete;
         dbitem.AlreadyHadClanPosition = AlreadyHadClanPosition;
         dbitem.CurrentPerformance = CurrentPerformance;

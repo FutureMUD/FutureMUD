@@ -21,7 +21,7 @@ public sealed class ArenaCombatantClass : SaveableItem, ICombatantClass
         _id = model.Id;
         _name = model.Name;
         Description = model.Description;
-        EligibilityProg = Gameworld.FutureProgs.Get(model.EligibilityProgId);
+        EligibilityProg = Gameworld.FutureProgs.Get(model.EligibilityProgId)!;
         AdminNpcLoaderProg = model.AdminNpcLoaderProgId.HasValue
             ? Gameworld.FutureProgs.Get(model.AdminNpcLoaderProgId.Value)
             : null;
@@ -69,7 +69,7 @@ public sealed class ArenaCombatantClass : SaveableItem, ICombatantClass
 
     public CombatArena Arena { get; }
     ICombatArena ICombatantClass.Arena => Arena;
-    public IFutureProg EligibilityProg { get; private set; }
+    public IFutureProg EligibilityProg { get; private set; } = null!;
     public IFutureProg? AdminNpcLoaderProg { get; private set; }
     public bool ResurrectNpcOnDeath { get; private set; }
     public bool FullyRestoreNpcOnCompletion { get; private set; }

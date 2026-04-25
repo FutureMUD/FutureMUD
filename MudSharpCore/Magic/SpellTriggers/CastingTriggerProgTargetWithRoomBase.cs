@@ -5,6 +5,8 @@ using MudSharp.FutureProg;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
+#nullable enable
+
 namespace MudSharp.Magic.SpellTriggers;
 
 public abstract class CastingTriggerProgTargetWithRoomBase : CastingTriggerProgTargetBase
@@ -12,7 +14,7 @@ public abstract class CastingTriggerProgTargetWithRoomBase : CastingTriggerProgT
 	protected CastingTriggerProgTargetWithRoomBase(XElement root, IMagicSpell spell)
 		: base(root, spell)
 	{
-		TargetRoomProg = spell.Gameworld.FutureProgs.Get(long.Parse(root.Element("TargetRoomProg").Value));
+		TargetRoomProg = spell.Gameworld.FutureProgs.Get(long.Parse(root.Element("TargetRoomProg")!.Value));
 	}
 
 	protected CastingTriggerProgTargetWithRoomBase()

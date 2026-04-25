@@ -111,7 +111,7 @@ public abstract class SkillSeederBase : IDatabaseSeeder
             bool improveTraits,
             short failIfTraitMissingMode,
             bool canBranchIfTraitMissing,
-            string definition,
+            string? definition,
             IEnumerable<(Difficulty Difficulty, int Modifier)> modifiers)
         {
             CheckTemplate template = SeederRepeatabilityHelper.EnsureNamedEntity(
@@ -197,7 +197,7 @@ public abstract class SkillSeederBase : IDatabaseSeeder
             "<ranges name=\"General Skill Range\"  prefix=\"(\" suffix=\")\" colour_capped=\"true\" colour_buffed=\"true\"><range low=\"-100\" high=\"0\" text=\"Incompetent\"/><range low=\"0\" high=\"15\" text=\"Familiar\"/><range low=\"15\" high=\"30\" text=\"Competent\"/><range low=\"30\" high=\"45\" text=\"Skilled\"/><range low=\"45\" high=\"60\" text=\"Expert\"/><range low=\"60\" high=\"75\" text=\"Masterful\"/><range low=\"75\" high=\"85\" text=\"Epic\"/><range low=\"85\" high=\"95\" text=\"Legendary\"/><range low=\"95\" high=\"500\" text=\"Godly\"/></ranges>");
         context.SaveChanges();
 
-        context.StaticConfigurations.Find("DefaultSkillDecorator").Definition = general.Id.ToString();
+		context.StaticConfigurations.Find("DefaultSkillDecorator")!.Definition = general.Id.ToString();
         context.SaveChanges();
 
         TraitDecorator crafting = EnsureDecorator(
@@ -289,7 +289,7 @@ public abstract class SkillSeederBase : IDatabaseSeeder
         }
 
         context.SaveChanges();
-        context.StaticConfigurations.Find("DefaultSkillImprover").Definition = generalImprover.Id.ToString();
+		context.StaticConfigurations.Find("DefaultSkillImprover")!.Definition = generalImprover.Id.ToString();
         context.SaveChanges();
         return (general, crafting, languageDecorator, veterancy, professional, languageImprover, generalImprover);
     }

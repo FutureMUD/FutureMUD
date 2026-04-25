@@ -248,7 +248,7 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 		return other is IComputerHost or INetworkInfrastructure;
 	}
 
-	public bool CanConnect(ICharacter actor, IConnectable other)
+	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
 		if (other is IComputerHost)
 		{
@@ -265,7 +265,7 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 		return false;
 	}
 
-	public void Connect(ICharacter actor, IConnectable other)
+	public void Connect(ICharacter? actor, IConnectable other)
 	{
 		if (!CanConnect(actor, other))
 		{
@@ -294,7 +294,7 @@ public class NetworkAdapterGameItemComponent : PoweredMachineBaseGameItemCompone
 		Changed = true;
 	}
 
-	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
 		if (other is IComputerHost && _connectedHost is not null)
 		{

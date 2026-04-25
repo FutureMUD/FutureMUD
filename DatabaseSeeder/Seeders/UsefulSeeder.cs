@@ -280,7 +280,7 @@ This includes things like useful game item components, AI templates, helper tags
 
 Inside the package there are a few numbered #D""Core Item Packages""#3. The reason for this is that there have been updates to the useful seeder since its first release, and these sub-packages were for earlier adopters to update their existing MUDs with. I recommend that you install all of the Core Item Packages as they are appropriate for any MUD in nearly any setting.";
 
-    private FuturemudDatabaseContext _context;
+    private FuturemudDatabaseContext _context = null!;
 
     private Account _dbaccount => _context.Accounts.First();
 
@@ -494,17 +494,17 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         foreach (Terrain? terrain in context.Terrains.ToList())
         {
-            List<string?> tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => long.TryParse(x, out long val) && tagsById.ContainsKey(val)
-                            ? tagsById[val]
-                            : null)
-                    .Where(x => x != null)
-                    .ToList() ?? new List<string>();
+			List<string> tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+					.Select(x => long.TryParse(x, out long val) && tagsById.ContainsKey(val)
+							? tagsById[val]
+							: null)
+					.OfType<string>()
+					.ToList() ?? new List<string>();
 
             HashSet<long> coverIds = new();
-            foreach (string? tag in tagNames)
-            {
-                if (!coversForTags.TryGetValue(tag!, out string[]? names))
+			foreach (string tag in tagNames)
+			{
+				if (!coversForTags.TryGetValue(tag, out string[]? names))
                 {
                     continue;
                 }

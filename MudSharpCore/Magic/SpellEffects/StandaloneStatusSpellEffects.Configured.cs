@@ -91,7 +91,7 @@ public class PoisonEffect : CharacterSpellEffectTemplateBase
 			return false;
 		}
 
-		IDrug drug = Gameworld.Drugs.GetByIdOrName(command.SafeRemainingArgument);
+		IDrug? drug = Gameworld.Drugs.GetByIdOrName(command.SafeRemainingArgument);
 		if (drug is null)
 		{
 			actor.OutputHandler.Send("There is no such drug.");
@@ -244,7 +244,7 @@ public class RemovePoisonEffect : CharacterSpellEffectRemovalTemplateBase
 			return false;
 		}
 
-		IDrug drug = Gameworld.Drugs.GetByIdOrName(command.SafeRemainingArgument);
+		IDrug? drug = Gameworld.Drugs.GetByIdOrName(command.SafeRemainingArgument);
 		if (drug is null)
 		{
 			actor.OutputHandler.Send("There is no such drug.");

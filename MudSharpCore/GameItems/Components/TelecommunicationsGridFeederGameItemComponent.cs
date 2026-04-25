@@ -293,7 +293,7 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
         return true;
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         return FreeConnections.Any() &&
                other.FreeConnections.Any() &&
@@ -301,7 +301,7 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
                other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         ConnectorType? connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
@@ -323,7 +323,7 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {
@@ -465,7 +465,7 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
 
     string ICanConnectToGrid.GridType => "Telecommunications";
 
-    IGrid ICanConnectToGrid.Grid
+    IGrid? ICanConnectToGrid.Grid
     {
         get => TelecommunicationsGrid;
         set => TelecommunicationsGrid = value as ITelecommunicationsGrid;

@@ -1,5 +1,7 @@
 ﻿using System;
 
+#nullable enable
+
 namespace MudSharp.Framework;
 
 public class FrameworkItemReference
@@ -24,8 +26,8 @@ public class FrameworkItemReference
     }
 
     public long Id { get; init; }
-    public string FrameworkItemType { get; init; }
-    public IFuturemud Gameworld { get; init; }
+    public string FrameworkItemType { get; init; } = null!;
+    public IFuturemud Gameworld { get; init; } = null!;
 
     #region Overrides of Object
 
@@ -51,7 +53,7 @@ public class FrameworkItemReference
 
     #endregion
 
-    public IFrameworkItem GetItem
+    public IFrameworkItem? GetItem
     {
         get
         {

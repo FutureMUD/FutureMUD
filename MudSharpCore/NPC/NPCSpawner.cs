@@ -125,7 +125,7 @@ public class NPCSpawner : SaveableItem, INPCSpawner
     /// <inheritdoc />
     public override void Save()
     {
-        Models.NPCSpawner? dbitem = FMDB.Context.NpcSpawners.Find(Id);
+        Models.NPCSpawner dbitem = FMDB.Context.NpcSpawners.Find(Id)!;
         dbitem.Name = Name;
         dbitem.CountsAsProgId = CountAsNPCProg?.Id;
         dbitem.OnSpawnProgId = OnSpawnProg?.Id;

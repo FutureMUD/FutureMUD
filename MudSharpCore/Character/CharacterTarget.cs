@@ -132,19 +132,23 @@ public partial class Character : ITarget
 
         if (ignoreFlags.HasFlag(PerceiveIgnoreFlags.IgnoreLayers))
         {
-            return Location.Characters
+            var location = Location!;
+            var body = Body!;
+            return location.Characters
                            .Except(this)
-                           .Concat(Location.GameItems.SelectNotNull(x => x.GetItemType<ICorpse>()?.OriginalCharacter))
-                           .Concat(Body.ExternalItems.SelectNotNull(x => x.GetItemType<ICorpse>()?.OriginalCharacter))
+                           .Concat(location.GameItems.Select(x => x.GetItemType<ICorpse>()?.OriginalCharacter).OfType<ICharacter>())
+                           .Concat(body.ExternalItems.Select(x => x.GetItemType<ICorpse>()?.OriginalCharacter).OfType<ICharacter>())
                            .Where(x => CanSee(x, ignoreFlags))
                            .GetFromItemListByKeyword(keyword, this);
         }
 
-        return Location.LayerCharacters(RoomLayer)
+        var localLocation = Location!;
+        var localBody = Body!;
+        return localLocation.LayerCharacters(RoomLayer)
                        .Except(this)
-                       .Concat(Location.LayerGameItems(RoomLayer)
-                                       .SelectNotNull(x => x.GetItemType<ICorpse>()?.OriginalCharacter))
-                       .Concat(Body.ExternalItems.SelectNotNull(x => x.GetItemType<ICorpse>()?.OriginalCharacter))
+                       .Concat(localLocation.LayerGameItems(RoomLayer)
+                                       .Select(x => x.GetItemType<ICorpse>()?.OriginalCharacter).OfType<ICharacter>())
+                       .Concat(localBody.ExternalItems.Select(x => x.GetItemType<ICorpse>()?.OriginalCharacter).OfType<ICharacter>())
                        .Where(x => CanSee(x, ignoreFlags))
                        .GetFromItemListByKeyword(keyword, this);
     }
@@ -154,20 +158,22 @@ public partial class Character : ITarget
         if (ignoreFlags.HasFlag(PerceiveIgnoreFlags.IgnoreLayers))
         {
             return
-                Body
+                Body!
                     .ExternalItems
-                    .WhereNotNull(x => x.GetItemType<ICorpse>())
-                    .Concat(Location.GameItems)
+                    .OfType<IGameItem>()
+                    .Where(x => x.GetItemType<ICorpse>() is not null)
+                    .Concat(Location!.GameItems)
                     .Where(x => CanSee(x, ignoreFlags))
                     .GetFromItemListByKeyword(keyword, this)
                     ?.GetItemType<ICorpse>();
         }
 
         return
-            Body
+            Body!
                 .ExternalItems
-                .WhereNotNull(x => x.GetItemType<ICorpse>())
-                .Concat(Location.LayerGameItems(RoomLayer))
+                .OfType<IGameItem>()
+                .Where(x => x.GetItemType<ICorpse>() is not null)
+                .Concat(Location!.LayerGameItems(RoomLayer))
                 .Where(x => CanSee(x, ignoreFlags))
                 .GetFromItemListByKeyword(keyword, this)
                 ?.GetItemType<ICorpse>();

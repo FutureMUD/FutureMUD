@@ -6,6 +6,8 @@ using MudSharp.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
+
 namespace MudSharp.Combat.ScatterStrategies;
 
 public class SpreadScatterStrategy : IRangedScatterStrategy
@@ -49,7 +51,7 @@ public class SpreadScatterStrategy : IRangedScatterStrategy
             .Where(x => !x.Equals(shooter) && !x.Equals(originalTarget))
             .ToList();
 
-        IPerceiver target = candidates.GetWeightedRandom(x => Weight(x, originalTarget));
+        IPerceiver? target = candidates.GetWeightedRandom(x => Weight(x, originalTarget));
         return target != null
             ? new RangedScatterResult(chosenCell, target.RoomLayer, chosen.Info.DirectionFromOrigin, chosen.Info.Distance,
                 target)

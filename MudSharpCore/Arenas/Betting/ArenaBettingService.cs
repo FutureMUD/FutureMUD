@@ -674,7 +674,7 @@ public class ArenaBettingService : IArenaBettingService
             .Where(x => x.SideIndex == sideIndex)
             .Select(ResolveParticipantRating)
             .Where(x => x.HasValue)
-            .Select(x => x.Value)
+            .Select(x => x.GetValueOrDefault())
             .ToList();
         if (ratings.Count == 0)
         {

@@ -13,7 +13,7 @@ namespace MudSharp.GameItems.Prototypes;
 public class ImplantTelephoneGameItemComponentProto : ImplantBaseGameItemComponentProto
 {
     public override string TypeDescription => "ImplantTelephone";
-    public string RingText { get; set; }
+    public string RingText { get; set; } = null!;
 
     #region Constructors
 
@@ -49,7 +49,7 @@ public class ImplantTelephoneGameItemComponentProto : ImplantBaseGameItemCompone
 
     #region Component Instance Initialising Functions
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new ImplantTelephoneGameItemComponent(this, parent, temporary);
     }

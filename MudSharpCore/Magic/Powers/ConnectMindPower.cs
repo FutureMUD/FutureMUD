@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -14,6 +14,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.Magic.Powers;
 
@@ -311,7 +313,7 @@ public class ConnectMindPower : SustainedMagicPower
         UseCommandDisconnect(actor, command);
     }
 
-    public void UseCommandConnect(ICharacter actor, StringStack command)
+    public void UseCommandConnect(ICharacter? actor, StringStack command)
     {
         if (command.IsFinished)
         {

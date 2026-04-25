@@ -51,17 +51,17 @@ public class MountAI : ArtificialIntelligenceBase, IMountableAI
 
     private void LoadFromXml(XElement root)
     {
-        PermitRiderProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("PermitRiderProg").Value));
-        PermitControlProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("PermitControlProg").Value));
-        WhyCannotPermitRiderProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotPermitRiderProg").Value));
-        MountNonConsensualMountDifficulty = (Difficulty)int.Parse(root.Element("MountNonConsensualMountDifficulty").Value);
-        MountControlDifficulty = (Difficulty)int.Parse(root.Element("MountControlDifficulty").Value);
-        MountResistBuckDifficulty = (Difficulty)int.Parse(root.Element("MountResistBuckDifficulty").Value);
-        MaximumNumberOfRiders = int.Parse(root.Element("MaximumNumberOfRiders").Value);
-        RawMountEmote = root.Element("RawMountEmote").Value;
-        RawDismountEmote = root.Element("RawDismountEmote").Value;
-        RawControlDeniedEmote = root.Element("RawControlDeniedEmote").Value;
-        RawMountEmote = root.Element("RawMountEmote").Value;
+        PermitRiderProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("PermitRiderProg")!.Value));
+        PermitControlProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("PermitControlProg")!.Value));
+        WhyCannotPermitRiderProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotPermitRiderProg")!.Value));
+        MountNonConsensualMountDifficulty = (Difficulty)int.Parse(root.Element("MountNonConsensualMountDifficulty")!.Value);
+        MountControlDifficulty = (Difficulty)int.Parse(root.Element("MountControlDifficulty")!.Value);
+        MountResistBuckDifficulty = (Difficulty)int.Parse(root.Element("MountResistBuckDifficulty")!.Value);
+        MaximumNumberOfRiders = int.Parse(root.Element("MaximumNumberOfRiders")!.Value);
+        RawMountEmote = root.Element("RawMountEmote")!.Value;
+        RawDismountEmote = root.Element("RawDismountEmote")!.Value;
+        RawControlDeniedEmote = root.Element("RawControlDeniedEmote")!.Value;
+        RawBuckEmote = root.Element("RawBuckEmote")!.Value;
     }
 
     protected override string SaveToXml()
@@ -106,10 +106,10 @@ public class MountAI : ArtificialIntelligenceBase, IMountableAI
     public Difficulty MountNonConsensualMountDifficulty { get; private set; }
     public Difficulty MountControlDifficulty { get; private set; }
     public Difficulty MountResistBuckDifficulty { get; private set; }
-    public string RawMountEmote { get; private set; }
-    public string RawDismountEmote { get; private set; }
-    public string RawBuckEmote { get; private set; }
-    public string RawControlDeniedEmote { get; private set; }
+    public string RawMountEmote { get; private set; } = null!;
+    public string RawDismountEmote { get; private set; } = null!;
+    public string RawBuckEmote { get; private set; } = null!;
+    public string RawControlDeniedEmote { get; private set; } = null!;
 
     #region Building Commands
 

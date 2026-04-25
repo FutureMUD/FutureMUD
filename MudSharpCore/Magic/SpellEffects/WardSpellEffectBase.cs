@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
+#nullable enable
+
 namespace MudSharp.Magic.SpellEffects;
 
 public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
@@ -16,7 +18,7 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 	protected WardSpellEffectBase(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
-		School = Gameworld.MagicSchools.Get(long.Parse(root.Element("School").Value));
+		School = Gameworld.MagicSchools.Get(long.Parse(root.Element("School")!.Value))!;
 		Mode = Enum.Parse<MagicInterdictionMode>(root.Element("Mode")?.Value ?? nameof(MagicInterdictionMode.Fail), true);
 		Coverage = Enum.Parse<MagicInterdictionCoverage>(root.Element("Coverage")?.Value ?? nameof(MagicInterdictionCoverage.Both), true);
 		IncludesSubschools = bool.Parse(root.Element("IncludesSubschools")?.Value ?? "true");
@@ -118,7 +120,7 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 			return false;
 		}
 
-		IMagicSchool school = Gameworld.MagicSchools.GetByIdOrName(command.SafeRemainingArgument);
+		IMagicSchool? school = Gameworld.MagicSchools.GetByIdOrName(command.SafeRemainingArgument);
 		if (school is null)
 		{
 			actor.OutputHandler.Send("There is no such magic school.");
@@ -195,7 +197,7 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 			return true;
 		}
 
-		IFutureProg prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		IFutureProg? prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			ProgVariableTypes.Boolean,
 			[
 				[ProgVariableTypes.Character, ProgVariableTypes.Perceivable],

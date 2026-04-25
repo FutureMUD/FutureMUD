@@ -34,6 +34,8 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
 
     public bool Add(T value)
     {
+        ArgumentNullException.ThrowIfNull(value);
+
         if (value is ILateInitialisingItem lateSave)
         {
             if (!lateSave.IdHasBeenRegistered)
@@ -53,7 +55,7 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
         if (_iterlist.Contains(value))
         {
             throw new ApplicationException(
-                $"Trying to add a duplicate object {value.Id} / {value?.Name ?? ""} / {value.FrameworkItemType} to All.");
+                $"Trying to add a duplicate object {value.Id} / {value.Name} / {value.FrameworkItemType} to All.");
         }
 
         _idlookup.Add(value.Id, value);

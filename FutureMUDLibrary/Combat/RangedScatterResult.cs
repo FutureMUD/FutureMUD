@@ -2,6 +2,8 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 
+#nullable enable
+
 namespace MudSharp.Combat;
 
 /// <summary>

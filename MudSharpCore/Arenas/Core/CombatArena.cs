@@ -47,8 +47,8 @@ public sealed class CombatArena : SaveableItem, ICombatArena
         Gameworld = gameworld;
         _id = arena.Id;
         _name = arena.Name;
-        EconomicZone = Gameworld.EconomicZones.Get(arena.EconomicZoneId);
-        Currency = Gameworld.Currencies.Get(arena.CurrencyId);
+        EconomicZone = Gameworld.EconomicZones.Get(arena.EconomicZoneId)!;
+        Currency = Gameworld.Currencies.Get(arena.CurrencyId)!;
         _virtualBalance = arena.VirtualBalance;
         BankAccount = arena.BankAccountId.HasValue ? Gameworld.BankAccounts.Get(arena.BankAccountId.Value) : null;
         _onArenaEventPhaseProg = arena.OnArenaEventPhaseProgId.HasValue
@@ -143,8 +143,8 @@ public sealed class CombatArena : SaveableItem, ICombatArena
 
     public override string FrameworkItemType => "CombatArena";
 
-    public IEconomicZone EconomicZone { get; private set; }
-    public ICurrency Currency { get; private set; }
+    public IEconomicZone EconomicZone { get; private set; } = null!;
+    public ICurrency Currency { get; private set; } = null!;
     public IBankAccount? BankAccount { get; private set; }
     public string SignupEcho => _signupEcho;
     public IFutureProg? OnArenaEventPhaseProg

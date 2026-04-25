@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 
 namespace MudSharp_Unit_Tests;
 
@@ -197,7 +196,7 @@ public class ThermalSourceComponentTests
         parent.Setup(x => x.Handle(It.IsAny<string>(), It.IsAny<OutputRange>()));
         parent.Setup(x => x.Handle(It.IsAny<IOutput>(), It.IsAny<OutputRange>()));
         parent.Setup(x => x.Delete());
-        parent.Setup(x => x.GetItemType<IProducePower>()).Returns((IProducePower?)null);
+        parent.Setup(x => x.GetItemType<IProducePower>()).Returns((IProducePower)null!);
         return parent;
     }
 
@@ -240,7 +239,7 @@ public class ThermalSourceComponentTests
 
     private static ElectricHeaterCoolerGameItemComponentProto CreateElectricProto(double ambient, double intimate, double wattage)
     {
-        ElectricHeaterCoolerGameItemComponentProto proto = (ElectricHeaterCoolerGameItemComponentProto)FormatterServices.GetUninitializedObject(typeof(ElectricHeaterCoolerGameItemComponentProto));
+        ElectricHeaterCoolerGameItemComponentProto proto = TestObjectFactory.CreateUninitialized<ElectricHeaterCoolerGameItemComponentProto>();
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.AmbientHeat), ambient);
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.IntimateHeat), intimate);
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.ActiveDescriptionAddendum), "active");
@@ -254,7 +253,7 @@ public class ThermalSourceComponentTests
     private static FuelHeaterCoolerGameItemComponentProto CreateFuelProto(FuelHeaterCoolerFuelMedium medium, double ambient,
         double burnRate, ILiquid? liquidFuel = null, IGas? gasFuel = null)
     {
-        FuelHeaterCoolerGameItemComponentProto proto = (FuelHeaterCoolerGameItemComponentProto)FormatterServices.GetUninitializedObject(typeof(FuelHeaterCoolerGameItemComponentProto));
+        FuelHeaterCoolerGameItemComponentProto proto = TestObjectFactory.CreateUninitialized<FuelHeaterCoolerGameItemComponentProto>();
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.AmbientHeat), ambient);
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.ActiveDescriptionAddendum), "active");
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.InactiveDescriptionAddendum), "inactive");
@@ -270,7 +269,7 @@ public class ThermalSourceComponentTests
 
     private static ConsumableHeaterCoolerGameItemComponentProto CreateConsumableProto(double ambient, int seconds, IGameItemProto? spentProto)
     {
-        ConsumableHeaterCoolerGameItemComponentProto proto = (ConsumableHeaterCoolerGameItemComponentProto)FormatterServices.GetUninitializedObject(typeof(ConsumableHeaterCoolerGameItemComponentProto));
+        ConsumableHeaterCoolerGameItemComponentProto proto = TestObjectFactory.CreateUninitialized<ConsumableHeaterCoolerGameItemComponentProto>();
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.AmbientHeat), ambient);
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.ActiveDescriptionAddendum), "active");
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.InactiveDescriptionAddendum), "inactive");
@@ -283,7 +282,7 @@ public class ThermalSourceComponentTests
     private static SolidFuelHeaterCoolerGameItemComponentProto CreateSolidFuelProto(ITag tag, double ambient, double maxWeight,
         double secondsPerWeight)
     {
-        SolidFuelHeaterCoolerGameItemComponentProto proto = (SolidFuelHeaterCoolerGameItemComponentProto)FormatterServices.GetUninitializedObject(typeof(SolidFuelHeaterCoolerGameItemComponentProto));
+        SolidFuelHeaterCoolerGameItemComponentProto proto = TestObjectFactory.CreateUninitialized<SolidFuelHeaterCoolerGameItemComponentProto>();
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.AmbientHeat), ambient);
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.ActiveDescriptionAddendum), "active");
         SetProperty(proto, nameof(ThermalSourceGameItemComponentProto.InactiveDescriptionAddendum), "inactive");

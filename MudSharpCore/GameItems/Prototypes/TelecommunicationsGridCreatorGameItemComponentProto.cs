@@ -13,10 +13,10 @@ namespace MudSharp.GameItems.Prototypes;
 public class TelecommunicationsGridCreatorGameItemComponentProto : GameItemComponentProto
 {
     public override string TypeDescription => "TelecommunicationsGridCreator";
-    public string Prefix { get; set; }
+    public string Prefix { get; set; } = null!;
     public int NumberLength { get; set; }
     public bool HostedVoicemailEnabled { get; set; }
-    public string HostedVoicemailAccessCode { get; set; }
+    public string HostedVoicemailAccessCode { get; set; } = null!;
 
     protected TelecommunicationsGridCreatorGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(
         gameworld, originator, "TelecommunicationsGridCreator")
@@ -50,7 +50,7 @@ public class TelecommunicationsGridCreatorGameItemComponentProto : GameItemCompo
         ).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new TelecommunicationsGridCreatorGameItemComponent(this, parent, loader, temporary);
     }

@@ -10,18 +10,18 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class CultureSeeder
 {
-    private FutureProg _alwaysFalseProg;
+    private FutureProg _alwaysFalseProg = null!;
 
-    private FutureProg _alwaysTrueProg;
+    private FutureProg _alwaysTrueProg = null!;
 
     private readonly Dictionary<string, PopulationBloodModel> _bloodModels = new(StringComparer.OrdinalIgnoreCase);
-    private FuturemudDatabaseContext _context;
+    private FuturemudDatabaseContext _context = null!;
 
     private readonly Dictionary<string, CharacteristicDefinition> _definitions = new(StringComparer.OrdinalIgnoreCase);
 
-    private Race _humanRace;
+    private Race _humanRace = null!;
 
-    private TraitDefinition _intelligenceTrait;
+    private TraitDefinition _intelligenceTrait = null!;
 
     private readonly Dictionary<string, CharacteristicProfile> _profiles = new(StringComparer.OrdinalIgnoreCase);
 

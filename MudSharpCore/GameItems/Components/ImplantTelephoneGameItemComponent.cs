@@ -146,7 +146,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
     private bool HasCoverageInZone(IZone zone)
     {
         return Gameworld.Items
-                        .SelectNotNull(x => x.GetItemType<ICellPhoneTower>())
+                        .SelectNotNull(x => x!.GetItemType<ICellPhoneTower>())
                         .Any(x => x.TelecommunicationsGrid == TelecommunicationsGrid && x.ProvidesCoverage(zone));
     }
 
@@ -268,7 +268,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
         set => TelecommunicationsGrid = value;
     }
 
-    IGrid ICanConnectToGrid.Grid
+    IGrid? ICanConnectToGrid.Grid
     {
         get => TelecommunicationsGrid;
         set => TelecommunicationsGrid = value as ITelecommunicationsGrid;

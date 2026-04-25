@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
@@ -24,13 +24,14 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
-using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using static MudSharp.Effects.Concrete.Dragging;
+
+#nullable enable annotations
 
 namespace MudSharp.Commands.Modules;
 
@@ -4806,7 +4807,6 @@ The syntax is as follows:
         IGameItem targetItem = null;
         ILockable lockable = null;
         ILock theLock = null;
-        ICharacter lockableOwner = null;
         ICellExit[] cellExits = exits as ICellExit[] ?? exits.ToArray();
         ICellExit targetExit = cellExits.GetFromItemListByKeyword(cmd, actor);
         if (targetExit != null)
@@ -4979,7 +4979,6 @@ The syntax is as follows:
         IGameItem targetItem = null;
         ILockable lockable = null;
         ILock theLock = null;
-        ICharacter lockableOwner = null;
         ICellExit[] cellExits = exits as ICellExit[] ?? exits.ToArray();
         ICellExit targetExit = cellExits.GetFromItemListByKeyword(cmd, actor);
         if (targetExit != null)
@@ -5186,7 +5185,7 @@ The syntax for this command is as follows:
     [PlayerCommand("Connect", "connect")]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [RequiredCharacterState(CharacterState.Able)]
-    protected static void Connect(ICharacter actor, string command)
+    protected static void Connect(ICharacter? actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
         if (ss.IsFinished)

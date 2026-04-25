@@ -1,4 +1,4 @@
-﻿using C5;
+using C5;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Database;
@@ -24,6 +24,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
+
+#nullable enable
+#nullable disable warnings
 
 namespace MudSharp.GameItems;
 
@@ -363,7 +366,7 @@ public class GameItemProto : EditableItem, IGameItemProto
         return items;
     }
 
-    public IGameItem CreateNew(ICharacter loader = null)
+    public IGameItem CreateNew(ICharacter? loader = null)
     {
         GameItem newItem = new(this, loader, BaseItemQuality);
         foreach (IFutureProg prog in OnLoadProgs)

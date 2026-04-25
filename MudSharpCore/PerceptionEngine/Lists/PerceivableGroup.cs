@@ -39,7 +39,7 @@ public class PerceivableGroup : TemporaryPerceivable, IPerceivableGroup
 
     public override double IlluminationProvided => _members.Sum(x => x.IlluminationProvided);
 
-    public SizeCategory Size => _members.Max(x => x.Size).Stage(1);
+    public new SizeCategory Size => _members.Max(x => x.Size).Stage(1);
 
     public override string HowSeen(IPerceiver voyeur, bool proper = false, DescriptionType type = DescriptionType.Short, bool colour = true, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
     {

@@ -21,6 +21,7 @@ using System.Text;
 using System.Text.Json;
 
 #pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+#nullable enable
 
 namespace MudSharp.RPG.AIStorytellers;
 
@@ -344,7 +345,7 @@ public partial class AIStoryteller
     }
 
     private void AddFunctionTool(CreateResponseOptions options, string functionName, string functionDescription,
-        string functionParametersJson)
+        string? functionParametersJson)
     {
         options.Tools.Add(ResponseTool.CreateFunctionTool(
             functionName: functionName,
@@ -364,7 +365,7 @@ public partial class AIStoryteller
 		}
 		""";
 
-    internal static string NormalizeFunctionToolSchema(string functionParametersJson)
+    internal static string NormalizeFunctionToolSchema(string? functionParametersJson)
     {
         if (string.IsNullOrWhiteSpace(functionParametersJson))
         {
@@ -619,8 +620,11 @@ public partial class AIStoryteller
 
     internal static bool IsNoopOnlyFunctionCallBatch(IEnumerable<string?> functionNames)
     {
-        List<string> names = functionNames.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-        return names.Any() && names.All(x => x!.EqualTo("Noop"));
+        List<string> names = functionNames
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x!)
+            .ToList();
+        return names.Any() && names.All(x => x.EqualTo("Noop"));
     }
 
     private void ExecuteToolCall(ResponsesClient client, List<ResponseItem> messages, bool includeEchoTools,
@@ -698,7 +702,7 @@ Missing tool-call retry {missingToolCallRetries:N0}/{MaxMissingToolCallRetries:N
                     functionCalls.Select(x => (
                         x.CallId.IfNullOrWhiteSpace(x.Id),
                         x.FunctionName,
-                        x.FunctionArguments.ToString())),
+                        (string?)x.FunctionArguments.ToString())),
                     includeEchoTools,
                     messages,
                     malformedRetries);
@@ -764,7 +768,7 @@ Missing tool-call retry {missingToolCallRetries:N0}/{MaxMissingToolCallRetries:N
         int malformedRetries)
     {
         bool malformedThisRound = false;
-        foreach ((string CallId, string FunctionName, string ArgumentsJson) functionCall in functionCalls)
+        foreach ((string CallId, string FunctionName, string? ArgumentsJson) functionCall in functionCalls)
         {
             string callId = string.IsNullOrWhiteSpace(functionCall.CallId)
                 ? Guid.NewGuid().ToString("N")
@@ -868,9 +872,9 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
         }
     }
 
-    private ToolExecutionResult SuccessResult(object payload)
+    private ToolExecutionResult SuccessResult(object? payload)
     {
-        return new ToolExecutionResult(JsonSerializer.Serialize(new Dictionary<string, object>
+        return new ToolExecutionResult(JsonSerializer.Serialize(new Dictionary<string, object?>
         {
             ["ok"] = true,
             ["result"] = ConvertToToolOutputValue(payload)
@@ -916,7 +920,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
         if (hasCharacterScope)
         {
-            ICharacter character = Gameworld.TryGetCharacter(parsedCharacterId, true);
+            ICharacter? character = Gameworld.TryGetCharacter(parsedCharacterId, true);
             if (character is null)
             {
                 error = $"No character with id {parsedCharacterId:N0} exists.";
@@ -930,7 +934,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
         if (hasRoomScope)
         {
-            ICell room = Gameworld.Cells.Get(parsedRoomId);
+            ICell? room = Gameworld.Cells.Get(parsedRoomId);
             if (room is null)
             {
                 error = $"No room with id {parsedRoomId:N0} exists.";
@@ -944,7 +948,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
         return true;
     }
 
-    private static void AddSituationScopeToPayload(IDictionary<string, object> payload, IAIStorytellerSituation situation)
+    private static void AddSituationScopeToPayload(IDictionary<string, object?> payload, IAIStorytellerSituation situation)
     {
         payload["CharacterId"] = situation.ScopeCharacterId;
         payload["RoomId"] = situation.ScopeRoomId;
@@ -970,7 +974,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
         AIStorytellerSituation situation = new(Gameworld, this, title, description, scopeCharacterId, scopeRoomId);
         _situations.Add(situation);
-        Dictionary<string, object> payload = new()
+        Dictionary<string, object?> payload = new()
         {
             ["Id"] = situation.Id,
             ["Title"] = situation.Name,
@@ -998,7 +1002,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        IAIStorytellerSituation situation = _situations.FirstOrDefault(x => x.Id == id);
+        IAIStorytellerSituation? situation = _situations.FirstOrDefault(x => x.Id == id);
         if (situation is null)
         {
             return ErrorResult($"No situation with id {id:N0} exists.");
@@ -1016,7 +1020,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             situation.SetScope(scopeCharacterId, scopeRoomId);
         }
 
-        Dictionary<string, object> payload = new()
+        Dictionary<string, object?> payload = new()
         {
             ["Id"] = situation.Id,
             ["Title"] = situation.Name,
@@ -1043,7 +1047,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        IAIStorytellerSituation situation = _situations.FirstOrDefault(x => x.Id == id);
+        IAIStorytellerSituation? situation = _situations.FirstOrDefault(x => x.Id == id);
         if (situation is null)
         {
             return ErrorResult($"No situation with id {id:N0} exists.");
@@ -1062,7 +1066,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
         }
 
         situation.Resolve();
-        Dictionary<string, object> payload = new()
+        Dictionary<string, object?> payload = new()
         {
             ["Id"] = situation.Id,
             ["Title"] = situation.Name,
@@ -1079,13 +1083,13 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        IAIStorytellerSituation situation = _situations.FirstOrDefault(x => x.Id == id);
+        IAIStorytellerSituation? situation = _situations.FirstOrDefault(x => x.Id == id);
         if (situation is null)
         {
             return ErrorResult($"No situation with id {id:N0} exists.");
         }
 
-        Dictionary<string, object> payload = new()
+        Dictionary<string, object?> payload = new()
         {
             ["Id"] = situation.Id,
             ["Title"] = situation.Name,
@@ -1126,7 +1130,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        IAIStorytellerCharacterMemory memory = _characterMemories.FirstOrDefault(x => x.Id == id);
+        IAIStorytellerCharacterMemory? memory = _characterMemories.FirstOrDefault(x => x.Id == id);
         if (memory is null)
         {
             return ErrorResult($"No memory with id {id:N0} exists.");
@@ -1148,7 +1152,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        ICharacter pc = Gameworld.TryGetCharacter(id, true);
+        ICharacter? pc = Gameworld.TryGetCharacter(id, true);
         if (pc is null)
         {
             return ErrorResult($"No player character with id {id:N0} exists.");
@@ -1176,7 +1180,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        ICharacter pc = Gameworld.TryGetCharacter(id, true);
+        ICharacter? pc = Gameworld.TryGetCharacter(id, true);
         if (pc is null)
         {
             return ErrorResult($"No player character with id {id:N0} exists.");
@@ -1249,7 +1253,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        ICharacter player = Gameworld.TryGetCharacter(id, true);
+        ICharacter? player = Gameworld.TryGetCharacter(id, true);
         if (player is null)
         {
             return ErrorResult($"No character with id {id:N0} exists.");
@@ -1282,7 +1286,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        IAIStorytellerCharacterMemory memory = _characterMemories.FirstOrDefault(x => x.Id == id);
+        IAIStorytellerCharacterMemory? memory = _characterMemories.FirstOrDefault(x => x.Id == id);
         if (memory is null)
         {
             return ErrorResult($"No memory with id {id:N0} exists.");
@@ -1303,7 +1307,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        IAIStorytellerCharacterMemory memory = _characterMemories.FirstOrDefault(x => x.Id == id);
+        IAIStorytellerCharacterMemory? memory = _characterMemories.FirstOrDefault(x => x.Id == id);
         if (memory is null)
         {
             return ErrorResult($"No memory with id {id:N0} exists.");
@@ -1321,10 +1325,10 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
     private ToolExecutionResult HandleLandmarks()
     {
         List<Dictionary<string, object>> landmarks = Gameworld.Cells
-            .SelectNotNull(x => x.EffectsOfType<LandmarkEffect>().FirstOrDefault())
+            .SelectMany(x => x.EffectsOfType<LandmarkEffect>())
             .Select(x =>
             {
-                ICell cell = (ICell)x.Owner;
+                ICell cell = (ICell)x.Owner!;
                 return new Dictionary<string, object>
                 {
                     ["Id"] = x.Name,
@@ -1347,8 +1351,8 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        LandmarkEffect landmark = Gameworld.Cells
-            .SelectNotNull(x => x.EffectsOfType<LandmarkEffect>().FirstOrDefault())
+        LandmarkEffect? landmark = Gameworld.Cells
+            .SelectMany(x => x.EffectsOfType<LandmarkEffect>())
             .FirstOrDefault(x => x.Name.EqualTo(landmarkId));
         if (landmark is null)
         {
@@ -1407,13 +1411,13 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        IAIStorytellerReferenceDocument document = Gameworld.AIStorytellerReferenceDocuments.Get(id);
+        IAIStorytellerReferenceDocument? document = Gameworld.AIStorytellerReferenceDocuments.Get(id);
         if (document is null || !IsReferenceDocumentVisibleToStoryteller(document))
         {
             return ErrorResult($"No visible reference document with id {id:N0} exists.");
         }
 
-        AIStorytellerReferenceDocument concrete = document as AIStorytellerReferenceDocument;
+        AIStorytellerReferenceDocument? concrete = document as AIStorytellerReferenceDocument;
         return SuccessResult(new Dictionary<string, object>
         {
             ["Id"] = document.Id,
@@ -1535,13 +1539,13 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        ICell origin = Gameworld.Cells.Get(originRoomId);
+        ICell? origin = Gameworld.Cells.Get(originRoomId);
         if (origin is null)
         {
             return ErrorResult($"No room with id {originRoomId:N0} exists.");
         }
 
-        ICell destination = Gameworld.Cells.Get(destinationRoomId);
+        ICell? destination = Gameworld.Cells.Get(destinationRoomId);
         if (destination is null)
         {
             return ErrorResult($"No room with id {destinationRoomId:N0} exists.");
@@ -1583,7 +1587,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        ICharacter originCharacter = Gameworld.TryGetCharacter(originCharacterId, true);
+        ICharacter? originCharacter = Gameworld.TryGetCharacter(originCharacterId, true);
         if (originCharacter is null)
         {
             return ErrorResult($"No character with id {originCharacterId:N0} exists.");
@@ -1594,7 +1598,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult($"Character {originCharacterId:N0} has no location.");
         }
 
-        ICell destination = Gameworld.Cells.Get(destinationRoomId);
+        ICell? destination = Gameworld.Cells.Get(destinationRoomId);
         if (destination is null)
         {
             return ErrorResult($"No room with id {destinationRoomId:N0} exists.");
@@ -1637,7 +1641,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        ICharacter originCharacter = Gameworld.TryGetCharacter(originCharacterId, true);
+        ICharacter? originCharacter = Gameworld.TryGetCharacter(originCharacterId, true);
         if (originCharacter is null)
         {
             return ErrorResult($"No character with id {originCharacterId:N0} exists.");
@@ -1648,7 +1652,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult($"Character {originCharacterId:N0} has no location.");
         }
 
-        ICharacter destinationCharacter = Gameworld.TryGetCharacter(destinationCharacterId, true);
+        ICharacter? destinationCharacter = Gameworld.TryGetCharacter(destinationCharacterId, true);
         if (destinationCharacter is null)
         {
             return ErrorResult($"No character with id {destinationCharacterId:N0} exists.");
@@ -1720,13 +1724,13 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        ICharacter target = Gameworld.TryGetCharacter(id, true);
+        ICharacter? target = Gameworld.TryGetCharacter(id, true);
         if (target is null)
         {
             return ErrorResult($"No character with id {id:N0} exists.");
         }
 
-        RecentlyUpdatedPlan recentPlanEffect = target.EffectsOfType<RecentlyUpdatedPlan>().FirstOrDefault();
+        RecentlyUpdatedPlan? recentPlanEffect = target.EffectsOfType<RecentlyUpdatedPlan>().FirstOrDefault();
         TimeSpan updatedAgo = recentPlanEffect is not null ? target.ScheduledDuration(recentPlanEffect) : TimeSpan.Zero;
         TimeSpan windowRemaining = recentPlanEffect is not null ? TimeSpan.FromDays(90) - updatedAgo : TimeSpan.Zero;
 
@@ -1756,7 +1760,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
         return GetStorytellerMonitoredCells()
             .SelectMany(cell =>
                 cell.Calendars.Select(calendar =>
-                    (Calendar: calendar, Clock: calendar.FeedClock, TimeZone: cell.TimeZone(calendar.FeedClock), ContextCell: cell)))
+                    (Calendar: calendar, Clock: calendar.FeedClock, TimeZone: cell.TimeZone(calendar.FeedClock), ContextCell: (ICell?)cell)))
             .GroupBy(x => (x.Calendar.Id, x.Clock.Id, x.TimeZone.Id))
             .Select(x => x.First())
             .ToList();
@@ -1788,7 +1792,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
     private ToolExecutionResult HandleCurrentDateTime()
     {
-        List<(ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, ICell ContextCell)> contexts = GetDateTimeContexts();
+        List<(ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, ICell? ContextCell)> contexts = GetDateTimeContexts();
         if (!contexts.Any())
         {
             return ErrorResult("There are no monitored rooms to evaluate date and time for.");
@@ -1800,7 +1804,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
                 "Multiple calendar/clock/timezone contexts are in use. Use DateTimeForTarget with CharacterId or RoomId.");
         }
 
-        (ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, ICell ContextCell) context = contexts[0];
+        (ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, ICell? ContextCell) context = contexts[0];
         if (context.ContextCell is null)
         {
             return ErrorResult("Unable to resolve a monitored room context for current date and time.");
@@ -1825,7 +1829,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
         if (hasCharacter)
         {
-            ICharacter character = Gameworld.TryGetCharacter(characterId, true);
+            ICharacter? character = Gameworld.TryGetCharacter(characterId, true);
             if (character is null)
             {
                 return ErrorResult($"No character with id {characterId:N0} exists.");
@@ -1836,13 +1840,13 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
                 return ErrorResult($"Character {characterId:N0} has no location.");
             }
 
-            ICalendar calendar = character.Location.Calendars.FirstOrDefault();
+            ICalendar? calendar = character.Location.Calendars.FirstOrDefault();
             if (calendar is null)
             {
                 return ErrorResult($"Character {characterId:N0} location has no calendar.");
             }
 
-            Dictionary<string, object> result = BuildDateTimeResult(character.Location, calendar);
+            Dictionary<string, object?> result = BuildDateTimeResult(character.Location, calendar);
             result["CharacterId"] = character.Id;
             result["CharacterName"] = character.PersonalName.GetName(NameStyle.FullName);
             result["RoomId"] = character.Location.Id;
@@ -1850,19 +1854,19 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return SuccessResult(result);
         }
 
-        ICell room = Gameworld.Cells.Get(roomId);
+        ICell? room = Gameworld.Cells.Get(roomId);
         if (room is null)
         {
             return ErrorResult($"No room with id {roomId:N0} exists.");
         }
 
-        ICalendar roomCalendar = room.Calendars.FirstOrDefault();
+        ICalendar? roomCalendar = room.Calendars.FirstOrDefault();
         if (roomCalendar is null)
         {
             return ErrorResult($"Room {roomId:N0} has no calendar.");
         }
 
-        Dictionary<string, object> roomResult = BuildDateTimeResult(room, roomCalendar);
+        Dictionary<string, object?> roomResult = BuildDateTimeResult(room, roomCalendar);
         roomResult["RoomId"] = room.Id;
         roomResult["RoomName"] = room.HowSeen(null, colour: false);
         return SuccessResult(roomResult);
@@ -1875,7 +1879,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        ICalendar calendar = Gameworld.Calendars.GetByIdOrNames(calendarId);
+        ICalendar? calendar = Gameworld.Calendars.GetByIdOrNames(calendarId);
         if (calendar is null)
         {
             return ErrorResult($"No calendar identified by '{calendarId}' exists.");
@@ -2001,7 +2005,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
     private ToolExecutionResult HandleCustomFunctionCall(string functionName, JsonElement arguments,
         bool includeEchoTools)
     {
-        AIStorytellerCustomToolCall toolCall = CustomToolCalls.FirstOrDefault(x => x.Name.EqualTo(functionName));
+        AIStorytellerCustomToolCall? toolCall = CustomToolCalls.FirstOrDefault(x => x.Name.EqualTo(functionName));
         if (toolCall is null && includeEchoTools)
         {
             toolCall = CustomToolCallsEchoOnly.FirstOrDefault(x => x.Name.EqualTo(functionName));
@@ -2023,7 +2027,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
                 $"Custom tool '{functionName}' is invalid because its prog does not compile.");
         }
 
-        List<object> progArguments = new();
+        List<object?> progArguments = new();
         foreach ((ProgVariableTypes parameterType, string parameterName) in toolCall.Prog.NamedParameters)
         {
             if (!arguments.TryGetProperty(parameterName, out JsonElement argumentValue))
@@ -2031,7 +2035,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
                 return ErrorResult($"Missing required custom-tool parameter '{parameterName}'.");
             }
 
-            if (!TryConvertJsonArgument(argumentValue, parameterType, out object convertedValue, out string error))
+            if (!TryConvertJsonArgument(argumentValue, parameterType, out object? convertedValue, out string error))
             {
                 return ErrorResult(error);
             }
@@ -2039,8 +2043,8 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             progArguments.Add(convertedValue);
         }
 
-        object result = toolCall.Prog.ExecuteWithRecursionProtection(progArguments.ToArray());
-        return SuccessResult(new Dictionary<string, object>
+        object? result = toolCall.Prog.ExecuteWithRecursionProtection(progArguments.ToArray());
+        return SuccessResult(new Dictionary<string, object?>
         {
             ["Function"] = functionName,
             ["ReturnType"] = toolCall.Prog.ReturnType.Describe(),
@@ -2066,7 +2070,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
                 return mudDateTime.ToString();
             case IDictionary dictionary:
                 {
-                    Dictionary<string, object> result = new();
+                    Dictionary<string, object?> result = new();
                     foreach (DictionaryEntry entry in dictionary)
                     {
                         result[entry.Key?.ToString() ?? string.Empty] = ConvertToToolOutputValue(entry.Value);
@@ -2076,8 +2080,8 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
                 }
             case IEnumerable enumerable when value is not string:
                 {
-                    List<object> list = new();
-                    foreach (object item in enumerable)
+                    List<object?> list = new();
+                    foreach (object? item in enumerable)
                     {
                         list.Add(ConvertToToolOutputValue(item));
                     }

@@ -328,8 +328,8 @@ public class ArenaParticipantAI : PathingAIBase
             return true;
         }
 
-        int rangedRange = character.Body.WieldedItems
-            .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+        int rangedRange = character.Body!.WieldedItems
+            .SelectNotNull(x => x!.GetItemType<IRangedWeapon>())
             .Where(x => x.IsReadied || x.CanReady(character))
             .Select(x => (int)x.WeaponType.DefaultRangeInRooms)
             .DefaultIfEmpty(0)
@@ -378,15 +378,15 @@ public class ArenaParticipantAI : PathingAIBase
             character.OutputHandler.Send(new EmoteOutput(new Emote(EngageEmote, character, character, target)));
         }
 
-        bool shouldUseRanged = character.Body.WieldedItems
-            .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+        bool shouldUseRanged = character.Body!.WieldedItems
+            .SelectNotNull(x => x!.GetItemType<IRangedWeapon>())
             .Any(x => x.IsReadied || x.CanReady(character));
         character.Engage(target, shouldUseRanged);
     }
 
     private static void TryReadyWeapons(ICharacter character)
     {
-        foreach (IRangedWeapon? weapon in character.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>()))
+        foreach (IRangedWeapon weapon in character.Body!.WieldedItems.SelectNotNull(x => x!.GetItemType<IRangedWeapon>()))
         {
             if (!weapon.IsReadied && weapon.CanReady(character))
             {
@@ -402,7 +402,7 @@ public class ArenaParticipantAI : PathingAIBase
         return prepEffect is not null && ch.Combat is null;
     }
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         ArenaNpcPreparationEffect? prepEffect = ch.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
             .FirstOrDefault(x => x.IsParticipating);

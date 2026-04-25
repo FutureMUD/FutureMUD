@@ -47,8 +47,8 @@ public sealed class ScarTemplateExport
             SizeSteps = source.SizeSteps,
             Distinctiveness = source.Distinctiveness,
             DamageHealingScarChance = source.DamageHealingScarChance,
-            DamageTypes = source.DamageTypes.ToDictionary(x => x.Key, x => x.Value),
-            BodypartShapeNames = source.BodypartShapeNames.ToList()
+            DamageTypes = source.DamageTypes?.ToDictionary(x => x.Key, x => x.Value) ?? new(),
+            BodypartShapeNames = source.BodypartShapeNames?.ToList() ?? new()
         };
     }
 }

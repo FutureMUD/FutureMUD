@@ -26,6 +26,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
+#nullable enable
+
 namespace MudSharp.CharacterCreation
 {
     public interface ICharacterTemplate : IProgVariable, IHaveFuturemud, IHaveTraits, IHaveCharacteristics
@@ -98,7 +100,7 @@ namespace MudSharp.CharacterCreation
         }
 
         string IHaveCharacteristics.DescribeCharacteristic(ICharacteristicDefinition definition, IPerceiver voyeur,
-            CharacteristicDescriptionType type = CharacteristicDescriptionType.Normal)
+            CharacteristicDescriptionType type)
         {
             ICharacteristicValue characteristic = GetCharacteristic(definition, voyeur);
             switch (type)
@@ -124,7 +126,7 @@ namespace MudSharp.CharacterCreation
 
         IObscureCharacteristics IHaveCharacteristics.GetObscurer(ICharacteristicDefinition type, IPerceiver voyeur)
         {
-            return null;
+            return null!;
         }
 
         Tuple<ICharacteristicDefinition, CharacteristicDescriptionType> IHaveCharacteristics.GetCharacteristicDefinition(string pattern)
@@ -136,26 +138,26 @@ namespace MudSharp.CharacterCreation
             {
                 type =
                     CharacteristicDefinitions.FirstOrDefault(
-                        x => x.Pattern.IsMatch(IHaveCharacteristicsExtensions.BasicCharacteristicRegex.Match(pattern).Groups[1].Value));
+                        x => x.Pattern.IsMatch(IHaveCharacteristicsExtensions.BasicCharacteristicRegex.Match(pattern).Groups[1].Value))!;
                 descType = CharacteristicDescriptionType.Basic;
             }
             else if (IHaveCharacteristicsExtensions.FancyCharacteristicRegex.IsMatch(pattern))
             {
                 type =
                     CharacteristicDefinitions.FirstOrDefault(
-                        x => x.Pattern.IsMatch(IHaveCharacteristicsExtensions.FancyCharacteristicRegex.Match(pattern).Groups[1].Value));
+                        x => x.Pattern.IsMatch(IHaveCharacteristicsExtensions.FancyCharacteristicRegex.Match(pattern).Groups[1].Value))!;
                 descType = CharacteristicDescriptionType.Fancy;
             }
             else
             {
-                type = CharacteristicDefinitions.FirstOrDefault(x => x.Pattern.IsMatch(pattern));
+                type = CharacteristicDefinitions.FirstOrDefault(x => x.Pattern.IsMatch(pattern))!;
             }
 
             if (type == null)
             {
                 return pattern.ToLowerInvariant() == "height"
                     ? Tuple.Create(Gameworld.RelativeHeightDescriptors.Ranges.First().Value.Definition, descType)
-                    : Tuple.Create((ICharacteristicDefinition)null, descType);
+                    : Tuple.Create((ICharacteristicDefinition)null!, descType);
             }
 
             return Tuple.Create(type, descType);

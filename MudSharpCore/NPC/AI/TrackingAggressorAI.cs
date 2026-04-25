@@ -1,4 +1,6 @@
-﻿using MudSharp.Character;
+#nullable enable annotations
+
+using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -418,7 +420,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
         RegisterAIBuilderInformation("trackingaggressor", (game, name) => new TrackingAggressorAI(game, name), new TrackingAggressorAI().HelpText);
     }
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         Tuple<IPerceivable, IEnumerable<ICellExit>> target = ch.AcquireTargetAndPath(GetTargetFunction(ch), MaximumRange, GetSuitabilityFunction(ch));
         if (target.Item1 == null || !target.Item2.Any())

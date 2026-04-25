@@ -31,7 +31,7 @@ public class SpellChangeCharacteristicEffect : MagicSpellEffectBase, IChangeChar
     protected SpellChangeCharacteristicEffect(XElement root, IPerceivable owner) : base(root, owner)
     {
         XElement? trueRoot = root.Element("Effect");
-        long value = long.Parse(trueRoot.Element("ChangedValue").Value);
+        long value = long.Parse(trueRoot!.Element("ChangedValue")!.Value);
         _changedValueId = value;
     }
 

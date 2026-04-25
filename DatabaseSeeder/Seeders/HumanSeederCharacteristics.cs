@@ -1099,7 +1099,7 @@ return @bmi > 24 and @bmi < 35"
             });
         }
 
-        void AddCharacteristicValue(long id, CharacteristicDefinition definition, string name, string value, string additionalValue, FutureProg prog = null, bool isDefault = false, int pluralisation = 0)
+		void AddCharacteristicValue(long id, CharacteristicDefinition definition, string name, string value, string additionalValue, FutureProg? prog = null, bool isDefault = false, int pluralisation = 0)
         {
             _context.CharacteristicValues.Add(new CharacteristicValue
             {

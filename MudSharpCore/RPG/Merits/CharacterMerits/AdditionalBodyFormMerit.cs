@@ -51,7 +51,7 @@ public class AdditionalBodyFormMerit : CharacterMeritBase, IAdditionalBodyFormMe
 		: base(merit, gameworld)
 	{
 		var definition = XElement.Parse(merit.Definition);
-		_race = gameworld.Races.Get(long.Parse(definition.Element("Race")?.Value ?? "0"));
+		_race = gameworld.Races.Get(long.Parse(definition.Element("Race")?.Value ?? "0"))!;
 		_ethnicity = gameworld.Ethnicities.Get(long.Parse(definition.Element("Ethnicity")?.Value ?? "0"));
 		if (int.TryParse(definition.Element("Gender")?.Value, out var genderValue))
 		{

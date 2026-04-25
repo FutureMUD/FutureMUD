@@ -111,36 +111,6 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
             return target;
         }
 
-        int range = path.Count();
-        if (target.IsEngagedInMelee)
-        {
-            IEnumerable<IPerceiver> proximity = target.Combat.MeleeProximityOfCombatant(target);
-        }
-
-        bool canScatterMelee = true,
-            canScatterSameCover = false,
-            canScatterSameRoom = false,
-            canScatterDifferentRoom = false;
-        switch (shotOutcome)
-        {
-            case Outcome.MajorPass:
-                // Major Passes can only scatter in melee
-                break;
-            case Outcome.Pass:
-                // Passes add in the possibility of hitting someone else in the same cover
-                canScatterSameCover = true;
-                break;
-            case Outcome.MinorPass:
-                canScatterSameCover = true;
-                canScatterSameRoom = true;
-                break;
-            default:
-                canScatterSameCover = true;
-                canScatterSameRoom = true;
-                canScatterDifferentRoom = true;
-                break;
-        }
-
         return target;
     }
 

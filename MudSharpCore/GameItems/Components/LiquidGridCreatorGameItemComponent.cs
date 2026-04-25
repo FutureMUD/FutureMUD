@@ -25,7 +25,7 @@ public class LiquidGridCreatorGameItemComponent : GameItemComponent
         _prototype = (LiquidGridCreatorGameItemComponentProto)newProto;
     }
 
-    public ILiquidGrid Grid { get; protected set; }
+    public ILiquidGrid Grid { get; protected set; } = null!;
 
     public LiquidGridCreatorGameItemComponent(LiquidGridCreatorGameItemComponentProto proto, IGameItem parent,
         ICharacter? loader, bool temporary = false) : base(parent, proto, temporary)

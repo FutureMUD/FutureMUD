@@ -1,7 +1,9 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
+
+#nullable enable annotations
 
 namespace MudSharp.Body
 {
@@ -23,10 +25,10 @@ namespace MudSharp.Body
         void Close(IOpenable openable, ICharacter openableOwner, IEmote playerEmote);
 
         bool CanConnect(IConnectable connectable, IConnectable other);
-        bool Connect(IConnectable connectable, IConnectable other, IPerceivable ownerConnectable = null, IPerceivable ownerOther = null, IEmote playerEmote = null);
+        bool Connect(IConnectable connectable, IConnectable other, IPerceivable ownerConnectable = null, IPerceivable ownerOther = null, IEmote? playerEmote = null);
         string WhyCannotConnect(IConnectable connectable, IConnectable other);
         bool CanDisconnect(IConnectable connectable, IConnectable other);
-        bool Disconnect(IConnectable connectable, IConnectable other, IPerceivable ownerConnectable = null, IPerceivable ownerOther = null, IEmote playerEmote = null);
+        bool Disconnect(IConnectable connectable, IConnectable other, IPerceivable ownerConnectable = null, IPerceivable ownerOther = null, IEmote? playerEmote = null);
         string WhyCannotDisconnect(IConnectable connectable, IConnectable other);
     }
 }

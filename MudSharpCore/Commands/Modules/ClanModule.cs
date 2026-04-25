@@ -38,6 +38,9 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using Appointment = MudSharp.Models.Appointment;
 using ClanMembership = MudSharp.Community.ClanMembership;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Commands.Modules;
 
 public class ClanModule : Module<ICharacter>

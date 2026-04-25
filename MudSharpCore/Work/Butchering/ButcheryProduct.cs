@@ -216,8 +216,6 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
                 actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
                 return true;
         }
-
-        return false;
     }
 
     private bool BuildingCommandItem(ICharacter actor, StringStack command)

@@ -4,6 +4,9 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using System.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Framework;
 
 public class Tag : SaveableItem, ILoadingTag

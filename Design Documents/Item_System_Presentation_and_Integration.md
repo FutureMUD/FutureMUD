@@ -33,6 +33,7 @@ Examples include:
 - containers showing fullness, open state, and contents
 - locks or connections contributing extra information
 - connector-driven items showing their current grid membership and physical links
+- stable tickets showing the lodged mount, stable, lodger, and current outstanding fees when the ticket still points at an active stay
 - effects such as glow adding descriptive layers through adjacent systems
 
 ### Decoration ordering

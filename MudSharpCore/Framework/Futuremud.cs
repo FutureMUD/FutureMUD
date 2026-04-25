@@ -957,6 +957,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         _shops.Add(shop);
     }
 
+    public void Add(IStable stable)
+    {
+        _stables.Add(stable);
+    }
+
     public void Add(IEconomicZone zone)
     {
         _economicZones.Add(zone);
@@ -1858,6 +1863,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IShop shop)
     {
         _shops.Remove(shop);
+    }
+
+    public void Destroy(IStable stable)
+    {
+        _stables.Remove(stable);
     }
 
     public void Destroy(IEconomicZone zone)

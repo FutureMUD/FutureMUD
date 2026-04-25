@@ -249,6 +249,7 @@ namespace MudSharp.Framework
         IUneditableAll<IShopper> Shoppers { get; }
         IUneditableAll<ISkyDescriptionTemplate> SkyDescriptionTemplates { get; }
         IUneditableAll<IStackDecorator> StackDecorators { get; }
+        IUneditableAll<IStable> Stables { get; }
         IUneditableAll<ISurgicalProcedure> SurgicalProcedures { get; }
         IUneditableAll<ITag> Tags { get; }
         IUneditableAll<ITerrain> Terrains { get; }
@@ -445,6 +446,7 @@ namespace MudSharp.Framework
         void Add(IActiveProject project);
         void Add(IProject project);
         void Add(IShop shop);
+        void Add(IStable stable);
         void Add(IEconomicZone zone);
         void Add(IArea area);
         void Add(IClimateModel model);
@@ -585,6 +587,7 @@ namespace MudSharp.Framework
         void Destroy(IDisfigurementTemplate template);
         void Destroy(IActiveProject project);
         void Destroy(IShop shop);
+        void Destroy(IStable stable);
         void Destroy(ICombatArena arena);
         void Destroy(IEconomicZone zone);
         void Destroy(IArea area);

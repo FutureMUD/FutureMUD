@@ -224,6 +224,18 @@ Some components are framework primitives rather than normal builder-authored com
 
 Do not use these as the model for a normal component authoring flow.
 
+### Singleton system item components
+Some components exist only so a runtime subsystem can generate trusted items. These should be stricter than ordinary read-only components.
+
+`StableTicketGameItemComponentProto` is the current reference pattern:
+- it registers a database loader, but no builder loader
+- it is read-only and sets `PreventManualLoad`
+- `InitialiseItemType(IFuturemud)` auto-creates the singleton component prototype and item prototype if they are missing
+- the generated item prototype is also read-only, so builders cannot create or revise ticket definitions by hand
+- live tickets are created through `CreateNewStableTicket(IStableStay)`, not through `item load` or component editing
+
+Use this pattern for system-generated authority tokens where copied or hand-authored items would be a security problem. Runtime validation should bind the item to persistent system state, as stable tickets do with stay id, ticket item id, and a random token.
+
 ### When to add custom initialisation
 If a component type must always exist or must be created programmatically for engine reasons, provide a static initialiser such as `InitialiseItemType(...)` in addition to normal registration.
 

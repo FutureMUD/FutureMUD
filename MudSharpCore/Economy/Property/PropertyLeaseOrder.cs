@@ -189,6 +189,7 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
             if (oldLease.Leaseholder is ICharacter leaseholder)
             {
                 Property.ClaimShops(leaseholder);
+                Property.ClaimStables(leaseholder);
             }
             return;
         }

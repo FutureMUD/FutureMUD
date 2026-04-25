@@ -64,7 +64,7 @@ using AuctionBid = MudSharp.Economy.AuctionBid;
 
 namespace MudSharp.Commands.Modules;
 
-internal class EconomyModule : Module<ICharacter>
+internal partial class EconomyModule : Module<ICharacter>
 {
     private EconomyModule()
         : base("Economy")

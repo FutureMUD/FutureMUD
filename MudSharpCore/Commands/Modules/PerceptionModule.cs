@@ -220,6 +220,12 @@ The syntax is simply #3survey#0.", AutoHelp.HelpArg)]
             sb.AppendLine($"This location is an auction house called {auctionHouse.Name.ColourName()}.");
         }
 
+        IStable stable = actor.Gameworld.Stables.FirstOrDefault(x => x.Location == actor.Location);
+        if (stable != null)
+        {
+            sb.AppendLine($"This location is a stable called {stable.Name.ColourName()}.");
+        }
+
         IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
         if (ez != null)
         {

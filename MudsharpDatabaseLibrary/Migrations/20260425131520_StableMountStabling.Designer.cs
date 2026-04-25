@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260425131520_StableMountStabling")]
+    partial class StableMountStabling
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -13813,12 +13816,6 @@ namespace MudSharp.Migrations
                     b.Property<long>("EconomicZoneId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<string>("HotelDefinition")
-                        .HasColumnType("text")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("HotelDefinition"), "utf8");
-
                     b.Property<string>("LastChangeOfOwnership")
                         .IsRequired()
                         .HasColumnType("varchar(100)")
@@ -16840,11 +16837,6 @@ namespace MudSharp.Migrations
 
                     b.Property<long>("ForagableProfileId")
                         .HasColumnType("bigint(20)");
-
-                    b.Property<int>("GravityModel")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int(11)")
-                        .HasDefaultValue(0);
 
                     b.Property<int>("HideDifficulty")
                         .HasColumnType("int(11)");

@@ -9,6 +9,7 @@ namespace MudSharp.Database
         {
             ConfigureCharacterComputerWorkspace(modelBuilder);
             ConfigureComputerMail(modelBuilder);
+            ConfigureStables(modelBuilder);
 
             modelBuilder.Entity<ShopDeal>(entity =>
             {

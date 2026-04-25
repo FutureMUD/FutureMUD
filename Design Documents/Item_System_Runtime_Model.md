@@ -445,6 +445,13 @@ Not every component type behaves like a normal editable component proto.
 - it is auto-initialised through a static `InitialiseItemType`
 - it is used as an always-available foundational capability when configured by world settings
 
+`StableTicketGameItemComponentProto` is a stricter singleton example:
+- it is auto-created by `InitialiseItemType(IFuturemud)` when missing
+- it registers only the database loader, not a builder loader
+- it is read-only and prevents manual loading
+- its generated item prototype is read-only
+- live ticket components persist the stable stay id, the ticket item id, and a random token so copied or stale tickets are invalid without needing to delete the physical item
+
 When documenting or extending the system, treat these as framework-level special cases rather than normal builder-authored component content.
 
 ## Practical Guidance

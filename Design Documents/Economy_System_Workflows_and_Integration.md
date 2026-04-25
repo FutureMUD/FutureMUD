@@ -48,12 +48,13 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 6. Create a bank if the world needs account-backed payments, property ownership, shop floats, or auction settlement.
 7. Add bank account types before expecting players, clans, or shops to use accounts meaningfully.
 8. Create at least one shop or other money sink/source if the world needs day-to-day commerce.
-9. Point relevant shops at a market if pricing should reflect macroeconomic pressure rather than fixed local pricing only.
-10. Add job-finding cells, jobs, and employers if the world will use the employment system.
-11. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
-12. Decide whether estates are enabled for each zone, then add probate offices if players should interact with estates in the zone.
-13. Add morgue office and morgue storage cells if the world will use corpse recovery and morgue claim workflows.
-14. For hotel-style short stays, configure property-backed hotel rooms after banks and properties exist, then add hotel taxes to the economic zone if rentals should be taxed.
+9. Create stables in cells where players should be able to lodge mounts, if the game uses mounted travel.
+10. Point relevant shops at a market if pricing should reflect macroeconomic pressure rather than fixed local pricing only.
+11. Add job-finding cells, jobs, and employers if the world will use the employment system.
+12. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
+13. For hotel-style short stays, configure property-backed hotel rooms after banks and properties exist, then add hotel taxes to the economic zone if rentals should be taxed.
+14. Decide whether estates are enabled for each zone, then add probate offices if players should interact with estates in the zone.
+15. Add morgue office and morgue storage cells if the world will use corpse recovery and morgue claim workflows.
 
 ### Why this order fits the current implementation
 - currencies are prerequisites for almost every downstream object
@@ -62,6 +63,7 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 - banks unlock multiple other systems, including payment instruments and property administration
 - markets, shoppers, and jobs all assume earlier layers already exist
 - property and auctions depend heavily on cells, banks, and world-specific content
+- stables depend on mount-supporting cells, stable fee policy, and a stable bank account
 - hotel room rentals depend on property cells, property keys, bank accounts, auction houses for lost-property disposal, and optional estate setup for inherited claims
 
 ## What Builders Still Need To Hand-Build
@@ -80,6 +82,7 @@ Even with the existing abstractions, much of the economy remains world-authored 
 - shopper selection and item-choice progs beyond the stock tag-driven templates
 - auction houses
 - property portfolios and location mapping
+- stables, stable fee policy, and stable access rules
 - hotel rooms, hotel bank accounts, furnishings, and lost-property retention rules
 - jobs, employers, and eligibility logic
 
@@ -195,6 +198,22 @@ Current payment methods already support:
 - other cash handling paths
 - bank-payment items backed by bank accounts
 - line of credit
+
+### Stables and Mount Lodging
+Stables are cell-based economy venues for NPC mounts.
+
+Builders need:
+
+- a cell for the stable service point
+- an economic zone
+- a bank account in the zone currency
+- fixed lodge and daily fees, or FutureProgs that return those fees from `(mount, owner)`
+- optional access and rejection-text FutureProgs using `(customer, mount)`
+- managers or proprietors if non-admin characters should operate the stable
+
+Player workflows are surfaced through `stable`, `stable quote`, `stable lodge`, `stable redeem`, `stable accountstatus`, and `stable payaccount`. Lodging issues a system-generated stable ticket item and removes the mount from the active world. Redeeming checks the ticket's stay id, item id, and token, then requires any outstanding fees to be settled before the mount is logged back into the stable cell.
+
+Manager workflows include active/history lists, stay inspection, ticketless release, fee setup, account setup, employee management, bank-account assignment, open/close state, and access-prog setup. A property sale or lease can claim stables in the property for the single character controller in the same operational style as property shops.
 
 ### Auctions
 Auction houses currently fit worlds that want formal auction spaces separate from ordinary shops.

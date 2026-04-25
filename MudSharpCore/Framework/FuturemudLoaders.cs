@@ -30,6 +30,7 @@ using MudSharp.Economy;
 using MudSharp.Economy.Auctions;
 using MudSharp.Economy.Employment;
 using MudSharp.Economy.Shoppers;
+using MudSharp.Economy.Stables;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Email;
@@ -1114,6 +1115,29 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
         count = shops.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Shop" : "Shops");
+
+        ConsoleUtilities.WriteLine("\nLoading #5Stables#0...");
+#if DEBUG
+        sw.Restart();
+#endif
+        List<Models.Stable> stables = FMDB.Context.Stables
+                        .Include(x => x.Stays)
+                        .ThenInclude(x => x.LedgerEntries)
+                        .Include(x => x.StableAccounts)
+                        .ThenInclude(x => x.AccountUsers)
+                        .AsSplitQuery()
+                        .AsNoTracking()
+                        .ToList();
+        foreach (Models.Stable stable in stables)
+        {
+            _stables.Add(new Economy.Stables.Stable(stable, this));
+        }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        count = stables.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Stable" : "Stables");
 
         ConsoleUtilities.WriteLine("\nLoading #5Estates#0...");
 #if DEBUG

@@ -62,11 +62,13 @@ Current rerun behavior for `EconomySeeder` is additive and repair-friendly:
 
 ### What is not currently seeded as a dedicated economy package
 - taxes
+- hotel tax presets
 - banks
 - bank account types
 - shops
 - auction houses
 - property
+- hotel-room rental setups
 - employment data
 
 ### Practical implication
@@ -84,7 +86,7 @@ The classifications below are conservative. "Easy" means the current implementat
 | --- | --- | --- |
 | Additional currency packs and pattern packs | Easy | The runtime model is mature, persistence exists, `CurrencySeeder` already establishes the pattern, and currencies are mostly self-contained content |
 | Economic-zone templates | Easy | Economic zones already have a stable constructor and persistence model, and their core fields are clear even if world-specific cells still need follow-up tuning |
-| Stock tax presets | Easy | Tax creation is factory-driven, stock tax types already exist, and common presets can be seeded as content without changing runtime architecture |
+| Stock tax presets | Easy | Tax creation is factory-driven, stock tax types already exist for shop and hotel rental taxes, and common presets can be seeded as content without changing runtime architecture |
 | Bank templates | Easy | Banks already have stable persistence, builder support, and explicit child collections for branches, rates, reserves, and account types |
 | Bank account type templates | Easy | Account types have a stable constructor, clear persistence model, and mature builder-facing configuration for fees, interest, and permission progs |
 | Stock market categories | Easy | Categories are light-weight, persisted, and intended as reusable classification content |
@@ -96,6 +98,7 @@ The classifications below are conservative. "Easy" means the current implementat
 | Auction houses | Possible | The runtime is ready, but auction houses depend on chosen cells and settlement accounts, so they are best seeded only once a world layout exists |
 | Shops | Poor candidate without more design work | The runtime exists, but meaningful shop content depends on cells, stockrooms, tills, merchandise selection, item prototypes, payment items, and world-specific retail design |
 | Properties | Poor candidate without more design work | Property is location-specific, owner-specific, and strongly coupled to the world's map and institutions |
+| Hotel-room rental setups | Poor candidate without more design work | Runtime support exists, but useful hotel content depends on mapped property cells, keys, bank accounts, furnishings, auction houses, and local licensing policy |
 | Estates and morgues | Poor candidate without more design work | The runtime now exists, but setup still depends on world-specific cells, clans, legal authorities, auction houses, and ownership expectations |
 
 ## Easy Seeder Candidates in More Detail
@@ -134,12 +137,15 @@ That makes it straightforward to seed examples such as:
 - VAT-style tax
 - gross-profit tax
 - net-profit tax
+- flat hotel stay tax
+- percentage hotel rental tax
 
 Why it is seed-friendly now:
 
 - tax types are factory-registered
 - applicability is already prog-gated where needed
 - taxes are naturally attached to economic zones as content
+- hotel rental tax policies use the same economic-zone tax authoring pattern as shop taxes
 
 ### Bank templates and account-type templates
 These are practical seeding candidates because the runtime model is already explicit about what a bank needs and what an account type controls.
@@ -239,6 +245,11 @@ Properties are even more world-specific because the seeded content would need to
 - what is for sale
 - what is for lease
 - how keys and access are distributed
+- which properties are approved hotels
+- which property cells are rentable rooms
+- which items count as furnishings for deposit claims
+- which bank account receives room rent, deposits, and tax remittance
+- which auction house should receive abandoned lost-property bundles
 
 ### Estates and Morgues
 Estates and morgues remain a poor seeder candidate, but for a different reason than before: the runtime exists and is operational, yet the configuration is highly institutional and map-specific.

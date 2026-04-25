@@ -42,6 +42,7 @@ The economy system is loaded late in the boot sequence, after the world, future 
 - markets refresh their cached category-pricing snapshots on that same hourly cadence before population heartbeats run
 - shops run hourly automatic tax payment through `Shop.DoAutopayShopTaxes`
 - economic zones schedule financial-period closure using in-game date listeners rather than a fixed real-time scheduler
+- approved hotel-room rental state on properties is checked by property-owned heartbeat logic, which completes expired stays and advances unclaimed lost-property bundles toward auction or liquidation
 
 This late-load design matters because much of the economy depends on other loaded data:
 
@@ -77,6 +78,7 @@ An economic zone currently owns or exposes:
 
 - a primary currency
 - sales taxes, profit taxes, and income taxes
+- hotel rental taxes
 - outstanding tax state per shop
 - total held revenue and historical revenue snapshots
 - a current financial period and retained prior periods
@@ -97,6 +99,7 @@ Current verified structure:
 
 - sales taxes derive from `SalesTaxBase`
 - profit taxes derive from `ProfitTaxBase`
+- hotel taxes implement `IHotelTax`
 - registered stock types are loaded through `TaxFactory`
 - tax applicability can be filtered through FutureProgs
 
@@ -107,8 +110,10 @@ The stock runtime families are:
 - `FlatProfitTax`
 - `GrossProfitTax`
 - `NetProfitTax`
+- `HotelPercentageTax`
+- `HotelFlatTax`
 
-The current implementation ties taxation most directly to shops, financial periods, and economic zones. Legal or civic meaning sits outside the tax classes themselves.
+The current implementation ties taxation most directly to shops, hotel-room rentals, financial periods, and economic zones. Legal or civic meaning sits outside the tax classes themselves.
 
 ### Banking
 Banking is implemented as a fully persisted runtime subsystem rather than a thin abstraction.
@@ -215,6 +220,9 @@ Verified current property entities include:
 - `PropertyLease`
 - `PropertyLeaseOrder`
 - `PropertySaleOrder`
+- `HotelRoom`
+- `HotelRoomRental`
+- `HotelLostProperty`
 
 The current implementation ties property to:
 
@@ -224,10 +232,31 @@ The current implementation ties property to:
 - sale and lease workflows
 - conveyancing cells where player workflows are surfaced
 - bank-account backed money movement for sale or rent collection
+- approved hotel-room rental workflows through the `roomrent` command
 
 Verified load-time constraint:
 
 - property owner consent reconstruction for sale and lease orders matches owners by raw owner id plus owner type, not by dereferencing `PropertyOwner.Owner`
+
+Verified current hotel-room rental behavior:
+
+- hotel-room rental is separate from leasing a whole property but is stored on `Property`
+- a property can request, surrender, or hold an approved hotel license through its `HotelLicenseStatus`
+- economic-zone managers approve requested hotel licenses
+- only approved hotel properties with a configured hotel bank account can rent listed rooms
+- hotel rooms are property cells with their own daily price, security deposit, minimum duration, maximum duration, assigned property keys, and furnishing list
+- property owners or authorised clan property managers configure hotel rooms, room keys, furnishing markers, bans, eligibility progs, lost-property retention, and the hotel bank account through `roomrent`
+- guests pay room rent, security deposit, and calculated hotel taxes up front; the hotel bank account receives the money and the property tracks outstanding hotel taxes until the manager remits them
+- checkout returns held room keys, assesses missing keys and furnishing loss or damage against the deposit, and records any remaining patron balance with the hotel
+- a negative patron balance blocks future rentals at that hotel until paid
+- non-furnishing items left in the room are bundled into hotel lost property, logged out of the world, and can later be claimed by the patron
+- lost-property bundles can be extended or physically released by hotel managers while still held
+- unclaimed lost-property bundles are listed on the zone's estate auction house when one exists, otherwise on another zone auction house if available; if no suitable auction path resolves, the bundle is liquidated for inferred intrinsic value and deleted
+- hotel lost-property bundles are included in estate asset capture when the owner dies, so inherited bundles can be claimed after estate transfer
+
+Persistence note:
+
+- hotel-room rental state is currently serialized into the `Properties.HotelDefinition` XML column rather than split across many new tables
 
 Property therefore sits at the boundary between economy, clans, law, access control, and building.
 
@@ -241,6 +270,7 @@ Current verified runtime characteristics:
 - it routes proceeds into a bank account
 - it is surfaced through economy commands rather than being embedded into shops
 - standard player auction commands now work for both item and property lots, including estate-liquidation property lots whose names are ordinary property names rather than inventory items
+- hotel lost-property bundles can be listed as item lots by the property when their retention period expires
 - player-listed property auctions now sell the listing seller's ownership share in the property, and lot descriptions explicitly call out that they are ownership-share sales rather than sole-control sales
 - winning property-share bids transfer the sold share directly at auction completion without requiring a fixed-price property sale order
 - persisted active and unclaimed lots now defer seller and payout-target resolution until the post-NPC boot finalisation pass, so auction loading no longer materialises characters before jobs are available

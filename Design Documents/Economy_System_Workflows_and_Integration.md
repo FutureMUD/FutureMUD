@@ -17,7 +17,7 @@ The current economy implementation is rich and only partially seed-driven. In pr
 | Surface | Current responsibility |
 | --- | --- |
 | `EconomyModule` | currencies, coins, banks, shops, auctions, jobs, markets, market influences, market categories, market populations, shoppers, player-facing buy and sell operations |
-| `PropertyModule` | property sale, lease, ownership, keys, and conveyancing-facing workflows |
+| `PropertyModule` | property sale, lease, ownership, keys, short-term hotel room rental, and conveyancing-facing workflows |
 | `EditableItemHelperEconomy` | standardized admin creation and editing flows for property, auction houses, banks, coins, and shoppers |
 
 ### Practical implication
@@ -53,6 +53,7 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 11. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
 12. Decide whether estates are enabled for each zone, then add probate offices if players should interact with estates in the zone.
 13. Add morgue office and morgue storage cells if the world will use corpse recovery and morgue claim workflows.
+14. For hotel-style short stays, configure property-backed hotel rooms after banks and properties exist, then add hotel taxes to the economic zone if rentals should be taxed.
 
 ### Why this order fits the current implementation
 - currencies are prerequisites for almost every downstream object
@@ -61,12 +62,14 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 - banks unlock multiple other systems, including payment instruments and property administration
 - markets, shoppers, and jobs all assume earlier layers already exist
 - property and auctions depend heavily on cells, banks, and world-specific content
+- hotel room rentals depend on property cells, property keys, bank accounts, auction houses for lost-property disposal, and optional estate setup for inherited claims
 
 ## What Builders Still Need To Hand-Build
 Even with the existing abstractions, much of the economy remains world-authored content rather than ready-made stock configuration.
 
 ### Currently hand-built in most worlds
 - tax regimes
+- hotel tax regimes
 - banks and account types
 - exchange rates and currency reserves
 - shops and their staffing
@@ -77,6 +80,7 @@ Even with the existing abstractions, much of the economy remains world-authored 
 - shopper selection and item-choice progs beyond the stock tag-driven templates
 - auction houses
 - property portfolios and location mapping
+- hotel rooms, hotel bank accounts, furnishings, and lost-property retention rules
 - jobs, employers, and eligibility logic
 
 ### Why hand-building still dominates
@@ -112,11 +116,12 @@ Builders use economic zones to define:
 - the local administrative currency
 - the financial-period cadence
 - tax policy
+- hotel rental tax policy
 - whether the zone creates estates at all
 - the cells used for conveyancing, job-finding, probate, and morgue workflows
 - the clan, if any, that controls the zone
 
-Tax creation is type-driven through the registered tax families, so the current builder workflow is already aligned with the factory pattern in the runtime.
+Tax creation is type-driven through the registered tax families, so the current builder workflow is already aligned with the factory pattern in the runtime. In addition to sales and profit taxes, economic zones can now create hotel rental taxes with `hoteltax` builder commands.
 
 ### Banks and Bank Account Types
 Banks are a natural early investment if the world intends to use:
@@ -124,6 +129,7 @@ Banks are a natural early investment if the world intends to use:
 - shops with bank-backed balances
 - bank payment items
 - property ownership or rent collection
+- hotel room rental proceeds, deposits, and tax remittance
 - auctions
 - clan finances
 
@@ -223,9 +229,27 @@ Property builders need:
 - conveyancing cells so the player-facing workflow is discoverable
 - clan ranks or appointments that should use clan-owned property items need the `Use Clan Property` privilege in addition to any broader management privileges
 
+Hotel-room rental builders additionally need:
+
+- a property with one or more rooms mapped to property cells
+- a hotel bank account, set with `roomrent bank`
+- a requested and approved hotel license, using `roomrent request` and `roomrent approve`
+- listed hotel rooms with daily prices, security deposits, and min/max stays through `roomrent room`
+- property keys assigned to each rentable room through `roomrent key`
+- furnishing markers for deposit checks through `roomrent furnish`
+- optional bans and an optional can-rent FutureProg through `roomrent ban` and `roomrent prog`
+- an auction house in the zone if unclaimed lost-property bundles should be auctioned rather than eventually liquidated
+
+Operational hotel commands:
+
+- guests use `roomrent list`, `roomrent rent`, `roomrent checkout`, `roomrent claim`, and `roomrent pay`
+- managers use `roomrent lost` to view, extend, or release held bundles before automatic auction or liquidation
+- managers use `roomrent taxes` to remit accumulated hotel rental taxes from the hotel bank account to the economic zone
+
 Contributor note:
 
 - sale-order and lease-order consent loading must compare property owners by stored owner id and owner type rather than dereferencing `PropertyOwner.Owner` during boot
+- hotel-room rental state is currently serialized into the property `HotelDefinition` payload, so changes to this surface should keep XML load/save compatibility in mind unless the persistence model is deliberately split out later
 
 Job builders need:
 
@@ -317,6 +341,7 @@ Good current integration anchors are:
 - bank accounts for stored value and settlement
 - shops for retail movement and transaction records
 - property for formal location ownership
+- property hotel state for short-stay room rental, deposits, furnished-room checks, and lost-property handling
 - FutureProg for permission and selection policies
 - item ownership metadata and item ownership FutureProg helpers for portable property, estate assets, and clan-owned equipment
 

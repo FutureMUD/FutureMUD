@@ -178,6 +178,13 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
             yield return new EstateAssetSnapshot(account.Bank.EconomicZone, account, false, 1.0M);
         }
 
+        foreach (var lostProperty in character.Gameworld.Properties
+                     .SelectMany(x => x.HotelLostProperties)
+                     .Where(x => x.Bundle != null && (x.OwnerId == character.Id || x.Bundle.IsOwnedBy(character))))
+        {
+            yield return new EstateAssetSnapshot(lostProperty.Property.EconomicZone, lostProperty.Bundle, false, 1.0M);
+        }
+
         IEconomicZone itemZone = character.Location == null ? null : DetermineZone(character.Gameworld, character.Location);
         if (itemZone == null)
         {

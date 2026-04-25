@@ -5,6 +5,7 @@ using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Property;
 using MudSharp.Economy.Tax;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -36,6 +37,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
     public IEnumerable<ISalesTax> SalesTaxes => _salesTaxes;
     private readonly List<IProfitTax> _profitTaxes = new();
     public IEnumerable<IProfitTax> ProfitTaxes => _profitTaxes;
+    private readonly List<IHotelTax> _hotelTaxes = new();
+    public IEnumerable<IHotelTax> HotelTaxes => _hotelTaxes;
     private readonly List<IIncomeTax> _incomeTaxes = new();
     public IEnumerable<IIncomeTax> IncomeTaxes => _incomeTaxes;
 
@@ -250,6 +253,10 @@ public class EconomicZone : SaveableItem, IEconomicZone
             if (TaxFactory.IsSalesTax(item))
             {
                 _salesTaxes.Add(TaxFactory.LoadSalesTax(item, this));
+            }
+            else if (TaxFactory.IsHotelTax(item))
+            {
+                _hotelTaxes.Add(TaxFactory.LoadHotelTax(item, this));
             }
             else
             {
@@ -713,6 +720,13 @@ public class EconomicZone : SaveableItem, IEconomicZone
         _shopsOutstandingSalesTaxes[shop.Id] += amount;
     }
 
+    public decimal CalculateHotelTax(IProperty property, ICharacter patron, decimal rentalCharge)
+    {
+        return HotelTaxes
+               .Where(x => x.Applies(property, patron))
+               .Sum(x => x.TaxValue(property, patron, rentalCharge));
+    }
+
     #region Implementation of IEditableItem
 
     public string HelpInfo => @"You can use the following options with this command:
@@ -735,6 +749,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3profittax add <type> <name>#0 - adds a new profit tax
 	#3profittax remove <name>#0 - removes a profit tax
 	#3profittax <which> <...>#0 - edit properties of a particular tax
+	#3hoteltax add <type> <name>#0 - adds a new hotel tax
+	#3hoteltax remove <name>#0 - removes a hotel tax
+	#3hoteltax <which> <...>#0 - edit properties of a particular tax
 	#3realty#0 - toggles your current location as a conveyancing/realty location
 	#3jobs#0 - toggles your current location as a job listing and finding location
 	#3probate#0 - toggles your current location as a probate office
@@ -761,6 +778,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3profittax add <type> <name>#0 - adds a new profit tax
 	#3profittax remove <name>#0 - removes a profit tax
 	#3profittax <which> <...>#0 - edit properties of a particular tax
+	#3hoteltax add <type> <name>#0 - adds a new hotel tax
+	#3hoteltax remove <name>#0 - removes a hotel tax
+	#3hoteltax <which> <...>#0 - edit properties of a particular tax
 	#3forgive <shop> <amount>#0 - forgives a certain amount of owing tax for a shop (excess gives credits)
 	#3forgive <shop> all#0 - forgives all owing taxes for a shop
 	#3shops#0 - lists all shops in this economic zone
@@ -795,6 +815,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
                 return BuildingCommandSalesTax(actor, command, false);
             case "profittax":
                 return BuildingCommandProfitTax(actor, command, false);
+            case "hoteltax":
+                return BuildingCommandHotelTax(actor, command, false);
             case "clan":
                 return BuildingCommandClan(actor, command, false);
             case "conveyance":
@@ -852,6 +874,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
                 return BuildingCommandSalesTax(actor, command, true);
             case "profittax":
                 return BuildingCommandProfitTax(actor, command, true);
+            case "hoteltax":
+                return BuildingCommandHotelTax(actor, command, true);
             case "clan":
                 return BuildingCommandClan(actor, command, true);
             case "forgive":
@@ -1672,6 +1696,114 @@ public class EconomicZone : SaveableItem, IEconomicZone
         return true;
     }
 
+    private bool BuildingCommandHotelTax(ICharacter actor, StringStack command, bool fromClanCommand)
+    {
+        switch (command.PopSpeech().ToLowerInvariant())
+        {
+            case "add":
+            case "new":
+            case "create":
+                return BuildingCommandHotelTaxCreate(actor, command, fromClanCommand);
+            case "delete":
+            case "del":
+            case "remove":
+            case "rem":
+                return BuildingCommandHotelTaxRemove(actor, command, fromClanCommand);
+        }
+
+        IHotelTax tax = _hotelTaxes.FirstOrDefault(x => x.Name.EqualTo(command.Last)) ??
+                  _hotelTaxes.FirstOrDefault(x =>
+                      x.Name.StartsWith(command.Last, StringComparison.InvariantCultureIgnoreCase));
+        if (tax == null)
+        {
+            actor.OutputHandler.Send(fromClanCommand
+                ? $"This economic zone has no such hotel tax. You can either use CLAN ECONOMICZONE {Id.ToString("F0", actor)} HOTELTAX ADD <name> <type> to create one, CLAN ECONOMICZONE {Id.ToString("F0", actor)} HOTELTAX DELETE <name> to delete one or CLAN ECONOMICZONE {Id.ToString("F0", actor)} HOTELTAX <name> <other commands> to edit one."
+                : $"This economic zone has no such hotel tax. You can either use ECONOMICZONE SET HOTELTAX ADD <name> <type> to create one, ECONOMICZONE SET HOTELTAX DELETE <name> to delete one or ECONOMICZONE SET HOTELTAX <name> <other commands> to edit one.");
+            return false;
+        }
+
+        return tax.BuildingCommand(actor, command);
+    }
+
+    private bool BuildingCommandHotelTaxRemove(ICharacter actor, StringStack command, bool fromClanCommand)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which hotel tax do you want to remove?");
+            return false;
+        }
+
+        string name = command.SafeRemainingArgument;
+        IHotelTax tax = _hotelTaxes.FirstOrDefault(x => x.Name.EqualTo(name)) ??
+                  _hotelTaxes.FirstOrDefault(x =>
+                      x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase));
+        if (tax == null)
+        {
+            actor.OutputHandler.Send("There is no such hotel tax.");
+            return false;
+        }
+
+        actor.OutputHandler.Send(
+            $"Are you sure you want to delete the {tax.Name.ColourName()} hotel tax? This action is irreversible.\n{Accept.StandardAcceptPhrasing}");
+        actor.AddEffect(new Accept(actor, new GenericProposal
+        {
+            AcceptAction = text =>
+            {
+                actor.OutputHandler.Send($"You delete the {tax.Name.ColourName()} hotel tax.");
+                _hotelTaxes.Remove(tax);
+                tax.Delete();
+            },
+            RejectAction = text =>
+            {
+                actor.OutputHandler.Send($"You decide not to delete the {tax.Name.ColourName()} hotel tax.");
+            },
+            ExpireAction = () =>
+            {
+                actor.OutputHandler.Send($"You decide not to delete the {tax.Name.ColourName()} hotel tax.");
+            },
+            Keywords = new List<string> { "tax", "delete" },
+            DescriptionString = "Deleting a hotel tax"
+        }), TimeSpan.FromSeconds(120));
+        return true;
+    }
+
+    private bool BuildingCommandHotelTaxCreate(ICharacter actor, StringStack command, bool fromClanCommand)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What name do you want to give to your new tax?");
+            return false;
+        }
+
+        string name = command.PopSpeech();
+        if (_hotelTaxes.Any(x => x.Name.EqualTo(name)))
+        {
+            actor.OutputHandler.Send("There is already a hotel tax with that name. Names must be unique.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"Which type of hotel tax do you want to create? The options are {TaxFactory.HotelTaxes.Select(x => x.ColourValue()).ListToString()}.");
+            return false;
+        }
+
+        string type = command.PopSpeech();
+        IHotelTax tax = TaxFactory.CreateHotelTax(type, name, this);
+        if (tax == null)
+        {
+            actor.OutputHandler.Send(
+                $"That is not a valid type of hotel tax. The options are {TaxFactory.HotelTaxes.Select(x => x.ColourValue()).ListToString()}.");
+            return false;
+        }
+
+        _hotelTaxes.Add(tax);
+        actor.OutputHandler.Send(
+            $"You create a new hotel tax of type {type.ColourValue()} called {name.ColourName()}.");
+        return true;
+    }
+
     private bool BuildingCommandConveyance(ICharacter actor, StringStack command)
     {
         if (_conveyancingCells.Contains(actor.Location))
@@ -1845,6 +1977,13 @@ public class EconomicZone : SaveableItem, IEconomicZone
         sb.AppendLine();
         sb.AppendLine("Profit Taxes:");
         foreach (IProfitTax tax in _profitTaxes)
+        {
+            sb.AppendLine($"\t[#{tax.Id.ToString("N0", actor)}] {tax.Name.ColourName()} - {tax.MerchantDescription}");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("Hotel Taxes:");
+        foreach (IHotelTax tax in _hotelTaxes)
         {
             sb.AppendLine($"\t[#{tax.Id.ToString("N0", actor)}] {tax.Name.ColourName()} - {tax.MerchantDescription}");
         }

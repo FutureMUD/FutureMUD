@@ -2955,14 +2955,14 @@ R) Recover a lost account"
             Definition = context.StackDecorators.First(x => x.Name == "Residue").Id.ToString()
         });
 
-        context.StaticConfigurations.Find("DeathsBoardId").Definition =
-            context.Boards.First(x => x.Name == "Deaths").Id.ToString();
-        context.StaticConfigurations.Find("PetitionsBoardId").Definition =
-            context.Boards.First(x => x.Name == "Petitions").Id.ToString();
-        context.StaticConfigurations.Find("TyposBoardId").Definition =
-            context.Boards.First(x => x.Name == "Typos").Id.ToString();
-        context.StaticConfigurations.Find("OnCreateClanProg").Definition = oncreateclanprog.Id.ToString();
-        context.StaticConfigurations.Find("PlayersCanCreateClansProg").Definition = cancreateclanprog.Id.ToString();
+		context.StaticConfigurations.Find("DeathsBoardId")!.Definition =
+			context.Boards.First(x => x.Name == "Deaths").Id.ToString();
+		context.StaticConfigurations.Find("PetitionsBoardId")!.Definition =
+			context.Boards.First(x => x.Name == "Petitions").Id.ToString();
+		context.StaticConfigurations.Find("TyposBoardId")!.Definition =
+			context.Boards.First(x => x.Name == "Typos").Id.ToString();
+		context.StaticConfigurations.Find("OnCreateClanProg")!.Definition = oncreateclanprog.Id.ToString();
+		context.StaticConfigurations.Find("PlayersCanCreateClansProg")!.Definition = cancreateclanprog.Id.ToString();
 
         context.TraitExpressions.Add(new TraitExpression { Name = "Always Zero", Expression = "0" });
         context.TraitExpressions.Add(new TraitExpression { Name = "Always One", Expression = "1" });
@@ -2974,9 +2974,9 @@ R) Recover a lost account"
         context.TraitExpressions.Add(new TraitExpression { Name = "1d20", Expression = "rand(1,20)" });
         context.SaveChanges();
         string alwaysOne = context.TraitExpressions.First(x => x.Name == "Always One").Id.ToString();
-        context.StaticConfigurations.Find("DefaultWeaponAttackPainExpressionId").Definition = alwaysOne;
-        context.StaticConfigurations.Find("DefaultWeaponAttackStunExpressionId").Definition = alwaysOne;
-        context.StaticConfigurations.Find("DefaultWeaponAttackDamageExpressionId").Definition = alwaysOne;
+		context.StaticConfigurations.Find("DefaultWeaponAttackPainExpressionId")!.Definition = alwaysOne;
+		context.StaticConfigurations.Find("DefaultWeaponAttackStunExpressionId")!.Definition = alwaysOne;
+		context.StaticConfigurations.Find("DefaultWeaponAttackDamageExpressionId")!.Definition = alwaysOne;
     }
 
     private static void SeedCoreProgs(FuturemudDatabaseContext context, out FutureProg isadminprog,

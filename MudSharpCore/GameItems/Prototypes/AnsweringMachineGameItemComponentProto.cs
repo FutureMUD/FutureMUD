@@ -21,8 +21,8 @@ public class AnsweringMachineGameItemComponentProto : GameItemComponentProto, IC
 {
     public override string TypeDescription => "AnsweringMachine";
     public double Wattage { get; set; }
-    public string RingEmote { get; set; }
-    public string TransmitPremote { get; set; }
+    public string RingEmote { get; set; } = null!;
+    public string TransmitPremote { get; set; } = null!;
     public AudioVolume RingVolume { get; set; }
     public int DefaultAutoAnswerRings { get; set; }
     public List<ConnectorType> Connections { get; } = [];
@@ -90,7 +90,7 @@ public class AnsweringMachineGameItemComponentProto : GameItemComponentProto, IC
         ).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new AnsweringMachineGameItemComponent(this, parent, temporary);
     }

@@ -152,9 +152,9 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
                 continue;
             }
 
-            if (forwardedEmote is not null)
+            if (forwardedEmote?.DefaultSource is IMortalPerceiver target)
             {
-                watcher.SeeTarget(forwardedEmote.DefaultSource as IMortalPerceiver);
+                watcher.SeeTarget(target);
             }
 
             string prefix = BuildPrefix(watcher, location);

@@ -224,7 +224,7 @@ public class LegalClassFutureProgTests
 		mock.SetupGet(x => x.Id).Returns(id);
 		mock.SetupGet(x => x.Name).Returns(name);
 		mock.SetupGet(x => x.FrameworkItemType).Returns("Character");
-		mock.Setup(x => x.GetProperty(It.IsAny<string>())).Returns((IProgVariable?)null);
+		mock.Setup(x => x.GetProperty(It.IsAny<string>())).Returns((IProgVariable)null!);
 		mock.SetupGet(x => x.Type).Returns(ProgVariableTypes.Character);
 		mock.SetupGet(x => x.GetObject).Returns(() => mock.Object);
 		return mock;
@@ -241,7 +241,7 @@ public class LegalClassFutureProgTests
 		actor.SetupGet(x => x.Id).Returns(500L);
 		actor.SetupGet(x => x.Name).Returns("Builder");
 		actor.SetupGet(x => x.FrameworkItemType).Returns("Character");
-		actor.Setup(x => x.GetProperty(It.IsAny<string>())).Returns((IProgVariable?)null);
+		actor.Setup(x => x.GetProperty(It.IsAny<string>())).Returns((IProgVariable)null!);
 		actor.SetupGet(x => x.Type).Returns(ProgVariableTypes.Character);
 		actor.SetupGet(x => x.GetObject).Returns(() => actor.Object);
 		return actor;

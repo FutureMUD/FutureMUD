@@ -532,7 +532,7 @@ namespace MudSharp.Form.Material
             };
         }
 
-        private new static IReadOnlyDictionary<string, string> DotReferenceHelp()
+        private static IReadOnlyDictionary<string, string> DotReferenceHelp()
         {
             return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {

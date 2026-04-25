@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Character;
 using MudSharp.Communication.Language;
@@ -20,6 +20,8 @@ using MudSharp.Strategies.BodyStratagies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.Body.CommunicationStrategies;
 
@@ -246,7 +248,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         }
     }
 
-    public virtual void LoudSay(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public virtual void LoudSay(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.Loud))
         {
@@ -288,7 +290,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent);
     }
 
-    public virtual void Talk(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public virtual void Talk(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.Quiet))
         {
@@ -330,7 +332,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         HandleSpeechEvents(body, target, message, AudioVolume.Quiet, body.CurrentLanguage, body.CurrentAccent);
     }
 
-    public void Transmit(IBody body, IGameItem target, string message, IEmote emote = null)
+    public void Transmit(IBody body, IGameItem target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.Quiet))
         {
@@ -376,7 +378,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         item.Transmit(langinfo);
     }
 
-    public virtual void Yell(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public virtual void Yell(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.VeryLoud))
         {
@@ -469,7 +471,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         }
     }
 
-    public virtual void Say(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public virtual void Say(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.Decent))
         {
@@ -511,7 +513,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         HandleSpeechEvents(body, target, message, AudioVolume.Decent, body.CurrentLanguage, body.CurrentAccent);
     }
 
-    public virtual void Whisper(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public virtual void Whisper(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.Quiet))
         {
@@ -553,7 +555,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         HandleSpeechEvents(body, target, message, AudioVolume.Quiet, body.CurrentLanguage, body.CurrentAccent);
     }
 
-    public virtual void Shout(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public virtual void Shout(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.ExtremelyLoud))
         {
@@ -672,7 +674,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         }
     }
 
-    public virtual void Sing(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public virtual void Sing(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         if (!CanVocalise(body, AudioVolume.Loud))
         {

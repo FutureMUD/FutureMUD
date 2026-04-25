@@ -27,7 +27,7 @@ internal class HeritageBuilderModule : BaseBuilderModule
         IsNecessary = true;
     }
 
-    public new static HeritageBuilderModule Instance { get; } = new();
+    public static HeritageBuilderModule Instance { get; } = new();
 
     #region Languages
 

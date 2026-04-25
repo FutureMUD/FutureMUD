@@ -1083,7 +1083,6 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        bool add = true;
         switch (ss.PopSpeech())
         {
             case "add":

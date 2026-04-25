@@ -4,6 +4,9 @@ using MudSharp.Models;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.CharacterCreation.Roles;
 
 public class RoleClanMembership : IRoleClanMembership

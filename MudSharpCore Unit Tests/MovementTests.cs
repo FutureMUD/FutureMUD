@@ -68,7 +68,7 @@ public class MovementTests
 
         Movement movement = new(
             mover.Object,
-            party,
+            party!,
             Enumerable.Empty<ICharacter>(),
             Enumerable.Empty<ICharacter>(),
             [mover.Object],

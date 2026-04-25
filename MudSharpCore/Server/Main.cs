@@ -20,7 +20,7 @@ internal class MudSharp
     private static void Main(string[] args)
     {
         Console.ForegroundColor = ConsoleColor.Gray;
-        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        if (OperatingSystem.IsWindows())
         {
             Console.BufferHeight = short.MaxValue - 1;
             Console.Title = "FutureMUD";

@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Framework;
@@ -8,6 +8,8 @@ using MudSharp.GameItems.Components;
 using MudSharp.PerceptionEngine;
 using System.Linq;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -30,7 +32,7 @@ public class ShieldGameItemComponentProto : GameItemComponentProto
 #nullable enable
     public IFutureProg? CanWieldProg { get; private set; }
     public IFutureProg? WhyCannotWieldProg { get; private set; }
-#nullable restore
+#nullable disable warnings
     public override string TypeDescription => "Shield";
 
     protected override void LoadFromXml(XElement root)
@@ -94,7 +96,7 @@ public class ShieldGameItemComponentProto : GameItemComponentProto
         );
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new ShieldGameItemComponent(this, parent, temporary);
     }

@@ -124,8 +124,8 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 		{
 			_marketPopulationNeeds.Add(new MarketPopulationNeed
 			{
-				MarketCategory = Gameworld.MarketCategories.Get(long.Parse(item.Attribute("category").Value)),
-				BaseExpenditure = decimal.Parse(item.Attribute("expenditure").Value)
+				MarketCategory = Gameworld.MarketCategories.Get(long.Parse(item.Attribute("category")!.Value))!,
+				BaseExpenditure = decimal.Parse(item.Attribute("expenditure")!.Value)
 			});
 		}
 	}
@@ -136,11 +136,11 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 		{
 			_marketStressPoints.Add(new MarketStressPoint
 			{
-				Name = item.Attribute("name").Value,
+				Name = item.Attribute("name")!.Value,
 				Description = item.Value,
-				StressThreshold = decimal.Parse(item.Attribute("stress").Value),
-				ExecuteOnStart = Gameworld.FutureProgs.Get(long.Parse(item.Attribute("onstart").Value)),
-				ExecuteOnEnd = Gameworld.FutureProgs.Get(long.Parse(item.Attribute("onend").Value))
+				StressThreshold = decimal.Parse(item.Attribute("stress")!.Value),
+				ExecuteOnStart = Gameworld.FutureProgs.Get(long.Parse(item.Attribute("onstart")!.Value)),
+				ExecuteOnEnd = Gameworld.FutureProgs.Get(long.Parse(item.Attribute("onend")!.Value))
 			});
 		}
 	}
@@ -528,7 +528,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 		actor.OutputHandler.Send("Please enter a description for your new stress threshold in the editor below:\n");
 		actor.EditorMode(NewStressThresholdPost, NewStressThresholdCancel, options: EditorOptions.PermitEmpty,
-			suppliedArguments: [actor, value, name, onstart, onend]);
+			suppliedArguments: [actor, value, name, onstart!, onend!]);
 		return true;
 	}
 

@@ -491,10 +491,6 @@ public class Liquid : Fluid, ILiquid
 
     public override IProgVariable GetProperty(string property)
     {
-        switch (property.ToLowerInvariant())
-        {
-        }
-
         return base.GetProperty(property);
     }
 

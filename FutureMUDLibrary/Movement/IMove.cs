@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Body.Position;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -46,7 +46,7 @@ namespace MudSharp.Movement
             return source.Result;
         }
     }
-#nullable disable
+#nullable disable warnings
 
     [Flags]
     public enum CanMoveFlags
@@ -83,9 +83,9 @@ namespace MudSharp.Movement
         (bool Success, IPositionState MovingState, IMoveSpeed Speed) CouldMove(bool ignoreBlockingEffects, IPositionState fixedPosition);
         (bool Success, IEmoteOutput FailureOutput) CanCross(ICellExit exit);
         bool Move(string rawInput);
-        bool Move(ICellExit exit, IEmote emote = null, bool ignoreSafeMovement = false);
-        bool Move(CardinalDirection direction, IEmote emote = null, bool ignoreSafeMovement = false);
-        bool Move(string cmd, string target, IEmote emote = null, bool ignoreSafeMovement = false);
+        bool Move(ICellExit exit, IEmote? emote = null, bool ignoreSafeMovement = false);
+        bool Move(CardinalDirection direction, IEmote? emote = null, bool ignoreSafeMovement = false);
+        bool Move(string cmd, string target, IEmote? emote = null, bool ignoreSafeMovement = false);
         void JoinParty(IParty party);
         void LeaveParty(bool echo = true);
 

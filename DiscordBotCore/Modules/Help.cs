@@ -31,7 +31,7 @@ public class Help : BaseCommandModule
             OnResponseAction = HandleMudProgHelpResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"proghelp {request.RequestId} {arguments}");
+        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"proghelp {request.RequestId} {arguments}");
     }
 
 
@@ -98,7 +98,7 @@ The following commands require you to be registered and authorised before using 
             OnResponseAction = HandleMudHelpResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"adminhelp {request.RequestId} {arguments}");
+        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"adminhelp {request.RequestId} {arguments}");
     }
 
     private async Task HandleMudHelpResponse(string text, CommandContext context)
@@ -133,6 +133,6 @@ The following commands require you to be registered and authorised before using 
             OnResponseAction = HandleMudHelpResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"help {request.RequestId} {arguments}");
+        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"help {request.RequestId} {arguments}");
     }
 }

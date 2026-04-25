@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Interfaces;
@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -344,14 +346,15 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
         return (int)((_prototype.WeightLimit - _contents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         if (_contents.Contains(item))
         {
 #if DEBUG
             throw new ApplicationException("Item duplication in container.");
-#endif
+#else
             return;
+#endif
         }
 
         if (allowMerge)
@@ -434,7 +437,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public bool Transparent => _prototype.Transparent;
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
@@ -671,7 +674,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
     private readonly List<ILock> _locks = new();
     public IEnumerable<ILock> Locks => _locks;
 
-    public bool InstallLock(ILock theLock, ICharacter actor = null)
+    public bool InstallLock(ILock theLock, ICharacter? actor = null)
     {
         _locks.Add(theLock);
         if (_noSave)

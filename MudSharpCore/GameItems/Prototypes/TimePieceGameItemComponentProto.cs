@@ -1,4 +1,4 @@
-﻿using MoreLinq;
+using MoreLinq;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
@@ -8,6 +8,8 @@ using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate.Time;
 using System.Linq;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -62,7 +64,7 @@ public class TimePieceGameItemComponentProto : GameItemComponentProto
 
     #region Component Instance Initialising Functions
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new TimePieceGameItemComponent(this, parent, temporary);
     }

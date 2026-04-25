@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction.Grids;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -13,6 +13,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -163,7 +165,7 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
         return true; // TODO
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {
@@ -179,7 +181,7 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
                other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         ConnectorType connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
@@ -200,7 +202,7 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {
@@ -356,7 +358,7 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
 
     string ICanConnectToGrid.GridType => "Electrical";
 
-    IGrid ICanConnectToGrid.Grid
+    IGrid? ICanConnectToGrid.Grid
     {
         get => ElectricalGrid;
         set => ElectricalGrid = value as IElectricalGrid;

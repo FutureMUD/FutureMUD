@@ -373,7 +373,7 @@ public class Script : SaveableItem, IScript
         };
     }
 
-    public new static void RegisterFutureProgCompiler()
+    public static void RegisterFutureProgCompiler()
     {
         ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Script, DotReferenceHandler(), DotReferenceHelp());
     }

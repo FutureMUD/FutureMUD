@@ -41,7 +41,7 @@ public class Send : BaseCommandModule
             OnResponseAction = HandleMudResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"send {request.RequestId} {registration.MudAccountName} {to} {message}");
+        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"send {request.RequestId} {registration.MudAccountName} {to} {message}");
     }
 
     private async Task HandleMudResponse(string text, CommandContext context)

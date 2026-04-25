@@ -427,8 +427,13 @@ If more than one terminal could be used, specify one explicitly or connect first
 		}
 	}
 
-	private static void ProgrammingTerminalConnect(ICharacter actor, StringStack ss)
+	private static void ProgrammingTerminalConnect(ICharacter? actor, StringStack ss)
 	{
+		if (actor is null)
+		{
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
 			actor.Send("Which computer terminal do you want to connect to?");

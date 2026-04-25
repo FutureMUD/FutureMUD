@@ -439,7 +439,8 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 			return targetHost;
 		}
 
-		var owner = ComputerFileTransferUtilities.ResolveSelectableOwner(targetHost, ownerIdentifier, out error);
+		var owner = ComputerFileTransferUtilities.ResolveSelectableOwner(targetHost, ownerIdentifier, out var resolvedError);
+		error = resolvedError ?? string.Empty;
 		if (owner is not null)
 		{
 			return owner;

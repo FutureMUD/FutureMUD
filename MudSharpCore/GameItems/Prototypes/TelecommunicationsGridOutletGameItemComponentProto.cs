@@ -62,7 +62,7 @@ public class TelecommunicationsGridOutletGameItemComponentProto : GameItemCompon
         ).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new TelecommunicationsGridOutletGameItemComponent(this, parent, temporary);
     }

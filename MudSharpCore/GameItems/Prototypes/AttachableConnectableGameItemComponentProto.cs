@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -8,6 +8,8 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using System;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -156,7 +158,7 @@ public class AttachableConnectableGameItemComponentProto : GameItemComponentProt
         );
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new AttachableConnectableGameItemComponent(this, parent, temporary);
     }

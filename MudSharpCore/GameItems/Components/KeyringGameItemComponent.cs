@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.Form.Shape;
@@ -14,6 +14,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -285,14 +287,15 @@ public class KeyringGameItemComponent : GameItemComponent, IKeyring, IContainer
         return _prototype.MaximumNumberOfKeys - _contents.Sum(x => x.Quantity);
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         if (_contents.Contains(item))
         {
 #if DEBUG
             throw new ApplicationException("Item duplication in container.");
-#endif
+#else
             return;
+#endif
         }
 
         if (allowMerge)
@@ -369,7 +372,7 @@ public class KeyringGameItemComponent : GameItemComponent, IKeyring, IContainer
         return false;
     }
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();

@@ -200,7 +200,7 @@ public class MagicPhase2Tests
 			      ErrorMessage = string.Empty
 		      });
 		target.Setup(x => x.CanCross(exit.Object))
-		      .Returns((true, (IEmoteOutput?)null));
+		      .Returns((true, null!));
 		target.Setup(x => x.Move(exit.Object, null, true)).Returns(true);
 
 		effect!.GetOrApplyEffect(
@@ -235,7 +235,7 @@ public class MagicPhase2Tests
 			      ErrorMessage = string.Empty
 		      });
 		target.Setup(x => x.CanCross(exit.Object))
-		      .Returns((false, (IEmoteOutput?)null));
+		      .Returns((false, null!));
 
 		effect!.GetOrApplyEffect(
 			CreateActor().Object,
@@ -358,14 +358,14 @@ public class MagicPhase2Tests
 		actor.Setup(x => x.HasDubFor(It.IsAny<IKeyworded>(), It.IsAny<IEnumerable<string>>())).Returns(false);
 		actor.Setup(x => x.EffectsOfType<IMagicInterdictionEffect>(It.IsAny<Predicate<IMagicInterdictionEffect>>()))
 		     .Returns([]);
-		actor.SetupGet(x => x.Location).Returns((ICell?)null);
+		actor.SetupGet(x => x.Location).Returns((ICell)null!);
 		return actor;
 	}
 
 	private static Mock<IPerceivable> CreatePerceivable(ICell? location)
 	{
 		Mock<IPerceivable> perceivable = new();
-		perceivable.SetupGet(x => x.Location).Returns(location);
+		perceivable.SetupGet(x => x.Location).Returns(location!);
 		perceivable.Setup(x => x.EffectsOfType<IMagicInterdictionEffect>(It.IsAny<Predicate<IMagicInterdictionEffect>>()))
 		          .Returns([]);
 		return perceivable;

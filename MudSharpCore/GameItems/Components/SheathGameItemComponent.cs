@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Form.Shape;
@@ -13,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -312,7 +314,7 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
     }
 
     /// <inheritdoc />
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         // Do nothing
     }
@@ -349,7 +351,7 @@ public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
     }
 
     /// <inheritdoc />
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();

@@ -225,7 +225,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         return true;
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any() || !other.FreeConnections.Any())
         {
@@ -236,7 +236,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
                other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         ConnectorType? connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
@@ -258,7 +258,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {

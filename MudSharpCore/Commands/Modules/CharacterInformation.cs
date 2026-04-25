@@ -34,6 +34,9 @@ using System.Linq;
 using System.Text;
 using TimeZoneConverter;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Commands.Modules;
 
 internal class CharacterInformationModule : Module<ICharacter>

@@ -19,6 +19,9 @@ using System.Text;
 using System.Xml.Linq;
 using Expression = ExpressionEngine.Expression;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Economy.Markets;
 
 internal class Market : SaveableItem, IMarket

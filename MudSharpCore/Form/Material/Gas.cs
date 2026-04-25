@@ -276,10 +276,6 @@ public class Gas : Fluid, IGas
 
     public override IProgVariable GetProperty(string property)
     {
-        switch (property.ToLowerInvariant())
-        {
-        }
-
         return base.GetProperty(property);
     }
 

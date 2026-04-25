@@ -135,8 +135,9 @@ public partial class CultureSeeder
         {
 #if DEBUG
             throw new ApplicationException($"Unknown definition {feature}");
-#endif
+#else
             return;
+#endif
         }
 
         if (profile.Equals("All Eye Shapes", StringComparison.OrdinalIgnoreCase) &&
@@ -149,8 +150,9 @@ public partial class CultureSeeder
         {
 #if DEBUG
             throw new ApplicationException($"Unknown definition {feature}");
-#endif
+#else
             return;
+#endif
         }
 
         CharacteristicProfile foundProfile = _profiles[profile];

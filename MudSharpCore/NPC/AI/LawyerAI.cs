@@ -27,16 +27,16 @@ public class LawyerAI : PathingAIBase
     protected LawyerAI(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
     {
         XElement root = XElement.Parse(ai.Definition);
-        OpenDoors = bool.Parse(root.Element("OpenDoors").Value);
-        UseKeys = bool.Parse(root.Element("UseKeys").Value);
-        SmashLockedDoors = bool.Parse(root.Element("SmashLockedDoors").Value);
-        MoveEvenIfObstructionInWay = bool.Parse(root.Element("MoveEvenIfObstructionInWay").Value);
-        UseDoorguards = bool.Parse(root.Element("UseDoorguards").Value);
-        CanBeEngagedAsCourtAppointedLawyer = bool.Parse(root.Element("CanBeEngagedAsCourtAppointedLawyer").Value);
-        CanBeHiredProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanBeHiredProg").Value));
-        FeeProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FeeProg").Value));
-        HomeBaseProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("HomeBaseProg").Value));
-        BankAccountProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("BankAccountProg").Value));
+        OpenDoors = bool.Parse(root.Element("OpenDoors")!.Value);
+        UseKeys = bool.Parse(root.Element("UseKeys")!.Value);
+        SmashLockedDoors = bool.Parse(root.Element("SmashLockedDoors")!.Value);
+        MoveEvenIfObstructionInWay = bool.Parse(root.Element("MoveEvenIfObstructionInWay")!.Value);
+        UseDoorguards = bool.Parse(root.Element("UseDoorguards")!.Value);
+        CanBeEngagedAsCourtAppointedLawyer = bool.Parse(root.Element("CanBeEngagedAsCourtAppointedLawyer")!.Value);
+        CanBeHiredProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanBeHiredProg")!.Value))!;
+        FeeProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FeeProg")!.Value))!;
+        HomeBaseProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("HomeBaseProg")!.Value));
+        BankAccountProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("BankAccountProg")!.Value));
     }
 
     private LawyerAI()
@@ -75,8 +75,8 @@ public class LawyerAI : PathingAIBase
     }
 
     public bool CanBeEngagedAsCourtAppointedLawyer { get; private set; }
-    public IFutureProg FeeProg { get; private set; }
-    public IFutureProg CanBeHiredProg { get; private set; }
+    public IFutureProg FeeProg { get; private set; } = null!;
+    public IFutureProg CanBeHiredProg { get; private set; } = null!;
     public IFutureProg? HomeBaseProg { get; private set; }
     public IFutureProg? BankAccountProg { get; private set; }
 

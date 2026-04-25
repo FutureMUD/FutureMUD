@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -8,6 +8,8 @@ using MudSharp.GameItems.Inventory;
 using System;
 using System.Linq;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -30,7 +32,7 @@ public class VariableChangerGameItemComponentProto : VariableGameItemComponentPr
 
     public override string TypeDescription => "Variable Changer";
 
-    private const string SpecificBuildingHelpText = @"
+    private new const string SpecificBuildingHelpText = @"
 	#3target <wear>#0 - sets a wear profile that must be used
 	#3target#0 - clears a wear profile requirement";
 
@@ -93,7 +95,7 @@ public class VariableChangerGameItemComponentProto : VariableGameItemComponentPr
         );
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new VariableChangerGameItemComponent(this, parent, temporary);
     }

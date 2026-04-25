@@ -886,7 +886,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         HashSet<long> clanIds = character.ClanMemberships
                                .Select(x => x.Clan?.Id)
                                .Where(x => x.HasValue)
-                               .Select(x => x.Value)
+                               .Select(x => x.GetValueOrDefault())
                                .ToHashSet();
 
         if (!clanIds.Any())
@@ -1299,7 +1299,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         HashSet<long> existingIds = _participants
             .Select(x => x.Character?.Id)
             .Where(x => x.HasValue)
-            .Select(x => x.Value)
+            .Select(x => x.GetValueOrDefault())
             .ToHashSet();
 
         foreach (IArenaEventTypeSide side in EventType.Sides)
@@ -1378,7 +1378,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             .Where(x => x.SideIndex == side.Index)
             .Select(x => x.StartingRating)
             .Where(x => x.HasValue)
-            .Select(x => x.Value)
+            .Select(x => x.GetValueOrDefault())
             .ToList();
         if (sideRatings.Count > 0)
         {
@@ -1388,7 +1388,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         List<decimal> eventRatings = _participants
             .Select(x => x.StartingRating)
             .Where(x => x.HasValue)
-            .Select(x => x.Value)
+            .Select(x => x.GetValueOrDefault())
             .ToList();
         return eventRatings.Count > 0 ? eventRatings.Average() : ArenaRatingsService.DefaultRating;
     }

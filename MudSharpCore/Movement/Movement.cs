@@ -1,4 +1,4 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Combat;
@@ -22,6 +22,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.Movement;
 
@@ -200,7 +202,7 @@ public class Movement : IMovement
         return true;
     }
 
-    public static IMovement CreateMovement(ICharacter originalMover, ICellExit exit, IEmote emote = null, bool ignoreSafeMovement = false)
+    public static IMovement CreateMovement(ICharacter originalMover, ICellExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         // First get all of the party members who are present
         List<ICharacter> primaryMovers = new();

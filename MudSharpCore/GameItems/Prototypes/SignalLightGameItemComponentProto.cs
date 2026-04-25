@@ -234,7 +234,7 @@ public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
 			CombinedBuildingHelpText);
 	}
 
-	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
 	{
 		return new SignalLightGameItemComponent(this, parent, temporary);
 	}

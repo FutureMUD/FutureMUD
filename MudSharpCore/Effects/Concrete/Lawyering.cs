@@ -8,6 +8,8 @@ namespace MudSharp.Effects.Concrete;
 #nullable enable
 public class Lawyering : Effect, IEffect
 {
+    public ILegalAuthority LegalAuthority { get; set; } = null!;
+
     #region Static Initialisation
     public static void InitialiseEffectType()
     {
@@ -23,9 +25,9 @@ public class Lawyering : Effect, IEffect
 
     protected Lawyering(XElement effect, IPerceivable owner) : base(effect, owner)
     {
-        XElement? root = effect.Element("Effect");
-        LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
-        _engagedByCharacterId = long.Parse(root.Element("EngagedBy").Value);
+        XElement root = effect.Element("Effect")!;
+        LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority")!.Value))!;
+        _engagedByCharacterId = long.Parse(root.Element("EngagedBy")!.Value);
     }
     #endregion
 
@@ -51,7 +53,6 @@ public class Lawyering : Effect, IEffect
     public override bool SavingEffect => true;
     #endregion
 
-    public ILegalAuthority LegalAuthority { get; set; }
     private long? _engagedByCharacterId;
     private ICharacter? _engagedByCharacter;
 

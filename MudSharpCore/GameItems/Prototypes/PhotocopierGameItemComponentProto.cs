@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -60,7 +62,7 @@ public class PhotocopierGameItemComponentProto : PoweredMachineBaseGameItemCompo
 
     public override string TypeDescription => "Photocopier";
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new PhotocopierGameItemComponent(this, parent, temporary);
     }
@@ -112,7 +114,7 @@ public class PhotocopierGameItemComponentProto : PoweredMachineBaseGameItemCompo
         return base.WhyCannotSubmit();
     }
 
-    private const string BuildingHelpText =
+    private new const string BuildingHelpText =
         "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tink <proto> - sets an item proto to be the ink cartridge\nspent <proto> - sets an item proto to be loaded as the spent ink cartridge\nuses <amount> - the number of characters of text to be printed by a full cartridge\npaper <weight> - the weight of paper this photocopier can hold";
 
     public override string ShowBuildingHelp => BuildingHelpText;

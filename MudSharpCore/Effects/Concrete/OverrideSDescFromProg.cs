@@ -73,7 +73,7 @@ public class OverrideSDescFromProg : Effect, IEffect, IOverrideDescEffect
     {
         XElement? root = effect.Element("Effect");
         ModifiedDescription = root!.Element("ModifiedDescription")!.Value;
-        Tag = root!.Element("Tag").Value;
+        Tag = root!.Element("Tag")!.Value;
         XElement? fpe = root.Element("FixedPerceiver");
         long id = long.Parse(fpe!.Attribute("id")!.Value);
         _fixedPerceiverId = id != 0 ? id : null;

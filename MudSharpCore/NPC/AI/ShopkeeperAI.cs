@@ -1,4 +1,6 @@
-﻿using MudSharp.Character;
+#nullable enable annotations
+
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Economy;
@@ -357,7 +359,7 @@ public class ShopkeeperAI : PathingAIBase
 
     #endregion
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         RestockingMerchandise effect = ch.EffectsOfType<RestockingMerchandise>().First();
         IPermanentShop shop = effect.TargetMerchandise.Shop as IPermanentShop;

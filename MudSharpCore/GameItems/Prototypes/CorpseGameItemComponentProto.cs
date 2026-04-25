@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Events;
 using MudSharp.Framework;
@@ -8,6 +8,8 @@ using MudSharp.GameItems.Interfaces;
 using System;
 using System.Linq;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -84,7 +86,7 @@ public class CorpseGameItemComponentProto : GameItemComponentProto
         return "<Definition/>";
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new CorpseGameItemComponent(this, parent, temporary);
     }

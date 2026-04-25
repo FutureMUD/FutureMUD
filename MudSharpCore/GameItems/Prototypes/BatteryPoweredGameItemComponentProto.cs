@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
+#nullable enable annotations
+
 namespace MudSharp.GameItems.Prototypes;
 
 public class BatteryPoweredGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
@@ -115,7 +117,7 @@ public class BatteryPoweredGameItemComponentProto : GameItemComponentProto, ICon
 
     #region Component Instance Initialising Functions
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new BatteryPoweredGameItemComponent(this, parent, temporary);
     }

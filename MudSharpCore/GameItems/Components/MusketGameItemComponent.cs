@@ -285,7 +285,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     public bool CanBeAimedAtSelf => true;
 
     /// <inheritdoc />
-    IWeaponType IMeleeWeapon.WeaponType => _weaponType;
+    IWeaponType IMeleeWeapon.WeaponType => _prototype.MeleeWeaponType;
 
     /// <inheritdoc />
     public WeaponClassification Classification => _prototype.RangedWeaponType.Classification;
@@ -368,7 +368,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
         IInventoryPlan plan = _prototype.LoadTemplateClean.CreatePlan(actor);
         IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
-        IGameItem ramrod = results.FirstOrDefault(x => x.OriginalReference == "ramrod").PrimaryTarget;
+        IGameItem ramrod = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "ramrod").PrimaryTarget;
         actor.AddEffect(new UnjammingGun(actor, this, ramrod, plan.AssociatedEffects.FirstOrDefault(x => x.TargetItem == ramrod).DesiredState), UnjammingGun.EffectDuration(actor, this, ramrod));
         return true;
     }
@@ -562,7 +562,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                     case LoadMode.Tap:
                         plan = _prototype.LoadTemplateClean.CreatePlan(loader);
                         results = plan.ExecuteWholePlan();
-                        ramrod = results.FirstOrDefault(x => x.OriginalReference == "ramrod").PrimaryTarget;
+                        ramrod = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "ramrod").PrimaryTarget;
                         loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteClean, loader, loader, Parent, ramrod), flags: OutputFlags.InnerWrap));
                         plan.FinalisePlanWithExemptions([Parent]);
                         LoadStage = 1;
@@ -579,7 +579,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 if (plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
                 {
                     results = plan.ExecuteWholePlan();
-                    IGameItem cartridge = results.First(x => x.OriginalReference == "cartridge").PrimaryTarget;
+                    IGameItem cartridge = results.First(x => x.OriginalReference?.ToString() == "cartridge").PrimaryTarget;
                     loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteCartridge, loader, loader, Parent, cartridge), flags: OutputFlags.InnerWrap));
                     loader.Body.Take(cartridge);
                     cartridge.ContainedIn = Parent;
@@ -607,7 +607,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             case 2:
                 plan = _prototype.LoadTemplateLoadBall.CreatePlan(loader);
                 results = plan.ExecuteWholePlan();
-                IGameItem ball = results.First(x => x.OriginalReference == "ball").PrimaryTarget;
+                IGameItem ball = results.First(x => x.OriginalReference?.ToString() == "ball").PrimaryTarget;
                 loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteBall, loader, loader, Parent, ball, null), flags: OutputFlags.InnerWrap));
                 loader.Body.Take(ball);
                 ball.ContainedIn = Parent;
@@ -631,7 +631,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 }
                 plan = _prototype.LoadTemplateLoadRamrod.CreatePlan(loader);
                 results = plan.ExecuteWholePlan();
-                ramrod = results.FirstOrDefault(x => x.OriginalReference == "ramrod").PrimaryTarget;
+                ramrod = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "ramrod").PrimaryTarget;
                 loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteRamrod, loader, loader, Parent, ramrod), flags: OutputFlags.InnerWrap));
                 plan.FinalisePlanWithExemptions([Parent]);
                 plan = _prototype.LoadTemplateFinishLoading.CreatePlan(loader);
@@ -1060,8 +1060,6 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
     private IBeltable _ramrod;
     private IBeltable _sights;
-    private IWeaponType _weaponType;
-
     public IEnumerable<IBeltable> ConnectedItems
     {
         get

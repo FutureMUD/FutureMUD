@@ -58,9 +58,10 @@ public class MagicArmourConfiguration
 	public void LoadFromXml(XElement root)
 	{
 		var value = 0L;
-		ArmourAppliesProg = long.TryParse(root.Element("ArmourAppliesProg")?.Value, out value)
+		ArmourAppliesProg = (long.TryParse(root.Element("ArmourAppliesProg")?.Value, out value)
 			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(root.Element("ArmourAppliesProg")?.Value ?? "");
+			: Gameworld.FutureProgs.GetByName(root.Element("ArmourAppliesProg")?.Value ?? ""))
+			?? throw new ApplicationException("Invalid applies prog in magic armour configuration.");
 		Quality = (ItemQuality)int.Parse(root.Element("Quality")?.Value ?? "0");
 		ArmourType =
 			(long.TryParse(root.Element("ArmourType")?.Value ?? "0", out value)

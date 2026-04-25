@@ -77,7 +77,9 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
     }
 
     public virtual event LocatableEvent OnLocationChanged;
+    #pragma warning disable CS0067 // Base perceivables expose the event for specialised implementations.
     public virtual event LocatableEvent OnLocationChangedIntentionally;
+    #pragma warning restore CS0067
     public virtual bool Sentient => false;
 
     public virtual void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)

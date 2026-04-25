@@ -38,7 +38,7 @@ public class ShowAccount : BaseCommandModule
             OnResponseAction = HandleMudResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated)
+        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated)
             .SendTcpCommand($"showaccount {request.RequestId} {registration.MudAccountId} {which}");
     }
 

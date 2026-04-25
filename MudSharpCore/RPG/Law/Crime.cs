@@ -111,6 +111,11 @@ public class Crime : LateInitialisingItem, ICrime
     public override void Save()
     {
         Models.Crime? dbitem = FMDB.Context.Crimes.Find(Id);
+        if (dbitem is null)
+        {
+            return;
+        }
+
         dbitem.AccuserId = AccuserId;
         dbitem.TimeOfReport = TimeOfReport?.GetDateTimeString();
         dbitem.IsKnownCrime = _isKnownCrime;
@@ -121,8 +126,8 @@ public class Crime : LateInitialisingItem, ICrime
         dbitem.BailHasBeenPosted = _bailPosted;
         dbitem.HasBeenEnforced = _hasBeenEnforced;
         dbitem.LocationId = CrimeLocation?.Id;
-        dbitem.CriminalShortDescription = CriminalShortDescription;
-        dbitem.CriminalFullDescription = CriminalDescription;
+        dbitem.CriminalShortDescription = CriminalShortDescription ?? string.Empty;
+        dbitem.CriminalFullDescription = CriminalDescription ?? string.Empty;
         dbitem.CriminalCharacteristics = _criminalCharacteristics.Select(x => $"{x.Key.Id} {x.Value.Id}")
                                                                  .ListToCommaSeparatedValues("\n");
         dbitem.WitnessIds = WitnessIds.Select(x => x.ToString()).ListToCommaSeparatedValues(" ");
@@ -157,8 +162,8 @@ public class Crime : LateInitialisingItem, ICrime
             ConvictionRecorded = HasBeenConvicted,
             BailHasBeenPosted = _bailPosted,
             HasBeenEnforced = _hasBeenEnforced,
-            CriminalShortDescription = CriminalShortDescription,
-            CriminalFullDescription = CriminalDescription,
+            CriminalShortDescription = CriminalShortDescription ?? string.Empty,
+            CriminalFullDescription = CriminalDescription ?? string.Empty,
             CriminalCharacteristics = _criminalCharacteristics.Select(x => $"{x.Key.Id} {x.Value.Id}")
                                                               .ListToCommaSeparatedValues("\n"),
             WitnessIds = WitnessIds.Select(x => x.ToString()).ListToCommaSeparatedValues(" "),
@@ -278,7 +283,7 @@ public class Crime : LateInitialisingItem, ICrime
     }
 
     public long CriminalId { get; }
-    private ICharacter _criminal;
+    private ICharacter _criminal = null!;
 
     private void TryLoadCharacter()
     {
@@ -409,7 +414,11 @@ public class Crime : LateInitialisingItem, ICrime
 
     private void CrimeLocation_CellRequestsDeletion(object? sender, EventArgs e)
     {
-        ICell? cell = (ICell)sender;
+        if (sender is not ICell cell)
+        {
+            return;
+        }
+
         _crimeLocation = null;
         Changed = true;
         cell.CellRequestsDeletion -= CrimeLocation_CellRequestsDeletion;

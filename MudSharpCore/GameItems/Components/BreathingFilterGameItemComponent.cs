@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
@@ -13,6 +13,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -135,7 +137,7 @@ public class BreathingFilterGameItemComponent : GameItemComponent, IProvideGasFo
             item.Quantity == 1;
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         _installedFilterConsumable = item;
         item.ContainedIn = Parent;
@@ -179,7 +181,7 @@ public class BreathingFilterGameItemComponent : GameItemComponent, IProvideGasFo
         return 1;
     }
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();

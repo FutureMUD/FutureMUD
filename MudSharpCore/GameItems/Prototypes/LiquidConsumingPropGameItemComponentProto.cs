@@ -23,7 +23,7 @@ public class LiquidConsumingPropGameItemComponentProto : GameItemComponentProto,
     public double ConsumptionPerSecond { get; set; }
     public bool Transparent { get; set; }
     public bool CanBeEmptiedWhenInRoom { get; set; }
-    public string ContentsPreposition { get; set; }
+    public string ContentsPreposition { get; set; } = null!;
     public List<ConnectorType> Connections { get; } = [];
     IEnumerable<ConnectorType> IConnectableItemProto.Connections => Connections;
 
@@ -80,7 +80,7 @@ public class LiquidConsumingPropGameItemComponentProto : GameItemComponentProto,
         ).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new LiquidConsumingPropGameItemComponent(this, parent, temporary);
     }

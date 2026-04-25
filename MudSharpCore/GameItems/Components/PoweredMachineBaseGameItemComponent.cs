@@ -12,6 +12,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.GameItems.Components;
 
 public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, IConsumePower, ISwitchable, IOnOff

@@ -1,4 +1,6 @@
-﻿using MudSharp.Character;
+#nullable enable annotations
+
+using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -60,7 +62,7 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
         RegisterAIBuilderInformation("pathtolocation", (gameworld, name) => new PathToLocationAI(gameworld, name), new PathToLocationAI().HelpText);
     }
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         ICell location = TargetLocationProg?.Execute<ICell>(ch);
         if (location == null || Equals(location, ch.Location))

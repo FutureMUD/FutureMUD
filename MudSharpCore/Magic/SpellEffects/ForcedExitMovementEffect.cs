@@ -10,6 +10,8 @@ using System;
 using System.Linq;
 using System.Xml.Linq;
 
+#nullable enable
+
 namespace MudSharp.Magic.SpellEffects;
 
 public class ForcedExitMovementEffect : IMagicSpellEffectTemplate

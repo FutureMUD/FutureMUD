@@ -43,7 +43,7 @@ internal static class NpcSurvivalAIHelpers
 	{
 		double amount = DrinkAmount(character);
 		IEnumerable<ILiquidContainer> liquids = cell.LayerGameItems(character.RoomLayer)
-		                                           .SelectNotNull(x => x.GetItemType<ILiquidContainer>())
+		                                           .SelectNotNull(x => x!.GetItemType<ILiquidContainer>())
 		                                           .Where(x => (x.LiquidMixture?.Instances.Sum(y =>
 			                                                       y.Liquid.DrinkSatiatedHoursPerLitre) ?? 0.0) >
 		                                                       0.0);

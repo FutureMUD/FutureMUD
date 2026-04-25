@@ -38,8 +38,8 @@ public class PermitWork : Effect, IEffect
     protected PermitWork(XElement effect, IPerceivable owner) : base(effect, owner)
     {
         XElement? root = effect.Element("Effect");
-        Property = Gameworld.Properties.Get(long.Parse(root.Element("Property")!.Value));
-        Cell = Gameworld.Cells.Get(long.Parse(root.Element("Cell")!.Value));
+        Property = Gameworld.Properties.Get(long.Parse(root!.Element("Property")!.Value))!;
+        Cell = Gameworld.Cells.Get(long.Parse(root.Element("Cell")!.Value))!;
     }
 
     #endregion

@@ -241,8 +241,10 @@ public class SyringeGameItemComponent : GameItemComponent, ILiquidContainer, IIn
         // Do nothing
     }
 
+    #pragma warning disable CS0067 // Syringes satisfy IOpenable but do not raise open/close events.
     public event OpenableEvent OnOpen;
     public event OpenableEvent OnClose;
+    #pragma warning restore CS0067
 
     #endregion
 

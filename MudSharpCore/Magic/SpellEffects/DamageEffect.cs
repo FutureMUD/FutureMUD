@@ -1,5 +1,4 @@
 using MudSharp.Body;
-using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;

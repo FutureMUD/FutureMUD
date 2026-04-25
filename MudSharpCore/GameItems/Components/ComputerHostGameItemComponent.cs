@@ -133,7 +133,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 	}
 
 	public override IGameItemComponentProto Prototype => _prototype;
-	public string Name => Parent.Name;
+	public override string Name => Parent.Name;
 	public long FileOwnerId => Parent.Id;
 	public long? OwnerCharacterId => null;
 	public long? OwnerHostItemId => Parent.Id;
@@ -580,7 +580,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		return other is IComputerStorage or IComputerTerminal or INetworkAdapter;
 	}
 
-	public bool CanConnect(ICharacter actor, IConnectable other)
+	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
 		if (other is not IComputerStorage && other is not IComputerTerminal && other is not INetworkAdapter)
 		{
@@ -590,7 +590,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		return FreeConnections.Any(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
 	}
 
-	public void Connect(ICharacter actor, IConnectable other)
+	public void Connect(ICharacter? actor, IConnectable other)
 	{
 		if (!CanConnect(actor, other))
 		{
@@ -620,7 +620,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		Changed = true;
 	}
 
-	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
 		return $"{Parent.HowSeen(actor)} has no compatible free computer connection ports.";
 	}

@@ -14,7 +14,7 @@ namespace MudSharp.GameItems.Components;
 
 public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRuntimeConfigurableSignalSinkComponent
 {
-	private ElectronicDoorGameItemComponentProto _prototype;
+	private new ElectronicDoorGameItemComponentProto _prototype;
 	private readonly LocalSignalSinkSubscription _binding;
 	private bool _desiredOpen;
 	private bool _heartbeatSubscribed;

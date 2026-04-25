@@ -33,6 +33,9 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Body.Implementations;
 
 public partial class Body
@@ -362,7 +365,6 @@ public partial class Body
     public string GetPositionDescription(IPerceiver voyeur, bool proper, bool colour, PerceiveIgnoreFlags flags)
     {
         List<string> parts = new();
-        string stateDesc = "";
         if (Actor.State.HasFlag(CharacterState.Unconscious))
         {
             parts.Add("unconscious");
@@ -1127,8 +1129,7 @@ public partial class Body
         return DescribeGraffiti(graffiti);
     }
 
-#nullable enable
-    private string DescribeGraffiti(IGraffitiEffect graffiti)
+	private string DescribeGraffiti(IGraffitiEffect graffiti)
     {
         StringBuilder sb = new();
         sb.AppendLine($"{graffiti.Writing!.DescribeInLook(Actor) ?? "unknown graffiti".ColourError()}{(string.IsNullOrEmpty(graffiti.LocaleDescription) ? "" : $" ({graffiti.LocaleDescription.ColourCommand()})")}");
@@ -1160,9 +1161,7 @@ public partial class Body
         sb.AppendLine(graffiti.Writing.ParseFor(Actor));
         return sb.ToString();
     }
-#nullable restore
-
-    public string LookWoundsText(IMortalPerceiver thing)
+	public string LookWoundsText(IMortalPerceiver thing)
     {
         StringBuilder sb = new();
         sb.AppendLine($"{thing.HowSeen(Actor, true)} has the following wounds:");

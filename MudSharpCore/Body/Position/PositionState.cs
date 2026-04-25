@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Framework;
@@ -8,6 +8,8 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Parsers;
 using System;
 using System.Collections.Generic;
+
+#nullable enable annotations
 
 namespace MudSharp.Body.Position;
 
@@ -152,7 +154,7 @@ public abstract class PositionState : FrameworkItem, IPositionState
         PositionModifier originalModifier, PositionModifier newModifier, IPerceivable originalTarget,
         IPerceivable newTarget)
     {
-        IEmote emote = null;
+        IEmote? emote = null;
         IGameItem newTargetItem = newTarget as IGameItem;
         if ((newTarget == originalTarget && newModifier == originalModifier) ||
             (newTarget == originalTarget && newTargetItem == null))

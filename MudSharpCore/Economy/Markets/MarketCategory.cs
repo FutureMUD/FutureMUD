@@ -15,6 +15,9 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Economy.Markets;
 
 public class MarketCategory : SaveableItem, IMarketCategory

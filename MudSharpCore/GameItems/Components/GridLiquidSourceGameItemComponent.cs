@@ -243,7 +243,7 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
         return true;
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any() || !other.FreeConnections.Any())
         {
@@ -254,7 +254,7 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
                other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         ConnectorType? connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
@@ -276,7 +276,7 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {
@@ -369,8 +369,10 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
     {
     }
 
+    #pragma warning disable CS0067 // Grid liquid sources satisfy IOpenable but do not raise open/close events.
     public event OpenableEvent? OnOpen;
     public event OpenableEvent? OnClose;
+    #pragma warning restore CS0067
 
     string ICanConnectToGrid.GridType => "Liquid";
 

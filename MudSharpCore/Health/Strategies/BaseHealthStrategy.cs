@@ -20,6 +20,9 @@ using NumberStyles = System.Globalization.NumberStyles;
 using SystemCultureInfo = System.Globalization.CultureInfo;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Health.Strategies;
 
 public abstract class BaseHealthStrategy : SaveableItem, IHealthStrategy

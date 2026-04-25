@@ -253,7 +253,7 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
                _contents.Sum(x => x.Weight) + item.Weight <= _prototype.MaximumFuelWeight;
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         _contents.Add(item);
         item.ContainedIn = Parent;
@@ -286,7 +286,7 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
     {
         if (!CanTake(taker, item, quantity))
         {
-            return null;
+            return null!;
         }
 
         _contents.Remove(item);
@@ -312,7 +312,7 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
         return 1;
     }
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         foreach (IGameItem? item in _contents.ToList())
         {

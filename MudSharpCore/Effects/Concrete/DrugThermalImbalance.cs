@@ -6,7 +6,7 @@ namespace MudSharp.Effects.Concrete;
 
 public class DrugThermalImbalance : ThermalImbalance
 {
-    public static void InitialiseEffectType()
+    public new static void InitialiseEffectType()
     {
         RegisterFactory("DrugThermalImbalance", (effect, owner) => new DrugThermalImbalance(effect, owner));
     }

@@ -9,6 +9,8 @@ using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace MudSharp.Body
 {
     public enum BodypartTypeEnum

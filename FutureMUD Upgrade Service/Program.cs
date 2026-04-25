@@ -72,8 +72,10 @@ public class Program
                .AddCookie("Cookies")
                .AddGoogle("Google", googleOptions =>
                {
-                   googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-                   googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+                   googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"] ??
+                                            throw new InvalidOperationException("Missing Authentication:Google:ClientId configuration.");
+                   googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ??
+                                                throw new InvalidOperationException("Missing Authentication:Google:ClientSecret configuration.");
                });
 
         WebApplication app = builder.Build();

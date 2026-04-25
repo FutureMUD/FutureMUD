@@ -15,6 +15,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
+#nullable enable
+
 namespace MudSharp.Economy
 {
     public enum AuctionLotType
@@ -29,12 +31,12 @@ namespace MudSharp.Economy
 
         public ICharacter Bidder
         {
-            get => BidDateTime.Gameworld.TryGetCharacter(BidderId, true);
+            get => BidDateTime.Gameworld.TryGetCharacter(BidderId, true)!;
 
             init => BidderId = value.Id;
         }
         public decimal Bid { get; init; }
-        public MudDateTime BidDateTime { get; init; }
+        public MudDateTime BidDateTime { get; init; } = null!;
 
         public XElement SaveToXml()
         {
@@ -48,14 +50,14 @@ namespace MudSharp.Economy
 
     public record AuctionItem : IKeyworded
     {
-        public IFrameworkItem Asset { get; init; }
-        public IFrameworkItem Seller { get; init; }
-        [CanBeNull] public IFrameworkItem PayoutTarget { get; init; }
+        public IFrameworkItem Asset { get; init; } = null!;
+        public IFrameworkItem Seller { get; init; } = null!;
+        public IFrameworkItem? PayoutTarget { get; init; }
         public decimal PropertyShare { get; init; } = 1.0M;
         public decimal MinimumPrice { get; init; }
         public decimal? BuyoutPrice { get; init; }
-        public MudDateTime ListingDateTime { get; init; }
-        public MudDateTime FinishingDateTime { get; init; }
+        public MudDateTime ListingDateTime { get; init; } = null!;
+        public MudDateTime FinishingDateTime { get; init; } = null!;
 
         public AuctionLotType LotType => Asset switch
         {
@@ -63,8 +65,8 @@ namespace MudSharp.Economy
             _ => AuctionLotType.Item
         };
 
-        [CanBeNull] public IGameItem Item => Asset as IGameItem;
-        [CanBeNull] public IProperty Property => Asset as IProperty;
+        public IGameItem? Item => Asset as IGameItem;
+        public IProperty? Property => Asset as IProperty;
 
         public bool IsSeller(IFrameworkItem? seller)
         {
@@ -135,8 +137,8 @@ namespace MudSharp.Economy
 
     public record UnclaimedAuctionItem
     {
-        public AuctionItem AuctionItem { get; init; }
-        [CanBeNull] public AuctionBid WinningBid { get; init; }
+        public AuctionItem AuctionItem { get; init; } = null!;
+        public AuctionBid? WinningBid { get; init; }
 
         public XElement SaveToXml(IEnumerable<AuctionBid> bids)
         {
@@ -150,15 +152,15 @@ namespace MudSharp.Economy
     public record AuctionResult
     {
         public long AssetId { get; init; }
-        public string AssetType { get; init; }
-        public string AssetDescription { get; init; }
+        public string AssetType { get; init; } = null!;
+        public string AssetDescription { get; init; } = null!;
         public bool Sold { get; init; }
         public decimal SalePrice { get; init; }
-        public MudDateTime ResultDateTime { get; init; }
+        public MudDateTime ResultDateTime { get; init; } = null!;
         public long SellerId { get; init; }
-        public string SellerType { get; init; }
+        public string SellerType { get; init; } = null!;
         public long? PayoutTargetId { get; init; }
-        public string PayoutTargetType { get; init; }
+        public string? PayoutTargetType { get; init; }
         public long SoldToId { get; init; }
         public bool PaidOutAtTime { get; init; }
 

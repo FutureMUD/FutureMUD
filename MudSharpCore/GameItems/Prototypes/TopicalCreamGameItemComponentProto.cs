@@ -12,6 +12,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.GameItems.Prototypes;
 
 public class TopicalCreamGameItemComponentProto : GameItemComponentProto
@@ -112,7 +115,7 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto
             BuildingHelpText);
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new TopicalCreamGameItemComponent(this, parent, temporary);
     }

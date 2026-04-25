@@ -1,3 +1,5 @@
+#nullable enable annotations
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using System;

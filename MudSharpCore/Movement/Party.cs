@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -15,6 +15,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
+#nullable enable annotations
 
 namespace MudSharp.Movement;
 
@@ -242,8 +244,10 @@ public class Party : PerceiverItem, IParty
     public event EventHandler<MoveEventArgs> OnMoved;
     public event EventHandler<MoveEventArgs> OnStartMove;
     public event EventHandler<MoveEventArgs> OnStopMove;
+    #pragma warning disable CS0067 // Party movement delegates consensual/wants-to-move handling to members.
     public event EventHandler<MoveEventArgs> OnMovedConsensually;
     public event PerceivableResponseEvent OnWantsToMove;
+    #pragma warning restore CS0067
 
     public void Moved(IMovement movement)
     {
@@ -408,7 +412,7 @@ public class Party : PerceiverItem, IParty
         return Leader.Move(rawString);
     }
 
-    public bool Move(ICellExit exit, IEmote emote = null, bool ignoreSafeMovement = false)
+    public bool Move(ICellExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         IMovement movement = MudSharp.Movement.Movement.CreateMovement(Leader, exit, emote, ignoreSafeMovement);
         if (movement is null)
@@ -421,7 +425,7 @@ public class Party : PerceiverItem, IParty
         return true;
     }
 
-    public bool Move(CardinalDirection direction, IEmote emote = null, bool ignoreSafeMovement = false)
+    public bool Move(CardinalDirection direction, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         ICellExit exit = Leader.Location.GetExit(direction, this);
         if (exit == null || !Leader.CanSee(Leader.Location, exit))
@@ -433,7 +437,7 @@ public class Party : PerceiverItem, IParty
         return Move(exit, emote, ignoreSafeMovement);
     }
 
-    public bool Move(string cmd, string target, IEmote emote = null, bool ignoreSafeMovement = false)
+    public bool Move(string cmd, string target, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         ICellExit exit = Leader.Location.GetExit(cmd, target, Leader);
         if (exit == null || !Leader.CanSee(Leader.Location, exit))

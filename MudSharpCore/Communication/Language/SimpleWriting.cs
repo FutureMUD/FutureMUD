@@ -310,7 +310,7 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
         };
     }
 
-    public new static void RegisterFutureProgCompiler()
+    public static void RegisterFutureProgCompiler()
     {
         ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Writing, DotReferenceHandler(), DotReferenceHelp());
     }

@@ -14,7 +14,7 @@ namespace MudSharp.GameItems.Components;
 
 public class AutomationHousingGameItemComponent : LockingContainerGameItemComponent, IAutomationHousing
 {
-	private AutomationHousingGameItemComponentProto _prototype;
+	private new AutomationHousingGameItemComponentProto _prototype;
 
 	public AutomationHousingGameItemComponent(AutomationHousingGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)

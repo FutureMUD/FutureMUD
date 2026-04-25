@@ -424,7 +424,7 @@ public class ArborealWandererAI : PathingAIBase
         return new FollowingMultiLayerPath(ch, path, targetLayer, targetLayer);
     }
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         List<(ICell Cell, int Distance)> treeTargets = ch.CellsAndDistancesInVicinity(10,
             GetSuitabilityFunction(ch, true),

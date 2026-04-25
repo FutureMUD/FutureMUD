@@ -14,6 +14,9 @@ using System.Xml.Linq;
 using Calendar = MudSharp.TimeAndDate.Date.Calendar;
 using Clock = MudSharp.TimeAndDate.Time.Clock;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Climate.Analysis;
 
 internal sealed class WeatherStatisticsRequest

@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using MudSharp.Body;
@@ -46,6 +46,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using CharacteristicValue = MudSharp.Form.Characteristics.CharacteristicValue;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems;
 
@@ -861,7 +863,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         StartHealthTick();
     }
 
-    public GameItem(IGameItemProto proto, ICharacter loader = null, ItemQuality quality = ItemQuality.Standard)
+    public GameItem(IGameItemProto proto, ICharacter? loader = null, ItemQuality quality = ItemQuality.Standard)
     {
         Register(new IgnorantItemOutputHandler(this));
         if (proto == null)

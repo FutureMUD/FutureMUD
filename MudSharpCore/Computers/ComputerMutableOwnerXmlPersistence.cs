@@ -177,7 +177,7 @@ internal static class ComputerMutableOwnerXmlPersistence
 				new XAttribute("updated", process.LastUpdatedAtUtc.ToString("O")),
 				new XAttribute("ended", process.EndedAtUtc?.ToString("O") ?? string.Empty),
 				new XElement("Result",
-					new XCData(ComputerProgramExecutor.SerializeValue(process.Program.ReturnType, process.Result))),
+					new XCData(ComputerProgramExecutor.SerializeValue(process.Program.ReturnType, process.Result) ?? string.Empty)),
 				new XElement("LastError", new XCData(process.LastError ?? string.Empty)),
 				new XElement("State", new XCData(process.StateJson ?? string.Empty))));
 	}

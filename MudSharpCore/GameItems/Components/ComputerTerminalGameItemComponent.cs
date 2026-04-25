@@ -248,14 +248,14 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 		return other is IComputerHost;
 	}
 
-	public bool CanConnect(ICharacter actor, IConnectable other)
+	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
 		return _connectedHost is null &&
 		       other is IComputerHost &&
 		       other.FreeConnections.Any(x => x.CompatibleWith(ComputerConnectionTypes.TerminalPlug));
 	}
 
-	public void Connect(ICharacter actor, IConnectable other)
+	public void Connect(ICharacter? actor, IConnectable other)
 	{
 		if (!CanConnect(actor, other))
 		{
@@ -274,7 +274,7 @@ public class ComputerTerminalGameItemComponent : PoweredMachineBaseGameItemCompo
 		Changed = true;
 	}
 
-	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
 		return _connectedHost is not null
 			? $"{Parent.HowSeen(actor)} is already connected to a computer host."

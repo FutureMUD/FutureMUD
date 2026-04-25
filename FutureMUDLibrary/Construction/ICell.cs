@@ -73,7 +73,7 @@ namespace MudSharp.Construction
         double CurrentIllumination(IPerceiver voyeur);
         Difficulty SpotDifficulty(IPerceiver spotter);
         [CanBeNull] IWeatherEvent CurrentWeather(IPerceiver voyeur);
-        [CanBeNull] IWeatherController WeatherController { get; }
+        [CanBeNull] new IWeatherController WeatherController { get; }
         double CurrentTemperature(IPerceiver voyeur);
         ISeason CurrentSeason(IPerceiver voyeur);
 

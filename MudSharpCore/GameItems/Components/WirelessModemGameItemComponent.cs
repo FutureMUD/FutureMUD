@@ -207,14 +207,14 @@ public class WirelessModemGameItemComponent : PoweredMachineBaseGameItemComponen
 		return other is IComputerHost;
 	}
 
-	public bool CanConnect(ICharacter actor, IConnectable other)
+	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
 		return other is IComputerHost &&
 		       _connectedHost is null &&
 		       other.FreeConnections.Any(x => x.CompatibleWith(ComputerConnectionTypes.NetworkPlug));
 	}
 
-	public void Connect(ICharacter actor, IConnectable other)
+	public void Connect(ICharacter? actor, IConnectable other)
 	{
 		if (!CanConnect(actor, other))
 		{
@@ -238,7 +238,7 @@ public class WirelessModemGameItemComponent : PoweredMachineBaseGameItemComponen
 		Changed = true;
 	}
 
-	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
 		return _connectedHost is not null
 			? $"{Parent.HowSeen(actor)} is already connected to a computer host."
@@ -325,7 +325,7 @@ public class WirelessModemGameItemComponent : PoweredMachineBaseGameItemComponen
 		}
 
 		return Gameworld.Items
-			.SelectNotNull(x => x.GetItemType<ICellPhoneTower>())
+			.SelectNotNull(x => x!.GetItemType<ICellPhoneTower>())
 			.Where(x => zones.Any(y => x.ProvidesCoverage(y!)))
 			.OrderBy(x => x.Parent.Id)
 			.FirstOrDefault();

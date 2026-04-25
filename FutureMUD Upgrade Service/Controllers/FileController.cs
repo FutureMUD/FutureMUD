@@ -100,7 +100,7 @@ public class FileController : ControllerBase
         }
 
         string json = System.IO.File.ReadAllText(_metadataFilePath);
-        return JsonSerializer.Deserialize<Dictionary<string, FileMetadata>>(json);
+        return JsonSerializer.Deserialize<Dictionary<string, FileMetadata>>(json) ?? new Dictionary<string, FileMetadata>();
     }
 
     private void WriteMetadata(Dictionary<string, FileMetadata> metadata)

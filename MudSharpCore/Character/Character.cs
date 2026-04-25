@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -71,6 +71,8 @@ using System.Text;
 using System.Xml.Linq;
 using Attribute = MudSharp.Body.Traits.Subtypes.Attribute;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
+
+#nullable enable annotations
 
 namespace MudSharp.Character;
 
@@ -441,7 +443,7 @@ public partial class Character : PerceiverItem, ICharacter
             EffectHandler.AddEffect(new BuilderEditingEffect<T>(this) { EditingItem = item });
         }
     }
-#nullable restore
+#nullable disable warnings
 
     public bool BriefRoomDescs { get; set; }
 
@@ -1947,7 +1949,7 @@ public partial class Character : PerceiverItem, ICharacter
 
     #region ISentient
 
-    public bool Think(string thought, IEmote emote = null)
+    public bool Think(string thought, IEmote? emote = null)
     {
         OutputHandler.Send(new MixedEmoteOutput(new Emote("", this)).Append(emote));
         return false;
@@ -3268,7 +3270,7 @@ public partial class Character : PerceiverItem, ICharacter
 
     #region IEat Members
 
-    public bool Eat(IEdible edible, IContainer container, ITable table, double bites, IEmote playerEmote)
+    public bool Eat(IEdible edible, IContainer? container, ITable? table, double bites, IEmote? playerEmote)
     {
         return Body.Eat(edible, container, table, bites, playerEmote);
     }
@@ -3278,7 +3280,7 @@ public partial class Character : PerceiverItem, ICharacter
         return Body.SilentEat(edible, bites);
     }
 
-    public bool CanEat(IEdible edible, IContainer container, ITable table, double bites)
+    public bool CanEat(IEdible edible, IContainer? container, ITable? table, double bites)
     {
         return Body.CanEat(edible, container, table, bites);
     }
@@ -3298,22 +3300,22 @@ public partial class Character : PerceiverItem, ICharacter
         return Body.CanEat(foragableYield, bites);
     }
 
-    public (bool Success, string ErrorMessage) Eat(ICorpse corpse, double bites, IEmote playerEmote)
+    public (bool Success, string ErrorMessage) Eat(ICorpse corpse, double bites, IEmote? playerEmote)
     {
         return Body.Eat(corpse, bites, playerEmote);
     }
 
-    public (bool Success, string ErrorMessage) Eat(ISeveredBodypart bodypart, double bites, IEmote playerEmote)
+    public (bool Success, string ErrorMessage) Eat(ISeveredBodypart bodypart, double bites, IEmote? playerEmote)
     {
         return Body.Eat(bodypart, bites, playerEmote);
     }
 
-    public (bool Success, string ErrorMessage) Eat(string foragableYield, double bites, IEmote playerEmote)
+    public (bool Success, string ErrorMessage) Eat(string foragableYield, double bites, IEmote? playerEmote)
     {
         return Body.Eat(foragableYield, bites, playerEmote);
     }
 
-    public bool Drink(ILiquidContainer container, ITable table, double quantity, IEmote playerEmote)
+    public bool Drink(ILiquidContainer container, ITable? table, double quantity, IEmote? playerEmote)
     {
         return Body.Drink(container, table, quantity, playerEmote);
     }
@@ -3323,12 +3325,12 @@ public partial class Character : PerceiverItem, ICharacter
         return Body.SilentDrink(container, quantity);
     }
 
-    public bool CanDrink(ILiquidContainer container, ITable table, double quantity)
+    public bool CanDrink(ILiquidContainer container, ITable? table, double quantity)
     {
         return Body.CanDrink(container, table, quantity);
     }
 
-    public bool Swallow(ISwallowable swallowable, IContainer container, ITable table, IEmote playerEmote)
+    public bool Swallow(ISwallowable swallowable, IContainer? container, ITable? table, IEmote? playerEmote)
     {
         return Body.Swallow(swallowable, container, table, playerEmote);
     }

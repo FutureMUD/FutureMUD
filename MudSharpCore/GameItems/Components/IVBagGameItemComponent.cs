@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Interfaces;
@@ -16,6 +16,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -596,7 +598,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
     private readonly List<ILock> _locks = new();
     public IEnumerable<ILock> Locks => _locks;
 
-    public bool InstallLock(ILock theLock, ICharacter actor = null)
+    public bool InstallLock(ILock theLock, ICharacter? actor = null)
     {
         _locks.Add(theLock);
         if (_noSave)
@@ -947,7 +949,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
         return true; // TODO
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {
@@ -963,7 +965,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
                other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         ConnectorType connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
@@ -991,7 +993,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {

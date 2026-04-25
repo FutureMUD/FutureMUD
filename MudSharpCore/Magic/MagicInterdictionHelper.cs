@@ -5,6 +5,8 @@ using MudSharp.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
+
 namespace MudSharp.Magic;
 
 internal sealed record MagicInterdictionResult(
@@ -75,8 +77,8 @@ internal static class MagicInterdictionHelper
 		}
 
 		foreach (ICell room in additionalParameters
-			         .Where(x => x.Item is ICell)
-			         .Select(x => (ICell)x.Item))
+			         .Select(x => x.Item)
+			         .OfType<ICell>())
 		{
 			rooms.Add(room);
 		}

@@ -20,7 +20,7 @@ namespace MudSharp.Construction
         string DescribeSky(double skyBrightness);
         IEnumerable<IZone> Zones { get; }
         IEnumerable<IRoom> Rooms { get; }
-        IEnumerable<ICell> Cells { get; }
+        new IEnumerable<ICell> Cells { get; }
     }
 
     public interface IEditableShard : IShard

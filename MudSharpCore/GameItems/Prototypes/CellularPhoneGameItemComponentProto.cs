@@ -17,8 +17,8 @@ public class CellularPhoneGameItemComponentProto : GameItemComponentProto
 {
     public override string TypeDescription => "CellularPhone";
     public double Wattage { get; set; }
-    public string RingEmote { get; set; }
-    public string TransmitPremote { get; set; }
+    public string RingEmote { get; set; } = null!;
+    public string TransmitPremote { get; set; } = null!;
     public AudioVolume RingVolume { get; set; }
 
     protected CellularPhoneGameItemComponentProto(IFuturemud gameworld, IAccount originator)
@@ -55,7 +55,7 @@ public class CellularPhoneGameItemComponentProto : GameItemComponentProto
         ).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new CellularPhoneGameItemComponent(this, parent, temporary);
     }

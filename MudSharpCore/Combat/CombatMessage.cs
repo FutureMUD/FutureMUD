@@ -562,7 +562,6 @@ public class CombatMessage : SaveableItem, ICombatMessage
 
 	$0 - the attacker
 	$1 - the target";
-                break;
             case BuiltInCombatMoveType.AdvanceAndFire:
                 return
                     @"Valid tokens for this message: 
@@ -642,13 +641,11 @@ public class CombatMessage : SaveableItem, ICombatMessage
                 break;
             case BuiltInCombatMoveType.StrangleAttack:
                 break;
-                break;
             case BuiltInCombatMoveType.BeamAttack:
                 break;
             case BuiltInCombatMoveType.Disarm:
                 break;
             case BuiltInCombatMoveType.OverpowerGrapple:
-                break;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);

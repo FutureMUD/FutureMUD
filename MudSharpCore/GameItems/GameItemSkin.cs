@@ -6,7 +6,6 @@ using MudSharp.Editor;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
-using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
 using MudSharp.Work.Crafts;
 using System;
@@ -159,7 +158,7 @@ public class GameItemSkin : EditableItem, IGameItemSkin
 
     public override void Save()
     {
-        Models.GameItemSkin? dbitem = FMDB.Context.GameItemSkins.Find(Id, RevisionNumber);
+        Models.GameItemSkin dbitem = FMDB.Context.GameItemSkins.Find(Id, RevisionNumber)!;
         dbitem.Name = Name;
         dbitem.ItemName = ItemName;
         dbitem.ShortDescription = ShortDescription;
@@ -433,7 +432,7 @@ public class GameItemSkin : EditableItem, IGameItemSkin
     public string? LongDescription { get; private set; }
     public ItemQuality? Quality { get; private set; }
     public bool IsPublic { get; private set; }
-    public IFutureProg CanUseSkinProg { get; private set; }
+    public IFutureProg CanUseSkinProg { get; private set; } = null!;
 
     public (bool Truth, string Error) CanUseSkin(ICharacter crafter, IGameItemProto? prototype)
     {

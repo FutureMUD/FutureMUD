@@ -84,7 +84,7 @@ internal static class ArenaProgParameters
         [
             participants,
             sideIndices,
-            SelectArenaCell(arenaEvent.Arena.ArenaCells),
+            SelectArenaCell(arenaEvent.Arena.ArenaCells)!,
             arenaEvent.EventType.Name,
             arenaEvent.Arena.Name,
             arenaEvent.Name,
@@ -106,7 +106,7 @@ internal static class ArenaProgParameters
         [
             participants,
             sideIndex,
-            SelectWaitingCell(arenaEvent.Arena, sideIndex),
+            SelectWaitingCell(arenaEvent.Arena, sideIndex)!,
             arenaEvent.EventType.Name,
             arenaEvent.Arena.Name,
             arenaEvent.Name,
@@ -119,7 +119,7 @@ internal static class ArenaProgParameters
         [
             sideIndex,
             slotsNeeded,
-            SelectWaitingCell(arenaEvent.Arena, sideIndex),
+            SelectWaitingCell(arenaEvent.Arena, sideIndex)!,
             arenaEvent.EventType.Name,
             arenaEvent.Arena.Name,
             arenaEvent.Name,

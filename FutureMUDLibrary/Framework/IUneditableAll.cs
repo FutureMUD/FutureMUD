@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace MudSharp.Framework
 {
     public interface IUneditableAll<T> : IEnumerable<T> where T : class, IFrameworkItem

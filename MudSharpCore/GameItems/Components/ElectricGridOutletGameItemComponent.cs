@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Grids;
 using MudSharp.Form.Shape;
@@ -14,6 +14,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -336,7 +338,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
         return true; // TODO
     }
 
-    public bool CanConnect(ICharacter actor, IConnectable other)
+    public bool CanConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {
@@ -352,7 +354,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
                other.CanBeConnectedTo(this);
     }
 
-    public void Connect(ICharacter actor, IConnectable other)
+    public void Connect(ICharacter? actor, IConnectable other)
     {
         ConnectorType connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
         if (connection == null)
@@ -373,7 +375,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
         Changed = true;
     }
 
-    public string WhyCannotConnect(ICharacter actor, IConnectable other)
+    public string WhyCannotConnect(ICharacter? actor, IConnectable other)
     {
         if (!FreeConnections.Any())
         {
@@ -499,6 +501,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
 
     public void OnPowerCutIn()
     {
+        _powered = true;
         foreach (IConsumePower item in _connectedConsumers.Where(x => !_powerUsers.Contains(x)).ToList())
         {
             _powerUsers.Add(item);
@@ -512,6 +515,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
 
     public void OnPowerCutOut()
     {
+        _powered = false;
         foreach (IConsumePower item in _powerUsers)
         {
             item.OnPowerCutOut();
@@ -526,7 +530,7 @@ public class ElectricGridOutletGameItemComponent : GameItemComponent, IConnectab
 
     string ICanConnectToGrid.GridType => "Electrical";
 
-    IGrid ICanConnectToGrid.Grid
+    IGrid? ICanConnectToGrid.Grid
     {
         get => ElectricalGrid;
         set => ElectricalGrid = value as IElectricalGrid;

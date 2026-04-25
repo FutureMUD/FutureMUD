@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Work.Crafts.Inputs;
 
 public class CommodityInput : BaseInput, ICraftInputConsumesGameItem

@@ -8,7 +8,7 @@ namespace MudSharp.Construction
     {
         IZone Zone { get; }
         IShard Shard { get; }
-        IEnumerable<ICell> Cells { get; }
+        new IEnumerable<ICell> Cells { get; }
         IEnumerable<IArea> Areas { get; }
         TimeOfDay CurrentTimeOfDay { get; }
 

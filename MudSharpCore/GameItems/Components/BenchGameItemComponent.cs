@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Combat;
@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -367,7 +369,7 @@ public class BenchGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
         }
     }
 
-    public bool Flip(ICharacter flipper, IEmote playerEmote = null, bool silent = false)
+    public bool Flip(ICharacter flipper, IEmote? playerEmote = null, bool silent = false)
     {
         if (!CanFlip(flipper))
         {

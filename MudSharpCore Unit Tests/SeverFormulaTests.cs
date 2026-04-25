@@ -7,7 +7,6 @@ using MudSharp.Body.Implementations;
 using MudSharp.Character.Heritage;
 using MudSharp.Health;
 using System.Reflection;
-using System.Runtime.Serialization;
 
 namespace MudSharp_Unit_Tests;
 
@@ -16,7 +15,7 @@ public class SeverFormulaTests
 {
 	private static Body BuildBody(Mock<IRace> race)
 	{
-		Body body = (Body)FormatterServices.GetUninitializedObject(typeof(Body));
+		Body body = TestObjectFactory.CreateUninitialized<Body>();
 		typeof(Body).GetProperty("Race", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
 			.SetValue(body, race.Object);
 		return body;

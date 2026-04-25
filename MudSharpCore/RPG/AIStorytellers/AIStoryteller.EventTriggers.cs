@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 #pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+#nullable enable
 
 namespace MudSharp.RPG.AIStorytellers;
 
@@ -116,7 +117,7 @@ public partial class AIStoryteller
     private static void RecordSpeechEventInContext(ICell location, ICharacter speaker, IPerceivable? target,
         string message, AudioVolume volume, ILanguage language, IAccent accent, DateTime eventTimestampUtc)
     {
-        IRecentSpeechContextEffect contextEffect = location.EffectsOfType<IRecentSpeechContextEffect>().FirstOrDefault();
+        IRecentSpeechContextEffect? contextEffect = location.EffectsOfType<IRecentSpeechContextEffect>().FirstOrDefault();
         if (contextEffect is null)
         {
             contextEffect = new RecentSpeechContextEffect(location);
@@ -265,7 +266,7 @@ public partial class AIStoryteller
             return [];
         }
 
-        IRecentSpeechContextEffect contextEffect = location.EffectsOfType<IRecentSpeechContextEffect>().FirstOrDefault();
+        IRecentSpeechContextEffect? contextEffect = location.EffectsOfType<IRecentSpeechContextEffect>().FirstOrDefault();
         if (contextEffect is null)
         {
             return [];
@@ -311,7 +312,7 @@ public partial class AIStoryteller
                 return true;
             }
 
-            foreach (ICharacter character in involvedCharacters.Where(x => x is not null))
+            foreach (ICharacter? character in involvedCharacters.Where(x => x is not null))
             {
                 if (!_bypassAttentionCharacterIds.Contains(character!.Id))
                 {

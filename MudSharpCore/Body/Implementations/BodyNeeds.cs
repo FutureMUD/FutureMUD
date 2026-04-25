@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Needs;
+using MudSharp.Body.Needs;
 using MudSharp.Body.PartProtos;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
@@ -14,6 +14,8 @@ using MudSharp.RPG.Law;
 using System;
 using System.Linq;
 using System.Text;
+
+#nullable enable annotations
 
 namespace MudSharp.Body.Implementations;
 
@@ -190,7 +192,7 @@ public partial class Body : IHaveNeeds, IEat
         }
     }
 
-    public bool Eat(IEdible edible, IContainer container, ITable table, double bites, IEmote playerEmote)
+    public bool Eat(IEdible edible, IContainer? container, ITable? table, double bites, IEmote? playerEmote)
     {
         if (bites == 0)
         {
@@ -295,7 +297,7 @@ public partial class Body : IHaveNeeds, IEat
         return true;
     }
 
-    public (bool Success, string ErrorMessage) Eat(ICorpse corpse, double bites, IEmote playerEmote)
+    public (bool Success, string ErrorMessage) Eat(ICorpse corpse, double bites, IEmote? playerEmote)
     {
         if (bites == 0)
         {
@@ -343,7 +345,7 @@ public partial class Body : IHaveNeeds, IEat
         return (true, string.Empty);
     }
 
-    public (bool Success, string ErrorMessage) Eat(ISeveredBodypart bodypart, double bites, IEmote playerEmote)
+    public (bool Success, string ErrorMessage) Eat(ISeveredBodypart bodypart, double bites, IEmote? playerEmote)
     {
         if (bites == 0)
         {
@@ -391,7 +393,7 @@ public partial class Body : IHaveNeeds, IEat
         return (true, string.Empty);
     }
 
-    public (bool Success, string ErrorMessage) Eat(string foragableYield, double bites, IEmote playerEmote)
+    public (bool Success, string ErrorMessage) Eat(string foragableYield, double bites, IEmote? playerEmote)
     {
         if (bites == 0)
         {
@@ -436,7 +438,7 @@ public partial class Body : IHaveNeeds, IEat
         return (true, string.Empty);
     }
 
-    public bool CanEat(IEdible edible, IContainer container, ITable table, double bites)
+    public bool CanEat(IEdible edible, IContainer? container, ITable? table, double bites)
     {
         if (!Actor.Race.CanEatFoodMaterial(edible.Parent.Material))
         {
@@ -579,7 +581,7 @@ public partial class Body : IHaveNeeds, IEat
         return true;
     }
 
-    public bool Drink(ILiquidContainer container, ITable table, double quantity, IEmote playerEmote)
+    public bool Drink(ILiquidContainer container, ITable? table, double quantity, IEmote? playerEmote)
     {
         if (!CanDrink(container, table, quantity))
         {
@@ -726,7 +728,7 @@ public partial class Body : IHaveNeeds, IEat
         return true;
     }
 
-    public bool Swallow(ISwallowable swallowable, IContainer container, ITable table, IEmote playerEmote)
+    public bool Swallow(ISwallowable swallowable, IContainer? container, ITable? table, IEmote? playerEmote)
     {
         if (!CanSwallow(swallowable, container, table))
         {

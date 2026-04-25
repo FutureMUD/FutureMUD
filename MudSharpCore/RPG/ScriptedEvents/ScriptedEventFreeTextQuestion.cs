@@ -60,7 +60,7 @@ internal class ScriptedEventFreeTextQuestion : SaveableItem, IScriptedEventFreeT
 
     public override void Save()
     {
-        Models.ScriptedEventFreeTextQuestion? dbitem = FMDB.Context.ScriptedEventFreeTextQuestions.Find(Id);
+        Models.ScriptedEventFreeTextQuestion dbitem = FMDB.Context.ScriptedEventFreeTextQuestions.Find(Id)!;
         dbitem.Question = Question;
         dbitem.Answer = Answer;
         Changed = false;

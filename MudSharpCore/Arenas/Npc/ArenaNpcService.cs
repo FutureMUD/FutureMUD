@@ -46,7 +46,7 @@ public class ArenaNpcService : IArenaNpcService
             .SelectMany(x => x.Participants)
             .Select(x => x.Character?.Id)
             .Where(x => x.HasValue)
-            .Select(x => x.Value)
+            .Select(x => x.GetValueOrDefault())
             .ToHashSet();
 
         List<ICell> stableCells = arenaEvent.Arena.NpcStablesCells?.ToList() ?? [];
@@ -177,7 +177,7 @@ public class ArenaNpcService : IArenaNpcService
         ICell? returnLocation = effect.OriginalLocation ?? npc.Location ?? npc.Gameworld.Cells.Get(1);
         if (resurrect && npc.State.HasFlag(CharacterState.Dead))
         {
-            npc.Resurrect(returnLocation);
+            npc.Resurrect(returnLocation!);
         }
 
         if (npc.State.HasFlag(CharacterState.Dead))

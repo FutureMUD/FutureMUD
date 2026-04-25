@@ -3,6 +3,8 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace MudSharp.Health;
 
 public interface IPopulationBloodModel : IEditableItem

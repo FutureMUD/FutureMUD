@@ -331,8 +331,8 @@ public class DenBuilderAI : PathingAIBase
             return;
         }
 
-        IActiveCraftGameItemComponent? interruptedCraft = character.Location.LayerGameItems(character.RoomLayer)
-            .SelectNotNull(x => x.GetItemType<IActiveCraftGameItemComponent>())
+        IActiveCraftGameItemComponent? interruptedCraft = character.Location!.LayerGameItems(character.RoomLayer)
+            .SelectNotNull(x => x!.GetItemType<IActiveCraftGameItemComponent>())
             .FirstOrDefault(x => ReferenceEquals(x.Craft, DenCraft));
         if (interruptedCraft is not null)
         {
@@ -402,7 +402,7 @@ public class DenBuilderAI : PathingAIBase
         return true;
     }
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         NpcHomeBaseEffect home = NpcHomeBaseEffect.GetOrCreate(ch);
         if (home.HomeCell is not null && !ReferenceEquals(home.HomeCell, ch.Location))

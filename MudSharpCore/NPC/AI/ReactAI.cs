@@ -3,7 +3,6 @@ using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
-using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;

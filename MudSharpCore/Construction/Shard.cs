@@ -243,7 +243,7 @@ public class Shard : Location, IEditableShard
     }
 
 
-    public IWeatherController WeatherController => null;
+    public override IWeatherController WeatherController => null;
 
     #region IFutureProgVariable Members
 

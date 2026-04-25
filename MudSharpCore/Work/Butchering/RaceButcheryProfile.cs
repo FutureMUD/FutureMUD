@@ -1044,8 +1044,6 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
                     $"Valid options are {new List<string> { "add", "remove", "swap", "edit", "delay" }.Select(x => x.ColourCommand()).ListToString()}\nUse $0 for the skinner, $1 for the corpse and $2 for the tool.");
                 return false;
         }
-
-        return true;
     }
 
     private bool BuildingCommandEmoteAdd(ICharacter actor, StringStack command, string subsystem)

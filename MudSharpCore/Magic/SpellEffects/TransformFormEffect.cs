@@ -74,7 +74,7 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 	{
 		Spell = spell;
 		FormKey = root.Element("FormKey")?.Value ?? "default";
-		_race = Gameworld.Races.Get(long.Parse(root.Element("Race")?.Value ?? "0"));
+		_race = Gameworld.Races.Get(long.Parse(root.Element("Race")?.Value ?? "0"))!;
 		_ethnicity = Gameworld.Ethnicities.Get(long.Parse(root.Element("Ethnicity")?.Value ?? "0"));
 		if (int.TryParse(root.Element("Gender")?.Value, out var genderValue) && genderValue >= 0)
 		{

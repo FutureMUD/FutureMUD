@@ -213,7 +213,7 @@ public class MotionSensorGameItemComponentProto : PoweredMachineBaseGameItemComp
 			CombinedBuildingHelpText);
 	}
 
-	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
 	{
 		return new MotionSensorGameItemComponent(this, parent, temporary);
 	}

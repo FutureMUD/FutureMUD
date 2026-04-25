@@ -57,7 +57,7 @@ public class MultiEditorController : IControllable
 
     public ICharacterController? Controller { get; private set; }
 
-    IController IControllable.Controller => Controller;
+    IController IControllable.Controller => Controller!;
 
     public void AssumeControl(IController controller)
     {

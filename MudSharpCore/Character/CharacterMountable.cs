@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -10,6 +10,8 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using System.Collections.Generic;
 using System.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.Character;
 
@@ -26,7 +28,7 @@ public partial class Character
             Changed = true;
         }
     }
-#nullable restore
+#nullable disable warnings
     public bool CanEverBeMounted(ICharacter rider)
     {
         IMountableAI ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
@@ -192,7 +194,7 @@ public partial class Character
         ai?.HandleDeniedControl(this, rider);
     }
 
-    public bool RiderMove(ICellExit exit, ICharacter rider, IEmote emote = null, bool ignoreSafeMovement = false)
+    public bool RiderMove(ICellExit exit, ICharacter rider, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         if (!IsPrimaryRider(rider))
         {
@@ -215,7 +217,7 @@ public partial class Character
         return result;
     }
 
-    public bool RiderFly(ICharacter rider, IEmote emote = null)
+    public bool RiderFly(ICharacter rider, IEmote? emote = null)
     {
         if (!IsPrimaryRider(rider))
         {
@@ -240,7 +242,7 @@ public partial class Character
         return true;
     }
 
-    public bool RiderAscend(ICharacter rider, IEmote emote = null)
+    public bool RiderAscend(ICharacter rider, IEmote? emote = null)
     {
         if (!IsPrimaryRider(rider))
         {
@@ -265,7 +267,7 @@ public partial class Character
         return true;
     }
 
-    public bool RiderDive(ICharacter rider, IEmote emote = null)
+    public bool RiderDive(ICharacter rider, IEmote? emote = null)
     {
         if (!IsPrimaryRider(rider))
         {
@@ -290,7 +292,7 @@ public partial class Character
         return true;
     }
 
-    public bool RiderClimbUp(ICharacter rider, IEmote emote = null)
+    public bool RiderClimbUp(ICharacter rider, IEmote? emote = null)
     {
         if (!IsPrimaryRider(rider))
         {
@@ -315,7 +317,7 @@ public partial class Character
         return true;
     }
 
-    public bool RiderClimbDown(ICharacter rider, IEmote emote = null)
+    public bool RiderClimbDown(ICharacter rider, IEmote? emote = null)
     {
         if (!IsPrimaryRider(rider))
         {
@@ -340,8 +342,8 @@ public partial class Character
         return true;
     }
 
-    public bool RiderMovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,
-            ICharacter rider, IEmote playerEmote = null, IEmote playerPmote = null,
+    public bool RiderMovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable? target,
+            ICharacter rider, IEmote? playerEmote = null, IEmote? playerPmote = null,
             bool ignoreMovementRestrictions = false, bool ignoreMovement = false)
     {
         if (!IsPrimaryRider(rider))

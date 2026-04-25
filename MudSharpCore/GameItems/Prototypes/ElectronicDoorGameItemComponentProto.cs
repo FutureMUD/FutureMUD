@@ -229,7 +229,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 			$"{"Electronic Door Game Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})\n\n{DescribeDoorCharacteristics(actor, true)}\nSource Endpoint: {SignalComponentUtilities.DescribeSignalComponent(Gameworld, SourceComponentId, SourceComponentName, SourceEndpointKey).ColourName()} (#{SourceComponentId.ToString("N0", actor)})\nThreshold: {ActivationThreshold.ToString("N2", actor).ColourValue()}\nMode: {(OpenWhenAboveThreshold ? "Opens at or above threshold".ColourValue() : "Opens below threshold".ColourValue())}\nOpen Emote: {OpenEmoteNoActor.ColourCommand()}\nClose Emote: {CloseEmoteNoActor.ColourCommand()}";
 	}
 
-	public new static void RegisterComponentInitialiser(GameItemComponentManager manager)
+	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
 	{
 		manager.AddBuilderLoader("electronicdoor", true,
 			(gameworld, account) => new ElectronicDoorGameItemComponentProto(gameworld, account));
@@ -243,7 +243,7 @@ public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBa
 			CombinedBuildingHelpText);
 	}
 
-	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
 	{
 		return new ElectronicDoorGameItemComponent(this, parent, temporary);
 	}

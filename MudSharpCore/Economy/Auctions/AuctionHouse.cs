@@ -21,6 +21,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Economy.Auctions;
 
 public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinalisable

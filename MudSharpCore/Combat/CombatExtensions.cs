@@ -1199,7 +1199,5 @@ public static class CombatExtensions
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
-
-        return "Unknown";
     }
 }

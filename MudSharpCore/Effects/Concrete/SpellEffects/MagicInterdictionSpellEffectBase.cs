@@ -6,6 +6,9 @@ using MudSharp.Magic;
 using System;
 using System.Xml.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
 public abstract class MagicInterdictionSpellEffectBase : MagicSpellEffectBase, IMagicInterdictionEffect

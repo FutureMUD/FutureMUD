@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -7,6 +7,8 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Parsers;
 using System;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Prototypes;
 
@@ -306,7 +308,7 @@ At 0 percent fuel it echoes: {6}",
         );
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return SecondsOfFuel == -1
             ? new BottomlessTorchGameItemComponent(this, parent, temporary)

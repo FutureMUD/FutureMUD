@@ -25,6 +25,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
+#nullable enable annotations
+
 namespace MudSharp.GameItems.Components;
 
 public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISelectable, IOpenable
@@ -129,14 +131,15 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
         return (int)((_prototype.WeightLimit - _contents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         if (_contents.Contains(item))
         {
 #if DEBUG
             throw new ApplicationException("Item duplication in container.");
-#endif
+#else
             return;
+#endif
         }
 
         if (allowMerge)
@@ -250,7 +253,7 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
         return WhyCannotGetContainerReason.NotContainer;
     }
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();

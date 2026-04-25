@@ -97,7 +97,7 @@ public class Election : SaveableItem, IElection
 
     public override void Save()
     {
-        Models.Election? dbitem = FMDB.Context.Elections.Find(Id);
+        Models.Election dbitem = FMDB.Context.Elections.Find(Id)!;
         dbitem.IsFinalised = IsFinalised;
         dbitem.ElectionStage = (int)ElectionStage;
         FMDB.Context.ElectionNominees.RemoveRange(dbitem.ElectionNominees);

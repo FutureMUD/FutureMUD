@@ -86,7 +86,7 @@ public partial class DiscordBot
                 _authorisedUsers.AddRange(settings.AdminUsers);
                 _customGlobalReactions.AddRange(settings.CustomGlobalReactions);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Console.WriteLine("");
             }
@@ -115,7 +115,7 @@ public partial class DiscordBot
             {
                 _lastVersion = reader.ReadLine();
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }
@@ -391,7 +391,7 @@ public partial class DiscordBot
                     CustomGlobalReactions = _customGlobalReactions.ToList()
                 }));
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }
@@ -412,7 +412,7 @@ public partial class DiscordBot
                 _authorisedUsers.AddRange(settings.AdminUsers);
                 _customGlobalReactions.AddRange(settings.CustomGlobalReactions);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Console.WriteLine("");
             }

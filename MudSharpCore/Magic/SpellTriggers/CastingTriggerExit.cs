@@ -3,6 +3,9 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using System.Xml.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Magic.SpellTriggers;
 
 public class CastingTriggerExit : CastingTriggerBase

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -6,6 +6,8 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Strategies.BodyStratagies;
+
+#nullable enable annotations
 
 namespace MudSharp.Body.CommunicationStrategies;
 
@@ -58,42 +60,42 @@ public class NonCommunicatorCommunicationStrategy : IBodyCommunicationStrategy
         return PermitLanguageOptions.IgnoreLanguage;
     }
 
-    public void Say(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public void Say(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         body.OutputHandler.Send("You are unable to speak.");
     }
 
-    public void LoudSay(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public void LoudSay(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         body.OutputHandler.Send("You are unable to speak.");
     }
 
-    public void Talk(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public void Talk(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         body.OutputHandler.Send("You are unable to speak.");
     }
 
-    public void Whisper(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public void Whisper(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         body.OutputHandler.Send("You are unable to speak.");
     }
 
-    public void Yell(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public void Yell(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         body.OutputHandler.Send("You are unable to speak.");
     }
 
-    public void Shout(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public void Shout(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         body.OutputHandler.Send("You are unable to speak.");
     }
 
-    public void Sing(IBody body, IPerceivable target, string message, IEmote emote = null)
+    public void Sing(IBody body, IPerceivable target, string message, IEmote? emote = null)
     {
         body.OutputHandler.Send("You are unable to speak.");
     }
 
-    public void Transmit(IBody body, IGameItem target, string message, IEmote emote = null)
+    public void Transmit(IBody body, IGameItem target, string message, IEmote? emote = null)
     {
         body.OutputHandler.Send("You are unable to speak.");
     }

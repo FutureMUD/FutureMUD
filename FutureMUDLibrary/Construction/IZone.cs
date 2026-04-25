@@ -13,7 +13,7 @@ namespace MudSharp.Construction
         IShard Shard { get; }
         ICell DefaultCell { get; }
         IEnumerable<IRoom> Rooms { get; }
-        IEnumerable<ICell> Cells { get; }
+        new IEnumerable<ICell> Cells { get; }
 
         GeographicCoordinate Geography { get; }
         double AmbientLightPollution { get; }

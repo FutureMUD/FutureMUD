@@ -2850,8 +2850,8 @@ public class AnimalAI : PathingAIBase
 			return;
 		}
 
-		IActiveCraftGameItemComponent? interruptedCraft = character.Location.LayerGameItems(character.RoomLayer)
-			.SelectNotNull(x => x.GetItemType<IActiveCraftGameItemComponent>())
+		IActiveCraftGameItemComponent? interruptedCraft = character.Location!.LayerGameItems(character.RoomLayer)
+			.SelectNotNull(x => x!.GetItemType<IActiveCraftGameItemComponent>())
 			.FirstOrDefault(x => ReferenceEquals(x.Craft, BurrowCraft));
 		if (interruptedCraft is not null)
 		{
@@ -2888,7 +2888,7 @@ public class AnimalAI : PathingAIBase
 
 	private void EvaluateTerritory(ICharacter character)
 	{
-		Territory territoryEffect = character.CombinedEffectsOfType<Territory>().FirstOrDefault();
+		Territory? territoryEffect = character.CombinedEffectsOfType<Territory>().FirstOrDefault();
 		if (territoryEffect is null)
 		{
 			territoryEffect = new Territory(character);
@@ -2954,7 +2954,7 @@ public class AnimalAI : PathingAIBase
 		}
 
 		return npcs
-		       .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
+		       .SelectNotNull(x => x!.CombinedEffectsOfType<Territory>().FirstOrDefault())
 		       .SelectMany(x => x.Cells)
 		       .Distinct()
 		       .ToList();
@@ -3011,7 +3011,7 @@ public class AnimalAI : PathingAIBase
 		return FeedingStrategyHandler.HasLocalFoodOpportunity(this, ch);
 	}
 
-	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+	protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
 		(ICell? target, IEnumerable<ICellExit> path) = AwarenessStrategyHandler.GetPath(this, ch);
 		if (target is not null && path.Any())
@@ -3283,7 +3283,7 @@ public class AnimalAI : PathingAIBase
 
 	private (ICell? Target, IEnumerable<ICellExit> Path) GetTerritoryPath(ICharacter ch)
 	{
-		Territory territory = ch.CombinedEffectsOfType<Territory>().FirstOrDefault();
+		Territory? territory = ch.CombinedEffectsOfType<Territory>().FirstOrDefault();
 		if (territory is null)
 		{
 			territory = new Territory(ch);
@@ -3961,8 +3961,8 @@ public class AnimalAI : PathingAIBase
 				}
 			}
 
-			uint range = (uint)character.Body.WieldedItems
-			                       .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+			uint range = (uint)character.Body!.WieldedItems
+			                       .SelectNotNull(x => x!.GetItemType<IRangedWeapon>())
 			                       .Where(x => x.IsReadied || x.CanReady(character))
 			                       .Select(x => (int)x.WeaponType.DefaultRangeInRooms)
 			                       .DefaultIfEmpty(0)

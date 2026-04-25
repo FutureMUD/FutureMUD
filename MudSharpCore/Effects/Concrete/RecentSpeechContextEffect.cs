@@ -71,11 +71,11 @@ public class RecentSpeechContextEffect : Effect, IRecentSpeechContextEffect
         RecentSpeechContextEvent entry = new(
             timestampUtc,
             speaker.Id,
-            SanitizeText(speakerName),
-            SanitizeText(message.StripANSIColour().StripMXP()),
+            SanitizeRequiredText(speakerName),
+            SanitizeRequiredText(message.StripANSIColour().StripMXP()),
             volume,
-            SanitizeText(language.Name),
-            SanitizeText(accent.Name),
+            SanitizeRequiredText(language.Name),
+            SanitizeRequiredText(accent.Name),
             target?.Id,
             target?.FrameworkItemType,
             SanitizeText(targetDescription, permitNull: true)
@@ -193,11 +193,11 @@ public class RecentSpeechContextEffect : Effect, IRecentSpeechContextEffect
         parsed = new RecentSpeechContextEvent(
             EnsureUtc(timestamp),
             speakerId,
-            SanitizeText(element.Element("SpeakerName")?.Value),
-            SanitizeText(element.Element("Message")?.Value),
+            SanitizeRequiredText(element.Element("SpeakerName")?.Value),
+            SanitizeRequiredText(element.Element("Message")?.Value),
             volume,
-            SanitizeText(element.Element("LanguageName")?.Value),
-            SanitizeText(element.Element("AccentName")?.Value),
+            SanitizeRequiredText(element.Element("LanguageName")?.Value),
+            SanitizeRequiredText(element.Element("AccentName")?.Value),
             targetId,
             SanitizeText(element.Element("TargetFrameworkItemType")?.Value, permitNull: true),
             SanitizeText(element.Element("TargetDescription")?.Value, permitNull: true)
@@ -243,5 +243,10 @@ public class RecentSpeechContextEffect : Effect, IRecentSpeechContextEffect
         }
 
         return cleaned;
+    }
+
+    private static string SanitizeRequiredText(string? text)
+    {
+        return SanitizeText(text) ?? "(none)";
     }
 }

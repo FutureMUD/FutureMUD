@@ -10,6 +10,8 @@ using MudSharp.Planes;
 using System;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace MudSharp.GameItems
 {
     public interface IGameItemProto : IEditableRevisableItem, IHaveTags, IHavePlanarPresence
@@ -51,7 +53,7 @@ namespace MudSharp.GameItems
         IGameItem LoadMorphedItem(IGameItem originalItem);
         bool IsItemType<T>() where T : IGameItemComponentProto;
         T GetItemType<T>() where T : IGameItemComponentProto;
-        IGameItem CreateNew(ICharacter loader = null);
+        IGameItem CreateNew(ICharacter? loader = null);
         IEnumerable<IGameItem> CreateNew(ICharacter loader, IGameItemSkin skin, int quantity, string loadString);
         IEnumerable<IGameItem> CreateNew<T>(ICharacter loader, IGameItemSkin skin, int quantity, T variables) where T : IEnumerable<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>;
 

@@ -10,6 +10,8 @@ using MudSharp.PerceptionEngine;
 using System;
 using System.Xml.Linq;
 
+#nullable enable annotations
+
 namespace MudSharp.GameItems.Prototypes;
 
 public class IntegratedInhalerGameItemComponentProto : GameItemComponentProto
@@ -116,7 +118,7 @@ public class IntegratedInhalerGameItemComponentProto : GameItemComponentProto
             InitialGas?.Name.Colour(Telnet.Green) ?? "none");
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new IntegratedInhalerGameItemComponent(this, parent, temporary);
     }

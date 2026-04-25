@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -7,6 +7,8 @@ using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using System;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Interfaces
 {
@@ -21,21 +23,21 @@ namespace MudSharp.GameItems.Interfaces
 
     public interface IDoor : IOpenable, ILockable
     {
-        IExit InstalledExit { get; set; }
+        IExit? InstalledExit { get; set; }
         DoorState State { get; set; }
         bool CanPlayersUninstall { get; }
         bool CanPlayersSmash { get; }
         Difficulty UninstallDifficultyHingeSide { get; }
         Difficulty UninstallDifficultyNotHingeSide { get; }
         Difficulty SmashDifficulty { get; }
-        ICell HingeCell { get; set; }
-        ICell OpenDirectionCell { get; set; }
-        ITraitDefinition UninstallTrait { get; }
+        ICell? HingeCell { get; set; }
+        ICell? OpenDirectionCell { get; set; }
+        ITraitDefinition? UninstallTrait { get; }
         bool CanFireThrough { get; }
         string InstalledExitDescription(IPerceiver perceiver);
         bool CanCross(IBody body);
         bool CanSeeThrough(IBody body);
-        void Knock(ICharacter actor, IEmote playerEmote = null);
+        void Knock(ICharacter actor, IEmote? playerEmote = null);
         event DoorEvent OnRemovedFromExit;
         event DoorEvent OnChangeCanFireThrough;
     }

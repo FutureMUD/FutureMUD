@@ -64,7 +64,7 @@ namespace MudSharp_Watcher
             }
         }
 
-        private string _databaseString;
+        private string _databaseString = string.Empty;
 
         public string DatabaseString
         {

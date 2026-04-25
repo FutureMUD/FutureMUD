@@ -3,6 +3,9 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using System.Xml.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
 public class SpellNeedRateEffect : MagicSpellEffectBase, INeedRateEffect

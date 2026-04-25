@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems;
 
@@ -165,7 +167,7 @@ public abstract class GameItemComponentProto : EditableItem, IGameItemComponentP
     public virtual bool PreventManualLoad => false;
 
     public abstract string ComponentDescriptionOLC(ICharacter actor);
-    public abstract IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false);
+    public abstract IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false);
     public abstract IGameItemComponent LoadComponent(MudSharp.Models.GameItemComponent component, IGameItem parent);
 
     private bool BuildingCommand_Description(ICharacter actor, StringStack command)

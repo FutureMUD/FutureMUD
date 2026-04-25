@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Form.Shape;
@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Components;
 
@@ -317,14 +319,15 @@ public class BatteryChargerGameItemComponent : GameItemComponent, IContainer, IO
         return _prototype.BatteryQuantity - _contents.Sum(x => x.Quantity);
     }
 
-    public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
         if (_contents.Contains(item))
         {
 #if DEBUG
             throw new ApplicationException("Item duplication in container.");
-#endif
+#else
             return;
+#endif
         }
 
         if (allowMerge)
@@ -446,7 +449,7 @@ public class BatteryChargerGameItemComponent : GameItemComponent, IContainer, IO
         return false;
     }
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
         ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
@@ -567,7 +570,7 @@ public class BatteryChargerGameItemComponent : GameItemComponent, IContainer, IO
     private readonly List<ILock> _locks = new();
     public IEnumerable<ILock> Locks => _locks;
 
-    public bool InstallLock(ILock theLock, ICharacter actor)
+    public bool InstallLock(ILock theLock, ICharacter? actor)
     {
         _locks.Add(theLock);
         if (_noSave)

@@ -2602,20 +2602,21 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			return ($"{error}\n\n{RenderPrompt()}", false);
 		}
 
+		var resolvedSummary = summary!;
 		var services = gameworld.ComputerExecutionService is null
 			? []
-			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, summary!.Host, session).ToList();
+			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, resolvedSummary.Host, session).ToList();
 		var sb = new StringBuilder();
-		sb.AppendLine($"{summary.Host.Name.ColourName()} :: {summary.CanonicalAddress.ColourCommand()}");
-		sb.AppendLine($"Device Id: {summary.DeviceIdentifier.ColourName()}");
-		sb.AppendLine($"Scope: {(summary.IsLocalGrid ? "local" : "linked").ColourValue()} via {DescribeGrid(user, summary.Grid).ColourValue()}");
-		sb.AppendLine($"Network Access: {summary.AccessDescription.ColourValue()}");
-		sb.AppendLine($"Availability: {(summary.Available ? "reachable".ColourValue() : "offline".ColourError())}");
-		sb.AppendLine($"Host Power: {summary.Host.Powered.ToColouredString()}");
+		sb.AppendLine($"{resolvedSummary.Host.Name.ColourName()} :: {resolvedSummary.CanonicalAddress.ColourCommand()}");
+		sb.AppendLine($"Device Id: {resolvedSummary.DeviceIdentifier.ColourName()}");
+		sb.AppendLine($"Scope: {(resolvedSummary.IsLocalGrid ? "local" : "linked").ColourValue()} via {DescribeGrid(user, resolvedSummary.Grid).ColourValue()}");
+		sb.AppendLine($"Network Access: {resolvedSummary.AccessDescription.ColourValue()}");
+		sb.AppendLine($"Availability: {(resolvedSummary.Available ? "reachable".ColourValue() : "offline".ColourError())}");
+		sb.AppendLine($"Host Power: {resolvedSummary.Host.Powered.ToColouredString()}");
 		sb.AppendLine($"Advertised Services: {services.Count.ToString("N0", user).ColourValue()}");
 		if (!services.Any())
 		{
-			sb.AppendLine($"{summary.Host.Name.ColourName()} is reachable but does not currently advertise any implemented network services.");
+			sb.AppendLine($"{resolvedSummary.Host.Name.ColourName()} is reachable but does not currently advertise any implemented network services.");
 		}
 
 		sb.AppendLine();
@@ -2632,16 +2633,17 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 			return ($"{error}\n\n{RenderPrompt()}", false);
 		}
 
+		var resolvedSummary = summary!;
 		var services = gameworld.ComputerExecutionService is null
 			? []
-			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, summary!.Host, session).ToList();
+			: gameworld.ComputerExecutionService.GetAdvertisedServices(host, resolvedSummary.Host, session).ToList();
 		var sb = new StringBuilder();
-		sb.AppendLine($"Advertised Services for {summary.Host.Name.ColourName()} ({summary.CanonicalAddress.ColourCommand()}):");
-		sb.AppendLine($"Device Id: {summary.DeviceIdentifier.ColourName()}");
-		sb.AppendLine($"Network Access: {summary.AccessDescription.ColourValue()}");
+		sb.AppendLine($"Advertised Services for {resolvedSummary.Host.Name.ColourName()} ({resolvedSummary.CanonicalAddress.ColourCommand()}):");
+		sb.AppendLine($"Device Id: {resolvedSummary.DeviceIdentifier.ColourName()}");
+		sb.AppendLine($"Network Access: {resolvedSummary.AccessDescription.ColourValue()}");
 		if (!services.Any())
 		{
-			sb.AppendLine($"{summary.Host.Name.ColourName()} does not currently advertise any implemented network services.");
+			sb.AppendLine($"{resolvedSummary.Host.Name.ColourName()} does not currently advertise any implemented network services.");
 			sb.AppendLine();
 			sb.Append(RenderPrompt());
 			return (sb.ToString(), false);

@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Framework;
 
 public class RevisableAll<T> : IRevisableAll<T>, IUneditableRevisableAll<T> where T : class, IRevisableItem

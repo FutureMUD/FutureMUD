@@ -20,6 +20,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+#nullable enable
+
 namespace MudSharp.Community;
 
 public partial class Clan
@@ -1188,7 +1190,7 @@ public partial class Clan
 				}
 
 				ExternalControls.Remove(control);
-				liegeClan.ExternalControls.Remove(control);
+				liegeClan!.ExternalControls.Remove(control);
 				control.Delete();
 
 				actor.OutputHandler.Send(string.Format("You transfer control of {3}appointment {0} in {1} to {2}.",
@@ -1222,11 +1224,13 @@ public partial class Clan
 			return;
 		}
 
-		ExternalControls.Remove(control);
-		liegeClan.ExternalControls.Remove(control);
-		control.Delete();
+		var safeControl = control!;
+		var safeLiegeClan = liegeClan!;
+		ExternalControls.Remove(safeControl);
+		safeLiegeClan.ExternalControls.Remove(safeControl);
+		safeControl.Delete();
 		actor.OutputHandler.Send(
-			$"You release control of appointment {control.ControlledAppointment.Name.TitleCase().ColourName()} in {FullName.TitleCase().ColourName()} by {liegeClan.FullName.TitleCase().ColourName()}.");
+			$"You release control of appointment {safeControl.ControlledAppointment.Name.TitleCase().ColourName()} in {FullName.TitleCase().ColourName()} by {safeLiegeClan.FullName.TitleCase().ColourName()}.");
 	}
 
 	public void SetControllingAppointment(ICharacter actor, StringStack command)
@@ -1263,7 +1267,7 @@ public partial class Clan
 		IAppointment? controllingAppointment = null;
 		if (!controllingAppointmentText.EqualTo("none") && !controllingAppointmentText.EqualTo("clear"))
 		{
-			controllingAppointment = liegeClan.Appointments.GetByIdOrName(controllingAppointmentText);
+			controllingAppointment = liegeClan!.Appointments.GetByIdOrName(controllingAppointmentText);
 			if (controllingAppointment is null)
 			{
 				actor.OutputHandler.Send(
@@ -1276,7 +1280,7 @@ public partial class Clan
 		control.Changed = true;
 		control.Save();
 		actor.OutputHandler.Send(
-			$"The {control.ControlledAppointment.Name.TitleCase().ColourName()} appointment in {FullName.TitleCase().ColourName()} is now controlled by {(controllingAppointment is null ? $"the {liegeClan.FullName.TitleCase().ColourName()} clan as a whole" : $"{controllingAppointment.Name.TitleCase().ColourName()} in {liegeClan.FullName.TitleCase().ColourName()}")}.");
+			$"The {control.ControlledAppointment.Name.TitleCase().ColourName()} appointment in {FullName.TitleCase().ColourName()} is now controlled by {(controllingAppointment is null ? $"the {liegeClan!.FullName.TitleCase().ColourName()} clan as a whole" : $"{controllingAppointment.Name.TitleCase().ColourName()} in {liegeClan!.FullName.TitleCase().ColourName()}")}.");
 	}
 
 	public void AppointExternal(ICharacter actor, StringStack command)
@@ -1347,7 +1351,7 @@ public partial class Clan
 				archived.IsArchivedMembership = false;
 				archived.Changed = true;
 				targetActor.AddMembership(archived);
-				if (archived.Rank.RankNumber < rank.RankNumber)
+				if (archived.Rank!.RankNumber < rank!.RankNumber)
 				{
 					archived.Rank = rank;
 				}
@@ -1362,7 +1366,7 @@ public partial class Clan
 					{
 						CharacterId = targetActor.Id,
 						ClanId = Id,
-						RankId = rank.Id,
+						RankId = rank!.Id,
 						PaygradeId = rank.Paygrades.Any() ? rank.Paygrades.First().Id : (long?)null,
 						PersonalName = targetActor.CurrentName.SaveToXml().ToString(),
 						JoinDate = Calendar.CurrentDate.GetDateString()
@@ -1384,7 +1388,7 @@ public partial class Clan
 		using (new FMDB())
 		{
 			var dbappointment = FMDB.Context.ExternalClanControls.Find(Id, liegeClan!.Id, control.ControlledAppointment.Id);
-			dbappointment.ExternalClanControlsAppointments.Add(new ExternalClanControlsAppointment
+			dbappointment!.ExternalClanControlsAppointments.Add(new ExternalClanControlsAppointment
 			{
 				CharacterId = targetActor.Id
 			});
@@ -1455,7 +1459,7 @@ public partial class Clan
 		using (new FMDB())
 		{
 			var dbappointment = FMDB.Context.ExternalClanControls.Find(Id, liegeClan!.Id, control.ControlledAppointment.Id);
-			var dbAppointee = dbappointment.ExternalClanControlsAppointments.FirstOrDefault(x => x.CharacterId == targetMembership.MemberId);
+			var dbAppointee = dbappointment!.ExternalClanControlsAppointments.FirstOrDefault(x => x.CharacterId == targetMembership.MemberId);
 			if (dbAppointee is not null)
 			{
 				dbappointment.ExternalClanControlsAppointments.Remove(dbAppointee);

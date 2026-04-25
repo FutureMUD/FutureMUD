@@ -50,7 +50,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
     private FuturemudDatabaseContext? _context;
     private IReadOnlyDictionary<string, string>? _questionAnswers;
     private readonly List<string> _missingTags = new();
-    private MudSharp.Models.Account _dbAccount;
+    private MudSharp.Models.Account _dbAccount = null!;
     private DateTime _now = DateTime.UtcNow;
 
     private void InitialiseDependencies()
@@ -78,7 +78,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
         }
     }
 
-    MudSharp.Models.GameItemProto CreateItem(string noun, string sdesc, string? ldesc, string fdesc, SizeCategory size, ItemQuality quality, double weightInGrams, decimal inherentCost, bool skinnable, bool hideFromPlayers, string material, IEnumerable<string> tags, IEnumerable<string> components)
+    MudSharp.Models.GameItemProto? CreateItem(string noun, string sdesc, string? ldesc, string fdesc, SizeCategory size, ItemQuality quality, double weightInGrams, decimal inherentCost, bool skinnable, bool hideFromPlayers, string material, IEnumerable<string> tags, IEnumerable<string> components)
     {
         GameItemProto dbitem = new()
         {
@@ -149,7 +149,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
 
     private void SeedItems()
     {
-        if (_context.GameItemProtos.Any(x => x.ShortDescription == "a double-edged @material fighting knife"))
+		if (_context!.GameItemProtos.Any(x => x.ShortDescription == "a double-edged @material fighting knife"))
         {
             return;
         }

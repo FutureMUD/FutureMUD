@@ -11,6 +11,8 @@ using MudSharp.RPG.Checks;
 using System.Linq;
 using System.Xml.Linq;
 
+#nullable enable annotations
+
 namespace MudSharp.GameItems.Prototypes;
 
 public class LockingDoorGameItemComponentProto : DoorGameItemComponentProtoBase, IHaveSimpleLockType
@@ -107,7 +109,7 @@ public class LockingDoorGameItemComponentProto : DoorGameItemComponentProtoBase,
 		)).ToString();
 	}
 
-	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
 	{
 		return new LockingDoorGameItemComponent(this, parent, temporary);
 	}

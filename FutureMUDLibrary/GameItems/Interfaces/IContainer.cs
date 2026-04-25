@@ -2,6 +2,8 @@
 using MudSharp.PerceptionEngine;
 using System.Collections.Generic;
 
+#nullable enable annotations
+
 namespace MudSharp.GameItems.Interfaces
 {
     public enum WhyCannotPutReason
@@ -56,7 +58,7 @@ namespace MudSharp.GameItems.Interfaces
         string ContentsPreposition { get; }
         bool Transparent { get; }
         bool CanPut(IGameItem item);
-        void Put(ICharacter putter, IGameItem item, bool allowMerge = true);
+        void Put(ICharacter? putter, IGameItem item, bool allowMerge = true);
         WhyCannotPutReason WhyCannotPut(IGameItem item);
         bool CanTake(ICharacter taker, IGameItem item, int quantity);
         IGameItem Take(ICharacter taker, IGameItem item, int quantity);
@@ -69,6 +71,6 @@ namespace MudSharp.GameItems.Interfaces
         /// <returns>The quantity of item that will fit in the container</returns>
         int CanPutAmount(IGameItem item);
 
-        void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null);
+        void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null);
     }
 }

@@ -59,6 +59,9 @@ using TimeSpanParserUtil;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using AuctionBid = MudSharp.Economy.AuctionBid;
 
+#nullable enable
+#nullable disable warnings
+
 namespace MudSharp.Commands.Modules;
 
 internal class EconomyModule : Module<ICharacter>

@@ -92,7 +92,7 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 		return sb.ToString();
 	}
 
-	public bool CanAccessMounts(ICharacter actor, out string error)
+	public bool CanAccessMounts(ICharacter? actor, out string error)
 	{
 		error = string.Empty;
 		if (_prototype.AccessPanelPrototypeId <= 0 && string.IsNullOrWhiteSpace(_prototype.AccessPanelPrototypeName))
@@ -104,6 +104,12 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 		if (accessHousing is null)
 		{
 			error = $"{Parent.HowSeen(actor, true)} is configured to use an automation housing for service access, but no matching housing is installed.";
+			return false;
+		}
+
+		if (actor is null)
+		{
+			error = "No character is available to access the automation housing.";
 			return false;
 		}
 
@@ -227,7 +233,7 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 			       x.MountType.Equals(mountable.MountType, StringComparison.InvariantCultureIgnoreCase));
 	}
 
-	public bool CanConnect(ICharacter actor, IConnectable other)
+	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
 		return other is IAutomationMountable mountable &&
 		       _prototype.Bays.Any(x =>
@@ -236,7 +242,7 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 		       other.FreeConnections.Any(x => Connections.Any(y => y.CompatibleWith(x)));
 	}
 
-	public void Connect(ICharacter actor, IConnectable other)
+	public void Connect(ICharacter? actor, IConnectable other)
 	{
 		var bay = _prototype.Bays.FirstOrDefault(x =>
 			!_mountedByBay.ContainsKey(x.Name) &&
@@ -269,7 +275,7 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 		Changed = true;
 	}
 
-	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
 		return $"{Parent.HowSeen(actor)} has no compatible free automation mount bays.";
 	}

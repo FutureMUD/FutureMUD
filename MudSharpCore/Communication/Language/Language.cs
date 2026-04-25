@@ -456,7 +456,7 @@ public class Language : SaveableItem, ILanguage
         };
     }
 
-    public new static void RegisterFutureProgCompiler()
+    public static void RegisterFutureProgCompiler()
     {
         ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Language, DotReferenceHandler(),
             DotReferenceHelp());

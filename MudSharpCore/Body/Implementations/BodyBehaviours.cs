@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Construction.Boundary;
 using MudSharp.Form.Shape;
@@ -14,6 +14,8 @@ using MudSharp.Strategies.BodyStratagies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+#nullable enable annotations
 
 namespace MudSharp.Body.Implementations;
 
@@ -49,7 +51,7 @@ public partial class Body
         Communications.Emote(this, emote, permitSpeech, additionalConditions);
     }
 
-    public void Say(IPerceivable target, string message, IEmote emote = null)
+    public void Say(IPerceivable target, string message, IEmote? emote = null)
     {
         if (CurrentLanguage == null)
         {
@@ -61,7 +63,7 @@ public partial class Body
         Communications.Say(this, target, message, emote);
     }
 
-    public void Talk(IPerceivable target, string message, IEmote emote = null)
+    public void Talk(IPerceivable target, string message, IEmote? emote = null)
     {
         if (CurrentLanguage == null)
         {
@@ -73,7 +75,7 @@ public partial class Body
         Communications.Talk(this, target, message, emote);
     }
 
-    public void Transmit(IGameItem target, string message, IEmote emote = null)
+    public void Transmit(IGameItem target, string message, IEmote? emote = null)
     {
         if (CurrentLanguage == null)
         {
@@ -85,7 +87,7 @@ public partial class Body
         Communications.Transmit(this, target, message, emote);
     }
 
-    public void Whisper(IPerceivable target, string message, IEmote emote = null)
+    public void Whisper(IPerceivable target, string message, IEmote? emote = null)
     {
         if (CurrentLanguage == null)
         {
@@ -97,7 +99,7 @@ public partial class Body
         Communications.Whisper(this, target, message, emote);
     }
 
-    public void Shout(IPerceivable target, string message, IEmote emote = null)
+    public void Shout(IPerceivable target, string message, IEmote? emote = null)
     {
         if (CurrentLanguage == null)
         {
@@ -109,7 +111,7 @@ public partial class Body
         Communications.Shout(this, target, message, emote);
     }
 
-    public void LoudSay(IPerceivable target, string message, IEmote emote = null)
+    public void LoudSay(IPerceivable target, string message, IEmote? emote = null)
     {
         if (CurrentLanguage == null)
         {
@@ -121,7 +123,7 @@ public partial class Body
         Communications.LoudSay(this, target, message, emote);
     }
 
-    public void Yell(IPerceivable target, string message, IEmote emote = null)
+    public void Yell(IPerceivable target, string message, IEmote? emote = null)
     {
         if (CurrentLanguage == null)
         {
@@ -133,7 +135,7 @@ public partial class Body
         Communications.Yell(this, target, message, emote);
     }
 
-    public void Sing(IPerceivable target, string message, IEmote emote = null)
+    public void Sing(IPerceivable target, string message, IEmote? emote = null)
     {
         if (CurrentLanguage == null)
         {
@@ -375,7 +377,7 @@ public partial class Body
     }
 
     public bool Connect(IConnectable connectable, IConnectable other, IPerceivable ownerConnectable = null,
-        IPerceivable ownerOther = null, IEmote playerEmote = null)
+        IPerceivable ownerOther = null, IEmote? playerEmote = null)
     {
         if (!CanConnect(connectable, other))
         {
@@ -414,7 +416,7 @@ public partial class Body
     }
 
     public bool Disconnect(IConnectable connectable, IConnectable other, IPerceivable ownerConnectable = null,
-        IPerceivable ownerOther = null, IEmote playerEmote = null)
+        IPerceivable ownerOther = null, IEmote? playerEmote = null)
     {
         if (!CanDisconnect(connectable, other))
         {

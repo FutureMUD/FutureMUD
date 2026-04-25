@@ -1,4 +1,6 @@
-﻿using MudSharp.Character;
+#nullable enable annotations
+
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -416,7 +418,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
         return WillFleeProg.ExecuteBool(character, cell, targets, ExistingThreatLevel(character));
     }
 
-    protected virtual (ICell Target, IEnumerable<ICellExit>) FleeRouteForCharacter(ICharacter character)
+    protected virtual (ICell? Target, IEnumerable<ICellExit>) FleeRouteForCharacter(ICharacter character)
     {
         IEnumerable<ICell> locations = ((IList)((CollectionVariable)FleeLocationsProg.Execute(character)).GetObject).OfType<ICell>();
 
@@ -696,7 +698,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
         return false;
     }
 
-    protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
     {
         if (!ch.AffectedBy<AIFleeing>())
         {

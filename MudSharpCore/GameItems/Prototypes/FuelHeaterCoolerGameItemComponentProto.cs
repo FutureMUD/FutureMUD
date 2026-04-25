@@ -43,7 +43,7 @@ public class FuelHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGam
     public ILiquid? LiquidFuel { get; protected set; }
     public IGas? GasFuel { get; protected set; }
     public double FuelPerSecond { get; protected set; }
-    public ConnectorType Connector { get; protected set; }
+    public ConnectorType Connector { get; protected set; } = null!;
     IEnumerable<ConnectorType> IConnectableItemProto.Connections => [Connector];
 
     protected override void LoadFromXml(XElement root)
@@ -76,7 +76,7 @@ public class FuelHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGam
                 new XAttribute("powered", Connector.Powered)))).ToString();
     }
 
-    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+    public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {
         return new FuelHeaterCoolerGameItemComponent(this, parent, temporary);
     }

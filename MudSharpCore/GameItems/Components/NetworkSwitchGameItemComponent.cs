@@ -211,7 +211,7 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 		return other is INetworkAdapter or INetworkInfrastructure;
 	}
 
-	public bool CanConnect(ICharacter actor, IConnectable other)
+	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
 		if (other is not INetworkAdapter && other is not INetworkInfrastructure)
 		{
@@ -224,7 +224,7 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 		       other.CanBeConnectedTo(this);
 	}
 
-	public void Connect(ICharacter actor, IConnectable other)
+	public void Connect(ICharacter? actor, IConnectable other)
 	{
 		var connection = FreeConnections.FirstOrDefault(x => other.FreeConnections.Any(y => y.CompatibleWith(x)));
 		if (connection is null)
@@ -252,7 +252,7 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 		Changed = true;
 	}
 
-	public string WhyCannotConnect(ICharacter actor, IConnectable other)
+	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
 		return $"{Parent.HowSeen(actor)} has no compatible free network switch connection ports.";
 	}

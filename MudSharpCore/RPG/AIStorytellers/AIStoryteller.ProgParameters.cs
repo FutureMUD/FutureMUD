@@ -22,10 +22,13 @@ using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Xml.Linq;
+
+#nullable enable
 
 namespace MudSharp.RPG.AIStorytellers;
 
@@ -39,7 +42,7 @@ public partial class AIStoryteller
         foreach ((ProgVariableTypes parameterType, string parameterName) in toolCall.Prog.NamedParameters)
         {
             required.Add(parameterName);
-            string description = toolCall.ParameterDescriptions.TryGetValue(parameterName, out string item)
+            string description = toolCall.ParameterDescriptions.TryGetValue(parameterName, out string? item)
                 ? item
                 : string.Empty;
             properties[parameterName] = BuildJsonSchemaPropertyForProgType(parameterType, description);
@@ -226,7 +229,7 @@ public partial class AIStoryteller
     {
         foreach (string propertyName in propertyNames)
         {
-            string text = TryGetOptionalString(arguments, propertyName);
+            string? text = TryGetOptionalString(arguments, propertyName);
             if (text is not null)
             {
                 return text;
@@ -295,7 +298,7 @@ public partial class AIStoryteller
             }
 
             JsonElement root = json.RootElement;
-            string decision = TryGetOptionalString(root, "Decision", "decision", "Result", "result")
+            string? decision = TryGetOptionalString(root, "Decision", "decision", "Result", "result")
                 ?.Trim()
                 .ToLowerInvariant();
             if (string.IsNullOrWhiteSpace(decision))
@@ -382,10 +385,10 @@ public partial class AIStoryteller
             }
 
             ProgVariableTypes innerType = type ^ ProgVariableTypes.Collection;
-            List<object> list = new();
+            List<object?> list = new();
             foreach (JsonElement item in element.EnumerateArray())
             {
-                if (!TryConvertJsonArgument(item, innerType, out object value, out error))
+                if (!TryConvertJsonArgument(item, innerType, out object? value, out error))
                 {
                     convertedValue = null;
                     return false;
@@ -480,7 +483,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.MudDateTime:
-                if (TryResolveMudDateTimeArgument(element, out MudDateTime mudDateTime, out error))
+                if (TryResolveMudDateTimeArgument(element, out MudDateTime? mudDateTime, out error))
                 {
                     convertedValue = mudDateTime;
                     return true;
@@ -489,7 +492,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Shard:
-                if (TryResolveShardArgument(element, out IShard shard, out error))
+                if (TryResolveShardArgument(element, out IShard? shard, out error))
                 {
                     convertedValue = shard;
                     return true;
@@ -498,7 +501,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Zone:
-                if (TryResolveZoneArgument(element, out IZone zone, out error))
+                if (TryResolveZoneArgument(element, out IZone? zone, out error))
                 {
                     convertedValue = zone;
                     return true;
@@ -507,7 +510,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Race:
-                if (TryResolveRaceArgument(element, out IRace race, out error))
+                if (TryResolveRaceArgument(element, out IRace? race, out error))
                 {
                     convertedValue = race;
                     return true;
@@ -516,7 +519,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Culture:
-                if (TryResolveCultureArgument(element, out ICulture culture, out error))
+                if (TryResolveCultureArgument(element, out ICulture? culture, out error))
                 {
                     convertedValue = culture;
                     return true;
@@ -525,7 +528,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Trait:
-                if (TryResolveTraitArgument(element, out ITraitDefinition trait, out error))
+                if (TryResolveTraitArgument(element, out ITraitDefinition? trait, out error))
                 {
                     convertedValue = trait;
                     return true;
@@ -534,7 +537,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Clan:
-                if (TryResolveClanArgument(element, out IClan clan, out error))
+                if (TryResolveClanArgument(element, out IClan? clan, out error))
                 {
                     convertedValue = clan;
                     return true;
@@ -543,7 +546,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Ethnicity:
-                if (TryResolveEthnicityArgument(element, out IEthnicity ethnicity, out error))
+                if (TryResolveEthnicityArgument(element, out IEthnicity? ethnicity, out error))
                 {
                     convertedValue = ethnicity;
                     return true;
@@ -552,7 +555,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.ClanRank:
-                if (TryResolveClanRankArgument(element, out IRank clanRank, out error))
+                if (TryResolveClanRankArgument(element, out IRank? clanRank, out error))
                 {
                     convertedValue = clanRank;
                     return true;
@@ -561,7 +564,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.ClanAppointment:
-                if (TryResolveClanAppointmentArgument(element, out IAppointment clanAppointment, out error))
+                if (TryResolveClanAppointmentArgument(element, out IAppointment? clanAppointment, out error))
                 {
                     convertedValue = clanAppointment;
                     return true;
@@ -570,7 +573,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.ClanPaygrade:
-                if (TryResolveClanPaygradeArgument(element, out IPaygrade clanPaygrade, out error))
+                if (TryResolveClanPaygradeArgument(element, out IPaygrade? clanPaygrade, out error))
                 {
                     convertedValue = clanPaygrade;
                     return true;
@@ -579,7 +582,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Currency:
-                if (TryResolveCurrencyArgument(element, out ICurrency currency, out error))
+                if (TryResolveCurrencyArgument(element, out ICurrency? currency, out error))
                 {
                     convertedValue = currency;
                     return true;
@@ -588,7 +591,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Exit:
-                if (TryResolveExitArgument(element, out IExit exit, out error))
+                if (TryResolveExitArgument(element, out IExit? exit, out error))
                 {
                     convertedValue = exit;
                     return true;
@@ -597,7 +600,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Language:
-                if (TryResolveLanguageArgument(element, out ILanguage language, out error))
+                if (TryResolveLanguageArgument(element, out ILanguage? language, out error))
                 {
                     convertedValue = language;
                     return true;
@@ -606,7 +609,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Accent:
-                if (TryResolveAccentArgument(element, out IAccent accent, out error))
+                if (TryResolveAccentArgument(element, out IAccent? accent, out error))
                 {
                     convertedValue = accent;
                     return true;
@@ -615,7 +618,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Merit:
-                if (TryResolveMeritArgument(element, out IMerit merit, out error))
+                if (TryResolveMeritArgument(element, out IMerit? merit, out error))
                 {
                     convertedValue = merit;
                     return true;
@@ -624,7 +627,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Calendar:
-                if (TryResolveCalendarArgument(element, out ICalendar calendar, out error))
+                if (TryResolveCalendarArgument(element, out ICalendar? calendar, out error))
                 {
                     convertedValue = calendar;
                     return true;
@@ -633,7 +636,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Clock:
-                if (TryResolveClockArgument(element, out IClock clock, out error))
+                if (TryResolveClockArgument(element, out IClock? clock, out error))
                 {
                     convertedValue = clock;
                     return true;
@@ -642,7 +645,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Knowledge:
-                if (TryResolveKnowledgeArgument(element, out IKnowledge knowledge, out error))
+                if (TryResolveKnowledgeArgument(element, out IKnowledge? knowledge, out error))
                 {
                     convertedValue = knowledge;
                     return true;
@@ -651,7 +654,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Role:
-                if (TryResolveRoleArgument(element, out IChargenRole role, out error))
+                if (TryResolveRoleArgument(element, out IChargenRole? role, out error))
                 {
                     convertedValue = role;
                     return true;
@@ -660,7 +663,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Drug:
-                if (TryResolveDrugArgument(element, out IDrug drug, out error))
+                if (TryResolveDrugArgument(element, out IDrug? drug, out error))
                 {
                     convertedValue = drug;
                     return true;
@@ -669,7 +672,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Shop:
-                if (TryResolveShopArgument(element, out IShop shop, out error))
+                if (TryResolveShopArgument(element, out IShop? shop, out error))
                 {
                     convertedValue = shop;
                     return true;
@@ -678,7 +681,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Effect:
-                if (TryResolveEffectArgument(element, out IEffect effect, out error))
+                if (TryResolveEffectArgument(element, out IEffect? effect, out error))
                 {
                     convertedValue = effect;
                     return true;
@@ -687,7 +690,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.Outfit:
-                if (TryResolveOutfitArgument(element, out IOutfit outfit, out error))
+                if (TryResolveOutfitArgument(element, out IOutfit? outfit, out error))
                 {
                     convertedValue = outfit;
                     return true;
@@ -696,7 +699,7 @@ public partial class AIStoryteller
                 convertedValue = null;
                 return false;
             case ProgVariableTypeCode.OutfitItem:
-                if (TryResolveOutfitItemArgument(element, out IOutfitItem outfitItem, out error))
+                if (TryResolveOutfitItemArgument(element, out IOutfitItem? outfitItem, out error))
                 {
                     convertedValue = outfitItem;
                     return true;
@@ -775,7 +778,7 @@ public partial class AIStoryteller
                 return true;
             }
 
-            string genderText = TryGetOptionalString(element, "Gender", "Value", "Name");
+            string? genderText = TryGetOptionalString(element, "Gender", "Value", "Name");
             if (!string.IsNullOrWhiteSpace(genderText))
             {
                 return TryResolveGenderText(genderText, out gender, out error);
@@ -851,7 +854,7 @@ public partial class AIStoryteller
                 return true;
             }
 
-            string dateTimeText = TryGetOptionalString(element, "Value", "DateTime", "Timestamp", "Iso8601");
+            string? dateTimeText = TryGetOptionalString(element, "Value", "DateTime", "Timestamp", "Iso8601");
             if (!string.IsNullOrWhiteSpace(dateTimeText))
             {
                 return TryResolveDateTimeText(dateTimeText, out dateTime, out error);
@@ -899,7 +902,7 @@ public partial class AIStoryteller
                 return true;
             }
 
-            string spanText = TryGetOptionalString(element, "Value", "TimeSpan", "Duration");
+            string? spanText = TryGetOptionalString(element, "Value", "TimeSpan", "Duration");
             if (!string.IsNullOrWhiteSpace(spanText))
             {
                 return TryResolveTimeSpanText(spanText, out timeSpan, out error);
@@ -935,12 +938,12 @@ public partial class AIStoryteller
         return false;
     }
 
-    private bool TryResolveMudDateTimeArgument(JsonElement element, out MudDateTime? mudDateTime, out string error)
+    private bool TryResolveMudDateTimeArgument(JsonElement element, [NotNullWhen(true)] out MudDateTime? mudDateTime, out string error)
     {
         mudDateTime = null;
         if (element.ValueKind == JsonValueKind.Object)
         {
-            string mudDateTimeText = TryGetOptionalString(element, "Value", "MudDateTime", "DateTime");
+            string? mudDateTimeText = TryGetOptionalString(element, "Value", "MudDateTime", "DateTime");
             if (!string.IsNullOrWhiteSpace(mudDateTimeText))
             {
                 return TryResolveMudDateTimeText(mudDateTimeText, out mudDateTime, out error);
@@ -956,7 +959,7 @@ public partial class AIStoryteller
         return false;
     }
 
-    private bool TryResolveMudDateTimeText(string text, out MudDateTime? mudDateTime, out string error)
+    private bool TryResolveMudDateTimeText(string text, [NotNullWhen(true)] out MudDateTime? mudDateTime, out string error)
     {
         if (MudDateTime.TryParse(text, Gameworld, out MudDateTime parsed))
         {
@@ -975,7 +978,7 @@ public partial class AIStoryteller
         string typeName,
         Func<long, T?> resolveById,
         IEnumerable<T> searchItems,
-        out T? item,
+        [NotNullWhen(true)] out T? item,
         out string error,
         string[] idPropertyNames,
         string[] namePropertyNames) where T : class, IFrameworkItem
@@ -999,7 +1002,7 @@ public partial class AIStoryteller
             }
 
             string[] allNameNames = namePropertyNames.Concat(["Name", "name"]).Distinct().ToArray();
-            string nameValue = TryGetOptionalString(element, allNameNames);
+            string? nameValue = TryGetOptionalString(element, allNameNames);
             if (!string.IsNullOrWhiteSpace(nameValue))
             {
                 List<T> matches = FindFrameworkItemMatchesByName(searchList, nameValue);
@@ -1066,7 +1069,7 @@ public partial class AIStoryteller
     private static List<T> FindFrameworkItemMatchesByName<T>(IEnumerable<T> items, string name)
         where T : class, IFrameworkItem
     {
-        string text = name?.Trim();
+        string text = name.Trim();
         if (string.IsNullOrWhiteSpace(text))
         {
             return [];
@@ -1104,7 +1107,7 @@ public partial class AIStoryteller
             return true;
         }
 
-        string clanName = TryGetOptionalString(element, "ClanName", "Clan");
+        string? clanName = TryGetOptionalString(element, "ClanName", "Clan");
         if (!string.IsNullOrWhiteSpace(clanName))
         {
             List<IClan> matches = FindFrameworkItemMatchesByName(Gameworld.Clans, clanName);
@@ -1133,7 +1136,7 @@ public partial class AIStoryteller
         JsonElement element,
         string typeName,
         Func<IClan, IEnumerable<T>> selector,
-        out T? item,
+        [NotNullWhen(true)] out T? item,
         out string error,
         string[] idPropertyNames,
         string[] namePropertyNames) where T : class, IFrameworkItem
@@ -1141,7 +1144,7 @@ public partial class AIStoryteller
         IEnumerable<T> candidates = Gameworld.Clans.SelectMany(selector).ToList();
         if (element.ValueKind == JsonValueKind.Object)
         {
-            if (!TryResolveOptionalClanFilter(element, out IClan clan, out error))
+            if (!TryResolveOptionalClanFilter(element, out IClan? clan, out error))
             {
                 item = null;
                 return false;
@@ -1165,7 +1168,7 @@ public partial class AIStoryteller
             namePropertyNames);
     }
 
-    private bool TryResolveShardArgument(JsonElement element, out IShard? shard, out string error)
+    private bool TryResolveShardArgument(JsonElement element, [NotNullWhen(true)] out IShard? shard, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1178,7 +1181,7 @@ public partial class AIStoryteller
             ["ShardName", "Shard"]);
     }
 
-    private bool TryResolveZoneArgument(JsonElement element, out IZone? zone, out string error)
+    private bool TryResolveZoneArgument(JsonElement element, [NotNullWhen(true)] out IZone? zone, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1191,7 +1194,7 @@ public partial class AIStoryteller
             ["ZoneName", "Zone"]);
     }
 
-    private bool TryResolveRaceArgument(JsonElement element, out IRace? race, out string error)
+    private bool TryResolveRaceArgument(JsonElement element, [NotNullWhen(true)] out IRace? race, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1204,7 +1207,7 @@ public partial class AIStoryteller
             ["RaceName", "Race"]);
     }
 
-    private bool TryResolveCultureArgument(JsonElement element, out ICulture? culture, out string error)
+    private bool TryResolveCultureArgument(JsonElement element, [NotNullWhen(true)] out ICulture? culture, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1217,7 +1220,7 @@ public partial class AIStoryteller
             ["CultureName", "Culture"]);
     }
 
-    private bool TryResolveTraitArgument(JsonElement element, out ITraitDefinition? trait, out string error)
+    private bool TryResolveTraitArgument(JsonElement element, [NotNullWhen(true)] out ITraitDefinition? trait, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1230,7 +1233,7 @@ public partial class AIStoryteller
             ["TraitName", "Trait"]);
     }
 
-    private bool TryResolveClanArgument(JsonElement element, out IClan? clan, out string error)
+    private bool TryResolveClanArgument(JsonElement element, [NotNullWhen(true)] out IClan? clan, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1243,7 +1246,7 @@ public partial class AIStoryteller
             ["ClanName", "Clan"]);
     }
 
-    private bool TryResolveEthnicityArgument(JsonElement element, out IEthnicity? ethnicity, out string error)
+    private bool TryResolveEthnicityArgument(JsonElement element, [NotNullWhen(true)] out IEthnicity? ethnicity, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1256,7 +1259,7 @@ public partial class AIStoryteller
             ["EthnicityName", "Ethnicity"]);
     }
 
-    private bool TryResolveClanRankArgument(JsonElement element, out IRank? rank, out string error)
+    private bool TryResolveClanRankArgument(JsonElement element, [NotNullWhen(true)] out IRank? rank, out string error)
     {
         return TryResolveClanScopedArgument(
             element,
@@ -1268,7 +1271,7 @@ public partial class AIStoryteller
             ["ClanRankName", "RankName", "Rank"]);
     }
 
-    private bool TryResolveClanAppointmentArgument(JsonElement element, out IAppointment? appointment, out string error)
+    private bool TryResolveClanAppointmentArgument(JsonElement element, [NotNullWhen(true)] out IAppointment? appointment, out string error)
     {
         return TryResolveClanScopedArgument(
             element,
@@ -1280,12 +1283,12 @@ public partial class AIStoryteller
             ["ClanAppointmentName", "AppointmentName", "Appointment"]);
     }
 
-    private bool TryResolveClanPaygradeArgument(JsonElement element, out IPaygrade? paygrade, out string error)
+    private bool TryResolveClanPaygradeArgument(JsonElement element, [NotNullWhen(true)] out IPaygrade? paygrade, out string error)
     {
         IEnumerable<IPaygrade> candidates = Gameworld.Clans.SelectMany(x => x.Paygrades).ToList();
         if (element.ValueKind == JsonValueKind.Object)
         {
-            if (!TryResolveOptionalClanFilter(element, out IClan clan, out error))
+            if (!TryResolveOptionalClanFilter(element, out IClan? clan, out error))
             {
                 paygrade = null;
                 return false;
@@ -1311,7 +1314,7 @@ public partial class AIStoryteller
             return true;
         }
 
-        string paygradeText = element.ValueKind == JsonValueKind.Object
+        string? paygradeText = element.ValueKind == JsonValueKind.Object
             ? TryGetOptionalString(element, "PaygradeAbbreviation", "Abbreviation")
             : element.ValueKind == JsonValueKind.String
                 ? element.GetString()
@@ -1344,7 +1347,7 @@ public partial class AIStoryteller
         return false;
     }
 
-    private bool TryResolveCurrencyArgument(JsonElement element, out ICurrency? currency, out string error)
+    private bool TryResolveCurrencyArgument(JsonElement element, [NotNullWhen(true)] out ICurrency? currency, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1357,7 +1360,7 @@ public partial class AIStoryteller
             ["CurrencyName", "Currency"]);
     }
 
-    private bool TryResolveExitArgument(JsonElement element, out IExit? exit, out string error)
+    private bool TryResolveExitArgument(JsonElement element, [NotNullWhen(true)] out IExit? exit, out string error)
     {
         if (element.ValueKind == JsonValueKind.Object &&
             TryGetOptionalLong(element, out long exitId, "ExitId", "ExitID", "Exit"))
@@ -1391,7 +1394,7 @@ public partial class AIStoryteller
         return false;
     }
 
-    private bool TryResolveLanguageArgument(JsonElement element, out ILanguage? language, out string error)
+    private bool TryResolveLanguageArgument(JsonElement element, [NotNullWhen(true)] out ILanguage? language, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1404,7 +1407,7 @@ public partial class AIStoryteller
             ["LanguageName", "Language"]);
     }
 
-    private bool TryResolveAccentArgument(JsonElement element, out IAccent? accent, out string error)
+    private bool TryResolveAccentArgument(JsonElement element, [NotNullWhen(true)] out IAccent? accent, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1417,7 +1420,7 @@ public partial class AIStoryteller
             ["AccentName", "Accent"]);
     }
 
-    private bool TryResolveMeritArgument(JsonElement element, out IMerit? merit, out string error)
+    private bool TryResolveMeritArgument(JsonElement element, [NotNullWhen(true)] out IMerit? merit, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1430,7 +1433,7 @@ public partial class AIStoryteller
             ["MeritName", "Merit"]);
     }
 
-    private bool TryResolveCalendarArgument(JsonElement element, out ICalendar? calendar, out string error)
+    private bool TryResolveCalendarArgument(JsonElement element, [NotNullWhen(true)] out ICalendar? calendar, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1443,7 +1446,7 @@ public partial class AIStoryteller
             ["CalendarName", "Calendar", "Alias"]);
     }
 
-    private bool TryResolveClockArgument(JsonElement element, out IClock? clock, out string error)
+    private bool TryResolveClockArgument(JsonElement element, [NotNullWhen(true)] out IClock? clock, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1456,7 +1459,7 @@ public partial class AIStoryteller
             ["ClockName", "Clock", "Alias"]);
     }
 
-    private bool TryResolveKnowledgeArgument(JsonElement element, out IKnowledge? knowledge, out string error)
+    private bool TryResolveKnowledgeArgument(JsonElement element, [NotNullWhen(true)] out IKnowledge? knowledge, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1469,7 +1472,7 @@ public partial class AIStoryteller
             ["KnowledgeName", "Knowledge"]);
     }
 
-    private bool TryResolveRoleArgument(JsonElement element, out IChargenRole? role, out string error)
+    private bool TryResolveRoleArgument(JsonElement element, [NotNullWhen(true)] out IChargenRole? role, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1482,7 +1485,7 @@ public partial class AIStoryteller
             ["RoleName", "Role"]);
     }
 
-    private bool TryResolveDrugArgument(JsonElement element, out IDrug? drug, out string error)
+    private bool TryResolveDrugArgument(JsonElement element, [NotNullWhen(true)] out IDrug? drug, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1495,7 +1498,7 @@ public partial class AIStoryteller
             ["DrugName", "Drug"]);
     }
 
-    private bool TryResolveShopArgument(JsonElement element, out IShop? shop, out string error)
+    private bool TryResolveShopArgument(JsonElement element, [NotNullWhen(true)] out IShop? shop, out string error)
     {
         return TryResolveFrameworkItemArgument(
             element,
@@ -1508,7 +1511,7 @@ public partial class AIStoryteller
             ["ShopName", "Shop"]);
     }
 
-    private bool TryResolveEffectArgument(JsonElement element, out IEffect? effect, out string error)
+    private bool TryResolveEffectArgument(JsonElement element, [NotNullWhen(true)] out IEffect? effect, out string error)
     {
         effect = null;
         bool hasOwnerInfo = false;
@@ -1546,7 +1549,7 @@ public partial class AIStoryteller
 
         if (hasOwnerInfo)
         {
-            IHaveEffects owner = ResolveEffectOwner(ownerId, ownerType);
+            IHaveEffects? owner = ResolveEffectOwner(ownerId, ownerType);
             if (owner is null)
             {
                 error =
@@ -1589,7 +1592,7 @@ public partial class AIStoryteller
 
     private IHaveEffects? ResolveEffectOwner(long? ownerId, string? ownerType)
     {
-        string normalizedType = ownerType?.Trim().ToLowerInvariant();
+        string? normalizedType = ownerType?.Trim().ToLowerInvariant();
         if (!string.IsNullOrWhiteSpace(normalizedType))
         {
             return normalizedType switch
@@ -1626,7 +1629,7 @@ public partial class AIStoryteller
             .OfType<IHaveEffects>();
     }
 
-    private bool TryResolveOutfitArgument(JsonElement element, out IOutfit? outfit, out string error)
+    private bool TryResolveOutfitArgument(JsonElement element, [NotNullWhen(true)] out IOutfit? outfit, out string error)
     {
         outfit = null;
         if (element.ValueKind != JsonValueKind.Object)
@@ -1641,14 +1644,14 @@ public partial class AIStoryteller
             return false;
         }
 
-        string outfitName = TryGetOptionalString(element, "OutfitName", "Name");
+        string? outfitName = TryGetOptionalString(element, "OutfitName", "Name");
         if (string.IsNullOrWhiteSpace(outfitName))
         {
             error = "Outfit arguments must include OutfitName.";
             return false;
         }
 
-        ICharacter owner = Gameworld.TryGetCharacter(ownerId, true);
+        ICharacter? owner = Gameworld.TryGetCharacter(ownerId, true);
         if (owner is null)
         {
             error = $"No character with id {ownerId:N0} exists.";
@@ -1666,7 +1669,7 @@ public partial class AIStoryteller
         return true;
     }
 
-    private bool TryResolveOutfitItemArgument(JsonElement element, out IOutfitItem? outfitItem, out string error)
+    private bool TryResolveOutfitItemArgument(JsonElement element, [NotNullWhen(true)] out IOutfitItem? outfitItem, out string error)
     {
         outfitItem = null;
         if (element.ValueKind != JsonValueKind.Object)
@@ -1687,8 +1690,8 @@ public partial class AIStoryteller
             return false;
         }
 
-        string outfitName = TryGetOptionalString(element, "OutfitName", "Name");
-        ICharacter owner = Gameworld.TryGetCharacter(ownerId, true);
+        string? outfitName = TryGetOptionalString(element, "OutfitName", "Name");
+        ICharacter? owner = Gameworld.TryGetCharacter(ownerId, true);
         if (owner is null)
         {
             error = $"No character with id {ownerId:N0} exists.";

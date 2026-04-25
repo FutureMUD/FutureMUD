@@ -20,11 +20,11 @@ public class LawSeeder : IDatabaseSeeder
         "Assault"
     ];
 
-    public FuturemudDatabaseContext Context { get; private set; }
-    public IReadOnlyDictionary<string, string> QuestionAnswers { get; private set; }
-    public string AuthorityName { get; private set; }
-    public LegalAuthority Authority { get; private set; }
-    public IReadOnlyDictionary<string, LegalClass> Classes { get; private set; }
+    public FuturemudDatabaseContext Context { get; private set; } = null!;
+    public IReadOnlyDictionary<string, string> QuestionAnswers { get; private set; } = null!;
+    public string AuthorityName { get; private set; } = null!;
+    public LegalAuthority Authority { get; private set; } = null!;
+    public IReadOnlyDictionary<string, LegalClass> Classes { get; private set; } = null!;
     public Dictionary<string, FutureProg> ProgLookup { get; } = new();
 
     public IEnumerable<(string Id, string Question,
@@ -426,11 +426,12 @@ return {(offenderOutranksVictim ? "false" : "true")}";
         QuestionAnswers = questionAnswers;
         AuthorityName = questionAnswers["name"];
         context.Database.BeginTransaction();
-        Currency currency;
-        if (long.TryParse(questionAnswers["currency"], out long id))
-        {
-            currency = context.Currencies.Find(id);
-        }
+		Currency currency;
+		if (long.TryParse(questionAnswers["currency"], out long id))
+		{
+			currency = context.Currencies.Find(id) ??
+				throw new ApplicationException($"Could not find a currency with ID {id}.");
+		}
         else
         {
             currency = context.Currencies.First(x => x.Name == questionAnswers["currency"]);

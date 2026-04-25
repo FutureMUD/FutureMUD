@@ -1,7 +1,9 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Form.Shape;
 using System;
 using System.Collections.Generic;
+
+#nullable enable annotations
 
 namespace MudSharp.GameItems.Interfaces
 {
@@ -32,11 +34,11 @@ namespace MudSharp.GameItems.Interfaces
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        bool CanConnect(ICharacter actor, IConnectable other);
+        bool CanConnect(ICharacter? actor, IConnectable other);
 
-        void Connect(ICharacter actor, IConnectable other);
+        void Connect(ICharacter? actor, IConnectable other);
         void RawConnect(IConnectable other, ConnectorType type);
-        string WhyCannotConnect(ICharacter actor, IConnectable other);
+        string WhyCannotConnect(ICharacter? actor, IConnectable other);
         bool CanBeDisconnectedFrom(IConnectable other);
         bool CanDisconnect(ICharacter actor, IConnectable other);
         void Disconnect(ICharacter actor, IConnectable other);

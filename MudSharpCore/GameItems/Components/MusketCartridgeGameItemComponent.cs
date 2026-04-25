@@ -16,7 +16,7 @@ namespace MudSharp.GameItems.Components;
 
 public class MusketCartridgeGameItemComponent : AmmunitionGameItemComponent
 {
-    protected MusketCartridgeGameItemComponentProto _prototype;
+    protected new MusketCartridgeGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
@@ -61,7 +61,7 @@ public class MusketCartridgeGameItemComponent : AmmunitionGameItemComponent
     }
     #endregion
 
-    public IAmmunitionType AmmoType => _prototype.AmmoType;
+    public new IAmmunitionType AmmoType => _prototype.AmmoType;
     public double BulletBore => _prototype.BulletBore;
     public IGameItemProto BulletProto => _prototype.BulletProto;
 }

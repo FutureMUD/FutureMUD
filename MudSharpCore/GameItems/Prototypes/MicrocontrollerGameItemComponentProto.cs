@@ -307,7 +307,7 @@ public class MicrocontrollerGameItemComponentProto : PoweredMachineBaseGameItemC
 			CombinedBuildingHelpText);
 	}
 
-	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter loader = null, bool temporary = false)
+	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
 	{
 		return new MicrocontrollerGameItemComponent(this, parent, temporary);
 	}

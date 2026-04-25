@@ -5,6 +5,8 @@ using MudSharp.FutureProg;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
+#nullable enable
+
 namespace MudSharp.Magic.SpellTriggers;
 
 public class CastingTriggerCharacterExit : CastingTriggerBase
@@ -34,8 +36,8 @@ public class CastingTriggerCharacterExit : CastingTriggerBase
 	protected CastingTriggerCharacterExit(XElement root, IMagicSpell spell)
 		: base(root, spell)
 	{
-		TargetFilterProg = spell.Gameworld.FutureProgs.Get(long.Parse(root.Element("TargetFilterProg").Value));
-		CanTargetSelf = bool.Parse(root.Element("CanTargetSelf").Value);
+		TargetFilterProg = spell.Gameworld.FutureProgs.Get(long.Parse(root.Element("TargetFilterProg")!.Value));
+		CanTargetSelf = bool.Parse(root.Element("CanTargetSelf")!.Value);
 	}
 
 	protected CastingTriggerCharacterExit()

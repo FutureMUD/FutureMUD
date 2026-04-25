@@ -215,8 +215,8 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
 
     public bool Enabled => true;
 
-    public FuturemudDatabaseContext _context;
-    public IReadOnlyDictionary<string, string> _questionAnswers;
+    public FuturemudDatabaseContext _context = null!;
+    public IReadOnlyDictionary<string, string> _questionAnswers = null!;
     private bool UseRainEvents { get; set; }
     private Liquid? RainLiquid { get; set; }
     private WeatherSeederTemperatureVariationOption TemperatureVariationOption { get; } = SingleTemperatureVariationOption;
@@ -2431,7 +2431,7 @@ At the present time, this seeder installs temperate oceanic, humid subtropical, 
             season.Name = name;
             season.DisplayName = displayName;
             season.SeasonGroup = group;
-            season.CelestialId = celestial.Id;
+			season.CelestialId = celestial!.Id;
             season.CelestialDayOnset = celestialDayOnset;
             seasons.Add(season);
         }

@@ -23,16 +23,16 @@ public partial class HumanSeeder
     private readonly Dictionary<string, BodypartProto> _organs = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly Dictionary<string, BodypartShape> _shapes = new(StringComparer.OrdinalIgnoreCase);
-    private ArmourType _boneArmour;
+    private ArmourType _boneArmour = null!;
 
-    private Material _compactBone;
-    private ArmourType _bodypartNaturalArmour;
-    private ArmourType _cranialNaturalArmour;
-    private ArmourType _organArmour;
-    private ArmourType _racialNaturalArmour;
+    private Material _compactBone = null!;
+    private ArmourType _bodypartNaturalArmour = null!;
+    private ArmourType _cranialNaturalArmour = null!;
+    private ArmourType _organArmour = null!;
+    private ArmourType _racialNaturalArmour = null!;
 
-    private Material _spongyBone;
-    private Material _visceraMaterial;
+    private Material _spongyBone = null!;
+    private Material _visceraMaterial = null!;
 
 	private enum StockHumanWearProfileType
 	{

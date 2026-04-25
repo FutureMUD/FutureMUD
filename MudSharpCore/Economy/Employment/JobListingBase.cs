@@ -57,8 +57,9 @@ public abstract class JobListingBase : SaveableItem, IJobListing
         FullTimeEquivalentRatio = dbitem.FullTimeEquivalentRatio;
         foreach (XElement money in XElement.Parse(dbitem.MoneyPaidIn).Elements("Money"))
         {
-            MoneyPaidIn[Gameworld.Currencies.Get(long.Parse(money.Attribute("currency").Value))] =
-                decimal.Parse(money.Attribute("amount").Value);
+            MoneyPaidIn[Gameworld.Currencies.Get(long.Parse(money.Attribute("currency")!.Value)) ??
+                        throw new ApplicationException("Invalid currency in job listing money definition")] =
+                decimal.Parse(money.Attribute("amount")!.Value);
         }
     }
 
@@ -138,7 +139,7 @@ public abstract class JobListingBase : SaveableItem, IJobListing
 
     public sealed override void Save()
     {
-        Models.JobListing? dbitem = FMDB.Context.JobListings.Find(Id);
+        Models.JobListing dbitem = FMDB.Context.JobListings.Find(Id)!;
         dbitem.Name = Name;
         dbitem.IsArchived = IsArchived;
         dbitem.IsReadyToBePosted = IsReadyToBePosted;
@@ -432,7 +433,7 @@ public abstract class JobListingBase : SaveableItem, IJobListing
 
         if (!actor.IsAdministrator())
         {
-            if (ClanRank.RankNumber > membership.Rank.RankNumber &&
+            if (ClanRank.RankNumber > membership!.Rank.RankNumber &&
                 !membership.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanStructure))
             {
                 actor.OutputHandler.Send(
@@ -506,7 +507,7 @@ public abstract class JobListingBase : SaveableItem, IJobListing
 
         if (!actor.IsAdministrator())
         {
-            if (appointment.MinimumRankToHold.RankNumber > membership.Rank.RankNumber &&
+            if (appointment.MinimumRankToHold.RankNumber > membership!.Rank.RankNumber &&
                 !membership.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanStructure))
             {
                 actor.OutputHandler.Send(
@@ -581,7 +582,7 @@ public abstract class JobListingBase : SaveableItem, IJobListing
 
         if (!actor.IsAdministrator())
         {
-            if (rank.RankNumber > membership.Rank.RankNumber &&
+            if (rank.RankNumber > membership!.Rank.RankNumber &&
                 !membership.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanStructure))
             {
                 actor.OutputHandler.Send(
@@ -841,7 +842,7 @@ public abstract class JobListingBase : SaveableItem, IJobListing
         {
             DecimalCounter<ICurrency> clanPays = new();
             IRank? rank = ClanRank ?? ClanMembership.Ranks.FirstMin(x => x.RankNumber);
-            IPaygrade? paygrade = ClanPaygrade ?? rank.Paygrades.FirstMin(x => x.PayAmount);
+            IPaygrade? paygrade = ClanPaygrade ?? rank!.Paygrades.FirstMin(x => x.PayAmount);
             if (paygrade is not null)
             {
                 clanPays[paygrade.PayCurrency] += paygrade.PayAmount;
@@ -874,7 +875,8 @@ public abstract class JobListingBase : SaveableItem, IJobListing
 
     private readonly FrameworkItemReference _employerReference;
     private IFrameworkItem? _employer;
-    public IFrameworkItem Employer => _employer ??= _employerReference.GetItem;
+    public IFrameworkItem Employer => _employer ??= _employerReference.GetItem ??
+        throw new ApplicationException($"Unknown employer reference {_employerReference} on job listing {Id}.");
     public abstract IActiveJob ApplyForJob(ICharacter actor);
     public abstract void FinishJob();
 
@@ -980,7 +982,7 @@ public abstract class JobListingBase : SaveableItem, IJobListing
         {
             IRank? rank = ClanRank ?? ClanMembership.Ranks.FirstMin(x => x.RankNumber);
             sb.AppendLine(
-                $"It grants membership in the {ClanMembership.FullName.ColourName()} clan at rank {rank.Name.ColourValue()}.");
+                $"It grants membership in the {ClanMembership.FullName.ColourName()} clan at rank {rank!.Name.ColourValue()}.");
             if (ClanAppointment is not null)
             {
                 sb.AppendLine($"\t* Also grants the {ClanAppointment.Name.ColourValue()} appointment.");
@@ -1005,7 +1007,7 @@ public abstract class JobListingBase : SaveableItem, IJobListing
         }
 
         IRank? rank = ClanRank ?? ClanMembership.Ranks.FirstMin(x => x.RankNumber);
-        IPaygrade? paygrade = ClanPaygrade ?? rank.Paygrades.FirstMin(x => x.PayAmount);
+        IPaygrade? paygrade = ClanPaygrade ?? rank!.Paygrades.FirstMin(x => x.PayAmount);
 
         if (paygrade is not null)
         {

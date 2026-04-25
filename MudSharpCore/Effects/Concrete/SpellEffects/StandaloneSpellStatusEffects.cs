@@ -426,13 +426,13 @@ public class SpellPoisonEffect : SimpleSpellStatusEffectBase
 		: base(root, owner)
 	{
 		XElement effect = root.Element("Effect")!;
-		Drug = Gameworld.Drugs.Get(long.Parse(effect.Element("Drug")!.Value));
+		Drug = Gameworld.Drugs.Get(long.Parse(effect.Element("Drug")!.Value))!;
 		Vector = (DrugVector)int.Parse(effect.Element("Vector")!.Value);
 		Grams = double.Parse(effect.Element("Grams")!.Value);
 		GramsFormulaText = effect.Element("GramsFormula")?.Value ?? "0";
 	}
 
-	public IDrug Drug { get; }
+	public IDrug Drug { get; } = null!;
 	public DrugVector Vector { get; }
 	public double Grams { get; }
 	public string GramsFormulaText { get; }

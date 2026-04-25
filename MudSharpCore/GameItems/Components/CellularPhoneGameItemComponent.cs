@@ -230,7 +230,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
         set => TelecommunicationsGrid = value;
     }
 
-    IGrid ICanConnectToGrid.Grid
+    IGrid? ICanConnectToGrid.Grid
     {
         get => TelecommunicationsGrid;
         set => TelecommunicationsGrid = value as ITelecommunicationsGrid;
@@ -663,7 +663,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
     private bool HasCoverageInZone(Construction.IZone zone)
     {
         return Gameworld.Items
-                        .SelectNotNull(x => x.GetItemType<ICellPhoneTower>())
+                        .SelectNotNull(x => x!.GetItemType<ICellPhoneTower>())
                         .Any(x => x.TelecommunicationsGrid == TelecommunicationsGrid && x.ProvidesCoverage(zone));
     }
 

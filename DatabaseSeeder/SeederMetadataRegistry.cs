@@ -175,6 +175,22 @@ public static class SeederMetadataRegistry
                 UpdateSummary: "Reruns also refresh the stock wilderness autobuilder room template, area template, and supporting terrain-feature tags by stable names.",
                 OwnershipSummary: "Kickstart now owns stock items, AI, helper tags, the wilderness autobuilder room+area starter package, ranged covers, hints, and dream content; core terrain foundations are seeded separately."
             ),
+            nameof(CookingSeeder) => new SeederMetadata(
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.InstallMissing,
+                [
+                    Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
+                    Requirement("Useful item components must already include Holdable and Stack_Number.", context =>
+                        context.GameItemComponentProtos.Any(x => x.Name == "Holdable") &&
+                        context.GameItemComponentProtos.Any(x => x.Name == "Stack_Number")),
+                    Requirement("Core food materials must already exist.", context =>
+                        new[] { "apple", "blueberry", "mushroom", "muffin" }.All(material => context.Materials.Any(x => x.Name == material))),
+                    Requirement("At least one trait definition must exist for cooking craft quality checks.", context => context.TraitDefinitions.Any())
+                ],
+                RerunSummary: "Reruns install missing prepared-food stock records without mutating the legacy Food component.",
+                UpdateSummary: "This package owns direct prepared-food examples, stackable serving examples, and stock CookedFoodProduct recipe examples by stable names.",
+                OwnershipSummary: "Stock prepared-food content is tracked by CookingSeeder component names, item short descriptions, tags, and recipe names."
+            ),
             nameof(AIStorytellerSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.RepairExisting,

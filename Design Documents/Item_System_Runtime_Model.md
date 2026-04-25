@@ -76,6 +76,8 @@ The item system is intentionally interface-first and component-driven.
 
 A live item becomes "a container" because one of its components implements `IContainer`. It becomes "a wearable" because one of its components implements `IWearable`. It becomes "a radio", "a telephone", "a cell tower", "a corpse", "a battery-powered machine", or "a prosthetic" for the same reason.
 
+New-style food follows the same rule. A live item becomes prepared food because one component implements `IPreparedFood`, which extends `IEdible` with ingredient ledgers, freshness, serving scope, quality-scaled nutrition, and ingested drug doses. The legacy `Food` component remains available for old content, while `PreparedFood` is the current component for direct loadable foods and recipe-initialised foods.
+
 This has two important consequences:
 - most game logic should depend on interfaces from `FutureMUDLibrary`, not concrete component classes
 - adding a new capability usually means adding a new component pair, not adding a new item class

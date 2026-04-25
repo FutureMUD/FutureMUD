@@ -4,6 +4,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Decorators;
+using MudSharp.GameItems.Interfaces;
 using System;
 using System.Linq;
 using System.Xml.Linq;
@@ -11,7 +12,7 @@ using System.Xml.Linq;
 namespace MudSharp.Effects.Concrete;
 
 public class ResidueContamination : Effect, ICleanableEffect, ISDescAdditionEffect, IDescriptionAdditionEffect,
-    IEffectAddsWeight
+    IEffectAddsWeight, IIngredientTransferEffect
 {
     private static IStackDecorator _stackDecorator;
     private double _weight;
@@ -172,6 +173,28 @@ public class ResidueContamination : Effect, ICleanableEffect, ISDescAdditionEffe
     #region Implementation of IEffectAddsWeight
 
     public double AddedWeight => Weight;
+
+    #endregion
+
+    #region Implementation of IIngredientTransferEffect
+
+    public void TransferToFood(IPreparedFood food, double proportion)
+    {
+        if (Material is null || Weight <= 0.0 || proportion <= 0.0)
+        {
+            return;
+        }
+
+        food.AddIngredient(new FoodIngredientInstance
+        {
+            Role = "residue",
+            Description = Material.MaterialDescription,
+            TasteText = Material.MaterialDescription,
+            MaterialId = Material.Id,
+            Weight = Weight * proportion,
+            Quality = ItemQuality.Standard
+        });
+    }
 
     #endregion
 }

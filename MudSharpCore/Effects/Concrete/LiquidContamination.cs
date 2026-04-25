@@ -5,6 +5,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.PerceptionEngine;
@@ -19,7 +20,7 @@ using System.Xml.Linq;
 namespace MudSharp.Effects.Concrete;
 
 public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescriptionAdditionEffect, IEffectAddsWeight,
-    ISDescAdditionEffect
+    ISDescAdditionEffect, IIngredientTransferEffect
 {
     private static TimeSpan BaseEffectDuration =>
         TimeSpan.FromSeconds(Futuremud.Games.First().GetStaticDouble("LiquidContaminationEffectDuration"));
@@ -586,6 +587,20 @@ public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescript
     #region Implementation of IEffectAddsWeight
 
     public double AddedWeight => ContaminatingLiquid?.TotalWeight ?? 0.0;
+
+    #endregion
+
+    #region Implementation of IIngredientTransferEffect
+
+    public void TransferToFood(IPreparedFood food, double proportion)
+    {
+        if (ContaminatingLiquid is null || ContaminatingLiquid.IsEmpty || proportion <= 0.0)
+        {
+            return;
+        }
+
+        food.AbsorbLiquid(ContaminatingLiquid.Clone(ContaminatingLiquid.TotalVolume * proportion), "transferred liquid contamination");
+    }
 
     #endregion
 }

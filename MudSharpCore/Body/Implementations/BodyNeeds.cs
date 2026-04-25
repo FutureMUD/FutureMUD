@@ -7,6 +7,7 @@ using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -206,7 +207,8 @@ public partial class Body : IHaveNeeds, IEat
         }
 
         // If the item is a stackable, split one off
-        if (edible.Parent.IsItemType<IStackable>() && edible.Parent.GetItemType<IStackable>().Quantity > 1)
+        if (edible.Parent.IsItemType<IStackable>() && edible.Parent.GetItemType<IStackable>().Quantity > 1 &&
+            edible is not IPreparedFood { ServingScope: FoodServingScope.PerStackUnit })
         {
             Actor.Send("You must first take a single item out of the stack before you can eat any of them.");
             return false;
@@ -573,6 +575,7 @@ public partial class Body : IHaveNeeds, IEat
         Actor.Send(container.LiquidMixture.TasteString(Actor).Fullstop().Colour(Telnet.Yellow));
 
         LiquidMixture sip = new(container.LiquidMixture, quantity);
+        this.ApplyIngestedDrugDoses(sip, container.Parent);
         FulfilNeeds(sip.GetNeedFulfiller());
 
         sip.OnDraught(Actor, container);
@@ -598,6 +601,7 @@ public partial class Body : IHaveNeeds, IEat
         Actor.Send(container.LiquidMixture.TasteString(Actor).Colour(Telnet.Yellow));
 
         LiquidMixture sip = new(container.LiquidMixture, quantity);
+        this.ApplyIngestedDrugDoses(sip, container.Parent);
         FulfilNeeds(sip.GetNeedFulfiller());
 
         sip.OnDraught(Actor, container);

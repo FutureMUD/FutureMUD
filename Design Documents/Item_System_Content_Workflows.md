@@ -67,7 +67,15 @@ Power, telecom, and modern medical examples also include:
 - `comp edit new defibrillator`
 - `comp edit new externalorgan`
 
-`UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. This pass still intentionally leaves food presets, fax-machine examples, and breathing-filter cartridge ecosystems to later dedicated content passes.
+`UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. Food presets now live in the dedicated `CookingSeeder` package, which installs `PreparedFood` examples for direct load, forageable stock, stackable servings, and cooking recipe products. Fax-machine examples and breathing-filter cartridge ecosystems remain later dedicated content passes.
+
+Prepared-food examples include:
+- `comp edit new preparedfood`
+- direct-load profiles for apples, berries, mushrooms, and muffins
+- stackable `per-stack-unit` serving profiles for berries and mushrooms
+- recipe target profiles for `CookedFoodProduct`
+
+See [Food And Cooking System](./Food_and_Cooking_System.md) for the runtime model and builder-facing template tokens.
 
 This goes through `GameItemComponentManager`, so failure here often means:
 - the type was not registered

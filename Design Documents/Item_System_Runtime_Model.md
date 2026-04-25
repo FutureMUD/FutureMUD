@@ -89,6 +89,13 @@ Some item capabilities are best thought of as paired systems rather than isolate
 
 Those relationships are usually expressed through `IConnectable` plus a domain-specific grid interface such as `ICanConnectToElectricalGrid`, `ICanConnectToLiquidGrid`, or `ICanConnectToTelecommunicationsGrid`.
 
+Zero-gravity items follow the same interface-first pattern:
+- `IZeroGravityAnchorItem` marks a component-backed object as a push-off anchor
+- `IZeroGravityTetherItem` supplies a physical tether length for the `tether` command
+- `IZeroGravityPropulsion` marks wearable propulsion such as an RCS thruster
+
+Runtime tether constraints are effects rather than hardcoded item state. Physical tether items and magical tethers both create an `IZeroGravityTetherEffect`; physical tethers include a backing item, while spell-created tethers use no backing item. Fixed items can also be anchored through `FixedInPlaceEffect`, which combines no-get behaviour with zero-gravity anchoring.
+
 Some subsystems also need reusable runtime data that is not owned by one concrete item type. Recorded audio is now the reference pattern:
 - immutable audio payloads live in `FutureMUDLibrary/Form/Audio`
 - a recording is an ordered list of utterance segments plus the elapsed delay before each segment

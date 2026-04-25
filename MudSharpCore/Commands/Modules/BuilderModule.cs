@@ -23,6 +23,7 @@ using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health.Strategies;
+using MudSharp.Movement;
 using MudSharp.NPC;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
@@ -47,6 +48,129 @@ internal class BuilderModule : BaseBuilderModule
     }
 
     public static BuilderModule Instance { get; } = new();
+
+    private const string ZeroGravityHelp = @"Syntax:
+	#3zerog show [cell]#0
+	#3zerog on [cell]#0
+	#3zerog off [cell]#0
+	#3zerog reset [cell]#0
+
+This command controls the admin gravity override on a cell. #3on#0 forces zero gravity, #3off#0 forces normal gravity and #3reset#0 returns the cell to its terrain or spell-derived gravity.";
+
+    [PlayerCommand("ZeroGravity", "zerog")]
+    [CommandPermission(PermissionLevel.SeniorAdmin)]
+    [HelpInfo("zerog", ZeroGravityHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void ZeroGravity(ICharacter actor, string command)
+    {
+        var ss = new StringStack(command.RemoveFirstWord());
+        var subcommand = ss.PopForSwitch();
+        if (string.IsNullOrEmpty(subcommand))
+        {
+            actor.OutputHandler.Send(ZeroGravityHelp.SubstituteANSIColour());
+            return;
+        }
+
+        var cell = ss.IsFinished ? actor.Location : RoomBuilderModule.LookupCell(actor, ss.SafeRemainingArgument);
+        if (cell is null)
+        {
+            actor.OutputHandler.Send("There is no such cell.");
+            return;
+        }
+
+        switch (subcommand)
+        {
+            case "show":
+                var adminOverride = cell.EffectsOfType<OverrideGravity>().FirstOrDefault(x => x.Applies());
+                actor.OutputHandler.Send(
+                    $"Gravity for {cell.GetFriendlyReference(actor).ColourName()}: {ZeroGravityMovementHelper.GravityFor(cell, actor).DescribeColour()}.\n" +
+                    $"Terrain default: {cell.Terrain(actor).GravityModel.DescribeColour()}.\n" +
+                    $"Admin override: {(adminOverride?.GravityModel.DescribeColour() ?? "none".Colour(Telnet.Red))}.");
+                return;
+            case "on":
+                cell.RemoveAllEffects<OverrideGravity>(fireRemovalAction: true);
+                cell.AddEffect(new OverrideGravity(cell, GravityModel.ZeroGravity));
+                cell.CheckFallExitStatus();
+                actor.OutputHandler.Send($"You force {cell.GetFriendlyReference(actor).ColourName()} into zero gravity.");
+                return;
+            case "off":
+                cell.RemoveAllEffects<OverrideGravity>(fireRemovalAction: true);
+                cell.AddEffect(new OverrideGravity(cell, GravityModel.Normal));
+                cell.CheckFallExitStatus();
+                actor.OutputHandler.Send($"You force {cell.GetFriendlyReference(actor).ColourName()} into normal gravity.");
+                return;
+            case "reset":
+                cell.RemoveAllEffects<OverrideGravity>(fireRemovalAction: true);
+                cell.CheckFallExitStatus();
+                actor.OutputHandler.Send($"You reset the gravity override for {cell.GetFriendlyReference(actor).ColourName()}.");
+                return;
+        }
+
+        actor.OutputHandler.Send(ZeroGravityHelp.SubstituteANSIColour());
+    }
+
+    private const string FixItemHelp = @"Syntax:
+	#3fixitem <item>#0
+	#3unfixitem <item>#0
+
+These commands make a local item fixed in place, which also makes it usable as a zero-gravity push-off anchor.";
+
+    [PlayerCommand("FixItem", "fixitem")]
+    [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("fixitem", FixItemHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void FixItem(ICharacter actor, string command)
+    {
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send(FixItemHelp.SubstituteANSIColour());
+            return;
+        }
+
+        var item = actor.TargetLocalOrHeldItem(ss.SafeRemainingArgument);
+        if (item is null)
+        {
+            actor.OutputHandler.Send("You don't see any such item.");
+            return;
+        }
+
+        if (item.EffectsOfType<FixedInPlaceEffect>().Any())
+        {
+            actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is already fixed in place.");
+            return;
+        }
+
+        item.AddEffect(new FixedInPlaceEffect(item));
+        actor.OutputHandler.Send($"You fix {item.HowSeen(actor)} in place.");
+    }
+
+    [PlayerCommand("UnfixItem", "unfixitem")]
+    [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("unfixitem", FixItemHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void UnfixItem(ICharacter actor, string command)
+    {
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send(FixItemHelp.SubstituteANSIColour());
+            return;
+        }
+
+        var item = actor.TargetLocalOrHeldItem(ss.SafeRemainingArgument);
+        if (item is null)
+        {
+            actor.OutputHandler.Send("You don't see any such item.");
+            return;
+        }
+
+        if (!item.EffectsOfType<FixedInPlaceEffect>().Any())
+        {
+            actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is not fixed in place.");
+            return;
+        }
+
+        item.RemoveAllEffects<FixedInPlaceEffect>(fireRemovalAction: true);
+        actor.OutputHandler.Send($"You unfix {item.HowSeen(actor)}.");
+    }
 
     #region Characteristics
 

@@ -166,7 +166,15 @@ public class WandererAI : ArtificialIntelligenceBase
             return;
         }
 
-        if (character.PositionState.MoveRestrictions != MovementAbility.Free)
+        if (ZeroGravityMovementHelper.IsZeroGravity(character.Location, character.RoomLayer, character) &&
+            !ZeroGravityMovementHelper.CanManeuver(character))
+        {
+            CreateEvaluateAffect(character);
+            return;
+        }
+
+        if (character.PositionState.MoveRestrictions != MovementAbility.Free &&
+            character.PositionState.MoveRestrictions != MovementAbility.ZeroGravity)
         {
             IPositionState upright = character.MostUprightMobilePosition();
             if (upright == null)

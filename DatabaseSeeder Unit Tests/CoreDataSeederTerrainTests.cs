@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using GravityModel = MudSharp.Construction.GravityModel;
 using RevisionStatus = MudSharp.Framework.Revision.RevisionStatus;
 
 namespace MudSharp_Unit_Tests;
@@ -94,6 +95,7 @@ public class CoreDataSeederTerrainTests
             ForagableProfileId = 0,
             AtmosphereType = "Gas",
             DefaultCellOutdoorsType = 0,
+            GravityModel = (int)GravityModel.Normal,
             TerrainEditorText = "Vo",
             CanHaveTracks = false,
             TrackIntensityMultiplierVisual = 1.0,
@@ -271,11 +273,25 @@ public class CoreDataSeederTerrainTests
         foreach (string terrainName in new[]
                  {
                      "Chaparral", "Badlands", "Salt Flat", "Fen", "Marsh", "Oasis", "Volcanic Plain", "Glacier",
-                     "Moon Surface", "Lunar Mare", "Lunar Crater", "Interstellar Space", "Intergalactic Space"
+                     "Moon Surface", "Lunar Mare", "Lunar Crater", "Orbital Space", "Interstellar Space",
+                     "Intergalactic Space", "Zero-G Spaceship Compartment"
                  })
         {
             Assert.IsTrue(context.Terrains.Any(x => x.Name == terrainName),
                 $"Expected terrain {terrainName} to be present in the stock catalogue.");
+        }
+
+        foreach (string terrainName in new[] { "Moon Surface", "Lunar Mare", "Lunar Highlands", "Lunar Crater", "Asteroid Surface" })
+        {
+            Assert.AreEqual((int)GravityModel.Normal, context.Terrains.Single(x => x.Name == terrainName).GravityModel,
+                $"Expected terrain {terrainName} to remain normal gravity.");
+        }
+
+        foreach (string terrainName in new[]
+                 { "Orbital Space", "Interplanetary Space", "Interstellar Space", "Intergalactic Space", "Zero-G Spaceship Compartment" })
+        {
+            Assert.AreEqual((int)GravityModel.ZeroGravity, context.Terrains.Single(x => x.Name == terrainName).GravityModel,
+                $"Expected terrain {terrainName} to be zero gravity.");
         }
     }
 
@@ -387,9 +403,13 @@ public class CoreDataSeederTerrainTests
         ForagableProfile customProfile = AddCustomForageProfile(context, "Builder Custom Forage");
         Terrain grasslands = context.Terrains.Single(x => x.Name == "Grasslands");
         Terrain ocean = context.Terrains.Single(x => x.Name == "Ocean");
+        Terrain orbitalSpace = context.Terrains.Single(x => x.Name == "Orbital Space");
+        Terrain moonSurface = context.Terrains.Single(x => x.Name == "Moon Surface");
 
         grasslands.ForagableProfileId = customProfile.Id;
         ocean.ForagableProfileId = 999999L;
+        orbitalSpace.GravityModel = (int)GravityModel.Normal;
+        moonSurface.GravityModel = (int)GravityModel.ZeroGravity;
         context.SaveChanges();
 
         CoreDataSeeder.SeedTerrainFoundationsForTesting(context);
@@ -401,5 +421,9 @@ public class CoreDataSeederTerrainTests
         ForagableProfile oceanStockProfile = context.ForagableProfiles.Single(x => x.Name == "Ocean Stock Forage");
         Assert.AreEqual(oceanStockProfile.Id, repairedOcean.ForagableProfileId,
             "Expected rerun to repair terrain assignments that point at no current forage profile.");
+        Assert.AreEqual((int)GravityModel.ZeroGravity, context.Terrains.Single(x => x.Name == "Orbital Space").GravityModel,
+            "Expected rerun to repair orbital space to zero gravity.");
+        Assert.AreEqual((int)GravityModel.Normal, context.Terrains.Single(x => x.Name == "Moon Surface").GravityModel,
+            "Expected rerun to preserve lunar terrain as normal gravity.");
     }
 }

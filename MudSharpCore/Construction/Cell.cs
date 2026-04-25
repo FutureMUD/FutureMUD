@@ -254,6 +254,10 @@ public partial class Cell : Location, IDisposable, ICell
         {
             thing.PositionState = PositionFloatingInWater.Instance;
         }
+        else if (ZeroGravityMovementHelper.IsZeroGravity(this, newLayer))
+        {
+            ZeroGravityMovementHelper.EnsureFloating(thing);
+        }
 
         ContentsChanged = true;
         CheckFallExitStatus();
@@ -1178,6 +1182,7 @@ public partial class Cell : Location, IDisposable, ICell
     private bool _roomFallActive;
     private bool _treeFallActive;
     private bool _sinkUnderwaterActive;
+    private bool _zeroGravityActive;
 
     public void CheckFallExitStatus()
     {
@@ -1199,6 +1204,12 @@ public partial class Cell : Location, IDisposable, ICell
             _sinkUnderwaterActive = false;
         }
 
+        if (_zeroGravityActive)
+        {
+            Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= ZeroGravityTick;
+            _zeroGravityActive = false;
+        }
+
         if (!_characters.Any() && !_gameItems.Any())
         {
             return;
@@ -1210,6 +1221,13 @@ public partial class Cell : Location, IDisposable, ICell
         {
             Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += RoomFallTick;
             _roomFallActive = true;
+        }
+
+        if (ZeroGravityMovementHelper.GravityFor(this) == GravityModel.ZeroGravity &&
+            !Terrain(null).TerrainLayers.Any(x => x.IsUnderwater()))
+        {
+            Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += ZeroGravityTick;
+            _zeroGravityActive = true;
         }
 
         if (Terrain(null).TerrainLayers.Any(x => x.In(RoomLayer.HighInTrees, RoomLayer.InTrees, RoomLayer.OnRooftops)))
@@ -1238,6 +1256,19 @@ public partial class Cell : Location, IDisposable, ICell
     }
 
     private ICellExit _fallExit;
+
+    private void ZeroGravityTick()
+    {
+        foreach (var item in GameItems.ToList())
+        {
+            ZeroGravityMovementHelper.EnsureFloating(item);
+        }
+
+        foreach (var character in Characters.ToList())
+        {
+            ZeroGravityMovementHelper.EnsureFloating(character);
+        }
+    }
 
     private static Expression _itemWeightPerWindLevelExpression;
 

@@ -99,6 +99,7 @@ public abstract class PositionState : FrameworkItem, IPositionState
             PositionFloatingInWater.Instance.Initialise();
             PositionFlying.Instance.Initialise();
             PositionRiding.Instance.Initialise();
+            PositionFloatingInZeroGravity.Instance.Initialise();
         }
 
         _positionsInitialised = true;
@@ -285,6 +286,11 @@ public abstract class PositionState : FrameworkItem, IPositionState
     }
 
     public virtual PositionHeightComparison CompareTo(PositionFlying state)
+    {
+        return CompareTo(PositionStanding.Instance);
+    }
+
+    public virtual PositionHeightComparison CompareTo(PositionFloatingInZeroGravity state)
     {
         return CompareTo(PositionStanding.Instance);
     }

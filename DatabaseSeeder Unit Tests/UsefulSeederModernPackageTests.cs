@@ -414,6 +414,19 @@ public class UsefulSeederModernPackageTests
         XElement heartLungDefinition = XElement.Parse(heartLungSupport.Definition);
         Assert.AreEqual("1", heartLungDefinition.Element("Body")?.Value);
         Assert.IsTrue((heartLungDefinition.Element("Organs")?.Elements("Organ").Count() ?? 0) >= 2);
+
+        GameItemComponentProto rcsThruster = context.GameItemComponentProtos.Single(x => x.Name == "RcsThruster_Standard");
+        XElement rcsDefinition = XElement.Parse(rcsThruster.Definition);
+        Assert.AreEqual("RcsThruster", rcsThruster.Type);
+        Assert.AreEqual("0.5", rcsDefinition.Element("GasPerThrust")?.Value);
+        Assert.AreEqual("2", rcsDefinition.Element("Connector")?.Attribute("gender")?.Value);
+
+        GameItemComponentProto tether = context.GameItemComponentProtos.Single(x => x.Name == "ZeroGravityTether_3Room");
+        Assert.AreEqual("ZeroGravityTether", tether.Type);
+        Assert.AreEqual("3", XElement.Parse(tether.Definition).Element("MaximumRooms")?.Value);
+
+        GameItemComponentProto anchor = context.GameItemComponentProtos.Single(x => x.Name == "ZeroGravityAnchor_SetPiece");
+        Assert.AreEqual("ZeroGravityAnchor", anchor.Type);
     }
 
     [TestMethod]

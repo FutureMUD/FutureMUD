@@ -16554,6 +16554,11 @@ namespace MudSharp.Migrations
                     b.Property<long>("ForagableProfileId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<int>("GravityModel")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
+
                     b.Property<int>("HideDifficulty")
                         .HasColumnType("int(11)");
 

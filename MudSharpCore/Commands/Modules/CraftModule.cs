@@ -16,6 +16,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
+using MudSharp.Work.Crafts.Products;
 using MudSharp.Work.Projects;
 using MudSharp.Work.Projects.ConcreteTypes;
 using System;
@@ -475,6 +476,192 @@ The full list of filters for craft list is below:
     protected static void Materials(ICharacter actor, string input)
     {
         CraftPreview(actor, new StringStack(input.RemoveFirstWord()));
+    }
+
+    private const string CookHelp = @"The cook command is a cooking-focused facade over crafts that produce prepared food.
+
+You can use the following syntax:
+
+	#3cook list [filters]#0 - lists cooking recipes you know
+	#3cook <recipe>#0 - begins cooking the specified recipe
+	#3cook begin <recipe>#0 - begins cooking the specified recipe
+	#3cook resume <targetitem>#0 - resumes an in-progress cooking craft
+	#3cook view <recipe>#0 - shows information about a recipe
+	#3cook preview <recipe>#0 - shows tools and materials consumed by a recipe";
+
+    [PlayerCommand("Cook", "cook")]
+    [HelpInfo("cook", CookHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void Cook(ICharacter actor, string input)
+    {
+        StringStack ss = new(input.RemoveFirstWord());
+        var command = ss.PopSpeech().ToLowerInvariant();
+        switch (command)
+        {
+            case "":
+            case "list":
+            case "recipes":
+                CookList(actor, ss);
+                return;
+            case "begin":
+            case "start":
+                CookBegin(actor, ss);
+                return;
+            case "resume":
+            case "restart":
+                CraftResume(actor, ss);
+                return;
+            case "view":
+            case "show":
+                CookShow(actor, ss);
+                return;
+            case "preview":
+            case "materials":
+                CookPreview(actor, ss);
+                return;
+            default:
+                ss = new StringStack(command + " " + ss.SafeRemainingArgument);
+                CookBegin(actor, ss);
+                return;
+        }
+    }
+
+    private static List<ICraft> VisibleCookingCrafts(ICharacter actor)
+    {
+        return (actor.IsAdministrator()
+                   ? actor.Gameworld.Crafts
+                   : actor.Gameworld.Crafts.Where(x => x.AppearInCraftsList(actor)))
+               .Where(x => x.Status == RevisionStatus.Current)
+               .Where(IsCookingCraft)
+               .ToList();
+    }
+
+    private static bool IsCookingCraft(ICraft craft)
+    {
+        return craft.Products.Concat(craft.FailProducts)
+                    .Any(x => x is CookedFoodProduct || x.ProductType.EqualTo("CookedFoodProduct"));
+    }
+
+    private static void CookList(ICharacter actor, StringStack ss)
+    {
+        var crafts = VisibleCookingCrafts(actor);
+        var parameters = false;
+        while (!ss.IsFinished)
+        {
+            parameters = true;
+            var arg = ss.PopSpeech();
+            if (arg[0] == '+')
+            {
+                crafts = crafts
+                         .Where(x => x.Name.Contains(arg[1..], StringComparison.InvariantCultureIgnoreCase))
+                         .ToList();
+                continue;
+            }
+
+            if (arg[0] == '-')
+            {
+                crafts = crafts.Where(x =>
+                    !x.Name.Contains(arg[1..], StringComparison.InvariantCultureIgnoreCase)).ToList();
+                continue;
+            }
+
+            crafts = crafts.Where(x => x.Category.StartsWith(arg, StringComparison.InvariantCultureIgnoreCase))
+                           .ToList();
+        }
+
+        if (!crafts.Any())
+        {
+            actor.Send($"You do not know any cooking recipes{(parameters ? " with those parameters" : "")}.");
+            return;
+        }
+
+        actor.Send(StringUtilities.GetTextTable(
+            crafts.OrderBy(x => x.Category).ThenBy(x => x.Name).Select(x => new[]
+            {
+                x.Name,
+                x.Blurb,
+                x.Category,
+                x.CheckTrait is ISkillDefinition sd
+                    ? sd.Improver.CanImprove(actor, actor.GetTrait(x.CheckTrait), x.CheckDifficulty,
+                        TraitUseType.Practical, true).ToColouredString()
+                    : "N/A"
+            }),
+            new[] { "Recipe", "Blurb", "Category", "Can Skill Up?" },
+            actor.LineFormatLength, colour: Telnet.Green, truncatableColumnIndex: 1,
+            unicodeTable: actor.Account.UseUnicode));
+    }
+
+    private static void CookBegin(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.Send("Which recipe do you want to cook? See COOK LIST for a list of cooking recipes that you can do.");
+            return;
+        }
+
+        if (!actor.State.IsAble())
+        {
+            actor.OutputHandler.Send($"You cannot cook while you are {actor.State.DescribeEnum(true, Telnet.Red)}.");
+            return;
+        }
+
+        if (actor.Effects.Any(x => x.IsBlockingEffect("general")))
+        {
+            actor.OutputHandler.Send(
+                $"You must first stop {actor.Effects.Where(x => x.IsBlockingEffect("general")).Select(x => x.BlockingDescription("general", actor)).ListToString()}");
+            return;
+        }
+
+        var craft = VisibleCookingCrafts(actor).GetByNameOrAbbreviation(ss.SafeRemainingArgument.Trim());
+        if (craft is null)
+        {
+            actor.Send("You don't know any such cooking recipe. See COOK LIST for a list of cooking recipes that you can do.");
+            return;
+        }
+
+        var (success, error) = craft.CanDoCraft(actor, null, true, false);
+        if (!success)
+        {
+            actor.Send(error);
+            return;
+        }
+
+        craft.BeginCraft(actor);
+    }
+
+    private static void CookShow(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.Send("Which recipe do you want to show? See COOK LIST for a list of recipes that you can do.");
+            return;
+        }
+
+        var craft = VisibleCookingCrafts(actor).GetByIdOrName(ss.SafeRemainingArgument.Trim());
+        if (craft is null)
+        {
+            actor.Send("You don't know any such cooking recipe. See COOK LIST for a list of recipes that you can do.");
+            return;
+        }
+
+        actor.OutputHandler.Send(craft.DisplayCraft(actor));
+    }
+
+    private static void CookPreview(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.Send("Which recipe do you want to preview? See COOK LIST for a list of recipes that you can do.");
+            return;
+        }
+
+        var craft = VisibleCookingCrafts(actor).GetByNameOrAbbreviation(ss.SafeRemainingArgument);
+        if (craft is null)
+        {
+            actor.Send("You don't know any such cooking recipe. See COOK LIST for a list of recipes that you can do.");
+            return;
+        }
+
+        actor.OutputHandler.Send(craft.GetMaterialPreview(actor));
     }
 
     [PlayerCommand("Projects", "projects")]

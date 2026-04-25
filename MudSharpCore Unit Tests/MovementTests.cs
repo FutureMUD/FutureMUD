@@ -3,6 +3,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
+using MudSharp.Body.Position;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -53,6 +55,29 @@ public class MovementTests
         Assert.IsNull(party.Object.Movement);
         mover.Verify(x => x.Move("north"), Times.Once);
         leader.Verify(x => x.Move(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void FinalStep_ZeroGravityMoverStartsDrift()
+    {
+        (Movement? movement, Mock<ICharacter>? mover, Mock<ICellExit>? exit, Mock<ICell>? destination, Queue<string>? queuedCommands) = CreateMovementWithMover();
+        queuedCommands.Clear();
+
+        Mock<ITerrain> terrain = new();
+        terrain.SetupGet(x => x.GravityModel).Returns(GravityModel.ZeroGravity);
+        destination.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
+        destination.Setup(x => x.EffectsOfType<IGravityOverrideEffect>(It.IsAny<Predicate<IGravityOverrideEffect>>()))
+            .Returns(Enumerable.Empty<IGravityOverrideEffect>());
+        destination.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(false);
+        exit.SetupGet(x => x.OutboundDirection).Returns(CardinalDirection.North);
+        mover.SetupGet(x => x.Location).Returns(destination.Object);
+        mover.SetupGet(x => x.PositionState).Returns(PositionStanding.Instance);
+        mover.Setup(x => x.EffectsOfType<ZeroGravityDrift>(It.IsAny<Predicate<ZeroGravityDrift>>()))
+            .Returns(Enumerable.Empty<ZeroGravityDrift>());
+
+        movement.FinalStep();
+
+        mover.Verify(x => x.AddEffect(It.IsAny<ZeroGravityDrift>(), It.IsAny<TimeSpan>()), Times.Once);
     }
 
     private static (Movement Movement, Mock<ICharacter> Mover, Mock<ICellExit> Exit, Mock<ICell> Destination, Queue<string> QueuedCommands) CreateMovementWithMover(IParty? party = null)

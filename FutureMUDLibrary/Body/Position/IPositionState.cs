@@ -31,7 +31,8 @@ namespace MudSharp.Body.Position
         Restricted,
         Climbing,
         Swimming,
-        Flying
+        Flying,
+        ZeroGravity
     }
 
     public interface IPositionState : IFrameworkItem

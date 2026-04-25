@@ -13,6 +13,7 @@ using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -358,6 +359,11 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
     public virtual bool ShouldFall()
     {
         if (PositionState?.SafeFromFalling == true)
+        {
+            return false;
+        }
+
+        if (ZeroGravityMovementHelper.IsZeroGravity(Location, RoomLayer, this))
         {
             return false;
         }

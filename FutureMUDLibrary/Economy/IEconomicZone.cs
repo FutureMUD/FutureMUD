@@ -2,6 +2,7 @@
 using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Property;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
@@ -24,6 +25,7 @@ namespace MudSharp.Economy
         IEnumerable<ISalesTax> SalesTaxes { get; }
         IEnumerable<IProfitTax> ProfitTaxes { get; }
         IEnumerable<IIncomeTax> IncomeTaxes { get; }
+        IEnumerable<IHotelTax> HotelTaxes { get; }
 
         IFinancialPeriod CurrentFinancialPeriod { get; }
         RecurringInterval FinancialPeriodInterval { get; }
@@ -38,6 +40,7 @@ namespace MudSharp.Economy
         void PayTaxesForShop(IShop shop, decimal amount);
         void ForgiveTaxesForShop(IShop shop, decimal amount = 0.0M);
         void ReportSalesTaxCollected(IShop shop, decimal amount);
+        decimal CalculateHotelTax(IProperty property, ICharacter patron, decimal rentalCharge);
         IEnumerable<(IFinancialPeriod Period, decimal TotalTaxRevenue)> HistoricalRevenues { get; }
         FinancialPeriodResult FinancialPeriodResultForShop(IShop shop, IFinancialPeriod period);
         decimal TotalRevenueHeld { get; set; }

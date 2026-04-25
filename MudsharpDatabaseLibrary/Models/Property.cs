@@ -27,6 +27,7 @@ namespace MudSharp.Models
         public long? LeaseOrderId { get; set; }
         public long? SaleOrderId { get; set; }
         public decimal LastSaleValue { get; set; }
+        public string HotelDefinition { get; set; }
 
         public virtual EconomicZone EconomicZone { get; set; }
         public virtual PropertyLease Lease { get; set; }

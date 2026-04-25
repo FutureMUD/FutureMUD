@@ -31,7 +31,7 @@ using TimeSpanParserUtil;
 
 namespace MudSharp.Commands.Modules;
 
-internal class PropertyModule : Module<ICharacter>
+internal partial class PropertyModule : Module<ICharacter>
 {
     private PropertyModule()
         : base("Property")

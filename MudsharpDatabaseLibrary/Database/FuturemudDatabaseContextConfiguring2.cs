@@ -1000,7 +1000,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.SentenceHasBeenServed).HasColumnType("bit(1)").HasDefaultValue(false);
                 entity.Property(e => e.GoodBehaviourBond).HasColumnType("double").HasDefaultValue(0.0);
 
-                entity.Property(e => e.WitnessIds).IsRequired(false).HasColumnType("varchar(1000)");
+                entity.Property(e => e.WitnessIds).HasColumnType("varchar(1000)").IsRequired(false);
 
                 entity.Property(e => e.ConvictionRecorded).HasColumnType("bit(1)");
 

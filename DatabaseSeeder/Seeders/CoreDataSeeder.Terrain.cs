@@ -863,13 +863,38 @@ public partial class CoreDataSeeder
 		return profile;
 	}
 
+	private static void BackfillStockTerrainGravity(FuturemudDatabaseContext context)
+	{
+		var zeroGravityTerrains = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"Orbital Space",
+			"Interplanetary Space",
+			"Interstellar Space",
+			"Intergalactic Space",
+			"Zero-G Spaceship Compartment"
+		};
+
+		foreach (var terrain in context.Terrains.Where(x => zeroGravityTerrains.Contains(x.Name)))
+		{
+			terrain.GravityModel = (int)GravityModel.ZeroGravity;
+		}
+
+		foreach (var terrain in context.Terrains.Where(x => x.Name.StartsWith("Lunar") || x.Name == "Moon Surface" || x.Name == "Asteroid Surface"))
+		{
+			terrain.GravityModel = (int)GravityModel.Normal;
+		}
+
+		context.SaveChanges();
+	}
+
     internal static void SeedStockTerrainCatalogue(FuturemudDatabaseContext context, DictionaryWithDefault<string, Tag> tagLookup,
         ICollection<string>? errors = null)
     {
         if (context.Terrains.Count() > 1)
         {
 			SeedStockTerrainForageProfiles(context);
-			errors?.Add("Terrains were already installed, so did not add any new terrain data. Missing stock forage profiles were repaired or backfilled where safe.");
+			BackfillStockTerrainGravity(context);
+			errors?.Add("Terrains were already installed, so did not add any new terrain data. Missing stock forage profiles and stock gravity models were repaired or backfilled where safe.");
             return;
         }
 
@@ -877,7 +902,8 @@ public partial class CoreDataSeeder
 
         void AddTerrain(string name, string behaviour, double movementRate, double staminaCost,
             Difficulty hideDifficulty, Difficulty spotDifficulty, string? atmosphere, CellOutdoorsType outdoorsType,
-            Color editorColour, string? editorText = null, bool isdefault = false, IEnumerable<string>? tags = null)
+            Color editorColour, string? editorText = null, bool isdefault = false, IEnumerable<string>? tags = null,
+            GravityModel gravityModel = GravityModel.Normal)
         {
             context.Terrains.Add(new Terrain
             {
@@ -898,6 +924,7 @@ public partial class CoreDataSeeder
                 TerrainEditorColour = $"#{editorColour.R:X2}{editorColour.G:X2}{editorColour.B:X2}",
                 TerrainEditorText = editorText,
                 DefaultCellOutdoorsType = (int)outdoorsType,
+                GravityModel = (int)gravityModel,
                 TagInformation = tags is not null ?
                     tags.SelectNotNull(x => x is null ? null : tagLookup[x]?.Id.ToString("F0")).ListToCommaSeparatedValues() :
                     ""
@@ -1307,13 +1334,21 @@ public partial class CoreDataSeeder
         AddTerrain("Asteroid Surface", "outdoors", 4.0, 25.0, Difficulty.Hard, Difficulty.Automatic, null,
             CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Extraterrestrial", "Vacuum"]);
         AddTerrain("Orbital Space", "outdoors", 1.0, 5.0, Difficulty.Insane, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"]);
+            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
+            gravityModel: GravityModel.ZeroGravity);
         AddTerrain("Interplanetary Space", "outdoors", 1.0, 5.0, Difficulty.Insane, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"]);
+            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
+            gravityModel: GravityModel.ZeroGravity);
         AddTerrain("Interstellar Space", "outdoors", 1.0, 5.0, Difficulty.Insane, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"]);
+            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
+            gravityModel: GravityModel.ZeroGravity);
         AddTerrain("Intergalactic Space", "outdoors", 1.0, 5.0, Difficulty.Insane, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"]);
+            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
+            gravityModel: GravityModel.ZeroGravity);
+        AddTerrain("Zero-G Spaceship Compartment", "indoors", 0.5, 2.0, Difficulty.Normal, Difficulty.Automatic,
+            "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.MidnightBlue, "ZG",
+            tags: ["Human Influenced", "Industrial", "Space"],
+            gravityModel: GravityModel.ZeroGravity);
 
         #endregion
 

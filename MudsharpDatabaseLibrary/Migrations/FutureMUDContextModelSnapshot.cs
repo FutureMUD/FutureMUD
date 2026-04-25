@@ -13813,6 +13813,12 @@ namespace MudSharp.Migrations
                     b.Property<long>("EconomicZoneId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<string>("HotelDefinition")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("HotelDefinition"), "utf8");
+
                     b.Property<string>("LastChangeOfOwnership")
                         .IsRequired()
                         .HasColumnType("varchar(100)")
@@ -16834,6 +16840,11 @@ namespace MudSharp.Migrations
 
                     b.Property<long>("ForagableProfileId")
                         .HasColumnType("bigint(20)");
+
+                    b.Property<int>("GravityModel")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("HideDifficulty")
                         .HasColumnType("int(11)");

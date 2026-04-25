@@ -51,6 +51,7 @@ public class Movement : IMovement
             PositionProne => MovementType.Crawling,
             PositionProstrate => MovementType.Prostrate,
             PositionFlying => MovementType.Flying,
+            PositionFloatingInZeroGravity => MovementType.Floating,
             _ => MovementType.Upright
         };
     }
@@ -949,6 +950,11 @@ public class Movement : IMovement
         Party?.Movement = null;
 
         Exit.Destination.ResolveMovement(this);
+        foreach (ICharacter mover in CharacterMovers)
+        {
+            ZeroGravityMovementHelper.StartDriftAfterMovement(mover, Exit);
+        }
+
         if (_originalMover.QueuedMoveCommands.Count > 0)
         {
             _originalMover.Move(_originalMover.QueuedMoveCommands.Dequeue());

@@ -589,6 +589,14 @@ public partial class Character
     protected double StaminaForMovement(IPositionState movingPosition, IMoveSpeed speed, double staminaMultiplier,
         bool ignoreTerrainStamina)
     {
+        if (movingPosition == PositionFloatingInZeroGravity.Instance)
+        {
+            return
+                (1 + EncumbrancePercentage * Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage")) *
+                staminaMultiplier *
+                (speed?.StaminaMultiplier ?? 1.0);
+        }
+
         if (movingPosition == PositionFlying.Instance)
         {
             return
@@ -625,6 +633,12 @@ public partial class Character
         }
 
         (CellMovementTransition transition, RoomLayer _) = exit.MovementTransition(this);
+        if (ZeroGravityMovementHelper.IsZeroGravity(Location, RoomLayer, this) &&
+            !transition.In(CellMovementTransition.SwimOnly, CellMovementTransition.SwimToLand, CellMovementTransition.FlyOnly))
+        {
+            return PositionFloatingInZeroGravity.Instance;
+        }
+
         return transition switch
         {
             CellMovementTransition.SwimOnly or CellMovementTransition.SwimToLand => PositionSwimming.Instance,
@@ -671,7 +685,7 @@ public partial class Character
             staminaMultiplier = movingPositionOverride is PositionSwimming or PositionClimbing
                 ? dragging ? 2.5 : 1.5
                 : dragging ? 2.0 : 1.0;
-            ignoreTerrainStamina = movingPositionOverride == PositionFlying.Instance;
+            ignoreTerrainStamina = movingPositionOverride.In(PositionFlying.Instance, PositionFloatingInZeroGravity.Instance);
         }
         else
         {
@@ -689,8 +703,14 @@ public partial class Character
                     movingPosition = PositionFlying.Instance;
                     ignoreTerrainStamina = true;
                     goto default;
+                case PositionFloatingInZeroGravity _:
+                    movingPosition = PositionFloatingInZeroGravity.Instance;
+                    ignoreTerrainStamina = true;
+                    staminaMultiplier = dragging ? 2.0 : 1.0;
+                    break;
                 default:
-                    movingPosition = PositionState.TransitionOnMovement ?? PositionState;
+                    movingPosition = ZeroGravityMovementHelper.ZeroGravityMovementPosition(this, PositionState.TransitionOnMovement ?? PositionState);
+                    ignoreTerrainStamina = movingPosition == PositionFloatingInZeroGravity.Instance;
                     staminaMultiplier = dragging ? 2.0 : 1.0;
                     break;
             }
@@ -791,6 +811,12 @@ public partial class Character
     {
         IPositionState requiredPosition = GetRequiredMovementPosition(exit);
         CanMoveResponse response = CanMoveInternal(flags, requiredPosition);
+        if (!response.Result)
+        {
+            return response;
+        }
+
+        response = ZeroGravityMovementHelper.CanMoveInZeroGravity(this, exit);
         if (!response.Result)
         {
             return response;
@@ -917,10 +943,11 @@ public partial class Character
                 case PositionSwimming _:
                 case PositionClimbing _:
                 case PositionFlying _:
+                case PositionFloatingInZeroGravity _:
                     movingPosition = PositionState;
                     break;
                 default:
-                    movingPosition = PositionState.TransitionOnMovement ?? PositionState;
+                    movingPosition = ZeroGravityMovementHelper.ZeroGravityMovementPosition(this, PositionState.TransitionOnMovement ?? PositionState);
                     break;
             }
         }
@@ -1034,6 +1061,9 @@ public partial class Character
             case PositionProne _:
                 (success, fastestspeed) = CanMoveProne();
                 return (success, PositionStanding.Instance, fastestspeed);
+            case PositionFloatingInZeroGravity _:
+                (success, fastestspeed) = CanMovePositionGeneralLogic(PositionFloatingInZeroGravity.Instance);
+                return (success, PositionFloatingInZeroGravity.Instance, fastestspeed);
             default:
                 return (false, null, null);
         }
@@ -1345,6 +1375,11 @@ public partial class Character
             return false;
         }
 
+        if (ZeroGravityMovementHelper.IsZeroGravity(Location, RoomLayer, this))
+        {
+            return false;
+        }
+
         if (!RoomLayer.IsHigherThan(RoomLayer.GroundLevel))
         {
             return false;
@@ -1394,6 +1429,7 @@ public partial class Character
 
         Moved(movement);
         movement?.Exit?.Destination?.Enter(this, movement.Exit, roomLayer: targetLayer);
+        ZeroGravityMovementHelper.EnsureFloating(this);
 
         foreach (ICharacter rider in Riders)
         {
@@ -1401,6 +1437,7 @@ public partial class Character
             rider.RoomLayer = targetLayer;
             movement?.Exit?.Destination?.Enter(rider, movement.Exit, roomLayer: targetLayer);
             rider.Moved(movement);
+            ZeroGravityMovementHelper.EnsureFloating(rider);
         }
 
         switch (transition)
@@ -1440,6 +1477,12 @@ public partial class Character
 
                 break;
             case CellMovementTransition.FallExit:
+                if (ZeroGravityMovementHelper.IsZeroGravity(Location, RoomLayer, this))
+                {
+                    MovePosition(PositionFloatingInZeroGravity.Instance, PositionModifier.None, null, null);
+                    break;
+                }
+
                 if (!PositionState.SafeFromFalling && CanFly().Truth)
                 {
                     MovePosition(PositionFlying.Instance, PositionModifier.None, null, null);

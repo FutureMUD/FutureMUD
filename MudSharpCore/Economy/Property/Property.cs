@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Economy.Property;
 
-public class Property : SaveableItem, IProperty
+public partial class Property : SaveableItem, IProperty
 {
     public Property(string name, IEconomicZone zone, ICell location, decimal value, IFrameworkItem owner,
         IBankAccount account)
@@ -37,6 +37,7 @@ public class Property : SaveableItem, IProperty
         _lastSaleValue = value;
         _applyCriminalCodeInProperty = true;
         _lastChangeOfOwnership = zone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+        InitialiseDefaultHotelDefinition();
         _propertyLocations.Add(location);
         location.CellProposedForDeletion += Location_CellProposedForDeletion;
         location.CellRequestsDeletion += Location_CellRequestsDeletion;
@@ -50,6 +51,7 @@ public class Property : SaveableItem, IProperty
             dbitem.Name = _name;
             dbitem.LastChangeOfOwnership = LastChangeOfOwnership.GetDateTimeString();
             dbitem.LastSaleValue = _lastSaleValue;
+            dbitem.HotelDefinition = SaveHotelDefinition().ToString();
             dbitem.PropertyLocations.Add(new PropertyLocation { CellId = location.Id, Property = dbitem });
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
@@ -86,6 +88,7 @@ public class Property : SaveableItem, IProperty
         _lastChangeOfOwnership = new MudDateTime(property.LastChangeOfOwnership, Gameworld);
         _applyCriminalCodeInProperty = property.ApplyCriminalCodeInProperty;
         _lastSaleValue = property.LastSaleValue;
+        LoadHotelDefinition(property.HotelDefinition);
 
         foreach (Models.PropertyOwner owner in property.PropertyOwners)
         {
@@ -171,6 +174,7 @@ public class Property : SaveableItem, IProperty
         dbitem.LeaseId = Lease?.Id;
         dbitem.LastChangeOfOwnership = LastChangeOfOwnership.GetDateTimeString();
         dbitem.LastSaleValue = LastSaleValue;
+        dbitem.HotelDefinition = SaveHotelDefinition().ToString();
         FMDB.Context.PropertyLocations.RemoveRange(dbitem.PropertyLocations);
         foreach (ICell cell in _propertyLocations)
         {

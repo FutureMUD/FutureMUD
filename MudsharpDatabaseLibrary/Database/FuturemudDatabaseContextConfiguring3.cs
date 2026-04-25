@@ -1213,6 +1213,10 @@ namespace MudSharp.Database
                 entity.Property(e => e.SaleOrderId).HasColumnType("bigint(20)");
                 entity.Property(e => e.ApplyCriminalCodeInProperty).HasColumnType("bit(1)");
                 entity.Property(e => e.LastSaleValue).HasColumnType("decimal(58,29)");
+                entity.Property(e => e.HotelDefinition)
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
 
                 entity.Property(e => e.Name)
                     .IsRequired()

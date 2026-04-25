@@ -1061,6 +1061,21 @@ public partial class UsefulSeeder
                 new XElement("MaximumGasCapacity", 900.0),
                 new XElement("ShowGasLevels", true),
                 ConnectorsElement(new ConnectorType(Gender.Female, gasSocketType, false))));
+        CreateModernComponent("RcsThruster", "RcsThruster_Standard",
+            "Turns a wearable item into a zero-gravity RCS thruster that consumes connected gas.",
+            new XElement("Definition",
+                new XElement("GasPerThrust", 0.5),
+                new XElement("Connector",
+                    new XAttribute("gender", (short)Gender.Male),
+                    new XAttribute("type", gasSocketType),
+                    new XAttribute("powered", false))));
+        CreateModernComponent("ZeroGravityTether", "ZeroGravityTether_3Room",
+            "Turns an item into a zero-gravity tether with a three-room maximum length.",
+            new XElement("Definition",
+                new XElement("MaximumRooms", 3)));
+        CreateModernComponent("ZeroGravityAnchor", "ZeroGravityAnchor_SetPiece",
+            "Turns an item into a fixed zero-gravity push-off anchor.",
+            new XElement("Definition"));
         CreateModernComponent("Rebreather", "Rebreather_Standard",
             "Turns an item into a standard rebreather or breathing mask connection.",
             new XElement("Definition",

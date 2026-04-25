@@ -334,6 +334,7 @@ All tool types inherit shared builder options from `BaseTool`:
 | Builder alias | Runtime type | Purpose | Key builder options | Important notes |
 | --- | --- | --- | --- | --- |
 | `simple` | `SimpleProduct` | Load one or more ordinary item prototypes | `item`, `skin`, `quantity`, `material` | Optional craft-aware skin support through `IGameItemSkin.CanUseSkin(..., craft)` |
+| `cookedfood` | `CookedFoodProduct` | Load a prepared-food item prototype and initialise its ingredient ledger from consumed inputs | `item`, `skin`, `quantity`, `purify`, `ingredient` | Uses the same `PreparedFood` runtime component as direct-load food; `purify` removes input drugs and transferable food effects; the `cook` command filters to crafts with this product type |
 | `variable` | `SimpleVariableProduct` | Load items whose characteristic values come from `IVariableInput` sources | `item`, `skin`, `quantity`, `variable <definition> <input#>` | Each mapped input must be an `IVariableInput` that supplies the definition |
 | `inputvariable` | `InputVariableProduct` | Load items whose variable values depend on which item proto was used for an input | `item`, `skin`, `quantity`, `variable ...` | Supports per-input-index and per-item-to-value mappings |
 | `commodity` | `CommodityProduct` | Produce a commodity pile of a material, mass, and optional tag | `commodity`, `weight`, `tag`, `material` | Useful for intermediate materials and scrap |

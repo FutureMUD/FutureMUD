@@ -12,6 +12,7 @@ The intended audience for this head document is:
 ## Document Map
 - [Crafting System Runtime and Extensibility](./Crafting_System_Runtime_and_Extensibility.md) covers runtime behaviour, persistence, implemented types, extension seams, and cross-system integration.
 - [Crafting System Builder Workflows](./Crafting_System_Builder_Workflows.md) covers the in-game authoring and review workflow, command surface, and builder-facing reference material.
+- [Food And Cooking System](./Food_and_Cooking_System.md) covers prepared-food components, `CookedFoodProduct`, and the `cook` facade over ordinary crafts.
 
 ## What Crafts Are
 In FutureMUD, a craft is a revisioned, builder-authored definition for an on-screen, phase-based activity performed by a character in the world.
@@ -36,6 +37,7 @@ Important distinctions:
 - Crafts versus projects: crafts are on-screen, time-phased actions a character is actively performing in the room right now. Projects model longer-lived labour and supply workflows that continue as broader works rather than as a single visible action sequence.
 - Crafts versus butchery and salvage: `butcher`, `salvage`, and `skin` are separate command-driven subsystems with their own runtime logic. They are adjacent in purpose, but they are not implemented as `ICraft`.
 - Crafts versus one-shot spawning: some craft products load ordinary items, but the craft system itself is about staged execution, not just spawning outputs.
+- Cooking versus direct food creation: cooking crafts can produce `PreparedFood` through `CookedFoodProduct`, but prepared-food item prototypes are also complete direct-load foods for forage, shops, spells, and FutureProgs.
 
 ## Subsystem Map
 | Layer | Current responsibility | Typical locations |
@@ -54,6 +56,7 @@ Important distinctions:
 - Inputs: `ICraftInput` implementations that know how to find, reserve, consume, and describe required materials or target items.
 - Tools: `ICraftTool` implementations that know how to find, score, and optionally consume tool durability during the craft.
 - Products versus fail products: normal products are produced on the success branch; fail products are produced once the craft has failed and the fail echoes advance.
+- Cooked food products: `CookedFoodProduct` loads an ordinary prepared-food item prototype and appends recipe-derived ingredient ledgers, doses, and transferable effects from consumed inputs.
 - Active craft progress item: a system-generated game item carrying `IActiveCraftGameItemComponent` that stores reserved inputs, produced outputs, phase state, and craft revision linkage.
 - Availability, can-use, and callback progs: FutureProg hooks control whether a craft appears in lists, whether it can currently be started, why it cannot be started, and what happens on start, cancel, or completion.
 

@@ -1100,6 +1100,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.CanHaveTracks).HasColumnType("bit(1)").HasDefaultValue(true);
                 entity.Property(e => e.TrackIntensityMultiplierVisual).HasColumnType("double").HasDefaultValue(1.0);
                 entity.Property(e => e.TrackIntensityMultiplierOlfactory).HasColumnType("double").HasDefaultValue(1.0);
+                entity.Property(e => e.GravityModel).HasColumnType("int(11)").HasDefaultValue(0);
 
                 entity.Property(e => e.DefaultCellOutdoorsType).HasColumnType("int(11)").HasDefaultValue("0");
                 entity.Property(e => e.TerrainEditorText).HasColumnType("varchar(45)").IsRequired(false);

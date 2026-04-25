@@ -76,6 +76,8 @@ The item system is intentionally interface-first and component-driven.
 
 A live item becomes "a container" because one of its components implements `IContainer`. It becomes "a wearable" because one of its components implements `IWearable`. It becomes "a radio", "a telephone", "a cell tower", "a corpse", "a battery-powered machine", or "a prosthetic" for the same reason.
 
+New-style food follows the same rule. A live item becomes prepared food because one component implements `IPreparedFood`, which extends `IEdible` with ingredient ledgers, freshness, serving scope, quality-scaled nutrition, and ingested drug doses. The legacy `Food` component remains available for old content, while `PreparedFood` is the current component for direct loadable foods and recipe-initialised foods.
+
 This has two important consequences:
 - most game logic should depend on interfaces from `FutureMUDLibrary`, not concrete component classes
 - adding a new capability usually means adding a new component pair, not adding a new item class
@@ -86,6 +88,13 @@ Some item capabilities are best thought of as paired systems rather than isolate
 - one or more connectable consumer or connector components that physically join items together
 
 Those relationships are usually expressed through `IConnectable` plus a domain-specific grid interface such as `ICanConnectToElectricalGrid`, `ICanConnectToLiquidGrid`, or `ICanConnectToTelecommunicationsGrid`.
+
+Zero-gravity items follow the same interface-first pattern:
+- `IZeroGravityAnchorItem` marks a component-backed object as a push-off anchor
+- `IZeroGravityTetherItem` supplies a physical tether length for the `tether` command
+- `IZeroGravityPropulsion` marks wearable propulsion such as an RCS thruster
+
+Runtime tether constraints are effects rather than hardcoded item state. Physical tether items and magical tethers both create an `IZeroGravityTetherEffect`; physical tethers include a backing item, while spell-created tethers use no backing item. Fixed items can also be anchored through `FixedInPlaceEffect`, which combines no-get behaviour with zero-gravity anchoring.
 
 Some subsystems also need reusable runtime data that is not owned by one concrete item type. Recorded audio is now the reference pattern:
 - immutable audio payloads live in `FutureMUDLibrary/Form/Audio`

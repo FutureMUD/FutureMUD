@@ -6,6 +6,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using MudSharp.Movement;
 using MudSharp.NPC.AI.Strategies;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,13 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
         }
 
         ICellExit exit = Exits.Peek();
+        if (ZeroGravityMovementHelper.IsZeroGravity(ch.Location, ch.RoomLayer, ch) &&
+            !ZeroGravityMovementHelper.CanManeuver(ch))
+        {
+            ch.RemoveEffect(this);
+            return;
+        }
+
         if (exit.Origin != ch.Location)
         {
             ch.RemoveEffect(this);
@@ -81,7 +89,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
         }
 
         if (!ch.PositionState.Upright &&
-            !ch.PositionState.MoveRestrictions.In(MovementAbility.Flying, MovementAbility.Swimming))
+            !ch.PositionState.MoveRestrictions.In(MovementAbility.Flying, MovementAbility.Swimming, MovementAbility.ZeroGravity))
         {
             IPositionState mobile = ch.MostUprightMobilePosition();
             if (mobile == null || !ch.CanMovePosition(mobile))
@@ -111,6 +119,12 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
     public bool PathTowardsLayer(RoomLayer targetLayer)
     {
         ICharacter ch = (ICharacter)Owner;
+        if (ZeroGravityMovementHelper.IsZeroGravity(ch.Location, ch.RoomLayer, ch) &&
+            !ZeroGravityMovementHelper.HasIndependentPropulsion(ch))
+        {
+            return false;
+        }
+
         if (ch.RoomLayer.IsLowerThan(targetLayer))
         {
             if (ch.PositionState != PositionSwimming.Instance && ch.Location.IsUnderwaterLayer(ch.RoomLayer))

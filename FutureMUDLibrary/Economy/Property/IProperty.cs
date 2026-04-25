@@ -7,6 +7,8 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
+using MudSharp.FutureProg;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -51,5 +53,29 @@ namespace MudSharp.Economy.Property
         bool HasUnclaimedBondPayments(ICharacter who);
         void ClaimShops(ICharacter who);
         void ClaimStables(ICharacter who);
+        HotelLicenseStatus HotelLicenseStatus { get; set; }
+        IBankAccount HotelBankAccount { get; set; }
+        IFutureProg HotelCanRentProg { get; set; }
+        MudTimeSpan HotelLostPropertyRetention { get; set; }
+        decimal HotelOutstandingTaxes { get; set; }
+        IEnumerable<IHotelRoom> HotelRooms { get; }
+        IEnumerable<IHotelLostProperty> HotelLostProperties { get; }
+        IEnumerable<IHotelPatronBalance> HotelPatronBalances { get; }
+        IEnumerable<long> HotelBannedPatronIds { get; }
+        bool IsApprovedHotel { get; }
+        bool IsBannedFromHotel(ICharacter patron);
+        void BanFromHotel(ICharacter patron);
+        void UnbanFromHotel(ICharacter patron);
+        bool HasHotelBalance(ICharacter patron);
+        decimal HotelBalanceFor(ICharacter patron);
+        void AdjustHotelBalance(ICharacter patron, decimal amount);
+        IHotelRoom AddHotelRoom(ICell cell, string name, decimal pricePerDay, decimal securityDeposit, TimeSpan minimumDuration, TimeSpan maximumDuration);
+        void RemoveHotelRoom(IHotelRoom room);
+        IHotelRoom HotelRoomForCell(ICell cell);
+        bool CanRentHotelRoom(ICharacter patron, IHotelRoom room, TimeSpan duration, out string reason);
+        IHotelRoomRental RentHotelRoom(ICharacter patron, IHotelRoom room, TimeSpan duration, decimal rentalCharge, decimal taxCharge);
+        decimal CompleteHotelStay(IHotelRoom room, ICharacter actor, bool force);
+        void ClaimHotelLostProperty(IHotelLostProperty property);
+        void CheckHotelLostProperty();
     }
 }

@@ -132,7 +132,24 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
                            _speeds.FirstOrDefault();
             if (template is not null)
             {
-                _speeds.Add(new MoveSpeed(template, PositionFloatingInZeroGravity.Instance, "float", "floats", "floating"));
+                var dbSpeed = new Models.MoveSpeed
+                {
+                    Id = FMDB.Context.MoveSpeeds.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0L).Max() + 1L,
+                    BodyProtoId = proto.Id,
+                    PositionId = PositionFloatingInZeroGravity.Instance.Id,
+                    Alias = "float",
+                    FirstPersonVerb = "float",
+                    ThirdPersonVerb = "floats",
+                    PresentParticiple = "floating",
+                    Multiplier = template.Multiplier,
+                    StaminaMultiplier = template.StaminaMultiplier
+                };
+                FMDB.Context.MoveSpeeds.Add(dbSpeed);
+                FMDB.Context.SaveChanges();
+
+                var gspeed = new MoveSpeed(dbSpeed);
+                Gameworld.Add(gspeed);
+                _speeds.Add(gspeed);
             }
         }
 

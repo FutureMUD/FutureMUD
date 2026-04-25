@@ -17,18 +17,6 @@ public class MoveSpeed : FrameworkItem, IMoveSpeed
         Position = PositionState.GetState(speed.PositionId);
     }
 
-    public MoveSpeed(IMoveSpeed template, IPositionState position, string firstPersonVerb, string thirdPersonVerb, string presentParticiple)
-    {
-        _id = 0;
-        _name = position.Name.ToLowerInvariant();
-        Multiplier = template.Multiplier;
-        FirstPersonVerb = firstPersonVerb;
-        ThirdPersonVerb = thirdPersonVerb;
-        PresentParticiple = presentParticiple;
-        StaminaMultiplier = template.StaminaMultiplier;
-        Position = position;
-    }
-
     public override string FrameworkItemType => "MoveSpeed";
 
     public double Multiplier { get; protected set; }

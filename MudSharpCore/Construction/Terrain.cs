@@ -52,6 +52,7 @@ public class Terrain : SaveableItem, ITerrain
         TerrainANSIColour = terrain.TerrainANSIColour;
         CanHaveTracks = terrain.CanHaveTracks;
         TrackIntensityMultiplierVisual = terrain.TrackIntensityMultiplierVisual;
+        GravityModel = (GravityModel)terrain.GravityModel;
         if (!string.IsNullOrEmpty(terrain.TagInformation))
         {
             foreach (string id in terrain.TagInformation.Split(','))
@@ -425,6 +426,7 @@ public class Terrain : SaveableItem, ITerrain
             dbitem.TrackIntensityMultiplierOlfactory = 1.0;
             dbitem.TrackIntensityMultiplierVisual = 1.0;
             dbitem.CanHaveTracks = true;
+            dbitem.GravityModel = (int)MudSharp.Construction.GravityModel.Normal;
             dbitem.TagInformation = "";
 
             FMDB.Context.SaveChanges();
@@ -463,6 +465,7 @@ public class Terrain : SaveableItem, ITerrain
             dbitem.TrackIntensityMultiplierOlfactory = rhsItem.TrackIntensityMultiplierOlfactory;
             dbitem.TrackIntensityMultiplierVisual = rhsItem.TrackIntensityMultiplierVisual;
             dbitem.CanHaveTracks = rhsItem.CanHaveTracks;
+            dbitem.GravityModel = (int)rhs.GravityModel;
             dbitem.TagInformation = rhs.Tags.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues();
             foreach (IRangedCover cover in rhs.TerrainCovers)
             {
@@ -497,6 +500,7 @@ public class Terrain : SaveableItem, ITerrain
         dbitem.CanHaveTracks = CanHaveTracks;
         dbitem.TrackIntensityMultiplierVisual = TrackIntensityMultiplierVisual;
         dbitem.TrackIntensityMultiplierOlfactory = TrackIntensityMultiplierOlfactory;
+        dbitem.GravityModel = (int)GravityModel;
         dbitem.TagInformation = _tags.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues();
         FMDB.Context.TerrainsRangedCovers.RemoveRange(dbitem.TerrainsRangedCovers);
         foreach (IRangedCover cover in _terrainCovers)
@@ -579,6 +583,7 @@ public class Terrain : SaveableItem, ITerrain
     public double TrackIntensityMultiplierVisual { get; private set; } // TODO Load/save
 
     public double TrackIntensityMultiplierOlfactory { get; private set; }
+    public GravityModel GravityModel { get; private set; }
 
     public string RoomNameForLayer(string baseRoomName, RoomLayer layer)
     {
@@ -661,6 +666,9 @@ public class Terrain : SaveableItem, ITerrain
             case "tags":
                 return new CollectionVariable(Tags.Select(x => new TextVariable(x.Name)).ToList(),
                     ProgVariableTypes.Text);
+            case "gravity":
+            case "gravitymodel":
+                return new TextVariable(GravityModel.Describe());
         }
 
         throw new NotSupportedException($"Unsupported property type {property} in {FrameworkItemType}.GetProperty");
@@ -682,6 +690,7 @@ public class Terrain : SaveableItem, ITerrain
             { "hidedifficulty", ProgVariableTypes.Number },
             { "spotdifficulty", ProgVariableTypes.Number },
             { "tags", ProgVariableTypes.Text | ProgVariableTypes.Collection },
+            { "gravity", ProgVariableTypes.Text },
         };
     }
 
@@ -700,7 +709,8 @@ public class Terrain : SaveableItem, ITerrain
             { "default", "True if this is the MUD's default terrain" },
             { "hidedifficulty", "The difficulty of hiding in this terrain" },
             { "spotdifficulty", "The minimum spot difficulty in this terrain" },
-            { "tags", "A collection of the names of the tags applied to this room" }
+            { "tags", "A collection of the names of the tags applied to this room" },
+            { "gravity", "The gravity model for this terrain" }
         };
     }
 
@@ -730,6 +740,7 @@ public class Terrain : SaveableItem, ITerrain
         sb.AppendLine(
             $"Infection: {PrimaryInfection.Describe().Colour(Telnet.Magenta)} @ {InfectionVirulence.Describe().ColourValue()} {InfectionMultiplier.ToString("P2", actor).ColourValue()} Intensity");
         sb.AppendLine($"Model: {TerrainBehaviourString.ColourCommand()}");
+        sb.AppendLine($"Gravity: {GravityModel.DescribeColour()}");
         sb.AppendLine($"Can Have Tracks: {CanHaveTracks.ToColouredString()}");
         sb.AppendLine($"Track Intensity (Visual): {TrackIntensityMultiplierVisual.ToStringP2Colour(actor)}");
         sb.AppendLine($"Track Intensity (Olfactory): {TrackIntensityMultiplierOlfactory.ToStringP2Colour(actor)}");
@@ -835,6 +846,8 @@ public class Terrain : SaveableItem, ITerrain
             case "behaviour":
             case "behavior":
                 return BuildingCommandModel(actor, command);
+            case "gravity":
+                return BuildingCommandGravity(actor, command);
             default:
                 actor.OutputHandler.Send(@"You can use the following options with this building command:
 
@@ -855,6 +868,7 @@ public class Terrain : SaveableItem, ITerrain
 	#3infection <type> <difficulty> <virulence>#0 - sets the infection for this terrain
 	#3outdoors|indoors|exposed|cave|windows#0 - sets the default behaviour type
 	#3model <model>#0 - sets the layer model. See TERRAIN SET MODEL for a list of valid values.
+	#3gravity normal|zerog#0 - sets the gravity model
 	#3tag <tag>#0 - toggles a tag applying to this terrain type
 	#3tracks#0 - toggles whether this terrain can have tracks
 	#3trackvisual <%>#0 - sets the visual intensity of tracks left in this terrain
@@ -864,6 +878,39 @@ public class Terrain : SaveableItem, ITerrain
 	#3editortext <1 or 2 letter code>#0 - sets a code to appear on the terrain planner tile".SubstituteANSIColour());
                 return false;
         }
+    }
+
+    private bool BuildingCommandGravity(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Do you want this terrain to have normal gravity or zero-g?");
+            return false;
+        }
+
+        switch (command.PopSpeech().ToLowerInvariant())
+        {
+            case "normal":
+            case "standard":
+            case "1g":
+                GravityModel = MudSharp.Construction.GravityModel.Normal;
+                break;
+            case "zero":
+            case "zerog":
+            case "zero-g":
+            case "zero gravity":
+            case "zerogravity":
+            case "microgravity":
+                GravityModel = MudSharp.Construction.GravityModel.ZeroGravity;
+                break;
+            default:
+                actor.OutputHandler.Send("The valid gravity models are normal and zerog.");
+                return false;
+        }
+
+        Changed = true;
+        actor.OutputHandler.Send($"This terrain now uses {GravityModel.DescribeColour()}.");
+        return true;
     }
 
     private bool BuildingCommandTag(ICharacter actor, StringStack command)

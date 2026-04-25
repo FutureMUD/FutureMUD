@@ -66,7 +66,8 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
                 PositionSquatting.Instance,
                 PositionFlying.Instance,
                 PositionSwimming.Instance,
-                PositionClimbing.Instance
+                PositionClimbing.Instance,
+                PositionFloatingInZeroGravity.Instance
             };
             Changed = true;
         }
@@ -121,6 +122,17 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
                 {
                     _speeds.Add(speed);
                 }
+            }
+        }
+
+        if (!_speeds.Any(x => x.Position == PositionFloatingInZeroGravity.Instance))
+        {
+            var template = _speeds.FirstOrDefault(x => x.Position == PositionFlying.Instance) ??
+                           _speeds.FirstOrDefault(x => x.Position == PositionStanding.Instance) ??
+                           _speeds.FirstOrDefault();
+            if (template is not null)
+            {
+                _speeds.Add(new MoveSpeed(template, PositionFloatingInZeroGravity.Instance, "float", "floats", "floating"));
             }
         }
 

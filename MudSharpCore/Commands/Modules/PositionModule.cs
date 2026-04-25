@@ -2,11 +2,13 @@
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -52,6 +54,173 @@ internal class PositionModule : Module<ICharacter>
     public static PositionModule Instance { get; } = new();
 
     public override int CommandsDisplayOrder => 2;
+
+    private const string ThrustHelp = @"Syntax:
+	#3thrust <direction|up|down>#0
+	#3thrust stop#0
+
+This command uses a worn zero-gravity propulsion item to push off in the specified direction.";
+
+    [PlayerCommand("Thrust", "thrust")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [NoCombatCommand]
+    [HelpInfo("thrust", ThrustHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void Thrust(ICharacter character, string input)
+    {
+        var ss = new StringStack(input.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            character.OutputHandler.Send(ThrustHelp.SubstituteANSIColour());
+            return;
+        }
+
+        var directionText = ss.PopSpeech();
+        if (directionText.EqualTo("stop"))
+        {
+            if (!character.EffectsOfType<ZeroGravityDrift>().Any())
+            {
+                character.OutputHandler.Send("You are not currently drifting.");
+                return;
+            }
+
+            character.RemoveAllEffects<ZeroGravityDrift>(fireRemovalAction: true);
+            character.OutputHandler.Handle(new EmoteOutput(new Emote("@ arrest|arrests &0's zero-gravity drift.", character, character)));
+            return;
+        }
+
+        if (!ZeroGravityMovementHelper.IsZeroGravity(character.Location, character.RoomLayer, character))
+        {
+            character.OutputHandler.Send("You are not in zero gravity.");
+            return;
+        }
+
+        var propulsor = character.Body.ExternalItems
+                                 .Select(x => x.GetItemType<IZeroGravityPropulsion>())
+                                 .FirstOrDefault(x => x?.CanPropel(character) == true);
+        if (propulsor is null)
+        {
+            character.OutputHandler.Send("You are not wearing a usable zero-gravity propulsion item.");
+            return;
+        }
+
+        if (!CardinalDirectionExtensions.CardinalExitStrings.TryGetValue(directionText, out var direction))
+        {
+            character.OutputHandler.Send("That is not a valid direction.");
+            return;
+        }
+
+        var exit = character.Location.GetExit(direction, character);
+        if (exit is not null)
+        {
+            var response = ZeroGravityMovementHelper.CanMoveInZeroGravity(character, exit);
+            if (!response.Result)
+            {
+                character.OutputHandler.Send(response.ErrorMessage);
+                return;
+            }
+
+            if (!propulsor.ConsumePropellant(character))
+            {
+                character.OutputHandler.Send(propulsor.WhyCannotPropel(character));
+                return;
+            }
+
+            character.RemoveAllEffects<ZeroGravityDrift>(fireRemovalAction: false);
+            character.Move(exit, null, true);
+            return;
+        }
+
+        if (direction.In(CardinalDirection.Up, CardinalDirection.Down))
+        {
+            var terrainLayers = character.Location.Terrain(character).TerrainLayers.ToList();
+            var possibleLayers = direction == CardinalDirection.Up
+                ? terrainLayers.Where(x => x.IsHigherThan(character.RoomLayer)).OrderBy(x => x.LayerHeight()).ToList()
+                : terrainLayers.Where(x => x.IsLowerThan(character.RoomLayer)).OrderByDescending(x => x.LayerHeight()).ToList();
+            if (!possibleLayers.Any())
+            {
+                character.OutputHandler.Send("There is nowhere to thrust in that direction.");
+                return;
+            }
+
+            var targetLayer = possibleLayers.First();
+            if (!propulsor.ConsumePropellant(character))
+            {
+                character.OutputHandler.Send(propulsor.WhyCannotPropel(character));
+                return;
+            }
+
+            character.RoomLayer = targetLayer;
+            ZeroGravityMovementHelper.EnsureFloating(character);
+            character.OutputHandler.Handle(new EmoteOutput(new Emote($"@ thrust|thrusts {direction.DescribeBrief()} through zero gravity.", character, character)));
+            character.RemoveAllEffects<ZeroGravityDrift>(fireRemovalAction: false);
+            character.AddEffect(new ZeroGravityDrift(character, direction), TimeSpan.FromSeconds(5));
+            return;
+        }
+
+        character.OutputHandler.Send("There is nowhere to thrust in that direction.");
+    }
+
+    private const string TetherHelp = @"Syntax:
+	#3tether <tether item> to <anchor>#0
+	#3untether#0
+
+The tether item must be a zero-gravity tether, and the anchor must be something you can perceive locally.";
+
+    [PlayerCommand("Tether", "tether")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [NoCombatCommand]
+    [HelpInfo("tether", TetherHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void Tether(ICharacter character, string input)
+    {
+        var ss = new StringStack(input.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            character.OutputHandler.Send(TetherHelp.SubstituteANSIColour());
+            return;
+        }
+
+        var tetherItemText = ss.PopSpeech();
+        if (!ss.PopForSwitch().EqualTo("to") || ss.IsFinished)
+        {
+            character.OutputHandler.Send(TetherHelp.SubstituteANSIColour());
+            return;
+        }
+
+        var tetherItem = character.TargetLocalOrHeldItem(tetherItemText);
+        if (tetherItem is null || !tetherItem.IsItemType<IZeroGravityTetherItem>())
+        {
+            character.OutputHandler.Send("You are not carrying or near any such zero-gravity tether item.");
+            return;
+        }
+
+        var anchor = character.TargetLocal(ss.SafeRemainingArgument);
+        if (anchor is null)
+        {
+            character.OutputHandler.Send("You don't see anything like that to tether to.");
+            return;
+        }
+
+        character.RemoveAllEffects<IZeroGravityTetherEffect>(fireRemovalAction: true);
+        var tether = tetherItem.GetItemType<IZeroGravityTetherItem>();
+        character.AddEffect(new ZeroGravityTether(character, anchor, tether.MaximumRooms, tetherItem));
+        character.OutputHandler.Handle(new EmoteOutput(new Emote("@ tether|tethers &0 to $1 with $2.", character, character, anchor, tetherItem)));
+    }
+
+    [PlayerCommand("Untether", "untether")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [NoCombatCommand]
+    [HelpInfo("untether", TetherHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void Untether(ICharacter character, string input)
+    {
+        if (!character.EffectsOfType<IZeroGravityTetherEffect>().Any())
+        {
+            character.OutputHandler.Send("You are not tethered.");
+            return;
+        }
+
+        character.RemoveAllEffects<IZeroGravityTetherEffect>(fireRemovalAction: true);
+        character.OutputHandler.Handle(new EmoteOutput(new Emote("@ untether|untethers &0.", character, character)));
+    }
 
     [PlayerCommand("Pmote", "pmote")]
     [RequiredCharacterState(CharacterState.Awake)]

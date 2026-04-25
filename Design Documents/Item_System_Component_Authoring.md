@@ -42,6 +42,13 @@ If the feature also needs shared immutable value objects rather than only a quer
 - gameplay-facing item queries live behind interfaces such as `IAudioStorageTape` and `IAnsweringMachine`
 - XML helpers live with the shared models so stage-1 persistence can stay inside normal item/component XML without feature-specific database tables
 
+Zero-gravity components are another reference for small gameplay contracts:
+- `ZeroGravityAnchor` implements `IZeroGravityAnchorItem` and needs no runtime XML state
+- `ZeroGravityTether` implements `IZeroGravityTetherItem` and stores only its builder-authored maximum room length
+- `RcsThruster` implements both `IZeroGravityPropulsion` and `IConnectable`, consuming gas from a connected `IGasSupply`
+
+When adding similar movement equipment, keep the public movement contract in `FutureMUDLibrary/GameItems/Interfaces` and keep connector/gas details inside the concrete component pair.
+
 Computer-program and signal-automation work should follow the same rule:
 - shared contracts such as `IComputerHost`, `IComputerFileSystem`, `IComputerExecutable`, `ISignalSource`, and `ISignalSink` belong in `FutureMUDLibrary/Computers`
 - broader mutable file-owner contracts such as `IComputerFileOwner` belong in `FutureMUDLibrary/Computers` when item components need to expose files without also exposing executable storage

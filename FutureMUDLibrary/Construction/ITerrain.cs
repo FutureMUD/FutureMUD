@@ -43,5 +43,6 @@ namespace MudSharp.Construction
         bool CanHaveTracks { get; }
         double TrackIntensityMultiplierVisual { get; }
         double TrackIntensityMultiplierOlfactory { get; }
+        GravityModel GravityModel { get; }
     }
 }

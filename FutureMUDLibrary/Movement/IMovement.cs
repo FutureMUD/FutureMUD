@@ -24,7 +24,8 @@ namespace MudSharp.Movement
         Climbing = 1 << 3,
         Swimming = 1 << 4,
         Flying = 1 << 5,
-        All = Upright | Crawling | Prostrate | Climbing | Swimming | Flying
+        Floating = 1 << 6,
+        All = Upright | Crawling | Prostrate | Climbing | Swimming | Flying | Floating
     }
 
     public interface IMovement

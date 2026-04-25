@@ -411,6 +411,11 @@ namespace MudSharp.Database
         public virtual DbSet<ShopperLog> ShopperLogs { get; set; }
         public virtual DbSet<ShopsStoreroomCell> ShopsStoreroomCells { get; set; }
         public virtual DbSet<ShopsTill> ShopsTills { get; set; }
+        public virtual DbSet<Stable> Stables { get; set; }
+        public virtual DbSet<StableStay> StableStays { get; set; }
+        public virtual DbSet<StableStayLedgerEntry> StableStayLedgerEntries { get; set; }
+        public virtual DbSet<StableAccount> StableAccounts { get; set; }
+        public virtual DbSet<StableAccountUser> StableAccountUsers { get; set; }
         public virtual DbSet<SkyDescriptionTemplate> SkyDescriptionTemplates { get; set; }
         public virtual DbSet<SkyDescriptionTemplatesValue> SkyDescriptionTemplatesValues { get; set; }
         public virtual DbSet<Social> Socials { get; set; }

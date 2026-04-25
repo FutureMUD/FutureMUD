@@ -50,6 +50,7 @@ This late-load design matters because much of the economy depends on other loade
 - item prototypes are needed for merchandise, payment items, and stocked goods
 - clans can own accounts, control economic zones, and hold property
 - cells are needed for branches, auction houses, conveyancing, job-finding, probate offices, morgue offices, morgue storage, stockrooms, tills, and shop stalls
+- cells are also needed for stables, because each stable is a single advertised location where mounts are lodged and redeemed
 
 ## Subsystem Map
 ### Currency
@@ -230,6 +231,33 @@ Verified load-time constraint:
 - property owner consent reconstruction for sale and lease orders matches owners by raw owner id plus owner type, not by dereferencing `PropertyOwner.Owner`
 
 Property therefore sits at the boundary between economy, clans, law, access control, and building.
+
+### Stables and Mount Lodging
+Stables are persisted economy venues for temporarily lodging NPC mounts.
+
+Verified current stable entities include:
+
+- `Stable`
+- `StableStay`
+- `StableStayLedgerEntry`
+- `StableAccount`
+- `StableAccountUser`
+
+The current implementation ties each stable to:
+
+- one economic zone and its currency
+- one cell, advertised in room description and survey output
+- one nominated bank account for cash and bank-payment receipts
+- optional fixed or FutureProg-driven lodge and daily fees
+- optional FutureProg access control and failure text
+- employee records for proprietors, managers, and employees
+- stable-specific accounts, where positive balance is prepaid credit and negative balance is debt up to a credit limit
+
+Lodging a mount creates a `StableStay`, charges the lodge fee immediately, creates a singleton-generated stable ticket item, records a ledger entry, and quits the mount out of the active world. Whole-day daily fees accrue against open stays by the economic zone calendar. Fee policy changes assess all open stays before applying the new policy, so older days are not repriced retroactively.
+
+Redeeming requires a valid stable ticket component whose stored stay id, ticket item id, and token still match an active stay. The redeemer may differ from the original lodger, but outstanding fees must be settled first by cash, bank-payment item, or an authorised stable account. Manager release closes the stay, invalidates existing tickets by changing the token, and logs the mount back into the stable location. Managers can waive outstanding fees or leave debt in the stay history.
+
+Stable location and ownership integrate with property. A stable inside a property is claimed alongside shops when a lease or sale produces a single character controller; clan and multi-owner cases remain manual in the same way as shops.
 
 ### Auctions
 Auctions are implemented through `AuctionHouse`.
@@ -434,6 +462,7 @@ Verified current item or effect integrations include:
 - `BankPaymentGameItemComponent`
 - `MarketGoodWeightGameItemComponent`
 - `ShopStallGameItemComponent`
+- `StableTicketGameItemComponent`
 - `ItemOnDisplayInShop`
 - persisted item ownership metadata on `GameItem`, used by economy commands, estate flows, and property-oriented FutureProg rules
 - `RestockingMerchandise`

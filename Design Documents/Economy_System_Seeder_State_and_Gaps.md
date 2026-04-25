@@ -65,6 +65,7 @@ Current rerun behavior for `EconomySeeder` is additive and repair-friendly:
 - banks
 - bank account types
 - shops
+- stables
 - auction houses
 - property
 - employment data
@@ -94,6 +95,7 @@ The classifications below are conservative. "Easy" means the current implementat
 | Markets tied to seeded economic zones | Easy | A stock baseline now exists through `EconomySeeder`, although builders still need to decide how many zones and markets their live world should ultimately keep |
 | Jobs tied to seeded employers or clans | Possible | Runtime support exists, but good stock jobs require seeded institutions, currencies, and reusable eligibility progs |
 | Auction houses | Possible | The runtime is ready, but auction houses depend on chosen cells and settlement accounts, so they are best seeded only once a world layout exists |
+| Stables | Possible | The runtime is ready, but useful stable examples depend on chosen cells, bank accounts, mounted-travel assumptions, and local fee/access policy |
 | Shops | Poor candidate without more design work | The runtime exists, but meaningful shop content depends on cells, stockrooms, tills, merchandise selection, item prototypes, payment items, and world-specific retail design |
 | Properties | Poor candidate without more design work | Property is location-specific, owner-specific, and strongly coupled to the world's map and institutions |
 | Estates and morgues | Poor candidate without more design work | The runtime now exists, but setup still depends on world-specific cells, clans, legal authorities, auction houses, and ownership expectations |

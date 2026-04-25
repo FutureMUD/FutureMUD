@@ -544,6 +544,24 @@ public partial class Cell
                 .ColourIncludingReset(Telnet.Yellow));
         }
 
+        IStable stable = Gameworld.Stables.FirstOrDefault(x => x.Location == this);
+        if (stable != null && Gameworld.GetStaticBool("ShowShopInRoomDescription"))
+        {
+            if (!addedAdditionalLines)
+            {
+                addedAdditionalLines = true;
+                descSubSB.AppendLine();
+            }
+
+            if (character?.Account.TabRoomDescriptions == true)
+            {
+                descSubSB.Append("\t");
+            }
+
+            descSubSB.AppendLine($"This is a stable. Use the command STABLE here."
+                .ColourIncludingReset(Telnet.Yellow));
+        }
+
         if (Gameworld.EconomicZones.Any(x => x.ConveyancingCells.Contains(this)) &&
             Gameworld.GetStaticBool("ShowShopInRoomDescription"))
         {

@@ -504,6 +504,7 @@ public class Property : SaveableItem, IProperty
     #region Implementation of IProperty
 
     public IEnumerable<IShop> PropertyShops => PropertyLocations.SelectNotNull(x => x.Shop).Distinct().ToList();
+    public IEnumerable<IStable> PropertyStables => Gameworld.Stables.Where(x => PropertyLocations.Contains(x.Location)).Distinct().ToList();
     public IEnumerable<IPropertyLeaseOrder> ExpiredLeaseOrders => _expiredLeaseOrders;
     public IEnumerable<IPropertyLease> ExpiredLeases => _expiredLeases;
     public IEnumerable<IPropertyKey> PropertyKeys => _propertyKeys;
@@ -517,6 +518,18 @@ public class Property : SaveableItem, IProperty
             shop.SetProprietor(who, true);
         }
     }
+
+    public void ClaimStables(ICharacter who)
+    {
+        foreach (IStable stable in PropertyStables)
+        {
+            stable.ClearEmployees();
+            stable.AddEmployee(who);
+            stable.SetProprietor(who, true);
+            stable.SetManager(who, true);
+        }
+    }
+
     private ICharacter AutomaticShopController()
     {
         if (Lease?.Leaseholder is ICharacter leaseholder)
@@ -550,6 +563,19 @@ public class Property : SaveableItem, IProperty
 
             shop.AddEmployee(controller);
             shop.SetProprietor(controller, true);
+        }
+
+        foreach (IStable stable in PropertyStables)
+        {
+            stable.ClearEmployees();
+            if (controller is null)
+            {
+                continue;
+            }
+
+            stable.AddEmployee(controller);
+            stable.SetProprietor(controller, true);
+            stable.SetManager(controller, true);
         }
     }
 
@@ -899,6 +925,11 @@ public class Property : SaveableItem, IProperty
         foreach (IShop shop in PropertyShops)
         {
             sb.AppendLine($"It comes with the shop {shop.Name.ColourName()}.");
+        }
+
+        foreach (IStable stable in PropertyStables)
+        {
+            sb.AppendLine($"It comes with the stable {stable.Name.ColourName()}.");
         }
 
         return sb.ToString();

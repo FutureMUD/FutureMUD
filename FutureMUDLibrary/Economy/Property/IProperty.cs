@@ -50,5 +50,6 @@ namespace MudSharp.Economy.Property
         bool IsAuthorisedLeaseHolder(ICharacter who);
         bool HasUnclaimedBondPayments(ICharacter who);
         void ClaimShops(ICharacter who);
+        void ClaimStables(ICharacter who);
     }
 }

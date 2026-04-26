@@ -252,7 +252,7 @@ public partial class Body
 
     public void StartStaminaTick()
     {
-        if (Actor.State.HasFlag(CharacterState.Stasis))
+        if (!IsActiveCharacterBody)
         {
             return;
         }
@@ -274,9 +274,13 @@ public partial class Body
 
     public void EndStaminaTick(bool includeMinute)
     {
-        Gameworld.HeartbeatManager.TenSecondHeartbeat -= StaminaTenSecondHeartbeat;
-        _tenSecondStaminaActive = false;
-        if (includeMinute)
+        if (_tenSecondStaminaActive)
+        {
+            Gameworld.HeartbeatManager.TenSecondHeartbeat -= StaminaTenSecondHeartbeat;
+            _tenSecondStaminaActive = false;
+        }
+
+        if (includeMinute && _minuteStaminaActive)
         {
             Gameworld.HeartbeatManager.MinuteHeartbeat -= StaminaMinuteHeartbeat;
             _minuteStaminaActive = false;
@@ -285,6 +289,12 @@ public partial class Body
 
     public void StaminaTenSecondHeartbeat()
     {
+        if (!IsActiveCharacterBody)
+        {
+            EndStaminaTick(true);
+            return;
+        }
+
         var positionState = PositionState ?? PositionUndefined.Instance;
 
         if (CurrentStamina < MaximumStamina)
@@ -356,6 +366,12 @@ public partial class Body
 
     public void StaminaMinuteHeartbeat()
     {
+        if (!IsActiveCharacterBody)
+        {
+            EndStaminaTick(true);
+            return;
+        }
+
         bool isDead = Actor.State.HasFlag(CharacterState.Dead);
         if (LongtermExertion > ExertionLevel.Normal && Race.SweatLiquid != null && !isDead)
         {

@@ -132,9 +132,13 @@ The high-level switch flow is:
 6. Transfer or stash trauma according to the plan.
 7. Move inventory where possible, dropping ordinary items that no longer fit and rejecting restraints that cannot safely transfer.
 8. Recalculate body helpers, organ functions, breathing, stamina, and health consequences with health feedback suppressed during the switch.
-9. Set `CurrentBody`, activate the new body, suspend the old body, emit the transformation echo, and fire `CurrentBodyChanged`.
+9. Set `CurrentBody`, activate the new body, reset the old body into dormant form state, emit the transformation echo, and fire `CurrentBodyChanged`.
 
-Body switching does not use `Body.Quit()`. Dormant bodies stop health, drug, stamina, and breathing ticks and are treated as non-present shells until reactivated.
+Body switching does not use `Body.Quit()`. Dormant bodies stop health, drug, stamina, breathing, scheduled body actions, body-owned scheduled effects, and retained body-item lifecycles, and are treated as non-present shells until reactivated.
+
+The body runtime also guards tick starters and tick callbacks with an active-body check. A body may only start or continue health, drug, stamina, breathing, or health-status processing while it is the character's `CurrentBody` and the character is neither dead nor in stasis. This is a defensive layer for stale body references from wounds, effects, drugs, or delayed actions: even if old code asks a dormant form to restart a tick, the dormant form unregisters or refuses the work instead of processing physiology in the background.
+
+Character-level lifecycle hooks follow the same rule. `LoginCharacter()` resumes online-only character heartbeats after stasis is cleared; `Quit()` and `Die()` stop needs ticks, forced-transformation recheck delegates, and magic resource regeneration delegates. NPC AI heartbeat subscriptions are only installed for live, non-stasis NPCs and are released on quit or death.
 
 ### Anatomy Mapping
 
@@ -154,7 +158,7 @@ Form switching supports both transfer and stasis.
 
 Transfer mode remaps compatible wounds, part infections, scars, tattoos, severed roots, implants, prosthetics, active and latent drugs, blood state, held breath time, stamina, and selected treatment effects. Internal bleeding, antiseptic treatment, anti-inflammatory treatment, and replanted bodypart effects are recreated on mapped bodyparts with their remaining duration.
 
-Stash mode leaves trauma on the old body, caches scheduled effects, stops ongoing body ticks, clears restraints and direct inventory state, and sanitises the target body for its health strategy. Incompatible wounds and organic-only health effects are removed from the active target form, and lost fluids can be restored when no compatible bleed sources remain. Health feedback is suppressed during the switch so players do not see transient "dying", "can't breathe", or organ recovery spam caused by intermediate recalculations.
+Stash mode leaves trauma on the old body, caches scheduled effects, stops ongoing body ticks, clears body-owned scheduler entries, quits retained body items such as dormant implants or prosthetics, clears restraints and direct inventory state, and sanitises the target body for its health strategy. Incompatible wounds and organic-only health effects are removed from the active target form, and lost fluids can be restored when no compatible bleed sources remain. Health feedback is suppressed during the switch so players do not see transient "dying", "can't breathe", or organ recovery spam caused by intermediate recalculations.
 
 ### Description and Transformation Echoes
 
@@ -252,7 +256,7 @@ The `DrugOrChemical` band exists so content can rank chemical transformations co
 
 When a mandatory transform first takes control, the system records a baseline body in `ForcedTransformationBaselineEffect`. When the winning demand changes or no demands remain, the character is switched to the new winning target or reverted toward the recorded baseline.
 
-Merit applicability is rechecked by a single registered character delegate using fuzzy minute or fuzzy hour cadence. This avoids a global sweep over all characters while still supporting time-sensitive transforms such as full moons.
+Merit applicability is rechecked by a single registered character delegate using fuzzy minute or fuzzy hour cadence while the character is online and not dead or in stasis. This avoids a global sweep over all characters while still supporting time-sensitive transforms such as full moons.
 
 ### FutureProg Surface
 

@@ -286,7 +286,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     protected void CacheScheduledEffects()
     {
-        _cachedEffects.Clear();
+        _cachedEffects.RemoveAll(x => !Effects.Contains(x.Effect));
         foreach (IEffect effect in Effects.Distinct().ToList())
         {
             if (!Gameworld.EffectScheduler.IsScheduled(effect))
@@ -294,7 +294,17 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
                 continue;
             }
 
-            _cachedEffects.Add((effect, EffectHandler.ScheduledDuration(effect)));
+            TimeSpan duration = EffectHandler.ScheduledDuration(effect);
+            int existing = _cachedEffects.FindIndex(x => x.Effect == effect);
+            if (existing >= 0)
+            {
+                _cachedEffects[existing] = (effect, duration);
+            }
+            else
+            {
+                _cachedEffects.Add((effect, duration));
+            }
+
             Gameworld.EffectScheduler.Unschedule(effect);
         }
     }

@@ -89,8 +89,9 @@ public partial class Body
     public IGameItem Die()
     {
         OnDeath?.Invoke(this);
-        EndStaminaTick(false);
+        EndStaminaTick(true);
         EndDrugTick();
+        EndHealthTickRegistration();
         _breathingStrategy = new NonBreather();
 
         // Wielded items merely become held items
@@ -126,7 +127,7 @@ public partial class Body
 
     public void CheckHealthStatus()
     {
-        if (_loading)
+        if (_loading || !IsActiveCharacterBody)
         {
             return;
         }
@@ -1346,8 +1347,9 @@ public partial class Body
 
     public void StartHealthTick(bool initial = false)
     {
-        if (Actor.State.HasFlag(CharacterState.Stasis))
+        if (!IsActiveCharacterBody)
         {
+            EndHealthTickRegistration();
             return;
         }
 
@@ -1382,6 +1384,16 @@ public partial class Body
     public void EndHealthTick()
     {
         ReevaluateLimbAndPartDamageEffects();
+        EndHealthTickRegistration();
+    }
+
+    private void EndHealthTickRegistration()
+    {
+        if (!_healthTickActive)
+        {
+            return;
+        }
+
         Gameworld.HeartbeatManager.TenSecondHeartbeat -= HealthTick_TenSecondHeartbeat;
         Gameworld.HeartbeatManager.MinuteHeartbeat -= HealingTick_MinuteHeartbeat;
         _healthTickActive = false;
@@ -1531,6 +1543,12 @@ public partial class Body
 
     private void HealingTick_MinuteHeartbeat()
     {
+        if (!IsActiveCharacterBody)
+        {
+            EndHealthTickRegistration();
+            return;
+        }
+
         if (Combat == null)
         {
             List<IHealingRateEffect> healingEffects = CombinedEffectsOfType<IHealingRateEffect>().ToList();
@@ -1592,7 +1610,7 @@ public partial class Body
 
     private void RecheckStatus()
     {
-        if (Actor.State.HasFlag(CharacterState.Dead))
+        if (Actor.State.HasFlag(CharacterState.Dead) || !IsActiveCharacterBody)
         {
             return;
         }
@@ -1778,6 +1796,12 @@ public partial class Body
 
     private void HealthTick_TenSecondHeartbeat()
     {
+        if (!IsActiveCharacterBody)
+        {
+            EndHealthTickRegistration();
+            return;
+        }
+
         HandleHealthStatusResult(ApplyForcedParalysis(HealthStrategy.PerformHealthTick(Actor)));
         CalculateOrganFunctions();
         ReevaluateLimbAndPartDamageEffects();
@@ -1829,6 +1853,11 @@ public partial class Body
 
     public void DoBreathing()
     {
+        if (!IsActiveCharacterBody)
+        {
+            return;
+        }
+
         _breathingStrategy.Breathe(this);
         if (!CanBreathe && _breathingStrategy.NeedsToBreathe)
         {

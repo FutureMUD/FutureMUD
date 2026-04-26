@@ -211,7 +211,7 @@ Builders need:
 - optional access and rejection-text FutureProgs using `(customer, mount)`
 - managers or proprietors if non-admin characters should operate the stable
 
-Player workflows are surfaced through `stable`, `stable quote`, `stable lodge`, `stable redeem`, `stable accountstatus`, and `stable payaccount`. Lodging issues a system-generated stable ticket item and removes the mount from the active world. Redeeming checks the ticket's stay id, item id, and token, then requires any outstanding fees to be settled before the mount is logged back into the stable cell.
+Player workflows are surfaced through `stable`, `stable quote`, `stable lodge`, `stable redeem`, `stable accountstatus`, and `stable payaccount`. Lodging issues a system-generated stable ticket item and removes the mount from the active world. Active stable stays also suppress their mount ids during NPC boot loading, so rebooted servers do not return lodged mounts to the stable room. Redeeming checks the ticket's stay id, item id, and token, then requires any outstanding fees to be settled before the mount is logged back into the stable cell.
 
 Manager workflows include active/history lists, stay inspection, ticketless release, fee setup, account setup, employee management, bank-account assignment, open/close state, and access-prog setup. A property sale or lease can claim stables in the property for the single character controller in the same operational style as property shops.
 

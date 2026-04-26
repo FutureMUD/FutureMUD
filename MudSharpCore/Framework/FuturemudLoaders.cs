@@ -2596,6 +2596,12 @@ For information on the syntax to use in emotes (such as those included in bracke
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 NPC Template{1}.", count, count == 1 ? "" : "s");
     }
 
+    internal static bool ShouldLoadNpcAtBoot(long npcCharacterId, CharacterState state, ISet<long> activeStableMountIds)
+    {
+        return !state.HasFlag(CharacterState.Dead) &&
+               !activeStableMountIds.Contains(npcCharacterId);
+    }
+
     void IFuturemudLoader.LoadNPCs()
     {
         ConsoleUtilities.WriteLine("\nLoading #5NPCs#0...");
@@ -2604,6 +2610,11 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Start();
 #endif
         DummyAccount.Instance.SetupGameworld(this);
+        var activeStableMountIds = FMDB.Context.StableStays
+                                     .AsNoTracking()
+                                     .Where(x => x.Status == (int)StableStayStatus.Active)
+                                     .Select(x => x.MountId)
+                                     .ToHashSet();
         List<Npc> npcs = (from npc in FMDB.Context.Npcs
                                     .Include(x => x.NpcsArtificialIntelligences)
                                     .Include(x => x.Character)
@@ -2631,8 +2642,12 @@ For information on the syntax to use in emotes (such as those included in bracke
                           */
                           where !((CharacterState)npc.Character.State).HasFlag(CharacterState.Dead)
                           select npc).ToList();
+        List<Npc> loadableNpcs = npcs
+                                 .Where(x => ShouldLoadNpcAtBoot(x.CharacterId,
+                                     (CharacterState)x.Character.State, activeStableMountIds))
+                                 .ToList();
 
-        foreach (Npc npc in npcs)
+        foreach (Npc npc in loadableNpcs)
         {
             ICharacter newNpc = TryGetCharacter(npc.CharacterId);
             if (npc.BodyguardCharacterId != null)
@@ -2660,7 +2675,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
-        int count = npcs.Count;
+        int count = loadableNpcs.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 NPC{1}.", count, count == 1 ? "" : "s");
 
         ConsoleUtilities.WriteLine("\nLoading #5Guests#0...");

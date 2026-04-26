@@ -50,6 +50,26 @@ public class BootLoadingRegressionTests
     }
 
     [TestMethod]
+    public void ShouldLoadNpcAtBoot_ActiveStableStay_ReturnsFalse()
+    {
+        HashSet<long> activeStableMountIds = new() { 123L };
+
+        bool result = Futuremud.ShouldLoadNpcAtBoot(123L, CharacterState.Awake, activeStableMountIds);
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void ShouldLoadNpcAtBoot_NormalLivingNpc_ReturnsTrue()
+    {
+        HashSet<long> activeStableMountIds = new() { 456L };
+
+        bool result = Futuremud.ShouldLoadNpcAtBoot(123L, CharacterState.Awake, activeStableMountIds);
+
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
     public void PropertySaleOrder_DbConstructor_MatchesConsentWithoutDereferencingOwner()
     {
         Mock<IFuturemud> gameworld = new();

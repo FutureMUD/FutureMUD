@@ -282,7 +282,7 @@ The current implementation ties each stable to:
 - employee records for proprietors, managers, and employees
 - stable-specific accounts, where positive balance is prepaid credit and negative balance is debt up to a credit limit
 
-Lodging a mount creates a `StableStay`, charges the lodge fee immediately, creates a singleton-generated stable ticket item, records a ledger entry, and quits the mount out of the active world. Whole-day daily fees accrue against open stays by the economic zone calendar. Fee policy changes assess all open stays before applying the new policy, so older days are not repriced retroactively.
+Lodging a mount creates a `StableStay`, charges the lodge fee immediately, creates a singleton-generated stable ticket item, records a ledger entry, and quits the mount out of the active world. During boot, NPC loading excludes mount character ids that belong to active stable stays, so stabled mounts remain offline and in stasis until redeem or manager release restores them. Whole-day daily fees accrue against open stays by the economic zone calendar. Fee policy changes assess all open stays before applying the new policy, so older days are not repriced retroactively.
 
 Redeeming requires a valid stable ticket component whose stored stay id, ticket item id, and token still match an active stay. The redeemer may differ from the original lodger, but outstanding fees must be settled first by cash, bank-payment item, or an authorised stable account. Manager release closes the stay, invalidates existing tickets by changing the token, and logs the mount back into the stable location. Managers can waive outstanding fees or leave debt in the stay history.
 

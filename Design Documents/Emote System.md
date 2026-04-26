@@ -75,8 +75,14 @@ Internal target tokens point at constructor-supplied perceivables by index.
 | `&0's` | possessive pronoun / `your` |
 | `#0` | subjective pronoun / `you` |
 | `%0` | reflexive / `yourself` |
+| `^0` | description, even for the target viewer |
+| `^0's` | noun possessive, even for the target viewer |
 
-The same forms work for any index: `$1`, `&2`, `!3's`, and so on.
+The same forms work for any index: `$1`, `&2`, `!3's`, `^4`, and so on.
+
+Notes:
+
+- `^0` is the non-self form of a target token. It renders through `HowSeen` with `IgnoreSelf`, so the target viewer sees their own short description instead of `you`. Use it for echoes like body transformations where the player needs to see what they have become.
 
 ### First/Third-Person Alternates
 

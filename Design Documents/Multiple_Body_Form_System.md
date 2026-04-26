@@ -172,7 +172,7 @@ Transformation echoes are per-form metadata:
 | Empty string | Suppress the transformation echo. |
 | Text | Use the custom emote text. |
 
-The default static string is currently `@ transform|transforms into $1.`, where `$1` is the new body in the emote context.
+The default static string is currently `@ transform|transforms into ^1.`, where `^1` is the new body in the emote context rendered with the emote system's non-self token so the transforming player sees their own new short description instead of `you`.
 
 ### Player Command Surface
 

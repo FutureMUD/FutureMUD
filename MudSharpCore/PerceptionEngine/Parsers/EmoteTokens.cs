@@ -98,6 +98,12 @@ public partial class Emote
         new(@"(?<=([!.?:] |^){0,1})\$(?<firsttoken>\d+)=(?<secondtoken>\d+)(?<possessive>'s)*", RegexOptions.Multiline);
 
     /// <summary>
+    /// ^0 - like $0, but renders the target's description even when the perceiver is the target
+    /// </summary>
+    private static readonly Regex NonSelfTokenRegex =
+        new(@"(?<=([!.?:] |^){0,1})\^(?<index>\d+)(?<possession>'s)?", RegexOptions.Multiline);
+
+    /// <summary>
     ///     The source token is used to parse uses of the @ symbol in emotes, to refer to the emote owner
     /// </summary>
     private static readonly Regex SourceTokenRegex = new(@"(?<=([!.?:] |^){0,1})([@])([#!]){0,1}('s){0,1}",
@@ -227,6 +233,31 @@ public partial class Emote
                 }
 
                 OptionalItselfToken token = new(perceivables[targetIndex], perceivables[otherIndex]);
+                _tokens.Add(token);
+                return $"{{{targetCounter[0]++}}}";
+            });
+
+            text = NonSelfTokenRegex.Replace(text, m =>
+            {
+                if (perceivables == null)
+                {
+                    ErrorMessage =
+                        $"Invalid emote: {RawText}\nThere were references to perceivables but null was passed.";
+                    Futuremud.Games.First().DiscordConnection.NotifyBadEcho(ErrorMessage);
+                    return m.Groups[0].Value;
+                }
+
+                int index = Convert.ToInt32(m.Groups["index"].Value);
+
+                if (perceivables.Count <= index)
+                {
+                    ErrorMessage =
+                        $"Invalid emote: {RawText}\nThere was a reference to perceivable {index}, but there were only {perceivables.Count} perceivables passed.";
+                    Futuremud.Games.First().DiscordConnection.NotifyBadEcho(ErrorMessage);
+                    return m.Groups[0].Value;
+                }
+
+                NonSelfToken token = new(perceivables[index], possessive: m.Groups["possession"].Length > 0);
                 _tokens.Add(token);
                 return $"{{{targetCounter[0]++}}}";
             });
@@ -539,6 +570,8 @@ public partial class Emote
 
         public IPerceivable Target => _target;
 
+        public virtual bool IgnoreSelfForDisplay => false;
+
         internal static EmoteToken LoadToken(XElement root, IFuturemud gameworld)
         {
             switch (root.Attribute("Type").Value)
@@ -557,6 +590,8 @@ public partial class Emote
                     return new PluralityEmoteToken(root, gameworld);
                 case "PronounNumber":
                     return new PronounNumberToken(root, gameworld);
+                case "NonSelf":
+                    return new NonSelfToken(root, gameworld);
                 default:
                     throw new NotSupportedException();
             }
@@ -1287,5 +1322,55 @@ public partial class Emote
         }
 
         #endregion
+    }
+
+    private class NonSelfToken : EmoteToken
+    {
+        private bool _possessive;
+
+        public NonSelfToken(IPerceivable target, bool proper = false, bool coloured = true, bool stripAAn = false,
+            bool possessive = false) : base(target, proper, false, coloured, stripAAn)
+        {
+            _possessive = possessive;
+        }
+
+        public NonSelfToken(XElement root, IFuturemud gameworld) : base(root, gameworld)
+        {
+            _possessive = bool.Parse(root.Attribute("possessive")?.Value ?? "false");
+        }
+
+        public override bool IgnoreSelfForDisplay => true;
+
+        internal override XElement SaveToXml()
+        {
+            XElement xml = base.SaveToXml();
+            xml.Add(new XAttribute("Type", "NonSelf"));
+            xml.Add(new XAttribute("possessive", _possessive));
+            return xml;
+        }
+
+        protected override bool Process(string lookup, IPerceiver source)
+        {
+            return true;
+        }
+
+        public override string DisplayFirstPerson()
+        {
+            return DisplayThirdPerson(_target as IPerceiver, PerceiveIgnoreFlags.None);
+        }
+
+        public override string DisplayThirdPerson(IPerceiver perceiver, PerceiveIgnoreFlags flags)
+        {
+            if (_target == null)
+            {
+                return string.Empty;
+            }
+
+            return _possessive
+                ? _target.HowSeen(perceiver, Proper, Form.Shape.DescriptionType.Possessive, Coloured,
+                    PerceiveIgnoreFlags.IgnoreSelf | flags).Strip_A_An(StripAAn)
+                : _target.HowSeen(perceiver, Proper, colour: Coloured,
+                    flags: PerceiveIgnoreFlags.IgnoreSelf | flags).Strip_A_An(StripAAn);
+        }
     }
 }

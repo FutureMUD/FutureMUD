@@ -147,7 +147,7 @@ public partial class Emote : IEmote
             _tokens.Select(
                 x =>
                     x.NullSafe || x.Target != null
-                        ? x.Target?.IsSelf(perceiver) == true
+                        ? x.Target?.IsSelf(perceiver) == true && !x.IgnoreSelfForDisplay
                             ? x.DisplayFirstPerson()
                             : x.DisplayThirdPerson(perceiver, flags)
                         : string.Empty).ToArray<object>();

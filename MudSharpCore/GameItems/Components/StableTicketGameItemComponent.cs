@@ -1,10 +1,12 @@
 using MudSharp.Character;
+using MudSharp.Commands.Trees;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Prototypes;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 
 #nullable enable
@@ -89,10 +91,15 @@ public class StableTicketGameItemComponent : GameItemComponent, IStableTicket
 				stay.Stable.AssessFees(stay);
 				var mount = stay.Mount;
 				var stable = stay.Stable;
-				return
-					$"This is a stable ticket for {(mount is null ? $"mount #{stay.MountId:N0}" : mount.HowSeen(voyeur, colour: colour))} at {stable.Name.TitleCase().ColourName()}.\n" +
-					$"Status: {(IsValid ? "Valid".Colour(Telnet.Green) : "Invalid".Colour(Telnet.Red))}\n" +
-					$"Outstanding Fees: {stable.Currency.Describe(stay.AmountOwing, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}";
+				var sb = new StringBuilder();
+				sb.AppendLine($"This is a stable ticket for {(mount is null ? $"mount #{stay.MountId:N0}" : mount.HowSeen(voyeur, colour: colour, flags: PerceiveIgnoreFlags.TrueDescription))} at {stable.Name.TitleCase().ColourName(colour)}.");
+				if (voyeur is ICharacter ch && ch.IsAdministrator())
+				{
+					sb.AppendLine($"Status: {(IsValid ? "Valid".Colour(Telnet.Green) : "Invalid".Colour(Telnet.Red))}");
+					sb.AppendLine($"Outstanding Fees: {stable.Currency.Describe(stay.AmountOwing, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+					sb.AppendLine($"Stable Location: {stable.Location.GetFriendlyReference(ch).MXPSend($"goto {stable.Location.Id}")}");
+				}
+                return sb.ToString();
 		}
 
 		return base.Decorate(voyeur, name, description, type, colour, flags);

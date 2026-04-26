@@ -144,7 +144,7 @@ public interface IStable : IFrameworkItem, ISaveable, IKeywordedItem
 	decimal QuoteDailyFee(ICharacter mount, ICharacter owner);
 	void AssessFees(IStableStay stay);
 	void AssessAllActiveStays();
-	(bool Truth, string Reason) CanUseStable(ICharacter actor, ICharacter mount);
+	(bool Truth, string Reason) CanUseStable(ICharacter actor, ICharacter? mount);
 	(bool Truth, string Reason) CanLodge(ICharacter actor, ICharacter mount);
 	IStableStay Lodge(ICharacter actor, ICharacter mount);
 	(bool Truth, string Reason) CanRedeem(ICharacter actor, IStableTicket ticket);
@@ -154,7 +154,8 @@ public interface IStable : IFrameworkItem, ISaveable, IKeywordedItem
 	void RemoveStableAccount(IStableAccount account);
 	IStableAccount? AccountByName(string text);
 	string Show(ICharacter actor);
-	string ShowStay(ICharacter actor, IStableStay stay);
+    string ShowToNonEmployee(ICharacter actor);
+    string ShowStay(ICharacter actor, IStableStay stay);
 	void Delete();
 }
 

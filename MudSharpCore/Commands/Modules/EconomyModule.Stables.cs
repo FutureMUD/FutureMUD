@@ -32,14 +32,24 @@ internal partial class EconomyModule
 	#3stable quote <mount>#0 - shows the price to lodge a mount
 	#3stable lodge <mount> [cash|account <account>|with <payment item>]#0 - stables a mount and gives you a ticket
 	#3stable redeem <ticket> [cash|account <account>|with <payment item>]#0 - redeems a stabled mount
+	#3stable accounts#0 - show accounts that you have access to at this stable
 	#3stable accountstatus <account>#0 - shows your stable account
 	#3stable payaccount <account> <amount> [cash|with <payment item>]#0 - pays or prepays a stable account
-	#3stable list [active|history]#0 - lists stabled mounts for managers
-	#3stable show <stay>#0 - shows a stable stay and ledger for managers
-	#3stable release <stay> [waive]#0 - releases a mount without a ticket for managers
+
+Stable managers can use the following additional commands:
+
+	#3stable list [active|history]#0 - lists stabled mounts
+	#3stable show <stay>#0 - shows a stable stay and ledger
+	#3stable release <stay> [waive]#0 - releases a mount without a ticket
 	#3stable bank <account|none>#0 - sets the stable bank account for proprietors
 	#3stable fee lodge|daily <amount|prog <prog>|none>#0 - sets stable fees for proprietors
-	#3stable account ...#0 - manages stable credit accounts
+	#3stable account list#0 - lists all accounts
+	#3stable account show <id|name>#0 - shows a particular credit account
+	#3stable account create <name> <ownership> <credit limit>#0 - creates a new credit account for a customer
+	#3stable account limit <id|name> <limit>#0 - sets a new credit limit for an account
+	#3stable account suspend <id|name>#0 - toggles suspension of a credit account
+	#3stable account authorise <id|name> <person> <limit>#0 - authorises an additional person to access a credit account
+	#3stable account unauthorise <id|name> <person>#0 - removes an authorisation of an additional person on a credit account
 	#3stable employ|fire|manager|proprietor <target|name>#0 - manages employees
 	#3stable open|close#0 - opens or closes the stable
 	#3stable set can <prog|none> [whyprog]#0 - sets access progs
@@ -53,7 +63,7 @@ Administrators can also use:
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[NoCombatCommand]
 	[NoHideCommand]
-	[HelpInfo("stable", StableHelp, AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("stable", StableHelp, AutoHelp.HelpArg)]
 	protected static void Stable(ICharacter actor, string command)
 	{
 		StringStack ss = new(command.RemoveFirstWord());
@@ -96,6 +106,9 @@ Administrators can also use:
 				return;
 			case "account":
 				StableAccount(actor, ss);
+				return;
+			case "accounts":
+				StableAccounts(actor, ss);
 				return;
 			case "employ":
 				StableEmploy(actor, ss);
@@ -147,9 +160,15 @@ Administrators can also use:
 		if (!DoStableCommandFindStable(actor, out var stable))
 		{
 			return;
-		}
+        }
 
-		actor.OutputHandler.Send(stable.Show(actor));
+        if (!stable.IsManager(actor))
+        {
+            actor.OutputHandler.Send(stable.ShowToNonEmployee(actor));
+            return;
+        }
+
+        actor.OutputHandler.Send(stable.Show(actor));
 	}
 
 	private static void StableQuote(ICharacter actor, StringStack ss)
@@ -277,8 +296,8 @@ Administrators can also use:
 
 		TakeStablePayment(actor, stable, payment, price, "Stable stay redemption", ticket.StableStay);
 		stable.Redeem(actor, ticket.StableStay);
-		actor.OutputHandler.Send(
-			$"You redeem {item!.HowSeen(actor)} and settle {stable.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in outstanding fees.");
+		actor.OutputHandler.Send($"You redeem {item!.HowSeen(actor)} and settle {stable.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in outstanding fees.");
+		ticket.Parent.Delete();
 	}
 
 	private static void StableList(ICharacter actor, StringStack ss)
@@ -902,7 +921,16 @@ Administrators can also use:
 		actor.OutputHandler.Send($"You pay {stable.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} to {account.AccountName.ColourName()}.");
 	}
 
-	private static void StableAccount(ICharacter actor, StringStack ss)
+    private static void StableAccounts(ICharacter actor, StringStack ss)
+	{
+        if (!DoStableCommandFindStable(actor, out var stable))
+        {
+            return;
+        }
+    }
+
+
+    private static void StableAccount(ICharacter actor, StringStack ss)
 	{
 		if (!DoStableCommandFindStable(actor, out var stable))
 		{
@@ -937,9 +965,52 @@ Administrators can also use:
 			case "unauthorize":
 				StableAccountUnauthorise(actor, stable, ss);
 				return;
+			case "list":
+				StableAccountList(actor, stable, ss);
+				return;
 		}
 
-		actor.OutputHandler.Send("Use STABLE ACCOUNT CREATE|SHOW|LIMIT|SUSPEND|AUTHORISE|UNAUTHORISE.");
+		actor.OutputHandler.Send(@"You can use the following options with the account subcommand:
+
+	#3list#0 - lists all accounts
+	#3show <id|name>#0 - shows a particular credit account
+	#3create <name> <ownership> <credit limit>#0 - creates a new credit account for a customer
+	#3limit <id|name> <limit>#0 - sets a new credit limit for an account
+	#3suspend <id|name>#0 - toggles suspension of a credit account
+	#3authorise <id|name> <person> <limit>#0 - authorises an additional person to access a credit account
+	#3unauthorise <id|name> <person>#0 - removes an authorisation of an additional person on a credit account".SubstituteANSIColour());
+	}
+	private static void StableAccountList(ICharacter actor, IStable stable, StringStack ss)
+	{
+		var accounts = stable.StableAccounts.ToList();
+		// TODO - filtering criteria
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from account in accounts select new List<string>
+			{
+				account.Id.ToStringN0(actor),
+				account.AccountName,
+				account.AccountOwnerName.GetName(NameStyle.SimpleFull),
+				account.IsSuspended.ToColouredString(),
+				stable.Currency.Describe(account.Balance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+                stable.Currency.Describe(account.CreditLimit, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+                stable.Currency.Describe(account.CreditAvailable, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+				account.AccountUsers.Count().ToStringN0(actor)
+            },
+			new List<string>
+			{
+				"Id",
+				"Accn Name",
+				"Owner Name",
+				"Suspended?",
+				"Balance",
+				"Limit",
+				"Available",
+				"Users"
+			},
+			actor,
+			Telnet.Yellow
+		));
 	}
 
 	private static void StableAccountCreate(ICharacter actor, IStable stable, StringStack ss)

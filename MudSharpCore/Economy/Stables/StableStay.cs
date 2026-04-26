@@ -37,8 +37,8 @@ public class StableStay : SaveableItem, IStableStay
 		OriginalOwnerId = originalOwner.Id;
 		_originalOwner = originalOwner;
 		OriginalOwnerName = originalOwner.CurrentName;
-		LodgedDateTime = stable.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
-		_lastDailyFeeDateTime = LodgedDateTime;
+		LodgedDateTime = new MudDateTime(stable.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
+		_lastDailyFeeDateTime = new MudDateTime(LodgedDateTime);
 		_status = StableStayStatus.Active;
 		_ticketToken = GenerateTicketToken();
 

@@ -1,3 +1,4 @@
+using Anthropic.SDK.Messaging;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Construction;
@@ -381,7 +382,7 @@ public class Stable : SavableKeywordedItem, IStable
 		}
 	}
 
-	public (bool Truth, string Reason) CanUseStable(ICharacter actor, ICharacter mount)
+	public (bool Truth, string Reason) CanUseStable(ICharacter actor, ICharacter? mount)
 	{
 		if (!IsReadyToDoBusiness)
 		{
@@ -543,7 +544,84 @@ public class Stable : SavableKeywordedItem, IStable
 		return sb.ToString();
 	}
 
-	public string ShowStay(ICharacter actor, IStableStay stay)
+	public string ShowToNonEmployee(ICharacter actor)
+	{
+		AssessAllActiveStays();
+		var sb = new StringBuilder();
+
+		sb.AppendLine(Name.GetLineWithTitleInner(actor, Telnet.Yellow, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Open: {IsTrading.ToColouredString()}");
+        sb.AppendLine($"Ready: {IsReadyToDoBusiness.ToColouredString()}");
+		var (truth, error) = CanUseStable(actor, null);
+		if (truth)
+		{
+			sb.AppendLine($"Can You Use: {"yes".ColourValue()}");
+		}
+		else
+		{
+			sb.AppendLine($"Can You Use: {"no".ColourError()} [{error.ColourCommand()}]");
+		}
+
+		var accounts = StableAccounts.Where(x => x.IsAuthorisedToUse(actor, 0.0M) != StableAccountAuthorisationFailureReason.NotAuthorisedAccountUser).ToList();
+		var stays = ActiveStays.Where(x => x.OriginalOwnerId == actor.Id).ToList();
+
+		sb.AppendLine();
+		sb.AppendLine($"Active Stays:");
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in stays
+			select new List<string>
+			{
+				item.Mount is not null ? item.Mount.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription) : "None",
+				item.LodgedDateTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+				(item.LodgedDateTime.Calendar.CurrentDateTime - item.LodgedDateTime).DescribePreciseBrief(actor),
+				Currency.Describe(item.AmountOwing, CurrencyDescriptionPatternType.ShortDecimal)
+            },
+			new List<string>
+			{
+				"Mount",
+				"Lodged Time",
+				"Stay Duration",
+				"Amount Owing"
+			},
+			actor,
+			Telnet.Cyan
+		));
+
+		sb.AppendLine();
+        sb.AppendLine($"Available Accounts:");
+        sb.AppendLine(StringUtilities.GetTextTable(
+            from item in accounts
+            select new List<string>
+            {
+				item.Id.ToStringN0(actor),
+				item.AccountName,
+				item.AccountOwnerName.GetName(NameStyle.SimpleFull),
+				item.IsAccountOwner(actor).ToColouredString(),
+				Currency.Describe(item.Balance, CurrencyDescriptionPatternType.ShortDecimal),
+                Currency.Describe(item.CreditAvailable, CurrencyDescriptionPatternType.ShortDecimal),
+                Currency.Describe(item.CreditLimit, CurrencyDescriptionPatternType.ShortDecimal),
+                Currency.Describe(item.MaximumAuthorisedToUse(actor), CurrencyDescriptionPatternType.ShortDecimal),
+            },
+            new List<string>
+            {
+				"Id",
+				"Account Name",
+				"Owner Name",
+				"You Own?",
+				"Balance",
+				"Available Credit",
+				"Credit Limit",
+                "Your Limit"
+            },
+            actor,
+            Telnet.Cyan
+        ));
+
+        return sb.ToString();
+	}
+
+    public string ShowStay(ICharacter actor, IStableStay stay)
 	{
 		AssessFees(stay);
 		StringBuilder sb = new();

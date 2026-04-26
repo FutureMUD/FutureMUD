@@ -58,7 +58,7 @@ namespace MudSharp.FutureProg.Functions.Chargen
 
         public override ProgVariableTypes ReturnType
         {
-            get => ProgVariableTypes.Boolean;
+            get => ProgVariableTypes.Number;
             protected set { }
         }
 

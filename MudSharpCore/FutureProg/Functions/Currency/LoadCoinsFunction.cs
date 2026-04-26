@@ -1,4 +1,4 @@
-﻿using MudSharp.Economy.Currency;
+using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
@@ -99,7 +99,12 @@ internal class LoadCoinsFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "loadcoins",
             new[] { ProgVariableTypes.Currency, ProgVariableTypes.Text },
-            (pars, gameworld) => new LoadCoinsFunction(pars, gameworld)
+            (pars, gameworld) => new LoadCoinsFunction(pars, gameworld),
+            new List<string> { "currency", "coins" },
+            new List<string> { "The currency definition to query, load, give, or count.", "A text list of coin counts and coin names, such as '3 silver 8 copper'." },
+            "Creates a new currency-pile item from exact coin counts such as '2 crowns 5 pennies'. Errors if the currency is null, the coin text is malformed, or a coin name is invalid.",
+            "Currency",
+            ProgVariableTypes.Item
         ));
     }
 }

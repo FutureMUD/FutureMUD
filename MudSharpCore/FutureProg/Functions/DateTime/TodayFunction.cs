@@ -1,4 +1,4 @@
-﻿using MudSharp.FutureProg.Variables;
+using MudSharp.FutureProg.Variables;
 using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.DateTime;
@@ -27,7 +27,12 @@ internal class TodayFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "today",
             new ProgVariableTypes[] { },
-            (pars, gameworld) => new TodayFunction(pars)
+            (pars, gameworld) => new TodayFunction(pars),
+            new List<string>(),
+            new List<string>(),
+            "Returns the current real-world UTC date with the time component set to midnight. Use now() when you need the current instant rather than just the date.",
+            "Date/Time",
+            ProgVariableTypes.DateTime
         ));
     }
 }

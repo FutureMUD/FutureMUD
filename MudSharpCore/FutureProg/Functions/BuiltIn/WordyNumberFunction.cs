@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using System;
 using System.Collections.Generic;
@@ -45,19 +45,34 @@ internal class WordyNumberFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "tonumberwords",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new WordyNumberFunction(pars, NumberUtilities.ToWordyNumber)
+            (pars, gameworld) => new WordyNumberFunction(pars, NumberUtilities.ToWordyNumber),
+            new List<string> { "number" },
+            new List<string> { "The number to render as words." },
+            "Converts a number to cardinal words, such as one hundred and five.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "toordinalwords",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new WordyNumberFunction(pars, NumberUtilities.ToWordyOrdinal)
+            (pars, gameworld) => new WordyNumberFunction(pars, NumberUtilities.ToWordyOrdinal),
+            new List<string> { "number" },
+            new List<string> { "The number to render as words." },
+            "Converts a number to ordinal words, such as one hundred and fifth.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "toordinal",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new WordyNumberFunction(pars, NumberUtilities.ToOrdinal)
+            (pars, gameworld) => new WordyNumberFunction(pars, NumberUtilities.ToOrdinal),
+            new List<string> { "number" },
+            new List<string> { "The number to render as words." },
+            "Converts a number to ordinal text, such as 1st or 22nd.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
     }
 }

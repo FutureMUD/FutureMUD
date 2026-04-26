@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using MudSharp.Framework.Units;
 using MudSharp.FutureProg.Variables;
 using System.Collections.Generic;
@@ -56,37 +56,67 @@ internal class UnitFromTextFunction : BuiltInFunction, IHaveFuturemud
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "lengthfromtext",
             new[] { ProgVariableTypes.Text },
-            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Length)
+            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Length),
+            new List<string> { "text" },
+            new List<string> { "The text to parse." },
+            "Parses length text into base units using the unit manager. Returns an error if the text is not a valid unit expression.",
+            "Built-In",
+            ProgVariableTypes.Number
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "massfromtext",
             new[] { ProgVariableTypes.Text },
-            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Mass)
+            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Mass),
+            new List<string> { "text" },
+            new List<string> { "The text to parse." },
+            "Parses mass text into base units using the unit manager. Returns an error if the text is not a valid unit expression.",
+            "Built-In",
+            ProgVariableTypes.Number
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "fluidfromtext",
             new[] { ProgVariableTypes.Text },
-            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.FluidVolume)
+            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.FluidVolume),
+            new List<string> { "text" },
+            new List<string> { "The text to parse." },
+            "Parses fluid volume text into base units using the unit manager. Returns an error if the text is not a valid unit expression.",
+            "Built-In",
+            ProgVariableTypes.Number
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "areafromtext",
             new[] { ProgVariableTypes.Text },
-            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Area)
+            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Area),
+            new List<string> { "text" },
+            new List<string> { "The text to parse." },
+            "Parses area text into base units using the unit manager. Returns an error if the text is not a valid unit expression.",
+            "Built-In",
+            ProgVariableTypes.Number
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "volumefromtext",
             new[] { ProgVariableTypes.Text },
-            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Volume)
+            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Volume),
+            new List<string> { "text" },
+            new List<string> { "The text to parse." },
+            "Parses volume text into base units using the unit manager. Returns an error if the text is not a valid unit expression.",
+            "Built-In",
+            ProgVariableTypes.Number
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "tempfromtext",
             new[] { ProgVariableTypes.Text },
-            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Temperature)
+            (pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Temperature),
+            new List<string> { "text" },
+            new List<string> { "The text to parse." },
+            "Parses temperature text into base units using the unit manager. Returns an error if the text is not a valid unit expression.",
+            "Built-In",
+            ProgVariableTypes.Number
         ));
     }
 }

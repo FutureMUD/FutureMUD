@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,13 +39,23 @@ internal class ToCurrencyFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "tocurrency",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new ToCurrencyFunction(pars, gameworld)
+            (pars, gameworld) => new ToCurrencyFunction(pars, gameworld),
+            new List<string> { "id" },
+            new List<string> { "The numeric ID of the currency to look up." },
+            "Looks up a currency by ID or name. Returns null if no currency matches.",
+            "Currency",
+            ProgVariableTypes.Currency
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "tocurrency",
             new[] { ProgVariableTypes.Text },
-            (pars, gameworld) => new ToCurrencyFunction(pars, gameworld)
+            (pars, gameworld) => new ToCurrencyFunction(pars, gameworld),
+            new List<string> { "name" },
+            new List<string> { "The currency name or alias to look up." },
+            "Looks up a currency by ID or name. Returns null if no currency matches.",
+            "Currency",
+            ProgVariableTypes.Currency
         ));
     }
 }

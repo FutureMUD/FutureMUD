@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using System;
@@ -39,13 +39,23 @@ internal class TimeSpanToTextFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totext",
             new[] { ProgVariableTypes.TimeSpan },
-            (pars, gameworld) => new TimeSpanToTextFunction(pars)
+            (pars, gameworld) => new TimeSpanToTextFunction(pars),
+            new List<string> { "value" },
+            new List<string> { "The value to convert or inspect." },
+            "Formats a duration as readable text, optionally using the supplied character account culture and formatting preferences.",
+            "Date/Time",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totext",
             new[] { ProgVariableTypes.TimeSpan, ProgVariableTypes.Toon },
-            (pars, gameworld) => new TimeSpanToTextFunction(pars)
+            (pars, gameworld) => new TimeSpanToTextFunction(pars),
+            new List<string> { "value", "voyeur" },
+            new List<string> { "The value to convert or inspect.", "The character whose account culture and formatting preferences should be used." },
+            "Formats a duration as readable text, optionally using the supplied character account culture and formatting preferences.",
+            "Date/Time",
+            ProgVariableTypes.Text
         ));
     }
 }

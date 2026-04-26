@@ -55,13 +55,23 @@ internal class CelestialPositionFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "celestialposition",
             new[] { ProgVariableTypes.Location, ProgVariableTypes.Number },
-            (pars, gameworld) => new CelestialPositionFunction(pars)
+            (pars, gameworld) => new CelestialPositionFunction(pars),
+            new List<string> { "locationOrZone", "celestialId" },
+            new List<string> { "The room or zone whose celestial collection is searched.", "The ID of the celestial object to describe." },
+            "Looks up a celestial object by ID in the supplied room or zone and returns the same descriptive position text used by the celestial system. Returns an empty string if the zone or celestial object cannot be found.",
+            "Celestials",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "celestialposition",
             new[] { ProgVariableTypes.Zone, ProgVariableTypes.Number },
-            (pars, gameworld) => new CelestialPositionFunction(pars)
+            (pars, gameworld) => new CelestialPositionFunction(pars),
+            new List<string> { "locationOrZone", "celestialId" },
+            new List<string> { "The room or zone whose celestial collection is searched.", "The ID of the celestial object to describe." },
+            "Looks up a celestial object by ID in the supplied room or zone and returns the same descriptive position text used by the celestial system. Returns an empty string if the zone or celestial object cannot be found.",
+            "Celestials",
+            ProgVariableTypes.Text
         ));
     }
 }

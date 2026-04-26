@@ -54,6 +54,18 @@ internal class IsClanMemberFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
+        if (characterFunction.Result?.GetObject is not ICharacter character)
+        {
+            ErrorMessage = "Character was null in IsClanMember Function.";
+            return StatementResult.Error;
+        }
+
+        if (clanFunction.Result?.GetObject is not IClan clan)
+        {
+            ErrorMessage = "Clan was null in IsClanMember Function.";
+            return StatementResult.Error;
+        }
+
         Func<IClanMembership, bool> function;
         if (rankFunction != null)
         {
@@ -73,23 +85,20 @@ internal class IsClanMemberFunction : BuiltInFunction
                     return StatementResult.Error;
                 }
 
-                IRank rank = (IRank)rankFunction.Result;
-                IPaygrade paygrade = (IPaygrade)paygradeFunction.Result;
-
-                if (rank == null)
+                if (rankFunction.Result?.GetObject is not IRank rank)
                 {
                     ErrorMessage = "Rank was null in IsClanMember function.";
                     return StatementResult.Error;
                 }
 
-                if (paygrade == null)
+                if (paygradeFunction.Result?.GetObject is not IPaygrade paygrade)
                 {
                     ErrorMessage = "Paygrade was null in IsClanMember function.";
                     return StatementResult.Error;
                 }
 
                 function = member =>
-                    member.Clan.Equals(clanFunction.Result.GetObject) &&
+                    member.Clan.Equals(clan) &&
                     (rank.RankNumber < member.Rank.RankNumber ||
                      (rank.RankNumber == member.Rank.RankNumber &&
                       rank.Paygrades.IndexOf(member.Paygrade) >= rank.Paygrades.IndexOf(paygrade))
@@ -97,10 +106,15 @@ internal class IsClanMemberFunction : BuiltInFunction
             }
             else
             {
+                if (rankFunction.Result?.GetObject is not IRank rank)
+                {
+                    ErrorMessage = "Rank was null in IsClanMember function.";
+                    return StatementResult.Error;
+                }
+
                 function =
                     member =>
-                        member.Clan.Equals(clanFunction.Result.GetObject) && rankFunction.Result != null &&
-                        ((IRank)rankFunction.Result.GetObject).RankNumber <= member.Rank.RankNumber;
+                        member.Clan.Equals(clan) && rank.RankNumber <= member.Rank.RankNumber;
             }
         }
         else if (appointmentFunction != null)
@@ -112,17 +126,22 @@ internal class IsClanMemberFunction : BuiltInFunction
                 return StatementResult.Error;
             }
 
+            if (appointmentFunction.Result?.GetObject is not IAppointment appointment)
+            {
+                ErrorMessage = "Appointment was null in IsClanMember function.";
+                return StatementResult.Error;
+            }
+
             function =
                 member =>
-                    member.Clan.Equals(clanFunction.Result.GetObject) && appointmentFunction.Result != null &&
-                    member.Appointments.Contains((IAppointment)appointmentFunction.Result.GetObject);
+                    member.Clan.Equals(clan) && member.Appointments.Contains(appointment);
         }
         else
         {
-            function = member => member.Clan.Equals(clanFunction.Result.GetObject);
+            function = member => member.Clan.Equals(clan);
         }
 
-        Result = new BooleanVariable(((ICharacter)characterFunction.Result.GetObject).ClanMemberships.Any(function));
+        Result = new BooleanVariable(character.ClanMemberships.Any(function));
         return StatementResult.Normal;
     }
 
@@ -132,7 +151,12 @@ internal class IsClanMemberFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "isclanmember",
                 new[] { ProgVariableTypes.Character, ProgVariableTypes.Clan },
-                (pars, gameworld) => new IsClanMemberFunction(pars)
+                (pars, gameworld) => new IsClanMemberFunction(pars),
+                new List<string> { "character", "clan" },
+                new List<string> { "The character whose memberships should be checked.", "The clan to check for membership." },
+                "Checks whether a character is a member of a clan, optionally constrained by minimum rank, appointment, or rank and paygrade. Errors if required character, clan, rank, paygrade, or appointment inputs are null; returns false when the membership requirement is not met.",
+                "Clans",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -144,7 +168,12 @@ internal class IsClanMemberFunction : BuiltInFunction
                     ProgVariableTypes.Character, ProgVariableTypes.Clan,
                     ProgVariableTypes.ClanRank
                 },
-                (pars, gameworld) => new IsClanMemberFunction(pars)
+                (pars, gameworld) => new IsClanMemberFunction(pars),
+                new List<string> { "character", "clan", "rank" },
+                new List<string> { "The character whose memberships should be checked.", "The clan to check for membership.", "The minimum clan rank the character must hold." },
+                "Checks whether a character is a member of a clan, optionally constrained by minimum rank, appointment, or rank and paygrade. Errors if required character, clan, rank, paygrade, or appointment inputs are null; returns false when the membership requirement is not met.",
+                "Clans",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -156,7 +185,12 @@ internal class IsClanMemberFunction : BuiltInFunction
                     ProgVariableTypes.Character, ProgVariableTypes.Clan,
                     ProgVariableTypes.ClanAppointment
                 },
-                (pars, gameworld) => new IsClanMemberFunction(pars)
+                (pars, gameworld) => new IsClanMemberFunction(pars),
+                new List<string> { "character", "clan", "appointment" },
+                new List<string> { "The character whose memberships should be checked.", "The clan to check for membership.", "The clan appointment the character must hold." },
+                "Checks whether a character is a member of a clan, optionally constrained by minimum rank, appointment, or rank and paygrade. Errors if required character, clan, rank, paygrade, or appointment inputs are null; returns false when the membership requirement is not met.",
+                "Clans",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -168,7 +202,12 @@ internal class IsClanMemberFunction : BuiltInFunction
                     ProgVariableTypes.Character, ProgVariableTypes.Clan,
                     ProgVariableTypes.ClanRank, ProgVariableTypes.ClanPaygrade
                 },
-                (pars, gameworld) => new IsClanMemberFunction(pars)
+                (pars, gameworld) => new IsClanMemberFunction(pars),
+                new List<string> { "character", "clan", "rank", "paygrade" },
+                new List<string> { "The character whose memberships should be checked.", "The clan to check for membership.", "The minimum clan rank the character must hold.", "The minimum paygrade within the supplied rank." },
+                "Checks whether a character is a member of a clan, optionally constrained by minimum rank, appointment, or rank and paygrade. Errors if required character, clan, rank, paygrade, or appointment inputs are null; returns false when the membership requirement is not met.",
+                "Clans",
+                ProgVariableTypes.Boolean
             )
         );
     }

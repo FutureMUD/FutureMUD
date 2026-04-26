@@ -37,7 +37,8 @@ internal class ConnectToGrid : BuiltInFunction
                     "The grid-interfacing item you want to connect"
                 },
                 "This function takes a grid-interfacing item like a grid feeder or grid outlet and connects it. Returns true if it succeeded.",
-                "Grids"
+                "Grids",
+                ProgVariableTypes.Boolean
             )
         );
     }

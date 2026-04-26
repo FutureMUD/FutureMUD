@@ -1,4 +1,4 @@
-﻿using MudSharp.Form.Material;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
@@ -62,7 +62,12 @@ internal class SetLiquidFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "setliquid",
             new[] { ProgVariableTypes.Item, ProgVariableTypes.Number },
-            (pars, gameworld) => new SetLiquidFunction(pars, gameworld)
+            (pars, gameworld) => new SetLiquidFunction(pars, gameworld),
+            new List<string> { "item", "liquidId" },
+            new List<string> { "The liquid container item to fill or empty.", "The liquid ID to fill the container with. Use 0 or an invalid ID to empty the container." },
+            "Sets a liquid container's contents to a full container of the selected liquid, or empties it if the ID is invalid. Returns false if the item is null or is not a liquid container.",
+            "Items",
+            ProgVariableTypes.Boolean
         ));
     }
 }

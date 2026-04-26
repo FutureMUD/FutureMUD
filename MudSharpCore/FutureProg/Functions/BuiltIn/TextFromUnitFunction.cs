@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using MudSharp.Framework.Units;
 using MudSharp.FutureProg.Variables;
 using System.Collections.Generic;
@@ -49,36 +49,66 @@ internal class TextFromUnitFunction : BuiltInFunction, IHaveFuturemud
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "textfromlength",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Length)
+            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Length),
+            new List<string> { "amount" },
+            new List<string> { "The amount to use. Text amounts are parsed using the target system's normal builder/player parsing rules." },
+            "Formats a base-unit length value as player-facing text using the unit manager. This is the inverse of lengthfromtext for builder scripts that need readable units.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "textfrommass",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Mass)
+            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Mass),
+            new List<string> { "amount" },
+            new List<string> { "The amount to use. Text amounts are parsed using the target system's normal builder/player parsing rules." },
+            "Formats a base-unit mass value as player-facing text using the unit manager. This is the inverse of massfromtext for builder scripts that need readable units.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "textfromfluid",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.FluidVolume)
+            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.FluidVolume),
+            new List<string> { "amount" },
+            new List<string> { "The amount to use. Text amounts are parsed using the target system's normal builder/player parsing rules." },
+            "Formats a base-unit fluid volume value as player-facing text using the unit manager. This is the inverse of fluid volumefromtext for builder scripts that need readable units.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "textfromarea",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Area)
+            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Area),
+            new List<string> { "amount" },
+            new List<string> { "The amount to use. Text amounts are parsed using the target system's normal builder/player parsing rules." },
+            "Formats a base-unit area value as player-facing text using the unit manager. This is the inverse of areafromtext for builder scripts that need readable units.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "textfromvolume",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Volume)
+            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Volume),
+            new List<string> { "amount" },
+            new List<string> { "The amount to use. Text amounts are parsed using the target system's normal builder/player parsing rules." },
+            "Formats a base-unit volume value as player-facing text using the unit manager. This is the inverse of volumefromtext for builder scripts that need readable units.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "textfromtemp",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Temperature)
+            (pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Temperature),
+            new List<string> { "amount" },
+            new List<string> { "The amount to use. Text amounts are parsed using the target system's normal builder/player parsing rules." },
+            "Formats a base-unit temperature value as player-facing text using the unit manager. This is the inverse of temperaturefromtext for builder scripts that need readable units.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
     }
 }

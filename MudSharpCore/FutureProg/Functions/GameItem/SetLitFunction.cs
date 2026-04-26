@@ -1,4 +1,4 @@
-﻿using MudSharp.FutureProg.Variables;
+using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using System.Collections.Generic;
@@ -48,7 +48,12 @@ internal class SetLitFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "setlit",
             new[] { ProgVariableTypes.Item, ProgVariableTypes.Boolean },
-            (pars, gameworld) => new SetLitFunction(pars)
+            (pars, gameworld) => new SetLitFunction(pars),
+            new List<string> { "item", "state" },
+            new List<string> { "The lightable item to update.", "Whether the item should be lit after the call." },
+            "Sets the lit state of a lightable item. Returns false if the item is null or does not have a lightable component.",
+            "Items",
+            ProgVariableTypes.Boolean
         ));
     }
 }

@@ -91,7 +91,8 @@ internal class TakeFunction : BuiltInFunction
                 "The item to take"
             },
             "Takes an item from its inventory or container. Returns the item.",
-            "Items"
+            "Items",
+            ProgVariableTypes.Item
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -110,7 +111,8 @@ internal class TakeFunction : BuiltInFunction
                 "The item to take"
             },
             "Takes an item from its inventory or container and deletes it. Returns null.",
-            "Items"
+            "Items",
+            ProgVariableTypes.Item
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -131,7 +133,8 @@ internal class TakeFunction : BuiltInFunction
                 "The quantity to take. Use 0 for all"
             },
             "Takes an item from its inventory or container. Returns the new item, which may be the same as the original item if the quantity is equal to the existing quantity.",
-            "Items"
+            "Items",
+            ProgVariableTypes.Item
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -140,7 +143,7 @@ internal class TakeFunction : BuiltInFunction
             {
                 ProgVariableTypes.Item, ProgVariableTypes.Number
             },
-            (pars, gameworld) => new TakeFunction(pars, true, false),
+            (pars, gameworld) => new TakeFunction(pars, true, true),
             new List<string>
             {
                 "item",
@@ -152,7 +155,8 @@ internal class TakeFunction : BuiltInFunction
                 "The quantity to take. Use 0 for all"
             },
             "Takes an item from its inventory or container. Deletes the item and returns null.",
-            "Items"
+            "Items",
+            ProgVariableTypes.Item
         ));
     }
 }

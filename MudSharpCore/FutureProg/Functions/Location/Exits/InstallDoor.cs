@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -34,7 +34,12 @@ internal class InstallDoor : BuiltInFunction
                     ProgVariableTypes.Exit, ProgVariableTypes.Item, ProgVariableTypes.Location,
                     ProgVariableTypes.Location
                 },
-                (pars, gameworld) => new InstallDoor(pars, gameworld)
+                (pars, gameworld) => new InstallDoor(pars, gameworld),
+                new List<string> { "exit", "door", "origin", "destination" },
+                new List<string> { "The exit that should receive the door.", "The item with a door component to install on the exit.", "The room on the hinge side; if null, the exit origin is used.", "The room on the opening side; if null, the exit destination is used." },
+                "Installs a door item onto an exit between two rooms, uninstalling it from any previous exit first. Returns false if the exit is null, the item is null, the item is not a door, or the exit already has a door.",
+                "Rooms",
+                ProgVariableTypes.Boolean
             )
         );
     }

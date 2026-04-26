@@ -1,4 +1,4 @@
-﻿using MudSharp.FutureProg.Variables;
+using MudSharp.FutureProg.Variables;
 using System;
 using System.Collections.Generic;
 
@@ -35,7 +35,12 @@ internal class MinFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "min",
             new[] { ProgVariableTypes.Number, ProgVariableTypes.Number },
-            (pars, gameworld) => new MinFunction(pars)
+            (pars, gameworld) => new MinFunction(pars),
+            new List<string> { "minimum", "maximum" },
+            new List<string> { "The lower numeric bound or first number.", "The upper numeric bound or second number." },
+            "Returns the lower of two numbers.",
+            "Built-In",
+            ProgVariableTypes.Number
         ));
     }
 }

@@ -36,7 +36,8 @@ internal class ExtendGrid : BuiltInFunction
                     "The location you want to extend the grid to"
                 },
                 "This function allows you to extend a grid (electrical, gas, liquid etc) to a new location. Returns true if the extension happened, false implies the grid was already present or there was another error.",
-                "Grids"
+                "Grids",
+                ProgVariableTypes.Boolean
             )
         );
     }

@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -28,7 +28,12 @@ internal class RemoveDoor : BuiltInFunction
             new FunctionCompilerInformation(
                 "RemoveDoor".ToLowerInvariant(),
                 new[] { ProgVariableTypes.Exit },
-                (pars, gameworld) => new RemoveDoor(pars, gameworld)
+                (pars, gameworld) => new RemoveDoor(pars, gameworld),
+                new List<string> { "exit" },
+                new List<string> { "The exit whose installed door should be removed." },
+                "Removes the installed door from an exit and returns the door item. Returns null if the exit is null or has no installed door.",
+                "Rooms",
+                ProgVariableTypes.Item
             )
         );
     }

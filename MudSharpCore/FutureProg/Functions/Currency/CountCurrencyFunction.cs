@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.FutureProg.Variables;
@@ -94,7 +94,12 @@ internal class CountCurrencyFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "countcurrency",
                 new[] { ProgVariableTypes.Character, ProgVariableTypes.Currency },
-                (pars, gameworld) => new CountCurrencyFunction(pars, false)
+                (pars, gameworld) => new CountCurrencyFunction(pars, false),
+                new List<string> { "character", "currency" },
+                new List<string> { "The character whose worn, held, and carried items should be searched.", "The currency definition whose coins should be counted." },
+                "Counts all coins of a currency found on a character, inside an item, or in a room, recursively searching containers without applying get-access rules. Errors if the target or currency is null.",
+                "Currency",
+                ProgVariableTypes.Number
             )
         );
 
@@ -102,7 +107,12 @@ internal class CountCurrencyFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "countcurrency",
                 new[] { ProgVariableTypes.Item, ProgVariableTypes.Currency },
-                (pars, gameworld) => new CountCurrencyFunction(pars, false)
+                (pars, gameworld) => new CountCurrencyFunction(pars, false),
+                new List<string> { "item", "currency" },
+                new List<string> { "The item to search, including nested container contents.", "The currency definition whose coins should be counted." },
+                "Counts all coins of a currency found on a character, inside an item, or in a room, recursively searching containers without applying get-access rules. Errors if the target or currency is null.",
+                "Currency",
+                ProgVariableTypes.Number
             )
         );
 
@@ -110,7 +120,12 @@ internal class CountCurrencyFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "countcurrency",
                 new[] { ProgVariableTypes.Location, ProgVariableTypes.Currency },
-                (pars, gameworld) => new CountCurrencyFunction(pars, false)
+                (pars, gameworld) => new CountCurrencyFunction(pars, false),
+                new List<string> { "location", "currency" },
+                new List<string> { "The room whose loose items should be searched.", "The currency definition whose coins should be counted." },
+                "Counts all coins of a currency found on a character, inside an item, or in a room, recursively searching containers without applying get-access rules. Errors if the target or currency is null.",
+                "Currency",
+                ProgVariableTypes.Number
             )
         );
 
@@ -118,7 +133,12 @@ internal class CountCurrencyFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "countaccessiblecurrency",
                 new[] { ProgVariableTypes.Character, ProgVariableTypes.Currency },
-                (pars, gameworld) => new CountCurrencyFunction(pars, true)
+                (pars, gameworld) => new CountCurrencyFunction(pars, true),
+                new List<string> { "character", "currency" },
+                new List<string> { "The character whose accessible worn, held, and carried items should be searched.", "The currency definition whose coins should be counted." },
+                "Counts coins of a currency found on a character, inside an item, or in a room while respecting normal get-access limits such as closed containers. Errors if the target or currency is null.",
+                "Currency",
+                ProgVariableTypes.Number
             )
         );
 
@@ -126,7 +146,12 @@ internal class CountCurrencyFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "countaccessiblecurrency",
                 new[] { ProgVariableTypes.Item, ProgVariableTypes.Currency },
-                (pars, gameworld) => new CountCurrencyFunction(pars, true)
+                (pars, gameworld) => new CountCurrencyFunction(pars, true),
+                new List<string> { "item", "currency" },
+                new List<string> { "The item to search, skipping closed containers that normal get rules would block.", "The currency definition whose coins should be counted." },
+                "Counts coins of a currency found on a character, inside an item, or in a room while respecting normal get-access limits such as closed containers. Errors if the target or currency is null.",
+                "Currency",
+                ProgVariableTypes.Number
             )
         );
 
@@ -134,7 +159,12 @@ internal class CountCurrencyFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "countaccessiblecurrency",
                 new[] { ProgVariableTypes.Location, ProgVariableTypes.Currency },
-                (pars, gameworld) => new CountCurrencyFunction(pars, true)
+                (pars, gameworld) => new CountCurrencyFunction(pars, true),
+                new List<string> { "location", "currency" },
+                new List<string> { "The room whose accessible loose items should be searched.", "The currency definition whose coins should be counted." },
+                "Counts coins of a currency found on a character, inside an item, or in a room while respecting normal get-access limits such as closed containers. Errors if the target or currency is null.",
+                "Currency",
+                ProgVariableTypes.Number
             )
         );
     }

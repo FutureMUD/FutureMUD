@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -34,7 +34,12 @@ internal class SetClimb : BuiltInFunction
                     ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage,
                     ProgVariableTypes.Boolean, ProgVariableTypes.Number
                 },
-                (pars, gameworld) => new SetClimb(pars, gameworld)
+                (pars, gameworld) => new SetClimb(pars, gameworld),
+                new List<string> { "exit", "overlay", "state", "difficulty" },
+                new List<string> { "The exit to edit or copy into the supplied overlay package.", "The editable overlay package where the change should be made.", "Whether the exit should require climbing.", "The climb difficulty enum value to store on the exit." },
+                "Sets whether an exit overlay is a climb exit and records the associated climb difficulty. Returns the edited exit or null if the exit/package is null or the package is not editable.",
+                "Rooms",
+                ProgVariableTypes.Exit
             )
         );
     }

@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Health;
@@ -60,7 +60,12 @@ internal class DrugEffectIntensityFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "drugeffectintensity",
             new[] { ProgVariableTypes.Character, ProgVariableTypes.Number },
-            (pars, gameworld) => new DrugEffectIntensityFunction(pars, gameworld)
+            (pars, gameworld) => new DrugEffectIntensityFunction(pars, gameworld),
+            new List<string> { "character", "drugEffect" },
+            new List<string> { "The character whose active drug effects should be inspected.", "The numeric drug effect type to total across the character's active drugs." },
+            "Returns the character's active dosage intensity for a drug effect type, summed across all active drugs and scaled by body weight. Errors if the character or effect type is null.",
+            "Health",
+            ProgVariableTypes.Number
         ));
     }
 }

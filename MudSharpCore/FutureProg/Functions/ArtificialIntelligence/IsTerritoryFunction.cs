@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -72,13 +72,23 @@ internal class IsTerritoryFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "isterritory",
             new[] { ProgVariableTypes.Character, ProgVariableTypes.Location },
-            (pars, gameworld) => new IsTerritoryFunction(pars)
+            (pars, gameworld) => new IsTerritoryFunction(pars),
+            new List<string> { "character", "location" },
+            new List<string> { "The character whose Territory effect should be checked.", "The room to test against the character's territory." },
+            "Checks whether a room is in a character's Territory effect and, when flags are supplied, whether all supplied flags are present. Errors if the character or room is null; returns false if the character has no territory effect or any flag is missing.",
+            "Artificial Intelligence",
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "isterritory",
             new[] { ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text },
-            (pars, gameworld) => new IsTerritoryFunction(pars, 1)
+            (pars, gameworld) => new IsTerritoryFunction(pars, 1),
+            new List<string> { "character", "location", "flag1" },
+            new List<string> { "The character whose Territory effect should be checked.", "The room to test against the character's territory.", "A text tag that must be present on this territory room." },
+            "Checks whether a room is in a character's Territory effect and, when flags are supplied, whether all supplied flags are present. Errors if the character or room is null; returns false if the character has no territory effect or any flag is missing.",
+            "Artificial Intelligence",
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -88,7 +98,12 @@ internal class IsTerritoryFunction : BuiltInFunction
                 ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text,
                 ProgVariableTypes.Text
             },
-            (pars, gameworld) => new IsTerritoryFunction(pars, 2)
+            (pars, gameworld) => new IsTerritoryFunction(pars, 2),
+            new List<string> { "character", "location", "flag1", "flag2" },
+            new List<string> { "The character whose Territory effect should be checked.", "The room to test against the character's territory.", "A text tag that must be present on this territory room.", "A second text tag that must be present on this territory room." },
+            "Checks whether a room is in a character's Territory effect and, when flags are supplied, whether all supplied flags are present. Errors if the character or room is null; returns false if the character has no territory effect or any flag is missing.",
+            "Artificial Intelligence",
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -98,7 +113,12 @@ internal class IsTerritoryFunction : BuiltInFunction
                 ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text,
                 ProgVariableTypes.Text, ProgVariableTypes.Text
             },
-            (pars, gameworld) => new IsTerritoryFunction(pars, 3)
+            (pars, gameworld) => new IsTerritoryFunction(pars, 3),
+            new List<string> { "character", "location", "flag1", "flag2", "flag3" },
+            new List<string> { "The character whose Territory effect should be checked.", "The room to test against the character's territory.", "A text tag that must be present on this territory room.", "A second text tag that must be present on this territory room.", "A third text tag that must be present on this territory room." },
+            "Checks whether a room is in a character's Territory effect and, when flags are supplied, whether all supplied flags are present. Errors if the character or room is null; returns false if the character has no territory effect or any flag is missing.",
+            "Artificial Intelligence",
+            ProgVariableTypes.Boolean
         ));
     }
 }

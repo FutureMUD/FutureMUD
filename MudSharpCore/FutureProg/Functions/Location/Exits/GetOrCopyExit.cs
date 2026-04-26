@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -47,7 +47,12 @@ internal class GetOrCopyExit : BuiltInFunction
             new FunctionCompilerInformation(
                 "GetOrCopyExit".ToLowerInvariant(),
                 new[] { ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage },
-                (pars, gameworld) => new GetOrCopyExit(pars, gameworld)
+                (pars, gameworld) => new GetOrCopyExit(pars, gameworld),
+                new List<string> { "exit", "overlay" },
+                new List<string> { "The existing exit to make editable in the supplied package.", "The overlay package where an editable copy should exist." },
+                "Gets an editable exit for the specified overlay package, copying the underlying exit when the package needs its own overlay-specific version. Returns null if the exit or package is null.",
+                "Rooms",
+                ProgVariableTypes.Exit
             )
         );
     }

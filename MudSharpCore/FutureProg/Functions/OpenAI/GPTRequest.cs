@@ -100,7 +100,7 @@ internal class GPTRequest : BuiltInFunction
 
     public override ProgVariableTypes ReturnType
     {
-        get => ProgVariableTypes.Text;
+        get => ProgVariableTypes.Boolean;
         protected set { }
     }
 

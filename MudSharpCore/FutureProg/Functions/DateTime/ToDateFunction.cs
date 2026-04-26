@@ -1,4 +1,4 @@
-﻿using MudSharp.FutureProg.Variables;
+using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Time;
 using System.Collections.Generic;
@@ -47,7 +47,12 @@ internal class ToDateFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "todate",
             new[] { ProgVariableTypes.Text, ProgVariableTypes.Text },
-            (pars, gameworld) => new ToDateFunction(pars)
+            (pars, gameworld) => new ToDateFunction(pars),
+            new List<string> { "dateText", "format" },
+            new List<string> { "The real-world date text to parse.", "A .NET date/time format string used to format or parse the date." },
+            "Parses real-world date text using a .NET format mask and invariant culture. Returns an error if the text does not match the supplied format.",
+            "Date/Time",
+            ProgVariableTypes.DateTime
         ));
     }
 }
@@ -97,7 +102,12 @@ internal class ToMudDateFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "todate",
             new[] { ProgVariableTypes.Calendar, ProgVariableTypes.Clock, ProgVariableTypes.Text },
-            (pars, gameworld) => new ToMudDateFunction(pars)
+            (pars, gameworld) => new ToMudDateFunction(pars),
+            new List<string> { "calendar", "clock", "text" },
+            new List<string> { "The in-game calendar to use.", "The in-game clock to use, or the clock name where this function accepts text.", "The text to parse." },
+            "Parses text into an in-game mud datetime using the supplied calendar and clock. Returns the special Never mud datetime when the calendar is null, the text is empty, or parsing fails.",
+            "Date/Time",
+            ProgVariableTypes.MudDateTime
         ));
     }
 }

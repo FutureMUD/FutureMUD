@@ -1,4 +1,4 @@
-﻿using MudSharp.Community;
+using MudSharp.Community;
 using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
@@ -51,13 +51,23 @@ internal class ToRankFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "torank",
             new[] { ProgVariableTypes.Clan, ProgVariableTypes.Number },
-            (pars, gameworld) => new ToRankFunction(pars, gameworld)
+            (pars, gameworld) => new ToRankFunction(pars, gameworld),
+            new List<string> { "clan", "id" },
+            new List<string> { "The clan whose ranks should be searched.", "The numeric ID of the rank to find." },
+            "Looks up a rank within a clan by ID or name. Errors if the clan is null; returns null if no rank matches.",
+            "Clans",
+            ProgVariableTypes.ClanRank
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "torank",
             new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
-            (pars, gameworld) => new ToRankFunction(pars, gameworld)
+            (pars, gameworld) => new ToRankFunction(pars, gameworld),
+            new List<string> { "clan", "name" },
+            new List<string> { "The clan whose ranks should be searched.", "The rank name to find, matched case-insensitively." },
+            "Looks up a rank within a clan by ID or name. Errors if the clan is null; returns null if no rank matches.",
+            "Clans",
+            ProgVariableTypes.ClanRank
         ));
     }
 }

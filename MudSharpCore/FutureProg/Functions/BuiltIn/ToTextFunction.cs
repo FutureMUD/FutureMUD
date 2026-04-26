@@ -1,4 +1,4 @@
-﻿using MudSharp.Form.Shape;
+using MudSharp.Form.Shape;
 using MudSharp.FutureProg.Variables;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,19 +54,34 @@ internal class ToTextFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totext",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new ToTextFunction(pars)
+            (pars, gameworld) => new ToTextFunction(pars),
+            new List<string> { "value" },
+            new List<string> { "The value to convert or inspect." },
+            "Converts the supplied value to text using the standard FutureProg conversion rules.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totext",
             new[] { ProgVariableTypes.Boolean },
-            (pars, gameworld) => new ToTextFunction(pars)
+            (pars, gameworld) => new ToTextFunction(pars),
+            new List<string> { "value" },
+            new List<string> { "The value to convert or inspect." },
+            "Converts the supplied value to text using the standard FutureProg conversion rules.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totext",
             new[] { ProgVariableTypes.Gender },
-            (pars, gameworld) => new ToTextFunction(pars)
+            (pars, gameworld) => new ToTextFunction(pars),
+            new List<string> { "value" },
+            new List<string> { "The value to convert or inspect." },
+            "Converts the supplied value to text using the standard FutureProg conversion rules.",
+            "Built-In",
+            ProgVariableTypes.Text
         ));
     }
 }

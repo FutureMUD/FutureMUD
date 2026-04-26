@@ -1,4 +1,5 @@
 ﻿using MudSharp.FutureProg.Variables;
+using MudSharp.Framework;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
@@ -30,7 +31,12 @@ internal class NowFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "now",
             new ProgVariableTypes[] { },
-            (pars, gameworld) => new NowFunction(pars)
+            (pars, gameworld) => new NowFunction(pars),
+            new List<string>(),
+            new List<string>(),
+            "Returns the current real-world UTC date and time, equivalent to System.DateTime.UtcNow. Use this for real-time expiry or logging rather than in-game calendar time.",
+            "Date/Time",
+            ProgVariableTypes.DateTime
         ));
     }
 }
@@ -57,22 +63,32 @@ internal class MudNowFunction : BuiltInFunction
 
         if (ParameterFunctions[0].Result?.GetObject is not Calendar calendar)
         {
-            Result = new MudDateTime(default, default, default(MudTimeZone));
+            Result = MudDateTime.Never;
             return StatementResult.Normal;
         }
 
-        MudDate date = calendar.CurrentDate;
+        var date = calendar.CurrentDate;
 
-        IClock clock = ParameterFunctions?[1].Result?.GetObject as Clock ?? calendar.FeedClock;
+        var clock = ParameterFunctions.Count > 1
+            ? ParameterFunctions[1].Result?.GetObject as Clock ?? calendar.FeedClock
+            : calendar.FeedClock;
         if (clock == null)
         {
-            Result = new MudDateTime(default, default, default(MudTimeZone));
+            Result = MudDateTime.Never;
             return StatementResult.Normal;
         }
 
-        MudTime time = clock.CurrentTime;
+        var time = clock.CurrentTime;
 
-        IMudTimeZone timezone = ParameterFunctions?[2].Result?.GetObject as MudTimeZone ?? clock.PrimaryTimezone;
+        var timezone = clock.PrimaryTimezone;
+        if (ParameterFunctions.Count > 2)
+        {
+            var timezoneText = ParameterFunctions[2].Result?.GetObject?.ToString();
+            if (!string.IsNullOrWhiteSpace(timezoneText))
+            {
+                timezone = clock.Timezones.GetByIdOrName(timezoneText) ?? clock.PrimaryTimezone;
+            }
+        }
 
         if (timezone != clock.PrimaryTimezone)
         {
@@ -93,19 +109,43 @@ internal class MudNowFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "now",
             new[] { ProgVariableTypes.Calendar },
-            (pars, gameworld) => new MudNowFunction(pars)
+            (pars, gameworld) => new MudNowFunction(pars),
+            new List<string> { "calendar" },
+            new List<string> { "The in-game calendar to use. Its feed clock supplies the time when no clock is specified." },
+            "Returns the current in-game date and time for a calendar using the calendar's feed clock and that clock's primary timezone. Returns the special Never mud datetime if the calendar or clock is null.",
+            "Date/Time",
+            ProgVariableTypes.MudDateTime
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "now",
             new[] { ProgVariableTypes.Calendar, ProgVariableTypes.Clock },
-            (pars, gameworld) => new MudNowFunction(pars)
+            (pars, gameworld) => new MudNowFunction(pars),
+            new List<string> { "calendar", "clock" },
+            new List<string>
+            {
+                "The in-game calendar whose current date is used.",
+                "The in-game clock whose current time is used. If null, the calendar's feed clock is used."
+            },
+            "Returns the current in-game date and time for a calendar and clock using the clock's primary timezone. Returns the special Never mud datetime if the calendar or resolved clock is null.",
+            "Date/Time",
+            ProgVariableTypes.MudDateTime
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "now",
             new[] { ProgVariableTypes.Calendar, ProgVariableTypes.Clock, ProgVariableTypes.Text },
-            (pars, gameworld) => new MudNowFunction(pars)
+            (pars, gameworld) => new MudNowFunction(pars),
+            new List<string> { "calendar", "clock", "timezone" },
+            new List<string>
+            {
+                "The in-game calendar whose current date is used.",
+                "The in-game clock whose current time is used. If null, the calendar's feed clock is used.",
+                "Optional timezone alias or ID from the supplied clock. If omitted or invalid, the clock's primary timezone is used."
+            },
+            "Returns the current in-game date and time for a calendar and clock, adjusted to the supplied timezone when it matches one of the clock's timezones. Returns the special Never mud datetime if the calendar or resolved clock is null.",
+            "Date/Time",
+            ProgVariableTypes.MudDateTime
         ));
     }
 }

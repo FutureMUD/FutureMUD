@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.FutureProg.Variables;
@@ -68,13 +68,23 @@ internal class AddTerritoryFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "addterritory",
             new[] { ProgVariableTypes.Character, ProgVariableTypes.Location },
-            (pars, gameworld) => new AddTerritoryFunction(pars)
+            (pars, gameworld) => new AddTerritoryFunction(pars),
+            new List<string> { "character", "location" },
+            new List<string> { "The character whose Territory effect should gain the room.", "The room to add to the character's territory." },
+            "Adds a room to a character's Territory effect, creating the effect if necessary. Optional text flags tag the room for later AI checks. Errors if the character or room is null; otherwise returns true.",
+            "Artificial Intelligence",
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "addterritory",
             new[] { ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text },
-            (pars, gameworld) => new AddTerritoryFunction(pars, 1)
+            (pars, gameworld) => new AddTerritoryFunction(pars, 1),
+            new List<string> { "character", "location", "flag1" },
+            new List<string> { "The character whose Territory effect should gain the room.", "The room to add to the character's territory.", "A text tag to attach to this territory room for later AI checks." },
+            "Adds a room to a character's Territory effect, creating the effect if necessary. Optional text flags tag the room for later AI checks. Errors if the character or room is null; otherwise returns true.",
+            "Artificial Intelligence",
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -84,7 +94,12 @@ internal class AddTerritoryFunction : BuiltInFunction
                 ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text,
                 ProgVariableTypes.Text
             },
-            (pars, gameworld) => new AddTerritoryFunction(pars, 2)
+            (pars, gameworld) => new AddTerritoryFunction(pars, 2),
+            new List<string> { "character", "location", "flag1", "flag2" },
+            new List<string> { "The character whose Territory effect should gain the room.", "The room to add to the character's territory.", "A text tag to attach to this territory room for later AI checks.", "A second text tag to attach to this territory room." },
+            "Adds a room to a character's Territory effect, creating the effect if necessary. Optional text flags tag the room for later AI checks. Errors if the character or room is null; otherwise returns true.",
+            "Artificial Intelligence",
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -94,7 +109,12 @@ internal class AddTerritoryFunction : BuiltInFunction
                 ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text,
                 ProgVariableTypes.Text, ProgVariableTypes.Text
             },
-            (pars, gameworld) => new AddTerritoryFunction(pars, 3)
+            (pars, gameworld) => new AddTerritoryFunction(pars, 3),
+            new List<string> { "character", "location", "flag1", "flag2", "flag3" },
+            new List<string> { "The character whose Territory effect should gain the room.", "The room to add to the character's territory.", "A text tag to attach to this territory room for later AI checks.", "A second text tag to attach to this territory room.", "A third text tag to attach to this territory room." },
+            "Adds a room to a character's Territory effect, creating the effect if necessary. Optional text flags tag the room for later AI checks. Errors if the character or room is null; otherwise returns true.",
+            "Artificial Intelligence",
+            ProgVariableTypes.Boolean
         ));
     }
 }

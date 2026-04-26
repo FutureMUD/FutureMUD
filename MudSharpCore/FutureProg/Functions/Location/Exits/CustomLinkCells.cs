@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -35,7 +35,12 @@ internal class CustomLinkCells : BuiltInFunction
                     ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
                     ProgVariableTypes.Text
                 },
-                (pars, gameworld) => new CustomLinkCells(pars, gameworld)
+                (pars, gameworld) => new CustomLinkCells(pars, gameworld),
+                new List<string> { "origin", "destination", "overlay", "template", "outboundKeyword", "outboundTarget", "inboundKeyword", "inboundTarget" },
+                new List<string> { "The origin room for the new exit.", "The destination room for the new exit.", "The editable overlay package where the exit should be created or copied.", "The non-cardinal exit template ID to use.", "The primary keyword for the origin-to-destination side.", "The target/sdesc displayed for the origin-to-destination side.", "The primary keyword for the destination-to-origin side.", "The target/sdesc displayed for the destination-to-origin side." },
+                "Creates a custom non-cardinal exit between two rooms in an overlay package, using explicit keywords and targets for both directions. This is equivalent to creating a non-cardinal builder exit from a template. Returns the created exit or null if the rooms, editable package, template, or target text are invalid, or if a conflicting exit already exists.",
+                "Rooms",
+                ProgVariableTypes.Exit
             )
         );
 
@@ -48,7 +53,12 @@ internal class CustomLinkCells : BuiltInFunction
                     ProgVariableTypes.OverlayPackage, ProgVariableTypes.Text, ProgVariableTypes.Text,
                     ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text
                 },
-                (pars, gameworld) => new CustomLinkCells(pars, gameworld)
+                (pars, gameworld) => new CustomLinkCells(pars, gameworld),
+                new List<string> { "origin", "destination", "overlay", "template", "outboundKeyword", "outboundTarget", "inboundKeyword", "inboundTarget" },
+                new List<string> { "The origin room for the new exit.", "The destination room for the new exit.", "The editable overlay package where the exit should be created or copied.", "The non-cardinal exit template name to use.", "The primary keyword for the origin-to-destination side.", "The target/sdesc displayed for the origin-to-destination side.", "The primary keyword for the destination-to-origin side.", "The target/sdesc displayed for the destination-to-origin side." },
+                "Creates a custom non-cardinal exit between two rooms in an overlay package, using explicit keywords and targets for both directions. This is equivalent to creating a non-cardinal builder exit from a template. Returns the created exit or null if the rooms, editable package, template, or target text are invalid, or if a conflicting exit already exists.",
+                "Rooms",
+                ProgVariableTypes.Exit
             )
         );
     }
@@ -129,9 +139,9 @@ internal class CustomLinkCells : BuiltInFunction
         }
 
         string outboundkey = ParameterFunctions[4].Result?.GetObject?.ToString() ?? string.Empty;
-        string inboundKey = ParameterFunctions[4].Result?.GetObject?.ToString() ?? string.Empty;
-        string outboundName = ParameterFunctions[4].Result?.GetObject?.ToString() ?? string.Empty;
-        string inboundName = ParameterFunctions[4].Result?.GetObject?.ToString() ?? string.Empty;
+        string outboundName = ParameterFunctions[5].Result?.GetObject?.ToString() ?? string.Empty;
+        string inboundKey = ParameterFunctions[6].Result?.GetObject?.ToString() ?? string.Empty;
+        string inboundName = ParameterFunctions[7].Result?.GetObject?.ToString() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(outboundkey) || string.IsNullOrWhiteSpace(inboundKey) ||
             string.IsNullOrWhiteSpace(outboundName) || string.IsNullOrWhiteSpace(inboundName))
         {

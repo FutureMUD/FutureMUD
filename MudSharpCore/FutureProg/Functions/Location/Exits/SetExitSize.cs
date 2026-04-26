@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -34,7 +34,12 @@ internal class SetExitSize : BuiltInFunction
                     ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage,
                     ProgVariableTypes.Number, ProgVariableTypes.Number
                 },
-                (pars, gameworld) => new SetExitSize(pars, gameworld)
+                (pars, gameworld) => new SetExitSize(pars, gameworld),
+                new List<string> { "exit", "overlay", "maximumSize", "uprightSize" },
+                new List<string> { "The exit to edit or copy into the supplied overlay package.", "The editable overlay package where the change should be made.", "The maximum size enum value that can enter the exit at all.", "The maximum size enum value that can enter upright." },
+                "Sets the maximum size and maximum upright size values on an exit overlay. Returns the edited exit or null if the exit/package is null or the package is not editable.",
+                "Rooms",
+                ProgVariableTypes.Exit
             )
         );
     }

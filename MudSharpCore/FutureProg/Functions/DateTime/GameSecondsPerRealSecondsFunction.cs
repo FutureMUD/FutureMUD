@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate.Time;
 using System.Collections.Generic;
@@ -54,7 +54,12 @@ internal class GameSecondsPerRealSecondsFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "gamesecondsperrealseconds",
             new[] { ProgVariableTypes.Text },
-            (pars, gameworld) => new GameSecondsPerRealSecondsFunction(pars, gameworld)
+            (pars, gameworld) => new GameSecondsPerRealSecondsFunction(pars, gameworld),
+            new List<string> { "clock" },
+            new List<string> { "The in-game clock to use, or the clock name where this function accepts text." },
+            "Looks up a clock by name and returns how many in-game seconds pass for each real second. Errors if the clock name is null or does not match a clock.",
+            "Date/Time",
+            ProgVariableTypes.Number
         ));
     }
 }

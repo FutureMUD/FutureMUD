@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -32,7 +32,12 @@ internal class SetExitSlowdown : BuiltInFunction
                 {
                     ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage, ProgVariableTypes.Number
                 },
-                (pars, gameworld) => new SetExitSlowdown(pars, gameworld)
+                (pars, gameworld) => new SetExitSlowdown(pars, gameworld),
+                new List<string> { "exit", "overlay", "multiplier" },
+                new List<string> { "The exit to edit or copy into the supplied overlay package.", "The editable overlay package where the change should be made.", "The travel-time multiplier to apply to the exit." },
+                "Sets the travel time multiplier on an exit overlay. Returns the edited exit or null if the exit/package is null or the package is not editable.",
+                "Rooms",
+                ProgVariableTypes.Exit
             )
         );
     }

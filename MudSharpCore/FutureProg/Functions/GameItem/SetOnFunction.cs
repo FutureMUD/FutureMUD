@@ -1,4 +1,4 @@
-﻿using MudSharp.FutureProg.Variables;
+using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using System.Collections.Generic;
@@ -56,7 +56,12 @@ internal class SetOnFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "seton",
             new[] { ProgVariableTypes.Item, ProgVariableTypes.Boolean, ProgVariableTypes.Boolean },
-            (pars, gameworld) => new SetOnFunction(pars)
+            (pars, gameworld) => new SetOnFunction(pars),
+            new List<string> { "item", "state", "echo" },
+            new List<string> { "The item with an on/off component to switch.", "The desired switched-on state.", "Reserved for echo behaviour; the current helper stores the state directly and does not emit switch-command echoes." },
+            "Sets the switched-on state of an on/off item component, equivalent to changing the component's SwitchedOn flag directly rather than running the player switch command. Returns false if the item is null, lacks the component, or was already in the requested state.",
+            "Items",
+            ProgVariableTypes.Boolean
         ));
     }
 }

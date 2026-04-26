@@ -1238,11 +1238,10 @@ public class EconomicZone : SaveableItem, IEconomicZone
                 actor.OutputHandler.Send($"You decide not to change the calendar for this economic zone.");
             },
             Keywords = new List<string> { "calendar" }
-        }), TimeSpan.FromSeconds(120));
+		}), TimeSpan.FromSeconds(120));
 
-
-        throw new NotImplementedException();
-    }
+		return true;
+	}
 
     private bool BuildingCommandClan(ICharacter actor, StringStack command, bool fromClanCommand)
     {

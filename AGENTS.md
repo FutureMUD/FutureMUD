@@ -186,6 +186,7 @@ This project contains the long-running climate and weather regression checks use
 - Use the method `StringUtilities.GetTextTable()` to present tabular data to players rather than building tables manually.
 - Use the extension method `ListToString()` on IEnumerable collections to present lists of things to players rather than building lists manually. Similarly, you can use `ListToCommaSeparatedValues()` to get a comma-separated string.
 - Rooms vs Cells: the legacy distinction is being removed; wherever possible prefer targeting `ICell`/`Cell` rather than `IRoom`/`Room` (and treat "room" mentions in designs as meaning cell) so future merges are simpler.
+- When documenting or implementing room-building workflows, see [Room Building Builder Guide](./Design%20Documents/Room_Building_Builder_Guide.md) for the builder-facing command model.
 
 ## Notes
 - When in doubt, defer to this file unless overridden at a lower level.

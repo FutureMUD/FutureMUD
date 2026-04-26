@@ -36,7 +36,8 @@ internal class WithdrawGrid : BuiltInFunction
                     "The location you want to withdraw the grid from"
                 },
                 "This function allows you to withdraw a grid (electrical, gas, liquid etc) from a new location. Returns true if the withdrawal happened, false implies the grid was not present or there was another error.",
-                "Grids"
+                "Grids",
+                ProgVariableTypes.Boolean
             )
         );
     }

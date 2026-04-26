@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
@@ -28,7 +28,12 @@ internal class SetVendingBalance : BuiltInFunction
             new FunctionCompilerInformation(
                 "SetVendingBalance".ToLowerInvariant(),
                 new[] { ProgVariableTypes.Item, ProgVariableTypes.Number },
-                (pars, gameworld) => new SetVendingBalance(pars, gameworld)
+                (pars, gameworld) => new SetVendingBalance(pars, gameworld),
+                new List<string> { "item", "balance" },
+                new List<string> { "The vending machine item whose stored balance should be changed.", "The new numeric balance to store on the machine." },
+                "Sets the current balance stored in a vending-machine item component. Returns false if the item is null, is not a vending machine, or the balance is not numeric.",
+                "Items",
+                ProgVariableTypes.Boolean
             )
         );
     }

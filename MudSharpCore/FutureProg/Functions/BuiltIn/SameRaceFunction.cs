@@ -1,4 +1,4 @@
-﻿using MudSharp.Character.Heritage;
+using MudSharp.Character.Heritage;
 using MudSharp.FutureProg.Variables;
 using System.Collections.Generic;
 
@@ -42,7 +42,12 @@ internal class SameRaceFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "samerace",
                 new[] { ProgVariableTypes.Race, ProgVariableTypes.Race },
-                (pars, gameworld) => new SameRaceFunction(pars)
+                (pars, gameworld) => new SameRaceFunction(pars),
+                new List<string> { "race1", "race2" },
+                new List<string> { "The first race to compare.", "The second race to compare." },
+                "Returns true when both race references point to the same race object. Null races simply compare as not the same.",
+                "Built-In",
+                ProgVariableTypes.Boolean
             )
         );
     }

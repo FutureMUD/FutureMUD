@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Functions.BuiltIn;
@@ -32,19 +32,34 @@ internal class ToItemFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "toitem",
             new[] { ProgVariableTypes.Perceiver },
-            (pars, gameworld) => new ToItemFunction(pars)
+            (pars, gameworld) => new ToItemFunction(pars),
+            new List<string> { "value" },
+            new List<string> { "The value to convert or inspect." },
+            "Attempts to treat a perceiver, perceivable, or collection item as an item. Returns null when the supplied value is not an item.",
+            "Built-In",
+            ProgVariableTypes.Item
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "toitem",
             new[] { ProgVariableTypes.Perceivable },
-            (pars, gameworld) => new ToItemFunction(pars)
+            (pars, gameworld) => new ToItemFunction(pars),
+            new List<string> { "value" },
+            new List<string> { "The value to convert or inspect." },
+            "Attempts to treat a perceiver, perceivable, or collection item as an item. Returns null when the supplied value is not an item.",
+            "Built-In",
+            ProgVariableTypes.Item
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "toitem",
             new[] { ProgVariableTypes.CollectionItem },
-            (pars, gameworld) => new ToItemFunction(pars)
+            (pars, gameworld) => new ToItemFunction(pars),
+            new List<string> { "value" },
+            new List<string> { "The value to convert or inspect." },
+            "Attempts to treat a perceiver, perceivable, or collection item as an item. Returns null when the supplied value is not an item.",
+            "Built-In",
+            ProgVariableTypes.Item
         ));
     }
 }

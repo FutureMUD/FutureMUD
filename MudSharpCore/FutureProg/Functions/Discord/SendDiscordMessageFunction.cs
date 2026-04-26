@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using System;
 using System.Collections.Generic;
@@ -30,7 +30,12 @@ internal class SendDiscordMessageFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "senddiscord",
                 new[] { ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Text },
-                (pars, gameworld) => new SendDiscordMessageFunction(pars, gameworld)
+                (pars, gameworld) => new SendDiscordMessageFunction(pars, gameworld),
+                new List<string> { "channelId", "title", "message" },
+                new List<string> { "The numeric Discord channel ID to send to.", "The title or heading of the outgoing message.", "The body text of the outgoing Discord message." },
+                "Sends a Discord message through the configured Discord connection using channel ID, title, and message text. Returns false if any argument is null; returns true after queueing the send even if no Discord connection is currently configured.",
+                "Discord",
+                ProgVariableTypes.Boolean
             )
         );
     }

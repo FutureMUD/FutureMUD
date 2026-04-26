@@ -1,4 +1,4 @@
-﻿using MudSharp.Economy.Currency;
+using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
@@ -62,13 +62,23 @@ internal class LoadCurrencyFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "loadcurrency",
             new[] { ProgVariableTypes.Currency, ProgVariableTypes.Number },
-            (pars, gameworld) => new LoadCurrencyFunction(pars, gameworld)
+            (pars, gameworld) => new LoadCurrencyFunction(pars, gameworld),
+            new List<string> { "currency", "amount" },
+            new List<string> { "The currency definition to query, load, give, or count.", "The amount to use. Text amounts are parsed using the target system's normal builder/player parsing rules." },
+            "Creates a new currency-pile item worth the supplied numeric or text amount. Errors if the currency is null or the text amount cannot be parsed.",
+            "Currency",
+            ProgVariableTypes.Item
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "loadcurrency",
             new[] { ProgVariableTypes.Currency, ProgVariableTypes.Text },
-            (pars, gameworld) => new LoadCurrencyFunction(pars, gameworld)
+            (pars, gameworld) => new LoadCurrencyFunction(pars, gameworld),
+            new List<string> { "currency", "amount" },
+            new List<string> { "The currency definition to query, load, give, or count.", "The amount to use. Text amounts are parsed using the target system's normal builder/player parsing rules." },
+            "Creates a new currency-pile item worth the supplied numeric or text amount. Errors if the currency is null or the text amount cannot be parsed.",
+            "Currency",
+            ProgVariableTypes.Item
         ));
     }
 }

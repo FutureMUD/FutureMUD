@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.FutureProg.Variables;
 using System.Collections.Generic;
@@ -85,7 +85,12 @@ internal class IsClanBrotherFunction : BuiltInFunction
                     ProgVariableTypes.Character, ProgVariableTypes.Character,
                     ProgVariableTypes.Clan
                 },
-                (pars, gameworld) => new IsClanBrotherFunction(pars)
+                (pars, gameworld) => new IsClanBrotherFunction(pars),
+                new List<string> { "character", "target", "excludedClan" },
+                new List<string> { "The first character to compare.", "The second character to compare.", "A clan to ignore when checking for shared membership." },
+                "Checks whether two characters share at least one clan membership after optionally excluding a clan or collection of clans. Use the exclusion overloads to ignore common public clans. Errors if either character is null; returns false if there is no shared qualifying clan.",
+                "Clans",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -93,7 +98,12 @@ internal class IsClanBrotherFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "isclanbrother",
                 new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
-                (pars, gameworld) => new IsClanBrotherFunction(pars)
+                (pars, gameworld) => new IsClanBrotherFunction(pars),
+                new List<string> { "character", "target" },
+                new List<string> { "The first character to compare.", "The second character to compare." },
+                "Checks whether two characters share at least one clan membership after optionally excluding a clan or collection of clans. Use the exclusion overloads to ignore common public clans. Errors if either character is null; returns false if there is no shared qualifying clan.",
+                "Clans",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -105,7 +115,12 @@ internal class IsClanBrotherFunction : BuiltInFunction
                     ProgVariableTypes.Character, ProgVariableTypes.Character,
                     ProgVariableTypes.Collection | ProgVariableTypes.Clan
                 },
-                (pars, gameworld) => new IsClanBrotherFunction(pars)
+                (pars, gameworld) => new IsClanBrotherFunction(pars),
+                new List<string> { "character", "target", "excludedClans" },
+                new List<string> { "The first character to compare.", "The second character to compare.", "A collection of clans to ignore when checking for shared membership." },
+                "Checks whether two characters share at least one clan membership after optionally excluding a clan or collection of clans. Use the exclusion overloads to ignore common public clans. Errors if either character is null; returns false if there is no shared qualifying clan.",
+                "Clans",
+                ProgVariableTypes.Boolean
             )
         );
     }

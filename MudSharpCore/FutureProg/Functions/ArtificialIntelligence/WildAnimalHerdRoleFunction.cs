@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
@@ -46,7 +46,12 @@ internal class WildAnimalHerdRoleFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "wildanimalherdrole",
             new[] { ProgVariableTypes.Character },
-            (pars, gameworld) => new WildAnimalHerdRoleFunction(pars)
+            (pars, gameworld) => new WildAnimalHerdRoleFunction(pars),
+            new List<string> { "character" },
+            new List<string> { "The character whose wild animal herd effect should be inspected." },
+            "Returns the character's current wild animal herd role as text, or 'None' if they are not in a herd. Errors if the character parameter is null.",
+            "Artificial Intelligence",
+            ProgVariableTypes.Text
         ));
     }
 }

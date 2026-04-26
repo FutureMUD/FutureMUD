@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Construction;
 using MudSharp.FutureProg.Variables;
 using System;
@@ -62,13 +62,23 @@ internal class TimeOfDayFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "timeofday",
             new[] { ProgVariableTypes.Location },
-            (pars, gameworld) => new TimeOfDayFunction(pars)
+            (pars, gameworld) => new TimeOfDayFunction(pars),
+            new List<string> { "location" },
+            new List<string> { "The room whose zone clock should be used to determine the current time-of-day band." },
+            "Returns the current time-of-day band for a room or zone, such as night or dawn. A null argument falls back to Night.",
+            "Climate",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "timeofday",
             new[] { ProgVariableTypes.Zone },
-            (pars, gameworld) => new TimeOfDayFunction(pars)
+            (pars, gameworld) => new TimeOfDayFunction(pars),
+            new List<string> { "zone" },
+            new List<string> { "The zone whose clock should be used to determine the current time-of-day band." },
+            "Returns the current time-of-day band for a room or zone, such as night or dawn. A null argument falls back to Night.",
+            "Climate",
+            ProgVariableTypes.Text
         ));
     }
 }

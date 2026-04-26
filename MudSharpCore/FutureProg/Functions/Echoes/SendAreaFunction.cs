@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.PerceptionEngine;
@@ -74,7 +74,12 @@ internal class SendAreaFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "sendarea",
                 new[] { ProgVariableTypes.Area, ProgVariableTypes.Text },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld)
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld),
+                new List<string> { "area", "message" },
+                new List<string> { "The area that receives or scopes the echo.", "The emote text to send. ANSI colour substitutions are applied and perceivable references can be used by the emote parser." },
+                "Sends a FutureProg echo to the supplied scope. Non-fixed variants parse the text as an emote, so supplied perceivable references can be used for pronouns and placeholders. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -85,7 +90,12 @@ internal class SendAreaFunction : BuiltInFunction
                 {
                     ProgVariableTypes.Area, ProgVariableTypes.Text, ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld)
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld),
+                new List<string> { "area", "message", "reference1" },
+                new List<string> { "The area that receives or scopes the echo.", "The emote text to send. ANSI colour substitutions are applied and perceivable references can be used by the emote parser.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Non-fixed variants parse the text as an emote, so supplied perceivable references can be used for pronouns and placeholders. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -97,7 +107,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Area, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld)
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld),
+                new List<string> { "area", "message", "reference1", "reference2" },
+                new List<string> { "The area that receives or scopes the echo.", "The emote text to send. ANSI colour substitutions are applied and perceivable references can be used by the emote parser.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Non-fixed variants parse the text as an emote, so supplied perceivable references can be used for pronouns and placeholders. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -109,7 +124,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Area, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld)
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld),
+                new List<string> { "area", "message", "reference1", "reference2", "reference3" },
+                new List<string> { "The area that receives or scopes the echo.", "The emote text to send. ANSI colour substitutions are applied and perceivable references can be used by the emote parser.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Non-fixed variants parse the text as an emote, so supplied perceivable references can be used for pronouns and placeholders. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -122,7 +142,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld)
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld),
+                new List<string> { "area", "message", "reference1", "reference2", "reference3", "reference4" },
+                new List<string> { "The area that receives or scopes the echo.", "The emote text to send. ANSI colour substitutions are applied and perceivable references can be used by the emote parser.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Non-fixed variants parse the text as an emote, so supplied perceivable references can be used for pronouns and placeholders. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -135,7 +160,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld)
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld),
+                new List<string> { "area", "message", "reference1", "reference2", "reference3", "reference4", "reference5" },
+                new List<string> { "The area that receives or scopes the echo.", "The emote text to send. ANSI colour substitutions are applied and perceivable references can be used by the emote parser.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Non-fixed variants parse the text as an emote, so supplied perceivable references can be used for pronouns and placeholders. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -149,7 +179,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld)
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld),
+                new List<string> { "area", "message", "reference1", "reference2", "reference3", "reference4", "reference5", "reference6" },
+                new List<string> { "The area that receives or scopes the echo.", "The emote text to send. ANSI colour substitutions are applied and perceivable references can be used by the emote parser.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Non-fixed variants parse the text as an emote, so supplied perceivable references can be used for pronouns and placeholders. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -163,7 +198,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld)
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld),
+                new List<string> { "area", "message", "reference1", "reference2", "reference3", "reference4", "reference5", "reference6", "reference7" },
+                new List<string> { "The area that receives or scopes the echo.", "The emote text to send. ANSI colour substitutions are applied and perceivable references can be used by the emote parser.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Non-fixed variants parse the text as an emote, so supplied perceivable references can be used for pronouns and placeholders. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -178,7 +218,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld)
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld),
+                new List<string> { "area", "message", "reference1", "reference2", "reference3", "reference4", "reference5", "reference6", "reference7", "reference8" },
+                new List<string> { "The area that receives or scopes the echo.", "The emote text to send. ANSI colour substitutions are applied and perceivable references can be used by the emote parser.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Non-fixed variants parse the text as an emote, so supplied perceivable references can be used for pronouns and placeholders. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -187,7 +232,12 @@ internal class SendAreaFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "sendareafixed",
                 new[] { ProgVariableTypes.Area, ProgVariableTypes.Text },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true }
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true },
+                new List<string> { "area", "message" },
+                new List<string> { "The area that receives or scopes the echo.", "The fixed-format text to send. ANSI colour substitutions are applied, but emote parsing is bypassed." },
+                "Sends a FutureProg echo to the supplied scope. Fixed variants bypass emote parsing and send the supplied text as fixed-format output. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -198,7 +248,12 @@ internal class SendAreaFunction : BuiltInFunction
                 {
                     ProgVariableTypes.Area, ProgVariableTypes.Text, ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true }
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true },
+                new List<string> { "area", "message", "reference1" },
+                new List<string> { "The area that receives or scopes the echo.", "The fixed-format text to send. ANSI colour substitutions are applied, but emote parsing is bypassed.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Fixed variants bypass emote parsing and send the supplied text as fixed-format output. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -210,7 +265,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Area, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true }
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true },
+                new List<string> { "area", "message", "reference1", "reference2" },
+                new List<string> { "The area that receives or scopes the echo.", "The fixed-format text to send. ANSI colour substitutions are applied, but emote parsing is bypassed.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Fixed variants bypass emote parsing and send the supplied text as fixed-format output. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -222,7 +282,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Area, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true }
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true },
+                new List<string> { "area", "message", "reference1", "reference2", "reference3" },
+                new List<string> { "The area that receives or scopes the echo.", "The fixed-format text to send. ANSI colour substitutions are applied, but emote parsing is bypassed.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Fixed variants bypass emote parsing and send the supplied text as fixed-format output. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -235,7 +300,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true }
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true },
+                new List<string> { "area", "message", "reference1", "reference2", "reference3", "reference4" },
+                new List<string> { "The area that receives or scopes the echo.", "The fixed-format text to send. ANSI colour substitutions are applied, but emote parsing is bypassed.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Fixed variants bypass emote parsing and send the supplied text as fixed-format output. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -248,7 +318,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true }
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true },
+                new List<string> { "area", "message", "reference1", "reference2", "reference3", "reference4", "reference5" },
+                new List<string> { "The area that receives or scopes the echo.", "The fixed-format text to send. ANSI colour substitutions are applied, but emote parsing is bypassed.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Fixed variants bypass emote parsing and send the supplied text as fixed-format output. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -262,7 +337,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true }
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true },
+                new List<string> { "area", "message", "reference1", "reference2", "reference3", "reference4", "reference5", "reference6" },
+                new List<string> { "The area that receives or scopes the echo.", "The fixed-format text to send. ANSI colour substitutions are applied, but emote parsing is bypassed.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Fixed variants bypass emote parsing and send the supplied text as fixed-format output. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -276,7 +356,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true }
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true },
+                new List<string> { "area", "message", "reference1", "reference2", "reference3", "reference4", "reference5", "reference6", "reference7" },
+                new List<string> { "The area that receives or scopes the echo.", "The fixed-format text to send. ANSI colour substitutions are applied, but emote parsing is bypassed.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Fixed variants bypass emote parsing and send the supplied text as fixed-format output. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -291,7 +376,12 @@ internal class SendAreaFunction : BuiltInFunction
                     ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
                     ProgVariableTypes.Perceivable
                 },
-                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true }
+                (pars, gameworld) => new SendAreaFunction(pars, gameworld) { FixedFormat = true },
+                new List<string> { "area", "message", "reference1", "reference2", "reference3", "reference4", "reference5", "reference6", "reference7", "reference8" },
+                new List<string> { "The area that receives or scopes the echo.", "The fixed-format text to send. ANSI colour substitutions are applied, but emote parsing is bypassed.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders.", "An optional perceivable reference for the message, used by the emote parser for pronouns and placeholders." },
+                "Sends a FutureProg echo to the supplied scope. Fixed variants bypass emote parsing and send the supplied text as fixed-format output. Returns true when the scope, message, and every supplied perceivable reference are valid; returns false without sending if a required value is null.",
+                "Echoes",
+                ProgVariableTypes.Boolean
             )
         );
     }

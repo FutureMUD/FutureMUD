@@ -124,7 +124,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
                 },
                 "This function returns the ID of the supplied character's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
                 "Characteristics",
-                ProgVariableTypes.Text
+                ProgVariableTypes.Number
             )
         );
 
@@ -144,7 +144,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
                 },
                 "This function returns the ID of the supplied items's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
                 "Characteristics",
-                ProgVariableTypes.Text
+                ProgVariableTypes.Number
             )
         );
 
@@ -164,7 +164,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
                 },
                 "This function returns the ID of the supplied character's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
                 "Characteristics",
-                ProgVariableTypes.Text
+                ProgVariableTypes.Number
             )
         );
 
@@ -184,7 +184,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
                 },
                 "This function returns the ID of the supplied items's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
                 "Characteristics",
-                ProgVariableTypes.Text
+                ProgVariableTypes.Number
             )
         );
     }

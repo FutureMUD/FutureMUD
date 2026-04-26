@@ -1,4 +1,4 @@
-﻿using MudSharp.FutureProg.Variables;
+using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
@@ -52,19 +52,34 @@ internal class DateToTextFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totext",
             new[] { ProgVariableTypes.DateTime },
-            (pars, gameworld) => new DateToTextFunction(pars)
+            (pars, gameworld) => new DateToTextFunction(pars),
+            new List<string> { "value" },
+            new List<string> { "The value to convert or inspect." },
+            "Formats a real-world datetime, optionally with a format string and a character whose culture and account formatting preferences should be used.",
+            "Date/Time",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totext",
             new[] { ProgVariableTypes.DateTime, ProgVariableTypes.Toon },
-            (pars, gameworld) => new DateToTextFunction(pars)
+            (pars, gameworld) => new DateToTextFunction(pars),
+            new List<string> { "value", "voyeur" },
+            new List<string> { "The value to convert or inspect.", "The character whose account culture and formatting preferences should be used." },
+            "Formats a real-world datetime, optionally with a format string and a character whose culture and account formatting preferences should be used.",
+            "Date/Time",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totext",
             new[] { ProgVariableTypes.DateTime, ProgVariableTypes.Text, ProgVariableTypes.Toon },
-            (pars, gameworld) => new DateToTextFunction(pars)
+            (pars, gameworld) => new DateToTextFunction(pars),
+            new List<string> { "value", "format", "voyeur" },
+            new List<string> { "The value to convert or inspect.", "A .NET date/time format string used to format or parse the date.", "The character whose account culture and formatting preferences should be used." },
+            "Formats a real-world datetime, optionally with a format string and a character whose culture and account formatting preferences should be used.",
+            "Date/Time",
+            ProgVariableTypes.Text
         ));
     }
 }
@@ -104,31 +119,56 @@ internal class MudDateToTextFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totext",
             new[] { ProgVariableTypes.MudDateTime },
-            (pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Long, TimeDisplayTypes.Long)
+            (pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Long, TimeDisplayTypes.Long),
+            new List<string> { "value" },
+            new List<string> { "The value to convert or inspect." },
+            "Formats an in-game mud datetime with long calendar and time display rules. Null or Never mud datetimes display as Never.",
+            "Date/Time",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totextshort",
             new[] { ProgVariableTypes.MudDateTime },
-            (pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Short, TimeDisplayTypes.Short)
+            (pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+            new List<string> { "value" },
+            new List<string> { "The in-game mud datetime to format using short calendar and short time display rules." },
+            "Formats an in-game mud datetime using short calendar and short time display rules. Null or Never mud datetimes display as Never.",
+            "Date/Time",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totextwordy",
             new[] { ProgVariableTypes.MudDateTime },
-            (pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Wordy, TimeDisplayTypes.Long)
+            (pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Wordy, TimeDisplayTypes.Long),
+            new List<string> { "value" },
+            new List<string> { "The in-game mud datetime to format with wordy calendar and long time display rules." },
+            "Formats an in-game mud datetime using wordy calendar and long time display rules. Null or Never mud datetimes display as Never.",
+            "Date/Time",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totextcrude",
             new[] { ProgVariableTypes.MudDateTime },
-            (pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Long, TimeDisplayTypes.Crude)
+            (pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Long, TimeDisplayTypes.Crude),
+            new List<string> { "value" },
+            new List<string> { "The in-game mud datetime to format with long calendar and crude time display rules." },
+            "Formats an in-game mud datetime using long calendar and crude time display rules. Null or Never mud datetimes display as Never.",
+            "Date/Time",
+            ProgVariableTypes.Text
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "totextvague",
             new[] { ProgVariableTypes.MudDateTime },
-            (pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Long, TimeDisplayTypes.Vague)
+            (pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Long, TimeDisplayTypes.Vague),
+            new List<string> { "value" },
+            new List<string> { "The in-game mud datetime to format with long calendar and vague time display rules." },
+            "Formats an in-game mud datetime using long calendar and vague time display rules. Null or Never mud datetimes display as Never.",
+            "Date/Time",
+            ProgVariableTypes.Text
         ));
     }
 }

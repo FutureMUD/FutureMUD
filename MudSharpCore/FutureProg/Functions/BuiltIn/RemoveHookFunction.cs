@@ -1,4 +1,4 @@
-﻿using MudSharp.Events.Hooks;
+using MudSharp.Events.Hooks;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using System.Collections.Generic;
@@ -68,7 +68,12 @@ internal class RemoveHookFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "removehook",
                 new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Number },
-                (pars, gameworld) => new RemoveHookFunction(pars, gameworld)
+                (pars, gameworld) => new RemoveHookFunction(pars, gameworld),
+                new List<string> { "target", "hookId" },
+                new List<string> { "The target character, item, location, or perceivable for the operation.", "The ID of the hook to remove." },
+                "Removes a named or numbered event hook from a perceivable target. Returns false if the target, hook argument, hook lookup, or perceivable conversion fails; otherwise returns the result of the target's hook removal.",
+                "Built-In",
+                ProgVariableTypes.Boolean
             )
         );
 
@@ -76,7 +81,12 @@ internal class RemoveHookFunction : BuiltInFunction
             new FunctionCompilerInformation(
                 "removehook",
                 new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text },
-                (pars, gameworld) => new RemoveHookFunction(pars, gameworld)
+                (pars, gameworld) => new RemoveHookFunction(pars, gameworld),
+                new List<string> { "target", "hookName" },
+                new List<string> { "The target character, item, location, or perceivable for the operation.", "The name of the hook to remove." },
+                "Removes a named or numbered event hook from a perceivable target. Returns false if the target, hook argument, hook lookup, or perceivable conversion fails; otherwise returns the result of the target's hook removal.",
+                "Built-In",
+                ProgVariableTypes.Boolean
             )
         );
     }

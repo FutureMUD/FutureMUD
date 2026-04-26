@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using System.Collections.Generic;
 
@@ -34,7 +34,12 @@ internal class RandomFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "random",
             new[] { ProgVariableTypes.Number, ProgVariableTypes.Number },
-            (pars, gameworld) => new RandomFunction(pars)
+            (pars, gameworld) => new RandomFunction(pars),
+            new List<string> { "minimum", "maximum" },
+            new List<string> { "The lower numeric bound or first number.", "The upper numeric bound or second number." },
+            "Returns a random whole number between the supplied minimum and maximum bounds. This is the FutureProg random helper for simple integer-range rolls.",
+            "Built-In",
+            ProgVariableTypes.Number
         ));
     }
 }

@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -33,7 +33,12 @@ internal class LinkCells : BuiltInFunction
                     ProgVariableTypes.Location, ProgVariableTypes.Location,
                     ProgVariableTypes.OverlayPackage, ProgVariableTypes.Number
                 },
-                (pars, gameworld) => new LinkCells(pars, gameworld)
+                (pars, gameworld) => new LinkCells(pars, gameworld),
+                new List<string> { "origin", "destination", "overlay", "direction" },
+                new List<string> { "The origin room for the new exit.", "The destination room for the new exit.", "The editable overlay package where the exit should be created or copied.", "The outbound cardinal direction as a numeric enum value." },
+                "Creates a standard bidirectional cardinal exit between two rooms in an editable overlay package. This is equivalent to linking rooms with the room builder tools. Returns the created exit from the origin side or null if either room/package is invalid, the package is not editable, the direction is invalid, the rooms are the same, or a conflicting exit already exists.",
+                "Rooms",
+                ProgVariableTypes.Exit
             )
         );
 
@@ -45,7 +50,12 @@ internal class LinkCells : BuiltInFunction
                     ProgVariableTypes.Location, ProgVariableTypes.Location,
                     ProgVariableTypes.OverlayPackage, ProgVariableTypes.Text
                 },
-                (pars, gameworld) => new LinkCells(pars, gameworld)
+                (pars, gameworld) => new LinkCells(pars, gameworld),
+                new List<string> { "origin", "destination", "overlay", "direction" },
+                new List<string> { "The origin room for the new exit.", "The destination room for the new exit.", "The editable overlay package where the exit should be created or copied.", "The outbound cardinal direction name, such as north or up." },
+                "Creates a standard bidirectional cardinal exit between two rooms in an editable overlay package. This is equivalent to linking rooms with the room builder tools. Returns the created exit from the origin side or null if either room/package is invalid, the package is not editable, the direction is invalid, the rooms are the same, or a conflicting exit already exists.",
+                "Rooms",
+                ProgVariableTypes.Exit
             )
         );
     }

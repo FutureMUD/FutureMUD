@@ -50,7 +50,7 @@ namespace MudSharp.FutureProg.Functions.Textual
 
         public override ProgVariableTypes ReturnType
         {
-            get => ProgVariableTypes.Boolean;
+            get => ProgVariableTypes.Text;
             protected set { }
         }
 

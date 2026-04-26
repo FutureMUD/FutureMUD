@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
@@ -237,7 +237,12 @@ internal class GiveCurrencyFunction : BuiltInFunction
                 ProgVariableTypes.Location | ProgVariableTypes.Character | ProgVariableTypes.Item,
                 ProgVariableTypes.Boolean
             },
-            (IList<IFunction> pars, IFuturemud gameworld) => new GiveCurrencyFunction(pars, gameworld)
+            (IList<IFunction> pars, IFuturemud gameworld) => new GiveCurrencyFunction(pars, gameworld),
+            new List<string> { "currency", "amount", "target", "respectGetRules" },
+            new List<string> { "The currency definition to query, load, give, or count.", "The amount to use. Text amounts are parsed using the target system's normal builder/player parsing rules.", "The target character, item, location, or perceivable for the operation.", "Whether closed containers and other normal get-access restrictions should be respected." },
+            "Adds currency to a character, item, or room, creating a currency pile if needed. The amount can be numeric base currency or text parsed by the currency. Errors on null currency, invalid amount text, or null target; returns true when currency was added.",
+            "Currency",
+            ProgVariableTypes.Boolean
         ));
     }
 }

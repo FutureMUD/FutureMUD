@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -34,7 +34,12 @@ internal class SetAcceptsDoor : BuiltInFunction
                     ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage,
                     ProgVariableTypes.Boolean, ProgVariableTypes.Number
                 },
-                (pars, gameworld) => new SetAcceptsDoor(pars, gameworld)
+                (pars, gameworld) => new SetAcceptsDoor(pars, gameworld),
+                new List<string> { "exit", "overlay", "state", "doorSize" },
+                new List<string> { "The exit to edit or copy into the supplied overlay package.", "The editable overlay package where the change should be made.", "Whether the exit should accept an installed door.", "The maximum door size enum value accepted by this exit." },
+                "Sets whether an exit overlay accepts a door and records the maximum door size. Returns the edited exit or null if the exit/package is null or the package is not editable.",
+                "Rooms",
+                ProgVariableTypes.Exit
             )
         );
     }

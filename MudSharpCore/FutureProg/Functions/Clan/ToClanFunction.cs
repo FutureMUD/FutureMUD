@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,13 +39,23 @@ internal class ToClanFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "toclan",
             new[] { ProgVariableTypes.Number },
-            (pars, gameworld) => new ToClanFunction(pars, gameworld)
+            (pars, gameworld) => new ToClanFunction(pars, gameworld),
+            new List<string> { "id" },
+            new List<string> { "The numeric ID of the clan to look up." },
+            "Looks up a clan by ID or name. Returns null if no clan matches.",
+            "Clans",
+            ProgVariableTypes.Clan
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "toclan",
             new[] { ProgVariableTypes.Text },
-            (pars, gameworld) => new ToClanFunction(pars, gameworld)
+            (pars, gameworld) => new ToClanFunction(pars, gameworld),
+            new List<string> { "name" },
+            new List<string> { "The clan name or alias to look up." },
+            "Looks up a clan by ID or name. Returns null if no clan matches.",
+            "Clans",
+            ProgVariableTypes.Clan
         ));
     }
 }

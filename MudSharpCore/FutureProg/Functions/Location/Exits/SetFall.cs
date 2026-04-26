@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -33,7 +33,12 @@ internal class SetFall : BuiltInFunction
                     ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage,
                     ProgVariableTypes.Location
                 },
-                (pars, gameworld) => new SetFall(pars, gameworld)
+                (pars, gameworld) => new SetFall(pars, gameworld),
+                new List<string> { "exit", "overlay", "fallLocation" },
+                new List<string> { "The exit to edit or copy into the supplied overlay package.", "The editable overlay package where the change should be made.", "The room characters fall to from this exit; null clears the fall destination." },
+                "Sets or clears the fall destination for an exit overlay. Returns the edited exit or null if the exit/package is null or the package is not editable.",
+                "Rooms",
+                ProgVariableTypes.Exit
             )
         );
     }
@@ -84,7 +89,7 @@ internal class SetFall : BuiltInFunction
 
         exit = GetOrCopyExit.GetOrCopy(exit, package);
 
-        ICell fallto = (ICell)ParameterFunctions[3].Result?.GetObject;
+        ICell fallto = (ICell)ParameterFunctions[2].Result?.GetObject;
         exit.Exit.FallCell = fallto;
         exit.Exit.Changed = true;
         Result = exit;

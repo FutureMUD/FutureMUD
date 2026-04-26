@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.FutureProg.Variables;
 using System.Collections.Generic;
@@ -90,7 +90,12 @@ internal class OutranksFunction : BuiltInFunction
                     ProgVariableTypes.Character, ProgVariableTypes.Character,
                     ProgVariableTypes.Clan
                 },
-                (pars, gameworld) => new OutranksFunction(pars)
+                (pars, gameworld) => new OutranksFunction(pars),
+                new List<string> { "character", "target", "clan" },
+                new List<string> { "The character whose rank should be compared.", "The other character to compare against.", "The clan whose rank hierarchy should be used." },
+                "Checks whether the first character outranks the second in the supplied clan. Errors if either character or the clan is null; returns false if either character is not a valid member in that clan.",
+                "Clans",
+                ProgVariableTypes.Boolean
             )
         );
     }

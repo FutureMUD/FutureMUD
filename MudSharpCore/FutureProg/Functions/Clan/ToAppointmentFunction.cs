@@ -1,4 +1,4 @@
-﻿using MudSharp.Community;
+using MudSharp.Community;
 using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ internal class ToAppointmentFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
+        Result = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text)
             ? clan.Appointments.FirstOrDefault(
                 x =>
                     x.Name.Equals((string)ParameterFunctions.ElementAt(1).Result.GetObject,
@@ -52,13 +52,23 @@ internal class ToAppointmentFunction : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "toappointment",
             new[] { ProgVariableTypes.Clan, ProgVariableTypes.Number },
-            (pars, gameworld) => new ToAppointmentFunction(pars, gameworld)
+            (pars, gameworld) => new ToAppointmentFunction(pars, gameworld),
+            new List<string> { "clan", "id" },
+            new List<string> { "The clan whose appointments should be searched.", "The numeric ID of the appointment to find." },
+            "Looks up an appointment within a clan by ID or name. Errors if the clan is null; returns null if no appointment matches.",
+            "Clans",
+            ProgVariableTypes.ClanAppointment
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "toappointment",
             new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
-            (pars, gameworld) => new ToAppointmentFunction(pars, gameworld)
+            (pars, gameworld) => new ToAppointmentFunction(pars, gameworld),
+            new List<string> { "clan", "name" },
+            new List<string> { "The clan whose appointments should be searched.", "The appointment name to find, matched case-insensitively." },
+            "Looks up an appointment within a clan by ID or name. Errors if the clan is null; returns null if no appointment matches.",
+            "Clans",
+            ProgVariableTypes.ClanAppointment
         ));
     }
 }

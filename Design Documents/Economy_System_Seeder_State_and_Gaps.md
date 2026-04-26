@@ -128,6 +128,7 @@ Why it is seed-friendly now:
 - the constructor already establishes a financial period
 - the zone's policy role is clear
 - estates can now be explicitly enabled or disabled per zone as part of that policy shell
+- builders can reassign the financial-period calendar through the economic-zone builder; the command warns that existing financial periods will be destroyed, waits for explicit acceptance, then rebuilds a new current period on the selected calendar
 - cells can be left for builder customization even if the zone shell is seeded
 
 ### Stock tax presets
@@ -286,11 +287,6 @@ The subsystem is now live enough for ordinary runtime use:
 - corpse recovery can still store bodies in a morgue even when no estate is created
 
 The remaining seeder problem is not runtime viability. It is that probate and morgue setup still depend on world-specific cells, institutions, legal authorities, and auction-house choices.
-
-### Economic-zone calendar reassignment is currently broken
-The current builder path for changing the economic-zone calendar sets up the accept flow and then throws `NotImplementedException`.
-
-That makes this a concrete runtime defect in an exposed admin workflow rather than a theoretical gap.
 
 ### Shop deals and volume pricing are placeholder-only
 The current shop runtime exposes deal-related surfaces, but:

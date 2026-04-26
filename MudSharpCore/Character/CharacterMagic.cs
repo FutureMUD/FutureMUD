@@ -188,6 +188,12 @@ public partial class Character : IMagicUser
 
     public void AddResource(IMagicResource resource, double amount)
     {
+        if (!CanRunCharacterOngoingProcesses)
+        {
+            PauseMagicResourceGeneratorHeartbeats();
+            return;
+        }
+
         double old = _magicResourceAmounts[resource];
         _magicResourceAmounts[resource] += amount;
         _magicResourceAmounts[resource] = Math.Max(0.0,
@@ -202,14 +208,43 @@ public partial class Character : IMagicUser
     public IEnumerable<IMagicResourceRegenerator> MagicResourceGenerators => _magicResourceGenerators;
     private Dictionary<IMagicResourceRegenerator, HeartbeatManagerDelegate> _generatorDelegateDictionary = new();
 
+    private void ResumeMagicResourceGeneratorHeartbeats()
+    {
+        if (!CanRunCharacterOngoingProcesses)
+        {
+            PauseMagicResourceGeneratorHeartbeats();
+            return;
+        }
+
+        foreach (IMagicResourceRegenerator generator in _magicResourceGenerators)
+        {
+            if (_generatorDelegateDictionary.ContainsKey(generator))
+            {
+                continue;
+            }
+
+            HeartbeatManagerDelegate hbdelegate = generator.GetOnMinuteDelegate(this);
+            _generatorDelegateDictionary[generator] = hbdelegate;
+            Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += hbdelegate;
+        }
+    }
+
+    private void PauseMagicResourceGeneratorHeartbeats()
+    {
+        foreach (HeartbeatManagerDelegate hbdelegate in _generatorDelegateDictionary.Values.ToList())
+        {
+            Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= hbdelegate;
+        }
+
+        _generatorDelegateDictionary.Clear();
+    }
+
     public void AddMagicResourceGenerator(IMagicResourceRegenerator generator)
     {
         if (!_magicResourceGenerators.Contains(generator))
         {
             _magicResourceGenerators.Add(generator);
-            HeartbeatManagerDelegate hbdelegate = generator.GetOnMinuteDelegate(this);
-            _generatorDelegateDictionary[generator] = hbdelegate;
-            Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += hbdelegate;
+            ResumeMagicResourceGeneratorHeartbeats();
             ResourcesChanged = true;
         }
     }
@@ -219,8 +254,11 @@ public partial class Character : IMagicUser
         if (_magicResourceGenerators.Contains(generator))
         {
             _magicResourceGenerators.Remove(generator);
-            Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= _generatorDelegateDictionary[generator];
-            _generatorDelegateDictionary.Remove(generator);
+            if (_generatorDelegateDictionary.Remove(generator, out HeartbeatManagerDelegate hbdelegate))
+            {
+                Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= hbdelegate;
+            }
+
             ResourcesChanged = true;
         }
     }

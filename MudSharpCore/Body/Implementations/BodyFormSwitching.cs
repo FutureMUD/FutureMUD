@@ -478,6 +478,7 @@ public partial class Body
 	internal void ApplySwitchPlan(BodySwitchPlan plan)
 	{
 		var source = plan.Source;
+		LoginDormantFormItems();
 
 		var transferTrauma = plan.TraumaMode == BodySwitchTraumaMode.Transfer;
 
@@ -945,6 +946,7 @@ public partial class Body
 		EndDrugTick();
 		EndHealthTick();
 		CacheScheduledEffects();
+		Gameworld.Scheduler.Destroy(this);
 		_breathingStrategy = new NonBreather();
 		if (traumaMode == BodySwitchTraumaMode.Transfer)
 		{
@@ -985,6 +987,8 @@ public partial class Body
 				ReevaluateLimbAndPartDamageEffects();
 			});
 		}
+
+		QuitDormantFormItems();
 
 		Changed = true;
 	}

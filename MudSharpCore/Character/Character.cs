@@ -80,6 +80,9 @@ public partial class Character : PerceiverItem, ICharacter
 {
     private IPersonalName _currentName;
     public PlanarPresenceDefinition BasePlanarPresence => Body.BasePlanarPresence;
+    private bool CanRunCharacterOngoingProcesses =>
+        !State.HasFlag(CharacterState.Dead) &&
+        !State.HasFlag(CharacterState.Stasis);
 
     public Character(MudSharp.Models.Character character, IFuturemud gameworld, bool temporary = false)
         : base(character.Id)
@@ -2026,6 +2029,13 @@ public partial class Character : PerceiverItem, ICharacter
                     throw new ApplicationException("A dead character was set to a non dead status.");
                 }
 
+                if (State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
+                {
+                    StopNeedsHeartbeat();
+                    ClearForcedTransformationHeartbeatRegistration();
+                    PauseMagicResourceGeneratorHeartbeats();
+                }
+
                 CheckCanFly();
             }
         }
@@ -2349,9 +2359,10 @@ public partial class Character : PerceiverItem, ICharacter
         Gameworld.EffectScheduler.Destroy(this, true);
         Gameworld.Scheduler.Destroy(this);
         ClearForcedTransformationHeartbeatRegistration();
+        PauseMagicResourceGeneratorHeartbeats();
         Body.Quit();
 
-        Gameworld.HeartbeatManager.TenSecondHeartbeat -= NeedsHeartbeat;
+        StopNeedsHeartbeat();
         Gameworld.Destroy(this);
         OutputHandler?.Register(null);
         if (Controller != null)
@@ -2377,6 +2388,7 @@ public partial class Character : PerceiverItem, ICharacter
         StartNeedsHeartbeat();
         RemoveAllEffects(x => x.IsEffectType<LinkdeadLogout>());
         Body.Login();
+        ResumeMagicResourceGeneratorHeartbeats();
         RefreshForcedTransformationHeartbeatRegistration();
         ReevaluateForcedBodyTransformation();
         if (PositionTarget?.TargetedBy.Contains(this) == false)
@@ -3254,15 +3266,35 @@ public partial class Character : PerceiverItem, ICharacter
 
     public virtual void NeedsHeartbeat()
     {
+        if (!CanRunCharacterOngoingProcesses)
+        {
+            StopNeedsHeartbeat();
+            return;
+        }
+
         Body.NeedsHeartbeat();
     }
 
     public virtual void StartNeedsHeartbeat()
     {
+        if (!CanRunCharacterOngoingProcesses)
+        {
+            StopNeedsHeartbeat();
+            return;
+        }
+
         if (NeedsModel.NeedsSave)
         {
-            Gameworld.HeartbeatManager.TenSecondHeartbeat -= NeedsHeartbeat;
+            StopNeedsHeartbeat();
             Gameworld.HeartbeatManager.TenSecondHeartbeat += NeedsHeartbeat;
+        }
+    }
+
+    private void StopNeedsHeartbeat()
+    {
+        if (Gameworld is not null)
+        {
+            Gameworld.HeartbeatManager.TenSecondHeartbeat -= NeedsHeartbeat;
         }
     }
 

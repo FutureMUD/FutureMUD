@@ -93,6 +93,9 @@ public partial class Character
 
         State = CharacterState.Dead;
         _status = CharacterStatus.Deceased;
+        StopNeedsHeartbeat();
+        ClearForcedTransformationHeartbeatRegistration();
+        PauseMagicResourceGeneratorHeartbeats();
         MudSharp.RPG.AIStorytellers.AIStoryteller.HandleCharacterStateInRoomEvent(this,
             MudSharp.RPG.AIStorytellers.AIStorytellerStateTriggerType.Dead);
 
@@ -140,7 +143,7 @@ public partial class Character
             _nextContext = null;
         }
 
-        Gameworld.HeartbeatManager.TenSecondHeartbeat -= NeedsHeartbeat;
+        StopNeedsHeartbeat();
         Body.Die();
         using (new FMDB())
         {
@@ -188,6 +191,8 @@ public partial class Character
         LoginDateTime = DateTime.UtcNow;
         LastMinutesUpdate = LoginDateTime;
         StartNeedsHeartbeat();
+        ResumeMagicResourceGeneratorHeartbeats();
+        RefreshForcedTransformationHeartbeatRegistration();
 
         Body.Resurrect(location);
         Corpse = null;

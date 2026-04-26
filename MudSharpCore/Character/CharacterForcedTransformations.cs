@@ -220,6 +220,12 @@ public partial class Character
 
 	private void RefreshForcedTransformationHeartbeatRegistration()
 	{
+		if (!CanRunCharacterOngoingProcesses)
+		{
+			ClearForcedTransformationHeartbeatRegistration();
+			return;
+		}
+
 		var desired = DesiredForcedTransformationHeartbeatCadence();
 		if (desired == _forcedTransformationHeartbeatCadence)
 		{
@@ -258,6 +264,12 @@ public partial class Character
 
 	private void ForcedTransformationHeartbeat()
 	{
+		if (!CanRunCharacterOngoingProcesses)
+		{
+			ClearForcedTransformationHeartbeatRegistration();
+			return;
+		}
+
 		ReevaluateForcedBodyTransformation();
 	}
 }

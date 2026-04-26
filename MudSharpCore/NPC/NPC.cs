@@ -77,6 +77,12 @@ public class NPC : Character.Character, INPC
 
     public void SetupEventSubscriptions()
     {
+        if (State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
+        {
+            ReleaseEventSubscriptions();
+            return;
+        }
+
         if (AIs.Any(x => x.HandlesEvent(EventType.FiveSecondTick)))
         {
             Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
@@ -145,6 +151,7 @@ public class NPC : Character.Character, INPC
 
     public override IGameItem Die()
     {
+        ReleaseEventSubscriptions();
         if (_bodyguardingCharacterId.HasValue)
         {
             _bodyguardingCharacterId = null;

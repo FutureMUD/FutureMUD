@@ -102,8 +102,9 @@ public partial class Body
 
     public void CheckDrugTick()
     {
-        if (Actor.State.HasFlag(CharacterState.Stasis) || Actor.State.HasFlag(CharacterState.Dead))
+        if (!IsActiveCharacterBody)
         {
+            EndDrugTick();
             return;
         }
 
@@ -132,12 +133,23 @@ public partial class Body
 
     private void EndDrugTick()
     {
+        if (!_drugTickOn)
+        {
+            return;
+        }
+
         Gameworld.HeartbeatManager.TenSecondHeartbeat -= DrugTenSecondHeartbeat;
         _drugTickOn = false;
     }
 
     private void DrugTenSecondHeartbeat()
     {
+        if (!IsActiveCharacterBody)
+        {
+            EndDrugTick();
+            return;
+        }
+
         ProcessLatentDrugs();
         ApplyDrugEffects();
         MetaboliseActiveDrugs();

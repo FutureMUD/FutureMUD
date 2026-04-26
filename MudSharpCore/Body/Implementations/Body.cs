@@ -211,6 +211,11 @@ public partial class Body : PerceiverItem, IBody
     public PlanarPresenceDefinition BasePlanarPresence => Prototype.BasePlanarPresence;
 
     public ICharacter Actor { get; set; }
+    private bool IsActiveCharacterBody =>
+        Actor?.CurrentBody == this &&
+        !Actor.State.HasFlag(CharacterState.Dead) &&
+        !Actor.State.HasFlag(CharacterState.Stasis);
+
     public Alignment Handedness { get; set; }
 
     public IController Controller { get; protected set; }
@@ -419,6 +424,13 @@ public partial class Body : PerceiverItem, IBody
 
     public void Login()
     {
+        if (!IsActiveCharacterBody)
+        {
+            _breathingStrategy = new NonBreather();
+            Controller = null;
+            return;
+        }
+
         _breathingStrategy = Race.BreathingStrategy;
         CalculateOrganFunctions(true);
         ScheduleCachedEffects();
@@ -456,6 +468,22 @@ public partial class Body : PerceiverItem, IBody
         Gameworld.Destroy(this);
         PerceivableQuit();
         _breathingStrategy = new NonBreather();
+    }
+
+    internal void LoginDormantFormItems()
+    {
+        foreach (IGameItem item in AllItems.ToList())
+        {
+            item.Login();
+        }
+    }
+
+    internal void QuitDormantFormItems()
+    {
+        foreach (IGameItem item in AllItems.ToList())
+        {
+            item.Quit();
+        }
     }
 
     public string ReportCondition()
@@ -524,6 +552,13 @@ public partial class Body : PerceiverItem, IBody
 
     public void ActivateForCharacter()
     {
+        if (!IsActiveCharacterBody)
+        {
+            _breathingStrategy = new NonBreather();
+            Controller = null;
+            return;
+        }
+
         Controller = Actor?.CharacterController;
         _breathingStrategy = Race.BreathingStrategy;
     }
@@ -534,6 +569,7 @@ public partial class Body : PerceiverItem, IBody
         EndDrugTick();
         EndHealthTick();
         CacheScheduledEffects();
+        Gameworld.Scheduler.Destroy(this);
         _breathingStrategy = new NonBreather();
         Controller = null;
     }

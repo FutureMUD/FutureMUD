@@ -15,7 +15,7 @@ public class LandmarkEffect : Effect
     public LandmarkEffect(ICell owner, bool isMeetingPlace, string sphere, IFutureProg applicabilityProg = null) : base(owner, applicabilityProg)
     {
         Sphere = sphere;
-        IsMeetingPlace = IsMeetingPlace;
+        IsMeetingPlace = isMeetingPlace;
     }
 
     private LandmarkEffect(XElement effect, IPerceivable owner) : base(effect, owner)

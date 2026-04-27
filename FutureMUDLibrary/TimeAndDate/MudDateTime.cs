@@ -172,7 +172,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                     (clock.HoursPerDay / clock.NumberOfHourIntervals);
             }
 
-            MudTime time = new(second, minute, hour, tz, clock, 0);
+            MudTime time = MudTime.FromLocalTime(second, minute, hour, tz, clock);
             dt = new MudDateTime(date, time, tz);
             return true;
         }
@@ -308,7 +308,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 return Never;
             }
 
-            return new MudDateTime(Date.ConvertToOtherCalendar(convert), new MudTime(Time), TimeZone);
+            return new MudDateTime(Date.ConvertToOtherCalendar(convert), MudTime.CopyOf(Time), TimeZone);
         }
 
         public string ToString(CalendarDisplayMode calendarMode, TimeDisplayTypes clockMode)
@@ -358,7 +358,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
             }
 
             Date = new MudDate(rhs.Date);
-            Time = rhs.Time == null ? null : new MudTime(rhs.Time);
+            Time = rhs.Time == null ? null : MudTime.CopyOf(rhs.Time);
             TimeZone = rhs?.TimeZone;
             Gameworld = rhs?.Gameworld ?? Clock?.Gameworld;
         }
@@ -462,7 +462,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 return Never;
             }
 
-            MudTime newTime = new(dt.Time);
+            MudTime newTime = MudTime.CopyOf(dt.Time);
             newTime.AddSeconds(ts.SecondComponentOnly);
             newTime.AddMinutes(ts.MinuteComponentOnly);
             newTime.AddHours(ts.HourComponentOnly);
@@ -485,7 +485,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 return Never;
             }
 
-            MudTime newTime = new(dt.Time);
+            MudTime newTime = MudTime.CopyOf(dt.Time);
             newTime.AddSeconds(-1 * ts.SecondComponentOnly);
             newTime.AddMinutes(-1 * ts.MinuteComponentOnly);
             newTime.AddHours(-1 * ts.HourComponentOnly);
@@ -665,7 +665,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 case "isnever":
                     return new BooleanVariable(Date == null);
                 case "midnight":
-                    return Date == null ? Never : new MudDateTime(Date, new MudTime(0, 0, 0, TimeZone, Clock, 0), TimeZone);
+                    return Date == null ? Never : new MudDateTime(Date, MudTime.FromLocalTime(0, 0, 0, TimeZone, Clock), TimeZone);
                 case "calendar":
                     return Calendar;
                 case "clock":

@@ -46,7 +46,7 @@ public static class ListenerFactory
     public static ITemporalListener CreateTimeOffsetListener(IClock watchClock, int secondsOffset, int minutesOffset,
         int hoursOffset, int repeatTimes, Action<object[]> payload, object[] objects)
     {
-        MudTime newTime = new(watchClock.CurrentTime);
+        MudTime newTime = MudTime.CopyOf(watchClock.CurrentTime);
         newTime.AddSeconds(secondsOffset);
         newTime.AddMinutes(minutesOffset);
         newTime.AddHours(hoursOffset);
@@ -78,7 +78,7 @@ public static class ListenerFactory
         int minutesOffset, int hoursOffset, ICalendar watchCalendar, int daysOffset, int monthsOffset,
         int yearsOffset, bool ignoreIntercalaries, IMudTimeZone watchForTimeZone, int repeatTimes, Action<object[]> payload, object[] objects, string debuggerReference)
     {
-        MudTime newTime = new(watchClock.CurrentTime);
+        MudTime newTime = MudTime.CopyOf(watchClock.CurrentTime);
         newTime.AddSeconds(secondsOffset);
         newTime.AddMinutes(minutesOffset);
         newTime.AddHours(hoursOffset);

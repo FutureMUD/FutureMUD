@@ -126,10 +126,13 @@ The primary clock time is the canonical advancing time for a clock. When a prima
 
 There are two important construction patterns:
 
-- `new MudTime(seconds, minutes, hours, timezone, clock, true)` creates the primary feeder time for a clock.
-- `new MudTime(seconds, minutes, hours, timezone, clock, daysOffset)` creates a local wall time already expressed in that time zone.
+- `MudTime.CreatePrimaryTime(seconds, minutes, hours, timezone, clock)` creates the authoritative feeder time for a clock.
+- `MudTime.FromPrimaryTime(seconds, minutes, hours, timezone, clock)` converts a primary/datum time into a timezone-local time.
+- `MudTime.FromLocalTime(seconds, minutes, hours, timezone, clock, daysOffset)` creates a local wall time already expressed in that time zone.
+- `MudTime.ParseLocalTime(text, clock)` and `MudTime.TryParseLocalTime(text, clock, out time, out error)` parse builder/player-entered local wall time.
+- `MudTime.CopyOf(time, resetDaysOffsetFromDatum)` copies a time without preserving primary-clock behavior.
 
-The boolean constructor with `isprimarytime=false` applies time-zone offset logic. It should be used with care because it treats the supplied components as a datum that needs adjustment. Parser and scheduling code that accepts local wall time should use the `daysOffset` constructor or `Clock.GetTime`.
+The named factories centralize component validation, time-zone ownership checks, and the distinction between datum conversion and local wall time. `Clock.GetTime(string)` remains as a facade over `MudTime.ParseLocalTime`.
 
 `MudTime.GetTimeByTimezone` converts between time zones on the same clock and preserves any day rollover through `DaysOffsetFromDatum`.
 
@@ -277,6 +280,8 @@ It supports interval types:
 - hourly
 - daily
 - monthly
+- ordinal day of month
+- ordinal weekday of month
 - specific weekday
 - weekly
 - yearly
@@ -287,9 +292,24 @@ The parser accepts text like:
 every 3 days
 every 1 month
 every weekday 4
+every month on day 15
+every 2 months on the 15th
+every month on last day
+every month on the 5th Wednesday
+every month on the 5th or last Wednesday
+every 3 months on the 12th or last Marketday
 ```
 
 For `SpecificWeekday`, `Modifier` is the weekday index in the calendar. For other interval types, `Modifier` is usually zero.
+
+For ordinal month intervals:
+
+- `OrdinalDayOfMonth` uses `Modifier` as the target day. `-1` means the last day of the month.
+- `OrdinalWeekdayOfMonth` uses `Modifier` as the ordinal occurrence and `SecondaryModifier` as the calendar weekday index.
+- `OrdinalFallbackMode.ExactOnly` skips months where the requested weekday occurrence does not exist.
+- `OrdinalFallbackMode.OrLast` uses the requested occurrence when present, otherwise the last matching weekday in that month.
+
+Day-of-month recurrences clamp to the last valid day in shorter months. Ordinal weekday recurrences accept any positive ordinal; the search uses generated calendar months and weekday names, so non-seven-day weeks and long fictional months are supported. The search is bounded and throws if no valid occurrence can be found inside the conservative month-search horizon.
 
 Recurring intervals can:
 
@@ -300,6 +320,17 @@ Recurring intervals can:
 - create listeners through the `IntervalExtensions` helpers
 
 Weekday intervals use the owning calendar's weekday list and support both forward and backward movement.
+
+### Interval Persistence
+Persistent recurring interval owners store the primary recurrence type, amount, modifier, secondary modifier, fallback mode, and reference date/time needed to recreate runtime listeners.
+
+Current interval persistence includes:
+
+- `ProgSchedules.IntervalOtherSecondary` and `ProgSchedules.IntervalFallback`
+- `EconomicZones.IntervalOther` and `EconomicZones.IntervalFallback`
+- `Clans.PayIntervalOtherSecondary` and `Clans.PayIntervalFallback`
+
+The new fields default to `0`, so existing rows continue to load with legacy recurrence semantics. String and XML interval persistence still round-trips through `RecurringInterval.ToString()` and `RecurringInterval.Parse`.
 
 ## Temporal Listeners
 Temporal listeners are in-memory callback objects that subscribe to clock or calendar events.
@@ -396,6 +427,8 @@ The seeder includes stock calendars such as Gregorian, Julian, Roman, Tranquilit
 
 The seeder is repair-capable for canonical stock time data. Other seeders rely on at least one clock and calendar being present.
 
+Seeder regression tests cover all stock `TimeSeeder` modes, including XML shape, runtime loading of generated clock/calendar rows, non-seven-day week packages, decimal clocks, Middle-earth multi-calendar output, and idempotent reruns.
+
 ## Integration Points
 The time and date system is used broadly across FutureMUD:
 
@@ -420,16 +453,26 @@ These are important rules to preserve when changing the system:
 - Calendar weekday math must use `Weekdays.Count`, not a hard-coded seven-day week.
 - Intercalary non-weekday additions and removals must match both generated month behavior and yearly weekday counts.
 - `MudDate` copies must preserve generated-year weekday state.
+- `MudTime` construction should go through the named factories so datum conversion and local wall-time construction remain explicit.
 - Temporal listeners consume repeat counts only after successful payload firing.
+- Ordinal recurrence calculations must use generated calendar data rather than Gregorian month/week assumptions.
 - Persistent scheduling should store recurrence/reference data and recreate listeners rather than expecting listeners themselves to persist.
+
+## Test Coverage
+The normal unit-test suites now include focused coverage for:
+
+- `MudTime` factory validation, parsing, copy behavior, and primary-time day rollover
+- `MudDate`, `MudDateTime`, `MudTimeSpan`, calendar weekday math, intercalary weekday edits, and `Never` safety
+- recurring interval parsing, descriptions, round-trip text, forward/backward search, high ordinal weekdays, exact-month skipping, and "or last" fallback
+- runtime listeners, interval extension helpers, and FutureProg date/time helper functions
+- every seeded clock/calendar package produced by `TimeSeeder`, including runtime loading and idempotent reruns
 
 ## Current Limitations
 The system is flexible, but there are areas where current support is incomplete or intentionally narrow:
 
 - calendar authoring is not as builder-friendly as clock and time-zone authoring
 - time zones are fixed offsets and do not model daylight saving or historical offset changes
-- `MudTime` has constructor overloads with subtly different offset semantics, so call sites must choose carefully
-- recurring interval text is compact but limited; it does not yet support richer expressions like "last day of month" or "third Monday"
+- recurring interval text is richer than the legacy compact form, but it remains a focused recurrence grammar rather than a general cron system
 - listeners are in-memory runtime helpers, so persistence must be implemented by the owning subsystem
 - cross-calendar conversion is based on each calendar's current date anchor, which is useful for live worlds but should be treated carefully for historical absolute chronology
 - `MudTimeSpan` month and year components are calendar-like approximations until applied to a concrete `MudDateTime`
@@ -439,10 +482,8 @@ Useful extensions include:
 
 - a full calendar builder/editor with validation previews for generated years
 - builder-facing calendar import/export tooling for XML definitions
-- richer recurring interval grammar and validation messages
+- additional recurrence validation previews and builder-facing schedule explanation tools
 - daylight saving and date-bounded time-zone transitions
-- clearer `MudTime` construction APIs that distinguish datum conversion from local wall time
-- design-time tests for every stock seeded calendar, including non-seven-day weeks and intercalaries
 - a schedule inspection command that shows active listener state alongside persistent recurrence state
 - more FutureProg helper functions for calendar math, such as `daysbetween`, `monthstart`, `monthend`, and `weekdayname`
 - stronger validation for calendars linked to shards, zones, celestials, weather controllers, economies, and clans before deletion or major edits

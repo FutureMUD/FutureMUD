@@ -92,7 +92,7 @@ internal class MudNowFunction : BuiltInFunction
 
         if (timezone != clock.PrimaryTimezone)
         {
-            time = new MudTime(time).GetTimeByTimezone(timezone);
+            time = MudTime.CopyOf(time).GetTimeByTimezone(timezone);
             if (time.DaysOffsetFromDatum != 0)
             {
                 date = new MudDate(date);

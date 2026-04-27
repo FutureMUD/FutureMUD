@@ -28,6 +28,8 @@ namespace MudSharp.Models
         public int PayIntervalType { get; set; }
         public int PayIntervalModifier { get; set; }
         public int PayIntervalOther { get; set; }
+        public int PayIntervalOtherSecondary { get; set; }
+        public int PayIntervalFallback { get; set; }
         public long CalendarId { get; set; }
         public string PayIntervalReferenceDate { get; set; }
         public string PayIntervalReferenceTime { get; set; }

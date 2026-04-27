@@ -36,6 +36,8 @@ public static class IntervalExtensions
                     referenceTime.Date.Day, referenceTime.Date.Month.Alias, referenceTime.Date.Year, referenceTime.TimeZone, 1,
                     payload, objects, debuggerReference);
             case IntervalType.Monthly:
+            case IntervalType.OrdinalDayOfMonth:
+            case IntervalType.OrdinalWeekdayOfMonth:
                 return ListenerFactory.CreateDateTimeListener(referenceTime.Clock,
                     referenceTime.Time.Seconds, referenceTime.Time.Minutes, referenceTime.Time.Hours,
                     referenceTime.Calendar,
@@ -85,6 +87,8 @@ public static class IntervalExtensions
                     date.Day, date.Month.Alias, date.Year, referenceTimezone, 1,
                     payload, objects, debuggerReference);
             case IntervalType.Monthly:
+            case IntervalType.OrdinalDayOfMonth:
+            case IntervalType.OrdinalWeekdayOfMonth:
                 return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
                     recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
                     date.Day, date.Month.Alias, date.Year, referenceTimezone, 1,
@@ -141,7 +145,7 @@ public static class IntervalExtensions
                     objects1 =>
                     {
                         MudDate newDate = new(date);
-                        MudTime newTime = new MudTime(recurringTime).GetTimeByTimezone(referenceTimeZone);
+                        MudTime newTime = MudTime.CopyOf(recurringTime).GetTimeByTimezone(referenceTimeZone);
                         newTime.AddMinutes(interval.IntervalAmount);
                         if (newTime.DaysOffsetFromDatum != 0)
                         {
@@ -158,7 +162,7 @@ public static class IntervalExtensions
                     objects1 =>
                     {
                         MudDate newDate = new(date);
-                        MudTime newTime = new MudTime(recurringTime).GetTimeByTimezone(referenceTimeZone);
+                        MudTime newTime = MudTime.CopyOf(recurringTime).GetTimeByTimezone(referenceTimeZone);
                         newTime.AddHours(interval.IntervalAmount);
                         if (newTime.DaysOffsetFromDatum != 0)
                         {
@@ -180,14 +184,21 @@ public static class IntervalExtensions
                         interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, referenceTimeZone, payload, objects1, debuggerReference);
                     }, objects, debuggerReference);
             case IntervalType.Monthly:
+            case IntervalType.OrdinalDayOfMonth:
+            case IntervalType.OrdinalWeekdayOfMonth:
                 return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
                     recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
                     date.Day, date.Month.Alias, date.Year, referenceTimeZone, 1,
                     objects1 =>
                     {
                         payload(objects1);
-                        MudDate newDate = new(date);
-                        newDate.AdvanceMonths(interval.IntervalAmount, true, true);
+                        MudDate newDate = interval.Type == IntervalType.Monthly
+                            ? new MudDate(date)
+                            : interval.GetNextDateExclusive(whichCalendar, date);
+                        if (interval.Type == IntervalType.Monthly)
+                        {
+                            newDate.AdvanceMonths(interval.IntervalAmount, true, true);
+                        }
                         interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, referenceTimeZone, payload, objects1, debuggerReference);
                     }, objects, debuggerReference);
             case IntervalType.SpecificWeekday:

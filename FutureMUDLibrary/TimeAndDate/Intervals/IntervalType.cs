@@ -8,6 +8,14 @@
         Yearly,
         SpecificWeekday,
         Hourly,
-        Minutely
+        Minutely,
+        OrdinalDayOfMonth,
+        OrdinalWeekdayOfMonth
+    }
+
+    public enum OrdinalFallbackMode
+    {
+        ExactOnly = 0,
+        OrLast = 1
     }
 }

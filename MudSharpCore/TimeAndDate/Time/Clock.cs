@@ -550,6 +550,28 @@ public class Clock : SaveableItem, IClock
 
     #region Constructors
 
+    private IMudTimeZone ResolvePrimaryTimezone(IMudTimeZone primaryTimezone = null)
+    {
+        if (primaryTimezone is not null)
+        {
+            if (!_timezones.Contains(primaryTimezone))
+            {
+                AddTimezone(primaryTimezone);
+            }
+
+            return primaryTimezone;
+        }
+
+        if (_timezones.FirstOrDefault() is { } existing)
+        {
+            return existing;
+        }
+
+        var fallback = new MudTimeZone(0, 0, 0, $"{Alias} Standard Time", Alias);
+        AddTimezone(fallback);
+        return fallback;
+    }
+
     public Clock(IFuturemud gameworld, string name, string alias)
     {
         Gameworld = gameworld;
@@ -586,7 +608,7 @@ public class Clock : SaveableItem, IClock
         MudTimeZone timezone = new(this, 0, 0, $"{Name} Standard Time", alias);
         AddTimezone(timezone);
         PrimaryTimezone = timezone;
-        CurrentTime = new MudTime(0, 0, 0, timezone, this, true);
+        CurrentTime = MudTime.CreatePrimaryTime(0, 0, 0, timezone, this);
         Save();
     }
 
@@ -638,7 +660,7 @@ public class Clock : SaveableItem, IClock
             }
         }
 
-        CurrentTime = new MudTime(rhs.CurrentTime.Seconds, rhs.CurrentTime.Minutes, rhs.CurrentTime.Hours, PrimaryTimezone, this, true);
+        CurrentTime = MudTime.CreatePrimaryTime(rhs.CurrentTime.Seconds, rhs.CurrentTime.Minutes, rhs.CurrentTime.Hours, PrimaryTimezone, this);
         Save();
     }
 
@@ -646,8 +668,8 @@ public class Clock : SaveableItem, IClock
     {
         LoadFromXml(loadfile);
         _name = Alias;
-        PrimaryTimezone = primaryTimeZone;
-        CurrentTime = new MudTime(seconds, minutes, hours, PrimaryTimezone, this, true);
+        PrimaryTimezone = ResolvePrimaryTimezone(primaryTimeZone);
+        CurrentTime = MudTime.CreatePrimaryTime(seconds, minutes, hours, PrimaryTimezone, this);
         ;
     }
 
@@ -656,8 +678,8 @@ public class Clock : SaveableItem, IClock
         Gameworld = gameworld;
         LoadFromXml(loadfile);
         _name = Alias;
-        PrimaryTimezone = primaryTimeZone;
-        CurrentTime = new MudTime(seconds, minutes, hours, PrimaryTimezone, this, true);
+        PrimaryTimezone = ResolvePrimaryTimezone(primaryTimeZone);
+        CurrentTime = MudTime.CreatePrimaryTime(seconds, minutes, hours, PrimaryTimezone, this);
         ;
     }
 
@@ -666,8 +688,8 @@ public class Clock : SaveableItem, IClock
         Gameworld = gameworld;
         LoadFromXml(loadfile);
         _name = Alias;
-        PrimaryTimezone = _timezones.FirstOrDefault();
-        CurrentTime = new MudTime(0, 0, 0, PrimaryTimezone, this, true);
+        PrimaryTimezone = ResolvePrimaryTimezone();
+        CurrentTime = MudTime.CreatePrimaryTime(0, 0, 0, PrimaryTimezone, this);
     }
 
     public Clock(MudSharp.Models.Clock clock, IFuturemud game)
@@ -682,7 +704,7 @@ public class Clock : SaveableItem, IClock
         }
 
         PrimaryTimezone = _timezones.Get(clock.PrimaryTimezoneId);
-        CurrentTime = new MudTime(clock.Seconds, clock.Minutes, clock.Hours, PrimaryTimezone, this, true);
+        CurrentTime = MudTime.CreatePrimaryTime(clock.Seconds, clock.Minutes, clock.Hours, PrimaryTimezone, this);
     }
 
     public IClock Clone(string name, string alias)
@@ -881,29 +903,9 @@ public class Clock : SaveableItem, IClock
         return DisplayTime(CurrentTime, type);
     }
 
-    private static readonly Regex TimeStringRegex =
-        new(
-            @"^(?<timezone>[a-z]+){0,}\s*(?<hours>\d+){1}:(?<minutes>\d+){1}:(?<seconds>\d+){1}\s*(?<meridian>[a-z]+){0,}$",
-            RegexOptions.IgnoreCase);
-
     public MudTime GetTime(string timeString)
     {
-        Match match = TimeStringRegex.Match(timeString);
-        if (!match.Success)
-        {
-            throw new ArgumentException("The time string supplied did not match the time regex.");
-        }
-
-        return new MudTime(int.Parse(match.Groups["seconds"].Value), int.Parse(match.Groups["minutes"].Value),
-            match.Groups["meridian"].Success
-                ? HourIntervalNames.FindIndex(
-                    x => x.Equals(match.Groups["meridian"].Value, StringComparison.InvariantCultureIgnoreCase)) *
-                (HoursPerDay / NumberOfHourIntervals) + int.Parse(match.Groups["hours"].Value)
-                : int.Parse(match.Groups["hours"].Value),
-            match.Groups["timezone"].Success
-                ? Timezones.FirstOrDefault(
-                    x => x.Alias.Equals(match.Groups["timezone"].Value, StringComparison.InvariantCultureIgnoreCase))
-                : PrimaryTimezone, this, 0);
+        return MudTime.ParseLocalTime(timeString, this);
     }
 
     public void SetTime(MudTime time)

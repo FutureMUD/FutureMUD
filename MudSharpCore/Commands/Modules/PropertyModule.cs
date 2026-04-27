@@ -1405,10 +1405,10 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        if (!RecurringInterval.TryParse(ss.SafeRemainingArgument, out RecurringInterval interval))
+        if (!RecurringInterval.TryParse(ss.SafeRemainingArgument, property.EconomicZone.FinancialPeriodReferenceCalendar, out RecurringInterval interval, out string intervalError))
         {
             actor.OutputHandler.Send(
-                $"That is not a valid interval.\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}");
+                $"That is not a valid interval: {intervalError}\n{"Use forms like: every <x> hours|days|weekdays|weeks|months|years <offset>, every month on day 15, or every month on the 5th or last Wednesday".ColourCommand()}");
             return;
         }
 

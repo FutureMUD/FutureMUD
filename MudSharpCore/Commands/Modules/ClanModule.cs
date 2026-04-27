@@ -486,14 +486,14 @@ All of the following commands must happen with an edited clan selected:
 
         if (ss.IsFinished)
         {
-            actor.OutputHandler.Send($"What should the pay interval be for this clan?\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years [<from time>]".ColourCommand()}");
+            actor.OutputHandler.Send($"What should the pay interval be for this clan?\n{"Use forms like: every <x> hours|days|weekdays|weeks|months|years [<from time>], every month on day 15, or every month on the 5th or last Wednesday".ColourCommand()}");
             return;
         }
 
-        if (!RecurringInterval.TryParse(ss.PopSpeech(), out RecurringInterval interval))
+        if (!RecurringInterval.TryParse(ss.PopSpeech(), clan.Calendar, out RecurringInterval interval, out string intervalError))
         {
             actor.OutputHandler.Send(
-                $"That is not a valid interval.\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years [<from time>]".ColourCommand()}");
+                $"That is not a valid interval: {intervalError}\n{"Use forms like: every <x> hours|days|weekdays|weeks|months|years [<from time>], every month on day 15, or every month on the 5th or last Wednesday".ColourCommand()}");
             return;
         }
 
@@ -3547,6 +3547,8 @@ Your next payday is {3}.
             dbclan.PayIntervalType = 0;
             dbclan.PayIntervalModifier = 1;
             dbclan.PayIntervalOther = 0;
+            dbclan.PayIntervalOtherSecondary = 0;
+            dbclan.PayIntervalFallback = 0;
             dbclan.PayIntervalReferenceDate = actor.Culture.PrimaryCalendar.CurrentDate.GetDateString();
             dbclan.PayIntervalReferenceTime = "0:0:0";
 

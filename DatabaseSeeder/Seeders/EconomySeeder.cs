@@ -1811,6 +1811,8 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         economicZone.IntervalType = (int)IntervalType.Monthly;
         economicZone.IntervalAmount = 1;
         economicZone.IntervalModifier = 0;
+        economicZone.IntervalOther = 0;
+        economicZone.IntervalFallback = 0;
         economicZone.PreviousFinancialPeriodsToKeep = 24;
         economicZone.PermitTaxableLosses = false;
         economicZone.OutstandingTaxesOwed = 0.0m;

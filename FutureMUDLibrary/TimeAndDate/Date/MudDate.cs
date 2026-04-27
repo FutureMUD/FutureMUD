@@ -792,7 +792,7 @@ public class MudDate : IComparable
     public MudDateTime ToDateTime()
     {
         return new MudDateTime(this,
-            new MudTime(0, 0, 0, Calendar.FeedClock.PrimaryTimezone, Calendar.FeedClock, false),
+            MudTime.FromPrimaryTime(0, 0, 0, Calendar.FeedClock.PrimaryTimezone, Calendar.FeedClock),
             Calendar.FeedClock.PrimaryTimezone);
     }
 }

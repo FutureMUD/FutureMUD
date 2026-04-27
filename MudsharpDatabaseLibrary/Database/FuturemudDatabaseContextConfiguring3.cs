@@ -948,6 +948,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.IntervalOther).HasColumnType("int(11)");
 
+                entity.Property(e => e.IntervalOtherSecondary).HasColumnType("int(11)");
+
+                entity.Property(e => e.IntervalFallback).HasColumnType("int(11)");
+
                 entity.Property(e => e.IntervalType).HasColumnType("int(11)");
 
                 entity.Property(e => e.Name)

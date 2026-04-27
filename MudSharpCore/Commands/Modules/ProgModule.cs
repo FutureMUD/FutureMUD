@@ -3126,10 +3126,10 @@ If no datetime argument is supplied with the #3schedule add#0 command, the curre
                 }
 
                 string intervalText = ss.PopSpeech();
-                if (!RecurringInterval.TryParse(intervalText, out RecurringInterval interval))
+                if (!RecurringInterval.TryParse(intervalText, actor.Location.Calendars.First(), out RecurringInterval interval, out string intervalError))
                 {
                     actor.OutputHandler.Send(
-                        $"That is not a valid interval.\n{"Use the following form: every <x> minutes|hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}");
+                        $"That is not a valid interval: {intervalError}\n{"Use forms like: every <x> minutes|hours|days|weekdays|weeks|months|years <offset>, every month on day 15, or every month on the 5th or last Wednesday".ColourCommand()}");
                     return;
                 }
 

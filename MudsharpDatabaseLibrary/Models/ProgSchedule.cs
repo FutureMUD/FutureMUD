@@ -10,6 +10,8 @@ namespace MudSharp.Models
         public int IntervalType { get; set; }
         public int IntervalModifier { get; set; }
         public int IntervalOther { get; set; }
+        public int IntervalOtherSecondary { get; set; }
+        public int IntervalFallback { get; set; }
         public string ReferenceTime { get; set; }
         public string ReferenceDate { get; set; }
         public long FutureProgId { get; set; }

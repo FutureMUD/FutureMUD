@@ -306,6 +306,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.PayIntervalOther).HasColumnType("int(11)");
 
+                entity.Property(e => e.PayIntervalOtherSecondary).HasColumnType("int(11)");
+
+                entity.Property(e => e.PayIntervalFallback).HasColumnType("int(11)");
+
                 entity.Property(e => e.PayIntervalReferenceDate)
                     .IsRequired()
                     .HasColumnType("varchar(100)")
@@ -1884,6 +1888,10 @@ namespace MudSharp.Database
                     .HasDefaultValueSql("'1'");
 
                 entity.Property(e => e.IntervalModifier).HasColumnType("int(11)");
+
+                entity.Property(e => e.IntervalOther).HasColumnType("int(11)");
+
+                entity.Property(e => e.IntervalFallback).HasColumnType("int(11)");
 
                 entity.Property(e => e.IntervalType)
                     .HasColumnType("int(11)")

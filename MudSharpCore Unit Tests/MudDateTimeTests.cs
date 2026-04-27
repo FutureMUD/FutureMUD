@@ -79,7 +79,7 @@ public class MudDateTimeTests
         _testClock.AddTimezone(_utcTimezone);
         _cstTimezone = new MudTimeZone(2, -6, 0, "Central Time", "CST");
         _testClock.AddTimezone(_cstTimezone);
-        _testClock.SetTime(new MudTime(0, 0, 0, _utcTimezone, _testClock, true));
+        _testClock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, _utcTimezone, _testClock));
     }
     //
     // Use ClassCleanup to run code after all tests in a class have run
@@ -91,7 +91,7 @@ public class MudDateTimeTests
     public void MyTestInitialize()
     {
         _testCalendar.SetDate("27/jun/34");
-        _testClock.SetTime(new MudTime(0, 0, 0, _utcTimezone, _testClock, true));
+        _testClock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, _utcTimezone, _testClock));
     }
 
     // Use TestCleanup to run code after each test has run
@@ -901,10 +901,10 @@ public class MudDateTimeTests
     public void RecurringInterval_SpecificWeekday_BackwardReturnsPriorWeekday()
     {
         _testCalendar.SetDate("7/jung/34");
-        _testClock.SetTime(new MudTime(0, 0, 10, _utcTimezone, _testClock, true));
+        _testClock.SetTime(MudTime.CreatePrimaryTime(0, 0, 10, _utcTimezone, _testClock));
         MudDate priorMatchingDate = _testCalendar.CurrentDate;
         MudDateTime reference = new(_testCalendar.GetDate("8/jung/34"),
-            new MudTime(0, 0, 9, _utcTimezone, _testClock, 0), _utcTimezone);
+            MudTime.FromLocalTime(0, 0, 9, _utcTimezone, _testClock), _utcTimezone);
         RecurringInterval interval = new()
         {
             IntervalAmount = 1,
@@ -936,7 +936,7 @@ public class MudDateTimeTests
     public void MudDateTime_AddSubtractTimeSpan_RoundTripsAcrossBoundaries()
     {
         MudDateTime start = new(_testCalendar.GetDate("27/jung/34"),
-            new MudTime(30, 59, 23, _utcTimezone, _testClock, 0), _utcTimezone);
+            MudTime.FromLocalTime(30, 59, 23, _utcTimezone, _testClock), _utcTimezone);
         MudTimeSpan duration = MudTimeSpan.FromMinutes(2);
 
         MudDateTime advanced = start + duration;
@@ -990,6 +990,90 @@ public class MudDateTimeTests
         Assert.AreEqual(calendar.CountWeekdaysInYear(1), year.Months.Sum(x => x.CountWeekdays()));
     }
 
+    [TestMethod]
+    public void RecurringInterval_HighOrdinalWeekday_UsesCalendarWeekAndLongMonth()
+    {
+        Calendar calendar = CreateOrdinalCalendar();
+        calendar.SetDate("1/long/1");
+        _testClock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, _utcTimezone, _testClock));
+        Assert.IsTrue(RecurringInterval.TryParse("every month on the 12th Marketday", calendar, out RecurringInterval interval, out string error), error);
+
+        MudDateTime reference = new(calendar.CurrentDate,
+            MudTime.FromLocalTime(0, 0, 0, _utcTimezone, _testClock), _utcTimezone);
+        MudDateTime result = interval.GetNextDateTime(reference);
+
+        Assert.AreEqual("long", result.Date.Month.Alias);
+        Assert.AreEqual(67, result.Date.Day);
+        Assert.AreEqual("Marketday", result.Date.Weekday);
+    }
+
+    [TestMethod]
+    public void RecurringInterval_ExactOrdinalWeekday_SkipsMonthsWithoutOccurrence()
+    {
+        Calendar calendar = CreateOrdinalCalendar();
+        calendar.SetDate("1/short/1");
+        _testClock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, _utcTimezone, _testClock));
+        Assert.IsTrue(RecurringInterval.TryParse("every month on the 3rd Marketday", calendar, out RecurringInterval interval, out string error), error);
+
+        MudDateTime reference = new(calendar.CurrentDate,
+            MudTime.FromLocalTime(0, 0, 0, _utcTimezone, _testClock), _utcTimezone);
+        MudDateTime result = interval.GetNextDateTime(reference);
+
+        Assert.AreEqual("long", result.Date.Month.Alias);
+        Assert.AreEqual(13, result.Date.Day);
+        Assert.AreEqual("Marketday", result.Date.Weekday);
+    }
+
+    [TestMethod]
+    public void RecurringInterval_OrdinalWeekdayOrLast_FallsBackInShortMonths()
+    {
+        Calendar calendar = CreateOrdinalCalendar();
+        calendar.SetDate("1/short/1");
+        _testClock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, _utcTimezone, _testClock));
+        Assert.IsTrue(RecurringInterval.TryParse("every month on the 3rd or last Marketday", calendar, out RecurringInterval interval, out string error), error);
+
+        MudDateTime reference = new(calendar.CurrentDate,
+            MudTime.FromLocalTime(0, 0, 0, _utcTimezone, _testClock), _utcTimezone);
+        MudDateTime result = interval.GetNextDateTime(reference);
+
+        Assert.AreEqual("short", result.Date.Month.Alias);
+        Assert.AreEqual(7, result.Date.Day);
+        Assert.AreEqual("Marketday", result.Date.Weekday);
+    }
+
+    [TestMethod]
+    public void RecurringInterval_OrdinalDayOfMonth_ClampsToLastValidDay()
+    {
+        Calendar calendar = CreateOrdinalCalendar();
+        calendar.SetDate("1/short/1");
+        _testClock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, _utcTimezone, _testClock));
+        Assert.IsTrue(RecurringInterval.TryParse("every month on day 15", calendar, out RecurringInterval interval, out string error), error);
+
+        MudDateTime reference = new(calendar.CurrentDate,
+            MudTime.FromLocalTime(0, 0, 0, _utcTimezone, _testClock), _utcTimezone);
+        MudDateTime result = interval.GetNextDateTime(reference);
+
+        Assert.AreEqual("short", result.Date.Month.Alias);
+        Assert.AreEqual(12, result.Date.Day);
+    }
+
+    [TestMethod]
+    public void RecurringInterval_OrdinalWeekday_BackwardSearchFindsPriorOccurrence()
+    {
+        Calendar calendar = CreateOrdinalCalendar();
+        calendar.SetDate("1/short/2");
+        _testClock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, _utcTimezone, _testClock));
+        Assert.IsTrue(RecurringInterval.TryParse("every month on the 3rd Marketday", calendar, out RecurringInterval interval, out string error), error);
+
+        MudDateTime reference = new(calendar.CurrentDate,
+            MudTime.FromLocalTime(0, 0, 0, _utcTimezone, _testClock), _utcTimezone);
+        MudDateTime result = interval.GetLastDateTime(reference);
+
+        Assert.AreEqual(1, result.Date.Year);
+        Assert.AreEqual("long", result.Date.Month.Alias);
+        Assert.AreEqual(13, result.Date.Day);
+    }
+
     private static Calendar CreateFiveWeekdayCalendar()
     {
         return new Calendar(XElement.Parse(@"<calendar>
@@ -1031,6 +1115,62 @@ public class MudDateTimeTests
 </calendar>"), _gameworld)
         {
             Id = 101,
+            FeedClock = _testClock
+        };
+    }
+
+    private static Calendar CreateOrdinalCalendar()
+    {
+        return new Calendar(XElement.Parse(@"<calendar>
+  <alias>ordinal</alias>
+  <shortname>Ordinal Calendar</shortname>
+  <fullname>Ordinal Calendar</fullname>
+  <description>Calendar with a six day week and long months.</description>
+  <shortstring>$dd/$mo/$yy</shortstring>
+  <longstring>$dd/$mo/$yy</longstring>
+  <wordystring>$dd/$mo/$yy</wordystring>
+  <plane>test</plane>
+  <feedclock>0</feedclock>
+  <epochyear>1</epochyear>
+  <weekdayatepoch>0</weekdayatepoch>
+  <ancienterashortstring>BT</ancienterashortstring>
+  <ancienteralongstring>before test</ancienteralongstring>
+  <modernerashortstring>AT</modernerashortstring>
+  <moderneralongstring>after test</moderneralongstring>
+  <weekdays>
+    <weekday>Marketday</weekday>
+    <weekday>Moonday</weekday>
+    <weekday>Starday</weekday>
+    <weekday>Fireday</weekday>
+    <weekday>Waterday</weekday>
+    <weekday>Restday</weekday>
+  </weekdays>
+  <months>
+    <month>
+      <alias>short</alias>
+      <shortname>short</shortname>
+      <fullname>Short</fullname>
+      <nominalorder>1</nominalorder>
+      <normaldays>12</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>long</alias>
+      <shortname>long</shortname>
+      <fullname>Long</fullname>
+      <nominalorder>2</nominalorder>
+      <normaldays>72</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+  </months>
+  <intercalarymonths />
+</calendar>"), _gameworld)
+        {
+            Id = 103,
             FeedClock = _testClock
         };
     }
@@ -1102,16 +1242,16 @@ public class MudDateTimeTests
     [TestMethod]
     public void TestTimeDescribers()
     {
-        Assert.AreEqual("1:38:49 a.m", _testClock.DisplayTime(new MudTime(49, 38, 1, _utcTimezone, _testClock, 0), "$j:$m:$s $i"));
-        Assert.AreEqual("12:00:00 a.m", _testClock.DisplayTime(new MudTime(0, 0, 0, _utcTimezone, _testClock, 0), "$j:$m:$s $i"));
-        Assert.AreEqual("12:00:01 a.m", _testClock.DisplayTime(new MudTime(1, 0, 0, _utcTimezone, _testClock, 0), "$j:$m:$s $i"));
-        Assert.AreEqual("11:59:59 p.m", _testClock.DisplayTime(new MudTime(59, 59, 23, _utcTimezone, _testClock, 0), "$j:$m:$s $i"));
-        Assert.AreEqual("23:59:59", _testClock.DisplayTime(new MudTime(59, 59, 23, _utcTimezone, _testClock, 0), "$h:$m:$s"));
-        Assert.AreEqual("1:38:49", _testClock.DisplayTime(new MudTime(49, 38, 1, _utcTimezone, _testClock, 0), "$h:$m:$s"));
-        Assert.AreEqual("twelve o'clock a.m", _testClock.DisplayTime(new MudTime(59, 59, 23, _utcTimezone, _testClock, 0), "$c $l"));
-        Assert.AreEqual("twelve o'clock a.m", _testClock.DisplayTime(new MudTime(0, 0, 0, _utcTimezone, _testClock, 0), "$c $l"));
+        Assert.AreEqual("1:38:49 a.m", _testClock.DisplayTime(MudTime.FromLocalTime(49, 38, 1, _utcTimezone, _testClock), "$j:$m:$s $i"));
+        Assert.AreEqual("12:00:00 a.m", _testClock.DisplayTime(MudTime.FromLocalTime(0, 0, 0, _utcTimezone, _testClock), "$j:$m:$s $i"));
+        Assert.AreEqual("12:00:01 a.m", _testClock.DisplayTime(MudTime.FromLocalTime(1, 0, 0, _utcTimezone, _testClock), "$j:$m:$s $i"));
+        Assert.AreEqual("11:59:59 p.m", _testClock.DisplayTime(MudTime.FromLocalTime(59, 59, 23, _utcTimezone, _testClock), "$j:$m:$s $i"));
+        Assert.AreEqual("23:59:59", _testClock.DisplayTime(MudTime.FromLocalTime(59, 59, 23, _utcTimezone, _testClock), "$h:$m:$s"));
+        Assert.AreEqual("1:38:49", _testClock.DisplayTime(MudTime.FromLocalTime(49, 38, 1, _utcTimezone, _testClock), "$h:$m:$s"));
+        Assert.AreEqual("twelve o'clock a.m", _testClock.DisplayTime(MudTime.FromLocalTime(59, 59, 23, _utcTimezone, _testClock), "$c $l"));
+        Assert.AreEqual("twelve o'clock a.m", _testClock.DisplayTime(MudTime.FromLocalTime(0, 0, 0, _utcTimezone, _testClock), "$c $l"));
 
         // Testing the incorrect one
-        Assert.AreEqual("twelve o'clock p.m", _testClock.DisplayTime(new MudTime(59, 59, 23, _utcTimezone, _testClock, 0), "$c $i"));
+        Assert.AreEqual("twelve o'clock p.m", _testClock.DisplayTime(MudTime.FromLocalTime(59, 59, 23, _utcTimezone, _testClock), "$c $i"));
     }
 }

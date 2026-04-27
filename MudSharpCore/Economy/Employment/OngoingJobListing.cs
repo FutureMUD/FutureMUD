@@ -541,14 +541,14 @@ You will be paid {PayDescriptionForJobListing()}.{(PersonalProject is not null ?
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(
-                $"What interval do you want to set for payroll? Use an expression like {"every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}.");
+                $"What interval do you want to set for payroll? Use forms like {"every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}, {"every month on day 15".ColourCommand()}, or {"every month on the 5th or last Wednesday".ColourCommand()}.");
             return false;
         }
 
-        if (!RecurringInterval.TryParse(command.SafeRemainingArgument, out RecurringInterval? interval))
+        if (!RecurringInterval.TryParse(command.SafeRemainingArgument, PayReference.Calendar, out RecurringInterval? interval, out string intervalError))
         {
             actor.OutputHandler.Send(
-                $"That is not a valid interval. Use an expression like {"every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}.");
+                $"That is not a valid interval: {intervalError}. Use forms like {"every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}, {"every month on day 15".ColourCommand()}, or {"every month on the 5th or last Wednesday".ColourCommand()}.");
             return false;
         }
 

@@ -63,7 +63,7 @@ public class StandardMeleeStrategy : StrategyBase
 
         // Can't defend against clinch if you're not standing or can't afford the stamina
         if (defender.PositionState.CompareTo(PositionStanding.Instance) != PositionHeightComparison.Equivalent ||
-            defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender)))
+            !defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender)))
         {
             return new HelplessDefenseMove
             {
@@ -319,7 +319,7 @@ public class StandardMeleeStrategy : StrategyBase
 
         bool canBlock = shield is not null && !clinching && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Block) && move.Attack.Profile.BaseBlockDifficulty != Difficulty.Impossible && defender.CanSpendStamina(BlockMove.MoveStaminaCost(assailant, defender, shield));
         bool canParry = parry is not null && !defender.EffectsOfType<IWardBeatenEffect>().Any() && !clinching && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Parry) && move.Attack.Profile.BaseParryDifficulty != Difficulty.Impossible && defender.CanSpendStamina(ParryMove.MoveStaminaCost(assailant, defender, parry));
-        bool canDodge = defender.RidingMount is not null && move.Attack.Profile.BaseDodgeDifficulty != Difficulty.Impossible && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Dodge) && defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender));
+        bool canDodge = defender.RidingMount is null && move.Attack.Profile.BaseDodgeDifficulty != Difficulty.Impossible && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Dodge) && defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender));
 
         // If they have a preference for a defense type, use that if possible
         switch (defender.PreferredDefenseType)
@@ -458,6 +458,14 @@ public class StandardMeleeStrategy : StrategyBase
         if (move is BreakClinchMove moveAsBreakClinch)
         {
             return ResponseToBreakClinch(moveAsBreakClinch, defenseCharacter, assailant);
+        }
+
+        if (move is ForcedMovementMove)
+        {
+            return defenseCharacter.CanSpendStamina(DodgeMove.MoveStaminaCost(defenseCharacter)) &&
+                   defenseCharacter.RidingMount is null
+                ? new DodgeMove { Assailant = defenseCharacter, PrimaryTarget = assailant }
+                : new HelplessDefenseMove { Assailant = defenseCharacter, PrimaryTarget = assailant };
         }
 
         if (moveAsRangedAttack != null)
@@ -990,6 +998,7 @@ public class StandardMeleeStrategy : StrategyBase
             BuiltInCombatMoveType.NaturalWeaponAttack,
             BuiltInCombatMoveType.StaggeringBlowUnarmed,
             BuiltInCombatMoveType.UnbalancingBlowUnarmed,
+            BuiltInCombatMoveType.PushbackUnarmed,
             BuiltInCombatMoveType.ScreechAttack,
             BuiltInCombatMoveType.EnvenomingAttack
         };
@@ -1128,6 +1137,7 @@ public class StandardMeleeStrategy : StrategyBase
                         BuiltInCombatMoveType.NaturalWeaponAttack,
                         BuiltInCombatMoveType.StaggeringBlowUnarmed,
                         BuiltInCombatMoveType.UnbalancingBlowUnarmed,
+                        BuiltInCombatMoveType.PushbackUnarmed,
                         BuiltInCombatMoveType.ScreechAttack,
                         BuiltInCombatMoveType.EnvenomingAttack
                 };

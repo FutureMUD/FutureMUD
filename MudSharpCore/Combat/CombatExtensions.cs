@@ -19,7 +19,8 @@ public static class CombatExtensions
     {
             BuiltInCombatMoveType.UseWeaponAttack,
             BuiltInCombatMoveType.StaggeringBlow,
-            BuiltInCombatMoveType.UnbalancingBlow
+            BuiltInCombatMoveType.UnbalancingBlow,
+            BuiltInCombatMoveType.Pushback
     };
 
     private const string MovementSpeedExpressionConfig = "CombatMovementSpeedExpression";
@@ -393,6 +394,14 @@ public static class CombatExtensions
                 return "Melee Shooter";
             case CombatStrategyMode.MeleeMagic:
                 return "Melee Magic";
+            case CombatStrategyMode.Swooper:
+                return "Swooper";
+            case CombatStrategyMode.Drowner:
+                return "Drowner";
+            case CombatStrategyMode.Dropper:
+                return "Dropper";
+            case CombatStrategyMode.PhysicalAvoider:
+                return "Physical Avoider";
             default:
                 throw new ApplicationException("Unknown CombatStrategyMode in Describe.");
         }
@@ -443,6 +452,14 @@ public static class CombatExtensions
                 return "shoot people in melee with a pistol";
             case CombatStrategyMode.MeleeMagic:
                 return "get into melee and use weapons or magic against the enemy";
+            case CombatStrategyMode.Swooper:
+                return "remain airborne and make swooping attacks against the enemy";
+            case CombatStrategyMode.Drowner:
+                return "drag opponents into water or underwater layers, then grapple them there";
+            case CombatStrategyMode.Dropper:
+                return "grapple opponents, carry them upward while flying, and drop them";
+            case CombatStrategyMode.PhysicalAvoider:
+                return "use trips, staggers and pushbacks to keep enemies out of melee range";
             default:
                 throw new ApplicationException("Unknown CombatStrategyMode in Describe.");
         }
@@ -469,6 +486,10 @@ public static class CombatExtensions
             case CombatStrategyMode.GrappleForControl:
             case CombatStrategyMode.MeleeShooter:
             case CombatStrategyMode.MeleeMagic:
+            case CombatStrategyMode.Swooper:
+            case CombatStrategyMode.Drowner:
+            case CombatStrategyMode.Dropper:
+            case CombatStrategyMode.PhysicalAvoider:
                 return true;
             default:
                 return false;
@@ -492,6 +513,8 @@ public static class CombatExtensions
             case CombatStrategyMode.CoverAndAdvance:
             case CombatStrategyMode.FullCover:
             case CombatStrategyMode.FullAdvance:
+            case CombatStrategyMode.Swooper:
+            case CombatStrategyMode.PhysicalAvoider:
                 return true;
             default:
                 return false;
@@ -520,6 +543,8 @@ public static class CombatExtensions
             case CombatStrategyMode.GrappleForControl:
             case CombatStrategyMode.MeleeMagic:
             case CombatStrategyMode.MeleeShooter:
+            case CombatStrategyMode.Drowner:
+            case CombatStrategyMode.Dropper:
                 return true;
             default:
                 return false;
@@ -537,6 +562,8 @@ public static class CombatExtensions
             case CombatStrategyMode.FullSkirmish:
             case CombatStrategyMode.Flee:
             case CombatStrategyMode.StandardRange:
+            case CombatStrategyMode.Swooper:
+            case CombatStrategyMode.PhysicalAvoider:
                 return true;
             default:
                 return false;
@@ -1050,6 +1077,12 @@ public static class CombatExtensions
             case BuiltInCombatMoveType.SpitNaturalAttack:
             case BuiltInCombatMoveType.ExplosiveNaturalAttack:
             case BuiltInCombatMoveType.BuffetingNaturalAttack:
+            case BuiltInCombatMoveType.Pushback:
+            case BuiltInCombatMoveType.PushbackUnarmed:
+            case BuiltInCombatMoveType.PushbackClinch:
+            case BuiltInCombatMoveType.ForcedMovement:
+            case BuiltInCombatMoveType.ForcedMovementUnarmed:
+            case BuiltInCombatMoveType.ForcedMovementClinch:
                 return true;
             default:
                 return false;
@@ -1142,6 +1175,18 @@ public static class CombatExtensions
                 return "Explosive Natural Attack";
             case BuiltInCombatMoveType.BuffetingNaturalAttack:
                 return "Buffeting Natural Attack";
+            case BuiltInCombatMoveType.Pushback:
+                return "Pushback Attack";
+            case BuiltInCombatMoveType.PushbackUnarmed:
+                return "Unarmed Pushback Attack";
+            case BuiltInCombatMoveType.PushbackClinch:
+                return "Clinch Pushback Attack";
+            case BuiltInCombatMoveType.ForcedMovement:
+                return "Forced Movement Attack";
+            case BuiltInCombatMoveType.ForcedMovementUnarmed:
+                return "Unarmed Forced Movement Attack";
+            case BuiltInCombatMoveType.ForcedMovementClinch:
+                return "Clinch Forced Movement Attack";
             case BuiltInCombatMoveType.AimRangedWeapon:
                 return "Aim Ranged Weapon";
             case BuiltInCombatMoveType.CoupDeGrace:

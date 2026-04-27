@@ -52,6 +52,12 @@ public class CombatStrategyFactory
                 return Strategies.MeleeMagicStrategy.Instance;
             case CombatStrategyMode.Swooper:
                 return Strategies.SwooperStrategy.Instance;
+            case CombatStrategyMode.Drowner:
+                return Strategies.DrownerStrategy.Instance;
+            case CombatStrategyMode.Dropper:
+                return Strategies.DropperStrategy.Instance;
+            case CombatStrategyMode.PhysicalAvoider:
+                return Strategies.PhysicalAvoiderStrategy.Instance;
             default:
                 throw new NotImplementedException("Unknown CombatStrategyMode in CombatStrategyFactory.GetStrategy: " +
                                                   mode.Describe());

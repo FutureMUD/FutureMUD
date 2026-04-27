@@ -304,6 +304,10 @@ Again, the choices you make here can be fixed later so don't stress it too great
                 case CheckType.SpitNaturalAttack:
                 case CheckType.ExplosiveNaturalAttack:
                 case CheckType.BuffetingNaturalAttack:
+                case CheckType.PushbackCheck:
+                case CheckType.OpposePushbackCheck:
+                case CheckType.ForcedMovementCheck:
+                case CheckType.OpposeForcedMovementCheck:
                 case CheckType.DodgeCheck:
                 case CheckType.ParryCheck:
                 case CheckType.BlockCheck:

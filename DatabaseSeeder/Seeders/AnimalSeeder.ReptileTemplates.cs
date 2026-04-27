@@ -19,7 +19,8 @@ public partial class AnimalSeeder
             string model,
             string loadout,
             string ageProfile,
-            AnimalDescriptionPack pack)
+            AnimalDescriptionPack pack,
+            string combatStrategyKey = "Beast Brawler")
         {
             return new AnimalRaceTemplate(
                 name,
@@ -37,7 +38,9 @@ public partial class AnimalSeeder
                 false,
                 AnimalBreathingMode.Simple,
                 null,
-                string.Equals(bodyKey, "Anuran", StringComparison.OrdinalIgnoreCase) ? "anuran" : "reptilian"
+                string.Equals(bodyKey, "Anuran", StringComparison.OrdinalIgnoreCase) ? "anuran" : "reptilian",
+                null,
+                combatStrategyKey
             );
         }
 
@@ -88,13 +91,15 @@ public partial class AnimalSeeder
                 "It is low and broad, with plated hide, a long jaw and a powerful tail.",
                 "Its teeth are impossible to ignore, and the entire body looks built around sudden explosive force.",
                 "It lies with perfect stillness until movement becomes violence.",
-                "riverbank, swamp and warm backwater"));
+                "riverbank, swamp and warm backwater"),
+            combatStrategyKey: "Beast Drowner");
         yield return Reptile("Alligator", "Reptilian", SizeCategory.Large, 1.2, "Crocodilian", "crocodilian", "reptile",
             ReptilePack("a hatchling alligator", "a young alligator", "an alligator",
                 "It is armoured and broad-snouted, with dark hide and a tail thick with muscle.",
                 "Its profile is blunt and heavy, all the more dangerous for being so calm.",
                 "It has the patient menace of something that expects prey to come within reach eventually.",
-                "marsh, bayou and reed-choked water"));
+                "marsh, bayou and reed-choked water"),
+            combatStrategyKey: "Beast Drowner");
         yield return Reptile("Frog", "Anuran", SizeCategory.VerySmall, 0.1, "Anuran", "anuran", "amphibian",
             ReptilePack("a tadpole", "a young frog", "a frog",
                 "It is compact and damp-skinned, with wide-set eyes and powerful hindlegs folded beneath the body.",

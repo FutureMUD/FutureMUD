@@ -361,12 +361,13 @@ public partial class MythicalAnimalSeeder
                     Attack("Beak Peck", ItemQuality.Good, "beak"),
                     Attack("Beak Bite", ItemQuality.Standard, "beak"),
                     Attack("Claw Swipe", ItemQuality.Good, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
+                    Attack("Talon Carry", ItemQuality.Good, "rfpaw", "lfpaw"),
                     Attack("Tail Slap", ItemQuality.Standard, "ltail"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
                 attributeProfile: BestialStats(7, 6, 3, 1, willpower: 3, perception: 4),
                 bodypartHealthMultiplier: 1.6,
-                combatStrategyKey: "Beast Swooper"
+                combatStrategyKey: "Beast Dropper"
             ),
             ["Hippogriff"] = BeastRace(
                 "Hippogriff",
@@ -671,12 +672,13 @@ public partial class MythicalAnimalSeeder
                     Attack("Dragonfire Breath", ItemQuality.Good, "mouth"),
                     Attack("Bite", ItemQuality.Standard, "mouth"),
                     Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons"),
+                    Attack("Talon Carry", ItemQuality.Good, "rtalons", "ltalons"),
                     Attack("Tail Slap", ItemQuality.Standard, "tail"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
                 attributeProfile: BestialStats(8, 6, 3, 0, willpower: 4, perception: 3, aura: 1),
                 bodypartHealthMultiplier: 1.7,
-                combatStrategyKey: "Beast Artillery"
+                combatStrategyKey: "Beast Dropper"
             ),
             ["Phoenix"] = BeastRace(
                 "Phoenix",
@@ -1342,6 +1344,7 @@ public partial class MythicalAnimalSeeder
             "Hoof Stomp",
             "Head Ram",
             "Talon Strike",
+            "Talon Carry",
             "Wing Buffet",
             "Tail Spike",
             "Herbivore Bite",
@@ -1359,6 +1362,7 @@ public partial class MythicalAnimalSeeder
             "Beak Peck",
             "Head Ram",
             "Talon Strike",
+            "Talon Carry",
             "Wing Buffet",
             "Tail Spike",
             "Acid Spit",

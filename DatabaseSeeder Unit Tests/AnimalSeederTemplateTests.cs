@@ -619,14 +619,34 @@ public class AnimalSeederTemplateTests
     {
         Assert.AreEqual("Beast Coward", AnimalSeeder.RaceTemplatesForTesting["Rabbit"].CombatStrategyKey);
         Assert.AreEqual("Beast Skirmisher", AnimalSeeder.RaceTemplatesForTesting["Cheetah"].CombatStrategyKey);
-        Assert.AreEqual("Beast Skirmisher", AnimalSeeder.RaceTemplatesForTesting["Horse"].CombatStrategyKey);
+        Assert.AreEqual("Beast Physical Avoider", AnimalSeeder.RaceTemplatesForTesting["Horse"].CombatStrategyKey);
         Assert.AreEqual("Beast Coward", AnimalSeeder.RaceTemplatesForTesting["Cow"].CombatStrategyKey);
-        Assert.AreEqual("Beast Skirmisher", AnimalSeeder.RaceTemplatesForTesting["Giraffe"].CombatStrategyKey);
-        Assert.AreEqual("Beast Skirmisher", AnimalSeeder.RaceTemplatesForTesting["Ostrich"].CombatStrategyKey);
+        Assert.AreEqual("Beast Physical Avoider", AnimalSeeder.RaceTemplatesForTesting["Giraffe"].CombatStrategyKey);
+        Assert.AreEqual("Beast Physical Avoider", AnimalSeeder.RaceTemplatesForTesting["Ostrich"].CombatStrategyKey);
         Assert.AreEqual("Beast Artillery", AnimalSeeder.RaceTemplatesForTesting["Llama"].CombatStrategyKey);
-        Assert.AreEqual("Beast Swooper", AnimalSeeder.RaceTemplatesForTesting["Eagle"].CombatStrategyKey);
+        Assert.AreEqual("Beast Dropper", AnimalSeeder.RaceTemplatesForTesting["Eagle"].CombatStrategyKey);
+        Assert.AreEqual("Beast Drowner", AnimalSeeder.RaceTemplatesForTesting["Shark"].CombatStrategyKey);
+        Assert.AreEqual("Beast Drowner", AnimalSeeder.RaceTemplatesForTesting["Crocodile"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", AnimalSeeder.RaceTemplatesForTesting["Python"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", AnimalSeeder.RaceTemplatesForTesting["Elephant"].CombatStrategyKey);
+    }
+
+    [TestMethod]
+    public void AttackLoadoutsForTesting_ForcedMovementArchetypes_IncludeAuthoredMoveKeys()
+    {
+        IReadOnlyDictionary<string, AnimalSeeder.AnimalAttackLoadoutTemplate> loadouts =
+            AnimalSeeder.AttackLoadoutsForTesting;
+
+        CollectionAssert.Contains(loadouts["shark"].ShapeMatchedAttacks.Select(x => x.AttackKey).ToList(),
+            "waterdrag");
+        CollectionAssert.Contains(loadouts["crocodilian"].ShapeMatchedAttacks.Select(x => x.AttackKey).ToList(),
+            "waterdrag");
+        CollectionAssert.Contains(loadouts["bird-raptor"].ShapeMatchedAttacks.Select(x => x.AttackKey).ToList(),
+            "taloncarry");
+        CollectionAssert.Contains(loadouts["herbivore-charge"].ShapeMatchedAttacks.Select(x => x.AttackKey).ToList(),
+            "bargepushback");
+        CollectionAssert.Contains(loadouts["big-cat"].AliasAttacks!.Select(x => x.AttackKey).ToList(),
+            "treehaul");
     }
 
     [TestMethod]

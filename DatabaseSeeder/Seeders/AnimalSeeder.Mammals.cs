@@ -453,7 +453,7 @@ public partial class AnimalSeeder
                 "Its long face, lively ears and large dark eyes give it an intelligent, responsive look.",
                 "It carries itself with a mixture of high-strung energy and practiced athleticism.",
                 "plain, pasture and stable"),
-            "Horse", canClimb: false, bloodProfile: "equine", usages: udder, combatStrategyKey: "Beast Skirmisher");
+            "Horse", canClimb: false, bloodProfile: "equine", usages: udder, combatStrategyKey: "Beast Physical Avoider");
         yield return Mammal("Rhinocerous", "Ceratorhine", "Ungulate", SizeCategory.Large, 1.5, "Pachyderm",
             "large-hooved", "rhino",
             MammalPack("a rhino calf", "a young bull rhino", "a young cow rhino", "a bull rhino", "a cow rhino",
@@ -493,6 +493,6 @@ public partial class AnimalSeeder
                 "Its small horn-like ossicones and impossibly elevated head give it a peculiar dignity.",
                 "It lopes rather than walks, with an awkward grace all its own.",
                 "dry savannah and scattered acacia country"),
-            combatStrategyKey: "Beast Skirmisher");
+            combatStrategyKey: "Beast Physical Avoider");
     }
 }

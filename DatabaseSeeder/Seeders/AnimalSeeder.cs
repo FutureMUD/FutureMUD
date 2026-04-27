@@ -1401,6 +1401,25 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
             rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.4,
             minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+        SeedCombatStrategy(name: "Beast Drowner", description: "Fully automatic aquatic ambusher designed to drag air-breathers underwater and grapple them there", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+            preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: true, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.AlwaysPursue,
+            melee: CombatStrategyMode.Drowner, ranged: CombatStrategyMode.Drowner,
+            inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
+            rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Counter, requiredMinimumAim: 0.5,
+            minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+        SeedCombatStrategy(name: "Beast Dropper", description: "Fully automatic aerial grappler designed to lift opponents upward and drop them", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+            preferArmed: false, preferNonContact: true, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: true, fallbackToUnarmed: true, automaticallyMoveToTarget: true, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.AlwaysPursue,
+            melee: CombatStrategyMode.Dropper, ranged: CombatStrategyMode.Dropper,
+            inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
+            rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Counter, requiredMinimumAim: 0.4,
+            minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+        SeedCombatStrategy(name: "Beast Physical Avoider", description: "Fully automatic avoider that uses pushbacks, trips and staggers to keep enemies out of melee range", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+            preferArmed: false, preferNonContact: true, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: true, manualPositionManagement: false, moveToMeleeIfCannotRange: false, pursuit: PursuitMode.NeverPursue,
+            melee: CombatStrategyMode.PhysicalAvoider, ranged: CombatStrategyMode.PhysicalAvoider,
+            inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
+            rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.4,
+            minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder,
+            preferredIntentions: CombatMoveIntentions.Disadvantage);
         SeedCombatStrategy(name: "Wimpy Animal", description: "Fully automatic wimpy designed for use with animals", weaponUse: 0.0, naturalUse: 0.1, auxilliaryUse: 0.9, preferFavourite: false,
             preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: false, pursuit: PursuitMode.NeverPursue,
             melee: CombatStrategyMode.Flee, ranged: CombatStrategyMode.Flee,
@@ -1800,9 +1819,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 damageExpressions["Herbivorous Animal Bite Damage"]);
             GetOrCreateExpression("Carnivorous Animal Bite Damage",
                 damageExpressions["Carnivorous Animal Bite Damage"]);
-            GetOrCreateExpression("Shark Bite Damage", damageExpressions["Shark Bite Damage"]);
-            GetOrCreateExpression("Animal Claw Damage", damageExpressions["Animal Claw Damage"]);
-            GetOrCreateExpression("Animal Smash Damage", damageExpressions["Animal Smash Damage"]);
+            TraitExpression sharkBite = GetOrCreateExpression("Shark Bite Damage", damageExpressions["Shark Bite Damage"]);
+            TraitExpression clawDamage = GetOrCreateExpression("Animal Claw Damage", damageExpressions["Animal Claw Damage"]);
+            TraitExpression smashDamage = GetOrCreateExpression("Animal Smash Damage", damageExpressions["Animal Smash Damage"]);
             GetOrCreateExpression("Animal Coup De Grace Damage",
                 damageExpressions["Animal Coup De Grace Damage"]);
             RefreshDragonfireBreathDamageExpression(damageExpressions);
@@ -1854,6 +1873,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             BodypartShape tailShape = _context.BodypartShapes.First(x => x.Name == "Tail");
             BodypartShape tendrilShape = _context.BodypartShapes.First(x => x.Name == "Tendril");
             BodypartShape clawShape = _context.BodypartShapes.First(x => x.Name == "Claw");
+            BodypartShape shoulderShape = _context.BodypartShapes.First(x => x.Name == "Shoulder");
 
             string attackAddendum = _questionAnswers["messagestyle"].ToLowerInvariant() switch
             {
@@ -1861,6 +1881,17 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 "sparse" => ".",
                 _ => ""
             };
+
+            static string ForcedMovementAttackData(Difficulty resist, ForcedMovementTypes types,
+                ForcedMovementVerbs verbs, ForcedMovementRange range)
+            {
+                return new XElement("Data",
+                    new XElement("Resist", resist.ToString()),
+                    new XElement("Types", types.ToString()),
+                    new XElement("Verbs", verbs.ToString()),
+                    new XElement("Range", range.ToString())
+                ).ToString();
+            }
 
             _attacks["beakpeck"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Beak Peck") ??
                 AddAttack("Beak Peck", BuiltInCombatMoveType.NaturalWeaponAttack,
@@ -1873,6 +1904,14 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                     MeleeWeaponVerb.Claw, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
                     Alignment.FrontRight, Orientation.Low, 3.5, 0.9, talonShape, talonDamage,
                     $"@ slash|slashes at $1 with &0's {{0}}{attackAddendum}", DamageType.Claw);
+            _attacks["taloncarry"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Talon Carry") ??
+                AddAttack("Talon Carry", BuiltInCombatMoveType.ForcedMovementUnarmed,
+                    MeleeWeaponVerb.Claw, Difficulty.Hard, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard,
+                    Alignment.FrontRight, Orientation.Centre, 5.0, 1.1, talonShape, talonDamage,
+                    $"@ hook|hooks $1 with &0's {{0}} and beat|beats upward{attackAddendum}", DamageType.Claw,
+                    intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+                    additionalInfo: ForcedMovementAttackData(Difficulty.Hard, ForcedMovementTypes.Layer,
+                        ForcedMovementVerbs.Pull, ForcedMovementRange.Grapple));
             _attacks["fangbite"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Fang Bite") ??
                 AddAttack("Fang Bite", BuiltInCombatMoveType.ClinchUnarmedAttack,
                     MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
@@ -1902,8 +1941,16 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             _attacks["arachnidclaw"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Arachnid Claw") ??
                 AddAttack("Arachnid Claw", BuiltInCombatMoveType.NaturalWeaponAttack,
                     MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
-                    Alignment.FrontRight, Orientation.Centre, 2.5, 0.8, clawShape, _context.TraitExpressions.First(x => x.Name == "Animal Claw Damage"),
+                    Alignment.FrontRight, Orientation.Centre, 2.5, 0.8, clawShape, clawDamage,
                     $"@ lash|lashes out with &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
+            _attacks["treehaul"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Tree Haul") ??
+                AddAttack("Tree Haul", BuiltInCombatMoveType.ForcedMovementUnarmed,
+                    MeleeWeaponVerb.Claw, Difficulty.Hard, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard,
+                    Alignment.FrontRight, Orientation.Centre, 5.0, 1.2, clawShape, clawDamage,
+                    $"@ seize|seizes $1 with &0's {{0}} and haul|hauls &1 upward{attackAddendum}", DamageType.Claw,
+                    intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+                    additionalInfo: ForcedMovementAttackData(Difficulty.Hard, ForcedMovementTypes.Layer,
+                        ForcedMovementVerbs.Pull, ForcedMovementRange.Melee));
             _attacks["clawclamp"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Claw Clamp") ??
                 AddAttack("Claw Clamp", BuiltInCombatMoveType.ClinchUnarmedAttack,
                     MeleeWeaponVerb.Claw, Difficulty.Easy, Difficulty.Normal, Difficulty.ExtremelyHard, Difficulty.Easy,
@@ -1914,6 +1961,13 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                     MeleeWeaponVerb.Strike, Difficulty.Normal, Difficulty.Easy, Difficulty.Insane, Difficulty.VeryHard,
                     Alignment.Front, Orientation.High, 5.0, 1.1, headShape, ramDamage,
                     $"@ surge|surges forward and slam|slams &0's head into $1{attackAddendum}", DamageType.Crushing,
+                    additionalInfo: ((int)Difficulty.Hard).ToString());
+            _attacks["bargepushback"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Animal Barge Pushback") ??
+                AddAttack("Animal Barge Pushback", BuiltInCombatMoveType.PushbackUnarmed,
+                    MeleeWeaponVerb.Bash, Difficulty.Normal, Difficulty.Easy, Difficulty.Insane, Difficulty.VeryHard,
+                    Alignment.Front, Orientation.Centre, 7.0, 1.4, shoulderShape, smashDamage,
+                    $"@ drive|drives &0's bulk into $1 and force|forces &1 back{attackAddendum}", DamageType.Crushing,
+                    intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
                     additionalInfo: ((int)Difficulty.Hard).ToString());
             _attacks["tailslap"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Tail Slap") ??
                 AddAttack("Tail Slap", BuiltInCombatMoveType.StaggeringBlowUnarmed,
@@ -1926,6 +1980,14 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                     MeleeWeaponVerb.Sweep, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy,
                     Alignment.Front, Orientation.Centre, 3.5, 0.5, tendrilShape, peckDamage,
                     $"@ lash|lashes a tendril at $1{attackAddendum}", DamageType.Cellular);
+            _attacks["waterdrag"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Water Drag") ??
+                AddAttack("Water Drag", BuiltInCombatMoveType.ForcedMovementUnarmed,
+                    MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+                    Alignment.Front, Orientation.Centre, 5.0, 1.0, mouthShape, sharkBite,
+                    $"@ clamp|clamps onto $1 and wrench|wrenches &1 toward the water{attackAddendum}", DamageType.Bite,
+                    intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+                    additionalInfo: ForcedMovementAttackData(Difficulty.Hard, ForcedMovementTypes.All,
+                        ForcedMovementVerbs.Pull, ForcedMovementRange.Melee));
         }
         else
         {
@@ -2214,6 +2276,17 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 ).ToString();
             }
 
+            string ForcedMovementAttackData(Difficulty resist, ForcedMovementTypes types,
+                ForcedMovementVerbs verbs, ForcedMovementRange range)
+            {
+                return new XElement("Data",
+                    new XElement("Resist", resist.ToString()),
+                    new XElement("Types", types.ToString()),
+                    new XElement("Verbs", verbs.ToString()),
+                    new XElement("Range", range.ToString())
+                ).ToString();
+            }
+
             _attacks["carnivorebite"] = AddAttack("Carnivore Bite", BuiltInCombatMoveType.NaturalWeaponAttack,
                 MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Easy, Difficulty.Easy,
                 Alignment.Front, Orientation.Centre, 4.0, 1.0, mouthshape, carnivoreBite,
@@ -2301,6 +2374,13 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy,
                 Alignment.FrontRight, Orientation.Low, 4.0, 1.3, clawShape, clawDamage,
                 $"@ crouch|crouches low and rake|rakes at $1's legs with &0's {{0}}{attackAddendum}", DamageType.Claw);
+            _attacks["treehaul"] = AddAttack("Tree Haul", BuiltInCombatMoveType.ForcedMovementUnarmed,
+                MeleeWeaponVerb.Claw, Difficulty.Hard, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard,
+                Alignment.FrontRight, Orientation.Centre, 5.0, 1.2, clawShape, clawDamage,
+                $"@ seize|seizes $1 with &0's {{0}} and haul|hauls &1 upward{attackAddendum}", DamageType.Claw,
+                intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+                additionalInfo: ForcedMovementAttackData(Difficulty.Hard, ForcedMovementTypes.Layer,
+                    ForcedMovementVerbs.Pull, ForcedMovementRange.Melee));
 
             _attacks["hoofstomp"] = AddAttack("Hoof Stomp", BuiltInCombatMoveType.DownedAttackUnarmed,
                 MeleeWeaponVerb.Kick, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
@@ -2317,6 +2397,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 Alignment.Front, Orientation.Centre, 8.0, 1.8, shoulderShape, smashDamage,
                 $"@ charge|charges forward and throw|throws &0's bulk at $1{attackAddendum}", DamageType.Crushing,
                 additionalInfo: ((int)Difficulty.VeryHard).ToString());
+            _attacks["bargepushback"] = AddAttack("Animal Barge Pushback", BuiltInCombatMoveType.PushbackUnarmed,
+                MeleeWeaponVerb.Bash, Difficulty.Normal, Difficulty.Easy, Difficulty.Insane, Difficulty.VeryHard,
+                Alignment.Front, Orientation.Centre, 7.0, 1.4, shoulderShape, smashDamage,
+                $"@ drive|drives &0's bulk into $1 and force|forces &1 back{attackAddendum}", DamageType.Crushing,
+                intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+                additionalInfo: ((int)Difficulty.Hard).ToString());
             _attacks["bargesmash"] = AddAttack("Animal Barge Smash", BuiltInCombatMoveType.UnarmedSmashItem,
                 MeleeWeaponVerb.Bash, Difficulty.Normal, Difficulty.Easy, Difficulty.Insane, Difficulty.VeryHard,
                 Alignment.Front, Orientation.Centre, 8.0, 1.8, shoulderShape, smashDamage,
@@ -2371,6 +2457,13 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 Alignment.Front, Orientation.Centre, 5.0, 1.2, mouthshape, sharkBite,
                 $"@ surge|surges in, bite|bites down on $1, and wrench|wrenches away{attackAddendum}", DamageType.Bite,
                 additionalInfo: ((int)Difficulty.VeryHard).ToString());
+            _attacks["waterdrag"] = AddAttack("Water Drag", BuiltInCombatMoveType.ForcedMovementUnarmed,
+                MeleeWeaponVerb.Bite, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard,
+                Alignment.Front, Orientation.Centre, 5.0, 1.0, mouthshape, sharkBite,
+                $"@ clamp|clamps onto $1 and wrench|wrenches &1 toward the water{attackAddendum}", DamageType.Bite,
+                intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+                additionalInfo: ForcedMovementAttackData(Difficulty.Hard, ForcedMovementTypes.All,
+                    ForcedMovementVerbs.Pull, ForcedMovementRange.Melee));
 
             _attacks["crabpinch"] = AddAttack("Crab Pinch", BuiltInCombatMoveType.NaturalWeaponAttack,
                 MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
@@ -2389,6 +2482,13 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
                 MeleeWeaponVerb.Claw, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
                 Alignment.FrontRight, Orientation.Low, 3.5, 0.9, talonShape, talonDamage,
                 $"@ rake|rakes at $1 with &0's {{0}}{attackAddendum}", DamageType.Claw);
+            _attacks["taloncarry"] = AddAttack("Talon Carry", BuiltInCombatMoveType.ForcedMovementUnarmed,
+                MeleeWeaponVerb.Claw, Difficulty.Hard, Difficulty.Normal, Difficulty.Hard, Difficulty.Hard,
+                Alignment.FrontRight, Orientation.Centre, 5.0, 1.1, talonShape, talonDamage,
+                $"@ hook|hooks $1 with &0's {{0}} and beat|beats upward{attackAddendum}", DamageType.Claw,
+                intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage,
+                additionalInfo: ForcedMovementAttackData(Difficulty.Hard, ForcedMovementTypes.Layer,
+                    ForcedMovementVerbs.Pull, ForcedMovementRange.Grapple));
             _attacks["headbutt"] = _context.WeaponAttacks.FirstOrDefault(x => x.Name == "Headbutt") ??
                 AddAttack("Headbutt", BuiltInCombatMoveType.StaggeringBlowClinch,
                     MeleeWeaponVerb.Strike, Difficulty.VeryHard, Difficulty.VeryHard, Difficulty.ExtremelyHard,

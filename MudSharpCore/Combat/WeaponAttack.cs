@@ -154,7 +154,14 @@ public class WeaponAttack : CombatAction, IWeaponAttack
             case BuiltInCombatMoveType.UnbalancingBlowClinch:
             case BuiltInCombatMoveType.DownedAttack:
             case BuiltInCombatMoveType.DownedAttackUnarmed:
+            case BuiltInCombatMoveType.Pushback:
+            case BuiltInCombatMoveType.PushbackUnarmed:
+            case BuiltInCombatMoveType.PushbackClinch:
                 return new SecondaryDifficultyWeaponAttack(attack, gameworld);
+            case BuiltInCombatMoveType.ForcedMovement:
+            case BuiltInCombatMoveType.ForcedMovementUnarmed:
+            case BuiltInCombatMoveType.ForcedMovementClinch:
+                return new ForcedMovementWeaponAttack(attack, gameworld);
             case BuiltInCombatMoveType.ExtendGrapple:
             case BuiltInCombatMoveType.WrenchAttack:
                 return new TargetLimbWeaponAttack(attack, gameworld);
@@ -191,7 +198,14 @@ public class WeaponAttack : CombatAction, IWeaponAttack
             case BuiltInCombatMoveType.UnbalancingBlowUnarmed:
             case BuiltInCombatMoveType.DownedAttack:
             case BuiltInCombatMoveType.DownedAttackUnarmed:
+            case BuiltInCombatMoveType.Pushback:
+            case BuiltInCombatMoveType.PushbackUnarmed:
+            case BuiltInCombatMoveType.PushbackClinch:
                 return new SecondaryDifficultyWeaponAttack(gameworld, type);
+            case BuiltInCombatMoveType.ForcedMovement:
+            case BuiltInCombatMoveType.ForcedMovementUnarmed:
+            case BuiltInCombatMoveType.ForcedMovementClinch:
+                return new ForcedMovementWeaponAttack(gameworld, type);
             case BuiltInCombatMoveType.ExtendGrapple:
             case BuiltInCombatMoveType.WrenchAttack:
                 return new TargetLimbWeaponAttack(gameworld, type);

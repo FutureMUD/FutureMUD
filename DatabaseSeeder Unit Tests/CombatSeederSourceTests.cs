@@ -156,6 +156,22 @@ public class CombatSeederSourceTests
     }
 
     [TestMethod]
+    public void CombatSeederSource_ForcedPositioningMoves_HaveChecksMessagesAndStockAttacks()
+    {
+        string source = File.ReadAllText(GetCombatSeederSourcePath());
+
+        StringAssert.Contains(source, "CheckType.PushbackCheck");
+        StringAssert.Contains(source, "CheckType.OpposePushbackCheck");
+        StringAssert.Contains(source, "CheckType.ForcedMovementCheck");
+        StringAssert.Contains(source, "CheckType.OpposeForcedMovementCheck");
+        StringAssert.Contains(source, "BuiltInCombatMoveType.Pushback");
+        StringAssert.Contains(source, "BuiltInCombatMoveType.ForcedMovement");
+        StringAssert.Contains(source, "\"Shield Drive\"");
+        StringAssert.Contains(source, "\"Shield Shove\"");
+        StringAssert.Contains(source, "ForcedMovementAttackData(Difficulty.Normal, ForcedMovementTypes.All");
+    }
+
+    [TestMethod]
     public void WeaponDamageBands_StandardWeapons_MapToExpectedSeverityBands()
     {
         const double nominalStrength = 10.0;

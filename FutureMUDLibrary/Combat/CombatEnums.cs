@@ -110,6 +110,37 @@ namespace MudSharp.Combat
         SpitNaturalAttack,
         ExplosiveNaturalAttack,
         BuffetingNaturalAttack,
+        Pushback,
+        PushbackUnarmed,
+        PushbackClinch,
+        ForcedMovement,
+        ForcedMovementUnarmed,
+        ForcedMovementClinch,
+    }
+
+    [Flags]
+    public enum ForcedMovementTypes
+    {
+        None = 0,
+        Exit = 1 << 0,
+        Layer = 1 << 1,
+        All = Exit | Layer
+    }
+
+    [Flags]
+    public enum ForcedMovementVerbs
+    {
+        None = 0,
+        Shove = 1 << 0,
+        Pull = 1 << 1,
+        All = Shove | Pull
+    }
+
+    public enum ForcedMovementRange
+    {
+        Melee,
+        Clinch,
+        Grapple
     }
 
     public enum WeaponClassification
@@ -147,7 +178,10 @@ namespace MudSharp.Combat
         GrappleForKill,
         MeleeShooter,
         MeleeMagic,
-        Swooper
+        Swooper,
+        Drowner,
+        Dropper,
+        PhysicalAvoider
     }
 
     public enum RangedWeaponType

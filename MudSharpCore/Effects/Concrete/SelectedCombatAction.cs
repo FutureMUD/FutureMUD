@@ -3,6 +3,7 @@ using MudSharp.Body.Position;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
@@ -390,6 +391,43 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
         #endregion
     }
 
+    internal class ForcedMovementAction : CombatActionType
+    {
+        public ICharacter Target { get; init; }
+        public IForcedMovementAttack Attack { get; init; }
+        public IMeleeWeapon Weapon { get; init; }
+        public INaturalAttack NaturalAttack { get; init; }
+        public ForcedMovementVerbs Verb { get; init; }
+        public ICellExit Exit { get; init; }
+        public RoomLayer? Layer { get; init; }
+
+        public override ICombatMove GetCombatMove(ICharacter actor)
+        {
+            actor.CombatTarget = Target;
+            if (Exit is not null)
+            {
+                return new ForcedMovementMove(actor, Target, Attack, Verb, Exit)
+                {
+                    Weapon = Weapon,
+                    NaturalAttack = NaturalAttack
+                };
+            }
+
+            return new ForcedMovementMove(actor, Target, Attack, Verb, Layer!.Value)
+            {
+                Weapon = Weapon,
+                NaturalAttack = NaturalAttack
+            };
+        }
+
+        public override string Describe(IPerceiver voyeur)
+        {
+            return Exit is not null
+                ? $"{Verb.DescribeEnum().ToLowerInvariant()} {Target.HowSeen(voyeur)} through {Exit.OutboundDirection.Describe()}."
+                : $"{Verb.DescribeEnum().ToLowerInvariant()} {Target.HowSeen(voyeur)} {Layer.Value.LocativeDescription()}.";
+        }
+    }
+
     public static SelectedCombatAction GetEffectStruggle(ICharacter actor)
     {
         return new SelectedCombatAction(actor, new StruggleAction());
@@ -546,6 +584,36 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
             TargetModifier = modifier,
             TargetState = state,
             TargetTarget = target
+        });
+    }
+
+    public static SelectedCombatAction GetEffectForcedMovementExit(
+        ICharacter actor, ICharacter target, IForcedMovementAttack attack, ForcedMovementVerbs verb, ICellExit exit,
+        IMeleeWeapon weapon, INaturalAttack naturalAttack)
+    {
+        return new SelectedCombatAction(actor, new ForcedMovementAction
+        {
+            Target = target,
+            Attack = attack,
+            Verb = verb,
+            Exit = exit,
+            Weapon = weapon,
+            NaturalAttack = naturalAttack
+        });
+    }
+
+    public static SelectedCombatAction GetEffectForcedMovementLayer(
+        ICharacter actor, ICharacter target, IForcedMovementAttack attack, ForcedMovementVerbs verb, RoomLayer layer,
+        IMeleeWeapon weapon, INaturalAttack naturalAttack)
+    {
+        return new SelectedCombatAction(actor, new ForcedMovementAction
+        {
+            Target = target,
+            Attack = attack,
+            Verb = verb,
+            Layer = layer,
+            Weapon = weapon,
+            NaturalAttack = naturalAttack
         });
     }
 

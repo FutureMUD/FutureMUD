@@ -373,6 +373,7 @@ public partial class AnimalSeeder
             "hoofstompsmash",
             "barge",
             "bargesmash",
+            "bargepushback",
             "clinchbarge",
             "gorehorn",
             "goreantler",
@@ -383,10 +384,12 @@ public partial class AnimalSeeder
             "fishquickbite",
             "sharkbite",
             "sharkreelbite",
+            "waterdrag",
             "headbutt",
             "beakpeck",
             "beakbite",
             "talonstrike",
+            "taloncarry",
             "fangbite",
             "mandiblebite",
             "clawclamp",
@@ -398,7 +401,8 @@ public partial class AnimalSeeder
             "dragonfirebreath",
             "wingbuffet",
             "tailspike",
-            "bombardierspray"
+            "bombardierspray",
+            "treehaul"
         };
         HashSet<string> clinchCapableAttackKeys = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -436,6 +440,7 @@ public partial class AnimalSeeder
             "hoofstompsmash",
             "barge",
             "bargesmash",
+            "bargepushback",
             "clinchbarge",
             "gorehorn",
             "goreantler",
@@ -444,6 +449,7 @@ public partial class AnimalSeeder
             "crabpinch",
             "sharkbite",
             "sharkreelbite",
+            "waterdrag",
             "beakpeck",
             "talonstrike",
             "arachnidclaw",
@@ -454,7 +460,8 @@ public partial class AnimalSeeder
             "dragonfirebreath",
             "wingbuffet",
             "tailspike",
-            "bombardierspray"
+            "bombardierspray",
+            "treehaul"
         };
 
         foreach ((string? raceName, AnimalRaceTemplate? template) in RaceTemplates)

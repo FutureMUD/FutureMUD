@@ -12,6 +12,7 @@ using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -3291,6 +3292,17 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             context.SaveChanges();
         }
 
+        string ForcedMovementAttackData(Difficulty resist, ForcedMovementTypes types, ForcedMovementVerbs verbs,
+            ForcedMovementRange range)
+        {
+            return new XElement("Data",
+                new XElement("Resist", resist.ToString()),
+                new XElement("Types", types.ToString()),
+                new XElement("Verbs", verbs.ToString()),
+                new XElement("Range", range.ToString())
+            ).ToString();
+        }
+
         TraitDefinition? armourUseSkill = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Armour Use");
         bool useStats = armourUseSkill?.Expression.Expression != "70";
 
@@ -6249,6 +6261,17 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             shield, poorDamage, "@ drive|drives $2 forward in a shield bash at $1", DamageType.Crushing,
             additionalInfo: ((int)Difficulty.Trivial).ToString(),
             intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Shield);
+        AddAttack("Shield Drive", BuiltInCombatMoveType.Pushback, MeleeWeaponVerb.Bash, Difficulty.Normal,
+            Difficulty.Easy, Difficulty.Insane, Difficulty.Hard, Alignment.FrontLeft, Orientation.Centre, 4.5, 0.9,
+            shield, poorDamage, "@ drive|drives $2 hard into $1 to force &1 back", DamageType.Crushing,
+            additionalInfo: ((int)Difficulty.Normal).ToString(),
+            intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Shield);
+        AddAttack("Shield Shove", BuiltInCombatMoveType.ForcedMovement, MeleeWeaponVerb.Bash, Difficulty.Hard,
+            Difficulty.Normal, Difficulty.Insane, Difficulty.Hard, Alignment.FrontLeft, Orientation.Centre, 5.0, 1.1,
+            shield, poorDamage, "@ shove|shoves $2 hard into $1", DamageType.Crushing,
+            additionalInfo: ForcedMovementAttackData(Difficulty.Normal, ForcedMovementTypes.All,
+                ForcedMovementVerbs.Shove, ForcedMovementRange.Melee),
+            intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Shield);
         AddAttack("Shield Head Smash", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Slam, Difficulty.Normal,
             Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Alignment.FrontLeft, Orientation.Highest, 4.0, 0.8,
             shield, poorDamage, "@ whip|whips the rim of $2 down at $1's head", DamageType.Crushing,
@@ -6816,6 +6839,18 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             BuiltInCombatMoveType.StartClinch, 1.0, 1, null, null);
         AddCombatMessage(Standalone("$0 try|tries to break free of the clinch with $1"), null, BuiltInCombatMoveType.BreakClinch,
             1.0, 1, null, null);
+        AddCombatMessage(Standalone("$0 drive|drives $1 back with $2"), null,
+            BuiltInCombatMoveType.Pushback, 1.0, 1, null, null);
+        AddCombatMessage(Standalone("@ drive|drives $1 back with &0's {0}"), null,
+            BuiltInCombatMoveType.PushbackUnarmed, 1.0, 1, null, null);
+        AddCombatMessage(Standalone("@ force|forces $1 back with &0's {0}"), null,
+            BuiltInCombatMoveType.PushbackClinch, 1.0, 1, null, null);
+        AddCombatMessage(Standalone("$0 force|forces $1 to move with $2"), null,
+            BuiltInCombatMoveType.ForcedMovement, 1.0, 1, null, null);
+        AddCombatMessage(Standalone("@ haul|hauls $1 with &0's {0}"), null,
+            BuiltInCombatMoveType.ForcedMovementUnarmed, 1.0, 1, null, null);
+        AddCombatMessage(Standalone("@ wrench|wrenches $1 into motion with &0's {0}"), null,
+            BuiltInCombatMoveType.ForcedMovementClinch, 1.0, 1, null, null);
         AddCombatMessage(Standalone("@ stand|stands and {0} $2 at $1"), null, BuiltInCombatMoveType.StandAndFire, 1.0, 1, null,
             null);
         AddCombatMessage(Standalone("@ {0} $2 at $1 as &0 fall|falls back"), null, BuiltInCombatMoveType.SkirmishAndFire, 1.0, 1,
@@ -8118,6 +8153,9 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Behemoth");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Skirmisher");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Swooper");
+        CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Drowner");
+        CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Dropper");
+        CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Physical Avoider");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Artillery");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Beast Coward");
         CombatStrategySeederHelper.EnsureCombatStrategy(context, "Construct Brawler");
@@ -8383,6 +8421,24 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                         {
                             Expression =
                                 $"(0.5 * dodge:{(skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.5 * brawl:{(skills.GetValueOrDefault("Brawling") ?? skills["Brawl"]).Id})"
+                        }, template.Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.PushbackCheck:
+                case CheckType.ForcedMovementCheck:
+                    AddCheck(check,
+                        new TraitExpression
+                        {
+                            Expression =
+                                $"(0.5 * brawl:{(skills.GetValueOrDefault("Brawling") ?? skills["Brawl"]).Id}) + (0.5 * wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id})"
+                        }, template.Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.OpposePushbackCheck:
+                case CheckType.OpposeForcedMovementCheck:
+                    AddCheck(check,
+                        new TraitExpression
+                        {
+                            Expression =
+                                $"(0.5 * dodge:{(skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.5 * wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id})"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.RescueCheck:

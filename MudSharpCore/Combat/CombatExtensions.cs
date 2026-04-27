@@ -393,6 +393,8 @@ public static class CombatExtensions
                 return "Melee Shooter";
             case CombatStrategyMode.MeleeMagic:
                 return "Melee Magic";
+            case CombatStrategyMode.Swooper:
+                return "Swooper";
             default:
                 throw new ApplicationException("Unknown CombatStrategyMode in Describe.");
         }
@@ -443,6 +445,8 @@ public static class CombatExtensions
                 return "shoot people in melee with a pistol";
             case CombatStrategyMode.MeleeMagic:
                 return "get into melee and use weapons or magic against the enemy";
+            case CombatStrategyMode.Swooper:
+                return "remain airborne and make swooping attacks against the enemy";
             default:
                 throw new ApplicationException("Unknown CombatStrategyMode in Describe.");
         }
@@ -469,6 +473,7 @@ public static class CombatExtensions
             case CombatStrategyMode.GrappleForControl:
             case CombatStrategyMode.MeleeShooter:
             case CombatStrategyMode.MeleeMagic:
+            case CombatStrategyMode.Swooper:
                 return true;
             default:
                 return false;
@@ -492,6 +497,7 @@ public static class CombatExtensions
             case CombatStrategyMode.CoverAndAdvance:
             case CombatStrategyMode.FullCover:
             case CombatStrategyMode.FullAdvance:
+            case CombatStrategyMode.Swooper:
                 return true;
             default:
                 return false;
@@ -537,6 +543,7 @@ public static class CombatExtensions
             case CombatStrategyMode.FullSkirmish:
             case CombatStrategyMode.Flee:
             case CombatStrategyMode.StandardRange:
+            case CombatStrategyMode.Swooper:
                 return true;
             default:
                 return false;

@@ -206,6 +206,11 @@ public abstract class RangeBaseStrategy : StrategyBase
                 : null;
         }
 
+        if (move is MagicPowerAttackMove)
+        {
+            return StandardMeleeStrategy.Instance.ResponseToMove(move, defender, assailant);
+        }
+
         if (move is IRangedWeaponAttackMove rwam)
         {
             return ResponseToRangedWeaponAttack(rwam, defenseCharacter);
@@ -272,8 +277,7 @@ public abstract class RangeBaseStrategy : StrategyBase
                 AttemptGetRangedWeapon(combatant) == null
                )
             {
-                CannotMakeAValidRangedAttack(combatant);
-                return null;
+                return CannotMakeAValidRangedAttack(combatant);
             }
         }
 
@@ -360,14 +364,17 @@ public abstract class RangeBaseStrategy : StrategyBase
 
     #endregion
 
-    protected void CannotMakeAValidRangedAttack(ICharacter ch)
+    protected ICombatMove CannotMakeAValidRangedAttack(ICharacter ch)
     {
         if (ch.CombatSettings.MoveToMeleeIfCannotEngageInRangedCombat)
         {
             ch.OutputHandler.Send(
                 "You realise that there is no way for you to engage your opponent at range, and resolve to get into the melee.");
             ch.CombatStrategyMode = CombatStrategyMode.FullAdvance;
+            return CombatStrategyFactory.GetStrategy(CombatStrategyMode.FullAdvance).ChooseMove(ch);
         }
+
+        return null;
     }
 
     protected virtual ICombatMove HandleChangeLayer(ICharacter ch)
@@ -439,8 +446,10 @@ public abstract class RangeBaseStrategy : StrategyBase
                 case CellMovementTransition.NoViableTransition:
                 case CellMovementTransition.FallExit:
                     return false;
+                case CellMovementTransition.FlyOnly:
+                    return ch.PositionState == PositionFlying.Instance || ch.CanFly().Truth;
                 case CellMovementTransition.SwimOnly:
-                    return ch.Gameworld.GetCheck(CheckType.SwimStayAfloatCheck).WouldBeAbjectFailure(ch);
+                    return !ch.Gameworld.GetCheck(CheckType.SwimStayAfloatCheck).WouldBeAbjectFailure(ch);
             }
 
             return true;

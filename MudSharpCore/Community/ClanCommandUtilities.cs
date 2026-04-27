@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -54,17 +55,51 @@ public static class ClanCommandUtilities
 	public static bool HasFreePosition(IAppointment appointment, IEnumerable<IClanMembership> memberships,
 		IEnumerable<IExternalClanControl> externalControls)
 	{
-		if (appointment.MaximumSimultaneousHolders < 1)
-		{
-			return true;
-		}
+		return GetVacantAppointmentSlots(appointment, memberships, externalControls) >= 1;
+	}
 
-		var filledSlots = memberships.Count(x => !x.IsArchivedMembership && x.Appointments.Contains(appointment));
-		var reservedExternalSlots = externalControls
+	public static int GetActiveAppointmentHolderCount(IAppointment appointment,
+		IEnumerable<IClanMembership> memberships)
+	{
+		return memberships.Count(x => !x.IsArchivedMembership && x.Appointments.Contains(appointment));
+	}
+
+	public static int GetReservedExternalAppointmentSlots(IAppointment appointment,
+		IEnumerable<IExternalClanControl> externalControls)
+	{
+		return externalControls
 			.Where(x => x.VassalClan == appointment.Clan && x.ControlledAppointment == appointment)
 			.Sum(x => x.NumberOfAppointments > x.Appointees.Count ? x.NumberOfAppointments - x.Appointees.Count : 0);
+	}
 
-		return appointment.MaximumSimultaneousHolders - filledSlots - reservedExternalSlots >= 1;
+	public static int GetVacantAppointmentSlots(IAppointment appointment, IEnumerable<IClanMembership> memberships,
+		IEnumerable<IExternalClanControl> externalControls)
+	{
+		if (appointment.MaximumSimultaneousHolders < 1)
+		{
+			return 0;
+		}
+
+		return Math.Max(0,
+			appointment.MaximumSimultaneousHolders -
+			GetActiveAppointmentHolderCount(appointment, memberships) -
+			GetReservedExternalAppointmentSlots(appointment, externalControls));
+	}
+
+	public static int GetOpenByElectionAppointmentSlots(IAppointment appointment, IElection? excludingElection = null)
+	{
+		return appointment.Elections
+			.Where(x => x != excludingElection && !x.IsFinalised && x.IsByElection)
+			.Sum(x => x.NumberOfAppointments);
+	}
+
+	public static int GetUncoveredAppointmentVacancies(IAppointment appointment,
+		IEnumerable<IClanMembership> memberships, IEnumerable<IExternalClanControl> externalControls,
+		IElection? excludingElection = null)
+	{
+		return Math.Max(0,
+			GetVacantAppointmentSlots(appointment, memberships, externalControls) -
+			GetOpenByElectionAppointmentSlots(appointment, excludingElection));
 	}
 
 	public static IElection? GetPrimaryOpenElection(IAppointment appointment)
@@ -77,10 +112,16 @@ public static class ClanCommandUtilities
 
 	public static IElection? GetFirstOpenByElection(IAppointment appointment)
 	{
+		return GetOpenByElections(appointment)
+			.FirstOrDefault();
+	}
+
+	public static IEnumerable<IElection> GetOpenByElections(IAppointment appointment)
+	{
 		return appointment.Elections
 			.Where(x => !x.IsFinalised && x.IsByElection)
 			.OrderBy(x => x.ResultsInEffectDate)
-			.FirstOrDefault();
+			.ToList();
 	}
 
 	public static IElection? GetNextOpenElection(IAppointment appointment)
@@ -89,6 +130,11 @@ public static class ClanCommandUtilities
 			.Where(x => !x.IsFinalised)
 			.OrderBy(x => x.ResultsInEffectDate)
 			.FirstOrDefault();
+	}
+
+	public static bool ElectionNeedsContestedVote(IElection election)
+	{
+		return election.Nominees.Count() > election.NumberOfAppointments;
 	}
 }
 #nullable restore

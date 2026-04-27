@@ -147,7 +147,6 @@ public class Election : SaveableItem, IElection
         if (now >= VotingEndDate && ElectionStage < ElectionStage.Preinstallation)
         {
             ElectionStage = ElectionStage.Preinstallation;
-            Counter<IClanMembership> votes = VotesByNominee;
             List<IClanMembership> victors = Victors.ToList();
             string victorsText;
             if (victors.Any())
@@ -192,49 +191,66 @@ public class Election : SaveableItem, IElection
         {
             ElectionStage = ElectionStage.Finalised;
 
-            Counter<IClanMembership> votes = VotesByNominee;
             List<IClanMembership> victors = Victors.ToList();
-            foreach (IClanMembership? member in Appointment.Clan.Memberships.Where(x => x.Appointments.Contains(Appointment))
-                                              .ToList())
+            if (!IsByElection)
             {
-                if (victors.Contains(member))
+                foreach (IClanMembership? member in Appointment.Clan.Memberships
+                                                  .Where(x => x.Appointments.Contains(Appointment))
+                                                  .ToList())
                 {
-                    continue;
+                    if (victors.Contains(member))
+                    {
+                        continue;
+                    }
+
+                    ICharacter? ch = Gameworld.Actors.Get(member.MemberId);
+                    ch?.OutputHandler.Send(
+                        $"Your term as {Appointment.Title(ch).ColourValue()} in {Appointment.Clan.FullName.ColourName()} has ended.");
+                    member.Appointments.Remove(Appointment);
+                    member.Changed = true;
                 }
 
-                ICharacter? ch = Gameworld.Actors.Get(member.MemberId);
-                ch?.OutputHandler.Send(
-                    $"Your term as {Appointment.Title(ch).ColourValue()} in {Appointment.Clan.FullName.ColourName()} has ended.");
-                member.Appointments.Remove(Appointment);
-                member.Changed = true;
-            }
-
-            foreach (IClanMembership? victor in victors)
-            {
-                if (victor.Appointments.Contains(Appointment))
+                foreach (IClanMembership? victor in victors)
                 {
-                    continue;
+                    if (victor.Appointments.Contains(Appointment))
+                    {
+                        continue;
+                    }
+
+                    victor.Appointments.Add(Appointment);
+                    victor.Changed = true;
+                    ICharacter? ch = Gameworld.Actors.Get(victor.MemberId);
+                    ch?.OutputHandler.Send(
+                        $"Your term as {Appointment.Title(ch).ColourValue()} in {Appointment.Clan.FullName.ColourName()} has begun.");
                 }
-
-                victor.Appointments.Add(Appointment);
-                victor.Changed = true;
-                ICharacter? ch = Gameworld.Actors.Get(victor.MemberId);
-                ch?.OutputHandler.Send(
-                    $"Your term as {Appointment.Title(ch).ColourValue()} in {Appointment.Clan.FullName.ColourName()} has begun.");
             }
-
-            int appointees = Appointment.Clan.Memberships.Count(x => x.Appointments.Contains(Appointment));
-
-            // Do we need a run-off election?
-            if (appointees < NumberOfAppointments)
+            else
             {
-                int officeHolders = Appointment.Clan.Memberships.Count(x => x.Appointments.Contains(Appointment));
-                Election runoff = new(Appointment, true, Appointment.MaximumSimultaneousHolders - officeHolders,
-                    Appointment.Clan.Calendar.CurrentDateTime + Appointment.NominationPeriod +
-                    Appointment.VotingPeriod + Appointment.ElectionLeadTime);
-                Appointment.AddElection(runoff);
+                var vacancies = ClanCommandUtilities.GetVacantAppointmentSlots(Appointment, Appointment.Clan.Memberships,
+                    Appointment.Clan.ExternalControls);
+                foreach (IClanMembership? victor in victors)
+                {
+                    if (vacancies <= 0)
+                    {
+                        break;
+                    }
+
+                    if (victor.Appointments.Contains(Appointment))
+                    {
+                        continue;
+                    }
+
+                    victor.Appointments.Add(Appointment);
+                    victor.Changed = true;
+                    vacancies--;
+                    ICharacter? ch = Gameworld.Actors.Get(victor.MemberId);
+                    ch?.OutputHandler.Send(
+                        $"Your term as {Appointment.Title(ch).ColourValue()} in {Appointment.Clan.FullName.ColourName()} has begun.");
+                }
             }
 
+            IsFinalised = true;
+            Appointment.CheckForByElections();
             if (!IsByElection)
             {
                 Election next = new(Appointment, false, Appointment.MaximumSimultaneousHolders,
@@ -243,19 +259,13 @@ public class Election : SaveableItem, IElection
             }
 
             _activeListener = null;
-            IsFinalised = true;
             Changed = true;
             return true;
         }
 
         if (now >= VotingStartDate)
         {
-            if ((!IsByElection && Nominees.Count() > NumberOfAppointments) || (IsByElection &&
-                                                                               Nominees.Count() >
-                                                                               NumberOfAppointments -
-                                                                               Appointment.Clan.Memberships.Count(x =>
-                                                                                   x.Appointments
-                                                                                       .Contains(Appointment))))
+            if (ClanCommandUtilities.ElectionNeedsContestedVote(this))
             {
                 string echo =
                     $"Voting has begun in the election for the position of {Appointment.Name.ColourValue()} in {Appointment.Clan.FullName.ColourName()}. The nominees are {Nominees.Select(x => x.PersonalName.GetName(NameStyle.FullName).ColourName()).ListToString()}.\nThe voting period will last for {Appointment.VotingPeriod.Describe().ColourValue()}.";
@@ -287,8 +297,16 @@ public class Election : SaveableItem, IElection
             }
             else
             {
+                var followUpSeats = IsByElection
+                    ? ClanCommandUtilities.GetUncoveredAppointmentVacancies(Appointment, Appointment.Clan.Memberships,
+                        Appointment.Clan.ExternalControls, this)
+                    : Math.Max(0,
+                        NumberOfAppointments -
+                        ClanCommandUtilities.GetOpenByElectionAppointmentSlots(Appointment, this));
                 string echo =
-                    $"There were no nominees in the election for the position of {Appointment.Name.ColourValue()} in {Appointment.Clan.FullName.ColourName()}. A by-election will be automatically triggered.";
+                    followUpSeats > 0
+                        ? $"There were no nominees in the election for the position of {Appointment.Name.ColourValue()} in {Appointment.Clan.FullName.ColourName()}. A by-election will be automatically triggered."
+                        : $"There were no nominees in the election for the position of {Appointment.Name.ColourValue()} in {Appointment.Clan.FullName.ColourName()}, but no additional by-election is required.";
                 Gameworld.SystemMessage(echo,
                     ch => ch.ClanMemberships.Any(x =>
                         x.Clan == Appointment.Clan &&
@@ -300,10 +318,14 @@ public class Election : SaveableItem, IElection
                         $"Runoff Election Notification", echo.RawText());
                 }
 
-                Election runoff = new(Appointment, true, NumberOfAppointments,
-                    Appointment.Clan.Calendar.CurrentDateTime + Appointment.NominationPeriod +
-                    Appointment.VotingPeriod + Appointment.ElectionLeadTime);
-                Appointment.AddElection(runoff);
+                if (followUpSeats > 0)
+                {
+                    Election runoff = new(Appointment, true, followUpSeats,
+                        Appointment.Clan.Calendar.CurrentDateTime + Appointment.NominationPeriod +
+                        Appointment.VotingPeriod + Appointment.ElectionLeadTime);
+                    Appointment.AddElection(runoff);
+                }
+
                 ElectionStage = ElectionStage.Finalised;
                 Changed = true;
                 _activeListener = null;

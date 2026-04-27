@@ -100,6 +100,64 @@ public class ClanCommandUtilitiesTests
 	}
 
 	[TestMethod]
+	public void GetUncoveredAppointmentVacancies_SubtractsOpenByElectionSeats()
+	{
+		Mock<IClan> clan = new();
+
+		Mock<IAppointment> appointment = new();
+		appointment.SetupGet(x => x.Clan).Returns(clan.Object);
+		appointment.SetupGet(x => x.MaximumSimultaneousHolders).Returns(3);
+
+		Mock<IElection> openByElection = CreateElectionMock(isFinalised: false, isByElection: true,
+			numberOfAppointments: 1);
+		appointment.SetupGet(x => x.Elections).Returns([openByElection.Object]);
+
+		List<IClanMembership> memberships =
+		[
+			CreateMembershipMock(1, false, appointment.Object).Object
+		];
+
+		Assert.AreEqual(1,
+			ClanCommandUtilities.GetUncoveredAppointmentVacancies(appointment.Object, memberships, []));
+	}
+
+	[TestMethod]
+	public void GetUncoveredAppointmentVacancies_ReturnsZeroWhenExistingByElectionCoversVacancy()
+	{
+		Mock<IClan> clan = new();
+
+		Mock<IAppointment> appointment = new();
+		appointment.SetupGet(x => x.Clan).Returns(clan.Object);
+		appointment.SetupGet(x => x.MaximumSimultaneousHolders).Returns(2);
+
+		Mock<IElection> openByElection = CreateElectionMock(isFinalised: false, isByElection: true,
+			numberOfAppointments: 1);
+		appointment.SetupGet(x => x.Elections).Returns([openByElection.Object]);
+
+		List<IClanMembership> memberships =
+		[
+			CreateMembershipMock(1, false, appointment.Object).Object
+		];
+
+		Assert.AreEqual(0,
+			ClanCommandUtilities.GetUncoveredAppointmentVacancies(appointment.Object, memberships, []));
+	}
+
+	[TestMethod]
+	public void ElectionNeedsContestedVote_UsesElectionSeatCount()
+	{
+		var nominees = new[]
+		{
+			CreateMembershipMock(1, false).Object,
+			CreateMembershipMock(2, false).Object
+		};
+		Mock<IElection> election = CreateElectionMock(isFinalised: false, isByElection: true,
+			numberOfAppointments: 2, nominees: nominees);
+
+		Assert.IsFalse(ClanCommandUtilities.ElectionNeedsContestedVote(election.Object));
+	}
+
+	[TestMethod]
 	public void OpenElectionHelpers_ReturnExpectedOpenElections()
 	{
 		Mock<IAppointment> appointment = new();
@@ -117,6 +175,8 @@ public class ClanCommandUtilitiesTests
 		Assert.AreSame(primaryOpen.Object, ClanCommandUtilities.GetPrimaryOpenElection(appointment.Object));
 		Assert.AreSame(byElectionOpen.Object, ClanCommandUtilities.GetFirstOpenByElection(appointment.Object));
 		Assert.AreSame(primaryOpen.Object, ClanCommandUtilities.GetNextOpenElection(appointment.Object));
+		CollectionAssert.AreEqual(new[] { byElectionOpen.Object },
+			ClanCommandUtilities.GetOpenByElections(appointment.Object).ToArray());
 	}
 
 	private static Mock<IClanMembership> CreateMembershipMock(long memberId, bool isArchivedMembership,
@@ -145,9 +205,17 @@ public class ClanCommandUtilitiesTests
 
 	private static Mock<IElection> CreateElectionMock(bool isFinalised, bool isByElection, params long[] victorIds)
 	{
+		return CreateElectionMock(isFinalised, isByElection, 0, [], victorIds);
+	}
+
+	private static Mock<IElection> CreateElectionMock(bool isFinalised, bool isByElection, int numberOfAppointments,
+		IEnumerable<IClanMembership> nominees = null, params long[] victorIds)
+	{
 		Mock<IElection> election = new();
 		election.SetupGet(x => x.IsFinalised).Returns(isFinalised);
 		election.SetupGet(x => x.IsByElection).Returns(isByElection);
+		election.SetupGet(x => x.NumberOfAppointments).Returns(numberOfAppointments);
+		election.SetupGet(x => x.Nominees).Returns(nominees ?? []);
 		election.SetupGet(x => x.ResultsInEffectDate).Returns((MudDateTime)null);
 		election.SetupGet(x => x.Victors).Returns(victorIds.Select(x => CreateMembershipMock(x, false).Object).ToList());
 		return election;

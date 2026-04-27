@@ -205,18 +205,26 @@ public class Appointment : SaveableItem, IAppointment
             return;
         }
 
-        if (Elections.Any(x =>
-                !x.IsFinalised && x.ElectionStage != ElectionStage.Preelection && !x.IsByElection))
+        var uncoveredVacancies = ClanCommandUtilities.GetUncoveredAppointmentVacancies(this, Clan.Memberships,
+            Clan.ExternalControls);
+        if (uncoveredVacancies <= 0)
         {
             return;
         }
 
-        int count = Clan.Memberships.Count(x => !x.IsArchivedMembership && x.Appointments.Contains(this));
-        if (count < MaximumSimultaneousHolders)
+        var primaryElection = ClanCommandUtilities.GetPrimaryOpenElection(this);
+        if (primaryElection is not null)
         {
-            Election election = new(this, true, MaximumSimultaneousHolders - count, null);
-            _elections.Add(election);
+            var earliestByElectionResult = Clan.Calendar.CurrentDateTime + NominationPeriod + VotingPeriod + ElectionLeadTime;
+            if (primaryElection.ElectionStage != ElectionStage.Preelection ||
+                primaryElection.ResultsInEffectDate <= earliestByElectionResult)
+            {
+                return;
+            }
         }
+
+        Election election = new(this, true, uncoveredVacancies, null);
+        _elections.Add(election);
     }
 
     public void SetName(string name)

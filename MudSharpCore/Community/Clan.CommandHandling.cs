@@ -466,11 +466,11 @@ public partial class Clan
 
 			var votes = appointment.NumberOfVotes(actor);
 			sb.AppendLine(
-				$"You {(appointment.CanNominate(actor).Truth ? "are" : "are not")} eligable to nominate and {(votes <= 0 ? "cannot vote" : $"have {votes.ToString("N0", actor).ColourValue()} vote{(votes == 1 ? "" : "s")}")} in elections for this position.");
+				$"You {(appointment.CanNominate(actor).Truth ? "are" : "are not")} eligible to nominate and {(votes <= 0 ? "cannot vote" : $"have {votes.ToString("N0", actor).ColourValue()} vote{(votes == 1 ? "" : "s")}")} in elections for this position.");
 
 			var primaryElection = ClanCommandUtilities.GetPrimaryOpenElection(appointment);
-			var byElection = ClanCommandUtilities.GetFirstOpenByElection(appointment);
-			if (byElection is not null)
+			var byElections = ClanCommandUtilities.GetOpenByElections(appointment).ToList();
+			foreach (var byElection in byElections)
 			{
 				switch (byElection.ElectionStage)
 				{
@@ -486,12 +486,16 @@ public partial class Clan
 						sb.AppendLine(
 							$"By-election #{byElection.Id.ToString("N0", actor)} for {byElection.NumberOfAppointments.ToString("N0", actor).ColourValue()} {(byElection.NumberOfAppointments == 1 ? "position" : "positions")} is open for voting, with votes closing on {byElection.VotingEndDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}.");
 						break;
+					case ElectionStage.Preinstallation:
+						sb.AppendLine(
+							$"By-election #{byElection.Id.ToString("N0", actor)} for {byElection.NumberOfAppointments.ToString("N0", actor).ColourValue()} {(byElection.NumberOfAppointments == 1 ? "position" : "positions")} has finished and the elected will commence their terms on {byElection.ResultsInEffectDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}.");
+						break;
 				}
 			}
 
 			if (primaryElection is null)
 			{
-				if (byElection is null)
+				if (!byElections.Any())
 				{
 					sb.AppendLine("There is no currently scheduled primary election for this position.");
 				}
@@ -503,7 +507,7 @@ public partial class Clan
 			{
 				case ElectionStage.Preelection:
 					sb.AppendLine(
-						$"The next election will open for nominations on {primaryElection.NominationStartDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}.");
+						$"Election #{primaryElection.Id.ToString("N0", actor)} will open for nominations on {primaryElection.NominationStartDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}.");
 					break;
 				case ElectionStage.Nomination:
 					sb.AppendLine(
@@ -626,6 +630,13 @@ public partial class Clan
 		if (actorMembership is null)
 		{
 			actor.OutputHandler.Send("You are not a member of that clan.");
+			return;
+		}
+
+		if (election.IsByElection && actorMembership.Appointments.Contains(election.Appointment))
+		{
+			actor.OutputHandler.Send(
+				$"You already hold the position of {election.Appointment.Title(actor).ColourName()} in {election.Appointment.Clan.FullName.ColourName()}, so you cannot nominate in a by-election for an unfilled seat in that same position.");
 			return;
 		}
 

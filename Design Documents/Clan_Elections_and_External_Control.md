@@ -52,6 +52,8 @@ A nomination is allowed only if all of the following pass:
 - the maximum consecutive term rule, if configured; and
 - the maximum total term rule, if configured.
 
+Members who already hold an appointment can stand again in the regular election cycle, but they cannot nominate in a by-election for an unfilled seat in that same appointment. A by-election cannot grant a duplicate copy of the same appointment, so allowing current holders to win would leave the vacancy unresolved.
+
 The term-limit checks now use shared helper logic and correctly treat the total-term limit as inclusive:
 
 - reaching the configured maximum total terms blocks further nomination;
@@ -63,9 +65,12 @@ By-elections are ignored for the consecutive and total regular-term limit helper
 
 Election display and command access use clan office-holder visibility rules.
 
+The default `clan elections` display includes election ids for scheduled, nomination, voting, and preinstallation primary elections, and for all open by-elections. Players need these ids for `clan nominate`, `clan withdrawnomination`, `clan vote`, and `clan election view` when an appointment name is ambiguous or when multiple elections exist for the same appointment.
+
 The refactor also fixes several runtime election bugs:
 
 - election history permission checks now use the intended logic instead of blocking valid non-admin viewers;
+- `clan election history <election id>` resolves the election's appointment history, matching the documented player syntax;
 - nomination, withdrawal, and voting command resolution correctly handles either election ids or clan-plus-appointment targeting;
 - actor/member lookups during election finalisation use `MemberId` rather than the membership object id;
 - secret-ballot display resolves dub data from the elected member id rather than the membership id.
@@ -80,6 +85,10 @@ Important behaviours:
 - if fewer victors exist than positions, the runtime schedules a by-election;
 - if no nominees exist at voting start, the runtime finalises the empty election and creates a by-election;
 - by-elections remain separate from the regular term cycle.
+
+By-elections fill uncovered appointment vacancies rather than replacing the whole office. During by-election finalisation, existing holders of the same appointment keep their positions unless they are separately removed by another workflow. Victors are only installed while free appointment slots remain, so a stale or manually superseded by-election cannot overfill the appointment.
+
+The appointment vacancy check also accounts for already-open by-elections. If an existing by-election already covers the vacant slots, repeated dismissal or membership-cleanup paths do not create duplicate by-elections for the same vacancy. If a primary election is already close enough to seat winners no later than a newly-created by-election would, the vacancy check leaves the primary election to resolve the office instead of scheduling a redundant by-election.
 
 ## External Control Model
 

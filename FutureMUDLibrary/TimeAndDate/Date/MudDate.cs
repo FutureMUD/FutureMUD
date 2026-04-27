@@ -234,17 +234,24 @@ public class MudDate : IComparable
             throw new ArgumentException("AdvanceToNextWeekday called with out of range weekday.");
         }
 
-        while (times > 0)
+        if (times == 0)
+        {
+            return;
+        }
+
+        int direction = Math.Sign(times);
+        int remaining = Math.Abs(times);
+        while (remaining > 0)
         {
             while (true)
             {
-                AdvanceDays(1);
+                AdvanceDays(direction);
                 if (WeekdayIndex == whichWeekday)
                 {
                     break;
                 }
             }
-            times--;
+            remaining--;
         }
     }
 

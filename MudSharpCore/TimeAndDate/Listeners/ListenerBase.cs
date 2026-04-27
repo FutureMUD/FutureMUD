@@ -25,6 +25,12 @@ public abstract class ListenerBase : FrameworkItem, ITemporalListener
 
     public Action<object[]> Payload { get; protected set; }
 
+    protected void TriggerPayload()
+    {
+        Payload?.Invoke(Objects);
+        RepeatTimes--;
+    }
+
     public int RepeatTimes
     {
         get => _repeatTimes;

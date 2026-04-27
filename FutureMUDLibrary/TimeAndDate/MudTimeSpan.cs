@@ -47,15 +47,15 @@ namespace MudSharp.TimeAndDate
 
         public int MillisecondComponentOnly => (int)_milliseconds;
 
-        public int Seconds => (int)(Milliseconds % SecondsPerMillisecond);
+        public int Seconds => (int)(Milliseconds / MillisecondsPerSecond);
 
         public int SecondComponentOnly => (int)(_milliseconds % MillisecondsPerMinute / MillisecondsPerSecond);
 
-        public int Minutes => (int)(Milliseconds % MillisecondsPerMinute);
+        public int Minutes => (int)(Milliseconds / MillisecondsPerMinute);
 
         public int MinuteComponentOnly => (int)(_milliseconds % MillisecondsPerHour / MillisecondsPerMinute);
 
-        public int Hours => (int)(Milliseconds % MillisecondsPerHour);
+        public int Hours => (int)(Milliseconds / MillisecondsPerHour);
 
         public int HourComponentOnly => (int)((_milliseconds % MillisecondsPerDay) / MillisecondsPerHour);
 

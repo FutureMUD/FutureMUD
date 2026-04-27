@@ -102,7 +102,7 @@ public class FutureProgDateTimeFunctionTests
 
 		var result = prog.Execute<MudDateTime>(reference);
 
-		Assert.AreEqual("6/april/2026", result.Date.GetDateString());
+		Assert.AreEqual("3/april/2026", result.Date.GetDateString());
 		Assert.AreEqual("Friday", result.Date.Weekday);
 		Assert.AreEqual(9, result.Time.Hours);
 	}
@@ -122,7 +122,7 @@ public class FutureProgDateTimeFunctionTests
 
 		var result = prog.Execute<MudDateTime>(reference);
 
-		Assert.AreEqual("6/april/2026", result.Date.GetDateString());
+		Assert.AreEqual("3/april/2026", result.Date.GetDateString());
 		Assert.AreEqual("Friday", result.Date.Weekday);
 	}
 
@@ -203,6 +203,23 @@ public class FutureProgDateTimeFunctionTests
 
 		Assert.IsTrue(prog.ExecuteBool(TimeSpan.FromHours(2), TimeSpan.FromHours(1), TimeSpan.FromHours(3)));
 		Assert.IsFalse(prog.ExecuteBool(TimeSpan.FromHours(4), TimeSpan.FromHours(1), TimeSpan.FromHours(3)));
+	}
+
+	[TestMethod]
+	public void ToMudDate_InvalidText_ReturnsNever()
+	{
+		var prog = Compile<MudDateTime>(
+			"ToMudDateInvalidText",
+			ProgVariableTypes.MudDateTime,
+			[
+				Tuple.Create(ProgVariableTypes.Calendar, "calendar"),
+				Tuple.Create(ProgVariableTypes.Clock, "clock")
+			],
+			@"return ToDate(@calendar, @clock, ""not-a-date"")");
+
+		var result = prog.Execute<MudDateTime>(_calendar, _clock);
+
+		Assert.IsTrue(result.Equals(MudDateTime.Never));
 	}
 
 	private static FutureProg Compile<T>(string name, ProgVariableTypes returnType,

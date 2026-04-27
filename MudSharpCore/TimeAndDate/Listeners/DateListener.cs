@@ -91,8 +91,7 @@ public class DateListener : ListenerBase
     {
         if (DateIsRight())
         {
-            Payload?.Invoke(Objects);
-            RepeatTimes--;
+            TriggerPayload();
         }
     }
 

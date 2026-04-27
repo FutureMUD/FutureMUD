@@ -8,6 +8,7 @@ using MudSharp.TimeAndDate.Time;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -33,9 +34,17 @@ namespace MudSharp.TimeAndDate
 
         public static string TryParseHelpText(ICharacter actor, MudDate date, MudTime time, IMudTimeZone tz)
         {
+            IFormatProvider format = actor as IFormatProvider ?? CultureInfo.InvariantCulture;
+            string exampleDate = date == null
+                ? "1/jan/1"
+                : $"{date.Day.ToString("N0", format)}/{date.Month.Alias}/{date.Year}";
+            string exampleTime = time == null
+                ? "0:0:0"
+                : $"{time.Hours.ToString("N0", format)}:{time.Minutes.ToString("N0", format)}:{time.Seconds.ToString("N0", format)}";
+            string timezoneName = tz?.Name ?? "UTC";
             return $@"Valid input is in the form #3<date> <time>#0, where the components are explained below. 
 
-For example, this is one way that you could enter the current date and time: #3{date.Day.ToString("N0", actor)}/{date.Month.Alias}/{date.Year} {time.Hours.ToString("N0", actor)}:{time.Minutes.ToString("N0", actor)}:{time.Seconds.ToString("N0", actor)} {tz.Name}#0
+For example, this is one way that you could enter the current date and time: #3{exampleDate} {exampleTime} {timezoneName}#0
 You can also enter the special values #3never#0 and #3now#0.
 
 #6Dates#0
@@ -59,8 +68,20 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 
         public static string TryParseHelpText(ICharacter actor)
         {
+            if (actor?.Location == null)
+            {
+                return TryParseHelpText(actor, null, null, null);
+            }
+
             return TryParseHelpText(actor, actor.Location.Date(null), actor.Location.Time(null),
                 actor.Location.TimeZone(null));
+        }
+
+        private static string TryParseHelpText(ICharacter actor, ICalendar calendar, IClock clock)
+        {
+            return actor == null
+                ? TryParseHelpText(actor, calendar?.CurrentDate, clock?.CurrentTime, clock?.PrimaryTimezone)
+                : TryParseHelpText(actor);
         }
 
         public static string TryParseHelpText(ICharacter actor, IEconomicZone zone)
@@ -82,10 +103,22 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
         {
             dt = null;
             error = string.Empty;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                error = TryParseHelpText(actor, calendar, clock);
+                return false;
+            }
+
             if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase))
             {
                 dt = Never;
                 return true;
+            }
+
+            if ((calendar == null) || (clock == null))
+            {
+                error = TryParseHelpText(actor, calendar, clock);
+                return false;
             }
 
             if (text.Equals("now", StringComparison.InvariantCultureIgnoreCase))
@@ -100,16 +133,10 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 return true;
             }
 
-            if (string.IsNullOrEmpty(text) || (calendar == null) || (clock == null))
-            {
-                error = TryParseHelpText(actor);
-                return false;
-            }
-
             Match regexMatch = AlternatePlayerParseRegex.Match(text);
             if (!regexMatch.Success)
             {
-                error = TryParseHelpText(actor);
+                error = TryParseHelpText(actor, calendar, clock);
                 return false;
             }
 
@@ -121,16 +148,31 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
             int hour = int.Parse(regexMatch.Groups["hour"].Value);
             int minute = int.Parse(regexMatch.Groups["minute"].Value);
             int second = regexMatch.Groups["second"].Length > 0 ? int.Parse(regexMatch.Groups["second"].Value) : 0;
-            IMudTimeZone tz = regexMatch.Groups["timezone"].Length > 0 ? clock.Timezones.GetByIdOrName(regexMatch.Groups["timezone"].Value) ?? clock.PrimaryTimezone : clock.PrimaryTimezone;
+            IMudTimeZone tz = regexMatch.Groups["timezone"].Length > 0
+                ? clock.Timezones.GetByIdOrName(regexMatch.Groups["timezone"].Value)
+                : clock.PrimaryTimezone;
+            if (tz == null)
+            {
+                error = $"The timezone \"{regexMatch.Groups["timezone"].Value}\" is not valid.";
+                return false;
+            }
+
             if (regexMatch.Groups["period"].Length > 0)
             {
+                int hourInterval = clock.HourIntervalNames.FindIndex(
+                    x => x.Equals(regexMatch.Groups["period"].Value, StringComparison.InvariantCultureIgnoreCase));
+                if (hourInterval < 0)
+                {
+                    error = $"The hour period \"{regexMatch.Groups["period"].Value}\" is not valid.";
+                    return false;
+                }
+
                 hour +=
-                    clock.HourIntervalNames.FindIndex(
-                        x => x.Equals(regexMatch.Groups["period"].Value, StringComparison.InvariantCultureIgnoreCase)) *
+                    hourInterval *
                     (clock.HoursPerDay / clock.NumberOfHourIntervals);
             }
 
-            MudTime time = new(second, minute, hour, tz, clock, false);
+            MudTime time = new(second, minute, hour, tz, clock, 0);
             dt = new MudDateTime(date, time, tz);
             return true;
         }
@@ -147,20 +189,28 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
         {
 
             dt = null;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return false;
+            }
+
             if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase))
             {
                 dt = Never;
                 return true;
             }
-            if (text.Equals("now", StringComparison.InvariantCultureIgnoreCase))
-            {
-                dt = calendar.CurrentDateTime;
-            }
 
-            if (string.IsNullOrEmpty(text) || (calendar == null) || (clock == null))
+            if ((calendar == null) || (clock == null))
             {
                 return false;
             }
+
+            if (text.Equals("now", StringComparison.InvariantCultureIgnoreCase))
+            {
+                dt = calendar.CurrentDateTime;
+                return true;
+            }
+
             Match match = PlayerParseRegex.Match(text);
             if (!match.Success)
             {
@@ -176,7 +226,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 {
                     return false;
                 }
-                MudTime time = clock.GetTime(match.Groups["time"].Value);
+                MudTime time = clock.GetTime($"{timezone.Alias} {match.Groups["time"].Value}");
                 dt = new MudDateTime(date, time, timezone);
                 return true;
             }
@@ -188,12 +238,17 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
         public static bool TryParse(string text, IFuturemud gameworld, out MudDateTime dt)
         {
             dt = null;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return false;
+            }
+
             if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase))
             {
                 dt = Never;
                 return true;
             }
-            if (string.IsNullOrEmpty(text) || (gameworld == null))
+            if (gameworld == null)
             {
                 return false;
             }
@@ -248,6 +303,11 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 
         public MudDateTime ConvertToOtherCalendar(ICalendar convert)
         {
+            if (Date == null)
+            {
+                return Never;
+            }
+
             return new MudDateTime(Date.ConvertToOtherCalendar(convert), new MudTime(Time), TimeZone);
         }
 
@@ -288,19 +348,30 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 
         public MudDateTime(MudDateTime rhs)
         {
-            Date = new MudDate(rhs?.Date);
-            Time = new MudTime(rhs?.Time);
-            TimeZone = rhs?.TimeZone;
-            Gameworld = Clock.Gameworld;
-        }
-
-        public MudDateTime(string text, ICalendar calendar, IClock clock)
-        {
-            if (text.Equals("Never"))
+            if (rhs?.Date == null)
             {
                 Date = null;
                 Time = null;
                 TimeZone = null;
+                Gameworld = rhs?.Gameworld;
+                return;
+            }
+
+            Date = new MudDate(rhs.Date);
+            Time = rhs.Time == null ? null : new MudTime(rhs.Time);
+            TimeZone = rhs?.TimeZone;
+            Gameworld = rhs?.Gameworld ?? Clock?.Gameworld;
+        }
+
+        public MudDateTime(string text, ICalendar calendar, IClock clock)
+        {
+            Gameworld = clock?.Gameworld;
+            if (text.Equals("Never", StringComparison.InvariantCultureIgnoreCase))
+            {
+                Date = null;
+                Time = null;
+                TimeZone = null;
+                return;
             }
             else
             {
@@ -309,14 +380,12 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 TimeZone = clock.Timezones.GetByIdOrName(splitText[1]);
                 Time = clock.GetTime($"{splitText[1]} {splitText[2]}");
             }
-
-            Gameworld = Clock.Gameworld;
         }
 
         public MudDateTime(string text, IFuturemud gameworld)
         {
             Gameworld = gameworld;
-            if (text.Equals("Never"))
+            if (text.Equals("Never", StringComparison.InvariantCultureIgnoreCase))
             {
                 Date = null;
                 Time = null;
@@ -378,7 +447,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 return Equals(this, objAsDateTime);
             }
 
-            return obj is MudDate objAsDate && Date.Equals(objAsDate);
+            return obj is MudDate objAsDate && Date?.Equals(objAsDate) == true;
         }
 
         public override int GetHashCode()
@@ -400,6 +469,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 
             MudDate newDate = new(dt.Date);
             newDate.AdvanceDays(newTime.DaysOffsetFromDatum);
+            newTime.DaysOffsetFromDatum = 0;
             newDate.AdvanceDays(ts.DayComponentOnly);
             newDate.AdvanceDays(newDate.Calendar.Weekdays.Count * ts.Weeks);
             newDate.AdvanceMonths(ts.Months, false, true);
@@ -416,12 +486,13 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
             }
 
             MudTime newTime = new(dt.Time);
-            newTime.AddSeconds(-1 * ts.Seconds);
-            newTime.AddMinutes(-1 * ts.Minutes);
-            newTime.AddHours(-1 * ts.Hours);
+            newTime.AddSeconds(-1 * ts.SecondComponentOnly);
+            newTime.AddMinutes(-1 * ts.MinuteComponentOnly);
+            newTime.AddHours(-1 * ts.HourComponentOnly);
 
             MudDate newDate = new(dt.Date);
             newDate.AdvanceDays(newTime.DaysOffsetFromDatum);
+            newTime.DaysOffsetFromDatum = 0;
             newDate.AdvanceDays(-1 * ts.DayComponentOnly);
             newDate.AdvanceDays(-1 * newDate.Calendar.Weekdays.Count * ts.Weeks);
             newDate.AdvanceMonths(-1 * ts.Months, false, true);
@@ -594,7 +665,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 case "isnever":
                     return new BooleanVariable(Date == null);
                 case "midnight":
-                    return new MudDateTime(Date, new MudTime(0, 0, 0, TimeZone, Clock, false), TimeZone);
+                    return Date == null ? Never : new MudDateTime(Date, new MudTime(0, 0, 0, TimeZone, Clock, 0), TimeZone);
                 case "calendar":
                     return Calendar;
                 case "clock":
@@ -699,9 +770,9 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
 
         public static int CompareTo(MudDateTime left, MudDateTime right)
         {
-            if (left is null)
+            if (left?.Date == null)
             {
-                if (right is null)
+                if (right?.Date == null)
                 {
                     return 0;
                 }
@@ -709,7 +780,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 return -1;
             }
 
-            if (right is null)
+            if (right?.Date == null)
             {
                 return 1;
             }

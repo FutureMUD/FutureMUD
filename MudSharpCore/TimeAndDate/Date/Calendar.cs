@@ -681,10 +681,8 @@ public class Calendar : SaveableItem, ICalendar
         }
 
         int day = whichYear > EpochYear
-            ? (FirstWeekdayAtEpoch + daysBetween) % Weekdays.Count
-            : Weekdays.Count - Math.Abs((FirstWeekdayAtEpoch - daysBetween) % Weekdays.Count) == 7
-                ? 0
-                : Weekdays.Count - Math.Abs((FirstWeekdayAtEpoch - daysBetween) % Weekdays.Count);
+            ? (FirstWeekdayAtEpoch + daysBetween).Modulus(Weekdays.Count)
+            : (FirstWeekdayAtEpoch - daysBetween).Modulus(Weekdays.Count);
         _cachedFirstWeekday[whichYear] = day;
         return day;
     }

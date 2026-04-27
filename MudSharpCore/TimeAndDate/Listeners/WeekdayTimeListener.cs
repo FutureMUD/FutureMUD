@@ -130,11 +130,7 @@ public class WeekdayTimeListener : ListenerBase
             TimeIsRight()
            )
         {
-            Payload(Objects);
-            if (RepeatTimes > 0)
-            {
-                RepeatTimes--;
-            }
+            TriggerPayload();
         }
     }
 

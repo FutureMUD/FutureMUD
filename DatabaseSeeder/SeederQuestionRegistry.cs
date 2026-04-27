@@ -54,6 +54,19 @@ public static class SeederQuestionRegistry
                 SharedAnswerKey: "nonhuman-health-model",
                 AutoReuseLastAnswer: true
             ),
+            [BuildKey(nameof(SupernaturalSeeder), "messagestyle")] = new(
+                SharedAnswerKey: "combat-message-style",
+                DefaultAnswerResolver: (context, _) => CombatSeederMessageStyleHelper.GetRecordedChoice(context),
+                AutoReuseLastAnswer: true
+            ),
+            [BuildKey(nameof(SupernaturalSeeder), "random")] = new(
+                SharedAnswerKey: "damage-randomness",
+                AutoReuseLastAnswer: true
+            ),
+            [BuildKey(nameof(SupernaturalSeeder), "model")] = new(
+                SharedAnswerKey: "nonhuman-health-model",
+                AutoReuseLastAnswer: true
+            ),
             [BuildKey(nameof(HumanSeeder), "balance")] = new(
                 SharedAnswerKey: CombatBalanceProfileHelper.SharedAnswerKey,
                 DefaultAnswerResolver: (context, _) => CombatBalanceProfileHelper.GetRecordedChoice(context),

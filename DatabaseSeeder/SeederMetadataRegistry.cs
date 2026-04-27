@@ -243,6 +243,34 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "Reruns install missing stock mythic races without duplicating existing entries."
             ),
+            nameof(SupernaturalSeeder) => new SeederMetadata(
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.RepairExisting,
+                [
+                    Requirement("Human, animal, and mythical body frameworks must already be installed.", context =>
+                        new[] { "Organic Humanoid", "Winged Humanoid", "Horned Humanoid", "Toed Quadruped" }
+                            .All(body => context.BodyProtos.Any(x => x.Name == body))),
+                    Requirement("Human, organic humanoid, and wolf race foundations must already exist.", context =>
+                        new[] { "Human", "Organic Humanoid", "Wolf" }.All(race => context.Races.Any(x => x.Name == race))),
+                    Requirement("Shared humanoid characteristic profiles must already exist.", context =>
+                        new[] { "All Eye Colours", "All Eye Shapes", "All Noses", "All Ears", "All Hair Colours", "All Facial Hair Colours", "All Hair Styles", "All Skin Colours", "All Frames", "Person Word" }
+                            .All(profile =>
+                                context.CharacteristicProfiles.Any(x => x.Name == profile) ||
+                                context.CharacteristicDefinitions.Any(x => x.Name == profile))),
+                    Requirement("Stock natural attacks and non-human health strategies must already exist.", context =>
+                        new[] { "Bite", "Carnivore Bite", "Claw High Swipe", "Claw Low Swipe", "Animal Barge", "Wing Buffet" }
+                            .All(attack => context.WeaponAttacks.Any(x => x.Name == attack)) &&
+                        NonHumanSeederHealthStrategyHelper.AllStrategyNames.All(strategy => context.HealthStrategies.Any(x => x.Name == strategy))),
+                    Requirement("Stock helper progs, corpse models, and at least one calendar must already exist.", context =>
+                        new[] { "AlwaysTrue", "AlwaysFalse", "AlwaysZero" }.All(prog => context.FutureProgs.Any(x => x.FunctionName == prog)) &&
+                        context.CorpseModels.Any(x => x.Name == "Organic Human Corpse") &&
+                        context.CorpseModels.Any(x => x.Name == "Organic Animal Corpse") &&
+                        context.Calendars.Any())
+                ],
+                RerunSummary: "Reruns install or refresh the stock supernatural race catalogue, body prototypes, form merits, cultures, name cultures, attacks, and non-breather settings.",
+                UpdateSummary: "Existing builder-customized worlds keep their records; stock-owned supernatural records are repaired by stable names without deleting custom extensions.",
+                OwnershipSummary: "Supernatural stock content is tracked by stable race, body, culture, name-culture, merit, attack, and corpse-model names."
+            ),
             nameof(WeatherSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.RepairExisting,

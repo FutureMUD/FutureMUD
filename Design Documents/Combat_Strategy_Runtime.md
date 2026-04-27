@@ -142,6 +142,24 @@ A pure movement strategy for closing distance. It ignores ranged weapon use, cha
 
 A ranged-family strategy for flying creatures. It can take flight automatically when movement management permits, change layers toward a same-cell target, skirmish against incoming melee approaches while airborne, and prefer breath swoop attacks when flying and offset from the target by room or layer. Otherwise it falls back to the shared ranged attack pipeline.
 
+### Drowner
+
+A melee-family predator strategy for aquatic ambushers. It behaves as `StandardMelee` against targets that innately do not need to breathe or can breathe the relevant local water fluid. Against air-breathers, it looks for authored forced-movement attacks that can pull or shove the target into an underwater layer in the same cell or through an exit into adjacent water. Once the target is underwater, it delegates to `GrappleForControl` so the victim is held there rather than repeatedly repositioned.
+
+Expected active no-move cases: standard melee blockers, no local underwater layer or adjacent water exit, no authored forced-movement attack for the current range and destination type, or hard movement rules rejecting the destination.
+
+### Dropper
+
+A melee-family flying predator strategy. It behaves as `StandardMelee` unless the combatant can fly, can drag the target's weight, and is in the same location. It attempts to establish a controlled grapple, then uses authored forced layer-pull attacks to carry the target to the next higher viable layer. When no higher layer exists, it releases the grapple so the existing fall system handles the drop.
+
+Expected active no-move cases: standard melee blockers, inability to fly or lift the target, no controlled grapple yet and grappling cannot progress, no higher viable layer, or no authored pull-layer attack for the current grapple range.
+
+### PhysicalAvoider
+
+A melee-range avoidance strategy that tries to create distance without leaving the room. When engaged, it prefers pushback attacks, then trip or stagger style physical control, then withdraws only to ranged distance if the opponent cannot meaningfully oppose. If it is already at range and not being pressed by a melee attacker, it does not flee merely because combat is ongoing.
+
+Expected active no-move cases: already safely out of melee, no viable pushback/trip/stagger attack, target can still oppose a withdrawal, or standard melee blockers.
+
 ## Movement and Layer Considerations
 
 The ranged advance strategies handle three spatial cases:
@@ -153,6 +171,18 @@ The ranged advance strategies handle three spatial cases:
 The shared path filter rejects impossible and fall exits. It rejects swim-only exits for characters who would abjectly fail swimming, while allowing swim-capable characters to path through water. It also rejects fly-only exits unless the character is already flying or can take flight.
 
 Zero-gravity movement is enforced by `CanMove(exit, ...)` and movement helpers. Combat strategies should prefer normal movement APIs rather than bypassing them.
+
+## Forced Positioning Moves
+
+Pushback attacks are authored weapon or natural attacks (`Pushback`, `PushbackUnarmed`, and `PushbackClinch`). They perform the normal attack roll and then an opposed `PushbackCheck` versus `OpposePushbackCheck`. On success they clear melee, clinch, and grapple contact between the attacker and target, remove the target from melee range for all combatants currently pressing them, and apply an outcome-scaled combat delay before the target can charge or otherwise re-engage. On a near miss, the target may still receive a smaller delay.
+
+Forced movement attacks are authored as `ForcedMovement`, `ForcedMovementUnarmed`, or `ForcedMovementClinch` and store their configuration in `WeaponAttack.AdditionalInfo`. Builders choose the supported destination type (`Exit`, `Layer`, or both), supported verb (`Shove`, `Pull`, or both), required range (`Melee`, `Clinch`, or `Grapple`), and resist difficulty. Manual commands and strategies select only attacks that match the current verb, destination type, and range.
+
+Shove moves only the victim. It breaks melee, clinch, and grapple contact and then lets fall logic resolve unsafe air or tree placements. Pull moves both attacker and victim. It preserves melee range, clinch, and existing grapple effects where the underlying movement remains valid, which is what allows crocodile-style dragging and dropper-style carrying to maintain control.
+
+Forced exit movement still enforces hard movement rules: the target-side exit must exist in the target's current location and layer, fall exits are rejected, zero-gravity movement must be possible, size limits apply, fly/climb-only exits require matching capabilities, and `CanCross` must approve the transition. Victim safe-movement warnings are ignored so hostile forced movement can pass through destinations a voluntary mover would sensibly avoid; hard impossibility is not ignored.
+
+Forced layer movement requires the destination layer to exist in the current terrain. Pulling requires the attacker to be able to transition to that layer. Shoving can place the victim in layers such as water, trees, or air even if they could not voluntarily transition there, but the existing floating and fall checks run immediately afterwards.
 
 ## Audit Notes
 
@@ -173,6 +203,8 @@ Implemented fixes from this pass:
 - `RangeBaseStrategy.GetPathFunction` now correctly rejects swim-only paths for abject swim failures and rejects fly-only paths for non-flying characters who cannot fly.
 - `CombatStrategyMode.Swooper` is now described and classified as both a valid melee-mode and ranged-mode strategy, preserving persisted preferred strategy settings.
 - `SwooperStrategy` now uses layer/flight movement and airborne skirmish responses instead of only attacking when it already happens to be in a valid swoop position.
+- Pushback and forced-movement authored moves now give strategies and manual commands explicit tools for separating targets from melee, dragging or shoving targets through exits, and moving targets between terrain layers without bypassing zero-g, swimming, flying, exit, size, or fall mechanics.
+- `Drowner`, `Dropper`, and `PhysicalAvoider` strategies now cover the principal predator/avoidance behaviours that previously required bespoke NPC scripting or could idle when movement layers became involved.
 
 Remaining follow-up candidates:
 

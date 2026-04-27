@@ -51,6 +51,9 @@ public class CombatStrategySeederCompatibilityTests
                 "Beast Behemoth",
                 "Beast Skirmisher",
                 "Beast Swooper",
+                "Beast Drowner",
+                "Beast Dropper",
+                "Beast Physical Avoider",
                 "Beast Artillery",
                 "Beast Coward",
                 "Construct Brawler",
@@ -88,6 +91,24 @@ public class CombatStrategySeederCompatibilityTests
     }
 
     [TestMethod]
+    public void EnsureCombatStrategy_NewPredatorStrategies_CreateCanonicalSettings()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        context.FutureProgs.AddRange(
+            CreateFutureProg(1, "AlwaysTrue"),
+            CreateFutureProg(2, "IsHumanoid"));
+        context.SaveChanges();
+
+        foreach (string strategy in new[] { "Beast Drowner", "Beast Dropper", "Beast Physical Avoider" })
+        {
+            CharacterCombatSetting setting = CombatStrategySeederHelper.EnsureCombatStrategy(context, strategy);
+
+            Assert.AreEqual(strategy, setting.Name);
+            Assert.IsTrue(setting.GlobalTemplate);
+        }
+    }
+
+    [TestMethod]
     public void SeederSources_DependentSeeders_EnsureStrategiesByNameBeforeApplyingRaceDefaults()
     {
         string animalSource = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "AnimalSeeder.cs"));
@@ -106,6 +127,9 @@ public class CombatStrategySeederCompatibilityTests
 
         StringAssert.Contains(source, "SeedCombatStrategies(context, questionAnswers);");
         StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Brawler\");");
+        StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Drowner\");");
+        StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Dropper\");");
+        StringAssert.Contains(source, "CombatStrategySeederHelper.EnsureCombatStrategy(context, \"Beast Physical Avoider\");");
         Assert.IsFalse(source.Contains("if (!context.CharacterCombatSettings.Any())"),
             "CombatSeeder should no longer skip combat strategy seeding just because the table is non-empty.");
     }

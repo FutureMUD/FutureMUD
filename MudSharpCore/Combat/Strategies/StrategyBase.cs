@@ -406,12 +406,14 @@ public abstract class StrategyBase : ICombatStrategy
         }
 
         List<INaturalAttack> breakers = ch.Race.UsableNaturalWeaponAttacks(ch, clinchers.First(), false,
-            BuiltInCombatMoveType.StaggeringBlowClinch, BuiltInCombatMoveType.UnbalancingBlowClinch).ToList();
+            BuiltInCombatMoveType.StaggeringBlowClinch, BuiltInCombatMoveType.UnbalancingBlowClinch,
+            BuiltInCombatMoveType.PushbackClinch).ToList();
         List<Tuple<IMeleeWeapon, IEnumerable<IWeaponAttack>>> wbreakers = ch.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
                           .Select(x => Tuple.Create(x,
                               x.WeaponType.UsableAttacks(ch, x.Parent, clinchers.First(), x.HandednessForWeapon(ch),
                                   false,
-                                  BuiltInCombatMoveType.StaggeringBlow, BuiltInCombatMoveType.UnbalancingBlow)))
+                                  BuiltInCombatMoveType.StaggeringBlow, BuiltInCombatMoveType.UnbalancingBlow,
+                                  BuiltInCombatMoveType.Pushback)))
                           .Where(x => x.Item2.Any())
                           .ToList();
 

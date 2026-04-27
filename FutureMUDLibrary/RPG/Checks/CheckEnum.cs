@@ -192,6 +192,10 @@ namespace MudSharp.RPG.Checks
         ProgrammingComponentCheck = 183,
         InstallElectricalComponentCheck = 184,
         ConfigureElectricalComponentCheck = 185,
+        PushbackCheck = 186,
+        OpposePushbackCheck = 187,
+        ForcedMovementCheck = 188,
+        OpposeForcedMovementCheck = 189,
     }
 
     public enum FailIfTraitMissingType
@@ -333,6 +337,10 @@ namespace MudSharp.RPG.Checks
                 case CheckType.BuffetingNaturalAttack:
                 case CheckType.InstallElectricalComponentCheck:
                 case CheckType.ConfigureElectricalComponentCheck:
+                case CheckType.PushbackCheck:
+                case CheckType.OpposePushbackCheck:
+                case CheckType.ForcedMovementCheck:
+                case CheckType.OpposeForcedMovementCheck:
                     return true;
             }
             return false;
@@ -452,6 +460,8 @@ namespace MudSharp.RPG.Checks
                 case CheckType.SpitNaturalAttack:
                 case CheckType.ExplosiveNaturalAttack:
                 case CheckType.BuffetingNaturalAttack:
+                case CheckType.PushbackCheck:
+                case CheckType.ForcedMovementCheck:
                     return true;
                 default:
                     return false;
@@ -472,6 +482,8 @@ namespace MudSharp.RPG.Checks
                 case CheckType.ResistBreakClinch:
                 case CheckType.ResistClinch:
                 case CheckType.OpposeStruggleFreeFromGrapple:
+                case CheckType.OpposePushbackCheck:
+                case CheckType.OpposeForcedMovementCheck:
                     return true;
                 default:
                     return false;
@@ -525,6 +537,10 @@ namespace MudSharp.RPG.Checks
                 case CheckType.ExplosiveNaturalAttack:
                 case CheckType.BuffetingNaturalAttack:
                 case CheckType.ProsecuteLegalCase:
+                case CheckType.PushbackCheck:
+                case CheckType.OpposePushbackCheck:
+                case CheckType.ForcedMovementCheck:
+                case CheckType.OpposeForcedMovementCheck:
                     return true;
                 default:
                     return false;
@@ -626,6 +642,10 @@ namespace MudSharp.RPG.Checks
                 case CheckType.SpitNaturalAttack:
                 case CheckType.ExplosiveNaturalAttack:
                 case CheckType.BuffetingNaturalAttack:
+                case CheckType.PushbackCheck:
+                case CheckType.OpposePushbackCheck:
+                case CheckType.ForcedMovementCheck:
+                case CheckType.OpposeForcedMovementCheck:
                     return true;
             }
 

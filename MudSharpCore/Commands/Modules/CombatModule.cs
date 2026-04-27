@@ -632,6 +632,258 @@ The syntax is simply #3trip#0 when you're in combat to signal that your next att
         actor.Send($"The correct syntax is {"trip [cancel|always]".Colour(Telnet.Yellow)}");
     }
 
+    [PlayerCommand("Pushback", "pushback", "knockback")]
+    [HelpInfo("pushback", @"The #3Pushback#0 command is used in combat to signal that your next attack should be a pushback attack which attempts to knock your opponent out of melee range. This kind of attack could be unarmed or with a weapon, though not all weapons will have pushback attacks.
+
+The syntax is simply #3pushback#0 when you're in combat to signal that your next attack will be a pushback attack.", AutoHelp.HelpArg)]
+    protected static void Pushback(ICharacter actor, string command)
+    {
+        if (actor.Combat == null)
+        {
+            actor.Send("This command is only usable when you are in combat.");
+            return;
+        }
+
+        StringStack ss = new(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.RemoveAllEffects(x => x.IsEffectType<FixedCombatMoveType>());
+            actor.AddEffect(new FixedCombatMoveType(actor,
+                new[]
+                {
+                    BuiltInCombatMoveType.Pushback, BuiltInCombatMoveType.PushbackUnarmed,
+                    BuiltInCombatMoveType.PushbackClinch
+                }, false));
+            actor.Send("You will now try to knock your opponent out of melee range on your next blow.");
+            return;
+        }
+
+        if (ss.Peek().EqualTo("cancel") || ss.Peek().EqualTo("off") || ss.Peek().EqualTo("disable"))
+        {
+            actor.RemoveAllEffects(x => x.IsEffectType<FixedCombatMoveType>());
+            actor.Send("You will not seek to knock your opponent out of melee range.");
+            return;
+        }
+
+        if (ss.Peek().EqualTo("always") || ss.Peek().EqualTo("on") || ss.Peek().EqualTo("only"))
+        {
+            actor.RemoveAllEffects(x => x.IsEffectType<FixedCombatMoveType>());
+            actor.AddEffect(new FixedCombatMoveType(actor,
+                new[]
+                {
+                    BuiltInCombatMoveType.Pushback, BuiltInCombatMoveType.PushbackUnarmed,
+                    BuiltInCombatMoveType.PushbackClinch
+                }, true));
+            actor.Send("You will now try to knock your opponent out of melee range until you disable this setting.");
+            return;
+        }
+
+        actor.Send($"The correct syntax is {"pushback [cancel|always]".Colour(Telnet.Yellow)}");
+    }
+
+    [PlayerCommand("Shove", "shove")]
+    [NoMovementCommand]
+    [RequiredCharacterState(CharacterState.Able)]
+    [DelayBlock("general", "aim", "You must first stop {0} before you can do that.")]
+    [HelpInfo("shove", @"The #3Shove#0 command is used in combat to force an opponent through an exit or into another terrain layer without following them. The move requires an authored forced-movement attack that supports shoving, the selected destination type, and the current combat range.
+
+The syntax is:
+
+	#3shove <target> through <exit>#0
+	#3shove <target> layer <layer>#0", AutoHelp.HelpArg)]
+    protected static void Shove(ICharacter actor, string command)
+    {
+        ForcedMovementCommand(actor, command, ForcedMovementVerbs.Shove);
+    }
+
+    [PlayerCommand("Pull", "pull")]
+    [NoMovementCommand]
+    [RequiredCharacterState(CharacterState.Able)]
+    [DelayBlock("general", "aim", "You must first stop {0} before you can do that.")]
+    [HelpInfo("pull", @"The #3Pull#0 command is used in combat to force an opponent through an exit or into another terrain layer while following them. Pulling preserves melee, clinch, and grapple state where the movement remains valid. The move requires an authored forced-movement attack that supports pulling, the selected destination type, and the current combat range.
+
+The syntax is:
+
+	#3pull <target> through <exit>#0
+	#3pull <target> layer <layer>#0", AutoHelp.HelpArg)]
+    protected static void Pull(ICharacter actor, string command)
+    {
+        ForcedMovementCommand(actor, command, ForcedMovementVerbs.Pull);
+    }
+
+    private static void ForcedMovementCommand(ICharacter actor, string command, ForcedMovementVerbs verb)
+    {
+        if (actor.Combat == null)
+        {
+            actor.Send("This command is only usable when you are in combat.");
+            return;
+        }
+
+        StringStack ss = new(command.RemoveFirstWord());
+        if (ss.CountRemainingArguments() < 3)
+        {
+            actor.Send($"The correct syntax is {$"{verb.DescribeEnum().ToLowerInvariant()} <target> through <exit>".ColourCommand()} or {$"{verb.DescribeEnum().ToLowerInvariant()} <target> layer <layer>".ColourCommand()}.");
+            return;
+        }
+
+        string targetText = ss.PopSpeech();
+        ICharacter target = actor.Combat.Friendly ? actor.TargetActor(targetText) : actor.TargetNonAlly(targetText);
+        if (target is null)
+        {
+            actor.Send("You don't see anyone like that to force to move.");
+            return;
+        }
+
+        string mode = ss.PopSpeech().ToLowerInvariant();
+        switch (mode)
+        {
+            case "through":
+            case "exit":
+            case "door":
+                ForcedExitMovementCommand(actor, target, verb, ss);
+                return;
+            case "layer":
+            case "to":
+                ForcedLayerMovementCommand(actor, target, verb, ss);
+                return;
+        }
+
+        actor.Send($"Do you want to force them {"through".ColourCommand()} an exit or to a {"layer".ColourCommand()}?");
+    }
+
+    private static void ForcedExitMovementCommand(ICharacter actor, ICharacter target, ForcedMovementVerbs verb, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.Send("Which exit do you want to force them through?");
+            return;
+        }
+
+        string exitText = ss.SafeRemainingArgument;
+        ICellExit exit = actor.Location.GetExitKeyword(exitText, actor) ??
+                         actor.Location.ExitsFor(actor, true).GetFromItemListByKeyword(exitText, actor);
+        if (exit is null)
+        {
+            actor.Send("You don't see any exit like that.");
+            return;
+        }
+
+        ForcedMovementAttackChoice choice =
+            CombatForcedMovementUtilities.FindBestForcedMovementAttack(actor, target, verb, ForcedMovementTypes.Exit);
+        if (choice is null)
+        {
+            if (CombatForcedMovementUtilities.FindAnyForcedMovementAttack(actor, target, verb, ForcedMovementTypes.Exit) is not null)
+            {
+                actor.Send("You are too exhausted to use any suitable forced movement attack right now.");
+                return;
+            }
+
+            actor.Send("You do not have any suitable authored attack for forcing that target through an exit from your current range.");
+            return;
+        }
+
+        if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectForcedMovementExit(actor, target, choice.Attack,
+                verb, exit, choice.Weapon, choice.NaturalAttack)) &&
+            actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+        {
+            string verbing = verb == ForcedMovementVerbs.Pull ? "Pulling" : "Shoving";
+            actor.Send(
+                $"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}{verbing} {target.HowSeen(actor)} through {exit.OutboundDirection.Describe().ColourName()}.");
+        }
+    }
+
+    private static void ForcedLayerMovementCommand(ICharacter actor, ICharacter target, ForcedMovementVerbs verb, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.Send("Which layer do you want to force them into?");
+            return;
+        }
+
+        if (!TryParseRoomLayer(ss.SafeRemainingArgument, out RoomLayer layer))
+        {
+            actor.Send(
+                $"That is not a valid layer. Valid choices here are {target.Location.Terrain(target).TerrainLayers.Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+            return;
+        }
+
+        ForcedMovementAttackChoice choice =
+            CombatForcedMovementUtilities.FindBestForcedMovementAttack(actor, target, verb, ForcedMovementTypes.Layer);
+        if (choice is null)
+        {
+            if (CombatForcedMovementUtilities.FindAnyForcedMovementAttack(actor, target, verb, ForcedMovementTypes.Layer) is not null)
+            {
+                actor.Send("You are too exhausted to use any suitable forced movement attack right now.");
+                return;
+            }
+
+            actor.Send("You do not have any suitable authored attack for forcing that target into another layer from your current range.");
+            return;
+        }
+
+        if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectForcedMovementLayer(actor, target, choice.Attack,
+                verb, layer, choice.Weapon, choice.NaturalAttack)) &&
+            actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+        {
+            string verbing = verb == ForcedMovementVerbs.Pull ? "Pulling" : "Shoving";
+            actor.Send(
+                $"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}{verbing} {target.HowSeen(actor)} {layer.LocativeDescription().ColourName()}.");
+        }
+    }
+
+    private static bool TryParseRoomLayer(string text, out RoomLayer layer)
+    {
+        if (Utilities.TryParseEnum(text, out layer))
+        {
+            return true;
+        }
+
+        switch (text.ToLowerInvariant().CollapseString())
+        {
+            case "ground":
+            case "groundlevel":
+                layer = RoomLayer.GroundLevel;
+                return true;
+            case "water":
+            case "underwater":
+                layer = RoomLayer.Underwater;
+                return true;
+            case "deepwater":
+            case "deepunderwater":
+                layer = RoomLayer.DeepUnderwater;
+                return true;
+            case "verydeepwater":
+            case "verydeepunderwater":
+                layer = RoomLayer.VeryDeepUnderwater;
+                return true;
+            case "trees":
+            case "intrees":
+                layer = RoomLayer.InTrees;
+                return true;
+            case "hightrees":
+            case "highintrees":
+                layer = RoomLayer.HighInTrees;
+                return true;
+            case "air":
+            case "inair":
+                layer = RoomLayer.InAir;
+                return true;
+            case "highair":
+            case "highinair":
+                layer = RoomLayer.HighInAir;
+                return true;
+            case "roof":
+            case "rooftop":
+            case "rooftops":
+            case "onrooftops":
+                layer = RoomLayer.OnRooftops;
+                return true;
+            default:
+                layer = RoomLayer.GroundLevel;
+                return false;
+        }
+    }
+
     [PlayerCommand("Smash", "smash")]
     [RequiredCharacterState(CharacterState.Able)]
     [HelpInfo("smash", @"The #3Smash#0 command makes a single attack against an object not being held with the intention of damaging or breaking the object. It is the primary way to attack inanimate objects.

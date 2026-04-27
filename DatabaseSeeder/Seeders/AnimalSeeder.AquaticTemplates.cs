@@ -93,7 +93,7 @@ public partial class AnimalSeeder
                 "It carries itself with the remorseless calm of something that expects to eat what it catches.",
                 "open sea and dark water"),
             AnimalBreathingMode.Saltwater,
-            combatStrategyKey: "Beast Brawler");
+            combatStrategyKey: "Beast Drowner");
 
         yield return Aquatic("Small Crab", "Small Crab", "Decapod", SizeCategory.VerySmall, 0.2, "Crab", "crab-small",
             AquaticPack("a tiny crab larva", "a young small crab", "a small crab",

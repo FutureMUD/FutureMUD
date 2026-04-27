@@ -460,6 +460,14 @@ public class StandardMeleeStrategy : StrategyBase
             return ResponseToBreakClinch(moveAsBreakClinch, defenseCharacter, assailant);
         }
 
+        if (move is ForcedMovementMove)
+        {
+            return defenseCharacter.CanSpendStamina(DodgeMove.MoveStaminaCost(defenseCharacter)) &&
+                   defenseCharacter.RidingMount is null
+                ? new DodgeMove { Assailant = defenseCharacter, PrimaryTarget = assailant }
+                : new HelplessDefenseMove { Assailant = defenseCharacter, PrimaryTarget = assailant };
+        }
+
         if (moveAsRangedAttack != null)
         {
             return ResponseToRangedAttack(moveAsRangedAttack, defenseCharacter, assailant);
@@ -990,6 +998,7 @@ public class StandardMeleeStrategy : StrategyBase
             BuiltInCombatMoveType.NaturalWeaponAttack,
             BuiltInCombatMoveType.StaggeringBlowUnarmed,
             BuiltInCombatMoveType.UnbalancingBlowUnarmed,
+            BuiltInCombatMoveType.PushbackUnarmed,
             BuiltInCombatMoveType.ScreechAttack,
             BuiltInCombatMoveType.EnvenomingAttack
         };
@@ -1128,6 +1137,7 @@ public class StandardMeleeStrategy : StrategyBase
                         BuiltInCombatMoveType.NaturalWeaponAttack,
                         BuiltInCombatMoveType.StaggeringBlowUnarmed,
                         BuiltInCombatMoveType.UnbalancingBlowUnarmed,
+                        BuiltInCombatMoveType.PushbackUnarmed,
                         BuiltInCombatMoveType.ScreechAttack,
                         BuiltInCombatMoveType.EnvenomingAttack
                 };

@@ -16,6 +16,7 @@ using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.Magic.Powers;
 using MudSharp.RPG.Checks;
@@ -187,5 +188,90 @@ public class CombatStrategyRuntimeTests
 		Assert.IsTrue(CombatStrategyMode.Swooper.IsRangedStrategy());
 		Assert.IsTrue(CombatStrategyMode.Swooper.IsRangedStartDesiringStrategy());
 		Assert.IsFalse(CombatStrategyMode.Swooper.IsMeleeDesiredStrategy());
+	}
+
+	[TestMethod]
+	public void CombatStrategyModeExtensions_NewPredatorModes_AreClassifiedForMeleeSelection()
+	{
+		Assert.AreEqual("Drowner", CombatStrategyMode.Drowner.Describe());
+		Assert.AreEqual("Dropper", CombatStrategyMode.Dropper.Describe());
+		Assert.AreEqual("Physical Avoider", CombatStrategyMode.PhysicalAvoider.Describe());
+
+		Assert.IsTrue(CombatStrategyMode.Drowner.IsMeleeStrategy());
+		Assert.IsTrue(CombatStrategyMode.Dropper.IsMeleeStrategy());
+		Assert.IsTrue(CombatStrategyMode.PhysicalAvoider.IsMeleeStrategy());
+		Assert.IsTrue(CombatStrategyMode.PhysicalAvoider.IsRangedStrategy());
+		Assert.IsTrue(CombatStrategyMode.Drowner.IsMeleeDesiredStrategy());
+		Assert.IsTrue(CombatStrategyMode.Dropper.IsMeleeDesiredStrategy());
+		Assert.IsTrue(CombatStrategyMode.PhysicalAvoider.IsRangedStartDesiringStrategy());
+	}
+
+	[TestMethod]
+	public void CheckTypeExtensions_ForcedPositioningChecks_AreCombatPhysicalChecks()
+	{
+		foreach (var check in new[]
+		         {
+			         CheckType.PushbackCheck,
+			         CheckType.OpposePushbackCheck,
+			         CheckType.ForcedMovementCheck,
+			         CheckType.OpposeForcedMovementCheck
+		         })
+		{
+			Assert.IsTrue(check.IsPhysicalActivityCheck(), $"{check} should be a physical activity check.");
+			Assert.IsTrue(check.IsTargettedHostileCheck(), $"{check} should be targeted and hostile.");
+			Assert.IsTrue(check.IsVisionInfluencedCheck(), $"{check} should be vision influenced.");
+		}
+
+		Assert.IsTrue(CheckType.PushbackCheck.IsOffensiveCombatAction());
+		Assert.IsTrue(CheckType.ForcedMovementCheck.IsOffensiveCombatAction());
+		Assert.IsTrue(CheckType.OpposePushbackCheck.IsDefensiveCombatAction());
+		Assert.IsTrue(CheckType.OpposeForcedMovementCheck.IsDefensiveCombatAction());
+	}
+
+	[TestMethod]
+	public void CombatForcedMovementUtilities_ApplyPushback_ClearsMeleeAndSchedulesScaledDelay()
+	{
+		Mock<IScheduler> scheduler = new();
+		Mock<IFuturemud> gameworld = new();
+		gameworld.SetupGet(x => x.Scheduler).Returns(scheduler.Object);
+		gameworld.Setup(x => x.GetStaticDouble("PushbackCombatDelayBaseSeconds")).Returns(2.0);
+		gameworld.Setup(x => x.GetStaticDouble("PushbackCombatDelayPerDegreeSeconds")).Returns(5.0);
+
+		Mock<IBody> actorBody = new();
+		Mock<IBody> targetBody = new();
+		Mock<ICharacter> actor = new();
+		Mock<ICharacter> target = new();
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.Body).Returns(actorBody.Object);
+		actor.SetupProperty(x => x.MeleeRange, true);
+		actor.SetupProperty(x => x.CombatTarget, target.Object);
+		target.SetupGet(x => x.Body).Returns(targetBody.Object);
+		target.SetupProperty(x => x.MeleeRange, true);
+
+		CombatForcedMovementUtilities.ApplyPushback(actor.Object, target.Object, 3);
+
+		Assert.IsFalse(actor.Object.MeleeRange);
+		Assert.IsFalse(target.Object.MeleeRange);
+		scheduler.Verify(x => x.DelayScheduleType(
+			target.Object,
+			ScheduleType.Combat,
+			It.Is<TimeSpan>(delay => Math.Abs(delay.TotalSeconds - 17.0 * CombatBase.CombatSpeedMultiplier) < 0.001)),
+			Times.Once);
+	}
+
+	[TestMethod]
+	public void ForcedMovementMove_Description_UsesValidVerbParticiple()
+	{
+		Mock<ICharacter> attacker = new();
+		Mock<ICharacter> target = new();
+		Mock<IForcedMovementAttack> attack = new();
+
+		ForcedMovementMove shove = new(attacker.Object, target.Object, attack.Object, ForcedMovementVerbs.Shove,
+			RoomLayer.GroundLevel);
+		ForcedMovementMove pull = new(attacker.Object, target.Object, attack.Object, ForcedMovementVerbs.Pull,
+			RoomLayer.GroundLevel);
+
+		StringAssert.StartsWith(shove.Description, "Shoving");
+		StringAssert.StartsWith(pull.Description, "Pulling");
 	}
 }

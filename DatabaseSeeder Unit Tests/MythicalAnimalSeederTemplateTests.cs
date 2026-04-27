@@ -715,10 +715,10 @@ public class MythicalAnimalSeederTemplateTests
     public void TemplatesForTesting_CombatStrategyKeys_MapRepresentativeMythicRacesToExpectedStyles()
     {
         Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Dragon"].CombatStrategyKey);
-        Assert.AreEqual("Beast Swooper", MythicalAnimalSeeder.TemplatesForTesting["Griffin"].CombatStrategyKey);
+        Assert.AreEqual("Beast Dropper", MythicalAnimalSeeder.TemplatesForTesting["Griffin"].CombatStrategyKey);
         Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Unicorn"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Basilisk"].CombatStrategyKey);
-        Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Wyvern"].CombatStrategyKey);
+        Assert.AreEqual("Beast Dropper", MythicalAnimalSeeder.TemplatesForTesting["Wyvern"].CombatStrategyKey);
         Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Warg"].CombatStrategyKey);
         Assert.AreEqual("Beast Brawler", MythicalAnimalSeeder.TemplatesForTesting["Dire-Wolf"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Dire-Bear"].CombatStrategyKey);
@@ -730,6 +730,13 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Giant Centipede"].CombatStrategyKey);
         Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Ankheg"].CombatStrategyKey);
         Assert.AreEqual("Melee (Auto)", MythicalAnimalSeeder.TemplatesForTesting["Centaur"].CombatStrategyKey);
+    }
+
+    [TestMethod]
+    public void TemplatesForTesting_DropperMythicPredators_HaveTalonCarryAttack()
+    {
+        Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Griffin"].Attacks.Any(x => x.AttackName == "Talon Carry"));
+        Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Wyvern"].Attacks.Any(x => x.AttackName == "Talon Carry"));
     }
 
     [TestMethod]

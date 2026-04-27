@@ -23,6 +23,8 @@ public static class CombatMoveFactory
                 return new UnbalancingBlowMove(assailant, weapon, attack, target);
             case BuiltInCombatMoveType.DownedAttack:
                 return new DownedMeleeAttack(assailant, weapon, attack, target);
+            case BuiltInCombatMoveType.Pushback:
+                return new PushbackMove(assailant, weapon, attack, target);
         }
 
         throw new ApplicationException(
@@ -55,6 +57,10 @@ public static class CombatMoveFactory
                 return new UnbalancingBlowUnarmedMove(assailant, attack, target, false);
             case BuiltInCombatMoveType.UnbalancingBlowClinch:
                 return new UnbalancingBlowUnarmedMove(assailant, attack, target, true);
+            case BuiltInCombatMoveType.PushbackUnarmed:
+                return new PushbackUnarmedMove(assailant, attack, target, false);
+            case BuiltInCombatMoveType.PushbackClinch:
+                return new PushbackUnarmedMove(assailant, attack, target, true);
             case BuiltInCombatMoveType.ScreechAttack:
                 return new ScreechAttackMove(assailant, attack, null);
             case BuiltInCombatMoveType.RangedNaturalAttack:

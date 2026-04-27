@@ -108,7 +108,8 @@ public partial class AnimalSeeder
                 ],
                 [
                     AliasAttack("clawswipe", ItemQuality.Standard, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
-                    AliasAttack("clawhighswipe", ItemQuality.Standard, "rfclaw", "lfclaw", "rrclaw", "lrclaw")
+                    AliasAttack("clawhighswipe", ItemQuality.Standard, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
+                    AliasAttack("treehaul", ItemQuality.Standard, "rfclaw", "lfclaw", "rrclaw", "lrclaw")
                 ]
             ),
             ["bear"] = new(
@@ -127,6 +128,7 @@ public partial class AnimalSeeder
                 [
                     ShapeAttack("herbivorebite", ItemQuality.Standard),
                     ShapeAttack("barge", ItemQuality.Poor),
+                    ShapeAttack("bargepushback", ItemQuality.Poor),
                     ShapeAttack("gorehorn", ItemQuality.Substandard),
                     ShapeAttack("hoofstomp", ItemQuality.Terrible)
                 ]
@@ -135,6 +137,7 @@ public partial class AnimalSeeder
                 [
                     ShapeAttack("herbivorebite", ItemQuality.Standard),
                     ShapeAttack("barge", ItemQuality.Poor),
+                    ShapeAttack("bargepushback", ItemQuality.Poor),
                     ShapeAttack("bargesmash", ItemQuality.Poor),
                     ShapeAttack("hoofstomp", ItemQuality.Poor)
                 ]
@@ -143,6 +146,7 @@ public partial class AnimalSeeder
                 [
                     ShapeAttack("herbivorebite", ItemQuality.Good),
                     ShapeAttack("barge", ItemQuality.Standard),
+                    ShapeAttack("bargepushback", ItemQuality.Standard),
                     ShapeAttack("bargesmash", ItemQuality.Standard),
                     ShapeAttack("goretusk", ItemQuality.Substandard),
                     ShapeAttack("tusksweep", ItemQuality.Substandard)
@@ -152,6 +156,7 @@ public partial class AnimalSeeder
                 [
                     ShapeAttack("herbivorebite", ItemQuality.Standard),
                     ShapeAttack("barge", ItemQuality.Poor),
+                    ShapeAttack("bargepushback", ItemQuality.Poor),
                     ShapeAttack("bargesmash", ItemQuality.Poor),
                     ShapeAttack("llamaspit", ItemQuality.Standard)
                 ]
@@ -160,6 +165,7 @@ public partial class AnimalSeeder
                 [
                     ShapeAttack("herbivorebite", ItemQuality.Standard),
                     ShapeAttack("barge", ItemQuality.Poor),
+                    ShapeAttack("bargepushback", ItemQuality.Poor),
                     ShapeAttack("goreantler", ItemQuality.Standard),
                     ShapeAttack("hoofstomp", ItemQuality.Poor)
                 ]
@@ -168,6 +174,7 @@ public partial class AnimalSeeder
                 [
                     ShapeAttack("herbivorebite", ItemQuality.Good),
                     ShapeAttack("barge", ItemQuality.VeryGood),
+                    ShapeAttack("bargepushback", ItemQuality.VeryGood),
                     ShapeAttack("bargesmash", ItemQuality.VeryGood),
                     ShapeAttack("gorehorn", ItemQuality.Standard),
                     ShapeAttack("hoofstomp", ItemQuality.Standard)
@@ -178,6 +185,7 @@ public partial class AnimalSeeder
                     ShapeAttack("carnivorebite", ItemQuality.Great),
                     ShapeAttack("bite", ItemQuality.Good),
                     ShapeAttack("barge", ItemQuality.VeryGood),
+                    ShapeAttack("bargepushback", ItemQuality.VeryGood),
                     ShapeAttack("bargesmash", ItemQuality.VeryGood)
                 ]
             ),
@@ -185,6 +193,7 @@ public partial class AnimalSeeder
                 [
                     ShapeAttack("herbivorebite", ItemQuality.Poor),
                     ShapeAttack("barge", ItemQuality.Great),
+                    ShapeAttack("bargepushback", ItemQuality.Great),
                     ShapeAttack("bargesmash", ItemQuality.Great),
                     ShapeAttack("gorehorn", ItemQuality.Standard)
                 ]
@@ -193,6 +202,7 @@ public partial class AnimalSeeder
                 [
                     ShapeAttack("herbivorebite", ItemQuality.Poor),
                     ShapeAttack("barge", ItemQuality.Great),
+                    ShapeAttack("bargepushback", ItemQuality.Great),
                     ShapeAttack("bargesmash", ItemQuality.Great),
                     ShapeAttack("goretusk", ItemQuality.Great),
                     ShapeAttack("tusksweep", ItemQuality.Good)
@@ -209,6 +219,7 @@ public partial class AnimalSeeder
                 [
                     ShapeAttack("sharkbite", ItemQuality.Great),
                     ShapeAttack("sharkreelbite", ItemQuality.Great),
+                    ShapeAttack("waterdrag", ItemQuality.Great),
                     ShapeAttack("bite", ItemQuality.Standard)
                 ]
             ),
@@ -239,6 +250,7 @@ public partial class AnimalSeeder
                 [
                     ShapeAttack("sharkbite", ItemQuality.Heroic),
                     ShapeAttack("sharkreelbite", ItemQuality.Heroic),
+                    ShapeAttack("waterdrag", ItemQuality.Heroic),
                     ShapeAttack("bite", ItemQuality.Good)
                 ],
                 [AliasAttack("headram", ItemQuality.Standard, "head")]
@@ -246,6 +258,7 @@ public partial class AnimalSeeder
             ["toothed-whale"] = new(
                 [
                     ShapeAttack("sharkbite", ItemQuality.Great),
+                    ShapeAttack("waterdrag", ItemQuality.Great),
                     ShapeAttack("fishquickbite", ItemQuality.Standard)
                 ],
                 [AliasAttack("headram", ItemQuality.Standard, "head")]
@@ -264,10 +277,20 @@ public partial class AnimalSeeder
                 [ShapeAttack("beakpeck", ItemQuality.Poor), ShapeAttack("talonstrike", ItemQuality.Poor), ShapeAttack("beakbite", ItemQuality.Terrible)]
             ),
             ["bird-raptor"] = new(
-                [ShapeAttack("beakpeck", ItemQuality.Standard), ShapeAttack("talonstrike", ItemQuality.Standard), ShapeAttack("beakbite", ItemQuality.Poor)]
+                [
+                    ShapeAttack("beakpeck", ItemQuality.Standard),
+                    ShapeAttack("talonstrike", ItemQuality.Standard),
+                    ShapeAttack("taloncarry", ItemQuality.Standard),
+                    ShapeAttack("beakbite", ItemQuality.Poor)
+                ]
             ),
             ["bird-flightless"] = new(
-                [ShapeAttack("beakpeck", ItemQuality.Substandard), ShapeAttack("talonstrike", ItemQuality.Substandard), ShapeAttack("beakbite", ItemQuality.Terrible)],
+                [
+                    ShapeAttack("beakpeck", ItemQuality.Substandard),
+                    ShapeAttack("talonstrike", ItemQuality.Substandard),
+                    ShapeAttack("bargepushback", ItemQuality.Substandard),
+                    ShapeAttack("beakbite", ItemQuality.Terrible)
+                ],
                 [AliasAttack("headram", ItemQuality.Substandard, "head")]
             ),
             ["serpent-constrictor"] = new(
@@ -389,7 +412,7 @@ public partial class AnimalSeeder
                 ]
             ),
             ["crocodilian"] = new(
-                [ShapeAttack("sharkbite", ItemQuality.Standard), ShapeAttack("bite", ItemQuality.Poor)],
+                [ShapeAttack("sharkbite", ItemQuality.Standard), ShapeAttack("waterdrag", ItemQuality.Standard), ShapeAttack("bite", ItemQuality.Poor)],
                 [AliasAttack("tailslap", ItemQuality.Standard, "utail", "mtail", "ltail", "tail")]
             ),
             ["chelonian"] = new(

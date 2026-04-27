@@ -245,13 +245,13 @@ internal abstract class ShopperBase : SaveableItem, IShopper
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send($"You must enter an interval.\nUse the following form: #3every <x> hours|days|weekdays|weeks|months|years <offset>#0".SubstituteANSIColour());
+            actor.OutputHandler.Send($"You must enter an interval.\nUse forms like: #3every <x> hours|days|weekdays|weeks|months|years <offset>#0, #3every month on day 15#0, or #3every month on the 5th or last Wednesday#0".SubstituteANSIColour());
             return false;
         }
 
-        if (!RecurringInterval.TryParse(command.SafeRemainingArgument, out RecurringInterval interval))
+        if (!RecurringInterval.TryParse(command.SafeRemainingArgument, EconomicZone.FinancialPeriodReferenceCalendar, out RecurringInterval interval, out string intervalError))
         {
-            actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid interval.\nUse the following form: #3every <x> hours|days|weekdays|weeks|months|years <offset>#0".SubstituteANSIColour());
+            actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid interval: {intervalError}\nUse forms like: #3every <x> hours|days|weekdays|weeks|months|years <offset>#0, #3every month on day 15#0, or #3every month on the 5th or last Wednesday#0".SubstituteANSIColour());
             return false;
         }
 

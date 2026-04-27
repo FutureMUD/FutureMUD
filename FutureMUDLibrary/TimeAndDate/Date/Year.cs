@@ -52,6 +52,7 @@ namespace MudSharp.TimeAndDate.Date
             _year = copyYear._year;
             _months = new List<Month>(copyYear._months);
             _calendar = copyYear._calendar;
+            _firstWeekdayIndex = copyYear._firstWeekdayIndex;
         }
 
         #endregion

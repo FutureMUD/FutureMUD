@@ -21,6 +21,8 @@ public class ProgSchedule : SaveableItem, IProgSchedule
             dbitem.IntervalType = (int)interval.Type;
             dbitem.IntervalModifier = interval.IntervalAmount;
             dbitem.IntervalOther = interval.Modifier;
+            dbitem.IntervalOtherSecondary = interval.SecondaryModifier;
+            dbitem.IntervalFallback = (int)interval.OrdinalFallbackMode;
             dbitem.ReferenceDate = referencetime.GetDateTimeString();
             dbitem.ReferenceTime = string.Empty;
             dbitem.FutureProgId = prog.Id;
@@ -95,7 +97,9 @@ public class ProgSchedule : SaveableItem, IProgSchedule
         {
             Type = (IntervalType)schedule.IntervalType,
             IntervalAmount = schedule.IntervalModifier,
-            Modifier = schedule.IntervalOther
+            Modifier = schedule.IntervalOther,
+            SecondaryModifier = schedule.IntervalOtherSecondary,
+            OrdinalFallbackMode = (OrdinalFallbackMode)schedule.IntervalFallback
         };
         Prog = Gameworld.FutureProgs.Get(schedule.FutureProgId);
         NextReferenceTime = Interval.GetNextDateTime(new MudDateTime(schedule.ReferenceDate, Gameworld));

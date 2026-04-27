@@ -62,11 +62,7 @@ public class TimeListener : ListenerBase
     {
         if (TimeIsRight())
         {
-            Payload(Objects);
-            if (RepeatTimes > 0)
-            {
-                RepeatTimes--;
-            }
+            TriggerPayload();
         }
     }
 

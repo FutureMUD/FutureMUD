@@ -112,7 +112,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
         FinancialPeriodReferenceCalendar.DaysUpdated += ReferenceCalendarOnDaysUpdated;
         FinancialPeriodTimezone = zone.TimeZone(FinancialPeriodReferenceClock);
         FinancialPeriodReferenceTime =
-            new MudTime(0, 0, 0, FinancialPeriodTimezone, FinancialPeriodReferenceClock, false);
+            MudTime.FromLocalTime(0, 0, 0, FinancialPeriodTimezone, FinancialPeriodReferenceClock);
         EstatesEnabled = true;
         EstateDefaultDiscoverTime = MudTimeSpan.FromDays(28);
         EstateClaimPeriodLength = MudTimeSpan.FromDays(14);
@@ -121,6 +121,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
             Models.EconomicZone dbitem = new()
             {
                 IntervalModifier = FinancialPeriodInterval.Modifier,
+                IntervalOther = FinancialPeriodInterval.SecondaryModifier,
+                IntervalFallback = (int)FinancialPeriodInterval.OrdinalFallbackMode,
                 IntervalType = (int)FinancialPeriodInterval.Type,
                 IntervalAmount = FinancialPeriodInterval.IntervalAmount,
                 CurrencyId = Currency.Id,
@@ -206,12 +208,14 @@ public class EconomicZone : SaveableItem, IEconomicZone
         {
             IntervalAmount = zone.IntervalAmount,
             Modifier = zone.IntervalModifier,
+            SecondaryModifier = zone.IntervalOther,
+            OrdinalFallbackMode = (OrdinalFallbackMode)zone.IntervalFallback,
             Type = (IntervalType)zone.IntervalType
         };
 
         FinancialPeriodReferenceClock = gameworld.Clocks.Get(zone.ReferenceClockId);
         FinancialPeriodReferenceCalendar = gameworld.Calendars.Get(zone.ReferenceCalendarId ?? 0);
-        FinancialPeriodReferenceTime = new MudTime(zone.ReferenceTime, FinancialPeriodReferenceClock);
+        FinancialPeriodReferenceTime = MudTime.ParseLocalTime(zone.ReferenceTime, FinancialPeriodReferenceClock);
         FinancialPeriodTimezone = FinancialPeriodReferenceTime.Timezone;
 
         CurrentFinancialPeriod = _financialPeriods.Get(zone.CurrentFinancialPeriodId ?? 0) ??
@@ -380,6 +384,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
             {
                 CurrentFinancialPeriodId = CurrentFinancialPeriod?.Id,
                 IntervalModifier = FinancialPeriodInterval.Modifier,
+                IntervalOther = FinancialPeriodInterval.SecondaryModifier,
+                IntervalFallback = (int)FinancialPeriodInterval.OrdinalFallbackMode,
                 IntervalType = (int)FinancialPeriodInterval.Type,
                 IntervalAmount = FinancialPeriodInterval.IntervalAmount,
                 CurrencyId = Currency.Id,
@@ -424,6 +430,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
         Models.EconomicZone dbitem = FMDB.Context.EconomicZones.Find(Id);
         dbitem.CurrentFinancialPeriodId = CurrentFinancialPeriod?.Id;
         dbitem.IntervalModifier = FinancialPeriodInterval.Modifier;
+        dbitem.IntervalOther = FinancialPeriodInterval.SecondaryModifier;
+        dbitem.IntervalFallback = (int)FinancialPeriodInterval.OrdinalFallbackMode;
         dbitem.IntervalType = (int)FinancialPeriodInterval.Type;
         dbitem.IntervalAmount = FinancialPeriodInterval.IntervalAmount;
         dbitem.CurrencyId = Currency.Id;
@@ -735,7 +743,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3currency <currency>#0 - changes the currency used in this zone
 	#3clock <clock>#0 - changes the clock used in this zone
 	#3calendar <calendar>#0 - changes the calendar used in this zone
-	#3interval <type> <amount> <offset>#0 - sets the interval for financial periods
+	#3interval <interval>#0 - sets the interval for financial periods
 	#3time <time>#0 - sets the reference time for financial periods
 	#3timezone <tz>#0 - sets the reference timezone for this zone
 	#3zone <zone>#0 - sets the physical zone used as a reference for current time
@@ -1372,14 +1380,14 @@ public class EconomicZone : SaveableItem, IEconomicZone
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(
-                $"What do you want to set the financial period interval to?\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}");
+                $"What do you want to set the financial period interval to?\n{"Use forms like: every <x> hours|days|weekdays|weeks|months|years <offset>, every month on day 15, or every month on the 5th or last Wednesday".ColourCommand()}");
             return false;
         }
 
-        if (!RecurringInterval.TryParse(command.SafeRemainingArgument, out RecurringInterval interval))
+        if (!RecurringInterval.TryParse(command.SafeRemainingArgument, FinancialPeriodReferenceCalendar, out RecurringInterval interval, out string intervalError))
         {
             actor.OutputHandler.Send(
-                $"That is not a valid financial period interval.\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}");
+                $"That is not a valid financial period interval: {intervalError}\n{"Use forms like: every <x> hours|days|weekdays|weeks|months|years <offset>, every month on day 15, or every month on the 5th or last Wednesday".ColourCommand()}");
             return false;
         }
 
@@ -1408,9 +1416,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
         }
 
         Match match = regex.Match(command.SafeRemainingArgument);
-        FinancialPeriodReferenceTime = new MudTime(int.Parse(match.Groups["seconds"].Value),
+        FinancialPeriodReferenceTime = MudTime.FromLocalTime(int.Parse(match.Groups["seconds"].Value),
             int.Parse(match.Groups["minutes"].Value), int.Parse(match.Groups["hours"].Value),
-            ZoneForTimePurposes.TimeZone(FinancialPeriodReferenceClock), FinancialPeriodReferenceClock, false);
+            ZoneForTimePurposes.TimeZone(FinancialPeriodReferenceClock), FinancialPeriodReferenceClock);
         Changed = true;
         actor.OutputHandler.Send(
             $"The {Name.ColourName()} economic zone will now use {FinancialPeriodReferenceTime.Display(TimeDisplayTypes.Short).ColourValue()} as its reference time.");
@@ -1438,9 +1446,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
         ZoneForTimePurposes = zone;
         FinancialPeriodReferenceCalendar = zone.Calendars.First();
         FinancialPeriodReferenceClock = zone.Clocks.First();
-        FinancialPeriodReferenceTime = new MudTime(FinancialPeriodReferenceTime.Seconds,
+        FinancialPeriodReferenceTime = MudTime.FromLocalTime(FinancialPeriodReferenceTime.Seconds,
             FinancialPeriodReferenceTime.Minutes, FinancialPeriodReferenceTime.Hours,
-            zone.TimeZone(FinancialPeriodReferenceClock), FinancialPeriodReferenceClock, false);
+            zone.TimeZone(FinancialPeriodReferenceClock), FinancialPeriodReferenceClock);
         // TODO - should we be redoing listeners here?
         Changed = true;
         actor.OutputHandler.Send(

@@ -35,6 +35,8 @@ namespace MudSharp.Models
         public string ReferenceTime { get; set; }
         public int IntervalType { get; set; }
         public int IntervalModifier { get; set; }
+        public int IntervalOther { get; set; }
+        public int IntervalFallback { get; set; }
         public int IntervalAmount { get; set; }
         public decimal TotalRevenueHeld { get; set; }
         public long? ControllingClanId { get; set; }

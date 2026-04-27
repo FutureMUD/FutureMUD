@@ -27,6 +27,14 @@ namespace MudSharp.TimeAndDate.Date
             {
                 i.RemoveSpecialDayNames.ForEach(x => _dayNames.Remove(x));
                 i.SpecialDayNames.ToList().ForEach(x => _dayNames.Add(x.Key, x.Value));
+                i.RemoveNonWeekdays.ForEach(x => _nonWeekdays.Remove(x));
+                i.NonWeekdays.ForEach(x =>
+                {
+                    if (!_nonWeekdays.Contains(x))
+                    {
+                        _nonWeekdays.Add(x);
+                    }
+                });
                 _days += i.InsertNumnewDays;
             });
         }

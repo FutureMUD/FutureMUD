@@ -44,7 +44,7 @@ public class FutureProgDateTimeFunctionTests
 		};
 		_timezone = new MudTimeZone(1, 0, 0, "Universal Time Clock", "UTC");
 		_clock.AddTimezone(_timezone);
-		_clock.SetTime(new MudTime(0, 0, 0, _timezone, _clock, true));
+		_clock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, _timezone, _clock));
 		clocks.Add(_clock);
 
 		var calendar = new Calendar(1, gameworld.Object);
@@ -98,11 +98,11 @@ public class FutureProgDateTimeFunctionTests
 			],
 			@"return LastWeekday(@date, ""Friday"")");
 		var reference = new MudDateTime(_calendar.GetDate("8/apr/2026"),
-			new MudTime(0, 0, 9, _timezone, _clock, false), _timezone);
+			MudTime.FromLocalTime(0, 0, 9, _timezone, _clock), _timezone);
 
 		var result = prog.Execute<MudDateTime>(reference);
 
-		Assert.AreEqual("6/april/2026", result.Date.GetDateString());
+		Assert.AreEqual("3/april/2026", result.Date.GetDateString());
 		Assert.AreEqual("Friday", result.Date.Weekday);
 		Assert.AreEqual(9, result.Time.Hours);
 	}
@@ -118,11 +118,11 @@ public class FutureProgDateTimeFunctionTests
 			],
 			@"return NextWeekday(@date, ""Friday"", -1)");
 		var reference = new MudDateTime(_calendar.GetDate("8/apr/2026"),
-			new MudTime(0, 0, 9, _timezone, _clock, false), _timezone);
+			MudTime.FromLocalTime(0, 0, 9, _timezone, _clock), _timezone);
 
 		var result = prog.Execute<MudDateTime>(reference);
 
-		Assert.AreEqual("6/april/2026", result.Date.GetDateString());
+		Assert.AreEqual("3/april/2026", result.Date.GetDateString());
 		Assert.AreEqual("Friday", result.Date.Weekday);
 	}
 
@@ -175,13 +175,13 @@ public class FutureProgDateTimeFunctionTests
 			],
 			"return Between(@date, @high, @low)");
 		var low = new MudDateTime(_calendar.GetDate("20/apr/2026"),
-			new MudTime(0, 0, 0, _timezone, _clock, false), _timezone);
+			MudTime.FromLocalTime(0, 0, 0, _timezone, _clock), _timezone);
 		var middle = new MudDateTime(_calendar.GetDate("21/apr/2026"),
-			new MudTime(0, 0, 0, _timezone, _clock, false), _timezone);
+			MudTime.FromLocalTime(0, 0, 0, _timezone, _clock), _timezone);
 		var high = new MudDateTime(_calendar.GetDate("22/apr/2026"),
-			new MudTime(0, 0, 0, _timezone, _clock, false), _timezone);
+			MudTime.FromLocalTime(0, 0, 0, _timezone, _clock), _timezone);
 		var outside = new MudDateTime(_calendar.GetDate("23/apr/2026"),
-			new MudTime(0, 0, 0, _timezone, _clock, false), _timezone);
+			MudTime.FromLocalTime(0, 0, 0, _timezone, _clock), _timezone);
 
 		Assert.IsTrue(prog.ExecuteBool(low, low, high));
 		Assert.IsTrue(prog.ExecuteBool(middle, low, high));
@@ -203,6 +203,23 @@ public class FutureProgDateTimeFunctionTests
 
 		Assert.IsTrue(prog.ExecuteBool(TimeSpan.FromHours(2), TimeSpan.FromHours(1), TimeSpan.FromHours(3)));
 		Assert.IsFalse(prog.ExecuteBool(TimeSpan.FromHours(4), TimeSpan.FromHours(1), TimeSpan.FromHours(3)));
+	}
+
+	[TestMethod]
+	public void ToMudDate_InvalidText_ReturnsNever()
+	{
+		var prog = Compile<MudDateTime>(
+			"ToMudDateInvalidText",
+			ProgVariableTypes.MudDateTime,
+			[
+				Tuple.Create(ProgVariableTypes.Calendar, "calendar"),
+				Tuple.Create(ProgVariableTypes.Clock, "clock")
+			],
+			@"return ToDate(@calendar, @clock, ""not-a-date"")");
+
+		var result = prog.Execute<MudDateTime>(_calendar, _clock);
+
+		Assert.IsTrue(result.Equals(MudDateTime.Never));
 	}
 
 	private static FutureProg Compile<T>(string name, ProgVariableTypes returnType,

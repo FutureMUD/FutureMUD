@@ -48,11 +48,7 @@ public class WeekdayListener : ListenerBase
         if (WatchCalendar.CurrentDate.WeekdayIndex != -1 &&
             Weekdays.Contains(WatchCalendar.CurrentDate.Weekday))
         {
-            Payload(Objects);
-            if (RepeatTimes > 0)
-            {
-                RepeatTimes--;
-            }
+            TriggerPayload();
         }
     }
 

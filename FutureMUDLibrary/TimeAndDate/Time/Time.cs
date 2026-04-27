@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using MudSharp.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MudSharp.TimeAndDate.Time
 {
@@ -146,11 +146,192 @@ namespace MudSharp.TimeAndDate.Time
 
         #region Constructors
 
-        public MudTime(string timestring, IClock clock)
+        private static readonly Regex TimeTokenRegex =
+            new(@"^(?<hours>\d+):(?<minutes>\d+)(?::(?<seconds>\d+)){0,1}(?<meridian>[a-z]+){0,1}$",
+                RegexOptions.IgnoreCase);
+
+        private static void ValidateComponents(int seconds, int minutes, int hours, IMudTimeZone timezone, IClock clock)
+        {
+            if (clock == null)
+            {
+                throw new ArgumentNullException(nameof(clock));
+            }
+
+            if (timezone == null)
+            {
+                throw new ArgumentNullException(nameof(timezone));
+            }
+
+            if (timezone.Clock != null && !ReferenceEquals(timezone.Clock, clock) && !clock.Timezones.Contains(timezone))
+            {
+                throw new ArgumentException("The timezone does not belong to the specified clock.", nameof(timezone));
+            }
+
+            if (seconds < 0 || seconds >= clock.SecondsPerMinute)
+            {
+                throw new ArgumentOutOfRangeException(nameof(seconds));
+            }
+
+            if (minutes < 0 || minutes >= clock.MinutesPerHour)
+            {
+                throw new ArgumentOutOfRangeException(nameof(minutes));
+            }
+
+            if (hours < 0 || hours >= clock.HoursPerDay)
+            {
+                throw new ArgumentOutOfRangeException(nameof(hours));
+            }
+        }
+
+        public static MudTime CreatePrimaryTime(int seconds, int minutes, int hours, IMudTimeZone timezone, IClock clock)
+        {
+            ValidateComponents(seconds, minutes, hours, timezone, clock);
+            return new MudTime(seconds, minutes, hours, timezone, clock, true);
+        }
+
+        public static MudTime FromPrimaryTime(int seconds, int minutes, int hours, IMudTimeZone timezone, IClock clock)
+        {
+            ValidateComponents(seconds, minutes, hours, timezone, clock);
+            return new MudTime(seconds, minutes, hours, timezone, clock, false);
+        }
+
+        public static MudTime FromLocalTime(int seconds, int minutes, int hours, IMudTimeZone timezone, IClock clock, int daysOffsetFromDatum = 0)
+        {
+            ValidateComponents(seconds, minutes, hours, timezone, clock);
+            return new MudTime(seconds, minutes, hours, timezone, clock, daysOffsetFromDatum);
+        }
+
+        public static MudTime CopyOf(MudTime rhs, bool resetDaysOffsetFromDatum = false)
+        {
+            if (rhs == null)
+            {
+                throw new ArgumentNullException(nameof(rhs));
+            }
+
+            var copy = new MudTime(rhs);
+            if (resetDaysOffsetFromDatum)
+            {
+                copy._daysOffsetFromDatum = 0;
+            }
+
+            return copy;
+        }
+
+        public static MudTime ParseLocalTime(string timestring, IClock clock)
+        {
+            if (!TryParseLocalTime(timestring, clock, out var time, out var error))
+            {
+                throw new ArgumentException(error, nameof(timestring));
+            }
+
+            return time;
+        }
+
+        public static bool TryParseLocalTime(string timestring, IClock clock, out MudTime time, out string error)
+        {
+            time = null;
+            error = string.Empty;
+            if (clock == null)
+            {
+                error = "No clock was supplied.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(timestring))
+            {
+                error = "No time string was supplied.";
+                return false;
+            }
+
+            var tokens = timestring.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var timeIndex = tokens.FindIndex(x => x.Contains(':'));
+            if (timeIndex < 0)
+            {
+                error = "The time string does not contain a time component.";
+                return false;
+            }
+
+            var match = TimeTokenRegex.Match(tokens[timeIndex]);
+            if (!match.Success)
+            {
+                error = "The time component was not valid.";
+                return false;
+            }
+
+            var meridian = match.Groups["meridian"].Success ? match.Groups["meridian"].Value : string.Empty;
+            var timezoneText = string.Empty;
+            foreach (var token in tokens.Where((_, index) => index != timeIndex))
+            {
+                if (string.IsNullOrEmpty(meridian) &&
+                    clock.HourIntervalNames.Any(x => x.Equals(token, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    meridian = token;
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(timezoneText))
+                {
+                    error = "The time string contained more than one timezone or unknown token.";
+                    return false;
+                }
+
+                timezoneText = token;
+            }
+
+            var timezone = string.IsNullOrEmpty(timezoneText)
+                ? clock.PrimaryTimezone
+                : clock.Timezones.GetByIdOrName(timezoneText);
+            if (timezone == null)
+            {
+                error = $"The timezone \"{timezoneText}\" is not valid.";
+                return false;
+            }
+
+            var hours = int.Parse(match.Groups["hours"].Value);
+            var minutes = int.Parse(match.Groups["minutes"].Value);
+            var seconds = match.Groups["seconds"].Success ? int.Parse(match.Groups["seconds"].Value) : 0;
+
+            if (!string.IsNullOrEmpty(meridian))
+            {
+                var hourInterval = clock.HourIntervalNames.FindIndex(
+                    x => x.Equals(meridian, StringComparison.InvariantCultureIgnoreCase));
+                if (hourInterval < 0)
+                {
+                    error = $"The hour period \"{meridian}\" is not valid.";
+                    return false;
+                }
+
+                var intervalLength = clock.HoursPerDay / clock.NumberOfHourIntervals;
+                if (clock.NoZeroHour && hours == intervalLength)
+                {
+                    hours = 0;
+                }
+
+                hours += hourInterval * intervalLength;
+            }
+
+            try
+            {
+                time = FromLocalTime(seconds, minutes, hours, timezone, clock);
+                return true;
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                error = $"The {ex.ParamName} component is out of range for this clock.";
+                return false;
+            }
+            catch (ArgumentException ex)
+            {
+                error = ex.Message;
+                return false;
+            }
+        }
+
+        private MudTime(string timestring, IClock clock)
         {
             string[] split1 = timestring.Split(' ');
             _timezone = clock.Timezones.First(x => x.Name.EqualTo(split1[0]));
-            List<int> split = split1[1].Split(':').Select(int.Parse).ToList();
+            var split = split1[1].Split(':').Select(int.Parse).ToList();
             _seconds = split[2];
             _minutes = split[1];
             _hours = split[0];
@@ -158,7 +339,7 @@ namespace MudSharp.TimeAndDate.Time
             _isPrimaryTime = false;
         }
 
-        public MudTime(int seconds, int minutes, int hours, IMudTimeZone timezone, IClock clock, bool isprimarytime)
+        private MudTime(int seconds, int minutes, int hours, IMudTimeZone timezone, IClock clock, bool isprimarytime)
         {
             _seconds = seconds;
             _minutes = minutes;
@@ -182,7 +363,7 @@ namespace MudSharp.TimeAndDate.Time
             }
         }
 
-        public MudTime(int seconds, int minutes, int hours, IMudTimeZone timezone, IClock clock, int daysOffset)
+        private MudTime(int seconds, int minutes, int hours, IMudTimeZone timezone, IClock clock, int daysOffset)
         {
             _seconds = seconds;
             _minutes = minutes;
@@ -197,7 +378,7 @@ namespace MudSharp.TimeAndDate.Time
         ///     Copy Constructor
         /// </summary>
         /// <param name="rhs">Time to copy</param>
-        public MudTime(MudTime rhs)
+        private MudTime(MudTime rhs)
         {
             _seconds = rhs.Seconds;
             _minutes = rhs.Minutes;
@@ -442,7 +623,7 @@ namespace MudSharp.TimeAndDate.Time
             // C# % operator is simple remainder not actual modulus. Hence the extension method.
             newMinutes = newMinutes.Modulus(Clock.MinutesPerHour);
             newHours = newHours.Modulus(Clock.HoursPerDay);
-            return new MudTime(Seconds, newMinutes, newHours, timezone, Clock,
+            return FromLocalTime(Seconds, newMinutes, newHours, timezone, Clock,
                 daysOffset);
         }
 
@@ -525,7 +706,7 @@ namespace MudSharp.TimeAndDate.Time
 
         public static MudTime operator +(MudTime time, TimeSpan ts)
         {
-            time = new MudTime(time) { _daysOffsetFromDatum = 0 };
+            time = CopyOf(time, true);
             time.AddSeconds(ts.Seconds);
             time.AddMinutes(ts.Minutes);
             time.AddHours(ts.Hours);
@@ -534,7 +715,7 @@ namespace MudSharp.TimeAndDate.Time
 
         public static MudTime operator -(MudTime time, TimeSpan ts)
         {
-            time = new MudTime(time) { _daysOffsetFromDatum = 0 };
+            time = CopyOf(time, true);
             time.AddSeconds(-1 * ts.Seconds);
             time.AddMinutes(-1 * ts.Minutes);
             time.AddHours(-1 * ts.Hours);

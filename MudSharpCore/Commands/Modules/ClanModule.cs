@@ -1642,7 +1642,7 @@ All of the following commands must happen with an edited clan selected:
         }
 
         actor.OutputHandler.Send(
-            $"The two valid syntaxes for this command are {"clan election view <id>".ColourCommand()} and {"clan election history <clan> [<position>]".ColourCommand()}.");
+            $"The valid syntaxes for this command are {"clan election view <id>".ColourCommand()}, {"clan election history <id>".ColourCommand()}, and {"clan election history <clan> [<position>]".ColourCommand()}.");
     }
 
     private static void ClanElectionView(ICharacter actor, StringStack ss)
@@ -1679,7 +1679,23 @@ All of the following commands must happen with an edited clan selected:
             return;
         }
 
-        IClan clan = GetTargetClan(actor, ss.PopSpeech());
+        var targetText = ss.PopSpeech();
+        if (long.TryParse(targetText, out var value))
+        {
+            var election = actor.Gameworld.Elections.Get(value);
+            if (election == null || (!actor.IsAdministrator() && !actor.ClanMemberships.Any(x =>
+                    x.Clan == election.Appointment.Clan &&
+                    x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders))))
+            {
+                actor.OutputHandler.Send("There is no such election.");
+                return;
+            }
+
+            election.Appointment.Clan.ShowElectionHistory(actor, new StringStack(election.Appointment.Id.ToString()));
+            return;
+        }
+
+        IClan clan = GetTargetClan(actor, targetText);
         if (clan == null)
         {
             actor.OutputHandler.Send(actor.IsAdministrator()

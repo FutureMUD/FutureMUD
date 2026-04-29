@@ -213,7 +213,7 @@ Builders need:
 
 Player workflows are surfaced through `stable`, `stable quote`, `stable lodge`, `stable redeem`, `stable accountstatus`, and `stable payaccount`. Lodging issues a system-generated stable ticket item and removes the mount from the active world. Active stable stays also suppress their mount ids during NPC boot loading, so rebooted servers do not return lodged mounts to the stable room. Redeeming checks the ticket's stay id, item id, and token, then requires any outstanding fees to be settled before the mount is logged back into the stable cell.
 
-Manager workflows include active/history lists, stay inspection, ticketless release, fee setup, account setup, employee management, bank-account assignment, open/close state, and access-prog setup. A property sale or lease can claim stables in the property for the single character controller in the same operational style as property shops.
+Manager workflows include active/history lists, stay inspection, ticketless release, fee setup, account setup, filtered account triage, employee management, bank-account assignment, open/close state, and access-prog setup. `stable account list [<filters>]` accepts composable filters for routine account operations: `suspended`, `active`, `overlimit` or `over limit`, `owing`, `prepaid` or `credit`, `owner <text>`, `name <text>`, `user <text>`, and `search <text>`. A property sale or lease can claim stables in the property for the single character controller in the same operational style as property shops.
 
 ### Auctions
 Auction houses currently fit worlds that want formal auction spaces separate from ordinary shops.

@@ -26,6 +26,18 @@ namespace MudSharp.Commands.Modules;
 
 internal partial class EconomyModule
 {
+	private const string StableAccountListFilterHelp = @"You can use the following filters with #3stable account list#0:
+
+	#3suspended#0 - only suspended accounts
+	#3active#0 - only non-suspended accounts
+	#3overlimit#0 or #3over limit#0 - only accounts beyond their credit limit
+	#3owing#0 - only accounts with a negative balance
+	#3prepaid#0 or #3credit#0 - only accounts with a positive balance
+	#3owner <text>#0 - owner name contains the text
+	#3name <text>#0 - account name contains the text
+	#3user <text>#0 - authorised-user name contains the text
+	#3search <text>#0 - account, owner, or authorised-user name contains the text";
+
 	private const string StableHelp = @"You can use the following options with the stable command:
 
 	#3stable#0 - shows information about the stable here
@@ -43,7 +55,7 @@ Stable managers can use the following additional commands:
 	#3stable release <stay> [waive]#0 - releases a mount without a ticket
 	#3stable bank <account|none>#0 - sets the stable bank account for proprietors
 	#3stable fee lodge|daily <amount|prog <prog>|none>#0 - sets stable fees for proprietors
-	#3stable account list#0 - lists all accounts
+	#3stable account list [<filters>]#0 - lists all accounts, optionally filtered
 	#3stable account show <id|name>#0 - shows a particular credit account
 	#3stable account create <name> <ownership> <credit limit>#0 - creates a new credit account for a customer
 	#3stable account limit <id|name> <limit>#0 - sets a new credit limit for an account
@@ -970,47 +982,230 @@ Administrators can also use:
 				return;
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with the account subcommand:
+		actor.OutputHandler.Send((@"You can use the following options with the account subcommand:
 
-	#3list#0 - lists all accounts
+	#3list [<filters>]#0 - lists all accounts, optionally filtered
 	#3show <id|name>#0 - shows a particular credit account
 	#3create <name> <ownership> <credit limit>#0 - creates a new credit account for a customer
 	#3limit <id|name> <limit>#0 - sets a new credit limit for an account
 	#3suspend <id|name>#0 - toggles suspension of a credit account
 	#3authorise <id|name> <person> <limit>#0 - authorises an additional person to access a credit account
-	#3unauthorise <id|name> <person>#0 - removes an authorisation of an additional person on a credit account".SubstituteANSIColour());
+	#3unauthorise <id|name> <person>#0 - removes an authorisation of an additional person on a credit account
+
+" + StableAccountListFilterHelp).SubstituteANSIColour());
 	}
+
+	internal sealed class StableAccountListFilterSet
+	{
+		private readonly List<Func<IStableAccount, bool>> _predicates = new();
+		private readonly List<string> _descriptions = new();
+
+		public IReadOnlyList<string> Descriptions => _descriptions;
+
+		public bool Matches(IStableAccount account)
+		{
+			return _predicates.All(predicate => predicate(account));
+		}
+
+		public IEnumerable<IStableAccount> Apply(IEnumerable<IStableAccount> accounts)
+		{
+			return accounts.Where(Matches);
+		}
+
+		internal void Add(string description, Func<IStableAccount, bool> predicate)
+		{
+			_descriptions.Add(description);
+			_predicates.Add(predicate);
+		}
+	}
+
+	internal static bool TryParseStableAccountListFilters(StringStack ss, out StableAccountListFilterSet filters, out string error)
+	{
+		filters = new StableAccountListFilterSet();
+		error = string.Empty;
+
+		while (!ss.IsFinished)
+		{
+			var cmd = ss.PopSpeech().ToLowerInvariant();
+			switch (cmd)
+			{
+				case "suspended":
+				case "suspend":
+					filters.Add("suspended", account => account.IsSuspended);
+					continue;
+				case "active":
+				case "unsuspended":
+				case "open":
+					filters.Add("active", account => !account.IsSuspended);
+					continue;
+				case "over":
+					if (!ss.IsFinished && ss.PeekSpeech().EqualTo("limit"))
+					{
+						ss.PopSpeech();
+					}
+
+					filters.Add("over limit", account => account.CreditAvailable < 0.0M);
+					continue;
+				case "overlimit":
+				case "over-limit":
+				case "overbalanced":
+					filters.Add("over limit", account => account.CreditAvailable < 0.0M);
+					continue;
+				case "owing":
+				case "owed":
+				case "debt":
+				case "negative":
+					filters.Add("owing balance", account => account.Balance < 0.0M);
+					continue;
+				case "prepaid":
+				case "credit":
+				case "positive":
+					filters.Add("prepaid balance", account => account.Balance > 0.0M);
+					continue;
+				case "owner":
+					if (!TryPopStableAccountListFilterText(ss, "owner", out var ownerText, out error))
+					{
+						return false;
+					}
+
+					filters.Add($"owner matching \"{ownerText}\"", account => StableAccountOwnerNameMatches(account, ownerText));
+					continue;
+				case "name":
+				case "account":
+					if (!TryPopStableAccountListFilterText(ss, "name", out var nameText, out error))
+					{
+						return false;
+					}
+
+					filters.Add($"account name matching \"{nameText}\"", account => StableAccountNameMatches(account, nameText));
+					continue;
+				case "user":
+				case "authorised":
+				case "authorized":
+					if (!TryPopStableAccountListFilterText(ss, "user", out var userText, out error))
+					{
+						return false;
+					}
+
+					filters.Add($"authorised user matching \"{userText}\"", account => StableAccountUserNameMatches(account, userText));
+					continue;
+				case "search":
+				case "match":
+					if (!TryPopStableAccountListFilterText(ss, "search", out var searchText, out error))
+					{
+						return false;
+					}
+
+					filters.Add($"matching \"{searchText}\"", account =>
+						StableAccountNameMatches(account, searchText) ||
+						StableAccountOwnerNameMatches(account, searchText) ||
+						StableAccountUserNameMatches(account, searchText));
+					continue;
+			}
+
+			error = $"The text {cmd.ColourCommand()} is not a valid stable account list filter.\n\n{StableAccountListFilterHelp}";
+			return false;
+		}
+
+		return true;
+	}
+
+	private static bool TryPopStableAccountListFilterText(StringStack ss, string filterName, out string text, out string error)
+	{
+		text = string.Empty;
+		error = string.Empty;
+		if (ss.IsFinished)
+		{
+			error = $"The {filterName.ColourCommand()} filter needs matching text.\n\n{StableAccountListFilterHelp}";
+			return false;
+		}
+
+		text = ss.PopSpeech();
+		if (!string.IsNullOrWhiteSpace(text))
+		{
+			return true;
+		}
+
+		error = $"The {filterName.ColourCommand()} filter needs matching text.\n\n{StableAccountListFilterHelp}";
+		return false;
+	}
+
+	private static bool StableAccountNameMatches(IStableAccount account, string text)
+	{
+		return account.AccountName.Contains(text, StringComparison.InvariantCultureIgnoreCase);
+	}
+
+	private static bool StableAccountOwnerNameMatches(IStableAccount account, string text)
+	{
+		return account.AccountOwnerName.GetName(NameStyle.FullName).Contains(text, StringComparison.InvariantCultureIgnoreCase) ||
+		       account.AccountOwnerName.GetName(NameStyle.SimpleFull).Contains(text, StringComparison.InvariantCultureIgnoreCase);
+	}
+
+	private static bool StableAccountUserNameMatches(IStableAccount account, string text)
+	{
+		return account.AccountUsers.Any(user =>
+			user.PersonalName.GetName(NameStyle.FullName).Contains(text, StringComparison.InvariantCultureIgnoreCase) ||
+			user.PersonalName.GetName(NameStyle.SimpleFull).Contains(text, StringComparison.InvariantCultureIgnoreCase));
+	}
+
 	private static void StableAccountList(ICharacter actor, IStable stable, StringStack ss)
 	{
-		var accounts = stable.StableAccounts.ToList();
-		// TODO - filtering criteria
+		if (!TryParseStableAccountListFilters(ss, out var filters, out var error))
+		{
+			actor.OutputHandler.Send(error.SubstituteANSIColour());
+			return;
+		}
 
-		actor.OutputHandler.Send(StringUtilities.GetTextTable(
-			from account in accounts select new List<string>
+		var allAccounts = stable.StableAccounts.ToList();
+		var accounts = filters.Apply(allAccounts)
+			.OrderBy(account => account.AccountName, StringComparer.InvariantCultureIgnoreCase)
+			.ToList();
+
+		StringBuilder sb = new();
+		sb.AppendLine($"Stable accounts for {stable.Name.TitleCase().ColourName()}");
+		if (filters.Descriptions.Any())
+		{
+			sb.AppendLine($"Filters: {filters.Descriptions.Select(x => x.ColourCommand()).ListToString()}");
+		}
+
+		sb.AppendLine($"Showing {accounts.Count.ToStringN0(actor)} of {allAccounts.Count.ToStringN0(actor)} {"account".Pluralise(allAccounts.Count != 1)}.");
+		if (!accounts.Any())
+		{
+			sb.AppendLine("No stable accounts match those filters.");
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from account in accounts
+			select new List<string>
 			{
 				account.Id.ToStringN0(actor),
 				account.AccountName,
 				account.AccountOwnerName.GetName(NameStyle.SimpleFull),
 				account.IsSuspended.ToColouredString(),
 				stable.Currency.Describe(account.Balance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
-                stable.Currency.Describe(account.CreditLimit, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
-                stable.Currency.Describe(account.CreditAvailable, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+				stable.Currency.Describe(account.CreditLimit, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+				stable.Currency.Describe(account.CreditAvailable, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
 				account.AccountUsers.Count().ToStringN0(actor)
-            },
+			},
 			new List<string>
 			{
 				"Id",
-				"Accn Name",
-				"Owner Name",
-				"Suspended?",
+				"Account",
+				"Owner",
+				"Susp?",
 				"Balance",
 				"Limit",
 				"Available",
 				"Users"
 			},
-			actor,
-			Telnet.Yellow
+			actor.LineFormatLength,
+			colour: Telnet.Yellow,
+			truncatableColumnIndex: 1,
+			unicodeTable: actor.Account.UseUnicode
 		));
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void StableAccountCreate(ICharacter actor, IStable stable, StringStack ss)

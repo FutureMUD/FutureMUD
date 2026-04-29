@@ -575,40 +575,43 @@ internal static class AnimalAIStockTemplates
 		BuildRecommendations(
 			(SmallSkittishForager, "small skittish ground forager",
 			[
-				"Mouse", "Guinea Pig", "Hamster", "Hare", "Shrew", "Lizard", "Gecko", "Skink",
-				"Grasshopper"
+				"Bearded Dragon", "Basilisk Lizard", "Blue-Tongued Skink", "Chameleon", "Frilled Lizard",
+				"Gecko", "Grasshopper", "Guinea Pig", "Hamster", "Hare", "Lizard", "Mouse", "Shrew", "Skink",
+				"Thorny Devil"
 			]),
 			(BurrowingForager, "burrow or retreat-oriented forager",
 			[
-				"Rabbit", "Beaver", "Tortoise"
+				"Armadillo", "Rabbit", "Beaver", "Tortoise", "Wombat"
 			]),
 			(TerritorialGrazer, "ordinary territorial grazer",
 			[
-				"Cow", "Donkey", "Elk", "Giraffe", "Goat", "Horse", "Llama", "Mule", "Ox"
+				"Cow", "Donkey", "Elk", "Giraffe", "Goat", "Horse", "Kangaroo", "Llama", "Mule", "Ox",
+				"Tapir"
 			]),
 			(LargeDefensiveGrazer, "large defensive grazer or browser",
 			[
-				"Bison", "Buffalo", "Mammoth", "Moose", "Rhinocerous", "Warthog"
+				"Bison", "Buffalo", "Giant Panda", "Mammoth", "Moose", "Rhinocerous", "Warthog"
 			]),
 			(OpportunistOmnivore, "opportunistic omnivore or light scavenger",
 			[
-				"Ant", "Beetle"
+				"Ant", "Anteater", "Beetle"
 			]),
 			(HuntingOmnivore, "hunting omnivore",
 			[
-				"Bear", "Boar", "Coyote", "Dog", "Hyena", "Jackal", "Pig", "Rat"
+				"Bear", "Boar", "Coyote", "Dingo", "Dog", "Hyena", "Jackal", "Pig", "Rat",
+				"Tasmanian Devil"
 			]),
 			(ShelteringGrazer, "weather-sensitive or sheltering grazer",
 			[
-				"Alpaca", "Camel", "Deer", "Reindeer", "Sheep"
+				"Alpaca", "Camel", "Deer", "Reindeer", "Sheep", "Wallaby"
 			]),
 			(ParentalDefender, "parental or defensive large animal",
 			[
-				"Elephant", "Emu", "Goose", "Moa", "Ostrich", "Swan"
+				"Cassowary", "Elephant", "Emu", "Goose", "Moa", "Ostrich", "Swan"
 			]),
 			(AmphibiousForager, "amphibious forager",
 			[
-				"Frog", "Hippopotamus", "Toad", "Turtle"
+				"Capybara", "Frog", "Hippopotamus", "Platypus", "Toad", "Turtle"
 			]),
 			(NocturnalScavenger, "cautious scavenger",
 			[
@@ -617,8 +620,9 @@ internal static class AnimalAIStockTemplates
 			(TerritorialPredator, "ground predator",
 			[
 				"Adder", "Anaconda", "Boa", "Cat", "Centipede", "Cheetah", "Cobra", "Coral Snake", "Jaguar",
-				"Leopard", "Lion", "Mamba", "Mantis", "Moccasin", "Monitor Lizard", "Panther", "Python",
-				"Rattlesnake", "Sabretooth Tiger", "Tiger", "Viper", "Wolf"
+				"Gila Monster", "Komodo Dragon", "Leopard", "Lion", "Mamba", "Mantis", "Moccasin",
+				"Monitor Lizard", "Panther", "Python", "Rattlesnake", "Sabretooth Tiger", "Tegu", "Tiger",
+				"Viper", "Wolf"
 			]),
 			(DenningPredator, "denning predator or mustelid-like hunter",
 			[
@@ -630,7 +634,8 @@ internal static class AnimalAIStockTemplates
 			]),
 			(ArborealForager, "tree-oriented forager",
 			[
-				"Iguana", "Parrot", "Woodpecker"
+				"Cockatoo", "Hoatzin", "Iguana", "Koala", "Macaw", "Macaque", "Parrot", "Red Panda",
+				"Sloth", "Toucan", "Woodpecker"
 			]),
 			(ArborealPredator, "tree-oriented predator",
 			[
@@ -638,24 +643,25 @@ internal static class AnimalAIStockTemplates
 			]),
 			(SkittishBird, "skittish ground-feeding bird",
 			[
-				"Crane", "Flamingo", "Heron", "Ibis", "Peacock", "Pelican", "Stork"
+				"Crane", "Flamingo", "Heron", "Ibis", "Peacock", "Pelican", "Red-Crowned Crane", "Rhea", "Stork"
 			]),
 			(NestingBird, "nesting bird or small reptile",
 			[
-				"Chicken", "Duck", "Finch", "Grouse", "Pheasant", "Pigeon", "Quail", "Robin", "Sparrow",
-				"Turkey", "Wren"
+				"Chicken", "Duck", "Finch", "Grouse", "Kiwi", "Lyrebird", "Mandarin Duck", "Pheasant",
+				"Pigeon", "Quail", "Robin", "Sparrow", "Turkey", "Wren"
 			]),
 			(Raptor, "flying predator",
 			[
-				"Eagle", "Falcon", "Hawk", "Kingfisher", "Owl"
+				"Eagle", "Falcon", "Hawk", "Kingfisher", "Kookaburra", "Owl"
 			]),
 			(EternalFlier, "long-ranging or primarily airborne forager",
 			[
-				"Albatross", "Bee", "Butterfly", "Dragonfly", "Hornet", "Moth", "Seagull", "Swallow", "Wasp"
+				"Albatross", "Bee", "Butterfly", "Dragonfly", "Hornet", "Hummingbird", "Moth", "Seagull",
+				"Swallow", "Wasp"
 			]),
 			(FlyingScavenger, "flying scavenger",
 			[
-				"Crow", "Raven", "Vulture"
+				"Condor", "Crow", "Raven", "Vulture"
 			]),
 			(SwimmingForager, "aquatic forager or filter-feeder",
 			[
@@ -668,7 +674,7 @@ internal static class AnimalAIStockTemplates
 			]),
 			(AmphibiousPredator, "amphibious predator",
 			[
-				"Alligator", "Crocodile", "Otter", "Penguin"
+				"Alligator", "Caiman", "Crocodile", "Otter", "Penguin"
 			]),
 			(SurfaceSwimmingPredator, "surface-breathing aquatic predator",
 			[
@@ -684,7 +690,7 @@ internal static class AnimalAIStockTemplates
 		BuildRecommendations(
 			(MythicFlyingPredator, "large flying mythic predator",
 			[
-				"Cockatrice", "Dragon", "Eastern Dragon", "Griffin", "Hippogriff", "Manticore", "Wyvern"
+				"Cockatrice", "Dragon", "Eastern Dragon", "Garuda", "Griffin", "Hippogriff", "Manticore", "Wyvern"
 			]),
 			(EternalFlier, "sky-returning mythic flier",
 			[
@@ -692,7 +698,7 @@ internal static class AnimalAIStockTemplates
 			]),
 			(MythicGuardian, "defensive mythic guardian or browser",
 			[
-				"Centaur", "Minotaur", "Pegacorn", "Pegasus", "Unicorn"
+				"Centaur", "Minotaur", "Pegacorn", "Pegasus", "Qilin", "Unicorn"
 			]),
 			(DenningPredator, "denning mythic predator",
 			[
@@ -709,6 +715,10 @@ internal static class AnimalAIStockTemplates
 			(BurrowingAmbushPredator, "burrowing or ambush mythic predator",
 			[
 				"Ankheg", "Colossal Worm", "Giant Centipede", "Giant Scorpion", "Giant Spider", "Giant Worm"
+			]),
+			(AmphibiousPredator, "amphibious mythic predator",
+			[
+				"Bunyip", "Yacumama"
 			]),
 			(LargeDefensiveGrazer, "large defensive arthropod or beast",
 			[

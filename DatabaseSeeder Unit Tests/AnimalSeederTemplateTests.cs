@@ -631,6 +631,80 @@ public class AnimalSeederTemplateTests
     }
 
     [TestMethod]
+    public void RaceTemplatesForTesting_RegionalCoverageAddsIconicNonEuropeanAnimals()
+    {
+        string[] expectedMammals =
+        [
+            "Giant Panda",
+            "Red Panda",
+            "Macaque",
+            "Capybara",
+            "Sloth",
+            "Anteater",
+            "Armadillo",
+            "Tapir",
+            "Kangaroo",
+            "Wallaby",
+            "Koala",
+            "Wombat",
+            "Platypus",
+            "Tasmanian Devil",
+            "Dingo"
+        ];
+        string[] expectedBirds =
+        [
+            "Mandarin Duck",
+            "Red-Crowned Crane",
+            "Macaw",
+            "Toucan",
+            "Hummingbird",
+            "Condor",
+            "Rhea",
+            "Hoatzin",
+            "Cockatoo",
+            "Kookaburra",
+            "Cassowary",
+            "Lyrebird",
+            "Kiwi"
+        ];
+        string[] expectedLizards =
+        [
+            "Chameleon",
+            "Komodo Dragon",
+            "Tegu",
+            "Caiman",
+            "Frilled Lizard",
+            "Thorny Devil",
+            "Blue-Tongued Skink",
+            "Bearded Dragon",
+            "Gila Monster",
+            "Basilisk Lizard"
+        ];
+
+        foreach (string raceName in expectedMammals.Concat(expectedBirds).Concat(expectedLizards))
+        {
+            Assert.IsTrue(AnimalSeeder.RaceTemplatesForTesting.ContainsKey(raceName),
+                $"{raceName} should be covered by the stock animal catalogue.");
+        }
+
+        Assert.AreEqual("Toed Quadruped", AnimalSeeder.RaceTemplatesForTesting["Giant Panda"].BodyKey);
+        Assert.AreEqual("Toed Quadruped", AnimalSeeder.RaceTemplatesForTesting["Kangaroo"].BodyKey);
+        Assert.AreEqual("Ungulate", AnimalSeeder.RaceTemplatesForTesting["Tapir"].BodyKey);
+        Assert.AreEqual("Reptilian", AnimalSeeder.RaceTemplatesForTesting["Komodo Dragon"].BodyKey);
+        Assert.AreEqual("Reptilian", AnimalSeeder.RaceTemplatesForTesting["Caiman"].BodyKey);
+        Assert.AreEqual("Avian", AnimalSeeder.RaceTemplatesForTesting["Cassowary"].BodyKey);
+
+        CollectionAssert.Contains(AnimalSeeder.GetEdibleYieldTypesForTesting("Giant Panda").ToArray(), "low-trees",
+            "Giant pandas should use browser-style forage.");
+        CollectionAssert.Contains(AnimalSeeder.GetEdibleYieldTypesForTesting("Capybara").ToArray(), "aquatic-plants",
+            "Capybaras should have wetland forage available.");
+        Assert.IsTrue(AnimalSeeder.CanEatCorpsesForTesting("Komodo Dragon"),
+            "Komodo dragons should use carnivorous corpse-eating settings.");
+        Assert.IsFalse(AnimalSeeder.CanEatCorpsesForTesting("Koala"),
+            "Koalas should remain browser herbivores.");
+    }
+
+    [TestMethod]
     public void RaceTemplatesForTesting_CombatStrategyKeys_MapRepresentativeAnimalsToExpectedStyles()
     {
         Assert.AreEqual("Beast Coward", AnimalSeeder.RaceTemplatesForTesting["Rabbit"].CombatStrategyKey);

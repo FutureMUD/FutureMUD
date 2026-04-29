@@ -76,10 +76,10 @@ public class MythicalAnimalSeederTemplateTests
     }
 
     [TestMethod]
-    public void TemplatesForTesting_ExpandedCatalogue_HasThirtySixEntries()
+    public void TemplatesForTesting_ExpandedCatalogue_HasFortyEntries()
     {
-        Assert.AreEqual(36, MythicalAnimalSeeder.TemplatesForTesting.Count,
-            "The mythical catalogue should now include the worm-beasts, tree-spirits, and giant arthropod additions.");
+        Assert.AreEqual(40, MythicalAnimalSeeder.TemplatesForTesting.Count,
+            "The mythical catalogue should include worm-beasts, tree-spirits, giant arthropods, and non-European mythic beasts.");
     }
 
     [TestMethod]
@@ -161,9 +161,15 @@ public class MythicalAnimalSeederTemplateTests
             "Myconids should eat fungal forage.");
         CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Plantfolk").ToArray(), "aquatic-plants",
             "Plantfolk should use the broader plant-matter forage profile.");
+        CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Qilin").ToArray(), "grass",
+            "Qilin should browse and graze like sacred ungulate beasts.");
+        CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Bunyip").ToArray(), "tiny-fish",
+            "Bunyips should have wetland prey forage available.");
 
         Assert.IsTrue(MythicalAnimalSeeder.CanEatCorpsesForTesting("Dragon"),
             "Apex carnivorous mythic beasts should be corpse eaters.");
+        Assert.IsTrue(MythicalAnimalSeeder.CanEatCorpsesForTesting("Yacumama"),
+            "Giant river-serpent myths should be corpse-eating predators.");
         Assert.IsTrue(MythicalAnimalSeeder.CanEatCorpsesForTesting("Giant Spider"),
             "Giant predatory arthropods should be corpse eaters.");
         Assert.IsFalse(MythicalAnimalSeeder.CanEatCorpsesForTesting("Unicorn"),
@@ -709,6 +715,14 @@ public class MythicalAnimalSeederTemplateTests
             "Ents should reuse the stock organic humanoid body.");
         Assert.AreEqual("Organic Humanoid", MythicalAnimalSeeder.TemplatesForTesting["Dryad"].BodyKey,
             "Dryads should reuse the stock organic humanoid body.");
+        Assert.AreEqual("Ungulate", MythicalAnimalSeeder.TemplatesForTesting["Qilin"].BodyKey,
+            "Qilin should reuse the horn-capable ungulate body.");
+        Assert.AreEqual("Avian", MythicalAnimalSeeder.TemplatesForTesting["Garuda"].BodyKey,
+            "Garuda should reuse the avian body.");
+        Assert.AreEqual("Toed Quadruped", MythicalAnimalSeeder.TemplatesForTesting["Bunyip"].BodyKey,
+            "Bunyips should reuse the stock quadruped predator body.");
+        Assert.AreEqual("Serpentine", MythicalAnimalSeeder.TemplatesForTesting["Yacumama"].BodyKey,
+            "Yacumama should reuse the serpentine body.");
     }
 
     [TestMethod]
@@ -730,6 +744,10 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Giant Centipede"].CombatStrategyKey);
         Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Ankheg"].CombatStrategyKey);
         Assert.AreEqual("Melee (Auto)", MythicalAnimalSeeder.TemplatesForTesting["Centaur"].CombatStrategyKey);
+        Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Qilin"].CombatStrategyKey);
+        Assert.AreEqual("Beast Dropper", MythicalAnimalSeeder.TemplatesForTesting["Garuda"].CombatStrategyKey);
+        Assert.AreEqual("Beast Drowner", MythicalAnimalSeeder.TemplatesForTesting["Bunyip"].CombatStrategyKey);
+        Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Yacumama"].CombatStrategyKey);
     }
 
     [TestMethod]
@@ -860,6 +878,14 @@ public class MythicalAnimalSeederTemplateTests
             MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Centaur"]),
             12.0,
             8.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Qilin"]),
+            48.0,
+            24.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Yacumama"]),
+            720.0,
+            168.0);
     }
 
     [TestMethod]

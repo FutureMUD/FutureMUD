@@ -1221,6 +1221,103 @@ public partial class MythicalAnimalSeeder
                 attributeProfile: Stats(7, 6, 4, 1, willpower: 4, perception: 3, aura: 6, intelligenceDiceExpression: "2d3"),
                 bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Swooper"
+            ),
+            ["Qilin"] = BeastRace(
+                "Qilin",
+                "Ungulate",
+                SizeCategory.Large,
+                "Horse",
+                GreatBeast(),
+                "Qilin are antlered or horned auspicious beasts, often imagined with deerlike grace, scaled hides and a solemn supernatural presence.",
+                "Qilin commonly fill the role of sacred omens, guardian beasts and symbols of wise rule, appearing less as ordinary mounts than as rare signs that a place or person has drawn the attention of the numinous world.",
+                Variants(
+                    ("a scale-maned qilin",
+                        "This elegant mythic ungulate carries a staglike body, a singular horn and a mane that seems almost scaled or flame-touched along the neck."),
+                    ("a solemn horned qilin",
+                        "This sacred beast blends deerlike poise with draconic ornament, its calm gaze and measured steps making it seem more omen than animal.")
+                ),
+                [
+                    Attack("Bite", ItemQuality.Bad, "mouth"),
+                    Attack("Hoof Stomp", ItemQuality.Standard, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
+                    Attack("Horn Gore", ItemQuality.Good, "horn")
+                ],
+                [
+                    Usage("horn", "general")
+                ],
+                attributeProfile: Stats(5, 5, 4, 1, willpower: 4, perception: 3, aura: 6, intelligenceDiceExpression: "2d3"),
+                bodypartHealthMultiplier: 1.5,
+                combatStrategyKey: "Beast Skirmisher"
+            ),
+            ["Garuda"] = BeastRace(
+                "Garuda",
+                "Avian",
+                SizeCategory.Large,
+                "Raptor",
+                GreatBeast(),
+                "Garudas are immense mythic birds of prey, radiant and fierce, with the bearing of divine hunters rather than ordinary animals.",
+                "Garudas are often cast as serpent-slayers, sky guardians and royal or sacred messengers, creatures whose aerial dominance makes them both protectors and devastating enemies.",
+                Variants(
+                    ("a radiant garuda",
+                        "This huge raptorial beast has broad wings, a hooked beak and talons fit to carry prey from the earth with terrifying ease."),
+                    ("a serpent-slaying garuda",
+                        "This mythic bird looks built for high violent dives and crushing grips, its every feathered line sharpened toward the hunt.")
+                ),
+                [
+                    Attack("Beak Peck", ItemQuality.Good, "beak"),
+                    Attack("Beak Bite", ItemQuality.Standard, "beak"),
+                    Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons"),
+                    Attack("Talon Carry", ItemQuality.Good, "rtalons", "ltalons")
+                ],
+                attributeProfile: BestialStats(6, 5, 5, 2, willpower: 4, perception: 5, aura: 4),
+                bodypartHealthMultiplier: 1.5,
+                combatStrategyKey: "Beast Dropper"
+            ),
+            ["Bunyip"] = BeastRace(
+                "Bunyip",
+                "Toed Quadruped",
+                SizeCategory.Large,
+                "Bear",
+                Beast(),
+                "Bunyips are ominous waterhole beasts, imagined as heavy, lurking predators of swamp, billabong and reed-choked dark.",
+                "Bunyips work well as regional monsters tied to dangerous wetlands, warning stories and places where ordinary drinking water becomes a boundary between settlement and the unknown.",
+                Variants(
+                    ("a mud-dark bunyip",
+                        "This hulking wetland predator is shaggy, heavy-jawed and slick with dark water, its broad paws and low body suited to mud and ambush."),
+                    ("a reed-stalking bunyip",
+                        "This large beast carries itself with swamp-born menace, all blunt teeth, wet fur and sudden strength beneath a patient stillness.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Good, "mouth"),
+                    Attack("Bite", ItemQuality.Standard, "mouth"),
+                    Attack("Claw Swipe", ItemQuality.Standard, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
+                    Attack("Tail Slap", ItemQuality.Standard, "ltail")
+                ],
+                attributeProfile: BestialStats(6, 7, 0, -1, willpower: 4, perception: 2, aura: 1),
+                bodypartHealthMultiplier: 1.6,
+                combatStrategyKey: "Beast Drowner"
+            ),
+            ["Yacumama"] = BeastRace(
+                "Yacumama",
+                "Serpentine",
+                SizeCategory.VeryLarge,
+                "Giant Worm",
+                GreatBeast(),
+                "Yacumama are enormous river serpents, vast enough in legend to make waterways themselves feel alive and hungry.",
+                "Yacumama fit as mythic guardians or terrors of Amazonian-scale rivers, embodying flood, depth and the fear that the water below a canoe might move with its own will.",
+                Variants(
+                    ("a river-vast yacumama",
+                        "This colossal serpent has a body like a living current, its great head and endless coils suggesting a predator too large for ordinary banks to hold."),
+                    ("a water-dark yacumama",
+                        "This mythic river snake glistens with wet scales, its heavy coils and patient stare making the surrounding water feel suddenly unsafe.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Great, "mouth"),
+                    Attack("Bite", ItemQuality.Good, "mouth"),
+                    Attack("Tail Slap", ItemQuality.Good, "tail")
+                ],
+                attributeProfile: BestialStats(10, 9, 1, -1, willpower: 5, perception: 2, aura: 4),
+                bodypartHealthMultiplier: 2.0,
+                combatStrategyKey: "Beast Clincher"
             )
         };
 
@@ -1246,8 +1343,8 @@ public partial class MythicalAnimalSeeder
 		return template.Name switch
 		{
 			"Dragon" or "Eastern Dragon" => (720.0, 168.0),
-			"Griffin" or "Hippogriff" or "Pegasus" or "Pegacorn" => (24.0, 12.0),
-			"Unicorn" => (48.0, 24.0),
+			"Griffin" or "Hippogriff" or "Pegasus" or "Pegacorn" or "Garuda" => (24.0, 12.0),
+			"Unicorn" or "Qilin" => (48.0, 24.0),
 			"Warg" => (12.0, 8.0),
 			"Dire-Wolf" => (18.0, 8.0),
 			"Dire-Bear" => (96.0, 36.0),
@@ -1269,6 +1366,8 @@ public partial class MythicalAnimalSeeder
 			"Dryad" => (72.0, 48.0),
 			"Owlkin" or "Avian Person" => (10.0, 6.0),
 			"Centaur" => (12.0, 8.0),
+			"Bunyip" => (48.0, 24.0),
+			"Yacumama" => (720.0, 168.0),
 			_ when template.HumanoidVariety => (12.0, 6.0),
 			_ when template.Size >= SizeCategory.Large => (24.0, 12.0),
 			_ => (12.0, 6.0)
@@ -1376,9 +1475,9 @@ public partial class MythicalAnimalSeeder
             "Elbow"
         };
 
-        if (Templates.Count != 36)
+        if (Templates.Count != 40)
         {
-            issues.Add($"Expected 36 mythical race templates but found {Templates.Count}.");
+            issues.Add($"Expected 40 mythical race templates but found {Templates.Count}.");
         }
 
         foreach ((string? name, MythicalRaceTemplate? template) in Templates)

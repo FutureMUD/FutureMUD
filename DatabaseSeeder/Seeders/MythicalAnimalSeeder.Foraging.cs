@@ -50,7 +50,11 @@ public partial class MythicalAnimalSeeder
 				["Owlkin"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.Insectivore],
 				["Avian Person"] = [StockNonHumanDietProfile.Omnivore],
 				["Centaur"] = [StockNonHumanDietProfile.GeneralHerbivore],
-				["Pegacorn"] = [StockNonHumanDietProfile.Grazer, StockNonHumanDietProfile.Browser]
+				["Pegacorn"] = [StockNonHumanDietProfile.Grazer, StockNonHumanDietProfile.Browser],
+				["Qilin"] = [StockNonHumanDietProfile.Grazer, StockNonHumanDietProfile.Browser],
+				["Garuda"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.Piscivore],
+				["Bunyip"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.Piscivore],
+				["Yacumama"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.Piscivore]
 			});
 
 	internal static IReadOnlyList<StockNonHumanDietProfile> GetDietProfilesForTesting(string raceName)

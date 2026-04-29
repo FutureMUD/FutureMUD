@@ -130,8 +130,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 			"All Facial Hair Colours",
 			"All Hair Styles",
 			"All Skin Colours",
-			"All Frames",
-			"Person Word"
+			"All Frames"
 		];
 		string[] requiredAttacks =
 		[
@@ -156,18 +155,32 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 			"Water Drag",
 			"Tail Slap"
 		];
+		string[] healthTraitNames = ["Constitution", "Body", "Physique", "Endurance", "Hardiness", "Stamina"];
+		string[] strengthTraitNames = ["Strength", "Physique", "Body", "Upper Body Strength"];
 
 		return requiredBodies.All(body => context.BodyProtos.Any(x => x.Name == body)) &&
 		       requiredRaces.All(race => context.Races.Any(x => x.Name == race)) &&
 		       requiredCharacteristicProfiles.All(profile =>
 			       context.CharacteristicProfiles.Any(x => x.Name == profile) ||
 			       context.CharacteristicDefinitions.Any(x => x.Name == profile)) &&
+		       context.CharacteristicDefinitions.Any(x => x.Name == "Person Word") &&
 		       requiredAttacks.All(attack => context.WeaponAttacks.Any(x => x.Name == attack)) &&
 		       context.FutureProgs.Any(x => x.FunctionName == "AlwaysTrue") &&
 		       context.FutureProgs.Any(x => x.FunctionName == "AlwaysFalse") &&
 		       context.FutureProgs.Any(x => x.FunctionName == "AlwaysZero") &&
 		       context.CorpseModels.Any(x => x.Name == "Organic Human Corpse") &&
 		       context.CorpseModels.Any(x => x.Name == "Organic Animal Corpse") &&
+		       context.Liquids.Any(x => x.Name == "blood") &&
+		       context.Gases.AsEnumerable().Any(x =>
+			       x.Name.Contains("Breathable Atmosphere", StringComparison.OrdinalIgnoreCase)) &&
+		       context.TraitDefinitions
+			       .Where(x => x.Type == (int)TraitType.Attribute)
+			       .AsEnumerable()
+			       .Any(x => x.Name.In(healthTraitNames)) &&
+		       context.TraitDefinitions
+			       .Where(x => x.Type == (int)TraitType.Attribute)
+			       .AsEnumerable()
+			       .Any(x => x.Name.In(strengthTraitNames)) &&
 		       context.Calendars.Any() &&
 		       NonHumanSeederHealthStrategyHelper.AllStrategyNames.All(name =>
 			       context.HealthStrategies.Any(x => x.Name == name));

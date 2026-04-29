@@ -731,6 +731,9 @@ public sealed class FutureMudNpcImporter
 			.ToList();
 
 		var issues = Validate(ordered).ToList();
+		var fatalIssues = issues
+			.Where(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase))
+			.ToList();
 		var invalidSourceKeys = issues
 			.Where(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase))
 			.Select(x => x.SourceKey)
@@ -779,7 +782,8 @@ public sealed class FutureMudNpcImporter
 				continue;
 			}
 
-			if (invalidSourceKeys.Contains(definition.SourceKey) ||
+			if (fatalIssues.Count > 0 ||
+			    invalidSourceKeys.Contains(definition.SourceKey) ||
 			    definition.Status != NpcConversionStatus.Ready)
 			{
 				skippedInvalidCount++;

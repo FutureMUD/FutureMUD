@@ -13,7 +13,11 @@ The angelic catalogue follows Maimonides' ten ranks: Chayot HaKodesh, Ophanim, E
 The seeder uses existing FutureMUD systems rather than adding a new supernatural runtime model:
 
 - Race records carry anatomy, health strategy, communication model, natural attacks, breathing and needs configuration, chargen availability, attributes, ethnicity, and description variables.
+- The natural attack catalogue contains forty stock supernatural attacks. These use existing combat move types for sonic screeches, ranged natural attacks, spitting, breath weapons, trips, staggering blows, pushback, clinches, forced movement, and wing buffeting.
+- Angelic sonic attacks such as `Heavenly Choir`, `Canticle of Awe`, `Trumpet Peal`, and `Word of Command` use the existing area-style `ScreechAttack` mechanic, target ear-shaped bodyparts, and are written as choir or command-voice effects rather than single-target strikes.
+- Demonic, spirit, undead, and therianthrope attacks are cloned from existing animal or unarmed donor attacks so builders get varied examples without the seeder adding new combat engine mechanics.
 - Body prototypes carry the base planar presence XML for supernatural forms such as incorporeal spirits, dual-natured angels, astral demons, and ordinary material werewolves or undead.
+- Horned fiend and familiar supernatural bodies add stock tail aliases so tail attacks such as `Barbed Tail Slap` have real bodyparts to bind to.
 - Additional body forms are supplied as stock `Additional Body Form` merits. These are examples and builder tools, not automatic race-level transformations.
 - Spirits, ghosts, angels, demons, gods, and undead use explicit non-breather settings with hunger and thirst rates set to zero.
 - Werewolves use living needs and seeded alternate-form merits for hybrid and wolf-form examples.
@@ -33,6 +37,6 @@ The seeded form merits deliberately do not force full-moon or cosmology-specific
 
 ## Boundaries and Future Work
 
-The seeder includes undead only where current mechanics support them as races or body forms. It does not implement post-death ghost creation, possession, remote corpse vessels, vampire feeding, lich phylacteries, automatic werewolf lunar transformation, divine worship economies, or a new race-owned multi-form model.
+The seeder includes undead only where current mechanics support them as races or body forms. It does not implement post-death ghost creation, possession, remote corpse vessels, vampire feeding, lich phylacteries, automatic werewolf lunar transformation, divine worship economies, new combat engine move types, or a new race-owned multi-form model.
 
 Those behaviours should be implemented as future runtime features using the existing body-form, merit, effect, FutureProg, plane, needs, and health systems as integration points.

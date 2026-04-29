@@ -137,10 +137,24 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		[
 			"Bite",
 			"Carnivore Bite",
+			"Carnivore Low Bite",
 			"Claw High Swipe",
 			"Claw Low Swipe",
 			"Animal Barge",
-			"Wing Buffet"
+			"Animal Barge Pushback",
+			"Horn Gore",
+			"Wing Buffet",
+			"Tail Spike",
+			"Acid Spit",
+			"Llama Spit",
+			"Dragonfire Breath",
+			"Tusk Sweep",
+			"Head Ram",
+			"Headbutt",
+			"Claw Clamp",
+			"Tree Haul",
+			"Water Drag",
+			"Tail Slap"
 		];
 
 		return requiredBodies.All(body => context.BodyProtos.Any(x => x.Name == body)) &&
@@ -250,11 +264,14 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 			{
 				"Supernatural Winged Angel" or "Supernatural Many-Winged Angel" => _wingedHumanoidBody,
 				"Supernatural Horned Fiend" => _hornedHumanoidBody,
+				"Supernatural Familiar" => _hornedHumanoidBody,
 				"Supernatural Hellhound" => _toedQuadrupedBody,
 				_ when bodies.TryGetValue(SourceBody, out BodyProto? body) => body,
 				_ => _organicHumanoidBody
 			};
-			bodies[bodyName] = EnsureCustomBody(bodyName, source, PlanarProfile, summary);
+			BodyProto supernaturalBody = EnsureCustomBody(bodyName, source, PlanarProfile, summary);
+			EnsureCustomBodyAdditions(bodyName, supernaturalBody);
+			bodies[bodyName] = supernaturalBody;
 		}
 
 		foreach (string bodyKey in Templates.Values.Select(x => x.BodyKey).Distinct(StringComparer.OrdinalIgnoreCase))
@@ -307,6 +324,81 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		}
 
 		return body;
+	}
+
+	private void EnsureCustomBodyAdditions(string bodyName, BodyProto body)
+	{
+		if (!CustomBodyAdditionalAliases.ContainsKey(bodyName))
+		{
+			return;
+		}
+
+		EnsureHumanoidTail(body);
+	}
+
+	private void EnsureHumanoidTail(BodyProto body)
+	{
+		if (FindBodypartOnBody(body, "utail") is null)
+		{
+			SeederBodyUtilities.CloneBodypartSubtree(_context, _toedQuadrupedBody, body, "utail", "lback");
+		}
+
+		EnsureBodypartLimb(body, "Tail", LimbType.Appendage, "utail", "utail", "mtail", "ltail");
+	}
+
+	private void EnsureBodypartLimb(BodyProto body, string limbName, LimbType limbType, string rootAlias,
+		params string[] aliases)
+	{
+		Limb? limb = _context.Limbs.FirstOrDefault(x => x.RootBodyId == body.Id && x.Name == limbName);
+		if (limb is null)
+		{
+			BodypartProto? root = FindBodypartOnBody(body, rootAlias);
+			if (root is null)
+			{
+				return;
+			}
+
+			limb = new Limb
+			{
+				Name = limbName,
+				LimbType = (int)limbType,
+				RootBody = body,
+				RootBodypart = root,
+				LimbDamageThresholdMultiplier = 0.5,
+				LimbPainThresholdMultiplier = 0.5
+			};
+			_context.Limbs.Add(limb);
+			_context.SaveChanges();
+		}
+
+		HashSet<long> existing = _context.LimbsBodypartProto
+			.Where(x => x.LimbId == limb.Id)
+			.Select(x => x.BodypartProtoId)
+			.ToHashSet();
+		List<long> bodyIds = SeederBodyUtilities.GetBodyAndAncestorIds(_context, body);
+		IReadOnlyDictionary<string, IReadOnlyList<BodypartProto>> lookup = SeederBodyUtilities.BuildBodypartAliasLookup(
+			_context.BodypartProtos
+				.Where(x => bodyIds.Contains(x.BodyId) && aliases.Contains(x.Name))
+				.ToList());
+
+		foreach (string alias in aliases)
+		{
+			if (!lookup.TryGetValue(alias, out IReadOnlyList<BodypartProto>? matchingParts))
+			{
+				continue;
+			}
+
+			foreach (BodypartProto part in matchingParts.Where(x => existing.Add(x.Id)))
+			{
+				_context.LimbsBodypartProto.Add(new LimbBodypartProto
+				{
+					Limb = limb,
+					BodypartProto = part
+				});
+			}
+		}
+
+		_context.SaveChanges();
 	}
 
 	private void SeedOrRefreshRace(SupernaturalRaceTemplate template, BodyProto body, SupernaturalSeedSummary summary)

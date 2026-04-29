@@ -97,19 +97,89 @@ public sealed class FutureMudNpcBaselineCatalog
 		}
 
 		var races = context.Races
-			.Include(x => x.Ethnicities)
+			.Select(x => new
+			{
+				x.Id,
+				x.Name,
+				x.ParentRaceId,
+				x.NaturalArmourQuality,
+				x.DefaultHealthStrategyId,
+				x.DefaultCombatSettingId,
+				x.AdultAge,
+				x.ElderAge,
+				x.DefaultHandedness,
+				x.DefaultHeightWeightModelMaleId,
+				x.DefaultHeightWeightModelFemaleId,
+				x.DefaultHeightWeightModelNeuterId,
+				x.DefaultHeightWeightModelNonBinaryId
+			})
 			.ToList();
 		var ethnicities = context.Ethnicities
-			.Include(x => x.EthnicitiesNameCultures)
+			.Select(x => new
+			{
+				x.Id,
+				x.Name,
+				x.ParentRaceId
+			})
+			.ToList();
+		var ethnicityIdsByRaceId = ethnicities
+			.Where(x => x.ParentRaceId.HasValue)
+			.GroupBy(x => x.ParentRaceId!.Value)
+			.ToDictionary(
+				x => x.Key,
+				x => x.Select(y => y.Id).ToList());
+		var ethnicityNameCultures = context.EthnicitiesNameCultures
+			.Select(x => new
+			{
+				x.EthnicityId,
+				x.NameCultureId,
+				x.Gender
+			})
 			.ToList();
 		var cultures = context.Cultures
-			.Include(x => x.CulturesNameCultures)
+			.Select(x => new
+			{
+				x.Id,
+				x.Name,
+				x.PrimaryCalendarId
+			})
+			.ToList();
+		var cultureNameCultures = context.CulturesNameCultures
+			.Select(x => new
+			{
+				x.CultureId,
+				x.NameCultureId,
+				x.Gender
+			})
 			.ToList();
 		var nameProfiles = context.RandomNameProfiles
+			.Select(x => new
+			{
+				x.Id,
+				x.Gender,
+				x.NameCultureId
+			})
 			.ToList();
 		var languages = context.Languages
-			.Include(x => x.Accents)
+			.Select(x => new
+			{
+				x.Id,
+				x.Name,
+				x.LinkedTraitId,
+				x.DefaultLearnerAccentId
+			})
 			.ToList();
+		var fallbackAccentsByLanguageId = context.Accents
+			.Select(x => new
+			{
+				x.Id,
+				x.LanguageId
+			})
+			.ToList()
+			.GroupBy(x => x.LanguageId)
+			.ToDictionary(
+				x => x.Key,
+				x => x.OrderBy(y => y.Id).Select(y => (long?)y.Id).FirstOrDefault());
 
 		return new FutureMudNpcBaselineCatalog
 		{
@@ -135,7 +205,7 @@ public sealed class FutureMudNpcBaselineCatalog
 					}
 					.Where(y => y.Value > 0)
 					.ToDictionary(y => y.Key, y => y.Value),
-					x.Ethnicities.Select(y => y.Id).ToList()),
+					ethnicityIdsByRaceId.GetValueOrDefault(x.Id) ?? []),
 				StringComparer.OrdinalIgnoreCase),
 			Ethnicities = ethnicities.ToDictionary(
 				x => x.Name,
@@ -143,7 +213,8 @@ public sealed class FutureMudNpcBaselineCatalog
 					x.Id,
 					x.Name,
 					x.ParentRaceId ?? 0L,
-					x.EthnicitiesNameCultures
+					ethnicityNameCultures
+						.Where(y => y.EthnicityId == x.Id)
 						.GroupBy(y => (Gender)y.Gender)
 						.ToDictionary(y => y.Key, y => y.First().NameCultureId)),
 				StringComparer.OrdinalIgnoreCase),
@@ -153,11 +224,17 @@ public sealed class FutureMudNpcBaselineCatalog
 					x.Id,
 					x.Name,
 					x.PrimaryCalendarId,
-					x.CulturesNameCultures
+					cultureNameCultures
+						.Where(y => y.CultureId == x.Id)
 						.GroupBy(y => (Gender)y.Gender)
 						.ToDictionary(y => y.Key, y => y.First().NameCultureId)),
 				StringComparer.OrdinalIgnoreCase),
 			TraitIds = context.TraitDefinitions
+				.Select(x => new
+				{
+					x.Id,
+					x.Name
+				})
 				.ToDictionary(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase),
 			LanguagesByTraitId = languages
 				.Where(x => x.LinkedTraitId > 0)
@@ -168,9 +245,14 @@ public sealed class FutureMudNpcBaselineCatalog
 						x.Name,
 						x.LinkedTraitId,
 						x.DefaultLearnerAccentId,
-						x.Accents.OrderBy(y => y.Id).Select(y => (long?)y.Id).FirstOrDefault()),
+						fallbackAccentsByLanguageId.GetValueOrDefault(x.Id)),
 					EqualityComparer<long>.Default),
 			ArtificialIntelligenceIds = context.ArtificialIntelligences
+				.Select(x => new
+				{
+					x.Id,
+					x.Name
+				})
 				.ToDictionary(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase),
 			NameProfilesByCultureId = nameProfiles
 				.GroupBy(x => x.NameCultureId)
@@ -180,6 +262,11 @@ public sealed class FutureMudNpcBaselineCatalog
 						.GroupBy(y => (Gender)y.Gender)
 						.ToDictionary(y => y.Key, y => y.OrderBy(z => z.Id).First().Id)),
 			CalendarDates = context.Calendars
+				.Select(x => new
+				{
+					x.Id,
+					x.Date
+				})
 				.ToDictionary(x => x.Id, x => x.Date, EqualityComparer<long>.Default),
 		};
 	}
@@ -644,19 +731,11 @@ public sealed class FutureMudNpcImporter
 			.ToList();
 
 		var issues = Validate(ordered).ToList();
-		var fatalIssues = issues.Where(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase)).ToList();
+		var invalidSourceKeys = issues
+			.Where(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase))
+			.Select(x => x.SourceKey)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 		List<NpcApplyAuditEntry> auditEntries = [];
-
-		if (fatalIssues.Count > 0)
-		{
-			return new FutureMudNpcImportResult(
-				0,
-				0,
-				0,
-				ordered.Count(x => x.Status != NpcConversionStatus.Ready),
-				issues,
-				new NpcApplyAuditReport(DateTime.UtcNow, execute, auditEntries));
-		}
 
 		var existingMarkers = LoadExistingMarkers();
 		var nextTemplateId = _context.NpcTemplates.Select(x => (long?)x.Id).Max() ?? 0L;
@@ -700,7 +779,8 @@ public sealed class FutureMudNpcImporter
 				continue;
 			}
 
-			if (definition.Status != NpcConversionStatus.Ready)
+			if (invalidSourceKeys.Contains(definition.SourceKey) ||
+			    definition.Status != NpcConversionStatus.Ready)
 			{
 				skippedInvalidCount++;
 				auditEntries.Add(new NpcApplyAuditEntry(

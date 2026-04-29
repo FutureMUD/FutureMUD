@@ -19,7 +19,9 @@ public partial class AnimalSeeder
         "Goat",
         "Pig",
         "Llama",
-        "Alpaca"
+        "Alpaca",
+        "Donkey",
+        "Mule"
     };
 
     private static readonly HashSet<string> PredatorAnimalRaceNames = new(StringComparer.OrdinalIgnoreCase)

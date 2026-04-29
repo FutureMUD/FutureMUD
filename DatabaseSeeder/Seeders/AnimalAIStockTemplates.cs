@@ -584,7 +584,7 @@ internal static class AnimalAIStockTemplates
 			]),
 			(TerritorialGrazer, "ordinary territorial grazer",
 			[
-				"Cow", "Elk", "Giraffe", "Goat", "Horse", "Llama", "Ox"
+				"Cow", "Donkey", "Elk", "Giraffe", "Goat", "Horse", "Llama", "Mule", "Ox"
 			]),
 			(LargeDefensiveGrazer, "large defensive grazer or browser",
 			[

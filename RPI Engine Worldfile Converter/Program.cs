@@ -65,6 +65,10 @@ internal sealed record NpcBaselineLoadResult(
 
 internal static class Program
 {
+#if DEBUG
+	private const string DebugDefaultConnectionString = "server=localhost;port=3307;database=rpi_engine;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
+#endif
+
 	private static readonly JsonSerializerOptions JsonOptions = new()
 	{
 		WriteIndented = true,
@@ -1022,12 +1026,6 @@ internal static class Program
 			}
 		}
 
-		if (fatalErrors > 0)
-		{
-			Console.Error.WriteLine("Apply did not proceed because required baseline dependencies were missing.");
-			return 2;
-		}
-
 		return 0;
 	}
 
@@ -1324,11 +1322,7 @@ internal static class Program
 		FuturemudDatabaseContext? context = null;
 		try
 		{
-			context = new FuturemudDatabaseContext();
-			if (!string.IsNullOrWhiteSpace(options.ConnectionString))
-			{
-				context.ConnectionString = options.ConnectionString;
-			}
+			context = CreateDatabaseContext(options);
 
 			var catalog = FutureMudBaselineCatalog.Load(context);
 			return new ItemBaselineLoadResult(context, catalog, "Loaded baseline catalog from FutureMUD.");
@@ -1350,11 +1344,7 @@ internal static class Program
 		FuturemudDatabaseContext? context = null;
 		try
 		{
-			context = new FuturemudDatabaseContext();
-			if (!string.IsNullOrWhiteSpace(options.ConnectionString))
-			{
-				context.ConnectionString = options.ConnectionString;
-			}
+			context = CreateDatabaseContext(options);
 
 			var catalog = FutureMudClanBaselineCatalog.Load(context);
 			return new ClanBaselineLoadResult(context, catalog, "Loaded clan baseline from FutureMUD.");
@@ -1376,11 +1366,7 @@ internal static class Program
 		FuturemudDatabaseContext? context = null;
 		try
 		{
-			context = new FuturemudDatabaseContext();
-			if (!string.IsNullOrWhiteSpace(options.ConnectionString))
-			{
-				context.ConnectionString = options.ConnectionString;
-			}
+			context = CreateDatabaseContext(options);
 
 			var catalog = FutureMudCraftBaselineCatalog.Load(context);
 			return new CraftBaselineLoadResult(context, catalog, "Loaded craft baseline from FutureMUD.");
@@ -1402,11 +1388,7 @@ internal static class Program
 		FuturemudDatabaseContext? context = null;
 		try
 		{
-			context = new FuturemudDatabaseContext();
-			if (!string.IsNullOrWhiteSpace(options.ConnectionString))
-			{
-				context.ConnectionString = options.ConnectionString;
-			}
+			context = CreateDatabaseContext(options);
 
 			var catalog = FutureMudRoomBaselineCatalog.Load(context);
 			return new RoomBaselineLoadResult(context, catalog, "Loaded room baseline from FutureMUD.");
@@ -1428,11 +1410,7 @@ internal static class Program
 		FuturemudDatabaseContext? context = null;
 		try
 		{
-			context = new FuturemudDatabaseContext();
-			if (!string.IsNullOrWhiteSpace(options.ConnectionString))
-			{
-				context.ConnectionString = options.ConnectionString;
-			}
+			context = CreateDatabaseContext(options);
 
 			var catalog = FutureMudNpcBaselineCatalog.Load(context);
 			return new NpcBaselineLoadResult(context, catalog, "Loaded NPC baseline from FutureMUD.");
@@ -1442,6 +1420,23 @@ internal static class Program
 			context?.Dispose();
 			return new NpcBaselineLoadResult(null, null, ex.Message);
 		}
+	}
+
+	private static FuturemudDatabaseContext CreateDatabaseContext(ConverterCliOptions options)
+	{
+		var context = new FuturemudDatabaseContext();
+		if (!string.IsNullOrWhiteSpace(options.ConnectionString))
+		{
+			context.ConnectionString = options.ConnectionString;
+		}
+#if DEBUG
+		else
+		{
+			context.ConnectionString = DebugDefaultConnectionString;
+		}
+#endif
+
+		return context;
 	}
 
 	private static ConverterCliOptions? ParseOptions(string[] args)

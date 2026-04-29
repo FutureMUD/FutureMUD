@@ -74,6 +74,16 @@ public sealed class FutureMudNpcTransformer
 		"Boar",
 		.. SpecificAnimalRaceLexicalMap.Select(x => x.RaceName)
 	];
+	private static readonly HashSet<string> SpiritCultureRaceNames =
+	[
+		"Spirit",
+		"Ghost",
+		"Specter",
+		"Wraith",
+		"Ancestral Spirit",
+		"Nature Spirit",
+		"Elemental Spirit"
+	];
 
 	private readonly IReadOnlyDictionary<int, (string GroupKey, string ZoneName)> _zoneEvidence;
 
@@ -724,12 +734,12 @@ public sealed class FutureMudNpcTransformer
 
 		if (ContainsAny(text, " dwarf "))
 		{
-			return new RaceResolution("Dwarf", null, "Resolved race from dwarf lexical cue.", true);
+			return new RaceResolution("Dwarf", "Longbeard", "Resolved dwarf race conservatively to Longbeard.", true);
 		}
 
 		if (ContainsAny(text, " orc "))
 		{
-			return new RaceResolution("Orc", null, "Resolved race from orc lexical cue.", true);
+			return new RaceResolution("Orc", "Uruk", "Resolved generic orc lexical cue conservatively to Uruk.", true);
 		}
 
 		if (ContainsAny(text, "haradrim", " harad "))
@@ -810,7 +820,7 @@ public sealed class FutureMudNpcTransformer
 			case 17:
 				return new RaceResolution("Hobbit", "Harfoot", "Resolved from legacy hobbit race id.", true);
 			case 18:
-				return new RaceResolution("Dwarf", null, "Resolved from legacy dwarf race id.", true);
+				return new RaceResolution("Dwarf", "Longbeard", "Resolved legacy dwarf race id conservatively to Longbeard.", true);
 			case 19:
 				return new RaceResolution("Mule", "Mule", "Resolved from legacy mule race id.", true);
 			case 20:
@@ -1007,6 +1017,11 @@ public sealed class FutureMudNpcTransformer
 			{
 				return new CultureResolution("Mirkwood Orc", "Resolved orc culture from Mirkwood zone cue.");
 			}
+		}
+
+		if (SpiritCultureRaceNames.Contains(race.RaceName))
+		{
+			return new CultureResolution("Spirit Court", "Resolved incorporeal spirit culture from supernatural seeder baseline.");
 		}
 
 		if (BestialCultureRaceNames.Contains(race.RaceName))

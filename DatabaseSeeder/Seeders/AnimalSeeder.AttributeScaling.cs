@@ -93,6 +93,8 @@ public partial class AnimalSeeder
 			["Bear"] = new(2, 2, -1, -1, WillpowerBonus: 1),
 			["Sheep"] = new(-2, -1, 0, 0, WillpowerBonus: -2),
 			["Horse"] = new(-1, -1, 2, 1, PerceptionBonus: 1),
+			["Donkey"] = new(0, 1, 0, -1, WillpowerBonus: 3, PerceptionBonus: 1),
+			["Mule"] = new(0, 2, 0, -1, WillpowerBonus: 3, PerceptionBonus: 1),
 			["Cow"] = new(-1, -1, 0, 0, WillpowerBonus: -1),
 			["Giraffe"] = new(-1, -2, 2, 0, PerceptionBonus: 1),
 			["Moose"] = new(2, 2, -1, -1, WillpowerBonus: 1),

@@ -49,6 +49,8 @@ Current hardcoded examples include:
 - `Sinda` / `Sindar` => `Elf + Sindar`
 - `Silvan` / `Wood Elf` => `Elf + Silvan`
 - `Uruk` / `Uruk-Hai` => `Orc + Uruk` / `Orc + Uruk-Hai`
+- generic `Orc` cues => `Orc + Uruk`
+- generic `Dwarf` cues => `Dwarf + Longbeard`
 - `Cave Troll`, `Hill Troll`, `Olog-Hai` => `Troll + matching ethnicity`
 - lexical animals such as wolves, wargs, horses, birds, rats, and spiders => seeded animal or mythical-animal races where available
 
@@ -70,6 +72,7 @@ Current examples:
 - `Haradrim`, `Black Numenorean`, or `Umbaric` => `Haradrim` or `Corsair` depending on zone cues
 - Elves use zone-backed cultures like `Rivendell`, `Lothlórien`, `Mithlond`, `Forlindon`, `Hardlindon`, and `Woodland Realm`
 - Orcs use zone-backed cultures like `Mordorian Orc`, `Misty Mountains Orc`, `Grey Mountains Orc`, `Isengard Orc`, and `Mirkwood Orc`
+- incorporeal spirit races such as `Wraith` use the supernatural seeder's `Spirit Court` culture
 - animals, spiders, wargs, and current troll fallback use `Animal`
 
 If the converter cannot confidently resolve culture, the NPC remains exportable but is blocked from `apply-npcs`.
@@ -152,6 +155,8 @@ Imported NPC templates are stamped with a provenance marker in `EditableItem.Bui
 - `RPINPCIMPORT|<file>|<vnum>|<template-kind>|<legacy-race>|<zone-group>`
 
 `apply-npcs` uses that marker to skip rerunning imports over the same archived source NPCs.
+
+`apply-npcs` is intentionally partial-import capable. It validates the whole converted corpus, then creates or audits records that are ready, skips deferred records, and skips invalid records with per-NPC validation errors. This lets the import pass be run while unresolved legacy mobs remain in the audit backlog instead of blocking every ready NPC template.
 
 ## Known Backlog
 

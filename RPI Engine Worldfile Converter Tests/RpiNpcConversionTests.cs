@@ -90,6 +90,7 @@ public class RpiNpcConversionTests
 		var orc = npcs[1005];
 		CollectionAssert.Contains(orc.ArtificialIntelligenceNames.ToList(), "TrackingAggressiveToAllOtherSpecies");
 		Assert.AreEqual("Orc", orc.RaceName);
+		Assert.AreEqual("Uruk", orc.EthnicityName);
 		Assert.AreEqual("Mordorian Orc", orc.CultureName);
 		Assert.IsTrue(orc.Warnings.Any(x => x.Code == "memory-approximated-as-tracking"));
 		Assert.IsTrue(orc.Warnings.Any(x => x.Code == "deferred-enforcer"));
@@ -120,6 +121,23 @@ public class RpiNpcConversionTests
 			string.Join(Environment.NewLine, issues.Select(x => $"[{x.Severity}] {x.SourceKey}: {x.Message}")));
 		Assert.IsTrue(issues.Any(x => x.SourceKey == conversion.Npcs.Single(y => y.Vnum == 1004).SourceKey &&
 		                              x.Severity.Equals("warning", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void NpcTransformer_MapsWraiths_ToSpiritCourtCulture()
+	{
+		var transformer = new FutureMudNpcTransformer();
+		var conversion = transformer.Convert(
+		[
+			BuildMinimalNpc(2000, "wraith spectre", "a skeletal wraith-like being")
+		]);
+
+		var wraith = conversion.Npcs.Single();
+
+		Assert.AreEqual(NpcConversionStatus.Ready, wraith.Status);
+		Assert.AreEqual("Wraith", wraith.RaceName);
+		Assert.AreEqual("Wraith", wraith.EthnicityName);
+		Assert.AreEqual("Spirit Court", wraith.CultureName);
 	}
 
 	private static FutureMudNpcBaselineCatalog BuildBaseline()
@@ -219,9 +237,9 @@ public class RpiNpcConversionTests
 						[Gender.Neuter] = 501,
 						[Gender.NonBinary] = 501,
 					}),
-				["Orc"] = new FutureMudNpcEthnicityReference(
+				["Uruk"] = new FutureMudNpcEthnicityReference(
 					21,
-					"Orc",
+					"Uruk",
 					2,
 					new Dictionary<Gender, long>
 					{
@@ -337,5 +355,66 @@ public class RpiNpcConversionTests
 		};
 
 		return candidates.First(x => File.Exists(Path.Combine(x, "mobs.1")));
+	}
+
+	private static RpiNpcRecord BuildMinimalNpc(int vnum, string keywords, string shortDescription)
+	{
+		return new RpiNpcRecord
+		{
+			Vnum = vnum,
+			SourceFile = "mobs.0",
+			Zone = 0,
+			Keywords = keywords,
+			ShortDescription = shortDescription,
+			LongDescription = $"{shortDescription} is here.",
+			FullDescription = $"{shortDescription} lingers here.",
+			RawActFlags = 0,
+			ActFlags = RpiNpcActFlags.None,
+			RawAffectedBy = 0,
+			Offense = 0,
+			LegacyRaceId = 0,
+			Armour = 0,
+			HitDiceExpression = "1d1+1",
+			DamageDiceExpression = "1d1+0",
+			BirthTimestamp = 0,
+			Position = 0,
+			DefaultPosition = 0,
+			Sex = RpiNpcSex.Neutral,
+			MerchSeven = 0,
+			MaterialsMask = 0,
+			VehicleType = 0,
+			BuyFlags = 0,
+			SkinnedVnum = 0,
+			Circle = 0,
+			Cell1 = 0,
+			CarcassVnum = 0,
+			Cell2 = 0,
+			PPoints = 0,
+			NaturalDelay = 0,
+			HelmRoom = 0,
+			BodyType = 0,
+			PoisonType = 0,
+			NaturalAttackType = 0,
+			AccessFlags = 0,
+			HeightInches = 0,
+			Frame = 0,
+			NoAccessFlags = 0,
+			Cell3 = 0,
+			RoomPos = 0,
+			Fallback = 0,
+			Strength = 10,
+			Intelligence = 10,
+			Will = 10,
+			Aura = 10,
+			Dexterity = 10,
+			Constitution = 10,
+			SpeaksSkillId = 0,
+			Agility = 10,
+			RawFlags = 0,
+			Flags = RpiNpcFlags.None,
+			CurrencyType = 0,
+			Skills = [],
+			ClanMemberships = []
+		};
 	}
 }

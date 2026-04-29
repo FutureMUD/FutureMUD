@@ -36,6 +36,8 @@ public partial class AnimalSeeder
 				["Shrew"] = [StockNonHumanDietProfile.Insectivore],
 				["Badger"] = [StockNonHumanDietProfile.ScavengerOmnivore],
 				["Wolverine"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.ScavengerOmnivore],
+				["Donkey"] = [StockNonHumanDietProfile.Grazer, StockNonHumanDietProfile.Browser],
+				["Mule"] = [StockNonHumanDietProfile.Grazer, StockNonHumanDietProfile.Browser],
 				["Hippopotamus"] = [StockNonHumanDietProfile.Grazer, StockNonHumanDietProfile.AquaticOmnivore],
 				["Giraffe"] = [StockNonHumanDietProfile.Browser],
 				["Carp"] = [StockNonHumanDietProfile.AquaticOmnivore, StockNonHumanDietProfile.GeneralHerbivore],

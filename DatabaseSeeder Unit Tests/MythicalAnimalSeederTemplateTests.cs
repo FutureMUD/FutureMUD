@@ -775,6 +775,8 @@ public class MythicalAnimalSeederTemplateTests
             "Centaurs should preserve horse-body strength while gaining open-country mobility.");
         AssertProfile("Giant Ant", 6, 6, 2, -2, 3, 1, 0, "2d3", "1d2",
             "Giant insects should remain animal-minded and spiritually minimal.");
+        AssertProfile("Giant Spider", 6, 5, 5, 1, 2, 2, 0, "2d3", "1d2",
+            "Giant spiders should read as fast ambush arthropods rather than generic heavy monsters.");
         AssertProfile("Basilisk", 5, 6, 2, 0, 4, 2, 2, "2d3", null,
             "Magical animal-minded monsters should keep low intelligence without suppressing supernatural aura.");
     }
@@ -960,6 +962,17 @@ public class MythicalAnimalSeederTemplateTests
                 .Distinct()
                 .ToArray(),
             "Giant scorpions should deliver their tail spike through the stinger bodypart.");
+
+        MythicalAnimalSeeder.MythicalRaceTemplate giantSpider = MythicalAnimalSeeder.TemplatesForTesting["Giant Spider"];
+        Assert.IsTrue(giantSpider.CanClimb, "Giant spiders should keep their climbing capability.");
+        CollectionAssert.AreEquivalent(
+            new[] { "rfang", "lfang" },
+            giantSpider.Attacks
+                .Where(x => x.AttackName == "Carnivore Bite")
+                .SelectMany(x => x.BodypartAliases)
+                .Distinct()
+                .ToArray(),
+            "Giant spiders should deliver their heavy bite through paired fangs.");
     }
 
     [TestMethod]

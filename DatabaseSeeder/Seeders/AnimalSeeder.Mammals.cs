@@ -454,6 +454,22 @@ public partial class AnimalSeeder
                 "It carries itself with a mixture of high-strung energy and practiced athleticism.",
                 "plain, pasture and stable"),
             "Horse", canClimb: false, bloodProfile: "equine", usages: udder, combatStrategyKey: "Beast Physical Avoider");
+        yield return Mammal("Donkey", "Asinine", "Ungulate", SizeCategory.Normal, 1.2, "Donkey",
+            "large-hooved", "herbivore-charge",
+            MammalPack("a donkey foal", "a young jack donkey", "a young jenny donkey", "a jack donkey", "a jenny donkey",
+                "It is compact and strong-boned, with long ears, a narrow mane and tough little hooves.",
+                "Its deep chest, sure-footed stance and patient eyes give it the look of an animal made for dry tracks and difficult loads.",
+                "It carries itself with wary stubbornness and a surprising reserve of endurance.",
+                "scrub pasture, stony road and stable yard"),
+            "Donkeys", canClimb: false, bloodProfile: "equine", usages: udder, combatStrategyKey: "Beast Physical Avoider");
+        yield return Mammal("Mule", "Mule", "Ungulate", SizeCategory.Large, 1.4, "Mule",
+            "large-hooved", "herbivore-charge",
+            MammalPack("a mule foal", "a young john mule", "a young molly mule", "a john mule", "a molly mule",
+                "It is rangy and powerfully made, with the clean limbs of a horse, the long ears of a donkey and a hard-working frame.",
+                "Its strong back, dense muscle and sure-footed balance make it look bred for loads, slopes and long unfashionable roads.",
+                "It stands with practical patience, but every line suggests that forcing it would be harder than persuading it.",
+                "pack trail, mountain road and working stable"),
+            "Mules", canClimb: false, bloodProfile: "equine", usages: udder, combatStrategyKey: "Beast Physical Avoider");
         yield return Mammal("Rhinocerous", "Ceratorhine", "Ungulate", SizeCategory.Large, 1.5, "Pachyderm",
             "large-hooved", "rhino",
             MammalPack("a rhino calf", "a young bull rhino", "a young cow rhino", "a bull rhino", "a cow rhino",

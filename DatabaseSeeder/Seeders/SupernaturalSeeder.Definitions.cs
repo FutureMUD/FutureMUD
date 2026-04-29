@@ -350,24 +350,105 @@ public partial class SupernaturalSeeder
 		var angelAttacks = new[]
 		{
 			Attack("Radiant Touch", ItemQuality.Good, "rhand", "lhand"),
-			Attack("Radiant Gaze", ItemQuality.Good, "reye", "leye")
+			Attack("Radiant Gaze", ItemQuality.Good, "reye", "leye"),
+			Attack("Heavenly Choir", ItemQuality.Good, "mouth"),
+			Attack("Canticle of Awe", ItemQuality.Good, "mouth"),
+			Attack("Word of Command", ItemQuality.Good, "mouth"),
+			Attack("Crown of Stars", ItemQuality.Good, "reye", "leye"),
+			Attack("Mercy-Searing Grasp", ItemQuality.Good, "rhand", "lhand")
 		};
-		var wingedAngelAttacks = angelAttacks.Append(Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")).ToArray();
+		var wingedAngelAttacks = angelAttacks.Concat(
+		[
+			Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase"),
+			Attack("Seraphic Wingstorm", ItemQuality.Good, "rwingbase", "lwingbase")
+		]).ToArray();
+		var highAngelAttacks = wingedAngelAttacks.Concat(
+		[
+			Attack("Trumpet Peal", ItemQuality.VeryGood, "mouth"),
+			Attack("Starfire Breath", ItemQuality.VeryGood, "mouth")
+		]).ToArray();
+		var ophanicAngelAttacks = new[]
+		{
+			Attack("Wheel Crush", ItemQuality.VeryGood, "abdomen"),
+			Attack("Wheel of Judgment", ItemQuality.VeryGood, "abdomen"),
+			Attack("Radiant Gaze", ItemQuality.Good, "reye", "leye"),
+			Attack("Many-Eyed Ray", ItemQuality.Good, "reye", "leye"),
+			Attack("Crown of Stars", ItemQuality.Good, "reye", "leye"),
+			Attack("Heavenly Choir", ItemQuality.Good, "mouth"),
+			Attack("Word of Command", ItemQuality.Good, "mouth")
+		};
 		var demonAttacks = new[]
 		{
 			Attack("Infernal Claw", ItemQuality.Good, "rhand", "lhand"),
 			Attack("Horn Gore", ItemQuality.Standard, "rhorn", "lhorn"),
-			Attack("Fanged Bite", ItemQuality.Standard, "mouth")
+			Attack("Fanged Bite", ItemQuality.Standard, "mouth"),
+			Attack("Brimstone Spit", ItemQuality.Standard, "mouth"),
+			Attack("Infernal Trip", ItemQuality.Standard, "rfoot", "lfoot"),
+			Attack("Damnation Barge", ItemQuality.Standard, "abdomen"),
+			Attack("Hellish Headbutt", ItemQuality.Standard, "forehead"),
+			Attack("Soul Hook", ItemQuality.Good, "rhand", "lhand"),
+			Attack("Sinner's Clinch", ItemQuality.Good, "rhand", "lhand"),
+			Attack("Barbed Tail Slap", ItemQuality.Standard, "utail", "mtail", "ltail"),
+			Attack("Fallen Choir", ItemQuality.Good, "mouth")
+		};
+		var highDemonAttacks = demonAttacks.Concat(
+		[
+			Attack("Hellfire Breath", ItemQuality.VeryGood, "mouth"),
+			Attack("Abyssal Chain Lash", ItemQuality.Good, "rhand", "lhand")
+		]).ToArray();
+		var fallenOphanicAttacks = new[]
+		{
+			Attack("Wheel Crush", ItemQuality.VeryGood, "abdomen"),
+			Attack("Wheel of Judgment", ItemQuality.VeryGood, "abdomen"),
+			Attack("Soul Chill", ItemQuality.Good, "reye", "leye"),
+			Attack("Many-Eyed Ray", ItemQuality.Good, "reye", "leye"),
+			Attack("Hellfire Breath", ItemQuality.VeryGood, "mouth"),
+			Attack("Infernal Trip", ItemQuality.Standard, "rfoot", "lfoot"),
+			Attack("Fallen Choir", ItemQuality.Good, "mouth")
+		};
+		var hellhoundAttacks = new[]
+		{
+			Attack("Fanged Bite", ItemQuality.VeryGood, "mouth"),
+			Attack("Infernal Claw", ItemQuality.Good, "rfclaw", "lfclaw", "rrclaw", "lrclaw"),
+			Attack("Hellfire Breath", ItemQuality.Good, "mouth"),
+			Attack("Brimstone Spit", ItemQuality.Standard, "mouth"),
+			Attack("Damnation Barge", ItemQuality.Good, "abdomen"),
+			Attack("Hellish Headbutt", ItemQuality.Standard, "head"),
+			Attack("Infernal Trip", ItemQuality.Standard, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
+			Attack("Barbed Tail Slap", ItemQuality.Standard, "utail", "mtail", "ltail")
 		};
 		var spiritAttacks = new[]
 		{
 			Attack("Spectral Touch", ItemQuality.Standard, "rhand", "lhand"),
-			Attack("Soul Chill", ItemQuality.Standard, "rhand", "lhand")
+			Attack("Soul Chill", ItemQuality.Standard, "rhand", "lhand"),
+			Attack("Wailing Dirge", ItemQuality.Good, "mouth"),
+			Attack("Grave Drag", ItemQuality.Standard, "rhand", "lhand"),
+			Attack("Deathly Pall", ItemQuality.Standard, "mouth")
 		};
 		var undeadAttacks = new[]
 		{
 			Attack("Grave Claw", ItemQuality.Standard, "rhand", "lhand"),
-			Attack("Fanged Bite", ItemQuality.Standard, "mouth")
+			Attack("Fanged Bite", ItemQuality.Standard, "mouth"),
+			Attack("Grasp of the Dead", ItemQuality.Standard, "rhand", "lhand"),
+			Attack("Grave Drag", ItemQuality.Standard, "rhand", "lhand"),
+			Attack("Bone Rattle", ItemQuality.Standard, "forehead"),
+			Attack("Crypt Dust Breath", ItemQuality.Standard, "mouth"),
+			Attack("Deathly Pall", ItemQuality.Standard, "mouth")
+		};
+		var werewolfAttacks = new[]
+		{
+			Attack("Fanged Bite", ItemQuality.Standard, "mouth"),
+			Attack("Hamstring Snap", ItemQuality.Standard, "mouth"),
+			Attack("Wolf Trip", ItemQuality.Standard, "rfoot", "lfoot"),
+			Attack("Crushing Pounce", ItemQuality.Standard, "abdomen")
+		};
+		var werewolfHybridAttacks = new[]
+		{
+			Attack("Fanged Bite", ItemQuality.VeryGood, "mouth"),
+			Attack("Hamstring Snap", ItemQuality.Good, "mouth"),
+			Attack("Wolf Trip", ItemQuality.Good, "rfoot", "lfoot"),
+			Attack("Crushing Pounce", ItemQuality.Good, "abdomen"),
+			Attack("Raking Maul", ItemQuality.Good, "rhand", "lhand")
 		};
 
 		foreach ((string rank, int index) in AngelicRankOrder.Select((rank, index) => (rank, index)))
@@ -379,9 +460,13 @@ public partial class SupernaturalSeeder
 				"Ishim" => "Supernatural Angelic Humanoid",
 				_ => "Supernatural Winged Angel"
 			};
-			SupernaturalAttackTemplate[] attacks = rank == "Ophanim"
-				? [Attack("Wheel Crush", ItemQuality.VeryGood, "torso"), Attack("Radiant Gaze", ItemQuality.Good, "reye", "leye")]
-				: wingedAngelAttacks;
+			SupernaturalAttackTemplate[] attacks = rank switch
+			{
+				"Ophanim" => ophanicAngelAttacks,
+				"Chayot HaKodesh" or "Erelim" or "Hashmallim" or "Seraphim" => highAngelAttacks,
+				"Ishim" => angelAttacks,
+				_ => wingedAngelAttacks
+			};
 			Add(Template(rank, SupernaturalFamily.Angel, body, index < 2 ? SizeCategory.Large : SizeCategory.Normal,
 				SupernaturalPlanarProfile.DualNatured, SupernaturalNeedsProfile.NonLiving,
 				Stats(2 + Math.Max(0, 4 - index / 2), 2 + Math.Max(0, 4 - index / 2), 1, 1, 4, 3, 5, "2d4+6"),
@@ -394,8 +479,10 @@ public partial class SupernaturalSeeder
 			string fallenName = $"Fallen {rank}";
 			string body = rank == "Ophanim" ? "Supernatural Ophanic Wheel" : "Supernatural Horned Fiend";
 			SupernaturalAttackTemplate[] attacks = rank == "Ophanim"
-				? [Attack("Wheel Crush", ItemQuality.VeryGood, "torso"), Attack("Soul Chill", ItemQuality.Good, "reye", "leye")]
-				: demonAttacks;
+				? fallenOphanicAttacks
+				: index < 4
+					? highDemonAttacks
+					: demonAttacks;
 			Add(Template(fallenName, SupernaturalFamily.Demon, body, index < 2 ? SizeCategory.Large : SizeCategory.Normal,
 				SupernaturalPlanarProfile.AstralNative, SupernaturalNeedsProfile.NonLiving,
 				Stats(3 + Math.Max(0, 3 - index / 3), 2 + Math.Max(0, 3 - index / 3), 1, 1, 4, 2, 4, "2d4+5"),
@@ -411,7 +498,7 @@ public partial class SupernaturalSeeder
 			"social predator and temptation storylines", demonAttacks, [infernal, horns, tail], "Fallen Host", "Demonic Name"));
 		Add(Template("Fury", SupernaturalFamily.Demon, "Supernatural Horned Fiend", SizeCategory.Normal,
 			SupernaturalPlanarProfile.DualNatured, SupernaturalNeedsProfile.NonLiving, Stats(3, 2, 3, 1, 3, 3, 3, "2d4+3"),
-			"vengeance spirit and relentless hunter play", demonAttacks, [infernal, wings, eyes], "Fallen Host", "Demonic Name",
+			"vengeance spirit and relentless hunter play", highDemonAttacks, [infernal, wings, eyes], "Fallen Host", "Demonic Name",
 			combat: "Beast Brawler"));
 		Add(Template("Imp", SupernaturalFamily.Demon, "Supernatural Familiar", SizeCategory.Small,
 			SupernaturalPlanarProfile.AstralNative, SupernaturalNeedsProfile.NonLiving, Stats(-2, -1, 3, 2, 1, 2, 2, "1d4+2"),
@@ -423,11 +510,11 @@ public partial class SupernaturalSeeder
 			weapons: false, combat: "Beast Skirmisher", health: 0.7));
 		Add(Template("Fiend", SupernaturalFamily.Demon, "Supernatural Horned Fiend", SizeCategory.Large,
 			SupernaturalPlanarProfile.AstralNative, SupernaturalNeedsProfile.NonLiving, Stats(5, 4, 0, 0, 3, 2, 3, "2d4+4"),
-			"brutal infernal monster and war-demon play", demonAttacks, [infernal, horns, tail], "Fallen Host", "Demonic Name",
+			"brutal infernal monster and war-demon play", highDemonAttacks, [infernal, horns, tail], "Fallen Host", "Demonic Name",
 			combat: "Beast Brawler", health: 1.3));
 		Add(Template("Hellhound", SupernaturalFamily.Demon, "Supernatural Hellhound", SizeCategory.Large,
 			SupernaturalPlanarProfile.Material, SupernaturalNeedsProfile.NonLiving, Stats(4, 3, 2, 0, 2, 4, 2, "1d4+2"),
-			"infernal hunting beast play", [Attack("Fanged Bite", ItemQuality.VeryGood, "mouth"), Attack("Infernal Claw", ItemQuality.Good, "rfclaw", "lfclaw", "rrclaw", "lrclaw")],
+			"infernal hunting beast play", hellhoundAttacks,
 			[infernal, eyes], "Fallen Host", "Demonic Name", weapons: false, humanoid: false, combat: "Beast Brawler", health: 1.2));
 
 		Add(Template("Demigod", SupernaturalFamily.Divine, "Supernatural Divine Humanoid", SizeCategory.Normal,
@@ -435,11 +522,11 @@ public partial class SupernaturalSeeder
 			"divine-blooded heroes, avatars and staff-guided legends", angelAttacks, [radiant, eyes], "Celestial Host", "Angelic Name"));
 		Add(Template("Lesser God", SupernaturalFamily.Divine, "Supernatural Many-Winged Angel", SizeCategory.Large,
 			SupernaturalPlanarProfile.DualNatured, SupernaturalNeedsProfile.NonLiving, Stats(6, 6, 2, 2, 6, 4, 8, "2d6+8"),
-			"local deities, patrons and divine NPCs", wingedAngelAttacks, [radiant, wings, eyes], "Celestial Host", "Angelic Name",
+			"local deities, patrons and divine NPCs", highAngelAttacks, [radiant, wings, eyes], "Celestial Host", "Angelic Name",
 			health: 1.5));
 		Add(Template("Greater God", SupernaturalFamily.Divine, "Supernatural Many-Winged Angel", SizeCategory.VeryLarge,
 			SupernaturalPlanarProfile.DualNatured, SupernaturalNeedsProfile.NonLiving, Stats(8, 8, 2, 2, 8, 5, 10, "2d6+10"),
-			"major deities and administrator-facing divine examples", wingedAngelAttacks, [radiant, wings, eyes], "Celestial Host",
+			"major deities and administrator-facing divine examples", highAngelAttacks, [radiant, wings, eyes], "Celestial Host",
 			"Angelic Name", health: 1.8));
 
 		Add(Template("Spirit", SupernaturalFamily.Spirit, "Supernatural Spirit Form", SizeCategory.Normal,
@@ -467,11 +554,11 @@ public partial class SupernaturalSeeder
 
 		Add(Template("Werewolf", SupernaturalFamily.Therianthrope, "Organic Humanoid", SizeCategory.Normal,
 			SupernaturalPlanarProfile.Material, SupernaturalNeedsProfile.Living, Stats(1, 1, 1, 0, 1, 2, 0),
-			"cursed or hereditary shapeshifter play", [Attack("Fanged Bite", ItemQuality.Standard, "mouth")], [beast],
+			"cursed or hereditary shapeshifter play", werewolfAttacks, [beast],
 			"Therianthrope", "Mortal Name"));
 		Add(Template("Werewolf Hybrid", SupernaturalFamily.Therianthrope, "Supernatural Werewolf Hybrid", SizeCategory.Large,
 			SupernaturalPlanarProfile.Material, SupernaturalNeedsProfile.Living, Stats(4, 3, 2, 0, 2, 3, 0),
-			"wolf-man battle forms and cursed transformation play", [Attack("Fanged Bite", ItemQuality.VeryGood, "mouth"), Attack("Infernal Claw", ItemQuality.Good, "rhand", "lhand")],
+			"wolf-man battle forms and cursed transformation play", werewolfHybridAttacks,
 			[beast], "Therianthrope", "Mortal Name", weapons: false, combat: "Beast Brawler", health: 1.25));
 
 		Add(Template("Vampire", SupernaturalFamily.Undead, "Organic Humanoid", SizeCategory.Normal,

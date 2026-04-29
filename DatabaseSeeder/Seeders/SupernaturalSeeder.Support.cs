@@ -1,5 +1,6 @@
 #nullable enable
 
+using MudSharp.Combat;
 using MudSharp.Character.Name;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
@@ -20,6 +21,14 @@ public partial class SupernaturalSeeder
 	private const string SupernaturalUndeadCorpseModelName = "Supernatural Nondecaying Undead Remains";
 	private const string SupernaturalSpiritCorpseModelName = "Supernatural Dissipating Spirit Remains";
 
+	internal sealed record SupernaturalAttackDefinition(
+		string DonorName,
+		string Message,
+		IReadOnlyList<string> Categories,
+		BuiltInCombatMoveType? MoveTypeOverride = null,
+		string? FixedTargetBodypartShape = null,
+		bool SharedStockAttack = false);
+
 	private static readonly IReadOnlyDictionary<string, (string SourceBody, SupernaturalPlanarProfile PlanarProfile)> CustomBodyProfiles =
 		new Dictionary<string, (string SourceBody, SupernaturalPlanarProfile PlanarProfile)>(StringComparer.OrdinalIgnoreCase)
 		{
@@ -38,19 +47,139 @@ public partial class SupernaturalSeeder
 			["Supernatural Decayed Undead"] = ("Organic Humanoid", SupernaturalPlanarProfile.Material)
 		};
 
-	private static readonly IReadOnlyDictionary<string, (string DonorName, string Message)> SupernaturalAttackCloneDefinitions =
-		new Dictionary<string, (string DonorName, string Message)>(StringComparer.OrdinalIgnoreCase)
+	private static readonly IReadOnlyDictionary<string, string[]> CustomBodyAdditionalAliases =
+		new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
 		{
-			["Radiant Touch"] = ("Bite", "@ sear|sears $1 with a touch of radiant power."),
-			["Radiant Gaze"] = ("Bite", "@ strike|strikes $1 with a radiant gaze."),
-			["Infernal Claw"] = ("Claw High Swipe", "@ rake|rakes $1 with infernal claws."),
-			["Soul Chill"] = ("Bite", "@ chill|chills $1 with deathly spiritual force."),
-			["Grave Claw"] = ("Claw Low Swipe", "@ claw|claws $1 with grave-cold hands."),
-			["Wheel Crush"] = ("Animal Barge", "@ crush|crushes into $1 with a living wheel of eyes and flame."),
-			["Fanged Bite"] = ("Carnivore Bite", "@ bite|bites $1 with supernatural fangs."),
-			["Horn Gore"] = ("Animal Barge", "@ gore|gores $1 with supernatural horns."),
-			["Spectral Touch"] = ("Bite", "@ pass|passes a spectral touch through $1.")
+			["Supernatural Horned Fiend"] = ["utail", "mtail", "ltail"],
+			["Supernatural Familiar"] = ["utail", "mtail", "ltail"]
 		};
+
+	internal static IReadOnlyDictionary<string, string[]> SupernaturalBodyAdditionalAliasesForTesting =>
+		CustomBodyAdditionalAliases;
+
+	private static SupernaturalAttackDefinition AttackDefinition(string donorName, string message,
+		params string[] categories)
+	{
+		return new SupernaturalAttackDefinition(donorName, message, categories);
+	}
+
+	private static SupernaturalAttackDefinition SonicAttackDefinition(string donorName, string message,
+		params string[] categories)
+	{
+		return new SupernaturalAttackDefinition(donorName, message, categories,
+			BuiltInCombatMoveType.ScreechAttack, "Ear");
+	}
+
+	private static SupernaturalAttackDefinition SharedAttackDefinition(string donorName, string message,
+		params string[] categories)
+	{
+		return new SupernaturalAttackDefinition(donorName, message, categories, SharedStockAttack: true);
+	}
+
+	private static readonly IReadOnlyDictionary<string, SupernaturalAttackDefinition> SupernaturalAttackCloneDefinitions =
+		new Dictionary<string, SupernaturalAttackDefinition>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Radiant Touch"] = AttackDefinition("Bite",
+				"@ sear|sears $1 with a touch of radiant power.", "radiant", "clinch"),
+			["Radiant Gaze"] = AttackDefinition("Bite",
+				"@ strike|strikes $1 with a radiant gaze.", "radiant"),
+			["Wing Buffet"] = SharedAttackDefinition("Wing Buffet",
+				"@ beat|beats &0's {0} and buffet|buffets $1 with a crashing gust.", "buffeting"),
+			["Infernal Claw"] = AttackDefinition("Claw High Swipe",
+				"@ rake|rakes $1 with infernal claws.", "infernal", "claw"),
+			["Horn Gore"] = SharedAttackDefinition("Horn Gore",
+				"@ gore|gores $1 with supernatural horns.", "horn"),
+			["Fanged Bite"] = AttackDefinition("Carnivore Bite",
+				"@ bite|bites $1 with supernatural fangs.", "bite"),
+			["Soul Chill"] = AttackDefinition("Bite",
+				"@ chill|chills $1 with deathly spiritual force.", "spirit", "clinch"),
+			["Grave Claw"] = AttackDefinition("Claw Low Swipe",
+				"@ claw|claws $1 with grave-cold hands.", "undead", "claw"),
+			["Wheel Crush"] = AttackDefinition("Animal Barge",
+				"@ crush|crushes into $1 with a living wheel of eyes and flame.", "stagger", "wheel"),
+			["Spectral Touch"] = AttackDefinition("Bite",
+				"@ pass|passes a spectral touch through $1.", "spirit", "clinch"),
+
+			["Heavenly Choir"] = SonicAttackDefinition("Bite",
+				"@ open|opens &0's {0} and a choir of heavenly voices pour|pours through the air.",
+				"sonic", "radiant", "angelic"),
+			["Canticle of Awe"] = SonicAttackDefinition("Bite",
+				"@ sing|sings through &0's {0}, filling the air with a many-voiced canticle of awe.",
+				"sonic", "radiant", "angelic"),
+			["Trumpet Peal"] = SonicAttackDefinition("Bite",
+				"@ sound|sounds a trumpet-bright note from &0's {0}, bright as a choir at dawn.",
+				"sonic", "radiant", "angelic"),
+			["Word of Command"] = SonicAttackDefinition("Bite",
+				"@ speak|speaks a word of command from &0's {0}, layered with impossible voices.",
+				"sonic", "radiant", "angelic"),
+			["Crown of Stars"] = AttackDefinition("Tail Spike",
+				"@ loose|looses a star-bright ray from &0's {0} toward $1.", "ranged", "radiant"),
+			["Starfire Breath"] = AttackDefinition("Dragonfire Breath",
+				"@ breathe|breathes a cone of white starfire from &0's {0} toward $1.", "breath", "radiant"),
+			["Seraphic Wingstorm"] = AttackDefinition("Wing Buffet",
+				"@ beat|beats &0's {0}, driving a storm of radiant wind into $1.", "buffeting", "radiant"),
+			["Mercy-Searing Grasp"] = AttackDefinition("Tree Haul",
+				"@ seize|seizes $1 with &0's {0} and haul|hauls &1 through searing mercy.",
+				"forced movement", "radiant"),
+			["Wheel of Judgment"] = AttackDefinition("Animal Barge Pushback",
+				"@ thunder|thunders into $1 as a wheel of judgment and drive|drives &1 back.",
+				"pushback", "radiant", "wheel"),
+			["Many-Eyed Ray"] = AttackDefinition("Tail Spike",
+				"@ focus|focuses many watchful eyes and lance|lances $1 with a radiant ray.", "ranged", "radiant"),
+
+			["Hellfire Breath"] = AttackDefinition("Dragonfire Breath",
+				"@ breathe|breathes a cone of hellfire from &0's {0} toward $1.", "breath", "infernal"),
+			["Brimstone Spit"] = AttackDefinition("Acid Spit",
+				"@ spit|spits a burning gobbet of brimstone from &0's {0} at $1.", "spit", "infernal"),
+			["Infernal Trip"] = AttackDefinition("Tusk Sweep",
+				"@ sweep|sweeps &0's {0} low, trying to trip $1 with infernal force.",
+				"trip", "unbalance", "infernal"),
+			["Damnation Barge"] = AttackDefinition("Animal Barge Pushback",
+				"@ drive|drives into $1 with damnation's weight and force|forces &1 back.",
+				"pushback", "infernal"),
+			["Hellish Headbutt"] = AttackDefinition("Headbutt",
+				"@ crack|cracks &0's {0} into $1 with hellish force.", "stagger", "infernal"),
+			["Soul Hook"] = AttackDefinition("Tree Haul",
+				"@ hook|hooks $1 with &0's {0} and drag|drags &1 with soul-deep force.",
+				"forced movement", "infernal"),
+			["Abyssal Chain Lash"] = AttackDefinition("Water Drag",
+				"@ lash|lashes out from &0's {0} with abyssal force and drag|drags at $1.",
+				"forced movement", "infernal"),
+			["Sinner's Clinch"] = AttackDefinition("Claw Clamp",
+				"@ clamp|clamps &0's {0} onto $1 with pitiless strength.", "clinch", "infernal"),
+			["Barbed Tail Slap"] = AttackDefinition("Tail Slap",
+				"@ whip|whips &0's {0} around in a barbed slap at $1.", "stagger", "infernal"),
+			["Fallen Choir"] = SonicAttackDefinition("Bite",
+				"@ open|opens &0's {0} and a ruined choir of fallen voices tear|tears through the air.",
+				"sonic", "infernal"),
+
+			["Wailing Dirge"] = SonicAttackDefinition("Bite",
+				"@ wail|wails through &0's {0}, a mourning dirge that scrapes at every ear.",
+				"sonic", "spirit"),
+			["Grave Drag"] = AttackDefinition("Water Drag",
+				"@ drag|drags at $1 with grave-cold force from &0's {0}.", "forced movement", "undead"),
+			["Grasp of the Dead"] = AttackDefinition("Claw Clamp",
+				"@ clamp|clamps &0's {0} onto $1 with the grasp of the dead.", "clinch", "undead"),
+			["Bone Rattle"] = AttackDefinition("Head Ram",
+				"@ rattle|rattles forward and slam|slams &0's {0} into $1.", "stagger", "undead"),
+			["Crypt Dust Breath"] = AttackDefinition("Dragonfire Breath",
+				"@ breathe|breathes a choking cloud of crypt dust from &0's {0} toward $1.",
+				"breath", "undead"),
+			["Deathly Pall"] = AttackDefinition("Llama Spit",
+				"@ exhale|exhales a deathly pall from &0's {0} toward $1.", "spit", "spirit", "undead"),
+
+			["Raking Maul"] = AttackDefinition("Claw High Swipe",
+				"@ maul|mauls $1 with a raking swipe of &0's {0}.", "claw", "therianthrope"),
+			["Hamstring Snap"] = AttackDefinition("Carnivore Low Bite",
+				"@ snap|snaps low at $1 with a hamstringing bite from &0's {0}.", "bite", "therianthrope"),
+			["Crushing Pounce"] = AttackDefinition("Animal Barge",
+				"@ pounce|pounces into $1 with crushing bestial force.", "stagger", "therianthrope"),
+			["Wolf Trip"] = AttackDefinition("Tusk Sweep",
+				"@ sweep|sweeps &0's {0} low, trying to send $1 sprawling.", "trip", "unbalance", "therianthrope")
+		};
+
+	internal static IReadOnlyDictionary<string, SupernaturalAttackDefinition> SupernaturalAttackDefinitionsForTesting =>
+		SupernaturalAttackCloneDefinitions;
 
 	private static IReadOnlyCollection<string> SupernaturalAttackNames =>
 		Templates.Values
@@ -58,6 +187,8 @@ public partial class SupernaturalSeeder
 			.Select(x => x.AttackName)
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.ToArray();
+
+	internal static IReadOnlyCollection<string> SupernaturalAttackNamesForTesting => SupernaturalAttackNames;
 
 	private static readonly IReadOnlyDictionary<string, (string PersonWord, string Description, string NameCulture)> SupernaturalCultureDefinitions =
 		new Dictionary<string, (string PersonWord, string Description, string NameCulture)>(StringComparer.OrdinalIgnoreCase)
@@ -160,8 +291,7 @@ public partial class SupernaturalSeeder
 
 			foreach (SupernaturalAttackTemplate attack in template.Attacks)
 			{
-				if (!SupernaturalAttackCloneDefinitions.ContainsKey(attack.AttackName) &&
-				    !attack.AttackName.Equals("Wing Buffet", StringComparison.OrdinalIgnoreCase))
+				if (!SupernaturalAttackCloneDefinitions.ContainsKey(attack.AttackName))
 				{
 					issues.Add($"{name} references unknown supernatural attack {attack.AttackName}.");
 				}
@@ -259,14 +389,18 @@ public partial class SupernaturalSeeder
 
 	private void EnsureSupernaturalAttacks(SupernaturalSeedSummary summary)
 	{
-		foreach ((string name, (string donorName, string message)) in SupernaturalAttackCloneDefinitions)
+		foreach ((string name, SupernaturalAttackDefinition definition) in SupernaturalAttackCloneDefinitions)
 		{
 			if (_context.WeaponAttacks.Any(x => x.Name == name))
 			{
 				continue;
 			}
 
-			WeaponAttack donor = _context.WeaponAttacks.First(x => x.Name == donorName);
+			WeaponAttack donor = _context.WeaponAttacks.First(x => x.Name == definition.DonorName);
+			int moveType = (int)(definition.MoveTypeOverride ?? (BuiltInCombatMoveType)donor.MoveType);
+			string additionalInfo = definition.FixedTargetBodypartShape is null
+				? donor.AdditionalInfo
+				: _context.BodypartShapes.First(x => x.Name == definition.FixedTargetBodypartShape).Id.ToString();
 			WeaponAttack attack = new()
 			{
 				Name = name,
@@ -280,7 +414,7 @@ public partial class SupernaturalSeeder
 				BaseAngleOfIncidence = donor.BaseAngleOfIncidence,
 				RecoveryDifficultySuccess = donor.RecoveryDifficultySuccess,
 				RecoveryDifficultyFailure = donor.RecoveryDifficultyFailure,
-				MoveType = donor.MoveType,
+				MoveType = moveType,
 				Intentions = donor.Intentions,
 				ExertionLevel = donor.ExertionLevel,
 				DamageType = donor.DamageType,
@@ -293,7 +427,7 @@ public partial class SupernaturalSeeder
 				BaseDelay = donor.BaseDelay,
 				Orientation = donor.Orientation,
 				Alignment = donor.Alignment,
-				AdditionalInfo = donor.AdditionalInfo,
+				AdditionalInfo = additionalInfo,
 				HandednessOptions = donor.HandednessOptions,
 				RequiredPositionStateIds = donor.RequiredPositionStateIds,
 				OnUseProgId = donor.OnUseProgId
@@ -303,12 +437,12 @@ public partial class SupernaturalSeeder
 
 			CombatMessage combatMessage = new()
 			{
-				Type = donor.MoveType,
-				Message = message,
+				Type = moveType,
+				Message = definition.Message,
 				Priority = 50,
 				Verb = donor.Verb,
 				Chance = 1.0,
-				FailureMessage = message
+				FailureMessage = definition.Message
 			};
 			combatMessage.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
 			{

@@ -4,6 +4,7 @@ using DatabaseSeeder.Seeders;
 using DatabaseSeeder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Character;
+using MudSharp.Combat;
 using MudSharp.Planes;
 using System;
 using System.Collections.Generic;
@@ -177,16 +178,186 @@ public class SupernaturalSeederTemplateTests
 			"Soul Chill",
 			"Grave Claw",
 			"Wheel Crush",
-			"Spectral Touch"
+			"Spectral Touch",
+			"Heavenly Choir",
+			"Canticle of Awe",
+			"Trumpet Peal",
+			"Word of Command",
+			"Crown of Stars",
+			"Starfire Breath",
+			"Seraphic Wingstorm",
+			"Mercy-Searing Grasp",
+			"Wheel of Judgment",
+			"Many-Eyed Ray",
+			"Hellfire Breath",
+			"Brimstone Spit",
+			"Infernal Trip",
+			"Damnation Barge",
+			"Hellish Headbutt",
+			"Soul Hook",
+			"Abyssal Chain Lash",
+			"Sinner's Clinch",
+			"Barbed Tail Slap",
+			"Fallen Choir",
+			"Wailing Dirge",
+			"Grave Drag",
+			"Grasp of the Dead",
+			"Bone Rattle",
+			"Crypt Dust Breath",
+			"Deathly Pall",
+			"Raking Maul",
+			"Hamstring Snap",
+			"Crushing Pounce",
+			"Wolf Trip"
 		];
 
-		string[] actualAttacks = SupernaturalSeeder.TemplatesForTesting.Values
-			.SelectMany(x => x.Attacks)
-			.Select(x => x.AttackName)
-			.Distinct(StringComparer.OrdinalIgnoreCase)
+		string[] actualAttacks = SupernaturalSeeder.SupernaturalAttackNamesForTesting
 			.ToArray();
 
 		CollectionAssert.IsSubsetOf(expectedAttacks, actualAttacks);
+		Assert.AreEqual(40, actualAttacks.Length);
+		Assert.IsTrue(actualAttacks.Length >= 30);
+		Assert.AreEqual(expectedAttacks.Length, actualAttacks.Length);
+	}
+
+	[TestMethod]
+	public void AttackDefinitionsForTesting_CategoriesCoverSpecialMoveFamilies()
+	{
+		string[] expectedCategories =
+		[
+			"sonic",
+			"ranged",
+			"breath",
+			"spit",
+			"trip",
+			"unbalance",
+			"stagger",
+			"pushback",
+			"clinch",
+			"forced movement",
+			"buffeting",
+			"bite",
+			"claw",
+			"horn",
+			"radiant",
+			"infernal",
+			"spirit",
+			"undead",
+			"therianthrope"
+		];
+
+		string[] actualCategories = SupernaturalSeeder.SupernaturalAttackDefinitionsForTesting.Values
+			.SelectMany(x => x.Categories)
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+
+		CollectionAssert.IsSubsetOf(expectedCategories, actualCategories);
+	}
+
+	[TestMethod]
+	public void AttackDefinitionsForTesting_SonicAttacksUseScreechAndMouthAliases()
+	{
+		string[] sonicAttackNames = SupernaturalSeeder.SupernaturalAttackDefinitionsForTesting
+			.Where(x => x.Value.Categories.Contains("sonic", StringComparer.OrdinalIgnoreCase))
+			.Select(x => x.Key)
+			.ToArray();
+
+		Assert.IsTrue(sonicAttackNames.Contains("Heavenly Choir", StringComparer.OrdinalIgnoreCase));
+		Assert.IsTrue(sonicAttackNames.Contains("Canticle of Awe", StringComparer.OrdinalIgnoreCase));
+		Assert.IsTrue(sonicAttackNames.Contains("Word of Command", StringComparer.OrdinalIgnoreCase));
+
+		foreach (string attackName in sonicAttackNames)
+		{
+			SupernaturalSeeder.SupernaturalAttackDefinition definition =
+				SupernaturalSeeder.SupernaturalAttackDefinitionsForTesting[attackName];
+
+			Assert.AreEqual(BuiltInCombatMoveType.ScreechAttack, definition.MoveTypeOverride);
+			Assert.AreEqual("Ear", definition.FixedTargetBodypartShape);
+			Assert.IsFalse(definition.Message.Contains("$1", StringComparison.Ordinal),
+				$"{attackName} should not reference a single defender.");
+		}
+
+		foreach (SupernaturalSeeder.SupernaturalAttackTemplate templateAttack in SupernaturalSeeder.TemplatesForTesting.Values
+			         .SelectMany(x => x.Attacks)
+			         .Where(x => sonicAttackNames.Contains(x.AttackName, StringComparer.OrdinalIgnoreCase)))
+		{
+			CollectionAssert.AreEqual(new[] { "mouth" }, templateAttack.BodypartAliases.ToArray(),
+				$"{templateAttack.AttackName} should be voiced from the mouth.");
+		}
+	}
+
+	[TestMethod]
+	public void TemplatesForTesting_AngelsUseChoirsAndOphanimUseWheelAttacks()
+	{
+		foreach (SupernaturalSeeder.SupernaturalRaceTemplate template in SupernaturalSeeder.TemplatesForTesting.Values
+			         .Where(x => x.Family == SupernaturalSeeder.SupernaturalFamily.Angel))
+		{
+			Assert.IsTrue(template.Attacks.Any(x => x.AttackName == "Heavenly Choir"),
+				$"{template.Name} should have a heavenly choir attack.");
+		}
+
+		SupernaturalSeeder.SupernaturalRaceTemplate ophanim = SupernaturalSeeder.TemplatesForTesting["Ophanim"];
+		Assert.IsTrue(ophanim.Attacks.Any(x => x.AttackName == "Wheel of Judgment"));
+		Assert.IsTrue(ophanim.Attacks.Any(x => x.AttackName == "Many-Eyed Ray"));
+		Assert.IsFalse(ophanim.Attacks.Any(x => x.AttackName == "Seraphic Wingstorm"));
+	}
+
+	[TestMethod]
+	public void TemplatesForTesting_FallenRanksMirrorAngelicAttackExpansion()
+	{
+		foreach (string angelRank in SupernaturalSeeder.AngelicRankOrderForTesting)
+		{
+			string fallenName = $"Fallen {angelRank}";
+			SupernaturalSeeder.SupernaturalRaceTemplate template = SupernaturalSeeder.TemplatesForTesting[fallenName];
+
+			Assert.IsTrue(template.Attacks.Any(x => x.AttackName == "Fallen Choir"),
+				$"{fallenName} should have a fallen choir attack.");
+		}
+
+		SupernaturalSeeder.SupernaturalRaceTemplate fallenOphanim = SupernaturalSeeder.TemplatesForTesting["Fallen Ophanim"];
+		Assert.IsTrue(fallenOphanim.Attacks.Any(x => x.AttackName == "Wheel of Judgment"));
+		Assert.IsTrue(fallenOphanim.Attacks.Any(x => x.AttackName == "Many-Eyed Ray"));
+		Assert.IsFalse(fallenOphanim.Attacks.Any(x => x.AttackName == "Barbed Tail Slap"));
+	}
+
+	[TestMethod]
+	public void TemplatesForTesting_CommonDemonsUndeadSpiritsAndWerewolvesHaveBroaderAttackCoverage()
+	{
+		foreach (string demonName in SupernaturalSeeder.CommonDemonNamesForTesting)
+		{
+			Assert.IsTrue(SupernaturalSeeder.TemplatesForTesting[demonName].Attacks.Count >= 8,
+				$"{demonName} should have expanded demon attack coverage.");
+		}
+
+		foreach (string undeadName in SupernaturalSeeder.SupportedUndeadNamesForTesting
+			         .Where(x => SupernaturalSeeder.TemplatesForTesting[x].Family == SupernaturalSeeder.SupernaturalFamily.Undead))
+		{
+			Assert.IsTrue(SupernaturalSeeder.TemplatesForTesting[undeadName].Attacks.Count >= 7,
+				$"{undeadName} should have expanded undead attack coverage.");
+		}
+
+		Assert.IsTrue(SupernaturalSeeder.TemplatesForTesting["Ghost"].Attacks.Count >= 5);
+		Assert.IsTrue(SupernaturalSeeder.TemplatesForTesting["Werewolf"].Attacks.Count >= 4);
+		Assert.IsTrue(SupernaturalSeeder.TemplatesForTesting["Werewolf Hybrid"].Attacks.Any(x => x.AttackName == "Raking Maul"));
+	}
+
+	[TestMethod]
+	public void BodyAdditionsForTesting_HornedFiendsAndFamiliarsExposeTailAliases()
+	{
+		string[] expectedTailAliases = ["utail", "mtail", "ltail"];
+
+		CollectionAssert.AreEquivalent(expectedTailAliases,
+			SupernaturalSeeder.SupernaturalBodyAdditionalAliasesForTesting["Supernatural Horned Fiend"]);
+		CollectionAssert.AreEquivalent(expectedTailAliases,
+			SupernaturalSeeder.SupernaturalBodyAdditionalAliasesForTesting["Supernatural Familiar"]);
+
+		foreach (string demonName in new[] { "Fiend", "Imp", "Familiar", "Incubus", "Succubus" })
+		{
+			Assert.IsTrue(SupernaturalSeeder.TemplatesForTesting[demonName].Attacks.Any(x =>
+					x.AttackName == "Barbed Tail Slap" &&
+					expectedTailAliases.All(alias => x.BodypartAliases.Contains(alias, StringComparer.OrdinalIgnoreCase))),
+				$"{demonName} should use the seeded tail aliases for Barbed Tail Slap.");
+		}
 	}
 
 	[TestMethod]

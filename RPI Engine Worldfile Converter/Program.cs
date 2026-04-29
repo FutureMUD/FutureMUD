@@ -1026,6 +1026,12 @@ internal static class Program
 			}
 		}
 
+		if (fatalErrors > 0)
+		{
+			Console.Error.WriteLine("Apply did not proceed because required baseline dependencies were missing.");
+			return 2;
+		}
+
 		return 0;
 	}
 

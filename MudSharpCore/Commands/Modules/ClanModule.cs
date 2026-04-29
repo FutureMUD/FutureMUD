@@ -3674,6 +3674,8 @@ Your next payday is {3}.
                 PayIntervalType = (int)clan.PayInterval.Type,
                 PayIntervalModifier = clan.PayInterval.IntervalAmount,
                 PayIntervalOther = clan.PayInterval.Modifier,
+                PayIntervalOtherSecondary = clan.PayInterval.SecondaryModifier,
+                PayIntervalFallback = (int)clan.PayInterval.OrdinalFallbackMode,
                 PayIntervalReferenceDate = clan.Calendar.CurrentDate.GetDateString(),
                 PayIntervalReferenceTime = clan.NextPay.Time.GetTimeString(),
                 ShowClanMembersInWho = clan.ShowClanMembersInWho,

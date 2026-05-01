@@ -432,9 +432,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
     public override IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
     {
         return GetKeywordsFromSDesc((this as IHaveCharacteristics).ParseCharacteristics(
-                   HowSeen(voyeur, colour: false), voyeur))
+                   HowSeen(voyeur, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting), voyeur))
                .Concat(GetKeywordsFromSDesc((this as IHaveCharacteristics).ParseCharacteristics(
-                   HowSeen(voyeur, type: DescriptionType.Long, colour: false, flags: PerceiveIgnoreFlags.IgnorePositionInformationForLongDesc), voyeur)))
+                   HowSeen(voyeur, type: DescriptionType.Long, colour: false,
+                       flags: PerceiveIgnoreFlags.IgnorePositionInformationForLongDesc | PerceiveIgnoreFlags.IgnoreNamesSetting), voyeur)))
                .Distinct()
                .ToList();
     }
@@ -461,7 +462,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             case DescriptionType.Possessive:
                 return HowSeen(voyeur, proper, DescriptionType.Short, colour) + "'s";
             case DescriptionType.Long:
-                return LongDescription(voyeur, proper, colour, flags.HasFlag(PerceiveIgnoreFlags.IgnorePositionInformationForLongDesc));
+                return LongDescription(voyeur, proper, colour, flags);
             case DescriptionType.Full:
                 return FullDescription(voyeur, colour, flags, false);
             case DescriptionType.Contents:
@@ -473,9 +474,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         }
     }
 
-    private string LongDescription(IPerceiver voyeur, bool proper, bool colour, bool ignorePosition)
+    private string LongDescription(IPerceiver voyeur, bool proper, bool colour, PerceiveIgnoreFlags flags)
     {
-        string ldesc = HowSeen(voyeur, true, DescriptionType.Short, colour);
+        var ignorePosition = flags.HasFlag(PerceiveIgnoreFlags.IgnorePositionInformationForLongDesc);
+        string ldesc = HowSeen(voyeur, true, DescriptionType.Short, colour, flags);
         bool alteredldesc = false;
         string name = Name;
         if (Skin is { } skin)
@@ -500,9 +502,16 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
                 ? Material.Name.ToLowerInvariant()
                 : Material.MaterialDescription.ToLowerInvariant());
 
+        if (alteredldesc)
+        {
+            ldesc = (this as IHaveCharacteristics).ParseCharacteristics(ldesc, voyeur)
+                                                   .AppendRemoteObservationTag(voyeur, this, colour, flags);
+        }
+
         if ((alteredldesc && PositionTarget == null && PositionEmote == null))
         {
-            return DressLongDescription(voyeur, (this as IHaveCharacteristics).ParseCharacteristics(ldesc, voyeur).Fullstop()).FluentProper(proper).FluentColourIncludingReset(Prototype.CustomColour ?? Telnet.Green, colour);
+            return DressLongDescription(voyeur,
+                ldesc.Fullstop()).FluentProper(proper).FluentColourIncludingReset(Prototype.CustomColour ?? Telnet.Green, colour);
         }
 
         if (ignorePosition)
@@ -545,7 +554,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             colour ? Prototype.CustomColour ?? Telnet.Green : null, flags, false);
         if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreLiquidsAndFlags))
         {
-            text = ProcessDescriptionAdditions(text, voyeur, colour);
+            text = ProcessDescriptionAdditions(text, voyeur, colour, flags);
         }
 
         if (!colour)
@@ -612,8 +621,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         _id = dbitem.Id;
     }
 
-    public string ProcessDescriptionAdditions(string description, IPerceiver voyeur, bool colour)
+    public string ProcessDescriptionAdditions(string description, IPerceiver voyeur, bool colour,
+        PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
     {
+        description = description.AppendRemoteObservationTag(voyeur, this, colour, flags);
         return
             EffectsOfType<ISDescAdditionEffect>()
                 .Where(x => x.DescriptionAdditionApplies(voyeur))

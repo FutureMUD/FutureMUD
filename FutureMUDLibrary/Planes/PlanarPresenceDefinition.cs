@@ -68,12 +68,58 @@ public class PlanarPresenceDefinition
 
 	public static PlanarPresenceDefinition DefaultMaterial(long planeId)
 	{
-		var planes = new[] { planeId };
+		return DefaultMaterial(new[] { planeId });
+	}
+
+	public static PlanarPresenceDefinition DefaultMaterial(IEnumerable<long> planeIds)
+	{
+		var planes = planeIds.Where(x => x > 0).Distinct().ToArray();
 		return new PlanarPresenceDefinition(
 			planes,
 			planes,
 			planes,
 			Enum.GetValues<PlanarInteractionKind>().ToDictionary(x => x, _ => (IEnumerable<long>)planes),
+			false,
+			true,
+			false,
+			false,
+			false,
+			false,
+			false,
+			string.Empty);
+	}
+
+	public static PlanarPresenceDefinition Corporeal(IEnumerable<IPlane> planes)
+	{
+		return DefaultMaterial(planes.Select(x => x.Id));
+	}
+
+	public static PlanarPresenceDefinition PerceivesPlanes(IEnumerable<IPlane> planes)
+	{
+		var planeIds = planes.Select(x => x.Id).Where(x => x > 0).Distinct().ToArray();
+		return new PlanarPresenceDefinition(
+			Array.Empty<long>(),
+			Array.Empty<long>(),
+			planeIds,
+			Enum.GetValues<PlanarInteractionKind>().ToDictionary(x => x, _ => Enumerable.Empty<long>()),
+			false,
+			true,
+			false,
+			false,
+			false,
+			false,
+			false,
+			string.Empty);
+	}
+
+	public static PlanarPresenceDefinition VisibleToPlanes(IEnumerable<IPlane> planes)
+	{
+		var planeIds = planes.Select(x => x.Id).Where(x => x > 0).Distinct().ToArray();
+		return new PlanarPresenceDefinition(
+			Array.Empty<long>(),
+			planeIds,
+			Array.Empty<long>(),
+			Enum.GetValues<PlanarInteractionKind>().ToDictionary(x => x, _ => Enumerable.Empty<long>()),
 			false,
 			true,
 			false,

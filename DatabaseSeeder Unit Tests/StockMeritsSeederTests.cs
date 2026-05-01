@@ -276,6 +276,7 @@ public class StockMeritsSeederTests
         Plane astral = context.Planes.Single(x => x.Name == "Astral Plane");
         Assert.IsTrue(prime.IsDefault);
         Assert.AreEqual("Astral Plane {0}", astral.RoomNameFormat);
+        Assert.AreEqual("({0})", astral.RemoteObservationTag);
         Assert.IsFalse(string.IsNullOrWhiteSpace(astral.RoomDescriptionAddendum));
         foreach (string meritName in new[]
                  {

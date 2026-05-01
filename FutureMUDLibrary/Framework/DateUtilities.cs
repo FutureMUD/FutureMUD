@@ -218,7 +218,7 @@ public static partial class DateUtilities
 
         if (source.TotalSeconds == 0)
         {
-            return "nil";
+            return "less than a second";
         }
 
         if (source.TotalSeconds < 1)

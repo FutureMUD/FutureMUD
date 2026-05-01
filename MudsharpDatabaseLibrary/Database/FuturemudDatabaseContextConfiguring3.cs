@@ -928,6 +928,11 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
+                entity.Property(e => e.RemoteObservationTag)
+                    .HasColumnType("varchar(500)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.Property(e => e.DisplayOrder).HasColumnType("int(11)");
 
                 entity.Property(e => e.IsDefault)

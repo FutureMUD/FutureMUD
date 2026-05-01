@@ -3,6 +3,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
@@ -166,7 +167,11 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     private void HeartbeatManagerOnMinuteHeartbeat()
     {
-        // TODO - check for effects that halt or arrest decay
+        if (Parent.AffectedBy<ICorpsePreservationEffect>())
+        {
+            return;
+        }
+
         if (!Parent.TrueLocations.Any())
         {
             Console.WriteLine("Corpse did not have any true location.");

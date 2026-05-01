@@ -185,19 +185,27 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         double relativeHardness =
             CalculateRelativeHardnessForWeapon(weapon, Attack.Profile.DamageType, outcome, target, targetBodypart);
 
+        var magicEnhancements = weapon.Parent
+            .EffectsOfType<IMagicWeaponEnhancementEffect>(x => x.AppliesToWeaponAttack(Assailant, target, weapon.Parent))
+            .ToList();
+        var effectiveQuality = (int)weapon.Parent.Quality + (int)Math.Round(magicEnhancements.Sum(x => x.QualityBonus));
+
         Attack.Profile.DamageExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.DamageExpression.Formula.Parameters["quality"] = (int)weapon.Parent.Quality;
+        Attack.Profile.DamageExpression.Formula.Parameters["quality"] = effectiveQuality;
         Attack.Profile.StunExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.StunExpression.Formula.Parameters["quality"] = (int)weapon.Parent.Quality;
+        Attack.Profile.StunExpression.Formula.Parameters["quality"] = effectiveQuality;
         Attack.Profile.PainExpression.Formula.Parameters["degree"] = (int)degree;
-        Attack.Profile.PainExpression.Formula.Parameters["quality"] = (int)weapon.Parent.Quality;
+        Attack.Profile.PainExpression.Formula.Parameters["quality"] = effectiveQuality;
 
         double damageResult =
-            Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation);
+            Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation) +
+            magicEnhancements.Sum(x => x.DamageBonus);
         double stunResult =
-            Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation);
+            Attack.Profile.StunExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation) +
+            magicEnhancements.Sum(x => x.StunBonus);
         double painResult =
-            Attack.Profile.DamageExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation);
+            Attack.Profile.PainExpression.Evaluate(Assailant, context: TraitBonusContext.ArmedDamageCalculation) +
+            magicEnhancements.Sum(x => x.PainBonus);
 
         if (!Gameworld.GetStaticBool("WeaponsTakeDamageFromAttacks"))
         {

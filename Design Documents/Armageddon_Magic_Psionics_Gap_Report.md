@@ -23,8 +23,9 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 - Existing powers count as valid coverage even when Armageddon exposed the original ability as a spell. If you want strict `cast`-spell parity rather than "same subsystem can do it", several defensive entries would slide from `Native now` to `Needs engine work`.
 - A handful of Armageddon entries are under-specified in the dump (`Daylight`, `Empower`, `Drown`, `Cause Disease`, `Acid Spray`, some passive psionics). I counted those conservatively unless the name clearly maps to an existing FutureMUD primitive.
 - Status update as of 2026-04-21: the Phase 1 implementation slice from this report has now shipped. `teleport` accepts `room` / `rooms` triggers, the reusable Phase 1 statuses are implemented as standalone spell-effect templates with matching removals, `MagicResourceDeltaEffect`, `SpellArmourEffect`, and `roomflag` / `removeroomflag` are live, and the underlying runtime hooks for additive perception grants, selective poison or disease cleanup, and early room flags are in place.
+- Status update as of 2026-05-01: the plane/corporeality and multiple-body-form work changes the blocker picture again. `IPlane`, `PlanarPresenceDefinition`, `planarstate`, `planeshift`, `removeplanarstate`, planar FutureProg functions, the `corporeality` admin command, and the `transformform` spell effect are live. Simple ethereal states, noncorporeal manifestation, single-active-body transformation, and straightforward "move this target to another plane" spells are now buildable with first-class primitives. Simultaneous bodies, remote vessels, possessed corpses, descriptor handoff, and persistent portal topology remain blocked.
 
-> Note: the top-line parity counts in this report predate the Phase 1 implementation work. If exact current counts are needed, rerun the family-by-family classification pass. The implementation-plan and primitive-gap sections below reflect the current runtime state.
+> Note: the top-line parity counts and family summary in this report predate the Phase 1, Phase 2, plane/corporeality, and body-form implementation work. If exact current counts are needed, rerun the family-by-family classification pass. The implementation-plan and primitive-gap sections below reflect the current runtime state.
 
 ## Executive Summary
 
@@ -37,9 +38,10 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 Key takeaways:
 
 - `110 / 189` Armageddon entries are reachable today if we allow ordinary FutureProg and prototype scaffolding.
-- The current system is already strong at direct damage, healing, stamina/need adjustment, item or liquid conjuration, NPC summoning, invisibility, telepathy, and self-only magical armour.
+- The current system is already strong at direct damage, healing, stamina/need adjustment, item or liquid conjuration, NPC summoning, invisibility, telepathy, self-only magical armour, planar state shifts, and single-active-body transformation.
 - Phase 2 now closes three medium-difficulty primitive gaps: local exit targeting, prog-resolved summon-style remote targeting, and reusable room or personal wards with shared spell and power interception.
-- The biggest parity blockers are reusable status effects, status removal, item/corpse enchantment, magic-resource drain, richer portal or anchor topology, coercive psionics, and "dual body" mechanics like possession or shadow projection.
+- The plane and body-form work moves several old blockers into the buildable bucket: `Ethereal`, `Detect Ethereal`, `Dispel Ethereal`, simple `Planeshift`, ghostly manifestation, and polymorph-style transformations can now use first-class effects rather than bespoke tags.
+- The biggest remaining parity blockers are item/corpse enchantment, magic metadata and anchors, richer portal topology, coercive psionics, subjective perception, and true "dual body" mechanics like possession or shadow projection.
 - Psionics are only partially covered today. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, and direct mental attacks, but most coercion, concealment, remote eavesdropping, and passive-traffic powers still need new runtime support.
 
 ## Family Summary
@@ -69,6 +71,22 @@ The current system already has good coverage for:
 - school-based room and personal wards through `roomward` and `personalward`
 - prog-resolved remote character or item targeting for summon-style spells through `progcharacter`, `progitem`, `progcharacterroom`, and `progitemroom`
 - room ambience changes through `roomlight`, `roomtemperature`, `roomatmosphere`, and weather effects
+- planar state changes through `planarstate`, `planeshift`, `removeplanarstate`, planar merits, planar drugs, and planar FutureProg helpers
+- spell-driven alternate body forms through `transformform`, including stable form keys, first-creation race or description defaults, trauma handling, transformation echoes, and forced-transformation priority
+
+## Current Reclassification From Planes And Body Forms
+
+The old blocker list bundled "ethereal", "projection", "possession", "planeshift", and "shape change" together. The live runtime now supports some of those as first-class mechanics, but not all of them.
+
+| Old blocker theme | Current path forward | Still blocked |
+| --- | --- | --- |
+| Ethereal or noncorporeal state | Use `planarstate` / `planeshift` on characters, items, or other perceivables. Plane data handles room presentation, remote observation tags, perception, interaction checks, noncorporeal physiology, inventory propagation, and closed-door bypass where configured. | Plane-specific travel graphs, custom transition trauma, and any spell that requires a separate acting shell rather than changing the target's own planar presence. |
+| Detect or dispel ethereal | Use `detectethereal` / `removedetectethereal` for perception grants and `removeplanarstate` for spell-owned or saved planar overlays. | A general dispel engine that shortens arbitrary effects by strength, school, or contest result. |
+| Planeshift | Simple "target moves to configured plane/state" is now first-class with `planeshift`. | Multi-step planar travel with anchors, unsafe destinations, paired portals, or persistent world topology. |
+| Shadowwalk-style movement | If the intended behaviour is "enter a shadow/astral/ethereal plane and move normally", use plane definitions plus `planeshift`. | If the intended behaviour is remote projection, leaving a body behind, or moving a second body independently, it remains blocked. |
+| Polymorph, animal form, statue-like form, or spirit form | Use `transformform` for single-active-body transformation, with `Additional Body Form` merits for intrinsic or racial forms. | Turning a character into a true item, making two bodies act at once, using a corpse as the exact vessel, or continuously syncing spell XML to later form metadata. |
+| Possession, disembodying, and send-shadow projection | Use `planeshift` or `transformform` only for simplified content where the original character becomes the new form/state. | True possession and projection still need simultaneous presence, command routing, source-body vulnerability, disconnect handling, staff visibility, and death semantics. |
+| Marks, runes, anchors, and hidden magical facts | Add a generic magic-tag effect for information-bearing metadata that other effects and progs can query. | Behavioural effects should still get first-class support when the tag would be pretending to be a combat, movement, portal, item-damage, resource, or perception system. |
 
 ## Main Gaps By Primitive
 
@@ -145,7 +163,7 @@ Remaining limitation:
 
 - there is still no first-class `OpenOrClosedExitImpact` primitive, so exit state mutation beyond blocking passage still needs bespoke work
 
-### 4. World-target movement and swap effects
+### 4. World-target movement, planar movement, and swap effects
 
 Status: partially implemented in the current runtime.
 
@@ -163,6 +181,7 @@ This now unlocks or materially improves:
 - `Summon`
 - parts of `Travel Gate`
 - parts of `Portal`
+- simple `Planeshift` when the desired behaviour is a planar overlay on the target rather than a portal network
 
 This still blocks or complicates:
 
@@ -196,9 +215,26 @@ Remaining limitation:
 
 - wards are school-based rather than freeform tag-based, so future item- or rune-specific anti-magic still wants a deeper enchantment layer
 
-### 6. Item and corpse enchantment as first-class spell targets
+### 6. Item and corpse enchantment, magic tags, and anchors
 
 Armageddon leans heavily on item-state mutation and corpse-state mutation. FutureMUD can create items and affect some item properties indirectly, but it does not have a generic enchant-or-tag-item spell effect family.
+
+There should be a generic information-bearing magic-tag effect. It should be explicitly framed as metadata, not as a universal behaviour substitute. A good shape would be:
+
+- `magictag` / `removemagictag` spell effects that attach a spell-owned key, optional value, optional school/source metadata, and duration to a room, item, corpse, character, or perceivable.
+- FutureProg helpers such as `hasmagictag`, `magictagvalue`, and `magictags` so content can check anchors, rune keys, ritual state, and bespoke conditional effects.
+- Dispel/removal rules that can remove tags by key, school, source spell, or parent effect, without forcing every tagged behaviour to become a generic tag.
+
+This is appropriate for:
+
+- `Mark`
+- `Create Rune`
+- anchor state for later `Portal` or `Travel Gate`
+- ritual prerequisites
+- one-off builder-authored information read by a prog
+- "this corpse has been spoken to" or "this item bears a magical signature" style facts
+
+This should not replace first-class support for effects with real runtime behaviour. `Vampiric Blade`, `Rot Items`, `Shatter`, `Animate Dead`, and persistent portal topology need dedicated item, corpse, combat, or movement logic even if they also use tags as supporting metadata.
 
 This blocks or complicates:
 
@@ -212,9 +248,20 @@ This blocks or complicates:
 - `Hero Sword`
 - `Sand Statue`
 
-### 7. Dual-body, possession, and projection mechanics
+### 7. Body transformation, dual-body, possession, and projection mechanics
 
-These are the hardest parity items. They are not just "apply a timed effect"; they need a coherent answer for agency, perception, inventory, death, disconnects, and admin visibility.
+Status: partially unblocked.
+
+The `transformform` spell effect and the multiple-body-form system now give FutureMUD a first-class answer for temporary or persistent single-active-body transformations. This supports spells that can honestly be represented as "the character becomes a different body for a duration" rather than "the character controls another body while the original remains elsewhere."
+
+This now unlocks or materially improves:
+
+- polymorph-style magic
+- animal, monster, elemental, ghost, or spirit body forms
+- some simplified `Pseudo Death` or `Sand Statue` interpretations if they are authored as a body form rather than a true corpse/item state
+- shadow or astral form spells where the caster becomes that form
+
+The remaining hard cases are still not just timed effects. They need a coherent answer for agency, perception, inventory, death, disconnects, source-body vulnerability, and admin visibility.
 
 This blocks:
 
@@ -224,6 +271,8 @@ This blocks:
 - `Disembody`
 - `Burrow` to a lesser extent
 - pieces of `Portal` and `Planeshift`
+
+`Shadowwalk`, `Disembody`, and `Planeshift` should be split by intended semantics. If they mean "change this target's planar presence", they are now buildable. If they mean "leave one body behind and operate another", they remain blocked by simultaneous-body mechanics.
 
 ### 8. Subjective perception and coercive psionics
 
@@ -308,6 +357,7 @@ These are the parity items with the most engine-level uncertainty.
    - `Shadowwalk`
    - `Possess Corpse`
    - `Disembody`
+   - Status: single-active-body transformations are now supported through `transformform`; true projection and possession remain blocked.
    - Design questions:
      - Is the projected self a second body, a descriptor handoff, or a temporary NPC shell?
      - What happens to inventory, combat, death, and disconnects?
@@ -318,6 +368,7 @@ These are the parity items with the most engine-level uncertainty.
    - `Travel Gate`
    - `Portal`
    - `Create Rune`
+   - Status: simple room-target teleport and simple planar shifting are live; persistent paired gates, anchors, and portal objects are not.
    - Design questions:
      - Are anchors objects, locations, or both?
      - Are portals represented as temporary exits, room effects, or paired perceivables?
@@ -348,19 +399,39 @@ These are the parity items with the most engine-level uncertainty.
 
 ## Recommended Next Shipping Slice
 
-The current runtime already includes exit targeting, summon-style remote targeting, and generic room or personal wards. If the goal is to maximise "Armageddon-feeling parity" quickly from here, I would ship in this order:
+The current runtime already includes exit targeting, summon-style remote targeting, generic room or personal wards, planar overlays, and single-active-body transformations. If the goal is to maximise "Armageddon-feeling parity" quickly from here, the next phase should focus on anchors and item/corpse magic before trying to solve simultaneous possession.
 
-1. Teleport fix plus generic status application/removal.
-2. Magic-resource deltas.
-3. A reusable armour spell effect.
-4. Item enchantment and corpse-tagging.
-5. Psionic command/control framework.
-6. Projection, possession, and portal topology.
-7. Deeper anchor or marked-destination gate work.
+1. Add a generic magic-tag primitive.
+   - Implement `magictag` / `removemagictag` as metadata-bearing spell effects for characters, items, corpses, rooms, and perceivables.
+   - Add FutureProg query helpers so later spell effects and builder progs can check tags without parsing effect XML.
+   - Keep tags informational: use them for anchors, runes, marks, ritual state, signatures, and conditional content.
 
-That order gets the broadest number of iconic elemental spells online before tackling the truly knotty psionic and void-magic mechanics that still lack a shared engine answer.
+2. Add first-class item and corpse magic effects.
+   - Add item-damage or item-destruction effects for `Shatter`, `Rot Items`, and similar destructive magic.
+   - Add item enchantment effects for weapon, armour, glow, aura, and conditional-prog behaviours that need runtime hooks beyond a tag.
+   - Add corpse-targeted helpers that can mark, consume, preserve, or spawn from a corpse cleanly, rather than relying on a freeform prog to fake all corpse lifecycle semantics.
+
+3. Package the newly unblocked plane and form spells.
+   - Author stock examples for `Ethereal`, `Dispel Ethereal`, `Planeshift`, shadow/astral walking as planar movement, and polymorph-style transformations using `planarstate`, `removeplanarstate`, `planeshift`, and `transformform`.
+   - Add tests that prove planar spell effects target characters/items/perceivables correctly and that spell transforms persist, expire, and revert through the forced-transformation resolver.
+
+4. Build anchor-aware portal topology.
+   - Use magic tags for `Mark` / `Create Rune` anchor metadata, but implement portal creation as a first-class movement primitive.
+   - Decide whether portals are temporary exits, room effects, item-like perceivables, or a dedicated paired-gate effect.
+   - Validate destination safety, plane compatibility, cross-zone constraints, expiration, and interdiction.
+
+5. Design psionic coercion and subjective perception as a separate phase.
+   - Command-forcing and subjective identity masking need policy, logging, consent/refusal hooks, and staff review visibility.
+   - Do not model them as generic tags; tags can support identity or trace metadata, but the agency and perception changes need first-class runtime paths.
+
+6. Defer true possession and projection until the simultaneous-body model is designed.
+   - The existing form system deliberately supports one active body. Possession, send-shadow projection, and body-left-behind disembodiment require command routing, remote presence, body vulnerability, inventory rules, death rules, reconnect behaviour, and admin observability.
+
+That order uses the newly shipped plane and body-form work immediately, adds the generic metadata primitive the spell system genuinely needs, and still reserves first-class engine work for behaviours that should not be reduced to tags.
 
 ## Appendix: Classification By Family
+
+This appendix is the historical family-by-family classification from the first pass. Use the current-runtime sections above for planning decisions until the exact counts are refreshed.
 
 ### Fire
 

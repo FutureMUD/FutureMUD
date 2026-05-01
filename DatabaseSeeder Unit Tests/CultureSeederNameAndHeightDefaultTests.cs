@@ -156,6 +156,25 @@ public class CultureSeederNameAndHeightDefaultTests
 	}
 
 	[TestMethod]
+	public void MedievalNameSeeder_SeedsCorrectedProfilesFromPrimarySources()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		CultureSeeder seeder = new();
+		SetSeederContext(seeder, context);
+
+		InvokePrivate(seeder, "SeedMedievalEuropeNames");
+
+		AssertProfileHasWeightedElement(context, "Dutch Male", NameUsage.BirthName, "Jan", 10);
+		AssertProfileHasWeightedElement(context, "Dutch Female", NameUsage.Surname, "de Vries", 10);
+		AssertProfileHasWeightedElement(context, "Finno-Ugric Male", NameUsage.Surname, "Korhonen", 10);
+		AssertProfileHasWeightedElement(context, "Finno-Ugric Female", NameUsage.BirthName, "Aino", 7);
+		AssertProfileHasWeightedElement(context, "Basque Male", NameUsage.BirthName, "Otxoa", 7);
+		AssertProfileHasWeightedElement(context, "Basque Female", NameUsage.Surname, "Goikoetxea", 6);
+		AssertProfileHasWeightedElement(context, "Albanian Male", NameUsage.Patronym, "Gjergji", 10);
+		AssertProfileHasWeightedElement(context, "Albanian Female", NameUsage.Patronym, "Marke", 10);
+	}
+
+	[TestMethod]
 	public void ModernNameSeeder_AddsExpectedProfilesAndMappings()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -526,6 +545,24 @@ public class CultureSeederNameAndHeightDefaultTests
 			$"Expected {profileName} to have at least {givenMinimum} given names but found {givenCount}.");
 		Assert.IsTrue(surnameCount >= surnameMinimum,
 			$"Expected {profileName} to have at least {surnameMinimum} surnames but found {surnameCount}.");
+	}
+
+	private static void AssertProfileHasWeightedElement(
+		FuturemudDatabaseContext context,
+		string profileName,
+		NameUsage usage,
+		string name,
+		int expectedWeight)
+	{
+		MudSharp.Models.RandomNameProfile profile = context.RandomNameProfiles.Single(x => x.Name == profileName);
+		RandomNameProfilesElements? element = context.RandomNameProfilesElements.SingleOrDefault(x =>
+			x.RandomNameProfileId == profile.Id &&
+			x.NameUsage == (int)usage &&
+			x.Name == name);
+
+		Assert.IsNotNull(element, $"Expected {profileName} to seed {usage.DescribeEnum()} element {name}.");
+		Assert.AreEqual(expectedWeight, element.Weighting,
+			$"Expected {profileName} {usage.DescribeEnum()} element {name} to use weighting {expectedWeight}.");
 	}
 
 	private static string BuildNameCultureDefinition(params (NameUsage Usage, int Minimum, int Maximum)[] elements)

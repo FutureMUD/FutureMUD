@@ -3147,7 +3147,38 @@ public partial class CultureSeeder
                 (NameStyle.SurnameOnly, "{0}", new[]{NameUsage.Surname}),
                 (NameStyle.FullWithNickname, "{0} {1}", new[]{NameUsage.BirthName, NameUsage.Surname})
             });
-        SeedDutchProfiles(dutch);
+        (string Name, int Weight)[] dutchSurnames =
+        [
+            ("de Vries", 10), ("Jansen", 10), ("van den Berg", 9), ("Bakker", 9), ("Janssen", 8), ("Visser", 8),
+            ("Smit", 8), ("Meijer", 7), ("de Jong", 7), ("van Dijk", 7), ("Mulder", 7), ("de Boer", 7),
+            ("de Groot", 6), ("Bos", 6), ("Vos", 6), ("Peters", 6), ("Hendriks", 6), ("van Leeuwen", 6),
+            ("van der Meer", 6), ("van der Linden", 6), ("van der Wal", 6), ("van Beek", 6), ("van den Heuvel", 6),
+            ("van den Broek", 6), ("van Es", 5), ("van der Veen", 5), ("van Dam", 5), ("van der Laan", 5),
+            ("van den Bosch", 5), ("van Dongen", 5), ("van der Ven", 5), ("van der Zwan", 5),
+            ("van der Heijden", 5), ("van Loon", 5), ("van der Ploeg", 5), ("van den Brink", 5),
+            ("de Graaf", 5), ("de Bruin", 5), ("de Wit", 5), ("de Leeuw", 5), ("de Bruijn", 5),
+            ("de Koning", 5), ("de Haan", 5), ("de Ruiter", 5), ("de Ridder", 5), ("de Goede", 4),
+            ("de Wilde", 4), ("de Klerk", 4), ("de Greef", 4), ("de Wolff", 4)
+        ];
+
+        SeedMedievalSimpleNameProfile("Dutch Male", Gender.Male, dutch,
+            [
+                ("Jan", 10), ("Pieter", 10), ("Willem", 9), ("Hendrik", 9), ("Cornelis", 8), ("Jacob", 8),
+                ("Dirk", 7), ("Klaas", 7), ("Gerrit", 7), ("Johannes", 6), ("Nicolaas", 6), ("Adriaan", 5),
+                ("Frans", 5), ("Lambert", 5), ("Floris", 4), ("Huibert", 4), ("Maarten", 4), ("Simon", 4),
+                ("Rutger", 3), ("Roelof", 3), ("Aart", 3), ("Bastiaan", 3), ("Joris", 3), ("Koenraad", 3),
+                ("Michiel", 3)
+            ],
+            dutchSurnames);
+        SeedMedievalSimpleNameProfile("Dutch Female", Gender.Female, dutch,
+            [
+                ("Maria", 10), ("Anna", 10), ("Johanna", 9), ("Margaretha", 9), ("Elisabeth", 8), ("Catharina", 8),
+                ("Cornelia", 7), ("Geertruida", 7), ("Adriana", 7), ("Petronella", 6), ("Hendrika", 6), ("Jacoba", 5),
+                ("Alida", 5), ("Machteld", 5), ("Sara", 4), ("Susanna", 4), ("Willemijntje", 4), ("Antonia", 4),
+                ("Neeltje", 3), ("Catrina", 3), ("Femke", 3), ("Grietje", 3), ("Lysbeth", 3), ("Aleid", 3),
+                ("Marieke", 3)
+            ],
+            dutchSurnames);
         #endregion
 
         #region Finno-Ugric
@@ -3164,7 +3195,36 @@ public partial class CultureSeeder
                 (NameStyle.SurnameOnly, "{0}", new[]{NameUsage.Surname}),
                 (NameStyle.FullWithNickname, "{0} {1}", new[]{NameUsage.BirthName, NameUsage.Surname})
             });
-        SeedFinnoUgricProfiles(finnougric);
+        (string Name, int Weight)[] finnoUgricSurnames =
+        [
+            ("Korhonen", 10), ("Virtanen", 10), ("Nieminen", 9), ("Makela", 9), ("Koskinen", 8), ("Heikkinen", 8),
+            ("Salminen", 8), ("Laine", 7), ("Lehtonen", 7), ("Lehtinen", 7), ("Niemi", 7), ("Jarvinen", 7),
+            ("Hamalainen", 6), ("Rasanen", 6), ("Heiskanen", 6), ("Miettinen", 6), ("Saarinen", 6), ("Paananen", 6),
+            ("Aalto", 6), ("Salonen", 6), ("Lahtinen", 6), ("Ojala", 5), ("Nurmi", 5), ("Leppanen", 5),
+            ("Saaristo", 5), ("Tikkanen", 5), ("Rinne", 5), ("Heikkila", 5), ("Alatalo", 5), ("Kallio", 5),
+            ("Jokinen", 5), ("Salomaa", 5), ("Rantanen", 5), ("Haapala", 5), ("Leinonen", 5), ("Karjalainen", 5),
+            ("Ahola", 4), ("Sipila", 4), ("Rantala", 4), ("Koskela", 4), ("Makinen", 4), ("Tammela", 4),
+            ("Soini", 4), ("Korpela", 4), ("Hiltunen", 4), ("Kinnunen", 4), ("Niskanen", 4), ("Vaisanen", 4),
+            ("Lammi", 4)
+        ];
+
+        SeedMedievalSimpleNameProfile("Finno-Ugric Male", Gender.Male, finnougric,
+            [
+                ("Matti", 10), ("Johannes", 10), ("Juhani", 9), ("Mikael", 9), ("Antti", 8), ("Pekka", 8),
+                ("Heikki", 7), ("Tuomas", 7), ("Kaarle", 7), ("Lauri", 6), ("Olli", 6), ("Ilmari", 5),
+                ("Tapio", 5), ("Vaino", 5), ("Jari", 4), ("Eero", 4), ("Paavo", 4), ("Hannu", 4),
+                ("Reino", 3), ("Kalevi", 3), ("Jukka", 3), ("Arvo", 3), ("Risto", 3), ("Erkki", 3), ("Toivo", 3)
+            ],
+            finnoUgricSurnames);
+        SeedMedievalSimpleNameProfile("Finno-Ugric Female", Gender.Female, finnougric,
+            [
+                ("Maria", 10), ("Anna", 10), ("Johanna", 9), ("Kaisa", 9), ("Liisa", 8), ("Helena", 8),
+                ("Aino", 7), ("Elina", 7), ("Katri", 7), ("Sofia", 6), ("Vilhelmiina", 6), ("Outi", 5),
+                ("Sari", 5), ("Eeva", 5), ("Marja", 4), ("Reeta", 4), ("Saara", 4), ("Ilona", 4),
+                ("Heta", 3), ("Kirsti", 3), ("Tuulia", 3), ("Leena", 3), ("Marjatta", 3), ("Kyllikki", 3),
+                ("Inkeri", 3)
+            ],
+            finnoUgricSurnames);
         #endregion
 
         #region Western Slavic
@@ -4520,7 +4580,33 @@ public partial class CultureSeeder
                 (NameStyle.SurnameOnly, "{0}", new[]{NameUsage.Surname}),
                 (NameStyle.FullWithNickname, "{0} {1}", new[]{NameUsage.BirthName, NameUsage.Surname})
             });
-        SeedBasqueProfiles(basque);
+        (string Name, int Weight)[] basqueSurnames =
+        [
+            ("Aguirre", 10), ("Arana", 9), ("Aramburu", 9), ("Arizmendi", 8), ("Arratia", 8), ("Arrizabalaga", 8),
+            ("Azkue", 7), ("Echeverria", 7), ("Etxeberria", 7), ("Elizondo", 7), ("Garmendia", 6), ("Garro", 6),
+            ("Goikoetxea", 6), ("Ibarra", 6), ("Idiakez", 6), ("Iturriaga", 5), ("Iturralde", 5), ("Loyola", 5),
+            ("Mendia", 5), ("Mendizabal", 5), ("Ochoa", 5), ("Olaizola", 4), ("Onate", 4), ("Salazar", 4),
+            ("Ugarte", 4), ("Urrutia", 4), ("Zabaleta", 4), ("Zubia", 4), ("Zubizarreta", 4), ("Goyeneche", 4)
+        ];
+
+        SeedMedievalSimpleNameProfile("Basque Male", Gender.Male, basque,
+            [
+                ("Sancho", 10), ("Inigo", 10), ("Lope", 9), ("Garcia", 9), ("Eneko", 8), ("Fortun", 8),
+                ("Jimeno", 8), ("Otxoa", 7), ("Miguel", 7), ("Peru", 7), ("Martin", 6), ("Diego", 6),
+                ("Ander", 6), ("Xabier", 6), ("Antso", 6), ("Joanes", 5), ("Mikel", 5), ("Rodrigo", 5),
+                ("Gonzalo", 5), ("Bernat", 4), ("Domingo", 4), ("Esteban", 4), ("Pedro", 4), ("Juan", 4),
+                ("Beltran", 3)
+            ],
+            basqueSurnames);
+        SeedMedievalSimpleNameProfile("Basque Female", Gender.Female, basque,
+            [
+                ("Toda", 10), ("Oneka", 10), ("Urraca", 9), ("Sancha", 9), ("Elvira", 8), ("Mencia", 8),
+                ("Maria", 8), ("Catalina", 7), ("Gracia", 7), ("Teresa", 7), ("Leonor", 6), ("Aldonza", 6),
+                ("Mayor", 6), ("Ines", 6), ("Beatriz", 5), ("Blanca", 5), ("Juana", 5), ("Ximena", 5),
+                ("Margarita", 4), ("Isabel", 4), ("Dominga", 4), ("Otxanda", 4), ("Madalena", 3), ("Maiora", 3),
+                ("Terexa", 3)
+            ],
+            basqueSurnames);
         #endregion
 
         #region Romani
@@ -7698,5 +7784,29 @@ public partial class CultureSeeder
 
         #endregion
         #endregion
+    }
+
+    private void SeedMedievalSimpleNameProfile(
+        string profileName,
+        Gender gender,
+        NameCulture culture,
+        (string Name, int Weight)[] givenNames,
+        (string Name, int Weight)[] surnames)
+    {
+        RandomNameProfile profile = AddRandomNameProfile(profileName, gender, culture);
+        AddRandomNameDice(profile, NameUsage.BirthName, "1");
+        AddRandomNameDice(profile, NameUsage.Surname, "1");
+
+        foreach ((string name, int weight) in givenNames)
+        {
+            AddRandomNameElement(profile, NameUsage.BirthName, name, weight);
+        }
+
+        foreach ((string name, int weight) in surnames)
+        {
+            AddRandomNameElement(profile, NameUsage.Surname, name, weight);
+        }
+
+        _context.SaveChanges();
     }
 }

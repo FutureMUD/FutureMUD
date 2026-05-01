@@ -541,7 +541,8 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     Value = DateTime.Parse(root.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
                     break;
                 case ProgVariableTypeCode.MudDateTime:
-                    Value = new MudDateTime(root.Value, gameworld);
+                    Value = MudDateTime.FromStoredStringOrFallback(root.Value, gameworld,
+                        StoredMudDateTimeFallback.Never, "FutureProgVariable", null, null, "MudDateTime");
                     break;
             }
         }

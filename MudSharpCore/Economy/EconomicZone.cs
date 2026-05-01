@@ -215,7 +215,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
         FinancialPeriodReferenceClock = gameworld.Clocks.Get(zone.ReferenceClockId);
         FinancialPeriodReferenceCalendar = gameworld.Calendars.Get(zone.ReferenceCalendarId ?? 0);
-        FinancialPeriodReferenceTime = MudTime.ParseLocalTime(zone.ReferenceTime, FinancialPeriodReferenceClock);
+        FinancialPeriodReferenceTime = FinancialPeriodReferenceClock.GetStoredTimeOrFallback(zone.ReferenceTime,
+            StoredMudTimeFallback.CurrentTime, "EconomicZone", zone.Id, zone.Name, "ReferenceTime",
+            FinancialPeriodReferenceCalendar);
         FinancialPeriodTimezone = FinancialPeriodReferenceTime.Timezone;
 
         CurrentFinancialPeriod = _financialPeriods.Get(zone.CurrentFinancialPeriodId ?? 0) ??

@@ -256,7 +256,8 @@ public class Track : LateInitialisingItem, ITrack
     private MudDateTime? _mudDateTime;
 
     /// <inheritdoc />
-    public MudDateTime MudDateTime => _mudDateTime ??= new MudDateTime(_mudDateTimeText, Gameworld);
+    public MudDateTime MudDateTime => _mudDateTime ??= MudDateTime.FromStoredStringOrFallback(_mudDateTimeText,
+        Gameworld, StoredMudDateTimeFallback.CurrentDateTime, "Track", Id, Name, "MudDateTime");
 
     /// <inheritdoc />
     public double TrackIntensityVisual { get; set; }

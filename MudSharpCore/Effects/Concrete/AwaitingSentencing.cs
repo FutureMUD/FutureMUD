@@ -42,7 +42,8 @@ public class AwaitingSentencing : Effect, IEffect
     {
         XElement root = effect.Element("Effect");
         LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
-        ArrestTime = new MudDateTime(root.Element("ArrestTime").Value, Gameworld);
+        ArrestTime = MudDateTime.FromStoredStringOrFallback(root.Element("ArrestTime").Value, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Effect:AwaitingSentencing", Owner?.Id, Owner?.Name, "ArrestTime");
     }
 
     #endregion

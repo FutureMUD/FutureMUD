@@ -1,5 +1,6 @@
 ﻿using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -546,6 +547,43 @@ public class Clock : SaveableItem, IClock
         }
     }
 
+    public void SetPrimaryTimezone(IMudTimeZone timezone)
+    {
+        if (timezone is null)
+        {
+            throw new ArgumentNullException(nameof(timezone));
+        }
+
+        if (!Timezones.Contains(timezone))
+        {
+            throw new ArgumentException("That timezone does not belong to this clock.", nameof(timezone));
+        }
+
+        PrimaryTimezone = timezone;
+        if (CurrentTime is not null && CurrentTime.Timezone != timezone)
+        {
+            var converted = CurrentTime.GetTimeByTimezone(timezone);
+            _currentTime = MudTime.CreatePrimaryTime(converted.Seconds, converted.Minutes, converted.Hours, timezone, this);
+        }
+
+        Changed = true;
+    }
+
+    private void NormaliseCurrentTime()
+    {
+        if (CurrentTime is null || PrimaryTimezone is null)
+        {
+            return;
+        }
+
+        _currentTime = MudTime.CreatePrimaryTime(
+            CurrentTime.Seconds.Modulus(SecondsPerMinute),
+            CurrentTime.Minutes.Modulus(MinutesPerHour),
+            CurrentTime.Hours.Modulus(HoursPerDay),
+            PrimaryTimezone,
+            this);
+    }
+
     #endregion
 
     #region Constructors
@@ -567,7 +605,7 @@ public class Clock : SaveableItem, IClock
             return existing;
         }
 
-        var fallback = new MudTimeZone(0, 0, 0, $"{Alias} Standard Time", Alias);
+        var fallback = new MudTimeZone(0, 0, 0, $"{Alias} Standard Time", Alias, this);
         AddTimezone(fallback);
         return fallback;
     }
@@ -935,6 +973,11 @@ public class Clock : SaveableItem, IClock
 	#3intervals <##>#0 - sets the number of hour intervals
 	#3intervalname <##> <name>#0 - sets a short name for an hour interval
 	#3intervallong <##> <name>#0 - sets a long name for an hour interval
+	#3primary <timezone>#0 - sets the primary timezone
+	#3time <time>#0 - sets the current time
+	#3crude add <lower> <upper> <text>#0 - adds a crude time interval
+	#3crude remove <##>#0 - removes a crude time interval
+	#3crude clear#0 - clears all crude time intervals
 	#3nozero <true|false>#0 - sets whether hour zero is displayed";
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -981,6 +1024,16 @@ public class Clock : SaveableItem, IClock
             case "nozero":
             case "nozerohour":
                 return BuildingCommandNoZeroHour(actor, command);
+            case "primary":
+            case "primarytimezone":
+            case "timezone":
+                return BuildingCommandPrimaryTimezone(actor, command);
+            case "time":
+            case "current":
+            case "currenttime":
+                return BuildingCommandCurrentTime(actor, command);
+            case "crude":
+                return BuildingCommandCrude(actor, command);
             default:
                 actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
                 return false;
@@ -1037,6 +1090,32 @@ public class Clock : SaveableItem, IClock
         return true;
     }
 
+    private bool RequiresStructuralConfirmation => Gameworld?.Clocks?.Contains(this) == true;
+
+    private bool ConfirmStructuralChange(ICharacter actor, string description, Action action)
+    {
+        if (!RequiresStructuralConfirmation)
+        {
+            action();
+            return true;
+        }
+
+        actor.OutputHandler.Send(
+            $"{"Warning: this clock is loaded in the gameworld. This change can invalidate stored times, schedules, listener watch points, economy references, clan dates, or other saved time data. Fallbacks will protect load paths and notify admins, but you should review dependent systems after accepting.".ColourError()}\n\nChange: {description.ColourCommand()}\n{Accept.StandardAcceptPhrasing}");
+        actor.AddEffect(new Accept(actor, new GenericProposal
+        {
+            DescriptionString = $"Confirm clock structural change: {description}",
+            AcceptAction = text =>
+            {
+                action();
+                actor.OutputHandler.Send($"You accept the clock structural change: {description.ColourCommand()}.");
+            },
+            RejectAction = text => actor.OutputHandler.Send("You decide not to make that clock change."),
+            ExpireAction = () => actor.OutputHandler.Send("The clock structural change confirmation expires.")
+        }));
+        return false;
+    }
+
     private bool BuildingCommandSecondsPerMinute(ICharacter actor, StringStack command)
     {
         if (command.IsFinished || !int.TryParse(command.PopSpeech(), out int value) || value <= 0)
@@ -1045,10 +1124,13 @@ public class Clock : SaveableItem, IClock
             return false;
         }
 
-        SecondsPerMinute = value;
-        Changed = true;
-        actor.OutputHandler.Send($"This clock now has {value.ToString("N0", actor).ColourValue()} seconds per minute.");
-        return true;
+        return ConfirmStructuralChange(actor, $"set seconds per minute to {value:N0}", () =>
+        {
+            SecondsPerMinute = value;
+            NormaliseCurrentTime();
+            Changed = true;
+            actor.OutputHandler.Send($"This clock now has {value.ToString("N0", actor).ColourValue()} seconds per minute.");
+        });
     }
 
     private bool BuildingCommandMinutesPerHour(ICharacter actor, StringStack command)
@@ -1059,10 +1141,13 @@ public class Clock : SaveableItem, IClock
             return false;
         }
 
-        MinutesPerHour = value;
-        Changed = true;
-        actor.OutputHandler.Send($"This clock now has {value.ToString("N0", actor).ColourValue()} minutes per hour.");
-        return true;
+        return ConfirmStructuralChange(actor, $"set minutes per hour to {value:N0}", () =>
+        {
+            MinutesPerHour = value;
+            NormaliseCurrentTime();
+            Changed = true;
+            actor.OutputHandler.Send($"This clock now has {value.ToString("N0", actor).ColourValue()} minutes per hour.");
+        });
     }
 
     private bool BuildingCommandHoursPerDay(ICharacter actor, StringStack command)
@@ -1079,10 +1164,13 @@ public class Clock : SaveableItem, IClock
             return false;
         }
 
-        HoursPerDay = value;
-        Changed = true;
-        actor.OutputHandler.Send($"This clock now has {value.ToString("N0", actor).ColourValue()} hours per day.");
-        return true;
+        return ConfirmStructuralChange(actor, $"set hours per day to {value:N0}", () =>
+        {
+            HoursPerDay = value;
+            NormaliseCurrentTime();
+            Changed = true;
+            actor.OutputHandler.Send($"This clock now has {value.ToString("N0", actor).ColourValue()} hours per day.");
+        });
     }
 
     private bool BuildingCommandSpeed(ICharacter actor, StringStack command)
@@ -1289,6 +1377,129 @@ public class Clock : SaveableItem, IClock
         NoZeroHour = text.EqualTo("true") || text.EqualTo("yes");
         Changed = true;
         actor.OutputHandler.Send($"This clock will {(NoZeroHour ? "not " : "")}show hour zero.");
+        return true;
+    }
+
+    private bool BuildingCommandPrimaryTimezone(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which timezone should be the primary timezone for this clock?");
+            return false;
+        }
+
+        var timezone = Timezones.GetByIdOrNames(command.SafeRemainingArgument);
+        if (timezone is null)
+        {
+            actor.OutputHandler.Send($"There is no such timezone for this clock. Valid timezones are: {Timezones.Select(x => x.Alias.ColourValue()).ListToString()}.");
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, $"set primary timezone to {timezone.Alias}", () =>
+        {
+            SetPrimaryTimezone(timezone);
+            actor.OutputHandler.Send($"The primary timezone for this clock is now {timezone.Alias.ColourValue()} ({timezone.Description.ColourName()}).");
+        });
+    }
+
+    private bool BuildingCommandCurrentTime(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What time should this clock be set to?");
+            return false;
+        }
+
+        if (!MudTime.TryParseLocalTime(command.SafeRemainingArgument, this, out var time, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        var primaryTime = time.Timezone == PrimaryTimezone ? time : time.GetTimeByTimezone(PrimaryTimezone);
+        SetTime(MudTime.CreatePrimaryTime(primaryTime.Seconds, primaryTime.Minutes, primaryTime.Hours, PrimaryTimezone, this));
+        Changed = true;
+        actor.OutputHandler.Send($"This clock is now set to {DisplayTime(CurrentTime, TimeDisplayTypes.Immortal).ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandCrude(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "add":
+            case "new":
+                return BuildingCommandCrudeAdd(actor, command);
+            case "remove":
+            case "delete":
+            case "del":
+                return BuildingCommandCrudeRemove(actor, command);
+            case "clear":
+                while (CrudeTimeIntervals.Ranges.Any())
+                {
+                    CrudeTimeIntervals.RemoveAt(0);
+                }
+                Changed = true;
+                actor.OutputHandler.Send("All crude time intervals have been removed from this clock.");
+                return true;
+            default:
+                actor.OutputHandler.Send("You must specify whether you want to add, remove or clear crude time intervals.");
+                return false;
+        }
+    }
+
+    private bool BuildingCommandCrudeAdd(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var lower))
+        {
+            actor.OutputHandler.Send("You must specify the lower hour bound for this crude time interval.");
+            return false;
+        }
+
+        if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var upper))
+        {
+            actor.OutputHandler.Send("You must specify the upper hour bound for this crude time interval.");
+            return false;
+        }
+
+        if (lower < 0.0 || upper <= lower || upper > HoursPerDay)
+        {
+            actor.OutputHandler.Send($"The crude time bounds must be greater than or equal to 0, increasing, and no more than {HoursPerDay.ToStringN0(actor)}.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What text should this crude time interval display?");
+            return false;
+        }
+
+        CrudeTimeIntervals.Add(new BoundRange<string>(CrudeTimeIntervals, command.SafeRemainingArgument, lower, upper));
+        CrudeTimeIntervals.Sort();
+        Changed = true;
+        actor.OutputHandler.Send($"This clock now has a crude interval from {lower.ToString("N2", actor).ColourValue()} to {upper.ToString("N2", actor).ColourValue()} called {command.SafeRemainingArgument.ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandCrudeRemove(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !int.TryParse(command.PopSpeech(), out var index))
+        {
+            actor.OutputHandler.Send("Which crude time interval do you want to remove?");
+            return false;
+        }
+
+        var count = CrudeTimeIntervals.Ranges.Count();
+        if (index < 1 || index > count)
+        {
+            actor.OutputHandler.Send($"There is no crude time interval numbered {index.ToStringN0(actor)}.");
+            return false;
+        }
+
+        var range = CrudeTimeIntervals.Ranges.ElementAt(index - 1);
+        CrudeTimeIntervals.RemoveAt(index - 1);
+        Changed = true;
+        actor.OutputHandler.Send($"You remove the crude time interval {range.Value.ColourValue()}.");
         return true;
     }
 

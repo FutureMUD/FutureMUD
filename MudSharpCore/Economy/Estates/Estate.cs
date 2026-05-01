@@ -260,10 +260,12 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
         EconomicZone = gameworld.EconomicZones.Get(estate.EconomicZoneId);
         _characterId = estate.CharacterId;
         EstateStatus = (EstateStatus)estate.EstateStatus;
-        EstateStartTime = new MudDateTime(estate.EstateStartTime, gameworld);
+        EstateStartTime = MudDateTime.FromStoredStringOrFallback(estate.EstateStartTime, gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Estate", estate.Id, null, "EstateStartTime");
         FinalisationDate = string.IsNullOrWhiteSpace(estate.FinalisationDate)
             ? null
-            : new MudDateTime(estate.FinalisationDate, gameworld);
+            : MudDateTime.FromStoredStringOrFallback(estate.FinalisationDate, gameworld,
+                StoredMudDateTimeFallback.Never, "Estate", estate.Id, null, "FinalisationDate");
         if (estate.InheritorId.HasValue && !string.IsNullOrWhiteSpace(estate.InheritorType))
         {
             _inheritorReference = new FrameworkItemReference(estate.InheritorId.Value, estate.InheritorType, gameworld);

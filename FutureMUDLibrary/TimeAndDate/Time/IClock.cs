@@ -47,6 +47,7 @@ namespace MudSharp.TimeAndDate.Time
         MudTime CurrentTime { get; }
         IEnumerable<IMudTimeZone> Timezones { get; }
         IMudTimeZone PrimaryTimezone { get; }
+        void SetPrimaryTimezone(IMudTimeZone timezone);
         void UpdateSeconds();
         void UpdateMinutes();
         void UpdateHours();

@@ -3,6 +3,7 @@ using MudSharp.Effects;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
+using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System;
@@ -68,7 +69,8 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
         DayNumberAtEpoch = element.Element("DayNumberAtEpoch")?.Value.GetDouble() ?? 0;
         SiderealTimeAtEpoch = element.Element("SiderealTimeAtEpoch")?.Value.GetDouble() ?? 0;
         SiderealTimePerDay = element.Element("SiderealTimePerDay")?.Value.GetDouble() ?? 0;
-        EpochDate = Calendar.GetDate(element.Element("EpochDate").Value);
+        EpochDate = Calendar.GetStoredDateOrFallback(element.Element("EpochDate").Value,
+            StoredMudDateFallback.EpochStart, "Celestial", Id, Name, "EpochDate");
 
         element = root.Element("Triggers");
         if (element != null)

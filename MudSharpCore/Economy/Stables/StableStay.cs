@@ -72,11 +72,14 @@ public class StableStay : SaveableItem, IStableStay
 		OriginalOwnerName = string.IsNullOrEmpty(stay.OriginalOwnerName)
 			? null
 			: new PersonalName(XElement.Parse(stay.OriginalOwnerName), Gameworld);
-		LodgedDateTime = new MudDateTime(stay.LodgedDateTime, Gameworld);
-		_lastDailyFeeDateTime = new MudDateTime(stay.LastDailyFeeDateTime, Gameworld);
+		LodgedDateTime = MudDateTime.FromStoredStringOrFallback(stay.LodgedDateTime, Gameworld,
+			StoredMudDateTimeFallback.CurrentDateTime, "StableStay", stay.Id, stable.Name, "LodgedDateTime");
+		_lastDailyFeeDateTime = MudDateTime.FromStoredStringOrFallback(stay.LastDailyFeeDateTime, Gameworld,
+			StoredMudDateTimeFallback.CurrentDateTime, "StableStay", stay.Id, stable.Name, "LastDailyFeeDateTime");
 		_closedDateTime = string.IsNullOrEmpty(stay.ClosedDateTime)
 			? null
-			: new MudDateTime(stay.ClosedDateTime, Gameworld);
+			: MudDateTime.FromStoredStringOrFallback(stay.ClosedDateTime, Gameworld,
+				StoredMudDateTimeFallback.Never, "StableStay", stay.Id, stable.Name, "ClosedDateTime");
 		_status = (StableStayStatus)stay.Status;
 		_ticketItemId = stay.TicketItemId;
 		_ticketToken = stay.TicketToken;

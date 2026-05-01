@@ -34,7 +34,8 @@ public class AwaitingExecution : Effect
     {
         XElement root = effect.Element("Effect");
         LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
-        ExecutionDate = new MudDateTime(root.Element("ExecutionDate").Value, Gameworld);
+        ExecutionDate = MudDateTime.FromStoredStringOrFallback(root.Element("ExecutionDate").Value, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Effect:AwaitingExecution", Owner?.Id, Owner?.Name, "ExecutionDate");
     }
 
     #endregion

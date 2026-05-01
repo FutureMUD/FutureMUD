@@ -102,7 +102,9 @@ public class ProgSchedule : SaveableItem, IProgSchedule
             OrdinalFallbackMode = (OrdinalFallbackMode)schedule.IntervalFallback
         };
         Prog = Gameworld.FutureProgs.Get(schedule.FutureProgId);
-        NextReferenceTime = Interval.GetNextDateTime(new MudDateTime(schedule.ReferenceDate, Gameworld));
+        var reference = MudDateTime.FromStoredStringOrFallback(schedule.ReferenceDate, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "ProgSchedule", schedule.Id, schedule.Name, "ReferenceDate");
+        NextReferenceTime = Interval.GetNextDateTime(reference);
         _listener = Interval.CreateListenerFromInterval(NextReferenceTime, SchedulePayload, null, $"Prog Schedule #{Id} {Name.ColourName()}");
         Changed = true;
     }

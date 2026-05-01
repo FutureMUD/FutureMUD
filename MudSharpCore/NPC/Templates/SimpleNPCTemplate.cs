@@ -23,6 +23,7 @@ using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Merits;
+using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using System;
 using System.Collections.Generic;
@@ -595,7 +596,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
             {
                 SelectedBirthday = string.IsNullOrEmpty(root.Element("SelectedBirthday")?.Value)
                     ? null
-                    : SelectedCulture.PrimaryCalendar.GetDate(root.Element("SelectedBirthday").Value);
+                    : SelectedCulture.PrimaryCalendar.GetStoredDateOrFallback(root.Element("SelectedBirthday").Value,
+                        StoredMudDateFallback.CurrentDate, "SimpleNPCTemplate", Id, Name, "SelectedBirthday");
             }
             catch (MUDDateException)
             {
@@ -604,7 +606,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
                 {
                     try
                     {
-                        SelectedBirthday = calendar.GetDate(root.Element("SelectedBirthday").Value);
+                        SelectedBirthday = calendar.GetStoredDateOrFallback(root.Element("SelectedBirthday").Value,
+                            StoredMudDateFallback.CurrentDate, "SimpleNPCTemplate", Id, Name, "SelectedBirthday");
                         break;
                     }
                     catch (MUDDateException)

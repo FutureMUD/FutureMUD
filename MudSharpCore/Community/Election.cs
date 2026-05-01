@@ -74,10 +74,14 @@ public class Election : SaveableItem, IElection
         IsByElection = election.IsByElection;
         IsFinalised = election.IsFinalised;
         NumberOfAppointments = election.NumberOfAppointments;
-        NominationStartDate = new MudDateTime(election.NominationStartDate, Gameworld);
-        VotingStartDate = new MudDateTime(election.VotingStartDate, Gameworld);
-        VotingEndDate = new MudDateTime(election.VotingEndDate, Gameworld);
-        ResultsInEffectDate = new MudDateTime(election.ResultsInEffectDate, Gameworld);
+        NominationStartDate = MudDateTime.FromStoredStringOrFallback(election.NominationStartDate, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Election", election.Id, null, "NominationStartDate");
+        VotingStartDate = MudDateTime.FromStoredStringOrFallback(election.VotingStartDate, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Election", election.Id, null, "VotingStartDate");
+        VotingEndDate = MudDateTime.FromStoredStringOrFallback(election.VotingEndDate, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Election", election.Id, null, "VotingEndDate");
+        ResultsInEffectDate = MudDateTime.FromStoredStringOrFallback(election.ResultsInEffectDate, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Election", election.Id, null, "ResultsInEffectDate");
         ElectionStage = (ElectionStage)election.ElectionStage;
         _id = election.Id;
         foreach (ElectionNominee? nominee in election.ElectionNominees)

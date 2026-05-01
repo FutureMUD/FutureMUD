@@ -19,7 +19,8 @@ public class Tattoo : ITattoo
         Bodypart = Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Bodypart").Value));
         _tattooistId = long.Parse(root.Element("Tattooist").Value);
         TattooistSkill = double.Parse(root.Element("TattooistSkill").Value);
-        TimeOfInscription = new MudDateTime(root.Element("TimeOfInscription").Value, Gameworld);
+        TimeOfInscription = MudDateTime.FromStoredStringOrFallback(root.Element("TimeOfInscription").Value, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Tattoo", null, Template?.Name, "TimeOfInscription");
         CompletionPercentage = double.Parse(root.Element("CompletionPercentage").Value);
         HasUnreadableCopyPenalty = bool.Parse(root.Element("HasUnreadableCopyPenalty")?.Value ?? "false");
         foreach (XElement element in root.Element("TextValues")?.Elements("TextValue") ?? Enumerable.Empty<XElement>())

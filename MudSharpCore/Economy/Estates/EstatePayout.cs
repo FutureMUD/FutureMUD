@@ -16,10 +16,12 @@ public class EstatePayout : SaveableItem, IEstatePayout
         _recipientReference = new FrameworkItemReference(payout.RecipientId, payout.RecipientType, Gameworld);
         Amount = payout.Amount;
         Reason = payout.Reason;
-        CreatedDate = new MudDateTime(payout.CreatedDate, Gameworld);
+        CreatedDate = MudDateTime.FromStoredStringOrFallback(payout.CreatedDate, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "EstatePayout", payout.Id, null, "CreatedDate");
         _collectedDate = string.IsNullOrWhiteSpace(payout.CollectedDate)
             ? null
-            : new MudDateTime(payout.CollectedDate, Gameworld);
+            : MudDateTime.FromStoredStringOrFallback(payout.CollectedDate, Gameworld,
+                StoredMudDateTimeFallback.Never, "EstatePayout", payout.Id, null, "CollectedDate");
     }
 
     public EstatePayout(IEstate estate, IFrameworkItem recipient, decimal amount, string reason)

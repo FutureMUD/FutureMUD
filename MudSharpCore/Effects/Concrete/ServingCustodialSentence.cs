@@ -45,7 +45,8 @@ public class ServingCustodialSentence : Effect, IEffect
         XElement root = effect.Element("Effect");
         LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
         TotalTime = TimeSpan.FromSeconds(double.Parse(root.Element("TotalTime").Value));
-        ReleaseDate = new MudDateTime(root.Element("ReleaseDate").Value, Gameworld);
+        ReleaseDate = MudDateTime.FromStoredStringOrFallback(root.Element("ReleaseDate").Value, Gameworld,
+            StoredMudDateTimeFallback.Never, "Effect:ServingCustodialSentence", Owner?.Id, Owner?.Name, "ReleaseDate");
     }
 
     #endregion

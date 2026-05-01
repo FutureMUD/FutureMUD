@@ -85,7 +85,8 @@ The syntax for this command is as follows:
                                                  {
                                                      index--.ToString("N0", actor),
                                                      note.Subject.Proper(),
-                                                     new MudDateTime(note.InGameTimeStamp, actor.Gameworld).Date
+                                                     MudDateTime.FromStoredStringOrFallback(note.InGameTimeStamp, actor.Gameworld,
+                                                             StoredMudDateTimeFallback.CurrentDateTime, "AccountNote", note.Id, note.Subject, "InGameTimeStamp").Date
                                                          .Display(TimeAndDate.Date.CalendarDisplayMode.Short)
                                                  },
                                              new[] { "Id", "Subject", "Date" },
@@ -189,7 +190,7 @@ The syntax for this command is as follows:
                     sb.AppendLine(
                         $"The Journal of {characterName.ColourName()}, Entry #{index.ToString("N0", actor)}.");
                     sb.AppendLine(
-                        $"Dated: {new MudDateTime(note.InGameTimeStamp, actor.Gameworld).Date.Display(TimeAndDate.Date.CalendarDisplayMode.Short).Colour(Telnet.Green)}");
+                        $"Dated: {MudDateTime.FromStoredStringOrFallback(note.InGameTimeStamp, actor.Gameworld, StoredMudDateTimeFallback.CurrentDateTime, "AccountNote", note.Id, note.Subject, "InGameTimeStamp").Date.Display(TimeAndDate.Date.CalendarDisplayMode.Short).Colour(Telnet.Green)}");
                     sb.AppendLine();
                     sb.AppendLine(note.Subject.GetLineWithTitle(actor.InnerLineFormatLength, actor.Account.UseUnicode,
                         Telnet.Yellow, Telnet.BoldWhite));
@@ -290,7 +291,8 @@ The syntax for this command is as follows:
                                                      {
                                                          index--.ToString("N0", actor),
                                                          theNote.Subject.Proper(),
-                                                         new MudDateTime(theNote.InGameTimeStamp, actor.Gameworld).Date
+                                                         MudDateTime.FromStoredStringOrFallback(theNote.InGameTimeStamp, actor.Gameworld,
+                                                                 StoredMudDateTimeFallback.CurrentDateTime, "AccountNote", theNote.Id, theNote.Subject, "InGameTimeStamp").Date
                                                              .Display(TimeAndDate.Date.CalendarDisplayMode.Short)
                                                      },
                                                  new[] { "Id", "Subject", "Date" },

@@ -1,5 +1,7 @@
 ﻿using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Economy.Currency;
+using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -9,6 +11,7 @@ using MudSharp.TimeAndDate.Time;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
@@ -253,7 +256,9 @@ public class Calendar : SaveableItem, ICalendar
         using (new FMDB())
         {
             Models.Calendar dbcal = FMDB.Context.Calendars.Find(Id);
-            dbcal.Date = CurrentDate.GetDateString();
+            dbcal.Definition = SaveToXml().ToString();
+            dbcal.Date = CurrentDate?.GetDateString() ?? StoredTimeFallbacks.FirstValidDate(this).GetDateString();
+            dbcal.FeedClockId = FeedClock?.Id ?? ClockID;
             FMDB.Context.SaveChanges();
         }
 
@@ -509,14 +514,79 @@ public class Calendar : SaveableItem, ICalendar
         Gameworld = game;
     }
 
+    public Calendar(IFuturemud game, string alias, string shortName, string fullName, IClock clock)
+    {
+        Gameworld = game;
+        Alias = alias;
+        ShortName = shortName;
+        FullName = fullName;
+        Description = fullName;
+        Plane = "earth";
+        ShortString = "$dd/$mm/$yy";
+        LongString = "$nz$ww the $dt of $mf, $yy";
+        WordyString = "$NZ$ww on this $DT day of the month of $mf, in the year $yy";
+        AncientEraShortString = "B.E.";
+        AncientEraLongString = "Before Epoch";
+        ModernEraShortString = "A.E.";
+        ModernEraLongString = "After Epoch";
+        EpochYear = 1;
+        FirstWeekdayAtEpoch = 0;
+        Weekdays.AddRange(["Firstday", "Secondday", "Thirdday", "Fourthday", "Fifthday", "Sixthday", "Seventhday"]);
+        Months.Add(new MonthDefinition("mon", "month", "Month", 1, 30, new Dictionary<int, DayName>(), []));
+        ClockID = clock.Id;
+        CurrentDate = StoredTimeFallbacks.FirstValidDate(this);
+        CurrentDate.IsPrimaryDate = true;
+
+        using (new FMDB())
+        {
+            Models.Calendar dbcal = new();
+            FMDB.Context.Calendars.Add(dbcal);
+            dbcal.Definition = SaveToXml().ToString();
+            dbcal.Date = CurrentDate.GetDateString();
+            dbcal.FeedClockId = clock.Id;
+            FMDB.Context.SaveChanges();
+            _id = dbcal.Id;
+        }
+    }
+
+    private Calendar(Calendar rhs, string alias, string shortName, string fullName)
+    {
+        Gameworld = rhs.Gameworld;
+        LoadFromXml(rhs.SaveToXml());
+        Alias = alias;
+        ShortName = shortName;
+        FullName = fullName;
+        Description = rhs.Description;
+        ClockID = rhs.FeedClock.Id;
+        CurrentDate = new MudDate(rhs.CurrentDate);
+        CurrentDate.IsPrimaryDate = true;
+
+        using (new FMDB())
+        {
+            Models.Calendar dbcal = new();
+            FMDB.Context.Calendars.Add(dbcal);
+            dbcal.Definition = SaveToXml().ToString();
+            dbcal.Date = CurrentDate.GetDateString();
+            dbcal.FeedClockId = FeedClock.Id;
+            FMDB.Context.SaveChanges();
+            _id = dbcal.Id;
+        }
+    }
+
+    public ICalendar Clone(string alias, string shortName, string fullName)
+    {
+        return new Calendar(this, alias, shortName, fullName);
+    }
+
     public Calendar(MudSharp.Models.Calendar calendar, IFuturemud game)
     {
         _id = calendar.Id;
         Gameworld = game;
         LoadFromXml(XElement.Parse(calendar.Definition));
-        CurrentDate = GetDate(calendar.Date);
-        CurrentDate.IsPrimaryDate = true;
         ClockID = calendar.FeedClockId;
+        CurrentDate = this.GetStoredDateOrFallback(calendar.Date, StoredMudDateFallback.EpochStart, "Calendar",
+            calendar.Id, ShortName, "CurrentDate");
+        CurrentDate.IsPrimaryDate = true;
     }
 
     #endregion
@@ -524,6 +594,35 @@ public class Calendar : SaveableItem, ICalendar
     #region Methods
 
     private Dictionary<int, Year> _cachedYears = new();
+
+    private void ClearDateCaches()
+    {
+        _cachedYears.Clear();
+        _cachedWeekdaysInYear.Clear();
+        _cachedDaysInYear.Clear();
+        _cachedDaysBetweenYears.Clear();
+        _cachedFirstWeekday.Clear();
+    }
+
+    private void NormaliseCurrentDate()
+    {
+        try
+        {
+            if (CurrentDate is not null)
+            {
+                CurrentDate = GetDate(CurrentDate.GetDateString());
+                CurrentDate.IsPrimaryDate = true;
+                return;
+            }
+        }
+        catch
+        {
+            // Fall through to the first valid generated date.
+        }
+
+        CurrentDate = StoredTimeFallbacks.FirstValidDate(this);
+        CurrentDate.IsPrimaryDate = true;
+    }
 
     /// <summary>
     ///     Generates a new year (An ordered list of Months) accurate for the given calendar year
@@ -1357,6 +1456,955 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
 
         EpochYear = 40800;
         FirstWeekdayAtEpoch = 4;
+    }
+
+    #endregion
+
+    #region IEditableItem Implementation
+
+    public const string BuildingHelpText = @"You can use the following options with this command:
+
+	#3alias <alias>#0 - changes the calendar alias
+	#3shortname <name>#0 - changes the short calendar name
+	#3fullname <name>#0 - changes the full calendar name
+	#3desc <description>#0 - changes the description
+	#3plane <plane>#0 - changes the intended plane alias
+	#3clock <clock>#0 - changes the feed clock
+	#3date <date>#0 - sets the current date
+	#3epoch <year> <weekday>#0 - sets the epoch year and first weekday
+	#3short|long|wordy <mask>#0 - changes display masks
+	#3era <ancient|modern> <short|long> <text>#0 - changes era text
+	#3weekday add|rename|remove ...#0 - edits weekdays
+	#3month add|rename|alias|short|days|order|remove|nonweekday|special ...#0 - edits months
+	#3intercalary day|month ...#0 - edits intercalary day and month rules
+	#3preview [year]#0 - previews a generated year
+	#3validate#0 - validates generated calendar data";
+
+    public bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "alias":
+                return BuildingCommandAlias(actor, command);
+            case "name":
+            case "shortname":
+                return BuildingCommandShortName(actor, command);
+            case "fullname":
+            case "full":
+                return BuildingCommandFullName(actor, command);
+            case "desc":
+            case "description":
+                return BuildingCommandDescription(actor, command);
+            case "plane":
+                return BuildingCommandPlane(actor, command);
+            case "clock":
+            case "feedclock":
+                return BuildingCommandClock(actor, command);
+            case "date":
+            case "current":
+                return BuildingCommandDate(actor, command);
+            case "epoch":
+                return BuildingCommandEpoch(actor, command);
+            case "short":
+                return BuildingCommandShortMask(actor, command);
+            case "long":
+                return BuildingCommandLongMask(actor, command);
+            case "wordy":
+                return BuildingCommandWordyMask(actor, command);
+            case "era":
+                return BuildingCommandEra(actor, command);
+            case "weekday":
+            case "weekdays":
+                return BuildingCommandWeekday(actor, command);
+            case "month":
+            case "months":
+                return BuildingCommandMonth(actor, command);
+            case "intercalary":
+            case "intercalaries":
+                return BuildingCommandIntercalary(actor, command);
+            case "preview":
+                return BuildingCommandPreview(actor, command);
+            case "validate":
+                return BuildingCommandValidate(actor, command);
+            default:
+                actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
+                return false;
+        }
+    }
+
+    private bool BuildingCommandAlias(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What alias should this calendar have?");
+            return false;
+        }
+
+        var alias = command.PopSpeech();
+        if (Gameworld.Calendars.Any(x => x != this && x.Alias.EqualTo(alias)))
+        {
+            actor.OutputHandler.Send($"There is already a calendar with the alias {alias.ColourValue()}.");
+            return false;
+        }
+
+        Alias = alias;
+        Changed = true;
+        actor.OutputHandler.Send($"This calendar now has the alias {alias.ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandShortName(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What short name should this calendar have?");
+            return false;
+        }
+
+        ShortName = command.SafeRemainingArgument.TitleCase();
+        Changed = true;
+        actor.OutputHandler.Send($"This calendar's short name is now {ShortName.ColourName()}.");
+        return true;
+    }
+
+    private bool BuildingCommandFullName(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What full name should this calendar have?");
+            return false;
+        }
+
+        FullName = command.SafeRemainingArgument.TitleCase();
+        Changed = true;
+        actor.OutputHandler.Send($"This calendar's full name is now {FullName.ColourName()}.");
+        return true;
+    }
+
+    private bool BuildingCommandDescription(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What description should this calendar have?");
+            return false;
+        }
+
+        Description = command.SafeRemainingArgument;
+        Changed = true;
+        actor.OutputHandler.Send("Description set.");
+        return true;
+    }
+
+    private bool BuildingCommandPlane(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What plane alias should this calendar use?");
+            return false;
+        }
+
+        Plane = command.PopSpeech();
+        Changed = true;
+        actor.OutputHandler.Send($"This calendar now applies to the {Plane.ColourValue()} plane alias.");
+        return true;
+    }
+
+    private bool BuildingCommandClock(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which clock should feed this calendar?");
+            return false;
+        }
+
+        var clock = Gameworld.Clocks.GetByIdOrNames(command.SafeRemainingArgument);
+        if (clock is null)
+        {
+            actor.OutputHandler.Send("There is no such clock.");
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, $"change feed clock to {clock.Name}", () =>
+        {
+            FeedClock = clock;
+            ClockID = clock.Id;
+            Changed = true;
+            actor.OutputHandler.Send($"This calendar is now fed by the {clock.Name.ColourName()} clock.");
+        });
+    }
+
+    private bool BuildingCommandDate(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What date should this calendar be set to?");
+            return false;
+        }
+
+        if (!TryGetDate(command.SafeRemainingArgument, actor, out var date, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        CurrentDate = date;
+        CurrentDate.IsPrimaryDate = true;
+        Changed = true;
+        actor.OutputHandler.Send($"This calendar's current date is now {DisplayDate(CurrentDate, CalendarDisplayMode.Long).ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandEpoch(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !int.TryParse(command.PopSpeech(), out var year))
+        {
+            actor.OutputHandler.Send("You must specify an epoch year.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which weekday is the first weekday of the epoch year?");
+            return false;
+        }
+
+        if (!TryGetWeekdayIndex(command.SafeRemainingArgument, out var weekday))
+        {
+            actor.OutputHandler.Send("That is not a valid weekday for this calendar.");
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, $"change epoch to year {year:N0} and weekday {Weekdays[weekday]}", () =>
+        {
+            EpochYear = year;
+            FirstWeekdayAtEpoch = weekday;
+            ClearDateCaches();
+            NormaliseCurrentDate();
+            Changed = true;
+            actor.OutputHandler.Send($"The epoch year is now {year.ToStringN0(actor).ColourValue()} with first weekday {Weekdays[weekday].ColourValue()}.");
+        });
+    }
+
+    private bool BuildingCommandShortMask(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What short display mask should this calendar use?");
+            return false;
+        }
+
+        ShortString = command.SafeRemainingArgument;
+        Changed = true;
+        actor.OutputHandler.Send("Short display mask set.");
+        return true;
+    }
+
+    private bool BuildingCommandLongMask(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What long display mask should this calendar use?");
+            return false;
+        }
+
+        LongString = command.SafeRemainingArgument;
+        Changed = true;
+        actor.OutputHandler.Send("Long display mask set.");
+        return true;
+    }
+
+    private bool BuildingCommandWordyMask(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What wordy display mask should this calendar use?");
+            return false;
+        }
+
+        WordyString = command.SafeRemainingArgument;
+        Changed = true;
+        actor.OutputHandler.Send("Wordy display mask set.");
+        return true;
+    }
+
+    private bool BuildingCommandEra(ICharacter actor, StringStack command)
+    {
+        var era = command.PopForSwitch();
+        var length = command.PopForSwitch();
+        if (string.IsNullOrEmpty(era) || string.IsNullOrEmpty(length) || command.IsFinished)
+        {
+            actor.OutputHandler.Send("You must specify an era, short/long, and the replacement text.");
+            return false;
+        }
+
+        switch ((era, length))
+        {
+            case ("ancient", "short"):
+                AncientEraShortString = command.SafeRemainingArgument;
+                break;
+            case ("ancient", "long"):
+                AncientEraLongString = command.SafeRemainingArgument;
+                break;
+            case ("modern", "short"):
+                ModernEraShortString = command.SafeRemainingArgument;
+                break;
+            case ("modern", "long"):
+                ModernEraLongString = command.SafeRemainingArgument;
+                break;
+            default:
+                actor.OutputHandler.Send("The era must be ancient or modern, and the type must be short or long.");
+                return false;
+        }
+
+        Changed = true;
+        actor.OutputHandler.Send("Era text set.");
+        return true;
+    }
+
+    private bool BuildingCommandWeekday(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "add":
+            case "new":
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send("What weekday name do you want to add?");
+                    return false;
+                }
+
+                var newWeekday = command.SafeRemainingArgument.TitleCase();
+                return ConfirmStructuralChange(actor, $"add weekday {newWeekday}", () =>
+                {
+                    Weekdays.Add(newWeekday);
+                    ClearDateCaches();
+                    NormaliseCurrentDate();
+                    Changed = true;
+                    actor.OutputHandler.Send($"You add weekday {Weekdays.Last().ColourValue()}.");
+                });
+            case "rename":
+            case "name":
+                if (command.IsFinished || !TryGetWeekdayIndex(command.PopSpeech(), out var index))
+                {
+                    actor.OutputHandler.Send("Which weekday do you want to rename?");
+                    return false;
+                }
+
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send("What new name should that weekday have?");
+                    return false;
+                }
+
+                var newName = command.SafeRemainingArgument.TitleCase();
+                return ConfirmStructuralChange(actor, $"rename weekday #{index + 1:N0} to {newName}", () =>
+                {
+                    Weekdays[index] = newName;
+                    ClearDateCaches();
+                    Changed = true;
+                    actor.OutputHandler.Send($"Weekday #{(index + 1).ToStringN0(actor)} is now {Weekdays[index].ColourValue()}.");
+                });
+            case "remove":
+            case "delete":
+            case "del":
+                if (Weekdays.Count <= 1)
+                {
+                    actor.OutputHandler.Send("A calendar must have at least one weekday.");
+                    return false;
+                }
+
+                if (command.IsFinished || !TryGetWeekdayIndex(command.SafeRemainingArgument, out index))
+                {
+                    actor.OutputHandler.Send("Which weekday do you want to remove?");
+                    return false;
+                }
+
+                var old = Weekdays[index];
+                return ConfirmStructuralChange(actor, $"remove weekday {old}", () =>
+                {
+                    Weekdays.RemoveAt(index);
+                    FirstWeekdayAtEpoch = FirstWeekdayAtEpoch.Modulus(Weekdays.Count);
+                    ClearDateCaches();
+                    NormaliseCurrentDate();
+                    Changed = true;
+                    actor.OutputHandler.Send($"You remove the weekday {old.ColourValue()}. Existing weekday-based schedules may need review.");
+                });
+            default:
+                actor.OutputHandler.Send("You must specify add, rename or remove.");
+                return false;
+        }
+    }
+
+    private bool BuildingCommandMonth(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "add":
+            case "new":
+                return BuildingCommandMonthAdd(actor, command);
+            case "remove":
+            case "delete":
+            case "del":
+                return BuildingCommandMonthRemove(actor, command);
+            case "rename":
+            case "name":
+                return BuildingCommandMonthRename(actor, command);
+            case "alias":
+                return BuildingCommandMonthAlias(actor, command);
+            case "short":
+            case "shortname":
+                return BuildingCommandMonthShort(actor, command);
+            case "days":
+                return BuildingCommandMonthDays(actor, command);
+            case "order":
+                return BuildingCommandMonthOrder(actor, command);
+            case "nonweekday":
+            case "nonweekdays":
+                return BuildingCommandMonthNonWeekday(actor, command);
+            case "special":
+            case "specialday":
+                return BuildingCommandMonthSpecial(actor, command);
+            default:
+                actor.OutputHandler.Send("You must specify add, remove, rename, alias, short, days, order, nonweekday or special.");
+                return false;
+        }
+    }
+
+    private bool BuildingCommandMonthAdd(ICharacter actor, StringStack command)
+    {
+        var shortName = command.PopSpeech();
+        var alias = command.PopSpeech();
+        if (string.IsNullOrEmpty(shortName) || string.IsNullOrEmpty(alias) || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: month add <short> <alias> \"<full name>\" <days> [order]");
+            return false;
+        }
+
+        var fullName = command.PopSpeech().TitleCase();
+        if (command.IsFinished || !int.TryParse(command.PopSpeech(), out var days) || days < 1)
+        {
+            actor.OutputHandler.Send("You must specify a positive number of days.");
+            return false;
+        }
+
+        var order = Months.Any() ? Months.Max(x => x.NominalOrder) + 1 : 1;
+        if (!command.IsFinished && (!int.TryParse(command.PopSpeech(), out order) || order < 1))
+        {
+            actor.OutputHandler.Send("The order must be a positive number.");
+            return false;
+        }
+
+        if (Months.Any(x => x.Alias.EqualTo(alias) || x.ShortName.EqualTo(shortName)))
+        {
+            actor.OutputHandler.Send("A month already has that alias or short name.");
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, $"add month {fullName}", () =>
+        {
+            Months.Add(new MonthDefinition(shortName, alias, fullName, order, days, new Dictionary<int, DayName>(), []));
+            Months.Sort((x, y) => x.NominalOrder.CompareTo(y.NominalOrder));
+            ClearDateCaches();
+            NormaliseCurrentDate();
+            Changed = true;
+            actor.OutputHandler.Send($"You add the month {fullName.ColourName()}.");
+        });
+    }
+
+    private bool BuildingCommandMonthRemove(ICharacter actor, StringStack command)
+    {
+        if (Months.Count <= 1)
+        {
+            actor.OutputHandler.Send("A calendar must have at least one month.");
+            return false;
+        }
+
+        if (command.IsFinished || GetMonth(command.SafeRemainingArgument) is not { } month)
+        {
+            actor.OutputHandler.Send("Which month do you want to remove?");
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, $"remove month {month.FullName}", () =>
+        {
+            Months.Remove(month);
+            ClearDateCaches();
+            NormaliseCurrentDate();
+            Changed = true;
+            actor.OutputHandler.Send($"You remove the month {month.FullName.ColourName()}. Existing stored dates may need review.");
+        });
+    }
+
+    private bool BuildingCommandMonthRename(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || GetMonth(command.PopSpeech()) is not { } month || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: month rename <month> <new full name>");
+            return false;
+        }
+
+        var fullName = command.SafeRemainingArgument.TitleCase();
+        return ConfirmStructuralChange(actor, $"rename month {month.FullName} to {fullName}", () =>
+        {
+            month.FullName = fullName;
+            ClearDateCaches();
+            Changed = true;
+            actor.OutputHandler.Send($"That month is now called {month.FullName.ColourName()}.");
+        });
+    }
+
+    private bool BuildingCommandMonthAlias(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || GetMonth(command.PopSpeech()) is not { } month || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: month alias <month> <new alias>");
+            return false;
+        }
+
+        var alias = command.PopSpeech();
+        if (Months.Any(x => x != month && x.Alias.EqualTo(alias)))
+        {
+            actor.OutputHandler.Send("Another month already has that alias.");
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, $"change month {month.FullName} alias to {alias}", () =>
+        {
+            month.Alias = alias;
+            ClearDateCaches();
+            NormaliseCurrentDate();
+            Changed = true;
+            actor.OutputHandler.Send($"That month now has alias {alias.ColourValue()}.");
+        });
+    }
+
+    private bool BuildingCommandMonthShort(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || GetMonth(command.PopSpeech()) is not { } month || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: month short <month> <new short name>");
+            return false;
+        }
+
+        var shortName = command.PopSpeech();
+        return ConfirmStructuralChange(actor, $"change month {month.FullName} short name to {shortName}", () =>
+        {
+            month.ShortName = shortName;
+            ClearDateCaches();
+            Changed = true;
+            actor.OutputHandler.Send($"That month now has short name {month.ShortName.ColourValue()}.");
+        });
+    }
+
+    private bool BuildingCommandMonthDays(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || GetMonth(command.PopSpeech()) is not { } month ||
+            command.IsFinished || !int.TryParse(command.PopSpeech(), out var days) || days < 1)
+        {
+            actor.OutputHandler.Send("Syntax: month days <month> <positive days>");
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, $"set month {month.FullName} to {days:N0} days", () =>
+        {
+            month.NormalDays = days;
+            month.NonWeekdays.RemoveAll(x => x > days);
+            foreach (var key in month.SpecialDayNames.Keys.Where(x => x > days).ToList())
+            {
+                month.SpecialDayNames.Remove(key);
+            }
+
+            ClearDateCaches();
+            NormaliseCurrentDate();
+            Changed = true;
+            actor.OutputHandler.Send($"That month now has {days.ToStringN0(actor).ColourValue()} normal days.");
+        });
+    }
+
+    private bool BuildingCommandMonthOrder(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || GetMonth(command.PopSpeech()) is not { } month ||
+            command.IsFinished || !int.TryParse(command.PopSpeech(), out var order))
+        {
+            actor.OutputHandler.Send("Syntax: month order <month> <order>");
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, $"set month {month.FullName} order to {order:N0}", () =>
+        {
+            month.NominalOrder = order;
+            Months.Sort((x, y) => x.NominalOrder.CompareTo(y.NominalOrder));
+            ClearDateCaches();
+            NormaliseCurrentDate();
+            Changed = true;
+            actor.OutputHandler.Send($"That month now has nominal order {order.ToStringN0(actor).ColourValue()}.");
+        });
+    }
+
+    private bool BuildingCommandMonthNonWeekday(ICharacter actor, StringStack command)
+    {
+        var action = command.PopForSwitch();
+        if (command.IsFinished || GetMonth(command.PopSpeech()) is not { } month ||
+            command.IsFinished || !int.TryParse(command.PopSpeech(), out var day) || day < 1 || day > month.NormalDays)
+        {
+            actor.OutputHandler.Send("Syntax: month nonweekday add|remove <month> <day>");
+            return false;
+        }
+
+        if (!action.EqualTo("add") && !action.EqualTo("remove") && !action.EqualTo("delete"))
+        {
+            actor.OutputHandler.Send("You must specify add or remove.");
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, $"{action} non-weekday day {day:N0} for {month.FullName}", () =>
+        {
+            if (action.EqualTo("add"))
+            {
+                if (!month.NonWeekdays.Contains(day))
+                {
+                    month.NonWeekdays.Add(day);
+                }
+            }
+            else
+            {
+                month.NonWeekdays.Remove(day);
+            }
+
+            ClearDateCaches();
+            NormaliseCurrentDate();
+            Changed = true;
+            actor.OutputHandler.Send($"Day {day.ToStringN0(actor)} of {month.FullName.ColourName()} is {(month.NonWeekdays.Contains(day) ? "now" : "no longer")} a non-weekday.");
+        });
+    }
+
+    private bool BuildingCommandMonthSpecial(ICharacter actor, StringStack command)
+    {
+        var action = command.PopForSwitch();
+        if (command.IsFinished || GetMonth(command.PopSpeech()) is not { } month ||
+            command.IsFinished || !int.TryParse(command.PopSpeech(), out var day) || day < 1 || day > month.NormalDays)
+        {
+            actor.OutputHandler.Send("Syntax: month special add|remove <month> <day> [<short> <long>]");
+            return false;
+        }
+
+        if (action.EqualTo("remove") || action.EqualTo("delete"))
+        {
+            return ConfirmStructuralChange(actor, $"remove special day {day:N0} from {month.FullName}", () =>
+            {
+                month.SpecialDayNames.Remove(day);
+                ClearDateCaches();
+                Changed = true;
+                actor.OutputHandler.Send($"Day {day.ToStringN0(actor)} of {month.FullName.ColourName()} no longer has a special name.");
+            });
+        }
+
+        if (!action.EqualTo("add") || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Syntax: month special add <month> <day> <short> <long>");
+            return false;
+        }
+
+        var shortName = command.PopSpeech();
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What long name should this special day have?");
+            return false;
+        }
+
+        var longName = command.SafeRemainingArgument;
+        return ConfirmStructuralChange(actor, $"add special day {day:N0} to {month.FullName}", () =>
+        {
+            month.SpecialDayNames[day] = new DayName(shortName, longName);
+            ClearDateCaches();
+            Changed = true;
+            actor.OutputHandler.Send($"Day {day.ToStringN0(actor)} of {month.FullName.ColourName()} is now {shortName.ColourValue()}.");
+        });
+    }
+
+    private bool BuildingCommandIntercalary(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "day":
+            case "days":
+                return BuildingCommandIntercalaryDay(actor, command);
+            case "month":
+            case "months":
+                return BuildingCommandIntercalaryMonth(actor, command);
+            default:
+                actor.OutputHandler.Send("You must specify whether you are editing intercalary days or months.");
+                return false;
+        }
+    }
+
+    private bool BuildingCommandIntercalaryDay(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "add":
+            case "new":
+                if (command.IsFinished || GetMonth(command.PopSpeech()) is not { } month ||
+                    command.IsFinished || !int.TryParse(command.PopSpeech(), out var insertDays) || insertDays < 1 ||
+                    command.IsFinished || !int.TryParse(command.PopSpeech(), out var divisor) || divisor < 1)
+                {
+                    actor.OutputHandler.Send("Syntax: intercalary day add <month> <insertdays> <divisor> [offset]");
+                    return false;
+                }
+
+                var offset = 0;
+                if (!command.IsFinished && !int.TryParse(command.PopSpeech(), out offset))
+                {
+                    actor.OutputHandler.Send("The offset must be a valid number.");
+                    return false;
+                }
+
+                return ConfirmStructuralChange(actor, $"add intercalary day rule to {month.FullName}", () =>
+                {
+                    month.Intercalaries.Add(new IntercalaryDay
+                    {
+                        InsertNumnewDays = insertDays,
+                        Rule = new IntercalaryRule(divisor, offset)
+                    });
+                    ClearDateCaches();
+                    NormaliseCurrentDate();
+                    Changed = true;
+                    actor.OutputHandler.Send($"You add an intercalary day rule to {month.FullName.ColourName()}.");
+                });
+            case "remove":
+            case "delete":
+            case "del":
+                if (command.IsFinished || GetMonth(command.PopSpeech()) is not { } removeMonth ||
+                    command.IsFinished || !int.TryParse(command.PopSpeech(), out var index) ||
+                    index < 1 || index > removeMonth.Intercalaries.Count)
+                {
+                    actor.OutputHandler.Send("Syntax: intercalary day remove <month> <number>");
+                    return false;
+                }
+
+                return ConfirmStructuralChange(actor, $"remove intercalary day rule #{index:N0} from {removeMonth.FullName}", () =>
+                {
+                    removeMonth.Intercalaries.RemoveAt(index - 1);
+                    ClearDateCaches();
+                    NormaliseCurrentDate();
+                    Changed = true;
+                    actor.OutputHandler.Send($"You remove intercalary day rule #{index.ToStringN0(actor)} from {removeMonth.FullName.ColourName()}.");
+                });
+            default:
+                actor.OutputHandler.Send("You must specify add or remove.");
+                return false;
+        }
+    }
+
+    private bool BuildingCommandIntercalaryMonth(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "add":
+            case "new":
+                var shortName = command.PopSpeech();
+                var alias = command.PopSpeech();
+                if (string.IsNullOrEmpty(shortName) || string.IsNullOrEmpty(alias) || command.IsFinished)
+                {
+                    actor.OutputHandler.Send("Syntax: intercalary month add <short> <alias> \"<full>\" <days> <position> <divisor> [offset]");
+                    return false;
+                }
+
+                var fullName = command.PopSpeech().TitleCase();
+                if (command.IsFinished || !int.TryParse(command.PopSpeech(), out var days) || days < 1 ||
+                    command.IsFinished)
+                {
+                    actor.OutputHandler.Send("Syntax: intercalary month add <short> <alias> \"<full>\" <days> <position> <divisor> [offset]");
+                    return false;
+                }
+
+                var position = command.PopSpeech();
+                if (command.IsFinished || !int.TryParse(command.PopSpeech(), out var divisor) || divisor < 1)
+                {
+                    actor.OutputHandler.Send("You must specify a positive divisor.");
+                    return false;
+                }
+
+                var offset = 0;
+                if (!command.IsFinished && !int.TryParse(command.PopSpeech(), out offset))
+                {
+                    actor.OutputHandler.Send("The offset must be a valid number.");
+                    return false;
+                }
+
+                return ConfirmStructuralChange(actor, $"add intercalary month {fullName}", () =>
+                {
+                    Intercalaries.Add(new IntercalaryMonth(new IntercalaryRule(divisor, offset),
+                        new MonthDefinition(shortName, alias, fullName, Months.Max(x => x.NominalOrder) + 1, days,
+                            new Dictionary<int, DayName>(), []), position));
+                    ClearDateCaches();
+                    NormaliseCurrentDate();
+                    Changed = true;
+                    actor.OutputHandler.Send($"You add intercalary month {fullName.ColourName()}.");
+                });
+            case "remove":
+            case "delete":
+            case "del":
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send("Which intercalary month do you want to remove?");
+                    return false;
+                }
+
+                var target = Intercalaries.FirstOrDefault(x =>
+                    x.Month.Alias.EqualTo(command.SafeRemainingArgument) ||
+                    x.Month.ShortName.EqualTo(command.SafeRemainingArgument) ||
+                    x.Month.FullName.EqualTo(command.SafeRemainingArgument));
+                if (target is null)
+                {
+                    actor.OutputHandler.Send("There is no such intercalary month.");
+                    return false;
+                }
+
+                return ConfirmStructuralChange(actor, $"remove intercalary month {target.Month.FullName}", () =>
+                {
+                    Intercalaries.Remove(target);
+                    ClearDateCaches();
+                    NormaliseCurrentDate();
+                    Changed = true;
+                    actor.OutputHandler.Send($"You remove intercalary month {target.Month.FullName.ColourName()}.");
+                });
+            default:
+                actor.OutputHandler.Send("You must specify add or remove.");
+                return false;
+        }
+    }
+
+    private bool BuildingCommandPreview(ICharacter actor, StringStack command)
+    {
+        var yearNumber = CurrentDate?.Year ?? EpochYear;
+        if (!command.IsFinished && !int.TryParse(command.PopSpeech(), out yearNumber))
+        {
+            actor.OutputHandler.Send("The year must be a valid number.");
+            return false;
+        }
+
+        var year = CreateYear(yearNumber);
+        var sb = new StringBuilder();
+        sb.AppendLine($"Calendar Preview: {FullName} - Year {yearNumber:N0}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+        foreach (var month in year.Months)
+        {
+            sb.AppendLine($"{month.Alias.ColourValue(),-12} {month.FullName.ColourName(),-30} {month.Days.ToStringN0(actor).ColourValue()} days");
+        }
+
+        actor.OutputHandler.Send(sb.ToString());
+        return false;
+    }
+
+    private bool BuildingCommandValidate(ICharacter actor, StringStack command)
+    {
+        try
+        {
+            if (!Weekdays.Any())
+            {
+                actor.OutputHandler.Send("This calendar is invalid because it has no weekdays.");
+                return false;
+            }
+
+            if (!Months.Any())
+            {
+                actor.OutputHandler.Send("This calendar is invalid because it has no months.");
+                return false;
+            }
+
+            _ = CreateYear(CurrentDate?.Year ?? EpochYear);
+            _ = CurrentDate ?? StoredTimeFallbacks.FirstValidDate(this);
+            actor.OutputHandler.Send("This calendar generated successfully.");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            actor.OutputHandler.Send($"This calendar is not valid: {ex.Message.ColourError()}");
+            return false;
+        }
+    }
+
+    private bool RequiresStructuralConfirmation => Gameworld?.Calendars?.Contains(this) == true;
+
+    private bool ConfirmStructuralChange(ICharacter actor, string description, Action action)
+    {
+        if (!RequiresStructuralConfirmation)
+        {
+            action();
+            return true;
+        }
+
+        actor.OutputHandler.Send(
+            $"{"Warning: this calendar is loaded in the gameworld. This change can invalidate stored dates, schedules, celestials, economy references, clan dates, or other saved time data. Fallbacks will protect load paths and notify admins, but you should preview and validate the calendar after accepting.".ColourError()}\n\nChange: {description.ColourCommand()}\n{Accept.StandardAcceptPhrasing}");
+        actor.AddEffect(new Accept(actor, new GenericProposal
+        {
+            DescriptionString = $"Confirm calendar structural change: {description}",
+            AcceptAction = text =>
+            {
+                action();
+                actor.OutputHandler.Send($"You accept the calendar structural change: {description.ColourCommand()}.");
+            },
+            RejectAction = text => actor.OutputHandler.Send("You decide not to make that calendar change."),
+            ExpireAction = () => actor.OutputHandler.Send("The calendar structural change confirmation expires.")
+        }));
+        return false;
+    }
+
+    private bool TryGetWeekdayIndex(string text, out int index)
+    {
+        if (int.TryParse(text, out var value) && value >= 1 && value <= Weekdays.Count)
+        {
+            index = value - 1;
+            return true;
+        }
+
+        index = Weekdays.FindIndex(x => x.EqualTo(text));
+        return index >= 0;
+    }
+
+    private MonthDefinition GetMonth(string text)
+    {
+        return int.TryParse(text, out var value)
+            ? Months.FirstOrDefault(x => x.NominalOrder == value)
+            : Months.FirstOrDefault(x =>
+                x.Alias.EqualTo(text) ||
+                x.ShortName.EqualTo(text) ||
+                x.FullName.EqualTo(text));
+    }
+
+    public string Show(ICharacter actor)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"Calendar #{Id.ToStringN0(actor)} - {ShortName}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+        sb.AppendLine($"Alias: {Alias.ColourValue()}");
+        sb.AppendLine($"Full Name: {FullName.ColourName()}");
+        sb.AppendLine($"Description: {Description.ColourValue()}");
+        sb.AppendLine($"Plane: {Plane.ColourValue()}");
+        sb.AppendLine($"Feed Clock: {FeedClock?.Name.ColourName() ?? "None".ColourError()}");
+        sb.AppendLine($"Current Date: {(CurrentDate is null ? "None".ColourError() : DisplayDate(CurrentDate, CalendarDisplayMode.Long).ColourValue())}");
+        sb.AppendLine($"Epoch: {EpochYear.ToStringN0(actor).ColourValue()} / {(Weekdays.Count > FirstWeekdayAtEpoch ? Weekdays[FirstWeekdayAtEpoch].ColourValue() : "Invalid".ColourError())}");
+        sb.AppendLine($"Short Mask: {ShortString.ColourCommand()}");
+        sb.AppendLine($"Long Mask: {LongString.ColourCommand()}");
+        sb.AppendLine($"Wordy Mask: {WordyString.ColourCommand()}");
+        sb.AppendLine($"Ancient Era: {AncientEraShortString.ColourValue()} / {AncientEraLongString.ColourValue()}");
+        sb.AppendLine($"Modern Era: {ModernEraShortString.ColourValue()} / {ModernEraLongString.ColourValue()}");
+        sb.AppendLine($"Weekdays: {Weekdays.Select((x, i) => $"{(i + 1).ToStringN0(actor)}. {x.ColourValue()}").ListToString()}");
+        sb.AppendLine("Months:");
+        foreach (var month in Months.OrderBy(x => x.NominalOrder))
+        {
+            sb.AppendLine($"\t{month.NominalOrder.ToStringN0(actor)}. {month.ShortName.ColourValue()} / {month.Alias.ColourValue()} - {month.FullName.ColourName()} ({month.NormalDays.ToStringN0(actor)} days, {month.Intercalaries.Count.ToStringN0(actor)} intercalary rules)");
+        }
+
+        if (Intercalaries.Any())
+        {
+            sb.AppendLine("Intercalary Months:");
+            foreach (var intercalary in Intercalaries)
+            {
+                sb.AppendLine($"\t{intercalary.Month.Alias.ColourValue()} - {intercalary.Month.FullName.ColourName()} before {intercalary.InsertPosition.ColourValue()} when {intercalary.Rule}");
+            }
+        }
+
+        return sb.ToString();
     }
 
     #endregion

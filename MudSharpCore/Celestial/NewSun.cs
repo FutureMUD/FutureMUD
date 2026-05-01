@@ -12,6 +12,7 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.PerceptionEngine;
+using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System;
@@ -98,7 +99,8 @@ public class NewSun : PerceivedItem, ICelestialObject
         KepplerC6Approximant = element.Element("KepplerC6Approximant")?.Value.GetDouble() ?? 0;
         OrbitalEccentricity = element.Element("OrbitalEccentricity")?.Value.GetDouble()
                              ?? (KepplerC1Approximant * 0.5);
-        EpochDate = Calendar.GetDate(element.Element("EpochDate").Value);
+        EpochDate = Calendar.GetStoredDateOrFallback(element.Element("EpochDate").Value,
+            StoredMudDateFallback.EpochStart, "Celestial", Id, Name, "EpochDate");
 
         element = root.Element("Triggers");
         if (element != null)

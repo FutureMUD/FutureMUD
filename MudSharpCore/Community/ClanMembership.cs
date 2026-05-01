@@ -6,6 +6,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
+using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,8 @@ public class ClanMembership : SaveableItem, IClanMembership, ILazyLoadDuringIdle
         Paygrade = membership.PaygradeId.HasValue
             ? Clan.Paygrades.FirstOrDefault(x => membership.PaygradeId == x.Id)
             : null;
-        JoinDate = clan.Calendar.GetDate(membership.JoinDate);
+        JoinDate = clan.Calendar.GetStoredDateOrFallback(membership.JoinDate, StoredMudDateFallback.CurrentDate,
+            "ClanMembership", membership.CharacterId, clan.Name, "JoinDate");
         ManagerId = membership.ManagerId;
 
         PersonalName = new PersonalName(XElement.Parse(membership.PersonalName), Gameworld);

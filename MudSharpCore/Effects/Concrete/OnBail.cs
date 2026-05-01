@@ -39,7 +39,8 @@ public class OnBail : Effect, IEffect, IScoreAddendumEffect
     {
         XElement root = effect.Element("Effect");
         LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
-        ArrestTime = new MudDateTime(root.Element("ArrestTime").Value, Gameworld);
+        ArrestTime = MudDateTime.FromStoredStringOrFallback(root.Element("ArrestTime").Value, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Effect:OnBail", Owner?.Id, Owner?.Name, "ArrestTime");
     }
 
     #endregion

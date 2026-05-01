@@ -48,7 +48,10 @@ public class ShopDeal : LateInitialisingItem, IShopDeal
         MinimumQuantity = deal.MinimumQuantity ?? 0;
         Applicability = (ShopDealApplicability)deal.Applicability;
         _eligibilityProg = gameworld.FutureProgs.Get(deal.EligibilityProgId ?? 0);
-        Expiry = string.IsNullOrWhiteSpace(deal.ExpiryDateTime) ? MudDateTime.Never : new MudDateTime(deal.ExpiryDateTime, gameworld);
+        Expiry = string.IsNullOrWhiteSpace(deal.ExpiryDateTime)
+            ? MudDateTime.Never
+            : MudDateTime.FromStoredStringOrFallback(deal.ExpiryDateTime, gameworld,
+                StoredMudDateTimeFallback.Never, "ShopDeal", deal.Id, Name, "ExpiryDateTime");
         IsCumulative = deal.IsCumulative;
     }
 

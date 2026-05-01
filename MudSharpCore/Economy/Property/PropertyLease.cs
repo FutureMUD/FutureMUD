@@ -33,9 +33,12 @@ public class PropertyLease : SaveableItem, IPropertyLease
         _bondPayment = dbitem.BondPayment;
         _bondClaimed = dbitem.BondClaimed;
         _paymentBalance = dbitem.PaymentBalance;
-        _leaseStart = new MudDateTime(dbitem.LeaseStart, Gameworld);
-        _leaseEnd = new MudDateTime(dbitem.LeaseEnd, Gameworld);
-        _lastLeasePayment = new MudDateTime(dbitem.LastLeasePayment, Gameworld);
+        _leaseStart = MudDateTime.FromStoredStringOrFallback(dbitem.LeaseStart, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "PropertyLease", dbitem.Id, null, "LeaseStart");
+        _leaseEnd = MudDateTime.FromStoredStringOrFallback(dbitem.LeaseEnd, Gameworld,
+            StoredMudDateTimeFallback.Never, "PropertyLease", dbitem.Id, null, "LeaseEnd");
+        _lastLeasePayment = MudDateTime.FromStoredStringOrFallback(dbitem.LastLeasePayment, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "PropertyLease", dbitem.Id, null, "LastLeasePayment");
         _autoRenew = dbitem.AutoRenew;
         _interval = RecurringInterval.Parse(dbitem.Interval);
         SetupListeners();

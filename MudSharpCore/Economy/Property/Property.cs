@@ -85,7 +85,8 @@ public partial class Property : SaveableItem, IProperty
         _name = property.Name;
         _detailedDescription = property.DetailedDescription;
         _economicZone = Gameworld.EconomicZones.Get(property.EconomicZoneId);
-        _lastChangeOfOwnership = new MudDateTime(property.LastChangeOfOwnership, Gameworld);
+        _lastChangeOfOwnership = MudDateTime.FromStoredStringOrFallback(property.LastChangeOfOwnership, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Property", property.Id, property.Name, "LastChangeOfOwnership");
         _applyCriminalCodeInProperty = property.ApplyCriminalCodeInProperty;
         _lastSaleValue = property.LastSaleValue;
         LoadHotelDefinition(property.HotelDefinition);

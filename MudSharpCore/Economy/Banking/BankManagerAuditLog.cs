@@ -19,7 +19,8 @@ public class BankManagerAuditLog : LateInitialisingItem, IBankManagerAuditLog
         _id = dbitem.Id;
         IdInitialised = true;
         Bank = bank;
-        DateTime = new MudDateTime(dbitem.DateTime, Gameworld);
+        DateTime = MudDateTime.FromStoredStringOrFallback(dbitem.DateTime, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "BankManagerAuditLog", dbitem.Id, bank.Name, "DateTime");
         Detail = dbitem.Detail;
         _characterId = dbitem.CharacterId;
     }

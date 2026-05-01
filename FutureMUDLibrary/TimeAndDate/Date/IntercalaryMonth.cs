@@ -61,7 +61,7 @@ namespace MudSharp.TimeAndDate.Date
 
         public IntercalaryRule Rule
         {
-            get => _rule; protected set => _rule = value;
+            get => _rule; set => _rule = value;
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace MudSharp.TimeAndDate.Date
 
         public MonthDefinition Month
         {
-            get => _month; protected set => _month = value;
+            get => _month; set => _month = value;
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace MudSharp.TimeAndDate.Date
 
         public string InsertPosition
         {
-            get => _insertPosition; protected set => _insertPosition = value;
+            get => _insertPosition; set => _insertPosition = value;
         }
 
         #endregion

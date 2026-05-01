@@ -1653,7 +1653,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 
 
 
-    public const string ClockHelpText = @"This command is used to create and edit in-game clocks.
+public const string ClockHelpText = @"This command is used to create and edit in-game clocks.
 
 The syntax for this command is as follows:
 
@@ -1663,7 +1663,10 @@ The syntax for this command is as follows:
 #3clock clone <old> <alias> ""<name>""#0 - clones a clock
 #3clock close#0 - stops editing a clock
 #3clock show <which>#0 - shows information about a clock
-#3clock show#0 - shows information about the currently edited clock";
+#3clock show#0 - shows information about the currently edited clock
+#3clock set primary <timezone>#0 - sets the primary timezone
+#3clock set time <time>#0 - sets the current clock time
+#3clock set crude add <lower> <upper> <text>#0 - adds a crude time display band";
 
     [PlayerCommand("Clock", "clock")]
     [CommandPermission(PermissionLevel.HighAdmin)]
@@ -1673,13 +1676,42 @@ The syntax for this command is as follows:
         BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ClockHelper);
     }
 
+    public const string CalendarHelpText = @"This command is used to create and edit in-game calendars.
+
+The syntax for this command is as follows:
+
+#3calendar list#0 - lists all calendars
+#3calendar new <alias> ""<short name>"" <clock> [""<full name>""]#0 - creates a scaffold calendar
+#3calendar clone <old> <alias> ""<short name>"" [""<full name>""]#0 - clones an existing calendar
+#3calendar edit <which>#0 - begins editing a calendar
+#3calendar close#0 - stops editing a calendar
+#3calendar show [<which>]#0 - shows calendar details
+#3calendar set alias|shortname|fullname|desc|plane|clock|date|epoch ...#0 - edits metadata
+#3calendar set weekday add|rename|remove ...#0 - edits weekdays
+#3calendar set month add|rename|alias|short|days|order|remove|nonweekday|special ...#0 - edits months
+#3calendar set intercalary day|month add|remove ...#0 - edits intercalary rules
+#3calendar set preview [year]#0 - previews generated months for a year
+#3calendar set validate#0 - validates calendar generation";
+
+    [PlayerCommand("Calendar", "calendar")]
+    [CommandPermission(PermissionLevel.HighAdmin)]
+    [HelpInfo("calendar", CalendarHelpText, AutoHelp.HelpArgOrNoArg)]
+    protected static void Calendar(ICharacter actor, string input)
+    {
+        BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.CalendarHelper);
+    }
+
     public const string TimeZoneHelp = @"This command is used to create and edit in-game timezones for a particular clock. Timezones are relative to a standard default timezone for that clock - a real world example would be UTC.
 
 The syntax for this command is as follows:
 
 	#3timezone list [<clock>]#0 - lists all of the time zones
 	#3timezone create <clock> <alias> ""<name>"" <hoursoffset> [<minutesoffset>]#0 - create a new timezone
-	#3timezone edit <clock> <alias> ""<name>"" <hoursoffset> [<minutesoffset>]#0 - edit an existing timezone";
+	#3timezone edit <clock> <alias> ""<name>"" <hoursoffset> [<minutesoffset>]#0 - legacy edit syntax
+	#3timezone new <clock> <alias> ""<name>"" <hoursoffset> [<minutesoffset>]#0 - creates and opens a timezone
+	#3timezone open <id|alias|clock:alias>#0 - opens a timezone for editing
+	#3timezone set alias|name|offset|hours|minutes ...#0 - edits an opened timezone
+	#3timezone clone <old> <alias> [<clock>] [""<name>""]#0 - clones a timezone";
 
     [PlayerCommand("Timezone", "timezone")]
     [CommandPermission(PermissionLevel.Admin)]
@@ -1688,18 +1720,59 @@ The syntax for this command is as follows:
     {
         StringStack ss = new(input.RemoveFirstWord());
 
+        switch (ss.PeekSpeech().ToLowerInvariant())
+        {
+            case "list":
+            case "create":
+            case "update":
+                break;
+            default:
+                BaseBuilderModule.GenericBuildingCommand(actor, ss, EditableItemHelper.TimezoneHelper);
+                return;
+        }
+
         switch (ss.PopForSwitch())
         {
             case "list":
-                TimeZoneList(actor, ss);
+                if (!ss.IsFinished)
+                {
+                    var clock = actor.Gameworld.Clocks.GetByIdOrNames(ss.SafeRemainingArgument);
+                    if (clock is null)
+                    {
+                        actor.OutputHandler.Send("There is no such clock.");
+                        return;
+                    }
+
+                    actor.OutputHandler.Send(StringUtilities.GetTextTable(
+                        from timezone in clock.Timezones
+                        select new List<string>
+                        {
+                            timezone.Id.ToString("N0", actor),
+                            timezone.Alias,
+                            timezone.Description,
+                            new TimeSpan(0, timezone.OffsetHours, timezone.OffsetMinutes, 0).Describe(),
+                            (clock.PrimaryTimezone == timezone).ToColouredString()
+                        },
+                        new List<string> { "Id", "Alias", "Name", "Offset", "Primary?" },
+                        actor.Account.LineFormatLength,
+                        colour: Telnet.Green));
+                    return;
+                }
+
+                BaseBuilderModule.GenericBuildingCommand(actor, new StringStack("list"), EditableItemHelper.TimezoneHelper);
                 return;
             case "create":
-            case "new":
                 TimeZoneCreate(actor, ss);
                 return;
             case "edit":
             case "update":
-                TimeZoneEdit(actor, ss);
+                if (ss.CountRemainingArguments() >= 4)
+                {
+                    TimeZoneEdit(actor, ss);
+                    return;
+                }
+
+                BaseBuilderModule.GenericBuildingCommand(actor, new StringStack($"edit {ss.SafeRemainingArgument}"), EditableItemHelper.TimezoneHelper);
                 return;
             default:
                 actor.OutputHandler.Send(TimeZoneHelp.SubstituteANSIColour());

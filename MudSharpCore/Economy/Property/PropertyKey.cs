@@ -22,7 +22,8 @@ public class PropertyKey : SaveableItem, IPropertyKey
         _id = key.Id;
         _name = key.Name;
         _isReturned = key.IsReturned;
-        _addedToPropertyOnDate = new MudDateTime(key.AddedToPropertyOnDate, gameworld);
+        _addedToPropertyOnDate = MudDateTime.FromStoredStringOrFallback(key.AddedToPropertyOnDate, gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "PropertyKey", key.Id, key.Name, "AddedToPropertyOnDate");
         _costToReplace = key.CostToReplace;
         _gameItem = Gameworld.TryGetItem(key.GameItemId, true);
     }

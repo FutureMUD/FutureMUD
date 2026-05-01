@@ -880,7 +880,8 @@ internal static class ComputerProgramExecutor
 			ProgVariableTypeCode.Boolean => bool.Parse(value.Scalar ?? "false"),
 			ProgVariableTypeCode.Number => decimal.Parse(value.Scalar ?? "0", CultureInfo.InvariantCulture),
 			ProgVariableTypeCode.TimeSpan => TimeSpan.FromTicks(long.Parse(value.Scalar ?? "0", CultureInfo.InvariantCulture)),
-			ProgVariableTypeCode.MudDateTime => new MudDateTime(value.Scalar ?? "Never", gameworld),
+			ProgVariableTypeCode.MudDateTime => MudDateTime.FromStoredStringOrFallback(value.Scalar ?? "Never", gameworld,
+				StoredMudDateTimeFallback.Never, "ComputerProgramVariable", null, null, "MudDateTime"),
 			_ => value.Scalar ?? string.Empty
 		};
 

@@ -21,7 +21,8 @@ public class BankAccountTransaction : LateInitialisingItem, IBankAccountTransact
         TransactionDescription = transaction.TransactionDescription;
         Amount = transaction.Amount;
         AccountBalanceAfter = transaction.AccountBalanceAfter;
-        TransactionTime = new MudDateTime(transaction.TransactionTime, Gameworld);
+        TransactionTime = MudDateTime.FromStoredStringOrFallback(transaction.TransactionTime, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "BankAccountTransaction", transaction.Id, account.Name, "TransactionTime");
     }
 
     public BankAccountTransaction(IBankAccount account, BankTransactionType type, decimal amount, decimal amountAfter,

@@ -1,7 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Accounts;
+using MudSharp.Character;
+using MudSharp.Discord;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Intervals;
@@ -75,9 +79,9 @@ public class MudDateTimeTests
         _testClock = new Clock(XElement.Parse(@"<Clock>  <Alias>UTC</Alias>  <Description>Universal Time Clock</Description>  <ShortDisplayString>$j:$m:$s $i</ShortDisplayString>  <SuperDisplayString>$j:$m:$s $i $t</SuperDisplayString>  <LongDisplayString>$c $i</LongDisplayString>  <SecondsPerMinute>60</SecondsPerMinute>  <MinutesPerHour>60</MinutesPerHour>  <HoursPerDay>24</HoursPerDay>  <InGameSecondsPerRealSecond>2</InGameSecondsPerRealSecond>  <SecondFixedDigits>2</SecondFixedDigits>  <MinuteFixedDigits>2</MinuteFixedDigits>  <HourFixedDigits>0</HourFixedDigits>  <NoZeroHour>true</NoZeroHour>  <NumberOfHourIntervals>2</NumberOfHourIntervals>  <HourIntervalNames>    <HourIntervalName>a.m</HourIntervalName>    <HourIntervalName>p.m</HourIntervalName>  </HourIntervalNames>  <HourIntervalLongNames>    <HourIntervalLongName>in the morning</HourIntervalLongName>    <HourIntervalLongName>in the afternoon</HourIntervalLongName>  </HourIntervalLongNames>  <CrudeTimeIntervals>    <CrudeTimeInterval text=""night"" Lower=""-2"" Upper=""4""/>    <CrudeTimeInterval text=""morning"" Lower=""4"" Upper=""12""/>    <CrudeTimeInterval text=""afternoon"" Lower=""12"" Upper=""18""/>    <CrudeTimeInterval text=""evening"" Lower=""18"" Upper=""22""/>  </CrudeTimeIntervals></Clock>"), _gameworld) { Id = 1 };
 
         _testCalendar.FeedClock = _testClock;
-        _utcTimezone = new MudTimeZone(1, 0, 0, "Universal Time Clock", "UTC");
+        _utcTimezone = new MudTimeZone(1, 0, 0, "Universal Time Clock", "UTC", _testClock);
         _testClock.AddTimezone(_utcTimezone);
-        _cstTimezone = new MudTimeZone(2, -6, 0, "Central Time", "CST");
+        _cstTimezone = new MudTimeZone(2, -6, 0, "Central Time", "CST", _testClock);
         _testClock.AddTimezone(_cstTimezone);
         _testClock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, _utcTimezone, _testClock));
     }
@@ -99,6 +103,98 @@ public class MudDateTimeTests
     // public void MyTestCleanup() { }
     //
     #endregion
+
+    [TestMethod]
+    public void StoredMudDateTimeFallback_UsesCurrentDateTimeAndNotifiesAdmins()
+    {
+        var discord = new Mock<IDiscordConnection>();
+        Mock.Get(_gameworld).SetupGet(x => x.DiscordConnection).Returns(discord.Object);
+
+        var result = MudDateTime.FromStoredStringOrFallback("99/jun/34 UTC 0:0:0", _testCalendar, _testClock,
+            StoredMudDateTimeFallback.CurrentDateTime, "UnitTestOwner", 42, "Broken Date Holder", "BrokenField");
+
+        Assert.AreEqual(_testCalendar.CurrentDate.GetDateString(), result.Date.GetDateString());
+        discord.Verify(x => x.NotifyAdmins(It.Is<string>(text =>
+            text.Contains("99/jun/34 UTC 0:0:0") &&
+            text.Contains("UnitTestOwner #42") &&
+            text.Contains("BrokenField") &&
+            text.Contains("Fallback"))), Times.Once);
+    }
+
+    [TestMethod]
+    public void ClockBuilder_CanSetPrimaryTimezoneCurrentTimeAndCrudeIntervals()
+    {
+        var actor = CreateBuilder();
+        var clock = new Clock(XElement.Parse(_testClock.SaveToXml().ToString()), _gameworld) { Id = 500 };
+        var utc = new MudTimeZone(501, 0, 0, "UTC", "UTC", clock);
+        var cst = new MudTimeZone(502, -6, 0, "Central", "CST", clock);
+        clock.AddTimezone(utc);
+        clock.AddTimezone(cst);
+        clock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, utc, clock));
+
+        Assert.IsTrue(clock.BuildingCommand(actor.Object, new StringStack("primary CST")));
+        Assert.AreEqual(cst, clock.PrimaryTimezone);
+
+        Assert.IsTrue(clock.BuildingCommand(actor.Object, new StringStack("time CST 6:30:00")));
+        Assert.AreEqual(6, clock.CurrentTime.Hours);
+        Assert.AreEqual(30, clock.CurrentTime.Minutes);
+
+        Assert.IsTrue(clock.BuildingCommand(actor.Object, new StringStack("crude add 6 12 morningish")));
+        Assert.IsTrue(clock.Show(actor.Object).Contains("morningish"));
+    }
+
+    [TestMethod]
+    public void TimezoneBuilder_CanEditAliasNameAndOffset()
+    {
+        var actor = CreateBuilder();
+        var clock = new Clock(XElement.Parse(_testClock.SaveToXml().ToString()), _gameworld) { Id = 510 };
+        var timezone = new MudTimeZone(99, 1, 0, "Offset One", "O1", clock);
+        clock.AddTimezone(timezone);
+
+        Assert.IsTrue(timezone.BuildingCommand(actor.Object, new StringStack("alias O2")));
+        Assert.IsTrue(timezone.BuildingCommand(actor.Object, new StringStack("name Offset Two")));
+        Assert.IsTrue(timezone.BuildingCommand(actor.Object, new StringStack("offset 2 30")));
+
+        Assert.AreEqual("O2", timezone.Alias);
+        Assert.AreEqual("Offset Two", timezone.Description);
+        Assert.AreEqual(2, timezone.OffsetHours);
+        Assert.AreEqual(30, timezone.OffsetMinutes);
+    }
+
+    [TestMethod]
+    public void CalendarBuilder_CanEditWeekdaysMonthsAndPreview()
+    {
+        var actor = CreateBuilder();
+        var calendar = new Calendar(XElement.Parse(_testCalendar.SaveToXml().ToString()), _gameworld) { Id = 520 };
+        calendar.FeedClock = _testClock;
+        calendar.SetDate("27/jun/34");
+
+        Assert.IsTrue(calendar.BuildingCommand(actor.Object, new StringStack("weekday add Bonus Day")));
+        Assert.IsTrue(calendar.Weekdays.Any(x => x.EqualTo("Bonus Day")));
+
+        Assert.IsTrue(calendar.BuildingCommand(actor.Object, new StringStack("month add tst testmonth \"Test Month\" 5 99")));
+        Assert.IsTrue(calendar.Months.Any(x => x.Alias.EqualTo("testmonth")));
+
+        Assert.IsTrue(calendar.BuildingCommand(actor.Object, new StringStack("month nonweekday add testmonth 5")));
+        Assert.IsTrue(calendar.Months.First(x => x.Alias.EqualTo("testmonth")).NonWeekdays.Contains(5));
+
+        Assert.IsFalse(calendar.BuildingCommand(actor.Object, new StringStack("preview 34")));
+    }
+
+    private static Mock<ICharacter> CreateBuilder()
+    {
+        var output = new Mock<IOutputHandler>();
+        output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+        var account = new Mock<IAccount>();
+        account.SetupGet(x => x.LineFormatLength).Returns(120);
+        account.SetupGet(x => x.UseUnicode).Returns(false);
+        var actor = new Mock<ICharacter>();
+        actor.SetupGet(x => x.Gameworld).Returns(_gameworld);
+        actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+        actor.SetupGet(x => x.Account).Returns(account.Object);
+        actor.SetupGet(x => x.InnerLineFormatLength).Returns(120);
+        return actor;
+    }
 
     [TestMethod]
     public void TestIntervals()

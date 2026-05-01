@@ -1,17 +1,14 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using MudSharp.Framework;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Utilities = MudSharp.Framework.Utilities;
 
 namespace Discord_Bot;
 
@@ -19,9 +16,9 @@ public class TcpConnection
 {
     private readonly TcpClient _tcpClient;
     private readonly NetworkStream _networkStream;
-    private readonly Stopwatch _inactivityStopwatch = new();
     private static readonly byte[] ByteSeparators = { 1 };
-    private DiscordClient _discordClient;
+    private readonly List<byte> _incomingBytes = new();
+    private readonly DiscordClient _discordClient;
     private readonly DiscordBot _discordBot;
     public bool TcpClientAuthenticated { get; private set; }
     public bool Closing { get; private set; }
@@ -30,7 +27,6 @@ public class TcpConnection
     {
         _tcpClient = tcpClient;
         _networkStream = _tcpClient.GetStream();
-        _inactivityStopwatch.Start();
         _discordClient = discordClient;
         _discordBot = discordBot;
     }
@@ -39,15 +35,6 @@ public class TcpConnection
     {
         try
         {
-            bool blocking = _tcpClient.Client.Blocking;
-            if (_inactivityStopwatch.ElapsedMilliseconds > 15000 &&
-                _inactivityStopwatch.ElapsedMilliseconds % 50 == 0)
-            {
-                _tcpClient.Client.Blocking = false;
-                _tcpClient.Client.Send(new byte[1], 1, SocketFlags.None);
-            }
-            _tcpClient.Client.Blocking = blocking;
-
             if (!_networkStream.DataAvailable)
             {
                 return;
@@ -55,11 +42,23 @@ public class TcpConnection
 
             byte[] inputBuffer = new byte[4096];
             int bytes = _networkStream.Read(inputBuffer, 0, 4096);
-
-            List<byte[]> splitBytes =
-                inputBuffer.Take(bytes).ToArray().SplitDelimiter(ByteSeparators, Utilities.ByteSplitOptions.DiscardDelimiter).ToList();
-            foreach (byte[] command in splitBytes)
+            if (bytes == 0)
             {
+                Closing = true;
+                _tcpClient?.Close();
+                _networkStream?.Close();
+                TcpClientAuthenticated = false;
+                return;
+            }
+
+            _incomingBytes.AddRange(inputBuffer.Take(bytes));
+            while (TryReadIncomingCommand(out byte[] command))
+            {
+                if (command.Length == 0)
+                {
+                    continue;
+                }
+
                 await HandleTcpCommandAsync(Encoding.Unicode.GetString(command));
             }
         }
@@ -77,6 +76,20 @@ public class TcpConnection
             Console.WriteLine(e.Message);
         }
 #endif
+    }
+
+    private bool TryReadIncomingCommand(out byte[] command)
+    {
+        int delimiterIndex = _incomingBytes.IndexOf(ByteSeparators[0]);
+        if (delimiterIndex == -1)
+        {
+            command = Array.Empty<byte>();
+            return false;
+        }
+
+        command = _incomingBytes.GetRange(0, delimiterIndex).ToArray();
+        _incomingBytes.RemoveRange(0, delimiterIndex + 1);
+        return true;
     }
 
     private async Task HandleTcpCommandAsync(string getString)
@@ -237,9 +250,23 @@ public class TcpConnection
 
     private async Task HandleTcpCommandRequest(StringStack ss)
     {
-        ulong request = ulong.Parse(ss.Pop());
-        CachedDiscordRequest cachedRequest = _discordBot.CachedDiscordRequests[request];
-        _discordBot.CachedDiscordRequests.Remove(request);
+        if (!TcpClientAuthenticated)
+        {
+            return;
+        }
+
+        if (!ulong.TryParse(ss.Pop(), out ulong request))
+        {
+            Log.Warning("Received malformed Discord TCP request response without a valid request id.");
+            return;
+        }
+
+        if (!_discordBot.CachedDiscordRequests.TryRemove(request, out CachedDiscordRequest cachedRequest))
+        {
+            Log.Warning("Received Discord TCP response for unknown request id {RequestId}.", request);
+            return;
+        }
+
         await cachedRequest.OnResponseAction(ss.RemainingArgument, cachedRequest.Context);
     }
 
@@ -248,7 +275,7 @@ public class TcpConnection
         long whoId = long.Parse(ss.Pop());
         string accountName = ss.Pop();
         long whereId = long.Parse(ss.Pop());
-        string roomLayer = ss.Pop();
+        string roomLayer = ss.PopSpeech();
         string where = ss.PopSpeech();
         string whoDesc = ss.PopSpeech();
         string whoName = ss.PopSpeech();
@@ -339,12 +366,12 @@ public class TcpConnection
         {
             return;
         }
-        string account = ss.Pop();
-        string approver = ss.Pop();
+        string account = ss.PopSpeech();
+        string approver = ss.PopSpeech();
         string name = ss.RemainingArgument;
         DiscordEmbed embed = new DiscordEmbedBuilder()
                     .WithTitle("Character Rejected")
-                    .WithDescription($"Account \"{approver}\" rejected \"{account}'s\"  application \"{name}\".")
+                    .WithDescription($"Account \"{account}\" had application \"{name}\" rejected by \"{approver}\".")
                     .Build()
             ;
 
@@ -357,12 +384,12 @@ public class TcpConnection
         {
             return;
         }
-        string account = ss.Pop();
-        string approver = ss.Pop();
+        string account = ss.PopSpeech();
+        string approver = ss.PopSpeech();
         string name = ss.RemainingArgument;
         DiscordEmbed embed = new DiscordEmbedBuilder()
                     .WithTitle("Character Approved")
-                    .WithDescription($"Account \"{approver}\" approved \"{account}'s\"  application \"{name}\".")
+                    .WithDescription($"Account \"{account}\" had application \"{name}\" approved by \"{approver}\".")
                     .Build()
             ;
 
@@ -434,11 +461,18 @@ public class TcpConnection
             return;
         }
 
+        (string account, bool reboot) = DiscordBotProtocol.ParseShutdownNotification(shutdownAccount);
         Closing = true;
         _tcpClient?.Close();
         _networkStream?.Close();
         TcpClientAuthenticated = false;
-        await _discordBot.AnnounceToDiscord($"{_discordBot.GameName} has been shutdown by {shutdownAccount}. It should be back in a couple of minutes.");
+        if (reboot)
+        {
+            await _discordBot.AnnounceToDiscord($"{_discordBot.GameName} has been shutdown by {account}. It should be back in a couple of minutes.");
+            return;
+        }
+
+        await _discordBot.AnnounceToDiscord($"{_discordBot.GameName} has been shutdown by {account}, and it has been told not to reboot automatically.");
     }
 
     private async Task HandleTcpCommandLoginAsync(string getString)
@@ -448,7 +482,7 @@ public class TcpConnection
         if (auth.EqualTo(_discordBot.ServerAuth))
         {
             TcpClientAuthenticated = true;
-            _tcpClient.Client.Send(Encoding.Unicode.GetBytes("authsuccess"));
+            _tcpClient.Client.Send(DiscordBotProtocol.EncodeCommandForEngine("authsuccess"));
             await _discordBot.AnnounceToDiscord($"I have successfully heard from {_discordBot.GameName}, and I'm now ready to report on what it's up to!");
             if (!ss.IsFinished)
             {
@@ -457,7 +491,7 @@ public class TcpConnection
         }
         else
         {
-            _tcpClient.Client.Send(Encoding.Unicode.GetBytes("authfailure"));
+            _tcpClient.Client.Send(DiscordBotProtocol.EncodeCommandForEngine("authfailure"));
         }
     }
 
@@ -465,7 +499,8 @@ public class TcpConnection
     {
         try
         {
-            await _tcpClient.Client.SendAsync(Encoding.Unicode.GetBytes(command + '\n'), SocketFlags.None);
+            byte[] bytes = DiscordBotProtocol.EncodeCommandForEngine(command);
+            await _tcpClient.Client.SendAsync(bytes, SocketFlags.None);
         }
         catch (SocketException e)
         {

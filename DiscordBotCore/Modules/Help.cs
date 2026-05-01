@@ -17,7 +17,7 @@ public class Help : BaseCommandModule
     [Aliases("phelp")]
     public async Task ProgHelpAsync(CommandContext context, [RemainingText] string arguments = "")
     {
-        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        if (!DiscordBot.Instance.TryGetAuthenticatedConnection(out TcpConnection connection))
         {
             await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
             return;
@@ -31,7 +31,7 @@ public class Help : BaseCommandModule
             OnResponseAction = HandleMudProgHelpResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"proghelp {request.RequestId} {arguments}");
+        await connection.SendTcpCommand($"proghelp {request.RequestId} {arguments}");
     }
 
 
@@ -84,7 +84,7 @@ The following commands require you to be registered and authorised before using 
             return;
         }
 
-        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        if (!DiscordBot.Instance.TryGetAuthenticatedConnection(out TcpConnection connection))
         {
             await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
             return;
@@ -98,7 +98,7 @@ The following commands require you to be registered and authorised before using 
             OnResponseAction = HandleMudHelpResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"adminhelp {request.RequestId} {arguments}");
+        await connection.SendTcpCommand($"adminhelp {request.RequestId} {arguments}");
     }
 
     private async Task HandleMudHelpResponse(string text, CommandContext context)
@@ -119,7 +119,7 @@ The following commands require you to be registered and authorised before using 
             return;
         }
 
-        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        if (!DiscordBot.Instance.TryGetAuthenticatedConnection(out TcpConnection connection))
         {
             await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
             return;
@@ -133,6 +133,6 @@ The following commands require you to be registered and authorised before using 
             OnResponseAction = HandleMudHelpResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"help {request.RequestId} {arguments}");
+        await connection.SendTcpCommand($"help {request.RequestId} {arguments}");
     }
 }

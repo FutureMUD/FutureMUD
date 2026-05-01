@@ -19,7 +19,7 @@ public class Where : BaseCommandModule
             await context.RespondAsync($"You are not authorised to do that command, {context.User.Mention}.");
         }
 
-        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        if (!DiscordBot.Instance.TryGetAuthenticatedConnection(out TcpConnection connection))
         {
             await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
             return;
@@ -32,7 +32,7 @@ public class Where : BaseCommandModule
             OnResponseAction = HandleMudResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"where {request.RequestId}");
+        await connection.SendTcpCommand($"where {request.RequestId}");
     }
 
     private async Task HandleMudResponse(string text, CommandContext context)

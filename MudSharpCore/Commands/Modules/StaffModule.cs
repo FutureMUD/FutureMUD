@@ -2128,7 +2128,7 @@ The syntax is #3setcharacters <account> <##characters>#0.", AutoHelp.HelpArgOrNo
                 actor.Gameworld.Name.Proper().ColourName()));
             actor.Gameworld.Characters.ForEach(x => x.EffectsChanged = true);
             actor.Gameworld.SaveManager.Flush();
-            actor.Gameworld.DiscordConnection.NotifyShutdown(actor.Account.Name);
+            actor.Gameworld.DiscordConnection.NotifyShutdown(actor.Account.Name, true);
             using (new FMDB())
             {
                 DateTime time = DateTime.UtcNow;
@@ -2155,7 +2155,7 @@ The syntax is #3setcharacters <account> <##characters>#0.", AutoHelp.HelpArgOrNo
                 actor.Gameworld.Name.Proper().ColourName()));
             actor.Gameworld.Characters.ForEach(x => x.EffectsChanged = true);
             actor.Gameworld.SaveManager.Flush();
-            actor.Gameworld.DiscordConnection.NotifyShutdown(actor.Account.Name);
+            actor.Gameworld.DiscordConnection.NotifyShutdown(actor.Account.Name, false);
             using (FileStream fs = File.Create("STOP-REBOOTING"))
             {
             }

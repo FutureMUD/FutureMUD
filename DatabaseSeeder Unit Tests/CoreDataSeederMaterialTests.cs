@@ -45,6 +45,28 @@ public class CoreDataSeederMaterialTests
             .Invoke(seeder, [context]);
     }
 
+    private static MudSharp.Models.Liquid BuildPlaceholderLiquid(string name)
+    {
+        return new MudSharp.Models.Liquid
+        {
+            Name = name,
+            Description = name,
+            LongDescription = name,
+            TasteText = name,
+            VagueTasteText = name,
+            SmellText = name,
+            VagueSmellText = name,
+            DisplayColour = "blue",
+            DampDescription = name,
+            WetDescription = name,
+            DrenchedDescription = name,
+            DampShortDescription = name,
+            WetShortDescription = name,
+            DrenchedShortDescription = name,
+            SurfaceReactionInfo = string.Empty
+        };
+    }
+
     private static Mock<IFuturemud> CreateGameworld(All<ISolid> materials, FuturemudDatabaseContext context)
     {
         All<ITag> tags = new();
@@ -155,5 +177,33 @@ public class CoreDataSeederMaterialTests
         Assert.IsTrue(context.Materials.Any(x => x.Name == "bone"));
         Assert.IsTrue(context.Materials.Any(x => x.Name == "blood"));
         Assert.IsTrue(context.Materials.Any(x => x.Name == "rosewood"));
+    }
+
+    [TestMethod]
+    public void SeedMaterialsBase_DoesNotAssumeWaterHasLiquidIdOne()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        MudSharp.Models.Liquid retiredLiquid = BuildPlaceholderLiquid("retired liquid placeholder");
+        context.Liquids.Add(retiredLiquid);
+        context.SaveChanges();
+        context.Liquids.Remove(retiredLiquid);
+        context.SaveChanges();
+
+        SeedMaterialsBase(context);
+
+        MudSharp.Models.Liquid water = context.Liquids.Single(x => x.Name == "water");
+        MudSharp.Models.Liquid soapyWater = context.Liquids.Single(x => x.Name == "soapy water");
+        MudSharp.Models.Liquid detergent = context.Liquids.Single(x => x.Name == "detergent");
+
+        Assert.AreNotEqual(1L, water.Id, "Test setup should exercise a non-1 water id.");
+        Assert.AreEqual(water.Id, context.Liquids.Single(x => x.Name == "blood").SolventId);
+        Assert.AreEqual(water.Id, context.Liquids.Single(x => x.Name == "sweat").SolventId);
+        Assert.AreEqual(water.Id, context.Liquids.Single(x => x.Name == "vomit").SolventId);
+        Assert.AreEqual(water.Id, context.Liquids.Single(x => x.Name == "lager").SolventId);
+        Assert.AreEqual(water.Id, context.Materials.Single(x => x.Name == "dried blood").SolventId);
+        Assert.AreEqual(water.Id, context.Materials.Single(x => x.Name == "dried Sweat").SolventId);
+        Assert.AreEqual(water.Id, context.Materials.Single(x => x.Name == "dried vomit").SolventId);
+        Assert.AreEqual(soapyWater.Id, context.Liquids.Single(x => x.Name == "olive oil").SolventId);
+        Assert.AreEqual(detergent.Id, context.Liquids.Single(x => x.Name == "kerosene").SolventId);
     }
 }

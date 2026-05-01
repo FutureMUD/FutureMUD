@@ -5,6 +5,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
+using TraitOwnerScope = MudSharp.Body.Traits.TraitOwnerScope;
 using MudSharp.RPG.Knowledge;
 using System;
 using System.Collections.Generic;
@@ -142,6 +143,7 @@ public partial class CultureSeeder
 
         trait.Name = name;
         trait.Type = 0;
+        trait.OwnerScope = (int)TraitOwnerScope.Character;
         trait.DecoratorId = decorator.Id;
         trait.TraitGroup = "Language";
         trait.AvailabilityProg = canSelectProg ?? _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");

@@ -1697,8 +1697,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.AdultAge)
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'21'");
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.AllowedGenders)
                     .IsRequired()
@@ -1768,8 +1767,7 @@ namespace MudSharp.Database
                     .HasDefaultValueSql("b'1'");
 
                 entity.Property(e => e.ChildAge)
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'3'");
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.CommunicationStrategyType)
                     .IsRequired()
@@ -1806,8 +1804,7 @@ namespace MudSharp.Database
                     .UseCollation("utf8_general_ci");
 
                 entity.Property(e => e.ElderAge)
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'55'");
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.HandednessOptions)
                     .IsRequired()
@@ -1893,16 +1890,13 @@ namespace MudSharp.Database
                 entity.Property(e => e.TemperatureRangeCeiling).HasDefaultValueSql("'40'");
 
                 entity.Property(e => e.VenerableAge)
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'75'");
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.YoungAdultAge)
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'16'");
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.YouthAge)
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'10'");
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.DefaultHeightWeightModelMaleId)
                     .HasColumnType("bigint(20)");

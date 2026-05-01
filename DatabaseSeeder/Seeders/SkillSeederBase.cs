@@ -1,6 +1,7 @@
 using MudSharp.Database;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
+using TraitOwnerScope = MudSharp.Body.Traits.TraitOwnerScope;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -356,6 +357,7 @@ public abstract class SkillSeederBase : IDatabaseSeeder
             });
         trait.Name = name;
         update(trait);
+        trait.OwnerScope = (int)TraitOwnerScope.Character;
         return trait;
     }
 

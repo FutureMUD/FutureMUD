@@ -6,6 +6,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -216,6 +217,7 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
         {
             RefreshExistingHumanCombatBalance();
 			bool updatedSatiationLimits = RefreshExistingHumanSatiationLimits();
+			bool updatedAdminAvatarLanguageTraits = RefreshExistingAdminAvatarLanguageTraits();
 			bool updatedWearProfiles = false;
 			BodyProto? existingBaseBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Humanoid");
 			if (existingBaseBody is not null)
@@ -234,6 +236,11 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
 			if (updatedSatiationLimits)
 			{
 				updates.Add("refreshed human satiation limits");
+			}
+
+			if (updatedAdminAvatarLanguageTraits)
+			{
+				updates.Add("repaired admin avatar language traits");
 			}
 
 			if (hasMissingDisfigurementTemplates)
@@ -761,25 +768,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
         Language? language = _context.Languages.FirstOrDefault();
         if (language != null)
         {
-            character.Body.Traits.Add(new Trait
-            {
-                Body = character.Body,
-                TraitDefinition = language.LinkedTrait,
-                Value = 200,
-                AdditionalValue = 0
-            });
-
-            character.CharactersLanguages.Add(
-                new CharactersLanguages { Character = character, Language = language });
-            character.CharactersAccents.Add(new CharacterAccent
-            {
-                Character = character,
-                Accent = language.DefaultLearnerAccent,
-                Familiarity = 0,
-                IsPreferred = true
-            });
-            character.CurrentLanguage = language;
-            character.CurrentAccent = language.DefaultLearnerAccent;
+            AddAdminAvatarLanguageKnowledge(character, language);
             _context.SaveChanges();
         }
         #endregion
@@ -789,6 +778,147 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
         _context.Database.CommitTransaction();
         return "The operation completed successfully";
     }
+
+	private static void AddAdminAvatarLanguageKnowledge(Character character, Language language)
+	{
+		if (language.LinkedTrait is not null)
+		{
+			if (TraitDefinitionStoresOnCharacter(language.LinkedTrait))
+			{
+				character.CharacterTraits.Add(new CharacterTrait
+				{
+					Character = character,
+					TraitDefinition = language.LinkedTrait,
+					TraitDefinitionId = language.LinkedTrait.Id,
+					Value = 200,
+					AdditionalValue = 0
+				});
+			}
+			else
+			{
+				character.Body.Traits.Add(new Trait
+				{
+					Body = character.Body,
+					TraitDefinition = language.LinkedTrait,
+					TraitDefinitionId = language.LinkedTrait.Id,
+					Value = 200,
+					AdditionalValue = 0
+				});
+			}
+		}
+
+		character.CharactersLanguages.Add(
+			new CharactersLanguages { Character = character, Language = language });
+		character.CharactersAccents.Add(new CharacterAccent
+		{
+			Character = character,
+			Accent = language.DefaultLearnerAccent,
+			Familiarity = 0,
+			IsPreferred = true
+		});
+		character.CurrentLanguage = language;
+		character.CurrentAccent = language.DefaultLearnerAccent;
+	}
+
+	private bool RefreshExistingAdminAvatarLanguageTraits()
+	{
+		List<Character> adminAvatars = _context.Characters
+			.Include(x => x.Body)
+			.ThenInclude(x => x.Traits)
+			.Include(x => x.CharacterTraits)
+			.Include(x => x.CharactersLanguages)
+			.ThenInclude(x => x.Language)
+			.ThenInclude(x => x.LinkedTrait)
+			.Where(x => x.IsAdminAvatar)
+			.ToList();
+
+		bool updated = false;
+		foreach (Character character in adminAvatars)
+		{
+			foreach (Language language in character.CharactersLanguages
+				         .Select(x => x.Language)
+				         .Where(x => x.LinkedTrait is not null && TraitDefinitionStoresOnCharacter(x.LinkedTrait)))
+			{
+				TraitDefinition linkedTrait = language.LinkedTrait;
+				Trait? bodyTrait = character.Body.Traits.FirstOrDefault(x => x.TraitDefinitionId == linkedTrait.Id);
+				CharacterTrait? characterTrait =
+					character.CharacterTraits.FirstOrDefault(x => x.TraitDefinitionId == linkedTrait.Id);
+				if (characterTrait is null)
+				{
+					character.CharacterTraits.Add(new CharacterTrait
+					{
+						Character = character,
+						TraitDefinition = linkedTrait,
+						TraitDefinitionId = linkedTrait.Id,
+						Value = bodyTrait?.Value ?? 200,
+						AdditionalValue = bodyTrait?.AdditionalValue ?? 0
+					});
+					updated = true;
+				}
+
+				if (bodyTrait is not null)
+				{
+					character.Body.Traits.Remove(bodyTrait);
+					_context.Traits.Remove(bodyTrait);
+					updated = true;
+				}
+			}
+		}
+
+		if (updated)
+		{
+			_context.SaveChanges();
+		}
+
+		return updated;
+	}
+
+	private static bool HasAdminAvatarLanguageTraitStorageMismatch(FuturemudDatabaseContext context)
+	{
+		return context.Characters
+			.Include(x => x.Body)
+			.ThenInclude(x => x.Traits)
+			.Include(x => x.CharacterTraits)
+			.Include(x => x.CharactersLanguages)
+			.ThenInclude(x => x.Language)
+			.ThenInclude(x => x.LinkedTrait)
+			.Where(x => x.IsAdminAvatar)
+			.AsEnumerable()
+			.Any(AdminAvatarNeedsLanguageTraitRepair);
+	}
+
+	private static bool AdminAvatarNeedsLanguageTraitRepair(Character character)
+	{
+		return character.CharactersLanguages
+			.Select(x => x.Language)
+			.Where(x => x.LinkedTrait is not null && TraitDefinitionStoresOnCharacter(x.LinkedTrait))
+			.Any(x => character.CharacterTraits.All(y => y.TraitDefinitionId != x.LinkedTrait.Id) ||
+			          character.Body.Traits.Any(y => y.TraitDefinitionId == x.LinkedTrait.Id));
+	}
+
+	private static bool TraitDefinitionStoresOnCharacter(TraitDefinition trait)
+	{
+		MudSharp.Body.Traits.TraitType type = (MudSharp.Body.Traits.TraitType)trait.Type;
+		return trait.OwnerScope == (int)MudSharp.Body.Traits.TraitOwnerScope.Character ||
+		       type is MudSharp.Body.Traits.TraitType.Skill
+			       or MudSharp.Body.Traits.TraitType.DerivedSkill
+			       or MudSharp.Body.Traits.TraitType.TheoreticalSkill;
+	}
+
+	internal static bool TraitDefinitionStoresOnCharacterForTesting(TraitDefinition trait)
+	{
+		return TraitDefinitionStoresOnCharacter(trait);
+	}
+
+	internal static bool AdminAvatarNeedsLanguageTraitRepairForTesting(Character character)
+	{
+		return AdminAvatarNeedsLanguageTraitRepair(character);
+	}
+
+	internal static void AddAdminAvatarLanguageKnowledgeForTesting(Character character, Language language)
+	{
+		AddAdminAvatarLanguageKnowledge(character, language);
+	}
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
     {
@@ -800,7 +930,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
         if (context.Races.Any(x => x.Name == "Humanoid"))
         {
             return HasMissingHumanDisfigurementTemplates(context) || HasHumanSatiationLimitUpdates(context) ||
-                   HasMissingHumanWearProfiles(context)
+                   HasAdminAvatarLanguageTraitStorageMismatch(context) || HasMissingHumanWearProfiles(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable
                 : ShouldSeedResult.MayAlreadyBeInstalled;
         }

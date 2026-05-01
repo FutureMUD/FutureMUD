@@ -28,35 +28,64 @@ public class EconomySeeder : IDatabaseSeeder
     public static readonly IReadOnlyDictionary<string, string[]> RequiredMarketTagHierarchy =
         new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
         {
-            ["Nourishment"] = ["Staple Food", "Standard Food", "Luxury Food", "Salt", "Spices"],
-            ["Domestic Heating"] = ["Combustion Heating"],
-            ["Lighting"] = [],
+            ["Nourishment"] = ["Staple Food", "Standard Food", "Luxury Food", "Seasonings", "Salt", "Spices"],
+            ["Domestic Heating"] = ["Combustion Heating", "Oil Heating", "Electric Heating"],
+            ["Lighting"] = ["Candles", "Torches", "Lamps"],
             ["Medicine"] = ["Simple Medicine", "Standard Medicine", "High-Quality Medicine"],
             ["Writing Materials"] = ["Wax Tablets", "Parchment", "Paper", "Ink"],
-            ["Clothing"] = ["Simple Clothing", "Standard Clothing", "Luxury Clothing"],
-            ["Intoxicants"] = ["Beer", "Wine"],
-            ["Luxury Drinks"] = ["Tea"],
+            ["Clothing"] = ["Simple Clothing", "Standard Clothing", "Luxury Clothing", "Winter Clothing", "Military Uniforms"],
+            ["Intoxicants"] = ["Beer", "Wine", "Mead", "Spirits"],
+            ["Luxury Drinks"] = ["Tea", "Coffee"],
             ["Household Goods"] =
             [
                 "Simple Wares",
                 "Standard Wares",
+                "Luxury Wares",
                 "Simple Furniture",
                 "Standard Furniture",
                 "Luxury Furniture",
+                "Simple Decorations",
                 "Standard Decorations",
                 "Luxury Decorations"
             ],
-            ["Hospitality"] = ["Standard Lodging", "Luxury Lodging"],
-            ["Entertainment"] = ["Cheap Entertainment", "Standard Entertainment", "Luxury Entertainment"],
-            ["Personal Services"] = ["Bathing Services", "Domestic Services", "Barbering", "Laundry Services"],
-            ["Religious Goods"] = [],
-            ["Household Consumables"] = [],
-            ["Military Goods"] = ["Weapons", "Armour", "Ammunition", "Military Uniforms"],
-            ["Transportation"] = ["Mule Haulage"],
+            ["Hospitality"] = ["Simple Lodging", "Standard Lodging", "Luxury Lodging", "Prepared Meals", "Common Meals", "Fine Dining", "Bathhouse Services", "Stabling Services"],
+            ["Entertainment"] = ["Cheap Entertainment", "Standard Entertainment", "Luxury Entertainment", "Music Performance", "Theatre Performance", "Festival Entertainment", "Sporting Entertainment"],
+            ["Personal Services"] = ["Bathing Services", "Domestic Services", "Barbering", "Laundry Services", "Tailoring Services", "Bodyguard Services", "Grooming Supplies"],
+            ["Religious Goods"] = ["Ritual Supplies", "Temple Offerings", "Funerary Goods", "Devotional Goods"],
+            ["Household Consumables"] = ["Lamp Oil", "Cleaning Supplies", "Candlemaking Wax", "Toiletries"],
+            ["Military Goods"] =
+            [
+                "Weapons",
+                "Spears",
+                "Swords",
+                "Clubs",
+                "Axes",
+                "Maces",
+                "Daggers",
+                "Crossbows",
+                "Bows",
+                "Guns",
+                "Hammers",
+                "Polearms",
+                "Other Weapons",
+                "Armour",
+                "Leather Armour",
+                "Mail Armour",
+                "Plate Armour",
+                "Primitive Armour",
+                "Shields",
+                "Ammunition",
+                "Arrows",
+                "Bolts",
+                "Bullets",
+                "Blackpowder"
+            ],
+            ["Transportation"] = ["Cargo Transportation", "Cart Haulage", "Manual Haulage", "Mule Haulage", "Ship Haulage", "Passenger Transportation", "Cart Passage", "Horse Passage", "Wagon Passage", "Ship Passage"],
             ["Warehousing"] = [],
-            ["Communications"] = ["Messenger Services", "Courier Services", "Postal Services", "Printed News"],
+            ["Communications"] = ["Messenger Services", "Courier Services", "Postal Services", "Printed News", "Telegraph Services", "Telephone Services"],
             ["Professional Tools"] = ["Primitive Tools", "Simple Tools", "Standard Tools", "High-Quality Tools"],
-            ["Raw Materials"] = []
+            ["Raw Materials"] = ["Lumber", "Straw", "Cloth", "Stone Blocks", "Sand", "Clay", "Aggregate", "Cement Mineral", "Steel", "Copper", "Gold", "Silver", "Bronze", "Brass", "Lead"],
+            ["Construction Materials"] = ["Brick", "Mortar", "Lime", "Worked Timber", "Worked Stone", "Glass Panes", "Roofing Materials"]
         };
 
     private static readonly IReadOnlyCollection<string> RequiredMarketTagNames = RequiredMarketTagHierarchy
@@ -98,56 +127,74 @@ public class EconomySeeder : IDatabaseSeeder
 			],
 			["Clothing"] =
 			[
-				("Simple Clothing", 0.55m),
+				("Simple Clothing", 0.40m),
 				("Standard Clothing", 0.30m),
-				("Luxury Clothing", 0.15m)
+				("Winter Clothing", 0.12m),
+				("Luxury Clothing", 0.10m),
+				("Military Uniforms", 0.08m)
 			],
 			["Intoxicants"] =
 			[
-				("Beer", 0.65m),
-				("Wine", 0.35m)
+				("Beer", 0.45m),
+				("Wine", 0.25m),
+				("Mead", 0.15m),
+				("Spirits", 0.15m)
 			],
 			["Household Goods"] =
 			[
-				("Simple Wares", 0.20m),
-				("Standard Wares", 0.15m),
-				("Simple Furniture", 0.18m),
-				("Standard Furniture", 0.15m),
-				("Luxury Furniture", 0.10m),
-				("Standard Decorations", 0.12m),
-				("Luxury Decorations", 0.10m)
+				("Simple Wares", 0.16m),
+				("Standard Wares", 0.14m),
+				("Luxury Wares", 0.07m),
+				("Simple Furniture", 0.16m),
+				("Standard Furniture", 0.14m),
+				("Luxury Furniture", 0.08m),
+				("Simple Decorations", 0.10m),
+				("Standard Decorations", 0.09m),
+				("Luxury Decorations", 0.06m)
 			],
 			["Hospitality"] =
 			[
-				("Standard Lodging", 0.70m),
-				("Luxury Lodging", 0.30m)
+				("Simple Lodging", 0.25m),
+				("Standard Lodging", 0.25m),
+				("Prepared Meals", 0.22m),
+				("Luxury Lodging", 0.12m),
+				("Bathhouse Services", 0.10m),
+				("Stabling Services", 0.06m)
 			],
 			["Entertainment"] =
 			[
-				("Cheap Entertainment", 0.50m),
-				("Standard Entertainment", 0.35m),
-				("Luxury Entertainment", 0.15m)
+				("Cheap Entertainment", 0.30m),
+				("Standard Entertainment", 0.24m),
+				("Luxury Entertainment", 0.12m),
+				("Music Performance", 0.10m),
+				("Theatre Performance", 0.09m),
+				("Festival Entertainment", 0.10m),
+				("Sporting Entertainment", 0.05m)
 			],
 			["Personal Services"] =
 			[
-				("Bathing Services", 0.35m),
-				("Domestic Services", 0.30m),
-				("Barbering", 0.20m),
-				("Laundry Services", 0.15m)
+				("Domestic Services", 0.20m),
+				("Bathing Services", 0.18m),
+				("Barbering", 0.14m),
+				("Laundry Services", 0.14m),
+				("Tailoring Services", 0.14m),
+				("Bodyguard Services", 0.10m),
+				("Grooming Supplies", 0.10m)
 			],
 			["Communications"] =
 			[
-				("Messenger Services", 0.30m),
-				("Courier Services", 0.30m),
-				("Postal Services", 0.25m),
-				("Printed News", 0.15m)
+				("Messenger Services", 0.24m),
+				("Courier Services", 0.22m),
+				("Postal Services", 0.20m),
+				("Printed News", 0.12m),
+				("Telegraph Services", 0.12m),
+				("Telephone Services", 0.10m)
 			],
 			["Military Goods"] =
 			[
-				("Weapons", 0.35m),
-				("Armour", 0.25m),
-				("Ammunition", 0.25m),
-				("Military Uniforms", 0.15m)
+				("Weapons", 0.40m),
+				("Armour", 0.35m),
+				("Ammunition", 0.25m)
 			],
 			["Professional Tools"] =
 			[
@@ -1409,7 +1456,8 @@ public class EconomySeeder : IDatabaseSeeder
             ["Warehousing"] = "Logistics",
             ["Communications"] = "Logistics",
             ["Professional Tools"] = "Industry",
-            ["Raw Materials"] = "Industry"
+            ["Raw Materials"] = "Industry",
+            ["Construction Materials"] = "Industry"
         };
 
     private static readonly IReadOnlyDictionary<string, (double Under, double Over)> FamilyElasticityMap =
@@ -1429,11 +1477,13 @@ public class EconomySeeder : IDatabaseSeeder
             ["Personal Services"] = (0.74, 0.68),
             ["Communications"] = (0.60, 0.54),
             ["Religious Goods"] = (0.58, 0.52),
+            ["Household Consumables"] = (0.50, 0.46),
             ["Military Goods"] = (0.88, 0.82),
             ["Transportation"] = (0.66, 0.58),
             ["Warehousing"] = (0.44, 0.40),
             ["Professional Tools"] = (0.62, 0.58),
-            ["Raw Materials"] = (0.56, 0.52)
+            ["Raw Materials"] = (0.56, 0.52),
+            ["Construction Materials"] = (0.58, 0.54)
         };
 
     public bool SafeToRunMoreThanOnce => true;
@@ -2564,7 +2614,16 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 
         if (familyCategory.MarketCategoryType == 1)
         {
-            return [familyCategory];
+            HashSet<long> directComponentTagIds = childTagsByParentId.TryGetValue(familyTag.Id, out List<Tag>? directChildTags)
+                ? directChildTags.Select(x => x.Id).ToHashSet()
+                : [];
+
+            return EnumerateTagAndDescendants(familyTag, childTagsByParentId)
+                .Where(x => x.Id == familyTag.Id || !directComponentTagIds.Contains(x.Id))
+                .Where(x => categoriesByTagId.ContainsKey(x.Id))
+                .Select(x => categoriesByTagId[x.Id])
+                .DistinctBy(x => x.Id)
+                .ToList();
         }
 
         return EnumerateTagAndDescendants(familyTag, childTagsByParentId)

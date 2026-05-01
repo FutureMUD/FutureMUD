@@ -59,56 +59,74 @@ public class EconomySeederTests
 			],
 			["Clothing"] =
 			[
-				("Simple Clothing", 0.55m),
+				("Simple Clothing", 0.40m),
 				("Standard Clothing", 0.30m),
-				("Luxury Clothing", 0.15m)
+				("Winter Clothing", 0.12m),
+				("Luxury Clothing", 0.10m),
+				("Military Uniforms", 0.08m)
 			],
 			["Intoxicants"] =
 			[
-				("Beer", 0.65m),
-				("Wine", 0.35m)
+				("Beer", 0.45m),
+				("Wine", 0.25m),
+				("Mead", 0.15m),
+				("Spirits", 0.15m)
 			],
 			["Household Goods"] =
 			[
-				("Simple Wares", 0.20m),
-				("Standard Wares", 0.15m),
-				("Simple Furniture", 0.18m),
-				("Standard Furniture", 0.15m),
-				("Luxury Furniture", 0.10m),
-				("Standard Decorations", 0.12m),
-				("Luxury Decorations", 0.10m)
+				("Simple Wares", 0.16m),
+				("Standard Wares", 0.14m),
+				("Luxury Wares", 0.07m),
+				("Simple Furniture", 0.16m),
+				("Standard Furniture", 0.14m),
+				("Luxury Furniture", 0.08m),
+				("Simple Decorations", 0.10m),
+				("Standard Decorations", 0.09m),
+				("Luxury Decorations", 0.06m)
 			],
 			["Hospitality"] =
 			[
-				("Standard Lodging", 0.70m),
-				("Luxury Lodging", 0.30m)
+				("Simple Lodging", 0.25m),
+				("Standard Lodging", 0.25m),
+				("Prepared Meals", 0.22m),
+				("Luxury Lodging", 0.12m),
+				("Bathhouse Services", 0.10m),
+				("Stabling Services", 0.06m)
 			],
 			["Entertainment"] =
 			[
-				("Cheap Entertainment", 0.50m),
-				("Standard Entertainment", 0.35m),
-				("Luxury Entertainment", 0.15m)
+				("Cheap Entertainment", 0.30m),
+				("Standard Entertainment", 0.24m),
+				("Luxury Entertainment", 0.12m),
+				("Music Performance", 0.10m),
+				("Theatre Performance", 0.09m),
+				("Festival Entertainment", 0.10m),
+				("Sporting Entertainment", 0.05m)
 			],
 			["Personal Services"] =
 			[
-				("Bathing Services", 0.35m),
-				("Domestic Services", 0.30m),
-				("Barbering", 0.20m),
-				("Laundry Services", 0.15m)
+				("Domestic Services", 0.20m),
+				("Bathing Services", 0.18m),
+				("Barbering", 0.14m),
+				("Laundry Services", 0.14m),
+				("Tailoring Services", 0.14m),
+				("Bodyguard Services", 0.10m),
+				("Grooming Supplies", 0.10m)
 			],
 			["Communications"] =
 			[
-				("Messenger Services", 0.30m),
-				("Courier Services", 0.30m),
-				("Postal Services", 0.25m),
-				("Printed News", 0.15m)
+				("Messenger Services", 0.24m),
+				("Courier Services", 0.22m),
+				("Postal Services", 0.20m),
+				("Printed News", 0.12m),
+				("Telegraph Services", 0.12m),
+				("Telephone Services", 0.10m)
 			],
 			["Military Goods"] =
 			[
-				("Weapons", 0.35m),
-				("Armour", 0.25m),
-				("Ammunition", 0.25m),
-				("Military Uniforms", 0.15m)
+				("Weapons", 0.40m),
+				("Armour", 0.35m),
+				("Ammunition", 0.25m)
 			],
 			["Professional Tools"] =
 			[
@@ -119,38 +137,103 @@ public class EconomySeederTests
 			]
 		};
 
-    private static readonly IReadOnlyDictionary<string, string[]> FamilyTags =
+    private static readonly IReadOnlyDictionary<string, string[]> MarketTagsByParent =
         new Dictionary<string, string[]>
         {
-            ["Nourishment"] = ["Staple Food", "Standard Food", "Luxury Food", "Salt", "Spices"],
-            ["Domestic Heating"] = ["Combustion Heating"],
-            ["Lighting"] = [],
-            ["Medicine"] = ["Simple Medicine", "Standard Medicine", "High-Quality Medicine"],
-            ["Writing Materials"] = ["Wax Tablets", "Parchment", "Paper", "Ink"],
-            ["Clothing"] = ["Simple Clothing", "Standard Clothing", "Luxury Clothing"],
-            ["Intoxicants"] = ["Beer", "Wine"],
-            ["Luxury Drinks"] = ["Tea"],
+            ["Market"] =
+            [
+                "Nourishment",
+                "Clothing",
+                "Domestic Heating",
+                "Intoxicants",
+                "Luxury Drinks",
+                "Household Goods",
+                "Military Goods",
+                "Transportation",
+                "Medicine",
+                "Writing Materials",
+                "Warehousing",
+                "Professional Tools",
+                "Raw Materials",
+                "Lighting",
+                "Hospitality",
+                "Entertainment",
+                "Personal Services",
+                "Communications",
+                "Religious Goods",
+                "Construction Materials",
+                "Household Consumables"
+            ],
+            ["Nourishment"] = ["Staple Food", "Standard Food", "Luxury Food", "Seasonings"],
+            ["Seasonings"] = ["Salt", "Spices"],
+            ["Clothing"] = ["Simple Clothing", "Standard Clothing", "Luxury Clothing", "Winter Clothing", "Military Uniforms"],
+            ["Domestic Heating"] = ["Combustion Heating", "Oil Heating", "Electric Heating"],
+            ["Intoxicants"] = ["Wine", "Beer", "Mead", "Spirits"],
+            ["Luxury Drinks"] = ["Tea", "Coffee"],
             ["Household Goods"] =
             [
-                "Simple Wares",
-                "Standard Wares",
                 "Simple Furniture",
                 "Standard Furniture",
                 "Luxury Furniture",
+                "Simple Decorations",
                 "Standard Decorations",
-                "Luxury Decorations"
+                "Luxury Decorations",
+                "Simple Wares",
+                "Standard Wares",
+                "Luxury Wares"
             ],
-            ["Hospitality"] = ["Standard Lodging", "Luxury Lodging"],
-            ["Entertainment"] = ["Cheap Entertainment", "Standard Entertainment", "Luxury Entertainment"],
-            ["Personal Services"] = ["Bathing Services", "Domestic Services", "Barbering", "Laundry Services"],
-            ["Communications"] = ["Messenger Services", "Courier Services", "Postal Services", "Printed News"],
-            ["Religious Goods"] = [],
-            ["Household Consumables"] = [],
-            ["Military Goods"] = ["Weapons", "Armour", "Ammunition", "Military Uniforms"],
-            ["Transportation"] = ["Mule Haulage"],
+            ["Military Goods"] = ["Weapons", "Ammunition", "Armour"],
+            ["Weapons"] =
+            [
+                "Spears",
+                "Swords",
+                "Clubs",
+                "Axes",
+                "Maces",
+                "Daggers",
+                "Crossbows",
+                "Bows",
+                "Guns",
+                "Hammers",
+                "Polearms",
+                "Other Weapons"
+            ],
+            ["Ammunition"] = ["Arrows", "Bolts", "Bullets", "Blackpowder"],
+            ["Armour"] = ["Leather Armour", "Mail Armour", "Plate Armour", "Primitive Armour", "Shields"],
+            ["Transportation"] = ["Cargo Transportation", "Passenger Transportation"],
+            ["Cargo Transportation"] = ["Cart Haulage", "Manual Haulage", "Mule Haulage", "Ship Haulage"],
+            ["Passenger Transportation"] = ["Cart Passage", "Horse Passage", "Wagon Passage", "Ship Passage"],
+            ["Medicine"] = ["Simple Medicine", "Standard Medicine", "High-Quality Medicine"],
+            ["Writing Materials"] = ["Wax Tablets", "Parchment", "Paper", "Ink"],
             ["Warehousing"] = [],
             ["Professional Tools"] = ["Primitive Tools", "Simple Tools", "Standard Tools", "High-Quality Tools"],
-            ["Raw Materials"] = []
+            ["Raw Materials"] =
+            [
+                "Lumber",
+                "Straw",
+                "Cloth",
+                "Stone Blocks",
+                "Sand",
+                "Clay",
+                "Aggregate",
+                "Cement Mineral",
+                "Steel",
+                "Copper",
+                "Gold",
+                "Silver",
+                "Bronze",
+                "Brass",
+                "Lead"
+            ],
+            ["Lighting"] = ["Candles", "Torches", "Lamps"],
+            ["Hospitality"] = ["Simple Lodging", "Standard Lodging", "Luxury Lodging", "Prepared Meals", "Bathhouse Services", "Stabling Services"],
+            ["Prepared Meals"] = ["Common Meals", "Fine Dining"],
+            ["Entertainment"] = ["Cheap Entertainment", "Standard Entertainment", "Luxury Entertainment", "Music Performance", "Theatre Performance", "Festival Entertainment", "Sporting Entertainment"],
+            ["Personal Services"] = ["Laundry Services", "Barbering", "Tailoring Services", "Domestic Services", "Bodyguard Services", "Bathing Services", "Grooming Supplies"],
+            ["Communications"] = ["Messenger Services", "Courier Services", "Postal Services", "Printed News", "Telegraph Services", "Telephone Services"],
+            ["Religious Goods"] = ["Ritual Supplies", "Temple Offerings", "Funerary Goods", "Devotional Goods"],
+            ["Construction Materials"] = ["Brick", "Mortar", "Lime", "Worked Timber", "Worked Stone", "Glass Panes", "Roofing Materials"],
+            ["Household Consumables"] = ["Lamp Oil", "Cleaning Supplies", "Candlemaking Wax", "Toiletries"]
         };
 
     private static FuturemudDatabaseContext BuildContext()
@@ -201,6 +284,14 @@ public class EconomySeederTests
     }
 
     private static void SeedEconomyPrerequisites(FuturemudDatabaseContext context, params string[] currencyNames)
+    {
+        SeedEconomyPrerequisites(context, true, currencyNames);
+    }
+
+    private static void SeedEconomyPrerequisites(
+        FuturemudDatabaseContext context,
+        bool includeMarketTags,
+        params string[] currencyNames)
     {
         SeedAccount(context);
 
@@ -283,7 +374,11 @@ public class EconomySeederTests
             TimezoneId = 1
         });
 
-        SeedMarketTags(context);
+        if (includeMarketTags)
+        {
+            SeedMarketTags(context);
+        }
+
         context.SaveChanges();
     }
 
@@ -297,27 +392,27 @@ public class EconomySeederTests
         };
 
         context.Tags.Add(root);
-        foreach ((string? familyName, string[]? leafNames) in FamilyTags)
+        AddMarketTagChildren(context, root, ref nextId);
+    }
+
+    private static void AddMarketTagChildren(FuturemudDatabaseContext context, Tag parent, ref long nextId)
+    {
+        if (!MarketTagsByParent.TryGetValue(parent.Name, out string[]? childNames))
         {
-            Tag family = new()
+            return;
+        }
+
+        foreach (string childName in childNames)
+        {
+            Tag child = new()
             {
                 Id = nextId++,
-                Name = familyName,
-                Parent = root,
-                ParentId = root.Id
+                Name = childName,
+                Parent = parent,
+                ParentId = parent.Id
             };
-            context.Tags.Add(family);
-
-            foreach (string leafName in leafNames)
-            {
-                context.Tags.Add(new Tag
-                {
-                    Id = nextId++,
-                    Name = leafName,
-                    Parent = family,
-                    ParentId = family.Id
-                });
-            }
+            context.Tags.Add(child);
+            AddMarketTagChildren(context, child, ref nextId);
         }
     }
 
@@ -338,6 +433,21 @@ public class EconomySeederTests
         }
 
         return answers;
+    }
+
+    private static Dictionary<string, string> BuildUsefulSeederTagAnswers()
+    {
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tags"] = "yes",
+            ["ai"] = "no",
+            ["items"] = "no",
+            ["modernitems"] = "no",
+            ["covers"] = "no",
+            ["autobuilder"] = "no",
+            ["hints"] = "no",
+            ["dreams"] = "no"
+        };
     }
 
     private static decimal GetBudgetForShopper(FuturemudDatabaseContext context, string shopperName)
@@ -514,7 +624,7 @@ public class EconomySeederTests
         using FuturemudDatabaseContext context = BuildContext();
         SeedEconomyPrerequisites(context);
         EconomySeeder seeder = new();
-        int expectedCategoryCount = FamilyTags.Count + FamilyTags.Sum(x => x.Value.Length);
+        int expectedCategoryCount = MarketTagsByParent.Sum(x => x.Value.Length);
 
         string result = seeder.SeedData(context, BuildAnswers());
 
@@ -559,6 +669,32 @@ public class EconomySeederTests
         Assert.AreEqual(7, context.MarketPopulations.Count());
         Assert.AreEqual(7, context.Shoppers.Count());
         Assert.AreEqual(59, context.FutureProgs.Count(x => x.FunctionName.StartsWith(HelperProgPrefix, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    [TestMethod]
+    public void SeedData_WithUsefulSeederMarketTags_CoversCurrentMarketTaxonomy()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedEconomyPrerequisites(context, false);
+
+        Assert.AreEqual("The operation completed successfully.", new UsefulSeeder().SeedData(context, BuildUsefulSeederTagAnswers()));
+        Assert.AreEqual("The operation completed successfully.", new EconomySeeder().SeedData(context, BuildAnswers()));
+
+        Dictionary<long, MarketCategory> categoriesById = context.MarketCategories
+            .AsEnumerable()
+            .ToDictionary(x => x.Id);
+        MarketCategory clothing = context.MarketCategories.Single(x => x.Name == "Clothing");
+        List<string> clothingComponents = GetCombinationComponents(clothing)
+            .Select(x => categoriesById[x.CategoryId].Name)
+            .ToList();
+        CollectionAssert.Contains(clothingComponents, "Winter Clothing");
+        CollectionAssert.Contains(clothingComponents, "Military Uniforms");
+
+        MarketCategory militaryGoods = context.MarketCategories.Single(x => x.Name == "Military Goods");
+        List<string> militaryComponents = GetCombinationComponents(militaryGoods)
+            .Select(x => categoriesById[x.CategoryId].Name)
+            .ToList();
+        CollectionAssert.DoesNotContain(militaryComponents, "Military Uniforms");
     }
 
     [TestMethod]
@@ -638,7 +774,7 @@ public class EconomySeederTests
             .AsEnumerable()
             .ToDictionary(x => x.Id);
 
-		foreach ((string familyName, string[] leafNames) in FamilyTags
+		foreach ((string familyName, string[] leafNames) in MarketTagsByParent
 				     .Where(x => StockCombinationFamilies.Contains(x.Key)))
 		{
 			MarketCategory familyCategory = context.MarketCategories.Single(x => x.Name == familyName);

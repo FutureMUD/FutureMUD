@@ -30,8 +30,9 @@ The current repository has two dedicated economy seeders:
 - a new stock `EconomicZone` shell tied to a chosen currency and physical zone
 - a stock market attached to that zone
 - market categories for every seeded tag beneath the `UsefulSeeder` `Market` tag root, including intermediate and leaf tags such as later-era communications (`Postal Services`, `Printed News`) and personal-service (`Barbering`, `Laundry Services`) needs
-- stock combination-category examples for setting-agnostic family baskets such as `Medicine`, `Writing Materials`, `Clothing`, `Intoxicants`, `Household Goods`, `Hospitality`, `Entertainment`, `Personal Services`, `Communications`, `Military Goods`, and `Professional Tools`, each seeded as a deterministic non-equal roll-up of its direct child categories with heavier emphasis on common or standard goods
+- stock combination-category examples for setting-agnostic family baskets such as `Medicine`, `Writing Materials`, `Clothing`, `Intoxicants`, `Household Goods`, `Hospitality`, `Entertainment`, `Personal Services`, `Communications`, `Military Goods`, and `Professional Tools`, each seeded as a deterministic non-equal roll-up of the current `UsefulSeeder` direct child categories with heavier emphasis on common or standard goods
 - a reusable library of external market influence templates grouped by sector family, with substantially broader positive and negative scenario coverage than the first pass
+- external market influence templates cover deeper standalone descendants under combination families directly, while the aggregate combination family handles pressure over its direct weighted components
 - per-category tariff and subsidy templates for all seeded market categories, using flat percentage price pressure rather than supply or demand pressure
 - dedicated income-focused influence templates for each seeded era, covering wage squeezes, hiring booms, credit crunches, patronage windfalls, and similar household-income shocks
 - era-specific market populations, including priestly and monastic households, with later eras now drawing on hospitality, entertainment, communications, personal-service, and related market tags where appropriate
@@ -175,7 +176,7 @@ The market and shopper subsystems are also good seeder targets because they are 
 Feasible seed content:
 
 - broad food, seasonings, medicine, writing-material, luxury, industrial, military, logistics, and raw-material categories
-- seeded combination categories for the more setting-agnostic family groups, using stock weights that bias toward practical or common child categories, plus standalone parent categories where the stock seeder deliberately avoids imposing a world-specific basket definition
+- seeded combination categories for the more setting-agnostic family groups, using stock weights that bias toward practical or common current `UsefulSeeder` child categories, plus standalone parent categories where the stock seeder deliberately avoids imposing a world-specific basket definition
 - event-style influence templates such as harvest failure, bumper harvest, embargo, caravan surplus, piracy, mining trouble, and war mobilisation
 - price-only adjustment templates such as tariffs, duties, and subsidies that should act as flat percentage pressure on final price
 - income-focused templates that target specific household archetypes without changing supply or demand

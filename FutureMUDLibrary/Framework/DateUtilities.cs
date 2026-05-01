@@ -28,6 +28,11 @@ public static partial class DateUtilities
             source = new TimeSpan(source.Ticks * -1);
         }
 
+        if (source.TotalSeconds == 0)
+        {
+            return "nil";
+        }
+
         if (source.TotalSeconds < 1)
         {
             return "less than a second";
@@ -77,6 +82,11 @@ public static partial class DateUtilities
         {
             sb.Add("negative ");
             source = new TimeSpan(source.Ticks * -1);
+        }
+
+        if (source.TotalSeconds == 0)
+        {
+            return "nil";
         }
 
         if (source.TotalSeconds < 1)
@@ -140,6 +150,11 @@ public static partial class DateUtilities
             source = new TimeSpan(source.Ticks * -1);
         }
 
+        if (source.TotalSeconds == 0)
+        {
+            return "nil";
+        }
+
         if (source.TotalSeconds < 1)
         {
             if (source.TotalMilliseconds < 1)
@@ -199,6 +214,11 @@ public static partial class DateUtilities
         {
             sb.Add("negative ");
             source = source.Inverse();
+        }
+
+        if (source.TotalSeconds == 0)
+        {
+            return "nil";
         }
 
         if (source.TotalSeconds < 1)

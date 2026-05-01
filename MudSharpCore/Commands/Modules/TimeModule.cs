@@ -232,7 +232,7 @@ The syntax is either #3calendar#0 to view information about the calendar in gene
 
     [PlayerCommand("Calendar", "calendar")]
     [CustomModuleName("World")]
-    [HelpInfo("calendar", CalendarPlayerHelpText, AutoHelp.HelpArgOrNoArg, CalendarAdminHelpText)]
+    [HelpInfo("calendar", CalendarPlayerHelpText, AutoHelp.HelpArg, CalendarAdminHelpText)]
     protected static void Calendar(ICharacter actor, string input)
     {
         if (!actor.IsAdministrator(PermissionLevel.HighAdmin))

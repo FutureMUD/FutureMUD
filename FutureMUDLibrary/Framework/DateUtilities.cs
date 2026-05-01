@@ -11,6 +11,16 @@ namespace MudSharp.Framework;
 
 public static partial class DateUtilities
 {
+    private static TimeSpan GetAbsoluteTimeSpan(TimeSpan source)
+    {
+        return source == TimeSpan.MinValue ? TimeSpan.MaxValue : source.Duration();
+    }
+
+    private static string WithTimeSpanSign(string description, bool isNegative, bool brief = false)
+    {
+        return isNegative ? $"{(brief ? "-" : "negative ")}{description}" : description;
+    }
+
     /// <summary>
     ///     Changes a TimeSpan to a "wordy" string representation of the time passed
     /// </summary>
@@ -21,11 +31,11 @@ public static partial class DateUtilities
     {
         format ??= CultureInfo.InvariantCulture;
         List<string> sb = new();
+        bool isNegative = source.Ticks < 0;
 
-        if (source.TotalSeconds < 0)
+        if (isNegative)
         {
-            sb.Add("negative ");
-            source = new TimeSpan(source.Ticks * -1);
+            source = GetAbsoluteTimeSpan(source);
         }
 
         if (source.TotalSeconds == 0)
@@ -35,16 +45,17 @@ public static partial class DateUtilities
 
         if (source.TotalSeconds < 1)
         {
-            return "less than a second";
+            return WithTimeSpanSign("less than a second", isNegative);
         }
 
         if (source.Days > 365)
         {
             int days = source.Days;
-            sb.Add(string.Format(format, "{0:N0} year{1}", days / 365, days > 730 ? "s" : ""));
+            int years = days / 365;
+            sb.Add(string.Format(format, "{0:N0} year{1}", years, years == 1 ? "" : "s"));
             if (source.Days % 365 > 0)
             {
-                sb.Add($"{source.Days % 365:N0} day{(source.Days % 365 == 1 ? "" : "s")}");
+                sb.Add(string.Format(format, "{0:N0} day{1}", source.Days % 365, source.Days % 365 == 1 ? "" : "s"));
             }
         }
         else
@@ -70,18 +81,18 @@ public static partial class DateUtilities
             sb.Add(string.Format(format, "{0:N0} second{1}", source.Seconds % 60, source.Seconds % 60 == 1 ? "" : "s"));
         }
 
-        return sb.ListToString();
+        return WithTimeSpanSign(sb.ListToString(), isNegative);
     }
 
     public static string DescribePrecise(this TimeSpan source, IFormatProvider format = null)
     {
         format ??= CultureInfo.InvariantCulture;
         List<string> sb = new();
+        bool isNegative = source.Ticks < 0;
 
-        if (source.TotalSeconds < 0)
+        if (isNegative)
         {
-            sb.Add("negative ");
-            source = new TimeSpan(source.Ticks * -1);
+            source = GetAbsoluteTimeSpan(source);
         }
 
         if (source.TotalSeconds == 0)
@@ -95,22 +106,29 @@ public static partial class DateUtilities
             {
                 if (source.TotalMicroseconds < 1)
                 {
-                    return string.Format(format, "{0:N0} nanosecond{1}", source.TotalNanoseconds, source.Nanoseconds == 1 ? "" : "s");
+                    return WithTimeSpanSign(
+                        string.Format(format, "{0:N0} nanosecond{1}", source.TotalNanoseconds, source.Nanoseconds == 1 ? "" : "s"),
+                        isNegative);
                 }
 
-                return string.Format(format, "{0:N0} microsecond{1}", source.TotalMicroseconds, source.Microseconds == 1 ? "" : "s");
+                return WithTimeSpanSign(
+                    string.Format(format, "{0:N0} microsecond{1}", source.TotalMicroseconds, source.Microseconds == 1 ? "" : "s"),
+                    isNegative);
             }
 
-            return string.Format(format, "{0:N0} millisecond{1}", source.TotalMilliseconds, source.Milliseconds == 1 ? "" : "s");
+            return WithTimeSpanSign(
+                string.Format(format, "{0:N0} millisecond{1}", source.TotalMilliseconds, source.Milliseconds == 1 ? "" : "s"),
+                isNegative);
         }
 
         if (source.Days > 365)
         {
             int days = source.Days;
-            sb.Add(string.Format(format, "{0:N0} year{1}", days / 365, days > 730 ? "s" : ""));
+            int years = days / 365;
+            sb.Add(string.Format(format, "{0:N0} year{1}", years, years == 1 ? "" : "s"));
             if (source.Days % 365 > 0)
             {
-                sb.Add($"{source.Days % 365:N0} day{(source.Days % 365 == 1 ? "" : "s")}");
+                sb.Add(string.Format(format, "{0:N0} day{1}", source.Days % 365, source.Days % 365 == 1 ? "" : "s"));
             }
         }
         else
@@ -136,18 +154,18 @@ public static partial class DateUtilities
             sb.Add(string.Format(format, "{0:N0} second{1}", source.Seconds % 60, source.Seconds % 60 == 1 ? "" : "s"));
         }
 
-        return sb.ListToString();
+        return WithTimeSpanSign(sb.ListToString(), isNegative);
     }
 
     public static string DescribePreciseBrief(this TimeSpan source, IFormatProvider format = null)
     {
         format ??= CultureInfo.InvariantCulture;
         List<string> sb = new();
+        bool isNegative = source.Ticks < 0;
 
-        if (source.TotalSeconds < 0)
+        if (isNegative)
         {
-            sb.Add("-");
-            source = new TimeSpan(source.Ticks * -1);
+            source = GetAbsoluteTimeSpan(source);
         }
 
         if (source.TotalSeconds == 0)
@@ -161,13 +179,13 @@ public static partial class DateUtilities
             {
                 if (source.TotalMicroseconds < 1)
                 {
-                    return string.Format(format, "{0:N0}ns", source.TotalNanoseconds);
+                    return WithTimeSpanSign(string.Format(format, "{0:N0}ns", source.TotalNanoseconds), isNegative, true);
                 }
 
-                return string.Format(format, "{0:N0}us", source.TotalMicroseconds);
+                return WithTimeSpanSign(string.Format(format, "{0:N0}us", source.TotalMicroseconds), isNegative, true);
             }
 
-            return string.Format(format, "{0:N0}ms", source.TotalMilliseconds);
+            return WithTimeSpanSign(string.Format(format, "{0:N0}ms", source.TotalMilliseconds), isNegative, true);
         }
 
         if (source.Days > 365)
@@ -202,17 +220,17 @@ public static partial class DateUtilities
             sb.Add(string.Format(format, "{0:N0}s", source.Seconds % 60));
         }
 
-        return sb.ListToString();
+        return WithTimeSpanSign(sb.ListToString(), isNegative, true);
     }
 
     public static string Describe(this MudTimeSpan source, IFormatProvider format = null)
     {
         format ??= CultureInfo.InvariantCulture;
         List<string> sb = new();
+        bool isNegative = source.Milliseconds < 0;
 
-        if (source.Milliseconds < 0)
+        if (isNegative)
         {
-            sb.Add("negative ");
             source = source.Inverse();
         }
 
@@ -223,7 +241,7 @@ public static partial class DateUtilities
 
         if (source.TotalSeconds < 1)
         {
-            return "less than a second";
+            return WithTimeSpanSign("less than a second", isNegative);
         }
 
         if (source.Years > 0)
@@ -261,7 +279,7 @@ public static partial class DateUtilities
             sb.Add(string.Format(format, "{0:N0} second{1}", source.SecondComponentOnly, source.SecondComponentOnly == 1 ? "" : "s"));
         }
 
-        return sb.ListToString();
+        return WithTimeSpanSign(sb.ListToString(), isNegative);
     }
 
     public static DateTime GetLocalDate(this DateTime date, ICharacter character)

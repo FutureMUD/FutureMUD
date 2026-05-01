@@ -310,6 +310,7 @@ public partial class Body
             }
         }
 
+        description = description.AppendRemoteObservationTag(voyeur, Actor, colour, flags);
         return
             CombinedEffectsOfType<ISDescAdditionEffect>()
                 .Where(x => x.DescriptionAdditionApplies(voyeur))

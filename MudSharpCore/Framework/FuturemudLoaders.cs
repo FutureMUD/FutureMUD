@@ -3159,6 +3159,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                 Description = "The ordinary physical plane of the game world.",
                 RoomDescriptionAddendum = null,
                 RoomNameFormat = null,
+                RemoteObservationTag = null,
                 DisplayOrder = 0,
                 IsDefault = true
             };

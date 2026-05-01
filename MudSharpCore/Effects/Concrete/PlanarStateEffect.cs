@@ -77,6 +77,13 @@ public class PlanarStateEffect : Effect, IPlanarOverlayEffect
 		}
 	}
 
+	public override void ExpireEffect()
+	{
+		var before = PlanarVisibilityEchoHelper.CaptureVisibleObservers(Owner);
+		Owner.RemoveEffect(this);
+		PlanarVisibilityEchoHelper.EchoVisibilityChanges(Owner, before);
+	}
+
 	public override IEffect NewEffectOnItemMorph(IGameItem oldItem, IGameItem newItem)
 	{
 		return new PlanarStateEffect(newItem, PlanarPresenceDefinition, PlanarPriority, OverridesBasePlanarPresence,

@@ -240,6 +240,7 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 			0,
 			true,
 			null,
+			null,
 			null);
 		var astral = EnsurePlane(
 			context,
@@ -250,7 +251,8 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 			10,
 			false,
 			"The astral plane overlays this place; the material world seems distant and translucent.",
-			"Astral Plane {0}");
+			"Astral Plane {0}",
+			"({0})");
 
 		context.SaveChanges();
 		return new Dictionary<string, Plane>(StringComparer.OrdinalIgnoreCase)
@@ -267,7 +269,7 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 
 	private static Plane EnsurePlane(FuturemudDatabaseContext context, List<Plane> existing, string name, string aliases,
 		string description, int displayOrder, bool defaultIfNoDefault, string? roomDescriptionAddendum,
-		string? roomNameFormat)
+		string? roomNameFormat, string? remoteObservationTag)
 	{
 		var plane = existing.FirstOrDefault(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 		if (plane is null)
@@ -280,7 +282,8 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 				DisplayOrder = displayOrder,
 				IsDefault = defaultIfNoDefault && !existing.Any(x => x.IsDefault),
 				RoomDescriptionAddendum = roomDescriptionAddendum,
-				RoomNameFormat = roomNameFormat
+				RoomNameFormat = roomNameFormat,
+				RemoteObservationTag = remoteObservationTag
 			};
 			context.Planes.Add(plane);
 			existing.Add(plane);
@@ -312,6 +315,12 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 		    string.IsNullOrWhiteSpace(plane.RoomNameFormat))
 		{
 			plane.RoomNameFormat = roomNameFormat;
+		}
+
+		if (!string.IsNullOrWhiteSpace(remoteObservationTag) &&
+		    string.IsNullOrWhiteSpace(plane.RemoteObservationTag))
+		{
+			plane.RemoteObservationTag = remoteObservationTag;
 		}
 
 		return plane;

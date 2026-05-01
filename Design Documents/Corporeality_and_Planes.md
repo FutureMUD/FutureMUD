@@ -7,7 +7,7 @@ The default behaviour is intentionally conservative. Existing worlds, bodies, an
 
 ## Core Concepts
 ### Plane
-`IPlane` is first-class world data loaded into `IFuturemud.Planes`. A plane has a name, aliases, description, display order, an `IsDefault` flag, optional room-description addendum text, and an optional room-name format. The core seeder and runtime loader ensure there is at least one default plane named `Prime Material`.
+`IPlane` is first-class world data loaded into `IFuturemud.Planes`. A plane has a name, aliases, description, display order, an `IsDefault` flag, optional room-description addendum text, an optional room-name format, and an optional remote-observation ldesc tag. The core seeder and runtime loader ensure there is at least one default plane named `Prime Material`.
 
 Builders manage planes with:
 
@@ -18,12 +18,12 @@ Builders manage planes with:
 
 The default plane is used by fallback material presence and by content that does not specify an explicit plane.
 
-The optional room presentation fields let a plane alter how ordinary cells are shown without duplicating room content. `RoomNameFormat` is a string format where `{0}` is replaced with the normal layer-adjusted room name, for example `Astral Plane {0}`. `RoomDescriptionAddendum` is appended with other coded room-description cues, such as shop and bank notices. Null or blank values leave room names and room descriptions unchanged.
+The optional room presentation fields let a plane alter how ordinary cells are shown without duplicating room content. `RoomNameFormat` is a string format where `{0}` is replaced with the normal layer-adjusted room name, for example `Astral Plane {0}`. `RoomDescriptionAddendum` is appended with other coded room-description cues, such as shop and bank notices. `RemoteObservationTag` is a string format where `{0}` is replaced with the plane name; it is appended to character and item ldescs when the viewer can see the target because the viewer can perceive or occupy that other plane. ANSI colour codes are supported. Null or blank values leave room names, room descriptions, and remote ldesc tags unchanged.
 
 The stock core data now includes:
 
-- `Prime Material`, the default plane, with no extra room-name or room-description presentation.
-- `Astral Plane`, with the stock room-name format `Astral Plane {0}` and an astral room-description addendum.
+- `Prime Material`, the default plane, with no extra room-name, room-description, or remote-observation presentation.
+- `Astral Plane`, with the stock room-name format `Astral Plane {0}`, an astral room-description addendum, and the stock remote-observation tag `({0})`.
 
 ### Planar Presence
 `PlanarPresenceDefinition` is the XML-backed authored model stored on body prototypes, item prototypes, and overlay effects. It records:
@@ -87,8 +87,14 @@ The stock merits package seeds reusable planar-state merits for builders to assi
 Staff can inspect or force state with:
 
 - `corporeality show <target>`
-- `corporeality set <target> <corporeal|noncorporeal> [plane] [duration] [visible]`
+- `corporeality set <target> corporeal [planes] [duration]`
+- `corporeality set <target> noncorporeal [plane] [duration] [visible]`
+- `corporeality add <target> corporeal <planes> [duration]`
+- `corporeality add <target> see <planes> [duration]`
+- `corporeality add <target> visibleto <planes> [duration]`
 - `corporeality clear <target>`
+
+`set` is a hard admin override that replaces existing ordinary `PlanarStateEffect` overrides. `add` layers an additional non-overriding planar capability onto the target, which is useful for storytelling scenes where a target should also see another plane, be visible from another plane, or be corporeal on several planes at once. Plane lists accept IDs, aliases, quoted names, and comma-separated tokens. Durations schedule expiry; undurated effects persist until cleared. Any `set`, `add`, `clear`, or timed expiry that changes whether an observer in the room can see the target sends that observer a fade-in or fade-out echo.
 
 `PerceiveIgnoreFlags.IgnorePlanes` bypasses planar visibility for admin, debug, and true-description style views.
 
@@ -130,9 +136,11 @@ Drugs support `PlanarState` as a drug type. Builders set its intensity with the 
 
 ## Runtime Behaviour
 ### Perception And Targeting
-`BodyPerception.CanSee` runs biological and sensory checks first, then applies planar visibility before ordinary obscuring effects. `VisualEthereal` and `SenseEthereal` perception grants can reveal targets whose planar profile allows ethereal detection.
+`BodyPerception.CanSee` runs biological and sensory checks first, then applies planar visibility before ordinary obscuring effects. Cells and other locations bypass the perceivable planar-presence check so an observer who is corporeally present on the Astral Plane still sees the room through the normal lighting model instead of failing because the cell itself is default-material. Characters and items keep the normal planar visibility rules. `VisualEthereal` and `SenseEthereal` perception grants can reveal targets whose planar profile allows ethereal detection.
 
 Sight-based targeting still resolves visible-only targets. This is deliberate so commands such as `tell`, `whisperto`, and other speech or observation commands can use visible spirits even when physical interaction would fail.
+
+Long descriptions for characters and items can include a remote-plane addendum such as `(Astral Plane)`. The addendum appears only when the viewer sees the target through a remote plane the viewer can perceive or occupy. It does not appear when the target is visible to the viewer's current plane as a noncorporeal manifestation, and it does not appear when a fully multi-planar target is visible on the viewer's current plane.
 
 `survey` reports the perceiver's current plane. If a perceiver is present on more than one plane, the default plane is treated as the current presentation plane when present; otherwise the lowest display-order presence plane is used.
 
@@ -169,7 +177,7 @@ If a transition does not propagate inventory, the body gently ejects direct held
 | Area | Runtime surface |
 | --- | --- |
 | Shared contracts | `FutureMUDLibrary/Planes` |
-| Persistence | `Planes`, `Planes.RoomDescriptionAddendum`, `Planes.RoomNameFormat`, `BodyProtos.PlanarData`, `GameItemProtos.PlanarData` |
+| Persistence | `Planes`, `Planes.RoomDescriptionAddendum`, `Planes.RoomNameFormat`, `Planes.RemoteObservationTag`, `BodyProtos.PlanarData`, `GameItemProtos.PlanarData` |
 | Runtime data | `MudSharpCore/Planes/Plane`, `PlanarStateEffect`, `SpellPlanarStateEffect`, `PlanarStateMerit`, `DrugInducedPlanarStateEffect` |
 | Loading | `FuturemudLoaders.LoadPlanes()` before other world systems depend on defaults |
 | Perception | `BodyPerception.CanSee`, `PerceiveIgnoreFlags.IgnorePlanes` |

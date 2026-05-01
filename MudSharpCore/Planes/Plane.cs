@@ -16,6 +16,7 @@ public class Plane : SavableKeywordedItem, IPlane
 	private string _description;
 	private string _roomDescriptionAddendum;
 	private string _roomNameFormat;
+	private string _remoteObservationTag;
 	private int _displayOrder;
 	private bool _isDefault;
 
@@ -27,6 +28,7 @@ public class Plane : SavableKeywordedItem, IPlane
 		_description = plane.Description;
 		_roomDescriptionAddendum = plane.RoomDescriptionAddendum;
 		_roomNameFormat = plane.RoomNameFormat;
+		_remoteObservationTag = plane.RemoteObservationTag;
 		_displayOrder = plane.DisplayOrder;
 		_isDefault = plane.IsDefault;
 		_aliases.AddRange((plane.Alias ?? string.Empty).Split(' ', System.StringSplitOptions.RemoveEmptyEntries));
@@ -51,6 +53,7 @@ public class Plane : SavableKeywordedItem, IPlane
 				Description = _description,
 				RoomDescriptionAddendum = _roomDescriptionAddendum,
 				RoomNameFormat = _roomNameFormat,
+				RemoteObservationTag = _remoteObservationTag,
 				DisplayOrder = _displayOrder,
 				IsDefault = _isDefault
 			};
@@ -68,6 +71,7 @@ public class Plane : SavableKeywordedItem, IPlane
 	public string Description => _description;
 	public string RoomDescriptionAddendum => _roomDescriptionAddendum;
 	public string RoomNameFormat => _roomNameFormat;
+	public string RemoteObservationTag => _remoteObservationTag;
 	public int DisplayOrder => _displayOrder;
 	public bool IsDefault => _isDefault;
 
@@ -81,6 +85,7 @@ public class Plane : SavableKeywordedItem, IPlane
 			dbitem.Description = _description;
 			dbitem.RoomDescriptionAddendum = _roomDescriptionAddendum;
 			dbitem.RoomNameFormat = _roomNameFormat;
+			dbitem.RemoteObservationTag = _remoteObservationTag;
 			dbitem.DisplayOrder = _displayOrder;
 			dbitem.IsDefault = _isDefault;
 			FMDB.Context.SaveChanges();
@@ -97,6 +102,7 @@ public class Plane : SavableKeywordedItem, IPlane
 		sb.AppendLine($"Display Order: {DisplayOrder.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Aliases: {Aliases.Select(x => x.ColourCommand()).DefaultIfEmpty("None".ColourError()).ListToString()}");
 		sb.AppendLine($"Room Name Format: {(string.IsNullOrWhiteSpace(RoomNameFormat) ? "None".ColourError() : RoomNameFormat.ColourCommand())}");
+		sb.AppendLine($"Remote Observation Tag: {(string.IsNullOrWhiteSpace(RemoteObservationTag) ? "None".ColourError() : RemoteObservationTag.SubstituteANSIColour())}");
 		sb.AppendLine();
 		sb.AppendLine("Description:");
 		sb.AppendLine();
@@ -134,6 +140,11 @@ public class Plane : SavableKeywordedItem, IPlane
 			case "nameformat":
 			case "format":
 				return BuildingCommandRoomNameFormat(actor, command);
+			case "tag":
+			case "remotetag":
+			case "observationtag":
+			case "remoteobservationtag":
+				return BuildingCommandRemoteObservationTag(actor, command);
 			case "order":
 			case "display":
 			case "displayorder":
@@ -149,6 +160,7 @@ public class Plane : SavableKeywordedItem, IPlane
 	#3description <description>#0 - sets the builder description
 	#3addendum <text|none>#0 - sets or clears room description addendum text
 	#3roomname <format|none>#0 - sets or clears the room name format, e.g. #3Astral Plane {0}#0
+	#3tag <format|none>#0 - sets or clears the remote observation ldesc tag, e.g. #3({0})#0
 	#3order <number>#0 - sets the display order
 	#3default#0 - makes this the default plane".SubstituteANSIColour());
 		return false;
@@ -266,6 +278,46 @@ public class Plane : SavableKeywordedItem, IPlane
 		_roomNameFormat = format;
 		Changed = true;
 		actor.OutputHandler.Send($"{Name.ColourName()} will now show room names like {example.ColourRoom()}.");
+		return true;
+	}
+
+	private bool BuildingCommandRemoteObservationTag(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What remote observation tag should this plane use? Use none to clear it. The format must include {0}.");
+			return false;
+		}
+
+		var format = command.SafeRemainingArgument;
+		if (format.EqualToAny("none", "clear", "remove", "delete", "blank"))
+		{
+			_remoteObservationTag = null;
+			Changed = true;
+			actor.OutputHandler.Send($"{Name.ColourName()} will no longer add remote observation tags.");
+			return true;
+		}
+
+		if (!format.Contains("{0}", StringComparison.Ordinal))
+		{
+			actor.OutputHandler.Send("Remote observation tag formats must include {0}, which is replaced with the plane name.");
+			return false;
+		}
+
+		string example;
+		try
+		{
+			example = string.Format(format, Name);
+		}
+		catch (FormatException)
+		{
+			actor.OutputHandler.Send("That format string is invalid.");
+			return false;
+		}
+
+		_remoteObservationTag = format;
+		Changed = true;
+		actor.OutputHandler.Send($"{Name.ColourName()} will now add the remote observation tag {example.SubstituteANSIColour()}.");
 		return true;
 	}
 

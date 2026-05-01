@@ -8,6 +8,7 @@ namespace MudSharp.Models
 		public string Description { get; set; }
 		public string RoomDescriptionAddendum { get; set; }
 		public string RoomNameFormat { get; set; }
+		public string RemoteObservationTag { get; set; }
 		public int DisplayOrder { get; set; }
 		public bool IsDefault { get; set; }
 	}

@@ -37,6 +37,7 @@ public class CoreDataSeederPlaneTests
 		Assert.AreEqual(2, context.Planes.Count());
 		Assert.IsTrue(prime.Alias.Contains("physical"));
 		Assert.AreEqual("Astral Plane {0}", astral.RoomNameFormat);
+		Assert.AreEqual("({0})", astral.RemoteObservationTag);
 		Assert.IsFalse(string.IsNullOrWhiteSpace(astral.RoomDescriptionAddendum));
 	}
 
@@ -68,5 +69,6 @@ public class CoreDataSeederPlaneTests
 		Assert.AreEqual(1, context.Planes.Count(x => x.IsDefault));
 		Assert.AreEqual(1, context.Planes.Count(x => x.Name == "Prime Material"));
 		Assert.AreEqual(1, context.Planes.Count(x => x.Name == "Astral Plane"));
+		Assert.AreEqual("({0})", context.Planes.Single(x => x.Name == "Astral Plane").RemoteObservationTag);
 	}
 }

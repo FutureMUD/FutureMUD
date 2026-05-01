@@ -1140,11 +1140,26 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
         }
     }
 
+    private const string CorporealityHelpText = @"The #3corporeality#0 command lets admins inspect and temporarily override planar state.
+
+#6Core states:#0
+	#3corporeal#0 means physically present, visible, able to perceive, and able to interact on the specified plane or planes.
+	#3noncorporeal#0 means present on a plane but not physically touchable; #3visible#0 also makes the target visible to the default plane.
+
+#6Syntax:#0
+	#3corporeality show <target>#0 - shows the target's resolved planar state
+	#3corporeality set <target> corporeal [planes] [duration]#0 - replaces their state with corporeal presence on one or more planes
+	#3corporeality set <target> noncorporeal [plane] [duration] [visible]#0 - replaces their state with a non-corporeal presence
+	#3corporeality add <target> corporeal <planes> [duration]#0 - adds corporeal presence on extra planes without removing the base state
+	#3corporeality add <target> see <planes> [duration]#0 - lets the target see perceivables visible to those planes
+	#3corporeality add <target> visibleto <planes> [duration]#0 - makes the target visible to viewers on those planes
+	#3corporeality clear <target>#0 - removes admin planar overrides
+
+Plane lists accept IDs, aliases, quoted names, or comma-separated tokens, e.g. #3Astral#0, #3""Astral Plane""#0, or #3Prime,Astral#0. Durations are optional; permanent overrides remain until cleared. People in the room receive a fade echo if the command changes whether they can see the target.";
+
     [PlayerCommand("Corporeality", "corporeality")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("corporeality",
-        "The corporeality command lets admins inspect and temporarily override planar state. Syntax: CORPOREALITY SHOW <target>, CORPOREALITY SET <target> <corporeal|noncorporeal> [plane] [duration], CORPOREALITY CLEAR <target>.",
-        AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("corporeality", CorporealityHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void Corporeality(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -1156,12 +1171,15 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
             case "set":
                 CorporealitySet(actor, ss);
                 return;
+            case "add":
+                CorporealityAdd(actor, ss);
+                return;
             case "clear":
                 CorporealityClear(actor, ss);
                 return;
         }
 
-        actor.OutputHandler.Send("Do you want to show, set, or clear corporeality?");
+        actor.OutputHandler.Send("Do you want to show, set, add, or clear corporeality?");
     }
 
     private static void CorporealityShow(ICharacter actor, StringStack ss)
@@ -1212,52 +1230,84 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
         }
 
         string state = ss.PopSpeech().ToLowerInvariant();
-        IPlane plane = actor.Gameworld.DefaultPlane;
-        TimeSpan? duration = null;
-        bool visible = false;
-        while (!ss.IsFinished)
+        if (!TryParseCorporealityArguments(actor, ss, false, out var planes, out var duration, out var visible, out var error))
         {
-            string token = ss.PopSpeech();
-            if (token.EqualToAny("visible", "manifest", "seen"))
-            {
-                visible = true;
-                continue;
-            }
-
-            if (TimeSpan.TryParse(token, actor, out TimeSpan parsed))
-            {
-                duration = parsed;
-                continue;
-            }
-
-            plane = actor.Gameworld.Planes.GetByIdOrName(token) ?? plane;
+            actor.OutputHandler.Send(error);
+            return;
         }
 
+        planes = planes.Any() ? planes : new List<IPlane> { actor.Gameworld.DefaultPlane };
         PlanarPresenceDefinition definition = state switch
         {
-            "corporeal" or "manifest" or "manifested" => PlanarPresenceDefinition.DefaultMaterial(plane.Id),
-            "noncorporeal" or "incorporeal" or "dissipate" or "dissipated" => PlanarPresenceDefinition.NonCorporeal(plane, visible),
+            "corporeal" or "manifest" or "manifested" => PlanarPresenceDefinition.Corporeal(planes),
+            "noncorporeal" or "incorporeal" or "dissipate" or "dissipated" => planes.Count > 1 ? null : PlanarPresenceDefinition.NonCorporeal(planes[0], visible),
             _ => null
         };
 
         if (definition is null)
         {
-            actor.OutputHandler.Send("The state must be corporeal or noncorporeal.");
+            actor.OutputHandler.Send(planes.Count > 1
+                ? "Non-corporeal overrides can only have a single primary plane."
+                : "The state must be corporeal or noncorporeal.");
             return;
         }
 
-        target.RemoveAllEffects<PlanarStateEffect>(x => true, true);
+        var before = PlanarVisibilityEchoHelper.CaptureVisibleObservers(target);
+        target.RemoveAllEffects<PlanarStateEffect>(x => true);
         var effect = new PlanarStateEffect(target, definition, 100, true);
-        if (duration.HasValue)
+        AddPlanarStateEffect(target, effect, duration);
+        PlanarVisibilityEchoHelper.EchoVisibilityChanges(target, before);
+
+        actor.OutputHandler.Send($"You set {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnorePlanes)} to {state.ColourValue()} on {DescribePlanesForCorporeality(actor, planes)}.");
+    }
+
+    private static void CorporealityAdd(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
         {
-            target.AddEffect(effect, duration.Value);
-        }
-        else
-        {
-            target.AddEffect(effect);
+            actor.OutputHandler.Send("Whose or what corporeality do you want to add to?");
+            return;
         }
 
-        actor.OutputHandler.Send($"You set {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnorePlanes)} to {state.ColourValue()} on {plane.Name.ColourName()}.");
+        IPerceivable target = actor.Target(ss.PopSpeech());
+        if (target is null)
+        {
+            actor.OutputHandler.Send("You do not see that target.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Do you want to add corporeal presence, sight, or visibility?");
+            return;
+        }
+
+        string mode = ss.PopSpeech().ToLowerInvariant();
+        if (!TryParseCorporealityArguments(actor, ss, true, out var planes, out var duration, out _, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        PlanarPresenceDefinition definition = mode switch
+        {
+            "corporeal" or "manifest" or "manifested" => PlanarPresenceDefinition.Corporeal(planes),
+            "see" or "sight" or "perceive" or "perceives" => PlanarPresenceDefinition.PerceivesPlanes(planes),
+            "visible" or "visibleto" or "seenby" => PlanarPresenceDefinition.VisibleToPlanes(planes),
+            _ => null
+        };
+
+        if (definition is null)
+        {
+            actor.OutputHandler.Send("You must add corporeal, see, or visibleto.");
+            return;
+        }
+
+        var before = PlanarVisibilityEchoHelper.CaptureVisibleObservers(target);
+        AddPlanarStateEffect(target, new PlanarStateEffect(target, definition, 101, false), duration);
+        PlanarVisibilityEchoHelper.EchoVisibilityChanges(target, before);
+
+        actor.OutputHandler.Send($"You add {mode.ColourValue()} planar presence for {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnorePlanes)} on {DescribePlanesForCorporeality(actor, planes)}.");
     }
 
     private static void CorporealityClear(ICharacter actor, StringStack ss)
@@ -1275,8 +1325,73 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
             return;
         }
 
-        target.RemoveAllEffects<PlanarStateEffect>(x => true, true);
+        var before = PlanarVisibilityEchoHelper.CaptureVisibleObservers(target);
+        target.RemoveAllEffects<PlanarStateEffect>(x => true);
+        PlanarVisibilityEchoHelper.EchoVisibilityChanges(target, before);
         actor.OutputHandler.Send($"You clear any planar state overrides from {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnorePlanes)}.");
+    }
+
+    internal static bool TryParseCorporealityArguments(ICharacter actor, StringStack ss, bool requirePlane,
+        out List<IPlane> planes, out TimeSpan? duration, out bool visible, out string error)
+    {
+        planes = new List<IPlane>();
+        duration = null;
+        visible = false;
+        error = string.Empty;
+        while (!ss.IsFinished)
+        {
+            string token = ss.PopSpeech();
+            if (token.EqualToAny("visible", "manifest", "seen"))
+            {
+                visible = true;
+                continue;
+            }
+
+            if (TimeSpan.TryParse(token, actor, out TimeSpan parsed))
+            {
+                duration = parsed;
+                continue;
+            }
+
+            foreach (var planeText in token.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                var plane = actor.Gameworld.Planes.GetByIdOrName(planeText);
+                if (plane is null)
+                {
+                    error = $"There is no plane identified by {planeText.ColourCommand()}.";
+                    return false;
+                }
+
+                if (!planes.Contains(plane))
+                {
+                    planes.Add(plane);
+                }
+            }
+        }
+
+        if (requirePlane && !planes.Any())
+        {
+            error = "You must specify at least one plane.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void AddPlanarStateEffect(IPerceivable target, PlanarStateEffect effect, TimeSpan? duration)
+    {
+        if (duration.HasValue)
+        {
+            target.AddEffect(effect, duration.Value);
+            return;
+        }
+
+        target.AddEffect(effect);
+    }
+
+    private static string DescribePlanesForCorporeality(ICharacter actor, IEnumerable<IPlane> planes)
+    {
+        return planes.Select(x => x.Name.ColourName()).ListToString(conjunction: "and ");
     }
 
     private static void EffectRemove(ICharacter actor, StringStack ss)

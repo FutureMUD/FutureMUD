@@ -10,6 +10,7 @@ public interface IPlane : IEditableItem, IKeywordedItem, IHaveMultipleNames
 	string Description { get; }
 	string RoomDescriptionAddendum { get; }
 	string RoomNameFormat { get; }
+	string RemoteObservationTag { get; }
 	int DisplayOrder { get; }
 	bool IsDefault { get; }
 }

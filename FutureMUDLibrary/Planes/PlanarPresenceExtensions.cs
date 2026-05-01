@@ -1,8 +1,10 @@
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -35,6 +37,11 @@ public static class PlanarPresenceExtensions
 		if (voyeur is null || target is null)
 		{
 			return false;
+		}
+
+		if (target is ILocation)
+		{
+			return true;
 		}
 
 		var voyeurPresence = ((IPerceivable)voyeur).GetPlanarPresence();
@@ -90,6 +97,68 @@ public static class PlanarPresenceExtensions
 		                  .OrderBy(x => x.DisplayOrder)
 		                  .ThenBy(x => x.Id)
 		                  .FirstOrDefault() ?? defaultPlane;
+	}
+
+	public static IPlane RemoteObservationPlane(this IPerceiver voyeur, IPerceivable target,
+		PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
+	{
+		if (flags.HasFlag(PerceiveIgnoreFlags.IgnorePlanes) ||
+		    flags.HasFlag(PerceiveIgnoreFlags.IgnoreNamesSetting) ||
+		    voyeur is null || target is null || voyeur.IsSelf(target))
+		{
+			return null;
+		}
+
+		var voyeurPresence = ((IPerceivable)voyeur).GetPlanarPresence();
+		var targetPresence = target.GetPlanarPresence();
+		var currentPlane = ((IPerceivable)voyeur).CurrentPlane();
+		if (currentPlane is not null && targetPresence.VisibleToPlaneIds.Contains(currentPlane.Id))
+		{
+			return null;
+		}
+
+		var observableRemotePlanes = targetPresence.PresencePlaneIds
+		                                           .Where(x => x != currentPlane?.Id)
+		                                           .Where(x => targetPresence.VisibleToPlaneIds.Contains(x))
+		                                           .Where(x => voyeurPresence.PresencePlaneIds.Contains(x) ||
+		                                                       voyeurPresence.PerceivesPlaneIds.Contains(x))
+		                                           .ToHashSet();
+		return target.Gameworld.Planes
+		             .Where(x => observableRemotePlanes.Contains(x.Id) &&
+		                         !string.IsNullOrWhiteSpace(x.RemoteObservationTag))
+		             .OrderBy(x => x.DisplayOrder)
+		             .ThenBy(x => x.Id)
+		             .FirstOrDefault();
+	}
+
+	public static string RemoteObservationTagFor(this IPerceiver voyeur, IPerceivable target, bool colour = true,
+		PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
+	{
+		var plane = voyeur.RemoteObservationPlane(target, flags);
+		if (plane is null)
+		{
+			return string.Empty;
+		}
+
+		string tag;
+		try
+		{
+			tag = string.Format(plane.RemoteObservationTag, plane.Name);
+		}
+		catch (FormatException)
+		{
+			tag = $"({plane.Name})";
+		}
+
+		tag = tag.SubstituteANSIColour();
+		return colour ? tag : tag.StripANSIColour();
+	}
+
+	public static string AppendRemoteObservationTag(this string description, IPerceiver voyeur, IPerceivable target,
+		bool colour = true, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
+	{
+		var tag = voyeur.RemoteObservationTagFor(target, colour, flags);
+		return string.IsNullOrWhiteSpace(tag) ? description : $"{description} {tag}";
 	}
 
 	public static bool SuspendsPhysicalContact(this IPerceivable perceivable)

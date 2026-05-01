@@ -4519,6 +4519,9 @@ You can use the following syntax with this command:
 	#3plane set name <name>#0 - renames the plane
 	#3plane set aliases <aliases>#0 - sets aliases
 	#3plane set desc <description>#0 - sets the description
+	#3plane set addendum <text|none>#0 - sets extra room description text for viewers on this plane
+	#3plane set roomname <format|none>#0 - sets a room name format where {0} is the normal room name
+	#3plane set tag <format|none>#0 - sets the remote-plane ldesc tag where {0} is the plane name
 	#3plane set order <number>#0 - sets display order
 	#3plane set default#0 - makes this the default plane";
 

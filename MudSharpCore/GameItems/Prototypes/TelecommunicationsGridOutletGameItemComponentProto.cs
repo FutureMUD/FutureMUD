@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TelecommunicationsGridOutletGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class TelecommunicationsGridOutletGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IConnectablePrototype, IProducePowerPrototype, IConsumePowerPrototype, ICanConnectToTelecommunicationsGridPrototype, ITelephoneNumberOwnerPrototype
 {
     public override string TypeDescription => "TelecommunicationsGridOutlet";
     public List<ConnectorType> Connections { get; } = [];

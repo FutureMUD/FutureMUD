@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CrutchGameItemComponentProto : GameItemComponentProto
+public class CrutchGameItemComponentProto : GameItemComponentProto, ICrutchPrototype
 {
     public override string TypeDescription => "Crutch";
 

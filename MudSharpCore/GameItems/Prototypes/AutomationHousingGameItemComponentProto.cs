@@ -13,7 +13,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class AutomationHousingGameItemComponentProto : LockingContainerGameItemComponentProto
+public class AutomationHousingGameItemComponentProto : LockingContainerGameItemComponentProto, IAutomationHousingPrototype
 {
 	private const string AutomationHousingBuildingHelpText = @"
 	#3cables <true|false>#0 - whether this housing can conceal signal cable segments

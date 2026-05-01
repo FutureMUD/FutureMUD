@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ElectricGridFeederGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class ElectricGridFeederGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, ICanConnectToElectricalGridPrototype, IConnectablePrototype, IConsumePowerPrototype, IProducePowerPrototype
 {
     public override string TypeDescription => "ElectricGridFeeder";
 

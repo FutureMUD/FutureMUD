@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class GagGameItemComponentProto : GameItemComponentProto
+public class GagGameItemComponentProto : GameItemComponentProto, IGagPrototype
 {
     public override string TypeDescription => "Gag";
 

@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ImplantTelephoneGameItemComponentProto : ImplantBaseGameItemComponentProto
+public class ImplantTelephoneGameItemComponentProto : ImplantBaseGameItemComponentProto, IImplantReportStatusPrototype, IImplantRespondToCommandsPrototype, ITelephonePrototype, ITelephoneNumberOwnerPrototype, ICanConnectToTelecommunicationsGridPrototype
 {
     public override string TypeDescription => "ImplantTelephone";
     public string RingText { get; set; } = null!;

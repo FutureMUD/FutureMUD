@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TapeGameItemComponentProto : GameItemComponentProto
+public class TapeGameItemComponentProto : GameItemComponentProto, IAudioStorageTapePrototype
 {
     public override string TypeDescription => "Tape";
     public TimeSpan Capacity { get; set; }

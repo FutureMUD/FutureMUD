@@ -9,7 +9,7 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class SignalCableSegmentGameItemComponentProto : GameItemComponentProto
+public class SignalCableSegmentGameItemComponentProto : GameItemComponentProto, ISignalCableSegmentPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 

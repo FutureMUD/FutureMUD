@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class DestroyableGameItemComponentProto : GameItemComponentProto
+public class DestroyableGameItemComponentProto : GameItemComponentProto, IDestroyablePrototype, IAffectQualityPrototype
 {
     public override string TypeDescription => "Destroyable";
 

@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BeltableGameItemComponentProto : GameItemComponentProto
+public class BeltableGameItemComponentProto : GameItemComponentProto, IBeltablePrototype
 {
     private static readonly string _showString = "Beltable Item Component".Colour(Telnet.Cyan) + "\n\n" +
                                                  "This item can be attached to belts.\n";

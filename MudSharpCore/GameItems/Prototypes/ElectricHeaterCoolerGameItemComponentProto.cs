@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ElectricHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGameItemComponentProto
+public class ElectricHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGameItemComponentProto, IConsumePowerPrototype
 {
     protected ElectricHeaterCoolerGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld,
         originator, "ElectricHeaterCooler")

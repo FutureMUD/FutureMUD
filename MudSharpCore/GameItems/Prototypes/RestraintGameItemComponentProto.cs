@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class RestraintGameItemComponentProto : GameItemComponentProto
+public class RestraintGameItemComponentProto : GameItemComponentProto, IRestraintPrototype
 {
     public override string TypeDescription => "Restraint";
 

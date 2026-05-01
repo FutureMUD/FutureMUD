@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class SmokeableGameItemComponentProto : GameItemComponentProto
+public class SmokeableGameItemComponentProto : GameItemComponentProto, ISmokeablePrototype
 {
     protected SmokeableGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Smokeable")

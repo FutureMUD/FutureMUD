@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PillGameItemComponentProto : GameItemComponentProto
+public class PillGameItemComponentProto : GameItemComponentProto, ISwallowablePrototype
 {
     protected PillGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Pill")

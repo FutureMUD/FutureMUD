@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ImplantPowerPlantGameItemComponentProto : GameItemComponentProto
+public class ImplantPowerPlantGameItemComponentProto : GameItemComponentProto, IImplantPowerPlantPrototype, IImplantReportStatusPrototype, IImplantRespondToCommandsPrototype
 {
     public override string TypeDescription => "ImplantPowerPlant";
 

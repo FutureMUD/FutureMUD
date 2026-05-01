@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class WieldablePropGameItemComponentProto : GameItemComponentProto
+public class WieldablePropGameItemComponentProto : GameItemComponentProto, IWieldablePrototype
 {
     private static readonly string _showString = "Wieldable Prop Item Component".Colour(Telnet.Cyan) + "\n\n" +
                                                  "This item can be wielded by Characters.\n";

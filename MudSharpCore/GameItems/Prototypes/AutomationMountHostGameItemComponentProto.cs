@@ -17,7 +17,7 @@ namespace MudSharp.GameItems.Prototypes;
 
 public sealed record AutomationMountBayDefinition(string Name, string MountType);
 
-public class AutomationMountHostGameItemComponentProto : GameItemComponentProto
+public class AutomationMountHostGameItemComponentProto : GameItemComponentProto, IAutomationMountHostPrototype, IConnectablePrototype
 {
 	private const string BaseBuildingHelpText = @"You can use the following options with this component:
 	#3name <name>#0 - sets the name of the component

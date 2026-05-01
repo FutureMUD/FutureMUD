@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PhotocopierGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class PhotocopierGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, IContainerPrototype, IOpenablePrototype, ILockablePrototype
 {
     public PhotocopierGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld, originator,
         "Photocopier")

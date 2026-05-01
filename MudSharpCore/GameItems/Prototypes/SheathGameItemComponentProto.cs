@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class SheathGameItemComponentProto : GameItemComponentProto
+public class SheathGameItemComponentProto : GameItemComponentProto, ISheathPrototype, IContainerPrototype
 {
     public SizeCategory MaximumSize { get; protected set; }
     public Difficulty StealthDrawDifficulty { get; protected set; }

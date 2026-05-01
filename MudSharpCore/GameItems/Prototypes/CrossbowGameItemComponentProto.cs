@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CrossbowGameItemComponentProto : GameItemComponentProto
+public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, IMeleeWeaponPrototype
 {
     public override string TypeDescription => "Crossbow";
 

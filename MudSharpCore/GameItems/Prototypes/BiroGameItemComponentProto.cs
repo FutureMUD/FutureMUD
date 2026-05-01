@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BiroGameItemComponentProto : GameItemComponentProto
+public class BiroGameItemComponentProto : GameItemComponentProto, IWritingImplementPrototype
 {
     public override string TypeDescription => "Biro";
 

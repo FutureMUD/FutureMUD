@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ImplantRadioGameItemComponentProto : ImplantBaseGameItemComponentProto
+public class ImplantRadioGameItemComponentProto : ImplantBaseGameItemComponentProto, IImplantReportStatusPrototype, IImplantRespondToCommandsPrototype, ITransmitPrototype, IReceivePrototype
 {
     public override string TypeDescription => "ImplantRadio";
 

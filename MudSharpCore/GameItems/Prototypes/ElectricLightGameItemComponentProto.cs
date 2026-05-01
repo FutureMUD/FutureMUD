@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ElectricLightGameItemComponentProto : GameItemComponentProto
+public class ElectricLightGameItemComponentProto : GameItemComponentProto, IProduceLightPrototype, IConsumePowerPrototype, ISwitchablePrototype, IOnOffPrototype
 {
     protected ElectricLightGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "ElectricLight")

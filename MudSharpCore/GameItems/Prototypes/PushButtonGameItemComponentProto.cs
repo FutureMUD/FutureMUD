@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PushButtonGameItemComponentProto : GameItemComponentProto
+public class PushButtonGameItemComponentProto : GameItemComponentProto, ISelectablePrototype, ISignalSourceComponentPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3keyword <keyword>#0 - the select keyword for the button

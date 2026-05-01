@@ -10,7 +10,7 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class RelaySwitchGameItemComponentProto : ProgPowerSupplyGameItemComponentProto
+public class RelaySwitchGameItemComponentProto : ProgPowerSupplyGameItemComponentProto, IRuntimeConfigurableSignalSinkComponentPrototype
 {
 	private const string BuildingHelpText = @"You can use the following options with this component:
 

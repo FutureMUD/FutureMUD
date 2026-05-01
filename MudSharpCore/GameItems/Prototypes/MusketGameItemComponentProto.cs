@@ -29,7 +29,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class MusketGameItemComponentProto : GameItemComponentProto
+public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWeaponPrototype, IBeltPrototype, IMeleeWeaponPrototype
 {
     public static ISolid GunpowderMaterial => Futuremud.Games.First().Materials.Get(Futuremud.Games.First().GetStaticLong("GunpowderMaterialId"));
 

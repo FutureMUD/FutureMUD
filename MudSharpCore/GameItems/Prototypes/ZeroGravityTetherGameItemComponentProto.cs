@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ZeroGravityTetherGameItemComponentProto : GameItemComponentProto
+public class ZeroGravityTetherGameItemComponentProto : GameItemComponentProto, IZeroGravityTetherItemPrototype
 {
 	protected ZeroGravityTetherGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld, originator, "ZeroGravityTether")
 	{

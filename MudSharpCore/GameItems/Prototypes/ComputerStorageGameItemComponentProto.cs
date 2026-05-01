@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ComputerStorageGameItemComponentProto : GameItemComponentProto
+public class ComputerStorageGameItemComponentProto : GameItemComponentProto, IConnectablePrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3capacity <bytes>#0 - sets the storage capacity for files on this device";

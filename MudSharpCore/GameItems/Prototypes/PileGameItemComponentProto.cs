@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PileGameItemComponentProto : GameItemComponentProto
+public class PileGameItemComponentProto : GameItemComponentProto, IContainerPrototype
 {
     public override string TypeDescription => "Pile";
 

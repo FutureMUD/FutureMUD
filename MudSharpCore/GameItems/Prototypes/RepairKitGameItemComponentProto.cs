@@ -21,7 +21,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class RepairKitGameItemComponentProto : GameItemComponentProto
+public class RepairKitGameItemComponentProto : GameItemComponentProto, IRepairKitPrototype
 {
     public WoundSeverity MaximumSeverity { get; protected set; }
     public int RepairPoints { get; protected set; }

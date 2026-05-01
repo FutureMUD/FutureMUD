@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PencilGameItemComponentProto : GameItemComponentProto
+public class PencilGameItemComponentProto : GameItemComponentProto, IWritingImplementPrototype
 {
     public override string TypeDescription => "Pencil";
 

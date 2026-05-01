@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ChangerGameItemComponentProto : GameItemComponentProto
+public class ChangerGameItemComponentProto : GameItemComponentProto, IChangeCharacteristicsPrototype
 {
     protected readonly Dictionary<ICharacteristicDefinition, ICharacteristicValue> _values =
         new();

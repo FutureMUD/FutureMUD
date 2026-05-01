@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class EarpieceRadioGameItemComponentProto : GameItemComponentProto
+public class EarpieceRadioGameItemComponentProto : GameItemComponentProto, IReceivePrototype, IConsumePowerPrototype, ISwitchablePrototype
 {
     public override string TypeDescription => "EarpieceRadio";
 

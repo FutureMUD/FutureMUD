@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class VariableGameItemComponentProto : GameItemComponentProto
+public class VariableGameItemComponentProto : GameItemComponentProto, IVariablePrototype
 {
     protected readonly Dictionary<ICharacteristicDefinition, ICharacteristicProfile> _characteristicDefinitions =
         new();

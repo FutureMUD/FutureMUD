@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BatteryGameItemComponentProto : GameItemComponentProto
+public class BatteryGameItemComponentProto : GameItemComponentProto, IBatteryPrototype
 {
     public override string TypeDescription => "Battery";
 

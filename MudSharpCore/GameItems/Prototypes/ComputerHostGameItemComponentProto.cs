@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ComputerHostGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class ComputerHostGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, IConnectablePrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3capacity <bytes>#0 - sets the internal storage capacity for host files

@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ImmobilisingGameItemComponentProto : WearableGameItemComponentProto
+public class ImmobilisingGameItemComponentProto : WearableGameItemComponentProto, IImmobilisePrototype
 {
     public override string TypeDescription => "Immobilising";
 

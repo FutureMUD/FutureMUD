@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ZeroGravityAnchorGameItemComponentProto : GameItemComponentProto
+public class ZeroGravityAnchorGameItemComponentProto : GameItemComponentProto, IZeroGravityAnchorItemPrototype
 {
 	protected ZeroGravityAnchorGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld, originator, "ZeroGravityAnchor")
 	{

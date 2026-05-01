@@ -20,7 +20,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CannulaGameItemComponentProto : GameItemComponentProto
+public class CannulaGameItemComponentProto : GameItemComponentProto, ICannulaPrototype
 {
     public List<ConnectorType> Connections { get; } = new();
 

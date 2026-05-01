@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class HandToolGameItemComponentProto : GameItemComponentProto
+public class HandToolGameItemComponentProto : GameItemComponentProto, IToolItemPrototype
 {
     public double BaseMultiplier { get; protected set; }
     public double MultiplierReductionPerQuality { get; protected set; }

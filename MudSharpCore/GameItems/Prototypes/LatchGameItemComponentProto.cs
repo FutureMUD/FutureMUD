@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LatchGameItemComponentProto : GameItemComponentProto
+public class LatchGameItemComponentProto : GameItemComponentProto, ILockPrototype
 {
     public Difficulty ForceDifficulty { get; private set; }
     public Difficulty PickDifficulty { get; private set; }

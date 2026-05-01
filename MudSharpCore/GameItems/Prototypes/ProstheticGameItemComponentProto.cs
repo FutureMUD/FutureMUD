@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ProstheticGameItemComponentProto : GameItemComponentProto
+public class ProstheticGameItemComponentProto : GameItemComponentProto, IProstheticPrototype
 {
     public IBodypart TargetBodypart { get; protected set; }
     public IBodyPrototype TargetBody { get; protected set; }

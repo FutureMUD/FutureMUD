@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CellPhoneTowerGameItemComponentProto : GameItemComponentProto
+public class CellPhoneTowerGameItemComponentProto : GameItemComponentProto, ICellPhoneTowerPrototype, ICanConnectToTelecommunicationsGridPrototype, ISwitchablePrototype
 {
     public override string TypeDescription => "CellPhoneTower";
     public double Wattage { get; set; }

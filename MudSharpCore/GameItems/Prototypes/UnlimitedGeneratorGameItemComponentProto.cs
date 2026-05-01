@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class UnlimitedGeneratorGameItemComponentProto : GameItemComponentProto
+public class UnlimitedGeneratorGameItemComponentProto : GameItemComponentProto, IProducePowerPrototype, ISwitchablePrototype, IOnOffPrototype
 {
     public override string TypeDescription => "UnlimitedGenerator";
 

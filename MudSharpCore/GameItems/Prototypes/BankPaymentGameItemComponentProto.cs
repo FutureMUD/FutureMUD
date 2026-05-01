@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BankPaymentGameItemComponentProto : GameItemComponentProto
+public class BankPaymentGameItemComponentProto : GameItemComponentProto, IBankPaymentItemPrototype
 {
     public override string TypeDescription => "BankPayment";
 

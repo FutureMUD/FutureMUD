@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BowGameItemComponentProto : GameItemComponentProto
+public class BowGameItemComponentProto : GameItemComponentProto, IRangedWeaponWithUnreadyEventPrototype, IMeleeWeaponPrototype
 {
     private IRangedWeaponType _rangedWeaponType;
 

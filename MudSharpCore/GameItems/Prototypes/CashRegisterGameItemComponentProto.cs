@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CashRegisterGameItemComponentProto : GameItemComponentProto
+public class CashRegisterGameItemComponentProto : GameItemComponentProto, IContainerPrototype, ISelectablePrototype, IOpenablePrototype
 {
     public override string TypeDescription => "CashRegister";
 

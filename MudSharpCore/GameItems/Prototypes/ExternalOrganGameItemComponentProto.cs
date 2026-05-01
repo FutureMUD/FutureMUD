@@ -20,7 +20,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ExternalOrganGameItemComponentProto : GameItemComponentProto
+public class ExternalOrganGameItemComponentProto : GameItemComponentProto, IExternalBloodOxygenatorPrototype, IExternalOrganFunctionPrototype, IConnectablePrototype, IConsumePowerPrototype, IOnOffPrototype, ISwitchablePrototype
 {
     private readonly List<IOrganProto> _organs = new();
 

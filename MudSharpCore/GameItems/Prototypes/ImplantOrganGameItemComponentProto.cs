@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ImplantOrganGameItemComponentProto : ImplantBaseGameItemComponentProto
+public class ImplantOrganGameItemComponentProto : ImplantBaseGameItemComponentProto, IOrganImplantPrototype, IImplantReportStatusPrototype
 {
     public IOrganProto TargetOrgan { get; protected set; }
 

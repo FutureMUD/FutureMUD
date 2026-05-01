@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes
 {
-    public class LockingContainerGameItemComponentProto : GameItemComponentProto
+    public class LockingContainerGameItemComponentProto : GameItemComponentProto, IContainerPrototype, IOpenablePrototype, ILockablePrototype, ILockPrototype
     {
         public Difficulty ForceDifficulty { get; private set; } = Difficulty.Normal;
         public Difficulty PickDifficulty { get; private set; } = Difficulty.Normal;

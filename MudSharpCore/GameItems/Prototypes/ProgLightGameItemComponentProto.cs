@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ProgLightGameItemComponentProto : GameItemComponentProto
+public class ProgLightGameItemComponentProto : GameItemComponentProto, ILightablePrototype, IProduceLightPrototype
 {
     private const string SpecificBuildingHelpText = @"
 	#3illumination <lux>#0 - sets the illumination provided by the light";

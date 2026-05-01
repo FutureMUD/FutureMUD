@@ -106,6 +106,8 @@ Use:
 
 This is the key step that turns a generic item prototype into something functional.
 
+The attach and submit workflow enforces prototype-side capability exclusivity. If two attached component protos both advertise the same exclusive marker, such as `IContainerPrototype` or `IWearablePrototype`, the item prototype cannot be submitted until the duplicate role is removed. Aggregate markers such as connection, power, and signal-source roles can still appear more than once where the runtime intentionally aggregates them.
+
 ### Important item settings for developers
 Commonly relevant commands include:
 - `item set noun`

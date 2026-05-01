@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ChairGameItemComponentProto : GameItemComponentProto
+public class ChairGameItemComponentProto : GameItemComponentProto, IChairPrototype
 {
     protected ChairGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
         : base(proto, gameworld)

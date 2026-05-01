@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ProgLockGameItemComponentProto : GameItemComponentProto, IHaveSimpleLockType
+public class ProgLockGameItemComponentProto : GameItemComponentProto, IHaveSimpleLockType, ILockPrototype
 {
     public Difficulty ForceDifficulty { get; private set; }
     public Difficulty PickDifficulty { get; private set; }

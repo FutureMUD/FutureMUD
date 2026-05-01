@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ConnectableGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class ConnectableGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IConnectablePrototype
 {
     protected ConnectableGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Connectable")

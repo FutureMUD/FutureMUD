@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class GridPowerSupplyGameItemComponentProto : GameItemComponentProto
+public class GridPowerSupplyGameItemComponentProto : GameItemComponentProto, IProducePowerPrototype, IConsumePowerPrototype, ICanConnectToElectricalGridPrototype
 {
     public override string TypeDescription => "GridPowerSupply";
     public double Wattage { get; set; }

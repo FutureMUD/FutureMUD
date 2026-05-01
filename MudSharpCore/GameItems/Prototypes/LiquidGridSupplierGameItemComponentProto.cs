@@ -9,7 +9,7 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LiquidGridSupplierGameItemComponentProto : GameItemComponentProto
+public class LiquidGridSupplierGameItemComponentProto : GameItemComponentProto, ICanConnectToLiquidGridPrototype, ILiquidGridSupplierPrototype
 {
     public override string TypeDescription => "LiquidGridSupplier";
 

@@ -11,7 +11,7 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class FileSignalGeneratorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class FileSignalGeneratorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, IFileSignalGeneratorPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3filename <name>#0 - sets the backing signal file name

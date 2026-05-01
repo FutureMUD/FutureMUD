@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CoverGameItemComponentProto : GameItemComponentProto
+public class CoverGameItemComponentProto : GameItemComponentProto, IProvideCoverPrototype
 {
     public override string TypeDescription => "Cover";
 

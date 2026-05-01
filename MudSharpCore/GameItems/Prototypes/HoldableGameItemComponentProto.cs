@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class HoldableGameItemComponentProto : GameItemComponentProto
+public class HoldableGameItemComponentProto : GameItemComponentProto, IHoldablePrototype
 {
     protected HoldableGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Holdable")

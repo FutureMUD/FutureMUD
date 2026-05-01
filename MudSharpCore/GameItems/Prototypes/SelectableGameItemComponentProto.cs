@@ -43,7 +43,7 @@ public class SelectableOption
     }
 }
 
-public class SelectableGameItemComponentProto : GameItemComponentProto
+public class SelectableGameItemComponentProto : GameItemComponentProto, ISelectablePrototype
 {
     protected SelectableGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Selectable")

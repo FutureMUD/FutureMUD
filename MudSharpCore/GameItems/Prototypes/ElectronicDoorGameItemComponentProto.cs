@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBase
+public class ElectronicDoorGameItemComponentProto : DoorGameItemComponentProtoBase, IRuntimeConfigurableSignalSinkComponentPrototype
 {
 	private const string BaseDoorBuildingHelpText = @"You can use the following options with this component:
 

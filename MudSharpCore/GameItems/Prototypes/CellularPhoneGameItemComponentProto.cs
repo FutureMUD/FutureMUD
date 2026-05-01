@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CellularPhoneGameItemComponentProto : GameItemComponentProto
+public class CellularPhoneGameItemComponentProto : GameItemComponentProto, ITelephonePrototype, ITelephoneNumberOwnerPrototype, ICanConnectToTelecommunicationsGridPrototype
 {
     public override string TypeDescription => "CellularPhone";
     public double Wattage { get; set; }

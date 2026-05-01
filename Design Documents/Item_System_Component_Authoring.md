@@ -90,6 +90,19 @@ Put the following here:
 - help text that appears through `comp typehelp` and `comp set help`
 - `CreateNew(...)` and `LoadComponent(...)`
 - registration through `RegisterComponentInitialiser(...)`
+- capability marker interfaces that mirror the runtime component interfaces
+
+### Prototype capability markers
+When a runtime component implements a public `IGameItemComponent` capability interface, the matching component proto should implement the corresponding marker in `FutureMUDLibrary/GameItems/Prototypes`.
+
+For example:
+- a runtime component that implements `IContainer` should have a proto that implements `IContainerPrototype`
+- a runtime component that implements `IWearable` should have a proto that implements `IWearablePrototype`
+- a runtime component that implements `ILiquidContainer` should have a proto that implements `ILiquidContainerPrototype`, which also implies the relevant parent capability markers
+
+These markers let item prototypes catch invalid component combinations before review. Most capability markers are exclusive, because runtime code usually calls `GetItemType<T>()` or `IsItemType<T>()` and expects one authoritative component. Aggregate service markers such as `IConnectablePrototype`, `IConsumePowerPrototype`, `IProducePowerPrototype`, `ISignalSourceComponentPrototype`, and grid-connection markers remain composable.
+
+If you add a new public `IGameItemComponent` interface, add its matching `I...Prototype` marker at the same time and classify it as exclusive unless the runtime deliberately aggregates multiple sibling components of that interface.
 
 ### Registration requirements
 Every normal component proto must register itself with `GameItemComponentManager` using a static `RegisterComponentInitialiser(...)`.

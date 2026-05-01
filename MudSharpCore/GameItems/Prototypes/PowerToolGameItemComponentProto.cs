@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PowerToolGameItemComponentProto : GameItemComponentProto
+public class PowerToolGameItemComponentProto : GameItemComponentProto, IToolItemPrototype, IConsumePowerPrototype
 {
     public override string TypeDescription => "PowerTool";
 

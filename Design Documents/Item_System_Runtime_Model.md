@@ -70,6 +70,8 @@ It owns:
 - type help and builder help text
 - flags such as `WarnBeforePurge` and `PreventManualLoad`
 
+Component protos also advertise their runtime capability contracts through marker interfaces such as `IContainerPrototype`, `IWearablePrototype`, or `ILiquidContainerPrototype`. Item prototypes use these markers to reject duplicate exclusive capabilities when builders attach components or submit an item prototype for review.
+
 ## Composition Model
 ### Components define capabilities
 The item system is intentionally interface-first and component-driven.
@@ -81,6 +83,7 @@ New-style food follows the same rule. A live item becomes prepared food because 
 This has two important consequences:
 - most game logic should depend on interfaces from `FutureMUDLibrary`, not concrete component classes
 - adding a new capability usually means adding a new component pair, not adding a new item class
+- component protos must expose matching prototype markers so the builder flow can distinguish exclusive roles from aggregate service roles
 
 Some item capabilities are best thought of as paired systems rather than isolated behaviours. Power, liquid, and telecommunications examples often combine:
 - a grid creator that establishes the shared network

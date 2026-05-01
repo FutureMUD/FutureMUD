@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class WearableGameItemComponentProto : GameItemComponentProto
+public class WearableGameItemComponentProto : GameItemComponentProto, IWearablePrototype
 {
     protected readonly List<IWearProfile> _profiles = new();
     private bool _displayInventoryWhenWorn = true;

@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PowerSocketGameItemComponentProto : GameItemComponentProto
+public class PowerSocketGameItemComponentProto : GameItemComponentProto, IConnectablePrototype, IProducePowerPrototype, IConsumePowerPrototype
 {
     public override string TypeDescription => "PowerSocket";
 

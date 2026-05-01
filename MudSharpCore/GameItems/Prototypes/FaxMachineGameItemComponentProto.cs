@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class FaxMachineGameItemComponentProto : TelephoneGameItemComponentProto
+public class FaxMachineGameItemComponentProto : TelephoneGameItemComponentProto, IFaxMachinePrototype, IContainerPrototype, IOpenablePrototype, ILockablePrototype
 {
     public FaxMachineGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "FaxMachine")

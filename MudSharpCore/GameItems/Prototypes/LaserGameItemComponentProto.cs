@@ -23,7 +23,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LaserGameItemComponentProto : GameItemComponentProto
+public class LaserGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, ISwitchablePrototype, IMeleeWeaponPrototype
 {
     private IRangedWeaponType _rangedRangedWeaponType;
 

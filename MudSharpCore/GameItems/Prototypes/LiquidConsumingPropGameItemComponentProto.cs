@@ -16,7 +16,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LiquidConsumingPropGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class LiquidConsumingPropGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, ILiquidContainerPrototype, IConnectablePrototype
 {
     public override string TypeDescription => "LiquidConsumingProp";
     public double LiquidCapacity { get; set; }

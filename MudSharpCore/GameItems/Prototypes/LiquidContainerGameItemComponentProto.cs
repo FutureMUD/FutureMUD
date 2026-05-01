@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LiquidContainerGameItemComponentProto : GameItemComponentProto
+public class LiquidContainerGameItemComponentProto : GameItemComponentProto, ILiquidContainerPrototype, ILockablePrototype
 {
     public double LiquidCapacity { get; set; }
     public bool Closable { get; set; }

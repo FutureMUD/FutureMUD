@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class NeuralInterfaceGameItemComponentProto : ImplantBaseGameItemComponentProto
+public class NeuralInterfaceGameItemComponentProto : ImplantBaseGameItemComponentProto, IImplantNeuralLinkPrototype
 {
     public override string TypeDescription => "NeuralInterface";
 

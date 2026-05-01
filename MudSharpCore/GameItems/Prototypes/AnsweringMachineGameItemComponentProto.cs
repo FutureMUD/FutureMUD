@@ -17,7 +17,7 @@ using ShapeGender = MudSharp.Form.Shape.Gender;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class AnsweringMachineGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class AnsweringMachineGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IAnsweringMachinePrototype, ITelephoneNumberOwnerPrototype, ISelectablePrototype, IConnectablePrototype, ICanConnectToTelecommunicationsGridPrototype, IContainerPrototype, IProducePowerPrototype
 {
     public override string TypeDescription => "AnsweringMachine";
     public double Wattage { get; set; }

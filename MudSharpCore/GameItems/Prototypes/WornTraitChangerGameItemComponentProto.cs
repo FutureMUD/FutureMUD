@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class WornTraitChangerGameItemComponentProto : GameItemComponentProto
+public class WornTraitChangerGameItemComponentProto : GameItemComponentProto, IChangeTraitsInInventoryPrototype
 {
     public override string TypeDescription => "WornTraitChanger";
 

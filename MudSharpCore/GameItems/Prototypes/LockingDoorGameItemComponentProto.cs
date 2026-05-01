@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LockingDoorGameItemComponentProto : DoorGameItemComponentProtoBase, IHaveSimpleLockType
+public class LockingDoorGameItemComponentProto : DoorGameItemComponentProtoBase, IHaveSimpleLockType, ILockPrototype
 {
 	private const string BuildingHelpText = @"You can use the following options with this component:
 

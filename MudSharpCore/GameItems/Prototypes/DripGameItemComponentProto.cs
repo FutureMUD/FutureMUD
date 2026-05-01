@@ -20,7 +20,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class DripGameItemComponentProto : GameItemComponentProto
+public class DripGameItemComponentProto : GameItemComponentProto, IDripPrototype, ISelectablePrototype
 {
     public override string TypeDescription => "Drip";
 

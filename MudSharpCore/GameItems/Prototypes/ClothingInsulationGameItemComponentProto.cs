@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ClothingInsulationGameItemComponentProto : GameItemComponentProto
+public class ClothingInsulationGameItemComponentProto : GameItemComponentProto, IInsulatingPrototype
 {
     public override string TypeDescription => "ClothingInsulation";
     public double InsulatingDegrees { get; protected set; }

@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ActiveCraftGameItemComponentProto : GameItemComponentProto
+public class ActiveCraftGameItemComponentProto : GameItemComponentProto, IActiveCraftGameItemComponentPrototype
 {
     public static IGameItemProto ItemProto { get; set; }
 

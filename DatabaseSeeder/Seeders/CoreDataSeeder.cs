@@ -10353,6 +10353,7 @@ return IsAdmin(@ch)",
 
         Dictionary<string, Liquid> liquids = new(StringComparer.InvariantCultureIgnoreCase);
         Dictionary<Liquid, string> liquidCountsAs = new();
+        Dictionary<Liquid, string> liquidSolvents = new();
 
         void AddLiquid(string name, string description, string longDescription, string taste, string? vagueTaste,
             string smell, string? vagueSmell, double tasteIntensity, double smellIntensity, double alcohol,
@@ -10416,7 +10417,7 @@ return IsAdmin(@ch)",
 
             if (solvent != null)
             {
-                liquid.Solvent = liquids[solvent];
+                liquidSolvents[liquid] = solvent;
             }
 
             foreach (string tag in materialTags)
@@ -10503,6 +10504,7 @@ return IsAdmin(@ch)",
         #endregion
 
         context.SaveChanges();
+        var defaultWater = liquids["water"];
 
         #region Biofluids
 
@@ -10526,7 +10528,7 @@ return IsAdmin(@ch)",
             ShearYield = 1000,
             ShearStrainAtYield = 2,
             YoungsModulus = 0.1,
-            SolventId = 1,
+            SolventId = defaultWater.Id,
             SolventVolumeRatio = 4,
             ResidueDesc = "It is covered in {0}dried blood",
             ResidueColour = "red",
@@ -10563,7 +10565,7 @@ return IsAdmin(@ch)",
             DampShortDescription = "(blood damp)",
             WetShortDescription = "(bloody)",
             DrenchedShortDescription = "(blood drenched)",
-            SolventId = 1,
+            SolventId = defaultWater.Id,
             SolventVolumeRatio = 5,
             InjectionConsequence = (int)LiquidInjectionConsequence.BloodReplacement,
             ResidueVolumePercentage = 0.05,
@@ -10591,7 +10593,7 @@ return IsAdmin(@ch)",
             ShearYield = 1000,
             ShearStrainAtYield = 2,
             YoungsModulus = 0.1,
-            SolventId = 1,
+            SolventId = defaultWater.Id,
             SolventVolumeRatio = 3,
             ResidueDesc = "It is covered in {0}dried sweat",
             ResidueColour = "yellow",
@@ -10628,7 +10630,7 @@ return IsAdmin(@ch)",
             DampShortDescription = "(sweat-damp)",
             WetShortDescription = "(sweaty)",
             DrenchedShortDescription = "(sweat-drenched)",
-            SolventId = 1,
+            SolventId = defaultWater.Id,
             SolventVolumeRatio = 5,
             InjectionConsequence = (int)LiquidInjectionConsequence.Harmful,
             ResidueVolumePercentage = 0.05,
@@ -10656,7 +10658,7 @@ return IsAdmin(@ch)",
             ShearYield = 1000,
             ShearStrainAtYield = 2,
             YoungsModulus = 0.1,
-            SolventId = 1,
+            SolventId = defaultWater.Id,
             SolventVolumeRatio = 3,
             ResidueDesc = "It is covered in {0}dried vomit",
             ResidueColour = "yellow",
@@ -10693,7 +10695,7 @@ return IsAdmin(@ch)",
             DampShortDescription = "(vomit-stained)",
             WetShortDescription = "(vomit-covered)",
             DrenchedShortDescription = "(vomit-drenched)",
-            SolventId = 1,
+            SolventId = defaultWater.Id,
             SolventVolumeRatio = 10,
             InjectionConsequence = (int)LiquidInjectionConsequence.Deadly,
             ResidueVolumePercentage = 0.05,
@@ -11016,6 +11018,11 @@ return IsAdmin(@ch)",
         context.SaveChanges();
 
         foreach (KeyValuePair<Material, string> solvent in solvents)
+        {
+            solvent.Key.SolventId = liquids[solvent.Value].Id;
+        }
+
+        foreach (KeyValuePair<Liquid, string> solvent in liquidSolvents)
         {
             solvent.Key.SolventId = liquids[solvent.Value].Id;
         }

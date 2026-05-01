@@ -116,6 +116,7 @@ These still preserve provenance, raw ovals, warnings, and any optional source me
 
 ## Notes
 
+- Baseline catalog lookups tolerate duplicate seeded component, material, tag, liquid, and trait names by choosing the lowest-ID row deterministically.
 - Missing seeded dependencies are surfaced as validation issues rather than silently dropped.
 - The importer deliberately avoids creating new runtime behaviour; if a mapping needs a runtime item system that FutureMUD does not already expose, the item remains a prop in this pass.
 - Export JSON is the recommended interchange format if this work later migrates into code generation for `DatabaseSeeder`.

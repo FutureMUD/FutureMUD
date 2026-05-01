@@ -86,24 +86,47 @@ public sealed class FutureMudBaselineCatalog
 			.Include(x => x.EditableItem)
 			.Where(x => x.EditableItem == null || x.EditableItem.RevisionStatus == 4)
 			.ToList();
+		var uniqueComponents = components
+			.Where(x => !string.IsNullOrWhiteSpace(x.Name))
+			.GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+			.Select(x => x
+				.OrderBy(y => y.Id)
+				.ThenBy(y => y.RevisionNumber)
+				.First())
+			.ToList();
 
 		return new FutureMudBaselineCatalog
 		{
-			Components = components.ToDictionary(
+			Components = uniqueComponents.ToDictionary(
 				x => x.Name,
 				x => new FutureMudComponentReference(x.Id, x.RevisionNumber, x.Name, x.Type),
 				StringComparer.OrdinalIgnoreCase),
-			ComponentsByType = components
+			ComponentsByType = uniqueComponents
 				.GroupBy(x => x.Type, StringComparer.OrdinalIgnoreCase)
 				.ToDictionary(
 					x => x.Key,
 					x => x.Select(y => y.Name).OrderBy(y => y, StringComparer.OrdinalIgnoreCase).ToList(),
 					StringComparer.OrdinalIgnoreCase),
-			MaterialIds = context.Materials.ToDictionary(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase),
-			TagIds = context.Tags.ToDictionary(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase),
-			LiquidIds = context.Liquids.ToDictionary(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase),
-			TraitIds = context.TraitDefinitions.ToDictionary(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase)
+			MaterialIds = ToUniqueIdDictionary(context.Materials, x => x.Name, x => x.Id),
+			TagIds = ToUniqueIdDictionary(context.Tags, x => x.Name, x => x.Id),
+			LiquidIds = ToUniqueIdDictionary(context.Liquids, x => x.Name, x => x.Id),
+			TraitIds = ToUniqueIdDictionary(context.TraitDefinitions, x => x.Name, x => x.Id)
 		};
+	}
+
+	private static Dictionary<string, long> ToUniqueIdDictionary<T>(
+		IEnumerable<T> values,
+		Func<T, string?> nameSelector,
+		Func<T, long> idSelector)
+	{
+		return values
+			.Where(x => !string.IsNullOrWhiteSpace(nameSelector(x)))
+			.GroupBy(x => nameSelector(x)!, StringComparer.OrdinalIgnoreCase)
+			.Select(x => x.OrderBy(idSelector).First())
+			.ToDictionary(
+				x => nameSelector(x)!,
+				idSelector,
+				StringComparer.OrdinalIgnoreCase);
 	}
 
 	public bool HasComponent(string name)

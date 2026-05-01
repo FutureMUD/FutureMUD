@@ -750,7 +750,9 @@ public partial class CoreDataSeeder
 				continue;
 			}
 
-			var terrain = context.Terrains.FirstOrDefault(x =>
+			var terrain = context.Terrains
+				.AsEnumerable()
+				.FirstOrDefault(x =>
 				x.Name.Equals(definition.TerrainName, StringComparison.OrdinalIgnoreCase));
 			if (terrain is null ||
 			    (terrain.ForagableProfileId != 0L && validForageProfileIds.Contains(terrain.ForagableProfileId)))

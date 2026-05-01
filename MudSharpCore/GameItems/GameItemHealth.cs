@@ -2,6 +2,7 @@
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.GameItems.Components;
@@ -141,8 +142,14 @@ public partial class GameItem : IHaveWounds
             damage = resistance.SufferDamage(damage, new List<IWound>());
         }
 
-        damage = destroyable?.GetActualDamage(damage) ?? damage;
         List<IWound> wounds = new();
+        damage = ApplyMagicArmourEnhancements(damage, wounds, true);
+        if (damage is null)
+        {
+            return wounds;
+        }
+
+        damage = destroyable?.GetActualDamage(damage) ?? damage;
         List<IWound> newWounds = HealthStrategy.SufferDamage(this, damage, null).ToList();
         foreach (IWound newWound in newWounds.ToArray())
         {
@@ -262,6 +269,7 @@ public partial class GameItem : IHaveWounds
                 List<IDamage> damages = damageToPassOn.ReferenceDamages
                                             .SelectNotNull(x =>
                                                 armour.ArmourType.AbsorbDamage(x, armour, this, ref wounds, true))
+                                            .SelectNotNull(x => ApplyMagicArmourEnhancements(x, wounds, true))
                                             .ToList();
                 damage = new ExplosiveDamage(damages, 0.0, damage.ExplosionSize, damage.MaximumProximity);
                 damageToPassOn = new ExplosiveDamage(damages, 0.0, damage.ExplosionSize, damage.MaximumProximity,
@@ -319,6 +327,7 @@ public partial class GameItem : IHaveWounds
                 List<IDamage> damages = damageToPassOn.ReferenceDamages
                                             .SelectNotNull(x =>
                                                 armour.ArmourType.AbsorbDamage(x, armour, this, ref wounds, true))
+                                            .SelectNotNull(x => ApplyMagicArmourEnhancements(x, wounds, true))
                                             .ToList();
                 damage = new ExplosiveDamage(damages, 0.0, damage.ExplosionSize, damage.MaximumProximity);
                 damageToPassOn = new ExplosiveDamage(damages, 0.0, damage.ExplosionSize, damage.MaximumProximity,
@@ -372,6 +381,22 @@ public partial class GameItem : IHaveWounds
         wounds.ProcessPassiveWounds();
         StartHealthTick();
         return wounds;
+    }
+
+    private IDamage ApplyMagicArmourEnhancements(IDamage damage, List<IWound> wounds, bool passive)
+    {
+        foreach (IMagicArmourEnhancementEffect effect in EffectsOfType<IMagicArmourEnhancementEffect>(x => x.Applies()).ToList())
+        {
+            damage = passive
+                ? effect.PassiveSufferDamage(damage, ref wounds)
+                : effect.SufferDamage(damage, ref wounds);
+            if (damage is null)
+            {
+                return null;
+            }
+        }
+
+        return damage;
     }
 
     public WoundSeverity GetSeverityFor(IWound wound)

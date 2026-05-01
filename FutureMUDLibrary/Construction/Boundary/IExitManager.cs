@@ -60,6 +60,8 @@ namespace MudSharp.Construction.Boundary
         IEnumerable<ICellExit> GetAllExits(ICell cell);
 
         IExit GetExitByID(long id);
+        void RegisterTransientExit(IExit exit);
+        void UnregisterTransientExit(IExit exit);
 
         /// <summary>
         ///     This function is called by the CellOverlay when it changes which exits it uses. It ensures that the ExitManager

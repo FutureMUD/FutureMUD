@@ -34,6 +34,17 @@ public class CellExit : ICellExit
         _keywords = new Lazy<List<string>>(() => new List<string> { OutboundDirection.Describe().ToLowerInvariant() });
     }
 
+    public CellExit(IExit parent, ICell origin, ICell destination, CardinalDirection outboundDirection,
+        CardinalDirection inboundDirection)
+    {
+        Exit = parent;
+        Origin = origin;
+        Destination = destination;
+        InboundDirection = inboundDirection;
+        OutboundDirection = outboundDirection;
+        _keywords = new Lazy<List<string>>(() => new List<string> { OutboundDirection.Describe().ToLowerInvariant() });
+    }
+
     public override string ToString()
     {
         return $"CellExit {OutboundDirection.Describe()} to {Destination.Name} ({Destination.Id:N0})";

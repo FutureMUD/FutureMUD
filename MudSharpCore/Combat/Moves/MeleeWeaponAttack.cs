@@ -94,10 +94,14 @@ public class MeleeWeaponAttack : WeaponAttackMove
         }
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
+        var magicAttackBonus = Weapon.Parent
+                                      .EffectsOfType<IMagicWeaponEnhancementEffect>(x =>
+                                          x.AppliesToWeaponAttack(Assailant, defenderMove.Assailant, Weapon.Parent))
+                                      .Sum(x => x.AttackCheckBonus);
         Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty,
                                       Weapon.WeaponType.AttackTrait,
-                                      defenderMove.Assailant, Assailant.OffensiveAdvantage);
+                                      defenderMove.Assailant, Assailant.OffensiveAdvantage + magicAttackBonus);
         Assailant.OffensiveAdvantage = 0;
         if (defenderMove.Assailant is not IHaveWounds defenderHaveWounds)
         {

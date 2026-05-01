@@ -11,6 +11,8 @@ public class ExitManager : IExitManager, IHaveFuturemud
     protected readonly CollectionDictionary<(ICell Cell, ICellOverlay Overlay), IExit> CellExitDictionary =
         new();
 
+    protected readonly CollectionDictionary<ICell, IExit> TransientExitDictionary = new();
+
     protected readonly DictionaryWithDefault<long, IExit> MasterExitList = new();
 
     public ExitManager(IFuturemud gameworld)
@@ -86,9 +88,10 @@ public class ExitManager : IExitManager, IHaveFuturemud
         InitialiseCell(cell, overlay);
 
         IExit exit =
-            CellExitDictionary[(cell, overlay)].Where(x => overlay.ExitIDs.Contains(x.Id))
-                                                           .FirstOrDefault(x =>
-                                                               x.CellExitFor(cell).OutboundDirection == direction);
+            CellExitDictionary[(cell, overlay)]
+                .Where(x => overlay.ExitIDs.Contains(x.Id))
+                .Concat(TransientExitDictionary[cell])
+                .FirstOrDefault(x => x.CellExitFor(cell).OutboundDirection == direction);
         ICellExit cellExit = exit?.CellExitFor(cell);
         if (cellExit?.MovementTransition(voyeur).TransitionType ==
             CellMovementTransition.NoViableTransition)
@@ -113,7 +116,9 @@ public class ExitManager : IExitManager, IHaveFuturemud
 
         List<IExit> exits =
             CellExitDictionary[(cell, overlay)]
-                .Where(x => overlay.ExitIDs.Contains(x.Id) && x.IsExit(cell, verb) && voyeur.CanSee(x))
+                .Where(x => overlay.ExitIDs.Contains(x.Id))
+                .Concat(TransientExitDictionary[cell])
+                .Where(x => x.IsExit(cell, verb) && voyeur.CanSee(x))
                 .OrderBy(x => x.CellExitFor(cell).OutboundDirection.ExitCommandPriority())
                 .ToList();
         ICellExit exit = null;
@@ -148,7 +153,9 @@ public class ExitManager : IExitManager, IHaveFuturemud
 
         List<IExit> exits =
             CellExitDictionary[(cell, overlay)]
-                .Where(x => overlay.ExitIDs.Contains(x.Id) && x.IsExitKeyword(cell, keyword) && voyeur.CanSee(x))
+                .Where(x => overlay.ExitIDs.Contains(x.Id))
+                .Concat(TransientExitDictionary[cell])
+                .Where(x => x.IsExitKeyword(cell, keyword) && voyeur.CanSee(x))
                 .OrderBy(x => x.CellExitFor(cell).OutboundDirection.ExitCommandPriority())
                 .ToList();
         ICellExit cellExit = exits.FirstOrDefault()?.CellExitFor(cell);
@@ -173,6 +180,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
         return
             CellExitDictionary[(cell, overlay)]
                 .Where(x => overlay.ExitIDs.Contains(x.Id))
+                .Concat(TransientExitDictionary[cell])
                 .Select(x => x.CellExitFor(cell))
                 .Where(x => layer == null || x.WhichLayersExitAppears().Contains(layer.Value))
                 .ToList();
@@ -196,6 +204,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 
         return
             CellExitDictionary[(cell, overlay)].Where(x => overlay.ExitIDs.Contains(x.Id))
+                                                           .Concat(TransientExitDictionary[cell])
                                                            .Select(x => x.CellExitFor(cell))
                                                            .Where(x => layer == null || x.WhichLayersExitAppears()
                                                                .Contains(layer.Value))
@@ -225,13 +234,44 @@ public class ExitManager : IExitManager, IHaveFuturemud
         return
             CellExitDictionary.Where(x => x.Key.Item1 == cell)
                               .SelectMany(x => x.Value)
+                              .Concat(TransientExitDictionary[cell])
                               .Distinct()
                               .Select(x => x.CellExitFor(cell));
     }
 
     public IExit GetExitByID(long id)
     {
-        return MasterExitList.GetValueOrDefault(id);
+        return MasterExitList.GetValueOrDefault(id) ??
+               TransientExitDictionary.SelectMany(x => x.Value).FirstOrDefault(x => x.Id == id);
+    }
+
+    public void RegisterTransientExit(IExit exit)
+    {
+        if (exit is null)
+        {
+            return;
+        }
+
+        foreach (var cell in exit.Cells)
+        {
+            if (!TransientExitDictionary[cell].Contains(exit))
+            {
+                TransientExitDictionary.Add(cell, exit);
+            }
+        }
+    }
+
+    public void UnregisterTransientExit(IExit exit)
+    {
+        if (exit is null)
+        {
+            return;
+        }
+
+        foreach (var cell in exit.Cells)
+        {
+            TransientExitDictionary.Remove(cell, exit);
+        }
     }
 
     public void UpdateCellOverlayExits(ICell cell, ICellOverlay overlay)

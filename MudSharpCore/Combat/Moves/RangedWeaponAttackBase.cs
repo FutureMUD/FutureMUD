@@ -3,6 +3,7 @@ using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -222,6 +223,10 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
                     Weapon.WeaponType.FireTrait,
                     // Bonuses
                     Weapon.WeaponType.AccuracyBonusExpression.Evaluate(Assailant, Weapon.WeaponType.FireTrait) +
+                    Weapon.Parent
+                          .EffectsOfType<IMagicWeaponEnhancementEffect>(x =>
+                              x.AppliesToWeaponAttack(Assailant, target, Weapon.Parent))
+                          .Sum(x => x.AttackCheckBonus) +
                     GetPenaltyForTargeting(targetHb.Body, range) +
                     noPressureBonus +
                     positionBonus +

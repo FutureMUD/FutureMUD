@@ -34,6 +34,20 @@ public class NonCardinalCellExit : CellExit, INonCardinalCellExit
         PrimaryKeyword = exit.PrimaryKeyword;
     }
 
+    public NonCardinalCellExit(IExit parent, ICell origin, ICell destination, string verb, string primaryKeyword,
+        IEnumerable<string> keywords, string outboundDescription, string outboundTarget, string inboundDescription,
+        string inboundTarget)
+        : base(parent, origin, destination, CardinalDirection.Unknown, CardinalDirection.Unknown)
+    {
+        InboundDescription = inboundDescription;
+        InboundTarget = inboundTarget;
+        OutboundDescription = outboundDescription;
+        OutboundTarget = outboundTarget;
+        Verb = verb;
+        PrimaryKeyword = primaryKeyword;
+        _keywords = new Lazy<List<string>>(() => keywords.Distinct(StringComparer.InvariantCultureIgnoreCase).ToList());
+    }
+
     public override string ToString()
     {
         return $"NonCardinalCellExit {OutboundMovementSuffix} to {Destination.Name} ({Destination.Id:N0})";

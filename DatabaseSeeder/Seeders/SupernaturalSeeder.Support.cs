@@ -20,6 +20,7 @@ public partial class SupernaturalSeeder
 {
 	private const string SupernaturalUndeadCorpseModelName = "Supernatural Nondecaying Undead Remains";
 	private const string SupernaturalSpiritCorpseModelName = "Supernatural Dissipating Spirit Remains";
+	private const string SupernaturalHumanoidTailDonorBodyName = "Quadruped Base";
 
 	internal sealed record SupernaturalAttackDefinition(
 		string DonorName,
@@ -56,6 +57,9 @@ public partial class SupernaturalSeeder
 
 	internal static IReadOnlyDictionary<string, string[]> SupernaturalBodyAdditionalAliasesForTesting =>
 		CustomBodyAdditionalAliases;
+
+	internal static string SupernaturalHumanoidTailDonorBodyNameForTesting =>
+		SupernaturalHumanoidTailDonorBodyName;
 
 	private static SupernaturalAttackDefinition AttackDefinition(string donorName, string message,
 		params string[] categories)

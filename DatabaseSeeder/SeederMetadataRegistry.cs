@@ -248,7 +248,7 @@ public static class SeederMetadataRegistry
                 SeederUpdateCapability.RepairExisting,
                 [
                     Requirement("Human, animal, and mythical body frameworks must already be installed.", context =>
-                        new[] { "Organic Humanoid", "Winged Humanoid", "Horned Humanoid", "Toed Quadruped" }
+                        new[] { "Organic Humanoid", "Winged Humanoid", "Horned Humanoid", "Quadruped Base", "Toed Quadruped" }
                             .All(body => context.BodyProtos.Any(x => x.Name == body))),
                     Requirement("Human, organic humanoid, and wolf race foundations must already exist.", context =>
                         new[] { "Human", "Organic Humanoid", "Wolf" }.All(race => context.Races.Any(x => x.Name == race))),

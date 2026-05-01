@@ -30,6 +30,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 	private BodyProto _organicHumanoidBody = null!;
 	private BodyProto _wingedHumanoidBody = null!;
 	private BodyProto _hornedHumanoidBody = null!;
+	private BodyProto _quadrupedBody = null!;
 	private BodyProto _toedQuadrupedBody = null!;
 	private FutureProg _alwaysTrue = null!;
 	private FutureProg _alwaysFalse = null!;
@@ -112,6 +113,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 			"Organic Humanoid",
 			"Winged Humanoid",
 			"Horned Humanoid",
+			"Quadruped Base",
 			"Toed Quadruped"
 		];
 		string[] requiredRaces =
@@ -208,6 +210,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		_organicHumanoidBody = _context.BodyProtos.First(x => x.Name == "Organic Humanoid");
 		_wingedHumanoidBody = _context.BodyProtos.First(x => x.Name == "Winged Humanoid");
 		_hornedHumanoidBody = _context.BodyProtos.First(x => x.Name == "Horned Humanoid");
+		_quadrupedBody = _context.BodyProtos.First(x => x.Name == SupernaturalHumanoidTailDonorBodyName);
 		_toedQuadrupedBody = _context.BodyProtos.First(x => x.Name == "Toed Quadruped");
 		_alwaysTrue = _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
 		_alwaysFalse = _context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse");
@@ -353,7 +356,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 	{
 		if (FindBodypartOnBody(body, "utail") is null)
 		{
-			SeederBodyUtilities.CloneBodypartSubtree(_context, _toedQuadrupedBody, body, "utail", "lback");
+			SeederBodyUtilities.CloneBodypartSubtree(_context, _quadrupedBody, body, "utail", "lback");
 		}
 
 		EnsureBodypartLimb(body, "Tail", LimbType.Appendage, "utail", "utail", "mtail", "ltail");

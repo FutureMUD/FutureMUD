@@ -141,7 +141,7 @@ public partial class EditableItemHelper
                                     clock.PrimaryTimezone?.Alias ?? string.Empty,
                                     clock.DisplayTime(clock.CurrentTime, TimeDisplayTypes.Immortal)
                                 },
-        DefaultCommandHelp = RoomBuilderModule.ClockHelpText,
+        DefaultCommandHelp = TimeModule.ClockHelpText,
         GetEditHeader = item => $"Clock #{item.Id:N0} ({item.Name})"
     };
 
@@ -281,7 +281,7 @@ public partial class EditableItemHelper
                                                              new TimeSpan(0, timezone.OffsetHours, timezone.OffsetMinutes, 0).Describe(),
                                                              (timezone.Clock.PrimaryTimezone == timezone).ToColouredString()
                                                          },
-        DefaultCommandHelp = RoomBuilderModule.TimeZoneHelp,
+        DefaultCommandHelp = TimeModule.TimeZoneHelp,
         GetEditHeader = item => $"Timezone #{item.Id:N0} ({item.Name})"
     };
 
@@ -411,7 +411,7 @@ public partial class EditableItemHelper
                                                              calendar.Months.Count.ToString("N0", character),
                                                              calendar.Weekdays.Count.ToString("N0", character)
                                                          },
-        DefaultCommandHelp = RoomBuilderModule.CalendarHelpText,
+        DefaultCommandHelp = TimeModule.CalendarAdminHelpText,
         GetEditHeader = item => $"Calendar #{item.Id:N0} ({item.Name})"
     };
 }

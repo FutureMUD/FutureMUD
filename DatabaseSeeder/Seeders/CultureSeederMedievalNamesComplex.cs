@@ -2779,7 +2779,47 @@ public partial class CultureSeeder
                 (NameStyle.SurnameOnly, "{0}", new[]{NameUsage.Surname}),
                 (NameStyle.FullWithNickname, "{0} {1} {2}", new[]{NameUsage.BirthName, NameUsage.Patronym, NameUsage.Surname})
             });
-        SeedAlbanianProfiles(albanian);
+        (string Name, int Weight)[] albanianSurnames =
+        [
+            ("Berisha", 10), ("Doda", 10), ("Gashi", 10), ("Hoxha", 10), ("Krasniqi", 9), ("Leka", 9),
+            ("Ndreu", 8), ("Pashaj", 8), ("Rexhepi", 8), ("Shehu", 8), ("Xhaferi", 7), ("Zheji", 7),
+            ("Suli", 7), ("Sadiku", 7), ("Shala", 7), ("Halili", 6), ("Islami", 6), ("Mahmutaj", 6),
+            ("Qorri", 6), ("Topalli", 6), ("Toska", 5), ("Uka", 5), ("Ymeri", 5), ("Zeneli", 5),
+            ("Dervishi", 5), ("Gjonaj", 4), ("Hyseni", 4), ("Ibrahimi", 4), ("Kastrati", 4), ("Marku", 4)
+        ];
+
+        SeedMedievalPatronymicNameProfile("Albanian Male", Gender.Male, albanian,
+            [
+                ("Mark", 10), ("Nikolle", 10), ("Gjergj", 10), ("Leke", 9), ("Petrit", 9), ("Arben", 9),
+                ("Ilir", 8), ("Dritan", 8), ("Bardh", 8), ("Flamur", 8), ("Altin", 7), ("Shkelzen", 7),
+                ("Ylli", 7), ("Erion", 7), ("Kujtim", 6), ("Valon", 6), ("Agron", 6), ("Sokol", 6),
+                ("Bledar", 5), ("Luan", 5), ("Artan", 5), ("Besnik", 5), ("Fatmir", 4), ("Genc", 4),
+                ("Jetmir", 4), ("Kreshnik", 4), ("Lirim", 4), ("Mentor", 4), ("Valdet", 3), ("Zef", 3)
+            ],
+            [
+                ("Marki", 10), ("Nikolli", 10), ("Gjergji", 10), ("Leki", 9), ("Petriti", 9), ("Arbeni", 9),
+                ("Iliri", 8), ("Dritani", 8), ("Bardhi", 8), ("Flamuri", 8), ("Altini", 7), ("Shkelzeni", 7),
+                ("Ylli", 7), ("Erioni", 7), ("Kujtimi", 6), ("Valoni", 6), ("Agroni", 6), ("Sokoli", 6),
+                ("Bledari", 5), ("Luani", 5), ("Artani", 5), ("Besniki", 5), ("Fatmiri", 4), ("Genci", 4),
+                ("Jetmiri", 4), ("Kreshniki", 4), ("Lirimi", 4), ("Mentori", 4), ("Valdeti", 3), ("Zefi", 3)
+            ],
+            albanianSurnames);
+        SeedMedievalPatronymicNameProfile("Albanian Female", Gender.Female, albanian,
+            [
+                ("Maria", 10), ("Prenda", 10), ("Marta", 9), ("Lena", 9), ("Drita", 8), ("Elira", 8),
+                ("Anila", 8), ("Albana", 8), ("Arta", 7), ("Enkeleda", 7), ("Valbona", 7), ("Arbana", 7),
+                ("Mirela", 6), ("Shqipe", 6), ("Fjolla", 6), ("Jeta", 6), ("Teuta", 5), ("Mirjeta", 5),
+                ("Valdete", 5), ("Donika", 5), ("Lirije", 4), ("Aferdita", 4), ("Bardha", 4), ("Gentiana", 4),
+                ("Flutura", 4), ("Merita", 4), ("Shpresa", 3), ("Vjollca", 3), ("Rudina", 3), ("Kaltrina", 3)
+            ],
+            [
+                ("Marke", 10), ("Nikolle", 10), ("Gjergje", 10), ("Leke", 9), ("Petrite", 9), ("Arbene", 9),
+                ("Ilire", 8), ("Dritane", 8), ("Bardhe", 8), ("Flamure", 8), ("Altine", 7), ("Shkelzene", 7),
+                ("Yllie", 7), ("Erione", 7), ("Kujtime", 6), ("Valone", 6), ("Agrone", 6), ("Sokole", 6),
+                ("Bledare", 5), ("Luane", 5), ("Artane", 5), ("Besnike", 5), ("Fatmire", 4), ("Gence", 4),
+                ("Jetmire", 4), ("Kreshnike", 4), ("Lirime", 4), ("Mentore", 4), ("Valdete", 3), ("Zefe", 3)
+            ],
+            albanianSurnames);
         #endregion
 
         #region Greek
@@ -4929,4 +4969,34 @@ Your patronym will always begin with Bat-, for example Bat-Uzziel.", NameUsage.P
         #endregion
     }
 
+    private void SeedMedievalPatronymicNameProfile(
+        string profileName,
+        Gender gender,
+        NameCulture culture,
+        (string Name, int Weight)[] givenNames,
+        (string Name, int Weight)[] patronyms,
+        (string Name, int Weight)[] surnames)
+    {
+        RandomNameProfile profile = AddRandomNameProfile(profileName, gender, culture);
+        AddRandomNameDice(profile, NameUsage.BirthName, "1");
+        AddRandomNameDice(profile, NameUsage.Patronym, "1");
+        AddRandomNameDice(profile, NameUsage.Surname, "1");
+
+        foreach ((string name, int weight) in givenNames)
+        {
+            AddRandomNameElement(profile, NameUsage.BirthName, name, weight);
+        }
+
+        foreach ((string name, int weight) in patronyms)
+        {
+            AddRandomNameElement(profile, NameUsage.Patronym, name, weight);
+        }
+
+        foreach ((string name, int weight) in surnames)
+        {
+            AddRandomNameElement(profile, NameUsage.Surname, name, weight);
+        }
+
+        _context.SaveChanges();
+    }
 }

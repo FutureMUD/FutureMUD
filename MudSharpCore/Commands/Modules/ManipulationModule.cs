@@ -42,45 +42,193 @@ internal class ManipulationModule : Module<ICharacter>
             @"^(?:(?:(?<all>all)|(?<bites>\d+))\s+)*(?<yield>yield\s+)*(?<food>[a-z0-9.]+)(?: from (?<container>[a-z0-9.]+))*(?: on (?<table>[a-z0-9.]+))*(?: \((?<emote>.+)\))*$",
             RegexOptions.IgnoreCase);
 
-    private static readonly Regex DrinkCommandRegex =
-        new(
-            @"^(?<target>[\w]{0,}[a-z.-]{1,})[ ]{0,1}(?:(?<amount>[\w]{0,}[a-z0-9.\- ]{1,}?)[ ]{0,1}){0,1}(?: on (?<table>[a-z0-9.]+))*(?: \\((?<emote>.+)\\))*$",
+	public const string FillGasHelpText =
+			"The #3fillgas#0 command allows you transfer gas from one container to another.\n\n" +
+			"#3fillgas <vessel> <from vessel>#0 - fills as much gas as possible from one container to another\n" +
+			"#3fillgas <vessel> <from vessel> <amount>#0 - fills a specific amount of gas";
+
+	private static readonly Regex SpillCommandRegex =
+		new(
+			@"^(?<vessel>(?:[0-9]+\.)?[a-z.-]{1,}) (?:(?<owner>[\w]{0,}[a-zA-Z.-]{1,})\s+)?(?<target>(?:[0-9]+\.)?[a-z.-@]{1,})[ ]{0,1}(?:(?<subtarget>(?:[0-9]+\.)?[a-z.-]{1,})[ ]{0,1}){0,1}(?:(?<amount>[^(]+)[ ]{0,1}){0,1}(?<emote>\(.*\)){0,1}$",
             RegexOptions.IgnoreCase);
 
-    private static readonly Regex FillCommandRegex =
-            new(
-                    @"^(?<target>[\w]{0,}[a-z.-@]{1,}) (?<from>[\w]{0,}[a-z.-]{1,})[ ]{0,1}(?:(?<amount>[^(]+)[ ]{0,1}){0,1}(?<emote>\(.*\)){0,1}$",
-                    RegexOptions.IgnoreCase);
+	private static readonly Regex ArgumentsAndEmoteRegex =
+		new("^(?<arguments>[^(]+)*\\s*(?:\\((?<emote>.+)\\))*$");
 
-    public const string FillGasHelpText =
-            "The #3fillgas#0 command allows you transfer gas from one container to another.\n\n" +
-            "#3fillgas <vessel> <from vessel>#0 - fills as much gas as possible from one container to another\n" +
-            "#3fillgas <vessel> <from vessel> <amount>#0 - fills a specific amount of gas";
+	private readonly record struct DrinkCommandArguments(string Target, string Amount, string Table, string Emote);
 
-    private static readonly Regex PourCommandRegex =
-        new(
-            @"^(?:(?<owner>[\w]{0,}[a-zA-Z.-]{1,})\s+)?(?<target>[\w]{0,}[a-z.-@]{1,})[ ]{0,1}(?:(?<amount>[^(]+)[ ]{0,1}){0,1}(?<emote>\(.*\)){0,1}$",
-            RegexOptions.IgnoreCase);
+	private readonly record struct FillCommandArguments(string Target, string Owner, string From, string Amount, string Emote);
 
-    private static readonly Regex SpillCommandRegex =
-        new(
-            @"^(?<vessel>(?:[0-9]+\.)?[a-z.-]{1,}) (?:(?<owner>[\w]{0,}[a-zA-Z.-]{1,})\s+)?(?<target>(?:[0-9]+\.)?[a-z.-@]{1,})[ ]{0,1}(?:(?<subtarget>(?:[0-9]+\.)?[a-z.-]{1,})[ ]{0,1}){0,1}(?:(?<amount>[^(]+)[ ]{0,1}){0,1}(?<emote>\(.*\)){0,1}$",
-            RegexOptions.IgnoreCase);
+	private readonly record struct PourCommandArguments(string From, string Into, string Amount, string Emote);
 
-    private static readonly Regex ArgumentsAndEmoteRegex =
-        new("^(?<arguments>[^(]+)*\\s*(?:\\((?<emote>.+)\\))*$");
+	private ManipulationModule()
+		: base("Manipulation")
+	{
+		IsNecessary = true;
+	}
 
-    private ManipulationModule()
-        : base("Manipulation")
-    {
-        IsNecessary = true;
-    }
+	public override int CommandsDisplayOrder => 5;
 
-    public override int CommandsDisplayOrder => 5;
+	public static ManipulationModule Instance { get; } = new();
 
-    public static ManipulationModule Instance { get; } = new();
+	private static string JoinArguments(IEnumerable<string> arguments)
+	{
+		return string.Join(" ", arguments).Trim();
+	}
 
-    [PlayerCommand("Haul", "haul")]
+	private static bool TryPopArgumentsAndEmote(string text, out List<string> arguments, out string emote)
+	{
+		arguments = new List<string>();
+		emote = string.Empty;
+		var ss = new StringStack(text);
+		while (!ss.IsFinished)
+		{
+			var emoteText = ss.PopParentheses();
+			if (!string.IsNullOrEmpty(emoteText))
+			{
+				emote = emoteText;
+				return ss.IsFinished;
+			}
+
+			var argument = ss.PopSpeech();
+			if (string.IsNullOrWhiteSpace(argument))
+			{
+				return false;
+			}
+
+			arguments.Add(argument);
+		}
+
+		return arguments.Any();
+	}
+
+	private static bool TryParseDrinkCommand(string text, Func<string, bool> isAmount,
+		out DrinkCommandArguments arguments)
+	{
+		arguments = default;
+		if (!TryPopArgumentsAndEmote(text, out var tokens, out var emote))
+		{
+			return false;
+		}
+
+		var table = string.Empty;
+		var tableIndex = tokens.FindLastIndex(x => x.EqualTo("on"));
+		if (tableIndex >= 0)
+		{
+			if (tableIndex != tokens.Count - 2)
+			{
+				return false;
+			}
+
+			table = tokens[tableIndex + 1];
+			tokens = tokens.Take(tableIndex).ToList();
+		}
+
+		if (!tokens.Any())
+		{
+			return false;
+		}
+
+		string target;
+		var amount = string.Empty;
+		if (tokens.Count == 1)
+		{
+			target = tokens[0];
+		}
+		else
+		{
+			var leadingAmount = JoinArguments(tokens.Take(tokens.Count - 1));
+			if (isAmount(leadingAmount))
+			{
+				amount = leadingAmount;
+				target = tokens[^1];
+			}
+			else
+			{
+				target = tokens[0];
+				amount = JoinArguments(tokens.Skip(1));
+			}
+		}
+
+		arguments = new DrinkCommandArguments(target, amount, table, emote);
+		return true;
+	}
+
+	private static bool TryParseFillCommand(string text, Func<string, bool> isAmount, bool allowOwner,
+		out FillCommandArguments arguments)
+	{
+		arguments = default;
+		if (!TryPopArgumentsAndEmote(text, out var tokens, out var emote) || tokens.Count < 2)
+		{
+			return false;
+		}
+
+		var target = tokens[0];
+		var owner = string.Empty;
+		var from = tokens[1];
+		var amount = string.Empty;
+		if (tokens.Count > 2)
+		{
+			var directAmount = JoinArguments(tokens.Skip(2));
+			if (isAmount(directAmount) || !allowOwner)
+			{
+				amount = directAmount;
+			}
+			else
+			{
+				owner = tokens[1];
+				from = tokens[2];
+				amount = JoinArguments(tokens.Skip(3));
+			}
+		}
+
+		arguments = new FillCommandArguments(target, owner, from, amount, emote);
+		return true;
+	}
+
+	private static bool TryParsePourCommand(string text, out PourCommandArguments arguments)
+	{
+		arguments = default;
+		if (!TryPopArgumentsAndEmote(text, out var tokens, out var emote))
+		{
+			return false;
+		}
+
+		var intoIndex = tokens.FindIndex(x => x.EqualTo("into"));
+		if (intoIndex < 1 || intoIndex != tokens.Count - 2)
+		{
+			return false;
+		}
+
+		var amount = intoIndex > 1 ? JoinArguments(tokens.Take(intoIndex - 1)) : string.Empty;
+		arguments = new PourCommandArguments(tokens[intoIndex - 1], tokens[intoIndex + 1], amount, emote);
+		return true;
+	}
+
+	private static bool TryParseDrinkAmount(ICharacter character, string text, out double amount)
+	{
+		if (double.TryParse(text, out var multiplier) && multiplier > 0.0)
+		{
+			amount = character.Gameworld.GetStaticDouble("DefaultSipAmount") * multiplier;
+			return true;
+		}
+
+		amount = character.Gameworld.UnitManager.GetBaseUnits(text.Trim(), UnitType.FluidVolume, out var success);
+		return success && amount > 0.0;
+	}
+
+	private static bool IsFluidVolumeAmount(ICharacter character, string text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return false;
+		}
+
+		var amount = character.Gameworld.UnitManager.GetBaseUnits(text.Trim(), UnitType.FluidVolume, out var success);
+		return success && amount > 0.0;
+	}
+
+	[PlayerCommand("Haul", "haul")]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "drag", "You must first stop {0} before you can do that.")]
     [NoCombatCommand]
@@ -647,20 +795,15 @@ The syntax is simply #3struggle#0, which can be used on a short delay and costs 
         {
             actor.Send("You don't have the stamina to struggle free from your captors.");
             return;
-        }
+		}
 
-        IBeingGrappled grapple = actor.CombinedEffectsOfType<IBeingGrappled>().FirstOrDefault();
-        if (grapple is null)
-        {
-            actor.Send("You are not being dragged or grappled, and so have no reason to struggle free.");
-            return;
-        }
-
-        if (!actor.CanSpendStamina(actor.Gameworld.GetStaticDouble("StruggleFreeFromGrappleStaminaCost")))
-        {
-            actor.OutputHandler.Send(
-                $"You don't have the stamina to struggle free from {grapple.Grappling.CharacterOwner.HowSeen(actor)}.");
-            return;
+		IBeingGrappled grapple = actor.CombinedEffectsOfType<IBeingGrappled>().FirstOrDefault();
+		if (grapple is not null &&
+			!actor.CanSpendStamina(actor.Gameworld.GetStaticDouble("StruggleFreeFromGrappleStaminaCost")))
+		{
+			actor.OutputHandler.Send(
+				$"You don't have the stamina to struggle free from {grapple.Grappling.CharacterOwner.HowSeen(actor)}.");
+			return;
         }
 
         StruggleMove move = new() { Assailant = actor };
@@ -2046,20 +2189,20 @@ The core syntax for this command is as follows:
             return;
         }
 
-        Match match = DrinkCommandRegex.Match(text);
-        if (!match.Success)
-        {
-            character.OutputHandler.Send(DrinkHelpText.SubstituteANSIColour());
-            return;
-        }
+		if (!TryParseDrinkCommand(text, amountText => TryParseDrinkAmount(character, amountText, out _),
+			    out var parsed))
+		{
+			character.OutputHandler.Send(DrinkHelpText.SubstituteANSIColour());
+			return;
+		}
 
-        IGameItem targetTable = null, target = null;
-        if (match.Groups["table"].Length > 0)
-        {
-            targetTable = character.TargetLocalItem(match.Groups["table"].Value);
-            if (targetTable == null)
-            {
-                character.Send("You do not see any table like that to find drinks on.");
+		IGameItem targetTable = null, target = null;
+		if (!string.IsNullOrEmpty(parsed.Table))
+		{
+			targetTable = character.TargetLocalItem(parsed.Table);
+			if (targetTable == null)
+			{
+				character.Send("You do not see any table like that to find drinks on.");
                 return;
             }
 
@@ -2070,12 +2213,12 @@ The core syntax for this command is as follows:
                 return;
             }
 
-            target =
-                targetTable.GetItemType<IContainer>()
-                           .Contents.GetFromItemListByKeyword(match.Groups["target"].Value, character);
+			target =
+				targetTable.GetItemType<IContainer>()
+						   .Contents.GetFromItemListByKeyword(parsed.Target, character);
 
-            if (target == null)
-            {
+			if (target == null)
+			{
                 character.Send("There is nothing like that on {0} that you can drink.",
                     targetTable.HowSeen(character));
                 return;
@@ -2087,13 +2230,13 @@ The core syntax for this command is as follows:
                 character.Send(error);
                 return;
             }
-        }
-        else
-        {
-            target = character.TargetItem(match.Groups["target"].Value);
-            if (target == null)
-            {
-                character.Send("You do not have anything like that to drink from.");
+		}
+		else
+		{
+			target = character.TargetItem(parsed.Target);
+			if (target == null)
+			{
+				character.Send("You do not have anything like that to drink from.");
                 return;
             }
         }
@@ -2109,26 +2252,17 @@ The core syntax for this command is as follows:
         {
             character.Send("{0} is bone dry.", target.HowSeen(character, true));
             return;
-        }
+		}
 
-        double amount = character.Gameworld.GetStaticDouble("DefaultSipAmount");
-        if (!string.IsNullOrEmpty(match.Groups["amount"].Value))
-        {
-            if (double.TryParse(match.Groups["amount"].Value, out double multiplier) && multiplier > 0.0)
-            {
-                amount *= multiplier;
-            }
-            else
-            {
-                amount = character.Gameworld.UnitManager.GetBaseUnits(match.Groups["amount"].Value.Trim(),
-                    UnitType.FluidVolume, out bool success);
-                if (!success || amount <= 0.0)
-                {
-                    character.Send($"The text {match.Groups["amount"].Value.ColourCommand()} is not a valid amount to drink.");
-                    return;
-                }
-            }
-        }
+		double amount = character.Gameworld.GetStaticDouble("DefaultSipAmount");
+		if (!string.IsNullOrEmpty(parsed.Amount))
+		{
+			if (!TryParseDrinkAmount(character, parsed.Amount, out amount))
+			{
+				character.Send($"The text {parsed.Amount.ColourCommand()} is not a valid amount to drink.");
+				return;
+			}
+		}
 
         if (targetAsDrink.LiquidMixture is not null && amount > targetAsDrink.LiquidMixture.TotalVolume)
         {
@@ -2141,13 +2275,12 @@ The core syntax for this command is as follows:
             return;
         }
 
-        PlayerEmote emote = null;
-        if (match.Groups["emote"].Length > 0)
-        {
-            string emoteText = match.Groups["emote"].Value;
-            emote = new PlayerEmote(new StringStack(emoteText).PopParentheses(), character);
-            if (!emote.Valid)
-            {
+		PlayerEmote emote = null;
+		if (!string.IsNullOrEmpty(parsed.Emote))
+		{
+			emote = new PlayerEmote(parsed.Emote, character);
+			if (!emote.Valid)
+			{
                 character.Send(emote.ErrorMessage);
                 return;
             }
@@ -2180,17 +2313,17 @@ The syntax to use this command is as follows:
             return;
         }
 
-        Match match = FillCommandRegex.Match(text);
-        if (!match.Success)
-        {
-            character.OutputHandler.Send(FillHelpText.SubstituteANSIColour());
-            return;
-        }
+		if (!TryParseFillCommand(text, amountText => IsFluidVolumeAmount(character, amountText), true,
+			    out var parsed))
+		{
+			character.OutputHandler.Send(FillHelpText.SubstituteANSIColour());
+			return;
+		}
 
-        IGameItem target = character.TargetHeldItem(match.Groups["target"].Value);
-        if (target == null)
-        {
-            character.Send("You do not have anything like that to fill.");
+		IGameItem target = character.TargetHeldItem(parsed.Target);
+		if (target == null)
+		{
+			character.Send("You do not have anything like that to fill.");
             return;
         }
 
@@ -2207,14 +2340,14 @@ The syntax to use this command is as follows:
             return;
         }
 
-        IGameItem container;
-        ICharacter containerOwner = null;
-        if (match.Groups["owner"].Length > 0)
-        {
-            containerOwner = character.TargetActorOrCorpse(match.Groups["owner"].Value);
-            if (containerOwner == null)
-            {
-                character.OutputHandler.Send(
+		IGameItem container;
+		ICharacter containerOwner = null;
+		if (!string.IsNullOrEmpty(parsed.Owner))
+		{
+			containerOwner = character.TargetActorOrCorpse(parsed.Owner);
+			if (containerOwner == null)
+			{
+				character.OutputHandler.Send(
                     "You don't see anyone like that whose containers you can fill liquid from.");
                 return;
             }
@@ -2233,21 +2366,21 @@ The syntax to use this command is as follows:
                 return;
             }
 
-            container = containerOwner.Body.ExternalItemsForOtherActors.Where(x => character.CanSee(x))
-                                      .GetFromItemListByKeyword(match.Groups["from"].Value, character);
-            if (container == null)
-            {
-                character.Send("{0} has nothing like that from which to fill {1}.",
+			container = containerOwner.Body.ExternalItemsForOtherActors.Where(x => character.CanSee(x))
+									  .GetFromItemListByKeyword(parsed.From, character);
+			if (container == null)
+			{
+				character.Send("{0} has nothing like that from which to fill {1}.",
                     containerOwner.HowSeen(character, true), target.HowSeen(character));
                 return;
             }
-        }
-        else
-        {
-            container = character.TargetItem(match.Groups["from"].Value);
-            if (container == null)
-            {
-                character.Send("There is nothing like from which to fill {0}.", target.HowSeen(character));
+		}
+		else
+		{
+			container = character.TargetItem(parsed.From);
+			if (container == null)
+			{
+				character.Send("There is nothing like from which to fill {0}.", target.HowSeen(character));
                 return;
             }
         }
@@ -2277,26 +2410,25 @@ The syntax to use this command is as follows:
             return;
         }
 
-        PlayerEmote emote = null;
-        if (match.Groups["emote"].Length > 0)
-        {
-            string emoteText = match.Groups["emote"].Value;
-            emote = new PlayerEmote(new StringStack(emoteText).PopParentheses(), character);
-            if (!emote.Valid)
-            {
-                character.Send(emote.ErrorMessage);
+		PlayerEmote emote = null;
+		if (!string.IsNullOrEmpty(parsed.Emote))
+		{
+			emote = new PlayerEmote(parsed.Emote, character);
+			if (!emote.Valid)
+			{
+				character.Send(emote.ErrorMessage);
                 return;
             }
         }
 
-        double amount = Math.Min(targetAsContainer.LiquidCapacity - (targetAsContainer.LiquidMixture?.TotalVolume ?? 0.0),
-            containerAsContainer.LiquidMixture.TotalVolume);
-        if (match.Groups["amount"].Length > 0)
-        {
-            amount = character.Gameworld.UnitManager.GetBaseUnits(match.Groups["amount"].Value, UnitType.FluidVolume,
-                out bool success);
-            if (!success)
-            {
+		double amount = Math.Min(targetAsContainer.LiquidCapacity - (targetAsContainer.LiquidMixture?.TotalVolume ?? 0.0),
+			containerAsContainer.LiquidMixture.TotalVolume);
+		if (!string.IsNullOrEmpty(parsed.Amount))
+		{
+			amount = character.Gameworld.UnitManager.GetBaseUnits(parsed.Amount, UnitType.FluidVolume,
+				out bool success);
+			if (!success)
+			{
                 character.Send("That is not a valid amount of liquid.");
                 return;
             }
@@ -2354,17 +2486,17 @@ The syntax to use this command is as follows:
             return;
         }
 
-        Match match = FillCommandRegex.Match(text);
-        if (!match.Success)
-        {
-            character.OutputHandler.Send(FillGasHelpText.SubstituteANSIColour());
-            return;
-        }
+		if (!TryParseFillCommand(text, amountText => IsFluidVolumeAmount(character, amountText), false,
+			    out var parsed))
+		{
+			character.OutputHandler.Send(FillGasHelpText.SubstituteANSIColour());
+			return;
+		}
 
-        IGameItem target = character.TargetHeldItem(match.Groups["target"].Value);
-        if (target == null)
-        {
-            character.Send("You do not have anything like that to fill.");
+		IGameItem target = character.TargetHeldItem(parsed.Target);
+		if (target == null)
+		{
+			character.Send("You do not have anything like that to fill.");
             return;
         }
 
@@ -2375,10 +2507,10 @@ The syntax to use this command is as follows:
             return;
         }
 
-        IGameItem source = character.TargetItem(match.Groups["from"].Value);
-        if (source == null)
-        {
-            character.Send("There is nothing like that from which to fill {0}.", target.HowSeen(character));
+		IGameItem source = character.TargetItem(parsed.From);
+		if (source == null)
+		{
+			character.Send("There is nothing like that from which to fill {0}.", target.HowSeen(character));
             return;
         }
 
@@ -2401,14 +2533,14 @@ The syntax to use this command is as follows:
             return;
         }
 
-        double amount = Math.Min(targetContainer.GasCapacityAtOneAtmosphere - targetContainer.GasVolumeAtOneAtmosphere,
-                sourceContainer.GasVolumeAtOneAtmosphere);
-        if (match.Groups["amount"].Length > 0)
-        {
-            amount = character.Gameworld.UnitManager.GetBaseUnits(match.Groups["amount"].Value, UnitType.FluidVolume,
-                    out bool success);
-            if (!success)
-            {
+		double amount = Math.Min(targetContainer.GasCapacityAtOneAtmosphere - targetContainer.GasVolumeAtOneAtmosphere,
+				sourceContainer.GasVolumeAtOneAtmosphere);
+		if (!string.IsNullOrEmpty(parsed.Amount))
+		{
+			amount = character.Gameworld.UnitManager.GetBaseUnits(parsed.Amount, UnitType.FluidVolume,
+					out bool success);
+			if (!success)
+			{
                 character.Send("That is not a valid amount of gas.");
                 return;
             }
@@ -2497,7 +2629,7 @@ The syntax is as follows:
                 return;
             }
 
-            if (target.InInventoryOf == null && liquidContainer.CanBeEmptiedWhenInRoom)
+			if (target.InInventoryOf == null && !liquidContainer.CanBeEmptiedWhenInRoom)
             {
                 actor.OutputHandler.Send(
                     $"{target.HowSeen(actor, true)} cannot be emptied when it is on the ground.");
@@ -2616,27 +2748,18 @@ The syntax is as follows:
 
 	#3pour [<amount>] <container> into <other>#0 - pour liquid from one container to another",
         AutoHelp.HelpArgOrNoArg)]
-    protected static void Pour(ICharacter actor, string command)
-    {
-        StringStack ss = new(command.RemoveFirstWord());
-        string amountArg = ss.PopSpeech();
-        string fromArg = ss.PopSafe();
-        string intoArg = ss.PopSafe();
-        if (intoArg.EqualTo("into"))
-        {
-            intoArg = ss.PopSafe();
-        }
+	protected static void Pour(ICharacter actor, string command)
+	{
+		if (!TryParsePourCommand(command.RemoveFirstWord(), out var parsed))
+		{
+			actor.OutputHandler.Send("The syntax is #3pour [<amount>] <container> into <other>#0.".SubstituteANSIColour());
+			return;
+		}
 
-        if (string.IsNullOrEmpty(fromArg))
-        {
-            actor.OutputHandler.Send($"What do you want to pour liquid from?");
-            return;
-        }
-
-        IGameItem fromItem = actor.TargetPersonalItem(fromArg);
-        if (fromItem == null)
-        {
-            actor.OutputHandler.Send("You don't have anything like that to pour from.");
+		IGameItem fromItem = actor.TargetPersonalItem(parsed.From);
+		if (fromItem == null)
+		{
+			actor.OutputHandler.Send("You don't have anything like that to pour from.");
             return;
         }
 
@@ -2656,24 +2779,28 @@ The syntax is as follows:
         if (fromItemContainer.LiquidMixture?.IsEmpty != false)
         {
             actor.OutputHandler.Send($"{fromItem.HowSeen(actor)} is empty.");
-            return;
-        }
+			return;
+		}
 
-        double amount = actor.Gameworld.UnitManager.GetBaseUnits(amountArg, UnitType.FluidVolume, out bool success);
-        if (!success)
-        {
-            actor.OutputHandler.Send("That is not a valid amount of liquid to pour.");
-            return;
-        }
+		double amount = fromItemContainer.LiquidVolume;
+		if (!string.IsNullOrEmpty(parsed.Amount))
+		{
+			amount = actor.Gameworld.UnitManager.GetBaseUnits(parsed.Amount, UnitType.FluidVolume, out bool success);
+			if (!success)
+			{
+				actor.OutputHandler.Send("That is not a valid amount of liquid to pour.");
+				return;
+			}
+		}
 
-        amount = Math.Min(amount, fromItemContainer.LiquidVolume);
-        if (string.IsNullOrEmpty(intoArg))
-        {
-            actor.OutputHandler.Send($"What do you want to pour the liquid from {fromItem.HowSeen(actor)} into?");
-            return;
-        }
+		amount = Math.Min(amount, fromItemContainer.LiquidVolume);
+		if (string.IsNullOrEmpty(parsed.Into))
+		{
+			actor.OutputHandler.Send($"What do you want to pour the liquid from {fromItem.HowSeen(actor)} into?");
+			return;
+		}
 
-        IGameItem intoItem = actor.TargetItem(intoArg);
+		IGameItem intoItem = actor.TargetItem(parsed.Into);
         if (intoItem == null)
         {
             actor.OutputHandler.Send(
@@ -2713,13 +2840,12 @@ The syntax is as follows:
             return;
         }
 
-        PlayerEmote emote = null;
-        if (!ss.IsFinished)
-        {
-            string emoteText = ss.PopParentheses();
-            emote = new PlayerEmote(new StringStack(emoteText).PopParentheses(), actor);
-            if (!emote.Valid)
-            {
+		PlayerEmote emote = null;
+		if (!string.IsNullOrEmpty(parsed.Emote))
+		{
+			emote = new PlayerEmote(parsed.Emote, actor);
+			if (!emote.Valid)
+			{
                 actor.Send(emote.ErrorMessage);
                 return;
             }
@@ -5504,12 +5630,12 @@ The syntax for this command is as follows:
                 return;
             }
 
-            if (!insertable.IsItemType<IInsertable>())
-            {
-                actor.Send("{0} is not the sort of thing that can have anything inserted into it.",
-                    target.HowSeen(actor, true));
-                return;
-            }
+			if (!insertable.IsItemType<IInsertable>())
+			{
+				actor.Send("{0} is not the sort of thing that can have anything inserted into it.",
+					insertable.HowSeen(actor, true));
+				return;
+			}
         }
 
         (bool truth, string error) = actor.CanManipulateItem(insertable);
@@ -5598,11 +5724,12 @@ The syntax is as follows:
         List<ISwitchable> canSwitchables = switchables.Where(x => x.CanSwitch(actor, switchText)).ToList();
         if (!canSwitchables.Any())
         {
-            if (!switchables.SelectMany(x => x.SwitchSettings).Distinct().Any(x => x.EqualTo(switchText)))
-            {
-                actor.Send("");
-                return;
-            }
+			if (!switchables.SelectMany(x => x.SwitchSettings).Distinct().Any(x => x.EqualTo(switchText)))
+			{
+				actor.Send(
+					$"{switchText.ColourCommand()} is not a valid switch option for {target.HowSeen(actor)}. The valid options are {switchables.SelectMany(x => x.SwitchSettings.Select(y => y.ColourCommand())).Distinct().ListToString()}.");
+				return;
+			}
 
             StringBuilder sb = new();
             foreach (ISwitchable switchable in switchables.Where(x => !canSwitchables.Contains(x)))
@@ -5655,12 +5782,15 @@ The syntax is as follows:
             }
 
             // Otherwise, return the only lock on the target
-            targetLockItem = lockable.Locks.FirstOrDefault()?.Parent;
-            ILock? theLock = targetLockItem?.GetItemType<ILock>();
-            if (theLock is null)
-            {
-                actor.OutputHandler.Send($"{target.HowSeen(actor, true)} does not have any locks on it.");
-            }
+			targetLockItem = lockable.Locks.FirstOrDefault()?.Parent;
+			ILock? theLock = targetLockItem?.GetItemType<ILock>();
+			if (theLock is not null)
+			{
+				return theLock;
+			}
+
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} does not have any locks on it.");
+			return null;
         }
 
         if (target.IsItemType<ILock>())
@@ -6155,11 +6285,11 @@ The syntax is as follows:
                 lockTool?.Parent.Die();
             }
             else
-            {
-                actor.OutputHandler.Handle(
-                    new EmoteOutput(
-                        new Emote("@ fail|fails to unlock $0 with $1.", actor, targetLock.Parent,
-                            lockTool?.Parent), flags: OutputFlags.SuppressObscured));
+			{
+				actor.OutputHandler.Handle(
+					new EmoteOutput(
+						new Emote("@ fail|fails to unlock $0 with $1.", actor, targetLock.Parent,
+							lockTool?.Parent), flags: OutputFlags.SuppressObscured));
             }
         }
 
@@ -6297,7 +6427,7 @@ The syntax is as follows:
             {
                 actor.OutputHandler.Handle(
                     new EmoteOutput(
-                        new Emote("@ fail|fails to unlock $0 with $1.", actor, targetLock.Parent,
+                        new Emote("@ fail|fails to lock $0 with $1.", actor, targetLock.Parent,
                             lockTool?.Parent), flags: OutputFlags.SuppressObscured));
             }
         }
@@ -6328,10 +6458,10 @@ The syntax is as follows:
                 return;
             }
 
-            actor.OutputHandler.Handle(
-                new EmoteOutput(
-                    new Emote("@ continue|continues to unlock $0.", actor, targetLock.Parent),
-                    flags: OutputFlags.SuppressObscured));
+			actor.OutputHandler.Handle(
+				new EmoteOutput(
+					new Emote("@ continue|continues to lock $0.", actor, targetLock.Parent),
+					flags: OutputFlags.SuppressObscured));
         }
 
         if (!actor.IsAdministrator())
@@ -6341,7 +6471,7 @@ The syntax is as follows:
                 intermediateAction,
                 intermediateAction,
                 finalAction
-            }, "picking a lock", new[] { "genera", "movement" }, 3, timespan), timespan);
+			}, "picking a lock", new[] { "general", "movement" }, 3, timespan), timespan);
             actor.OutputHandler.Handle(
                 new EmoteOutput(
                     new Emote("@ begin|begins to lock $0 with $1.", actor, targetLock.Parent,
@@ -6756,8 +6886,8 @@ The syntax is as follows:
             actor.Location.Insert(tossable);
             if (layer.IsLowerThan(actor.RoomLayer))
             {
-                tossable.OutputHandler.Handle(new EmoteOutput(
-                    new Emote($"@ fly|flies in fom above$?1|, ending up right by $1||$.", tossable, tossable, target)));
+				tossable.OutputHandler.Handle(new EmoteOutput(
+					new Emote($"@ fly|flies in from above$?1|, ending up right by $1||$.", tossable, tossable, target)));
             }
             else
             {

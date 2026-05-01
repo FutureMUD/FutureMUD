@@ -17,7 +17,7 @@ The seeder uses existing FutureMUD systems rather than adding a new supernatural
 - Angelic sonic attacks such as `Heavenly Choir`, `Canticle of Awe`, `Trumpet Peal`, and `Word of Command` use the existing area-style `ScreechAttack` mechanic, target ear-shaped bodyparts, and are written as choir or command-voice effects rather than single-target strikes.
 - Demonic, spirit, undead, and therianthrope attacks are cloned from existing animal or unarmed donor attacks so builders get varied examples without the seeder adding new combat engine mechanics.
 - Body prototypes carry the base planar presence XML for supernatural forms such as incorporeal spirits, dual-natured angels, astral demons, and ordinary material werewolves or undead.
-- Horned fiend and familiar supernatural bodies add stock tail aliases so tail attacks such as `Barbed Tail Slap` have real bodyparts to bind to.
+- Horned fiend and familiar supernatural bodies add stock tail aliases so tail attacks such as `Barbed Tail Slap` have real bodyparts to bind to. The tail subtree is cloned from `Quadruped Base`, where the stock quadruped tail aliases are directly authored, rather than from the inherited `Toed Quadruped` child body.
 - Additional body forms are supplied as stock `Additional Body Form` merits. These are examples and builder tools, not automatic race-level transformations.
 - Spirits, ghosts, angels, demons, gods, and undead use explicit non-breather settings with hunger and thirst rates set to zero.
 - Werewolves use living needs and seeded alternate-form merits for hybrid and wolf-form examples.

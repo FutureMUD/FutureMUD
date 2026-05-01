@@ -31,7 +31,8 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         _id = dbitem.Id;
         _name = dbitem.Name;
         Gameworld.Add(this);
-        AccountCreationDate = new MudDateTime(dbitem.AccountCreationDate, Gameworld);
+        AccountCreationDate = MudDateTime.FromStoredStringOrFallback(dbitem.AccountCreationDate, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "BankAccount", dbitem.Id, dbitem.Name, "AccountCreationDate");
         AccountNumber = dbitem.AccountNumber;
         AccountStatus = (BankAccountStatus)dbitem.AccountStatus;
         BankAccountType = Gameworld.BankAccountTypes.Get(dbitem.BankAccountTypeId);

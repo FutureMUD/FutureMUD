@@ -55,9 +55,12 @@ public partial class Clan : SaveableItem, IClan
             SecondaryModifier = clan.PayIntervalOtherSecondary,
             OrdinalFallbackMode = (OrdinalFallbackMode)clan.PayIntervalFallback
         };
-        MudTime payTime = Calendar.FeedClock.GetTime(clan.PayIntervalReferenceTime);
+        MudTime payTime = Calendar.FeedClock.GetStoredTimeOrFallback(clan.PayIntervalReferenceTime,
+            StoredMudTimeFallback.CurrentTime, "Clan", clan.Id, clan.Name, "PayIntervalReferenceTime", Calendar);
+        var payDate = Calendar.GetStoredDateOrFallback(clan.PayIntervalReferenceDate,
+            StoredMudDateFallback.CurrentDate, "Clan", clan.Id, clan.Name, "PayIntervalReferenceDate");
         _nextPay = new MudDateTime(
-            PayInterval.GetNextDate(Calendar, Calendar.GetDate(clan.PayIntervalReferenceDate)), payTime,
+            PayInterval.GetNextDate(Calendar, payDate), payTime,
             payTime.Timezone);
         foreach (ClanTreasuryCell cell in clan.ClansTreasuryCells)
         {

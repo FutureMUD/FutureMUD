@@ -131,7 +131,9 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         foreach (LegalAuthorityFine fine in dbitem.Fines)
         {
             _finesOwed.Add(fine.CharacterId, fine.FinesOwned);
-            _finePaymentDueDates.Add(fine.CharacterId, new MudDateTime(fine.PaymentRequiredBy, Gameworld));
+            _finePaymentDueDates.Add(fine.CharacterId, MudDateTime.FromStoredStringOrFallback(fine.PaymentRequiredBy,
+                Gameworld, StoredMudDateTimeFallback.CurrentDateTime, "LegalAuthorityFine", fine.CharacterId,
+                Name, "PaymentRequiredBy"));
         }
 
         foreach (Models.CorpseRecoveryReport report in dbitem.CorpseRecoveryReports)

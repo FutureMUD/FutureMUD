@@ -85,6 +85,28 @@ Shards own available clocks and calendars through shard link tables. Zones choos
 
 Economic zones, clans, boards, weather controllers, celestials, and FutureProg schedules also persist references to clocks, calendars, time zones, or `MudDateTime` round-trip strings.
 
+### Stored Value Fallbacks
+Builder edits to clocks and calendars can make old round-trip strings invalid. Runtime database and XML load paths therefore use explicit stored-value helpers rather than builder/player parsing:
+
+- `MudDateTime.TryParseStored(...)`
+- `MudDateTime.FromStoredStringOrFallback(...)`
+- `ICalendar.GetStoredDateOrFallback(...)`
+- `IClock.GetStoredTimeOrFallback(...)`
+
+These helpers are only for trusted stored engine data. Interactive builder/player input still uses strict parsing and returns explanatory errors.
+
+Fallback policies are chosen by owner semantics:
+
+- active scheduling and cadence state normally falls back to the owning calendar or clock's current date/time
+- optional expiry, closed, end, and "not scheduled" values fall back to `MudDateTime.Never` or `null` where the owning code supports null
+- historical/audit records fall back to current in-game date/time so displays remain stable
+- character birth or join dates fall back to the relevant current calendar date
+- celestial epoch values fall back to the first valid date in the epoch year so movement remains deterministic
+- saved FutureProg `muddatetime` variables fall back to `MudDateTime.Never`
+- calendar current date falls back to the first valid generated date for the current or epoch year
+
+Every fallback attempts to notify admins through `DiscordConnection.NotifyAdmins`. The notification includes the bad stored string, value type, calendar name/id, clock name/id where applicable, owner type/id/name, affected field, fallback value, and parse failure reason. If Discord is unavailable or notification fails, the same payload is written through the server console utility and the load continues.
+
 ## Clock Model
 `IClock` defines a configurable clock rather than assuming Earth time.
 
@@ -402,8 +424,9 @@ The `time` command intentionally routes exactness through checks. A character ma
 ### Builder/Admin-Facing
 Current builder/admin surfaces include:
 
-- `clock`: list, create, edit, clone, close, and show clocks
-- `timezone`: list, create, and edit time zones for a clock
+- `clock`: list, new/create, edit/open, clone, close, show, and set commands
+- `timezone`: list, new/create, edit/open, clone, close, show, and set commands
+- `calendar`: list, new, edit/open, clone, close, show, preview, validate, and set commands
 - `shard set <shard> clocks <clock...>`
 - `shard set <shard> calendars <calendar...>`
 - `zone set <zone> timezone <clock> <timezone>`
@@ -411,7 +434,15 @@ Current builder/admin surfaces include:
 - `show calendars`
 - `show timezones [clock]`
 
-There is robust clock editing support through `EditableItemHelper.ClockHelper`. Calendar editing is less builder-complete and is currently more dependent on seeded or XML-defined calendar definitions.
+Clock, calendar, and mud time-zone editing all use `IEditableItem` and `EditableItemHelperTime.cs`, so they share the standard `list/new/edit/show/set/close/clone` workflow used by other builder-managed engine objects. The legacy `timezone list/create/edit` syntax remains as a compatibility alias, but the generic editing workflow is the canonical surface.
+
+Clock editing supports metadata, display masks, clock units, in-game speed, fixed digit settings, zero-hour behavior, hour intervals, primary time-zone selection, current-time setting through local-time parsing, and crude time interval add/remove/clear.
+
+Time-zone editing supports name/alias, description, and offset hours/minutes. Existing time zones cannot be moved between clocks; builders should clone to the target clock instead.
+
+Calendar editing supports metadata, display masks, feed clock, current date, epoch year and first weekday, era display text, weekday and month editing, normal special/non-weekday days, intercalary days/months, generated-year preview, and validation. Structural edits clear generated-year caches, normalize the current date, and mark the calendar changed.
+
+Builders changing live calendars or clocks should preview and validate before closing the edit session, then watch for Discord fallback notifications after reboot/load cycles. Those notifications identify affected saved objects so humans can repair data that was made invalid by the definition change.
 
 ## Seeder Support
 `TimeSeeder` installs the initial clock, UTC time zone, and selected stock calendar package.
@@ -457,6 +488,8 @@ These are important rules to preserve when changing the system:
 - Temporal listeners consume repeat counts only after successful payload firing.
 - Ordinal recurrence calculations must use generated calendar data rather than Gregorian month/week assumptions.
 - Persistent scheduling should store recurrence/reference data and recreate listeners rather than expecting listeners themselves to persist.
+- Stored-value fallback helpers must be used for persisted round-trip strings that may have been invalidated by builder edits.
+- Fallback reporting must be no-throw; bad telemetry should never prevent the owning object from loading.
 
 ## Test Coverage
 The normal unit-test suites now include focused coverage for:
@@ -465,25 +498,28 @@ The normal unit-test suites now include focused coverage for:
 - `MudDate`, `MudDateTime`, `MudTimeSpan`, calendar weekday math, intercalary weekday edits, and `Never` safety
 - recurring interval parsing, descriptions, round-trip text, forward/backward search, high ordinal weekdays, exact-month skipping, and "or last" fallback
 - runtime listeners, interval extension helpers, and FutureProg date/time helper functions
+- clock, time-zone, and calendar builder command paths for high-value edits
+- stored-value fallback behavior and Discord admin notification payloads
 - every seeded clock/calendar package produced by `TimeSeeder`, including runtime loading and idempotent reruns
 
 ## Current Limitations
 The system is flexible, but there are areas where current support is incomplete or intentionally narrow:
 
-- calendar authoring is not as builder-friendly as clock and time-zone authoring
+- calendar editing is broad but still deliberately command-oriented; there is no graphical calendar designer or bulk import/export workflow
 - time zones are fixed offsets and do not model daylight saving or historical offset changes
 - recurring interval text is richer than the legacy compact form, but it remains a focused recurrence grammar rather than a general cron system
 - listeners are in-memory runtime helpers, so persistence must be implemented by the owning subsystem
 - cross-calendar conversion is based on each calendar's current date anchor, which is useful for live worlds but should be treated carefully for historical absolute chronology
 - `MudTimeSpan` month and year components are calendar-like approximations until applied to a concrete `MudDateTime`
+- major structural edits rely on fallback notification and human repair rather than a bulk migration wizard
 
 ## Future Work
 Useful extensions include:
 
-- a full calendar builder/editor with validation previews for generated years
 - builder-facing calendar import/export tooling for XML definitions
 - additional recurrence validation previews and builder-facing schedule explanation tools
 - daylight saving and date-bounded time-zone transitions
 - a schedule inspection command that shows active listener state alongside persistent recurrence state
 - more FutureProg helper functions for calendar math, such as `daysbetween`, `monthstart`, `monthend`, and `weekdayname`
 - stronger validation for calendars linked to shards, zones, celestials, weather controllers, economies, and clans before deletion or major edits
+- an admin repair/report command that enumerates stored time strings that would currently trigger fallbacks

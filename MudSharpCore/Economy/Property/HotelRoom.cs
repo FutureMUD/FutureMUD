@@ -77,8 +77,10 @@ public class HotelRoomRental : IHotelRoomRental
 	{
 		_room = room;
 		GuestId = long.Parse(root.Attribute("guest")?.Value ?? "0");
-		StartTime = new MudDateTime(root.Attribute("start")?.Value ?? "Never", room.Property.Gameworld);
-		EndTime = new MudDateTime(root.Attribute("end")?.Value ?? "Never", room.Property.Gameworld);
+		StartTime = MudDateTime.FromStoredStringOrFallback(root.Attribute("start")?.Value ?? "Never", room.Property.Gameworld,
+			StoredMudDateTimeFallback.CurrentDateTime, "HotelRoomRental", null, room.Name, "StartTime");
+		EndTime = MudDateTime.FromStoredStringOrFallback(root.Attribute("end")?.Value ?? "Never", room.Property.Gameworld,
+			StoredMudDateTimeFallback.Never, "HotelRoomRental", null, room.Name, "EndTime");
 		RentalCharge = decimal.Parse(root.Attribute("charge")?.Value ?? "0.0");
 		SecurityDeposit = decimal.Parse(root.Attribute("deposit")?.Value ?? "0.0");
 		TaxCharged = decimal.Parse(root.Attribute("tax")?.Value ?? "0.0");
@@ -169,7 +171,8 @@ public class HotelLostProperty : IHotelLostProperty
 		_room = room;
 		OwnerId = long.Parse(root.Attribute("owner")?.Value ?? "0");
 		BundleId = long.Parse(root.Attribute("bundle")?.Value ?? "0");
-		StoredUntil = new MudDateTime(root.Attribute("until")?.Value ?? "Never", room.Property.Gameworld);
+		StoredUntil = MudDateTime.FromStoredStringOrFallback(root.Attribute("until")?.Value ?? "Never", room.Property.Gameworld,
+			StoredMudDateTimeFallback.Never, "HotelLostProperty", null, room.Name, "StoredUntil");
 		Status = root.Attribute("status")?.Value.TryParseEnum(out HotelLostPropertyStatus status) == true
 			? status
 			: HotelLostPropertyStatus.Held;

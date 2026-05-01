@@ -1606,7 +1606,9 @@ public partial class Character : PerceiverItem, ICharacter
         _handedness = (Alignment)character.DominantHandAlignment;
 
         Culture = Gameworld.Cultures.Get(character.CultureId);
-        Birthday = Gameworld.Calendars.Get(character.BirthdayCalendarId).GetDate(character.BirthdayDate);
+        var birthdayCalendar = Gameworld.Calendars.Get(character.BirthdayCalendarId);
+        Birthday = birthdayCalendar.GetStoredDateOrFallback(character.BirthdayDate, StoredMudDateFallback.CurrentDate,
+            "Character", character.Id, character.Name, "BirthdayDate");
 
         //TODO: If the Account no longer belongs to an Admin level Authority Group yet this character still has
         //      the IsAdminAvatar bit set to true in the DB, we should clear the bit just to be sure, even

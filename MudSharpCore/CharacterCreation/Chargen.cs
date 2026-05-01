@@ -31,6 +31,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Merits;
+using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using Newtonsoft.Json.Linq;
 using System;
@@ -1217,7 +1218,8 @@ public partial class Chargen : FrameworkItem, IChargen
             {
                 SelectedBirthday = string.IsNullOrEmpty(root.Element("SelectedBirthday")?.Value)
                     ? null
-                    : SelectedCulture.PrimaryCalendar.GetDate(root.Element("SelectedBirthday").Value);
+                    : SelectedCulture.PrimaryCalendar.GetStoredDateOrFallback(root.Element("SelectedBirthday").Value,
+                        StoredMudDateFallback.CurrentDate, "Chargen", Id, Account?.Name, "SelectedBirthday");
             }
             catch (MUDDateException)
             {
@@ -1226,7 +1228,8 @@ public partial class Chargen : FrameworkItem, IChargen
                 {
                     try
                     {
-                        SelectedBirthday = calendar.GetDate(root.Element("SelectedBirthday").Value);
+                        SelectedBirthday = calendar.GetStoredDateOrFallback(root.Element("SelectedBirthday").Value,
+                            StoredMudDateFallback.CurrentDate, "Chargen", Id, Account?.Name, "SelectedBirthday");
                         break;
                     }
                     catch (MUDDateException)

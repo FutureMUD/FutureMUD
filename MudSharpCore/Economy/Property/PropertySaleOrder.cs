@@ -20,7 +20,8 @@ public class PropertySaleOrder : SaveableItem, IPropertySaleOrder
         _id = dbitem.Id;
         _property = property;
         _reservePrice = dbitem.ReservePrice;
-        _startOfListing = new MudDateTime(dbitem.StartOfListing, Gameworld);
+        _startOfListing = MudDateTime.FromStoredStringOrFallback(dbitem.StartOfListing, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "PropertySaleOrder", dbitem.Id, property.Name, "StartOfListing");
         _durationOfListing = TimeSpan.FromDays(dbitem.DurationOfListingDays);
         _orderStatus = (PropertySaleOrderStatus)dbitem.OrderStatus;
         foreach (XElement element in XElement.Parse(dbitem.PropertyOwnerConsentInfo).Elements("Owner"))

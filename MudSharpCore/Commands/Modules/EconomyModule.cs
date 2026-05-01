@@ -10600,7 +10600,9 @@ The syntax for this command is as follows:
                         select new List<string>
                         {
                             item.DateTime.GetLocalDateString(actor, true),
-                            new MudDateTime(item.MudDateTime, actor.Gameworld).ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+                            MudDateTime.FromStoredStringOrFallback(item.MudDateTime, actor.Gameworld,
+                                StoredMudDateTimeFallback.CurrentDateTime, "ShopTransactionRecord", item.Id, null,
+                                "MudDateTime").ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
                             item.LogType,
                             item.LogEntry
                         },

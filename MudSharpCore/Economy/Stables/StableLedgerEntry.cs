@@ -28,7 +28,8 @@ public class StableLedgerEntry : FrameworkItem, IStableLedgerEntry
 		Stable = stay.Stable;
 		Stay = stay;
 		EntryType = (StableLedgerEntryType)entry.EntryType;
-		MudDateTime = new MudDateTime(entry.MudDateTime, Stable.Gameworld);
+		MudDateTime = MudDateTime.FromStoredStringOrFallback(entry.MudDateTime, Stable.Gameworld,
+			StoredMudDateTimeFallback.CurrentDateTime, "StableStayLedgerEntry", entry.Id, Stable.Name, "MudDateTime");
 		ActorId = entry.ActorId;
 		ActorName = entry.ActorName;
 		Amount = entry.Amount;

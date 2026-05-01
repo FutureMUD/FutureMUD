@@ -38,7 +38,8 @@ public class OngoingJobListing : JobListingBase, IOngoingJobListing
         PayInterval = RecurringInterval.Parse(definition.Element("PayInterval")!.Value);
         PayCurrency = Gameworld.Currencies.Get(long.Parse(definition.Element("PayCurrency")!.Value))!;
         PayExpression = new ExpressionEngine.Expression(definition.Element("PayExpression")!.Value);
-        PayReference = new MudDateTime(definition.Element("PayReference")!.Value, Gameworld);
+        PayReference = MudDateTime.FromStoredStringOrFallback(definition.Element("PayReference")!.Value, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "OngoingJobListing", dbitem.Id, dbitem.Name, "PayReference");
 
         foreach (ActiveJob? dbjob in dbitem.ActiveJobs)
         {

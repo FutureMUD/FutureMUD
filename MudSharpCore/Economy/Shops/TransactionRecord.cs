@@ -80,7 +80,8 @@ public class TransactionRecord : LateInitialisingItem, ITransactionRecord
         Shop = shop;
         EconomicZone = shop.EconomicZone;
         Currency = gameworld.Currencies.Get(record.CurrencyId);
-        MudDateTime = new MudDateTime(record.MudDateTime, gameworld);
+        MudDateTime = MudDateTime.FromStoredStringOrFallback(record.MudDateTime, gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "ShopTransactionRecord", record.Id, null, "MudDateTime");
         RealDateTime = record.RealDateTime;
         ThirdPartyId = record.ThirdPartyId;
         PretaxValue = record.PretaxValue;

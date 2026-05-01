@@ -30,7 +30,8 @@ public class BoardPost : LateInitialisingItem, IBoardPost
         AuthorId = post.AuthorId;
         AuthorIsCharacter = post.AuthorIsCharacter;
         InGameDateTime = !string.IsNullOrEmpty(post.InGameDateTime)
-            ? new MudDateTime(post.InGameDateTime, Gameworld)
+            ? MudDateTime.FromStoredStringOrFallback(post.InGameDateTime, Gameworld,
+                StoredMudDateTimeFallback.CurrentDateTime, "BoardPost", post.Id, post.Title, "InGameDateTime")
             : null;
         AuthorFullDescription = post.AuthorFullDescription;
         AuthorShortDescription = post.AuthorShortDescription;

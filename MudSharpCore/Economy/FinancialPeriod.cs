@@ -31,8 +31,10 @@ public class FinancialPeriod : LateInitialisingItem, IFinancialPeriod
         _id = period.Id;
         FinancialPeriodStart = period.PeriodStart;
         FinancialPeriodEnd = period.PeriodEnd;
-        FinancialPeriodStartMUD = new MudDateTime(period.MudPeriodStart, gameworld);
-        FinancialPeriodEndMUD = new MudDateTime(period.MudPeriodEnd, gameworld);
+        FinancialPeriodStartMUD = MudDateTime.FromStoredStringOrFallback(period.MudPeriodStart, gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "FinancialPeriod", period.Id, null, "MudPeriodStart");
+        FinancialPeriodEndMUD = MudDateTime.FromStoredStringOrFallback(period.MudPeriodEnd, gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "FinancialPeriod", period.Id, null, "MudPeriodEnd");
         EconomicZone = zone;
         IdInitialised = true;
     }

@@ -17,7 +17,8 @@ public class Scar : IScar
 		Gameworld = gameworld;
 		OwnerRace = ownerRace;
 		Bodypart = Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Bodypart")!.Value));
-		TimeOfScarring = new MudDateTime(root.Element("TimeOfScarring")!.Value, Gameworld);
+		TimeOfScarring = MudDateTime.FromStoredStringOrFallback(root.Element("TimeOfScarring")!.Value, Gameworld,
+			StoredMudDateTimeFallback.CurrentDateTime, "Scar", null, ownerRace?.Name, "TimeOfScarring");
 		BaseShortDescription = root.Element("ShortDescription")?.Value ?? "a scar";
 		BaseFullDescription = root.Element("FullDescription")?.Value ?? "A scar is visible here.";
 		SizeSteps = int.Parse(root.Element("SizeSteps")?.Value ?? "0");

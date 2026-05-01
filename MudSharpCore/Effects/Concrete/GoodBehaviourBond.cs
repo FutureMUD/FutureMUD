@@ -41,7 +41,8 @@ public class GoodBehaviourBond : Effect, IEffect
         XElement root = effect.Element("Effect");
         Authority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
         OriginalLength = MudTimeSpan.Parse(root.Element("OriginalLength").Value);
-        DateUntil = new MudDateTime(root.Element("DateUntil").Value, Gameworld);
+        DateUntil = MudDateTime.FromStoredStringOrFallback(root.Element("DateUntil").Value, Gameworld,
+            StoredMudDateTimeFallback.Never, "Effect:GoodBehaviourBond", Owner?.Id, Owner?.Name, "DateUntil");
         RegisterListener();
     }
 

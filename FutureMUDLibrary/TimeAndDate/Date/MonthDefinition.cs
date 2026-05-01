@@ -139,7 +139,7 @@ namespace MudSharp.TimeAndDate.Date
 
         public string Alias
         {
-            get => _alias; protected set => _alias = value;
+            get => _alias; set => _alias = value;
         }
 
         // Short Name of the month, e.g. Jul - used in abbreviated date output
@@ -147,7 +147,7 @@ namespace MudSharp.TimeAndDate.Date
 
         public string ShortName
         {
-            get => _shortName; protected set => _shortName = value;
+            get => _shortName; set => _shortName = value;
         }
 
         // Full name of the month, e.g. July
@@ -155,7 +155,7 @@ namespace MudSharp.TimeAndDate.Date
 
         public string FullName
         {
-            get => _fullName; protected set => _fullName = value;
+            get => _fullName; set => _fullName = value;
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace MudSharp.TimeAndDate.Date
 
         public int NominalOrder
         {
-            get => _nominalOrder; protected set => _nominalOrder = value;
+            get => _nominalOrder; set => _nominalOrder = value;
         }
 
         // Ordinary days in the month
@@ -174,7 +174,7 @@ namespace MudSharp.TimeAndDate.Date
 
         public int NormalDays
         {
-            get => _normalDays; protected set => _normalDays = value;
+            get => _normalDays; set => _normalDays = value;
         }
 
         #endregion

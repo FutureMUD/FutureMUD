@@ -25,15 +25,18 @@ public abstract class ActiveJobBase : SaveableItem, IActiveJob, ILazyLoadDuringI
         _id = dbitem.Id;
         Listing = listing;
         _characterId = dbitem.CharacterId;
-        JobCommenced = new MudDateTime(dbitem.JobCommenced, gameworld);
+        JobCommenced = MudDateTime.FromStoredStringOrFallback(dbitem.JobCommenced, gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "ActiveJob", dbitem.Id, listing.Name, "JobCommenced");
         JobDueToEnd = string.IsNullOrEmpty(dbitem.JobDueToEnd)
             ? default
-            : new MudDateTime(dbitem.JobDueToEnd, gameworld);
+            : MudDateTime.FromStoredStringOrFallback(dbitem.JobDueToEnd, gameworld,
+                StoredMudDateTimeFallback.Never, "ActiveJob", dbitem.Id, listing.Name, "JobDueToEnd");
         IsJobComplete = dbitem.IsJobComplete;
         AlreadyHadClanPosition = dbitem.AlreadyHadClanPosition;
         JobEnded = string.IsNullOrEmpty(dbitem.JobEnded)
             ? default
-            : new MudDateTime(dbitem.JobEnded, gameworld);
+            : MudDateTime.FromStoredStringOrFallback(dbitem.JobEnded, gameworld,
+                StoredMudDateTimeFallback.Never, "ActiveJob", dbitem.Id, listing.Name, "JobEnded");
         _activeProjectId = dbitem.ActiveProjectId;
         foreach (XElement item in XElement.Parse(dbitem.BackpayOwed).Elements("Pay"))
         {

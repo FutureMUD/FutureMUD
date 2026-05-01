@@ -149,8 +149,12 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		MarketInfluenceTemplate = Gameworld.MarketInfluenceTemplates.Get(influence.MarketInfluenceTemplateId ?? 0);
 		Description = influence.Description;
 		_name = influence.Name;
-		AppliesFrom = new MudDateTime(influence.AppliesFrom, Gameworld);
-		_appliesUntil = influence.AppliesUntil is not null ? new MudDateTime(influence.AppliesUntil, Gameworld) : null;
+		AppliesFrom = MudDateTime.FromStoredStringOrFallback(influence.AppliesFrom, Gameworld,
+			StoredMudDateTimeFallback.CurrentDateTime, "MarketInfluence", influence.Id, influence.Name, "AppliesFrom");
+		_appliesUntil = influence.AppliesUntil is not null
+			? MudDateTime.FromStoredStringOrFallback(influence.AppliesUntil, Gameworld,
+				StoredMudDateTimeFallback.Never, "MarketInfluence", influence.Id, influence.Name, "AppliesUntil")
+			: null;
 		CharacterKnowsAboutInfluenceProg =
 			Gameworld.FutureProgs.Get(influence.CharacterKnowsAboutInfluenceProgId) ?? Gameworld.AlwaysFalseProg;
 		foreach (var impact in XElement.Parse(influence.Impacts).Elements("Impact"))

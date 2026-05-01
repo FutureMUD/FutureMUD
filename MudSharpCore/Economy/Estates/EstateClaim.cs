@@ -46,7 +46,8 @@ public class EstateClaim : SaveableItem, IEstateClaim
         _status = (ClaimStatus)claim.ClaimStatus;
         _statusReason = claim.StatusReason;
         IsSecured = claim.IsSecured;
-        ClaimDate = new MudDateTime(claim.ClaimDate, Gameworld);
+        ClaimDate = MudDateTime.FromStoredStringOrFallback(claim.ClaimDate, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "EstateClaim", claim.Id, null, "ClaimDate");
     }
 
     public EstateClaim(IEstate estate, IFrameworkItem claimant, decimal amount, string reason, ClaimStatus status,

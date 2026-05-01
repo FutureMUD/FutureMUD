@@ -65,10 +65,12 @@ public class Crime : LateInitialisingItem, ICrime
         AccuserId = dbitem.AccuserId;
         RealTimeOfCrime = dbitem.RealTimeOfCrime;
         CrimeLocation = Gameworld.Cells.Get(dbitem.LocationId ?? 0);
-        TimeOfCrime = new MudDateTime(dbitem.TimeOfCrime, Gameworld);
+        TimeOfCrime = MudDateTime.FromStoredStringOrFallback(dbitem.TimeOfCrime, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Crime", dbitem.Id, null, "TimeOfCrime");
         TimeOfReport = string.IsNullOrEmpty(dbitem.TimeOfReport)
             ? null
-            : new MudDateTime(dbitem.TimeOfReport, Gameworld);
+            : MudDateTime.FromStoredStringOrFallback(dbitem.TimeOfReport, Gameworld,
+                StoredMudDateTimeFallback.CurrentDateTime, "Crime", dbitem.Id, null, "TimeOfReport");
         HasBeenConvicted = dbitem.ConvictionRecorded;
         _isKnownCrime = dbitem.IsKnownCrime;
         _criminalIdentityIsKnown = dbitem.IsCriminalIdentityKnown;

@@ -108,7 +108,8 @@ internal abstract class ShopperBase : SaveableItem, IShopper
         _name = dbitem.Name;
         EconomicZone = Gameworld.EconomicZones.Get(dbitem.EconomicZoneId);
         ShoppingInterval = RecurringInterval.Parse(dbitem.Interval);
-        NextShop = new MudDateTime(dbitem.NextDate, Gameworld);
+        NextShop = MudDateTime.FromStoredStringOrFallback(dbitem.NextDate, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Shopper", dbitem.Id, dbitem.Name, "NextDate");
         LoadFromDefinition(XElement.Parse(dbitem.Definition));
         SetupListener();
     }

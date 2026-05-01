@@ -28,7 +28,13 @@ public class DateListener : ListenerBase
         _watchForTimeZone = watchForTimeZone;
         if (WatchForDay != -1 && WatchForYear != -1 && WatchForMonth.Length > 0)
         {
-            _watchDate = new MudDateTime(WatchCalendar.GetDate($"{WatchForDay}-{WatchForMonth}-{WatchForYear}"), WatchCalendar.FeedClock.GetTime($"{watchForTimeZone.Alias} 0:0:0"), watchForTimeZone);
+            var dateText = $"{WatchForDay}-{WatchForMonth}-{WatchForYear}";
+            var date = WatchCalendar.GetStoredDateOrFallback(dateText, StoredMudDateFallback.CurrentDate,
+                "DateListener", null, debuggerReference, "WatchDate");
+            var time = WatchCalendar.FeedClock.GetStoredTimeOrFallback($"{watchForTimeZone.Alias} 0:0:0",
+                StoredMudTimeFallback.MidnightPrimaryTimezone, "DateListener", null, debuggerReference, "WatchTime",
+                WatchCalendar);
+            _watchDate = new MudDateTime(date, time, watchForTimeZone);
         }
         Subscribe();
     }

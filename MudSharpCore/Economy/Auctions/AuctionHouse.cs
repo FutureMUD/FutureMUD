@@ -127,8 +127,10 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
                 item.Attribute("buyout").Value.Equals("none", StringComparison.InvariantCultureIgnoreCase)
                     ? null
                     : decimal.Parse(item.Attribute("buyout").Value),
-            ListingDateTime = new MudDateTime(item.Attribute("list").Value, Gameworld),
-            FinishingDateTime = new MudDateTime(item.Attribute("finish").Value, Gameworld)
+            ListingDateTime = MudDateTime.FromStoredStringOrFallback(item.Attribute("list").Value, Gameworld,
+                StoredMudDateTimeFallback.CurrentDateTime, "AuctionItem", Id, Name, "ListingDateTime"),
+            FinishingDateTime = MudDateTime.FromStoredStringOrFallback(item.Attribute("finish").Value, Gameworld,
+                StoredMudDateTimeFallback.Never, "AuctionItem", Id, Name, "FinishingDateTime")
         };
     }
 
@@ -172,7 +174,8 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         {
             BidderId = long.Parse(bid.Attribute("bidder").Value),
             Bid = decimal.Parse(bid.Attribute("bid").Value),
-            BidDateTime = new MudDateTime(bid.Attribute("date").Value, gameworld)
+            BidDateTime = MudDateTime.FromStoredStringOrFallback(bid.Attribute("date").Value, gameworld,
+                StoredMudDateTimeFallback.CurrentDateTime, "AuctionBid", null, null, "BidDateTime")
         };
     }
 
@@ -451,7 +454,8 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
                 AssetType = result.Attribute("assettype")?.Value ?? "GameItem",
                 Sold = bool.Parse(result.Attribute("sold").Value),
                 SoldToId = long.Parse(result.Attribute("soldto").Value),
-                ResultDateTime = new MudDateTime(result.Element("Date").Value, Gameworld),
+                ResultDateTime = MudDateTime.FromStoredStringOrFallback(result.Element("Date").Value, Gameworld,
+                    StoredMudDateTimeFallback.CurrentDateTime, "AuctionResult", Id, Name, "ResultDateTime"),
                 SalePrice = decimal.Parse(result.Attribute("price").Value),
                 AssetDescription = result.Element("Description").Value,
                 SellerId = long.Parse(result.Attribute("sellerid")?.Value ?? result.Attribute("character")?.Value ?? "0"),

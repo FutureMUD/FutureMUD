@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -283,6 +284,164 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
             {
                 return false;
             }
+        }
+
+        public static bool TryParseStored(string text, IFuturemud gameworld, out MudDateTime dt, out string error)
+        {
+            dt = null;
+            error = string.Empty;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                error = "No stored datetime string was supplied.";
+                return false;
+            }
+
+            if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase))
+            {
+                dt = Never;
+                return true;
+            }
+
+            if (gameworld == null)
+            {
+                error = "No gameworld was supplied.";
+                return false;
+            }
+
+            Match match = ParseRegex.Match(text);
+            if (!match.Success)
+            {
+                error = "The stored datetime string did not match the round-trip format.";
+                return false;
+            }
+
+            if (!long.TryParse(match.Groups["calendar"].Value, out var calendarId))
+            {
+                error = "The stored calendar id was not valid.";
+                return false;
+            }
+
+            ICalendar calendar = gameworld.Calendars.Get(calendarId);
+            if (calendar == null)
+            {
+                error = $"The stored calendar id {calendarId:N0} did not resolve.";
+                return false;
+            }
+
+            if (!long.TryParse(match.Groups["clock"].Value, out var clockId))
+            {
+                error = "The stored clock id was not valid.";
+                return false;
+            }
+
+            IClock clock = gameworld.Clocks.Get(clockId);
+            if (clock == null)
+            {
+                error = $"The stored clock id {clockId:N0} did not resolve.";
+                return false;
+            }
+
+            return TryParseStored(match.Groups["date"].Value, match.Groups["time"].Value, calendar, clock, out dt, out error);
+        }
+
+        public static bool TryParseStored(string text, ICalendar calendar, IClock clock, out MudDateTime dt, out string error)
+        {
+            dt = null;
+            error = string.Empty;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                error = "No stored datetime string was supplied.";
+                return false;
+            }
+
+            if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase))
+            {
+                dt = Never;
+                return true;
+            }
+
+            if (calendar == null || clock == null)
+            {
+                error = "The calendar or clock was not supplied.";
+                return false;
+            }
+
+            string[] splitText = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (splitText.Length < 3)
+            {
+                error = "The stored datetime string did not include date, timezone and time components.";
+                return false;
+            }
+
+            return TryParseStored(splitText[0], $"{splitText[1]} {splitText[2]}", calendar, clock, out dt, out error);
+        }
+
+        private static bool TryParseStored(string dateText, string timeText, ICalendar calendar, IClock clock, out MudDateTime dt, out string error)
+        {
+            dt = null;
+            if (calendar == null || clock == null)
+            {
+                error = "The calendar or clock was not supplied.";
+                return false;
+            }
+
+            if (!calendar.TryGetDate(dateText, out MudDate date, out error))
+            {
+                return false;
+            }
+
+            if (!MudTime.TryParseLocalTime(timeText, clock, out MudTime time, out error))
+            {
+                return false;
+            }
+
+            dt = new MudDateTime(date, time, time.Timezone);
+            return true;
+        }
+
+        public static MudDateTime FromStoredStringOrFallback(string text, IFuturemud gameworld,
+            StoredMudDateTimeFallback fallback, string ownerType, long? ownerId, string ownerName, string fieldName)
+        {
+            if (TryParseStored(text, gameworld, out var dt, out var error))
+            {
+                return dt;
+            }
+
+            var match = ParseRegex.Match(text ?? string.Empty);
+            var calendar = match.Success && long.TryParse(match.Groups["calendar"].Value, out var calendarId)
+                ? gameworld?.Calendars.Get(calendarId)
+                : gameworld?.Calendars.FirstOrDefault();
+            var clock = match.Success && long.TryParse(match.Groups["clock"].Value, out var clockId)
+                ? gameworld?.Clocks.Get(clockId)
+                : calendar?.FeedClock ?? gameworld?.Clocks.FirstOrDefault();
+            var fallbackValue = fallback switch
+            {
+                StoredMudDateTimeFallback.Never => Never,
+                StoredMudDateTimeFallback.EpochStart => StoredTimeFallbacks.EpochStartOrNever(calendar, clock),
+                _ => StoredTimeFallbacks.CurrentDateTimeOrNever(calendar, clock)
+            };
+            StoredTimeFallbacks.NotifyFallback(gameworld, "datetime", text, calendar, clock,
+                fallbackValue.GetDateTimeString(), ownerType, ownerId, ownerName, fieldName, error);
+            return fallbackValue;
+        }
+
+        public static MudDateTime FromStoredStringOrFallback(string text, ICalendar calendar, IClock clock,
+            StoredMudDateTimeFallback fallback, string ownerType, long? ownerId, string ownerName, string fieldName)
+        {
+            if (TryParseStored(text, calendar, clock, out var dt, out var error))
+            {
+                return dt;
+            }
+
+            var fallbackValue = fallback switch
+            {
+                StoredMudDateTimeFallback.Never => Never,
+                StoredMudDateTimeFallback.EpochStart => StoredTimeFallbacks.EpochStartOrNever(calendar, clock),
+                _ => StoredTimeFallbacks.CurrentDateTimeOrNever(calendar, clock)
+            };
+            StoredTimeFallbacks.NotifyFallback(clock?.Gameworld ?? calendar?.FeedClock?.Gameworld, "datetime", text,
+                calendar, clock, fallbackValue.GetDateTimeString(), ownerType, ownerId, ownerName, fieldName, error);
+            return fallbackValue;
         }
 
         public MudDateTime GetByTimeZone(IMudTimeZone timezone)

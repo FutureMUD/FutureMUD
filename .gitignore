@@ -19,3 +19,4 @@ MudSharp/bin/*
 /UpgradeLog11.htm
 /.appdata
 /.dotnet-cli
+/rpi-items-export-current.json

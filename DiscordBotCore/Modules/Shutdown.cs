@@ -27,14 +27,14 @@ public class Shutdown : BaseCommandModule
             return;
         }
 
-        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        if (!DiscordBot.Instance.TryGetAuthenticatedConnection(out _))
         {
             await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
             return;
         }
 
         await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
-        await DiscordBot.Instance.AskMudToShutdown(registration.MudAccountId, false);
+        await DiscordBot.Instance.AskMudToShutdown(registration.MudAccountId, true);
     }
 
     [Command("shutdownstop")]
@@ -53,13 +53,13 @@ public class Shutdown : BaseCommandModule
             return;
         }
 
-        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        if (!DiscordBot.Instance.TryGetAuthenticatedConnection(out _))
         {
             await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
             return;
         }
 
         await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
-        await DiscordBot.Instance.AskMudToShutdown(registration.MudAccountId, true);
+        await DiscordBot.Instance.AskMudToShutdown(registration.MudAccountId, false);
     }
 }

@@ -40,6 +40,7 @@ public sealed class DiscordConnection : IDiscordConnection
     private NetworkStream _stream;
     private string _serverAuth;
     private DateTime _lastConnectionAttempt;
+    private readonly List<byte> _incomingBytes = new();
 
     public IFuturemud Gameworld { get; private set; }
 
@@ -88,11 +89,11 @@ public sealed class DiscordConnection : IDiscordConnection
         }
     }
 
-    public void NotifyShutdown(string shutdownAccount)
+    public void NotifyShutdown(string shutdownAccount, bool reboot = true)
     {
         try
         {
-            SendClientMessage($"shutdown {shutdownAccount}");
+            SendClientMessage($"shutdown \"{shutdownAccount}\" {reboot}");
         }
         catch (SocketException)
         {
@@ -105,7 +106,7 @@ public sealed class DiscordConnection : IDiscordConnection
     {
         try
         {
-            SendClientMessage($"chargen_approved {account} {approver} {name}");
+            SendClientMessage($"chargen_approved \"{account}\" \"{approver}\" {name}");
         }
         catch (SocketException)
         {
@@ -118,7 +119,7 @@ public sealed class DiscordConnection : IDiscordConnection
     {
         try
         {
-            SendClientMessage($"chargen_rejected {account} {reviewer} {name}");
+            SendClientMessage($"chargen_rejected \"{account}\" \"{reviewer}\" {name}");
         }
         catch (SocketException)
         {
@@ -204,7 +205,7 @@ public sealed class DiscordConnection : IDiscordConnection
         try
         {
             SendClientMessage(
-                $"notifydeath {who.Id} {who.Account.Name} {who.Location.Id} {who.RoomLayer.DescribeEnum()} \"{who.Location.HowSeen(who, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)}\" \"{who.HowSeen(who, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}\" \"{who.PersonalName.GetName(NameStyle.FullName)}\"");
+                $"notifydeath {who.Id} {who.Account.Name} {who.Location.Id} \"{who.RoomLayer.DescribeEnum()}\" \"{who.Location.HowSeen(who, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)}\" \"{who.HowSeen(who, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}\" \"{who.PersonalName.GetName(NameStyle.FullName)}\"");
         }
         catch (SocketException)
         {
@@ -264,6 +265,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
         _client = null;
         _stream = null;
+        _incomingBytes.Clear();
     }
 
     public void HandleMessages()
@@ -290,11 +292,21 @@ public sealed class DiscordConnection : IDiscordConnection
 
             byte[] inputBuffer = new byte[4096];
             int bytes = _stream.Read(inputBuffer, 0, 4096);
-
-            List<byte[]> splitBytes =
-                inputBuffer.Take(bytes).ToArray().SplitDelimiter(ByteSeparators).ToList();
-            foreach (byte[] command in splitBytes)
+            if (bytes == 0)
             {
+                CloseTcpConnection();
+                OpenTcpConnection();
+                return;
+            }
+
+            _incomingBytes.AddRange(inputBuffer.Take(bytes));
+            while (TryReadIncomingCommand(out byte[] command))
+            {
+                if (command.Length == 0)
+                {
+                    continue;
+                }
+
                 HandleTcpCommand(Encoding.Unicode.GetString(command));
             }
         }
@@ -303,6 +315,20 @@ public sealed class DiscordConnection : IDiscordConnection
             CloseTcpConnection();
             OpenTcpConnection();
         }
+    }
+
+    private bool TryReadIncomingCommand(out byte[] command)
+    {
+        int delimiterIndex = _incomingBytes.IndexOf(ByteSeparators[0]);
+        if (delimiterIndex == -1)
+        {
+            command = Array.Empty<byte>();
+            return false;
+        }
+
+        command = _incomingBytes.GetRange(0, delimiterIndex).ToArray();
+        _incomingBytes.RemoveRange(0, delimiterIndex + 1);
+        return true;
     }
 
     private void HandleTcpCommand(string getString)
@@ -382,8 +408,8 @@ public sealed class DiscordConnection : IDiscordConnection
         ulong request = ulong.Parse(ss.PopSpeech());
         string from = ss.PopSpeech();
         string channel = ss.PopSpeech();
-        string message = ss.SafeRemainingArgument;
-        IAccount account = Gameworld.Accounts.FirstOrDefault(x => x.Name == from);
+        string message = ss.RemainingArgument.ParseSpecialCharacters();
+        IAccount account = Gameworld.Accounts.FirstOrDefault(x => x.Name.EqualTo(from));
         if (account is null)
         {
             SendClientMessage($"request {request} sendfailedaccount");
@@ -431,7 +457,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
         Gameworld.Characters.ForEach(x => x.EffectsChanged = true);
         Gameworld.SaveManager.Flush();
-        Gameworld.DiscordConnection.NotifyShutdown(account.Name.Proper());
+        Gameworld.DiscordConnection.NotifyShutdown(account.Name.Proper(), reboot);
 
         if (reboot)
         {
@@ -457,7 +483,7 @@ public sealed class DiscordConnection : IDiscordConnection
         ulong request = ulong.Parse(ss.PopSpeech());
         long which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
         long requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-        string message = ss.RemainingArgument;
+        string message = ss.RemainingArgument.ParseSpecialCharacters();
 
         Chargen chargen;
         IAccount account;
@@ -481,6 +507,7 @@ public sealed class DiscordConnection : IDiscordConnection
             return;
         }
 
+        SendClientMessage($"request {request} success");
         chargen.RejectApplication(null, account, message, null);
     }
 
@@ -489,7 +516,7 @@ public sealed class DiscordConnection : IDiscordConnection
         ulong request = ulong.Parse(ss.PopSpeech());
         long which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
         long requesterid = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-        string message = ss.RemainingArgument;
+        string message = ss.RemainingArgument.ParseSpecialCharacters();
 
         Chargen chargen;
         IAccount account;
@@ -839,7 +866,7 @@ public sealed class DiscordConnection : IDiscordConnection
         ulong request = ulong.Parse(ss.PopSpeech());
         string from = ss.PopSpeech();
         string to = ss.PopSpeech();
-        string message = ss.RemainingArgument;
+        string message = ss.RemainingArgument.ParseSpecialCharacters();
         IPlayerConnection user = Gameworld.Connections.FirstOrDefault(x =>
             x.State == ConnectionState.Open && x.ControlPuppet?.Account?.Name.EqualTo(to) == true);
         if (user == null)
@@ -849,7 +876,7 @@ public sealed class DiscordConnection : IDiscordConnection
         }
 
         user.ControlPuppet.OutputHandler?.Send(
-            $"{$"[From {from}]".Colour(Telnet.Green)} {message.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences()}");
+            $"{$"[From {from}]".Colour(Telnet.Green)} {message.SubstituteANSIColour().ProperSentences()}");
         SendClientMessage($"request {request} sendacknowledge {from} {to} {message}");
     }
 
@@ -860,8 +887,9 @@ public sealed class DiscordConnection : IDiscordConnection
             return;
         }
 
-        Gameworld.SystemMessage(ss.RemainingArgument.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences());
-        HandleBroadcast(ss.RemainingArgument.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences());
+        string message = ss.RemainingArgument.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences();
+        Gameworld.SystemMessage(message);
+        HandleBroadcast(message);
     }
 
     private void HandleProgHelpTcpCommand(StringStack ss)
@@ -1076,7 +1104,7 @@ public sealed class DiscordConnection : IDiscordConnection
             sb.AppendLine(help.PublicText.SubstituteANSIColour().Wrap(80).RawText());
             sb.AppendLine();
             sb.AppendLine($"Last edited by {help.LastEditedBy.Proper()} on {help.LastEditedDate.ToLongDateString()}");
-            _client.Client.Send(Encoding.Unicode.GetBytes($"request {response} {sb}"));
+            SendClientMessage($"request {response} {sb}");
             return;
         }
 
@@ -1197,7 +1225,7 @@ public sealed class DiscordConnection : IDiscordConnection
                 : "",
             guestCount > 0
                 ? $"\nThere are {guestCount} guest{(guestCount == 1 ? "" : "s")} in the guest lounge."
-                : "") + (char)1;
+            : "");
         SendClientMessage(text);
     }
 

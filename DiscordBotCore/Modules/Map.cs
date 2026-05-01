@@ -1,6 +1,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using MudSharp.Framework;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,7 +25,7 @@ public class Map : BaseCommandModule
             return;
         }
 
-        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        if (!DiscordBot.Instance.TryGetAuthenticatedConnection(out TcpConnection connection))
         {
             await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
             return;
@@ -37,12 +38,26 @@ public class Map : BaseCommandModule
             OnResponseAction = HandleMudResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated)
-            .SendTcpCommand($"map {request.RequestId} {registration.MudAccountId} {cellId}");
+        await connection.SendTcpCommand($"map {request.RequestId} {registration.MudAccountId} {cellId}");
     }
 
     private async Task HandleMudResponse(string text, CommandContext context)
     {
-        await context.RespondAsync($"{context.User.Mention}\n```{text}```");
+        StringStack ss = new(text);
+        switch (ss.Pop())
+        {
+            case "notauthorised":
+                await context.RespondAsync($"{context.User.Mention} - Your linked MUD account is not authorised to view maps.");
+                return;
+            case "nosuchcell":
+                await context.RespondAsync($"{context.User.Mention} - There is no room with an ID of **{ss.RemainingArgument}**.");
+                return;
+            case "map":
+                await context.RespondAsync($"{context.User.Mention}\n```{ss.RemainingArgument}```");
+                return;
+            default:
+                await context.RespondAsync($"{context.User.Mention}\n```{text}```");
+                return;
+        }
     }
 }

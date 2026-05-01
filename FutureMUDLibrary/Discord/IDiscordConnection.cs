@@ -8,7 +8,7 @@ namespace MudSharp.Discord
         void SendMessageFromProg(ulong channel, string title, string message);
         void NotifyPetition(string account, string message, string location);
         void NotifyCharacterSubmission(string account, string name, long id);
-        void NotifyShutdown(string shutdownAccount);
+        void NotifyShutdown(string shutdownAccount, bool reboot = true);
         void NotifyCharacterApproval(string account, string name, string approver);
         void NotifyCharacterRejection(string account, string name, string reviewer);
         void NotifyCrash(string crashMessage);

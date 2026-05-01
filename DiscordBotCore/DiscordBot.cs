@@ -12,6 +12,7 @@ using MudSharp.Framework;
 using Newtonsoft.Json;
 using Serilog;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -32,8 +33,8 @@ public partial class DiscordBot
 
     private readonly List<TcpConnection> _tcpConnections = new();
     public IEnumerable<TcpConnection> TCPConnections => _tcpConnections;
-    private readonly Dictionary<ulong, CachedDiscordRequest> _cachedDiscordRequests = new();
-    public Dictionary<ulong, CachedDiscordRequest> CachedDiscordRequests => _cachedDiscordRequests;
+    private readonly ConcurrentDictionary<ulong, CachedDiscordRequest> _cachedDiscordRequests = new();
+    public ConcurrentDictionary<ulong, CachedDiscordRequest> CachedDiscordRequests => _cachedDiscordRequests;
 
     private async Task TcpListenerAsync()
     {
@@ -99,6 +100,10 @@ public partial class DiscordBot
                 while (!reader.EndOfStream)
                 {
                     string line = reader.ReadLine();
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        continue;
+                    }
                     DetailedUserSetting setting = new(line);
                     DetailedUserSettings.Add(setting);
                 }
@@ -146,6 +151,12 @@ public partial class DiscordBot
     public bool IsAuthorisedUser(DiscordUser user)
     {
         return _authorisedUsers.Contains(user.Id);
+    }
+
+    public bool TryGetAuthenticatedConnection(out TcpConnection connection)
+    {
+        connection = _tcpConnections.FirstOrDefault(x => x.TcpClientAuthenticated && !x.Closing);
+        return connection != null;
     }
 
     public async Task RunBotAsync()
@@ -352,7 +363,7 @@ public partial class DiscordBot
         if (!string.Equals(newVersionInfo, _lastVersion))
         {
             _lastVersion = newVersionInfo;
-            await using (StreamWriter writer = new(new FileStream("lastversion.config", FileMode.OpenOrCreate)))
+            await using (StreamWriter writer = new(new FileStream("lastversion.config", FileMode.Create)))
             {
                 await writer.WriteLineAsync(newVersionInfo);
             }
@@ -360,20 +371,24 @@ public partial class DiscordBot
         }
     }
 
-    public async Task<string> GetMudStatusAsync()
+    public Task<string> GetMudStatusAsync()
     {
-        if (!_tcpConnections.Any())
+        if (!TCPConnections.Any(x => x.TcpClientAuthenticated && !x.Closing))
         {
-            return $"I'm not currently connected to **{GameName}**. Probably safe to presume it's down.";
+            return Task.FromResult($"I'm not currently connected to **{GameName}**. Probably safe to presume it's down.");
         }
 
-        return $"I am currently connected to **{GameName}**.";
+        return Task.FromResult($"I am currently connected to **{GameName}**.");
     }
 
     public async Task AddAuthorisedUser(ulong who)
     {
-        _authorisedUsers.Add(who);
-        await using (StreamWriter writer = new(new FileStream("settings.json", FileMode.OpenOrCreate)))
+        if (!_authorisedUsers.Contains(who))
+        {
+            _authorisedUsers.Add(who);
+        }
+
+        await using (StreamWriter writer = new(new FileStream("settings.json", FileMode.Create)))
         {
             try
             {
@@ -389,28 +404,7 @@ public partial class DiscordBot
                     GameName = GameName,
                     AdminUsers = _authorisedUsers.ToList(),
                     CustomGlobalReactions = _customGlobalReactions.ToList()
-                }));
-            }
-            catch (Exception)
-            {
-            }
-        }
-        using (StreamReader reader = new(new FileStream("settings.json", FileMode.Open)))
-        {
-            try
-            {
-                DiscordBotSetttings settings =
-                    JsonConvert.DeserializeObject<DiscordBotSetttings>(reader.ReadToEnd());
-                _tcpClientPort = settings.Port;
-                _botToken = settings.Token;
-                _botPrefixes.AddRange(settings.Prefixes);
-                ServerAuth = settings.ServerAuth;
-                _announceChannelId = settings.AnnounceChannelId;
-                _adminAnnounceChannelId = settings.AdminAnnounceChannelId;
-                _debugAnnounceChannelId = settings.DebugAnnounceChannelId;
-                GameName = settings.GameName;
-                _authorisedUsers.AddRange(settings.AdminUsers);
-                _customGlobalReactions.AddRange(settings.CustomGlobalReactions);
+                }, Formatting.Indented));
             }
             catch (Exception)
             {
@@ -495,29 +489,29 @@ public partial class DiscordBot
         }
     }
 
-    public async Task AskMudToShutdown(long userid, bool stop)
+    public async Task AskMudToShutdown(long userid, bool reboot)
     {
-        if (!_tcpConnections.Any(x => x.TcpClientAuthenticated))
+        if (!TryGetAuthenticatedConnection(out TcpConnection connection))
         {
             return;
         }
 
-        await _tcpConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"shutdown {userid} {stop}");
+        await connection.SendTcpCommand($"shutdown {userid} {reboot}");
     }
 
     public async Task AskMudToBroadcast(string message)
     {
-        if (!_tcpConnections.Any(x => x.TcpClientAuthenticated))
+        if (!TryGetAuthenticatedConnection(out TcpConnection connection))
         {
             return;
         }
 
-        await _tcpConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"broadcast {message}");
+        await connection.SendTcpCommand($"broadcast {message}");
     }
 
     public async Task SaveRegistrationConfig()
     {
-        await using (StreamWriter writer = new(new FileStream("accountlinks.data", FileMode.Open, FileAccess.ReadWrite)))
+        await using (StreamWriter writer = new(new FileStream("accountlinks.data", FileMode.Create, FileAccess.Write)))
         {
             foreach (DetailedUserSetting config in DetailedUserSettings)
             {

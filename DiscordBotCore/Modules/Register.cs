@@ -27,7 +27,7 @@ public class Register : BaseCommandModule
             return;
         }
 
-        if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+        if (!DiscordBot.Instance.TryGetAuthenticatedConnection(out TcpConnection connection))
         {
             await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
             return;
@@ -40,7 +40,7 @@ public class Register : BaseCommandModule
             OnResponseAction = HandleMudResponse
         };
         DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
-        await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"register {request.RequestId} {context.User.Id} \"{context.User.Username}\" {account}");
+        await connection.SendTcpCommand($"register {request.RequestId} {context.User.Id} \"{context.User.Username}\" {account}");
     }
 
     private async Task HandleMudResponse(string text, CommandContext context)

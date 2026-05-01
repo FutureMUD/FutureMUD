@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class DiceGameItemComponentProto : GameItemComponentProto
+public class DiceGameItemComponentProto : GameItemComponentProto, IDicePrototype
 {
     public override string TypeDescription => "Dice";
 

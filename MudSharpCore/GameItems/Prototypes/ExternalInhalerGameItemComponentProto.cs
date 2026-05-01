@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class ExternalInhalerGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IPuffablePrototype, IConnectablePrototype
 {
     protected ExternalInhalerGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld, originator, "ExternalInhaler")
     {

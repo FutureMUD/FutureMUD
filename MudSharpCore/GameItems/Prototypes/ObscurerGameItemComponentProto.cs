@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ObscurerGameItemComponentProto : GameItemComponentProto
+public class ObscurerGameItemComponentProto : GameItemComponentProto, IObscureCharacteristicsPrototype
 {
     protected Dictionary<ICharacteristicDefinition, string> _obscuredForms =
         new();

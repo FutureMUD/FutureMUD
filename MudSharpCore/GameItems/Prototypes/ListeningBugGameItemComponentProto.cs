@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ListeningBugGameItemComponentProto : GameItemComponentProto
+public class ListeningBugGameItemComponentProto : GameItemComponentProto, IConsumePowerPrototype, ITransmitPrototype
 {
     public override string TypeDescription => "ListeningBug";
 

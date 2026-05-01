@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class HandheldRadioGameItemComponentProto : GameItemComponentProto
+public class HandheldRadioGameItemComponentProto : GameItemComponentProto, ITransmitPrototype, IReceivePrototype, IConsumePowerPrototype, ISwitchablePrototype, IOnOffPrototype
 {
     public override string TypeDescription => "HandheldRadio";
 

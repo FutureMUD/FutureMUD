@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ToggleSwitchGameItemComponentProto : GameItemComponentProto
+public class ToggleSwitchGameItemComponentProto : GameItemComponentProto, ISignalSourceComponentPrototype, ISwitchablePrototype, IOnOffPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3onvalue <number>#0 - signal value emitted when the switch is on

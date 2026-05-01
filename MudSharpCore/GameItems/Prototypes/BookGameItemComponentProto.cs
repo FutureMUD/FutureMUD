@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BookGameItemComponentProto : GameItemComponentProto
+public class BookGameItemComponentProto : GameItemComponentProto, IWriteablePrototype, IReadablePrototype, ITurnablePrototype, IOpenablePrototype, ITearablePrototype
 {
     public override string TypeDescription => "Book";
 

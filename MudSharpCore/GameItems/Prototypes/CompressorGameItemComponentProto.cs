@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CompressorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, IConnectableItemProto
+public class CompressorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, IConnectableItemProto, IConnectablePrototype
 {
     public override string TypeDescription => "Compressor";
 

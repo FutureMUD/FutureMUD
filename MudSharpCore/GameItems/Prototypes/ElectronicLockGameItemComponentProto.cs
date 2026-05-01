@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentProto
+public class ElectronicLockGameItemComponentProto : ProgLockGameItemComponentProto, IRuntimeConfigurableSignalSinkComponentPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3source <component>#0 - the signal source component prototype name or id whose default signal endpoint drives this lock

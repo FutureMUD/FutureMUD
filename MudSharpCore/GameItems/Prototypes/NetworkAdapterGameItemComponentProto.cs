@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class NetworkAdapterGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, IConnectablePrototype, ICanConnectToTelecommunicationsGridPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3address <text>#0 - sets the preferred local network address for this adapter

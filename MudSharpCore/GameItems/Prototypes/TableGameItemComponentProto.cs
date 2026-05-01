@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TableGameItemComponentProto : GameItemComponentProto
+public class TableGameItemComponentProto : GameItemComponentProto, ITablePrototype, IFlipPrototype, IProvideCoverPrototype
 {
     protected TableGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
         : base(proto, gameworld)

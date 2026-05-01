@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ProgPowerSupplyGameItemComponentProto : GameItemComponentProto
+public class ProgPowerSupplyGameItemComponentProto : GameItemComponentProto, IProducePowerPrototype, IOnOffPrototype
 {
     public override string TypeDescription => "ProgPowerSupply";
 

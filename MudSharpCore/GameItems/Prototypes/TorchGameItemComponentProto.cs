@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TorchGameItemComponentProto : GameItemComponentProto
+public class TorchGameItemComponentProto : GameItemComponentProto, ILightablePrototype, IProduceLightPrototype
 {
     protected TorchGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Torch")

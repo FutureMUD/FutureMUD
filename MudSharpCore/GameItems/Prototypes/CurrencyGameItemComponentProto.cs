@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CurrencyGameItemComponentProto : GameItemComponentProto
+public class CurrencyGameItemComponentProto : GameItemComponentProto, ICurrencyPilePrototype
 {
     private static readonly string _showString = "Currency Pile Item Component".Colour(Telnet.Cyan) + "\n\n" +
                                                  "This item is a currency pile.\n";

@@ -12,7 +12,7 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class MotionSensorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class MotionSensorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, ISignalSourceComponentPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3value <number>#0 - the signal value emitted while the sensor is active

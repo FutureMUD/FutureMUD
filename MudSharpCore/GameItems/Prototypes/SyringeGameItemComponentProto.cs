@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class SyringeGameItemComponentProto : GameItemComponentProto
+public class SyringeGameItemComponentProto : GameItemComponentProto, ILiquidContainerPrototype, IInjectPrototype
 {
     public double LiquidCapacity { get; set; }
     public bool Transparent { get; set; }

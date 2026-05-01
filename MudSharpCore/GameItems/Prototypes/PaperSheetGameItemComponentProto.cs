@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PaperSheetGameItemComponentProto : GameItemComponentProto
+public class PaperSheetGameItemComponentProto : GameItemComponentProto, IWriteablePrototype, IReadablePrototype
 {
     public override string TypeDescription => "PaperSheet";
 

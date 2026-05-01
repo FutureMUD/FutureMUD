@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -16,7 +16,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public abstract class PoweredMachineBaseGameItemComponentProto : GameItemComponentProto
+public abstract class PoweredMachineBaseGameItemComponentProto : GameItemComponentProto, IConsumePowerPrototype, ISwitchablePrototype, IOnOffPrototype
 {
     #region Constructors
 

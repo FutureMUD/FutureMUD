@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class DragAidGameItemComponentProto : GameItemComponentProto
+public class DragAidGameItemComponentProto : GameItemComponentProto, IDragAidPrototype
 {
     public override string TypeDescription => "DragAid";
 

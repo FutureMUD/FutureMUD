@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class GasContainerGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class GasContainerGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IGasSupplyPrototype, IConnectablePrototype, IGasContainerPrototype
 {
     public override string TypeDescription => "GasContainer";
 

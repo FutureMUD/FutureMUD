@@ -25,7 +25,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class RadioDetonatorGameItemComponentProto : GameItemComponentProto
+public class RadioDetonatorGameItemComponentProto : GameItemComponentProto, IReceivePrototype, IConsumePowerPrototype, IOnOffPrototype, ISelectablePrototype, ISwitchablePrototype
 {
     public override string TypeDescription => "RadioDetonator";
 

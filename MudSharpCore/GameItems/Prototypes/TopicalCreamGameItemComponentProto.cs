@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TopicalCreamGameItemComponentProto : GameItemComponentProto
+public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IApplyPrototype
 {
     public class CreamDrug
     {

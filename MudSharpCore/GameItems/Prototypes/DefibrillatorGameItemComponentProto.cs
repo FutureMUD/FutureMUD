@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class DefibrillatorGameItemComponentProto : GameItemComponentProto
+public class DefibrillatorGameItemComponentProto : GameItemComponentProto, IDefibrillatorPrototype
 {
     public override string TypeDescription => "Defibrillator";
 

@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class NetworkSwitchGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class NetworkSwitchGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, IConnectablePrototype, ICanConnectToTelecommunicationsGridPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3ports <##>#0 - sets how many downstream network switch ports this switch exposes";

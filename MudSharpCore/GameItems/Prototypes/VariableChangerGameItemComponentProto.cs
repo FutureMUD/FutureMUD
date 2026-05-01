@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class VariableChangerGameItemComponentProto : VariableGameItemComponentProto
+public class VariableChangerGameItemComponentProto : VariableGameItemComponentProto, IChangeCharacteristicsPrototype
 {
     protected VariableChangerGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Variable Changer")

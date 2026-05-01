@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LiquidPumpGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class LiquidPumpGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IConnectablePrototype, IConsumePowerPrototype
 {
     public override string TypeDescription => "LiquidPump";
     public double FlowRate { get; set; }

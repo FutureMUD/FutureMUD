@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class GlassesGameItemComponentProto : GameItemComponentProto
+public class GlassesGameItemComponentProto : GameItemComponentProto, ICorrectMyopiaPrototype
 {
     public override string TypeDescription => "Glasses";
 

@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ArmourGameItemComponentProto : GameItemComponentProto
+public class ArmourGameItemComponentProto : GameItemComponentProto, IArmourPrototype
 {
     protected ArmourGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Armour")

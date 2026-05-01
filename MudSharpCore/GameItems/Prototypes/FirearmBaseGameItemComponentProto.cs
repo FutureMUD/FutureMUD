@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Framework;
@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto
+public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, ISwitchablePrototype, IMeleeWeaponPrototype
 {
     protected FirearmBaseGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
         : base(gameworld, originator, type)

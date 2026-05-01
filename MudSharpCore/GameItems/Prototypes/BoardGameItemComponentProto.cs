@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BoardGameItemComponentProto : GameItemComponentProto
+public class BoardGameItemComponentProto : GameItemComponentProto, IBoardItemPrototype
 {
     public IBoard Board { get; private set; }
     public IFutureProg CanViewBoard { get; private set; }

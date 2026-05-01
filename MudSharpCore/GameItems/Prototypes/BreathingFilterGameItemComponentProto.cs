@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BreathingFilterGameItemComponentProto : GameItemComponentProto
+public class BreathingFilterGameItemComponentProto : GameItemComponentProto, IProvideGasForBreathingPrototype, IContainerPrototype
 {
     public override string TypeDescription => "BreathingFilter";
 

@@ -11,7 +11,7 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TimerSensorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class TimerSensorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, ISignalSourceComponentPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3activevalue <number>#0 - the signal value emitted during the active phase

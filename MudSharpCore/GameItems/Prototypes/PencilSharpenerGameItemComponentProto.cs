@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PencilSharpenerGameItemComponentProto : GameItemComponentProto
+public class PencilSharpenerGameItemComponentProto : GameItemComponentProto, ISharpenPrototype
 {
     public override string TypeDescription => "PencilSharpener";
 

@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BlindfoldGameItemComponentProto : GameItemComponentProto
+public class BlindfoldGameItemComponentProto : GameItemComponentProto, IBlindfoldPrototype
 {
     public override string TypeDescription => "Blindfold";
 

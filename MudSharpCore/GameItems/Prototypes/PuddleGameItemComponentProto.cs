@@ -23,7 +23,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes
 {
-    public class PuddleGameItemComponentProto : GameItemComponentProto
+    public class PuddleGameItemComponentProto : GameItemComponentProto, ILiquidContainerPrototype
     {
         public override string TypeDescription => "Puddle";
 

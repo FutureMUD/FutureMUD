@@ -8,6 +8,8 @@ using MudSharp.GameItems.Components;
 
 namespace $rootnamespace$.Prototypes;
 
+// If the runtime component implements a public capability interface, add the matching
+// I...Prototype marker here so item prototypes can enforce exclusive component roles.
 public class $safeitemrootname$GameItemComponentProto : GameItemComponentProto
 {
 	public override string TypeDescription => "$safeitemrootname$";

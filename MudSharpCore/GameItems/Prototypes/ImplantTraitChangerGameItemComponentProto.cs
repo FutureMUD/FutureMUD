@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ImplantTraitChangerGameItemComponentProto : ImplantBaseGameItemComponentProto
+public class ImplantTraitChangerGameItemComponentProto : ImplantBaseGameItemComponentProto, IImplantTraitChangePrototype
 {
     public override string TypeDescription => "ImplantTraitChanger";
 

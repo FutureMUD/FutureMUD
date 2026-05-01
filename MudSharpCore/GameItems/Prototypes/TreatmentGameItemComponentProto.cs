@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TreatmentGameItemComponentProto : GameItemComponentProto
+public class TreatmentGameItemComponentProto : GameItemComponentProto, ITreatmentPrototype
 {
     private readonly List<TreatmentType> _treatmentTypes = new();
     public IEnumerable<TreatmentType> TreatmentTypes => _treatmentTypes;

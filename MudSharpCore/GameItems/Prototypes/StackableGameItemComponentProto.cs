@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class StackableGameItemComponentProto : GameItemComponentProto
+public class StackableGameItemComponentProto : GameItemComponentProto, IStackablePrototype
 {
     protected StackableGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
         : base(proto, gameworld)

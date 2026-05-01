@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BatteryPoweredGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class BatteryPoweredGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IContainerPrototype, IOpenablePrototype, IProducePowerPrototype, IConsumePowerPrototype, IConnectablePrototype
 {
     public override string TypeDescription => "BatteryPowered";
 

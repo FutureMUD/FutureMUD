@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PreparedFoodGameItemComponentProto : GameItemComponentProto
+public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPreparedFoodPrototype
 {
 	public PreparedFoodProfile Profile { get; private set; } = new();
 

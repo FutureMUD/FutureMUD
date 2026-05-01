@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class AttachableConnectableGameItemComponentProto : GameItemComponentProto
+public class AttachableConnectableGameItemComponentProto : GameItemComponentProto, IConnectablePrototype
 {
     protected AttachableConnectableGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Attachable Connectable")

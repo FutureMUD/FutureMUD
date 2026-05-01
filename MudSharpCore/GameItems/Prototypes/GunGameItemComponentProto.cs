@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto
+public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto, IRangedWeaponPrototype, ISwitchablePrototype, IMeleeWeaponPrototype
 {
     public override string TypeDescription => "Gun";
 

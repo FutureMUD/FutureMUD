@@ -13,7 +13,7 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, ISelectablePrototype, ISignalSourceComponentPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3code <digits>#0 - the numeric code that activates this keypad

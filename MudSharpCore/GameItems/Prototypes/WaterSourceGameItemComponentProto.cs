@@ -20,7 +20,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class WaterSourceGameItemComponentProto : GameItemComponentProto
+public class WaterSourceGameItemComponentProto : GameItemComponentProto, ILiquidContainerPrototype, ILockablePrototype, IOnOffPrototype, ISwitchablePrototype
 {
     public double LiquidCapacity { get; set; }
     public bool Closable { get; set; }

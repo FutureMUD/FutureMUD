@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class StableTicketGameItemComponentProto : GameItemComponentProto
+public class StableTicketGameItemComponentProto : GameItemComponentProto, IStableTicketPrototype
 {
 	private static readonly string _showString = "Stable Ticket Item Component".Colour(Telnet.Cyan) + "\n\n" +
 	                                             "This item is a system-generated stable ticket.\n";

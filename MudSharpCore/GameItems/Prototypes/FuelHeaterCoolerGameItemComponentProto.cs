@@ -22,7 +22,7 @@ public enum FuelHeaterCoolerFuelMedium
     Gas = 1
 }
 
-public class FuelHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGameItemComponentProto, IConnectableItemProto
+public class FuelHeaterCoolerGameItemComponentProto : SwitchableThermalSourceGameItemComponentProto, IConnectableItemProto, IConnectablePrototype
 {
     protected FuelHeaterCoolerGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld,
         originator, "FuelHeaterCooler")

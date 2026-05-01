@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ImplantPowerRouterGameItemComponentProto : GameItemComponentProto
+public class ImplantPowerRouterGameItemComponentProto : GameItemComponentProto, IImplantPowerPlantPrototype, IImplantReportStatusPrototype
 {
     public override string TypeDescription => "ImplantPowerRouter";
 

@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CorpseGameItemComponentProto : GameItemComponentProto
+public class CorpseGameItemComponentProto : GameItemComponentProto, ICorpsePrototype
 {
     protected CorpseGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Corpse")

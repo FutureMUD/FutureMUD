@@ -16,7 +16,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class TelephoneGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, ITelephonePrototype, ITelephoneNumberOwnerPrototype, IConnectablePrototype, ICanConnectToTelecommunicationsGridPrototype
 {
     public override string TypeDescription => "Telephone";
     public double Wattage { get; set; }

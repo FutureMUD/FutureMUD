@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class FuseGameItemComponentProto : GameItemComponentProto
+public class FuseGameItemComponentProto : GameItemComponentProto, ILightablePrototype
 {
     public override string TypeDescription => "Fuse";
 

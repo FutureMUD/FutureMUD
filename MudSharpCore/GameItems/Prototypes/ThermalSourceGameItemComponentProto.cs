@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public abstract class ThermalSourceGameItemComponentProto : GameItemComponentProto
+public abstract class ThermalSourceGameItemComponentProto : GameItemComponentProto, IProduceHeatPrototype
 {
     protected ThermalSourceGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type) : base(gameworld,
         originator, type)

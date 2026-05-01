@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TimePieceGameItemComponentProto : GameItemComponentProto
+public class TimePieceGameItemComponentProto : GameItemComponentProto, ITimePiecePrototype
 {
     public override string TypeDescription => "TimePiece";
 

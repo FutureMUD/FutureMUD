@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BeltGameItemComponentProto : GameItemComponentProto
+public class BeltGameItemComponentProto : GameItemComponentProto, IBeltPrototype
 {
     public SizeCategory MaximumSize { get; protected set; }
     public int MaximumNumberOfBeltedItems { get; protected set; }

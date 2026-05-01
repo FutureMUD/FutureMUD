@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ContainerGameItemComponentProto : GameItemComponentProto
+public class ContainerGameItemComponentProto : GameItemComponentProto, IContainerPrototype, IOpenablePrototype, ILockablePrototype
 {
     /// <summary>
     ///     The total allowable weight that can be contained by this container

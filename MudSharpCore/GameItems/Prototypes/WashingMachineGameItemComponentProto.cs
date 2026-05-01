@@ -27,7 +27,7 @@ public enum WashingMachineCycles
     Spin
 }
 
-public class WashingMachineGameItemComponentProto : GameItemComponentProto
+public class WashingMachineGameItemComponentProto : GameItemComponentProto, ILiquidContainerPrototype, IContainerPrototype, IOnOffPrototype, ISelectablePrototype, IConsumePowerPrototype, ILockablePrototype
 {
     public double WeightCapacity { get; set; }
     public double WashingLiquidCapacity { get; set; }

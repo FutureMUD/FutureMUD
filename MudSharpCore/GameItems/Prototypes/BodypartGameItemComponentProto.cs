@@ -16,7 +16,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BodypartGameItemComponentProto : GameItemComponentProto
+public class BodypartGameItemComponentProto : GameItemComponentProto, ISeveredBodypartPrototype
 {
     protected BodypartGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Bodypart")

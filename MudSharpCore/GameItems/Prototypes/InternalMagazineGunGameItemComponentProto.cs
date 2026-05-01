@@ -22,7 +22,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComponentProto
+public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComponentProto, IRangedWeaponPrototype, ISwitchablePrototype, IMeleeWeaponPrototype
 {
     public override string TypeDescription => "InternalMagazineGun";
 

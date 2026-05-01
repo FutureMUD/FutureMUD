@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public abstract class DoorGameItemComponentProtoBase : GameItemComponentProto
+public abstract class DoorGameItemComponentProtoBase : GameItemComponentProto, IDoorPrototype
 {
 	protected DoorGameItemComponentProtoBase(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
 		: base(proto, gameworld)

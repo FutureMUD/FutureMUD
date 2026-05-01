@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class SimpleKeyGameItemComponentProto : GameItemComponentProto, IHaveSimpleLockType
+public class SimpleKeyGameItemComponentProto : GameItemComponentProto, IHaveSimpleLockType, IKeyPrototype
 {
     public string LockType { get; private set; }
     public override string TypeDescription => "Simple Key";

@@ -20,7 +20,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class IVBagGameItemComponentProto : GameItemComponentProto
+public class IVBagGameItemComponentProto : GameItemComponentProto, ILiquidContainerPrototype, ISwitchablePrototype, IConnectablePrototype
 {
     public override string TypeDescription => "IVBag";
 

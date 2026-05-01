@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class VendingMachineGameItemComponentProto : GameItemComponentProto
+public class VendingMachineGameItemComponentProto : GameItemComponentProto, IContainerPrototype, IVendingMachinePrototype, IInsertablePrototype, IOnOffPrototype
 {
     protected VendingMachineGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Vending Machine")

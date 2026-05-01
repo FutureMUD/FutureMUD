@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BenchGameItemComponentProto : GameItemComponentProto
+public class BenchGameItemComponentProto : GameItemComponentProto, ITablePrototype, IFlipPrototype, IProvideCoverPrototype
 {
     private IGameItemProto _chairProto;
     private long _chairProtoID;

@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class GridLiquidSourceGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, ILiquidContainerPrototype, ICanConnectToLiquidGridPrototype, IConnectablePrototype
 {
     public override string TypeDescription => "GridLiquidSource";
     public List<ConnectorType> Connections { get; } = [];

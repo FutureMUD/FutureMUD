@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class KeyringGameItemComponentProto : GameItemComponentProto
+public class KeyringGameItemComponentProto : GameItemComponentProto, IKeyringPrototype, IContainerPrototype
 {
     public int MaximumNumberOfKeys { get; protected set; }
 

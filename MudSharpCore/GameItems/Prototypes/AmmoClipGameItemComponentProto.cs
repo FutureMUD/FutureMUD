@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class AmmoClipGameItemComponentProto : GameItemComponentProto
+public class AmmoClipGameItemComponentProto : GameItemComponentProto, IAmmoClipPrototype
 {
     public override string TypeDescription => "AmmoClip";
 

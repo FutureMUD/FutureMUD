@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LanternGameItemComponentProto : GameItemComponentProto
+public class LanternGameItemComponentProto : GameItemComponentProto, ILiquidContainerPrototype, ILockablePrototype, ILightablePrototype, IProduceLightPrototype
 {
     public override string TypeDescription => "Lantern";
 

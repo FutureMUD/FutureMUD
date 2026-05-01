@@ -10,7 +10,7 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class RainSensorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class RainSensorGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, ISignalSourceComponentPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#6Notes:#0

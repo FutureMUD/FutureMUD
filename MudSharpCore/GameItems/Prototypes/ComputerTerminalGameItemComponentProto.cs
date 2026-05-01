@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ComputerTerminalGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class ComputerTerminalGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, IConnectablePrototype
 {
 	private const string SpecificBuildingHelpText = @"
 

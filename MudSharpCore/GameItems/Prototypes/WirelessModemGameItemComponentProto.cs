@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class WirelessModemGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class WirelessModemGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, IConnectablePrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3address <text>#0 - sets the preferred local network address for this modem

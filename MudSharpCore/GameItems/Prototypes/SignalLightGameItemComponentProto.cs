@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto
+public class SignalLightGameItemComponentProto : ProgLightGameItemComponentProto, IRuntimeConfigurableSignalSinkComponentPrototype
 {
 	private const string SpecificBuildingHelpText = @"
 	#3source <component>#0 - the signal source component prototype name or id whose default signal endpoint drives this light

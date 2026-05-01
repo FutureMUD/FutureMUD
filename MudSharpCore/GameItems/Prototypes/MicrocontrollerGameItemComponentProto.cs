@@ -49,7 +49,7 @@ public sealed class MicrocontrollerInputDefinition
 	}
 }
 
-public class MicrocontrollerGameItemComponentProto : PoweredMachineBaseGameItemComponentProto
+public class MicrocontrollerGameItemComponentProto : PoweredMachineBaseGameItemComponentProto, IRuntimeProgrammableMicrocontrollerPrototype, IAutomationMountablePrototype, IConnectablePrototype
 {	
 	private readonly List<MicrocontrollerInputDefinition> _inputs = [];
 	private IFutureProg? _compiledLogic;

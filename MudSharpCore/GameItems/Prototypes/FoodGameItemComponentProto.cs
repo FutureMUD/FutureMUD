@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class FoodGameItemComponentProto : GameItemComponentProto
+public class FoodGameItemComponentProto : GameItemComponentProto, IEdiblePrototype
 {
     public IStackDecorator Decorator { get; protected set; }
     public double SatiationPoints { get; protected set; }

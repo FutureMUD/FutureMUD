@@ -20,7 +20,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CommodityGameItemComponentProto : GameItemComponentProto
+public class CommodityGameItemComponentProto : GameItemComponentProto, ICommodityPrototype
 {
     public static IGameItemProto ItemPrototype { get; set; }
 

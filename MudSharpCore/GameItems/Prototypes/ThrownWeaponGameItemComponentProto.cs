@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ThrownWeaponGameItemComponentProto : GameItemComponentProto
+public class ThrownWeaponGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, IMeleeWeaponPrototype
 {
     protected ThrownWeaponGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "ThrownWeapon")

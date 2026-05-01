@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ImplantLiquidContainerGameItemComponentProto : ImplantBaseGameItemComponentProto
+public class ImplantLiquidContainerGameItemComponentProto : ImplantBaseGameItemComponentProto, ILiquidContainerPrototype, ILockablePrototype, IImplantReportStatusPrototype
 {
     public override string TypeDescription => "ImplantLiquidContainer";
 

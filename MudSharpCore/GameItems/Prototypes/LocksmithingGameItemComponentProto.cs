@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LocksmithingGameItemComponentProto : GameItemComponentProto
+public class LocksmithingGameItemComponentProto : GameItemComponentProto, ILocksmithingToolPrototype
 {
     public override string TypeDescription => "Locksmithing Tool";
     public int DifficultyAdjustment { get; set; }

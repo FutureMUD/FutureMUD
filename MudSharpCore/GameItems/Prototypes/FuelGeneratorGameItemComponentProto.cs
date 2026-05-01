@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class FuelGeneratorGameItemComponentProto : GameItemComponentProto
+public class FuelGeneratorGameItemComponentProto : GameItemComponentProto, IProducePowerPrototype, ISwitchablePrototype, ILiquidContainerPrototype, ILockablePrototype, IOnOffPrototype
 {
     protected FuelGeneratorGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Fuel Generator")

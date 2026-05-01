@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class RcsThrusterGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class RcsThrusterGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IZeroGravityPropulsionPrototype, IConnectablePrototype
 {
 	protected RcsThrusterGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld, originator, "RcsThruster")
 	{

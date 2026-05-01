@@ -21,7 +21,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BombGameItemComponentProto : GameItemComponentProto
+public class BombGameItemComponentProto : GameItemComponentProto, IDetonatablePrototype
 {
     public override string TypeDescription => "Bomb";
 

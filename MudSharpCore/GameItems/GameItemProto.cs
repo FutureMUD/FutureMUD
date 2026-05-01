@@ -624,12 +624,24 @@ public class GameItemProto : EditableItem, IGameItemProto
 
     public override bool CanSubmit()
     {
-        return Material != null;
+        return Material != null &&
+               !GameItemComponentPrototypeExclusivity.FindConflicts(_components).Any();
     }
 
     public override string WhyCannotSubmit()
     {
-        return Material == null ? "You must first set a material." : base.WhyCannotSubmit();
+        if (Material == null)
+        {
+            return "You must first set a material.";
+        }
+
+        var conflict = GameItemComponentPrototypeExclusivity.FindConflicts(_components).FirstOrDefault();
+        if (conflict is not null)
+        {
+            return DescribeExclusiveComponentConflict(conflict);
+        }
+
+        return base.WhyCannotSubmit();
     }
 
     private void LoadFromDatabase(MudSharp.Models.GameItemProto proto, IFuturemud gameworld)
@@ -2176,6 +2188,12 @@ public class GameItemProto : EditableItem, IGameItemProto
             return false;
         }
 
+        if (!CanSubmit())
+        {
+            actor.OutputHandler.Send(WhyCannotSubmit());
+            return false;
+        }
+
         ChangeStatus(RevisionStatus.PendingRevision, command.SafeRemainingArgument, actor.Account);
         actor.OutputHandler.Send(
             $"You submit Item Prototype #{Id.ToString("N0", actor)} Revision {RevisionNumber.ToString("N0", actor)} for review.");
@@ -2267,11 +2285,29 @@ public class GameItemProto : EditableItem, IGameItemProto
             return false;
         }
 
+        if (!GameItemComponentPrototypeExclusivity.CanAddComponent(_components, component, out var conflict))
+        {
+            actor.OutputHandler.Send(DescribeExclusiveComponentConflict(conflict!));
+            return false;
+        }
+
         _components.Add(component);
         actor.OutputHandler.Send(
             $"You attach the {component.Name.Proper().Colour(Telnet.Cyan)} component to Item Prototype #{Id.ToString("N0", actor)} Revision {RevisionNumber.ToString("N0", actor)}.");
         Changed = true;
         return true;
+    }
+
+    private static string DescribeExclusiveComponentConflict(GameItemComponentPrototypeConflict conflict)
+    {
+        var capability = conflict.Capability.Name;
+        if (capability.Length > 1 && capability[0] == 'I' && char.IsUpper(capability[1]))
+        {
+            capability = capability[1..];
+        }
+
+        return
+            $"The {conflict.Candidate.Name.ColourName()} component cannot be used with the {conflict.Existing.Name.ColourName()} component because both provide the exclusive {capability.SplitCamelCase().ColourName()} item capability.";
     }
 
     private bool BuildingCommandRegister(ICharacter actor, StringStack command)

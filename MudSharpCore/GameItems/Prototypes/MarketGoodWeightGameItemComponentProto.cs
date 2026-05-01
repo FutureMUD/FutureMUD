@@ -18,7 +18,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes
 {
-    public class MarketGoodWeightGameItemComponentProto : GameItemComponentProto
+    public class MarketGoodWeightGameItemComponentProto : GameItemComponentProto, IMarketGoodWeightItemPrototype
     {
         public override string TypeDescription => "MarketGoodWeight";
 

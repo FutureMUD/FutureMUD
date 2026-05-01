@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class IdentityObscurerGameItemComponentProto : GameItemComponentProto
+public class IdentityObscurerGameItemComponentProto : GameItemComponentProto, IObscureIdentityPrototype
 {
     public override string TypeDescription => "IdentityObscurer";
 

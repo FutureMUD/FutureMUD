@@ -19,7 +19,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class RebreatherGameItemComponentProto : GameItemComponentProto, IConnectableItemProto
+public class RebreatherGameItemComponentProto : GameItemComponentProto, IConnectableItemProto, IConnectablePrototype, IProvideGasForBreathingPrototype
 {
     public override string TypeDescription => "Rebreather";
 

@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class PowerPackGameItemComponentProto : GameItemComponentProto
+public class PowerPackGameItemComponentProto : GameItemComponentProto, ILaserPowerPackPrototype
 {
     public override string TypeDescription => "PowerPack";
 

@@ -252,6 +252,17 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 @"The $0 skill is used for a variety of nefarious security related actions, such as picking locks.")
         };
 
+    private IEnumerable<SkillDetails> RangedCombatSkills =>
+        new[]
+        {
+            new SkillDetails("Slinging", "Sling", "Combat", "min(99,2*str + 2*agi + 1*per)", "General", "General", true,
+                1.0,
+                @"The $0 skill covers the use of hand slings and staff slings. Slings reward quick handling and physical strength more than prolonged aiming."),
+            new SkillDetails("Blowgunning", "Blowgun", "Combat", "min(99,2*dex + 2*per + 1*agi)", "General", "General",
+                true, 1.0,
+                @"The $0 skill covers the use of blowguns and other breath-fired dart weapons. It is primarily a precision skill for very close ranged shots.")
+        };
+
     private IEnumerable<SkillDetails> UniversalCraftSkills =>
         new[]
         {
@@ -440,6 +451,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             .Concat(UniversalCraftSkills)
             .Concat(FunctionalCraftSkills)
             .Concat(UniversalProfessionalSkills)
+            .Concat(RangedCombatSkills)
             .Concat(RpiLegacySkills)
             .Select(x => x.ImperativeName)
             .ToArray();
@@ -1045,6 +1057,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 case CheckType.FireCrossbow:
                 case CheckType.FireFirearm:
                 case CheckType.FireSling:
+                case CheckType.FireBlowgun:
                 case CheckType.KeepAimTargetMoved:
                 case CheckType.ProgSkillUseCheck:
                 case CheckType.ProgrammingComponentCheck:
@@ -1367,6 +1380,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                          .Concat(SimpleUniversalCraftSkills)
                          .Concat(FunctionalCraftSkills)
                          .Concat(UniversalProfessionalSkills)
+                         .Concat(RangedCombatSkills)
                     )
             {
                 AddSkill(skill);
@@ -1382,6 +1396,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                          .Concat(UniversalCraftSkills)
                          .Concat(FunctionalCraftSkills)
                          .Concat(UniversalProfessionalSkills)
+                         .Concat(RangedCombatSkills)
                     )
             {
                 AddSkill(skill);

@@ -350,7 +350,7 @@ public class DummyPerceiver : DummyPerceivable, IPerceiver
         return $"You cannot engage {target.HowSeen(this)} in combat.";
     }
 
-    public bool Engage(IPerceiver target, bool ranged)
+    public bool Engage(IPerceiver target, bool ranged, bool preserveHide = false)
     {
         return false;
     }

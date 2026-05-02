@@ -54,6 +54,8 @@ Ranged-family strategies select active attacks through:
 3. Ranged natural attacks when configured or when fallback-to-unarmed is enabled.
 4. Optional shift to `FullAdvance` when the combat setting says to move to melee if no ranged engagement is possible.
 
+Ranged firing normally reveals a hidden firer when out-of-combat fire engages the target. The exception is explicit weapon capability: `IRangedWeapon.CanFireWhileHidden` defaults false, and only weapons such as blowguns opt in. When that flag is true, `fire` passes `preserveHide` through `Engage` and `JoinCombat`, which skips removing `IHideEffect` while still removing other combat-start effects. This does not make the firer permanently undetectable; blowgun output uses the normal obscured-emote path and observers can still identify the firer if their perception allows it. Blowguns only reach this path if the component can ready/fire normally, which includes having active breath and an uncovered mouth.
+
 ## Strategy Rundown
 
 ### StandardMelee

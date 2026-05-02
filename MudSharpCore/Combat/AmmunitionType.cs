@@ -172,6 +172,23 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
                     BaseParryDifficulty = Difficulty.Impossible
                 };
                 break;
+            case RangedWeaponType.Blowgun:
+                SpecificType = "Blowgun Dart";
+                EchoType = AmmunitionEchoType.Subsonic;
+                Loudness = AudioVolume.Silent;
+                DamageProfile = new SimpleDamageProfile
+                {
+                    DamageType = DamageType.Piercing,
+                    BaseBlockDifficulty = Difficulty.VeryEasy,
+                    BaseDodgeDifficulty = Difficulty.Hard,
+                    DamageExpression = new TraitExpression("5 + quality * degree + (pointblank * 5)", Gameworld),
+                    PainExpression = new TraitExpression("5 + quality * degree + (pointblank * 5)", Gameworld),
+                    StunExpression = new TraitExpression("5 + quality * degree + (pointblank * 5)", Gameworld),
+                    BaseAngleOfIncidence = Math.PI / 2,
+                    BaseAttackerDifficulty = Difficulty.Normal,
+                    BaseParryDifficulty = Difficulty.Impossible
+                };
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(baseType), baseType, null);
         }

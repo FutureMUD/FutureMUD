@@ -154,13 +154,34 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
                 AccuracyBonusExpression = new TraitExpression("(-3.0 * range) + (pow(1 - aim, 2) * -15)", Gameworld);
                 break;
             case RangedWeaponType.Sling:
-                StaminaPerLoadStage = 15.0;
+                StaminaPerLoadStage = 2.0;
                 DefaultRangeInRooms = 2;
-                StaminaToFire = 20.0;
+                StaminaToFire = 8.0;
                 SpecificAmmunitionGrade = "Sling Bullet";
                 AmmunitionLoadType = AmmunitionLoadType.Direct;
-                DamageBonusExpression = new TraitExpression("quality - (7.0*range) + ((str:1-10)*1.5)", Gameworld);
-                AccuracyBonusExpression = new TraitExpression("(-6 * range) + (pow(1 - aim, 2) * -15)", Gameworld);
+                DamageBonusExpression = new TraitExpression("quality - (6.0*range) + ((str:1-10)*2.0)", Gameworld);
+                AccuracyBonusExpression = new TraitExpression("(-4.0 * range) + (pow(1 - aim, 2) * -4.0)", Gameworld);
+                FireCombatDelay = 0.2;
+                ReadyCombatDelay = 0.1;
+                LoadCombatDelay = 0.25;
+                BaseAimDifficulty = Difficulty.Hard;
+                CoverBonus = -3.0;
+                RequiresFreeHandToReady = false;
+                break;
+            case RangedWeaponType.Blowgun:
+                StaminaPerLoadStage = 1.0;
+                DefaultRangeInRooms = 1;
+                StaminaToFire = 1.0;
+                SpecificAmmunitionGrade = "Blowgun Dart";
+                AmmunitionLoadType = AmmunitionLoadType.Direct;
+                DamageBonusExpression = new TraitExpression("quality - (8.0*range)", Gameworld);
+                AccuracyBonusExpression = new TraitExpression("(-6.0 * range) + (pow(1 - aim, 2) * -4.0)", Gameworld);
+                FireCombatDelay = 0.2;
+                ReadyCombatDelay = 0.1;
+                LoadCombatDelay = 0.4;
+                BaseAimDifficulty = Difficulty.Normal;
+                CoverBonus = -4.0;
+                RequiresFreeHandToReady = false;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
@@ -279,6 +300,8 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
                     return CheckType.FireFirearm;
                 case RangedWeaponType.Sling:
                     return CheckType.FireSling;
+                case RangedWeaponType.Blowgun:
+                    return CheckType.FireBlowgun;
                 case RangedWeaponType.Thrown:
                     return CheckType.ThrownWeaponCheck;
                 default:

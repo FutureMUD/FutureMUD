@@ -65,6 +65,8 @@ Room import creates one FutureMUD `CellOverlayPackage` per converted zone group.
 
 Execute-mode imports run inside a database transaction. Intermediate `SaveChanges` calls are still used to obtain generated room, cell, overlay, and exit ids for dependent rows, but an exception rolls the whole execute import back rather than leaving a partial room import behind.
 
+FutureMUD currently stores `CellOverlay.CellDescription` in a `varchar(4000)` column. Converted rooms keep the full effective description for export and audit, but descriptions longer than that limit produce a `cell-description-truncated` warning and are truncated to 4,000 characters only when `apply-rooms --execute` writes the overlay row.
+
 ## Terrain Mapping
 
 Sector mapping defaults:

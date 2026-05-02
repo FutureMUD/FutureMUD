@@ -252,10 +252,27 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             }
         }
 
+        int primitiveRangedCount = 0;
+        if (questionAnswers["installranged"].EqualToAny("yes", "y"))
+        {
+            primitiveRangedCount = EnsurePrimitiveRangedContent(context);
+        }
+
         context.SaveChanges();
-        return updatedExpressionCount > 0
-            ? $"Updated {updatedExpressionCount} stock combat damage expressions for the selected balance profile."
-            : "Combat content already exists. No stock damage expressions were selected for update.";
+        List<string> updates = new();
+        if (updatedExpressionCount > 0)
+        {
+            updates.Add($"updated {updatedExpressionCount} stock combat damage expressions");
+        }
+
+        if (primitiveRangedCount > 0)
+        {
+            updates.Add($"added {primitiveRangedCount} missing sling/blowgun stock entries");
+        }
+
+        return updates.Count > 0
+            ? $"{updates.ListToString()}."
+            : "Combat content already exists. No stock damage expressions or ranged additions were selected for update.";
     }
 
     private static TraitDefinition GetStrengthAttribute(FuturemudDatabaseContext context)
@@ -266,6 +283,334 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         return attributes.GetValueOrDefault("Strength") ??
                attributes.GetValueOrDefault("Physique") ??
                attributes["Body"];
+    }
+
+    private static int EnsurePrimitiveRangedContent(FuturemudDatabaseContext context,
+        IReadOnlyDictionary<string, TraitDefinition>? seededSkills = null)
+    {
+        int added = 0;
+        Account dbaccount = context.Accounts.First();
+        DateTime now = DateTime.UtcNow;
+        Dictionary<string, TraitDefinition> attributes = context.TraitDefinitions
+            .Where(x => x.Type == 1 || x.Type == 3)
+            .ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+        TraitDefinition strength =
+            attributes.GetValueOrDefault("Strength") ??
+            attributes.GetValueOrDefault("Physique") ??
+            attributes["Body"];
+        TraitDefinition dex =
+            attributes.GetValueOrDefault("Dexterity") ??
+            attributes.GetValueOrDefault("Agility") ??
+            attributes.GetValueOrDefault("Speed") ??
+            attributes["Body"];
+        TraitDefinition agi =
+            attributes.GetValueOrDefault("Agility") ??
+            attributes.GetValueOrDefault("Dexterity") ??
+            attributes.GetValueOrDefault("Speed") ??
+            attributes["Body"];
+        TraitDefinition per =
+            attributes.GetValueOrDefault("Perception") ??
+            attributes.GetValueOrDefault("Intelligence") ??
+            attributes.GetValueOrDefault("Wisdom") ??
+            attributes["Intellect"];
+
+        TraitDefinition? FindSkill(params string[] names)
+        {
+            foreach (string name in names)
+            {
+                if (seededSkills?.TryGetValue(name, out TraitDefinition? seeded) == true)
+                {
+                    return seeded;
+                }
+
+                TraitDefinition? existing = context.TraitDefinitions
+                    .FirstOrDefault(x => x.Type == (int)TraitType.Skill && x.Name == name);
+                if (existing != null)
+                {
+                    return existing;
+                }
+            }
+
+            return null;
+        }
+
+        TraitDefinition EnsureSkill(string[] names, string createName, string expressionText)
+        {
+            TraitDefinition? existing = FindSkill(names);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            TraitExpression expression = new()
+            {
+                Name = $"{createName} Skill Cap",
+                Expression = expressionText
+            };
+            TraitDefinition skill = new()
+            {
+                Name = createName,
+                Type = (int)TraitType.Skill,
+                Expression = expression,
+                TraitGroup = "Combat",
+                AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+                TeachableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
+                LearnableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+                TeachDifficulty = 7,
+                LearnDifficulty = 7,
+                Hidden = false,
+                ImproverId = context.Improvers.First(x => x.Name == "Skill Improver").Id,
+                DecoratorId = context.TraitDecorators.First(x => x.Name == "General Skill").Id,
+                DerivedType = 0,
+                ChargenBlurb = string.Empty,
+                BranchMultiplier = 1.0
+            };
+            context.TraitDefinitions.Add(skill);
+            context.SaveChanges();
+            added++;
+            return skill;
+        }
+
+        long NextComponentProtoId()
+        {
+            return (context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) : 0) + 1;
+        }
+
+        EditableItem NewEditableItem()
+        {
+            return new EditableItem
+            {
+                RevisionNumber = 0,
+                RevisionStatus = 4,
+                BuilderAccountId = dbaccount.Id,
+                BuilderDate = now,
+                BuilderComment = "Auto-generated by the system",
+                ReviewerAccountId = dbaccount.Id,
+                ReviewerComment = "Auto-generated by the system",
+                ReviewerDate = now
+            };
+        }
+
+        GameItemComponentProto EnsureComponent(string type, string name, string description, string definition)
+        {
+            GameItemComponentProto? existing = context.GameItemComponentProtos
+                .FirstOrDefault(x => x.Type == type && x.Name == name);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            GameItemComponentProto component = new()
+            {
+                Id = NextComponentProtoId(),
+                RevisionNumber = 0,
+                EditableItem = NewEditableItem(),
+                Type = type,
+                Name = name,
+                Description = description,
+                Definition = definition
+            };
+            context.GameItemComponentProtos.Add(component);
+            context.SaveChanges();
+            added++;
+            return component;
+        }
+
+        RangedWeaponTypes EnsureRangedType(string name, RangedWeaponType type, TraitDefinition skill, int range,
+            string accuracy, string damage, string ammo, double staminaToFire, double staminaPerLoad, double coverBonus,
+            Difficulty aimDifficulty, double loadDelay, double readyDelay, double fireDelay, bool alwaysTwoHanded)
+        {
+            RangedWeaponTypes? existing = context.RangedWeaponTypes.FirstOrDefault(x => x.Name == name);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            RangedWeaponTypes ranged = new()
+            {
+                Name = name,
+                Classification = (int)WeaponClassification.Lethal,
+                FireTrait = skill,
+                OperateTrait = skill,
+                FireableInMelee = false,
+                DefaultRangeInRooms = range,
+                AccuracyBonusExpression = accuracy,
+                DamageBonusExpression = damage,
+                AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
+                SpecificAmmunitionGrade = ammo,
+                AmmunitionCapacity = 1,
+                RangedWeaponType = (int)type,
+                StaminaToFire = staminaToFire,
+                StaminaPerLoadStage = staminaPerLoad,
+                CoverBonus = coverBonus,
+                BaseAimDifficulty = (int)aimDifficulty,
+                LoadDelay = loadDelay,
+                ReadyDelay = readyDelay,
+                FireDelay = fireDelay,
+                AimBonusLostPerShot = 1.0,
+                RequiresFreeHandToReady = false,
+                AlwaysRequiresTwoHandsToWield = alwaysTwoHanded
+            };
+            context.RangedWeaponTypes.Add(ranged);
+            context.SaveChanges();
+            added++;
+            return ranged;
+        }
+
+        AmmunitionTypes EnsureAmmoType(string name, string specific, RangedWeaponType type, double accuracy,
+            AudioVolume loudness, double breakOnHit, double breakOnMiss, Difficulty block, Difficulty dodge,
+            DamageType damageType, string damageExpression)
+        {
+            AmmunitionTypes? existing = context.AmmunitionTypes.FirstOrDefault(x => x.Name == name);
+            if (existing != null)
+            {
+                EnsureComponent("Ammunition", $"Ammo_{name.CollapseString()}",
+                    $"Turns an item into {name.A_An()}",
+                    $"<Definition><AmmoType>{existing.Id}</AmmoType></Definition>");
+                return existing;
+            }
+
+            AmmunitionTypes ammo = new()
+            {
+                Name = name,
+                SpecificType = specific,
+                DamageType = (int)damageType,
+                RangedWeaponTypes = ((int)type).ToString(),
+                BaseAccuracy = accuracy,
+                BreakChanceOnHit = breakOnHit,
+                BreakChanceOnMiss = breakOnMiss,
+                Loudness = (int)loudness,
+                BaseBlockDifficulty = (int)block,
+                BaseDodgeDifficulty = (int)dodge,
+                DamageExpression = damageExpression,
+                StunExpression = damageExpression,
+                PainExpression = damageExpression
+            };
+            context.AmmunitionTypes.Add(ammo);
+            context.SaveChanges();
+            added++;
+
+            EnsureComponent("Ammunition", $"Ammo_{name.CollapseString()}",
+                $"Turns an item into {name.A_An()}",
+                $"<Definition><AmmoType>{ammo.Id}</AmmoType></Definition>");
+            return ammo;
+        }
+
+        void EnsureVariableCheck(CheckType type)
+        {
+            string teName = $"{type.DescribeEnum(true)} Formula";
+            TraitExpression? expression = context.TraitExpressions.FirstOrDefault(x => x.Name == teName);
+            if (expression == null)
+            {
+                expression = new TraitExpression
+                {
+                    Name = teName,
+                    Expression = "variable"
+                };
+                context.TraitExpressions.Add(expression);
+                context.SaveChanges();
+                added++;
+            }
+
+            int intType = (int)type;
+            Check? existing = context.Checks.FirstOrDefault(x => x.Type == intType);
+            if (existing != null)
+            {
+                return;
+            }
+
+            CheckTemplate template = context.CheckTemplates.First(x => x.Name == "Skill Check");
+            context.Checks.Add(new Check
+            {
+                Type = intType,
+                CheckTemplateId = template.Id,
+                MaximumDifficultyForImprovement = (int)Difficulty.Impossible,
+                TraitExpression = expression
+            });
+            context.SaveChanges();
+            added++;
+        }
+
+        TraitDefinition sling = EnsureSkill(
+            ["Slinging", "Sling"],
+            "Sling",
+            $"min(99,2*{strength.Alias}:{strength.Id}+2*{agi.Alias}:{agi.Id}+1*{per.Alias}:{per.Id})");
+        TraitDefinition blowgun = EnsureSkill(
+            ["Blowgunning", "Blowgun"],
+            "Blowgun",
+            $"min(99,2*{dex.Alias}:{dex.Id}+2*{per.Alias}:{per.Id}+1*{agi.Alias}:{agi.Id})");
+
+        EnsureVariableCheck(CheckType.FireSling);
+        EnsureVariableCheck(CheckType.FireBlowgun);
+
+        RangedWeaponTypes slingType = EnsureRangedType(
+            "Sling",
+            RangedWeaponType.Sling,
+            sling,
+            2,
+            "(-3.0*range)-(pow(1-aim,2)*3.0)",
+            $"quality - (3.0*range) + max(0,({strength.Alias}:{strength.Id}-10)*1.5)",
+            "Sling Bullet",
+            6.0,
+            2.0,
+            -3.0,
+            Difficulty.Hard,
+            0.25,
+            0.1,
+            0.2,
+            false);
+        EnsureComponent("Sling", "Sling", "Turns an item into a sling",
+            $"<Definition><RangedWeaponType>{slingType.Id}</RangedWeaponType><StaminaPerTick>3</StaminaPerTick></Definition>");
+
+        RangedWeaponTypes staffSlingType = EnsureRangedType(
+            "Staff Sling",
+            RangedWeaponType.Sling,
+            sling,
+            2,
+            "(-3.5*range)-(pow(1-aim,2)*3.0)",
+            $"2*quality - (4.0*range) + max(0,({strength.Alias}:{strength.Id}-10)*2.0)",
+            "Sling Bullet",
+            10.0,
+            3.0,
+            -3.0,
+            Difficulty.Hard,
+            0.35,
+            0.1,
+            0.3,
+            true);
+        EnsureComponent("Sling", "Staff Sling", "Turns an item into a staff sling",
+            $"<Definition><RangedWeaponType>{staffSlingType.Id}</RangedWeaponType><StaminaPerTick>4</StaminaPerTick></Definition>");
+
+        RangedWeaponTypes blowgunType = EnsureRangedType(
+            "Blowgun",
+            RangedWeaponType.Blowgun,
+            blowgun,
+            1,
+            "(-5.0*range)-(pow(1-aim,2)*4.0)",
+            "quality - (8.0*range)",
+            "Blowgun Dart",
+            1.0,
+            1.0,
+            -4.0,
+            Difficulty.Normal,
+            0.35,
+            0.1,
+            0.2,
+            false);
+        EnsureComponent("Blowgun", "Blowgun", "Turns an item into a blowgun",
+            $"<Definition><RangedWeaponType>{blowgunType.Id}</RangedWeaponType></Definition>");
+
+        EnsureAmmoType("Sling Bullet", "Sling Bullet", RangedWeaponType.Sling, 0.0, AudioVolume.Quiet, 0.2, 0.2,
+            Difficulty.Easy, Difficulty.Hard, DamageType.Crushing, "quality * 0.75 * degree");
+        EnsureAmmoType("Lead Sling Bullet", "Sling Bullet", RangedWeaponType.Sling, -0.5, AudioVolume.Quiet, 0.1, 0.2,
+            Difficulty.Easy, Difficulty.Hard, DamageType.Crushing, "5 + quality * degree");
+        EnsureAmmoType("Blowgun Dart", "Blowgun Dart", RangedWeaponType.Blowgun, 1.0, AudioVolume.Silent, 0.2, 0.3,
+            Difficulty.VeryEasy, Difficulty.Hard, DamageType.Piercing, "5 + quality * 0.5 * degree + (pointblank * 5)");
+        EnsureAmmoType("Barbed Blowgun Dart", "Blowgun Dart", RangedWeaponType.Blowgun, 0.0, AudioVolume.Silent, 0.1,
+            0.3, Difficulty.VeryEasy, Difficulty.Hard, DamageType.Piercing,
+            "8 + quality * 0.5 * degree + (pointblank * 5)");
+
+        return added;
     }
 
     private static string ResolveDamageRandomness(IReadOnlyDictionary<string, string> questionAnswers)
@@ -3232,6 +3577,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             context.GameItemComponentProtos.Add(component);
             context.SaveChanges();
         }
+
+        EnsurePrimitiveRangedContent(context, skills);
     }
 
     private void SeedDataWeapons(FuturemudDatabaseContext context,

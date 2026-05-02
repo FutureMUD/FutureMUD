@@ -25,7 +25,8 @@ public class SimpleMeleeCombat : CombatBase
 
     public override bool Friendly => false;
 
-    public override void JoinCombat(IPerceiver character, Difficulty initialDelayDifficulty = Difficulty.Automatic)
+    public override void JoinCombat(IPerceiver character, Difficulty initialDelayDifficulty = Difficulty.Automatic,
+        bool preserveHide = false)
     {
         if (!_combatants.Contains(character))
         {
@@ -40,7 +41,9 @@ public class SimpleMeleeCombat : CombatBase
             }
 
             character.Combat = this;
-            character.RemoveAllEffects(x => x.IsEffectType<IRemoveOnCombatStart>(), true);
+            character.RemoveAllEffects(
+                x => x.IsEffectType<IRemoveOnCombatStart>() && !(preserveHide && x.IsEffectType<IHideEffect>()),
+                true);
             character.HandleEvent(EventType.JoinCombat, character);
         }
 

@@ -20,7 +20,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyEvent, IMeleeWeapon
+public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyEvent, IMeleeWeapon, IReadiedRangedWeaponStaminaSource
 {
     protected BowGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
@@ -224,7 +224,7 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
         readier.OutputHandler.Handle(new EmoteOutput(new Emote("@ draw|draws back $0 with $1 ready to fire.", readier,
             Parent, LoadedAmmo.Parent)));
         IsReadied = true;
-        readier.AddEffect(new BowDrainStamina(readier, this), TimeSpan.FromSeconds(5));
+        readier.AddEffect(new ReadiedRangedWeaponDrainStamina(readier, this), TimeSpan.FromSeconds(5));
         return true;
     }
 
@@ -478,6 +478,13 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
     public event PerceivableEvent OnFire;
     public event PerceivableEvent OnUnready;
     public double StaminaPerTick => _prototype.StaminaPerTick;
+    public bool ReadiedUseRequiresFreeHand => true;
+    public string ReadiedStaminaReleaseEmote => "@ release|releases the tension on $0.";
+    public string ReadiedStaminaNoFreeHandEmote =>
+        "@ can no longer hold the bowstring on $0, and release|releases the tension.";
+    public string ReadiedStaminaExhaustedEmote =>
+        "@ release|releases the tension on $0 because #1 are|is too exhausted to continue holding it drawn any longer.";
+    public string ReadiedStaminaEffectDescription => "A readied bow is draining the stamina of its wielder.";
 
     #region Implementation of IMeleeWeapon
 

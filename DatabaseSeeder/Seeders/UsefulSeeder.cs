@@ -47,6 +47,8 @@ public partial class UsefulSeeder : IDatabaseSeeder
     private static readonly string[] StockItemMarkers =
     [
         "Container_Table",
+        "Door_Normal_Tiny",
+        "Container_Bookcase_Shelves",
         "Insulation_Minor",
         "Destroyable_Misc",
         "Torch_Infinite",

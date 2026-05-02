@@ -267,7 +267,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
         return $"You cannot engage {target.HowSeen(this)} in combat.";
     }
 
-    public virtual bool Engage(IPerceiver target, bool ranged)
+    public virtual bool Engage(IPerceiver target, bool ranged, bool preserveHide = false)
     {
         return false;
     }

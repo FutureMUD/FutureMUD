@@ -64,6 +64,8 @@ public class RpiLegacySkillBaselineTests
 			"White-Wise",
 			"Runecasting",
 			"Astronomy",
+			"Sling",
+			"Blowgun",
 			"Eavesdrop"
 		});
 	}

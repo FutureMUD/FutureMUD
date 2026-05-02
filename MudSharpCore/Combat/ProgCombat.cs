@@ -47,7 +47,8 @@ public class ProgCombat : CombatBase
 
     #region Overrides of CombatBase
 
-    public override void JoinCombat(IPerceiver character, Difficulty initialDelayDifficulty = Difficulty.Automatic)
+    public override void JoinCombat(IPerceiver character, Difficulty initialDelayDifficulty = Difficulty.Automatic,
+        bool preserveHide = false)
     {
         if (!_combatants.Contains(character))
         {
@@ -56,7 +57,9 @@ public class ProgCombat : CombatBase
                 GetCombatDelay(character, initialDelayDifficulty, 0.1),
                 $"ProgCombat Initial Action {character.HowSeen(character, flags: PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreCanSee)}"));
             character.Combat = this;
-            character.RemoveAllEffects(x => x.IsEffectType<IRemoveOnCombatStart>(), true);
+            character.RemoveAllEffects(
+                x => x.IsEffectType<IRemoveOnCombatStart>() && !(preserveHide && x.IsEffectType<IHideEffect>()),
+                true);
             character.HandleEvent(EventType.JoinCombat, character);
             OnJoinProg?.Execute(character, CombatReference);
         }

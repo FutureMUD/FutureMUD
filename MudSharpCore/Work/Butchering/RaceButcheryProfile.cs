@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static MudSharp.Effects.Concrete.Butchering;
+using static MudSharp.Effects.Concrete.Skinning;
 
 namespace MudSharp.Work.Butchering;
 
@@ -43,7 +44,7 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
         foreach (RaceButcheryProfilesBreakdownChecks item in profile.RaceButcheryProfilesBreakdownChecks)
         {
             _breakdownChecks.Add(
-                string.IsNullOrEmpty(item.Subcageory) ? string.Empty : item.Subcageory.ToLowerInvariant(),
+                item.Subcageory.NormaliseButcherySubcategory(),
                 (gameworld.Traits.Get(item.TraitDefinitionId), (Difficulty)item.Difficulty));
         }
 
@@ -52,10 +53,10 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
             _skinEmotes.Add((item.Emote, item.Delay));
         }
 
-        foreach (IGrouping<string, RaceButcheryProfilesBreakdownEmotes> category in profile.RaceButcheryProfilesBreakdownEmotes.GroupBy(x => x.Subcategory))
+        foreach (IGrouping<string, RaceButcheryProfilesBreakdownEmotes> category in profile.RaceButcheryProfilesBreakdownEmotes.GroupBy(x => x.Subcategory.NormaliseButcherySubcategory()))
         {
             _breakdownEmotes.AddRange(
-                string.IsNullOrEmpty(category.Key) ? string.Empty : category.Key.ToLowerInvariant(),
+                category.Key,
                 category.OrderBy(x => x.Order).Select(item => (item.Emote, item.Delay)).ToList());
         }
 
@@ -203,7 +204,15 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
     /// <returns>The trait and difficulty of the breakdown</returns>
     public (ITraitDefinition Trait, Difficulty CheckDifficulty) BreakdownCheck(string subcategory)
     {
-        return _breakdownChecks[subcategory];
+        return _breakdownChecks[subcategory.NormaliseButcherySubcategory()];
+    }
+
+    public bool HasBreakdown(string subcategory)
+    {
+        var key = subcategory.NormaliseButcherySubcategory();
+        return _breakdownChecks.ContainsKey(key) &&
+               _breakdownEmotes.ContainsKey(key) &&
+               _breakdownEmotes[key].Any();
     }
 
     private readonly List<(string Emote, double Delay)> _skinEmotes = new();
@@ -222,7 +231,7 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
     /// <returns>The emotes and delays for the phases</returns>
     public IEnumerable<(string Emote, double Delay)> BreakdownEmotes(string subcategory)
     {
-        return _breakdownEmotes[subcategory];
+        return _breakdownEmotes[subcategory.NormaliseButcherySubcategory()];
     }
 
     private readonly List<IButcheryProduct> _products = new();
@@ -248,6 +257,11 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
     public bool CanButcher(ICharacter butcher, IGameItem targetItem)
     {
         if (targetItem.EffectsOfType<BeingButchered>().Any())
+        {
+            return false;
+        }
+
+        if (targetItem.EffectsOfType<BeingSkinned>().Any())
         {
             return false;
         }
@@ -278,6 +292,12 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
         {
             return
                 $"You cannot {Verb.Describe(false)} {targetItem.HowSeen(butcher)} because {targetItem.EffectsOfType<BeingButchered>().First().Butcher.HowSeen(butcher)} is already {Verb.DescribeGerund()} it.";
+        }
+
+        if (targetItem.EffectsOfType<BeingSkinned>().Any())
+        {
+            return
+                $"You cannot work on {targetItem.HowSeen(butcher)} because {targetItem.EffectsOfType<BeingSkinned>().First().Skinner.HowSeen(butcher)} is already skinning it.";
         }
 
         IInventoryPlan plan = ToolTemplate.CreatePlan(butcher);
@@ -379,7 +399,7 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 
 	#3name <name>#0 - renames this profile
 	#3verb butcher|salvage#0 - changes the verb used for interacting with these corpses
-	#3tool <tag>#0 - sets the tag of tools required to interact with this
+	#3tool <tag>|none#0 - sets or clears the tag of tools required to interact with this
 	#3skindiff <difficulty>#0 - sets the difficulty of the skinning check
 	#3can <prog>#0 - sets a prog to control whether someone can butcher this
 	#3why <prog>#0 - sets a prog for a custom error message on can butcher failure
@@ -529,6 +549,15 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
             return false;
         }
 
+        if (command.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
+        {
+            RequiredToolTag = null;
+            RecalculateInventoryPlan();
+            Changed = true;
+            actor.OutputHandler.Send("This butchery profile no longer requires a tool.");
+            return true;
+        }
+
         List<ITag> matchedtags = actor.Gameworld.Tags.FindMatchingTags(command.SafeRemainingArgument);
         if (matchedtags.Count == 0)
         {
@@ -547,13 +576,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 
         RequiredToolTag = tag;
         Changed = true;
-        ToolTemplate = new InventoryPlanTemplate(Gameworld, new[]
-        {
-            new InventoryPlanPhaseTemplate(1, new[]
-            {
-                new InventoryPlanActionHold(Gameworld, RequiredToolTag.Id, 0, item => true, null, 1)
-            })
-        });
+        RecalculateInventoryPlan();
         actor.OutputHandler.Send(
             $"Players will now be required to have a tool item with the tag {RequiredToolTag.FullName.ColourName()} in order to {Verb.DescribeEnum().ColourCommand()} corpses and bodyparts with this profile.");
         return true;
@@ -668,7 +691,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
             return false;
         }
 
-        string subsystem = command.PopSpeech().ToLowerInvariant();
+        string subsystem = command.PopSpeech().NormaliseButcherySubcategory();
         if (subsystem.EqualTo("main"))
         {
             subsystem = string.Empty;
@@ -803,7 +826,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
             return false;
         }
 
-        if (!double.TryParse(command.PopSpeech(), out double value))
+        if (!double.TryParse(command.PopSpeech(), out double value) || value <= 0.0)
         {
             actor.OutputHandler.Send(
                 $"{command.Last.ColourCommand()} is not a valid number of seconds of delay for this emote.");
@@ -917,6 +940,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
         _skinEmotes.SwapByIndex(value1 - 1, value2 - 1);
         actor.OutputHandler.Send(
             $"You swap the positions of the {value1.ToOrdinal().ColourValue()} and {value2.ToOrdinal().ColourValue()} skin emotes.");
+        Changed = true;
         return true;
     }
 
@@ -1009,11 +1033,11 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
             return false;
         }
 
-        string subsystem = command.PopSpeech().ToLowerInvariant();
+        string subsystem = command.PopSpeech().NormaliseButcherySubcategory();
         if (!_breakdownChecks.ContainsKey(subsystem))
         {
             actor.OutputHandler.Send(
-                $"There is no subsytem defined with a value of {subsystem.ColourCommand()}. You must first define a check for the subsystem before you can add emotes.");
+                $"There is no subsystem defined with a value of {subsystem.ColourCommand()}. You must first define a check for the subsystem before you can add emotes.");
             return false;
         }
 
@@ -1054,7 +1078,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
             return false;
         }
 
-        if (!double.TryParse(command.PopSpeech(), out double value))
+        if (!double.TryParse(command.PopSpeech(), out double value) || value <= 0.0)
         {
             actor.OutputHandler.Send(
                 $"{command.Last.ColourCommand()} is not a valid number of seconds of delay for this emote.");
@@ -1174,6 +1198,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
         _breakdownEmotes.Swap(subsystem, value1 - 1, value2 - 1);
         actor.OutputHandler.Send(
             $"You swap the positions of the {value1.ToOrdinal().ColourValue()} and {value2.ToOrdinal().ColourValue()} breakdown emotes{(string.IsNullOrWhiteSpace(subsystem) ? "" : $" for subsystem {subsystem.ColourCommand()}")}.");
+        Changed = true;
         return true;
     }
 
@@ -1197,7 +1222,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
             return false;
         }
 
-        if (value > _skinEmotes.Count)
+        if (value > _breakdownEmotes[subsystem].Count)
         {
             actor.OutputHandler.Send(
                 $"There are only {_breakdownEmotes[subsystem].Count().ToString("N0", actor).ColourValue()} emotes to choose from.");
@@ -1247,7 +1272,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
             return false;
         }
 
-        if (value > _skinEmotes.Count)
+        if (value > _breakdownEmotes[subsystem].Count)
         {
             actor.OutputHandler.Send(
                 $"There are only {_breakdownEmotes[subsystem].Count().ToString("N0", actor).ColourValue()} emotes to choose from.");
@@ -1445,8 +1470,8 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
                 {
                     item.Id.ToString("N0", voyeur),
                     item.Name,
-                    item.CanProduceProg.MXPClickableFunctionName(),
-                    item.TargetBody.Name,
+                    item.CanProduceProg?.MXPClickableFunctionName() ?? "",
+                    item.TargetBody?.Name ?? "",
                     item.RequiredBodyparts.Select(x => x.Name).ListToCommaSeparatedValues(", "),
                     item.ProductItems.Select(x => $"{x.NormalQuantity.ToString("N0", voyeur)}x {x.NormalProto.EditHeader()}".ColourObject()).ListToCommaSeparatedValues(", ")
                 },

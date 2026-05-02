@@ -42,6 +42,13 @@ namespace MudSharp.Work.Butchering
         (ITraitDefinition Trait, Difficulty CheckDifficulty) BreakdownCheck(string subcategory);
 
         /// <summary>
+        ///     Whether the profile has both a check and at least one staged emote for the nominated breakdown path.
+        /// </summary>
+        /// <param name="subcategory">If specified, the subcategory for which to test the breakdown setup</param>
+        /// <returns>True if the breakdown can be run by players</returns>
+        bool HasBreakdown(string subcategory);
+
+        /// <summary>
         /// The emotes and delays between each phase of skinning
         /// </summary>
         IEnumerable<(string Emote, double Delay)> SkinEmotes { get; }

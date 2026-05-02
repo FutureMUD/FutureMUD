@@ -38,6 +38,8 @@ The current pass aims to import the following families functionally:
 - writing implements when compatible stock components exist
 - variable-colour descriptor items where the source uses legacy `$color` style tokens
 - board items, by generating a FutureMUD board row and matching board item component during execute import
+- tossable dice and similar face-randomiser props, by using stock dice components or generated dice components
+- table, bench, and simple furniture props, using RPI `ITEM_TABLE` plus furniture keywords to add stock FutureMUD table, chair, and surface container components
 
 ## Mapping Heuristics
 
@@ -92,12 +94,18 @@ The current pass aims to import the following families functionally:
 - Ordinary containers map by keyword and broad capacity to stock container components.
 - Quivers, sheaths, and keyrings map to their dedicated stock components.
 - Lockable containers add a locking container component when the archived data indicates lock behaviour.
+- RPI containers flagged `ITEM_TABLE` now import as FutureMUD furniture surfaces as well as table components. The legacy `table_max_sitting` value is used to choose the closest stock `Table_*` component where it is present.
+- Non-container props that are flagged `ITEM_TABLE` also import as furniture. This matches the archived `sit` command behaviour, which checked the table extra flag directly.
+- Bench-like props import as sit-able FutureMUD chair components, usually `Chair_Triple`, plus `Container_Bench_Surface` where the item is also a usable surface. Plain chair and stool props import as chair components.
+- Desk, counter, bed, cot, couch, shelf, rack, and stand descriptions use the closest seeded surface components when they can be recognised confidently.
 
 ### Liquids and Lights
 
 - Lantern-like descriptions prefer `Lantern`; otherwise torches default to `Torch_1Hour`.
 - Drink containers and fountains resolve a FutureMUD liquid reference when the archived liquid id maps cleanly.
 - The raw liquid id is always preserved in the exported data even when the FutureMUD liquid name cannot be resolved.
+- RPI `ITEM_FLUID` prototypes are liquid definitions rather than physical item prototypes in FutureMUD terms. The archived engine displays `Oval0` as alcohol per sip, `Oval1` as water per sip, and `Oval2` as food per sip. The object descriptions carry the visible liquid identity. Poison rows can attach poison data to liquids and containers, but the current region corpus does not contain poison rows on imported fluid definitions.
+- RPI `ITEM_LIQUID_FUEL` prototypes are the matching fuel definitions used by light objects. The light/fuel relationship is a liquid reference in FutureMUD, not a separate carried item type.
 
 ### Food and Tools
 
@@ -110,6 +118,13 @@ The current pass aims to import the following families functionally:
 - Parchment and books use stock paper and book component families.
 - Writing implements try known stock components such as `Biro_Black`, `Biro_Blue`, `Biro_Red`, and `Pencil_Black`.
 - Standalone ink currently falls back to a prop because this pass does not assume a dedicated seeded ink reservoir component exists.
+
+### Dice and Tossables
+
+- RPI `ITEM_TOSSABLE` prototypes use `Oval0` as the face count and optional `desc_keys` as the face labels. If `desc_keys` is missing, the legacy command fell back to face names from `one` through `twenty`, then numeric labels.
+- `Oval1` is documented by the archived source as a loaded-dice calling bonus, but the archived toss command does not implement that value. The importer preserves the source oval and emits a warning when it is non-zero.
+- Valid tossables with 2 to 100 faces import as FutureMUD dice. Custom faces, two-sided tokens, five-sided knuckle bones, and rune stones generate approved dice components named `RPI_Dice_<faces>_vnum_<vnum>` during execute import.
+- Tossables with zero faces or implausibly large face counts remain props with explicit `tossable-invalid-facets` warnings.
 
 ### Boards
 
@@ -128,7 +143,9 @@ The following families intentionally stay out of functional import in pass one:
 - tickets, merchant tickets, room rentals
 - NPC-only objects and dwellings
 - skulls and similarly behaviour-heavy corpse-adjacent items
-- low-confidence commodity and prop families such as treasure, trash, ore, herbs, spices, salves, poison, timber, cloth, ingots, and similar resource items
+- money prototypes, because they are currency definitions and should become FutureMUD currencies and coins rather than imported item prototypes
+- fluid and liquid-fuel prototypes, because they should become FutureMUD liquid records rather than imported item prototypes
+- low-confidence commodity and prop families such as treasure, trash, ore, herbs, spices, salves, poison, timber, cloth, ingots, and similar resource items, unless the record is now recognised as furniture by flag or keyword
 
 These still preserve provenance, raw ovals, warnings, and any optional source metadata in export output.
 
@@ -153,5 +170,6 @@ These still preserve provenance, raw ovals, warnings, and any optional source me
 - Baseline catalog lookups tolerate duplicate seeded component, material, tag, liquid, and trait names by choosing the lowest-ID row deterministically.
 - Missing seeded dependencies are surfaced as validation issues rather than silently dropped.
 - Generated board components are data-only uses of the existing FutureMUD board runtime, not converter-specific runtime behaviour.
+- Generated dice components are data-only uses of the existing FutureMUD dice runtime, not converter-specific runtime behaviour.
 - The importer deliberately avoids creating new runtime behaviour; if a mapping needs a runtime item system that FutureMUD does not already expose, the item remains a prop in this pass.
 - Export JSON is the recommended interchange format if this work later migrates into code generation for `DatabaseSeeder`.

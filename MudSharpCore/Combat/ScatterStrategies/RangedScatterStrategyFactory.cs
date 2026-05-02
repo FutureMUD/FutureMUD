@@ -23,6 +23,7 @@ public static class RangedScatterStrategyFactory
             RangedWeaponType.Firearm => RangedScatterType.Ballistic,
             RangedWeaponType.ModernFirearm => RangedScatterType.Ballistic,
             RangedWeaponType.Musket => RangedScatterType.Ballistic,
+            RangedWeaponType.Blowgun => RangedScatterType.Ballistic,
             RangedWeaponType.Laser => RangedScatterType.Light,
             _ => RangedScatterType.Arcing
         });

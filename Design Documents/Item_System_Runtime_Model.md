@@ -80,6 +80,12 @@ A live item becomes "a container" because one of its components implements `ICon
 
 New-style food follows the same rule. A live item becomes prepared food because one component implements `IPreparedFood`, which extends `IEdible` with ingredient ledgers, freshness, serving scope, quality-scaled nutrition, and ingested drug doses. The legacy `Food` component remains available for old content, while `PreparedFood` is the current component for direct loadable foods and recipe-initialised foods.
 
+Ranged weapons follow the same component rule. Bows, crossbows, firearms, slings, and blowguns are live item capabilities because their components implement `IRangedWeapon`; their projectiles remain ordinary `Ammunition` components keyed by `RangedWeaponType` and specific ammunition grade. The sling and blowgun components are first-class ranged weapons rather than melee stand-ins: slings use short-ranged sling ammunition, quick ready/load/fire timings, strength-weighted ranged type formulas, and the shared readied-ranged stamina drain while whirled; blowguns use very short-ranged piercing dart ammunition and opt in to `IRangedWeapon.CanFireWhileHidden`.
+
+Blowgun use is breath-gated at the component level. A character must have a breathing body, currently be able to breathe, have a mouth bodypart, and have no item worn over that mouth in order to ready or fire a blowgun. Because breathing filters and rebreathers are discovered through mouth-worn item components, this same uncovered-mouth rule blocks blowgun use while wearing breathing apparatus, masks, gags, or any other mouth-covering item.
+
+Hidden ranged fire is an explicit weapon capability, not a general ranged rule. `IRangedWeapon.CanFireWhileHidden` defaults to false, so existing ranged weapons still reveal the firer when combat engagement begins. Blowguns return true, and the `fire` command passes that through the combat engagement path so hide effects are preserved only for weapons that opted in. Their output uses the normal obscured-emote visibility path, so a hidden blowgun firer is not automatically named to observers but can still be discovered by ordinary perception.
+
 This has two important consequences:
 - most game logic should depend on interfaces from `FutureMUDLibrary`, not concrete component classes
 - adding a new capability usually means adding a new component pair, not adding a new item class

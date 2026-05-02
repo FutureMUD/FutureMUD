@@ -524,7 +524,7 @@ public partial class Character
             : "You cannot initiate combat for an unknown reason.";
     }
 
-    public override bool Engage(IPerceiver target, bool ranged)
+    public override bool Engage(IPerceiver target, bool ranged, bool preserveHide = false)
     {
         if (!CanEngage(target))
         {
@@ -546,7 +546,12 @@ public partial class Character
         }
 
         bool ambush = target.CanSee(this);
-        RemoveAllEffects(x => x.IsEffectType<IHideEffect>());
+        if (!preserveHide)
+        {
+            RemoveAllEffects(x => x.IsEffectType<IHideEffect>());
+        }
+
+        OutputFlags engageFlags = preserveHide ? OutputFlags.SuppressObscured : OutputFlags.Normal;
 
         // Merge/Create combats and ensure both assailant and target are in the same fight
         if (Combat != null && target.Combat != null)
@@ -557,12 +562,13 @@ public partial class Character
             }
 
             combat = Combat;
-            OutputHandler.Handle(new EmoteOutput(new Emote("@ switch|switches target to $0!", this, target)));
+            OutputHandler.Handle(new EmoteOutput(new Emote("@ switch|switches target to $0!", this, target),
+                flags: engageFlags));
         }
         else
         {
             OutputHandler.Handle(
-                new EmoteOutput(new Emote("@ engage|engages $0 in combat!", this, target)));
+                new EmoteOutput(new Emote("@ engage|engages $0 in combat!", this, target), flags: engageFlags));
             target.HandleEvent(EventType.EngagedInCombat, this, target);
             HandleEvent(EventType.EngageInCombat, this, target);
             foreach (IHandleEvents witness in Location.EventHandlers)
@@ -573,7 +579,7 @@ public partial class Character
             combat = target.Combat ?? new SimpleMeleeCombat(Gameworld);
         }
 
-        combat.JoinCombat(this, ranged ? Difficulty.Automatic : Difficulty.Easy);
+        combat.JoinCombat(this, ranged ? Difficulty.Automatic : Difficulty.Easy, preserveHide);
         combat.JoinCombat(target, ambush ? Difficulty.ExtremelyHard : Difficulty.Normal);
 
         if (!combat.Friendly)

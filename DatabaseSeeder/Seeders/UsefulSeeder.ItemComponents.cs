@@ -165,6 +165,17 @@ public partial class UsefulSeeder
         context.SaveChanges();
     }
 
+    internal void SeedContainersForTesting(FuturemudDatabaseContext context)
+    {
+        _context = context;
+        PrepareItemProtoCache(context);
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+        SeedContainers(new Dictionary<string, string>(), new List<string>(), now, dbaccount, ref nextId);
+        context.SaveChanges();
+    }
+
     private void SeedModernItems(FuturemudDatabaseContext context, ICollection<string> errors)
     {
         DateTime now = DateTime.UtcNow;
@@ -1488,6 +1499,20 @@ public partial class UsefulSeeder
         CreateContainer("Container_Table", "Allows a table to have items 'on' it", 200000, SizeCategory.Large, false, true, "on", ref nextId);
         CreateContainer("Container_Large_Table", "Allows a large table to have items 'on' it", 500000, SizeCategory.VeryLarge, false, true, "on", ref nextId);
         CreateContainer("Container_Small_Table", "Allows a small table to have items 'on' it", 50000, SizeCategory.Normal, false, true, "on", ref nextId);
+        CreateContainer("Container_Side_Table", "Allows a side table, end table or night table to have items 'on' it", 25000, SizeCategory.Small, false, true, "on", ref nextId);
+        CreateContainer("Container_Desk_Surface", "Allows a desk surface to have items 'on' it", 75000, SizeCategory.Normal, false, true, "on", ref nextId);
+        CreateContainer("Container_Counter", "Allows a counter, bar or worktop to have items 'on' it", 350000, SizeCategory.Large, false, true, "on", ref nextId);
+        CreateContainer("Container_Cot_Surface", "Allows a cot or narrow bed surface to have items 'on' it", 75000, SizeCategory.Normal, false, true, "on", ref nextId);
+        CreateContainer("Container_Bed_Surface", "Allows a bed surface to have items 'on' it", 200000, SizeCategory.Large, false, true, "on", ref nextId);
+        CreateContainer("Container_Couch_Surface", "Allows a couch, sofa or padded seat to have items 'on' it", 100000, SizeCategory.Normal, false, true, "on", ref nextId);
+        CreateContainer("Container_Bench_Surface", "Allows a bench surface to have items 'on' it", 100000, SizeCategory.Normal, false, true, "on", ref nextId);
+        CreateContainer("Container_Wall_Shelf", "Allows a wall shelf or narrow ledge to have items 'on' it", 20000, SizeCategory.Small, false, true, "on", ref nextId);
+        CreateContainer("Container_Narrow_Shelves", "Allows a narrow set of shelves to have items 'on' it", 75000, SizeCategory.Normal, false, true, "on", ref nextId);
+        CreateContainer("Container_Wide_Shelves", "Allows a wide set of shelves to have items 'on' it", 200000, SizeCategory.Large, false, true, "on", ref nextId);
+        CreateContainer("Container_Bookcase_Shelves", "Allows a bookcase or library shelves to have items 'on' it", 175000, SizeCategory.Large, false, true, "on", ref nextId);
+        CreateContainer("Container_Display_Shelves", "Allows open display shelves to have items 'on' them", 125000, SizeCategory.Normal, false, true, "on", ref nextId);
+        CreateContainer("Container_Weapon_Rack", "Allows a weapon rack to have items 'on' it", 75000, SizeCategory.Large, false, true, "on", ref nextId);
+        CreateContainer("Container_Armor_Stand", "Allows an armour stand or display dummy to have items 'on' it", 100000, SizeCategory.Large, false, true, "on", ref nextId);
         CreateContainer("Container_Carton", "A container for cartons of cigarettes, matches etc", 250, SizeCategory.Tiny, true, false, "in", ref nextId);
         CreateContainer("Container_Pocket", "A container for pockets in clothes", 500, SizeCategory.VerySmall, false, false, "in", ref nextId);
         CreateContainer("Container_LargePocket", "A container for large pockets in clothes", 2000, SizeCategory.Small, false, false, "in", ref nextId);
@@ -1506,6 +1531,22 @@ public partial class UsefulSeeder
         CreateContainer("Container_Drum", "A container for standard sized drums (~55 Gal)", 250000, SizeCategory.Normal, true, false, "in", ref nextId);
         CreateContainer("Container_Small_Drum", "A container for small sized drums (~25 Gal)", 100000, SizeCategory.Normal, true, false, "in", ref nextId);
         CreateContainer("Container_Quiver", "A container for quivers", 10000, SizeCategory.Normal, true, false, "in", ref nextId);
+        CreateContainer("Container_Open_Bin", "A container for open bins, hampers and baskets", 100000, SizeCategory.Normal, false, false, "in", ref nextId);
+        CreateContainer("Container_Small_Cabinet", "A container for small cabinets and compact cupboards", 50000, SizeCategory.Small, true, false, "in", ref nextId);
+        CreateContainer("Container_Large_Cabinet", "A container for large cabinets and storage cupboards", 200000, SizeCategory.Large, true, false, "in", ref nextId);
+        CreateContainer("Container_Glass_Cabinet", "A transparent container for glass-fronted cabinets", 150000, SizeCategory.Normal, true, true, "in", ref nextId);
+        CreateContainer("Container_Cupboard", "A container for cupboards, lockers and similar enclosed furniture", 125000, SizeCategory.Normal, true, false, "in", ref nextId);
+        CreateContainer("Container_Wardrobe", "A container for wardrobes intended to hold clothing and similar goods", 250000, SizeCategory.Large, true, false, "in", ref nextId);
+        CreateContainer("Container_Armoire", "A container for large armoires and wardrobes", 350000, SizeCategory.VeryLarge, true, false, "in", ref nextId);
+        CreateContainer("Container_Dresser", "A container for dressers and chests of drawers", 125000, SizeCategory.Normal, true, false, "in", ref nextId);
+        CreateContainer("Container_Desk_Drawers", "A container for desk drawers and writing-table storage", 25000, SizeCategory.Small, true, false, "in", ref nextId);
+        CreateContainer("Container_Nightstand", "A container for nightstands and bedside tables with drawers", 15000, SizeCategory.Small, true, false, "in", ref nextId);
+        CreateContainer("Container_Sideboard", "A container for sideboards and serving cabinets", 150000, SizeCategory.Normal, true, false, "in", ref nextId);
+        CreateContainer("Container_Hutch", "A container for hutches and kitchen display cabinets", 175000, SizeCategory.Large, true, false, "in", ref nextId);
+        CreateContainer("Container_Trunk", "A container for trunks and blanket chests", 200000, SizeCategory.Large, true, false, "in", ref nextId);
+        CreateContainer("Container_Footlocker", "A container for footlockers and compact storage trunks", 100000, SizeCategory.Normal, true, false, "in", ref nextId);
+        CreateContainer("Container_Blanket_Box", "A container for blanket boxes and under-bed storage", 150000, SizeCategory.Normal, true, false, "in", ref nextId);
+        CreateContainer("Container_Display_Case", "A transparent container for display cases and exhibit cases", 75000, SizeCategory.Normal, true, true, "in", ref nextId);
         CreateContainer("Container_Hole", "A container for holes in the ground", 2000000, SizeCategory.VeryLarge, false, false, "in", ref nextId);
         CreateContainer("Container_Large_Hole", "A container for large holes in the ground", 5000000, SizeCategory.Huge, false, false, "in", ref nextId);
         CreateContainer("Container_Shipping_Container", "A container for standard 20ft shipping containers", 50000000, SizeCategory.Enormous, true, false, "in", ref nextId);

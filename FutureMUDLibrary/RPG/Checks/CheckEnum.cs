@@ -196,6 +196,7 @@ namespace MudSharp.RPG.Checks
         OpposePushbackCheck = 187,
         ForcedMovementCheck = 188,
         OpposeForcedMovementCheck = 189,
+        FireBlowgun = 190,
     }
 
     public enum FailIfTraitMissingType
@@ -281,6 +282,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.FireCrossbow:
                 case CheckType.FireFirearm:
                 case CheckType.FireSling:
+                case CheckType.FireBlowgun:
                 case CheckType.StruggleFreeFromDrag:
                 case CheckType.OpposeStruggleFreeFromDrag:
                 case CheckType.CounterGrappleCheck:
@@ -451,6 +453,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.FireCrossbow:
                 case CheckType.FireFirearm:
                 case CheckType.FireSling:
+                case CheckType.FireBlowgun:
                 case CheckType.TakedownCheck:
                 case CheckType.WrenchAttackCheck:
                 case CheckType.AuxiliaryMoveCheck:
@@ -527,6 +530,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.FireCrossbow:
                 case CheckType.FireFirearm:
                 case CheckType.FireSling:
+                case CheckType.FireBlowgun:
                 case CheckType.TakedownCheck:
                 case CheckType.WrenchAttackCheck:
                 case CheckType.AuxiliaryMoveCheck:
@@ -602,6 +606,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.FireCrossbow:
                 case CheckType.FireFirearm:
                 case CheckType.FireSling:
+                case CheckType.FireBlowgun:
                 case CheckType.StyleCharacteristicCheck:
                 case CheckType.OrganExtractionCheck:
                 case CheckType.OrganTransplantCheck:

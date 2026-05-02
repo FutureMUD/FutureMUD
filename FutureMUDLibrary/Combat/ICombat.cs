@@ -17,7 +17,8 @@ namespace MudSharp.Combat
         /// </summary>
         bool Friendly { get; }
 
-        void JoinCombat(IPerceiver character, Difficulty initialDelayDifficulty = Difficulty.Automatic);
+        void JoinCombat(IPerceiver character, Difficulty initialDelayDifficulty = Difficulty.Automatic,
+            bool preserveHide = false);
 
         /// <summary>
         ///     Removes a specified combatant from the combat

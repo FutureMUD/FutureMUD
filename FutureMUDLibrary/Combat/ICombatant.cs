@@ -80,7 +80,7 @@ namespace MudSharp.Combat
 
         bool CanEngage(IPerceiver target);
         string WhyCannotEngage(IPerceiver target);
-        bool Engage(IPerceiver target, bool ranged = false);
+        bool Engage(IPerceiver target, bool ranged = false, bool preserveHide = false);
 
         event PerceivableEvent OnJoinCombat;
         event PerceivableEvent OnEngagedInMelee;

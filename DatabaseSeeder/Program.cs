@@ -467,6 +467,7 @@ The exception details were as follows:
     private static void ShowMainMenu()
     {
         string errorMessage = string.Empty;
+        bool showBlockedSeeders = false;
         while (true)
         {
             SafeClear();
@@ -492,6 +493,8 @@ The exception details were as follows:
 
             int i = 1;
             List<(IDatabaseSeeder Seeder, SeederAssessment Assessment)> assessedSeeders;
+            List<(IDatabaseSeeder Seeder, SeederAssessment Assessment)> visibleSeeders;
+            int blockedSeederCount;
             using (FuturemudDatabaseContext context = CreateContext(useLazyLoading: true))
             {
                 assessedSeeders = seeders
@@ -500,11 +503,21 @@ The exception details were as follows:
                     .ThenBy(x => x.Seeder.SortOrder)
                     .ThenBy(x => x.Seeder.Name)
                     .ToList();
+                visibleSeeders = assessedSeeders
+                    .Where(x => ShowSeederInMainMenu(x.Assessment.Status, showBlockedSeeders))
+                    .ToList();
+                blockedSeederCount = assessedSeeders.Count(x => x.Assessment.Status == SeederAssessmentStatus.Blocked);
 
                 SafeClear();
-                ConsoleLayoutHelper.WriteWrapped("Please enter the number of the package you wish to import, or QUIT to exit: ");
+                string prompt = blockedSeederCount switch
+                {
+                    <= 0 => "Please enter the number of the package you wish to import, or QUIT to exit: ",
+                    _ when showBlockedSeeders => "Please enter the number of the package you wish to import, VALID to hide blocked packages, or QUIT to exit: ",
+                    _ => "Please enter the number of the package you wish to import, INVALID to show blocked packages, or QUIT to exit: "
+                };
+                ConsoleLayoutHelper.WriteWrapped(prompt);
                 Console.WriteLine();
-                foreach ((IDatabaseSeeder Seeder, SeederAssessment Assessment) assessedSeeder in assessedSeeders)
+                foreach ((IDatabaseSeeder Seeder, SeederAssessment Assessment) assessedSeeder in visibleSeeders)
                 {
                     Console.ForegroundColor = GetAssessmentColour(assessedSeeder.Assessment.Status);
                     foreach (string line in ConsoleLayoutHelper.FormatMenuEntry(
@@ -519,6 +532,15 @@ The exception details were as follows:
                 }
             }
 
+            string blockedSeederSummary = GetBlockedSeederSummary(blockedSeederCount, showBlockedSeeders);
+            if (!string.IsNullOrWhiteSpace(blockedSeederSummary))
+            {
+                Console.WriteLine();
+                Console.ForegroundColor = showBlockedSeeders ? ConsoleColor.DarkRed : ConsoleColor.DarkYellow;
+                ConsoleLayoutHelper.WriteWrapped(blockedSeederSummary);
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+
             Console.WriteLine();
             Console.Write("Your choice: ");
             string choice = Console.ReadLine() ?? string.Empty;
@@ -527,14 +549,43 @@ The exception details were as follows:
                 return;
             }
 
+            if (choice.EqualToAny("invalid", "blocked"))
+            {
+                if (blockedSeederCount == 0)
+                {
+                    errorMessage = "There are no blocked packages to show.";
+                    continue;
+                }
+
+                showBlockedSeeders = true;
+                errorMessage = string.Empty;
+                continue;
+            }
+
+            if (choice.EqualToAny("valid", "hideinvalid", "hide invalid"))
+            {
+                showBlockedSeeders = false;
+                errorMessage = string.Empty;
+                continue;
+            }
+
             IDatabaseSeeder? pick = uint.TryParse(choice, out uint value)
-                ? assessedSeeders.ElementAtOrDefault((int)value - 1).Seeder
-                : assessedSeeders.Select(x => x.Seeder).FirstOrDefault(x => x.Name.EqualTo(choice)) ??
-                  assessedSeeders.Select(x => x.Seeder)
+                ? visibleSeeders.ElementAtOrDefault((int)value - 1).Seeder
+                : visibleSeeders.Select(x => x.Seeder).FirstOrDefault(x => x.Name.EqualTo(choice)) ??
+                  visibleSeeders.Select(x => x.Seeder)
                       .FirstOrDefault(x => x.Name.StartsWith(choice, StringComparison.OrdinalIgnoreCase));
 
             if (pick == null)
             {
+                if (!showBlockedSeeders && assessedSeeders.Any(x =>
+                        x.Assessment.Status == SeederAssessmentStatus.Blocked &&
+                        (x.Seeder.Name.EqualTo(choice) ||
+                         x.Seeder.Name.StartsWith(choice, StringComparison.OrdinalIgnoreCase))))
+                {
+                    errorMessage = "That package is currently blocked by missing prerequisites. Type INVALID to show blocked packages.";
+                    continue;
+                }
+
                 errorMessage = "That is not a valid selection.";
                 continue;
             }
@@ -741,6 +792,28 @@ The exception details were as follows:
         return string.IsNullOrWhiteSpace(answer) && !string.IsNullOrWhiteSpace(defaultAnswer)
             ? defaultAnswer
             : answer;
+    }
+
+    internal static bool ShowSeederInMainMenu(SeederAssessmentStatus status, bool showBlockedSeeders)
+    {
+        return showBlockedSeeders || status != SeederAssessmentStatus.Blocked;
+    }
+
+    internal static string GetBlockedSeederSummary(int blockedSeederCount, bool showBlockedSeeders)
+    {
+        if (blockedSeederCount <= 0)
+        {
+            return string.Empty;
+        }
+
+        string packageText = blockedSeederCount == 1 ? "package" : "packages";
+        string pronounText = blockedSeederCount == 1 ? "it" : "them";
+        string verbText = blockedSeederCount == 1 ? "is" : "are";
+        string thereVerbText = blockedSeederCount == 1 ? "is" : "are";
+        string hiddenActionText = blockedSeederCount == 1 ? "see it" : "see a list of them";
+        return showBlockedSeeders
+            ? $"{blockedSeederCount:N0} blocked {packageText} {verbText} currently visible. Type VALID to hide {pronounText} again."
+            : $"There {thereVerbText} {blockedSeederCount:N0} {packageText} reporting prerequisites not met. Type INVALID to {hiddenActionText}.";
     }
 
     private static int GetMenuSortRank(SeederAssessmentStatus status)

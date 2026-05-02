@@ -32,7 +32,7 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
         IMagicSpell spell)
     {
         return (new InvisibilityEffect(new XElement("Effect",
-            new XAttribute("type", "glow"),
+            new XAttribute("type", "invisibility"),
             new XElement("FilterProg", 0)
         ), spell), string.Empty);
     }
@@ -46,12 +46,27 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
         FilterProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FilterProg")?.Value ?? "0"));
     }
 
+    public static bool IsLegacyGlowInvisibilityDefinition(XElement root)
+    {
+        return root.Attribute("type")?.Value.EqualTo("glow") == true &&
+               root.Element("FilterProg") != null &&
+               root.Element("GlowLuxPerPower") == null;
+    }
+
+    public static IMagicSpellEffectTemplate LoadLegacyGlowInvisibility(XElement root, IMagicSpell spell)
+    {
+        return new InvisibilityEffect(new XElement("Effect",
+            new XAttribute("type", "invisibility"),
+            new XElement("FilterProg", root.Element("FilterProg")?.Value ?? "0")
+        ), spell);
+    }
+
     #region Implementation of IXmlSavable
 
     public XElement SaveToXml()
     {
         return new XElement("Effect",
-            new XAttribute("type", "glow"),
+            new XAttribute("type", "invisibility"),
             new XElement("FilterProg", FilterProg?.Id ?? 0)
         );
     }
@@ -113,6 +128,7 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
         }
 
         Spell.Changed = true;
+        FilterProg = prog;
         actor.OutputHandler.Send(
             $"The invisibility effect will now use the {prog.MXPClickableFunctionNameWithId()} prog to filter whether it applies (true means that the invisibility applies, e.g. the target cannot see)");
         return true;

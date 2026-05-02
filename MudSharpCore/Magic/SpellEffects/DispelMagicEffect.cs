@@ -34,6 +34,10 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 		{
 			{ "any", _ => true },
 			{ "spell", _ => true },
+			{ "invisibility", x => x is SpellInvisibilityEffect },
+			{ "flight", x => x is IFlightEffect },
+			{ "levitation", x => x is ILevitationEffect },
+			{ "featherfall", x => x is IFallDamageMitigationEffect },
 			{ "magictag", x => x is IMagicTagEffect },
 			{ "itemenchant", x => x is SpellItemEnchantmentEffect },
 			{ "portal", x => x is SpellPortalEffect },
@@ -255,7 +259,7 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 	#3school <id|name|none>#0 - restricts matching to a magic school
 	#3tag <tag> [value]#0 - restricts matching to a magic tag, optionally including value
 	#3tag none#0 - clears tag matching
-	#3effect <key>#0 - restricts matching to an approved key: any, magictag, itemenchant, portal, planarstate, roomward, personalward, exitbarrier, subjectivedesc, transformform, projectile, crafttool, powerfuel, itemevent";
+	#3effect <key>#0 - restricts matching to an approved key: any, spell, invisibility, flight, levitation, featherfall, magictag, itemenchant, portal, planarstate, roomward, personalward, exitbarrier, subjectivedesc, transformform, projectile, crafttool, powerfuel, itemevent";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{

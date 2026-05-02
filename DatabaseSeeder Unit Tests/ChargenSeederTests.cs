@@ -183,6 +183,35 @@ public class ChargenSeederTests
 	}
 
 	[TestMethod]
+	public void ShouldSeedData_WithOnlyHelperRecords_ReturnsReadyToInstall()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context, 7);
+		long nextProgId = 10;
+		foreach (string progName in ChargenSeeder.AlwaysRequiredChargenProgNamesForTesting)
+		{
+			context.FutureProgs.Add(CreateProg(nextProgId++, progName, ProgVariableTypes.Number, "return 1"));
+		}
+
+		context.StaticConfigurations.AddRange(
+			new StaticConfiguration
+			{
+				SettingName = ChargenSeeder.SpecialApplicationCostStaticConfiguration,
+				Definition = "0"
+			},
+			new StaticConfiguration
+			{
+				SettingName = ChargenSeeder.SpecialApplicationResourceStaticConfiguration,
+				Definition = "0"
+			});
+		context.SaveChanges();
+		ChargenSeeder seeder = new();
+
+		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, seeder.ShouldSeedData(context));
+		Assert.AreEqual(SeederAssessmentStatus.ReadyToInstall, ((IDatabaseSeeder)seeder).AssessSeedData(context).Status);
+	}
+
+	[TestMethod]
 	public void SeedData_RerunDoesNotDuplicateChargenStagesOrDefaultStartingLocationRole()
 	{
 		using FuturemudDatabaseContext context = BuildContext();

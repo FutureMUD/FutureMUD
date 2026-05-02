@@ -100,6 +100,11 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             new XElement("DecayPoints", DecayPoints),
             new XElement("DecayState", (int)Decay),
             new XElement("EatenWeight", EatenWeight),
+            new XElement("Skinned", Skinned),
+            new XElement("ButcheredSubcategories",
+                from item in ButcheredSubcategories
+                select new XElement("Subcategory", item)
+            ),
             new XElement("TimeOfDeath", new XText(TimeOfDeath.ToString(CultureInfo.InvariantCulture)))
         ).ToString();
     }
@@ -114,6 +119,11 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         TimeOfDeath = DateTime.Parse(definition.Element("TimeOfDeath").Value, CultureInfo.InvariantCulture,
             DateTimeStyles.AssumeUniversal);
         EatenWeight = double.Parse(definition.Element("EatenWeight")?.Value ?? "0.0");
+        _skinned = bool.Parse(definition.Element("Skinned")?.Value ?? "false");
+        _butcheredSubcategories.AddRange(
+            definition.Element("ButcheredSubcategories")?.Elements("Subcategory")
+                      .Select(x => x.Value.NormaliseButcherySubcategory())
+                      .Where(x => !string.IsNullOrWhiteSpace(x)) ?? Enumerable.Empty<string>());
     }
 
     #region Constructors
@@ -154,6 +164,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         DecayPoints = rhs.DecayPoints;
         TimeOfDeath = rhs.TimeOfDeath;
         Skinned = rhs.Skinned;
+        _butcheredSubcategories.AddRange(rhs._butcheredSubcategories);
         if (!temporary)
         {
             SetupDecayListener();
@@ -369,6 +380,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
                 IGameItem newItem = proto.CreateNew(butcher);
                 newItem.RoomLayer = Parent.RoomLayer;
                 newItem.GetItemType<IStackable>().Quantity = quantity;
+                Gameworld.Add(newItem);
                 butcher.Location.Insert(newItem);
                 newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
                 newItem.Login();
@@ -393,16 +405,16 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         ICheck check = Gameworld.GetCheck(CheckType.ButcheryCheck);
         Butchering effect = butcher.EffectsOfType<Butchering>().First();
         foreach (IButcheryProduct product in OriginalCharacter.Race.ButcheryProfile.Products.Where(x =>
-                     !x.IsPelt && x.CanProduce(butcher, Parent) &&
+                     !x.IsPelt && x.AppliesTo(this) && x.CanProduce(butcher, Parent) &&
                      (string.IsNullOrEmpty(subcategory) || x.Subcategory.EqualTo(subcategory))))
         {
-            double damageRatio =
-                Parent.Wounds.Where(x => product.RequiredBodyparts.Contains(x.Bodypart)).Sum(x => x.CurrentDamage) /
-                product.RequiredBodyparts.Sum(x => OriginalBody.HitpointsForBodypart(x));
-            if (double.IsNaN(damageRatio))
-            {
-                damageRatio = 1.0;
-            }
+            List<IBodypart> productParts = product.MatchingBodyparts(this).ToList();
+            double totalHitpoints = productParts.Sum(x => OriginalBody.HitpointsForBodypart(x));
+            double damageRatio = totalHitpoints <= 0.0
+                ? 1.0
+                : Parent.Wounds.Where(x => productParts.Any(y => x.Bodypart.ButcheryBodypartMatches(y)))
+                        .Sum(x => x.CurrentDamage) /
+                  totalHitpoints;
 
             foreach (IButcheryProductItem item in product.ProductItems)
             {
@@ -437,7 +449,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
         if (!string.IsNullOrEmpty(subcategory))
         {
-            _butcheredSubcategories.Add(subcategory);
+            _butcheredSubcategories.Add(subcategory.NormaliseButcherySubcategory());
             Changed = true;
             return false;
         }
@@ -460,6 +472,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
                 IGameItem newItem = proto.CreateNew(skinner);
                 newItem.RoomLayer = Parent.RoomLayer;
                 newItem.GetItemType<IStackable>().Quantity = quantity;
+                Gameworld.Add(newItem);
                 skinner.Location.Insert(newItem);
                 newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
                 newItem.Login();
@@ -480,15 +493,15 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         ICheck check = Gameworld.GetCheck(CheckType.SkinningCheck);
         Skinning effect = skinner.EffectsOfType<Skinning>().First();
         foreach (IButcheryProduct product in OriginalCharacter.Race.ButcheryProfile.Products.Where(x =>
-                     x.IsPelt && x.CanProduce(skinner, Parent)))
+                     x.IsPelt && x.AppliesTo(this) && x.CanProduce(skinner, Parent)))
         {
-            double damageRatio =
-                Parent.Wounds.Where(x => product.RequiredBodyparts.Contains(x.Bodypart)).Sum(x => x.CurrentDamage) /
-                product.RequiredBodyparts.Sum(x => OriginalBody.HitpointsForBodypart(x));
-            if (double.IsNaN(damageRatio))
-            {
-                damageRatio = 1.0;
-            }
+            List<IBodypart> productParts = product.MatchingBodyparts(this).ToList();
+            double totalHitpoints = productParts.Sum(x => OriginalBody.HitpointsForBodypart(x));
+            double damageRatio = totalHitpoints <= 0.0
+                ? 1.0
+                : Parent.Wounds.Where(x => productParts.Any(y => x.Bodypart.ButcheryBodypartMatches(y)))
+                        .Sum(x => x.CurrentDamage) /
+                  totalHitpoints;
 
             foreach (IButcheryProductItem item in product.ProductItems)
             {

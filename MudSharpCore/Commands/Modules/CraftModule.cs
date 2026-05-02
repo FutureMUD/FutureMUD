@@ -1432,6 +1432,18 @@ Note: See the closely related #3projects#0 command for information about your cu
 
     #region Butchering
 
+    private static bool ButcheryEmotesNeedMissingTool(IRaceButcheryProfile profile,
+        IEnumerable<(string Emote, double Delay)> emotes)
+    {
+        return profile.RequiredToolTag is null &&
+               emotes.Any(x => x.Emote.Contains("$2", StringComparison.Ordinal));
+    }
+
+    private static IGameItem ButcheryToolFromPlanResults(IEnumerable<InventoryPlanActionResult> results)
+    {
+        return results.FirstOrDefault(x => x.ActionState == DesiredItemState.Held)?.PrimaryTarget;
+    }
+
     [PlayerCommand("Butcher", "butcher")]
     [RequiredCharacterState(CharacterState.Able)]
     [NoCombatCommand]
@@ -1481,10 +1493,10 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        string subcategory = ss.PopSpeech();
+        string subcategory = ss.PopSpeech().NormaliseButcherySubcategory();
         if (!string.IsNullOrEmpty(subcategory))
         {
-            if (!profile.Products.Where(x => x.Subcategory.EqualTo(subcategory)).Any(x => x.CanProduce(actor, target)))
+            if (!profile.Products.Where(x => !x.IsPelt && x.AppliesTo(targetAsButcherable) && x.Subcategory.EqualTo(subcategory)).Any(x => x.CanProduce(actor, target)))
             {
                 actor.Send(
                     $"{target.HowSeen(actor, true)} does not contain any such subcategory of things for you to butcher.");
@@ -1499,11 +1511,26 @@ Note: See the closely related #3projects#0 command for information about your cu
             }
         }
 
+        if (!profile.HasBreakdown(subcategory))
+        {
+            actor.Send(
+                $"{target.HowSeen(actor, true)} does not have a complete {(string.IsNullOrEmpty(subcategory) ? "main" : subcategory.ColourName())} butchery breakdown configured.");
+            return;
+        }
+
+        var breakdownEmotes = profile.BreakdownEmotes(subcategory).ToList();
+        if (ButcheryEmotesNeedMissingTool(profile, breakdownEmotes))
+        {
+            actor.Send(
+                $"{target.HowSeen(actor, true)} cannot be butchered because this butchery profile has no required tool but its breakdown emotes refer to a tool.");
+            return;
+        }
+
         IInventoryPlan plan = profile.ToolTemplate.CreatePlan(actor);
         IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
         actor.AddEffect(
             new Butchering(actor, targetAsButcherable, subcategory,
-                results.First(x => x.ActionState == DesiredItemState.Held).PrimaryTarget), TimeSpan.FromSeconds(10));
+                ButcheryToolFromPlanResults(results)), TimeSpan.FromSeconds(10));
         actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to butcher $0.", actor, target)));
         plan.FinalisePlanNoRestore();
     }
@@ -1558,10 +1585,10 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        string subcategory = ss.PopSpeech();
+        string subcategory = ss.PopSpeech().NormaliseButcherySubcategory();
         if (!string.IsNullOrEmpty(subcategory))
         {
-            if (!profile.Products.Where(x => x.Subcategory.EqualTo(subcategory)).Any(x => x.CanProduce(actor, target)))
+            if (!profile.Products.Where(x => !x.IsPelt && x.AppliesTo(targetAsButcherable) && x.Subcategory.EqualTo(subcategory)).Any(x => x.CanProduce(actor, target)))
             {
                 actor.Send(
                     $"{target.HowSeen(actor, true)} does not contain any such subcategory of things for you to salvage.");
@@ -1576,11 +1603,26 @@ Note: See the closely related #3projects#0 command for information about your cu
             }
         }
 
+        if (!profile.HasBreakdown(subcategory))
+        {
+            actor.Send(
+                $"{target.HowSeen(actor, true)} does not have a complete {(string.IsNullOrEmpty(subcategory) ? "main" : subcategory.ColourName())} salvage breakdown configured.");
+            return;
+        }
+
+        var breakdownEmotes = profile.BreakdownEmotes(subcategory).ToList();
+        if (ButcheryEmotesNeedMissingTool(profile, breakdownEmotes))
+        {
+            actor.Send(
+                $"{target.HowSeen(actor, true)} cannot be salvaged because this butchery profile has no required tool but its breakdown emotes refer to a tool.");
+            return;
+        }
+
         IInventoryPlan plan = profile.ToolTemplate.CreatePlan(actor);
         IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
         actor.AddEffect(
             new Butchering(actor, targetAsButcherable, subcategory,
-                results.First(x => x.ActionState == DesiredItemState.Held).PrimaryTarget), TimeSpan.FromSeconds(10));
+                ButcheryToolFromPlanResults(results)), TimeSpan.FromSeconds(10));
         actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to salvage $0.", actor, target)));
         plan.FinalisePlanNoRestore();
     }
@@ -1628,7 +1670,7 @@ Note: See the closely related #3projects#0 command for information about your cu
         }
 
         IRaceButcheryProfile profile = targetAsButcherable.OriginalCharacter.Race.ButcheryProfile;
-        if (!profile.Products.Where(x => x.IsPelt).Any(x => x.CanProduce(actor, target)))
+        if (!profile.Products.Where(x => x.IsPelt && x.AppliesTo(targetAsButcherable)).Any(x => x.CanProduce(actor, target)))
         {
             actor.Send($"{target.HowSeen(actor, true)} does not have a pelt that you can remove intact.");
             return;
@@ -1646,12 +1688,27 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
+        var skinEmotes = profile.SkinEmotes.ToList();
+        if (!skinEmotes.Any())
+        {
+            actor.Send($"{target.HowSeen(actor, true)} does not have a complete skinning process configured.");
+            return;
+        }
+
+        if (ButcheryEmotesNeedMissingTool(profile, skinEmotes))
+        {
+            actor.Send(
+                $"{target.HowSeen(actor, true)} cannot be skinned because this butchery profile has no required tool but its skinning emotes refer to a tool.");
+            return;
+        }
+
         IInventoryPlan plan = profile.ToolTemplate.CreatePlan(actor);
         IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
-        IGameItem tool = results.First(x => x.ActionState == DesiredItemState.Held).PrimaryTarget;
+        IGameItem tool = ButcheryToolFromPlanResults(results);
         actor.AddEffect(new Skinning(actor, targetAsButcherable, tool), TimeSpan.FromSeconds(10));
-        actor.OutputHandler.Handle(
-            new EmoteOutput(new Emote("@ begin|begins to skin $0 with $1.", actor, target, tool)));
+        actor.OutputHandler.Handle(tool is null
+            ? new EmoteOutput(new Emote("@ begin|begins to skin $0.", actor, target))
+            : new EmoteOutput(new Emote("@ begin|begins to skin $0 with $1.", actor, target, tool)));
         plan.FinalisePlanNoRestore();
     }
 

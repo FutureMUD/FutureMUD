@@ -95,7 +95,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
         Gameworld = gameworld;
         _id = product.Id;
         _name = product.Name;
-        Subcategory = product.Subcategory.ToLowerInvariant();
+        Subcategory = product.Subcategory.NormaliseButcherySubcategory();
         TargetBody = gameworld.BodyPrototypes.Get(product.TargetBodyId);
         foreach (ButcheryProductsBodypartProtos item in product.ButcheryProductsBodypartProtos)
         {
@@ -183,12 +183,12 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
 	#3part <which>#0 - toggles requiring the corpse to have this bodypart
 	#3prog <which>#0 - sets the prog that controls whether the item is produced
 	#3item add <number> <proto> [<number> <damaged> <damage%>]#0 - adds a new item product
-	#3item delete <##>#0 - deletes an item product
-	#3item <##> quantity <number>#0 - changes the quantity of items produced
-	#3item <##> proto <id>#0 - changes the proto produced
-	#3item <##> threshold <%>#0 - changes the damage percentage for normal/damaged items
-	#3item <##> damaged <quantity> <proto>#0 - changes the damaged proto
-	#3item <##> nodamaged#0 - clears the damaged proto";
+	#3item delete <id|##>#0 - deletes an item product
+	#3item <id|##> quantity <number>#0 - changes the quantity of items produced
+	#3item <id|##> proto <id>#0 - changes the proto produced
+	#3item <id|##> threshold <%>#0 - changes the damage percentage for normal/damaged items
+	#3item <id|##> damaged <quantity> <proto>#0 - changes the damaged proto
+	#3item <id|##> nodamaged#0 - clears the damaged proto";
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
         switch (command.PopForSwitch())
@@ -239,7 +239,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
             return false;
         }
 
-        IButcheryProductItem product = ProductItems.FirstOrDefault(x => x.Id == index);
+        IButcheryProductItem product = GetProductItemByIdOrOrdinal(index);
         if (product is null)
         {
             actor.OutputHandler.Send("This product has no such product item.");
@@ -268,13 +268,25 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
             default:
                 actor.OutputHandler.Send(@"You can use the following options to edit the product items:
 
-	#3item <##> quantity <number>#0 - changes the quantity of items produced
-	#3item <##> proto <id>#0 - changes the proto produced
-	#3item <##> threshold <%>#0 - changes the damage percentage for normal/damaged items
-	#3item <##> damaged <quantity> <proto>#0 - changes the damaged proto
-	#3item <##> nodamaged#0 - clears the damaged proto".SubstituteANSIColour());
+	#3item <id|##> quantity <number>#0 - changes the quantity of items produced
+	#3item <id|##> proto <id>#0 - changes the proto produced
+	#3item <id|##> threshold <%>#0 - changes the damage percentage for normal/damaged items
+	#3item <id|##> damaged <quantity> <proto>#0 - changes the damaged proto
+	#3item <id|##> nodamaged#0 - clears the damaged proto".SubstituteANSIColour());
                 return false;
         }
+    }
+
+    private IButcheryProductItem GetProductItemByIdOrOrdinal(long value)
+    {
+        IButcheryProductItem product = ProductItems.FirstOrDefault(x => x.Id == value);
+        if (product is not null)
+        {
+            return product;
+        }
+
+        List<IButcheryProductItem> products = ProductItems.ToList();
+        return value >= 1 && value <= products.Count ? products[(int)value - 1] : null;
     }
 
     private bool BuildingCommandNoDamaged(ICharacter actor, StringStack command, IButcheryProductItem product)
@@ -341,9 +353,11 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
             return false;
         }
 
-        if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out double percentage))
+        if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out double percentage) ||
+            percentage < 0.0 ||
+            percentage > 1.0)
         {
-            actor.OutputHandler.Send("That is not a valid percentage.");
+            actor.OutputHandler.Send("That is not a valid percentage between 0% and 100%.");
             return false;
         }
 
@@ -414,13 +428,13 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
             return false;
         }
 
-        if (!long.TryParse(command.Last, out long index))
+        if (!long.TryParse(command.PopSpeech(), out long index))
         {
             actor.OutputHandler.Send("That is not a valid ID.");
             return false;
         }
 
-        IButcheryProductItem product = ProductItems.FirstOrDefault(x => x.Id == index);
+        IButcheryProductItem product = GetProductItemByIdOrOrdinal(index);
         if (product is null)
         {
             actor.OutputHandler.Send("This product has no such product item.");
@@ -453,7 +467,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
             return false;
         }
 
-        if (!long.TryParse(command.SafeRemainingArgument, out long id))
+        if (!long.TryParse(command.PopSpeech(), out long id))
         {
             actor.OutputHandler.Send("You must enter a valid ID number for the item prototype.");
             return false;
@@ -488,7 +502,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
                 return false;
             }
 
-            if (!long.TryParse(command.SafeRemainingArgument, out long damagedId))
+            if (!long.TryParse(command.PopSpeech(), out long damagedId))
             {
                 actor.OutputHandler.Send("You must enter a valid ID number for the damaged item prototype.");
                 return false;
@@ -511,16 +525,19 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
         double percentage = 1.0;
         if (!command.IsFinished)
         {
-            if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out percentage))
+            if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out percentage) ||
+                percentage < 0.0 ||
+                percentage > 1.0)
             {
-                actor.OutputHandler.Send("That is not a valid percentage.");
+                actor.OutputHandler.Send("That is not a valid percentage between 0% and 100%.");
                 return false;
             }
         }
 
         ButcheryProductItem productItem = new(this, proto, quantity, damagedProto, damagedQuantity, percentage);
         _productItems.Add(productItem);
-        actor.OutputHandler.Send($"You create	");
+        actor.OutputHandler.Send(
+            $"You add product item #{productItem.Id.ToString("N0", actor)}: {quantity.ToString("N0", actor)}x {proto.EditHeader().ColourObject()}{(damagedProto is null ? "" : $" or {damagedQuantity.ToString("N0", actor)}x {damagedProto.EditHeader().ColourObject()} above {percentage.ToString("P2", actor).ColourValue()} damage")}.");
         return true;
     }
 
@@ -553,7 +570,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
             return false;
         }
 
-        if (command.SafeRemainingArgument.EqualTo("clear"))
+        if (command.SafeRemainingArgument.EqualToAny("clear", "none", "remove"))
         {
             Subcategory = "";
             Changed = true;
@@ -561,7 +578,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
             return true;
         }
 
-        Subcategory = command.SafeRemainingArgument.ToLowerInvariant();
+        Subcategory = command.SafeRemainingArgument.NormaliseButcherySubcategory();
         Changed = true;
         actor.OutputHandler.Send($"This product now belongs to the {Subcategory.ColourValue()} subcategory.");
         return true;
@@ -656,6 +673,12 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
 
         if (_requiredBodyparts.Contains(part))
         {
+            if (_requiredBodyparts.Count == 1)
+            {
+                actor.OutputHandler.Send("You cannot remove the last required bodypart from a butchery product.");
+                return false;
+            }
+
             _requiredBodyparts.Remove(part);
             actor.OutputHandler.Send($"This product no longer requires the {part.FullDescription().ColourValue()} bodypart.");
         }
@@ -719,6 +742,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
             select new List<string>
             {
                 i++.ToString("N0", voyeur),
+                product.Id.ToString("N0", voyeur),
                 $"{product.NormalQuantity.ToString("N0", voyeur)}x {product.NormalProto.EditHeader()}",
                 product.DamagedProto != null
                     ? $"{product.DamagedQuantity.ToString("N0", voyeur)}x {product.DamagedProto.EditHeader()}"
@@ -728,6 +752,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
             new List<string>
             {
                 "No.",
+                "Id",
                 "Item",
                 "Damaged Item",
                 "Threshold"

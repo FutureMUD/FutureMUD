@@ -41,10 +41,10 @@ You can use the following options with this command:
 	#3butchery edit#0 - an alias for #3butchery show#0 on an opened butchery profile
 	#3butchery clone <which> <name>#0 - clones a butchery profile to a new one
 	#3butchery shallowclone <which> <name>#0 - clones a butchery profile to a new one (excluding products)
-	#3butchery close#0 - closes the currently edited foragable profile
+	#3butchery close#0 - closes the currently edited butchery profile
 	#3butchery set name <name>#0 - renames this profile
 	#3butchery set verb butcher|salvage#0 - changes the verb used for interacting with these corpses
-	#3butchery set tool <tag>#0 - sets the tag of tools required to interact with this
+	#3butchery set tool <tag>|none#0 - sets or clears the tag of tools required to interact with this
 	#3butchery set skindiff <difficulty>#0 - sets the difficulty of the skinning check
 	#3butchery set can <prog>#0 - sets a prog to control whether someone can butcher this
 	#3butchery set why <prog>#0 - sets a prog for a custom error message on can butcher failure
@@ -113,10 +113,48 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 
     protected static void ButcheringList(ICharacter actor, StringStack ss)
     {
-        List<IRaceButcheryProfile> items = actor.Gameworld.RaceButcheryProfiles.ToList();
-        // filters
-        actor.OutputHandler.Send(StringUtilities.GetTextTable(
-            from item in items
+        IEnumerable<IRaceButcheryProfile> items = actor.Gameworld.RaceButcheryProfiles;
+        List<string> filters = new();
+        while (!ss.IsFinished)
+        {
+            string filter = ss.PopSpeech();
+            if (string.IsNullOrWhiteSpace(filter))
+            {
+                continue;
+            }
+
+            string text = filter.Length > 1 ? filter[1..] : string.Empty;
+            switch (filter[0])
+            {
+                case '+':
+                    if (string.IsNullOrWhiteSpace(text))
+                    {
+                        actor.OutputHandler.Send($"The text {filter.ColourCommand()} is not a valid filter.");
+                        return;
+                    }
+
+                    items = items.Where(x => x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+                    filters.Add($"including {text.ColourCommand()}");
+                    continue;
+                case '-':
+                    if (string.IsNullOrWhiteSpace(text))
+                    {
+                        actor.OutputHandler.Send($"The text {filter.ColourCommand()} is not a valid filter.");
+                        return;
+                    }
+
+                    items = items.Where(x => !x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+                    filters.Add($"excluding {text.ColourCommand()}");
+                    continue;
+                default:
+                    actor.OutputHandler.Send($"The text {filter.ColourCommand()} is not a valid filter.");
+                    return;
+            }
+        }
+
+        List<IRaceButcheryProfile> itemList = items.ToList();
+        actor.OutputHandler.Send($"Butchery Profiles{(filters.Any() ? $" ({filters.ListToString()})" : "")}:\n" + StringUtilities.GetTextTable(
+            from item in itemList
             select new List<string>
             {
                 item.Id.ToString("N0", actor),
@@ -314,12 +352,12 @@ You can use the following options with this command:
 	#3butcheringproduct set part <which>#0 - toggles requiring the corpse to have this bodypart
 	#3butcheringproduct set prog <which>#0 - sets the prog that controls whether the item is produced
 	#3butcheringproduct set item add <number> <proto> [<number> <damaged> <damage%>]#0 - adds a new item product
-	#3butcheringproduct set item delete <##>#0 - deletes an item product
-	#3butcheringproduct set item <##> quantity <number>#0 - changes the quantity of items produced
-	#3butcheringproduct set item <##> proto <id>#0 - changes the proto produced
-	#3butcheringproduct set item <##> threshold <%>#0 - changes the damage percentage for normal/damaged items
-	#3butcheringproduct set item <##> damaged <quantity> <proto>#0 - changes the damaged proto
-	#3butcheringproduct set item <##> nodamaged#0 - clears the damaged proto";
+	#3butcheringproduct set item delete <id|##>#0 - deletes an item product
+	#3butcheringproduct set item <id|##> quantity <number>#0 - changes the quantity of items produced
+	#3butcheringproduct set item <id|##> proto <id>#0 - changes the proto produced
+	#3butcheringproduct set item <id|##> threshold <%>#0 - changes the damage percentage for normal/damaged items
+	#3butcheringproduct set item <id|##> damaged <quantity> <proto>#0 - changes the damaged proto
+	#3butcheringproduct set item <id|##> nodamaged#0 - clears the damaged proto";
 
     [PlayerCommand("ButcheryProduct", "butcheringproduct", "butcheryproduct")]
     [CommandPermission(PermissionLevel.Admin)]
@@ -356,10 +394,52 @@ You can use the following options with this command:
 
     protected static void ButcheryProductList(ICharacter actor, StringStack ss)
     {
-        List<IButcheryProduct> items = actor.Gameworld.ButcheryProducts.ToList();
-        // filters
-        actor.OutputHandler.Send(StringUtilities.GetTextTable(
-            from item in items
+        IEnumerable<IButcheryProduct> items = actor.Gameworld.ButcheryProducts;
+        List<string> filters = new();
+        while (!ss.IsFinished)
+        {
+            string filter = ss.PopSpeech();
+            if (string.IsNullOrWhiteSpace(filter))
+            {
+                continue;
+            }
+
+            string text = filter.Length > 1 ? filter[1..] : string.Empty;
+            switch (filter[0])
+            {
+                case '+':
+                    if (string.IsNullOrWhiteSpace(text))
+                    {
+                        actor.OutputHandler.Send($"The text {filter.ColourCommand()} is not a valid filter.");
+                        return;
+                    }
+
+                    items = items.Where(x =>
+                        x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase) ||
+                        (x.Subcategory?.Contains(text, StringComparison.InvariantCultureIgnoreCase) ?? false));
+                    filters.Add($"including {text.ColourCommand()}");
+                    continue;
+                case '-':
+                    if (string.IsNullOrWhiteSpace(text))
+                    {
+                        actor.OutputHandler.Send($"The text {filter.ColourCommand()} is not a valid filter.");
+                        return;
+                    }
+
+                    items = items.Where(x =>
+                        !x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase) &&
+                        !(x.Subcategory?.Contains(text, StringComparison.InvariantCultureIgnoreCase) ?? false));
+                    filters.Add($"excluding {text.ColourCommand()}");
+                    continue;
+                default:
+                    actor.OutputHandler.Send($"The text {filter.ColourCommand()} is not a valid filter.");
+                    return;
+            }
+        }
+
+        List<IButcheryProduct> itemList = items.ToList();
+        actor.OutputHandler.Send($"Butchery Products{(filters.Any() ? $" ({filters.ListToString()})" : "")}:\n" + StringUtilities.GetTextTable(
+            from item in itemList
             select new List<string>
             {
                 item.Id.ToString("N0", actor),

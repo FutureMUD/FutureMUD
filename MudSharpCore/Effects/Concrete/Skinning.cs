@@ -71,7 +71,9 @@ public class Skinning : StagedCharacterActionWithTarget, IAffectProximity
             Profile.DifficultySkin);
         List<(string Emote, double Delay)> emotesAndDelays = Profile.SkinEmotes.ToList();
         Emotes = new Queue<string>(emotesAndDelays.Select(x => x.Emote));
-        TimesBetweenTicks = new Queue<TimeSpan>(emotesAndDelays.Select(x => TimeSpan.FromMilliseconds(x.Delay)));
+        TimesBetweenTicks = new Queue<TimeSpan>(emotesAndDelays
+                                                .Take(Math.Max(0, emotesAndDelays.Count - 1))
+                                                .Select(x => TimeSpan.FromSeconds(x.Delay)));
 
         void IntermediateStepAction(IPerceivable perceivable)
         {
@@ -115,8 +117,11 @@ public class Skinning : StagedCharacterActionWithTarget, IAffectProximity
         base.SetupEventHandlers();
         if (Tool != null)
         {
+            Tool.OnDeleted -= ToolGone;
             Tool.OnDeleted += ToolGone;
+            Tool.OnQuit -= ToolGone;
             Tool.OnQuit += ToolGone;
+            CharacterOwner.Body.OnInventoryChange -= CheckInventoryChange;
             CharacterOwner.Body.OnInventoryChange += CheckInventoryChange;
         }
 
@@ -130,7 +135,7 @@ public class Skinning : StagedCharacterActionWithTarget, IAffectProximity
             return;
         }
 
-        if (newState != InventoryState.Wielded || newState != InventoryState.Held)
+        if (newState != InventoryState.Wielded && newState != InventoryState.Held)
         {
             ToolGone(item);
         }

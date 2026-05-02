@@ -1667,7 +1667,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
-        count = products.Count;
+        count = profiles.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Profile" : "Profiles");
     }
 

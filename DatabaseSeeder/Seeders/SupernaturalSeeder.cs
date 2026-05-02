@@ -471,9 +471,9 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		race.CanSwim = template.CanSwim;
 		race.MinimumSleepingPosition = _humanRace.MinimumSleepingPosition;
 		race.ChildAge = template.NeedsProfile == SupernaturalNeedsProfile.Living ? 2 : 0;
-		race.YouthAge = template.NeedsProfile == SupernaturalNeedsProfile.Living ? 6 : 0;
-		race.YoungAdultAge = template.NeedsProfile == SupernaturalNeedsProfile.Living ? 12 : 0;
-		race.AdultAge = template.NeedsProfile == SupernaturalNeedsProfile.Living ? 18 : 1;
+		race.YouthAge = template.NeedsProfile == SupernaturalNeedsProfile.Living ? 6 : 1;
+		race.YoungAdultAge = template.NeedsProfile == SupernaturalNeedsProfile.Living ? 12 : 2;
+		race.AdultAge = template.NeedsProfile == SupernaturalNeedsProfile.Living ? 18 : 3;
 		race.ElderAge = template.NeedsProfile == SupernaturalNeedsProfile.Living ? 65 : 1000;
 		race.VenerableAge = template.NeedsProfile == SupernaturalNeedsProfile.Living ? 95 : 10000;
 		race.DefaultHeightWeightModelMale = _humanRace.DefaultHeightWeightModelMale;

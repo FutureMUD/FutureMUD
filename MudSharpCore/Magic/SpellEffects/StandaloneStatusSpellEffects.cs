@@ -224,9 +224,18 @@ public class SleepEffect : CharacterSpellEffectTemplateBase
 
 	protected SleepEffect(XElement root, IMagicSpell spell) : base(root, spell) { }
 
-	protected override IMagicSpellEffect CreateEffect(ICharacter caster, ICharacter target, OpposedOutcomeDegree outcome,
+	protected override IMagicSpellEffect? CreateEffect(ICharacter caster, ICharacter target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
-		=> new SpellSleepEffect(target, parent);
+	{
+		var sleepBlocker = target.EffectsOfType<IPreventSleepEffect>().FirstOrDefault();
+		if (sleepBlocker is not null)
+		{
+			target.OutputHandler.Send(sleepBlocker.SleepPreventionEcho);
+			return null;
+		}
+
+		return new SpellSleepEffect(target, parent);
+	}
 
 	public override IMagicSpellEffectTemplate Clone() => new SleepEffect(SaveToXml(), Spell);
 }
@@ -255,6 +264,60 @@ public class RemoveSleepEffect : CharacterSpellEffectRemovalTemplateBase
 	protected override void RemoveEffects(ICharacter target) => target.RemoveAllEffects<SpellSleepEffect>(null, true);
 
 	public override IMagicSpellEffectTemplate Clone() => new RemoveSleepEffect(SaveToXml(), Spell);
+}
+
+public class InsomniaEffect : CharacterSpellEffectTemplateBase
+{
+	public static void RegisterFactory()
+	{
+		SpellEffectFactory.RegisterLoadTimeFactory("insomnia", (root, spell) => new InsomniaEffect(root, spell));
+		SpellEffectFactory.RegisterBuilderFactory("insomnia", BuilderFactory,
+			"Prevents the target from sleeping",
+			"",
+			false,
+			true,
+			StandaloneSpellEffectTemplateHelper.CharacterTriggerTypes);
+	}
+
+	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands, IMagicSpell spell)
+		=> (new InsomniaEffect(new XElement("Effect", new XAttribute("type", "insomnia")), spell), string.Empty);
+
+	protected override string BuilderEffectType => "insomnia";
+	protected override string ShowText => "Insomnia";
+
+	protected InsomniaEffect(XElement root, IMagicSpell spell) : base(root, spell) { }
+
+	protected override IMagicSpellEffect CreateEffect(ICharacter caster, ICharacter target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+		=> new SpellInsomniaEffect(target, parent);
+
+	public override IMagicSpellEffectTemplate Clone() => new InsomniaEffect(SaveToXml(), Spell);
+}
+
+public class RemoveInsomniaEffect : CharacterSpellEffectRemovalTemplateBase
+{
+	public static void RegisterFactory()
+	{
+		SpellEffectFactory.RegisterLoadTimeFactory("removeinsomnia", (root, spell) => new RemoveInsomniaEffect(root, spell));
+		SpellEffectFactory.RegisterBuilderFactory("removeinsomnia", BuilderFactory,
+			"Removes magical insomnia from the target",
+			"",
+			true,
+			true,
+			StandaloneSpellEffectTemplateHelper.CharacterTriggerTypes);
+	}
+
+	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands, IMagicSpell spell)
+		=> (new RemoveInsomniaEffect(new XElement("Effect", new XAttribute("type", "removeinsomnia")), spell), string.Empty);
+
+	protected override string BuilderEffectType => "removeinsomnia";
+	protected override string ShowText => "Remove Insomnia";
+
+	protected RemoveInsomniaEffect(XElement root, IMagicSpell spell) : base(root, spell) { }
+
+	protected override void RemoveEffects(ICharacter target) => target.RemoveAllEffects<SpellInsomniaEffect>(null, true);
+
+	public override IMagicSpellEffectTemplate Clone() => new RemoveInsomniaEffect(SaveToXml(), Spell);
 }
 
 public class FearEffect : CharacterSpellEffectTemplateBase

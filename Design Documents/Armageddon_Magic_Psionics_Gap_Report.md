@@ -27,6 +27,7 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 - Status update as of 2026-05-01 Engine V1: generic magic tags, FutureProg tag queries, first-class item and corpse magic effects, transient paired magical portals, safe command-forcing, and caster-scoped subjective description overrides are now implemented as engine primitives. This moves marks, rune anchors, basic portals, item damage/destruction/enchantment, corpse preservation/consumption/spawn, and the safest coercion/subjective-description cases out of the blocked bucket. Persistent portal topology, general dispel, true possession/projection, passive psionic traffic, and identity-concealment systems remain open.
 - Status update as of 2026-05-02 Engine V2: `dispelmagic`, `mindconceal`, transient portal inspection, item/object portal anchors, and first-class item enchantment hooks for projectile payloads, crafting tools, power/fuel modifiers, and item event progs are now live. Passive psionic traffic can use the existing `telepathy` flow with `mindconceal` identity policy. Persistent gates still use saved effects rather than a dedicated gate table, and true simultaneous-body possession/projection remains deferred.
 - Status update as of 2026-05-02 Wind engine slice: the Wind list now has first-class spell support for `levitate`, `featherfall`, `forcedpathmovement` / `handsofwind`, `transference`, and `removeinvisibility` / `dispelinvisibility`. Existing `detectinvisible` and `flying` effects are retained, with invisibility persistence fixed and magical flight expiry now rechecking remaining flight sources before dropping the target.
+- Status update as of 2026-05-03 Engine V3 edge set: `detectpoison`, `insomnia` / `removeinsomnia`, `removeblindness` / `cureblindness`, and optional strength-contested `dispelmagic` matching are now live. `detectpoison` reports active and latent drug dosages with the same fields as the staff `drugs` command, while contested dispels are opt-in and legacy saved spell effects default to standard strength.
 
 > Note: the top-line parity counts and family summary in this report predate the Phase 1, Phase 2, plane/corporeality, and body-form implementation work. If exact current counts are needed, rerun the family-by-family classification pass. The implementation-plan and primitive-gap sections below reflect the current runtime state.
 
@@ -82,6 +83,7 @@ The current system already has good coverage for:
 - transient paired magical portals through `portal`, backed by effect-owned exit-manager registration rather than permanent database exits, with active inspection and caster-owned room or item/object anchors
 - psionic identity concealment and passive thought/feeling traffic through `mindconceal` and the existing `telepathy` flow
 - Wind movement and fall-control effects through `levitate`, `featherfall`, `forcedpathmovement` / `handsofwind`, `transference`, and `removeinvisibility` / `dispelinvisibility`
+- V3 edge statuses through `detectpoison`, `insomnia`, `removeinsomnia`, `removeblindness` / `cureblindness`, and optional strength-contested `dispelmagic`
 - Coercion V1 through `forcecommand`, `subjectivedesc`, and `subjectivesdesc`
 
 ## Current Reclassification From Planes And Body Forms
@@ -123,12 +125,12 @@ Phase 1 shipped standalone spell-effect templates and matching standalone remova
 
 These are intentionally separate builder-visible types rather than a single enum-driven status template. `poison` and `disease` are also spell-owned payloads with origin metadata so matching removers only clear the payload created by the configured spell effect.
 
-The remaining gap inside this primitive family is now the unimplemented edge set rather than the basic reusable states:
+The V3 edge set in this primitive family is now implemented:
 
-- `detect poison`
-- `insomnia`
-- cure blindness
-- strength-contested dispel math beyond the current `dispelmagic` criteria model
+- `detect poison` uses `detectpoison`, an instantaneous character-targeted spell effect that reports active and latent drug dosages.
+- `insomnia` / `removeinsomnia` prevents voluntary sleep and blocks magical sleep from taking hold.
+- `cure blindness` uses `removeblindness` or its load/builder alias `cureblindness`.
+- strength-contested dispels are available as an opt-in `dispelmagic` mode layered over the existing criteria model.
 
 ### 2. Magic and psionic resource delta effects
 
@@ -458,10 +460,9 @@ Engine V2 has shipped the deeper parity layer without jumping into simultaneous-
 
 ## Recommended Next Shipping Slice After Engine V2
 
-The next work should focus on the pieces Engine V2 deliberately left outside the slice:
+Engine V3 has now shipped the small edge-status slice that sat outside Engine V2: poison detection, insomnia, cure blindness, and optional strength-contested dispel matching. The next remaining work should focus on the larger pieces Engine V2 deliberately left outside the slice:
 
 - durable portal/rune topology if saved effects and transient exits are not enough for standing gate networks
-- strength-contested dispel math if author criteria plus normal spell resistance is not enough
 - richer illusion stacking and perception policy
 - advanced psionic coercion and trace consequences
 - the simultaneous-body possession/projection model

@@ -390,8 +390,17 @@ General dispels use `dispelmagic`. It can either remove matching spell-parent ef
 - caster policy: own, any, or others
 - magic tag and optional tag value
 - approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `transformform`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
+- optional strength contest
 
 The default policy is caster-owned cleanup. Hostile dispels must be explicitly configured with hostile matching and then travel through the ordinary spell targeting, ward, and resistance flow.
+
+Strength-contested dispels are off by default. When enabled with `contest`, the dispel compares the dispel cast strength (`power + opposed outcome + bonus`) against the saved target spell strength (`power + opposed outcome`). Ties succeed. Legacy saved spell effects load as standard-strength effects with no opposed-outcome bonus.
+
+The Engine V3 edge-status slice adds:
+
+- `detectpoison`: instantly reports a character's active and latent drug dosages, including drug IDs, localized mass, and latent delivery vector.
+- `insomnia` / `removeinsomnia`: prevents voluntary sleep and blocks magical sleep while active.
+- `removeblindness` / `cureblindness`: removes spell-owned blindness; `cureblindness` saves as `removeblindness`.
 
 Portals remain saved spell effects, not database exits or a gate table. The `portal` effect creates paired transient exits registered with `IExitManager`; active magical portals expose `IMagicPortalExit` metadata and can be inspected with `magic portals`. Anchor tags can be placed on rooms or items/objects with `magictag`; `portal` resolves caster-owned room anchors first, then caster-owned item anchors by using the item location. Builders can inspect active anchors with `magic anchors [tag]`.
 
@@ -545,14 +554,16 @@ Important implementation note:
 | `createliquid` | `CreateLiquidEffect` | Creates a liquid |
 | `createnpc` | `CreateNPCEffect` | Creates an NPC |
 | `curse` | `CurseEffect` | Applies a spell-owned curse effect |
+| `cureblindness` | `RemoveBlindnessEffect` | Builder/load alias for `removeblindness` |
 | `damage` | `DamageEffect` | Deals damage |
 | `deafness` | `DeafnessEffect` | Applies deafness |
 | `detectethereal` | `DetectEtherealEffect` | Grants ethereal visual and sensing perception |
 | `detectinvisible` | `DetectInvisibleEffect` | Grants magical vision that can pierce ordinary invisibility |
 | `detectmagick` | `DetectMagickEffect` | Grants magical sensing and visible aura readouts in ordinary descriptions |
+| `detectpoison` | `DetectPoisonEffect` | Reports active and latent drug dosages on a character |
 | `disease` | `DiseaseEffect` | Applies a configurable spell-owned systemic infection |
 | `dispelinvisibility` | `RemoveInvisibilityEffect` | Builder/load alias for `removeinvisibility` |
-| `dispelmagic` | `DispelMagicEffect` | Removes or shortens matching saved spell effects by caster policy, spell, school/subschool, magic tag, or approved effect key |
+| `dispelmagic` | `DispelMagicEffect` | Removes or shortens matching saved spell effects by caster policy, spell, school/subschool, magic tag, approved effect key, or optional strength contest |
 | `destroyitem` | `DestroyItemEffect` | Deletes item targets with purge-warning safeguards |
 | `executeprog` | `ExecuteProgEffect` | Executes a supporting prog |
 | `exitbarrier` | `ExitBarrierEffect` | Applies a persistent magical barrier to a targeted exit |
@@ -566,6 +577,7 @@ Important implementation note:
 | `heal` | `HealEffect` | Heals damage |
 | `healingrate` | `HealingRateSpellEffect` | Alters healing rate |
 | `infravision` | `InfravisionEffect` | Grants infrared vision and a darkness difficulty floor |
+| `insomnia` | `InsomniaEffect` | Prevents voluntary and magical sleep |
 | `invisibility` | `InvisibilityEffect` | Applies invisibility |
 | `itemdamage` | `ItemDamageEffect` | Damages an item with configured damage, pain, stun, and damage type |
 | `itemenchant` | `ItemEnchantEffect` | Adds aura/glow, weapon/armour bonuses, projectile payload bonuses, craft-tool bonuses, power/fuel modifiers, and optional item event progs |
@@ -584,6 +596,7 @@ Important implementation note:
 | `portal` | `PortalSpellEffect` | Creates an effect-owned paired transient portal between the caster's room and a target room, room anchor, or item/object anchor |
 | `rage` | `RageSpellEffect` | Applies rage |
 | `relocate` | `RelocateEffect` | Relocates a target |
+| `removeblindness` | `RemoveBlindnessEffect` | Removes spell-owned blindness effects |
 | `removecomprehendlanguage` | `RemoveComprehendLanguageEffect` | Removes magical language-comprehension effects |
 | `removecurse` | `RemoveCurseEffect` | Removes matching magical curse effects |
 | `removedetectethereal` | `RemoveDetectEtherealEffect` | Removes magical ethereal perception effects |
@@ -594,6 +607,7 @@ Important implementation note:
 | `removeflying` | `RemoveFlyingEffect` | Removes magical flight-granting effects |
 | `removeinvisibility` | `RemoveInvisibilityEffect` | Removes spell-owned invisibility effects without removing unrelated spell effects |
 | `removeinfravision` | `RemoveInfravisionEffect` | Removes magical infravision effects |
+| `removeinsomnia` | `RemoveInsomniaEffect` | Removes magical insomnia effects |
 | `removemagictag` | `RemoveMagicTagEffect` | Removes matching spell-owned magic tags by key and optional value |
 | `removeparalysis` | `RemoveParalysisEffect` | Removes magical paralysis effects |
 | `removeplanarstate` | `RemovePlanarStateSpellEffect` | Removes spell-owned and saved planar-state overlays |

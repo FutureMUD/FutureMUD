@@ -1058,21 +1058,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
             return;
         }
 
-        StringBuilder sb = new();
-        sb.AppendLine($"Drugs for {target.HowSeen(actor)}:");
-        foreach (DrugDosage drug in target.Body.ActiveDrugDosages)
-        {
-            sb.AppendLine(
-                $"\t{drug.Drug.Name.Colour(Telnet.Cyan)} (#{drug.Drug.Id}) @ {actor.Gameworld.UnitManager.DescribeExact(drug.Grams * 0.001 / actor.Gameworld.UnitManager.BaseWeightToKilograms, UnitType.Mass, actor).Colour(Telnet.Green)}");
-        }
-
-        foreach (DrugDosage drug in target.Body.LatentDrugDosages)
-        {
-            sb.AppendLine(
-                $"\t{drug.Drug.Name.Colour(Telnet.Cyan)} (#{drug.Drug.Id}) @ {actor.Gameworld.UnitManager.DescribeExact(drug.Grams * 0.001 / actor.Gameworld.UnitManager.BaseWeightToKilograms, UnitType.Mass, actor).Colour(Telnet.Green)} via {drug.OriginalVector.Describe()} (latent)");
-        }
-
-        actor.Send(sb.ToString());
+        actor.Send(DrugDosageDescriber.DescribeActiveAndLatentDrugDosages(target, actor));
     }
 
     [PlayerCommand("Sober", "sober")]

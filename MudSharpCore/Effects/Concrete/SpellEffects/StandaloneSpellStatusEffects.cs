@@ -129,6 +129,35 @@ public class SpellSleepEffect : SimpleSpellStatusEffectBase, ISleepEffect
 	protected override string SpecificEffectType => "SpellSleep";
 }
 
+public class SpellInsomniaEffect : SimpleSpellStatusEffectBase, IPreventSleepEffect
+{
+	public const string DefaultSleepPreventionEcho = "A magical wakefulness keeps you from sleeping.";
+
+	public static void InitialiseEffectType()
+	{
+		RegisterFactory("SpellInsomnia", (effect, owner) => new SpellInsomniaEffect(effect, owner));
+	}
+
+	public SpellInsomniaEffect(IPerceivable owner, IMagicSpellEffectParent parent, IFutureProg? prog = null)
+		: base(owner, parent, prog)
+	{
+	}
+
+	private SpellInsomniaEffect(XElement root, IPerceivable owner)
+		: base(root, owner)
+	{
+	}
+
+	public string SleepPreventionEcho => DefaultSleepPreventionEcho;
+
+	public override string Describe(IPerceiver voyeur)
+	{
+		return "Kept awake by magical insomnia.";
+	}
+
+	protected override string SpecificEffectType => "SpellInsomnia";
+}
+
 public class SpellFearEffect : SimpleSpellStatusEffectBase, IFearEffect
 {
 	public static void InitialiseEffectType()

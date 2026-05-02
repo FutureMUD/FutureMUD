@@ -23,6 +23,7 @@ public interface IRangedWeapon : IWieldable, IUseTrait
 {
     string FireVerbForEchoes { get; }
     bool CanBeAimedAtSelf { get; }
+    bool CanFireWhileHidden => false;
     WeaponClassification Classification { get; }
     IRangedWeaponType WeaponType { get; }
     bool ReadyToFire { get; }

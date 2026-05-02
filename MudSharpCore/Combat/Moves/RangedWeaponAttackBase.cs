@@ -117,6 +117,17 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
         IPerceiver target = CharacterTargets.FirstOrDefault() ?? _targets.FirstOrDefault();
+        if (Weapon.ReadyToFire && !Weapon.CanFire(Assailant, target))
+        {
+            Assailant.Send(Weapon.WhyCannotFire(Assailant, target));
+            return new CombatMoveResult
+            {
+                RecoveryDifficulty = RecoveryDifficultyFailure,
+                AttackerOutcome = Outcome.NotTested,
+                DefenderOutcome = Outcome.NotTested
+            };
+        }
+
         if (target == null)
         {
             Weapon.Fire(Assailant, null, Outcome.NotTested, Outcome.NotTested,

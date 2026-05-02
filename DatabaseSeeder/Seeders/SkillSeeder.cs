@@ -400,6 +400,7 @@ Again, the choices you make here can be fixed later so don't stress it too great
                 case CheckType.FireCrossbow:
                 case CheckType.FireFirearm:
                 case CheckType.FireSling:
+                case CheckType.FireBlowgun:
                 case CheckType.KeepAimTargetMoved:
                 case CheckType.ProgSkillUseCheck:
                 case CheckType.ProgrammingComponentCheck:

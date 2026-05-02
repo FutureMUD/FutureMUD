@@ -171,6 +171,28 @@ public class CombatSeederSourceTests
         StringAssert.Contains(source, "ForcedMovementAttackData(Difficulty.Normal, ForcedMovementTypes.All");
     }
 
+	[TestMethod]
+	public void CombatSeederSource_PrimitiveRangedWeapons_SeedAndRepairSlingAndBlowgunStock()
+	{
+		string source = File.ReadAllText(GetCombatSeederSourcePath());
+
+		StringAssert.Contains(source, "EnsurePrimitiveRangedContent(context, skills);");
+		StringAssert.Contains(source, "primitiveRangedCount = EnsurePrimitiveRangedContent(context);");
+		StringAssert.Contains(source, "EnsureVariableCheck(CheckType.FireBlowgun);");
+		StringAssert.Contains(source, "EnsureRangedType(");
+		StringAssert.Contains(source, "\"Sling\"");
+		StringAssert.Contains(source, "\"Staff Sling\"");
+		StringAssert.Contains(source, "\"Blowgun\"");
+		StringAssert.Contains(source, "RangedWeaponType.Blowgun");
+		StringAssert.Contains(source, "EnsureComponent(\"Sling\"");
+		StringAssert.Contains(source, "EnsureComponent(\"Blowgun\"");
+		StringAssert.Contains(source, "EnsureAmmoType(\"Sling Bullet\"");
+		StringAssert.Contains(source, "EnsureAmmoType(\"Lead Sling Bullet\"");
+		StringAssert.Contains(source, "EnsureAmmoType(\"Blowgun Dart\"");
+		StringAssert.Contains(source, "EnsureAmmoType(\"Barbed Blowgun Dart\"");
+		StringAssert.Contains(source, "EnsureComponent(\"Ammunition\", $\"Ammo_{name.CollapseString()}\"");
+	}
+
     [TestMethod]
     public void WeaponDamageBands_StandardWeapons_MapToExpectedSeverityBands()
     {

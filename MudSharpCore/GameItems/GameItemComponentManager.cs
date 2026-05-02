@@ -46,6 +46,24 @@ public class GameItemComponentManager : IGameItemComponentManager
     public void AddBuilderLoader(string name, bool primary,
         Func<IFuturemud, IAccount, IGameItemComponentProto> initialiser)
     {
+        name = name.ToLowerInvariant();
+        if (_registeredComponentProtos.ContainsKey(name))
+        {
+            if (!primary)
+            {
+                return;
+            }
+
+            if (_primaryTypes.Contains(name))
+            {
+                throw new ArgumentException($"A primary game item component builder loader named {name} is already registered.");
+            }
+
+            _registeredComponentProtos[name] = initialiser;
+            _primaryTypes.Add(name);
+            return;
+        }
+
         _registeredComponentProtos.Add(name, initialiser);
         if (primary)
         {

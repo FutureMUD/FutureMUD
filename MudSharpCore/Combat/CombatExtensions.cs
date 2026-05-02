@@ -169,6 +169,8 @@ public static class CombatExtensions
                 return false;
             case RangedWeaponType.Musket:
                 return true;
+            case RangedWeaponType.Blowgun:
+                return false;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -192,6 +194,8 @@ public static class CombatExtensions
             case RangedWeaponType.Crossbow:
                 return PositionProne.Instance;
             case RangedWeaponType.Sling:
+                return PositionKneeling.Instance;
+            case RangedWeaponType.Blowgun:
                 return PositionKneeling.Instance;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
@@ -302,6 +306,8 @@ public static class CombatExtensions
                 return "Laser";
             case RangedWeaponType.Musket:
                 return "Musket";
+            case RangedWeaponType.Blowgun:
+                return "Blowgun";
             default:
                 throw new NotImplementedException("No RangedWeaponType description in Describe.");
         }

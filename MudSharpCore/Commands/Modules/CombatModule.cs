@@ -2802,7 +2802,7 @@ The syntax is as follows:
 
             if (actor.Combat == null)
             {
-                actor.Engage(aiming.Aim.Target, true);
+                actor.Engage(aiming.Aim.Target, true, aiming.Weapon.CanFireWhileHidden);
                 actor.Aim = aiming.Aim;
                 actor.Combat?.CombatAction(
                     actor, new RangedWeaponAttackMove(actor, actor.Aim.Target, aiming.Weapon));

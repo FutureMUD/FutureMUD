@@ -193,7 +193,8 @@ namespace MudSharp.Combat
         Bow,
         Crossbow,
         Sling,
-        Musket
+        Musket,
+        Blowgun
     }
 
     public enum RangedScatterType

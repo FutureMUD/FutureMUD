@@ -121,6 +121,17 @@ Use the builder loader names intentionally:
 - one primary name should be the main builder-facing type keyword
 - optional aliases can be added as non-primary names
 
+### Ranged weapon components
+Ranged weapon component families should reuse `IRangedWeapon` and `IRangedWeaponPrototype` unless they are introducing a genuinely new combat contract. The stock weapon components are authored as ordinary component/proto pairs and then bound to a `RangedWeaponType` definition that supplies the combat skill, range, load model, accuracy formula, damage formula, stamina costs, and timing.
+
+Current builder-facing ranged component loaders include `bow`, `crossbow`, `firearm`, `sling`, and `blowgun`. `sling` and `blowgun` both store only their selected ranged weapon type in component XML, with `sling` also storing a readied stamina drain tick value. Their live components load, ready, unready, and fire through the existing ranged-weapon command surface. Slings use the shared `ReadiedRangedWeaponDrainStamina` path while readied, as bows do; the component decides whether readied use requires a free hand.
+
+Do not create bespoke ammunition components for ordinary projectile variants. Sling bullets and blowgun darts use the generic `Ammunition` component and rely on the `AmmunitionType` row's `RangedWeaponTypes` and `SpecificType` fields to match the weapon's `RangedWeaponType` and specific ammunition grade. Poisoned or drugged darts should be layered later through the existing wound, liquid, or drug systems instead of changing the base ammunition contract.
+
+`BlowgunGameItemComponent` also enforces the physical breathing requirement. It cannot be readied or fired by a body that does not breathe, cannot currently breathe, lacks a mouth bodypart, or has anything worn over the mouth. This covers breathing filters and apparatus without a separate item-type check because those components are supplied by mouth-worn items in the breathing system.
+
+`IRangedWeapon.CanFireWhileHidden` is deliberately narrow. Leave the default false for normal ranged weapons. Only components that should preserve hiding through `fire -> Engage/JoinCombat`, such as `BlowgunGameItemComponent`, should return true and use obscured output for ready/load/fire emotes.
+
 ### Example: Container proto
 `ContainerGameItemComponentProto` is a good reference because it shows the common editable-proto pattern:
 - several builder-editable properties

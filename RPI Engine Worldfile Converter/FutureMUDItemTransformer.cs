@@ -27,6 +27,11 @@ public sealed record FutureMudBoardDefinition(
 	string LegacyBoardKey,
 	IReadOnlyList<FutureMudBoardClanRestriction> ClanRestrictions);
 
+public sealed record FutureMudDiceDefinition(
+	string ComponentName,
+	IReadOnlyList<string> Faces,
+	int RawBonus);
+
 public sealed record ConvertedItemDefinition
 {
 	public required int Vnum { get; init; }
@@ -51,6 +56,7 @@ public sealed record ConvertedItemDefinition
 	public IReadOnlyList<FutureMudTraitReference> TraitReferences { get; init; } = Array.Empty<FutureMudTraitReference>();
 	public FutureMudLiquidReference? LiquidReference { get; init; }
 	public FutureMudBoardDefinition? BoardDefinition { get; init; }
+	public FutureMudDiceDefinition? DiceDefinition { get; init; }
 	public string? DescKeys { get; init; }
 	public string? InkColour { get; init; }
 	public string? CustomColour { get; init; }
@@ -108,6 +114,34 @@ public sealed class FutureMUDItemTransformer
 		string FullDescription,
 		string? CustomColour);
 
+	private sealed record FurnitureImportProfile(
+		string? SurfaceComponent,
+		IReadOnlyList<string> InteractionComponents);
+
+	private static readonly IReadOnlyList<string> DefaultTossableFaceNames =
+	[
+		"one",
+		"two",
+		"three",
+		"four",
+		"five",
+		"six",
+		"seven",
+		"eight",
+		"nine",
+		"ten",
+		"eleven",
+		"twelve",
+		"thirteen",
+		"fourteen",
+		"fifteen",
+		"sixteen",
+		"seventeen",
+		"eighteen",
+		"nineteen",
+		"twenty"
+	];
+
 	private static readonly string[] DeferredBehaviorTypes =
 	[
 		nameof(RPIItemType.Ticket),
@@ -142,6 +176,7 @@ public sealed class FutureMUDItemTransformer
 		var traits = MapTraitReferences(item, warnings);
 		FutureMudLiquidReference? liquidReference = null;
 		FutureMudBoardDefinition? boardDefinition = null;
+		FutureMudDiceDefinition? diceDefinition = null;
 		var status = ConversionStatus.FunctionalImport;
 
 		if (ShouldAddHoldable(item))
@@ -218,6 +253,9 @@ public sealed class FutureMUDItemTransformer
 			case RPIItemType.Board:
 				boardDefinition = MapBoard(item, components, tags, warnings);
 				break;
+			case RPIItemType.Tossable:
+				diceDefinition = MapTossable(item, components, tags, warnings, out status);
+				break;
 			case RPIItemType.Ticket:
 			case RPIItemType.MerchTicket:
 			case RPIItemType.RoomRental:
@@ -231,6 +269,11 @@ public sealed class FutureMUDItemTransformer
 					$"{item.ItemType} needs gameplay behaviour that is being preserved as a tagged prop for pass one."));
 				break;
 			default:
+				if (TryMapFurnitureProp(item, components, tags))
+				{
+					break;
+				}
+
 				status = ConversionStatus.PropImport;
 				MapGenericProp(item, components, tags, warnings);
 				warnings.Add(new RpiConversionWarning(
@@ -286,6 +329,7 @@ public sealed class FutureMUDItemTransformer
 			TraitReferences = traits,
 			LiquidReference = liquidReference,
 			BoardDefinition = boardDefinition,
+			DiceDefinition = diceDefinition,
 			DescKeys = item.DescKeys,
 			InkColour = item.InkColour,
 			CustomColour = convertedDescriptions.CustomColour,
@@ -581,10 +625,18 @@ public sealed class FutureMUDItemTransformer
 	private void MapContainer(RpiItemRecord item, ICollection<string> components, ICollection<string> tags, ICollection<RpiConversionWarning> warnings)
 	{
 		var data = item.ContainerData;
-		var baseContainer = InferContainerComponent(item);
-		AddUnique(components, ChooseComponent(baseContainer));
-		AddUnique(components, ChooseDestroyableComponent(item, ConversionStatus.FunctionalImport));
-		AddContainerTags(item, tags);
+		var furnitureProfile = InferFurnitureProfile(item);
+		if (furnitureProfile is not null)
+		{
+			AddFurnitureComponents(furnitureProfile, components, tags);
+		}
+		else
+		{
+			var baseContainer = InferContainerComponent(item);
+			AddUnique(components, ChooseComponent(baseContainer));
+			AddUnique(components, ChooseDestroyableComponent(item, ConversionStatus.FunctionalImport));
+			AddContainerTags(item, tags);
+		}
 
 		if (data is not null && (data.KeyVnum > 0 || data.Flags != 0))
 		{
@@ -810,6 +862,118 @@ public sealed class FutureMUDItemTransformer
 			clanRestrictions);
 	}
 
+	private FutureMudDiceDefinition? MapTossable(
+		RpiItemRecord item,
+		ICollection<string> components,
+		ICollection<string> tags,
+		ICollection<RpiConversionWarning> warnings,
+		out ConversionStatus status)
+	{
+		var faces = item.RawOvals.Oval0;
+		if (faces is < 2 or > 100)
+		{
+			status = ConversionStatus.PropImport;
+			MapGenericProp(item, components, tags, warnings);
+			warnings.Add(new RpiConversionWarning(
+				"tossable-invalid-facets",
+				$"RPI tossable item has {faces.ToString(CultureInfo.InvariantCulture)} facets; imported as a prop instead of a dice component."));
+			return null;
+		}
+
+		var faceNames = InferTossableFaces(item, faces, warnings);
+		var existingDiceComponent = ChooseExistingDiceComponent(faceNames);
+		if (!string.IsNullOrWhiteSpace(existingDiceComponent))
+		{
+			AddUnique(components, existingDiceComponent);
+			AddUnique(components, ChooseDestroyableComponent(item, ConversionStatus.FunctionalImport));
+			AddUnique(tags, ChooseTag("Standard Entertainment", "Entertainment"));
+			status = ConversionStatus.FunctionalImport;
+			return null;
+		}
+
+		var componentName = BuildDiceComponentName(item.Vnum, faces);
+		AddUnique(components, componentName);
+		AddUnique(components, ChooseDestroyableComponent(item, ConversionStatus.FunctionalImport));
+		AddUnique(tags, ChooseTag("Standard Entertainment", "Entertainment"));
+
+		if (item.RawOvals.Oval1 != 0)
+		{
+			warnings.Add(new RpiConversionWarning(
+				"tossable-bonus-unused",
+				$"RPI tossable bonus oval is {item.RawOvals.Oval1.ToString(CultureInfo.InvariantCulture)}, but the archived toss command does not implement this value."));
+		}
+
+		status = ConversionStatus.FunctionalImport;
+		return new FutureMudDiceDefinition(componentName, faceNames, item.RawOvals.Oval1);
+	}
+
+	private IReadOnlyList<string> InferTossableFaces(
+		RpiItemRecord item,
+		int faces,
+		ICollection<RpiConversionWarning> warnings)
+	{
+		var descFaces = item.DescKeys?
+			.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			.ToList() ?? [];
+
+		if (descFaces.Count >= faces)
+		{
+			if (descFaces.Count > faces)
+			{
+				warnings.Add(new RpiConversionWarning(
+					"tossable-extra-faces",
+					$"RPI tossable desc_keys has {descFaces.Count.ToString(CultureInfo.InvariantCulture)} entries for {faces.ToString(CultureInfo.InvariantCulture)} facets; extra entries were ignored."));
+			}
+
+			return descFaces.Take(faces).ToList();
+		}
+
+		if (descFaces.Count > 0)
+		{
+			warnings.Add(new RpiConversionWarning(
+				"tossable-missing-faces",
+				$"RPI tossable desc_keys has only {descFaces.Count.ToString(CultureInfo.InvariantCulture)} entries for {faces.ToString(CultureInfo.InvariantCulture)} facets; missing faces use legacy default names."));
+		}
+
+		var result = descFaces.ToList();
+		for (var i = result.Count; i < faces; i++)
+		{
+			result.Add(i < DefaultTossableFaceNames.Count
+				? DefaultTossableFaceNames[i]
+				: (i + 1).ToString(CultureInfo.InvariantCulture));
+		}
+
+		return result;
+	}
+
+	private string? ChooseExistingDiceComponent(IReadOnlyList<string> faceNames)
+	{
+		var numericFaces = Enumerable
+			.Range(1, faceNames.Count)
+			.Select(x => x.ToString(CultureInfo.InvariantCulture))
+			.ToList();
+		if (!faceNames.SequenceEqual(numericFaces, StringComparer.OrdinalIgnoreCase))
+		{
+			return null;
+		}
+
+		return faceNames.Count switch
+		{
+			4 => ChooseComponentOrNull("Dice_d4"),
+			6 => ChooseComponentOrNull("Dice_d6"),
+			8 => ChooseComponentOrNull("Dice_d8"),
+			10 => ChooseComponentOrNull("Dice_d10"),
+			12 => ChooseComponentOrNull("Dice_d12"),
+			20 => ChooseComponentOrNull("Dice_d20"),
+			_ => null
+		};
+	}
+
+	private static string BuildDiceComponentName(int vnum, int faces)
+	{
+		return $"RPI_Dice_{faces.ToString(CultureInfo.InvariantCulture)}_vnum_{vnum.ToString(CultureInfo.InvariantCulture)}";
+	}
+
 	private static string InferLegacyBoardKey(RpiItemRecord item)
 	{
 		var sourceKeyword = item.NameKeywords
@@ -874,6 +1038,36 @@ public sealed class FutureMUDItemTransformer
 		}
 	}
 
+	private bool TryMapFurnitureProp(
+		RpiItemRecord item,
+		ICollection<string> components,
+		ICollection<string> tags)
+	{
+		var profile = InferFurnitureProfile(item);
+		if (profile is null)
+		{
+			return false;
+		}
+
+		AddFurnitureComponents(profile, components, tags);
+		return true;
+	}
+
+	private void AddFurnitureComponents(
+		FurnitureImportProfile profile,
+		ICollection<string> components,
+		ICollection<string> tags)
+	{
+		AddUnique(components, profile.SurfaceComponent is null ? null : ChooseComponent(profile.SurfaceComponent));
+		foreach (var component in profile.InteractionComponents)
+		{
+			AddUnique(components, ChooseComponent(component));
+		}
+
+		AddUnique(components, ChooseComponent("Destroyable_Furniture"));
+		AddUnique(tags, ChooseTag("Standard Furniture"));
+	}
+
 	private static void AddUnique(ICollection<string> target, string? value)
 	{
 		if (string.IsNullOrWhiteSpace(value))
@@ -891,6 +1085,31 @@ public sealed class FutureMUDItemTransformer
 	{
 		var text = $"{item.RawName} {item.ShortDescription} {item.LongDescription} {item.DescKeys}";
 		return fragments.Any(fragment => text.Contains(fragment, StringComparison.OrdinalIgnoreCase));
+	}
+
+	private static bool ContainsAnyWord(RpiItemRecord item, params string[] words)
+	{
+		var candidates = words
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		if (candidates.Count == 0)
+		{
+			return false;
+		}
+
+		var text = $"{item.RawName} {item.ShortDescription} {item.LongDescription} {item.DescKeys}";
+		foreach (var token in ExtractKeywordWords(text))
+		{
+			foreach (var part in token.Split(['-', '\''], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+			{
+				if (candidates.Contains(part))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	private static IEnumerable<string> Tokenise(RpiItemRecord item)
@@ -1518,6 +1737,25 @@ public sealed class FutureMUDItemTransformer
 	private int InferSize(RpiItemRecord item)
 	{
 		var grams = ConvertWeightToGrams(item.Weight);
+		var furnitureProfile = InferFurnitureProfile(item);
+		if (furnitureProfile is not null)
+		{
+			if (furnitureProfile.SurfaceComponent is "Container_Large_Table" or "Container_Counter")
+			{
+				return (int)SizeCategory.Huge;
+			}
+
+			if (furnitureProfile.SurfaceComponent is "Container_Bench_Surface" or "Container_Bed_Surface" or "Container_Table")
+			{
+				return (int)SizeCategory.VeryLarge;
+			}
+
+			if (furnitureProfile.SurfaceComponent is "Container_Cot_Surface" or "Container_Couch_Surface" or "Container_Desk_Surface" or "Container_Small_Table")
+			{
+				return (int)SizeCategory.Large;
+			}
+		}
+
 		if (ContainsAny(item, "ring", "key"))
 		{
 			return (int)SizeCategory.Tiny;
@@ -1632,6 +1870,12 @@ public sealed class FutureMUDItemTransformer
 
 	private string InferContainerComponent(RpiItemRecord item)
 	{
+		var furnitureProfile = InferFurnitureProfile(item);
+		if (furnitureProfile?.SurfaceComponent is not null)
+		{
+			return furnitureProfile.SurfaceComponent;
+		}
+
 		if (ContainsAny(item, "backpack", "pack", "haversack", "satchel"))
 		{
 			return "Container_Pack";
@@ -1663,6 +1907,169 @@ public sealed class FutureMUDItemTransformer
 		}
 
 		return "Container_Pouch";
+	}
+
+	private FurnitureImportProfile? InferFurnitureProfile(RpiItemRecord item)
+	{
+		if (ContainsAnyWord(item, "bench", "benches", "pew", "pews", "settle", "settles"))
+		{
+			return new FurnitureImportProfile(
+				"Container_Bench_Surface",
+				[InferBenchSeatComponent(item)]);
+		}
+
+		if (ContainsAnyWord(item, "chair", "chairs", "stool", "stools", "seat", "seats"))
+		{
+			return new FurnitureImportProfile(null, [InferBenchSeatComponent(item)]);
+		}
+
+		if (ContainsAnyWord(item, "couch", "couches", "sofa", "sofas", "settee", "settees"))
+		{
+			return new FurnitureImportProfile(
+				"Container_Couch_Surface",
+				[InferBenchSeatComponent(item)]);
+		}
+
+		if (ContainsAnyWord(item, "cot", "cots"))
+		{
+			return new FurnitureImportProfile(
+				"Container_Cot_Surface",
+				["Chair_Single"]);
+		}
+
+		if (ContainsAnyWord(item, "bed", "beds"))
+		{
+			return new FurnitureImportProfile(
+				"Container_Bed_Surface",
+				[ContainsAnyWord(item, "large", "wide", "double") ? "Chair_Double" : "Chair_Single"]);
+		}
+
+		if (ContainsAnyWord(item, "shelf", "shelves", "bookcase", "bookcases", "shelving"))
+		{
+			return new FurnitureImportProfile(ChooseShelfSurfaceComponent(item), []);
+		}
+
+		if (ContainsAnyWord(item, "rack", "racks"))
+		{
+			return new FurnitureImportProfile(ChooseDisplaySurfaceComponent(item), []);
+		}
+
+		if (item.ContainerData?.IsTableContainer == true ||
+		    item.ExtraBits.HasFlag(RPIExtraBits.Table) ||
+		    ContainsAnyWord(item, "table", "tables", "desk", "desks", "counter", "counters", "workbench", "workbenches", "worktop", "worktops"))
+		{
+			return new FurnitureImportProfile(
+				ChooseTableSurfaceComponent(item),
+				[ChooseTableComponent(item)]);
+		}
+
+		return null;
+	}
+
+	private string InferBenchSeatComponent(RpiItemRecord item)
+	{
+		if (ContainsAnyWord(item, "single", "one", "stool", "chair"))
+		{
+			return "Chair_Single";
+		}
+
+		if (ContainsAnyWord(item, "double", "two", "small"))
+		{
+			return "Chair_Double";
+		}
+
+		if (ContainsAnyWord(item, "quad", "four", "long", "large"))
+		{
+			return "Chair_Quad";
+		}
+
+		return "Chair_Triple";
+	}
+
+	private string ChooseTableSurfaceComponent(RpiItemRecord item)
+	{
+		if (ContainsAnyWord(item, "desk", "desks", "lectern", "lecterns"))
+		{
+			return "Container_Desk_Surface";
+		}
+
+		if (ContainsAnyWord(item, "counter", "counters", "workbench", "workbenches", "worktop", "worktops"))
+		{
+			return "Container_Counter";
+		}
+
+		if (ContainsAnyWord(item, "side", "end", "night", "small", "low"))
+		{
+			return "Container_Small_Table";
+		}
+
+		if (ContainsAnyWord(item, "large", "long", "banquet", "feast"))
+		{
+			return "Container_Large_Table";
+		}
+
+		return "Container_Table";
+	}
+
+	private string ChooseTableComponent(RpiItemRecord item)
+	{
+		var seats = item.ContainerData?.SpecialValue ?? 0;
+		if (seats >= 18 || ContainsAnyWord(item, "counter", "counters", "workbench", "workbenches", "worktop", "worktops"))
+		{
+			return "Table_Twenty";
+		}
+
+		if (seats >= 11)
+		{
+			return "Table_Twelve";
+		}
+
+		if (seats >= 9)
+		{
+			return "Table_Ten";
+		}
+
+		if (seats >= 7)
+		{
+			return "Table_Eight";
+		}
+
+		if (seats >= 5 || ContainsAnyWord(item, "large", "long", "banquet", "feast"))
+		{
+			return "Table_Six";
+		}
+
+		return "Table_Four";
+	}
+
+	private string ChooseShelfSurfaceComponent(RpiItemRecord item)
+	{
+		if (ContainsAnyWord(item, "bookcase", "bookcases"))
+		{
+			return "Container_Bookcase_Shelves";
+		}
+
+		if (ContainsAnyWord(item, "wide", "large"))
+		{
+			return "Container_Wide_Shelves";
+		}
+
+		return "Container_Narrow_Shelves";
+	}
+
+	private string ChooseDisplaySurfaceComponent(RpiItemRecord item)
+	{
+		if (ContainsAnyWord(item, "weapon", "weapons"))
+		{
+			return "Container_Weapon_Rack";
+		}
+
+		if (ContainsAnyWord(item, "armour", "armor"))
+		{
+			return "Container_Armor_Stand";
+		}
+
+		return "Container_Display_Shelves";
 	}
 
 	private string InferLiquidContainerComponent(RpiItemRecord item)

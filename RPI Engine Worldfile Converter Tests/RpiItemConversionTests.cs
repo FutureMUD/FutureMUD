@@ -173,6 +173,127 @@ public class RpiItemConversionTests
 	}
 
 	[TestMethod]
+	public void Transformer_MapsTableFlaggedProps_ToFurnitureComponents()
+	{
+		var catalog = BuildCatalog();
+		var transformer = new FutureMUDItemTransformer(catalog);
+		var item = BuildItem(
+			itemType: RPIItemType.Other,
+			wearBits: 0,
+			extraBits: RPIExtraBits.Table,
+			rawName: "plain table WOOD~",
+			shortDescription: "a plain table",
+			longDescription: "A plain table stands here.");
+
+		var converted = transformer.Convert(item);
+		var issues = FutureMudItemValidation.Validate(catalog, [converted]);
+
+		Assert.AreEqual(ConversionStatus.FunctionalImport, converted.Status);
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Container_Table");
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Table_Four");
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Destroyable_Furniture");
+		CollectionAssert.Contains(converted.TagNames.ToList(), "Standard Furniture");
+		Assert.IsFalse(converted.Warnings.Any(x => x.Code == "prop-fallback"));
+		Assert.IsFalse(issues.Any(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void Transformer_MapsBenchLikeProps_ToSeatingAndSurfaceComponents()
+	{
+		var catalog = BuildCatalog();
+		var transformer = new FutureMUDItemTransformer(catalog);
+		var item = BuildItem(
+			itemType: RPIItemType.Other,
+			wearBits: 0,
+			rawName: "wooden bench WOOD~",
+			shortDescription: "a wooden bench",
+			longDescription: "A wooden bench stands here.");
+
+		var converted = transformer.Convert(item);
+		var issues = FutureMudItemValidation.Validate(catalog, [converted]);
+
+		Assert.AreEqual(ConversionStatus.FunctionalImport, converted.Status);
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Container_Bench_Surface");
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Chair_Triple");
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Destroyable_Furniture");
+		CollectionAssert.DoesNotContain(converted.ComponentNames.ToList(), "Destroyable_Misc");
+		Assert.IsFalse(converted.Warnings.Any(x => x.Code == "prop-fallback"));
+		Assert.IsFalse(issues.Any(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void Transformer_MapsContainerTableCapacity_ToMatchingTableComponent()
+	{
+		var catalog = BuildCatalog();
+		var transformer = new FutureMUDItemTransformer(catalog);
+		var item = BuildItem(
+			itemType: RPIItemType.Container,
+			extraBits: RPIExtraBits.Table,
+			rawName: "round table WOOD~",
+			shortDescription: "a round table",
+			longDescription: "A round table stands here.",
+			containerData: new RpiContainerData(100000, 0, 0, 0, 0, 8, true));
+
+		var converted = transformer.Convert(item);
+		var issues = FutureMudItemValidation.Validate(catalog, [converted]);
+
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Container_Table");
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Table_Eight");
+		CollectionAssert.DoesNotContain(converted.ComponentNames.ToList(), "Container_Pouch");
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Destroyable_Furniture");
+		Assert.IsFalse(issues.Any(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void Transformer_MapsTossableDice_ToGeneratedDiceComponent()
+	{
+		var catalog = BuildCatalog();
+		var transformer = new FutureMUDItemTransformer(catalog);
+		var item = BuildItem(
+			itemType: RPIItemType.Tossable,
+			rawName: "bone die OTHER~",
+			shortDescription: "a bone die",
+			longDescription: "A bone die lies here.",
+			rawOvals: new RpiRawOvalValues(6, 3, 0, 0, 0, 0),
+			descKeys: "one two three four dagger skull");
+
+		var converted = transformer.Convert(item);
+		var issues = FutureMudItemValidation.Validate(catalog, [converted]);
+
+		Assert.AreEqual(ConversionStatus.FunctionalImport, converted.Status);
+		Assert.IsNotNull(converted.DiceDefinition);
+		Assert.AreEqual("RPI_Dice_6_vnum_9000", converted.DiceDefinition!.ComponentName);
+		CollectionAssert.AreEqual(
+			new[] { "one", "two", "three", "four", "dagger", "skull" },
+			converted.DiceDefinition.Faces.ToArray());
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "RPI_Dice_6_vnum_9000");
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Destroyable_Misc");
+		CollectionAssert.Contains(converted.TagNames.ToList(), "Standard Entertainment");
+		Assert.IsTrue(converted.Warnings.Any(x => x.Code == "tossable-bonus-unused"));
+		Assert.IsFalse(issues.Any(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void Transformer_LeavesInvalidTossables_AsProps()
+	{
+		var catalog = BuildCatalog();
+		var transformer = new FutureMUDItemTransformer(catalog);
+		var item = BuildItem(
+			itemType: RPIItemType.Tossable,
+			rawName: "wooden token OTHER~",
+			shortDescription: "a wooden token",
+			longDescription: "A wooden token lies here.",
+			rawOvals: new RpiRawOvalValues(0, 0, 0, 0, 0, 0));
+
+		var converted = transformer.Convert(item);
+
+		Assert.AreEqual(ConversionStatus.PropImport, converted.Status);
+		Assert.IsNull(converted.DiceDefinition);
+		Assert.IsTrue(converted.Warnings.Any(x => x.Code == "tossable-invalid-facets"));
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Destroyable_Misc");
+	}
+
+	[TestMethod]
 	public void Transformer_MapsAdditionalWearBits_ForArmour()
 	{
 		var transformer = new FutureMUDItemTransformer(BuildCatalog());
@@ -261,7 +382,10 @@ public class RpiItemConversionTests
 		string shortDescription = "an item",
 		string longDescription = "An item lies here.",
 		string fullDescription = "It is an item.",
+		RpiRawOvalValues? rawOvals = null,
+		string? descKeys = null,
 		RpiArmourData? armourData = null,
+		RpiContainerData? containerData = null,
 		IReadOnlyList<RpiClanRecord>? clans = null)
 	{
 		return new RpiItemRecord
@@ -279,7 +403,7 @@ public class RpiItemConversionTests
 			ItemType = itemType,
 			ExtraBits = extraBits,
 			WearBits = wearBits,
-			RawOvals = new RpiRawOvalValues(0, 0, 0, 0, 0, 0),
+			RawOvals = rawOvals ?? new RpiRawOvalValues(0, 0, 0, 0, 0, 0),
 			RawStateValues = [],
 			RawTailValues = [],
 			Weight = 100,
@@ -292,7 +416,9 @@ public class RpiItemConversionTests
 			Count = 1,
 			NumericTail = new RpiNumericTail(0, 0, 0, 0, 0, 0, 0),
 			InferredMaterial = RPIMaterial.Other,
+			DescKeys = descKeys,
 			ArmourData = armourData,
+			ContainerData = containerData,
 			Clans = clans ?? []
 		};
 	}
@@ -345,7 +471,15 @@ public class RpiItemConversionTests
 			["Wear_Veil"] = new(42, 0, "Wear_Veil", "Wearable"),
 			["Wear_Backplate"] = new(43, 0, "Wear_Backplate", "Wearable"),
 			["Wear_Bracers"] = new(44, 0, "Wear_Bracers", "Wearable"),
-			["Armour_Platemail"] = new(45, 0, "Armour_Platemail", "Armour")
+			["Armour_Platemail"] = new(45, 0, "Armour_Platemail", "Armour"),
+			["Destroyable_Furniture"] = new(46, 0, "Destroyable_Furniture", "Destroyable"),
+			["Container_Table"] = new(47, 0, "Container_Table", "Container"),
+			["Container_Bench_Surface"] = new(48, 0, "Container_Bench_Surface", "Container"),
+			["Table_Four"] = new(49, 0, "Table_Four", "Table"),
+			["Table_Six"] = new(50, 0, "Table_Six", "Table"),
+			["Table_Eight"] = new(51, 0, "Table_Eight", "Table"),
+			["Chair_Triple"] = new(52, 0, "Chair_Triple", "Chair"),
+			["Chair_Quad"] = new(53, 0, "Chair_Quad", "Chair")
 		};
 
 		return new FutureMudBaselineCatalog
@@ -388,7 +522,9 @@ public class RpiItemConversionTests
 				["Open Container"] = 7,
 				["Military Goods"] = 8,
 				["Repairing"] = 9,
-				["Standard Tools"] = 10
+				["Standard Tools"] = 10,
+				["Standard Furniture"] = 11,
+				["Standard Entertainment"] = 12
 			},
 			LiquidIds = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)
 			{

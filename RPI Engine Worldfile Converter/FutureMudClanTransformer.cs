@@ -208,6 +208,10 @@ public sealed class FutureMudClanTransformer
 		{
 			privileges = (long)ClanPrivilegeType.All;
 		}
+		else if (slot == RpiClanRankSlot.Leadership)
+		{
+			privileges = (long)ClanPrivilegeType.All;
+		}
 
 		var warnings = new List<RpiClanConversionWarning>();
 		if (alternateNames.Count > 0)
@@ -271,6 +275,11 @@ public sealed class FutureMudClanTransformer
 		    RpiClanAliasResolver.ResolveCanonicalRule(clan.CanonicalAlias).ImportFromUnrankedReferences)
 		{
 			imported.Add(RpiClanRankSlot.Membership);
+		}
+
+		if (imported.Contains(RpiClanRankSlot.Membership))
+		{
+			imported.Add(RpiClanRankSlot.Leadership);
 		}
 
 		return imported.OrderBy(x => x.SortOrder()).ToList();

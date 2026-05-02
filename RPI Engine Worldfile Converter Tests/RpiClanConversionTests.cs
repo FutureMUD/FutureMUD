@@ -28,6 +28,12 @@ public class RpiClanConversionTests
 		CollectionAssert.AreEquivalent(
 			new[] { "Snaga Uruk", "Snaga" },
 			source.AliasSources["gothakra"].DisplayNamesBySlot[RpiClanRankSlot.Recruit].ToArray());
+		CollectionAssert.AreEquivalent(
+			new[] { "Zuruk", "Puruk" },
+			source.AliasSources["gothakra"].DisplayNamesBySlot[RpiClanRankSlot.Corporal].ToArray());
+		CollectionAssert.Contains(
+			source.AliasSources["gothakra"].SynonymsBySlot[RpiClanRankSlot.Corporal].ToList(),
+			"puruk");
 		CollectionAssert.Contains(
 			source.AliasSources["seekers"].SynonymsBySlot[RpiClanRankSlot.Recruit].ToList(),
 			"squire");
@@ -68,6 +74,9 @@ public class RpiClanConversionTests
 		var gothakra = converted["gothakra"];
 		Assert.IsTrue(gothakra.Ranks.Any(x => x.Slot == RpiClanRankSlot.Lieutenant));
 		Assert.IsFalse(gothakra.Ranks.Any(x => x.Slot == RpiClanRankSlot.Captain));
+		CollectionAssert.Contains(
+			gothakra.Ranks.Single(x => x.Slot == RpiClanRankSlot.Corporal).AlternateNames.ToList(),
+			"Puruk");
 
 		var khagdu = converted["khagdu"];
 		CollectionAssert.IsSubsetOf(
@@ -96,6 +105,7 @@ public class RpiClanConversionTests
 				RpiClanRankSlot.Apprentice,
 				RpiClanRankSlot.Journeyman,
 				RpiClanRankSlot.Master,
+				RpiClanRankSlot.Leadership,
 			},
 			mordor.Ranks.Select(x => x.Slot).ToArray());
 
@@ -126,6 +136,7 @@ public class RpiClanConversionTests
 		var sergeant = ithilien.Ranks.Single(x => x.Slot == RpiClanRankSlot.Sergeant);
 		var captain = ithilien.Ranks.Single(x => x.Slot == RpiClanRankSlot.Captain);
 		var membership = mordor.Ranks.Single(x => x.Slot == RpiClanRankSlot.Membership);
+		var leadership = mordor.Ranks.Single(x => x.Slot == RpiClanRankSlot.Leadership);
 		var master = mordor.Ranks.Single(x => x.Slot == RpiClanRankSlot.Master);
 
 		Assert.IsTrue(((ClanPrivilegeType)sergeant.Privileges).HasFlag(ClanPrivilegeType.CanInduct));
@@ -133,6 +144,7 @@ public class RpiClanConversionTests
 		Assert.IsTrue(((ClanPrivilegeType)sergeant.Privileges).HasFlag(ClanPrivilegeType.CanDemote));
 		Assert.AreEqual((long)ClanPrivilegeType.All, captain.Privileges);
 		Assert.AreNotEqual((long)ClanPrivilegeType.All, membership.Privileges);
+		Assert.AreEqual((long)ClanPrivilegeType.All, leadership.Privileges);
 		Assert.AreEqual((long)ClanPrivilegeType.All, master.Privileges);
 
 		var validation = FutureMudClanValidation.Validate(
@@ -199,7 +211,14 @@ public class RpiClanConversionTests
 				["witchking_horse"] = new("witchking_horse", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
 				["withchking_horde"] = new("withchking_horde", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
 				["pel_pelenor"] = new("pel_pelenor", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
-				["osgi_citizensmember"] = new("osgi_citizensmember", 1, [RpiClanRankSlot.Membership], Array.Empty<string>())
+				["osgi_citizensmember"] = new("osgi_citizensmember", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["jewellers"] = new("jewellers", 1, [RpiClanRankSlot.Master], Array.Empty<string>()),
+				["jewelers"] = new("jewelers", 1, [RpiClanRankSlot.Apprentice], Array.Empty<string>()),
+				["mt_theatre"] = new("mt_theatre", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["mt_theater"] = new("mt_theater", 1, [RpiClanRankSlot.Apprentice], Array.Empty<string>()),
+				["gothraka"] = new("gothraka", 1, [RpiClanRankSlot.Private], Array.Empty<string>()),
+				["wardog"] = new("wardog", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["wardogs"] = new("wardogs", 1, [RpiClanRankSlot.Membership], Array.Empty<string>())
 			});
 
 		var conversion = new FutureMudClanTransformer().Convert(source, references);
@@ -213,16 +232,68 @@ public class RpiClanConversionTests
 		Assert.AreEqual("Witchking's Horde", converted["witchkings_horde"].FullName);
 		CollectionAssert.Contains(converted["witchkings_horde"].LegacyAliases.ToList(), "witchking_horse");
 		Assert.AreEqual("Pel Pelennor", converted["pel_pelennor"].FullName);
-		Assert.AreEqual("Osgi Citizens", converted["osgi_citizens"].FullName);
+		Assert.AreEqual("Osgiliath Citizens", converted["osgi_citizens"].FullName);
+		Assert.AreEqual("Jewelers", converted["jewelers"].FullName);
+		CollectionAssert.Contains(converted["jewelers"].LegacyAliases.ToList(), "jewellers");
+		Assert.AreEqual("Minas Tirith Theatre", converted["mt_theatre"].FullName);
+		CollectionAssert.Contains(converted["mt_theatre"].LegacyAliases.ToList(), "mt_theater");
+		CollectionAssert.Contains(converted["gothakra"].LegacyAliases.ToList(), "gothraka");
+		Assert.AreEqual("Wardogs", converted["wardogs"].FullName);
+		CollectionAssert.Contains(converted["wardogs"].LegacyAliases.ToList(), "wardog");
 		Assert.IsFalse(conversion.UnresolvedAliasCounts.Any());
 
 		foreach (var clan in converted
-			         .Where(x => references.ReferencesByAlias.ContainsKey(x.Key) ||
-			                     x.Value.LegacyAliases.Any(references.ReferencesByAlias.ContainsKey))
+			         .Where(x => x.Value.LegacyAliases
+			                      .Append(x.Value.CanonicalAlias)
+			                      .Any(alias =>
+				                      references.ReferencesByAlias.TryGetValue(alias, out var reference) &&
+				                      (reference.ObservedSlots.Count == 0 ||
+				                       reference.ObservedSlots.Contains(RpiClanRankSlot.Membership))))
 			         .Select(x => x.Value))
 		{
 			Assert.IsTrue(clan.Ranks.Any(x => x.Slot == RpiClanRankSlot.Membership));
+			Assert.IsTrue(clan.Ranks.Any(x => x.Slot == RpiClanRankSlot.Leadership));
 		}
+	}
+
+	[TestMethod]
+	public void ClanTransformer_ExpandsCommonLegacyNameAbbreviations()
+	{
+		var source = new RpiClanSourceDocument(
+			"synthetic",
+			Array.Empty<RpiClanHeaderEntry>(),
+			new Dictionary<string, RpiClanAliasSource>(StringComparer.OrdinalIgnoreCase),
+			Array.Empty<string>());
+		var references = new RpiClanReferenceIndex(
+			new Dictionary<string, RpiClanReferenceRecord>(StringComparer.OrdinalIgnoreCase)
+			{
+				["mt_armourers"] = new("mt_armourers", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["osgi_lycaeum"] = new("osgi_lycaeum", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["mm_elite"] = new("mm_elite", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["te_guard"] = new("te_guard", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["bn_guard"] = new("bn_guard", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["com_heavies"] = new("com_heavies", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["fj_bathhouse"] = new("fj_bathhouse", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["sak_mansion"] = new("sak_mansion", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["hd_officers"] = new("hd_officers", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["m_t_theatre"] = new("m_t_theatre", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+			});
+
+		var converted = new FutureMudClanTransformer()
+			.Convert(source, references)
+			.ConvertedClans
+			.ToDictionary(x => x.CanonicalAlias, StringComparer.OrdinalIgnoreCase);
+
+		Assert.AreEqual("Minas Tirith Armourers", converted["mtarmourers"].FullName);
+		Assert.AreEqual("Osgiliath Lycaeum", converted["osgilycaeum"].FullName);
+		Assert.AreEqual("Minas Morgul Elite", converted["mmelite"].FullName);
+		Assert.AreEqual("Tur Edendor Guard", converted["teguard"].FullName);
+		Assert.AreEqual("Black Numenorean Guard", converted["bnguard"].FullName);
+		Assert.AreEqual("Cult of Morgoth Heavies", converted["comheavies"].FullName);
+		Assert.AreEqual("Fahad Jafari Bathhouse", converted["fjbathhouse"].FullName);
+		Assert.AreEqual("Saklithan Mansion", converted["sakmansion"].FullName);
+		Assert.AreEqual("Hawk and Dove Officers", converted["hdofficers"].FullName);
+		Assert.AreEqual("Minas Tirith Theatre", converted["mt_theatre"].FullName);
 	}
 
 	private static string GetClanSourcePath()

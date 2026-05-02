@@ -192,28 +192,38 @@ public sealed class FutureMudClanImporter
 
 			foreach (var rank in definition.Ranks.OrderBy(x => x.Order))
 			{
+				var rankTitles = BuildRankTitles(rank);
+				var rankAbbreviations = BuildRankAbbreviations(rankTitles, rank);
 				var rankModel = new RankModel
 				{
 					Clan = clan,
-					Name = rank.Name,
+					Name = rankTitles[0],
 					Privileges = rank.Privileges,
 					RankPath = rank.RankPath,
 					RankNumber = rank.Order,
 					FameType = 0,
 				};
 
-				rankModel.RanksAbbreviations.Add(new RanksAbbreviations
+				for (var i = 0; i < rankAbbreviations.Count; i++)
 				{
-					Rank = rankModel,
-					Order = 0,
-					Abbreviation = rank.Name,
-				});
-				rankModel.RanksTitles.Add(new RanksTitle
+					rankModel.RanksAbbreviations.Add(new RanksAbbreviations
+					{
+						Rank = rankModel,
+						Order = i,
+						Abbreviation = rankAbbreviations[i],
+					});
+				}
+
+				for (var i = 0; i < rankTitles.Count; i++)
 				{
-					Rank = rankModel,
-					Order = 0,
-					Title = rank.Name,
-				});
+					rankModel.RanksTitles.Add(new RanksTitle
+					{
+						Rank = rankModel,
+						Order = i,
+						Title = rankTitles[i],
+					});
+				}
+
 				clan.Ranks.Add(rankModel);
 			}
 
@@ -225,6 +235,26 @@ public sealed class FutureMudClanImporter
 		}
 
 		return new FutureMudClanImportResult(insertedCount, skippedExistingCount, issues);
+	}
+
+	private static IReadOnlyList<string> BuildRankTitles(ConvertedClanRankDefinition rank)
+	{
+		return rank.AlternateNames
+			.Prepend(rank.Name)
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToList();
+	}
+
+	private static IReadOnlyList<string> BuildRankAbbreviations(
+		IEnumerable<string> rankTitles,
+		ConvertedClanRankDefinition rank)
+	{
+		return rankTitles
+			.Concat(rank.Synonyms)
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToList();
 	}
 
 	private static string BuildDescription(ConvertedClanDefinition definition)

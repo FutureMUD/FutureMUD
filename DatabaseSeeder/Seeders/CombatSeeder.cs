@@ -99,7 +99,7 @@ Which option do you want to use for random results in your weapon damage formula
             ("parryoption",
                 @"Do you want to use a separate skill called 'parry' as the skill for parrying with weapons? If you answer no, the weapon will use its attacking trait for parrying instead.
 
-Please answer #3yes#f or #3no#f: ", (context, answers) => answers["installweapons"].EqualToAny("y", "yes"),
+Please answer #3yes#f or #3no#f: ", (context, answers) => true,
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("yes", "y", "no", "n"), "You must answer yes or no.");
@@ -113,7 +113,7 @@ There are many different ways that you could set up combat skills. A few options
 #BSOI#f: This option sets up skills like old SOI had, with 9 combinations of light, medium, heavy and edged, bludgeon and piercing (e.g. medium-edge etc)
 
 Which option do you want to choose for weapon skills? ",
-                (context, answers) => answers["installweapons"].EqualToAny("y", "yes"),
+                (context, answers) => true,
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("weapons", "broad", "soi"),
@@ -140,8 +140,7 @@ Combat messages can be presented in a number of different styles. Fundamentally,
 You can change your decision later, you're just going to have to go and edit your combat messages (mostly the defenses) to match the style you want. One advantage to doing Sentences or Sparse is that you can easily colour whole elements if you prefer (some people prefer not to of course).
 
 You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
-                (context, answers) => answers["installunarmed"].EqualToAny("y", "yes") ||
-                                      answers["installweapons"].EqualToAny("y", "yes"),
+                (context, answers) => true,
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("compact", "sentences", "sparse"),

@@ -43,6 +43,17 @@ Canonical mappings:
   - Legacy alias: `rouges`
 - `hawk_dove_2` => `Hawk and Dove`
   - Legacy alias: `hawk_and_dove`
+- `fahad_jafari` => `Fahad Jafari`
+  - Legacy alias: `fahad-jafari`
+- `gothakra` => `Gothakra Warband`
+  - Legacy alias: `gothraka`
+- `jewelers` => `Jewelers`
+  - Legacy alias: `jewellers`
+- `mt_theatre` => `Minas Tirith Theatre`
+  - Legacy aliases: `m_t_theatre`, `mt_theater`
+- `wardogs` => `Wardogs`
+  - Legacy alias: `wardog`
+- `com` => `Cult of Morgoth`
 - `com_priests` => `Cult of Morgoth Priests`
   - Legacy alias: `com-priests`
 - `tecouncil` => `Tur Edendor Council`
@@ -55,8 +66,20 @@ Canonical mappings:
   - Legacy aliases: `witchking_horde`, `witchkinghorde`, `withchking_horde`, `witchking_horse`
 - `pel_pelennor` => `Pel Pelennor`
   - Legacy alias: `pel_pelenor`
-- `osgi_citizens` => `Osgi Citizens`
+- `osgi_citizens` => `Osgiliath Citizens`
   - Legacy aliases: `osgi_citizen`, `osgi_citizensmember`, `osgi_citzens`
+
+When no explicit full-name rule exists, title-cased inferred names expand common legacy shorthand tokens:
+
+- `mt` or `m_t` => `Minas Tirith`
+- `osgi` => `Osgiliath`
+- `mm` or `m_m` => `Minas Morgul`
+- `te` => `Tur Edendor`
+- `bn` => `Black Numenorean`
+- `com` => `Cult of Morgoth`
+- `fj` => `Fahad Jafari`
+- `sak` => `Saklithan`
+- `hd` => `Hawk and Dove`
 
 Alias-only clans imported even without header-table rows:
 
@@ -86,6 +109,7 @@ The old RPI slot lattice is mapped onto three logical paths:
 
 - `Common`
   - `Membership`
+  - `Leader`
 - `Military`
   - `Recruit`
   - `Private`
@@ -102,7 +126,6 @@ The old RPI slot lattice is mapped onto three logical paths:
 
 Ignored slots:
 
-- `Leadership`
 - `MemberObject`
 - `LeaderObject`
 
@@ -114,6 +137,7 @@ For each clan path, the importer uses the following rules:
 2. Keep generic slots below that highest custom slot even if they were not explicitly renamed.
 3. Drop higher slots on that path even if the raw region data references them.
 4. If the path has no custom names at all, import only the slots actually observed in region references.
+5. If `Membership` is imported, also import a generic `Leader` rank for that clan.
 
 This preserves the RPI behavior where missing higher custom names implied that those higher ranks were not used for that clan.
 
@@ -137,6 +161,8 @@ For each imported slot:
 - Synonyms from `clan_flags_to_value` are preserved in the export payload for audit/reference purposes.
 - If no custom label exists, the generic slot name is used.
 
+`apply-clans` writes alternate source rank labels as FutureMUD rank titles and writes both source labels and parsed textual synonyms as rank abbreviations. This keeps pairs such as Gothakra `Zuruk`/`Puruk`, `Zaak`/`High Puruk`, and `Ba'Zaak`/`Puruk-Zuul` visible and resolvable after import.
+
 ## Privilege Mapping
 
 Every imported rank receives:
@@ -156,6 +182,8 @@ The highest imported rank on each authoritative non-common path receives:
 - `ClanPrivilegeType.All`
 
 If a clan has no military or guild path at all, the converter falls back to the highest imported remaining path.
+
+The generated `Leader` rank always receives `ClanPrivilegeType.All`.
 
 ## Reference Scanning Rules
 

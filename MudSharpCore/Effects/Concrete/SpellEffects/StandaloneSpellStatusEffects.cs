@@ -212,6 +212,16 @@ public class SpellFlightEffect : SimpleSpellStatusEffectBase, IFlightEffect
 		return "Magically able to fly.";
 	}
 
+	public override void RemovalEffect()
+	{
+		if (Owner is ICharacter character)
+		{
+			character.CheckCanFly(this);
+		}
+
+		base.RemovalEffect();
+	}
+
 	protected override string SpecificEffectType => "SpellFlight";
 }
 

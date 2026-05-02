@@ -928,6 +928,19 @@ return 10"
         string? skillStageType = GetSingleStageType(context.ChargenScreenStoryboards
             .Where(x => x.ChargenStage == (int)ChargenStage.SelectSkills)
             .Select(x => x.ChargenType));
+        int[] requiredStageIds = RequiredChargenStages
+            .Select(stage => (int)stage)
+            .ToArray();
+        bool hasAnyChargenAnchor = context.ChargenScreenStoryboards
+            .Any(x => requiredStageIds.Contains(x.ChargenStage)) ||
+            context.ChargenRoles.Any(x =>
+                x.Type == (int)ChargenRoleType.StartingLocation &&
+                x.Name == DefaultStartingLocationRoleName);
+
+        if (!hasAnyChargenAnchor)
+        {
+            return ShouldSeedResult.ReadyToInstall;
+        }
 
         return SeederRepeatabilityHelper.ClassifyByPresence(
             RequiredChargenStages.Select(stage =>

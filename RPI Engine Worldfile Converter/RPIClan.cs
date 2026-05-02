@@ -138,7 +138,7 @@ public static class RpiClanRankSlots
 			[RpiClanRankSlot.Apprentice] = "Apprentice",
 			[RpiClanRankSlot.Journeyman] = "Journeyman",
 			[RpiClanRankSlot.Master] = "Master",
-			[RpiClanRankSlot.Leadership] = "Leadership",
+			[RpiClanRankSlot.Leadership] = "Leader",
 			[RpiClanRankSlot.MemberObject] = "Member Object",
 			[RpiClanRankSlot.LeaderObject] = "Leader Object",
 		};
@@ -157,9 +157,14 @@ public static class RpiClanRankSlots
 		RpiClanRankSlot.Apprentice,
 		RpiClanRankSlot.Journeyman,
 		RpiClanRankSlot.Master,
+		RpiClanRankSlot.Leadership,
 	];
 
-	public static IReadOnlyList<RpiClanRankSlot> CommonSlots { get; } = [RpiClanRankSlot.Membership];
+	public static IReadOnlyList<RpiClanRankSlot> CommonSlots { get; } =
+	[
+		RpiClanRankSlot.Membership,
+		RpiClanRankSlot.Leadership,
+	];
 	public static IReadOnlyList<RpiClanRankSlot> MilitarySlots { get; } =
 	[
 		RpiClanRankSlot.Recruit,
@@ -188,7 +193,8 @@ public static class RpiClanRankSlots
 	{
 		return slot switch
 		{
-			RpiClanRankSlot.Membership => RpiClanRankPath.Common,
+			RpiClanRankSlot.Membership or
+			RpiClanRankSlot.Leadership => RpiClanRankPath.Common,
 			RpiClanRankSlot.Recruit or
 			RpiClanRankSlot.Private or
 			RpiClanRankSlot.Corporal or
@@ -308,10 +314,69 @@ public static class RpiClanRankSlots
 		var textInfo = CultureInfo.InvariantCulture.TextInfo;
 		return string.Join(
 			" ",
-			alias
+			ExpandAliasTokens(alias
 				.Replace('_', ' ')
 				.Replace('-', ' ')
-				.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-				.Select(x => textInfo.ToTitleCase(x.ToLowerInvariant())));
+				.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+			.Select((x, index) => TitleCaseAliasWord(textInfo, x, index)));
+	}
+
+	private static string TitleCaseAliasWord(TextInfo textInfo, string word, int index)
+	{
+		if (index > 0 && word is "and" or "of")
+		{
+			return word;
+		}
+
+		return textInfo.ToTitleCase(word.ToLowerInvariant());
+	}
+
+	private static IEnumerable<string> ExpandAliasTokens(IReadOnlyList<string> tokens)
+	{
+		for (var i = 0; i < tokens.Count; i++)
+		{
+			var token = tokens[i].ToLowerInvariant();
+			if (i + 1 < tokens.Count &&
+			    token == "m" &&
+			    tokens[i + 1].Equals("t", StringComparison.OrdinalIgnoreCase))
+			{
+				yield return "minas";
+				yield return "tirith";
+				i++;
+				continue;
+			}
+
+			if (i + 1 < tokens.Count &&
+			    token == "m" &&
+			    tokens[i + 1].Equals("m", StringComparison.OrdinalIgnoreCase))
+			{
+				yield return "minas";
+				yield return "morgul";
+				i++;
+				continue;
+			}
+
+			foreach (var expanded in ExpandAliasToken(token))
+			{
+				yield return expanded;
+			}
+		}
+	}
+
+	private static IEnumerable<string> ExpandAliasToken(string token)
+	{
+		return token switch
+		{
+			"mt" => ["minas", "tirith"],
+			"osgi" => ["osgiliath"],
+			"mm" => ["minas", "morgul"],
+			"te" => ["tur", "edendor"],
+			"bn" => ["black", "numenorean"],
+			"com" => ["cult", "of", "morgoth"],
+			"fj" => ["fahad", "jafari"],
+			"sak" => ["saklithan"],
+			"hd" => ["hawk", "and", "dove"],
+			_ => [token],
+		};
 	}
 }

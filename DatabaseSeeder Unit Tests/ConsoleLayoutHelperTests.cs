@@ -36,4 +36,26 @@ public class ConsoleLayoutHelperTests
         Assert.AreEqual("typed", Program.ResolveQuestionAnswer("typed", "01/january/2000"));
         Assert.AreEqual("", Program.ResolveQuestionAnswer("", null));
     }
+
+    [TestMethod]
+    public void ShowSeederInMainMenu_HidesBlockedPackagesUnlessRequested()
+    {
+        Assert.IsFalse(Program.ShowSeederInMainMenu(SeederAssessmentStatus.Blocked, false));
+        Assert.IsTrue(Program.ShowSeederInMainMenu(SeederAssessmentStatus.Blocked, true));
+        Assert.IsTrue(Program.ShowSeederInMainMenu(SeederAssessmentStatus.ReadyToInstall, false));
+    }
+
+    [TestMethod]
+    public void GetBlockedSeederSummary_ExplainsInvalidCommand()
+    {
+        Assert.AreEqual(
+            "There are 13 packages reporting prerequisites not met. Type INVALID to see a list of them.",
+            Program.GetBlockedSeederSummary(13, false));
+        Assert.AreEqual(
+            "There is 1 package reporting prerequisites not met. Type INVALID to see it.",
+            Program.GetBlockedSeederSummary(1, false));
+        Assert.AreEqual(
+            "1 blocked package is currently visible. Type VALID to hide it again.",
+            Program.GetBlockedSeederSummary(1, true));
+    }
 }

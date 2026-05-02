@@ -54,7 +54,14 @@ get_clan_rank_name (CHAR_DATA *ch, char * clan, int flags)
   {
     if (!str_cmp (clan, "gothakra"))
     {
-      return "Uruk";
+      if (ch->race == lookup_race_id("Orc"))
+      {
+        return "Uruk";
+      }
+      else
+      {
+        return "High Snaga";
+      }
     }
     if (!str_cmp (clan, "seekers"))
     {
@@ -82,7 +89,14 @@ get_clan_rank_name (CHAR_DATA *ch, char * clan, int flags)
   {
     if (!str_cmp (clan, "gothakra"))
     {
-      return "Zuruk";
+      if (ch->race == lookup_race_id("Orc"))
+      {
+        return "Zuruk";
+      }
+      else
+      {
+        return "Puruk";
+      }
     }
     if (!str_cmp (clan, "seekers"))
     {
@@ -104,6 +118,17 @@ get_clan_rank_name (CHAR_DATA *ch, char * clan, int flags)
   }
   else if (flags == CLAN_SERGEANT)
   {
+    if (!str_cmp (clan, "gothakra"))
+    {
+      if (ch->race == lookup_race_id("Orc"))
+      {
+        return "Zaak";
+      }
+      else
+      {
+        return "High Puruk";
+      }
+    }
     if (!str_cmp (clan, "khagdu"))
     {
       return "Gurash";
@@ -114,7 +139,14 @@ get_clan_rank_name (CHAR_DATA *ch, char * clan, int flags)
   {
     if (!str_cmp (clan, "gothakra"))
     {
-      return "Ba'Zaak";
+      if (ch->race == lookup_race_id("Orc"))
+      {
+        return "Ba'Zaak";
+      }
+      else
+      {
+        return "Puruk-Zuul";
+      }
     }
     if (!str_cmp (clan, "seekers"))
     {
@@ -248,6 +280,8 @@ clan_flags_to_value (char *flag_names, char *clan_name)
       else if (!str_cmp (buf, "private")
       || (!str_cmp (buf, "ohtar")
           && !str_cmp (clan_name, "tirithguard"))
+      || ((!str_cmp (buf, "uruk") || !str_cmp (buf, "high-snaga"))
+          && !str_cmp (clan_name, "gothakra"))
       || (!str_cmp (buf, "apprentice-seeker-knight")
           && !str_cmp (clan_name, "seekers"))
       || (!str_cmp (buf, "khur")
@@ -256,11 +290,21 @@ clan_flags_to_value (char *flag_names, char *clan_name)
       else if (!str_cmp (buf, "corporal")
       || (!str_cmp (buf, "roquen")
           && !str_cmp (clan_name, "tirithguard"))
+      || ((!str_cmp (buf, "puruk") || !str_cmp (buf, "zuruk"))
+          && !str_cmp (clan_name, "gothakra"))
       || (!str_cmp (buf, "seeker-knight")
           && !str_cmp (clan_name, "seekers"))
       || (!str_cmp (buf, "gur")
           && !str_cmp (clan_name, "khagdu")))
         flags |= CLAN_CORPORAL;
+      else if (!str_cmp (buf, "sergeant")
+      || ((!str_cmp (buf, "zaak") || !str_cmp (buf, "high-puruk"))
+          && !str_cmp (clan_name, "gothakra")))
+        flags |= CLAN_SERGEANT;
+      else if (!str_cmp (buf, "lieutenant")
+      || ((!str_cmp (buf, "puruk-zuul") || !str_cmp (buf, "ba'zaak"))
+          && !str_cmp (clan_name, "gothakra")))
+        flags |= CLAN_LIEUTENANT;
       else if (!str_cmp (buf, "captain")
       || (!str_cmp (buf, "barun-an-nalo")
           && !str_cmp (clan_name, "shadow-cult"))

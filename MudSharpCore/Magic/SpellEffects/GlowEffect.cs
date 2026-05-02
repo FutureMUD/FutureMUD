@@ -18,7 +18,10 @@ public class GlowEffect : IMagicSpellEffectTemplate
 {
     public static void RegisterFactory()
     {
-        SpellEffectFactory.RegisterLoadTimeFactory("glow", (root, spell) => new GlowEffect(root, spell));
+        SpellEffectFactory.RegisterLoadTimeFactory("glow",
+            (root, spell) => InvisibilityEffect.IsLegacyGlowInvisibilityDefinition(root)
+                ? InvisibilityEffect.LoadLegacyGlowInvisibility(root, spell)
+                : new GlowEffect(root, spell));
         SpellEffectFactory.RegisterBuilderFactory("glow", BuilderFactory,
             "Causes the target to glow",
             HelpText,

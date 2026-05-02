@@ -324,14 +324,27 @@ public partial class Character
 
     public override void DoFallDamage(double fallDistance)
     {
+        var fallMitigationEffects = CombinedEffectsOfType<IFallDamageMitigationEffect>()
+            .Where(x => x.Applies())
+            .ToList();
+        var effectiveFallDistance = fallMitigationEffects.Aggregate(fallDistance,
+            (current, effect) => current * Math.Max(0.0, effect.FallDistanceMultiplier));
+        var damageMultiplier = fallMitigationEffects.Aggregate(1.0,
+            (current, effect) => current * Math.Max(0.0, effect.FallDamageMultiplier));
+
         ICheck check = Gameworld.GetCheck(CheckType.FallingImpactCheck);
-        CheckOutcome result = check.Check(this, Difficulty.Normal.StageUp((int)fallDistance));
-        FallDamageExpression.Formula.Parameters["rooms"] = fallDistance;
+        CheckOutcome result = check.Check(this, Difficulty.Normal.StageUp((int)effectiveFallDistance));
+        FallDamageExpression.Formula.Parameters["rooms"] = effectiveFallDistance;
         FallDamageExpression.Formula.Parameters["weight"] = Weight;
         FallDamageExpression.Formula.Parameters["check"] = result.CheckDegrees();
         FallDamageExpression.Formula.Parameters["success"] = result.SuccessDegrees();
         FallDamageExpression.Formula.Parameters["failure"] = result.FailureDegrees();
-        double damageAmount = FallDamageExpression.Evaluate(this);
+        double damageAmount = FallDamageExpression.Evaluate(this) * damageMultiplier;
+        if (damageAmount <= 0.0)
+        {
+            return;
+        }
+
         Damage damage = new()
         {
             DamageType = DamageType.Falling,
@@ -1375,6 +1388,11 @@ public partial class Character
             return false;
         }
 
+        if (CombinedEffectsOfType<IPreventFallingEffect>().Any(x => x.Applies()))
+        {
+            return false;
+        }
+
         if (ZeroGravityMovementHelper.IsZeroGravity(Location, RoomLayer, this))
         {
             return false;
@@ -1652,12 +1670,15 @@ public partial class Character
 
     public TimeSpan FlyDelay => TimeSpan.FromSeconds(5); // TODO
 
-    public (bool Truth, string Error) CanFly()
+    private (bool Truth, string Error) CanFlyInternal(bool allowAlreadyFlying, IFlightEffect ignoredEffect = null)
     {
-        (bool truth, string error) = CheckGeneralMovementRestrictions("fly");
-        if (!truth)
+        if (!allowAlreadyFlying)
         {
-            return (false, error);
+            (bool truth, string error) = CheckGeneralMovementRestrictions("fly");
+            if (!truth)
+            {
+                return (false, error);
+            }
         }
 
         if (Location.IsUnderwaterLayer(RoomLayer))
@@ -1665,12 +1686,12 @@ public partial class Character
             return (false, "You cannot fly when you are underwater. That's called swimming.");
         }
 
-        if (PositionState == PositionFlying.Instance)
+        if (!allowAlreadyFlying && PositionState == PositionFlying.Instance)
         {
             return (false, "You are already flying.");
         }
 
-        if (CombinedEffectsOfType<IFlightEffect>().Any(x => x.Applies()))
+        if (CombinedEffectsOfType<IFlightEffect>().Any(x => !ReferenceEquals(x, ignoredEffect) && x.Applies()))
         {
             return (true, string.Empty);
         }
@@ -1697,6 +1718,16 @@ public partial class Character
 
 
         return (false, "You weren't made to fly.");
+    }
+
+    public (bool Truth, string Error) CanFly()
+    {
+        return CanFlyInternal(false);
+    }
+
+    public (bool Truth, string Error) CanContinueFlying(IFlightEffect ignoredEffect = null)
+    {
+        return CanFlyInternal(true, ignoredEffect);
     }
 
     public void Fly(IEmote actionEmote = null)
@@ -1851,18 +1882,22 @@ public partial class Character
                );
     }
 
-    public void CheckCanFly()
+    public void CheckCanFly(IFlightEffect ignoredEffect = null)
     {
         if (PositionState != PositionFlying.Instance)
         {
             return;
         }
 
-        if (!CanFly().Truth)
+        if (!CanContinueFlying(ignoredEffect).Truth)
         {
             OutputHandler.Handle(new EmoteOutput(new Emote("@ can no longer fly!", this),
                 flags: OutputFlags.SuppressObscured));
-            PositionState = PositionSprawled.Instance;
+            SetPosition(PositionSprawled.Instance, PositionModifier.None, null, null);
+            if (ShouldFall())
+            {
+                FallToGround();
+            }
             return;
         }
     }
@@ -1891,6 +1926,10 @@ public partial class Character
         SpendStamina(staminaCost);
         OutputHandler.Handle(new EmoteOutput(new Emote("Exhausted, @ can fly no more.", this, this)));
         SetPosition(PositionSprawled.Instance, PositionModifier.None, null, null);
+        if (ShouldFall())
+        {
+            FallToGround();
+        }
     }
 
     (bool Truth, string Error) IFly.CanAscend()

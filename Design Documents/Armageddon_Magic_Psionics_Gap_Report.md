@@ -79,6 +79,7 @@ The current system already has good coverage for:
 - general spell cleanup through `dispelmagic`, including remove or shorten modes and criteria for caster policy, spell, school/subschool, magic tags, and approved effect/interface keys
 - transient paired magical portals through `portal`, backed by effect-owned exit-manager registration rather than permanent database exits, with active inspection and caster-owned room or item/object anchors
 - psionic identity concealment and passive thought/feeling traffic through `mindconceal` and the existing `telepathy` flow
+- Wind movement and fall-control effects through `levitate`, `featherfall`, `forcedpathmovement` / `handsofwind`, `transference`, and `removeinvisibility` / `dispelinvisibility`
 - Coercion V1 through `forcecommand`, `subjectivedesc`, and `subjectivesdesc`
 
 ## Previous Work
@@ -174,7 +175,6 @@ These are intentionally separate builder-visible types rather than a single enum
 
 The remaining gap inside this primitive family is now the unimplemented edge set rather than the basic reusable states:
 
-- `feather fall`
 - `detect poison`
 - `insomnia`
 - cure blindness
@@ -454,7 +454,7 @@ This appendix is the historical family-by-family classification from the first p
 
 ### Wind
 
-- Native now: `Invisibility`, `Wind Armor`, `Wind Fist`, `Repel`, `Wall Of Wind`
+- Native now: `Invisibility`, `Detect Invisible`, `Levitate`, `Hands Of Wind`, `Transference`, `Fly`, `Feather Fall`, `Dispel Invisibility`, `Wind Armor`, `Wind Fist`, `Repel`, `Wall Of Wind`
 - Builder+Prog now: `Teleport`, `Relocate`, `Sandstorm`, `Banishment`, `Guardian`, `Stalker`, `Delusion`, `Shield Of Wind`, `Messenger`, `Create Rune`, `Summon`
 - Historical needs engine work: `Detect Invisible`, `Levitate`, `Hands Of Wind`, `Transference`, `Fly`, `Feather Fall`, `Dispel Invisibility`
 

@@ -64,43 +64,15 @@ public class CombatSeeder : IDatabaseSeeder
             Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
             Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
         {
-            ("installunarmed",
-                "Do you want to install unarmed melee attacks for humans?\n\nPlease answer #3yes#f or #3no#f: ",
-                (context, answers) => true,
-                (answer, context) =>
-                {
-                    return (answer.EqualToAny("yes", "y", "no", "n"), "You must answer yes or no.");
-                }),
-            ("installweapons",
-                "Do you want to install armed melee attacks, including by necessity the weapon types behind them?\n\nPlease answer #3yes#f or #3no#f: ",
-                (context, answers) => true,
-                (answer, context) =>
-                {
-                    return (answer.EqualToAny("yes", "y", "no", "n"), "You must answer yes or no.");
-                }),
-            ("installarmour", @"Do you want to install armour types? 
-
-Please answer #3yes#f or #3no#f: ", (context, answers) => true,
-                (answer, context) =>
-                {
-                    return (answer.EqualToAny("yes", "y", "no", "n"), "You must answer yes or no.");
-                }),
-            ("installranged",
-                "Do you want to install pre-modern ranged weapon types, such as bows, crossbows and throwing weapons?\n\nPlease answer #3yes#f or #3no#f: ",
-                (context, answers) => true,
-                (answer, context) =>
-                {
-                    return (answer.EqualToAny("yes", "y", "no", "n"), "You must answer yes or no.");
-                }),
             ("installmuskets",
-                "[Not Yet Implemented] Do you want to install some early gunpowder weapon types?\n\nPlease answer #3yes#f or #3no#f: ",
+                "Do you want to install some early gunpowder weapon types?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, answers) => true,
                 (answer, context) =>
                 {
                     return (answer.EqualToAny("yes", "y", "no", "n"), "You must answer yes or no.");
                 }),
             ("installguns",
-                "Do you want to install some example modern firearm types?\n\nPlease answer #3yes#f or #3no#f: ",
+                "Do you want to install some modern firearm types?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, answers) => true,
                 (answer, context) =>
                 {
@@ -193,20 +165,9 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
         IReadOnlyDictionary<string, TraitDefinition> skills = SeedCoreData(context, effectiveAnswers);
 
-        if (effectiveAnswers["installunarmed"].EqualToAny("yes", "y"))
-        {
-            SeedDataUnarmed(context, effectiveAnswers, skills);
-        }
-
-        if (effectiveAnswers["installweapons"].EqualToAny("yes", "y"))
-        {
-            SeedDataWeapons(context, effectiveAnswers, skills);
-        }
-
-        if (effectiveAnswers["installranged"].EqualToAny("yes", "y"))
-        {
-            SeedDataRanged(context, effectiveAnswers, skills);
-        }
+        SeedDataUnarmed(context, effectiveAnswers, skills);
+        SeedDataWeapons(context, effectiveAnswers, skills);
+        SeedDataRanged(context, effectiveAnswers, skills);
 
         if (effectiveAnswers["installmuskets"].EqualToAny("yes", "y"))
         {
@@ -218,10 +179,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             SeedDataGuns(context, effectiveAnswers);
         }
 
-        if (effectiveAnswers["installarmour"].EqualToAny("yes", "y"))
-        {
-            SeedArmourTypes(context, effectiveAnswers);
-        }
+        SeedArmourTypes(context, effectiveAnswers);
 
         context.Database.CommitTransaction();
 

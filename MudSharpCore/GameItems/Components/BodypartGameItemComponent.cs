@@ -135,6 +135,10 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             new XElement("Tattoos",
                 from item in Tattoos
                 select item.SaveToXml()
+            ),
+            new XElement("ButcheredSubcategories",
+                from item in ButcheredSubcategories
+                select new XElement("Subcategory", item)
             )
         ).ToString();
     }
@@ -189,6 +193,11 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         {
             _tattoos.Add(new Tattoo(tattoo, Gameworld));
         }
+
+        _butcheredSubcategories.AddRange(
+            definition.Element("ButcheredSubcategories")?.Elements("Subcategory")
+                      .Select(x => x.Value.NormaliseButcherySubcategory())
+                      .Where(x => !string.IsNullOrWhiteSpace(x)) ?? Enumerable.Empty<string>());
     }
 
     #region Constructors
@@ -228,6 +237,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         _implants = rhs._implants.ToList();
         Wounds = rhs.Wounds.ToList();
         Tattoos = rhs.Tattoos.ToList();
+        _butcheredSubcategories.AddRange(rhs._butcheredSubcategories);
         OriginalCharacterId = rhs.OriginalCharacterId;
         _originalCharacter = rhs._originalCharacter;
         _originalBodyId = rhs._originalBodyId;
@@ -690,6 +700,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
                 IGameItem newItem = proto.CreateNew(butcher);
                 newItem.RoomLayer = Parent.RoomLayer;
                 newItem.GetItemType<IStackable>().Quantity = quantity;
+                Gameworld.Add(newItem);
                 butcher.Location.Insert(newItem);
                 newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
                 newItem.Login();
@@ -715,16 +726,16 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         Butchering effect = butcher.EffectsOfType<Butchering>().First();
 
         foreach (IButcheryProduct product in OriginalCharacter.Race.ButcheryProfile.Products.Where(x =>
-                     !x.IsPelt && x.CanProduce(butcher, Parent) &&
+                     !x.IsPelt && x.AppliesTo(this) && x.CanProduce(butcher, Parent) &&
                      (string.IsNullOrEmpty(subcategory) || x.Subcategory.EqualTo(subcategory))))
         {
-            double damageRatio =
-                Parent.Wounds.Where(x => product.RequiredBodyparts.Contains(x.Bodypart)).Sum(x => x.CurrentDamage) /
-                product.RequiredBodyparts.Sum(x => OriginalBody.HitpointsForBodypart(x));
-            if (double.IsNaN(damageRatio))
-            {
-                damageRatio = 1.0;
-            }
+            List<IBodypart> productParts = product.MatchingBodyparts(this).ToList();
+            double totalHitpoints = productParts.Sum(x => OriginalBody.HitpointsForBodypart(x));
+            double damageRatio = totalHitpoints <= 0.0
+                ? 1.0
+                : Parent.Wounds.Where(x => productParts.Any(y => x.Bodypart.ButcheryBodypartMatches(y)))
+                        .Sum(x => x.CurrentDamage) /
+                  totalHitpoints;
 
             foreach (IButcheryProductItem item in product.ProductItems)
             {
@@ -741,9 +752,9 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
                 LoadItem(item.NormalProto, item.NormalQuantity);
             }
 
-            List<IBodypart> affectedParts = OriginalBody.Bodyparts
+            List<IBodypart> affectedParts = Parts
                                                  .Where(x => product.RequiredBodyparts.Any(y =>
-                                                     x.DownstreamOfPart(x) || y == x)).ToList();
+                                                     x.DownstreamOfPart(y) || x.ButcheryBodypartMatches(y))).ToList();
 
             foreach (IGameItem item in _implants.Where(x => affectedParts.Contains(x.GetItemType<IImplant>()?.TargetBodypart))
                                           .ToList())
@@ -772,7 +783,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
         if (!string.IsNullOrEmpty(subcategory))
         {
-            _butcheredSubcategories.Add(subcategory);
+            _butcheredSubcategories.Add(subcategory.NormaliseButcherySubcategory());
             Changed = true;
             return false;
         }

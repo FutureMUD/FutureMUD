@@ -77,7 +77,9 @@ public class Butchering : StagedCharacterActionWithTarget, IAffectProximity
         (Trait, CheckDifficulty) = Profile.BreakdownCheck(subcategory);
         List<(string Emote, double Delay)> emotesAndDelays = Profile.BreakdownEmotes(subcategory).ToList();
         Emotes = new Queue<string>(emotesAndDelays.Select(x => x.Emote));
-        TimesBetweenTicks = new Queue<TimeSpan>(emotesAndDelays.Select(x => TimeSpan.FromMilliseconds(x.Delay)));
+        TimesBetweenTicks = new Queue<TimeSpan>(emotesAndDelays
+                                                .Take(Math.Max(0, emotesAndDelays.Count - 1))
+                                                .Select(x => TimeSpan.FromSeconds(x.Delay)));
 
         void IntermediateStepAction(IPerceivable perceivable)
         {

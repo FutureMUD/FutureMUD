@@ -1662,6 +1662,7 @@ internal static class Program
 		Console.WriteLine();
 		Console.WriteLine("Notes:");
 		Console.WriteLine("  apply-items, apply-clans, apply-crafts, apply-rooms, and apply-npcs default to dry-run mode unless --execute is supplied.");
+		Console.WriteLine("  Recommended execute order: apply-clans, apply-items, apply-rooms, apply-crafts, then apply-npcs.");
 		Console.WriteLine("  The default regions directory is the bundled soiregions-main corpus.");
 		Console.WriteLine("  The default clan source is the bundled Old SOI Code/src/clan.cpp file.");
 		Console.WriteLine("  The default craft source is the bundled soiregions-main/crafts.txt file.");

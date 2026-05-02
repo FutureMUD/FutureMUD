@@ -36,15 +36,38 @@ The current pass aims to import the following families functionally:
 - food, keys, repair kits, locksmithing tools
 - parchment and books
 - writing implements when compatible stock components exist
+- variable-colour descriptor items where the source uses legacy `$color` style tokens
+- board items, by generating a FutureMUD board row and matching board item component during execute import
 
 ## Mapping Heuristics
+
+### Descriptions and Colours
+
+- If the short or long description is entirely wrapped in one bounded RPI ANSI colour pair such as `#5a purple cloak#0`, the importer removes the wrapper and stores the FutureMUD custom colour override on the item prototype.
+- Inline or nested ANSI markup remains in the description text. This avoids changing cases where the legacy description intentionally coloured only one word or phrase.
+- If the short and long descriptions have conflicting bounded colours, the short-description colour wins and the long-description tags are left inline with a warning.
+
+### Variable Descriptions
+
+- Legacy RPI variable descriptions use `$` tokens in the same visible places FutureMUD does.
+- `$color` and `$colour` map to `Variable_BasicColour`.
+- `$finecolor`, `$finecolour`, and `$finecolored` map to `Variable_FineColour`.
+- `$drabcolor`, `$drabcolour`, and the observed typo `$drobcolor` map to `Variable_DrabColour`.
+- `$gemcolor` and `$gemcolour` map to `Variable_Gem`, using the RPI Engine `gem_colors` values. `$gem` is accepted as an importer alias for observed worldfile shorthand, but the archived runtime token is `$gemcolor`.
+- `$finegemcolor` and `$finegemcolour` map to `Variable_FineGem`, using the RPI Engine `fine_gem_colors` values. `$finegem` is accepted as the matching importer shorthand.
+- `$commonstone` maps to `Variable_CommonStone`, using the RPI Engine `stone_colors` values. `$stone` is accepted as an importer alias for observed worldfile shorthand, but the archived runtime token is `$commonstone`.
+- Items that mix more than one legacy variable family map to `Variable_RpiMixedVariables`, which exposes the basic colour, fine colour, drab colour, gem, fine gem, and common stone definitions in one component.
+- Recognised legacy tokens are preserved in imported descriptions except for spelling aliases and observed typos, so the seeded characteristic patterns can resolve the original variable family at runtime.
+- Unknown `$` tokens are left unchanged and reported as warnings.
 
 ### Wearables
 
 - Wear bits drive the primary wearable slot selection.
 - `desc_keys`, keywords, and descriptions refine the slot choice.
 - Known seeded wearable names are preferred, for example `Wear_Skullcap`, `Wear_Tunic`, `Wear_Hauberk`, `Wear_Gauntlets`, and `Wear_Shoes`.
+- Additional simple RPI wear locations map to the closest stock FutureMUD wear profiles, including rings, necklaces, chokers, cloaks, capes, backpacks, bracelets, earrings, anklets, wigs, armlets, masks, veils, and backplates.
 - Blindfold and belt-like behaviour add supporting components when appropriate.
+- Missing wear-profile coverage remains a warning because the source wear bit can be valid even when the seeded FutureMUD baseline lacks a compatible profile.
 
 ### Armour
 
@@ -88,6 +111,16 @@ The current pass aims to import the following families functionally:
 - Writing implements try known stock components such as `Biro_Black`, `Biro_Blue`, `Biro_Red`, and `Pencil_Black`.
 - Standalone ink currently falls back to a prop because this pass does not assume a dedicated seeded ink reservoir component exists.
 
+### Boards
+
+- RPI `ITEM_BOARD` prototypes map to FutureMUD board items.
+- The first source keyword is preserved as the legacy board key, matching how the RPI Engine selected the board name from the object name.
+- Execute import creates or reuses a `Boards` row and a generated approved `Board` component named `RPI_Board_<key>`.
+- Generated board components use the seeded `AlwaysTrue` FutureProg for view and post permissions when no legacy clan rows exist.
+- When legacy board item clan rows exist, item import resolves the imported clan alias and rank to stable database IDs, then creates a private `RPIBoardAccess_<key>` FutureProg and attaches it to both view and post permissions.
+- Because of that stable-ID binding, run `apply-clans --execute` before `apply-items --execute`. Item import validation treats missing board clans or ranks as fatal baseline errors.
+- Historical board posts are not imported from item worldfiles.
+
 ## Deferred and Prop Families
 
 The following families intentionally stay out of functional import in pass one:
@@ -119,5 +152,6 @@ These still preserve provenance, raw ovals, warnings, and any optional source me
 
 - Baseline catalog lookups tolerate duplicate seeded component, material, tag, liquid, and trait names by choosing the lowest-ID row deterministically.
 - Missing seeded dependencies are surfaced as validation issues rather than silently dropped.
+- Generated board components are data-only uses of the existing FutureMUD board runtime, not converter-specific runtime behaviour.
 - The importer deliberately avoids creating new runtime behaviour; if a mapping needs a runtime item system that FutureMUD does not already expose, the item remains a prop in this pass.
 - Export JSON is the recommended interchange format if this work later migrates into code generation for `DatabaseSeeder`.

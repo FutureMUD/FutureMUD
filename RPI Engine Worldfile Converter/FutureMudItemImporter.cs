@@ -1,12 +1,18 @@
 #nullable enable
 
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
+using MudSharp.FutureProg;
 using MudSharp.Models;
+using DbFutureProg = MudSharp.Models.FutureProg;
 
 namespace RPI_Engine_Worldfile_Converter;
 
 public sealed record FutureMudComponentReference(long Id, int RevisionNumber, string Name, string Type);
+
+public sealed record FutureMudClanReference(long ClanId, string Alias, Dictionary<string, long> RankIds);
 
 public sealed record FutureMudValidationIssue(string SourceKey, string Severity, string Message);
 
@@ -25,6 +31,10 @@ public static class FutureMudItemValidation
 
 		foreach (var definition in definitions)
 		{
+			var generatedComponentNames = definition.BoardDefinition is null
+				? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+				: new HashSet<string>([definition.BoardDefinition.ComponentName], StringComparer.OrdinalIgnoreCase);
+
 			if (!catalog.MaterialIds.ContainsKey(definition.MaterialName))
 			{
 				issues.Add(new FutureMudValidationIssue(definition.SourceKey, "error", $"Missing material '{definition.MaterialName}'."));
@@ -32,9 +42,37 @@ public static class FutureMudItemValidation
 
 			foreach (var component in definition.ComponentNames.Distinct(StringComparer.OrdinalIgnoreCase))
 			{
-				if (!catalog.Components.ContainsKey(component))
+				if (!generatedComponentNames.Contains(component) && !catalog.Components.ContainsKey(component))
 				{
 					issues.Add(new FutureMudValidationIssue(definition.SourceKey, "error", $"Missing component '{component}'."));
+				}
+			}
+
+			if (definition.BoardDefinition is { ClanRestrictions.Count: 0 } && !catalog.FutureProgIds.ContainsKey("AlwaysTrue"))
+			{
+				issues.Add(new FutureMudValidationIssue(definition.SourceKey, "error", "Missing FutureProg 'AlwaysTrue' required for generated board components."));
+			}
+
+			if (definition.BoardDefinition is { ClanRestrictions.Count: > 0 } boardDefinition)
+			{
+				foreach (var restriction in boardDefinition.ClanRestrictions)
+				{
+					if (!catalog.ClansByAlias.TryGetValue(restriction.ClanAlias, out var clan))
+					{
+						issues.Add(new FutureMudValidationIssue(
+							definition.SourceKey,
+							"error",
+							$"Missing imported clan alias '{restriction.ClanAlias}' required by board '{boardDefinition.BoardName}'. Run apply-clans before apply-items so board access can be bound to stable clan ids."));
+						continue;
+					}
+
+					if (!IsMembershipOnlyBoardRank(restriction.RankName) && !clan.RankIds.ContainsKey(restriction.RankName))
+					{
+						issues.Add(new FutureMudValidationIssue(
+							definition.SourceKey,
+							"error",
+							$"Missing imported clan rank '{restriction.RankName}' in clan alias '{restriction.ClanAlias}' required by board '{boardDefinition.BoardName}'. Run apply-clans before apply-items so board access can be bound to stable clan rank ids."));
+					}
 				}
 			}
 
@@ -69,6 +107,14 @@ public static class FutureMudItemValidation
 
 		return issues;
 	}
+
+	private static bool IsMembershipOnlyBoardRank(string rankName)
+	{
+		return string.IsNullOrWhiteSpace(rankName) ||
+		       rankName.Equals("member", StringComparison.OrdinalIgnoreCase) ||
+		       rankName.Equals("membership", StringComparison.OrdinalIgnoreCase) ||
+		       rankName.Equals("all", StringComparison.OrdinalIgnoreCase);
+	}
 }
 
 public sealed class FutureMudBaselineCatalog
@@ -79,6 +125,8 @@ public sealed class FutureMudBaselineCatalog
 	public required Dictionary<string, long> TagIds { get; init; }
 	public required Dictionary<string, long> LiquidIds { get; init; }
 	public required Dictionary<string, long> TraitIds { get; init; }
+	public required Dictionary<string, FutureMudClanReference> ClansByAlias { get; init; }
+	public Dictionary<string, long> FutureProgIds { get; init; } = new(StringComparer.OrdinalIgnoreCase);
 
 	public static FutureMudBaselineCatalog Load(FuturemudDatabaseContext context)
 	{
@@ -110,8 +158,37 @@ public sealed class FutureMudBaselineCatalog
 			MaterialIds = ToUniqueIdDictionary(context.Materials, x => x.Name, x => x.Id),
 			TagIds = ToUniqueIdDictionary(context.Tags, x => x.Name, x => x.Id),
 			LiquidIds = ToUniqueIdDictionary(context.Liquids, x => x.Name, x => x.Id),
-			TraitIds = ToUniqueIdDictionary(context.TraitDefinitions, x => x.Name, x => x.Id)
+			TraitIds = ToUniqueIdDictionary(context.TraitDefinitions, x => x.Name, x => x.Id),
+			ClansByAlias = LoadClansByAlias(context),
+			FutureProgIds = ToUniqueIdDictionary(context.FutureProgs, x => x.FunctionName, x => x.Id)
 		};
+	}
+
+	private static Dictionary<string, FutureMudClanReference> LoadClansByAlias(FuturemudDatabaseContext context)
+	{
+		return context.Clans
+			.Include(x => x.Ranks)
+				.ThenInclude(x => x.RanksTitles)
+			.Include(x => x.Ranks)
+				.ThenInclude(x => x.RanksAbbreviations)
+			.ToList()
+			.Where(x => !string.IsNullOrWhiteSpace(x.Alias))
+			.GroupBy(x => x.Alias, StringComparer.OrdinalIgnoreCase)
+			.Select(x => x.OrderBy(y => y.Id).First())
+			.ToDictionary(
+				x => x.Alias,
+				x => new FutureMudClanReference(
+					x.Id,
+					x.Alias,
+					x.Ranks
+						.SelectMany(rank =>
+							rank.RanksTitles.Select(title => (name: title.Title, rank.Id))
+								.Concat(rank.RanksAbbreviations.Select(abbreviation => (name: abbreviation.Abbreviation, rank.Id)))
+								.Append((name: rank.Name, Id: rank.Id)))
+						.Where(y => !string.IsNullOrWhiteSpace(y.name))
+						.GroupBy(y => y.name, StringComparer.OrdinalIgnoreCase)
+						.ToDictionary(y => y.Key, y => y.First().Id, StringComparer.OrdinalIgnoreCase)),
+				StringComparer.OrdinalIgnoreCase);
 	}
 
 	private static Dictionary<string, long> ToUniqueIdDictionary<T>(
@@ -132,6 +209,22 @@ public sealed class FutureMudBaselineCatalog
 	public bool HasComponent(string name)
 	{
 		return Components.ContainsKey(name);
+	}
+
+	public void RegisterComponent(FutureMudComponentReference component)
+	{
+		Components[component.Name] = component;
+		if (!ComponentsByType.TryGetValue(component.Type, out var componentsOfType))
+		{
+			componentsOfType = [];
+			ComponentsByType[component.Type] = componentsOfType;
+		}
+
+		if (!componentsOfType.Contains(component.Name, StringComparer.OrdinalIgnoreCase))
+		{
+			componentsOfType.Add(component.Name);
+			componentsOfType.Sort(StringComparer.OrdinalIgnoreCase);
+		}
 	}
 
 	public string? ChooseComponent(IEnumerable<string> candidates)
@@ -223,11 +316,16 @@ public sealed class FutureMudBaselineCatalog
 
 public sealed class FutureMudItemImporter
 {
+	private static readonly Regex NonProgNameRegex = new("[^a-z0-9_]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 	private readonly FuturemudDatabaseContext _context;
 	private readonly FutureMudBaselineCatalog _catalog;
 	private readonly long _builderAccountId;
 	private long _nextItemId;
+	private long _nextComponentId;
+	private long _nextBoardId;
 	private readonly DateTime _now;
+
+	private sealed record ResolvedBoardClanRestriction(long ClanId, long? RankId);
 
 	public FutureMudItemImporter(FuturemudDatabaseContext context, FutureMudBaselineCatalog catalog)
 	{
@@ -240,6 +338,8 @@ public sealed class FutureMudItemImporter
 		}
 
 		_nextItemId = context.GameItemProtos.Any() ? context.GameItemProtos.Max(x => x.Id) + 1 : 1;
+		_nextComponentId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+		_nextBoardId = context.Boards.Any() ? context.Boards.Max(x => x.Id) + 1 : 1;
 		_now = DateTime.UtcNow;
 	}
 
@@ -279,6 +379,8 @@ public sealed class FutureMudItemImporter
 				continue;
 			}
 
+			EnsureGeneratedDependencies(definition);
+
 			var proto = new GameItemProto
 			{
 				Id = _nextItemId++,
@@ -305,6 +407,7 @@ public sealed class FutureMudItemImporter
 				ShortDescription = definition.ShortDescription,
 				FullDescription = definition.FullDescription,
 				PermitPlayerSkins = definition.PermitPlayerSkins,
+				CustomColour = definition.CustomColour ?? string.Empty,
 				CostInBaseCurrency = definition.CostInBaseCurrency,
 				IsHiddenFromPlayers = false,
 				HighPriority = false
@@ -351,6 +454,239 @@ public sealed class FutureMudItemImporter
 		return new FutureMudImportResult(insertedCount, skippedExistingCount, issues);
 	}
 
+	private void EnsureGeneratedDependencies(ConvertedItemDefinition definition)
+	{
+		if (definition.BoardDefinition is not null)
+		{
+			EnsureBoardComponent(definition.BoardDefinition);
+		}
+	}
+
+	private void EnsureBoardComponent(FutureMudBoardDefinition boardDefinition)
+	{
+		if (_catalog.HasComponent(boardDefinition.ComponentName))
+		{
+			return;
+		}
+
+		var existingComponent = _context.GameItemComponentProtos
+			.Include(x => x.EditableItem)
+			.AsEnumerable()
+			.FirstOrDefault(x =>
+				x.Name.Equals(boardDefinition.ComponentName, StringComparison.OrdinalIgnoreCase) &&
+				x.Type.Equals("Board", StringComparison.OrdinalIgnoreCase) &&
+				x.EditableItem.RevisionStatus == 4);
+		if (existingComponent is not null)
+		{
+			_catalog.RegisterComponent(new FutureMudComponentReference(
+				existingComponent.Id,
+				existingComponent.RevisionNumber,
+				existingComponent.Name,
+				existingComponent.Type));
+			return;
+		}
+
+		var boardAccessProgId = EnsureBoardAccessFutureProg(boardDefinition);
+
+		var board = _context.Boards.Local
+			.FirstOrDefault(x => x.Name.Equals(boardDefinition.BoardName, StringComparison.OrdinalIgnoreCase))
+			?? _context.Boards
+				.AsEnumerable()
+				.FirstOrDefault(x => x.Name.Equals(boardDefinition.BoardName, StringComparison.OrdinalIgnoreCase));
+		if (board is null)
+		{
+			board = new Board
+			{
+				Id = _nextBoardId++,
+				Name = boardDefinition.BoardName,
+				ShowOnLogin = false
+			};
+			_context.Boards.Add(board);
+		}
+
+		var component = new GameItemComponentProto
+		{
+			Id = _nextComponentId++,
+			RevisionNumber = 0,
+			Type = "Board",
+			Name = boardDefinition.ComponentName,
+			Description = $"Generated board component for imported RPI board '{boardDefinition.LegacyBoardKey}'.",
+			Definition = BuildBoardComponentDefinition(board.Id, boardAccessProgId),
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = _builderAccountId,
+				BuilderDate = _now,
+				BuilderComment = $"RPIIMPORT|generated-board-component|{boardDefinition.LegacyBoardKey}",
+				ReviewerAccountId = _builderAccountId,
+				ReviewerDate = _now,
+				ReviewerComment = "Generated by the RPI Engine Worldfile Converter."
+			}
+		};
+		_context.GameItemComponentProtos.Add(component);
+		_catalog.RegisterComponent(new FutureMudComponentReference(component.Id, component.RevisionNumber, component.Name, component.Type));
+	}
+
+	private long EnsureBoardAccessFutureProg(FutureMudBoardDefinition boardDefinition)
+	{
+		if (boardDefinition.ClanRestrictions.Count == 0)
+		{
+			if (_catalog.FutureProgIds.TryGetValue("AlwaysTrue", out var alwaysTrueId))
+			{
+				return alwaysTrueId;
+			}
+
+			throw new InvalidOperationException("Cannot create generated RPI board components because the target database is missing the AlwaysTrue FutureProg.");
+		}
+
+		var resolvedRestrictions = ResolveBoardClanRestrictions(boardDefinition);
+		var functionName = BuildBoardAccessProgName(boardDefinition);
+		if (_catalog.FutureProgIds.TryGetValue(functionName, out var existingId))
+		{
+			return existingId;
+		}
+
+		var existingProg = _context.FutureProgs
+			.AsEnumerable()
+			.FirstOrDefault(x => x.FunctionName.Equals(functionName, StringComparison.OrdinalIgnoreCase));
+		if (existingProg is not null)
+		{
+			_catalog.FutureProgIds[existingProg.FunctionName] = existingProg.Id;
+			return existingProg.Id;
+		}
+
+		var prog = new DbFutureProg
+		{
+			FunctionName = functionName,
+			FunctionComment =
+				$"Checks legacy RPI clan access restrictions for imported board '{boardDefinition.LegacyBoardKey}'.",
+			FunctionText = BuildBoardAccessProgText(resolvedRestrictions),
+			ReturnType = (long)ProgVariableTypes.Boolean,
+			Category = "Items",
+			Subcategory = "RPI Import Boards",
+			Public = false,
+			AcceptsAnyParameters = false,
+			StaticType = (int)FutureProgStaticType.NotStatic
+		};
+		prog.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = prog,
+			ParameterIndex = 0,
+			ParameterType = (long)ProgVariableTypes.Character,
+			ParameterName = "ch"
+		});
+
+		_context.FutureProgs.Add(prog);
+		_context.SaveChanges();
+		_catalog.FutureProgIds[functionName] = prog.Id;
+		return prog.Id;
+	}
+
+	private IReadOnlyList<ResolvedBoardClanRestriction> ResolveBoardClanRestrictions(FutureMudBoardDefinition boardDefinition)
+	{
+		return boardDefinition.ClanRestrictions
+			.Select(restriction =>
+			{
+				if (!_catalog.ClansByAlias.TryGetValue(restriction.ClanAlias, out var clan))
+				{
+					throw new InvalidOperationException(
+						$"Cannot create generated board access FutureProg for '{boardDefinition.BoardName}' because clan alias '{restriction.ClanAlias}' is missing. Run apply-clans before apply-items.");
+				}
+
+				if (IsAnyMemberRank(restriction.RankName))
+				{
+					return new ResolvedBoardClanRestriction(clan.ClanId, null);
+				}
+
+				if (!clan.RankIds.TryGetValue(restriction.RankName, out var rankId))
+				{
+					throw new InvalidOperationException(
+						$"Cannot create generated board access FutureProg for '{boardDefinition.BoardName}' because rank '{restriction.RankName}' is missing from clan alias '{restriction.ClanAlias}'. Run apply-clans before apply-items.");
+				}
+
+				return new ResolvedBoardClanRestriction(clan.ClanId, rankId);
+			})
+			.ToList();
+	}
+
+	private static string BuildBoardAccessProgName(FutureMudBoardDefinition boardDefinition)
+	{
+		var suffix = NonProgNameRegex
+			.Replace(boardDefinition.LegacyBoardKey.ToLowerInvariant(), "_")
+			.Trim('_');
+		if (string.IsNullOrWhiteSpace(suffix))
+		{
+			suffix = "board";
+		}
+
+		if (suffix.Length > 70)
+		{
+			suffix = suffix[..70].Trim('_');
+		}
+
+		return $"RPIBoardAccess_{suffix}";
+	}
+
+	private static string BuildBoardAccessProgText(IReadOnlyList<ResolvedBoardClanRestriction> restrictions)
+	{
+		List<string> lines =
+		[
+			"var clan as clan",
+			"var rank as rank"
+		];
+
+		foreach (var restriction in restrictions)
+		{
+			lines.Add($"clan = ToClan({restriction.ClanId})");
+			lines.Add("if (not(isnull(@clan)))");
+			if (restriction.RankId is null)
+			{
+				lines.Add("\tif (IsClanMember(@ch, @clan))");
+				lines.Add("\t\treturn true");
+				lines.Add("\tend if");
+			}
+			else
+			{
+				lines.Add($"\trank = ToRank({restriction.RankId.Value})");
+				lines.Add("\tif (not(isnull(@rank)))");
+				lines.Add("\t\tif (IsClanMember(@ch, @clan, @rank))");
+				lines.Add("\t\t\treturn true");
+				lines.Add("\t\tend if");
+				lines.Add("\tend if");
+			}
+			lines.Add("end if");
+		}
+
+		lines.Add("return false");
+		return string.Join('\n', lines);
+	}
+
+	private static bool IsAnyMemberRank(string rankName)
+	{
+		return string.IsNullOrWhiteSpace(rankName) ||
+		       rankName.Equals("member", StringComparison.OrdinalIgnoreCase) ||
+		       rankName.Equals("membership", StringComparison.OrdinalIgnoreCase) ||
+		       rankName.Equals("all", StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static string BuildBoardComponentDefinition(long boardId, long boardAccessProgId)
+	{
+		return new XElement("Definition",
+			new XElement("Board", boardId),
+			new XElement("CanViewBoard", boardAccessProgId),
+			new XElement("CanPostToBoard", boardAccessProgId),
+			new XElement("CantViewBoardEcho", new XCData("You are not permitted to view the posts associated with this board.")),
+			new XElement("CantPostToBoardEcho", new XCData("You are not permitted to make posts to this board.")),
+			new XElement("ShowAuthorName", false),
+			new XElement("ShowAuthorDescription", false),
+			new XElement("ShowAuthorShortDescription", false),
+			new XElement("StoredAuthorName", new XCData(string.Empty)),
+			new XElement("StoredAuthorShortDescription", new XCData(string.Empty)),
+			new XElement("StoredAuthorFullDescription", new XCData(string.Empty))
+		).ToString();
+	}
+
 	private HashSet<string> LoadExistingMarkers()
 	{
 		return _context.GameItemProtos
@@ -376,6 +712,9 @@ public sealed class FutureMudItemImporter
 			$"Material={definition.MaterialName}",
 			$"Components={string.Join(",", definition.ComponentNames)}",
 			$"Tags={string.Join(",", definition.TagNames)}",
+			$"Board={definition.BoardDefinition?.BoardName ?? "none"}",
+			$"BoardAccessRestrictions={definition.BoardDefinition?.ClanRestrictions.Count ?? 0}",
+			$"CustomColour={definition.CustomColour ?? "none"}",
 			$"Liquid={definition.LiquidReference?.LiquidName ?? definition.LiquidReference?.RawLiquidValue.ToString() ?? "none"}",
 			$"Warnings={string.Join(" | ", definition.Warnings.Select(x => x.Message))}"
 		]);

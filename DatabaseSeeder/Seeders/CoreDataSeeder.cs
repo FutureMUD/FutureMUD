@@ -3827,6 +3827,54 @@ return IsAdmin(@ch)",
             Model = "standard",
             ParentId = colourDef.Id
         });
+        CharacteristicDefinition fineColourDef = new()
+        {
+            Type = 2,
+            Name = "Fine Colour",
+            Pattern = "^finecolou?r(ed)?$",
+            Description = "A legacy RPI Engine variable for fine colour values such as $finecolor.",
+            Model = "standard",
+            ParentId = colourDef.Id
+        };
+        context.CharacteristicDefinitions.Add(fineColourDef);
+        CharacteristicDefinition drabColourDef = new()
+        {
+            Type = 2,
+            Name = "Drab Colour",
+            Pattern = "^(drabcolou?r|drobcolor)$",
+            Description = "A legacy RPI Engine variable for drab colour values such as $drabcolor.",
+            Model = "standard",
+            ParentId = colourDef.Id
+        };
+        context.CharacteristicDefinitions.Add(drabColourDef);
+        CharacteristicDefinition gemDef = new()
+        {
+            Type = 2,
+            Name = "Gem",
+            Pattern = "^gem(colou?r)?$",
+            Description = "A legacy RPI Engine variable for common gem values such as $gemcolor, plus the importer $gem alias.",
+            Model = "standard"
+        };
+        context.CharacteristicDefinitions.Add(gemDef);
+        CharacteristicDefinition fineGemDef = new()
+        {
+            Type = 2,
+            Name = "Fine Gem",
+            Pattern = "^finegem(colou?r)?$",
+            Description = "A legacy RPI Engine variable for refined gem values such as $finegemcolor.",
+            Model = "standard"
+        };
+        context.CharacteristicDefinitions.Add(fineGemDef);
+        CharacteristicDefinition commonStoneDef = new()
+        {
+            Type = 2,
+            Name = "Common Stone",
+            Pattern = "^(common)?stone$",
+            Description = "A legacy RPI Engine variable for common stone values such as $commonstone, plus the importer $stone alias.",
+            Model = "standard"
+        };
+        context.CharacteristicDefinitions.Add(commonStoneDef);
+        context.SaveChanges();
 
         // Colours
         List<Colour> colours = new();
@@ -8922,6 +8970,79 @@ return IsAdmin(@ch)",
             Pluralisation = 0
         });
 
+        string[] gemColours =
+        [
+            "aquamarine",
+            "topaz",
+            "citrine",
+            "amethyst",
+            "rose quartz",
+            "quartz",
+            "blue topaz",
+            "agate",
+            "peridot",
+            "amber",
+            "moonstone",
+            "garnet",
+            "sardonyx",
+            "smoky quartz",
+            "carnelian",
+            "moss agate",
+            "blue aventurine"
+        ];
+
+        string[] fineGemColours =
+        [
+            "jet",
+            "ruby",
+            "diamond",
+            "sapphire",
+            "opal",
+            "emerald",
+            "lapis lazuli",
+            "onyx",
+            "pearl",
+            "sunstone",
+            "turquoise",
+            "jade",
+            "malachite"
+        ];
+
+        string[] commonStones =
+        [
+            "granite",
+            "shale",
+            "flint",
+            "basalt",
+            "slate"
+        ];
+
+        void AddCharacteristicValues(CharacteristicDefinition definition, IEnumerable<string> values)
+        {
+            var valueIndex = 1;
+            foreach (var value in values)
+            {
+                context.CharacteristicValues.Add(new CharacteristicValue
+                {
+                    Id = nextId++,
+                    Name = value,
+                    DefinitionId = definition.Id,
+                    Value = valueIndex++.ToString(),
+                    Default = false,
+                    Pluralisation = 0
+                });
+            }
+        }
+
+        static string BuildCharacteristicProfileDefinition(IEnumerable<string> values)
+        {
+            return $"<Values> {string.Join(" ", values.Select(x => $"<Value>{x}</Value>"))} </Values>";
+        }
+
+        AddCharacteristicValues(gemDef, gemColours);
+        AddCharacteristicValues(fineGemDef, fineGemColours);
+        AddCharacteristicValues(commonStoneDef, commonStones);
+
         context.CharacteristicProfiles.Add(new CharacteristicProfile
         {
             Name = "All_Colours",
@@ -8959,6 +9080,33 @@ return IsAdmin(@ch)",
                 "<Values> <Value>faded black</Value> <Value>tattered black</Value> <Value>shabby black</Value> <Value>grimy black</Value> <Value>off-white</Value> <Value>dingy grey</Value> <Value>bland yellow</Value> <Value>faded green</Value> <Value>faded blue</Value> <Value>faded indigo</Value> <Value>drab brown</Value> <Value>dim grey</Value> <Value>dusky slate grey</Value> <Value>sooty grey</Value> <Value>chalky pale grey</Value> <Value>dull mist grey</Value> <Value>ashen off-white</Value> <Value>dirty bone-white</Value> <Value>wan ivory</Value> <Value>spotted white</Value> <Value>stained white</Value> <Value>blotched white</Value> <Value>dingy off-white</Value> <Value>stained ivory</Value> <Value>shabby sallow-coloured</Value> <Value>lurid pale yellow</Value> <Value>dingy yellow</Value> <Value>gaudy mustard yellow</Value> <Value>sickly pale yellow</Value> <Value>shabby pale yellow</Value> <Value>murky brown</Value> <Value>stained brown</Value> <Value>dreary brown</Value> <Value>bland brown</Value> <Value>spotted muddy brown</Value> <Value>dismal sand brown</Value> <Value>dreary beige</Value> <Value>grimy beige</Value> <Value>shabby beige</Value> <Value>dirty beige</Value> <Value>tattered beige</Value> <Value>bland wheat-coloured</Value> <Value>drab olive</Value> <Value>murky olive</Value> <Value>dim olive</Value> <Value>dingy green</Value> <Value>shabby green</Value> <Value>dull green</Value> <Value>sickly greyish-green</Value> <Value>grisly brownish-green</Value> <Value>discoloured green</Value> <Value>blotchy green</Value> <Value>grimy rust-red</Value> <Value>blotchy rust-red</Value> <Value>grimy salmon</Value> <Value>stained salmon</Value> <Value>blotched red</Value> <Value>dull red</Value> <Value>faded red</Value> <Value>stained red</Value> <Value>dingy red</Value> <Value>faded salmon</Value> <Value>well-worn blue</Value> <Value>faded slate blue</Value> <Value>pallid blue</Value> <Value>stained blue</Value> <Value>grimy blue</Value> <Value>dim blue-black</Value> <Value>faded blue-black</Value> <Value>dreary blue-black</Value> <Value>dull orange</Value> <Value>faded reddish-orange</Value> <Value>tattered reddish-orange</Value> <Value>discoloured orange</Value> <Value>stained orange-red</Value> <Value>drab peach-coloured</Value> <Value>lurid peach-coloured</Value> <Value>sickly peach-coloured</Value> <Value>tattered violet</Value> <Value>grimy lavender</Value> <Value>spotted lavender</Value> <Value>discoloured purple</Value> <Value>dirty purple</Value> <Value>dingy purple</Value> <Value>faded purple</Value> <Value>stained purple</Value> <Value>dusty faded purple</Value> </Values>",
             TargetDefinitionId = colourDef.Id,
             Description = "All of the colours from the RPI Engine's $drabcolor variable"
+        });
+
+        context.CharacteristicProfiles.Add(new CharacteristicProfile
+        {
+            Name = "Gem_Colours",
+            Type = "Standard",
+            Definition = BuildCharacteristicProfileDefinition(gemColours),
+            TargetDefinitionId = gemDef.Id,
+            Description = "All of the values from the RPI Engine's $gemcolor variable"
+        });
+
+        context.CharacteristicProfiles.Add(new CharacteristicProfile
+        {
+            Name = "Fine_Gem_Colours",
+            Type = "Standard",
+            Definition = BuildCharacteristicProfileDefinition(fineGemColours),
+            TargetDefinitionId = fineGemDef.Id,
+            Description = "All of the values from the RPI Engine's $finegemcolor variable"
+        });
+
+        context.CharacteristicProfiles.Add(new CharacteristicProfile
+        {
+            Name = "Common_Stones",
+            Type = "Standard",
+            Definition = BuildCharacteristicProfileDefinition(commonStones),
+            TargetDefinitionId = commonStoneDef.Id,
+            Description = "All of the values from the RPI Engine's $commonstone variable"
         });
 
         context.CharacteristicProfiles.Add(new CharacteristicProfile

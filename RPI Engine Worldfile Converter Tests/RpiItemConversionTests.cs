@@ -102,6 +102,144 @@ public class RpiItemConversionTests
 		CollectionAssert.Contains(converted[1010].ComponentNames.ToList(), "Destroyable_Door");
 	}
 
+	[TestMethod]
+	public void Transformer_ExtractsBoundedAnsiColour_ToCustomColour()
+	{
+		var transformer = new FutureMUDItemTransformer(BuildCatalog());
+		var item = BuildItem(
+			shortDescription: "#5a violet sash#0",
+			longDescription: "#5A violet sash has been left here.#0",
+			fullDescription: "This still has #5inline#0 markup.");
+
+		var converted = transformer.Convert(item);
+
+		Assert.AreEqual("magenta", converted.CustomColour);
+		Assert.AreEqual("a violet sash", converted.ShortDescription);
+		Assert.AreEqual("A violet sash has been left here.", converted.LongDescription);
+		Assert.AreEqual("This still has #5inline#0 markup.", converted.FullDescription);
+	}
+
+	[TestMethod]
+	public void Transformer_PreservesLegacyVariableFamilies_AndAddsMatchingComponents()
+	{
+		var transformer = new FutureMUDItemTransformer(BuildCatalog());
+
+		var fine = transformer.Convert(BuildItem(
+			shortDescription: "a $finecolor cloak",
+			longDescription: "A $finecolor cloak lies here.",
+			fullDescription: "It is $finecolor."));
+		CollectionAssert.Contains(fine.ComponentNames.ToList(), "Variable_FineColour");
+		Assert.IsTrue(fine.ShortDescription.Contains("$finecolor", StringComparison.Ordinal));
+
+		var drab = transformer.Convert(BuildItem(
+			shortDescription: "a $drabcolor cloak",
+			longDescription: "A $drabcolor cloak lies here."));
+		CollectionAssert.Contains(drab.ComponentNames.ToList(), "Variable_DrabColour");
+
+		var basic = transformer.Convert(BuildItem(
+			shortDescription: "a $color cloak",
+			longDescription: "A $color cloak lies here."));
+		CollectionAssert.Contains(basic.ComponentNames.ToList(), "Variable_BasicColour");
+
+		var gem = transformer.Convert(BuildItem(
+			rawName: "ring $gem METAL jewelry $gemcolor~",
+			shortDescription: "a $gemcolor-set ring",
+			longDescription: "A $gemcolor-set ring lies here."));
+		CollectionAssert.Contains(gem.ComponentNames.ToList(), "Variable_Gem");
+		Assert.IsTrue(gem.ShortDescription.Contains("$gemcolor", StringComparison.Ordinal));
+
+		var stone = transformer.Convert(BuildItem(
+			shortDescription: "a chunk of $stone",
+			longDescription: "A chunk of $stone lies here."));
+		CollectionAssert.Contains(stone.ComponentNames.ToList(), "Variable_CommonStone");
+
+		var mixed = transformer.Convert(BuildItem(
+			shortDescription: "a $finecolor shirt studded with a $finegemcolor",
+			longDescription: "A $finecolor shirt studded with a $finegemcolor lies here."));
+		CollectionAssert.Contains(mixed.ComponentNames.ToList(), "Variable_RpiMixedVariables");
+		Assert.IsFalse(mixed.Warnings.Any(x => x.Code == "mixed-variable-profiles"));
+	}
+
+	[TestMethod]
+	public void Transformer_DoesNotAddHoldable_WhenTakeBitAbsent()
+	{
+		var transformer = new FutureMUDItemTransformer(BuildCatalog());
+		var item = BuildItem(wearBits: 0);
+
+		var converted = transformer.Convert(item);
+
+		CollectionAssert.DoesNotContain(converted.ComponentNames.ToList(), "Holdable");
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Destroyable_Misc");
+	}
+
+	[TestMethod]
+	public void Transformer_MapsAdditionalWearBits_ForArmour()
+	{
+		var transformer = new FutureMUDItemTransformer(BuildCatalog());
+		var item = BuildItem(
+			itemType: RPIItemType.Armor,
+			wearBits: RPIWearBits.Take | RPIWearBits.Neck,
+			rawName: "steel gorget METAL~",
+			shortDescription: "a steel gorget",
+			longDescription: "A steel gorget lies here.",
+			armourData: new RpiArmourData(1, 5, "Plate"));
+
+		var converted = transformer.Convert(item);
+
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Wear_Gorget");
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Armour_Platemail");
+		Assert.IsFalse(converted.Warnings.Any(x => x.Code == "unmapped-wear-profile"));
+	}
+
+	[TestMethod]
+	public void Transformer_MapsBoardItems_ToGeneratedBoardComponent()
+	{
+		var catalog = BuildCatalog();
+		var transformer = new FutureMUDItemTransformer(catalog);
+		var item = BuildItem(
+			itemType: RPIItemType.Board,
+			wearBits: 0,
+			rawName: "market board OTHER~",
+			shortDescription: "a market board",
+			longDescription: "A market board is mounted here.",
+			clans: [new RpiClanRecord("gondor", "Captain")]);
+
+		var converted = transformer.Convert(item);
+		var issues = FutureMudItemValidation.Validate(catalog, [converted]);
+
+		Assert.IsNotNull(converted.BoardDefinition);
+		Assert.AreEqual("market", converted.BoardDefinition!.LegacyBoardKey);
+		Assert.AreEqual("RPI_Board_market", converted.BoardDefinition.ComponentName);
+		Assert.AreEqual(1, converted.BoardDefinition.ClanRestrictions.Count);
+		Assert.AreEqual("gondor", converted.BoardDefinition.ClanRestrictions[0].ClanAlias);
+		Assert.AreEqual("Captain", converted.BoardDefinition.ClanRestrictions[0].RankName);
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), converted.BoardDefinition.ComponentName);
+		Assert.IsFalse(converted.Warnings.Any(x => x.Code == "board-clan-access-not-mapped"));
+		Assert.IsFalse(issues.Any(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void Validation_RequiresImportedClans_BeforeClanRestrictedBoardItems()
+	{
+		var catalog = BuildCatalog();
+		catalog.ClansByAlias.Clear();
+		var transformer = new FutureMUDItemTransformer(catalog);
+		var item = BuildItem(
+			itemType: RPIItemType.Board,
+			wearBits: 0,
+			rawName: "market board OTHER~",
+			shortDescription: "a market board",
+			longDescription: "A market board is mounted here.",
+			clans: [new RpiClanRecord("gondor", "Captain")]);
+
+		var converted = transformer.Convert(item);
+		var issues = FutureMudItemValidation.Validate(catalog, [converted]);
+
+		Assert.IsTrue(issues.Any(x =>
+			x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase) &&
+			x.Message.Contains("Run apply-clans before apply-items", StringComparison.OrdinalIgnoreCase)));
+	}
+
 	private static string GetFixtureDirectory()
 	{
 		var candidates = new[]
@@ -112,6 +250,51 @@ public class RpiItemConversionTests
 		};
 
 		return candidates.First(x => File.Exists(Path.Combine(x, "objs.1")));
+	}
+
+	private static RpiItemRecord BuildItem(
+		int vnum = 9000,
+		RPIItemType itemType = RPIItemType.Other,
+		RPIWearBits wearBits = RPIWearBits.Take,
+		RPIExtraBits extraBits = 0,
+		string rawName = "item OTHER~",
+		string shortDescription = "an item",
+		string longDescription = "An item lies here.",
+		string fullDescription = "It is an item.",
+		RpiArmourData? armourData = null,
+		IReadOnlyList<RpiClanRecord>? clans = null)
+	{
+		return new RpiItemRecord
+		{
+			Vnum = vnum,
+			SourceFile = @"C:\rpi\objs.99",
+			Zone = 99,
+			RawName = rawName,
+			NameKeywords = rawName
+				.TrimEnd('~')
+				.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+			ShortDescription = shortDescription,
+			LongDescription = longDescription,
+			FullDescription = fullDescription,
+			ItemType = itemType,
+			ExtraBits = extraBits,
+			WearBits = wearBits,
+			RawOvals = new RpiRawOvalValues(0, 0, 0, 0, 0, 0),
+			RawStateValues = [],
+			RawTailValues = [],
+			Weight = 100,
+			SilverValue = 0,
+			RoomPosition = 0,
+			Activation = 0,
+			Quality = 0,
+			RawEconFlags = 0,
+			Size = 0,
+			Count = 1,
+			NumericTail = new RpiNumericTail(0, 0, 0, 0, 0, 0, 0),
+			InferredMaterial = RPIMaterial.Other,
+			ArmourData = armourData,
+			Clans = clans ?? []
+		};
 	}
 
 	private static FutureMudBaselineCatalog BuildCatalog()
@@ -136,7 +319,33 @@ public class RpiItemConversionTests
 			["Repair_Metal_Armour"] = new(16, 0, "Repair_Metal_Armour", "RepairKit"),
 			["Book_Small_40_Page"] = new(17, 0, "Book_Small_40_Page", "Book"),
 			["Destroyable_Paper"] = new(18, 0, "Destroyable_Paper", "Destroyable"),
-			["Destroyable_Door"] = new(19, 0, "Destroyable_Door", "Destroyable")
+			["Destroyable_Door"] = new(19, 0, "Destroyable_Door", "Destroyable"),
+			["Variable_Colour"] = new(20, 0, "Variable_Colour", "Variable"),
+			["Variable_BasicColour"] = new(21, 0, "Variable_BasicColour", "Variable"),
+			["Variable_FineColour"] = new(22, 0, "Variable_FineColour", "Variable"),
+			["Variable_DrabColour"] = new(23, 0, "Variable_DrabColour", "Variable"),
+			["Variable_Gem"] = new(24, 0, "Variable_Gem", "Variable"),
+			["Variable_FineGem"] = new(25, 0, "Variable_FineGem", "Variable"),
+			["Variable_CommonStone"] = new(26, 0, "Variable_CommonStone", "Variable"),
+			["Variable_RpiMixedVariables"] = new(27, 0, "Variable_RpiMixedVariables", "Variable"),
+			["Wear_Ring"] = new(28, 0, "Wear_Ring", "Wearable"),
+			["Wear_Gorget"] = new(29, 0, "Wear_Gorget", "Wearable"),
+			["Wear_Necklace"] = new(30, 0, "Wear_Necklace", "Wearable"),
+			["Wear_Choker"] = new(31, 0, "Wear_Choker", "Wearable"),
+			["Wear_Backpack"] = new(32, 0, "Wear_Backpack", "Wearable"),
+			["Wear_Cloak_(Closed)"] = new(33, 0, "Wear_Cloak_(Closed)", "Wearable"),
+			["Wear_Cloak_(Open)"] = new(34, 0, "Wear_Cloak_(Open)", "Wearable"),
+			["Wear_Cape"] = new(35, 0, "Wear_Cape", "Wearable"),
+			["Wear_Bracelets"] = new(36, 0, "Wear_Bracelets", "Wearable"),
+			["Wear_Earrings"] = new(37, 0, "Wear_Earrings", "Wearable"),
+			["Wear_Anklets"] = new(38, 0, "Wear_Anklets", "Wearable"),
+			["Wear_Wig"] = new(39, 0, "Wear_Wig", "Wearable"),
+			["Wear_Armlet"] = new(40, 0, "Wear_Armlet", "Wearable"),
+			["Wear_Mask"] = new(41, 0, "Wear_Mask", "Wearable"),
+			["Wear_Veil"] = new(42, 0, "Wear_Veil", "Wearable"),
+			["Wear_Backplate"] = new(43, 0, "Wear_Backplate", "Wearable"),
+			["Wear_Bracers"] = new(44, 0, "Wear_Bracers", "Wearable"),
+			["Armour_Platemail"] = new(45, 0, "Armour_Platemail", "Armour")
 		};
 
 		return new FutureMudBaselineCatalog
@@ -144,7 +353,18 @@ public class RpiItemConversionTests
 			Components = components,
 			ComponentsByType = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
 			{
-				["Food"] = ["Food_Generic"]
+				["Food"] = ["Food_Generic"],
+				["Variable"] =
+				[
+					"Variable_BasicColour",
+					"Variable_CommonStone",
+					"Variable_DrabColour",
+					"Variable_FineColour",
+					"Variable_FineGem",
+					"Variable_Gem",
+					"Variable_RpiMixedVariables",
+					"Variable_Colour"
+				]
 			},
 			MaterialIds = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)
 			{
@@ -177,6 +397,20 @@ public class RpiItemConversionTests
 			TraitIds = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)
 			{
 				["Light-Edge"] = 1
+			},
+			ClansByAlias = new Dictionary<string, FutureMudClanReference>(StringComparer.OrdinalIgnoreCase)
+			{
+				["gondor"] = new FutureMudClanReference(
+					42,
+					"gondor",
+					new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)
+					{
+						["Captain"] = 4201
+					})
+			},
+			FutureProgIds = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)
+			{
+				["AlwaysTrue"] = 1
 			}
 		};
 	}

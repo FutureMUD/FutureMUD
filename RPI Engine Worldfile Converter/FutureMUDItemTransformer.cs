@@ -19,6 +19,14 @@ public sealed record FutureMudTraitReference(string TraitName, int Modifier, RPI
 
 public sealed record FutureMudLiquidReference(string? LiquidName, int RawLiquidValue);
 
+public sealed record FutureMudBoardClanRestriction(string ClanAlias, string RankName);
+
+public sealed record FutureMudBoardDefinition(
+	string BoardName,
+	string ComponentName,
+	string LegacyBoardKey,
+	IReadOnlyList<FutureMudBoardClanRestriction> ClanRestrictions);
+
 public sealed record ConvertedItemDefinition
 {
 	public required int Vnum { get; init; }
@@ -42,8 +50,10 @@ public sealed record ConvertedItemDefinition
 	public IReadOnlyList<string> TagNames { get; init; } = Array.Empty<string>();
 	public IReadOnlyList<FutureMudTraitReference> TraitReferences { get; init; } = Array.Empty<FutureMudTraitReference>();
 	public FutureMudLiquidReference? LiquidReference { get; init; }
+	public FutureMudBoardDefinition? BoardDefinition { get; init; }
 	public string? DescKeys { get; init; }
 	public string? InkColour { get; init; }
+	public string? CustomColour { get; init; }
 	public bool PermitPlayerSkins { get; init; } = true;
 	public IReadOnlyList<RpiConversionWarning> Warnings { get; init; } = Array.Empty<RpiConversionWarning>();
 }
@@ -51,6 +61,53 @@ public sealed record ConvertedItemDefinition
 public sealed class FutureMUDItemTransformer
 {
 	private static readonly Regex NonKeywordRegex = new(@"[^a-z0-9'-]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+	private static readonly Regex BoundedAnsiColourRegex = new(@"^\s*(?<colour>#[1-9a-oA-O])(?<text>[\s\S]*?)#0\s*$", RegexOptions.Compiled);
+	private static readonly Regex LegacyVariableRegex = new(@"\$[A-Za-z][A-Za-z0-9_]*", RegexOptions.Compiled);
+	private static readonly Regex NonComponentNameRegex = new(@"[^a-z0-9_]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+	private static readonly IReadOnlyDictionary<string, string> AnsiColourCodeNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+	{
+		["#1"] = "red",
+		["#2"] = "green",
+		["#3"] = "yellow",
+		["#4"] = "blue",
+		["#5"] = "magenta",
+		["#6"] = "cyan",
+		["#7"] = "bold black",
+		["#8"] = "orange",
+		["#9"] = "bold red",
+		["#a"] = "bold green",
+		["#b"] = "bold yellow",
+		["#c"] = "bold blue",
+		["#d"] = "bold magenta",
+		["#e"] = "bold cyan",
+		["#f"] = "bold white",
+		["#g"] = "bold orange",
+		["#h"] = "bold pink",
+		["#i"] = "pink",
+		["#j"] = "function yellow",
+		["#k"] = "variable green",
+		["#l"] = "keyword blue",
+		["#m"] = "variable cyan",
+		["#n"] = "text red",
+		["#o"] = "keyword pink"
+	};
+
+	private enum LegacyVariableProfile
+	{
+		BasicColour,
+		FineColour,
+		DrabColour,
+		Gem,
+		FineGem,
+		CommonStone
+	}
+
+	private sealed record ConvertedDescriptions(
+		string ShortDescription,
+		string LongDescription,
+		string FullDescription,
+		string? CustomColour);
+
 	private static readonly string[] DeferredBehaviorTypes =
 	[
 		nameof(RPIItemType.Ticket),
@@ -84,6 +141,7 @@ public sealed class FutureMUDItemTransformer
 		var tags = new List<string>();
 		var traits = MapTraitReferences(item, warnings);
 		FutureMudLiquidReference? liquidReference = null;
+		FutureMudBoardDefinition? boardDefinition = null;
 		var status = ConversionStatus.FunctionalImport;
 
 		if (ShouldAddHoldable(item))
@@ -157,6 +215,9 @@ public sealed class FutureMUDItemTransformer
 			case RPIItemType.Ink:
 				status = MapInk(item, components, tags, warnings);
 				break;
+			case RPIItemType.Board:
+				boardDefinition = MapBoard(item, components, tags, warnings);
+				break;
 			case RPIItemType.Ticket:
 			case RPIItemType.MerchTicket:
 			case RPIItemType.RoomRental:
@@ -178,6 +239,7 @@ public sealed class FutureMUDItemTransformer
 				break;
 		}
 
+		var convertedDescriptions = ConvertDescriptions(item, components, warnings);
 		var materialName = ResolveMaterialName(item, warnings);
 		var baseName = InferBaseName(item);
 		if (string.IsNullOrWhiteSpace(baseName))
@@ -191,7 +253,11 @@ public sealed class FutureMUDItemTransformer
 			status = status == ConversionStatus.DeferredBehaviorPropImport
 				? ConversionStatus.DeferredBehaviorPropImport
 				: ConversionStatus.PropImport;
-			AddUnique(components, ChooseComponent("Holdable"));
+			if (ShouldAddHoldable(item))
+			{
+				AddUnique(components, ChooseComponent("Holdable"));
+			}
+
 			AddUnique(components, ChooseDestroyableComponent(item, status));
 			warnings.Add(new RpiConversionWarning("missing-components", "No functional component mapping was found; imported as a simple prop."));
 		}
@@ -206,9 +272,9 @@ public sealed class FutureMUDItemTransformer
 			Status = status,
 			BaseName = baseName,
 			Keywords = BuildKeywords(item, baseName),
-			ShortDescription = item.ShortDescription,
-			LongDescription = item.LongDescription,
-			FullDescription = item.FullDescription,
+			ShortDescription = convertedDescriptions.ShortDescription,
+			LongDescription = convertedDescriptions.LongDescription,
+			FullDescription = convertedDescriptions.FullDescription,
 			MaterialName = materialName,
 			BaseItemQuality = InferQuality(item),
 			Size = InferSize(item),
@@ -219,13 +285,190 @@ public sealed class FutureMUDItemTransformer
 			TagNames = tags,
 			TraitReferences = traits,
 			LiquidReference = liquidReference,
+			BoardDefinition = boardDefinition,
 			DescKeys = item.DescKeys,
 			InkColour = item.InkColour,
+			CustomColour = convertedDescriptions.CustomColour,
 			PermitPlayerSkins = status != ConversionStatus.DeferredBehaviorPropImport,
 			Warnings = warnings
 				.Concat(item.ParseWarnings.Select(x => new RpiConversionWarning(x.Code, x.Message)))
 				.ToList()
 		};
+	}
+
+	private ConvertedDescriptions ConvertDescriptions(
+		RpiItemRecord item,
+		ICollection<string> components,
+		ICollection<RpiConversionWarning> warnings)
+	{
+		var shortDescription = item.ShortDescription;
+		var longDescription = item.LongDescription;
+		var fullDescription = item.FullDescription;
+		string? customColour = null;
+
+		if (TryExtractBoundedAnsiColour(shortDescription, out var cleanedShort, out var shortColour))
+		{
+			shortDescription = cleanedShort;
+			customColour = shortColour;
+		}
+
+		if (TryExtractBoundedAnsiColour(longDescription, out var cleanedLong, out var longColour))
+		{
+			if (customColour is null || customColour.Equals(longColour, StringComparison.OrdinalIgnoreCase))
+			{
+				longDescription = cleanedLong;
+				customColour ??= longColour;
+			}
+			else
+			{
+				warnings.Add(new RpiConversionWarning(
+					"conflicting-ansi-colour",
+					$"Short and long descriptions use different bounded ANSI colours ({customColour} vs {longColour}); the long description colour tags were left inline."));
+			}
+		}
+
+		var variableConversion = ConvertLegacyVariables(item, shortDescription, longDescription, fullDescription, warnings);
+		shortDescription = variableConversion.ShortDescription;
+		longDescription = variableConversion.LongDescription;
+		fullDescription = variableConversion.FullDescription;
+		if (!string.IsNullOrWhiteSpace(variableConversion.ComponentName))
+		{
+			AddUnique(components, ChooseComponent(variableConversion.ComponentName));
+		}
+
+		return new ConvertedDescriptions(shortDescription, longDescription, fullDescription, customColour);
+	}
+
+	private static bool TryExtractBoundedAnsiColour(string text, out string cleanedText, out string colourName)
+	{
+		cleanedText = text;
+		colourName = string.Empty;
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return false;
+		}
+
+		var match = BoundedAnsiColourRegex.Match(text);
+		if (!match.Success)
+		{
+			return false;
+		}
+
+		var innerText = match.Groups["text"].Value;
+		if (innerText.Contains('#', StringComparison.Ordinal))
+		{
+			return false;
+		}
+
+		var code = match.Groups["colour"].Value.ToLowerInvariant();
+		if (!AnsiColourCodeNames.TryGetValue(code, out colourName!))
+		{
+			return false;
+		}
+
+		cleanedText = innerText.Trim();
+		return true;
+	}
+
+	private sealed record LegacyVariableConversion(
+		string ShortDescription,
+		string LongDescription,
+		string FullDescription,
+		string? ComponentName);
+
+	private LegacyVariableConversion ConvertLegacyVariables(
+		RpiItemRecord item,
+		string shortDescription,
+		string longDescription,
+		string fullDescription,
+		ICollection<RpiConversionWarning> warnings)
+	{
+		var combinedText = $"{item.RawName} {shortDescription} {longDescription} {fullDescription}";
+		var tokens = LegacyVariableRegex
+			.Matches(combinedText)
+			.Select(x => x.Value.ToLowerInvariant())
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		if (tokens.Count == 0)
+		{
+			return new LegacyVariableConversion(shortDescription, longDescription, fullDescription, null);
+		}
+
+		var recognisedProfiles = new Dictionary<LegacyVariableProfile, int>();
+		foreach (var token in tokens)
+		{
+			var profile = LegacyVariableProfileForToken(token);
+			if (profile is null)
+			{
+				warnings.Add(new RpiConversionWarning(
+					"unmapped-variable-token",
+					$"The source item uses legacy variable {token}, which does not currently have a seeded FutureMUD variable component mapping."));
+				continue;
+			}
+
+			recognisedProfiles[profile.Value] = recognisedProfiles.GetValueOrDefault(profile.Value) + 1;
+		}
+
+		if (recognisedProfiles.Count == 0)
+		{
+			return new LegacyVariableConversion(shortDescription, longDescription, fullDescription, null);
+		}
+
+		var componentName = recognisedProfiles.Count == 1
+			? ComponentNameForProfile(recognisedProfiles.Keys.First())
+			: "Variable_RpiMixedVariables";
+
+		return new LegacyVariableConversion(
+			NormalizeLegacyVariableTokens(shortDescription),
+			NormalizeLegacyVariableTokens(longDescription),
+			NormalizeLegacyVariableTokens(fullDescription),
+			componentName);
+	}
+
+	private static LegacyVariableProfile? LegacyVariableProfileForToken(string token)
+	{
+		return token switch
+		{
+			"$color" or "$colour" => LegacyVariableProfile.BasicColour,
+			"$finecolor" or "$finecolour" or "$finecolored" => LegacyVariableProfile.FineColour,
+			"$drabcolor" or "$drabcolour" or "$drobcolor" => LegacyVariableProfile.DrabColour,
+			"$gem" or "$gemcolor" or "$gemcolour" => LegacyVariableProfile.Gem,
+			"$finegem" or "$finegemcolor" or "$finegemcolour" => LegacyVariableProfile.FineGem,
+			"$stone" or "$commonstone" => LegacyVariableProfile.CommonStone,
+			_ => null
+		};
+	}
+
+	private static string ComponentNameForProfile(LegacyVariableProfile profile)
+	{
+		return profile switch
+		{
+			LegacyVariableProfile.BasicColour => "Variable_BasicColour",
+			LegacyVariableProfile.FineColour => "Variable_FineColour",
+			LegacyVariableProfile.DrabColour => "Variable_DrabColour",
+			LegacyVariableProfile.Gem => "Variable_Gem",
+			LegacyVariableProfile.FineGem => "Variable_FineGem",
+			LegacyVariableProfile.CommonStone => "Variable_CommonStone",
+			_ => "Variable_Colour"
+		};
+	}
+
+	private static string NormalizeLegacyVariableTokens(string text)
+	{
+		return LegacyVariableRegex.Replace(text, match =>
+		{
+			var token = match.Value.ToLowerInvariant();
+			return token switch
+			{
+				"$colour" => "$color",
+				"$finecolour" or "$finecolored" => "$finecolor",
+				"$drabcolour" or "$drobcolor" => "$drabcolor",
+				"$gemcolour" => "$gemcolor",
+				"$finegem" or "$finegemcolour" => "$finegemcolor",
+				_ => LegacyVariableProfileForToken(token) is null ? match.Value : token
+			};
+		});
 	}
 
 	private void MapWorn(RpiItemRecord item, ICollection<string> components, ICollection<string> tags, ICollection<RpiConversionWarning> warnings)
@@ -531,6 +774,76 @@ public sealed class FutureMUDItemTransformer
 			"ink-prop-fallback",
 			"Standalone ink reservoirs do not have a seeded FutureMUD equivalent in this importer pass; imported as a tagged prop."));
 		return ConversionStatus.PropImport;
+	}
+
+	private FutureMudBoardDefinition MapBoard(
+		RpiItemRecord item,
+		ICollection<string> components,
+		ICollection<string> tags,
+		ICollection<RpiConversionWarning> warnings)
+	{
+		var legacyBoardKey = InferLegacyBoardKey(item);
+		var componentName = BuildBoardComponentName(legacyBoardKey, item.Vnum);
+		AddUnique(components, componentName);
+		AddUnique(components, ChooseDestroyableComponent(item, ConversionStatus.FunctionalImport));
+
+		var clanRestrictions = item.Clans
+			.Where(x => !string.IsNullOrWhiteSpace(x.Name))
+			.Select(x => new FutureMudBoardClanRestriction(x.Name.Trim(), x.Rank.Trim()))
+			.GroupBy(x => $"{x.ClanAlias}\n{x.RankName}", StringComparer.OrdinalIgnoreCase)
+			.Select(x => x.First())
+			.ToList();
+
+		if (item.Clans.Count > 0 && clanRestrictions.Count == 0)
+		{
+			warnings.Add(new RpiConversionWarning(
+				"board-clan-access-empty",
+				"Legacy board clan restrictions were present on the source item, but none had a clan alias to convert."));
+		}
+
+		return new FutureMudBoardDefinition(
+			BuildBoardName(legacyBoardKey, item.Vnum),
+			componentName,
+			legacyBoardKey,
+			clanRestrictions);
+	}
+
+	private static string InferLegacyBoardKey(RpiItemRecord item)
+	{
+		var sourceKeyword = item.NameKeywords
+			.Select(CleanupKeyword)
+			.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x) && !ShouldSkipSourceKeyword(x));
+
+		return string.IsNullOrWhiteSpace(sourceKeyword)
+			? $"board-{item.Vnum.ToString(CultureInfo.InvariantCulture)}"
+			: sourceKeyword;
+	}
+
+	private static string BuildBoardComponentName(string legacyBoardKey, int vnum)
+	{
+		var componentSuffix = NonComponentNameRegex
+			.Replace(legacyBoardKey.ToLowerInvariant(), "_")
+			.Trim('_');
+		if (string.IsNullOrWhiteSpace(componentSuffix))
+		{
+			componentSuffix = $"vnum_{vnum.ToString(CultureInfo.InvariantCulture)}";
+		}
+
+		if (componentSuffix.Length > 80)
+		{
+			componentSuffix = componentSuffix[..80].Trim('_');
+		}
+
+		return $"RPI_Board_{componentSuffix}";
+	}
+
+	private static string BuildBoardName(string legacyBoardKey, int vnum)
+	{
+		var boardName = string.IsNullOrWhiteSpace(legacyBoardKey)
+			? $"board-{vnum.ToString(CultureInfo.InvariantCulture)}"
+			: legacyBoardKey.Trim();
+
+		return boardName.Length <= 45 ? boardName : boardName[..45];
 	}
 
 	private void MapGenericProp(
@@ -1006,6 +1319,31 @@ public sealed class FutureMUDItemTransformer
 			return ChooseComponent("Wear_Bracers");
 		}
 
+		if (item.WearBits.HasFlag(RPIWearBits.Finger))
+		{
+			return ChooseComponent("Wear_Ring");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.Neck))
+		{
+			if (armourMode)
+			{
+				return ChooseComponentFromCandidates("Wear_Gorget", "Wear_Bevor");
+			}
+
+			if (ContainsAny(item, "scarf"))
+			{
+				return ChooseComponent("Wear_Scarf");
+			}
+
+			if (ContainsAny(item, "choker", "collar"))
+			{
+				return ChooseComponent("Wear_Choker");
+			}
+
+			return ChooseComponent("Wear_Necklace");
+		}
+
 		if (item.WearBits.HasFlag(RPIWearBits.Feet))
 		{
 			return ChooseComponent("Wear_Shoes");
@@ -1014,6 +1352,46 @@ public sealed class FutureMUDItemTransformer
 		if (item.WearBits.HasFlag(RPIWearBits.Waist))
 		{
 			return ChooseComponent("Wear_Waist");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.Belt) || item.WearBits.HasFlag(RPIWearBits.Sheath))
+		{
+			return ChooseComponent("Wear_Waist");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.Back))
+		{
+			if (armourMode || ContainsAny(item, "backplate"))
+			{
+				return ChooseComponentFromCandidates("Wear_Backplate", "Wear_Backpack");
+			}
+
+			return ChooseComponent("Wear_Backpack");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.About))
+		{
+			if (ContainsAny(item, "cape"))
+			{
+				return ChooseComponent("Wear_Cape");
+			}
+
+			if (ContainsAny(item, "open"))
+			{
+				return ChooseComponentFromCandidates("Wear_Cloak_(Open)", "Wear_Cape");
+			}
+
+			return ChooseComponentFromCandidates("Wear_Cloak_(Closed)", "Wear_Cloak_(Open)", "Wear_Cape");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.Wrist))
+		{
+			if (armourMode || ContainsAny(item, "bracer", "vambrace"))
+			{
+				return ChooseComponent("Wear_Bracers");
+			}
+
+			return ChooseComponentFromCandidates("Wear_Bracelets", "Wear_Bracelet");
 		}
 
 		if (item.WearBits.HasFlag(RPIWearBits.Shoulder))
@@ -1028,12 +1406,47 @@ public sealed class FutureMUDItemTransformer
 
 		if (item.WearBits.HasFlag(RPIWearBits.Throat) && armourMode)
 		{
-			return ChooseComponent("Wear_Bevor");
+			return ChooseComponentFromCandidates("Wear_Bevor", "Wear_Gorget");
 		}
 
-		if (item.WearBits.HasFlag(RPIWearBits.Face) && _catalog?.HasComponent("Wear_Mask") == true)
+		if (item.WearBits.HasFlag(RPIWearBits.Throat))
 		{
-			return "Wear_Mask";
+			if (ContainsAny(item, "scarf"))
+			{
+				return ChooseComponent("Wear_Scarf");
+			}
+
+			return ChooseComponentFromCandidates("Wear_Choker", "Wear_Necklace");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.Ears))
+		{
+			return ChooseComponentFromCandidates("Wear_Earrings", "Wear_Earring");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.Ankle))
+		{
+			return ChooseComponentFromCandidates("Wear_Anklets", "Wear_Anklet");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.Hair))
+		{
+			return ChooseComponentFromCandidates("Wear_Wig", "Wear_Headband");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.Armband))
+		{
+			return ChooseComponent("Wear_Armlet");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.Face))
+		{
+			if (ContainsAny(item, "veil"))
+			{
+				return ChooseComponentFromCandidates("Wear_Veil", "Wear_Mask");
+			}
+
+			return ChooseComponent("Wear_Mask");
 		}
 
 		warnings.Add(new RpiConversionWarning(
@@ -1455,12 +1868,7 @@ public sealed class FutureMUDItemTransformer
 			return false;
 		}
 
-		if (item.WearBits.HasFlag(RPIWearBits.Take))
-		{
-			return true;
-		}
-
-		return item.ItemType is not (RPIItemType.NPC_Object or RPIItemType.RoomRental);
+		return item.WearBits.HasFlag(RPIWearBits.Take);
 	}
 
 	private string ChooseComponent(string name)
@@ -1481,6 +1889,17 @@ public sealed class FutureMUDItemTransformer
 		}
 
 		return _catalog.ChooseComponent([name]);
+	}
+
+	private string ChooseComponentFromCandidates(params string[] candidates)
+	{
+		var filtered = candidates.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+		if (filtered.Count == 0)
+		{
+			return string.Empty;
+		}
+
+		return _catalog?.ChooseComponent(filtered) ?? filtered[0];
 	}
 
 	private string ChooseTag(params string[] candidates)

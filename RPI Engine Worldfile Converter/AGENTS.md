@@ -67,7 +67,9 @@ The intended workflow is:
 
 1. Run the normal FutureMUD seeders to establish the baseline world.
 2. Ensure the target database contains the expected seeded materials, liquids, calendar, timezone, clan infrastructure, and other stock content.
-3. Run this converter afterwards to add Middle-earth legacy content.
+3. Run `apply-clans --execute` first so imported clans and ranks receive stable database IDs.
+4. Run `apply-items --execute` after clans. Board item access restrictions bind legacy clan aliases and ranks to those stable IDs during item import.
+5. Run the remaining converter imports, generally rooms, crafts, and NPCs, after their item and clan dependencies are present.
 
 Do not assume this converter is being run against an empty database.
 

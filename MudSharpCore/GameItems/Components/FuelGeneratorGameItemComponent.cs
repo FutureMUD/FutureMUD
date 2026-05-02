@@ -270,7 +270,10 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
 
     public bool ProducingPower => SwitchedOn && LiquidMixture?.CountsAs(_prototype.LiquidFuel).Truth == true;
 
-    public double MaximumPowerInWatts => ProducingPower ? _prototype.WattageProvided : 0.0;
+    public double MaximumPowerInWatts => ProducingPower
+        ? _prototype.WattageProvided * Parent.EffectsOfType<IMagicPowerOrFuelEnhancementEffect>(x =>
+            x.AppliesToPoweredItem(Parent)).Aggregate(1.0, (current, effect) => current * effect.PowerProductionMultiplier)
+        : 0.0;
 
     private double _spikeDrawdown;
 
@@ -278,14 +281,14 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
     {
         return SwitchedOn && ProducingPower &&
                _powerUsers.Sum(x => x.PowerConsumptionInWatts) + wattage + _spikeDrawdown <
-               _prototype.WattageProvided;
+               MaximumPowerInWatts;
     }
 
     public bool CanDrawdownSpike(double wattage)
     {
         return SwitchedOn &&
                _powerUsers.Sum(x => x.PowerConsumptionInWatts) + wattage + _spikeDrawdown <
-               _prototype.WattageProvided && ProducingPower;
+               MaximumPowerInWatts && ProducingPower;
     }
 
     public bool DrawdownSpike(double wattage)
@@ -307,7 +310,7 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
 
             if (SwitchedOn &&
                 _powerUsers.Sum(x => x.PowerConsumptionInWatts) + item.PowerConsumptionInWatts <=
-                _prototype.WattageProvided)
+                MaximumPowerInWatts)
             {
                 _powerUsers.Add(item);
                 item.OnPowerCutIn();
@@ -463,7 +466,7 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
             double cumulativeDraw = 0.0;
             foreach (IConsumePower item in _connectedConsumers)
             {
-                if (_prototype.WattageProvided - cumulativeDraw >= item.PowerConsumptionInWatts)
+                if (MaximumPowerInWatts - cumulativeDraw >= item.PowerConsumptionInWatts)
                 {
                     _powerUsers.Add(item);
                     item.OnPowerCutIn();
@@ -478,7 +481,9 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
 
     private void HeartbeatManager_SecondHeartbeat()
     {
-        LiquidMixture?.RemoveLiquidVolume(_prototype.FuelPerSecond);
+        var fuelMultiplier = Parent.EffectsOfType<IMagicPowerOrFuelEnhancementEffect>(x => x.AppliesToPoweredItem(Parent))
+                                   .Aggregate(1.0, (current, effect) => current * effect.FuelUseMultiplier);
+        LiquidMixture?.RemoveLiquidVolume(_prototype.FuelPerSecond * fuelMultiplier);
         _spikeDrawdown = 0.0;
         if ((LiquidMixture?.TotalWeight ?? 0.0) <= 0)
         {

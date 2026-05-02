@@ -1,4 +1,5 @@
 ﻿using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -39,18 +40,22 @@ public class TagTool : BaseTool
 
     public override double ToolFitness(IGameItem item)
     {
+        var enhancements = item.EffectsOfType<IMagicCraftToolEnhancementEffect>(x =>
+            x.AppliesToCraftTool(item, TargetItemTag)).ToList();
         IToolItem tool = item.GetItemType<IToolItem>();
         if (tool == null)
         {
-            return 1.0;
+            return Math.Max(0.0, 1.0 + enhancements.Sum(x => x.ToolFitnessBonus));
         }
 
-        if (tool.ToolTimeMultiplier(TargetItemTag) <= 0.0)
+        var multiplier = tool.ToolTimeMultiplier(TargetItemTag) *
+                         enhancements.Aggregate(1.0, (current, effect) => current * effect.ToolSpeedMultiplier);
+        if (multiplier <= 0.0)
         {
             return 0.0;
         }
 
-        return 1.0 / tool.ToolTimeMultiplier(TargetItemTag);
+        return Math.Max(0.0, 1.0 / multiplier + enhancements.Sum(x => x.ToolFitnessBonus));
     }
 
     public override void UseTool(IGameItem item, TimeSpan phaseLength, bool hasFailed)
@@ -59,12 +64,18 @@ public class TagTool : BaseTool
         {
             return;
         }
-        item.GetItemType<IToolItem>()?.UseTool(TargetItemTag, phaseLength);
+        var usageMultiplier = item.EffectsOfType<IMagicCraftToolEnhancementEffect>(x =>
+            x.AppliesToCraftTool(item, TargetItemTag))
+            .Aggregate(1.0, (current, effect) => current * effect.ToolUsageMultiplier);
+        item.GetItemType<IToolItem>()?.UseTool(TargetItemTag, TimeSpan.FromTicks((long)(phaseLength.Ticks * usageMultiplier)));
     }
 
     public override double PhaseLengthMultiplier(IGameItem item)
     {
-        return item.GetItemType<IToolItem>()?.ToolTimeMultiplier(TargetItemTag) ?? 1.0;
+        var multiplier = item.EffectsOfType<IMagicCraftToolEnhancementEffect>(x =>
+            x.AppliesToCraftTool(item, TargetItemTag))
+            .Aggregate(1.0, (current, effect) => current * effect.ToolSpeedMultiplier);
+        return (item.GetItemType<IToolItem>()?.ToolTimeMultiplier(TargetItemTag) ?? 1.0) * multiplier;
     }
 
     public override string ToolType => "TagTool";

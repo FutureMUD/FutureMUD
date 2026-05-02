@@ -71,11 +71,17 @@ internal class CommunicationsModule : Module<ICharacter>
             List<ITelepathyEffect> effects =
                 character.EffectsOfType<ITelepathyEffect>().Where(x => x.Applies(actor) && x.ShowThinks).ToList();
             bool showDesc = effects.Any(x => x.ShowDescription(actor));
-            bool showName = effects.Any(x => x.ShowName(actor));
+            var concealment = actor.EffectsOfType<IMindContactConcealmentEffect>()
+                                  .FirstOrDefault(x => effects.OfType<IMagicEffect>()
+                                                             .Any(y => x.ConcealsIdentityFrom(actor, character,
+                                                                 y.School)));
+            bool showName = concealment is null && effects.Any(x => x.ShowName(actor));
             bool showEmote = effects.Any(x => x.ShowThinkEmote(actor));
+            var thinkerDescription = concealment?.UnknownIdentityDescription.ColourCharacter() ??
+                                     (showDesc ? actor.HowSeen(character, true) : "Someone");
 
             character.Send(
-                $"{(showDesc ? actor.HowSeen(character, true) : "Someone")} {(showName ? $"({actor.PersonalName.GetName(NameStyle.SimpleFull)}) " : "")}thinks{(showEmote && !string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(character)}, " : ",")}\n\t\"{thinkText}\"");
+                $"{thinkerDescription} {(showName ? $"({actor.PersonalName.GetName(NameStyle.SimpleFull)}) " : "")}thinks{(showEmote && !string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(character)}, " : ",")}\n\t\"{thinkText}\"");
         }
     }
 
@@ -120,11 +126,17 @@ internal class CommunicationsModule : Module<ICharacter>
             List<ITelepathyEffect> effects =
                 character.EffectsOfType<ITelepathyEffect>().Where(x => x.Applies(actor) && x.ShowFeels).ToList();
             bool showDesc = effects.Any(x => x.ShowDescription(actor));
-            bool showName = effects.Any(x => x.ShowName(actor));
+            var concealment = actor.EffectsOfType<IMindContactConcealmentEffect>()
+                                  .FirstOrDefault(x => effects.OfType<IMagicEffect>()
+                                                             .Any(y => x.ConcealsIdentityFrom(actor, character,
+                                                                 y.School)));
+            bool showName = concealment is null && effects.Any(x => x.ShowName(actor));
             bool showEmote = effects.Any(x => x.ShowThinkEmote(actor));
+            var thinkerDescription = concealment?.UnknownIdentityDescription.ColourCharacter() ??
+                                     (showDesc ? actor.HowSeen(character, true) : "Someone");
 
             character.OutputHandler.Send(
-                $"{(showDesc ? actor.HowSeen(character, true) : "Someone")} {(showName ? $"({actor.PersonalName.GetName(NameStyle.SimpleFull)}) " : "")}feels{(showEmote && !string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(character)}, " : " ")}{feelEmote.ParseFor(character)}");
+                $"{thinkerDescription} {(showName ? $"({actor.PersonalName.GetName(NameStyle.SimpleFull)}) " : "")}feels{(showEmote && !string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(character)}, " : " ")}{feelEmote.ParseFor(character)}");
         }
     }
 

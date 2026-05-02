@@ -195,7 +195,11 @@ public class MindExpelPower : MagicPowerBase
                 continue;
             }
 
-            sb.AppendLine($"You successfully expel the presence of {effect.OriginatorCharacter.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises)} from your mind.");
+            var concealment = GetMindConcealment(effect.OriginatorCharacter, actor, effect.School);
+            var identity = concealment?.UnknownIdentityDescription.ColourCharacter() ??
+                           effect.OriginatorCharacter.HowSeen(actor,
+                               flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises);
+            sb.AppendLine($"You successfully expel the presence of {identity} from your mind.");
 
             if (!string.IsNullOrEmpty(EchoToExpelledTarget))
             {

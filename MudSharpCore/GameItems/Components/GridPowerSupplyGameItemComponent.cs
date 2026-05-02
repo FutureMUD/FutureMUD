@@ -1,6 +1,7 @@
 #nullable enable annotations
 
 using MudSharp.Construction.Grids;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
@@ -140,22 +141,27 @@ public class GridPowerSupplyGameItemComponent : GameItemComponent, IProducePower
 
     public bool CanBeginDrawDown(double wattage)
     {
-        return RegisteredDrawdown + wattage <= _prototype.Wattage;
+        return RegisteredDrawdown + wattage <= MaximumPowerInWatts;
     }
 
     public bool CanDrawdownSpike(double wattage)
     {
-        return ProducingPower && CurrentDrawdown + wattage <= _prototype.Wattage;
+        return ProducingPower && CurrentDrawdown + wattage <= MaximumPowerInWatts;
     }
 
     public bool DrawdownSpike(double wattage)
     {
         return ProducingPower &&
-               CurrentDrawdown + wattage <= _prototype.Wattage &&
+               CurrentDrawdown + wattage <= MaximumPowerInWatts &&
                (ElectricalGrid?.DrawdownSpike(wattage) ?? false);
     }
 
-    public double MaximumPowerInWatts => _prototype.Wattage;
+    public double MaximumPowerInWatts => _prototype.Wattage *
+                                         Parent.EffectsOfType<IMagicPowerOrFuelEnhancementEffect>(x =>
+                                                   x.AppliesToPoweredItem(Parent))
+                                               .Aggregate(1.0,
+                                                   (current, effect) => current *
+                                                                        effect.PowerProductionMultiplier);
 
     public bool ProducingPower => ElectricalGrid != null && _powered;
 

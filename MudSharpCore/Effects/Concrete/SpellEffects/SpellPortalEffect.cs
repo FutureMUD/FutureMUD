@@ -93,7 +93,8 @@ public class SpellPortalEffect : MagicSpellEffectBase
 		}
 
 		_registeredExit = new TransientExit(Gameworld, source, destination, Verb, OutboundKeyword, InboundKeyword,
-			OutboundTarget, InboundTarget, OutboundDescription, InboundDescription, TimeMultiplier);
+			OutboundTarget, InboundTarget, OutboundDescription, InboundDescription, TimeMultiplier,
+			ParentEffect?.Caster, Spell, this);
 		Gameworld.ExitManager.RegisterTransientExit(_registeredExit);
 	}
 

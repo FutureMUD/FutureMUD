@@ -189,12 +189,21 @@ public class MindAuditPower : MagicPowerBase
                 difficulty = Difficulty.Normal;
             }
 
+            var concealment = GetMindConcealment(effect.OriginatorCharacter, actor, effect.School);
+            if (concealment is not null)
+            {
+                difficulty = difficulty.StageUp(concealment.AuditDifficultyStages);
+            }
+
             if (results[difficulty].Outcome < MinimumSuccessThreshold)
             {
                 continue;
             }
 
-            sb.AppendLine($"You detect the presence of {effect.OriginatorCharacter.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises)} in your mind.");
+            var identity = concealment?.UnknownIdentityDescription.ColourCharacter() ??
+                           effect.OriginatorCharacter.HowSeen(actor,
+                               flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises);
+            sb.AppendLine($"You detect the presence of {identity} in your mind.");
 
             if (!string.IsNullOrEmpty(EchoToDetectedTarget) && ShouldEchoDetectionProg.Execute<bool?>(effect.OriginatorCharacter, actor) == true)
             {

@@ -2,8 +2,12 @@
 
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.Character;
+using MudSharp.Effects;
+using MudSharp.Effects.Interfaces;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Magic;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using System;
@@ -13,7 +17,7 @@ using System.Threading;
 
 namespace MudSharp.Construction.Boundary;
 
-public class TransientExit : PerceivedItem, IExit
+public class TransientExit : PerceivedItem, IExit, IMagicPortalExit
 {
 	private static long _nextId;
 	private readonly List<ICell> _cells = new();
@@ -22,7 +26,8 @@ public class TransientExit : PerceivedItem, IExit
 
 	public TransientExit(IFuturemud gameworld, ICell origin, ICell destination, string verb, string outboundKeyword,
 		string inboundKeyword, string outboundTarget, string inboundTarget, string outboundDescription,
-		string inboundDescription, double timeMultiplier)
+		string inboundDescription, double timeMultiplier, ICharacter? caster = null, IMagicSpell? spell = null,
+		IEffect? sourceEffect = null)
 	{
 		Gameworld = gameworld;
 		_id = Interlocked.Decrement(ref _nextId);
@@ -35,6 +40,14 @@ public class TransientExit : PerceivedItem, IExit
 		MaximumSizeToEnterUpright = SizeCategory.Titanic;
 		AcceptsDoor = false;
 		ClimbDifficulty = Difficulty.Normal;
+		Caster = caster;
+		Spell = spell;
+		SourceEffect = sourceEffect;
+		Verb = verb;
+		OutboundKeyword = outboundKeyword;
+		InboundKeyword = inboundKeyword;
+		Source = origin;
+		Destination = destination;
 
 		var outboundKeywords = KeywordsFor(outboundTarget, outboundKeyword);
 		var inboundKeywords = KeywordsFor(inboundTarget, inboundKeyword);
@@ -65,6 +78,15 @@ public class TransientExit : PerceivedItem, IExit
 	public SizeCategory MaximumSizeToEnterUpright { get; set; }
 	public SizeCategory MaximumSizeToEnter { get; set; }
 	public IEnumerable<ICell> Cells => _cells;
+	public IExit Exit => this;
+	public ICell Source { get; }
+	public ICell Destination { get; }
+	public ICharacter? Caster { get; }
+	public IMagicSpell? Spell { get; }
+	public IEffect? SourceEffect { get; }
+	public string Verb { get; }
+	public string OutboundKeyword { get; }
+	public string InboundKeyword { get; }
 	public ICell? FallCell { get; set; }
 	public bool IsClimbExit { get; set; }
 	public Difficulty ClimbDifficulty { get; set; }

@@ -209,6 +209,7 @@ These are the currently builder-creatable power tokens registered through `Magic
 | `mindaudit` | `MindAuditPower` | Mind-reading or auditing style power |
 | `mindbarrier` | `MindBarrierPower` | Mental barrier or protection effect |
 | `mindbroadcast` | `MindBroadcastPower` | Broadcast-style mind communication |
+| `mindconceal` | `MindConcealPower` | Sustained psionic identity concealment for mind contacts, passive traffic, and audit difficulty |
 | `mindexpel` | `MindExpelPower` | Expels connected minds or effects |
 | `mindlook` | `MindLookPower` | Observe or inspect through mind-link mechanics |
 | `mindsay` | `MindSayPower` | Directed mind-to-mind speech |
@@ -218,6 +219,20 @@ These are the currently builder-creatable power tokens registered through `Magic
 Important current-state note:
 
 - `MagicArmourPower` also registers a runtime load alias of `armor` in addition to the builder-facing `armour` token. That alias matters to developers and seeder authors working with persisted `PowerModel` values, but it is not exposed as a distinct builder creation type.
+
+### Psionic identity and passive traffic
+The mind-link stack now shares a first-class concealment policy through `IMindContactConcealmentEffect`.
+
+`mindconceal` is the builder-creatable sustained power for this policy. While active it can:
+
+- replace the user's identity in `connectmind`, `mindsay`, `mindbroadcast`, `mindaudit`, and `mindexpel` output
+- add configured difficulty stages to audit-style detection
+- apply to the owning school and, optionally, child schools
+- use a character/observer prog to decide who is affected
+
+Passive psionic traffic continues to use the existing `telepathy` flow. Configure `telepathy` with `thinks`, `feels`, and `thinkemote` to represent powers such as Thoughtsense or Immersion. When the thinker is sustaining `mindconceal`, passive `think` and `feel` traffic uses the concealed identity instead of leaking the actor's short description or personal name.
+
+This is intentionally separate from true projection or possession. `mindconceal` hides identity across mind-contact and passive telepathy surfaces; it does not create a second acting body or remote command shell.
 
 ### Notable base or runtime-support types
 These matter to developers extending the subsystem, but they are not standalone builder-created types.

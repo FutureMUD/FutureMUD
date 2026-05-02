@@ -321,6 +321,12 @@ public class MindBroadcastPower : MagicPowerBase
 
     public string GetAppropriateHowSeen(ICharacter connecter, ICharacter connectee)
     {
+        var concealment = GetMindConcealment(connecter, connectee, School);
+        if (concealment is not null)
+        {
+            return concealment.UnknownIdentityDescription.ColourCharacter();
+        }
+
         if (TargetCanSeeIdentityProg.ExecuteBool(connecter, connectee))
         {
             return connecter.HowSeen(connectee, flags: PerceiveIgnoreFlags.IgnoreConsciousness);
@@ -331,6 +337,12 @@ public class MindBroadcastPower : MagicPowerBase
 
     public string GetAppropriateTargetEmote(ICharacter connecter, ICharacter connectee)
     {
+        var concealment = GetMindConcealment(connecter, connectee, School);
+        if (concealment is not null)
+        {
+            return string.Format(TargetEmoteText, concealment.UnknownIdentityDescription.ColourCharacter(), "{0}");
+        }
+
         if (TargetCanSeeIdentityProg.ExecuteBool(connecter, connectee))
         {
             return string.Format(TargetEmoteText, "$0", "{0}");

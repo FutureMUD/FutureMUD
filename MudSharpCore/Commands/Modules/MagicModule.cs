@@ -233,6 +233,12 @@ public class MagicModule : Module<ICharacter>
             case "power":
                 MagicPower(actor, ss);
                 return;
+            case "portals":
+                MagicPortals(actor, ss);
+                return;
+            case "anchors":
+                MagicAnchors(actor, ss);
+                return;
             case "resource":
                 MagicResource(actor, ss);
                 return;
@@ -248,6 +254,8 @@ public class MagicModule : Module<ICharacter>
 	#3magic regenerator#0 - magic regenerators produce magic resources based on rules
 	#3magic power#0 - magic powers are customisable hard-coded powers for a magic school
 	#3magic spell#0 - magic spells are completely flexible and editable templates for magical effects
+	#3magic portals#0 - inspects active transient magical portals
+	#3magic anchors [tag]#0 - inspects active magic-tag anchors on rooms and items
 
 #ENote - It's relatively easy to add new spell effect types. Reach out to Japheth on the FutureMUD discord if you want something added.#0".SubstituteANSIColour());
                 return;
@@ -277,6 +285,93 @@ public class MagicModule : Module<ICharacter>
     public static void MagicResource(ICharacter actor, StringStack command)
     {
         BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicResourceHelper);
+    }
+
+    public static void MagicPortals(ICharacter actor, StringStack command)
+    {
+        var portals = actor.Gameworld.ExitManager.TransientExits
+                           .OfType<IMagicPortalExit>()
+                           .OrderBy(x => x.Source.Id)
+                           .ThenBy(x => x.Destination.Id)
+                           .ToList();
+        if (!portals.Any())
+        {
+            actor.OutputHandler.Send("There are no active transient magical portals.");
+            return;
+        }
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            from portal in portals
+            let duration = portal.SourceEffect?.Owner.ScheduledDuration(portal.SourceEffect) ?? TimeSpan.Zero
+            select new List<string>
+            {
+                portal.Exit.Id.ToString("N0", actor),
+                $"#{portal.Source.Id.ToString("N0", actor)} {portal.Source.Name}",
+                $"#{portal.Destination.Id.ToString("N0", actor)} {portal.Destination.Name}",
+                $"{portal.Verb} {portal.OutboundKeyword}",
+                portal.Caster?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None",
+                portal.Spell?.Name ?? "Unknown",
+                duration > TimeSpan.Zero ? duration.Describe(actor) : "persistent"
+            },
+            new List<string>
+            {
+                "Id",
+                "Source",
+                "Destination",
+                "Command",
+                "Caster",
+                "Spell",
+                "Duration"
+            },
+            actor,
+            Telnet.Magenta));
+    }
+
+    public static void MagicAnchors(ICharacter actor, StringStack command)
+    {
+        var filter = command.SafeRemainingArgument;
+        var anchors = actor.Gameworld.Cells
+                           .SelectMany(x => x.EffectsOfType<IMagicTagEffect>(tag =>
+                               string.IsNullOrWhiteSpace(filter) || tag.Tag.EqualTo(filter)).Select(tag => (Owner: (IPerceivable)x, Tag: tag)))
+                           .Concat(actor.Gameworld.Items
+                                        .SelectMany(x => x.EffectsOfType<IMagicTagEffect>(tag =>
+                                            string.IsNullOrWhiteSpace(filter) || tag.Tag.EqualTo(filter)).Select(tag => (Owner: (IPerceivable)x, Tag: tag))))
+                           .OrderBy(x => x.Owner.FrameworkItemType)
+                           .ThenBy(x => x.Owner.Id)
+                           .ToList();
+        if (!anchors.Any())
+        {
+            actor.OutputHandler.Send(string.IsNullOrWhiteSpace(filter)
+                ? "There are no active magic-tag anchors on rooms or items."
+                : $"There are no active magic-tag anchors matching {filter.ColourCommand()}.");
+            return;
+        }
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            from anchor in anchors
+            let duration = anchor.Owner.ScheduledDuration(anchor.Tag)
+            select new List<string>
+            {
+                anchor.Owner.FrameworkItemType,
+                $"#{anchor.Owner.Id.ToString("N0", actor)} {anchor.Owner.Name}",
+                anchor.Tag.Tag,
+                anchor.Tag.Value,
+                anchor.Tag.Caster?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None",
+                anchor.Tag.Spell.Name,
+                duration > TimeSpan.Zero ? duration.Describe(actor) : "persistent"
+            },
+            new List<string>
+            {
+                "Type",
+                "Owner",
+                "Tag",
+                "Value",
+                "Caster",
+                "Spell",
+                "Duration"
+            },
+            actor,
+            Telnet.Magenta));
     }
 
     #region Magic Spells

@@ -1,4 +1,5 @@
 ﻿using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -162,7 +163,10 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
     public double FuelLevel => 1.0;
     public bool ProducingPower => SwitchedOn;
 
-    public double MaximumPowerInWatts => ProducingPower ? _prototype.WattageProvided : 0.0;
+    public double MaximumPowerInWatts => ProducingPower
+        ? _prototype.WattageProvided * Parent.EffectsOfType<IMagicPowerOrFuelEnhancementEffect>(x =>
+            x.AppliesToPoweredItem(Parent)).Aggregate(1.0, (current, effect) => current * effect.PowerProductionMultiplier)
+        : 0.0;
 
     private double _spikeDrawdown;
 
@@ -170,14 +174,14 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
     {
         return SwitchedOn && ProducingPower &&
                _powerUsers.Sum(x => x.PowerConsumptionInWatts) + wattage + _spikeDrawdown <
-               _prototype.WattageProvided;
+               MaximumPowerInWatts;
     }
 
     public bool CanDrawdownSpike(double wattage)
     {
         return SwitchedOn &&
                _powerUsers.Sum(x => x.PowerConsumptionInWatts) + wattage + _spikeDrawdown <
-               _prototype.WattageProvided && ProducingPower;
+               MaximumPowerInWatts && ProducingPower;
     }
 
     public bool DrawdownSpike(double wattage)
@@ -199,7 +203,7 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
 
             if (SwitchedOn &&
                 _powerUsers.Sum(x => x.PowerConsumptionInWatts) + item.PowerConsumptionInWatts <=
-                _prototype.WattageProvided)
+                MaximumPowerInWatts)
             {
                 _powerUsers.Add(item);
                 item.OnPowerCutIn();
@@ -275,7 +279,7 @@ public class UnlimitedGeneratorGameItemComponent : GameItemComponent, IProducePo
             double cumulativeDraw = 0.0;
             foreach (IConsumePower item in _connectedConsumers)
             {
-                if (_prototype.WattageProvided - cumulativeDraw >= item.PowerConsumptionInWatts)
+                if (MaximumPowerInWatts - cumulativeDraw >= item.PowerConsumptionInWatts)
                 {
                     _powerUsers.Add(item);
                     item.OnPowerCutIn();

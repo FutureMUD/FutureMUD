@@ -117,11 +117,15 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
     private Damage BuildDamage(ICharacter actor, IPerceiver target, IBodypart bodypart,
             IRangedWeaponType weaponType, OpposedOutcome defenseOutcome, double painMultiplier, double stunMultiplier)
     {
+        var payloadEffects = Parent.EffectsOfType<IMagicProjectilePayloadEffect>(x =>
+            x.AppliesToProjectileAttack(actor, target, Parent)).ToList();
         weaponType.DamageBonusExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-        weaponType.DamageBonusExpression.Formula.Parameters["quality"] = (int)Parent.Quality;
+        weaponType.DamageBonusExpression.Formula.Parameters["quality"] =
+            (int)Parent.Quality + (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus));
         weaponType.DamageBonusExpression.Formula.Parameters["degrees"] = (int)defenseOutcome.Degree;
 
-        double finalDamage = weaponType.DamageBonusExpression.Evaluate(actor);
+        double finalDamage = weaponType.DamageBonusExpression.Evaluate(actor) +
+                             payloadEffects.Sum(x => x.ProjectileDamageBonus);
         return new Damage
         {
             ActorOrigin = actor,
@@ -129,8 +133,8 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
             Bodypart = bodypart,
             DamageAmount = finalDamage,
             DamageType = DamageType.Burning,
-            PainAmount = finalDamage * painMultiplier,
-            StunAmount = finalDamage * stunMultiplier
+            PainAmount = finalDamage * painMultiplier + payloadEffects.Sum(x => x.ProjectilePainBonus),
+            StunAmount = finalDamage * stunMultiplier + payloadEffects.Sum(x => x.ProjectileStunBonus)
         };
     }
 

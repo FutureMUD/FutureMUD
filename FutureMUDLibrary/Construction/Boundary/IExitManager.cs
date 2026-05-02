@@ -60,6 +60,7 @@ namespace MudSharp.Construction.Boundary
         IEnumerable<ICellExit> GetAllExits(ICell cell);
 
         IExit GetExitByID(long id);
+        IEnumerable<IExit> TransientExits { get; }
         void RegisterTransientExit(IExit exit);
         void UnregisterTransientExit(IExit exit);
 

@@ -26,6 +26,7 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 - Status update as of 2026-05-01: the plane/corporeality and multiple-body-form work changes the blocker picture again. `IPlane`, `PlanarPresenceDefinition`, `planarstate`, `planeshift`, `removeplanarstate`, planar FutureProg functions, the `corporeality` admin command, and the `transformform` spell effect are live. Simple ethereal states, noncorporeal manifestation, single-active-body transformation, and straightforward "move this target to another plane" spells are now buildable with first-class primitives. Simultaneous bodies, remote vessels, possessed corpses, descriptor handoff, and persistent portal topology remain blocked.
 - Status update as of 2026-05-01 Engine V1: generic magic tags, FutureProg tag queries, first-class item and corpse magic effects, transient paired magical portals, safe command-forcing, and caster-scoped subjective description overrides are now implemented as engine primitives. This moves marks, rune anchors, basic portals, item damage/destruction/enchantment, corpse preservation/consumption/spawn, and the safest coercion/subjective-description cases out of the blocked bucket. Persistent portal topology, general dispel, true possession/projection, passive psionic traffic, and identity-concealment systems remain open.
 - Status update as of 2026-05-02 Engine V2: `dispelmagic`, `mindconceal`, transient portal inspection, item/object portal anchors, and first-class item enchantment hooks for projectile payloads, crafting tools, power/fuel modifiers, and item event progs are now live. Passive psionic traffic can use the existing `telepathy` flow with `mindconceal` identity policy. Persistent gates still use saved effects rather than a dedicated gate table, and true simultaneous-body possession/projection remains deferred.
+- Status update as of 2026-05-02 Wind engine slice: the Wind list now has first-class spell support for `levitate`, `featherfall`, `forcedpathmovement` / `handsofwind`, `transference`, and `removeinvisibility` / `dispelinvisibility`. Existing `detectinvisible` and `flying` effects are retained, with invisibility persistence fixed and magical flight expiry now rechecking remaining flight sources before dropping the target.
 
 > Note: the top-line parity counts and family summary in this report predate the Phase 1, Phase 2, plane/corporeality, and body-form implementation work. If exact current counts are needed, rerun the family-by-family classification pass. The implementation-plan and primitive-gap sections below reflect the current runtime state.
 
@@ -39,7 +40,7 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 
 Key takeaways:
 
-- `110 / 189` Armageddon entries are reachable today if we allow ordinary FutureProg and prototype scaffolding.
+- `117 / 189` Armageddon entries are reachable today if we allow ordinary FutureProg and prototype scaffolding.
 - The current system is already strong at direct damage, healing, stamina/need adjustment, item or liquid conjuration, NPC summoning, invisibility, telepathy, self-only magical armour, planar state shifts, and single-active-body transformation.
 - Phase 2 now closes three medium-difficulty primitive gaps: local exit targeting, prog-resolved summon-style remote targeting, and reusable room or personal wards with shared spell and power interception.
 - The plane and body-form work moves several old blockers into the buildable bucket: `Ethereal`, `Detect Ethereal`, `Dispel Ethereal`, simple `Planeshift`, ghostly manifestation, and polymorph-style transformations can now use first-class effects rather than bespoke tags.
@@ -53,7 +54,7 @@ Key takeaways:
 | Fire | 5 | 6 | 8 | Detection, dispels, object wards, burning-over-time |
 | Water | 11 | 7 | 6 | Poison/disease lifecycle, silence, water-breathing |
 | Earth / Stone | 7 | 8 | 7 | Sleep, burrow rooms, delayed callbacks, item destruction |
-| Wind | 5 | 11 | 7 | Flying, long-range forced movement, detection or cleanse effects |
+| Wind | 12 | 11 | 0 | Wind spell set now has first-class movement, fall-control, detection, flight, and cleanse support |
 | Shadow | 3 | 5 | 9 | Ethereal state, anti-curse cleanses, fear, projection |
 | Lightning | 5 | 7 | 3 | Sleep immunity, paralysis, tracked footprint effects |
 | Void | 6 | 5 | 17 | Durable portal networks, possession, advanced corpse/vessel semantics, resource drain |
@@ -80,6 +81,7 @@ The current system already has good coverage for:
 - general spell cleanup through `dispelmagic`, including remove or shorten modes and criteria for caster policy, spell, school/subschool, magic tags, and approved effect/interface keys
 - transient paired magical portals through `portal`, backed by effect-owned exit-manager registration rather than permanent database exits, with active inspection and caster-owned room or item/object anchors
 - psionic identity concealment and passive thought/feeling traffic through `mindconceal` and the existing `telepathy` flow
+- Wind movement and fall-control effects through `levitate`, `featherfall`, `forcedpathmovement` / `handsofwind`, `transference`, and `removeinvisibility` / `dispelinvisibility`
 - Coercion V1 through `forcecommand`, `subjectivedesc`, and `subjectivesdesc`
 
 ## Current Reclassification From Planes And Body Forms
@@ -123,7 +125,6 @@ These are intentionally separate builder-visible types rather than a single enum
 
 The remaining gap inside this primitive family is now the unimplemented edge set rather than the basic reusable states:
 
-- `feather fall`
 - `detect poison`
 - `insomnia`
 - cure blindness
@@ -191,11 +192,7 @@ This now unlocks or materially improves:
 - parts of `Portal`
 - simple `Planeshift` when the desired behaviour is a planar overlay on the target rather than a portal network
 
-This still blocks or complicates:
-
-- `Hands Of Wind` if it needs more than "move target to chosen room" semantics
-- `Transference`
-- persistent paired-gate topology for `Travel Gate` and `Portal`; transient paired exits and caster-owned room-tag anchors are now live
+Wind-specific movement no longer blocks this family: `forcedpathmovement` / `handsofwind` handles exit-path forced movement and `transference` swaps caster and target locations. Persistent paired-gate topology for `Travel Gate` and `Portal` remains separate; transient paired exits and caster-owned room-tag anchors are now live.
 
 ### 5. Room wards and anti-magic / anti-psionics interception
 
@@ -493,9 +490,9 @@ This appendix is the historical family-by-family classification from the first p
 
 ### Wind
 
-- Native now: `Invisibility`, `Wind Armor`, `Wind Fist`, `Repel`, `Wall Of Wind`
+- Native now: `Invisibility`, `Detect Invisible`, `Levitate`, `Hands Of Wind`, `Transference`, `Fly`, `Feather Fall`, `Dispel Invisibility`, `Wind Armor`, `Wind Fist`, `Repel`, `Wall Of Wind`
 - Builder+Prog now: `Teleport`, `Relocate`, `Sandstorm`, `Banishment`, `Guardian`, `Stalker`, `Delusion`, `Shield Of Wind`, `Messenger`, `Create Rune`, `Summon`
-- Needs engine work: `Detect Invisible`, `Levitate`, `Hands Of Wind`, `Transference`, `Fly`, `Feather Fall`, `Dispel Invisibility`
+- Needs engine work: none currently identified for the listed Wind spell set
 
 ### Shadow
 

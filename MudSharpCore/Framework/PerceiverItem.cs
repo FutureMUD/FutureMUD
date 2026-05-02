@@ -363,6 +363,11 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
             return false;
         }
 
+        if (EffectsOfType<IPreventFallingEffect>().Any(x => x.Applies()))
+        {
+            return false;
+        }
+
         if (ZeroGravityMovementHelper.IsZeroGravity(Location, RoomLayer, this))
         {
             return false;

@@ -1299,7 +1299,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
     public override bool ShouldFall()
     {
-        return IsItemType<IHoldable>() && base.ShouldFall();
+        return IsItemType<IHoldable>() &&
+               !EffectsOfType<IPreventFallingEffect>().Any(x => x.Applies()) &&
+               base.ShouldFall();
     }
 
     private double _condition;
@@ -1339,12 +1341,26 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
     public override void DoFallDamage(double fallDistance)
     {
+        var fallMitigationEffects = EffectsOfType<IFallDamageMitigationEffect>()
+            .Where(x => x.Applies())
+            .ToList();
+        var effectiveFallDistance = fallMitigationEffects.Aggregate(fallDistance,
+            (current, effect) => current * Math.Max(0.0, effect.FallDistanceMultiplier));
+        var damageMultiplier = fallMitigationEffects.Aggregate(1.0,
+            (current, effect) => current * Math.Max(0.0, effect.FallDamageMultiplier));
+
         FallDamageExpression.Parameters["weight"] = Weight;
-        FallDamageExpression.Parameters["rooms"] = fallDistance;
+        FallDamageExpression.Parameters["rooms"] = effectiveFallDistance;
+        var damageAmount = Convert.ToDouble(FallDamageExpression.Evaluate()) * damageMultiplier;
+        if (damageAmount <= 0.0)
+        {
+            return;
+        }
+
         Damage damage = new()
         {
             DamageType = DamageType.Falling,
-            DamageAmount = Convert.ToDouble(FallDamageExpression.Evaluate())
+            DamageAmount = damageAmount
         };
         SufferDamage(damage);
     }

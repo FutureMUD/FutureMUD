@@ -19,6 +19,20 @@ public interface IFlightEffect : IEffectSubtype
 {
 }
 
+public interface IPreventFallingEffect : IEffectSubtype
+{
+}
+
+public interface ILevitationEffect : IPreventFallingEffect
+{
+}
+
+public interface IFallDamageMitigationEffect : IEffectSubtype
+{
+	double FallDistanceMultiplier { get; }
+	double FallDamageMultiplier { get; }
+}
+
 public interface IAdditionalBreathableFluidEffect : IEffectSubtype
 {
 	bool AppliesToFluid(IFluid fluid);

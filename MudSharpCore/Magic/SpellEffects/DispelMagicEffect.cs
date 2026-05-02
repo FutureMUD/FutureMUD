@@ -81,7 +81,9 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			new XElement("Tag", new XCData(string.Empty)),
 			new XElement("TagValue", new XCData(string.Empty)),
 			new XElement("MatchTagValue", false),
-			new XElement("EffectKey", new XCData("any"))
+			new XElement("EffectKey", new XCData("any")),
+			new XElement("Contest", false),
+			new XElement("ContestBonus", 0)
 		), spell), string.Empty);
 	}
 
@@ -99,6 +101,8 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 		TagValue = root.Element("TagValue")?.Value ?? string.Empty;
 		MatchTagValue = bool.Parse(root.Element("MatchTagValue")?.Value ?? "false");
 		EffectKey = root.Element("EffectKey")?.Value ?? "any";
+		Contest = bool.Parse(root.Element("Contest")?.Value ?? "false");
+		ContestBonus = int.Parse(root.Element("ContestBonus")?.Value ?? "0");
 	}
 
 	public IMagicSpell Spell { get; }
@@ -114,6 +118,8 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 	public string TagValue { get; private set; }
 	public bool MatchTagValue { get; private set; }
 	public string EffectKey { get; private set; }
+	public bool Contest { get; private set; }
+	public int ContestBonus { get; private set; }
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
 
@@ -131,7 +137,9 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			new XElement("Tag", new XCData(Tag)),
 			new XElement("TagValue", new XCData(TagValue)),
 			new XElement("MatchTagValue", MatchTagValue),
-			new XElement("EffectKey", new XCData(EffectKey))
+			new XElement("EffectKey", new XCData(EffectKey)),
+			new XElement("Contest", Contest),
+			new XElement("ContestBonus", ContestBonus)
 		);
 	}
 
@@ -154,7 +162,9 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		var parents = target.EffectsOfType<MagicSpellParent>(x => MatchesParent(caster, x)).ToList();
+		var parents = target.EffectsOfType<MagicSpellParent>(x =>
+			MatchesParent(caster, x) &&
+			MatchesContest(power, outcome, x)).ToList();
 		foreach (var effect in parents)
 		{
 			if (Mode == DispelMagicMode.Remove)
@@ -216,6 +226,18 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 		return true;
 	}
 
+	private bool MatchesContest(SpellPower dispelPower, OpposedOutcomeDegree dispelOutcome, MagicSpellParent parent)
+	{
+		if (!Contest)
+		{
+			return true;
+		}
+
+		var dispelStrength = (int)dispelPower + (int)dispelOutcome + ContestBonus;
+		var targetStrength = (int)parent.Power + (int)parent.Outcome;
+		return dispelStrength >= targetStrength;
+	}
+
 	private bool MatchesCaster(ICharacter caster, MagicSpellParent parent)
 	{
 		var sameCaster = parent.Caster?.Id == caster.Id;
@@ -259,7 +281,9 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 	#3school <id|name|none>#0 - restricts matching to a magic school
 	#3tag <tag> [value]#0 - restricts matching to a magic tag, optionally including value
 	#3tag none#0 - clears tag matching
-	#3effect <key>#0 - restricts matching to an approved key: any, spell, invisibility, flight, levitation, featherfall, magictag, itemenchant, portal, planarstate, roomward, personalward, exitbarrier, subjectivedesc, transformform, projectile, crafttool, powerfuel, itemevent";
+	#3effect <key>#0 - restricts matching to an approved key: any, spell, invisibility, flight, levitation, featherfall, magictag, itemenchant, portal, planarstate, roomward, personalward, exitbarrier, subjectivedesc, transformform, projectile, crafttool, powerfuel, itemevent
+	#3contest#0 - toggles strength-contested dispel matching
+	#3bonus <amount>#0 - sets the flat strength bonus or penalty for contested dispels";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -291,6 +315,13 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			case "effect":
 			case "key":
 				return BuildingCommandEffect(actor, command);
+			case "contest":
+				Contest = !Contest;
+				Spell.Changed = true;
+				actor.OutputHandler.Send($"This dispel will {Contest.NowNoLonger()} use strength-contested matching.");
+				return true;
+			case "bonus":
+				return BuildingCommandBonus(actor, command);
 		}
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
@@ -422,8 +453,22 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 		return true;
 	}
 
+	private bool BuildingCommandBonus(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !int.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send("You must enter a valid integer bonus or penalty.");
+			return false;
+		}
+
+		ContestBonus = value;
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This dispel now has a contested strength bonus of {ContestBonus.ToString("N0", actor).ColourValue()}.");
+		return true;
+	}
+
 	public string Show(ICharacter actor)
 	{
-		return $"DispelMagic - {Mode.DescribeEnum().ColourValue()} - Caster {CasterPolicy.DescribeEnum().ColourValue()} - Hostile {AllowHostile.ToColouredString()} - School #{SchoolId.ToString("N0", actor).ColourValue()} - Spell #{SpellId.ToString("N0", actor).ColourValue()} - Tag {(string.IsNullOrWhiteSpace(Tag) ? "any".ColourValue() : $"{Tag}={TagValue}".ColourName())} - Effect {EffectKey.ColourCommand()}";
+		return $"DispelMagic - {Mode.DescribeEnum().ColourValue()} - Caster {CasterPolicy.DescribeEnum().ColourValue()} - Hostile {AllowHostile.ToColouredString()} - School #{SchoolId.ToString("N0", actor).ColourValue()} - Spell #{SpellId.ToString("N0", actor).ColourValue()} - Tag {(string.IsNullOrWhiteSpace(Tag) ? "any".ColourValue() : $"{Tag}={TagValue}".ColourName())} - Effect {EffectKey.ColourCommand()} - Contest {Contest.ToColouredString()} ({ContestBonus.ToString("N0", actor).ColourValue()})";
 	}
 }

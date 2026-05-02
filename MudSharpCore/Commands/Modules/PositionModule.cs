@@ -1160,6 +1160,12 @@ For example:
     [NoMovementCommand]
     protected static void Sleep(ICharacter actor, string input)
     {
+        if (actor.EffectsOfType<IPreventSleepEffect>().FirstOrDefault() is { } sleepBlocker)
+        {
+            actor.Send(sleepBlocker.SleepPreventionEcho);
+            return;
+        }
+
         if (actor.PositionState.CompareTo(actor.Race.MinimumSleepingPosition) == PositionHeightComparison.Higher)
         {
             actor.Send(

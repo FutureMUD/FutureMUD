@@ -11,6 +11,11 @@ public interface ISleepEffect : IEffectSubtype
 {
 }
 
+public interface IPreventSleepEffect : IEffectSubtype
+{
+	string SleepPreventionEcho { get; }
+}
+
 public interface IFearEffect : IEffectSubtype
 {
 }

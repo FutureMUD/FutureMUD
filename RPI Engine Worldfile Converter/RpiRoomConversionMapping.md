@@ -57,6 +57,14 @@ That merge is justified by base-room evidence in the preserved corpus:
 
 Other zones are not auto-merged from memory. When no clean base-room name can be derived, the converter falls back to `Zone NN` and records a warning.
 
+## Import Persistence
+
+Room import creates one FutureMUD `CellOverlayPackage` per converted zone group.
+
+`CellOverlayPackage.Id` is a revision-group identifier rather than a database-generated key, so the importer assigns new package ids from the current maximum package id plus one, matching the runtime builder workflow.
+
+Execute-mode imports run inside a database transaction. Intermediate `SaveChanges` calls are still used to obtain generated room, cell, overlay, and exit ids for dependent rows, but an exception rolls the whole execute import back rather than leaving a partial room import behind.
+
 ## Terrain Mapping
 
 Sector mapping defaults:

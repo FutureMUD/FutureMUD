@@ -9,6 +9,8 @@ using MudSharp.Database;
 using MudSharp.Models;
 using System;
 using System.Linq;
+using System.Xml.Linq;
+using SizeCategory = MudSharp.GameItems.SizeCategory;
 
 namespace MudSharp_Unit_Tests;
 
@@ -132,6 +134,16 @@ public class UsefulSeederItemPackageTests
 		};
 	}
 
+	private static void AssertContainerDefinition(GameItemComponentProto component, double weight, SizeCategory maxSize, string preposition, bool closable, bool transparent)
+	{
+		XElement definition = XElement.Parse(component.Definition);
+		Assert.AreEqual(weight, (double)definition.Attribute("Weight")!);
+		Assert.AreEqual((int)maxSize, (int)definition.Attribute("MaxSize")!);
+		Assert.AreEqual(preposition, (string)definition.Attribute("Preposition")!);
+		Assert.AreEqual(closable, bool.Parse((string)definition.Attribute("Closable")!));
+		Assert.AreEqual(transparent, bool.Parse((string)definition.Attribute("Transparent")!));
+	}
+
 	[TestMethod]
 	public void ClassifyItemPackagePresence_NonePartialAndFull_ReturnExpectedStates()
 	{
@@ -146,14 +158,79 @@ public class UsefulSeederItemPackageTests
 
 		context.GameItemComponentProtos.RemoveRange(context.GameItemComponentProtos.ToList());
 		long id = 20L;
-		foreach (string name in UsefulSeeder.StockItemMarkersForTesting)
+		foreach (string name in UsefulSeeder.StockItemMarkersForTesting.Where(x => x != "Container_Bookcase_Shelves"))
 		{
 			context.GameItemComponentProtos.Add(CreateComponentMarker(id++, name));
 		}
 
 		context.SaveChanges();
 
+		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, UsefulSeeder.ClassifyItemPackagePresence(context));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Bookcase_Shelves"));
+
+		context.GameItemComponentProtos.Add(CreateComponentMarker(id++, "Container_Bookcase_Shelves"));
+		context.SaveChanges();
+
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyItemPackagePresence(context));
+	}
+
+	[TestMethod]
+	public void SeedContainersForTesting_RerunDoesNotDuplicateAndCreatesFurnitureCoverage()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		UsefulSeeder seeder = new();
+
+		seeder.SeedContainersForTesting(context);
+		seeder.SeedContainersForTesting(context);
+
+		string[] expectedNames =
+		[
+			"Container_Side_Table",
+			"Container_Desk_Surface",
+			"Container_Counter",
+			"Container_Cot_Surface",
+			"Container_Bed_Surface",
+			"Container_Couch_Surface",
+			"Container_Bench_Surface",
+			"Container_Wall_Shelf",
+			"Container_Narrow_Shelves",
+			"Container_Wide_Shelves",
+			"Container_Bookcase_Shelves",
+			"Container_Display_Shelves",
+			"Container_Weapon_Rack",
+			"Container_Armor_Stand",
+			"Container_Open_Bin",
+			"Container_Small_Cabinet",
+			"Container_Large_Cabinet",
+			"Container_Glass_Cabinet",
+			"Container_Cupboard",
+			"Container_Wardrobe",
+			"Container_Armoire",
+			"Container_Dresser",
+			"Container_Desk_Drawers",
+			"Container_Nightstand",
+			"Container_Sideboard",
+			"Container_Hutch",
+			"Container_Trunk",
+			"Container_Footlocker",
+			"Container_Blanket_Box",
+			"Container_Display_Case"
+		];
+
+		foreach (string name in expectedNames)
+		{
+			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected a single container component named {name}.");
+		}
+
+		Assert.AreEqual(60, context.GameItemComponentProtos.Count(x => x.Type == "Container"));
+
+		AssertContainerDefinition(context.GameItemComponentProtos.Single(x => x.Name == "Container_Bookcase_Shelves"),
+			175000, SizeCategory.Large, "on", false, true);
+		AssertContainerDefinition(context.GameItemComponentProtos.Single(x => x.Name == "Container_Glass_Cabinet"),
+			150000, SizeCategory.Normal, "in", true, true);
+		AssertContainerDefinition(context.GameItemComponentProtos.Single(x => x.Name == "Container_Trunk"),
+			200000, SizeCategory.Large, "in", true, false);
 	}
 
 	[TestMethod]

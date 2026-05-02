@@ -67,7 +67,7 @@ Power, telecom, and modern medical examples also include:
 - `comp edit new defibrillator`
 - `comp edit new externalorgan`
 
-`UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. Food presets now live in the dedicated `CookingSeeder` package, which installs `PreparedFood` examples for direct load, forageable stock, stackable servings, and cooking recipe products. Fax-machine examples and breathing-filter cartridge ecosystems remain later dedicated content passes.
+`UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. The general item package also ships size-labelled door, gate, glass-door, and locking-door component presets for door items intended to match exit `DoorSize` values from `Tiny` through `Gigantic`; the item prototype size itself must still be set on the item. Food presets now live in the dedicated `CookingSeeder` package, which installs `PreparedFood` examples for direct load, forageable stock, stackable servings, and cooking recipe products. Fax-machine examples and breathing-filter cartridge ecosystems remain later dedicated content passes.
 
 Prepared-food examples include:
 - `comp edit new preparedfood`

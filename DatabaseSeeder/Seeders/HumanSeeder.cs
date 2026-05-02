@@ -45,8 +45,8 @@ public partial class HumanSeeder : IDatabaseSeeder
 
 Which combat balance profile should the stock combat seeders use for this world?
 
-#Bstock#F - keep the traditional FutureMUD balance defaults and the existing damage-randomness choice
-#Bcombat-rebalance#F - use the RimWorld-inspired combat rebalance profile for stock humans, animals, mythics, robots, armour, and attack formulas
+#Bstock#F - keep the traditional FutureMUD balance defaults, similar to LabMUD
+#Bcombat-rebalance#F - use the new style combat rebalance profile (more lethal but less grindy)
 
 Your choice: ",
                 (context, answers) => true,

@@ -1447,7 +1447,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		void ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
 			OpposedOutcomeDegree effectOutcome)
 		{
-			MagicSpellParent head = new(effectTarget, this, magician);
+			MagicSpellParent head = new(effectTarget, this, magician, power, effectOutcome);
 			foreach (IMagicSpellEffectTemplate effect in effects)
 			{
 				IMagicSpellEffect child =

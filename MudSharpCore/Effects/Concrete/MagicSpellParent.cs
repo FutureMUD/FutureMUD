@@ -4,6 +4,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.Magic;
 using MudSharp.NPC;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +23,14 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
         RegisterFactory("MagicSpellParent", (effect, owner) => new MagicSpellParent(effect, owner));
     }
 
-    public MagicSpellParent(IPerceivable owner, IMagicSpell spell, ICharacter caster) : base(owner, null)
+    public MagicSpellParent(IPerceivable owner, IMagicSpell spell, ICharacter caster,
+        SpellPower power = SpellPower.Standard, OpposedOutcomeDegree outcome = OpposedOutcomeDegree.None) : base(owner, null)
     {
         Spell = spell;
         _caster = caster;
         _casterId = caster.Id;
+        Power = power;
+        Outcome = outcome;
     }
 
     protected MagicSpellParent(XElement root, IPerceivable owner) : base(root, owner)
@@ -34,6 +38,8 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
         XElement trueRoot = root.Element("Effect");
         Spell = Gameworld.MagicSpells.Get(long.Parse(trueRoot.Element("Spell").Value));
         _casterId = long.Parse(trueRoot.Element("Caster").Value);
+        Power = (SpellPower)int.Parse(trueRoot.Element("SpellPower")?.Value ?? ((int)SpellPower.Standard).ToString());
+        Outcome = (OpposedOutcomeDegree)int.Parse(trueRoot.Element("OutcomeDegree")?.Value ?? ((int)OpposedOutcomeDegree.None).ToString());
         foreach (XElement element in trueRoot.Element("Children").Elements())
         {
             IMagicSpellEffect child = (IMagicSpellEffect)LoadEffect(element, owner);
@@ -59,6 +65,8 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
         return new XElement("Effect",
             new XElement("Spell", Spell.Id),
             new XElement("Caster", _casterId),
+            new XElement("SpellPower", (int)Power),
+            new XElement("OutcomeDegree", (int)Outcome),
             new XElement("Children",
                 from child in _spellEffects
                 select child.SaveToXml(new Dictionary<IEffect, TimeSpan>())
@@ -82,6 +90,8 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
     #region Implementation of IMagicSpellEffectParent
 
     public IMagicSpell Spell { get; set; }
+    public SpellPower Power { get; private set; }
+    public OpposedOutcomeDegree Outcome { get; private set; }
 
     private long _casterId { get; set; }
     private ICharacter _caster;

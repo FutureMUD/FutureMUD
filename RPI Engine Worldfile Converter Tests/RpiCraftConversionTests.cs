@@ -141,6 +141,13 @@ public class RpiCraftConversionTests
 			},
 			ClansByAlias = new Dictionary<string, FutureMudCraftClanReference>(StringComparer.OrdinalIgnoreCase)
 			{
+				["rangers"] = new FutureMudCraftClanReference(
+					1,
+					"Rangers",
+					new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)
+					{
+						["trusted"] = 1,
+					}),
 				["Rangers"] = new FutureMudCraftClanReference(
 					1,
 					"Rangers",

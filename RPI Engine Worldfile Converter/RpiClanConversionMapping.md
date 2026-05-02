@@ -27,7 +27,11 @@ It deliberately ignores:
 
 ## Canonical Alias Rules
 
-The importer prefers the in-world alias used by code and region data as the canonical FutureMUD alias. Legacy aliases are preserved for provenance and idempotency checks.
+The importer collapses aliases using the FutureMUD-style `CollapseString` rule before deciding whether two aliases represent the same clan. Spaces, underscores, and dashes therefore do not create separate imported clans.
+
+The importer still preserves raw legacy aliases for provenance and idempotency checks. If there is no explicit rule, the canonical FutureMUD alias is the collapsed lowercase alias.
+
+The same resolver is used by craft, item-board, and NPC clan references so later import phases bind to the canonical clan IDs produced by `apply-clans`.
 
 Canonical mappings:
 
@@ -39,6 +43,20 @@ Canonical mappings:
   - Legacy alias: `rouges`
 - `hawk_dove_2` => `Hawk and Dove`
   - Legacy alias: `hawk_and_dove`
+- `com_priests` => `Cult of Morgoth Priests`
+  - Legacy alias: `com-priests`
+- `tecouncil` => `Tur Edendor Council`
+- `metalsmiths_fellowship` => `Metalsmiths Fellowship`
+  - Legacy alias: `metalsmithsfellow`
+- `mm_slaves` => `Minas Morgul Slaves`
+- `mt_ratcatchers` => `Minas Tirith Ratcatchers`
+- `osgi_ratcatchers` => `Osgiliath Rat Catchers`
+- `witchkings_horde` => `Witchking's Horde`
+  - Legacy aliases: `witchking_horde`, `witchkinghorde`, `withchking_horde`, `witchking_horse`
+- `pel_pelennor` => `Pel Pelennor`
+  - Legacy alias: `pel_pelenor`
+- `osgi_citizens` => `Osgi Citizens`
+  - Legacy aliases: `osgi_citizen`, `osgi_citizensmember`, `osgi_citzens`
 
 Alias-only clans imported even without header-table rows:
 
@@ -56,7 +74,7 @@ Examples:
 
 These inferred clans:
 
-- use the observed alias as the canonical alias unless an explicit normalization rule applies
+- use the collapsed observed alias as the canonical alias unless an explicit normalization rule applies
 - use a title-cased alias as the full name unless a better authoritative name is available
 - preserve a source warning noting that the clan was synthesized from structured worldfile references
 

@@ -4,27 +4,8 @@ using MudSharp.Community;
 
 namespace RPI_Engine_Worldfile_Converter;
 
-internal sealed record CanonicalClanRule(string CanonicalAlias, string? FullNameOverride, IReadOnlyList<string> LegacyAliases);
-
 public sealed class FutureMudClanTransformer
 {
-	private static readonly IReadOnlyDictionary<string, CanonicalClanRule> CanonicalRules =
-		new Dictionary<string, CanonicalClanRule>(StringComparer.OrdinalIgnoreCase)
-		{
-			["mordor_char"] = new("mordor_char", "Minas Morgul", ["mm_denizens"]),
-			["mm_denizens"] = new("mordor_char", "Minas Morgul", ["mm_denizens"]),
-			["malred"] = new("malred", "Malred Family", ["housemalred"]),
-			["housemalred"] = new("malred", "Malred Family", ["housemalred"]),
-			["rogues"] = new("rogues", "Rogues' Fellowship", ["rouges"]),
-			["rouges"] = new("rogues", "Rogues' Fellowship", ["rouges"]),
-			["hawk_dove_2"] = new("hawk_dove_2", "Hawk and Dove", ["hawk_and_dove"]),
-			["hawk_and_dove"] = new("hawk_dove_2", "Hawk and Dove", ["hawk_and_dove"]),
-			["seekers"] = new("seekers", "Seekers", Array.Empty<string>()),
-			["shadow-cult"] = new("shadow-cult", "Shadow Cult", Array.Empty<string>()),
-			["tirithguard"] = new("tirithguard", "Minas Tirith Guard", Array.Empty<string>()),
-			["eradan_battalion"] = new("eradan_battalion", "Eradan Battalion", Array.Empty<string>()),
-		};
-
 	private static readonly IReadOnlyList<string> AliasOnlyClans =
 	[
 		"seekers",
@@ -43,7 +24,7 @@ public sealed class FutureMudClanTransformer
 
 		var importedAliases = BuildImportedAliasSet(sourceClans);
 		var unresolved = references.ReferencesByAlias
-			.Where(x => !importedAliases.Contains(ResolveCanonicalRule(x.Key).CanonicalAlias))
+			.Where(x => !importedAliases.Contains(RpiClanAliasResolver.ResolveCanonicalRule(x.Key).CanonicalAlias))
 			.OrderByDescending(x => x.Value.AliasReferenceCount)
 			.ThenBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
 			.ToDictionary(
@@ -59,11 +40,13 @@ public sealed class FutureMudClanTransformer
 		RpiClanReferenceIndex references)
 	{
 		var importedCanonicalAliases = sourceDocument.HeaderEntries
-			.Select(x => ResolveCanonicalRule(x.Alias).CanonicalAlias)
-			.Concat(AliasOnlyClans.Select(x => ResolveCanonicalRule(x).CanonicalAlias))
+			.Select(x => RpiClanAliasResolver.ResolveCanonicalRule(x.Alias).CanonicalAlias)
+			.Concat(AliasOnlyClans.Select(x => RpiClanAliasResolver.ResolveCanonicalRule(x).CanonicalAlias))
 			.Concat(references.ReferencesByAlias
-				.Where(x => x.Value.ObservedSlots.Any(y => y.IsImportable()))
-				.Select(x => ResolveCanonicalRule(x.Key).CanonicalAlias))
+				.Where(x =>
+					x.Value.ObservedSlots.Any(y => y.IsImportable()) ||
+					RpiClanAliasResolver.ResolveCanonicalRule(x.Key).ImportFromUnrankedReferences)
+				.Select(x => RpiClanAliasResolver.ResolveCanonicalRule(x.Key).CanonicalAlias))
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
 			.ToList();
@@ -71,11 +54,14 @@ public sealed class FutureMudClanTransformer
 		List<RpiClanDefinition> definitions = [];
 		foreach (var canonicalAlias in importedCanonicalAliases)
 		{
-			var rule = ResolveCanonicalRule(canonicalAlias);
-			var aliases = sourceDocument.AliasSources.Keys
-				.Where(x => ResolveCanonicalRule(x).CanonicalAlias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase))
+			var rule = RpiClanAliasResolver.ResolveCanonicalRule(canonicalAlias);
+			var aliases = sourceDocument.HeaderEntries
+				.Select(x => x.Alias)
+				.Where(x => RpiClanAliasResolver.ResolveCanonicalRule(x).CanonicalAlias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase))
+				.Concat(sourceDocument.AliasSources.Keys
+					.Where(x => RpiClanAliasResolver.ResolveCanonicalRule(x).CanonicalAlias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase)))
 				.Concat(references.ReferencesByAlias.Keys
-					.Where(x => ResolveCanonicalRule(x).CanonicalAlias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase)))
+					.Where(x => RpiClanAliasResolver.ResolveCanonicalRule(x).CanonicalAlias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase)))
 				.Concat(rule.LegacyAliases)
 				.Append(canonicalAlias)
 				.Distinct(StringComparer.OrdinalIgnoreCase)
@@ -84,12 +70,12 @@ public sealed class FutureMudClanTransformer
 				.ToList();
 
 			var headerEntry = sourceDocument.HeaderEntries
-				.FirstOrDefault(x => ResolveCanonicalRule(x.Alias).CanonicalAlias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase));
+				.FirstOrDefault(x => RpiClanAliasResolver.ResolveCanonicalRule(x.Alias).CanonicalAlias.Equals(canonicalAlias, StringComparison.OrdinalIgnoreCase));
 
 			List<string> warnings = [];
 			var fullName = rule.FullNameOverride ??
 			               headerEntry?.FullName ??
-			               DiscoverFullName(canonicalAlias, references) ??
+			               DiscoverFullName(canonicalAlias, aliases, references) ??
 			               RpiClanRankSlots.TitleCaseAlias(canonicalAlias);
 
 			if (headerEntry is null && rule.FullNameOverride is null)
@@ -281,6 +267,12 @@ public sealed class FutureMudClanTransformer
 			}
 		}
 
+		if (imported.Count == 0 &&
+		    RpiClanAliasResolver.ResolveCanonicalRule(clan.CanonicalAlias).ImportFromUnrankedReferences)
+		{
+			imported.Add(RpiClanRankSlot.Membership);
+		}
+
 		return imported.OrderBy(x => x.SortOrder()).ToList();
 	}
 
@@ -366,25 +358,29 @@ public sealed class FutureMudClanTransformer
 		return "normalization-rule";
 	}
 
-	private static string? DiscoverFullName(string canonicalAlias, RpiClanReferenceIndex references)
+	private static string? DiscoverFullName(
+		string canonicalAlias,
+		IReadOnlyCollection<string> aliases,
+		RpiClanReferenceIndex references)
 	{
-		return canonicalAlias switch
+		var explicitName = canonicalAlias switch
 		{
 			"seekers" => "Seekers",
 			"shadow-cult" => "Shadow Cult",
 			"tirithguard" => "Minas Tirith Guard",
 			"eradan_battalion" => "Eradan Battalion",
-			_ => references.ReferencesByAlias.ContainsKey(canonicalAlias)
-				? RpiClanRankSlots.TitleCaseAlias(canonicalAlias)
-				: null,
+			_ => null,
 		};
-	}
 
-	private static CanonicalClanRule ResolveCanonicalRule(string alias)
-	{
-		return CanonicalRules.TryGetValue(alias, out var rule)
-			? rule
-			: new CanonicalClanRule(alias, null, Array.Empty<string>());
+		if (!string.IsNullOrWhiteSpace(explicitName))
+		{
+			return explicitName;
+		}
+
+		var referenceAlias = aliases.FirstOrDefault(references.ReferencesByAlias.ContainsKey);
+		return referenceAlias is not null
+			? RpiClanRankSlots.TitleCaseAlias(referenceAlias)
+			: null;
 	}
 
 	private static HashSet<string> BuildImportedAliasSet(IEnumerable<RpiClanDefinition> clans)

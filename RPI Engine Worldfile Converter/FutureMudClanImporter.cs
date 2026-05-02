@@ -139,18 +139,24 @@ public sealed class FutureMudClanImporter
 		var existingAliases = _context.Clans
 			.Select(x => x.Alias)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var existingCollapsedAliases = existingAliases
+			.Select(RpiClanAliasResolver.CollapseAlias)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 		var skippedExistingCount = 0;
 		var insertedCount = 0;
 
 		foreach (var definition in ordered)
 		{
-			if (existingAliases.Contains(definition.CanonicalAlias))
+			if (existingAliases.Contains(definition.CanonicalAlias) ||
+			    existingCollapsedAliases.Contains(RpiClanAliasResolver.CollapseAlias(definition.CanonicalAlias)))
 			{
 				skippedExistingCount++;
 				continue;
 			}
 
-			var conflictingLegacyAlias = definition.LegacyAliases.FirstOrDefault(existingAliases.Contains);
+			var conflictingLegacyAlias = definition.LegacyAliases.FirstOrDefault(alias =>
+				existingAliases.Contains(alias) ||
+				existingCollapsedAliases.Contains(RpiClanAliasResolver.CollapseAlias(alias)));
 			if (!string.IsNullOrWhiteSpace(conflictingLegacyAlias))
 			{
 				issues.Add(new FutureMudClanValidationIssue(
@@ -214,6 +220,7 @@ public sealed class FutureMudClanImporter
 			_context.Clans.Add(clan);
 			_context.SaveChanges();
 			existingAliases.Add(definition.CanonicalAlias);
+			existingCollapsedAliases.Add(RpiClanAliasResolver.CollapseAlias(definition.CanonicalAlias));
 			insertedCount++;
 		}
 

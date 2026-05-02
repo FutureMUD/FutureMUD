@@ -97,6 +97,7 @@ public sealed class FutureMudRoomTransformer
 		var zones = BuildZones(orderedRooms);
 		var roomStates = BuildRoomStates(zones, roomByVnum);
 		ResolveXerox(roomStates, roomByVnum);
+		AppendFieldLimitWarnings(roomStates);
 		MapTerrainAndOutdoors(roomStates, roomByVnum);
 		AssignCoordinates(zones, roomByVnum);
 		var exits = BuildExits(roomStates, roomByVnum);
@@ -225,6 +226,21 @@ public sealed class FutureMudRoomTransformer
 			state.EffectiveDescription = xeroxRoom.Description;
 			state.EffectiveWeather = xeroxRoom.Weather;
 			state.XeroxResolved = true;
+		}
+	}
+
+	private static void AppendFieldLimitWarnings(IReadOnlyList<RoomState> roomStates)
+	{
+		foreach (var state in roomStates)
+		{
+			if (state.EffectiveDescription.Length <= FutureMudRoomImportLimits.CellDescriptionMaxLength)
+			{
+				continue;
+			}
+
+			state.Warnings.Add(new RoomConversionWarning(
+				"cell-description-truncated",
+				$"Room #{state.Source.Vnum} has an effective description of {state.EffectiveDescription.Length.ToString("N0", CultureInfo.InvariantCulture)} characters; FutureMUD CellDescription is limited to {FutureMudRoomImportLimits.CellDescriptionMaxLength.ToString("N0", CultureInfo.InvariantCulture)}, so apply-rooms will truncate it."));
 		}
 	}
 

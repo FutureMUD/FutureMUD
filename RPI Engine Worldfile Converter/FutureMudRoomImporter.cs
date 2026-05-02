@@ -265,6 +265,7 @@ public sealed class FutureMudRoomImporter
 	private readonly FutureMudRoomBaselineCatalog _catalog;
 	private readonly string? _zoneTemplateName;
 	private readonly DateTime _now = DateTime.UtcNow;
+	private long _nextCellOverlayPackageId;
 
 	public FutureMudRoomImporter(
 		FuturemudDatabaseContext context,
@@ -274,6 +275,9 @@ public sealed class FutureMudRoomImporter
 		_context = context;
 		_catalog = catalog;
 		_zoneTemplateName = zoneTemplateName;
+		_nextCellOverlayPackageId = context.CellOverlayPackages.Any()
+			? context.CellOverlayPackages.Max(x => x.Id) + 1
+			: 1;
 	}
 
 	public IReadOnlyList<FutureMudRoomValidationIssue> Validate(RoomConversionResult conversion)
@@ -314,6 +318,7 @@ public sealed class FutureMudRoomImporter
 		var skippedExistingZoneCount = 0;
 
 		Dictionary<int, RoomDbState> createdRoomStates = [];
+		using var transaction = execute ? _context.Database.BeginTransaction() : null;
 
 		foreach (var zone in conversion.Zones.OrderBy(x => x.ZoneName, StringComparer.OrdinalIgnoreCase))
 		{
@@ -378,6 +383,7 @@ public sealed class FutureMudRoomImporter
 			};
 			var package = new CellOverlayPackage
 			{
+				Id = _nextCellOverlayPackageId++,
 				Name = zone.OverlayPackageName,
 				RevisionNumber = 0,
 				EditableItem = editableItem,
@@ -582,6 +588,7 @@ public sealed class FutureMudRoomImporter
 		}
 
 		_context.SaveChanges();
+		transaction?.Commit();
 
 		return new FutureMudRoomImportResult(
 			insertedZoneCount,

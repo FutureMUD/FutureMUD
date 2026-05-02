@@ -2,18 +2,21 @@
 
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
 public class SpellItemEnchantmentEffect : MagicSpellEffectBase, IDescriptionAdditionEffect, ISDescAdditionEffect,
-	IProduceIllumination, IMagicWeaponEnhancementEffect, IMagicArmourEnhancementEffect
+	IProduceIllumination, IMagicWeaponEnhancementEffect, IMagicArmourEnhancementEffect, IMagicProjectilePayloadEffect,
+	IMagicCraftToolEnhancementEffect, IMagicPowerOrFuelEnhancementEffect, IMagicItemEventEffect
 {
 	public static void InitialiseEffectType()
 	{
@@ -22,7 +25,12 @@ public class SpellItemEnchantmentEffect : MagicSpellEffectBase, IDescriptionAddi
 
 	public SpellItemEnchantmentEffect(IPerceivable owner, IMagicSpellEffectParent parent, string sdescAddendum,
 		string descAddendum, ANSIColour colour, double glowLux, double attackCheckBonus, double qualityBonus,
-		double damageBonus, double painBonus, double stunBonus, double armourDamageReduction, IFutureProg? prog = null)
+		double damageBonus, double painBonus, double stunBonus, double armourDamageReduction,
+		double projectileQualityBonus = 0.0, double projectileDamageBonus = 0.0, double projectilePainBonus = 0.0,
+		double projectileStunBonus = 0.0, double toolFitnessBonus = 0.0, double toolSpeedMultiplier = 1.0,
+		double toolUsageMultiplier = 1.0, double powerProductionMultiplier = 1.0,
+		double powerConsumptionMultiplier = 1.0, double fuelUseMultiplier = 1.0,
+		EventType? itemEventType = null, IFutureProg? itemEventProg = null, IFutureProg? prog = null)
 		: base(owner, parent, prog)
 	{
 		SDescAddendum = sdescAddendum;
@@ -35,6 +43,18 @@ public class SpellItemEnchantmentEffect : MagicSpellEffectBase, IDescriptionAddi
 		PainBonus = painBonus;
 		StunBonus = stunBonus;
 		ArmourDamageReduction = armourDamageReduction;
+		ProjectileQualityBonus = projectileQualityBonus;
+		ProjectileDamageBonus = projectileDamageBonus;
+		ProjectilePainBonus = projectilePainBonus;
+		ProjectileStunBonus = projectileStunBonus;
+		ToolFitnessBonus = toolFitnessBonus;
+		ToolSpeedMultiplier = toolSpeedMultiplier;
+		ToolUsageMultiplier = toolUsageMultiplier;
+		PowerProductionMultiplier = powerProductionMultiplier;
+		PowerConsumptionMultiplier = powerConsumptionMultiplier;
+		FuelUseMultiplier = fuelUseMultiplier;
+		ItemEventType = itemEventType;
+		ItemEventProg = itemEventProg;
 	}
 
 	private SpellItemEnchantmentEffect(XElement root, IPerceivable owner) : base(root, owner)
@@ -50,6 +70,19 @@ public class SpellItemEnchantmentEffect : MagicSpellEffectBase, IDescriptionAddi
 		PainBonus = double.Parse(trueRoot?.Element("PainBonus")?.Value ?? "0");
 		StunBonus = double.Parse(trueRoot?.Element("StunBonus")?.Value ?? "0");
 		ArmourDamageReduction = double.Parse(trueRoot?.Element("ArmourDamageReduction")?.Value ?? "0");
+		ProjectileQualityBonus = double.Parse(trueRoot?.Element("ProjectileQualityBonus")?.Value ?? "0");
+		ProjectileDamageBonus = double.Parse(trueRoot?.Element("ProjectileDamageBonus")?.Value ?? "0");
+		ProjectilePainBonus = double.Parse(trueRoot?.Element("ProjectilePainBonus")?.Value ?? "0");
+		ProjectileStunBonus = double.Parse(trueRoot?.Element("ProjectileStunBonus")?.Value ?? "0");
+		ToolFitnessBonus = double.Parse(trueRoot?.Element("ToolFitnessBonus")?.Value ?? "0");
+		ToolSpeedMultiplier = double.Parse(trueRoot?.Element("ToolSpeedMultiplier")?.Value ?? "1");
+		ToolUsageMultiplier = double.Parse(trueRoot?.Element("ToolUsageMultiplier")?.Value ?? "1");
+		PowerProductionMultiplier = double.Parse(trueRoot?.Element("PowerProductionMultiplier")?.Value ?? "1");
+		PowerConsumptionMultiplier = double.Parse(trueRoot?.Element("PowerConsumptionMultiplier")?.Value ?? "1");
+		FuelUseMultiplier = double.Parse(trueRoot?.Element("FuelUseMultiplier")?.Value ?? "1");
+		var eventValue = int.Parse(trueRoot?.Element("ItemEventType")?.Value ?? "-1");
+		ItemEventType = eventValue < 0 ? null : (EventType)eventValue;
+		ItemEventProg = Gameworld.FutureProgs.Get(long.Parse(trueRoot?.Element("ItemEventProg")?.Value ?? "0"));
 	}
 
 	public string SDescAddendum { get; }
@@ -62,6 +95,18 @@ public class SpellItemEnchantmentEffect : MagicSpellEffectBase, IDescriptionAddi
 	public double PainBonus { get; }
 	public double StunBonus { get; }
 	public double ArmourDamageReduction { get; }
+	public double ProjectileQualityBonus { get; }
+	public double ProjectileDamageBonus { get; }
+	public double ProjectilePainBonus { get; }
+	public double ProjectileStunBonus { get; }
+	public double ToolFitnessBonus { get; }
+	public double ToolSpeedMultiplier { get; }
+	public double ToolUsageMultiplier { get; }
+	public double PowerProductionMultiplier { get; }
+	public double PowerConsumptionMultiplier { get; }
+	public double FuelUseMultiplier { get; }
+	public EventType? ItemEventType { get; }
+	public IFutureProg? ItemEventProg { get; }
 
 	protected override XElement SaveDefinition()
 	{
@@ -76,7 +121,19 @@ public class SpellItemEnchantmentEffect : MagicSpellEffectBase, IDescriptionAddi
 			new XElement("DamageBonus", DamageBonus),
 			new XElement("PainBonus", PainBonus),
 			new XElement("StunBonus", StunBonus),
-			new XElement("ArmourDamageReduction", ArmourDamageReduction)
+			new XElement("ArmourDamageReduction", ArmourDamageReduction),
+			new XElement("ProjectileQualityBonus", ProjectileQualityBonus),
+			new XElement("ProjectileDamageBonus", ProjectileDamageBonus),
+			new XElement("ProjectilePainBonus", ProjectilePainBonus),
+			new XElement("ProjectileStunBonus", ProjectileStunBonus),
+			new XElement("ToolFitnessBonus", ToolFitnessBonus),
+			new XElement("ToolSpeedMultiplier", ToolSpeedMultiplier),
+			new XElement("ToolUsageMultiplier", ToolUsageMultiplier),
+			new XElement("PowerProductionMultiplier", PowerProductionMultiplier),
+			new XElement("PowerConsumptionMultiplier", PowerConsumptionMultiplier),
+			new XElement("FuelUseMultiplier", FuelUseMultiplier),
+			new XElement("ItemEventType", ItemEventType.HasValue ? (int)ItemEventType.Value : -1),
+			new XElement("ItemEventProg", ItemEventProg?.Id ?? 0L)
 		);
 	}
 
@@ -98,6 +155,24 @@ public class SpellItemEnchantmentEffect : MagicSpellEffectBase, IDescriptionAddi
 	{
 		return ReferenceEquals(Owner, weapon) &&
 		       (ApplicabilityProg?.ExecuteBool(weapon, attacker, target) ?? true);
+	}
+
+	public bool AppliesToProjectileAttack(ICharacter attacker, IPerceiver target, IGameItem projectile)
+	{
+		return ReferenceEquals(Owner, projectile) &&
+		       (ApplicabilityProg?.ExecuteBool(projectile, attacker, target) ?? true);
+	}
+
+	public bool AppliesToCraftTool(IGameItem tool, ITag? toolTag)
+	{
+		return ReferenceEquals(Owner, tool) &&
+		       (ApplicabilityProg?.ExecuteBool(tool) ?? true);
+	}
+
+	public bool AppliesToPoweredItem(IGameItem item)
+	{
+		return ReferenceEquals(Owner, item) &&
+		       (ApplicabilityProg?.ExecuteBool(item) ?? true);
 	}
 
 	public IDamage SufferDamage(IDamage damage, ref List<IWound> wounds)
@@ -145,6 +220,30 @@ public class SpellItemEnchantmentEffect : MagicSpellEffectBase, IDescriptionAddi
 	public override string Describe(IPerceiver voyeur)
 	{
 		return "Magically enchanted item.";
+	}
+
+	public bool HandleEvent(EventType type, params dynamic[] arguments)
+	{
+		if (ItemEventProg is null || (ItemEventType.HasValue && ItemEventType.Value != type) || Owner is not IGameItem item)
+		{
+			return false;
+		}
+
+		if (ItemEventProg.MatchesParameters([ProgVariableTypes.Item, ProgVariableTypes.Text]))
+		{
+			ItemEventProg.Execute(item, type.DescribeEnum());
+		}
+		else if (ItemEventProg.MatchesParameters([ProgVariableTypes.Item]))
+		{
+			ItemEventProg.Execute(item);
+		}
+
+		return false;
+	}
+
+	public bool HandlesEvent(params EventType[] types)
+	{
+		return ItemEventProg is not null && (!ItemEventType.HasValue || types.Contains(ItemEventType.Value));
 	}
 
 	protected override string SpecificEffectType => "SpellItemEnchantment";

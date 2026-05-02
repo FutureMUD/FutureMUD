@@ -1,4 +1,5 @@
 ﻿using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
@@ -167,7 +168,11 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 	}
 
 	public double PowerConsumptionInWatts =>
-		SwitchedOn ? _prototype.Wattage - _prototype.WattageDiscountPerQuality * (int)Parent.Quality : 0.0;
+		SwitchedOn
+			? (_prototype.Wattage - _prototype.WattageDiscountPerQuality * (int)Parent.Quality) *
+			  Parent.EffectsOfType<IMagicPowerOrFuelEnhancementEffect>(x => x.AppliesToPoweredItem(Parent))
+		            .Aggregate(1.0, (current, effect) => current * effect.PowerConsumptionMultiplier)
+			: 0.0;
 
     #endregion
 

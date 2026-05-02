@@ -359,6 +359,40 @@ The `transformform` builder effect currently supports:
 - `priorityband <merit|drug|spell|admin>`
 - `priorityoffset <number>`
 
+### Engine V2 dispels, portals, item enchantments, and recipes
+Engine V2 adds a deeper parity layer without introducing true simultaneous-body possession or projection.
+
+General dispels use `dispelmagic`. It can either remove matching spell-parent effects or shorten their scheduled duration. Matching can be restricted by:
+
+- specific spell
+- magic school, optionally including child schools
+- caster policy: own, any, or others
+- magic tag and optional tag value
+- approved effect key such as `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `transformform`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
+
+The default policy is caster-owned cleanup. Hostile dispels must be explicitly configured with hostile matching and then travel through the ordinary spell targeting, ward, and resistance flow.
+
+Portals remain saved spell effects, not database exits or a gate table. The `portal` effect creates paired transient exits registered with `IExitManager`; active magical portals expose `IMagicPortalExit` metadata and can be inspected with `magic portals`. Anchor tags can be placed on rooms or items/objects with `magictag`; `portal` resolves caster-owned room anchors first, then caster-owned item anchors by using the item location. Builders can inspect active anchors with `magic anchors [tag]`.
+
+`itemenchant` now has first-class hooks beyond visible aura text, glow, weapon bonuses, and armour reduction:
+
+- projectile quality, damage, pain, and stun bonuses
+- craft tool fitness, phase speed, and tool usage multipliers
+- powered-item production, consumption, and fuel-use multipliers
+- optional item event type and callback prog
+
+Use `magictag` for metadata and lookup facts only. Runtime behaviours like projectile payloads, crafting bonuses, powered-item modifiers, and item event callbacks should use the first-class enchantment hooks.
+
+Current recipe guidance:
+
+- `Ethereal`: use `planarstate` or `planeshift` with a noncorporeal plane definition.
+- `Dispel Ethereal`: use `removeplanarstate`, or `dispelmagic` restricted to `effect planarstate` / the relevant school.
+- `Planeshift`: use `planeshift` when the target itself moves into the configured planar state.
+- Shadow or astral walking: use plane definitions plus `planeshift` when the caster becomes the walker.
+- Polymorph: use `transformform` with a stable `FormKey` and first-creation body-form defaults.
+
+Still-deferred boundary: possession, send-shadow projection, and body-left-behind disembodiment are not just spell effects. They require a simultaneous-body model for command routing, source-body vulnerability, inventory rules, death semantics, reconnect behavior, and admin observability.
+
 ### Material workflow
 Material requirements are authored through the spell's inventory plan:
 
@@ -496,6 +530,8 @@ Important implementation note:
 | `detectinvisible` | `DetectInvisibleEffect` | Grants magical vision that can pierce ordinary invisibility |
 | `detectmagick` | `DetectMagickEffect` | Grants magical sensing and visible aura readouts in ordinary descriptions |
 | `disease` | `DiseaseEffect` | Applies a configurable spell-owned systemic infection |
+| `dispelmagic` | `DispelMagicEffect` | Removes or shortens matching saved spell effects by caster policy, spell, school/subschool, magic tag, or approved effect key |
+| `destroyitem` | `DestroyItemEffect` | Deletes item targets with purge-warning safeguards |
 | `executeprog` | `ExecuteProgEffect` | Executes a supporting prog |
 | `exitbarrier` | `ExitBarrierEffect` | Applies a persistent magical barrier to a targeted exit |
 | `forcedexitmovement` | `ForcedExitMovementEffect` | Forces a targeted character through the trigger-supplied `exit` when movement is legal |
@@ -506,6 +542,9 @@ Important implementation note:
 | `healingrate` | `HealingRateSpellEffect` | Alters healing rate |
 | `infravision` | `InfravisionEffect` | Grants infrared vision and a darkness difficulty floor |
 | `invisibility` | `InvisibilityEffect` | Applies invisibility |
+| `itemdamage` | `ItemDamageEffect` | Damages an item with configured damage, pain, stun, and damage type |
+| `itemenchant` | `ItemEnchantEffect` | Adds aura/glow, weapon/armour bonuses, projectile payload bonuses, craft-tool bonuses, power/fuel modifiers, and optional item event progs |
+| `magictag` | `MagicTagEffect` | Adds spell-owned key/value metadata for marks, anchors, runes, signatures, and FutureProg queries |
 | `magicresourcedelta` | `MagicResourceDeltaEffect` | Adds or removes a configured magic resource from a character, item, or room |
 | `mend` | `MendEffect` | Mends damage or wear |
 | `needdelta` | `NeedDeltaEffect` | Changes a need immediately |
@@ -516,6 +555,7 @@ Important implementation note:
 | `planeshift` | `PlanarStateSpellEffect` | Moves the target into a configured corporeal or noncorporeal planar state |
 | `paralysis` | `ParalysisEffect` | Applies magical paralysis through the forced-paralysis hook |
 | `poison` | `PoisonEffect` | Applies a configurable spell-owned drug payload |
+| `portal` | `PortalSpellEffect` | Creates an effect-owned paired transient portal between the caster's room and a target room, room anchor, or item/object anchor |
 | `rage` | `RageSpellEffect` | Applies rage |
 | `relocate` | `RelocateEffect` | Relocates a target |
 | `removecomprehendlanguage` | `RemoveComprehendLanguageEffect` | Removes magical language-comprehension effects |
@@ -527,6 +567,7 @@ Important implementation note:
 | `removefear` | `RemoveFearEffect` | Removes magical fear effects |
 | `removeflying` | `RemoveFlyingEffect` | Removes magical flight-granting effects |
 | `removeinfravision` | `RemoveInfravisionEffect` | Removes magical infravision effects |
+| `removemagictag` | `RemoveMagicTagEffect` | Removes matching spell-owned magic tags by key and optional value |
 | `removeparalysis` | `RemoveParalysisEffect` | Removes magical paralysis effects |
 | `removeplanarstate` | `RemovePlanarStateSpellEffect` | Removes spell-owned and saved planar-state overlays |
 | `removepoison` | `RemovePoisonEffect` | Removes a matching spell-owned poison payload |
@@ -550,6 +591,9 @@ Important implementation note:
 | `telepathy` | `TelepathySpellEffect` | Applies telepathic linkage |
 | `teleport` | `TeleportEffect` | Teleports the caster to a room or cell target |
 | `teleporttarget` | `TeleportTargetEffect` | Teleports a target selected by the spell |
+| `subjectivedesc` | `SubjectiveDescriptionEffect` | Adds caster-scoped subjective full-description replacement |
+| `subjectivesdesc` | `SubjectiveSDescEffect` | Adds caster-scoped subjective short-description replacement |
+| `transformform` | `TransformFormEffect` | Ensures or reuses a keyed alternate body form and applies a priority-ranked forced transformation demand |
 | `waterbreathing` | `WaterBreathingEffect` | Grants additional breathable fluids |
 | `weatherchange` | `WeatherChangeEffect` | Changes weather |
 | `weatherchangefreeze` | `WeatherChangeFreezeEffect` | Changes and freezes weather state |

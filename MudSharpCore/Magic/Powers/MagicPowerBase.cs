@@ -1,6 +1,7 @@
 ﻿using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -284,10 +285,17 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		return true;
 	}
 
-	protected virtual bool TargetIsValid(ICharacter owner, ICharacter target)
+    protected virtual bool TargetIsValid(ICharacter owner, ICharacter target)
 	{
 		return TargetFilterFunction(owner, target) &&
 		       MagicInterdictionHelper.GetInterdiction(owner, target, School, false) is null;
+	}
+
+	protected static IMindContactConcealmentEffect GetMindConcealment(ICharacter source, ICharacter observer,
+		IMagicSchool school)
+	{
+		return source.EffectsOfType<IMindContactConcealmentEffect>()
+		             .FirstOrDefault(x => x.ConcealsIdentityFrom(source, observer, school));
 	}
 
     public bool TargetIsInRange(ICharacter owner, ICharacter target, MagicPowerDistance distance)

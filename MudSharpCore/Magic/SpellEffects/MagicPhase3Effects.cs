@@ -552,6 +552,18 @@ public class ItemEnchantEffect : IMagicSpellEffectTemplate
 			new XElement("PainBonus", 0.0),
 			new XElement("StunBonus", 0.0),
 			new XElement("ArmourDamageReduction", 0.0),
+			new XElement("ProjectileQualityBonus", 0.0),
+			new XElement("ProjectileDamageBonus", 0.0),
+			new XElement("ProjectilePainBonus", 0.0),
+			new XElement("ProjectileStunBonus", 0.0),
+			new XElement("ToolFitnessBonus", 0.0),
+			new XElement("ToolSpeedMultiplier", 1.0),
+			new XElement("ToolUsageMultiplier", 1.0),
+			new XElement("PowerProductionMultiplier", 1.0),
+			new XElement("PowerConsumptionMultiplier", 1.0),
+			new XElement("FuelUseMultiplier", 1.0),
+			new XElement("ItemEventType", -1),
+			new XElement("ItemEventProg", 0L),
 			new XElement("ApplicabilityProg", 0)
 		), spell), string.Empty);
 	}
@@ -569,6 +581,19 @@ public class ItemEnchantEffect : IMagicSpellEffectTemplate
 		PainBonus = double.Parse(root.Element("PainBonus")?.Value ?? "0");
 		StunBonus = double.Parse(root.Element("StunBonus")?.Value ?? "0");
 		ArmourDamageReduction = double.Parse(root.Element("ArmourDamageReduction")?.Value ?? "0");
+		ProjectileQualityBonus = double.Parse(root.Element("ProjectileQualityBonus")?.Value ?? "0");
+		ProjectileDamageBonus = double.Parse(root.Element("ProjectileDamageBonus")?.Value ?? "0");
+		ProjectilePainBonus = double.Parse(root.Element("ProjectilePainBonus")?.Value ?? "0");
+		ProjectileStunBonus = double.Parse(root.Element("ProjectileStunBonus")?.Value ?? "0");
+		ToolFitnessBonus = double.Parse(root.Element("ToolFitnessBonus")?.Value ?? "0");
+		ToolSpeedMultiplier = double.Parse(root.Element("ToolSpeedMultiplier")?.Value ?? "1");
+		ToolUsageMultiplier = double.Parse(root.Element("ToolUsageMultiplier")?.Value ?? "1");
+		PowerProductionMultiplier = double.Parse(root.Element("PowerProductionMultiplier")?.Value ?? "1");
+		PowerConsumptionMultiplier = double.Parse(root.Element("PowerConsumptionMultiplier")?.Value ?? "1");
+		FuelUseMultiplier = double.Parse(root.Element("FuelUseMultiplier")?.Value ?? "1");
+		var eventValue = int.Parse(root.Element("ItemEventType")?.Value ?? "-1");
+		ItemEventType = eventValue < 0 ? null : (EventType)eventValue;
+		ItemEventProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ItemEventProg")?.Value ?? "0"));
 		ApplicabilityProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ApplicabilityProg")?.Value ?? "0"));
 	}
 
@@ -584,6 +609,18 @@ public class ItemEnchantEffect : IMagicSpellEffectTemplate
 	public double PainBonus { get; private set; }
 	public double StunBonus { get; private set; }
 	public double ArmourDamageReduction { get; private set; }
+	public double ProjectileQualityBonus { get; private set; }
+	public double ProjectileDamageBonus { get; private set; }
+	public double ProjectilePainBonus { get; private set; }
+	public double ProjectileStunBonus { get; private set; }
+	public double ToolFitnessBonus { get; private set; }
+	public double ToolSpeedMultiplier { get; private set; }
+	public double ToolUsageMultiplier { get; private set; }
+	public double PowerProductionMultiplier { get; private set; }
+	public double PowerConsumptionMultiplier { get; private set; }
+	public double FuelUseMultiplier { get; private set; }
+	public EventType? ItemEventType { get; private set; }
+	public IFutureProg? ItemEventProg { get; private set; }
 	public IFutureProg? ApplicabilityProg { get; private set; }
 
 	public XElement SaveToXml()
@@ -600,6 +637,18 @@ public class ItemEnchantEffect : IMagicSpellEffectTemplate
 			new XElement("PainBonus", PainBonus),
 			new XElement("StunBonus", StunBonus),
 			new XElement("ArmourDamageReduction", ArmourDamageReduction),
+			new XElement("ProjectileQualityBonus", ProjectileQualityBonus),
+			new XElement("ProjectileDamageBonus", ProjectileDamageBonus),
+			new XElement("ProjectilePainBonus", ProjectilePainBonus),
+			new XElement("ProjectileStunBonus", ProjectileStunBonus),
+			new XElement("ToolFitnessBonus", ToolFitnessBonus),
+			new XElement("ToolSpeedMultiplier", ToolSpeedMultiplier),
+			new XElement("ToolUsageMultiplier", ToolUsageMultiplier),
+			new XElement("PowerProductionMultiplier", PowerProductionMultiplier),
+			new XElement("PowerConsumptionMultiplier", PowerConsumptionMultiplier),
+			new XElement("FuelUseMultiplier", FuelUseMultiplier),
+			new XElement("ItemEventType", ItemEventType.HasValue ? (int)ItemEventType.Value : -1),
+			new XElement("ItemEventProg", ItemEventProg?.Id ?? 0L),
 			new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0)
 		);
 	}
@@ -618,7 +667,9 @@ public class ItemEnchantEffect : IMagicSpellEffectTemplate
 		return target is IGameItem
 			? new SpellItemEnchantmentEffect(target, parent, SDescAddendum, DescAddendum, Colour, GlowLux,
 				AttackCheckBonus, QualityBonus, DamageBonus, PainBonus, StunBonus, ArmourDamageReduction,
-				ApplicabilityProg)
+				ProjectileQualityBonus, ProjectileDamageBonus, ProjectilePainBonus, ProjectileStunBonus,
+				ToolFitnessBonus, ToolSpeedMultiplier, ToolUsageMultiplier, PowerProductionMultiplier,
+				PowerConsumptionMultiplier, FuelUseMultiplier, ItemEventType, ItemEventProg, ApplicabilityProg)
 			: null;
 	}
 
@@ -639,6 +690,18 @@ public class ItemEnchantEffect : IMagicSpellEffectTemplate
 	#3pain <bonus>#0 - sets weapon pain bonus
 	#3stun <bonus>#0 - sets weapon stun bonus
 	#3armour <amount>#0 - sets armour damage reduction
+	#3projectilequality <bonus>#0 - sets projectile quality bonus
+	#3projectiledamage <bonus>#0 - sets projectile damage bonus
+	#3projectilepain <bonus>#0 - sets projectile pain bonus
+	#3projectilestun <bonus>#0 - sets projectile stun bonus
+	#3toolfitness <bonus>#0 - sets craft tool fitness bonus
+	#3toolspeed <multiplier>#0 - sets craft phase speed multiplier
+	#3toolusage <multiplier>#0 - sets tool durability usage multiplier
+	#3powerproduction <multiplier>#0 - sets powered-item production multiplier
+	#3powerconsumption <multiplier>#0 - sets powered-item consumption multiplier
+	#3fuelusage <multiplier>#0 - sets powered-item fuel usage multiplier
+	#3event <event|none>#0 - sets the item event this enchantment listens for
+	#3eventprog <prog|none>#0 - sets the item event callback prog
 	#3prog <prog|none>#0 - gates whether the enchantment applies";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -670,6 +733,16 @@ public class ItemEnchantEffect : IMagicSpellEffectTemplate
 			case "pain":
 			case "stun":
 			case "armour":
+			case "projectilequality":
+			case "projectiledamage":
+			case "projectilepain":
+			case "projectilestun":
+			case "toolfitness":
+			case "toolspeed":
+			case "toolusage":
+			case "powerproduction":
+			case "powerconsumption":
+			case "fuelusage":
 				if (!double.TryParse(command.SafeRemainingArgument, out var value))
 				{
 					actor.OutputHandler.Send("You must enter a valid number.");
@@ -678,6 +751,10 @@ public class ItemEnchantEffect : IMagicSpellEffectTemplate
 
 				SetNumeric(which, value);
 				break;
+			case "event":
+				return BuildingCommandEvent(actor, command);
+			case "eventprog":
+				return BuildingCommandEventProg(actor, command);
 			case "prog":
 				if (command.SafeRemainingArgument.EqualTo("none"))
 				{
@@ -733,12 +810,89 @@ public class ItemEnchantEffect : IMagicSpellEffectTemplate
 			case "armour":
 				ArmourDamageReduction = value;
 				return;
+			case "projectilequality":
+				ProjectileQualityBonus = value;
+				return;
+			case "projectiledamage":
+				ProjectileDamageBonus = value;
+				return;
+			case "projectilepain":
+				ProjectilePainBonus = value;
+				return;
+			case "projectilestun":
+				ProjectileStunBonus = value;
+				return;
+			case "toolfitness":
+				ToolFitnessBonus = value;
+				return;
+			case "toolspeed":
+				ToolSpeedMultiplier = Math.Max(0.01, value);
+				return;
+			case "toolusage":
+				ToolUsageMultiplier = Math.Max(0.0, value);
+				return;
+			case "powerproduction":
+				PowerProductionMultiplier = Math.Max(0.0, value);
+				return;
+			case "powerconsumption":
+				PowerConsumptionMultiplier = Math.Max(0.0, value);
+				return;
+			case "fuelusage":
+				FuelUseMultiplier = Math.Max(0.0, value);
+				return;
 		}
+	}
+
+	private bool BuildingCommandEvent(ICharacter actor, StringStack command)
+	{
+		if (command.SafeRemainingArgument.EqualToAny("none", "clear"))
+		{
+			ItemEventType = null;
+			Spell.Changed = true;
+			actor.OutputHandler.Send("This enchantment no longer listens for item events.");
+			return true;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum(out EventType value))
+		{
+			actor.OutputHandler.Send("That is not a valid event type.");
+			return false;
+		}
+
+		ItemEventType = value;
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This enchantment now listens for {value.DescribeEnum().ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandEventProg(ICharacter actor, StringStack command)
+	{
+		if (command.SafeRemainingArgument.EqualToAny("none", "clear"))
+		{
+			ItemEventProg = null;
+			Spell.Changed = true;
+			actor.OutputHandler.Send("This enchantment no longer invokes an item event prog.");
+			return true;
+		}
+
+		ItemEventProg = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Void,
+			[
+				[ProgVariableTypes.Item],
+				[ProgVariableTypes.Item, ProgVariableTypes.Text]
+			]).LookupProg();
+		if (ItemEventProg is null)
+		{
+			return false;
+		}
+
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This enchantment now invokes {ItemEventProg.MXPClickableFunctionName()} for matching item events.");
+		return true;
 	}
 
 	public string Show(ICharacter actor)
 	{
-		return $"ItemEnchant - {SDescAddendum.Colour(Colour)} - Glow {GlowLux.ToString("N2", actor).ColourValue()} - Attack {AttackCheckBonus.ToBonusString(actor)} - Armour {ArmourDamageReduction.ToString("N2", actor).ColourValue()}";
+		return $"ItemEnchant - {SDescAddendum.Colour(Colour)} - Glow {GlowLux.ToString("N2", actor).ColourValue()} - Attack {AttackCheckBonus.ToBonusString(actor)} - Armour {ArmourDamageReduction.ToString("N2", actor).ColourValue()} - Projectile {ProjectileDamageBonus.ToBonusString(actor)} - Tool {ToolFitnessBonus.ToBonusString(actor)} - Power x{PowerProductionMultiplier.ToString("N2", actor).ColourValue()}";
 	}
 }
 
@@ -1215,12 +1369,24 @@ public class PortalSpellEffect : IMagicSpellEffectTemplate
 
 	private ICell? AnchorDestination(ICharacter caster)
 	{
-		return Gameworld.Cells
+		var roomAnchor = Gameworld.Cells
 			.Where(x => x != caster.Location)
 			.SingleOrDefault(x => x.EffectsOfType<IMagicTagEffect>(tag =>
 				tag.Caster?.Id == caster.Id &&
 				tag.Tag.EqualTo(AnchorTag) &&
 				(string.IsNullOrEmpty(AnchorValue) || tag.Value.EqualTo(AnchorValue))).Any());
+		if (roomAnchor is not null)
+		{
+			return roomAnchor;
+		}
+
+		return Gameworld.Items
+			.Where(x => x.Location is not null && x.Location != caster.Location)
+			.SingleOrDefault(x => x.EffectsOfType<IMagicTagEffect>(tag =>
+				tag.Caster?.Id == caster.Id &&
+				tag.Tag.EqualTo(AnchorTag) &&
+				(string.IsNullOrEmpty(AnchorValue) || tag.Value.EqualTo(AnchorValue))).Any())
+			?.Location;
 	}
 
 	public IMagicSpellEffectTemplate Clone() => new PortalSpellEffect(SaveToXml(), Spell);

@@ -1,6 +1,10 @@
 ﻿using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
+using System;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace MudSharp.Work.Crafts.Tools;
@@ -34,7 +38,28 @@ public class SimpleTool : BaseTool
 
     public override double ToolFitness(IGameItem item)
     {
-        return 1.0;
+        return Math.Max(0.0, 1.0 + item.EffectsOfType<IMagicCraftToolEnhancementEffect>(x =>
+            x.AppliesToCraftTool(item, null)).Sum(x => x.ToolFitnessBonus));
+    }
+
+    public override double PhaseLengthMultiplier(IGameItem item)
+    {
+        return item.EffectsOfType<IMagicCraftToolEnhancementEffect>(x =>
+            x.AppliesToCraftTool(item, null))
+            .Aggregate(1.0, (current, effect) => current * effect.ToolSpeedMultiplier);
+    }
+
+    public override void UseTool(IGameItem item, TimeSpan phaseLength, bool hasFailed)
+    {
+        if (!UseToolDuration)
+        {
+            return;
+        }
+
+        var usageMultiplier = item.EffectsOfType<IMagicCraftToolEnhancementEffect>(x =>
+            x.AppliesToCraftTool(item, null))
+            .Aggregate(1.0, (current, effect) => current * effect.ToolUsageMultiplier);
+        item.GetItemType<IToolItem>()?.UseTool(null, TimeSpan.FromTicks((long)(phaseLength.Ticks * usageMultiplier)));
     }
 
     public override string ToolType => "SimpleTool";

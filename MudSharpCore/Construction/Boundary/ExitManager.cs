@@ -245,6 +245,11 @@ public class ExitManager : IExitManager, IHaveFuturemud
                TransientExitDictionary.SelectMany(x => x.Value).FirstOrDefault(x => x.Id == id);
     }
 
+    public IEnumerable<IExit> TransientExits => TransientExitDictionary
+        .SelectMany(x => x.Value)
+        .Distinct()
+        .ToList();
+
     public void RegisterTransientExit(IExit exit)
     {
         if (exit is null)

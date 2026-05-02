@@ -5,6 +5,7 @@ using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
@@ -190,7 +191,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
                     target, target, Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
         }
 
-        _prototype.RangedWeaponType.DamageBonusExpression.Formula.Parameters["quality"] = (int)Parent.Quality;
+        var payloadEffects = Parent.EffectsOfType<IMagicProjectilePayloadEffect>(x =>
+            x.AppliesToProjectileAttack(actor, target, Parent)).ToList();
+        _prototype.RangedWeaponType.DamageBonusExpression.Formula.Parameters["quality"] =
+            (int)Parent.Quality + (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus));
         _prototype.RangedWeaponType.DamageBonusExpression.Formula.Parameters["degrees"] =
             (int)defenseOutcome.Degree;
         _prototype.RangedWeaponType.DamageBonusExpression.Formula.Parameters["range"] = actor.DistanceBetween(
@@ -202,8 +206,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
             Bodypart = bodypart,
             DamageAmount =
                 _prototype.RangedWeaponType.DamageBonusExpression.Evaluate(actor,
-                    _prototype.RangedWeaponType.FireTrait),
+                    _prototype.RangedWeaponType.FireTrait) + payloadEffects.Sum(x => x.ProjectileDamageBonus),
             DamageType = _prototype.MeleeWeaponType.Attacks.FirstMax(x => x.Weighting).Profile.DamageType,
+            PainAmount = payloadEffects.Sum(x => x.ProjectilePainBonus),
+            StunAmount = payloadEffects.Sum(x => x.ProjectileStunBonus),
             LodgableItem = Parent
         };
 

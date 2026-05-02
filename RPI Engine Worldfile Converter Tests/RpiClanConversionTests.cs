@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -46,8 +47,7 @@ public class RpiClanConversionTests
 		var conversion = transformer.Convert(source, references);
 		var converted = conversion.ConvertedClans.ToDictionary(x => x.CanonicalAlias, StringComparer.OrdinalIgnoreCase);
 
-		Assert.IsTrue(conversion.UnresolvedAliasCounts.ContainsKey("com-priests"));
-		Assert.AreEqual(1, conversion.UnresolvedAliasCounts["com-priests"]);
+		Assert.IsFalse(conversion.UnresolvedAliasCounts.ContainsKey("com-priests"));
 
 		var ithilien = converted["ithilien_battalion"];
 		CollectionAssert.AreEquivalent(
@@ -117,6 +117,12 @@ public class RpiClanConversionTests
 			new[] { RpiClanRankSlot.Apprentice },
 			healers.Ranks.Select(x => x.Slot).ToArray());
 
+		var priests = converted["com_priests"];
+		Assert.AreEqual("Cult of Morgoth Priests", priests.FullName);
+		CollectionAssert.AreEquivalent(
+			new[] { RpiClanRankSlot.Membership },
+			priests.Ranks.Select(x => x.Slot).ToArray());
+
 		var sergeant = ithilien.Ranks.Single(x => x.Slot == RpiClanRankSlot.Sergeant);
 		var captain = ithilien.Ranks.Single(x => x.Slot == RpiClanRankSlot.Captain);
 		var membership = mordor.Ranks.Single(x => x.Slot == RpiClanRankSlot.Membership);
@@ -138,6 +144,85 @@ public class RpiClanConversionTests
 			},
 			conversion.ConvertedClans);
 		Assert.IsFalse(validation.Any(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void ClanTransformer_CollapsesAliasPunctuationVariants()
+	{
+		var source = new RpiClanSourceDocument(
+			"synthetic",
+			[
+				new RpiClanHeaderEntry(1, "Black Watch", "black-watch"),
+				new RpiClanHeaderEntry(2, "Black Watch", "black_watch")
+			],
+			new Dictionary<string, RpiClanAliasSource>(StringComparer.OrdinalIgnoreCase),
+			Array.Empty<string>());
+		var references = new RpiClanReferenceIndex(
+			new Dictionary<string, RpiClanReferenceRecord>(StringComparer.OrdinalIgnoreCase)
+			{
+				["blackwatch"] = new(
+					"blackwatch",
+					3,
+					[RpiClanRankSlot.Membership],
+					Array.Empty<string>())
+			});
+
+		var conversion = new FutureMudClanTransformer().Convert(source, references);
+		var blackWatch = conversion.ConvertedClans.Single(x => x.CanonicalAlias.Equals("blackwatch", StringComparison.OrdinalIgnoreCase));
+
+		Assert.AreEqual("blackwatch", blackWatch.CanonicalAlias);
+		Assert.AreEqual("Black Watch", blackWatch.FullName);
+		CollectionAssert.AreEquivalent(
+			new[] { "black-watch", "black_watch" },
+			blackWatch.LegacyAliases.Where(x => !x.Equals("blackwatch", StringComparison.OrdinalIgnoreCase)).ToArray());
+		CollectionAssert.AreEquivalent(
+			new[] { RpiClanRankSlot.Membership },
+			blackWatch.Ranks.Select(x => x.Slot).ToArray());
+	}
+
+	[TestMethod]
+	public void ClanTransformer_UsesKnownAliasRepairRules_ForBuilderTypos()
+	{
+		var source = new RpiClanSourceDocument(
+			"synthetic",
+			Array.Empty<RpiClanHeaderEntry>(),
+			new Dictionary<string, RpiClanAliasSource>(StringComparer.OrdinalIgnoreCase),
+			Array.Empty<string>());
+		var references = new RpiClanReferenceIndex(
+			new Dictionary<string, RpiClanReferenceRecord>(StringComparer.OrdinalIgnoreCase)
+			{
+				["tecouncil"] = new("tecouncil", 11, Array.Empty<RpiClanRankSlot>(), Array.Empty<string>()),
+				["metalsmithsfellow"] = new("metalsmithsfellow", 6, Array.Empty<RpiClanRankSlot>(), Array.Empty<string>()),
+				["mm_slaves"] = new("mm_slaves", 2, Array.Empty<RpiClanRankSlot>(), Array.Empty<string>()),
+				["mt_ratcatchers"] = new("mt_ratcatchers", 2, Array.Empty<RpiClanRankSlot>(), Array.Empty<string>()),
+				["osgi_ratcatchers"] = new("osgi_ratcatchers", 2, Array.Empty<RpiClanRankSlot>(), Array.Empty<string>()),
+				["witchking_horse"] = new("witchking_horse", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["withchking_horde"] = new("withchking_horde", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["pel_pelenor"] = new("pel_pelenor", 1, [RpiClanRankSlot.Membership], Array.Empty<string>()),
+				["osgi_citizensmember"] = new("osgi_citizensmember", 1, [RpiClanRankSlot.Membership], Array.Empty<string>())
+			});
+
+		var conversion = new FutureMudClanTransformer().Convert(source, references);
+		var converted = conversion.ConvertedClans.ToDictionary(x => x.CanonicalAlias, StringComparer.OrdinalIgnoreCase);
+
+		Assert.AreEqual("Tur Edendor Council", converted["tecouncil"].FullName);
+		Assert.AreEqual("Metalsmiths Fellowship", converted["metalsmiths_fellowship"].FullName);
+		Assert.AreEqual("Minas Morgul Slaves", converted["mm_slaves"].FullName);
+		Assert.AreEqual("Minas Tirith Ratcatchers", converted["mt_ratcatchers"].FullName);
+		Assert.AreEqual("Osgiliath Rat Catchers", converted["osgi_ratcatchers"].FullName);
+		Assert.AreEqual("Witchking's Horde", converted["witchkings_horde"].FullName);
+		CollectionAssert.Contains(converted["witchkings_horde"].LegacyAliases.ToList(), "witchking_horse");
+		Assert.AreEqual("Pel Pelennor", converted["pel_pelennor"].FullName);
+		Assert.AreEqual("Osgi Citizens", converted["osgi_citizens"].FullName);
+		Assert.IsFalse(conversion.UnresolvedAliasCounts.Any());
+
+		foreach (var clan in converted
+			         .Where(x => references.ReferencesByAlias.ContainsKey(x.Key) ||
+			                     x.Value.LegacyAliases.Any(references.ReferencesByAlias.ContainsKey))
+			         .Select(x => x.Value))
+		{
+			Assert.IsTrue(clan.Ranks.Any(x => x.Slot == RpiClanRankSlot.Membership));
+		}
 	}
 
 	private static string GetClanSourcePath()

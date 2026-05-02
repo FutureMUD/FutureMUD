@@ -152,8 +152,6 @@ public sealed record CraftConversionResult(
 	IReadOnlyList<GeneratedCraftTagDefinition> GeneratedTags,
 	IReadOnlyDictionary<string, int> DeferredReasonCounts);
 
-internal sealed record NormalisedClanRule(string CanonicalAlias, string? FullNameOverride, IReadOnlyList<string> LegacyAliases);
-
 internal sealed record ResolvedCraftRequirement(
 	string Type,
 	int Quantity,
@@ -395,23 +393,6 @@ public sealed class FutureMudCraftTransformer
 			["26"] = "Uruk",
 			["27"] = "Human",
 			["28"] = "Human",
-		};
-
-	private static readonly IReadOnlyDictionary<string, NormalisedClanRule> CanonicalClanRules =
-		new Dictionary<string, NormalisedClanRule>(StringComparer.OrdinalIgnoreCase)
-		{
-			["mordor_char"] = new("mordor_char", "Minas Morgul", ["mm_denizens"]),
-			["mm_denizens"] = new("mordor_char", "Minas Morgul", ["mm_denizens"]),
-			["malred"] = new("malred", "Malred Family", ["housemalred"]),
-			["housemalred"] = new("malred", "Malred Family", ["housemalred"]),
-			["rogues"] = new("rogues", "Rogues' Fellowship", ["rouges"]),
-			["rouges"] = new("rogues", "Rogues' Fellowship", ["rouges"]),
-			["hawk_dove_2"] = new("hawk_dove_2", "Hawk and Dove", ["hawk_and_dove"]),
-			["hawk_and_dove"] = new("hawk_dove_2", "Hawk and Dove", ["hawk_and_dove"]),
-			["seekers"] = new("seekers", "Seekers", Array.Empty<string>()),
-			["shadow-cult"] = new("shadow-cult", "Shadow Cult", Array.Empty<string>()),
-			["tirithguard"] = new("tirithguard", "Minas Tirith Guard", Array.Empty<string>()),
-			["eradan_battalion"] = new("eradan_battalion", "Eradan Battalion", Array.Empty<string>()),
 		};
 
 	private static readonly IReadOnlyDictionary<string, string[]> SeasonMonthAliases =
@@ -1203,9 +1184,7 @@ public sealed class FutureMudCraftTransformer
 
 	private static ConvertedCraftClanRequirement NormaliseClanRequirement(RpiCraftClanRequirement requirement)
 	{
-		var rule = CanonicalClanRules.TryGetValue(requirement.ClanAlias, out var canonical)
-			? canonical
-			: new NormalisedClanRule(requirement.ClanAlias, RpiClanRankSlots.TitleCaseAlias(requirement.ClanAlias), Array.Empty<string>());
+		var rule = RpiClanAliasResolver.ResolveCanonicalRule(requirement.ClanAlias);
 		return new ConvertedCraftClanRequirement(
 			rule.CanonicalAlias,
 			rule.FullNameOverride ?? RpiClanRankSlots.TitleCaseAlias(rule.CanonicalAlias),

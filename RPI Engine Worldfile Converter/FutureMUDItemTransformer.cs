@@ -789,7 +789,9 @@ public sealed class FutureMUDItemTransformer
 
 		var clanRestrictions = item.Clans
 			.Where(x => !string.IsNullOrWhiteSpace(x.Name))
-			.Select(x => new FutureMudBoardClanRestriction(x.Name.Trim(), x.Rank.Trim()))
+			.Select(x => new FutureMudBoardClanRestriction(
+				RpiClanAliasResolver.ResolveCanonicalRule(x.Name.Trim()).CanonicalAlias,
+				x.Rank.Trim()))
 			.GroupBy(x => $"{x.ClanAlias}\n{x.RankName}", StringComparer.OrdinalIgnoreCase)
 			.Select(x => x.First())
 			.ToList();

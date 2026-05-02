@@ -208,7 +208,12 @@ public sealed class FutureMudNpcTransformer
 			Shop = npc.Shop,
 			Venom = npc.Venom,
 			Morph = npc.Morph,
-			ClanMemberships = npc.ClanMemberships,
+			ClanMemberships = npc.ClanMemberships
+				.Select(x => new RpiNpcClanMembershipRecord(
+					x.RankName,
+					RpiClanAliasResolver.ResolveCanonicalRule(x.ClanAlias).CanonicalAlias))
+				.DistinctBy(x => $"{x.ClanAlias}\n{x.RankName}", StringComparer.OrdinalIgnoreCase)
+				.ToList(),
 		};
 	}
 

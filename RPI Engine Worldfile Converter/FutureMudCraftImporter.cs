@@ -112,25 +112,7 @@ public sealed class FutureMudCraftBaselineCatalog
 			.Where(x => x.vnum.HasValue && x.reference is not null)
 			.ToDictionary(x => x.vnum!.Value, x => x.reference!, EqualityComparer<int>.Default);
 
-		var clans = context.Clans
-			.Include(x => x.Ranks)
-				.ThenInclude(x => x.RanksTitles)
-			.Include(x => x.Ranks)
-				.ThenInclude(x => x.RanksAbbreviations)
-			.ToList()
-			.ToDictionary(
-				x => x.Alias,
-				x => new FutureMudCraftClanReference(
-					x.Id,
-					x.Alias,
-					x.Ranks
-						.SelectMany(rank =>
-							rank.RanksTitles.Select(title => (name: title.Title, rank.Id))
-								.Concat(rank.RanksAbbreviations.Select(abbreviation => (name: abbreviation.Abbreviation, rank.Id)))
-								.Append((name: rank.Name, Id: rank.Id)))
-						.GroupBy(y => y.name, StringComparer.OrdinalIgnoreCase)
-						.ToDictionary(y => y.Key, y => y.First().Id, StringComparer.OrdinalIgnoreCase)),
-				StringComparer.OrdinalIgnoreCase);
+		var clans = LoadClansByAlias(context);
 
 		return new FutureMudCraftBaselineCatalog
 		{
@@ -150,6 +132,54 @@ public sealed class FutureMudCraftBaselineCatalog
 	public bool TryGetWeatherId(string weatherName, out long id)
 	{
 		return WeatherIdsByNormalisedName.TryGetValue(NormaliseLookupKey(weatherName), out id);
+	}
+
+	private static Dictionary<string, FutureMudCraftClanReference> LoadClansByAlias(FuturemudDatabaseContext context)
+	{
+		var result = new Dictionary<string, FutureMudCraftClanReference>(StringComparer.OrdinalIgnoreCase);
+		var clans = context.Clans
+			.Include(x => x.Ranks)
+				.ThenInclude(x => x.RanksTitles)
+			.Include(x => x.Ranks)
+				.ThenInclude(x => x.RanksAbbreviations)
+			.ToList()
+			.Where(x => !string.IsNullOrWhiteSpace(x.Alias))
+			.GroupBy(x => x.Alias, StringComparer.OrdinalIgnoreCase)
+			.Select(x => x.OrderBy(y => y.Id).First());
+
+		foreach (var clan in clans)
+		{
+			var reference = new FutureMudCraftClanReference(
+				clan.Id,
+				clan.Alias,
+				clan.Ranks
+					.SelectMany(rank =>
+						rank.RanksTitles.Select(title => (name: title.Title, rank.Id))
+							.Concat(rank.RanksAbbreviations.Select(abbreviation => (name: abbreviation.Abbreviation, rank.Id)))
+							.Append((name: rank.Name, Id: rank.Id)))
+					.Where(y => !string.IsNullOrWhiteSpace(y.name))
+					.GroupBy(y => y.name, StringComparer.OrdinalIgnoreCase)
+					.ToDictionary(y => y.Key, y => y.First().Id, StringComparer.OrdinalIgnoreCase));
+
+			TryRegisterClanReference(result, clan.Alias, reference);
+			TryRegisterClanReference(result, RpiClanAliasResolver.CollapseAlias(clan.Alias), reference);
+			TryRegisterClanReference(result, RpiClanAliasResolver.ResolveCanonicalRule(clan.Alias).CanonicalAlias, reference);
+		}
+
+		return result;
+	}
+
+	private static void TryRegisterClanReference(
+		IDictionary<string, FutureMudCraftClanReference> clans,
+		string alias,
+		FutureMudCraftClanReference reference)
+	{
+		if (string.IsNullOrWhiteSpace(alias) || clans.ContainsKey(alias))
+		{
+			return;
+		}
+
+		clans[alias] = reference;
 	}
 
 	internal static string NormaliseLookupKey(string value)

@@ -166,7 +166,8 @@ public sealed class FutureMudBaselineCatalog
 
 	private static Dictionary<string, FutureMudClanReference> LoadClansByAlias(FuturemudDatabaseContext context)
 	{
-		return context.Clans
+		var result = new Dictionary<string, FutureMudClanReference>(StringComparer.OrdinalIgnoreCase);
+		var clans = context.Clans
 			.Include(x => x.Ranks)
 				.ThenInclude(x => x.RanksTitles)
 			.Include(x => x.Ranks)
@@ -174,21 +175,41 @@ public sealed class FutureMudBaselineCatalog
 			.ToList()
 			.Where(x => !string.IsNullOrWhiteSpace(x.Alias))
 			.GroupBy(x => x.Alias, StringComparer.OrdinalIgnoreCase)
-			.Select(x => x.OrderBy(y => y.Id).First())
-			.ToDictionary(
-				x => x.Alias,
-				x => new FutureMudClanReference(
-					x.Id,
-					x.Alias,
-					x.Ranks
-						.SelectMany(rank =>
-							rank.RanksTitles.Select(title => (name: title.Title, rank.Id))
-								.Concat(rank.RanksAbbreviations.Select(abbreviation => (name: abbreviation.Abbreviation, rank.Id)))
-								.Append((name: rank.Name, Id: rank.Id)))
-						.Where(y => !string.IsNullOrWhiteSpace(y.name))
-						.GroupBy(y => y.name, StringComparer.OrdinalIgnoreCase)
-						.ToDictionary(y => y.Key, y => y.First().Id, StringComparer.OrdinalIgnoreCase)),
-				StringComparer.OrdinalIgnoreCase);
+			.Select(x => x.OrderBy(y => y.Id).First());
+
+		foreach (var clan in clans)
+		{
+			var reference = new FutureMudClanReference(
+				clan.Id,
+				clan.Alias,
+				clan.Ranks
+					.SelectMany(rank =>
+						rank.RanksTitles.Select(title => (name: title.Title, rank.Id))
+							.Concat(rank.RanksAbbreviations.Select(abbreviation => (name: abbreviation.Abbreviation, rank.Id)))
+							.Append((name: rank.Name, Id: rank.Id)))
+					.Where(y => !string.IsNullOrWhiteSpace(y.name))
+					.GroupBy(y => y.name, StringComparer.OrdinalIgnoreCase)
+					.ToDictionary(y => y.Key, y => y.First().Id, StringComparer.OrdinalIgnoreCase));
+
+			TryRegisterClanReference(result, clan.Alias, reference);
+			TryRegisterClanReference(result, RpiClanAliasResolver.CollapseAlias(clan.Alias), reference);
+			TryRegisterClanReference(result, RpiClanAliasResolver.ResolveCanonicalRule(clan.Alias).CanonicalAlias, reference);
+		}
+
+		return result;
+	}
+
+	private static void TryRegisterClanReference(
+		IDictionary<string, FutureMudClanReference> clans,
+		string alias,
+		FutureMudClanReference reference)
+	{
+		if (string.IsNullOrWhiteSpace(alias) || clans.ContainsKey(alias))
+		{
+			return;
+		}
+
+		clans[alias] = reference;
 	}
 
 	private static Dictionary<string, long> ToUniqueIdDictionary<T>(

@@ -114,6 +114,36 @@ public class RpiRoomConversionTests
 		Assert.IsTrue(rooms[1004].Warnings.Any(x => x.Code == "layout-conflict"));
 	}
 
+	[TestMethod]
+	public void RoomTransformer_WarnsForLongDescriptions_AndImporterTruncatesForPersistence()
+	{
+		var longDescription = new string('a', FutureMudRoomImportLimits.CellDescriptionMaxLength + 1);
+		var room = new RpiRoomRecord
+		{
+			Vnum = 99000,
+			SourceFile = "rooms.99",
+			Zone = 99,
+			Name = "Long Description Test",
+			Description = longDescription,
+			RawFlags = 0,
+			RoomFlags = RpiRoomFlags.None,
+			RawSectorType = (int)RpiRoomSectorType.Inside,
+			SectorType = RpiRoomSectorType.Inside,
+			Deity = 0,
+		};
+
+		var transformer = new FutureMudRoomTransformer();
+		var converted = transformer.Convert([room]).Rooms.Single();
+
+		Assert.AreEqual(longDescription.Length, converted.EffectiveDescription.Length);
+		Assert.IsTrue(converted.Warnings.Any(x => x.Code == "cell-description-truncated"));
+
+		var truncated = FutureMudRoomImportLimits.TruncateCellDescription(converted.EffectiveDescription);
+
+		Assert.AreEqual(FutureMudRoomImportLimits.CellDescriptionMaxLength, truncated.Length);
+		Assert.AreEqual(longDescription[..FutureMudRoomImportLimits.CellDescriptionMaxLength], truncated);
+	}
+
 	private static string GetRoomFixtureDirectory()
 	{
 		var candidates = new[]

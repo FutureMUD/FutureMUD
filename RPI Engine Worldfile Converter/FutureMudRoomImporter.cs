@@ -75,6 +75,18 @@ public sealed record FutureMudRoomImportResult(
 	IReadOnlyList<FutureMudRoomValidationIssue> Issues,
 	RoomApplyAuditReport Audit);
 
+public static class FutureMudRoomImportLimits
+{
+	public const int CellDescriptionMaxLength = 4000;
+
+	public static string TruncateCellDescription(string description)
+	{
+		return description.Length <= CellDescriptionMaxLength
+			? description
+			: description[..CellDescriptionMaxLength];
+	}
+}
+
 public sealed class FutureMudRoomBaselineCatalog
 {
 	public required long BuilderAccountId { get; init; }
@@ -435,7 +447,7 @@ public sealed class FutureMudRoomImporter
 				{
 					Name = package.Name,
 					CellName = room.Name,
-					CellDescription = room.EffectiveDescription,
+					CellDescription = FutureMudRoomImportLimits.TruncateCellDescription(room.EffectiveDescription),
 					CellOverlayPackageId = package.Id,
 					CellOverlayPackageRevisionNumber = package.RevisionNumber,
 					CellId = dbCell.Id,

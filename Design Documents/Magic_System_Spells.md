@@ -308,6 +308,27 @@ Other Phase 1 primitives:
 - `spellarmour` reuses the shared `MagicArmourConfiguration` model so spell armour and power armour stay in sync.
 - `roomflag` / `removeroomflag` is the early room-state primitive for `peaceful`, `nodream`, `alarm`, `darkness`, and `wardtag`.
 
+### Wind movement and fall-control primitives
+The Wind parity slice adds first-class movement and fall-control effects rather than modelling them as generic tags.
+
+Builder-visible Wind tokens are:
+
+- `levitate`
+- `featherfall`
+- `removeinvisibility` / `dispelinvisibility`
+- `forcedpathmovement` / `handsofwind`
+- `transference`
+
+Key runtime semantics:
+
+- `levitate` applies a spell-owned levitation effect to a character or item, prevents normal fall checks while active, can optionally move the target to a configured room layer, and adds description text.
+- `featherfall` applies configurable fall-distance and fall-damage multipliers. It mitigates impact harm while leaving normal descent and fall exits intact.
+- `removeinvisibility` removes only `SpellInvisibilityEffect` child effects from the target. `dispelinvisibility` is a builder/load alias that saves as `removeinvisibility`.
+- `forcedpathmovement` uses a `characterexit` trigger's `exit` parameter, validates each exit with the normal movement and crossing checks, and can force a target through one or more same-direction exits. `handsofwind` is a builder/load alias that saves as `forcedpathmovement`.
+- `transference` swaps the caster and target character locations, optionally including followers, dragged targets, riders, and room-layer swapping.
+- Magical flight expiry now calls the flight-continuation check instead of the start-flight check, so a target only drops when no remaining spell, immwalk, or physical flight source can sustain them.
+- `dispelmagic effect invisibility|flight|levitation|featherfall` can target these Wind statuses through the general dispel flow.
+
 ### Phase 1.5 form provisioning and spell-driven transformation
 The `transformform` spell effect is the body-form provisioning bridge for magic content.
 
@@ -368,7 +389,7 @@ General dispels use `dispelmagic`. It can either remove matching spell-parent ef
 - magic school, optionally including child schools
 - caster policy: own, any, or others
 - magic tag and optional tag value
-- approved effect key such as `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `transformform`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
+- approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `transformform`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
 
 The default policy is caster-owned cleanup. Hostile dispels must be explicitly configured with hostile matching and then travel through the ordinary spell targeting, ward, and resistance flow.
 
@@ -530,20 +551,25 @@ Important implementation note:
 | `detectinvisible` | `DetectInvisibleEffect` | Grants magical vision that can pierce ordinary invisibility |
 | `detectmagick` | `DetectMagickEffect` | Grants magical sensing and visible aura readouts in ordinary descriptions |
 | `disease` | `DiseaseEffect` | Applies a configurable spell-owned systemic infection |
+| `dispelinvisibility` | `RemoveInvisibilityEffect` | Builder/load alias for `removeinvisibility` |
 | `dispelmagic` | `DispelMagicEffect` | Removes or shortens matching saved spell effects by caster policy, spell, school/subschool, magic tag, or approved effect key |
 | `destroyitem` | `DestroyItemEffect` | Deletes item targets with purge-warning safeguards |
 | `executeprog` | `ExecuteProgEffect` | Executes a supporting prog |
 | `exitbarrier` | `ExitBarrierEffect` | Applies a persistent magical barrier to a targeted exit |
+| `featherfall` | `FeatherFallEffect` | Applies configurable fall-distance and fall-damage mitigation |
 | `forcedexitmovement` | `ForcedExitMovementEffect` | Forces a targeted character through the trigger-supplied `exit` when movement is legal |
+| `forcedpathmovement` | `ForcedPathMovementEffect` | Forces a targeted character through one or more same-direction exits when movement is legal |
 | `fear` | `FearEffect` | Applies magical fear that enforces flee behaviour in combat |
 | `flying` | `FlyingEffect` | Grants flight eligibility through the normal movement checks |
 | `glow` | `GlowEffect` | Applies glow or light-style effect |
+| `handsofwind` | `ForcedPathMovementEffect` | Builder/load alias for `forcedpathmovement` |
 | `heal` | `HealEffect` | Heals damage |
 | `healingrate` | `HealingRateSpellEffect` | Alters healing rate |
 | `infravision` | `InfravisionEffect` | Grants infrared vision and a darkness difficulty floor |
 | `invisibility` | `InvisibilityEffect` | Applies invisibility |
 | `itemdamage` | `ItemDamageEffect` | Damages an item with configured damage, pain, stun, and damage type |
 | `itemenchant` | `ItemEnchantEffect` | Adds aura/glow, weapon/armour bonuses, projectile payload bonuses, craft-tool bonuses, power/fuel modifiers, and optional item event progs |
+| `levitate` | `LevitationEffect` | Suspends a character or item, optionally moves it to a configured room layer, and prevents falling while active |
 | `magictag` | `MagicTagEffect` | Adds spell-owned key/value metadata for marks, anchors, runes, signatures, and FutureProg queries |
 | `magicresourcedelta` | `MagicResourceDeltaEffect` | Adds or removes a configured magic resource from a character, item, or room |
 | `mend` | `MendEffect` | Mends damage or wear |
@@ -566,6 +592,7 @@ Important implementation note:
 | `removedisease` | `RemoveDiseaseEffect` | Removes a matching spell-owned disease payload |
 | `removefear` | `RemoveFearEffect` | Removes magical fear effects |
 | `removeflying` | `RemoveFlyingEffect` | Removes magical flight-granting effects |
+| `removeinvisibility` | `RemoveInvisibilityEffect` | Removes spell-owned invisibility effects without removing unrelated spell effects |
 | `removeinfravision` | `RemoveInfravisionEffect` | Removes magical infravision effects |
 | `removemagictag` | `RemoveMagicTagEffect` | Removes matching spell-owned magic tags by key and optional value |
 | `removeparalysis` | `RemoveParalysisEffect` | Removes magical paralysis effects |
@@ -591,6 +618,7 @@ Important implementation note:
 | `telepathy` | `TelepathySpellEffect` | Applies telepathic linkage |
 | `teleport` | `TeleportEffect` | Teleports the caster to a room or cell target |
 | `teleporttarget` | `TeleportTargetEffect` | Teleports a target selected by the spell |
+| `transference` | `TransferenceEffect` | Swaps the caster and target character locations, optionally including followers and room layers |
 | `subjectivedesc` | `SubjectiveDescriptionEffect` | Adds caster-scoped subjective full-description replacement |
 | `subjectivesdesc` | `SubjectiveSDescEffect` | Adds caster-scoped subjective short-description replacement |
 | `transformform` | `TransformFormEffect` | Ensures or reuses a keyed alternate body form and applies a priority-ranked forced transformation demand |

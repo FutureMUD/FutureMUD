@@ -16,6 +16,7 @@ using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Editor;
 using MudSharp.Effects;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
@@ -316,6 +317,7 @@ namespace MudSharp.Character
         void DoFlyHeartbeat();
         double FlyStaminaCost();
         (bool Truth, string Error) CanFly();
+        (bool Truth, string Error) CanContinueFlying(IFlightEffect? ignoredEffect = null);
         void Fly(IEmote? actionEmote = null);
         (bool Truth, string Error) CanAscend();
         (bool Truth, string Error) CanDive();
@@ -323,7 +325,7 @@ namespace MudSharp.Character
         void Dive(IEmote? actionEmote = null);
         (bool Truth, string Error) CanLand();
         void Land(IEmote? actionEmote = null);
-        void CheckCanFly();
+        void CheckCanFly(IFlightEffect? ignoredEffect = null);
     }
 
     public interface IClimb

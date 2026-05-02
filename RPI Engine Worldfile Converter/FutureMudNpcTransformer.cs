@@ -572,6 +572,11 @@ public sealed class FutureMudNpcTransformer
 
 	private static string? ResolveTraitName(string skillName)
 	{
+		if (string.Equals(skillName, "Defunct", StringComparison.OrdinalIgnoreCase))
+		{
+			return null;
+		}
+
 		if (TraitAliasMap.TryGetValue(skillName, out var mapped))
 		{
 			return mapped;
@@ -579,10 +584,7 @@ public sealed class FutureMudNpcTransformer
 
 		return skillName switch
 		{
-			{ Length: > 0 } => skillName
-				.Replace("-", " ", StringComparison.Ordinal)
-				.Replace("  ", " ", StringComparison.Ordinal)
-				.Trim(),
+			{ Length: > 0 } => skillName.Trim(),
 			_ => null,
 		};
 	}
@@ -595,21 +597,21 @@ public sealed class FutureMudNpcTransformer
 	private static readonly IReadOnlyDictionary<string, string> TraitAliasMap =
 		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 		{
-			["Brawling"] = "Brawl",
-			["Small-Blade"] = "Small Blade",
-			["Double-Handed"] = "Double Handed",
-			["Sole-Wield"] = "Sole Wield",
-			["Shield-Use"] = "Shield Use",
-			["Hunting-bow"] = "Hunting Bow",
-			["Warbow"] = "Longbow",
-			["Danger-Sense"] = "Danger Sense",
-			["Psychic-Bolt"] = "Psychic Bolt",
-			["Aura-Sight"] = "Aura Sight",
-			["Beast-Tongue"] = "Beast Tongue",
-			["Valarin-Script"] = "Valarin Script",
-			["Black-Wise"] = "Black Wise",
-			["Grey-Wise"] = "Grey Wise",
-			["White-Wise"] = "White Wise",
+			["Brawling"] = "Brawling",
+			["Small-Blade"] = "Small-Blade",
+			["Double-Handed"] = "Double-Handed",
+			["Sole-Wield"] = "Sole-Wield",
+			["Shield-Use"] = "Shield-Use",
+			["Hunting-bow"] = "Hunting-bow",
+			["Warbow"] = "Warbow",
+			["Danger-Sense"] = "Danger-Sense",
+			["Psychic-Bolt"] = "Psychic-Bolt",
+			["Aura-Sight"] = "Aura-Sight",
+			["Beast-Tongue"] = "Beast-Tongue",
+			["Valarin-Script"] = "Valarin-Script",
+			["Black-Wise"] = "Black-Wise",
+			["Grey-Wise"] = "Grey-Wise",
+			["White-Wise"] = "White-Wise",
 		};
 
 	private static RaceResolution ResolveRaceAndEthnicity(

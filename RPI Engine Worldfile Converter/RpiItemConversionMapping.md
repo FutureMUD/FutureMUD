@@ -61,6 +61,7 @@ The current pass aims to import the following families functionally:
 ### Weapons
 
 - Weapon skill, keywords, handedness, and thrown flags pick the nearest seeded FutureMUD weapon component.
+- Trait modifiers preserve RPI source skill names where the seeded baseline exposes them; aggregate FutureMUD names remain only for deliberately grouped weapon-component families such as bows and crossbows.
 - Existing stock names such as `Melee_Longsword`, `Melee_Axe`, `Melee_Short Spear`, `Longbow`, `Crossbow`, and `Throwing_Knife` are used rather than inventing converter-only component names.
 
 ### Containers and Carriers

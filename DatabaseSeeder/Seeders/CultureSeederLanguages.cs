@@ -12,6 +12,36 @@ namespace DatabaseSeeder.Seeders;
 public partial class CultureSeeder
 {
     private readonly Dictionary<string, Language> _languages = new();
+    internal static IReadOnlyCollection<string> RpiLegacyMiddleEarthLanguageNamesForTesting =>
+    [
+        "Taliska",
+        "Haladin",
+        "Thrunon",
+        "Beast-Tongue",
+        "Valarin",
+        "Nandorin",
+        "Druag",
+        "Atliduk",
+        "Adunaic",
+        "Haradaic",
+        "Westron",
+        "Dunael",
+        "Labba",
+        "Norliduk",
+        "Rohirric",
+        "Talathic",
+        "Umitic",
+        "Nahaiduk",
+        "Pukael",
+        "Sindarin",
+        "Quenya",
+        "Silvan",
+        "Avarin",
+        "Khuzdul",
+        "Orkish",
+        "Black Speech",
+        "Trollish"
+    ];
 
     public void AddLanguage(string name, string unknownDescription, FutureProg? canSelectProg = null)
     {
@@ -211,6 +241,15 @@ return false"
         AddLanguage("Westron", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
         AddLanguage("Sindarin", "an unknown elvish language", canSelectMiddleEarthLanguageProg);
         AddLanguage("Adunaic", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Atliduk", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Haradaic", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Dunael", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Labba", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Norliduk", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Talathic", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Umitic", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Nahaiduk", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Pukael", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
         AddLanguage("Khuzdul", "an unknown dwarven language", canSelectMiddleEarthLanguageProg);
         AddLanguage("Quenya", "an unknown elvish language", canSelectMiddleEarthLanguageProg);
         AddLanguage("Silvan", "an unknown elvish language", canSelectMiddleEarthLanguageProg);
@@ -218,6 +257,15 @@ return false"
         AddLanguage("Haradic", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
         AddLanguage("Black Speech", "a harsh, unknown language", canSelectMiddleEarthLanguageProg);
         AddLanguage("Orkish", "a harsh, unknown language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Taliska", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Haladin", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Thrunon", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Beast-Tongue", "an unknown bestial language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Valarin", "an unknown ancient language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Nandorin", "an unknown elvish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Druag", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Avarin", "an unknown elvish language", canSelectMiddleEarthLanguageProg);
+        AddLanguage("Trollish", "a harsh, unknown language", canSelectMiddleEarthLanguageProg);
         AddLanguage("Hobbitish", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
         AddLanguage("Dalish", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
         AddLanguage("Logathig", "an unknown mannish language", canSelectMiddleEarthLanguageProg);
@@ -236,6 +284,12 @@ return false"
             "The Cirth is a runic script, used by the Dwarves, but also common for elvish and mannish languages.  The Cirth is largely used for carving in wood or stone.",
             "Cirth Alphabetic", 1.0, 1.0, "Westron", "Sindarin", "Adunaic", "Khuzdul", "Quenya", "Rohirric", "Haradic",
             "Black Speech", "Orkish", "Hobbitish", "Dalish", "Logathig", "Varadja", "Silvan");
+        AddScript("Sarati", "the Sarati script", "an archaic script",
+            "The Sarati script is an ancient script of Aman, remembered mostly by scholars and loremasters.",
+            "Sarati Alphabetic", 1.0, 1.0, "Valarin", "Quenya");
+        AddScript("Valarin-Script", "the Valarin script", "an alien script",
+            "The Valarin script records the ancient language of the Valar and is almost never encountered outside deep lore.",
+            "Valarin Alphabetic", 1.0, 1.0, "Valarin");
         _context.SaveChanges();
 
         #endregion

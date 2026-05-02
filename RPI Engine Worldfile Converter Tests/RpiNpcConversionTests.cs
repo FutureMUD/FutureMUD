@@ -305,7 +305,7 @@ public class RpiNpcConversionTests
 				["Dexterity"] = 5,
 				["Constitution"] = 6,
 				["Agility"] = 7,
-				["Small Blade"] = 8,
+				["Small-Blade"] = 8,
 				["Sword"] = 9,
 			},
 			LanguagesByTraitId = new Dictionary<long, FutureMudNpcLanguageReference>(),

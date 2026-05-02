@@ -103,12 +103,12 @@ Attribute aliases map directly:
 - `CON` => `Constitution`
 - `AGI` => `Agility`
 
-Skill mapping uses a curated alias cleanup pass:
+Skill mapping preserves legacy source skill names when the RPI-compatible seeders expose them:
 
-- `Small-Blade` => `Small Blade`
-- `Shield-Use` => `Shield Use`
-- `Danger-Sense` => `Danger Sense`
-- and similar direct name normalisations
+- `Small-Blade` remains `Small-Blade`
+- `Shield-Use` remains `Shield-Use`
+- `Danger-Sense` remains `Danger-Sense`
+- language traits such as `Beast-Tongue` remain source-spelled
 
 Unknown or unmapped legacy skills are reported explicitly and block `apply-npcs` for affected records.
 

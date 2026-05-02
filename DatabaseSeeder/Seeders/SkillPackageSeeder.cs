@@ -135,7 +135,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
     private IEnumerable<SkillDetails> AthleticSkills =>
         new[]
         {
-            new SkillDetails("Swimming", "Swim", "Athletic", "min(99,2*str + 3*con)", "General", "General", true, 1.0,
+            new SkillDetails("Swimming", "Swimming", "Athletic", "min(99,2*str + 3*con)", "General", "General", true, 1.0,
                 @"The $0 skill covers the character's ability to swim. Swimming skill is necessary to move about in water and higher skills improve both speed of movement and reduce stamina use while swimming."),
             new SkillDetails("Running", "Run", "Athletic", "min(99,2*agi + 3*con)", "General", "General", true, 1.0,
                 @"The $0 skill covers running, sprinting, fleeing and many forms of moving hastily. Running is checked when you try to flee from combat and higher values slightly reduce stamina use when running."),
@@ -174,13 +174,13 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
     private IEnumerable<SkillDetails> PerceptionSkills =>
         new[]
         {
-            new SkillDetails("Spotting", "Spot", "Perception", "min(99,5*per)", "General", "General", true, 1.0,
+            new SkillDetails("Spotting", "Scan", "Perception", "min(99,5*per)", "General", "General", true, 1.0,
                 @"The $0 skill is used to see hidden things and notice subtle actions that take place around you."),
             new SkillDetails("Listening", "Listen", "Perception", "min(99,5*per)", "General", "General", true, 1.0,
                 @"The $0 skill is used to hear quiet things and also to successfully hear language in noisy environments."),
             new SkillDetails("Searching", "Search", "Perception", "min(99,4*per + 1*int)", "General", "General", true,
                 1.0, @"The $0 skill is used specifically when you search for hidden things in your room."),
-            new SkillDetails("Tracking", "Track", "Perception", "min(99,4*per + 1*int)", "General", "General", true,
+            new SkillDetails("Tracking", "Tracking", "Perception", "min(99,4*per + 1*int)", "General", "General", true,
                 1.0,
                 @"The $0 skill is used to search your area for signs of people and animals moving through the area.")
         };
@@ -190,7 +190,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
         {
             new SkillDetails("Perception", "Perception", "Perception", "min(99,5*per)", "General", "General", true, 1.0,
                 @"The $0 skill is used as a counteraction to stealth actions, as well as to see and hear subtle or quiet things."),
-            new SkillDetails("Tracking", "Track", "Perception", "min(99,4*per + 1*int)", "General", "General", true,
+            new SkillDetails("Tracking", "Tracking", "Perception", "min(99,4*per + 1*int)", "General", "General", true,
                 1.0,
                 @"The $0 skill is used to search your area for signs of people and animals moving through the area.")
         };
@@ -203,7 +203,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             new SkillDetails("Diagnosis", "Diagnosis", "Medical", "min(99,2*per + 3*int)", "General", "General", true,
                 1.0,
                 @"The $0 skill is used to triage patients and figure out what is wrong with them, as well as undertake examinations like physicals."),
-            new SkillDetails("First Aid", "First Aid", "Medical", "min(99,2*per + 2*int + 1*wil)", "General", "General",
+            new SkillDetails("First Aid", "Healing", "Medical", "min(99,2*per + 2*int + 1*wil)", "General", "General",
                 true, 1.0,
                 "The $0 skill is used for treating trauma in non-hospital settings, such as binding bleeding wounds, performing CPR, and removing lodged items."),
             new SkillDetails("Patient Care", "Patient Care", "Medical", "min(99, 4*int + 1*wil)", "General", "General",
@@ -234,7 +234,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             new SkillDetails("Palming", "Palm", "Stealth", "min(99,3*dex + 1*int + 1*per)", "General", "General", true,
                 1.0,
                 @"The $0 skill is used to subtly manipulate your inventory, such as taking something out of a container, putting it into a container, dropping it or the like."),
-            new SkillDetails("Lockpicking", "Pick Locks", "Stealth", "min(99,3*dex + 1*int + 1*per)", "General",
+            new SkillDetails("Lockpicking", "Picklock", "Stealth", "min(99,3*dex + 1*int + 1*per)", "General",
                 "General", true, 1.0, @"The $0 skill is used to unlock, lock and otherwise manipulate locks."),
             new SkillDetails("Stealing", "Steal", "Stealth", "min(99,3*dex + 1*int + 1*per)", "General", "General", true,
                 1.0,
@@ -258,7 +258,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             new SkillDetails("Foraging", "Forage", "Survival", "min(99,3*int + 2*per)", "Crafting", "General", true,
                 1.0),
             new SkillDetails("Skinning", "Skin", "Survival", "min(99,4*dex + 1*per)", "Crafting", "General", true, 1.0),
-            new SkillDetails("Butchering", "Butcher", "Crafting", "min(99,3*dex + 2*str)", "Crafting", "General", true,
+            new SkillDetails("Butchering", "Butchery", "Crafting", "min(99,3*dex + 2*str)", "Crafting", "General", true,
                 1.0),
             new SkillDetails("Salvaging", "Salvage", "Survival", "min(99,3*int + 2*per)", "Crafting", "General", true,
                 1.0)
@@ -278,7 +278,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 true, 1.0),
             new SkillDetails("Weaponcrafting", "Weaponsmith", "Crafting", "min(99,3*int + 2*wil)", "Crafting",
                 "General", true, 1.0),
-            new SkillDetails("Blacksmithing", "Blacksmith", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
+            new SkillDetails("Blacksmithing", "Metalcraft", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
                 true, 1.0),
             new SkillDetails("Silversmithing", "Silversmith", "Crafting", "min(99,3*int + 2*wil)", "Crafting",
                 "General", true, 1.0),
@@ -286,32 +286,32 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 1.0),
             new SkillDetails("Fletching", "Fletcher", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
                 1.0),
-            new SkillDetails("Pottery", "Potter", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
+            new SkillDetails("Pottery", "Pottery", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
                 1.0),
             new SkillDetails("Weaving", "Weaver", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
                 1.0),
             new SkillDetails("Threshing", "Thresher", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
                 1.0),
-            new SkillDetails("Milling", "Miller", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
+            new SkillDetails("Milling", "Milling", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
                 1.0),
-            new SkillDetails("Baking", "Baker", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
-            new SkillDetails("Dyeing", "Dyer", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
-            new SkillDetails("Glassworking", "Glazier", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
-            new SkillDetails("Gemcraft", "Jeweller", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
-            new SkillDetails("Perfumery", "Perfumer", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
-            new SkillDetails("Brewing", "Brewer", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
+            new SkillDetails("Baking", "Baking", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+            new SkillDetails("Dyeing", "Dyecraft", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+            new SkillDetails("Glassworking", "Glasswork", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+            new SkillDetails("Gemcraft", "Gemcraft", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+            new SkillDetails("Perfumery", "Perfumery", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+            new SkillDetails("Brewing", "Brewing", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
                 1.0),
-            new SkillDetails("Distilling", "Distiller", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
+            new SkillDetails("Distilling", "Distilling", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
                 true, 1.0),
-            new SkillDetails("Cooking", "Cook", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
-            new SkillDetails("Carpentry", "Carpenter", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
+            new SkillDetails("Cooking", "Cookery", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+            new SkillDetails("Carpentry", "Woodcraft", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
                 1.0),
             new SkillDetails("Lumberjacking", "Lumberjack", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
                 true, 1.0),
-            new SkillDetails("Masonry", "Mason", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+            new SkillDetails("Masonry", "Stonecraft", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
             new SkillDetails("Scrimshawing", "Scrimshaw", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
                 true, 1.0),
-            new SkillDetails("Tailoring", "Tailor", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
+            new SkillDetails("Tailoring", "Textilecraft", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
                 1.0),
             new SkillDetails("Mechanics", "Mechanic", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
                 1.0),
@@ -321,9 +321,9 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 true, 1.0),
             new SkillDetails("Wheelmaking", "Wheelwright", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
                 true, 1.0),
-            new SkillDetails("Candlemaking", "Chandler", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
+            new SkillDetails("Candlemaking", "Candlery", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
                 true, 1.0),
-            new SkillDetails("Leathermaking", "Tanner", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
+            new SkillDetails("Leathermaking", "Hideworking", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
                 true, 1.0),
             new SkillDetails("Winemaking", "Winemaker", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",
                 true, 1.0)
@@ -357,11 +357,11 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 "General", true, 1.0),
             new SkillDetails("Tattooing", "Tattoo", "Professional", "min(99,4*dex + 1*per)", "Professional", "General",
                 true, 1.0),
-            new SkillDetails("Herbalism", "Herbalist", "Professional", "min(99,5*int)", "Professional", "General", true,
+            new SkillDetails("Herbalism", "Herbalism", "Professional", "min(99,5*int)", "Professional", "General", true,
                 1.0),
-            new SkillDetails("Farming", "Farmer", "Professional", "min(99,5*int)", "Professional", "General", true,
+            new SkillDetails("Farming", "Farming", "Professional", "min(99,5*int)", "Professional", "General", true,
                 1.0),
-            new SkillDetails("Mining", "Miner", "Professional", "min(99,5*int)", "Professional", "General", true, 1.0),
+            new SkillDetails("Mining", "Mining", "Professional", "min(99,5*int)", "Professional", "General", true, 1.0),
             new SkillDetails("Smelting", "Smelter", "Professional", "min(99,5*int)", "Professional", "General", true,
                 1.0),
             new SkillDetails("Literacy", "Literacy", "Professional", "min(99,5*int)", "Professional", "General", true,
@@ -393,6 +393,56 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             new SkillDetails("Investigation", "Investigator", "Professional", "min(99,5*int)", "Professional",
                 "General", true, 1.0)
         };
+
+    private IEnumerable<SkillDetails> RpiLegacySkills =>
+        new[]
+        {
+            new SkillDetails("Ritual", "Ritual", "RPI Legacy", "min(99,3*wil + 2*int)", "General", "General", true, 1.0),
+            new SkillDetails("Backstab", "Backstab", "RPI Legacy", "min(99,3*dex + 1*agi + 1*per)", "General", "General", true, 1.0),
+            new SkillDetails("Barter", "Barter", "RPI Legacy", "min(99,2*int + 2*per + 1*wil)", "Professional", "General", true, 1.0),
+            new SkillDetails("Disarm", "Disarm", "RPI Legacy", "min(99,2*dex + 2*agi + 1*per)", "General", "General", true, 1.0),
+            new SkillDetails("Hunt", "Hunt", "RPI Legacy", "min(99,3*per + 2*int)", "General", "General", true, 1.0),
+            new SkillDetails("Poisoning", "Poisoning", "RPI Legacy", "min(99,3*int + 2*dex)", "General", "General", true, 1.0),
+            new SkillDetails("Alchemy", "Alchemy", "RPI Legacy", "min(99,4*int + 1*per)", "General", "General", true, 1.0),
+            new SkillDetails("Apothecary", "Apothecary", "RPI Legacy", "min(99,4*int + 1*per)", "General", "General", true, 1.0),
+            new SkillDetails("Clairvoyance", "Clairvoyance", "RPI Legacy", "min(99,3*wil + 2*per)", "General", "General", true, 1.0),
+            new SkillDetails("Danger-Sense", "Danger-Sense", "RPI Legacy", "min(99,3*per + 2*wil)", "General", "General", true, 1.0),
+            new SkillDetails("Empathy", "Empathy", "RPI Legacy", "min(99,3*per + 2*wil)", "General", "General", true, 1.0),
+            new SkillDetails("Hex", "Hex", "RPI Legacy", "min(99,3*wil + 2*int)", "General", "General", true, 1.0),
+            new SkillDetails("Psychic-Bolt", "Psychic-Bolt", "RPI Legacy", "min(99,3*wil + 2*per)", "General", "General", true, 1.0),
+            new SkillDetails("Prescience", "Prescience", "RPI Legacy", "min(99,3*per + 2*wil)", "General", "General", true, 1.0),
+            new SkillDetails("Aura-Sight", "Aura-Sight", "RPI Legacy", "min(99,4*per + 1*wil)", "General", "General", true, 1.0),
+            new SkillDetails("Telepathy", "Telepathy", "RPI Legacy", "min(99,3*wil + 2*per)", "General", "General", true, 1.0),
+            new SkillDetails("Seafaring", "Seafaring", "RPI Legacy", "min(99,2*agi + 2*per + 1*con)", "General", "General", true, 1.0),
+            new SkillDetails("Tame", "Tame", "RPI Legacy", "min(99,3*wil + 2*per)", "General", "General", true, 1.0),
+            new SkillDetails("Break", "Break", "RPI Legacy", "min(99,3*wil + 2*str)", "General", "General", true, 1.0),
+            new SkillDetails("Sarati", "Sarati", "RPI Legacy", "min(99,5*int)", "General", "General", true, 1.0),
+            new SkillDetails("Tengwar", "Tengwar", "RPI Legacy", "min(99,5*int)", "General", "General", true, 1.0),
+            new SkillDetails("Cirth", "Cirth", "RPI Legacy", "min(99,5*int)", "General", "General", true, 1.0),
+            new SkillDetails("Valarin-Script", "Valarin-Script", "RPI Legacy", "min(99,5*int)", "General", "General", true, 1.0),
+            new SkillDetails("Black-Wise", "Black-Wise", "RPI Legacy", "min(99,3*wil + 2*int)", "General", "General", true, 1.0),
+            new SkillDetails("Grey-Wise", "Grey-Wise", "RPI Legacy", "min(99,3*wil + 2*int)", "General", "General", true, 1.0),
+            new SkillDetails("White-Wise", "White-Wise", "RPI Legacy", "min(99,3*wil + 2*int)", "General", "General", true, 1.0),
+            new SkillDetails("Runecasting", "Runecasting", "RPI Legacy", "min(99,3*wil + 2*int)", "General", "General", true, 1.0),
+            new SkillDetails("Gambling", "Gambling", "RPI Legacy", "min(99,3*int + 2*per)", "General", "General", true, 1.0),
+            new SkillDetails("Bonecarving", "Bonecarving", "RPI Legacy", "min(99,3*dex + 2*int)", "General", "General", true, 1.0),
+            new SkillDetails("Gardening", "Gardening", "RPI Legacy", "min(99,3*int + 2*per)", "General", "General", true, 1.0),
+            new SkillDetails("Sleight", "Sleight", "RPI Legacy", "min(99,4*dex + 1*per)", "General", "General", true, 1.0),
+            new SkillDetails("Astronomy", "Astronomy", "RPI Legacy", "min(99,4*int + 1*per)", "General", "General", true, 1.0),
+            new SkillDetails("Eavesdrop", "Eavesdrop", "RPI Legacy", "min(99,3*per + 2*agi)", "General", "General", true, 1.0)
+        };
+
+    internal IReadOnlyCollection<string> ComplexNonGerundSkillNamesForTesting =>
+        AthleticSkills
+            .Concat(PerceptionSkills)
+            .Concat(StealthSkills)
+            .Concat(MedicalSkills)
+            .Concat(UniversalCraftSkills)
+            .Concat(FunctionalCraftSkills)
+            .Concat(UniversalProfessionalSkills)
+            .Concat(RpiLegacySkills)
+            .Select(x => x.ImperativeName)
+            .ToArray();
 
     /// <inheritdoc />
     public override string SeedData(FuturemudDatabaseContext context,
@@ -468,44 +518,39 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             context.SaveChanges();
         }
 
-        TraitDefinition surgeryTrait = skills.GetValueOrDefault("Surgery") ??
-                           skills["Medicine"];
-        TraitDefinition patientCareTrait = skills.GetValueOrDefault("Patient Care") ??
-                               skills["Medicine"];
-        TraitDefinition firstAidTrait = skills.GetValueOrDefault("First Aid") ??
-                            skills["Medicine"];
-        TraitDefinition diagnoseTrait = skills.GetValueOrDefault("Diagnosis") ??
-                            skills["Medicine"];
-        TraitDefinition listenTrait = skills.GetValueOrDefault("Listen") ??
-                          skills["Perception"];
-        TraitDefinition spotTrait = skills.GetValueOrDefault("Spot") ??
-                        skills["Perception"];
-        TraitDefinition searchTrait = skills.GetValueOrDefault("Search") ??
-                          skills["Perception"];
-        TraitDefinition hideTrait = skills.GetValueOrDefault("Hide") ??
-                        skills["Stealth"];
-        TraitDefinition sneakTrait = skills.GetValueOrDefault("Sneak") ??
-                         skills["Stealth"];
-        TraitDefinition palmTrait = skills.GetValueOrDefault("Palm") ??
-                        skills["Stealth"];
-        TraitDefinition lockpickTrait = skills.GetValueOrDefault("Pick Locks") ??
-                            skills["Security"];
-        TraitDefinition swimTrait = skills.GetValueOrDefault("Sneak") ??
-                        skills["Athletics"];
-        TraitDefinition runTrait = skills.GetValueOrDefault("Sneak") ??
-                       skills["Athletics"];
-        TraitDefinition climbTrait = skills.GetValueOrDefault("Sneak") ??
-                         skills["Athletics"];
-        TraitDefinition flyTrait = skills.GetValueOrDefault("Sneak") ??
-                       skills["Athletics"];
-        TraitDefinition fallTrait = skills.GetValueOrDefault("Sneak") ??
-                        skills["Athletics"];
-        TraitDefinition crutchUseTrait = skills.GetValueOrDefault("Sneak") ??
-                             skills["Athletics"];
-        TraitDefinition forageTrait = skills.GetValueOrDefault("Forage") ??
-                          skills["Survival"];
+        TraitDefinition GetSkill(params string[] names)
+        {
+            foreach (string name in names)
+            {
+                if (skills.TryGetValue(name, out TraitDefinition? skill))
+                {
+                    return skill;
+                }
+            }
+
+            throw new InvalidOperationException($"None of the expected seeded skill traits exist: {string.Join(", ", names)}.");
+        }
+
+        TraitDefinition surgeryTrait = GetSkill("Surgery", "Medicine");
+        TraitDefinition patientCareTrait = GetSkill("Patient Care", "Medicine");
+        TraitDefinition firstAidTrait = GetSkill("First Aid", "Healing", "Medicine");
+        TraitDefinition diagnoseTrait = GetSkill("Diagnosis", "Medicine");
+        TraitDefinition listenTrait = GetSkill("Listen", "Perception");
+        TraitDefinition spotTrait = GetSkill("Spot", "Scan", "Perception");
+        TraitDefinition searchTrait = GetSkill("Search", "Perception");
+        TraitDefinition hideTrait = GetSkill("Hide", "Stealth");
+        TraitDefinition sneakTrait = GetSkill("Sneak", "Stealth");
+        TraitDefinition palmTrait = GetSkill("Palm", "Stealth");
+        TraitDefinition lockpickTrait = GetSkill("Pick Locks", "Picklock", "Security");
+        TraitDefinition swimTrait = GetSkill("Swim", "Swimming", "Athletics");
+        TraitDefinition runTrait = GetSkill("Run", "Running", "Athletics");
+        TraitDefinition climbTrait = GetSkill("Climb", "Climbing", "Athletics");
+        TraitDefinition flyTrait = GetSkill("Fly", "Flying", "Athletics");
+        TraitDefinition fallTrait = GetSkill("Fall", "Falling", "Athletics");
+        TraitDefinition crutchUseTrait = GetSkill("Crutch Use", "Crutch Walking", "Athletics");
+        TraitDefinition forageTrait = GetSkill("Forage", "Survival");
         TraitDefinition armourUseTrait = skills["Armour Use"];
-        TraitDefinition trackTrait = skills.GetValueOrDefault("Track") ?? skills["Survival"];
+        TraitDefinition trackTrait = GetSkill("Track", "Tracking", "Survival");
         TraitDefinition? lawTrait = skills.GetValueOrDefault("Law");
 
         foreach (CheckType check in Enum.GetValues(typeof(CheckType)).OfType<CheckType>().Distinct().ToList())
@@ -1338,6 +1383,14 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                          .Concat(FunctionalCraftSkills)
                          .Concat(UniversalProfessionalSkills)
                     )
+            {
+                AddSkill(skill);
+            }
+        }
+
+        if (!gerund)
+        {
+            foreach (SkillDetails skill in RpiLegacySkills)
             {
                 AddSkill(skill);
             }

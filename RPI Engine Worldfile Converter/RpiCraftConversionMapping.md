@@ -57,7 +57,7 @@ Single-vnum requirements remain direct prototype references.
 
 Legacy skill and attribute names are resolved through curated alias maps.
 
-- common weapon and utility skill names resolve to seeded FutureMUD traits
+- common weapon and utility skill names resolve to seeded FutureMUD traits using RPI source spellings where available, such as `Small-Blade`, `Metalcraft`, and `Woodcraft`
 - common attributes resolve to seeded FutureMUD attribute traits
 - unresolved checks are dropped from the runtime mapping and surfaced as `unresolved-craft-trait` warnings
 

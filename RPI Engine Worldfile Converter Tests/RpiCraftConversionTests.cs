@@ -65,7 +65,7 @@ public class RpiCraftConversionTests
 
 		var woodworking = converted[1];
 		Assert.AreEqual(CraftConversionStatus.Ready, woodworking.Status);
-		Assert.AreEqual("Carpenter", woodworking.PrimaryCheck!.TraitName);
+		Assert.AreEqual("Woodcraft", woodworking.PrimaryCheck!.TraitName);
 		Assert.AreEqual("Dexterity", woodworking.AdditionalChecks.Single().TraitName);
 		Assert.IsTrue(woodworking.Warnings.Any(x => x.Code == "multi-check-reduced"));
 		Assert.IsTrue(woodworking.Constraints.HiddenFromCraftList);
@@ -119,8 +119,8 @@ public class RpiCraftConversionTests
 			BuilderAccountId = 1,
 			TraitIds = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)
 			{
-				["Blacksmith"] = 1,
-				["Carpenter"] = 2,
+				["Metalcraft"] = 1,
+				["Woodcraft"] = 2,
 				["Dexterity"] = 3,
 			},
 			TagIds = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)

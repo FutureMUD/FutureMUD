@@ -18,6 +18,43 @@ namespace DatabaseSeeder.Seeders;
 
 public class CombatSeeder : IDatabaseSeeder
 {
+	private static readonly string[] RpiLegacyCombatSkillNames =
+	[
+		"Small-Blade",
+		"Sword",
+		"Axe",
+		"Polearm",
+		"Club",
+		"Flail",
+		"Double-Handed",
+		"Sole-Wield",
+		"Shield-Use",
+		"Dual-Wield",
+		"Throwing",
+		"Blowgun",
+		"Sling",
+		"Hunting-bow",
+		"Warbow",
+		"Avert"
+	];
+
+	internal static IReadOnlyCollection<string> RpiLegacyCombatSkillNamesForTesting => RpiLegacyCombatSkillNames;
+
+	internal static IReadOnlyCollection<string> RpiNonGerundCombatSkillNamesForTesting =>
+		new[]
+		{
+			"Block",
+			"Dodge",
+			"Brawling",
+			"Subdue",
+			"Ward",
+			"Throwing",
+			"Veterancy",
+			"Parry"
+		}
+			.Concat(RpiLegacyCombatSkillNames)
+			.ToArray();
+
     #region Implementation of IDatabaseSeeder
 
     public IEnumerable<(string Id, string Question,
@@ -3308,6 +3345,11 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
         TraitDefinition CreateSkill(string name)
         {
+            if (coreSkills.TryGetValue(name, out TraitDefinition? existing))
+            {
+                return existing;
+            }
+
             TraitExpression expression = new()
             {
                 Name = $"{name} Skill Cap",
@@ -8200,8 +8242,13 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         TraitDefinition? armourUseSkill = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Armour Use");
         bool useStats = armourUseSkill?.Expression.Expression != "70";
 
-        TraitDefinition CreateSkill(string name, string decorator = "General Skill")
+        TraitDefinition EnsureSkill(string name, string decorator = "General Skill")
         {
+            if (skills.TryGetValue(name, out TraitDefinition? existing))
+            {
+                return existing;
+            }
+
             TraitExpression expression = new()
             {
                 Name = $"{name} Skill Cap",
@@ -8227,20 +8274,28 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             };
             context.TraitDefinitions.Add(skill);
             context.SaveChanges();
-            skills.Add(name, skill);
+            skills[name] = skill;
             return skill;
         }
 
-        CreateSkill(gerund ? "Blocking" : "Block");
-        CreateSkill(gerund ? "Dodging" : "Dodge");
-        CreateSkill(gerund ? "Brawling" : "Brawl");
-        CreateSkill(gerund ? "Wrestling" : "Wrestle");
-        CreateSkill(gerund ? "Warding" : "Ward");
-        CreateSkill(gerund ? "Throwing" : "Throw");
-        CreateSkill(gerund ? "Veterancy" : "Veterancy", "Veterancy Skill");
+        EnsureSkill(gerund ? "Blocking" : "Block");
+        EnsureSkill(gerund ? "Dodging" : "Dodge");
+        EnsureSkill(gerund ? "Brawling" : "Brawling");
+        EnsureSkill(gerund ? "Wrestling" : "Subdue");
+        EnsureSkill(gerund ? "Warding" : "Ward");
+        EnsureSkill(gerund ? "Throwing" : "Throwing");
+        EnsureSkill(gerund ? "Veterancy" : "Veterancy", "Veterancy Skill");
         if (questionAnswers["parryoption"].ToLowerInvariant().EqualToAny("yes", "y"))
         {
-            CreateSkill(gerund ? "Parrying" : "Parry");
+            EnsureSkill(gerund ? "Parrying" : "Parry");
+        }
+
+        if (!gerund)
+        {
+            foreach (var skillName in RpiLegacyCombatSkillNames)
+            {
+                EnsureSkill(skillName);
+            }
         }
 
         return skills;
@@ -8429,7 +8484,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                         new TraitExpression
                         {
                             Expression =
-                                $"(0.5 * brawl:{(skills.GetValueOrDefault("Brawling") ?? skills["Brawl"]).Id}) + (0.5 * wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id})"
+                                $"(0.5 * brawl:{(skills.GetValueOrDefault("Brawling") ?? skills["Brawl"]).Id}) + (0.5 * wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id})"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.OpposePushbackCheck:
@@ -8438,7 +8493,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                         new TraitExpression
                         {
                             Expression =
-                                $"(0.5 * dodge:{(skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.5 * wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id})"
+                                $"(0.5 * dodge:{(skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.5 * wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id})"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.RescueCheck:
@@ -8470,7 +8525,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                         new TraitExpression
                         {
                             Expression =
-                                $"(0.5 * dodge:{(skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.5 * wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id})"
+                                $"(0.5 * dodge:{(skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.5 * wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id})"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.OpposeStruggleFreeFromDrag:
@@ -8478,42 +8533,42 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                         new TraitExpression
                         {
                             Expression =
-                                $"(0.5 * dodge:{(skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.5 * wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id})"
+                                $"(0.5 * dodge:{(skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id}) + (0.5 * wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id})"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.CounterGrappleCheck:
                     AddCheck(check,
                         new TraitExpression
                         {
-                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id}"
+                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id}"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.StruggleFreeFromGrapple:
                     AddCheck(check,
                         new TraitExpression
                         {
-                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id}"
+                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id}"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.OpposeStruggleFreeFromGrapple:
                     AddCheck(check,
                         new TraitExpression
                         {
-                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id}"
+                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id}"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.ExtendGrappleCheck:
                     AddCheck(check,
                         new TraitExpression
                         {
-                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id}"
+                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id}"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.InitiateGrapple:
                     AddCheck(check,
                         new TraitExpression
                         {
-                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id}"
+                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id}"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.ScreechAttack:
@@ -8526,35 +8581,35 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
                     AddCheck(check,
                         new TraitExpression
                         {
-                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id}"
+                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id}"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.WrenchAttackCheck:
                     AddCheck(check,
                         new TraitExpression
                         {
-                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id}"
+                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id}"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.TakedownCheck:
                     AddCheck(check,
                         new TraitExpression
                         {
-                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id}"
+                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id}"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.BreakoutCheck:
                     AddCheck(check,
                         new TraitExpression
                         {
-                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id}"
+                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id}"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.OpposeBreakoutCheck:
                     AddCheck(check,
                         new TraitExpression
                         {
-                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills["Wrestle"]).Id}"
+                            Expression = $"wrestle:{(skills.GetValueOrDefault("Wrestling") ?? skills.GetValueOrDefault("Subdue") ?? skills["Wrestle"]).Id}"
                         }, template.Id, Difficulty.Impossible);
                     continue;
                 case CheckType.TossItemCheck:

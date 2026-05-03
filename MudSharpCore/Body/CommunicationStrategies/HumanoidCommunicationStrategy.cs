@@ -32,6 +32,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         return body.CombinedEffectsOfType<ISilencedEffect>().Any(x => x.Applies());
     }
 
+    protected static bool IsBabbled(IBody body)
+    {
+        return body.Actor.CombinedEffectsOfType<IBabbleSpeechEffect>().Any(x => x.Applies());
+    }
+
     protected static string SilenceReason => "A magical silence prevents you from speaking.";
 
     protected HumanoidCommunicationStrategy()
@@ -219,6 +224,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         if (body.Actor.Merits.OfType<IMuteMerit>().Any(x => x.Applies(body.Actor)))
         {
             return body.Actor.Merits.OfType<IMuteMerit>().First(x => x.Applies(body.Actor)).LanguageOptions;
+        }
+
+        if (IsBabbled(body))
+        {
+            return PermitLanguageOptions.LanguageIsBabbling;
         }
 
         if (IsSilenced(body))

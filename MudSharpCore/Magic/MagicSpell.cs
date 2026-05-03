@@ -1524,7 +1524,9 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		bool ProcessSpellTarget(IPerceivable originalTarget, bool mayReflect)
 		{
 			MagicInterdictionResult? interdiction =
-				MagicInterdictionHelper.GetInterdiction(magician, originalTarget, School, mayReflect, additionalParameters);
+				MagicInterdictionHelper.GetInterdiction(magician, originalTarget, School, mayReflect,
+					_spellEffects.OfType<IMagicInterdictionTagProvider>().SelectMany(x => x.MagicInterdictionTags),
+					additionalParameters);
 			bool reflected = interdiction?.Mode == MagicInterdictionMode.Reflect && originalTarget is ICharacter &&
 			                 originalTarget != magician;
 			IPerceivable actualTarget = reflected ? magician : originalTarget;

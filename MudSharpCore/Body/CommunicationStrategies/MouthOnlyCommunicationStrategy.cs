@@ -54,6 +54,11 @@ public class MouthOnlyCommunicationStrategy : HumanoidCommunicationStrategy, IBo
             return PermitLanguageOptions.LanguageIsMuffling;
         }
 
+        if (IsBabbled(body))
+        {
+            return PermitLanguageOptions.LanguageIsBabbling;
+        }
+
         if (IsSilenced(body))
         {
             return PermitLanguageOptions.LanguageIsMuffling;

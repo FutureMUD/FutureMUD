@@ -20,9 +20,21 @@ internal static class MagicInterdictionHelper
 	public static MagicInterdictionResult? GetInterdiction(ICharacter source, IPerceivable? target, IMagicSchool school,
 		bool allowReflection, params SpellAdditionalParameter[] additionalParameters)
 	{
+		return GetInterdiction(source, target, school, allowReflection, [], additionalParameters);
+	}
+
+	public static MagicInterdictionResult? GetInterdiction(ICharacter source, IPerceivable? target, IMagicSchool school,
+		bool allowReflection, IEnumerable<MagicInterdictionTag> tags, params SpellAdditionalParameter[] additionalParameters)
+	{
+		var context = new MagicInterdictionContext(source, target, school, tags.ToList(), additionalParameters.ToList());
 		foreach ((IMagicInterdictionEffect effect, IPerceivable owner) in GetRelevantEffects(source, target, additionalParameters))
 		{
-			if (!effect.ShouldInterdict(source, school))
+			var shouldInterdict =
+				effect is IMagicContextualInterdictionEffect contextual
+					? contextual.ShouldInterdict(context)
+					: effect.ShouldInterdict(source, school);
+
+			if (!shouldInterdict)
 			{
 				continue;
 			}

@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
-public class SpellSubjectiveDescriptionEffect : MagicSpellEffectBase, IOverrideDescEffect
+public class SpellSubjectiveDescriptionEffect : MagicSpellEffectBase, IOverrideDescEffect, IPrioritisedOverrideDescEffect
 {
 	public static void InitialiseEffectType()
 	{
@@ -17,12 +17,15 @@ public class SpellSubjectiveDescriptionEffect : MagicSpellEffectBase, IOverrideD
 	}
 
 	public SpellSubjectiveDescriptionEffect(IPerceivable owner, IMagicSpellEffectParent parent,
-		DescriptionType descriptionType, string description, long fixedPerceiverId, IFutureProg? prog = null)
+		DescriptionType descriptionType, string description, long fixedPerceiverId, IFutureProg? prog = null,
+		int priority = 0, string overrideKey = "")
 		: base(owner, parent, prog)
 	{
 		DescriptionType = descriptionType;
 		DescriptionText = description;
 		FixedPerceiverId = fixedPerceiverId;
+		OverridePriority = priority;
+		OverrideKey = overrideKey;
 	}
 
 	private SpellSubjectiveDescriptionEffect(XElement root, IPerceivable owner) : base(root, owner)
@@ -31,11 +34,15 @@ public class SpellSubjectiveDescriptionEffect : MagicSpellEffectBase, IOverrideD
 		DescriptionType = (DescriptionType)int.Parse(trueRoot?.Element("DescriptionType")?.Value ?? "0");
 		DescriptionText = trueRoot?.Element("Description")?.Value ?? string.Empty;
 		FixedPerceiverId = long.Parse(trueRoot?.Element("FixedPerceiver")?.Value ?? "0");
+		OverridePriority = int.Parse(trueRoot?.Element("Priority")?.Value ?? "0");
+		OverrideKey = trueRoot?.Element("OverrideKey")?.Value ?? string.Empty;
 	}
 
 	public DescriptionType DescriptionType { get; }
 	public string DescriptionText { get; }
 	public long FixedPerceiverId { get; }
+	public int OverridePriority { get; }
+	public string OverrideKey { get; }
 
 	protected override XElement SaveDefinition()
 	{
@@ -43,7 +50,9 @@ public class SpellSubjectiveDescriptionEffect : MagicSpellEffectBase, IOverrideD
 			new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0),
 			new XElement("DescriptionType", (int)DescriptionType),
 			new XElement("Description", new XCData(DescriptionText)),
-			new XElement("FixedPerceiver", FixedPerceiverId)
+			new XElement("FixedPerceiver", FixedPerceiverId),
+			new XElement("Priority", OverridePriority),
+			new XElement("OverrideKey", new XCData(OverrideKey))
 		);
 	}
 

@@ -190,6 +190,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
 	#3why <prog>#0 - sets a prog that controls an error message if prog can't be used
 	#3help#0 - drops you into an editor to write the player help file
 	#3cost <verb> <which> <number>#0 - sets the cost of using a particular verb
+	#3psionic#0 - toggles whether this power is psionic for crime and policy purposes
 	#3sustaincost <which> <number>#0 - sets the sustain cost per minute of the power
 	#3duration <expression>#0 - sets the duration the power will last
 	#3concentration <points>#0 - sets the number of concentration points this power occupies

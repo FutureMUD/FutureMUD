@@ -1227,6 +1227,8 @@ public partial class Emote
                     return "*** odd clicking sounds ***".ColourBold(Telnet.Cyan);
                 case PermitLanguageOptions.LanguageIsBuzzing:
                     return "*** muted buzzing sounds ***".ColourBold(Telnet.Cyan);
+                case PermitLanguageOptions.LanguageIsBabbling:
+                    return "*** jumbled, incomprehensible babbling ***".ColourBold(Telnet.Cyan);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(perceiver));
             }

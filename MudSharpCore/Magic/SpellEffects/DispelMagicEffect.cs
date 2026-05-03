@@ -44,6 +44,7 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			{ "planarstate", x => x is SpellPlanarStateEffect },
 			{ "roomward", x => x is SpellRoomWardEffect },
 			{ "personalward", x => x is SpellPersonalWardEffect },
+			{ "tagward", x => x is SpellRoomTagWardEffect or SpellPersonalTagWardEffect },
 			{ "exitbarrier", x => x is SpellExitBarrierEffect },
 			{ "subjectivedesc", x => x is SpellSubjectiveDescriptionEffect },
 			{ "transformform", x => x is SpellTransformFormEffect },
@@ -82,6 +83,7 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			new XElement("TagValue", new XCData(string.Empty)),
 			new XElement("MatchTagValue", false),
 			new XElement("EffectKey", new XCData("any")),
+			new XElement("IllusionKey", new XCData(string.Empty)),
 			new XElement("Contest", false),
 			new XElement("ContestBonus", 0)
 		), spell), string.Empty);
@@ -101,6 +103,7 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 		TagValue = root.Element("TagValue")?.Value ?? string.Empty;
 		MatchTagValue = bool.Parse(root.Element("MatchTagValue")?.Value ?? "false");
 		EffectKey = root.Element("EffectKey")?.Value ?? "any";
+		IllusionKey = root.Element("IllusionKey")?.Value ?? string.Empty;
 		Contest = bool.Parse(root.Element("Contest")?.Value ?? "false");
 		ContestBonus = int.Parse(root.Element("ContestBonus")?.Value ?? "0");
 	}
@@ -118,6 +121,7 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 	public string TagValue { get; private set; }
 	public bool MatchTagValue { get; private set; }
 	public string EffectKey { get; private set; }
+	public string IllusionKey { get; private set; }
 	public bool Contest { get; private set; }
 	public int ContestBonus { get; private set; }
 	public bool IsInstantaneous => true;
@@ -138,6 +142,7 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			new XElement("TagValue", new XCData(TagValue)),
 			new XElement("MatchTagValue", MatchTagValue),
 			new XElement("EffectKey", new XCData(EffectKey)),
+			new XElement("IllusionKey", new XCData(IllusionKey)),
 			new XElement("Contest", Contest),
 			new XElement("ContestBonus", ContestBonus)
 		);
@@ -223,6 +228,13 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			}
 		}
 
+		if (!string.IsNullOrWhiteSpace(IllusionKey) &&
+		    !parent.SpellEffects.OfType<IPrioritisedOverrideDescEffect>()
+		           .Any(x => x.OverrideKey.EqualTo(IllusionKey)))
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -281,7 +293,8 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 	#3school <id|name|none>#0 - restricts matching to a magic school
 	#3tag <tag> [value]#0 - restricts matching to a magic tag, optionally including value
 	#3tag none#0 - clears tag matching
-	#3effect <key>#0 - restricts matching to an approved key: any, spell, invisibility, flight, levitation, featherfall, magictag, itemenchant, portal, planarstate, roomward, personalward, exitbarrier, subjectivedesc, transformform, projectile, crafttool, powerfuel, itemevent
+	#3effect <key>#0 - restricts matching to an approved key: any, spell, invisibility, flight, levitation, featherfall, magictag, itemenchant, portal, planarstate, roomward, personalward, tagward, exitbarrier, subjectivedesc, transformform, projectile, crafttool, powerfuel, itemevent
+	#3illusion <key|none>#0 - restricts matching to a subjective illusion key
 	#3contest#0 - toggles strength-contested dispel matching
 	#3bonus <amount>#0 - sets the flat strength bonus or penalty for contested dispels";
 
@@ -315,6 +328,9 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			case "effect":
 			case "key":
 				return BuildingCommandEffect(actor, command);
+			case "illusion":
+			case "illusionkey":
+				return BuildingCommandIllusionKey(actor, command);
 			case "contest":
 				Contest = !Contest;
 				Spell.Changed = true;
@@ -339,6 +355,22 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 		Mode = value;
 		Spell.Changed = true;
 		actor.OutputHandler.Send($"This dispel now uses {value.DescribeEnum().ColourValue()} mode.");
+		return true;
+	}
+
+	private bool BuildingCommandIllusionKey(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which subjective illusion key should this dispel match? Use none to clear it.");
+			return false;
+		}
+
+		IllusionKey = command.SafeRemainingArgument.EqualTo("none") ? string.Empty : command.SafeRemainingArgument;
+		Spell.Changed = true;
+		actor.OutputHandler.Send(string.IsNullOrWhiteSpace(IllusionKey)
+			? "This dispel no longer restricts by subjective illusion key."
+			: $"This dispel will only match subjective illusions keyed {IllusionKey.ColourValue()}.");
 		return true;
 	}
 

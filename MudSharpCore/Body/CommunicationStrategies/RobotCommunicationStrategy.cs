@@ -83,6 +83,11 @@ public class RobotCommunicationStrategy : HumanoidCommunicationStrategy, IBodyCo
             return body.Actor.Merits.OfType<IMuteMerit>().First(x => x.Applies(body.Actor)).LanguageOptions;
         }
 
+        if (IsBabbled(body))
+        {
+            return PermitLanguageOptions.LanguageIsBabbling;
+        }
+
         if (IsSilenced(body))
         {
             return PermitLanguageOptions.LanguageIsBuzzing;

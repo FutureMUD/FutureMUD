@@ -58,6 +58,7 @@ public class ConnectMindPower : SustainedMagicPower
     new XElement("SkillCheckTrait", SkillCheckTrait.Id),
     new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
     new XElement("TargetCanSeeIdentityProg", TargetCanSeeIdentityProg.Id),
+    new XElement("TargetEligibilityProg", TargetEligibilityProg.Id),
     new XElement("ExclusiveConnection", ExclusiveConnection),
     new XElement("EmoteForConnect", new XCData(EmoteForConnect)),
     new XElement("SelfEmoteForConnect", new XCData(SelfEmoteForConnect)),
@@ -193,6 +194,13 @@ public class ConnectMindPower : SustainedMagicPower
             ? Gameworld.FutureProgs.Get(value)
             : Gameworld.FutureProgs.GetByName(element.Value);
 
+        element = root.Element("TargetEligibilityProg");
+        TargetEligibilityProg = element is null
+            ? Gameworld.AlwaysTrueProg
+            : long.TryParse(element.Value, out value)
+                ? Gameworld.FutureProgs.Get(value)
+                : Gameworld.FutureProgs.GetByName(element.Value);
+
         element = root.Element("ExclusiveConnection");
         if (element == null)
         {
@@ -275,6 +283,7 @@ public class ConnectMindPower : SustainedMagicPower
         MinimumSuccessThreshold = Outcome.Fail;
         ConcentrationPointsToSustain = 1.0;
         TargetCanSeeIdentityProg = Gameworld.AlwaysFalseProg;
+        TargetEligibilityProg = Gameworld.AlwaysTrueProg;
         ExclusiveConnection = true;
         UnknownIdentityDescription = "an unknown entity";
         _outcomeEchoDictionary[Outcome.MajorFail] = false;
@@ -335,6 +344,7 @@ public class ConnectMindPower : SustainedMagicPower
 				actor.EffectsOfType<ConnectMindEffect>().All(y => y.TargetCharacter != x.CharacterOwner)).ToList();
 			List<MindConnectedToEffect> eligable = potentialTargets
 			               .Where(x => CanInvokePowerProg?.ExecuteBool(actor, x.OriginatorCharacter) != false &&
+			                           TargetFilterFunction(actor, x.OriginatorCharacter) &&
 			                           TargetIsInRange(actor, x.OriginatorCharacter, PowerDistance) &&
 			                           MagicInterdictionHelper.GetInterdiction(actor, x.OriginatorCharacter, School, false) is null).ToList();
             if (eligable.Any())
@@ -408,7 +418,7 @@ public class ConnectMindPower : SustainedMagicPower
 			return;
 		}
 
-		if (CanInvokePowerProg.ExecuteBool(actor, target))
+		if (!TargetFilterFunction(actor, target) || CanInvokePowerProg.ExecuteBool(actor, target) == false)
 		{
             actor.OutputHandler.Send(string.Format(
                 WhyCantInvokePowerProg.Execute(actor, target)?.ToString() ??
@@ -432,7 +442,7 @@ public class ConnectMindPower : SustainedMagicPower
             return;
         }
 
-        if (barrier.MindPower.FailIfOvercome && results.Item1.IsPass())
+        if (barrier is not null && barrier.MindPower.FailIfOvercome && results.Item1.IsPass())
         {
             barrier.Shatter(actor);
         }
@@ -550,6 +560,7 @@ public class ConnectMindPower : SustainedMagicPower
     public string SelfEmoteForDisconnect { get; protected set; }
 
     public IFutureProg TargetCanSeeIdentityProg { get; protected set; }
+    public IFutureProg TargetEligibilityProg { get; protected set; }
     public string UnknownIdentityDescription { get; protected set; }
 
     public bool ExclusiveConnection { get; protected set; }
@@ -564,6 +575,7 @@ public class ConnectMindPower : SustainedMagicPower
         sb.AppendLine($"Unknown Identity Desc: {UnknownIdentityDescription.ColourCharacter()}");
         sb.AppendLine($"Exclusive: {ExclusiveConnection.ToColouredString()}");
         sb.AppendLine($"Target Knows Identity Prog: {TargetCanSeeIdentityProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Target Eligibility Prog: {TargetEligibilityProg.MXPClickableFunctionName()}");
         sb.AppendLine();
         sb.AppendLine("Emotes:");
         sb.AppendLine();
@@ -649,6 +661,7 @@ public class ConnectMindPower : SustainedMagicPower
 	#3failconnect <emote>#0 - sets the emote for failed connecting. $0 is the power user, $1 is the target
 	#3faiilselfconnect <emote>#0 - sets the self emote for failed connecting. $0 is the power user, $1 is the target
 	#3targetprog <prog>#0 - sets the prog that controls if the target can see the sdesc
+	#3eligibility <prog>|none#0 - sets the prog that controls valid mind-contact targets
 	#3unknown <desc>#0 - sets the unknown description if the target prog fails
 	#3exclusive#0 - toggles whether this connection is exclusive or not
 
@@ -698,6 +711,11 @@ public class ConnectMindPower : SustainedMagicPower
                 return BuildingCommandSelfFailConnectEmote(actor, command);
             case "targetprog":
                 return BuildingCommandTargetProg(actor, command);
+            case "eligibility":
+            case "eligible":
+            case "filter":
+            case "filterprog":
+                return BuildingCommandEligibilityProg(actor, command);
             case "unknown":
                 return BuildingCommandUnknown(actor, command);
             case "exclusive":
@@ -727,6 +745,43 @@ public class ConnectMindPower : SustainedMagicPower
         UnknownIdentityDescription = command.SafeRemainingArgument;
         Changed = true;
         actor.OutputHandler.Send($"The unknown description will now be {UnknownIdentityDescription.ColourCharacter()}.");
+        return true;
+    }
+
+    protected override bool TargetFilterFunction(ICharacter owner, ICharacter target)
+    {
+        return TargetEligibilityProg?.ExecuteBool(owner, target) != false;
+    }
+
+    private bool BuildingCommandEligibilityProg(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What prog should be used to control whether a target can be contacted? Use none to clear it.");
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("none", "clear", "delete"))
+        {
+            TargetEligibilityProg = Gameworld.AlwaysTrueProg;
+            Changed = true;
+            actor.OutputHandler.Send("This power no longer uses a target eligibility prog.");
+            return true;
+        }
+
+        IFutureProg prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
+            [
+                [ProgVariableTypes.Character, ProgVariableTypes.Character]
+            ]
+        ).LookupProg();
+        if (prog is null)
+        {
+            return false;
+        }
+
+        TargetEligibilityProg = prog;
+        Changed = true;
+        actor.OutputHandler.Send($"The {prog.MXPClickableFunctionName()} prog now controls which minds this power can target.");
         return true;
     }
 

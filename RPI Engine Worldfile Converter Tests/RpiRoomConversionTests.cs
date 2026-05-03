@@ -144,6 +144,72 @@ public class RpiRoomConversionTests
 		Assert.AreEqual(longDescription[..FutureMudRoomImportLimits.CellDescriptionMaxLength], truncated);
 	}
 
+	[TestMethod]
+	public void RoomTransformer_WarnsForLongExitText_AndImporterTruncatesEveryExitTextField()
+	{
+		var longExitDescription = new string('d', FutureMudRoomImportLimits.ExitTextMaxLength + 1);
+		var longKeyword = new string('k', FutureMudRoomImportLimits.ExitTextMaxLength + 1);
+		var sourceRoom = new RpiRoomRecord
+		{
+			Vnum = 99000,
+			SourceFile = "rooms.99",
+			Zone = 99,
+			Name = "Long Exit Source",
+			Description = "A room with a suspiciously long exit.",
+			RawFlags = 0,
+			RoomFlags = RpiRoomFlags.None,
+			RawSectorType = (int)RpiRoomSectorType.Inside,
+			SectorType = RpiRoomSectorType.Inside,
+			Deity = 0,
+			Exits =
+			[
+				new RpiRoomExitRecord(
+					RpiRoomDirection.North,
+					RpiRoomExitSectionType.Normal,
+					longExitDescription,
+					longKeyword,
+					RpiRoomDoorType.None,
+					-1,
+					0,
+					99001)
+			],
+		};
+		var destinationRoom = new RpiRoomRecord
+		{
+			Vnum = 99001,
+			SourceFile = "rooms.99",
+			Zone = 99,
+			Name = "Long Exit Destination",
+			Description = "A destination room.",
+			RawFlags = 0,
+			RoomFlags = RpiRoomFlags.None,
+			RawSectorType = (int)RpiRoomSectorType.Inside,
+			SectorType = RpiRoomSectorType.Inside,
+			Deity = 0,
+		};
+
+		var transformer = new FutureMudRoomTransformer();
+		var convertedExit = transformer.Convert([sourceRoom, destinationRoom]).Exits.Single();
+
+		Assert.AreEqual(longExitDescription.Length, convertedExit.Side1.Description.Length);
+		Assert.AreEqual(longKeyword.Length, convertedExit.Side1.Keywords.Length);
+		Assert.AreEqual(longKeyword.Length, convertedExit.Side1.PrimaryKeyword!.Length);
+		Assert.IsTrue(convertedExit.Warnings.Any(x => x.Code == "exit-description-truncated"));
+		Assert.IsTrue(convertedExit.Warnings.Any(x => x.Code == "exit-keywords-truncated"));
+		Assert.IsTrue(convertedExit.Warnings.Any(x => x.Code == "exit-primary-keyword-truncated"));
+
+		var truncatedDescription = FutureMudRoomImportLimits.TruncateExitText(convertedExit.Side1.Description);
+		var truncatedKeywords = FutureMudRoomImportLimits.TruncateExitText(convertedExit.Side1.Keywords);
+		var truncatedPrimaryKeyword = FutureMudRoomImportLimits.TruncateExitText(convertedExit.Side1.PrimaryKeyword);
+
+		Assert.AreEqual(FutureMudRoomImportLimits.ExitTextMaxLength, truncatedDescription.Length);
+		Assert.AreEqual(FutureMudRoomImportLimits.ExitTextMaxLength, truncatedKeywords.Length);
+		Assert.AreEqual(FutureMudRoomImportLimits.ExitTextMaxLength, truncatedPrimaryKeyword.Length);
+		Assert.AreEqual(longExitDescription[..FutureMudRoomImportLimits.ExitTextMaxLength], truncatedDescription);
+		Assert.AreEqual(longKeyword[..FutureMudRoomImportLimits.ExitTextMaxLength], truncatedKeywords);
+		Assert.AreEqual(longKeyword[..FutureMudRoomImportLimits.ExitTextMaxLength], truncatedPrimaryKeyword);
+	}
+
 	private static string GetRoomFixtureDirectory()
 	{
 		var candidates = new[]

@@ -22,6 +22,20 @@ public static partial class OutputHandlerExtensions
 
 public static class OutputExtensions
 {
+    private static IEnumerable<IRemoteObservationEffect> RemoteObservationEffectsFor(ILocation location)
+    {
+        if (location is null)
+        {
+            return Enumerable.Empty<IRemoteObservationEffect>();
+        }
+
+        return location.Cells
+                       .SelectMany(x => x.EffectsOfType<IRemoteObservationEffect>())
+                       .Concat(location.Characters.SelectMany(x => x.EffectsOfType<IRemoteObservationEffect>()))
+                       .Distinct()
+                       .ToList();
+    }
+
     public static void Send<T>(this T target, string text, params object[] parameters) where T : IHandleOutput
     {
         if (!text.IsValidFormatString(parameters?.Length ?? 0))
@@ -119,8 +133,7 @@ public static class OutputExtensions
             ch.OutputHandler?.Send(text);
         }
 
-        foreach (IRemoteObservationEffect effect in location?.Cells.SelectMany(x => x.EffectsOfType<IRemoteObservationEffect>()).ToList() ??
-                                   Enumerable.Empty<IRemoteObservationEffect>())
+        foreach (IRemoteObservationEffect effect in RemoteObservationEffectsFor(location))
         {
             effect.HandleOutput(text, location);
         }
@@ -149,8 +162,7 @@ public static class OutputExtensions
 
         if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
         {
-            foreach (IRemoteObservationEffect effect in location?.Cells.SelectMany(x => x.EffectsOfType<IRemoteObservationEffect>()).ToList() ??
-                                   Enumerable.Empty<IRemoteObservationEffect>())
+            foreach (IRemoteObservationEffect effect in RemoteObservationEffectsFor(location))
             {
                 effect.HandleOutput(output, location);
             }
@@ -173,8 +185,7 @@ public static class OutputExtensions
             ch.OutputHandler?.Send(text);
         }
 
-        foreach (IRemoteObservationEffect effect in location?.Cells.SelectMany(x => x.EffectsOfType<IRemoteObservationEffect>()).ToList() ??
-                                   Enumerable.Empty<IRemoteObservationEffect>())
+        foreach (IRemoteObservationEffect effect in RemoteObservationEffectsFor(location))
         {
             effect.HandleOutput(text, location);
         }
@@ -203,8 +214,7 @@ public static class OutputExtensions
 
         if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
         {
-            foreach (IRemoteObservationEffect effect in location?.EffectsOfType<IRemoteObservationEffect>().ToList() ??
-                                   Enumerable.Empty<IRemoteObservationEffect>())
+            foreach (IRemoteObservationEffect effect in RemoteObservationEffectsFor(location))
             // TODO - layer awareness for watching?
             {
                 effect.HandleOutput(output, location);

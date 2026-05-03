@@ -430,12 +430,14 @@ public partial class Body
             flags = flags | PerceiveIgnoreFlags.IgnoreSelf;
         }
 
-        if (CombinedEffectsOfType<IOverrideDescEffect>().Any(x => x.OverrideApplies(voyeur, type)) &&
+        var overrideEffect = CombinedEffectsOfType<IOverrideDescEffect>()
+                             .Where(x => x.OverrideApplies(voyeur, type))
+                             .OrderByDescending(x => (x as IPrioritisedOverrideDescEffect)?.OverridePriority ?? 0)
+                             .FirstOrDefault();
+        if (overrideEffect is not null &&
             (voyeur.CanSee(this) || flags.HasFlag(PerceiveIgnoreFlags.IgnoreCanSee)))
         {
-            return CombinedEffectsOfType<IOverrideDescEffect>()
-                   .First(x => x.OverrideApplies(voyeur, type))
-                   .Description(type, colour);
+            return overrideEffect.Description(type, colour);
         }
 
         // TODO - add in obscuring effects like cloaks

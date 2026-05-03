@@ -35,16 +35,23 @@ It is intended for:
 | `state` | `StateGenerator` | Regenerator | Switch dispatch in `MudSharpCore/Magic/Generators/BaseMagicResourceGenerator.cs` | Yes | Adds one or more resources per minute based on boolean state progs |
 
 ## Power Types
+Current count: 25 power tokens, including 24 builder-creatable tokens and the non-builder `armor` runtime alias. V4 added 9 builder-creatable psionic powers in per-power files under `MudSharpCore/Magic/Powers/`.
 
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
 | `armour` | `MagicArmourPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicArmourPower.cs` via `MagicPowerFactory` | Yes | Applies magical armour behavior |
 | `armor` | `MagicArmourPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicArmourPower.cs` via `MagicPowerFactory` | No | Runtime compatibility alias for the armour power model |
 | `anesthesia` | `MindAnesthesiaPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindAnesthesiaPower.cs` via `MagicPowerFactory` | Yes | Applies mental anesthesia behavior |
+| `allspeak` | `AllspeakPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/AllspeakPower.cs` via `MagicPowerFactory` | Yes | Sustains spoken-language comprehension without adding permanent language knowledge or literacy |
+| `babble` | `BabblePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/BabblePower.cs` via `MagicPowerFactory` | Yes | Applies hostile timed speech obfuscation before language comprehension can decode speech |
 | `choke` | `ChokePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/ChokePower.cs` via `MagicPowerFactory` | Yes | Applies choking or constriction behavior |
+| `clairaudience` | `ClairaudiencePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/ClairaudiencePower.cs` via `MagicPowerFactory` | Yes | Sustains contact-based remote hearing through another mind's location |
+| `coerce` | `CoercePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/CoercePower.cs` via `MagicPowerFactory` | Yes | Applies mode-based psionic influence for stamina, hunger, thirst, or thought injection |
 | `connectmind` | `ConnectMindPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/ConnectMindPower.cs` via `MagicPowerFactory` | Yes | Creates or manages a mind connection |
+| `hear` | `HearPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/HearPower.cs` via `MagicPowerFactory` | Yes | Sustains a listener for psionic thought and feeling traffic |
 | `invisibility` | `InvisibilityPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/InvisibilityPower.cs` via `MagicPowerFactory` | Yes | Applies invisibility behavior |
 | `magicattack` | `MagicAttackPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicAttackPower.cs` via `MagicPowerFactory` | Yes | Executes a direct magical attack |
+| `magicksense` | `MagicksensePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicksensePower.cs` via `MagicPowerFactory` | Yes | Sustains `SenseMagical` perception and uses the existing magical aura display |
 | `mindaudit` | `MindAuditPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindAuditPower.cs` via `MagicPowerFactory` | Yes | Audits or inspects a mind |
 | `mindbarrier` | `MindBarrierPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindBarrierPower.cs` via `MagicPowerFactory` | Yes | Creates a mental barrier |
 | `mindbroadcast` | `MindBroadcastPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindBroadcastPower.cs` via `MagicPowerFactory` | Yes | Broadcasts mind-to-mind communication |
@@ -52,8 +59,11 @@ It is intended for:
 | `mindexpel` | `MindExpelPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindExpelPower.cs` via `MagicPowerFactory` | Yes | Expels a connection or presence |
 | `mindlook` | `MindLookPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindLookPower.cs` via `MagicPowerFactory` | Yes | Observes through mind mechanics |
 | `mindsay` | `MindSayPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindSayPower.cs` via `MagicPowerFactory` | Yes | Sends directed mind speech |
+| `projectemotion` | `ProjectEmotionPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/ProjectEmotionPower.cs` via `MagicPowerFactory` | Yes | Injects an involuntary feeling into a target mind and eligible psionic listeners |
 | `sense` | `SensePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/SensePower.cs` via `MagicPowerFactory` | Yes | Senses characters or items across a configured range |
+| `suggest` | `SuggestPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/SuggestPower.cs` via `MagicPowerFactory` | Yes | Injects an involuntary thought, optionally wrapped with an emotional delivery |
 | `telepathy` | `TelepathyPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/TelepathyPower.cs` via `MagicPowerFactory` | Yes | Telepathic communication or related perception |
+| `trace` | `TracePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/TracePower.cs` via `MagicPowerFactory` | Yes | Inspects active mind links around a target mind while respecting concealment difficulty |
 | n/a | `MagicPowerBase` | Power support | Shared base in `MudSharpCore/Magic/Powers/MagicPowerBase.cs` | No | Shared costs, progs, help text, crime handling, and builder support |
 | n/a | `SustainedMagicPower` | Power support | Shared base in `MudSharpCore/Magic/Powers/SustainedMagicPower.cs` | No | Shared support for sustained powers |
 | n/a | `MagicalMeleeAttackPower` | Power support | Shared base in `MudSharpCore/Magic/Powers/MagicalMeleeAttackPower.cs` | No | Shared support base for melee-style magical attacks |
@@ -81,6 +91,7 @@ It is intended for:
 | `vicinity` | `CastingTriggerVicinity` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerVicinity.cs` via `SpellTriggerFactory` | Yes | Casts across a vicinity target set |
 
 ## Spell Effect Types
+V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `personaltagward`.
 
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
@@ -101,7 +112,7 @@ It is intended for:
 | `detectpoison` | `DetectPoisonEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/DetectPoisonEffect.cs` via `SpellEffectFactory` | Yes | Reports active and latent drug dosages on a character |
 | `disease` | `DiseaseEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs` via `SpellEffectFactory` | Yes | Applies a configurable spell-owned systemic infection payload |
 | `dispelinvisibility` | `RemoveInvisibilityEffect` | Spell effect alias | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs` via `SpellEffectFactory` | Yes | Builder/load alias for `removeinvisibility` |
-| `dispelmagic` | `DispelMagicEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/DispelMagicEffect.cs` via `SpellEffectFactory` | Yes | Removes or shortens matching spell-parent effects by caster policy, spell, school/subschool, tag, approved effect key, and optional strength contest |
+| `dispelmagic` | `DispelMagicEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/DispelMagicEffect.cs` via `SpellEffectFactory` | Yes | Removes or shortens matching spell-parent effects by caster policy, spell, school/subschool, tag, illusion key, approved effect key, and optional strength contest |
 | `destroyitem` | `DestroyItemEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Deletes item targets with purge-warning safeguards |
 | `executeprog` | `ExecuteProgEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/ExecuteProgEffect.cs` via `SpellEffectFactory` | Yes | Executes a supporting prog |
 | `exitbarrier` | `ExitBarrierEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/ExitBarrierEffect.cs` via `SpellEffectFactory` | Yes | Applies a persistent magical barrier to a targeted shared `IExit` so crossing that exit can be blocked |
@@ -120,13 +131,14 @@ It is intended for:
 | `itemdamage` | `ItemDamageEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Applies ordinary item damage using configured damage, pain, stun, and damage-type formulas |
 | `itemenchant` | `ItemEnchantEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Adds item aura text, glow, weapon/armour hooks, projectile bonuses, craft-tool bonuses, power/fuel modifiers, and optional item event progs |
 | `levitate` | `LevitationEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs` via `SpellEffectFactory` | Yes | Suspends a character or item, optionally moves it to a configured room layer, and prevents falling while active |
-| `magictag` | `MagicTagEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Adds spell-owned key/value metadata for marks, anchors, runes, signatures, and FutureProg queries |
+| `magictag` | `MagicTagEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Adds spell-owned key/value metadata for marks, anchors, runes, signatures, FutureProg queries, and tag-aware interdiction |
 | `magicresourcedelta` | `MagicResourceDeltaEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicResourceDeltaEffect.cs` via `SpellEffectFactory` | Yes | Adds or removes a configured magic resource from a character, item, or room |
 | `mend` | `MendEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MendEffect.cs` via `SpellEffectFactory` | Yes | Mends damage or wear |
 | `needdelta` | `NeedDeltaEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/NeedDeltaEffect.cs` via `SpellEffectFactory` | Yes | Changes a need immediately |
 | `needrate` | `NeedRateSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/NeedRateSpellEffect.cs` via `SpellEffectFactory` | Yes | Alters need rate |
 | `pacifism` | `PacifismSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PacifismSpellEffect.cs` via `SpellEffectFactory` | Yes | Applies pacifism |
 | `personalward` | `PersonalWardEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PersonalWardEffect.cs` via `SpellEffectFactory` | Yes | Applies a school-based personal ward that can fail or reflect matching incoming or outgoing magic |
+| `personaltagward` | `PersonalTagWardEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies a personal ward that fails or reflects matching incoming or outgoing magic by `magictag` key/value |
 | `paralysis` | `ParalysisEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies forced paralysis through the health effect system |
 | `poison` | `PoisonEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs` via `SpellEffectFactory` | Yes | Applies a configurable spell-owned drug payload |
 | `portal` | `PortalSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Creates effect-owned paired transient exits between the caster's room and a target room, room anchor, or item/object anchor |
@@ -156,6 +168,7 @@ It is intended for:
 | `roomatmosphere` | `RoomAtmosphereEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RoomAtmosphereEffect.cs` via `SpellEffectFactory` | Yes | Alters room atmosphere |
 | `roomlight` | `RoomLightEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RoomLightEffect.cs` via `SpellEffectFactory` | Yes | Alters room light |
 | `roomward` | `RoomWardEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RoomWardEffect.cs` via `SpellEffectFactory` | Yes | Applies a school-based room ward that can fail or reflect matching incoming or outgoing magic |
+| `roomtagward` | `RoomTagWardEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies a room ward that fails or reflects matching incoming or outgoing magic by `magictag` key/value |
 | `roomtemperature` | `RoomTemperatureEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RoomTemperatureEffect.cs` via `SpellEffectFactory` | Yes | Alters room temperature |
 | `selfdamage` | `SelfDamageEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/SelfDamageEffect.cs` via `SpellEffectFactory` | Yes | Damages the caster |
 | `silence` | `SilenceEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies vocal silence without blocking telepathy |
@@ -167,8 +180,8 @@ It is intended for:
 | `telepathy` | `TelepathySpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TelepathySpellEffect.cs` via `SpellEffectFactory` | Yes | Applies telepathic linkage |
 | `teleport` | `TeleportEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TeleportEffect.cs` via `SpellEffectFactory` | Yes | Teleports the caster to a room or cell target |
 | `teleporttarget` | `TeleportTargetEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs` via `SpellEffectFactory` | Yes | Teleports a target selected by the spell |
-| `subjectivedesc` | `SubjectiveDescriptionEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Adds caster-scoped subjective full-description replacement |
-| `subjectivesdesc` | `SubjectiveSDescEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Adds caster-scoped subjective short-description replacement |
+| `subjectivedesc` | `SubjectiveDescriptionEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Adds caster-scoped subjective full-description replacement with priority and optional illusion key |
+| `subjectivesdesc` | `SubjectiveSDescEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Adds caster-scoped subjective short-description replacement with priority and optional illusion key |
 | `transference` | `TransferenceEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs` via `SpellEffectFactory` | Yes | Swaps caster and target character locations, optionally including followers and room layers |
 | `transformform` | `TransformFormEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TransformFormEffect.cs` via `SpellEffectFactory` | Yes | Ensures or reuses a keyed alternate body form, applies first-creation defaults such as description patterns and transformation echo, contributes a priority-ranked forced transformation demand, and reuses the shared baseline-form revert path when the demand ends |
 | `waterbreathing` | `WaterBreathingEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Grants additional breathable fluids for the target |
@@ -184,6 +197,10 @@ It is intended for:
 | `incoming`, `outgoing`, `both` | `MagicInterdictionCoverage` | Ward coverage enum that decides whether an interdiction catches incoming magic, outgoing magic, or both |
 | `fail`, `reflect` | `MagicInterdictionMode` | Ward mode enum that decides whether a matching invocation fizzles or reflects where the runtime supports reflection |
 | n/a | `IMagicInterdictionEffect` | Shared runtime contract used by room and personal wards so spells and powers can consult the same interception rules |
+| n/a | `IMagicContextualInterdictionEffect` | Optional contextual interdiction contract that can inspect source, target, school, direction, and invocation tags |
+| n/a | `MagicInterdictionContext` | Shared context object passed to contextual interdiction effects |
+| n/a | `MagicInterdictionTag` | Key/value metadata pair used by tag-aware wards |
+| n/a | `IMagicInterdictionTagProvider` | Template-side contract for spell effects that contribute contextual interdiction tags |
 | n/a | `IExitBarrierEffect` | Shared runtime contract used by movement logic so magical exit barriers can block `Character.CanCross` |
 
 ## Engine V2 Support Types
@@ -201,6 +218,21 @@ It is intended for:
 | n/a | `ILevitationEffect` | Spell-owned levitation marker for target-specific suspension |
 | n/a | `IFallDamageMitigationEffect` | Shared fall mitigation contract exposing fall-distance and fall-damage multipliers |
 
+## Engine V4 Support Types
+
+| Token or API | Class or interface | Role |
+| --- | --- | --- |
+| n/a | `PsionicTrafficHelper` | Shared helper for involuntary psionic thought/feeling delivery, eligible listener forwarding, opt-out checks, blocked command roots, source/target messaging, and wiz-audit output |
+| n/a | `IPrioritisedOverrideDescEffect` | Subjective-description priority and illusion-key contract used by body/item description override resolution and `dispelmagic illusion <key>` |
+| n/a | `IBabbleSpeechEffect` | Speech-obfuscation contract used by communication strategies before language comprehension |
+| n/a | `PsionicSustainedPowerEffectBase<TPower>` | Shared base for V4 sustained psionic effects |
+| n/a | `MagicAllspeakEffect` | Sustained `IComprehendLanguageEffect` used by `allspeak` |
+| n/a | `MagicMagicksenseEffect` | Sustained `SenseMagical` perception grant used by `magicksense` |
+| n/a | `PsionicHearEffect` | Sustained `ITelepathyEffect` listener used by `hear` |
+| n/a | `PsionicBabbleEffect` | Timed `IBabbleSpeechEffect` used by `babble` |
+| n/a | `MagicClairaudienceConcentrationEffect` | Caster-side concentration marker for `clairaudience` |
+| n/a | `PsionicClairaudienceEffect` | Remote-observation effect that forwards audible output only |
+
 ## Notes
 - Schools are first-class records rather than subtype-driven types, so they are documented in the overview and backbone docs rather than listed here as a type family.
 - Powers, triggers, and spell effects are all current-state inventories of registered runtime implementations.
@@ -209,3 +241,4 @@ It is intended for:
 - Phase 1 spell support also introduced additive `IEffect.PerceptionGranting`, spell-runtime query interfaces such as `ISilencedEffect`, `ISleepEffect`, `IFearEffect`, `IFlightEffect`, `IAdditionalBreathableFluidEffect`, `IDarksightEffect`, `IComprehendLanguageEffect`, and `ICurseEffect`, plus shared `MagicArmourConfiguration` for power and spell armour parity.
 - `transformform` is the current builder-creatable spell effect for cached alternate-form provisioning and scripted transformation, including optional transformation emotes, first-creation description-pattern defaults, and configurable forced-transformation priority metadata.
 - Wind spell support extends the runtime movement layer with `IFly.CanContinueFlying`, target-specific fall prevention, fall-damage mitigation, exit-path forced movement, precise invisibility removal, and caster/target transference.
+- V4 psionic and perception support adds 9 power tokens, tag-aware wards, contextual interdiction tags, illusion priority/key matching, speech babbling, remote audible observation, and non-command psionic traffic/coercion delivery.

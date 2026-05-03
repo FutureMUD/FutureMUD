@@ -28,7 +28,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public class MagicTagEffect : IMagicSpellEffectTemplate
+public class MagicTagEffect : IMagicSpellEffectTemplate, IMagicInterdictionTagProvider
 {
 	public static void RegisterFactory()
 	{
@@ -67,6 +67,13 @@ public class MagicTagEffect : IMagicSpellEffectTemplate
 	public string Tag { get; private set; }
 	public string Value { get; private set; }
 	public bool ReplaceExisting { get; private set; }
+	public IEnumerable<MagicInterdictionTag> MagicInterdictionTags
+	{
+		get
+		{
+			yield return new MagicInterdictionTag(Tag, Value);
+		}
+	}
 
 	public virtual XElement SaveToXml()
 	{
@@ -1627,7 +1634,9 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 			new XAttribute("type", effectType),
 			new XElement("Description", new XCData(type == DescriptionType.Short ? "someone altered by magic" : "They appear different through magic.")),
 			new XElement("FixedViewer", true),
-			new XElement("ApplicabilityProg", 0)
+			new XElement("ApplicabilityProg", 0),
+			new XElement("Priority", 0),
+			new XElement("OverrideKey", new XCData(string.Empty))
 		), spell, type), string.Empty);
 	}
 
@@ -1639,6 +1648,8 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 		Description = root.Element("Description")?.Value ?? string.Empty;
 		FixedViewer = bool.Parse(root.Element("FixedViewer")?.Value ?? "true");
 		ApplicabilityProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ApplicabilityProg")?.Value ?? "0"));
+		Priority = int.Parse(root.Element("Priority")?.Value ?? "0");
+		OverrideKey = root.Element("OverrideKey")?.Value ?? string.Empty;
 	}
 
 	public IMagicSpell Spell { get; }
@@ -1648,6 +1659,8 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 	public string Description { get; private set; }
 	public bool FixedViewer { get; private set; }
 	public IFutureProg? ApplicabilityProg { get; private set; }
+	public int Priority { get; private set; }
+	public string OverrideKey { get; private set; }
 
 	public XElement SaveToXml()
 	{
@@ -1655,7 +1668,9 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 			new XAttribute("type", EffectType),
 			new XElement("Description", new XCData(Description)),
 			new XElement("FixedViewer", FixedViewer),
-			new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0)
+			new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0),
+			new XElement("Priority", Priority),
+			new XElement("OverrideKey", new XCData(OverrideKey))
 		);
 	}
 
@@ -1668,7 +1683,7 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 	{
 		return target is not null
 			? new SpellSubjectiveDescriptionEffect(target, parent, DescriptionType, Description,
-				FixedViewer ? caster.Id : 0, ApplicabilityProg)
+				FixedViewer ? caster.Id : 0, ApplicabilityProg, Priority, OverrideKey)
 			: null;
 	}
 
@@ -1678,7 +1693,9 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 
 	#3description <text>#0 - sets the replacement description
 	#3fixedviewer#0 - toggles whether only the caster sees it
-	#3prog <prog|none>#0 - gates whether the override applies";
+	#3prog <prog|none>#0 - gates whether the override applies
+	#3priority <number>#0 - sets override priority; higher priorities win
+	#3key <text|none>#0 - sets an optional illusion/dispel key";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -1691,6 +1708,21 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 				break;
 			case "fixedviewer":
 				FixedViewer = !FixedViewer;
+				break;
+			case "priority":
+				if (!int.TryParse(command.SafeRemainingArgument, out var value))
+				{
+					actor.OutputHandler.Send("You must enter a valid whole number priority.");
+					return false;
+				}
+
+				Priority = value;
+				break;
+			case "key":
+			case "illusionkey":
+				OverrideKey = command.SafeRemainingArgument.EqualTo("none")
+					? string.Empty
+					: command.SafeRemainingArgument;
 				break;
 			case "prog":
 				if (command.SafeRemainingArgument.EqualTo("none"))
@@ -1723,6 +1755,6 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"{EffectType} - Fixed Viewer: {FixedViewer.ToColouredString()} - {Description.ColourValue()}";
+		return $"{EffectType} - Fixed Viewer: {FixedViewer.ToColouredString()} - Priority: {Priority.ToString("N0", actor).ColourValue()} - Key: {(string.IsNullOrWhiteSpace(OverrideKey) ? "none".ColourError() : OverrideKey.ColourValue())} - {Description.ColourValue()}";
 	}
 }

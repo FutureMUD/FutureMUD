@@ -123,8 +123,10 @@ Current interdiction sources are:
 
 - room wards
 - personal wards
+- room tag wards
+- personal tag wards
 
-These wards match by school, optionally include child schools, and can be further gated by a custom prog.
+School wards match by school, optionally include child schools, and can be further gated by a custom prog. Tag wards match configured `magictag` key/value metadata exposed by spell effects that implement the contextual interdiction tag provider.
 
 Current behavior is:
 
@@ -390,6 +392,7 @@ General dispels use `dispelmagic`. It can either remove matching spell-parent ef
 - caster policy: own, any, or others
 - magic tag and optional tag value
 - approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `transformform`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
+- keyed subjective illusions through `illusion <key>`
 - optional strength contest
 
 The default policy is caster-owned cleanup. Hostile dispels must be explicitly configured with hostile matching and then travel through the ordinary spell targeting, ward, and resistance flow.
@@ -401,6 +404,13 @@ The Engine V3 edge-status slice adds:
 - `detectpoison`: instantly reports a character's active and latent drug dosages, including drug IDs, localized mass, and latent delivery vector.
 - `insomnia` / `removeinsomnia`: prevents voluntary sleep and blocks magical sleep while active.
 - `removeblindness` / `cureblindness`: removes spell-owned blindness; `cureblindness` saves as `removeblindness`.
+
+The Engine V4 psionic/perception slice adds:
+
+- contextual interdiction tags from `magictag`, so tag-aware wards can inspect spell metadata rather than only school/subschool.
+- `roomtagward` / `personaltagward`, which reuse ward coverage and fail/reflect modes but match `magictag` key/value metadata.
+- subjective-description priority and illusion keys on `subjectivedesc` / `subjectivesdesc`.
+- `dispelmagic illusion <key>`, which targets keyed subjective-description effects through the general dispel flow.
 
 Portals remain saved spell effects, not database exits or a gate table. The `portal` effect creates paired transient exits registered with `IExitManager`; active magical portals expose `IMagicPortalExit` metadata and can be inspected with `magic portals`. Anchor tags can be placed on rooms or items/objects with `magictag`; `portal` resolves caster-owned room anchors first, then caster-owned item anchors by using the item location. Builders can inspect active anchors with `magic anchors [tag]`.
 
@@ -544,6 +554,8 @@ Important implementation note:
 | `vicinity` | `CastingTriggerVicinity` | Casts across a vicinity target set |
 
 ## Current Implemented Spell Effect Types
+The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `personaltagward`.
+
 | Token | Class | Summary |
 | --- | --- | --- |
 | `blindness` | `BlindnessEffect` | Applies blindness |
@@ -563,7 +575,7 @@ Important implementation note:
 | `detectpoison` | `DetectPoisonEffect` | Reports active and latent drug dosages on a character |
 | `disease` | `DiseaseEffect` | Applies a configurable spell-owned systemic infection |
 | `dispelinvisibility` | `RemoveInvisibilityEffect` | Builder/load alias for `removeinvisibility` |
-| `dispelmagic` | `DispelMagicEffect` | Removes or shortens matching saved spell effects by caster policy, spell, school/subschool, magic tag, approved effect key, or optional strength contest |
+| `dispelmagic` | `DispelMagicEffect` | Removes or shortens matching saved spell effects by caster policy, spell, school/subschool, magic tag, illusion key, approved effect key, or optional strength contest |
 | `destroyitem` | `DestroyItemEffect` | Deletes item targets with purge-warning safeguards |
 | `executeprog` | `ExecuteProgEffect` | Executes a supporting prog |
 | `exitbarrier` | `ExitBarrierEffect` | Applies a persistent magical barrier to a targeted exit |
@@ -582,13 +594,14 @@ Important implementation note:
 | `itemdamage` | `ItemDamageEffect` | Damages an item with configured damage, pain, stun, and damage type |
 | `itemenchant` | `ItemEnchantEffect` | Adds aura/glow, weapon/armour bonuses, projectile payload bonuses, craft-tool bonuses, power/fuel modifiers, and optional item event progs |
 | `levitate` | `LevitationEffect` | Suspends a character or item, optionally moves it to a configured room layer, and prevents falling while active |
-| `magictag` | `MagicTagEffect` | Adds spell-owned key/value metadata for marks, anchors, runes, signatures, and FutureProg queries |
+| `magictag` | `MagicTagEffect` | Adds spell-owned key/value metadata for marks, anchors, runes, signatures, FutureProg queries, and tag-aware interdiction |
 | `magicresourcedelta` | `MagicResourceDeltaEffect` | Adds or removes a configured magic resource from a character, item, or room |
 | `mend` | `MendEffect` | Mends damage or wear |
 | `needdelta` | `NeedDeltaEffect` | Changes a need immediately |
 | `needrate` | `NeedRateSpellEffect` | Alters need rate |
 | `pacifism` | `PacifismSpellEffect` | Applies pacifism |
 | `personalward` | `PersonalWardEffect` | Applies a school-based personal ward that can fail or reflect matching incoming or outgoing magic |
+| `personaltagward` | `PersonalTagWardEffect` | Applies a personal ward that fails or reflects matching incoming or outgoing magic by `magictag` key/value |
 | `planarstate` | `PlanarStateSpellEffect` | Applies a corporeal or noncorporeal planar overlay to the target |
 | `planeshift` | `PlanarStateSpellEffect` | Moves the target into a configured corporeal or noncorporeal planar state |
 | `paralysis` | `ParalysisEffect` | Applies magical paralysis through the forced-paralysis hook |
@@ -621,6 +634,7 @@ Important implementation note:
 | `roomatmosphere` | `RoomAtmosphereEffect` | Alters room atmosphere |
 | `roomlight` | `RoomLightEffect` | Alters room light |
 | `roomward` | `RoomWardEffect` | Applies a school-based room ward that can fail or reflect matching incoming or outgoing magic |
+| `roomtagward` | `RoomTagWardEffect` | Applies a room ward that fails or reflects matching incoming or outgoing magic by `magictag` key/value |
 | `roomtemperature` | `RoomTemperatureEffect` | Alters room temperature |
 | `selfdamage` | `SelfDamageEffect` | Damages the caster |
 | `silence` | `SilenceEffect` | Applies vocal silence without blocking telepathy |
@@ -633,8 +647,8 @@ Important implementation note:
 | `teleport` | `TeleportEffect` | Teleports the caster to a room or cell target |
 | `teleporttarget` | `TeleportTargetEffect` | Teleports a target selected by the spell |
 | `transference` | `TransferenceEffect` | Swaps the caster and target character locations, optionally including followers and room layers |
-| `subjectivedesc` | `SubjectiveDescriptionEffect` | Adds caster-scoped subjective full-description replacement |
-| `subjectivesdesc` | `SubjectiveSDescEffect` | Adds caster-scoped subjective short-description replacement |
+| `subjectivedesc` | `SubjectiveDescriptionEffect` | Adds caster-scoped subjective full-description replacement with priority and optional illusion key |
+| `subjectivesdesc` | `SubjectiveSDescEffect` | Adds caster-scoped subjective short-description replacement with priority and optional illusion key |
 | `transformform` | `TransformFormEffect` | Ensures or reuses a keyed alternate body form and applies a priority-ranked forced transformation demand |
 | `waterbreathing` | `WaterBreathingEffect` | Grants additional breathable fluids |
 | `weatherchange` | `WeatherChangeEffect` | Changes weather |
@@ -643,9 +657,9 @@ Important implementation note:
 | `weight` | `WeightSpellEffect` | Alters weight |
 
 ## Ward Effects
-`roomward` and `personalward` are the reusable spell-authored interdiction primitives.
+`roomward` and `personalward` are the reusable school-based spell-authored interdiction primitives. `roomtagward` and `personaltagward` are the tag-aware variants for magic that carries `magictag` metadata.
 
-Both support these builder commands:
+School wards support these builder commands:
 
 - `school <school>`
 - `mode fail|reflect`
@@ -653,10 +667,23 @@ Both support these builder commands:
 - `subschools`
 - `prog <prog>|none`
 
-The optional custom prog can use either of these signatures:
+Their optional custom prog can use either of these signatures:
 
 - `(character source, perceivable owner) -> bool`
 - `(character source, perceivable owner, magicschool school) -> bool`
+
+Tag wards support these builder commands:
+
+- `tag <tag> [value]`
+- `value <value|none>`
+- `mode fail|reflect`
+- `coverage incoming|outgoing|both`
+- `prog <prog>|none`
+
+Their optional custom prog can use either of these signatures:
+
+- `(character source, perceivable owner) -> bool`
+- `(character source, perceivable owner, text tag, text value) -> bool`
 
 Reflection is intentionally narrow:
 
@@ -668,7 +695,7 @@ Reflection is intentionally narrow:
 - The trigger/effect registries are the extension point; there is no fully script-defined spell-effect system.
 - Readiness validation is a major part of spell authoring. If a spell is incomplete, it will show a builder error rather than quietly misbehaving.
 - Caster effects are separate from ordinary effects and apply to the caster after the target-side application path.
-- Target-side spell application now checks room and personal wards after the casting emote and before any target-side effect is applied.
+- Target-side spell application now checks room, personal, room-tag, and personal-tag wards after the casting emote and before any target-side effect is applied.
 - Status-style spell effects are not currently modelled as one generic "status enum" template. The builder-visible Phase 1 statuses are intentionally separate effect types so XML shape, help text, and runtime semantics can differ cleanly per effect.
 
 ## Related Reading

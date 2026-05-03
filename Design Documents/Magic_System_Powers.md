@@ -90,8 +90,9 @@ In current runtime behavior:
 - `MagicPowerBase` target acquisition filters out targets blocked by matching room or personal wards
 - custom target-gathering powers such as `SensePower` and `ConnectMindPower` also consult the shared interdiction helper
 - this means school-based room and personal wards can block magical and psionic powers as well as spells
+- contextual interdiction effects can inspect invocation metadata; tag-aware spell wards use this for `magictag` key/value matching
 
-Unlike spells, powers do not currently use ward reflection retargeting. Their target acquisition path simply treats interdicted targets as invalid.
+Unlike spells, powers do not currently use ward reflection retargeting. Their target acquisition path simply treats interdicted targets as invalid. Powers currently enter this shared helper without spell-effect tags, so tag-aware wards are primarily a spell-interdiction tool unless a future power type supplies explicit tags.
 
 ### How power types are loaded
 `MagicPowerFactory` uses reflection to find `IMagicPower` implementers in the executing assembly and call their static `RegisterLoader` method.
@@ -131,6 +132,7 @@ All ordinary power types get these common commands:
 - `why <prog>`
 - `help`
 - `cost <verb> <which> <number>`
+- `psionic` / `psi`, which toggles the psionics crime category
 
 Each concrete power type then adds its own subtype commands in its overridden `BuildingCommand`.
 
@@ -196,16 +198,22 @@ Add a new power type when the behavior does not fit the spell system well and de
 
 ## Current Implemented Power Types
 ### Builder-registered power types
-These are the currently builder-creatable power tokens registered through `MagicPowerFactory`:
+These are the currently builder-creatable power tokens registered through `MagicPowerFactory`. There are 24 builder-created tokens in this table; the implemented-types inventory also lists the non-builder `armor` runtime alias.
 
 | Builder token | Class | Summary |
 | --- | --- | --- |
 | `armour` | `MagicArmourPower` | Sustained defensive protection effect |
 | `anesthesia` | `MindAnesthesiaPower` | Mental anesthesia style effect |
+| `allspeak` | `AllspeakPower` | Sustained spoken-language comprehension without permanent language gain |
+| `babble` | `BabblePower` | Timed hostile speech obfuscation |
 | `choke` | `ChokePower` | Choking or constriction style offensive power |
+| `clairaudience` | `ClairaudiencePower` | Sustained contact-based remote hearing through another mind's location |
+| `coerce` | `CoercePower` | Mode-based psionic influence for stamina, hunger, thirst, or thought injection |
 | `connectmind` | `ConnectMindPower` | Creates or manages mind links |
+| `hear` | `HearPower` | Sustained listener for psionic thought and feeling traffic |
 | `invisibility` | `InvisibilityPower` | Applies invisibility behavior |
 | `magicattack` | `MagicAttackPower` | Direct magical attack action |
+| `magicksense` | `MagicksensePower` | Sustained magical-aura perception grant |
 | `mindaudit` | `MindAuditPower` | Mind-reading or auditing style power |
 | `mindbarrier` | `MindBarrierPower` | Mental barrier or protection effect |
 | `mindbroadcast` | `MindBroadcastPower` | Broadcast-style mind communication |
@@ -213,8 +221,11 @@ These are the currently builder-creatable power tokens registered through `Magic
 | `mindexpel` | `MindExpelPower` | Expels connected minds or effects |
 | `mindlook` | `MindLookPower` | Observe or inspect through mind-link mechanics |
 | `mindsay` | `MindSayPower` | Directed mind-to-mind speech |
+| `projectemotion` | `ProjectEmotionPower` | Injects an involuntary feeling into the target's mind and eligible listeners |
 | `sense` | `SensePower` | Sense targets across a configurable distance |
+| `suggest` | `SuggestPower` | Injects an involuntary thought, optionally with an emotional wrapper |
 | `telepathy` | `TelepathyPower` | Telepathic communication or related perception |
+| `trace` | `TracePower` | Inspects active mind links around a target mind while respecting concealment |
 
 Important current-state note:
 
@@ -230,9 +241,11 @@ The mind-link stack now shares a first-class concealment policy through `IMindCo
 - apply to the owning school and, optionally, child schools
 - use a character/observer prog to decide who is affected
 
-Passive psionic traffic continues to use the existing `telepathy` flow. Configure `telepathy` with `thinks`, `feels`, and `thinkemote` to represent powers such as Thoughtsense or Immersion. When the thinker is sustaining `mindconceal`, passive `think` and `feel` traffic uses the concealed identity instead of leaking the actor's short description or personal name.
+Passive psionic traffic can use either the existing `telepathy` flow or the dedicated V4 `hear` power, depending on whether the content wants ordinary telepathic communication or a sustained listener. Configure `telepathy` with `thinks`, `feels`, and `thinkemote` to represent broad passive links such as Thoughtsense or Immersion. When the thinker is sustaining `mindconceal`, passive `think` and `feel` traffic uses the concealed identity instead of leaking the actor's short description or personal name.
 
-This is intentionally separate from true projection or possession. `mindconceal` hides identity across mind-contact and passive telepathy surfaces; it does not create a second acting body or remote command shell.
+V4 adds a shared psionic traffic/coercion helper used by `projectemotion`, `suggest`, and `coerce`. It handles involuntary mental delivery, eligible listener forwarding, opt-out/refusal checks, consistent source/target messaging, and wiz-audit output. `coerce` supports stamina, hunger, thirst, and thought modes; it does not run the victim's command parser.
+
+This is intentionally separate from true projection or possession. `mindconceal` hides identity across mind-contact and passive telepathy surfaces; `clairaudience` forwards remote audible output through another mind's location; neither creates a second acting body or remote command shell.
 
 ### Notable base or runtime-support types
 These matter to developers extending the subsystem, but they are not standalone builder-created types.
@@ -242,6 +255,13 @@ These matter to developers extending the subsystem, but they are not standalone 
 | `MagicPowerBase` | Main shared base for most powers |
 | `SustainedMagicPower` | Shared support for powers that persist and consume concentration over time |
 | `MagicalMeleeAttackPower` | Abstract base for melee-style magic attacks; not a standalone builder type |
+| `PsionicTrafficHelper` | Shared policy helper for involuntary thought/feeling delivery, eligible listener forwarding, opt-out checks, blocked command roots, and audit output |
+| `PsionicSustainedPowerEffectBase<TPower>` | Shared runtime base for the V4 sustained psionic effects |
+| `MagicAllspeakEffect` | Sustained `IComprehendLanguageEffect` used by `allspeak` |
+| `PsionicBabbleEffect` | Timed `IBabbleSpeechEffect` used by `babble` |
+| `MagicMagicksenseEffect` | Sustained magical perception grant used by `magicksense` |
+| `PsionicHearEffect` | Sustained `ITelepathyEffect` listener used by `hear` |
+| `PsionicClairaudienceEffect` | Remote audible-observation effect used by `clairaudience` |
 
 ## Important Current-State Notes
 - School verbs are the player namespace for powers. There is no separate general player command that bypasses the school.
@@ -249,6 +269,7 @@ These matter to developers extending the subsystem, but they are not standalone 
 - Power definitions are polymorphic and XML-backed, so database seeding must match the runtime class exactly.
 - If a power type grows mostly into editable composition rather than unique runtime logic, it may be a better fit as a spell instead of as a new power class.
 - Room and personal wards are authored as spell effects, but targeted powers and psionic sensing flows still respect them through the shared interdiction helper.
+- `connectmind` has a target-eligibility prog in addition to its target-list prog. Use that for animal, wild, or setting-specific contact variants before adding a new hard-coded link power.
 
 ## Related Reading
 - [Magic System Overview](./Magic_System_Overview.md)

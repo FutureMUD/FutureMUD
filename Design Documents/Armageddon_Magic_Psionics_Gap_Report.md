@@ -24,7 +24,7 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 - Existing powers count as valid coverage even when Armageddon exposed the original ability as a spell. If you want strict `cast`-spell parity rather than "same subsystem can do it", several defensive entries would slide from `Native now` to `Needs engine primitive`.
 - A handful of Armageddon entries are under-specified in the dump (`Daylight`, `Empower`, `Drown`, `Cause Disease`, `Acid Spray`, some passive psionics). The first pass counted those conservatively unless the name clearly mapped to an existing FutureMUD primitive.
 - The original first-pass counts used a single `Needs engine work` bucket. This revision keeps those historical lists in the appendix, but current planning uses the two-way split above.
-- Status reviewed on 2026-05-02 against `Magic_System_Implemented_Types.md`, `Magic_System_Spells.md`, `Magic_System_Powers.md`, and the registered runtime types under `MudSharpCore/Magic`. Exact family-by-family counts were not recomputed in this pass; the stale top-line counts have therefore been removed from the planning sections.
+- Status reviewed on 2026-05-03 against `Magic_System_Implemented_Types.md`, `Magic_System_Spells.md`, `Magic_System_Powers.md`, and the registered runtime types under `MudSharpCore/Magic`. Exact family-by-family counts were not recomputed in this pass; the stale top-line counts have therefore been removed from the planning sections. V4 added 9 builder-registered psionic power tokens and 2 builder-registered tag-aware ward effect tokens.
 
 ## Executive Summary
 
@@ -43,7 +43,7 @@ Key takeaways:
 - Previous phases closed three medium-difficulty primitive gaps: local exit targeting, prog-resolved summon-style remote targeting, and reusable room or personal wards with shared spell and power interception.
 - The plane and body-form work moves several old blockers into the buildable bucket: `Ethereal`, `Detect Ethereal`, `Dispel Ethereal`, simple `Planeshift`, ghostly manifestation, and polymorph-style transformations can now use first-class effects rather than bespoke tags.
 - The biggest remaining architecture blockers are durable portal topology beyond saved effects, objective or group-scoped illusion policy, world-specific metaphysics, and true "dual body" mechanics like possession or shadow projection.
-- Psionics are now better covered than the first pass suggested. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, direct mental attacks, passive thought/feeling traffic, and identity concealment. Advanced coercion policy, trace consequences, animal/wild mind variants, and projection-style powers still need work.
+- Psionics are now better covered than the first pass suggested. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, direct mental attacks, passive thought/feeling traffic, identity concealment, trace inspection, psionic hearing, clairaudience, language comprehension, babbling, magical sensing, emotion/thought injection, and non-command coerce modes. Durable trace consequences and projection-style powers still need supporting-system work.
 
 ## Current Family Themes
 
@@ -57,7 +57,7 @@ Key takeaways:
 | Lightning | direct attacks, stamina effects, paralysis | `insomnia`, footprint tracking such as `Fluorescent Footsteps` | none obvious from the current report |
 | Void | wards, portals, marks/runes, corpse preservation/consumption/spawn, resource drains, item enchantments | strength-contested dispel math, exact `Identify`/`Dead Speak`/`Recite` surfaces if they need first-class UX | durable portal/rune topology, possession, disembodiment, setting-specific `Solace` / `Dragon Bane` / `Cathexis` |
 | Unspecified / incomplete magic | `Puddle`; `Cause Disease` if the dump only requires disease application | `Acid Spray`, exact `Drown` if not covered by existing damage/need/breathing primitives | source clarification may be needed before classification |
-| Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment | `Trace`, advanced coercion/compulsion, `Allspeak`, `Hear`, `Clairaudience`, `Babble`, `Magicksense`, animal/wild contact variants | projection/remote-presence semantics and any durable psionic trace/consequence model |
+| Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment, `Trace`, `Hear`, `Clairaudience`, `Allspeak`, `Babble`, `Magicksense`, `Project Emotion`, `Suggest`, `Coerce`, and animal/wild contact variants via `connectmind` eligibility progs | content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers if they require unique UX beyond existing links and policy hooks | projection/remote-presence semantics, durable psionic trace/consequence models, and objective multi-viewer illusion state |
 
 ## Where FutureMUD Is Already Strong
 
@@ -82,6 +82,7 @@ The current system already has good coverage for:
 - Wind movement and fall-control effects through `levitate`, `featherfall`, `forcedpathmovement` / `handsofwind`, `transference`, and `removeinvisibility` / `dispelinvisibility`
 - V3 edge statuses through `detectpoison`, `insomnia`, `removeinsomnia`, `removeblindness` / `cureblindness`, and optional strength-contested `dispelmagic`
 - Coercion V1 through `forcecommand`, `subjectivedesc`, and `subjectivesdesc`
+- V4 psionic and perception policy through `trace`, `hear`, `clairaudience`, `allspeak`, `babble`, `magicksense`, `projectemotion`, `suggest`, and `coerce`, plus shared traffic/audit delivery, `connectmind` eligibility progs, subjective-description priority/key handling, and tag-aware `roomtagward` / `personaltagward`
 
 ## Previous Work
 
@@ -121,7 +122,9 @@ Completed on 2026-05-01.
 
 Deferred from V1 but later resolved in V2: general dispel/shorten support, portal inspection and item anchors, richer item-enchantment hooks, and psionic identity/passive-traffic policy.
 
-Deferred from V1 and still relevant: durable portal/rune topology, objective or group-scoped illusions, advanced coercion policy, trace consequences, and true possession/projection.
+Deferred from V1 but later resolved in V4: advanced non-command coercion policy and subjective illusion priority/dispel keys.
+
+Deferred from V1 and still relevant: durable portal/rune topology, objective or group-scoped illusions, durable trace consequences, and true possession/projection.
 
 ### Engine V2: dispels, richer enchantments, portal inspection, and psionic identity
 
@@ -133,7 +136,22 @@ Completed on 2026-05-02.
 - Added builder-loadable plane/form recipe coverage for `Ethereal`, `Dispel Ethereal`, `Planeshift`, shadow/astral walking, and polymorph-style configurations.
 - Added `mindconceal` and wired shared concealment policy into mind contact, mind speech/broadcast, mind audit/expel, and passive `think`/`feel` telepathy.
 
-Deferred from V2 and still relevant: persistent gate/rune topology if saved effects are not enough, strength-contested dispel formulas, richer illusion stacking and perception policy, advanced coercion and trace consequences, and the simultaneous-body possession/projection model.
+Deferred from V2 but later resolved in V3 or V4: strength-contested dispel formulas, richer subjective-illusion priority and dispel policy, advanced non-command coercion primitives, and tag-aware ward matching.
+
+Deferred from V2 and still relevant: persistent gate/rune topology if saved effects are not enough, durable trace consequences, objective or group-scoped illusion state, and the simultaneous-body possession/projection model.
+
+### Engine V4: psionic and perception policy layer
+
+Completed on 2026-05-03.
+
+- Added builder-registered psionic powers `trace`, `hear`, `clairaudience`, `allspeak`, `babble`, `magicksense`, `projectemotion`, `suggest`, and `coerce`.
+- Added shared psionic traffic and coercion policy for involuntary thought/feeling delivery, listener forwarding, opt-out checks, blocked command roots, source/target messaging, and wiz-audit output.
+- Added a builder-visible `psionic` toggle to `MagicPowerBase`, persisting through the existing `IsPsionic` XML field and using the psionics crime type.
+- Added contextual interdiction metadata and tag-aware `roomtagward` / `personaltagward` effects that match configured `magictag` key/value metadata.
+- Added subjective-description priority and illusion-key support, including `dispelmagic illusion <key>` matching for keyed subjective illusions.
+- Added a target-eligibility prog to `connectmind`, so animal, wild, or setting-specific contact variants can be expressed without new hard-coded link powers.
+
+V4 count deltas: +9 builder power tokens, +2 builder spell-effect tokens, +7 shared policy/support types. The V4 psionic/perception engine-primitive backlog is complete; the remaining psionic/perception blockers are supporting-system problems rather than ordinary power/effect registration work.
 
 ## Current Reclassification From Planes And Body Forms
 
@@ -270,9 +288,9 @@ This now unlocks:
 - `Elemental Fog`
 - `Dome`
 
-Remaining limitation:
+V4 extension:
 
-- wards are school-based rather than freeform tag- or item-keyed, so future rune-specific anti-magic wants a tag-aware ward primitive rather than more metadata
+- `roomtagward` and `personaltagward` add tag-aware interdiction that matches `magictag` key/value metadata while reusing the same fail/reflect and coverage model.
 
 ### 6. Item and corpse enchantment, magic tags, and anchors
 
@@ -346,7 +364,7 @@ Remaining work:
 
 ### 8. Subjective perception, coercive psionics, and passive mind traffic
 
-Status: Coercion V1, psionic identity concealment, and passive thought/feeling traffic are implemented. The older report text that listed identity hiding and passive traffic as open blockers is stale.
+Status: Coercion V1, psionic identity concealment, passive thought/feeling traffic, and the V4 psionic/perception policy layer are implemented. The older report text that listed identity hiding, passive traffic, basic trace/hear/clairaudience powers, and non-command coercion primitives as open blockers is stale.
 
 FutureMUD already has good mind-link primitives and now has:
 
@@ -356,24 +374,34 @@ FutureMUD already has good mind-link primitives and now has:
 - caster-scoped subjective-description support through fixed-viewer handling.
 - `mindconceal`, which supplies sustained identity concealment and an audit difficulty modifier.
 - passive `think` / `feel` / `thinkemote` traffic through `telepathy`, with concealment consulted before identities are exposed.
+- `trace`, which inspects active mind links around a target mind and respects `mindconceal` audit difficulty and unknown-identity output.
+- `hear`, which sustains psionic thought/feeling listening over configured scope without becoming ordinary room audio.
+- `clairaudience`, which sustains contact-based remote hearing through another mind's location and forwards audible output only.
+- `allspeak`, which grants sustained spoken-language comprehension through `IComprehendLanguageEffect` without permanent language skill or literacy bypass.
+- `babble`, which applies hostile timed speech obfuscation before language comprehension can decode the speech.
+- `magicksense`, which grants sustained `SenseMagical` perception through the existing magical aura display.
+- `projectemotion`, `suggest`, and `coerce`, which share traffic/coercion policy for involuntary emotion/thought delivery, listener forwarding, opt-out checks, and audit output.
+- subjective-description priority and illusion keys for predictable stacking and keyed `dispelmagic`.
+- `roomtagward` and `personaltagward`, which interdict by `magictag` key/value metadata rather than only school/subschool.
+- `connectmind` target eligibility progs, so animal, wild, or setting-specific contact variants can be configured directly.
 
 This now covers:
 
 - `Conceal`, when the desired behaviour is hidden mental identity.
 - `Thoughtsense` and `Immersion`, when the desired behaviour is passive thought/feeling eavesdropping.
-- the safest command-forcing cases for `Control`, `Compel`, `Suggest`, and `Coerce`, so long as content stays within non-staff, non-account-destructive command roots.
+- the safest command-forcing cases for `Control` and `Compel`, so long as content stays within non-staff, non-account-destructive command roots.
+- non-command `Suggest`, `Project Emotion`, and common `Coerce` modes that should alter thought, feeling, stamina, hunger, or thirst rather than run a victim command.
 - single-viewer description changes for parts of `Masquerade`, `Imitate`, and `Vanish`.
 
 It does not yet cover:
 
-- injecting emotions or compulsions as first-class non-command mental states.
-- robust refusal/consent policy beyond the hard safety block list.
-- trace consequences beyond `mindconceal` making audits harder.
-- objective room-state illusions, multi-viewer/group-scoped illusions, or explicit illusion stacking and priority rules beyond the current override-description ordering.
+- robust refusal/consent policy beyond opt-out effects, ordinary targeting checks, and hard safety block lists.
+- durable trace consequences beyond live link inspection and `mindconceal` making audits harder.
+- objective room-state illusions or multi-viewer/group-scoped illusions that need a general perception-overlay model.
 
 That means the remaining work splits cleanly:
 
-- Needs engine primitive: emotion/compulsion effects, trace/trail powers, explicit illusion priority rules, clairaudience/hearing powers, `Allspeak`, `Babble`, `Magicksense`, and animal/wild mind-contact variants.
+- Needs engine primitive: none from the V4 psionic/perception policy slice. Content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers may still need dedicated UX if progs and existing link effects are not enough.
 - Needs supporting system: projection-style psionics, durable trace consequence models if traces must persist as world facts, and objective multi-viewer illusions if they need a general perception-overlay framework.
 
 ## Future Work
@@ -387,9 +415,8 @@ These tasks should be ordinary implementation work inside the existing magic, pe
 - Add exit state mutation beyond barriers, such as opening, closing, sealing, or unlocking a targeted exit when `exitbarrier` is not the right model.
 - Add burn-over-time, footprint-tracking, and similar persistent sensory/combat effects for spells such as `Immolate` and `Fluorescent Footsteps`.
 - Add swap or long-range movement effects if `Transference` and `Hands Of Wind` require more than `teleporttarget`, `relocate`, `prog...room`, or `forcedexitmovement`.
-- Add specific information powers/effects for `Identify`, `Dead Speak`, `Recite`, `Magicksense`, `Hear`, `Clairaudience`, `Allspeak`, `Babble`, and animal/wild mind-contact variants where existing progs or telepathy are not sufficient.
-- Add emotion/compulsion effects and trace/trail powers for psionics that need more than `forcecommand`, `mindconceal`, or passive `telepathy`.
-- Add a tag-aware ward primitive if rune- or item-specific anti-magic needs to match magic tags rather than school/subschool.
+- Add specific information powers/effects for `Identify`, `Dead Speak`, and `Recite` where existing progs or metadata are not sufficient.
+- Add dedicated `Beast Affinity`, `Wild Contact`, or `Wild Barrier` wrappers only if `connectmind` eligibility progs, existing barriers, and ordinary content naming are not expressive enough.
 
 ### Needs supporting system or rework
 
@@ -399,7 +426,7 @@ These are the remaining true blockers. They should not be represented as one-off
 - Durable portal/rune topology: standing gates, persistent rune networks, portal objects, and topology edits that must survive beyond saved spell effects need a deliberate persistence and lifecycle model.
 - Objective or group-scoped illusions: if illusions must alter room state for multiple observers, stack with other illusions, and expose consistent dispel/priority rules, they need a general perception-overlay policy rather than only `subjectivedesc` / `subjectivesdesc`.
 - World-specific metaphysics: `Determine Relationship`, `Solace`, `Dragon Bane`, `Cathexis`, and richer `Planeshift` interpretations need a model for land/elemental relationships, plane travel graphs, and any clan/tribe/identity consequences.
-- Durable psionic trace consequences: a simple `Trace` power can be an engine primitive, but traces that persist as world facts or feed staff/audit consequences need a shared psionic trail model.
+- Durable psionic trace consequences: the live `trace` power inspects active links, but traces that persist as world facts or feed staff/audit consequences need a shared psionic trail model.
 
 ## Next Logical Steps
 
@@ -415,33 +442,25 @@ The next slice should finish the small, unglamorous primitives that no longer ne
 
 ### V4: psionic and perception policy layer
 
-After the remaining easy primitives, the best next value is the policy-heavy middle ground that still fits inside existing systems:
+Status: completed on 2026-05-03.
 
-- Add explicit `Trace`, `Hear`/`Clairaudience`, `Allspeak`, `Babble`, `Magicksense`, and animal/wild mind-contact powers where telepathy/progs are only approximate.
-- Add emotion/compulsion effects for non-command coercion, plus clearer refusal, consent, and audit policy around coercive powers.
-- Extend subjective descriptions into a coherent illusion stack with priority/dispel rules before attempting full objective room-state illusions.
-- Add tag-aware wards if rune/item anti-magic is a real content target.
+- `trace`, `hear`, `clairaudience`, `allspeak`, `babble`, `magicksense`, `projectemotion`, `suggest`, and `coerce` are builder-registered powers.
+- `connectmind` now has an eligibility prog for animal, wild, or setting-specific mind-contact variants.
+- Psionic traffic now has a shared delivery/refusal/listener/audit helper rather than each effect hand-rolling policy.
+- Subjective descriptions now have priority and illusion-key handling, and `dispelmagic` can target keyed illusions.
+- `roomtagward` and `personaltagward` are available for tag-aware anti-magic.
 
 ### V5: supporting-system buildout
 
 V5 should tackle the remaining architecture blockers after V3/V4 make the easy and medium gaps boring:
 
-- injecting emotions or compulsions
-- hiding a psionic identity from trace/contact flows
-- passive thought-traffic/eavesdropping powers
-- robust refusal/consent policy beyond the hard safety block list
-- illusion stacking policy beyond ordinary override-description precedence
+- simultaneous-body possession and projection
+- objective or group-scoped illusion state that changes room facts for multiple observers
+- durable psionic trace/trail consequences that survive beyond live link inspection
+- persistent rune/gate/portal topology if saved effects and transient exits are not enough
+- world-specific metaphysics such as land relationships, elemental patronage, or clan-keyed psionic consequences
 
-This still blocks or complicates:
-
-- `Conceal`
-- `Masquerade`
-- `Imitate`
-- `Vanish`
-- `Thoughtsense`
-- `Immersion`
-
-`Control`, `Compel`, `Suggest`, and `Coerce` are now buildable for non-staff, non-account-destructive command roots, but content authors should still treat them as policy-sensitive spells and pair them with clear messaging or setting rules.
+`Control` and `Compel` remain policy-sensitive when authored as command-forcing effects. `Suggest`, `Project Emotion`, and most `Coerce` variants now have non-command delivery paths, but content authors should still pair them with clear IC/OOC policy and staff-facing audit expectations.
 
 ## Prioritised Implementation Plan
 
@@ -491,8 +510,9 @@ These are the next-best return once the basic statuses exist.
 
 5. Add a command-safe psionic coercion framework.
    - Completed for Coercion V1 with `forcecommand`.
-   - The current implementation executes through the target's own `ExecuteCommand`, respects `IIgnoreForceEffect`, blocks staff/editor/account-destructive roots, and emits wiz-only audit output.
-   - Deeper consent/refusal semantics, emotion injection, trace consequences, and non-command coercion remain future work.
+   - Extended in V4 with `projectemotion`, `suggest`, and mode-based `coerce`.
+   - The command-forcing implementation executes through the target's own `ExecuteCommand`, respects `IIgnoreForceEffect`, blocks staff/editor/account-destructive roots, and emits wiz-only audit output.
+   - The V4 non-command path shares opt-out checks, listener delivery, and audit output. Durable trace consequences and broader consent-policy models remain future work.
 
 ### Phase 3: Tricky Design Work
 
@@ -529,12 +549,10 @@ These are the parity items with the most engine-level uncertainty.
    - `Delusion`
    - `Shadowplay`
    - `Illuminant`
-   - Status: caster-scoped subjective short/full description overrides are live through `subjectivesdesc` and `subjectivedesc`.
+   - Status: caster-scoped subjective short/full description overrides are live through `subjectivesdesc` and `subjectivedesc`, now with priority and illusion-key handling.
    - Remaining work:
      - objective room-state illusions
      - multi-viewer or group-scoped illusions
-     - identity masking in psionic contact/trace flows
-     - explicit stacking and priority rules beyond the existing override-description effect ordering
 
 4. World-model-specific metaphysics.
    - `Determine Relationship`
@@ -639,6 +657,6 @@ This appendix is the historical family-by-family classification from the first p
 
 ### Psionics
 
-- Native now: `Contact`, `Barrier`, `Locate`, `Probe`, `Expel`, `Sense Presence`, `Mindblast`, `Mesmerize`, `Rejuvenate`, `Dome`
-- Builder+Prog now: `Empathy`, `Masquerade`, `Illusion`, `Disorient`, `Clairvoyance`, `Imitate`, `Project`, `Vanish`
-- Historical needs engine work: `Trace`, `Cathexis`, `Allspeak`, `Mindwipe`, `Shadowwalk`, `Hear`, `Control`, `Compel`, `Conceal`, `Clairaudience`, `Suggest`, `Babble`, `Coerce`, `Magicksense`, `Thoughtsense`, `Beast Affinity`, `Wild Contact`, `Wild Barrier`, `Immersion`
+- Native now: `Contact`, `Barrier`, `Locate`, `Probe`, `Expel`, `Sense Presence`, `Mindblast`, `Mesmerize`, `Rejuvenate`, `Dome`, `Trace`, `Allspeak`, `Hear`, `Clairaudience`, `Suggest`, `Babble`, `Coerce`, `Magicksense`, `Thoughtsense`, and `Immersion`
+- Builder+Prog now: `Empathy`, `Masquerade`, `Illusion`, `Disorient`, `Clairvoyance`, `Imitate`, `Project`, `Vanish`, `Beast Affinity`, `Wild Contact`, and `Wild Barrier`
+- Historical needs engine work still requiring content-specific decision or broader systems: `Cathexis`, `Mindwipe`, `Shadowwalk`, and true projection/possession interpretations

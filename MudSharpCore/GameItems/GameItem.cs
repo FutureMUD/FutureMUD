@@ -449,10 +449,13 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             voyeur = this;
         }
 
-        if (EffectsOfType<IOverrideDescEffect>().Any(x => x.OverrideApplies(voyeur, type)) && voyeur.CanSee(this))
+        var overrideEffect = EffectsOfType<IOverrideDescEffect>()
+                             .Where(x => x.OverrideApplies(voyeur, type))
+                             .OrderByDescending(x => (x as IPrioritisedOverrideDescEffect)?.OverridePriority ?? 0)
+                             .FirstOrDefault();
+        if (overrideEffect is not null && voyeur.CanSee(this))
         {
-            return EffectsOfType<IOverrideDescEffect>().First(x => x.OverrideApplies(voyeur, type))
-                                                       .Description(type, colour);
+            return overrideEffect.Description(type, colour);
         }
 
         switch (type)

@@ -450,6 +450,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 	#3why <prog>#0 - sets a prog that controls an error message if prog can't be used
 	#3help#0 - drops you into an editor to write the player help file
 	#3cost <verb> <which> <number>#0 - sets the cost of using a particular verb
+	#3psionic#0 - toggles whether this power is psionic for crime and policy purposes
 {SubtypeHelpText}";
 
     public virtual bool BuildingCommand(ICharacter actor, StringStack command)
@@ -476,10 +477,21 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
                 return BuildingCommandCost(actor, command);
             case "school":
                 return BuildingCommandSchool(actor, command);
+            case "psionic":
+            case "psi":
+                return BuildingCommandPsionic(actor);
         }
 
         actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
         return false;
+    }
+
+    private bool BuildingCommandPsionic(ICharacter actor)
+    {
+        IsPsionic = !IsPsionic;
+        Changed = true;
+        actor.OutputHandler.Send($"This power is {IsPsionic.NowNoLonger()} considered psionic.");
+        return true;
     }
 
     private bool BuildingCommandSchool(ICharacter actor, StringStack command)
@@ -680,6 +692,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         sb.AppendLine($"Magic Power #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, School.PowerListColour, Telnet.BoldWhite));
         sb.AppendLine($"Type: {PowerType.ColourValue()}");
         sb.AppendLine($"School: {School.Name.Colour(School.PowerListColour)}");
+        sb.AppendLine($"Psionic: {IsPsionic.ToColouredString()}");
         sb.AppendLine($"Blurb: {Blurb.ColourCommand()}");
         sb.AppendLine($"Can Invoke Prog: {CanInvokePowerProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Why Can't Invoke Prog: {WhyCantInvokePowerProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
@@ -712,6 +725,21 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
     protected void AddBaseDefinition(XElement root)
     {
         root.Add(new XElement("IsPsionic", IsPsionic));
+        root.Add(new XElement("CanInvokePowerProg", CanInvokePowerProg.Id));
+        root.Add(new XElement("WhyCantInvokePowerProg", WhyCantInvokePowerProg.Id));
+        root.Add(new XElement("InvocationCosts",
+            new XElement("Verbs",
+                from verb in InvocationCosts
+                select new XElement("Verb",
+                    new XAttribute("verb", verb.Key),
+                    from cost in verb.Value
+                    select new XElement("Cost",
+                        new XAttribute("resource", cost.Resource.Id),
+                        cost.Cost
+                    )
+                )
+            )
+        ));
     }
 
     protected abstract XElement SaveDefinition();

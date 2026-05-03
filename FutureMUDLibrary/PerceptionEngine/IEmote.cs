@@ -14,7 +14,8 @@ namespace MudSharp.PerceptionEngine
         LanguageIsChoking,
         LanguageIsClicking,
         LanguageIsError,
-        LanguageIsBuzzing
+        LanguageIsBuzzing,
+        LanguageIsBabbling
     }
 
 

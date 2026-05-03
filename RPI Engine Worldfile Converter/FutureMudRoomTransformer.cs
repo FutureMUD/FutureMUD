@@ -338,6 +338,9 @@ public sealed class FutureMudRoomTransformer
 						$"Room #{room.Vnum} has a one-sided {side1.Direction.Describe()} exit to #{destinationRoom.Vnum}."));
 				}
 
+				AppendExitFieldLimitWarnings(warnings, side1);
+				AppendExitFieldLimitWarnings(warnings, side2);
+
 				exits.Add(new ConvertedRoomExitDefinition(
 					BuildExitKey(room.Vnum, destinationRoom.Vnum, side1.Direction, side2.Direction),
 					room.Vnum,
@@ -363,6 +366,32 @@ public sealed class FutureMudRoomTransformer
 			.ThenBy(x => x.RoomVnum2)
 			.ThenBy(x => x.Side1.Direction.SortOrder())
 			.ToList();
+	}
+
+	private static void AppendExitFieldLimitWarnings(
+		ICollection<RoomConversionWarning> warnings,
+		ConvertedRoomExitSideDefinition side)
+	{
+		if (side.Description.Length > FutureMudRoomImportLimits.ExitTextMaxLength)
+		{
+			warnings.Add(new RoomConversionWarning(
+				"exit-description-truncated",
+				$"Room #{side.RoomVnum} has a {side.Direction.Describe()} exit description of {side.Description.Length.ToString("N0", CultureInfo.InvariantCulture)} characters; FutureMUD inbound/outbound description and target fields are limited to {FutureMudRoomImportLimits.ExitTextMaxLength.ToString("N0", CultureInfo.InvariantCulture)}, so apply-rooms will truncate those fields."));
+		}
+
+		if (side.Keywords.Length > FutureMudRoomImportLimits.ExitTextMaxLength)
+		{
+			warnings.Add(new RoomConversionWarning(
+				"exit-keywords-truncated",
+				$"Room #{side.RoomVnum} has {side.Direction.Describe()} exit keywords of {side.Keywords.Length.ToString("N0", CultureInfo.InvariantCulture)} characters; FutureMUD exit keyword fields are limited to {FutureMudRoomImportLimits.ExitTextMaxLength.ToString("N0", CultureInfo.InvariantCulture)}, so apply-rooms will truncate them."));
+		}
+
+		if (side.PrimaryKeyword is { Length: > FutureMudRoomImportLimits.ExitTextMaxLength } primaryKeyword)
+		{
+			warnings.Add(new RoomConversionWarning(
+				"exit-primary-keyword-truncated",
+				$"Room #{side.RoomVnum} has a {side.Direction.Describe()} primary exit keyword of {primaryKeyword.Length.ToString("N0", CultureInfo.InvariantCulture)} characters; FutureMUD primary keyword fields are limited to {FutureMudRoomImportLimits.ExitTextMaxLength.ToString("N0", CultureInfo.InvariantCulture)}, so apply-rooms will truncate it."));
+		}
 	}
 
 	private static void AppendUnresolvedSecretWarnings(IReadOnlyList<RoomState> roomStates)

@@ -78,12 +78,23 @@ public sealed record FutureMudRoomImportResult(
 public static class FutureMudRoomImportLimits
 {
 	public const int CellDescriptionMaxLength = 4000;
+	public const int ExitTextMaxLength = 255;
 
 	public static string TruncateCellDescription(string description)
 	{
-		return description.Length <= CellDescriptionMaxLength
-			? description
-			: description[..CellDescriptionMaxLength];
+		return TruncateText(description, CellDescriptionMaxLength);
+	}
+
+	public static string TruncateExitText(string? text)
+	{
+		return TruncateText(text ?? string.Empty, ExitTextMaxLength);
+	}
+
+	private static string TruncateText(string text, int maxLength)
+	{
+		return text.Length <= maxLength
+			? text
+			: text[..maxLength];
 	}
 }
 
@@ -525,18 +536,18 @@ public sealed class FutureMudRoomImporter
 				CellId2 = room2.DbCell.Id,
 				Direction1 = (int)exit.Side1.Direction,
 				Direction2 = (int)exit.Side2.Direction,
-				Keywords1 = exit.Side1.Keywords,
-				Keywords2 = exit.Side2.Keywords,
-				PrimaryKeyword1 = exit.Side1.PrimaryKeyword ?? string.Empty,
-				PrimaryKeyword2 = exit.Side2.PrimaryKeyword ?? string.Empty,
-				InboundDescription1 = exit.Side1.Description,
-				InboundDescription2 = exit.Side2.Description,
-				OutboundDescription1 = exit.Side1.Description,
-				OutboundDescription2 = exit.Side2.Description,
-				InboundTarget1 = exit.Side1.Description,
-				InboundTarget2 = exit.Side2.Description,
-				OutboundTarget1 = exit.Side1.Description,
-				OutboundTarget2 = exit.Side2.Description,
+				Keywords1 = FutureMudRoomImportLimits.TruncateExitText(exit.Side1.Keywords),
+				Keywords2 = FutureMudRoomImportLimits.TruncateExitText(exit.Side2.Keywords),
+				PrimaryKeyword1 = FutureMudRoomImportLimits.TruncateExitText(exit.Side1.PrimaryKeyword),
+				PrimaryKeyword2 = FutureMudRoomImportLimits.TruncateExitText(exit.Side2.PrimaryKeyword),
+				InboundDescription1 = FutureMudRoomImportLimits.TruncateExitText(exit.Side1.Description),
+				InboundDescription2 = FutureMudRoomImportLimits.TruncateExitText(exit.Side2.Description),
+				OutboundDescription1 = FutureMudRoomImportLimits.TruncateExitText(exit.Side1.Description),
+				OutboundDescription2 = FutureMudRoomImportLimits.TruncateExitText(exit.Side2.Description),
+				InboundTarget1 = FutureMudRoomImportLimits.TruncateExitText(exit.Side1.Description),
+				InboundTarget2 = FutureMudRoomImportLimits.TruncateExitText(exit.Side2.Description),
+				OutboundTarget1 = FutureMudRoomImportLimits.TruncateExitText(exit.Side1.Description),
+				OutboundTarget2 = FutureMudRoomImportLimits.TruncateExitText(exit.Side2.Description),
 				Verb1 = string.Empty,
 				Verb2 = string.Empty,
 				DoorId = null,

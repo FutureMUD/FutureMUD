@@ -67,6 +67,8 @@ Execute-mode imports run inside a database transaction. Intermediate `SaveChange
 
 FutureMUD currently stores `CellOverlay.CellDescription` in a `varchar(4000)` column. Converted rooms keep the full effective description for export and audit, but descriptions longer than that limit produce a `cell-description-truncated` warning and are truncated to 4,000 characters only when `apply-rooms --execute` writes the overlay row.
 
+FutureMUD stores exit keywords, primary keywords, verbs, inbound/outbound descriptions, and inbound/outbound targets in `varchar(255)` columns. Converted exit-side text is preserved at full length for export and audit, but overlong values produce `exit-description-truncated`, `exit-keywords-truncated`, or `exit-primary-keyword-truncated` warnings and are truncated only when the importer writes the `Exit` row. Long exit descriptions are especially suspicious because the current pass maps the legacy exit description into all four FutureMUD inbound/outbound description and target fields for that side.
+
 ## Terrain Mapping
 
 Sector mapping defaults:

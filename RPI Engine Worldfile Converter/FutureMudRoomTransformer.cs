@@ -805,36 +805,26 @@ public sealed class FutureMudRoomTransformer
 		ConvertedRoomExitSideDefinition side1,
 		ConvertedRoomExitSideDefinition side2)
 	{
-		var text = string.Join(
-			' ',
-			new[]
-			{
-				sourceRoom.Name,
-				sourceRoom.Description,
-				destinationRoom.Name,
-				destinationRoom.Description,
-				side1.Keywords,
-				side1.Description,
-				side2.Keywords,
-				side2.Description,
-			});
+		var exitText = BuildExitSpecificEvidence(side1, side2);
 
-		if (ContainsAny(text, "great gate", "massive gate", "fortress gate"))
+		if (ContainsAny(exitText, "great gate", "massive gate", "fortress gate"))
 		{
 			return (int)SizeCategory.Enormous;
 		}
 
-		if (ContainsAny(text, "double doors", "carriage doors"))
+		if (ContainsAny(exitText, "double doors", "carriage doors"))
 		{
 			return (int)SizeCategory.VeryLarge;
 		}
 
-		if (ContainsAny(text, "trapdoor", "hatch"))
+		if (ContainsAny(exitText, "trapdoor", "hatch"))
 		{
 			return (int)SizeCategory.Small;
 		}
 
-		if (ContainsAny(text, "gate", "portcullis"))
+		if (side1.DoorType == RpiRoomDoorType.Gate ||
+		    side2.DoorType == RpiRoomDoorType.Gate ||
+		    ContainsAny(exitText, "gate", "portcullis"))
 		{
 			return (int)SizeCategory.Huge;
 		}
@@ -849,31 +839,36 @@ public sealed class FutureMudRoomTransformer
 		ConvertedRoomExitSideDefinition side1,
 		ConvertedRoomExitSideDefinition side2)
 	{
-		var text = string.Join(
-			' ',
-			new[]
-			{
-				sourceRoom.Name,
-				sourceRoom.Description,
-				destinationRoom.Name,
-				destinationRoom.Description,
-				side1.Keywords,
-				side1.Description,
-				side2.Keywords,
-				side2.Description,
-			});
+		var exitText = BuildExitSpecificEvidence(side1, side2);
 
-		if (ContainsAny(text, "trapdoor", "hatch"))
+		if (ContainsAny(exitText, "trapdoor", "hatch"))
 		{
 			return (int)SizeCategory.Small;
 		}
 
-		if (ContainsAny(text, "crawl", "crouch", "low", "tight", "narrow", "squeeze"))
+		if (ContainsAny(exitText, "crawl", "crouch", "low", "tight", "narrow", "squeeze"))
 		{
 			return Math.Min(doorSize, (int)SizeCategory.Normal);
 		}
 
 		return doorSize;
+	}
+
+	private static string BuildExitSpecificEvidence(
+		ConvertedRoomExitSideDefinition side1,
+		ConvertedRoomExitSideDefinition side2)
+	{
+		return string.Join(
+			' ',
+			new[]
+			{
+				side1.Keywords,
+				side1.PrimaryKeyword ?? string.Empty,
+				side1.Description,
+				side2.Keywords,
+				side2.PrimaryKeyword ?? string.Empty,
+				side2.Description,
+			});
 	}
 
 	private static string BuildExitKey(

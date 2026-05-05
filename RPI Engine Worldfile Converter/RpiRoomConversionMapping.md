@@ -63,7 +63,11 @@ Room import creates one FutureMUD `CellOverlayPackage` per converted zone group.
 
 `CellOverlayPackage.Id` is a revision-group identifier rather than a database-generated key, so the importer assigns new package ids from the current maximum package id plus one, matching the runtime builder workflow.
 
-Execute-mode imports run inside a database transaction. Intermediate `SaveChanges` calls are still used to obtain generated room, cell, overlay, and exit ids for dependent rows, but an exception rolls the whole execute import back rather than leaving a partial room import behind.
+RPI room vnums are used as explicit FutureMUD `Room.Id` and `Cell.Id` values when they are positive and not already occupied in the target database. The visible in-game `ID[...]` display is the `Cell.Id`, so this preserves legacy room-number grouping for imported rooms wherever the target baseline permits it.
+
+Legacy vnum `0` and any vnum that collides with an existing FutureMUD room or cell id are not inserted directly. The importer assigns a deterministic fallback id above the highest existing or legacy id for that table and emits an apply warning naming the affected source room. Dry-run audit rows include the ids that would be used.
+
+Execute-mode imports run inside a database transaction. Intermediate `SaveChanges` calls are still used to obtain generated overlay and exit ids for dependent rows, but an exception rolls the whole execute import back rather than leaving a partial room import behind.
 
 FutureMUD currently stores `CellOverlay.CellDescription` in a `varchar(4000)` column. Converted rooms keep the full effective description for export and audit, but descriptions longer than that limit produce a `cell-description-truncated` warning and are truncated to 4,000 characters only when `apply-rooms --execute` writes the overlay row.
 
@@ -132,6 +136,13 @@ If the xerox target is missing, the room keeps its original description and reco
 
 Each converted RPI exit becomes one shared FutureMUD `Exit`.
 
+RPI Engine stores direction ids in its own legacy order:
+
+- `0=NORTH`, `1=EAST`, `2=SOUTH`, `3=WEST`, `4=UP`, `5=DOWN`
+- `8=NORTHEAST`, `9=NORTHWEST`, `10=SOUTHEAST`, `11=SOUTHWEST`
+
+FutureMUD's `CardinalDirection` enum uses a different integer order because it interleaves diagonal directions between cardinal directions. The importer therefore translates directions by name instead of persisting raw legacy direction integers.
+
 Side-specific data is preserved per direction:
 
 - keyword text -> `PrimaryKeyword` and `Keywords`
@@ -159,7 +170,9 @@ Door-size heuristics:
 - `gate` / `portcullis` -> `Huge`
 - `great gate`, `massive gate`, `fortress gate` -> `Enormous`
 
-Unless crawl / low-opening cues exist, both `MaximumSizeToEnter` and `MaximumSizeToEnterUpright` follow the inferred door size.
+Door-size and upright-size cues are taken from the two exit sides' keywords and exit descriptions, not from the full source and destination room descriptions. This avoids shrinking a normal door because the room happens to mention a separate trapdoor, hatch, crawlspace, or low opening elsewhere in its prose.
+
+Unless exit-side crawl / low-opening cues exist, both `MaximumSizeToEnter` and `MaximumSizeToEnterUpright` follow the inferred door size.
 
 ## Hidden, Trapped, Climb, And Fall Exits
 

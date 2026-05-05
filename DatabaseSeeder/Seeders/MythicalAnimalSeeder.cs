@@ -291,7 +291,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         _saltWater = _context.Liquids.First(x => x.Name == "salt water");
         _brackishWater = _context.Liquids.First(x => x.Name == "brackish water");
         _sweat = _context.Liquids.FirstOrDefault(x => x.Name == "sweat");
-        _breathableAir = _context.Gases.AsEnumerable().First(x => x.Name.Contains("Breathable Atmosphere", StringComparison.OrdinalIgnoreCase));
+        _breathableAir = CoreDataSeeder.EnsureBreathableAtmosphere(_context);
         _defaultPopulationBloodModel = _humanRace.Ethnicities.FirstOrDefault()?.PopulationBloodModel ??
                                        _context.PopulationBloodModels.FirstOrDefault();
         _personWordDefinition = _context.CharacteristicDefinitions.First(x => x.Name == "Person Word");

@@ -173,8 +173,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		       context.CorpseModels.Any(x => x.Name == "Organic Human Corpse") &&
 		       context.CorpseModels.Any(x => x.Name == "Organic Animal Corpse") &&
 		       context.Liquids.Any(x => x.Name == "blood") &&
-		       context.Gases.AsEnumerable().Any(x =>
-			       x.Name.Contains("Breathable Atmosphere", StringComparison.OrdinalIgnoreCase)) &&
+		       context.Gases.Any(x => x.Name == "Breathable Atmosphere") &&
 		       context.TraitDefinitions
 			       .Where(x => x.Type == (int)TraitType.Attribute)
 			       .AsEnumerable()
@@ -219,9 +218,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		_animalCorpse = _context.CorpseModels.First(x => x.Name == "Organic Animal Corpse");
 		_blood = _context.Liquids.First(x => x.Name == "blood");
 		_sweat = _context.Liquids.FirstOrDefault(x => x.Name == "sweat");
-		_breathableAir = _context.Gases
-			.AsEnumerable()
-			.First(x => x.Name.Contains("Breathable Atmosphere", StringComparison.OrdinalIgnoreCase));
+		_breathableAir = CoreDataSeeder.EnsureBreathableAtmosphere(_context);
 		_defaultPopulationBloodModel = _humanRace.Ethnicities.FirstOrDefault()?.PopulationBloodModel ??
 		                               _context.PopulationBloodModels.FirstOrDefault();
 		_personWordDefinition = _context.CharacteristicDefinitions.First(x => x.Name == "Person Word");

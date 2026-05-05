@@ -5,6 +5,8 @@ using Moq;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
@@ -36,7 +38,14 @@ public class MagicEngineV4Tests
 		"magicksense",
 		"projectemotion",
 		"suggest",
-		"coerce"
+		"coerce",
+		"dangersense",
+		"empathy",
+		"hex",
+		"clairvoyance",
+		"prescience",
+		"sensitivity",
+		"psychicbolt"
 	];
 
 	[TestInitialize]
@@ -74,6 +83,71 @@ public class MagicEngineV4Tests
 		Assert.AreEqual("0", saved.Element("WhyCantInvokePowerProg")!.Value);
 		Assert.IsNotNull(saved.Element("InvocationCosts"));
 		Assert.AreEqual("suggest", saved.Element("Verb")!.Value);
+	}
+
+	[TestMethod]
+	public void OldSoiPsionicPowerXml_RoundTripsSubtypeFields()
+	{
+		var gameworld = CreateGameworld();
+
+		foreach (var type in new[]
+		         {
+			         "dangersense", "empathy", "hex", "clairvoyance", "prescience", "sensitivity", "psychicbolt"
+		         })
+		{
+			var power = MagicPowerFactory.LoadPower(CreatePowerModel(type), gameworld.Object);
+			var saved = InvokeSaveDefinition(power);
+
+			Assert.IsTrue(bool.Parse(saved.Element("IsPsionic")!.Value), $"{type} should round-trip psionic.");
+			Assert.IsNotNull(saved.Element("InvocationCosts"), $"{type} should save invocation costs.");
+			foreach (var elementName in OldSoiSubtypeElements(type))
+			{
+				Assert.IsNotNull(saved.Element(elementName), $"{type} should save {elementName}.");
+			}
+		}
+	}
+
+	[TestMethod]
+	public void OldSoiPsionicCheckTypes_AreClassifiedForPowerEffects()
+	{
+		Assert.IsTrue(CheckType.DangerSenseDefense.IsDefensiveCombatAction());
+		Assert.IsTrue(CheckType.DangerSenseDefense.IsPhysicalActivityCheck());
+		Assert.IsTrue(CheckType.EmpathyPower.IsTargettedFriendlyCheck());
+		Assert.IsTrue(CheckType.HexPower.IsTargettedHostileCheck());
+		Assert.IsTrue(CheckType.PsychicBoltPower.IsTargettedHostileCheck());
+		Assert.IsTrue(CheckType.PsychicBoltPower.IsOffensiveCombatAction());
+	}
+
+	[TestMethod]
+	public void MagicHexEffect_AppliesConfiguredPenaltyCategories()
+	{
+		var gameworld = CreateGameworld();
+		var power = (HexPower)MagicPowerFactory.LoadPower(CreatePowerModel("hex"), gameworld.Object);
+		var owner = CreateCharacter(50, gameworld.Object);
+		var effect = new MagicHexEffect(owner.Object, power, 5.5,
+			PsionicHexCheckCategory.TargetedHostile);
+
+		Assert.AreEqual(-5.5, effect.CheckBonus);
+		Assert.IsTrue(effect.AppliesToCheck(CheckType.HexPower));
+		Assert.IsFalse(effect.AppliesToCheck(CheckType.GenericSkillCheck));
+		Assert.IsFalse(effect.AppliesToCheck(CheckType.EmpathyPower));
+
+		var generalEffect = new MagicHexEffect(owner.Object, power, 2.0, PsionicHexCheckCategory.General);
+		Assert.IsTrue(generalEffect.AppliesToCheck(CheckType.GenericSkillCheck));
+	}
+
+	[TestMethod]
+	public void DangerSenseDefensiveEdge_AppliesOnlyToDefensiveChecks()
+	{
+		var gameworld = CreateGameworld();
+		var power = (DangerSensePower)MagicPowerFactory.LoadPower(CreatePowerModel("dangersense"), gameworld.Object);
+		var owner = CreateCharacter(51, gameworld.Object);
+		var effect = new DangerSenseDefensiveEdge(owner.Object, power, 3.0);
+
+		Assert.AreEqual(3.0, effect.CheckBonus);
+		Assert.IsTrue(effect.AppliesToCheck(CheckType.DangerSenseDefense));
+		Assert.IsTrue(effect.AppliesToCheck(CheckType.DodgeCheck));
+		Assert.IsFalse(effect.AppliesToCheck(CheckType.PsychicBoltPower));
 	}
 
 	[TestMethod]
@@ -194,12 +268,127 @@ public class MagicEngineV4Tests
 				"clairaudience" => ClairaudienceDefinition().ToString(),
 				"allspeak" => SustainedDefinition("allspeak", "endallspeak").ToString(),
 				"magicksense" => SustainedDefinition("magicksense", "endmagicksense").ToString(),
+				"dangersense" => SustainedDefinition("dangersense", "enddangersense",
+					new XElement("ThreatRange", 1U),
+					new XElement("RespectDoors", true),
+					new XElement("RespectCorners", false),
+					new XElement("IncludeCurrentLocation", true),
+					new XElement("OnlyNPCs", true),
+					new XElement("ThreatDifficulty", (int)Difficulty.Normal),
+					new XElement("DefenseDifficulty", (int)Difficulty.Normal),
+					new XElement("DefenseBonus", 10.0),
+					new XElement("DefenseDurationSeconds", 15.0),
+					new XElement("ThreatWarningIntervalSeconds", 30.0),
+					new XElement("ThreatEcho", new XCData("Danger.")),
+					new XElement("DefenseEcho", new XCData("Defense."))).ToString(),
+				"sensitivity" => SustainedDefinition("sensitivity", "endsensitivity",
+					new XElement("ScanVerb", "senscan"),
+					new XElement("ScanDistance", MagicPowerDistance.SameLocationOnly),
+					new XElement("GrantedPerceptions", PerceptionTypes.SenseMagical | PerceptionTypes.SensePsychic),
+					new XElement("ActivityKinds", "Magical,Psychic"),
+					new XElement("ActivityRange", 2U),
+					new XElement("ActivityDifficulty", (int)Difficulty.Normal),
+					new XElement("CapabilityDifficulty", (int)Difficulty.ExtremelyHard),
+					new XElement("PermitCapabilityRead", true),
+					new XElement("NotifySelf", false),
+					new XElement("ActivityEcho", new XCData("Activity."))).ToString(),
 				"babble" => TargetedDefinition("babble", new XElement("DurationSeconds", 120.0)).ToString(),
 				"coerce" => TargetedDefinition("coerce",
 					new XElement("StaminaFractionPerDegree", 0.05),
 					new XElement("NeedHoursPerDegree", 2.0)).ToString(),
+				"empathy" => TargetedDefinition("empathy",
+					new XElement("TransferIntervalSeconds", 10.0),
+					new XElement("MaxWounds", 0),
+					new XElement("SafetyHealthPercent", 0.75),
+					new XElement("StartEcho", new XCData("Start.")),
+					new XElement("TransferEcho", new XCData("Transfer.")),
+					new XElement("StopEcho", new XCData("Stop.")),
+					new XElement("SafetyEcho", new XCData("Safety."))).ToString(),
+				"hex" => TargetedDefinition("hex",
+					new XElement("DurationSeconds", 600.0),
+					new XElement("Penalty", 10.0),
+					new XElement("Categories", PsionicHexCheckCategory.All),
+					new XElement("ReplaceExisting", true),
+					new XElement("TargetEcho", new XCData("Target."))).ToString(),
+				"psychicbolt" => TargetedDefinition("psychicbolt",
+					new XElement("StunAmount", 20.0),
+					new XElement("DamageType", MudSharp.Health.DamageType.Eldritch),
+					new XElement("TargetEcho", new XCData("Target."))).ToString(),
+				"prescience" => PrescienceDefinition().ToString(),
 				_ => TargetedDefinition(type).ToString()
 			}
+		};
+	}
+
+	private static IEnumerable<string> OldSoiSubtypeElements(string type)
+	{
+		return type switch
+		{
+			"dangersense" =>
+			[
+				"ThreatRange",
+				"RespectDoors",
+				"RespectCorners",
+				"IncludeCurrentLocation",
+				"OnlyNPCs",
+				"ThreatDifficulty",
+				"DefenseDifficulty",
+				"DefenseBonus",
+				"DefenseDurationSeconds",
+				"ThreatWarningIntervalSeconds",
+				"ThreatEcho",
+				"DefenseEcho"
+			],
+			"empathy" =>
+			[
+				"TransferIntervalSeconds",
+				"MaxWounds",
+				"SafetyHealthPercent",
+				"StartEcho",
+				"TransferEcho",
+				"StopEcho",
+				"SafetyEcho"
+			],
+			"hex" => ["DurationSeconds", "Penalty", "Categories", "ReplaceExisting", "TargetEcho"],
+			"clairvoyance" =>
+			[
+				"Verb",
+				"PowerDistance",
+				"SkillCheckDifficulty",
+				"SkillCheckTrait",
+				"MinimumSuccessThreshold",
+				"DetectableWithDetectMagic",
+				"FailEcho",
+				"SuccessEcho"
+			],
+			"prescience" =>
+			[
+				"Verb",
+				"SkillCheckTrait",
+				"SkillCheckDifficulty",
+				"MinimumSuccessThreshold",
+				"BoardIdOrName",
+				"SubjectTemplate",
+				"AuthorTemplate",
+				"PromptText",
+				"FailEcho",
+				"SuccessEcho"
+			],
+			"sensitivity" =>
+			[
+				"ScanVerb",
+				"ScanDistance",
+				"GrantedPerceptions",
+				"ActivityKinds",
+				"ActivityRange",
+				"ActivityDifficulty",
+				"CapabilityDifficulty",
+				"PermitCapabilityRead",
+				"NotifySelf",
+				"ActivityEcho"
+			],
+			"psychicbolt" => ["StunAmount", "DamageType", "TargetEcho"],
+			_ => []
 		};
 	}
 
@@ -254,6 +443,23 @@ public class MagicEngineV4Tests
 		var definition = SustainedDefinition("clairaudience", "endclairaudience");
 		definition.Add(new XElement("PowerDistance", MagicPowerDistance.AnyConnectedMindOrConnectedTo));
 		return definition;
+	}
+
+	private static XElement PrescienceDefinition()
+	{
+		return new XElement("Definition",
+			BaseElements(),
+			new XElement("Verb", "prescience"),
+			new XElement("SkillCheckTrait", 1L),
+			new XElement("SkillCheckDifficulty", (int)Difficulty.Normal),
+			new XElement("MinimumSuccessThreshold", (int)Outcome.MinorPass),
+			new XElement("BoardIdOrName", "Staff"),
+			new XElement("SubjectTemplate", new XCData("Prescience: {character}")),
+			new XElement("AuthorTemplate", new XCData("{character}")),
+			new XElement("PromptText", new XCData("Prompt.")),
+			new XElement("FailEcho", new XCData("Fail.")),
+			new XElement("SuccessEcho", new XCData("Success."))
+		);
 	}
 
 	private static object[] BaseElements()

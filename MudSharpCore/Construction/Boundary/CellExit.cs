@@ -117,35 +117,43 @@ public class CellExit : ICellExit
     {
         string startColourString = "";
         string endColourString = "";
-        (CellMovementTransition transition, RoomLayer _) = MovementTransition(voyeur);
-        switch (transition)
+        if (colour)
         {
-            case CellMovementTransition.SwimOnly:
-                startColourString = Telnet.BoldBlue.ToString();
-                endColourString = Telnet.RESET + Telnet.Green.ToString();
-                break;
-            case CellMovementTransition.FallExit:
-                if (IsClimbExit)
-                {
-                    startColourString = Telnet.Yellow.ToString();
+            (CellMovementTransition transition, RoomLayer _) = MovementTransition(voyeur);
+            switch (transition)
+            {
+                case CellMovementTransition.SwimOnly:
+                    startColourString = Telnet.BoldBlue.ToString();
+                    endColourString = Telnet.RESET + Telnet.Green.ToString();
+                    break;
+                case CellMovementTransition.FallExit:
+                    if (IsClimbExit)
+                    {
+                        startColourString = Telnet.Yellow.ToString();
+                        endColourString = Telnet.Green.ToString();
+                        break;
+                    }
+
+                    startColourString = Telnet.Red.ToString();
                     endColourString = Telnet.Green.ToString();
                     break;
-                }
+                case CellMovementTransition.FlyOnly:
+                    if (IsClimbExit)
+                    {
+                        startColourString = Telnet.Yellow.ToString();
+                        endColourString = Telnet.Green.ToString();
+                        break;
+                    }
 
-                startColourString = Telnet.Red.ToString();
-                endColourString = Telnet.Green.ToString();
-                break;
-            case CellMovementTransition.FlyOnly:
-                if (IsClimbExit)
-                {
-                    startColourString = Telnet.Yellow.ToString();
-                    endColourString = Telnet.Green.ToString();
+                    startColourString = Telnet.BoldCyan.ToString();
+                    endColourString = Telnet.RESET + Telnet.Green.ToString();
                     break;
-                }
+            }
 
-                startColourString = Telnet.BoldCyan.ToString();
-                endColourString = Telnet.RESET + Telnet.Green.ToString();
-                break;
+            if (string.IsNullOrEmpty(startColourString))
+            {
+                (startColourString, endColourString) = DoorCapableExitDescriptionColour();
+            }
         }
 
         string dirString = OutboundDirection.Describe();
@@ -153,6 +161,13 @@ public class CellExit : ICellExit
             ? $" ({Exit.Door.State.Describe().ToLowerInvariant()} {Exit.Door.InstalledExitDescription(voyeur)})"
             : "";
         return $"{startColourString}{dirString}{doorString}{endColourString}";
+    }
+
+    protected (string StartColourString, string EndColourString) DoorCapableExitDescriptionColour()
+    {
+        return Exit.AcceptsDoor && Exit.Door is null
+            ? (Telnet.BoldWhite.ToString(), Telnet.RESET + Telnet.Green.ToString())
+            : ("", "");
     }
 
     public virtual string BuilderInformationString(IPerceiver voyeur)

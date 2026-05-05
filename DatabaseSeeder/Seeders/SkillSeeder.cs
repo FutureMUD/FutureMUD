@@ -421,6 +421,15 @@ Again, the choices you make here can be fixed later so don't stress it too great
                 case CheckType.MindAuditPower:
                 case CheckType.MindBarrierPowerCheck:
                 case CheckType.MindExpelPower:
+                case CheckType.DangerSenseNearbyThreat:
+                case CheckType.DangerSenseDefense:
+                case CheckType.EmpathyPower:
+                case CheckType.HexPower:
+                case CheckType.ClairvoyancePower:
+                case CheckType.PresciencePower:
+                case CheckType.SensitivityPower:
+                case CheckType.SensitivityCapabilityRead:
+                case CheckType.PsychicBoltPower:
                 case CheckType.CombatMoveCheck:
                 case CheckType.CastSpellCheck:
                 case CheckType.AuxiliaryMoveCheck:

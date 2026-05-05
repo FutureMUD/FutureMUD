@@ -2,6 +2,7 @@
 
 using System.Globalization;
 using System.IO;
+using MudSharp.Construction;
 
 namespace RPI_Engine_Worldfile_Converter;
 
@@ -57,6 +58,12 @@ public enum RpiRoomDirection
 	West = 3,
 	Up = 4,
 	Down = 5,
+	Outside = 6,
+	Inside = 7,
+	NorthEast = 8,
+	NorthWest = 9,
+	SouthEast = 10,
+	SouthWest = 11,
 }
 
 public enum RpiRoomExitSectionType
@@ -190,6 +197,7 @@ public sealed record ConvertedRoomExitDefinition(
 public sealed record ConvertedRoomDefinition
 {
 	public required int Vnum { get; init; }
+	public long? LegacyPersistenceId => Vnum > 0 ? Vnum : null;
 	public required string SourceFile { get; init; }
 	public required int SourceZone { get; init; }
 	public required string SourceKey { get; init; }
@@ -286,6 +294,12 @@ public static class RpiRoomDirections
 			[RpiRoomDirection.West] = new(-1, 0, 0),
 			[RpiRoomDirection.Up] = new(0, 0, 1),
 			[RpiRoomDirection.Down] = new(0, 0, -1),
+			[RpiRoomDirection.Outside] = new(0, 0, 0),
+			[RpiRoomDirection.Inside] = new(0, 0, 0),
+			[RpiRoomDirection.NorthEast] = new(1, 1, 0),
+			[RpiRoomDirection.NorthWest] = new(-1, 1, 0),
+			[RpiRoomDirection.SouthEast] = new(1, -1, 0),
+			[RpiRoomDirection.SouthWest] = new(-1, -1, 0),
 		};
 
 	private static readonly IReadOnlyList<RpiRoomDirection> OrderedDirections =
@@ -296,6 +310,12 @@ public static class RpiRoomDirections
 		RpiRoomDirection.West,
 		RpiRoomDirection.Up,
 		RpiRoomDirection.Down,
+		RpiRoomDirection.Outside,
+		RpiRoomDirection.Inside,
+		RpiRoomDirection.NorthEast,
+		RpiRoomDirection.NorthWest,
+		RpiRoomDirection.SouthEast,
+		RpiRoomDirection.SouthWest,
 	];
 
 	public static RoomCoordinate Delta(this RpiRoomDirection direction)
@@ -313,7 +333,31 @@ public static class RpiRoomDirections
 			RpiRoomDirection.West => RpiRoomDirection.East,
 			RpiRoomDirection.Up => RpiRoomDirection.Down,
 			RpiRoomDirection.Down => RpiRoomDirection.Up,
+			RpiRoomDirection.Outside => RpiRoomDirection.Inside,
+			RpiRoomDirection.Inside => RpiRoomDirection.Outside,
+			RpiRoomDirection.NorthEast => RpiRoomDirection.SouthWest,
+			RpiRoomDirection.NorthWest => RpiRoomDirection.SouthEast,
+			RpiRoomDirection.SouthEast => RpiRoomDirection.NorthWest,
+			RpiRoomDirection.SouthWest => RpiRoomDirection.NorthEast,
 			_ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null),
+		};
+	}
+
+	public static CardinalDirection ToFutureMudDirection(this RpiRoomDirection direction)
+	{
+		return direction switch
+		{
+			RpiRoomDirection.North => CardinalDirection.North,
+			RpiRoomDirection.East => CardinalDirection.East,
+			RpiRoomDirection.South => CardinalDirection.South,
+			RpiRoomDirection.West => CardinalDirection.West,
+			RpiRoomDirection.Up => CardinalDirection.Up,
+			RpiRoomDirection.Down => CardinalDirection.Down,
+			RpiRoomDirection.NorthEast => CardinalDirection.NorthEast,
+			RpiRoomDirection.NorthWest => CardinalDirection.NorthWest,
+			RpiRoomDirection.SouthEast => CardinalDirection.SouthEast,
+			RpiRoomDirection.SouthWest => CardinalDirection.SouthWest,
+			_ => CardinalDirection.Unknown,
 		};
 	}
 

@@ -197,6 +197,15 @@ namespace MudSharp.RPG.Checks
         ForcedMovementCheck = 188,
         OpposeForcedMovementCheck = 189,
         FireBlowgun = 190,
+        DangerSenseNearbyThreat = 191,
+        DangerSenseDefense = 192,
+        EmpathyPower = 193,
+        HexPower = 194,
+        ClairvoyancePower = 195,
+        PresciencePower = 196,
+        SensitivityPower = 197,
+        SensitivityCapabilityRead = 198,
+        PsychicBoltPower = 199,
     }
 
     public enum FailIfTraitMissingType
@@ -343,6 +352,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.OpposePushbackCheck:
                 case CheckType.ForcedMovementCheck:
                 case CheckType.OpposeForcedMovementCheck:
+                case CheckType.DangerSenseDefense:
                     return true;
             }
             return false;
@@ -423,6 +433,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.ConfigureImplantPowerSurgery:
                 case CheckType.RescueCheck:
                 case CheckType.DefendLegalCase:
+                case CheckType.EmpathyPower:
                     return true;
                 default:
                     return false;
@@ -465,6 +476,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.BuffetingNaturalAttack:
                 case CheckType.PushbackCheck:
                 case CheckType.ForcedMovementCheck:
+                case CheckType.PsychicBoltPower:
                     return true;
                 default:
                     return false;
@@ -487,6 +499,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.OpposeStruggleFreeFromGrapple:
                 case CheckType.OpposePushbackCheck:
                 case CheckType.OpposeForcedMovementCheck:
+                case CheckType.DangerSenseDefense:
                     return true;
                 default:
                     return false;
@@ -545,6 +558,8 @@ namespace MudSharp.RPG.Checks
                 case CheckType.OpposePushbackCheck:
                 case CheckType.ForcedMovementCheck:
                 case CheckType.OpposeForcedMovementCheck:
+                case CheckType.HexPower:
+                case CheckType.PsychicBoltPower:
                     return true;
                 default:
                     return false;

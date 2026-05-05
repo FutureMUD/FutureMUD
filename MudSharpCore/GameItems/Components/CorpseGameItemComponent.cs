@@ -617,5 +617,11 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         OriginalBody.AddWounds(wounds);
     }
 
+    public bool TryTransferWoundTo(IWound wound, IHaveWounds newOwner, IBodypart newBodypart,
+        IBodypart newSeveredBodypart = null)
+    {
+        return OriginalBody.TryTransferWoundTo(wound, newOwner, newBodypart, newSeveredBodypart);
+    }
+
     #endregion
 }

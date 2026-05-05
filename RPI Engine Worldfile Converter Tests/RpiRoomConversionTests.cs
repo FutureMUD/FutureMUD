@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -112,6 +113,132 @@ public class RpiRoomConversionTests
 		Assert.AreEqual(new RoomCoordinate(1, 2, 1), rooms[1005].Coordinates);
 
 		Assert.IsTrue(rooms[1004].Warnings.Any(x => x.Code == "layout-conflict"));
+	}
+
+	[TestMethod]
+	public void RpiRoomDirections_MapLegacyDirectionValues_ToFutureMudCardinalValues()
+	{
+		Assert.AreEqual(CardinalDirection.North, RpiRoomDirection.North.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.East, RpiRoomDirection.East.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.South, RpiRoomDirection.South.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.West, RpiRoomDirection.West.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.Up, RpiRoomDirection.Up.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.Down, RpiRoomDirection.Down.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.NorthEast, RpiRoomDirection.NorthEast.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.NorthWest, RpiRoomDirection.NorthWest.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.SouthEast, RpiRoomDirection.SouthEast.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.SouthWest, RpiRoomDirection.SouthWest.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.Unknown, RpiRoomDirection.Outside.ToFutureMudDirection());
+		Assert.AreEqual(CardinalDirection.Unknown, RpiRoomDirection.Inside.ToFutureMudDirection());
+
+		Assert.IsTrue(RpiRoomDirections.TryParse("10", out var southEast));
+		Assert.AreEqual(RpiRoomDirection.SouthEast, southEast);
+	}
+
+	[TestMethod]
+	public void RoomTransformer_DoesNotShrinkNormalDoorBecauseRoomDescriptionMentionsTrapdoor()
+	{
+		var tavern = new RpiRoomRecord
+		{
+			Vnum = 99010,
+			SourceFile = "rooms.99",
+			Zone = 99,
+			Name = "The Strange Brew Tavern",
+			Description = "A broad tavern with a normal wooden door to the north.",
+			RawFlags = 0,
+			RoomFlags = RpiRoomFlags.None,
+			RawSectorType = (int)RpiRoomSectorType.Inside,
+			SectorType = RpiRoomSectorType.Inside,
+			Deity = 0,
+			Exits =
+			[
+				new RpiRoomExitRecord(
+					RpiRoomDirection.North,
+					RpiRoomExitSectionType.Normal,
+					string.Empty,
+					"door",
+					RpiRoomDoorType.Door,
+					-1,
+					0,
+					99011)
+			],
+		};
+		var kitchen = new RpiRoomRecord
+		{
+			Vnum = 99011,
+			SourceFile = "rooms.99",
+			Zone = 99,
+			Name = "A Cluttered Brewery and Kitchen",
+			Description = "A carpet in one corner covers a trapdoor, while a normal door leads south.",
+			RawFlags = 0,
+			RoomFlags = RpiRoomFlags.None,
+			RawSectorType = (int)RpiRoomSectorType.Inside,
+			SectorType = RpiRoomSectorType.Inside,
+			Deity = 0,
+			Exits =
+			[
+				new RpiRoomExitRecord(
+					RpiRoomDirection.South,
+					RpiRoomExitSectionType.Normal,
+					string.Empty,
+					"door",
+					RpiRoomDoorType.Door,
+					-1,
+					0,
+					99010)
+			],
+		};
+
+		var transformer = new FutureMudRoomTransformer();
+		var convertedExit = transformer.Convert([tavern, kitchen]).Exits.Single();
+
+		Assert.AreEqual((int)SizeCategory.Large, convertedExit.DoorSize);
+		Assert.AreEqual((int)SizeCategory.Large, convertedExit.MaximumSizeToEnter);
+		Assert.AreEqual((int)SizeCategory.Large, convertedExit.MaximumSizeToEnterUpright);
+	}
+
+	[TestMethod]
+	public void RoomIdPlanner_PreservesPositiveLegacyVnums_ForRoomAndCellIds()
+	{
+		var rooms = new[]
+		{
+			CreateConvertedRoom(66896),
+			CreateConvertedRoom(66897),
+		};
+
+		var plan = FutureMudRoomIdPlanner.Plan(rooms, new HashSet<long>(), new HashSet<long>());
+
+		Assert.AreEqual(0, plan.Issues.Count);
+		Assert.AreEqual(66896L, plan.Reservations[66896].RoomId);
+		Assert.AreEqual(66896L, plan.Reservations[66896].CellId);
+		Assert.AreEqual(66897L, plan.Reservations[66897].RoomId);
+		Assert.AreEqual(66897L, plan.Reservations[66897].CellId);
+	}
+
+	[TestMethod]
+	public void RoomIdPlanner_AssignsHighFallbackIds_ForZeroVnumsAndCollisions()
+	{
+		var rooms = new[]
+		{
+			CreateConvertedRoom(0),
+			CreateConvertedRoom(1000),
+			CreateConvertedRoom(1001),
+		};
+
+		var plan = FutureMudRoomIdPlanner.Plan(
+			rooms,
+			new HashSet<long> { 1000 },
+			new HashSet<long> { 1001 });
+
+		Assert.AreEqual(1002L, plan.Reservations[0].RoomId);
+		Assert.AreEqual(1002L, plan.Reservations[0].CellId);
+		Assert.AreEqual(1003L, plan.Reservations[1000].RoomId);
+		Assert.AreEqual(1000L, plan.Reservations[1000].CellId);
+		Assert.AreEqual(1001L, plan.Reservations[1001].RoomId);
+		Assert.AreEqual(1003L, plan.Reservations[1001].CellId);
+		Assert.IsTrue(plan.Issues.Any(x => x.SourceKey == "rooms.0#0" && x.Message.Contains("cannot be used")));
+		Assert.IsTrue(plan.Issues.Any(x => x.SourceKey == "rooms.1000#1000" && x.Message.Contains("already exists")));
+		Assert.IsTrue(plan.Issues.Any(x => x.SourceKey == "rooms.1001#1001" && x.Message.Contains("already exists")));
 	}
 
 	[TestMethod]
@@ -255,6 +382,32 @@ public class RpiRoomConversionTests
 		Assert.AreEqual(99000, convertedExit.RoomVnum2);
 		Assert.IsTrue(convertedExit.Side2.Visible);
 		Assert.IsTrue(convertedExit.Warnings.Any(x => x.Code == "self-loop-exit"));
+	}
+
+	private static ConvertedRoomDefinition CreateConvertedRoom(int vnum)
+	{
+		return new ConvertedRoomDefinition
+		{
+			Vnum = vnum,
+			SourceFile = $"rooms.{vnum}",
+			SourceZone = vnum / 1000,
+			SourceKey = $"rooms.{vnum}#{vnum}",
+			ZoneGroupKey = "test-zone",
+			ZoneName = "Test Zone",
+			OverlayPackageName = "RPI Import Rooms - Test Zone (#1r0)",
+			Name = $"Room {vnum}",
+			RawDescription = "A test room.",
+			EffectiveDescription = "A test room.",
+			TerrainName = "Hall",
+			OutdoorsTypeName = "Indoors",
+			OutdoorsTypeValue = (int)CellOutdoorsType.Indoors,
+			SafeQuit = false,
+			Coordinates = new RoomCoordinate(vnum, 0, 0),
+			RawFlags = 0,
+			RoomFlagNames = Array.Empty<string>(),
+			SectorType = RpiRoomSectorType.Inside,
+			Deity = 0,
+		};
 	}
 
 	private static string GetRoomFixtureDirectory()

@@ -92,15 +92,22 @@ public class NonCardinalCellExit : CellExit, INonCardinalCellExit
     {
         string startColourString = "";
         string endColourString = "";
-        if (IsFallExit)
+        if (colour)
         {
-            startColourString = Telnet.Red.ToString();
-            endColourString = Telnet.Green.ToString();
-        }
-        else if (IsClimbExit)
-        {
-            startColourString = Telnet.Yellow.ToString();
-            endColourString = Telnet.Green.ToString();
+            if (IsFallExit)
+            {
+                startColourString = Telnet.Red.ToString();
+                endColourString = Telnet.Green.ToString();
+            }
+            else if (IsClimbExit)
+            {
+                startColourString = Telnet.Yellow.ToString();
+                endColourString = Telnet.Green.ToString();
+            }
+            else
+            {
+                (startColourString, endColourString) = DoorCapableExitDescriptionColour();
+            }
         }
 
         return

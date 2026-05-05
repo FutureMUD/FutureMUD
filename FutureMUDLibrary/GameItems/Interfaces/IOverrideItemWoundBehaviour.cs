@@ -32,5 +32,7 @@ namespace MudSharp.GameItems.Interfaces
         /// <param name="wound">IWound to add to the IHaveWounds class</param>
         void AddWound(IWound wound);
         void AddWounds(IEnumerable<IWound> wounds);
+        bool TryTransferWoundTo(IWound wound, IHaveWounds newOwner, IBodypart newBodypart,
+            IBodypart newSeveredBodypart = null);
     }
 }

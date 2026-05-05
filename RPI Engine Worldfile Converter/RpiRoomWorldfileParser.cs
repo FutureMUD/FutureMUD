@@ -331,12 +331,12 @@ public sealed class RpiRoomWorldfileParser
 	{
 		sectionType = RpiRoomExitSectionType.Normal;
 		direction = RpiRoomDirection.North;
-		if (marker.Length != 2)
+		if (marker.Length < 2)
 		{
 			return false;
 		}
 
-		if (!RpiRoomDirections.TryParse(marker[1].ToString(), out direction))
+		if (!RpiRoomDirections.TryParse(marker[1..], out direction))
 		{
 			return false;
 		}
@@ -363,9 +363,9 @@ public sealed class RpiRoomWorldfileParser
 	private static bool TryParseSecretMarker(string marker, out RpiRoomDirection direction)
 	{
 		direction = RpiRoomDirection.North;
-		return marker.Length == 2 &&
+		return marker.Length >= 2 &&
 		       marker[0] == 'Q' &&
-		       RpiRoomDirections.TryParse(marker[1].ToString(), out direction);
+		       RpiRoomDirections.TryParse(marker[1..], out direction);
 	}
 
 	private static string ReadTildeString(

@@ -112,6 +112,31 @@ public partial class GameItem : IHaveWounds
         Changed = true;
     }
 
+    public bool TryTransferWoundTo(IWound wound, IHaveWounds newOwner, IBodypart newBodypart,
+        IBodypart newSeveredBodypart = null)
+    {
+        if (_overridingWoundBehaviourComponent != null)
+        {
+            return _overridingWoundBehaviourComponent.TryTransferWoundTo(wound, newOwner, newBodypart,
+                newSeveredBodypart);
+        }
+
+        if (wound == null || newOwner == null || !_wounds.Contains(wound))
+        {
+            return false;
+        }
+
+        _wounds.Remove(wound);
+        wound.RemapTo(newOwner, newBodypart, newSeveredBodypart);
+        newOwner.AddWound(wound);
+        Changed = true;
+        newOwner.StartHealthTick();
+        StartHealthTick();
+        EvaluateWounds();
+        newOwner.EvaluateWounds();
+        return true;
+    }
+
     public IEnumerable<IWound> PassiveSufferDamage(IDamage damage)
     {
         if (damage == null)

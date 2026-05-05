@@ -338,6 +338,13 @@ public sealed class FutureMudRoomTransformer
 						$"Room #{room.Vnum} has a one-sided {side1.Direction.Describe()} exit to #{destinationRoom.Vnum}."));
 				}
 
+				if (room.Vnum == destinationRoom.Vnum)
+				{
+					warnings.Add(new RoomConversionWarning(
+						"self-loop-exit",
+						$"Room #{room.Vnum} has a {side1.Direction.Describe()} exit that points back to itself."));
+				}
+
 				AppendExitFieldLimitWarnings(warnings, side1);
 				AppendExitFieldLimitWarnings(warnings, side2);
 

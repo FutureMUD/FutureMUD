@@ -210,6 +210,53 @@ public class RpiRoomConversionTests
 		Assert.AreEqual(longKeyword[..FutureMudRoomImportLimits.ExitTextMaxLength], truncatedPrimaryKeyword);
 	}
 
+	[TestMethod]
+	public void RoomTransformer_WarnsForSelfLoopExits()
+	{
+		var room = new RpiRoomRecord
+		{
+			Vnum = 99000,
+			SourceFile = "rooms.99",
+			Zone = 99,
+			Name = "Self Loop Room",
+			Description = "A room whose exits point back into itself.",
+			RawFlags = 0,
+			RoomFlags = RpiRoomFlags.None,
+			RawSectorType = (int)RpiRoomSectorType.Inside,
+			SectorType = RpiRoomSectorType.Inside,
+			Deity = 0,
+			Exits =
+			[
+				new RpiRoomExitRecord(
+					RpiRoomDirection.North,
+					RpiRoomExitSectionType.Normal,
+					"around",
+					"loop",
+					RpiRoomDoorType.None,
+					-1,
+					0,
+					99000),
+				new RpiRoomExitRecord(
+					RpiRoomDirection.South,
+					RpiRoomExitSectionType.Normal,
+					"around",
+					"loop",
+					RpiRoomDoorType.None,
+					-1,
+					0,
+					99000)
+			],
+		};
+
+		var transformer = new FutureMudRoomTransformer();
+		var convertedExit = transformer.Convert([room]).Exits.Single();
+
+		Assert.AreEqual(99000, convertedExit.RoomVnum1);
+		Assert.AreEqual(99000, convertedExit.RoomVnum2);
+		Assert.IsTrue(convertedExit.Side2.Visible);
+		Assert.IsTrue(convertedExit.Warnings.Any(x => x.Code == "self-loop-exit"));
+	}
+
 	private static string GetRoomFixtureDirectory()
 	{
 		var candidates = new[]

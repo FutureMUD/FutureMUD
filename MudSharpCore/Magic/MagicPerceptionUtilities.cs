@@ -17,7 +17,8 @@ public static class MagicPerceptionUtilities
 			return false;
 		}
 
-		return (voyeur.GetPerception(voyeur.NaturalPerceptionTypes) & PerceptionTypes.SenseMagical) !=
+		return (voyeur.GetPerception(voyeur.NaturalPerceptionTypes) &
+		        (PerceptionTypes.SenseMagical | PerceptionTypes.SensePsychic)) !=
 		       PerceptionTypes.None;
 	}
 

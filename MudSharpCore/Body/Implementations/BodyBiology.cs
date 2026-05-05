@@ -490,6 +490,26 @@ public partial class Body
         Changed = true;
     }
 
+    public bool TryTransferWoundTo(IWound wound, IHaveWounds newOwner, IBodypart newBodypart,
+        IBodypart newSeveredBodypart = null)
+    {
+        if (wound == null || newOwner == null || newBodypart == null || !_wounds.Contains(wound))
+        {
+            return false;
+        }
+
+        _wounds.Remove(wound);
+        OnRemoveWound?.Invoke(this, wound);
+        wound.RemapTo(newOwner, newBodypart, newSeveredBodypart);
+        newOwner.AddWound(wound);
+        Changed = true;
+        newOwner.StartHealthTick();
+        StartHealthTick();
+        EvaluateWounds();
+        newOwner.EvaluateWounds();
+        return true;
+    }
+
     public IEnumerable<IWound> InventoryExploded(IGameItem exploded, IExplosiveDamage damage)
     {
         double damageFactor = 1.0;

@@ -275,6 +275,12 @@ public partial class Character
         Body.AddWounds(wounds);
     }
 
+    public bool TryTransferWoundTo(IWound wound, IHaveWounds newOwner, IBodypart newBodypart,
+        IBodypart newSeveredBodypart = null)
+    {
+        return Body.TryTransferWoundTo(wound, newOwner, newBodypart, newSeveredBodypart);
+    }
+
     public IEnumerable<IWound> PassiveSufferDamage(IDamage damage)
     {
         return Body.PassiveSufferDamage(damage);

@@ -34,6 +34,17 @@ namespace MudSharp.Health
         void AddWound(IWound wound);
 
         void AddWounds(IEnumerable<IWound> wounds);
+
+        /// <summary>
+        /// Moves an existing wound to another wound owner while preserving the wound object, its scars, and any wound-specific state.
+        /// </summary>
+        /// <param name="wound">The wound currently owned by this IHaveWounds.</param>
+        /// <param name="newOwner">The new wound owner.</param>
+        /// <param name="newBodypart">The mapped bodypart on the new owner.</param>
+        /// <param name="newSeveredBodypart">The mapped severed bodypart on the new owner, if any.</param>
+        /// <returns>True if the wound was moved.</returns>
+        bool TryTransferWoundTo(IWound wound, IHaveWounds newOwner, IBodypart newBodypart,
+            IBodypart newSeveredBodypart = null);
     }
 
     public interface IMortalPerceiver : IPerceiver, IHaveWounds

@@ -56,6 +56,7 @@ public abstract class PsionicSustainedSelfPowerBase : SustainedMagicPower
 
 	protected abstract string DefaultBeginVerb { get; }
 	protected abstract string DefaultEndVerb { get; }
+	protected virtual CheckType ActivationCheckType => CheckType.MagicTelepathyCheck;
 	public string BeginVerb { get; protected set; }
 	public string EndVerb { get; protected set; }
 	public Difficulty SkillCheckDifficulty { get; protected set; }
@@ -125,7 +126,7 @@ public abstract class PsionicSustainedSelfPowerBase : SustainedMagicPower
 			return;
 		}
 
-		var outcome = Gameworld.GetCheck(CheckType.MagicTelepathyCheck).Check(actor, SkillCheckDifficulty, SkillCheckTrait);
+		var outcome = Gameworld.GetCheck(ActivationCheckType).Check(actor, SkillCheckDifficulty, SkillCheckTrait);
 		if (outcome < MinimumSuccessThreshold)
 		{
 			actor.OutputHandler.Send(new EmoteOutput(new Emote(FailEmote, actor, actor)));

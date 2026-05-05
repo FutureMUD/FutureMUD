@@ -1083,6 +1083,15 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 case CheckType.MindAuditPower:
                 case CheckType.MindBarrierPowerCheck:
                 case CheckType.MindExpelPower:
+                case CheckType.DangerSenseNearbyThreat:
+                case CheckType.DangerSenseDefense:
+                case CheckType.EmpathyPower:
+                case CheckType.HexPower:
+                case CheckType.ClairvoyancePower:
+                case CheckType.PresciencePower:
+                case CheckType.SensitivityPower:
+                case CheckType.SensitivityCapabilityRead:
+                case CheckType.PsychicBoltPower:
                 case CheckType.CastSpellCheck:
                 case CheckType.ResistMagicSpellCheck:
                 case CheckType.AuxiliaryMoveCheck:

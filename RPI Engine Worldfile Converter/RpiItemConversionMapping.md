@@ -19,11 +19,12 @@ Typed payloads are derived on top of the raw values so the importer can make fun
 
 ## Conversion Outcomes
 
-Three outcomes are used by `FutureMUDItemTransformer`:
+Four outcomes are used by `FutureMUDItemTransformer`:
 
 - `FunctionalImport`: the item maps to a meaningful FutureMUD component combination
 - `PropImport`: the item becomes a tagged prop because the first pass cannot safely infer full behaviour
 - `DeferredBehaviorPropImport`: the item has likely gameplay behaviour beyond the current importer pass, so it is preserved as a tagged prop with explicit warnings
+- `SkippedImport`: the source prototype is intentionally not imported as a FutureMUD item, while remaining visible in analysis and export output
 
 ## Functional Families
 
@@ -66,8 +67,13 @@ The current pass aims to import the following families functionally:
 
 - Wear bits drive the primary wearable slot selection.
 - `desc_keys`, keywords, and descriptions refine the slot choice.
+- RPI Engine wear flags were alternative valid wear targets, not simultaneous coverage. If a source item has multiple wear bits, the importer chooses one best FutureMUD wear component rather than attaching every possible profile.
+- Items from any source type, including prop fallbacks, receive a wearable component when they have real wear bits other than `Take`.
 - Known seeded wearable names are preferred, for example `Wear_Skullcap`, `Wear_Tunic`, `Wear_Hauberk`, `Wear_Gauntlets`, and `Wear_Shoes`.
 - Additional simple RPI wear locations map to the closest stock FutureMUD wear profiles, including rings, necklaces, chokers, cloaks, capes, backpacks, bracelets, earrings, anklets, wigs, armlets, masks, veils, and backplates.
+- `Face` maps to `Wear_Mask` unless the item text strongly suggests a veil.
+- `Body|About` is treated as the common cloak-style RPI option set and maps to the about/cloak component family.
+- `Head|Face|Armband` maps to `Wear_Bandana`, a seeded multi-profile component that defaults to the headband profile but also supports kerchief and armlet wear profiles.
 - Blindfold and belt-like behaviour add supporting components when appropriate.
 - Missing wear-profile coverage remains a warning because the source wear bit can be valid even when the seeded FutureMUD baseline lacks a compatible profile.
 
@@ -109,7 +115,10 @@ The current pass aims to import the following families functionally:
 
 ### Food and Tools
 
-- Food uses the first compatible seeded food component exposed by the baseline catalog.
+- Food imports as generated `PreparedFood` components named `RPI_PreparedFood_vnum_<vnum>`, using the existing FutureMUD prepared-food runtime rather than the legacy `Food` component type.
+- RPI food value maps to FutureMUD hunger hours with the first-pass heuristic `FoodValue / 4.0`, clamped to 0.25-12.0 hours. RPI bites map directly with a minimum of one bite.
+- Generated food components preserve source item descriptions, set water/thirst/alcohol to zero, use no stale/spoil timers, and create a simple primary ingredient from the item name.
+- RPI poison rows on food are preserved as warnings because there is not yet a source-backed poison-to-FutureMUD-drug mapping.
 - Repair kits use the archived repair target type plus quality heuristics to choose components such as `Repair_Metal_Armour`, `Repair_Metal_Weapon`, or `Repair_Cloth`.
 - Lockpicks use the existing locksmithing component family when available.
 
@@ -143,11 +152,11 @@ The following families intentionally stay out of functional import in pass one:
 - tickets, merchant tickets, room rentals
 - NPC-only objects and dwellings
 - skulls and similarly behaviour-heavy corpse-adjacent items
-- money prototypes, because they are currency definitions and should become FutureMUD currencies and coins rather than imported item prototypes
+- money prototypes, because Shadows of Isildur currencies are now owned by the FutureMUD currency seeder and should not be imported as prop items
 - fluid and liquid-fuel prototypes, because they should become FutureMUD liquid records rather than imported item prototypes
 - low-confidence commodity and prop families such as treasure, trash, ore, herbs, spices, salves, poison, timber, cloth, ingots, and similar resource items, unless the record is now recognised as furniture by flag or keyword
 
-These still preserve provenance, raw ovals, warnings, and any optional source metadata in export output.
+Deferred props still preserve provenance, raw ovals, warnings, and any optional source metadata in export output. Skipped imports preserve the same audit metadata but are excluded from validation and database insertion.
 
 ## CLI Modes
 
@@ -163,6 +172,7 @@ These still preserve provenance, raw ovals, warnings, and any optional source me
 - `apply-items`
   - validates converted items against the baseline catalog
   - defaults to dry-run unless `--execute` is supplied
+  - reports skipped-by-design item prototypes separately from already-imported provenance markers
   - stamps imported items with an `RPIIMPORT|...` provenance marker in `EditableItem.BuilderComment`
 
 ## Notes
@@ -171,5 +181,6 @@ These still preserve provenance, raw ovals, warnings, and any optional source me
 - Missing seeded dependencies are surfaced as validation issues rather than silently dropped.
 - Generated board components are data-only uses of the existing FutureMUD board runtime, not converter-specific runtime behaviour.
 - Generated dice components are data-only uses of the existing FutureMUD dice runtime, not converter-specific runtime behaviour.
+- Generated prepared-food components are data-only uses of the existing FutureMUD prepared-food runtime, not converter-specific runtime behaviour.
 - The importer deliberately avoids creating new runtime behaviour; if a mapping needs a runtime item system that FutureMUD does not already expose, the item remains a prop in this pass.
 - Export JSON is the recommended interchange format if this work later migrates into code generation for `DatabaseSeeder`.

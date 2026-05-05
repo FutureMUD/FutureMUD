@@ -92,7 +92,9 @@ public class RpiItemConversionTests
 		Assert.AreEqual("water", converted[1003].LiquidReference!.LiquidName);
 
 		CollectionAssert.Contains(converted[1004].ComponentNames.ToList(), "LContainer_40ozBottle");
-		CollectionAssert.Contains(converted[1005].ComponentNames.ToList(), "Food_Generic");
+		CollectionAssert.Contains(converted[1005].ComponentNames.ToList(), "RPI_PreparedFood_vnum_1005");
+		Assert.IsNotNull(converted[1005].PreparedFoodDefinition);
+		Assert.AreEqual("RPI_PreparedFood_vnum_1005", converted[1005].PreparedFoodDefinition!.ComponentName);
 		CollectionAssert.Contains(converted[1006].ComponentNames.ToList(), "Warded_Key");
 		CollectionAssert.Contains(converted[1007].ComponentNames.ToList(), "Container_Quiver");
 		CollectionAssert.Contains(converted[1008].ComponentNames.ToList(), "Repair_Metal_Armour");
@@ -170,6 +172,89 @@ public class RpiItemConversionTests
 
 		CollectionAssert.DoesNotContain(converted.ComponentNames.ToList(), "Holdable");
 		CollectionAssert.Contains(converted.ComponentNames.ToList(), "Destroyable_Misc");
+	}
+
+	[TestMethod]
+	public void Transformer_SkipsMoneyItems_WithoutImportComponents()
+	{
+		var transformer = new FutureMUDItemTransformer(BuildCatalog());
+		var money = BuildItem(
+			itemType: RPIItemType.Money,
+			rawName: "copper coin METAL~",
+			shortDescription: "a copper coin",
+			longDescription: "A copper coin lies here.");
+
+		var converted = transformer.Convert([money]).Single();
+
+		Assert.AreEqual(ConversionStatus.SkippedImport, converted.Status);
+		Assert.AreEqual(0, converted.ComponentNames.Count);
+		Assert.IsTrue(converted.Warnings.Any(x => x.Code == "currency-seeded-skip"));
+	}
+
+	[TestMethod]
+	public void Transformer_AddsWearComponents_ToPropItemsWithWearBits()
+	{
+		var transformer = new FutureMUDItemTransformer(BuildCatalog());
+
+		var mask = transformer.Convert(BuildItem(
+			itemType: RPIItemType.Other,
+			wearBits: RPIWearBits.Take | RPIWearBits.Face,
+			rawName: "plain mask TEXTILE~",
+			shortDescription: "a plain mask",
+			longDescription: "A plain mask lies here."));
+
+		CollectionAssert.Contains(mask.ComponentNames.ToList(), "Wear_Mask");
+		Assert.AreEqual(ConversionStatus.PropImport, mask.Status);
+		Assert.IsFalse(mask.Warnings.Any(x => x.Code == "unmapped-wear-profile"));
+
+		var cloak = transformer.Convert(BuildItem(
+			itemType: RPIItemType.Other,
+			wearBits: RPIWearBits.Take | RPIWearBits.Body | RPIWearBits.About,
+			rawName: "grey cloak TEXTILE~",
+			shortDescription: "a grey cloak",
+			longDescription: "A grey cloak lies here."));
+
+		CollectionAssert.Contains(cloak.ComponentNames.ToList(), "Wear_Cloak_(Closed)");
+		CollectionAssert.DoesNotContain(cloak.ComponentNames.ToList(), "Wear_Tunic");
+
+		var bandana = transformer.Convert(BuildItem(
+			itemType: RPIItemType.Other,
+			wearBits: RPIWearBits.Take | RPIWearBits.Head | RPIWearBits.Face | RPIWearBits.Armband,
+			rawName: "red bandana TEXTILE~",
+			shortDescription: "a red bandana",
+			longDescription: "A red bandana lies here."));
+
+		CollectionAssert.Contains(bandana.ComponentNames.ToList(), "Wear_Bandana");
+		CollectionAssert.DoesNotContain(bandana.ComponentNames.ToList(), "Wear_Hat");
+		CollectionAssert.DoesNotContain(bandana.ComponentNames.ToList(), "Wear_Armlet");
+	}
+
+	[TestMethod]
+	public void Transformer_MapsFood_ToGeneratedPreparedFoodComponent()
+	{
+		var catalog = BuildCatalog();
+		var transformer = new FutureMUDItemTransformer(catalog);
+		var food = BuildItem(
+			itemType: RPIItemType.Food,
+			rawName: "honey cake FOOD~",
+			shortDescription: "a honey cake",
+			longDescription: "A honey cake lies here.",
+			foodData: new RpiFoodData(16, 0, 0, 0, 0, 3),
+			poisons: [new RpiPoisonRecord(1, 10, 0, 0, 5, 1, 0, 0, 1, 1, 0, 1)]);
+
+		var converted = transformer.Convert(food);
+		var issues = FutureMudItemValidation.Validate(catalog, [converted]);
+
+		Assert.AreEqual(ConversionStatus.FunctionalImport, converted.Status);
+		CollectionAssert.Contains(converted.ComponentNames.ToList(), "RPI_PreparedFood_vnum_9000");
+		CollectionAssert.DoesNotContain(converted.ComponentNames.ToList(), "Food_Generic");
+		Assert.IsNotNull(converted.PreparedFoodDefinition);
+		Assert.AreEqual(4.0, converted.PreparedFoodDefinition!.Satiation);
+		Assert.AreEqual(3.0, converted.PreparedFoodDefinition.Bites);
+		Assert.AreEqual(0.0, converted.PreparedFoodDefinition.Water);
+		Assert.AreEqual("honey cake", converted.PreparedFoodDefinition.IngredientDescription);
+		Assert.IsTrue(converted.Warnings.Any(x => x.Code == "food-poison-deferred"));
+		Assert.IsFalse(issues.Any(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase)));
 	}
 
 	[TestMethod]
@@ -386,6 +471,8 @@ public class RpiItemConversionTests
 		string? descKeys = null,
 		RpiArmourData? armourData = null,
 		RpiContainerData? containerData = null,
+		RpiFoodData? foodData = null,
+		IReadOnlyList<RpiPoisonRecord>? poisons = null,
 		IReadOnlyList<RpiClanRecord>? clans = null)
 	{
 		return new RpiItemRecord
@@ -419,6 +506,8 @@ public class RpiItemConversionTests
 			DescKeys = descKeys,
 			ArmourData = armourData,
 			ContainerData = containerData,
+			FoodData = foodData,
+			Poisons = poisons ?? [],
 			Clans = clans ?? []
 		};
 	}
@@ -438,7 +527,6 @@ public class RpiItemConversionTests
 			["Destroyable_Weapon"] = new(9, 0, "Destroyable_Weapon", "Destroyable"),
 			["Lantern"] = new(10, 0, "Lantern", "Light"),
 			["LContainer_40ozBottle"] = new(11, 0, "LContainer_40ozBottle", "LiquidContainer"),
-			["Food_Generic"] = new(12, 0, "Food_Generic", "Food"),
 			["Destroyable_Misc"] = new(13, 0, "Destroyable_Misc", "Destroyable"),
 			["Warded_Key"] = new(14, 0, "Warded_Key", "Key"),
 			["Container_Quiver"] = new(15, 0, "Container_Quiver", "Container"),
@@ -479,7 +567,9 @@ public class RpiItemConversionTests
 			["Table_Six"] = new(50, 0, "Table_Six", "Table"),
 			["Table_Eight"] = new(51, 0, "Table_Eight", "Table"),
 			["Chair_Triple"] = new(52, 0, "Chair_Triple", "Chair"),
-			["Chair_Quad"] = new(53, 0, "Chair_Quad", "Chair")
+			["Chair_Quad"] = new(53, 0, "Chair_Quad", "Chair"),
+			["Wear_Hat"] = new(54, 0, "Wear_Hat", "Wearable"),
+			["Wear_Bandana"] = new(55, 0, "Wear_Bandana", "Wearable")
 		};
 
 		return new FutureMudBaselineCatalog
@@ -487,7 +577,6 @@ public class RpiItemConversionTests
 			Components = components,
 			ComponentsByType = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
 			{
-				["Food"] = ["Food_Generic"],
 				["Variable"] =
 				[
 					"Variable_BasicColour",

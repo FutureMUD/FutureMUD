@@ -61,6 +61,12 @@ public partial class HumanSeeder
 		StockHumanWearProfileType Type,
 		IReadOnlyList<StockHumanWearProfileLocation> Locations);
 
+	private sealed record StockHumanWearComponentDefinition(
+		string Name,
+		string DefaultProfileName,
+		bool Bulky,
+		IReadOnlyList<string> ProfileNames);
+
 	private static StockHumanWearProfileLocation Loc(string location, bool mandatory, bool noArmour,
 		bool transparent, bool preventsRemoval, bool hidesSevered)
 	{
@@ -349,6 +355,11 @@ public partial class HumanSeeder
 			ShapeLoc("toe", 1, true, false, true, true, false))
 	];
 
+	private static readonly StockHumanWearComponentDefinition[] AdditionalHumanWearComponents =
+	[
+		new("Wear_Bandana", "Headband", false, ["Headband", "Kerchief", "Armlet"])
+	];
+
 	internal static int HumanWearProfileBaselineCountForTesting => 130;
 
 	internal static int HumanWearProfileExpansionCountForTesting => AdditionalHumanWearProfiles.Length;
@@ -365,6 +376,12 @@ public partial class HumanSeeder
 				(IReadOnlyList<(string Location, int Count)>)x.Locations
 				                                               .Select(y => (y.Location, y.Count))
 				                                               .ToArray()))
+			.ToArray();
+
+	internal static IReadOnlyList<(string Name, string DefaultProfileName, IReadOnlyList<string> ProfileNames)>
+		AdditionalHumanWearComponentDefinitionsForTesting =>
+		AdditionalHumanWearComponents
+			.Select(x => (x.Name, x.DefaultProfileName, x.ProfileNames))
 			.ToArray();
 
 	internal static IReadOnlyList<string> ValidateAdditionalHumanWearProfilesForTesting()
@@ -411,6 +428,48 @@ public partial class HumanSeeder
 				if (definition.Type == StockHumanWearProfileType.Direct && location.Count != 1)
 				{
 					issues.Add($"{definition.Name} direct location {location.Location} should use a count of 1.");
+				}
+			}
+		}
+
+		return issues;
+	}
+
+	internal static IReadOnlyList<string> ValidateAdditionalHumanWearComponentsForTesting()
+	{
+		List<string> issues = new();
+		HashSet<string> names = new(StringComparer.OrdinalIgnoreCase);
+		foreach (StockHumanWearComponentDefinition definition in AdditionalHumanWearComponents)
+		{
+			if (string.IsNullOrWhiteSpace(definition.Name))
+			{
+				issues.Add("A wear component has a blank name.");
+			}
+
+			if (!names.Add(definition.Name))
+			{
+				issues.Add($"Duplicate additional wear component name {definition.Name}.");
+			}
+
+			if (definition.ProfileNames.Count == 0)
+			{
+				issues.Add($"{definition.Name} has no profile names.");
+			}
+
+			if (string.IsNullOrWhiteSpace(definition.DefaultProfileName))
+			{
+				issues.Add($"{definition.Name} has a blank default profile.");
+			}
+			else if (!definition.ProfileNames.Contains(definition.DefaultProfileName, StringComparer.OrdinalIgnoreCase))
+			{
+				issues.Add($"{definition.Name} default profile {definition.DefaultProfileName} is not included in its profile list.");
+			}
+
+			foreach (string profileName in definition.ProfileNames)
+			{
+				if (string.IsNullOrWhiteSpace(profileName))
+				{
+					issues.Add($"{definition.Name} has a blank profile reference.");
 				}
 			}
 		}
@@ -557,16 +616,151 @@ public partial class HumanSeeder
 		}
 	}
 
-	private bool RefreshExistingHumanWearProfiles(BodyProto baseHumanoid)
+	private bool EnsureAdditionalHumanWearComponents(BodyProto baseHumanoid)
 	{
-		bool repaired = RepairExistingHumanWearProfileAccuracy(baseHumanoid);
-		bool added = AddMissingHumanWearProfiles(baseHumanoid, AdditionalHumanWearProfiles).Count > 0;
-		if (repaired && !added)
+		Dictionary<string, WearProfile> profiles = _context.WearProfiles
+		                                                   .Where(x => x.BodyPrototypeId == baseHumanoid.Id)
+		                                                   .AsEnumerable()
+		                                                   .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+		                                                   .ToDictionary(x => x.Key, x => x.First(),
+			                                                   StringComparer.OrdinalIgnoreCase);
+		Dictionary<string, GameItemComponentProto> components = _context.GameItemComponentProtos
+		                                                                 .AsEnumerable()
+		                                                                 .Where(x => !string.IsNullOrWhiteSpace(x.Name))
+		                                                                 .GroupBy(x => x.Name,
+			                                                                 StringComparer.OrdinalIgnoreCase)
+		                                                                 .ToDictionary(x => x.Key, x => x.First(),
+			                                                                 StringComparer.OrdinalIgnoreCase);
+		Account dbaccount = _context.Accounts.First();
+		DateTime now = DateTime.UtcNow;
+		long id = _context.GameItemComponentProtos
+		                  .Select(x => x.Id)
+		                  .AsEnumerable()
+		                  .DefaultIfEmpty(0L)
+		                  .Max() + 1;
+		bool dirty = false;
+
+		foreach (StockHumanWearComponentDefinition definition in AdditionalHumanWearComponents)
+		{
+			if (!profiles.TryGetValue(definition.DefaultProfileName, out WearProfile? defaultProfile))
+			{
+				continue;
+			}
+
+			List<WearProfile> componentProfiles = [];
+			bool missingProfile = false;
+			foreach (string profileName in definition.ProfileNames)
+			{
+				if (!profiles.TryGetValue(profileName, out WearProfile? profile))
+				{
+					missingProfile = true;
+					break;
+				}
+
+				componentProfiles.Add(profile);
+			}
+
+			if (missingProfile)
+			{
+				continue;
+			}
+
+			string componentDefinition = BuildWearableComponentDefinition(
+				defaultProfile,
+				componentProfiles,
+				definition.Bulky);
+			string description = $"Permits the item to be worn as {definition.ProfileNames.ListToCommaSeparatedValues(" or ")}";
+
+			if (components.TryGetValue(definition.Name, out GameItemComponentProto? component))
+			{
+				if (!component.Type.Equals("Wearable", StringComparison.Ordinal) ||
+				    component.Description != description ||
+				    !XmlEquivalent(component.Definition, componentDefinition))
+				{
+					component.Type = "Wearable";
+					component.Description = description;
+					component.Definition = componentDefinition;
+					dirty = true;
+				}
+
+				continue;
+			}
+
+			component = new GameItemComponentProto
+			{
+				Id = id++,
+				RevisionNumber = 0,
+				Name = definition.Name,
+				Description = description,
+				Type = "Wearable",
+				Definition = componentDefinition,
+				EditableItem = new EditableItem
+				{
+					RevisionNumber = 0,
+					RevisionStatus = 4,
+					BuilderAccountId = dbaccount.Id,
+					BuilderDate = now,
+					BuilderComment = "Auto-generated by the system",
+					ReviewerAccountId = dbaccount.Id,
+					ReviewerComment = "Auto-generated by the system",
+					ReviewerDate = now
+				}
+			};
+			_context.GameItemComponentProtos.Add(component);
+			components[definition.Name] = component;
+			dirty = true;
+		}
+
+		if (dirty)
 		{
 			_context.SaveChanges();
 		}
 
-		return repaired || added;
+		return dirty;
+	}
+
+	private static string BuildWearableComponentDefinition(
+		WearProfile defaultProfile,
+		IEnumerable<WearProfile> profiles,
+		bool bulky)
+	{
+		return new XElement("Definition",
+			new XAttribute("DisplayInventoryWhenWorn", true),
+			new XAttribute("Bulky", bulky),
+			new XElement("Profiles",
+				new XAttribute("Default", defaultProfile.Id),
+				profiles.Select(x => new XElement("Profile", x.Id)))
+		).ToString();
+	}
+
+	private static bool XmlEquivalent(string? lhs, string rhs)
+	{
+		if (string.IsNullOrWhiteSpace(lhs))
+		{
+			return false;
+		}
+
+		try
+		{
+			return XNode.DeepEquals(XElement.Parse(lhs), XElement.Parse(rhs));
+		}
+		catch
+		{
+			return false;
+		}
+	}
+
+	private bool RefreshExistingHumanWearProfiles(BodyProto baseHumanoid)
+	{
+		bool repaired = RepairExistingHumanWearProfileAccuracy(baseHumanoid);
+		bool added = AddMissingHumanWearProfiles(baseHumanoid, AdditionalHumanWearProfiles).Count > 0;
+		bool addedComponents = EnsureAdditionalHumanWearComponents(baseHumanoid);
+		if (repaired && !added && !addedComponents)
+		{
+			_context.SaveChanges();
+		}
+
+		return repaired || added || addedComponents;
 	}
 
 	private static bool HasMissingHumanWearProfiles(FuturemudDatabaseContext context)
@@ -582,7 +776,16 @@ public partial class HumanSeeder
 		                                      .Select(x => x.Name)
 		                                      .AsEnumerable()
 		                                      .ToHashSet(StringComparer.OrdinalIgnoreCase);
-		return AdditionalHumanWearProfiles.Any(x => !existingNames.Contains(x.Name));
+		if (AdditionalHumanWearProfiles.Any(x => !existingNames.Contains(x.Name)))
+		{
+			return true;
+		}
+
+		HashSet<string> existingComponentNames = context.GameItemComponentProtos
+		                                                .Select(x => x.Name)
+		                                                .AsEnumerable()
+		                                                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+		return AdditionalHumanWearComponents.Any(x => !existingComponentNames.Contains(x.Name));
 	}
 
 	private bool RepairExistingHumanWearProfileAccuracy(BodyProto baseHumanoid)
@@ -6649,6 +6852,7 @@ public partial class HumanSeeder
         }
 
         AddMissingHumanWearProfiles(baseHumanoid, AdditionalHumanWearProfiles);
+        EnsureAdditionalHumanWearComponents(baseHumanoid);
 
         #endregion
 

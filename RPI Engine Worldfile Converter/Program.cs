@@ -400,6 +400,7 @@ internal static class Program
 		Console.WriteLine(options.Execute ? "Apply mode: execute" : "Apply mode: dry-run");
 		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
 		Console.WriteLine($"Validation issues: {result.Issues.Count:N0} total, {fatalErrors:N0} error(s)");
+		Console.WriteLine($"Skipped by design: {result.SkippedByDesignCount:N0}");
 		Console.WriteLine($"Existing imports skipped: {result.SkippedExistingCount:N0}");
 
 		if (options.Execute)

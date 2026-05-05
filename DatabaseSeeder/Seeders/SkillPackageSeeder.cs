@@ -83,7 +83,9 @@ What is your selection? ", (context, answers) => true,
                 }
             ),
             ("complexity",
-                @"You can choose to have your skills be either #6simple#0 or #6complex#0. For example, the athletics skills generated if you choose either of the options would be as follows:
+                @"You can choose to have your skills be either #6simple#0, #6complex#0 or #6rpi#0. 
+
+For example, in the simple or complex methods, the athletics skills generated if you choose either of the options would be as follows:
 
 #6Simple#0
 
@@ -95,6 +97,8 @@ Swimming, Running, Climbing, Flying, Falling, Armour Use
 
 This follows a similar pattern across other areas as well - skills are either lumped together into simple categories or are more specific.
 
+If you instead choose the #6RPI#0 method, you will get the same skills as the complex method, but with some additional skills that are based on the original RPI-engine skill system, such as Ritual, Backstab, Barter and the like.
+
 Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 (text, context) =>
                 {
@@ -102,6 +106,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     {
                         case "simple":
                         case "complex":
+                        case "rpi":
                             return (true, string.Empty);
                     }
 
@@ -1243,6 +1248,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
     {
         Dictionary<string, TraitDefinition> skills = new(StringComparer.OrdinalIgnoreCase);
         bool simple = questionAnswers["complexity"].EqualTo("simple");
+        var rpi = questionAnswers["complexity"].EqualTo("rpi");
         bool gerund = questionAnswers["gerund"].EqualToAny("yes", "y");
 
         Dictionary<string, TraitDefinition> attributes = context.TraitDefinitions.Where(x => x.Type == 1 || x.Type == 3)
@@ -1403,7 +1409,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             }
         }
 
-        if (!gerund)
+        if (rpi)
         {
             foreach (SkillDetails skill in RpiLegacySkills)
             {

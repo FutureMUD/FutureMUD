@@ -97,6 +97,21 @@ public class HumanSeederWearProfileTests
 	}
 
 	[TestMethod]
+	public void AdditionalHumanWearComponents_DefineBandanaAsMultiProfileComponent()
+	{
+		IReadOnlyList<string> issues = HumanSeeder.ValidateAdditionalHumanWearComponentsForTesting();
+		Assert.AreEqual(0, issues.Count, string.Join(Environment.NewLine, issues));
+
+		var bandana = HumanSeeder.AdditionalHumanWearComponentDefinitionsForTesting
+		                         .Single(x => x.Name == "Wear_Bandana");
+
+		Assert.AreEqual("Headband", bandana.DefaultProfileName);
+		CollectionAssert.AreEqual(
+			new[] { "Headband", "Kerchief", "Armlet" },
+			bandana.ProfileNames.ToArray());
+	}
+
+	[TestMethod]
 	public void AuthoredDirectWearProfiles_DoNotHaveUnexplainedLeftRightFlagDrift()
 	{
 		Dictionary<string, ParsedDirectWearProfile> profiles = ParseDirectWearProfiles(ReadHumanBodypartSource());

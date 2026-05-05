@@ -11,6 +11,7 @@ public enum ConversionStatus
 	FunctionalImport,
 	PropImport,
 	DeferredBehaviorPropImport,
+	SkippedImport,
 }
 
 public sealed record RpiConversionWarning(string Code, string Message);
@@ -31,6 +32,21 @@ public sealed record FutureMudDiceDefinition(
 	string ComponentName,
 	IReadOnlyList<string> Faces,
 	int RawBonus);
+
+public sealed record FutureMudPreparedFoodDefinition(
+	string ComponentName,
+	string Description,
+	double Satiation,
+	double Water,
+	double Thirst,
+	double Alcohol,
+	double Bites,
+	string TasteTemplate,
+	string ShortDescriptionTemplate,
+	string FullDescriptionTemplate,
+	string IngredientRole,
+	string IngredientDescription,
+	string IngredientTaste);
 
 public sealed record ConvertedItemDefinition
 {
@@ -57,6 +73,7 @@ public sealed record ConvertedItemDefinition
 	public FutureMudLiquidReference? LiquidReference { get; init; }
 	public FutureMudBoardDefinition? BoardDefinition { get; init; }
 	public FutureMudDiceDefinition? DiceDefinition { get; init; }
+	public FutureMudPreparedFoodDefinition? PreparedFoodDefinition { get; init; }
 	public string? DescKeys { get; init; }
 	public string? InkColour { get; init; }
 	public string? CustomColour { get; init; }
@@ -70,6 +87,30 @@ public sealed class FutureMUDItemTransformer
 	private static readonly Regex BoundedAnsiColourRegex = new(@"^\s*(?<colour>#[1-9a-oA-O])(?<text>[\s\S]*?)#0\s*$", RegexOptions.Compiled);
 	private static readonly Regex LegacyVariableRegex = new(@"\$[A-Za-z][A-Za-z0-9_]*", RegexOptions.Compiled);
 	private static readonly Regex NonComponentNameRegex = new(@"[^a-z0-9_]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+	private static readonly RPIWearBits WearComponentRelevantBits =
+		RPIWearBits.Finger |
+		RPIWearBits.Neck |
+		RPIWearBits.Body |
+		RPIWearBits.Head |
+		RPIWearBits.Legs |
+		RPIWearBits.Feet |
+		RPIWearBits.Hands |
+		RPIWearBits.Arms |
+		RPIWearBits.Wshield |
+		RPIWearBits.About |
+		RPIWearBits.Waist |
+		RPIWearBits.Wrist |
+		RPIWearBits.Sheath |
+		RPIWearBits.Belt |
+		RPIWearBits.Back |
+		RPIWearBits.Blindfold |
+		RPIWearBits.Throat |
+		RPIWearBits.Ears |
+		RPIWearBits.Shoulder |
+		RPIWearBits.Ankle |
+		RPIWearBits.Hair |
+		RPIWearBits.Face |
+		RPIWearBits.Armband;
 	private static readonly IReadOnlyDictionary<string, string> AnsiColourCodeNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 	{
 		["#1"] = "red",
@@ -177,9 +218,10 @@ public sealed class FutureMUDItemTransformer
 		FutureMudLiquidReference? liquidReference = null;
 		FutureMudBoardDefinition? boardDefinition = null;
 		FutureMudDiceDefinition? diceDefinition = null;
+		FutureMudPreparedFoodDefinition? preparedFoodDefinition = null;
 		var status = ConversionStatus.FunctionalImport;
 
-		if (ShouldAddHoldable(item))
+		if (item.ItemType != RPIItemType.Money && ShouldAddHoldable(item))
 		{
 			AddUnique(components, ChooseComponent("Holdable"));
 		}
@@ -214,7 +256,13 @@ public sealed class FutureMUDItemTransformer
 				liquidReference = MapLiquidReference(item);
 				break;
 			case RPIItemType.Food:
-				status = MapFood(item, components, tags, warnings);
+				status = MapFood(item, components, tags, warnings, out preparedFoodDefinition);
+				break;
+			case RPIItemType.Money:
+				status = ConversionStatus.SkippedImport;
+				warnings.Add(new RpiConversionWarning(
+					"currency-seeded-skip",
+					"Legacy RPI money prototypes are skipped because Shadows of Isildur currencies are supplied by the FutureMUD currency seeder."));
 				break;
 			case RPIItemType.Key:
 				MapKey(item, components, tags);
@@ -282,6 +330,11 @@ public sealed class FutureMUDItemTransformer
 				break;
 		}
 
+		if (status != ConversionStatus.SkippedImport)
+		{
+			EnsureWearableComponentForWearBits(item, components, tags, warnings, item.ItemType == RPIItemType.Armor);
+		}
+
 		var convertedDescriptions = ConvertDescriptions(item, components, warnings);
 		var materialName = ResolveMaterialName(item, warnings);
 		var baseName = InferBaseName(item);
@@ -291,7 +344,7 @@ public sealed class FutureMUDItemTransformer
 			warnings.Add(new RpiConversionWarning("missing-base-name", "Could not infer a clean base name; using 'item'."));
 		}
 
-		if (components.Count == 0)
+		if (components.Count == 0 && status != ConversionStatus.SkippedImport)
 		{
 			status = status == ConversionStatus.DeferredBehaviorPropImport
 				? ConversionStatus.DeferredBehaviorPropImport
@@ -330,6 +383,7 @@ public sealed class FutureMUDItemTransformer
 			LiquidReference = liquidReference,
 			BoardDefinition = boardDefinition,
 			DiceDefinition = diceDefinition,
+			PreparedFoodDefinition = preparedFoodDefinition,
 			DescKeys = item.DescKeys,
 			InkColour = item.InkColour,
 			CustomColour = convertedDescriptions.CustomColour,
@@ -696,17 +750,70 @@ public sealed class FutureMUDItemTransformer
 		AddUnique(tags, ChooseTag("Watertight Container"));
 	}
 
-	private ConversionStatus MapFood(RpiItemRecord item, ICollection<string> components, ICollection<string> tags, ICollection<RpiConversionWarning> warnings)
+	private ConversionStatus MapFood(
+		RpiItemRecord item,
+		ICollection<string> components,
+		ICollection<string> tags,
+		ICollection<RpiConversionWarning> warnings,
+		out FutureMudPreparedFoodDefinition preparedFoodDefinition)
 	{
-		var foodComponent = _catalog?.FindFirstComponentByType("Food");
-		if (string.IsNullOrWhiteSpace(foodComponent))
+		var data = item.FoodData;
+		if (data is null)
 		{
-			MapGenericProp(item, components, tags, warnings);
-			warnings.Add(new RpiConversionWarning("missing-food-component", "No seeded Food component was available; imported as a prop."));
-			return ConversionStatus.PropImport;
+			data = new RpiFoodData(
+				item.RawOvals.Oval0,
+				item.RawOvals.Oval1,
+				item.RawOvals.Oval2,
+				item.RawOvals.Oval3,
+				item.RawOvals.Oval4,
+				item.RawOvals.Oval5);
+			warnings.Add(new RpiConversionWarning(
+				"food-data-derived-from-ovals",
+				"The parser did not expose typed food data; generated prepared-food nutrition from the raw oval values."));
 		}
 
-		AddUnique(components, foodComponent);
+		var bites = data.Bites;
+		if (bites == -1)
+		{
+			warnings.Add(new RpiConversionWarning(
+				"food-infinite-bites-deferred",
+				"RPI used -1 for unlimited bites; FutureMUD prepared food does not support unlimited servings, so this imports as one bite with provenance warnings."));
+			bites = 1;
+		}
+		else if (bites < 1)
+		{
+			warnings.Add(new RpiConversionWarning(
+				"food-invalid-bites",
+				$"RPI food bite count {bites.ToString(CultureInfo.InvariantCulture)} is not valid for FutureMUD prepared food; using one bite."));
+			bites = 1;
+		}
+
+		if (item.Poisons.Count > 0)
+		{
+			warnings.Add(new RpiConversionWarning(
+				"food-poison-deferred",
+				$"{item.Poisons.Count.ToString(CultureInfo.InvariantCulture)} RPI poison row(s) were preserved as provenance but not mapped to FutureMUD drug doses."));
+		}
+
+		var ingredientDescription = InferPreparedFoodIngredientDescription(item);
+
+		var componentName = BuildPreparedFoodComponentName(item);
+		preparedFoodDefinition = new FutureMudPreparedFoodDefinition(
+			componentName,
+			$"Generated prepared-food component for imported RPI food '{item.ShortDescription}'.",
+			Math.Clamp(data.FoodValue / 4.0, 0.25, 12.0),
+			0.0,
+			0.0,
+			0.0,
+			bites,
+			"It tastes like {primary}.",
+			string.Empty,
+			string.Empty,
+			"primary",
+			ingredientDescription,
+			ingredientDescription);
+
+		AddUnique(components, componentName);
 		AddUnique(components, ChooseDestroyableComponent(item, ConversionStatus.FunctionalImport));
 		AddUnique(tags, ChooseTag("Food"));
 		return ConversionStatus.FunctionalImport;
@@ -974,6 +1081,32 @@ public sealed class FutureMUDItemTransformer
 		return $"RPI_Dice_{faces.ToString(CultureInfo.InvariantCulture)}_vnum_{vnum.ToString(CultureInfo.InvariantCulture)}";
 	}
 
+	private static string BuildPreparedFoodComponentName(RpiItemRecord item)
+	{
+		return $"RPI_PreparedFood_vnum_{item.Vnum.ToString(CultureInfo.InvariantCulture)}";
+	}
+
+	private string InferPreparedFoodIngredientDescription(RpiItemRecord item)
+	{
+		var description = item.ShortDescription.Trim().TrimEnd('.', '~').Trim();
+		foreach (var article in new[] { "a ", "an ", "the " })
+		{
+			if (description.StartsWith(article, StringComparison.OrdinalIgnoreCase))
+			{
+				description = description[article.Length..].Trim();
+				break;
+			}
+		}
+
+		if (!string.IsNullOrWhiteSpace(description))
+		{
+			return description;
+		}
+
+		var baseName = InferBaseName(item);
+		return string.IsNullOrWhiteSpace(baseName) ? "food" : baseName;
+	}
+
 	private static string InferLegacyBoardKey(RpiItemRecord item)
 	{
 		var sourceKeyword = item.NameKeywords
@@ -1036,6 +1169,35 @@ public sealed class FutureMUDItemTransformer
 			AddUnique(components, ChooseComponent("Container_Pouch"));
 			AddUnique(tags, ChooseTag("Open Container"));
 		}
+	}
+
+	private void EnsureWearableComponentForWearBits(
+		RpiItemRecord item,
+		ICollection<string> components,
+		ICollection<string> tags,
+		ICollection<RpiConversionWarning> warnings,
+		bool armourMode)
+	{
+		if ((item.WearBits & WearComponentRelevantBits) == 0 || HasWearableComponent(components))
+		{
+			return;
+		}
+
+		var wearComponent = ResolveWearComponent(item, warnings, armourMode);
+		if (wearComponent is null)
+		{
+			return;
+		}
+
+		AddUnique(components, wearComponent);
+		AddWearTags(item, tags);
+	}
+
+	private bool HasWearableComponent(IEnumerable<string> components)
+	{
+		return components.Any(component =>
+			component.StartsWith("Wear_", StringComparison.OrdinalIgnoreCase) ||
+			(_catalog?.GetComponent(component)?.Type.Equals("Wearable", StringComparison.OrdinalIgnoreCase) ?? false));
 	}
 
 	private bool TryMapFurnitureProp(
@@ -1435,6 +1597,16 @@ public sealed class FutureMUDItemTransformer
 
 	private string? ResolveWearComponent(RpiItemRecord item, ICollection<RpiConversionWarning> warnings, bool armourMode)
 	{
+		if (IsBandanaWearOption(item))
+		{
+			return ChooseComponent("Wear_Bandana");
+		}
+
+		if (item.WearBits.HasFlag(RPIWearBits.Body) && item.WearBits.HasFlag(RPIWearBits.About))
+		{
+			return ResolveAboutWearComponent(item);
+		}
+
 		if (item.WearBits.HasFlag(RPIWearBits.Head))
 		{
 			if (ContainsAny(item, "sallet"))
@@ -1540,6 +1712,11 @@ public sealed class FutureMUDItemTransformer
 			return ChooseComponent("Wear_Bracers");
 		}
 
+		if (item.WearBits.HasFlag(RPIWearBits.Wshield))
+		{
+			return ChooseComponent("Wear_Shoulder");
+		}
+
 		if (item.WearBits.HasFlag(RPIWearBits.Finger))
 		{
 			return ChooseComponent("Wear_Ring");
@@ -1592,17 +1769,7 @@ public sealed class FutureMUDItemTransformer
 
 		if (item.WearBits.HasFlag(RPIWearBits.About))
 		{
-			if (ContainsAny(item, "cape"))
-			{
-				return ChooseComponent("Wear_Cape");
-			}
-
-			if (ContainsAny(item, "open"))
-			{
-				return ChooseComponentFromCandidates("Wear_Cloak_(Open)", "Wear_Cape");
-			}
-
-			return ChooseComponentFromCandidates("Wear_Cloak_(Closed)", "Wear_Cloak_(Open)", "Wear_Cape");
+			return ResolveAboutWearComponent(item);
 		}
 
 		if (item.WearBits.HasFlag(RPIWearBits.Wrist))
@@ -1674,6 +1841,28 @@ public sealed class FutureMUDItemTransformer
 			"unmapped-wear-profile",
 			$"Could not find a seeded wear component for wear bits {item.WearBits}."));
 		return null;
+	}
+
+	private string ResolveAboutWearComponent(RpiItemRecord item)
+	{
+		if (ContainsAny(item, "cape"))
+		{
+			return ChooseComponent("Wear_Cape");
+		}
+
+		if (ContainsAny(item, "open"))
+		{
+			return ChooseComponentFromCandidates("Wear_Cloak_(Open)", "Wear_Cape");
+		}
+
+		return ChooseComponentFromCandidates("Wear_Cloak_(Closed)", "Wear_Cloak_(Open)", "Wear_Cape");
+	}
+
+	private static bool IsBandanaWearOption(RpiItemRecord item)
+	{
+		return item.WearBits.HasFlag(RPIWearBits.Head) &&
+		       item.WearBits.HasFlag(RPIWearBits.Face) &&
+		       item.WearBits.HasFlag(RPIWearBits.Armband);
 	}
 
 	private string ChooseClothingOrArmourComponent(RpiItemRecord item, bool armourMode)

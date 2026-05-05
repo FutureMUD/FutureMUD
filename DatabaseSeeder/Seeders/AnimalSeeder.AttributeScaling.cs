@@ -102,6 +102,7 @@ public partial class AnimalSeeder
 			["Hippopotamus"] = new(3, 3, -1, -1, WillpowerBonus: 1),
 			["Elephant"] = new(2, 3, -1, -1, WillpowerBonus: 1, PerceptionBonus: 1, IntelligenceDiceExpression: "2d4"),
 			["Mammoth"] = new(3, 4, -2, -2, WillpowerBonus: 1, PerceptionBonus: 1, IntelligenceDiceExpression: "2d4"),
+			["Oliphant"] = new(4, 5, -2, -2, WillpowerBonus: 2, PerceptionBonus: 1, IntelligenceDiceExpression: "2d4"),
 			["Shark"] = new(2, 1, 0, 0, WillpowerBonus: 1),
 			["Orca"] = new(3, 2, 0, 0, WillpowerBonus: 1, PerceptionBonus: 1, IntelligenceDiceExpression: "2d4"),
 			["Toothed Whale"] = new(2, 2, -1, -1, WillpowerBonus: 1, PerceptionBonus: 1, IntelligenceDiceExpression: "2d4"),
@@ -148,6 +149,10 @@ public partial class AnimalSeeder
 			SizeCategory.Normal => new(1, 1, 0, 0),
 			SizeCategory.Large => new(4, 4, -1, -1),
 			SizeCategory.VeryLarge => new(7, 7, -2, -2),
+			SizeCategory.Huge => new(10, 10, -3, -3),
+			SizeCategory.Enormous => new(13, 13, -4, -4),
+			SizeCategory.Gigantic => new(16, 16, -5, -5),
+			SizeCategory.Titanic => new(18, 18, -6, -6),
 			_ => new(0, 0, 0, 0)
 		};
 	}

@@ -29,6 +29,7 @@ public partial class MythicalAnimalSeeder
 				["Mermaid"] = [StockNonHumanDietProfile.Piscivore, StockNonHumanDietProfile.AquaticOmnivore],
 				["Manticore"] = [StockNonHumanDietProfile.Carnivore],
 				["Wyvern"] = [StockNonHumanDietProfile.Carnivore],
+				["Fell Beast"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.ScavengerOmnivore],
 				["Phoenix"] = [StockNonHumanDietProfile.Omnivore, StockNonHumanDietProfile.Nectarivore],
 				["Basilisk"] = [StockNonHumanDietProfile.Carnivore],
 				["Cockatrice"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.Omnivore],
@@ -46,6 +47,7 @@ public partial class MythicalAnimalSeeder
 				["Myconid"] = [StockNonHumanDietProfile.Fungivore, StockNonHumanDietProfile.Detritivore],
 				["Plantfolk"] = [StockNonHumanDietProfile.PlantMatter],
 				["Ent"] = [StockNonHumanDietProfile.PlantMatter],
+				["Huorn"] = [StockNonHumanDietProfile.PlantMatter],
 				["Dryad"] = [StockNonHumanDietProfile.PlantMatter, StockNonHumanDietProfile.Nectarivore],
 				["Owlkin"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.Insectivore],
 				["Avian Person"] = [StockNonHumanDietProfile.Omnivore],
@@ -53,6 +55,7 @@ public partial class MythicalAnimalSeeder
 				["Pegacorn"] = [StockNonHumanDietProfile.Grazer, StockNonHumanDietProfile.Browser],
 				["Qilin"] = [StockNonHumanDietProfile.Grazer, StockNonHumanDietProfile.Browser],
 				["Garuda"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.Piscivore],
+				["Giant Eagle"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.Piscivore],
 				["Bunyip"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.Piscivore],
 				["Yacumama"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.Piscivore]
 			});

@@ -680,6 +680,33 @@ public partial class MythicalAnimalSeeder
                 bodypartHealthMultiplier: 1.7,
                 combatStrategyKey: "Beast Dropper"
             ),
+            ["Fell Beast"] = BeastRace(
+                "Fell Beast",
+                "Wyvern",
+                SizeCategory.Large,
+                "Raptor",
+                GreatBeast(),
+                "Fell beasts are vast, carrion-winged reptilian mounts with long necks, grasping talons and a hateful predatory bearing.",
+                "Fell beasts fit dark-rider, war-mount and aerial terror roles, giving builders a ready stock creature for evil cavalry, mountain eyries, siege scouting or ominous flights over threatened lands.",
+                Variants(
+                    ("a carrion-winged fell beast",
+                        "This immense winged horror has a gaunt reptilian frame, hooked talons and a long head made for snapping at prey from above."),
+                    ("a black-winged fell beast",
+                        "This flying monster looks less like a noble dragon than a starving war-mount, all leathery wings, sinew and cruel downward focus.")
+                ),
+                [
+                    Attack("Carnivore Bite", ItemQuality.Good, "mouth"),
+                    Attack("Bite", ItemQuality.Standard, "mouth"),
+                    Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons"),
+                    Attack("Talon Carry", ItemQuality.Good, "rtalons", "ltalons"),
+                    Attack("Tail Slap", ItemQuality.Standard, "tail"),
+                    Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
+                ],
+                attributeProfile: BestialStats(7, 6, 4, 0, willpower: 3, perception: 3, aura: 2),
+                bodypartHealthMultiplier: 1.65,
+                canSwim: false,
+                combatStrategyKey: "Beast Dropper"
+            ),
             ["Phoenix"] = BeastRace(
                 "Phoenix",
                 "Avian",
@@ -1084,6 +1111,34 @@ public partial class MythicalAnimalSeeder
                 ],
                 combatStrategyKey: "Melee (Auto)"
             ),
+            ["Huorn"] = BeastRace(
+                "Huorn",
+                "Organic Humanoid",
+                SizeCategory.Large,
+                "Large Ungulate",
+                GreatBeast(),
+                "Huorns are dark, half-wild tree-beings: less openly personlike than ents, but still capable of movement, hunger and terrible intent.",
+                "Huorns work as dangerous old-forest hazards, angry woodland guardians and uncanny marching trees for games that want tree-shepherd ecology without making every awakened tree a social NPC.",
+                Variants(
+                    ("a shadowed huorn",
+                        "This tree-being has a heavy trunk-like body and reaching limbs, its bark-dark outline almost still enough to be mistaken for ordinary woodland until it moves."),
+                    ("a root-dragging huorn",
+                        "This living tree drags itself forward on knotty roots and branchlike arms, carrying the oppressive patience of something that has waited through many seasons.")
+                ),
+                [
+                    Attack("Jab", ItemQuality.Standard, "rhand", "lhand"),
+                    Attack("Elbow", ItemQuality.Standard, "relbow", "lelbow")
+                ],
+                attributeProfile: Stats(8, 10, -4, -4, willpower: 4, perception: 1, aura: 3),
+                bodypartHealthMultiplier: 1.75,
+                canSwim: false,
+                additionalCharacteristics:
+                [
+                    Characteristic("Bark Tone", "oak-brown", "ash-grey", "charcoal-black", "moss-dark"),
+                    Characteristic("Leaf Hue", "deep green", "black-green", "rust red", "bare branches")
+                ],
+                combatStrategyKey: "Beast Behemoth"
+            ),
             ["Dryad"] = HumanoidRace(
                 "Dryad",
                 "Organic Humanoid",
@@ -1272,6 +1327,36 @@ public partial class MythicalAnimalSeeder
                 bodypartHealthMultiplier: 1.5,
                 combatStrategyKey: "Beast Dropper"
             ),
+            ["Giant Eagle"] = BeastRace(
+                "Giant Eagle",
+                "Avian",
+                SizeCategory.Large,
+                "Raptor",
+                GreatBeast(),
+                "Giant eagles are immense, keen-eyed raptors with the size and bearing to serve as sky-lords rather than ordinary birds.",
+                "Giant eagles are useful as noble aerial allies, remote mountain powers, dangerous rescue mounts or proud territorial hunters who can reshape travel and warfare wherever they nest.",
+                Variants(
+                    ("a broad-winged giant eagle",
+                        "This enormous eagle has a commanding hooked beak, heavy talons and wings broad enough to cast a moving shadow over the ground below."),
+                    ("a golden-eyed giant eagle",
+                        "This great raptor carries itself with fierce intelligence, every feathered line suited to high thermals, sudden dives and the authority of the open sky.")
+                ),
+                [
+                    Attack("Beak Peck", ItemQuality.Good, "beak"),
+                    Attack("Beak Bite", ItemQuality.Standard, "beak"),
+                    Attack("Talon Strike", ItemQuality.Good, "rtalons", "ltalons"),
+                    Attack("Talon Carry", ItemQuality.Great, "rtalons", "ltalons"),
+                    Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
+                ],
+                attributeProfile: Stats(5, 4, 5, 2, willpower: 4, perception: 6, aura: 2, intelligenceDiceExpression: "2d4", auraDiceExpression: "1d2"),
+                bodypartHealthMultiplier: 1.45,
+                canSwim: false,
+                additionalCharacteristics:
+                [
+                    Characteristic("Plumage Colour", "brown", "golden-brown", "white-headed", "storm-grey")
+                ],
+                combatStrategyKey: "Beast Dropper"
+            ),
             ["Bunyip"] = BeastRace(
                 "Bunyip",
                 "Toed Quadruped",
@@ -1343,7 +1428,7 @@ public partial class MythicalAnimalSeeder
 		return template.Name switch
 		{
 			"Dragon" or "Eastern Dragon" => (720.0, 168.0),
-			"Griffin" or "Hippogriff" or "Pegasus" or "Pegacorn" or "Garuda" => (24.0, 12.0),
+			"Griffin" or "Hippogriff" or "Pegasus" or "Pegacorn" or "Garuda" or "Giant Eagle" => (24.0, 12.0),
 			"Unicorn" or "Qilin" => (48.0, 24.0),
 			"Warg" => (12.0, 8.0),
 			"Dire-Wolf" => (18.0, 8.0),
@@ -1352,7 +1437,7 @@ public partial class MythicalAnimalSeeder
 			"Naga" or "Basilisk" or "Cockatrice" => (720.0, 168.0),
 			"Mermaid" or "Selkie" or "Hippocamp" => (24.0, 48.0),
 			"Manticore" => (16.0, 8.0),
-			"Wyvern" => (168.0, 72.0),
+			"Wyvern" or "Fell Beast" => (168.0, 72.0),
 			"Phoenix" => (48.0, 24.0),
 			"Giant Beetle" or "Giant Ant" or "Giant Mantis" => (72.0, 24.0),
 			"Giant Spider" => (336.0, 168.0),
@@ -1362,7 +1447,7 @@ public partial class MythicalAnimalSeeder
 			"Colossal Worm" => (720.0, 336.0),
 			"Myconid" => (168.0, 72.0),
 			"Plantfolk" => (96.0, 48.0),
-			"Ent" => (720.0, 168.0),
+			"Ent" or "Huorn" => (720.0, 168.0),
 			"Dryad" => (72.0, 48.0),
 			"Owlkin" or "Avian Person" => (10.0, 6.0),
 			"Centaur" => (12.0, 8.0),
@@ -1475,9 +1560,9 @@ public partial class MythicalAnimalSeeder
             "Elbow"
         };
 
-        if (Templates.Count != 40)
+        if (Templates.Count != 43)
         {
-            issues.Add($"Expected 40 mythical race templates but found {Templates.Count}.");
+            issues.Add($"Expected 43 mythical race templates but found {Templates.Count}.");
         }
 
         foreach ((string? name, MythicalRaceTemplate? template) in Templates)

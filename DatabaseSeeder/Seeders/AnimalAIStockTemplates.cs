@@ -607,7 +607,7 @@ internal static class AnimalAIStockTemplates
 			]),
 			(ParentalDefender, "parental or defensive large animal",
 			[
-				"Cassowary", "Elephant", "Emu", "Goose", "Moa", "Ostrich", "Swan"
+				"Cassowary", "Elephant", "Emu", "Goose", "Moa", "Oliphant", "Ostrich", "Swan"
 			]),
 			(AmphibiousForager, "amphibious forager",
 			[
@@ -690,7 +690,8 @@ internal static class AnimalAIStockTemplates
 		BuildRecommendations(
 			(MythicFlyingPredator, "large flying mythic predator",
 			[
-				"Cockatrice", "Dragon", "Eastern Dragon", "Garuda", "Griffin", "Hippogriff", "Manticore", "Wyvern"
+				"Cockatrice", "Dragon", "Eastern Dragon", "Fell Beast", "Garuda", "Giant Eagle", "Griffin",
+				"Hippogriff", "Manticore", "Wyvern"
 			]),
 			(EternalFlier, "sky-returning mythic flier",
 			[
@@ -734,7 +735,7 @@ internal static class AnimalAIStockTemplates
 			]),
 			(PlantlikeForager, "plantlike or tree-spirit forager",
 			[
-				"Dryad", "Ent", "Myconid", "Plantfolk"
+				"Dryad", "Ent", "Huorn", "Myconid", "Plantfolk"
 			]),
 			(SapientPassive, "sapient mythic folk placeholder",
 			[

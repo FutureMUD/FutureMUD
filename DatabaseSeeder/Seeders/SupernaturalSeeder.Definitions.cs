@@ -128,6 +128,7 @@ public partial class SupernaturalSeeder
 
 	private static readonly IReadOnlyList<string> CommonDemonNames =
 	[
+		"Balrog",
 		"Incubus",
 		"Succubus",
 		"Fury",
@@ -512,6 +513,35 @@ public partial class SupernaturalSeeder
 			SupernaturalPlanarProfile.AstralNative, SupernaturalNeedsProfile.NonLiving, Stats(5, 4, 0, 0, 3, 2, 3, "2d4+4"),
 			"brutal infernal monster and war-demon play", highDemonAttacks, [infernal, horns, tail], "Fallen Host", "Demonic Name",
 			combat: "Beast Brawler", health: 1.3));
+		Add(Template("Balrog", SupernaturalFamily.Demon, "Supernatural Horned Fiend", SizeCategory.Huge,
+			SupernaturalPlanarProfile.DualNatured, SupernaturalNeedsProfile.NonLiving, Stats(8, 7, 0, 0, 5, 3, 6, "2d6+6"),
+			"ancient fire-and-shadow war demon play", highDemonAttacks, [infernal, horns, tail, eyes], "Fallen Host", "Demonic Name",
+			combat: "Beast Brawler", health: 1.7) with
+		{
+			Description = SeederDescriptionHelpers.JoinParagraphs(
+				"Balrogs are ancient fire-and-shadow demons seeded as overwhelming supernatural adversaries rather than ordinary mortal peoples.",
+				"The stock template gives them horned fiend anatomy, infernal breath, claws, tail attacks, forced-movement hooks and non-living supernatural needs so builders can deploy them immediately.",
+				"They are intentionally builder-only by default, suited to deep ruins, mythic war histories, divine rebellions or staff-controlled boss encounters."),
+			RoleDescription = SeederDescriptionHelpers.JoinParagraphs(
+				"Balrogs are intended for ancient fire-and-shadow war demon play.",
+				"They provide a Middle-earth-ready stock demon without hard-coding any one cosmology, allegiance or named individual.",
+				"Builders can reskin them as abyssal captains, fallen spirits, volcanic guardians or legendary dungeon threats."),
+			DescriptionVariants = SeederDescriptionHelpers.BuildVariantList(
+				(
+					"a fire-wreathed balrog",
+					SeederDescriptionHelpers.JoinParagraphs(
+						"This towering demon burns with a furnace-like presence, its horned outline and barbed tail visible through a shroud of smoke and heat.",
+						"The body is massive and warlike rather than merely bestial, with claws, fangs and a posture that makes retreat feel like wisdom.",
+						"Every movement suggests old wrath, stone-breaking strength and flame held just barely in check.")
+				),
+				(
+					"a shadow-crowned balrog",
+					SeederDescriptionHelpers.JoinParagraphs(
+						"This huge infernal figure carries darkness around itself like a mantle, broken by ember-bright eyes and the hard geometry of horns.",
+						"Its limbs are powerful enough to make the ground feel small beneath it, while its mouth and claws promise violence at close range.",
+						"The whole creature reads as an ancient battlefield memory given a body of smoke, fire and malice.")
+				))
+		});
 		Add(Template("Hellhound", SupernaturalFamily.Demon, "Supernatural Hellhound", SizeCategory.Large,
 			SupernaturalPlanarProfile.Material, SupernaturalNeedsProfile.NonLiving, Stats(4, 3, 2, 0, 2, 4, 2, "1d4+2"),
 			"infernal hunting beast play", hellhoundAttacks,

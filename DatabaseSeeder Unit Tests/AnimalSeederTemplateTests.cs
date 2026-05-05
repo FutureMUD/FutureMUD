@@ -462,6 +462,8 @@ public class AnimalSeederTemplateTests
             "Donkeys should be able to browse scrub and low trees as well as graze.");
         CollectionAssert.Contains(AnimalSeeder.GetEdibleYieldTypesForTesting("Mule").ToArray(), "grass",
             "Mules should retain ordinary grazer forage options.");
+        CollectionAssert.Contains(AnimalSeeder.GetEdibleYieldTypesForTesting("Oliphant").ToArray(), "low-trees",
+            "Oliphants should browse as well as graze like enormous elephantine animals.");
         CollectionAssert.Contains(AnimalSeeder.GetEdibleYieldTypesForTesting("Giraffe").ToArray(), "high-trees",
             "Giraffes should be able to browse tall tree forage.");
         CollectionAssert.Contains(AnimalSeeder.GetEdibleYieldTypesForTesting("Wolf").ToArray(), "tiny-fish",
@@ -582,6 +584,8 @@ public class AnimalSeederTemplateTests
             "Mantises should continue to use the shared insectoid body.");
         Assert.AreEqual("Ungulate", AnimalSeeder.RaceTemplatesForTesting["Mammoth"].BodyKey,
             "Mammoths should reuse the ungulate body.");
+        Assert.AreEqual("Ungulate", AnimalSeeder.RaceTemplatesForTesting["Oliphant"].BodyKey,
+            "Oliphants should reuse the tusk-capable ungulate body.");
         Assert.AreEqual("Toed Quadruped", AnimalSeeder.RaceTemplatesForTesting["Sabretooth Tiger"].BodyKey,
             "Sabretooth tigers should reuse the toed quadruped body.");
     }
@@ -614,6 +618,10 @@ public class AnimalSeederTemplateTests
             "Mules should use a distinct intermediate equine height/weight model.");
         Assert.AreEqual("equine", AnimalSeeder.RaceTemplatesForTesting["Mule"].BloodProfileKey,
             "Mules should reuse the equine blood profile.");
+        Assert.AreEqual("Oliphant", AnimalSeeder.RaceTemplatesForTesting["Oliphant"].MaleHeightWeightModel,
+            "Oliphants should use a distinct height/weight model rather than ordinary elephant proportions.");
+        Assert.AreEqual(SizeCategory.Huge, AnimalSeeder.RaceTemplatesForTesting["Oliphant"].Size,
+            "Oliphants should be larger than ordinary elephant stock.");
 
         Assert.AreEqual("Toed Quadruped", AnimalSeeder.RaceTemplatesForTesting["Stoat"].BodyKey,
             "Stoats should reuse the toed quadruped body.");
@@ -721,6 +729,7 @@ public class AnimalSeederTemplateTests
         Assert.AreEqual("Beast Drowner", AnimalSeeder.RaceTemplatesForTesting["Crocodile"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", AnimalSeeder.RaceTemplatesForTesting["Python"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", AnimalSeeder.RaceTemplatesForTesting["Elephant"].CombatStrategyKey);
+        Assert.AreEqual("Beast Behemoth", AnimalSeeder.RaceTemplatesForTesting["Oliphant"].CombatStrategyKey);
     }
 
     [TestMethod]
@@ -792,6 +801,10 @@ public class AnimalSeederTemplateTests
             AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Spider"]),
             336.0,
             168.0);
+        AssertSatiationCadence(
+            AnimalSeeder.GetAnimalSatiationLimitsForTesting(AnimalSeeder.RaceTemplatesForTesting["Oliphant"]),
+            36.0,
+            18.0);
     }
 
     [TestMethod]
@@ -829,6 +842,9 @@ public class AnimalSeederTemplateTests
             "Ostriches should be fast, kicking flightless birds.");
         AssertProfile("Deer", 2, 1, 2, -1, -5, 3,
             "Deer should favour flight and agility over brute herbivore scaling.");
+        AssertProfile("Oliphant", 18, 18, -7, -7, 4, 2,
+            "Oliphants should reach the huge-animal strength cap while remaining slow and ponderous.",
+            intelligenceDice: "2d4");
 
         NonHumanAttributeProfile rabbit =
             AnimalSeeder.GetAnimalAttributeProfileForTesting(AnimalSeeder.RaceTemplatesForTesting["Rabbit"]);
@@ -990,6 +1006,7 @@ public class AnimalSeederTemplateTests
         CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Colossal Worm");
         CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Donkey");
         CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Mule");
+        CollectionAssert.Contains(AnimalSeeder.HeightWeightTemplatesForTesting.Keys.ToList(), "Oliphant");
 
         AnimalSeeder.AnimalBodyAuditProfile beetle = AnimalSeeder.BodyAuditProfilesForTesting["beetle"];
         CollectionAssert.Contains(beetle.RequiredBodyparts.ToList(), "mandibles");

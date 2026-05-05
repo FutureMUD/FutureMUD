@@ -76,10 +76,10 @@ public class MythicalAnimalSeederTemplateTests
     }
 
     [TestMethod]
-    public void TemplatesForTesting_ExpandedCatalogue_HasFortyEntries()
+    public void TemplatesForTesting_ExpandedCatalogue_HasFortyThreeEntries()
     {
-        Assert.AreEqual(40, MythicalAnimalSeeder.TemplatesForTesting.Count,
-            "The mythical catalogue should include worm-beasts, tree-spirits, giant arthropods, and non-European mythic beasts.");
+        Assert.AreEqual(43, MythicalAnimalSeeder.TemplatesForTesting.Count,
+            "The mythical catalogue should include worm-beasts, tree-spirits, giant arthropods, non-European mythic beasts, and Middle-earth-ready non-humanoids.");
     }
 
     [TestMethod]
@@ -165,9 +165,15 @@ public class MythicalAnimalSeederTemplateTests
             "Qilin should browse and graze like sacred ungulate beasts.");
         CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Bunyip").ToArray(), "tiny-fish",
             "Bunyips should have wetland prey forage available.");
+        CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Giant Eagle").ToArray(), "tiny-fish",
+            "Giant eagles should have raptorial small-prey forage.");
+        CollectionAssert.Contains(MythicalAnimalSeeder.GetEdibleYieldTypesForTesting("Huorn").ToArray(), "aquatic-plants",
+            "Huorns should use the same broad plant-matter forage as other tree-beings.");
 
         Assert.IsTrue(MythicalAnimalSeeder.CanEatCorpsesForTesting("Dragon"),
             "Apex carnivorous mythic beasts should be corpse eaters.");
+        Assert.IsTrue(MythicalAnimalSeeder.CanEatCorpsesForTesting("Fell Beast"),
+            "Fell beasts should behave as carnivorous or carrion-eating aerial predators.");
         Assert.IsTrue(MythicalAnimalSeeder.CanEatCorpsesForTesting("Yacumama"),
             "Giant river-serpent myths should be corpse-eating predators.");
         Assert.IsTrue(MythicalAnimalSeeder.CanEatCorpsesForTesting("Giant Spider"),
@@ -711,14 +717,20 @@ public class MythicalAnimalSeederTemplateTests
             "Giant worms should reuse the stock vermiform body.");
         Assert.AreEqual("Vermiform", MythicalAnimalSeeder.TemplatesForTesting["Colossal Worm"].BodyKey,
             "Colossal worms should reuse the stock vermiform body.");
+        Assert.AreEqual("Wyvern", MythicalAnimalSeeder.TemplatesForTesting["Fell Beast"].BodyKey,
+            "Fell beasts should reuse the wyvern body for winged reptilian mount anatomy.");
         Assert.AreEqual("Organic Humanoid", MythicalAnimalSeeder.TemplatesForTesting["Ent"].BodyKey,
             "Ents should reuse the stock organic humanoid body.");
+        Assert.AreEqual("Organic Humanoid", MythicalAnimalSeeder.TemplatesForTesting["Huorn"].BodyKey,
+            "Huorns should reuse the stock organic humanoid body as mobile tree-beings.");
         Assert.AreEqual("Organic Humanoid", MythicalAnimalSeeder.TemplatesForTesting["Dryad"].BodyKey,
             "Dryads should reuse the stock organic humanoid body.");
         Assert.AreEqual("Ungulate", MythicalAnimalSeeder.TemplatesForTesting["Qilin"].BodyKey,
             "Qilin should reuse the horn-capable ungulate body.");
         Assert.AreEqual("Avian", MythicalAnimalSeeder.TemplatesForTesting["Garuda"].BodyKey,
             "Garuda should reuse the avian body.");
+        Assert.AreEqual("Avian", MythicalAnimalSeeder.TemplatesForTesting["Giant Eagle"].BodyKey,
+            "Giant eagles should reuse the avian body.");
         Assert.AreEqual("Toed Quadruped", MythicalAnimalSeeder.TemplatesForTesting["Bunyip"].BodyKey,
             "Bunyips should reuse the stock quadruped predator body.");
         Assert.AreEqual("Serpentine", MythicalAnimalSeeder.TemplatesForTesting["Yacumama"].BodyKey,
@@ -733,6 +745,7 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Unicorn"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Basilisk"].CombatStrategyKey);
         Assert.AreEqual("Beast Dropper", MythicalAnimalSeeder.TemplatesForTesting["Wyvern"].CombatStrategyKey);
+        Assert.AreEqual("Beast Dropper", MythicalAnimalSeeder.TemplatesForTesting["Fell Beast"].CombatStrategyKey);
         Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Warg"].CombatStrategyKey);
         Assert.AreEqual("Beast Brawler", MythicalAnimalSeeder.TemplatesForTesting["Dire-Wolf"].CombatStrategyKey);
         Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Dire-Bear"].CombatStrategyKey);
@@ -746,6 +759,8 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("Melee (Auto)", MythicalAnimalSeeder.TemplatesForTesting["Centaur"].CombatStrategyKey);
         Assert.AreEqual("Beast Skirmisher", MythicalAnimalSeeder.TemplatesForTesting["Qilin"].CombatStrategyKey);
         Assert.AreEqual("Beast Dropper", MythicalAnimalSeeder.TemplatesForTesting["Garuda"].CombatStrategyKey);
+        Assert.AreEqual("Beast Dropper", MythicalAnimalSeeder.TemplatesForTesting["Giant Eagle"].CombatStrategyKey);
+        Assert.AreEqual("Beast Behemoth", MythicalAnimalSeeder.TemplatesForTesting["Huorn"].CombatStrategyKey);
         Assert.AreEqual("Beast Drowner", MythicalAnimalSeeder.TemplatesForTesting["Bunyip"].CombatStrategyKey);
         Assert.AreEqual("Beast Clincher", MythicalAnimalSeeder.TemplatesForTesting["Yacumama"].CombatStrategyKey);
     }
@@ -755,6 +770,8 @@ public class MythicalAnimalSeederTemplateTests
     {
         Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Griffin"].Attacks.Any(x => x.AttackName == "Talon Carry"));
         Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Wyvern"].Attacks.Any(x => x.AttackName == "Talon Carry"));
+        Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Fell Beast"].Attacks.Any(x => x.AttackName == "Talon Carry"));
+        Assert.IsTrue(MythicalAnimalSeeder.TemplatesForTesting["Giant Eagle"].Attacks.Any(x => x.AttackName == "Talon Carry"));
     }
 
     [TestMethod]
@@ -785,8 +802,14 @@ public class MythicalAnimalSeederTemplateTests
             "Pegasi should be driven more by flight athletics than raw mass.");
         AssertProfile("Phoenix", 2, 2, 5, 3, 4, 4, 6, "2d3", null,
             "Phoenixes should be high-agility aerial threats rather than heavy bruisers.");
+        AssertProfile("Fell Beast", 7, 6, 4, 0, 3, 3, 2, "2d3", "1d2",
+            "Fell beasts should read as fast aerial war-mount predators.");
+        AssertProfile("Giant Eagle", 5, 4, 5, 2, 4, 6, 2, "2d4", "1d2",
+            "Giant eagles should be perceptive, intelligent aerial powers.");
         AssertProfile("Ent", 7, 9, -3, -3, 5, 1, 4, null, null,
             "Ents should be massively strong and durable but ponderous.");
+        AssertProfile("Huorn", 8, 10, -4, -4, 4, 1, 3, null, null,
+            "Huorns should be even more ponderous and physically tree-like than ents.");
         AssertProfile("Dryad", -1, 1, 2, 2, 2, 2, 5, null, null,
             "Dryads should favour grace and finesse over raw strength.");
         AssertProfile("Centaur", 6, 5, 2, 0, 2, 1, 0, null, null,
@@ -836,7 +859,10 @@ public class MythicalAnimalSeederTemplateTests
         Assert.AreEqual("marine-amphibious", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Hippocamp"));
         Assert.AreEqual("partless-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Giant Spider"));
         Assert.AreEqual("partless-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Ent"));
+        Assert.AreEqual("partless-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Huorn"));
         Assert.AreEqual("partless-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Dryad"));
+        Assert.AreEqual("simple-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Fell Beast"));
+        Assert.AreEqual("simple-air", MythicalAnimalSeeder.GetBreathingProfileNameForTesting("Giant Eagle"));
     }
 
     [TestMethod]
@@ -863,11 +889,23 @@ public class MythicalAnimalSeederTemplateTests
             336.0,
             168.0);
         AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Fell Beast"]),
+            168.0,
+            72.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Giant Eagle"]),
+            24.0,
+            12.0);
+        AssertSatiationCadence(
             MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Colossal Worm"]),
             720.0,
             336.0);
         AssertSatiationCadence(
             MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Ent"]),
+            720.0,
+            168.0);
+        AssertSatiationCadence(
+            MythicalAnimalSeeder.GetMythicalSatiationLimitsForTesting(MythicalAnimalSeeder.TemplatesForTesting["Huorn"]),
             720.0,
             168.0);
         AssertSatiationCadence(
@@ -925,11 +963,19 @@ public class MythicalAnimalSeederTemplateTests
         Assert.IsTrue(
             ent.AdditionalCharacteristics?.Any(x => x.DefinitionName == "Bark Tone") == true,
             "Ents should expose their bark-tone characteristic.");
+        MythicalAnimalSeeder.MythicalRaceTemplate huorn = MythicalAnimalSeeder.TemplatesForTesting["Huorn"];
+        Assert.IsTrue(
+            huorn.AdditionalCharacteristics?.Any(x => x.DefinitionName == "Bark Tone") == true,
+            "Huorns should expose their bark-tone characteristic.");
 
         MythicalAnimalSeeder.MythicalRaceTemplate dragon = MythicalAnimalSeeder.TemplatesForTesting["Dragon"];
         Assert.IsTrue(
             dragon.AdditionalCharacteristics?.Any(x => x.DefinitionName == "Scale Colour") == true,
             "Dragons should retain their scale colour characteristic.");
+        MythicalAnimalSeeder.MythicalRaceTemplate giantEagle = MythicalAnimalSeeder.TemplatesForTesting["Giant Eagle"];
+        Assert.IsTrue(
+            giantEagle.AdditionalCharacteristics?.Any(x => x.DefinitionName == "Plumage Colour") == true,
+            "Giant eagles should expose plumage colour variation.");
     }
 
     [TestMethod]
@@ -999,6 +1045,20 @@ public class MythicalAnimalSeederTemplateTests
                 .Distinct()
                 .ToArray(),
             "Giant spiders should deliver their heavy bite through paired fangs.");
+
+        MythicalAnimalSeeder.MythicalRaceTemplate fellBeast = MythicalAnimalSeeder.TemplatesForTesting["Fell Beast"];
+        CollectionAssert.Contains(fellBeast.Attacks.Select(x => x.AttackName).ToList(), "Wing Buffet");
+        CollectionAssert.Contains(fellBeast.Attacks.Select(x => x.AttackName).ToList(), "Talon Carry");
+
+        MythicalAnimalSeeder.MythicalRaceTemplate giantEagle = MythicalAnimalSeeder.TemplatesForTesting["Giant Eagle"];
+        CollectionAssert.Contains(giantEagle.Attacks.Select(x => x.AttackName).ToList(), "Beak Bite");
+        CollectionAssert.Contains(giantEagle.Attacks.Select(x => x.AttackName).ToList(), "Talon Carry");
+
+        MythicalAnimalSeeder.MythicalRaceTemplate huorn = MythicalAnimalSeeder.TemplatesForTesting["Huorn"];
+        CollectionAssert.AreEquivalent(
+            new[] { "Jab", "Elbow" },
+            huorn.Attacks.Select(x => x.AttackName).ToArray(),
+            "Huorns should fight with branchlike natural limb attacks.");
     }
 
     [TestMethod]

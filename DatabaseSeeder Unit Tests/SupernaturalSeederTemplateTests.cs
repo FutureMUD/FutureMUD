@@ -94,10 +94,10 @@ public class SupernaturalSeederTemplateTests
 	}
 
 	[TestMethod]
-	public void TemplatesForTesting_Catalogue_HasFortyFiveEntries()
+	public void TemplatesForTesting_Catalogue_HasFortySixEntries()
 	{
-		Assert.AreEqual(45, SupernaturalSeeder.TemplatesForTesting.Count,
-			"The supernatural catalogue should match the approved V1 scope.");
+		Assert.AreEqual(46, SupernaturalSeeder.TemplatesForTesting.Count,
+			"The supernatural catalogue should include the approved V1 scope plus Balrogs as Middle-earth-ready demons.");
 	}
 
 	[TestMethod]
@@ -171,6 +171,7 @@ public class SupernaturalSeederTemplateTests
 		Assert.AreEqual("Supernatural Familiar", SupernaturalSeeder.TemplatesForTesting["Familiar"].BodyKey);
 		Assert.AreEqual("Supernatural Werewolf Hybrid", SupernaturalSeeder.TemplatesForTesting["Werewolf Hybrid"].BodyKey);
 		Assert.AreEqual("Supernatural Hellhound", SupernaturalSeeder.TemplatesForTesting["Hellhound"].BodyKey);
+		Assert.AreEqual("Supernatural Horned Fiend", SupernaturalSeeder.TemplatesForTesting["Balrog"].BodyKey);
 	}
 
 	[TestMethod]
@@ -390,6 +391,13 @@ public class SupernaturalSeederTemplateTests
 		Assert.IsTrue(SupernaturalSeeder.TemplatesForTesting["Ghost"].Attacks.Count >= 5);
 		Assert.IsTrue(SupernaturalSeeder.TemplatesForTesting["Werewolf"].Attacks.Count >= 4);
 		Assert.IsTrue(SupernaturalSeeder.TemplatesForTesting["Werewolf Hybrid"].Attacks.Any(x => x.AttackName == "Raking Maul"));
+
+		SupernaturalSeeder.SupernaturalRaceTemplate balrog = SupernaturalSeeder.TemplatesForTesting["Balrog"];
+		Assert.AreEqual(SupernaturalSeeder.SupernaturalFamily.Demon, balrog.Family);
+		Assert.AreEqual(SupernaturalSeeder.SupernaturalPlanarProfile.DualNatured, balrog.PlanarProfile);
+		Assert.IsTrue(balrog.Attacks.Any(x => x.AttackName == "Hellfire Breath"));
+		Assert.IsTrue(balrog.Attacks.Any(x => x.AttackName == "Abyssal Chain Lash"));
+		Assert.IsTrue(balrog.Attacks.Any(x => x.AttackName == "Barbed Tail Slap"));
 	}
 
 	[TestMethod]
@@ -404,7 +412,7 @@ public class SupernaturalSeederTemplateTests
 		CollectionAssert.AreEquivalent(expectedTailAliases,
 			SupernaturalSeeder.SupernaturalBodyAdditionalAliasesForTesting["Supernatural Familiar"]);
 
-		foreach (string demonName in new[] { "Fiend", "Imp", "Familiar", "Incubus", "Succubus" })
+		foreach (string demonName in new[] { "Balrog", "Fiend", "Imp", "Familiar", "Incubus", "Succubus" })
 		{
 			Assert.IsTrue(SupernaturalSeeder.TemplatesForTesting[demonName].Attacks.Any(x =>
 					x.AttackName == "Barbed Tail Slap" &&

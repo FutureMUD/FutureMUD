@@ -23,3 +23,4 @@ MudSharp/bin/*
 /rpi-rooms-export-current.audit.json
 /rpi-rooms-export-current.json
 /rpi-rooms-dry-run-audit.json
+/rpi-rooms-apply-audit.json

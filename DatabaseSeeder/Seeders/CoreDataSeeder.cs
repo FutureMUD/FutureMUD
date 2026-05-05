@@ -1198,6 +1198,7 @@ public partial class CoreDataSeeder : IDatabaseSeeder
         };
         context.Rooms.Add(room);
 
+        Gas breathableAtmosphere = EnsureBreathableAtmosphere(context);
         Terrain terrain = new()
         {
             Id = 1,
@@ -1211,6 +1212,8 @@ public partial class CoreDataSeeder : IDatabaseSeeder
             TerrainEditorColour = "#FFFFFFFF",
             TerrainBehaviourMode = "outdoors",
             DefaultTerrain = true,
+            AtmosphereId = breathableAtmosphere.Id,
+            AtmosphereType = "Gas"
         };
         context.Terrains.Add(terrain);
         SeedTerrainFoundations(context);
@@ -1238,6 +1241,8 @@ public partial class CoreDataSeeder : IDatabaseSeeder
             HearingProfile = seededHearingProfiles["Universal"],
             OutdoorsType = 0,
             AmbientLightFactor = 1.0,
+            AtmosphereId = breathableAtmosphere.Id,
+            AtmosphereType = "Gas",
             CellId = cell.Id
         };
         context.CellOverlays.Add(overlay);

@@ -75,6 +75,12 @@ public sealed record FutureMudRoomImportResult(
 	IReadOnlyList<FutureMudRoomValidationIssue> Issues,
 	RoomApplyAuditReport Audit);
 
+public sealed record FutureMudRoomIdReservation(int Vnum, long RoomId, long CellId);
+
+public sealed record FutureMudRoomIdReservationPlan(
+	IReadOnlyDictionary<int, FutureMudRoomIdReservation> Reservations,
+	IReadOnlyList<FutureMudRoomValidationIssue> Issues);
+
 public static class FutureMudRoomImportLimits
 {
 	public const int CellDescriptionMaxLength = 4000;
@@ -95,6 +101,112 @@ public static class FutureMudRoomImportLimits
 		return text.Length <= maxLength
 			? text
 			: text[..maxLength];
+	}
+}
+
+public static class FutureMudRoomIdPlanner
+{
+	public static FutureMudRoomIdReservationPlan Plan(
+		IEnumerable<ConvertedRoomDefinition> rooms,
+		IReadOnlySet<long> existingRoomIds,
+		IReadOnlySet<long> existingCellIds)
+	{
+		var roomList = rooms
+			.OrderBy(x => x.Vnum)
+			.ToList();
+		Dictionary<int, FutureMudRoomIdReservation> reservations = [];
+		List<FutureMudRoomValidationIssue> issues = [];
+		HashSet<long> reservedRoomIds = [];
+		HashSet<long> reservedCellIds = [];
+		var nextRoomFallbackId = DetermineFirstFallbackId(roomList, existingRoomIds);
+		var nextCellFallbackId = DetermineFirstFallbackId(roomList, existingCellIds);
+
+		foreach (var room in roomList)
+		{
+			var roomId = ReserveId(
+				room,
+				"Room",
+				existingRoomIds,
+				reservedRoomIds,
+				ref nextRoomFallbackId,
+				issues);
+			var cellId = ReserveId(
+				room,
+				"Cell",
+				existingCellIds,
+				reservedCellIds,
+				ref nextCellFallbackId,
+				issues);
+
+			reservations[room.Vnum] = new FutureMudRoomIdReservation(room.Vnum, roomId, cellId);
+		}
+
+		return new FutureMudRoomIdReservationPlan(reservations, issues);
+	}
+
+	private static long DetermineFirstFallbackId(
+		IReadOnlyList<ConvertedRoomDefinition> rooms,
+		IReadOnlySet<long> existingIds)
+	{
+		var highestExistingId = existingIds.Count == 0
+			? 0L
+			: existingIds.Max();
+		var highestLegacyId = rooms
+			.Select(x => x.LegacyPersistenceId ?? 0L)
+			.DefaultIfEmpty(0L)
+			.Max();
+
+		return Math.Max(highestExistingId, highestLegacyId) + 1;
+	}
+
+	private static long ReserveId(
+		ConvertedRoomDefinition room,
+		string entityName,
+		IReadOnlySet<long> existingIds,
+		ISet<long> reservedIds,
+		ref long nextFallbackId,
+		ICollection<FutureMudRoomValidationIssue> issues)
+	{
+		if (room.LegacyPersistenceId is { } legacyId)
+		{
+			if (!existingIds.Contains(legacyId) && reservedIds.Add(legacyId))
+			{
+				return legacyId;
+			}
+
+			var fallbackId = ReserveFallbackId(existingIds, reservedIds, ref nextFallbackId);
+			var reason = existingIds.Contains(legacyId)
+				? "already exists in the target database"
+				: "was already reserved by another converted room";
+			issues.Add(new FutureMudRoomValidationIssue(
+				room.SourceKey,
+				"warning",
+				$"Legacy vnum {room.Vnum} could not be used as the FutureMUD {entityName} id because id {legacyId} {reason}; assigned fallback id {fallbackId}."));
+			return fallbackId;
+		}
+
+		var generatedFallbackId = ReserveFallbackId(existingIds, reservedIds, ref nextFallbackId);
+		issues.Add(new FutureMudRoomValidationIssue(
+			room.SourceKey,
+			"warning",
+			$"Legacy vnum {room.Vnum} cannot be used as the FutureMUD {entityName} id; assigned fallback id {generatedFallbackId}."));
+		return generatedFallbackId;
+	}
+
+	private static long ReserveFallbackId(
+		IReadOnlySet<long> existingIds,
+		ISet<long> reservedIds,
+		ref long nextFallbackId)
+	{
+		while (existingIds.Contains(nextFallbackId) || reservedIds.Contains(nextFallbackId))
+		{
+			nextFallbackId++;
+		}
+
+		var fallbackId = nextFallbackId;
+		reservedIds.Add(fallbackId);
+		nextFallbackId++;
+		return fallbackId;
 	}
 }
 
@@ -346,6 +458,19 @@ public sealed class FutureMudRoomImporter
 			.ToList();
 		var roomZoneGroupByVnum = conversion.Rooms.ToDictionary(x => x.Vnum, x => x.ZoneGroupKey);
 		Dictionary<string, string> zoneActionByGroupKey = new(StringComparer.OrdinalIgnoreCase);
+		var skipReasons = conversion.Zones.ToDictionary(
+			x => x.GroupKey,
+			x => GetSkipReason(x, CreatePackageMarker(x), packageMarkers, existingPackageNames, existingZoneNames),
+			StringComparer.OrdinalIgnoreCase);
+		var roomsToCreate = conversion.Zones
+			.Where(x => skipReasons[x.GroupKey] is null)
+			.SelectMany(x => x.Rooms)
+			.ToList();
+		var idPlan = FutureMudRoomIdPlanner.Plan(
+			roomsToCreate,
+			_context.Rooms.AsNoTracking().Select(x => x.Id).ToHashSet(),
+			_context.Cells.AsNoTracking().Select(x => x.Id).ToHashSet());
+		issues.AddRange(idPlan.Issues);
 
 		List<RoomApplyAuditZoneEntry> zoneAudit = [];
 		List<RoomApplyAuditRoomEntry> roomAudit = [];
@@ -362,7 +487,7 @@ public sealed class FutureMudRoomImporter
 		foreach (var zone in orderedZones)
 		{
 			var marker = CreatePackageMarker(zone);
-			var skipReason = GetSkipReason(zone, marker, packageMarkers, existingPackageNames, existingZoneNames);
+			var skipReason = skipReasons[zone.GroupKey];
 			if (skipReason is not null)
 			{
 				zoneActionByGroupKey[zone.GroupKey] = "skipped-existing";
@@ -383,7 +508,16 @@ public sealed class FutureMudRoomImporter
 				zoneAudit.Add(new RoomApplyAuditZoneEntry(zone.GroupKey, zone.ZoneName, zone.OverlayPackageName, "would-create", null, null));
 				foreach (var room in zone.Rooms)
 				{
-					roomAudit.Add(new RoomApplyAuditRoomEntry(room.SourceKey, room.Vnum, room.ZoneGroupKey, "would-create", null, null, null, null));
+					var reservation = idPlan.Reservations[room.Vnum];
+					roomAudit.Add(new RoomApplyAuditRoomEntry(
+						room.SourceKey,
+						room.Vnum,
+						room.ZoneGroupKey,
+						"would-create",
+						null,
+						reservation.RoomId,
+						reservation.CellId,
+						null));
 				}
 
 				continue;
@@ -436,27 +570,30 @@ public sealed class FutureMudRoomImporter
 			zoneAudit.Add(new RoomApplyAuditZoneEntry(zone.GroupKey, zone.ZoneName, zone.OverlayPackageName, "created", dbZone.Id, package.Id));
 			insertedZoneCount++;
 
-			var zoneRooms = new List<(ConvertedRoomDefinition room, MudSharp.Models.Room dbRoom)>();
+			var zoneRooms = new List<(ConvertedRoomDefinition room, MudSharp.Models.Room dbRoom, FutureMudRoomIdReservation reservation)>();
 			foreach (var room in zone.Rooms.OrderBy(x => x.Vnum))
 			{
+				var reservation = idPlan.Reservations[room.Vnum];
 				var dbRoom = new MudSharp.Models.Room
 				{
+					Id = reservation.RoomId,
 					ZoneId = dbZone.Id,
 					X = room.Coordinates.X,
 					Y = room.Coordinates.Y,
 					Z = room.Coordinates.Z,
 				};
-				zoneRooms.Add((room, dbRoom));
+				zoneRooms.Add((room, dbRoom, reservation));
 			}
 
 			_context.Rooms.AddRange(zoneRooms.Select(x => x.dbRoom));
 			_context.SaveChanges();
 
 			var zoneCells = new List<(ConvertedRoomDefinition room, MudSharp.Models.Room dbRoom, MudSharp.Models.Cell dbCell)>();
-			foreach (var (room, dbRoom) in zoneRooms)
+			foreach (var (room, dbRoom, reservation) in zoneRooms)
 			{
 				var dbCell = new MudSharp.Models.Cell
 				{
+					Id = reservation.CellId,
 					RoomId = dbRoom.Id,
 					Temporary = room.RoomFlagNames.Contains(nameof(RpiRoomFlags.Temporary), StringComparer.OrdinalIgnoreCase),
 					EffectData = "<Effects/>",
@@ -562,8 +699,8 @@ public sealed class FutureMudRoomImporter
 			{
 				CellId1 = room1.DbCell.Id,
 				CellId2 = room2.DbCell.Id,
-				Direction1 = (int)exit.Side1.Direction,
-				Direction2 = (int)exit.Side2.Direction,
+				Direction1 = (int)exit.Side1.Direction.ToFutureMudDirection(),
+				Direction2 = (int)exit.Side2.Direction.ToFutureMudDirection(),
 				Keywords1 = FutureMudRoomImportLimits.TruncateExitText(exit.Side1.Keywords),
 				Keywords2 = FutureMudRoomImportLimits.TruncateExitText(exit.Side2.Keywords),
 				PrimaryKeyword1 = FutureMudRoomImportLimits.TruncateExitText(exit.Side1.PrimaryKeyword),

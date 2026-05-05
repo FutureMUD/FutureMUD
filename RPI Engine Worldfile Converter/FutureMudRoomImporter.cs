@@ -222,6 +222,7 @@ public sealed class FutureMudRoomBaselineCatalog
 	public static FutureMudRoomBaselineCatalog Load(FuturemudDatabaseContext context)
 	{
 		var builderAccountId = context.Accounts
+			.AsNoTracking()
 			.Select(x => x.Id)
 			.OrderBy(x => x)
 			.FirstOrDefault();
@@ -231,12 +232,14 @@ public sealed class FutureMudRoomBaselineCatalog
 		}
 
 		var terrains = context.Terrains
+			.AsNoTracking()
 			.ToDictionary(
 				x => x.Name,
 				x => new FutureMudTerrainReference(x.Id, x.Name, x.AtmosphereId, x.AtmosphereType ?? string.Empty),
 				StringComparer.OrdinalIgnoreCase);
 
 		var zones = context.Zones
+			.AsNoTracking()
 			.Include(x => x.ZonesTimezones)
 			.ToList();
 		var zoneTemplates = zones.ToDictionary(
@@ -257,6 +260,7 @@ public sealed class FutureMudRoomBaselineCatalog
 			StringComparer.OrdinalIgnoreCase);
 
 		var primaryTimezones = context.Timezones
+			.AsNoTracking()
 			.Include(x => x.Clock)
 			.Where(x => x.Clock.PrimaryTimezoneId == x.Id)
 			.OrderBy(x => x.ClockId)
@@ -269,11 +273,13 @@ public sealed class FutureMudRoomBaselineCatalog
 			Terrains = terrains,
 			ZoneTemplates = zoneTemplates,
 			ShardIds = context.Shards
+				.AsNoTracking()
 				.Select(x => x.Id)
 				.OrderBy(x => x)
 				.ToList(),
 			PrimaryTimezones = primaryTimezones,
 			ClockIds = context.Clocks
+				.AsNoTracking()
 				.Select(x => x.Id)
 				.OrderBy(x => x)
 				.ToList(),
@@ -410,9 +416,9 @@ public sealed class FutureMudRoomImporter
 		_context = context;
 		_catalog = catalog;
 		_zoneTemplateName = zoneTemplateName;
-		_nextCellOverlayPackageId = context.CellOverlayPackages.Any()
-			? context.CellOverlayPackages.Max(x => x.Id) + 1
-			: 1;
+		_nextCellOverlayPackageId = (context.CellOverlayPackages
+			.AsNoTracking()
+			.Max(x => (long?)x.Id) ?? 0L) + 1L;
 	}
 
 	public IReadOnlyList<FutureMudRoomValidationIssue> Validate(RoomConversionResult conversion)
@@ -437,11 +443,21 @@ public sealed class FutureMudRoomImporter
 
 		var packageMarkers = LoadExistingPackageMarkers();
 		var existingPackageNames = _context.CellOverlayPackages
+			.AsNoTracking()
 			.Select(x => x.Name)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 		var existingZoneNames = _context.Zones
+			.AsNoTracking()
 			.Select(x => x.Name)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var orderedZones = conversion.Zones
+			.OrderBy(x => x.ZoneName, StringComparer.OrdinalIgnoreCase)
+			.ToList();
+		var orderedExits = conversion.Exits
+			.OrderBy(x => x.ExitKey, StringComparer.OrdinalIgnoreCase)
+			.ToList();
+		var roomZoneGroupByVnum = conversion.Rooms.ToDictionary(x => x.Vnum, x => x.ZoneGroupKey);
+		Dictionary<string, string> zoneActionByGroupKey = new(StringComparer.OrdinalIgnoreCase);
 		var skipReasons = conversion.Zones.ToDictionary(
 			x => x.GroupKey,
 			x => GetSkipReason(x, CreatePackageMarker(x), packageMarkers, existingPackageNames, existingZoneNames),
@@ -452,8 +468,8 @@ public sealed class FutureMudRoomImporter
 			.ToList();
 		var idPlan = FutureMudRoomIdPlanner.Plan(
 			roomsToCreate,
-			_context.Rooms.Select(x => x.Id).ToHashSet(),
-			_context.Cells.Select(x => x.Id).ToHashSet());
+			_context.Rooms.AsNoTracking().Select(x => x.Id).ToHashSet(),
+			_context.Cells.AsNoTracking().Select(x => x.Id).ToHashSet());
 		issues.AddRange(idPlan.Issues);
 
 		List<RoomApplyAuditZoneEntry> zoneAudit = [];
@@ -468,12 +484,13 @@ public sealed class FutureMudRoomImporter
 		Dictionary<int, RoomDbState> createdRoomStates = [];
 		using var transaction = execute ? _context.Database.BeginTransaction() : null;
 
-		foreach (var zone in conversion.Zones.OrderBy(x => x.ZoneName, StringComparer.OrdinalIgnoreCase))
+		foreach (var zone in orderedZones)
 		{
 			var marker = CreatePackageMarker(zone);
 			var skipReason = skipReasons[zone.GroupKey];
 			if (skipReason is not null)
 			{
+				zoneActionByGroupKey[zone.GroupKey] = "skipped-existing";
 				issues.Add(new FutureMudRoomValidationIssue(zone.GroupKey, "warning", skipReason));
 				zoneAudit.Add(new RoomApplyAuditZoneEntry(zone.GroupKey, zone.ZoneName, zone.OverlayPackageName, "skipped-existing", null, null));
 				foreach (var room in zone.Rooms)
@@ -487,6 +504,7 @@ public sealed class FutureMudRoomImporter
 
 			if (!execute)
 			{
+				zoneActionByGroupKey[zone.GroupKey] = "would-create";
 				zoneAudit.Add(new RoomApplyAuditZoneEntry(zone.GroupKey, zone.ZoneName, zone.OverlayPackageName, "would-create", null, null));
 				foreach (var room in zone.Rooms)
 				{
@@ -505,6 +523,7 @@ public sealed class FutureMudRoomImporter
 				continue;
 			}
 
+			zoneActionByGroupKey[zone.GroupKey] = "created";
 			var dbZone = new Zone
 			{
 				Name = zone.ZoneName,
@@ -563,10 +582,10 @@ public sealed class FutureMudRoomImporter
 					Y = room.Coordinates.Y,
 					Z = room.Coordinates.Z,
 				};
-				_context.Rooms.Add(dbRoom);
 				zoneRooms.Add((room, dbRoom, reservation));
 			}
 
+			_context.Rooms.AddRange(zoneRooms.Select(x => x.dbRoom));
 			_context.SaveChanges();
 
 			var zoneCells = new List<(ConvertedRoomDefinition room, MudSharp.Models.Room dbRoom, MudSharp.Models.Cell dbCell)>();
@@ -579,15 +598,16 @@ public sealed class FutureMudRoomImporter
 					Temporary = room.RoomFlagNames.Contains(nameof(RpiRoomFlags.Temporary), StringComparer.OrdinalIgnoreCase),
 					EffectData = "<Effects/>",
 				};
-				_context.Cells.Add(dbCell);
 				zoneCells.Add((room, dbRoom, dbCell));
 			}
 
+			_context.Cells.AddRange(zoneCells.Select(x => x.dbCell));
 			_context.SaveChanges();
 
 			var firstCellId = zoneCells.Select(x => x.dbCell.Id).OrderBy(x => x).FirstOrDefault();
 			dbZone.DefaultCellId = firstCellId == 0 ? null : firstCellId;
 
+			var zoneOverlays = new List<(ConvertedRoomDefinition room, MudSharp.Models.Room dbRoom, MudSharp.Models.Cell dbCell, MudSharp.Models.CellOverlay dbOverlay)>();
 			foreach (var (room, dbRoom, dbCell) in zoneCells)
 			{
 				var terrain = _catalog.Terrains[room.TerrainName];
@@ -607,9 +627,14 @@ public sealed class FutureMudRoomImporter
 					AtmosphereType = terrain.AtmosphereType,
 					SafeQuit = room.SafeQuit,
 				};
-				_context.CellOverlays.Add(dbOverlay);
-				_context.SaveChanges();
+				zoneOverlays.Add((room, dbRoom, dbCell, dbOverlay));
+			}
 
+			_context.CellOverlays.AddRange(zoneOverlays.Select(x => x.dbOverlay));
+			_context.SaveChanges();
+
+			foreach (var (room, dbRoom, dbCell, dbOverlay) in zoneOverlays)
+			{
 				dbCell.CurrentOverlayId = dbOverlay.Id;
 				createdRoomStates[room.Vnum] = new RoomDbState
 				{
@@ -639,9 +664,11 @@ public sealed class FutureMudRoomImporter
 
 		if (!execute)
 		{
-			foreach (var exit in conversion.Exits.OrderBy(x => x.ExitKey, StringComparer.OrdinalIgnoreCase))
+			foreach (var exit in orderedExits)
 			{
-				var action = zoneAudit.Any(x => x.GroupKey == conversion.Rooms.First(y => y.Vnum == exit.RoomVnum1).ZoneGroupKey && x.Action == "skipped-existing")
+				var action = roomZoneGroupByVnum.TryGetValue(exit.RoomVnum1, out var zoneGroupKey) &&
+				             zoneActionByGroupKey.TryGetValue(zoneGroupKey, out var zoneAction) &&
+				             zoneAction == "skipped-existing"
 					? "skipped-existing"
 					: "would-create";
 				exitAudit.Add(new RoomApplyAuditExitEntry(exit.ExitKey, exit.RoomVnum1, exit.RoomVnum2, action, null));
@@ -659,7 +686,7 @@ public sealed class FutureMudRoomImporter
 		var hiddenExitIdsByCell = new Dictionary<long, List<long>>();
 		var exitModels = new List<(ConvertedRoomExitDefinition definition, Exit dbExit)>();
 		var linkedOverlayExits = new HashSet<(long CellOverlayId, long ExitId)>();
-		foreach (var exit in conversion.Exits.OrderBy(x => x.ExitKey, StringComparer.OrdinalIgnoreCase))
+		foreach (var exit in orderedExits)
 		{
 			if (!createdRoomStates.TryGetValue(exit.RoomVnum1, out var room1) ||
 			    !createdRoomStates.TryGetValue(exit.RoomVnum2, out var room2))
@@ -701,10 +728,10 @@ public sealed class FutureMudRoomImporter
 				TimeMultiplier = 1.0,
 				BlockedLayers = string.Empty,
 			};
-			_context.Exits.Add(dbExit);
 			exitModels.Add((exit, dbExit));
 		}
 
+		_context.Exits.AddRange(exitModels.Select(x => x.dbExit));
 		_context.SaveChanges();
 
 		foreach (var (definition, dbExit) in exitModels)
@@ -797,10 +824,11 @@ public sealed class FutureMudRoomImporter
 	private HashSet<string> LoadExistingPackageMarkers()
 	{
 		return _context.CellOverlayPackages
-			.Include(x => x.EditableItem)
+			.AsNoTracking()
 			.Where(x => x.EditableItem != null && x.EditableItem.BuilderComment != null && x.EditableItem.BuilderComment.StartsWith("RPIROOMPACKAGE|"))
+			.Select(x => x.EditableItem!.BuilderComment)
 			.AsEnumerable()
-			.Select(x => x.EditableItem!.BuilderComment.Split('\n', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty)
+			.Select(x => x.Split('\n', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty)
 			.Where(x => x.StartsWith("RPIROOMPACKAGE|", StringComparison.Ordinal))
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 	}

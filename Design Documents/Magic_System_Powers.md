@@ -198,7 +198,7 @@ Add a new power type when the behavior does not fit the spell system well and de
 
 ## Current Implemented Power Types
 ### Builder-registered power types
-These are the currently builder-creatable power tokens registered through `MagicPowerFactory`. There are 24 builder-created tokens in this table; the implemented-types inventory also lists the non-builder `armor` runtime alias.
+These are the currently builder-creatable power tokens registered through `MagicPowerFactory`. There are 31 builder-created tokens in this table; the implemented-types inventory also lists the non-builder `armor` runtime alias.
 
 | Builder token | Class | Summary |
 | --- | --- | --- |
@@ -208,9 +208,13 @@ These are the currently builder-creatable power tokens registered through `Magic
 | `babble` | `BabblePower` | Timed hostile speech obfuscation |
 | `choke` | `ChokePower` | Choking or constriction style offensive power |
 | `clairaudience` | `ClairaudiencePower` | Sustained contact-based remote hearing through another mind's location |
+| `clairvoyance` | `ClairvoyancePower` | Targeted remote viewing of the target's current location without moving the caster |
 | `coerce` | `CoercePower` | Mode-based psionic influence for stamina, hunger, thirst, or thought injection |
 | `connectmind` | `ConnectMindPower` | Creates or manages mind links |
+| `dangersense` | `DangerSensePower` | Sustained nearby-threat sensing plus a short defensive combat check bonus |
+| `empathy` | `EmpathyPower` | Delayed targeted wound transfer from the target to the psion, remapping wound locations where possible |
 | `hear` | `HearPower` | Sustained listener for psionic thought and feeling traffic |
+| `hex` | `HexPower` | Timed hostile check penalty across configured check categories |
 | `invisibility` | `InvisibilityPower` | Applies invisibility behavior |
 | `magicattack` | `MagicAttackPower` | Direct magical attack action |
 | `magicksense` | `MagicksensePower` | Sustained magical-aura perception grant |
@@ -221,8 +225,11 @@ These are the currently builder-creatable power tokens registered through `Magic
 | `mindexpel` | `MindExpelPower` | Expels connected minds or effects |
 | `mindlook` | `MindLookPower` | Observe or inspect through mind-link mechanics |
 | `mindsay` | `MindSayPower` | Directed mind-to-mind speech |
+| `prescience` | `PresciencePower` | Opens an editor and posts a question to a configured board for staff response |
 | `projectemotion` | `ProjectEmotionPower` | Injects an involuntary feeling into the target's mind and eligible listeners |
+| `psychicbolt` | `PsychicBoltPower` | Targeted hostile stun-only psychic damage through the normal health pipeline |
 | `sense` | `SensePower` | Sense targets across a configurable distance |
+| `sensitivity` | `SensitivityPower` | Sustained magical/psychic sensitivity, activity pings, active aura scans, and hard capability reads |
 | `suggest` | `SuggestPower` | Injects an involuntary thought, optionally with an emotional wrapper |
 | `telepathy` | `TelepathyPower` | Telepathic communication or related perception |
 | `trace` | `TracePower` | Inspects active mind links around a target mind while respecting concealment |
@@ -247,6 +254,8 @@ V4 adds a shared psionic traffic/coercion helper used by `projectemotion`, `sugg
 
 This is intentionally separate from true projection or possession. `mindconceal` hides identity across mind-contact and passive telepathy surfaces; `clairaudience` forwards remote audible output through another mind's location; neither creates a second acting body or remote command shell.
 
+The Old SOI parity slice adds seven builder-created psionic powers. `dangersense` and `sensitivity` are sustained self powers; `empathy`, `hex`, `clairvoyance`, and `psychicbolt` are targeted powers; `prescience` is a board-submission power. They reuse the shared power XML, cost, psionic-crime, and builder-command systems, with subtype XML for Old SOI-style defaults and FutureMUD-specific extensions such as wound remapping, configurable check categories, activity filters, and capability-read difficulty.
+
 ### Notable base or runtime-support types
 These matter to developers extending the subsystem, but they are not standalone builder-created types.
 
@@ -257,16 +266,24 @@ These matter to developers extending the subsystem, but they are not standalone 
 | `MagicalMeleeAttackPower` | Abstract base for melee-style magic attacks; not a standalone builder type |
 | `PsionicTrafficHelper` | Shared policy helper for involuntary thought/feeling delivery, eligible listener forwarding, opt-out checks, blocked command roots, and audit output |
 | `PsionicSustainedPowerEffectBase<TPower>` | Shared runtime base for the V4 sustained psionic effects |
+| `BodypartMappingUtilities` | Shared bodypart remapping helper used by form transformation-style wound migration and `empathy` wound transfer |
+| `PsionicActivityNotifier` | Broadcast helper for magical or psychic activity pings consumed by `sensitivity` |
+| `RemoteLookRenderer` | LOOK-style remote cell renderer used by `clairvoyance` without relocating the viewer |
 | `MagicAllspeakEffect` | Sustained `IComprehendLanguageEffect` used by `allspeak` |
+| `MagicDangerSenseEffect` | Sustained danger-sense heartbeat effect that scans nearby cells and refreshes defensive warnings |
+| `DangerSenseDefensiveEdge` | Short non-saving defensive check bonus applied by successful `dangersense` combat checks |
+| `MagicHexEffect` | Saving `ICheckBonusEffect` debuff used by `hex` for configured check categories |
 | `PsionicBabbleEffect` | Timed `IBabbleSpeechEffect` used by `babble` |
 | `MagicMagicksenseEffect` | Sustained magical perception grant used by `magicksense` |
 | `PsionicHearEffect` | Sustained `ITelepathyEffect` listener used by `hear` |
 | `PsionicClairaudienceEffect` | Remote audible-observation effect used by `clairaudience` |
+| `PsionicSensitivityEffect` | Sustained magical/psychic perception grant and activity listener used by `sensitivity` |
 
 ## Important Current-State Notes
 - School verbs are the player namespace for powers. There is no separate general player command that bypasses the school.
 - Capability-granted inherent powers are a first-class runtime path and are the main inspected content linkage for powers.
 - Power definitions are polymorphic and XML-backed, so database seeding must match the runtime class exactly.
+- Old SOI psionic powers depend on seeded variable checks: `DangerSenseNearbyThreat`, `DangerSenseDefense`, `EmpathyPower`, `HexPower`, `ClairvoyancePower`, `PresciencePower`, `SensitivityPower`, `SensitivityCapabilityRead`, and `PsychicBoltPower`.
 - If a power type grows mostly into editable composition rather than unique runtime logic, it may be a better fit as a spell instead of as a new power class.
 - Room and personal wards are authored as spell effects, but targeted powers and psionic sensing flows still respect them through the shared interdiction helper.
 - `connectmind` has a target-eligibility prog in addition to its target-list prog. Use that for animal, wild, or setting-specific contact variants before adding a new hard-coded link power.

@@ -24,7 +24,7 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 - Existing powers count as valid coverage even when Armageddon exposed the original ability as a spell. If you want strict `cast`-spell parity rather than "same subsystem can do it", several defensive entries would slide from `Native now` to `Needs engine primitive`.
 - A handful of Armageddon entries are under-specified in the dump (`Daylight`, `Empower`, `Drown`, `Cause Disease`, `Acid Spray`, some passive psionics). The first pass counted those conservatively unless the name clearly mapped to an existing FutureMUD primitive.
 - The original first-pass counts used a single `Needs engine work` bucket. This revision keeps those historical lists in the appendix, but current planning uses the two-way split above.
-- Status reviewed on 2026-05-03 against `Magic_System_Implemented_Types.md`, `Magic_System_Spells.md`, `Magic_System_Powers.md`, and the registered runtime types under `MudSharpCore/Magic`. Exact family-by-family counts were not recomputed in this pass; the stale top-line counts have therefore been removed from the planning sections. V4 added 9 builder-registered psionic power tokens and 2 builder-registered tag-aware ward effect tokens.
+- Status reviewed on 2026-05-03 against `Magic_System_Implemented_Types.md`, `Magic_System_Spells.md`, `Magic_System_Powers.md`, and the registered runtime types under `MudSharpCore/Magic`. Exact family-by-family counts were not recomputed in this pass; the stale top-line counts have therefore been removed from the planning sections. V4 added 9 builder-registered psionic power tokens and 2 builder-registered tag-aware ward effect tokens. The 2026-05-05 Old SOI parity slice added 7 more builder-registered psionic power tokens: `dangersense`, `empathy`, `hex`, `clairvoyance`, `prescience`, `sensitivity`, and `psychicbolt`.
 
 ## Executive Summary
 
@@ -43,7 +43,7 @@ Key takeaways:
 - Previous phases closed three medium-difficulty primitive gaps: local exit targeting, prog-resolved summon-style remote targeting, and reusable room or personal wards with shared spell and power interception.
 - The plane and body-form work moves several old blockers into the buildable bucket: `Ethereal`, `Detect Ethereal`, `Dispel Ethereal`, simple `Planeshift`, ghostly manifestation, and polymorph-style transformations can now use first-class effects rather than bespoke tags.
 - The biggest remaining architecture blockers are durable portal topology beyond saved effects, objective or group-scoped illusion policy, world-specific metaphysics, and true "dual body" mechanics like possession or shadow projection.
-- Psionics are now better covered than the first pass suggested. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, direct mental attacks, passive thought/feeling traffic, identity concealment, trace inspection, psionic hearing, clairaudience, language comprehension, babbling, magical sensing, emotion/thought injection, and non-command coerce modes. Durable trace consequences and projection-style powers still need supporting-system work.
+- Psionics are now better covered than the first pass suggested. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, direct mental attacks, passive thought/feeling traffic, identity concealment, trace inspection, psionic hearing, clairaudience, clairvoyance, language comprehension, babbling, magical or psychic sensitivity, danger sense, empathy, hexes, prescient board questions, emotion/thought injection, stun-only psychic bolts, and non-command coerce modes. Durable trace consequences and projection-style powers still need supporting-system work.
 
 ## Current Family Themes
 
@@ -57,7 +57,7 @@ Key takeaways:
 | Lightning | direct attacks, stamina effects, paralysis | `insomnia`, footprint tracking such as `Fluorescent Footsteps` | none obvious from the current report |
 | Void | wards, portals, marks/runes, corpse preservation/consumption/spawn, resource drains, item enchantments | strength-contested dispel math, exact `Identify`/`Dead Speak`/`Recite` surfaces if they need first-class UX | durable portal/rune topology, possession, disembodiment, setting-specific `Solace` / `Dragon Bane` / `Cathexis` |
 | Unspecified / incomplete magic | `Puddle`; `Cause Disease` if the dump only requires disease application | `Acid Spray`, exact `Drown` if not covered by existing damage/need/breathing primitives | source clarification may be needed before classification |
-| Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment, `Trace`, `Hear`, `Clairaudience`, `Allspeak`, `Babble`, `Magicksense`, `Project Emotion`, `Suggest`, `Coerce`, and animal/wild contact variants via `connectmind` eligibility progs | content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers if they require unique UX beyond existing links and policy hooks | projection/remote-presence semantics, durable psionic trace/consequence models, and objective multi-viewer illusion state |
+| Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment, `Trace`, `Hear`, `Clairaudience`, `Clairvoyance`, `Allspeak`, `Babble`, `Magicksense`, `Danger Sense`, `Empathy`, `Hex`, `Prescience`, `Sensitivity`, `Psychic Bolt`, `Project Emotion`, `Suggest`, `Coerce`, and animal/wild contact variants via `connectmind` eligibility progs | content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers if they require unique UX beyond existing links and policy hooks | projection/remote-presence semantics, durable psionic trace/consequence models, and objective multi-viewer illusion state |
 
 ## Where FutureMUD Is Already Strong
 
@@ -83,6 +83,7 @@ The current system already has good coverage for:
 - V3 edge statuses through `detectpoison`, `insomnia`, `removeinsomnia`, `removeblindness` / `cureblindness`, and optional strength-contested `dispelmagic`
 - Coercion V1 through `forcecommand`, `subjectivedesc`, and `subjectivesdesc`
 - V4 psionic and perception policy through `trace`, `hear`, `clairaudience`, `allspeak`, `babble`, `magicksense`, `projectemotion`, `suggest`, and `coerce`, plus shared traffic/audit delivery, `connectmind` eligibility progs, subjective-description priority/key handling, and tag-aware `roomtagward` / `personaltagward`
+- Old SOI psionic parity through `dangersense`, `empathy`, `hex`, `clairvoyance`, `prescience`, `sensitivity`, and `psychicbolt`, plus wound-transfer remapping, psionic activity pings, remote LOOK rendering, and stun-only psychic damage through the health pipeline
 
 ## Previous Work
 

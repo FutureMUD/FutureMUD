@@ -35,7 +35,7 @@ It is intended for:
 | `state` | `StateGenerator` | Regenerator | Switch dispatch in `MudSharpCore/Magic/Generators/BaseMagicResourceGenerator.cs` | Yes | Adds one or more resources per minute based on boolean state progs |
 
 ## Power Types
-Current count: 25 power tokens, including 24 builder-creatable tokens and the non-builder `armor` runtime alias. V4 added 9 builder-creatable psionic powers in per-power files under `MudSharpCore/Magic/Powers/`.
+Current count: 32 power tokens, including 31 builder-creatable tokens and the non-builder `armor` runtime alias. V4 added 9 builder-creatable psionic powers, and the Old SOI parity slice added 7 more psionic power tokens in per-power files under `MudSharpCore/Magic/Powers/`.
 
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
@@ -46,9 +46,13 @@ Current count: 25 power tokens, including 24 builder-creatable tokens and the no
 | `babble` | `BabblePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/BabblePower.cs` via `MagicPowerFactory` | Yes | Applies hostile timed speech obfuscation before language comprehension can decode speech |
 | `choke` | `ChokePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/ChokePower.cs` via `MagicPowerFactory` | Yes | Applies choking or constriction behavior |
 | `clairaudience` | `ClairaudiencePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/ClairaudiencePower.cs` via `MagicPowerFactory` | Yes | Sustains contact-based remote hearing through another mind's location |
+| `clairvoyance` | `ClairvoyancePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/ClairvoyancePower.cs` via `MagicPowerFactory` | Yes | Renders a target's current location as remote LOOK output without moving the caster |
 | `coerce` | `CoercePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/CoercePower.cs` via `MagicPowerFactory` | Yes | Applies mode-based psionic influence for stamina, hunger, thirst, or thought injection |
 | `connectmind` | `ConnectMindPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/ConnectMindPower.cs` via `MagicPowerFactory` | Yes | Creates or manages a mind connection |
+| `dangersense` | `DangerSensePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/DangerSensePower.cs` via `MagicPowerFactory` | Yes | Sustains nearby hostile NPC sensing and a defensive combat bonus effect |
+| `empathy` | `EmpathyPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/EmpathyPower.cs` via `MagicPowerFactory` | Yes | Transfers wounds from a target to the psion one at a time with bodypart remapping and safety stops |
 | `hear` | `HearPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/HearPower.cs` via `MagicPowerFactory` | Yes | Sustains a listener for psionic thought and feeling traffic |
+| `hex` | `HexPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/HexPower.cs` via `MagicPowerFactory` | Yes | Applies a timed hostile check penalty over selected check categories |
 | `invisibility` | `InvisibilityPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/InvisibilityPower.cs` via `MagicPowerFactory` | Yes | Applies invisibility behavior |
 | `magicattack` | `MagicAttackPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicAttackPower.cs` via `MagicPowerFactory` | Yes | Executes a direct magical attack |
 | `magicksense` | `MagicksensePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicksensePower.cs` via `MagicPowerFactory` | Yes | Sustains `SenseMagical` perception and uses the existing magical aura display |
@@ -59,8 +63,11 @@ Current count: 25 power tokens, including 24 builder-creatable tokens and the no
 | `mindexpel` | `MindExpelPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindExpelPower.cs` via `MagicPowerFactory` | Yes | Expels a connection or presence |
 | `mindlook` | `MindLookPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindLookPower.cs` via `MagicPowerFactory` | Yes | Observes through mind mechanics |
 | `mindsay` | `MindSayPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindSayPower.cs` via `MagicPowerFactory` | Yes | Sends directed mind speech |
+| `prescience` | `PresciencePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/PresciencePower.cs` via `MagicPowerFactory` | Yes | Opens an editor and posts the submitted question to a configured board |
 | `projectemotion` | `ProjectEmotionPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/ProjectEmotionPower.cs` via `MagicPowerFactory` | Yes | Injects an involuntary feeling into a target mind and eligible psionic listeners |
+| `psychicbolt` | `PsychicBoltPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/PsychicBoltPower.cs` via `MagicPowerFactory` | Yes | Applies stun-only psychic damage through the normal health pipeline |
 | `sense` | `SensePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/SensePower.cs` via `MagicPowerFactory` | Yes | Senses characters or items across a configured range |
+| `sensitivity` | `SensitivityPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/SensitivityPower.cs` via `MagicPowerFactory` | Yes | Sustains magical or psychic perception, receives activity pings, and actively scans auras or capabilities |
 | `suggest` | `SuggestPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/SuggestPower.cs` via `MagicPowerFactory` | Yes | Injects an involuntary thought, optionally wrapped with an emotional delivery |
 | `telepathy` | `TelepathyPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/TelepathyPower.cs` via `MagicPowerFactory` | Yes | Telepathic communication or related perception |
 | `trace` | `TracePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/TracePower.cs` via `MagicPowerFactory` | Yes | Inspects active mind links around a target mind while respecting concealment difficulty |
@@ -226,12 +233,19 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | n/a | `IPrioritisedOverrideDescEffect` | Subjective-description priority and illusion-key contract used by body/item description override resolution and `dispelmagic illusion <key>` |
 | n/a | `IBabbleSpeechEffect` | Speech-obfuscation contract used by communication strategies before language comprehension |
 | n/a | `PsionicSustainedPowerEffectBase<TPower>` | Shared base for V4 sustained psionic effects |
+| n/a | `BodypartMappingUtilities` | Shared bodypart mapping helper used by body-form wound migration and `empathy` wound transfer |
+| n/a | `PsionicActivityNotifier` | Shared activity ping helper used by new psionic powers and consumed by `sensitivity` |
+| n/a | `RemoteLookRenderer` | LOOK-style remote cell renderer used by `clairvoyance` |
 | n/a | `MagicAllspeakEffect` | Sustained `IComprehendLanguageEffect` used by `allspeak` |
 | n/a | `MagicMagicksenseEffect` | Sustained `SenseMagical` perception grant used by `magicksense` |
 | n/a | `PsionicHearEffect` | Sustained `ITelepathyEffect` listener used by `hear` |
 | n/a | `PsionicBabbleEffect` | Timed `IBabbleSpeechEffect` used by `babble` |
 | n/a | `MagicClairaudienceConcentrationEffect` | Caster-side concentration marker for `clairaudience` |
 | n/a | `PsionicClairaudienceEffect` | Remote-observation effect that forwards audible output only |
+| n/a | `MagicDangerSenseEffect` | Sustained heartbeat effect that scans for danger and refreshes defensive edge bonuses |
+| n/a | `DangerSenseDefensiveEdge` | Temporary defensive check bonus effect used by `dangersense` |
+| n/a | `MagicHexEffect` | Saving check-penalty effect used by `hex` |
+| n/a | `PsionicSensitivityEffect` | Sustained perception grant and activity listener used by `sensitivity` |
 
 ## Notes
 - Schools are first-class records rather than subtype-driven types, so they are documented in the overview and backbone docs rather than listed here as a type family.
@@ -241,4 +255,4 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 - Phase 1 spell support also introduced additive `IEffect.PerceptionGranting`, spell-runtime query interfaces such as `ISilencedEffect`, `ISleepEffect`, `IFearEffect`, `IFlightEffect`, `IAdditionalBreathableFluidEffect`, `IDarksightEffect`, `IComprehendLanguageEffect`, and `ICurseEffect`, plus shared `MagicArmourConfiguration` for power and spell armour parity.
 - `transformform` is the current builder-creatable spell effect for cached alternate-form provisioning and scripted transformation, including optional transformation emotes, first-creation description-pattern defaults, and configurable forced-transformation priority metadata.
 - Wind spell support extends the runtime movement layer with `IFly.CanContinueFlying`, target-specific fall prevention, fall-damage mitigation, exit-path forced movement, precise invisibility removal, and caster/target transference.
-- V4 psionic and perception support adds 9 power tokens, tag-aware wards, contextual interdiction tags, illusion priority/key matching, speech babbling, remote audible observation, and non-command psionic traffic/coercion delivery.
+- V4 psionic and perception support adds 9 power tokens, tag-aware wards, contextual interdiction tags, illusion priority/key matching, speech babbling, remote audible observation, and non-command psionic traffic/coercion delivery. The Old SOI parity slice adds 7 more psionic power tokens plus seeded variable checks for danger sense, empathy, hex, clairvoyance, prescience, sensitivity, and psychic bolt.

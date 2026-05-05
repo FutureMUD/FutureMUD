@@ -140,6 +140,8 @@ Side-specific data is preserved per direction:
 
 One-sided exits are allowed. The shared `Exit` is created, and only the visible overlay side is linked.
 
+Self-loop exits are allowed and produce a `self-loop-exit` warning. FutureMUD stores overlay-to-exit links in a join table keyed by overlay id and exit id, so the importer de-duplicates those join rows when both visible sides of a self-loop belong to the same overlay.
+
 ## Doors And Gates
 
 RPI Engine doors and gates were not standalone items. In this pass:

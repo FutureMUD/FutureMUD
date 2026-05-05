@@ -521,6 +521,7 @@ public sealed class FutureMudRoomImporter
 
 		var hiddenExitIdsByCell = new Dictionary<long, List<long>>();
 		var exitModels = new List<(ConvertedRoomExitDefinition definition, Exit dbExit)>();
+		var linkedOverlayExits = new HashSet<(long CellOverlayId, long ExitId)>();
 		foreach (var exit in conversion.Exits.OrderBy(x => x.ExitKey, StringComparer.OrdinalIgnoreCase))
 		{
 			if (!createdRoomStates.TryGetValue(exit.RoomVnum1, out var room1) ||
@@ -574,19 +575,11 @@ public sealed class FutureMudRoomImporter
 			var room1 = createdRoomStates[definition.RoomVnum1];
 			var room2 = createdRoomStates[definition.RoomVnum2];
 
-			_context.CellOverlaysExits.Add(new CellOverlayExit
-			{
-				CellOverlayId = room1.DbOverlay.Id,
-				ExitId = dbExit.Id,
-			});
+			AddCellOverlayExitLink(linkedOverlayExits, room1.DbOverlay.Id, dbExit.Id);
 
 			if (definition.Side2.Visible)
 			{
-				_context.CellOverlaysExits.Add(new CellOverlayExit
-				{
-					CellOverlayId = room2.DbOverlay.Id,
-					ExitId = dbExit.Id,
-				});
+				AddCellOverlayExitLink(linkedOverlayExits, room2.DbOverlay.Id, dbExit.Id);
 			}
 
 			if (definition.Side1.Hidden)
@@ -620,6 +613,23 @@ public sealed class FutureMudRoomImporter
 			skippedExistingZoneCount,
 			issues,
 			new RoomApplyAuditReport(DateTime.UtcNow, true, defaults!.Description, zoneAudit, roomAudit, exitAudit));
+	}
+
+	private void AddCellOverlayExitLink(
+		ISet<(long CellOverlayId, long ExitId)> linkedOverlayExits,
+		long cellOverlayId,
+		long exitId)
+	{
+		if (!linkedOverlayExits.Add((cellOverlayId, exitId)))
+		{
+			return;
+		}
+
+		_context.CellOverlaysExits.Add(new CellOverlayExit
+		{
+			CellOverlayId = cellOverlayId,
+			ExitId = exitId,
+		});
 	}
 
 	private static string? GetSkipReason(

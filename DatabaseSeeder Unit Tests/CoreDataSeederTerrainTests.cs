@@ -188,6 +188,31 @@ public class CoreDataSeederTerrainTests
     }
 
     [TestMethod]
+    public void SeedTerrainFoundationsForTesting_SeedsBreathableAtmosphereForStockTerrains()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+
+        SeedTerrainFoundations(context);
+
+        Gas breathableAtmosphere = context.Gases.Single(x => x.Name == "Breathable Atmosphere");
+        foreach (string terrainName in new[]
+                 { "Void", "Residence", "Grasslands", "Ocean", "Zero-G Spaceship Compartment" })
+        {
+            Terrain terrain = context.Terrains.Single(x => x.Name == terrainName);
+            Assert.AreEqual(breathableAtmosphere.Id, terrain.AtmosphereId,
+                $"Expected terrain {terrainName} to use the stock breathable atmosphere.");
+            Assert.AreEqual("Gas", terrain.AtmosphereType);
+        }
+
+        foreach (string terrainName in new[]
+                 { "Deep Ocean", "Moon Surface", "Lunar Mare", "Asteroid Surface", "Orbital Space", "Interstellar Space" })
+        {
+            Assert.IsNull(context.Terrains.Single(x => x.Name == terrainName).AtmosphereId,
+                $"Expected terrain {terrainName} to remain without a breathable atmosphere.");
+        }
+    }
+
+    [TestMethod]
     public void SeedTerrainFoundationsForTesting_RerunDoesNotDuplicateTagsOrTerrains()
     {
         using FuturemudDatabaseContext context = BuildContext();
@@ -405,9 +430,32 @@ public class CoreDataSeederTerrainTests
         Terrain ocean = context.Terrains.Single(x => x.Name == "Ocean");
         Terrain orbitalSpace = context.Terrains.Single(x => x.Name == "Orbital Space");
         Terrain moonSurface = context.Terrains.Single(x => x.Name == "Moon Surface");
+        Gas breathableAtmosphere = context.Gases.Single(x => x.Name == "Breathable Atmosphere");
+        Gas customAtmosphere = new()
+        {
+            Id = 2,
+            Name = "Builder Custom Atmosphere",
+            Description = "A builder-custom atmosphere",
+            Density = 0.002,
+            ThermalConductivity = 0.02,
+            ElectricalConductivity = 0.000001,
+            Organic = false,
+            SpecificHeatCapacity = 1.0,
+            BoilingPoint = -150,
+            DisplayColour = "green",
+            Viscosity = 10,
+            SmellIntensity = 0,
+            SmellText = "It has no smell",
+            VagueSmellText = "It has no smell"
+        };
+        context.Gases.Add(customAtmosphere);
 
         grasslands.ForagableProfileId = customProfile.Id;
+        grasslands.AtmosphereId = null;
+        grasslands.AtmosphereType = "Gas";
         ocean.ForagableProfileId = 999999L;
+        ocean.AtmosphereId = customAtmosphere.Id;
+        ocean.AtmosphereType = "Gas";
         orbitalSpace.GravityModel = (int)GravityModel.Normal;
         moonSurface.GravityModel = (int)GravityModel.ZeroGravity;
         context.SaveChanges();
@@ -416,11 +464,17 @@ public class CoreDataSeederTerrainTests
 
         Assert.AreEqual(customProfile.Id, context.Terrains.Single(x => x.Name == "Grasslands").ForagableProfileId,
             "Expected rerun to preserve terrain assignments to a valid custom forage profile.");
+        Assert.AreEqual(breathableAtmosphere.Id, context.Terrains.Single(x => x.Name == "Grasslands").AtmosphereId,
+            "Expected rerun to repair stock terrains that were seeded before the breathable atmosphere existed.");
+        Assert.IsNull(context.Terrains.Single(x => x.Name == "Moon Surface").AtmosphereId,
+            "Expected rerun to leave vacuum stock terrains without a breathable atmosphere.");
 
         Terrain repairedOcean = context.Terrains.Single(x => x.Name == "Ocean");
         ForagableProfile oceanStockProfile = context.ForagableProfiles.Single(x => x.Name == "Ocean Stock Forage");
         Assert.AreEqual(oceanStockProfile.Id, repairedOcean.ForagableProfileId,
             "Expected rerun to repair terrain assignments that point at no current forage profile.");
+        Assert.AreEqual(customAtmosphere.Id, repairedOcean.AtmosphereId,
+            "Expected rerun to preserve builder-customized stock terrain atmospheres.");
         Assert.AreEqual((int)GravityModel.ZeroGravity, context.Terrains.Single(x => x.Name == "Orbital Space").GravityModel,
             "Expected rerun to repair orbital space to zero gravity.");
         Assert.AreEqual((int)GravityModel.Normal, context.Terrains.Single(x => x.Name == "Moon Surface").GravityModel,

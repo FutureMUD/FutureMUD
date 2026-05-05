@@ -1888,25 +1888,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 
         #region Breathable Air
 
-        Gas air = new()
-        {
-            Id = 1,
-            Name = "Breathable Atmosphere",
-            Description = "Breathable Air",
-            Density = 0.001205,
-            ThermalConductivity = 0.0257,
-            ElectricalConductivity = 0.000005,
-            Organic = false,
-            SpecificHeatCapacity = 1.005,
-            BoilingPoint = -200,
-            DisplayColour = "blue",
-            Viscosity = 15,
-            SmellIntensity = 0,
-            SmellText = "It has no smell",
-            VagueSmellText = "It has no smell"
-        };
-        _context.Gases.Add(air);
-        _context.SaveChanges();
+        Gas air = CoreDataSeeder.EnsureBreathableAtmosphere(_context);
 
         _context.Terrains.First().AtmosphereId = air.Id;
         _context.Terrains.First().AtmosphereType = "Gas";

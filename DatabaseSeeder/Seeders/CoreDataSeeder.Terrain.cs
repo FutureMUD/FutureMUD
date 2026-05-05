@@ -865,6 +865,83 @@ public partial class CoreDataSeeder
 		return profile;
 	}
 
+	internal static Gas EnsureBreathableAtmosphere(FuturemudDatabaseContext context)
+	{
+		var atmosphere = context.Gases
+			.AsEnumerable()
+			.FirstOrDefault(x => x.Name.Equals("Breathable Atmosphere", StringComparison.OrdinalIgnoreCase));
+		if (atmosphere is not null)
+		{
+			return atmosphere;
+		}
+
+		var nextGasId = context.Gases.Any(x => x.Id == 1L)
+			? context.Gases.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0L).Max() + 1L
+			: 1L;
+		atmosphere = new Gas
+		{
+			Id = nextGasId,
+			Name = "Breathable Atmosphere",
+			Description = "Breathable Air",
+			Density = 0.001205,
+			ThermalConductivity = 0.0257,
+			ElectricalConductivity = 0.000005,
+			Organic = false,
+			SpecificHeatCapacity = 1.005,
+			BoilingPoint = -200,
+			DisplayColour = "blue",
+			Viscosity = 15,
+			SmellIntensity = 0,
+			SmellText = "It has no smell",
+			VagueSmellText = "It has no smell"
+		};
+		context.Gases.Add(atmosphere);
+		context.SaveChanges();
+
+		return atmosphere;
+	}
+
+	private static void BackfillStockTerrainAtmospheres(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string?> stockTerrainAtmospheres)
+	{
+		var atmosphereIds = stockTerrainAtmospheres
+			.Values
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Select(x => x!)
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(
+				x => x,
+				x => context.Gases
+					.AsEnumerable()
+					.FirstOrDefault(y => y.Name.Equals(x, StringComparison.OrdinalIgnoreCase))?.Id,
+				StringComparer.OrdinalIgnoreCase);
+
+		foreach (var terrain in context.Terrains.AsEnumerable())
+		{
+			if (terrain.AtmosphereId is not null)
+			{
+				continue;
+			}
+
+			if (!stockTerrainAtmospheres.TryGetValue(terrain.Name, out var atmosphereName) ||
+			    string.IsNullOrWhiteSpace(atmosphereName))
+			{
+				continue;
+			}
+
+			if (!atmosphereIds.TryGetValue(atmosphereName, out var atmosphereId) ||
+			    atmosphereId is null)
+			{
+				continue;
+			}
+
+			terrain.AtmosphereId = atmosphereId.Value;
+			terrain.AtmosphereType = "Gas";
+		}
+
+		context.SaveChanges();
+	}
+
 	private static void BackfillStockTerrainGravity(FuturemudDatabaseContext context)
 	{
 		var zeroGravityTerrains = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -892,21 +969,33 @@ public partial class CoreDataSeeder
     internal static void SeedStockTerrainCatalogue(FuturemudDatabaseContext context, DictionaryWithDefault<string, Tag> tagLookup,
         ICollection<string>? errors = null)
     {
-        if (context.Terrains.Count() > 1)
-        {
-			SeedStockTerrainForageProfiles(context);
-			BackfillStockTerrainGravity(context);
-			errors?.Add("Terrains were already installed, so did not add any new terrain data. Missing stock forage profiles and stock gravity models were repaired or backfilled where safe.");
-            return;
-        }
+	    var breathableAtmosphere = EnsureBreathableAtmosphere(context);
+	    var terrainsAlreadyInstalled = context.Terrains.Count() > 1;
 
-        context.Terrains.Find(1L)!.DefaultTerrain = false;
+	    if (!terrainsAlreadyInstalled)
+	    {
+		    var voidTerrain = context.Terrains.Find(1L)!;
+		    voidTerrain.DefaultTerrain = false;
+		    voidTerrain.AtmosphereId = breathableAtmosphere.Id;
+		    voidTerrain.AtmosphereType = "Gas";
+	    }
+
+	    var stockTerrainAtmospheres = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase)
+	    {
+		    ["Void"] = "Breathable Atmosphere"
+	    };
 
         void AddTerrain(string name, string behaviour, double movementRate, double staminaCost,
             Difficulty hideDifficulty, Difficulty spotDifficulty, string? atmosphere, CellOutdoorsType outdoorsType,
             Color editorColour, string? editorText = null, bool isdefault = false, IEnumerable<string>? tags = null,
             GravityModel gravityModel = GravityModel.Normal)
         {
+	        stockTerrainAtmospheres[name] = atmosphere;
+	        if (terrainsAlreadyInstalled)
+	        {
+		        return;
+	        }
+
             context.Terrains.Add(new Terrain
             {
                 Name = name,
@@ -1353,6 +1442,15 @@ public partial class CoreDataSeeder
             gravityModel: GravityModel.ZeroGravity);
 
         #endregion
+
+		if (terrainsAlreadyInstalled)
+		{
+			BackfillStockTerrainAtmospheres(context, stockTerrainAtmospheres);
+			SeedStockTerrainForageProfiles(context);
+			BackfillStockTerrainGravity(context);
+			errors?.Add("Terrains were already installed, so did not add any new terrain data. Missing stock atmospheres, stock forage profiles, and stock gravity models were repaired or backfilled where safe.");
+			return;
+		}
 
 		SeedStockTerrainForageProfiles(context);
 

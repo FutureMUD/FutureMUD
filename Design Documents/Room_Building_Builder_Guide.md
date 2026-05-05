@@ -401,6 +401,7 @@ cell set door <exit> clear
 ```
 
 `cell set door` controls whether an exit accepts a door and, if so, what size. It does not by itself install a specific door item.
+Player `look` and `exits` output shows door-capable exits without an installed door in bold white; installed doors still show their door state and description directly on the exit.
 
 Climb and fall:
 

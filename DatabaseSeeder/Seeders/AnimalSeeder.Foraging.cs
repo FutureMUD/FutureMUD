@@ -54,6 +54,7 @@ public partial class AnimalSeeder
 				["Tasmanian Devil"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.ScavengerOmnivore],
 				["Dingo"] = [StockNonHumanDietProfile.Carnivore, StockNonHumanDietProfile.ScavengerOmnivore],
 				["Hippopotamus"] = [StockNonHumanDietProfile.Grazer, StockNonHumanDietProfile.AquaticOmnivore],
+				["Oliphant"] = [StockNonHumanDietProfile.Grazer, StockNonHumanDietProfile.Browser],
 				["Giraffe"] = [StockNonHumanDietProfile.Browser],
 				["Carp"] = [StockNonHumanDietProfile.AquaticOmnivore, StockNonHumanDietProfile.GeneralHerbivore],
 				["Koi"] = [StockNonHumanDietProfile.AquaticOmnivore, StockNonHumanDietProfile.GeneralHerbivore],

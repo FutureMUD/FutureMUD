@@ -502,6 +502,14 @@ public partial class AnimalSeeder
                 "It moves with heavy, deliberate momentum, each stride carrying the patient force of an age-old giant.",
                 "tundra, glacial plain and cold steppe"),
             "Mammoths", usages: tuskedGeneral, combatStrategyKey: "Beast Behemoth");
+        yield return Mammal("Oliphant", "Oliphantine", "Ungulate", SizeCategory.Huge, 3.0, "Oliphant",
+            "elephant", "elephant",
+            MammalPack("an oliphant calf", "a young bull oliphant", "a young cow oliphant", "a bull oliphant", "a cow oliphant",
+                "It is an overwhelming elephantine giant, with pillar legs, a high war-tower back and tusks long enough to dominate the whole front of the beast.",
+                "Its sheer height and thick hide make ordinary elephants look almost modest beside it.",
+                "It moves with slow, ground-shaking confidence, built to scatter formations and carry heavy burdens through dust, heat and battle noise.",
+                "broad savannah, dry steppe and war-camp stockyards"),
+            "Enormous elephantine war beasts", usages: tuskedGeneral, combatStrategyKey: "Beast Behemoth");
         yield return Mammal("Giraffe", "Giraffine", "Ungulate", SizeCategory.VeryLarge, 1.0, "Large Ungulate",
             "large-hooved", "herbivore-charge",
             MammalPack("a giraffe calf", "a young bull giraffe", "a young cow giraffe", "a bull giraffe", "a cow giraffe",

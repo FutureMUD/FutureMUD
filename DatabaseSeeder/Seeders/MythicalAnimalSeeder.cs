@@ -924,7 +924,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             return MythicalBreathingProfile.MarineAmphibious;
         }
 
-        if (template.Name.EqualToAny("Myconid", "Plantfolk", "Ent", "Dryad") ||
+        if (template.Name.EqualToAny("Myconid", "Plantfolk", "Ent", "Huorn", "Dryad") ||
             template.BodyKey.EqualToAny("Insectoid", "Arachnid", "Beetle", "Centipede", "Scorpion"))
         {
             return MythicalBreathingProfile.PartlessAir;

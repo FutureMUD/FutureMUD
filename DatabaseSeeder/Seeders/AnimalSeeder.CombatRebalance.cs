@@ -184,6 +184,10 @@ public partial class AnimalSeeder
 			SizeCategory.Normal => 1.0,
 			SizeCategory.Large => 1.35,
 			SizeCategory.VeryLarge => 1.75,
+			SizeCategory.Huge => 2.15,
+			SizeCategory.Enormous => 2.65,
+			SizeCategory.Gigantic => 3.1,
+			SizeCategory.Titanic => 3.6,
 			_ => fallback
 		};
 		double constitutionFactor = 1.0 + (profile.ConstitutionBonus * 0.04);
@@ -205,6 +209,10 @@ public partial class AnimalSeeder
 			SizeCategory.Normal => 1.0,
 			SizeCategory.Large => 1.3,
 			SizeCategory.VeryLarge => 1.7,
+			SizeCategory.Huge => 2.1,
+			SizeCategory.Enormous => 2.6,
+			SizeCategory.Gigantic => 3.0,
+			SizeCategory.Titanic => 3.5,
 			_ => 1.0
 		};
 
@@ -246,6 +254,10 @@ public partial class AnimalSeeder
 			SizeCategory.VerySmall => 0.9,
 			SizeCategory.Large => 1.1,
 			SizeCategory.VeryLarge => 1.2,
+			SizeCategory.Huge => 1.3,
+			SizeCategory.Enormous => 1.4,
+			SizeCategory.Gigantic => 1.5,
+			SizeCategory.Titanic => 1.6,
 			_ => 1.0
 		};
 

@@ -33,6 +33,10 @@ public partial class Character
         switch (type)
         {
             case EventType.CharacterBeginMovementWitness:
+            case EventType.CharacterClosedItemWitness:
+            case EventType.CharacterDamagedWitness:
+            case EventType.CharacterDiesWitness:
+            case EventType.CharacterDismountedWitness:
             case EventType.CharacterDoorKnockedOtherSide:
             case EventType.CharacterDoorKnockedSameSide:
             case EventType.CharacterDroppedItemWitness:
@@ -42,7 +46,11 @@ public partial class Character
             case EventType.CharacterGiveItemWitness:
             case EventType.CharacterGotItemContainerWitness:
             case EventType.CharacterGotItemWitness:
+            case EventType.CharacterHidesWitness:
+            case EventType.CharacterIncapacitatedWitness:
             case EventType.CharacterLeaveCellWitness:
+            case EventType.CharacterMountedWitness:
+            case EventType.CharacterOpenedItemWitness:
             case EventType.CharacterPutItemContainerWitness:
             case EventType.CharacterSheatheItemWitness:
             case EventType.CharacterSocialWitness:
@@ -52,7 +60,14 @@ public partial class Character
             case EventType.CharacterStopMovementClosedDoorWitness:
             case EventType.CharacterStopMovementWitness:
             case EventType.CharacterSwallowWitness:
+            case EventType.CharacterUnwieldedItemWitness:
+            case EventType.CharacterWornItemRemovedWitness:
             case EventType.EngagedInCombatWitness:
+            case EventType.ItemDamagedWitness:
+            case EventType.ItemLockedWitness:
+            case EventType.ItemUnlockedWitness:
+            case EventType.ItemWieldedWitness:
+            case EventType.ItemWornWitness:
             case EventType.WitnessBleedTick:
                 foreach (IGameItem item in Body.ExternalItems)
                 {

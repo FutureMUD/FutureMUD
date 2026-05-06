@@ -1,6 +1,7 @@
 ﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
@@ -157,6 +158,7 @@ public class LatchGameItemComponent : GameItemComponent, ILock
                      .Handle(
                          new EmoteOutput(new Emote(_prototype.UnlockEmoteOtherSide, actor, actor, Parent,
                              containingPerceivable)));
+        HandleItemLockEvent(EventType.ItemUnlocked, EventType.ItemUnlockedWitness, actor, key?.Parent, containingPerceivable);
         return true;
     }
 
@@ -191,6 +193,7 @@ public class LatchGameItemComponent : GameItemComponent, ILock
                      .Handle(
                          new EmoteOutput(new Emote(_prototype.LockEmoteOtherSide, actor, actor, Parent,
                              containingPerceivable)));
+        HandleItemLockEvent(EventType.ItemLocked, EventType.ItemLockedWitness, actor, key?.Parent, containingPerceivable);
         return true;
     }
 
@@ -223,6 +226,8 @@ public class LatchGameItemComponent : GameItemComponent, ILock
                     flags: OutputFlags.SuppressObscured));
         }
 
+        HandleItemLockEvent(locked ? EventType.ItemLocked : EventType.ItemUnlocked,
+            locked ? EventType.ItemLockedWitness : EventType.ItemUnlockedWitness, null, null, Parent);
         return true;
     }
 

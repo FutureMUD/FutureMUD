@@ -301,6 +301,16 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
         DescriptionUpdate?.Invoke(this, new EventArgs());
     }
 
+    protected void HandleItemLockEvent(EventType itemEvent, EventType witnessEvent, ICharacter actor, IGameItem key,
+        IPerceivable containingPerceivable)
+    {
+        Parent.HandleEvent(itemEvent, Parent, actor, key, containingPerceivable);
+        foreach (IHandleEvents witness in Parent.TrueLocations.SelectMany(x => x.EventHandlers))
+        {
+            witness.HandleEvent(witnessEvent, Parent, actor, key, containingPerceivable, witness);
+        }
+    }
+
     #endregion
 
     #region IHandleEvents Members

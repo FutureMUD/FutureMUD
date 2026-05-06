@@ -1,6 +1,7 @@
 using MudSharp.Body.Position;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction.Boundary;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
@@ -121,6 +122,15 @@ public partial class Character
 
     public IEnumerable<ICharacter> Riders => _riders;
 
+    private void HandleMountEvent(EventType characterEvent, EventType witnessEvent, ICharacter rider)
+    {
+        rider.HandleEvent(characterEvent, rider, this);
+        foreach (IHandleEvents witness in Location.EventHandlers.Where(x => x != rider))
+        {
+            witness.HandleEvent(witnessEvent, rider, this, witness);
+        }
+    }
+
     public bool Mount(ICharacter rider)
     {
         if (!CanBeMountedBy(rider))
@@ -139,6 +149,7 @@ public partial class Character
         _riders.Add(rider);
         rider.RidingMount = this;
         rider.OutputHandler.Handle(new EmoteOutput(new Emote(ai.MountEmote(this, rider), this, this, rider)));
+        HandleMountEvent(EventType.CharacterMounted, EventType.CharacterMountedWitness, rider);
         return false;
     }
 
@@ -152,6 +163,7 @@ public partial class Character
         }
 
         rider.OutputHandler.Handle(new EmoteOutput(new Emote(ai.DismountEmote(this, rider), this, this, rider)));
+        HandleMountEvent(EventType.CharacterDismounted, EventType.CharacterDismountedWitness, rider);
         rider.RidingMount = null;
         _riders.Remove(rider);
     }

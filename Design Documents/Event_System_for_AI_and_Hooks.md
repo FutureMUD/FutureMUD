@@ -38,7 +38,7 @@ For AI authors, the important point is that event names are only half of the con
 - the FutureProg compatibility signature
 
 ### `EventInfoAttribute`
-Most event entries carry `EventInfoAttribute`, which stores:
+Every event entry carries `EventInfoAttribute`, which stores:
 
 - a human-readable description
 - parameter type names for display
@@ -364,6 +364,48 @@ Frequently used movement events include:
 - `CharacterCannotMove`
 
 These drive wanderers, trackers, herds, doorguards, and greeting/farewell logic.
+
+### Item Interaction
+Useful item interaction events include:
+
+- `CharacterOpenedItem`
+- `ItemOpened`
+- `CharacterOpenedItemWitness`
+- `CharacterClosedItem`
+- `ItemClosed`
+- `CharacterClosedItemWitness`
+- `ItemLocked`
+- `ItemLockedWitness`
+- `ItemUnlocked`
+- `ItemUnlockedWitness`
+
+These provide hook/prog surfaces for doors, containers, lockable props, alarms, security scripts, and NPC reactions to people manipulating objects in a room. Lock events fire on the lock item and on witnesses; the actor and key parameters may be null when a lock changes state without a keyed actor action.
+
+### Equipment
+Useful equipment events include:
+
+- `ItemWielded`
+- `ItemWieldedWitness`
+- `ItemUnwielded`
+- `CharacterUnwieldedItem`
+- `CharacterUnwieldedItemWitness`
+- `ItemWorn`
+- `ItemWornWitness`
+- `CharacterWornItemRemoved`
+- `ItemRemovedFromWear`
+- `CharacterWornItemRemovedWitness`
+
+These are useful for weapon alarms, cursed or reactive equipment, guards responding to armed characters, and content that cares about people putting on or removing visible gear.
+
+### Mounts
+Mounting events include:
+
+- `CharacterMounted`
+- `CharacterMountedWitness`
+- `CharacterDismounted`
+- `CharacterDismountedWitness`
+
+These let mount AI, stable areas, guards, and scenario hooks react to riders mounting or dismounting character mounts.
 
 ### Combat
 Common combat events include:

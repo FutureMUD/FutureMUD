@@ -65,7 +65,7 @@ public partial class GameItem : IHaveWounds
         HandleEvent(EventType.ItemDamaged, this, wound.ToolOrigin, wound.ActorOrigin);
         foreach (IHandleEvents witness in TrueLocations.SelectMany(x => x.EventHandlers))
         {
-            HandleEvent(EventType.ItemDamagedWitness, this, wound.ToolOrigin, wound.ActorOrigin, witness);
+            witness.HandleEvent(EventType.ItemDamagedWitness, this, wound.ToolOrigin, wound.ActorOrigin, witness);
         }
 
         PileGameItemComponent pile = GetItemType<PileGameItemComponent>();

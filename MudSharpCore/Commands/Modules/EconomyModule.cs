@@ -5693,6 +5693,16 @@ The syntax for using this command is as follows:
 	#3auction refund#0 - claims all money owed for unsuccessful bids
 	#3auction cancel <lot>#0 - cancels an auction lot";
 
+    public const string AuctionsHelp =
+        @"The auctions command lists the active lots at the auction house in your current location.
+
+The syntax for using this command is as follows:
+
+	#3auctions#0 - lists all active lots at the auction house
+	#3auctions <keyword> [<keyword>...]#0 - filters active lots by one or more keywords
+
+The listing shows each lot, its number of bids, current bid, remaining time and buyout price. It also reminds you when that auction house owes you a refund or has items waiting for you to claim.";
+
     public const string AuctionHelpAdmins = @"This command is used to create and edit auction houses.
 
 The syntax for using this command is as follows:
@@ -6025,6 +6035,13 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             return;
         }
 
+        if (accountTarget.Currency != auctionHouse.EconomicZone.Currency)
+        {
+            actor.OutputHandler.Send(
+                $"That account uses {accountTarget.Currency.Name.ColourName()}, but this auction house uses {auctionHouse.EconomicZone.Currency.Name.ColourName()}.");
+            return;
+        }
+
         decimal buyout = 0.0M;
         if (!ss.IsFinished)
         {
@@ -6134,6 +6151,14 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
         }
 
         decimal amount = item.BuyoutPrice.Value;
+        decimal currentBid = auctionHouse.CurrentBid(item);
+        if (currentBid >= amount)
+        {
+            actor.OutputHandler.Send(
+                $"The current bid for {DescribeAuctionLot(actor, item)} already meets or exceeds the buyout price.");
+            return;
+        }
+
         ICurrency currency = auctionHouse.EconomicZone.Currency;
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(actor.Body.HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
@@ -6166,7 +6191,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             }
         }
 
-        auctionHouse.AddBid(item, new AuctionBid
+        auctionHouse.BuyoutItem(item, new AuctionBid
         {
             Bidder = actor,
             Bid = amount,
@@ -6266,6 +6291,13 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
         decimal currentPrice = auctionHouse.AuctionBids[item].Select(x => x.Bid).DefaultIfEmpty(item.MinimumPrice)
                                        .Max();
         decimal nextBidMinimum = !auctionHouse.AuctionBids[item].Any() ? item.MinimumPrice : currentPrice * 1.05M;
+        if (item.BuyoutPrice.HasValue && amount >= item.BuyoutPrice.Value)
+        {
+            actor.OutputHandler.Send(
+                $"Bids cannot meet or exceed the buyout price. Use {"AUCTION BUYOUT".ColourCommand()} if you want to buy the lot outright.");
+            return;
+        }
+
         if (amount <= nextBidMinimum)
         {
             actor.OutputHandler.Send(
@@ -6380,7 +6412,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
     [RequiredCharacterState(CharacterState.Able)]
     [NoCombatCommand]
     [NoHideCommand]
-    [HelpInfo("auctions", @"", AutoHelp.HelpArg)]
+    [HelpInfo("auctions", AuctionsHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Auctions(ICharacter actor, string command)
     {
         IAuctionHouse auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseCell == actor.Location);

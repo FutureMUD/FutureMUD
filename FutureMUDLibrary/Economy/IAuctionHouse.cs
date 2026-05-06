@@ -200,6 +200,7 @@ namespace MudSharp.Economy
         DecimalCounter<long> BidderRefundsOwed { get; }
         void AddAuctionItem(AuctionItem item);
         void AddBid(AuctionItem item, AuctionBid bid);
+        void BuyoutItem(AuctionItem item, AuctionBid bid);
         void ClaimItem(AuctionItem item);
         bool ClaimRefund(ICharacter actor);
         decimal CurrentBid(AuctionItem item);

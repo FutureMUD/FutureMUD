@@ -71,6 +71,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
                 AuctionListingFeeFlat = AuctionListingFeeFlat,
                 AuctionListingFeeRate = AuctionListingFeeRate,
                 AuctionHouseCellId = cell.Id,
+                DefaultListingTime = DefaultListingTime.TotalSeconds,
                 Definition = SaveDefinition().ToString()
             };
             FMDB.Context.AuctionHouses.Add(dbitem);
@@ -252,7 +253,35 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
             return true;
         }
 
-        return TryPaySellerTarget(item.PayoutTarget ?? item.Seller, amount, DescribeLotPlain(item));
+        decimal sellerProceeds = SellerProceedsFor(amount);
+        if (sellerProceeds <= 0.0M)
+        {
+            return true;
+        }
+
+        return TryPaySellerTarget(item.PayoutTarget ?? item.Seller, sellerProceeds, DescribeLotPlain(item));
+    }
+
+    private decimal AuctionFeeFor(decimal salePrice)
+    {
+        if (salePrice <= 0.0M)
+        {
+            return 0.0M;
+        }
+
+        decimal fee = Math.Max(0.0M, AuctionListingFeeFlat) + salePrice * Math.Max(0.0M, AuctionListingFeeRate);
+        return Math.Min(salePrice, fee);
+    }
+
+    private decimal SellerProceedsFor(decimal salePrice)
+    {
+        return Math.Max(0.0M, salePrice - AuctionFeeFor(salePrice));
+    }
+
+    private decimal CurrentSellerProceeds(AuctionItem item)
+    {
+        AuctionBid bid = CurrentAuctionBid(item);
+        return bid == null ? 0.0M : SellerProceedsFor(bid.Bid);
     }
 
     private bool TryPaySellerTarget(IFrameworkItem payoutTarget, decimal amount, string assetDescription)
@@ -320,7 +349,13 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
             return;
         }
 
-        _sellerPaymentsOwed[(payoutTarget.Id, payoutTarget.FrameworkItemType)] += amount;
+        decimal sellerProceeds = SellerProceedsFor(amount);
+        if (sellerProceeds <= 0.0M)
+        {
+            return;
+        }
+
+        _sellerPaymentsOwed[(payoutTarget.Id, payoutTarget.FrameworkItemType)] += sellerProceeds;
         Changed = true;
     }
 
@@ -344,6 +379,88 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         }
     }
 
+    private void CompleteAuction(AuctionItem item, AuctionBid? winningBid, MudDateTime now)
+    {
+        bool propertyShareUnavailable = winningBid != null &&
+                                      item.Asset is IProperty &&
+                                      !CanTransferPropertyShare(item);
+        if (propertyShareUnavailable)
+        {
+            BidderRefundsOwed[winningBid.BidderId] += winningBid.Bid;
+            Changed = true;
+            AuctionHouseCell.Handle(
+                $"The auctioneers announce that the auction for {DescribeLotPlain(item)} cannot be completed because the listed ownership share is no longer available, and the winning bid has been refunded.");
+            winningBid = null;
+        }
+        else if (winningBid == null)
+        {
+            AuctionHouseCell.Handle(
+                $"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended without any bids.");
+        }
+        else
+        {
+            AuctionHouseCell.Handle(
+                $"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended with a winning bid of {EconomicZone.Currency.Describe(winningBid.Bid, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+        }
+
+        _activeAuctionItems.Remove(item);
+
+        bool paid = true;
+        decimal sellerProceeds = 0.0M;
+        if (winningBid != null)
+        {
+            sellerProceeds = SellerProceedsFor(winningBid.Bid);
+            paid = TryPaySeller(item, winningBid.Bid);
+            if (!paid)
+            {
+                QueueSellerPayment(item, winningBid.Bid);
+            }
+        }
+
+        if (item.Seller is IEstate estateSeller)
+        {
+            estateSeller.RecordAuctionCompletion(item, winningBid, sellerProceeds);
+        }
+
+        switch (item.Asset)
+        {
+            case IProperty when winningBid != null:
+                TransferPropertyShare(item, winningBid.Bidder, winningBid.Bid);
+                break;
+            case IGameItem when winningBid != null:
+                _unclaimedItems.Add(new UnclaimedAuctionItem
+                {
+                    AuctionItem = item,
+                    WinningBid = winningBid
+                });
+                break;
+            case IGameItem when winningBid == null && item.Seller is not IEstate:
+                _unclaimedItems.Add(new UnclaimedAuctionItem
+                {
+                    AuctionItem = item,
+                    WinningBid = null
+                });
+                break;
+        }
+
+        _auctionResults.Add(new AuctionResult
+        {
+            AssetId = item.Asset.Id,
+            AssetType = item.Asset.FrameworkItemType,
+            AssetDescription = DescribeLotPlain(item),
+            Sold = winningBid != null,
+            SalePrice = winningBid?.Bid ?? 0.0M,
+            ResultDateTime = now,
+            SellerId = item.Seller.Id,
+            SellerType = item.Seller.FrameworkItemType,
+            PayoutTargetId = item.PayoutTarget?.Id,
+            PayoutTargetType = item.PayoutTarget?.FrameworkItemType,
+            SoldToId = winningBid?.BidderId ?? 0L,
+            PaidOutAtTime = paid
+        });
+        Changed = true;
+    }
+
     private void AuctionTick()
     {
         RetrySellerPayments();
@@ -351,83 +468,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         List<AuctionItem> finished = ActiveAuctionItems.Where(x => x.FinishingDateTime <= now).ToList();
         foreach (AuctionItem item in finished)
         {
-            AuctionBid winningBid = CurrentAuctionBid(item);
-            bool propertyShareUnavailable = winningBid != null &&
-                                          item.Asset is IProperty &&
-                                          !CanTransferPropertyShare(item);
-            if (propertyShareUnavailable)
-            {
-                BidderRefundsOwed[winningBid.BidderId] += winningBid.Bid;
-                Changed = true;
-                AuctionHouseCell.Handle(
-                    $"The auctioneers announce that the auction for {DescribeLotPlain(item)} cannot be completed because the listed ownership share is no longer available, and the winning bid has been refunded.");
-                winningBid = null;
-            }
-            else if (winningBid == null)
-            {
-                AuctionHouseCell.Handle(
-                    $"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended without any bids.");
-            }
-            else
-            {
-                AuctionHouseCell.Handle(
-                    $"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended with a winning bid of {EconomicZone.Currency.Describe(CurrentBid(item), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
-            }
-
-            _activeAuctionItems.Remove(item);
-
-            bool paid = true;
-            if (winningBid != null)
-            {
-                paid = TryPaySeller(item, winningBid.Bid);
-                if (!paid)
-                {
-                    QueueSellerPayment(item, winningBid.Bid);
-                }
-            }
-
-            if (item.Seller is IEstate estateSeller)
-            {
-                estateSeller.RecordAuctionCompletion(item, winningBid);
-            }
-
-            switch (item.Asset)
-            {
-                case IProperty when winningBid != null:
-                    TransferPropertyShare(item, winningBid.Bidder, winningBid.Bid);
-                    break;
-                case IGameItem when winningBid != null:
-                    _unclaimedItems.Add(new UnclaimedAuctionItem
-                    {
-                        AuctionItem = item,
-                        WinningBid = winningBid
-                    });
-                    break;
-                case IGameItem when winningBid == null && item.Seller is not IEstate:
-                    _unclaimedItems.Add(new UnclaimedAuctionItem
-                    {
-                        AuctionItem = item,
-                        WinningBid = null
-                    });
-                    break;
-            }
-
-            _auctionResults.Add(new AuctionResult
-            {
-                AssetId = item.Asset.Id,
-                AssetType = item.Asset.FrameworkItemType,
-                AssetDescription = DescribeLotPlain(item),
-                Sold = winningBid != null,
-                SalePrice = winningBid?.Bid ?? 0.0M,
-                ResultDateTime = now,
-                SellerId = item.Seller.Id,
-                SellerType = item.Seller.FrameworkItemType,
-                PayoutTargetId = item.PayoutTarget?.Id,
-                PayoutTargetType = item.PayoutTarget?.FrameworkItemType,
-                SoldToId = winningBid?.BidderId ?? 0L,
-                PaidOutAtTime = paid
-            });
-            Changed = true;
+            CompleteAuction(item, CurrentAuctionBid(item), now);
         }
     }
 
@@ -616,6 +657,12 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         Changed = true;
     }
 
+    public void BuyoutItem(AuctionItem item, AuctionBid bid)
+    {
+        AddBid(item, bid);
+        CompleteAuction(item, bid, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
+    }
+
     public void ClaimItem(AuctionItem item)
     {
         _unclaimedItems.RemoveAll(x => x.AuctionItem == item);
@@ -732,6 +779,13 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         if (bankAccount is null)
         {
             actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        if (bankAccount.Currency != EconomicZone.Currency)
+        {
+            actor.OutputHandler.Send(
+                $"That account uses {bankAccount.Currency.Name.ColourName()}, but this auction house uses {EconomicZone.Currency.Name.ColourName()}.");
             return false;
         }
 
@@ -890,9 +944,9 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         sb.AppendLine(
             $"Seller Proceeds Owed: {EconomicZone.Currency.Describe(_sellerPaymentsOwed.Sum(x => x.Value), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
         sb.AppendLine(
-            $"Pending Payments: {EconomicZone.Currency.Describe(ActiveAuctionItems.SelectNotNull(CurrentAuctionBid).Sum(x => x.Bid), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+            $"Pending Payments: {EconomicZone.Currency.Describe(ActiveAuctionItems.Sum(CurrentSellerProceeds), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
         sb.AppendLine(
-            $"Total Commitments: {EconomicZone.Currency.Describe(BidderRefundsOwed.Sum(x => x.Value) + _sellerPaymentsOwed.Sum(x => x.Value) + ActiveAuctionItems.SelectNotNull(CurrentAuctionBid).Sum(x => x.Bid), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+            $"Total Commitments: {EconomicZone.Currency.Describe(BidderRefundsOwed.Sum(x => x.Value) + _sellerPaymentsOwed.Sum(x => x.Value) + ActiveAuctionItems.Sum(CurrentSellerProceeds), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
         sb.AppendLine($"Unclaimed Items: {UnclaimedItems.Count().ToString("N0", actor).ColourValue()}");
         return sb.ToString();
     }

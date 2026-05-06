@@ -155,6 +155,9 @@ The following clan sub-commands are used to interact with clans:
 	#3clan dismiss <person> <clan> <appointment>#0 - dismisses a person from a clan appointment
 	#3clan reportdead <clan> <person>#0 - reports a person as dead or long-term missing
 	#3clan pay <person> <clan> <how much>#0 - manually adds backpay owing to a person
+	#3clan budget <clan> <...>#0 - manages appointment budgets for a clan
+	#3clan balance <clan>#0 - reviews a clan balance sheet
+	#3clan payroll <clan> [member|rank|appointment <which>]#0 - reviews payroll history
 	#3clan maxpay <clan> <max multiple backpay>#0 - sets the maximum backpay permissable for a clan
 	#3clan payinterval <clan> ""<every x days|weeks|months|years>""#0 - sets the pay interval
 	#3clan payinterval <clan> ""<every x days|weeks|months|years>"" [<date time>]#0 - sets the pay interval and the reference date time
@@ -231,6 +234,16 @@ All of the following commands must happen with an edited clan selected:
         {
             case "pay":
                 ClanPay(actor, ss);
+                return;
+            case "budget":
+                ClanBudget(actor, ss);
+                return;
+            case "balance":
+            case "balancesheet":
+                ClanBalanceSheet(actor, ss);
+                return;
+            case "payroll":
+                ClanPayroll(actor, ss);
                 return;
             case "invite":
                 ClanInvite(actor, ss);
@@ -368,6 +381,72 @@ All of the following commands must happen with an edited clan selected:
                 return;
         }
     }
+
+    private static void ClanBudget(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which clan do you want to manage budgets for?");
+            return;
+        }
+
+        IClan clan = GetTargetClan(actor, command.PopSpeech());
+        if (clan == null)
+        {
+            actor.OutputHandler.Send(actor.IsAdministrator(PermissionLevel.Admin)
+                ? "There is no such clan."
+                : "You are not a member of any such clan.");
+            return;
+        }
+
+        clan.BudgetCommand(actor, command);
+    }
+
+    private static void ClanBalanceSheet(ICharacter actor, StringStack command)
+    {
+        if (!command.IsFinished && command.PeekSpeech().EqualTo("sheet"))
+        {
+            command.PopSpeech();
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which clan do you want to review the balance sheet for?");
+            return;
+        }
+
+        IClan clan = GetTargetClan(actor, command.PopSpeech());
+        if (clan == null)
+        {
+            actor.OutputHandler.Send(actor.IsAdministrator(PermissionLevel.Admin)
+                ? "There is no such clan."
+                : "You are not a member of any such clan.");
+            return;
+        }
+
+        clan.ShowBalanceSheet(actor);
+    }
+
+    private static void ClanPayroll(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which clan do you want to review payroll history for?");
+            return;
+        }
+
+        IClan clan = GetTargetClan(actor, command.PopSpeech());
+        if (clan == null)
+        {
+            actor.OutputHandler.Send(actor.IsAdministrator(PermissionLevel.Admin)
+                ? "There is no such clan."
+                : "You are not a member of any such clan.");
+            return;
+        }
+
+        clan.ShowPayrollHistory(actor, command);
+    }
+
     private static void ClanRemove(ICharacter actor, StringStack ss)
     {
         IClan clan = actor.CombinedEffectsOfType<BuilderEditingEffect<IClan>>().FirstOrDefault()?.EditingItem;
@@ -2053,13 +2132,16 @@ Your next payday is {3}.
 
             foreach (KeyValuePair<ICurrency, Dictionary<ICoin, int>> currency in coinsToLoad)
             {
+                IEnumerable<Tuple<ICoin, int>> payAmount = currency.Value.Select(x => Tuple.Create(x.Key, x.Value)).ToList();
+                decimal paidAmount = payAmount.Sum(x => x.Item1.Value * x.Item2);
                 membership.BackPayDiciontary[currency.Key] = 0;
                 membership.Changed = true;
-                IEnumerable<Tuple<ICoin, int>> payAmount = currency.Value.Select(x => Tuple.Create(x.Key, x.Value));
+                ClanPayrollHistoryEntry.Create(membership, currency.Key, -paidAmount,
+                    ClanPayrollHistoryType.PayCollected, "Payroll collected", actor: actor);
                 IGameItem newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency.Key, payAmount);
                 actor.Gameworld.Add(newItem);
                 actor.OutputHandler.Send(
-                    $"You are paid {newItem.HowSeen(actor)} ({currency.Key.Describe(payAmount.Sum(x => x.Item1.Value * x.Item2), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}).");
+                    $"You are paid {newItem.HowSeen(actor)} ({currency.Key.Describe(paidAmount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}).");
                 if (actor.Body.CanGet(newItem, 0))
                 {
                     actor.Body.Get(newItem, silent: true);
@@ -2165,6 +2247,9 @@ Your next payday is {3}.
 
         targetMembership.BackPayDiciontary[actor.Currency] += amount;
         targetMembership.Changed = true;
+        ClanPayrollHistoryEntry.Create(targetMembership, actor.Currency, amount,
+            ClanPayrollHistoryType.ManualAdjustment,
+            $"Manual backpay adjustment by {actor.PersonalName.GetName(NameStyle.FullName)}", actor: actor);
         actor.OutputHandler.Send(
             $"You change the backpay owing to {targetMembership.PersonalName.GetName(NameStyle.FullName)} by {actor.Currency.Describe(amount, CurrencyDescriptionPatternType.Short).Colour(Telnet.Green)}, with their current backpay sitting at {actor.Currency.Describe(targetMembership.BackPayDiciontary[actor.Currency], CurrencyDescriptionPatternType.Short).Colour(Telnet.Green)}.");
     }
@@ -6995,6 +7080,9 @@ return 0",
         }
 
         targetMembership.AwardPay(actor.Currency, amount);
+        ClanPayrollHistoryEntry.Create(targetMembership, actor.Currency, amount,
+            ClanPayrollHistoryType.ManualAdjustment,
+            $"Manual backpay adjustment by {actor.PersonalName.GetName(NameStyle.FullName)}", actor: actor);
         actor.Send(
             $"You give {actor.Currency.Describe(amount, CurrencyDescriptionPatternType.Long)} in backpay to {targetMembership.PersonalName.GetName(NameStyle.FullName).Colour(Telnet.Green)} in the {clan.FullName.Colour(Telnet.Green)} clan.");
     }

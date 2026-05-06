@@ -3666,6 +3666,8 @@ For information on the syntax to use in emotes (such as those included in bracke
                                       .ThenInclude(x => x.AppointmentsAbbreviations)
                                       .Include(x => x.Appointments)
                                       .ThenInclude(x => x.AppointmentsTitles)
+                                      .Include(x => x.ClanBudgets)
+                                      .ThenInclude(x => x.ClanBudgetTransactions)
                                       .Include(x => x.ExternalClanControlsLiegeClan)
                                       .AsSplitQuery()
                                       .AsNoTracking()

@@ -23,6 +23,8 @@ The clan runtime now follows a thinner command-module pattern:
   - exposes the clan-owned runtime command surface.
 - `MudSharpCore/Community/Clan.CommandHandling.cs`
   - contains the concrete clan-owned implementations.
+- `MudSharpCore/Community/Clan.Finance.cs`
+  - contains clan-owned finance commands for appointment budgets, balance sheets, and payroll history.
 - `MudSharpCore/Community/ClanCommandUtilities.cs`
   - contains shared helper logic for appointment-chain authority, election helper selection, term-limit checks, and appointment-capacity calculations.
 
@@ -47,6 +49,9 @@ The following runtime actions are now owned by `IClan` / `Clan`:
 - `SetControllingAppointment`
 - `AppointExternal`
 - `DismissExternal`
+- `BudgetCommand`
+- `ShowBalanceSheet`
+- `ShowPayrollHistory`
 
 This is intentionally focused on operational clan behaviour. Builder-oriented commands that mutate multiple related entities or templates still live in `ClanModule` for now.
 
@@ -87,12 +92,15 @@ The command surface distinguishes between:
 - `CanViewClanStructure`
 - `CanViewClanStructureEqualRankOrLower`
 - `CanViewTreasury`
+- `CanCreateBudgets`
 
 The view logic now consistently uses those distinctions so that:
 
 - member rosters do not automatically imply full structure visibility;
 - office-holder visibility does not automatically imply financial visibility; and
 - lower-trust members can be limited to equal-or-lower-rank visibility when configured.
+
+Budget creation and closure use `CanCreateBudgets`. Reviewing budgets, budget audit rows, balance sheets, and payroll history uses `CanViewTreasury`, which is the clan-level financial-information privilege. Budget drawdown also allows the holder of the budgeted appointment, or a superior appointment in that appointment chain, to draw from that appointment's active budget without granting broad treasury visibility.
 
 ### Appointment-chain authority
 
@@ -109,6 +117,48 @@ That rule is used in places such as:
 - direct appointment to subordinate positions;
 - direct dismissal from subordinate positions; and
 - appointment creation/edit flows that are restricted to “under own” authority.
+
+Appointment budget drawdowns also use the appointment-chain helper, so a character who holds or controls the budgeted office can draw from that budget without needing broad budget-creation authority.
+
+## Runtime Finance Commands
+
+### Appointment budgets
+
+`clan budget <clan> list`
+
+`clan budget <clan> view <budget>`
+
+`clan budget <clan> audit [<budget>]`
+
+`clan budget <clan> create <appointment> <amount> "<interval>" <name>`
+
+`clan budget <clan> draw <budget> <amount> <reason>`
+
+`clan budget <clan> close <budget>`
+
+Appointment budgets are recurring-period allowances backed by the clan's default bank account. Each budget stores its recurring interval, current period window, period drawdown, and drawdown audit rows. Period windows roll forward lazily when the budget is reviewed or used; a new period resets the tracked drawdown while preserving historical transactions.
+
+Creating or closing a budget requires `CanCreateBudgets`. Drawing from a budget requires administrator authority, `CanCreateBudgets`, or appointment-chain authority over the assigned appointment. A successful drawdown withdraws from the clan bank account, issues a currency pile to the actor, and records the actor, amount, period window, bank balance after withdrawal, and audit reason.
+
+### Balance sheet
+
+`clan balance <clan>`
+
+`clan balance sheet <clan>`
+
+The balance sheet is gated by `CanViewTreasury`. It summarises clan-owned bank accounts, property value and lease revenue, leased-property commitments, shop current-period gross and net results, shop cash and bank balances, controlled economic-zone revenues, payroll commitments, budget commitments, budget remaining, and backpay liability.
+
+### Payroll history
+
+`clan payroll <clan>`
+
+`clan payroll <clan> member <who>`
+
+`clan payroll <clan> rank <rank>`
+
+`clan payroll <clan> appointment <appointment>`
+
+Payroll history is gated by `CanViewTreasury`. It records payroll accruals from normal payday processing, manual backpay adjustments, and pay collection events. Review commands can filter by individual member, rank, or appointment, and show both summary totals and recent audit rows.
 
 ## External Control Permissions
 

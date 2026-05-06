@@ -11,6 +11,8 @@ namespace MudSharp.Models
         public BankAccount()
         {
             BankAccountTransactions = new HashSet<BankAccountTransaction>();
+            ClanBudgets = new HashSet<ClanBudget>();
+            ClanBudgetTransactions = new HashSet<ClanBudgetTransaction>();
         }
 
         public long Id { get; set; }
@@ -39,5 +41,7 @@ namespace MudSharp.Models
         public virtual BankAccount NominatedBenefactorAccount { get; set; }
 
         public virtual ICollection<BankAccountTransaction> BankAccountTransactions { get; set; }
+        public virtual ICollection<ClanBudget> ClanBudgets { get; set; }
+        public virtual ICollection<ClanBudgetTransaction> ClanBudgetTransactions { get; set; }
     }
 }

@@ -217,11 +217,17 @@ public partial class Clan : SaveableItem, IClan
             if (member.Paygrade != null)
             {
                 member.AwardPay(member.Paygrade.PayCurrency, member.Paygrade.PayAmount);
+                ClanPayrollHistoryEntry.Create(member, member.Paygrade.PayCurrency, member.Paygrade.PayAmount,
+                    ClanPayrollHistoryType.PayAccrued,
+                    $"Paygrade {member.Paygrade.Name} payroll accrual", member.Paygrade);
             }
 
             foreach (IAppointment appointment in member.Appointments.Where(x => x.Paygrade != null))
             {
                 member.AwardPay(appointment.Paygrade.PayCurrency, appointment.Paygrade.PayAmount);
+                ClanPayrollHistoryEntry.Create(member, appointment.Paygrade.PayCurrency, appointment.Paygrade.PayAmount,
+                    ClanPayrollHistoryType.PayAccrued,
+                    $"Appointment {appointment.Name} payroll accrual", appointment.Paygrade, appointment);
             }
         }
 
@@ -316,6 +322,9 @@ public partial class Clan : SaveableItem, IClan
 
     private readonly List<IPaygrade> _paygrades = new();
     public virtual List<IPaygrade> Paygrades => _paygrades;
+
+    private readonly List<IClanBudget> _budgets = new();
+    public virtual List<IClanBudget> Budgets => _budgets;
 
     public virtual List<IExternalClanControl> ExternalControls { get; } = new();
 
@@ -481,6 +490,14 @@ public partial class Clan : SaveableItem, IClan
         }
 
 #if DEBUG
+        ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Loading budgets [#2{sw.ElapsedMilliseconds}ms#0]");
+#endif
+        foreach (Models.ClanBudget item in clan.ClanBudgets)
+        {
+            _budgets.Add(new ClanBudget(item, this));
+        }
+
+#if DEBUG
         ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Loading memberships [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
         foreach (Models.ClanMembership item in memberships.Where(x => x.ClanId == Id))
@@ -611,6 +628,12 @@ public partial class Clan : SaveableItem, IClan
                 item.Delete();
                 ExternalControls.Remove(item);
             }
+        }
+
+        foreach (var budget in Budgets.Where(x => x.Appointment == appointment).ToList())
+        {
+            budget.Delete();
+            Budgets.Remove(budget);
         }
     }
 

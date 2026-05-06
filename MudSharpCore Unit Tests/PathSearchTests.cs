@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
@@ -365,5 +366,106 @@ public class PathSearchTests
 
         path = source.PathBetween(target, 5, true).ToList();
         Assert.AreEqual(1, path.Count, "Expected path through closed but unlocked door when openDoors is true");
+    }
+
+    [TestMethod]
+    public void PathBetweenMultipleTargetsRejectsUnsuitableDirectExit()
+    {
+        CellStub cellA = new()
+        {
+            Name = "A",
+            Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>(),
+            Id = 101
+        };
+        CellStub cellB = new()
+        {
+            Name = "B",
+            Room = new RoomStub { X = 1, Y = 0, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>(),
+            Id = 102
+        };
+        CellStub cellC = new()
+        {
+            Name = "C",
+            Room = new RoomStub { X = 0, Y = 1, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>(),
+            Id = 103
+        };
+
+        cellA.Exits.Add(new CellExitStub
+        {
+            Destination = cellB,
+            Exit = new ExitStub(),
+            OutboundDirection = CardinalDirection.East
+        });
+        cellA.Exits.Add(new CellExitStub
+        {
+            Destination = cellC,
+            Exit = new ExitStub(),
+            OutboundDirection = CardinalDirection.South
+        });
+        cellC.Exits.Add(new CellExitStub
+        {
+            Destination = cellB,
+            Exit = new ExitStub(),
+            OutboundDirection = CardinalDirection.East
+        });
+
+        List<Mock<ICell>> cellMocks = new()
+        { cellA.ToMock(), cellB.ToMock(), cellC.ToMock() };
+        ICell cA = cellA.GetObject(cellMocks);
+        ICell cB = cellB.GetObject(cellMocks);
+        ICell cC = cellC.GetObject(cellMocks);
+
+        IPerceivable source = new PerceivableStub { Location = cA }.ToMock();
+        IPerceivable target = new PerceivableStub { Location = cB }.ToMock();
+
+        List<ICellExit> path = source
+                               .PathBetween(new[] { target }, 5,
+                                   exit => !(ReferenceEquals(exit.Origin, cA) && ReferenceEquals(exit.Destination, cB)))
+                               .ToList();
+
+        Assert.AreEqual(2, path.Count, "Expected path to avoid the unsuitable direct exit and use the alternate route.");
+        Assert.AreSame(cC, path[0].Destination, "Expected the first step to go through the alternate cell.");
+        Assert.AreSame(cB, path[1].Destination, "Expected the second step to reach the target.");
+    }
+
+    [TestMethod]
+    public void AcquireAllTargetsAndPathsDoesNotPassNullForNonMatchingTypes()
+    {
+        CellStub cell = new()
+        {
+            Name = "A",
+            Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>(),
+            Id = 201
+        };
+
+        List<Mock<ICell>> cellMocks = new()
+        { cell.ToMock() };
+        ICell cA = cell.GetObject(cellMocks);
+        IPerceivable nonCharacter = new PerceivableStub { Location = cA }.ToMock();
+        Mock<ICharacter> character = new();
+        cell.Perceivables.Add(nonCharacter);
+        cell.Perceivables.Add(character.Object);
+
+        IPerceivable source = new PerceivableStub { Location = cA }.ToMock();
+        int predicateCalls = 0;
+        List<(ICharacter Target, IEnumerable<ICellExit> Path)> results = source
+                                                                        .AcquireAllTargetsAndPaths<ICharacter>(
+                                                                            target =>
+                                                                            {
+                                                                                Assert.IsNotNull(target);
+                                                                                predicateCalls++;
+                                                                                return true;
+                                                                            },
+                                                                            0,
+                                                                            _ => true)
+                                                                        .ToList();
+
+        Assert.AreEqual(1, results.Count, "Expected only the character target to be returned.");
+        Assert.AreSame(character.Object, results[0].Target);
+        Assert.AreEqual(1, predicateCalls, "Expected the predicate to run once for the character target only.");
     }
 }

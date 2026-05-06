@@ -534,7 +534,7 @@ public partial class Body
         item.HandleEvent(EventType.ItemWielded, item, Actor);
         foreach (IHandleEvents witness in Location.EventHandlers)
         {
-            HandleEvent(EventType.ItemWieldedWitness, item, Actor, witness);
+            witness.HandleEvent(EventType.ItemWieldedWitness, item, Actor, witness);
         }
         return true;
     }
@@ -630,7 +630,7 @@ public partial class Body
         item.HandleEvent(EventType.ItemWielded, item, Actor);
         foreach (IHandleEvents witness in Location.EventHandlers)
         {
-            HandleEvent(EventType.ItemWieldedWitness, item, Actor, witness);
+            witness.HandleEvent(EventType.ItemWieldedWitness, item, Actor, witness);
         }
         return true;
     }
@@ -661,6 +661,8 @@ public partial class Body
         OnInventoryChange?.Invoke(InventoryState.Wielded, InventoryState.Held, item);
         item.InvokeInventoryChange(InventoryState.Wielded, InventoryState.Held);
         CheckConsequences();
+        HandleCharacterItemEvent(EventType.CharacterUnwieldedItem, EventType.ItemUnwielded,
+            EventType.CharacterUnwieldedItemWitness, item);
         return true;
     }
 
@@ -2578,6 +2580,17 @@ public partial class Body
         output.Append(playerEmote);
         OutputHandler.Handle(output);
         RemoveItem(item);
+        HandleWornItemRemovedEvent(item, remover);
+    }
+
+    private void HandleWornItemRemovedEvent(IGameItem item, ICharacter remover)
+    {
+        Actor.HandleEvent(EventType.CharacterWornItemRemoved, Actor, remover, item);
+        item.HandleEvent(EventType.ItemRemovedFromWear, Actor, remover, item);
+        foreach (IHandleEvents witness in Location.EventHandlers)
+        {
+            witness.HandleEvent(EventType.CharacterWornItemRemovedWitness, Actor, remover, item, witness);
+        }
     }
 
     public void RemoveItem(IGameItem item, IEmote playerEmote, bool silent = false,
@@ -2618,6 +2631,7 @@ public partial class Body
             Get(item, silent: true, ignoreFlags: ignoreFlags);
         }
 
+        HandleWornItemRemovedEvent(item, Actor);
         InventoryChanged = true;
     }
 
@@ -2843,7 +2857,7 @@ public partial class Body
         item.HandleEvent(EventType.ItemWorn, item, Actor);
         foreach (IHandleEvents witness in Location.EventHandlers)
         {
-            HandleEvent(EventType.ItemWornWitness, item, Actor, witness);
+            witness.HandleEvent(EventType.ItemWornWitness, item, Actor, witness);
         }
     }
 

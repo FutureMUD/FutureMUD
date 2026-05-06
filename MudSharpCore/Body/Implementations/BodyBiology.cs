@@ -1295,7 +1295,7 @@ public partial class Body
         HandleEvent(EventType.CharacterDamaged, Actor, wound.ToolOrigin, wound.ActorOrigin);
         foreach (IHandleEvents witness in Location.EventHandlers)
         {
-            HandleEvent(EventType.CharacterDamagedWitness, Actor, wound.ToolOrigin, wound.ActorOrigin, witness);
+            witness.HandleEvent(EventType.CharacterDamagedWitness, Actor, wound.ToolOrigin, wound.ActorOrigin, witness);
         }
     }
 

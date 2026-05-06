@@ -1,6 +1,7 @@
 using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Construction.Boundary;
+using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -190,6 +191,17 @@ public partial class Body
         return false;
     }
 
+    private void HandleCharacterItemEvent(EventType characterEvent, EventType itemEvent, EventType witnessEvent,
+        IGameItem item)
+    {
+        Actor.HandleEvent(characterEvent, Actor, item);
+        item.HandleEvent(itemEvent, Actor, item);
+        foreach (IHandleEvents witness in Location.EventHandlers)
+        {
+            witness.HandleEvent(witnessEvent, Actor, item, witness);
+        }
+    }
+
     public void Open(IOpenable openable, ICharacter openableOwner, IEmote playerEmote, bool useCouldLogic = false)
     {
         if (useCouldLogic)
@@ -262,6 +274,8 @@ public partial class Body
         }
 
         openable.Open();
+        HandleCharacterItemEvent(EventType.CharacterOpenedItem, EventType.ItemOpened,
+            EventType.CharacterOpenedItemWitness, openable.Parent);
     }
 
     public bool CouldOpen(IOpenable openable)
@@ -361,6 +375,8 @@ public partial class Body
         }
 
         openable.Close();
+        HandleCharacterItemEvent(EventType.CharacterClosedItem, EventType.ItemClosed,
+            EventType.CharacterClosedItemWitness, openable.Parent);
     }
 
     public string WhyCannotClose { get; protected set; }

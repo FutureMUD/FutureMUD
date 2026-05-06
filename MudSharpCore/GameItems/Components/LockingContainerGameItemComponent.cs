@@ -435,6 +435,8 @@ namespace MudSharp.GameItems.Components
                         flags: OutputFlags.SuppressObscured));
             }
 
+            HandleItemLockEvent(locked ? EventType.ItemLocked : EventType.ItemUnlocked,
+                locked ? EventType.ItemLockedWitness : EventType.ItemUnlockedWitness, null, null, Parent);
             return true;
         }
 
@@ -476,6 +478,7 @@ namespace MudSharp.GameItems.Components
                 }
             }
 
+            HandleItemLockEvent(EventType.ItemUnlocked, EventType.ItemUnlockedWitness, actor, key?.Parent, containingPerceivable);
             return true;
         }
 
@@ -512,6 +515,7 @@ namespace MudSharp.GameItems.Components
                 }
             }
 
+            HandleItemLockEvent(EventType.ItemLocked, EventType.ItemLockedWitness, actor, key?.Parent, containingPerceivable);
             return true;
         }
 

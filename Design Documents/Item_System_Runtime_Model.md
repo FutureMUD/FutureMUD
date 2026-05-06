@@ -24,6 +24,17 @@ In practice, `GameItem` is the orchestration layer. Components provide most spec
 
 Planar presence is resolved at the item level before component-specific physical interaction. A visible but non-interactable item can still appear in descriptions or be speech/observation targeted where commands allow it, while inventory and manipulation checks can reject it through `CanInteractPlanar`.
 
+### Runtime Event Surface
+Items participate in the shared event system through `HandleEvent(...)`, installed hooks, and component-level event forwarding.
+
+Item-facing event surfaces include:
+- load and creation activation through `ItemFinishedLoading`
+- item manipulation such as being opened, closed, locked, unlocked, wielded, unwielded, worn, or removed from wear
+- item health changes through `ItemDamaged` and `ItemDamagedWitness`
+- local witness variants that let rooms, characters, room items, and carried external items react through hooks or AI
+
+When adding a new item event, keep the `EventInfoAttribute` metadata in `FutureMUDLibrary/Events/EventTypeEnum.cs` aligned with the actual dispatch arguments. The event metadata is the builder-facing contract used by `show event`, hook validation, and FutureProg compatibility checks.
+
 ### `IGameItemProto`
 `IGameItemProto` is the revisioned prototype for creating items.
 

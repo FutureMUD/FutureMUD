@@ -18,7 +18,7 @@ namespace MudSharp.Events
         /// <summary>
         ///     Hooks any IHookable that witnessed an item being dropped. Parameteres are character, item, witness
         /// </summary>
-        [EventInfo("Hooks a perceiver witnessing an item being dropped.", new[] { "character", "item", "perceiver" }, new[] { "dropper", "dropped", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceiver, })]
+        [EventInfo("Hooks a perceivable witnessing an item being dropped.", new[] { "character", "item", "perceivable" }, new[] { "dropper", "dropped", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable, })]
         CharacterDroppedItemWitness = 1,
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace MudSharp.Events
         /// <summary>
         ///     Hooks any IHookable that witnesed an item being gotten from the ground. Parameters are character, item, witness
         /// </summary>
-        [EventInfo("Hooks a witnessing an item being gotten from the ground.", new[] { "character", "item", "perceiver" }, new[] { "getter", "gotten", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceiver })]
+        [EventInfo("Hooks a perceivable witnessing an item being gotten from the ground.", new[] { "character", "item", "perceivable" }, new[] { "getter", "gotten", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable })]
         CharacterGotItemWitness = 4,
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace MudSharp.Events
         ///     Hooks any IHookable that witnesed an item being gotten from a container. Parameters are character, item, container,
         ///     witness
         /// </summary>
-        [EventInfo("Hooks witnessing an item being gotten from a container.", new[] { "character", "item", "item", "perceiver" }, new[] { "getter", "gotten", "container", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceiver, })]
+        [EventInfo("Hooks a perceivable witnessing an item being gotten from a container.", new[] { "character", "item", "item", "perceivable" }, new[] { "getter", "gotten", "container", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable, })]
         CharacterGotItemContainerWitness = 7,
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace MudSharp.Events
         ///     Hooks any IHookable that witnesed an item being put in a container. Parameters are character, item, container,
         ///     witness
         /// </summary>
-        [EventInfo("Hooks witnessing an item being put in a container.", new[] { "character", "item", "item", "perceiver" }, new[] { "putter", "put", "container", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceiver, })]
+        [EventInfo("Hooks a perceivable witnessing an item being put in a container.", new[] { "character", "item", "item", "perceivable" }, new[] { "putter", "put", "container", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable, })]
         CharacterPutItemContainerWitness = 10,
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace MudSharp.Events
         /// <summary>
         ///     Hooks the character who is witnessing an item being given. Parameters are giver, receiver, item, witness
         /// </summary>
-        [EventInfo("Hooks witnessing an item being given to someone.", new[] { "character", "character", "item", "perceiver" }, new[] { "giver", "receiver", "given", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceiver, })]
+        [EventInfo("Hooks a perceivable witnessing an item being given to someone.", new[] { "character", "character", "item", "perceivable" }, new[] { "giver", "receiver", "given", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable, })]
         CharacterGiveItemWitness = 14,
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace MudSharp.Events
         ///     Hooks to any character who is targeted by a social. Parameters are Parameters are socialite, social, target,
         ///     (cellexit)direction
         /// </summary>
-        [EventInfo("Hooks to a perceivable being targeted by a social", new[] { "character", "text", "perceivable", "exit" }, new[] { "socialite", "social", "target", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Text, ProgVariableTypeCode.Collection, ProgVariableTypeCode.Exit })]
+        [EventInfo("Hooks to a perceivable being targeted by a social", new[] { "character", "text", "perceivable", "exit" }, new[] { "socialite", "social", "target", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Text, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Exit })]
         CharacterSocialTarget = 30,
 
         /// <summary>
@@ -411,7 +411,7 @@ namespace MudSharp.Events
         /// <summary>
         ///     Hooks to someone who has witnessed another bleed. Parameters are character, bleeding, witness
         /// </summary>
-        [EventInfo("Fires when something witnesses a character bleeding.", new[] { "character", "number", "perceiver" }, new[] { "person", "litres", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Number, ProgVariableTypeCode.Perceiver, })]
+        [EventInfo("Fires when a perceivable witnesses a character bleeding.", new[] { "character", "number", "perceivable" }, new[] { "person", "litres", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Number, ProgVariableTypeCode.Perceivable, })]
         WitnessBleedTick = 56,
 
 
@@ -490,7 +490,7 @@ namespace MudSharp.Events
         /// <summary>
         /// Fires whenever weather changes for all perceivers and locations. Parameters are perceiver, oldweather, newweather
         /// </summary>
-        [EventInfo("Fires on all perceivers and locations when weather changes.", new[] { "perceiver", "weatherevent", "weatherevent" }, new[] { "witness", "oldweather", "newweather" }, new[] { ProgVariableTypeCode.Perceiver, ProgVariableTypeCode.WeatherEvent, ProgVariableTypeCode.WeatherEvent })]
+        [EventInfo("Fires on all perceivers and locations when weather changes.", new[] { "perceivable", "weatherevent", "weatherevent" }, new[] { "witness", "oldweather", "newweather" }, new[] { ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.WeatherEvent, ProgVariableTypeCode.WeatherEvent })]
         WeatherChanged = 76,
 
         /// <summary>
@@ -532,6 +532,7 @@ namespace MudSharp.Events
         /// <summary>
         /// Fires on all clocked-in employees of a shop when an item requires restocking. Parameters are employee, shop, merchandise, amount
         /// </summary>
+        [EventInfo("Fires on clocked-in employees of a shop when merchandise requires restocking.", new[] { "character", "shop", "merchandise", "number" }, new[] { "employee", "shop", "merchandise", "quantity" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Shop, ProgVariableTypeCode.Merchandise, ProgVariableTypeCode.Number })]
         ItemRequiresRestocking = 83,
 
         /// <summary>
@@ -552,9 +553,13 @@ namespace MudSharp.Events
         /// <summary>
         /// Fires when the character witnesses a crime committed at their location. (criminal, victim, witness, crime id)
         /// </summary>
-        [EventInfo("Fires when the character witnesses a crime committed at their location", new[] { "character", "character", "character", "number" }, new[] { "criminal", "victim", "witness", "crime" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Number })]
+        [EventInfo("Fires when the character witnesses a crime committed at their location", new[] { "character", "character", "character", "crime" }, new[] { "criminal", "victim", "witness", "crime" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Crime })]
         WitnessedCrime = 87,
 
+        /// <summary>
+        /// Fires on the victim of a crime. Parameters are criminal, victim, crime.
+        /// </summary>
+        [EventInfo("Fires on the victim of a crime.", new[] { "character", "character", "crime" }, new[] { "criminal", "victim", "crime" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Crime })]
         VictimOfCrime = 88,
 
         /// <summary>
@@ -591,25 +596,25 @@ namespace MudSharp.Events
         [EventInfo("Fired on an item when the item takes damage. Weapon and Aggressor may be null.", ["item", "item", "character"], ["item", "weapon", "aggressor"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Item, ProgVariableTypeCode.Character])]
         ItemDamaged = 94,
 
-        [EventInfo("Fired on all perceivers in the location when the item takes damage. Weapon and Aggressor may be null.", ["item", "item", "character", "perceiver"], ["item", "weapon", "aggressor", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceiver])]
+        [EventInfo("Fired on all perceivables in the location when the item takes damage. Weapon and Aggressor may be null.", ["item", "item", "character", "perceivable"], ["item", "weapon", "aggressor", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable])]
         ItemDamagedWitness = 95,
 
         [EventInfo("Fired on a character when they take damage. Weapon and Aggressor may be null.", ["character", "item", "character"], ["character", "weapon", "aggressor"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Character])]
         CharacterDamaged = 96,
 
-        [EventInfo("Fired on all perceivers in the location when a character takes damage.  Weapon and Aggressor may be null.", ["character", "item", "character", "perceiver"], ["character", "weapon", "aggressor", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceiver])]
+        [EventInfo("Fired on all perceivables in the location when a character takes damage.  Weapon and Aggressor may be null.", ["character", "item", "character", "perceivable"], ["character", "weapon", "aggressor", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable])]
         CharacterDamagedWitness = 97,
 
         [EventInfo("Fired on an item when it is wielded", ["item", "character"], ["item", "wielder"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character])]
         ItemWielded = 98,
 
-        [EventInfo("Fired on all perceivers in the location when an item is wielded", ["item", "character", "perceiver"], ["item", "wielder", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceiver])]
+        [EventInfo("Fired on all perceivables in the location when an item is wielded", ["item", "character", "perceivable"], ["item", "wielder", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable])]
         ItemWieldedWitness = 99,
 
         [EventInfo("Fired on an item when it is worn", ["item", "character"], ["item", "wearer"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character])]
         ItemWorn = 100,
 
-        [EventInfo("Fired on all perceivers in the location when an item is worn", ["item", "character", "perceiver"], ["item", "wearer", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceiver])]
+        [EventInfo("Fired on all perceivables in the location when an item is worn", ["item", "character", "perceivable"], ["item", "wearer", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable])]
         ItemWornWitness = 101,
 
         [EventInfo("Fired on a character when they become hidden", ["character"], ["character"], [ProgVariableTypeCode.Character])]
@@ -622,6 +627,66 @@ namespace MudSharp.Events
         /// Fires on an item receiving in-call keypad digits from a telephone source. Parameters are source item, digits.
         /// </summary>
         [EventInfo("Fires on an item receiving in-call keypad digits from a telephone source", ["item", "text"], ["source", "digits"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Text])]
-        TelephoneDigitsReceived = 104
+        TelephoneDigitsReceived = 104,
+
+        [EventInfo("Fires on a character when they open an item.", ["character", "item"], ["opener", "item"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+        CharacterOpenedItem = 105,
+
+        [EventInfo("Fires on an item when it is opened by a character.", ["character", "item"], ["opener", "item"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+        ItemOpened = 106,
+
+        [EventInfo("Fires on perceivables witnessing a character opening an item.", ["character", "item", "perceivable"], ["opener", "item", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable])]
+        CharacterOpenedItemWitness = 107,
+
+        [EventInfo("Fires on a character when they close an item.", ["character", "item"], ["closer", "item"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+        CharacterClosedItem = 108,
+
+        [EventInfo("Fires on an item when it is closed by a character.", ["character", "item"], ["closer", "item"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+        ItemClosed = 109,
+
+        [EventInfo("Fires on perceivables witnessing a character closing an item.", ["character", "item", "perceivable"], ["closer", "item", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable])]
+        CharacterClosedItemWitness = 110,
+
+        [EventInfo("Fires on a character when they unwield an item.", ["character", "item"], ["unwielder", "item"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+        CharacterUnwieldedItem = 111,
+
+        [EventInfo("Fires on an item when it is unwielded.", ["character", "item"], ["unwielder", "item"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+        ItemUnwielded = 112,
+
+        [EventInfo("Fires on perceivables witnessing a character unwielding an item.", ["character", "item", "perceivable"], ["unwielder", "item", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable])]
+        CharacterUnwieldedItemWitness = 113,
+
+        [EventInfo("Fires on a character when one of their worn items is removed.", ["character", "character", "item"], ["wearer", "remover", "item"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+        CharacterWornItemRemoved = 114,
+
+        [EventInfo("Fires on an item when it is removed from being worn.", ["character", "character", "item"], ["wearer", "remover", "item"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+        ItemRemovedFromWear = 115,
+
+        [EventInfo("Fires on perceivables witnessing a worn item being removed.", ["character", "character", "item", "perceivable"], ["wearer", "remover", "item", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable])]
+        CharacterWornItemRemovedWitness = 116,
+
+        [EventInfo("Fires on a character when they mount another character.", ["character", "character"], ["rider", "mount"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Character])]
+        CharacterMounted = 117,
+
+        [EventInfo("Fires on perceivables witnessing a character mounting another character.", ["character", "character", "perceivable"], ["rider", "mount", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable])]
+        CharacterMountedWitness = 118,
+
+        [EventInfo("Fires on a character when they dismount another character.", ["character", "character"], ["rider", "mount"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Character])]
+        CharacterDismounted = 119,
+
+        [EventInfo("Fires on perceivables witnessing a character dismounting another character.", ["character", "character", "perceivable"], ["rider", "mount", "witness"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable])]
+        CharacterDismountedWitness = 120,
+
+        [EventInfo("Fires on a lock item when it is locked. Actor and key may be null.", ["item", "character", "item", "perceivable"], ["lock", "actor", "key", "target"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable])]
+        ItemLocked = 121,
+
+        [EventInfo("Fires on perceivables witnessing a lock item being locked. Actor and key may be null.", ["item", "character", "item", "perceivable", "perceivable"], ["lock", "actor", "key", "target", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Perceivable])]
+        ItemLockedWitness = 122,
+
+        [EventInfo("Fires on a lock item when it is unlocked. Actor and key may be null.", ["item", "character", "item", "perceivable"], ["lock", "actor", "key", "target"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable])]
+        ItemUnlocked = 123,
+
+        [EventInfo("Fires on perceivables witnessing a lock item being unlocked. Actor and key may be null.", ["item", "character", "item", "perceivable", "perceivable"], ["lock", "actor", "key", "target", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Perceivable])]
+        ItemUnlockedWitness = 124
     }
 }

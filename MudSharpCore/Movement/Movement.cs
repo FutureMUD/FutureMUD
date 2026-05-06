@@ -777,7 +777,7 @@ public class Movement : IMovement
                     person.OutputHandler.Handle(output, OutputRange.Personal);
 					if (!MovementEventUtilities.ShouldSuppressMovementEvents(person))
 					{
-						person.HandleEvent(EventType.CharacterStopMovement);
+						person.HandleEvent(EventType.CharacterStopMovement, person, Exit.Origin, Exit);
 						foreach (IHandleEvents witness in person.Location.EventHandlers.Except(person))
 						{
 							witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);
@@ -831,7 +831,7 @@ public class Movement : IMovement
                     person.OutputHandler.Handle(output, OutputRange.Personal);
 					if (!MovementEventUtilities.ShouldSuppressMovementEvents(person))
 					{
-						person.HandleEvent(EventType.CharacterStopMovement);
+						person.HandleEvent(EventType.CharacterStopMovement, person, Exit.Origin, Exit);
 						foreach (IHandleEvents witness in person.Location.EventHandlers.Except(person))
 						{
 							witness.HandleEvent(EventType.CharacterStopMovementWitness, person, Exit.Origin, Exit, witness);

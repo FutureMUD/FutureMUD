@@ -3,6 +3,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
@@ -121,6 +122,8 @@ public class LockingDoorGameItemComponent : DoorGameItemComponentBase, ILock
 					flags: OutputFlags.SuppressObscured));
 		}
 
+		HandleItemLockEvent(locked ? EventType.ItemLocked : EventType.ItemUnlocked,
+			locked ? EventType.ItemLockedWitness : EventType.ItemUnlockedWitness, null, null, Parent);
 		return true;
 	}
 
@@ -165,6 +168,7 @@ public class LockingDoorGameItemComponent : DoorGameItemComponentBase, ILock
 			}
 		}
 
+		HandleItemLockEvent(EventType.ItemUnlocked, EventType.ItemUnlockedWitness, actor, key?.Parent, containingPerceivable);
 		return true;
 	}
 
@@ -199,6 +203,7 @@ public class LockingDoorGameItemComponent : DoorGameItemComponentBase, ILock
 			}
 		}
 
+		HandleItemLockEvent(EventType.ItemLocked, EventType.ItemLockedWitness, actor, key?.Parent, containingPerceivable);
 		return true;
 	}
 

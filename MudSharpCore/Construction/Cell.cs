@@ -1069,7 +1069,7 @@ public partial class Cell : Location, IDisposable, ICell
                 continue;
             }
 
-            HandleEvent(EventType.WeatherChanged, handler, oldWeather, newWeather);
+            handler.HandleEvent(EventType.WeatherChanged, handler, oldWeather, newWeather);
         }
     }
 
@@ -1107,7 +1107,7 @@ public partial class Cell : Location, IDisposable, ICell
                 continue;
             }
 
-            HandleEvent(EventType.WeatherChanged, handler, oldWeather, newWeather);
+            handler.HandleEvent(EventType.WeatherChanged, handler, oldWeather, newWeather);
         }
     }
 

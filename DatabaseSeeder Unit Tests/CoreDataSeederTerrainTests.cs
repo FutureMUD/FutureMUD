@@ -194,21 +194,36 @@ public class CoreDataSeederTerrainTests
 
         SeedTerrainFoundations(context);
 
-        Gas breathableAtmosphere = context.Gases.Single(x => x.Name == "Breathable Atmosphere");
-        foreach (string terrainName in new[]
-                 { "Void", "Residence", "Grasslands", "Ocean", "Zero-G Spaceship Compartment" })
+        Dictionary<string, Gas> gases = context.Gases.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+
+        void AssertGasAtmosphere(string terrainName, string gasName)
         {
             Terrain terrain = context.Terrains.Single(x => x.Name == terrainName);
-            Assert.AreEqual(breathableAtmosphere.Id, terrain.AtmosphereId,
-                $"Expected terrain {terrainName} to use the stock breathable atmosphere.");
+            Assert.AreEqual(gases[gasName].Id, terrain.AtmosphereId,
+                $"Expected terrain {terrainName} to use {gasName}.");
             Assert.AreEqual("Gas", terrain.AtmosphereType);
         }
 
+        AssertGasAtmosphere("Void", "Breathable Atmosphere");
+        AssertGasAtmosphere("Residence", "Breathable Atmosphere");
+        AssertGasAtmosphere("Grasslands", "Breathable Atmosphere");
+        AssertGasAtmosphere("Cave", "Stale Breathable Atmosphere");
+        AssertGasAtmosphere("Ocean", "Humid Breathable Atmosphere");
+        AssertGasAtmosphere("Plateau", "High Altitude Breathable Atmosphere");
+        AssertGasAtmosphere("Mountain Ridge", "Thin Breathable Atmosphere");
+        AssertGasAtmosphere("Volcanic Plain", "Sulfurous Breathable Atmosphere");
+        AssertGasAtmosphere("Zero-G Spaceship Compartment", "Pressurized Breathable Atmosphere");
+
+        Terrain deepOcean = context.Terrains.Single(x => x.Name == "Deep Ocean");
+        Assert.AreEqual(context.Liquids.Single(x => x.Name == "salt water").Id, deepOcean.AtmosphereId,
+            "Expected Deep Ocean to use salt water as its liquid atmosphere.");
+        Assert.AreEqual("Liquid", deepOcean.AtmosphereType);
+
         foreach (string terrainName in new[]
-                 { "Deep Ocean", "Moon Surface", "Lunar Mare", "Asteroid Surface", "Orbital Space", "Interstellar Space" })
+                 { "Moon Surface", "Lunar Mare", "Asteroid Surface", "Orbital Space", "Interstellar Space" })
         {
             Assert.IsNull(context.Terrains.Single(x => x.Name == terrainName).AtmosphereId,
-                $"Expected terrain {terrainName} to remain without a breathable atmosphere.");
+                $"Expected terrain {terrainName} to remain without an atmosphere.");
         }
     }
 
@@ -431,9 +446,10 @@ public class CoreDataSeederTerrainTests
         Terrain orbitalSpace = context.Terrains.Single(x => x.Name == "Orbital Space");
         Terrain moonSurface = context.Terrains.Single(x => x.Name == "Moon Surface");
         Gas breathableAtmosphere = context.Gases.Single(x => x.Name == "Breathable Atmosphere");
+        long customAtmosphereId = context.Gases.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0L).Max() + 1L;
         Gas customAtmosphere = new()
         {
-            Id = 2,
+            Id = customAtmosphereId,
             Name = "Builder Custom Atmosphere",
             Description = "A builder-custom atmosphere",
             Density = 0.002,

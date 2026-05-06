@@ -282,7 +282,32 @@ public abstract class PositionState : FrameworkItem, IPositionState
     /// <returns>An enum representing the result of the comparison</returns>
     public virtual PositionHeightComparison CompareTo(dynamic state)
     {
-        return CompareTo(state);
+        return state switch
+        {
+            PositionFlying position => CompareTo(position),
+            PositionFloatingInZeroGravity position => CompareTo(position),
+            PositionClimbing position => CompareTo(position),
+            PositionSwimming position => CompareTo(position),
+            PositionFloatingInWater position => CompareTo(position),
+            PositionSitting position => CompareTo(position),
+            PositionStanding position => CompareTo(position),
+            PositionKneeling position => CompareTo(position),
+            PositionSlumped position => CompareTo(position),
+            PositionProne position => CompareTo(position),
+            PositionLyingDown position => CompareTo(position),
+            PositionSprawled position => CompareTo(position),
+            PositionProstrate position => CompareTo(position),
+            PositionLeaning position => CompareTo(position),
+            PositionStandingAttention position => CompareTo(position),
+            PositionSquatting position => CompareTo(position),
+            PositionStandingEasy position => CompareTo(position),
+            PositionLounging position => CompareTo(position),
+            PositionHanging position => CompareTo(position),
+            PositionRiding position => CompareTo(position),
+            PositionUndefined position => CompareTo(position),
+            null => PositionHeightComparison.Undefined,
+            _ => PositionHeightComparison.Undefined
+        };
     }
 
     public virtual PositionHeightComparison CompareTo(PositionFlying state)
@@ -303,6 +328,26 @@ public abstract class PositionState : FrameworkItem, IPositionState
     public virtual PositionHeightComparison CompareTo(PositionSwimming state)
     {
         return CompareTo(PositionStanding.Instance);
+    }
+
+    public virtual PositionHeightComparison CompareTo(PositionFloatingInWater state)
+    {
+        return CompareTo(PositionSwimming.Instance);
+    }
+
+    public virtual PositionHeightComparison CompareTo(PositionHanging state)
+    {
+        return PositionHeightComparison.Undefined;
+    }
+
+    public virtual PositionHeightComparison CompareTo(PositionRiding state)
+    {
+        return CompareTo(PositionSitting.Instance);
+    }
+
+    public virtual PositionHeightComparison CompareTo(PositionUndefined state)
+    {
+        return PositionHeightComparison.Undefined;
     }
 
     public virtual PositionHeightComparison CompareTo(PositionSitting state)

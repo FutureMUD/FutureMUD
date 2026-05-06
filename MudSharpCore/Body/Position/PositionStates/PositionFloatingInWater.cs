@@ -26,25 +26,25 @@ public class PositionFloatingInWater : PositionState
         string emoteText = emote != null ? $", {emote.ParseFor(voyeur)}" : "";
         if (target == null)
         {
-            return $"floating {(useHere ? "here" : "")}{emoteText}";
+            return $"floating{(useHere ? " here" : "")}{emoteText}";
         }
 
         switch (modifier)
         {
             case PositionModifier.Before:
-                return $"floating {(useHere ? "here" : "")} before {target.HowSeen(voyeur)}{emoteText}";
+                return $"floating before {target.HowSeen(voyeur)}{emoteText}";
             case PositionModifier.Behind:
-                return $"floating {(useHere ? "here" : "")} behind {target.HowSeen(voyeur)}{emoteText}";
+                return $"floating behind {target.HowSeen(voyeur)}{emoteText}";
             case PositionModifier.In:
-                return $"floating {(useHere ? "here" : "")} in {target.HowSeen(voyeur)}{emoteText}";
+                return $"floating in {target.HowSeen(voyeur)}{emoteText}";
             case PositionModifier.On:
-                return $"floating {(useHere ? "here" : "")} on {target.HowSeen(voyeur)}{emoteText}";
+                return $"floating on {target.HowSeen(voyeur)}{emoteText}";
             case PositionModifier.Under:
-                return $"floating {(useHere ? "here" : "")} under {target.HowSeen(voyeur)}{emoteText}";
+                return $"floating under {target.HowSeen(voyeur)}{emoteText}";
             case PositionModifier.Around:
-                return $"floating {(useHere ? "here" : "")} around {target.HowSeen(voyeur)}{emoteText}";
+                return $"floating around {target.HowSeen(voyeur)}{emoteText}";
             default:
-                return $"floating {(useHere ? "here" : "")} by {target.HowSeen(voyeur)}{emoteText}";
+                return $"floating by {target.HowSeen(voyeur)}{emoteText}";
         }
     }
 

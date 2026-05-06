@@ -32,17 +32,17 @@ public class PositionHanging : PositionState
         switch (modifier)
         {
             case PositionModifier.Before:
-                return $"hanging{(useHere ? " here" : "")}{target.HowSeen(voyeur)}{emoteText}";
+                return $"hanging before {target.HowSeen(voyeur)}{emoteText}";
             case PositionModifier.Behind:
-                return $"hanging{(useHere ? " here" : "")}behind {target.HowSeen(voyeur)}{emoteText}";
+                return $"hanging behind {target.HowSeen(voyeur)}{emoteText}";
             case PositionModifier.In:
-                return $"hanging{(useHere ? " here" : "")} in {target.HowSeen(voyeur)}{emoteText}";
+                return $"hanging in {target.HowSeen(voyeur)}{emoteText}";
             case PositionModifier.On:
-                return $"hanging{(useHere ? " here" : "")} on {target.HowSeen(voyeur)}{emoteText}";
+                return $"hanging on {target.HowSeen(voyeur)}{emoteText}";
             case PositionModifier.Under:
-                return $"hanging{(useHere ? " here" : "")} under {target.HowSeen(voyeur)}{emoteText}";
+                return $"hanging under {target.HowSeen(voyeur)}{emoteText}";
             case PositionModifier.Around:
-                return $"hanging{(useHere ? " here" : "")} around {target.HowSeen(voyeur)}{emoteText}";
+                return $"hanging around {target.HowSeen(voyeur)}{emoteText}";
             default:
                 return $"hanging from {target.HowSeen(voyeur)}{emoteText}";
         }

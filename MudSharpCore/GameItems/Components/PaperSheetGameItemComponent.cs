@@ -49,8 +49,29 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
         base(rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
-        Readables.AddRange(rhs.Readables);
+        foreach (var readable in rhs.Readables)
+        {
+            var newReadable = temporary ? readable : readable.CopyReadable();
+            Readables.Add(newReadable);
+            if (!temporary)
+            {
+                RegisterReadable(newReadable);
+            }
+        }
         Title = rhs.Title;
+    }
+
+    private void RegisterReadable(ICanBeRead readable)
+    {
+        switch (readable)
+        {
+            case IWriting writing:
+                Gameworld.Add(writing);
+                break;
+            case IDrawing drawing:
+                Gameworld.Add(drawing);
+                break;
+        }
     }
 
     protected void LoadFromXml(XElement root)

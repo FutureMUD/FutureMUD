@@ -161,6 +161,10 @@ Deep ownership mutation follows the practical containment graph that builders an
 
 Telecommunications items also expose scripting hooks through item and endpoint queries such as current phone number and shared-number policy, which allows crafting or project systems to assign, clear, or reconfigure telephone numbers at runtime. The same runtime scripting surface applies to cellular handsets and implant telephones, even though implant telephones present their user interaction through neural-interface status and command flows instead of direct room manipulation.
 
+Readable book items expose a small scripting surface for dynamic document generation. `addprintedwriting(item, page, text, language, script, provenance)` adds provenance-aware printed text to a book page, with an overload accepting colour and style text. `copywritingto(item, page, writing)` copies an existing writing into a book without sharing the original row. `setbooktitle(item, title)` changes the live book title. These functions return false instead of mutating internals when the item is not a book, the page is invalid or torn, a language/script/colour/style cannot be resolved, or the page lacks capacity.
+
+Printed writing has nullable authorship. Player-facing and admin displays should treat missing author as printed or anonymous provenance rather than assuming every writing row belongs to a character.
+
 Telephone presentation is not only textual state. For room-facing telephones and cellular phones, ringing is an audible output with an effective ring volume. Players adjust that through the ordinary `switch` command rather than a staff-only builder path: wired phones expose `quiet`, `normal`, and `loud`, while cellular phones also expose `silent`. Nearby rooms may hear ringing through ordinary audio-echo rules, but a silent cellular phone can still vibrate for the wearer if it is sitting inside a worn container. Implant telephones do not emit room audio and instead report ringing and connection progress through implant messaging.
 
 The current signal-automation slice has its own presentation and integration rules:

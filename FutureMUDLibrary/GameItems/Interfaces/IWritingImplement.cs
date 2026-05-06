@@ -13,7 +13,8 @@ namespace MudSharp.GameItems.Interfaces
         ComputerStylus,
         Brush,
         Chisel,
-        Crayon
+        Crayon,
+        Printed
     }
 
     public static class WritingImplementTypeExtensions
@@ -38,6 +39,8 @@ namespace MudSharp.GameItems.Interfaces
                     return "Chisel";
                 case WritingImplementType.Crayon:
                     return "Crayon";
+                case WritingImplementType.Printed:
+                    return "Printed";
                 default:
                     throw new ApplicationException($"Unknown WritingImplementType {type} in WritingImplementTypeExtensions.Describe");
             }
@@ -63,6 +66,8 @@ namespace MudSharp.GameItems.Interfaces
                     return "stylus";
                 case WritingImplementType.Chisel:
                     return "chisel";
+                case WritingImplementType.Printed:
+                    return "printed text";
                 default:
                     throw new ApplicationException($"Unknown WritingImplementType {type} in WritingImplementTypeExtensions.Describe");
             }

@@ -10,7 +10,7 @@ namespace MudSharp.Models
         public int Style { get; set; }
         public long LanguageId { get; set; }
         public long ScriptId { get; set; }
-        public long AuthorId { get; set; }
+        public long? AuthorId { get; set; }
         public long? TrueAuthorId { get; set; }
         public double HandwritingSkill { get; set; }
         public double LiteracySkill { get; set; }

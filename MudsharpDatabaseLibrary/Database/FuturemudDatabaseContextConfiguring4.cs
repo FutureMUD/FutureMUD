@@ -2252,7 +2252,7 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Author)
                     .WithMany(p => p.WritingsAuthor)
                     .HasForeignKey(d => d.AuthorId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_Writings_Characters_Author");
 
                 entity.HasOne(d => d.Language)

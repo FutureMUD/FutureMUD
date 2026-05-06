@@ -79,16 +79,16 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
     public WritingImplementType ImplementType { get; init; }
     public IColour WritingColour { get; init; }
 
-    private long _authorId;
+    private long? _authorId;
     private ICharacter _author;
 
     public ICharacter Author
     {
         get
         {
-            if (_author == null && _authorId != 0)
+            if (_author == null && (_authorId ?? 0L) != 0)
             {
-                _author = Gameworld.TryGetCharacter(_authorId, true);
+                _author = Gameworld.TryGetCharacter(_authorId ?? 0L, true);
             }
 
             return _author;
@@ -96,7 +96,7 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
         init
         {
             _author = value;
-            _authorId = value?.Id ?? 0;
+            _authorId = value?.Id;
             Changed = true;
         }
     }
@@ -200,9 +200,9 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 
     void ILazyLoadDuringIdleTime.DoLoad()
     {
-        if (_author == null && _authorId != 0)
+        if (_author == null && (_authorId ?? 0L) != 0)
         {
-            _author = Gameworld.TryGetCharacter(_authorId, true);
+            _author = Gameworld.TryGetCharacter(_authorId ?? 0L, true);
         }
 
         if (_trueAuthor == null && (_trueAuthorId ?? 0) != 0)
@@ -263,6 +263,10 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
                 return new TextVariable(ParseFor(null));
             case "simple":
                 return new BooleanVariable(true);
+            case "printed":
+                return new BooleanVariable(false);
+            case "provenance":
+                return new TextVariable(string.Empty);
             default:
                 throw new NotSupportedException();
         }
@@ -287,7 +291,9 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
             { "forgery", ProgVariableTypes.Number },
             { "languageskill", ProgVariableTypes.Number },
             { "text", ProgVariableTypes.Text },
-            { "simple", ProgVariableTypes.Boolean}
+            { "simple", ProgVariableTypes.Boolean},
+            { "printed", ProgVariableTypes.Boolean},
+            { "provenance", ProgVariableTypes.Text}
         };
     }
 
@@ -306,7 +312,9 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
             { "forgery", "The forgery skill of the author" },
             { "languageskill", "The language skill of the author" },
             { "text", "The parsed text of the writing" },
-            { "simple", "True if simple writing, false is composite (drawing+writing)"}
+            { "simple", "True if simple writing, false is composite (drawing+writing) or printed" },
+            { "printed", "True if this is printed writing without a character author" },
+            { "provenance", "The publisher, source, or other provenance text for printed writing" }
         };
     }
 

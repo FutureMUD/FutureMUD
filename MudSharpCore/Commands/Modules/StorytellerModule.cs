@@ -3190,15 +3190,15 @@ The syntax is as follows:
 
                 if (long.TryParse(text, out long value))
                 {
-                    writings = writings.Where(x => x.Author.Id == value);
+                    writings = writings.Where(x => x.Author?.Id == value);
                 }
                 else if (text[0] == '*' && text.Length > 1)
                 {
-                    writings = writings.Where(x => x.Author.Account.Name.EqualTo(text[1..]));
+                    writings = writings.Where(x => x.Author?.Account.Name.EqualTo(text[1..]) == true);
                 }
                 else
                 {
-                    writings = writings.Where(x => x.Author.PersonalName.GetName(NameStyle.FullName).EqualTo(text));
+                    writings = writings.Where(x => x.Author?.PersonalName.GetName(NameStyle.FullName).EqualTo(text) == true);
                 }
 
                 continue;
@@ -3237,7 +3237,7 @@ The syntax is as follows:
                 select new string[]
                 {
                     writing.Id.ToString("N0", actor),
-                    writing.Author.PersonalName.GetName(NameStyle.FullName),
+                    writing.Author?.PersonalName.GetName(NameStyle.FullName) ?? "Printed/Anonymous",
                     writing.Language.Name,
                     writing.Script.Name,
                     writing.ImplementType.Describe(),
@@ -3361,9 +3361,17 @@ The syntax is as follows:
         sb.AppendLine(
             $"Written in the {writing.Language.Name.ColourValue()} language and the {writing.Script.Name.ColourValue()} script.");
         sb.AppendLine(
-            $"Written in {writing.Style.DescribeEnum().A_An().Colour(Telnet.Yellow)} style with {writing.WritingColour.Name.ColourValue()} {writing.ImplementType.Describe(writing.WritingColour).ColourValue()}.");
-        sb.AppendLine(
-            $"Written by {writing.Author.PersonalName.GetName(NameStyle.FullWithNickname).ColourName()} (ID #{writing.Author.Id.ToString("N0", actor)} - Account {writing.Author.Account.Name.ColourName()}).");
+            $"Written in {writing.Style.DescribeEnum().A_An().Colour(Telnet.Yellow)} style with {(writing.WritingColour?.Name ?? "default").ColourValue()} {writing.ImplementType.Describe(writing.WritingColour).ColourValue()}.");
+        if (writing.Author is null)
+        {
+            var provenance = writing.GetProperty("provenance")?.GetObject as string;
+            sb.AppendLine($"Printed source: {provenance.IfNullOrWhiteSpace("unspecified").ColourName()}.");
+        }
+        else
+        {
+            sb.AppendLine(
+                $"Written by {writing.Author.PersonalName.GetName(NameStyle.FullWithNickname).ColourName()} (ID #{writing.Author.Id.ToString("N0", actor)} - Account {writing.Author.Account.Name.ColourName()}).");
+        }
         sb.AppendLine();
         sb.AppendLine(writing.ParseFor(actor));
         actor.OutputHandler.Send(sb.ToString());

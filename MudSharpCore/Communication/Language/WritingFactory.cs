@@ -14,6 +14,8 @@ public static class WritingFactory
                 return new SimpleWriting(writing, gameworld);
             case "composite":
                 return new CompositeWriting(writing, gameworld);
+            case "printed":
+                return new PrintedWriting(writing, gameworld);
             default:
                 throw new ApplicationException(
                     $"Unknown writing type in WritingFactory.LoadWriting: {writing.WritingType}");

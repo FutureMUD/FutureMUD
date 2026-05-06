@@ -132,16 +132,16 @@ public class CompositeWriting : LateInitialisingItem, IGraffitiWriting, ILazyLoa
     public WritingImplementType ImplementType { get; init; }
     public IColour WritingColour { get; init; }
 
-    private long _authorId;
+    private long? _authorId;
     private ICharacter _author;
 
     public ICharacter Author
     {
         get
         {
-            if (_author == null && _authorId != 0)
+            if (_author == null && (_authorId ?? 0L) != 0)
             {
-                _author = Gameworld.TryGetCharacter(_authorId, true);
+                _author = Gameworld.TryGetCharacter(_authorId ?? 0L, true);
             }
 
             return _author;
@@ -149,7 +149,7 @@ public class CompositeWriting : LateInitialisingItem, IGraffitiWriting, ILazyLoa
         init
         {
             _author = value;
-            _authorId = value?.Id ?? 0;
+            _authorId = value?.Id;
             Changed = true;
         }
     }
@@ -291,9 +291,9 @@ public class CompositeWriting : LateInitialisingItem, IGraffitiWriting, ILazyLoa
 
     void ILazyLoadDuringIdleTime.DoLoad()
     {
-        if (_author == null && _authorId != 0)
+        if (_author == null && (_authorId ?? 0L) != 0)
         {
-            _author = Gameworld.TryGetCharacter(_authorId, true);
+            _author = Gameworld.TryGetCharacter(_authorId ?? 0L, true);
         }
 
         if (_trueAuthor == null && (_trueAuthorId ?? 0) != 0)
@@ -336,6 +336,10 @@ public class CompositeWriting : LateInitialisingItem, IGraffitiWriting, ILazyLoa
                 return new TextVariable(ParseFor(null));
             case "simple":
                 return new BooleanVariable(false);
+            case "printed":
+                return new BooleanVariable(false);
+            case "provenance":
+                return new TextVariable(string.Empty);
             default:
                 throw new NotSupportedException();
         }

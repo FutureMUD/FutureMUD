@@ -300,6 +300,13 @@ public abstract class RangeBaseStrategy : StrategyBase
             return AttemptUsePsychicAbility(combatant);
         }
 
+        roll -= combatant.CombatSettings.PsychicUsePercentage;
+        if (combatant.CombatSettings.AuxiliaryPercentage > 0.0 &&
+            roll <= combatant.CombatSettings.AuxiliaryPercentage)
+        {
+            return AttemptUseAuxilliaryAction(combatant);
+        }
+
         return null;
     }
 

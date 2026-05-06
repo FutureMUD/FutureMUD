@@ -63,6 +63,25 @@ public class FutureProgFunctionDocumentationTests
 		);
 	}
 
+	[TestMethod]
+	public void CelestialElevationFunction_Metadata_HasLocationAndZoneNumberOverloads()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+
+		var overloads = FutureProg.GetFunctionCompilerInformations()
+		                          .Where(x => x.FunctionName.EqualTo("celestialelevation"))
+		                          .ToList();
+
+		Assert.AreEqual(2, overloads.Count);
+		Assert.IsTrue(overloads.Any(x =>
+			x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Location, ProgVariableTypes.Number })));
+		Assert.IsTrue(overloads.Any(x =>
+			x.Parameters.SequenceEqual(new[] { ProgVariableTypes.Zone, ProgVariableTypes.Number })));
+		Assert.IsTrue(overloads.All(x => x.ReturnType == ProgVariableTypes.Number));
+		Assert.IsTrue(overloads.All(x => x.Category.EqualTo("Celestials")));
+		Assert.IsTrue(overloads.All(x => x.FunctionHelp.Contains("radians", StringComparison.OrdinalIgnoreCase)));
+	}
+
 	private static IEnumerable<string> ValidateFunction(FunctionCompilerInformation function)
 	{
 		var signature = $"{function.FunctionName}({string.Join(", ", function.Parameters.Select(x => x.Describe()))})";

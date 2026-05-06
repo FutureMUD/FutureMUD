@@ -288,6 +288,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
             }
 
             RefreshExistingAnimalDietSettings();
+            CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureAnimalAuxiliaryLinks(context);
             context.Database.CommitTransaction();
             List<string> updates = ["Updated the animal combat balance profile"];
             if (hasMissingCatalogue)
@@ -308,6 +309,11 @@ public partial class AnimalSeeder : IDatabaseSeeder
             if (hasMissingDietSettings)
             {
                 updates.Add("refreshed stock animal diet settings");
+            }
+
+            if (auxiliaryResult.HasChanges)
+            {
+                updates.Add($"refreshed animal auxiliary combat links ({auxiliaryResult.RaceLinks} links)");
             }
 
             return $"{string.Join(", ", updates)}.";
@@ -848,10 +854,13 @@ public partial class AnimalSeeder : IDatabaseSeeder
         CloneBodyPositionsAndSpeeds(toedQuadruped, anuranBody);
         ApplyDefaultCombatSettingsToSeededRaces();
         SeedAnimalAIStockTemplates();
+        CombatAuxiliarySeedResult freshAuxiliaryResult = CombatAuxiliarySeederHelper.EnsureAnimalAuxiliaryLinks(context);
 
         context.Database.CommitTransaction();
 
-        return "Successfully installed animal prototypes and stock animal AI templates.";
+        return freshAuxiliaryResult.HasChanges
+            ? $"Successfully installed animal prototypes, stock animal AI templates, and {freshAuxiliaryResult.RaceLinks} animal auxiliary combat links."
+            : "Successfully installed animal prototypes and stock animal AI templates.";
     }
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)

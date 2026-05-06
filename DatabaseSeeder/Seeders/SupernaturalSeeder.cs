@@ -83,10 +83,11 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		}
 
 		SeedFormMerits(summary);
+		CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureSupernaturalAuxiliaryLinks(_context);
 
 		_context.SaveChanges();
 		_context.Database.CommitTransaction();
-		return summary.ToMessage(Templates.Count);
+		return $"{summary.ToMessage(Templates.Count)} Refreshed {auxiliaryResult.RaceLinks} supernatural auxiliary combat links.";
 	}
 
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)

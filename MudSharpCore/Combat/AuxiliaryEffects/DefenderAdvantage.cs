@@ -28,7 +28,7 @@ internal class DefenderAdvantage : IAuxiliaryEffect
         OffenseBonusPerDegree = double.Parse(root.Attribute("offensebonusperdegree")!.Value);
         AllowNegatives = bool.Parse(root.Attribute("allownegatives")!.Value);
         AllowPositives = bool.Parse(root.Attribute("allowpositives")!.Value);
-        DefenseTrait = gameworld.Traits.Get(long.Parse(root.Attribute("defensetrait")!.Value)) ?? throw new ApplicationException($"Missing DefenseTrait for AttackerAdvantage: {root.Attribute("defensetrait")!.Value}");
+        DefenseTrait = gameworld.Traits.Get(long.Parse(root.Attribute("defensetrait")!.Value)) ?? throw new ApplicationException($"Missing DefenseTrait for DefenderAdvantage: {root.Attribute("defensetrait")!.Value}");
         DefenseDifficulty = (Difficulty)(int.Parse(root.Attribute("defensedifficulty")!.Value));
     }
 
@@ -39,7 +39,7 @@ internal class DefenderAdvantage : IAuxiliaryEffect
             new XAttribute("defensebonusperdegree", DefenseBonusPerDegree),
             new XAttribute("offensebonusperdegree", OffenseBonusPerDegree),
             new XAttribute("defensetrait", DefenseTrait.Id),
-            new XAttribute("defensedifficulty", DefenseDifficulty),
+            new XAttribute("defensedifficulty", (int)DefenseDifficulty),
             new XAttribute("allownegatives", AllowNegatives),
             new XAttribute("allowpositives", AllowPositives)
         );
@@ -103,7 +103,7 @@ internal class DefenderAdvantage : IAuxiliaryEffect
                 return null;
             }
 
-            return new AttackerAdvantage(
+            return new DefenderAdvantage(
                 new XElement("Effect",
                     new XAttribute("type", "defenderadvantage"),
                     new XAttribute("defensebonusperdegree", defense.Abs()),
@@ -245,7 +245,7 @@ Use negative values for offense/defense bonus to indicate penalties.
             return false;
         }
 
-        if (double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send("That is not a valid number.");
             return false;
@@ -277,7 +277,7 @@ Use negative values for offense/defense bonus to indicate penalties.
             return false;
         }
 
-        if (double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send("That is not a valid number.");
             return false;
@@ -304,7 +304,7 @@ Use negative values for offense/defense bonus to indicate penalties.
     public string Show(ICharacter actor)
     {
         StringBuilder sb = new();
-        sb.AppendLine($"Attacker Advantage Effect".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+        sb.AppendLine($"Defender Advantage Effect".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
         sb.AppendLine($"Allow Positives: {AllowPositives.ToColouredString()}");
         sb.AppendLine($"Allow Negatives: {AllowNegatives.ToColouredString()}");
         sb.AppendLine($"Defense Trait: {DefenseTrait.Name.ColourValue()} @ {DefenseDifficulty.DescribeColoured()}");

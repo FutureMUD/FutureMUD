@@ -82,3 +82,14 @@ Zones then provide the local context that makes the celestial meaningful:
 - ambient light and weather
 
 Weather controllers and seasons bind to the celestial that defines their astronomy frame. For ordinary planetary worlds this is usually a root `Sun`. Moon-local climates or analysis contexts can instead bind to the linked moon-frame representation.
+
+## FutureProg Integration
+
+FutureProgs can inspect the cached sky state with:
+
+- `celestialelevation(location, celestialId) -> number`
+- `celestialelevation(zone, celestialId) -> number`
+
+The function looks up the celestial by ID in the supplied room's zone or the supplied zone and returns the current elevation angle in radians. Positive values are above the horizon and negative values are below it. If the zone or celestial cannot be found, the function returns `0`.
+
+This is intended for environmental gating such as sunlight-sensitive combat moves, outdoor ceremonies, or weather/season logic that needs to know whether a sun-like celestial is high enough above the horizon.

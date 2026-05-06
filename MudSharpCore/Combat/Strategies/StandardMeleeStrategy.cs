@@ -1047,36 +1047,6 @@ public class StandardMeleeStrategy : StrategyBase
             combatant.CombatTarget.GetType().FullName);
     }
 
-    protected virtual ICombatMove AttemptUseAuxilliaryAction(ICharacter combatant)
-    {
-        if (combatant.CombatTarget is not ICharacter tch)
-        {
-            return null;
-        }
-
-        List<IAuxiliaryCombatAction> moves = combatant.Race.UsableAuxiliaryMoves(combatant, tch, false).ToList();
-        List<IAuxiliaryCombatAction> usableMoves = moves.Where(x => combatant.CanSpendStamina(x.StaminaCost)).ToList();
-        if (!usableMoves.Any())
-        {
-            return moves.Any() ? new TooExhaustedMove { Assailant = combatant } : null;
-        }
-
-        List<IAuxiliaryCombatAction> preferredMoves = usableMoves.Where(x => x.Intentions.HasFlag(combatant.CombatSettings.PreferredIntentions))
-                                        .ToList();
-        if (preferredMoves.Any() && Dice.Roll(1, 2) == 1)
-        {
-            usableMoves = preferredMoves;
-        }
-
-        IAuxiliaryCombatAction move = usableMoves.GetWeightedRandom(x => x.Weighting);
-        if (move is null)
-        {
-            return null;
-        }
-
-        return new AuxiliaryMove(combatant, tch, move);
-    }
-
     protected virtual ICombatMove HandleWeaponAttackRolled(ICharacter combatant)
     {
         ICombatMove move = AttemptUseWeapon(combatant);
@@ -1179,6 +1149,13 @@ public class StandardMeleeStrategy : StrategyBase
         if (combatant.CombatSettings.PsychicUsePercentage > 0 && roll <= combatant.CombatSettings.PsychicUsePercentage)
         {
             return AttemptUsePsychicAbility(combatant);
+        }
+
+        roll -= combatant.CombatSettings.PsychicUsePercentage;
+        if (combatant.CombatSettings.AuxiliaryPercentage > 0.0 &&
+            roll <= combatant.CombatSettings.AuxiliaryPercentage)
+        {
+            return AttemptUseAuxilliaryAction(combatant);
         }
 
         return AttemptUseAuxilliaryAction(combatant);

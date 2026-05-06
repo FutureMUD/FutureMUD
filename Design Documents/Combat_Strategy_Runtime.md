@@ -47,6 +47,10 @@ Melee-family strategies select active attacks through this order:
 3. Weighted attack-mode roll: weapon, natural weapon, magic, psychic, then auxiliary.
 4. Weapon/natural/magic attack selection constrained by combat settings, allowed classifications, preferred/forbidden intentions, stamina, target type, and current melee or clinch state.
 
+Auxiliary moves are selected by shared strategy code through `AttemptUseAuxilliaryAction`. The move list comes from the attacker's race combat actions and is filtered by position, intention requirements, forbidden intentions, usability prog, target, and stamina. If the selected channel has authored moves but the actor is too exhausted to pay for any of them, the strategy returns `TooExhaustedMove`.
+
+`StandardMeleeStrategy` now includes `AuxiliaryPercentage` in the normal weighted roll while keeping the old melee fallback: if no weighted channel produces a move, it may still try an auxiliary move before idling. This preserves older custom combat settings that left auxiliary probability at zero but relied on auxiliary moves as a last resort. Ranged-family strategies also include `AuxiliaryPercentage` in their weighted roll, but they retain the ranged no-move fallback when no ranged, natural, magic, psychic, or auxiliary channel is selected.
+
 Ranged-family strategies select active attacks through:
 
 1. Weighted attack-mode roll.
@@ -60,7 +64,7 @@ Ranged firing normally reveals a hidden firer when out-of-combat fire engages th
 
 ### StandardMelee
 
-The general melee strategy. It handles automatic weapon and shield loadout, normal melee attacks, natural attacks, auxiliary attacks, fixed attacks, coup de grace, and fallback between normal melee and clinch when only one range has viable attacks.
+The general melee strategy. It handles automatic weapon and shield loadout, normal melee attacks, natural attacks, weighted auxiliary attacks, fixed attacks, coup de grace, legacy auxiliary fallback, and fallback between normal melee and clinch when only one range has viable attacks.
 
 Expected active no-move cases: no target, combat policy refuses the target, stamina below minimum, fully manual inventory or movement, no viable attack and no fallback.
 
@@ -185,6 +189,24 @@ Shove moves only the victim. It breaks melee, clinch, and grapple contact and th
 Forced exit movement still enforces hard movement rules: the target-side exit must exist in the target's current location and layer, fall exits are rejected, zero-gravity movement must be possible, size limits apply, fly/climb-only exits require matching capabilities, and `CanCross` must approve the transition. Victim safe-movement warnings are ignored so hostile forced movement can pass through destinations a voluntary mover would sensibly avoid; hard impossibility is not ignored.
 
 Forced layer movement requires the destination layer to exist in the current terrain. Pulling requires the attacker to be able to transition to that layer. Shoving can place the victim in layers such as water, trees, or air even if they could not voluntarily transition there, but the existing floating and fall checks run immediately afterwards.
+
+## Auxiliary Move Effects
+
+Auxiliary combat actions are non-attack combat moves stored as `CombatAction` records with `MoveType = AuxiliaryMove`. Their effect configuration remains in `CombatActions.AdditionalInfo` XML, so adding or changing effect types does not require a database migration.
+
+The current effect types are:
+
+- `attackeradvantage`: applies offensive and defensive advantage or penalties to the attacker from an opposed defense check.
+- `defenderadvantage`: applies offensive and defensive advantage or penalties to the defender from an opposed defense check.
+- `targetdelay`: delays the target's next combat action. The stock default is 1.5 seconds plus 0.5 seconds per opposed success degree, capped at 6 seconds.
+- `facing`: improves or worsens combat facing for the attacker or target. The stock default improves the attacker's position one step toward flank or rear.
+- `targetstamina`: drains target stamina. The stock default is 3 stamina plus 1 per opposed success degree, capped at 10.
+- `positionchange`: changes combat position. The stock default uses the existing combat knockdown flow and delays the target by 1.5 seconds plus 0.5 seconds per opposed success degree, capped at 5 seconds.
+- `disarm`: knocks a wielded item from the target's hands. The stock default chooses the best disarmable wielded weapon and applies the existing `CombatNoGetEffect` / `CombatGetItemEffect` recovery flow for 90 seconds.
+
+The new state-changing effect types share an opposed-resolution configuration: defense trait, defense difficulty, minimum opposed outcome degree, flat amount, per-degree amount, maximum cap, and optional success/failure echoes. Builders can inspect effect syntax with `auxiliary set typehelp <effect>` and edit individual effects from the auxiliary action builder with commands such as `trait`, `difficulty`, `minimum`, `amount`, `perdegree`, `max`, `successecho`, `failureecho`, and `clearecho`. Effect-specific commands add the remaining knobs, for example `facing subject`, `facing direction`, `positionchange knockdown`, `positionchange position`, and `disarm selection`.
+
+State-changing auxiliary effects apply only when the move has a character target. Item or other perceivable targets are safely ignored by these effects rather than trying to mutate character-only combat state.
 
 ## Audit Notes
 

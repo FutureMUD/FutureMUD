@@ -156,6 +156,16 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
                 return new AttackerAdvantage(definition, gameworld);
             case "defenderadvantage":
                 return new DefenderAdvantage(definition, gameworld);
+            case "targetdelay":
+                return new TargetDelay(definition, gameworld);
+            case "facing":
+                return new FacingChange(definition, gameworld);
+            case "targetstamina":
+                return new TargetStamina(definition, gameworld);
+            case "positionchange":
+                return new PositionChange(definition, gameworld);
+            case "disarm":
+                return new Disarm(definition, gameworld);
             default:
                 throw new NotImplementedException();
         }

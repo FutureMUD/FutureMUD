@@ -122,12 +122,13 @@ public partial class RobotSeeder : IDatabaseSeeder
         SeedRobotCulture();
         SeedRaces(bodyCatalogue, summary);
         SeedRobotProcedures(bodyCatalogue, summary);
+        CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureRobotAuxiliaryLinks(_context);
 
         _context.SaveChanges();
         _context.Database.CommitTransaction();
 
         return
-            $"Successfully installed or updated robot content. Added {summary.BodiesAdded} bodies, {summary.RacesAdded} races, and {summary.ProceduresAdded} procedures.";
+            $"Successfully installed or updated robot content. Added {summary.BodiesAdded} bodies, {summary.RacesAdded} races, {summary.ProceduresAdded} procedures, and {auxiliaryResult.RaceLinks} robot auxiliary combat links.";
     }
 
     public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)

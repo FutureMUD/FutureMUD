@@ -198,10 +198,24 @@ public partial class EditableItemHelper
                 return;
             }
 
+            if (accountTarget.Currency != zone.Currency)
+            {
+                actor.OutputHandler.Send(
+                    $"That account uses {accountTarget.Currency.Name.ColourName()}, but auction houses in the {zone.Name.ColourName()} economic zone must use {zone.Currency.Name.ColourName()}.");
+                return;
+            }
+
             if (actor.Gameworld.AuctionHouses.Any(x => x.Name.EqualTo(name)))
             {
                 actor.OutputHandler.Send(
                     $"There is already an auction house with that name. Names must be unique.");
+                return;
+            }
+
+            if (actor.Gameworld.AuctionHouses.Any(x => x.AuctionHouseCell == actor.Location))
+            {
+                actor.OutputHandler.Send(
+                    "There is already an auction house in this location. Only one auction house may be in a room at any time.");
                 return;
             }
 

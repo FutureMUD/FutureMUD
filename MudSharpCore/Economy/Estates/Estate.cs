@@ -649,7 +649,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
         return true;
     }
 
-    public void RecordAuctionCompletion(AuctionItem item, AuctionBid winningBid)
+    public void RecordAuctionCompletion(AuctionItem item, AuctionBid winningBid, decimal sellerProceeds)
     {
         IEstateAsset asset = FindAsset(item.Asset);
         if (asset == null)
@@ -660,7 +660,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
         if (winningBid != null)
         {
             asset.IsLiquidated = true;
-            asset.LiquidatedValue = winningBid.Bid;
+            asset.LiquidatedValue = sellerProceeds;
             return;
         }
 

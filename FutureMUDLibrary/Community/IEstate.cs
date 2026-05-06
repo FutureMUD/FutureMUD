@@ -86,7 +86,7 @@ namespace MudSharp.Community
         bool CheckStatus();
         bool StartLiquidation();
         bool TryCreateAuctionListing(IAuctionHouse auctionHouse, IEstateAsset asset, decimal reservePrice, decimal? buyoutPrice);
-        void RecordAuctionCompletion(AuctionItem item, [CanBeNull] AuctionBid winningBid);
+        void RecordAuctionCompletion(AuctionItem item, [CanBeNull] AuctionBid winningBid, decimal sellerProceeds);
         bool HasPendingLiquidationLots { get; }
         void Finalise();
     }

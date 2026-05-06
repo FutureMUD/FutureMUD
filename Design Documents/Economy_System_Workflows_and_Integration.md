@@ -232,6 +232,8 @@ Practical estate note:
 Current player-facing capability note:
 
 - auction houses can now host both item lots and property-share lots, and ordinary character-listed property auctions sell whatever ownership share the listing character currently owns in that property
+- auction-house settlement keeps the configured flat plus percentage fee and pays the seller the net proceeds
+- buyout purchases complete the auction immediately and move item lots into the normal claim workflow
 
 Contributor note:
 

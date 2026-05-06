@@ -297,8 +297,10 @@ Current verified runtime characteristics:
 - it is tied to a specific cell
 - it routes proceeds into a bank account
 - it is surfaced through economy commands rather than being embedded into shops
+- configured flat and percentage auction fees are retained by the auction house, with sellers receiving net proceeds
 - standard player auction commands now work for both item and property lots, including estate-liquidation property lots whose names are ordinary property names rather than inventory items
 - hotel lost-property bundles can be listed as item lots by the property when their retention period expires
+- buyout purchases immediately settle the lot rather than waiting for the normal auction end tick
 - player-listed property auctions now sell the listing seller's ownership share in the property, and lot descriptions explicitly call out that they are ownership-share sales rather than sole-control sales
 - winning property-share bids transfer the sold share directly at auction completion without requiring a fixed-price property sale order
 - persisted active and unclaimed lots now defer seller and payout-target resolution until the post-NPC boot finalisation pass, so auction loading no longer materialises characters before jobs are available

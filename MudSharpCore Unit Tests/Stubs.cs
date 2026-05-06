@@ -39,6 +39,7 @@ public class CellStub
 {
     public string Name { get; set; }
     public List<CellExitStub> Exits { get; set; }
+    public List<IPerceivable> Perceivables { get; set; } = new();
     public IRoom Room { get; init; }
     public long Id { get; set; }
 
@@ -57,6 +58,8 @@ public class CellStub
         Mock<ICell> mock = cellMocks.First(x => x.Object.Name.Equals(Name));
         mock.Setup(t => t.ExitsFor(It.IsAny<IPerceiver>(), false)).Returns(Exits.Select(x => x.ToMock(cellMocks, mock.Object)));
         mock.Setup(t => t.ExitsFor(It.IsAny<IPerceiver>(), true)).Returns(Exits.Select(x => x.ToMock(cellMocks, mock.Object)));
+        mock.Setup(t => t.Perceivables).Returns(Perceivables);
+        mock.Setup(t => t.Characters).Returns(Perceivables.OfType<ICharacter>());
         return mock.Object;
     }
 }
@@ -77,6 +80,7 @@ public class CellExitStub
     {
         Mock<ICellExit> mock = new();
         mock.Setup(t => t.OutboundDirection).Returns(OutboundDirection);
+        mock.Setup(t => t.Origin).Returns(origin);
         ICell destination = cellMocks.First(x => x.Name == Destination.Name).Object;
         mock.Setup(t => t.Destination).Returns(destination);
         mock.Setup(t => t.Exit).Returns(Exit.ToMock(origin, destination));

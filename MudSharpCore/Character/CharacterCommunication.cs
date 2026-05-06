@@ -353,8 +353,11 @@ public partial class Character
 
     public string GetWritingHeader(IWriting writing)
     {
+        var provenance = writing.Author is null
+            ? $" Source: {(writing.GetProperty("provenance")?.GetObject as string).IfNullOrWhiteSpace("unspecified").Colour(Telnet.Cyan)}"
+            : string.Empty;
         return
-            $"Language: {writing.Language.Name.Colour(Telnet.Green)} {writing.Language.LinkedTrait.Decorator.Decorate(writing.LanguageSkill).Colour(Telnet.Cyan)}, Script: {writing.Script.Name.Colour(Telnet.Green)} {$"({writing.Style.Describe().TitleCase()})".Colour(Telnet.Cyan)}\nWritten in {writing.ImplementType.Describe(writing.WritingColour, Telnet.Green)}."
+            $"Language: {writing.Language.Name.Colour(Telnet.Green)} {writing.Language.LinkedTrait.Decorator.Decorate(writing.LanguageSkill).Colour(Telnet.Cyan)}, Script: {writing.Script.Name.Colour(Telnet.Green)} {$"({writing.Style.Describe().TitleCase()})".Colour(Telnet.Cyan)}\nWritten in {writing.ImplementType.Describe(writing.WritingColour, Telnet.Green)}.{provenance}"
                 .ColourIncludingReset(Telnet.Yellow);
     }
 

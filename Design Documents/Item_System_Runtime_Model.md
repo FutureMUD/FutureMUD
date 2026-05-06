@@ -122,6 +122,10 @@ Some subsystems also need reusable runtime data that is not owned by one concret
 - each segment snapshots the language id, accent id, raw text, volume, speech outcome, and immutable speaker identity metadata needed to recreate later playback without consulting the speaker's current state
 - the shared model owns XML round-tripping so stage-1 item implementations can persist recordings in ordinary component XML rather than new database tables
 
+Readable documents follow the same copy-on-load principle. `IReadableContentTemplate` describes a reusable authored readable payload that can create a live `ICanBeRead` instance, while page-aware templates identify their target page and order. Book prototypes store printed content templates in component XML. Book runtime components store the resulting live readable ids in their own component XML after item creation.
+
+This distinction is important for persistence. A prototype-authored book page is reusable content; a loaded book page is mutable instance state. Fresh books create independent `PrintedWriting` rows, copied books copy readable rows rather than sharing them, and ordinary handwritten writing can still be added later through the existing `IWriteable` contract if the page has spare capacity. Printed writing rows allow `Writings.AuthorId` to be null, with provenance carried in the writing definition and exposed to FutureProg as `.provenance`.
+
 ### Computers and signal automation pattern
 The planned computer-programs subsystem follows the same composition rules:
 - shared contracts live in `FutureMUDLibrary/Computers`

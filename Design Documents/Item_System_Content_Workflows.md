@@ -212,6 +212,16 @@ For the current signal-automation slice, also validate:
 - whether switched-on mounted powered machines recover host-derived power after reboot or late topology initialisation without requiring a manual off/on cycle
 - whether motion sensors ignore administrator movement when the mover is using `IImmwalkEffect`
 
+For readable book content, also validate:
+- whether `comp set title <text>` gives fresh books the expected default title
+- whether `comp set content add <page> <language> <script> <provenance>` creates printed prototype content that appears on newly loaded books
+- whether `content list`, `content copy`, `content edit`, `content remove`, and `content clear` round-trip cleanly through component save/load
+- whether prototype content rejects invalid pages and text that exceeds the page capacity supplied by the selected paper prototype
+- whether two loaded copies of the same book have independent printed writing rows rather than shared mutable records
+- whether player handwriting can still be added after printed content when the page has spare capacity
+- whether tearing a page preserves the normal book behaviour and does not create dangling readable rows in the remaining pages
+- whether on-load FutureProgs can use `addprintedwriting`, `copywritingto`, and `setbooktitle` for generated manuals, certificates, letters, or personalised documents
+
 For the current modern breathing and emergency-medicine slice, also validate:
 - whether `gascontainer` and `rebreather` connector genders and socket types match the intended gas-line ecosystem
 - whether `externalinhaler` and `inhalergascanister` agree on canister type, and whether gas-bearing presets only exist when the required stock gas was seeded

@@ -132,6 +132,21 @@ Do not create bespoke ammunition components for ordinary projectile variants. Sl
 
 `IRangedWeapon.CanFireWhileHidden` is deliberately narrow. Leave the default false for normal ranged weapons. Only components that should preserve hiding through `fire -> Engage/JoinCombat`, such as `BlowgunGameItemComponent`, should return true and use obscured output for ready/load/fire emotes.
 
+### Readable book components
+Books remain one component family rather than splitting blank books and published books into separate component types. `BookGameItemComponentProto` owns reusable authored defaults, while `BookGameItemComponent` owns live page state, torn pages, current page, title, and the actual readable rows attached to each loaded item.
+
+Builder-authored book defaults include:
+- `title <text>` for the default fresh-item title
+- `content list` for the printed starting contents
+- `content add <page> <language> <script> <provenance>` followed by editor text entry
+- `content copy <index> <page>` for duplicating an existing prototype page entry
+- `content edit <index>` for changing an authored entry's text
+- `content remove <index>` and `content clear`
+
+Prototype contents are stored as page-scoped readable templates, not as live `Writing` ids. Freshly loaded books instantiate their own `PrintedWriting` rows from those templates, so two copies of the same manual or novel do not share mutable writing records. The builder path validates page range and page capacity, and the runtime constructor repeats those checks defensively when loading prototype XML.
+
+Printed book content uses the `PrintedWriting` writing type with `WritingImplementType.Printed`. Printed writing has no character author; use its provenance text for publisher, source, anonymous, or generated-document attribution. V1 printed books remain writable: player handwriting can still be added to any non-torn page if the printed content leaves enough page capacity.
+
 ### Example: Container proto
 `ContainerGameItemComponentProto` is a good reference because it shows the common editable-proto pattern:
 - several builder-editable properties

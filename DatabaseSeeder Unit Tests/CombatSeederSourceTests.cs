@@ -172,6 +172,158 @@ public class CombatSeederSourceTests
     }
 
 	[TestMethod]
+	public void CombatAuxiliarySeederSource_HumanCatalogue_HasTwentyNamedMovesAndNewEffectTypes()
+	{
+		string source = File.ReadAllText(GetSeederSourcePath("CombatAuxiliarySeederHelper.cs"));
+		string[] expectedNames =
+		[
+			"Circle to Flank",
+			"Sidestep and Press",
+			"Bind and Step",
+			"Low Line Feint",
+			"High Line Feint",
+			"Distracting Flourish",
+			"False Opening",
+			"Retreating Guard",
+			"Guarded Shuffle",
+			"Shield Jostle",
+			"Shield Glint",
+			"Shoulder Check",
+			"Foot Sweep",
+			"Shove Off Balance",
+			"Pommel Beat",
+			"Wrist Check",
+			"Beat the Weapon",
+			"Hook and Pull",
+			"Sand in the Eyes",
+			"Dirt Kick"
+		];
+
+		Match catalogue = Regex.Match(source,
+			@"private static readonly string\[\] HumanAuxiliaryMoveNames\s*=\s*\[(?<body>.*?)\];",
+			RegexOptions.Singleline | RegexOptions.CultureInvariant);
+		Assert.IsTrue(catalogue.Success, "Could not find the human auxiliary catalogue.");
+		List<string> names = Regex.Matches(catalogue.Groups["body"].Value, @"""(?<name>[^""]+)""")
+		                          .Select(x => x.Groups["name"].Value)
+		                          .ToList();
+
+		Assert.IsTrue(names.Count >= 20, $"Expected at least 20 human auxiliary moves, found {names.Count}.");
+		CollectionAssert.IsSubsetOf(expectedNames, names);
+
+		foreach (string effectType in new[] { "targetdelay", "facing", "targetstamina", "positionchange", "disarm" })
+		{
+			StringAssert.Contains(source, $"Common(\"{effectType}\"");
+		}
+
+		StringAssert.Contains(source, "new XAttribute(\"position\", PositionSprawledId)");
+		StringAssert.Contains(source, "new XAttribute(\"selection\", \"Best\")");
+		StringAssert.Contains(source, "new XAttribute(\"subject\", \"Attacker\")");
+		StringAssert.Contains(source, "new XAttribute(\"direction\", \"Improve\")");
+	}
+
+	[TestMethod]
+	public void CombatAuxiliarySeederSource_GatedProgsTagsMessagesAndRerunHooks_ArePresent()
+	{
+		string helper = File.ReadAllText(GetSeederSourcePath("CombatAuxiliarySeederHelper.cs"));
+		string combatSeeder = File.ReadAllText(GetCombatSeederSourcePath());
+
+		StringAssert.Contains(combatSeeder, "EnsureStockAuxiliaryContent(context)");
+		StringAssert.Contains(combatSeeder, "auxiliaryResult");
+		StringAssert.Contains(helper, "EnsureTag(context, \"Shiny\", functions)");
+		StringAssert.Contains(helper, "EnsureTag(context, \"Reflective\", functions)");
+		StringAssert.Contains(helper, "\"Auxiliary_CanThrowSandOrDirt\"");
+		StringAssert.Contains(helper, "\"Auxiliary_CanShieldGlint\"");
+		StringAssert.Contains(helper, "\"Diggable Soil\"");
+		StringAssert.Contains(helper, "\"Foragable Sand\"");
+		StringAssert.Contains(helper, "\"Vacuum\"");
+		StringAssert.Contains(helper, "\"Space\"");
+		StringAssert.Contains(helper, "isunderwater(@ch.Location, @ch.Layer)");
+		StringAssert.Contains(helper, "istagged(@item, \"\"Shiny\"\") or istagged(@item, \"\"Reflective\"\")");
+		StringAssert.Contains(helper, "celestialelevation(@ch.Location");
+		StringAssert.Contains(helper, "> 0.26");
+		StringAssert.Contains(helper, "CombatMessagesCombatActions");
+		StringAssert.Contains(helper, "RacesCombatActions");
+		StringAssert.Contains(helper, "RequiredPositionStateIds");
+		StringAssert.Contains(helper, "progs.TryGetValue(definition.UsabilityProgName");
+		StringAssert.Contains(helper, "ApplyStockAuxiliaryPercentages(context)");
+	}
+
+	[TestMethod]
+	public void CombatAuxiliarySeederSource_NonHumanSeeders_LinkRaceAppropriateAuxiliaryMoves()
+	{
+		string helper = File.ReadAllText(GetSeederSourcePath("CombatAuxiliarySeederHelper.cs"));
+		Dictionary<string, string> expectedActions = new(StringComparer.OrdinalIgnoreCase)
+		{
+			["Canid Harry"] = "Dog",
+			["Feline Pounce Feint"] = "Cat",
+			["Equine Shoulder Barge"] = "Horse",
+			["Avian Wing Buffet"] = "Eagle",
+			["Serpent Coil Feint"] = "Snake",
+			["Ursine Maul-Feint"] = "Bear",
+			["Dragon Wing Shadow"] = "Dragon",
+			["Gryphon Buffet"] = "Gryphon",
+			["Unicorn Dazzling Feint"] = "Unicorn",
+			["Hydra Many-Head Feint"] = "Hydra",
+			["Basilisk Glare Feint"] = "Basilisk",
+			["Myconid Spore Cloud"] = "Myconid",
+			["Servo Jostle"] = "Robot",
+			["Hydraulic Shove"] = "Robot",
+			["Sensor Flash"] = "Robot",
+			["Magnetic Wrench"] = "Robot",
+			["Ghostly Misdirection"] = "Ghost",
+			["Infernal Glare"] = "Demon",
+			["Angelic Dazzle"] = "Angel",
+			["Werewolf Lunge Feint"] = "Werewolf",
+			["Undead Bone-Rattle"] = "Skeleton",
+			["Fiend Tail Hook"] = "Fiend"
+		};
+
+		foreach ((string action, string raceHint) in expectedActions)
+		{
+			StringAssert.Contains(helper, $"[\"{action}\"]");
+			StringAssert.Contains(helper, $"\"{raceHint}\"");
+			StringAssert.Contains(helper, $"Def(\"{action}\"");
+		}
+
+		Dictionary<string, string> seederHooks = new(StringComparer.OrdinalIgnoreCase)
+		{
+			["AnimalSeeder.cs"] = "EnsureAnimalAuxiliaryLinks",
+			["MythicalAnimalSeeder.cs"] = "EnsureMythicalAuxiliaryLinks",
+			["RobotSeeder.cs"] = "EnsureRobotAuxiliaryLinks",
+			["SupernaturalSeeder.cs"] = "EnsureSupernaturalAuxiliaryLinks"
+		};
+
+		foreach ((string fileName, string hook) in seederHooks)
+		{
+			string source = File.ReadAllText(GetSeederSourcePath(fileName));
+			Assert.IsTrue(source.Contains(hook, StringComparison.Ordinal),
+				$"{fileName} should call {hook}.");
+		}
+	}
+
+	[TestMethod]
+	public void CombatAuxiliarySeederSource_StockStrategies_ReceiveAuxiliaryPercentagesWithoutOverfilling()
+	{
+		string helper = File.ReadAllText(GetSeederSourcePath("CombatAuxiliarySeederHelper.cs"));
+		string strategyHelper = File.ReadAllText(GetSeederSourcePath("CombatStrategySeederHelper.cs"));
+
+		foreach (string strategyName in new[]
+		         {
+			         "Melee", "Shielder", "Skirmisher", "Brawler", "Pitfighter", "Beast Brawler",
+			         "Beast Swooper", "Construct Brawler", "Construct Artillery"
+		         })
+		{
+			StringAssert.Contains(helper, $"[\"{strategyName}\"]");
+		}
+
+		StringAssert.Contains(helper, "setting.AuxiliaryPercentage = desired");
+		StringAssert.Contains(helper, "if (total > 1.0)");
+		StringAssert.Contains(helper, "setting.WeaponUsePercentage -= reduction");
+		StringAssert.Contains(helper, "setting.NaturalWeaponPercentage -= reduction");
+		StringAssert.Contains(strategyHelper, "CombatAuxiliarySeederHelper.ApplyStockAuxiliaryPercentage");
+	}
+
+	[TestMethod]
 	public void CombatSeederSource_PrimitiveRangedWeapons_SeedAndRepairSlingAndBlowgunStock()
 	{
 		string source = File.ReadAllText(GetCombatSeederSourcePath());
@@ -303,6 +455,11 @@ public class CombatSeederSourceTests
 
     private static string GetCombatSeederSourcePath()
     {
+		return GetSeederSourcePath("CombatSeeder.cs");
+    }
+
+	private static string GetSeederSourcePath(string fileName)
+	{
         return Path.GetFullPath(Path.Combine(
             AppContext.BaseDirectory,
             "..",
@@ -311,6 +468,6 @@ public class CombatSeederSourceTests
             "..",
             "DatabaseSeeder",
             "Seeders",
-            "CombatSeeder.cs"));
+            fileName));
     }
 }

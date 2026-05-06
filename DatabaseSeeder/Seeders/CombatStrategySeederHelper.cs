@@ -37,6 +37,11 @@ internal static class CombatStrategySeederHelper
         CharacterCombatSetting? existing = context.CharacterCombatSettings.FirstOrDefault(x => x.Name == strategyName);
         if (existing is not null)
         {
+            if (CombatAuxiliarySeederHelper.ApplyStockAuxiliaryPercentage(existing))
+            {
+                context.SaveChanges();
+            }
+
             return existing;
         }
 
@@ -225,6 +230,7 @@ internal static class CombatStrategySeederHelper
         };
 
         context.CharacterCombatSettings.Add(strategy);
+        CombatAuxiliarySeederHelper.ApplyStockAuxiliaryPercentage(strategy);
         context.SaveChanges();
         return strategy;
     }

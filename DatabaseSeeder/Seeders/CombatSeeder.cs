@@ -179,6 +179,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         }
 
         SeedArmourTypes(context, effectiveAnswers);
+        CombatAuxiliarySeederHelper.EnsureStockAuxiliaryContent(context);
 
         context.Database.CommitTransaction();
 
@@ -225,6 +226,13 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         if (primitiveRangedCount > 0)
         {
             updates.Add($"added {primitiveRangedCount} missing sling/blowgun stock entries");
+        }
+
+        CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureStockAuxiliaryContent(context);
+        if (auxiliaryResult.HasChanges)
+        {
+            updates.Add(
+                $"refreshed auxiliary combat stock ({auxiliaryResult.Actions} actions, {auxiliaryResult.Messages} messages, {auxiliaryResult.RaceLinks} race links, {auxiliaryResult.Strategies} strategies)");
         }
 
         return updates.Count > 0

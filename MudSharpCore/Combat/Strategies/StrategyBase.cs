@@ -842,6 +842,36 @@ public abstract class StrategyBase : ICombatStrategy
         return null;
     }
 
+    protected virtual ICombatMove AttemptUseAuxilliaryAction(ICharacter combatant)
+    {
+        if (combatant.CombatTarget is not ICharacter tch)
+        {
+            return null;
+        }
+
+        List<IAuxiliaryCombatAction> moves = combatant.Race.UsableAuxiliaryMoves(combatant, tch, false).ToList();
+        List<IAuxiliaryCombatAction> usableMoves = moves.Where(x => combatant.CanSpendStamina(x.StaminaCost)).ToList();
+        if (!usableMoves.Any())
+        {
+            return moves.Any() ? new TooExhaustedMove { Assailant = combatant } : null;
+        }
+
+        List<IAuxiliaryCombatAction> preferredMoves =
+            usableMoves.Where(x => x.Intentions.HasFlag(combatant.CombatSettings.PreferredIntentions)).ToList();
+        if (preferredMoves.Any() && Dice.Roll(1, 2) == 1)
+        {
+            usableMoves = preferredMoves;
+        }
+
+        IAuxiliaryCombatAction move = usableMoves.GetWeightedRandom(x => x.Weighting);
+        if (move is null)
+        {
+            return null;
+        }
+
+        return new AuxiliaryMove(combatant, tch, move);
+    }
+
     protected virtual ICombatMove CheckWeaponryLoadout(ICharacter ch)
     {
         // The default strategy checks that they have a weapon if they use a weapon, and a shield if they use a shield.

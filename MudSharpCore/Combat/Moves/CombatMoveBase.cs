@@ -94,45 +94,12 @@ public abstract class CombatMoveBase : ICombatMove
 
     protected void WorsenCombatPosition(ICharacter assailant, ICharacter defender)
     {
-        IFixedFacingEffect effect = assailant.EffectsOfType<IFixedFacingEffect>().FirstOrDefault(x => x.AppliesTo(defender));
-        if (effect != null)
-        {
-            switch (effect.Facing)
-            {
-                case Facing.Front:
-                    return;
-                case Facing.Rear:
-                    assailant.RemoveEffect(effect);
-                    assailant.AddEffect(new FixedCombatFacing(assailant, defender,
-                        RandomUtilities.Random(1, 2) == 1 ? Facing.LeftFlank : Facing.RightFlank));
-                    return;
-                case Facing.LeftFlank:
-                case Facing.RightFlank:
-                    assailant.RemoveEffect(effect);
-                    return;
-            }
-        }
+        CombatPositioningUtilities.WorsenCombatPosition(assailant, defender);
     }
 
     protected void ImproveCombatPosition(ICharacter assailant, ICharacter defender)
     {
-        IFixedFacingEffect effect = assailant.EffectsOfType<IFixedFacingEffect>().FirstOrDefault(x => x.AppliesTo(defender));
-        if (effect != null)
-        {
-            switch (effect.Facing)
-            {
-                case Facing.Rear:
-                    return;
-                case Facing.LeftFlank:
-                case Facing.RightFlank:
-                    assailant.AddEffect(new FixedCombatFacing(assailant, defender, Facing.Rear));
-                    assailant.RemoveEffect(effect);
-                    return;
-            }
-        }
-
-        assailant.AddEffect(new FixedCombatFacing(assailant, defender,
-            RandomUtilities.Random(1, 2) == 1 ? Facing.LeftFlank : Facing.RightFlank));
+        CombatPositioningUtilities.ImproveCombatPosition(assailant, defender);
     }
 
     public virtual bool UsesStaminaWithResult(CombatMoveResult result)

@@ -129,8 +129,11 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             !hasMissingDietSettings)
         {
             RefreshExistingMythicalCombatBalance();
+            CombatAuxiliarySeedResult auxiliaryResult = CombatAuxiliarySeederHelper.EnsureMythicalAuxiliaryLinks(_context);
             _context.Database.CommitTransaction();
-            return "Mythical races are already installed and their breathing, mobility, diet, and combat balance profiles have been refreshed.";
+            return auxiliaryResult.HasChanges
+                ? $"Mythical races are already installed and their breathing, mobility, diet, combat balance profiles, and {auxiliaryResult.RaceLinks} auxiliary combat links have been refreshed."
+                : "Mythical races are already installed and their breathing, mobility, diet, and combat balance profiles have been refreshed.";
         }
 
         foreach (MythicalRaceTemplate template in templatesToSeed)
@@ -150,6 +153,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             SeedMythicalAnimalAIStockTemplates();
         }
 
+        CombatAuxiliarySeedResult freshAuxiliaryResult = CombatAuxiliarySeederHelper.EnsureMythicalAuxiliaryLinks(_context);
         _context.SaveChanges();
         _context.Database.CommitTransaction();
         int skippedCount = Templates.Count - templatesToSeed.Count;
@@ -171,6 +175,11 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
         if (hasMissingDietSettings)
         {
             updates.Add("refreshed stock mythical diet settings");
+        }
+
+        if (freshAuxiliaryResult.HasChanges)
+        {
+            updates.Add($"refreshed mythical auxiliary combat links ({freshAuxiliaryResult.RaceLinks} links)");
         }
 
         if (templatesToSeed.Count > 0 && skippedCount > 0)

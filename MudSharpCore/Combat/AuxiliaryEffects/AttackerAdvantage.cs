@@ -247,7 +247,7 @@ Use negative values for offense/defense bonus to indicate penalties.
             return false;
         }
 
-        if (double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send("That is not a valid number.");
             return false;
@@ -279,7 +279,7 @@ Use negative values for offense/defense bonus to indicate penalties.
             return false;
         }
 
-        if (double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!double.TryParse(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send("That is not a valid number.");
             return false;

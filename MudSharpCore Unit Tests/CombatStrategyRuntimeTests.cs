@@ -22,6 +22,8 @@ using MudSharp.Magic.Powers;
 using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 
@@ -273,5 +275,130 @@ public class CombatStrategyRuntimeTests
 
 		StringAssert.StartsWith(shove.Description, "Shoving");
 		StringAssert.StartsWith(pull.Description, "Pulling");
+	}
+
+	[TestMethod]
+	public void AuxiliaryCombatActionSource_LoadsAndDocumentsExpandedEffectTypes()
+	{
+		string actionSource = File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryCombatAction.cs"));
+		string baseEffectSource = File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryEffects", "OpposedAuxiliaryEffectBase.cs"));
+
+		foreach (string effectType in new[] { "targetdelay", "facing", "targetstamina", "positionchange", "disarm" })
+		{
+			StringAssert.Contains(actionSource, $"case \"{effectType}\"");
+		}
+
+		Dictionary<string, string> effectFiles = new(StringComparer.OrdinalIgnoreCase)
+		{
+			["targetdelay"] = "TargetDelay.cs",
+			["facing"] = "FacingChange.cs",
+			["targetstamina"] = "TargetStamina.cs",
+			["positionchange"] = "PositionChange.cs",
+			["disarm"] = "Disarm.cs"
+		};
+		foreach ((string effectType, string fileName) in effectFiles)
+		{
+			StringAssert.Contains(
+				File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryEffects", fileName)),
+				$"RegisterBuilderParser(\"{effectType}\"");
+		}
+
+		foreach (string sharedCommand in new[]
+		         {
+			         "trait", "difficulty", "minimum", "amount", "perdegree", "max", "successecho",
+			         "failureecho", "clearecho"
+		         })
+		{
+			StringAssert.Contains(baseEffectSource, $"case \"{sharedCommand}\"");
+		}
+
+		foreach (string attributeName in new[]
+		         {
+			         "defensetrait", "defensedifficulty", "minimumdegree", "flatamount",
+			         "perdegreeamount", "maximumamount", "successecho", "failureecho"
+		         })
+		{
+			StringAssert.Contains(baseEffectSource, $"\"{attributeName}\"");
+		}
+	}
+
+	[TestMethod]
+	public void AuxiliaryEffectSources_DefaultsAndStateChangingFlows_ArePresent()
+	{
+		string delay = File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryEffects", "TargetDelay.cs"));
+		string stamina = File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryEffects", "TargetStamina.cs"));
+		string facing = File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryEffects", "FacingChange.cs"));
+		string position = File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryEffects", "PositionChange.cs"));
+		string disarm = File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryEffects", "Disarm.cs"));
+
+		StringAssert.Contains(delay, "1.5, 0.5, 6.0");
+		StringAssert.Contains(delay, "DelayScheduleType(tch, ScheduleType.Combat");
+		StringAssert.Contains(stamina, "3.0, 1.0, 10.0");
+		StringAssert.Contains(stamina, "tch.SpendStamina(amount)");
+		StringAssert.Contains(facing, "1.0, 0.0, 1.0");
+		StringAssert.Contains(facing, "CombatPositioningUtilities.ImproveCombatPosition");
+		StringAssert.Contains(facing, "CombatPositioningUtilities.WorsenCombatPosition");
+		StringAssert.Contains(position, "1.5, 0.5, 5.0");
+		StringAssert.Contains(position, "tch.DoCombatKnockdown()");
+		StringAssert.Contains(position, "tch.SetPosition(Position, PositionModifier.None, null, null)");
+		StringAssert.Contains(disarm, "90.0, 0.0, 90.0");
+		StringAssert.Contains(disarm, "DisarmSelection.Best");
+		StringAssert.Contains(disarm, "target.Body.WieldedItems");
+		StringAssert.Contains(disarm, "new CombatNoGetEffect(item, tch.Combat)");
+		StringAssert.Contains(disarm, "new CombatGetItemEffect(tch, item)");
+	}
+
+	[TestMethod]
+	public void AuxiliaryAdvantageSources_DefenderTypeAndNumericParsingBugsStayFixed()
+	{
+		string attacker = File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryEffects", "AttackerAdvantage.cs"));
+		string defender = File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryEffects", "DefenderAdvantage.cs"));
+
+		StringAssert.Contains(defender, "RegisterBuilderParser(\"defenderadvantage\"");
+		StringAssert.Contains(defender, "return new DefenderAdvantage(");
+		StringAssert.Contains(defender, "new XAttribute(\"defensedifficulty\", (int)DefenseDifficulty)");
+		StringAssert.Contains(defender, "Defender Advantage Effect");
+		Assert.IsFalse(attacker.Contains("if (double.TryParse"), "Attacker advantage builder should reject only invalid numeric bonuses.");
+		Assert.IsFalse(defender.Contains("if (double.TryParse"), "Defender advantage builder should reject only invalid numeric bonuses.");
+	}
+
+	[TestMethod]
+	public void CombatStrategySources_AuxiliaryPercentageFeedsSharedMeleeAndRangedSelection()
+	{
+		string strategyBase = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "StrategyBase.cs"));
+		string melee = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "StandardMeleeStrategy.cs"));
+		string ranged = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "RangeBaseStrategy.cs"));
+
+		StringAssert.Contains(strategyBase, "protected virtual ICombatMove AttemptUseAuxilliaryAction");
+		StringAssert.Contains(strategyBase, "UsableAuxiliaryMoves(combatant, tch, false)");
+		StringAssert.Contains(strategyBase, "return new AuxiliaryMove(combatant, tch, move)");
+		StringAssert.Contains(melee, "combatant.CombatSettings.AuxiliaryPercentage > 0.0");
+		StringAssert.Contains(melee, "roll <= combatant.CombatSettings.AuxiliaryPercentage");
+		StringAssert.Contains(melee, "return AttemptUseAuxilliaryAction(combatant);");
+		StringAssert.Contains(ranged, "combatant.CombatSettings.AuxiliaryPercentage > 0.0");
+		StringAssert.Contains(ranged, "roll <= combatant.CombatSettings.AuxiliaryPercentage");
+		StringAssert.Contains(ranged, "return AttemptUseAuxilliaryAction(combatant);");
+		Assert.IsTrue(
+			melee.LastIndexOf("return AttemptUseAuxilliaryAction(combatant);", StringComparison.Ordinal) >
+			melee.LastIndexOf("roll <= combatant.CombatSettings.AuxiliaryPercentage", StringComparison.Ordinal),
+			"Standard melee should retain its legacy auxiliary fallback after the weighted roll.");
+		Assert.IsTrue(
+			ranged.LastIndexOf("return null;", StringComparison.Ordinal) >
+			ranged.LastIndexOf("roll <= combatant.CombatSettings.AuxiliaryPercentage", StringComparison.Ordinal),
+			"Ranged strategies should keep their no-move fallback if no weighted auxiliary roll is selected.");
+	}
+
+	private static string GetCoreSourcePath(params string[] segments)
+	{
+		return Path.GetFullPath(Path.Combine(
+			new[]
+			{
+				AppContext.BaseDirectory,
+				"..",
+				"..",
+				"..",
+				"..",
+				"MudSharpCore"
+			}.Concat(segments).ToArray()));
 	}
 }

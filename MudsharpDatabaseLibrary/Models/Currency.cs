@@ -10,6 +10,9 @@ namespace MudSharp.Models
             Characters = new HashSet<Character>();
             ChargenRolesCurrencies = new HashSet<ChargenRolesCurrency>();
             ClanMembershipsBackpay = new HashSet<ClanMembershipBackpay>();
+            ClanBudgets = new HashSet<ClanBudget>();
+            ClanBudgetTransactions = new HashSet<ClanBudgetTransaction>();
+            ClanPayrollHistories = new HashSet<ClanPayrollHistory>();
             Coins = new HashSet<Coin>();
             CurrencyDescriptionPatterns = new HashSet<CurrencyDescriptionPattern>();
             CurrencyDivisions = new HashSet<CurrencyDivision>();
@@ -27,6 +30,9 @@ namespace MudSharp.Models
         public virtual ICollection<Character> Characters { get; set; }
         public virtual ICollection<ChargenRolesCurrency> ChargenRolesCurrencies { get; set; }
         public virtual ICollection<ClanMembershipBackpay> ClanMembershipsBackpay { get; set; }
+        public virtual ICollection<ClanBudget> ClanBudgets { get; set; }
+        public virtual ICollection<ClanBudgetTransaction> ClanBudgetTransactions { get; set; }
+        public virtual ICollection<ClanPayrollHistory> ClanPayrollHistories { get; set; }
         public virtual ICollection<Coin> Coins { get; set; }
         public virtual ICollection<CurrencyDescriptionPattern> CurrencyDescriptionPatterns { get; set; }
         public virtual ICollection<CurrencyDivision> CurrencyDivisions { get; set; }

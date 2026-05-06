@@ -38,6 +38,7 @@ namespace MudSharp.Community
         List<IAppointment> Appointments { get; }
         List<IClanMembership> Memberships { get; }
         List<IPaygrade> Paygrades { get; }
+        List<IClanBudget> Budgets { get; }
         List<IExternalClanControl> ExternalControls { get; }
 
         RecurringInterval PayInterval { get; set; }
@@ -81,6 +82,9 @@ namespace MudSharp.Community
         void SetControllingAppointment(ICharacter actor, StringStack command);
         void AppointExternal(ICharacter actor, StringStack command);
         void DismissExternal(ICharacter actor, StringStack command);
+        void BudgetCommand(ICharacter actor, StringStack command);
+        void ShowBalanceSheet(ICharacter actor);
+        void ShowPayrollHistory(ICharacter actor, StringStack command);
 
         bool FreePosition(IAppointment appointment);
         bool FreePosition(IAppointment appointment, IClan liegeClan);

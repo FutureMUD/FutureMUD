@@ -426,6 +426,19 @@ namespace MudSharp.TimeAndDate.Intervals
             return newDate;
         }
 
+        public MudDateTime GetNextDateTimeAfter(MudDateTime referenceDateTime)
+        {
+            MudDateTime newDate = IsOrdinalMonthly
+                ? AlignOrdinalDateTime(referenceDateTime, 1)
+                : new MudDateTime(referenceDateTime);
+            if (newDate <= referenceDateTime)
+            {
+                newDate = MoveDateTimeByInterval(newDate, 1);
+            }
+
+            return newDate;
+        }
+
         public MudDate GetNextDateExclusive(ICalendar whichCalendar, MudDate referenceDate)
         {
             MudDate newDate = IsOrdinalMonthly

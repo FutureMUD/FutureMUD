@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260506103358_ClanBudgetsAndPayrollHistory")]
+    partial class ClanBudgetsAndPayrollHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -18531,7 +18534,7 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("AuthorId")
+                    b.Property<long>("AuthorId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<string>("Definition")
@@ -26742,7 +26745,7 @@ namespace MudSharp.Migrations
                     b.HasOne("MudSharp.Models.Character", "Author")
                         .WithMany("WritingsAuthor")
                         .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired()
                         .HasConstraintName("FK_Writings_Characters_Author");
 
                     b.HasOne("MudSharp.Models.Language", "Language")

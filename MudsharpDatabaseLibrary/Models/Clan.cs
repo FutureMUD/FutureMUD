@@ -10,6 +10,8 @@ namespace MudSharp.Models
             Appointments = new HashSet<Appointment>();
             ChargenRolesClanMemberships = new HashSet<ChargenRolesClanMemberships>();
             ClanMemberships = new HashSet<ClanMembership>();
+            ClanBudgets = new HashSet<ClanBudget>();
+            ClanPayrollHistories = new HashSet<ClanPayrollHistory>();
             ClansAdministrationCells = new HashSet<ClanAdministrationCell>();
             ClansTreasuryCells = new HashSet<ClanTreasuryCell>();
             ExternalClanControlsLiegeClan = new HashSet<ExternalClanControl>();
@@ -49,6 +51,8 @@ namespace MudSharp.Models
         public virtual Character Paymaster { get; set; }
         public virtual BankAccount BankAccount { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
+        public virtual ICollection<ClanBudget> ClanBudgets { get; set; }
+        public virtual ICollection<ClanPayrollHistory> ClanPayrollHistories { get; set; }
         public virtual ICollection<ChargenRolesClanMemberships> ChargenRolesClanMemberships { get; set; }
         public virtual ICollection<ClanMembership> ClanMemberships { get; set; }
         public virtual ICollection<ClanAdministrationCell> ClansAdministrationCells { get; set; }

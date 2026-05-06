@@ -18,6 +18,7 @@ The current economy implementation is rich and only partially seed-driven. In pr
 | --- | --- |
 | `EconomyModule` | currencies, coins, banks, shops, auctions, jobs, markets, market influences, market categories, market populations, shoppers, player-facing buy and sell operations |
 | `PropertyModule` | property sale, lease, ownership, keys, short-term hotel room rental, and conveyancing-facing workflows |
+| `ClanModule` | clan bank-account assignment, appointment budgets, clan balance-sheet review, and clan payroll history |
 | `EditableItemHelperEconomy` | standardized admin creation and editing flows for property, auction houses, banks, coins, and shoppers |
 
 ### Practical implication
@@ -47,20 +48,22 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 5. Add any initial sales or profit taxes to each live economic zone.
 6. Create a bank if the world needs account-backed payments, property ownership, shop floats, or auction settlement.
 7. Add bank account types before expecting players, clans, or shops to use accounts meaningfully.
-8. Create at least one shop or other money sink/source if the world needs day-to-day commerce.
-9. Create stables in cells where players should be able to lodge mounts, if the game uses mounted travel.
-10. Point relevant shops at a market if pricing should reflect macroeconomic pressure rather than fixed local pricing only.
-11. Add job-finding cells, jobs, and employers if the world will use the employment system.
-12. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
-13. For hotel-style short stays, configure property-backed hotel rooms after banks and properties exist, then add hotel taxes to the economic zone if rentals should be taxed.
-14. Decide whether estates are enabled for each zone, then add probate offices if players should interact with estates in the zone.
-15. Add morgue office and morgue storage cells if the world will use corpse recovery and morgue claim workflows.
+8. Assign clan bank accounts before using clan payroll float or appointment budgets.
+9. Create at least one shop or other money sink/source if the world needs day-to-day commerce.
+10. Create stables in cells where players should be able to lodge mounts, if the game uses mounted travel.
+11. Point relevant shops at a market if pricing should reflect macroeconomic pressure rather than fixed local pricing only.
+12. Add job-finding cells, jobs, and employers if the world will use the employment system.
+13. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
+14. For hotel-style short stays, configure property-backed hotel rooms after banks and properties exist, then add hotel taxes to the economic zone if rentals should be taxed.
+15. Decide whether estates are enabled for each zone, then add probate offices if players should interact with estates in the zone.
+16. Add morgue office and morgue storage cells if the world will use corpse recovery and morgue claim workflows.
 
 ### Why this order fits the current implementation
 - currencies are prerequisites for almost every downstream object
 - economic zones are the tax and time hub
 - the stock economy package depends on `UsefulSeeder` market tags plus the earlier time and currency layers
 - banks unlock multiple other systems, including payment instruments and property administration
+- clan budgets and payroll float depend on a clan bank account that already exists
 - markets, shoppers, and jobs all assume earlier layers already exist
 - property and auctions depend heavily on cells, banks, and world-specific content
 - stables depend on mount-supporting cells, stable fee policy, and a stable bank account
@@ -144,6 +147,24 @@ Current builder-facing bank work includes:
 - creating account types
 - attaching open and close permission progs
 - tuning fees, interest, and payment-item limits
+
+### Clan Finance
+Clan finance depends on the clan system plus the bank/property/economic-zone layers. Builders should first create or select a clan-owned bank account with `clan set bankaccount <account>`, because appointment budgets and payroll float draw from that default account.
+
+Current player/admin-facing clan finance workflows include:
+
+- `clan budget <clan> list|view|audit|create|draw|close` for appointment budgets
+- `clan balance <clan>` or `clan balance sheet <clan>` for a cross-system balance sheet
+- `clan payroll <clan> [member|rank|appointment <which>]` for payroll audit history
+
+Budget creation and closure require the clan `CanCreateBudgets` privilege. Budget, balance-sheet, and payroll-history review require `CanViewTreasury`. Budget drawdown can also be performed by someone who holds or controls the budgeted appointment, so builders can give an office practical spending authority without exposing the whole treasury.
+
+Practical note:
+
+- appointment budgets are recurring-period allowances, not separate bank accounts
+- a drawdown withdraws from the clan bank account and issues cash to the actor
+- every drawdown stores an audit reason, actor, period window, amount, and bank balance after withdrawal
+- payroll history is clan payroll audit data, while the broader employment/job subsystem remains separate
 
 ### Markets, Categories, Influences, Populations, and Shoppers
 The market system becomes useful when the world wants more than fixed shop pricing.

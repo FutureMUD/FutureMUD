@@ -171,6 +171,9 @@ namespace MudSharp.Database
         public virtual DbSet<ClanMembership> ClanMemberships { get; set; }
         public virtual DbSet<ClanMembershipsAppointments> ClanMembershipsAppointments { get; set; }
         public virtual DbSet<ClanMembershipBackpay> ClanMembershipsBackpay { get; set; }
+        public virtual DbSet<ClanBudget> ClanBudgets { get; set; }
+        public virtual DbSet<ClanBudgetTransaction> ClanBudgetTransactions { get; set; }
+        public virtual DbSet<ClanPayrollHistory> ClanPayrollHistories { get; set; }
         public virtual DbSet<Clan> Clans { get; set; }
         public virtual DbSet<ClanAdministrationCell> ClansAdministrationCells { get; set; }
         public virtual DbSet<ClanTreasuryCell> ClansTreasuryCells { get; set; }

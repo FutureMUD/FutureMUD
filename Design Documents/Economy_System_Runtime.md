@@ -328,6 +328,24 @@ Job listings currently include:
 
 The system is integrated with job-finding cells on economic zones and with command workflows in `EconomyModule`.
 
+### Clan Finance, Budgets, and Payroll History
+Clan finance is implemented across the clan and economy layers. Clans can nominate a default bank account, use that account for payroll float, and now use it as the funding source for appointment budgets.
+
+Appointment budgets are persisted as `ClanBudget` rows with:
+
+- a clan
+- an assigned appointment
+- a backing bank account and currency
+- an amount per recurring period
+- the current period start, end, and drawdown
+- an active flag
+
+Budget drawdowns are persisted as `ClanBudgetTransaction` rows. Each transaction records the budget, actor, backing bank account, currency, amount, MUD time, period window, bank balance after withdrawal, and audit reason. The runtime rolls the current period forward lazily when a budget is reviewed or used; historical drawdown rows remain available for audit.
+
+Clan balance-sheet review is a reporting surface rather than a separate ledger. It aggregates currently loaded economy state from clan-owned bank accounts, owned and leased properties, property lease revenue and commitments, shops tied to clan property or clan bank accounts, controlled economic-zone revenues, payroll commitments, budget commitments, and outstanding backpay.
+
+Clan payroll history is persisted separately from the employment/job subsystem. `ClanPayrollHistory` rows are written when clan payday processing accrues pay, when a character collects owed clan pay, and when authorised users make manual backpay adjustments. This gives clans an audit trail for their rank, appointment, and individual payroll activity without changing the broader `JobListingBase` / `OngoingJobListing` employment model.
+
 ### Estates
 Estates are now a live persisted subsystem.
 

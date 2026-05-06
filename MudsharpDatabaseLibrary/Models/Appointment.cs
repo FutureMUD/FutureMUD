@@ -9,6 +9,7 @@ namespace MudSharp.Models
         {
             AppointmentsAbbreviations = new HashSet<AppointmentsAbbreviations>();
             AppointmentsTitles = new HashSet<AppointmentsTitles>();
+            ClanBudgets = new HashSet<ClanBudget>();
             ClanMembershipsAppointments = new HashSet<ClanMembershipsAppointments>();
             ExternalClanControlsControlledAppointment = new HashSet<ExternalClanControl>();
             ExternalClanControlsControllingAppointment = new HashSet<ExternalClanControl>();
@@ -52,6 +53,7 @@ namespace MudSharp.Models
         public virtual FutureProg WhyCantNominateProg { get; set; }
         public virtual ICollection<AppointmentsAbbreviations> AppointmentsAbbreviations { get; set; }
         public virtual ICollection<AppointmentsTitles> AppointmentsTitles { get; set; }
+        public virtual ICollection<ClanBudget> ClanBudgets { get; set; }
         public virtual ICollection<ClanMembershipsAppointments> ClanMembershipsAppointments { get; set; }
         public virtual ICollection<ExternalClanControl> ExternalClanControlsControlledAppointment { get; set; }
         public virtual ICollection<ExternalClanControl> ExternalClanControlsControllingAppointment { get; set; }

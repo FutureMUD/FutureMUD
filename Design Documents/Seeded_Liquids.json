@@ -1,0 +1,492 @@
+[
+    {
+        "Liquid Name":  "amber ale",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "animal acid",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "animal spittle",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "apple juice",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "balsamic vineger",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "bourbon whiskey",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "brackish water",
+        "Tags":  [
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "canola oil",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "coffee",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "crude oil",
+        "Tags":  [
+                     "Materials / Liquids / Fuel"
+                 ]
+    },
+    {
+        "Liquid Name":  "dark ale",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "detergent",
+        "Tags":  [
+                     "Materials / Liquids / Detergent",
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "dextrose solution",
+        "Tags":  [
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "diesel",
+        "Tags":  [
+                     "Materials / Liquids / Fuel"
+                 ]
+    },
+    {
+        "Liquid Name":  "Dwarf Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "Dwarf Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "Elven Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "Elven Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "ethanol",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic",
+                     "Materials / Liquids / Disgusting",
+                     "Materials / Liquids / Fuel"
+                 ]
+    },
+    {
+        "Liquid Name":  "fuel",
+        "Tags":  [
+                     "Materials / Liquids / Fuel"
+                 ]
+    },
+    {
+        "Liquid Name":  "gasoline",
+        "Tags":  [
+                     "Materials / Liquids / Fuel"
+                 ]
+    },
+    {
+        "Liquid Name":  "gin",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "goat\u0027s milk",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "green tea",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "heavy crude oil",
+        "Tags":  [
+                     "Materials / Liquids / Fuel"
+                 ]
+    },
+    {
+        "Liquid Name":  "heavy fuel oil",
+        "Tags":  [
+                     "Materials / Liquids / Fuel"
+                 ]
+    },
+    {
+        "Liquid Name":  "Hobbit Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "Hobbit Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "Human Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "Human Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "hydraulic fluid",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "kerosene",
+        "Tags":  [
+                     "Materials / Liquids / Fuel"
+                 ]
+    },
+    {
+        "Liquid Name":  "lager",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "lake water",
+        "Tags":  [
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "latte",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "light crude oil",
+        "Tags":  [
+                     "Materials / Liquids / Fuel"
+                 ]
+    },
+    {
+        "Liquid Name":  "light lager",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "machine oil",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "methanol",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic",
+                     "Materials / Liquids / Disgusting",
+                     "Materials / Liquids / Fuel"
+                 ]
+    },
+    {
+        "Liquid Name":  "milk",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "olive oil",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "orange juice",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "Orc Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "Orc Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "pale ale",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "peanut oil",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "pineapple juice",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "pomegranate juice",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "pool water",
+        "Tags":  [
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "rain water",
+        "Tags":  [
+                     "Materials / Liquids / Beverage",
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "red wine",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "river water",
+        "Tags":  [
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "rum",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "saline solution",
+        "Tags":  [
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "salt water",
+        "Tags":  [
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "scotch whiskey",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "sesame oil",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "sheep\u0027s milk",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "soapy water",
+        "Tags":  [
+                     "Materials / Liquids / Detergent",
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "sperm oil",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "spring water",
+        "Tags":  [
+                     "Materials / Liquids / Beverage",
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "swamp water",
+        "Tags":  [
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "tap water",
+        "Tags":  [
+                     "Materials / Liquids / Beverage",
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "tea",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "tea with milk",
+        "Tags":  [
+                     "Materials / Liquids / Beverage"
+                 ]
+    },
+    {
+        "Liquid Name":  "tequila",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "train oil",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "Troll Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "Troll Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "vegetable oil",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "vodka",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "vomit",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "water",
+        "Tags":  [
+                     "Materials / Liquids / Beverage",
+                     "Materials / Liquids / Water"
+                 ]
+    },
+    {
+        "Liquid Name":  "watered red wine",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "whale oil",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Liquid Name":  "whiskey",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "white wine",
+        "Tags":  [
+                     "Materials / Liquids / Beverage / Alcoholic"
+                 ]
+    },
+    {
+        "Liquid Name":  "white wine vinegar",
+        "Tags":  [
+
+                 ]
+    }
+]

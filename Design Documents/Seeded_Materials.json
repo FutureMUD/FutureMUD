@@ -1,0 +1,4011 @@
+[
+    {
+        "Material Name":  "ABS plastic",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "acacia",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "acetal",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "acrylic",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "acrylic fiber",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric",
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "agate",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "alabaster",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gypsum"
+                 ]
+    },
+    {
+        "Material Name":  "albite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Feldspar"
+                 ]
+    },
+    {
+        "Material Name":  "alder",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "alexandrite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "alfalfa",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "alligator",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "alligator hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin / Thick Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "alligator leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "allspice",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "aloe vera",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "amazonite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "amber",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "amethyst",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "ametrine",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "an unknown material",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "andalusite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "andesite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "animal skin",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "anise",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "anorthosite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "antler",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "apple",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "applewood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "apricot",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "aquamarine",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "aramid fiber",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "arkose",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "artichoke",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "ash",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "asparagus",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "aspen",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "aubergine",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "aventurine",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "avocado",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "bagel",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "bamboo",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "banana",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "barley",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "basalt",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "basil",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "bay leaf",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "beak",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "bean",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "bear fur",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "bear hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin / Thick Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "bear leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "beech",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "beef",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "beeswax",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "beet",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "berry",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "beryl",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "birch",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "biscuit",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "bison",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "bitter vetch",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "black pepper",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "blackberry",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "blackwood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "blood",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "bloodstone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "blueberry",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "boar",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "bok choy",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "bone",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "bone china",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "bony flesh",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "borosilicate glass",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic",
+                     "Materials / Manufactured Materials / Glass"
+                 ]
+    },
+    {
+        "Material Name":  "boxwood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "bread",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "breccia",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "brick",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "brimstone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "broadcloth",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "broccoli",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "brussels sprout",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "buckwheat",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "buffalo",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "bun",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "burlap",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "butter",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "buttermilk",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "cabbage",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "cacao",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "cake",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "calcium hydroxide",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "calcium oxide",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "cambric",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "camel",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "canola",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Oil Crop"
+                 ]
+    },
+    {
+        "Material Name":  "cantaloupe",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "canvas",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "caraway",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "cardamom",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "cardboard",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Paper Product"
+                 ]
+    },
+    {
+        "Material Name":  "carnelian",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "carrot",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "cashmere",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Animal Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "cassava",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "cat",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "cat hair",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "cat hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "cat leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "cauliflower",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "cayenne pepper",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "cedar",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Softwood"
+                 ]
+    },
+    {
+        "Material Name":  "celery",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "ceramic",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic",
+                     "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "ceramic tile",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "chabazite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Zeolite"
+                 ]
+    },
+    {
+        "Material Name":  "chalcedony",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "chalk",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "chalk dust",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "chamomile",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "charcoal",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "chard",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "charoite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "cheese",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "cherry",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "chert",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "chestnut",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "chicken",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "chickpea",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "chiffon",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "chilli powder",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "chitin",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "chive",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "chrysoberyl",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "cilantro",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "cinnamon",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "citrine",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "claw",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "clay",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "clay loam",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "claystone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "clinker",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "clinoptilolite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Zeolite"
+                 ]
+    },
+    {
+        "Material Name":  "clotted cream",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "cloves",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "coachwood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "coconut",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "coffee bean",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "compact bone",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "compost",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "concrete",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "conglomerate",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "corduroy",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "coriander",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "cork",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "corn",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "cottage cheese",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "cotton",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "cotton crop",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Fiber Crop"
+                 ]
+    },
+    {
+        "Material Name":  "cottonwood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "cow hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "cow leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "crab",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "cracker",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "cranberry",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "cream",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "cream cheese",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "crocodile hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin / Thick Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "crocodile leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "croissant",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "cucumber",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "cumin",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "curd",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "currant",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "cypress",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "dacite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "date",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "deer hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "deer leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "denim",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "dense bony flesh",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "diamond",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "dill",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "diorite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "dog",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "dog hair",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "dog hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "dog leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "dogwood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "dolostone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "dough",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "dragonfruit",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "dried adhesive",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "dried blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Dwarf Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Dwarf Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Elven Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Elven Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Hobbit Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Hobbit Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Human Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Human Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Hydraulic Residue",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Machine Oil Residue",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Orc Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Orc Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "dried Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Troll Blood",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Dried Troll Sweat",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "dried vomit",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "duck",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "dumpling",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "earthenware",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "ebony",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "elephant hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin / Thick Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "elephant leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "elk",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "elm",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "emerald",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "enamelware",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "epoxy resin",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "ermine",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "ethylene-vinyl acetate",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "eucalyptus",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "fatty flesh",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "feather",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "feces",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "felt",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Animal Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "fennel",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "fennel bulb",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "fenugreek",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "fiberglass",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic",
+                     "Materials / Manufactured Materials / Glass"
+                 ]
+    },
+    {
+        "Material Name":  "fig",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "fin",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "fir",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Softwood"
+                 ]
+    },
+    {
+        "Material Name":  "fire clay",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "firebrick",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "fired clay",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "fish",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "flame",
+        "Tags":  [
+                     "Materials / Elemental Materials"
+                 ]
+    },
+    {
+        "Material Name":  "flannel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "flatbread",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "flax",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Fiber Crop"
+                 ]
+    },
+    {
+        "Material Name":  "fleece",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "flesh",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "flint",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "fluorite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "food",
+        "Tags":  [
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "fox fur",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "fox hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "fox leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "frog",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "fruit",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "fruit jelly",
+        "Tags":  [
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "fur",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "gabardine",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "gabbro",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "game bird",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "game mammal",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "garlic",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "garnet",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "gel",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "ghee",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "ginger",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "glass",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Glass",
+                     "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "glass-reinforced plastic",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "glazed ceramic",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "glue",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "gneiss",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "goat",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "goose",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "granite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "grape",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "grapefruit",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "graphite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "grass",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "grease",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "green bean",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "greens",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "grout",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "guano",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "guava",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "gunpowder",
+        "Tags":  [
+                     "Materials / Gunpowder",
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "gypsum",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gypsum"
+                 ]
+    },
+    {
+        "Material Name":  "hair",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "hemp",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "hemp crop",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Fiber Crop"
+                 ]
+    },
+    {
+        "Material Name":  "herb",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "hessian",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "hickory",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "high-density polyethylene",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "holly",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "honey",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "honeydew",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "hop",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "horn",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "hornbeam",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "horse",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "human hair",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "human meat",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "insect",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "iolite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "ironwood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "ivory",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "jacaranda",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "jade",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "jasper",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "jelly",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "jersey knit",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "jet",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "juniper",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "jute",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "jute crop",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Fiber Crop"
+                 ]
+    },
+    {
+        "Material Name":  "kale",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "kangaroo",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "kaolinite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "kaolinite clay",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "keratin",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "kiwi fruit",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "komatiite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "kunzite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "kyanite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "labradorite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "lace",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "lamb",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "lapis lazuli",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "larch",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "lard",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "larimar",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "laterite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "latex",
+        "Tags":  [
+                     "Materials / Elastomer"
+                 ]
+    },
+    {
+        "Material Name":  "lavender",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "lead glass",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic",
+                     "Materials / Manufactured Materials / Glass"
+                 ]
+    },
+    {
+        "Material Name":  "leaf",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather",
+                     "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "leek",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "legume",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "lemon",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "lemongrass",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "lentil",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "lettuce",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "lime",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "limestone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Calcite"
+                 ]
+    },
+    {
+        "Material Name":  "linden",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "linen",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "lion fur",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "lion hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin / Thick Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "lion leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "lizard",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "loam",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "loamy sand",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "low-density polyethylene",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "lychee",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "lye",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "mace",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "mahogany",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "mana",
+        "Tags":  [
+                     "Materials / Elemental Materials"
+                 ]
+    },
+    {
+        "Material Name":  "mandarin",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "mango",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "maple",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "marble",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "marjoram",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "marlstone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "meat",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat",
+                     "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "medium density fiberboard",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Manufactured Wood"
+                 ]
+    },
+    {
+        "Material Name":  "melamine formaldehyde",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "melon",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "metal",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal",
+                     "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "microcline",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Feldspar"
+                 ]
+    },
+    {
+        "Material Name":  "microfiber",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric",
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "milk cream",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "millet",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "mint",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "mohair",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Animal Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "mollusc",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "moonstone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "mordenite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Zeolite"
+                 ]
+    },
+    {
+        "Material Name":  "morganite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "mortar",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "moss",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "mudstone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "muffin",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "mulch",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "muscle",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "muscly flesh",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "muscovite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "mushroom",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "muslin",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "mustard seed",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "mutton",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "natural rubber",
+        "Tags":  [
+                     "Materials / Elastomer"
+                 ]
+    },
+    {
+        "Material Name":  "neoprene",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "nephrite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "nettle",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "nutmeg",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "nylon",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric",
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "oak",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "oat",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "obsidian",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "okra",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "olefin fabric",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "olive",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "olive crop",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Oil Crop"
+                 ]
+    },
+    {
+        "Material Name":  "olive wood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "onion",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "onyx",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "opal",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "orange",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "oregano",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "organza",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "orthoclase",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Feldspar"
+                 ]
+    },
+    {
+        "Material Name":  "ostrich",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "other",
+        "Tags":  [
+                     "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "papaya",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "paper",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Paper Product",
+                     "Materials / Writing Product"
+                 ]
+    },
+    {
+        "Material Name":  "paprika",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "papyrus",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Paper Product",
+                     "Materials / Writing Product"
+                 ]
+    },
+    {
+        "Material Name":  "paraffin wax",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "parchment",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Writing Product"
+                 ]
+    },
+    {
+        "Material Name":  "parsley",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "parsnip",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "particle board",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Manufactured Wood"
+                 ]
+    },
+    {
+        "Material Name":  "passionfruit",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "paste",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "pastry",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "pea",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "peach",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "peanut",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "peanut crop",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Oil Crop"
+                 ]
+    },
+    {
+        "Material Name":  "pear",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "pearl",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "pearwood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "peat",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "pelagic clay",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "pepper",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "peppermint",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "peridot",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "perlite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "persimmon",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "phenolic resin",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "phlogopite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "phyllite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "pie",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "pig hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "pig leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "pigeon",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "pine",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Softwood"
+                 ]
+    },
+    {
+        "Material Name":  "pineapple",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "pitch",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "plantain",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "plaster",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "plum",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "plywood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Manufactured Wood"
+                 ]
+    },
+    {
+        "Material Name":  "polycarbonate",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "poly-cotton blend",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Blended Fiber Fabric",
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "polyester",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric",
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "polyethylene foam",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "polyethylene terephthalate",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "polypropylene",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "polystyrene",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "polyurethane",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "polyvinyl chloride",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "pomegranate",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "poplar",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "poppy seed",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "porcelain",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "porcelain tile",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "pork",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "portland cement",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "potato",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "pozzolanic ash",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "PTFE",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "pumice",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "pumpkin",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "pyrophyllite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "quail",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "quartz",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "quartzite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "quince",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "quinoa",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "rabbit",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "rabbit fur",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "rabbit hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "rabbit leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "radicchio",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "radish",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "ramie",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Fiber Crop"
+                 ]
+    },
+    {
+        "Material Name":  "rapeseed",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Oil Crop"
+                 ]
+    },
+    {
+        "Material Name":  "raspberry",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "rayon",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "redwood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "refractory brick",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "reinforced concrete",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "resin",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "rhino hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin / Thick Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "rhino leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "rhodonite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "rhyolite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "rice",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "Robot Chassis Alloy",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "Robot Circuitry",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "roman cement",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "rose quartz",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "rosemary",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "rosewood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "rowan",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "ruby",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "rutabaga",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "rye",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "rye bread",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "safflower",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Oil Crop"
+                 ]
+    },
+    {
+        "Material Name":  "saffron",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "sage",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "salt",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "saltpeter",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "sand",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "sandalwood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "sandstone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "sandy clay",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "sandy clay loam",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "sandy loam",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "sapphire",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "satin",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "satinspar",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gypsum"
+                 ]
+    },
+    {
+        "Material Name":  "savory",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "scale",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "schist",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "scoria",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "seaweed",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "seersucker",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "selenite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gypsum"
+                 ]
+    },
+    {
+        "Material Name":  "serpentine",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "sesame",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Oil Crop"
+                 ]
+    },
+    {
+        "Material Name":  "sesame seed",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "shale",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "shallot",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "shark",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "shell",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "shellac",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "shellfish",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "shrimp",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "silicate glass",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic",
+                     "Materials / Manufactured Materials / Glass"
+                 ]
+    },
+    {
+        "Material Name":  "silicone rubber",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "silk",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "silt",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "silt loam",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "siltstone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "silty clay",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "silty clay loam",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "sisal",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Fiber Crop"
+                 ]
+    },
+    {
+        "Material Name":  "skin",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "slaked lime",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "slate",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "slime",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "small mammal hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "small mammal leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "smoky quartz",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "snail",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "snake",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "snake hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "snake leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "soap",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "soapstone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "soda ash",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Soda Ash"
+                 ]
+    },
+    {
+        "Material Name":  "soda-lime glass",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic",
+                     "Materials / Manufactured Materials / Glass"
+                 ]
+    },
+    {
+        "Material Name":  "sodic clay",
+        "Tags":  [
+                     "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "soot",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "sorghum",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "sorrel",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "sourdough bread",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "soybean",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "spandex",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric",
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "spice",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "spinach",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "spinel",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "spirit energy",
+        "Tags":  [
+                     "Materials / Elemental Materials"
+                 ]
+    },
+    {
+        "Material Name":  "sponge",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "spongy bone",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "spruce",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "squid",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "star anise",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "stone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone",
+                     "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "stone tile",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "stoneware",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "strawberry",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "sugarcane",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "sumac",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "sunflower",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Oil Crop"
+                 ]
+    },
+    {
+        "Material Name":  "sunstone",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "sweet potato",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "sycamore",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "synthetic rubber",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "talc",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "tamarind wood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "tangerine",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "tar",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "taro",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "tarragon",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "tea leaf",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "teak",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "tempered glass",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic",
+                     "Materials / Manufactured Materials / Glass"
+                 ]
+    },
+    {
+        "Material Name":  "terracotta",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic"
+                 ]
+    },
+    {
+        "Material Name":  "tetrahedrite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Antimony Ore",
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Sulphide Ore",
+                     "Materials / Natural Materials / Stone / Metal Ore / Silver Ore"
+                 ]
+    },
+    {
+        "Material Name":  "textile",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric",
+                     "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "thyme",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "tiger fur",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "tiger hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin / Thick Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "tiger leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "tiger\u0027s eye",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "tomato",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "tooth",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "topaz",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "tortilla",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "tourmaline",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "trachyte",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "travertine",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "tree nut",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "tuber",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "tuff",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "turkey",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "turmeric",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "turnip",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "turquoise",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "turtle",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "tusk",
+        "Tags":  [
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "tweed",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Animal Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "twill",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "unakite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "vair",
+        "Tags":  [
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "vanilla",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "vegetable",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "vegetation",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation",
+                     "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "velvet",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "venison",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "vermiculite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "vine",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "vinyl ester resin",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "viscera",
+        "Tags":  [
+
+                 ]
+    },
+    {
+        "Material Name":  "viscose",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "vulcanized rubber",
+        "Tags":  [
+                     "Materials / Elastomer"
+                 ]
+    },
+    {
+        "Material Name":  "walnut",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "wasabi",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "watercress",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "watermelon",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "wenge",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "whale",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "wheat",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "whey",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "white pepper",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "willow",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "wolf hide",
+        "Tags":  [
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "wolf leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "wollastonite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "wood",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood",
+                     "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "wood ash",
+        "Tags":  [
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "wool",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Fabric / Animal Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "yam",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "yew",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "yoghurt",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "zircon",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "zucchini",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    }
+]

@@ -1,0 +1,439 @@
+[
+    {
+        "Gas Name":  "Acetylene",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Ammonia",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Argon",
+        "Tags":  [
+                     "Materials / Gases / Elemental Gases",
+                     "Materials / Gases / Elemental Gases / Noble Gases",
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Biogas",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Butane",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Carbon Dioxide",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Carbon Monoxide",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Chlorine",
+        "Tags":  [
+                     "Materials / Gases / Elemental Gases",
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Chlorine Dioxide",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Chlorodifluoromethane",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Refrigerant Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Cold Dry Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Difluoromethane",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Refrigerant Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Dimethyl Ether",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases",
+                     "Materials / Gases / Industrial Gases / Refrigerant Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Ethane",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Ethylene",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Filtered Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Fluorine",
+        "Tags":  [
+                     "Materials / Gases / Elemental Gases",
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Formaldehyde",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Fresh Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Helium",
+        "Tags":  [
+                     "Materials / Gases / Elemental Gases",
+                     "Materials / Gases / Elemental Gases / Noble Gases",
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "High Altitude Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "High-Oxygen Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Hot Humid Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Humid Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Hydrogen",
+        "Tags":  [
+                     "Materials / Gases / Elemental Gases",
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Hydrogen Chloride",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Hydrogen Cyanide",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Hydrogen Fluoride",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Hydrogen Sulfide",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Isobutane",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases",
+                     "Materials / Gases / Industrial Gases / Refrigerant Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Krypton",
+        "Tags":  [
+                     "Materials / Gases / Elemental Gases",
+                     "Materials / Gases / Elemental Gases / Noble Gases",
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Landfill Gas",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Liquefied Petroleum Gas",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Methane",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Methyl Bromide",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Methyl Chloride",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Refrigerant Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Natural Gas",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Neon",
+        "Tags":  [
+                     "Materials / Gases / Elemental Gases",
+                     "Materials / Gases / Elemental Gases / Noble Gases",
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Nitric Oxide",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Nitrogen",
+        "Tags":  [
+                     "Materials / Gases / Elemental Gases",
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Nitrogen Dioxide",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Nitrous Oxide",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Medical Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Oxygen",
+        "Tags":  [
+                     "Materials / Gases / Elemental Gases",
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Medical Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Oxygen-Enriched Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Ozone",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Phosgene",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Phosphine",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Polluted Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Pressurized Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Propane",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Propylene",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Refrigerant R-134a",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Refrigerant Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Silane",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Smoke-Tainted Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Stale Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Steam",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Sulfur Dioxide",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Sulfur Hexafluoride",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Sulfurous Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Synthesis Gas",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Tetrafluoromethane",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Refrigerant Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Thin Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Very Thin Breathable Atmosphere",
+        "Tags":  [
+                     "Materials / Gases / Breathable Atmospheres"
+                 ]
+    },
+    {
+        "Gas Name":  "Vinyl Chloride",
+        "Tags":  [
+                     "Materials / Gases / Industrial Gases",
+                     "Materials / Gases / Industrial Gases / Fuel Gases"
+                 ]
+    },
+    {
+        "Gas Name":  "Xenon",
+        "Tags":  [
+                     "Materials / Gases / Elemental Gases",
+                     "Materials / Gases / Elemental Gases / Noble Gases",
+                     "Materials / Gases / Industrial Gases"
+                 ]
+    }
+]

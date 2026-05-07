@@ -1,0 +1,1476 @@
+﻿[
+    {
+        "Component Type Name":  "ActiveCraft",
+        "Component Type Description":  "Makes an item a [system-generated] item that represent crafts in progress. Do not edit this component or use manually.",
+        "Exclusive Types":  [
+                                "IActiveCraftGameItemComponent"
+                            ]
+    },
+    {
+        "Component Type Name":  "AlarmSiren",
+        "Component Type Description":  "A [powered] [signal consumer] audible alarm driven by a sibling signal source component",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "AmmoClip",
+        "Component Type Description":  "A type of [container] used to store rounds for guns",
+        "Exclusive Types":  [
+                                "IAmmoClip",
+                                "IContainer"
+                            ]
+    },
+    {
+        "Component Type Name":  "Ammunition",
+        "Component Type Description":  "Turns an item into a round fired from a gun",
+        "Exclusive Types":  [
+                                "IAmmo"
+                            ]
+    },
+    {
+        "Component Type Name":  "AnsweringMachine",
+        "Component Type Description":  "A daisy-chained [telephone] that can play a greeting, record messages to a [tape], and expose downstream handsets",
+        "Exclusive Types":  [
+                                "IAnsweringMachine",
+                                "IContainer",
+                                "IReceive",
+                                "ISelectable",
+                                "ITelephone",
+                                "ITransmit"
+                            ]
+    },
+    {
+        "Component Type Name":  "Armour",
+        "Component Type Description":  "Turns an item into [armour]. Must be paired with separate a [wearable]",
+        "Exclusive Types":  [
+                                "IArmour"
+                            ]
+    },
+    {
+        "Component Type Name":  "AttachableConnectable",
+        "Component Type Description":  "Makes an item [connectable] to others with a non-powered, non-data connection",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Automation Housing",
+        "Component Type Description":  "Makes an item a [lockable automation housing] for concealed service hardware",
+        "Exclusive Types":  [
+                                "IAutomationHousing",
+                                "IContainer",
+                                "ILock",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Automation Mount Host",
+        "Component Type Description":  "Adds named [automation bays] for installable modules such as microcontrollers",
+        "Exclusive Types":  [
+                                "IAutomationMountHost"
+                            ]
+    },
+    {
+        "Component Type Name":  "BankPayment",
+        "Component Type Description":  "Lets the item be used for [Payment] from a bank",
+        "Exclusive Types":  [
+                                "IBankPaymentItem"
+                            ]
+    },
+    {
+        "Component Type Name":  "Battery",
+        "Component Type Description":  "Turns an item into a [battery]",
+        "Exclusive Types":  [
+                                "IBattery"
+                            ]
+    },
+    {
+        "Component Type Name":  "BatteryCharger",
+        "Component Type Description":  "A type of [container] that when [powered] charges rechargeable [battery] items",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "BatteryPowered",
+        "Component Type Description":  "A [container] that [provides power] to other components via inserted batteries and can expose a physical connector",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Belt",
+        "Component Type Description":  "Turns this item into a [belt] that can have things attached to it",
+        "Exclusive Types":  [
+                                "IBelt"
+                            ]
+    },
+    {
+        "Component Type Name":  "Beltable",
+        "Component Type Description":  "Makes this item able to be [attached] to [belt] items",
+        "Exclusive Types":  [
+                                "IBeltable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Bench",
+        "Component Type Description":  "A bench is a [table] that comes with built-in chairs",
+        "Exclusive Types":  [
+                                "IFlip",
+                                "IProvideCover",
+                                "ITable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Biro",
+        "Component Type Description":  "Turns an item [writing implement] of type biro pen",
+        "Exclusive Types":  [
+                                "IWritingImplement"
+                            ]
+    },
+    {
+        "Component Type Name":  "Blindfold",
+        "Component Type Description":  "Obscured vision when worn over eyes. Must be combined with another [wearable] component",
+        "Exclusive Types":  [
+                                "IBlindfold"
+                            ]
+    },
+    {
+        "Component Type Name":  "Blowgun",
+        "Component Type Description":  "Makes an item a [ranged weapon] with blowgun mechanics",
+        "Exclusive Types":  [
+                                "IRangedWeapon",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Board",
+        "Component Type Description":  "Lets players view and post to a board when in room",
+        "Exclusive Types":  [
+                                "IBoardItem"
+                            ]
+    },
+    {
+        "Component Type Name":  "Bodypart",
+        "Component Type Description":  "Marks an item as a [system-generated] severed bodypart. Do not edit this component or use manually.",
+        "Exclusive Types":  [
+                                "IButcherable",
+                                "IContainer",
+                                "ISeveredBodypart"
+                            ]
+    },
+    {
+        "Component Type Name":  "BoltAction",
+        "Component Type Description":  "Makes an item a [ranged weapon] with bolt-action rifle mechanics",
+        "Exclusive Types":  [
+                                "IMeleeWeapon",
+                                "IRangedWeapon",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Bomb",
+        "Component Type Description":  "Makes an item an [explosive] when triggered. Must be combined with a [trigger].",
+        "Exclusive Types":  [
+                                "IDetonatable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Book",
+        "Component Type Description":  "Makes an item into a [book]",
+        "Exclusive Types":  [
+                                "IOpenable",
+                                "IReadable",
+                                "ITearable",
+                                "ITurnable",
+                                "IWriteable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Bow",
+        "Component Type Description":  "Makes an item a [ranged weapon] with bow mechanics",
+        "Exclusive Types":  [
+                                "IMeleeWeapon",
+                                "IRangedWeapon",
+                                "IRangedWeaponWithUnreadyEvent",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "BreathingFilter",
+        "Component Type Description":  "A [container] for filters that combined with another [wearable] transforms one gas type to another (e.g. smoke to breathable air)",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "IProvideGasForBreathing"
+                            ]
+    },
+    {
+        "Component Type Name":  "Cannula",
+        "Component Type Description":  "An externally [connectable] [implant] allowing access to the blood stream",
+        "Exclusive Types":  [
+                                "ICannula",
+                                "IImplant"
+                            ]
+    },
+    {
+        "Component Type Name":  "CashRegister",
+        "Component Type Description":  "A type of [container] that interacts with the game\u0027s shop mechanics when used as a till",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "IOpenable",
+                                "ISelectable"
+                            ]
+    },
+    {
+        "Component Type Name":  "CellPhoneTower",
+        "Component Type Description":  "A [telecommunications grid] antenna that provides cellular service to its [zone]",
+        "Exclusive Types":  [
+                                "ICellPhoneTower"
+                            ]
+    },
+    {
+        "Component Type Name":  "CellularPhone",
+        "Component Type Description":  "A [powered] telephone that relies on a [cell phone tower] in the same zone",
+        "Exclusive Types":  [
+                                "IReceive",
+                                "ITelephone",
+                                "ITransmit"
+                            ]
+    },
+    {
+        "Component Type Name":  "Chair",
+        "Component Type Description":  "Makes the item a [chair] that can be attached to a [table], or stand free.",
+        "Exclusive Types":  [
+                                "IChair"
+                            ]
+    },
+    {
+        "Component Type Name":  "Changer",
+        "Component Type Description":  "Changes a character\u0027s characteristics when worn, combined with a [wearable]",
+        "Exclusive Types":  [
+                                "IChangeCharacteristics"
+                            ]
+    },
+    {
+        "Component Type Name":  "ClothingInsulation",
+        "Component Type Description":  "Adds positive or negative insulation to clothes, combined with a [wearable]",
+        "Exclusive Types":  [
+                                "IInsulating"
+                            ]
+    },
+    {
+        "Component Type Name":  "Commodity",
+        "Component Type Description":  "Makes an item a [system-generated] commodity pile. Do not edit this component or use manually.",
+        "Exclusive Types":  [
+                                "ICommodity"
+                            ]
+    },
+    {
+        "Component Type Name":  "Compressor",
+        "Component Type Description":  "This is a [powered] machine that fills [gas containers] with atmosphere",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Computer Host",
+        "Component Type Description":  "Makes an item a [computer host] [powered] runtime owner for files, executables, and processes",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Computer Storage",
+        "Component Type Description":  "Makes an item [computer storage] for files and executables mounted into a computer host",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Computer Terminal",
+        "Component Type Description":  "Makes an item a [computer terminal] [powered] user session endpoint for a computer host",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Connectable",
+        "Component Type Description":  "Makes an item [connectable], can potentially be powered e.g. a power plug on an appliance",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "ConsumableHeaterCooler",
+        "Component Type Description":  "A temporary thermal source that auto-starts and then burns away",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Container",
+        "Component Type Description":  "Makes an item into a [container]",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Corpse",
+        "Component Type Description":  "Marks an item as a [system-generated] corpse. Do not edit this component or use manually.",
+        "Exclusive Types":  [
+                                "IButcherable",
+                                "ICorpse"
+                            ]
+    },
+    {
+        "Component Type Name":  "Cover",
+        "Component Type Description":  "Makes an item provide [ranged cover] when in the room",
+        "Exclusive Types":  [
+                                "IProvideCover"
+                            ]
+    },
+    {
+        "Component Type Name":  "Crayon",
+        "Component Type Description":  "Turns an item [writing implement] of type crayon",
+        "Exclusive Types":  [
+                                "IWritingImplement"
+                            ]
+    },
+    {
+        "Component Type Name":  "Crossbow",
+        "Component Type Description":  "Makes an item a [ranged weapon] with crossbow mechanics",
+        "Exclusive Types":  [
+                                "IMeleeWeapon",
+                                "IRangedWeapon",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Crutch",
+        "Component Type Description":  "When held, allows a person to offset unusable legs and walk",
+        "Exclusive Types":  [
+                                "ICrutch"
+                            ]
+    },
+    {
+        "Component Type Name":  "CurrencyPile",
+        "Component Type Description":  "Marks an item as a [system-generated] currency pile. Do not edit this component or use manually.",
+        "Exclusive Types":  [
+                                "ICurrencyPile"
+                            ]
+    },
+    {
+        "Component Type Name":  "Defibrillator",
+        "Component Type Description":  "Makes an item a defibrillator that when [powered] can defibrillate arrythmic hearts",
+        "Exclusive Types":  [
+                                "IDefibrillator"
+                            ]
+    },
+    {
+        "Component Type Name":  "Destroyable",
+        "Component Type Description":  "Makes an item able to take damage and be destroyed",
+        "Exclusive Types":  [
+                                "IDestroyable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Dice",
+        "Component Type Description":  "Makes the item into a [dice] that can be rolled.",
+        "Exclusive Types":  [
+                                "IDice"
+                            ]
+    },
+    {
+        "Component Type Name":  "Door",
+        "Component Type Description":  "Turns the item into a [door] that can be installed in doorways",
+        "Exclusive Types":  [
+                                "IDoor",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "DragAid",
+        "Component Type Description":  "Makes this item a drag aid, that can be used when dragging something to help increase capacity",
+        "Exclusive Types":  [
+                                "IDragAid"
+                            ]
+    },
+    {
+        "Component Type Name":  "Drip",
+        "Component Type Description":  "Item is [connectable] between a cannula and an IV bag to rate limit infusion",
+        "Exclusive Types":  [
+                                "IDrip",
+                                "ISelectable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Dwelling",
+        "Component Type Description":  "Makes an item that when put in the room creates an enterable area.",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "EarpieceRadio",
+        "Component Type Description":  "An item that when [powered] and combined with an ear [wearable] makes a receive-only radio",
+        "Exclusive Types":  [
+                                "IReceive"
+                            ]
+    },
+    {
+        "Component Type Name":  "ElectricGridCreator",
+        "Component Type Description":  "When put in a room, creates an [electric grid]",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "ElectricGridFeeder",
+        "Component Type Description":  "Item lets [connectable] items that [provide power] feed directly into an [electric grid]",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "ElectricGridOutlet",
+        "Component Type Description":  "Item [provides power] to connected [connectable] items from an [electric grid]",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "ElectricHeaterCooler",
+        "Component Type Description":  "A powered thermal source that alters indoor room temperature and nearby targets",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "ElectricLight",
+        "Component Type Description":  "A [light source] when [powered], can be [lit] by players",
+        "Exclusive Types":  [
+                                "IProduceLight"
+                            ]
+    },
+    {
+        "Component Type Name":  "ElectronicDoor",
+        "Component Type Description":  "A [door] [signal consumer] with built-in signal-driven opening and closing behaviour",
+        "Exclusive Types":  [
+                                "IDoor",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "ElectronicLock",
+        "Component Type Description":  "A [lock] [signal consumer] that responds automatically to a sibling signal source component",
+        "Exclusive Types":  [
+                                "ILock"
+                            ]
+    },
+    {
+        "Component Type Name":  "ExternalInhaler",
+        "Component Type Description":  "An inhaler that uses attachable gas canisters.",
+        "Exclusive Types":  [
+                                "IPuffable"
+                            ]
+    },
+    {
+        "Component Type Name":  "ExternalOrgan",
+        "Component Type Description":  "This is a [powered] machine that is [connectable] to a cannula, and provides organ function to a character",
+        "Exclusive Types":  [
+                                "IExternalBloodOxygenator",
+                                "IExternalOrganFunction"
+                            ]
+    },
+    {
+        "Component Type Name":  "FaxMachine",
+        "Component Type Description":  "Connects an item to a [telecommunications grid] and lets it send readable documents as faxes while printing or queueing incoming faxes.",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "IFaxMachine",
+                                "ILockable",
+                                "IOpenable",
+                                "IReceive",
+                                "ITelephone",
+                                "ITransmit"
+                            ]
+    },
+    {
+        "Component Type Name":  "FileSignalGenerator",
+        "Component Type Description":  "A [powered] [signal generator] that emits a numeric value read from a backing file",
+        "Exclusive Types":  [
+                                "IFileSignalGenerator"
+                            ]
+    },
+    {
+        "Component Type Name":  "Flare",
+        "Component Type Description":  "A [light source] that once [lit] burns until gone",
+        "Exclusive Types":  [
+                                "ILightable",
+                                "IProduceLight"
+                            ]
+    },
+    {
+        "Component Type Name":  "FlareAmmunition",
+        "Component Type Description":  "This is a special type of ammunition fired from flare guns",
+        "Exclusive Types":  [
+                                "IAmmo"
+                            ]
+    },
+    {
+        "Component Type Name":  "Food",
+        "Component Type Description":  "Turns an item into an edible food object",
+        "Exclusive Types":  [
+                                "IEdible"
+                            ]
+    },
+    {
+        "Component Type Name":  "FuelGenerator",
+        "Component Type Description":  "A [liquid container] that [produces power] by burning its liquid",
+        "Exclusive Types":  [
+                                "ILiquidContainer",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "FuelHeaterCooler",
+        "Component Type Description":  "A connectable thermal source that consumes either a configured liquid or gas fuel",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Fuse",
+        "Component Type Description":  "Makes an item [lightable] with the [trigger] effect when burnt down",
+        "Exclusive Types":  [
+                                "ILightable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Gag",
+        "Component Type Description":  "Prevents speech when worn over mouth. Must be combined with another [wearable] component",
+        "Exclusive Types":  [
+                                "IGag"
+                            ]
+    },
+    {
+        "Component Type Name":  "GasContainer",
+        "Component Type Description":  "A [gas container] that is [connectable] to other gas consumers",
+        "Exclusive Types":  [
+                                "IGasContainer",
+                                "IGasSupply"
+                            ]
+    },
+    {
+        "Component Type Name":  "Glasses",
+        "Component Type Description":  "Corrects Myopia flaws when worn over eyes. Must be combined with another [wearable] component",
+        "Exclusive Types":  [
+                                "ICorrectMyopia"
+                            ]
+    },
+    {
+        "Component Type Name":  "GridLiquidSource",
+        "Component Type Description":  "Supplies liquid from a [liquid grid] through the existing [liquid container] interaction surface and can expose a physical connector",
+        "Exclusive Types":  [
+                                "ILiquidContainer",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "GridPowerSupply",
+        "Component Type Description":  "This item [provides power] directly from an [electric grid]. Can combine with a [connectable] to create a power point",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Gun",
+        "Component Type Description":  "Makes an item a [ranged weapon] with removable-magazine semi-automatic gun mechanics",
+        "Exclusive Types":  [
+                                "IMeleeWeapon",
+                                "IRangedWeapon",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "HandheldRadio",
+        "Component Type Description":  "A [powered] device that functions as a two-way radio",
+        "Exclusive Types":  [
+                                "IReceive",
+                                "ITransmit"
+                            ]
+    },
+    {
+        "Component Type Name":  "HandTool",
+        "Component Type Description":  "Item will speed up (or slow down) crafting when used as a \u0027tool\u0027 in that craft",
+        "Exclusive Types":  [
+                                "IToolItem"
+                            ]
+    },
+    {
+        "Component Type Name":  "Holdable",
+        "Component Type Description":  "Makes an item able to be picked up, moved, etc.",
+        "Exclusive Types":  [
+                                "IHoldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "IdentityObscurer",
+        "Component Type Description":  "Disguises the identity of the wearer by changing SDesc. Must be combined with another [wearable] component",
+        "Exclusive Types":  [
+                                "IObscureCharacteristics",
+                                "IObscureIdentity"
+                            ]
+    },
+    {
+        "Component Type Name":  "Immobilising",
+        "Component Type Description":  "Item is [wearable] and can be used to immobilise broken bones (e.g. splint, cast, etc)",
+        "Exclusive Types":  [
+                                "IImmobilise",
+                                "IWearable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Implant",
+        "Component Type Description":  "A basic [implant] that simply draws power and takes up space but has no direct function",
+        "Exclusive Types":  [
+                                "IImplant"
+                            ]
+    },
+    {
+        "Component Type Name":  "ImplantContainer",
+        "Component Type Description":  "An [implant] that is also a [container]",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "IImplant",
+                                "IImplantReportStatus",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "ImplantLiquidContainer",
+        "Component Type Description":  "An [implant] that is also a [liquid container]",
+        "Exclusive Types":  [
+                                "IImplant",
+                                "IImplantReportStatus",
+                                "ILiquidContainer",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "ImplantOrgan",
+        "Component Type Description":  "A basic [implant] that functions as an artificial organ when [powered] and installed",
+        "Exclusive Types":  [
+                                "IImplant",
+                                "IImplantReportStatus",
+                                "IOrganImplant"
+                            ]
+    },
+    {
+        "Component Type Name":  "ImplantPowerPlant",
+        "Component Type Description":  "An [implant] that if [powered] will itself [provide power] for other implants in the body",
+        "Exclusive Types":  [
+                                "IImplant",
+                                "IImplantPowerPlant",
+                                "IImplantReportStatus",
+                                "IImplantRespondToCommands"
+                            ]
+    },
+    {
+        "Component Type Name":  "ImplantPowerRouter",
+        "Component Type Description":  "An [implant] that connects to multiple implant power plants and dynamically [provides power] for other implants in the body",
+        "Exclusive Types":  [
+                                "IImplant",
+                                "IImplantPowerPlant",
+                                "IImplantReportStatus"
+                            ]
+    },
+    {
+        "Component Type Name":  "ImplantPowerSupply",
+        "Component Type Description":  "Interfaces between an [implant] and an implant power plant to [provide power] for itself",
+        "Exclusive Types":  [
+                                "IImplantPowerSupply"
+                            ]
+    },
+    {
+        "Component Type Name":  "ImplantRadio",
+        "Component Type Description":  "An [implant] that is also a two-way radio when [neurally interfaced]",
+        "Exclusive Types":  [
+                                "IImplant",
+                                "IImplantReportStatus",
+                                "IImplantRespondToCommands",
+                                "IReceive",
+                                "ITransmit"
+                            ]
+    },
+    {
+        "Component Type Name":  "ImplantTelephone",
+        "Component Type Description":  "An [implant] cellular telephone that is controlled through a [neural interface]",
+        "Exclusive Types":  [
+                                "IImplant",
+                                "IImplantReportStatus",
+                                "IImplantRespondToCommands",
+                                "IReceive",
+                                "ITelephone",
+                                "ITransmit"
+                            ]
+    },
+    {
+        "Component Type Name":  "ImplantTraitChanger",
+        "Component Type Description":  "An [implant] that gives a bonus/penalty to a skill or attribute when [powered]",
+        "Exclusive Types":  [
+                                "IImplant",
+                                "IImplantTraitChange"
+                            ]
+    },
+    {
+        "Component Type Name":  "InhalerGasCanister",
+        "Component Type Description":  "A gas canister for inhalers.",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "IntegratedInhaler",
+        "Component Type Description":  "An inhaler with built in gas store.",
+        "Exclusive Types":  [
+                                "IPuffable"
+                            ]
+    },
+    {
+        "Component Type Name":  "InternalMagazineGun",
+        "Component Type Description":  "Makes an item a [ranged weapon] with internal-magazine semi-automatic gun mechanics",
+        "Exclusive Types":  [
+                                "IMeleeWeapon",
+                                "IRangedWeapon",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "IVBag",
+        "Component Type Description":  "A type of [liquid container] that is [connectable] to a cannula to drain/supply blood",
+        "Exclusive Types":  [
+                                "ILiquidContainer",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Key",
+        "Component Type Description":  "Item is a [key] that opens a simple mechanical [lock]",
+        "Exclusive Types":  [
+                                "IKey"
+                            ]
+    },
+    {
+        "Component Type Name":  "Keypad",
+        "Component Type Description":  "A [selectable] [powered] [signal generator] that emits a momentary signal after the correct numeric code",
+        "Exclusive Types":  [
+                                "ISelectable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Keyring",
+        "Component Type Description":  "A [container] that holds [key] items and can be used as one in syntax",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "IKey",
+                                "IKeyring"
+                            ]
+    },
+    {
+        "Component Type Name":  "Lantern",
+        "Component Type Description":  "A [liquid container] that burns liquid fuel when [lit] to be a [light source]",
+        "Exclusive Types":  [
+                                "ILightable",
+                                "ILiquidContainer",
+                                "ILockable",
+                                "IOpenable",
+                                "IProduceLight"
+                            ]
+    },
+    {
+        "Component Type Name":  "Laser",
+        "Component Type Description":  "Makes an item a [ranged weapon] with laser gun mechanics",
+        "Exclusive Types":  [
+                                "IMeleeWeapon",
+                                "IRangedWeapon",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Latch",
+        "Component Type Description":  "A kind of [lock] that can only be opened from one side",
+        "Exclusive Types":  [
+                                "ILock"
+                            ]
+    },
+    {
+        "Component Type Name":  "LightSensor",
+        "Component Type Description":  "A [powered] [signal generator] that emits the current ambient illumination in lux",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "LiquidConsumingProp",
+        "Component Type Description":  "A prop that stores liquid and then [consumes] it at a fixed rate, making it handy for steady drain setups",
+        "Exclusive Types":  [
+                                "ILiquidContainer",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "LiquidContainer",
+        "Component Type Description":  "Makes the item a [liquid container]",
+        "Exclusive Types":  [
+                                "ILiquidContainer",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "LiquidGridCreator",
+        "Component Type Description":  "When put in a room, creates a [liquid grid]",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "LiquidGridSupplier",
+        "Component Type Description":  "Connects a sibling [liquid container] to a [liquid grid] as a supplier",
+        "Exclusive Types":  [
+                                "ILiquidGridSupplier"
+                            ]
+    },
+    {
+        "Component Type Name":  "LiquidPump",
+        "Component Type Description":  "A powered pump that moves liquid from a connected input to a connected output",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "ListeningBug",
+        "Component Type Description":  "When [powered] will listen and retransmit speech in location",
+        "Exclusive Types":  [
+                                "ITransmit"
+                            ]
+    },
+    {
+        "Component Type Name":  "Lock",
+        "Component Type Description":  "Item is a [lock] that is opened with a physical [key]",
+        "Exclusive Types":  [
+                                "ILock"
+                            ]
+    },
+    {
+        "Component Type Name":  "LockingContainer",
+        "Component Type Description":  "Makes an item into a [container] with a built-in [lock]",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "ILock",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "LockingDoor",
+        "Component Type Description":  "Turns the item into a [door] that is also a [lock] opened with a [key]",
+        "Exclusive Types":  [
+                                "IDoor",
+                                "ILock",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "LocksmithingTools",
+        "Component Type Description":  "The item becomes usable as a tool for locksmithing actions",
+        "Exclusive Types":  [
+                                "ILocksmithingTool"
+                            ]
+    },
+    {
+        "Component Type Name":  "MarketGoodWeight",
+        "Component Type Description":  "Specifies a multiplier for good satisfaction for #B[Market Categories]#0 for this item\".SubstituteANSIColour()",
+        "Exclusive Types":  [
+                                "IMarketGoodWeightItem"
+                            ]
+    },
+    {
+        "Component Type Name":  "MeleeWeapon",
+        "Component Type Description":  "Turns an item into a [melee weapon]",
+        "Exclusive Types":  [
+                                "IMeleeWeapon",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Microcontroller",
+        "Component Type Description":  "A [powered] [signal generator] [signal consumer] controller that evaluates inline computer-function logic from sibling signal inputs",
+        "Exclusive Types":  [
+                                "IAutomationMountable",
+                                "IMicrocontroller",
+                                "IRuntimeProgrammableMicrocontroller"
+                            ]
+    },
+    {
+        "Component Type Name":  "MotionSensor",
+        "Component Type Description":  "A [powered] [signal generator] that emits a timed signal when it witnesses configured movement",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Musket",
+        "Component Type Description":  "A musket is a muzzle-loaded firearm which uses either a wheellock or a flintlock to fire",
+        "Exclusive Types":  [
+                                "IBelt",
+                                "IJammableWeapon",
+                                "IMeleeWeapon",
+                                "IRangedWeapon",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "MusketBall",
+        "Component Type Description":  "A musket ball that is used with gunpowder to fire a musket",
+        "Exclusive Types":  [
+                                "IAmmo"
+                            ]
+    },
+    {
+        "Component Type Name":  "MusketCartridge",
+        "Component Type Description":  "A pre-assembled package of gunpowder and musket ball for quick loading",
+        "Exclusive Types":  [
+                                "IAmmo"
+                            ]
+    },
+    {
+        "Component Type Name":  "Network Adapter",
+        "Component Type Description":  "Makes an item a [network adapter] [powered] telecom-backed network endpoint for a computer host",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Network Switch",
+        "Component Type Description":  "Makes an item a [powered] daisy-chainable telecommunications switch",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "NeuralInterface",
+        "Component Type Description":  "An [implant] that permits other implants to be [neurally interfaced] and controlled with the mind",
+        "Exclusive Types":  [
+                                "IImplant",
+                                "IImplantNeuralLink"
+                            ]
+    },
+    {
+        "Component Type Name":  "Obscurer",
+        "Component Type Description":  "Obscures some characteristics of an individual, combined with a [wearable]",
+        "Exclusive Types":  [
+                                "IObscureCharacteristics"
+                            ]
+    },
+    {
+        "Component Type Name":  "PaperSheet",
+        "Component Type Description":  "Item is a writable [paper] item that can be in a [book] or on its own",
+        "Exclusive Types":  [
+                                "IReadable",
+                                "IWriteable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Pencil",
+        "Component Type Description":  "Turns an item [writing implement] of type pencil. Pencils require sharpening with pencil sharpeners",
+        "Exclusive Types":  [
+                                "IWritingImplement"
+                            ]
+    },
+    {
+        "Component Type Name":  "PencilSharpener",
+        "Component Type Description":  "Can sharpen a pencil item",
+        "Exclusive Types":  [
+                                "ISharpen"
+                            ]
+    },
+    {
+        "Component Type Name":  "Photocopier",
+        "Component Type Description":  "A [powered] machine that can copy all the text on a sheet of [paper]",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Pile",
+        "Component Type Description":  "Makes an item a [system-generated] [container] of type pile. Do not edit this component or use manually.",
+        "Exclusive Types":  [
+                                "IContainer"
+                            ]
+    },
+    {
+        "Component Type Name":  "Pill",
+        "Component Type Description":  "Turns the item into a pill that can be [swallowed] to deliver a drug dose",
+        "Exclusive Types":  [
+                                "ISwallowable"
+                            ]
+    },
+    {
+        "Component Type Name":  "PoweredProp",
+        "Component Type Description":  "A [powered] machine that can execute a prog when running",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "PowerPack",
+        "Component Type Description":  "A special type of ammunition specifically for Laser guns",
+        "Exclusive Types":  [
+                                "ILaserPowerPack"
+                            ]
+    },
+    {
+        "Component Type Name":  "PowerSocket",
+        "Component Type Description":  "Creates [connectable] power sockets that are usually paired with another component that [provides power]",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "PowerSupply",
+        "Component Type Description":  "This component [supplies power] to the item via other [connectable] components",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "PowerTool",
+        "Component Type Description":  "A [powered] item that will speed up (or slow down) crafting when used as a \u0027tool\u0027 in that craft",
+        "Exclusive Types":  [
+                                "IToolItem"
+                            ]
+    },
+    {
+        "Component Type Name":  "PreparedFood",
+        "Component Type Description":  "Turns an item into new-style prepared food with freshness, ingredient ledgers and drug doses",
+        "Exclusive Types":  [
+                                "IEdible",
+                                "IPreparedFood"
+                            ]
+    },
+    {
+        "Component Type Name":  "ProgLight",
+        "Component Type Description":  "A [light source] when [powered], can only be turned on/off by progs",
+        "Exclusive Types":  [
+                                "ILightable",
+                                "IProduceLight"
+                            ]
+    },
+    {
+        "Component Type Name":  "ProgLock",
+        "Component Type Description":  "A kind of [lock] that can only be locked/unlocked via progs",
+        "Exclusive Types":  [
+                                "ILock"
+                            ]
+    },
+    {
+        "Component Type Name":  "ProgPowerSupply",
+        "Component Type Description":  "This item [provides power] with no fuel source so long as switched on by a prog",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Prosthetic",
+        "Component Type Description":  "Item is a [prosthetic] limb replacement",
+        "Exclusive Types":  [
+                                "IProsthetic"
+                            ]
+    },
+    {
+        "Component Type Name":  "Puddle",
+        "Component Type Description":  "Marks an item as a [system-generated] puddle of liquid. Do not edit this component or use manually.",
+        "Exclusive Types":  [
+                                "ILiquidContainer",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "PushButton",
+        "Component Type Description":  "A [selectable] [signal generator] momentary signal input for computer-controlled items",
+        "Exclusive Types":  [
+                                "ISelectable"
+                            ]
+    },
+    {
+        "Component Type Name":  "RadioDetonator",
+        "Component Type Description":  "This item when [powered] listens for a radio frequency and acts as a [trigger]",
+        "Exclusive Types":  [
+                                "IReceive",
+                                "ISelectable"
+                            ]
+    },
+    {
+        "Component Type Name":  "RadioDetonatorTransmitter",
+        "Component Type Description":  "A [powered] device that acts as a remote [trigger] for radio detonated bombs",
+        "Exclusive Types":  [
+                                "ISelectable"
+                            ]
+    },
+    {
+        "Component Type Name":  "RainSensor",
+        "Component Type Description":  "A [powered] [signal generator] that emits current rainfall intensity",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "RcsThruster",
+        "Component Type Description":  "A wearable connectable zero-gravity propulsion component that consumes gas.",
+        "Exclusive Types":  [
+                                "IZeroGravityPropulsion"
+                            ]
+    },
+    {
+        "Component Type Name":  "Rebreather",
+        "Component Type Description":  "Item is [connectable] to a gas container and combined with a [wearable] allows breathing the gas",
+        "Exclusive Types":  [
+                                "IProvideGasForBreathing"
+                            ]
+    },
+    {
+        "Component Type Name":  "RelaySwitch",
+        "Component Type Description":  "[provides power] [signal consumer] that closes or opens a power feed from a signal source",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "RepairKit",
+        "Component Type Description":  "Item can be used to repair damage to items and robots",
+        "Exclusive Types":  [
+                                "IRepairKit"
+                            ]
+    },
+    {
+        "Component Type Name":  "Restraint",
+        "Component Type Description":  "Can be used to restrain limbs, combined with a [wearable]",
+        "Exclusive Types":  [
+                                "IRestraint"
+                            ]
+    },
+    {
+        "Component Type Name":  "Selectable",
+        "Component Type Description":  "The item can have options for the [select] command which fire progs when selected",
+        "Exclusive Types":  [
+                                "ISelectable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Sheath",
+        "Component Type Description":  "A special [container] that can hold one weapon and works with the [sheath] command",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "ISheath"
+                            ]
+    },
+    {
+        "Component Type Name":  "Shield",
+        "Component Type Description":  "Item becomes a [shield] and [melee weapon]",
+        "Exclusive Types":  [
+                                "IMeleeWeapon",
+                                "IShield",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "ShopStall",
+        "Component Type Description":  "Turns the item into a [container] that can also a [shop]",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "ILock",
+                                "ILockable",
+                                "IOpenable",
+                                "IShopStall"
+                            ]
+    },
+    {
+        "Component Type Name":  "Signal Cable Segment",
+        "Component Type Description":  "Makes an item a one-hop [signal cable] [signal generator] [signal consumer] that mirrors an adjacent-room source",
+        "Exclusive Types":  [
+                                "ISignalCableSegment"
+                            ]
+    },
+    {
+        "Component Type Name":  "SignalLight",
+        "Component Type Description":  "A [light source] [signal consumer] driven by a sibling signal source component",
+        "Exclusive Types":  [
+                                "ILightable",
+                                "IProduceLight"
+                            ]
+    },
+    {
+        "Component Type Name":  "Sling",
+        "Component Type Description":  "Makes an item a [ranged weapon] with sling mechanics",
+        "Exclusive Types":  [
+                                "IRangedWeapon",
+                                "IRangedWeaponWithUnreadyEvent",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Smokeable",
+        "Component Type Description":  "Item can be [lit] and subsequently [smoked]",
+        "Exclusive Types":  [
+                                "ILightable",
+                                "ISmokeable"
+                            ]
+    },
+    {
+        "Component Type Name":  "SolidFuelHeaterCooler",
+        "Component Type Description":  "A switchable thermal source that burns tagged solid fuel items one at a time",
+        "Exclusive Types":  [
+                                "IContainer"
+                            ]
+    },
+    {
+        "Component Type Name":  "StableTicket",
+        "Component Type Description":  "Marks an item as a [system-generated] stable ticket. Do not edit this component or use manually.",
+        "Exclusive Types":  [
+                                "IStableTicket"
+                            ]
+    },
+    {
+        "Component Type Name":  "Stackable",
+        "Component Type Description":  "Makes an item [stackable] (i.e. one item with quantity)",
+        "Exclusive Types":  [
+                                "IStackable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Syringe",
+        "Component Type Description":  "A [liquid container] that can be used to [inject] the liquid into someone",
+        "Exclusive Types":  [
+                                "IInject",
+                                "ILiquidContainer",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Table",
+        "Component Type Description":  "Makes an item into a [table]",
+        "Exclusive Types":  [
+                                "IFlip",
+                                "IProvideCover",
+                                "ITable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Tape",
+        "Component Type Description":  "A reusable [audio storage medium] that can hold recorded speech for answering machines and future devices",
+        "Exclusive Types":  [
+                                "IAudioStorageTape"
+                            ]
+    },
+    {
+        "Component Type Name":  "TelecommunicationsGridCreator",
+        "Component Type Description":  "When put in a room, creates a [telecommunications grid]",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "TelecommunicationsGridFeeder",
+        "Component Type Description":  "Item lets [powered] sources feed into a [telecommunications grid]",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "TelecommunicationsGridOutlet",
+        "Component Type Description":  "Item [provides telephone service and grid power] to connected telecom devices from a [telecommunications grid]",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Telephone",
+        "Component Type Description":  "Connects an item to a [telecommunications grid] and allows ringing, answering and live calls. It can also expose physical telecom connectors.",
+        "Exclusive Types":  [
+                                "IReceive",
+                                "ITelephone",
+                                "ITransmit"
+                            ]
+    },
+    {
+        "Component Type Name":  "TemperatureSensor",
+        "Component Type Description":  "A [powered] [signal generator] that emits current ambient temperature in Celsius",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Thrown",
+        "Component Type Description":  "Makes an item a [ranged weapon] with throwing weapon mechanics",
+        "Exclusive Types":  [
+                                "IMeleeWeapon",
+                                "IRangedWeapon",
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "TimePiece",
+        "Component Type Description":  "Turns the item into a [timepiece] that displays the time",
+        "Exclusive Types":  [
+                                "ITimePiece"
+                            ]
+    },
+    {
+        "Component Type Name":  "TimerSensor",
+        "Component Type Description":  "A [powered] [signal generator] that emits a repeating active/inactive signal cycle",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "ToggleSwitch",
+        "Component Type Description":  "A [switchable] [signal generator] persistent signal input for computer-controlled items",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "TopicalCream",
+        "Component Type Description":  "A cream that can be [applied] to deliver drugs via touch",
+        "Exclusive Types":  [
+                                "IApply"
+                            ]
+    },
+    {
+        "Component Type Name":  "Torch",
+        "Component Type Description":  "A [light source] that can burn for some time once [lit]",
+        "Exclusive Types":  [
+                                "ILightable",
+                                "IProduceLight"
+                            ]
+    },
+    {
+        "Component Type Name":  "Treatment",
+        "Component Type Description":  "A kit that can be used for medical treatments like suturing, binding, cleaning, etc",
+        "Exclusive Types":  [
+                                "ITreatment"
+                            ]
+    },
+    {
+        "Component Type Name":  "UnlimitedGenerator",
+        "Component Type Description":  "An item that [produces power] by its very nature",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "Variable",
+        "Component Type Description":  "Gives an item [characteristics] (a.k.a. variables) that can be randomised.",
+        "Exclusive Types":  [
+                                "IVariable"
+                            ]
+    },
+    {
+        "Component Type Name":  "VariableChanger",
+        "Component Type Description":  "Changes the values of one characteristic to others when worn, combined with a [wearable]",
+        "Exclusive Types":  [
+                                "IChangeCharacteristics",
+                                "IVariable"
+                            ]
+    },
+    {
+        "Component Type Name":  "VendingMachine",
+        "Component Type Description":  "An [container] item that allows players to [insert] money and [select] options to vend",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "IInsertable",
+                                "IListable",
+                                "ISelectable",
+                                "IVendingMachine"
+                            ]
+    },
+    {
+        "Component Type Name":  "WashingMachine",
+        "Component Type Description":  "A [powered] machine that is a [container] that washes items",
+        "Exclusive Types":  [
+                                "IContainer",
+                                "ILiquidContainer",
+                                "ILockable",
+                                "IOpenable",
+                                "ISelectable"
+                            ]
+    },
+    {
+        "Component Type Name":  "WaterSource",
+        "Component Type Description":  "Makes the item a self-replenishing [liquid container]",
+        "Exclusive Types":  [
+                                "ILiquidContainer",
+                                "ILockable",
+                                "IOpenable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Wearable",
+        "Component Type Description":  "Turns the item into a [wearable]",
+        "Exclusive Types":  [
+                                "IWearable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Wieldable",
+        "Component Type Description":  "Makes the item able to be wielded, even though it\u0027s not a weapon. Use for props.",
+        "Exclusive Types":  [
+                                "IWieldable"
+                            ]
+    },
+    {
+        "Component Type Name":  "Wireless Modem",
+        "Component Type Description":  "Makes an item a [powered] cellular-backed wireless network modem for a computer host",
+        "Exclusive Types":  [
+
+                            ]
+    },
+    {
+        "Component Type Name":  "WornTraitChanger",
+        "Component Type Description":  "When worn, gives bonus/penalty to skills or attributes. Must be combined with a [wearable]",
+        "Exclusive Types":  [
+                                "IChangeTraitsInInventory"
+                            ]
+    },
+    {
+        "Component Type Name":  "ZeroGravityAnchor",
+        "Component Type Description":  "A fixed item usable as a zero-gravity push-off anchor.",
+        "Exclusive Types":  [
+                                "IZeroGravityAnchorItem"
+                            ]
+    },
+    {
+        "Component Type Name":  "ZeroGravityTether",
+        "Component Type Description":  "A zero-gravity tether line with a maximum room length.",
+        "Exclusive Types":  [
+                                "IZeroGravityTetherItem"
+                            ]
+    }
+]

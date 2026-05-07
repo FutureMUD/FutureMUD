@@ -700,6 +700,11 @@
         "Component Type":  "Book"
     },
     {
+        "Component Name":  "Shortbow",
+        "Component Description":  "Turns an item into a shortbow",
+        "Component Type":  "Bow"
+    },
+    {
         "Component Name":  "Longbow",
         "Component Description":  "Turns an item into a longbow",
         "Component Type":  "Bow"
@@ -767,6 +772,11 @@
     {
         "Component Name":  "Insulation_Balanced_Warm",
         "Component Description":  "Makes garment a warm and moderately reflective all-rounder.",
+        "Component Type":  "ClothingInsulation"
+    },
+    {
+        "Component Name":  "Insulation_Minor",
+        "Component Description":  "Makes garment a minor insulator",
         "Component Type":  "ClothingInsulation"
     },
     {
@@ -1252,6 +1262,11 @@
     {
         "Component Name":  "Destroyable_HeavyMetal",
         "Component Description":  "Turns an item into a heavy metal object.",
+        "Component Type":  "Destroyable"
+    },
+    {
+        "Component Name":  "Destroyable_Misc",
+        "Component Description":  "Makes an item destroyable. Relatively low HP, for miscellaneous items",
         "Component Type":  "Destroyable"
     },
     {
@@ -2325,6 +2340,11 @@
         "Component Type":  "GridPowerSupply"
     },
     {
+        "Component Name":  "Pistol_9mm",
+        "Component Description":  "Turns an item into a 9mm Pistol",
+        "Component Type":  "Gun"
+    },
+    {
         "Component Name":  "Pistol_25ACP",
         "Component Description":  "Turns an item into a .25 ACP Pistol",
         "Component Type":  "Gun"
@@ -2353,6 +2373,16 @@
         "Component Name":  "HandheldRadio_Standard",
         "Component Description":  "Turns an item into a battery-powered handheld two-way radio.",
         "Component Type":  "HandheldRadio"
+    },
+    {
+        "Component Name":  "Glasses",
+        "Component Description":  "Makes item correct Myopia flaws",
+        "Component Type":  "Glasses"
+    },
+    {
+        "Component Name":  "FullFaceObscurer",
+        "Component Description":  "Makes garment hide wearer\u0027s identity and change descriptions, including whole face",
+        "Component Type":  "IdentityObscurer"
     },
     {
         "Component Name":  "CharacteristicMaskingObscurer",
@@ -3560,6 +3590,11 @@
         "Component Type":  "Musket"
     },
     {
+        "Component Name":  "Pistol_Flintlock65",
+        "Component Description":  "Turns an item into a 65 Bore Flintlock Pistol",
+        "Component Type":  "Musket"
+    },
+    {
         "Component Name":  "Pistol_Flintlock55",
         "Component Description":  "Turns an item into a 55 Bore Flintlock Pistol",
         "Component Type":  "Musket"
@@ -4185,6 +4220,26 @@
         "Component Type":  "SolidFuelHeaterCooler"
     },
     {
+        "Component Name":  "Holdable",
+        "Component Description":  "This component makes an item able to be picked up",
+        "Component Type":  "Holdable"
+    },
+    {
+        "Component Name":  "CurrencyPile",
+        "Component Description":  "This is used for the readonly currency-pile template",
+        "Component Type":  "Currency Pile"
+    },
+    {
+        "Component Name":  "Corpse",
+        "Component Description":  "This is used for the readonly corpse template",
+        "Component Type":  "Corpse"
+    },
+    {
+        "Component Name":  "Bodypart",
+        "Component Description":  "This is used for the readonly severed bodypart template",
+        "Component Type":  "Bodypart"
+    },
+    {
         "Component Name":  "Stack_Number",
         "Component Description":  "Makes an item stack and uses (xN) style description after",
         "Component Type":  "Stackable"
@@ -4193,6 +4248,21 @@
         "Component Name":  "Stack_Pile",
         "Component Description":  "Makes an item stack using piles, e.g. a sword, a few swords, several swords, etc.",
         "Component Type":  "Stackable"
+    },
+    {
+        "Component Name":  "ActiveCraft",
+        "Component Description":  "This item is used only for system generated craft progress items.",
+        "Component Type":  "ActiveCraft"
+    },
+    {
+        "Component Name":  "Pile",
+        "Component Description":  "This item is used only for system generated pile items.",
+        "Component Type":  "Pile"
+    },
+    {
+        "Component Name":  "Commodity",
+        "Component Description":  "This item is used only for system generated commodity items.",
+        "Component Type":  "Commodity"
     },
     {
         "Component Name":  "Syringe_0.25ml",
@@ -4710,93 +4780,763 @@
         "Component Type":  "WaterSource"
     },
     {
-        "Component Name":  "Wear_Profile_Armour",
-        "Component Description":  "Permits the item to be worn in the armour wear configuration",
+        "Component Name":  "Wear_Ankle_Socks",
+        "Component Description":  "Permits the item to be worn in the Ankle Socks wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Back",
-        "Component Description":  "Permits the item to be worn in the back wear configuration",
+        "Component Name":  "Wear_Anklet",
+        "Component Description":  "Permits the item to be worn in the Anklet wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Chest",
-        "Component Description":  "Permits the item to be worn in the chest wear configuration",
+        "Component Name":  "Wear_Anklets",
+        "Component Description":  "Permits the item to be worn in the Anklets wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Direct",
-        "Component Description":  "Permits the item to be worn in the direct wear configuration",
+        "Component Name":  "Wear_Apron",
+        "Component Description":  "Permits the item to be worn in the Apron wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Ears",
-        "Component Description":  "Permits the item to be worn in the ears wear configuration",
+        "Component Name":  "Wear_Armet",
+        "Component Description":  "Permits the item to be worn in the Armet wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Eyes",
-        "Component Description":  "Permits the item to be worn in the eyes wear configuration",
+        "Component Name":  "Wear_Armlet",
+        "Component Description":  "Permits the item to be worn in the Armlet wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Face",
-        "Component Description":  "Permits the item to be worn in the face wear configuration",
+        "Component Name":  "Wear_Aventail_Spangenhelm",
+        "Component Description":  "Permits the item to be worn in the Aventail Spangenhelm wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Feet",
-        "Component Description":  "Permits the item to be worn in the feet wear configuration",
+        "Component Name":  "Wear_Backless_Bodysuit",
+        "Component Description":  "Permits the item to be worn in the Backless Bodysuit wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Finger",
-        "Component Description":  "Permits the item to be worn in the finger wear configuration",
+        "Component Name":  "Wear_Backless_Dress",
+        "Component Description":  "Permits the item to be worn in the Backless Dress wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_FullBody",
-        "Component Description":  "Permits the item to be worn in the fullbody wear configuration",
+        "Component Name":  "Wear_Backless_Gown",
+        "Component Description":  "Permits the item to be worn in the Backless Gown wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Hands",
-        "Component Description":  "Permits the item to be worn in the hands wear configuration",
+        "Component Name":  "Wear_Backpack",
+        "Component Description":  "Permits the item to be worn in the Backpack wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Head",
-        "Component Description":  "Permits the item to be worn in the head wear configuration",
+        "Component Name":  "Wear_Backplate",
+        "Component Description":  "Permits the item to be worn in the Backplate wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Legs",
-        "Component Description":  "Permits the item to be worn in the legs wear configuration",
+        "Component Name":  "Wear_Balaclava",
+        "Component Description":  "Permits the item to be worn in the Balaclava wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Mouth",
-        "Component Description":  "Permits the item to be worn in the mouth wear configuration",
+        "Component Name":  "Wear_Bandana",
+        "Component Description":  "Permits the item to be worn as Headband or Kerchief or Armlet",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Neck",
-        "Component Description":  "Permits the item to be worn in the neck wear configuration",
+        "Component Name":  "Wear_Bandolier",
+        "Component Description":  "Permits the item to be worn in the Bandolier wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Shoulders",
-        "Component Description":  "Permits the item to be worn in the shoulders wear configuration",
+        "Component Name":  "Wear_Barbute_Helmet",
+        "Component Description":  "Permits the item to be worn in the Barbute Helmet wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Waist",
-        "Component Description":  "Permits the item to be worn in the waist wear configuration",
+        "Component Name":  "Wear_Bellybutton_Ring",
+        "Component Description":  "Permits the item to be worn in the Bellybutton Ring wear configuration",
         "Component Type":  "Wearable"
     },
     {
-        "Component Name":  "Wear_Profile_Wrist",
-        "Component Description":  "Permits the item to be worn in the wrist wear configuration",
+        "Component Name":  "Wear_Bevor",
+        "Component Description":  "Permits the item to be worn in the Bevor wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Blindfold",
+        "Component Description":  "Permits the item to be worn in the Blindfold wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bodysuit",
+        "Component Description":  "Permits the item to be worn in the Bodysuit wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bodysuit_Thong",
+        "Component Description":  "Permits the item to be worn in the Bodysuit Thong wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Boots",
+        "Component Description":  "Permits the item to be worn in the Boots wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bound_Feet",
+        "Component Description":  "Permits the item to be worn in the Bound Feet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bound_Hands",
+        "Component Description":  "Permits the item to be worn in the Bound Hands wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bound_Head",
+        "Component Description":  "Permits the item to be worn in the Bound Head wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bound_Knees",
+        "Component Description":  "Permits the item to be worn in the Bound Knees wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bound_Torso",
+        "Component Description":  "Permits the item to be worn in the Bound Torso wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bowtie",
+        "Component Description":  "Permits the item to be worn in the Bowtie wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bra",
+        "Component Description":  "Permits the item to be worn in the Bra wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bracelet",
+        "Component Description":  "Permits the item to be worn in the Bracelet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bracelets",
+        "Component Description":  "Permits the item to be worn in the Bracelets wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bracer",
+        "Component Description":  "Permits the item to be worn in the Bracer wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Bracers",
+        "Component Description":  "Permits the item to be worn in the Bracers wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Brassarts",
+        "Component Description":  "Permits the item to be worn in the Brassarts wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Breastplate",
+        "Component Description":  "Permits the item to be worn in the Breastplate wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Briefs",
+        "Component Description":  "Permits the item to be worn in the Briefs wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Brow_Ring",
+        "Component Description":  "Permits the item to be worn in the Brow Ring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Cape",
+        "Component Description":  "Permits the item to be worn in the Cape wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Capris",
+        "Component Description":  "Permits the item to be worn in the Capris wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Chaps",
+        "Component Description":  "Permits the item to be worn in the Chaps wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Chausses",
+        "Component Description":  "Permits the item to be worn in the Chausses wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Choker",
+        "Component Description":  "Permits the item to be worn in the Choker wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Cloak_(Closed)",
+        "Component Description":  "Permits the item to be worn in the Cloak (Closed) wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Cloak_(Open)",
+        "Component Description":  "Permits the item to be worn in the Cloak (Open) wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Coif",
+        "Component Description":  "Permits the item to be worn in the Coif wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Corinthian_Helmet",
+        "Component Description":  "Permits the item to be worn in the Corinthian Helmet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Couters",
+        "Component Description":  "Permits the item to be worn in the Couters wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Cuirass",
+        "Component Description":  "Permits the item to be worn in the Cuirass wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Cuisses",
+        "Component Description":  "Permits the item to be worn in the Cuisses wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Culeted_Cuirass",
+        "Component Description":  "Permits the item to be worn in the Culeted Cuirass wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Doublet",
+        "Component Description":  "Permits the item to be worn in the Doublet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Dress",
+        "Component Description":  "Permits the item to be worn in the Dress wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Earring",
+        "Component Description":  "Permits the item to be worn in the Earring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Earrings",
+        "Component Description":  "Permits the item to be worn in the Earrings wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Epaulette",
+        "Component Description":  "Permits the item to be worn in the Epaulette wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Eyes",
+        "Component Description":  "Permits the item to be worn in the Eyes wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Faulded_Cuirass",
+        "Component Description":  "Permits the item to be worn in the Faulded Cuirass wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Fingerless_Gloves",
+        "Component Description":  "Permits the item to be worn in the Fingerless Gloves wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Gag",
+        "Component Description":  "Permits the item to be worn in the Gag wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Gauntlets",
+        "Component Description":  "Permits the item to be worn in the Gauntlets wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Glasses",
+        "Component Description":  "Permits the item to be worn in the Glasses wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Gloves",
+        "Component Description":  "Permits the item to be worn in the Gloves wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Gorget",
+        "Component Description":  "Permits the item to be worn in the Gorget wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Gown",
+        "Component Description":  "Permits the item to be worn in the Gown wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Greathelm",
+        "Component Description":  "Permits the item to be worn in the Greathelm wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Greaves",
+        "Component Description":  "Permits the item to be worn in the Greaves wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Half_Helmet",
+        "Component Description":  "Permits the item to be worn in the Half Helmet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Half_Mask",
+        "Component Description":  "Permits the item to be worn in the Half Mask wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hat",
+        "Component Description":  "Permits the item to be worn in the Hat wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Haubergeon",
+        "Component Description":  "Permits the item to be worn in the Haubergeon wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hauberk",
+        "Component Description":  "Permits the item to be worn in the Hauberk wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Headband",
+        "Component Description":  "Permits the item to be worn in the Headband wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Helmet",
+        "Component Description":  "Permits the item to be worn in the Helmet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_High_Boots",
+        "Component Description":  "Permits the item to be worn in the High Boots wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hoodie",
+        "Component Description":  "Permits the item to be worn in the Hoodie wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Jacket",
+        "Component Description":  "Permits the item to be worn in the Jacket wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Jerkin",
+        "Component Description":  "Permits the item to be worn in the Jerkin wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Jumpsuit",
+        "Component Description":  "Permits the item to be worn in the Jumpsuit wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Kerchief",
+        "Component Description":  "Permits the item to be worn in the Kerchief wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Knee-High_Stockings",
+        "Component Description":  "Permits the item to be worn in the Knee-High Stockings wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Leggings",
+        "Component Description":  "Permits the item to be worn in the Leggings wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Lip_Ring",
+        "Component Description":  "Permits the item to be worn in the Lip Ring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Loincloth",
+        "Component Description":  "Permits the item to be worn in the Loincloth wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long_Coat",
+        "Component Description":  "Permits the item to be worn in the Long Coat wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long_Skirt",
+        "Component Description":  "Permits the item to be worn in the Long Skirt wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long_Socks",
+        "Component Description":  "Permits the item to be worn in the Long Socks wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long-Sleeved_Dress",
+        "Component Description":  "Permits the item to be worn in the Long-Sleeved Dress wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long-Sleeved_Gown",
+        "Component Description":  "Permits the item to be worn in the Long-Sleeved Gown wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Long-Sleeved_Tunic",
+        "Component Description":  "Permits the item to be worn in the Long-Sleeved Tunic wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Mantle",
+        "Component Description":  "Permits the item to be worn in the Mantle wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Mask",
+        "Component Description":  "Permits the item to be worn in the Mask wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Mini_Skirt",
+        "Component Description":  "Permits the item to be worn in the Mini Skirt wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Mittens",
+        "Component Description":  "Permits the item to be worn in the Mittens wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Nasal_Helm",
+        "Component Description":  "Permits the item to be worn in the Nasal Helm wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Nasal_Spangenhelm",
+        "Component Description":  "Permits the item to be worn in the Nasal Spangenhelm wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Necklace",
+        "Component Description":  "Permits the item to be worn in the Necklace wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Necktie",
+        "Component Description":  "Permits the item to be worn in the Necktie wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Nipple_Ring",
+        "Component Description":  "Permits the item to be worn in the Nipple Ring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Niqab",
+        "Component Description":  "Permits the item to be worn in the Niqab wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Nose_Ring",
+        "Component Description":  "Permits the item to be worn in the Nose Ring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Open_Armet",
+        "Component Description":  "Permits the item to be worn in the Open Armet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Open_Sallet_Helmet",
+        "Component Description":  "Permits the item to be worn in the Open Sallet Helmet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Open-Toed_Shoes",
+        "Component Description":  "Permits the item to be worn in the Open-Toed Shoes wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Pauldrons",
+        "Component Description":  "Permits the item to be worn in the Pauldrons wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Penis_Ring",
+        "Component Description":  "Permits the item to be worn in the Penis Ring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Pixane",
+        "Component Description":  "Permits the item to be worn in the Pixane wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Plackart",
+        "Component Description":  "Permits the item to be worn in the Plackart wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Poleyns",
+        "Component Description":  "Permits the item to be worn in the Poleyns wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Poncho",
+        "Component Description":  "Permits the item to be worn in the Poncho wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Ring",
+        "Component Description":  "Permits the item to be worn in the Ring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Robe",
+        "Component Description":  "Permits the item to be worn in the Robe wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sabatons",
+        "Component Description":  "Permits the item to be worn in the Sabatons wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sack_Hood",
+        "Component Description":  "Permits the item to be worn in the Sack Hood wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sallet_Helmet",
+        "Component Description":  "Permits the item to be worn in the Sallet Helmet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sandals",
+        "Component Description":  "Permits the item to be worn in the Sandals wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sash",
+        "Component Description":  "Permits the item to be worn in the Sash wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Scarf",
+        "Component Description":  "Permits the item to be worn in the Scarf wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shirt",
+        "Component Description":  "Permits the item to be worn in the Shirt wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shoes",
+        "Component Description":  "Permits the item to be worn in the Shoes wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Short_Skirt",
+        "Component Description":  "Permits the item to be worn in the Short Skirt wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shorts",
+        "Component Description":  "Permits the item to be worn in the Shorts wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shoulder",
+        "Component Description":  "Permits the item to be worn in the Shoulder wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Shoulders",
+        "Component Description":  "Permits the item to be worn in the Shoulders wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Skirt",
+        "Component Description":  "Permits the item to be worn in the Skirt wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Skullcap",
+        "Component Description":  "Permits the item to be worn in the Skullcap wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sleeveless_Dress",
+        "Component Description":  "Permits the item to be worn in the Sleeveless Dress wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sleeveless_Gown",
+        "Component Description":  "Permits the item to be worn in the Sleeveless Gown wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sleeveless_Mantle",
+        "Component Description":  "Permits the item to be worn in the Sleeveless Mantle wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sleeveless_Tunic",
+        "Component Description":  "Permits the item to be worn in the Sleeveless Tunic wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Socks",
+        "Component Description":  "Permits the item to be worn in the Socks wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Spangenhelm",
+        "Component Description":  "Permits the item to be worn in the Spangenhelm wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Spaulders",
+        "Component Description":  "Permits the item to be worn in the Spaulders wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Stockings",
+        "Component Description":  "Permits the item to be worn in the Stockings wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Strapless_Bra",
+        "Component Description":  "Permits the item to be worn in the Strapless Bra wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Strapless_Dress",
+        "Component Description":  "Permits the item to be worn in the Strapless Dress wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Strapless_Gown",
+        "Component Description":  "Permits the item to be worn in the Strapless Gown wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Sunglasses",
+        "Component Description":  "Permits the item to be worn in the Sunglasses wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Tabard",
+        "Component Description":  "Permits the item to be worn in the Tabard wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Thong",
+        "Component Description":  "Permits the item to be worn in the Thong wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Tights",
+        "Component Description":  "Permits the item to be worn in the Tights wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Toe_Ring",
+        "Component Description":  "Permits the item to be worn in the Toe Ring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Tongue_Ring",
+        "Component Description":  "Permits the item to be worn in the Tongue Ring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Trousers",
+        "Component Description":  "Permits the item to be worn in the Trousers wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_T-Shirt",
+        "Component Description":  "Permits the item to be worn in the T-Shirt wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Tunic",
+        "Component Description":  "Permits the item to be worn in the Tunic wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Turban",
+        "Component Description":  "Permits the item to be worn in the Turban wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Vambraces",
+        "Component Description":  "Permits the item to be worn in the Vambraces wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Veil",
+        "Component Description":  "Permits the item to be worn in the Veil wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Vest",
+        "Component Description":  "Permits the item to be worn in the Vest wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Visored_Barbute_Helmet",
+        "Component Description":  "Permits the item to be worn in the Visored Barbute Helmet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Waist",
+        "Component Description":  "Permits the item to be worn in the Waist wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Wig",
+        "Component Description":  "Permits the item to be worn in the Wig wear configuration",
         "Component Type":  "Wearable"
     },
     {

@@ -20,6 +20,8 @@ Items in FutureMUD are composed of Item Components that give them functionality.
 
 - All three of the descriptions can have trait check blocks that will be substitued by the viewer depending on their skills. See the [Trait Checks](#Trait-Checks) section for details.
 
+- Items can also have "Additional Descriptions" that are gated behind progs that return boolean and accept a character as an input. If the prog returns true, the extra text is appended to the description. This could be used to reveal information relevant to classes (e.g. a thief might see an extra description on an item that says the enforcers in the thieves guild will pay for any of these they bring to them, etc)
+
 ### Physical Properties
 
 - All items have a weight, which is stored in grams. This is the weight of the item itself; for example a container adds the weight of its content, so its weight property is its own inherent weight.
@@ -30,7 +32,44 @@ Items in FutureMUD are composed of Item Components that give them functionality.
 
 - All items have a size. This is an abstraction that gives cues to certain systems in the engine about how big and bulky an item is. Many other things in the world also have sizes or size limits using the same values. See [Size Values](#size-values) for a complete list.
 
+### Classification Properties
+
 - Items can have an inherent base cost. While this price can be overriden when the item is sold and can also be modified by many factors, this is the default base cost for the item. The specific values are MUD context dependent because 1 "base currency unit" will mean different things for different MUDs. It is not mandatory for an item to have a cost.
+
+- Items can be marked as permitting player skins or not. See [Skins](#skins) for information on skins. Most items should be skinnable if they're an end product and/or manufactured good. Intermediate products and raw materials should generally not be skinnable.
+
+- Items can be marked as hidden from players. This works with both the discoverable items for creating skins, as well as the ability for players to search for items that have particular tags. 
+
+- Items can have zero or more tags. Tags are hierarchical, so the tag "Spindle" might also belong to "Spinning Tools", which itself belongs to "Textilecraft Tools", which itself belongs to "Tools". If someone checked whether an item was a "Spinning Tool", items flagged as "Spindle" would report true. Many systems use tags as a way of marking items as suitable for particular tasks.
+
+## Item Components
+
+- Item components are added to items to give them functionality
+
+- Some item component types are mutually exclusive with each other and you can usually only put one of each type on an item (e.g. no more than one IContainer, IOpenable, IMeleeWeapon etc).
+
+- A full list of item component types available is in [Item Component Types](./Item_Component_Types.json)
+
+- A full list of available item component prototypes to attach to items is in [Seeded Item Components](./Seeded_Item_Components.json)
+
+## Supporting Information
+
+### Skins
+
+Skins provide presentation variation without duplicating item behaviour definitions.
+
+An item skin can override:
+- item name
+- short description
+- long description
+- full description
+- quality
+
+Skins are important whenever:
+- behaviour should stay constant but appearance should vary
+- players or builders need cosmetic variants
+- content should be customised without cloning behaviour-heavy item prototypes
+- Players themselves can write the variants with optional admin review and approval, rather than relying solely on an admin builder workflow
 
 ### Writing Blocks
 
@@ -91,17 +130,17 @@ The complete list of qualities and their associated numeric values are as follow
 
 The complete list of sizes, their associated numeric values and examples of things that would be that size are as follows:
 
-- Nanoscopic = 0,
-- Microscopic = 1,
-- Miniscule = 2,
-- Tiny = 3,
-- VerySmall = 4 -> 
+- Nanoscopic = 0 -> amoeba, bacteria
+- Microscopic = 1 -> dust motes, mites
+- Miniscule = 2 -> microchips, splinters
+- Tiny = 3 -> coins, notes, marbles, nails
+- VerySmall = 4 -> pouches, wallets, watches
 - Small = 5 -> underwear, hats, bags, daggers, shoes, phones
-- Normal = 6 -> shirts, dresses, backpacks, swords, shields, computers
-- Large = 7,
-- VeryLarge = 8,
-- Huge = 9,
-- Enormous = 10,
-- Gigantic = 11,
-- Titanic = 12
+- Normal = 6 -> shirts, dresses, backpacks, swords, shields, computers, chairs
+- Large = 7 -> humans, polearms, doors, trunks, fridges, motorbikes
+- VeryLarge = 8 -> ogres, sofas, cars
+- Huge = 9 -> giants, trucks, trains
+- Enormous = 10 -> dragons, small ships, normal buildings, jumbo jets
+- Gigantic = 11 -> ships, skyscrapers
+- Titanic = 12 -> world trees, generation ships, titans
 

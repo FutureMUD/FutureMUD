@@ -1536,8 +1536,30 @@ public partial class Body
         return true;
     }
 
+    private IEnumerable<IHandleEvents> FilterWitnessHandlers(IEnumerable<IHandleEvents> explicitWitnessHandlers,
+        params IHandleEvents[] excluded)
+    {
+        return explicitWitnessHandlers is null
+            ? Location.EventHandlers.Except(excluded)
+            : explicitWitnessHandlers.Except(excluded);
+    }
+
+    private IEnumerable<IGameItem> FilterExternalItemWitnesses(IEnumerable<IHandleEvents> explicitWitnessHandlers,
+        params IGameItem[] excluded)
+    {
+        return explicitWitnessHandlers is null
+            ? ExternalItems.Except(excluded)
+            : explicitWitnessHandlers.OfType<IGameItem>().Except(excluded);
+    }
+
     public void Get(IGameItem item, int quantity = 0, IEmote? playerEmote = null, bool silent = false,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
+    {
+        Get(item, quantity, playerEmote, silent, ignoreFlags, null);
+    }
+
+    public IGameItem? Get(IGameItem item, int quantity, IEmote? playerEmote, bool silent,
+        ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers)
     {
         if (!CanGet(item, quantity, ignoreFlags))
         {
@@ -1546,7 +1568,7 @@ public partial class Body
                 OutputHandler.Send(WhyCannotGet(item, quantity, ignoreFlags));
             }
 
-            return;
+            return null;
         }
 
         MixedEmoteOutput output;
@@ -1626,21 +1648,28 @@ public partial class Body
         // Handle events
         HandleEvent(EventType.CharacterGotItem, Actor, gottenItem);
         gottenItem.HandleEvent(EventType.ItemGotten, Actor, gottenItem);
-        foreach (IHandleEvents witness in Location.EventHandlers.Except(Actor))
+        foreach (IHandleEvents witness in FilterWitnessHandlers(witnessHandlers, Actor))
         {
             witness.HandleEvent(EventType.CharacterGotItemWitness, Actor, gottenItem, witness);
         }
 
-        foreach (IGameItem witness in ExternalItems.Except(gottenItem))
+        foreach (IGameItem witness in FilterExternalItemWitnesses(witnessHandlers, gottenItem))
         {
             witness.HandleEvent(EventType.CharacterGotItemWitness, Actor, gottenItem, witness);
         }
 
         CheckConsequences();
+        return gottenItem;
     }
 
     public void Get(IGameItem item, IGameItem containerItem, int quantity = 0, IEmote? playerEmote = null,
         bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
+    {
+        Get(item, containerItem, quantity, playerEmote, silent, ignoreFlags, null);
+    }
+
+    public IGameItem? Get(IGameItem item, IGameItem containerItem, int quantity, IEmote? playerEmote, bool silent,
+        ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers)
     {
         if (!CanGet(item, containerItem, quantity, ignoreFlags))
         {
@@ -1649,7 +1678,7 @@ public partial class Body
                 OutputHandler.Send(WhyCannotGet(item, containerItem, quantity, ignoreFlags));
             }
 
-            return;
+            return null;
         }
 
         IContainer containerComp = containerItem.GetItemType<IContainer>();
@@ -1694,17 +1723,18 @@ public partial class Body
         // Handle events
         HandleEvent(EventType.CharacterGotItemContainer, Actor, takenItem, containerItem);
         takenItem.HandleEvent(EventType.ItemGottenContainer, Actor, takenItem, containerItem);
-        foreach (IHandleEvents witness in Location.EventHandlers.Except(Actor))
+        foreach (IHandleEvents witness in FilterWitnessHandlers(witnessHandlers, Actor))
         {
             witness.HandleEvent(EventType.CharacterGotItemContainerWitness, Actor, takenItem, containerItem, witness);
         }
 
-        foreach (IGameItem witness in ExternalItems.Except(new[] { takenItem, containerItem }))
+        foreach (IGameItem witness in FilterExternalItemWitnesses(witnessHandlers, takenItem, containerItem))
         {
             witness.HandleEvent(EventType.CharacterGotItemContainerWitness, Actor, takenItem, containerItem, witness);
         }
 
         CheckConsequences();
+        return takenItem;
     }
 
     public void UpdateDescriptionHeld(IGameItem item)
@@ -1798,10 +1828,16 @@ public partial class Body
         IEmote? playerEmote = null,
         bool silent = false, bool allowLesserAmounts = true)
     {
+        Put(item, container, containerOwner, quantity, playerEmote, silent, allowLesserAmounts, null);
+    }
+
+    public IGameItem? Put(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity,
+        IEmote? playerEmote, bool silent, bool allowLesserAmounts, IEnumerable<IHandleEvents> witnessHandlers)
+    {
         if (container.IsItemType<ICorpse>())
         {
             Put(item, container, "", playerEmote);
-            return;
+            return null;
         }
 
         if (!CanPut(item, container, containerOwner, quantity, allowLesserAmounts))
@@ -1811,7 +1847,7 @@ public partial class Body
                 OutputHandler.Send(WhyCannotPut(item, container, containerOwner, quantity, allowLesserAmounts));
             }
 
-            return;
+            return null;
         }
 
         IContainer containerComp = container.GetItemType<IContainer>();
@@ -1876,17 +1912,18 @@ public partial class Body
         // Handle events
         HandleEvent(EventType.CharacterPutItemContainer, Actor, putItem, container);
         putItem.HandleEvent(EventType.ItemPutContainer, Actor, putItem, container);
-        foreach (IHandleEvents witness in Location.EventHandlers.Except(Actor))
+        foreach (IHandleEvents witness in FilterWitnessHandlers(witnessHandlers, Actor))
         {
             witness.HandleEvent(EventType.CharacterPutItemContainerWitness, Actor, putItem, container, witness);
         }
 
-        foreach (IGameItem witness in ExternalItems.Except(new[] { putItem, container }))
+        foreach (IGameItem witness in FilterExternalItemWitnesses(witnessHandlers, putItem, container))
         {
             witness.HandleEvent(EventType.CharacterPutItemContainerWitness, Actor, putItem, container, witness);
         }
 
         CheckConsequences();
+        return putItem;
     }
 
     #region Corpse-Related Versions of Put
@@ -3665,10 +3702,16 @@ public partial class Body
     public void Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact, IEmote? playerEmote = null,
         bool silent = false)
     {
+        Get(currency, containerItem, amount, exact, playerEmote, silent, null);
+    }
+
+    public IGameItem? Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact,
+        IEmote? playerEmote, bool silent, IEnumerable<IHandleEvents> witnessHandlers)
+    {
         if (!CanGet(currency, containerItem, amount, exact))
         {
             OutputHandler.Send(WhyCannotGet(currency, containerItem, amount, exact));
-            return;
+            return null;
         }
 
         IContainer container = containerItem.GetItemType<IContainer>();
@@ -3693,15 +3736,21 @@ public partial class Body
             }
         }
 
-        Get(newItem, containerItem, playerEmote: playerEmote, silent: silent);
+        return Get(newItem, containerItem, 0, playerEmote, silent, ItemCanGetIgnore.None, witnessHandlers);
     }
 
     public void Get(ICurrency currency, decimal amount, bool exact, IEmote? playerEmote = null, bool silent = false)
     {
+        Get(currency, amount, exact, playerEmote, silent, null);
+    }
+
+    public IGameItem? Get(ICurrency currency, decimal amount, bool exact, IEmote? playerEmote, bool silent,
+        IEnumerable<IHandleEvents> witnessHandlers)
+    {
         if (!CanGet(currency, amount, exact))
         {
             OutputHandler.Send(WhyCannotGet(currency, amount, exact));
-            return;
+            return null;
         }
 
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
@@ -3721,7 +3770,7 @@ public partial class Body
             }
         }
 
-        Get(newItem, playerEmote: playerEmote, silent: silent);
+        return Get(newItem, 0, playerEmote, silent, ItemCanGetIgnore.None, witnessHandlers);
     }
 
     public bool CanPut(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact)
@@ -3779,10 +3828,16 @@ public partial class Body
         IEmote? playerEmote = null,
         bool silent = false)
     {
+        Put(currency, container, containerOwner, amount, exact, playerEmote, silent, null);
+    }
+
+    public IGameItem? Put(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact,
+        IEmote? playerEmote, bool silent, IEnumerable<IHandleEvents> witnessHandlers)
+    {
         if (!CanPut(currency, container, containerOwner, amount, exact))
         {
             OutputHandler.Send(WhyCannotPut(currency, container, containerOwner, amount, exact));
-            return;
+            return null;
         }
 
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
@@ -3802,7 +3857,7 @@ public partial class Body
             }
         }
 
-        Put(newItem, container, containerOwner, playerEmote: playerEmote, silent: silent);
+        return Put(newItem, container, containerOwner, 0, playerEmote, silent, true, witnessHandlers);
     }
 
     public bool CanDrop(ICurrency currency, decimal amount, bool exact)

@@ -206,6 +206,7 @@ namespace MudSharp.RPG.Checks
         SensitivityPower = 197,
         SensitivityCapabilityRead = 198,
         PsychicBoltPower = 199,
+        StealCheck = 200, // Called when someone uses the steal command or palms into someone else's belongings
     }
 
     public enum FailIfTraitMissingType
@@ -241,6 +242,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.HideCheck:
                 case CheckType.SneakCheck:
                 case CheckType.PalmCheck:
+                case CheckType.StealCheck:
                 case CheckType.HideItemCheck:
                 case CheckType.UninstallDoorCheck:
                 case CheckType.ForageCheck:

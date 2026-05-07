@@ -33,6 +33,8 @@ Item-facing event surfaces include:
 - item health changes through `ItemDamaged` and `ItemDamagedWitness`
 - local witness variants that let rooms, characters, room items, and carried external items react through hooks or AI
 
+Inventory transfers can also be dispatched to an explicit witness set. This is used by stealth commands such as `palm` and `steal`: the underlying `Get` and `Put` mutations still raise the normal character/item inventory events, but witness variants are limited to characters who passed the stealth notice checks instead of automatically echoing to every event handler in the cell.
+
 When adding a new item event, keep the `EventInfoAttribute` metadata in `FutureMUDLibrary/Events/EventTypeEnum.cs` aligned with the actual dispatch arguments. The event metadata is the builder-facing contract used by `show event`, hook validation, and FutureProg compatibility checks.
 
 ### `IGameItemProto`

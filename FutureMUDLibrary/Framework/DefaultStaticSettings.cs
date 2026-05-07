@@ -240,6 +240,7 @@ public static class DefaultStaticSettings
             { "ElectricalConfigureTraitName", "Electronics" },
             { "ProgrammingToolTagName", "Standard Tools" },
             { "ElectricalToolTagName", "Standard Tools" },
+            { "CutPurseToolTagName", "Knife" },
             { "ProgrammingActionDurationSeconds", "30" },
             { "ElectricalInstallActionDurationSeconds", "20" },
             { "ElectricalConfigureActionDurationSeconds", "15" },

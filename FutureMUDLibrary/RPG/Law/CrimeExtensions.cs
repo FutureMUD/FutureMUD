@@ -123,6 +123,15 @@ namespace MudSharp.RPG.Law
             }
         }
 
+        public static void CheckPossibleCrimeAllAuthorities(ICharacter criminal, CrimeTypes crime, ICharacter victim,
+            IGameItem item, string additionalInformation, IEnumerable<ICharacter> witnesses, bool notifyVictim)
+        {
+            foreach (ILegalAuthority authority in criminal.Gameworld.LegalAuthorities)
+            {
+                authority.CheckPossibleCrime(criminal, crime, victim, item, additionalInformation, witnesses, notifyVictim);
+            }
+        }
+
         public static bool ShowMercyToIncapacitatedTarget(this EnforcementStrategy strategy)
         {
             switch (strategy)

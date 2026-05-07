@@ -1,6 +1,7 @@
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Economy.Currency;
+using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -396,12 +397,24 @@ namespace MudSharp.Body
         /// <returns>True if the grab succeeded</returns>
         void Get(IGameItem item, int quantity = 0, IEmote? playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
 
+        IGameItem? Get(IGameItem item, int quantity, IEmote? playerEmote, bool silent, ItemCanGetIgnore ignoreFlags,
+            IEnumerable<IHandleEvents> witnessHandlers);
+
         void Get(IGameItem item, IGameItem containerItem, int quantity = 0, IEmote? playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
+
+        IGameItem? Get(IGameItem item, IGameItem containerItem, int quantity, IEmote? playerEmote, bool silent,
+            ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers);
 
         void Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact, IEmote? playerEmote = null,
             bool silent = false);
 
+        IGameItem? Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact, IEmote? playerEmote,
+            bool silent, IEnumerable<IHandleEvents> witnessHandlers);
+
         void Get(ICurrency currency, decimal amount, bool exact, IEmote? playerEmote = null, bool silent = false);
+
+        IGameItem? Get(ICurrency currency, decimal amount, bool exact, IEmote? playerEmote, bool silent,
+            IEnumerable<IHandleEvents> witnessHandlers);
 
         void GetByWeight(IGameItem item, double weight, IEmote? playerEmote = null, bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None);
 
@@ -418,8 +431,14 @@ namespace MudSharp.Body
 
         void Put(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity = 0, IEmote? playerEmote = null, bool silent = false, bool allowLesserAmounts = true);
 
+        IGameItem? Put(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity,
+            IEmote? playerEmote, bool silent, bool allowLesserAmounts, IEnumerable<IHandleEvents> witnessHandlers);
+
         void Put(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact, IEmote? playerEmote = null,
             bool silent = false);
+
+        IGameItem? Put(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact,
+            IEmote? playerEmote, bool silent, IEnumerable<IHandleEvents> witnessHandlers);
 
         bool CanDrop(IGameItem item, int quantity);
 

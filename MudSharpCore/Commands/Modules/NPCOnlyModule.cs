@@ -17,6 +17,14 @@ namespace MudSharp.Commands.Modules;
 
 internal class NPCOnlyModule : Module<ICharacter>
 {
+	private const string TollHelpText = @"The #3toll#0 command is an NPC-only command used by NPCs with #6TollkeeperAI#0 to begin or stop imposing a toll on an exit.
+
+The syntax is:
+
+	#3toll <direction>#0 - begin tollkeeping for an exit
+	#3toll off#0 - stop tollkeeping
+	#3toll#0 - stop tollkeeping if already active";
+
     private NPCOnlyModule()
         : base("NPC Only")
     {
@@ -54,6 +62,66 @@ internal class NPCOnlyModule : Module<ICharacter>
             actor.AddEffect(new DoorguardMode(actor));
         }
     }
+
+	[PlayerCommand("Toll", "toll")]
+	[HelpInfo("toll", TollHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void Toll(ICharacter actor, string command)
+	{
+		if (actor is not INPC npc)
+		{
+			actor.OutputHandler.Send("You do not have any tollkeeper AI, and so cannot impose a toll.");
+			return;
+		}
+
+		var tollkeeperAis = npc.AIs.OfType<TollkeeperAI>().ToList();
+		if (!tollkeeperAis.Any())
+		{
+			actor.OutputHandler.Send("You do not have any tollkeeper AI, and so cannot impose a toll.");
+			return;
+		}
+
+		if (tollkeeperAis.All(x => !x.IsReadyToBeUsed))
+		{
+			actor.OutputHandler.Send("Your tollkeeper AI is not ready to be used yet.");
+			return;
+		}
+
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			if (actor.RemoveAllEffects<ITollkeeperModeEffect>(fireRemovalAction: true))
+			{
+				actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ are|is no longer imposing a toll.", actor)));
+				return;
+			}
+
+			actor.OutputHandler.Send("Which exit do you want to impose a toll on?");
+			return;
+		}
+
+		if (ss.SafeRemainingArgument.EqualToAny("off", "clear", "none", "stop"))
+		{
+			if (actor.RemoveAllEffects<ITollkeeperModeEffect>(fireRemovalAction: true))
+			{
+				actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ are|is no longer imposing a toll.", actor)));
+				return;
+			}
+
+			actor.OutputHandler.Send("You are not currently imposing a toll.");
+			return;
+		}
+
+		var exit = actor.Location.ExitsFor(actor, true).GetFromItemListByKeyword(ss.SafeRemainingArgument, actor);
+		if (exit is null)
+		{
+			actor.OutputHandler.Send("There is no such exit from your current location.");
+			return;
+		}
+
+		actor.RemoveAllEffects<ITollkeeperModeEffect>(fireRemovalAction: true);
+		actor.AddEffect(new TollkeeperMode(actor, exit));
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ begin|begins imposing a toll on the {exit.OutboundDirectionDescription} exit.", actor)));
+	}
 
     [PlayerCommand("Enforcer", "enforcer")]
     protected static void Enforcer(ICharacter actor, string command)

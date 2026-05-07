@@ -12,6 +12,12 @@
                  ]
     },
     {
+        "Material Name":  "acanthite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Silver Ore"
+                 ]
+    },
+    {
         "Material Name":  "acetal",
         "Tags":  [
                      "Materials / Manufactured Materials / Plastic"
@@ -97,6 +103,12 @@
                  ]
     },
     {
+        "Material Name":  "aluminium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
         "Material Name":  "amazonite",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
@@ -139,6 +151,12 @@
                  ]
     },
     {
+        "Material Name":  "anglesite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Lead Ore"
+                 ]
+    },
+    {
         "Material Name":  "animal skin",
         "Tags":  [
                      "Materials / Natural Materials / Animal Skin"
@@ -154,6 +172,12 @@
         "Material Name":  "anorthosite",
         "Tags":  [
                      "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "antimony",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
                  ]
     },
     {
@@ -193,9 +217,33 @@
                  ]
     },
     {
+        "Material Name":  "argentite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Silver Ore"
+                 ]
+    },
+    {
         "Material Name":  "arkose",
         "Tags":  [
                      "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "arsenic",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "arsenical bronze",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "arsenopyrite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Arsenic Ore"
                  ]
     },
     {
@@ -241,6 +289,12 @@
                  ]
     },
     {
+        "Material Name":  "azurite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Oxide Ore"
+                 ]
+    },
+    {
         "Material Name":  "bagel",
         "Tags":  [
                      "Materials / Natural Materials / Food / Baked Good"
@@ -259,6 +313,12 @@
                  ]
     },
     {
+        "Material Name":  "barite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Barium Ore"
+                 ]
+    },
+    {
         "Material Name":  "barley",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Food Crop"
@@ -274,6 +334,18 @@
         "Material Name":  "basil",
         "Tags":  [
                      "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "bastnasite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Rare Earth Ore"
+                 ]
+    },
+    {
+        "Material Name":  "bauxite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Aluminium Ore"
                  ]
     },
     {
@@ -338,15 +410,34 @@
                  ]
     },
     {
+        "Material Name":  "bell bronze",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Cast Metal"
+                 ]
+    },
+    {
         "Material Name":  "berry",
         "Tags":  [
                      "Materials / Natural Materials / Food / Fruit"
                  ]
     },
     {
+        "Material Name":  "bertrandite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Beryllium Ore"
+                 ]
+    },
+    {
         "Material Name":  "beryl",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "beryllium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {
@@ -359,6 +450,24 @@
         "Material Name":  "biscuit",
         "Tags":  [
                      "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "bismuth",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "bismuth bronze",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "bismuthinite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Bismuth Ore"
                  ]
     },
     {
@@ -440,6 +549,24 @@
                  ]
     },
     {
+        "Material Name":  "borax",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Boron Ore"
+                 ]
+    },
+    {
+        "Material Name":  "bornite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Sulphide Ore"
+                 ]
+    },
+    {
+        "Material Name":  "boron",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "borosilicate glass",
         "Tags":  [
                      "Materials / Manufactured Materials / Ceramic",
@@ -450,6 +577,18 @@
         "Material Name":  "boxwood",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "brass",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "braunite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Manganese Ore"
                  ]
     },
     {
@@ -486,6 +625,30 @@
         "Material Name":  "broccoli",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "brochantite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Oxide Ore"
+                 ]
+    },
+    {
+        "Material Name":  "bromine",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
+        "Material Name":  "bronze",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "brucite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Magnesium Ore"
                  ]
     },
     {
@@ -545,9 +708,21 @@
                  ]
     },
     {
+        "Material Name":  "cadmium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "cake",
         "Tags":  [
                      "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "calaverite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Gold Ore"
                  ]
     },
     {
@@ -599,6 +774,12 @@
                  ]
     },
     {
+        "Material Name":  "carbon steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
         "Material Name":  "cardamom",
         "Tags":  [
                      "Materials / Natural Materials / Food / Spice"
@@ -608,6 +789,12 @@
         "Material Name":  "cardboard",
         "Tags":  [
                      "Materials / Manufactured Materials / Paper Product"
+                 ]
+    },
+    {
+        "Material Name":  "carnallite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Magnesium Ore"
                  ]
     },
     {
@@ -632,6 +819,19 @@
         "Material Name":  "cassava",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "cassiterite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Tin Ore"
+                 ]
+    },
+    {
+        "Material Name":  "cast iron",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Iron Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Cast Metal"
                  ]
     },
     {
@@ -683,6 +883,12 @@
                  ]
     },
     {
+        "Material Name":  "celestite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Strontium Ore"
+                 ]
+    },
+    {
         "Material Name":  "ceramic",
         "Tags":  [
                      "Materials / Manufactured Materials / Ceramic",
@@ -696,6 +902,24 @@
                  ]
     },
     {
+        "Material Name":  "cerargyrite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Silver Ore"
+                 ]
+    },
+    {
+        "Material Name":  "cerussite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Lead Ore"
+                 ]
+    },
+    {
+        "Material Name":  "cesium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "chabazite",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Zeolite"
@@ -705,6 +929,18 @@
         "Material Name":  "chalcedony",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "chalcocite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Sulphide Ore"
+                 ]
+    },
+    {
+        "Material Name":  "chalcopyrite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Sulphide Ore"
                  ]
     },
     {
@@ -805,15 +1041,39 @@
                  ]
     },
     {
+        "Material Name":  "chromite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Chromium Ore"
+                 ]
+    },
+    {
+        "Material Name":  "chromium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "chrysoberyl",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
                  ]
     },
     {
+        "Material Name":  "chrysocolla",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Oxide Ore"
+                 ]
+    },
+    {
         "Material Name":  "cilantro",
         "Tags":  [
                      "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "cinnabar",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Mercury Ore"
                  ]
     },
     {
@@ -884,6 +1144,18 @@
                  ]
     },
     {
+        "Material Name":  "cobalt",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Renaissance Age"
+                 ]
+    },
+    {
+        "Material Name":  "cobaltite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Cobalt Ore"
+                 ]
+    },
+    {
         "Material Name":  "coconut",
         "Tags":  [
                      "Materials / Natural Materials / Food / Fruit"
@@ -893,6 +1165,18 @@
         "Material Name":  "coffee bean",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "colemanite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Boron Ore"
+                 ]
+    },
+    {
+        "Material Name":  "columbite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Niobium Ore"
                  ]
     },
     {
@@ -917,6 +1201,12 @@
         "Material Name":  "conglomerate",
         "Tags":  [
                      "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "copper",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
                  ]
     },
     {
@@ -1030,6 +1320,12 @@
                  ]
     },
     {
+        "Material Name":  "crucible steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Renaissance Age"
+                 ]
+    },
+    {
         "Material Name":  "cucumber",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
@@ -1039,6 +1335,12 @@
         "Material Name":  "cumin",
         "Tags":  [
                      "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "cuprite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Oxide Ore"
                  ]
     },
     {
@@ -1115,6 +1417,12 @@
                  ]
     },
     {
+        "Material Name":  "djurleite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Sulphide Ore"
+                 ]
+    },
+    {
         "Material Name":  "dog",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
@@ -1142,6 +1450,12 @@
         "Material Name":  "dogwood",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "dolomite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Magnesium Ore"
                  ]
     },
     {
@@ -1292,6 +1606,12 @@
         "Material Name":  "ebony",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "electrum",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
                  ]
     },
     {
@@ -1556,6 +1876,24 @@
                  ]
     },
     {
+        "Material Name":  "galena",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Lead Ore"
+                 ]
+    },
+    {
+        "Material Name":  "gallium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
+        "Material Name":  "galvanized steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
         "Material Name":  "game bird",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
@@ -1583,6 +1921,12 @@
         "Material Name":  "gel",
         "Tags":  [
                      "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "germanium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {
@@ -1633,6 +1977,13 @@
         "Material Name":  "goat",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "gold",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Precious Metal"
                  ]
     },
     {
@@ -1722,9 +2073,33 @@
                  ]
     },
     {
+        "Material Name":  "hafnium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "hair",
         "Tags":  [
                      "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "halite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Sodium Ore"
+                 ]
+    },
+    {
+        "Material Name":  "hausmannite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Manganese Ore"
+                 ]
+    },
+    {
+        "Material Name":  "hematite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Iron Ore"
                  ]
     },
     {
@@ -1755,6 +2130,12 @@
         "Material Name":  "hickory",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "high tensile steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
                  ]
     },
     {
@@ -1819,6 +2200,18 @@
                  ]
     },
     {
+        "Material Name":  "ilmenite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Titanium Ore"
+                 ]
+    },
+    {
+        "Material Name":  "indium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "insect",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
@@ -1828,6 +2221,13 @@
         "Material Name":  "iolite",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "iridium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Precious Metal"
                  ]
     },
     {
@@ -1927,6 +2327,12 @@
                  ]
     },
     {
+        "Material Name":  "kernite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Boron Ore"
+                 ]
+    },
+    {
         "Material Name":  "kiwi fruit",
         "Tags":  [
                      "Materials / Natural Materials / Food / Fruit"
@@ -2011,6 +2417,12 @@
                  ]
     },
     {
+        "Material Name":  "lead",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
         "Material Name":  "lead glass",
         "Tags":  [
                      "Materials / Manufactured Materials / Ceramic",
@@ -2061,9 +2473,21 @@
                  ]
     },
     {
+        "Material Name":  "lepidolite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Rubidium Ore"
+                 ]
+    },
+    {
         "Material Name":  "lettuce",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "leucoxene",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Titanium Ore"
                  ]
     },
     {
@@ -2127,6 +2551,12 @@
                  ]
     },
     {
+        "Material Name":  "loparite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Rare Earth Ore"
+                 ]
+    },
+    {
         "Material Name":  "low-density polyethylene",
         "Tags":  [
                      "Materials / Manufactured Materials / Plastic"
@@ -2151,9 +2581,33 @@
                  ]
     },
     {
+        "Material Name":  "magnesite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Magnesium Ore"
+                 ]
+    },
+    {
+        "Material Name":  "magnesium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
+        "Material Name":  "magnetite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Iron Ore"
+                 ]
+    },
+    {
         "Material Name":  "mahogany",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "malachite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Oxide Ore"
                  ]
     },
     {
@@ -2166,6 +2620,18 @@
         "Material Name":  "mandarin",
         "Tags":  [
                      "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "manganese",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
+        "Material Name":  "manganese steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
                  ]
     },
     {
@@ -2244,6 +2710,18 @@
                  ]
     },
     {
+        "Material Name":  "mild bronze",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "mild steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
         "Material Name":  "milk cream",
         "Tags":  [
                      "Materials / Animal Product",
@@ -2272,6 +2750,24 @@
         "Material Name":  "mollusc",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "molybdenite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Molybdenum Ore"
+                 ]
+    },
+    {
+        "Material Name":  "molybdenum",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
+        "Material Name":  "monazite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Rare Earth Ore"
                  ]
     },
     {
@@ -2365,9 +2861,51 @@
                  ]
     },
     {
+        "Material Name":  "native copper",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Native Copper Ore"
+                 ]
+    },
+    {
+        "Material Name":  "native gold",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Nickel Ore / Native Nickel Ore"
+                 ]
+    },
+    {
+        "Material Name":  "native nickel",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Gold Ore / Native Gold Ore"
+                 ]
+    },
+    {
+        "Material Name":  "native platinum",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Platinum Ore / Native Platinum Ore"
+                 ]
+    },
+    {
+        "Material Name":  "native silver",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Silver Ore / Native Silver Ore"
+                 ]
+    },
+    {
+        "Material Name":  "native tin",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Tin Ore / Native Tin Ore"
+                 ]
+    },
+    {
         "Material Name":  "natural rubber",
         "Tags":  [
                      "Materials / Elastomer"
+                 ]
+    },
+    {
+        "Material Name":  "neodymium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
                  ]
     },
     {
@@ -2386,6 +2924,24 @@
         "Material Name":  "nettle",
         "Tags":  [
                      "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
+        "Material Name":  "nickel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "nickel brass",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "niobium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
                  ]
     },
     {
@@ -2450,6 +3006,12 @@
                  ]
     },
     {
+        "Material Name":  "olivine",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Magnesium Ore"
+                 ]
+    },
+    {
         "Material Name":  "onion",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
@@ -2465,6 +3027,12 @@
         "Material Name":  "opal",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "open hearth steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {
@@ -2486,9 +3054,22 @@
                  ]
     },
     {
+        "Material Name":  "orichalcum",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
         "Material Name":  "orthoclase",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Feldspar"
+                 ]
+    },
+    {
+        "Material Name":  "osmium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Precious Metal"
                  ]
     },
     {
@@ -2501,6 +3082,13 @@
         "Material Name":  "other",
         "Tags":  [
                      "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "palladium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Precious Metal"
                  ]
     },
     {
@@ -2627,9 +3215,21 @@
                  ]
     },
     {
+        "Material Name":  "pegmatite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Lithium Ore"
+                 ]
+    },
+    {
         "Material Name":  "pelagic clay",
         "Tags":  [
                      "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "pentlandite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Nickel Ore"
                  ]
     },
     {
@@ -2663,6 +3263,18 @@
                  ]
     },
     {
+        "Material Name":  "petzite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Gold Ore"
+                 ]
+    },
+    {
+        "Material Name":  "pewter",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
         "Material Name":  "phenolic resin",
         "Tags":  [
                      "Materials / Manufactured Materials / Plastic"
@@ -2672,6 +3284,12 @@
         "Material Name":  "phlogopite",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone"
+                 ]
+    },
+    {
+        "Material Name":  "phosphorus",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {
@@ -2690,6 +3308,12 @@
         "Material Name":  "pig hide",
         "Tags":  [
                      "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
+        "Material Name":  "pig iron",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {
@@ -2735,6 +3359,13 @@
                  ]
     },
     {
+        "Material Name":  "platinum",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Iron Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Precious Metal"
+                 ]
+    },
+    {
         "Material Name":  "plum",
         "Tags":  [
                      "Materials / Natural Materials / Food / Fruit"
@@ -2744,6 +3375,12 @@
         "Material Name":  "plywood",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Manufactured Wood"
+                 ]
+    },
+    {
+        "Material Name":  "pollucite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Cesium Ore"
                  ]
     },
     {
@@ -2845,15 +3482,33 @@
                  ]
     },
     {
+        "Material Name":  "potassium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "potato",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
                  ]
     },
     {
+        "Material Name":  "powder-coated steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
         "Material Name":  "pozzolanic ash",
         "Tags":  [
                      "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "proustite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Silver Ore"
                  ]
     },
     {
@@ -2872,6 +3527,24 @@
         "Material Name":  "pumpkin",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "pyrargyrite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Silver Ore"
+                 ]
+    },
+    {
+        "Material Name":  "pyrite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Iron Ore"
+                 ]
+    },
+    {
+        "Material Name":  "pyrolusite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Manganese Ore"
                  ]
     },
     {
@@ -2959,6 +3632,12 @@
                  ]
     },
     {
+        "Material Name":  "rare earth metal",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
         "Material Name":  "raspberry",
         "Tags":  [
                      "Materials / Natural Materials / Food / Fruit"
@@ -2995,6 +3674,12 @@
                  ]
     },
     {
+        "Material Name":  "rhenium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "rhino hide",
         "Tags":  [
                      "Materials / Natural Materials / Animal Skin / Thick Animal Skin"
@@ -3004,6 +3689,19 @@
         "Material Name":  "rhino leather",
         "Tags":  [
                      "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "rhodium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Precious Metal"
+                 ]
+    },
+    {
+        "Material Name":  "rhodochrosite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Manganese Ore"
                  ]
     },
     {
@@ -3067,6 +3765,12 @@
                  ]
     },
     {
+        "Material Name":  "rubidium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "ruby",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
@@ -3076,6 +3780,19 @@
         "Material Name":  "rutabaga",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "ruthenium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Precious Metal"
+                 ]
+    },
+    {
+        "Material Name":  "rutile",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Titanium Ore"
                  ]
     },
     {
@@ -3187,6 +3904,12 @@
                  ]
     },
     {
+        "Material Name":  "scheelite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Tungsten Ore"
+                 ]
+    },
+    {
         "Material Name":  "schist",
         "Tags":  [
                      "Materials / Natural Materials / Stone"
@@ -3214,6 +3937,12 @@
         "Material Name":  "selenite",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gypsum"
+                 ]
+    },
+    {
+        "Material Name":  "selenium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {
@@ -3277,10 +4006,22 @@
                  ]
     },
     {
+        "Material Name":  "siderite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Iron Ore"
+                 ]
+    },
+    {
         "Material Name":  "silicate glass",
         "Tags":  [
                      "Materials / Manufactured Materials / Ceramic",
                      "Materials / Manufactured Materials / Glass"
+                 ]
+    },
+    {
+        "Material Name":  "silicon",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {
@@ -3323,6 +4064,13 @@
         "Material Name":  "silty clay loam",
         "Tags":  [
                      "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "silver",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Precious Metal"
                  ]
     },
     {
@@ -3429,6 +4177,12 @@
                  ]
     },
     {
+        "Material Name":  "sodium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "soot",
         "Tags":  [
                      "Materials / Natural Materials"
@@ -3466,6 +4220,24 @@
                  ]
     },
     {
+        "Material Name":  "spelter",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
+        "Material Name":  "sperrylite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Platinum Ore"
+                 ]
+    },
+    {
+        "Material Name":  "sphalerite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Zinc Ore"
+                 ]
+    },
+    {
         "Material Name":  "spice",
         "Tags":  [
                      "Materials / Natural Materials / Food / Spice"
@@ -3496,9 +4268,21 @@
                  ]
     },
     {
+        "Material Name":  "sponge iron",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Iron Age"
+                 ]
+    },
+    {
         "Material Name":  "spongy bone",
         "Tags":  [
 
+                 ]
+    },
+    {
+        "Material Name":  "spring steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
                  ]
     },
     {
@@ -3514,9 +4298,28 @@
                  ]
     },
     {
+        "Material Name":  "stainless steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
         "Material Name":  "star anise",
         "Tags":  [
                      "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "sterling silver",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Renaissance Age",
+                     "Materials / Manufactured Materials / Manufactured Metal / Precious Metal"
+                 ]
+    },
+    {
+        "Material Name":  "stibnite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Antimony Ore"
                  ]
     },
     {
@@ -3545,9 +4348,27 @@
                  ]
     },
     {
+        "Material Name":  "strontianite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Strontium Ore"
+                 ]
+    },
+    {
+        "Material Name":  "strontium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "sugarcane",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "sulfur",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {
@@ -3581,6 +4402,18 @@
                  ]
     },
     {
+        "Material Name":  "sylvanite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Gold Ore"
+                 ]
+    },
+    {
+        "Material Name":  "sylvite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Potassium Ore"
+                 ]
+    },
+    {
         "Material Name":  "synthetic rubber",
         "Tags":  [
                      "Materials / Manufactured Materials / Plastic"
@@ -3602,6 +4435,18 @@
         "Material Name":  "tangerine",
         "Tags":  [
                      "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "tantalite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Tantalum Ore"
+                 ]
+    },
+    {
+        "Material Name":  "tantalum",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {
@@ -3635,10 +4480,22 @@
                  ]
     },
     {
+        "Material Name":  "tellurium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "tempered glass",
         "Tags":  [
                      "Materials / Manufactured Materials / Ceramic",
                      "Materials / Manufactured Materials / Glass"
+                 ]
+    },
+    {
+        "Material Name":  "tenorite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Copper Ore / Copper Oxide Ore"
                  ]
     },
     {
@@ -3660,6 +4517,18 @@
         "Tags":  [
                      "Materials / Manufactured Materials / Fabric",
                      "Materials / Simplified"
+                 ]
+    },
+    {
+        "Material Name":  "thallium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
+        "Material Name":  "thorium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {
@@ -3693,9 +4562,27 @@
                  ]
     },
     {
+        "Material Name":  "tin",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "titanium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "tomato",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "tool steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
                  ]
     },
     {
@@ -3753,6 +4640,12 @@
                  ]
     },
     {
+        "Material Name":  "tungsten",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
+                 ]
+    },
+    {
         "Material Name":  "turkey",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
@@ -3801,15 +4694,33 @@
                  ]
     },
     {
+        "Material Name":  "ulexite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Boron Ore"
+                 ]
+    },
+    {
         "Material Name":  "unakite",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
                  ]
     },
     {
+        "Material Name":  "uranium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
         "Material Name":  "vair",
         "Tags":  [
                      "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
+        "Material Name":  "vanadium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
                  ]
     },
     {
@@ -3941,6 +4852,12 @@
                  ]
     },
     {
+        "Material Name":  "witherite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Barium Ore"
+                 ]
+    },
+    {
         "Material Name":  "wolf hide",
         "Tags":  [
                      "Materials / Natural Materials / Animal Skin"
@@ -3950,6 +4867,12 @@
         "Material Name":  "wolf leather",
         "Tags":  [
                      "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "wolframite",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Metal Ore / Tungsten Ore"
                  ]
     },
     {
@@ -3978,6 +4901,18 @@
                  ]
     },
     {
+        "Material Name":  "wootz steel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Medieval Age"
+                 ]
+    },
+    {
+        "Material Name":  "wrought iron",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Iron Age"
+                 ]
+    },
+    {
         "Material Name":  "yam",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
@@ -3997,9 +4932,21 @@
                  ]
     },
     {
+        "Material Name":  "zinc",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
         "Material Name":  "zircon",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "zirconium",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
                  ]
     },
     {

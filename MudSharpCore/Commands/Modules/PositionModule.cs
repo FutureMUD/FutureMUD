@@ -37,12 +37,12 @@ internal class PositionModule : Module<ICharacter>
 
     private static readonly Regex _positionRegex =
         new(
-            @"^(stand|lean|squat|slump|sit|rest|lounge|sprawl|prone|kneel|prostrate) {0,1}(attention|easy){0,1} {0,1}(reset|normal|revert|on|in|by|under|underneath|below|beneath|before|behind){0,1} {0,1}([\w]{0,}[a-zA-Z.-]{0,}) {0,1}(?:\[(.*)\]){0,1} {0,1}(?:\((.*)\)){0,1}$",
+            @"^(stand|lean|squat|slump|sit|rest|lounge|sprawl|prone|kneel|prostrate) {0,1}(attention|easy){0,1} {0,1}(reset|normal|revert|on|in|inside|by|against|under|underneath|below|beneath|before|behind|around){0,1} {0,1}([\w]{0,}[a-zA-Z.-]{0,}) {0,1}(?:\[(.*)\]){0,1} {0,1}(?:\((.*)\)){0,1}$",
             RegexOptions.IgnoreCase);
 
     private static readonly Regex _positionItemRegex =
         new(
-            @"^(position|lean|slump|hang) ([\w]{0,}[a-zA-Z.-]{1,}) (reset|normal|revert|by|on|in|under|before|behind|against|from){1} {0,1}([\w]{0,}[a-zA-Z.-]{0,}) {0,1}(?:\[(.*)\]){0,1} {0,1}(?:\((.*)\)){0,1}$",
+            @"^(?<command>position|lean|slump|hang) (?<item>[\w]{0,}[a-zA-Z.-]{1,})(?: (?:(?<modifier>reset|normal|revert|by|on|in|inside|under|underneath|below|beneath|before|behind|around|against|from){1}(?: {0,1}(?<target>[\w]{0,}[a-zA-Z.-]{1,})){0,1}|(?<target>[\w]{0,}[a-zA-Z.-]{1,}))){0,1} {0,1}(?:\[(?<omote>.*)\]){0,1} {0,1}(?:\((?<emote>.*)\)){0,1}$",
             RegexOptions.IgnoreCase);
 
     private PositionModule()
@@ -809,6 +809,9 @@ The syntax can be either of the following:
                 case "before":
                     desiredModifier = PositionModifier.Before;
                     break;
+                case "around":
+                    desiredModifier = PositionModifier.Around;
+                    break;
                 case "by":
                 case "against":
                     desiredModifier = PositionModifier.None;
@@ -923,10 +926,17 @@ The syntax can be either of the following:
             return;
         }
 
+        var commandText = match.Groups["command"].Value.ToLowerInvariant();
+        var itemText = match.Groups["item"].Value;
+        var modifierText = match.Groups["modifier"].Value.ToLowerInvariant();
+        var targetText = match.Groups["target"].Value;
+        var omoteText = match.Groups["omote"].Value;
+        var emoteText = match.Groups["emote"].Value;
+
         PlayerEmote emote = null;
-        if (match.Groups[5].Value.Length > 0)
+        if (emoteText.Length > 0)
         {
-            emote = new PlayerEmote(match.Groups[5].Value, actor.Body);
+            emote = new PlayerEmote(emoteText, actor.Body);
             if (!emote.Valid)
             {
                 actor.OutputHandler.Send(emote.ErrorMessage);
@@ -934,7 +944,7 @@ The syntax can be either of the following:
             }
         }
 
-        IGameItem item = actor.Body.TargetLocalItem(match.Groups[2].Value);
+        IGameItem item = actor.Body.TargetLocalItem(itemText);
         if (item == null)
         {
             actor.OutputHandler.Send("You do not see that here to position.");
@@ -948,9 +958,9 @@ The syntax can be either of the following:
         }
 
         PlayerEmote imote = null;
-        if (match.Groups[4].Value.Length > 0)
+        if (omoteText.Length > 0)
         {
-            imote = new PlayerEmote(match.Groups[4].Value, actor.Body);
+            imote = new PlayerEmote(omoteText, actor.Body);
             if (!imote.Valid)
             {
                 actor.OutputHandler.Send(imote.ErrorMessage);
@@ -958,49 +968,82 @@ The syntax can be either of the following:
             }
         }
 
-        MixedEmoteOutput output = null;
-        if (match.Groups[2].Value == "reset" || match.Groups[2].Value == "normal" ||
-            match.Groups[2].Value == "revert")
+        var desiredState = commandText switch
         {
-            if (item.PositionTarget == null)
+            "hang" => PositionHanging.Instance,
+            "lean" => PositionLeaning.Instance,
+            "slump" => PositionSlumped.Instance,
+            _ => item.PositionState
+        };
+
+        MixedEmoteOutput output;
+        if (modifierText == "reset" || modifierText == "normal" || modifierText == "revert")
+        {
+            if (item.PositionTarget == null && item.PositionModifier == PositionModifier.None &&
+                item.PositionState == PositionUndefined.Instance)
             {
                 actor.OutputHandler.Send(item.HowSeen(actor.Body, true) + " is already in a normal position.");
                 return;
             }
 
-            string text;
-            switch (item.PositionModifier)
+            if (item.PositionTarget == null)
             {
-                case PositionModifier.On:
-                    text = " down off of ";
-                    break;
-                case PositionModifier.Under:
-                    text = " out from under ";
-                    break;
-                case PositionModifier.In:
-                    text = " out of ";
-                    break;
-                case PositionModifier.Behind:
-                    text = " out from behind ";
-                    break;
-                default:
-                    text = " away from ";
-                    break;
+                output =
+                    new MixedEmoteOutput(
+                        new Emote("@ reset|resets the position of $0", actor.Body, item),
+                        flags: OutputFlags.SuppressObscured);
+            }
+            else
+            {
+                var text = item.PositionModifier switch
+                {
+                    PositionModifier.On => " down off of ",
+                    PositionModifier.Under => " out from under ",
+                    PositionModifier.In => " out of ",
+                    PositionModifier.Behind => " out from behind ",
+                    PositionModifier.Before => " away from before ",
+                    PositionModifier.Around => " away from around ",
+                    PositionModifier.None when item.PositionState == PositionHanging.Instance => " down from ",
+                    _ => " away from "
+                };
+
+                output =
+                    new MixedEmoteOutput(
+                        new Emote("@ move|moves $0" + text + "$1", actor.Body, item, item.PositionTarget),
+                        flags: OutputFlags.SuppressObscured);
             }
 
-            output =
-                new MixedEmoteOutput(
-                    new Emote("@ move|moves $0" + text + "$1", actor.Body, item, item.PositionTarget),
-                    flags: OutputFlags.SuppressObscured);
             output.Append(emote);
             actor.OutputHandler.Handle(output);
-            item.SetTarget(null);
-            item.SetModifier(PositionModifier.None);
-            item.SetEmote(imote);
+            item.SetPosition(PositionUndefined.Instance, PositionModifier.None, null, imote);
             return;
         }
 
-        IPerceivable target = actor.Body.TargetLocal(match.Groups[3].Value);
+        if (modifierText.Length == 0 && targetText.Length == 0)
+        {
+            if (commandText == "position")
+            {
+                actor.OutputHandler.Send("What do you want to position " + item.HowSeen(actor.Body) + " against?");
+                return;
+            }
+
+            item.SetPosition(desiredState, PositionModifier.None, null, imote);
+            output =
+                new MixedEmoteOutput(
+                    new Emote($"@ {commandText}|{commandText}s $0", actor.Body, item),
+                    flags: OutputFlags.SuppressObscured);
+            output.Append(emote);
+            actor.OutputHandler.Handle(output);
+            return;
+        }
+
+        if (targetText.Length == 0)
+        {
+            actor.OutputHandler.Send("What do you want to position " + item.HowSeen(actor.Body) + " against?");
+            return;
+        }
+
+        IPerceivable target = actor.Body.TargetLocal(targetText);
         if (target == null)
         {
             actor.OutputHandler.Send("You do not see that here to position " + item.HowSeen(actor.Body) +
@@ -1009,11 +1052,21 @@ The syntax can be either of the following:
         }
 
         PositionModifier desiredModifier;
-        switch (match.Groups[2].Value.ToLowerInvariant())
+        switch (modifierText)
         {
+            case "":
+                desiredModifier = PositionModifier.None;
+                break;
             case "on":
                 desiredModifier = PositionModifier.On;
                 break;
+            case "inside":
+            case "in":
+                desiredModifier = PositionModifier.In;
+                break;
+            case "underneath":
+            case "below":
+            case "beneath":
             case "under":
                 desiredModifier = PositionModifier.Under;
                 break;
@@ -1023,8 +1076,8 @@ The syntax can be either of the following:
             case "behind":
                 desiredModifier = PositionModifier.Behind;
                 break;
-            case "in":
-                desiredModifier = PositionModifier.In;
+            case "around":
+                desiredModifier = PositionModifier.Around;
                 break;
             case "by":
             case "against":
@@ -1034,18 +1087,34 @@ The syntax can be either of the following:
                 break;
         }
 
-        if (!target.CanBePositionedAgainst(item.PositionState, desiredModifier))
+        if (!target.CanBePositionedAgainst(desiredState, desiredModifier))
         {
             actor.OutputHandler.Send(target.HowSeen(actor.Body, true) + " cannot be positioned against in that way.");
             return;
         }
 
-        item.SetTarget(target);
-        item.SetModifier(desiredModifier);
-        item.SetEmote(imote);
+        item.SetPosition(desiredState, desiredModifier, target, imote);
+        var displayModifier = modifierText switch
+        {
+            "" when commandText == "lean" || commandText == "slump" => "against",
+            "" when commandText == "hang" => "from",
+            "" => "by",
+            "inside" => "in",
+            "underneath" or "below" or "beneath" => "under",
+            "against" when commandText == "lean" || commandText == "slump" => "against",
+            "from" when commandText == "hang" => "from",
+            _ => modifierText
+        };
+        var verb = commandText switch
+        {
+            "hang" => "hang|hangs",
+            "lean" => "lean|leans",
+            "slump" => "slump|slumps",
+            _ => "position|positions"
+        };
         output =
             new MixedEmoteOutput(
-                new Emote("@ position|positions $0 " + match.Groups[2].Value + " $1", actor.Body, item,
+                new Emote("@ " + verb + " $0 " + displayModifier + " $1", actor.Body, item,
                     item.PositionTarget), flags: OutputFlags.SuppressObscured);
         output.Append(emote);
         actor.OutputHandler.Handle(output);
@@ -1118,6 +1187,7 @@ The syntax of this is as follows:
 
 	#3position <item> [<modifier>] <target>#0 - positions an item relative to another target
 	#3position <item> reset#0 - resets an item to just generally in the room
+	#3hang|lean|slump <item> [<modifier> <target>]#0 - sets an item's visible state, optionally relative to another target
 
 Like with the player version you can have an optional omote set within square brackets #3[]#0, an an optional emote addendum after that with round brackets #3()#0.
 
@@ -1128,10 +1198,16 @@ For example:
 	#3slump shirt [in an unceremonious heap] (discarding it without a second thought)#0", AutoHelp.HelpArg)]
     protected static void Position(ICharacter actor, string input)
     {
-        if (_positionItemRegex.IsMatch(input))
+        var itemMatch = _positionItemRegex.Match(input);
+        if (itemMatch.Success)
         {
-            Item_Position(actor, input);
-            return;
+            var commandText = itemMatch.Groups["command"].Value.ToLowerInvariant();
+            if (commandText == "position" || commandText == "hang" ||
+                actor.Body.TargetLocalItem(itemMatch.Groups["item"].Value) != null)
+            {
+                Item_Position(actor, input);
+                return;
+            }
         }
 
         Match match = _positionRegex.Match(input);

@@ -942,15 +942,23 @@ public class TollkeeperAI : PathingAIBase
 			return;
 		}
 
+		var depositedAny = false;
 		foreach (var item in items.Where(x => !x.Deleted && x.InInventoryOf == tollkeeper.Body).ToList())
 		{
 			if (tollkeeper.Body.CanPut(item, containerItem, null, 0, true))
 			{
 				tollkeeper.Body.Put(item, containerItem, null, silent: true);
+				depositedAny = true;
 			}
 		}
 
 		SecureContainerAfterDeposit(tollkeeper, containerItem);
+		if (!depositedAny)
+		{
+			EmitEmote(tollkeeper, DepositFailedEmote, 0.0M, exit, tollkeeper, containerItem);
+			return;
+		}
+
 		EmitEmote(tollkeeper, DepositCompleteEmote, 0.0M, exit, tollkeeper, containerItem);
 	}
 

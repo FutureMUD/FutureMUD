@@ -221,4 +221,51 @@ public class AuctionHouseSettlementTests
 		profitsAccount.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
 		payoutAccount.Verify(x => x.DepositFromTransaction(170.0M, It.IsAny<string>()), Times.Once);
 	}
+
+	[TestMethod]
+	public void BuyoutItem_CashPayoutTargetWithOwnedBank_QueuesCashCollection()
+	{
+		var house = CreateAuctionHouse(out _, out var payoutAccount, out _);
+		Mock<ICharacter> seller = new();
+		seller.SetupGet(x => x.Id).Returns(65L);
+		seller.SetupGet(x => x.Name).Returns("Seller");
+		seller.SetupGet(x => x.FrameworkItemType).Returns("Character");
+		payoutAccount.Setup(x => x.IsAccountOwner(seller.Object)).Returns(true);
+
+		Mock<ICharacter> bidder = new();
+		bidder.SetupGet(x => x.Id).Returns(66L);
+		bidder.SetupGet(x => x.Name).Returns("Bidder");
+		bidder.SetupGet(x => x.FrameworkItemType).Returns("Character");
+
+		Mock<IGameItem> asset = new();
+		asset.SetupGet(x => x.Id).Returns(73L);
+		asset.SetupGet(x => x.Name).Returns("ring");
+		asset.SetupGet(x => x.FrameworkItemType).Returns("GameItem");
+		asset.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+				It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
+		     .Returns("a ring");
+
+		AuctionItem lot = new()
+		{
+			Asset = asset.Object,
+			Seller = seller.Object,
+			PayoutTarget = seller.Object,
+			MinimumPrice = 100.0M,
+			BuyoutPrice = 200.0M,
+			ListingDateTime = MudDateTime.Never,
+			FinishingDateTime = MudDateTime.Never
+		};
+
+		house.AddAuctionItem(lot);
+		house.BuyoutItem(lot, new AuctionBid
+		{
+			Bidder = bidder.Object,
+			Bid = 200.0M,
+			BidDateTime = MudDateTime.Never
+		});
+
+		Assert.AreEqual(200.0M, house.CashBalance);
+		Assert.AreEqual(170.0M, house.BidderRefundsOwed[seller.Object.Id]);
+		payoutAccount.Verify(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+	}
 }

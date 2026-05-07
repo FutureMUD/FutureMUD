@@ -41,14 +41,14 @@ public class Stable : SavableKeywordedItem, IStable
 	private IFutureProg? _canStableProg;
 	private IFutureProg? _whyCannotStableProg;
 
-	public Stable(IEconomicZone zone, ICell location, IBankAccount bankAccount, string name)
+	public Stable(IEconomicZone zone, ICell location, IBankAccount? bankAccount, string name)
 	{
 		Gameworld = zone.Gameworld;
 		_name = name;
 		SetKeywordsFromSDesc(name);
 		_economicZone = zone;
 		_location = location;
-		_bankAccountId = bankAccount.Id;
+		_bankAccountId = bankAccount?.Id;
 		_bankAccount = bankAccount;
 		_isTrading = true;
 
@@ -59,7 +59,7 @@ public class Stable : SavableKeywordedItem, IStable
 				Name = name,
 				EconomicZoneId = zone.Id,
 				CellId = location.Id,
-				BankAccountId = bankAccount.Id,
+				BankAccountId = bankAccount?.Id,
 				IsTrading = true,
 				LodgeFee = 0.0M,
 				DailyFee = 0.0M,
@@ -157,9 +157,9 @@ public class Stable : SavableKeywordedItem, IStable
 
 	public bool IsTrading => _isTrading;
 	public bool IsReadyToDoBusiness => IsTrading &&
-	                                  BankAccount is not null &&
-	                                  BankAccount.Currency == Currency &&
 	                                  StableTicketGameItemComponentProto.ItemPrototype is not null;
+	public decimal CashBalance => VirtualCashLedger.Balance(this, Currency);
+	public decimal AvailableFunds => VirtualCashLedger.AvailableFunds(this, Currency, BankAccount);
 
 	public decimal LodgeFee
 	{
@@ -525,6 +525,8 @@ public class Stable : SavableKeywordedItem, IStable
 		sb.AppendLine($"Location: {Location.HowSeen(actor).ColourName()} (#{Location.Id.ToString("N0", actor)})");
 		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourName()}");
 		sb.AppendLine($"Bank Account: {(BankAccount is null ? "None".ColourError() : BankAccount.AccountReference.ColourValue())}");
+		sb.AppendLine($"Virtual Cash: {Currency.Describe(CashBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Available Funds: {Currency.Describe(AvailableFunds, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine($"Open: {IsTrading.ToColouredString()}");
 		sb.AppendLine($"Ready: {IsReadyToDoBusiness.ToColouredString()}");
 		sb.AppendLine($"Lodge Fee: {(LodgeFeeProg is null ? Currency.Describe(LodgeFee, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() : LodgeFeeProg.MXPClickableFunctionNameWithId())}");

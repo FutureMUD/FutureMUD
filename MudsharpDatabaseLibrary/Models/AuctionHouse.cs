@@ -12,7 +12,7 @@ namespace MudSharp.Models
         public string Name { get; set; }
         public long EconomicZoneId { get; set; }
         public long AuctionHouseCellId { get; set; }
-        public long ProfitsBankAccountId { get; set; }
+        public long? ProfitsBankAccountId { get; set; }
         public decimal AuctionListingFeeFlat { get; set; }
         public decimal AuctionListingFeeRate { get; set; }
         public string Definition { get; set; }

@@ -22,10 +22,17 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class AuctionHouseSettlementTests
 {
+	[TestInitialize]
+	public void Setup()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+	}
+
 	private static AuctionHouse CreateAuctionHouse(
 		out Mock<IBankAccount> profitsAccount,
 		out Mock<IBankAccount> payoutAccount,
-		out Mock<ICurrency> currency)
+		out Mock<ICurrency> currency,
+		bool linkedProfitsAccount = true)
 	{
 		currency = new Mock<ICurrency>();
 		currency.SetupGet(x => x.Id).Returns(1L);
@@ -79,7 +86,10 @@ public class AuctionHouseSettlementTests
 		All<ICell> cells = new();
 		cells.Add(cell.Object);
 		All<IBankAccount> bankAccounts = new();
-		bankAccounts.Add(profitsAccount.Object);
+		if (linkedProfitsAccount)
+		{
+			bankAccounts.Add(profitsAccount.Object);
+		}
 		bankAccounts.Add(payoutAccount.Object);
 		All<IProperty> properties = new();
 
@@ -97,7 +107,7 @@ public class AuctionHouseSettlementTests
 			Name = "Central Auction House",
 			EconomicZoneId = zone.Object.Id,
 			AuctionHouseCellId = cell.Object.Id,
-			ProfitsBankAccountId = profitsAccount.Object.Id,
+			ProfitsBankAccountId = linkedProfitsAccount ? profitsAccount.Object.Id : null,
 			AuctionListingFeeFlat = 10.0M,
 			AuctionListingFeeRate = 0.10M,
 			DefaultListingTime = 3600.0,
@@ -152,8 +162,63 @@ public class AuctionHouseSettlementTests
 		Assert.AreEqual(0, house.ActiveAuctionItems.Count());
 		Assert.AreSame(lot, house.UnclaimedItems.Single().AuctionItem);
 		Assert.AreEqual(200.0M, house.UnclaimedItems.Single().WinningBid!.Bid);
-		profitsAccount.Verify(x => x.Deposit(200.0M), Times.Once);
-		profitsAccount.Verify(x => x.WithdrawFromTransfer(170.0M, "PAY", 2002, It.IsAny<string>()), Times.Once);
-		payoutAccount.Verify(x => x.DepositFromTransfer(170.0M, "AHB", 1001, It.IsAny<string>()), Times.Once);
+		Assert.AreEqual(30.0M, house.CashBalance);
+		profitsAccount.Verify(x => x.Deposit(It.IsAny<decimal>()), Times.Never);
+		profitsAccount.Verify(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+		profitsAccount.Verify(x => x.WithdrawFromTransfer(It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+		payoutAccount.Verify(x => x.DepositFromTransaction(170.0M, It.IsAny<string>()), Times.Once);
+		var ledger = VirtualCashLedger.LedgerEntries(house, 10).ToList();
+		Assert.AreEqual(2, ledger.Count);
+		Assert.AreEqual(200.0M, ledger.Single(x => x.Amount > 0.0M).Amount);
+		Assert.AreEqual(-170.0M, ledger.Single(x => x.Amount < 0.0M).Amount);
+	}
+
+	[TestMethod]
+	public void BuyoutItem_BanklessAuctionHouse_PaysFromVirtualReserve()
+	{
+		var house = CreateAuctionHouse(out var profitsAccount, out var payoutAccount, out _, linkedProfitsAccount: false);
+		Assert.IsNull(house.ProfitsBankAccount);
+
+		Mock<ICharacter> seller = new();
+		seller.SetupGet(x => x.Id).Returns(63L);
+		seller.SetupGet(x => x.Name).Returns("Seller");
+		seller.SetupGet(x => x.FrameworkItemType).Returns("Character");
+
+		Mock<ICharacter> bidder = new();
+		bidder.SetupGet(x => x.Id).Returns(64L);
+		bidder.SetupGet(x => x.Name).Returns("Bidder");
+		bidder.SetupGet(x => x.FrameworkItemType).Returns("Character");
+
+		Mock<IGameItem> asset = new();
+		asset.SetupGet(x => x.Id).Returns(72L);
+		asset.SetupGet(x => x.Name).Returns("bracelet");
+		asset.SetupGet(x => x.FrameworkItemType).Returns("GameItem");
+		asset.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+				It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
+		     .Returns("a bracelet");
+
+		AuctionItem lot = new()
+		{
+			Asset = asset.Object,
+			Seller = seller.Object,
+			PayoutTarget = payoutAccount.Object,
+			MinimumPrice = 100.0M,
+			BuyoutPrice = 200.0M,
+			ListingDateTime = MudDateTime.Never,
+			FinishingDateTime = MudDateTime.Never
+		};
+
+		house.AddAuctionItem(lot);
+		house.BuyoutItem(lot, new AuctionBid
+		{
+			Bidder = bidder.Object,
+			Bid = 200.0M,
+			BidDateTime = MudDateTime.Never
+		});
+
+		Assert.AreEqual(30.0M, house.CashBalance);
+		profitsAccount.Verify(x => x.Deposit(It.IsAny<decimal>()), Times.Never);
+		profitsAccount.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+		payoutAccount.Verify(x => x.DepositFromTransaction(170.0M, It.IsAny<string>()), Times.Once);
 	}
 }

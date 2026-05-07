@@ -189,7 +189,9 @@ namespace MudSharp.Economy
     {
         IEconomicZone EconomicZone { get; }
         ICell AuctionHouseCell { get; }
-        IBankAccount ProfitsBankAccount { get; }
+        IBankAccount? ProfitsBankAccount { get; }
+        decimal CashBalance { get; }
+        decimal AvailableFunds { get; }
         TimeSpan DefaultListingTime { get; }
         decimal AuctionListingFeeFlat { get; }
         decimal AuctionListingFeeRate { get; }
@@ -199,8 +201,8 @@ namespace MudSharp.Economy
         CollectionDictionary<AuctionItem, AuctionBid> AuctionBids { get; }
         DecimalCounter<long> BidderRefundsOwed { get; }
         void AddAuctionItem(AuctionItem item);
-        void AddBid(AuctionItem item, AuctionBid bid);
-        void BuyoutItem(AuctionItem item, AuctionBid bid);
+        void AddBid(AuctionItem item, AuctionBid bid, string sourceKind = "Cash");
+        void BuyoutItem(AuctionItem item, AuctionBid bid, string sourceKind = "Cash");
         void ClaimItem(AuctionItem item);
         bool ClaimRefund(ICharacter actor);
         decimal CurrentBid(AuctionItem item);

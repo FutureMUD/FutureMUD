@@ -118,6 +118,8 @@ public interface IStable : IFrameworkItem, ISaveable, IKeywordedItem
 	ICurrency Currency { get; }
 	ICell Location { get; set; }
 	IBankAccount? BankAccount { get; set; }
+	decimal CashBalance { get; }
+	decimal AvailableFunds { get; }
 	bool IsTrading { get; }
 	bool IsReadyToDoBusiness { get; }
 	decimal LodgeFee { get; set; }

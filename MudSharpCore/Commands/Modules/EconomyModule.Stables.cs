@@ -54,6 +54,9 @@ Stable managers can use the following additional commands:
 	#3stable show <stay>#0 - shows a stable stay and ledger
 	#3stable release <stay> [waive]#0 - releases a mount without a ticket
 	#3stable bank <account|none>#0 - sets the stable bank account for proprietors
+	#3stable deposit <amount>#0 - deposits held cash into the stable's virtual cash balance
+	#3stable withdraw <amount>#0 - withdraws cash from the stable's virtual cash balance and bank fallback
+	#3stable ledger [count]#0 - reviews stable cash ledger entries
 	#3stable fee lodge|daily <amount|prog <prog>|none>#0 - sets stable fees for proprietors
 	#3stable account list [<filters>]#0 - lists all accounts, optionally filtered
 	#3stable account show <id|name>#0 - shows a particular credit account
@@ -67,7 +70,7 @@ Stable managers can use the following additional commands:
 	#3stable set can <prog|none> [whyprog]#0 - sets access progs
 
 Administrators can also use:
-	#3stable create <name> <economic zone> <bank account>#0 - creates a stable at your current location
+	#3stable create <name> <economic zone> <bank account|none>#0 - creates a stable at your current location
 	#3stable delete#0 - deletes the stable at your current location if it has no active stays
 	#3stable list all#0 - lists all stables";
 
@@ -112,6 +115,15 @@ Administrators can also use:
 				return;
 			case "bank":
 				StableBank(actor, ss);
+				return;
+			case "deposit":
+				StableDeposit(actor, ss);
+				return;
+			case "withdraw":
+				StableWithdraw(actor, ss);
+				return;
+			case "ledger":
+				StableLedger(actor, ss);
 				return;
 			case "fee":
 				StableFee(actor, ss);
@@ -478,6 +490,124 @@ Administrators can also use:
 		actor.OutputHandler.Send($"This stable will now use {account.AccountReference.ColourValue()} for receipts.");
 	}
 
+	private static void StableDeposit(ICharacter actor, StringStack ss)
+	{
+		if (!DoStableCommandFindStable(actor, out var stable))
+		{
+			return;
+		}
+
+		if (!stable.IsProprietor(actor))
+		{
+			actor.OutputHandler.Send("You are not a proprietor of this stable.");
+			return;
+		}
+
+		if (ss.IsFinished || !stable.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var amount) || amount <= 0.0M)
+		{
+			actor.OutputHandler.Send($"How much {stable.Currency.Name.ColourName()} do you want to deposit?");
+			return;
+		}
+
+		if (AccessibleStableCash(actor, stable.Currency) < amount)
+		{
+			actor.OutputHandler.Send(
+				$"You do not have {stable.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in accessible cash.");
+			return;
+		}
+
+		TakeStableCash(actor, stable, amount, "Manager cash deposit");
+		actor.OutputHandler.Send(
+			$"You deposit {stable.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} into {stable.Name.TitleCase().ColourName()}'s virtual cash balance.");
+	}
+
+	private static void StableWithdraw(ICharacter actor, StringStack ss)
+	{
+		if (!DoStableCommandFindStable(actor, out var stable))
+		{
+			return;
+		}
+
+		if (!stable.IsProprietor(actor))
+		{
+			actor.OutputHandler.Send("You are not a proprietor of this stable.");
+			return;
+		}
+
+		if (ss.IsFinished || !stable.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var amount) || amount <= 0.0M)
+		{
+			actor.OutputHandler.Send($"How much {stable.Currency.Name.ColourName()} do you want to withdraw?");
+			return;
+		}
+
+		if (!VirtualCashLedger.Debit(stable, stable.Currency, amount, actor, actor, "CashWithdrawal",
+			    "Manager cash withdrawal", stable.BankAccount,
+			    stable.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, out var error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		var cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(stable.Currency,
+			stable.Currency.FindCoinsForAmount(amount, out _));
+		if (actor.Body.CanGet(cash, 0))
+		{
+			actor.Body.Get(cash, silent: true);
+		}
+		else
+		{
+			cash.RoomLayer = actor.RoomLayer;
+			actor.Location.Insert(cash, true);
+			actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
+		}
+
+		actor.OutputHandler.Send(
+			$"You withdraw {stable.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from {stable.Name.TitleCase().ColourName()}.");
+	}
+
+	private static void StableLedger(ICharacter actor, StringStack ss)
+	{
+		if (!DoStableCommandFindStable(actor, out var stable))
+		{
+			return;
+		}
+
+		if (!stable.IsManager(actor))
+		{
+			actor.OutputHandler.Send("You are not a manager of this stable.");
+			return;
+		}
+
+		var count = 25;
+		if (!ss.IsFinished && (!int.TryParse(ss.SafeRemainingArgument, out count) || count <= 0))
+		{
+			actor.OutputHandler.Send("How many ledger entries do you want to review?");
+			return;
+		}
+
+		var entries = VirtualCashLedger.LedgerEntries(stable, count).ToList();
+		if (!entries.Any())
+		{
+			actor.OutputHandler.Send($"{stable.Name.TitleCase().ColourName()} does not have any cash ledger entries.");
+			return;
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			entries.Select(x => new List<string>
+			{
+				x.RealDateTime.ToString("g", actor),
+				x.ActorName ?? string.Empty,
+				stable.Currency.Describe(x.Amount, CurrencyDescriptionPatternType.ShortDecimal),
+				stable.Currency.Describe(x.BalanceAfter, CurrencyDescriptionPatternType.ShortDecimal),
+				$"{x.SourceKind}->{x.DestinationKind}",
+				x.Reason
+			}),
+			new List<string> { "When", "Actor", "Amount", "Balance", "Route", "Reason" },
+			actor.LineFormatLength,
+			colour: Telnet.Green,
+			unicodeTable: actor.Account.UseUnicode));
+	}
+
 	private static void StableFee(ICharacter actor, StringStack ss)
 	{
 		if (!DoStableCommandFindStable(actor, out var stable))
@@ -721,21 +851,26 @@ Administrators can also use:
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Which bank account should receive stable fees?");
+			actor.OutputHandler.Send("Which bank account should receive stable fees, or NONE?");
 			return;
 		}
 
-		var (account, error) = MudSharp.Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
-		if (account is null)
+		IBankAccount? account = null;
+		if (!ss.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
 		{
-			actor.OutputHandler.Send(error);
-			return;
-		}
+			var (foundAccount, error) = MudSharp.Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
+			account = foundAccount;
+			if (account is null)
+			{
+				actor.OutputHandler.Send(error);
+				return;
+			}
 
-		if (account.Currency != zone.Currency)
-		{
-			actor.OutputHandler.Send($"That bank account is not in {zone.Currency.Name.ColourName()}.");
-			return;
+			if (account.Currency != zone.Currency)
+			{
+				actor.OutputHandler.Send($"That bank account is not in {zone.Currency.Name.ColourName()}.");
+				return;
+			}
 		}
 
 		var stable = new Stable(zone, actor.Location, account, name);
@@ -1470,12 +1605,6 @@ Administrators can also use:
 			return true;
 		}
 
-		if (stable.BankAccount is null || stable.BankAccount.Currency != stable.Currency)
-		{
-			error = "This stable does not have a valid bank account for receipts.";
-			return false;
-		}
-
 		switch (payment.Kind)
 		{
 			case StablePaymentKind.Cash:
@@ -1540,7 +1669,10 @@ Administrators can also use:
 				return;
 			case StablePaymentKind.BankPaymentItem:
 				payment.PaymentItem!.BankAccount.WithdrawFromTransaction(amount, reference);
-				stable.BankAccount!.DepositFromTransaction(amount, reference);
+				payment.PaymentItem.BankAccount.Bank.CurrencyReserves[stable.Currency] -= amount;
+				payment.PaymentItem.BankAccount.Bank.Changed = true;
+				VirtualCashLedger.CreditBankOrVirtual(stable, stable.Currency, amount, actor, actor, "BankPaymentItem",
+					reference, stable.BankAccount, stable.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
 				if (payment.PaymentItem.CurrentUsesRemaining > 0)
 				{
 					payment.PaymentItem.CurrentUsesRemaining--;
@@ -1564,7 +1696,8 @@ Administrators can also use:
 			item.Key.Parent.Delete();
 		}
 
-		stable.BankAccount!.DepositFromTransaction(amount, reference);
+		VirtualCashLedger.Credit(stable, stable.Currency, amount, actor, actor, "Cash", reference,
+			stable.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
 		var change = value - amount;
 		if (change <= 0.0M)
 		{

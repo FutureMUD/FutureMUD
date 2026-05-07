@@ -83,6 +83,7 @@ namespace MudSharp.RPG.Law
         IPatrolController PatrolController { get; }
         IEnumerable<IPatrol> Patrols { get; }
         IBankAccount BankAccount { get; }
+        decimal CashBalance { get; }
 
         void AddPatrol(IPatrol patrol);
         void RemovePatrol(IPatrol patrol);

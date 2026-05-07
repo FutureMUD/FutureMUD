@@ -186,23 +186,27 @@ public partial class EditableItemHelper
             if (input.IsFinished)
             {
                 actor.OutputHandler.Send(
-                    "You must specify a bank account into which any proceeds will be transferred. Use the format BANKCODE:ACCOUNT#.");
+                    "You must specify a bank account into which any proceeds will be transferred, or NONE for a cash-only auction house.");
                 return;
             }
 
             string bankString = input.PopSpeech();
-            (IBankAccount accountTarget, string error) = Bank.FindBankAccount(bankString, null, actor);
-            if (accountTarget == null)
+            IBankAccount accountTarget = null;
+            if (!bankString.EqualToAny("none", "clear", "remove"))
             {
-                actor.OutputHandler.Send(error);
-                return;
-            }
+                (accountTarget, string error) = Bank.FindBankAccount(bankString, null, actor);
+                if (accountTarget == null)
+                {
+                    actor.OutputHandler.Send(error);
+                    return;
+                }
 
-            if (accountTarget.Currency != zone.Currency)
-            {
-                actor.OutputHandler.Send(
-                    $"That account uses {accountTarget.Currency.Name.ColourName()}, but auction houses in the {zone.Name.ColourName()} economic zone must use {zone.Currency.Name.ColourName()}.");
-                return;
+                if (accountTarget.Currency != zone.Currency)
+                {
+                    actor.OutputHandler.Send(
+                        $"That account uses {accountTarget.Currency.Name.ColourName()}, but auction houses in the {zone.Name.ColourName()} economic zone must use {zone.Currency.Name.ColourName()}.");
+                    return;
+                }
             }
 
             if (actor.Gameworld.AuctionHouses.Any(x => x.Name.EqualTo(name)))

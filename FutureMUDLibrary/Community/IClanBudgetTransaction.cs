@@ -4,13 +4,15 @@ using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.TimeAndDate;
 
+#nullable enable
+
 namespace MudSharp.Community;
 
 public interface IClanBudgetTransaction : IFrameworkItem
 {
 	IClanBudget Budget { get; }
 	ICharacter Actor { get; }
-	IBankAccount BankAccount { get; }
+	IBankAccount? BankAccount { get; }
 	ICurrency Currency { get; }
 	decimal Amount { get; }
 	MudDateTime TransactionTime { get; }

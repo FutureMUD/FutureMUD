@@ -5685,12 +5685,12 @@ Additionally, if you are the manager of a bank, you can use the following additi
 The syntax for using this command is as follows:
 
 	#3auction preview <lot>#0 - view an auction lot currently being auctioned
-	#3auction sell <item> <price> <bank code>:<accn> [<buyout price>]#0 - lists an item for sale
-	#3auction sell property <property> <price> <bank code>:<accn> [<buyout price>]#0 - lists your ownership share in a property for sale
-	#3auction bid <lot> <bid>#0 - makes a bid on an auction lot
-	#3auction buyout <lot>#0 - pays the buyout price on an auction lot
+	#3auction sell <item> <price> <bank code>:<accn>|cash [<buyout price>]#0 - lists an item for sale
+	#3auction sell property <property> <price> <bank code>:<accn>|cash [<buyout price>]#0 - lists your ownership share in a property for sale
+	#3auction bid <lot> <bid> [bank <account>]#0 - makes a bid on an auction lot
+	#3auction buyout <lot> [bank <account>]#0 - pays the buyout price on an auction lot
 	#3auction claim#0 - claims all movable items won or not sold
-	#3auction refund#0 - claims all money owed for unsuccessful bids
+	#3auction refund#0 - claims all money owed for unsuccessful bids or cash seller proceeds
 	#3auction cancel <lot>#0 - cancels an auction lot";
 
     public const string AuctionsHelp =
@@ -5711,12 +5711,15 @@ The syntax for using this command is as follows:
 	#3auction edit <which>#0 - begins editing an auction house
 	#3auction close#0 - stops editing an auction house
 	#3auction show <which>#0 - views an auction house
-	#3auction edit new <name> <economic zone> <bank>#0 - creates a new auction house based in your current location
+	#3auction edit new <name> <economic zone> <bank>|none#0 - creates a new auction house based in your current location
 	#3auction set name <name>#0 - renames the auction house
 	#3auction set economiczone <which>#0 - changes the economic zone
 	#3auction set fee <amount>#0 - sets the flat fee for listing an item
 	#3auction set rate <%>#0 - sets the percentage fee for listing an item
-	#3auction set bank <bank code>:<accn>#0 - changes the bank account for revenues
+	#3auction set bank <bank code>:<accn>|none#0 - changes or clears the bank account for revenues
+	#3auction set deposit <amount>#0 - deposits cash into the auction house reserve
+	#3auction set withdraw <amount>#0 - withdraws cash from the auction house reserve
+	#3auction set ledger [count]#0 - reviews reserve ledger entries
 	#3auction set time <time period>#0 - sets the amount of time auctions run for
 	#3auction set location#0 - changes the location of the auction house to the current cell
 
@@ -5725,12 +5728,12 @@ There is also the player version of the command, which is used to interact with 
 The syntax for using this command is as follows:
 
 	#3auction preview <lot>#0 - view an auction lot currently being auctioned
-	#3auction sell <item> <price> <bank code>:<accn> [<buyout price>]#0 - lists an item for sale
-	#3auction sell property <property> <price> <bank code>:<accn> [<buyout price>]#0 - lists your ownership share in a property for sale
-	#3auction bid <lot> <bid>#0 - makes a bid on an auction lot
-	#3auction buyout <lot>#0 - pays the buyout price on an auction lot
+	#3auction sell <item> <price> <bank code>:<accn>|cash [<buyout price>]#0 - lists an item for sale
+	#3auction sell property <property> <price> <bank code>:<accn>|cash [<buyout price>]#0 - lists your ownership share in a property for sale
+	#3auction bid <lot> <bid> [bank <account>]#0 - makes a bid on an auction lot
+	#3auction buyout <lot> [bank <account>]#0 - pays the buyout price on an auction lot
 	#3auction claim#0 - claims all movable items won or not sold
-	#3auction refund#0 - claims all money owed for unsuccessful bids
+	#3auction refund#0 - claims all money owed for unsuccessful bids or cash seller proceeds
 	#3auction cancel <lot>#0 - cancels an auction lot
 
 Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
@@ -5800,7 +5803,15 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             return;
         }
 
-        AuctionItem item = ResolveAuctionLot(actor, auctionHouse, ss.SafeRemainingArgument);
+        var buyoutParts = new StringStack(ss.RemainingArgument).PopSpeechAll().ToList();
+        string bankReference = null;
+        if (buyoutParts.Count >= 3 && buyoutParts[^2].EqualTo("bank"))
+        {
+            bankReference = buyoutParts[^1];
+            buyoutParts.RemoveRange(buyoutParts.Count - 2, 2);
+        }
+
+        AuctionItem item = ResolveAuctionLot(actor, auctionHouse, string.Join(" ", buyoutParts));
         if (item == null)
         {
             actor.OutputHandler.Send("There is no such item currently being auctioned.");
@@ -5999,47 +6010,57 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
         if (ss.IsFinished)
         {
             actor.OutputHandler.Send(
-                "You must specify a bank account into which any proceeds will be transferred. Use the format BANKCODE:ACCOUNT#.");
+                "You must specify a bank account into which any proceeds will be transferred, or CASH to collect proceeds from the auction house.");
             return;
         }
 
         string bankString = ss.PopSpeech();
-        string[] split = bankString.Split(':');
-        if (split.Length != 2)
+        IFrameworkItem payoutTarget;
+        if (bankString.EqualToAny("cash", "none"))
         {
-            actor.OutputHandler.Send($"You must use the format BANKCODE:ACCOUNT# to specify the bank account.");
-            return;
+            payoutTarget = actor;
         }
-
-        IBank bankTarget = actor.Gameworld.Banks.GetByName(split[0]) ??
-                         actor.Gameworld.Banks.FirstOrDefault(x =>
-                             x.Code.StartsWith(split[0], StringComparison.InvariantCultureIgnoreCase));
-        if (bankTarget == null)
+        else
         {
-            actor.OutputHandler.Send("There is no bank with that name or bank code.");
-            return;
-        }
+            string[] split = bankString.Split(':');
+            if (split.Length != 2)
+            {
+                actor.OutputHandler.Send($"You must use the format BANKCODE:ACCOUNT# to specify the bank account, or CASH.");
+                return;
+            }
 
-        if (!int.TryParse(split[1], out int accn) || accn <= 0)
-        {
-            actor.OutputHandler.Send("The account number to transfer money into must be a number greater than zero.");
-            return;
-        }
+            IBank bankTarget = actor.Gameworld.Banks.GetByName(split[0]) ??
+                             actor.Gameworld.Banks.FirstOrDefault(x =>
+                                 x.Code.StartsWith(split[0], StringComparison.InvariantCultureIgnoreCase));
+            if (bankTarget == null)
+            {
+                actor.OutputHandler.Send("There is no bank with that name or bank code.");
+                return;
+            }
 
-        IBankAccount accountTarget = bankTarget.BankAccounts.FirstOrDefault(x =>
-            x.AccountNumber == accn && x.AccountStatus == BankAccountStatus.Active);
-        if (accountTarget == null)
-        {
-            actor.OutputHandler.Send(
-                $"The supplied account number is not a valid account number for {bankTarget.Name.ColourName()}.");
-            return;
-        }
+            if (!int.TryParse(split[1], out int accn) || accn <= 0)
+            {
+                actor.OutputHandler.Send("The account number to transfer money into must be a number greater than zero.");
+                return;
+            }
 
-        if (accountTarget.Currency != auctionHouse.EconomicZone.Currency)
-        {
-            actor.OutputHandler.Send(
-                $"That account uses {accountTarget.Currency.Name.ColourName()}, but this auction house uses {auctionHouse.EconomicZone.Currency.Name.ColourName()}.");
-            return;
+            IBankAccount accountTarget = bankTarget.BankAccounts.FirstOrDefault(x =>
+                x.AccountNumber == accn && x.AccountStatus == BankAccountStatus.Active);
+            if (accountTarget == null)
+            {
+                actor.OutputHandler.Send(
+                    $"The supplied account number is not a valid account number for {bankTarget.Name.ColourName()}.");
+                return;
+            }
+
+            if (accountTarget.Currency != auctionHouse.EconomicZone.Currency)
+            {
+                actor.OutputHandler.Send(
+                    $"That account uses {accountTarget.Currency.Name.ColourName()}, but this auction house uses {auctionHouse.EconomicZone.Currency.Name.ColourName()}.");
+                return;
+            }
+
+            payoutTarget = accountTarget;
         }
 
         decimal buyout = 0.0M;
@@ -6106,7 +6127,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
                 {
                     Asset = propertySale ? property : item,
                     Seller = actor,
-                    PayoutTarget = accountTarget,
+                    PayoutTarget = payoutTarget,
                     PropertyShare = propertyShare,
                     ListingDateTime = auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime,
                     FinishingDateTime =
@@ -6136,7 +6157,15 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             return;
         }
 
-        AuctionItem item = ResolveAuctionLot(actor, auctionHouse, ss.SafeRemainingArgument);
+        var buyoutParts = new StringStack(ss.RemainingArgument).PopSpeechAll().ToList();
+        string bankReference = null;
+        if (buyoutParts.Count >= 3 && buyoutParts[^2].EqualTo("bank"))
+        {
+            bankReference = buyoutParts[^1];
+            buyoutParts.RemoveRange(buyoutParts.Count - 2, 2);
+        }
+
+        AuctionItem item = ResolveAuctionLot(actor, auctionHouse, string.Join(" ", buyoutParts));
         if (item == null)
         {
             actor.OutputHandler.Send("There is no such item currently being auctioned.");
@@ -6160,6 +6189,50 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
         }
 
         ICurrency currency = auctionHouse.EconomicZone.Currency;
+        var sourceKind = "Cash";
+        if (!string.IsNullOrWhiteSpace(bankReference))
+        {
+            var (account, error) = MudSharp.Economy.Banking.Bank.FindBankAccount(bankReference, null, actor);
+            if (account is null)
+            {
+                actor.OutputHandler.Send(error);
+                return;
+            }
+
+            if (!account.IsAuthorisedAccountUser(actor))
+            {
+                actor.OutputHandler.Send("You are not an authorised user for that bank account.");
+                return;
+            }
+
+            if (account.Currency != currency)
+            {
+                actor.OutputHandler.Send($"That account is not in {currency.Name.ColourName()}.");
+                return;
+            }
+
+            var (truth, withdrawError) = account.CanWithdraw(amount, false);
+            if (!truth)
+            {
+                actor.OutputHandler.Send(withdrawError);
+                return;
+            }
+
+            account.WithdrawFromTransaction(amount, $"Auction buyout at {auctionHouse.Name}");
+            account.Bank.CurrencyReserves[currency] -= amount;
+            account.Bank.Changed = true;
+            sourceKind = "BankAccount";
+            auctionHouse.BuyoutItem(item, new AuctionBid
+            {
+                Bidder = actor,
+                Bid = amount,
+                BidDateTime = auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime
+            }, sourceKind);
+            actor.OutputHandler.Send(
+                $"You pay the buyout price of {currency.Describe(amount, CurrencyDescriptionPatternType.Short).ColourValue()} on {DescribeAuctionLot(actor, item)} at {auctionHouse.Name.ColourName()} from {account.AccountReference.ColourValue()}.");
+            return;
+        }
+
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = currency.FindCurrency(actor.Body.HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
         if (!targetCoins.Any())
@@ -6196,7 +6269,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             Bidder = actor,
             Bid = amount,
             BidDateTime = auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime
-        });
+        }, sourceKind);
         string moneyDescription = currency.Describe(amount, CurrencyDescriptionPatternType.Short)
                                        .ColourValue();
         actor.OutputHandler.Send(
@@ -6272,6 +6345,13 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             return;
         }
 
+        string bankReference = null;
+        if (bidParts.Count >= 4 && bidParts[^2].EqualTo("bank"))
+        {
+            bankReference = bidParts[^1];
+            bidParts.RemoveRange(bidParts.Count - 2, 2);
+        }
+
         string bidText = bidParts.Last();
         string lotText = string.Join(" ", bidParts.Take(bidParts.Count - 1));
         AuctionItem item = ResolveAuctionLot(actor, auctionHouse, lotText);
@@ -6302,6 +6382,51 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
         {
             actor.OutputHandler.Send(
                 $"Your bid for {DescribeAuctionLot(actor, item)} must be higher than {currency.Describe(nextBidMinimum, CurrencyDescriptionPatternType.Short).ColourValue()}.");
+            return;
+        }
+
+        var sourceKind = "Cash";
+        if (!string.IsNullOrWhiteSpace(bankReference))
+        {
+            var (account, error) = MudSharp.Economy.Banking.Bank.FindBankAccount(bankReference, null, actor);
+            if (account is null)
+            {
+                actor.OutputHandler.Send(error);
+                return;
+            }
+
+            if (!account.IsAuthorisedAccountUser(actor))
+            {
+                actor.OutputHandler.Send("You are not an authorised user for that bank account.");
+                return;
+            }
+
+            if (account.Currency != currency)
+            {
+                actor.OutputHandler.Send($"That account is not in {currency.Name.ColourName()}.");
+                return;
+            }
+
+            var (truth, withdrawError) = account.CanWithdraw(amount, false);
+            if (!truth)
+            {
+                actor.OutputHandler.Send(withdrawError);
+                return;
+            }
+
+            account.WithdrawFromTransaction(amount, $"Auction bid at {auctionHouse.Name}");
+            account.Bank.CurrencyReserves[currency] -= amount;
+            account.Bank.Changed = true;
+            sourceKind = "BankAccount";
+            auctionHouse.AddBid(item, new AuctionBid
+            {
+                Bidder = actor,
+                Bid = amount,
+                BidDateTime = auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime
+            }, sourceKind);
+
+            actor.OutputHandler.Send(
+                $"You bid {currency.Describe(amount, CurrencyDescriptionPatternType.Short).ColourValue()} on {DescribeAuctionLot(actor, item)} at {auctionHouse.Name.ColourName()} from {account.AccountReference.ColourValue()}.");
             return;
         }
 
@@ -6341,7 +6466,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             Bidder = actor,
             Bid = amount,
             BidDateTime = auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime
-        });
+        }, sourceKind);
 
         string moneyDescription = currency.Describe(amount, CurrencyDescriptionPatternType.Short)
                                        .ColourValue();
@@ -8736,38 +8861,84 @@ Note: There may be additional properties that can be edited depending on the typ
         }
 
         IJobListing job = effect.EditingItem;
-        if (!actor.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out decimal amount))
+        var amountText = ss.PopSpeech();
+        if (!actor.Currency.TryGetBaseCurrency(amountText, out decimal amount))
         {
             actor.OutputHandler.Send(
-                $"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid amount of {actor.Currency.Name.ColourValue()}.");
+                $"The text {amountText.ColourCommand()} is not a valid amount of {actor.Currency.Name.ColourValue()}.");
             return;
         }
 
-        if (job.MoneyPaidIn[actor.Currency] >= amount)
-        {
-            job.MoneyPaidIn[actor.Currency] -= amount;
-            job.Changed = true;
-            IGameItem pile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(actor.Currency,
-                actor.Currency.FindCoinsForAmount(amount, out _));
-            actor.OutputHandler.Send(
-                $"You withdraw {actor.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from the coffers of job {job.Name.ColourName()}.");
-            if (actor.Body.CanGet(pile, 0))
-            {
-                actor.Body.Get(pile, 0, silent: true);
-            }
-            else
-            {
-                pile.RoomLayer = actor.RoomLayer;
-                actor.Location.Insert(pile, true);
-                pile.PositionTarget = actor;
-                actor.OutputHandler.Send($"You couldn't hold {pile.HowSeen(actor)}, so it is on the ground.");
-            }
+		if (job.MoneyPaidIn[actor.Currency] < amount)
+		{
+			actor.OutputHandler.Send(
+				$"There is not enough money in the coffers of {job.Name.ColourName()} for you to withdraw that much.");
+			return;
+		}
 
-            return;
-        }
+		IBankAccount? account = null;
+		if (!ss.IsFinished)
+		{
+			var bankText = ss.PopSpeech();
+			if (!bankText.EqualTo("bank") || ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Use BANK <account> if you want to withdraw job funds to a bank account.");
+				return;
+			}
 
-        actor.OutputHandler.Send(
-            $"There is not enough money in the coffers of {job.Name.ColourName()} for you to withdraw that much.");
+			var (foundAccount, error) = MudSharp.Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
+			if (foundAccount is null)
+			{
+				actor.OutputHandler.Send(error);
+				return;
+			}
+
+			if (!actor.IsAdministrator() && !foundAccount.IsAuthorisedAccountUser(actor))
+			{
+				actor.OutputHandler.Send("You are not authorised to use that bank account.");
+				return;
+			}
+
+			if (foundAccount.Currency != actor.Currency)
+			{
+				actor.OutputHandler.Send($"That bank account is not in {actor.Currency.Name.ColourName()}.");
+				return;
+			}
+
+			account = foundAccount;
+		}
+
+		job.MoneyPaidIn[actor.Currency] -= amount;
+		job.Changed = true;
+		if (account is not null)
+		{
+			account.DepositFromTransaction(amount, $"Job coffer withdrawal from {job.Name}");
+			account.Bank.CurrencyReserves[actor.Currency] += amount;
+			account.Bank.Changed = true;
+			VirtualCashLedger.Record(job, actor.Currency, -amount, job.MoneyPaidIn[actor.Currency], actor, account,
+				"JobCoffer", "Bank", $"Job coffer withdrawal from {job.Name}", null, account);
+			actor.OutputHandler.Send(
+				$"You withdraw {actor.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from the coffers of job {job.Name.ColourName()} to {account.AccountReference.ColourValue()}.");
+			return;
+		}
+
+		VirtualCashLedger.Record(job, actor.Currency, -amount, job.MoneyPaidIn[actor.Currency], actor, actor,
+			"JobCoffer", "Cash", $"Job coffer cash withdrawal from {job.Name}");
+		IGameItem pile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(actor.Currency,
+			actor.Currency.FindCoinsForAmount(amount, out _));
+		actor.OutputHandler.Send(
+			$"You withdraw {actor.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from the coffers of job {job.Name.ColourName()}.");
+		if (actor.Body.CanGet(pile, 0))
+		{
+			actor.Body.Get(pile, 0, silent: true);
+		}
+		else
+		{
+			pile.RoomLayer = actor.RoomLayer;
+			actor.Location.Insert(pile, true);
+			pile.PositionTarget = actor;
+			actor.OutputHandler.Send($"You couldn't hold {pile.HowSeen(actor)}, so it is on the ground.");
+		}
     }
 
     private static void JobDeposit(ICharacter actor, StringStack ss)
@@ -8793,10 +8964,58 @@ Note: There may be additional properties that can be edited depending on the typ
         }
 
         IJobListing job = effect.EditingItem;
-        if (!actor.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out decimal amount))
+        var amountText = ss.PopSpeech();
+        if (!actor.Currency.TryGetBaseCurrency(amountText, out decimal amount))
         {
             actor.OutputHandler.Send(
-                $"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid amount of {actor.Currency.Name.ColourValue()}.");
+                $"The text {amountText.ColourCommand()} is not a valid amount of {actor.Currency.Name.ColourValue()}.");
+            return;
+        }
+
+        if (!ss.IsFinished)
+        {
+            var bankText = ss.PopSpeech();
+            if (!bankText.EqualTo("bank") || ss.IsFinished)
+            {
+                actor.OutputHandler.Send("Use BANK <account> if you want to fund the job from a bank account.");
+                return;
+            }
+
+            var (account, error) = MudSharp.Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
+            if (account is null)
+            {
+                actor.OutputHandler.Send(error);
+                return;
+            }
+
+            if (!actor.IsAdministrator() && !account.IsAuthorisedAccountUser(actor))
+            {
+                actor.OutputHandler.Send("You are not authorised to use that bank account.");
+                return;
+            }
+
+            if (account.Currency != actor.Currency)
+            {
+                actor.OutputHandler.Send($"That bank account is not in {actor.Currency.Name.ColourName()}.");
+                return;
+            }
+
+            var (truth, bankError) = account.CanWithdraw(amount, false);
+            if (!truth)
+            {
+                actor.OutputHandler.Send(bankError);
+                return;
+            }
+
+            account.WithdrawFromTransaction(amount, $"Job coffer deposit to {job.Name}");
+            account.Bank.CurrencyReserves[actor.Currency] -= amount;
+            account.Bank.Changed = true;
+            job.MoneyPaidIn[actor.Currency] += amount;
+            job.Changed = true;
+            VirtualCashLedger.Record(job, actor.Currency, amount, job.MoneyPaidIn[actor.Currency], actor, account,
+                "Bank", "JobCoffer", $"Job coffer deposit to {job.Name}", null, account);
+            actor.OutputHandler.Send(
+                $"You deposit {actor.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from {account.AccountReference.ColourValue()} into the coffers of the job {job.Name.ColourName()}.");
             return;
         }
 
@@ -8807,6 +9026,8 @@ Note: There may be additional properties that can be edited depending on the typ
             payment.TakePayment(amount);
             job.MoneyPaidIn[actor.Currency] += amount;
             job.Changed = true;
+            VirtualCashLedger.Record(job, actor.Currency, amount, job.MoneyPaidIn[actor.Currency], actor, actor,
+                "Cash", "JobCoffer", $"Job coffer cash deposit to {job.Name}");
             actor.OutputHandler.Send(
                 $"You deposit {actor.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} into the coffers of the job {job.Name.ColourName()}.");
             return;

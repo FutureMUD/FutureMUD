@@ -192,13 +192,9 @@ public class PropertyLease : SaveableItem, IPropertyLease
         Property.ExpireLease(this);
         foreach (IPropertyOwner owner in Property.PropertyOwners)
         {
-            if (owner.RevenueAccount != null)
-            {
-                owner.RevenueAccount.DepositFromTransaction(_bondClaimed * owner.ShareOfOwnership,
-                    $"Claimed bond from {Property.Name}");
-                owner.RevenueAccount.Bank.CurrencyReserves[Property.EconomicZone.Currency] +=
-                    _bondClaimed * owner.ShareOfOwnership;
-            }
+            owner.CreditRevenue(Property.EconomicZone.Currency, _bondClaimed * owner.ShareOfOwnership, null, Property,
+                $"Claimed bond from {Property.Name}",
+                Property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
         }
 
         _leaseOrder.DoEndOfLease(this);
@@ -286,8 +282,9 @@ public class PropertyLease : SaveableItem, IPropertyLease
     {
         foreach (IPropertyOwner owner in _property.PropertyOwners)
         {
-            owner.RevenueAccount.DepositFromTransaction(paymentAmount * owner.ShareOfOwnership,
-                $"Lease Revenue from {_property.Name}");
+            owner.CreditRevenue(_property.EconomicZone.Currency, paymentAmount * owner.ShareOfOwnership, null, _property,
+                $"Lease Revenue from {_property.Name}",
+                _property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
         }
 
         PaymentBalance += paymentAmount;

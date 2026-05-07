@@ -39,7 +39,10 @@ Hotel manager commands:
 	#3roomrent show <property>#0 - shows hotel setup and room state
 	#3roomrent request <property>#0 - requests hotel approval from the economic zone
 	#3roomrent surrender <property>#0 - surrenders hotel approval
-	#3roomrent bank <property> <bankcode:account>#0 - sets the hotel bank account
+	#3roomrent bank <property> <bankcode:account|none>#0 - sets the hotel bank account
+	#3roomrent deposit <property> <amount>#0 - deposits held cash into the hotel cash balance
+	#3roomrent withdraw <property> <amount>#0 - withdraws from the hotel cash balance and bank fallback
+	#3roomrent ledger <property> [count]#0 - reviews hotel cash ledger entries
 	#3roomrent prog <property> <prog|none>#0 - sets who may rent rooms
 	#3roomrent retention <property> <timespan>#0 - sets lost property retention
 	#3roomrent taxes <property>#0 - pays outstanding hotel rental taxes
@@ -107,6 +110,15 @@ Economic zone manager commands:
 				return;
 			case "bank":
 				RoomRentBank(actor, ss);
+				return;
+			case "deposit":
+				RoomRentDeposit(actor, ss);
+				return;
+			case "withdraw":
+				RoomRentWithdraw(actor, ss);
+				return;
+			case "ledger":
+				RoomRentLedger(actor, ss);
 				return;
 			case "prog":
 				RoomRentProg(actor, ss);
@@ -348,12 +360,6 @@ Economic zone manager commands:
 			return true;
 		}
 
-		if (property.HotelBankAccount == null)
-		{
-			actor.OutputHandler.Send($"The {property.Name.ColourName()} hotel does not have a bank account configured.");
-			return false;
-		}
-
 		if (string.IsNullOrWhiteSpace(bankReference))
 		{
 			var payment = new OtherCashPayment(property.EconomicZone.Currency, actor);
@@ -365,6 +371,8 @@ Economic zone manager commands:
 			}
 
 			payment.TakePayment(amount);
+			VirtualCashLedger.Credit(property, property.EconomicZone.Currency, amount, actor, actor, "Cash", reference,
+				property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
 		}
 		else
 		{
@@ -390,11 +398,11 @@ Economic zone manager commands:
 
 			account.WithdrawFromTransaction(amount, $"Hotel payment to {property.Name}");
 			account.Bank.CurrencyReserves[property.EconomicZone.Currency] -= amount;
+			account.Bank.Changed = true;
+			VirtualCashLedger.CreditBankOrVirtual(property, property.EconomicZone.Currency, amount, actor, actor,
+				"BankAccount", reference, property.HotelBankAccount,
+				property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
 		}
-
-		property.HotelBankAccount.DepositFromTransaction(amount, reference);
-		property.HotelBankAccount.Bank.CurrencyReserves[property.EconomicZone.Currency] += amount;
-		property.HotelBankAccount.Bank.Changed = true;
 		return true;
 	}
 
@@ -419,24 +427,15 @@ Economic zone manager commands:
 			return false;
 		}
 
-		if (property.HotelBankAccount == null)
+		if (!VirtualCashLedger.Debit(property, property.EconomicZone.Currency, balance, actor, actor, "HotelRefund",
+			    $"Hotel balance paid to {actor.PersonalName.GetName(NameStyle.FullName)}", property.HotelBankAccount,
+			    property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, out var error))
 		{
 			actor.OutputHandler.Send(
-				$"The {property.Name.ColourName()} hotel owes you {property.EconomicZone.Currency.Describe(balance, CurrencyDescriptionPatternType.Short).ColourValue()}, but it does not have a bank account configured.");
+				$"The {property.Name.ColourName()} hotel owes you {property.EconomicZone.Currency.Describe(balance, CurrencyDescriptionPatternType.Short).ColourValue()}, but it cannot currently pay that out: {error}");
 			return false;
 		}
 
-		(bool truth, string error) = property.HotelBankAccount.CanWithdraw(balance, false);
-		if (!truth)
-		{
-			actor.OutputHandler.Send(
-				$"The {property.Name.ColourName()} hotel owes you {property.EconomicZone.Currency.Describe(balance, CurrencyDescriptionPatternType.Short).ColourValue()}, but its bank account cannot currently pay that out: {error}");
-			return false;
-		}
-
-		property.HotelBankAccount.WithdrawFromTransaction(balance, $"Hotel balance paid to {actor.PersonalName.GetName(NameStyle.FullName)}");
-		property.HotelBankAccount.Bank.CurrencyReserves[property.EconomicZone.Currency] -= balance;
-		property.HotelBankAccount.Bank.Changed = true;
 		property.AdjustHotelBalance(actor, -balance);
 
 		var cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(property.EconomicZone.Currency,
@@ -719,6 +718,8 @@ Economic zone manager commands:
 		sb.AppendLine($"Hotel Setup for {property.Name.ColourName()}".GetLineWithTitleInner(actor, Telnet.FunctionYellow, Telnet.BoldWhite));
 		sb.AppendLine($"License: {property.HotelLicenseStatus.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Bank: {property.HotelBankAccount?.AccountReference.ColourValue() ?? "None".ColourError()}");
+		sb.AppendLine($"Virtual Cash: {property.EconomicZone.Currency.Describe(property.HotelCashBalance, CurrencyDescriptionPatternType.Short).ColourValue()}");
+		sb.AppendLine($"Available Funds: {property.EconomicZone.Currency.Describe(property.HotelAvailableFunds, CurrencyDescriptionPatternType.Short).ColourValue()}");
 		sb.AppendLine($"Can Rent Prog: {property.HotelCanRentProg?.MXPClickableFunctionNameWithId() ?? "None".ColourError()}");
 		sb.AppendLine($"Lost Property Retention: {((TimeSpan)property.HotelLostPropertyRetention).Describe(actor).ColourValue()}");
 		sb.AppendLine($"Outstanding Taxes: {property.EconomicZone.Currency.Describe(property.HotelOutstandingTaxes, CurrencyDescriptionPatternType.Short).ColourValue()}");
@@ -811,7 +812,14 @@ Economic zone manager commands:
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Which bank account do you want this hotel to use?");
+			actor.OutputHandler.Send("Which bank account do you want this hotel to use, or NONE?");
+			return;
+		}
+
+		if (ss.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
+		{
+			property.HotelBankAccount = null;
+			actor.OutputHandler.Send($"{property.Name.ColourName()} no longer has a linked hotel bank account.");
 			return;
 		}
 
@@ -831,6 +839,102 @@ Economic zone manager commands:
 		property.HotelBankAccount = account;
 		actor.OutputHandler.Send(
 			$"You set {property.Name.ColourName()}'s hotel bank account to {account.AccountReference.ColourValue()}.");
+	}
+
+	private static void RoomRentDeposit(ICharacter actor, StringStack ss)
+	{
+		var property = FindOwnedHotelProperty(actor, ss, "deposit cash into");
+		if (property == null)
+		{
+			return;
+		}
+
+		if (ss.IsFinished || !property.EconomicZone.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var amount) || amount <= 0.0M)
+		{
+			actor.OutputHandler.Send($"How much {property.EconomicZone.Currency.Name.ColourName()} do you want to deposit?");
+			return;
+		}
+
+		var payment = new OtherCashPayment(property.EconomicZone.Currency, actor);
+		if (payment.AccessibleMoneyForPayment() < amount)
+		{
+			actor.OutputHandler.Send(
+				$"You are only holding {property.EconomicZone.Currency.Describe(payment.AccessibleMoneyForPayment(), CurrencyDescriptionPatternType.Short).ColourValue()}.");
+			return;
+		}
+
+		payment.TakePayment(amount);
+		VirtualCashLedger.Credit(property, property.EconomicZone.Currency, amount, actor, actor, "Cash",
+			"Hotel manager cash deposit", property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
+		actor.OutputHandler.Send(
+			$"You deposit {property.EconomicZone.Currency.Describe(amount, CurrencyDescriptionPatternType.Short).ColourValue()} into {property.Name.ColourName()}'s hotel cash balance.");
+	}
+
+	private static void RoomRentWithdraw(ICharacter actor, StringStack ss)
+	{
+		var property = FindOwnedHotelProperty(actor, ss, "withdraw hotel cash from");
+		if (property == null)
+		{
+			return;
+		}
+
+		if (ss.IsFinished || !property.EconomicZone.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var amount) || amount <= 0.0M)
+		{
+			actor.OutputHandler.Send($"How much {property.EconomicZone.Currency.Name.ColourName()} do you want to withdraw?");
+			return;
+		}
+
+		if (!VirtualCashLedger.Debit(property, property.EconomicZone.Currency, amount, actor, actor, "CashWithdrawal",
+			    "Hotel manager cash withdrawal", property.HotelBankAccount,
+			    property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, out var error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		var cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(property.EconomicZone.Currency,
+			property.EconomicZone.Currency.FindCoinsForAmount(amount, out _));
+		GiveItemToActor(actor, cash, "You couldn't hold the money, so it is on the ground.");
+		actor.OutputHandler.Send(
+			$"You withdraw {property.EconomicZone.Currency.Describe(amount, CurrencyDescriptionPatternType.Short).ColourValue()} from {property.Name.ColourName()}'s hotel cash balance.");
+	}
+
+	private static void RoomRentLedger(ICharacter actor, StringStack ss)
+	{
+		var property = FindOwnedHotelProperty(actor, ss, "review the hotel ledger for");
+		if (property == null)
+		{
+			return;
+		}
+
+		var count = 25;
+		if (!ss.IsFinished && (!int.TryParse(ss.SafeRemainingArgument, out count) || count <= 0))
+		{
+			actor.OutputHandler.Send("How many ledger entries do you want to review?");
+			return;
+		}
+
+		var entries = VirtualCashLedger.LedgerEntries(property, count).ToList();
+		if (!entries.Any())
+		{
+			actor.OutputHandler.Send($"{property.Name.ColourName()} does not have any hotel cash ledger entries.");
+			return;
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			entries.Select(x => new List<string>
+			{
+				x.RealDateTime.ToString("g", actor),
+				x.ActorName ?? string.Empty,
+				property.EconomicZone.Currency.Describe(x.Amount, CurrencyDescriptionPatternType.Short),
+				property.EconomicZone.Currency.Describe(x.BalanceAfter, CurrencyDescriptionPatternType.Short),
+				$"{x.SourceKind}->{x.DestinationKind}",
+				x.Reason
+			}),
+			new List<string> { "When", "Actor", "Amount", "Balance", "Route", "Reason" },
+			actor.LineFormatLength,
+			colour: Telnet.Green,
+			unicodeTable: actor.Account.UseUnicode));
 	}
 
 	private static void RoomRentProg(ICharacter actor, StringStack ss)
@@ -922,23 +1026,18 @@ Economic zone manager commands:
 			return;
 		}
 
-		if (property.HotelBankAccount == null)
-		{
-			actor.OutputHandler.Send($"{property.Name.ColourName()} does not have a hotel bank account configured.");
-			return;
-		}
-
-		(bool truth, string error) = property.HotelBankAccount.CanWithdraw(taxes, false);
-		if (!truth)
+		if (!VirtualCashLedger.Debit(property, property.EconomicZone.Currency, taxes, actor, property.EconomicZone,
+			    "TaxPayment", $"Hotel rental taxes for {property.Name}", property.HotelBankAccount,
+			    property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, out var error))
 		{
 			actor.OutputHandler.Send(error);
 			return;
 		}
 
-		property.HotelBankAccount.WithdrawFromTransaction(taxes, $"Hotel rental taxes for {property.Name}");
-		property.HotelBankAccount.Bank.CurrencyReserves[property.EconomicZone.Currency] -= taxes;
-		property.HotelBankAccount.Bank.Changed = true;
 		property.EconomicZone.TotalRevenueHeld += taxes;
+		VirtualCashLedger.Credit(property.EconomicZone, property.EconomicZone.Currency, taxes, actor, property, "HotelTax",
+			$"Hotel rental taxes for {property.Name}",
+			property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, property);
 		property.HotelOutstandingTaxes = 0.0M;
 		actor.OutputHandler.Send(
 			$"You pay {property.EconomicZone.Currency.Describe(taxes, CurrencyDescriptionPatternType.Short).ColourValue()} in hotel rental taxes for {property.Name.ColourName()}.");

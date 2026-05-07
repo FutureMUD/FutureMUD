@@ -798,7 +798,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
                 entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
                 entity.Property(e => e.AuctionHouseCellId).HasColumnType("bigint(20)");
-                entity.Property(e => e.ProfitsBankAccountId).HasColumnType("bigint(20)");
+                entity.Property(e => e.ProfitsBankAccountId).IsRequired(false).HasColumnType("bigint(20)");
                 entity.Property(e => e.DefaultListingTime).HasColumnType("double");
                 entity.Property(e => e.AuctionListingFeeFlat).HasColumnType("decimal(58,29)");
                 entity.Property(e => e.AuctionListingFeeRate).HasColumnType("decimal(58,29)");
@@ -826,7 +826,7 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.ProfitsBankAccount)
                     .WithMany()
                     .HasForeignKey(d => d.ProfitsBankAccountId)
-                    .OnDelete(DeleteBehavior.Cascade)
+                    .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_AuctionHouses_BankAccounts");
             });
 

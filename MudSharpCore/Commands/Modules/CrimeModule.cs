@@ -1622,8 +1622,11 @@ The syntax is as follows:
                     }
 
                     account.WithdrawFromTransaction(bail, "Making bail");
-                    authority.BankAccount?.DepositFromTransaction(bail,
-                        $"Bail deposit for {actor.PersonalName.GetName(NameStyle.FullName)}");
+                    account.Bank.CurrencyReserves[authority.Currency] -= bail;
+                    account.Bank.Changed = true;
+                    VirtualCashLedger.CreditBankOrVirtual(authority, authority.Currency, bail, actor, actor,
+                        "BankAccount", $"Bail deposit for {actor.PersonalName.GetName(NameStyle.FullName)}",
+                        authority.BankAccount, authority.EnforcementZones.First().DateTime());
                     bailText = $"with funds from the bank account {account.AccountReference.ColourValue()}";
                 }
                 else
@@ -1664,12 +1667,9 @@ The syntax is as follows:
                                 currency.FindCoinsForAmount(change, out _)));
                     }
 
-                    if (authority.BankAccount is not null)
-                    {
-                        authority.BankAccount.Bank.CurrencyReserves[currency] += bail;
-                        authority.BankAccount.DepositFromTransaction(bail,
-                            $"Bail deposit for {actor.PersonalName.GetName(NameStyle.FullName)}");
-                    }
+                    VirtualCashLedger.Credit(authority, currency, bail, actor, actor, "Cash",
+                        $"Bail deposit for {actor.PersonalName.GetName(NameStyle.FullName)}",
+                        authority.EnforcementZones.First().DateTime());
 
                     bailText = "with cash from your stored belongings";
                 }
@@ -1773,8 +1773,11 @@ The syntax is as follows:
             }
 
             account.WithdrawFromTransaction(calculatedBail, "Paying for someone else's bail");
-            jurisdiction.BankAccount?.DepositFromTransaction(calculatedBail,
-                $"Bail deposit for {who.PersonalName.GetName(NameStyle.FullName)}");
+            account.Bank.CurrencyReserves[jurisdiction.Currency] -= calculatedBail;
+            account.Bank.Changed = true;
+            VirtualCashLedger.CreditBankOrVirtual(jurisdiction, jurisdiction.Currency, calculatedBail, actor, who,
+                "BankAccount", $"Bail deposit for {who.PersonalName.GetName(NameStyle.FullName)}",
+                jurisdiction.BankAccount, jurisdiction.EnforcementZones.First().DateTime());
             bailActionText = $"with funds from the bank account {account.AccountReference.ColourValue()}";
         }
         else
@@ -1788,12 +1791,9 @@ The syntax is as follows:
             }
 
             payment.TakePayment(calculatedBail);
-            if (jurisdiction.BankAccount is not null)
-            {
-                jurisdiction.BankAccount.Bank.CurrencyReserves[jurisdiction.Currency] += calculatedBail;
-                jurisdiction.BankAccount.DepositFromTransaction(calculatedBail,
-                    $"Bail deposit for {who.PersonalName.GetName(NameStyle.FullName)}");
-            }
+            VirtualCashLedger.Credit(jurisdiction, jurisdiction.Currency, calculatedBail, actor, who, "Cash",
+                $"Bail deposit for {who.PersonalName.GetName(NameStyle.FullName)}",
+                jurisdiction.EnforcementZones.First().DateTime());
 
             bailActionText = "with cash";
         }
@@ -2147,6 +2147,8 @@ The syntax is as follows:
             }
 
             account.WithdrawFromTransaction(fine, "Paying fines");
+            account.Bank.CurrencyReserves[jurisdiction.Currency] -= fine;
+            account.Bank.Changed = true;
             actionText = $"with funds from the bank account {account.AccountReference.ColourValue()}";
         }
         else

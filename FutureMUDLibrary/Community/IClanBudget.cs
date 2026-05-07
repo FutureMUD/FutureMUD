@@ -6,13 +6,15 @@ using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Intervals;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace MudSharp.Community;
 
 public interface IClanBudget : IFrameworkItem, ISaveable
 {
 	IClan Clan { get; }
 	IAppointment Appointment { get; set; }
-	IBankAccount BankAccount { get; set; }
+	IBankAccount? BankAccount { get; set; }
 	ICurrency Currency { get; }
 	decimal AmountPerPeriod { get; set; }
 	decimal CurrentPeriodDrawdown { get; }
